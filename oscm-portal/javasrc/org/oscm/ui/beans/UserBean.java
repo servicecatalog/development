@@ -30,11 +30,14 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.myfaces.custom.fileupload.UploadedFile;
+
 import org.oscm.internal.intf.ConfigurationService;
 import org.oscm.internal.intf.IdentityService;
+import org.oscm.internal.intf.MarketplaceService;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.types.enumtypes.UserAccountStatus;
 import org.oscm.internal.types.enumtypes.UserRoleType;
+import org.oscm.internal.types.exception.LoginToClosedMarketplaceException;
 import org.oscm.internal.types.exception.MailOperationException;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
@@ -485,7 +488,10 @@ public class UserBean extends BaseBean implements Serializable {
 
             // check service key in session bean; if not set, try to read
             // them from cookie (fallback for re-login after session timeout)
-
+            if (!getMarketplaceService().doesOrganizationHaveAccessMarketplace(
+                    getMarketplaceId(), voUser.getOrganizationId()) && !isServiceProvider()) {
+                throw new LoginToClosedMarketplaceException();
+            }
             Object sb = session.getAttribute(Constants.SESS_ATTR_SESSION_BEAN);
             if (sb != null) {
                 SessionBean sessionBean = (SessionBean) sb;
@@ -524,6 +530,14 @@ public class UserBean extends BaseBean implements Serializable {
                 // changed (important for WS usage)
                 service = serviceAccess.getService(IdentityService.class);
                 service.refreshLdapUser();
+                // check service key in session bean; if not set, try to read
+                // them from cookie (fallback for re-login after session timeout)
+                if (!getMarketplaceService().doesOrganizationHaveAccessMarketplace(
+                        getMarketplaceId(), voUser.getOrganizationId()) && isServiceProvider()) {
+                    session.setAttribute(Constants.SESS_ATTR_USER,
+                            service.getCurrentUserDetails());
+                    throw new LoginToClosedMarketplaceException();
+                }
             } catch (LoginException e) {
                 if (voUser.getKey() > 0) {
                     voUser = service.getUser(voUser);
@@ -561,7 +575,13 @@ public class UserBean extends BaseBean implements Serializable {
             return outcomeObjectNotFoundException(httpRequest, e);
         } catch (CommunicationException e) {
             return outcomeCommunicationException(httpRequest);
+        } catch (LoginToClosedMarketplaceException e) {
+            return outcomeLoginToClosedMarketplaceException(httpRequest);
         }
+    }
+
+    public MarketplaceService getMarketplaceService() {
+        return super.getMarketplaceService();
     }
 
     private String outcomeSaaSApplicationException(
@@ -572,6 +592,19 @@ public class UserBean extends BaseBean implements Serializable {
         } else {
             httpRequest.setAttribute(Constants.REQ_ATTR_ERROR_KEY,
                     BaseBean.ERROR_LOGIN);
+            return OUTCOME_STAY_ON_PAGE;
+        }
+    }
+
+    private String outcomeLoginToClosedMarketplaceException(
+        HttpServletRequest httpRequest) {
+        if (isServiceProvider()) {
+            httpRequest.setAttribute(Constants.REQ_ATTR_ERROR_KEY,
+                    BaseBean.ERROR_ACCESS_TO_CLOSED_MARKETPLACE);
+            return OUTCOME_PUBLIC_ERROR_PAGE;
+        } else {
+            httpRequest.setAttribute(Constants.REQ_ATTR_ERROR_KEY,
+                BaseBean.ERROR_LOGIN_TO_CLOSED_MARKETPLACE);
             return OUTCOME_STAY_ON_PAGE;
         }
     }

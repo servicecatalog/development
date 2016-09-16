@@ -8,12 +8,12 @@
 
 package org.oscm.serviceprovisioningservice.assembler;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.oscm.test.Numbers.L1;
 import static org.oscm.test.Numbers.L150;
 import static org.oscm.test.Numbers.L_MAX;
 import static org.oscm.test.Numbers.L_MIN;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -22,9 +22,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.junit.Assert;
-
 import org.junit.Test;
-
 import org.oscm.converter.PriceConverter;
 import org.oscm.domobjects.Marketplace;
 import org.oscm.domobjects.Parameter;
@@ -36,7 +34,6 @@ import org.oscm.domobjects.PricedProductRole;
 import org.oscm.domobjects.RoleDefinition;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.i18nservice.bean.LocalizerFacade;
-import org.oscm.test.stubs.LocalizerServiceStub;
 import org.oscm.internal.types.enumtypes.ParameterModificationType;
 import org.oscm.internal.types.enumtypes.ParameterType;
 import org.oscm.internal.types.enumtypes.ParameterValueType;
@@ -47,6 +44,7 @@ import org.oscm.internal.vo.VOParameterDefinition;
 import org.oscm.internal.vo.VOPricedOption;
 import org.oscm.internal.vo.VOPricedParameter;
 import org.oscm.internal.vo.VOPricedRole;
+import org.oscm.test.stubs.LocalizerServiceStub;
 
 /**
  * Tests to ensure correct behaviour of the parameter assembler.

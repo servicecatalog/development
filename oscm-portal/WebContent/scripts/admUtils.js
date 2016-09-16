@@ -1797,7 +1797,7 @@ AdmUtils.dataTableSelectCheckboxes = function(prefix, id, value, size) {
 	var field;
 	for ( var i = 0 ; i <= size ; i++) {
 		if((field = document.getElementById(prefix + ":" + i + ":" + id)) != null){
-			if(field.checked != value){
+			if(field.checked != value && !field.disabled){
 				field.checked = value;
 			}
 		}
@@ -2211,4 +2211,56 @@ AdmUtils.adjustDialogHeightOnResize = function(dialogId) {
 	$("#" + dialogId + "Form .responsive-table-panel").height(
 			tablePanelHeight);
 	$("#" + dialogId + "_content").height(dialogHeight + 100);
+}
+
+AdmUtils.IE9PlaceHolderFix = function (searchPhraseProperty, inputId){
+     function hasPlaceholderSupport() {
+      var input = document.createElement('input');
+      return ('placeholder' in input);
+     }
+
+     if(!hasPlaceholderSupport()){
+        var input = document.getElementById(inputId);
+            if(input.getAttribute('placeholder')){
+                input.style.cssText = "color:#939393;font-style:italic;"
+                if (searchPhraseProperty != ''){
+                    this.value = searchPhraseProperty;
+                } else {
+                    input.value = input.getAttribute('placeholder');
+                }
+                input.onblur = function(){
+                    if (this.value == ''){
+                        this.value = this.getAttribute("placeholder");
+                    }
+                }
+            }
+     }
+}
+
+AdmUtils.IE9OnClick = function (id){
+     function hasPlaceholderSupport() {
+       var input = document.createElement('input');
+       return ('placeholder' in input);
+     }
+     if(!hasPlaceholderSupport()){
+
+        var input = document.getElementById(id);
+            if (input.value == input.getAttribute("placeholder")){
+                input.value = '';
+            }
+     }
+}
+
+AdmUtils.IE9AfterClick = function (id){
+     function hasPlaceholderSupport() {
+       var input = document.createElement('input');
+       return ('placeholder' in input);
+     }
+     if(!hasPlaceholderSupport()){
+
+        var input = document.getElementById(id);
+            if (input.value == ''){
+                input.value = input.getAttribute("placeholder");
+            }
+     }
 }

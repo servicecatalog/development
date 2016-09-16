@@ -1,9 +1,9 @@
 language: java
 sudo: required
 jdk: oraclejdk7
-cache:
-  directories:
-    - $TRAVIS_BUILD_DIR/libraries
+#cache:
+#  directories:
+#    - $TRAVIS_BUILD_DIR/libraries
 before_install:
   - sudo pip install codecov
 install:

@@ -130,3 +130,8 @@ a.linkBtn{
 div#subDetails .labelAndValuePanelCol1{
 	padding: 0px;
 }
+
+select.operationElement{
+	float:left;
+	margin: 2px 20px 0px 0px;
+}

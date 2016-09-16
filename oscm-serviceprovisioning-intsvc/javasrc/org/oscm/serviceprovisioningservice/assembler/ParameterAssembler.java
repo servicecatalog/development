@@ -8,22 +8,17 @@
 
 package org.oscm.serviceprovisioningservice.assembler;
 
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.validator.GenericValidator;
-
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
 import org.oscm.domobjects.Parameter;
 import org.oscm.domobjects.ParameterDefinition;
 import org.oscm.domobjects.ParameterOption;
 import org.oscm.domobjects.ParameterSet;
 import org.oscm.domobjects.PricedParameter;
 import org.oscm.i18nservice.bean.LocalizerFacade;
-import org.oscm.types.enumtypes.LogMessageIdentifier;
-import org.oscm.validator.BLValidator;
-import org.oscm.vo.BaseAssembler;
 import org.oscm.internal.types.enumtypes.ParameterValueType;
 import org.oscm.internal.types.exception.ConcurrentModificationException;
 import org.oscm.internal.types.exception.ValidationException;
@@ -32,6 +27,11 @@ import org.oscm.internal.vo.VOParameter;
 import org.oscm.internal.vo.VOParameterDefinition;
 import org.oscm.internal.vo.VOPricedParameter;
 import org.oscm.internal.vo.VOSteppedPrice;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
+import org.oscm.types.enumtypes.LogMessageIdentifier;
+import org.oscm.validator.BLValidator;
+import org.oscm.vo.BaseAssembler;
 
 /**
  * Assembler to handle parameter definitions and concrete parameter settings.
@@ -90,12 +90,16 @@ public class ParameterAssembler extends BaseAssembler {
      * @return A domain object containing the key, version and value information
      *         of the parameter.
      * @throws ValidationException
+     * @throws GeneralSecurityException 
      */
     public static Parameter toParameter(VOParameter voParameter)
-            throws ValidationException {
+            throws ValidationException{
         Parameter parameter = new Parameter();
         parameter.setConfigurable(voParameter.isConfigurable());
-        parameter.setValue(voParameter.getValue());
+        
+        String paramValue = voParameter.getValue();
+        parameter.setValue(paramValue);
+
         ParameterDefinition definition = toParameterDefinition(voParameter
                 .getParameterDefinition());
         parameter.setParameterDefinition(definition);
@@ -109,12 +113,15 @@ public class ParameterAssembler extends BaseAssembler {
      * @param voParameter
      * @return
      * @throws ConcurrentModificationException
+     * @throws GeneralSecurityException 
      */
     public static Parameter updateParameter(Parameter parameter,
             VOParameter voParameter) throws ConcurrentModificationException {
         verifyVersionAndKey(parameter, voParameter);
         parameter.setConfigurable(voParameter.isConfigurable());
-        parameter.setValue(voParameter.getValue());
+
+        String paramValue = voParameter.getValue();
+        parameter.setValue(paramValue);
         return parameter;
     }
 

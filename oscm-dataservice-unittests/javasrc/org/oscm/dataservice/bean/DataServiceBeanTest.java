@@ -28,37 +28,7 @@ import org.hibernate.Session;
 import org.junit.Before;
 import org.junit.Test;
 
-import org.oscm.domobjects.BillingContact;
-import org.oscm.domobjects.Discount;
-import org.oscm.domobjects.Event;
-import org.oscm.domobjects.Marketplace;
-import org.oscm.domobjects.OnBehalfUserReference;
-import org.oscm.domobjects.OperationParameter;
-import org.oscm.domobjects.Organization;
-import org.oscm.domobjects.OrganizationReference;
-import org.oscm.domobjects.OrganizationRole;
-import org.oscm.domobjects.OrganizationToCountry;
-import org.oscm.domobjects.ParameterDefinition;
-import org.oscm.domobjects.ParameterOption;
-import org.oscm.domobjects.PaymentInfo;
-import org.oscm.domobjects.PaymentType;
-import org.oscm.domobjects.PlatformUser;
-import org.oscm.domobjects.PricedParameter;
-import org.oscm.domobjects.Product;
-import org.oscm.domobjects.ProductReview;
-import org.oscm.domobjects.Report;
-import org.oscm.domobjects.RoleDefinition;
-import org.oscm.domobjects.Subscription;
-import org.oscm.domobjects.SupportedCountry;
-import org.oscm.domobjects.SupportedCurrency;
-import org.oscm.domobjects.SupportedLanguage;
-import org.oscm.domobjects.Tag;
-import org.oscm.domobjects.TechnicalProduct;
-import org.oscm.domobjects.TechnicalProductOperation;
-import org.oscm.domobjects.TechnicalProductTag;
-import org.oscm.domobjects.Uda;
-import org.oscm.domobjects.UdaDefinition;
-import org.oscm.domobjects.UserRole;
+import org.oscm.domobjects.*;
 import org.oscm.internal.types.exception.DomainObjectException.ClassEnum;
 import org.oscm.internal.types.exception.SaaSSystemException;
 
@@ -142,6 +112,8 @@ public class DataServiceBeanTest {
         ce = dataService.class2Enum(PaymentInfo.class);
         assertNotNull(ce);
         ce = dataService.class2Enum(SupportedLanguage.class);
+        assertNotNull(ce);
+        ce = dataService.class2Enum(MarketplaceAccess.class);
         assertNotNull(ce);
     }
 

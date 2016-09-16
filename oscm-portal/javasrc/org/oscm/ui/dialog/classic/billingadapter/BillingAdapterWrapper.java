@@ -8,6 +8,8 @@
 
 package org.oscm.ui.dialog.classic.billingadapter;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import org.oscm.ui.common.JSFUtils;
@@ -21,6 +23,7 @@ import org.oscm.internal.billingadapter.POBillingAdapter;
 public class BillingAdapterWrapper {
 
     private static final String MESSAGE_NEW_ADAPTER = "operator.manageBillingAdapters.newAdapter";
+    private List<ConnectionPropertyItem> connectionProperties;
 
     private POBillingAdapter adapter;
     private boolean active;
@@ -38,6 +41,9 @@ public class BillingAdapterWrapper {
     public BillingAdapterWrapper(POBillingAdapter adapter) {
         this.adapter = adapter;
         this.active = adapter.isActive();
+        connectionProperties = new ArrayList<>();
+        Set<ConnectionPropertyItem> conProps = adapter.getConnectionProperties();
+        connectionProperties.addAll(conProps);
     }
 
     public POBillingAdapter getAdapter() {
@@ -52,8 +58,8 @@ public class BillingAdapterWrapper {
         return adapter.getBillingIdentifier();
     }
 
-    public Set<ConnectionPropertyItem> getConnectionProperties() {
-        return adapter.getConnectionProperties();
+    public List<ConnectionPropertyItem> getConnectionProperties() {
+        return connectionProperties;
     }
 
     public String getName() {
@@ -69,8 +75,8 @@ public class BillingAdapterWrapper {
     }
 
     public void setConnectionProperties(
-            Set<ConnectionPropertyItem> connectionProperties) {
-        adapter.setConnectionProperties(connectionProperties);
+            List<ConnectionPropertyItem> connectionProperties) {
+        this.connectionProperties = connectionProperties;
     }
 
     public boolean isDefaultAdapter() {
@@ -116,20 +122,17 @@ public class BillingAdapterWrapper {
     }
 
     public void addItem() {
-        if (adapter.getConnectionProperties() != null) {
-            adapter.getConnectionProperties().add(
-                    new ConnectionPropertyItem(null, null));
-        }
+        connectionProperties.add(
+                new ConnectionPropertyItem(null, null));
     }
 
-    public void removeItem(ConnectionPropertyItem rowItem) {
-        if (adapter.getConnectionProperties() != null) {
-            adapter.getConnectionProperties().remove(rowItem);
+    public void removeItem(int key) {
+        if (connectionProperties != null) {
+            connectionProperties.remove(key);
         }
     }
 
     public boolean isNativeBilling() {
         return adapter.isNativeBilling();
     }
-
 }

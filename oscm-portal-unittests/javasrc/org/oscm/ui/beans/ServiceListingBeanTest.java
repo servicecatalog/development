@@ -212,9 +212,9 @@ public class ServiceListingBeanTest {
         // given
         doReturn(null).when(servicePagingBean).getSearchPhrase();
         // when
-        serviceListingBean.showServiceListSearch();
+        String result = serviceListingBean.showServiceListSearch();
         // then
-        assertEquals(0, serviceListingBean.searchWithPhrase().size());
+        assertEquals("showServiceList", result);
     }
 
     @Test
@@ -222,9 +222,9 @@ public class ServiceListingBeanTest {
         // given
         doReturn("").when(servicePagingBean).getSearchPhrase();
         // when
-        serviceListingBean.showServiceListSearch();
+        String result = serviceListingBean.showServiceListSearch();
         // then
-        assertEquals(0, serviceListingBean.searchWithPhrase().size());
+        assertEquals("showServiceList", result);
 
     }
 

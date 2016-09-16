@@ -31,8 +31,6 @@ import javax.interceptor.Interceptors;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
 import org.oscm.accountservice.local.AccountServiceLocal;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.LocalizedResource;
@@ -48,16 +46,6 @@ import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.identityservice.local.IdentityServiceLocal;
 import org.oscm.interceptor.ExceptionMapper;
 import org.oscm.interceptor.InvocationDateContainer;
-import org.oscm.serviceprovisioningservice.local.ServiceProvisioningServiceLocal;
-import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
-import org.oscm.triggerservice.assembler.TriggerDefinitionAssembler;
-import org.oscm.triggerservice.assembler.TriggerProcessAssembler;
-import org.oscm.triggerservice.local.TriggerMessage;
-import org.oscm.triggerservice.local.TriggerQueueServiceLocal;
-import org.oscm.triggerservice.local.TriggerServiceLocal;
-import org.oscm.triggerservice.validator.ValidationPerformer;
-import org.oscm.types.enumtypes.LogMessageIdentifier;
-import org.oscm.types.enumtypes.TriggerProcessParameterName;
 import org.oscm.internal.intf.TriggerService;
 import org.oscm.internal.types.enumtypes.TriggerProcessParameterType;
 import org.oscm.internal.types.enumtypes.TriggerProcessStatus;
@@ -78,6 +66,18 @@ import org.oscm.internal.vo.VOSubscription;
 import org.oscm.internal.vo.VOTriggerDefinition;
 import org.oscm.internal.vo.VOTriggerProcess;
 import org.oscm.internal.vo.VOTriggerProcessParameter;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
+import org.oscm.serviceprovisioningservice.local.ServiceProvisioningServiceLocal;
+import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
+import org.oscm.triggerservice.assembler.TriggerDefinitionAssembler;
+import org.oscm.triggerservice.assembler.TriggerProcessAssembler;
+import org.oscm.triggerservice.local.TriggerMessage;
+import org.oscm.triggerservice.local.TriggerQueueServiceLocal;
+import org.oscm.triggerservice.local.TriggerServiceLocal;
+import org.oscm.triggerservice.validator.ValidationPerformer;
+import org.oscm.types.enumtypes.LogMessageIdentifier;
+import org.oscm.types.enumtypes.TriggerProcessParameterName;
 
 /**
  * Session Bean implementation class of TriggerProcessService
@@ -248,7 +248,7 @@ public class TriggerServiceBean implements TriggerService, TriggerServiceLocal {
         if (triggerProcess.getTriggerDefinition().getOrganization().getKey() != dm
                 .getCurrentUser().getOrganization().getKey()) {
             OperationNotPermittedException e = new OperationNotPermittedException(
-                    "No authority to approve the action.");
+                    "The client has no authority for the operation.");
             logger.logError(Log4jLogger.SYSTEM_LOG | Log4jLogger.AUDIT_LOG, e,
                     LogMessageIdentifier.ERROR_NO_AUTHORITY_TO_APPROVE);
             sessionCtx.setRollbackOnly();
@@ -322,6 +322,7 @@ public class TriggerServiceBean implements TriggerService, TriggerServiceLocal {
                         TriggerProcessStatus.INITIAL,
                         TriggerProcessStatus.WAITING_FOR_APPROVAL);
                 triggerProcess.setState(TriggerProcessStatus.CANCELLED);
+                dm.flush();
                 localizer.storeLocalizedResources(key,
                         LocalizedObjectTypes.TRIGGER_PROCESS_REASON, reason);
 
@@ -675,8 +676,7 @@ public class TriggerServiceBean implements TriggerService, TriggerServiceLocal {
             Query query = dm
                     .createNamedQuery("TriggerProcessParameter.getParam");
             query.setParameter("actionKey", Long.valueOf(actionKey));
-            query.setParameter(
-                    "paramName",
+            query.setParameter("paramName",
                     org.oscm.types.enumtypes.TriggerProcessParameterName
                             .valueOf(paramType.name()));
             return (TriggerProcessParameter) query.getSingleResult();
@@ -695,8 +695,7 @@ public class TriggerServiceBean implements TriggerService, TriggerServiceLocal {
      */
     private void validateConfiguredParameters(
             List<VOTriggerProcessParameter> parameters,
-            TriggerProcess triggerProcess)
-            throws ValidationException {
+            TriggerProcess triggerProcess) throws ValidationException {
 
         VOService service = null;
         for (VOTriggerProcessParameter parameter : parameters) {
@@ -718,25 +717,25 @@ public class TriggerServiceBean implements TriggerService, TriggerServiceLocal {
 
     private void updateParameterDefinitions(TriggerProcess triggerProcess,
             VOService service) {
-        TriggerProcessParameter triggerParameter = triggerProcess.getParamValueForName(
-                TriggerProcessParameterName.PRODUCT);
-        
-        if(triggerParameter == null) {
+        TriggerProcessParameter triggerParameter = triggerProcess
+                .getParamValueForName(TriggerProcessParameterName.PRODUCT);
+
+        if (triggerParameter == null) {
             return;
         }
-        
-        Map<Long, VOParameterDefinition> keyToDefinition = new HashMap<>();        
+
+        Map<Long, VOParameterDefinition> keyToDefinition = new HashMap<>();
         VOService dbService = triggerParameter.getValue(VOService.class);
 
-        for(VOParameter dbParam : dbService.getParameters()) {
+        for (VOParameter dbParam : dbService.getParameters()) {
             VOParameterDefinition dbParamDef = dbParam.getParameterDefinition();
             keyToDefinition.put(Long.valueOf(dbParamDef.getKey()), dbParamDef);
         }
-        
-        for(VOParameter newParam : service.getParameters()) {
-            VOParameterDefinition paramDef = keyToDefinition.get(
-                    Long.valueOf(newParam.getParameterDefinition().getKey()));
-            if(paramDef != null) {
+
+        for (VOParameter newParam : service.getParameters()) {
+            VOParameterDefinition paramDef = keyToDefinition.get(Long
+                    .valueOf(newParam.getParameterDefinition().getKey()));
+            if (paramDef != null) {
                 newParam.setParameterDefinition(paramDef);
             }
         }

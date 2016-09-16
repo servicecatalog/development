@@ -13,19 +13,20 @@
 package org.oscm.ui.beans.marketplace;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.Assert;
-
 import org.junit.Before;
 import org.junit.Test;
-
-import org.oscm.ui.beans.MarketplaceConfigurationBean;
-import org.oscm.ui.model.MarketplaceConfiguration;
+import org.oscm.internal.cache.MarketplaceConfiguration;
 import org.oscm.internal.types.enumtypes.Sorting;
+import org.oscm.internal.vo.VOUserDetails;
 
 /**
  * @author Dirk Bernsau
@@ -36,14 +37,19 @@ public class ServicePagingBeanTest {
     private ServicePagingBean bean;
     private MarketplaceConfiguration config;
 
+    private final static String ALLOWED_ORG1 = "allowedOrg1";
+    private final static String ALLOWED_ORG2 = "allowedOrg2";
+
     @Before
     public void setUp() {
         config = new MarketplaceConfiguration();
-        bean = new ServicePagingBean();
+        Set<String> orgs = new HashSet<String>();
+        orgs.addAll(Arrays.asList(new String[] { ALLOWED_ORG1, ALLOWED_ORG2 }));
+        config.setAllowedOrganizations(orgs);
 
-        MarketplaceConfigurationBean mcb = mock(MarketplaceConfigurationBean.class);
-        when(mcb.getCurrentConfiguration()).thenReturn(config);
-        bean.setMarketplaceConfigurationBean(mcb);
+        bean = spy(new ServicePagingBean());
+
+        doReturn(config).when(bean).getConfig();
     }
 
     @Test
@@ -290,7 +296,7 @@ public class ServicePagingBeanTest {
         // then
         Assert.assertTrue(tagSelected);
     }
-    
+
     @Test
     public void isFilterTagSelected_bug9695() {
 
@@ -330,4 +336,78 @@ public class ServicePagingBeanTest {
 
     }
 
+    @Test
+    public void isSearchAvailable_OrgWithAccess() {
+        // given
+        VOUserDetails userDetails = new VOUserDetails();
+        userDetails.setOrganizationId(ALLOWED_ORG1);
+        doReturn(userDetails).when(bean).getUserFromSessionWithoutException();
+        config.setRestricted(true);
+
+        // when
+        boolean rc = bean.isSearchAvailable();
+
+        // then
+        Assert.assertTrue(rc);
+
+    }
+
+    @Test
+    public void isSearchAvailable_OrgWithoutAccess() {
+        // given
+        VOUserDetails userDetails = new VOUserDetails();
+        userDetails.setOrganizationId("Red");
+        doReturn(userDetails).when(bean).getUserFromSessionWithoutException();
+        config.setRestricted(true);
+
+        // when
+        boolean rc = bean.isSearchAvailable();
+
+        // then
+        Assert.assertFalse(rc);
+
+    }
+
+    @Test
+    public void isSearchAvailable_NotRestricted() {
+        // given
+        config.setRestricted(false);
+
+        // when
+        boolean rc = bean.isSearchAvailable();
+
+        // then
+        Assert.assertTrue(rc);
+
+    }
+
+    @Test
+    public void isSearchAvailable_NoUser() {
+        // given
+        doReturn(null).when(bean).getUserFromSessionWithoutException();
+        config.setRestricted(true);
+
+        // when
+        boolean rc = bean.isSearchAvailable();
+
+        // then
+        Assert.assertTrue(rc);
+
+    }
+
+    @Test
+    public void isSearchAvailable_NoOrg() {
+        // given
+        VOUserDetails userDetails = new VOUserDetails();
+        userDetails.setOrganizationId(null);
+        doReturn(userDetails).when(bean).getUserFromSessionWithoutException();
+        config.setRestricted(true);
+
+        // when
+        boolean rc = bean.isSearchAvailable();
+
+        // then
+        Assert.assertTrue(rc);
+
+    }
 }

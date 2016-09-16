@@ -16,6 +16,7 @@
         <p class="top">
 
           <a4j:outputPanel styleClass="newlist clearfix menuButtonPanel">
+            <h:commandButton style="display:none;" id="browseAllBtn" action="#{serviceListingBean.showServiceList}" />
             <mp:button id="buttonBrowseAll" value="#{msg['button.browseAll']}" bean="#{serviceListingBean}"
               action="showServiceList">
               <f:setPropertyActionListener target="#{servicePagingBean.filterTag}" value="" />
@@ -43,9 +44,12 @@
                     value="#{cat.categoryId}" />
                   <f:setPropertyActionListener target="#{servicePagingBean.filterCategoryForDisplay}"
                     value="#{cat.displayName}" />
-                </h:commandLink> </strong></li>
+                </h:commandLink> 
+              </strong>
+            </li>
           </a4j:repeat>
-        </ul>
+       </ul>
+        
       </a4j:outputPanel>
 
     </a4j:outputPanel>

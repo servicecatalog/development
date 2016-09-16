@@ -2,7 +2,7 @@
  *                                                                              
  *  Copyright FUJITSU LIMITED 2016                                           
  *                                                                                                                                 
- *  Creation Date: 07.08.2015                                                      
+ *  Creation Date: 2015-08-07                                                      
  *                                                                              
  *******************************************************************************/
 
@@ -11,27 +11,40 @@ package org.oscm.billing.external.context;
 import java.io.Serializable;
 
 /**
- * @author baumann
- *
+ * Specifies values for the keys in the context that defines the element for
+ * which a price model is to be returned.
  */
 public abstract class ContextValue<T> implements Serializable {
 
     private static final long serialVersionUID = 4738410026389162268L;
 
+    /**
+     * The value for a context key.
+     */
     protected T value;
 
+    /**
+     * Constructs a context value object with the given value.
+     *
+     * @param value
+     *            the value
+     */
     public ContextValue(T value) {
         this.value = value;
     }
 
     /**
-     * @return the context value
+     * Returns the context value.
+     * 
+     * @return the value
      */
     public abstract T getValue();
 
     /**
+     * Sets the context value.
+     * 
      * @param value
-     *            the context value to set
+     *            the value
      */
     public abstract void setValue(T value);
 

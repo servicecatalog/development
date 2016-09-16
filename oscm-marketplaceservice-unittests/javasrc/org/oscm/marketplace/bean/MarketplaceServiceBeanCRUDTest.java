@@ -31,7 +31,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Matchers;
-
 import org.oscm.accountservice.local.AccountServiceLocal;
 import org.oscm.communicationservice.local.CommunicationServiceLocal;
 import org.oscm.dataservice.local.DataService;
@@ -42,13 +41,14 @@ import org.oscm.domobjects.PublicLandingpage;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.identityservice.local.IdentityServiceLocal;
-import org.oscm.landingpageService.local.LandingpageType;
-import org.oscm.test.data.UserRoles;
-import org.oscm.types.enumtypes.EmailType;
+import org.oscm.internal.intf.MarketplaceCacheService;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.UserRoleType;
 import org.oscm.internal.types.exception.UserRoleAssignmentException;
 import org.oscm.internal.vo.VOMarketplace;
+import org.oscm.landingpageService.local.LandingpageType;
+import org.oscm.test.data.UserRoles;
+import org.oscm.types.enumtypes.EmailType;
 
 /**
  * Unit testing of the CRUD operations of {@link MarketplaceServiceBean}.
@@ -66,6 +66,7 @@ public class MarketplaceServiceBeanCRUDTest {
     public void setup() throws Exception {
         mpSrv = spy(new MarketplaceServiceBean());
         mpSrv.landingpageService = mock(LandingpageServiceBean.class);
+        mpSrv.marketplaceCache = mock(MarketplaceCacheService.class);
         doReturn(new PublicLandingpage()).when(mpSrv.landingpageService)
                 .createDefaultLandingpage();
         mpSrv.dm = mock(DataService.class);

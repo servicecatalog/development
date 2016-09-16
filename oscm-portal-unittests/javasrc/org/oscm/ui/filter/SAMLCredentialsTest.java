@@ -39,9 +39,9 @@ import org.oscm.internal.types.exception.UserIdNotFoundException;
  */
 public class SAMLCredentialsTest {
 
-    private static final String VALID_SAML_RESPONSE = "valid";
+    private static final byte[] VALID_SAML_RESPONSE = "valid".getBytes();
     private static final String INVALID_SAML_RESPONSE = "invalid";
-    private static final String SAML_RESPONSE_WITHOUT_USERID = "without_userid";
+    private static final byte[] SAML_RESPONSE_WITHOUT_USERID = "without_userid".getBytes();
     private static final String REQ_ID = "reqid";
     private static final String USER_ID = "userid";
     private static final String CALLER_UI = "UI";
@@ -60,17 +60,17 @@ public class SAMLCredentialsTest {
 
         doReturn(sessionMock).when(reqMock).getSession();
 
-        doReturn(USER_ID).when(samlResponseMock).getUserId(VALID_SAML_RESPONSE);
+        doReturn(USER_ID).when(samlResponseMock).getUserId(VALID_SAML_RESPONSE.toString());
 
         doReturn(VALID_SAML_RESPONSE).when(samlResponseMock).decode(
-                VALID_SAML_RESPONSE);
+                VALID_SAML_RESPONSE.toString());
         doReturn(SAML_RESPONSE_WITHOUT_USERID).when(samlResponseMock).decode(
-                SAML_RESPONSE_WITHOUT_USERID);
+                SAML_RESPONSE_WITHOUT_USERID.toString());
         doThrow(new UnsupportedEncodingException()).when(samlResponseMock)
                 .decode(INVALID_SAML_RESPONSE);
 
         doThrow(new UserIdNotFoundException()).when(samlResponseMock)
-                .getUserId(SAML_RESPONSE_WITHOUT_USERID);
+                .getUserId(SAML_RESPONSE_WITHOUT_USERID.toString());
         doThrow(new UserIdNotFoundException()).when(samlResponseMock)
                 .getUserId(INVALID_SAML_RESPONSE);
     }
@@ -93,7 +93,7 @@ public class SAMLCredentialsTest {
     public void getUserIdFromSAMLResponse_nullRequestId() throws Exception {
 
         // given
-        doReturn(VALID_SAML_RESPONSE).when(reqMock)
+        doReturn(VALID_SAML_RESPONSE.toString()).when(reqMock)
                 .getParameter("SAMLResponse");
         doReturn(null).when(sessionMock).getAttribute(
                 Constants.SESS_ATTR_IDP_REQUEST_ID);
@@ -110,7 +110,7 @@ public class SAMLCredentialsTest {
     public void getUserIdFromSAMLResponse_validResponse() throws Exception {
 
         // given
-        doReturn(VALID_SAML_RESPONSE).when(reqMock)
+        doReturn(VALID_SAML_RESPONSE.toString()).when(reqMock)
                 .getParameter("SAMLResponse");
         doReturn(REQ_ID).when(sessionMock).getAttribute(
                 Constants.SESS_ATTR_IDP_REQUEST_ID);
@@ -122,7 +122,7 @@ public class SAMLCredentialsTest {
 
         // then
         assertEquals(USER_ID, spySamlCredentials.getUserId());
-        assertEquals(CALLER_UI + REQ_ID + VALID_SAML_RESPONSE,
+        assertEquals(CALLER_UI + REQ_ID + new String(VALID_SAML_RESPONSE),
                 spySamlCredentials.generatePassword());
     }
 
@@ -131,7 +131,7 @@ public class SAMLCredentialsTest {
             throws Exception {
 
         // given
-        doReturn(SAML_RESPONSE_WITHOUT_USERID).when(reqMock).getParameter(
+        doReturn(SAML_RESPONSE_WITHOUT_USERID.toString()).when(reqMock).getParameter(
                 "SAMLResponse");
         doReturn(REQ_ID).when(sessionMock).getAttribute(
                 Constants.SESS_ATTR_IDP_REQUEST_ID);
@@ -146,8 +146,8 @@ public class SAMLCredentialsTest {
         verify(loggerMock, times(1))
                 .logError(
                         eq(LogMessageIdentifier.ERROR_GET_USER_FROM_SAML_RESPONSE_FAILED),
-                        eq(SAML_RESPONSE_WITHOUT_USERID));
-        assertEquals(CALLER_UI + REQ_ID + SAML_RESPONSE_WITHOUT_USERID,
+                        eq(new String(SAML_RESPONSE_WITHOUT_USERID)));
+        assertEquals(CALLER_UI + REQ_ID + new String(SAML_RESPONSE_WITHOUT_USERID),
                 spySamlCredentials.generatePassword());
     }
 

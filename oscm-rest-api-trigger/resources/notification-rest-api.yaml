@@ -1,0 +1,111 @@
+# Copyright FUJITSU LIMITED 2016
+swagger: '2.0'
+info:
+  title: Notification Service REST API
+  description: API for receiving notifications from Catalog Manager, for example, for the integration with external process control systems.
+  version: "1.0.0"
+
+# the domain of the service
+host: host_port
+# array of schemes that the API supports
+schemes:
+  - http
+  - https
+# will be prefixed to all paths
+basePath: /target_path
+consumes:
+  - application/json
+produces:
+  - application/json
+  
+paths:
+  /target_resouce:
+    post:
+      summary: Trigger Notification
+      description: Receives a notification from Catalog Manager.
+      parameters:
+        - name: Process
+          in: body
+          description: The process the notification is about
+          required: true
+          schema:
+            $ref: '#/definitions/Process'
+      responses:
+        204:
+          description: No content
+
+definitions:
+  Process:
+    type: object
+    description: Trigger process
+    properties:
+      id:
+        type: integer
+        format: int64
+        description: The ID of the process
+      activition_time:
+        type: string
+        format: date
+        description: The date and time the process was activated
+      status:
+        type: string
+        description: The status of the process
+      author:
+        type: object
+        description: The user who initiated the process
+        properties:
+          id:
+            type: integer
+            format: int64
+            description: The ID of the user
+          email:
+            type: string
+            format: email
+            description: The email address of the user
+      subscription:
+        type: object
+        description: The subscription that is subject to the process
+        properties:
+          id:
+            type: integer
+            format: int64
+            description: The ID of the subscription
+          name:
+            type: string
+            description: The name of the subscription
+      service:
+        type: object
+        description: The service that is underlying the subscription
+        properties:
+          name:
+            type: string
+            description: The name of the service
+          parameters:
+            type: array
+            description: The parameters of the service
+            items:
+                type: object
+                description: Service parameter
+                properties:
+                  name:
+                    type: string
+                    description: The name of the parameter
+                  value:
+                    type: string
+                    description: The value of the parameter
+      links:
+        type: object
+        description: Links
+        properties:
+          trigger_id:
+            type: integer
+            format: int64
+            description: The ID of the trigger definition associated with the process
+          author_id:
+            type: integer
+            format: int64
+            description: The ID of the user who initiated the process
+          subscription_id:
+            type: integer
+            format: int64
+            description: The ID of the subscription that is subject to the process

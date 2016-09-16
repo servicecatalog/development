@@ -139,6 +139,8 @@ public class BaseBean {
     public static final String ERROR_INVALID_MARKETPLACE_URL = "error.invalidMarketplaceUrl";
     public static final String ERROR_INVALID_SERVICE_URL = "error.invalidServiceUrl";
     public static final String ERROR_LOGIN = "error.login";
+    public static final String ERROR_LOGIN_TO_CLOSED_MARKETPLACE = "error.loginToClosedMarketplace";
+    public static final String ERROR_ACCESS_TO_CLOSED_MARKETPLACE = "error.accessToClosedMarketplace";
     public static final String ERROR_LOGIN_SAML_SP = "error.login.samlsp";
     public static final String ERROR_LOGIN_IMPOSSIBLE = "error.login.impossible";
     public static final String ERROR_USER_ALREADY_CONFIRMED = "error.user.alreadyConfirmed";
@@ -219,6 +221,7 @@ public class BaseBean {
     public static final String ERROR_RECOVERPASSWORD_INVALID_LINK = "error.recoverpassword.invalid.link";
     public static final String ERROR_GENERATE_AUTHNREQUEST = "error.generating.authnrequest";
     public static final String ERROR_INVALID_SAML_RESPONSE = "error.invalid.samlResponse";
+    public static final String ERROR_INVALID_SAML_RESPONSE_STATUS_CODE = "error.invalid.samlResponseStatusCode";
     public static final String ERROR_SAML_TIMEOUT = "error.timeout.during.saml";
     public static final String ERROR_INVALID_IDP_URL = "error.invalid.idpUrl";
     public static final String ERROR_CSS_CONNECTION = "error.cssConnection";
@@ -240,6 +243,8 @@ public class BaseBean {
     public static final String WARNING_OWNER_IS_SUB_MAN = "warning.editSubscription.subscriptionOwner.subscriptionManager";
     public static final String WARNING_UNIT_NOT_SELECTED_UNIT_ADMIN = "warning.editSubscription.subscriptionUnitNotSelected";
     public static final String WARNING_PAYMENT_TYPES_NOT_USED = "warning.paymentTypesAreNotUsed";
+    public static final String WARNING_NO_CUSTOMER_ACCESS_TO_RESTRICTED_MPL = "warning.noCustomerAccessToRestrictedMpl";
+
 
     public static final String INFO_BILLING_CONTACT_DELETED = "info.billingContact.deleted";
     public static final String INFO_BILLING_CONTACT_DELETED_CONCURRENTLY = "info.billingContact.deletedConcurrently";
@@ -308,6 +313,7 @@ public class BaseBean {
     public static final String INFO_MARKETPLACE_STAGE_SAVED = "info.marketplace.stage.saved";
     public static final String INFO_MARKETPLACE_CREATED = "info.marketplace.created";
     public static final String INFO_MARKETPLACE_DELETED = "info.marketplace.deleted";
+    public static final String INFO_MARKETPLACE_ACCESS_SAVED = "marketplace.manageAccess.saved";
     public static final String INFO_SUPPLIER_ADDED = "info.supplier.added";
     public static final String INFO_SUPPLIER_REMOVED = "info.supplier.removed";
     public static final String INFO_SUPPLIER_BANNED = "info.supplier.banned";
@@ -374,6 +380,8 @@ public class BaseBean {
             + "/serviceProvider.jsf";
     public static final String MANAGE_PAYMENT_TYPES_PAGE = "/organization/managePaymentEnablement.jsf";
     public static final String MANAGE_PAYMENT_TYPES_PAGE_XHTML = "/organization/managePaymentEnablement.xhtml";
+    public static final String ACCOUNT_PAYMENT_PAGE = "/marketplace/account/payments.jsf";
+    public static final String ACCOUNT_PAYMENT_PAGE_XHTML = "/marketplace/account/payments.xhtml";
 
     public static final String ERROR_PAGE = "/public/error.jsf";
 
@@ -964,7 +972,7 @@ public class BaseBean {
 
     /**
      * Check whether current userRoles in the session and in EJB session context
-     * are the same or not。
+     * are the same or not?
      * 
      * @return true if the current user role is changed
      */
@@ -1121,6 +1129,15 @@ public class BaseBean {
     protected void writeContentToResponse(byte[] content, String filename,
             String contentType) throws IOException {
         JSFUtils.writeContentToResponse(content, filename, contentType);
+    }
+
+    /**
+     * Delegates to
+     * {@link JSFUtils#writeContentToResponse(byte[], String, String, FacesContext)}
+     */
+    protected void writeContentToResponse(byte[] content, String filename,
+            String contentType, FacesContext fc) throws IOException {
+        JSFUtils.writeContentToResponse(content, filename, contentType, fc);
     }
 
     FacesContext getFacesContext() {

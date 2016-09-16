@@ -102,6 +102,18 @@ public class BesServletRequestReader {
     }
 
     /**
+     * Returns true if the request targets the payment page in account menu of
+     * the market place
+     */
+    protected static boolean isAccountPaymentPage(
+            HttpServletRequest httpRequest) {
+        return httpRequest.getServletPath()
+                .startsWith(BaseBean.ACCOUNT_PAYMENT_PAGE)
+                || httpRequest.getServletPath()
+                        .startsWith(BaseBean.ACCOUNT_PAYMENT_PAGE_XHTML);
+    }
+
+    /**
      * Copy the value of the given attribute from the given request as parameter
      * to the given URL.
      */

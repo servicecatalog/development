@@ -15,11 +15,11 @@ package org.oscm.dataservice.local;
 import java.util.List;
 
 import javax.ejb.Local;
+import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
 import org.hibernate.Session;
-
 import org.oscm.domobjects.DomainHistoryObject;
 import org.oscm.domobjects.DomainObject;
 import org.oscm.domobjects.PlatformUser;
@@ -303,4 +303,11 @@ public interface DataService {
      *         ResultSet with similar API.
      */
     public abstract DataSet executeQueryForRawData(SqlQuery sqlQuery);
+
+    /**
+     * Returns the raw entity manager
+     * 
+     * @return the entity manager
+     */
+    public EntityManager getEntityManager();
 }

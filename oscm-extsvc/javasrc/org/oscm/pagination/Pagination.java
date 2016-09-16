@@ -2,39 +2,43 @@
  *                                                                              
  *  Copyright FUJITSU LIMITED 2016                                           
  *                                                                                                                                 
- *  Creation Date: 21.07.2015                                                      
+ *  Creation Date: 2015-07-21                                                      
  *                                                                              
  *******************************************************************************/
 
 package org.oscm.pagination;
 
 /**
- * Generic pagination used to limit objects retrieved from database. Offset and
- * limit parameters are then transfered and set on
- * {@link javax.persistence.Query} using
- * {@link javax.persistence.Query#setFirstResult(int)} and
- * {@link javax.persistence.Query#setMaxResults(int)}
+ * Generic interface for limiting the number of elements retrieved from the
+ * database in a list.
  */
 public class Pagination {
 
     /**
-     * Represents starting point from the beginning of the object pool.
+     * The starting point in the complete list of elements.
      */
     private int offset;
 
     /**
-     * Represents number of objects that should be retrieved.
+     * The number of elements to be retrieved.
      */
     private int limit;
 
+    /**
+     * Default constructor.
+     */
     public Pagination() {
     }
 
     /**
+     * Constructs a pagination object with the given offset and number of
+     * elements.
+     * 
      * @param offset
-     *            - Start from given number
+     *            the first element to be retrieved, counting from the beginning
+     *            of the complete list of elements
      * @param limit
-     *            - Limited number of objects
+     *            the number of elements to be retrieved
      */
     public Pagination(int offset, int limit) {
         this.offset = offset;
@@ -42,40 +46,40 @@ public class Pagination {
     }
 
     /**
-     * Returns how many elements should be skipped starting from the beginning
-     * of object pool.
+     * Returns the first element to be retrieved, counting from the beginning of
+     * the complete list of elements.
      * 
-     * @return - The offset parameter
+     * @return the offset
      */
     public int getOffset() {
         return offset;
     }
 
     /**
-     * Sets how many elements should be skipped starting from the beginning of
-     * object pool.
+     * Sets the first element to be retrieved, counting from the beginning of
+     * the complete list of elements.
      * 
      * @param offset
-     *            - The offset parameter
+     *            the offset
      */
     public void setOffset(int offset) {
         this.offset = offset;
     }
 
     /**
-     * Retrieves the limit of items that should be retrieved from db.
+     * Returns the number of elements to be retrieved from the database.
      * 
-     * @return - The limit parameter
+     * @return the number of elements
      */
     public int getLimit() {
         return limit;
     }
 
     /**
-     * Sets the limit of items that should be retrieved from db.
+     * Sets the number of elements to be retrieved from the database.
      * 
      * @param limit
-     *            - The limit parameter
+     *            the number of elements
      */
     public void setLimit(int limit) {
         this.limit = limit;

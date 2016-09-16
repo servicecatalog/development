@@ -10,7 +10,10 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-accountmgmt-intsvc"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-domainobjects"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-operatorsvc-client"/>
-	<classpathentry kind="lib" path="/libraries/apache-ant/javalib/ant.jar"/><classpathentry kind="lib" path="/libraries/apache-ant/javalib/ant-junit.jar"/><classpathentry kind="lib" path="/libraries/apache-ant/javalib/ant-launcher.jar"/><classpathentry kind="lib" path="/libraries/apache-ant/javalib/wsit-ant-tasks.jar"/>
+	<classpathentry kind="lib" path="/libraries/apache-ant/javalib/ant.jar"/>
+	<classpathentry kind="lib" path="/libraries/apache-ant/javalib/ant-junit.jar"/>
+	<classpathentry kind="lib" path="/libraries/apache-ant/javalib/ant-launcher.jar"/>
+	<classpathentry kind="lib" path="/libraries/apache-ant/javalib/wsit-ant-tasks.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-identitymgmt-intsvc"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-paymentprocessing-intsvc"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc-internal"/>
@@ -29,6 +32,15 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-auditlog"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-timermgmt"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-subscriptionmgmt-intsvc"/>
-	<classpathentry kind="lib" path="/libraries/redhat-hibernate/javalib/antlr-2.7.7.jar"/><classpathentry kind="lib" path="/libraries/redhat-hibernate/javalib/dom4j-1.6.1.jar"/><classpathentry kind="lib" path="/libraries/redhat-hibernate/javalib/hibernate-commons-annotations-4.0.1.Final.jar"/><classpathentry kind="lib" path="/libraries/redhat-hibernate/javalib/hibernate-core-4.1.8.Final.jar"/><classpathentry kind="lib" path="/libraries/redhat-hibernate/javalib/hibernate-entitymanager-4.1.8.Final.jar"/><classpathentry kind="lib" path="/libraries/redhat-hibernate/javalib/hibernate-jpa-2.0-api-1.0.1.Final.jar"/><classpathentry kind="lib" path="/libraries/redhat-hibernate/javalib/javassist-3.15.0-GA.jar"/><classpathentry kind="lib" path="/libraries/redhat-hibernate/javalib/jboss-logging-3.1.0.GA.jar"/><classpathentry kind="lib" path="/libraries/redhat-hibernate/javalib/jboss-transaction-api_1.1_spec-1.0.0.Final.jar"/>
+	<classpathentry kind="lib" path="/libraries/redhat-hibernate/javalib/antlr-2.7.7.jar"/>
+	<classpathentry kind="lib" path="/libraries/redhat-hibernate/javalib/dom4j-1.6.1.jar"/>
+	<classpathentry kind="lib" path="/libraries/redhat-hibernate/javalib/hibernate-commons-annotations-4.0.1.Final.jar"/>
+	<classpathentry kind="lib" path="/libraries/redhat-hibernate/javalib/hibernate-core-4.1.8.Final.jar"/>
+	<classpathentry kind="lib" path="/libraries/redhat-hibernate/javalib/hibernate-entitymanager-4.1.8.Final.jar"/>
+	<classpathentry kind="lib" path="/libraries/redhat-hibernate/javalib/hibernate-jpa-2.0-api-1.0.1.Final.jar"/>
+	<classpathentry kind="lib" path="/libraries/redhat-hibernate/javalib/javassist-3.15.0-GA.jar"/>
+	<classpathentry kind="lib" path="/libraries/redhat-hibernate/javalib/jboss-logging-3.1.0.GA.jar"/>
+	<classpathentry kind="lib" path="/libraries/redhat-hibernate/javalib/jboss-transaction-api_1.1_spec-1.0.0.Final.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-marketplaceservice-intsvc"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

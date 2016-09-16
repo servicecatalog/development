@@ -8,7 +8,7 @@
   <!-- target for developers -->
   <target name="partCustom">
     <!-- put your own test files e.g. "playground.xml" --> 
-    <ant antfile="testBillingPlugin.xml" />
+    <ant antfile="playground.xml" />
   </target>
 
   <target name="part1">
@@ -80,6 +80,7 @@
     <ant antfile="testManageUsers.xml" />
     <ant antfile="testProvisioningInterface.xml" />
     <ant antfile="testHidePaymentInfo.xml" />
+  	<ant antfile="testManageAccess.xml" />
   </target>
 
   <target name="part2">

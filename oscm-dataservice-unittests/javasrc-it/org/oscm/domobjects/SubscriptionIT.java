@@ -2086,7 +2086,6 @@ public class SubscriptionIT extends DomainObjectTestBase {
                 List<Subscription> result = ParameterizedTypes.list(
                         query.getResultList(), Subscription.class);
                 assertEquals(2, result.size());
-                assertEquals("subscription1", result.get(0).getSubscriptionId());
                 return null;
             }
         });

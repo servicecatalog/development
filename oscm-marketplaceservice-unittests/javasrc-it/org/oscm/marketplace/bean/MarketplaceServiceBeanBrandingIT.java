@@ -20,7 +20,7 @@ import java.util.concurrent.Callable;
 import javax.ejb.EJBException;
 
 import org.junit.Test;
-
+import org.oscm.applicationservice.local.ApplicationServiceLocal;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Marketplace;
@@ -29,8 +29,18 @@ import org.oscm.domobjects.PlatformUser;
 import org.oscm.i18nservice.bean.ImageResourceServiceBean;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
 import org.oscm.identityservice.local.IdentityServiceLocal;
+import org.oscm.internal.intf.MarketplaceCacheService;
+import org.oscm.internal.intf.MarketplaceService;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.UserRoleType;
+import org.oscm.internal.types.exception.ConcurrentModificationException;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.internal.types.exception.OperationNotPermittedException;
+import org.oscm.internal.types.exception.ValidationException;
+import org.oscm.internal.vo.VOMarketplace;
 import org.oscm.landingpageService.local.LandingpageServiceLocal;
 import org.oscm.marketplace.auditlog.MarketplaceAuditLogCollector;
+import org.oscm.marketplace.dao.MarketplaceAccessDao;
 import org.oscm.serviceprovisioningservice.auditlog.ServiceAuditLogCollector;
 import org.oscm.serviceprovisioningservice.bean.ServiceProvisioningPartnerServiceLocalBean;
 import org.oscm.test.EJBTestBase;
@@ -44,14 +54,6 @@ import org.oscm.test.stubs.CommunicationServiceStub;
 import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.test.stubs.ServiceProvisioningServiceStub;
 import org.oscm.test.stubs.TriggerQueueServiceStub;
-import org.oscm.internal.intf.MarketplaceService;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.UserRoleType;
-import org.oscm.internal.types.exception.ConcurrentModificationException;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.types.exception.OperationNotPermittedException;
-import org.oscm.internal.types.exception.ValidationException;
-import org.oscm.internal.vo.VOMarketplace;
 
 /**
  * Tests the branding of the marketplace
@@ -74,6 +76,7 @@ public class MarketplaceServiceBeanBrandingIT extends EJBTestBase {
 
     private void setupWithContainer() throws Exception {
         container.addBean(new DataServiceBean());
+        container.addBean(mock(MarketplaceAccessDao.class));
         container.addBean(new LocalizerServiceBean());
         container.addBean(new CommunicationServiceStub());
         container.addBean(new ConfigurationServiceStub());
@@ -83,10 +86,12 @@ public class MarketplaceServiceBeanBrandingIT extends EJBTestBase {
         container.addBean(new CategorizationServiceStub());
         container.addBean(mock(IdentityServiceLocal.class));
         container.addBean(mock(LandingpageServiceLocal.class));
+        container.addBean(mock(ApplicationServiceLocal.class));
         container.addBean(new MarketplaceAuditLogCollector());
         container.addBean(new ImageResourceServiceBean());
         container.addBean(new ServiceAuditLogCollector());
         container.addBean(new ServiceProvisioningPartnerServiceLocalBean());
+        container.addBean(mock(MarketplaceCacheService.class));
         container.addBean(new MarketplaceServiceLocalBean());
         container.addBean(new MarketplaceServiceBean());
         mpService = container.get(MarketplaceService.class);

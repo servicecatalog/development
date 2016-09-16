@@ -367,7 +367,12 @@ public abstract class DomainObjectException extends SaaSApplicationException {
         /**
          * Unit role assignment
          */
-        UNIT_ROLE_ASSIGNMENT("usergrouptouser_tkey, unituserrole_tkey");
+        UNIT_ROLE_ASSIGNMENT("usergrouptouser_tkey, unituserrole_tkey"),
+
+        /**
+         * Marketplace access
+         */
+        MARKETPLACE_ACCESS("marketplace_tkey, organization_tkey");
 
         /**
          * Stores the name of the fields containing the attribute name that

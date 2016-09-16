@@ -117,4 +117,10 @@
   <module>
     <ejb>oscm-billing-application.jar</ejb>
   </module>
+  <module>
+    <web>
+      <web-uri>oscm-rest-api-trigger.war</web-uri>
+      <context-root>oscm-trigger</context-root>
+    </web>
+  </module>
 </application>

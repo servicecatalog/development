@@ -148,8 +148,9 @@
   </macrodef>
 
   <macrodef name="dbProperties">
+    <attribute name="dbloc" default="${db.location}"/>
     <sequential>
-      <loadPropertyFile filepath="${domains.dir}/../databases/${db.location}" filename="db.properties" />
+      <loadPropertyFile filepath="${domains.dir}/../databases/@{dbloc}" filename="db.properties" />
       <condition property="db.user.name" value="${db.user}">
         <isset property="db.user" />
       </condition>
@@ -298,6 +299,8 @@
   </macrodef>
 
   <macrodef name="processResourcesXml">
+    <attribute name="restemplate" default="resources-template.xml" />
+    <attribute name="resoutput"  default="resources.xml"/>
     <sequential>
       <condition property="mail.user.setting" value="${mail.user}">
         <not>
@@ -321,7 +324,7 @@
           <isfalse value="${mail.use.authentication}" />
         </and>
       </condition>
-      <copy file="${domains.dir}/${domain.dir}/installer/resources-template.xml" toFile="${domains.dir}/${domain.dir}/installer/resources.xml" overwrite="true">
+      <copy file="${domains.dir}/${domain.dir}/installer/@{restemplate}" toFile="${domains.dir}/${domain.dir}/installer/@{resoutput}" overwrite="true">
         <filterset>
           <filter token="DB.USER" value="${db.user.name}" />
           <filter token="SERVER.NAME" value="${db.host}" />
@@ -345,7 +348,7 @@
       </copy>
     </sequential>
   </macrodef>
-
+    
   <macrodef name="createJVMOptions">
     <attribute name="target" default="server" />
     <attribute name="jvmoptions" />
@@ -359,13 +362,14 @@
   </macrodef>
 
   <macrodef name="addRes">
+    <attribute name="resfile" default="resources.xml" />
     <sequential>
       <asadmin.domain command="add-resources">
         <arg value="--target" />
         <arg value="server" />
-        <arg value="${domains.dir}/${domain.dir}/installer/resources.xml" />
+        <arg value="${domains.dir}/${domain.dir}/installer/@{resfile}" />
       </asadmin.domain>
-      <delete file="${domains.dir}/${domain.dir}/installer/resources.xml" failonerror="false" />
+      <delete file="${domains.dir}/${domain.dir}/installer/@{resfile}" failonerror="false" />
     </sequential>
   </macrodef>
 

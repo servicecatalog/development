@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.ejb.EJB;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
@@ -24,12 +25,8 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.event.ComponentSystemEvent;
 import javax.faces.event.ValueChangeEvent;
 
-import org.oscm.string.Strings;
-import org.oscm.ui.common.ExceptionHandler;
-import org.oscm.ui.common.JSFUtils;
-import org.oscm.ui.model.Marketplace;
-import org.oscm.ui.model.Organization;
-import org.oscm.ui.model.ServiceDetails;
+import org.oscm.internal.cache.MarketplaceConfiguration;
+import org.oscm.internal.intf.MarketplaceService;
 import org.oscm.internal.types.exception.DomainObjectException.ClassEnum;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.OperationNotPermittedException;
@@ -40,6 +37,12 @@ import org.oscm.internal.vo.VOMarketplace;
 import org.oscm.internal.vo.VOOrganization;
 import org.oscm.internal.vo.VOService;
 import org.oscm.internal.vo.VOServiceDetails;
+import org.oscm.string.Strings;
+import org.oscm.ui.common.ExceptionHandler;
+import org.oscm.ui.common.JSFUtils;
+import org.oscm.ui.model.Marketplace;
+import org.oscm.ui.model.Organization;
+import org.oscm.ui.model.ServiceDetails;
 
 /**
  * Bean for marketplace related operations.
@@ -67,6 +70,9 @@ public class MarketplaceBean extends BaseBean implements Serializable {
     @ManagedProperty(value = "#{menuBean}")
     private MenuBean menuBean;
 
+    @EJB
+    private MarketplaceService marketplaceService;
+
     public MarketplaceBean() {
         super();
     }
@@ -77,6 +83,11 @@ public class MarketplaceBean extends BaseBean implements Serializable {
 
     public void setMenuBean(final MenuBean menuBean) {
         this.menuBean = menuBean;
+    }
+
+    private MarketplaceConfiguration getConfig() {
+        return marketplaceService.getCachedMarketplaceConfiguration(BaseBean
+                .getMarketplaceIdStatic());
     }
 
     /**
@@ -102,7 +113,8 @@ public class MarketplaceBean extends BaseBean implements Serializable {
      */
     public void reloadMarketplacesForSupplier() {
         marketplaces = new ArrayList<Marketplace>();
-        for (VOMarketplace mp : getMarketplaceService().getMarketplacesForOrganization()) {
+        for (VOMarketplace mp : getMarketplaceService()
+                .getMarketplacesForOrganization()) {
             marketplaces.add(new Marketplace(mp));
         }
     }
@@ -532,6 +544,11 @@ public class MarketplaceBean extends BaseBean implements Serializable {
     public boolean isUiRenderEnabled() {
         return !this.isDisabledForEdit() && this.marketplace != null
                 && this.marketplace.getKey() != 0;
+    }
+
+    public boolean isRestricted() {
+
+        return getConfig().isRestricted();
     }
 
 }

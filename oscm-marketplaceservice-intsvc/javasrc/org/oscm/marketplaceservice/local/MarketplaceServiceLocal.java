@@ -12,6 +12,8 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import javax.ejb.Local;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 
 import org.oscm.domobjects.CatalogEntry;
 import org.oscm.domobjects.Marketplace;
@@ -19,7 +21,6 @@ import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.Product;
 import org.oscm.domobjects.RevenueShareModel;
-import org.oscm.types.enumtypes.EmailType;
 import org.oscm.internal.resalepermissions.POResalePermissionDetails;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.exception.AddMarketingPermissionException;
@@ -33,6 +34,7 @@ import org.oscm.internal.types.exception.ServiceStateException;
 import org.oscm.internal.types.exception.UserRoleAssignmentException;
 import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.internal.vo.VOCategory;
+import org.oscm.types.enumtypes.EmailType;
 
 /**
  * Contains business logic performed with and on Marketplaces, that is not
@@ -52,6 +54,10 @@ public interface MarketplaceServiceLocal {
      * @return the list of marketplaces
      */
     public List<Marketplace> getAllMarketplaces();
+
+    @TransactionAttribute(TransactionAttributeType.MANDATORY)
+    List<Marketplace> getAllAccessibleMarketplacesForOrganization(
+            long organizationKey);
 
     /**
      * Returns the list of the marketplaces where the supplier or the partner
@@ -435,11 +441,110 @@ public interface MarketplaceServiceLocal {
      *             the service nor an authorized broker or reseller
      */
     Product publishServiceWithPermissions(long serviceKey,
-                                          CatalogEntry catalogEntry, List<VOCategory> categories,
-                                          List<POResalePermissionDetails> permissionsToGrant,
-                                          List<POResalePermissionDetails> permissionsToRevoke)
+            CatalogEntry catalogEntry, List<VOCategory> categories,
+            List<POResalePermissionDetails> permissionsToGrant,
+            List<POResalePermissionDetails> permissionsToRevoke)
             throws ObjectNotFoundException, NonUniqueBusinessKeyException,
             OperationNotPermittedException, ValidationException,
             OrganizationAuthorityException, ConcurrentModificationException,
             ServiceStateException, ServiceOperationException;
+
+    @TransactionAttribute(TransactionAttributeType.MANDATORY)
+    Marketplace getMarketplaceForId(String marketplaceId)
+            throws ObjectNotFoundException;
+
+    /**
+     * Returns all existing organizations.
+     *
+     * @return list of organizations
+     */
+    @TransactionAttribute(TransactionAttributeType.MANDATORY)
+    List<Organization> getAllOrganizations();
+
+    /**
+     * This method is used to close or open marketplace.
+     *
+     * @param marketplaceId
+     *            - Id of marketplace of which access type has to be changed
+     * @param isRestricted
+     *            - true - close marketplace, false - open marketplace
+     * @return - changed marketplace object
+     * @throws ObjectNotFoundException
+     * @throws NonUniqueBusinessKeyException
+     */
+    @TransactionAttribute(TransactionAttributeType.MANDATORY)
+    Marketplace updateMarketplaceAccessType(String marketplaceId,
+            boolean isRestricted) throws ObjectNotFoundException,
+            NonUniqueBusinessKeyException;
+
+    /**
+     * This method is used to grant access to given marketplace to given
+     * organization.
+     *
+     * @param marketplace
+     * @param organization
+     * @throws NonUniqueBusinessKeyException
+     */
+    @TransactionAttribute(TransactionAttributeType.MANDATORY)
+    void grantAccessToMarketPlaceToOrganization(Marketplace marketplace,
+            Organization organization) throws NonUniqueBusinessKeyException;
+
+    /**
+     * Removes all existing accesses to given marketplace.
+     *
+     * @param marketplaceKey
+     */
+    @TransactionAttribute(TransactionAttributeType.MANDATORY)
+    void removeMarketplaceAccesses(long marketplaceKey);
+
+    /**
+     * Remove access to marketplace for given organization.
+     *
+     * @param marketplaceKey
+     * @param organizationKey
+     * @throws ObjectNotFoundException
+     */
+    @TransactionAttribute(TransactionAttributeType.MANDATORY)
+    void removeMarketplaceAccess(long marketplaceKey, long organizationKey)
+            throws ObjectNotFoundException;
+
+    /**
+     * Retrieves all marketplaces with restricted access which are accessible
+     * for given organization.
+     * 
+     * @param orgKey
+     *            key of the Organization
+     * @return list of marketplaces
+     */
+    public List<Marketplace> getMarketplacesForOrganizationWithRestrictedAccess(
+            long orgKey);
+
+    @TransactionAttribute(TransactionAttributeType.MANDATORY)
+    boolean doesAccessToMarketplaceExistForOrganization(long marketplaceKey,
+            long organizationKey);
+
+    /**
+     * Retrieves organizations information in the context of managing access to
+     * restricted marketplaces
+     * 
+     * @param marketplaceId
+     *            id of the selected marketplace
+     * @return list of objects containing: organization's key, organization's
+     *         id, organization's name, restriction info (boolean), number of
+     *         owned subscriptions on given marketplace
+     * @throws ObjectNotFoundException
+     */
+    public List<Object[]> getOrganizationsWithMarketplaceAccess(
+            String marketplaceId) throws ObjectNotFoundException;
+
+    /**
+     * Retrieves all organizations with access to the marketplace with the given
+     * key if the marketplace is restricted.
+     * 
+     * @param marketplaceKey
+     *            the key of the marketplace
+     * @return list of organizations or empty list if not restricted
+     */
+    public List<Organization> getAllOrganizationsWithAccessToMarketplace(
+            long marketplaceKey);
 }

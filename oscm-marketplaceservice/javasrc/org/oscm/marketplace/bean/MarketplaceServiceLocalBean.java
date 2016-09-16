@@ -25,8 +25,6 @@ import javax.ejb.TransactionAttributeType;
 import javax.interceptor.Interceptors;
 import javax.persistence.Query;
 
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
 import org.oscm.accountservice.local.AccountServiceLocal;
 import org.oscm.categorizationService.local.CategorizationServiceLocal;
 import org.oscm.communicationservice.local.CommunicationServiceLocal;
@@ -35,6 +33,7 @@ import org.oscm.dataservice.local.DataService;
 import org.oscm.dataservice.local.QueryBasedObjectFactory;
 import org.oscm.domobjects.CatalogEntry;
 import org.oscm.domobjects.Marketplace;
+import org.oscm.domobjects.MarketplaceAccess;
 import org.oscm.domobjects.MarketplaceToOrganization;
 import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.OrganizationRole;
@@ -54,19 +53,6 @@ import org.oscm.identityservice.local.IdentityServiceLocal;
 import org.oscm.interceptor.AuditLogDataInterceptor;
 import org.oscm.interceptor.ExceptionMapper;
 import org.oscm.interceptor.InvocationDateContainer;
-import org.oscm.landingpageService.local.LandingpageServiceLocal;
-import org.oscm.landingpageService.local.LandingpageType;
-import org.oscm.marketplace.auditlog.MarketplaceAuditLogCollector;
-import org.oscm.marketplaceservice.local.MarketplaceServiceLocal;
-import org.oscm.permission.PermissionCheck;
-import org.oscm.serviceprovisioningservice.local.ServiceProvisioningPartnerServiceLocal;
-import org.oscm.types.enumtypes.EmailType;
-import org.oscm.types.enumtypes.FillinCriterion;
-import org.oscm.types.enumtypes.LogMessageIdentifier;
-import org.oscm.validation.ArgumentValidator;
-import org.oscm.validation.Invariants;
-import org.oscm.validation.VersionAndKeyValidator;
-import org.oscm.validator.BLValidator;
 import org.oscm.internal.resalepermissions.POResalePermissionDetails;
 import org.oscm.internal.types.enumtypes.OfferingType;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
@@ -85,6 +71,22 @@ import org.oscm.internal.types.exception.ServiceStateException;
 import org.oscm.internal.types.exception.UserRoleAssignmentException;
 import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.internal.vo.VOCategory;
+import org.oscm.landingpageService.local.LandingpageServiceLocal;
+import org.oscm.landingpageService.local.LandingpageType;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
+import org.oscm.marketplace.auditlog.MarketplaceAuditLogCollector;
+import org.oscm.marketplace.dao.MarketplaceAccessDao;
+import org.oscm.marketplaceservice.local.MarketplaceServiceLocal;
+import org.oscm.permission.PermissionCheck;
+import org.oscm.serviceprovisioningservice.local.ServiceProvisioningPartnerServiceLocal;
+import org.oscm.types.enumtypes.EmailType;
+import org.oscm.types.enumtypes.FillinCriterion;
+import org.oscm.types.enumtypes.LogMessageIdentifier;
+import org.oscm.validation.ArgumentValidator;
+import org.oscm.validation.Invariants;
+import org.oscm.validation.VersionAndKeyValidator;
+import org.oscm.validator.BLValidator;
 
 /**
  * @author barzu
@@ -130,11 +132,27 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
     @EJB
     MarketplaceAuditLogCollector audit;
 
+    @EJB
+    MarketplaceAccessDao marketplaceAccessDao;
+
     @Override
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     public List<Marketplace> getAllMarketplaces() {
 
         Query query = ds.createNamedQuery("Marketplace.getAll");
+        List<Marketplace> marketplaceList = ParameterizedTypes.list(
+                query.getResultList(), Marketplace.class);
+
+        return marketplaceList;
+    }
+
+    @Override
+    @TransactionAttribute(TransactionAttributeType.MANDATORY)
+    public List<Marketplace> getAllAccessibleMarketplacesForOrganization(
+            long organizationKey) {
+
+        Query query = ds.createNamedQuery("Marketplace.getAllAccessible");
+        query.setParameter("organization_tkey", organizationKey);
         List<Marketplace> marketplaceList = ParameterizedTypes.list(
                 query.getResultList(), Marketplace.class);
 
@@ -656,7 +674,8 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
                         brokerRevenueShareVersion);
             }
             return ownerAssignmentUpdated;
-        } catch (ValidationException | UserRoleAssignmentException | ObjectNotFoundException e) {
+        } catch (ValidationException | UserRoleAssignmentException
+                | ObjectNotFoundException e) {
             sessionCtx.setRollbackOnly();
             throw e;
         }
@@ -784,7 +803,8 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
             OperationNotPermittedException {
         Marketplace ceNewMarketplace = ceNew.getMarketplace();
         if (ceNewMarketplace != null) {
-            BLValidator.isNotNull("voCatalogEntry.marketplaceId", ceNewMarketplace.getMarketplaceId());
+            BLValidator.isNotNull("voCatalogEntry.marketplaceId",
+                    ceNewMarketplace.getMarketplaceId());
         }
 
         // check for correct role
@@ -793,16 +813,13 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
         // first find existing service/product
         Product product = loadProductAndVerifyOwner(serviceKey, supplier);
 
-
         CatalogEntry catalogEntry = retrieveCatalogEntry(product);
-
 
         boolean isServicePublicChanged = false;
         if (catalogEntry.isAnonymousVisible() != ceNew.isAnonymousVisible()) {
             isServicePublicChanged = true;
         }
         setCatalogEntryVisibility(ceNew, catalogEntry);
-
 
         // check if MP of given service hasn't changed and skip publication in
         // that case
@@ -826,7 +843,8 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
                 removePartnerPriceModelsForCatalogEntry(catalogEntry);
             }
 
-            Marketplace mp = retrieveMarketplaceForGivenId(ceNewMarketplace, supplier);
+            Marketplace mp = retrieveMarketplaceForGivenId(ceNewMarketplace,
+                    supplier);
             catalogEntry.setMarketplace(mp);
             clearUpgradePath(product);
             marketPlaceUpdated = true;
@@ -838,13 +856,16 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
         return product;
     }
 
-    private boolean shouldMkpBeUpdated(Marketplace ceNewMarketplace, Marketplace productMarketplace) {
+    private boolean shouldMkpBeUpdated(Marketplace ceNewMarketplace,
+            Marketplace productMarketplace) {
         return isNewMkpNullAndOldNotNull(ceNewMarketplace, productMarketplace)
                 || isOldNullAndNewNotNull(ceNewMarketplace, productMarketplace)
                 || bothNotNullAndDifferent(ceNewMarketplace, productMarketplace);
     }
 
-    private Marketplace retrieveMarketplaceForGivenId(Marketplace ceNewMarketplace, Organization supplier) throws ObjectNotFoundException, OperationNotPermittedException {
+    private Marketplace retrieveMarketplaceForGivenId(
+            Marketplace ceNewMarketplace, Organization supplier)
+            throws ObjectNotFoundException, OperationNotPermittedException {
         Marketplace mp = null;
         if (ceNewMarketplace != null) {
             // retrieve MP object for succeeding check
@@ -862,7 +883,8 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
         return mp;
     }
 
-    private void setCatalogEntryVisibility(CatalogEntry ceNew, CatalogEntry catalogEntry) {
+    private void setCatalogEntryVisibility(CatalogEntry ceNew,
+            CatalogEntry catalogEntry) {
         // is the catalog entry is visible to anonymous users?
         catalogEntry.setAnonymousVisible(ceNew.isAnonymousVisible());
 
@@ -870,7 +892,8 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
         catalogEntry.setVisibleInCatalog(ceNew.isVisibleInCatalog());
     }
 
-    private CatalogEntry retrieveCatalogEntry(Product product) throws NonUniqueBusinessKeyException {
+    private CatalogEntry retrieveCatalogEntry(Product product)
+            throws NonUniqueBusinessKeyException {
         // get existing catalog entry for service
         CatalogEntry catalogEntry = null;
         if (product.getCatalogEntries().size() > 0) {
@@ -887,12 +910,14 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
 
     @Override
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
-    public Product publishServiceWithPermissions(long serviceKey, CatalogEntry catalogEntry, List<VOCategory> categories,
-                                                 List<POResalePermissionDetails> permissionsToGrant,
-                                                 List<POResalePermissionDetails> permissionsToRevoke)
+    public Product publishServiceWithPermissions(long serviceKey,
+            CatalogEntry catalogEntry, List<VOCategory> categories,
+            List<POResalePermissionDetails> permissionsToGrant,
+            List<POResalePermissionDetails> permissionsToRevoke)
             throws ObjectNotFoundException, NonUniqueBusinessKeyException,
-            OperationNotPermittedException, ValidationException, OrganizationAuthorityException,
-            ConcurrentModificationException, ServiceStateException, ServiceOperationException {
+            OperationNotPermittedException, ValidationException,
+            OrganizationAuthorityException, ConcurrentModificationException,
+            ServiceStateException, ServiceOperationException {
         Product retVal = publishService(serviceKey, catalogEntry, categories);
         if (ds.getCurrentUser().hasRole(UserRoleType.SERVICE_MANAGER)) {
             grantResalePermissions(permissionsToGrant);
@@ -901,25 +926,29 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
         return retVal;
     }
 
-    private boolean isOldNullAndNewNotNull(Marketplace ceNewMarketplace, Marketplace productMarketplace) {
+    private boolean isOldNullAndNewNotNull(Marketplace ceNewMarketplace,
+            Marketplace productMarketplace) {
         return productMarketplace == null && ceNewMarketplace != null;
     }
 
-    private boolean bothNotNullAndDifferent(Marketplace ceNewMarketplace, Marketplace productMarketplace) {
+    private boolean bothNotNullAndDifferent(Marketplace ceNewMarketplace,
+            Marketplace productMarketplace) {
         boolean retVal = false;
         if (ceNewMarketplace != null && productMarketplace != null) {
-            retVal = !ceNewMarketplace.getMarketplaceId().equals(productMarketplace.getMarketplaceId());
+            retVal = !ceNewMarketplace.getMarketplaceId().equals(
+                    productMarketplace.getMarketplaceId());
         }
         return retVal;
     }
 
-    private boolean isNewMkpNullAndOldNotNull(Marketplace ceNewMarketplace, Marketplace productMarketplace) {
+    private boolean isNewMkpNullAndOldNotNull(Marketplace ceNewMarketplace,
+            Marketplace productMarketplace) {
         return ceNewMarketplace == null && productMarketplace != null;
     }
 
     private void logActivities(List<VOCategory> categories, Product product,
-                               boolean isServicePublicChanged,
-                               CatalogEntry catalogEntry, boolean marketPlaceUpdated) throws ObjectNotFoundException {
+            boolean isServicePublicChanged, CatalogEntry catalogEntry,
+            boolean marketPlaceUpdated) throws ObjectNotFoundException {
         Marketplace marketplace = catalogEntry.getMarketplace();
         if (marketplace != null) {
             boolean isCatagoriesChanged = categorizationService
@@ -933,7 +962,8 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
             if (marketPlaceUpdated) {
                 LocalizerFacade facade = new LocalizerFacade(localizer, ds
                         .getCurrentUser().getLocale());
-                audit.assignToMarketPlace(ds, product, marketplace.getMarketplaceId(), facade.getText(
+                audit.assignToMarketPlace(ds, product, marketplace
+                        .getMarketplaceId(), facade.getText(
                         marketplace.getKey(),
                         LocalizedObjectTypes.MARKETPLACE_NAME));
             }
@@ -1006,5 +1036,135 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
     public void setPartnerSrvProv(
             ServiceProvisioningPartnerServiceLocal partnerSrvProv) {
         this.partnerSrvProv = partnerSrvProv;
+    }
+
+    @Override
+    @TransactionAttribute(TransactionAttributeType.MANDATORY)
+    public Marketplace getMarketplaceForId(String marketplaceId)
+            throws ObjectNotFoundException {
+        return (Marketplace) ds.getReferenceByBusinessKey(new Marketplace(
+                marketplaceId));
+    }
+
+    @Override
+    @TransactionAttribute(TransactionAttributeType.MANDATORY)
+    public List<Organization> getAllOrganizations() {
+        Query query = ds.createNamedQuery("Organization.getAllOrganizations");
+        return ParameterizedTypes.list(query.getResultList(),
+                Organization.class);
+    }
+
+    @Override
+    @TransactionAttribute(TransactionAttributeType.MANDATORY)
+    public Marketplace updateMarketplaceAccessType(String marketplaceId,
+            boolean isRestricted) throws ObjectNotFoundException,
+            NonUniqueBusinessKeyException {
+        Marketplace marketplace = (Marketplace) ds
+                .getReferenceByBusinessKey(new Marketplace(marketplaceId));
+        if (marketplace.isRestricted() == isRestricted) {
+            return marketplace;
+        }
+        marketplace.setRestricted(isRestricted);
+        ds.persist(marketplace);
+        return marketplace;
+    }
+
+    @Override
+    @TransactionAttribute(TransactionAttributeType.MANDATORY)
+    public void grantAccessToMarketPlaceToOrganization(Marketplace marketplace,
+            Organization organization) throws NonUniqueBusinessKeyException {
+
+        MarketplaceAccess marketplaceAccess = new MarketplaceAccess();
+        marketplaceAccess.setMarketplace(marketplace);
+        marketplaceAccess.setOrganization(organization);
+
+        try {
+            ds.getReferenceByBusinessKey(marketplaceAccess);
+        } catch (ObjectNotFoundException e) {
+            ds.persist(marketplaceAccess);
+        }
+    }
+
+    @Override
+    @TransactionAttribute(TransactionAttributeType.MANDATORY)
+    public void removeMarketplaceAccesses(long marketplaceKey) {
+        marketplaceAccessDao.removeAccessForMarketplace(marketplaceKey);
+    }
+
+    @Override
+    @TransactionAttribute(TransactionAttributeType.MANDATORY)
+    public void removeMarketplaceAccess(long marketplaceKey,
+            long organizationKey) throws ObjectNotFoundException {
+        MarketplaceAccess marketplaceAccess = new MarketplaceAccess();
+        marketplaceAccess.setMarketplace_tkey(marketplaceKey);
+        marketplaceAccess.setOrganization_tkey(organizationKey);
+
+        try {
+            MarketplaceAccess mpa = (MarketplaceAccess) ds
+                    .getReferenceByBusinessKey(marketplaceAccess);
+            ds.remove(mpa);
+        } catch (ObjectNotFoundException e) {
+            // if no entry exists just continue
+        }
+
+        Organization org = ds.getReference(Organization.class, organizationKey);
+        Marketplace mp = ds.getReference(Marketplace.class, marketplaceKey);
+
+        CatalogEntry ce;
+        for (Product prod : org.getProducts()) {
+            ce = prod.getCatalogEntryForMarketplace(mp);
+            if (ce != null) {
+                ce.setMarketplace(null);
+            }
+        }
+    }
+
+    @Override
+    public List<Marketplace> getMarketplacesForOrganizationWithRestrictedAccess(
+            long orgKey) {
+
+        String selectQuery = "SELECT m.* FROM marketplace m JOIN marketplaceaccess ma ON m.tkey = ma.marketplace_tkey WHERE m.restricted = 'true' AND ma.organization_tkey = :orgKey";
+
+        Query query = ds.createNativeQuery(selectQuery, Marketplace.class);
+        query.setParameter("orgKey", orgKey);
+
+        List<Marketplace> marketplaces = ParameterizedTypes.list(
+                query.getResultList(), Marketplace.class);
+
+        return marketplaces;
+    }
+
+    @Override
+    @TransactionAttribute(TransactionAttributeType.MANDATORY)
+    public boolean doesAccessToMarketplaceExistForOrganization(
+            long marketplaceKey, long organizationKey) {
+        MarketplaceAccess marketplaceAccess = new MarketplaceAccess();
+        marketplaceAccess.setMarketplace_tkey(marketplaceKey);
+        marketplaceAccess.setOrganization_tkey(organizationKey);
+        try {
+            ds.getReferenceByBusinessKey(marketplaceAccess);
+        } catch (ObjectNotFoundException e) {
+            return false;
+        }
+        return marketplaceAccess != null;
+    }
+
+    @Override
+    public List<Object[]> getOrganizationsWithMarketplaceAccess(
+            String marketplaceId) throws ObjectNotFoundException {
+
+        Marketplace marketplace = (Marketplace) ds
+                .getReferenceByBusinessKey(new Marketplace(marketplaceId));
+
+        return marketplaceAccessDao
+                .getOrganizationsWithMplAndSubscriptions(marketplace.getKey());
+    }
+
+    @Override
+    public List<Organization> getAllOrganizationsWithAccessToMarketplace(
+            long marketplaceKey) {
+
+        return marketplaceAccessDao
+                .getAllOrganizationsWithAccessToMarketplace(marketplaceKey);
     }
 }

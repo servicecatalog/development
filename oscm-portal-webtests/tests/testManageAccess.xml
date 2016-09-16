@@ -1,0 +1,49 @@
+<!-- Copyright FUJITSU LIMITED 2016-->
+<!DOCTYPE project SYSTEM "../dtd/Project.dtd">
+<project default="testManageAccess" xmlns:setup="antlib:org.oscm.webtest.setup">
+	<import file="../macros/all.xml" />
+
+	<target name="testManageAccess">
+		
+		<webtest name="testManageAccess_setup">		
+			<mail.cleanInbox />
+			<operator.addCurrency />
+			<operator.createorganization />
+		    <mail.readPasswordAndUrlFromMail />
+			<storeProperty name="supplierUrl" value="#{orgUrl}" propertyType="ant" />
+			<storeProperty name="supplierId" value="#{orgId}" propertyType="ant" />
+			<storeProperty name="supplierUserId" value="#{userId}" propertyType="ant" />
+			<storeProperty name="supplierUserKey" value="#{userKey}" propertyType="ant" />
+			<operator.createMarketplace mIdProperty="mId" ownerId="#{orgId}" baseurl="#{baseUrl}" name="Restricted Marketplace" failonerror="true" />
+			<login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+			<login.logout />
+		</webtest>
+
+		<webtest name="testManageAccess_withMarketplaceOwner">
+			<login.login url="${supplierUrl}" userId="${supplierUserId}" />
+			
+			<clickLink href="/oscm-portal/shop/manageAccess.jsf" />
+			<setSelectField htmlId="manageAccessForm:marketplace" text="Restricted Marketplace (${supplierId})" />
+			<setCheckbox htmlId="manageAccessForm:isRestricted" checked="true" />
+			<clickButton label="${button.save}" />
+			<common.verifySuccess label="${marketplace.manageAccess.saved}" />
+			
+			<clickLink href="/oscm-portal/shop/gotoMarketplace.jsf" />
+			<not>
+				<verifyXPath xpath="//option[@value='${supplierId}']" text="Restricted Marketplace(${supplierId})" />
+			</not>
+			
+			<clickLink href="/oscm-portal/shop/manageAccess.jsf" />
+			<setSelectField htmlId="manageAccessForm:marketplace" text="Restricted Marketplace (${supplierId})" />
+			<setInputField htmlId="manageAccessForm:organizationsTable:filterOrganizationId" value="${supplierId}" />
+			<setCheckbox xpath="//tr[@id='manageAccessForm:organizationsTable:0']//td//input[@type='checkbox']" checked="true" />
+			<clickButton label="${button.save}" />
+			
+			<clickLink href="/oscm-portal/shop/gotoMarketplace.jsf" />
+			<verifyXPath xpath="//option[@value='${supplierId}']" text="Restricted Marketplace(${supplierId})" />
+			
+			<login.logout />
+		</webtest>
+
+	</target>
+</project>

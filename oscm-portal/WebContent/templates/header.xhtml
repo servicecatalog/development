@@ -46,9 +46,16 @@
                   <span class="w_004_h_e_login_name" id="headerUserId" onclick="AdmUtils.userIdClicked(event);"><h:outputText
                       value="#{userBean.myUserId}" />
                   </span>
-                  <h:commandLink id="logout" action="#{userBean.logoff}">
-                    <h:outputText value="#{msg['logout']}" />
-                  </h:commandLink>
+                  <c:if test="#{userBean.internalAuthMode}">
+                    <h:commandLink id="logout" action="#{userBean.logoff}" >
+                      <h:outputText value="#{msg['logout']}" />
+                    </h:commandLink>
+                  </c:if>
+                  <c:if test="#{not userBean.internalAuthMode}">
+                    <h:commandLink id="logout" action="#{sessionBean.redirectToIdpLogout}" >
+                      <h:outputText value="#{msg['logout']}" />
+                    </h:commandLink>
+                  </c:if>
                 </p>
               </h:form>
             </div>

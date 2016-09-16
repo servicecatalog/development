@@ -107,6 +107,7 @@ public class MarketplaceAssemblerTest {
         assertEquals(facade.getText(domMpDefault.getKey(),
                 LocalizedObjectTypes.MARKETPLACE_NAME), voMp.getName());
         assertEquals(domMpDefault.isOpen(), voMp.isOpen());
+        assertEquals(domMpDefault.getPublicLandingpage() != null, voMp.isHasPublicLandingPage());
 
         // dom object initialize with FALSE in the setup
         assertFalse(domMpDefault.isTaggingEnabled());
@@ -155,6 +156,19 @@ public class MarketplaceAssemblerTest {
         assertTrue(voMpDefault.isOpen() == domMp.isOpen());
         assertTrue(voMpDefault.isCategoriesEnabled() == domMp
                 .isCategoriesEnabled());
+    }
+
+    @Test
+    public void testToMarketplaceWithKey() throws Exception {
+        voMpDefault.setKey(5);
+        Marketplace domMp = MarketplaceAssembler.toMarketplaceWithKey(voMpDefault);
+        assertNotNull(domMp);
+        assertEquals(voMpDefault.getKey(), domMp.getKey());
+        assertEquals(voMpDefault.getVersion(), domMp.getVersion());
+        assertEquals(voMpDefault.getMarketplaceId(), domMp.getMarketplaceId());
+        assertTrue(voMpDefault.isOpen() == domMp.isOpen());
+        assertTrue(voMpDefault.isCategoriesEnabled() == domMp
+            .isCategoriesEnabled());
     }
 
     @Test(expected = SaaSSystemException.class)

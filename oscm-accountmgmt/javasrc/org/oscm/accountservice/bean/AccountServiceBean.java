@@ -41,8 +41,6 @@ import javax.interceptor.Interceptors;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
 import org.oscm.accountservice.assembler.BillingContactAssembler;
 import org.oscm.accountservice.assembler.DiscountAssembler;
 import org.oscm.accountservice.assembler.OrganizationAssembler;
@@ -101,29 +99,8 @@ import org.oscm.interceptor.DateFactory;
 import org.oscm.interceptor.ExceptionMapper;
 import org.oscm.interceptor.InvocationDateContainer;
 import org.oscm.interceptor.LdapInterceptor;
-import org.oscm.paymentservice.local.PaymentServiceLocal;
-import org.oscm.permission.PermissionCheck;
-import org.oscm.serviceprovisioningservice.assembler.ProductAssembler;
-import org.oscm.string.Strings;
-import org.oscm.subscriptionservice.auditlog.SubscriptionAuditLogCollector;
-import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
-import org.oscm.triggerservice.bean.TriggerProcessIdentifiers;
-import org.oscm.triggerservice.local.TriggerMessage;
-import org.oscm.triggerservice.local.TriggerProcessMessageData;
-import org.oscm.triggerservice.local.TriggerQueueServiceLocal;
-import org.oscm.triggerservice.validator.TriggerProcessValidator;
-import org.oscm.types.constants.Configuration;
-import org.oscm.types.enumtypes.EmailType;
-import org.oscm.types.enumtypes.LogMessageIdentifier;
-import org.oscm.types.enumtypes.PlatformParameterIdentifiers;
-import org.oscm.types.enumtypes.TriggerProcessParameterName;
-import org.oscm.types.enumtypes.UdaTargetType;
-import org.oscm.validation.ArgumentValidator;
-import org.oscm.validation.ImageValidator;
-import org.oscm.validation.PaymentDataValidator;
-import org.oscm.validator.OrganizationRoleValidator;
-import org.oscm.vo.BaseAssembler;
 import org.oscm.internal.intf.AccountService;
+import org.oscm.internal.intf.MarketplaceService;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.types.enumtypes.ImageType;
 import org.oscm.internal.types.enumtypes.ImageType.ImageOwnerType;
@@ -167,6 +144,7 @@ import org.oscm.internal.vo.LdapProperties;
 import org.oscm.internal.vo.VOBillingContact;
 import org.oscm.internal.vo.VOImageResource;
 import org.oscm.internal.vo.VOLocalizedText;
+import org.oscm.internal.vo.VOMarketplace;
 import org.oscm.internal.vo.VOOrganization;
 import org.oscm.internal.vo.VOOrganizationPaymentConfiguration;
 import org.oscm.internal.vo.VOPaymentInfo;
@@ -177,6 +155,30 @@ import org.oscm.internal.vo.VOTechnicalService;
 import org.oscm.internal.vo.VOUda;
 import org.oscm.internal.vo.VOUdaDefinition;
 import org.oscm.internal.vo.VOUserDetails;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
+import org.oscm.paymentservice.local.PaymentServiceLocal;
+import org.oscm.permission.PermissionCheck;
+import org.oscm.serviceprovisioningservice.assembler.ProductAssembler;
+import org.oscm.string.Strings;
+import org.oscm.subscriptionservice.auditlog.SubscriptionAuditLogCollector;
+import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
+import org.oscm.triggerservice.bean.TriggerProcessIdentifiers;
+import org.oscm.triggerservice.local.TriggerMessage;
+import org.oscm.triggerservice.local.TriggerProcessMessageData;
+import org.oscm.triggerservice.local.TriggerQueueServiceLocal;
+import org.oscm.triggerservice.validator.TriggerProcessValidator;
+import org.oscm.types.constants.Configuration;
+import org.oscm.types.enumtypes.EmailType;
+import org.oscm.types.enumtypes.LogMessageIdentifier;
+import org.oscm.types.enumtypes.PlatformParameterIdentifiers;
+import org.oscm.types.enumtypes.TriggerProcessParameterName;
+import org.oscm.types.enumtypes.UdaTargetType;
+import org.oscm.validation.ArgumentValidator;
+import org.oscm.validation.ImageValidator;
+import org.oscm.validation.PaymentDataValidator;
+import org.oscm.validator.OrganizationRoleValidator;
+import org.oscm.vo.BaseAssembler;
 
 /**
  * Session Bean implementation class AccountServiceBean
@@ -230,6 +232,9 @@ public class AccountServiceBean implements AccountService, AccountServiceLocal {
 
     @EJB(beanInterface = MarketingPermissionServiceLocal.class)
     protected MarketingPermissionServiceLocal marketingPermissionService;
+
+    @EJB(beanInterface = MarketplaceService.class)
+    protected MarketplaceService marketplaceService;
 
     @EJB
     SubscriptionAuditLogCollector subscriptionAuditLogCollector;
@@ -893,7 +898,7 @@ public class AccountServiceBean implements AccountService, AccountServiceLocal {
             throw new DeletionConstraintException(
                     "Only deregistration of customer organizations is allowed!");
         }
-        
+
         List<Subscription> subscriptionList = organization.getSubscriptions();
         if (subscriptionList == null || subscriptionList.isEmpty()) {
             long userKey = 0;
@@ -1011,6 +1016,8 @@ public class AccountServiceBean implements AccountService, AccountServiceLocal {
         Organization storedOrganization = saveOrganizationWithUniqueIdAndInvoicePayment(
                 organization, user.getLocale());
 
+        grantAccessToTheMarketplace(marketplaceId, storedOrganization);
+
         setDomicileCountry(storedOrganization, domicileCountry);
 
         updateOrganizationDescription(organization.getKey(), description);
@@ -1096,6 +1103,24 @@ public class AccountServiceBean implements AccountService, AccountServiceLocal {
         dm.refresh(storedOrganization);
 
         return storedOrganization;
+    }
+
+    private void grantAccessToTheMarketplace(String marketplaceId,
+            Organization storedOrganization) throws ObjectNotFoundException,
+            ValidationException, NonUniqueBusinessKeyException {
+
+        if (marketplaceId == null || "".equals(marketplaceId)) {
+            return;
+        }
+
+        VOMarketplace marketplace = marketplaceService
+                .getMarketplaceById(marketplaceId);
+
+        if (marketplace.isRestricted()) {
+            marketplaceService.grantAccessToMarketPlaceToOrganization(
+                    marketplace,
+                    OrganizationAssembler.toVOOrganization(storedOrganization));
+        }
     }
 
     UserGroup createDefaultUserGroup(Organization org) {

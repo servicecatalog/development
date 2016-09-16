@@ -5,7 +5,11 @@
 package org.oscm.test.stubs;
 
 import java.util.List;
+import java.util.Set;
 
+import javax.security.auth.login.LoginException;
+
+import org.oscm.internal.cache.MarketplaceConfiguration;
 import org.oscm.internal.intf.MarketplaceService;
 import org.oscm.internal.types.exception.ConcurrentModificationException;
 import org.oscm.internal.types.exception.MarketplaceAccessTypeUneligibleForOperationException;
@@ -16,6 +20,8 @@ import org.oscm.internal.types.exception.OrganizationAlreadyBannedException;
 import org.oscm.internal.types.exception.OrganizationAlreadyExistsException;
 import org.oscm.internal.types.exception.OrganizationAuthorityException;
 import org.oscm.internal.types.exception.PublishingToMarketplaceNotPermittedException;
+import org.oscm.internal.types.exception.TechnicalServiceNotAliveException;
+import org.oscm.internal.types.exception.TechnicalServiceOperationException;
 import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.internal.vo.VOCatalogEntry;
 import org.oscm.internal.vo.VOMarketplace;
@@ -59,6 +65,11 @@ public class MarketplaceServiceStub implements MarketplaceService {
 
     @Override
     public List<VOMarketplace> getMarketplacesForOperator() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public List<VOMarketplace> getAccessibleMarketplacesForOperator() {
         throw new UnsupportedOperationException();
     }
 
@@ -149,6 +160,63 @@ public class MarketplaceServiceStub implements MarketplaceService {
     public void saveBrandingUrl(VOMarketplace marketplace, String brandingUrl)
             throws ObjectNotFoundException, ValidationException,
             OperationNotPermittedException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public List<VOOrganization> getAllOrganizations(String marketplaceId) {
+        return null;
+    }
+
+    @Override
+    public void grantAccessToMarketPlaceToOrganization(
+            VOMarketplace voMarketplace, VOOrganization voOrganization)
+            throws ValidationException, NonUniqueBusinessKeyException {
+
+    }
+
+    @Override
+    public void openMarketplace(String marketplaceId)
+            throws OperationNotPermittedException, ObjectNotFoundException,
+            NonUniqueBusinessKeyException {
+
+    }
+
+    @Override
+    public List<VOMarketplace> getRestrictedMarketplaces() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean doesOrganizationHaveAccessMarketplace(String marketplaceId,
+            String organizationId) throws LoginException {
+        return false;
+    }
+
+    @Override
+    public void closeMarketplace(String marketplaceId,
+            Set<Long> authorizedOrganizations,
+            Set<Long> unauthorizedOrganizations)
+            throws OperationNotPermittedException, ObjectNotFoundException,
+            NonUniqueBusinessKeyException, TechnicalServiceNotAliveException,
+            TechnicalServiceOperationException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public List<VOOrganization> getAllOrganizationsWithAccessToMarketplace(
+            String marketplaceId) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public MarketplaceConfiguration getCachedMarketplaceConfiguration(
+            String marketplaceId) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void clearCachedMarketplaceConfiguration(String marketplaceId) {
         throw new UnsupportedOperationException();
     }
 

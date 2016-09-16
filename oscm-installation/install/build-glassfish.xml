@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Copyright FUJITSU LIMITED 2016-->
- 
+
 <project name="Complete application installation " default="SETUP" basedir=".">
 
   <description />
@@ -45,7 +45,7 @@
       <else>
         <dirset id="dist.contents" dir="${domains.dir}" includes="*" />
         <property name="prop.dist.contents" refid="dist.contents" />
-        <foreach list="${prop.dist.contents}" delimiter=";" param="domain.dir" target="SETUP.Single"  parallel="${parallel}"/>
+        <foreach list="${prop.dist.contents}" delimiter=";" param="domain.dir" target="SETUP.Single" parallel="${parallel}" />
       </else>
     </if>
   </target>
@@ -86,9 +86,9 @@
   </target>
 
   <target name="SETUP.configure" depends="PrintJavaVersion,setParam,importProperties,verifySettings,configSteps" if="settings.complete">
-	
-  	<antcall target="modifyJspServlet"/>
-  	
+
+    <antcall target="modifyJspServlet" />
+
     <!--copy required glassfish resources -->
     <antcall target="copyRequiredGlassfishResources" />
 
@@ -103,6 +103,9 @@
 
     <!--add resources  -->
     <antcall target="addResources" />
+
+    <!--add additional resources if exist  -->
+    <antcall target="addResourcesExtension" />
 
     <!--create JMS Resources  -->
     <antcall target="createJMSResources" />
@@ -150,13 +153,11 @@
       <param name="src.file" value="${domains.dir}/${domain.dir}/installer/requiredGlassfishResources.properties" />
     </antcall>
   </target>
-	
-  <target name="modifyJspServlet" if="defaultWeb.exists">	
-  	<replaceregexp file="${glassfish.domain.dir}/config/default-web.xml" byline="false"
-  	  match="^[\s]*&lt;param-name&gt;xpoweredBy&lt;/param-name&gt;[${line.separator}]^[\s]*&lt;param-value&gt;true&lt;/param-value&gt;"
-      replace="      &lt;param-name&gt;xpoweredBy&lt;/param-name&gt;${line.separator}      &lt;param-value&gt;false&lt;/param-value&gt;" flags="gmi"/>
+
+  <target name="modifyJspServlet" if="defaultWeb.exists">
+    <replaceregexp file="${glassfish.domain.dir}/config/default-web.xml" byline="false" match="^[\s]*&lt;param-name&gt;xpoweredBy&lt;/param-name&gt;[${line.separator}]^[\s]*&lt;param-value&gt;true&lt;/param-value&gt;" replace="      &lt;param-name&gt;xpoweredBy&lt;/param-name&gt;${line.separator}      &lt;param-value&gt;false&lt;/param-value&gt;" flags="gmi" />
   </target>
-	
+
   <target name="copyLibraries" if="lib.exists">
     <antcall target="copyFiles" inheritall="true">
       <param name="src.file" value="${domains.dir}/${domain.dir}/installer/lib.properties" />
@@ -167,7 +168,7 @@
     <loadfile property="infofile" srcfile="${src.file}">
       <filterchain>
         <striplinecomments>
-          <comment value="#"/>
+          <comment value="#" />
         </striplinecomments>
         <striplinebreaks />
         <expandproperties />
@@ -224,11 +225,28 @@
 
   <target name="addResources" if="resources.xml.exists">
     <antcall target="deleteExistingResources" />
+    <dbProperties />
+    <verifyDbProperties />
+    <condition property="settings.complete">
+      <istrue value="${db.properties.complete}" />
+    </condition>
+    <fail unless="settings.complete" message="database settings not complete." />
     <processResourcesXml />
     <addRes />
     <antcall target="createWebServicePort">
       <param name="target.name" value="server" />
     </antcall>
+  </target>
+
+  <target name="addResourcesExtension" if="resources-extension-template.xml.exists">
+    <dbProperties dbloc="${db.controller.location}" />
+    <verifyDbProperties />
+    <condition property="settings.complete">
+      <istrue value="${db.properties.complete}" />
+    </condition>
+    <fail unless="settings.complete" message="database settings not complete." />
+    <processResourcesXml restemplate="resources-extension-template.xml" resoutput="resources-extension.xml" />
+    <addRes resfile="resources-extension.xml" />
   </target>
 
   <target name="deleteExistingResources" if="resources.exists">
@@ -255,7 +273,7 @@
 
   <target name="updatePropForJms" if="updatePropForJms.exists">
     <loadPropertyFile filepath="${domains.dir}/${domain.dir}/installer/jmsResources" filename="updateProp.properties" />
-    <updateProp propFile="${updateProp.file}" key="${updateProp.key}" value="${updateProp.value}"  comment="${updateProp.comment}"/>
+    <updateProp propFile="${updateProp.file}" key="${updateProp.key}" value="${updateProp.value}" comment="${updateProp.comment}" />
   </target>
 
   <target name="configureSecurityRealm" if="securityrealm.exists">
@@ -355,22 +373,19 @@
 
   <target name="importProperties">
     <glassfishProperties />
-    <dbLocationProperties/>
-    <dbProperties />
+    <dbLocationProperties />
     <mailProperties />
     <jarProperties />
     <domainProperties />
-    <verifySettingsProperties/>
+    <verifySettingsProperties />
   </target>
 
   <target name="verifySettings" depends="importProperties">
-    <verifyDbProperties />
     <verifyMailProperties />
     <verifyJarProperties />
     <verifyDomainProperties />
     <condition property="settings.complete">
       <and>
-        <istrue value="${db.properties.complete}" />
         <istrue value="${mail.properties.complete}" />
         <istrue value="${jar.properties.complete}" />
         <istrue value="${domain.properties.complete}" />
@@ -378,20 +393,21 @@
     </condition>
     <fail unless="settings.complete" message="domain settings not complete." />
   </target>
-
+  
   <target name="configSteps">
     <available file="${domains.dir}/${domain.dir}/installer/JVM-options.properties" property="jvmoptions.exists" />
     <available file="${domains.dir}/${domain.dir}/installer/security-realm.properties" property="securityrealm.exists" />
     <available file="${domains.dir}/${domain.dir}/installer/configuration-attributes.properties" property="attributes.exists" />
     <available file="${domains.dir}/${domain.dir}/installer/patch.properties" property="patch.exists" />
     <available file="${domains.dir}/${domain.dir}/installer/resources-template.xml" property="resources.xml.exists" />
+    <available file="${domains.dir}/${domain.dir}/installer/resources-extension-template.xml" property="resources-extension-template.xml.exists" />
     <available file="${domains.dir}/${domain.dir}/installer/lib.properties" property="lib.exists" />
     <available file="${domains.dir}/${domain.dir}/installer/broker.properties" property="broker.exists" />
     <available file="${domains.dir}/${domain.dir}/installer/resources.properties" property="resources.exists" />
-    <available file="${domains.dir}/${domain.dir}/installer/jmsResources" type="dir" property="jmsresources.exists"/>
+    <available file="${domains.dir}/${domain.dir}/installer/jmsResources" type="dir" property="jmsresources.exists" />
     <available file="${domains.dir}/${domain.dir}/installer/jmsResources/updateProp.properties" property="updatePropForJms.exists" />
     <available file="${domains.dir}/${domain.dir}/installer/requiredGlassfishResources.properties" property="requiredGlassfishResources.exists" />
-  	<available file="${glassfish.domain.dir}/config/default-web.xml" property="defaultWeb.exists" />
+    <available file="${glassfish.domain.dir}/config/default-web.xml" property="defaultWeb.exists" />
   </target>
 
   <target name="checkParam">
@@ -405,8 +421,8 @@
   </target>
 
   <target name="patchEar" if="patch.exists">
-    <patchProperties/>
-    <ant antfile="${patch.script}" target="patchAll" inheritall="true"/>
+    <patchProperties />
+    <ant antfile="${patch.script}" target="patchAll" inheritall="true" />
   </target>
 
   <!-- verify domain exists -->
@@ -423,7 +439,7 @@
 
   <target name="patchAndRedeployApplication" depends="importPropertiesForPatch,DomainExists,PrintJavaVersion">
     <fail unless="domain.exists" message="The domain does not exist." />
-    <ant antfile="${patch.script}" target="patchApplication" inheritall="true"/>
+    <ant antfile="${patch.script}" target="patchApplication" inheritall="true" />
     <antcall target="redeployApplication" />
   </target>
 
@@ -462,7 +478,7 @@
   </target>
 
   <target name="patchApplication" depends="importPropertiesForPatch">
-    <ant antfile="${patch.script}" target="patchApplication" inheritall="true"/>
+    <ant antfile="${patch.script}" target="patchApplication" inheritall="true" />
   </target>
 
 </project>

@@ -7,11 +7,15 @@ package org.oscm.ui.beans;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
+import java.io.IOException;
 import java.util.Locale;
 
 import javax.faces.component.UIViewRoot;
@@ -215,6 +219,19 @@ public class SessionBeanTest {
         assertTrue(SessionBean.isValidServiceKey(123L));
     }
 
+    @Test
+    public void redirectToIdpLogoutTest() throws IOException {
+        //given
+        FacesContext mockContext = mock(FacesContext.class);
+        ExternalContext mockExternalContext = mock(ExternalContext.class);
+        doReturn(mockContext).when(sessionBean).getFacesContext();
+        doReturn(mockExternalContext).when(mockContext).getExternalContext();
+        doReturn("someLogoutRequest").when(sessionBean).getSamlLogoutRequest();
+        //when
+        sessionBean.redirectToIdpLogout();
+        //then
+        verify(mockExternalContext, times(1)).redirect(any(String.class));
+    }
     private void setCurrentLocale(Locale locale) {
         fcContextMock = new FacesContextStub(locale);
         UIViewRoot root = mock(UIViewRoot.class);

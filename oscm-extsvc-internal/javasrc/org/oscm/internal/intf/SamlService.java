@@ -8,6 +8,8 @@
 
 package org.oscm.internal.intf;
 
+import org.oscm.internal.types.exception.SaaSApplicationException;
+
 import javax.ejb.Remote;
 
 /**

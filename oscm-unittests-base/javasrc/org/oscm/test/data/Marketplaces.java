@@ -27,6 +27,7 @@ import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.CatalogEntry;
 import org.oscm.domobjects.LandingpageProduct;
 import org.oscm.domobjects.Marketplace;
+import org.oscm.domobjects.MarketplaceAccess;
 import org.oscm.domobjects.MarketplaceHistory;
 import org.oscm.domobjects.MarketplaceToOrganization;
 import org.oscm.domobjects.Organization;
@@ -167,6 +168,45 @@ public class Marketplaces {
         setDefaultLandingpage(mp);
         createRevenueModels(mp, ds);
         ds.persist(mp);
+        return mp;
+    }
+    
+    /**
+     * Creates a restricted marketplace with accessible organization.
+     * 
+     * @param owner
+     *            the owner of the marketplace
+     * @param marketplaceId
+     *            optional id (default is '<i>&lt;oId&gt;_GLOBAL</i>')
+     * @param ds
+     *            a data service
+     * @return the created marketplace
+     * @throws NonUniqueBusinessKeyException
+     */
+    public static Marketplace createMarketplaceWithRestrictedAccessAndAccessibleOrganizations(Organization owner, String marketplaceId, DataService ds, List<Organization> accessibleOrganizations)
+            throws NonUniqueBusinessKeyException {
+        
+        Assert.assertNotNull("Marketplace owner not defined", owner);
+        Assert.assertNotNull("Marketplace id not defined", marketplaceId);
+        Assert.assertTrue(marketplaceId.trim().length() > 0);
+        
+        Marketplace mp = new Marketplace();
+        mp.setMarketplaceId(marketplaceId.trim());
+        mp.setOrganization(owner);
+        mp.setOpen(true);
+        setDefaultLandingpage(mp);
+        createRevenueModels(mp, ds);
+        mp.setRestricted(true);
+
+        ds.persist(mp);
+
+        for (Organization org:accessibleOrganizations){
+            MarketplaceAccess access = new MarketplaceAccess();
+            access.setMarketplace(mp);
+            access.setOrganization(org);
+            ds.persist(access);
+        }
+        
         return mp;
     }
 

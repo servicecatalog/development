@@ -377,6 +377,10 @@ public enum ConfigurationKey {
     @Example("https://<host>:<port>/<MEXAddress>")
     SSO_STS_METADATA_URL(false, null, "url", true),
 
+    @Doc({ "URL of the Identity Provider's single logout service" })
+    @Example("https://<host>:<port>/<LogoutServiceEndpoint>")
+    SSO_LOGOUT_URL(false, null, "url", false),
+
     @Doc({ "the max number of users that can be registered on the platform" })
     @Example("10")
     MAX_NUMBER_ALLOWED_USERS(true, "10", "long", Long.valueOf(1L), Long
@@ -391,7 +395,19 @@ public enum ConfigurationKey {
     	   "that use the native billing system and are not free of charge. ",
     	   "Once set, the value cannot be changed."})
     @Example("false")
-    HIDE_PAYMENT_INFORMATION(false, null, "boolean", true);
+    HIDE_PAYMENT_INFORMATION(false, null, "boolean", true),
+
+    @Doc({ "Name of the keypair stored in the keystore used for signing SAML messages" })
+    @Example("s1as")
+    SSO_SIGNING_KEY_ALIAS(false),
+
+    @Doc({ "Password to the keystore containing the private key used for signing SAML messages" })
+    @Example("changeit")
+    SSO_SIGNING_KEYSTORE_PASS(false),
+
+    @Doc({ "Path to the truststore holding the private key used for signing SAML messages." })
+    @Example("<path>/keystore.jks")
+    SSO_SIGNING_KEYSTORE(false, null, "string");
 
     // //////////////////////////////////////////////////////////////////////////////////
 

@@ -92,9 +92,18 @@
 
 
   <!-- SERVLET FILTER -->
-  <filter>  
-    <filter-name>DisableUrlSessionFilter</filter-name>  
-    <filter-class>org.oscm.ui.filter.DisableUrlSessionFilter</filter-class>  
+  <filter>
+    <display-name>IdP Logout Filter</display-name>
+    <filter-name>IdPLogoutFilter</filter-name>
+    <filter-class>org.oscm.ui.filter.IdPLogoutFilter</filter-class>
+    <init-param>
+      <param-name>exclude-url-pattern</param-name>
+      <param-value>(.*/a4j/.*|.*/img/.*|.*/css/.*|.*/fonts/.*|.*/scripts/.*|.*/faq/.*|^/slogout.jsf|^/public/.*|^/marketplace/terms/.*)</param-value>
+    </init-param>
+  </filter>
+  <filter>
+    <filter-name>DisableUrlSessionFilter</filter-name>
+    <filter-class>org.oscm.ui.filter.DisableUrlSessionFilter</filter-class>
     <init-param>
       <param-name>exclude-url-pattern</param-name>
       <param-value>(.*/a4j/.*|.*/img/.*|.*/css/.*|.*/fonts/.*|.*/scripts/.*|.*/faq/.*|.*/org.richfaces.resources|.*/javax.faces.resource/.*|^/public/.*)</param-value>
@@ -153,6 +162,16 @@
     <init-param>
       <param-name>exclude-url-pattern</param-name>
       <param-value>(.*/a4j/.*|.*/img/.*|.*/css/.*|.*/fonts/.*|.*/scripts/.*|.*/faq/.*|^/slogout.jsf|^/public/.*|^/marketplace/terms/.*)</param-value>
+    </init-param>
+  </filter>
+  <filter>
+    <display-name>Closed Marketplace Filter</display-name>
+    <filter-name>ClosedMarketplaceFilter</filter-name>
+    <filter-class>org.oscm.ui.filter.ClosedMarketplaceFilter</filter-class>
+    <init-param>
+      <param-name>exclude-url-pattern</param-name>
+      <param-value>(.*/a4j/.*|.*/img/.*|.*/css/.*|.*/fonts/.*|.*/scripts/.*|.*/faq/.*|^/slogout.jsf|^/public/
+        .*|^/marketplace/terms/.*|.*/marketplace/img/.*|^/marketplace/recoverPassword.jsf|^/marketplace/confirmStartPwdRecovery.jsf|^/marketplace/insufficientAuthorities.jsf)</param-value>
     </init-param>
   </filter>
   <filter>
@@ -289,6 +308,11 @@
     <dispatcher>INCLUDE</dispatcher>
   </filter-mapping>
   <filter-mapping>
+    <filter-name>IdPLogoutFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+    <dispatcher>REQUEST</dispatcher>
+  </filter-mapping>
+  <filter-mapping>
     <filter-name>auth</filter-name>
     <url-pattern>/opt/*</url-pattern>
   </filter-mapping>
@@ -299,6 +323,13 @@
   <filter-mapping>
     <filter-name>auth</filter-name>
     <servlet-name>Faces Servlet</servlet-name>
+    <dispatcher>REQUEST</dispatcher>
+    <dispatcher>FORWARD</dispatcher>
+    <dispatcher>INCLUDE</dispatcher>
+  </filter-mapping>
+  <filter-mapping>
+    <filter-name>ClosedMarketplaceFilter</filter-name>
+    <url-pattern>/marketplace/*</url-pattern>
     <dispatcher>REQUEST</dispatcher>
     <dispatcher>FORWARD</dispatcher>
     <dispatcher>INCLUDE</dispatcher>

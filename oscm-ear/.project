@@ -48,6 +48,8 @@
 		<project>oscm-psp-extsvc</project>
 		<project>oscm-pspresponse</project>
 		<project>oscm-reporting</project>
+		<project>oscm-rest-api-common</project>
+		<project>oscm-rest-api-trigger</project>
 		<project>oscm-review</project>
 		<project>oscm-saml-api</project>
 		<project>oscm-server-common</project>

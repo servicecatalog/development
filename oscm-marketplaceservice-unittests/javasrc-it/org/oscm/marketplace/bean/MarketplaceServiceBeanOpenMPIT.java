@@ -35,7 +35,6 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-
 import org.oscm.accountservice.bean.AccountServiceBean;
 import org.oscm.accountservice.bean.UserLicenseServiceLocalBean;
 import org.oscm.accountservice.dao.PaymentTypeDao;
@@ -58,8 +57,23 @@ import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.identityservice.local.IdentityServiceLocal;
 import org.oscm.identityservice.local.LdapAccessServiceLocal;
 import org.oscm.identityservice.local.LdapSettingsManagementServiceLocal;
+import org.oscm.internal.intf.MarketplaceCacheService;
+import org.oscm.internal.intf.MarketplaceService;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.ServiceAccessType;
+import org.oscm.internal.types.enumtypes.ServiceStatus;
+import org.oscm.internal.types.exception.DomainObjectException.ClassEnum;
+import org.oscm.internal.types.exception.MailOperationException;
+import org.oscm.internal.types.exception.MarketplaceAccessTypeUneligibleForOperationException;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.internal.types.exception.OperationNotPermittedException;
+import org.oscm.internal.types.exception.OrganizationAlreadyBannedException;
+import org.oscm.internal.types.exception.OrganizationAuthorityException;
+import org.oscm.internal.vo.VOOrganization;
 import org.oscm.landingpageService.local.LandingpageServiceLocal;
 import org.oscm.marketplace.auditlog.MarketplaceAuditLogCollector;
+import org.oscm.marketplace.dao.MarketplaceAccessDao;
+import org.oscm.marketplaceservice.local.MarketplaceServiceLocal;
 import org.oscm.paymentservice.local.PaymentServiceLocal;
 import org.oscm.serviceprovisioningservice.local.ServiceProvisioningPartnerServiceLocal;
 import org.oscm.serviceprovisioningservice.local.ServiceProvisioningServiceLocal;
@@ -75,18 +89,6 @@ import org.oscm.test.ejb.TestContainer;
 import org.oscm.test.stubs.CategorizationServiceStub;
 import org.oscm.triggerservice.local.TriggerQueueServiceLocal;
 import org.oscm.types.enumtypes.EmailType;
-import org.oscm.internal.intf.MarketplaceService;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
-import org.oscm.internal.types.enumtypes.ServiceStatus;
-import org.oscm.internal.types.exception.DomainObjectException.ClassEnum;
-import org.oscm.internal.types.exception.MailOperationException;
-import org.oscm.internal.types.exception.MarketplaceAccessTypeUneligibleForOperationException;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.types.exception.OperationNotPermittedException;
-import org.oscm.internal.types.exception.OrganizationAlreadyBannedException;
-import org.oscm.internal.types.exception.OrganizationAuthorityException;
-import org.oscm.internal.vo.VOOrganization;
 
 /**
  * Unit tests for the marketplace management with focus on an open marketplace.
@@ -134,6 +136,10 @@ public class MarketplaceServiceBeanOpenMPIT extends EJBTestBase {
         container.addBean(commSvcMock);
         container.addBean(mock(LocalizerServiceLocal.class));
         container.addBean(new DataServiceBean());
+        container.addBean(mock(MarketplaceAccessDao.class));
+        container.addBean(mock(MarketplaceCacheService.class));
+        container.addBean(mock(MarketplaceService.class));
+        container.addBean(mock(MarketplaceServiceLocal.class));
         container.addBean(new PaymentTypeDao());
         container.addBean(mock(IdentityServiceLocal.class));
         container.addBean(mock(SubscriptionServiceLocal.class));
@@ -156,7 +162,6 @@ public class MarketplaceServiceBeanOpenMPIT extends EJBTestBase {
         container.addBean(new MarketplaceAuditLogCollector());
         container.addBean(new MarketplaceServiceLocalBean());
         container.addBean(new MarketplaceServiceBean());
-
         marketplaceService = container.get(MarketplaceService.class);
         ds = container.get(DataService.class);
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Copyright FUJITSU LIMITED 2016-->
- 
+
 <project name="Database tasks" default="initDB" basedir=".">
 
   <!-- properties -->
@@ -51,15 +51,7 @@
   <target name="UPDATE.dbSchemaSingle">
     <echo message="Applying SQL scripts from databases/${db.dir}/sql " />
     <property file="${data.dir}/databases/${db.dir}/db.properties" />
-  	<property name="db.url" value="jdbc:${db.type}://${db.host}:${db.port}/${db.name}"/>
-    <java classname="org.oscm.dbtask.CheckAndResetOwnerForImageResource" failonerror="false">
-      <arg value="${db.driver.class}" />
-      <arg value="${db.url}" />
-      <arg value="${db.admin.user}" />
-      <arg value="${db.admin.pwd}" />
-      <arg value="${db.user}"/>
-      <classpath refid="client.path" />
-    </java>
+    <property name="db.url" value="jdbc:${db.type}://${db.host}:${db.port}/${db.name}" />
     <java classname="org.oscm.setup.DatabaseUpgradeHandler" failonerror="true">
       <arg value="${data.dir}/databases/${db.dir}/db.properties" />
       <arg value="${data.dir}/databases/${db.dir}/sql" />
@@ -85,12 +77,12 @@
   </target>
 
   <target name="CREATE.dbsAndUsers" description="">
-    <antcall target="CREATE.dbAndUserFromParam"/>
-    <antcall target="CREATE.dbAndUserFromDbDir"/>
+    <antcall target="CREATE.dbAndUserFromParam" />
+    <antcall target="CREATE.dbAndUserFromDbDir" />
   </target>
 
   <target name="CREATE.dbAndUserFromParam" if="db.setup.set">
-    <antcall target="CREATE.dbAndUser"/>
+    <antcall target="CREATE.dbAndUser" />
   </target>
 
   <target name="CREATE.dbAndUserFromDbDir" unless="db.setup.set">
@@ -98,20 +90,20 @@
     <property name="prop.dist.contents" refid="dist.contents" />
     <foreach list="${prop.dist.contents}" delimiter=";" param="db.dir" target="CREATE.dbAndUser" parallel="${parallel}" />
   </target>
-  
+
   <target name="CREATE.dbAndUser">
-      <antcall target="CREATE.dbAndUserSingle">
-         <param name="db.file" value="db.properties"/>
-      </antcall>
-      <antcall target="CREATE.jmsDbAndUserSingle" />
+    <antcall target="CREATE.dbAndUserSingle">
+      <param name="db.file" value="db.properties" />
+    </antcall>
+    <antcall target="CREATE.jmsDbAndUserSingle" />
   </target>
-  
+
   <target name="CREATE.jmsDbAndUserSingle" if="jms.exists" depends="jmsConfigExists">
     <antcall target="jmsPropertyConfig">
-        <param file="${data.dir}/databases/${db.dir}/db.properties" />
+      <param file="${data.dir}/databases/${db.dir}/db.properties" />
     </antcall>
     <antcall target="CREATE.dbAndUserSingle">
-        <param name="db.file" value="/installer/db_jms.properties"/>
+      <param name="db.file" value="/installer/db_jms.properties" />
     </antcall>
   </target>
 
@@ -123,29 +115,29 @@
   </target>
 
   <target name="DROP.dbsAndUsers" description="">
-    <antcall target="DROP.dbAndUserFromParam"/>
-    <antcall target="DROP.dbAndUserFromDbDir"/>
+    <antcall target="DROP.dbAndUserFromParam" />
+    <antcall target="DROP.dbAndUserFromDbDir" />
   </target>
 
   <target name="DROP.dbAndUserFromParam" if="db.setup.set">
-    <antcall target="DROP.dbAndUser"/>
+    <antcall target="DROP.dbAndUser" />
   </target>
-  
+
   <target name="DROP.dbAndUser">
     <antcall target="DROP.dbAndUserSingle">
-       <param name="db.file" value="db.properties"/>
+      <param name="db.file" value="db.properties" />
     </antcall>
-    <antcall target="DROP.jmsDbAndUserSingle"/>
+    <antcall target="DROP.jmsDbAndUserSingle" />
   </target>
-  
+
   <target name="DROP.jmsDbAndUserSingle" if="jms.exists" depends="jmsConfigExists">
-      <antcall target="jmsPropertyConfig">
-          <param file="${data.dir}/databases/${db.dir}/db.properties" />
-      </antcall>
-      <antcall target="DROP.dbAndUserSingle">
-          <param name="db.file" value="/installer/db_jms.properties"/>
-      </antcall>
-    </target>
+    <antcall target="jmsPropertyConfig">
+      <param file="${data.dir}/databases/${db.dir}/db.properties" />
+    </antcall>
+    <antcall target="DROP.dbAndUserSingle">
+      <param name="db.file" value="/installer/db_jms.properties" />
+    </antcall>
+  </target>
 
   <target name="DROP.dbAndUserFromDbDir" unless="db.setup.set">
     <dirset id="dist.contents" dir="${data.dir}/databases" includes="*" />
@@ -160,10 +152,10 @@
 
   <target name="UPDATE.configSettings" description="">
     <antcall target="UPDATE.configSettingsFromParam" />
-    <antcall target="UPDATE.configSettingsFromDbDir" >
+    <antcall target="UPDATE.configSettingsFromDbDir">
     </antcall>
   </target>
-  
+
   <target name="UPDATE.configSettingsFromParam" depends="setParam" if="db.setup.set">
     <antcall target="UPDATE.configSettingsSingle">
       <param file="${data.dir}/databases/${db.dir}/configsettings.properties" />
@@ -174,15 +166,15 @@
   <target name="UPDATE.configSettingsFromDbDir" unless="db.setup.set">
     <dirset id="dist.contents" dir="${data.dir}/databases" includes="*" />
     <property name="prop.dist.contents" refid="dist.contents" />
-    <foreach list="${prop.dist.contents}" delimiter=";" param="db.dir" target="UPDATE.configSettingsSingle" parallel="${parallel}" inheritall="true"/>
+    <foreach list="${prop.dist.contents}" delimiter=";" param="db.dir" target="UPDATE.configSettingsSingle" parallel="${parallel}" inheritall="true" />
   </target>
-  
+
   <target name="UPDATE.configSettingsSingle">
     <property file="${data.dir}/databases/${db.dir}/installer/updateconfiguration.properties" />
     <antcall target="UPDATE.configSettingsExecution">
       <param file="${data.dir}/databases/${db.dir}/db.properties" />
     </antcall>
-    <antcall target="UPDATE.configSettingsController" >
+    <antcall target="UPDATE.configSettingsController">
       <param file="${data.dir}/databases/${db.dir}/db.properties" />
     </antcall>
     <antcall target="UPDATE.importSSOProperty">
@@ -190,8 +182,8 @@
     </antcall>
   </target>
 
-  <target name="UPDATE.configSettingsExecution">
-    <property name="db.url" value="jdbc:${db.type}://${db.host}:${db.port}/${db.name}"/>
+  <target name="UPDATE.configSettingsExecution" if="configSettings.exists" depends="configExists">
+    <property name="db.url" value="jdbc:${db.type}://${db.host}:${db.port}/${db.name}" />
     <java classname="${propertyImporter}" failonerror="true">
       <arg value="${db.driver.class}" />
       <arg value="${db.url}" />
@@ -204,7 +196,7 @@
   </target>
 
   <target name="UPDATE.importSSOProperty" if="sso.exists" depends="ssoConfigExists">
-    <property name="db.url" value="jdbc:${db.type}://${db.host}:${db.port}/${db.name}"/>
+    <property name="db.url" value="jdbc:${db.type}://${db.host}:${db.port}/${db.name}" />
     <java classname="org.oscm.ssopropertyimport.SSOPropertyImport" failonerror="true">
       <arg value="${db.driver.class}" />
       <arg value="${db.url}" />
@@ -217,7 +209,7 @@
   </target>
 
   <target name="UPDATE.configSettingsController" if="controller.configSettings.exists" depends="controllerConfigExists">
-    <property name="db.url" value="jdbc:${db.type}://${db.host}:${db.port}/${db.name}"/>
+    <property name="db.url" value="jdbc:${db.type}://${db.host}:${db.port}/${db.name}" />
     <java classname="${propertyImporter}" failonerror="true">
       <arg value="${db.driver.class}" />
       <arg value="${db.url}" />
@@ -240,25 +232,29 @@
     <foreach list="${prop.dist.contents}" delimiter=";" param="db.dir" target="UPDATE.dbSchemaSingle" parallel="${parallel}" />
   </target>
 
-  <target name="initDB"  depends="setParam">
+  <target name="initDB" depends="setParam">
     <antcall target="CREATE.dbsAndUsers" />
     <antcall target="UPDATE.dbSchema" />
     <antcall target="UPDATE.configSettings" />
   </target>
 
-  <target name="updateDatabase"  depends="setParam">
-     <antcall target="UPDATE.dbSchema" />
-     <antcall target="UPDATE.configSettings" />
+  <target name="updateDatabase" depends="setParam">
+    <antcall target="UPDATE.dbSchema" />
+    <antcall target="UPDATE.configSettings" />
   </target>
-  
+
   <target name="checkParam">
     <condition property="db.setup.set">
-      <isset property="db.setup"/>
+      <isset property="db.setup" />
     </condition>
   </target>
 
-  <target name="setParam"  depends="checkParam" if="db.setup.set">
+  <target name="setParam" depends="checkParam" if="db.setup.set">
     <property name="db.dir" value="${db.setup}" />
+  </target>
+
+  <target name="configExists">
+    <available file="${data.dir}/databases/${db.dir}/configsettings.properties" property="configSettings.exists" />
   </target>
 
   <target name="controllerConfigExists">
@@ -268,8 +264,8 @@
   <target name="ssoConfigExists">
     <available file="${data.dir}/databases/${db.dir}/sso.properties" property="sso.exists" />
   </target>
-  
+
   <target name="jmsConfigExists">
-      <available file="${data.dir}/databases/${db.dir}/installer/db_jms.properties" property="jms.exists" />
-    </target>
+    <available file="${data.dir}/databases/${db.dir}/installer/db_jms.properties" property="jms.exists" />
+  </target>
 </project>

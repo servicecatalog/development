@@ -19,6 +19,8 @@ public class VOTriggerDefinition extends BaseVO {
 
     private static final long serialVersionUID = -8230251340174891037L;
 
+    private transient VOOrganization organization;
+
     /**
      * The action that activates the trigger.
      */
@@ -42,6 +44,14 @@ public class VOTriggerDefinition extends BaseVO {
      * If there are trigger processes exist for current trigger definition.
      */
     private boolean hasTriggerProcess;
+
+    public void setId(Long id) {
+        if (id != null) {
+            setKey(id.longValue());
+        } else {
+            setKey(0L);
+        }
+    }
 
     /**
      * Returns the action that activates the trigger.
@@ -162,4 +172,11 @@ public class VOTriggerDefinition extends BaseVO {
         this.hasTriggerProcess = hasTriggerProcess;
     }
 
+    public VOOrganization getOrganization() {
+        return organization;
+    }
+
+    public void setOrganization(VOOrganization organization) {
+        this.organization = organization;
+    }
 }

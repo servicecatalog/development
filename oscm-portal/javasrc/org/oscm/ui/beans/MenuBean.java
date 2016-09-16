@@ -94,6 +94,7 @@ public class MenuBean extends BaseBean implements UIStatus, Serializable {
     public static final String LINK_PRICE_MODEL_SUBSCRIPTION_PRICE_MODEL = "/priceModel/subscriptionPriceModel.jsf";
     public static final String LINK_SHOP_MANAGE_SUPPLIERS = "/shop/manageSuppliers.jsf";
     public static final String LINK_SHOP_MANAGE_CATEGORIES = "/shop/manageCategories.jsf";
+    public static final String LINK_SHOP_MANAGE_ACCESS = "/shop/manageAccess.jsf";
     public static final String LINK_SHOP_CREATE_MARKETPLACE = "/shop/createMarketplace.jsf";
     public static final String LINK_SHOP_UPDATE_MARKETPLACE = "/shop/updateMarketplace.jsf";
     public static final String LINK_SHOP_DELETE_MARKETPLACE = "/shop/deleteMarketplace.jsf";
@@ -481,6 +482,8 @@ public class MenuBean extends BaseBean implements UIStatus, Serializable {
                 or(MARKETPLACE_OWNER, OPERATOR));
         group.addItem(HiddenUIConstants.MENU_ITEM_MARKETPLACE_MANAGE_CATEGORIES,
                 LINK_SHOP_MANAGE_CATEGORIES, MARKETPLACE_OWNER);
+        group.addItem(HiddenUIConstants.MENU_ITEM_MARKETPLACE_MANAGE_ACCESS,
+                LINK_SHOP_MANAGE_ACCESS, MARKETPLACE_OWNER);
         group.addItem(HiddenUIConstants.MENU_ITEM_MARKETPLACE_MANAGE_SUPPLIERS,
                 LINK_SHOP_MANAGE_SUPPLIERS, MARKETPLACE_OWNER);
         group.addItem(HiddenUIConstants.MENU_ITEM_MARKETPLACE_CREATE,

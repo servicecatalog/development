@@ -2,7 +2,7 @@
  *                                                                              
  *  Copyright FUJITSU LIMITED 2016          
  *                                                                                                                                 
- *  Creation Date: 10.12.2014                                                      
+ *  Creation Date: 2014-12-10                                                      
  *                                                                              
  *******************************************************************************/
 
@@ -19,10 +19,8 @@ import org.oscm.billing.external.context.ContextKey;
 import org.oscm.billing.external.context.ContextValue;
 
 /**
- * Localized descriptions and tags of an external price model
- * 
- * @TODO replace implementation with Interface & move implementation to
- *       oscm-file-billing-adapter and oscm-portal
+ * Represents the localized content and tag of a price model defined in an
+ * external billing system.
  */
 public class PriceModel implements Serializable {
 
@@ -32,62 +30,117 @@ public class PriceModel implements Serializable {
     private Map<ContextKey, ContextValue<?>> context;
     private Map<Locale, PriceModelContent> localizedPriceModelContent = new HashMap<Locale, PriceModelContent>();
 
+    /**
+     * Constructs a price model.
+     * 
+     * @param id
+     *            the unique identifier of the price model.
+     * 
+     */
     public PriceModel(UUID id) {
         this.id = id;
     }
 
     /**
-     * Get the unique identifier of the price model
+     * Returns the unique identifier of the price model.
      * 
-     * @return the UUID of the price model
+     * @return the identifier
      */
     public UUID getId() {
         return id;
     }
 
     /**
-     * Set the unique identifier of the price model
+     * Sets the unique identifier of the price model.
      * 
      * @param id
-     *            an UUID
+     *            the identifier
      */
     public void setId(UUID id) {
         this.id = id;
     }
 
     /**
-     * @return the context
+     * Returns the context of the price model.
+     * <p>
+     * The context provides details of the element for which the price model is
+     * defined.
+     * <p>
+     * For service price models, the context consists of:
+     * <ul>
+     * <li><code>SERVICE_ID</code>
+     * <li><code>SERVICE_NAME</code>
+     * <li><code>SERVICE_PARAMETERS</code>
+     * </ul>
+     * For a customer price model, the context consists of:
+     * <ul>
+     * <li><code>SERVICE_ID</code>
+     * <li><code>SERVICE_NAME</code>
+     * <li><code>SERVICE_PARAMETERS</code>
+     * <li><code>CUSTOMER_ID</code>
+     * <li><code>CUSTOMER_NAME</code>
+     * </ul>
+     * For a subscription price model, the context consists of:
+     * <ul>
+     * <li><code>SUBSCRIPTION_ID</code>
+     * <li><code>TENANT_ID</code> - only required for pushing price models
+     * </ul>
+     * 
+     * @return the context, consisting of the required keys and values
      */
     public Map<ContextKey, ContextValue<?>> getContext() {
         return context;
     }
 
     /**
-     * Set the context
+     * Sets the context of the price model.
+     * <p>
+     * The context provides details of the element for which the price model is
+     * defined.
+     * <p>
+     * For service price models, the context consists of:
+     * <ul>
+     * <li><code>SERVICE_ID</code>
+     * <li><code>SERVICE_NAME</code>
+     * <li><code>SERVICE_PARAMETERS</code>
+     * </ul>
+     * For a customer price model, the context consists of:
+     * <ul>
+     * <li><code>SERVICE_ID</code>
+     * <li><code>SERVICE_NAME</code>
+     * <li><code>SERVICE_PARAMETERS</code>
+     * <li><code>CUSTOMER_ID</code>
+     * <li><code>CUSTOMER_NAME</code>
+     * </ul>
+     * For a subscription price model, the context consists of:
+     * <ul>
+     * <li><code>SUBSCRIPTION_ID</code>
+     * <li><code>TENANT_ID</code> - only required for pushing price models
+     * </ul>
      * 
      * @param context
-     *            the context to set
+     *            the context, consisting of the required keys and values
      */
     public void setContext(Map<ContextKey, ContextValue<?>> context) {
         this.context = context;
     }
 
     /**
-     * Adds or updates a localized price model content for a given locale
+     * Adds or updates the content of the price model for the given locale.
      * 
      * @param locale
-     *            a locale
+     *            the locale
      * @param content
-     *            a price model content
+     *            the content
      * @throws NullPointerException
-     *             if the specified locale or description is null
+     *             if the specified locale or content is <code>null</code>
      */
     public void put(Locale locale, PriceModelContent content) {
         localizedPriceModelContent.put(locale, content);
     }
 
     /**
-     * Get all available locales
+     * Retrieves the locales for the price model.
      * 
      * @return a set of locales
      */
@@ -96,12 +149,12 @@ public class PriceModel implements Serializable {
     }
 
     /**
-     * Get the price model content for the given locale
+     * Retrieves the content of the price model for the given locale.
      * 
      * @param locale
-     *            a locale
-     * @return the price model content; null if no content is available for the
-     *         specified locale
+     *            the locale
+     * @return the content, or <code>null</code> if no content is available for
+     *         the specified locale
      */
     public PriceModelContent get(Locale locale) {
         return localizedPriceModelContent.get(locale);

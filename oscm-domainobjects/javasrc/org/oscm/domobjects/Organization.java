@@ -212,6 +212,10 @@ public class Organization extends DomainObjectWithHistory<OrganizationData> {
     @OrderBy
     private List<UserGroup> userGroups = new ArrayList<UserGroup>();
 
+    @OneToMany(mappedBy = "organization", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    @OrderBy
+    private List<MarketplaceAccess> marketplaceAccesses = new ArrayList<MarketplaceAccess>();
+
     /**
      * OrganizationID of the platform operator. The platform operator is created
      * by the setup script.
@@ -1196,4 +1200,11 @@ public class Organization extends DomainObjectWithHistory<OrganizationData> {
         return false;
     }
 
+    public List<MarketplaceAccess> getMarketplaceAccesses() {
+        return marketplaceAccesses;
+    }
+
+    public void setMarketplaceAccesses(List<MarketplaceAccess> marketplaceAccesses) {
+        this.marketplaceAccesses = marketplaceAccesses;
+    }
 }

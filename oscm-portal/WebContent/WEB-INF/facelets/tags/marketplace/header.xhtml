@@ -34,14 +34,24 @@
                     onkeydown="AdmUtils.clickOnReturn(event,'searchForm:hiddenLink');" />
                 </c:if>
                 <h:commandLink id="hiddenLink" style="display:none; visibility: hidden;"
-                  onclick="AdmUtils.copyElementValues('Search','searchForm:searchPhrase');return true;"
+                  onclick="AdmUtils.copyElementValues('Search','searchForm:searchPhrase');AdmUtils.IE9AfterClick('Search');return true;"
                   action="#{serviceListingBean.showServiceListSearch}" />
                 <h:inputHidden value="UTF-8" name="ie" />
               </a4j:outputPanel>
               <a4j:outputPanel layout="block">
-                <h:commandButton name="btnG" id="submit"
-                  onclick="AdmUtils.showProgress(true);AdmUtils.executeOnClick('searchForm:hiddenLink');"
-                  styleClass="searchButton" />
+
+                <c:if test="#{servicePagingBean.searchAvailable}">
+                  <h:commandButton name="btnG" id="submit"
+                    onclick="AdmUtils.IE9OnClick('Search');AdmUtils.showProgress(true);AdmUtils.executeOnClick('searchForm:hiddenLink');"
+                    styleClass="searchButton" />
+                </c:if>
+
+                <c:if test="#{not servicePagingBean.searchAvailable and userBean.internalAuthMode}">
+                  <h:commandButton name="btnG" id="submit"
+                                   onclick="showLoginPanel('/marketplace/index.jsf');"
+                                   styleClass="searchButton" />
+                </c:if>
+
               </a4j:outputPanel>
             </a4j:outputPanel>
           </h:form>
@@ -73,7 +83,14 @@
             <h:form id="formLogout">
               <a4j:outputPanel layout="block" style="float:right;max-width: 90px;" >
                 <h:outputText value="&amp;nbsp;|&amp;nbsp;" escape="false" />
-                <h:commandLink id="logout" value="#{msg['logout']}" action="#{userBean.logoff}" />
+                <c:if test="#{userBean.internalAuthMode}">
+                  <h:commandLink id="logout" value="#{msg['logout']}" action="#{userBean.logoff}" />
+                </c:if>
+                <c:if test="#{not userBean.internalAuthMode}">
+                  <h:commandLink id="logout" action="#{sessionBean.redirectToIdpLogout}" >
+                    <h:outputText value="#{msg['logout']}" />
+                  </h:commandLink>
+                </c:if>
               </a4j:outputPanel>
               <a4j:outputPanel layout="block" styleClass="shortenedText">
                 <h:outputText id="welcome" value="#{msg['welcome']} #{user.userId}" />
@@ -108,5 +125,5 @@
       </ul>
     </a4j:outputPanel>
   </a4j:outputPanel>
-
+  <script type="text/javascript">AdmUtils.IE9PlaceHolderFix('#{servicePagingBean.searchPhrase}', 'Search');</script>
 </ui:composition>

@@ -59,6 +59,8 @@ public class MarketplaceAssembler extends BaseAssembler {
         voResult.setReviewEnabled(domObj.isReviewEnabled());
         voResult.setSocialBookmarkEnabled(domObj.isSocialBookmarkEnabled());
         voResult.setCategoriesEnabled(domObj.isCategoriesEnabled());
+        voResult.setRestricted(domObj.isRestricted());
+        voResult.setHasPublicLandingPage(domObj.getPublicLandingpage() != null);
 
         Organization owner = domObj.getOrganization();
         if (owner != null) {
@@ -111,6 +113,13 @@ public class MarketplaceAssembler extends BaseAssembler {
         validate(voObj);
         copyAttributes(domObj, voObj);
         return domObj;
+    }
+
+    public static Marketplace toMarketplaceWithKey(VOMarketplace voObj)
+        throws ValidationException {
+        Marketplace mp = toMarketplace(voObj);
+        mp.setKey(voObj.getKey());
+        return mp;
     }
 
     public static void validate(VOMarketplace voObj) throws ValidationException {

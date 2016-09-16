@@ -1,13 +1,20 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2016                   
- *                                                                                                                                                                                                    
+ *  Copyright FUJITSU LIMITED 2016 
+ *  
+ *  Creation Date: 2014-08-26
+ *                                                                                                                                                                                                      
  *******************************************************************************/
 
 package org.oscm.billing.external.exception;
 
 import javax.ejb.ApplicationException;
 
+/**
+ * Exception thrown if the connection to an external billing system cannot be
+ * established or a price model cannot be retrieved from such a system.
+ *
+ */
 @ApplicationException(rollback = true)
 public class BillingException extends Exception {
 

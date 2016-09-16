@@ -817,6 +817,16 @@ public class Product extends DomainObjectWithHistory<ProductData> {
         return this;
     }
 
+    public Product getTemplateOrSelfForReview() {
+        if (this.getType().name().equals(ServiceType.PARTNER_TEMPLATE.name())) {
+            return this;
+        }
+        if (isCopy()) {
+            return getTemplate();
+        }
+        return this;
+    }
+
     /**
      * Returns itself in case this is a template product or a re-sale copy,
      * otherwise the template of this product is returned.

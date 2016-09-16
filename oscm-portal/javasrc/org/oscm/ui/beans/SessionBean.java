@@ -19,10 +19,12 @@ import org.oscm.internal.types.exception.SaaSSystemException;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
+import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -137,6 +139,7 @@ public class SessionBean implements Serializable {
     private boolean myProcessesOnly = true;
 
     private PriceModel selectedExternalPriceModel;
+    private String samlLogoutRequest;
 
     public boolean isMyOperationsOnly() {
         return myOperationsOnly;
@@ -446,6 +449,11 @@ public class SessionBean implements Serializable {
         return marketplaceService;
     }
 
+    public void redirectToIdpLogout() throws IOException {
+        ExternalContext externalContext = getFacesContext().getExternalContext();
+        externalContext.redirect(getSamlLogoutRequest());
+    }
+
     public void setSelfRegistrationEnabled(Boolean selfRegistrationEnabled) {
         this.selfRegistrationEnabled = selfRegistrationEnabled;
     }
@@ -530,5 +538,13 @@ public class SessionBean implements Serializable {
     public void setSelectedExternalPriceModel(
             PriceModel selectedExternalPriceModel) {
         this.selectedExternalPriceModel = selectedExternalPriceModel;
+    }
+
+    public void setSamlLogoutRequest(String samlLogoutRequest) {
+        this.samlLogoutRequest = samlLogoutRequest;
+    }
+
+    public String getSamlLogoutRequest() {
+        return (String) new UiDelegate().getSession().getAttribute("LOGOUT_REQUEST");
     }
 }

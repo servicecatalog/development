@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="javasrc"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="/libraries/gson/javalib/gson-2.6.2.jar"/>
+	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/modules/websecurity.jar"/>
+	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/modules/jersey-core.jar"/>
+	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/modules/jersey-gf-server.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc-internal"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-common"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

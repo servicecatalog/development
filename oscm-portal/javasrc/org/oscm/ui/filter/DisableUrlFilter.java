@@ -53,7 +53,8 @@ public class DisableUrlFilter implements Filter {
     }
 
     boolean isHiddenPage(HttpServletRequest request) {
-        if (BesServletRequestReader.isManagePaymentTypesPage(request)) {
+        if (BesServletRequestReader.isManagePaymentTypesPage(request)
+                || BesServletRequestReader.isAccountPaymentPage(request)) {
             ServiceAccess serviceAccess = new EJBServiceAccess();
             ConfigurationService cfgService = serviceAccess
                     .getService(ConfigurationService.class);

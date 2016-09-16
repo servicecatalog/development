@@ -95,6 +95,10 @@ select option {
 	width:100%;
 }
 
+input[type="checkbox"].checkbox-in-table {
+    margin-left: 7px !important;
+}
+
 input[type="checkbox"]{
 	margin:0 5px 0 0 !important;
 }
@@ -2236,3 +2240,15 @@ form .formHighlight div.div-for-input {
     width: inherit !important;
 }
 
+#manageAccessForm tr.formHighlight .label,
+#manageAccessForm tr.formHighlight.rf-dt-r > td,
+#manageAccessForm .clicked-column-header {
+  background:  none !important;
+  background-color: transparent !important;
+}
+
+#manageAccessForm tr.formHighlight input[type="text"],
+#manageAccessForm tr.formHighlight input[type="password"],
+#manageAccessForm tr.formHighlight textarea, #manageAccessForm .formHighlight select {
+    border-color:  transparent !important;
+}

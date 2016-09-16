@@ -111,7 +111,7 @@ public class PageAuthorizationBuilderTest {
         List<PageAuthorization> result = builder
                 .buildPageAuthorizationList(user);
         // then
-        assertEquals(67, result.size());
+        assertEquals(68, result.size());
         assertEquals(MenuBean.LINK_GOTO_MARKETPLACE, result.get(0)
                 .getCurrentPageLink());
         assertEquals(Boolean.TRUE,
@@ -130,7 +130,7 @@ public class PageAuthorizationBuilderTest {
         List<PageAuthorization> result = builder
                 .buildPageAuthorizationList(user);
         // then
-        assertEquals(67, result.size());
+        assertEquals(68, result.size());
         assertEquals(MenuBean.LINK_GOTO_MARKETPLACE, result.get(0)
                 .getCurrentPageLink());
         assertEquals(Boolean.TRUE,

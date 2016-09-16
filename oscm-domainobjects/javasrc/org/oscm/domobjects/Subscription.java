@@ -34,9 +34,18 @@ import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
-import org.apache.solr.analysis.*;
-import org.hibernate.search.annotations.*;
+import org.apache.solr.analysis.LowerCaseFilterFactory;
+import org.apache.solr.analysis.SnowballPorterFilterFactory;
+import org.apache.solr.analysis.WhitespaceTokenizerFactory;
+import org.apache.solr.analysis.WordDelimiterFilterFactory;
+import org.hibernate.search.annotations.Analyzer;
+import org.hibernate.search.annotations.AnalyzerDef;
+import org.hibernate.search.annotations.ClassBridge;
+import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.TokenFilterDef;
+import org.hibernate.search.annotations.TokenizerDef;
 import org.oscm.domobjects.annotations.BusinessKey;
+import org.oscm.domobjects.bridge.SubscriptionClassBridge;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.interceptor.DateFactory;
 import org.oscm.internal.types.enumtypes.SubscriptionStatus;
@@ -54,14 +63,14 @@ import org.oscm.types.exceptions.UserNotAssignedException;
  * @author schmid
  */
 @Entity
-@AnalyzerDef(name = "customanalyzer",
-        tokenizer = @TokenizerDef(factory = WhitespaceTokenizerFactory.class),
-        filters = {
-                @TokenFilterDef(factory = WordDelimiterFilterFactory.class, params = {
-                        @org.hibernate.search.annotations.Parameter(name = "preserveOriginal", value = "1"),
-                        @org.hibernate.search.annotations.Parameter(name = "catenateAll", value = "1") }),
-                @TokenFilterDef(factory = LowerCaseFilterFactory.class),
-                @TokenFilterDef(factory = StandardFilterFactory.class) })
+@ClassBridge(impl = SubscriptionClassBridge.class)
+@AnalyzerDef(name = "customanalyzer", tokenizer = @TokenizerDef(factory = WhitespaceTokenizerFactory.class), filters = {
+        @TokenFilterDef(factory = WordDelimiterFilterFactory.class, params = {
+                @org.hibernate.search.annotations.Parameter(name = "preserveOriginal", value = "1"),
+                @org.hibernate.search.annotations.Parameter(name = "catenateAll", value = "1") }),
+        @TokenFilterDef(factory = LowerCaseFilterFactory.class),
+        @TokenFilterDef(factory = SnowballPorterFilterFactory.class, params = { @org.hibernate.search.annotations.Parameter(name = "language", value = "English") }) })
+@Analyzer(definition = "customanalyzer")
 @Indexed
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "subscriptionId",
         "organizationKey" }))
@@ -88,6 +97,7 @@ import org.oscm.types.exceptions.UserNotAssignedException;
                 + "AND sub.key in :keys"),
         @NamedQuery(name = "Subscription.numberOfVisibleSubscriptions", query = "SELECT count(sub) FROM Subscription sub WHERE sub.product.technicalProduct.key=:productKey AND sub.organizationKey=:orgKey AND sub.dataContainer.status<>'INVALID' AND sub.dataContainer.status<>'DEACTIVATED'"),
         @NamedQuery(name = "Subscription.getForMarketplace", query = "SELECT sub FROM Subscription sub WHERE sub.marketplace=:marketplace"),
+        @NamedQuery(name = "Subscription.getUsableSubscriptionsForMplAndOrg", query = "SELECT sub FROM Subscription sub WHERE sub.organization=:organization AND sub.marketplace=:marketplace AND sub.dataContainer.status <> 'SUSPENDED'"),
         @NamedQuery(name = "Subscription.instanceIdsForSuppliers", query = "SELECT sub.dataContainer.productInstanceId FROM Subscription sub, Product p, TechnicalProduct tp, Organization sup WHERE sup.dataContainer.organizationId IN (:supplierIds) AND tp.organizationKey=:providerKey AND sub.product.key=p.key AND sub.dataContainer.status IN (:status) AND p.technicalProduct.key=tp.key AND p.vendor.key = sup.key"),
         @NamedQuery(name = "Subscription.getForOrgFetchRoles", query = "SELECT DISTINCT sub, role FROM Subscription sub, Product prod, TechnicalProduct tp LEFT JOIN tp.roleDefinitions role WHERE sub.product = prod AND prod.technicalProduct = tp AND sub.dataContainer.status IN (:status) AND sub.organizationKey =:orgKey ORDER by sub.key ASC"),
         @NamedQuery(name = "Subscription.getSubRoles", query = "SELECT DISTINCT role FROM Subscription sub, Product prod, TechnicalProduct tp LEFT JOIN tp.roleDefinitions role WHERE sub.product = prod AND prod.technicalProduct = tp AND sub.organizationKey =:orgKey AND sub.dataContainer.subscriptionId=:subId ORDER by role.dataContainer.roleId ASC"),

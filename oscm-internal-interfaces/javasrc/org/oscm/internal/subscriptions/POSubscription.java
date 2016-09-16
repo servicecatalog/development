@@ -415,4 +415,16 @@ public class POSubscription implements Serializable {
 		this.serviceName = serviceName;
 	}
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        POSubscription other = (POSubscription) o;
+        return getKey() == other.getKey();
+    }
+
+    @Override
+    public int hashCode() {
+        return voSubscription.hashCode();
+    }
 }

@@ -38,9 +38,6 @@ import javax.sql.DataSource;
 import javax.xml.ws.WebServiceContext;
 
 import org.hibernate.Session;
-
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.dataservice.local.DataSet;
 import org.oscm.dataservice.local.SqlQuery;
@@ -53,6 +50,7 @@ import org.oscm.domobjects.Event;
 import org.oscm.domobjects.LocalizedResource;
 import org.oscm.domobjects.MarketingPermission;
 import org.oscm.domobjects.Marketplace;
+import org.oscm.domobjects.MarketplaceAccess;
 import org.oscm.domobjects.MarketplaceToOrganization;
 import org.oscm.domobjects.OnBehalfUserReference;
 import org.oscm.domobjects.OperationParameter;
@@ -95,12 +93,14 @@ import org.oscm.domobjects.UserGroupToInvisibleProduct;
 import org.oscm.domobjects.UserGroupToUser;
 import org.oscm.domobjects.UserRole;
 import org.oscm.domobjects.bridge.BridgeDataManager;
-import org.oscm.types.enumtypes.LogMessageIdentifier;
-import org.oscm.types.exceptions.InvalidUserSession;
 import org.oscm.internal.types.exception.DomainObjectException;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.SaaSSystemException;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
+import org.oscm.types.enumtypes.LogMessageIdentifier;
+import org.oscm.types.exceptions.InvalidUserSession;
 
 /**
  * Implementation of DataManager as Stateless Session Bean
@@ -277,9 +277,11 @@ public class DataServiceBean implements DataService {
             classEnum = DomainObjectException.ClassEnum.OPERATION_RECORD;
         } else if (objclass == BillingAdapter.class) {
             classEnum = DomainObjectException.ClassEnum.BILLING_ADAPTER;
-        } else if(objclass == UnitRoleAssignment.class) {
+        } else if (objclass == UnitRoleAssignment.class) {
             classEnum = DomainObjectException.ClassEnum.UNIT_ROLE_ASSIGNMENT;
-        }      
+        } else if (objclass == MarketplaceAccess.class) {
+            classEnum = DomainObjectException.ClassEnum.MARKETPLACE_ACCESS;
+        }
         ;
 
         return classEnum;
@@ -864,6 +866,11 @@ public class DataServiceBean implements DataService {
                         LogMessageIdentifier.ERROR_CLOSE_RESOURCE_FAILED);
             }
         }
+    }
+
+    @Override
+    public EntityManager getEntityManager() {
+        return em;
     }
 
 }

@@ -2,7 +2,7 @@
  *                                                                              
  *  Copyright FUJITSU LIMITED 2016                
  *                                                                                                                                 
- *  Creation Date: 08.01.2015                                                      
+ *  Creation Date: 2015-01-15                                                      
  *                                                                              
  *******************************************************************************/
 
@@ -13,10 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A list of price models described with their metadata.
- * 
- * @TODO replace implementation with Interface & move implementation to
- *       oscm-file-billing-adapter and oscm-portal
+ * Represents a list of price models described by their metadata.
  */
 public class PriceModelList implements Serializable {
 
@@ -25,18 +22,40 @@ public class PriceModelList implements Serializable {
     private List<String> metadataCategories = new ArrayList<String>();
     private List<PriceModelMetadata> metadata = new ArrayList<PriceModelMetadata>();
 
+    /**
+     * Returns the available metadata categories.
+     * 
+     * @return the categories
+     */
     public List<String> getMetadataCategories() {
         return metadataCategories;
     }
 
+    /**
+     * Sets the metadata categories.
+     * 
+     * @param metadataCategories
+     *            the categories
+     */
     public void setMetadataCategories(List<String> metadataCategories) {
         this.metadataCategories = metadataCategories;
     }
 
+    /**
+     * Returns the metadata.
+     * 
+     * @return the metadata
+     */
     public List<PriceModelMetadata> getMetadata() {
         return metadata;
     }
 
+    /**
+     * Sets the metadata.
+     * 
+     * @param metadata
+     *            the metadata
+     */
     public void setMetadata(List<PriceModelMetadata> metadata) {
         this.metadata = metadata;
     }

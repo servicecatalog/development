@@ -18,11 +18,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import javax.ejb.ConcurrencyManagement;
+import javax.ejb.ConcurrencyManagementType;
 import javax.ejb.EJB;
 import javax.ejb.EJBException;
 import javax.ejb.LocalBean;
-import javax.ejb.Stateless;
+import javax.ejb.Singleton;
 import javax.ejb.Timeout;
 import javax.ejb.Timer;
 import javax.ejb.TimerService;
@@ -33,9 +36,6 @@ import javax.naming.NamingException;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import org.slf4j.Logger;
-
-import org.oscm.string.Strings;
 import org.oscm.app.business.APPlatformControllerFactory;
 import org.oscm.app.business.InstanceParameterFilter;
 import org.oscm.app.business.ProductProvisioningServiceFactoryBean;
@@ -68,9 +68,11 @@ import org.oscm.provisioning.data.InstanceInfo;
 import org.oscm.provisioning.data.InstanceRequest;
 import org.oscm.provisioning.data.InstanceResult;
 import org.oscm.provisioning.intf.ProvisioningService;
+import org.oscm.string.Strings;
 import org.oscm.types.enumtypes.OperationStatus;
 import org.oscm.types.exceptions.ObjectNotFoundException;
 import org.oscm.vo.VOUserDetails;
+import org.slf4j.Logger;
 
 /**
  * The timer service implementation
@@ -78,14 +80,19 @@ import org.oscm.vo.VOUserDetails;
  * @author Mike J&auml;ger
  * 
  */
-@Stateless
+@ConcurrencyManagement(ConcurrencyManagementType.BEAN)
+@Singleton
 @LocalBean
-public class APPTimerServiceBean {
+public class APPTimerServiceBean implements Cloneable {
 
     private static final String EVENT_KEY_NOTIFY = "notify";
     private static final String EVENT_KEY_RESUME = "_resume";
     private static final String EVENT_VALUE_YES = "yes";
     private static final long DEFAULT_TIMER_INTERVAL = 15000;
+
+    protected APPTimerServiceBean appTimerServiceBean = null;
+
+    public Object TIMER_LOCK = new Object();
 
     /**
      * Used to identify the timer service
@@ -120,15 +127,33 @@ public class APPTimerServiceBean {
     protected OperationDAO operationDAO;
 
     @EJB
-    private ProductProvisioningServiceFactoryBean provServFact;
+    protected ProductProvisioningServiceFactoryBean provServFact;
+
+    @PostConstruct
+    public void init() {
+        try {
+            appTimerServiceBean = (APPTimerServiceBean) this.clone();
+        } catch (CloneNotSupportedException e) {
+            // ignore since class is cloneable
+        }
+    }
+
+    public void initTimers() {
+        synchronized (TIMER_LOCK) {
+            logger.info("Timer initialization start");
+            appTimerServiceBean.initTimers_internal();
+            logger.info("Timer initialization finished");
+        }
+    }
 
     /**
      * Initialize the timer for polling for the services
      */
-    @TransactionAttribute(TransactionAttributeType.REQUIRED)
-    public void initTimers() {
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    public void initTimers_internal() {
         Collection<?> timers = timerService.getTimers();
         if (timers.isEmpty()) {
+            logger.info("Timer create.");
             try {
                 String timerIntervalSetting = configService
                         .getProxyConfigurationSetting(PlatformConfigurationKey.APP_TIMER_INTERVAL);
@@ -140,10 +165,9 @@ public class APPTimerServiceBean {
                 logger.info("Timer interval not set, switch to default 15 sec.");
             }
         }
-        logger.info("Timer initialization finished");
     }
 
-    @TransactionAttribute(TransactionAttributeType.REQUIRED)
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void cancelTimers() {
         Collection<Timer> timers = timerService.getTimers();
         for (Timer th : timers) {
@@ -167,12 +191,15 @@ public class APPTimerServiceBean {
     public void handleTimer(Timer timer) {
         // must never throw an exception or throwable, as the timer will be
         // deactivated then.
-
-        List<ServiceInstance> result = instanceDAO.getInstancesInWaitingState();
-        // If no service is waiting, we can stop the timer
-        if (result.isEmpty() || configService.isAPPSuspend()) {
-            cancelTimers();
-            return;
+        List<ServiceInstance> result;
+        synchronized (TIMER_LOCK) {
+            result = instanceDAO.getInstancesInWaitingState();
+            // If no service is waiting, we can stop the timer
+            if (result.isEmpty() || configService.isAPPSuspend()) {
+                appTimerServiceBean.cancelTimers();
+                logger.info("Timer canceled.");
+                return;
+            }
         }
 
         final String ERROR_TIMER = "Error occured during timer handling";

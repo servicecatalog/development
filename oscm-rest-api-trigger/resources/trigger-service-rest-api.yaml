@@ -1,0 +1,321 @@
+# Copyright FUJITSU LIMITED 2016
+swagger: '2.0'
+info:
+  title: Trigger Service REST API
+  description: API for creating, retrieving, modifying, and deleting trigger definitions as well as for approving or rejecting the corresponding processes.
+  version: "1.0.0"
+
+# the domain of the service
+host: host_port
+# array of schemes that the API supports
+schemes:
+  - https
+# will be prefixed to all paths
+basePath: /oscm-trigger/v1
+consumes:
+  - application/json
+produces:
+  - application/json
+  
+securityDefinitions:
+  authentication:
+    type: basic
+    description: HTTP basic authentication with a user ID and password
+
+security:
+  - authentication: []
+  
+paths:
+  /triggers:
+    get:
+      summary: Trigger Definition
+      description: Retrieves all trigger definitions of the calling user's organization.
+        The user must be an administrator of the organization, or an operator of the
+        platform operator organization.
+      tags:
+        - Trigger
+      responses:
+        200:
+          description: A collection of trigger definitions
+          schema:
+              $ref: '#/definitions/CollectionTrigger'
+        403:
+          description: Insufficient permissions
+          schema:
+            $ref: '#/definitions/Error'
+    post:
+      summary: Trigger Definition
+      description: Creates a trigger definition for the calling user's organization.
+        The user must be an administrator of the organization, or an operator of the
+        platform operator organization.
+      parameters:
+        - name: trigger
+          in: body
+          description: The trigger definition to create
+          required: true
+          schema:
+            $ref: '#/definitions/Trigger'
+      tags:
+        - Trigger
+      responses:
+        201:
+          description: Created
+          headers:
+            location:
+              description: The ID of the new trigger definition
+              type: integer
+        403:
+          description: Insufficient permissions
+          schema:
+            $ref: '#/definitions/Error'
+  /triggers/{id}:
+    get:
+      summary: Trigger Definition
+      description: Retrieves the trigger definition with the given ID.
+        The calling user must be an administrator of the organization that owns
+        the trigger definition, or an operator of the platform operator organization.
+      parameters:
+        - name: id
+          in: path
+          description: The ID of the trigger definition to retrieve
+          required: true
+          type: number
+          format: long
+      tags:
+        - Trigger
+      responses:
+        200:
+          description: The trigger definition
+          schema:
+            $ref: '#/definitions/Trigger'
+        403:
+          description: Insufficient permissions
+          schema:
+            $ref: '#/definitions/Error'
+        404:
+          description: A trigger definition with the given ID is not found
+          schema:
+            $ref: '#/definitions/Error'
+    put:
+      summary: Trigger Definition
+      description: Updates the trigger definition with the given ID.
+        The calling user must be an administrator of the organization that owns
+        the trigger definition, or an operator of the platform operator organization.
+      parameters:
+        - name: id
+          in: path
+          description: The ID of the trigger definition
+          required: true
+          type: number
+          format: long
+        - name: trigger
+          in: body
+          description: The trigger definition with the new values 
+          required: true
+          schema:
+            $ref: '#/definitions/Trigger'
+        - name: If-Match
+          in: header
+          description: The ETag of the trigger definition for concurrency checks. If not present or '*',  concurrency is ignored.
+          required: false
+          type: string
+      tags:
+        - Trigger
+      responses:
+        204:
+          description: No content
+        403:
+          description: Insufficient permissions
+          schema:
+            $ref: '#/definitions/Error'
+        404:
+          description: A trigger definition with the given ID is not found
+          schema:
+            $ref: '#/definitions/Error'
+        409:
+          description: Concurrency conflict
+          schema:
+            $ref: '#/definitions/Error'
+    delete:
+      summary: Trigger Definition
+      description: Deletes the trigger definition with the given ID.
+        The calling user must be an administrator of the organization that owns
+        the trigger definition, or an operator of the platform operator organization.
+      parameters:
+        - name: id
+          in: path
+          description: The ID of the trigger definition
+          required: true
+          type: number
+          format: long
+      tags:
+        - Trigger
+      responses:
+        204:
+          description: No content
+        403:
+          description: Insufficient permissions
+          schema:
+            $ref: '#/definitions/Error'
+        404:
+          description: A trigger definition with the given ID is not found
+          schema:
+            $ref: '#/definitions/Error'
+            
+  /processes/{id}/approve:
+    put:
+      summary: Trigger Process
+      description: Approves the process with the given ID. The corresponding action, which had been pending, is continued.
+        The calling user must be an administrator of the organization for which the process was started.
+      parameters:
+        - name: id
+          in: path
+          description: The ID of the process
+          required: true
+          type: number
+          format: long
+      tags:
+        - Process
+      responses:
+        204:
+          description: No Content
+        403:
+          description: Insufficient permissions
+          schema:
+            $ref: '#/definitions/Error'
+        404:
+          description: A process with the given ID is not found
+          schema:
+            $ref: '#/definitions/Error'
+        409:
+          description: The approval was not successful 
+          schema:
+            $ref: '#/definitions/Error'
+  /processes/{id}/reject:
+    put:
+      summary: Trigger Process
+      description: Rejects the process with the given ID. The corresponding action, which had been pending, is aborted.
+        The calling user must be an administrator of the organization for which the process was started.
+      parameters:
+        - name: id
+          in: path
+          description: The ID of the process
+          required: true
+          type: number
+          format: long
+        - name: process
+          in: body
+          description: The process with a comment on why it was rejected
+          required: true
+          schema:
+            $ref: '#/definitions/Process'
+      tags:
+        - Process
+      responses:
+        204:
+          description: No content
+        403:
+          description: Insufficient permissions
+          schema:
+            $ref: '#/definitions/Error'
+        404:
+          description: A process with the given ID is not found
+          schema:
+            $ref: '#/definitions/Error'
+
+definitions:
+  Trigger:
+    type: object
+    description: Trigger definition
+    required:
+      - description
+      - suspend
+      - target_type
+      - target_url
+      - action
+    properties:
+      id:
+        type: integer
+        format: int64
+        description: The ID of the trigger definition
+      etag:
+        type: integer
+        format: int64
+        description: The ETag of the trigger definition
+      description:
+        type: string
+        description: The description of the trigger definition
+      suspend:
+        type: boolean
+        description: If true, the action that activates the trigger is to be suspended until the process is approved or rejected
+      target_type:
+        type: string
+        enum:
+          - WEB_SERVICE
+          - REST_SERVICE
+        description: The type of the Web service notifications are to be sent to
+      target_url:
+        type: string
+        format: url
+        description: The URL of the receiving endpoint of the notification service
+      action:
+        type: string
+        enum:
+          - SUBSCRIBE_TO_SERVICE
+          - UNSUBSCRIBE_FROM_SERVICE
+          - MODIFY_SUBSCRIPTION
+        description: The action that activates the trigger and starts the corresponding process
+      owner:
+        type: object
+        description: The organization owning the trigger definition
+        properties:
+          id:
+            type: integer
+            format: int64
+            description: The ID of the organization (read-only)
+          description:
+            type: string
+            description: The description of the organization (read-only)
+      links:
+        type: object
+        description: Links
+        properties:
+          owner_id:
+            type: integer
+            format: int64
+            description: The ID of the organization owning the trigger definition (read-only)
+            
+  Process:
+    type: object
+    description: Trigger process
+    required:
+      - comment
+    properties:
+      id:
+        type: integer
+        format: int64
+        description: The ID of the process
+      comment:
+        type: string
+        description: A comment on why the process was approved or rejected
+  CollectionTrigger:
+    type: object
+    description: Collection of trigger definitions
+    properties:
+      items:
+        type: array
+        items: 
+          $ref: '#/definitions/Trigger'
+          
+  Error:
+    type: object
+    properties:
+      code:
+        type: integer
+        format: int32
+      message:
+        type: string
+      property:
+        type: string
+      moreInfo:
+        type: string

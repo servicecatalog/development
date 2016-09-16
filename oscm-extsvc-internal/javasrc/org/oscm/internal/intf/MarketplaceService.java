@@ -9,9 +9,13 @@
 package org.oscm.internal.intf;
 
 import java.util.List;
+import java.util.Set;
 
+import javax.annotation.security.RolesAllowed;
 import javax.ejb.Remote;
+import javax.security.auth.login.LoginException;
 
+import org.oscm.internal.cache.MarketplaceConfiguration;
 import org.oscm.internal.types.exception.ConcurrentModificationException;
 import org.oscm.internal.types.exception.MarketplaceAccessTypeUneligibleForOperationException;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
@@ -21,6 +25,8 @@ import org.oscm.internal.types.exception.OrganizationAlreadyBannedException;
 import org.oscm.internal.types.exception.OrganizationAlreadyExistsException;
 import org.oscm.internal.types.exception.OrganizationAuthorityException;
 import org.oscm.internal.types.exception.PublishingToMarketplaceNotPermittedException;
+import org.oscm.internal.types.exception.TechnicalServiceNotAliveException;
+import org.oscm.internal.types.exception.TechnicalServiceOperationException;
 import org.oscm.internal.types.exception.UserRoleAssignmentException;
 import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.internal.vo.VOCatalogEntry;
@@ -164,6 +170,9 @@ public interface MarketplaceService {
      */
 
     public List<VOMarketplace> getMarketplacesForOperator();
+
+    @RolesAllowed("PLATFORM_OPERATOR")
+    List<VOMarketplace> getAccessibleMarketplacesForOperator();
 
     /**
      * Modifies the name and/or owner of the given marketplace.
@@ -510,4 +519,116 @@ public interface MarketplaceService {
             throws ObjectNotFoundException, ValidationException,
             OperationNotPermittedException, ConcurrentModificationException;
 
+    /**
+     * Returns all organizations created in the system with information about
+     * access to the given marketplace.
+     *
+     * @return collection of all organizations.
+     * @throws ObjectNotFoundException
+     */
+    @RolesAllowed("MARKETPLACE_OWNER")
+    List<VOOrganization> getAllOrganizations(String marketplaceId)
+            throws ObjectNotFoundException;
+
+    /**
+     * Method is used to restrict access to the given marketplace.
+     *
+     * @param marketplaceId
+     * @param authorizedOrganizations
+     *            - organizations to which access to marketplace should be
+     *            granted
+     * @param unauthorizedOrganizations
+     *            - organizations which should not have access to marketplace
+     *            any more
+     * @throws OperationNotPermittedException
+     * @throws ObjectNotFoundException
+     * @throws NonUniqueBusinessKeyException
+     * @throws TechnicalServiceOperationException
+     * @throws TechnicalServiceNotAliveException
+     */
+    @RolesAllowed("MARKETPLACE_OWNER")
+    void closeMarketplace(String marketplaceId,
+            Set<Long> authorizedOrganizations,
+            Set<Long> unauthorizedOrganizations)
+            throws OperationNotPermittedException, ObjectNotFoundException,
+            NonUniqueBusinessKeyException, TechnicalServiceNotAliveException,
+            TechnicalServiceOperationException;
+
+    /**
+     * This method is used to grant access to given marketplace to given
+     * organization.
+     *
+     * @param voMarketplace
+     * @param voOrganization
+     * @throws ValidationException
+     * @throws NonUniqueBusinessKeyException
+     */
+    @RolesAllowed("MARKETPLACE_OWNER")
+    void grantAccessToMarketPlaceToOrganization(VOMarketplace voMarketplace,
+            VOOrganization voOrganization) throws ValidationException,
+            NonUniqueBusinessKeyException;
+
+    /**
+     * Method is used to remove restrictions to the given marketplace.
+     *
+     * @param marketplaceId
+     * @throws OperationNotPermittedException
+     * @throws ObjectNotFoundException
+     * @throws NonUniqueBusinessKeyException
+     */
+    @RolesAllowed("MARKETPLACE_OWNER")
+    void openMarketplace(String marketplaceId)
+            throws OperationNotPermittedException, ObjectNotFoundException,
+            NonUniqueBusinessKeyException;
+
+    /**
+     * Retrieves all restricted marketplaces to which the calling user's
+     * organization have an access.
+     * 
+     * @return the list of marketplaces
+     */
+    public List<VOMarketplace> getRestrictedMarketplaces();
+
+    /**
+     * Gives information if given organization has access to marketplace.
+     *
+     * @param marketplaceId
+     * @param organizationId
+     * @return true - if organization has access to marketplace, false -
+     *         otherwise
+     * @throws ObjectNotFoundException
+     */
+    boolean doesOrganizationHaveAccessMarketplace(String marketplaceId,
+            String organizationId) throws LoginException;
+
+    /**
+     * Returns all organizations which have access to the marketplace with the
+     * given id if the marketplace is restricted.
+     * 
+     * @param marketplaceId
+     *            the marketplace id
+     * @return the list of organizations or empty list if not restricted
+     */
+    public List<VOOrganization> getAllOrganizationsWithAccessToMarketplace(
+            String marketplaceId);
+
+    /**
+     * Gets the cached version of the marketplace with allowed organizations (if
+     * it is restricted) for the marketplace with the given id.
+     * 
+     * @param marketplaceId
+     *            the marketplace id
+     * @return the configuration or null if marketplace id is invalid
+     */
+    public MarketplaceConfiguration getCachedMarketplaceConfiguration(
+            String marketplaceId);
+
+    /**
+     * Clears the cache from the configuration of the marketplace with the given
+     * id.
+     * 
+     * @param marketplaceId
+     *            the marketplace id
+     */
+    public void clearCachedMarketplaceConfiguration(String marketplaceId);
 }

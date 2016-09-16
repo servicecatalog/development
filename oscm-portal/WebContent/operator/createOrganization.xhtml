@@ -148,7 +148,7 @@
             maxlength="#{appBean.descriptionLen}" />
 
           <adm:labelAndSelect id="marketplace" label="#{msg['service.marketplace']}"
-            value="#{operatorOrgBean.selectedMarketplace}" rendered="#{isCustomerOrg}" required="true">
+            value="#{operatorOrgBean.selectedMarketplace}" required="#{isCustomerOrg}">
             <adm:selectItemPleaseSelect itemValue="" />
             <f:selectItems value="#{operatorOrgBean.selectableMarketplaces}" />
           </adm:labelAndSelect>

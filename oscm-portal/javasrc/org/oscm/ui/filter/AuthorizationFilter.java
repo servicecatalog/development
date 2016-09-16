@@ -680,6 +680,7 @@ public class AuthorizationFilter extends BaseBesFilter {
 
         VOUserDetails userDetails = rdo.getUserDetails();
         if (userDetails != null) {
+
             // if the user wants to use another organization he must login
             // again (the service sessions are destroyed as well)
 
@@ -823,7 +824,7 @@ public class AuthorizationFilter extends BaseBesFilter {
                         .contains(OrganizationRoleType.CUSTOMER)) {
             if (ADMStringUtils.isBlank(rdo.getMarketplaceId())) {
                 if (redirectToMpUrl(serviceAccess, httpRequest, httpResponse)) {
-                    setupUserDetial(httpRequest, rdo, identityService, session);
+                    setupUserDetail(httpRequest, rdo, identityService, session);
                     return false;
                 } else {
                     httpRequest.setAttribute(Constants.REQ_ATTR_ERROR_KEY,
@@ -832,7 +833,7 @@ public class AuthorizationFilter extends BaseBesFilter {
                             httpResponse);
                 }
             } else {
-                setupUserDetial(httpRequest, rdo, identityService, session);
+                setupUserDetail(httpRequest, rdo, identityService, session);
                 forward(BaseBean.MARKETPLACE_START_SITE, httpRequest,
                         httpResponse);
             }
@@ -860,9 +861,9 @@ public class AuthorizationFilter extends BaseBesFilter {
      * @param identityService
      * @param session
      */
-    private void setupUserDetial(HttpServletRequest httpRequest,
-            AuthorizationRequestData rdo, IdentityService identityService,
-            HttpSession session) {
+    private void setupUserDetail(HttpServletRequest httpRequest,
+                                 AuthorizationRequestData rdo, IdentityService identityService,
+                                 HttpSession session) {
         rdo.setUserDetails(identityService.getCurrentUserDetails());
         HttpSession httpSession = httpRequest.getSession(false);
         if (httpSession != null) {

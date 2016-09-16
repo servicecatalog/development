@@ -2,7 +2,7 @@
  *                                                                              
  *  Copyright FUJITSU LIMITED 2016                                           
  *                                                                                                                                 
- *  Creation Date: 28.07.2015                                                      
+ *  Creation Date: 2015-007-28                                                      
  *                                                                              
  *******************************************************************************/
 
@@ -14,12 +14,12 @@ package org.oscm.types.enumtypes;
 public enum UnitRoleType {
 
     /**
-     * Administrator role
+     * OU administrator.
      */
     ADMINISTRATOR,
 
     /**
-     * Simple unit user role
+     * Normal user.
      */
     USER
 }

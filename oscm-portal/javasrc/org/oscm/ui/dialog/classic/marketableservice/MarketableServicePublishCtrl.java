@@ -10,21 +10,18 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.ejb.EJB;
+import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
+import javax.security.auth.login.LoginException;
 
-import org.oscm.ui.beans.BaseBean;
-import org.oscm.ui.beans.SessionBean;
-import org.oscm.ui.beans.UserBean;
-import org.oscm.ui.common.ADMStringUtils;
-import org.oscm.ui.common.SelectItemBuilder;
-import org.oscm.ui.model.CategoryRow;
-import org.oscm.ui.model.User;
 import org.oscm.internal.components.response.Response;
 import org.oscm.internal.intf.CategorizationService;
+import org.oscm.internal.intf.MarketplaceService;
+import org.oscm.internal.intf.ServiceProvisioningService;
 import org.oscm.internal.pricing.POMarketplacePriceModel;
 import org.oscm.internal.pricing.POOperatorPriceModel;
 import org.oscm.internal.pricing.POOrganization;
@@ -43,7 +40,18 @@ import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.OperationNotPermittedException;
 import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.internal.vo.VOCategory;
+import org.oscm.internal.vo.VOCustomerService;
+import org.oscm.internal.vo.VOMarketplace;
 import org.oscm.internal.vo.VOPriceModel;
+import org.oscm.internal.vo.VOService;
+import org.oscm.ui.beans.BaseBean;
+import org.oscm.ui.beans.SessionBean;
+import org.oscm.ui.beans.UserBean;
+import org.oscm.ui.common.ADMStringUtils;
+import org.oscm.ui.common.JSFUtils;
+import org.oscm.ui.common.SelectItemBuilder;
+import org.oscm.ui.model.CategoryRow;
+import org.oscm.ui.model.User;
 
 @ManagedBean
 @ViewScoped
@@ -67,6 +75,10 @@ public class MarketableServicePublishCtrl extends BaseBean
     PricingService pricingService;
     @EJB
     CategorizationService categorizationService;
+    @EJB
+    MarketplaceService mplService;
+    @EJB
+    ServiceProvisioningService serviceProvisioning;
 
     /**
      * initializer method called by <adm:initialize />
@@ -345,39 +357,49 @@ public class MarketableServicePublishCtrl extends BaseBean
                     OfferingType.RESELLER, false));
         }
         try {
+
+            String mplId = model.getServiceDetails().getMarketplaceId();
+            VOMarketplace marketplace = mplService.getMarketplaceById(mplId);
+
+            if (marketplace.isRestricted()) {
+                handleRestrictedMarketplaceAccess(marketplace,
+                        model.getServiceDetails().getService());
+            }
+
             getCategorizationService()
                     .verifyCategoriesUpdated(model.getChangedCategoriess());
             Response response = getPublishService().updateAndPublishService(
                     model.getServiceDetails(), toGrant, toRevoke);
             ui.handle(response, "info.service.saved",
                     model.getServiceDetails().getService().getServiceId());
+
             updateAssignedPermissions(model.getBrokers(), model.getResellers());
             initRevenueShare(model.getSelectedServiceKey(),
                     model.getServiceDetails().getMarketplaceId());
         } catch (SaaSApplicationException e) {
-            
-            if(e instanceof ObjectNotFoundException){
+
+            if (e instanceof ObjectNotFoundException) {
                 String[] keys = e.getMessageParams();
                 String displayedName = getDisplayedName(keys[0]);
-                e.setMessageParams(new String[]{displayedName});
+                e.setMessageParams(new String[] { displayedName });
             }
-            
+
             ui.handleException(e);
             return OUTCOME_ERROR;
         }
         return OUTCOME_SUCCESS;
     }
-    
-    private String getDisplayedName(String key){
+
+    private String getDisplayedName(String key) {
         List<VOCategory> changedCategoriess = model.getChangedCategoriess();
-        for(VOCategory category:changedCategoriess){
-            if(key.equals(Long.toString(category.getKey()))){
+        for (VOCategory category : changedCategoriess) {
+            if (key.equals(Long.toString(category.getKey()))) {
                 return category.getName();
             }
         }
         return null;
     }
-    
+
     private void initRevenueShare(long serviceKey, String marketPlaceId)
             throws SaaSApplicationException {
         Response response = null;
@@ -474,6 +496,49 @@ public class MarketableServicePublishCtrl extends BaseBean
             return priceModel.isExternal();
         }
         return false;
+    }
+
+    private void handleRestrictedMarketplaceAccess(VOMarketplace mpl,
+            VOService service) throws ObjectNotFoundException,
+                    OperationNotPermittedException {
+
+        boolean displayWarnMsg = false;
+        String warnedOrgs = "";
+
+        List<VOCustomerService> customerServices = serviceProvisioning
+                .getServiceCustomerTemplates(
+                        model.getServiceDetails().getService());
+
+        int i = 0;
+        for (VOCustomerService customerService : customerServices) {
+
+            String orgName = customerService.getOrganizationName();
+            String orgId = customerService.getOrganizationId();
+
+            boolean isAccessible = false;
+            try {
+                isAccessible = mplService
+                        .doesOrganizationHaveAccessMarketplace(
+                                mpl.getMarketplaceId(), orgId);
+            } catch (LoginException e) {
+                e.printStackTrace();
+            }
+
+            if (!isAccessible) {
+                displayWarnMsg = true;
+                if (i != 0) {
+                    warnedOrgs += ", ";
+                }
+                warnedOrgs += orgName + " (" + orgId + ")";
+            }
+            i++;
+        }
+
+        if (displayWarnMsg) {
+            JSFUtils.addMessage(null, FacesMessage.SEVERITY_WARN,
+                    BaseBean.WARNING_NO_CUSTOMER_ACCESS_TO_RESTRICTED_MPL,
+                    new Object[] { warnedOrgs, mpl.getName() });
+        }
     }
 
     public void setModel(MarketableServicePublishModel model) {

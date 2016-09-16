@@ -173,7 +173,6 @@ public class OperatorOrgBeanTest {
         // then
         assertEquals(BaseBean.OUTCOME_SUCCESS, result);
         assertEquals(1, facesMessages.size());
-        assertNotNull(oob.getSelectedMarketplace());
         verify(osMock, times(1))
                 .registerOrganization(any(VOOrganization.class),
                         any(VOImageResource.class), any(VOUserDetails.class),
@@ -221,14 +220,14 @@ public class OperatorOrgBeanTest {
         setupMarketplaces();
         List<SelectItem> list = oob.getSelectableMarketplaces();
         assertNotNull(list);
-        verify(msmock, times(1)).getMarketplacesForOperator();
+        verify(msmock, times(1)).getAccessibleMarketplacesForOperator();
     }
 
     @Test
     public void getSelectableMarketplaces_Same() {
         setupMarketplaces();
         List<SelectItem> list1 = oob.getSelectableMarketplaces();
-        verify(msmock, times(1)).getMarketplacesForOperator();
+        verify(msmock, times(1)).getAccessibleMarketplacesForOperator();
         List<SelectItem> list2 = oob.getSelectableMarketplaces();
         verifyNoMoreInteractions(msmock);
         assertSame(list1, list2);
@@ -238,7 +237,7 @@ public class OperatorOrgBeanTest {
     public void getSelectableMarketplaces() {
         setupMarketplaces();
         List<SelectItem> list = oob.getSelectableMarketplaces();
-        verify(msmock, times(1)).getMarketplacesForOperator();
+        verify(msmock, times(1)).getAccessibleMarketplacesForOperator();
 
         assertEquals(2, list.size());
         SelectItem item = list.get(0);
@@ -252,7 +251,7 @@ public class OperatorOrgBeanTest {
         setupMarketplaces();
         doReturn(Boolean.FALSE).when(oob).isLoggedInAndPlatformOperator();
         List<SelectItem> list = oob.getSelectableMarketplaces();
-        verify(msmock, never()).getMarketplacesForOperator();
+        verify(msmock, never()).getAccessibleMarketplacesForOperator();
         assertEquals(0, list.size());
     }
 
@@ -286,7 +285,7 @@ public class OperatorOrgBeanTest {
 
         msmock = mock(MarketplaceService.class);
 
-        when(msmock.getMarketplacesForOperator()).thenReturn(
+        when(msmock.getAccessibleMarketplacesForOperator()).thenReturn(
                 Arrays.asList(vMp1, vMp2));
 
         doReturn(Boolean.TRUE).when(oob).isLoggedInAndPlatformOperator();
