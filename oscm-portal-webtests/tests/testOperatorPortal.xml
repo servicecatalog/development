@@ -144,7 +144,6 @@
       <!-- manage users -->
       <operatorPortal.lockUser userId="#{supplierUserId}" />
       <operatorPortal.unlockUser userId="#{supplierUserId}" />
-      <operatorPortal.resetPassword userId="#{supplierUserId}" />
 
       <login.logout />
     </webtest>
