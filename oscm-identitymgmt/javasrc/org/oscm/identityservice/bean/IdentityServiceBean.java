@@ -2725,18 +2725,24 @@ public class IdentityServiceBean implements IdentityService,
             OperationPendingException {
         ArgumentValidator.notNull("user", user);
         ArgumentValidator.notNull("roles", roles);
-
-        Marketplace m = new Marketplace();
-        m.setMarketplaceId(marketplaceId);
+        
         Tenant tenant = null;
         try {
-            Marketplace mp = (Marketplace) dm.getReferenceByBusinessKey(m);
-            if (mp != null) {
-                tenant = mp.getTenant();
+            if (user.getTenantId() == null || user.getTenantId().equals("")) {
+                Marketplace m = new Marketplace();
+                m.setMarketplaceId(marketplaceId);
+                Marketplace mp = (Marketplace) dm.getReferenceByBusinessKey(m);
+                if (mp != null) {
+                    tenant = mp.getTenant();
+                }
+            } else {
+                tenant = dm.getReference(Tenant.class,
+                        Long.valueOf(user.getTenantId()));
             }
         } catch (ObjectNotFoundException e) {
             e.printStackTrace();
         }
+
 
         checkIfUserExists(user.getUserId(), tenant);
 

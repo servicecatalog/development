@@ -850,6 +850,7 @@ public class UserBean extends BaseBean implements Serializable {
                     selectedRoles.add(userRole.getUserRoleType());
                 }
             }
+            newUser.getVOUserDetails().setTenantId(sessionBean.getTenantID());
             VOUserDetails createdUser = getIdService().createUser(
                     newUser.getVOUserDetails(), selectedRoles, mId);
             newUser = null;
