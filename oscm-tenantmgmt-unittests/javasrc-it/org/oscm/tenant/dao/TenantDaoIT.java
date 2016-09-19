@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.oscm.tenant.dao;
 
+import org.junit.Ignore;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.ejb.TestContainer;
@@ -14,6 +15,7 @@ import org.oscm.test.ejb.TestContainer;
 /**
  * Created by PLGrubskiM on 2016-09-15.
  */
+@Ignore
 public class TenantDaoIT extends EJBTestBase{
 
     protected DataService dm;
