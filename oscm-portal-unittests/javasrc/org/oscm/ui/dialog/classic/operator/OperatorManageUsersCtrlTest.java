@@ -267,7 +267,7 @@ public class OperatorManageUsersCtrlTest {
     @Test
     public void isResetPasswordSupported_SAML() throws Exception {
         //given
-        bean.setInternalAuthMode(false);
+        when(appBean.isInternalAuthMode()).thenReturn(false);
         // when
         bean.isCheckResetPasswordSupported();
         // then

@@ -145,7 +145,6 @@ public class OperatorManageUsersCtrl extends BaseOperatorBean implements
     }
 
     public boolean isCheckResetPasswordSupported() {
-        final boolean b = isInternalAuthMode;
         if (model.isUserIdChanged()) {
             try {
                 reinitUser();
@@ -153,7 +152,7 @@ public class OperatorManageUsersCtrl extends BaseOperatorBean implements
                 ExceptionHandler.execute(e);
             }
         }
-        return b;
+        return getApplicationBean().isInternalAuthMode();
     }
 
     public boolean isExceedMaxNumberOfUsers() {
@@ -209,7 +208,6 @@ public class OperatorManageUsersCtrl extends BaseOperatorBean implements
     }
 
     public void updateSelectedUser() throws OperationNotPermittedException, ObjectNotFoundException, OrganizationRemovedException {
-        System.out.println("Cyc");
         VOUser selectedUser = new VOUser();
         selectedUser.setUserId(selectedUserId);
         model.setUser(getIdService().getUser(selectedUser));
