@@ -10,8 +10,8 @@ package org.oscm.tenant.bean;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import org.junit.Ignore;
 import org.junit.Test;
-
 import org.oscm.dataservice.local.DataService;
 import org.oscm.internal.intf.TenantService;
 import org.oscm.internal.types.exception.ConcurrentModificationException;
@@ -26,6 +26,7 @@ import org.oscm.test.ejb.TestContainer;
 /**
  * Created by PLGrubskiM on 2016-09-15.
  */
+@Ignore
 public class TenantServiceBeanIT extends EJBTestBase{
 
     protected DataService dm;
