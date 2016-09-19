@@ -14,7 +14,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 import org.apache.sling.commons.json.JSONException;
 import org.apache.sling.commons.json.JSONObject;
@@ -44,10 +43,6 @@ public class PropertyHandler {
 
     public static final String STACK_NAME = "STACK_NAME";
     public static final String STACK_ID = "STACK_ID";
-
-    // Name (not id) of the tenant/project (if omitted, it is taken from
-    // controller configuration)
-    public static final String TENANT_NAME = "TENANT_NAME";
 
     // Name (not id) of the domain (if omitted, it is taken from
     // controller configuration)
@@ -179,25 +174,9 @@ public class PropertyHandler {
                     TEMPLATE_BASE_URL);
             return new URL(new URL(baseUrl), url).toExternalForm();
         } catch (MalformedURLException e) {
-            throw new HeatException("Cannot generate template URL: "
-                    + e.getMessage());
+            throw new HeatException(
+                    "Cannot generate template URL: " + e.getMessage());
         }
-    }
-
-    /**
-     * Returns the tenant name that defines the context for the provisioning. It
-     * can either be defined within the controller settings of as instance
-     * parameter. When present, the service parameter is preferred.
-     *
-     * @return the tenant name
-     */
-    public String getTenantName() {
-        String tenant = settings.getParameters().get(TENANT_NAME);
-        if (tenant == null || tenant.trim().length() == 0) {
-            tenant = getValidatedProperty(settings.getConfigSettings(),
-                    TENANT_NAME);
-        }
-        return tenant;
     }
 
     /**
@@ -228,7 +207,8 @@ public class PropertyHandler {
                 } catch (JSONException e) {
                     // should not happen with Strings
                     throw new RuntimeException(
-                            "JSON error when collection template parameters", e);
+                            "JSON error when collection template parameters",
+                            e);
                 }
             }
         }
@@ -283,7 +263,8 @@ public class PropertyHandler {
      * @return the user name
      */
     public String getUserName() {
-        return getValidatedProperty(settings.getConfigSettings(), API_USER_NAME);
+        return getValidatedProperty(settings.getConfigSettings(),
+                API_USER_NAME);
     }
 
     /**
@@ -302,7 +283,6 @@ public class PropertyHandler {
 
     public String getStackConfigurationAsString() throws HeatException {
         StringBuffer details = new StringBuffer();
-        String keystoneAPIVersion = getKeystoneAPIVersion();
         details.append("\t\r\nStackName: ");
         details.append(getStackName());
         details.append("\t\r\nStackId: ");
@@ -311,14 +291,8 @@ public class PropertyHandler {
         details.append(getUserName());
         details.append("\t\r\nKeystoneAPIUrl: ");
         details.append(getKeystoneUrl());
-        switch(keystoneAPIVersion){
-            case "v3":
-        	    details.append("\t\r\nDomainName: ");
-                details.append(getDomainName());
-            default:
-            	details.append("\t\r\nTenantName: ");
-                details.append(getTenantName());
-        }
+        details.append("\t\r\nDomainName: ");
+        details.append(getDomainName());
         details.append("\t\r\nTemplateUrl: ");
         details.append(getTemplateUrl());
         details.append("\t\r\nAccessInfoPattern: ");
@@ -355,6 +329,7 @@ public class PropertyHandler {
         }
         return locale;
     }
+
     /**
      * Returns the tenant id that defines the context for the provisioning.
      *
@@ -364,18 +339,4 @@ public class PropertyHandler {
         return settings.getParameters().get(TENANT_ID);
     }
 
-    /**
-     * Return keystone API version
-     * @return the keystone API version
-     */
-    public String getKeystoneAPIVersion(){
-    	String keystoneEndpoint = getKeystoneUrl();
-    	String regxp=".+/v3/auth.*";
-    	boolean match = Pattern.matches(regxp, keystoneEndpoint);
-    	if(match){
-    		return "v3";
-    	} else {
-    		return "v2";
-    	}
-    }
 }

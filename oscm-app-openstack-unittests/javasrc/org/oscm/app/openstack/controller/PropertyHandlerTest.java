@@ -9,7 +9,10 @@
  *******************************************************************************/
 package org.oscm.app.openstack.controller;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.HashMap;
 import java.util.List;
@@ -50,8 +53,8 @@ public class PropertyHandlerTest {
 
         // case 1
         parameters.put(PropertyHandler.TEMPLATE_NAME, "template1.json");
-        configSettings
-                .put(PropertyHandler.TEMPLATE_BASE_URL, "http://test.com");
+        configSettings.put(PropertyHandler.TEMPLATE_BASE_URL,
+                "http://test.com");
         propertyHandler = new PropertyHandler(settings);
         String url = propertyHandler.getTemplateUrl();
         assertEquals("http://test.com/template1.json", url);
@@ -72,23 +75,23 @@ public class PropertyHandlerTest {
     }
 
     @Test()
-    public void testGetInstanceTenant() {
-        parameters.put(PropertyHandler.TENANT_NAME, "12345");
-        configSettings.put(PropertyHandler.TENANT_NAME, "23455");
+    public void testGetInstanceDomain() {
+        parameters.put(PropertyHandler.DOMAIN_NAME, "12345");
+        configSettings.put(PropertyHandler.DOMAIN_NAME, "23455");
         propertyHandler = new PropertyHandler(settings);
-        String tenantName = propertyHandler.getTenantName();
-        assertEquals("12345", tenantName);
+        String domainName = propertyHandler.getDomainName();
+        assertEquals("12345", domainName);
     }
 
     @Test()
-    public void testGetControllerTenant() {
-        configSettings.put(PropertyHandler.TENANT_NAME, "23455");
+    public void testGetControllerDomain() {
+        configSettings.put(PropertyHandler.DOMAIN_NAME, "23455");
         propertyHandler = new PropertyHandler(settings);
-        String tenantName = propertyHandler.getTenantName();
-        assertEquals("23455", tenantName);
-        parameters.put(PropertyHandler.TENANT_NAME, "");
-        tenantName = propertyHandler.getTenantName();
-        assertEquals("23455", tenantName);
+        String domainName = propertyHandler.getDomainName();
+        assertEquals("23455", domainName);
+        parameters.put(PropertyHandler.DOMAIN_NAME, "");
+        domainName = propertyHandler.getDomainName();
+        assertEquals("23455", domainName);
     }
 
     @Test()
@@ -141,15 +144,15 @@ public class PropertyHandlerTest {
     public void testArgsResources() {
         String messageEn = Messages.get("en",
                 "status_" + FlowState.UPDATING.name());
-        String messageEnParam = Messages.get("en", "status_"
-                + FlowState.UPDATING.name(), "param 1");
+        String messageEnParam = Messages.get("en",
+                "status_" + FlowState.UPDATING.name(), "param 1");
         assertTrue(messageEn.equals(messageEnParam));
     }
 
     @Test
     public void testGetAllResources() {
-        List<LocalizedText> all = Messages.getAll("status_"
-                + FlowState.UPDATING.name(), "testArg");
+        List<LocalizedText> all = Messages
+                .getAll("status_" + FlowState.UPDATING.name(), "testArg");
         String messageEn = Messages.get("en",
                 "status_" + FlowState.UPDATING.name());
         String found = null;
@@ -185,37 +188,4 @@ public class PropertyHandlerTest {
         assertEquals(mailAddress, mail);
     }
 
-    @Test
-    public void getKeystoneAPI_v3(){
-    	// given
-    	String keystoneEndpoint = "https://keystone/v3/auth";
-        configSettings.put(PropertyHandler.KEYSTONE_API_URL,
-                keystoneEndpoint);
-
-    	// when
-    	String  version = propertyHandler.getKeystoneAPIVersion();
-
-    	// then
-    	assertTrue((version).equals("v3"));
-    }
-
-    @Test
-    public void getKeystoneAPI_v2(){
-    	// given
-    	String keystoneEndpoint = "http://keystone";
-        configSettings.put(PropertyHandler.KEYSTONE_API_URL,
-                keystoneEndpoint);
-
-    	// when
-    	String  version = propertyHandler.getKeystoneAPIVersion();
-
-    	// then
-    	assertTrue((version).equals("v2"));
-    }
-
-    @Test(expected = RuntimeException.class)
-    public void getKeystoneAPI_empty(){
-    	// when
-    	propertyHandler.getKeystoneAPIVersion();
-    }
 }

@@ -33,7 +33,8 @@ public class MockURLStreamHandler extends URLStreamHandler {
 
     public MockURLStreamHandler() {
         connection = new HashMap<String, MockHttpURLConnection>();
-        put("/tokens", new MockHttpURLConnection(200, respTokens(true, true)));
+        put("/v3/auth/tokens",
+                new MockHttpURLConnection(201, respTokens(true, true, false)));
         put("/stacks/instanceName", new MockHttpURLConnection(200,
                 respStacksInstanceName(OpenStackStatus.CREATE_COMPLETE, true)));
         put("/stacks/Instance4", new MockHttpURLConnection(200,
@@ -45,16 +46,18 @@ public class MockURLStreamHandler extends URLStreamHandler {
         put("/stacks/Instance4/sID/actions", new MockHttpURLConnection(200,
                 respStacksInstance4sIdActions()));
         put("/stacks", new MockHttpURLConnection(200, respStacks()));
-        put("/templates/fosi_v2.json", new MockHttpURLConnection(200,
-                respTemplatesFosi_v2()));
-        put("/templates/fosi_v2_changeResourceId.json", new MockHttpURLConnection(200,
-                respTemplatesFosi_v2_changeResourceId()));
+        put("/templates/fosi_v2.json",
+                new MockHttpURLConnection(200, respTemplatesFosi_v2()));
+        put("/templates/fosi_v2_changeResourceId.json",
+                new MockHttpURLConnection(200,
+                        respTemplatesFosi_v2_changeResourceId()));
         put("/templates/fosi_v2_changeType.json", new MockHttpURLConnection(200,
                 respTemplatesFosi_v2_changeType()));
         connectionHttps = new HashMap<String, MockHttpsURLConnection>();
-        put("/v3/auth/tokens", new MockHttpsURLConnection(201, respTokens_v3(true, true)));
-        put("/v1/templates/fosi_v2.json", new MockHttpsURLConnection(200,
-        		respTemplatesFosi_v2()));
+        put("/v3/auth/tokens",
+                new MockHttpsURLConnection(201, respTokens(true, true, true)));
+        put("/v1/templates/fosi_v2.json",
+                new MockHttpsURLConnection(200, respTemplatesFosi_v2()));
         put("/stacks/instanceName", new MockHttpsURLConnection(200,
                 respStacksInstanceName(OpenStackStatus.CREATE_COMPLETE, true)));
         put("/stacks/Instance4", new MockHttpsURLConnection(200,
@@ -70,34 +73,34 @@ public class MockURLStreamHandler extends URLStreamHandler {
 
     public void put(String url, MockHttpsURLConnection mock) {
         connectionHttps.put(url, mock);
-	}
+    }
 
-	@Override
+    @Override
     protected URLConnection openConnection(URL u) throws IOException {
-		URLConnection conn = null;
-		if(u.getProtocol().equals("https")){
-			conn = connectionHttps.get(u.getFile());
-		} else {
-			conn = connection.get(u.getFile());
-		}
-		if (conn == null) {
-			throw new RuntimeException("Mock connection for " + u.getFile()
-					+ " not found!");
-		}
-		return conn;
+        URLConnection conn = null;
+        if (u.getProtocol().equals("https")) {
+            conn = connectionHttps.get(u.getFile());
+        } else {
+            conn = connection.get(u.getFile());
+        }
+        if (conn == null) {
+            throw new RuntimeException(
+                    "Mock connection for " + u.getFile() + " not found!");
+        }
+        return conn;
     }
 
     @Override
     protected URLConnection openConnection(URL u, Proxy p) throws IOException {
         URLConnection conn = null;
-		if(u.getProtocol().equals("https")){
-			conn = connectionHttps.get(u.getFile());
-		} else {
-			conn = connection.get(u.getFile());
-		}
+        if (u.getProtocol().equals("https")) {
+            conn = connectionHttps.get(u.getFile());
+        } else {
+            conn = connection.get(u.getFile());
+        }
         if (conn == null) {
-            throw new RuntimeException("Mock connection for " + u.getFile()
-                    + " not found!");
+            throw new RuntimeException(
+                    "Mock connection for " + u.getFile() + " not found!");
         }
         return conn;
     }
@@ -107,52 +110,7 @@ public class MockURLStreamHandler extends URLStreamHandler {
     }
 
     public static String respTokens(boolean addPublicURL,
-            boolean addPublicURLNova) {
-        try {
-            JSONObject response = new JSONObject();
-            JSONObject access = new JSONObject();
-            JSONObject token = new JSONObject();
-            JSONArray serviceCatalog = new JSONArray();
-
-            JSONObject endpoints = new JSONObject();
-            JSONArray endpointsList = new JSONArray();
-            endpoints.put("endpoints", endpointsList);
-            if (addPublicURL) {
-                JSONObject publicUrl = new JSONObject();
-                publicUrl.put("publicURL", "http://heatendpoint/");
-                endpointsList.put(publicUrl);
-            }
-
-            endpoints.put("type", KeystoneClient.TYPE_HEAT);
-            serviceCatalog.put(endpoints);
-
-            JSONObject endpointsNova = new JSONObject();
-
-            JSONArray endpointsListNova = new JSONArray();
-            endpointsNova.put("endpoints", endpointsListNova);
-            if (addPublicURLNova) {
-                JSONObject publicUrlNova = new JSONObject();
-                publicUrlNova.put("publicURL", "http://novaendpoint/");
-                endpointsListNova.put(publicUrlNova);
-            }
-
-            endpointsNova.put("type", KeystoneClient.TYPE_NOVA);
-            serviceCatalog.put(endpointsNova);
-
-            token.put("id", "authId");
-
-            access.put("token", token);
-            access.put("serviceCatalog", serviceCatalog);
-
-            response.put("access", access);
-            return response.toString();
-        } catch (JSONException ex) {
-            throw new RuntimeException(ex);
-        }
-    }
-
-    public static String respTokens_v3(boolean addPublicURL,
-            boolean addPublicURLNova) {
+            boolean addPublicURLNova, boolean https) {
         try {
             JSONObject response = new JSONObject();
             JSONObject token = new JSONObject();
@@ -160,11 +118,12 @@ public class MockURLStreamHandler extends URLStreamHandler {
 
             JSONObject endpointsHeat = new JSONObject();
             JSONArray endpointsListHeat = new JSONArray();
+            String httpMethod = https == true ? "https://" : "http://";
             endpointsHeat.put("endpoints", endpointsListHeat);
             if (addPublicURL) {
                 JSONObject publicUrl = new JSONObject();
                 publicUrl.put("name", KeystoneClient.TYPE_HEAT);
-                publicUrl.put("url", "https://heatendpoint/");
+                publicUrl.put("url", httpMethod + "heatendpoint/");
                 endpointsListHeat.put(publicUrl);
             }
 
@@ -178,7 +137,7 @@ public class MockURLStreamHandler extends URLStreamHandler {
             if (addPublicURLNova) {
                 JSONObject publicUrlNova = new JSONObject();
                 publicUrlNova.put("name", KeystoneClient.TYPE_NOVA);
-                publicUrlNova.put("url", "https://novaendpoint/");
+                publicUrlNova.put("url", httpMethod + "novaendpoint/");
                 endpointsListNova.put(publicUrlNova);
             }
 
@@ -320,6 +279,7 @@ public class MockURLStreamHandler extends URLStreamHandler {
                 + "\"Description\" : \"Key pair name\","
                 + "\"Value\" :  { \"Ref\" : \"KeyName\" }}" + "}" + "}";
     }
+
     private static String respTemplatesFosi_v2_changeResourceId() {
         return "{\"AWSTemplateFormatVersion\": \"2010-09-09\","
                 + "\"Parameters\": {\"InstanceType\" : {"
@@ -349,57 +309,41 @@ public class MockURLStreamHandler extends URLStreamHandler {
     }
 
     private static String respTemplatesFosi_v2_changeType() {
-        return "{"
-        		+ "\"heat_template_version\": \"2013-05-23\","
-        		+ "\"description\": \"The Heat Orchestration template used for the creation and provisioning of a stack.\","
-        		+ "\"parameters\": {"
-        		  + "\"param_flavor\": {\"type\": \"string\",\"description\": \"flavor\",\"default\": \"economy\"},"
-        		  + "\"param_image_id\": {\"description\": \"The id of the image to provision.\",\"type\": \"string\",\"default\": \"e43477ea-5120-4053-8552-d50fbed91678\"},"
-        		  + "\"KeyName\": {\"description\": \"The name of an already defined key pair in OpenStack, used for enabling SSH access to the web server.\",\"type\": \"string\",\"default\": \"openstackkeypair\"},"
-        		  + "\"vm_name\": {\"type\": \"string\",\"default\": \"20150612-win-vm-economy\"},"
-        		  + "\"network\": {\"type\": \"string\",\"description\": \"internal network uuid\",\"default\": \"06a2a85b-37b3-4b44-b13d-843900655976\"},"
-        		  + "\"ex-network\": {\"type\": \"string\",\"description\": \"external network uuid\",\"default\": \"d2bef1c2-7059-4cd4-b7c7-4fa5180049be\"},"
-        		  + "\"admin_password\": {\"type\": \"string\",\"default\": \"testCtmg2016!\"}"
-        		+ "},"
-        		+ "\"resources\": {"
-        		  + "\"Sys-vol\": {"
-        		    + "\"type\": \"OS::Cinder::Volume\","
-        		    + "\"properties\": {\"name\": \"sys-vol-ctmg\",\"size\": 80,\"image\": {\"get_param\": \"param_image_id\"}}"
-        		  + "},"
-        		  + "\"Server\": {"
-        		    + "\"type\": \"OS::Nova::Server\","
-        		    + "\"properties\": {"
-        		      + "\"flavor\": {\"get_param\": \"param_flavor\"},"
-        		      + "\"key_name\": {\"get_param\": \"KeyName\"},"
-        		      + "\"image\": {\"get_param\": \"param_image_id\"},"
-        		      + "\"name\": {\"get_param\": \"vm_name\"},"
-        		      + "\"networks\": [{\"uuid\": {\"get_param\": \"network\"}}],"
-        		      + "\"metadata\": {\"admin_pass\": {\"get_param\": \"admin_password\"}},"
-        		      + "\"block_device_mapping\": [{\"device_name\": \"/dev/vda\",\"volume_size\": \"80\",\"volume_id\": {\"get_resource\": \"Sys-vol\"}}]}"
-        		  + "},"
-        		  + "\"Port\": {"
-        		    + "\"type\": \"OS::Neutron::Port\","
-        		    + "\"properties\": {\"network_id\": {\"get_param\": \"network\"},"
-        		  + "},"
-        		  + "\"IP\": {"
-        		    + "\"type\": \"OS::Neutron::FloatingIP\","
-        		    + "\"properties\": {\"floating_network_id\": {\"get_param\": \"ex-network\"},"
-        		  + "},"
-        		  + "\"IPAssoc\": {"
-        		    + "\"type\": \"OS::Neutron::FloatingIPAssociation\","
-        		    + "\"properties\": {\"floatingip_id\": {\"get_resource\": \"IP\"},\"port_id\": {\"get_resource\": \"Port\"}}"
-        		  + "}"
-        		+ "},"
-        		+ "\"outputs\": {"
-        		  + "\"KP_Out\": {"
-        		    + "\"description\": \"Key pair name\","
-        		    + "\"value\": {\"get_param\": \"KeyName\"}"
-        		  + "},"
-        		  + "\"IP_Out\": {"
-        		    + "\"description\": \"IP Address of the access host\","
-        		    + "\"value\": {\"get_attr\": [\"IP\",\"floating_ip_address\"]}"
-        		  + "}"
-        		+ "}"
-        		+ "}";
+        return "{" + "\"heat_template_version\": \"2013-05-23\","
+                + "\"description\": \"The Heat Orchestration template used for the creation and provisioning of a stack.\","
+                + "\"parameters\": {"
+                + "\"param_flavor\": {\"type\": \"string\",\"description\": \"flavor\",\"default\": \"economy\"},"
+                + "\"param_image_id\": {\"description\": \"The id of the image to provision.\",\"type\": \"string\",\"default\": \"e43477ea-5120-4053-8552-d50fbed91678\"},"
+                + "\"KeyName\": {\"description\": \"The name of an already defined key pair in OpenStack, used for enabling SSH access to the web server.\",\"type\": \"string\",\"default\": \"openstackkeypair\"},"
+                + "\"vm_name\": {\"type\": \"string\",\"default\": \"20150612-win-vm-economy\"},"
+                + "\"network\": {\"type\": \"string\",\"description\": \"internal network uuid\",\"default\": \"06a2a85b-37b3-4b44-b13d-843900655976\"},"
+                + "\"ex-network\": {\"type\": \"string\",\"description\": \"external network uuid\",\"default\": \"d2bef1c2-7059-4cd4-b7c7-4fa5180049be\"},"
+                + "\"admin_password\": {\"type\": \"string\",\"default\": \"testCtmg2016!\"}"
+                + "}," + "\"resources\": {" + "\"Sys-vol\": {"
+                + "\"type\": \"OS::Cinder::Volume\","
+                + "\"properties\": {\"name\": \"sys-vol-ctmg\",\"size\": 80,\"image\": {\"get_param\": \"param_image_id\"}}"
+                + "}," + "\"Server\": {" + "\"type\": \"OS::Nova::Server\","
+                + "\"properties\": {"
+                + "\"flavor\": {\"get_param\": \"param_flavor\"},"
+                + "\"key_name\": {\"get_param\": \"KeyName\"},"
+                + "\"image\": {\"get_param\": \"param_image_id\"},"
+                + "\"name\": {\"get_param\": \"vm_name\"},"
+                + "\"networks\": [{\"uuid\": {\"get_param\": \"network\"}}],"
+                + "\"metadata\": {\"admin_pass\": {\"get_param\": \"admin_password\"}},"
+                + "\"block_device_mapping\": [{\"device_name\": \"/dev/vda\",\"volume_size\": \"80\",\"volume_id\": {\"get_resource\": \"Sys-vol\"}}]}"
+                + "}," + "\"Port\": {" + "\"type\": \"OS::Neutron::Port\","
+                + "\"properties\": {\"network_id\": {\"get_param\": \"network\"},"
+                + "}," + "\"IP\": {" + "\"type\": \"OS::Neutron::FloatingIP\","
+                + "\"properties\": {\"floating_network_id\": {\"get_param\": \"ex-network\"},"
+                + "}," + "\"IPAssoc\": {"
+                + "\"type\": \"OS::Neutron::FloatingIPAssociation\","
+                + "\"properties\": {\"floatingip_id\": {\"get_resource\": \"IP\"},\"port_id\": {\"get_resource\": \"Port\"}}"
+                + "}" + "}," + "\"outputs\": {" + "\"KP_Out\": {"
+                + "\"description\": \"Key pair name\","
+                + "\"value\": {\"get_param\": \"KeyName\"}" + "},"
+                + "\"IP_Out\": {"
+                + "\"description\": \"IP Address of the access host\","
+                + "\"value\": {\"get_attr\": [\"IP\",\"floating_ip_address\"]}"
+                + "}" + "}" + "}";
     }
 }
