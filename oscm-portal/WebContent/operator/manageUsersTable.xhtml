@@ -13,7 +13,7 @@
 		styleClass="sortable" rows="10" headerClass="rowTitle sortable"
 		rowClasses="rowOdd,rowEven"
 		columnClasses="smallCell,smallCell,smallCell,smallCell,smallCell"
-		onRowClick="updateSelectedUser('#{rowItem.userId}');AdmUtils.selectRow(this);selectItem('#{rowItem.userId}');"
+		onRowClick="updateSelectedUser('#{rowItem.userId}');AdmUtils.selectRow(this);"
 		onRowMouseOver="AdmUtils.mouseOverRow(this);"
 		onRowMouseOut="AdmUtils.mouseOutRow(this);"
 		render="scriptPanel,pagerPanel,dataTableScriptPanel" selectionMode="single">
