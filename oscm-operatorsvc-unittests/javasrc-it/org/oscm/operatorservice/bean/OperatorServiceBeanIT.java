@@ -1339,21 +1339,11 @@ public class OperatorServiceBeanIT extends EJBTestBase {
 
     @Test
     public void testGetUsersWithLimit() throws Exception {
-        List<PlatformUser> list = new ArrayList<>();
         List<Object[]> listOb = new ArrayList<>();
         Object[] user1Ob = new Object[]{"user1", "user1", "user1", "user1"};
         listOb.add(user1Ob);
         user1Ob = new Object[]{"user2", "user2", "user2", "user2"};
         listOb.add(user1Ob);
-
-        PlatformUser user1 = new PlatformUser();
-        user1.setUserId("user1");
-        user1.setOrganization(organization);
-        list.add(user1);
-        PlatformUser user2 = new PlatformUser();
-        user2.setUserId("user2");
-        user2.setOrganization(organization);
-        list.add(user2);
         query_getResultList = listOb;
 
         container.login("1", ROLE_PLATFORM_OPERATOR);
@@ -1361,9 +1351,9 @@ public class OperatorServiceBeanIT extends EJBTestBase {
 
         List<VOUserDetails> result = operatorService.getUsers();
 
-        assertEquals(list.size(), result.size());
-        assertEquals(list.get(0).getUserId(), result.get(0).getUserId());
-        assertEquals(list.get(1).getUserId(), result.get(1).getUserId());
+        assertEquals(listOb.size(), result.size());
+        assertEquals(listOb.get(0)[0], result.get(0).getUserId());
+        assertEquals(listOb.get(1)[0], result.get(1).getUserId());
     }
 
     @Test(expected = EJBException.class)
