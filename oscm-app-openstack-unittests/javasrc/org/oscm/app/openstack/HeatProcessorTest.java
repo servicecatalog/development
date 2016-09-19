@@ -38,6 +38,21 @@ public class HeatProcessorTest {
 
     private final MockURLStreamHandler streamHandler = new MockURLStreamHandler();
 
+    enum InstanceType {
+        NOVA("OS::Nova::Server"), EC2("AWS::EC2::Instance"), TROVE(
+                "OS::Trove::Instance");
+
+        private final String text;
+
+        private InstanceType(final String text) {
+            this.text = text;
+        }
+
+        public String getString() {
+            return this.text;
+        }
+    }
+
     @Before
     public void setUp() throws Exception {
         OpenStackConnection.setURLStreamHandler(streamHandler);
@@ -200,10 +215,12 @@ public class HeatProcessorTest {
                                 MockURLStreamHandler.respStacksInstanceName(
                                         OpenStackStatus.SUSPEND_COMPLETE,
                                         false)));
-        streamHandler.put("/stacks/" + instanceName + "/resources",
-                new MockHttpURLConnection(200,
-                        MockURLStreamHandler.respStacksResources(true,
-                                "serverId", "OS::Nova::Server")));
+        streamHandler
+                .put("/stacks/" + instanceName + "/resources",
+                        new MockHttpURLConnection(200,
+                                MockURLStreamHandler.respStacksResources(true,
+                                        "serverId", InstanceType.NOVA
+                                                .getString())));
 
         // when
         boolean result = new HeatProcessor().resumeStack(paramHandler);
@@ -225,10 +242,12 @@ public class HeatProcessorTest {
                                 MockURLStreamHandler.respStacksInstanceName(
                                         OpenStackStatus.SUSPEND_COMPLETE,
                                         false)));
-        streamHandler.put("/stacks/" + instanceName + "/resources",
-                new MockHttpURLConnection(200,
-                        MockURLStreamHandler.respStacksResources(true,
-                                "serverId", "OS::Trove::Instance")));
+        streamHandler
+                .put("/stacks/" + instanceName + "/resources",
+                        new MockHttpURLConnection(200,
+                                MockURLStreamHandler.respStacksResources(true,
+                                        "serverId", InstanceType.TROVE
+                                                .getString())));
 
         // when
         boolean result = new HeatProcessor().resumeStack(paramHandler);
@@ -265,8 +284,9 @@ public class HeatProcessorTest {
         final String instanceName = "Instance4";
         createBasicParameters(instanceName, "fosi_v2.json", "http");
         streamHandler.put("/stacks/" + instanceName + "/resources",
-                new MockHttpURLConnection(200, MockURLStreamHandler
-                        .respStacksResources(true, "", "AWS::EC2::Instance")));
+                new MockHttpURLConnection(200,
+                        MockURLStreamHandler.respStacksResources(true, "",
+                                InstanceType.EC2.getString())));
         // when
         new HeatProcessor().resumeStack(paramHandler);
     }
@@ -277,10 +297,12 @@ public class HeatProcessorTest {
         // given
         final String instanceName = "Instance4";
         createBasicParameters(instanceName, "fosi_v2.json", "http");
-        streamHandler.put("/stacks/Instance4/resources",
-                new MockHttpURLConnection(200,
-                        MockURLStreamHandler.respStacksResources(true, "servId",
-                                "AWS::EC2::Instance")));
+        streamHandler
+                .put("/stacks/Instance4/resources",
+                        new MockHttpURLConnection(200,
+                                MockURLStreamHandler.respStacksResources(true,
+                                        "servId",
+                                        InstanceType.EC2.getString())));
         // when
         new HeatProcessor().suspendStack(paramHandler);
     }
@@ -291,10 +313,12 @@ public class HeatProcessorTest {
         // given
         final String instanceName = "Instance4";
         createBasicParameters(instanceName, "fosi_v2.json", "http");
-        streamHandler.put("/stacks/Instance4/resources",
-                new MockHttpURLConnection(200,
-                        MockURLStreamHandler.respStacksResources(false,
-                                "servId", "AWS::EC2::Instance")));
+        streamHandler
+                .put("/stacks/Instance4/resources",
+                        new MockHttpURLConnection(200,
+                                MockURLStreamHandler.respStacksResources(false,
+                                        "servId",
+                                        InstanceType.EC2.getString())));
         // when
         new HeatProcessor().suspendStack(paramHandler);
     }

@@ -30,6 +30,31 @@ public class HeatClient {
     private static final Logger logger = LoggerFactory
             .getLogger(HeatClient.class);
 
+    private static enum InstanceType {
+        NOVA("OS::Nova::Server"), EC2("AWS::EC2::Instance"), TROVE(
+                "OS::Trove::Instance");
+
+        private final String text;
+
+        private InstanceType(final String text) {
+            this.text = text;
+        }
+
+        public String getString() {
+            return this.text;
+        }
+    }
+
+    private static InstanceType getInstanceType(final String instanceType) {
+        InstanceType[] types = InstanceType.values();
+        for (InstanceType type : types) {
+            if (type.getString().equalsIgnoreCase(instanceType)) {
+                return type;
+            }
+        }
+        return null;
+    }
+
     public HeatClient(OpenStackConnection connection) {
         this.connection = connection;
     }
@@ -41,7 +66,8 @@ public class HeatClient {
         RESTResponse response = connection.processRequest(uri, "POST",
                 request.getJSON());
         try {
-            JSONObject responseJson = new JSONObject(response.getResponseBody());
+            JSONObject responseJson = new JSONObject(
+                    response.getResponseBody());
             JSONObject stack = responseJson.getJSONObject("stack");
             Stack result = new Stack();
             result.setId(stack.getString("id"));
@@ -132,7 +158,8 @@ public class HeatClient {
         return false;
     }
 
-    private String getServerIdByStackResource(String stackName) throws HeatException {
+    private String getServerIdByStackResource(String stackName)
+            throws HeatException {
         logger.debug("HeatClient.getServerId() Endpoint: "
                 + connection.getHeatEndpoint());
         String uri;
@@ -151,10 +178,13 @@ public class HeatClient {
             JSONArray resources = responseJson.getJSONArray("resources");
             for (int i = 0; i < resources.length(); i++) {
                 JSONObject resource = resources.getJSONObject(i);
-                if ("OS::Nova::Server".equalsIgnoreCase(resource.optString("resource_type"))
-                	    || "AWS::EC2::Instance".equalsIgnoreCase(resource.optString("resource_type"))
-                	    || "OS::Trove::Instance".equalsIgnoreCase(resource.optString("resource_type"))) {
+                switch (getInstanceType(resource.optString("resource_type"))) {
+                case NOVA:
+                case EC2:
+                case TROVE:
                     return resource.optString("physical_resource_id");
+                default:
+                    continue;
                 }
             }
         } catch (JSONException e) {
