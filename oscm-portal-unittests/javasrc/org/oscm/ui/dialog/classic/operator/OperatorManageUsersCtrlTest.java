@@ -441,7 +441,7 @@ public class OperatorManageUsersCtrlTest {
         String id = "someUser";
         bean.setSelectedUserId(id);
         VOUser mockUser = mock(VOUser.class);
-        when(idService.getUser(any(VOUser.class))).thenReturn(mockUser);
+        bean.model.setUser(mockUser);
         when(mockUser.getUserId()).thenReturn(id);
         //when
         bean.updateSelectedUser();

@@ -121,7 +121,6 @@ public class OperatorManageUsersCtrl extends BaseOperatorBean implements
     List<VOUserDetails> getUsersList() {
         try {
             return getOperatorService().getUsers();
-
         } catch (OrganizationAuthoritiesException e) {
             ExceptionHandler.execute(e);
         }
@@ -209,9 +208,11 @@ public class OperatorManageUsersCtrl extends BaseOperatorBean implements
     }
 
     public void updateSelectedUser() throws OperationNotPermittedException, ObjectNotFoundException, OrganizationRemovedException {
-        VOUser selectedUser = new VOUser();
-        selectedUser.setUserId(selectedUserId);
-        model.setUser(getIdService().getUser(selectedUser));
+        for (VOUserDetails userDetails : userAndOrganizations) {
+            if (userDetails.getUserId().equals(selectedUserId)) {
+                model.setUser(userDetails);
+            }
+        }
     }
 
     public OperatorManageUsersModel getModel() {

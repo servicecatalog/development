@@ -1084,7 +1084,7 @@ public class OperatorServiceBean implements OperatorService {
     @RolesAllowed("PLATFORM_OPERATOR")
     public List<VOUserDetails> getUsers()
             throws OrganizationAuthoritiesException {
-        Query query = dm.createQuery("select pu.dataContainer.userId, pu.dataContainer.email,o.dataContainer.name, o.dataContainer.organizationId from PlatformUser pu left join pu.organization o");
+        Query query = dm.createQuery("select pu.dataContainer.userId, pu.dataContainer.email,o.dataContainer.name, o.dataContainer.organizationId, pu.dataContainer.status from PlatformUser pu left join pu.organization o");
 
         List<VOUserDetails> result = new ArrayList<>();
         final List resultList = query.getResultList();
@@ -1095,6 +1095,7 @@ public class OperatorServiceBean implements OperatorService {
             userDetails.setEMail((String) row[1]);
             userDetails.setOrganizationName((String) row[2]);
             userDetails.setOrganizationId((String) row[3]);
+            userDetails.setStatus((UserAccountStatus) row[4]);
             result.add(userDetails);
         }
         return result;
