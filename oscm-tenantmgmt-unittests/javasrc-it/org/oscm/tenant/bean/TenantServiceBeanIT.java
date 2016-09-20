@@ -1,3 +1,8 @@
+/*******************************************************************************
+ *
+ *  Copyright FUJITSU LIMITED 2016
+ *
+ *******************************************************************************/
 package org.oscm.tenant.bean;
 
 import static org.junit.Assert.assertEquals;
