@@ -42,6 +42,7 @@ public class TenantAssembler extends BaseAssembler {
         Tenant tenant = new Tenant();
         tenant.getDataContainer().setTenantId(voTenant.getTenantId());
         tenant.getDataContainer().setDescription(voTenant.getDescription());
+        tenant.setKey(voTenant.getKey());
         return tenant;
     }
 
