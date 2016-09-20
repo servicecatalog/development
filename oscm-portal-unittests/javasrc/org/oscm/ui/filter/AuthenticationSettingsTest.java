@@ -56,7 +56,7 @@ public class AuthenticationSettingsTest {
         doReturn(IDP_KEYSTORE_PASS).when(mockTenant).getSigningKeystore();
         doReturn(IDP_KEYSTORE_PASS).when(mockTenant).getSigningKeyAlias();
         doReturn(IDP_KEYSTORE_PASS).when(mockTenant).getLogoutURL();
-        doReturn(mockTenant).when(tenantService).findByTkey(any(String.class));
+        doReturn(mockTenant).when(tenantService).getTenantByTenantId(any(String.class));
         cfgMock = mock(ConfigurationService.class);
     }
 
@@ -289,7 +289,7 @@ public class AuthenticationSettingsTest {
     public void findByTKey() throws ObjectNotFoundException, NotExistentTenantException {
         // given
         givenMock(AuthenticationMode.SAML_SP, IDP);
-        doThrow(new ObjectNotFoundException()).when(tenantService).findByTkey(anyString());
+        doThrow(new ObjectNotFoundException()).when(tenantService).getTenantByTenantId(anyString());
 
         // then
         authSettings.init("te");

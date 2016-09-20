@@ -14,17 +14,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 
-import javax.ejb.EJB;
-import javax.ejb.Local;
-import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
-import javax.mail.Address;
-import javax.mail.Authenticator;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.Transport;
+import javax.ejb.*;
+import javax.mail.*;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
@@ -32,8 +23,7 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.oscm.communicationservice.data.SendMailStatus;
 import org.oscm.communicationservice.local.CommunicationServiceLocal;
 import org.oscm.communicationservice.smtp.SMTPAuthenticator;
@@ -43,14 +33,16 @@ import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
-import org.oscm.types.constants.Configuration;
-import org.oscm.types.enumtypes.EmailType;
-import org.oscm.types.enumtypes.LogMessageIdentifier;
-import org.oscm.validator.BLValidator;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.types.exception.MailOperationException;
 import org.oscm.internal.types.exception.SaaSSystemException;
 import org.oscm.internal.types.exception.ValidationException;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
+import org.oscm.types.constants.Configuration;
+import org.oscm.types.enumtypes.EmailType;
+import org.oscm.types.enumtypes.LogMessageIdentifier;
+import org.oscm.validator.BLValidator;
 
 /**
  * Session Bean implementation class CommunicationServiceBean
@@ -267,7 +259,7 @@ public class CommunicationServiceBean implements CommunicationServiceLocal {
         StringBuffer url = new StringBuffer();
         try {
             url.append(getBaseUrl());
-            if (tenantId != null && tenantId.trim().length() > 0) {
+            if (StringUtils.isNotBlank(tenantId)) {
                 removeTrailingSlashes(url);
                 url.append("?tenantID=");
                 url.append(URLEncoder.encode(tenantId.trim(), "UTF-8"));

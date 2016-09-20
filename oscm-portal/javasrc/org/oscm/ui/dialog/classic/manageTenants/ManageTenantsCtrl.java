@@ -91,7 +91,7 @@ public class ManageTenantsCtrl extends BaseBean implements Serializable {
         POTenant poTenant = getSelectedTenant();
         model.setClearExportAvailable(!manageTenantService.getTenantIdpSettings(poTenant.getKey()).isEmpty());
         model.setSelectedTenant(poTenant);
-        model.setTenantId(new FieldData<String>(poTenant.getTenantId(), false, true));
+        model.setTenantId(new FieldData<String>(poTenant.getTenantId(), true, true));
         model.setTenantDescription(new FieldData<String>(poTenant.getDescription(), false, false));
         model.setTenantIdp(new FieldData<String>(poTenant.getIdp(), true, false));
         model.setSaveDisabled(false);

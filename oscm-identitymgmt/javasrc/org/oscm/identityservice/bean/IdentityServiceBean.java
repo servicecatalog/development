@@ -15,31 +15,13 @@ package org.oscm.identityservice.bean;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Properties;
-import java.util.Random;
-import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.annotation.security.DeclareRoles;
 import javax.annotation.security.RolesAllowed;
-import javax.ejb.Asynchronous;
-import javax.ejb.EJB;
-import javax.ejb.Local;
-import javax.ejb.Remote;
-import javax.ejb.SessionContext;
-import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
+import javax.ejb.*;
 import javax.inject.Inject;
 import javax.interceptor.Interceptors;
 import javax.naming.Context;
@@ -48,6 +30,7 @@ import javax.persistence.NoResultException;
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.Query;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.GenericValidator;
 import org.oscm.authorization.PasswordHash;
 import org.oscm.communicationservice.data.SendMailStatus;
@@ -57,70 +40,25 @@ import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.converter.ParameterEncoder;
 import org.oscm.converter.ParameterizedTypes;
 import org.oscm.dataservice.local.DataService;
-import org.oscm.domobjects.ConfigurationSetting;
-import org.oscm.domobjects.Marketplace;
-import org.oscm.domobjects.OnBehalfUserReference;
-import org.oscm.domobjects.Organization;
-import org.oscm.domobjects.PlatformUser;
-import org.oscm.domobjects.RoleAssignment;
-import org.oscm.domobjects.Session;
-import org.oscm.domobjects.Subscription;
-import org.oscm.domobjects.Tenant;
-import org.oscm.domobjects.TriggerDefinition;
-import org.oscm.domobjects.TriggerProcess;
-import org.oscm.domobjects.UnitUserRole;
-import org.oscm.domobjects.UsageLicense;
-import org.oscm.domobjects.UserGroup;
-import org.oscm.domobjects.UserRole;
+import org.oscm.domobjects.*;
 import org.oscm.domobjects.enums.ModificationType;
 import org.oscm.id.IdGenerator;
 import org.oscm.identityservice.assembler.UserDataAssembler;
 import org.oscm.identityservice.bean.BulkUserImportReader.Row;
 import org.oscm.identityservice.control.SendMailControl;
 import org.oscm.identityservice.ldap.UserModificationCheck;
-import org.oscm.identityservice.local.ILdapResultMapper;
-import org.oscm.identityservice.local.IdentityServiceLocal;
-import org.oscm.identityservice.local.LdapAccessServiceLocal;
-import org.oscm.identityservice.local.LdapConnector;
-import org.oscm.identityservice.local.LdapSettingsManagementServiceLocal;
-import org.oscm.identityservice.local.LdapVOUserDetailsMapper;
+import org.oscm.identityservice.local.*;
 import org.oscm.identityservice.pwdgen.PasswordGenerator;
-import org.oscm.interceptor.DateFactory;
-import org.oscm.interceptor.ExceptionMapper;
-import org.oscm.interceptor.InvocationDateContainer;
-import org.oscm.interceptor.PlatformOperatorServiceProviderInterceptor;
-import org.oscm.interceptor.ServiceProviderInterceptor;
+import org.oscm.interceptor.*;
 import org.oscm.internal.intf.IdentityService;
-import org.oscm.internal.types.enumtypes.ConfigurationKey;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.SettingType;
-import org.oscm.internal.types.enumtypes.SubscriptionStatus;
-import org.oscm.internal.types.enumtypes.TriggerType;
-import org.oscm.internal.types.enumtypes.UnitRoleType;
-import org.oscm.internal.types.enumtypes.UserAccountStatus;
-import org.oscm.internal.types.enumtypes.UserRoleType;
-import org.oscm.internal.types.exception.BulkUserImportException;
+import org.oscm.internal.types.enumtypes.*;
+import org.oscm.internal.types.exception.*;
 import org.oscm.internal.types.exception.ConcurrentModificationException;
 import org.oscm.internal.types.exception.DomainObjectException.ClassEnum;
 import org.oscm.internal.types.exception.IllegalArgumentException;
-import org.oscm.internal.types.exception.MailOperationException;
-import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.types.exception.OperationNotPermittedException;
-import org.oscm.internal.types.exception.OperationPendingException;
-import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
-import org.oscm.internal.types.exception.OrganizationRemovedException;
-import org.oscm.internal.types.exception.SaaSSystemException;
-import org.oscm.internal.types.exception.SecurityCheckException;
-import org.oscm.internal.types.exception.TechnicalServiceNotAliveException;
-import org.oscm.internal.types.exception.TechnicalServiceOperationException;
 import org.oscm.internal.types.exception.UnsupportedOperationException;
-import org.oscm.internal.types.exception.UserActiveException;
-import org.oscm.internal.types.exception.UserDeletionConstraintException;
 import org.oscm.internal.types.exception.UserDeletionConstraintException.Reason;
-import org.oscm.internal.types.exception.UserModificationConstraintException;
-import org.oscm.internal.types.exception.UserRoleAssignmentException;
-import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.internal.types.exception.ValidationException.ReasonEnum;
 import org.oscm.internal.vo.VOUser;
 import org.oscm.internal.vo.VOUserDetails;
@@ -363,7 +301,7 @@ public class IdentityServiceBean implements IdentityService,
             }
             Query q = dm.createNamedQuery("PlatformUser.findByUserIdAndTenant");
             q.setParameter("userId", userId);
-            q.setParameter("tenant", tenant);
+            q.setParameter("tenantId", tenant.getTenantId());
             return (PlatformUser) q.getSingleResult();
         } catch (ObjectNotFoundException | NoResultException e) {
             return null;
@@ -1135,9 +1073,9 @@ public class IdentityServiceBean implements IdentityService,
             OperationNotPermittedException, OrganizationRemovedException {
 
         ArgumentValidator.notNull("user", user);
-        PlatformUser pUser = null;
+        PlatformUser pUser;
         try {
-            if (user.getTenantKey() != null && !user.getTenantKey().equals("")) {
+            if (StringUtils.isNotBlank(user.getTenantKey())) {
                 pUser = getPlatformUser(user.getUserId(), user.getTenantKey(), false);
             } else {
                 pUser = getPlatformUser(user.getUserId(), false);
@@ -1628,14 +1566,13 @@ public class IdentityServiceBean implements IdentityService,
 
     @Override
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
-    public PlatformUser getPlatformUser(String userId, String tenantKey,
+    public PlatformUser getPlatformUser(String userId, String tenantId,
         boolean validateOrganization) throws ObjectNotFoundException,
         OperationNotPermittedException {
 
-        Tenant tenant = dm.getReference(Tenant.class, Long.valueOf(tenantKey));
         Query query = dm.createNamedQuery("PlatformUser.findByUserIdAndTenant");
         query.setParameter("userId", userId);
-        query.setParameter("tenant", tenant);
+        query.setParameter("tenantId", tenantId);
 
         PlatformUser platformUser;
         try {
@@ -1983,7 +1920,7 @@ public class IdentityServiceBean implements IdentityService,
         final Tenant tenant = user.getOrganization().getTenant();
         String tenantId = null;
         if (tenant != null) {
-            tenantId = String.valueOf(tenant.getKey());
+            tenantId = tenant.getTenantId();
         }
         return tenantId;
     }

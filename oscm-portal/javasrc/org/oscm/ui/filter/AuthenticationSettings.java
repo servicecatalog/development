@@ -108,7 +108,7 @@ public class AuthenticationSettings {
             tenant = getTenantFromConfigSettings();
         } else {
             try {
-                tenant = tenantService.findByTkey(tenantID);
+                tenant = tenantService.getTenantByTenantId(tenantID);
             } catch (Exception e) {
                 throw new NotExistentTenantException(TENANT_NOT_FOUND);
             }

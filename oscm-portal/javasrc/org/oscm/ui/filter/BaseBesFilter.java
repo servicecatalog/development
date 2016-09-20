@@ -218,7 +218,7 @@ public abstract class BaseBesFilter implements Filter {
         String tenantID = null;
         if (StringUtils.isNotBlank(marketplaceId)) {
             tenantID = getMarketplaceServiceCache(httpRequest)
-                    .getConfiguration(marketplaceId).getTenantTkey();
+                    .getConfiguration(marketplaceId).getTenantId();
             if (StringUtils.isBlank(tenantID)) {
                 try {
                     tenantID = getMarketplaceService(httpRequest)

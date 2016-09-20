@@ -49,7 +49,7 @@ public class TenantServiceBean implements TenantService {
     }
 
     @Override
-    @RolesAllowed("PLATFORM_OPERATOR")
+    @TransactionAttribute(value = TransactionAttributeType.REQUIRES_NEW)
     public VOTenant getTenantByTenantId(String tenantId) throws ObjectNotFoundException {
         return TenantAssembler.toVOTenant(tenantServiceLocal.getTenantByTenantId(tenantId));
     }

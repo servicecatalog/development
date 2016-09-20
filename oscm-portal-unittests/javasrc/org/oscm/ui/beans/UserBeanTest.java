@@ -410,7 +410,7 @@ public class UserBeanTest {
         doReturn(authSettings).when(userBean).getAuthenticationSettings();
         VOTenant tenant = new VOTenant();
         tenant.setTenantId("tenantID");
-        doReturn(tenant).when(tenantService).findByTkey(anyString());
+        doReturn(tenant).when(tenantService).getTenantByTenantId(anyString());
         // when
         AuthenticationSettings result = userBean.getAuthenticationSettings();
         // then
