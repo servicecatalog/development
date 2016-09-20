@@ -170,13 +170,12 @@ public class OperatorManageUsersCtrlTest {
     public void getInitialize_initialized() throws Exception {
         // given
         currentUser(OrganizationRoleType.PLATFORM_OPERATOR);
-        bean.model.setInitialized(true);
 
         // when
         bean.getInitialize();
 
         // then
-        verify(marketplaceService, times(0)).getMarketplacesForOperator();
+        verify(marketplaceService, times(1)).getMarketplacesForOperator();
     }
 
     @Test
