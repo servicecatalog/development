@@ -21,7 +21,6 @@ import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.interceptor.ExceptionMapper;
 import org.oscm.interceptor.InvocationDateContainer;
 import org.oscm.internal.components.response.Response;
-import org.oscm.internal.intf.MarketplaceService;
 import org.oscm.internal.pricing.POMarketplacePriceModel;
 import org.oscm.internal.pricing.POPartnerPriceModel;
 import org.oscm.internal.pricing.PricingServiceBean;
@@ -54,9 +53,6 @@ public class MarketplaceServiceManagePartnerBean implements
 
     @EJB(beanInterface = MarketplaceServiceLocal.class)
     MarketplaceServiceLocal mpServiceLocal;
-
-    @EJB(beanInterface = MarketplaceService.class)
-    MarketplaceService mpService;
 
     @Override
     @RolesAllowed({ "MARKETPLACE_OWNER", "PLATFORM_OPERATOR" })
@@ -115,9 +111,6 @@ public class MarketplaceServiceManagePartnerBean implements
                         EmailType.MARKETPLACE_OWNER_ASSIGNED, mp, mp
                                 .getOrganization().getKey());
             }
-
-            mpService.clearCachedMarketplaceConfiguration(marketplace
-                    .getMarketplaceId());
 
             return response;
         } finally {

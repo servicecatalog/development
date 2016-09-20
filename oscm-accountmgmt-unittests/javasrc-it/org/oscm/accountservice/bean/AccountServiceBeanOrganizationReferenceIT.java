@@ -40,22 +40,17 @@ import org.oscm.domobjects.OrganizationRole;
 import org.oscm.domobjects.OrganizationToRole;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.TriggerProcess;
-import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.domobjects.enums.OrganizationReferenceType;
-import org.oscm.i18nservice.bean.LocalizerFacade;
-import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.internal.intf.AccountService;
-import org.oscm.internal.intf.MarketplaceService;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.UserRoleType;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.SaaSSystemException;
 import org.oscm.internal.vo.VODiscount;
-import org.oscm.internal.vo.VOLocalizedText;
 import org.oscm.internal.vo.VOOrganization;
 import org.oscm.internal.vo.VOUserDetails;
-import org.oscm.marketplace.assembler.MarketplaceAssembler;
+import org.oscm.marketplaceservice.local.MarketplaceServiceLocal;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.Marketplaces;
 import org.oscm.test.data.Organizations;
@@ -63,7 +58,6 @@ import org.oscm.test.data.PlatformUsers;
 import org.oscm.test.data.SupportedCountries;
 import org.oscm.test.data.UserRoles;
 import org.oscm.test.ejb.TestContainer;
-import org.oscm.test.stubs.LocalizerServiceStub;
 import org.oscm.triggerservice.bean.TriggerQueueServiceBean;
 import org.oscm.triggerservice.local.TriggerMessage;
 import org.oscm.triggerservice.local.TriggerProcessMessageData;
@@ -78,8 +72,6 @@ public class AccountServiceBeanOrganizationReferenceIT extends EJBTestBase {
 
     private AccountService as;
     private DataService ds;
-
-    private LocalizerServiceLocal localizer;
 
     private final ConfigurationSetting invoiceAsDefault = new ConfigurationSetting(
             ConfigurationKey.SUPPLIER_SETS_INVOICE_AS_DEFAULT,
@@ -109,36 +101,6 @@ public class AccountServiceBeanOrganizationReferenceIT extends EJBTestBase {
                 return null;
             }
         });
-
-        container.addBean(new LocalizerServiceStub() {
-
-            @Override
-            public String getLocalizedTextFromDatabase(String localeString,
-                    long objectKey, LocalizedObjectTypes objectType) {
-                return "";
-            }
-
-            @Override
-            public List<VOLocalizedText> getLocalizedValues(long objectKey,
-                    LocalizedObjectTypes objectType) {
-                return new ArrayList<VOLocalizedText>();
-            }
-
-            @Override
-            public void storeLocalizedResources(long objectKey,
-                    LocalizedObjectTypes objectType,
-                    List<VOLocalizedText> values) {
-            }
-
-            @Override
-            public boolean storeLocalizedResource(String localeString,
-                    long objectKey, LocalizedObjectTypes objectType,
-                    String value) {
-                return true;
-            }
-        });
-
-        localizer = container.get(LocalizerServiceLocal.class);
     }
 
     private static void addRole(Organization org, OrganizationRoleType roleType) {
@@ -280,12 +242,9 @@ public class AccountServiceBeanOrganizationReferenceIT extends EJBTestBase {
     }
 
     private void mockMarketplaceService(Marketplace mpl) throws Exception {
-        MarketplaceService mplService = mock(MarketplaceService.class);
+        MarketplaceServiceLocal mplService = mock(MarketplaceServiceLocal.class);
         container.addBean(mplService);
-        doReturn(
-                MarketplaceAssembler.toVOMarketplace(mpl, new LocalizerFacade(
-                        localizer, "en"))).when(mplService).getMarketplaceById(
-                anyString());
+        doReturn(mpl).when(mplService).getMarketplaceForId(anyString());
         container.addBean(new AccountServiceBean());
         as = container.get(AccountService.class);
     }

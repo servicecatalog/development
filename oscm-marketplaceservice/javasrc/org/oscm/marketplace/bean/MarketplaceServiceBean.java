@@ -1144,14 +1144,14 @@ public class MarketplaceServiceBean implements MarketplaceService {
 
         for (Long orgKey : authorizedOrganizations) {
             Organization organization = new Organization();
-            organization.setKey(orgKey);
+            organization.setKey(orgKey.longValue());
             marketplaceServiceLocal.grantAccessToMarketPlaceToOrganization(
                     marketplace, organization);
         }
 
         for (Long orgKey : unauthorizedOrganizations) {
             marketplaceServiceLocal.removeMarketplaceAccess(
-                    marketplace.getKey(), orgKey);
+                    marketplace.getKey(), orgKey.longValue());
         }
 
         marketplaceCache.resetConfiguration(marketplaceId);
@@ -1247,10 +1247,5 @@ public class MarketplaceServiceBean implements MarketplaceService {
             String marketplaceId) {
 
         return marketplaceCache.getConfiguration(marketplaceId);
-    }
-
-    @Override
-    public void clearCachedMarketplaceConfiguration(String marketplaceId) {
-        marketplaceCache.resetConfiguration(marketplaceId);
     }
 }

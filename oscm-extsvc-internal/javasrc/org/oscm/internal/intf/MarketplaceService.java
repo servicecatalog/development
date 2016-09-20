@@ -522,7 +522,7 @@ public interface MarketplaceService {
     /**
      * Returns all organizations created in the system with information about
      * access to the given marketplace.
-     *
+     * 
      * @return collection of all organizations.
      * @throws ObjectNotFoundException
      */
@@ -532,7 +532,7 @@ public interface MarketplaceService {
 
     /**
      * Method is used to restrict access to the given marketplace.
-     *
+     * 
      * @param marketplaceId
      * @param authorizedOrganizations
      *            - organizations to which access to marketplace should be
@@ -557,7 +557,7 @@ public interface MarketplaceService {
     /**
      * This method is used to grant access to given marketplace to given
      * organization.
-     *
+     * 
      * @param voMarketplace
      * @param voOrganization
      * @throws ValidationException
@@ -570,7 +570,7 @@ public interface MarketplaceService {
 
     /**
      * Method is used to remove restrictions to the given marketplace.
-     *
+     * 
      * @param marketplaceId
      * @throws OperationNotPermittedException
      * @throws ObjectNotFoundException
@@ -591,7 +591,7 @@ public interface MarketplaceService {
 
     /**
      * Gives information if given organization has access to marketplace.
-     *
+     * 
      * @param marketplaceId
      * @param organizationId
      * @return true - if organization has access to marketplace, false -
@@ -623,12 +623,4 @@ public interface MarketplaceService {
     public MarketplaceConfiguration getCachedMarketplaceConfiguration(
             String marketplaceId);
 
-    /**
-     * Clears the cache from the configuration of the marketplace with the given
-     * id.
-     * 
-     * @param marketplaceId
-     *            the marketplace id
-     */
-    public void clearCachedMarketplaceConfiguration(String marketplaceId);
 }
