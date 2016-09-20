@@ -184,6 +184,7 @@ public class UserBeanTest {
 
         doReturn(marketplaceService).when(userBean).getMarketplaceService();
         doReturn(true).when(marketplaceService).doesOrganizationHaveAccessMarketplace(anyString(), anyString());
+        userBean.getSessionBean().setTenantID("1");
     }
 
     void mockErrorAttribute(HttpServletRequest requestMock) {
