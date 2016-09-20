@@ -104,7 +104,6 @@ public class MarketplaceCacheServiceBean implements MarketplaceCacheService {
         conf.setRestricted(voMarketPlace.isRestricted());
         conf.setLandingPage(voMarketPlace.isHasPublicLandingPage());
         conf.setTenantId(voMarketPlace.getTenantId());
-        conf.setTenantTkey(voMarketPlace.getTenantTkey());
     }
 
     @Override

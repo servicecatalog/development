@@ -37,7 +37,6 @@ public class VOMarketplace extends BaseVO implements Serializable {
     private boolean categoriesEnabled = true;
     private boolean restricted = false;
     private boolean hasPublicLandingPage;
-    private String tenantTkey;
 
     /**
      * Default constructor.
@@ -301,11 +300,4 @@ public class VOMarketplace extends BaseVO implements Serializable {
         this.tenantId = tenantId;
     }
 
-    public void setTenantTkey(String tenantTkey) {
-        this.tenantTkey = tenantTkey;
-    }
-
-    public String getTenantTkey() {
-        return tenantTkey;
-    }
 }

@@ -74,7 +74,6 @@ public class MarketplaceAssembler extends BaseAssembler {
         Tenant tenant = domObj.getTenant();
         if (tenant != null) {
             voResult.setTenantId(tenant.getTenantId());
-            voResult.setTenantTkey(Long.toString(tenant.getKey()));
         }
         
         return voResult;
