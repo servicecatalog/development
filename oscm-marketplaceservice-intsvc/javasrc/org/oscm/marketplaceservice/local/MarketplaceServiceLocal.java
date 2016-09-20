@@ -555,12 +555,9 @@ public interface MarketplaceServiceLocal {
      *            the marketplace to update the tenant for
      * @param tenantId
      *            the identifier of the related tenant
-     * @return <code>true</code> if the owning organization was updated,
-     *         <code>false</code> if there was no need to update the owning
-     *         organization
      * @throws ObjectNotFoundException
      */
-    boolean updateTenant(Marketplace marketplace, final String tenantId)
+    void updateTenant(Marketplace marketplace, final String tenantId)
             throws ObjectNotFoundException;
 
     /**

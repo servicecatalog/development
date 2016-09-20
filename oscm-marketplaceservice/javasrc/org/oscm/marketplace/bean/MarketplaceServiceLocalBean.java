@@ -1171,11 +1171,12 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
     }
 
     @Override
-    public boolean updateTenant(Marketplace marketplace, String tenantId)
+    public void updateTenant(Marketplace marketplace, String tenantId)
             throws ObjectNotFoundException {
         
         if(StringUtils.isBlank(tenantId)){
-            return false;
+            marketplace.setTenant(null);
+            return;
         }
         
         String currentTenantId = (marketplace.getTenant() != null)
@@ -1185,12 +1186,9 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
             Tenant tenant = new Tenant();
             tenant.setTenantId(tenantId);
             tenant = (Tenant) ds.getReferenceByBusinessKey(tenant);
-
             marketplace.setTenant(tenant);
-            return true;
         }
 
-        return false;
     }
 
     @Override
