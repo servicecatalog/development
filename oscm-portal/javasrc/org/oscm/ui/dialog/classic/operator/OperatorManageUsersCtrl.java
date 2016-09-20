@@ -189,6 +189,7 @@ public class OperatorManageUsersCtrl extends BaseOperatorBean implements
         if (user != null) {
             getOperatorService().setUserAccountStatus(user,
                     UserAccountStatus.LOCKED);
+            model.getUser().setStatus(UserAccountStatus.LOCKED);
         }
 
         return (user != null) ? getOutcome(true) : OUTCOME_ERROR;
@@ -201,6 +202,7 @@ public class OperatorManageUsersCtrl extends BaseOperatorBean implements
         if (user != null) {
             getOperatorService().setUserAccountStatus(user,
                     UserAccountStatus.ACTIVE);
+            model.getUser().setStatus(UserAccountStatus.LOCKED);
         }
 
         return (user != null) ? getOutcome(true) : OUTCOME_ERROR;
@@ -274,6 +276,38 @@ public class OperatorManageUsersCtrl extends BaseOperatorBean implements
             }
         }
         return Collections.emptyList();
+    }
+
+    public boolean isPwdButtonEnabled() {
+        return selectedUserId != null && !selectedUserId.isEmpty();
+    }
+
+    public boolean isLockButtonEnabled() throws ValidationException, ObjectNotFoundException {
+        if (model.getUser() == null) {
+            return false;
+        }
+        return isUserActive();
+    }
+
+    public boolean isUnlockButtonEnabled() throws ValidationException, ObjectNotFoundException {
+        if (model.getUser() == null) {
+            return false;
+        }
+        return isUserLocked();
+    }
+
+    private boolean isUserLocked() {
+        if (model.getUser().getStatus().equals(UserAccountStatus.LOCKED)) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean isUserActive() {
+        if (model.getUser().getStatus().equals(UserAccountStatus.ACTIVE)) {
+            return true;
+        }
+        return false;
     }
 
     private boolean validateLdapUser(VOUser user)
