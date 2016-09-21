@@ -25,6 +25,7 @@ import org.oscm.domobjects.Tenant;
 import org.oscm.domobjects.TenantSetting;
 import org.oscm.domobjects.enums.RevenueShareModelType;
 import org.oscm.internal.types.enumtypes.IdpSettingType;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.vo.VOTenant;
@@ -33,6 +34,7 @@ import org.oscm.tenant.assembler.TenantAssembler;
 import org.oscm.tenant.bean.TenantServiceBean;
 import org.oscm.tenant.bean.TenantServiceLocalBean;
 import org.oscm.test.EJBTestBase;
+import org.oscm.test.data.Organizations;
 import org.oscm.test.ejb.TestContainer;
 
 /**
@@ -335,6 +337,203 @@ public class TenantDaoIT extends EJBTestBase {
             }
         });
         assertTrue(count == 1L);
+    }
+    
+    @Test
+    public void testGetNumberOfNonUniqueUsers() throws Exception {
+
+        runTX(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                final Tenant tenant1 = new Tenant();
+                tenant1.setTenantId("tenantID1");
+                dm.persist(tenant1);
+
+                final Tenant tenant2 = new Tenant();
+                tenant2.setTenantId("tenantID2");
+                dm.persist(tenant2);
+                return null;
+            }
+        });
+
+        // given
+        final Tenant tenant1 = runTX(new Callable<Tenant>() {
+            @Override
+            public Tenant call() throws Exception {
+                return tenantDao.getTenantByTenantId("tenantID1");
+            }
+        });
+
+        final Tenant tenant2 = runTX(new Callable<Tenant>() {
+            @Override
+            public Tenant call() throws Exception {
+                return tenantDao.getTenantByTenantId("tenantID2");
+            }
+        });
+
+        runTX(new Callable<Organization>() {
+            @Override
+            public Organization call() throws Exception {
+                Organization org = new Organization();
+                org.setOrganizationId("orgId1");
+                org.setTenant(tenant1);
+                org.setCutOffDay(1);
+                dm.persist(org);
+
+                Organizations.createUserForOrgWithGivenId(dm, "user1", org);
+                Organizations.createUserForOrgWithGivenId(dm, "user2", org);
+                Organizations.createUserForOrgWithGivenId(dm, "user3", org);
+                return org;
+            }
+        });
+
+        runTX(new Callable<Organization>() {
+            @Override
+            public Organization call() throws Exception {
+                Organization org = new Organization();
+                org.setOrganizationId("orgId2");
+                org.setTenant(tenant2);
+                org.setCutOffDay(1);
+                dm.persist(org);
+
+                Organizations.createUserForOrgWithGivenId(dm, "user1", org);
+                Organizations.createUserForOrgWithGivenId(dm, "user4", org);
+                Organizations.createUserForOrgWithGivenId(dm, "user5", org);
+                return org;
+            }
+        });
+
+        runTX(new Callable<Organization>() {
+            @Override
+            public Organization call() throws Exception {
+                Organization org = new Organization();
+                org.setOrganizationId("orgId3");
+                org.setTenant(tenant2);
+                org.setCutOffDay(1);
+                dm.persist(org);
+
+                Organizations.createUserForOrgWithGivenId(dm, "user2", org);
+                Organizations.createUserForOrgWithGivenId(dm, "user6", org);
+                Organizations.createUserForOrgWithGivenId(dm, "user7", org);
+                return org;
+            }
+        });
+
+        // when
+        final List<String> userIds = runTX(new Callable<List<String>>() {
+            @Override
+            public List<String> call() throws Exception {
+                return tenantDao.getNonUniqueOrgUserIdsInTenant("orgId1",
+                        tenant2.getKey());
+            }
+        });
+
+        // then
+        assertTrue(userIds.size() == 2);
+        assertTrue(userIds.contains("user1"));
+        assertTrue(userIds.contains("user2"));
+    }
+
+    @Test
+    public void testGetNumberOfNonUniqueUsersInTenantWithoutOrg()
+            throws Exception {
+
+        runTX(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                final Tenant tenant = new Tenant();
+                tenant.setTenantId("tenantID1");
+                dm.persist(tenant);
+
+                final Tenant tenantWithoutOrg = new Tenant();
+                tenantWithoutOrg.setTenantId("tenantWithoutOrg");
+                dm.persist(tenantWithoutOrg);
+
+                Organization org = new Organization();
+                org.setOrganizationId("orgId1");
+                org.setTenant(tenant);
+                org.setCutOffDay(1);
+                dm.persist(org);
+
+                Organizations.createUserForOrgWithGivenId(dm, "user1", org);
+                Organizations.createUserForOrgWithGivenId(dm, "user2", org);
+                Organizations.createUserForOrgWithGivenId(dm, "user3", org);
+                Organizations.createUserForOrgWithGivenId(dm, "user4", org);
+                Organizations.createUserForOrgWithGivenId(dm, "user5", org);
+
+                return null;
+            }
+        });
+
+        final Tenant tenantWithoutOrg = runTX(new Callable<Tenant>() {
+            @Override
+            public Tenant call() throws Exception {
+                return tenantDao.getTenantByTenantId("tenantWithoutOrg");
+            }
+        });
+
+        // when
+        final List<String> userIds = runTX(new Callable<List<String>>() {
+            @Override
+            public List<String> call() throws Exception {
+                return tenantDao.getNonUniqueOrgUserIdsInTenant("orgId1",
+                        tenantWithoutOrg.getKey());
+            }
+        });
+
+        // then
+        assertTrue(userIds.isEmpty());
+    }
+
+    @Test
+    public void testGetNumberOfNonUniqueUsersWithoutTenant() throws Exception {
+
+        runTX(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                final Tenant tenant = new Tenant();
+                tenant.setTenantId("tenantID1");
+                dm.persist(tenant);
+
+                Organization org = new Organization();
+                org.setOrganizationId("orgId1");
+                org.setTenant(tenant);
+                org.setCutOffDay(1);
+                dm.persist(org);
+
+                Organizations.createUserForOrgWithGivenId(dm, "user1", org);
+                Organizations.createUserForOrgWithGivenId(dm, "user2", org);
+                Organizations.createUserForOrgWithGivenId(dm, "user3", org);
+                Organizations.createUserForOrgWithGivenId(dm, "user4", org);
+                Organizations.createUserForOrgWithGivenId(dm, "user5", org);
+
+                Organization orgWithoutTenat = Organizations.createOrganization(
+                        dm, "orgWithoutTenat", OrganizationRoleType.SUPPLIER);
+
+                Organizations.createUserForOrgWithGivenId(dm, "user1",
+                        orgWithoutTenat);
+                Organizations.createUserForOrgWithGivenId(dm, "user3",
+                        orgWithoutTenat);
+                Organizations.createUserForOrgWithGivenId(dm, "user4",
+                        orgWithoutTenat);
+
+                return null;
+            }
+        });
+
+        // when
+        final List<String> userIds = runTX(new Callable<List<String>>() {
+            @Override
+            public List<String> call() throws Exception {
+                return tenantDao.getNonUniqueOrgUserIdsInTenant("orgId1", 0);
+            }
+        });
+
+        // then
+        assertTrue(userIds.size() == 3);
+        assertTrue(userIds.contains("user1"));
+        assertTrue(userIds.contains("user3"));
+        assertTrue(userIds.contains("user4"));
     }
 
     private Tenant createTenant(long modifier) {

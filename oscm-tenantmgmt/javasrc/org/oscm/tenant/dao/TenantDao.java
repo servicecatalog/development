@@ -65,4 +65,23 @@ public class TenantDao {
         query.setParameter("tenant", tenant);
         return (long) query.getSingleResult();
     }
+    
+    public List<String> getNonUniqueOrgUserIdsInTenant(String orgId, long tenantKey) {
+
+        final String queryString = "SELECT groupedusers.userid " + "FROM "
+                + "(SELECT users.userid, count(users.orgkey) as numberOfUsers FROM"
+                + "(SELECT u.userid, o.tkey as orgkey FROM platformuser u "
+                + "LEFT JOIN organization o ON u.organizationkey=o.tkey WHERE o.organizationid=:orgId "
+                + "UNION  "
+                + "SELECT u.userid, o.tkey as orgkey FROM platformuser u "
+                + "LEFT JOIN organization o ON u.organizationkey=o.tkey WHERE (CASE :tenantKey WHEN 0 THEN o.tenant_tkey IS NULL ELSE o.tenant_tkey=:tenantKey END)) "
+                + "as users " + "GROUP BY users.userid) " + "as groupedusers "
+                + "WHERE groupedusers.numberOfUsers>1";
+
+        Query query = dataManager.createNativeQuery(queryString);
+        query.setParameter("orgId", orgId);
+        query.setParameter("tenantKey", tenantKey);
+        
+        return ParameterizedTypes.list(query.getResultList(), String.class);
+    }
 }
