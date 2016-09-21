@@ -8,16 +8,11 @@
 
 package org.oscm.ui.beans;
 
-import java.util.List;
-
-import javax.ejb.EJB;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 
-import org.oscm.internal.tenant.ManageTenantService;
-import org.oscm.internal.tenant.POTenant;
 import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.internal.vo.VOMarketplace;
 import org.oscm.ui.common.ExceptionActionListener;
@@ -38,9 +33,6 @@ public class NewMarketplaceBean extends BaseBean {
     
     @ManagedProperty(value="#{menuBean}")
     MenuBean menuBean;
-    
-    @EJB
-    private ManageTenantService manageTenantService;
    
 
     /**
@@ -56,14 +48,6 @@ public class NewMarketplaceBean extends BaseBean {
      */
     public void setMenuBean(MenuBean menuBean) {
         this.menuBean = menuBean;
-    }
-    
-    public ManageTenantService getManageTenantService() {
-        return manageTenantService;
-    }
-
-    public void setManageTenantService(ManageTenantService manageTenantService) {
-        this.manageTenantService = manageTenantService;
     }
     
     /**
@@ -127,16 +111,6 @@ public class NewMarketplaceBean extends BaseBean {
             model = null;
         }
         return null;
-    }
-    
-    public List<POTenant> getSuggestionsForTenants(String tenantId) {
-
-        tenantId = tenantId.replaceAll("\\p{C}", "");
-        String pattern = tenantId + "%";
-
-        List<POTenant> tenants = manageTenantService.getTenantsByIdPattern(pattern);
-
-        return tenants;
     }
 
 }

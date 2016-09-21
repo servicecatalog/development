@@ -1,1 +1,1 @@
-The marketplace management service implementation.
+The tenant management service implementation.
