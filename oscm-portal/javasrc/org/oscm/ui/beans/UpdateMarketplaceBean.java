@@ -11,7 +11,6 @@ package org.oscm.ui.beans;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.ejb.EJB;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
@@ -24,8 +23,6 @@ import org.oscm.internal.pricing.POMarketplacePriceModel;
 import org.oscm.internal.pricing.POMarketplacePricing;
 import org.oscm.internal.pricing.POPartnerPriceModel;
 import org.oscm.internal.pricing.PricingService;
-import org.oscm.internal.tenant.ManageTenantService;
-import org.oscm.internal.tenant.POTenant;
 import org.oscm.internal.types.exception.DomainObjectException.ClassEnum;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.OperationNotPermittedException;
@@ -48,9 +45,6 @@ public class UpdateMarketplaceBean extends BaseBean {
 
     @ManagedProperty(value = "#{menuBean}")
     private MenuBean menuBean;
-    
-    @EJB
-    private ManageTenantService manageTenantService;
 
     // TODO: think more about that. It breaks architecture in view layer. Maybe
     // model should be a bean and we should not get access to model through this
@@ -161,14 +155,6 @@ public class UpdateMarketplaceBean extends BaseBean {
         addMessage(null, FacesMessage.SEVERITY_INFO, INFO_MARKETPLACE_SAVED,
                 mId);
         return OUTCOME_SUCCESS;
-    }
-
-    public ManageTenantService getManageTenantService() {
-        return manageTenantService;
-    }
-
-    public void setManageTenantService(ManageTenantService manageTenantService) {
-        this.manageTenantService = manageTenantService;
     }
 
     /**
@@ -334,15 +320,5 @@ public class UpdateMarketplaceBean extends BaseBean {
 
     public SelectOrganizationIncludeBean getSelectOrganizationIncludeBean() {
         return selectOrganizationIncludeBean;
-    }
-    
-    public List<POTenant> getSuggestionsForTenants(String tenantId) {
-
-        tenantId = tenantId.replaceAll("\\p{C}", "");
-        String pattern = tenantId + "%";
-
-        List<POTenant> tenants = manageTenantService.getTenantsByIdPattern(pattern);
-
-        return tenants;
     }
 }

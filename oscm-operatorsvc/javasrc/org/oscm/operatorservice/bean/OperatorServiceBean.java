@@ -8,18 +8,10 @@
 
 package org.oscm.operatorservice.bean;
 
+import java.lang.IllegalArgumentException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Currency;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import javax.annotation.Resource;
 import javax.annotation.security.RolesAllowed;
@@ -38,11 +30,7 @@ import org.oscm.auditlog.bean.AuditLogServiceBean;
 import org.oscm.billingservice.service.BillingServiceLocal;
 import org.oscm.configurationservice.assembler.ConfigurationSettingAssembler;
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
-import org.oscm.converter.CsvCreator;
-import org.oscm.converter.LocaleHandler;
-import org.oscm.converter.ParameterizedTypes;
-import org.oscm.converter.PriceConverter;
-import org.oscm.converter.XMLConverter;
+import org.oscm.converter.*;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.*;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
@@ -57,41 +45,12 @@ import org.oscm.interceptor.ExceptionMapper;
 import org.oscm.interceptor.InvocationDateContainer;
 import org.oscm.interceptor.ServiceProviderInterceptor;
 import org.oscm.internal.intf.OperatorService;
-import org.oscm.internal.types.enumtypes.ConfigurationKey;
-import org.oscm.internal.types.enumtypes.ImageType;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.PaymentCollectionType;
-import org.oscm.internal.types.enumtypes.UserAccountStatus;
-import org.oscm.internal.types.exception.AddMarketingPermissionException;
-import org.oscm.internal.types.exception.AuditLogTooManyRowsException;
+import org.oscm.internal.types.enumtypes.*;
+import org.oscm.internal.types.exception.*;
 import org.oscm.internal.types.exception.ConcurrentModificationException;
-import org.oscm.internal.types.exception.DistinguishedNameException;
-import org.oscm.internal.types.exception.ImageException;
-import org.oscm.internal.types.exception.IncompatibleRolesException;
-import org.oscm.internal.types.exception.MailOperationException;
-import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.types.exception.OperationNotPermittedException;
-import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
-import org.oscm.internal.types.exception.OrganizationAuthorityException;
-import org.oscm.internal.types.exception.PSPIdentifierForSellerException;
-import org.oscm.internal.types.exception.PaymentDataException;
 import org.oscm.internal.types.exception.PaymentDataException.Reason;
-import org.oscm.internal.types.exception.SaaSSystemException;
-import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.internal.types.exception.ValidationException.ReasonEnum;
-import org.oscm.internal.vo.LdapProperties;
-import org.oscm.internal.vo.VOConfigurationSetting;
-import org.oscm.internal.vo.VOImageResource;
-import org.oscm.internal.vo.VOOperatorOrganization;
-import org.oscm.internal.vo.VOOrganization;
-import org.oscm.internal.vo.VOPSP;
-import org.oscm.internal.vo.VOPSPAccount;
-import org.oscm.internal.vo.VOPSPSetting;
-import org.oscm.internal.vo.VOPaymentType;
-import org.oscm.internal.vo.VOTimerInfo;
-import org.oscm.internal.vo.VOUser;
-import org.oscm.internal.vo.VOUserDetails;
+import org.oscm.internal.vo.*;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.marketplaceservice.local.MarketplaceServiceLocal;
@@ -121,6 +80,15 @@ import org.oscm.validator.OrganizationRoleValidator;
 public class OperatorServiceBean implements OperatorService {
 
     private final static int DB_SEARCH_LIMIT = 100;
+    private static final int TKEY_INDEX = 0;
+    public static final int ID_INDEX = 1;
+    public static final int FIRST_NAME_INDEX = 2;
+    public static final int LAST_NAME_INDEX = 3;
+    public static final int USERID_INDEX = 0;
+    public static final int EMAIL_INDEX = 1;
+    public static final int ORGN_NAME_INDEX = 2;
+    public static final int ORG_ID_INDEX = 3;
+    public static final int STATUS_INDEX = 4;
 
     private static Log4jLogger logger = LoggerFactory
             .getLogger(OperatorServiceBean.class);
@@ -1091,11 +1059,11 @@ public class OperatorServiceBean implements OperatorService {
         for (Object o : resultList) {
             Object[] row = (Object[]) o;
             final VOUserDetails userDetails = new VOUserDetails();
-            userDetails.setUserId((String) row[0]);
-            userDetails.setEMail((String) row[1]);
-            userDetails.setOrganizationName((String) row[2]);
-            userDetails.setOrganizationId((String) row[3]);
-            userDetails.setStatus((UserAccountStatus) row[4]);
+            userDetails.setUserId((String) row[USERID_INDEX]);
+            userDetails.setEMail((String) row[EMAIL_INDEX]);
+            userDetails.setOrganizationName((String) row[ORGN_NAME_INDEX]);
+            userDetails.setOrganizationId((String) row[ORG_ID_INDEX]);
+            userDetails.setStatus((UserAccountStatus) row[STATUS_INDEX]);
             result.add(userDetails);
         }
         return result;
@@ -1117,10 +1085,10 @@ public class OperatorServiceBean implements OperatorService {
         VOUserDetails pu;
         for (Object[] cols : resultList) {
             pu = new VOUserDetails();
-            pu.setKey(((BigInteger) cols[0]).longValue());
-            pu.setUserId((String) cols[1]);
-            pu.setFirstName((String) cols[2]);
-            pu.setLastName((String) cols[3]);
+            pu.setKey(((BigInteger) cols[TKEY_INDEX]).longValue());
+            pu.setUserId((String) cols[ID_INDEX]);
+            pu.setFirstName((String) cols[FIRST_NAME_INDEX]);
+            pu.setLastName((String) cols[LAST_NAME_INDEX]);
             result.add(pu);
         }
         return result;
@@ -1142,10 +1110,10 @@ public class OperatorServiceBean implements OperatorService {
         VOUserDetails pu;
         for (Object[] cols : resultList) {
             pu = new VOUserDetails();
-            pu.setKey(((BigInteger) cols[0]).longValue());
-            pu.setUserId((String) cols[1]);
-            pu.setFirstName((String) cols[2]);
-            pu.setLastName((String) cols[3]);
+            pu.setKey(((BigInteger) cols[TKEY_INDEX]).longValue());
+            pu.setUserId((String) cols[ID_INDEX]);
+            pu.setFirstName((String) cols[FIRST_NAME_INDEX]);
+            pu.setLastName((String) cols[LAST_NAME_INDEX]);
             result.add(pu);
         }
         return result;

@@ -4,21 +4,10 @@
 
 package org.oscm.ui.beans;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.*;
 
 import javax.faces.application.FacesMessage.Severity;
 
@@ -36,6 +25,7 @@ import org.oscm.ui.model.NewMarketplace;
 public class NewMarketplaceBeanTest {
 
     NewMarketplaceBean nmpb;
+    TenantsUtilBean tub;
     private MenuBean mb;
     private MarketplaceService mps;
     private ManageTenantService mts;
@@ -47,7 +37,8 @@ public class NewMarketplaceBeanTest {
         mps = mock(MarketplaceService.class);
         mts = mock(ManageTenantService.class);
 
-        nmpb.setManageTenantService(mts);
+        tub = new TenantsUtilBean();
+        tub.setManageTenantService(mts);
         doReturn(mps).when(nmpb).getMarketplaceService();
         doNothing().when(nmpb).addMessage(anyString(), any(Severity.class),
                 anyString(), anyString());
@@ -146,7 +137,7 @@ public class NewMarketplaceBeanTest {
         String tenantId = "testId";
 
         // when
-        nmpb.getSuggestionsForTenants(tenantId);
+        tub.getSuggestionsForTenants(tenantId);
 
         // then
         verify(mts, times(1)).getTenantsByIdPattern(tenantId+"%");
