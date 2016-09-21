@@ -340,7 +340,7 @@ public class TenantDaoIT extends EJBTestBase {
     }
     
     @Test
-    public void testGetNumberOfNonUniqueUsers() throws Exception {
+    public void testGetNonUniqueOrgUserIdsInTenant() throws Exception {
 
         runTX(new Callable<Void>() {
             @Override
@@ -435,7 +435,7 @@ public class TenantDaoIT extends EJBTestBase {
     }
 
     @Test
-    public void testGetNumberOfNonUniqueUsersInTenantWithoutOrg()
+    public void testGetNonUniqueOrgUserIdsInTenantWithoutOrg()
             throws Exception {
 
         runTX(new Callable<Void>() {
@@ -486,7 +486,7 @@ public class TenantDaoIT extends EJBTestBase {
     }
 
     @Test
-    public void testGetNumberOfNonUniqueUsersWithoutTenant() throws Exception {
+    public void testGetNonUniqueOrgUserIdsInTenantForDefaultTenant() throws Exception {
 
         runTX(new Callable<Void>() {
             @Override
