@@ -79,7 +79,7 @@
       <property name="javassist.jar.name" value="javassist-3.20.0-GA.jar" />
       <property name="javassist.jar" value="${jdbc.driver.jar.path}/${javassist.jar.name}" />
       <!-- app jboss-logging jar -->
-      <property name="jboss.logging.jar.name" value="jboss-logging-3.1.0.GA.jar" />
+      <property name="jboss.logging.jar.name" value="jboss-logging-3.3.0.Final.jar" />
       <property name="jboss.logging.jar" value="${jdbc.driver.jar.path}/${jboss.logging.jar.name}" />
       <!-- app jboss-transaction jar -->
       <property name="jboss.transaction.jar.name" value="jboss-transaction-api_1.1_spec-1.0.0.Final.jar" />
