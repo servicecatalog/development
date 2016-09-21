@@ -10,6 +10,9 @@ package org.oscm.tenant.bean;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.oscm.domobjects.Tenant;
@@ -23,9 +26,6 @@ import org.oscm.internal.vo.VOTenant;
 import org.oscm.internal.vo.VOTenantSetting;
 import org.oscm.tenant.assembler.TenantAssembler;
 import org.oscm.tenant.local.TenantServiceLocal;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class TenantServiceBeanTest {
 
@@ -199,21 +199,6 @@ public class TenantServiceBeanTest {
         //then
         assertEquals(voTenants.size(), 1);
         assertEquals("tenant Id", tenants.get(0).getTenantId());
-    }
-    
-    @Test
-    public void testfindByTKey() throws ObjectNotFoundException {
-        
-        //given
-        Tenant tenant = prepareTenant();
-        when(tenantServiceLocal.getTenantByKey(1L)).thenReturn(tenant);
-
-        //when
-        VOTenant voTenant = tenantServiceBean.findByTkey("1");
-
-        //then
-        assertEquals("tenant Id", voTenant.getTenantId());
-        assertEquals(1L, voTenant.getKey());
     }
 
     private Tenant prepareTenant() {

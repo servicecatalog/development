@@ -15,7 +15,6 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 
 import org.junit.Test;
-
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.internal.types.enumtypes.IdpSettingType;
@@ -317,35 +316,6 @@ public class TenantServiceBeanIT extends EJBTestBase {
             }
         });
         assertTrue(voTenants.size() == 1);
-    }
-
-    @Test
-    public void findByTkey() throws Throwable {
-        final VOTenant tenant = createTenant(400L);
-        runTX(new Callable<Void>() {
-            @Override
-            public Void call() throws NonUniqueBusinessKeyException {
-                tenantService.addTenant(tenant);
-                return null;
-            }
-        });
-        final VOTenant returnedTenant = runTX(new Callable<VOTenant>() {
-            @Override
-            public VOTenant call() throws NonUniqueBusinessKeyException,
-                    ObjectNotFoundException {
-                return tenantService.getTenantByTenantId("tenantID400");
-            }
-        });
-
-        final VOTenant voTenant = runTX(new Callable<VOTenant>() {
-            @Override
-            public VOTenant call() throws ObjectNotFoundException {
-                final VOTenant byTkey = tenantService
-                        .findByTkey(String.valueOf(returnedTenant.getKey()));
-                return byTkey;
-            }
-        });
-        assertTrue(voTenant != null);
     }
 
     private Map<IdpSettingType, String> prepareIdpSettings(String modifier) {

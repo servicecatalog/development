@@ -40,6 +40,4 @@ public interface TenantService {
     List<VOTenantSetting> getSettingsForTenant(long key);
 
     List<VOTenant> getTenantsByIdPattern(String tenantIdPattern);
-
-    VOTenant findByTkey(String tkey) throws ObjectNotFoundException;
 }
