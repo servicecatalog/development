@@ -2673,8 +2673,9 @@ public class IdentityServiceBean implements IdentityService,
                     tenant = mp.getTenant();
                 }
             } else {
-                tenant = dm.getReference(Tenant.class,
-                        Long.valueOf(user.getTenantId()));
+                Tenant t = new Tenant();
+                t.setTenantId(user.getTenantId());
+                tenant = (Tenant) dm.getReferenceByBusinessKey(t);
             }
         } catch (ObjectNotFoundException e) {
             e.printStackTrace();

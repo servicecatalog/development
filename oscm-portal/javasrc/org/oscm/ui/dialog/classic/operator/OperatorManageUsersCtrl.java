@@ -32,6 +32,7 @@ import org.oscm.internal.types.exception.OrganizationRemovedException;
 import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.internal.types.exception.SaaSSystemException;
 import org.oscm.internal.types.exception.ValidationException;
+import org.oscm.internal.usermanagement.POUser;
 import org.oscm.internal.usermanagement.UserManagementService;
 import org.oscm.internal.vo.VOConfigurationSetting;
 import org.oscm.internal.vo.VOMarketplace;
