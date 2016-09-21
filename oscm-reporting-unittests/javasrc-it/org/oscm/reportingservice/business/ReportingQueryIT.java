@@ -13,6 +13,8 @@
 package org.oscm.reportingservice.business;
 
 import static org.junit.Assert.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.oscm.test.Numbers.L123;
 
@@ -82,8 +84,6 @@ import org.oscm.types.enumtypes.PaymentProcessingStatus;
 import org.oscm.types.enumtypes.PlatformEventIdentifier;
 import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
 import org.w3c.dom.Document;
-
-import com.sun.enterprise.security.store.IdentityManagement;
 
 /**
  * The tests for reporting queries
@@ -314,7 +314,9 @@ public class ReportingQueryIT extends EJBTestBase {
         });
         container.addBean(new BillingDataRetrievalServiceBean());
         container.addBean(new BillingServiceBean());
-        container.addBean(mock(IdentityManagement.class));
+        IdentityService mock = mock(IdentityService.class);
+        doReturn(Collections.emptyList()).when(mock).getAvailableUserRoles(any(VOUser.class));
+        container.addBean(mock);
         container.addBean(new TenantProvisioningServiceBean());
         container.addBean(new CommunicationServiceStub());
 

@@ -10,8 +10,8 @@ package org.oscm.ui.beans;
 
 import java.util.List;
 
-import javax.annotation.ManagedBean;
 import javax.ejb.EJB;
+import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 
 import org.oscm.internal.tenant.ManageTenantService;
