@@ -274,8 +274,8 @@ public class MarketplaceServiceBean implements MarketplaceService {
         // Update owner organization and assign role
         marketplaceServiceLocal.updateOwningOrganization(mpNew,
                 marketplace.getOwningOrganizationId(), true);
-        
-        // Update related tenant 
+
+        // Update related tenant
         marketplaceServiceLocal.updateTenant(mpNew, marketplace.getTenantId());
 
         PublicLandingpage landingpage = PublicLandingpage.newDefault();
@@ -1147,14 +1147,14 @@ public class MarketplaceServiceBean implements MarketplaceService {
 
         for (Long orgKey : authorizedOrganizations) {
             Organization organization = new Organization();
-            organization.setKey(orgKey);
+            organization.setKey(orgKey.longValue());
             marketplaceServiceLocal.grantAccessToMarketPlaceToOrganization(
                     marketplace, organization);
         }
 
         for (Long orgKey : unauthorizedOrganizations) {
             marketplaceServiceLocal.removeMarketplaceAccess(
-                    marketplace.getKey(), orgKey);
+                    marketplace.getKey(), orgKey.longValue());
         }
 
         marketplaceCache.resetConfiguration(marketplaceId);

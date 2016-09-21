@@ -59,7 +59,6 @@ public class MarketplaceServiceManagePartnerBeanTest {
     @Before
     public void setup() throws Exception {
         bean.mpServiceLocal = mock(MarketplaceServiceLocalBean.class);
-        bean.mpService = mock(MarketplaceServiceBean.class);
         marketplace = givenMarketplace();
         doReturn(marketplace).when(bean.mpServiceLocal).getMarketplace(
                 anyString());
