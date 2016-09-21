@@ -2213,7 +2213,6 @@ AdmUtils.adjustDialogHeightOnResize = function(dialogId) {
 	$("#" + dialogId + "_content").height(dialogHeight + 100);
 }
 
-<<<<<<< HEAD
 AdmUtils.IE9PlaceHolderFix = function (searchPhraseProperty, inputId){
      function hasPlaceholderSupport() {
       var input = document.createElement('input');
@@ -2265,7 +2264,7 @@ AdmUtils.IE9AfterClick = function (id){
             }
      }
 }
-=======
+
 AdmUtils.sortSelect = function() {
 	// Applies the function to each select on the page
 	$("select").each(function(index, select) {
@@ -2297,4 +2296,3 @@ AdmUtils.sortSelect = function() {
 		}
 	});
 }
->>>>>>> Added function to sort drop down menus in place using Javascript.
