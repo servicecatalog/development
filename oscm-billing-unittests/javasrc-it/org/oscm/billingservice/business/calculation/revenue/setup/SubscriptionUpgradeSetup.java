@@ -91,6 +91,7 @@ import org.oscm.marketplace.auditlog.MarketplaceAuditLogCollector;
 import org.oscm.marketplace.bean.LandingpageServiceBean;
 import org.oscm.marketplace.bean.MarketplaceServiceBean;
 import org.oscm.marketplace.bean.MarketplaceServiceLocalBean;
+import org.oscm.marketplace.cache.MarketplaceCacheServiceBean;
 import org.oscm.marketplace.dao.MarketplaceAccessDao;
 import org.oscm.operatorservice.bean.OperatorServiceBean;
 import org.oscm.paymentservice.bean.PaymentServiceBean;
@@ -197,6 +198,7 @@ public class SubscriptionUpgradeSetup {
         container.addBean(new UserGroupUsersDao());
         container.addBean(new UserGroupAuditLogCollector());
         container.addBean(new UserGroupServiceLocalBean());
+        container.addBean(new MarketplaceCacheServiceBean());
         container.addBean(new LandingpageServiceBean());
         container.addBean(new ServiceProvisioningServiceLocalizationBean());
         container.addBean(new BillingAdapterLocalBean());
