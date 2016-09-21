@@ -911,7 +911,7 @@ public class OperatorServiceBean implements OperatorService {
 
         accMgmt.checkDistinguishedName(organizationObj);
         updateDomicileCountry(voOrganization, organizationObj);
-
+        updateTenant(organizationObj, voOrganization);
         // important: add the new roles before setting the PSP identifier,
         // so the updated roles are validated when setting the PSP identifier
         updateOrganizationRoles(voOrganization, organizationObj);
@@ -922,6 +922,8 @@ public class OperatorServiceBean implements OperatorService {
 
         updateOrganizationDescription(organizationObj.getKey(),
                 voOrganization.getDescription());
+        
+        
 
         // check if image is set, WS 1.1 will send null at this point
         if (voImageResource != null) {
@@ -979,6 +981,18 @@ public class OperatorServiceBean implements OperatorService {
                 voOrganization.getDomicileCountry());
         sc = (SupportedCountry) dm.getReferenceByBusinessKey(sc);
         organizationObj.setDomicileCountry(sc);
+    }
+    
+    private void updateTenant(Organization organization, VOOperatorOrganization voOrganization) throws ObjectNotFoundException {
+        
+        long tenantKey = voOrganization.getTenantKey();
+        
+        if(voOrganization.getTenantKey()==0){
+            organization.setTenant(null);
+        } else{
+            Tenant tenant = (Tenant) dm.getReference(Tenant.class, tenantKey);
+            organization.setTenant(tenant);
+        }
     }
 
     private boolean isVendor(VOOperatorOrganization voOrganization) {
