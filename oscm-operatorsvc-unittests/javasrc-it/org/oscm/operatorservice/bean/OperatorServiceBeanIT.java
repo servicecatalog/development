@@ -1340,9 +1340,9 @@ public class OperatorServiceBeanIT extends EJBTestBase {
     @Test
     public void testGetUsersWithLimit() throws Exception {
         List<Object[]> listOb = new ArrayList<>();
-        Object[] user1Ob = new Object[]{"user1", "user1", "user1", "user1"};
+        Object[] user1Ob = new Object[]{"user1", "user1", "user1", "user1", UserAccountStatus.LOCKED};
         listOb.add(user1Ob);
-        user1Ob = new Object[]{"user2", "user2", "user2", "user2"};
+        user1Ob = new Object[]{"user2", "user2", "user2", "user2", UserAccountStatus.LOCKED};
         listOb.add(user1Ob);
         query_getResultList = listOb;
 
