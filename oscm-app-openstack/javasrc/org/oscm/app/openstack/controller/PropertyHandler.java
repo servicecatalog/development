@@ -291,6 +291,8 @@ public class PropertyHandler {
         details.append(getUserName());
         details.append("\t\r\nKeystoneAPIUrl: ");
         details.append(getKeystoneUrl());
+        details.append("\t\r\nTenantID: ");
+        details.append(getTenantId());
         details.append("\t\r\nDomainName: ");
         details.append(getDomainName());
         details.append("\t\r\nTemplateUrl: ");
@@ -336,7 +338,12 @@ public class PropertyHandler {
      * @return the tenant id
      */
     public String getTenantId() {
-        return settings.getParameters().get(TENANT_ID);
+        String tenant = settings.getParameters().get(TENANT_ID);
+        if (tenant == null || tenant.trim().length() == 0) {
+            tenant = getValidatedProperty(settings.getConfigSettings(),
+                    TENANT_ID);
+        }
+        return tenant;
     }
 
 }
