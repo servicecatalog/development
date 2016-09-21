@@ -18,7 +18,7 @@
 		onRowMouseOut="AdmUtils.mouseOutRow(this);"
 		render="scriptPanel,pagerPanel,dataTableScriptPanel" selectionMode="single">
 	</adm:dataTableCustomizedOnColumns>
-	<a4j:jsFunction name="updateSelectedUser" action="#{operatorManageUsersCtrl.updateSelectedUser}">
+	<a4j:jsFunction name="updateSelectedUser" action="#{operatorManageUsersCtrl.updateSelectedUser}" render="buttonPanel">
 		<a4j:param name="selectedUserKey" assignTo="#{operatorManageUsersCtrl.selectedUserKey}" />
 	</a4j:jsFunction>
 </ui:composition>
