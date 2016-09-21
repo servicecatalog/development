@@ -1436,11 +1436,13 @@ public class BaseBean {
      */
     public boolean isAdministrationAccess() {
         VOUserDetails user = this.getUserFromSessionWithoutException();
-        return user != null && (user.getUserRoles()
-                .contains(UserRoleType.SUBSCRIPTION_MANAGER)
-                || user.getUserRoles().contains(UserRoleType.ORGANIZATION_ADMIN)
-                || user.getUserRoles()
-                        .contains(UserRoleType.TECHNOLOGY_MANAGER));
+        return user != null
+                && (user.getUserRoles().contains(UserRoleType.SERVICE_MANAGER)
+                || user.getUserRoles().contains(UserRoleType.TECHNOLOGY_MANAGER)
+                || user.getUserRoles().contains(UserRoleType.MARKETPLACE_OWNER))
+                || user.getUserRoles().contains(UserRoleType.BROKER_MANAGER)
+                || user.getUserRoles().contains(UserRoleType.RESELLER_MANAGER)
+                || user.getUserRoles().contains(UserRoleType.PLATFORM_OPERATOR);
     }
 
     /**
