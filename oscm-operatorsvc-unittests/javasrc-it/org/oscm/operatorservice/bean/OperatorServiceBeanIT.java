@@ -915,9 +915,10 @@ public class OperatorServiceBeanIT extends EJBTestBase {
     public void testSetUserAccountStatus() throws Exception {
         container.login("1", ROLE_PLATFORM_OPERATOR);
         callerRolles.add(OrganizationRoleType.PLATFORM_OPERATOR);
-        dataManager_getReferenceByBusinessKey_return.push(platformUser);
+        dataManager_getReference_return.push(platformUser);
         VOUser user = new VOUser();
         user.setUserId("userId");
+        user.setKey(123L);
         operatorService.setUserAccountStatus(user, UserAccountStatus.ACTIVE);
         assertTrue("User status was not changed", userStatusChanged);
     }
@@ -1340,9 +1341,9 @@ public class OperatorServiceBeanIT extends EJBTestBase {
     @Test
     public void testGetUsersWithLimit() throws Exception {
         List<Object[]> listOb = new ArrayList<>();
-        Object[] user1Ob = new Object[]{"user1", "user1", "user1", "user1", UserAccountStatus.LOCKED};
+        Object[] user1Ob = new Object[]{"user1", "user1", "user1", "user1", UserAccountStatus.LOCKED, 123L};
         listOb.add(user1Ob);
-        user1Ob = new Object[]{"user2", "user2", "user2", "user2", UserAccountStatus.LOCKED};
+        user1Ob = new Object[]{"user2", "user2", "user2", "user2", UserAccountStatus.LOCKED, 234L};
         listOb.add(user1Ob);
         query_getResultList = listOb;
 
