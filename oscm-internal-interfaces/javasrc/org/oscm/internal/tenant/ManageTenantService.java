@@ -11,6 +11,7 @@ import org.oscm.internal.types.exception.ConcurrentModificationException;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.TenantDeletionConstraintException;
+import org.oscm.internal.types.exception.ValidationException;
 
 import javax.ejb.Remote;
 import java.util.List;
@@ -37,4 +38,6 @@ public interface ManageTenantService {
     void removeTenantIdpSettings(long tenantKey) throws ObjectNotFoundException;
     
     List<POTenant> getTenantsByIdPattern(String tenantIdPattern);
+    
+    void validateOrgUsersUniqnessInTenant(String orgId, long tenantKey) throws ValidationException;
 }

@@ -132,4 +132,9 @@ public class TenantServiceBean implements TenantService {
     public void setTenantServiceLocal(TenantServiceLocal tenantServiceLocal) {
         this.tenantServiceLocal = tenantServiceLocal;
     }
+    
+    @Override
+    public boolean doesOrgUsersExistInTenant(String orgId, long tenantKey) {
+        return this.tenantServiceLocal.doesOrgUsersExistInTenant(orgId, tenantKey);
+    }
 }

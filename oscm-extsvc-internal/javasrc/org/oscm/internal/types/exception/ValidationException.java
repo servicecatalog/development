@@ -528,7 +528,9 @@ public class ValidationException extends SaaSApplicationException {
         /**
          * UserCount Timer expiration date invalid
          */
-        TIMER_USERCOUNT_EXPIRATIONDATE_INVALID;
+        TIMER_USERCOUNT_EXPIRATIONDATE_INVALID,
+        
+        USER_ID_DUPLICATED;
 
         private String messageKey;
 

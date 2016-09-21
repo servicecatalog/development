@@ -23,6 +23,8 @@ import org.oscm.internal.types.exception.ConcurrentModificationException;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.TenantDeletionConstraintException;
+import org.oscm.internal.types.exception.ValidationException;
+import org.oscm.internal.types.exception.ValidationException.ReasonEnum;
 import org.oscm.internal.vo.VOTenant;
 import org.oscm.internal.vo.VOTenantSetting;
 import org.oscm.logging.Log4jLogger;
@@ -115,5 +117,15 @@ public class ManageTenantServiceBean implements ManageTenantService {
             poTenants.add(new POTenant(voTenant));
         }
         return poTenants;
+    }
+
+    @Override
+    public void validateOrgUsersUniqnessInTenant(String orgId, long tenantKey) throws ValidationException {
+        boolean duplicatedUserIdExists = tenantService
+                .doesOrgUsersExistInTenant(orgId, tenantKey);
+        
+        if(duplicatedUserIdExists){
+            throw new ValidationException(ReasonEnum.USER_ID_DUPLICATED, null, null);
+        }
     }
 }
