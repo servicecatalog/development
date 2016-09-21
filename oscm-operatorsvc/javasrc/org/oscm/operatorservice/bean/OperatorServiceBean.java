@@ -80,7 +80,6 @@ import org.oscm.validator.OrganizationRoleValidator;
 public class OperatorServiceBean implements OperatorService {
 
     private final static int DB_SEARCH_LIMIT = 100;
-    private static final int TKEY_INDEX = 0;
     public static final int ID_INDEX = 1;
     public static final int FIRST_NAME_INDEX = 2;
     public static final int LAST_NAME_INDEX = 3;
@@ -89,6 +88,7 @@ public class OperatorServiceBean implements OperatorService {
     public static final int ORGN_NAME_INDEX = 2;
     public static final int ORG_ID_INDEX = 3;
     public static final int STATUS_INDEX = 4;
+    public static final int TKEY_INDEX = 5;
 
     private static Log4jLogger logger = LoggerFactory
             .getLogger(OperatorServiceBean.class);
@@ -682,8 +682,7 @@ public class OperatorServiceBean implements OperatorService {
                 voUser.getUserId(), true);
 
         PlatformUser user = new PlatformUser();
-        user.setUserId(voUser.getUserId());
-        user = (PlatformUser) dm.getReferenceByBusinessKey(user);
+        user = dm.getReference(PlatformUser.class, voUser.getKey());
 
         im.setUserAccountStatus(user, newStatus);
 
@@ -1052,7 +1051,7 @@ public class OperatorServiceBean implements OperatorService {
     @RolesAllowed("PLATFORM_OPERATOR")
     public List<VOUserDetails> getUsers()
             throws OrganizationAuthoritiesException {
-        Query query = dm.createQuery("select pu.dataContainer.userId, pu.dataContainer.email,o.dataContainer.name, o.dataContainer.organizationId, pu.dataContainer.status from PlatformUser pu left join pu.organization o");
+        Query query = dm.createQuery("select pu.dataContainer.userId, pu.dataContainer.email,o.dataContainer.name, o.dataContainer.organizationId, pu.dataContainer.status, pu.key from PlatformUser pu left join pu.organization o");
 
         List<VOUserDetails> result = new ArrayList<>();
         final List resultList = query.getResultList();
@@ -1064,6 +1063,7 @@ public class OperatorServiceBean implements OperatorService {
             userDetails.setOrganizationName((String) row[ORGN_NAME_INDEX]);
             userDetails.setOrganizationId((String) row[ORG_ID_INDEX]);
             userDetails.setStatus((UserAccountStatus) row[STATUS_INDEX]);
+            userDetails.setKey((Long)row[TKEY_INDEX]);
             result.add(userDetails);
         }
         return result;

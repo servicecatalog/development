@@ -439,7 +439,7 @@ public class OperatorManageUsersCtrlTest {
     public void updateSelectedUserTest() throws Exception {
         //given
         String id = "someUser";
-        bean.setSelectedUserId(id);
+        bean.setSelectedUserKey(id);
         VOUser mockUser = mock(VOUser.class);
         bean.model.setUser(mockUser);
         when(mockUser.getUserId()).thenReturn(id);

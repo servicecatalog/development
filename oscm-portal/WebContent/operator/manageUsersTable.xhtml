@@ -13,12 +13,12 @@
 		styleClass="sortable" rows="10" headerClass="rowTitle sortable"
 		rowClasses="rowOdd,rowEven"
 		columnClasses="smallCell,smallCell,smallCell,smallCell,smallCell"
-		onRowClick="updateSelectedUser('#{rowItem.userId}');AdmUtils.selectRow(this);"
+		onRowClick="updateSelectedUser('#{rowItem.key}');AdmUtils.selectRow(this);"
 		onRowMouseOver="AdmUtils.mouseOverRow(this);"
 		onRowMouseOut="AdmUtils.mouseOutRow(this);"
 		render="scriptPanel,pagerPanel,dataTableScriptPanel" selectionMode="single">
 	</adm:dataTableCustomizedOnColumns>
 	<a4j:jsFunction name="updateSelectedUser" action="#{operatorManageUsersCtrl.updateSelectedUser}">
-		<a4j:param name="selectedUserId" assignTo="#{operatorManageUsersCtrl.selectedUserId}" />
+		<a4j:param name="selectedUserKey" assignTo="#{operatorManageUsersCtrl.selectedUserKey}" />
 	</a4j:jsFunction>
 </ui:composition>

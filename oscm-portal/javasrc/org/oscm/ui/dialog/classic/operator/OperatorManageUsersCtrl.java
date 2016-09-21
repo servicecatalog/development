@@ -32,7 +32,6 @@ import org.oscm.internal.types.exception.OrganizationRemovedException;
 import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.internal.types.exception.SaaSSystemException;
 import org.oscm.internal.types.exception.ValidationException;
-import org.oscm.internal.usermanagement.POUser;
 import org.oscm.internal.usermanagement.UserManagementService;
 import org.oscm.internal.vo.VOConfigurationSetting;
 import org.oscm.internal.vo.VOMarketplace;
@@ -66,7 +65,7 @@ public class OperatorManageUsersCtrl extends BaseOperatorBean implements
     private static final long serialVersionUID = -9126265695343363133L;
 
     transient ApplicationBean appBean;
-    private String selectedUserId;
+    private String selectedUserKey;
     private List<String> dataTableHeaders = new ArrayList<>();
     private List<VOUserDetails> userAndOrganizations = new ArrayList<>();
     private List<Marketplace> marketplaces = new ArrayList<>();
@@ -190,9 +189,10 @@ public class OperatorManageUsersCtrl extends BaseOperatorBean implements
             getOperatorService().setUserAccountStatus(user,
                     UserAccountStatus.LOCKED);
             model.getUser().setStatus(UserAccountStatus.LOCKED);
+            model.setUser(null);
         }
 
-        return (user != null) ? getOutcome(true) : OUTCOME_ERROR;
+        return getOutcome(true);
     }
 
     public String unlockUser() throws ObjectNotFoundException,
@@ -203,15 +203,17 @@ public class OperatorManageUsersCtrl extends BaseOperatorBean implements
             getOperatorService().setUserAccountStatus(user,
                     UserAccountStatus.ACTIVE);
             model.getUser().setStatus(UserAccountStatus.LOCKED);
+            model.setUser(null);
         }
 
-        return (user != null) ? getOutcome(true) : OUTCOME_ERROR;
+        return getOutcome(true);
     }
 
     public void updateSelectedUser() throws OperationNotPermittedException, ObjectNotFoundException, OrganizationRemovedException {
         for (VOUserDetails userDetails : userAndOrganizations) {
-            if (userDetails.getUserId().equals(selectedUserId)) {
+            if (userDetails.getKey() == Long.valueOf(selectedUserKey)) {
                 model.setUser(userDetails);
+                return;
             }
         }
     }
@@ -245,12 +247,12 @@ public class OperatorManageUsersCtrl extends BaseOperatorBean implements
         return OUTCOME_SUCCESS;
     }
 
-    public void setSelectedUserId(String userId) {
-        this.selectedUserId = userId;
+    public void setSelectedUserKey(String userKey) {
+        this.selectedUserKey = userKey;
     }
 
-    public String getSelectedUserId() {
-        return selectedUserId;
+    public String getSelectedUserKey() {
+        return selectedUserKey;
     }
 
     String getSelectedMarketplace() {
@@ -281,7 +283,7 @@ public class OperatorManageUsersCtrl extends BaseOperatorBean implements
     }
 
     public boolean isPwdButtonEnabled() {
-        return selectedUserId != null && !selectedUserId.isEmpty();
+        return selectedUserKey != null && Long.valueOf(selectedUserKey) != 0L;
     }
 
     public boolean isLockButtonEnabled() throws ValidationException, ObjectNotFoundException {
