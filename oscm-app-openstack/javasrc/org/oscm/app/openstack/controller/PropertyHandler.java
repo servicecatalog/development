@@ -17,14 +17,13 @@ import java.util.Set;
 
 import org.apache.sling.commons.json.JSONException;
 import org.apache.sling.commons.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.oscm.app.openstack.data.FlowState;
 import org.oscm.app.openstack.exceptions.HeatException;
 import org.oscm.app.v1_0.BSSWebServiceFactory;
 import org.oscm.app.v1_0.data.PasswordAuthentication;
 import org.oscm.app.v1_0.data.ProvisioningSettings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Helper class to handle service parameters and controller configuration
@@ -45,9 +44,9 @@ public class PropertyHandler {
     public static final String STACK_NAME = "STACK_NAME";
     public static final String STACK_ID = "STACK_ID";
 
-    // Name (not id) of the tenant/project (if omitted, it is taken from
+    // Name (not id) of the domain (if omitted, it is taken from
     // controller configuration)
-    public static final String TENANT_NAME = "TENANT_NAME";
+    public static final String DOMAIN_NAME = "DOMAIN_NAME";
 
     // URL of Heat template
     public static final String TEMPLATE_NAME = "TEMPLATE_NAME";
@@ -77,13 +76,16 @@ public class PropertyHandler {
      */
     public static final String STATUS = "STATUS";
 
+    // ID of the tenant/project
+    public static final String TENANT_ID = "TENANT_ID";
+
     /**
      * Default constructor.
-     * 
+     *
      * @param settings
      *            a <code>ProvisioningSettings</code> object specifying the
      *            service parameters and configuration settings
-     * 
+     *
      */
     public PropertyHandler(ProvisioningSettings settings) {
         this.settings = settings;
@@ -92,7 +94,7 @@ public class PropertyHandler {
     /**
      * Returns the internal state of the current provisioning operation as set
      * by the controller or the dispatcher.
-     * 
+     *
      * @return the current status
      */
     public FlowState getState() {
@@ -102,7 +104,7 @@ public class PropertyHandler {
 
     /**
      * Changes the internal state for the current provisioning operation.
-     * 
+     *
      * @param newState
      *            the new state to set
      */
@@ -113,7 +115,7 @@ public class PropertyHandler {
     /**
      * Returns the current service parameters and controller configuration
      * settings.
-     * 
+     *
      * @return a <code>ProvisioningSettings</code> object specifying the
      *         parameters and settings
      */
@@ -123,7 +125,7 @@ public class PropertyHandler {
 
     /**
      * Returns the name of the stack (=instance identifier).
-     * 
+     *
      * @return the name of the stack
      */
     public String getStackName() {
@@ -136,7 +138,7 @@ public class PropertyHandler {
 
     /**
      * Returns the heat specific id of the stack.
-     * 
+     *
      * @return the id of the stack
      */
     public String getStackId() {
@@ -150,7 +152,7 @@ public class PropertyHandler {
     /**
      * Returns the access information pattern used to created the instance
      * access information using the output parameters of the created stack.
-     * 
+     *
      * @return the access information pattern
      */
     public String getAccessInfoPattern() {
@@ -160,7 +162,7 @@ public class PropertyHandler {
 
     /**
      * Returns the URL of the template to be used for provisioning.
-     * 
+     *
      * @return the template URL
      */
     public String getTemplateUrl() throws HeatException {
@@ -172,25 +174,25 @@ public class PropertyHandler {
                     TEMPLATE_BASE_URL);
             return new URL(new URL(baseUrl), url).toExternalForm();
         } catch (MalformedURLException e) {
-            throw new HeatException("Cannot generate template URL: "
-                    + e.getMessage());
+            throw new HeatException(
+                    "Cannot generate template URL: " + e.getMessage());
         }
     }
 
     /**
-     * Returns the tenant name that defines the context for the provisioning. It
+     * Returns the domain name that defines the context for the provisioning. It
      * can either be defined within the controller settings of as instance
      * parameter. When present, the service parameter is preferred.
-     * 
-     * @return the tenant name
+     *
+     * @return the domain name
      */
-    public String getTenantName() {
-        String tenant = settings.getParameters().get(TENANT_NAME);
-        if (tenant == null || tenant.trim().length() == 0) {
-            tenant = getValidatedProperty(settings.getConfigSettings(),
-                    TENANT_NAME);
+    public String getDomainName() {
+        String domain = settings.getParameters().get(DOMAIN_NAME);
+        if (domain == null || domain.trim().length() == 0) {
+            domain = getValidatedProperty(settings.getConfigSettings(),
+                    DOMAIN_NAME);
         }
-        return tenant;
+        return domain;
     }
 
     public JSONObject getTemplateParameters() {
@@ -205,7 +207,8 @@ public class PropertyHandler {
                 } catch (JSONException e) {
                     // should not happen with Strings
                     throw new RuntimeException(
-                            "JSON error when collection template parameters", e);
+                            "JSON error when collection template parameters",
+                            e);
                 }
             }
         }
@@ -215,7 +218,7 @@ public class PropertyHandler {
     /**
      * Reads the requested property from the available parameters. If no value
      * can be found, a RuntimeException will be thrown.
-     * 
+     *
      * @param sourceProps
      *            The property object to take the settings from
      * @param key
@@ -237,7 +240,7 @@ public class PropertyHandler {
     /**
      * Return the URL of the Keystone API which acts as entry point to all other
      * API endpoints.
-     * 
+     *
      * @return the Keystone URL
      */
     public String getKeystoneUrl() {
@@ -247,7 +250,7 @@ public class PropertyHandler {
 
     /**
      * Returns the configured password for API usage.
-     * 
+     *
      * @return the password
      */
     public String getPassword() {
@@ -256,17 +259,18 @@ public class PropertyHandler {
 
     /**
      * Returns the configured user name for API usage.
-     * 
+     *
      * @return the user name
      */
     public String getUserName() {
-        return getValidatedProperty(settings.getConfigSettings(), API_USER_NAME);
+        return getValidatedProperty(settings.getConfigSettings(),
+                API_USER_NAME);
     }
 
     /**
      * Returns the mail address to be used for completion events (provisioned,
      * deleted). If not set, no events are required.
-     * 
+     *
      * @return the mail address or <code>null</code> if no events are required
      */
     public String getMailForCompletion() {
@@ -287,8 +291,10 @@ public class PropertyHandler {
         details.append(getUserName());
         details.append("\t\r\nKeystoneAPIUrl: ");
         details.append(getKeystoneUrl());
-        details.append("\t\r\nTenantName: ");
-        details.append(getTenantName());
+        details.append("\t\r\nTenantID: ");
+        details.append(getTenantId());
+        details.append("\t\r\nDomainName: ");
+        details.append(getDomainName());
         details.append("\t\r\nTemplateUrl: ");
         details.append(getTemplateUrl());
         details.append("\t\r\nAccessInfoPattern: ");
@@ -312,10 +318,10 @@ public class PropertyHandler {
     public PasswordAuthentication getTPAuthentication() {
         return settings.getAuthentication();
     }
-    
+
     /**
      * Returns the locale set as default for the customer organization.
-     * 
+     *
      * @return the customer locale
      */
     public String getCustomerLocale() {
@@ -325,4 +331,19 @@ public class PropertyHandler {
         }
         return locale;
     }
+
+    /**
+     * Returns the tenant id that defines the context for the provisioning.
+     *
+     * @return the tenant id
+     */
+    public String getTenantId() {
+        String tenant = settings.getParameters().get(TENANT_ID);
+        if (tenant == null || tenant.trim().length() == 0) {
+            tenant = getValidatedProperty(settings.getConfigSettings(),
+                    TENANT_ID);
+        }
+        return tenant;
+    }
+
 }
