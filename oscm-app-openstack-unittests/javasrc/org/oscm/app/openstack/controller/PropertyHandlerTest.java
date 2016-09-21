@@ -95,6 +95,26 @@ public class PropertyHandlerTest {
     }
 
     @Test()
+    public void testGetInstanceTenant() {
+        parameters.put(PropertyHandler.TENANT_ID, "12345");
+        configSettings.put(PropertyHandler.TENANT_ID, "23455");
+        propertyHandler = new PropertyHandler(settings);
+        String tenantId = propertyHandler.getTenantId();
+        assertEquals("12345", tenantId);
+    }
+
+    @Test()
+    public void testGetControllerTenant() {
+        configSettings.put(PropertyHandler.TENANT_ID, "23455");
+        propertyHandler = new PropertyHandler(settings);
+        String tenantId = propertyHandler.getTenantId();
+        assertEquals("23455", tenantId);
+        parameters.put(PropertyHandler.TENANT_ID, "");
+        tenantId = propertyHandler.getTenantId();
+        assertEquals("23455", tenantId);
+    }
+
+    @Test()
     public void testGetSettings() {
         propertyHandler = new PropertyHandler(settings);
         ProvisioningSettings testSettings = propertyHandler.getSettings();

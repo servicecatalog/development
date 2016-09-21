@@ -73,6 +73,7 @@ public class DispatcherTest {
                 "http://keystone:8080/v3/auth");
         configSettings.put(PropertyHandler.API_USER_NAME, "api_user");
         configSettings.put(PropertyHandler.API_USER_PWD, "secret");
+        configSettings.put(PropertyHandler.TENANT_ID, "123456");
         configSettings.put(PropertyHandler.DOMAIN_NAME, "demo");
         configSettings.put(PropertyHandler.TEMPLATE_BASE_URL,
                 "http://estfarmaki2:8880/templates/");
@@ -255,6 +256,7 @@ public class DispatcherTest {
         configSettings.put(PropertyHandler.KEYSTONE_API_URL,
                 "https://keystone:8080/v3/auth");
         configSettings.put(PropertyHandler.DOMAIN_NAME, "domain1");
+        configSettings.put(PropertyHandler.TENANT_ID, "098765");
         parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, "test@mail.com");
         paramHandler.setState(FlowState.CREATING_STACK);
         streamHandler
@@ -275,6 +277,7 @@ public class DispatcherTest {
         assertTrue(subject.getValue().contains("subscriptionId"));
         assertTrue(text.getValue().contains("subscriptionId"));
         assertTrue(text.getValue().contains("domain1"));
+        assertTrue(text.getValue().contains("098765"));
     }
 
     @Test
@@ -284,6 +287,7 @@ public class DispatcherTest {
         configSettings.put(PropertyHandler.KEYSTONE_API_URL,
                 "https://keystone:8080/v3/auth");
         configSettings.put(PropertyHandler.DOMAIN_NAME, "domain1");
+        configSettings.put(PropertyHandler.TENANT_ID, "87654");
         paramHandler.setState(FlowState.UPDATING);
         streamHandler
                 .put("/stacks/Instance4",
@@ -301,6 +305,7 @@ public class DispatcherTest {
         assertEquals(ACCESS_INFO, result.getAccessInfo());
         assertTrue(result.isReady());
         assertTrue(text.getValue().contains("domain1"));
+        assertTrue(text.getValue().contains("87654"));
     }
 
     @Test
