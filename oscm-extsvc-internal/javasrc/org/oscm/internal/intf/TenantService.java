@@ -40,4 +40,6 @@ public interface TenantService {
     List<VOTenantSetting> getSettingsForTenant(long key);
 
     List<VOTenant> getTenantsByIdPattern(String tenantIdPattern);
+
+    boolean doesOrgUsersExistInTenant(String orgId, long tenantKey);
 }

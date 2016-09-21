@@ -365,6 +365,11 @@ public class OperatorOrgBean extends BaseOperatorBean implements Serializable {
 
         OperatorService operatorService = getOperatorService();
         VOOperatorOrganization org = getSelectedOrganization();
+         
+        long updatedTenantKey = selectedOrganization.getTenantKey();
+        
+        manageTenantService.validateOrgUsersUniqnessInTenant(org.getOrganizationId(), updatedTenantKey);
+        
         selectedOrganization = operatorService.updateOrganization(org,
                 getImageUploader().getVOImageResource());
 
@@ -1221,12 +1226,14 @@ public class OperatorOrgBean extends BaseOperatorBean implements Serializable {
     }
 
     public void processValueChange(ValueChangeEvent e){
-        if (e.getNewValue() == null || e.getNewValue().equals("")) {
-            setSelectedTenant(e.getNewValue().toString());
-            selectedMarketplace = null;
+        
+        if(e.getNewValue()==null){
+            setSelectedTenant(null);
             return;
         }
-        setSelectedTenant(null);
+
+        setSelectedTenant(e.getNewValue().toString());
+        selectedMarketplace = null;
     }
 
     public MenuBean getMenuBean() {

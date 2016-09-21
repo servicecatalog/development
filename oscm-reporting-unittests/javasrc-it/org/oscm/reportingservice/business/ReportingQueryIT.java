@@ -13,8 +13,9 @@
 package org.oscm.reportingservice.business;
 
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doReturn;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.oscm.test.Numbers.L123;
 
@@ -32,6 +33,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.oscm.accountservice.assembler.BillingContactAssembler;
 import org.oscm.billingservice.dao.BillingDataRetrievalServiceBean;
 import org.oscm.billingservice.service.BillingServiceBean;
@@ -47,6 +50,7 @@ import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.identityservice.assembler.UserDataAssembler;
+import org.oscm.identityservice.local.IdentityServiceLocal;
 import org.oscm.internal.intf.IdentityService;
 import org.oscm.internal.intf.ReportingService;
 import org.oscm.internal.intf.SubscriptionService;
@@ -314,8 +318,15 @@ public class ReportingQueryIT extends EJBTestBase {
         });
         container.addBean(new BillingDataRetrievalServiceBean());
         container.addBean(new BillingServiceBean());
-        IdentityService mock = mock(IdentityService.class);
-        doReturn(Collections.emptyList()).when(mock).getAvailableUserRoles(any(VOUser.class));
+        IdentityServiceLocal mock = mock(IdentityServiceLocal.class);
+        doAnswer(new Answer() {
+            @Override
+            public PlatformUser answer(InvocationOnMock invocation) throws Throwable {
+                PlatformUser user = new PlatformUser();
+                user.setUserId((String) invocation.getArguments()[0]);
+                return (PlatformUser) mgr.getReferenceByBusinessKey(user);
+            }
+        }).when(mock).getPlatformUser(anyString(), anyBoolean());
         container.addBean(mock);
         container.addBean(new TenantProvisioningServiceBean());
         container.addBean(new CommunicationServiceStub());

@@ -170,7 +170,16 @@
 
           <adm:labelAndInputTextarea id="organizationDescription" label="#{msg['organization.description']}"
             maxlength="#{appBean.descriptionLen}" value="#{selectedOrg.description}" disabled="#{!orgSelected}" />
-
+          
+          <adm:labelAndSelect id="tenant" label="#{msg['organization.tenant']}"
+                              value="#{selectedOrg.tenantKey}"
+                              rendered="#{operatorOrgBean.tenantSelectionAvailable}"
+                              listenerBean="#{operatorOrgBean}"
+                              oncomplete="AdmUtils.setUIElements();" disabled="#{!orgSelected}">
+            <adm:selectItemPleaseSelect itemValue="0" />
+            <f:selectItems value="#{operatorOrgBean.selectableTenants}" />
+          </adm:labelAndSelect>
+          
         </adm:panelGrid>
 
 

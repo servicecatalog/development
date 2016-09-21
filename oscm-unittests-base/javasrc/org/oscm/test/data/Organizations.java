@@ -79,6 +79,29 @@ public class Organizations {
         }
         return admin;
     }
+    
+    public static PlatformUser createUserForOrgWithGivenId(DataService mgr, String userId, Organization org )
+            throws NonUniqueBusinessKeyException {
+        PlatformUser admin = new PlatformUser();
+        admin.setAdditionalName("AddName Admin");
+        admin.setAddress("Address");
+        admin.setCreationDate(GregorianCalendar.getInstance().getTime());
+        admin.setEmail("admin@organization.com");
+        admin.setFirstName("Mister");
+        // create system wide unique userId
+        admin.setUserId(userId);
+        admin.setRealmUserId(admin.getUserId());
+        admin.setLastName("Knowitall");
+        admin.setPhone("111111/111111");
+        admin.setStatus(UserAccountStatus.ACTIVE);
+        admin.setOrganization(org);
+        admin.setLocale("en");
+        byte[] passwordHash = PasswordHash.calculateHash(1, "secret");
+        admin.setPasswordHash(passwordHash);
+        admin.setPasswordSalt(1);
+        mgr.persist(admin);
+        return admin;
+    }
 
     public static Organization findOrganization(DataService mgr, String id) {
         Organization organization = new Organization();

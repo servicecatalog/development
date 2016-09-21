@@ -104,4 +104,16 @@ public class TenantServiceLocalBean implements TenantServiceLocal {
     public void setTenantDao(TenantDao tenantDao) {
         this.tenantDao = tenantDao;
     }
+
+    @Override
+    public boolean doesOrgUsersExistInTenant(String orgId, long tenantKey) {
+        List<String> userIds = this.tenantDao
+                .getNonUniqueOrgUserIdsInTenant(orgId, tenantKey);
+
+        if (userIds.size() > 0) {
+            return true;
+        }
+
+        return false;
+    }
 }
