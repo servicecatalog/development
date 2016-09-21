@@ -2764,9 +2764,4 @@ public class MockService implements IdentityService, SubscriptionService,
         return null;
     }
 
-    @Override
-    public void clearCachedMarketplaceConfiguration(String marketplaceId) {
-
-    }
-
 }

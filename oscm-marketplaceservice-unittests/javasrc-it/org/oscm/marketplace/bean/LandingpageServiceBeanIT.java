@@ -12,14 +12,17 @@
 
 package org.oscm.marketplace.bean;
 
-import static org.oscm.test.matchers.JavaMatchers.hasItems;
-import static org.oscm.test.matchers.JavaMatchers.hasNoItems;
 import static junit.framework.Assert.assertNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.oscm.test.matchers.JavaMatchers.hasItems;
+import static org.oscm.test.matchers.JavaMatchers.hasNoItems;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -31,7 +34,6 @@ import javax.persistence.Query;
 
 import org.junit.After;
 import org.junit.Test;
-
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.LandingpageProduct;
@@ -44,19 +46,6 @@ import org.oscm.domobjects.TechnicalProduct;
 import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
-import org.oscm.landingpageService.local.LandingpageServiceLocal;
-import org.oscm.landingpageService.local.LandingpageType;
-import org.oscm.landingpageService.local.VOLandingpageService;
-import org.oscm.landingpageService.local.VOPublicLandingpage;
-import org.oscm.serviceprovisioningservice.assembler.ProductAssembler;
-import org.oscm.test.EJBTestBase;
-import org.oscm.test.data.Marketplaces;
-import org.oscm.test.data.Organizations;
-import org.oscm.test.data.PlatformUsers;
-import org.oscm.test.data.Products;
-import org.oscm.test.data.TechnicalProducts;
-import org.oscm.test.ejb.TestContainer;
-import org.oscm.types.enumtypes.FillinCriterion;
 import org.oscm.internal.types.enumtypes.OfferingType;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.ServiceStatus;
@@ -69,6 +58,20 @@ import org.oscm.internal.types.exception.OperationNotPermittedException;
 import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.internal.types.exceptions.FillinOptionNotSupportedException;
 import org.oscm.internal.vo.VOService;
+import org.oscm.landingpageService.local.LandingpageServiceLocal;
+import org.oscm.landingpageService.local.LandingpageType;
+import org.oscm.landingpageService.local.VOLandingpageService;
+import org.oscm.landingpageService.local.VOPublicLandingpage;
+import org.oscm.marketplace.cache.MarketplaceCacheServiceBean;
+import org.oscm.serviceprovisioningservice.assembler.ProductAssembler;
+import org.oscm.test.EJBTestBase;
+import org.oscm.test.data.Marketplaces;
+import org.oscm.test.data.Organizations;
+import org.oscm.test.data.PlatformUsers;
+import org.oscm.test.data.Products;
+import org.oscm.test.data.TechnicalProducts;
+import org.oscm.test.ejb.TestContainer;
+import org.oscm.types.enumtypes.FillinCriterion;
 
 /**
  * Unit tests for the landing page management.
@@ -77,6 +80,7 @@ public class LandingpageServiceBeanIT extends EJBTestBase {
     private DataService mgr;
     private LandingpageServiceLocal landingpageServiceLocal;
     private LocalizerServiceLocal localizer;
+    private MarketplaceCacheServiceBean mpCache = spy(new MarketplaceCacheServiceBean());
 
     private Marketplace marketplace;
     private PublicLandingpage defaultLandingpage;
@@ -89,6 +93,7 @@ public class LandingpageServiceBeanIT extends EJBTestBase {
     private List<VOService> voServices;
 
     private static final String MARKETPLACEID = "1234567";
+    private static final String MARKETPLACEID_ENTERPRISE = "1234567_ENTERPRISE";
     private static final String UNKNOWN_MARKETPLACEID = "unknownMarketplaceId";
     private static final int NUMBER_PRODUCTS = 5;
 
@@ -100,6 +105,7 @@ public class LandingpageServiceBeanIT extends EJBTestBase {
         createMarketplaceOwnerOrg();
         createDummyOrg();
         createMarketplace();
+        createMarketplaceWithEnterpriseLaandingpage();
         createServices();
         createLandingpageProducts();
     }
@@ -188,6 +194,47 @@ public class LandingpageServiceBeanIT extends EJBTestBase {
 
         assertLandingpageProducts(voLandingpage.getLandingpageServices(),
                 givenNumberVOLandingpageServices);
+    }
+
+    @Test
+    public void savePublicLandingpageConfig_MpCache() throws Throwable {
+        // given
+        int givenNumberServices = 88;
+        FillinCriterion givenFillinCriterion = FillinCriterion.NAME_ASCENDING;
+
+        container.login(mpOwnerUserKey, UserRoleType.MARKETPLACE_OWNER.name());
+        assertNull(landingpageServiceLocal
+                .loadPublicLandingpageConfig(MARKETPLACEID_ENTERPRISE));
+
+        VOPublicLandingpage givenVOLandingpage = new VOPublicLandingpage();
+        givenVOLandingpage.setMarketplaceId(MARKETPLACEID_ENTERPRISE);
+        givenVOLandingpage.setNumberServices(givenNumberServices);
+        givenVOLandingpage.setFillinCriterion(givenFillinCriterion);
+
+        // when
+        landingpageServiceLocal.savePublicLandingpageConfig(givenVOLandingpage);
+
+        // then
+        VOPublicLandingpage voLandingpage = landingpageServiceLocal
+                .loadPublicLandingpageConfig(MARKETPLACEID_ENTERPRISE);
+
+        assertNotNull(voLandingpage);
+
+        verify(mpCache, atLeastOnce()).resetConfiguration(
+                MARKETPLACEID_ENTERPRISE);
+    }
+
+    @Test
+    public void resetLandingpage_MpCache() throws Throwable {
+        // given
+        container.login(mpOwnerUserKey, UserRoleType.MARKETPLACE_OWNER.name());
+
+        // when
+        landingpageServiceLocal.resetLandingpage(MARKETPLACEID_ENTERPRISE);
+
+        // then
+        verify(mpCache, atLeastOnce()).resetConfiguration(
+                MARKETPLACEID_ENTERPRISE);
     }
 
     @Test
@@ -383,6 +430,19 @@ public class LandingpageServiceBeanIT extends EJBTestBase {
         Marketplace mp = reload(marketplace);
         assertNull(mp.getPublicLandingpage());
         assertNotNull(mp.getEnterpriseLandingpage());
+    }
+
+    @Test
+    public void saveEnterpriseLandingpageConfig_MpCache() throws Throwable {
+
+        // given public landing page from setup
+        container.login(mpOwnerUserKey, UserRoleType.MARKETPLACE_OWNER.name());
+
+        // when
+        landingpageServiceLocal.saveEnterpriseLandingpageConfig(MARKETPLACEID);
+
+        // then
+        verify(mpCache, atLeastOnce()).resetConfiguration(MARKETPLACEID);
     }
 
     /**
@@ -854,11 +914,12 @@ public class LandingpageServiceBeanIT extends EJBTestBase {
     private void initBeans(TestContainer container) throws Exception {
         container.addBean(new DataServiceBean());
         mgr = container.get(DataService.class);
-
         container.addBean(new LocalizerServiceBean());
         localizer = container.get(LocalizerServiceLocal.class);
-
-        container.addBean(new LandingpageServiceBean());
+        container.addBean(mpCache);
+        LandingpageServiceBean lpBean = new LandingpageServiceBean();
+        lpBean.marketplaceCache = mpCache;
+        container.addBean(lpBean);
         landingpageServiceLocal = container.get(LandingpageServiceLocal.class);
     }
 
@@ -984,6 +1045,17 @@ public class LandingpageServiceBeanIT extends EJBTestBase {
             public Marketplace call() throws Exception {
                 marketplace = Marketplaces.createMarketplace(mpOwner,
                         MARKETPLACEID, true, mgr);
+                return marketplace;
+            }
+        });
+    }
+
+    private void createMarketplaceWithEnterpriseLaandingpage() throws Exception {
+        runTX(new Callable<Marketplace>() {
+            @Override
+            public Marketplace call() throws Exception {
+                Marketplaces.createMarketplace(mpOwner,
+                        MARKETPLACEID_ENTERPRISE, true, mgr, true);
                 return marketplace;
             }
         });

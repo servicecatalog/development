@@ -40,7 +40,7 @@ import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.identityservice.local.ILdapResultMapper;
 import org.oscm.identityservice.local.LdapAccessServiceLocal;
 import org.oscm.identityservice.local.LdapSettingsManagementServiceLocal;
-import org.oscm.internal.intf.MarketplaceService;
+import org.oscm.marketplaceservice.local.MarketplaceServiceLocal;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.SettingType;
 import org.oscm.internal.vo.VOMarketplace;
@@ -164,9 +164,9 @@ public class AccountServiceLocalBeanIT extends EJBTestBase {
         when(ldapSettingsMgmt.getDefaultValueForSetting(any(SettingType.class)))
                 .thenReturn("someDefault");
 
-        MarketplaceService mplService = mock(MarketplaceService.class);
+        MarketplaceServiceLocal mplService = mock(MarketplaceServiceLocal.class);
         doReturn(getMarketplace("TestMpl")).when(mplService)
-                .getMarketplaceById(anyString());
+                .getMarketplaceForId(anyString());
 
         container.addBean(ldapSettingsMgmt);
         container.addBean(localizerMock);
@@ -188,9 +188,7 @@ public class AccountServiceLocalBeanIT extends EJBTestBase {
         return org;
     }
 
-    private VOMarketplace getMarketplace(String mplId) {
-        VOMarketplace mpl = new VOMarketplace();
-        mpl.setMarketplaceId(mplId);
-        return mpl;
+    private Marketplace getMarketplace(String mplId) {
+        return new Marketplace(mplId);
     }
 }
