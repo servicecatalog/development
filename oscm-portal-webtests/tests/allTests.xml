@@ -8,7 +8,7 @@
   <!-- target for developers -->
   <target name="partCustom">
     <!-- put your own test files e.g. "playground.xml" --> 
-    <ant antfile="testManageAccess.xml" />
+    <ant antfile="playground.xml" />
   </target>
 
   <target name="part1">
@@ -49,7 +49,7 @@
     <ant antfile="testEmptyTables.xml" />
     <ant antfile="testPresetFields.xml" />
     <ant antfile="testOperatorPortal.xml" />
-    <!--<ant antfile="saml.xml" />-->
+    <ant antfile="saml.xml" />
     <ant antfile="testDeleteUserRoleConcurrently.xml" />
     <ant antfile="testRemoveVersionTechnicalService.xml" />
     <ant antfile="testServiceNameDisplay.xml" />

@@ -140,6 +140,7 @@ public class BaseBean {
     public static final String ERROR_INVALID_SERVICE_URL = "error.invalidServiceUrl";
     public static final String ERROR_LOGIN = "error.login";
     public static final String ERROR_LOGIN_TO_CLOSED_MARKETPLACE = "error.loginToClosedMarketplace";
+    public static final String ERROR_ACCESS_TO_CLOSED_MARKETPLACE = "error.accessToClosedMarketplace";
     public static final String ERROR_LOGIN_SAML_SP = "error.login.samlsp";
     public static final String ERROR_LOGIN_IMPOSSIBLE = "error.login.impossible";
     public static final String ERROR_USER_ALREADY_CONFIRMED = "error.user.alreadyConfirmed";

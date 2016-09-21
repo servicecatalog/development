@@ -15,6 +15,7 @@ import javax.annotation.security.RolesAllowed;
 import javax.ejb.Remote;
 import javax.security.auth.login.LoginException;
 
+import org.oscm.internal.cache.MarketplaceConfiguration;
 import org.oscm.internal.types.exception.ConcurrentModificationException;
 import org.oscm.internal.types.exception.MarketplaceAccessTypeUneligibleForOperationException;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
@@ -521,7 +522,7 @@ public interface MarketplaceService {
     /**
      * Returns all organizations created in the system with information about
      * access to the given marketplace.
-     *
+     * 
      * @return collection of all organizations.
      * @throws ObjectNotFoundException
      */
@@ -531,7 +532,7 @@ public interface MarketplaceService {
 
     /**
      * Method is used to restrict access to the given marketplace.
-     *
+     * 
      * @param marketplaceId
      * @param authorizedOrganizations
      *            - organizations to which access to marketplace should be
@@ -556,7 +557,7 @@ public interface MarketplaceService {
     /**
      * This method is used to grant access to given marketplace to given
      * organization.
-     *
+     * 
      * @param voMarketplace
      * @param voOrganization
      * @throws ValidationException
@@ -569,7 +570,7 @@ public interface MarketplaceService {
 
     /**
      * Method is used to remove restrictions to the given marketplace.
-     *
+     * 
      * @param marketplaceId
      * @throws OperationNotPermittedException
      * @throws ObjectNotFoundException
@@ -590,7 +591,7 @@ public interface MarketplaceService {
 
     /**
      * Gives information if given organization has access to marketplace.
-     *
+     * 
      * @param marketplaceId
      * @param organizationId
      * @return true - if organization has access to marketplace, false -
@@ -610,4 +611,16 @@ public interface MarketplaceService {
      */
     public List<VOOrganization> getAllOrganizationsWithAccessToMarketplace(
             String marketplaceId);
+
+    /**
+     * Gets the cached version of the marketplace with allowed organizations (if
+     * it is restricted) for the marketplace with the given id.
+     * 
+     * @param marketplaceId
+     *            the marketplace id
+     * @return the configuration or null if marketplace id is invalid
+     */
+    public MarketplaceConfiguration getCachedMarketplaceConfiguration(
+            String marketplaceId);
+
 }

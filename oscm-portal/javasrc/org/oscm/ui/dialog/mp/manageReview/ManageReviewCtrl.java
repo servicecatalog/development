@@ -11,22 +11,24 @@ package org.oscm.ui.dialog.mp.manageReview;
 import java.io.Serializable;
 import java.util.List;
 
+import javax.ejb.EJB;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.servlet.http.HttpServletRequest;
 
-import org.oscm.ui.beans.BaseBean;
-import org.oscm.ui.beans.MarketplaceConfigurationBean;
-import org.oscm.ui.common.Constants;
-import org.oscm.ui.dialog.mp.serviceDetails.ServiceDetailsModel;
-import org.oscm.ui.model.Service;
-import org.oscm.validator.ADMValidator;
+import org.oscm.internal.cache.MarketplaceConfiguration;
+import org.oscm.internal.intf.MarketplaceService;
 import org.oscm.internal.review.POServiceReview;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.OperationNotPermittedException;
 import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
 import org.oscm.internal.types.exception.SaaSApplicationException;
+import org.oscm.ui.beans.BaseBean;
+import org.oscm.ui.common.Constants;
+import org.oscm.ui.dialog.mp.serviceDetails.ServiceDetailsModel;
+import org.oscm.ui.model.Service;
+import org.oscm.validator.ADMValidator;
 
 /**
  * Controller for manage service's review
@@ -46,9 +48,9 @@ public class ManageReviewCtrl extends BaseBean implements Serializable {
     @ManagedProperty(value = "#{serviceDetailsModel}")
     private ServiceDetailsModel serviceDetailsModel;
 
-    @ManagedProperty(value = "#{marketplaceConfigurationBean}")
-    private MarketplaceConfigurationBean marketplaceConfigurationBean;
-    
+    @EJB
+    private MarketplaceService marketplaceService;
+
     private long keyForDeletion;
 
     /**
@@ -85,7 +87,7 @@ public class ManageReviewCtrl extends BaseBean implements Serializable {
     }
 
     public void setupForDeletion() {
-    	manageReviewModel.setServiceReview(getServiceReview(keyForDeletion));
+        manageReviewModel.setServiceReview(getServiceReview(keyForDeletion));
     }
 
     /**
@@ -153,8 +155,7 @@ public class ManageReviewCtrl extends BaseBean implements Serializable {
      * Creates or updates a review.
      */
     public String publishReview() throws SaaSApplicationException {
-        if (!getMarketplaceConfigurationBean().getCurrentConfiguration()
-                .isReviewEnabled()) {
+        if (!getConfig().isReviewEnabled()) {
             return OUTCOME_REVIEW_ENABLEMENT_CHANGED;
         }
         HttpServletRequest httpRequest = getRequest();
@@ -277,13 +278,9 @@ public class ManageReviewCtrl extends BaseBean implements Serializable {
         return isMarketplaceOwner();
     }
 
-    public void setMarketplaceConfigurationBean(
-            MarketplaceConfigurationBean marketplaceConfigurationBean) {
-        this.marketplaceConfigurationBean = marketplaceConfigurationBean;
-    }
-
-    public MarketplaceConfigurationBean getMarketplaceConfigurationBean() {
-        return marketplaceConfigurationBean;
+    public MarketplaceConfiguration getConfig() {
+        return marketplaceService.getCachedMarketplaceConfiguration(BaseBean
+                .getMarketplaceIdStatic());
     }
 
     public ServiceDetailsModel getServiceDetailsModel() {
@@ -302,11 +299,11 @@ public class ManageReviewCtrl extends BaseBean implements Serializable {
         this.manageReviewModel = manageReviewModel;
     }
 
-	public long getKeyForDeletion() {
-		return keyForDeletion;
-	}
+    public long getKeyForDeletion() {
+        return keyForDeletion;
+    }
 
-	public void setKeyForDeletion(long keyForDeletion) {
-		this.keyForDeletion = keyForDeletion;
-	}
+    public void setKeyForDeletion(long keyForDeletion) {
+        this.keyForDeletion = keyForDeletion;
+    }
 }

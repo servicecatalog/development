@@ -9,6 +9,7 @@
 package org.oscm.marketplace.bean;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -131,8 +132,16 @@ public class MarketplaceServiceLocalBeanQueryIT extends EJBTestBase {
                         .getMarketplacesForOrganizationWithRestrictedAccess(supplier.getKey());
                 // then
                 assertEquals(2, result.size());
-                assertEquals("mp1000", result.get(0).getMarketplaceId());
-                assertEquals("mp2000", result.get(1).getMarketplaceId());
+                boolean hasFirstMp = false;
+                boolean hasSecondMp = false;
+                for (Marketplace mp : result) {
+                    if ("mp1000".equals(mp.getMarketplaceId())) {
+                        hasFirstMp = true;
+                    } else if ("mp2000".equals(mp.getMarketplaceId())) {
+                        hasSecondMp = true;
+                    }
+                }
+                assertTrue(hasFirstMp && hasSecondMp);
                 return null;
             }
         });

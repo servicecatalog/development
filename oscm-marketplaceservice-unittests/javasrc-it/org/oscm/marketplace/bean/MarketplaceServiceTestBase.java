@@ -49,6 +49,7 @@ import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.marketplace.assembler.MarketplaceAssembler;
+import org.oscm.marketplace.cache.MarketplaceCacheServiceBean;
 import org.oscm.serviceprovisioningservice.assembler.ProductAssembler;
 import org.oscm.serviceprovisioningservice.bean.ServiceProvisioningServiceBean;
 import org.oscm.test.BaseAdmUmTest;
@@ -229,6 +230,7 @@ public class MarketplaceServiceTestBase extends EJBTestBase {
         container.addBean(new AccountServiceBean());
         container.addBean(new CategorizationServiceBean());
 
+        container.addBean(new MarketplaceCacheServiceBean());
         container.addBean(new LandingpageServiceBean());
         container.addBean(new MarketplaceServiceLocalBean());
         container.addBean(new MarketplaceServiceBean());

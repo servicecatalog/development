@@ -8,7 +8,6 @@
 
 package org.oscm.accountservice.bean;
 
-import static org.oscm.test.data.Organizations.grantOrganizationRole;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
@@ -18,6 +17,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.oscm.test.data.Organizations.grantOrganizationRole;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -29,7 +29,6 @@ import java.util.concurrent.Callable;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
-
 import org.oscm.configurationservice.bean.ConfigurationServiceBean;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
@@ -42,6 +41,16 @@ import org.oscm.domobjects.OrganizationToRole;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.TriggerProcess;
 import org.oscm.domobjects.enums.OrganizationReferenceType;
+import org.oscm.internal.intf.AccountService;
+import org.oscm.internal.types.enumtypes.ConfigurationKey;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.UserRoleType;
+import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
+import org.oscm.internal.types.exception.SaaSSystemException;
+import org.oscm.internal.vo.VODiscount;
+import org.oscm.internal.vo.VOOrganization;
+import org.oscm.internal.vo.VOUserDetails;
+import org.oscm.marketplaceservice.local.MarketplaceServiceLocal;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.Marketplaces;
 import org.oscm.test.data.Organizations;
@@ -53,16 +62,6 @@ import org.oscm.triggerservice.bean.TriggerQueueServiceBean;
 import org.oscm.triggerservice.local.TriggerMessage;
 import org.oscm.triggerservice.local.TriggerProcessMessageData;
 import org.oscm.types.constants.Configuration;
-import org.oscm.internal.intf.AccountService;
-import org.oscm.internal.types.enumtypes.ConfigurationKey;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.UserRoleType;
-import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
-import org.oscm.internal.types.exception.SaaSSystemException;
-import org.oscm.internal.vo.VODiscount;
-import org.oscm.internal.vo.VOOrganization;
-import org.oscm.internal.vo.VOUserDetails;
-import org.oscm.marketplaceservice.local.MarketplaceServiceLocal;
 
 /**
  * @author barzu
@@ -82,7 +81,6 @@ public class AccountServiceBeanOrganizationReferenceIT extends EJBTestBase {
     protected void setup(TestContainer container) throws Exception {
         asb = new AccountServiceBean();
         asb.dm = mock(DataService.class);
-
     }
 
     private void setupContainer() throws Exception {
@@ -105,8 +103,7 @@ public class AccountServiceBeanOrganizationReferenceIT extends EJBTestBase {
         });
     }
 
-    private static void addRole(Organization org,
-            OrganizationRoleType roleType) {
+    private static void addRole(Organization org, OrganizationRoleType roleType) {
         OrganizationRole role = new OrganizationRole();
         role.setRoleName(roleType);
         OrganizationToRole otr = new OrganizationToRole();
@@ -120,10 +117,10 @@ public class AccountServiceBeanOrganizationReferenceIT extends EJBTestBase {
             public PlatformUser call() throws Exception {
                 Organization reseller = Organizations.createOrganization(ds,
                         OrganizationRoleType.SUPPLIER);
-                PlatformUser user = Organizations.createUserForOrg(ds, reseller,
-                        true, "admin");
-                PlatformUsers.grantRoles(ds, user,
-                        UserRoleType.SERVICE_MANAGER);
+                PlatformUser user = Organizations.createUserForOrg(ds,
+                        reseller, true, "admin");
+                PlatformUsers
+                        .grantRoles(ds, user, UserRoleType.SERVICE_MANAGER);
                 return user;
             }
         });
@@ -135,8 +132,8 @@ public class AccountServiceBeanOrganizationReferenceIT extends EJBTestBase {
             public PlatformUser call() throws Exception {
                 Organization reseller = Organizations.createOrganization(ds,
                         OrganizationRoleType.BROKER);
-                PlatformUser user = Organizations.createUserForOrg(ds, reseller,
-                        true, "admin");
+                PlatformUser user = Organizations.createUserForOrg(ds,
+                        reseller, true, "admin");
                 PlatformUsers.grantRoles(ds, user, UserRoleType.BROKER_MANAGER);
                 return user;
             }
@@ -149,8 +146,8 @@ public class AccountServiceBeanOrganizationReferenceIT extends EJBTestBase {
             public PlatformUser call() throws Exception {
                 Organization reseller = Organizations.createOrganization(ds,
                         OrganizationRoleType.RESELLER);
-                PlatformUser user = Organizations.createUserForOrg(ds, reseller,
-                        true, "admin");
+                PlatformUser user = Organizations.createUserForOrg(ds,
+                        reseller, true, "admin");
                 PlatformUsers.grantRoles(ds, user,
                         UserRoleType.RESELLER_MANAGER);
                 return user;
@@ -233,10 +230,11 @@ public class AccountServiceBeanOrganizationReferenceIT extends EJBTestBase {
 
     private void mockTriggerQueue() throws Exception {
         TriggerQueueServiceBean triggerQS = mock(TriggerQueueServiceBean.class);
-        doReturn(Collections.singletonList(new TriggerProcessMessageData(
-                new TriggerProcess(), new TriggerMessage()))).when(triggerQS)
-                        .sendSuspendingMessages(
-                                Matchers.anyListOf(TriggerMessage.class));
+        doReturn(
+                Collections.singletonList(new TriggerProcessMessageData(
+                        new TriggerProcess(), new TriggerMessage()))).when(
+                triggerQS).sendSuspendingMessages(
+                Matchers.anyListOf(TriggerMessage.class));
         container.addBean(triggerQS);
         // make it known to ASB
         container.addBean(new AccountServiceBean());
@@ -244,12 +242,11 @@ public class AccountServiceBeanOrganizationReferenceIT extends EJBTestBase {
     }
 
     private void mockMarketplaceService(Marketplace mpl) throws Exception {
-        MarketplaceServiceLocal mplService = mock(
-                MarketplaceServiceLocal.class);
+        MarketplaceServiceLocal mplService = mock(MarketplaceServiceLocal.class);
         container.addBean(mplService);
         doReturn(mpl).when(mplService).getMarketplaceForId(anyString());
         container.addBean(new AccountServiceBean());
-        as = container.get(AccountService.class);    
+        as = container.get(AccountService.class);
     }
 
     private void mockNoInvoiceAsDefault() throws Exception {
@@ -265,7 +262,7 @@ public class AccountServiceBeanOrganizationReferenceIT extends EJBTestBase {
 
     private void validateOrganizationReference(final Organization source,
             long targetKey, final OrganizationReferenceType referenceType)
-                    throws Exception {
+            throws Exception {
         final Organization target = new Organization();
         target.setKey(targetKey);
         runTX(new Callable<Void>() {
@@ -286,10 +283,9 @@ public class AccountServiceBeanOrganizationReferenceIT extends EJBTestBase {
         mockNoInvoiceAsDefault();
         final PlatformUser user = givenReseller();
         container.login(user.getKey(), UserRoleType.RESELLER_MANAGER.name());
-        Marketplace marketplace = givenMarketplace(user.getOrganization(),
-                "MP");
+        Marketplace marketplace = givenMarketplace(user.getOrganization(), "MP");
         mockMarketplaceService(marketplace);
-        
+
         // when
         VOOrganization customerVO = as.registerKnownCustomer(
                 createVOOrganization("customer"), createVOUserDetails("admin"),
@@ -309,10 +305,9 @@ public class AccountServiceBeanOrganizationReferenceIT extends EJBTestBase {
         mockNoInvoiceAsDefault();
         final PlatformUser user = givenBroker();
         container.login(user.getKey(), UserRoleType.BROKER_MANAGER.name());
-        Marketplace marketplace = givenMarketplace(user.getOrganization(),
-                "MP");
+        Marketplace marketplace = givenMarketplace(user.getOrganization(), "MP");
         mockMarketplaceService(marketplace);
-        
+
         // when
         VOOrganization customerVO = as.registerKnownCustomer(
                 createVOOrganization("customer"), createVOUserDetails("admin"),
@@ -332,13 +327,12 @@ public class AccountServiceBeanOrganizationReferenceIT extends EJBTestBase {
         mockNoInvoiceAsDefault();
         final PlatformUser user = givenReseller();
         container.login(user.getKey(), UserRoleType.RESELLER_MANAGER.name());
-        Marketplace marketplace = givenMarketplace(user.getOrganization(),
-                "MP");
+        Marketplace marketplace = givenMarketplace(user.getOrganization(), "MP");
         mockMarketplaceService(marketplace);
         as.registerKnownCustomer(createVOOrganization("customerOfReseller"),
                 createVOUserDetails("admin"), null,
                 marketplace.getMarketplaceId());
-        
+
         // when
         List<VOOrganization> customers = as.getMyCustomers();
 
@@ -358,13 +352,12 @@ public class AccountServiceBeanOrganizationReferenceIT extends EJBTestBase {
         mockNoInvoiceAsDefault();
         final PlatformUser user = givenReseller();
         container.login(user.getKey(), UserRoleType.RESELLER_MANAGER.name());
-        Marketplace marketplace = givenMarketplace(user.getOrganization(),
-                "MP");
+        Marketplace marketplace = givenMarketplace(user.getOrganization(), "MP");
         mockMarketplaceService(marketplace);
         as.registerKnownCustomer(createVOOrganization("customerOfReseller"),
                 createVOUserDetails("admin"), null,
                 marketplace.getMarketplaceId());
-        
+
         // when
         List<VOOrganization> customers = as.getMyCustomersOptimization();
 
@@ -382,16 +375,15 @@ public class AccountServiceBeanOrganizationReferenceIT extends EJBTestBase {
         mockNoInvoiceAsDefault();
         final PlatformUser user = givenBroker();
         container.login(user.getKey(), UserRoleType.BROKER_MANAGER.name());
-        Marketplace marketplace = givenMarketplace(user.getOrganization(),
-                "MP");
+        Marketplace marketplace = givenMarketplace(user.getOrganization(), "MP");
         mockMarketplaceService(marketplace);
         as.registerKnownCustomer(createVOOrganization("customerOfBroker"),
                 createVOUserDetails("admin"), null,
                 marketplace.getMarketplaceId());
-        
+
         // when
         List<VOOrganization> customers = as.getMyCustomers();
-        
+
         // then
         assertEquals(customers.size(), customers.size());
         VOOrganization customer = customers.get(0);
@@ -399,8 +391,7 @@ public class AccountServiceBeanOrganizationReferenceIT extends EJBTestBase {
     }
 
     @Test
-    public void getCustomersOptimizationForSupplier_asBroker()
-            throws Exception {
+    public void getCustomersOptimizationForSupplier_asBroker() throws Exception {
         // given
         final int expected = 1;
         setupContainer();
@@ -408,13 +399,12 @@ public class AccountServiceBeanOrganizationReferenceIT extends EJBTestBase {
         mockNoInvoiceAsDefault();
         final PlatformUser user = givenBroker();
         container.login(user.getKey(), UserRoleType.BROKER_MANAGER.name());
-        Marketplace marketplace = givenMarketplace(user.getOrganization(),
-                "MP");
+        Marketplace marketplace = givenMarketplace(user.getOrganization(), "MP");
         mockMarketplaceService(marketplace);
         as.registerKnownCustomer(createVOOrganization("customerOfBroker"),
                 createVOUserDetails("admin"), null,
                 marketplace.getMarketplaceId());
-        
+
         // when
         List<VOOrganization> customers = as.getMyCustomersOptimization();
 
@@ -432,8 +422,7 @@ public class AccountServiceBeanOrganizationReferenceIT extends EJBTestBase {
         mockNoInvoiceAsDefault();
         final PlatformUser user = givenSupplier();
         container.login(user.getKey(), UserRoleType.SERVICE_MANAGER.name());
-        Marketplace marketplace = givenMarketplace(user.getOrganization(),
-                "MP");
+        Marketplace marketplace = givenMarketplace(user.getOrganization(), "MP");
         mockMarketplaceService(marketplace);
         VOOrganization registeredCustomer = as.registerKnownCustomer(
                 createVOOrganization("customerName"),
@@ -456,8 +445,8 @@ public class AccountServiceBeanOrganizationReferenceIT extends EJBTestBase {
         // then
         assertEquals("customerName", customer.getName());
         assertNotNull(customer.getDiscount());
-        assertEquals(BigDecimal.TEN.byteValue(),
-                customer.getDiscount().getValue().byteValue());
+        assertEquals(BigDecimal.TEN.byteValue(), customer.getDiscount()
+                .getValue().byteValue());
     }
 
     @Test
@@ -468,8 +457,7 @@ public class AccountServiceBeanOrganizationReferenceIT extends EJBTestBase {
         mockNoInvoiceAsDefault();
         final PlatformUser user = givenBroker();
         container.login(user.getKey(), UserRoleType.BROKER_MANAGER.name());
-        Marketplace marketplace = givenMarketplace(user.getOrganization(),
-                "MP");
+        Marketplace marketplace = givenMarketplace(user.getOrganization(), "MP");
         mockMarketplaceService(marketplace);
         VOOrganization registeredCustomer = as.registerKnownCustomer(
                 createVOOrganization("customerName"),
@@ -495,8 +483,7 @@ public class AccountServiceBeanOrganizationReferenceIT extends EJBTestBase {
         mockNoInvoiceAsDefault();
         final PlatformUser user = givenReseller();
         container.login(user.getKey(), UserRoleType.RESELLER_MANAGER.name());
-        Marketplace marketplace = givenMarketplace(user.getOrganization(),
-                "MP");
+        Marketplace marketplace = givenMarketplace(user.getOrganization(), "MP");
         mockMarketplaceService(marketplace);
         VOOrganization registeredCustomer = as.registerKnownCustomer(
                 createVOOrganization("customerName"),
@@ -522,11 +509,10 @@ public class AccountServiceBeanOrganizationReferenceIT extends EJBTestBase {
         mockNoInvoiceAsDefault();
         final PlatformUser user = givenBroker();
         container.login(user.getKey(), UserRoleType.BROKER_MANAGER.name());
-        Marketplace marketplace = givenMarketplace(user.getOrganization(),
-                "MP");
+        Marketplace marketplace = givenMarketplace(user.getOrganization(), "MP");
         invoiceAsDefault.setValue("true");
         mockMarketplaceService(marketplace);
-        
+
         // when
         VOOrganization org = as.registerKnownCustomer(
                 createVOOrganization("customerOfBroker"),
@@ -546,11 +532,10 @@ public class AccountServiceBeanOrganizationReferenceIT extends EJBTestBase {
         mockNoInvoiceAsDefault();
         final PlatformUser user = givenBroker();
         container.login(user.getKey(), UserRoleType.RESELLER_MANAGER.name());
-        Marketplace marketplace = givenMarketplace(user.getOrganization(),
-                "MP");
+        Marketplace marketplace = givenMarketplace(user.getOrganization(), "MP");
         invoiceAsDefault.setValue("true");
         mockMarketplaceService(marketplace);
-        
+
         // when
         VOOrganization org = as.registerKnownCustomer(
                 createVOOrganization("customerOfReseller"),
@@ -562,8 +547,7 @@ public class AccountServiceBeanOrganizationReferenceIT extends EJBTestBase {
         invoiceAsDefault.setValue("false");
     }
 
-    private static Organization givenOrganization(
-            OrganizationRoleType... roles) {
+    private static Organization givenOrganization(OrganizationRoleType... roles) {
         Organization org = new Organization();
         org.setKey(123L);
         for (OrganizationRoleType role : roles) {
@@ -595,8 +579,8 @@ public class AccountServiceBeanOrganizationReferenceIT extends EJBTestBase {
 
         // then
         verify(asb.dm, times(1)).persist(argument.capture());
-        assertEquals(OrganizationReferenceType.SUPPLIER_TO_CUSTOMER,
-                argument.getValue().getReferenceType());
+        assertEquals(OrganizationReferenceType.SUPPLIER_TO_CUSTOMER, argument
+                .getValue().getReferenceType());
         assertEquals(org.getKey(), argument.getValue().getSource().getKey());
         assertEquals(org.getKey(), argument.getValue().getTarget().getKey());
     }
@@ -628,8 +612,8 @@ public class AccountServiceBeanOrganizationReferenceIT extends EJBTestBase {
 
         // then
         verify(asb.dm, times(1)).persist(argument.capture());
-        assertEquals(OrganizationReferenceType.BROKER_TO_CUSTOMER,
-                argument.getValue().getReferenceType());
+        assertEquals(OrganizationReferenceType.BROKER_TO_CUSTOMER, argument
+                .getValue().getReferenceType());
         assertEquals(org.getKey(), argument.getValue().getSource().getKey());
         assertEquals(org.getKey(), argument.getValue().getTarget().getKey());
     }
@@ -661,8 +645,8 @@ public class AccountServiceBeanOrganizationReferenceIT extends EJBTestBase {
 
         // then
         verify(asb.dm, times(1)).persist(argument.capture());
-        assertEquals(OrganizationReferenceType.RESELLER_TO_CUSTOMER,
-                argument.getValue().getReferenceType());
+        assertEquals(OrganizationReferenceType.RESELLER_TO_CUSTOMER, argument
+                .getValue().getReferenceType());
         assertEquals(org.getKey(), argument.getValue().getSource().getKey());
         assertEquals(org.getKey(), argument.getValue().getTarget().getKey());
     }

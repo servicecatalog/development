@@ -6,11 +6,11 @@ package org.oscm.test.stubs;
 
 import java.util.List;
 
+import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
 import org.hibernate.Session;
-
 import org.oscm.dataservice.local.DataService;
 import org.oscm.dataservice.local.DataSet;
 import org.oscm.dataservice.local.SqlQuery;
@@ -155,6 +155,11 @@ public class DataServiceStub implements DataService {
 
     @Override
     public void clear() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public EntityManager getEntityManager() {
         throw new UnsupportedOperationException();
     }
 }

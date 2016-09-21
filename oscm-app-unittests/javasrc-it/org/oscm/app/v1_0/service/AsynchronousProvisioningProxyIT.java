@@ -43,10 +43,6 @@ import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.slf4j.LoggerFactory;
-
-import org.oscm.test.EJBTestBase;
-import org.oscm.test.ejb.TestContainer;
 import org.oscm.app.business.AsynchronousProvisioningProxyImpl;
 import org.oscm.app.business.ProductProvisioningServiceFactoryBean;
 import org.oscm.app.business.ProvisioningResults;
@@ -75,6 +71,9 @@ import org.oscm.provisioning.data.ServiceParameter;
 import org.oscm.provisioning.data.User;
 import org.oscm.provisioning.data.UserResult;
 import org.oscm.provisioning.intf.ProvisioningService;
+import org.oscm.test.EJBTestBase;
+import org.oscm.test.ejb.TestContainer;
+import org.slf4j.LoggerFactory;
 
 /**
  * Unit tests for {@link AsynchronousProvisioningProxy}.
@@ -89,6 +88,7 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
     private APPlatformController controllerMock;
     private APPConfigurationServiceBean configService;
     private APPTimerServiceBean timerService;
+    private APPTimerServiceBean timerService1;
     private APPAuthenticationServiceBean authService;
     private InstanceRequest basicInstanceRequest;
     private ProvisioningService provServiceMock;
@@ -115,12 +115,20 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
         container.addBean(instanceDAO = new ServiceInstanceDAO());
         em = instanceDAO.em;
         container.addBean(mock(OperationServiceBean.class));
-        container.addBean(timerService = Mockito
-                .mock(APPTimerServiceBean.class));
         container.addBean(authService = Mockito
                 .mock(APPAuthenticationServiceBean.class));
+        container.addBean(timerService = Mockito
+                .mock(APPTimerServiceBean.class));
+        container.addBean(timerService1 = Mockito
+                .mock(APPTimerServiceBean.class));
 
         timerService.em = em;
+        timerService1.em = em;
+        timerService.instanceDAO = instanceDAO;
+        timerService1.instanceDAO = instanceDAO;
+        timerService.configService = configService;
+        timerService1.configService = configService;
+        timerService.appTimerServiceBean = timerService1;
 
         doThrow(new AuthenticationException("NoAuth")).when(authService)
                 .authenticateTMForInstance(anyString(), anyString(),
@@ -140,6 +148,11 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
         container.addBean(proxy = Mockito
                 .spy(new AsynchronousProvisioningProxy()));
         proxy.em = em;
+        proxy.timerService = timerService;
+        proxy.configService = configService;
+        proxy.instanceDAO = instanceDAO;
+        proxy.provisioningFactory = provisioningFactory;
+        proxy.appImpl = bean;
 
         InitialContext context = new InitialContext();
         controllerMock = mock(APPlatformController.class);
@@ -277,7 +290,7 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
         map.put(param.getParameterId(), param.getValue());
         map.put(null, "null"); // check error resistance
         descr.setChangedParameters(map);
-        
+
         List<LocalizedText> msgs = Arrays.asList(new LocalizedText("en",
                 "enMsg"), new LocalizedText("de", "deMsg"), new LocalizedText(
                 "ja", "ja"));
@@ -286,9 +299,9 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
         when(
                 controllerMock.createInstance(Matchers
                         .any(ProvisioningSettings.class))).thenReturn(descr);
-        
+
         doReturn("en").when(proxy).getLocale(any(User.class));
-        
+
         final BaseResult result = runTX(new Callable<BaseResult>() {
             @Override
             public BaseResult call() {

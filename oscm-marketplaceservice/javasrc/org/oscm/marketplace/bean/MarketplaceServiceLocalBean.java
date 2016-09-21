@@ -53,6 +53,7 @@ import org.oscm.identityservice.local.IdentityServiceLocal;
 import org.oscm.interceptor.AuditLogDataInterceptor;
 import org.oscm.interceptor.ExceptionMapper;
 import org.oscm.interceptor.InvocationDateContainer;
+import org.oscm.internal.intf.MarketplaceCacheService;
 import org.oscm.internal.resalepermissions.POResalePermissionDetails;
 import org.oscm.internal.types.enumtypes.OfferingType;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
@@ -134,6 +135,9 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
 
     @EJB
     MarketplaceAccessDao marketplaceAccessDao;
+
+    @EJB
+    MarketplaceCacheService marketplaceCache;
 
     @Override
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
@@ -588,6 +592,7 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
             }
         }
         updateMarketplaceName(mp, newMarketplaceName);
+        marketplaceCache.resetConfiguration(mp.getMarketplaceId());
         return ownerAssignmentUpdated;
     }
 
@@ -673,7 +678,9 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
                 updateRevenueShare(newMarketplace.getBrokerPriceModel(),
                         brokerRevenueShareVersion);
             }
+            marketplaceCache.resetConfiguration(marketplace.getMarketplaceId());
             return ownerAssignmentUpdated;
+
         } catch (ValidationException | UserRoleAssignmentException
                 | ObjectNotFoundException e) {
             sessionCtx.setRollbackOnly();
@@ -702,7 +709,7 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
 
     /**
      * Grants several resale permissions
-     *
+     * 
      * @param permissionsToGrant
      *            A list of resale permissions, which should be granted. Each
      *            resale permission contains the related service template, the
@@ -759,7 +766,7 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
 
     /**
      * Revokes several resale permissions
-     *
+     * 
      * @param permissionsToRevoke
      *            A list of resale permissions, which should be revoked. Each
      *            resale permission contains the related service template, the
@@ -1066,6 +1073,7 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
         }
         marketplace.setRestricted(isRestricted);
         ds.persist(marketplace);
+        marketplaceCache.resetConfiguration(marketplace.getMarketplaceId());
         return marketplace;
     }
 
@@ -1073,10 +1081,18 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     public void grantAccessToMarketPlaceToOrganization(Marketplace marketplace,
             Organization organization) throws NonUniqueBusinessKeyException {
+
         MarketplaceAccess marketplaceAccess = new MarketplaceAccess();
         marketplaceAccess.setMarketplace(marketplace);
         marketplaceAccess.setOrganization(organization);
-        ds.persist(marketplaceAccess);
+
+        try {
+            ds.getReferenceByBusinessKey(marketplaceAccess);
+        } catch (ObjectNotFoundException e) {
+            ds.persist(marketplaceAccess);
+        }
+
+        marketplaceCache.resetConfiguration(marketplace.getMarketplaceId());
     }
 
     @Override
@@ -1092,9 +1108,25 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
         MarketplaceAccess marketplaceAccess = new MarketplaceAccess();
         marketplaceAccess.setMarketplace_tkey(marketplaceKey);
         marketplaceAccess.setOrganization_tkey(organizationKey);
-        MarketplaceAccess mp = (MarketplaceAccess) ds
-                .getReferenceByBusinessKey(marketplaceAccess);
-        ds.remove(mp);
+
+        try {
+            MarketplaceAccess mpa = (MarketplaceAccess) ds
+                    .getReferenceByBusinessKey(marketplaceAccess);
+            ds.remove(mpa);
+        } catch (ObjectNotFoundException e) {
+            // if no entry exists just continue
+        }
+
+        Organization org = ds.getReference(Organization.class, organizationKey);
+        Marketplace mp = ds.getReference(Marketplace.class, marketplaceKey);
+
+        CatalogEntry ce;
+        for (Product prod : org.getProducts()) {
+            ce = prod.getCatalogEntryForMarketplace(mp);
+            if (ce != null) {
+                ce.setMarketplace(null);
+            }
+        }
     }
 
     @Override

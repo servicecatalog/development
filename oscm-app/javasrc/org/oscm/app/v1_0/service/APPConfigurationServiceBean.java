@@ -95,8 +95,8 @@ public class APPConfigurationServiceBean {
             } else {
                 LOGGER.warn("No entry found for key {}", key.name());
                 throw new ConfigurationException(String.format(
-                        "No configuration setting found for key '%s'", key.name()),
-                        key.name());
+                        "No configuration setting found for key '%s'",
+                        key.name()), key.name());
             }
         }
     }
@@ -229,7 +229,7 @@ public class APPConfigurationServiceBean {
     }
 
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
-    VOUserDetails getAPPAdministrator() throws ConfigurationException {
+    public VOUserDetails getAPPAdministrator() throws ConfigurationException {
         VOUserDetails adminuser = new VOUserDetails();
         String adminemail = getProxyConfigurationSetting(PlatformConfigurationKey.APP_ADMIN_MAIL_ADDRESS);
         if (!Strings.isEmpty(adminemail)) {

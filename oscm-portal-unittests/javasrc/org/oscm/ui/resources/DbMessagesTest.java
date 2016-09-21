@@ -19,7 +19,11 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
@@ -29,15 +33,16 @@ import javax.servlet.http.HttpSession;
 
 import org.junit.Before;
 import org.junit.Test;
+import sun.util.locale.BaseLocale;
 
+import org.oscm.internal.intf.BrandService;
+import org.oscm.internal.operatorservice.LocalizedDataService;
 import org.oscm.ui.common.Constants;
 import org.oscm.ui.common.ServiceAccess;
 import org.oscm.ui.stubs.ExternalContextStub;
 import org.oscm.ui.stubs.FacesContextStub;
 import org.oscm.ui.stubs.HttpServletRequestStub;
 import org.oscm.ui.stubs.HttpSessionStub;
-import org.oscm.internal.intf.BrandService;
-import org.oscm.internal.operatorservice.LocalizedDataService;
 
 /**
  * @author weiser
@@ -142,6 +147,21 @@ public class DbMessagesTest {
         assertEquals("value", value);
         verify(brMock, times(1)).loadMessagePropertiesFromDB(anyString(),
                 anyString());
+    }
+
+    @Test
+    public void dbMessagesResourcesTest() throws Exception{
+        //given
+        final List<String> strings = Arrays.asList("az", "be", "bg", "bn", "br", "bs", "ca", "ch", "cs", "cy", "da", "de", "el",
+                "en", "es", "et", "fi", "fr", "gl", "gu", "hi", "hr", "hu", "ia", "ii", "in", "is", "it", "ja", "ko", "lt", "lv",
+                "mk", "ml", "mn", "ms", "nb", "nl", "nn", "no", "pl", "pt", "ro", "ru", "sc", "se", "si", "sk", "sl", "sq", "sr",
+                "sv", "ta", "te", "th", "tr", "tt", "tw", "uk", "vi", "zh");
+        //when
+        for (String s : strings) {
+            final Class<?> aClass = Class.forName("org.oscm.ui.resources.DbMessages_" + s);
+            aClass.getConstructor().newInstance();
+        }
+        //then no exceptions
     }
 
 }

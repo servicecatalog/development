@@ -32,6 +32,10 @@ Please follow the guide from top to bottom, this is the easiest way to avoid err
 2. Import the project into your IDE. You should adjust some of the preferences:
   * Set the compiler level to the installed version of Java 1.7.
   * Set UTF-8 file encoding and Unix line endings.
+3. Import and configure the code formatting rules and code templates.
+  * Download the files from the [codestyle folder](https://github.com/servicecatalog/development/tree/master/oscm-devruntime/javares/codestyle).
+  * Import them into your Eclipse IDE ([Help](https://github.com/servicecatalog/development/tree/master/oscm-devruntime/javares/codestyle/README.md))
+  * Configure the formatting for non-java files ([Rules and Help](https://github.com/servicecatalog/development/tree/master/oscm-devruntime/javares/codestyle/README.md))
 
 #### Setting up the database
 1. Install the database using a path without any whitespaces for installation directory. During installation a system-startup service and a database specific user should be created.

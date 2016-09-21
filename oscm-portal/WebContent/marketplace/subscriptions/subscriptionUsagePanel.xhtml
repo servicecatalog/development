@@ -34,7 +34,7 @@
             <ui:fragment rendered="#{subscription.operationsRendered}">
 
               <h:form id="executeForm">
-                <h:selectOneMenu styleClass="selectOneMenu" id="execute"
+                <h:selectOneMenu styleClass="selectOneMenu operationElement" id="execute"
                   value="#{subscription.selectedOperationId}"
                   onchange="AdmUtils.showProgress(true);hideMessages();selectOperation('#{subscription.subscriptionId}', this.value, 'execute');">
                   <f:selectItem itemLabel="#{msg['common.pleaseSelect']}" itemValue="" />
@@ -42,7 +42,7 @@
                     value="#{subscription.technicalServiceOperationItems}" />
                 </h:selectOneMenu>
 
-                <mp:button id="executeButton" value="#{msg['button.execute']}"
+                <mp:button id="executeButton" value="#{msg['button.execute']}" style="float:left;margin:0px"
                   disabled="#{subscription.executeDisabled or !subscription.statusActive}"
                   onclick="hideMessages();AdmUtils.showProgress(true);executeOperation('#{subscription.subscriptionId}');return false;" />
 

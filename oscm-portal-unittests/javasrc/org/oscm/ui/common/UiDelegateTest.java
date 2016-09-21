@@ -11,6 +11,7 @@ package org.oscm.ui.common;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 import java.util.Locale;
 
@@ -61,6 +62,7 @@ public class UiDelegateTest {
     @Test
     public void getUserLanguage_FacesContextNull() {
         // when
+        when(uiDelegate.getFacesContext()).thenReturn(null);
         String result = uiDelegate.getUserLanguage();
         // then
         assertEquals(result, "en");

@@ -12,6 +12,7 @@
       <operator.addCurrency />
       <operator.createorganization />
       <mail.readPasswordAndUrlFromMail />
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" verifyPortalUserId="false" />
       <storeProperty name="supplierUrl" value="#{orgUrl}" />
       <storeProperty name="supplierId" value="#{orgId}" />
       <storeProperty name="baseUrl" value="#{baseUrl}" />
@@ -28,8 +29,7 @@
       <clickButton htmlId="sendRequest"/>
       
       <!-- Log in-->
-      <login.initialLoginAndChangePassword url="#{idpUrl}&amp;ACS=#{acsUrl}" userId="#{userId}" password="#{userPwd}" verifyPortalUserId="false" />
-      
+      <invoke url="#{idpUrl}&amp;ACS=#{acsUrl}" />
       <!-- Manually click redirect button, because javascript not working -->
       <clickButton htmlId="redirect"/>
       

@@ -13,9 +13,7 @@ package org.oscm.ui.dialog.classic.marketplace;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
@@ -32,7 +30,6 @@ import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.internal.vo.VOMarketplace;
 import org.oscm.internal.vo.VOOrganization;
 import org.oscm.ui.beans.BaseBean;
-import org.oscm.ui.beans.MarketplaceConfigurationBean;
 import org.oscm.ui.common.JSFUtils;
 import org.oscm.ui.common.UiDelegate;
 
@@ -44,9 +41,6 @@ public class ManageAccessCtrl {
 
     @ManagedProperty(value = "#{manageAccessModel}")
     private ManageAccessModel model;
-
-    @ManagedProperty(value = "#{marketplaceConfigurationBean}")
-    private MarketplaceConfigurationBean configuration;
 
     @EJB
     private MarketplaceService marketplaceService;
@@ -120,8 +114,6 @@ public class ManageAccessCtrl {
         // not restricted
         if (restricted) {
             List<POOrganization> organizations = new ArrayList<>();
-            Map<Long, Boolean> accessesStored = new HashMap<>();
-            Map<Long, Boolean> accessesSelected = new HashMap<>();
 
             for (VOOrganization voOrganization : marketplaceService
                     .getAllOrganizations(marketplaceId)) {
@@ -129,12 +121,6 @@ public class ManageAccessCtrl {
 
                 long key = poOrganization.getKey();
                 organizations.add(poOrganization);
-
-                accessesStored.put(Long.valueOf(key), Boolean
-                        .valueOf(voOrganization
-                                .isHasGrantedAccessToMarketplace()));
-                accessesSelected.put(Long.valueOf(key),
-                        Boolean.valueOf(poOrganization.isSelected()));
             }
 
             Collections.sort(organizations, new Comparator<POOrganization>() {
@@ -146,15 +132,11 @@ public class ManageAccessCtrl {
             });
 
             model.setOrganizations(organizations);
-            model.setAccessesStored(accessesStored);
-            model.setAccessesSelected(accessesSelected);
         }
     }
 
     public String save() {
         try {
-            configuration.resetConfiguration(model.getSelectedMarketplaceId());
-
             if (model.isSelectedMarketplaceRestricted()) {
                 prepareOrganizationsListsForUpdate();
                 getMarketplaceService().closeMarketplace(
@@ -189,13 +171,11 @@ public class ManageAccessCtrl {
             boolean orgIsSelected = poOrganization.isSelected();
             boolean orgIsDisabled = poOrganization.isDisabled();
 
-            if (model.getAccessesStored().get(orgKey) && !orgIsSelected
-                    && !orgIsDisabled) {
+            if (!orgIsSelected && !orgIsDisabled) {
                 model.getUnauthorizedOrganizations().add(orgKey);
                 continue;
             }
-            if (!model.getAccessesStored().get(orgKey)
-                    && (orgIsSelected || orgIsDisabled)) {
+            if (orgIsSelected || orgIsDisabled) {
                 model.getAuthorizedOrganizations().add(orgKey);
             }
         }
@@ -227,14 +207,6 @@ public class ManageAccessCtrl {
 
     public void setModel(ManageAccessModel model) {
         this.model = model;
-    }
-
-    public MarketplaceConfigurationBean getConfiguration() {
-        return configuration;
-    }
-
-    public void setConfiguration(MarketplaceConfigurationBean configuration) {
-        this.configuration = configuration;
     }
 
     public MarketplaceService getMarketplaceService() {

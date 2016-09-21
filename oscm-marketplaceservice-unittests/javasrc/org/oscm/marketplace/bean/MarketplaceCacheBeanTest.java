@@ -1,14 +1,12 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                             
+ *  Copyright FUJITSU LIMITED 2016                                           
+ *                                                                                                                                 
+ *  Creation Date: Aug 22, 2016                                                      
  *                                                                              
- *  Author: Zou                                                
- *                                                                              
- *  Creation Date: 14.03.2012                                                      
- *              
  *******************************************************************************/
 
-package org.oscm.ui.beans;
+package org.oscm.marketplace.bean;
 
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -17,33 +15,41 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.junit.Assert;
+import java.util.ArrayList;
+import java.util.List;
+
+import junit.framework.Assert;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
+import org.oscm.internal.cache.MarketplaceConfiguration;
 import org.oscm.internal.intf.MarketplaceService;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.vo.VOMarketplace;
+import org.oscm.internal.vo.VOOrganization;
 import org.oscm.logging.Log4jLogger;
+import org.oscm.marketplace.cache.MarketplaceCacheServiceBean;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
-import org.oscm.ui.model.MarketplaceConfiguration;
 
 /**
- * Test cases for MarketplaceConfigurationBean.
+ * Unit test for MarketplaceCacheBean
+ * 
+ * @author miethaner
  */
-public class MarketplaceConfigurationBeanTest {
+public class MarketplaceCacheBeanTest {
 
     private MarketplaceService msMock;
     private VOMarketplace marketplace;
-    private MarketplaceConfigurationBean beanSpy;
+    private MarketplaceCacheServiceBean beanSpy;
 
     @Before
     public void setup() throws Exception {
         msMock = Mockito.mock(MarketplaceService.class);
 
-        beanSpy = spy(new MarketplaceConfigurationBean());
-        doReturn(msMock).when(beanSpy).getMarketplaceService(null);
+        beanSpy = spy(new MarketplaceCacheServiceBean());
+        doReturn(msMock).when(beanSpy).getMarketplaceService();
 
         marketplace = new VOMarketplace();
         marketplace.setMarketplaceId("dummy");
@@ -53,20 +59,23 @@ public class MarketplaceConfigurationBeanTest {
         marketplace.setCategoriesEnabled(true);
         marketplace.setRestricted(true);
         marketplace.setHasPublicLandingPage(true);
+
+        List<VOOrganization> list = new ArrayList<VOOrganization>();
+        VOOrganization org = new VOOrganization();
+        org.setOrganizationId("dummy");
+        list.add(org);
+
         when(msMock.getMarketplaceById(Matchers.anyString())).thenReturn(
                 marketplace);
-        doReturn("dummy").when(beanSpy).getMarketplaceId();
+        when(
+                msMock.getAllOrganizationsWithAccessToMarketplace(Matchers
+                        .anyString())).thenReturn(list);
     }
 
     @Test
-    public void testGetCurrentConfiguration() {
-        MarketplaceConfiguration mpc = beanSpy.getCurrentConfiguration();
-        Assert.assertTrue(mpc.isReviewEnabled());
-        Assert.assertTrue(mpc.isSocialBookmarkEnabled());
-        Assert.assertTrue(mpc.isTaggingEnabled());
-        Assert.assertTrue(mpc.isCategoriesEnabled());
-        Assert.assertTrue(mpc.isRestricted());
-        Assert.assertTrue(mpc.hasLandingPage());
+    public void testScheduledReset() {
+        beanSpy.scheduledReset();
+        beanSpy.getConfiguration("dummy");
     }
 
     @Test
@@ -119,9 +128,7 @@ public class MarketplaceConfigurationBeanTest {
                 Matchers.eq(marketplaceId));
 
         // and default configuration is returned
-        Assert.assertTrue(mpc.isReviewEnabled());
-        Assert.assertTrue(mpc.isSocialBookmarkEnabled());
-        Assert.assertTrue(mpc.isTaggingEnabled());
+        Assert.assertNull(mpc);
     }
 
     @Test
