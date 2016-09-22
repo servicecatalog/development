@@ -52,6 +52,7 @@ import javax.faces.component.UIInput;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 
+import edu.emory.mathcs.backport.java.util.Collections;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -192,29 +193,6 @@ public class SubscriptionWizardConversationTest {
     public void testStartSubscriptionExceptions() throws Exception {
         // given
         bean = new SubscriptionWizardConversation() {
-            private static final long serialVersionUID = -911378764000745064L;
-
-            @Override
-            protected String initializeService(Service selectedService)
-                    throws ServiceStateException, ObjectNotFoundException,
-                    OrganizationAuthoritiesException,
-                    OperationNotPermittedException, ValidationException {
-                throw new ObjectNotFoundException();
-            }
-        };
-        bean = spy(bean);
-        doReturn(BaseBean.OUTCOME_SHOW_SERVICE_LIST).when(bean)
-                .redirectToServiceList();
-        decorateBean();
-
-        // when
-        bean.startSubscription();
-
-        // then
-        verify(bean, times(1)).redirectToServiceList();
-
-        // given
-        bean = new SubscriptionWizardConversation() {
             private static final long serialVersionUID = 5838904781636078095L;
 
             @Override
@@ -237,7 +215,6 @@ public class SubscriptionWizardConversationTest {
     }
 
     @Test
-    @Ignore
     public void testIsPaymentVisible() throws Exception {
         //given
 
@@ -246,7 +223,7 @@ public class SubscriptionWizardConversationTest {
         bean.isBillingContactVisible();
 
         //then
-        verify(pabv, atLeastOnce()).isPaymentVisible(anyCollectionOf(VOPaymentType.class), anyCollectionOf(VOPaymentInfo.class));
+        verify(model, atLeastOnce()).isAnyPaymentAvailable();
         verify(pabv, atLeastOnce()).isBillingContactVisible();
     }
 
@@ -260,7 +237,6 @@ public class SubscriptionWizardConversationTest {
     }
 
     @Test
-    @Ignore
     public void testStartSubscription() {
         // given
         bean = new SubscriptionWizardConversation() {
@@ -271,11 +247,14 @@ public class SubscriptionWizardConversationTest {
                     throws ServiceStateException, ObjectNotFoundException,
                     OrganizationAuthoritiesException,
                     OperationNotPermittedException, ValidationException {
+                setPaymentAndBillingVisibleBean(pabv);
                 return SubscriptionDetailsCtrlConstants.OUTCOME_SHOW_DETAILS_4_CREATION;
             }
         };
         bean = spy(bean);
         decorateBean();
+        doReturn(Collections.emptyList()).when(bean).getEnabledPaymentTypes();
+        doReturn(Collections.emptyList()).when(bean).getPaymentInfosForSubscription();
 
         // when
         bean.startSubscription();
@@ -425,14 +404,12 @@ public class SubscriptionWizardConversationTest {
 
         model.setShowExternalConfigurator(true);
 
-        UIViewRoot viewRoot = new UIViewRoot();
-        viewRoot.setViewId(SUBSCRIPTIONADD_VIEWID);
-
-        FacesContextStub context = new FacesContextStub(Locale.ENGLISH);
-        context.setViewRoot(viewRoot);
+        FacesContext context = mock(FacesContext.class);
 
         // when
-        bean.validateSubscriptionId(context, mock(UIComponent.class),
+        UIComponent toValidate = mock(UIComponent.class);
+        doReturn("").when(toValidate).getClientId();
+        bean.validateSubscriptionId(context, toValidate,
                 new String());
 
         // then
@@ -450,11 +427,13 @@ public class SubscriptionWizardConversationTest {
         UIViewRoot viewRoot = new UIViewRoot();
         viewRoot.setViewId(SUBSCRIPTIONADD_VIEWID);
 
-        FacesContextStub context = new FacesContextStub(Locale.ENGLISH);
+        FacesContext context = mock(FacesContext.class);
         context.setViewRoot(viewRoot);
 
         // when
-        bean.validateSubscriptionId(context, mock(UIComponent.class),
+        UIComponent toValidate = mock(UIComponent.class);
+        doReturn("").when(toValidate).getClientId();
+        bean.validateSubscriptionId(context, toValidate,
                 new String());
 
         // then
@@ -466,11 +445,8 @@ public class SubscriptionWizardConversationTest {
     public void validateSubscriptionId_noneSubIdExist() throws Exception {
         // given
 
-        UIViewRoot viewRoot = new UIViewRoot();
-        viewRoot.setViewId("");
-        FacesContextStub context = new FacesContextStub(Locale.ENGLISH);
-        context.setViewRoot(viewRoot);
         UIComponent toValidate = mock(UIComponent.class);
+        doReturn("").when(toValidate).getClientId();
 
         when(
                 Boolean.valueOf(subscriptionServiceInternal
@@ -478,7 +454,7 @@ public class SubscriptionWizardConversationTest {
                 .thenReturn(Boolean.FALSE);
 
         // when
-        bean.validateSubscriptionId(context, toValidate, new String());
+        bean.validateSubscriptionId(mock(FacesContext.class), toValidate, new String());
 
         // then
         verify(subscriptionServiceInternal, times(1))

@@ -301,7 +301,7 @@ public class ServiceInstanceTest {
         // given
         ServiceInstance si = Mockito.spy(new ServiceInstance());
         si.setSubscriptionId("subscriptionId");
-        String expectedXML = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><!DOCTYPE properties SYSTEM \"http://java.sun.com/dtd/properties.dtd\"><properties><entry key=\"KEY2\">VALUE2</entry><entry key=\"ROLLBACK_SUBSCRIPTIONID\">subscriptionId</entry><entry key=\"KEY1\">VALUE1</entry></properties>";
+        String expectedXML = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><!DOCTYPE properties SYSTEM \"http://java.sun.com/dtd/properties.dtd\"><properties><entry key=\"KEY2\">VALUE2</entry><entry key=\"KEY1\">VALUE1</entry><entry key=\"ROLLBACK_SUBSCRIPTIONID\">subscriptionId</entry></properties>";
 
         HashMap<String, String> params = new HashMap<String, String>();
         params.put("KEY1", "VALUE1");

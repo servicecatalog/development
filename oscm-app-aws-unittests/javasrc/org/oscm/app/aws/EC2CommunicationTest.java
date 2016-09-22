@@ -462,8 +462,8 @@ public class EC2CommunicationTest {
 		verify(ec2).runInstances(arg1.capture());
 		RunInstancesRequest rir = arg1.getValue();
 		assertEquals(2, rir.getSecurityGroups().size());
-		assertEquals("security_group1", rir.getSecurityGroups().get(0));
-		assertEquals("security_group2", rir.getSecurityGroups().get(1));
+		assertEquals("security_group1", rir.getSecurityGroups().get(1));
+		assertEquals("security_group2", rir.getSecurityGroups().get(0));
 	}
 
 	@Test

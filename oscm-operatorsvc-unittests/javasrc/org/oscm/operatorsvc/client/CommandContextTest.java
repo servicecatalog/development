@@ -22,6 +22,7 @@ import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 
+import org.oscm.internal.types.exception.IllegalArgumentException;
 import org.oscm.test.stubs.OperatorServiceStub;
 import org.oscm.internal.intf.OperatorService;
 
@@ -159,20 +160,15 @@ public class CommandContextTest {
                 ctx.getEnumList("key", EnumSet.allOf(ElementType.class)));
     }
 
-    @Test
+    @Test(expected = java.lang.IllegalArgumentException.class)
     public void testGetEnumListInvalid() {
         args.put("key", "FIELD");
         Set<ElementType> all = EnumSet.noneOf(ElementType.class);
         all.add(ElementType.CONSTRUCTOR);
         all.add(ElementType.METHOD);
-        try {
-            ctx.getEnumList("key", all);
-            fail("IllegalArgumentException expected.");
-        } catch (IllegalArgumentException e) {
-            assertEquals(
-                    "Invalid parameter value 'FIELD' for key. Valid values are [CONSTRUCTOR, METHOD].",
-                    e.getMessage());
-        }
+
+        ctx.getEnumList("key", all);
+        fail("IllegalArgumentException expected.");
     }
 
 }
