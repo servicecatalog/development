@@ -151,13 +151,23 @@
   </target>
 
   <target name="All.BUILD" description="Full delivery build. Everything with unit tests, java doc, deliverables zips and so on">
-    <setproxy proxyhost="${http.proxyHost}" proxyport="${http.proxyPort}" />
+    <antcall target="setProxy" />
     <ant antfile="ivy-build.xml" />
     <ant dir="${adm.ue.buildscript.dir}" antfile="${adm.ue.buildscript.file}" target="package" />
   </target>
 
-  <target name="AllComponents.BUILD" description="Build everything needed for development">
+  <target name="checkIfProxyHostSet">
+    <condition property="proxyHost.set">
+      <isset property="http.proxyHost" />
+    </condition>
+  </target>
+
+  <target name="setProxy" depends="checkIfProxyHostSet" if="proxyHost.set">
     <setproxy proxyhost="${http.proxyHost}" proxyport="${http.proxyPort}" />
+  </target>
+
+  <target name="AllComponents.BUILD" description="Build everything needed for development">
+    <antcall target="setProxy" />
     <ant antfile="ivy-build.xml" />
     <ant dir="${adm.ue.buildscript.dir}" antfile="${adm.ue.buildscript.file}" target="package">
       <property name="projects"

@@ -100,7 +100,6 @@ import org.oscm.interceptor.ExceptionMapper;
 import org.oscm.interceptor.InvocationDateContainer;
 import org.oscm.interceptor.LdapInterceptor;
 import org.oscm.internal.intf.AccountService;
-import org.oscm.internal.intf.MarketplaceService;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.types.enumtypes.ImageType;
 import org.oscm.internal.types.enumtypes.ImageType.ImageOwnerType;
@@ -144,7 +143,6 @@ import org.oscm.internal.vo.LdapProperties;
 import org.oscm.internal.vo.VOBillingContact;
 import org.oscm.internal.vo.VOImageResource;
 import org.oscm.internal.vo.VOLocalizedText;
-import org.oscm.internal.vo.VOMarketplace;
 import org.oscm.internal.vo.VOOrganization;
 import org.oscm.internal.vo.VOOrganizationPaymentConfiguration;
 import org.oscm.internal.vo.VOPaymentInfo;
@@ -157,6 +155,7 @@ import org.oscm.internal.vo.VOUdaDefinition;
 import org.oscm.internal.vo.VOUserDetails;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
+import org.oscm.marketplaceservice.local.MarketplaceServiceLocal;
 import org.oscm.paymentservice.local.PaymentServiceLocal;
 import org.oscm.permission.PermissionCheck;
 import org.oscm.serviceprovisioningservice.assembler.ProductAssembler;
@@ -233,8 +232,8 @@ public class AccountServiceBean implements AccountService, AccountServiceLocal {
     @EJB(beanInterface = MarketingPermissionServiceLocal.class)
     protected MarketingPermissionServiceLocal marketingPermissionService;
 
-    @EJB(beanInterface = MarketplaceService.class)
-    protected MarketplaceService marketplaceService;
+    @EJB(beanInterface = MarketplaceServiceLocal.class)
+    protected MarketplaceServiceLocal marketplaceService;
 
     @EJB
     SubscriptionAuditLogCollector subscriptionAuditLogCollector;
@@ -1107,19 +1106,18 @@ public class AccountServiceBean implements AccountService, AccountServiceLocal {
 
     private void grantAccessToTheMarketplace(String marketplaceId,
             Organization storedOrganization) throws ObjectNotFoundException,
-            ValidationException, NonUniqueBusinessKeyException {
+            NonUniqueBusinessKeyException {
 
         if (marketplaceId == null || "".equals(marketplaceId)) {
             return;
         }
 
-        VOMarketplace marketplace = marketplaceService
-                .getMarketplaceById(marketplaceId);
+        Marketplace marketplace = marketplaceService
+                .getMarketplaceForId(marketplaceId);
 
         if (marketplace.isRestricted()) {
             marketplaceService.grantAccessToMarketPlaceToOrganization(
-                    marketplace,
-                    OrganizationAssembler.toVOOrganization(storedOrganization));
+                    marketplace, storedOrganization);
         }
     }
 

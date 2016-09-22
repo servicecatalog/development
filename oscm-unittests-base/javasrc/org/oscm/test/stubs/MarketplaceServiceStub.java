@@ -215,9 +215,4 @@ public class MarketplaceServiceStub implements MarketplaceService {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    public void clearCachedMarketplaceConfiguration(String marketplaceId) {
-        throw new UnsupportedOperationException();
-    }
-
 }

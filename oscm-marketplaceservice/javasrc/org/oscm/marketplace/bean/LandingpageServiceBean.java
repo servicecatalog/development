@@ -57,6 +57,7 @@ import org.oscm.serviceprovisioningservice.assembler.ProductAssembler;
 import org.oscm.types.enumtypes.FillinCriterion;
 import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
 import org.oscm.validation.ArgumentValidator;
+import org.oscm.internal.intf.MarketplaceCacheService;
 import org.oscm.internal.types.enumtypes.PerformanceHint;
 import org.oscm.internal.types.enumtypes.ServiceStatus;
 import org.oscm.internal.types.exception.ConcurrentModificationException;
@@ -78,6 +79,9 @@ public class LandingpageServiceBean implements LandingpageServiceLocal {
 
     @EJB
     private LocalizerServiceLocal localizer;
+
+    @EJB
+    MarketplaceCacheService marketplaceCache;
 
     @Inject
     UserGroupServiceLocalBean userGroupService;
@@ -223,7 +227,7 @@ public class LandingpageServiceBean implements LandingpageServiceLocal {
         }
         dm.persist(dbLandingpage);
         dm.flush();
-
+        marketplaceCache.resetConfiguration(marketplace.getMarketplaceId());
         logger.logDebug("saveLandingpageConfig(VOLandingpage) exited");
     }
 
@@ -274,6 +278,7 @@ public class LandingpageServiceBean implements LandingpageServiceLocal {
         dm.persist(newLandingpage);
         marketplace.setEnterpiseLandingpage(newLandingpage);
 
+        marketplaceCache.resetConfiguration(marketplace.getMarketplaceId());
     }
 
     @Override
@@ -306,6 +311,7 @@ public class LandingpageServiceBean implements LandingpageServiceLocal {
         dm.persist(marketplace.getPublicLandingpage());
         dm.flush();
 
+        marketplaceCache.resetConfiguration(marketplace.getMarketplaceId());
         logger.logDebug("resetLandingPage(String) exited");
     }
 
