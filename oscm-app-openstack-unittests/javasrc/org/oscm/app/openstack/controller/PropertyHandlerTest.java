@@ -95,6 +95,13 @@ public class PropertyHandlerTest {
     }
 
     @Test()
+    public void testGetNoDomain() {
+        propertyHandler = new PropertyHandler(settings);
+        String domainName = propertyHandler.getDomainName();
+        assertEquals("", domainName);
+    }
+
+    @Test()
     public void testGetInstanceTenant() {
         parameters.put(PropertyHandler.TENANT_ID, "12345");
         configSettings.put(PropertyHandler.TENANT_ID, "23455");
