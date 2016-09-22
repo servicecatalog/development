@@ -48,6 +48,9 @@ public class PropertyHandler {
     // controller configuration)
     public static final String DOMAIN_NAME = "DOMAIN_NAME";
 
+    // Default name of Domain
+    private static final String DEFAULT_DOMAIN = "default";
+
     // URL of Heat template
     public static final String TEMPLATE_NAME = "TEMPLATE_NAME";
 
@@ -191,7 +194,7 @@ public class PropertyHandler {
         if (domain == null || domain.trim().length() == 0) {
             domain = settings.getConfigSettings().get(DOMAIN_NAME);
             if (domain == null) {
-                domain = "";
+                domain = DEFAULT_DOMAIN;
             }
         }
         return domain;
@@ -295,10 +298,8 @@ public class PropertyHandler {
         details.append(getKeystoneUrl());
         details.append("\t\r\nTenantID: ");
         details.append(getTenantId());
-        if (getDomainName().trim().length() != 0) {
-            details.append("\t\r\nDomainName: ");
-            details.append(getDomainName());
-        }
+        details.append("\t\r\nDomainName: ");
+        details.append(getDomainName());
         details.append("\t\r\nTemplateUrl: ");
         details.append(getTemplateUrl());
         details.append("\t\r\nAccessInfoPattern: ");

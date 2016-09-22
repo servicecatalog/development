@@ -95,10 +95,10 @@ public class PropertyHandlerTest {
     }
 
     @Test()
-    public void testGetNoDomain() {
+    public void testGetDefaultDomain() {
         propertyHandler = new PropertyHandler(settings);
         String domainName = propertyHandler.getDomainName();
-        assertEquals("", domainName);
+        assertEquals("default", domainName);
     }
 
     @Test()
