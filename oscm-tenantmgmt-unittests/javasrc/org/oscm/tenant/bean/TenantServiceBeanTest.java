@@ -136,7 +136,7 @@ public class TenantServiceBeanTest {
     public void testAddTenantSettings() throws ObjectNotFoundException, NonUniqueBusinessKeyException {
         //given
         VOTenant voTenant = TenantAssembler.toVOTenant(prepareTenant());
-        doNothing().when(tenantServiceBean).removeTenantIdpProperties(anyLong());
+        doNothing().when(tenantServiceBean).removeTenantSettings(anyLong());
         doNothing().when(tenantServiceLocal).saveTenantSetting(any(TenantSetting.class));
 
         //when
@@ -154,7 +154,7 @@ public class TenantServiceBeanTest {
         doNothing().when(tenantServiceLocal).removeTenantSetting(any(TenantSetting.class));
 
         //when
-        tenantServiceBean.removeTenantIdpProperties(1L);
+        tenantServiceBean.removeTenantSettings(1L);
 
         //then
         verify(tenantServiceLocal, times(1)).removeTenantSetting(any(TenantSetting.class));
@@ -167,7 +167,7 @@ public class TenantServiceBeanTest {
         doNothing().when(tenantServiceLocal).removeTenantSetting(any(TenantSetting.class));
 
         //when
-        tenantServiceBean.removeTenantIdpProperties(1L);
+        tenantServiceBean.removeTenantSettings(1L);
 
         //then
         verify(tenantServiceLocal, times(0)).removeTenantSetting(any(TenantSetting.class));

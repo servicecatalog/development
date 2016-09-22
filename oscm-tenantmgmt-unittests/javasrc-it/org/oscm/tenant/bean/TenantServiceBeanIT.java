@@ -279,7 +279,7 @@ public class TenantServiceBeanIT extends EJBTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws ObjectNotFoundException {
-                tenantService.removeTenantIdpProperties(123L);
+                tenantService.removeTenantSettings(123L);
                 return null;
             }
         });

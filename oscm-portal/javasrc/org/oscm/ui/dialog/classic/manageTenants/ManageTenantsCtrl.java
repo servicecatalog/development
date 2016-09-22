@@ -89,7 +89,7 @@ public class ManageTenantsCtrl extends BaseBean implements Serializable {
 
     public void setSelectedTenant() {
         POTenant poTenant = getSelectedTenant();
-        model.setClearExportAvailable(!manageTenantService.getTenantIdpSettings(poTenant.getKey()).isEmpty());
+        model.setClearExportAvailable(!manageTenantService.getTenantSettings(poTenant.getKey()).isEmpty());
         model.setSelectedTenant(poTenant);
         model.setTenantId(new FieldData<String>(poTenant.getTenantId(), true, true));
         model.setTenantDescription(new FieldData<String>(poTenant.getDescription(), false, false));
@@ -151,7 +151,7 @@ public class ManageTenantsCtrl extends BaseBean implements Serializable {
         for (POTenant poTenant : manageTenantService.getAllTenants()) {
             if (poTenant.getTenantId().equals(model.getSelectedTenantId())) {
                 model.setSelectedTenant(poTenant);
-                model.setClearExportAvailable(!manageTenantService.getTenantIdpSettings(poTenant.getKey()).isEmpty());
+                model.setClearExportAvailable(!manageTenantService.getTenantSettings(poTenant.getKey()).isEmpty());
                 model.setTenantIdp(new FieldData<>(poTenant.getIdp(), true, false));
                 model.setTenantId(new FieldData<>(poTenant.getTenantId(), true, false));
                 model.setDeleteDisabled(false);
@@ -188,7 +188,7 @@ public class ManageTenantsCtrl extends BaseBean implements Serializable {
         try {
             Properties propsToStore = PropertiesLoader.loadProperties(file
                 .getInputStream());
-            manageTenantService.setIdpSettingsForTenant(propsToStore, model.getSelectedTenantId());
+            manageTenantService.setTenantSettings(propsToStore, model.getSelectedTenantId());
             refreshModel();
         } catch (IOException e) {
             addMessage(null, FacesMessage.SEVERITY_ERROR, ERROR_UPLOAD);
@@ -201,7 +201,7 @@ public class ManageTenantsCtrl extends BaseBean implements Serializable {
 
     public String exportSettings() throws IOException {
 
-        Properties properties = manageTenantService.getTenantIdpSettings(model.getSelectedTenant().getKey());
+        Properties properties = manageTenantService.getTenantSettings(model.getSelectedTenant().getKey());
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try {
             properties.store(baos, null);
@@ -220,7 +220,7 @@ public class ManageTenantsCtrl extends BaseBean implements Serializable {
 
     public String clear() {
         try {
-            manageTenantService.removeTenantIdpSettings(model.getSelectedTenant().getKey());
+            manageTenantService.removeTenantSettings(model.getSelectedTenant().getKey());
             refreshModel();
         } catch (SaaSApplicationException e) {
             ui.handleException(e);

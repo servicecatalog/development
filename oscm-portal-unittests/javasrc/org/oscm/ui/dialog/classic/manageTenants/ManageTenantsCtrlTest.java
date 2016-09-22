@@ -51,7 +51,7 @@ public class ManageTenantsCtrlTest {
         //given
         POTenant selectedTenant = prepareTenant();
         when(manageTenantService.getTenantByTenantId(anyString())).thenReturn(selectedTenant);
-        when(manageTenantService.getTenantIdpSettings(selectedTenant.getKey())).thenReturn(new Properties());
+        when(manageTenantService.getTenantSettings(selectedTenant.getKey())).thenReturn(new Properties());
         //when
         ctrl.setSelectedTenant();
 
@@ -69,7 +69,7 @@ public class ManageTenantsCtrlTest {
         //given
         POTenant selectedTenant = prepareTenant();
         when(manageTenantService.getTenantByTenantId(anyString())).thenReturn(selectedTenant);
-        when(manageTenantService.getTenantIdpSettings(selectedTenant.getKey())).thenReturn(prepareProperties());
+        when(manageTenantService.getTenantSettings(selectedTenant.getKey())).thenReturn(prepareProperties());
         //when
         ctrl.setSelectedTenant();
 
@@ -150,7 +150,7 @@ public class ManageTenantsCtrlTest {
     public void testExportSettings() throws IOException {
         //given
         model.setSelectedTenant(prepareTenant());
-        doReturn(prepareProperties()).when(manageTenantService).getTenantIdpSettings(anyLong());
+        doReturn(prepareProperties()).when(manageTenantService).getTenantSettings(anyLong());
         doNothing().when(ctrl).writeSettings(any(byte[].class));
 
         //when

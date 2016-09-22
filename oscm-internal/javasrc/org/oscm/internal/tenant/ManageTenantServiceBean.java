@@ -12,18 +12,16 @@ import java.util.List;
 import java.util.Properties;
 
 import javax.annotation.security.RolesAllowed;
-import javax.ejb.*;
+import javax.ejb.EJB;
+import javax.ejb.Remote;
+import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 
 import org.oscm.interceptor.ExceptionMapper;
 import org.oscm.interceptor.InvocationDateContainer;
 import org.oscm.internal.intf.TenantService;
 import org.oscm.internal.types.enumtypes.IdpSettingType;
-import org.oscm.internal.types.exception.ConcurrentModificationException;
-import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.types.exception.TenantDeletionConstraintException;
-import org.oscm.internal.types.exception.ValidationException;
+import org.oscm.internal.types.exception.*;
 import org.oscm.internal.types.exception.ValidationException.ReasonEnum;
 import org.oscm.internal.vo.VOTenant;
 import org.oscm.internal.vo.VOTenantSetting;
@@ -73,7 +71,7 @@ public class ManageTenantServiceBean implements ManageTenantService {
     }
 
     @Override
-    public void setIdpSettingsForTenant(Properties properties, String tenantId)
+    public void setTenantSettings(Properties properties, String tenantId)
         throws ObjectNotFoundException, NonUniqueBusinessKeyException {
         VOTenant voTenant = tenantService.getTenantByTenantId(tenantId);
         List<VOTenantSetting> tenantSettings = new ArrayList<>();
@@ -97,7 +95,7 @@ public class ManageTenantServiceBean implements ManageTenantService {
     }
 
     @Override
-    public Properties getTenantIdpSettings(long tenantKey) {
+    public Properties getTenantSettings(long tenantKey) {
         Properties properties = new Properties();
         for (VOTenantSetting voTenantSetting : tenantService.getSettingsForTenant(tenantKey)) {
             properties.put(voTenantSetting.getName().name(), voTenantSetting.getValue());
@@ -106,8 +104,8 @@ public class ManageTenantServiceBean implements ManageTenantService {
     }
 
     @Override
-    public void removeTenantIdpSettings(long tenantKey) throws ObjectNotFoundException {
-        tenantService.removeTenantIdpProperties(tenantKey);
+    public void removeTenantSettings(long tenantKey) throws ObjectNotFoundException {
+        tenantService.removeTenantSettings(tenantKey);
     }
     
     @Override

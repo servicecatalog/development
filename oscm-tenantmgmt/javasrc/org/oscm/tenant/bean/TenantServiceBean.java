@@ -86,7 +86,7 @@ public class TenantServiceBean implements TenantService {
     @RolesAllowed("PLATFORM_OPERATOR")
     public void addTenantSettings(List<VOTenantSetting> tenantSettings, VOTenant voTenant) throws
         NonUniqueBusinessKeyException, ObjectNotFoundException {
-        removeTenantIdpProperties(voTenant.getKey());
+        removeTenantSettings(voTenant.getKey());
         for (VOTenantSetting voTenantSetting : tenantSettings) {
             tenantServiceLocal.saveTenantSetting(TenantAssembler.toTenantSetting(voTenantSetting));
         }
@@ -94,7 +94,7 @@ public class TenantServiceBean implements TenantService {
 
     @Override
     @RolesAllowed("PLATFORM_OPERATOR")
-    public void removeTenantIdpProperties(long key) throws ObjectNotFoundException {
+    public void removeTenantSettings(long key) throws ObjectNotFoundException {
         Tenant tenant = new Tenant();
         tenant.setKey(key);
         List<TenantSetting> settings = tenantServiceLocal.getAllTenantSettingsForTenant(tenant);
