@@ -193,6 +193,12 @@ public class MockURLStreamHandler extends URLStreamHandler {
             JSONArray resources = new JSONArray();
             response.put("resources", resources);
 
+            JSONObject volume = new JSONObject();
+            volume.put("resource_name", "sys-vol");
+            volume.put("physical_resource_id", "12345");
+            volume.put("resource_type", "OS::Cinder::Volume");
+            resources.put(volume);
+
             if (serverExists) {
                 JSONObject server = new JSONObject();
                 server.put("resource_name", "server");
