@@ -36,7 +36,7 @@ public class OpenStackControllerAccessTest extends ControllerAccessTest {
         List<String> controllerParameterKeys = new OpenStackControllerAccess()
                 .getControllerParameterKeys();
         assertNotNull(controllerParameterKeys);
-        assertEquals(5, controllerParameterKeys.size());
+        assertEquals(6, controllerParameterKeys.size());
     }
 
     @Test
