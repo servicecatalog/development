@@ -34,6 +34,16 @@ public class KeystoneClientTest {
     }
 
     @Test
+    public void authenticateWithNoDomain()
+            throws HeatException, APPlatformException {
+        // given
+
+        // when
+        new KeystoneClient(new OpenStackConnection("https://xyz.de/v3/auth"))
+                .authenticate("user", "password", "", "tenantId");
+    }
+
+    @Test
     public void authenticate_http_666()
             throws HeatException, APPlatformException {
         // given
