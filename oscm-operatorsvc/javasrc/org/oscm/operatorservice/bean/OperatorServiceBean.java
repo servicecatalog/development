@@ -89,6 +89,7 @@ public class OperatorServiceBean implements OperatorService {
     public static final int ORG_ID_INDEX = 3;
     public static final int STATUS_INDEX = 4;
     public static final int TKEY_INDEX = 5;
+    public static final int TKEY_INDEX_5 = 0;
 
     private static Log4jLogger logger = LoggerFactory
             .getLogger(OperatorServiceBean.class);
@@ -1099,7 +1100,7 @@ public class OperatorServiceBean implements OperatorService {
         VOUserDetails pu;
         for (Object[] cols : resultList) {
             pu = new VOUserDetails();
-            pu.setKey(((BigInteger) cols[TKEY_INDEX]).longValue());
+            pu.setKey(((BigInteger) cols[TKEY_INDEX_5]).longValue());
             pu.setUserId((String) cols[ID_INDEX]);
             pu.setFirstName((String) cols[FIRST_NAME_INDEX]);
             pu.setLastName((String) cols[LAST_NAME_INDEX]);
@@ -1124,7 +1125,7 @@ public class OperatorServiceBean implements OperatorService {
         VOUserDetails pu;
         for (Object[] cols : resultList) {
             pu = new VOUserDetails();
-            pu.setKey(((BigInteger) cols[TKEY_INDEX]).longValue());
+            pu.setKey(((BigInteger) cols[TKEY_INDEX_5]).longValue());
             pu.setUserId((String) cols[ID_INDEX]);
             pu.setFirstName((String) cols[FIRST_NAME_INDEX]);
             pu.setLastName((String) cols[LAST_NAME_INDEX]);
