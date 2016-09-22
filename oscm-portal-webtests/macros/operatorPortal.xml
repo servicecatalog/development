@@ -232,7 +232,7 @@
       <clickLink href="/operator/manageUsers.jsf" />
       <verifyElementText htmlId="pagelabel" text="${operator.manageUsers.title}" />
       <setInputField htmlId="manageUsers:manageUsersListTable:userIdInput" value="@{userId}" />
-      <clickElement xpath="//*[@id='manageUsers:manageUsersListTable:0']/td[1]" />
+      <clickElement xpath="//*[@id='manageUsers:manageUsersListTable:0']" />
       <common.ignorePageScriptError/>
       <clickElement htmlId="manageUsers:lockUser" />
       <common.verifySuccess label="${operator.task.successful}" />
@@ -249,7 +249,7 @@
       <clickLink href="/operator/manageUsers.jsf" />
       <verifyElementText htmlId="pagelabel" text="${operator.manageUsers.title}" />
       <setInputField htmlId="manageUsers:manageUsersListTable:userIdInput" value="@{userId}" />
-      <clickElement xpath="//*[@id='manageUsers:manageUsersListTable:0']/td[1]" />
+      <clickElement xpath="//*[@id='manageUsers:manageUsersListTable:0']" />
       <common.ignorePageScriptError/>
       <clickElement htmlId="manageUsers:unlockUser" />
       <common.verifySuccess label="${operator.task.successful}" />
@@ -266,7 +266,7 @@
       <clickLink href="/operator/manageUsers.jsf" />
       <verifyElementText htmlId="pagelabel" text="${operator.manageUsers.title}" />
       <setInputField htmlId="manageUsers:manageUsersListTable:userIdInput" value="@{userId}" />
-      <clickElement xpath="//*[@id='manageUsers:manageUsersListTable:0']/td[1]" />
+      <clickElement xpath="//*[@id='manageUsers:manageUsersListTable:0']" />
       <clickElement htmlId="manageUsers:resetPassword" />
       <common.verifySuccess label="${operator.task.successful}" />
       <login.logout />
