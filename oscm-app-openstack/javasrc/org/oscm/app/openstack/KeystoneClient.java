@@ -85,6 +85,10 @@ public class KeystoneClient {
             // this can basically not happen with string parameters
             throw new RuntimeException(e);
         }
+        LOGGER.debug("URL is " + uri + " request is "
+                + request.toString().replaceFirst(
+                        "\"password\":\"" + password + "\"",
+                        "\"password\":\"******\""));
         RESTResponse response = connection.processRequest(uri, "POST",
                 request.toString());
 
