@@ -193,7 +193,7 @@ public class PropertyHandler {
         String domain = settings.getParameters().get(DOMAIN_NAME);
         if (domain == null || domain.trim().length() == 0) {
             domain = settings.getConfigSettings().get(DOMAIN_NAME);
-            if (domain == null) {
+            if (domain == null || domain.trim().length() == 0) {
                 domain = DEFAULT_DOMAIN;
             }
         }
