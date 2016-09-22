@@ -61,15 +61,17 @@ public class KeystoneClient {
         JSONObject request = new JSONObject();
         JSONObject auth = new JSONObject();
         JSONObject identity = new JSONObject();
-        JSONObject domain = new JSONObject();
         JSONObject userName = new JSONObject();
         JSONObject passwordInfo = new JSONObject();
         JSONObject projectId = new JSONObject();
         JSONObject project = new JSONObject();
         JSONArray methodArray = new JSONArray();
         try {
-            domain.put("name", domainName);
-            userName.put("domain", domain);
+            if(domainName.trim().length() != 0){
+              JSONObject domain = new JSONObject();
+              domain.put("name", domainName);
+              userName.put("domain", domain);
+            }
             userName.put("name", user);
             userName.put("password", password);
             methodArray.put("password");

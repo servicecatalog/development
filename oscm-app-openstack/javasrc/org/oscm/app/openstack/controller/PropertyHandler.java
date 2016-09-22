@@ -189,8 +189,10 @@ public class PropertyHandler {
     public String getDomainName() {
         String domain = settings.getParameters().get(DOMAIN_NAME);
         if (domain == null || domain.trim().length() == 0) {
-            domain = getValidatedProperty(settings.getConfigSettings(),
-                    DOMAIN_NAME);
+            domain = settings.getConfigSettings().get(DOMAIN_NAME);
+            if (domain == null) {
+                domain = "";
+            }
         }
         return domain;
     }
@@ -293,8 +295,10 @@ public class PropertyHandler {
         details.append(getKeystoneUrl());
         details.append("\t\r\nTenantID: ");
         details.append(getTenantId());
-        details.append("\t\r\nDomainName: ");
-        details.append(getDomainName());
+        if (getDomainName().trim().length() != 0) {
+            details.append("\t\r\nDomainName: ");
+            details.append(getDomainName());
+        }
         details.append("\t\r\nTemplateUrl: ");
         details.append(getTemplateUrl());
         details.append("\t\r\nAccessInfoPattern: ");
