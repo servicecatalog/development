@@ -31,7 +31,8 @@ import com.sun.jersey.api.core.InjectParam;
 @Stateless
 public class TechnicalServiceResource extends RestResource {
 
-    TechnicalServiceBackend tsb = new TechnicalServiceBackend();
+    @EJB
+    TechnicalServiceBackend tsb;
 
     @EJB
     ServiceProvisioningService sps;
@@ -41,7 +42,7 @@ public class TechnicalServiceResource extends RestResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getTechnicalServices(@Context Request request, @InjectParam ServiceParameters params)
             throws Exception {
-        return getCollection(request, tsb, params);
+        return getCollection(request, tsb.getCollection(), params);
     }
 
     @Since(CommonParams.VERSION_1)
@@ -50,7 +51,7 @@ public class TechnicalServiceResource extends RestResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response createTechnicalService(@Context Request request, TechnicalServiceRepresentation content,
             @InjectParam ServiceParameters params) throws Exception {
-        return post(request, tsb, content, params);
+        return post(request, tsb.post(), content, params);
     }
 
     @Since(CommonParams.VERSION_1)
@@ -59,7 +60,7 @@ public class TechnicalServiceResource extends RestResource {
     @Path(CommonParams.PATH_ID)
     public Response deleteTechnicalService(@Context Request request, @InjectParam ServiceParameters params)
             throws Exception {
-        return delete(request, tsb, params);
+        return delete(request, tsb.delete(), params);
     }
 
     @Since(CommonParams.VERSION_1)
