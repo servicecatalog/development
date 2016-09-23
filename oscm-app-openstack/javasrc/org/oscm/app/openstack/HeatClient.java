@@ -178,7 +178,12 @@ public class HeatClient {
             JSONArray resources = responseJson.getJSONArray("resources");
             for (int i = 0; i < resources.length(); i++) {
                 JSONObject resource = resources.getJSONObject(i);
-                switch (getInstanceType(resource.optString("resource_type"))) {
+                InstanceType type = getInstanceType(
+                        resource.optString("resource_type"));
+                if (type == null) {
+                    continue;
+                }
+                switch (type) {
                 case NOVA:
                 case EC2:
                 case TROVE:

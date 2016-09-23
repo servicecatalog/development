@@ -95,10 +95,17 @@ public class PropertyHandlerTest {
     }
 
     @Test()
-    public void testGetNoDomain() {
+    public void testGetDefaultDomain() {
+        // controller setting and property setting are empty
         propertyHandler = new PropertyHandler(settings);
-        String domainName = propertyHandler.getDomainName();
-        assertEquals("", domainName);
+        String domainNameWithNull = propertyHandler.getDomainName();
+        assertEquals("default", domainNameWithNull);
+
+        // controller setting is ""
+        configSettings.put(PropertyHandler.DOMAIN_NAME, "");
+        propertyHandler = new PropertyHandler(settings);
+        String domainNameWithEmptyStr = propertyHandler.getDomainName();
+        assertEquals("default", domainNameWithEmptyStr);
     }
 
     @Test()

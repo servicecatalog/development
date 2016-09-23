@@ -61,17 +61,15 @@ public class KeystoneClient {
         JSONObject request = new JSONObject();
         JSONObject auth = new JSONObject();
         JSONObject identity = new JSONObject();
+        JSONObject domain = new JSONObject();
         JSONObject userName = new JSONObject();
         JSONObject passwordInfo = new JSONObject();
         JSONObject projectId = new JSONObject();
         JSONObject project = new JSONObject();
         JSONArray methodArray = new JSONArray();
         try {
-            if(domainName.trim().length() != 0){
-              JSONObject domain = new JSONObject();
-              domain.put("name", domainName);
-              userName.put("domain", domain);
-            }
+            domain.put("name", domainName);
+            userName.put("domain", domain);
             userName.put("name", user);
             userName.put("password", password);
             methodArray.put("password");
@@ -87,7 +85,10 @@ public class KeystoneClient {
             // this can basically not happen with string parameters
             throw new RuntimeException(e);
         }
-        LOGGER.debug("URL is " + uri + " request is " + request.toString());
+        LOGGER.debug("URL is " + uri + " request is "
+                + request.toString().replaceFirst(
+                        "\"password\":\"" + password + "\"",
+                        "\"password\":\"******\""));
         RESTResponse response = connection.processRequest(uri, "POST",
                 request.toString());
 
@@ -99,7 +100,6 @@ public class KeystoneClient {
 
         String body = response.getResponseBody();
         String authToken = response.getToken();
-        LOGGER.debug("body: " + body + " authToken: " + authToken);
         try {
             String heatEndpoint = null;
             String novaEndpoint = null;
