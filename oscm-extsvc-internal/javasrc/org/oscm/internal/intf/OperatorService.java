@@ -686,7 +686,25 @@ public interface OperatorService {
      * @param organizationKey
      * @return
      */
-    List<VOUserDetails> getUnassignedUsersByOrg(Long subscriptionKey,
-            Long organizationKey);
+    List<VOUserDetails> getUnassignedUsersByOrg(Long subscriptionKey, Long organizationKey);
+
+    /**
+     * Delegate to delete a setting by its key
+     * 
+     * @param key
+     *            the technical key
+     * @throws ObjectNotFoundException
+     */
+    void deleteConfigurationSetting(Long key) throws ObjectNotFoundException;
+
+    /**
+     * Delegate to get a setting by its key
+     * 
+     * @param key
+     *            the technical key
+     * @return the setting
+     * @throws ObjectNotFoundException
+     */
+    VOConfigurationSetting getConfigurationSetting(Long key) throws ObjectNotFoundException;
 
 }

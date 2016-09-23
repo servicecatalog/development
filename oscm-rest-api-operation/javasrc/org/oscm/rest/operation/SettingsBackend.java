@@ -1,22 +1,19 @@
 package org.oscm.rest.operation;
 
-import javax.annotation.security.RolesAllowed;
+import java.util.List;
+
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
-import org.oscm.configurationservice.local.ConfigurationServiceLocal;
-import org.oscm.dataservice.local.DataService;
-import org.oscm.domobjects.ConfigurationSetting;
 import org.oscm.internal.intf.ConfigurationService;
 import org.oscm.internal.intf.OperatorService;
 import org.oscm.internal.vo.VOConfigurationSetting;
+import org.oscm.rest.common.RepresentationCollection;
 import org.oscm.rest.common.RestBackend;
 import org.oscm.rest.operation.data.SettingRepresentation;
 
 @Stateless
-public class SettingsBackend implements RestBackend.Get<SettingRepresentation, OperationParameters>,
-        RestBackend.Put<SettingRepresentation, OperationParameters>,
-        RestBackend.Post<SettingRepresentation, OperationParameters>, RestBackend.Delete<OperationParameters> {
+public class SettingsBackend {
 
     @EJB
     OperatorService os;
@@ -24,40 +21,59 @@ public class SettingsBackend implements RestBackend.Get<SettingRepresentation, O
     @EJB
     ConfigurationService cs;
 
-    @EJB(beanInterface = ConfigurationServiceLocal.class)
-    ConfigurationServiceLocal csl;
+    public RestBackend.Delete<OperationParameters> delete() throws Exception {
+        return new RestBackend.Delete<OperationParameters>() {
 
-    @EJB(beanInterface = DataService.class)
-    DataService dm;
-
-    @Override
-    @RolesAllowed("PLATFORM_OPERATOR")
-    public void delete(OperationParameters params) throws Exception {
-        ConfigurationSetting s = dm.getReference(ConfigurationSetting.class, params.getId());
-        s.setValue(null);
-        csl.setConfigurationSetting(s);
+            @Override
+            public void delete(OperationParameters params) throws Exception {
+                os.deleteConfigurationSetting(params.getId());
+            }
+        };
     }
 
-    @Override
-    @RolesAllowed("PLATFORM_OPERATOR")
-    public Object post(SettingRepresentation content, OperationParameters params) throws Exception {
-        os.saveConfigurationSetting(content.getVO());
-        VOConfigurationSetting vo = cs.getVOConfigurationSetting(content.getInformationId(), content.getContextId());
-        return Long.valueOf(vo.getKey());
+    public RestBackend.Post<SettingRepresentation, OperationParameters> post() throws Exception {
+        return new RestBackend.Post<SettingRepresentation, OperationParameters>() {
+
+            @Override
+            public Object post(SettingRepresentation content, OperationParameters params) throws Exception {
+                os.saveConfigurationSetting(content.getVO());
+                VOConfigurationSetting vo = cs.getVOConfigurationSetting(content.getInformationId(),
+                        content.getContextId());
+                return Long.valueOf(vo.getKey());
+            }
+        };
     }
 
-    @Override
-    @RolesAllowed("PLATFORM_OPERATOR")
-    public void put(SettingRepresentation content, OperationParameters params) throws Exception {
-        os.saveConfigurationSetting(content.getVO());
+    public RestBackend.Put<SettingRepresentation, OperationParameters> put() throws Exception {
+        return new RestBackend.Put<SettingRepresentation, OperationParameters>() {
+
+            @Override
+            public void put(SettingRepresentation content, OperationParameters params) throws Exception {
+                os.saveConfigurationSetting(content.getVO());
+            }
+        };
     }
 
-    @Override
-    @RolesAllowed("PLATFORM_OPERATOR")
-    public SettingRepresentation get(OperationParameters params) throws Exception {
-        ConfigurationSetting s = dm.getReference(ConfigurationSetting.class, params.getId());
-        VOConfigurationSetting vo = cs.getVOConfigurationSetting(s.getInformationId(), s.getContextId());
-        return new SettingRepresentation(vo);
+    public RestBackend.Get<SettingRepresentation, OperationParameters> get() throws Exception {
+        return new RestBackend.Get<SettingRepresentation, OperationParameters>() {
+
+            @Override
+            public SettingRepresentation get(OperationParameters params) throws Exception {
+                VOConfigurationSetting vo = os.getConfigurationSetting(params.getId());
+                return new SettingRepresentation(vo);
+            }
+        };
     }
 
+    public RestBackend.GetCollection<SettingRepresentation, OperationParameters> getCollection() {
+        return new RestBackend.GetCollection<SettingRepresentation, OperationParameters>() {
+
+            @Override
+            public RepresentationCollection<SettingRepresentation> getCollection(OperationParameters params)
+                    throws Exception {
+                List<VOConfigurationSetting> settings = os.getConfigurationSettings();
+                return SettingRepresentation.toCollection(settings);
+            }
+        };
+    }
 }

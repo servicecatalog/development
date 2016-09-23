@@ -1489,4 +1489,19 @@ public class OperatorServiceBean implements OperatorService {
         return resultCsv;
     }
 
+    @Override
+    @RolesAllowed("PLATFORM_OPERATOR")
+    public void deleteConfigurationSetting(Long key) throws ObjectNotFoundException {
+        ConfigurationSetting cs = dm.getReference(ConfigurationSetting.class, key);
+        cs.setValue(null);
+        configService.setConfigurationSetting(cs);
+    }
+
+    @Override
+    @RolesAllowed("PLATFORM_OPERATOR")
+    public VOConfigurationSetting getConfigurationSetting(Long key) throws ObjectNotFoundException {
+        ConfigurationSetting cs = dm.getReference(ConfigurationSetting.class, key);
+        return ConfigurationSettingAssembler.toValueObject(cs);
+    }
+
 }
