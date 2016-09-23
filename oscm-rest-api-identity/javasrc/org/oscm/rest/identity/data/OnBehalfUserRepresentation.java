@@ -17,7 +17,7 @@ public class OnBehalfUserRepresentation extends Representation {
     public OnBehalfUserRepresentation(VOUserDetails vo) {
         setId(Long.valueOf(vo.getKey()));
         setOrganizationId(vo.getOrganizationId());
-        setTag(String.valueOf(vo.getVersion()));
+        setETag(Long.valueOf(vo.getVersion()));
         setUserId(vo.getUserId());
     }
 
