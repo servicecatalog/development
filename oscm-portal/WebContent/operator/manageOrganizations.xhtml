@@ -174,10 +174,10 @@
           <adm:labelAndSelect id="tenant" label="#{msg['organization.tenant']}"
                               value="#{selectedOrg.tenantKey}"
                               rendered="#{operatorOrgBean.tenantSelectionAvailable}"
-                              listenerBean="#{operatorOrgBean}"
-                              oncomplete="AdmUtils.setUIElements();" disabled="#{!orgSelected}">
+                              oncomplete="AdmUtils.setUIElements();" disabled="#{!orgSelected}" required="false">
             <adm:selectItemPleaseSelect itemValue="0" />
             <f:selectItems value="#{operatorOrgBean.selectableTenants}" />
+            <f:validator validatorId="TenantValidator" />
           </adm:labelAndSelect>
           
         </adm:panelGrid>

@@ -62,6 +62,8 @@ public interface TenantService {
      * @throws TenantDeletionConstraintException if tenant is being used by organization or marketplace
      */
     void removeTenant(VOTenant voTenant) throws ObjectNotFoundException, TenantDeletionConstraintException;
+    
+    VOTenant getTenantByKey(long key) throws ObjectNotFoundException;
 
     /**
      * Persists tenant IDP settings.

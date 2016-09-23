@@ -154,6 +154,7 @@
                               oncomplete="AdmUtils.setUIElements();">
             <adm:selectItemPleaseSelect itemValue="" />
             <f:selectItems value="#{operatorOrgBean.selectableTenants}" />
+            <f:validator validatorId="TenantValidator" />
           </adm:labelAndSelect>
 
           <adm:labelAndSelect id="marketplace" label="#{msg['service.marketplace']}"
