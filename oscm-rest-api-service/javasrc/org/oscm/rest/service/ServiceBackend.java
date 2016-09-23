@@ -3,12 +3,8 @@ package org.oscm.rest.service;
 import java.util.List;
 
 import javax.ejb.EJB;
-import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 
-import org.oscm.domobjects.Product;
 import org.oscm.internal.intf.ServiceProvisioningService;
 import org.oscm.internal.types.exception.DomainObjectException.ClassEnum;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
@@ -20,55 +16,70 @@ import org.oscm.rest.service.data.ServiceDetailsRepresentation;
 import org.oscm.rest.service.data.ServiceRepresentation;
 
 @Stateless
-@LocalBean
-public class ServiceBackend implements RestBackend.Get<ServiceDetailsRepresentation, ServiceParameters>,
-        RestBackend.Put<ServiceDetailsRepresentation, ServiceParameters>,
-        RestBackend.Post<ServiceDetailsRepresentation, ServiceParameters>, RestBackend.Delete<ServiceParameters>,
-        RestBackend.GetCollection<ServiceRepresentation, ServiceParameters> {
+public class ServiceBackend {
 
     @EJB
     ServiceProvisioningService sps;
 
-    @PersistenceContext(name = "persistence/em", unitName = "oscm-domainobjects")
-    protected EntityManager em;
+    public RestBackend.Delete<ServiceParameters> delete() {
+        return new RestBackend.Delete<ServiceParameters>() {
 
-    @Override
-    public void delete(ServiceParameters params) throws Exception {
-        Product p = em.getReference(Product.class, params.getId().longValue());
-        VOService vo = new VOService();
-        vo.setKey(params.getId().longValue());
-        vo.setVersion(p.getVersion());
-        sps.deleteService(vo);
+            @Override
+            public void delete(ServiceParameters params) throws Exception {
+                sps.deleteService(params.getId());
+            }
+        };
     }
 
-    @Override
-    public Object post(ServiceDetailsRepresentation content, ServiceParameters params) throws Exception {
-        // image will be handled in separate URL
-        VOServiceDetails vo = sps.createService(content.getTechnicalService().getVO(), content.getVO(), null);
-        return Long.valueOf(vo.getKey());
+    public RestBackend.Post<ServiceDetailsRepresentation, ServiceParameters> post() {
+        return new RestBackend.Post<ServiceDetailsRepresentation, ServiceParameters>() {
+
+            @Override
+            public Object post(ServiceDetailsRepresentation content, ServiceParameters params) throws Exception {
+                // image will be handled in separate URL
+                VOServiceDetails vo = sps.createService(content.getTechnicalService().getVO(), content.getVO(), null);
+                return Long.valueOf(vo.getKey());
+            }
+        };
     }
 
-    @Override
-    public void put(ServiceDetailsRepresentation content, ServiceParameters params) throws Exception {
-        // image will be handled in separate URL
-        sps.updateService(content.getVO(), null);
+    public RestBackend.Put<ServiceDetailsRepresentation, ServiceParameters> put() {
+        return new RestBackend.Put<ServiceDetailsRepresentation, ServiceParameters>() {
+
+            @Override
+            public void put(ServiceDetailsRepresentation content, ServiceParameters params) throws Exception {
+                // image will be handled in separate URL
+                sps.updateService(content.getVO(), null);
+            }
+        };
     }
 
-    @Override
-    public ServiceDetailsRepresentation get(ServiceParameters params) throws Exception {
-        VOService vo = new VOService();
-        vo.setKey(params.getId().longValue());
-        VOServiceDetails sd = sps.getServiceDetails(vo);
-        if (sd == null) {
-            throw new ObjectNotFoundException(ClassEnum.SERVICE, String.valueOf(vo.getKey()));
-        }
-        return new ServiceDetailsRepresentation(sd);
+    public RestBackend.Get<ServiceDetailsRepresentation, ServiceParameters> get() {
+        return new RestBackend.Get<ServiceDetailsRepresentation, ServiceParameters>() {
+
+            @Override
+            public ServiceDetailsRepresentation get(ServiceParameters params) throws Exception {
+                VOService vo = new VOService();
+                vo.setKey(params.getId().longValue());
+                VOServiceDetails sd = sps.getServiceDetails(vo);
+                if (sd == null) {
+                    throw new ObjectNotFoundException(ClassEnum.SERVICE, String.valueOf(vo.getKey()));
+                }
+                return new ServiceDetailsRepresentation(sd);
+            }
+        };
     }
 
-    @Override
-    public RepresentationCollection<ServiceRepresentation> getCollection(ServiceParameters params) throws Exception {
-        List<VOService> list = sps.getSuppliedServices();
-        return new RepresentationCollection<ServiceRepresentation>(ServiceRepresentation.toCollection(list));
+    public RestBackend.GetCollection<ServiceRepresentation, ServiceParameters> getCollection() {
+        return new RestBackend.GetCollection<ServiceRepresentation, ServiceParameters>() {
+
+            @Override
+            public RepresentationCollection<ServiceRepresentation> getCollection(ServiceParameters params)
+                    throws Exception {
+                List<VOService> list = sps.getSuppliedServices();
+                return new RepresentationCollection<ServiceRepresentation>(ServiceRepresentation.toCollection(list));
+            }
+        };
     }
 
 }
