@@ -289,6 +289,7 @@ public class MockService implements IdentityService, SubscriptionService,
     VOVatRate defaultVat;
 
     VOFinder<VOSubscription> subscriptionFinder = new VOFinder<VOSubscription>() {
+
         @Override
         public String getId(VOSubscription element) {
             return element.getSubscriptionId();
@@ -296,6 +297,7 @@ public class MockService implements IdentityService, SubscriptionService,
     };
 
     VOFinder<VOUserDetails> userFinder = new VOFinder<VOUserDetails>() {
+
         @Override
         public String getId(VOUserDetails element) {
             return element.getUserId();
@@ -713,6 +715,7 @@ public class MockService implements IdentityService, SubscriptionService,
 
     private VOOrganization getOrganizationById(String organizationId) {
         VOFinder<VOOrganization> organizationFinder = new VOFinder<VOOrganization>() {
+
             @Override
             public String getId(VOOrganization element) {
                 return element.getOrganizationId();
@@ -2793,4 +2796,14 @@ public class MockService implements IdentityService, SubscriptionService,
         return null;
     }
 
+    public void deleteService(Long key) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void deleteTechnicalService(Long key) {
+        // TODO Auto-generated method stub
+
+    }
 }
