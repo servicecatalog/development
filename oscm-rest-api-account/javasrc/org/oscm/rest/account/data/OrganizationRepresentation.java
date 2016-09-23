@@ -47,8 +47,8 @@ public class OrganizationRepresentation extends Representation {
         voOrg.setOrganizationId(organizationId);
         voOrg.setPhone(phone);
         voOrg.setSupportEmail(supportEmail);
-        if (getTag() != null) {
-            voOrg.setVersion(Integer.parseInt(getTag()));
+        if (getETag() != null) {
+            voOrg.setVersion(getETag().intValue());
         }
         voOrg.setUrl(url);
     }
@@ -65,7 +65,7 @@ public class OrganizationRepresentation extends Representation {
         setOrganizationId(voOrg.getOrganizationId());
         setPhone(voOrg.getPhone());
         setSupportEmail(voOrg.getSupportEmail());
-        setTag(String.valueOf(voOrg.getVersion()));
+        setETag(Long.valueOf(voOrg.getVersion()));
         setUrl(voOrg.getUrl());
     }
 

@@ -51,8 +51,8 @@ public class UserRepresentation extends Representation {
         ud.setRealmUserId(getRealmUserId());
         ud.setSalutation(getSalutation());
         ud.setUserId(getUserId());
-        if (getTag() != null) {
-            ud.setVersion(Integer.parseInt(getTag()));
+        if (getETag() != null) {
+            ud.setVersion(getETag().intValue());
         }
     }
 
@@ -69,7 +69,7 @@ public class UserRepresentation extends Representation {
         setPhone(ud.getPhone());
         setRealmUserId(ud.getRealmUserId());
         setSalutation(ud.getSalutation());
-        setTag(String.valueOf(ud.getVersion()));
+        setETag(Long.valueOf(ud.getVersion()));
         setUserId(ud.getUserId());
     }
 

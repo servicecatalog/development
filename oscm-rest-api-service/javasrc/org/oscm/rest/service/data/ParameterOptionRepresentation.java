@@ -34,8 +34,8 @@ public class ParameterOptionRepresentation extends Representation {
         vo.setOptionDescription(optionDescription);
         vo.setOptionId(optionId);
         vo.setParamDefId(paramDefId);
-        if (getTag() != null) {
-            vo.setVersion(Integer.parseInt(getTag()));
+        if (getETag() != null) {
+            vo.setVersion(getETag().intValue());
         }
     }
 
@@ -44,7 +44,7 @@ public class ParameterOptionRepresentation extends Representation {
         setId(Long.valueOf(vo.getKey()));
         setOptionDescription(vo.getOptionDescription());
         setOptionId(vo.getOptionId());
-        setTag(String.valueOf(vo.getVersion()));
+        setETag(Long.valueOf(vo.getVersion()));
         setParamDefId(vo.getParamDefId());
     }
 

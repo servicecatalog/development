@@ -33,14 +33,14 @@ public class UserRepresentation extends Representation {
     private Set<OrganizationRoleType> organizationRoles = new HashSet<OrganizationRoleType>();
     private Set<UserRoleType> userRoles = new HashSet<UserRoleType>();
 
-    transient VOUserDetails ud;
+    transient VOUserDetails vo;
 
     public UserRepresentation() {
         this(new VOUserDetails());
     }
 
     public UserRepresentation(VOUserDetails details) {
-        ud = details;
+        vo = details;
     }
 
     @Override
@@ -50,48 +50,48 @@ public class UserRepresentation extends Representation {
 
     @Override
     public void update() {
-        ud.setAdditionalName(getAdditionalName());
-        ud.setAddress(getAddress());
-        ud.setEMail(getEmail());
-        ud.setFirstName(getFirstName());
+        vo.setAdditionalName(getAdditionalName());
+        vo.setAddress(getAddress());
+        vo.setEMail(getEmail());
+        vo.setFirstName(getFirstName());
         if (getId() != null) {
-            ud.setKey(getId().longValue());
+            vo.setKey(getId().longValue());
         }
-        ud.setLastName(getLastName());
-        ud.setLocale(getLocale());
-        ud.setOrganizationId(getOrganizationId());
-        ud.setOrganizationRoles(getOrganizationRoles());
-        ud.setPhone(getPhone());
-        ud.setRealmUserId(getRealmUserId());
-        ud.setRemoteLdapActive(isRemoteLdapActive());
-        ud.setSalutation(getSalutation());
-        ud.setStatus(getStatus());
-        ud.setUserId(getUserId());
-        ud.setUserRoles(getUserRoles());
-        if (getTag() != null) {
-            ud.setVersion(Integer.parseInt(getTag()));
+        vo.setLastName(getLastName());
+        vo.setLocale(getLocale());
+        vo.setOrganizationId(getOrganizationId());
+        vo.setOrganizationRoles(getOrganizationRoles());
+        vo.setPhone(getPhone());
+        vo.setRealmUserId(getRealmUserId());
+        vo.setRemoteLdapActive(isRemoteLdapActive());
+        vo.setSalutation(getSalutation());
+        vo.setStatus(getStatus());
+        vo.setUserId(getUserId());
+        vo.setUserRoles(getUserRoles());
+        if (getETag() != null) {
+            vo.setVersion(getETag().intValue());
         }
     }
 
     @Override
     public void convert() {
-        setAdditionalName(ud.getAdditionalName());
-        setAddress(ud.getAddress());
-        setEmail(ud.getEMail());
-        setFirstName(ud.getFirstName());
-        setId(Long.valueOf(ud.getKey()));
-        setLastName(ud.getLastName());
-        setLocale(ud.getLocale());
-        setOrganizationId(ud.getOrganizationId());
-        setOrganizationRoles(ud.getOrganizationRoles());
-        setPhone(ud.getPhone());
-        setRealmUserId(ud.getRealmUserId());
-        setRemoteLdapActive(ud.isRemoteLdapActive());
-        setSalutation(ud.getSalutation());
-        setStatus(ud.getStatus());
-        setTag(String.valueOf(ud.getVersion()));
-        setUserId(ud.getUserId());
-        setUserRoles(ud.getUserRoles());
+        setAdditionalName(vo.getAdditionalName());
+        setAddress(vo.getAddress());
+        setEmail(vo.getEMail());
+        setFirstName(vo.getFirstName());
+        setId(Long.valueOf(vo.getKey()));
+        setLastName(vo.getLastName());
+        setLocale(vo.getLocale());
+        setOrganizationId(vo.getOrganizationId());
+        setOrganizationRoles(vo.getOrganizationRoles());
+        setPhone(vo.getPhone());
+        setRealmUserId(vo.getRealmUserId());
+        setRemoteLdapActive(vo.isRemoteLdapActive());
+        setSalutation(vo.getSalutation());
+        setStatus(vo.getStatus());
+        setETag(Long.valueOf(vo.getVersion()));
+        setUserId(vo.getUserId());
+        setUserRoles(vo.getUserRoles());
     }
 
     public String getOrganizationId() {
@@ -215,7 +215,7 @@ public class UserRepresentation extends Representation {
     }
 
     public VOUserDetails getVO() {
-        return ud;
+        return vo;
     }
 
     public static final Collection<UserRepresentation> convert(List<VOUserDetails> list) {

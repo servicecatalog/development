@@ -39,8 +39,8 @@ public class OperationParameterRepresentation extends Representation {
         vo.setParameterName(parameterName);
         vo.setParameterValue(parameterValue);
         vo.setType(type);
-        if (getTag() != null) {
-            vo.setVersion(Integer.parseInt(getTag()));
+        if (getETag() != null) {
+            vo.setVersion(getETag().intValue());
         }
     }
 
@@ -51,7 +51,7 @@ public class OperationParameterRepresentation extends Representation {
         setParameterId(vo.getParameterId());
         setParameterName(vo.getParameterName());
         setParameterValue(vo.getParameterValue());
-        setTag(String.valueOf(vo.getVersion()));
+        setETag(Long.valueOf(vo.getVersion()));
         setType(vo.getType());
     }
 
