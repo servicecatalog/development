@@ -1,5 +1,6 @@
 package org.oscm.rest.service;
 
+import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -23,13 +24,14 @@ import com.sun.jersey.api.core.InjectParam;
 @Stateless
 public class ServiceResource extends RestResource {
 
-    ServiceBackend sb = new ServiceBackend();
+    @EJB
+    ServiceBackend sb;
 
     @Since(CommonParams.VERSION_1)
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getServices(@Context Request request, @InjectParam ServiceParameters params) throws Exception {
-        return getCollection(request, sb, params);
+        return getCollection(request, sb.getCollection(), params);
     }
 
     @Since(CommonParams.VERSION_1)
@@ -37,7 +39,7 @@ public class ServiceResource extends RestResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response createService(@Context Request request, ServiceDetailsRepresentation content,
             @InjectParam ServiceParameters params) throws Exception {
-        return post(request, sb, content, params);
+        return post(request, sb.post(), content, params);
     }
 
     @Since(CommonParams.VERSION_1)
@@ -45,7 +47,7 @@ public class ServiceResource extends RestResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path(CommonParams.PATH_ID)
     public Response getService(@Context Request request, @InjectParam ServiceParameters params) throws Exception {
-        return get(request, sb, params, true);
+        return get(request, sb.get(), params, true);
     }
 
     @Since(CommonParams.VERSION_1)
@@ -54,7 +56,7 @@ public class ServiceResource extends RestResource {
     @Path(CommonParams.PATH_ID)
     public Response updateService(@Context Request request, ServiceDetailsRepresentation content,
             @InjectParam ServiceParameters params) throws Exception {
-        return put(request, sb, content, params);
+        return put(request, sb.put(), content, params);
     }
 
     @Since(CommonParams.VERSION_1)
@@ -62,7 +64,7 @@ public class ServiceResource extends RestResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path(CommonParams.PATH_ID)
     public Response deleteService(@Context Request request, @InjectParam ServiceParameters params) throws Exception {
-        return delete(request, sb, params);
+        return delete(request, sb.delete(), params);
     }
 
 }

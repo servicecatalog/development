@@ -28,10 +28,11 @@ import javax.xml.ws.handler.MessageContext;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.internal.intf.ServiceProvisioningService;
+import org.oscm.internal.vo.VOService;
+import org.oscm.internal.vo.VOTechnicalService;
 
 /**
  * @author tokoda
@@ -55,8 +56,7 @@ public class ServiceProvisioningServiceWSTest {
         serviceWS.ds = ds;
     }
 
-    private WebServiceContext createWebServiceContextMock(String expectedIP,
-            String expectedUser) {
+    private WebServiceContext createWebServiceContextMock(String expectedIP, String expectedUser) {
         requestMock = mock(HttpServletRequest.class);
         when(requestMock.getRemoteAddr()).thenReturn(expectedIP);
 
@@ -74,8 +74,7 @@ public class ServiceProvisioningServiceWSTest {
     }
 
     @Test
-    public void testLogInjectionForServiceProvisioningServiceWS()
-            throws Exception {
+    public void testLogInjectionForServiceProvisioningServiceWS() throws Exception {
 
         serviceWS.activateService(null);
         serviceWS.createService(null, null, null);
@@ -126,8 +125,8 @@ public class ServiceProvisioningServiceWSTest {
         verify(serviceMock, times(1)).createService(null, null, null);
         verify(serviceMock, times(1)).createTechnicalService(null);
         verify(serviceMock, times(1)).deactivateService(null);
-        verify(serviceMock, times(1)).deleteService(null);
-        verify(serviceMock, times(1)).deleteTechnicalService(null);
+        verify(serviceMock, times(1)).deleteService((VOService) null);
+        verify(serviceMock, times(1)).deleteTechnicalService((VOTechnicalService) null);
         verify(serviceMock, times(1)).exportTechnicalServices(null);
         verify(serviceMock, times(1)).getAllCustomerSpecificServices();
         verify(serviceMock, times(1)).getCompatibleServices(null);
@@ -142,27 +141,22 @@ public class ServiceProvisioningServiceWSTest {
         verify(serviceMock, times(1)).importTechnicalServices(null);
         verify(serviceMock, times(1)).loadImage(null);
         verify(serviceMock, times(1)).savePriceModel(null, null);
-        verify(serviceMock, times(1)).savePriceModelForCustomer(null, null,
-                null);
+        verify(serviceMock, times(1)).savePriceModelForCustomer(null, null, null);
         verify(serviceMock, times(1)).savePriceModelForSubscription(null, null);
         verify(serviceMock, times(1)).savePriceModelLocalization(null, null);
         verify(serviceMock, times(1)).saveServiceLocalization(null, null);
         verify(serviceMock, times(1)).saveTechnicalServiceLocalization(null);
         verify(serviceMock, times(1)).setCompatibleServices(null, null);
         verify(serviceMock, times(1)).updateService(null, null);
-        verify(serviceMock, times(1)).validateTechnicalServiceCommunication(
-                null);
+        verify(serviceMock, times(1)).validateTechnicalServiceCommunication(null);
         verify(serviceMock, times(1)).copyService(null, null);
         verify(serviceMock, times(1)).getSuppliedServices();
         verify(serviceMock, times(1)).getServicesForMarketplace(null);
         verify(serviceMock, times(1)).loadImageForSupplier(null, null);
-        verify(serviceMock, times(1)).getPriceModelLicenseTemplateLocalization(
-                null);
+        verify(serviceMock, times(1)).getPriceModelLicenseTemplateLocalization(null);
         verify(serviceMock, times(1)).setActivationStates(null);
-        verify(serviceMock, times(1)).getRelatedServicesForMarketplace(null,
-                null, null);
-        verify(serviceMock, times(1))
-                .getServiceForMarketplace(null, null, null);
+        verify(serviceMock, times(1)).getRelatedServicesForMarketplace(null, null, null);
+        verify(serviceMock, times(1)).getServiceForMarketplace(null, null, null);
         verify(serviceMock, times(1)).getServiceSeller(0, null);
         verify(serviceMock, times(1)).getInstanceIdsForSellers(null);
         verify(serviceMock, times(1)).suspendService(null, null);
