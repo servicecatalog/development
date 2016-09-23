@@ -82,7 +82,12 @@ public abstract class RestResource {
 
         reviseData(version, item);
 
-        return Response.ok(item).tag(item.getTag()).build();
+        String tag = "";
+        if (item.getETag() != null) {
+            tag = item.getETag().toString();
+        }
+
+        return Response.ok(item).tag(tag).build();
     }
 
     /**
@@ -112,6 +117,22 @@ public abstract class RestResource {
         ContainerRequest cr = (ContainerRequest) request;
         UriBuilder builder = cr.getAbsolutePathBuilder();
         URI uri = builder.path(newId.toString()).build();
+
+        return Response.created(uri).build();
+    }
+
+    protected <R extends Representation, P extends RequestParameters> Response post(Request request,
+            RestBackend.Post<R, P> backend, R content, P params, Class<?> resource, String method) throws Exception {
+
+        int version = getVersion(request);
+
+        prepareData(version, params, false, content, true);
+
+        Object newId = backend.post(content, params);
+
+        ContainerRequest cr = (ContainerRequest) request;
+        UriBuilder builder = cr.getAbsolutePathBuilder();
+        URI uri = builder.path(resource, method).build(newId.toString());
 
         return Response.created(uri).build();
     }
