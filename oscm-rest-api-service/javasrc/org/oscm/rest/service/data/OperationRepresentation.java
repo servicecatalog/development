@@ -40,8 +40,8 @@ public class OperationRepresentation extends Representation {
         vo.setOperationId(operationId);
         vo.setOperationName(operationName);
         vo.setOperationParameters(updateParameters());
-        if (getTag() != null) {
-            vo.setVersion(Integer.parseInt(getTag()));
+        if (getETag() != null) {
+            vo.setVersion(getETag().intValue());
         }
     }
 
@@ -64,7 +64,7 @@ public class OperationRepresentation extends Representation {
         setOperationId(vo.getOperationId());
         setOperationName(vo.getOperationName());
         setOperationParameters(convertParameters());
-        setTag(String.valueOf(vo.getVersion()));
+        setETag(Long.valueOf(vo.getVersion()));
     }
 
     private List<OperationParameterRepresentation> convertParameters() {
