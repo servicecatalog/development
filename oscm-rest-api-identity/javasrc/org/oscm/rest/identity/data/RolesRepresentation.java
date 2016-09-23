@@ -13,14 +13,14 @@ public class RolesRepresentation extends Representation {
 
     private Set<UserRoleType> userRoles = new HashSet<UserRoleType>();
 
-    transient VOUserDetails ud;
+    transient VOUserDetails vo;
 
     public RolesRepresentation() {
         this(new VOUserDetails());
     }
 
     public RolesRepresentation(VOUserDetails details) {
-        ud = details;
+        vo = details;
     }
 
     @Override
@@ -31,19 +31,19 @@ public class RolesRepresentation extends Representation {
     @Override
     public void update() {
         if (getId() != null) {
-            ud.setKey(getId().longValue());
+            vo.setKey(getId().longValue());
         }
-        ud.setUserRoles(getUserRoles());
-        if (getTag() != null) {
-            ud.setVersion(Integer.parseInt(getTag()));
+        vo.setUserRoles(getUserRoles());
+        if (getETag() != null) {
+            vo.setVersion(getETag().intValue());
         }
     }
 
     @Override
     public void convert() {
-        setId(Long.valueOf(ud.getKey()));
-        setTag(String.valueOf(ud.getVersion()));
-        setUserRoles(ud.getUserRoles());
+        setId(Long.valueOf(vo.getKey()));
+        setETag(Long.valueOf(vo.getVersion()));
+        setUserRoles(vo.getUserRoles());
     }
 
     public Set<UserRoleType> getUserRoles() {
@@ -55,6 +55,6 @@ public class RolesRepresentation extends Representation {
     }
 
     public VOUserDetails getVO() {
-        return ud;
+        return vo;
     }
 }
