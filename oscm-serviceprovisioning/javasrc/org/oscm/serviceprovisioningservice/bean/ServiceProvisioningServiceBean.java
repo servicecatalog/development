@@ -6013,4 +6013,30 @@ public class ServiceProvisioningServiceBean
 
         return result;
     }
+
+    @Override
+    @RolesAllowed("SERVICE_MANAGER")
+    public void deleteService(Long key) throws ObjectNotFoundException, OrganizationAuthoritiesException,
+            OperationNotPermittedException, ServiceOperationException, ServiceStateException,
+            ConcurrentModificationException {
+        VOService vo = new VOService();
+        vo.setKey(key.longValue());
+        vo = getServiceDetails(vo);
+        deleteService(vo);
+    }
+
+    @Override
+    @RolesAllowed("TECHNOLOGY_MANAGER")
+    public void deleteTechnicalService(Long key) throws ObjectNotFoundException, OperationNotPermittedException,
+            DeletionConstraintException, OrganizationAuthoritiesException, ConcurrentModificationException {
+        Organization provider = dm.getCurrentUser().getOrganization();
+        VOTechnicalService vo = new VOTechnicalService();
+        vo.setKey(key.longValue());
+        TechnicalProduct tProd = findTechnicalProductAndCheckOwner(provider, vo);
+        LocalizerFacade facade = new LocalizerFacade(localizer, dm.getCurrentUser().getLocale());
+        List<ParameterDefinition> paramDefs = getPlatformParameterDefinitions(tProd);
+        List<Event> platformEvents = getPlatformEvents(tProd);
+        vo = TechnicalProductAssembler.toVOTechnicalProduct(tProd, paramDefs, platformEvents, facade, false);
+        deleteTechnicalService(vo);
+    }
 }
