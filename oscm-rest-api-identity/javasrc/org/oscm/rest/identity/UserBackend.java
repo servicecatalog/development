@@ -13,6 +13,7 @@ import org.oscm.internal.vo.VOUser;
 import org.oscm.internal.vo.VOUserDetails;
 import org.oscm.rest.common.RepresentationCollection;
 import org.oscm.rest.common.RestBackend;
+import org.oscm.rest.identity.data.OnBehalfUserRepresentation;
 import org.oscm.rest.identity.data.RolesRepresentation;
 import org.oscm.rest.identity.data.UserRepresentation;
 
@@ -132,6 +133,26 @@ public class UserBackend {
                 VOUserDetails vo = content.getVO();
                 vo.setUserId(params.getUserId());
                 is.setUserRoles(vo, new ArrayList<UserRoleType>(content.getUserRoles()));
+            }
+        };
+    }
+
+    public RestBackend.Post<OnBehalfUserRepresentation, UserParameters> postOnBehalfUser() {
+        return new RestBackend.Post<OnBehalfUserRepresentation, UserParameters>() {
+
+            @Override
+            public Object post(OnBehalfUserRepresentation content, UserParameters params) throws Exception {
+                return is.createOnBehalfUser(content.getOrganizationId(), content.getPassword()).getUserId();
+            }
+        };
+    }
+
+    public RestBackend.Delete<UserParameters> deleteOBehalfUser() {
+        return new RestBackend.Delete<UserParameters>() {
+
+            @Override
+            public void delete(UserParameters params) throws Exception {
+                is.cleanUpCurrentUser();
             }
         };
     }
