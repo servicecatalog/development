@@ -35,8 +35,8 @@ public class EventDefinitionRepresentation extends Representation {
         if (getId() != null) {
             vo.setKey(getId().longValue());
         }
-        if (getTag() != null) {
-            vo.setVersion(Integer.parseInt(getTag()));
+        if (getETag() != null) {
+            vo.setVersion(getETag().intValue());
         }
     }
 
@@ -46,7 +46,7 @@ public class EventDefinitionRepresentation extends Representation {
         setEventId(vo.getEventId());
         setEventType(vo.getEventType());
         setId(Long.valueOf(vo.getKey()));
-        setTag(String.valueOf(vo.getVersion()));
+        setETag(Long.valueOf(vo.getVersion()));
     }
 
     public VOEventDefinition getVO() {

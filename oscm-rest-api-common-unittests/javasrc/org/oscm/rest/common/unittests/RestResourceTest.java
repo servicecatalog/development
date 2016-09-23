@@ -186,7 +186,7 @@ public class RestResourceTest extends RestResource {
     }
 
     @Test
-    public void testPutWithETag() {
+    public void testPutWithETag() throws Exception {
 
         MockRepresentation content = new MockRepresentation();
         content.setId(new Long(1L));

@@ -61,8 +61,8 @@ public class ServiceRepresentation extends Representation {
         vo.setShortDescription(shortDescription);
         vo.setStatus(status);
         vo.setTechnicalId(technicalId);
-        if (getTag() != null) {
-            vo.setVersion(Integer.parseInt(getTag()));
+        if (getETag() != null) {
+            vo.setVersion(getETag().intValue());
         }
     }
 
@@ -92,7 +92,7 @@ public class ServiceRepresentation extends Representation {
         setServiceType(vo.getServiceType());
         setShortDescription(vo.getShortDescription());
         setStatus(vo.getStatus());
-        setTag(String.valueOf(vo.getVersion()));
+        setETag(Long.valueOf(vo.getVersion()));
         setTechnicalId(vo.getTechnicalId());
     }
 
