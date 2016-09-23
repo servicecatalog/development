@@ -35,8 +35,8 @@ public class PaymentTypeRepresentation extends Representation {
         }
         vo.setName(name);
         vo.setPaymentTypeId(paymentTypeId);
-        if (getTag() != null) {
-            vo.setVersion(Integer.parseInt(getTag()));
+        if (getETag() != null) {
+            vo.setVersion(getETag().intValue());
         }
     }
 
@@ -46,7 +46,7 @@ public class PaymentTypeRepresentation extends Representation {
         setId(Long.valueOf(vo.getKey()));
         setName(vo.getName());
         setPaymentTypeId(vo.getPaymentTypeId());
-        setTag(String.valueOf(vo.getVersion()));
+        setETag(Long.valueOf(vo.getVersion()));
     }
 
     public String getName() {
