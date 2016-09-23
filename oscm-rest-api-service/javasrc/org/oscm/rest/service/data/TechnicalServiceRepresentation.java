@@ -71,8 +71,8 @@ public class TechnicalServiceRepresentation extends Representation {
         vo.setTechnicalServiceDescription(technicalServiceDescription);
         vo.setTechnicalServiceId(technicalServiceId);
         vo.setTechnicalServiceOperations(updateOperations());
-        if (getTag() != null) {
-            vo.setVersion(Integer.parseInt(getTag()));
+        if (getETag() != null) {
+            vo.setVersion(getETag().intValue());
         }
     }
 
@@ -139,7 +139,7 @@ public class TechnicalServiceRepresentation extends Representation {
         setProvisioningUrl(vo.getProvisioningUrl());
         setProvisioningVersion(vo.getProvisioningVersion());
         setRoleDefinitions(convertRoles());
-        setTag(String.valueOf(vo.getVersion()));
+        setETag(Long.valueOf(vo.getVersion()));
         setTags(vo.getTags());
         setTechnicalServiceBuildId(vo.getTechnicalServiceBuildId());
         setTechnicalServiceDescription(vo.getTechnicalServiceDescription());
