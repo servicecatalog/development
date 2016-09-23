@@ -3,7 +3,6 @@ package org.oscm.rest.operation.data;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.Transient;
 import javax.ws.rs.WebApplicationException;
 
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
@@ -13,8 +12,7 @@ import org.oscm.rest.common.RepresentationCollection;
 
 public class SettingRepresentation extends Representation {
 
-    @Transient
-    private VOConfigurationSetting vo;
+    private transient VOConfigurationSetting vo;
 
     private ConfigurationKey informationId;
     private String contextId;
@@ -35,12 +33,24 @@ public class SettingRepresentation extends Representation {
 
     @Override
     public void update() {
-
+        vo.setContextId(getContextId());
+        vo.setInformationId(getInformationId());
+        if (getId() != null) {
+            vo.setKey(getId().longValue());
+        }
+        vo.setValue(getValue());
+        if (getETag() != null) {
+            vo.setVersion(getETag().intValue());
+        }
     }
 
     @Override
     public void convert() {
-
+        setContextId(vo.getContextId());
+        setETag(Long.valueOf(vo.getVersion()));
+        setId(Long.valueOf(vo.getKey()));
+        setInformationId(vo.getInformationId());
+        setValue(vo.getValue());
     }
 
     public ConfigurationKey getInformationId() {

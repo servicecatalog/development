@@ -34,8 +34,8 @@ public class RoleDefinitionRepresentation extends Representation {
         }
         vo.setName(name);
         vo.setRoleId(roleId);
-        if (getTag() != null) {
-            vo.setVersion(Integer.parseInt(getTag()));
+        if (getETag() != null) {
+            vo.setVersion(getETag().intValue());
         }
     }
 
@@ -45,7 +45,7 @@ public class RoleDefinitionRepresentation extends Representation {
         setId(Long.valueOf(vo.getKey()));
         setName(vo.getName());
         setRoleId(vo.getRoleId());
-        setTag(String.valueOf(vo.getVersion()));
+        setETag(Long.valueOf(vo.getVersion()));
     }
 
     public VORoleDefinition getVO() {

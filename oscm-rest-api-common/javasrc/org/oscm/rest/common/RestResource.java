@@ -161,6 +161,22 @@ public abstract class RestResource {
         return Response.created(uri).build();
     }
 
+    protected <R extends Representation, P extends RequestParameters> Response post(Request request,
+            RestBackend.Post<R, P> backend, R content, P params, Class<?> resource, String method) throws Exception {
+
+        int version = getVersion(request);
+
+        prepareData(version, params, false, content, true);
+
+        Object newId = backend.post(content, params);
+
+        ContainerRequest cr = (ContainerRequest) request;
+        UriBuilder builder = cr.getAbsolutePathBuilder();
+        URI uri = builder.path(resource, method).build(newId.toString());
+
+        return Response.created(uri).build();
+    }
+
     /**
      * Wrapper for backend PUT commands. Prepares, validates and revises data
      * for commands and assembles responses. Also overrides the id of the
