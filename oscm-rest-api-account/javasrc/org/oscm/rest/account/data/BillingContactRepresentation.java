@@ -42,8 +42,8 @@ public class BillingContactRepresentation extends Representation {
             vo.setKey(getId().longValue());
         }
         vo.setOrgAddressUsed(orgAddressUsed);
-        if (getTag() != null) {
-            vo.setVersion(Integer.parseInt(getTag()));
+        if (getETag() != null) {
+            vo.setVersion(getETag().intValue());
         }
     }
 
@@ -55,7 +55,7 @@ public class BillingContactRepresentation extends Representation {
         setEmail(vo.getEmail());
         setId(Long.valueOf(vo.getKey()));
         setOrgAddressUsed(vo.isOrgAddressUsed());
-        setTag(String.valueOf(vo.getVersion()));
+        setETag(Long.valueOf(vo.getVersion()));
     }
 
     public String getEmail() {
