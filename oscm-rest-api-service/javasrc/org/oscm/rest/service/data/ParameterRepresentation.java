@@ -37,8 +37,8 @@ public class ParameterRepresentation extends Representation {
             vo.setParameterDefinition(parameterDefinition.getVO());
         }
         vo.setValue(value);
-        if (getTag() != null) {
-            vo.setVersion(Integer.parseInt(getTag()));
+        if (getETag() != null) {
+            vo.setVersion(getETag().intValue());
         }
     }
 
@@ -49,7 +49,7 @@ public class ParameterRepresentation extends Representation {
         ParameterDefinitionRepresentation def = new ParameterDefinitionRepresentation(vo.getParameterDefinition());
         def.convert();
         setParameterDefinition(def);
-        setTag(String.valueOf(vo.getVersion()));
+        setETag(Long.valueOf(vo.getVersion()));
         setValue(vo.getValue());
     }
 
