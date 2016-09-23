@@ -2781,4 +2781,15 @@ public class MockService implements IdentityService, SubscriptionService,
         return null;
     }
 
+    @Override
+    public void deleteService(Long key) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void deleteTechnicalService(Long key) {
+        // TODO Auto-generated method stub
+
+    }
 }

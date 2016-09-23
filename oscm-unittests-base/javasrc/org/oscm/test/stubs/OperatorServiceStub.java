@@ -228,4 +228,16 @@ public class OperatorServiceStub implements OperatorService {
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public void deleteConfigurationSetting(Long key) throws ObjectNotFoundException {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public VOConfigurationSetting getConfigurationSetting(Long key) throws ObjectNotFoundException {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }
