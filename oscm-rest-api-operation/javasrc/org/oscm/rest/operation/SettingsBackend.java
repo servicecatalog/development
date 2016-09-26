@@ -25,8 +25,9 @@ public class SettingsBackend {
         return new RestBackend.Delete<OperationParameters>() {
 
             @Override
-            public void delete(OperationParameters params) throws Exception {
+            public boolean delete(OperationParameters params) throws Exception {
                 os.deleteConfigurationSetting(params.getId());
+                return true;
             }
         };
     }
@@ -48,8 +49,9 @@ public class SettingsBackend {
         return new RestBackend.Put<SettingRepresentation, OperationParameters>() {
 
             @Override
-            public void put(SettingRepresentation content, OperationParameters params) throws Exception {
+            public boolean put(SettingRepresentation content, OperationParameters params) throws Exception {
                 os.saveConfigurationSetting(content.getVO());
+                return true;
             }
         };
     }
