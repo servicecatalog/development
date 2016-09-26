@@ -176,6 +176,11 @@ public class AccountBackend {
                     org = os.registerOrganization(content.getOrganization().getVO(), null, content.getUser().getVO(),
                             content.getProps(), params.getMarketplaceId(), content.getOrganizationRoles());
                 }
+                if (org == null) {
+                    // registration of a known customer has a suspending trigger
+                    // active
+                    return null;
+                }
                 return org.getOrganizationId();
             }
         };
