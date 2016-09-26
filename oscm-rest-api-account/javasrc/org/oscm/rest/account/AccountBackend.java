@@ -79,8 +79,9 @@ public class AccountBackend {
         return new RestBackend.Put<BillingContactRepresentation, AccountParameters>() {
 
             @Override
-            public void put(BillingContactRepresentation content, AccountParameters params) throws Exception {
+            public boolean put(BillingContactRepresentation content, AccountParameters params) throws Exception {
                 as.saveBillingContact(content.getVO());
+                return true;
             }
 
         };
@@ -90,10 +91,11 @@ public class AccountBackend {
         return new RestBackend.Delete<AccountParameters>() {
 
             @Override
-            public void delete(AccountParameters params) throws Exception {
+            public boolean delete(AccountParameters params) throws Exception {
                 VOBillingContact bc = new VOBillingContact();
                 bc.setKey(params.getId().longValue());
                 as.deleteBillingContact(bc);
+                return true;
             }
         };
     }
@@ -114,8 +116,9 @@ public class AccountBackend {
         return new RestBackend.Put<PaymentInfoRepresentation, AccountParameters>() {
 
             @Override
-            public void put(PaymentInfoRepresentation content, AccountParameters params) throws Exception {
+            public boolean put(PaymentInfoRepresentation content, AccountParameters params) throws Exception {
                 as.savePaymentInfo(content.getVO());
+                return true;
             }
         };
     }
@@ -146,10 +149,11 @@ public class AccountBackend {
         return new RestBackend.Delete<AccountParameters>() {
 
             @Override
-            public void delete(AccountParameters params) throws Exception {
+            public boolean delete(AccountParameters params) throws Exception {
                 VOPaymentInfo pi = new VOPaymentInfo();
                 pi.setKey(params.getId().longValue());
                 as.deletePaymentInfo(pi);
+                return true;
             }
         };
     }
