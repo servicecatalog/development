@@ -25,8 +25,9 @@ public class ServiceBackend {
         return new RestBackend.Delete<ServiceParameters>() {
 
             @Override
-            public void delete(ServiceParameters params) throws Exception {
+            public boolean delete(ServiceParameters params) throws Exception {
                 sps.deleteService(params.getId());
+                return true;
             }
         };
     }
@@ -47,9 +48,10 @@ public class ServiceBackend {
         return new RestBackend.Put<ServiceDetailsRepresentation, ServiceParameters>() {
 
             @Override
-            public void put(ServiceDetailsRepresentation content, ServiceParameters params) throws Exception {
+            public boolean put(ServiceDetailsRepresentation content, ServiceParameters params) throws Exception {
                 // image will be handled in separate URL
                 sps.updateService(content.getVO(), null);
+                return true;
             }
         };
     }

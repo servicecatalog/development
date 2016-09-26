@@ -94,31 +94,34 @@ public class RestResourceTest extends RestResource {
     private RestBackend.Put<MockRepresentation, MockRequestParameters> backendPut = new RestBackend.Put<MockRepresentation, MockRequestParameters>() {
 
         @Override
-        public void put(MockRepresentation content, MockRequestParameters params) {
+        public boolean put(MockRepresentation content, MockRequestParameters params) {
 
             assertNotNull(content);
             assertNull(content.getETag());
             assertNotNull(params);
+            return true;
         }
     };
 
     private RestBackend.Put<MockRepresentation, MockRequestParameters> backendPutETag = new RestBackend.Put<MockRepresentation, MockRequestParameters>() {
 
         @Override
-        public void put(MockRepresentation content, MockRequestParameters params) {
+        public boolean put(MockRepresentation content, MockRequestParameters params) {
 
             assertNotNull(content);
             assertNotNull(content.getETag());
             assertNotNull(params);
+            return true;
         }
     };
 
     private RestBackend.Delete<MockRequestParameters> backendDelete = new RestBackend.Delete<MockRequestParameters>() {
 
         @Override
-        public void delete(MockRequestParameters params) {
+        public boolean delete(MockRequestParameters params) {
 
             assertNotNull(params);
+            return true;
         }
     };
 
