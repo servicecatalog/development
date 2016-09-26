@@ -13,6 +13,7 @@ import java.net.URI;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
 
 import com.sun.jersey.spi.container.ContainerRequest;
@@ -107,20 +108,29 @@ public abstract class RestResource {
      */
     protected <R extends Representation, P extends RequestParameters> Response post(Request request,
             RestBackend.Post<R, P> backend, R content, P params) throws Exception {
-
-        int version = getVersion(request);
-
-        prepareData(version, params, false, content, true);
-
-        Object newId = backend.post(content, params);
-
-        ContainerRequest cr = (ContainerRequest) request;
-        UriBuilder builder = cr.getAbsolutePathBuilder();
-        URI uri = builder.path(newId.toString()).build();
-
-        return Response.created(uri).build();
+        return post(request, backend, content, params, null, null);
     }
 
+    /**
+     * Wrapper for backend POST commands. Prepares, validates and revises data
+     * for commands and assembles responses.
+     * 
+     * @param request
+     *            the request context
+     * @param backend
+     *            the backend command
+     * @param content
+     *            the representation to create
+     * @param params
+     *            the request parameters
+     * @param resource
+     *            the resource to build the result URI for
+     * @param method
+     *            the method to create the result URI for (GET on single
+     *            resource)
+     * @return the response with the new location
+     * @throws Exception
+     */
     protected <R extends Representation, P extends RequestParameters> Response post(Request request,
             RestBackend.Post<R, P> backend, R content, P params, Class<?> resource, String method) throws Exception {
 
@@ -130,10 +140,20 @@ public abstract class RestResource {
 
         Object newId = backend.post(content, params);
 
+        if (newId == null) {
+            // post is delayed by an asynchronous operation or suspending
+            // trigger, no id available yet
+            return Response.status(Status.ACCEPTED).build();
+        }
+
         ContainerRequest cr = (ContainerRequest) request;
         UriBuilder builder = cr.getAbsolutePathBuilder();
-        URI uri = builder.path(resource, method).build(newId.toString());
-
+        URI uri;
+        if (resource != null) {
+            uri = builder.path(resource, method).build(newId.toString());
+        } else {
+            uri = builder.path(newId.toString()).build();
+        }
         return Response.created(uri).build();
     }
 
@@ -165,9 +185,16 @@ public abstract class RestResource {
             content.setETag(params.getETag());
         }
 
-        backend.put(content, params);
+        boolean result = backend.put(content, params);
+        if (result) {
+            // put was immediately performed
+            return Response.noContent().build();
+        } else {
+            // put is delayed by an asynchronous operation or suspending
+            // trigger
+            return Response.status(Status.ACCEPTED).build();
 
-        return Response.noContent().build();
+        }
     }
 
     /**
@@ -190,9 +217,15 @@ public abstract class RestResource {
 
         prepareData(version, params, true, null, false);
 
-        backend.delete(params);
-
-        return Response.noContent().build();
+        boolean result = backend.delete(params);
+        if (result) {
+            // delete was immediately performed
+            return Response.noContent().build();
+        } else {
+            // delete is delayed by an asynchronous operation or suspending
+            // trigger
+            return Response.status(Status.ACCEPTED).build();
+        }
     }
 
     /**
