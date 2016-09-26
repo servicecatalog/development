@@ -65,11 +65,11 @@ public class UserBackend {
             @Override
             public Object post(UserRepresentation content, UserParameters params) throws Exception {
                 VOUserDetails vo = content.getVO();
-                // TODO returns null if user creation is suspended - how to
-                // handle that in HTTP status?
-                String newId = is.createUser(vo, new ArrayList<UserRoleType>(vo.getUserRoles()),
-                        params.getMarketplaceId()).getUserId();
-                return newId;
+                vo = is.createUser(vo, new ArrayList<UserRoleType>(vo.getUserRoles()), params.getMarketplaceId());
+                if (vo == null) {
+                    return null;
+                }
+                return vo.getUserId();
             }
         };
     }
@@ -91,9 +91,10 @@ public class UserBackend {
         return new RestBackend.Put<UserRepresentation, UserParameters>() {
 
             @Override
-            public void put(UserRepresentation content, UserParameters params) throws Exception {
+            public boolean put(UserRepresentation content, UserParameters params) throws Exception {
                 // TODO: handle id change?
                 is.updateUser(content.getVO()).getUserId();
+                return true;
             }
 
         };
@@ -103,12 +104,13 @@ public class UserBackend {
         return new RestBackend.Delete<UserParameters>() {
 
             @Override
-            public void delete(UserParameters params) throws Exception {
+            public boolean delete(UserParameters params) throws Exception {
                 VOUser vo = new VOUser();
                 vo.setUserId(params.getUserId());
                 // we have to read first as delete checks key and version
                 vo = is.getUser(vo);
                 is.deleteUser(vo, params.getMarketplaceId());
+                return true;
             }
         };
     }
@@ -129,10 +131,11 @@ public class UserBackend {
         return new RestBackend.Put<RolesRepresentation, UserParameters>() {
 
             @Override
-            public void put(RolesRepresentation content, UserParameters params) throws Exception {
+            public boolean put(RolesRepresentation content, UserParameters params) throws Exception {
                 VOUserDetails vo = content.getVO();
                 vo.setUserId(params.getUserId());
                 is.setUserRoles(vo, new ArrayList<UserRoleType>(content.getUserRoles()));
+                return true;
             }
         };
     }
@@ -151,8 +154,9 @@ public class UserBackend {
         return new RestBackend.Delete<UserParameters>() {
 
             @Override
-            public void delete(UserParameters params) throws Exception {
+            public boolean delete(UserParameters params) throws Exception {
                 is.cleanUpCurrentUser();
+                return true;
             }
         };
     }

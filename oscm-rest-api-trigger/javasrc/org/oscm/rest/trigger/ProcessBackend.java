@@ -43,115 +43,91 @@ public class ProcessBackend {
         this.service = service;
     }
 
-    public RestBackend.Put<ProcessRepresentation, TriggerParameters> putApprove()
-            throws WebApplicationException {
+    public RestBackend.Put<ProcessRepresentation, TriggerParameters> putApprove() throws WebApplicationException {
 
         return new RestBackend.Put<ProcessRepresentation, TriggerParameters>() {
 
             @Override
-            public void put(ProcessRepresentation content,
-                    TriggerParameters params) throws WebApplicationException {
+            public boolean put(ProcessRepresentation content, TriggerParameters params) throws WebApplicationException {
 
                 try {
                     service.approveAction(params.getId().longValue());
                 } catch (ObjectNotFoundException e) {
-                    throw WebException.notFound().message(e.getMessage())
-                            .build();
+                    throw WebException.notFound().message(e.getMessage()).build();
                 } catch (OperationNotPermittedException e) {
-                    throw WebException.forbidden().message(e.getMessage())
-                            .build();
+                    throw WebException.forbidden().message(e.getMessage()).build();
                 } catch (TriggerProcessStatusException e) {
-                    throw WebException.conflict().message(e.getMessage())
-                            .build();
+                    throw WebException.conflict().message(e.getMessage()).build();
                 } catch (ExecutionTargetException e) {
-                    throw WebException.conflict().message(e.getMessage())
-                            .build();
+                    throw WebException.conflict().message(e.getMessage()).build();
                 } catch (Exception e) {
                     if (e instanceof javax.ejb.EJBAccessException) {
-                        throw WebException.forbidden()
-                                .message(CommonParams.ERROR_NOT_AUTHORIZED)
-                                .build();
+                        throw WebException.forbidden().message(CommonParams.ERROR_NOT_AUTHORIZED).build();
                     } else {
                         throw e;
                     }
                 }
-
+                return true;
             }
         };
     }
 
-    public RestBackend.Put<ProcessRepresentation, TriggerParameters> putReject()
-            throws WebApplicationException {
+    public RestBackend.Put<ProcessRepresentation, TriggerParameters> putReject() throws WebApplicationException {
 
         return new RestBackend.Put<ProcessRepresentation, TriggerParameters>() {
 
             @Override
-            public void put(ProcessRepresentation content,
-                    TriggerParameters params) throws WebApplicationException {
+            public boolean put(ProcessRepresentation content, TriggerParameters params) throws WebApplicationException {
 
                 try {
                     List<VOLocalizedText> reason = new ArrayList<VOLocalizedText>();
-                    reason.add(new VOLocalizedText(
-                            Locale.ENGLISH.getLanguage(), content.getComment()));
+                    reason.add(new VOLocalizedText(Locale.ENGLISH.getLanguage(), content.getComment()));
 
                     service.rejectAction(params.getId().longValue(), reason);
                 } catch (ObjectNotFoundException e) {
-                    throw WebException.notFound().message(e.getMessage())
-                            .build();
+                    throw WebException.notFound().message(e.getMessage()).build();
                 } catch (OperationNotPermittedException e) {
-                    throw WebException.forbidden().message(e.getMessage())
-                            .build();
+                    throw WebException.forbidden().message(e.getMessage()).build();
                 } catch (TriggerProcessStatusException e) {
-                    throw WebException.conflict().message(e.getMessage())
-                            .build();
+                    throw WebException.conflict().message(e.getMessage()).build();
                 } catch (Exception e) {
                     if (e instanceof javax.ejb.EJBAccessException) {
-                        throw WebException.forbidden()
-                                .message(CommonParams.ERROR_NOT_AUTHORIZED)
-                                .build();
+                        throw WebException.forbidden().message(CommonParams.ERROR_NOT_AUTHORIZED).build();
                     } else {
                         throw e;
                     }
                 }
-
+                return true;
             }
         };
     }
 
-    public RestBackend.Put<ProcessRepresentation, TriggerParameters> putCancel()
-            throws WebApplicationException {
+    public RestBackend.Put<ProcessRepresentation, TriggerParameters> putCancel() throws WebApplicationException {
 
         return new RestBackend.Put<ProcessRepresentation, TriggerParameters>() {
 
             @Override
-            public void put(ProcessRepresentation content,
-                    TriggerParameters params) throws WebApplicationException {
+            public boolean put(ProcessRepresentation content, TriggerParameters params) throws WebApplicationException {
 
                 try {
                     List<VOLocalizedText> reason = new ArrayList<VOLocalizedText>();
-                    reason.add(new VOLocalizedText(
-                            Locale.ENGLISH.getLanguage(), content.getComment()));
+                    reason.add(new VOLocalizedText(Locale.ENGLISH.getLanguage(), content.getComment()));
 
                     service.cancelActions(Arrays.asList(params.getId()), reason);
                 } catch (ObjectNotFoundException e) {
-                    throw WebException.notFound().message(e.getMessage())
-                            .build();
+                    throw WebException.notFound().message(e.getMessage()).build();
                 } catch (OperationNotPermittedException e) {
-                    throw WebException.forbidden().message(e.getMessage())
-                            .build();
+                    throw WebException.forbidden().message(e.getMessage()).build();
                 } catch (TriggerProcessStatusException e) {
-                    throw WebException.conflict().message(e.getMessage())
-                            .build();
+                    throw WebException.conflict().message(e.getMessage()).build();
                 } catch (Exception e) {
                     if (e instanceof javax.ejb.EJBAccessException) {
-                        throw WebException.forbidden()
-                                .message(CommonParams.ERROR_NOT_AUTHORIZED)
-                                .build();
+                        throw WebException.forbidden().message(CommonParams.ERROR_NOT_AUTHORIZED).build();
                     } else {
                         throw e;
                     }
                 }
-
+                return true;
             }
         };
 
