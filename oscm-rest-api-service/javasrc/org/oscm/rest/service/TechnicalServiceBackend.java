@@ -39,8 +39,9 @@ public class TechnicalServiceBackend {
         return new RestBackend.Delete<ServiceParameters>() {
 
             @Override
-            public void delete(ServiceParameters params) throws Exception {
+            public boolean delete(ServiceParameters params) throws Exception {
                 sps.deleteTechnicalService(params.getId());
+                return true;
             }
         };
     }
