@@ -84,7 +84,8 @@ public interface RestBackend {
          *            the representation to create
          * @param params
          *            the request parameters
-         * @return the id object
+         * @return the id object or <code>null</code> if the resource creation
+         *         is executed asynchronously or suspended by a trigger
          * @throws Exception
          */
         public Object post(R content, P params) throws Exception;
@@ -110,9 +111,11 @@ public interface RestBackend {
          *            the representation to update
          * @param params
          *            the request parameters
+         * @return <code>true</code> on immediate PUT, <code>false</code> on
+         *         asynchronous/suspended PUT
          * @throws Exception
          */
-        public void put(R content, P params) throws Exception;
+        public boolean put(R content, P params) throws Exception;
     }
 
     /**
@@ -131,9 +134,11 @@ public interface RestBackend {
          * 
          * @param params
          *            the request parameters
+         * @return <code>true</code> on immediate DELETE, <code>false</code> on
+         *         asynchronous/suspended DELETE
          * @throws Exception
          */
-        public void delete(P params) throws Exception;
+        public boolean delete(P params) throws Exception;
     }
 
 }

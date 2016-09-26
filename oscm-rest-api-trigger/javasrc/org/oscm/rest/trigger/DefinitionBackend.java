@@ -47,29 +47,23 @@ public class DefinitionBackend {
         this.service = service;
     }
 
-    public RestBackend.Get<DefinitionRepresentation, TriggerParameters> getItem()
-            throws WebApplicationException {
+    public RestBackend.Get<DefinitionRepresentation, TriggerParameters> getItem() throws WebApplicationException {
 
         return new RestBackend.Get<DefinitionRepresentation, TriggerParameters>() {
 
             @Override
-            public DefinitionRepresentation get(TriggerParameters params)
-                    throws WebApplicationException {
+            public DefinitionRepresentation get(TriggerParameters params) throws WebApplicationException {
 
                 VOTriggerDefinition definition;
                 try {
                     definition = service.getTriggerDefinition(params.getId());
                 } catch (ObjectNotFoundException e) {
-                    throw WebException.notFound().message(e.getMessage())
-                            .build();
+                    throw WebException.notFound().message(e.getMessage()).build();
                 } catch (OperationNotPermittedException e) {
-                    throw WebException.forbidden().message(e.getMessage())
-                            .build();
+                    throw WebException.forbidden().message(e.getMessage()).build();
                 } catch (Exception e) {
                     if (e instanceof javax.ejb.EJBAccessException) {
-                        throw WebException.forbidden()
-                                .message(CommonParams.ERROR_NOT_AUTHORIZED)
-                                .build();
+                        throw WebException.forbidden().message(CommonParams.ERROR_NOT_AUTHORIZED).build();
                     } else {
                         throw e;
                     }
@@ -84,18 +78,17 @@ public class DefinitionBackend {
             throws WebApplicationException {
 
         return new RestBackend.Get<RepresentationCollection<DefinitionRepresentation>, TriggerParameters>() {
+
             @Override
-            public RepresentationCollection<DefinitionRepresentation> get(
-                    TriggerParameters params) throws WebApplicationException {
+            public RepresentationCollection<DefinitionRepresentation> get(TriggerParameters params)
+                    throws WebApplicationException {
 
                 Collection<VOTriggerDefinition> definitions;
                 try {
                     definitions = service.getTriggerDefinitions();
                 } catch (Exception e) {
                     if (e instanceof javax.ejb.EJBAccessException) {
-                        throw WebException.forbidden()
-                                .message(CommonParams.ERROR_NOT_AUTHORIZED)
-                                .build();
+                        throw WebException.forbidden().message(CommonParams.ERROR_NOT_AUTHORIZED).build();
                     } else {
                         throw e;
                     }
@@ -107,8 +100,7 @@ public class DefinitionBackend {
                     representationList.add(new DefinitionRepresentation(d));
                 }
 
-                return new RepresentationCollection<DefinitionRepresentation>(
-                        representationList);
+                return new RepresentationCollection<DefinitionRepresentation>(representationList);
             }
         };
     }
@@ -119,23 +111,18 @@ public class DefinitionBackend {
         return new RestBackend.Post<DefinitionRepresentation, TriggerParameters>() {
 
             @Override
-            public Object post(DefinitionRepresentation content,
-                    TriggerParameters params) throws WebApplicationException {
+            public Object post(DefinitionRepresentation content, TriggerParameters params)
+                    throws WebApplicationException {
 
                 try {
-                    return service
-                            .createTriggerDefinition(tranferToVO(content));
+                    return service.createTriggerDefinition(tranferToVO(content));
                 } catch (TriggerDefinitionDataException e) {
-                    throw WebException.conflict().message(e.getMessage())
-                            .build();
+                    throw WebException.conflict().message(e.getMessage()).build();
                 } catch (ValidationException e) {
-                    throw WebException.badRequest().message(e.getMessage())
-                            .build();
+                    throw WebException.badRequest().message(e.getMessage()).build();
                 } catch (Exception e) {
                     if (e instanceof javax.ejb.EJBAccessException) {
-                        throw WebException.forbidden()
-                                .message(CommonParams.ERROR_NOT_AUTHORIZED)
-                                .build();
+                        throw WebException.forbidden().message(CommonParams.ERROR_NOT_AUTHORIZED).build();
                     } else {
                         throw e;
                     }
@@ -144,84 +131,68 @@ public class DefinitionBackend {
         };
     }
 
-    public RestBackend.Put<DefinitionRepresentation, TriggerParameters> putItem()
-            throws WebApplicationException {
+    public RestBackend.Put<DefinitionRepresentation, TriggerParameters> putItem() throws WebApplicationException {
 
         return new RestBackend.Put<DefinitionRepresentation, TriggerParameters>() {
 
             @Override
-            public void put(DefinitionRepresentation content,
-                    TriggerParameters params) throws WebApplicationException {
+            public boolean put(DefinitionRepresentation content, TriggerParameters params)
+                    throws WebApplicationException {
 
                 try {
 
                     VOTriggerDefinition definition = tranferToVO(content);
 
                     if (content.getETag() == null) {
-                        definition.setVersion(service.getTriggerDefinition(
-                                params.getId()).getVersion());
+                        definition.setVersion(service.getTriggerDefinition(params.getId()).getVersion());
                     }
 
                     service.updateTriggerDefinition(definition);
                 } catch (ObjectNotFoundException e) {
-                    throw WebException.notFound().message(e.getMessage())
-                            .build();
+                    throw WebException.notFound().message(e.getMessage()).build();
                 } catch (ValidationException e) {
-                    throw WebException.badRequest().message(e.getMessage())
-                            .build();
+                    throw WebException.badRequest().message(e.getMessage()).build();
                 } catch (ConcurrentModificationException e) {
-                    throw WebException.conflict().message(e.getMessage())
-                            .build();
+                    throw WebException.conflict().message(e.getMessage()).build();
                 } catch (TriggerDefinitionDataException e) {
-                    throw WebException.conflict().message(e.getMessage())
-                            .build();
+                    throw WebException.conflict().message(e.getMessage()).build();
                 } catch (OperationNotPermittedException e) {
-                    throw WebException.forbidden().message(e.getMessage())
-                            .build();
+                    throw WebException.forbidden().message(e.getMessage()).build();
                 } catch (Exception e) {
                     if (e instanceof javax.ejb.EJBAccessException) {
-                        throw WebException.forbidden()
-                                .message(CommonParams.ERROR_NOT_AUTHORIZED)
-                                .build();
+                        throw WebException.forbidden().message(CommonParams.ERROR_NOT_AUTHORIZED).build();
                     } else {
                         throw e;
                     }
                 }
-
+                return true;
             }
         };
     }
 
-    public RestBackend.Delete<TriggerParameters> deleteItem()
-            throws WebApplicationException {
+    public RestBackend.Delete<TriggerParameters> deleteItem() throws WebApplicationException {
 
         return new RestBackend.Delete<TriggerParameters>() {
 
             @Override
-            public void delete(TriggerParameters params)
-                    throws WebApplicationException {
+            public boolean delete(TriggerParameters params) throws WebApplicationException {
 
                 try {
                     service.deleteTriggerDefinition(params.getId().longValue());
                 } catch (ObjectNotFoundException e) {
-                    throw WebException.notFound().message(e.getMessage())
-                            .build();
+                    throw WebException.notFound().message(e.getMessage()).build();
                 } catch (DeletionConstraintException e) {
-                    throw WebException.conflict().message(e.getMessage())
-                            .build();
+                    throw WebException.conflict().message(e.getMessage()).build();
                 } catch (OperationNotPermittedException e) {
-                    throw WebException.forbidden().message(e.getMessage())
-                            .build();
+                    throw WebException.forbidden().message(e.getMessage()).build();
                 } catch (Exception e) {
                     if (e instanceof javax.ejb.EJBAccessException) {
-                        throw WebException.forbidden()
-                                .message(CommonParams.ERROR_NOT_AUTHORIZED)
-                                .build();
+                        throw WebException.forbidden().message(CommonParams.ERROR_NOT_AUTHORIZED).build();
                     } else {
                         throw e;
                     }
                 }
-
+                return true;
             }
         };
     }
