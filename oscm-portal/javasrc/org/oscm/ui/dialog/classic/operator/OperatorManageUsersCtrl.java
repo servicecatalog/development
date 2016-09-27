@@ -32,6 +32,7 @@ import org.oscm.internal.types.exception.OrganizationRemovedException;
 import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.internal.types.exception.SaaSSystemException;
 import org.oscm.internal.types.exception.ValidationException;
+import org.oscm.internal.usermanagement.POUserAndOrganization;
 import org.oscm.internal.usermanagement.UserManagementService;
 import org.oscm.internal.vo.VOConfigurationSetting;
 import org.oscm.internal.vo.VOMarketplace;
@@ -67,7 +68,7 @@ public class OperatorManageUsersCtrl extends BaseOperatorBean implements
     transient ApplicationBean appBean;
     private String selectedUserKey;
     private List<String> dataTableHeaders = new ArrayList<>();
-    private List<VOUserDetails> userAndOrganizations = new ArrayList<>();
+    private List<POUserAndOrganization> userAndOrganizations = new ArrayList<>();
     private List<Marketplace> marketplaces = new ArrayList<>();
     private boolean isInternalAuthMode;
     private Long maxRegisteredUsersCount;
@@ -118,19 +119,36 @@ public class OperatorManageUsersCtrl extends BaseOperatorBean implements
         return appBean;
     }
 
-    List<VOUserDetails> getUsersList() {
+    List<POUserAndOrganization> getUsersList() {
         try {
-            return getOperatorService().getUsers();
+            final List<VOUserDetails> users = getOperatorService().getUsers();
+            List<POUserAndOrganization> poUsers = new ArrayList<>();
+            for (VOUserDetails voUser : users) {
+                POUserAndOrganization poUser = voUserToPO(voUser);
+                poUsers.add(poUser);
+            }
+            return poUsers;
         } catch (OrganizationAuthoritiesException e) {
             ExceptionHandler.execute(e);
         }
         return Collections.emptyList();
     }
 
+    private POUserAndOrganization voUserToPO(VOUserDetails voUser) {
+        POUserAndOrganization poUser = new POUserAndOrganization();
+        poUser.setKey(voUser.getKey());
+        poUser.setUserId(voUser.getUserId());
+        poUser.setEmail(voUser.getEMail());
+        poUser.setOrganizationName(voUser.getOrganizationName());
+        poUser.setOrganizationId(voUser.getOrganizationId());
+        poUser.setStatus(voUser.getStatus());
+        return poUser;
+    }
+
     public List<String> getDataTableHeaders() {
         if (dataTableHeaders == null || dataTableHeaders.isEmpty()) {
             try {
-                dataTableHeaders = Arrays.asList("userId", "EMail", "organizationName", "organizationId");
+                dataTableHeaders = Arrays.asList("userId", "email", "organizationName", "organizationId");
             } catch (Exception e) {
                 throw new SaaSSystemException(e);
             }
@@ -202,7 +220,7 @@ public class OperatorManageUsersCtrl extends BaseOperatorBean implements
         if (user != null) {
             getOperatorService().setUserAccountStatus(user,
                     UserAccountStatus.ACTIVE);
-            model.getUser().setStatus(UserAccountStatus.LOCKED);
+            model.getUser().setStatus(UserAccountStatus.ACTIVE);
             model.setUser(null);
         }
 
@@ -210,12 +228,24 @@ public class OperatorManageUsersCtrl extends BaseOperatorBean implements
     }
 
     public void updateSelectedUser() throws OperationNotPermittedException, ObjectNotFoundException, OrganizationRemovedException {
-        for (VOUserDetails userDetails : userAndOrganizations) {
-            if (userDetails.getKey() == Long.valueOf(selectedUserKey)) {
-                model.setUser(userDetails);
+        for (POUserAndOrganization poUser : userAndOrganizations) {
+            if (poUser.getKey() == Long.valueOf(selectedUserKey)) {
+                VOUserDetails voUser = poUserToVO(poUser);
+                model.setUser(voUser);
                 return;
             }
         }
+    }
+
+    private VOUserDetails poUserToVO(POUserAndOrganization poUser) {
+        VOUserDetails voUser = new VOUserDetails();
+        voUser.setKey(poUser.getKey());
+        voUser.setUserId(poUser.getUserId());
+        voUser.setEMail(poUser.getEmail());
+        voUser.setOrganizationName(poUser.getOrganizationName());
+        voUser.setOrganizationId(poUser.getOrganizationId());
+        voUser.setStatus(poUser.getStatus());
+        return voUser;
     }
 
     public OperatorManageUsersModel getModel() {
@@ -329,14 +359,14 @@ public class OperatorManageUsersCtrl extends BaseOperatorBean implements
         return false;
     }
 
-    public List<VOUserDetails> getUserAndOrganizations() {
+    public List<POUserAndOrganization> getUserAndOrganizations() {
         if (userAndOrganizations.isEmpty()) {
             userAndOrganizations = getUsersList();
         }
         return userAndOrganizations;
     }
 
-    public void setUserAndOrganizations(List<VOUserDetails> userAndOrganizations) {
+    public void setUserAndOrganizations(List<POUserAndOrganization> userAndOrganizations) {
         this.userAndOrganizations = userAndOrganizations;
     }
 

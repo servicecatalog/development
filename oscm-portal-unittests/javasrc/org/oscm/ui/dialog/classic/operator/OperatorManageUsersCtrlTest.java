@@ -46,6 +46,7 @@ import org.oscm.internal.types.exception.MailOperationException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.OperationNotPermittedException;
 import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
+import org.oscm.internal.usermanagement.POUserAndOrganization;
 import org.oscm.internal.usermanagement.UserManagementService;
 import org.oscm.internal.vo.VOConfigurationSetting;
 import org.oscm.internal.vo.VOMarketplace;
@@ -470,19 +471,19 @@ public class OperatorManageUsersCtrlTest {
 
         when(operatorService.getUsers()).thenReturn(usersListVO);
         // when
-        final List<VOUserDetails> resultList = bean.getUsersList();
+        final List<POUserAndOrganization> resultList = bean.getUsersList();
         // then
         boolean hasFirst = false;
         boolean hasSecond = false;
-        for (VOUserDetails obj : resultList) {
+        for (POUserAndOrganization obj : resultList) {
             if (obj.getUserId().equals("user1ID")
-                    && obj.getEMail().equals("user1Email")
+                    && obj.getEmail().equals("user1Email")
                     && obj.getOrganizationId().equals("user1OrgID")
                     && obj.getOrganizationName().equals("user1OrgName")) {
                 hasFirst = true;
             }
             if (obj.getUserId().equals("user2ID")
-                    && obj.getEMail().equals("user2Email")
+                    && obj.getEmail().equals("user2Email")
                     && obj.getOrganizationId().equals("user2OrgID")
                     && obj.getOrganizationName().equals("user2OrgName")) {
                 hasSecond = true;
@@ -496,7 +497,7 @@ public class OperatorManageUsersCtrlTest {
         //given
         List<String> expectedHeaders = new ArrayList<>();
         expectedHeaders.add("userId");
-        expectedHeaders.add("EMail");
+        expectedHeaders.add("email");
         expectedHeaders.add("organizationName");
         expectedHeaders.add("organizationId");
         //when
