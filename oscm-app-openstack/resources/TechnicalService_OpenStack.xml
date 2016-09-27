@@ -20,6 +20,10 @@
     <ParameterDefinition configurable="true" id="STACK_NAME" default="" mandatory="true" valueType="STRING" modificationType="ONE_TIME">
       <LocalizedDescription locale="en">OpenStack identifier</LocalizedDescription>
     </ParameterDefinition>
+    <ParameterDefinition configurable="true" default="([A-Za-z][A-Za-z0-9_-]*){1,30}" id="STACK_NAME_PATTERN"
+      modificationType="ONE_TIME" mandatory="true" valueType="STRING">
+      <LocalizedDescription locale="en">Validation pattern for stack name (regex)</LocalizedDescription>
+    </ParameterDefinition>
     <ParameterDefinition configurable="true" id="TEMPLATE_NAME" default="template.json" mandatory="true"
       valueType="ENUMERATION" modificationType="ONE_TIME">
       <Options>
