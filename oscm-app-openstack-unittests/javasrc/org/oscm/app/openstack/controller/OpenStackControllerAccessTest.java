@@ -14,7 +14,6 @@ import static org.junit.Assert.assertNotNull;
 import java.util.List;
 
 import org.junit.Test;
-
 import org.oscm.app.common.intf.ControllerAccessTest;
 import org.oscm.app.openstack.i18n.Messages;
 
@@ -28,8 +27,8 @@ public class OpenStackControllerAccessTest extends ControllerAccessTest {
 
     @Test
     public void testGetMessage() throws Exception {
-        assertNotNull(new OpenStackControllerAccess().getMessage(
-                Messages.DEFAULT_LOCALE, "key", "args0"));
+        assertNotNull(new OpenStackControllerAccess()
+                .getMessage(Messages.DEFAULT_LOCALE, "key", "args0"));
     }
 
     @Test
@@ -37,7 +36,7 @@ public class OpenStackControllerAccessTest extends ControllerAccessTest {
         List<String> controllerParameterKeys = new OpenStackControllerAccess()
                 .getControllerParameterKeys();
         assertNotNull(controllerParameterKeys);
-        assertEquals(5, controllerParameterKeys.size());
+        assertEquals(6, controllerParameterKeys.size());
     }
 
     @Test
