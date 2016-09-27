@@ -20,6 +20,7 @@ import javax.ejb.Remote;
 import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
+import javax.persistence.NoResultException;
 import javax.persistence.Query;
 
 import org.oscm.accountservice.assembler.OrganizationAssembler;
@@ -190,9 +191,15 @@ public class OperatorServiceBean implements OperatorService {
                 organizationToCreate = OrganizationAssembler
                         .toCustomer(organization);
             }
+            String tenantId = null;
             if (organization.getTenantKey() != 0) {
                 Tenant tenant = dm.getReference(Tenant.class, organization.getTenantKey());
                 organizationToCreate.setTenant(tenant);
+                tenantId = tenant.getTenantId();
+            }
+            if (checkIfPlatformUserInGivenTenantExists(tenantId, orgInitialUser.getUserId())) {
+                throw new NonUniqueBusinessKeyException(DomainObjectException.ClassEnum.USER, orgInitialUser
+                    .getUserId());
             }
             if (organization.getOperatorRevenueShare() != null) {
                 createOperatorPriceModel(organizationToCreate,
@@ -240,6 +247,34 @@ public class OperatorServiceBean implements OperatorService {
             sessionCtx.setRollbackOnly();
             throw e;
         }
+    }
+    
+    private boolean checkIfPlatformUserInGivenTenantExists(String tenantId,
+            String userId) {
+        if (tenantId != null) {
+            Query query = dm
+                    .createNamedQuery("PlatformUser.findByUserIdAndTenant");
+            query.setParameter("userId", userId);
+            query.setParameter("tenantId", tenantId);
+            try {
+                PlatformUser pu = (PlatformUser) query.getSingleResult();
+                if (pu != null) {
+                    return true;
+                }
+            } catch (NoResultException e) {
+            }
+            return false;
+        }
+        PlatformUser u = new PlatformUser();
+        u.setUserId(userId);
+        try {
+            PlatformUser user = (PlatformUser) dm.getReferenceByBusinessKey(u);
+            if (user != null) {
+                return true;
+            }
+        } catch (ObjectNotFoundException e) {
+        }
+        return false;
     }
     
     /**

@@ -1843,7 +1843,7 @@ public class IdentityServiceBean implements IdentityService,
                         cm.sendMail(
                                 pu,
                                 EmailType.USER_CREATED_WITH_MARKETPLACE_SAML_SP,
-                                new Object[] { pu.getUserId(), cm.getBaseUrl(),
+                                new Object[] { pu.getUserId(), cm.getBaseUrlWithTenant(tenantId),
                                         cm.getMarketplaceUrl(marketplaceId) },
                                 marketplace);
 
