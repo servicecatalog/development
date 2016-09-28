@@ -465,6 +465,7 @@ public class UserBean extends BaseBean implements Serializable {
             voUser.setOrganizationId(oId);
             voUser.setUserId(uId);
             try {
+                voUser.setTenantKey(getMarketplaceService().getTenantIdFromMarketplace(getMarketplaceId()));
                 voUser = service.getUser(voUser);
             } catch (ObjectNotFoundException e) {
                 if (isServiceProvider() && !ADMStringUtils.isBlank(uId)) {

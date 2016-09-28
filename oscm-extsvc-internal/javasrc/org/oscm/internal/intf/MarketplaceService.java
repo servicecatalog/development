@@ -640,4 +640,6 @@ public interface MarketplaceService {
      */
     @RolesAllowed("PLATFORM_OPERATOR")
     List<VOMarketplace> getAllMarketplacesForTenant(long tenantKey) throws ObjectNotFoundException;
+
+    String getTenantIdFromMarketplace(String marketplaceId) throws ObjectNotFoundException;
 }

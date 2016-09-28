@@ -34,15 +34,7 @@ import org.oscm.accountservice.local.AccountServiceLocal;
 import org.oscm.applicationservice.local.ApplicationServiceLocal;
 import org.oscm.converter.ParameterizedTypes;
 import org.oscm.dataservice.local.DataService;
-import org.oscm.domobjects.CatalogEntry;
-import org.oscm.domobjects.Category;
-import org.oscm.domobjects.Marketplace;
-import org.oscm.domobjects.MarketplaceToOrganization;
-import org.oscm.domobjects.Organization;
-import org.oscm.domobjects.PlatformUser;
-import org.oscm.domobjects.Product;
-import org.oscm.domobjects.PublicLandingpage;
-import org.oscm.domobjects.Subscription;
+import org.oscm.domobjects.*;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.domobjects.enums.PublishingAccess;
 import org.oscm.i18nservice.bean.LocalizerFacade;
@@ -1276,5 +1268,11 @@ public class MarketplaceServiceBean implements MarketplaceService {
             result.add(MarketplaceAssembler.toVOMarketplace(mp, facade));
         }
         return result;
+    }
+
+    @Override
+    public String getTenantIdFromMarketplace(String marketplaceId) throws ObjectNotFoundException {
+        VOMarketplace marketplace = getMarketplaceById(marketplaceId);
+        return marketplace.getTenantId();
     }
 }
