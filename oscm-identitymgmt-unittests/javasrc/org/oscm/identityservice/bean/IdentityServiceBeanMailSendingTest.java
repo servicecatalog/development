@@ -136,6 +136,7 @@ public class IdentityServiceBeanMailSendingTest {
                 any(ConfigurationKey.class), anyString());
         doReturn(BASE_URL).when(cs).getBaseURL();
         doReturn("baseUrl").when(cm).getBaseUrl();
+        doReturn("baseUrl").when(cm).getBaseUrlWithTenant(anyString());
         doReturn("marketplaceUrl").when(cm).getMarketplaceUrl(anyString());
         TriggerQueueServiceLocal triggerQS = mock(TriggerQueueServiceLocal.class);
         idSrv.triggerQS = triggerQS;
@@ -703,7 +704,7 @@ public class IdentityServiceBeanMailSendingTest {
         idSrv.sendMailToCreatedUser("secret", true, marketplace, pUser);
 
         // then verify that mail parameters are correct
-        verify(idSrv.cm, times(1)).getBaseUrl();
+        verify(idSrv.cm, times(1)).getBaseUrlWithTenant(anyString());
         verify(idSrv.cm, times(1)).getMarketplaceUrl(anyString());
 
         ArgumentCaptor<Object[]> ac = ArgumentCaptor.forClass(Object[].class);
