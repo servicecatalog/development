@@ -6,9 +6,9 @@ package org.oscm.operatorservice.bean;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -25,6 +25,8 @@ import javax.persistence.Query;
 
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.oscm.accountservice.bean.AccountServiceBean;
 import org.oscm.accountservice.local.AccountServiceLocal;
 import org.oscm.accountservice.local.MarketingPermissionServiceLocal;
@@ -153,7 +155,7 @@ public class OperatorServiceBeanRoleIT extends EJBTestBase {
 
         });
 
-        container.addBean(new DataServiceStub() {
+        DataServiceStub dataServiceStub = new DataServiceStub() {
 
             @Override
             public void flush() {
@@ -281,7 +283,18 @@ public class OperatorServiceBeanRoleIT extends EJBTestBase {
             public void refresh(Object arg0) {
             }
 
-        });
+        };
+        dataServiceStub = spy(dataServiceStub);
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                if (invocation.getArguments()[0].getClass().equals(PlatformUser.class)) {
+                    throw new ObjectNotFoundException();
+                }
+                return invocation.callRealMethod();
+            }
+        }).when(dataServiceStub).getReferenceByBusinessKey(any(DomainObject.class));
+        container.addBean(dataServiceStub);
 
         container.addBean(new IdentityServiceStub() {
             @Override
