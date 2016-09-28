@@ -212,6 +212,7 @@ public class OperatorServiceBeanIT extends EJBTestBase {
                 dataManager_removed_objects.add(obj);
             }
         };
+        dataServiceStub = spy(dataServiceStub);
         container.addBean(dataServiceStub);
         IdentityServiceLocal mock = mock(IdentityServiceLocal.class);
         container.addBean(mock);
@@ -342,6 +343,15 @@ public class OperatorServiceBeanIT extends EJBTestBase {
      */
     @Test
     public void testRegisterOrganization() throws Exception {
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                if (invocation.getArguments()[0].getClass().equals(PlatformUser.class)) {
+                    throw new ObjectNotFoundException();
+                }
+                return invocation.callRealMethod();
+            }
+        }).when(dataServiceStub).getReferenceByBusinessKey(any(DomainObject.class));
         container.login("me", ROLE_PLATFORM_OPERATOR);
         callerRolles.add(OrganizationRoleType.PLATFORM_OPERATOR);
         final VOOrganization org = newVOOrganization();
@@ -402,6 +412,15 @@ public class OperatorServiceBeanIT extends EJBTestBase {
     @Test
     public void testRegisterOrganizationSupplier_VerifyInvoice()
             throws Exception {
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                if (invocation.getArguments()[0].getClass().equals(PlatformUser.class)) {
+                    throw new ObjectNotFoundException();
+                }
+                return invocation.callRealMethod();
+            }
+        }).when(dataServiceStub).getReferenceByBusinessKey(any(DomainObject.class));
         OrganizationRefToPaymentType cpt = verifyInvoice();
         assertFalse(cpt.isUsedAsDefault());
         assertFalse(cpt.isUsedAsServiceDefault());
@@ -410,6 +429,15 @@ public class OperatorServiceBeanIT extends EJBTestBase {
     @Test
     public void testRegisterOrganizationSupplier_VerifyInvoiceDefault()
             throws Exception {
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                if (invocation.getArguments()[0].getClass().equals(PlatformUser.class)) {
+                    throw new ObjectNotFoundException();
+                }
+                return invocation.callRealMethod();
+            }
+        }).when(dataServiceStub).getReferenceByBusinessKey(any(DomainObject.class));
         cs.setConfigurationSetting(
                 ConfigurationKey.SUPPLIER_SETS_INVOICE_AS_DEFAULT, "true");
         OrganizationRefToPaymentType cpt = verifyInvoice();
@@ -450,6 +478,15 @@ public class OperatorServiceBeanIT extends EJBTestBase {
     @Test
     public void testRegisterOrganizationTechnologyProvider_VerifyInvoice()
             throws Exception {
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                if (invocation.getArguments()[0].getClass().equals(PlatformUser.class)) {
+                    throw new ObjectNotFoundException();
+                }
+                return invocation.callRealMethod();
+            }
+        }).when(dataServiceStub).getReferenceByBusinessKey(any(DomainObject.class));
         container.login("me", ROLE_PLATFORM_OPERATOR);
         callerRolles.add(OrganizationRoleType.PLATFORM_OPERATOR);
         final VOOrganization org = newVOOrganization();
@@ -552,6 +589,15 @@ public class OperatorServiceBeanIT extends EJBTestBase {
      */
     @Test
     public void registerOrganization_Broker() throws Exception {
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                if (invocation.getArguments()[0].getClass().equals(PlatformUser.class)) {
+                    throw new ObjectNotFoundException();
+                }
+                return invocation.callRealMethod();
+            }
+        }).when(dataServiceStub).getReferenceByBusinessKey(any(DomainObject.class));
         container.login("me", ROLE_PLATFORM_OPERATOR);
         callerRolles.add(OrganizationRoleType.PLATFORM_OPERATOR);
         final VOOrganization org = newVOOrganization();
@@ -586,6 +632,15 @@ public class OperatorServiceBeanIT extends EJBTestBase {
      */
     @Test
     public void registerOrganization_Reseller() throws Exception {
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                if (invocation.getArguments()[0].getClass().equals(PlatformUser.class)) {
+                    throw new ObjectNotFoundException();
+                }
+                return invocation.callRealMethod();
+            }
+        }).when(dataServiceStub).getReferenceByBusinessKey(any(DomainObject.class));
         container.login("me", ROLE_PLATFORM_OPERATOR);
         callerRolles.add(OrganizationRoleType.PLATFORM_OPERATOR);
         final VOOrganization org = newVOOrganization();
