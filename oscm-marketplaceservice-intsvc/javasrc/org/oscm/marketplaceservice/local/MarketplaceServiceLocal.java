@@ -70,6 +70,9 @@ public interface MarketplaceServiceLocal {
      */
     List<Marketplace> getMarketplacesForSupplier();
 
+    @TransactionAttribute(TransactionAttributeType.MANDATORY)
+    List<Marketplace> getMarketplacesForSupplierWithTenant();
+
     /**
      * Creates the broker, reseller and marketplace price models with the
      * specified revenue shares and sets them into the specified marketplace.

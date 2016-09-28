@@ -41,7 +41,16 @@ import org.oscm.domobjects.enums.LocalizedObjectTypes;
                 + "AND mto.organization_tkey=:organization_tkey AND mto.dataContainer.publishingAccess=:publishingAccessGranted)) "
                 + "OR (mp.dataContainer.open = TRUE AND NOT EXISTS (SELECT mto FROM MarketplaceToOrganization mto "
                 + "WHERE mp.key = mto.marketplace_tkey AND mto.organization_tkey=:organization_tkey "
-                + "AND mto.dataContainer.publishingAccess=:publishingAccessDenied)) )"),
+                + "AND mto.dataContainer.publishingAccess=:publishingAccessDenied))) AND mp.tenant IS NULL"),
+    @NamedQuery(name = "Marketplace.findMarketplacesForPublishingForOrgAndTenant", query = "SELECT mp FROM "
+        + "Marketplace mp "
+        + "WHERE (mp.dataContainer.restricted = FALSE OR EXISTS (SELECT ma FROM MarketplaceAccess ma WHERE ma"
+        + ".marketplace_tkey = mp.key AND ma.organization_tkey = :organization_tkey)) AND ( (mp.dataContainer"
+        + ".open = FALSE AND EXISTS (SELECT mto FROM MarketplaceToOrganization mto WHERE mp.key = mto.marketplace_tkey "
+        + "AND mto.organization_tkey=:organization_tkey AND mto.dataContainer.publishingAccess=:publishingAccessGranted)) "
+        + "OR (mp.dataContainer.open = TRUE AND NOT EXISTS (SELECT mto FROM MarketplaceToOrganization mto "
+        + "WHERE mp.key = mto.marketplace_tkey AND mto.organization_tkey=:organization_tkey "
+        + "AND mto.dataContainer.publishingAccess=:publishingAccessDenied))) AND mp.tenant = :tenant"),
         @NamedQuery(name = "Marketplace.getAllForTenant", query = "SELECT mp FROM Marketplace mp WHERE mp"
                 + ".tenant = :tenant") })
 @Entity

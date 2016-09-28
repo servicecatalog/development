@@ -187,6 +187,27 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
 
     @Override
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
+    public List<Marketplace> getMarketplacesForSupplierWithTenant() {
+
+        Organization supplier = ds.getCurrentUser().getOrganization();
+
+        Query query = ds
+            .createNamedQuery("Marketplace.findMarketplacesForPublishingForOrgAndTenant");
+        query.setParameter("organization_tkey", Long.valueOf(supplier.getKey()));
+        query.setParameter("publishingAccessGranted",
+            PublishingAccess.PUBLISHING_ACCESS_GRANTED);
+        query.setParameter("publishingAccessDenied",
+            PublishingAccess.PUBLISHING_ACCESS_DENIED);
+        query.setParameter("tenant", supplier.getTenant());
+
+        List<Marketplace> marketplaceList = ParameterizedTypes.list(
+            query.getResultList(), Marketplace.class);
+
+        return marketplaceList;
+    }
+
+    @Override
+    @TransactionAttribute(TransactionAttributeType.MANDATORY)
     @RolesAllowed({ "PLATFORM_OPERATOR", "SERVICE_MANAGER" })
     public void createRevenueModels(Marketplace mp,
             BigDecimal brokerRevenueShare, BigDecimal resellerRevenueShare,
