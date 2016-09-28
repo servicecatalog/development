@@ -34,6 +34,7 @@ import javax.servlet.http.HttpServletResponseWrapper;
 import javax.servlet.http.HttpSession;
 import javax.xml.datatype.DatatypeConfigurationException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.oscm.internal.intf.IdentityService;
 import org.oscm.internal.intf.MarketplaceService;
 import org.oscm.internal.intf.SessionService;
@@ -768,7 +769,7 @@ public class AuthorizationFilter extends BaseBesFilter {
                     LogMessageIdentifier.INFO_USER_LOGIN_INVALID,
                     httpRequest.getRemoteHost(),
                     Integer.toString(httpRequest.getRemotePort()),
-                    voUser.getUserId(),
+                    StringUtils.isNotBlank(voUser.getUserId()) ? voUser.getUserId() : "",
                     IPResolver.resolveIpAddress(httpRequest));
             try {
                 voUser = identityService.getUser(voUser);
@@ -832,7 +833,7 @@ public class AuthorizationFilter extends BaseBesFilter {
 
         logger.logInfo(Log4jLogger.ACCESS_LOG,
                 LogMessageIdentifier.INFO_USER_LOGIN_SUCCESS,
-                voUser.getUserId(), IPResolver.resolveIpAddress(httpRequest));
+                StringUtils.isNotBlank(voUser.getUserId()) ? voUser.getUserId() : "", IPResolver.resolveIpAddress(httpRequest), voUser.getTenantKey());
         return true;
     }
 
