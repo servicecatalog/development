@@ -25,9 +25,6 @@ import java.util.concurrent.Callable;
 import javax.naming.InitialContext;
 
 import org.junit.Test;
-
-import org.oscm.test.EJBTestBase;
-import org.oscm.test.ejb.TestContainer;
 import org.oscm.app.openstack.data.FlowState;
 import org.oscm.app.v1_0.data.InstanceDescription;
 import org.oscm.app.v1_0.data.InstanceStatus;
@@ -37,6 +34,8 @@ import org.oscm.app.v1_0.data.ServiceUser;
 import org.oscm.app.v1_0.exceptions.APPlatformException;
 import org.oscm.app.v1_0.intf.APPlatformController;
 import org.oscm.app.v1_0.intf.APPlatformService;
+import org.oscm.test.EJBTestBase;
+import org.oscm.test.ejb.TestContainer;
 
 /**
  * 
@@ -219,13 +218,14 @@ public class OpenStackControllerTest extends EJBTestBase {
     }
 
     private InstanceDescription createInstanceInternal() throws Exception {
-        InstanceDescription instance = runTX(new Callable<InstanceDescription>() {
+        InstanceDescription instance = runTX(
+                new Callable<InstanceDescription>() {
 
-            @Override
-            public InstanceDescription call() throws Exception {
-                return controller.createInstance(settings);
-            }
-        });
+                    @Override
+                    public InstanceDescription call() throws Exception {
+                        return controller.createInstance(settings);
+                    }
+                });
         return instance;
     }
 
@@ -235,8 +235,8 @@ public class OpenStackControllerTest extends EJBTestBase {
 
             @Override
             public InstanceStatus call() throws Exception {
-                return controller
-                        .modifyInstance(instanceId, settings, settings);
+                return controller.modifyInstance(instanceId, settings,
+                        settings);
             }
         });
     }
@@ -300,13 +300,15 @@ public class OpenStackControllerTest extends EJBTestBase {
 
     private InstanceStatusUsers createUsers(final String instanceId,
             final List<ServiceUser> users) throws Exception {
-        InstanceStatusUsers instance = runTX(new Callable<InstanceStatusUsers>() {
+        InstanceStatusUsers instance = runTX(
+                new Callable<InstanceStatusUsers>() {
 
-            @Override
-            public InstanceStatusUsers call() throws Exception {
-                return controller.createUsers(instanceId, settings, users);
-            }
-        });
+                    @Override
+                    public InstanceStatusUsers call() throws Exception {
+                        return controller.createUsers(instanceId, settings,
+                                users);
+                    }
+                });
         return instance;
     }
 

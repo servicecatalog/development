@@ -15,18 +15,19 @@ import java.net.HttpURLConnection;
 
 /**
  * Value object containing important response data from a REST request.
- * 
+ *
  * @author Dirk Bernsau
- * 
+ *
  */
 public class RESTResponse {
 
     private int responseCode;
     private String responseBody;
+    private String token;
 
     /**
      * Creates a new instance based on the given connection.
-     * 
+     *
      * @param connection
      *            the connection object
      * @throws IOException
@@ -34,6 +35,7 @@ public class RESTResponse {
     public RESTResponse(HttpURLConnection connection) throws IOException {
 
         responseCode = connection.getResponseCode();
+        token = connection.getHeaderField("X-Subject-Token");
         BufferedReader in = new BufferedReader(new InputStreamReader(
                 connection.getInputStream()));
         StringBuilder sb = new StringBuilder();
@@ -52,7 +54,7 @@ public class RESTResponse {
 
     /**
      * Returns the status code of the HTTP response.
-     * 
+     *
      * @return the response code
      */
     public int getResponseCode() {
@@ -61,10 +63,19 @@ public class RESTResponse {
 
     /**
      * Returns the actual content of the HTTP response.
-     * 
+     *
      * @return the content
      */
     public String getResponseBody() {
         return responseBody;
+    }
+
+    /**
+     * Returns the Header of the HTTP response.
+     *
+     * @return the response Header
+     */
+    public String getToken() {
+        return token;
     }
 }

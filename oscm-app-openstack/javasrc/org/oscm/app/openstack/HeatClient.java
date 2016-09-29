@@ -14,13 +14,12 @@ import java.net.URLEncoder;
 import org.apache.sling.commons.json.JSONArray;
 import org.apache.sling.commons.json.JSONException;
 import org.apache.sling.commons.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.oscm.app.openstack.data.CreateStackRequest;
 import org.oscm.app.openstack.data.Stack;
 import org.oscm.app.openstack.data.UpdateStackRequest;
 import org.oscm.app.openstack.exceptions.HeatException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Client for communication with OpenStack Heat API.
@@ -30,6 +29,31 @@ public class HeatClient {
     private final OpenStackConnection connection;
     private static final Logger logger = LoggerFactory
             .getLogger(HeatClient.class);
+
+    private static enum InstanceType {
+        NOVA("OS::Nova::Server"), EC2("AWS::EC2::Instance"), TROVE(
+                "OS::Trove::Instance");
+
+        private final String text;
+
+        private InstanceType(final String text) {
+            this.text = text;
+        }
+
+        public String getString() {
+            return this.text;
+        }
+    }
+
+    private static InstanceType getInstanceType(final String instanceType) {
+        InstanceType[] types = InstanceType.values();
+        for (InstanceType type : types) {
+            if (type.getString().equalsIgnoreCase(instanceType)) {
+                return type;
+            }
+        }
+        return null;
+    }
 
     public HeatClient(OpenStackConnection connection) {
         this.connection = connection;
@@ -42,7 +66,8 @@ public class HeatClient {
         RESTResponse response = connection.processRequest(uri, "POST",
                 request.getJSON());
         try {
-            JSONObject responseJson = new JSONObject(response.getResponseBody());
+            JSONObject responseJson = new JSONObject(
+                    response.getResponseBody());
             JSONObject stack = responseJson.getJSONObject("stack");
             Stack result = new Stack();
             result.setId(stack.getString("id"));
@@ -127,13 +152,14 @@ public class HeatClient {
         logger.debug("HeatClient.checkServerExists() Responsecode: "
                 + response.getResponseCode());
 
-        if (body.contains(stackName)) {
+        if (body.contains(serverId)) {
             return true;
         }
         return false;
     }
 
-    private String getServerIdByStackResource(String stackName) throws HeatException {
+    private String getServerIdByStackResource(String stackName)
+            throws HeatException {
         logger.debug("HeatClient.getServerId() Endpoint: "
                 + connection.getHeatEndpoint());
         String uri;
@@ -152,9 +178,18 @@ public class HeatClient {
             JSONArray resources = responseJson.getJSONArray("resources");
             for (int i = 0; i < resources.length(); i++) {
                 JSONObject resource = resources.getJSONObject(i);
-                if ("Server".equalsIgnoreCase(resource
-                        .optString("resource_name"))) {
+                InstanceType type = getInstanceType(
+                        resource.optString("resource_type"));
+                if (type == null) {
+                    continue;
+                }
+                switch (type) {
+                case NOVA:
+                case EC2:
+                case TROVE:
                     return resource.optString("physical_resource_id");
+                default:
+                    continue;
                 }
             }
         } catch (JSONException e) {
