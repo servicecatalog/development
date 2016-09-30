@@ -2774,4 +2774,9 @@ public class MockService implements IdentityService, SubscriptionService,
         return null;
     }
 
+    @Override
+    public String getTenantIdFromMarketplace(String marketplaceId) throws ObjectNotFoundException {
+        return null;
+    }
+
 }

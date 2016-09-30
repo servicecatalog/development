@@ -224,4 +224,9 @@ public class MarketplaceServiceStub implements MarketplaceService {
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public String getTenantIdFromMarketplace(String marketplaceId) throws ObjectNotFoundException {
+        return null;
+    }
+
 }
