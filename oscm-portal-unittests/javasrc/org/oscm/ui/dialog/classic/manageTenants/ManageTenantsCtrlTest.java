@@ -28,6 +28,8 @@ import org.oscm.ui.profile.FieldData;
 
 public class ManageTenantsCtrlTest {
 
+    private static final String GENERATED_TENANT_ID = "9hjgadhf";
+
     private ManageTenantsCtrl ctrl;
     private ManageTenantsModel model;
     private ManageTenantService manageTenantService;
@@ -61,6 +63,7 @@ public class ManageTenantsCtrlTest {
         assertFalse(model.isDeleteDisabled());
         assertEquals(selectedTenant.getTenantId(), model.getTenantId().getValue());
         assertEquals(selectedTenant.getDescription(), model.getTenantDescription().getValue());
+        assertEquals(selectedTenant.getName(), model.getTenantName().getValue());
         assertEquals(selectedTenant.getIdp(), model.getTenantIdp().getValue());
     }
 
@@ -86,13 +89,14 @@ public class ManageTenantsCtrlTest {
         POTenant poTenant = prepareTenant();
         model.setTenantId(new FieldData<String>(poTenant.getTenantId(), false, true));
         model.setTenantDescription(new FieldData<String>(poTenant.getDescription(), false, true));
-        doNothing().when(manageTenantService).addTenant(any(POTenant.class));
+        model.setTenantName(new FieldData<String>(poTenant.getName(), false, true));
+        when(manageTenantService.addTenant(any(POTenant.class))).thenReturn(GENERATED_TENANT_ID);
 
         //when
         ctrl.save();
 
         //then
-        assertEquals(model.getSelectedTenantId(), poTenant.getTenantId());
+        assertEquals(model.getSelectedTenantId(), GENERATED_TENANT_ID);
         verify(manageTenantService, times(1)).addTenant(any(POTenant.class));
         verify(model, times(1)).setTenants(anyList());
     }
@@ -105,6 +109,7 @@ public class ManageTenantsCtrlTest {
         model.setSelectedTenant(poTenant);
         model.setTenantId(new FieldData<String>("edited tenant id", false, true));
         model.setTenantDescription(new FieldData<String>(poTenant.getDescription(), false, true));
+        model.setTenantName(new FieldData<String>(poTenant.getName(), false, true));
         doNothing().when(manageTenantService).updateTenant(any(POTenant.class));
 
         //when
@@ -128,6 +133,7 @@ public class ManageTenantsCtrlTest {
         assertEquals(model.getSelectedTenantId(), null);
         assertFalse(model.isClearExportAvailable());
         assertEquals(model.getTenantId().getValue(), null);
+        assertEquals(model.getTenantName().getValue(), null);
         assertEquals(model.getTenantDescription().getValue(), null);
         assertEquals(model.getTenantIdp().getValue(), null);
         assertFalse(model.isSaveDisabled());
@@ -162,9 +168,10 @@ public class ManageTenantsCtrlTest {
 
     private POTenant prepareTenant() {
         POTenant poTenant = new POTenant();
-        poTenant.setTenantId("tenantId");
+        poTenant.setTenantId(GENERATED_TENANT_ID);
         poTenant.setDescription("description");
         poTenant.setKey(1L);
+        poTenant.setName("tenantName");
         poTenant.setVersion(0);
         poTenant.setIdp("");
         return poTenant;
