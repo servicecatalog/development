@@ -2,6 +2,7 @@ CREATE TABLE "tenant" (
 		"tkey" BIGINT NOT NULL,
 		"version" INTEGER DEFAULT 0 NOT NULL,
 		"tenantid" character varying(255) NOT NULL,
+		"name" character varying(255) NOT NULL,
 		"description" character varying(255),
 		"idp" character varying(255)
 	);

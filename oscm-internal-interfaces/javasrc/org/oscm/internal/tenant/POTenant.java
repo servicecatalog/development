@@ -12,9 +12,10 @@ import org.oscm.internal.types.enumtypes.IdpSettingType;
 import org.oscm.internal.vo.VOTenant;
 
 public class POTenant extends BasePO {
-
-    private String tenantId;
+    
+    private String name;
     private String description;
+    private String tenantId;
     private String idp;
 
     public POTenant() {
@@ -23,10 +24,20 @@ public class POTenant extends BasePO {
 
     public POTenant(VOTenant voTenant) {
         this.tenantId = voTenant.getTenantId();
+        this.name = voTenant.getName();
         this.description = voTenant.getDescription();
         this.idp = voTenant.getTenantSettings().get(IdpSettingType.SSO_IDP_URL);
         this.setKey(voTenant.getKey());
         this.setVersion(voTenant.getVersion());
+    }
+    public VOTenant toVOTenanat() {
+        VOTenant voTenant = new VOTenant();
+        voTenant.setKey(this.getKey());
+        voTenant.setVersion(this.getVersion());
+        voTenant.setTenantId(this.getTenantId());
+        voTenant.setName(this.getName());
+        voTenant.setDescription(this.getDescription());
+        return voTenant;
     }
 
     public String getTenantId() {
@@ -53,13 +64,11 @@ public class POTenant extends BasePO {
         this.idp = idp;
     }
 
-    public VOTenant toVOTenanat() {
-        VOTenant voTenant = new VOTenant();
-        voTenant.setKey(this.getKey());
-        voTenant.setVersion(this.getVersion());
-        voTenant.setTenantId(this.getTenantId());
-        voTenant.setDescription(this.getDescription());
-        return voTenant;
+    public String getName() {
+        return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
 }

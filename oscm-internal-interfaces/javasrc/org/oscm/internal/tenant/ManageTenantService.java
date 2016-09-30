@@ -37,9 +37,10 @@ public interface ManageTenantService {
     /**
      * Adds new tenant to system
      * @param poTenant Tenant representation.
+     * @return Added tenant ID
      * @throws NonUniqueBusinessKeyException if tenant with business key already exists.
      */
-    void addTenant(POTenant poTenant) throws NonUniqueBusinessKeyException;
+    String addTenant(POTenant poTenant) throws NonUniqueBusinessKeyException;
 
     /**
      * Modified already existing tenant.

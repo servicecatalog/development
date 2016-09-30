@@ -25,6 +25,7 @@ public class TenantAssembler extends BaseAssembler {
         voTenant.setVersion(tenant.getVersion());
         voTenant.setTenantId(tenant.getDataContainer().getTenantId());
         voTenant.setDescription(tenant.getDataContainer().getDescription());
+        voTenant.setName(tenant.getDataContainer().getName());
         for(TenantSetting tenantSetting : tenant.getTenantSettings()) {
             voTenant.getTenantSettings().put(tenantSetting.getName(), tenantSetting.getValue());
         }
@@ -33,17 +34,21 @@ public class TenantAssembler extends BaseAssembler {
 
     public static Tenant updateTenantData(VOTenant voTenant, Tenant tenant) throws ConcurrentModificationException {
         verifyVersionAndKey(tenant, voTenant);
-        tenant.getDataContainer().setTenantId(voTenant.getTenantId());
-        tenant.getDataContainer().setDescription(voTenant.getDescription());
+        fillTenantData(tenant, voTenant);
         return tenant;
     }
 
     public static Tenant toTenant(VOTenant voTenant) {
         Tenant tenant = new Tenant();
-        tenant.getDataContainer().setTenantId(voTenant.getTenantId());
-        tenant.getDataContainer().setDescription(voTenant.getDescription());
+        fillTenantData(tenant, voTenant);
         tenant.setKey(voTenant.getKey());
         return tenant;
+    }
+
+    private static void fillTenantData(Tenant tenant, VOTenant voTenant) {
+        tenant.getDataContainer().setTenantId(voTenant.getTenantId());
+        tenant.getDataContainer().setName(voTenant.getName());
+        tenant.getDataContainer().setDescription(voTenant.getDescription());
     }
 
     public static TenantSetting toTenantSetting(VOTenantSetting voTenantSetting) {

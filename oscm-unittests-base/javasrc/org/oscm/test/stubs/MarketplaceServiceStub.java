@@ -46,8 +46,7 @@ public class MarketplaceServiceStub implements MarketplaceService {
     public VOServiceDetails publishService(VOService service,
             List<VOCatalogEntry> entries) throws ObjectNotFoundException,
             ValidationException, NonUniqueBusinessKeyException,
-            OperationNotPermittedException,
-            PublishingToMarketplaceNotPermittedException {
+            OperationNotPermittedException {
         throw new UnsupportedOperationException();
 
     }

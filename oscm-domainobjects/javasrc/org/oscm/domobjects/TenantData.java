@@ -23,6 +23,9 @@ public class TenantData extends DomainDataContainer implements
     @Column(nullable = false)
     private String tenantId;
 
+    @Column(nullable = false)
+    private String name;
+
     private String description;
 
     public String getTenantId() {
@@ -39,5 +42,13 @@ public class TenantData extends DomainDataContainer implements
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

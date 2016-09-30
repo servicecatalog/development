@@ -76,7 +76,8 @@ public class ManageTenantsCtrl extends BaseBean implements Serializable {
 
     private void initWithoutSelection() {
         model.setTenants(manageTenantService.getAllTenants());
-        model.setTenantId(new FieldData<String>(null, true, true));
+        model.setTenantId(new FieldData<String>(null, true, false));
+        model.setTenantName(new FieldData<String>(null, true, true));
         model.setTenantDescription(new FieldData<String>(null, true, false));
         model.setTenantIdp(new FieldData<String>(null, true, false));
         model.setSaveDisabled(true);
@@ -91,9 +92,10 @@ public class ManageTenantsCtrl extends BaseBean implements Serializable {
         POTenant poTenant = getSelectedTenant();
         model.setClearExportAvailable(!manageTenantService.getTenantSettings(poTenant.getKey()).isEmpty());
         model.setSelectedTenant(poTenant);
-        model.setTenantId(new FieldData<String>(poTenant.getTenantId(), true, true));
-        model.setTenantDescription(new FieldData<String>(poTenant.getDescription(), false, false));
-        model.setTenantIdp(new FieldData<String>(poTenant.getIdp(), true, false));
+        model.setTenantId(new FieldData<>(poTenant.getTenantId(), true, false));
+        model.setTenantName(new FieldData<>(poTenant.getName(), false, true));
+        model.setTenantDescription(new FieldData<>(poTenant.getDescription(), false, false));
+        model.setTenantIdp(new FieldData<>(poTenant.getIdp(), true, false));
         model.setSaveDisabled(false);
         model.setDeleteDisabled(false);
     }
@@ -112,17 +114,18 @@ public class ManageTenantsCtrl extends BaseBean implements Serializable {
         try {
             if (model.getSelectedTenant() != null) {
                 model.getSelectedTenant().setTenantId(model.getTenantId().getValue());
+                model.getSelectedTenant().setName(model.getTenantName().getValue());
                 model.getSelectedTenant().setDescription(model.getTenantDescription().getValue());
                 manageTenantService.updateTenant(model.getSelectedTenant());
                 model.setSelectedTenantId(model.getSelectedTenant().getTenantId());
                 handleSuccessMessage(BaseBean.INFO_TENANT_SAVED, model.getTenantId().getValue());
             } else {
                 POTenant poTenant = new POTenant();
-                poTenant.setTenantId(model.getTenantId().getValue());
+                poTenant.setName(model.getTenantName().getValue());
                 poTenant.setDescription(model.getTenantDescription().getValue());
-                manageTenantService.addTenant(poTenant);
-                model.setSelectedTenantId(poTenant.getTenantId());
-                handleSuccessMessage(BaseBean.INFO_TENANT_ADDED, model.getTenantId().getValue());
+                String generatedTenantId = manageTenantService.addTenant(poTenant);
+                model.setSelectedTenantId(generatedTenantId);
+                handleSuccessMessage(BaseBean.INFO_TENANT_ADDED, generatedTenantId);
             }
         }  catch (SaaSApplicationException e) {
             ui.handleException(e);
@@ -171,7 +174,8 @@ public class ManageTenantsCtrl extends BaseBean implements Serializable {
         model.setSelectedTenant(null);
         model.setSelectedTenantId(null);
         model.setClearExportAvailable(false);
-        model.setTenantId(new FieldData<String>(null, false, true));
+        model.setTenantId(new FieldData<String>(null, true, false));
+        model.setTenantName(new FieldData<String>(null, false, true));
         model.setTenantDescription(new FieldData<String>(null, false, false));
         model.setTenantIdp(new FieldData<String>(null, true, false));
         model.setSaveDisabled(false);

@@ -18,6 +18,7 @@ import static org.oscm.internal.types.enumtypes.IdpSettingType.*;
 public class VOTenant extends BaseVO {
 
     private String tenantId;
+    private String name;
     private String description;
     private Map<IdpSettingType, String> tenantSettings;
 
@@ -76,5 +77,13 @@ public class VOTenant extends BaseVO {
 
     public String getLogoutURL() {
         return tenantSettings.get(SSO_LOGOUT_URL);
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

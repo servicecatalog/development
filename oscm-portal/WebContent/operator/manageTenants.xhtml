@@ -46,7 +46,7 @@
 
       <a4j:jsFunction name="addItem" render="editForm mainTmplMessagesPanel importForm"
                       action="#{manageTenantsCtrl.addTenant}"
-                      oncomplete="AdmUtils.setFocus(document.getElementById('editForm:tenantId'), true);">
+                      oncomplete="AdmUtils.setFocus(document.getElementById('editForm:tenantName'), true);">
       </a4j:jsFunction>
     </h:form>
   </ui:define>
@@ -58,10 +58,12 @@
       <h:panelGrid id="details" border="0" cellspacing="0" cellpadding="0" columns="2" columnClasses="valignTop,valignTop">
         <h:panelGroup>
           <adm:panelGrid minColWidth="false">
-            <adm:labelAndInputText id="tenantId" label="#{msg['dataTable.header.tenantId']}"
-                                   required="#{manageTenantsCtrl.model.tenantId.required}" value="#{manageTenantsCtrl.model.tenantId.value}"
+
+            <adm:labelAndInputText id="tenantName" label="#{msg['dataTable.header.name']}"
+                                   required="#{manageTenantsCtrl.model.tenantName.required}"
+                                   value="#{manageTenantsCtrl.model.tenantName.value}"
                                    maxlength="#{appBean.tenantFieldLen}"
-                                   disabled="#{manageTenantsCtrl.model.tenantId.readOnly}"
+                                   disabled="#{manageTenantsCtrl.model.tenantName.readOnly}"
                                    converterId="trimConverter" />
 
             <adm:labelAndInputText id="tenantDescription" label="#{msg['dataTable.header.description']}"
@@ -69,6 +71,12 @@
                                    value="#{manageTenantsCtrl.model.tenantDescription.value}"
                                    maxlength="#{appBean.tenantFieldLen}"
                                    disabled="#{manageTenantsCtrl.model.tenantDescription.readOnly}"
+                                   converterId="trimConverter" />
+
+            <adm:labelAndInputText id="tenantId" label="#{msg['dataTable.header.tenantId']}"
+                                   required="#{manageTenantsCtrl.model.tenantId.required}" value="#{manageTenantsCtrl.model.tenantId.value}"
+                                   maxlength="#{appBean.tenantFieldLen}"
+                                   disabled="#{manageTenantsCtrl.model.tenantId.readOnly}"
                                    converterId="trimConverter" />
 
             <adm:labelAndInputText id="tenantIdp" label="#{msg['dataTable.header.idp']}"

@@ -24,6 +24,7 @@ public class ManageTenantsModel extends BaseModel implements Serializable {
 
     private List<POTenant> tenants;
     private FieldData<String> tenantId;
+    private FieldData<String> tenantName;
     private FieldData<String> tenantDescription;
     private FieldData<String> tenantIdp;
     private String selectedTenantId;
@@ -42,7 +43,6 @@ public class ManageTenantsModel extends BaseModel implements Serializable {
     public void setTenants(List<POTenant> tenants) {
         this.tenants = tenants;
     }
-
 
     public List<String> getDataTableHeaders() {
         return dataTableHeaders;
@@ -122,5 +122,13 @@ public class ManageTenantsModel extends BaseModel implements Serializable {
 
     public void setClearExportAvailable(boolean clearExportAvailable) {
         this.clearExportAvailable = clearExportAvailable;
+    }
+
+    public FieldData<String> getTenantName() {
+        return tenantName;
+    }
+
+    public void setTenantName(FieldData<String> tenantName) {
+        this.tenantName = tenantName;
     }
 }

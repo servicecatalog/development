@@ -17,6 +17,7 @@ import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 
+import org.oscm.id.IdGenerator;
 import org.oscm.interceptor.ExceptionMapper;
 import org.oscm.interceptor.InvocationDateContainer;
 import org.oscm.internal.intf.TenantService;
@@ -55,8 +56,11 @@ public class ManageTenantServiceBean implements ManageTenantService {
     }
 
     @Override
-    public void addTenant(POTenant poTenant) throws NonUniqueBusinessKeyException {
+    public String addTenant(POTenant poTenant) throws NonUniqueBusinessKeyException {
+        String suggestedId = IdGenerator.generateArtificialIdentifier();
+        poTenant.setTenantId(suggestedId);
         tenantService.addTenant(poTenant.toVOTenanat());
+        return suggestedId;
     }
 
     @Override
