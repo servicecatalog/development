@@ -12,7 +12,7 @@
     <c:set var="disabled" value="false" />
   </c:if>
   
-  <adm:outputLabel value="#{msg['dataTable.header.tenantId']}"/>
+  <adm:outputLabel value="#{msg['tenant.tenantID']}"/>
   
   <h:panelGroup>
     <rich:autocomplete
@@ -20,7 +20,7 @@
             id="tenantId"
             styleClass="fieldOrganization ct-autocomplete"
             inputClass="ct-autocomplete-input"
-            label="#{msg['dataTable.header.tenantId']}"
+            label="#{msg['tenant.tenantID']}"
             value="#{context}"
             onfocus="this.select();"
             maxlength="#{appBean.idLen}"
