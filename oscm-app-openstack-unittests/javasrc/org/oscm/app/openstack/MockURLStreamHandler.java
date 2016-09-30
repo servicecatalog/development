@@ -13,14 +13,17 @@ import java.net.Proxy;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.sling.commons.json.JSONArray;
 import org.apache.sling.commons.json.JSONException;
 import org.apache.sling.commons.json.JSONObject;
-import org.oscm.app.openstack.controller.OpenStackStatus;
+import org.oscm.app.openstack.controller.HeatStatus;
+import org.oscm.app.openstack.controller.ServerStatus;
 
 /**
  * @author Dirk Bernsau
@@ -32,17 +35,19 @@ public class MockURLStreamHandler extends URLStreamHandler {
     private final Map<String, MockHttpsURLConnection> connectionHttps;
 
     public MockURLStreamHandler() {
+        List<String> serverNames = new ArrayList<>();
+        serverNames.add("server1");
         connection = new HashMap<String, MockHttpURLConnection>();
         put("/v3/auth/tokens",
                 new MockHttpURLConnection(201, respTokens(true, true, false)));
         put("/stacks/instanceName", new MockHttpURLConnection(200,
-                respStacksInstanceName(OpenStackStatus.CREATE_COMPLETE, true)));
+                respStacksInstanceName(HeatStatus.CREATE_COMPLETE, true)));
         put("/stacks/Instance4", new MockHttpURLConnection(200,
-                respStacksInstanceName(OpenStackStatus.CREATE_COMPLETE, true)));
+                respStacksInstanceName(HeatStatus.CREATE_COMPLETE, true)));
         put("/stacks/Instance4/resources", new MockHttpURLConnection(200,
-                respStacksResources(true, "serverId", "AWS::EC2::Instance")));
-        put("/servers/serverId", new MockHttpURLConnection(200,
-                respServer("Instance4", "serverId")));
+                respStacksResources(serverNames, "AWS::EC2::Instance")));
+        put("/servers/0-Instance-server1", new MockHttpURLConnection(200,
+                respServer("server1", "0-Instance-server1")));
         put("/stacks/Instance4/sID/actions", new MockHttpURLConnection(200,
                 respStacksInstance4sIdActions()));
         put("/stacks", new MockHttpURLConnection(200, respStacks()));
@@ -53,22 +58,67 @@ public class MockURLStreamHandler extends URLStreamHandler {
                         respTemplatesFosi_v2_changeResourceId()));
         put("/templates/fosi_v2_changeType.json", new MockHttpURLConnection(200,
                 respTemplatesFosi_v2_changeType()));
+        put("/servers",
+                new MockHttpURLConnection(200, repServers(serverNames)));
+
+        // There are using tenant ID for getting server info
+        put("/testTenantID/servers/0-Instance-server1/action",
+                new MockHttpURLConnection(202, respServerActions()));
+        put("/testTenantID/servers/0-Instance-server1",
+                new MockHttpURLConnection(200,
+                        respServerDetail("server1", "0-Instance-server1",
+                                ServerStatus.ACTIVE, "testTenantID")));
+
         connectionHttps = new HashMap<String, MockHttpsURLConnection>();
         put("/v3/auth/tokens",
                 new MockHttpsURLConnection(201, respTokens(true, true, true)));
         put("/v1/templates/fosi_v2.json",
                 new MockHttpsURLConnection(200, respTemplatesFosi_v2()));
         put("/stacks/instanceName", new MockHttpsURLConnection(200,
-                respStacksInstanceName(OpenStackStatus.CREATE_COMPLETE, true)));
+                respStacksInstanceName(HeatStatus.CREATE_COMPLETE, true)));
         put("/stacks/Instance4", new MockHttpsURLConnection(200,
-                respStacksInstanceName(OpenStackStatus.CREATE_COMPLETE, true)));
+                respStacksInstanceName(HeatStatus.CREATE_COMPLETE, true)));
         put("/stacks/Instance4/resources", new MockHttpsURLConnection(200,
-                respStacksResources(true, "serverId", "AWS::EC2::Instance")));
+                respStacksResources(serverNames, "AWS::EC2::Instance")));
         put("/servers/serverId", new MockHttpsURLConnection(200,
                 respServer("Instance4", "serverId")));
         put("/stacks/Instance4/sID/actions", new MockHttpsURLConnection(200,
                 respStacksInstance4sIdActions()));
         put("/stacks", new MockHttpsURLConnection(200, respStacks()));
+    }
+
+    /**
+     * @return
+     */
+    private static String repServers(List<String> serverNames) {
+        try {
+            JSONObject response = new JSONObject();
+            JSONArray servers = new JSONArray();
+            for (int i = 0; i < serverNames.size(); i++) {
+                JSONObject server = new JSONObject();
+                JSONArray links = new JSONArray();
+                JSONObject linkSelf = new JSONObject();
+                JSONObject linkBookmark = new JSONObject();
+                String instanceId = Integer.toString(i) + "-Instance-"
+                        + serverNames.get(i);
+                server.put("id", instanceId);
+                linkSelf.put("href",
+                        "http://novaendpoint/v2/servers/" + instanceId);
+                linkSelf.put("rel", "self");
+                links.put(linkSelf);
+                linkBookmark.put("href",
+                        "http://novaendpoint/servers/" + instanceId);
+                linkBookmark.put("rel", "self");
+                links.put(linkBookmark);
+                server.put("links", links);
+                server.put("name", serverNames.get(i));
+                servers.put(server);
+            }
+            response.put("servers", servers);
+            return response.toString();
+        } catch (JSONException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
     public void put(String url, MockHttpsURLConnection mock) {
@@ -155,7 +205,7 @@ public class MockURLStreamHandler extends URLStreamHandler {
         }
     }
 
-    public static String respStacksInstanceName(OpenStackStatus status,
+    public static String respStacksInstanceName(HeatStatus status,
             boolean withStatusReason, String... stackStatusReason) {
         String reason;
         if (stackStatusReason == null || stackStatusReason.length == 0) {
@@ -186,8 +236,8 @@ public class MockURLStreamHandler extends URLStreamHandler {
         }
     }
 
-    public static String respStacksResources(boolean serverExists,
-            String serverId, String resourceType) {
+    public static String respStacksResources(List<String> serverNames,
+            String resourceType) {
         try {
             JSONObject response = new JSONObject();
             JSONArray resources = new JSONArray();
@@ -199,10 +249,11 @@ public class MockURLStreamHandler extends URLStreamHandler {
             volume.put("resource_type", "OS::Cinder::Volume");
             resources.put(volume);
 
-            if (serverExists) {
+            for (int i = 0; i < serverNames.size(); i++) {
                 JSONObject server = new JSONObject();
-                server.put("resource_name", "server");
-                server.put("physical_resource_id", serverId);
+                server.put("resource_name", serverNames.get(i));
+                server.put("physical_resource_id", Integer.toString(i)
+                        + "-Instance-" + serverNames.get(i));
                 server.put("resource_type", resourceType);
                 resources.put(server);
             }
@@ -213,18 +264,41 @@ public class MockURLStreamHandler extends URLStreamHandler {
         }
     }
 
-    public static String respServer(String stackName, String serverId) {
+    public static String respServer(String serverName, String serverId) {
         try {
             JSONObject response = new JSONObject();
             JSONObject server = new JSONObject();
             response.put("server", server);
-            server.put("name", stackName);
+            server.put("name", serverName);
             server.put("id", serverId);
 
             return response.toString();
         } catch (JSONException ex) {
             throw new RuntimeException(ex);
         }
+    }
+
+    public static String respServerDetail(String serverName, String serverId,
+            Enum status, String tenant_id) {
+        try {
+            JSONObject response = new JSONObject();
+            JSONObject server = new JSONObject();
+            response.put("server", server);
+            server.put("name", serverName);
+            server.put("id", serverId);
+            server.put("status", status);
+            server.put("tenant_id", tenant_id);
+            server.put("accessIPv4", "192.0.2.0");
+
+            return response.toString();
+        } catch (JSONException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    public static String respServerActions() {
+        JSONObject response = new JSONObject();
+        return response.toString();
     }
 
     private static String respStacksInstance4sIdActions() {

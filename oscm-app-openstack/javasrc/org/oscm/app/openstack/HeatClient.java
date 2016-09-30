@@ -10,6 +10,8 @@ package org.oscm.app.openstack;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.apache.sling.commons.json.JSONArray;
 import org.apache.sling.commons.json.JSONException;
@@ -104,19 +106,6 @@ public class HeatClient {
         }
     }
 
-    public void resumeStack(String stackName, String stackId)
-            throws HeatException {
-        String uri;
-        try {
-            uri = connection.getHeatEndpoint() + "/stacks/"
-                    + URLEncoder.encode(stackName, "UTF-8") + '/' + stackId
-                    + "/actions";
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
-        connection.processRequest(uri, "POST", "{\"resume\":null}");
-    }
-
     public void suspendStack(String stackName, String stackId)
             throws HeatException {
         String uri;
@@ -156,6 +145,47 @@ public class HeatClient {
             return true;
         }
         return false;
+    }
+
+    public List<String> getServerIds(String stackName) throws HeatException {
+        logger.debug("HeatClient.getServerId() Endpoint: "
+                + connection.getHeatEndpoint());
+        String uri;
+        List<String> serverIds = new LinkedList<String>();
+        try {
+            uri = connection.getHeatEndpoint() + "/stacks/"
+                    + URLEncoder.encode(stackName, "UTF-8") + "/resources";
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+
+        RESTResponse response = connection.processRequest(uri, "GET");
+        String body = response.getResponseBody();
+
+        try {
+            JSONObject responseJson = new JSONObject(body);
+            JSONArray resources = responseJson.getJSONArray("resources");
+            for (int i = 0; i < resources.length(); i++) {
+                JSONObject resource = resources.getJSONObject(i);
+                InstanceType type = getInstanceType(
+                        resource.optString("resource_type"));
+                if (type == null) {
+                    continue;
+                }
+                switch (type) {
+                case NOVA:
+                case EC2:
+                case TROVE:
+                    serverIds.add(resource.optString("physical_resource_id"));
+                default:
+                    continue;
+                }
+            }
+        } catch (JSONException e) {
+            logger.error("HeatClient.getStackDetails()", e);
+            throw new HeatException(e.getMessage());
+        }
+        return serverIds;
     }
 
     private String getServerIdByStackResource(String stackName)

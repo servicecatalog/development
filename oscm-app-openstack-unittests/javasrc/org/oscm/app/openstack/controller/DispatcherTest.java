@@ -21,7 +21,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -64,6 +66,21 @@ public class DispatcherTest {
     private static final String ACCESS_INFO = "access";
     private static final String ACCESS_INFO_NOT_AVAILABLE = "Access information currently not available";
 
+    enum InstanceType {
+        NOVA("OS::Nova::Server"), EC2("AWS::EC2::Instance"), TROVE(
+                "OS::Trove::Instance");
+
+        private final String text;
+
+        private InstanceType(final String text) {
+            this.text = text;
+        }
+
+        public String getString() {
+            return this.text;
+        }
+    }
+
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
@@ -73,7 +90,7 @@ public class DispatcherTest {
                 "http://keystone:8080/v3/auth");
         configSettings.put(PropertyHandler.API_USER_NAME, "api_user");
         configSettings.put(PropertyHandler.API_USER_PWD, "secret");
-        configSettings.put(PropertyHandler.TENANT_ID, "123456");
+        configSettings.put(PropertyHandler.TENANT_ID, "testTenantID");
         configSettings.put(PropertyHandler.DOMAIN_NAME, "demo");
         configSettings.put(PropertyHandler.TEMPLATE_BASE_URL,
                 "http://estfarmaki2:8880/templates/");
@@ -140,6 +157,37 @@ public class DispatcherTest {
 
         // then
         String status = parameters.get(PropertyHandler.STATUS);
+        assertEquals(FlowState.ACTIVATING.toString(), status);
+        assertFalse(result.isReady());
+    }
+
+    @Test
+    public void activationRequested_allServersFaild() throws Exception {
+        // given
+        paramHandler.setState(FlowState.ACTIVATION_REQUESTED);
+        final List<String> serverNames = Arrays.asList("server1",
+                "otherserver2");
+        MockHttpURLConnection connection = new MockHttpURLConnection(404,
+                MockURLStreamHandler.respServerActions());
+        connection.setIOException(new IOException());
+
+        streamHandler
+                .put("/stacks/" + paramHandler.getStackName() + "/resources",
+                        new MockHttpURLConnection(200,
+                                MockURLStreamHandler.respStacksResources(
+                                        serverNames,
+                                        InstanceType.EC2.getString())));
+        streamHandler.put("/testTenantID/servers/0-Instance-server1/action",
+                connection);
+        streamHandler.put(
+                "/testTenantID/servers/1-Instance-otherserver2/action",
+                connection);
+
+        // when
+        InstanceStatus result = dispatcher.dispatch();
+
+        // then
+        String status = parameters.get(PropertyHandler.STATUS);
         assertEquals(FlowState.FINISHED.toString(), status);
         assertEquals(ACCESS_INFO, result.getAccessInfo());
         assertTrue(result.isReady());
@@ -164,12 +212,6 @@ public class DispatcherTest {
     public void activating() throws Exception {
         // given
         paramHandler.setState(FlowState.ACTIVATING);
-        streamHandler
-                .put("/stacks/Instance4",
-                        new MockHttpURLConnection(200,
-                                MockURLStreamHandler.respStacksInstanceName(
-                                        OpenStackStatus.RESUME_COMPLETE,
-                                        true)));
 
         // when
         InstanceStatus result = dispatcher.dispatch();
@@ -185,19 +227,25 @@ public class DispatcherTest {
     public void activating_FAILED() throws Exception {
         // given
         paramHandler.setState(FlowState.ACTIVATING);
-        streamHandler.put("/stacks/Instance4",
+        streamHandler.put("/testTenantID/servers/0-Instance-server1",
                 new MockHttpURLConnection(200,
-                        MockURLStreamHandler.respStacksInstanceName(
-                                OpenStackStatus.RESUME_FAILED, true)));
+                        MockURLStreamHandler.respServerDetail("server1",
+                                "0-Instance-server1", ServerStatus.ERROR,
+                                "testTenantID")));
 
         // when
         dispatcher.dispatch();
     }
 
     @Test
-    public void activating_wrongStatus() throws Exception {
+    public void activating_stillStopped() throws Exception {
         // given
         paramHandler.setState(FlowState.ACTIVATING);
+        streamHandler.put("/testTenantID/servers/0-Instance-server1",
+                new MockHttpURLConnection(200,
+                        MockURLStreamHandler.respServerDetail("server1",
+                                "0-Instance-server1", ServerStatus.STOPPED,
+                                "testTenantID")));
 
         // when
         dispatcher.dispatch();
@@ -229,7 +277,7 @@ public class DispatcherTest {
         streamHandler.put("/stacks/Instance4",
                 new MockHttpURLConnection(200,
                         MockURLStreamHandler.respStacksInstanceName(
-                                OpenStackStatus.CREATE_FAILED, true)));
+                                HeatStatus.CREATE_FAILED, true)));
 
         // when
         dispatcher.dispatch();
@@ -259,12 +307,10 @@ public class DispatcherTest {
         configSettings.put(PropertyHandler.TENANT_ID, "098765");
         parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, "test@mail.com");
         paramHandler.setState(FlowState.CREATING_STACK);
-        streamHandler
-                .put("/stacks/Instance4",
-                        new MockHttpsURLConnection(200,
-                                MockURLStreamHandler.respStacksInstanceName(
-                                        OpenStackStatus.CREATE_COMPLETE,
-                                        true)));
+        streamHandler.put("/stacks/Instance4",
+                new MockHttpsURLConnection(200,
+                        MockURLStreamHandler.respStacksInstanceName(
+                                HeatStatus.CREATE_COMPLETE, true)));
         doReturn("test").when(platformService).getEventServiceUrl();
         // when
         InstanceStatus result = dispatcher.dispatch();
@@ -289,12 +335,10 @@ public class DispatcherTest {
         configSettings.put(PropertyHandler.DOMAIN_NAME, "domain1");
         configSettings.put(PropertyHandler.TENANT_ID, "87654");
         paramHandler.setState(FlowState.UPDATING);
-        streamHandler
-                .put("/stacks/Instance4",
-                        new MockHttpsURLConnection(200,
-                                MockURLStreamHandler.respStacksInstanceName(
-                                        OpenStackStatus.UPDATE_COMPLETE,
-                                        true)));
+        streamHandler.put("/stacks/Instance4",
+                new MockHttpsURLConnection(200,
+                        MockURLStreamHandler.respStacksInstanceName(
+                                HeatStatus.UPDATE_COMPLETE, true)));
 
         // when
         InstanceStatus result = dispatcher.dispatch();
@@ -313,12 +357,10 @@ public class DispatcherTest {
         // given
         parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, "test@mail.com");
         paramHandler.setState(FlowState.UPDATING);
-        streamHandler
-                .put("/stacks/Instance4",
-                        new MockHttpURLConnection(200,
-                                MockURLStreamHandler.respStacksInstanceName(
-                                        OpenStackStatus.UPDATE_COMPLETE,
-                                        true)));
+        streamHandler.put("/stacks/Instance4",
+                new MockHttpURLConnection(200,
+                        MockURLStreamHandler.respStacksInstanceName(
+                                HeatStatus.UPDATE_COMPLETE, true)));
         // when
         InstanceStatus result = dispatcher.dispatch();
 
@@ -336,7 +378,7 @@ public class DispatcherTest {
         streamHandler.put("/stacks/Instance4",
                 new MockHttpURLConnection(200,
                         MockURLStreamHandler.respStacksInstanceName(
-                                OpenStackStatus.UPDATE_FAILED, true)));
+                                HeatStatus.UPDATE_FAILED, true)));
 
         // when
         dispatcher.dispatch();
@@ -379,12 +421,10 @@ public class DispatcherTest {
         // given
         parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, "test@mail.com");
         paramHandler.setState(FlowState.DELETING_STACK);
-        streamHandler
-                .put("/stacks/Instance4",
-                        new MockHttpURLConnection(200,
-                                MockURLStreamHandler.respStacksInstanceName(
-                                        OpenStackStatus.DELETE_COMPLETE,
-                                        true)));
+        streamHandler.put("/stacks/Instance4",
+                new MockHttpURLConnection(200,
+                        MockURLStreamHandler.respStacksInstanceName(
+                                HeatStatus.DELETE_COMPLETE, true)));
         // when
         InstanceStatus result = dispatcher.dispatch();
 
@@ -399,12 +439,10 @@ public class DispatcherTest {
     public void deletingStack_COMPLETE() throws Exception {
         // given
         paramHandler.setState(FlowState.DELETING_STACK);
-        streamHandler
-                .put("/stacks/Instance4",
-                        new MockHttpURLConnection(200,
-                                MockURLStreamHandler.respStacksInstanceName(
-                                        OpenStackStatus.DELETE_COMPLETE,
-                                        true)));
+        streamHandler.put("/stacks/Instance4",
+                new MockHttpURLConnection(200,
+                        MockURLStreamHandler.respStacksInstanceName(
+                                HeatStatus.DELETE_COMPLETE, true)));
 
         // when
         InstanceStatus result = dispatcher.dispatch();
@@ -422,7 +460,7 @@ public class DispatcherTest {
         streamHandler.put("/stacks/Instance4",
                 new MockHttpURLConnection(200,
                         MockURLStreamHandler.respStacksInstanceName(
-                                OpenStackStatus.DELETE_FAILED, true)));
+                                HeatStatus.DELETE_FAILED, true)));
 
         // when
         dispatcher.dispatch();
@@ -434,7 +472,7 @@ public class DispatcherTest {
         paramHandler.setState(FlowState.DELETING_STACK);
         MockHttpURLConnection muc = new MockHttpURLConnection(401,
                 MockURLStreamHandler.respStacksInstanceName(
-                        OpenStackStatus.DELETE_FAILED, true));
+                        HeatStatus.DELETE_FAILED, true));
         muc.setIOException(new IOException("test"));
         streamHandler.put("/stacks/Instance4", muc);
 
@@ -448,7 +486,7 @@ public class DispatcherTest {
         paramHandler.setState(FlowState.CREATING_STACK);
         MockHttpURLConnection muc = new MockHttpURLConnection(404,
                 MockURLStreamHandler.respStacksInstanceName(
-                        OpenStackStatus.DELETE_FAILED, true));
+                        HeatStatus.DELETE_FAILED, true));
         muc.setIOException(new IOException("test"));
         streamHandler.put("/stacks/Instance4", muc);
 
@@ -462,7 +500,7 @@ public class DispatcherTest {
         paramHandler.setState(FlowState.CREATING_STACK);
         MockHttpURLConnection muc = new MockHttpURLConnection(404,
                 MockURLStreamHandler.respStacksInstanceName(
-                        OpenStackStatus.DELETE_FAILED, true));
+                        HeatStatus.DELETE_FAILED, true));
         muc.setRuntimeException(new RuntimeException("test"));
         streamHandler.put("/stacks/Instance4", muc);
 
@@ -476,7 +514,7 @@ public class DispatcherTest {
         paramHandler.setState(FlowState.CREATING_STACK);
         MockHttpURLConnection muc = new MockHttpURLConnection(301,
                 MockURLStreamHandler.respStacksInstanceName(
-                        OpenStackStatus.DELETE_FAILED, true));
+                        HeatStatus.DELETE_FAILED, true));
         muc.setIOException(new IOException("test"));
         streamHandler.put("/stacks/Instance4", muc);
 
@@ -504,7 +542,7 @@ public class DispatcherTest {
         streamHandler.put("/stacks/Instance4",
                 new MockHttpURLConnection(200,
                         MockURLStreamHandler.respStacksInstanceName(
-                                OpenStackStatus.SUSPEND_FAILED, true)));
+                                HeatStatus.SUSPEND_FAILED, true)));
 
         // when
         dispatcher.dispatch();
@@ -517,7 +555,7 @@ public class DispatcherTest {
         streamHandler.put("/stacks/Instance4",
                 new MockHttpURLConnection(200,
                         MockURLStreamHandler.respStacksInstanceName(
-                                OpenStackStatus.SUSPEND_FAILED, true,
+                                HeatStatus.SUSPEND_FAILED, true,
                                 "Failed to find instance example ")));
 
         // when
@@ -541,12 +579,10 @@ public class DispatcherTest {
     public void deactivating() throws Exception {
         // given
         paramHandler.setState(FlowState.DEACTIVATING);
-        streamHandler
-                .put("/stacks/Instance4",
-                        new MockHttpURLConnection(200,
-                                MockURLStreamHandler.respStacksInstanceName(
-                                        OpenStackStatus.SUSPEND_COMPLETE,
-                                        true)));
+        streamHandler.put("/stacks/Instance4",
+                new MockHttpURLConnection(200,
+                        MockURLStreamHandler.respStacksInstanceName(
+                                HeatStatus.SUSPEND_COMPLETE, true)));
 
         // when
         InstanceStatus result = dispatcher.dispatch();
