@@ -8,6 +8,8 @@ CREATE TABLE "tenant" (
 	);
 ALTER TABLE "tenant" ADD CONSTRAINT "tenant_pk" PRIMARY KEY ("tkey");
 
+CREATE UNIQUE INDEX "tenantid_uidx" ON "tenant" ("tenantid");
+
 ALTER TABLE "marketplace" ADD COLUMN "tenant_tkey" BIGINT;
 
 ALTER TABLE "marketplace" ADD CONSTRAINT "marketplace_tenant_fk" FOREIGN KEY ("tenant_tkey")
