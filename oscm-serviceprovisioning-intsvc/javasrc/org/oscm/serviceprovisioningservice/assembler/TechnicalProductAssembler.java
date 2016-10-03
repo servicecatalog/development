@@ -117,6 +117,8 @@ public class TechnicalProductAssembler extends BaseAssembler {
                     facade.getLocale()));
             result.setBillingIdentifier(tProd.getBillingIdentifier());
             result.setExternalBilling(tProd.isExternalBilling());
+            result.setCustomTabName(tProd.getCustomTabName());
+            result.setCustomTabUrl(tProd.getCustomTabUrl());
             updateValueObject(result, tProd);
         }
         return result;
@@ -128,7 +130,7 @@ public class TechnicalProductAssembler extends BaseAssembler {
      * 
      * @param domObj
      *            The domain object to be updated.
-     * @param voOrganization
+     * @param vo
      *            The value object.
      * @return The updated domain object.
      * @throws ValidationException

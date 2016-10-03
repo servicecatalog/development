@@ -149,6 +149,12 @@ public class TechnicalProductXmlConverter {
         appendLocalizedValues(xmldoc, localizer, tp,
                 LocalizedObjectTypes.PRODUCT_LICENSE_DESC,
                 technicalProduct.getKey(), "LocalizedLicense");
+        appendLocalizedValues(xmldoc, localizer, tp,
+                LocalizedObjectTypes.CUSTOM_TAB_NAME,
+                technicalProduct.getKey(), "CustomTabName");
+        appendLocalizedValues(xmldoc, localizer, tp,
+                LocalizedObjectTypes.CUSTOM_TAB_URL,
+                technicalProduct.getKey(), "CustomTabUrl");
         appendLocalizedTags(xmldoc, tp, technicalProduct);
         appendParameters(xmldoc, tp, localizer, technicalProduct);
         appendEvents(xmldoc, tp, localizer, technicalProduct);

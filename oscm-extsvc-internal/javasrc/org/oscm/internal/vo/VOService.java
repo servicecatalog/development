@@ -133,7 +133,17 @@ public class VOService extends BaseVO implements Serializable {
      * The URL of an external parameter tool
      */
     private String configuratorUrl;
-    
+
+    /**
+     * Name of the custom tab on my subscriptions page
+     */
+    private String customTabName;
+
+    /**
+     * URL of which the content will be displayed in the custom tab of my subscriptions page
+     */
+    private String customTabUrl;
+
     /**
      * The identifier of adapter for external billing system, if null System
      * default will be used
@@ -614,5 +624,38 @@ public class VOService extends BaseVO implements Serializable {
      */
     public void setServiceType(ServiceType serviceType) {
         this.serviceType = serviceType;
+    }
+
+    /**
+     *
+     * @return the name of the custom tab of the service
+     */
+    public String getCustomTabName() {
+        return customTabName;
+    }
+
+    /**
+     * Sets the name of the custom tab of the service
+     * @param customTabName
+     */
+    public void setCustomTabName(String customTabName) {
+        this.customTabName = customTabName;
+    }
+
+    /**
+     *
+     * @return URL of the custom tab of the service
+     */
+    public String getCustomTabUrl() {
+        return customTabUrl;
+    }
+
+    /**
+     * Sets the URL of the custom tab of the service
+     *
+     * @param customTabUrl
+     */
+    public void setCustomTabUrl(String customTabUrl) {
+        this.customTabUrl = customTabUrl;
     }
 }

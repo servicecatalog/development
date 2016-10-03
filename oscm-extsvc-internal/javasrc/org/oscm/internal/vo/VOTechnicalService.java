@@ -107,6 +107,16 @@ public class VOTechnicalService extends BaseVO {
     private boolean externalBilling;
 
     /**
+     * Name of the custom tab on mysubscriptions page
+     */
+    private String customTabName;
+
+    /**
+     * URL with the content of the custom tab
+     */
+    private String customTabUrl;
+
+    /**
      * Retrieves the identifier of the technical service.
      * 
      * @return the service ID
@@ -447,4 +457,18 @@ public class VOTechnicalService extends BaseVO {
         this.externalBilling = externalBilling;
     }
 
+    public String getCustomTabName() {
+        return customTabName;
+    }
+    public String getCustomTabUrl() {
+        return customTabUrl;
+    }
+
+    public void setCustomTabName(String name) {
+        this.customTabName = name;
+    }
+
+    public void setCustomTabUrl(String url) {
+        this.customTabUrl = url;
+    }
 }

@@ -240,4 +240,20 @@ public class TechnicalService {
         vo.setTags(list);
     }
 
+    public String getCustomTabName() {
+        return vo.getCustomTabName();
+    }
+
+    public void setCustomTabName(String name) {
+        vo.setCustomTabName(name);
+    }
+
+    public String getCustomTabUrl() {
+        return vo.getCustomTabUrl();
+    }
+
+    public void setCustomTabUrl(String url) {
+        vo.setCustomTabUrl(url);
+    }
+
 }
