@@ -349,6 +349,7 @@ public class TenantServiceBeanIT extends EJBTestBase {
         final VOTenant tenant = new VOTenant();
         tenant.setDescription("desc" + modifier);
         tenant.setTenantId("tenantID" + modifier);
+        tenant.setName("tenant name");
         tenant.setTenantSettings(prepareIdpSettings(Long.toString(modifier)));
         return tenant;
     }

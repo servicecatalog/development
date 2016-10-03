@@ -132,6 +132,7 @@ public class TenantDaoIT extends EJBTestBase {
             public Void call() throws Exception {
                 final Tenant tenant = new Tenant();
                 tenant.setTenantId("tenantID1");
+                tenant.getDataContainer().setName("tenant name");
                 dm.persist(tenant);
                 return null;
             }
@@ -347,10 +348,12 @@ public class TenantDaoIT extends EJBTestBase {
             public Void call() throws Exception {
                 final Tenant tenant1 = new Tenant();
                 tenant1.setTenantId("tenantID1");
+                tenant1.getDataContainer().setName("tenant name");
                 dm.persist(tenant1);
 
                 final Tenant tenant2 = new Tenant();
                 tenant2.setTenantId("tenantID2");
+                tenant2.getDataContainer().setName("tenant name");
                 dm.persist(tenant2);
                 return null;
             }
@@ -443,10 +446,12 @@ public class TenantDaoIT extends EJBTestBase {
             public Void call() throws Exception {
                 final Tenant tenant = new Tenant();
                 tenant.setTenantId("tenantID1");
+                tenant.getDataContainer().setName("tenant name");
                 dm.persist(tenant);
 
                 final Tenant tenantWithoutOrg = new Tenant();
                 tenantWithoutOrg.setTenantId("tenantWithoutOrg");
+                tenantWithoutOrg.getDataContainer().setName("tenant name");
                 dm.persist(tenantWithoutOrg);
 
                 Organization org = new Organization();
@@ -493,6 +498,7 @@ public class TenantDaoIT extends EJBTestBase {
             public Void call() throws Exception {
                 final Tenant tenant = new Tenant();
                 tenant.setTenantId("tenantID1");
+                tenant.getDataContainer().setName("tenant name");
                 dm.persist(tenant);
 
                 Organization org = new Organization();
@@ -539,6 +545,7 @@ public class TenantDaoIT extends EJBTestBase {
     private Tenant createTenant(long modifier) {
         final Tenant tenant = new Tenant();
         tenant.setTenantId("tenantID" + modifier);
+        tenant.getDataContainer().setName("tenant name");
         tenant.setTenantSettings(tenantSettings);
         tenant.setHistoryModificationTime(10000000000L);
         tenant.setMarketplaces(createMarketplaces());
