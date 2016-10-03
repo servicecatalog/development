@@ -14,17 +14,14 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
-import org.oscm.tenant.local.TenantServiceLocal;
-import org.oscm.tenant.settings.TenantSettingProvider;
 import org.apache.commons.lang3.StringUtils;
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.domobjects.ConfigurationSetting;
-import org.oscm.domobjects.Tenant;
 import org.oscm.enums.APIVersion;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
+import org.oscm.tenant.local.TenantServiceLocal;
 import org.oscm.types.constants.Configuration;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
 
