@@ -116,4 +116,9 @@ public class TenantServiceLocalBean implements TenantServiceLocal {
 
         return false;
     }
+
+    @Override
+    public String getTenantSetting(String settingKey, String tenantId) {
+        return this.tenantDao.getTenantSetting(settingKey, tenantId);
+    }
 }

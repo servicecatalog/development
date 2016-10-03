@@ -8,6 +8,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import javax.ejb.EJB;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -15,7 +16,16 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
+import org.oscm.tenant.local.TenantServiceLocal;
+import org.oscm.tenant.settings.TenantSettingProvider;
+import org.apache.commons.lang3.StringUtils;
+import org.oscm.configurationservice.local.ConfigurationServiceLocal;
+import org.oscm.domobjects.ConfigurationSetting;
+import org.oscm.domobjects.Tenant;
 import org.oscm.enums.APIVersion;
+import org.oscm.internal.types.enumtypes.ConfigurationKey;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.types.constants.Configuration;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
 
 /**
@@ -35,7 +45,18 @@ public class WSDLDeliverServlet extends HttpServlet {
     public static final String SERVICE_NAME = "SERVICE_NAME";
     public static final String FILE_TYPE = "FILE_TYPE";
     public static final String WSDL_ROOT_PATH = "/wsdl/";
-
+    public static final String TENANT_ID = "TENANT_ID";
+    
+    private static final String SSO_STS_URL = "SSO_STS_URL";
+    private static final String SSO_STS_ENCKEY_LEN = "SSO_STS_ENCKEY_LEN";
+    private static final String SSO_STS_METADATA_URL = "SSO_STS_METADATA_URL";
+    
+    @EJB
+    private TenantServiceLocal tenantService;
+    
+    @EJB
+    private ConfigurationServiceLocal configurationService;
+    
     @Override
     public void init() throws ServletException {
         super.init();
@@ -54,7 +75,7 @@ public class WSDLDeliverServlet extends HttpServlet {
     }
 
     private void process(HttpServletRequest request,
-            HttpServletResponse response) {
+            HttpServletResponse response){
         String filePath = getTargetFilePathFromRequest(request);
         if (filePath.length() == 0) {
             logger.logWarn(Log4jLogger.SYSTEM_LOG,
@@ -64,7 +85,22 @@ public class WSDLDeliverServlet extends HttpServlet {
                 .getResourceAsStream(filePath);
         try {
             String fileContent = convertStreamToString(fileStream);
+            String portType = getValueFromRequest(request, PORT_TYPE);
+            
+            if("STS".equals(portType)){
+                String tenantId = getValueFromRequest(request, TENANT_ID);
+
+                String settingUrl = getTenantSetting(SSO_STS_URL, tenantId);
+                String settingMetadataUrl = getTenantSetting(SSO_STS_METADATA_URL, tenantId);
+                String settingEnckeyLen = getTenantSetting(SSO_STS_ENCKEY_LEN, tenantId);
+                
+                fileContent = fileContent.replaceAll("@"+SSO_STS_URL +"@", settingUrl);
+                fileContent = fileContent.replaceAll("@"+SSO_STS_ENCKEY_LEN +"@", settingEnckeyLen);
+                fileContent = fileContent.replaceAll("@"+SSO_STS_METADATA_URL +"@", settingMetadataUrl);
+            }
+ 
             response.getWriter().print(fileContent);
+            
         } catch (IOException e) {
             logger.logWarn(Log4jLogger.SYSTEM_LOG, e,
                     LogMessageIdentifier.WARN_GET_FILE_CONTENT_FAILED);
@@ -124,5 +160,21 @@ public class WSDLDeliverServlet extends HttpServlet {
             baos.write(i);
         }
         return baos.toString();
+    }
+    
+    private String getTenantSetting(String settingKey, String tenantId) {
+
+        if (StringUtils.isEmpty(tenantId)) {
+            ConfigurationKey configurationKey = ConfigurationKey
+                    .valueOf(settingKey);
+            ConfigurationSetting configurationSetting = configurationService
+                    .getConfigurationSetting(configurationKey,
+                            Configuration.GLOBAL_CONTEXT);
+            return configurationSetting.getValue();
+        } else {
+            String tenantSetting = tenantService.getTenantSetting(settingKey,
+                    tenantId);
+            return tenantSetting;
+        }
     }
 }
