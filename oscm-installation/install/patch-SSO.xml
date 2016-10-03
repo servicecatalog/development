@@ -76,11 +76,6 @@
         <unzip src="${tmp.ear.dir}/${jar.name}" dest="${tmp.jar.dir}" />
         <copy todir="${tmp.jar.dir}/META-INF" overwrite="true">
           <fileset dir="${tmp.jar.dir}/javares/wsitconfig" includes="**/*.xml" />
-          <filterset>
-            <filter token="SSO_STS_URL" value="${SSO_STS_URL}" />
-            <filter token="SSO_STS_ENCKEY_LEN" value="${SSO_STS_ENCKEY_LEN}" />
-            <filter token="SSO_STS_METADATA_URL" value="${SSO_STS_METADATA_URL}" />
-          </filterset>
         </copy>
         <move file="${tmp.jar.dir}/META-INF/webservices-sts.xml" tofile="${tmp.jar.dir}/META-INF/webservices.xml" overwrite="true" failonerror="false" />
         <move file="${tmp.jar.dir}/META-INF/sun-ejb-jar-sts.xml" tofile="${tmp.jar.dir}/META-INF/sun-ejb-jar.xml" overwrite="true" failonerror="false" />
@@ -102,11 +97,6 @@
         </copy>
         <copy todir="${tmp.war.dir}/WEB-INF/classes/wsdl/v1_9/STS" overwrite="true">
           <fileset dir="${tmp.war.dir}/WEB-INF/classes/wsdl/v1_9/STS/tmp" includes="**/*.wsdl" />
-          <filterset>
-            <filter token="SSO_STS_URL" value="${SSO_STS_URL}" />
-            <filter token="SSO_STS_ENCKEY_LEN" value="${SSO_STS_ENCKEY_LEN}" />
-            <filter token="SSO_STS_METADATA_URL" value="${SSO_STS_METADATA_URL}" />
-          </filterset>
         </copy>
         <delete dir="${tmp.war.dir}/WEB-INF/classes/wsdl/v1_9/STS/tmp" failonerror="false" />
         
