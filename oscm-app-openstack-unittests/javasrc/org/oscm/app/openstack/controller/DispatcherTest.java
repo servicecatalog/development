@@ -177,10 +177,8 @@ public class DispatcherTest {
                                 MockURLStreamHandler.respStacksResources(
                                         serverNames,
                                         InstanceType.EC2.getString())));
-        streamHandler.put("/testTenantID/servers/0-Instance-server1/action",
-                connection);
-        streamHandler.put(
-                "/testTenantID/servers/1-Instance-otherserver2/action",
+        streamHandler.put("/servers/0-Instance-server1/action", connection);
+        streamHandler.put("/servers/1-Instance-otherserver2/action",
                 connection);
 
         // when
@@ -227,7 +225,7 @@ public class DispatcherTest {
     public void activating_FAILED() throws Exception {
         // given
         paramHandler.setState(FlowState.ACTIVATING);
-        streamHandler.put("/testTenantID/servers/0-Instance-server1",
+        streamHandler.put("/servers/0-Instance-server1",
                 new MockHttpURLConnection(200,
                         MockURLStreamHandler.respServerDetail("server1",
                                 "0-Instance-server1", ServerStatus.ERROR,
@@ -241,7 +239,7 @@ public class DispatcherTest {
     public void activating_stillStopped() throws Exception {
         // given
         paramHandler.setState(FlowState.ACTIVATING);
-        streamHandler.put("/testTenantID/servers/0-Instance-server1",
+        streamHandler.put("/servers/0-Instance-server1",
                 new MockHttpURLConnection(200,
                         MockURLStreamHandler.respServerDetail("server1",
                                 "0-Instance-server1", ServerStatus.STOPPED,

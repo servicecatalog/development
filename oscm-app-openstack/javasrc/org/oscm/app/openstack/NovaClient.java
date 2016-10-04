@@ -38,8 +38,7 @@ public class NovaClient {
     public Boolean startServer(PropertyHandler ph, String serverId) {
         String uri;
         try {
-            uri = connection.getNovaEndpoint() + "/"
-                    + URLEncoder.encode(ph.getTenantId(), "UTF-8") + "/servers/"
+            uri = connection.getNovaEndpoint() + "/servers/"
                     + URLEncoder.encode(serverId, "UTF-8") + "/action";
         } catch (UnsupportedEncodingException e) {
             logger.error("Runtime error happened during encoding", e);
@@ -49,6 +48,7 @@ public class NovaClient {
         // TODO We should throw NovaException
         try {
             connection.processRequest(uri, "POST", "{\"os-start\": null}");
+            logger.debug("Start server: " + serverId);
             return Boolean.TRUE;
         } catch (HeatException e) {
             logger.info(
@@ -71,8 +71,7 @@ public class NovaClient {
         Server result = new Server();
         result.setId(serverId);
         try {
-            uri = connection.getNovaEndpoint() + "/"
-                    + URLEncoder.encode(ph.getTenantId(), "UTF-8") + "/servers/"
+            uri = connection.getNovaEndpoint() + "/servers/"
                     + URLEncoder.encode(serverId, "UTF-8");
         } catch (UnsupportedEncodingException e) {
             logger.error("Runtime error happened during encoding", e);
