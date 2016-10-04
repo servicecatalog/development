@@ -23,10 +23,6 @@ import javax.naming.InitialContext;
 
 import org.junit.Test;
 import org.mockito.Mockito;
-
-import com.amazonaws.services.ec2.AmazonEC2Client;
-import org.oscm.test.EJBTestBase;
-import org.oscm.test.ejb.TestContainer;
 import org.oscm.app.aws.EC2Communication;
 import org.oscm.app.aws.EC2Mockup;
 import org.oscm.app.aws.data.FlowState;
@@ -36,12 +32,22 @@ import org.oscm.app.v1_0.data.InstanceStatus;
 import org.oscm.app.v1_0.data.ProvisioningSettings;
 import org.oscm.app.v1_0.exceptions.APPlatformException;
 import org.oscm.app.v1_0.intf.APPlatformService;
+import org.oscm.test.EJBTestBase;
+import org.oscm.test.ejb.TestContainer;
+
+import com.amazonaws.services.ec2.AmazonEC2Client;
 
 public class AWSControllerTest extends EJBTestBase {
 
     private static final String EXCEPTION_MESSAGE = "Exception-Code2309875";
     private static final String INSTANCE_ID = "INSTANCE_1";
     private static final String IMAGE_ID = "IMAGE_1";
+    public static final String SUBNET = "subnet";
+    public static final String SECURITY_GROUP_NAMES = "security_group1,security_group2";
+    public static final String DISK_SIZE = "3";
+    public static final String INSTANCE_PLATFORM = "instancePlatform";
+    public static final String EAI_INSTANCE_PUBLIC_DNS = "instancePublicDns";
+    public static final String SNAPSHOT_ID = "snapshotId";
 
     private HashMap<String, String> parameters;
     private HashMap<String, String> configSettings;
@@ -70,6 +76,10 @@ public class AWSControllerTest extends EJBTestBase {
 
         ec2mock.createDescribeImagesResult(IMAGE_ID);
         ec2mock.createRunInstancesResult(INSTANCE_ID);
+        // new mock
+        ec2mock.createDescribeSubnetsResult(SUBNET);
+        ec2mock.createDescribeSecurityGroupResult(SUBNET, SECURITY_GROUP_NAMES);
+        ec2mock.createDescribeInstancesResult(INSTANCE_ID, "ok", "1.2.3.4");
     }
 
     private void setValidParameters() {
@@ -78,6 +88,12 @@ public class AWSControllerTest extends EJBTestBase {
         parameters.put(PropertyHandler.KEY_PAIR_NAME, "mySecret");
         parameters.put(PropertyHandler.IMAGE_NAME, "ami-12345");
         parameters.put(PropertyHandler.INSTANCE_TYPE, "m1.small");
+        // new data
+        parameters.put(PropertyHandler.DISK_SIZE, DISK_SIZE);
+        parameters.put(PropertyHandler.SUBNET, SUBNET);
+        parameters.put(PropertyHandler.SECURITY_GROUP_NAMES,
+                SECURITY_GROUP_NAMES);
+
     }
 
     private void mockSettingsWithRuntimeException() {
@@ -130,6 +146,11 @@ public class AWSControllerTest extends EJBTestBase {
         parameters.put(PropertyHandler.KEY_PAIR_NAME, "myKey");
         parameters.put(PropertyHandler.IMAGE_NAME, "myImage");
         parameters.put(PropertyHandler.INSTANCE_TYPE, "m1.tiny");
+        // new data
+        parameters.put(PropertyHandler.DISK_SIZE, "3");
+        parameters.put(PropertyHandler.SUBNET, "subnet-a77430d0");
+        parameters.put(PropertyHandler.SECURITY_GROUP_NAMES,
+                "security_group1,security_group2");
 
         // when
         InstanceDescription instanceDescription = aws.createInstance(settings);
@@ -194,6 +215,8 @@ public class AWSControllerTest extends EJBTestBase {
         parameters.put(PropertyHandler.KEY_PAIR_NAME, "myKey");
         parameters.put(PropertyHandler.IMAGE_NAME, "myImage");
         parameters.put(PropertyHandler.INSTANCE_TYPE, "m1.tiny");
+        parameters.put(PropertyHandler.DISK_SIZE, "3");
+        parameters.put(PropertyHandler.SUBNET, "subnettest");
 
         // when
         InstanceDescription instanceDescription = aws.createInstance(settings);
@@ -261,7 +284,8 @@ public class AWSControllerTest extends EJBTestBase {
     }
 
     @Test(expected = APPlatformException.class)
-    public void testCreateInstance_validateEmptyInstanceType() throws Exception {
+    public void testCreateInstance_validateEmptyInstanceType()
+            throws Exception {
 
         // given
         setValidParameters();
