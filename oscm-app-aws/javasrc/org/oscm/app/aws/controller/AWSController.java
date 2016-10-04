@@ -22,9 +22,6 @@ import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.oscm.app.aws.data.FlowState;
 import org.oscm.app.aws.data.Operation;
 import org.oscm.app.aws.i18n.Messages;
@@ -40,6 +37,8 @@ import org.oscm.app.v1_0.data.ProvisioningSettings;
 import org.oscm.app.v1_0.data.ServiceUser;
 import org.oscm.app.v1_0.exceptions.APPlatformException;
 import org.oscm.app.v1_0.intf.APPlatformController;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * AWS implementation of a service controller based on the Asynchronous
@@ -155,8 +154,8 @@ public class AWSController implements APPlatformController {
     public InstanceStatus modifyInstance(String instanceId,
             ProvisioningSettings currentSettings,
             ProvisioningSettings newSettings) throws APPlatformException {
-        LOGGER.info("modifyInstance({})", LogAndExceptionConverter.getLogText(
-                instanceId, currentSettings));
+        LOGGER.info("modifyInstance({})", LogAndExceptionConverter
+                .getLogText(instanceId, currentSettings));
         try {
             PropertyHandler ph = PropertyHandler.withSettings(newSettings);
             ph.setOperation(Operation.EC2_MODIFICATION);
@@ -199,6 +198,7 @@ public class AWSController implements APPlatformController {
             PropertyHandler ph = PropertyHandler.withSettings(settings);
             EC2Processor ec2processor = new EC2Processor(ph, instanceId);
             InstanceStatus status = ec2processor.process();
+           
             return status;
         } catch (Throwable t) {
             throw LogAndExceptionConverter.createAndLogPlatformException(t,
@@ -237,7 +237,8 @@ public class AWSController implements APPlatformController {
             if (FlowState.MANUAL.equals(propertyHandler.getState())) {
                 propertyHandler.setState(FlowState.FINISHED);
                 status = setNotificationStatus(settings, propertyHandler);
-                LOGGER.debug("Got finish event => changing instance status to finished");
+                LOGGER.debug(
+                        "Got finish event => changing instance status to finished");
             } else {
                 APPlatformException pe = new APPlatformException(
                         "Got finish event but instance is in state "
@@ -397,11 +398,9 @@ public class AWSController implements APPlatformController {
             String instanceId, String transactionId, String operationId,
             List<OperationParameter> parameters, ProvisioningSettings settings)
             throws APPlatformException {
-        LOGGER.info(
-                "executeServiceOperation("
-                        + LogAndExceptionConverter.getLogText(instanceId,
-                                settings) + " | OperationIdID: {})",
-                operationId);
+        LOGGER.info("executeServiceOperation("
+                + LogAndExceptionConverter.getLogText(instanceId, settings)
+                + " | OperationIdID: {})", operationId);
         InstanceStatus status = null;
         if (instanceId == null || operationId == null || settings == null) {
             return status;
@@ -442,8 +441,8 @@ public class AWSController implements APPlatformController {
 
     @Override
     public List<OperationParameter> getOperationParameters(String userId,
-            String instanceId, String operationId, ProvisioningSettings settings)
-            throws APPlatformException {
+            String instanceId, String operationId,
+            ProvisioningSettings settings) throws APPlatformException {
         return null; // not applicable
     }
 
@@ -459,7 +458,8 @@ public class AWSController implements APPlatformController {
         if (isNullOrEmpty(instanceName)) {
             LOGGER.error(Messages.get(Messages.DEFAULT_LOCALE,
                     "error_missing_name"));
-            throw new APPlatformException(Messages.getAll("error_missing_name"));
+            throw new APPlatformException(
+                    Messages.getAll("error_missing_name"));
         }
         String regex = ph.getInstanceNamePattern();
         if (!isNullOrEmpty(regex)) {
@@ -493,6 +493,18 @@ public class AWSController implements APPlatformController {
             throw new APPlatformException(
                     Messages.getAll("error_missing_instancetype"));
         }
+        if (isNullOrEmpty(ph.getDiskSize())) {
+            LOGGER.error(Messages.get(Messages.DEFAULT_LOCALE,
+                    "error_missing_instance_disk_size"));
+            throw new APPlatformException(
+                    Messages.getAll("error_missing_instance_disk_size"));
+        }
+        if (isNullOrEmpty(ph.getSubnet())) {
+            LOGGER.error(Messages.get(Messages.DEFAULT_LOCALE,
+                    "error_missing_instance_subnet"));
+            throw new APPlatformException(
+                    Messages.getAll("error_missing_instance_subnet"));
+        }
 
     }
 
@@ -520,12 +532,11 @@ public class AWSController implements APPlatformController {
      */
     private List<LocalizedText> getProvisioningStatusText(
             PropertyHandler paramHandler) {
-        List<LocalizedText> messages = Messages.getAll("status_"
-                + paramHandler.getState());
+        List<LocalizedText> messages = Messages
+                .getAll("status_" + paramHandler.getState());
         for (LocalizedText message : messages) {
-            if (message.getText() == null
-                    || (message.getText().startsWith("!") && message.getText()
-                            .endsWith("!"))) {
+            if (message.getText() == null || (message.getText().startsWith("!")
+                    && message.getText().endsWith("!"))) {
                 message.setText(Messages.get(message.getLocale(),
                         "status_INSTANCE_OVERALL"));
             }
