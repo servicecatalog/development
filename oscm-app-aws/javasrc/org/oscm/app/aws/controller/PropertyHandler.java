@@ -63,6 +63,14 @@ public class PropertyHandler {
     public static final String AWS_INSTANCE_ID = "AWS_INSTANCE_ID";
     public static final String MAIL_FOR_COMPLETION = "MAIL_FOR_COMPLETION";
 
+    // new
+    public static String SUBNET = "subnet";
+    public static String PUBLIC_IP = "publicIp";
+    public static String DISK_SIZE = "diskSize";
+    public static String INSTANCE_PLATFORM = "instancePlatform";
+    public static String EAI_INSTANCE_PUBLIC_DNS = "instancePublicDns";
+    public static String SNAPSHOT_ID = "snapshotId";
+
     /**
      * Default factory method.
      * 
@@ -312,7 +320,7 @@ public class PropertyHandler {
     private boolean isNullOrEmpty(String value) {
         return value == null || value.trim().length() == 0;
     }
-    
+
     /**
      * Returns the locale set as default for the customer organization.
      * 
@@ -325,4 +333,44 @@ public class PropertyHandler {
         }
         return locale;
     }
+
+    public String getSubnet() {
+        return settings.getParameters().get(SUBNET);
+    }
+
+    public String getTagName() {
+        return settings.getParameters().get(TAG_NAME);
+    }
+
+    public String getPublicIp() {
+        return settings.getParameters().get(PUBLIC_IP);
+    }
+
+    public String getDiskSize() {
+        return settings.getParameters().get(DISK_SIZE);
+    }
+
+    public String getAwsInstanceId() {
+        return settings.getParameters().get(AWS_INSTANCE_ID);
+    }
+
+    public void setAwsInstanceId(String awsInstanceId) {
+        settings.getParameters().put(AWS_INSTANCE_ID, awsInstanceId);
+
+    }
+
+    public void setInstancePlatform(String instancePlatform) {
+        INSTANCE_PLATFORM = instancePlatform;
+    }
+
+    public void setInstancePublicDNS(String publicDNS) {
+        settings.getParameters().put(EAI_INSTANCE_PUBLIC_DNS, publicDNS);
+
+    }
+
+    public void setSnapshotId(String snapshotId) {
+        settings.getParameters().put(SNAPSHOT_ID, snapshotId);
+
+    }
+
 }
