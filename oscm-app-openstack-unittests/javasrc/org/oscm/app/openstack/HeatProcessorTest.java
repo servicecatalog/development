@@ -208,7 +208,7 @@ public class HeatProcessorTest {
                                 MockURLStreamHandler.respStacksResources(
                                         serverNames,
                                         InstanceType.EC2.getString())));
-        streamHandler.put("/testTenantID/servers/1-Instance-otherserver2",
+        streamHandler.put("/servers/1-Instance-otherserver2",
                 new MockHttpURLConnection(202,
                         MockURLStreamHandler.respServerDetail("otherserver2",
                                 "1-Instance-otherserver2", ServerStatus.ACTIVE,
@@ -266,8 +266,7 @@ public class HeatProcessorTest {
                                 MockURLStreamHandler.respStacksResources(
                                         serverNames,
                                         InstanceType.EC2.getString())));
-        streamHandler.put("/testTenantID/servers/1-Instance-otherserver2",
-                connection2);
+        streamHandler.put("/servers/1-Instance-otherserver2", connection2);
 
         // when
         List<Server> result = new HeatProcessor()
@@ -317,8 +316,7 @@ public class HeatProcessorTest {
                                 MockURLStreamHandler.respStacksResources(
                                         serverNames,
                                         InstanceType.EC2.getString())));
-        streamHandler.put(
-                "/testTenantID/servers/1-Instance-otherserver2/action",
+        streamHandler.put("/servers/1-Instance-otherserver2/action",
                 new MockHttpURLConnection(202,
                         MockURLStreamHandler.respServerActions()));
 
@@ -352,8 +350,7 @@ public class HeatProcessorTest {
                                 MockURLStreamHandler.respStacksResources(
                                         serverNames,
                                         InstanceType.EC2.getString())));
-        streamHandler.put(
-                "/testTenantID/servers/1-Instance-otherserver2/action",
+        streamHandler.put("/servers/1-Instance-otherserver2/action",
                 connection2);
 
         // when
@@ -388,10 +385,9 @@ public class HeatProcessorTest {
                                 MockURLStreamHandler.respStacksResources(
                                         serverNames,
                                         InstanceType.EC2.getString())));
-        streamHandler.put(
-                "/testTenantID/servers/1-Instance-missingServer2/action",
+        streamHandler.put("/servers/1-Instance-missingServer2/action",
                 connection2);
-        streamHandler.put("/testTenantID/servers/2-Instance-otherServer/action",
+        streamHandler.put("/servers/2-Instance-otherServer/action",
                 new MockHttpURLConnection(202,
                         MockURLStreamHandler.respServerActions()));
 

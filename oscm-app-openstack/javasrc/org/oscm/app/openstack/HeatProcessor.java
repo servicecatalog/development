@@ -277,22 +277,6 @@ public class HeatProcessor {
         return servers;
     }
 
-    // public boolean resumeStack(PropertyHandler ph)
-    // throws HeatException, APPlatformException {
-    // if (!createHeatClient(ph).checkServerExists(ph.getStackName())) {
-    // throw new InstanceNotAliveException(Messages
-    // .getAll("error_activating_failed_instance_not_found"));
-    // }
-    //
-    // if (OpenStackStatus.SUSPEND_COMPLETE.name().equals(createHeatClient(ph)
-    // .getStackDetails(ph.getStackName()).getStatus())) {
-    // createHeatClient(ph).resumeStack(ph.getStackName(),
-    // ph.getStackId());
-    // return true;
-    // }
-    // return false;
-    // }
-
     /**
      * Start servers which are in Stack. The stack is identified by its name.
      *

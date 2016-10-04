@@ -62,9 +62,9 @@ public class MockURLStreamHandler extends URLStreamHandler {
                 new MockHttpURLConnection(200, repServers(serverNames)));
 
         // There are using tenant ID for getting server info
-        put("/testTenantID/servers/0-Instance-server1/action",
+        put("/servers/0-Instance-server1/action",
                 new MockHttpURLConnection(202, respServerActions()));
-        put("/testTenantID/servers/0-Instance-server1",
+        put("/servers/0-Instance-server1",
                 new MockHttpURLConnection(200,
                         respServerDetail("server1", "0-Instance-server1",
                                 ServerStatus.ACTIVE, "testTenantID")));
