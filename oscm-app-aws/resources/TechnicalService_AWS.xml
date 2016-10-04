@@ -42,11 +42,14 @@
       <LocalizedDescription locale="de">Name des AMI</LocalizedDescription>
       <LocalizedDescription locale="en">Name of AMI</LocalizedDescription>
     </ParameterDefinition>
-    <ParameterDefinition configurable="true" default="t1.micro" id="INSTANCE_TYPE" mandatory="true"
+    <ParameterDefinition configurable="true" default="t2.micro" id="INSTANCE_TYPE" mandatory="true"
       modificationType="ONE_TIME" valueType="ENUMERATION">
       <Options>
         <Option id="t1.micro">
           <LocalizedOption locale="en">t1.micro</LocalizedOption>
+        </Option>
+		<Option id="t2.micro">
+          <LocalizedOption locale="en">t2.micro</LocalizedOption>
         </Option>
         <Option id="m1.small">
           <LocalizedOption locale="en">m1.small</LocalizedOption>
@@ -77,6 +80,23 @@
       <LocalizedDescription locale="de">Region</LocalizedDescription>
       <LocalizedDescription locale="en">Region</LocalizedDescription>
     </ParameterDefinition>
+	
+	<ParameterDefinition configurable="true" default="subnet-a77430d0" id="subnet" mandatory="true" valueType="STRING"  modificationType="ONE_TIME">
+      <LocalizedDescription locale="en">Subnet Definition</LocalizedDescription>
+      <LocalizedDescription locale="de"/>
+      <LocalizedDescription locale="ja"/>
+    </ParameterDefinition>
+    <ParameterDefinition configurable="true" default="3" id="diskSize"  mandatory="true"  minValue="1" maxValue="3"  valueType="INTEGER"  modificationType="ONE_TIME">
+      <LocalizedDescription locale="en">Max Disk Size (GB)</LocalizedDescription>
+      <LocalizedDescription locale="de"/>
+      <LocalizedDescription locale="ja"/>
+    </ParameterDefinition>
+    <ParameterDefinition configurable="true" default="true" id="publicIp" mandatory="false" modificationType="ONE_TIME" valueType="BOOLEAN" >
+      <LocalizedDescription locale="en">Public Ip</LocalizedDescription>
+      <LocalizedDescription locale="de"/>
+      <LocalizedDescription locale="ja"/>
+    </ParameterDefinition>
+	
     <ParameterDefinition configurable="false" default="<your.mail>" id="MAIL_FOR_COMPLETION"
       mandatory="false" modificationType="ONE_TIME" valueType="STRING">
       <LocalizedDescription locale="en">The address to which emails are to be sent that describe manual steps required to complete an operation. If you specify this parameter, the service controller interrupts the processing of each operation before its completion and waits for a notification about the execution of a manual action. Omit this parameter if you do not want to interrupt the processing.</LocalizedDescription>
