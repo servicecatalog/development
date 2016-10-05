@@ -129,18 +129,18 @@ public class Dispatcher {
                 newState = FlowState.DELETING_STACK;
                 break;
 
-            case ACTIVATION_REQUESTED:
+            case START_REQUESTED:
                 HashMap<String, Boolean> operationStatuses = new HeatProcessor()
                         .startInstances(properties);
                 newState = operationStatuses.containsValue(Boolean.TRUE)
-                        ? FlowState.ACTIVATING : FlowState.FINISHED;
+                        ? FlowState.STARTING : FlowState.FINISHED;
                 if (newState.equals(FlowState.FINISHED)) {
                     stack = new HeatProcessor().getStackDetails(properties);
                     result.setAccessInfo(getAccessInfo(stack));
                 }
                 break;
 
-            case ACTIVATING:
+            case STARTING:
                 servers = new HeatProcessor().getServersDetails(properties);
                 List<Server> activeServers = new ArrayList<Server>();
                 List<Server> errorServers = new ArrayList<Server>();
@@ -165,7 +165,7 @@ public class Dispatcher {
                         result.setAccessInfo(getAccessInfo(stack));
                         newState = FlowState.FINISHED;
                     } else {
-                        logger.info(FlowState.ACTIVATING
+                        logger.info(FlowState.STARTING
                                 + " servers are not yet ready. "
                                 + Integer.toString(
                                         servers.size() - activeServers.size())
@@ -174,7 +174,44 @@ public class Dispatcher {
 
                 } else {
                     throw new SuspendException(
-                            Messages.getAll("error_activating_failed"));
+                            Messages.getAll("error_starting_failed"));
+                }
+                break;
+
+            case ACTIVATION_REQUESTED:
+                boolean resuming = new HeatProcessor().resumeStack(properties);
+                newState = resuming ? FlowState.ACTIVATING : FlowState.FINISHED;
+                if (resuming) {
+                    result.setAccessInfo(
+                            Messages.get(properties.getCustomerLocale(),
+                                    "accessInfo_NOT_AVAILABLE"));
+                } else {
+                    stack = new HeatProcessor().getStackDetails(properties);
+                    result.setAccessInfo(getAccessInfo(stack));
+                }
+                break;
+
+            case ACTIVATING:
+                servers = new HeatProcessor().getServersDetails(properties);
+                stack = new HeatProcessor().getStackDetails(properties);
+                status = stack.getStatus();
+                statusReason = stack.getStatusReason();
+                logger.debug("Status of stack is: " + status);
+                if (HeatStatus.RESUME_COMPLETE.name().equals(status)) {
+                    result.setAccessInfo(getAccessInfo(stack));
+                    newState = FlowState.FINISHED;
+                } else if (HeatStatus.RESUME_FAILED.name().equals(status)
+                        && statusReason.contains("Failed to find instance")) {
+                    throw new InstanceNotAliveException(Messages.getAll(
+                            "error_activating_failed_instance_not_found"));
+                } else if (HeatStatus.RESUME_FAILED.name().equals(status)) {
+                    throw new SuspendException(
+                            Messages.getAll("error_activating_failed",
+                                    stack.getStatusReason()));
+                } else {
+                    logger.info(FlowState.ACTIVATING
+                            + " Instance is not yet ready, status: " + status
+                            + ". Nothing will be done.");
                 }
                 break;
 

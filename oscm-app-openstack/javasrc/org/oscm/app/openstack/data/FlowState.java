@@ -51,6 +51,16 @@ public enum FlowState {
     DEACTIVATING,
 
     /**
+     * The start of an application instance was requested.
+     */
+    START_REQUESTED,
+
+    /**
+     * Start of stack instance is in progress
+     */
+    STARTING,
+
+    /**
      * The application instance is currently being executed - waiting for OK
      * state.
      */

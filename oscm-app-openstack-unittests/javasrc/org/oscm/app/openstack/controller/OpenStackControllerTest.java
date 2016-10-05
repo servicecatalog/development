@@ -104,6 +104,14 @@ public class OpenStackControllerTest extends EJBTestBase {
                         "en"));
     }
 
+    @Test
+    public void executeServiceOperation_resumeSystem() throws Exception {
+        controller.executeServiceOperation("userId", "instanceId",
+                "transactionId", "RESUME_VIRTUAL_SYSTEM", null,
+                new ProvisioningSettings(new HashMap<String, String>(), null,
+                        "en"));
+    }
+
     @Test(expected = APPlatformException.class)
     public void createInstance_stackNameEmpty() throws Exception {
         // given

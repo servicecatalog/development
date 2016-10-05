@@ -291,7 +291,7 @@ public class HeatProcessor {
         HashMap<String, Boolean> operationStatuses = new HashMap<String, Boolean>();
         if (serverIds.size() == 0) {
             throw new InstanceNotAliveException(Messages
-                    .getAll("error_activating_failed_instance_not_found"));
+                    .getAll("error_starting_failed_instance_not_found"));
         }
 
         for (String id : serverIds) {
@@ -299,6 +299,22 @@ public class HeatProcessor {
             operationStatuses.put(id, result);
         }
         return operationStatuses;
+    }
+
+    public boolean resumeStack(PropertyHandler ph)
+            throws HeatException, APPlatformException {
+        if (!createHeatClient(ph).checkServerExists(ph.getStackName())) {
+            throw new InstanceNotAliveException(Messages
+                    .getAll("error_activating_failed_instance_not_found"));
+        }
+
+        if (HeatStatus.SUSPEND_COMPLETE.name().equals(createHeatClient(ph)
+                .getStackDetails(ph.getStackName()).getStatus())) {
+            createHeatClient(ph).resumeStack(ph.getStackName(),
+                    ph.getStackId());
+            return true;
+        }
+        return false;
     }
 
     public boolean suspendStack(PropertyHandler ph)
