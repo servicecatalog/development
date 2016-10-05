@@ -442,7 +442,8 @@ public class ExportBillingDataCtrlTest {
     @Test
     public void billingTypeChanged() {
         // given
-        ValueChangeEvent e = new ValueChangeEvent(new UIInput(), null,
+        UIInput input = mock(UIInput.class);
+        ValueChangeEvent e = new ValueChangeEvent(input, null,
                 BillingDataType.RevenueShare);
 
         // when
@@ -459,7 +460,8 @@ public class ExportBillingDataCtrlTest {
     @Test
     public void billingTypeChanged_bug10285() {
         // given
-        ValueChangeEvent e = new ValueChangeEvent(new UIInput(), null, null);
+        UIInput input = mock(UIInput.class);
+        ValueChangeEvent e = new ValueChangeEvent(input, null, null);
 
         // when
         ctrl.billingTypeChanged(e);

@@ -374,7 +374,7 @@ public class SubscriptionWizardConversationTest {
 
         model.setShowExternalConfigurator(false);
 
-        UIViewRoot viewRoot = new UIViewRoot();
+        UIViewRoot viewRoot = mock(UIViewRoot.class);
         viewRoot.setViewId(SUBSCRIPTIONADD_VIEWID);
 
         FacesContext context = mock(FacesContext.class);
