@@ -176,6 +176,127 @@ public class HeatProcessorTest {
     }
 
     @Test
+    public void resumeStack_notSuspended() throws Exception {
+        // given
+        final String instanceName = "Instance4";
+        createBasicParameters(instanceName, "fosi_v2.json", "http");
+
+        // when
+        boolean result = new HeatProcessor().resumeStack(paramHandler);
+
+        // then
+        assertFalse(result);
+        assertEquals("sID", paramHandler.getStackId());
+        assertEquals(instanceName, paramHandler.getStackName());
+    }
+
+    @Test
+    public void resumeStack() throws Exception {
+        // given
+        final String instanceName = "Instance4";
+        createBasicParameters(instanceName, "fosi_v2.json", "http");
+        streamHandler.put("/stacks/" + instanceName,
+                new MockHttpURLConnection(200,
+                        MockURLStreamHandler.respStacksInstanceName(
+                                HeatStatus.SUSPEND_COMPLETE, false)));
+
+        // when
+        boolean result = new HeatProcessor().resumeStack(paramHandler);
+
+        // then
+        assertTrue(result);
+        assertEquals("sID", paramHandler.getStackId());
+        assertEquals(instanceName, paramHandler.getStackName());
+    }
+
+    @Test
+    public void resumeStackWithNovaServer() throws Exception {
+        // given
+        final String instanceName = "Instance4";
+        createBasicParameters(instanceName, "fosi_v2.json", "http");
+        final List<String> serverNames = Arrays.asList("server1");
+        streamHandler.put("/stacks/" + instanceName,
+                new MockHttpURLConnection(200,
+                        MockURLStreamHandler.respStacksInstanceName(
+                                HeatStatus.SUSPEND_COMPLETE, false)));
+        streamHandler
+                .put("/stacks/" + instanceName + "/resources",
+                        new MockHttpURLConnection(200,
+                                MockURLStreamHandler.respStacksResources(
+                                        serverNames, InstanceType.NOVA
+                                                .getString())));
+
+        // when
+        boolean result = new HeatProcessor().resumeStack(paramHandler);
+
+        // then
+        assertTrue(result);
+        assertEquals("sID", paramHandler.getStackId());
+        assertEquals(instanceName, paramHandler.getStackName());
+    }
+
+    @Test
+    public void resumeStackWithTroveInstance() throws Exception {
+        // given
+        final String instanceName = "Instance4";
+        createBasicParameters(instanceName, "fosi_v2.json", "http");
+        final List<String> serverNames = Arrays.asList("server1");
+        streamHandler.put("/stacks/" + instanceName,
+                new MockHttpURLConnection(200,
+                        MockURLStreamHandler.respStacksInstanceName(
+                                HeatStatus.SUSPEND_COMPLETE, false)));
+        streamHandler
+                .put("/stacks/" + instanceName + "/resources",
+                        new MockHttpURLConnection(200,
+                                MockURLStreamHandler.respStacksResources(
+                                        serverNames, InstanceType.TROVE
+                                                .getString())));
+
+        // when
+        boolean result = new HeatProcessor().resumeStack(paramHandler);
+
+        // then
+        assertTrue(result);
+        assertEquals("sID", paramHandler.getStackId());
+        assertEquals(instanceName, paramHandler.getStackName());
+    }
+
+    @Test(expected = InstanceNotAliveException.class)
+    public void resumeStack_InstanceNotAliveException_serverIDError()
+            throws Exception {
+        // given
+        final String instanceName = "Instance4";
+        createBasicParameters(instanceName, "fosi_v2.json", "http");
+        streamHandler.put("/stacks/" + instanceName,
+                new MockHttpURLConnection(200,
+                        MockURLStreamHandler.respStacksInstanceName(
+                                HeatStatus.SUSPEND_COMPLETE, false)));
+        streamHandler.put("/servers/0-Instance-server1",
+                new MockHttpURLConnection(200,
+                        MockURLStreamHandler.respServer("test", "servId")));
+
+        // when
+        new HeatProcessor().resumeStack(paramHandler);
+    }
+
+    @Test(expected = InstanceNotAliveException.class)
+    public void resumeStack_InstanceNotAliveException_serverIDNotFoundError()
+            throws Exception {
+        // given
+        final String instanceName = "Instance4";
+        createBasicParameters(instanceName, "fosi_v2.json", "http");
+        List<String> serverNames = new LinkedList<String>();
+        streamHandler
+                .put("/stacks/" + instanceName + "/resources",
+                        new MockHttpURLConnection(200,
+                                MockURLStreamHandler.respStacksResources(
+                                        serverNames,
+                                        InstanceType.EC2.getString())));
+        // when
+        new HeatProcessor().resumeStack(paramHandler);
+    }
+
+    @Test
     public void getServersDetails() throws Exception {
         // given
         final String instanceName = "Instance4";

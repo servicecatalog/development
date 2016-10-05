@@ -130,6 +130,21 @@ public class DispatcherTest {
     }
 
     @Test
+    public void activationRequested() throws Exception {
+        // given
+        paramHandler.setState(FlowState.ACTIVATION_REQUESTED);
+
+        // when
+        InstanceStatus result = dispatcher.dispatch();
+
+        // then
+        String status = parameters.get(PropertyHandler.STATUS);
+        assertEquals(FlowState.FINISHED.toString(), status);
+        assertEquals(ACCESS_INFO, result.getAccessInfo());
+        assertTrue(result.isReady());
+    }
+
+    @Test
     public void creationRequested_AbortException() throws Exception {
         // given
         String url = "/templates/xyz.json";
@@ -148,23 +163,23 @@ public class DispatcherTest {
     }
 
     @Test
-    public void activationRequested() throws Exception {
+    public void startRequested() throws Exception {
         // given
-        paramHandler.setState(FlowState.ACTIVATION_REQUESTED);
+        paramHandler.setState(FlowState.START_REQUESTED);
 
         // when
         InstanceStatus result = dispatcher.dispatch();
 
         // then
         String status = parameters.get(PropertyHandler.STATUS);
-        assertEquals(FlowState.ACTIVATING.toString(), status);
+        assertEquals(FlowState.STARTING.toString(), status);
         assertFalse(result.isReady());
     }
 
     @Test
-    public void activationRequested_allServersFaild() throws Exception {
+    public void startRequested_allServersFaild() throws Exception {
         // given
-        paramHandler.setState(FlowState.ACTIVATION_REQUESTED);
+        paramHandler.setState(FlowState.START_REQUESTED);
         final List<String> serverNames = Arrays.asList("server1",
                 "otherserver2");
         MockHttpURLConnection connection = new MockHttpURLConnection(404,
@@ -210,6 +225,10 @@ public class DispatcherTest {
     public void activating() throws Exception {
         // given
         paramHandler.setState(FlowState.ACTIVATING);
+        streamHandler.put("/stacks/Instance4",
+                new MockHttpURLConnection(200,
+                        MockURLStreamHandler.respStacksInstanceName(
+                                HeatStatus.RESUME_COMPLETE, true)));
 
         // when
         InstanceStatus result = dispatcher.dispatch();
@@ -225,6 +244,47 @@ public class DispatcherTest {
     public void activating_FAILED() throws Exception {
         // given
         paramHandler.setState(FlowState.ACTIVATING);
+        streamHandler.put("/stacks/Instance4",
+                new MockHttpURLConnection(200,
+                        MockURLStreamHandler.respStacksInstanceName(
+                                HeatStatus.RESUME_FAILED, true)));
+
+        // when
+        dispatcher.dispatch();
+    }
+
+    @Test
+    public void activating_wrongStatus() throws Exception {
+        // given
+        paramHandler.setState(FlowState.ACTIVATING);
+
+        // when
+        dispatcher.dispatch();
+
+        // then
+        assertFalse(FlowState.FINISHED.toString()
+                .equals(parameters.get(PropertyHandler.STATUS)));
+    }
+
+    @Test
+    public void starting() throws Exception {
+        // given
+        paramHandler.setState(FlowState.STARTING);
+
+        // when
+        InstanceStatus result = dispatcher.dispatch();
+
+        // then
+        String status = parameters.get(PropertyHandler.STATUS);
+        assertEquals(FlowState.FINISHED.toString(), status);
+        assertEquals(ACCESS_INFO, result.getAccessInfo());
+        assertTrue(result.isReady());
+    }
+
+    @Test(expected = SuspendException.class)
+    public void starting_FAILED() throws Exception {
+        // given
+        paramHandler.setState(FlowState.STARTING);
         streamHandler.put("/servers/0-Instance-server1",
                 new MockHttpURLConnection(200,
                         MockURLStreamHandler.respServerDetail("server1",
@@ -236,9 +296,9 @@ public class DispatcherTest {
     }
 
     @Test
-    public void activating_stillStopped() throws Exception {
+    public void starting_stillStopped() throws Exception {
         // given
-        paramHandler.setState(FlowState.ACTIVATING);
+        paramHandler.setState(FlowState.STARTING);
         streamHandler.put("/servers/0-Instance-server1",
                 new MockHttpURLConnection(200,
                         MockURLStreamHandler.respServerDetail("server1",

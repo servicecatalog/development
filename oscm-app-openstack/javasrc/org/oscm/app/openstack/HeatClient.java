@@ -106,6 +106,19 @@ public class HeatClient {
         }
     }
 
+    public void resumeStack(String stackName, String stackId)
+            throws HeatException {
+        String uri;
+        try {
+            uri = connection.getHeatEndpoint() + "/stacks/"
+                    + URLEncoder.encode(stackName, "UTF-8") + '/' + stackId
+                    + "/actions";
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+        connection.processRequest(uri, "POST", "{\"resume\":null}");
+    }
+
     public void suspendStack(String stackName, String stackId)
             throws HeatException {
         String uri;
@@ -177,6 +190,7 @@ public class HeatClient {
                 case EC2:
                 case TROVE:
                     serverIds.add(resource.optString("physical_resource_id"));
+                    break;
                 default:
                     continue;
                 }
