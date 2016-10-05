@@ -35,6 +35,18 @@ public class NovaClient {
         this.connection = connection;
     }
 
+    /**
+     * startServer This method request to OpenStack to start Instance.
+     * 
+     * @param ph
+     *            PropertyHandler: This is used for information when CTMG get
+     *            Heat Exception.
+     * @param serverId
+     *            String: The ID of Instance(VM) which is used for POST start
+     *            API
+     * @return Boolean: If the request is successful, return Boolean.TRUE. If
+     *         the request is failed, return Boolean.FALSE.
+     */
     public Boolean startServer(PropertyHandler ph, String serverId) {
         String uri;
         try {
