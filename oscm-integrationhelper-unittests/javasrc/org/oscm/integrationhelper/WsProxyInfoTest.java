@@ -13,7 +13,7 @@ import org.junit.Test;
 public class WsProxyInfoTest {
 
     private static final String TOKENHANDLER_PROPERTY_FILE = "tokenhandler.properties";
-    private static final String CURRENT_VERSION = "1.8";
+    private static final String CURRENT_VERSION = "1.9";
 
     @Test
     public void WsProxyInfo_fileNameNull() {
@@ -96,7 +96,7 @@ public class WsProxyInfoTest {
                 TOKENHANDLER_PROPERTY_FILE);
 
         // then
-        assertEquals("https://xy.com:8081/fujitsu-bss/" + CURRENT_VERSION
+        assertEquals("https://xy.com:8081/oscm/" + CURRENT_VERSION
                 + "/SessionService/BASIC?wsdl", result.getWsInfo()
                 .getRemoteBssWsUrl());
     }
@@ -112,7 +112,7 @@ public class WsProxyInfoTest {
                 TOKENHANDLER_PROPERTY_FILE);
 
         // then
-        assertEquals("https://xy.com:8081/fujitsu-bss/" + CURRENT_VERSION
+        assertEquals("https://xy.com:8081/oscm/" + CURRENT_VERSION
                 + "/SessionService/CLIENTCERT?wsdl", result.getWsInfo()
                 .getRemoteBssWsUrl());
     }
@@ -128,7 +128,7 @@ public class WsProxyInfoTest {
                 TOKENHANDLER_PROPERTY_FILE);
 
         // then
-        assertEquals("https://xy.com:8081/fujitsu-bss/" + CURRENT_VERSION
+        assertEquals("https://xy.com:8081/oscm/" + CURRENT_VERSION
                 + "/SessionService/STS?wsdl", result.getWsInfo()
                 .getRemoteBssWsUrl());
     }
