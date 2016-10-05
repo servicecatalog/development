@@ -67,12 +67,9 @@ public class CategoryBeanTest {
                 facesMessages.add(arg1);
             }
         };
-        UIViewRootStub vrStub = new UIViewRootStub() {
-            @Override
-            public Locale getLocale() {
-                return Locale.ENGLISH;
-            };
-        };
+        UIViewRootStub vrStub = mock(UIViewRootStub.class);
+        when(vrStub.getLocale()).thenReturn(Locale.ENGLISH);
+
         contextStub.setViewRoot(vrStub);
 
         // Create a category and add it to the list of categories.
