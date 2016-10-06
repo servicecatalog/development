@@ -23,6 +23,7 @@ import java.util.Set;
 
 import org.apache.commons.codec.binary.Base64;
 import org.oscm.app.aws.controller.PropertyHandler;
+import org.oscm.app.aws.i18n.Messages;
 import org.oscm.app.v1_0.exceptions.APPlatformException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,6 +75,8 @@ public class EC2Communication {
     private static final String ENDPOINT_SUFFIX = ".amazonaws.com";
     private static final String HTTPS_PROXY_HOST = "https.proxyHost";
     private static final String HTTPS_PROXY_PORT = "https.proxyPort";
+    private static final String HTTPS_PROXY_USER = "https.proxyUser";
+    private static final String HTTPS_PROXY_PASSWORD = "https.proxyPassword";
     private static final String HTTP_NON_PROXY_HOSTS = "http.nonProxyHosts";
 
     /**
@@ -86,6 +89,7 @@ public class EC2Communication {
         this.ph = ph;
         final String secretKey = ph.getSecretKey();
         final String accessKeyId = ph.getAccessKeyId();
+
         credentialsProvider = new AWSCredentialsProvider() {
 
             @Override
@@ -114,14 +118,18 @@ public class EC2Communication {
     /**
      * Return amazon interface
      * 
-     * @return AmazonEC2Client ec2
+     * @return AmazonEC2 client ec2
      */
+
     AmazonEC2 getEC2() {
         if (ec2 == null) {
             String endpoint = ENDPOINT_PREFIX + ph.getRegion()
                     + ENDPOINT_SUFFIX;
             String proxyHost = System.getProperty(HTTPS_PROXY_HOST);
             String proxyPort = System.getProperty(HTTPS_PROXY_PORT);
+            String proxyUser = System.getProperty(HTTPS_PROXY_USER);
+            String proxyPassword = System.getProperty(HTTPS_PROXY_PASSWORD);
+
             int proxyPortInt = 0;
             try {
                 proxyPortInt = Integer.parseInt(proxyPort);
@@ -135,6 +143,12 @@ public class EC2Communication {
                 }
                 if (proxyPortInt > 0) {
                     clientConfiguration.setProxyPort(proxyPortInt);
+                }
+                if (proxyUser != null && proxyUser.length() > 0) {
+                    clientConfiguration.setProxyUsername(proxyUser);
+                }
+                if (proxyPassword != null && proxyPassword.length() > 0) {
+                    clientConfiguration.setProxyPassword(proxyPassword);
                 }
             }
             ec2 = getEC2(credentialsProvider, clientConfiguration);
@@ -220,19 +234,18 @@ public class EC2Communication {
     public Image resolveAMI(String amiID) throws APPlatformException {
         LOGGER.debug("resolveAMI('{}') entered", amiID);
         DescribeImagesRequest dir = new DescribeImagesRequest();
-        // dir.withImageIds("ami-9546fce6");
         dir.withImageIds(amiID);
         DescribeImagesResult describeImagesResult = getEC2()
                 .describeImages(dir);
 
         List<Image> images = describeImagesResult.getImages();
         for (Image image : images) {
-            System.out.println(image.getImageId() + "=="
-                    + image.getImageLocation() + "==" + image.getName());
-            LOGGER.debug("  return image with id {}", image.getImageId());
+            LOGGER.debug(image.getImageId() + "==" + image.getImageLocation()
+                    + "==" + image.getName());
             return image;
         }
-        throw new APPlatformException("error_invalid_image " + amiID);
+        throw new APPlatformException(
+                Messages.getAll("error_invalid_image") + amiID);
     }
 
     /**
@@ -257,7 +270,7 @@ public class EC2Communication {
 
         }
         throw new APPlatformException(
-                "Error invalid subnet id " + subnetString);
+                Messages.getAll("error_invalid_subnet_id ") + subnetString);
 
     }
 
@@ -265,6 +278,12 @@ public class EC2Communication {
      * Checks whether exiting SecurityGroups is present.
      * 
      * @param securityGroupNames
+     * @param vpcId
+     *            The ID of the VPC the subnet is in.A virtual private cloud
+     *            (VPC) is a virtual network dedicated to your AWS account. It
+     *            is logically isolated from other virtual networks in the AWS
+     *            cloud. You can launch your AWS resources, such as Amazon EC2
+     *            instances, into your VPC.
      * @return <code>Collection<String> </code> if the matches one of the
      *         securityGroupNames and vpcId
      * 
@@ -304,7 +323,8 @@ public class EC2Communication {
                     sb.append(name);
                 }
                 throw new APPlatformException(
-                        "Error invalid security Group Names" + sb.toString());
+                        Messages.getAll("error_invalid_security_group")
+                                + sb.toString());
             }
         }
         LOGGER.debug("Done with Searching for securityGroups " + result);
@@ -331,31 +351,17 @@ public class EC2Communication {
                 .withMinCount(Integer.valueOf(1))
                 .withMaxCount(Integer.valueOf(1))
                 .withKeyName(ph.getKeyPairName());
-
+        InstanceNetworkInterfaceSpecification networkInterface = new InstanceNetworkInterfaceSpecification();
+        String subnetId = null;
         LOGGER.debug(
                 "runInstancesRequest : " + " image ID : " + image.getImageId()
-                        + " insatance type : " + ph.getInstanceType()
-                        + " keypairname : " + ph.getKeyPairName());
+                        + " insatance type : " + ph.getInstanceType());
 
         Collection<String> securityGroupNames = ph.getSecurityGroups();
-
         if (ph.getSubnet() != null && ph.getSubnet().trim().length() > 0) {
             Subnet subnet = resolveSubnet(ph.getSubnet());
-            String subnetId = subnet.getSubnetId();
+            subnetId = subnet.getSubnetId();
             LOGGER.debug("Subnet: " + subnetId);
-            InstanceNetworkInterfaceSpecification networkInterface = new InstanceNetworkInterfaceSpecification();
-            networkInterface.setDeviceIndex(Integer.valueOf(0));
-            networkInterface.setSubnetId(subnetId);
-            LOGGER.debug("public IP for VM : " + ph.getPublicIp());
-            if (Boolean.parseBoolean(ph.getPublicIp())) {
-                LOGGER.debug("Set public IP for VM : ");
-                networkInterface.setAssociatePublicIpAddress(true);
-            } else {
-                networkInterface.setAssociatePublicIpAddress(false);
-            }
-
-            networkInterface.setDeleteOnTermination(Boolean.TRUE);
-
             Collection<String> securityGroupIds = resolveSecurityGroups(
                     securityGroupNames, subnet.getVpcId());
             if (securityGroupIds.size() > 0) {
@@ -363,62 +369,59 @@ public class EC2Communication {
                     LOGGER.debug("SecurityGroup: " + secGroup);
                 }
                 networkInterface.setGroups(securityGroupIds);
-
             }
-            runInstancesRequest.withNetworkInterfaces(networkInterface);
         }
-        LOGGER.info("set securityGroupNames done");
+        LOGGER.debug("public IP for VM : " + ph.getPublicIp());
+        if (ph.getPublicIp() != null) {
+            if (Boolean.parseBoolean(ph.getPublicIp().trim())) {
+                LOGGER.debug("Set public IP for VM as true ");
+                networkInterface.setAssociatePublicIpAddress(true);
+            } else {
+                LOGGER.debug("Set public IP for VM as false ");
+                networkInterface.setAssociatePublicIpAddress(false);
+            }
+        }
+        // Here we attached network Interface to the instance request as we want
+        // to set the public ip or subnet and securityGroups
+        if ((ph.getSubnet() != null && ph.getSubnet().trim().length() > 0)
+                || (ph.getPublicIp() != null
+                        && ph.getPublicIp().trim().length() > 0)) {
+            networkInterface.setDeviceIndex(Integer.valueOf(0));
+            networkInterface.setSubnetId(subnetId);
+            networkInterface.setDeleteOnTermination(Boolean.TRUE);
+            runInstancesRequest.withNetworkInterfaces(networkInterface);
+            LOGGER.info("add networkInterface parameters in instacne request");
+        }
+
         // if disk size is defined change the disk size of the new instance
-        try {
-            if (ph.getDiskSize() != null) {
-                Integer diskSize = Integer.parseInt(ph.getDiskSize());
-                if (diskSize.intValue() >= 0) {
-                    List<BlockDeviceMapping> mappings = image
-                            .getBlockDeviceMappings();
-                    for (BlockDeviceMapping bdm : mappings) {
-                        EbsBlockDevice ebs = bdm.getEbs();
-                        String rootDeviceName = image.getRootDeviceName();
-                        if (rootDeviceName != null
-                                && rootDeviceName.equals(bdm.getDeviceName())) {
-                            if (diskSize.intValue() < ebs.getVolumeSize()
-                                    .intValue()) {
-                                diskSize = ebs.getVolumeSize().intValue();
-                                ebs.setVolumeSize(diskSize);
-                                ebs.setEncrypted(null);
-                                ebs.setDeleteOnTermination(true);
-                                LOGGER.info(">>SNAPSHOT ID : "
-                                        + ebs.getSnapshotId());
-                                ph.setSnapshotId(ebs.getSnapshotId());
-                                runInstancesRequest
-                                        .setBlockDeviceMappings(mappings);
-                                // throw new Exception("error_invalid_disksize "
-                                // +
-                                // ebs.getVolumeSize());
-                            } else if (diskSize.intValue() > ebs.getVolumeSize()
-                                    .intValue()) {
-                                LOGGER.debug("Change root volume size of image "
-                                        + image.getName() + " from "
-                                        + ebs.getVolumeSize() + " GB to "
-                                        + diskSize + " GB");
-                                ebs.setVolumeSize(diskSize);
-                                ebs.setEncrypted(null);
-                                ebs.setDeleteOnTermination(true);
-                                LOGGER.info(">>SNAPSHOT ID : "
-                                        + ebs.getSnapshotId());
-                                ph.setSnapshotId(ebs.getSnapshotId());
-                                runInstancesRequest
-                                        .setBlockDeviceMappings(mappings);
-                            }
-                            break;
+        if (ph.getDiskSize() != null) {
+            Integer diskSize = Integer.parseInt(ph.getDiskSize().trim());
+            if (diskSize.intValue() >= 0) {
+                List<BlockDeviceMapping> mappings = image
+                        .getBlockDeviceMappings();
+                for (BlockDeviceMapping bdm : mappings) {
+                    EbsBlockDevice ebs = bdm.getEbs();
+                    String rootDeviceName = image.getRootDeviceName();
+                    if (rootDeviceName != null
+                            && rootDeviceName.equals(bdm.getDeviceName())) {
+
+                        if (diskSize.intValue() < ebs.getVolumeSize()
+                                .intValue()) {
+                            diskSize = ebs.getVolumeSize().intValue();
                         }
+                        ebs.setVolumeSize(diskSize);
+                        ebs.setEncrypted(null);
+                        ebs.setDeleteOnTermination(true);
+                        LOGGER.info(">>SNAPSHOT ID : " + ebs.getSnapshotId());
+                        ph.setSnapshotId(ebs.getSnapshotId());
+                        runInstancesRequest.setBlockDeviceMappings(mappings);
+                        break;
                     }
                 }
             }
-        } catch (NumberFormatException e) {
-            throw new NumberFormatException("Invalid disk size");
         }
+
         LOGGER.info("disk type Done");
-        LOGGER.info("ph.getUserData() set null");
         String userData = ph.getUserData();
         if (userData != null && userData.trim().length() > 0) {
             runInstancesRequest.setUserData(getTextBASE64(userData));
@@ -430,7 +433,8 @@ public class EC2Communication {
                 .getInstances();
         LOGGER.info("RunInstancesResult type Done");
         if (reservedInstances.size() == 0) {
-            throw new APPlatformException("error_no_reserved_instance");
+            throw new APPlatformException(
+                    Messages.getAll("error_no_reserved_instance"));
         }
 
         for (Instance instance : reservedInstances) {
@@ -566,10 +570,10 @@ public class EC2Communication {
     private void createTags(PropertyHandler ph) throws APPlatformException {
         List<Tag> tags = new ArrayList<Tag>();
         tags.add(new Tag(PropertyHandler.TAG_NAME, ph.getInstanceName()));
-        // tags.add(new Tag(PropertyHandler.TAG_SUBSCRIPTION_ID,
-        // ph.getSettings().getSubscriptionId()));
-        // tags.add(new Tag(PropertyHandler.TAG_ORGANIZATION_ID,
-        // ph.getSettings().getOrganizationId()));
+        tags.add(new Tag(PropertyHandler.TAG_SUBSCRIPTION_ID,
+                ph.getSettings().getSubscriptionId()));
+        tags.add(new Tag(PropertyHandler.TAG_ORGANIZATION_ID,
+                ph.getSettings().getOrganizationId()));
         CreateTagsRequest ctr = new CreateTagsRequest();
         LOGGER.debug("attach tags to resource " + ph.getAWSInstanceId());
         ctr.withResources(ph.getAWSInstanceId()).setTags(tags);
