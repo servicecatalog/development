@@ -100,12 +100,8 @@
      
     <copy file="${ivy.lib.dir}/aws-java-sdk-core-1.11.37.jar" todir="${root.dir}/libraries/aws/javalib"></copy>
     <copy file="${ivy.lib.dir}/aws-java-sdk-ec2-1.11.37.jar" todir="${root.dir}/libraries/aws/javalib"></copy>
-    <copy file="${ivy.lib.dir}/jackson-databind-2.2.3.jar" todir="${root.dir}/libraries/aws/javalib"></copy>
-    <copy file="${ivy.lib.dir}/jackson-core-2.2.3.jar" todir="${root.dir}/libraries/aws/javalib"></copy>
-    <copy file="${ivy.lib.dir}/jackson-annotations-2.2.3.jar" todir="${root.dir}/libraries/aws/javalib"></copy>
-    <copy file="${ivy.lib.dir}/joda-time-2.4.jar" todir="${root.dir}/libraries/aws/javalib"></copy>
-    <copy file="${ivy.lib.dir}/httpcore-4.4.1.jar" todir="${root.dir}/libraries/aws/javalib"></copy>
-    <copy file="${ivy.lib.dir}/httpclient-4.5.2.jar" todir="${root.dir}/libraries/aws/javalib"></copy>
+    <copy file="${ivy.lib.dir}/httpcore-4.4.1.jar" todir="${root.dir}/libraries/apache-httpcore/javalib"></copy>
+    <copy file="${ivy.lib.dir}/httpclient-4.5.2.jar" todir="${root.dir}/libraries/apache-httpcore/javalib"></copy>
   	
     <copy file="${ivy.lib.dir}/backport-util-concurrent-3.1.jar" todir="${root.dir}/libraries/backport/javalib"></copy>
     <copy file="${ivy.lib.dir}/bcprov-jdk15-1.45.jar" tofile="${root.dir}/libraries/bouncycastle/javalib/bcprov-jdk15-145.jar"></copy>
