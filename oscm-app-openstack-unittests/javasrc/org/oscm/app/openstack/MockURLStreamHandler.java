@@ -22,8 +22,8 @@ import java.util.Map;
 import org.apache.sling.commons.json.JSONArray;
 import org.apache.sling.commons.json.JSONException;
 import org.apache.sling.commons.json.JSONObject;
-import org.oscm.app.openstack.controller.HeatStatus;
 import org.oscm.app.openstack.controller.ServerStatus;
+import org.oscm.app.openstack.controller.StackStatus;
 
 /**
  * @author Dirk Bernsau
@@ -41,9 +41,9 @@ public class MockURLStreamHandler extends URLStreamHandler {
         put("/v3/auth/tokens",
                 new MockHttpURLConnection(201, respTokens(true, true, false)));
         put("/stacks/instanceName", new MockHttpURLConnection(200,
-                respStacksInstanceName(HeatStatus.CREATE_COMPLETE, true)));
+                respStacksInstanceName(StackStatus.CREATE_COMPLETE, true)));
         put("/stacks/Instance4", new MockHttpURLConnection(200,
-                respStacksInstanceName(HeatStatus.CREATE_COMPLETE, true)));
+                respStacksInstanceName(StackStatus.CREATE_COMPLETE, true)));
         put("/stacks/Instance4/resources", new MockHttpURLConnection(200,
                 respStacksResources(serverNames, "AWS::EC2::Instance")));
         put("/servers/0-Instance-server1", new MockHttpURLConnection(200,
@@ -75,9 +75,9 @@ public class MockURLStreamHandler extends URLStreamHandler {
         put("/v1/templates/fosi_v2.json",
                 new MockHttpsURLConnection(200, respTemplatesFosi_v2()));
         put("/stacks/instanceName", new MockHttpsURLConnection(200,
-                respStacksInstanceName(HeatStatus.CREATE_COMPLETE, true)));
+                respStacksInstanceName(StackStatus.CREATE_COMPLETE, true)));
         put("/stacks/Instance4", new MockHttpsURLConnection(200,
-                respStacksInstanceName(HeatStatus.CREATE_COMPLETE, true)));
+                respStacksInstanceName(StackStatus.CREATE_COMPLETE, true)));
         put("/stacks/Instance4/resources", new MockHttpsURLConnection(200,
                 respStacksResources(serverNames, "AWS::EC2::Instance")));
         put("/servers/serverId", new MockHttpsURLConnection(200,
@@ -205,7 +205,7 @@ public class MockURLStreamHandler extends URLStreamHandler {
         }
     }
 
-    public static String respStacksInstanceName(HeatStatus status,
+    public static String respStacksInstanceName(StackStatus status,
             boolean withStatusReason, String... stackStatusReason) {
         String reason;
         if (stackStatusReason == null || stackStatusReason.length == 0) {
@@ -279,7 +279,7 @@ public class MockURLStreamHandler extends URLStreamHandler {
     }
 
     public static String respServerDetail(String serverName, String serverId,
-            Enum<ServerStatus> status, String tenant_id) {
+            ServerStatus status, String tenant_id) {
         try {
             JSONObject response = new JSONObject();
             JSONObject server = new JSONObject();
