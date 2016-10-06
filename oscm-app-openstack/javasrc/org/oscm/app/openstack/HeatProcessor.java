@@ -30,6 +30,7 @@ import org.oscm.app.openstack.data.CreateStackRequest;
 import org.oscm.app.openstack.data.Stack;
 import org.oscm.app.openstack.data.UpdateStackRequest;
 import org.oscm.app.openstack.exceptions.HeatException;
+import org.oscm.app.openstack.exceptions.OpenStackConnectionException;
 import org.oscm.app.openstack.i18n.Messages;
 import org.oscm.app.openstack.proxy.ProxyAuthenticator;
 import org.oscm.app.openstack.proxy.ProxySettings;
@@ -99,8 +100,14 @@ public class HeatProcessor {
         OpenStackConnection connection = new OpenStackConnection(
                 ph.getKeystoneUrl());
         KeystoneClient client = new KeystoneClient(connection);
-        client.authenticate(ph.getUserName(), ph.getPassword(),
-                ph.getDomainName(), ph.getTenantId());
+        try {
+            client.authenticate(ph.getUserName(), ph.getPassword(),
+                    ph.getDomainName(), ph.getTenantId());
+        } catch (OpenStackConnectionException ex) {
+            throw new HeatException(
+                    "Failed to connect to Heat: " + ex.getMessage(),
+                    ex.getResponseCode());
+        }
         return new HeatClient(connection);
     }
 
