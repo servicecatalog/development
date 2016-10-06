@@ -8,21 +8,15 @@
 
 package org.oscm.ui.validator;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.*;
-
-import java.util.Locale;
-import java.util.Map;
-
-import javax.faces.context.ExternalContext;
-import javax.faces.validator.ValidatorException;
-
-import org.apache.commons.collections.map.HashedMap;
 import org.junit.Before;
 import org.junit.Test;
-
 import org.oscm.ui.beans.BaseBean;
 import org.oscm.ui.stubs.*;
+
+import javax.faces.validator.ValidatorException;
+import java.util.Locale;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Mike J&auml;ger
