@@ -15,6 +15,8 @@ import java.util.List;
 import org.oscm.app.openstack.controller.PropertyHandler;
 import org.oscm.app.openstack.data.Server;
 import org.oscm.app.openstack.exceptions.HeatException;
+import org.oscm.app.openstack.exceptions.NovaException;
+import org.oscm.app.openstack.exceptions.OpenStackConnectionException;
 import org.oscm.app.openstack.i18n.Messages;
 import org.oscm.app.v1_0.exceptions.APPlatformException;
 import org.oscm.app.v1_0.exceptions.InstanceNotAliveException;
@@ -26,12 +28,18 @@ import org.oscm.app.v1_0.exceptions.InstanceNotAliveException;
 public class NovaProcessor {
 
     private NovaClient createNovaClient(PropertyHandler ph)
-            throws APPlatformException, HeatException {
+            throws APPlatformException, NovaException {
         OpenStackConnection connection = new OpenStackConnection(
                 ph.getKeystoneUrl());
         KeystoneClient client = new KeystoneClient(connection);
-        client.authenticate(ph.getUserName(), ph.getPassword(),
-                ph.getDomainName(), ph.getTenantId());
+        try {
+            client.authenticate(ph.getUserName(), ph.getPassword(),
+                    ph.getDomainName(), ph.getTenantId());
+        } catch (OpenStackConnectionException ex) {
+            throw new NovaException(
+                    "Failed to connect to Heat: " + ex.getMessage(),
+                    ex.getResponseCode());
+        }
         return new NovaClient(connection);
     }
 
@@ -40,8 +48,14 @@ public class NovaProcessor {
         OpenStackConnection connection = new OpenStackConnection(
                 ph.getKeystoneUrl());
         KeystoneClient client = new KeystoneClient(connection);
-        client.authenticate(ph.getUserName(), ph.getPassword(),
-                ph.getDomainName(), ph.getTenantId());
+        try {
+            client.authenticate(ph.getUserName(), ph.getPassword(),
+                    ph.getDomainName(), ph.getTenantId());
+        } catch (OpenStackConnectionException ex) {
+            throw new HeatException(
+                    "Failed to connect to Heat: " + ex.getMessage(),
+                    ex.getResponseCode());
+        }
         return new HeatClient(connection);
     }
 
@@ -53,7 +67,7 @@ public class NovaProcessor {
      *             APPlatformException, NovaException
      */
     public HashMap<String, Boolean> startInstances(PropertyHandler ph)
-            throws HeatException, APPlatformException {
+            throws HeatException, APPlatformException, NovaException {
         List<String> serverIds = createHeatClient(ph)
                 .getServerIds(ph.getStackName());
         HashMap<String, Boolean> operationStatuses = new HashMap<String, Boolean>();
@@ -70,7 +84,7 @@ public class NovaProcessor {
     }
 
     public List<Server> getServersDetails(PropertyHandler ph)
-            throws HeatException, APPlatformException {
+            throws HeatException, APPlatformException, NovaException {
         List<String> serverIds = createHeatClient(ph)
                 .getServerIds(ph.getStackName());
         List<Server> servers = new ArrayList<Server>();

@@ -22,6 +22,7 @@ import org.junit.Test;
 import org.oscm.app.openstack.controller.PropertyHandler;
 import org.oscm.app.openstack.controller.ServerStatus;
 import org.oscm.app.openstack.data.Server;
+import org.oscm.app.openstack.exceptions.HeatException;
 import org.oscm.app.v1_0.data.ProvisioningSettings;
 import org.oscm.app.v1_0.exceptions.InstanceNotAliveException;
 
@@ -350,6 +351,21 @@ public class NovaProcessorTest {
                 new MockHttpURLConnection(200,
                         MockURLStreamHandler.respStacksResources(serverNames,
                                 "AWS::EC2::Instance")));
+
+        // when
+        new NovaProcessor().startInstances(paramHandler);
+    }
+
+    @Test(expected = HeatException.class)
+    public void startInstances_connectionFailedToGetServerIds()
+            throws Exception {
+        // given
+        final String instanceName = "Instance4";
+        createBasicParameters(instanceName, "fosi_v2.json", "http");
+        MockHttpURLConnection connection = new MockHttpURLConnection(404,
+                MockURLStreamHandler.respServerActions());
+        connection.setIOException(new IOException());
+        streamHandler.put("/stacks/" + instanceName + "/resources", connection);
 
         // when
         new NovaProcessor().startInstances(paramHandler);
