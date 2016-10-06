@@ -198,7 +198,7 @@ public class AWSController implements APPlatformController {
             PropertyHandler ph = PropertyHandler.withSettings(settings);
             EC2Processor ec2processor = new EC2Processor(ph, instanceId);
             InstanceStatus status = ec2processor.process();
-           
+
             return status;
         } catch (Throwable t) {
             throw LogAndExceptionConverter.createAndLogPlatformException(t,
@@ -492,18 +492,6 @@ public class AWSController implements APPlatformController {
                     "error_missing_instancetype"));
             throw new APPlatformException(
                     Messages.getAll("error_missing_instancetype"));
-        }
-        if (isNullOrEmpty(ph.getDiskSize())) {
-            LOGGER.error(Messages.get(Messages.DEFAULT_LOCALE,
-                    "error_missing_instance_disk_size"));
-            throw new APPlatformException(
-                    Messages.getAll("error_missing_instance_disk_size"));
-        }
-        if (isNullOrEmpty(ph.getSubnet())) {
-            LOGGER.error(Messages.get(Messages.DEFAULT_LOCALE,
-                    "error_missing_instance_subnet"));
-            throw new APPlatformException(
-                    Messages.getAll("error_missing_instance_subnet"));
         }
 
     }
