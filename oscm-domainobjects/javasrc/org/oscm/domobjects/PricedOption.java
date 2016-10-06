@@ -17,6 +17,8 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 
@@ -27,6 +29,8 @@ import javax.persistence.OrderBy;
  * 
  */
 @Entity
+@NamedQueries({
+        @NamedQuery(name = "PricedOption.getForParameterOption", query = "SELECT po FROM PricedOption po WHERE po.parameterOptionKey = :parameterOptionKey") })
 public class PricedOption extends DomainObjectWithHistory<PricedOptionData> {
 
     private static final long serialVersionUID = -7155165300532282598L;
@@ -39,7 +43,7 @@ public class PricedOption extends DomainObjectWithHistory<PricedOptionData> {
 
     @OneToMany(mappedBy = "pricedOption", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @OrderBy
-    private List<PricedProductRole> roleSpecificUserPrices = new ArrayList<PricedProductRole>();
+    private List<PricedProductRole> roleSpecificUserPrices = new ArrayList<>();
 
     public PricedOption() {
         super();
@@ -92,8 +96,7 @@ public class PricedOption extends DomainObjectWithHistory<PricedOptionData> {
         return roleSpecificUserPrices;
     }
 
-    public void setRoleSpecificUserPrices(
-            List<PricedProductRole> roleSpecificUserPrices) {
+    public void setRoleSpecificUserPrices(List<PricedProductRole> roleSpecificUserPrices) {
         this.roleSpecificUserPrices = roleSpecificUserPrices;
     }
 }
