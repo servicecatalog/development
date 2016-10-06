@@ -407,7 +407,11 @@ public enum ConfigurationKey {
 
     @Doc({ "Path to the truststore holding the private key used for signing SAML messages." })
     @Example("<path>/keystore.jks")
-    SSO_SIGNING_KEYSTORE(false, null, "string");
+    SSO_SIGNING_KEYSTORE(false, null, "string"),
+
+    @Doc({ "Default tenant ID used for proper identification default tenant. String has to have length of 8 characters." })
+    @Example("8f96dede")
+    SSO_DEFAULT_TENANT_ID(false, "8f96dede", "string");
 
     // //////////////////////////////////////////////////////////////////////////////////
 

@@ -551,7 +551,7 @@ public class UserBean extends BaseBean implements Serializable {
             logger.logInfo(Log4jLogger.ACCESS_LOG,
                     LogMessageIdentifier.INFO_USER_LOGIN_SUCCESS,
                     voUser.getUserId(),
-                    IPResolver.resolveIpAddress(httpRequest));
+                    IPResolver.resolveIpAddress(httpRequest), voUser.getTenantKey());
 
             // read the user details value object and store it in the session
             session.setAttribute(Constants.SESS_ATTR_USER,
@@ -1095,7 +1095,7 @@ public class UserBean extends BaseBean implements Serializable {
 
     protected AuthenticationHandler getAuthenticationHandler() throws ObjectNotFoundException, NotExistentTenantException {
         AuthenticationSettings authenticationSettings = getAuthenticationSettings();
-        authenticationSettings.init((String) getRequest().getSession().getAttribute(REQ_PARAM_TENANT_ID));
+        authenticationSettings.init(sessionBean.getTenantID());
         return new AuthenticationHandler(getRequest(), getResponse(),
                 authenticationSettings);
     }

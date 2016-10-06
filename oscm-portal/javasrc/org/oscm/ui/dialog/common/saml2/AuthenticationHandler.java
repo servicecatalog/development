@@ -85,15 +85,16 @@ public class AuthenticationHandler {
         AuthnRequestGenerator gen = new AuthnRequestGenerator(
                 authSettings.getIssuer(), isHttps);
         JAXBElement<AuthnRequestType> authRequest = gen.generateAuthnRequest();
-        storeRequestIdInSession(gen.getRequestId());
+        storeAttributeInSession(Constants.SESS_ATTR_IDP_REQUEST_ID, gen.getRequestId());
+        storeAttributeInSession(Constants.REQ_PARAM_TENANT_ID, authSettings.getTenantID());
         String redirectUrl = generateRedirectURL(authRequest);
         JSFUtils.sendRedirect(response, redirectUrl);
         return null;
     }
 
-    void storeRequestIdInSession(String requestId) {
-        request.getSession().setAttribute(Constants.SESS_ATTR_IDP_REQUEST_ID,
-                requestId);
+    void storeAttributeInSession(String attirubte, String parameterName) {
+        request.getSession().setAttribute(attirubte,
+                parameterName);
     }
 
     private String handlePost(boolean isFromBean) throws Exception {

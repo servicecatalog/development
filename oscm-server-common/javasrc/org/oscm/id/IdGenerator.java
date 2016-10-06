@@ -32,10 +32,8 @@ public class IdGenerator {
      * @return The generated, random identifier.
      */
     public static String generateArtificialIdentifier() {
-        String organizationId;
-        organizationId = Integer.toHexString(Integer.MAX_VALUE
+        return Integer.toHexString(Integer.MAX_VALUE
                 + RANDOM.nextInt(Integer.MAX_VALUE) + 1);
-        return organizationId;
     }
 
     /**

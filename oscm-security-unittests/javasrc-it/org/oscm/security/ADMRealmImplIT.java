@@ -69,6 +69,7 @@ public class ADMRealmImplIT extends EJBTestBase {
     private static final String REQUEST_ID = "ID_0123456789012345678901234567890123456789";
     private static final String SAML_RESPONSE = "SAMLResponse";
     private static final String UI_PASSWORD = "UI" + REQUEST_ID + SAML_RESPONSE;
+    public static final String tenantID = "";
 
     @Override
     protected void setup(TestContainer container) throws Exception {
@@ -111,7 +112,7 @@ public class ADMRealmImplIT extends EJBTestBase {
         acs = mock(AssertionConsumerService.class);
         doReturn(acs).when(realm).getAssertionConsumerService(
                 any(AuthenticationModeQuery.class));
-        doNothing().when(acs).validateResponse(anyString(), anyString());
+        doNothing().when(acs).validateResponse(anyString(), anyString(), tenantID);
     }
 
     @Test
@@ -281,7 +282,7 @@ public class ADMRealmImplIT extends EJBTestBase {
                 mock(AuthenticationModeQuery.class));
 
         // then
-        verify(acs, times(1)).validateResponse(SAML_RESPONSE, REQUEST_ID);
+        verify(acs, times(1)).validateResponse(SAML_RESPONSE, REQUEST_ID, tenantID);
     }
 
     @Test

@@ -8,8 +8,6 @@
 
 package org.oscm.ui.dialog.common.saml2;
 
-import static org.oscm.ui.common.Constants.REQ_PARAM_TENANT_ID;
-
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -126,7 +124,7 @@ public class Saml2Ctrl extends BaseBean {
     }
 
     private String getTenantID() {
-        return (String) getRequest().getSession().getAttribute(REQ_PARAM_TENANT_ID);
+        return sessionBean.getTenantID();
     }
 
     AuthnRequestGenerator getAuthnRequestGenerator()

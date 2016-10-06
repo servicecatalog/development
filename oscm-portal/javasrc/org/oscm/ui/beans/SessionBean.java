@@ -28,6 +28,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
 import org.oscm.billing.external.pricemodel.service.PriceModel;
 import org.oscm.internal.intf.MarketplaceService;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
@@ -558,7 +559,7 @@ public class SessionBean implements Serializable {
     }
 
     public String getTenantID() {
-        if(tenantID == null) {
+        if(StringUtils.isBlank(tenantID)) {
             tenantID = (String) new UiDelegate().getSession().getAttribute(REQ_PARAM_TENANT_ID);
         }
         return tenantID;

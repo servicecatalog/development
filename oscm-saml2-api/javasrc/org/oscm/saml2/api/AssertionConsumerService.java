@@ -57,6 +57,7 @@ public class AssertionConsumerService {
      *            xml response message of an IdP
      * @param requestId
      *            id of the authentication request send to the IdP
+     * @param tenantID
      * @throws DigitalSignatureValidationException
      *             thrown if the digital signature could not be validated
      * @throws AssertionValidationException
@@ -69,13 +70,13 @@ public class AssertionConsumerService {
      * @throws SAXException
      *             Thrown in case the string cannot be parsed.
      */
-    public void validateResponse(String idpResponse, String requestId)
+    public void validateResponse(String idpResponse, String requestId, String tenantID)
             throws DigitalSignatureValidationException,
             AssertionValidationException, ParserConfigurationException,
             SAXException, IOException {
 
         VerifierConfiguration config = new VerifierConfiguration(requestId,
-                acsUrl, acsUrlHttps, Calendar.getInstance());
+                acsUrl, acsUrlHttps, Calendar.getInstance(), tenantID);
         verifier = new AssertionContentVerifier(config);
         Document document = XMLConverter.convertToDocument(idpResponse, true);
         List<Element> assertions = XMLConverter.getElementsByTagNameNS(
@@ -118,7 +119,7 @@ public class AssertionConsumerService {
 
     private KeyStore loadIdpKeystore()
             throws DigitalSignatureValidationException {
-        KeyStore keystore = null;
+        KeyStore keystore;
         try {
             keystore = Keystores.initializeKeyStore(truststorePath,
                     truststorePassword);

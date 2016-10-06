@@ -195,48 +195,7 @@ public abstract class BaseBesFilter implements Filter {
                 .getAttribute(Constants.SESS_ATTR_USER));
 
         ard.setLandingPage(BesServletRequestReader.isLandingPage(httpRequest));
-        ard.setTenantID(getTenantID(httpRequest, ard));
         return ard;
-    }
-
-    private String getTenantID(HttpServletRequest httpRequest, AuthorizationRequestData ard) {
-        String tenantID = getTenantIDFromSession(httpRequest, REQ_PARAM_TENANT_ID);
-        if(StringUtils.isBlank(tenantID)) {
-            if (ard.isMarketplace()) {
-                tenantID = getTenantIDFromMarketplace(httpRequest, ard);
-            } else {
-                tenantID = getTenantIDFromRequest(httpRequest);
-            }
-        }
-        httpRequest.getSession().setAttribute(REQ_PARAM_TENANT_ID, tenantID);
-        return tenantID;
-    }
-
-    private String getTenantIDFromMarketplace(HttpServletRequest httpRequest,
-            AuthorizationRequestData ard) {
-        String marketplaceId = ard.getMarketplaceId();
-        String tenantID = null;
-        if (StringUtils.isNotBlank(marketplaceId)) {
-            tenantID = getMarketplaceServiceCache(httpRequest)
-                    .getConfiguration(marketplaceId).getTenantId();
-            if (StringUtils.isBlank(tenantID)) {
-                try {
-                    tenantID = getMarketplaceService(httpRequest)
-                            .getMarketplaceById(marketplaceId).getTenantId();
-                } catch (ObjectNotFoundException e) {
-                    // TODO: hanlde somehow?
-                }
-            }
-        }
-        return tenantID;
-    }
-
-    private String getTenantIDFromRequest(HttpServletRequest request) {
-        return request.getParameter(REQ_PARAM_TENANT_ID);
-    }
-
-    private String getTenantIDFromSession(HttpServletRequest httpRequest, String tenant_id_from_marketplace) {
-        return (String) httpRequest.getSession().getAttribute(tenant_id_from_marketplace);
     }
 
     /**

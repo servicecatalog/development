@@ -8,6 +8,7 @@
 
 package org.oscm.ui.filter;
 
+import static org.oscm.internal.types.exception.NotExistentTenantException.Reason.MISSING_TENANT_PARAMETER;
 import static org.oscm.internal.types.exception.NotExistentTenantException.Reason.TENANT_NOT_FOUND;
 
 import java.util.HashMap;
@@ -42,6 +43,7 @@ public class AuthenticationSettings {
     private String signingKeyAlias;
     private String signingKeystore;
     private String logoutURL;
+    private String tenantID;
 
     public AuthenticationSettings(TenantService tenantService, ConfigurationService cfgService) {
         this.tenantService = tenantService;
@@ -91,25 +93,29 @@ public class AuthenticationSettings {
     }
 
     public void init(String tenantID) throws NotExistentTenantException {
+        this.tenantID = tenantID;
         VOTenant tenant = getTenantWithSettings(tenantID);
         issuer = tenant.getIssuer();
         identityProviderURL = tenant.getIDPURL();
         identityProviderHttpMethod = tenant.getIdpHttpMethod();
         identityProviderURLContextRoot = getContextRoot(identityProviderURL);
-        signingKeystorePass = tenant.getSigningKeystorePass();
-        signingKeyAlias = tenant.getSigningKeyAlias();
-        signingKeystore = tenant.getSigningKeystore();
+        signingKeystorePass = getConfigurationSetting(cfgService, ConfigurationKey.SSO_SIGNING_KEYSTORE_PASS);
+        signingKeyAlias = getConfigurationSetting(cfgService, ConfigurationKey.SSO_SIGNING_KEY_ALIAS);
+        signingKeystore = getConfigurationSetting(cfgService, ConfigurationKey.SSO_SIGNING_KEYSTORE);
         logoutURL = tenant.getLogoutURL();
     }
 
     private VOTenant getTenantWithSettings(String tenantID) throws NotExistentTenantException {
         VOTenant tenant;
         if (StringUtils.isBlank(tenantID)) {
+            throw new NotExistentTenantException(MISSING_TENANT_PARAMETER);
+        }
+        try {
+            tenant = tenantService.getTenantByTenantId(tenantID);
+        } catch (Exception e) {
+            // try default if custom tenant is not found
             tenant = getTenantFromConfigSettings();
-        } else {
-            try {
-                tenant = tenantService.getTenantByTenantId(tenantID);
-            } catch (Exception e) {
+            if (!tenant.getTenantId().equalsIgnoreCase(tenantID)) {
                 throw new NotExistentTenantException(TENANT_NOT_FOUND);
             }
         }
@@ -123,11 +129,9 @@ public class AuthenticationSettings {
         settings.put(IdpSettingType.SSO_IDP_URL, getConfigurationSetting(cfgService, ConfigurationKey.SSO_IDP_URL));
         settings.put(IdpSettingType.SSO_IDP_AUTHENTICATION_REQUEST_HTTP_METHOD,
                 getConfigurationSetting(cfgService, ConfigurationKey.SSO_IDP_AUTHENTICATION_REQUEST_HTTP_METHOD));
-        settings.put(IdpSettingType.SSO_SIGNING_KEYSTORE_PASS, getConfigurationSetting(cfgService, ConfigurationKey.SSO_SIGNING_KEYSTORE_PASS));
-        settings.put(IdpSettingType.SSO_SIGNING_KEY_ALIAS, getConfigurationSetting(cfgService, ConfigurationKey.SSO_SIGNING_KEY_ALIAS));
-        settings.put(IdpSettingType.SSO_SIGNING_KEYSTORE, getConfigurationSetting(cfgService, ConfigurationKey.SSO_SIGNING_KEYSTORE));
         settings.put(IdpSettingType.SSO_LOGOUT_URL, getConfigurationSetting(cfgService, ConfigurationKey.SSO_LOGOUT_URL));
 
+        tenant.setTenantId(getConfigurationSetting(cfgService, ConfigurationKey.SSO_DEFAULT_TENANT_ID));
         tenant.setTenantSettings(settings);
         return tenant;
     }
@@ -158,5 +162,9 @@ public class AuthenticationSettings {
 
     public String getLogoutURL() {
         return logoutURL;
+    }
+
+    public String getTenantID() {
+        return tenantID;
     }
 }

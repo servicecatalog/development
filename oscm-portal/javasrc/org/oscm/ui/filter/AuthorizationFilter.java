@@ -59,6 +59,8 @@ import org.oscm.ui.common.*;
 import org.oscm.ui.model.User;
 import org.oscm.ui.validator.PasswordValidator;
 
+import static org.oscm.ui.common.Constants.REQ_PARAM_TENANT_ID;
+
 /**
  * Filter which checks that a request which tries to access a protected URL has
  * an active session containing a user value object. If this is not the case a
@@ -520,6 +522,8 @@ public class AuthorizationFilter extends BaseBesFilter {
 
         if (authSettings.isServiceProvider()) {
 
+            rdo.setTenantID(getTenantID(rdo, request));
+
             if (!isSamlForward(request)) {
                 return;
             }
@@ -549,6 +553,44 @@ public class AuthorizationFilter extends BaseBesFilter {
             request.setAttribute(Constants.REQ_PARAM_USER_ID, rdo.getUserId());
         }
 
+    }
+
+    public String getTenantID(AuthorizationRequestData ard, HttpServletRequest httpRequest) {
+        String tenantID;
+        if (ard.isMarketplace()) {
+            tenantID = getTenantIDFromMarketplace(httpRequest, ard);
+        } else {
+            tenantID = getTenantIDFromRequest(httpRequest);
+        }
+        if(StringUtils.isNotBlank(tenantID)) {
+            httpRequest.getSession().setAttribute(REQ_PARAM_TENANT_ID, tenantID);
+        } else {
+            tenantID = (String) httpRequest.getSession().getAttribute(REQ_PARAM_TENANT_ID);
+        }
+        return tenantID;
+    }
+
+    private String getTenantIDFromMarketplace(HttpServletRequest httpRequest,
+                                              AuthorizationRequestData ard) {
+        String marketplaceId = ard.getMarketplaceId();
+        String tenantID = null;
+        if (StringUtils.isNotBlank(marketplaceId)) {
+            tenantID = getMarketplaceServiceCache(httpRequest)
+                    .getConfiguration(marketplaceId).getTenantId();
+            if (StringUtils.isBlank(tenantID)) {
+                try {
+                    tenantID = getMarketplaceService(httpRequest)
+                            .getMarketplaceById(marketplaceId).getTenantId();
+                } catch (ObjectNotFoundException e) {
+                    // TODO: hanlde somehow?
+                }
+            }
+        }
+        return tenantID;
+    }
+
+    private String getTenantIDFromRequest(HttpServletRequest request) {
+        return request.getParameter(REQ_PARAM_TENANT_ID);
     }
 
     private HttpServletRequest handleServiceUrl(FilterChain chain,
@@ -770,7 +812,7 @@ public class AuthorizationFilter extends BaseBesFilter {
                     httpRequest.getRemoteHost(),
                     Integer.toString(httpRequest.getRemotePort()),
                     StringUtils.isNotBlank(voUser.getUserId()) ? voUser.getUserId() : "",
-                    IPResolver.resolveIpAddress(httpRequest));
+                    IPResolver.resolveIpAddress(httpRequest), voUser.getTenantKey());
             try {
                 voUser = identityService.getUser(voUser);
             } catch (ObjectNotFoundException e1) {

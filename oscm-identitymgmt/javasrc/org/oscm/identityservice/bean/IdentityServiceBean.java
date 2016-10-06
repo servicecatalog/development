@@ -1075,7 +1075,7 @@ public class IdentityServiceBean implements IdentityService,
         ArgumentValidator.notNull("user", user);
         PlatformUser pUser;
         try {
-            if (StringUtils.isNotBlank(user.getTenantKey())) {
+            if (StringUtils.isNotBlank(user.getTenantKey()) && tenantIsNotDefault(user.getTenantKey())) {
                 pUser = getPlatformUser(user.getUserId(), user.getTenantKey(), false);
             } else {
                 pUser = getPlatformUser(user.getUserId(), false);
@@ -1134,6 +1134,11 @@ public class IdentityServiceBean implements IdentityService,
         }
 
         return UserDataAssembler.toVOUser(pUser);
+    }
+
+    private boolean tenantIsNotDefault(String tenantKey) {
+        ConfigurationSetting defaultTenant = cs.getConfigurationSetting(ConfigurationKey.SSO_DEFAULT_TENANT_ID, "");
+        return !StringUtils.equals(tenantKey, defaultTenant.getValue());
     }
 
     @Override
