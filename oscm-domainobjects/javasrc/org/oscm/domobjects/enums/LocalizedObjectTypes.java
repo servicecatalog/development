@@ -190,12 +190,7 @@ public enum LocalizedObjectTypes {
     /**
      * Name of the custom tab of the service
      */
-    CUSTOM_TAB_NAME(InformationSource.DATABASE),
-
-    /**
-     * URL of the custom tab of the service
-     */
-    CUSTOM_TAB_URL(InformationSource.DATABASE);
+    CUSTOM_TAB_NAME(InformationSource.DATABASE);
 
     private InformationSource source;
     private String sourceLocation;

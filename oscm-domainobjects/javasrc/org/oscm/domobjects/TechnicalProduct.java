@@ -26,6 +26,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -59,8 +60,7 @@ public class TechnicalProduct
                     LocalizedObjectTypes.TEC_PRODUCT_LOGIN_ACCESS_DESC,
                     LocalizedObjectTypes.TEC_PRODUCT_TECHNICAL_DESC,
                     LocalizedObjectTypes.PRODUCT_LICENSE_DESC,
-                    LocalizedObjectTypes.CUSTOM_TAB_NAME,
-                    LocalizedObjectTypes.CUSTOM_TAB_URL));
+                    LocalizedObjectTypes.CUSTOM_TAB_NAME));
 
     public TechnicalProduct() {
         super();

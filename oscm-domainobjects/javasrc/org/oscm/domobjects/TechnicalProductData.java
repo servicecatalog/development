@@ -126,6 +126,7 @@ public class TechnicalProductData extends DomainDataContainer implements
     /**
      * Name of the custom tab with additional provider's information
      */
+    @Column
     private String customTabUrl;
 
     public boolean isAllowingOnBehalfActing() {

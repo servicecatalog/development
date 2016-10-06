@@ -110,7 +110,6 @@ public class TechnicalProductImportParser extends ImportParserBase {
     private static final String ELEMENT_OPERATION = "Operation";
     private static final String ELEMENT_OPERATION_PARAMETER = "OperationParameter";
     private static final String ELEMENT_CUSTOM_TAB_NAME = "CustomTabName";
-    private static final String ELEMENT_CUSTOM_TAB_URL = "CustomTabUrl";
 
     private static final String ATTRIBUTE_ID = "id";
     private static final String ATTRIBUTE_ACCESS_TYPE = "accessType";
@@ -125,6 +124,7 @@ public class TechnicalProductImportParser extends ImportParserBase {
     private static final String ATTRIBUTE_PROVISIONING_TIMEOUT = "provisioningTimeout";
     private static final String ATTRIBUTE_PROVISIONING_USERNAME = "provisioningUsername";
     private static final String ATTRIBUTE_PROVISIONING_PASSWORD = "provisioningPassword";
+    private static final String ATTRIBUTE_CUSTOM_TAB_URL = "customTabUrl";
     private static final String ATTRIBUTE_VALUE_TYPE = "valueType";
     private static final String ATTRIBUTE_TYPE = "type";
     private static final String ATTRIBUTE_ACTIONURL = "actionURL";
@@ -808,11 +808,13 @@ public class TechnicalProductImportParser extends ImportParserBase {
             String billingIdentifier = getValidatedBillingID(atts,
                     techProductId);
 
+            String customTabUrl = atts.getValue(ATTRIBUTE_CUSTOM_TAB_URL);
+
             techProduct = initTechnicalProduct(values[0],
                     ProvisioningType.valueOf(provisioningType), provisioningUrl,
                     provisioningVersion, accessType,
                     subscriptionRestriction.booleanValue(),
-                    onBehalfActing.booleanValue(), billingIdentifier);
+                    onBehalfActing.booleanValue(), billingIdentifier, customTabUrl);
 
             /*
              * if the technical product already refers to events or parameter
@@ -872,8 +874,7 @@ public class TechnicalProductImportParser extends ImportParserBase {
                 || ELEMENT_LOCALIZED_TAG.equals(name)
                 || ELEMENT_ACCESS_INFO.equals(name)
                 || ELEMENT_LOCALIZED_LICENSE.equals(name)
-                || ELEMENT_CUSTOM_TAB_NAME.equals(name)
-                || ELEMENT_CUSTOM_TAB_URL.equals(name)) {
+                || ELEMENT_CUSTOM_TAB_NAME.equals(name)) {
             locale = getLocaleValue(atts, ATTRIBUTE_LOCALE);
             cleanBuffer();
         } else {
@@ -1014,17 +1015,21 @@ public class TechnicalProductImportParser extends ImportParserBase {
                     return;
                 }
             } else if (ELEMENT_OPTIONS.equals(name)) {
-                // setup parameter option parser if the parameter is an enumeration
-                if (parameterDef.getValueType() == ParameterValueType.ENUMERATION) {
+                // setup parameter option parser if the parameter is an
+                // enumeration
+                if (parameterDef
+                        .getValueType() == ParameterValueType.ENUMERATION) {
                     parOptionParser = new TechnicalProductParameterOptionImportParser(
-                            parameterDef, techProduct.getTechnicalProductId(), dm,
-                            localizer);
+                            parameterDef, techProduct.getTechnicalProductId(),
+                            dm, localizer);
                 } else {
                     addError(name,
                             "Option(s) defined for non-enumeration parameter");
                     logger.logWarn(Log4jLogger.SYSTEM_LOG,
                             LogMessageIdentifier.WARN_IMPORT_PARSER_ERROR_IMPLAUSIBLE_OPTIONS);
                 }
+            } else if (ELEMENT_CUSTOM_TAB_NAME.equals(name)) {
+                return;
             } else {
                 addError(name, "Unknown element ignored!");
                 logger.logWarn(Log4jLogger.SYSTEM_LOG,
@@ -1448,20 +1453,8 @@ public class TechnicalProductImportParser extends ImportParserBase {
             }
         } else if (ELEMENT_CUSTOM_TAB_NAME.equals(name)) {
             String newText = text.toString().trim();
-            String oldText = localizer.getLocalizedTextFromDatabase(locale,
-                    techProduct.getKey(),
-                    LocalizedObjectTypes.CUSTOM_TAB_NAME);
-            ProductLicenseValidator.validate(techProduct, oldText, newText);
             localizer.storeLocalizedResource(locale, techProduct.getKey(),
                     LocalizedObjectTypes.CUSTOM_TAB_NAME, newText);
-        } else if (ELEMENT_CUSTOM_TAB_URL.equals(name)) {
-            String newText = text.toString().trim();
-            String oldText = localizer.getLocalizedTextFromDatabase(locale,
-                    techProduct.getKey(),
-                    LocalizedObjectTypes.CUSTOM_TAB_URL);
-            ProductLicenseValidator.validate(techProduct, oldText, newText);
-            localizer.storeLocalizedResource(locale, techProduct.getKey(),
-                    LocalizedObjectTypes.CUSTOM_TAB_URL, newText);
         }
     }
 
@@ -1590,7 +1583,7 @@ public class TechnicalProductImportParser extends ImportParserBase {
             ProvisioningType provisioningType, String provisioningUrl,
             String provisioningVersion, ServiceAccessType accessType,
             boolean onlyOneSubscriptionAllowed, boolean allowingOnBehalfActing,
-            String billingIdentifier) throws SAXException {
+            String billingIdentifier, String customTabUrl) throws SAXException {
 
         // first check if the organization is a technology provider. if it's
         // not, an OperationNotPermitted will be thrown.
@@ -1619,6 +1612,8 @@ public class TechnicalProductImportParser extends ImportParserBase {
                     .setOnlyOneSubscriptionAllowed(onlyOneSubscriptionAllowed);
             techProduct.setAllowingOnBehalfActing(allowingOnBehalfActing);
             techProduct.setBillingIdentifier(billingIdentifier);
+            techProduct.setCustomTabUrl(customTabUrl);
+
             persist(techProduct);
         } else {
             if (pm.hasTechnicalProductActiveSessions(techProduct.getKey())) {

@@ -489,6 +489,8 @@ public class VOConverter {
         newVO.setOwnerId(oldVO.getOwnerId());
         newVO.setUnitKey(oldVO.getUnitKey());
         newVO.setUnitName(oldVO.getUnitName());
+        newVO.setCustomTabName(oldVO.getCustomTabName());
+        newVO.setCustomTabUrl(oldVO.getCustomTabUrl());
         return newVO;
     }
 
@@ -1244,6 +1246,8 @@ public class VOConverter {
         newVO.setOwnerId(oldVO.getOwnerId());
         newVO.setUnitKey(oldVO.getUnitKey());
         newVO.setUnitName(oldVO.getUnitName());
+        newVO.setCustomTabName(oldVO.getCustomTabName());
+        newVO.setCustomTabUrl(oldVO.getCustomTabUrl());
         return newVO;
     }
 
@@ -1610,6 +1614,8 @@ public class VOConverter {
         newVO.setOwnerId(oldVO.getOwnerId());
         newVO.setUnitKey(oldVO.getUnitKey());
         newVO.setUnitName(oldVO.getUnitName());
+        newVO.setCustomTabName(oldVO.getCustomTabName());
+        newVO.setCustomTabUrl(oldVO.getCustomTabUrl());
         return newVO;
     }
 

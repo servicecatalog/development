@@ -117,7 +117,7 @@ public class TechnicalProductAssembler extends BaseAssembler {
                     facade.getLocale()));
             result.setBillingIdentifier(tProd.getBillingIdentifier());
             result.setExternalBilling(tProd.isExternalBilling());
-            result.setCustomTabName(tProd.getCustomTabName());
+            result.setCustomTabName(facade.getText(tProd.getKey(), LocalizedObjectTypes.CUSTOM_TAB_NAME));
             result.setCustomTabUrl(tProd.getCustomTabUrl());
             updateValueObject(result, tProd);
         }

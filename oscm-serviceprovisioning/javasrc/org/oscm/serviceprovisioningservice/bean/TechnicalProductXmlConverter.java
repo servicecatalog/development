@@ -9,9 +9,6 @@ package org.oscm.serviceprovisioningservice.bean;
 
 import java.util.List;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Event;
 import org.oscm.domobjects.OperationParameter;
@@ -25,6 +22,9 @@ import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.internal.types.enumtypes.ParameterModificationType;
 import org.oscm.internal.vo.VOLocalizedText;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  * This class provides methods for converting technical product domain objects
@@ -98,10 +98,8 @@ public class TechnicalProductXmlConverter {
      * </ul>
      * and appends it to the given parent node.
      * 
-     * @param xmldoc
+     * @param doc
      *            the dom document used to create nodes
-     * @param root
-     *            the root node
      * @param localizer
      *            the localizer
      * @param technicalProduct
@@ -152,15 +150,14 @@ public class TechnicalProductXmlConverter {
         appendLocalizedValues(xmldoc, localizer, tp,
                 LocalizedObjectTypes.CUSTOM_TAB_NAME,
                 technicalProduct.getKey(), "CustomTabName");
-        appendLocalizedValues(xmldoc, localizer, tp,
-                LocalizedObjectTypes.CUSTOM_TAB_URL,
-                technicalProduct.getKey(), "CustomTabUrl");
         appendLocalizedTags(xmldoc, tp, technicalProduct);
         appendParameters(xmldoc, tp, localizer, technicalProduct);
         appendEvents(xmldoc, tp, localizer, technicalProduct);
         appendRoles(xmldoc, tp, localizer, technicalProduct);
         appendOperations(xmldoc, tp, localizer, technicalProduct);
+        appendCustomTabUrl(xmldoc, tp, technicalProduct);
     }
+
 
     /**
      * Appends the parameter nodes to the technical product node including its
@@ -406,8 +403,6 @@ public class TechnicalProductXmlConverter {
      *            the dom document used to create elements
      * @param parent
      *            the parent node
-     * @param tagHandler
-     *            the tag handler
      * @param technicalProduct
      *            the technical product
      */
@@ -420,5 +415,22 @@ public class TechnicalProductXmlConverter {
             element.setTextContent(tag.getTag().getValue());
             parent.appendChild(element);
         }
+    }
+
+    /**
+     * Appends the custom tab URL node with its value
+     *
+     * @param xmldoc
+ *              the dom document used to create elements
+     * @param parent
+     *          parent node
+     * @param technicalProduct
+     *          the technical product
+     */
+    private void appendCustomTabUrl(Document xmldoc, Element parent, TechnicalProduct technicalProduct) {
+        String customTabUrl = technicalProduct.getCustomTabUrl();
+        Element customTabUrlNode = xmldoc.createElement("CustomTabUrl");
+        customTabUrlNode.setTextContent(customTabUrl);
+        parent.appendChild(customTabUrlNode);
     }
 }

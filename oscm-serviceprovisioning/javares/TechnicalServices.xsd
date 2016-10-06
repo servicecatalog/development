@@ -32,6 +32,9 @@
 					minOccurs="0" />
 				<xsd:element name="Operation" type="tns:OperationType"
 					minOccurs="0" maxOccurs="unbounded" />
+				<xsd:element name="CustomTabName" type="tns:CustomTabName"
+					minOccurs="0" maxOccurs="unbounded" />
+
 			</xsd:sequence>
 
 			<xsd:attribute name="id" type="tns:StrId" use="required" />
@@ -68,6 +71,7 @@
 			<xsd:attribute name="allowingOnBehalfActing" type="xsd:boolean"
 				default="false" />
 			<xsd:attribute name="billingIdentifier" type="tns:Str255" />
+			<xsd:attribute name="customTabUrl" type="tns:Str255" default=""/>
 		</xsd:complexType>
 	</xsd:element>
 
@@ -195,14 +199,6 @@
 	</xsd:simpleType>
 
 	<xsd:complexType name="CustomTabName">
-		<xsd:simpleContent>
-			<xsd:extension base="xsd:string">
-				<xsd:attribute name="locale" type="xsd:string" />
-			</xsd:extension>
-		</xsd:simpleContent>
-	</xsd:complexType>
-
-	<xsd:complexType name="CustomTabUrl">
 		<xsd:simpleContent>
 			<xsd:extension base="xsd:string">
 				<xsd:attribute name="locale" type="xsd:string" />

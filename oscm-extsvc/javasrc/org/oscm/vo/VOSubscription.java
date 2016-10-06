@@ -43,11 +43,16 @@ public class VOSubscription extends BaseVO implements Serializable {
     private String ownerId;
     private long unitKey;
     private String unitName;
+    private String customTabName;
+    private String customTabUrl;
 
     /**
      * The technical service operations.
      */
     private List<VOTechnicalServiceOperation> technicalServiceOperations = new ArrayList<VOTechnicalServiceOperation>();
+
+    public VOSubscription() {
+    }
 
     /**
      * Retrieves the identifier of the subscription's underlying marketable
@@ -479,5 +484,21 @@ public class VOSubscription extends BaseVO implements Serializable {
      */
     public void setUnitName(String unitName) {
         this.unitName = unitName;
+    }
+
+    public String getCustomTabName() {
+        return customTabName;
+    }
+
+    public void setCustomTabName(String customTabName) {
+        this.customTabName = customTabName;
+    }
+
+    public String getCustomTabUrl() {
+        return customTabUrl;
+    }
+
+    public void setCustomTabUrl(String customTabUrl) {
+        this.customTabUrl = customTabUrl;
     }
 }
