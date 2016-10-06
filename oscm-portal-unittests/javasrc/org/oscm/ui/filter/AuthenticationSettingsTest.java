@@ -52,9 +52,6 @@ public class AuthenticationSettingsTest {
         doReturn(ISSUER).when(mockTenant).getIssuer();
         doReturn(IDP).when(mockTenant).getIDPURL();
         doReturn(IDP_HTTP_METHOD).when(mockTenant).getIdpHttpMethod();
-        doReturn(IDP_KEYSTORE_PASS).when(mockTenant).getSigningKeystorePass();
-        doReturn(IDP_KEYSTORE_PASS).when(mockTenant).getSigningKeystore();
-        doReturn(IDP_KEYSTORE_PASS).when(mockTenant).getSigningKeyAlias();
         doReturn(IDP_KEYSTORE_PASS).when(mockTenant).getLogoutURL();
         doReturn(mockTenant).when(tenantService).getTenantByTenantId(any(String.class));
         cfgMock = mock(ConfigurationService.class);

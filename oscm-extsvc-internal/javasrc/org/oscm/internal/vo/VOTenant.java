@@ -63,18 +63,6 @@ public class VOTenant extends BaseVO {
         return tenantSettings.get(SSO_IDP_AUTHENTICATION_REQUEST_HTTP_METHOD);
     }
 
-    public String getSigningKeystorePass() {
-        return tenantSettings.get(SSO_SIGNING_KEYSTORE_PASS);
-    }
-
-    public String getSigningKeyAlias() {
-        return  tenantSettings.get(SSO_SIGNING_KEY_ALIAS);
-    }
-
-    public String getSigningKeystore() {
-        return tenantSettings.get(SSO_SIGNING_KEYSTORE);
-    }
-
     public String getLogoutURL() {
         return tenantSettings.get(SSO_LOGOUT_URL);
     }

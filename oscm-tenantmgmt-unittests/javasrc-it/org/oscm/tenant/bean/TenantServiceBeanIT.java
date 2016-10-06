@@ -326,10 +326,7 @@ public class TenantServiceBeanIT extends EJBTestBase {
         IdpSettingType logoutUrl = IdpSettingType.SSO_LOGOUT_URL;
         IdpSettingType stsUrl = IdpSettingType.SSO_STS_URL;
         IdpSettingType stsMetadataUrl = IdpSettingType.SSO_STS_METADATA_URL;
-        IdpSettingType signingKeyAlias = IdpSettingType.SSO_SIGNING_KEY_ALIAS;
-        IdpSettingType signingKeystore = IdpSettingType.SSO_SIGNING_KEYSTORE;
         IdpSettingType stsEnckeyLength = IdpSettingType.SSO_STS_ENCKEY_LEN;
-        IdpSettingType signingKeystorePass = IdpSettingType.SSO_SIGNING_KEYSTORE_PASS;
 
         map.put(httpMethod, "POST");
         map.put(idpUrl, "http://someIdpURL/login" + modifier);
@@ -337,10 +334,7 @@ public class TenantServiceBeanIT extends EJBTestBase {
         map.put(logoutUrl, "http://someIdpUrl/logout" + modifier);
         map.put(stsUrl, "http://someStsUrl/sts" + modifier);
         map.put(stsMetadataUrl, "http://someStsUrl/metadata" + modifier);
-        map.put(signingKeyAlias, "alias" + modifier);
-        map.put(signingKeystore, "\"C:/IDP/keystore.jks\"");
         map.put(stsEnckeyLength, "256");
-        map.put(signingKeystorePass, "keystorePwd" + modifier);
 
         return map;
     }
