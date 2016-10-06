@@ -166,4 +166,36 @@ public class WsProxyInfoTest {
         assertNotNull(result.getWsInfo());
         assertNotNull(result.getUserCredentials());
     }
+
+    @Test
+    public void getAndLogTokenHandlerPropertyNullInputTest() {
+        // given
+        String fileName = "test_basic.properties";
+        String serviceName = "SessionService";
+        WsProxyInfo result = new WsProxyInfo(fileName, serviceName,
+                "tokenhandlerNull.properties");
+        assertNull(result.getAndLogTokenHandlerProperty(null));
+    }
+
+    @Test
+    public void getAndLogTokenHandlerPropertyNoSuchPropertyTest() {
+        // given
+        String fileName = "test_basic.properties";
+        String serviceName = "SessionService";
+        WsProxyInfo result = new WsProxyInfo(fileName, serviceName,
+                "tokenhandler.properties");
+        assertNull(result.getAndLogTokenHandlerProperty("unknown"));
+    }
+
+    @Test
+    public void getAndLogTokenHandlerPropertyValueTest() {
+        // given
+        String fileName = "test_basic.properties";
+        String serviceName = "SessionService";
+        WsProxyInfo result = new WsProxyInfo(fileName, serviceName,
+                "tokenhandler.properties");
+        assertEquals("/Welcome.jsp",
+                result.getAndLogTokenHandlerProperty("FORWARD"));
+    }
+
 }

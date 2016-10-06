@@ -175,6 +175,9 @@ public class WsProxyInfo {
      * @return
      */
     String getAndLogTokenHandlerProperty(String property) {
+        if (property == null) {
+            return null;
+        }
         if (tokenHandlerProp.getProperty(property) == null) {
             return null;
         }
