@@ -279,7 +279,7 @@ public class MockURLStreamHandler extends URLStreamHandler {
     }
 
     public static String respServerDetail(String serverName, String serverId,
-            Enum status, String tenant_id) {
+            Enum<ServerStatus> status, String tenant_id) {
         try {
             JSONObject response = new JSONObject();
             JSONObject server = new JSONObject();

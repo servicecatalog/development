@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.oscm.app.openstack.HeatProcessor;
+import org.oscm.app.openstack.NovaProcessor;
 import org.oscm.app.openstack.data.FlowState;
 import org.oscm.app.openstack.data.Server;
 import org.oscm.app.openstack.data.Stack;
@@ -130,7 +131,7 @@ public class Dispatcher {
                 break;
 
             case START_REQUESTED:
-                HashMap<String, Boolean> operationStatuses = new HeatProcessor()
+                HashMap<String, Boolean> operationStatuses = new NovaProcessor()
                         .startInstances(properties);
                 newState = operationStatuses.containsValue(Boolean.TRUE)
                         ? FlowState.STARTING : FlowState.FINISHED;
@@ -141,7 +142,7 @@ public class Dispatcher {
                 break;
 
             case STARTING:
-                servers = new HeatProcessor().getServersDetails(properties);
+                servers = new NovaProcessor().getServersDetails(properties);
                 List<Server> activeServers = new ArrayList<Server>();
                 List<Server> errorServers = new ArrayList<Server>();
                 for (Server server : servers) {
@@ -192,7 +193,6 @@ public class Dispatcher {
                 break;
 
             case ACTIVATING:
-                servers = new HeatProcessor().getServersDetails(properties);
                 stack = new HeatProcessor().getStackDetails(properties);
                 status = stack.getStatus();
                 statusReason = stack.getStatusReason();
