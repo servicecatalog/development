@@ -22,7 +22,6 @@ import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 
-import org.oscm.internal.types.exception.IllegalArgumentException;
 import org.oscm.test.stubs.OperatorServiceStub;
 import org.oscm.internal.intf.OperatorService;
 
@@ -101,6 +100,7 @@ public class CommandContextTest {
         Set<ElementType> all = EnumSet.noneOf(ElementType.class);
         all.add(ElementType.FIELD);
         all.add(ElementType.METHOD);
+        System.out.print(all);
         try {
             ctx.getEnum("key", all);
             fail("IllegalArgumentException expected.");

@@ -9,20 +9,20 @@
 package org.oscm.ui.validator;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.*;
 
 import java.util.Locale;
+import java.util.Map;
 
+import javax.faces.context.ExternalContext;
 import javax.faces.validator.ValidatorException;
 
+import org.apache.commons.collections.map.HashedMap;
 import org.junit.Before;
 import org.junit.Test;
 
 import org.oscm.ui.beans.BaseBean;
-import org.oscm.ui.stubs.ApplicationStub;
-import org.oscm.ui.stubs.FacesContextStub;
-import org.oscm.ui.stubs.ResourceBundleStub;
-import org.oscm.ui.stubs.UIInputStub;
-import org.oscm.ui.stubs.UIViewRootStub;
+import org.oscm.ui.stubs.*;
 
 /**
  * @author Mike J&auml;ger
