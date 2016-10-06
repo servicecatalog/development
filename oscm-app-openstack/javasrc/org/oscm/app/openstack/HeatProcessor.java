@@ -20,9 +20,6 @@ import java.net.URL;
 import java.net.URLStreamHandler;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -30,7 +27,6 @@ import javax.net.ssl.SSLContext;
 import org.oscm.app.openstack.controller.HeatStatus;
 import org.oscm.app.openstack.controller.PropertyHandler;
 import org.oscm.app.openstack.data.CreateStackRequest;
-import org.oscm.app.openstack.data.Server;
 import org.oscm.app.openstack.data.Stack;
 import org.oscm.app.openstack.data.UpdateStackRequest;
 import org.oscm.app.openstack.exceptions.HeatException;
@@ -106,16 +102,6 @@ public class HeatProcessor {
         client.authenticate(ph.getUserName(), ph.getPassword(),
                 ph.getDomainName(), ph.getTenantId());
         return new HeatClient(connection);
-    }
-
-    private NovaClient createNovaClient(PropertyHandler ph)
-            throws APPlatformException, HeatException {
-        OpenStackConnection connection = new OpenStackConnection(
-                ph.getKeystoneUrl());
-        KeystoneClient client = new KeystoneClient(connection);
-        client.authenticate(ph.getUserName(), ph.getPassword(),
-                ph.getDomainName(), ph.getTenantId());
-        return new NovaClient(connection);
     }
 
     /**
@@ -257,48 +243,6 @@ public class HeatProcessor {
     public Stack getStackDetails(PropertyHandler ph)
             throws HeatException, APPlatformException {
         return createHeatClient(ph).getStackDetails(ph.getStackName());
-    }
-
-    public List<Server> getServersDetails(PropertyHandler ph)
-            throws HeatException, APPlatformException {
-        List<String> serverIds = createHeatClient(ph)
-                .getServerIds(ph.getStackName());
-        List<Server> servers = new ArrayList<Server>();
-        if (serverIds.size() == 0) {
-            throw new InstanceNotAliveException(Messages.getAll(
-                    "error_check_servers_status_failed_instance_not_found",
-                    ph.getStackName()));
-        }
-
-        for (String id : serverIds) {
-            Server server = createNovaClient(ph).getServerDetails(ph, id);
-            servers.add(server);
-        }
-        return servers;
-    }
-
-    /**
-     * Start servers which are in Stack. The stack is identified by its name.
-     *
-     * @param ph
-     * @throws HeatException,
-     *             APPlatformException, NovaException
-     */
-    public HashMap<String, Boolean> startInstances(PropertyHandler ph)
-            throws HeatException, APPlatformException {
-        List<String> serverIds = createHeatClient(ph)
-                .getServerIds(ph.getStackName());
-        HashMap<String, Boolean> operationStatuses = new HashMap<String, Boolean>();
-        if (serverIds.size() == 0) {
-            throw new InstanceNotAliveException(Messages
-                    .getAll("error_starting_failed_instance_not_found"));
-        }
-
-        for (String id : serverIds) {
-            Boolean result = createNovaClient(ph).startServer(ph, id);
-            operationStatuses.put(id, result);
-        }
-        return operationStatuses;
     }
 
     public boolean resumeStack(PropertyHandler ph)
