@@ -20,8 +20,8 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.oscm.app.openstack.controller.HeatStatus;
 import org.oscm.app.openstack.controller.PropertyHandler;
+import org.oscm.app.openstack.controller.StackStatus;
 import org.oscm.app.openstack.data.Stack;
 import org.oscm.app.openstack.exceptions.HeatException;
 import org.oscm.app.v1_0.data.ProvisioningSettings;
@@ -195,7 +195,7 @@ public class HeatProcessorTest {
         streamHandler.put("/stacks/" + instanceName,
                 new MockHttpURLConnection(200,
                         MockURLStreamHandler.respStacksInstanceName(
-                                HeatStatus.SUSPEND_COMPLETE, false)));
+                                StackStatus.SUSPEND_COMPLETE, false)));
 
         // when
         boolean result = new HeatProcessor().resumeStack(paramHandler);
@@ -215,7 +215,7 @@ public class HeatProcessorTest {
         streamHandler.put("/stacks/" + instanceName,
                 new MockHttpURLConnection(200,
                         MockURLStreamHandler.respStacksInstanceName(
-                                HeatStatus.SUSPEND_COMPLETE, false)));
+                                StackStatus.SUSPEND_COMPLETE, false)));
         streamHandler
                 .put("/stacks/" + instanceName + "/resources",
                         new MockHttpURLConnection(200,
@@ -241,7 +241,7 @@ public class HeatProcessorTest {
         streamHandler.put("/stacks/" + instanceName,
                 new MockHttpURLConnection(200,
                         MockURLStreamHandler.respStacksInstanceName(
-                                HeatStatus.SUSPEND_COMPLETE, false)));
+                                StackStatus.SUSPEND_COMPLETE, false)));
         streamHandler
                 .put("/stacks/" + instanceName + "/resources",
                         new MockHttpURLConnection(200,
@@ -267,7 +267,7 @@ public class HeatProcessorTest {
         streamHandler.put("/stacks/" + instanceName,
                 new MockHttpURLConnection(200,
                         MockURLStreamHandler.respStacksInstanceName(
-                                HeatStatus.SUSPEND_COMPLETE, false)));
+                                StackStatus.SUSPEND_COMPLETE, false)));
         streamHandler.put("/servers/0-Instance-server1",
                 new MockHttpURLConnection(200,
                         MockURLStreamHandler.respServer("test", "servId")));
@@ -334,7 +334,7 @@ public class HeatProcessorTest {
         streamHandler.put("/stacks/" + instanceName,
                 new MockHttpURLConnection(200,
                         MockURLStreamHandler.respStacksInstanceName(
-                                HeatStatus.SUSPEND_COMPLETE, false)));
+                                StackStatus.SUSPEND_COMPLETE, false)));
 
         // when
         boolean result = new HeatProcessor().suspendStack(paramHandler);

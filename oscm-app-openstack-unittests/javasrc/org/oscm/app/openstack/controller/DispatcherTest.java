@@ -228,7 +228,7 @@ public class DispatcherTest {
         streamHandler.put("/stacks/Instance4",
                 new MockHttpURLConnection(200,
                         MockURLStreamHandler.respStacksInstanceName(
-                                HeatStatus.RESUME_COMPLETE, true)));
+                                StackStatus.RESUME_COMPLETE, true)));
 
         // when
         InstanceStatus result = dispatcher.dispatch();
@@ -247,7 +247,7 @@ public class DispatcherTest {
         streamHandler.put("/stacks/Instance4",
                 new MockHttpURLConnection(200,
                         MockURLStreamHandler.respStacksInstanceName(
-                                HeatStatus.RESUME_FAILED, true)));
+                                StackStatus.RESUME_FAILED, true)));
 
         // when
         dispatcher.dispatch();
@@ -335,7 +335,7 @@ public class DispatcherTest {
         streamHandler.put("/stacks/Instance4",
                 new MockHttpURLConnection(200,
                         MockURLStreamHandler.respStacksInstanceName(
-                                HeatStatus.CREATE_FAILED, true)));
+                                StackStatus.CREATE_FAILED, true)));
 
         // when
         dispatcher.dispatch();
@@ -368,7 +368,7 @@ public class DispatcherTest {
         streamHandler.put("/stacks/Instance4",
                 new MockHttpsURLConnection(200,
                         MockURLStreamHandler.respStacksInstanceName(
-                                HeatStatus.CREATE_COMPLETE, true)));
+                                StackStatus.CREATE_COMPLETE, true)));
         doReturn("test").when(platformService).getEventServiceUrl();
         // when
         InstanceStatus result = dispatcher.dispatch();
@@ -396,7 +396,7 @@ public class DispatcherTest {
         streamHandler.put("/stacks/Instance4",
                 new MockHttpsURLConnection(200,
                         MockURLStreamHandler.respStacksInstanceName(
-                                HeatStatus.UPDATE_COMPLETE, true)));
+                                StackStatus.UPDATE_COMPLETE, true)));
 
         // when
         InstanceStatus result = dispatcher.dispatch();
@@ -418,7 +418,7 @@ public class DispatcherTest {
         streamHandler.put("/stacks/Instance4",
                 new MockHttpURLConnection(200,
                         MockURLStreamHandler.respStacksInstanceName(
-                                HeatStatus.UPDATE_COMPLETE, true)));
+                                StackStatus.UPDATE_COMPLETE, true)));
         // when
         InstanceStatus result = dispatcher.dispatch();
 
@@ -436,7 +436,7 @@ public class DispatcherTest {
         streamHandler.put("/stacks/Instance4",
                 new MockHttpURLConnection(200,
                         MockURLStreamHandler.respStacksInstanceName(
-                                HeatStatus.UPDATE_FAILED, true)));
+                                StackStatus.UPDATE_FAILED, true)));
 
         // when
         dispatcher.dispatch();
@@ -482,7 +482,7 @@ public class DispatcherTest {
         streamHandler.put("/stacks/Instance4",
                 new MockHttpURLConnection(200,
                         MockURLStreamHandler.respStacksInstanceName(
-                                HeatStatus.DELETE_COMPLETE, true)));
+                                StackStatus.DELETE_COMPLETE, true)));
         // when
         InstanceStatus result = dispatcher.dispatch();
 
@@ -500,7 +500,7 @@ public class DispatcherTest {
         streamHandler.put("/stacks/Instance4",
                 new MockHttpURLConnection(200,
                         MockURLStreamHandler.respStacksInstanceName(
-                                HeatStatus.DELETE_COMPLETE, true)));
+                                StackStatus.DELETE_COMPLETE, true)));
 
         // when
         InstanceStatus result = dispatcher.dispatch();
@@ -518,7 +518,7 @@ public class DispatcherTest {
         streamHandler.put("/stacks/Instance4",
                 new MockHttpURLConnection(200,
                         MockURLStreamHandler.respStacksInstanceName(
-                                HeatStatus.DELETE_FAILED, true)));
+                                StackStatus.DELETE_FAILED, true)));
 
         // when
         dispatcher.dispatch();
@@ -530,7 +530,7 @@ public class DispatcherTest {
         paramHandler.setState(FlowState.DELETING_STACK);
         MockHttpURLConnection muc = new MockHttpURLConnection(401,
                 MockURLStreamHandler.respStacksInstanceName(
-                        HeatStatus.DELETE_FAILED, true));
+                        StackStatus.DELETE_FAILED, true));
         muc.setIOException(new IOException("test"));
         streamHandler.put("/stacks/Instance4", muc);
 
@@ -544,7 +544,7 @@ public class DispatcherTest {
         paramHandler.setState(FlowState.CREATING_STACK);
         MockHttpURLConnection muc = new MockHttpURLConnection(404,
                 MockURLStreamHandler.respStacksInstanceName(
-                        HeatStatus.DELETE_FAILED, true));
+                        StackStatus.DELETE_FAILED, true));
         muc.setIOException(new IOException("test"));
         streamHandler.put("/stacks/Instance4", muc);
 
@@ -558,7 +558,7 @@ public class DispatcherTest {
         paramHandler.setState(FlowState.CREATING_STACK);
         MockHttpURLConnection muc = new MockHttpURLConnection(404,
                 MockURLStreamHandler.respStacksInstanceName(
-                        HeatStatus.DELETE_FAILED, true));
+                        StackStatus.DELETE_FAILED, true));
         muc.setRuntimeException(new RuntimeException("test"));
         streamHandler.put("/stacks/Instance4", muc);
 
@@ -572,7 +572,7 @@ public class DispatcherTest {
         paramHandler.setState(FlowState.CREATING_STACK);
         MockHttpURLConnection muc = new MockHttpURLConnection(301,
                 MockURLStreamHandler.respStacksInstanceName(
-                        HeatStatus.DELETE_FAILED, true));
+                        StackStatus.DELETE_FAILED, true));
         muc.setIOException(new IOException("test"));
         streamHandler.put("/stacks/Instance4", muc);
 
@@ -600,7 +600,7 @@ public class DispatcherTest {
         streamHandler.put("/stacks/Instance4",
                 new MockHttpURLConnection(200,
                         MockURLStreamHandler.respStacksInstanceName(
-                                HeatStatus.SUSPEND_FAILED, true)));
+                                StackStatus.SUSPEND_FAILED, true)));
 
         // when
         dispatcher.dispatch();
@@ -613,7 +613,7 @@ public class DispatcherTest {
         streamHandler.put("/stacks/Instance4",
                 new MockHttpURLConnection(200,
                         MockURLStreamHandler.respStacksInstanceName(
-                                HeatStatus.SUSPEND_FAILED, true,
+                                StackStatus.SUSPEND_FAILED, true,
                                 "Failed to find instance example ")));
 
         // when
@@ -640,7 +640,7 @@ public class DispatcherTest {
         streamHandler.put("/stacks/Instance4",
                 new MockHttpURLConnection(200,
                         MockURLStreamHandler.respStacksInstanceName(
-                                HeatStatus.SUSPEND_COMPLETE, true)));
+                                StackStatus.SUSPEND_COMPLETE, true)));
 
         // when
         InstanceStatus result = dispatcher.dispatch();

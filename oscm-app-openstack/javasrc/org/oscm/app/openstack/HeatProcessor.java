@@ -24,8 +24,8 @@ import java.security.NoSuchAlgorithmException;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 
-import org.oscm.app.openstack.controller.HeatStatus;
 import org.oscm.app.openstack.controller.PropertyHandler;
+import org.oscm.app.openstack.controller.StackStatus;
 import org.oscm.app.openstack.data.CreateStackRequest;
 import org.oscm.app.openstack.data.Stack;
 import org.oscm.app.openstack.data.UpdateStackRequest;
@@ -252,7 +252,7 @@ public class HeatProcessor {
                     .getAll("error_activating_failed_instance_not_found"));
         }
 
-        if (HeatStatus.SUSPEND_COMPLETE.name().equals(createHeatClient(ph)
+        if (StackStatus.SUSPEND_COMPLETE.name().equals(createHeatClient(ph)
                 .getStackDetails(ph.getStackName()).getStatus())) {
             createHeatClient(ph).resumeStack(ph.getStackName(),
                     ph.getStackId());
@@ -268,7 +268,7 @@ public class HeatProcessor {
                     .getAll("error_deactivating_failed_instance_not_found"));
         }
 
-        if (!HeatStatus.SUSPEND_COMPLETE.name().equals(createHeatClient(ph)
+        if (!StackStatus.SUSPEND_COMPLETE.name().equals(createHeatClient(ph)
                 .getStackDetails(ph.getStackName()).getStatus())) {
             createHeatClient(ph).suspendStack(ph.getStackName(),
                     ph.getStackId());
