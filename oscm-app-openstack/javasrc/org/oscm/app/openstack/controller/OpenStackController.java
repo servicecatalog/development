@@ -230,6 +230,8 @@ public class OpenStackController extends ProvisioningValidator
                 LogAndExceptionConverter.getLogText(instanceId, settings));
         try {
             PropertyHandler ph = new PropertyHandler(settings);
+            ProvisioningValidator.validateTimeout(instanceId, ph,
+                    platformService);
             Dispatcher dp = new Dispatcher(platformService, instanceId, ph);
             InstanceStatus status = dp.dispatch();
             return status;
@@ -461,6 +463,7 @@ public class OpenStackController extends ProvisioningValidator
             switch (operationId) {
             case "START_VIRTUAL_SYSTEM":
                 ph.setState(FlowState.START_REQUESTED);
+                ph.setStartTime(String.valueOf(System.currentTimeMillis()));
                 operationAccepted = true;
                 break;
 
