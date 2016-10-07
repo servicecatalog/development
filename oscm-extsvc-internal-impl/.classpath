@@ -12,6 +12,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-server-common"/>
 	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/javaee.jar"/>
 	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/gf-client.jar"/>
-	<classpathentry kind="lib" path="/libraries/glassfish4/modules/web-core-4.1.1"/>
+	<classpathentry kind="lib" path="/libraries/glassfish4/modules/web-core.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
