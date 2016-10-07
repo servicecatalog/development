@@ -159,13 +159,22 @@
   </target>
 
   <target name="copyLibraries" if="lib.exists">
+    <echo message="tutaj"/>
+    <echo>
+      ${domains.dir}/${domain.dir}/installer/lib.properties
+    </echo>
     <antcall target="copyFiles" inheritall="true">
       <param name="src.file" value="${domains.dir}/${domain.dir}/installer/lib.properties" />
+
     </antcall>
   </target>
 
   <target name="copyFiles">
     <loadfile property="infofile" srcfile="${src.file}">
+      <echo message="tutaj"/>
+      <echo>
+        ${src.file}
+      </echo>
       <filterchain>
         <striplinecomments>
           <comment value="#" />
@@ -181,14 +190,14 @@
     <propertyregex property="copytype" input="${copyinfo}" regexp="(.*):from:(.*)" select="\1" />
     <propertyregex property="from" input="${copyinfo}" regexp="(.*):from:(.*):to(.*)" select="\2" />
     <propertyregex property="to" input="${copyinfo}" regexp="(.*):to:(.*)" select="\2" />
+    <echo message="tutaj"/>
+    <echo>
+      ${domains.dir}/${domain.dir}/${from}
+      ${to}
+    </echo>
     <if>
       <equals arg1="${copytype}" arg2="file" />
       <then>
-        <echo message="tutaj"/>
-        <echo>
-          ${domains.dir}/${domain.dir}/${from}
-          ${to}
-        </echo>
         <copy file="${domains.dir}/${domain.dir}/${from}" tofile="${to}" overwrite="true" />
       </then>
       <elseif>
