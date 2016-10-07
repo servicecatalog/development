@@ -82,6 +82,12 @@ public class PropertyHandler {
     // ID of the tenant/project
     public static final String TENANT_ID = "TENANT_ID";
 
+    // Timeout for status check (msec)
+    public static final String READY_TIMEOUT = "READY_TIMEOUT";
+
+    // Start time of operation
+    public static final String START_TIME = "START_TIME";
+
     /**
      * Default constructor.
      *
@@ -347,6 +353,47 @@ public class PropertyHandler {
                     TENANT_ID);
         }
         return tenant;
+    }
+
+    /**
+     * Set start time of operation
+     * 
+     * @param time
+     */
+    public void setStartTime(String time) {
+        settings.getParameters().put(START_TIME, time);
+    }
+
+    /**
+     * Return the start time of operation
+     * 
+     * @return the start time of string
+     */
+    public String getStartTime() {
+        return settings.getParameters().get(START_TIME);
+    }
+
+    /**
+     * Return the ready timeout which is waiting time of status changing If
+     * number is not corrected, return 0
+     * 
+     * @return timeout value of long
+     */
+    public long getReadyTimeout() {
+        String readyTimeout = settings.getConfigSettings().get(READY_TIMEOUT);
+        if (readyTimeout == null || readyTimeout.trim().length() == 0) {
+            LOGGER.warn("'READY_TIMEOUT' is not set and therefore ignored");
+            return 0;
+        }
+        try {
+            return Long
+                    .parseLong(settings.getConfigSettings().get(READY_TIMEOUT));
+        } catch (NumberFormatException ex) {
+            LOGGER.warn(
+                    "Wrong value set for property 'READY_TIMEOUT' and therefore ignored");
+        }
+        return 0;
+
     }
 
 }
