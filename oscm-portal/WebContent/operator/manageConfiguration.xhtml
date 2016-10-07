@@ -43,6 +43,7 @@
                 rendered="#{!rowItem.informationId.readonly and rowItem.informationId.type != 'password'}" style="width:100%">
                 <f:validator validatorId="confValue"/>
               </h:inputText>
+              <h:outputText value="*****" styleClass="label" rendered="#{rowItem.informationId.readonly and rowItem.informationId.type == 'password'}"/>
               <h:outputText value="#{rowItem.value}" styleClass="label" rendered="#{rowItem.informationId.readonly and rowItem.informationId.type != 'password'}"/>
             </t:div>
             <t:div styleClass="errorPanelTr">
