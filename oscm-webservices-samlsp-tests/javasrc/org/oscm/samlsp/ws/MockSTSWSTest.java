@@ -25,7 +25,11 @@ import org.junit.Test;
 import org.oscm.samlsp.ws.base.WebserviceSAMLSPTestSetup;
 import org.oscm.ws.base.ServiceFactory;
 import org.oscm.ws.base.VOFactory;
+import org.oscm.ws.base.WebserviceTestBase;
+import org.oscm.internal.intf.TenantService;
+import org.oscm.internal.vo.VOTenant;
 import org.oscm.intf.IdentityService;
+import org.oscm.types.enumtypes.OrganizationRoleType;
 import org.oscm.types.enumtypes.UserRoleType;
 import org.oscm.vo.VOUserDetails;
 
@@ -38,6 +42,8 @@ public class MockSTSWSTest {
     private static VOFactory factory = new VOFactory();
     private IdentityService idS;
     private IdentityService adminIdentityService;
+    private IdentityService identityServiceWithTenant;
+    private TenantService tenantService;
     private final String testUserId1 = "MockSTSTest_Issuer";
     private final String testUserId2 = "MockSTSTest_DigestValue";
     private final String testUserId3 = "MockSTSTest_SignatureValue";
@@ -52,7 +58,8 @@ public class MockSTSWSTest {
     private VOUserDetails user5;
     private VOUserDetails user6;
     private VOUserDetails user7;
-
+    
+    private final static String USER_ID_FOR_TENANT = "IntegrationTest_UserId_1000"; 
     private final static String EXCEPTION_SUBSTRING = "WSSTUBE0025";
 
     @Before
@@ -60,6 +67,8 @@ public class MockSTSWSTest {
         new WebserviceSAMLSPTestSetup();
         adminIdentityService = ServiceFactory.getSTSServiceFactory()
                 .getIdentityService("administrator", "admin123");
+        identityServiceWithTenant = ServiceFactory.getSTSServiceFactory(WebserviceSAMLSPTestSetup.TENANT_ID_1)
+                .getIdentityService(USER_ID_FOR_TENANT, "secret");
         createUsers();
     }
 
@@ -70,6 +79,7 @@ public class MockSTSWSTest {
 
     @Test
     public void testSecuredWS_OK() throws Exception {
+        
         // given
         idS = adminIdentityService;
 
@@ -78,6 +88,26 @@ public class MockSTSWSTest {
 
         // then
         assertEquals("administrator", user.getUserId());
+    }
+    
+    @Test
+    public void testSecuredWSWithTenant_OK() throws Exception {
+        
+        // given
+        tenantService = ServiceFactory.getDefault().getTenantService();
+        WebserviceSAMLSPTestSetup.createTenant(WebserviceSAMLSPTestSetup.TENANT_ID_1);   
+        VOTenant tenant = tenantService.getTenantByTenantId(WebserviceSAMLSPTestSetup.TENANT_ID_1);
+        
+
+        WebserviceTestBase.createOrganization(USER_ID_FOR_TENANT, "org1", tenant.getKey(), OrganizationRoleType.SUPPLIER);
+        
+        idS = identityServiceWithTenant;
+
+        // when
+        VOUserDetails user = invokeWSMethod();
+
+        // then
+        assertEquals(USER_ID_FOR_TENANT, user.getUserId());
     }
 
     @Test
