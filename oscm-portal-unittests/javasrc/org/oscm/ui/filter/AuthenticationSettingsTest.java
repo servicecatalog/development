@@ -303,6 +303,9 @@ public class AuthenticationSettingsTest {
         // given
         givenMock(AuthenticationMode.SAML_SP, IDP);
         doThrow(new ObjectNotFoundException()).when(tenantService).getTenantByTenantId(anyString());
+        authSettings = spy(authSettings);
+        doReturn("notTheSame").when(authSettings).
+                getConfigurationSetting(cfgMock, ConfigurationKey.SSO_DEFAULT_TENANT_ID);
 
         // then
         authSettings.init("te");
