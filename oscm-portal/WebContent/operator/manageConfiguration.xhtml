@@ -29,14 +29,22 @@
               <h:outputText value="#{msg['uda.value']}" />
             </f:facet>
             <t:div style="white-space:nowrap;">
+              <h:inputSecret id="configurationValuePassword" onchange="setDirty(true)" value="#{rowItem.value}"
+                maxlength="#{appBean.descriptionLen}" required="#{rowItem.informationId.mandatory}" 
+                label="#{rowItem.informationId.keyName}"  redisplay="true"
+                minValue="#{rowItem.informationId.minValue}" maxValue="#{rowItem.informationId.maxValue}"
+                rendered="#{!rowItem.informationId.readonly and rowItem.informationId.type == 'password'}" style="width:100%">
+                <f:validator validatorId="confValue"/>
+              </h:inputSecret>
               <h:inputText id="configurationValue" onchange="setDirty(true)" value="#{rowItem.value}"
                 maxlength="#{appBean.descriptionLen}" required="#{rowItem.informationId.mandatory}" 
                 dataType="#{rowItem.informationId.type}" label="#{rowItem.informationId.keyName}" 
                 minValue="#{rowItem.informationId.minValue}" maxValue="#{rowItem.informationId.maxValue}"
-                rendered="#{!rowItem.informationId.readonly}" style="width:100%">
+                rendered="#{!rowItem.informationId.readonly and rowItem.informationId.type != 'password'}" style="width:100%">
                 <f:validator validatorId="confValue"/>
               </h:inputText>
-              <h:outputText value="#{rowItem.value}" styleClass="label" rendered="#{rowItem.informationId.readonly}"/>
+              <h:outputText value="*****" styleClass="label" rendered="#{rowItem.informationId.readonly and rowItem.informationId.type == 'password'}"/>
+              <h:outputText value="#{rowItem.value}" styleClass="label" rendered="#{rowItem.informationId.readonly and rowItem.informationId.type != 'password'}"/>
             </t:div>
             <t:div styleClass="errorPanelTr">
               <adm:message for="configurationValue" />
