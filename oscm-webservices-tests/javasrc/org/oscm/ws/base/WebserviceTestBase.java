@@ -378,6 +378,48 @@ public class WebserviceTestBase {
         System.out.println("created organization, adminId=" + administratorId);
         return organization;
     }
+    
+    public static VOOrganization createOrganization(String administratorId,
+            String organizationName, long tenantKey, OrganizationRoleType... rolesToGrant)
+            throws Exception {
+
+        VOUserDetails adminUser = factory.createUserVO(administratorId);
+        VOOrganization organization = factory.createOrganizationVO();
+        if (organizationName != null && organizationName.trim().length() > 0) {
+            organization.setName(organizationName);
+        }
+
+        List<org.oscm.internal.types.enumtypes.OrganizationRoleType> convertedRoles = new ArrayList<>();
+        for (OrganizationRoleType r : rolesToGrant) {
+            convertedRoles
+                    .add(EnumConverter
+                            .convert(
+                                    r,
+                                    org.oscm.internal.types.enumtypes.OrganizationRoleType.class));
+        }
+
+        org.oscm.internal.vo.VOOrganization internalVOOrg = VOConverter
+                .convertToUp(organization);
+        if (Arrays.asList(rolesToGrant).contains(OrganizationRoleType.SUPPLIER)) {
+            internalVOOrg.setOperatorRevenueShare(BigDecimal.ZERO);
+        }
+
+        internalVOOrg.setTenantKey(tenantKey);
+        
+        organization = VOConverter
+                .convertToApi(getOperator()
+                        .registerOrganization(
+                                internalVOOrg,
+                                null,
+                                VOConverter.convertToUp(adminUser),
+                                null,
+                                null,
+                                convertedRoles
+                                        .toArray(new org.oscm.internal.types.enumtypes.OrganizationRoleType[convertedRoles
+                                                .size()])));
+        System.out.println("created organization, adminId=" + administratorId);
+        return organization;
+    }
 
     public static Object[] createOrganizationAndReturnUser(String administratorId,
             String organizationName, OrganizationRoleType... rolesToGrant)

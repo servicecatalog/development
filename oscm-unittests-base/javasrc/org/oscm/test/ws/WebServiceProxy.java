@@ -10,6 +10,8 @@ package org.oscm.test.ws;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -18,6 +20,7 @@ import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Service;
 import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.HandlerResolver;
+import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.PortInfo;
 
 import org.oscm.apiversioning.handler.ClientVersionHandler;
@@ -32,14 +35,14 @@ public class WebServiceProxy {
 
     public static <T> T get(String baseUrl, String version, String auth,
             String namespace, Class<T> remoteInterface, String userName,
-            String password) throws Exception {
+            String password, String tenantId) throws Exception {
         return get(baseUrl, version, version, auth, namespace, remoteInterface,
-                userName, password);
+                userName, password, tenantId);
     }
 
     public static <T> T get(String baseUrl, final String versionWSDL,
             String versionHeader, String auth, String namespace,
-            Class<T> remoteInterface, String userName, String password)
+            Class<T> remoteInterface, String userName, String password, String tenantId)
             throws Exception {
         String wsdlUrl = baseUrl + "/oscm/" + versionWSDL + "/"
                 + remoteInterface.getSimpleName() + "/" + auth + "?wsdl";
@@ -68,6 +71,17 @@ public class WebServiceProxy {
         if ("STS".equals(auth)) {
             clientRequestContext.put(XWSSConstants.USERNAME_PROPERTY, userName);
             clientRequestContext.put(XWSSConstants.PASSWORD_PROPERTY, password);
+            clientRequestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
+                    baseUrl + "/" + remoteInterface.getSimpleName() + "/"
+                            + auth);
+
+            if (tenantId != null) {
+                Map<String, List<String>> headers = new HashMap<String, List<String>>();
+                headers.put("tenantId", Collections.singletonList(tenantId));
+                clientRequestContext.put(MessageContext.HTTP_REQUEST_HEADERS,
+                        headers);
+            }
+            
         } else {
             clientRequestContext.put(BindingProvider.USERNAME_PROPERTY,
                     userName);

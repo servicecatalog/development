@@ -5,6 +5,8 @@
 package org.oscm.webservices.handler;
 
 import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.naming.Context;
@@ -19,6 +21,7 @@ import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 
+import org.apache.commons.lang3.StringUtils;
 import org.glassfish.security.common.PrincipalImpl;
 import org.w3c.dom.Element;
 
@@ -36,12 +39,14 @@ import com.sun.xml.wss.impl.MessageConstants;
 import com.sun.xml.wss.saml.util.SAMLUtil;
 
 public class LoginHandler implements SOAPHandler<SOAPMessageContext> {
-
+    
+    private static final String TENANT_ID_HEADER_PARAM = "tenantId";
+    
     @Override
     public boolean handleMessage(SOAPMessageContext context) {
 
         if (isInboundMessage(context).booleanValue()) {
-
+      
             String userKey = null;
             try {
                 userKey = getUserKeyFromContext(context);
@@ -112,18 +117,35 @@ public class LoginHandler implements SOAPHandler<SOAPMessageContext> {
 
     protected String getUserKeyFromContext(SOAPMessageContext context)
             throws UserIdNotFoundException, NamingException, SQLException {
+        
         String userId = getUserIdFromContext(context);
-        return getUserKeyFromId(userId);
+        String tenantId = getTenantIdFromContext(context);
+        
+        return getUserKey(userId, tenantId);
     }
+    
+    private String getUserKey(String userId, String tenantId)
+            throws NamingException, SQLException {
 
-    private String getUserKeyFromId(String userId) throws NamingException,
-            SQLException {
-        long userKey = -1;
         Context context = new InitialContext();
         DataSource ds = (DataSource) context.lookup("BSSDS");
-        KeyQuery keyQuery = new KeyQuery(ds, userId);
+
+        AbstractKeyQuery keyQuery;
+
+        if (StringUtils.isEmpty(tenantId)) {
+            keyQuery = new UserKeyQuery(ds, userId);
+        } else {
+            keyQuery = new UserKeyForTenantQuery(ds, userId, tenantId);
+        }
+
         keyQuery.execute();
-        userKey = keyQuery.getUserKey();
+        long userKey = keyQuery.getKey();
+        
+        if (userKey == 0) {
+            throw new SQLException("User not found [user id: " + userId
+                    + ", tenant id: " + tenantId + " ]");
+        }
+        
         return String.valueOf(userKey);
     }
 
@@ -136,6 +158,23 @@ public class LoginHandler implements SOAPHandler<SOAPMessageContext> {
         logDebugSamlAssertion(samlAssertion);
         userId = extractor.getUserId(samlAssertion);
         return userId;
+    }
+    
+    private String getTenantIdFromContext(SOAPMessageContext context){
+        
+        String tenantId = null;
+        
+        @SuppressWarnings("unchecked")
+        Map<String, List<String>> headers = (Map<String, List<String>>) context
+                .get(MessageContext.HTTP_REQUEST_HEADERS);
+        
+        List<String> tenantIdParams = headers.get(TENANT_ID_HEADER_PARAM);
+        
+        if(tenantIdParams!=null){
+            tenantId = tenantIdParams.get(0);
+        }
+        
+        return tenantId;
     }
 
     @Override
