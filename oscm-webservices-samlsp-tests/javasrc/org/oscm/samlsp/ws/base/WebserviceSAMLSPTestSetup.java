@@ -46,6 +46,8 @@ import org.oscm.xml.Transformers;
 import org.oscm.converter.api.EnumConverter;
 import org.oscm.converter.api.VOConverter;
 import org.oscm.internal.intf.OperatorService;
+import org.oscm.internal.intf.TenantService;
+import org.oscm.internal.vo.VOTenant;
 import org.oscm.types.enumtypes.OrganizationRoleType;
 import org.oscm.types.enumtypes.UserRoleType;
 import org.oscm.vo.VOOrganization;
@@ -61,7 +63,11 @@ public class WebserviceSAMLSPTestSetup extends WebserviceTestSetup {
     private static VOFactory factory = new VOFactory();
     private String supplierUserId;
     private static OperatorService operator;
-
+    private static TenantService tenantService;
+    
+    public static final String TENANT_ID_1 = "tenant1";
+    public static final String TENANT_ID_2 = "tenant2";
+    
     public WebserviceSAMLSPTestSetup() {
         setJKSLocation(getExampleDomainPath());
     }
@@ -159,7 +165,7 @@ public class WebserviceSAMLSPTestSetup extends WebserviceTestSetup {
         return supplierUserId;
     }
 
-    private static VOOrganization createOrganization(String administratorId,
+    public static VOOrganization createOrganization(String administratorId,
             String name, OrganizationRoleType... rolesToGrant) throws Exception {
 
         VOUserDetails adminUser = factory.createUserVO(administratorId);
@@ -206,5 +212,22 @@ public class WebserviceSAMLSPTestSetup extends WebserviceTestSetup {
             }
         }
         return operator;
+    }
+    
+    private static TenantService getTenantService() throws Exception {
+        synchronized (WebserviceSAMLSPTestSetup.class) {
+            if (tenantService == null) {
+                tenantService = ServiceFactory.getDefault().getTenantService();
+            }
+        }
+        return tenantService;
+    }
+    
+    public static void createTenant(String tenantId) throws Exception{
+        
+        VOTenant voTenant = factory.createTenantVo(tenantId);
+        getTenantService().addTenant(voTenant);
+        
+        
     }
 }

@@ -56,6 +56,7 @@ public class TenantServiceBean implements TenantService {
 
     @Override
     @RolesAllowed("PLATFORM_OPERATOR")
+    @TransactionAttribute(value = TransactionAttributeType.REQUIRED)
     public void addTenant(VOTenant voTenant) throws NonUniqueBusinessKeyException {
         tenantServiceLocal.saveTenant(TenantAssembler.toTenant(voTenant));
     }
