@@ -5,6 +5,9 @@
 package org.oscm.ui.common;
 
 import static org.junit.Assert.assertTrue;
+import static org.oscm.internal.types.exception.AssertionValidationException.ReasonEnum.MISSING_TENANT;
+import static org.oscm.internal.types.exception.AssertionValidationException.ReasonEnum.WRONG_TENANT;
+import static org.oscm.internal.types.exception.NotExistentTenantException.Reason.MISSING_TENANT_PARAMETER;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -19,19 +22,14 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import org.oscm.converter.ParameterizedTypes;
+import org.oscm.internal.types.exception.*;
 import org.oscm.test.ClassFilter;
 import org.oscm.test.PackageClassReader;
 import org.oscm.types.enumtypes.PlatformParameterIdentifiers;
 import org.oscm.ui.resources.DefaultMessages;
 import org.oscm.ui.resources.DefaultMessages_en;
 import org.oscm.internal.types.enumtypes.ParameterType;
-import org.oscm.internal.types.exception.DeletionConstraintException;
 import org.oscm.internal.types.exception.DomainObjectException.ClassEnum;
-import org.oscm.internal.types.exception.ExecutionTargetException;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.types.exception.SaaSApplicationException;
-import org.oscm.internal.types.exception.ServiceParameterException;
-import org.oscm.internal.types.exception.UpdateConstraintException;
 import org.oscm.internal.types.exception.ValidationException.ReasonEnum;
 
 /**
@@ -213,6 +211,10 @@ public class MessagePropertiesForExceptionsInSyncTest {
                     + ClassEnum.USER_ROLE,
             UpdateConstraintException.class.getSimpleName() + "."
                     + ClassEnum.VAT_RATES,
+            AssertionValidationException.class.getSimpleName() + "."
+                    + WRONG_TENANT,
+            NotExistentTenantException.class.getSimpleName() + "."
+                    + MISSING_TENANT_PARAMETER,
             UpdateConstraintException.class.getSimpleName() + "."
                     + ClassEnum.MARKETPLACE_ACCESS,
                     

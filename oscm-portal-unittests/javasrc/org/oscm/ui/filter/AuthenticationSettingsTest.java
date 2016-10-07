@@ -11,6 +11,7 @@ package org.oscm.ui.filter;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
+import static org.oscm.internal.types.enumtypes.ConfigurationKey.SSO_SIGNING_KEYSTORE;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -72,6 +73,21 @@ public class AuthenticationSettingsTest {
                 new VOConfigurationSetting(ConfigurationKey.BASE_URL,
                         Configuration.GLOBAL_CONTEXT, idpUrl)).when(cfgMock)
                 .getVOConfigurationSetting(ConfigurationKey.BASE_URL,
+                        Configuration.GLOBAL_CONTEXT);
+        doReturn(
+                new VOConfigurationSetting(ConfigurationKey.SSO_SIGNING_KEY_ALIAS,
+                        Configuration.GLOBAL_CONTEXT, IDP_KEYSTORE_PASS)).when(cfgMock)
+                .getVOConfigurationSetting(ConfigurationKey.SSO_SIGNING_KEY_ALIAS,
+                        Configuration.GLOBAL_CONTEXT);
+        doReturn(
+                new VOConfigurationSetting(ConfigurationKey.SSO_SIGNING_KEYSTORE_PASS,
+                        Configuration.GLOBAL_CONTEXT, IDP_KEYSTORE_PASS)).when(cfgMock)
+                .getVOConfigurationSetting(ConfigurationKey.SSO_SIGNING_KEYSTORE_PASS,
+                        Configuration.GLOBAL_CONTEXT);
+        doReturn(
+                new VOConfigurationSetting(SSO_SIGNING_KEYSTORE,
+                        Configuration.GLOBAL_CONTEXT, IDP_KEYSTORE_PASS)).when(cfgMock)
+                .getVOConfigurationSetting(SSO_SIGNING_KEYSTORE,
                         Configuration.GLOBAL_CONTEXT);
         authSettings = new AuthenticationSettings(tenantService, cfgMock);
         authSettings.init("tenantID");
