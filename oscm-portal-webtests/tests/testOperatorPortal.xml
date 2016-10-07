@@ -10,8 +10,6 @@
     <webtest name="Bug 10393: SSO configuration properties should not be mandatory if SSO is not used">
       <operatorPortal.login />
       <clickLink href="/operator/manageConfiguration.jsf" />
-      <verifyXPath xpath="//td[text()='SSO_STS_URL']/..//span[@class='label']" />
-      <verifyXPath xpath="//td[text()='SSO_STS_METADATA_URL']/..//span[@class='label']" />
       <not>
         <verifyXPath xpath="//td[text()='SSO_IDP_URL']//span[@class='mandatory']" />
         <verifyXPath xpath="//td[text()='SSO_IDP_TRUSTSTORE']//span[@class='mandatory']" />
