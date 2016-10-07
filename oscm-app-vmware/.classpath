@@ -11,8 +11,8 @@
 	<classpathentry kind="lib" path="/libraries/apache-collections/javalib/commons-collections-3.2.2.jar"/>
 	<classpathentry kind="lib" path="/libraries/apache-configuration/javalib/commons-configuration-1.8.jar"/>
 	<classpathentry kind="lib" path="/libraries/apache-lang/javalib/commons-lang-2.6.jar"/>
-	<classpathentry kind="lib" path="/libraries/apache-httpcore/javalib/httpclient-4.3.1.jar"/>
-	<classpathentry kind="lib" path="/libraries/apache-httpcore/javalib/httpcore-4.3.jar"/>
+	<classpathentry kind="lib" path="/libraries/apache-httpcore/javalib/httpclient-4.5.2.jar"/>
+	<classpathentry kind="lib" path="/libraries/apache-httpcore/javalib/httpcore-4.4.1.jar"/>
 	<classpathentry kind="lib" path="/libraries/wsdl4j/javalib/wsdl4j.jar"/>
 	<classpathentry kind="lib" path="/libraries/vmware/javalib/vim25.jar"/>
 	<classpathentry kind="lib" path="/libraries/apache-io/javalib/commons-io-1.4.jar"/>
