@@ -276,6 +276,16 @@ public class VOParameterDefinition extends BaseVO {
     }
 
     /**
+     * Checks if the parameter data type is <code>PWD</code>.
+     *
+     * @return <code>true</code> if the data type of the parameter is
+     *         <code>PWD</code>, <code>false</code> otherwise.
+     */
+    public boolean isValueTypePWD() {
+        return valueType == ParameterValueType.PWD;
+    }
+
+    /**
      * Retrieves the text describing the parameter.
      * 
      * @return the parameter description
