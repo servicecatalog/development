@@ -185,8 +185,8 @@
       <equals arg1="${copytype}" arg2="file" />
       <then>
         <echo message="tutaj"/>
-        <echo message ="${domains.dir}/${domain.dir}/${from}"/>
-        <echo message ="${to}"/>
+        <echo value ="${domains.dir}/${domain.dir}/${from}"/>
+        <echo value ="${to}"/>
         <copy file="${domains.dir}/${domain.dir}/${from}" tofile="${to}" overwrite="true" />
       </then>
       <elseif>
