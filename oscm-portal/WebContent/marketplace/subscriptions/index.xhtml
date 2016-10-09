@@ -46,7 +46,7 @@
         <h:form id="subListForm">
           <a4j:jsFunction name="validateSubscriptionStatus"
                           action="#{mySubscriptionsCtrl.validateSubscriptionStatus}"
-                          render=":hiddenErrorPanel subListForm :subscriptionDetailsPanel"
+                          render=":hiddenErrorPanel subListForm :detailsAndCustomPanel"
                           oncomplete="jumpToSubscriptionDetails(); AdmUtils.showProgress(false); ">
             <a4j:param name="param1" assignTo="#{mySubscriptionsCtrl.model.selectedSubscriptionId}" />
           </a4j:jsFunction>

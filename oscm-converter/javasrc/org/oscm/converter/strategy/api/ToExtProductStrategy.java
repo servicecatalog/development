@@ -35,6 +35,7 @@ public class ToExtProductStrategy extends AbstractConversionStrategy implements 
         voService.setVersion(product.getVersion());
         voService.setServiceId(product.getProductId());
         voService.setConfiguratorUrl(product.getConfiguratorUrl());
+        voService.setCustomTabUrl(product.getCustomTabUrl());
         VOPriceModel voPriceModel = Converter.convert(product.getPriceModel(), PriceModel.class, VOPriceModel.class, getDataService());
         voService.setPriceModel(voPriceModel);
         if (product.getParameterSet() != null) {

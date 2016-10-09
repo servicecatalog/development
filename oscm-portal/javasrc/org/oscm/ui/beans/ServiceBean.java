@@ -140,9 +140,6 @@ public class ServiceBean extends BaseBean implements Serializable {
         if (serviceForCreation == null || selectedTechService == null) {
             return OUTCOME_ERROR;
         }
-        if (logger.isDebugLoggingEnabled()) {
-
-        }
 
         // read public flag from service beforehand since create method will
         // always return false
@@ -467,7 +464,7 @@ public class ServiceBean extends BaseBean implements Serializable {
     /**
      * Initialize the paramtersRows array.
      * 
-     * @param the
+     * @param parameters
      *            parameters for the array.
      */
     private void initParameterRows(List<VOParameter> parameters,
