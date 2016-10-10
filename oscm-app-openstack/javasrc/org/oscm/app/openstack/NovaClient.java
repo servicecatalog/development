@@ -69,6 +69,38 @@ public class NovaClient {
     }
 
     /**
+     * stopServer This method request to OpenStack to stop instance.
+     * 
+     * @param ph
+     *            PropertyHandler: This is used for information when CTMG get
+     *            Heat Exception.
+     * @param serverId
+     *            String: The ID of Instance(VM) which is used for POST start
+     *            API
+     * @return Boolean: If the request is successful, return Boolean.TRUE. If
+     *         the request is failed, return Boolean.FALSE.
+     */
+    public Boolean stopServer(PropertyHandler ph, String serverId) {
+        String uri;
+        try {
+            uri = connection.getNovaEndpoint() + "/servers/"
+                    + URLEncoder.encode(serverId, "UTF-8") + "/action";
+            connection.processRequest(uri, "POST", "{\"os-stop\": null}");
+            logger.debug("Stop server: " + serverId);
+            return Boolean.TRUE;
+        } catch (UnsupportedEncodingException e) {
+            logger.error("Runtime error happened during encoding", e);
+            throw new RuntimeException(e);
+        } catch (OpenStackConnectionException e) {
+            logger.info(
+                    "Could not stop server (Server ID:" + serverId
+                            + ") in stack (Stack ID: " + ph.getStackId() + ")",
+                    e);
+        }
+        return Boolean.FALSE;
+    }
+
+    /**
      * Get server details
      * 
      * @param ph

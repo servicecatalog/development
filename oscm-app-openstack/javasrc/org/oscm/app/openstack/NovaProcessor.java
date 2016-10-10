@@ -83,6 +83,32 @@ public class NovaProcessor {
         return operationStatuses;
     }
 
+    /**
+     * Stop servers which are in Stack. The stack is identified by its name.
+     * 
+     * @param ph
+     * @return The HashMap of server ID and status of execution
+     * @throws HeatException
+     * @throws APPlatformException
+     * @throws NovaException
+     */
+    public HashMap<String, Boolean> stopInstances(PropertyHandler ph)
+            throws HeatException, APPlatformException, NovaException {
+        List<String> serverIds = createHeatClient(ph)
+                .getServerIds(ph.getStackName());
+        HashMap<String, Boolean> operationStatuses = new HashMap<String, Boolean>();
+        if (serverIds.size() == 0) {
+            throw new InstanceNotAliveException(Messages
+                    .getAll("error_stopping_failed_instance_not_found"));
+        }
+
+        for (String id : serverIds) {
+            Boolean result = createNovaClient(ph).stopServer(ph, id);
+            operationStatuses.put(id, result);
+        }
+        return operationStatuses;
+    }
+
     public List<Server> getServersDetails(PropertyHandler ph)
             throws HeatException, APPlatformException, NovaException {
         List<String> serverIds = createHeatClient(ph)
