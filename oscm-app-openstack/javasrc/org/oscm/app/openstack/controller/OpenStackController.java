@@ -469,6 +469,7 @@ public class OpenStackController extends ProvisioningValidator
 
             case "STOP_VIRTUAL_SYSTEM":
                 ph.setState(FlowState.STOP_REQUESTED);
+                ph.setStartTime(String.valueOf(System.currentTimeMillis()));
                 operationAccepted = true;
                 break;
 

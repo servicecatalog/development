@@ -228,6 +228,7 @@ public class Dispatcher {
                                 + "VMs are not stopped. Nothing will be done.");
                     }
                 } else {
+                    properties.setStartTime("suspended");
                     throw new SuspendException(
                             Messages.getAll("error_stopping_failed"));
                 }
