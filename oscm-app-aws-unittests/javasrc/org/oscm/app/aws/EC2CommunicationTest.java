@@ -191,10 +191,11 @@ public class EC2CommunicationTest {
 
         assertEquals(8080, clientConfig.getProxyPort());
         assertEquals("proxy", clientConfig.getProxyHost());
-        assertTrue(clientConfig.getProxyUsername().isEmpty()
-                || clientConfig.getProxyUsername() == null);
-        assertTrue(clientConfig.getProxyPassword().isEmpty()
-                || clientConfig.getProxyPassword() == null);
+
+        assertTrue(clientConfig.getProxyUsername() == null
+                || clientConfig.getProxyUsername().isEmpty());
+        assertTrue(clientConfig.getProxyPassword() == null
+                || clientConfig.getProxyPassword().isEmpty());
         verify(ec2).setEndpoint("ec2.test.amazonaws.com");
 
     }
@@ -238,10 +239,10 @@ public class EC2CommunicationTest {
         assertEquals(8080, clientConfig.getProxyPort());
         assertEquals("proxy", clientConfig.getProxyHost());
 
-        assertTrue(clientConfig.getProxyUsername().isEmpty()
-                || clientConfig.getProxyUsername() == null);
-        assertTrue(clientConfig.getProxyPassword().isEmpty()
-                || clientConfig.getProxyPassword() == null);
+        assertTrue(clientConfig.getProxyUsername() == null
+                || clientConfig.getProxyUsername().isEmpty());
+        assertTrue(clientConfig.getProxyPassword() == null
+                || clientConfig.getProxyPassword().isEmpty());
         verify(ec2).setEndpoint("ec2.test.amazonaws.com");
 
     }
@@ -261,10 +262,10 @@ public class EC2CommunicationTest {
         assertNotNull(clientConfig);
 
         assertEquals(8080, clientConfig.getProxyPort());
-        assertTrue(clientConfig.getProxyUsername().isEmpty()
-                || clientConfig.getProxyUsername() == null);
-        assertTrue(clientConfig.getProxyPassword().isEmpty()
-                || clientConfig.getProxyPassword() == null);
+        assertTrue(clientConfig.getProxyUsername() == null
+                || clientConfig.getProxyUsername().isEmpty());
+        assertTrue(clientConfig.getProxyPassword() == null
+                || clientConfig.getProxyPassword().isEmpty());
         verify(ec2).setEndpoint("ec2.test.amazonaws.com");
 
     }
