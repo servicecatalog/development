@@ -71,6 +71,8 @@ public class ToExtProductStrategy extends AbstractConversionStrategy implements 
             }
             else if (resource.getObjectType().equals(LocalizedObjectTypes.PRODUCT_MARKETING_NAME)) {
                 voService.setName(resource.getValue());
+            } else if (resource.getObjectType().equals(LocalizedObjectTypes.PRODUCT_CUSTOM_TAB_NAME)) {
+                voService.setCustomTabName(resource.getValue());
             }
 
         }

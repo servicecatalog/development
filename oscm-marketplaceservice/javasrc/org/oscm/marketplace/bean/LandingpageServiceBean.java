@@ -580,7 +580,8 @@ public class LandingpageServiceBean implements LandingpageServiceLocal {
                     LocalizedObjectTypes.PRODUCT_MARKETING_NAME,
                     LocalizedObjectTypes.PRODUCT_SHORT_DESCRIPTION,
                     LocalizedObjectTypes.PRODUCT_MARKETING_DESC,
-                    LocalizedObjectTypes.PRODUCT_LICENSE_DESC));
+                    LocalizedObjectTypes.PRODUCT_LICENSE_DESC,
+                    LocalizedObjectTypes.PRODUCT_CUSTOM_TAB_NAME));
             if (fillinCriterion == FillinCriterion.RATING_DESCENDING) {
                 Collections.sort(products, new ProductComparatorRating(facade));
             }

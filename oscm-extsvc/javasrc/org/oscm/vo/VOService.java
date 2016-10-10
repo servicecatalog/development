@@ -132,6 +132,11 @@ public class VOService extends BaseVO implements Serializable {
     private String customTabUrl;
 
     /**
+     * The Name of the custom tab on my subscriptions page
+     */
+    private String customTabName;
+
+    /**
      * Retrieves the text describing the service.
      * 
      * @return the service description
@@ -531,5 +536,13 @@ public class VOService extends BaseVO implements Serializable {
 
     public void setCustomTabUrl(String customTabUrl) {
         this.customTabUrl = customTabUrl;
+    }
+
+    public String getCustomTabName() {
+        return customTabName;
+    }
+
+    public void setCustomTabName(String customTabName) {
+        this.customTabName = customTabName;
     }
 }

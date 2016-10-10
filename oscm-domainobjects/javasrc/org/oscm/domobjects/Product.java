@@ -153,7 +153,7 @@ public class Product extends DomainObjectWithHistory<ProductData> {
                     LocalizedObjectTypes.PRODUCT_MARKETING_DESC,
                     LocalizedObjectTypes.PRODUCT_MARKETING_NAME,
                     LocalizedObjectTypes.PRODUCT_SHORT_DESCRIPTION,
-                    LocalizedObjectTypes.CUSTOM_TAB_NAME));
+                    LocalizedObjectTypes.PRODUCT_CUSTOM_TAB_NAME));
 
     private static final transient Log4jLogger logger = LoggerFactory
             .getLogger(Product.class);

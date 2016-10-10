@@ -516,7 +516,7 @@ public class VOSubscription extends BaseVO implements Serializable {
         this.customTabUrl = customTabUrl;
     }
 
-    public String getCustomTabNsme() {
+    public String getCustomTabName() {
         return customTabName;
     }
 

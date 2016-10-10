@@ -190,7 +190,7 @@ public enum LocalizedObjectTypes {
     /**
      * Name of the custom tab on my subscriptions page
      */
-    CUSTOM_TAB_NAME(InformationSource.DATABASE);
+    PRODUCT_CUSTOM_TAB_NAME(InformationSource.DATABASE);
 
     private InformationSource source;
     private String sourceLocation;

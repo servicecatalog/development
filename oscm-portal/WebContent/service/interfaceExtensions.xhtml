@@ -18,10 +18,9 @@
 
         <adm:labelAndSelect id="tabLanguageSelect" label="#{msg['service.tabNameLanguage']}" value="#{service.customTabNameLanguage}"
                             disabled="#{editDisabled}" styleClass="selectXS">
-            <f:selectItem itemLabel="" itemValue="" />
-            <f:selectItem itemLabel="#{msg['service.tabNameLanguage.EN']}" itemValue="EN" />
-            <f:selectItem itemLabel="#{msg['service.tabNameLanguage.DE']}" itemValue="DE" />
-            <f:selectItem itemLabel="#{msg['service.tabNameLanguage.JP']}" itemValue="JP" />
+            <f:selectItem itemLabel="#{msg['service.tabNameLanguage.EN']}" itemValue="en" />
+            <f:selectItem itemLabel="#{msg['service.tabNameLanguage.DE']}" itemValue="de" />
+            <f:selectItem itemLabel="#{msg['service.tabNameLanguage.JP']}" itemValue="jp" />
         </adm:labelAndSelect>
 
         <adm:labelAndInputText id="customTabUrl" label="#{msg['service.customTabUrl']}"

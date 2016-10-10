@@ -257,6 +257,9 @@ public class SubscriptionAssembler extends BaseAssembler {
             voSubscription.setServiceLoginPath(subscription.getLoginPath());
         }
 
+        if (voSubscription.getCustomTabName() == null) {
+            voSubscription.setCustomTabName(facade.getText(product.getKey(), LocalizedObjectTypes.PRODUCT_CUSTOM_TAB_NAME));
+        }
         if (voSubscription.getCustomTabUrl() == null) {
             voSubscription.setCustomTabUrl(product.getCustomTabUrl());
         }
@@ -274,8 +277,8 @@ public class SubscriptionAssembler extends BaseAssembler {
                                 techProd.getTechnicalProductOperations(),
                                 facade));
         voSubscription.setCustomTabName(
-                facade.getText(subscription.getProduct().getKey(),
-                        LocalizedObjectTypes.CUSTOM_TAB_NAME));
+                facade.getText(subscription.getProduct().getTemplate().getKey(),
+                        LocalizedObjectTypes.PRODUCT_CUSTOM_TAB_NAME));
         String message = subscription.getSuccessMessage();
         voSubscription.setSuccessInfo(message == null ? "" : message);
     }

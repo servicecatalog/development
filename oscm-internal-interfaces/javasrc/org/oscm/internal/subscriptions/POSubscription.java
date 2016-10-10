@@ -424,7 +424,7 @@ public class POSubscription implements Serializable {
     }
 
     public String getCustomTabName() {
-        return voSubscription.getCustomTabNsme();
+        return voSubscription.getCustomTabName();
     }
 
     public void setCustomTabName(String customTabName) {
