@@ -280,7 +280,7 @@ public class OpenStackControllerTest extends EJBTestBase {
         assertFalse(status.isReady());
     }
 
-    @Test(expected = SuspendException.class)
+    @Test
     public void getInstanceStatus_startOperationAlreadyTimeout()
             throws Exception {
         // given
@@ -289,7 +289,7 @@ public class OpenStackControllerTest extends EJBTestBase {
         createBasicParameters("Instance4", "fosi_v2.json");
         parameters.put(PropertyHandler.STATUS, FlowState.STARTING.toString());
         configSettings.put(PropertyHandler.READY_TIMEOUT, "1000000");
-        parameters.put(PropertyHandler.START_TIME, "Timeout");
+        parameters.put(PropertyHandler.START_TIME, "suspended");
         streamHandler.put("/servers/0-Instance-server1",
                 new MockHttpURLConnection(200,
                         MockURLStreamHandler.respServerDetail("server1",
@@ -297,11 +297,38 @@ public class OpenStackControllerTest extends EJBTestBase {
                                 "testTenantID")));
 
         // when
-        getInstanceStatus("123");
+        InstanceStatus status = getInstanceStatus("123");
+
+        // then
+        assertEquals(FlowState.STARTING.toString(),
+                parameters.get(PropertyHandler.STATUS));
+        assertFalse(status.isReady());
+        assertTrue(Long.parseLong(parameters.get("START_TIME")) > 0);
     }
 
     @Test
     public void getInstanceStatus_activating() throws Exception {
+        // given
+        OpenStackConnection.setURLStreamHandler(streamHandler);
+        HeatProcessor.setURLStreamHandler(streamHandler);
+        createBasicParameters("Instance4", "fosi_v2.json");
+        parameters.put(PropertyHandler.STATUS, FlowState.ACTIVATING.toString());
+        configSettings.put(PropertyHandler.READY_TIMEOUT, "1000000");
+        parameters.put(PropertyHandler.START_TIME,
+                String.valueOf(System.currentTimeMillis()));
+
+        // when
+        Thread.sleep(200);
+        InstanceStatus status = getInstanceStatus("123");
+
+        // then
+        assertEquals(FlowState.ACTIVATING.toString(),
+                parameters.get(PropertyHandler.STATUS));
+        assertFalse(status.isReady());
+    }
+
+    @Test
+    public void getInstanceStatus_activatingWithStartTime() throws Exception {
         // given
         OpenStackConnection.setURLStreamHandler(streamHandler);
         HeatProcessor.setURLStreamHandler(streamHandler);

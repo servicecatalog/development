@@ -8,9 +8,12 @@
 
 package org.oscm.app.openstack.controller;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.oscm.app.openstack.data.FlowState;
 import org.oscm.app.openstack.i18n.Messages;
 import org.oscm.app.v1_0.exceptions.APPlatformException;
 import org.oscm.app.v1_0.exceptions.AuthenticationException;
@@ -24,7 +27,9 @@ public abstract class ProvisioningValidator {
 
     private static final Logger logger = LoggerFactory
             .getLogger(ProvisioningValidator.class);
-    private static final String TIMEOUT = "Timeout";
+    private static final String SUSPENDED = "suspended";
+    private static final List<FlowState> TIMEOUT_OPERATION = Arrays
+            .asList(FlowState.START_REQUESTED, FlowState.STARTING);
 
     public void validateStackName(PropertyHandler paramHandler)
             throws APPlatformException {
@@ -64,10 +69,11 @@ public abstract class ProvisioningValidator {
             ConfigurationException, APPlatformException {
         long readyTimeout = ph.getReadyTimeout();
         String startTimeStr = ph.getStartTime();
-        if (readyTimeout != 0 && startTimeStr != null) {
-            if (startTimeStr.equals(TIMEOUT)) {
-                throw new SuspendException(
-                        "Start time of operation is already timeout.");
+        if (readyTimeout != 0 && startTimeStr != null
+                && TIMEOUT_OPERATION.contains(ph.getState())) {
+            if (startTimeStr.equals(SUSPENDED)) {
+                logger.debug("Resume request, reset start time");
+                ph.setStartTime(String.valueOf(System.currentTimeMillis()));
             }
             try {
 
@@ -80,7 +86,7 @@ public abstract class ProvisioningValidator {
 
                 if (timePast > readyTimeout) {
                     logger.debug("Request timeout: over " + timePast + "ms");
-                    ph.setStartTime(TIMEOUT);
+                    ph.setStartTime(SUSPENDED);
                     APPService.storeServiceInstanceDetails(
                             OpenStackController.ID, instanceId,
                             ph.getSettings(), ph.getTPAuthentication());
