@@ -159,18 +159,18 @@
   </target>
 
   <target name="copyLibraries" if="lib.exists">
-    <echo message="tutaj"/>
+
+    <antcall target="copyFiles" inheritall="true">
+      <param name="src.file" value="${domains.dir}/${domain.dir}/installer/lib.properties" />
+    </antcall>
+    <echo message="tutaj lib"/>
     <echo>
       ${domains.dir}/${domain.dir}/installer/lib.properties
     </echo>
-    <antcall target="copyFiles" inheritall="true">
-      <param name="src.file" value="${domains.dir}/${domain.dir}/installer/lib.properties" />
-
-    </antcall>
   </target>
 
   <target name="copyFiles">
-    <echo message="tutaj"/>
+    <echo message="tutaj bez 'to' "/>
     <echo>
       ${src.file}
     </echo>
