@@ -174,6 +174,7 @@ public class Dispatcher {
                     }
 
                 } else {
+                    properties.setStartTime("suspended");
                     throw new SuspendException(
                             Messages.getAll("error_starting_failed"));
                 }
