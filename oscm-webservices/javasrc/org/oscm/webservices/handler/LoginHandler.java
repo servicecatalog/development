@@ -41,6 +41,7 @@ import com.sun.xml.wss.saml.util.SAMLUtil;
 public class LoginHandler implements SOAPHandler<SOAPMessageContext> {
     
     private static final String TENANT_ID_HEADER_PARAM = "tenantId";
+    private static final String ORGANIZATION_ID_HEADER_PARAM = "organizationId";
     
     @Override
     public boolean handleMessage(SOAPMessageContext context) {
@@ -120,11 +121,12 @@ public class LoginHandler implements SOAPHandler<SOAPMessageContext> {
         
         String userId = getUserIdFromContext(context);
         String tenantId = getTenantIdFromContext(context);
+        String orgId = getOrganizationIdFromContext(context);
         
-        return getUserKey(userId, tenantId);
+        return getUserKey(userId, orgId, tenantId);
     }
     
-    private String getUserKey(String userId, String tenantId)
+    private String getUserKey(String userId, String orgId, String tenantId)
             throws NamingException, SQLException {
 
         Context context = new InitialContext();
@@ -132,18 +134,23 @@ public class LoginHandler implements SOAPHandler<SOAPMessageContext> {
 
         AbstractKeyQuery keyQuery;
 
-        if (StringUtils.isEmpty(tenantId)) {
-            keyQuery = new UserKeyQuery(ds, userId);
-        } else {
+        if (StringUtils.isNotEmpty(tenantId)) {
             keyQuery = new UserKeyForTenantQuery(ds, userId, tenantId);
+            
+        } else if(StringUtils.isNotEmpty(orgId)){
+            keyQuery = new UserKeyForOrganizationQuery(ds, userId, orgId);
+        }
+        else {
+            keyQuery = new UserKeyQuery(ds, userId);
         }
 
         keyQuery.execute();
         long userKey = keyQuery.getKey();
         
         if (userKey == 0) {
-            throw new SQLException("User not found [user id: " + userId
-                    + ", tenant id: " + tenantId + " ]");
+            throw new SQLException(
+                    "User not found [user id: " + userId + ", tenant id: "
+                            + tenantId + ", orgaznization id: " + orgId + " ]");
         }
         
         return String.valueOf(userKey);
@@ -175,6 +182,23 @@ public class LoginHandler implements SOAPHandler<SOAPMessageContext> {
         }
         
         return tenantId;
+    }
+    
+    private String getOrganizationIdFromContext(SOAPMessageContext context){
+        
+        String orgId = null;
+        
+        @SuppressWarnings("unchecked")
+        Map<String, List<String>> headers = (Map<String, List<String>>) context
+                .get(MessageContext.HTTP_REQUEST_HEADERS);
+        
+        List<String> orgIdParams = headers.get(ORGANIZATION_ID_HEADER_PARAM);
+        
+        if(orgIdParams!=null){
+            orgId = orgIdParams.get(0);
+        }
+        
+        return orgId;
     }
 
     @Override
