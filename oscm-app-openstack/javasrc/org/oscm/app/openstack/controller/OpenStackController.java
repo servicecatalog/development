@@ -468,7 +468,7 @@ public class OpenStackController extends ProvisioningValidator
                 break;
 
             case "STOP_VIRTUAL_SYSTEM":
-                ph.setState(FlowState.DEACTIVATION_REQUESTED);
+                ph.setState(FlowState.STOP_REQUESTED);
                 operationAccepted = true;
                 break;
 
@@ -478,6 +478,12 @@ public class OpenStackController extends ProvisioningValidator
                 ph.setState(FlowState.ACTIVATION_REQUESTED);
                 operationAccepted = true;
                 break;
+
+            case "SUSPEND_VIRTUAL_SYSTEM":
+                ph.setState(FlowState.DEACTIVATION_REQUESTED);
+                operationAccepted = true;
+                break;
+
             }
             if (operationAccepted) {
                 // when a valid operation has been requested, let the timer

@@ -207,6 +207,50 @@ public class DispatcherTest {
     }
 
     @Test
+    public void stopRequested() throws Exception {
+        // given
+        paramHandler.setState(FlowState.STOP_REQUESTED);
+
+        // when
+        InstanceStatus result = dispatcher.dispatch();
+
+        // then
+        String status = parameters.get(PropertyHandler.STATUS);
+        assertEquals(FlowState.STOPPING.toString(), status);
+        assertFalse(result.isReady());
+    }
+
+    @Test
+    public void stopRequested_allServersFaild() throws Exception {
+        // given
+        paramHandler.setState(FlowState.STOP_REQUESTED);
+        final List<String> serverNames = Arrays.asList("server1",
+                "otherserver2");
+        MockHttpURLConnection connection = new MockHttpURLConnection(404,
+                MockURLStreamHandler.respServerActions());
+        connection.setIOException(new IOException());
+
+        streamHandler
+                .put("/stacks/" + paramHandler.getStackName() + "/resources",
+                        new MockHttpURLConnection(200,
+                                MockURLStreamHandler.respStacksResources(
+                                        serverNames,
+                                        InstanceType.EC2.getString())));
+        streamHandler.put("/servers/0-Instance-server1/action", connection);
+        streamHandler.put("/servers/1-Instance-otherserver2/action",
+                connection);
+
+        // when
+        InstanceStatus result = dispatcher.dispatch();
+
+        // then
+        String status = parameters.get(PropertyHandler.STATUS);
+        assertEquals(FlowState.FINISHED.toString(), status);
+        assertEquals(ACCESS_INFO, result.getAccessInfo());
+        assertTrue(result.isReady());
+    }
+
+    @Test
     public void deactivationRequested() throws Exception {
         // given
         paramHandler.setState(FlowState.DEACTIVATION_REQUESTED);
@@ -649,6 +693,58 @@ public class DispatcherTest {
         String status = parameters.get(PropertyHandler.STATUS);
         assertEquals(FlowState.FINISHED.toString(), status);
         assertEquals(ACCESS_INFO_NOT_AVAILABLE, result.getAccessInfo());
+        assertTrue(result.isReady());
+    }
+
+    @Test(expected = SuspendException.class)
+    public void stopping_FAILED() throws Exception {
+        // given
+        paramHandler.setState(FlowState.STOPPING);
+        streamHandler.put("/servers/0-Instance-server1",
+                new MockHttpURLConnection(200,
+                        MockURLStreamHandler.respServerDetail("server1",
+                                "0-Instance-server1", ServerStatus.ERROR,
+                                "testTenantID")));
+
+        // when
+        dispatcher.dispatch();
+    }
+
+    @Test
+    public void stopping_stillActive() throws Exception {
+        // given
+        paramHandler.setState(FlowState.STOPPING);
+        streamHandler.put("/servers/0-Instance-server1",
+                new MockHttpURLConnection(200,
+                        MockURLStreamHandler.respServerDetail("server1",
+                                "0-Instance-server1", ServerStatus.ACTIVE,
+                                "testTenantID")));
+
+        // when
+        dispatcher.dispatch();
+
+        // then
+        assertFalse(FlowState.FINISHED.toString()
+                .equals(parameters.get(PropertyHandler.STATUS)));
+    }
+
+    @Test
+    public void stopping() throws Exception {
+        // given
+        paramHandler.setState(FlowState.STOPPING);
+        streamHandler.put("/servers/0-Instance-server1",
+                new MockHttpURLConnection(200,
+                        MockURLStreamHandler.respServerDetail("server1",
+                                "0-Instance-server1", ServerStatus.STOPPED,
+                                "testTenantID")));
+
+        // when
+        InstanceStatus result = dispatcher.dispatch();
+
+        // then
+        String status = parameters.get(PropertyHandler.STATUS);
+        assertEquals(FlowState.FINISHED.toString(), status);
+        assertEquals(ACCESS_INFO, result.getAccessInfo());
         assertTrue(result.isReady());
     }
 

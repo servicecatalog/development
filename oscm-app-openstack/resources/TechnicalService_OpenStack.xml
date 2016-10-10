@@ -76,5 +76,13 @@
       <LocalizedDescription locale="en">Resume the instance</LocalizedDescription>
       <LocalizedDescription locale="ja">システムをレジュームします</LocalizedDescription>
     </Operation>
+    <Operation actionURL="https://estitnb5.intern.est.fujitsu.com:8881/OperationService/AsynchronousOperationProxy?wsdl" id="SUSPEND_VIRTUAL_SYSTEM">
+      <LocalizedName locale="de">Suspend</LocalizedName>
+      <LocalizedName locale="en">Suspend</LocalizedName>
+      <LocalizedName locale="ja">サスペンド</LocalizedName>
+      <LocalizedDescription locale="de">Suspend the instance</LocalizedDescription>
+      <LocalizedDescription locale="en">Suspend the instance</LocalizedDescription>
+      <LocalizedDescription locale="ja">システムをサスペンドします</LocalizedDescription>
+    </Operation>
   </tns:TechnicalService>
 </tns:TechnicalServices>

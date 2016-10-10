@@ -111,6 +111,10 @@ public class Dispatcher {
         String status;
         String statusReason;
         List<Server> servers;
+        HashMap<String, Boolean> operationStatuses;
+        List<Server> activeServers;
+        List<Server> stoppedServers;
+        List<Server> errorServers;
         String mail = properties.getMailForCompletion();
         try {
             // Dispatch next step depending on current internal status
@@ -131,7 +135,7 @@ public class Dispatcher {
                 break;
 
             case START_REQUESTED:
-                HashMap<String, Boolean> operationStatuses = new NovaProcessor()
+                operationStatuses = new NovaProcessor()
                         .startInstances(properties);
                 newState = operationStatuses.containsValue(Boolean.TRUE)
                         ? FlowState.STARTING : FlowState.FINISHED;
@@ -143,8 +147,8 @@ public class Dispatcher {
 
             case STARTING:
                 servers = new NovaProcessor().getServersDetails(properties);
-                List<Server> activeServers = new ArrayList<Server>();
-                List<Server> errorServers = new ArrayList<Server>();
+                activeServers = new ArrayList<Server>();
+                errorServers = new ArrayList<Server>();
                 for (Server server : servers) {
                     if (server.getStatus()
                             .equals(ServerStatus.ACTIVE.toString())) {
@@ -177,6 +181,55 @@ public class Dispatcher {
                     properties.setStartTime("suspended");
                     throw new SuspendException(
                             Messages.getAll("error_starting_failed"));
+                }
+                break;
+
+            case STOP_REQUESTED:
+                operationStatuses = new NovaProcessor()
+                        .stopInstances(properties);
+                newState = operationStatuses.containsValue(Boolean.TRUE)
+                        ? FlowState.STOPPING : FlowState.FINISHED;
+
+                if (newState.equals(FlowState.FINISHED)) {
+                    stack = new HeatProcessor().getStackDetails(properties);
+                    result.setAccessInfo(getAccessInfo(stack));
+                }
+                break;
+
+            case STOPPING:
+                servers = new NovaProcessor().getServersDetails(properties);
+                stoppedServers = new ArrayList<Server>();
+                errorServers = new ArrayList<Server>();
+                for (Server server : servers) {
+                    if (server.getStatus()
+                            .equals(ServerStatus.STOPPED.toString())) {
+                        stoppedServers.add(server);
+                    }
+                    if (server.getStatus()
+                            .equals(ServerStatus.ERROR.toString())) {
+                        errorServers.add(server);
+                    }
+                }
+
+                logger.debug(Integer.toString(stoppedServers.size()) + " of "
+                        + Integer.toString(servers.size()) + " VMs stopped");
+                logger.debug(Integer.toString(errorServers.size())
+                        + " VMs are ERROR status");
+                if (errorServers.size() == 0) {
+                    if (stoppedServers.size() == servers.size()) {
+                        stack = new HeatProcessor().getStackDetails(properties);
+                        result.setAccessInfo(getAccessInfo(stack));
+                        newState = FlowState.FINISHED;
+                    } else {
+                        logger.info(FlowState.STOPPING
+                                + " Servers is not yet ready"
+                                + Integer.toString(
+                                        servers.size() - stoppedServers.size())
+                                + "VMs are not stopped. Nothing will be done.");
+                    }
+                } else {
+                    throw new SuspendException(
+                            Messages.getAll("error_stopping_failed"));
                 }
                 break;
 
