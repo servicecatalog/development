@@ -191,8 +191,10 @@ public class EC2CommunicationTest {
 
         assertEquals(8080, clientConfig.getProxyPort());
         assertEquals("proxy", clientConfig.getProxyHost());
-        assertNull(clientConfig.getProxyUsername());
-        assertNull(clientConfig.getProxyPassword());
+        assertTrue(clientConfig.getProxyUsername().isEmpty()
+                || clientConfig.getProxyUsername() == null);
+        assertTrue(clientConfig.getProxyPassword().isEmpty()
+                || clientConfig.getProxyPassword() == null);
         verify(ec2).setEndpoint("ec2.test.amazonaws.com");
 
     }
@@ -236,8 +238,10 @@ public class EC2CommunicationTest {
         assertEquals(8080, clientConfig.getProxyPort());
         assertEquals("proxy", clientConfig.getProxyHost());
 
-        assertNull(clientConfig.getProxyUsername());
-        assertNull(clientConfig.getProxyPassword());
+        assertTrue(clientConfig.getProxyUsername().isEmpty()
+                || clientConfig.getProxyUsername() == null);
+        assertTrue(clientConfig.getProxyPassword().isEmpty()
+                || clientConfig.getProxyPassword() == null);
         verify(ec2).setEndpoint("ec2.test.amazonaws.com");
 
     }
@@ -256,10 +260,11 @@ public class EC2CommunicationTest {
         assertNotNull(credProvider);
         assertNotNull(clientConfig);
 
-        assertEquals(-1, clientConfig.getProxyPort());
-        assertNull(clientConfig.getProxyHost());
-        assertNull(clientConfig.getProxyUsername());
-        assertNull(clientConfig.getProxyPassword());
+        assertEquals(8080, clientConfig.getProxyPort());
+        assertTrue(clientConfig.getProxyUsername().isEmpty()
+                || clientConfig.getProxyUsername() == null);
+        assertTrue(clientConfig.getProxyPassword().isEmpty()
+                || clientConfig.getProxyPassword() == null);
         verify(ec2).setEndpoint("ec2.test.amazonaws.com");
 
     }
