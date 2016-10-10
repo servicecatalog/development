@@ -170,11 +170,11 @@
   </target>
 
   <target name="copyFiles">
+    <echo message="tutaj"/>
+    <echo>
+      ${src.file}
+    </echo>
     <loadfile property="infofile" srcfile="${src.file}">
-      <echo message="tutaj"/>
-      <echo>
-        ${src.file}
-      </echo>
       <filterchain>
         <striplinecomments>
           <comment value="#" />
