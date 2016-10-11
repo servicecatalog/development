@@ -80,6 +80,7 @@ import org.oscm.domobjects.TriggerDefinition;
 import org.oscm.domobjects.TriggerProcess;
 import org.oscm.domobjects.TriggerProcessParameter;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
+import org.oscm.encrypter.ParameterEncrypter;
 import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.i18nservice.local.ImageResourceServiceLocal;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
@@ -1806,6 +1807,15 @@ public class ServiceProvisioningServiceBean
                             LogMessageIdentifier.WARN_MARKETING_PRODUCT_CREATION_FAILED_NOT_ACCESSIBLE_PRODUCT,
                             Long.toString(currentUser.getKey()));
                     throw onp;
+                }
+                if (paramDef.getValueType() == ParameterValueType.PWD) {
+                    String parameterValue = parameter.getValue();
+                    try {
+                        String encryptedParamValue = ParameterEncrypter.encrypt(parameterValue);
+                        parameter.setValue(encryptedParamValue);
+                    } catch (GeneralSecurityException e) {
+                        e.printStackTrace();
+                    }
                 }
                 // only store the parameter if its value is not null, remove
                 // those that have null values and remove all stored parameters
