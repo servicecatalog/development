@@ -114,6 +114,7 @@ public class Dispatcher {
         HashMap<String, Boolean> operationStatuses;
         List<Server> successServers = new ArrayList<Server>();
         List<Server> errorServers;
+        List<LocalizedText> messages = null;
         String mail = properties.getMailForCompletion();
         try {
             // Dispatch next step depending on current internal status
@@ -138,6 +139,7 @@ public class Dispatcher {
                         .startInstances(properties);
                 if (operationStatuses.containsValue(Boolean.TRUE)) {
                     newState = FlowState.STARTING;
+                    messages = Messages.getAll("status_" + currentState);
                 } else {
                     properties.setStartTime("Timeout");
                     stack = new HeatProcessor().getStackDetails(properties);
@@ -176,6 +178,11 @@ public class Dispatcher {
                                 + Integer.toString(
                                         servers.size() - successServers.size())
                                 + " VMs are not started. Nothing will be done.");
+
+                        messages = Messages.getAll(
+                                "status_" + properties.getState(),
+                                Integer.toString(successServers.size()),
+                                Integer.toString(servers.size()));
                     }
                 } else {
                     properties.setStartTime("Timeout");
@@ -189,6 +196,7 @@ public class Dispatcher {
                         .stopInstances(properties);
                 if (operationStatuses.containsValue(Boolean.TRUE)) {
                     newState = FlowState.STOPPING;
+                    messages = Messages.getAll("status_" + currentState);
                 } else {
                     stack = new HeatProcessor().getStackDetails(properties);
                     result.setAccessInfo(getAccessInfo(stack));
@@ -224,6 +232,11 @@ public class Dispatcher {
                             + Integer.toString(
                                     servers.size() - successServers.size())
                             + "VMs are not stopped. Nothing will be done.");
+
+                    messages = Messages.getAll(
+                            "status_" + properties.getState(),
+                            Integer.toString(successServers.size()),
+                            Integer.toString(servers.size()));
                 }
                 break;
 
@@ -447,13 +460,7 @@ public class Dispatcher {
         // Update the description of the instance status.
         // This description is displayed to users for a pending
         // subscription.
-        List<LocalizedText> messages;
-        if (properties.getState() == FlowState.STARTING
-                || properties.getState() == FlowState.STOPPING) {
-            messages = Messages.getAll("status_" + properties.getState(),
-                    Integer.toString(successServers.size()),
-                    Integer.toString(servers.size()));
-        } else {
+        if (messages == null) {
             messages = Messages.getAll("status_" + properties.getState());
         }
         result.setDescription(messages);
