@@ -20,7 +20,6 @@ import javax.xml.ws.WebServiceException;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.oscm.intf.IdentityService;
 import org.oscm.samlsp.ws.base.WebserviceSAMLSPTestSetup;
@@ -95,7 +94,7 @@ public class MockSTSWSTest {
         }
     }
 
-    @Ignore
+    @Test
     public void testSecuredWS_Modify_DigestValue() throws Exception {
         idS = ServiceFactory.getSTSServiceFactory().getIdentityService(
                 "MockSTSTest_DigestValue", "admin123");
@@ -107,7 +106,7 @@ public class MockSTSWSTest {
         }
     }
 
-    @Ignore
+    @Test
     public void testSecuredWS_Modify_SignatureValue() throws Exception {
         idS = ServiceFactory.getSTSServiceFactory().getIdentityService(
                 "MockSTSTest_SignatureValue", "admin123");
@@ -119,7 +118,7 @@ public class MockSTSWSTest {
         }
     }
 
-    @Ignore
+    @Test
     public void testSecuredWS_Modify_X509Certificate() throws Exception {
         idS = ServiceFactory.getSTSServiceFactory().getIdentityService(
                 "MockSTSTest_X509Certificate", "admin123");
@@ -131,7 +130,7 @@ public class MockSTSWSTest {
         }
     }
 
-    @Ignore
+    @Test
     public void testSecuredWS_Modify_NameID() throws Exception {
         idS = ServiceFactory.getSTSServiceFactory().getIdentityService(
                 "MockSTSTest_NameID", "admin123");
@@ -143,7 +142,7 @@ public class MockSTSWSTest {
         }
     }
 
-    @Ignore
+    @Test
     public void testSecuredWS_Modify_KeyIdentifier() throws Exception {
         idS = ServiceFactory.getSTSServiceFactory().getIdentityService(
                 "MockSTSTest_KeyIdentifier", "admin123");
@@ -155,7 +154,7 @@ public class MockSTSWSTest {
         }
     }
 
-    @Ignore
+    @Test
     public void testSecuredWS_Modify_CipherValue() throws Exception {
         idS = ServiceFactory.getSTSServiceFactory().getIdentityService(
                 "MockSTSTest_CipherValue", "admin123");
