@@ -158,6 +158,7 @@ public class ConfigurationSettingAssembler extends BaseAssembler {
             Long length = voConfigurationSetting.getInformationId()
                     .getLength();
             BLValidator.isLongEnough(name, value, length);
+            BLValidator.isDescription(name, value, false);
         } else {
             BLValidator.isDescription(name, value, false);
         }
