@@ -110,10 +110,9 @@ public class Dispatcher {
         Stack stack;
         String status;
         String statusReason;
-        List<Server> servers;
+        List<Server> servers = new ArrayList<Server>();
         HashMap<String, Boolean> operationStatuses;
-        List<Server> activeServers;
-        List<Server> stoppedServers;
+        List<Server> successServers = new ArrayList<Server>();
         List<Server> errorServers;
         String mail = properties.getMailForCompletion();
         try {
@@ -147,12 +146,11 @@ public class Dispatcher {
 
             case STARTING:
                 servers = new NovaProcessor().getServersDetails(properties);
-                activeServers = new ArrayList<Server>();
                 errorServers = new ArrayList<Server>();
                 for (Server server : servers) {
                     if (server.getStatus()
                             .equals(ServerStatus.ACTIVE.toString())) {
-                        activeServers.add(server);
+                        successServers.add(server);
                     }
                     if (server.getStatus()
                             .equals(ServerStatus.ERROR.toString())) {
@@ -160,12 +158,12 @@ public class Dispatcher {
                     }
                 }
 
-                logger.debug(Integer.toString(activeServers.size()) + " of "
+                logger.debug(Integer.toString(successServers.size()) + " of "
                         + Integer.toString(servers.size()) + " VMs started");
                 logger.debug(Integer.toString(errorServers.size())
                         + " VMs are ERROR status");
                 if (errorServers.size() == 0) {
-                    if (activeServers.size() == servers.size()) {
+                    if (successServers.size() == servers.size()) {
                         stack = new HeatProcessor().getStackDetails(properties);
                         result.setAccessInfo(getAccessInfo(stack));
                         newState = FlowState.FINISHED;
@@ -173,7 +171,7 @@ public class Dispatcher {
                         logger.info(FlowState.STARTING
                                 + " servers are not yet ready. "
                                 + Integer.toString(
-                                        servers.size() - activeServers.size())
+                                        servers.size() - successServers.size())
                                 + " VMs are not started. Nothing will be done.");
                     }
 
@@ -198,12 +196,11 @@ public class Dispatcher {
 
             case STOPPING:
                 servers = new NovaProcessor().getServersDetails(properties);
-                stoppedServers = new ArrayList<Server>();
                 errorServers = new ArrayList<Server>();
                 for (Server server : servers) {
                     if (server.getStatus()
                             .equals(ServerStatus.SHUTOFF.toString())) {
-                        stoppedServers.add(server);
+                        successServers.add(server);
                     }
                     if (server.getStatus()
                             .equals(ServerStatus.ERROR.toString())) {
@@ -211,18 +208,18 @@ public class Dispatcher {
                     }
                 }
 
-                logger.debug(Integer.toString(stoppedServers.size()) + " of "
+                logger.debug(Integer.toString(successServers.size()) + " of "
                         + Integer.toString(servers.size()) + " VMs stopped");
                 logger.debug(Integer.toString(errorServers.size())
                         + " VMs are ERROR status");
-                if (stoppedServers.size() == servers.size()) {
+                if (successServers.size() == servers.size()) {
                     stack = new HeatProcessor().getStackDetails(properties);
                     result.setAccessInfo(getAccessInfo(stack));
                     newState = FlowState.FINISHED;
                 } else {
                     logger.info(FlowState.STOPPING + " Servers is not yet ready"
                             + Integer.toString(
-                                    servers.size() - stoppedServers.size())
+                                    servers.size() - successServers.size())
                             + "VMs are not stopped. Nothing will be done.");
                 }
                 break;
@@ -447,8 +444,15 @@ public class Dispatcher {
         // Update the description of the instance status.
         // This description is displayed to users for a pending
         // subscription.
-        List<LocalizedText> messages = Messages
-                .getAll("status_" + properties.getState());
+        List<LocalizedText> messages;
+        if (properties.getState() == FlowState.STARTING
+                || properties.getState() == FlowState.STOPPING) {
+            messages = Messages.getAll("status_" + properties.getState(),
+                    Integer.toString(successServers.size()),
+                    Integer.toString(servers.size()));
+        } else {
+            messages = Messages.getAll("status_" + properties.getState());
+        }
         result.setDescription(messages);
 
         // Return the current parameters and settings to APP.
