@@ -696,8 +696,10 @@ public class DispatcherTest {
         assertTrue(result.isReady());
     }
 
-    @Test(expected = SuspendException.class)
-    public void stopping_FAILED() throws Exception {
+    @Test
+    public void stopping_stillError() throws Exception {
+        // stop function can be executed even if server status is ERROR
+
         // given
         paramHandler.setState(FlowState.STOPPING);
         streamHandler.put("/servers/0-Instance-server1",
@@ -708,6 +710,10 @@ public class DispatcherTest {
 
         // when
         dispatcher.dispatch();
+
+        // then
+        assertFalse(FlowState.FINISHED.toString()
+                .equals(parameters.get(PropertyHandler.STATUS)));
     }
 
     @Test
@@ -735,7 +741,7 @@ public class DispatcherTest {
         streamHandler.put("/servers/0-Instance-server1",
                 new MockHttpURLConnection(200,
                         MockURLStreamHandler.respServerDetail("server1",
-                                "0-Instance-server1", ServerStatus.STOPPED,
+                                "0-Instance-server1", ServerStatus.SHUTOFF,
                                 "testTenantID")));
 
         // when
