@@ -202,7 +202,7 @@ public class Dispatcher {
                 errorServers = new ArrayList<Server>();
                 for (Server server : servers) {
                     if (server.getStatus()
-                            .equals(ServerStatus.STOPPED.toString())) {
+                            .equals(ServerStatus.SHUTOFF.toString())) {
                         stoppedServers.add(server);
                     }
                     if (server.getStatus()
@@ -215,22 +215,15 @@ public class Dispatcher {
                         + Integer.toString(servers.size()) + " VMs stopped");
                 logger.debug(Integer.toString(errorServers.size())
                         + " VMs are ERROR status");
-                if (errorServers.size() == 0) {
-                    if (stoppedServers.size() == servers.size()) {
-                        stack = new HeatProcessor().getStackDetails(properties);
-                        result.setAccessInfo(getAccessInfo(stack));
-                        newState = FlowState.FINISHED;
-                    } else {
-                        logger.info(FlowState.STOPPING
-                                + " Servers is not yet ready"
-                                + Integer.toString(
-                                        servers.size() - stoppedServers.size())
-                                + "VMs are not stopped. Nothing will be done.");
-                    }
+                if (stoppedServers.size() == servers.size()) {
+                    stack = new HeatProcessor().getStackDetails(properties);
+                    result.setAccessInfo(getAccessInfo(stack));
+                    newState = FlowState.FINISHED;
                 } else {
-                    properties.setStartTime("suspended");
-                    throw new SuspendException(
-                            Messages.getAll("error_stopping_failed"));
+                    logger.info(FlowState.STOPPING + " Servers is not yet ready"
+                            + Integer.toString(
+                                    servers.size() - stoppedServers.size())
+                            + "VMs are not stopped. Nothing will be done.");
                 }
                 break;
 
