@@ -27,7 +27,7 @@
 	<classpathentry exported="true" kind="lib" path="javalib/axis2-transport-local-1.5.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="javalib/axis2-xmlbeans-1.5.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="javalib/geronimo-stax-api_1.0_spec-1.0.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="javalib/httpcore-4.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="javalib/httpcore-4.4.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="javalib/neethi-2.0.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="javalib/woden-api-1.0M8.jar"/>
 	<classpathentry exported="true" kind="lib" path="javalib/woden-impl-dom-1.0M8.jar"/>
