@@ -222,4 +222,97 @@ public class PropertyHandlerTest {
         assertEquals(mailAddress, mail);
     }
 
+    @Test
+    public void getReadyTimeout() {
+        // given
+        configSettings.put(PropertyHandler.READY_TIMEOUT, "300000");
+        propertyHandler = new PropertyHandler(settings);
+
+        // when
+        long time = propertyHandler.getReadyTimeout();
+
+        // then
+        assertEquals(300000, time);
+    }
+
+    @Test
+    public void getReadyTimeout_null() {
+        // given
+        propertyHandler = new PropertyHandler(settings);
+
+        // when
+        long time = propertyHandler.getReadyTimeout();
+
+        // then
+        assertEquals(0, time);
+    }
+
+    @Test
+    public void getReadyTimeout_empty() {
+        // given
+        configSettings.put(PropertyHandler.READY_TIMEOUT, "");
+        propertyHandler = new PropertyHandler(settings);
+
+        // when
+        long time = propertyHandler.getReadyTimeout();
+
+        // then
+        assertEquals(0, time);
+    }
+
+    @Test
+    public void getReadyTimeout_wringValue() {
+        // given
+        configSettings.put(PropertyHandler.READY_TIMEOUT, "foo");
+        propertyHandler = new PropertyHandler(settings);
+
+        // when
+        long time = propertyHandler.getReadyTimeout();
+
+        // then
+        assertEquals(0, time);
+    }
+
+    @Test
+    public void getStartTime() {
+        // given
+        long time = System.currentTimeMillis();
+        parameters.put(PropertyHandler.START_TIME, String.valueOf(time));
+        propertyHandler = new PropertyHandler(settings);
+
+        // when
+        String timeStr = propertyHandler.getStartTime();
+
+        // then
+        assertEquals(timeStr, String.valueOf(time));
+
+    }
+
+    @Test
+    public void getStartTime_useSetter() {
+        // given
+        long time = System.currentTimeMillis();
+        propertyHandler = new PropertyHandler(settings);
+        propertyHandler.setStartTime(String.valueOf(time));
+
+        // when
+        String timeStr = propertyHandler.getStartTime();
+
+        // then
+        assertEquals(timeStr, String.valueOf(time));
+
+    }
+
+    @Test
+    public void getStartTime_null() {
+        // given
+        propertyHandler = new PropertyHandler(settings);
+
+        // when
+        String timeStr = propertyHandler.getStartTime();
+
+        // then
+        assertEquals(timeStr, null);
+
+    }
 }

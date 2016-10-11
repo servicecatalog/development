@@ -12,12 +12,17 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.oscm.app.openstack.controller.OpenStackStatus;
 import org.oscm.app.openstack.controller.PropertyHandler;
+import org.oscm.app.openstack.controller.StackStatus;
 import org.oscm.app.openstack.data.Stack;
 import org.oscm.app.openstack.exceptions.HeatException;
 import org.oscm.app.v1_0.data.ProvisioningSettings;
@@ -115,6 +120,21 @@ public class HeatProcessorTest {
         assertTrue(paramHandler.getStackName().startsWith(instanceName));
     }
 
+    @Test(expected = HeatException.class)
+    public void createStack_connectionFailed() throws Exception {
+        // given
+        final String instanceName = "Instance4";
+        createBasicParameters(instanceName, "fosi_v2.json", "http");
+        MockHttpURLConnection connection = new MockHttpURLConnection(404,
+                MockURLStreamHandler.respServerActions());
+        connection.setIOException(new IOException());
+        streamHandler.put("/stacks", connection);
+        streamHandler.put("/stacks/Instance4-1905561714", connection);
+
+        // when
+        new HeatProcessor().createStack(paramHandler);
+    }
+
     @Test
     public void getStackDetails() throws Exception {
         // given
@@ -188,12 +208,10 @@ public class HeatProcessorTest {
         // given
         final String instanceName = "Instance4";
         createBasicParameters(instanceName, "fosi_v2.json", "http");
-        streamHandler
-                .put("/stacks/" + instanceName,
-                        new MockHttpURLConnection(200,
-                                MockURLStreamHandler.respStacksInstanceName(
-                                        OpenStackStatus.SUSPEND_COMPLETE,
-                                        false)));
+        streamHandler.put("/stacks/" + instanceName,
+                new MockHttpURLConnection(200,
+                        MockURLStreamHandler.respStacksInstanceName(
+                                StackStatus.SUSPEND_COMPLETE, false)));
 
         // when
         boolean result = new HeatProcessor().resumeStack(paramHandler);
@@ -209,17 +227,16 @@ public class HeatProcessorTest {
         // given
         final String instanceName = "Instance4";
         createBasicParameters(instanceName, "fosi_v2.json", "http");
-        streamHandler
-                .put("/stacks/" + instanceName,
-                        new MockHttpURLConnection(200,
-                                MockURLStreamHandler.respStacksInstanceName(
-                                        OpenStackStatus.SUSPEND_COMPLETE,
-                                        false)));
+        final List<String> serverNames = Arrays.asList("server1");
+        streamHandler.put("/stacks/" + instanceName,
+                new MockHttpURLConnection(200,
+                        MockURLStreamHandler.respStacksInstanceName(
+                                StackStatus.SUSPEND_COMPLETE, false)));
         streamHandler
                 .put("/stacks/" + instanceName + "/resources",
                         new MockHttpURLConnection(200,
-                                MockURLStreamHandler.respStacksResources(true,
-                                        "serverId", InstanceType.NOVA
+                                MockURLStreamHandler.respStacksResources(
+                                        serverNames, InstanceType.NOVA
                                                 .getString())));
 
         // when
@@ -236,17 +253,16 @@ public class HeatProcessorTest {
         // given
         final String instanceName = "Instance4";
         createBasicParameters(instanceName, "fosi_v2.json", "http");
-        streamHandler
-                .put("/stacks/" + instanceName,
-                        new MockHttpURLConnection(200,
-                                MockURLStreamHandler.respStacksInstanceName(
-                                        OpenStackStatus.SUSPEND_COMPLETE,
-                                        false)));
+        final List<String> serverNames = Arrays.asList("server1");
+        streamHandler.put("/stacks/" + instanceName,
+                new MockHttpURLConnection(200,
+                        MockURLStreamHandler.respStacksInstanceName(
+                                StackStatus.SUSPEND_COMPLETE, false)));
         streamHandler
                 .put("/stacks/" + instanceName + "/resources",
                         new MockHttpURLConnection(200,
-                                MockURLStreamHandler.respStacksResources(true,
-                                        "serverId", InstanceType.TROVE
+                                MockURLStreamHandler.respStacksResources(
+                                        serverNames, InstanceType.TROVE
                                                 .getString())));
 
         // when
@@ -264,14 +280,13 @@ public class HeatProcessorTest {
         // given
         final String instanceName = "Instance4";
         createBasicParameters(instanceName, "fosi_v2.json", "http");
-        streamHandler
-                .put("/stacks/" + instanceName,
-                        new MockHttpURLConnection(200,
-                                MockURLStreamHandler.respStacksInstanceName(
-                                        OpenStackStatus.SUSPEND_COMPLETE,
-                                        false)));
-        streamHandler.put("/servers/serverId", new MockHttpURLConnection(200,
-                MockURLStreamHandler.respServer("test", "servId")));
+        streamHandler.put("/stacks/" + instanceName,
+                new MockHttpURLConnection(200,
+                        MockURLStreamHandler.respStacksInstanceName(
+                                StackStatus.SUSPEND_COMPLETE, false)));
+        streamHandler.put("/servers/0-Instance-server1",
+                new MockHttpURLConnection(200,
+                        MockURLStreamHandler.respServer("test", "servId")));
 
         // when
         new HeatProcessor().resumeStack(paramHandler);
@@ -283,28 +298,77 @@ public class HeatProcessorTest {
         // given
         final String instanceName = "Instance4";
         createBasicParameters(instanceName, "fosi_v2.json", "http");
-        streamHandler.put("/stacks/" + instanceName + "/resources",
-                new MockHttpURLConnection(200,
-                        MockURLStreamHandler.respStacksResources(true, "",
-                                InstanceType.EC2.getString())));
+        List<String> serverNames = new LinkedList<String>();
+        streamHandler
+                .put("/stacks/" + instanceName + "/resources",
+                        new MockHttpURLConnection(200,
+                                MockURLStreamHandler.respStacksResources(
+                                        serverNames,
+                                        InstanceType.EC2.getString())));
         // when
         new HeatProcessor().resumeStack(paramHandler);
     }
 
-    @Test(expected = RuntimeException.class)
-    public void suspendStack_InstanceNotAliveException_serverIdError()
-            throws Exception {
+    @Test(expected = HeatException.class)
+    public void resumeStack_connectionFailedToGetStack() throws Exception {
         // given
         final String instanceName = "Instance4";
         createBasicParameters(instanceName, "fosi_v2.json", "http");
-        streamHandler
-                .put("/stacks/Instance4/resources",
-                        new MockHttpURLConnection(200,
-                                MockURLStreamHandler.respStacksResources(true,
-                                        "servId",
-                                        InstanceType.EC2.getString())));
+        MockHttpURLConnection connection = new MockHttpURLConnection(400,
+                MockURLStreamHandler.respServerActions());
+        connection.setIOException(new IOException());
+        streamHandler.put("/stacks/" + instanceName, connection);
+
         // when
-        new HeatProcessor().suspendStack(paramHandler);
+        new HeatProcessor().resumeStack(paramHandler);
+    }
+
+    @Test(expected = HeatException.class)
+    public void resumeStack_connectionFailedToServerDetail() throws Exception {
+        // given
+        final String instanceName = "Instance4";
+        createBasicParameters(instanceName, "fosi_v2.json", "http");
+        MockHttpURLConnection connection = new MockHttpURLConnection(400,
+                MockURLStreamHandler.respServerActions());
+        connection.setIOException(new IOException());
+        streamHandler.put("/servers/0-Instance-server1", connection);
+
+        // when
+        new HeatProcessor().resumeStack(paramHandler);
+
+    }
+
+    @Test(expected = HeatException.class)
+    public void resumeStack_connectionFailedToStackResource() throws Exception {
+        // given
+        final String instanceName = "Instance4";
+        createBasicParameters(instanceName, "fosi_v2.json", "http");
+        MockHttpURLConnection connection = new MockHttpURLConnection(400,
+                MockURLStreamHandler.respServerActions());
+        connection.setIOException(new IOException());
+        streamHandler.put("/stacks/" + instanceName + "/resources", connection);
+
+        // when
+        new HeatProcessor().resumeStack(paramHandler);
+    }
+
+    @Test(expected = HeatException.class)
+    public void resumeStack_connectionFailedToAction() throws Exception {
+        // given
+        final String instanceName = "Instance4";
+        createBasicParameters(instanceName, "fosi_v2.json", "http");
+        MockHttpURLConnection connection = new MockHttpURLConnection(400,
+                MockURLStreamHandler.respServerActions());
+        connection.setIOException(new IOException());
+        streamHandler.put("/stacks/" + instanceName,
+                new MockHttpURLConnection(200,
+                        MockURLStreamHandler.respStacksInstanceName(
+                                StackStatus.SUSPEND_COMPLETE, false)));
+        streamHandler.put("/stacks/" + instanceName + "/sID/actions",
+                connection);
+
+        // when
+        new HeatProcessor().resumeStack(paramHandler);
     }
 
     @Test(expected = InstanceNotAliveException.class)
@@ -312,12 +376,13 @@ public class HeatProcessorTest {
             throws Exception {
         // given
         final String instanceName = "Instance4";
+        final List<String> serverNames = new ArrayList<String>();
         createBasicParameters(instanceName, "fosi_v2.json", "http");
         streamHandler
                 .put("/stacks/Instance4/resources",
                         new MockHttpURLConnection(200,
-                                MockURLStreamHandler.respStacksResources(false,
-                                        "servId",
+                                MockURLStreamHandler.respStacksResources(
+                                        serverNames,
                                         InstanceType.EC2.getString())));
         // when
         new HeatProcessor().suspendStack(paramHandler);
@@ -344,12 +409,10 @@ public class HeatProcessorTest {
         final String instanceName = "Instance4";
         createBasicParameters(instanceName, "fosi_v2.json", "http");
 
-        streamHandler
-                .put("/stacks/" + instanceName,
-                        new MockHttpURLConnection(200,
-                                MockURLStreamHandler.respStacksInstanceName(
-                                        OpenStackStatus.SUSPEND_COMPLETE,
-                                        false)));
+        streamHandler.put("/stacks/" + instanceName,
+                new MockHttpURLConnection(200,
+                        MockURLStreamHandler.respStacksInstanceName(
+                                StackStatus.SUSPEND_COMPLETE, false)));
 
         // when
         boolean result = new HeatProcessor().suspendStack(paramHandler);
@@ -358,6 +421,54 @@ public class HeatProcessorTest {
         assertFalse(result);
         assertEquals("sID", paramHandler.getStackId());
         assertEquals(instanceName, paramHandler.getStackName());
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void suspendStack_InstanceNotAliveException_serverIdError()
+            throws Exception {
+        // given
+        final String instanceName = "Instance4";
+        final List<String> serverNames = Arrays.asList("serv");
+        createBasicParameters(instanceName, "fosi_v2.json", "http");
+        streamHandler
+                .put("/stacks/Instance4/resources",
+                        new MockHttpURLConnection(200,
+                                MockURLStreamHandler.respStacksResources(
+                                        serverNames,
+                                        InstanceType.EC2.getString())));
+        // when
+        new HeatProcessor().suspendStack(paramHandler);
+    }
+
+    @Test(expected = HeatException.class)
+    public void suspendStack_connectionFailed() throws Exception {
+        // given
+        final String instanceName = "Instance4";
+        createBasicParameters(instanceName, "fosi_v2.json", "http");
+        MockHttpURLConnection connection = new MockHttpURLConnection(400,
+                MockURLStreamHandler.respServerActions());
+        connection.setIOException(new IOException());
+
+        streamHandler.put("/stacks/" + instanceName, connection);
+
+        // when
+        new HeatProcessor().suspendStack(paramHandler);
+    }
+
+    @Test(expected = HeatException.class)
+    public void suspendStack_connectionFailedToAction() throws Exception {
+        // given
+        final String instanceName = "Instance4";
+        createBasicParameters(instanceName, "fosi_v2.json", "http");
+        MockHttpURLConnection connection = new MockHttpURLConnection(400,
+                MockURLStreamHandler.respServerActions());
+        connection.setIOException(new IOException());
+
+        streamHandler.put("/stacks/" + instanceName + "/sID/actions",
+                connection);
+
+        // when
+        new HeatProcessor().suspendStack(paramHandler);
     }
 
     @Test
@@ -415,10 +526,49 @@ public class HeatProcessorTest {
         // then
     }
 
+    @Test(expected = HeatException.class)
+    public void updateStack_connectionFailed500() throws Exception {
+        // given
+        createBasicParameters("instanceName", "fosi_v2.json", "http");
+        MockHttpURLConnection connection = new MockHttpURLConnection(500,
+                MockURLStreamHandler.respServerActions());
+        connection.setIOException(new IOException());
+        streamHandler.put("/stacks/instanceName", connection);
+
+        // when
+        new HeatProcessor().updateStack(paramHandler);
+    }
+
+    @Test(expected = HeatException.class)
+    public void updateStack_connectionFailed400() throws Exception {
+        // given
+        createBasicParameters("instanceName", "fosi_v2.json", "http");
+        MockHttpURLConnection connection = new MockHttpURLConnection(400,
+                MockURLStreamHandler.respServerActions());
+        connection.setIOException(new IOException());
+        streamHandler.put("/stacks/instanceName", connection);
+
+        // when
+        new HeatProcessor().updateStack(paramHandler);
+    }
+
     @Test
     public void deleteStack() throws Exception {
         // given
         createBasicParameters("instanceName", "fosi_v2.json", "http");
+
+        // when
+        new HeatProcessor().deleteStack(paramHandler);
+    }
+
+    @Test(expected = HeatException.class)
+    public void deleteStack_connectionFailed() throws Exception {
+        // given
+        createBasicParameters("instanceName", "fosi_v2.json", "http");
+        MockHttpURLConnection connection = new MockHttpURLConnection(400,
+                MockURLStreamHandler.respServerActions());
+        connection.setIOException(new IOException());
+        streamHandler.put("/stacks/instanceName", connection);
 
         // when
         new HeatProcessor().deleteStack(paramHandler);
