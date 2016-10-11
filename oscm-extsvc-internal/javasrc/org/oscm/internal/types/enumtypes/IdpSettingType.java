@@ -22,7 +22,9 @@ public enum IdpSettingType {
 
     SSO_STS_ENCKEY_LEN,
 
-    SSO_STS_METADATA_URL, SSO_STS_URL;
+    SSO_STS_METADATA_URL, SSO_STS_URL,
+
+    SSO_IDP_SAML_ASSERTION_ISSUER_ID;
 
 
     public static boolean contains(String enumKey) {

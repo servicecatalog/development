@@ -12,6 +12,10 @@
 
 package org.oscm.ui.filter;
 
+import static org.oscm.internal.types.enumtypes.ConfigurationKey.SSO_DEFAULT_TENANT_ID;
+import static org.oscm.types.constants.Configuration.GLOBAL_CONTEXT;
+import static org.oscm.ui.common.Constants.REQ_PARAM_TENANT_ID;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
@@ -58,8 +62,6 @@ import org.oscm.ui.beans.SessionBean;
 import org.oscm.ui.common.*;
 import org.oscm.ui.model.User;
 import org.oscm.ui.validator.PasswordValidator;
-
-import static org.oscm.ui.common.Constants.REQ_PARAM_TENANT_ID;
 
 /**
  * Filter which checks that a request which tries to access a protected URL has
@@ -566,6 +568,11 @@ public class AuthorizationFilter extends BaseBesFilter {
             httpRequest.getSession().setAttribute(REQ_PARAM_TENANT_ID, tenantID);
         } else {
             tenantID = (String) httpRequest.getSession().getAttribute(REQ_PARAM_TENANT_ID);
+        }
+        if(StringUtils.isBlank(tenantID)) {
+            logger.logDebug("TenantID is missing. Using default.");
+            tenantID = getConfigurationService(httpRequest).getVOConfigurationSetting(SSO_DEFAULT_TENANT_ID, GLOBAL_CONTEXT).getValue();
+            httpRequest.getSession().setAttribute(REQ_PARAM_TENANT_ID, tenantID);
         }
         return tenantID;
     }

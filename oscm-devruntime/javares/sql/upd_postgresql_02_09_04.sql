@@ -43,3 +43,7 @@ DROP INDEX platformuser_bk_idx;
 INSERT INTO configurationsetting ("tkey", "context_id", "information_id", "env_value", "version")
     select sequence_next_hi_value, 'global', 'SSO_DEFAULT_TENANT_ID', '8f96dedf', 0 from "hibernate_sequences" where sequence_name='ConfigurationSetting';
 update "hibernate_sequences" set "sequence_next_hi_value" = (SELECT MAX(tkey)+1 FROM "configurationsetting") where "sequence_name"='ConfigurationSetting';
+
+INSERT INTO configurationsetting ("tkey", "context_id", "information_id", "env_value", "version")
+    select sequence_next_hi_value, 'global', 'SSO_IDP_SAML_ASSERTION_ISSUER_ID', '	http://g02plxnnow29020:8080/OpenAM-13.0.0', 0 from "hibernate_sequences" where sequence_name='ConfigurationSetting';
+update "hibernate_sequences" set "sequence_next_hi_value" = (SELECT MAX(tkey)+1 FROM "configurationsetting") where "sequence_name"='ConfigurationSetting';

@@ -8,7 +8,6 @@
 
 package org.oscm.ui.filter;
 
-import static org.oscm.internal.types.exception.NotExistentTenantException.Reason.MISSING_TENANT_PARAMETER;
 import static org.oscm.internal.types.exception.NotExistentTenantException.Reason.TENANT_NOT_FOUND;
 
 import java.util.HashMap;
@@ -108,7 +107,7 @@ public class AuthenticationSettings {
     private VOTenant getTenantWithSettings(String tenantID) throws NotExistentTenantException {
         VOTenant tenant;
         if (StringUtils.isBlank(tenantID)) {
-            throw new NotExistentTenantException(MISSING_TENANT_PARAMETER);
+            tenantID = getConfigurationSetting(cfgService, ConfigurationKey.SSO_DEFAULT_TENANT_ID);
         }
         try {
             tenant = tenantService.getTenantByTenantId(tenantID);
