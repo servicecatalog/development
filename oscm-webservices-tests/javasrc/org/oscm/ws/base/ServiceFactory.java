@@ -13,6 +13,7 @@ import java.util.Properties;
 import javax.naming.InitialContext;
 
 import org.oscm.ct.login.LoginHandlerFactory;
+import org.oscm.internal.intf.ConfigurationService;
 import org.oscm.internal.intf.OperatorService;
 import org.oscm.internal.intf.TenantService;
 import org.oscm.intf.AccountService;
@@ -327,6 +328,15 @@ public class ServiceFactory {
     public TenantService getTenantService(String userName, String password)
             throws Exception {
         return connectToEJB(TenantService.class, userName, password);
+    }
+    
+    public ConfigurationService getConfigurationService() throws Exception {
+        return getConfigurationService(getDefaultUserName(), getDefaultPassword());
+    }
+
+    public ConfigurationService getConfigurationService(String userName, String password)
+            throws Exception {
+        return connectToEJB(ConfigurationService.class, userName, password);
     }
 
     private <T> T connectToEJB(Class<T> remoteInterface, String userName,
