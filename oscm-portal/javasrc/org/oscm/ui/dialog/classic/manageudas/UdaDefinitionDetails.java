@@ -45,6 +45,11 @@ public class UdaDefinitionDetails {
     private int version;
 
     /**
+     * Determine the UDA value is encrypted or not.
+     */
+    private boolean encrypted;
+
+    /**
      * @return the udaId
      */
     public String getUdaId() {
@@ -133,5 +138,13 @@ public class UdaDefinitionDetails {
      */
     public void setVersion(int version) {
         this.version = version;
+    }
+
+    public boolean isEncrypted() {
+        return encrypted;
+    }
+
+    public void setEncrypted(boolean encrypted) {
+        this.encrypted = encrypted;
     }
 }
