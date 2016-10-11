@@ -26,28 +26,29 @@ import org.slf4j.LoggerFactory;
 
 public abstract class ProvisioningValidator {
 
-    private static final Logger logger = LoggerFactory.getLogger(ProvisioningValidator.class);
-    private static final String SUSPENDED = "suspended";
-    private static final List<FlowState> TIMEOUT_OPERATION = Arrays.asList(
-            FlowState.START_REQUESTED, FlowState.STARTING,
-            FlowState.STOP_REQUESTED, FlowState.STOPPING);
+    private static final Logger logger = LoggerFactory
+            .getLogger(ProvisioningValidator.class);
     private static final String SUSPENDED = "suspended";
     private static final List<FlowState> TIMEOUT_OPERATION = Arrays.asList(
             FlowState.START_REQUESTED, FlowState.STARTING,
             FlowState.STOP_REQUESTED, FlowState.STOPPING);
 
-    public void validateStackName(PropertyHandler paramHandler) throws APPlatformException {
+    public void validateStackName(PropertyHandler paramHandler)
+            throws APPlatformException {
         String stackName = paramHandler.getStackName();
         if (isNullOrEmpty(stackName)) {
-            throw new APPlatformException(Messages.getAll("error_invalid_name", new Object[] { stackName }));
+            throw new APPlatformException(Messages.getAll("error_invalid_name",
+                    new Object[] { stackName }));
         }
 
         String regex = "([A-Za-z][A-Za-z0-9_-]*){1,30}";
         Pattern p = Pattern.compile(regex);
         Matcher m = p.matcher(stackName);
         if (!m.matches()) {
-            logger.error("Validation error on stack name: [" + stackName + "/" + regex + "]");
-            throw new APPlatformException(Messages.getAll("error_invalid_name", new Object[] { stackName }));
+            logger.error("Validation error on stack name: [" + stackName + "/"
+                    + regex + "]");
+            throw new APPlatformException(Messages.getAll("error_invalid_name",
+                    new Object[] { stackName }));
         }
 
         String stackNamePattern = paramHandler.getStackNamePattern();
@@ -56,16 +57,20 @@ public abstract class ProvisioningValidator {
             try {
                 p = Pattern.compile(stackNamePattern);
             } catch (PatternSyntaxException e) {
-                logger.error("Compile error on stack name pattern: [" + stackNamePattern + "]");
+                logger.error("Compile error on stack name pattern: ["
+                        + stackNamePattern + "]");
                 throw new APPlatformException(
-                        Messages.getAll("error_invalid_pattern", new Object[] { stackNamePattern }));
+                        Messages.getAll("error_invalid_pattern",
+                                new Object[] { stackNamePattern }));
             }
 
             m = p.matcher(stackName);
             if (!m.matches()) {
-                logger.error("Validation error on stack name: [" + stackName + "/" + stackNamePattern + "]");
+                logger.error("Validation error on stack name: [" + stackName
+                        + "/" + stackNamePattern + "]");
                 throw new APPlatformException(
-                        Messages.getAll("error_name_match", new Object[] { stackName, stackNamePattern }));
+                        Messages.getAll("error_name_match",
+                                new Object[] { stackName, stackNamePattern }));
             }
         }
     }
