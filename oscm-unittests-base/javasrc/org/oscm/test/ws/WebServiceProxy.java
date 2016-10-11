@@ -46,6 +46,11 @@ public class WebServiceProxy {
             throws Exception {
         String wsdlUrl = baseUrl + "/oscm/" + versionWSDL + "/"
                 + remoteInterface.getSimpleName() + "/" + auth + "?wsdl";
+        
+        if (tenantId != null) {
+            wsdlUrl += "&tenantId=" + tenantId;
+        }
+        
         URL url = new URL(wsdlUrl);
         QName qName = new QName(namespace, remoteInterface.getSimpleName());
         Service service = Service.create(url, qName);

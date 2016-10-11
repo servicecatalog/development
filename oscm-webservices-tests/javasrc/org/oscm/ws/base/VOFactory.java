@@ -147,6 +147,7 @@ public class VOFactory {
         
         VOTenant tenant = new VOTenant();
         tenant.setTenantId(tenantId);
+        tenant.setName("customName");
         
         return tenant;
     }

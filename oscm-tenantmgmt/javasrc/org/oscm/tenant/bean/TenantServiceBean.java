@@ -85,6 +85,7 @@ public class TenantServiceBean implements TenantService {
 
     @Override
     @RolesAllowed("PLATFORM_OPERATOR")
+    @TransactionAttribute(value = TransactionAttributeType.REQUIRED)
     public void addTenantSettings(List<VOTenantSetting> tenantSettings, VOTenant voTenant) throws
         NonUniqueBusinessKeyException, ObjectNotFoundException {
         removeTenantSettings(voTenant.getKey());
