@@ -64,10 +64,7 @@ public class WebserviceSAMLSPTestSetup extends WebserviceTestSetup {
     private String supplierUserId;
     private static OperatorService operator;
     private static TenantService tenantService;
-    
-    public static final String TENANT_ID_1 = "tenant1";
-    public static final String TENANT_ID_2 = "tenant2";
-    
+
     public WebserviceSAMLSPTestSetup() {
         setJKSLocation(getExampleDomainPath());
     }
