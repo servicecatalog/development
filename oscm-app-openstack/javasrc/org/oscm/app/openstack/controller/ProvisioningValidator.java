@@ -19,7 +19,6 @@ import org.oscm.app.openstack.i18n.Messages;
 import org.oscm.app.v1_0.exceptions.APPlatformException;
 import org.oscm.app.v1_0.exceptions.AuthenticationException;
 import org.oscm.app.v1_0.exceptions.ConfigurationException;
-import org.oscm.app.v1_0.exceptions.SuspendException;
 import org.oscm.app.v1_0.intf.APPlatformService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +27,7 @@ public abstract class ProvisioningValidator {
 
     private static final Logger logger = LoggerFactory
             .getLogger(ProvisioningValidator.class);
-    private static final String SUSPENDED = "suspended";
+    private static final String TIMEOUT = "Timeout";
     private static final List<FlowState> TIMEOUT_OPERATION = Arrays.asList(
             FlowState.START_REQUESTED, FlowState.STARTING,
             FlowState.STOP_REQUESTED, FlowState.STOPPING);
@@ -96,9 +95,11 @@ public abstract class ProvisioningValidator {
         String startTimeStr = ph.getStartTime();
         if (readyTimeout != 0 && startTimeStr != null
                 && TIMEOUT_OPERATION.contains(ph.getState())) {
-            if (startTimeStr.equals(SUSPENDED)) {
-                logger.debug("Resume request, reset start time");
-                ph.setStartTime(String.valueOf(System.currentTimeMillis()));
+            if (startTimeStr.equals(TIMEOUT)) {
+                logger.warn(
+                        "This request already timeout. This should not be occurred.");
+                throw new APPlatformException(Messages.getAll(
+                        "error_operation_timeout", Long.valueOf(readyTimeout)));
             }
             try {
 
@@ -111,12 +112,22 @@ public abstract class ProvisioningValidator {
 
                 if (timePast > readyTimeout) {
                     logger.debug("Request timeout: over " + timePast + "ms");
-                    ph.setStartTime(SUSPENDED);
+                    ph.setStartTime(TIMEOUT);
                     APPService.storeServiceInstanceDetails(
                             OpenStackController.ID, instanceId,
                             ph.getSettings(), ph.getTPAuthentication());
-                    throw new SuspendException(
-                            "Task not finished after " + readyTimeout + " ms.");
+
+                    if (ph.getState() == FlowState.START_REQUESTED
+                            || ph.getState() == FlowState.STARTING) {
+                        throw new APPlatformException(Messages.getAll(
+                                "error_starting_operation_timeout",
+                                Long.valueOf(readyTimeout)));
+                    } else if (ph.getState() == FlowState.STOP_REQUESTED
+                            || ph.getState() == FlowState.STOPPING) {
+                        throw new APPlatformException(Messages.getAll(
+                                "error_stopping_operation_timeout",
+                                Long.valueOf(readyTimeout)));
+                    }
                 }
             } catch (NumberFormatException ex) {
                 logger.warn(

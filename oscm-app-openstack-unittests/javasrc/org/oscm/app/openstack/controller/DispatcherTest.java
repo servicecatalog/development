@@ -176,7 +176,7 @@ public class DispatcherTest {
         assertFalse(result.isReady());
     }
 
-    @Test
+    @Test(expected = APPlatformException.class)
     public void startRequested_allServersFaild() throws Exception {
         // given
         paramHandler.setState(FlowState.START_REQUESTED);
@@ -197,13 +197,7 @@ public class DispatcherTest {
                 connection);
 
         // when
-        InstanceStatus result = dispatcher.dispatch();
-
-        // then
-        String status = parameters.get(PropertyHandler.STATUS);
-        assertEquals(FlowState.FINISHED.toString(), status);
-        assertEquals(ACCESS_INFO, result.getAccessInfo());
-        assertTrue(result.isReady());
+        dispatcher.dispatch();
     }
 
     @Test
@@ -220,7 +214,7 @@ public class DispatcherTest {
         assertFalse(result.isReady());
     }
 
-    @Test
+    @Test(expected = APPlatformException.class)
     public void stopRequested_allServersFaild() throws Exception {
         // given
         paramHandler.setState(FlowState.STOP_REQUESTED);
@@ -241,13 +235,7 @@ public class DispatcherTest {
                 connection);
 
         // when
-        InstanceStatus result = dispatcher.dispatch();
-
-        // then
-        String status = parameters.get(PropertyHandler.STATUS);
-        assertEquals(FlowState.FINISHED.toString(), status);
-        assertEquals(ACCESS_INFO, result.getAccessInfo());
-        assertTrue(result.isReady());
+        dispatcher.dispatch();
     }
 
     @Test
@@ -325,7 +313,7 @@ public class DispatcherTest {
         assertTrue(result.isReady());
     }
 
-    @Test(expected = SuspendException.class)
+    @Test(expected = APPlatformException.class)
     public void starting_FAILED() throws Exception {
         // given
         paramHandler.setState(FlowState.STARTING);

@@ -36,7 +36,6 @@ import org.oscm.app.v1_0.data.InstanceStatusUsers;
 import org.oscm.app.v1_0.data.ProvisioningSettings;
 import org.oscm.app.v1_0.data.ServiceUser;
 import org.oscm.app.v1_0.exceptions.APPlatformException;
-import org.oscm.app.v1_0.exceptions.SuspendException;
 import org.oscm.app.v1_0.intf.APPlatformController;
 import org.oscm.app.v1_0.intf.APPlatformService;
 import org.oscm.test.EJBTestBase;
@@ -224,7 +223,7 @@ public class OpenStackControllerTest extends EJBTestBase {
         assertFalse(status.isReady());
     }
 
-    @Test(expected = SuspendException.class)
+    @Test(expected = APPlatformException.class)
     public void getInstanceStatus_startOperationTimeoutOccureed()
             throws Exception {
 
@@ -288,7 +287,7 @@ public class OpenStackControllerTest extends EJBTestBase {
         assertFalse(status.isReady());
     }
 
-    @Test
+    @Test(expected = APPlatformException.class)
     public void getInstanceStatus_startOperationAlreadyTimeout()
             throws Exception {
         // given
@@ -297,7 +296,7 @@ public class OpenStackControllerTest extends EJBTestBase {
         createBasicParameters("Instance4", "fosi_v2.json");
         parameters.put(PropertyHandler.STATUS, FlowState.STARTING.toString());
         configSettings.put(PropertyHandler.READY_TIMEOUT, "1000000");
-        parameters.put(PropertyHandler.START_TIME, "suspended");
+        parameters.put(PropertyHandler.START_TIME, "Timeout");
         streamHandler.put("/servers/0-Instance-server1",
                 new MockHttpURLConnection(200,
                         MockURLStreamHandler.respServerDetail("server1",
@@ -306,15 +305,9 @@ public class OpenStackControllerTest extends EJBTestBase {
 
         // when
         InstanceStatus status = getInstanceStatus("123");
-
-        // then
-        assertEquals(FlowState.STARTING.toString(),
-                parameters.get(PropertyHandler.STATUS));
-        assertFalse(status.isReady());
-        assertTrue(Long.parseLong(parameters.get("START_TIME")) > 0);
     }
 
-    @Test(expected = SuspendException.class)
+    @Test(expected = APPlatformException.class)
     public void getInstanceStatus_stopOperationTimeoutOccureed()
             throws Exception {
 
@@ -378,7 +371,7 @@ public class OpenStackControllerTest extends EJBTestBase {
         assertFalse(status.isReady());
     }
 
-    @Test
+    @Test(expected = APPlatformException.class)
     public void getInstanceStatus_stopOperationAlreadyTimeout()
             throws Exception {
         // given
@@ -387,7 +380,7 @@ public class OpenStackControllerTest extends EJBTestBase {
         createBasicParameters("Instance4", "fosi_v2.json");
         parameters.put(PropertyHandler.STATUS, FlowState.STOPPING.toString());
         configSettings.put(PropertyHandler.READY_TIMEOUT, "1000000");
-        parameters.put(PropertyHandler.START_TIME, "suspended");
+        parameters.put(PropertyHandler.START_TIME, "Timeout");
         streamHandler.put("/servers/0-Instance-server1",
                 new MockHttpURLConnection(200,
                         MockURLStreamHandler.respServerDetail("server1",
@@ -396,12 +389,6 @@ public class OpenStackControllerTest extends EJBTestBase {
 
         // when
         InstanceStatus status = getInstanceStatus("123");
-
-        // then
-        assertEquals(FlowState.STOPPING.toString(),
-                parameters.get(PropertyHandler.STATUS));
-        assertFalse(status.isReady());
-        assertTrue(Long.parseLong(parameters.get("START_TIME")) > 0);
     }
 
     @Test

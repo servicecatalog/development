@@ -136,11 +136,14 @@ public class Dispatcher {
             case START_REQUESTED:
                 operationStatuses = new NovaProcessor()
                         .startInstances(properties);
-                newState = operationStatuses.containsValue(Boolean.TRUE)
-                        ? FlowState.STARTING : FlowState.FINISHED;
-                if (newState.equals(FlowState.FINISHED)) {
+                if (operationStatuses.containsValue(Boolean.TRUE)) {
+                    newState = FlowState.STARTING;
+                } else {
+                    properties.setStartTime("Timeout");
                     stack = new HeatProcessor().getStackDetails(properties);
                     result.setAccessInfo(getAccessInfo(stack));
+                    throw new APPlatformException(
+                            Messages.getAll("error_starting_failed"));
                 }
                 break;
 
@@ -174,10 +177,9 @@ public class Dispatcher {
                                         servers.size() - successServers.size())
                                 + " VMs are not started. Nothing will be done.");
                     }
-
                 } else {
-                    properties.setStartTime("suspended");
-                    throw new SuspendException(
+                    properties.setStartTime("Timeout");
+                    throw new APPlatformException(
                             Messages.getAll("error_starting_failed"));
                 }
                 break;
@@ -185,12 +187,13 @@ public class Dispatcher {
             case STOP_REQUESTED:
                 operationStatuses = new NovaProcessor()
                         .stopInstances(properties);
-                newState = operationStatuses.containsValue(Boolean.TRUE)
-                        ? FlowState.STOPPING : FlowState.FINISHED;
-
-                if (newState.equals(FlowState.FINISHED)) {
+                if (operationStatuses.containsValue(Boolean.TRUE)) {
+                    newState = FlowState.STOPPING;
+                } else {
                     stack = new HeatProcessor().getStackDetails(properties);
                     result.setAccessInfo(getAccessInfo(stack));
+                    throw new APPlatformException(
+                            Messages.getAll("error_stopping_failed"));
                 }
                 break;
 
