@@ -302,7 +302,7 @@ public class DispatcherTest {
         streamHandler.put("/servers/0-Instance-server1",
                 new MockHttpURLConnection(200,
                         MockURLStreamHandler.respServerDetail("server1",
-                                "0-Instance-server1", ServerStatus.STOPPED,
+                                "0-Instance-server1", ServerStatus.SHUTOFF,
                                 "testTenantID")));
 
         // when
