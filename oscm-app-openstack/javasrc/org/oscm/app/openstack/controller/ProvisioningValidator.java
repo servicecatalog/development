@@ -31,6 +31,10 @@ public abstract class ProvisioningValidator {
     private static final List<FlowState> TIMEOUT_OPERATION = Arrays.asList(
             FlowState.START_REQUESTED, FlowState.STARTING,
             FlowState.STOP_REQUESTED, FlowState.STOPPING);
+    private static final String SUSPENDED = "suspended";
+    private static final List<FlowState> TIMEOUT_OPERATION = Arrays.asList(
+            FlowState.START_REQUESTED, FlowState.STARTING,
+            FlowState.STOP_REQUESTED, FlowState.STOPPING);
 
     public void validateStackName(PropertyHandler paramHandler) throws APPlatformException {
         String stackName = paramHandler.getStackName();
