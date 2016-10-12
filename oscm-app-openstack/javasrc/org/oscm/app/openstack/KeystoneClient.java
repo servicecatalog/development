@@ -12,7 +12,7 @@ import org.apache.sling.commons.json.JSONArray;
 import org.apache.sling.commons.json.JSONException;
 import org.apache.sling.commons.json.JSONObject;
 import org.oscm.app.common.i18n.Messages;
-import org.oscm.app.openstack.exceptions.HeatException;
+import org.oscm.app.openstack.exceptions.OpenStackConnectionException;
 import org.oscm.app.v1_0.exceptions.APPlatformException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,10 +49,11 @@ public class KeystoneClient {
      * @param domainName
      * @param tenantId
      *
-     * @throws HeatException
+     * @throws OpenStackConnectionException
      */
     public void authenticate(String user, String password, String domainName,
-            String tenantId) throws HeatException, APPlatformException {
+            String tenantId)
+            throws APPlatformException, OpenStackConnectionException {
         LOGGER.debug("KeystoneClient.authenticate() user: " + user + "  domain:"
                 + domainName + " tenant ID:" + tenantId + "  endpoint: "
                 + connection.getKeystoneEndpoint());

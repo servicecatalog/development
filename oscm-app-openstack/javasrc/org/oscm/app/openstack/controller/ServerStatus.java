@@ -1,18 +1,17 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                             
+ *  Copyright FUJITSU LIMITED 2016                                           
  *                                                                                                                                 
- *  Creation Date: 06.08.2014                                                      
+ *  Creation Date: 29.09.2016                                                      
  *                                                                              
  *******************************************************************************/
 
 package org.oscm.app.openstack.controller;
 
 /**
- * @author afschar
- * 
+ * @author tateiwamext
+ *
  */
-public enum OpenStackStatus {
-    RESUME_COMPLETE, RESUME_FAILED, SUSPEND_COMPLETE, SUSPEND_FAILED, CREATE_COMPLETE, CREATE_FAILED, UPDATE_COMPLETE, UPDATE_FAILED, DELETE_COMPLETE, DELETE_FAILED
-
+public enum ServerStatus {
+    ACTIVE, ERROR, SHUTOFF
 }
