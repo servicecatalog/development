@@ -188,6 +188,7 @@
   	<!-- Glassfish 4.1.1 necesarry libraries -->
   	<copy file="${ivy.lib.dir}/javaee-4.1.1.jar" tofile="${root.dir}/libraries/glassfish4/javalib/javaee.jar" overwrite="true"/>
   	<copy file="${ivy.lib.dir}/gf-client-4.1.1.jar" tofile="${root.dir}/libraries/glassfish4/javalib/gf-client.jar" overwrite="true"/>
+    <copy file="${ivy.lib.dir}/hk2-api-2.4.0-b31.jar" todir="${root.dir}/libraries/glassfish4/javalib" overwrite="true"></copy>
   	
   	<!-- from Class-Path of javaee.jar -->
   	<copy file="${ivy.lib.dir}/javax.annotation-api-1.2.jar" tofile="${root.dir}/libraries/glassfish4/modules/endorsed/javax.annotation-api.jar" overwrite="true"/>
