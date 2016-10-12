@@ -1759,13 +1759,6 @@ public class IdentityServiceBean implements IdentityService,
         PlatformUser pu = UserDataAssembler.toPlatformUser(userDetails);
 
         pu.setOrganization(organization);
-        // Set the user account status to active if CT-MG is a SAML SP
-        if (cs.isServiceProvider()
-                && UserAccountStatus.PASSWORD_MUST_BE_CHANGED.equals(lockLevel)) {
-            pu.setStatus(UserAccountStatus.ACTIVE);
-        } else {
-            pu.setStatus(lockLevel);
-        }
         if (userLocalLdap) {
             // Do not set the user password if CT-MG is a SAML SP
             if (!cs.isServiceProvider()) {
@@ -1781,7 +1774,15 @@ public class IdentityServiceBean implements IdentityService,
             pu.setRealmUserId(userDetails.getUserId());
         }
 
-        dm.persist(pu);
+        // Set the user account status to active if CT-MG is a SAML SP
+        if (cs.isServiceProvider()
+                && UserAccountStatus.PASSWORD_MUST_BE_CHANGED.equals(lockLevel)) {
+            pu.setStatus(UserAccountStatus.ACTIVE);
+            dm.persistPlatformUserWithTenant(pu, userDetails.getTenantId());
+        } else {
+            pu.setStatus(lockLevel);
+            dm.persist(pu);
+        }
 
         for (UserRoleType role : userDetails.getUserRoles()) {
             if (!pu.hasRole(role)) {

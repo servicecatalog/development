@@ -17,23 +17,14 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import javax.annotation.Resource;
 import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
-import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
-import javax.persistence.NonUniqueResultException;
-import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
-import javax.persistence.TypedQuery;
+import javax.persistence.*;
 import javax.sql.DataSource;
 import javax.xml.ws.WebServiceContext;
 
@@ -42,6 +33,7 @@ import org.oscm.dataservice.local.DataService;
 import org.oscm.dataservice.local.DataSet;
 import org.oscm.dataservice.local.SqlQuery;
 import org.oscm.domobjects.*;
+import org.oscm.domobjects.Parameter;
 import org.oscm.domobjects.bridge.BridgeDataManager;
 import org.oscm.internal.types.exception.DomainObjectException;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
@@ -821,6 +813,21 @@ public class DataServiceBean implements DataService {
     @Override
     public EntityManager getEntityManager() {
         return em;
+    }
+
+    @Override
+    public void persistPlatformUserWithTenant(PlatformUser pu, String tenantId) throws NonUniqueBusinessKeyException {
+        setThreadLocals();
+        Query namedQuery = createNamedQuery("PlatformUser.findByUserIdAndTenant");
+        namedQuery.setParameter("userId", pu.getUserId());
+        namedQuery.setParameter("tenantId", tenantId);
+        List users = namedQuery.getResultList();
+        if (users != null && !users.isEmpty()) {
+            DomainObjectException.ClassEnum classEnum = class2Enum(pu
+                    .getClass());
+            throw new NonUniqueBusinessKeyException(classEnum, pu.getUserId() + " " + tenantId);
+        }
+        em.persist(pu);
     }
 
 }

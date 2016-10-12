@@ -162,4 +162,9 @@ public class DataServiceStub implements DataService {
     public EntityManager getEntityManager() {
         throw new UnsupportedOperationException();
     }
+
+    @Override
+    public void persistPlatformUserWithTenant(PlatformUser pu, String tenantId) throws NonUniqueBusinessKeyException {
+
+    }
 }

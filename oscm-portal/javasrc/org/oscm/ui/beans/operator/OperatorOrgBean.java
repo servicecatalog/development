@@ -145,7 +145,9 @@ public class OperatorOrgBean extends BaseOperatorBean implements Serializable {
             newOrganization.setOperatorRevenueShare(null);
         }
         if (StringUtils.isNotBlank(getSelectedTenant())) {
-            newOrganization.setTenantKey(Long.valueOf(getSelectedTenant()));
+            Long tenantKey = Long.valueOf(getSelectedTenant());
+            newOrganization.setTenantKey(tenantKey);
+            newAdministrator.setTenantId(getSelectedTenantId());
         }
         newVoOrganization = getOperatorService().registerOrganization(
                 newOrganization, getImageUploader().getVOImageResource(),
@@ -164,6 +166,15 @@ public class OperatorOrgBean extends BaseOperatorBean implements Serializable {
         selectedTenant = null;
 
         return OUTCOME_SUCCESS;
+    }
+
+    private String getSelectedTenantId() {
+        for (SelectItem selectedTenantItem : getSelectableTenants()) {
+            if(selectedTenantItem.getValue().toString().equals(selectedTenant)) {
+                return selectedTenantItem.getLabel();
+            }
+        }
+        return "";
     }
 
     // *****************************************************

@@ -310,4 +310,18 @@ public interface DataService {
      * @return the entity manager
      */
     public EntityManager getEntityManager();
+
+    /**
+     * Note: This method is intended for internal usage only.
+     *
+     * Persists a PlatformUser object in the database. It should be only used while persisting with tenant.
+     * If you are not 100% sure that you need to use that, go with the {@link #persist(DomainObject)} instead.
+     *
+     * @param pu
+     *            platform user object
+     * @throws NonUniqueBusinessKeyException
+     *             Thrown if an object with the same business key already exists
+     *             in the database
+     */
+    void persistPlatformUserWithTenant(PlatformUser pu, String tenantId) throws NonUniqueBusinessKeyException;
 }
