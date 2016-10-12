@@ -11,6 +11,7 @@ package org.oscm.domobjects.converters;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
+import org.oscm.internal.types.enumtypes.ParameterModificationType;
 import org.oscm.internal.types.enumtypes.PriceModelType;
 
 /**
@@ -18,18 +19,18 @@ import org.oscm.internal.types.enumtypes.PriceModelType;
  */
 @Converter
 public class PMTConverter
-        implements AttributeConverter<PriceModelType, String> {
+        implements AttributeConverter<ParameterModificationType, String> {
 
     @Override
-    public PriceModelType convertToEntityAttribute(String s) {
+    public ParameterModificationType convertToEntityAttribute(String s) {
         if (s == null) {
             return null;
         }
-        return PriceModelType.valueOf(s);
+        return ParameterModificationType.valueOf(s);
     }
 
     @Override
-    public String convertToDatabaseColumn(PriceModelType enumik) {
+    public String convertToDatabaseColumn(ParameterModificationType enumik) {
         return enumik.name();
     }
 }
