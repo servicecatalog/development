@@ -10,4 +10,7 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc-internal"/>
 	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/javaee.jar"/>
 	<classpathentry kind="output" path="bin"/>
+	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/hk2-utils-2.4.0-b31.jar"/>
+	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/javax.inject-1.jar"/>
+	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/hk2-api-2.4.0-b31.jar"/>
 </classpath>

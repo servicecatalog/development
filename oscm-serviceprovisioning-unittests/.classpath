@@ -65,4 +65,5 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc-operation"/>
 	<classpathentry kind="lib" path="/libraries/apache-codec/javalib/commons-codec-1.7.jar"/>
 	<classpathentry kind="output" path="bin"/>
+	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/hk2-core-2.4.0-b31.jar"/>
 </classpath>
