@@ -9,11 +9,12 @@
  *******************************************************************************/
 package org.oscm.internal.vo;
 
-import org.oscm.internal.types.enumtypes.IdpSettingType;
+import static org.oscm.internal.types.enumtypes.IdpSettingType.*;
+
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.oscm.internal.types.enumtypes.IdpSettingType.*;
+import org.oscm.internal.types.enumtypes.IdpSettingType;
 
 public class VOTenant extends BaseVO {
 
@@ -73,5 +74,9 @@ public class VOTenant extends BaseVO {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getIDPIssuer() {
+        return tenantSettings.get(SSO_IDP_SAML_ASSERTION_ISSUER_ID);
     }
 }

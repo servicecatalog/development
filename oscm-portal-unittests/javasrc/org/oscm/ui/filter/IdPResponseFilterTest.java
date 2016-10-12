@@ -211,4 +211,47 @@ public class IdPResponseFilterTest {
                 BaseBean.ERROR_INVALID_SAML_RESPONSE);
     }
 
+    @Test
+    public void testIssuerDoesNotMatch() throws Exception {
+
+        // given
+        HttpServletResponse mockResponse = mock(HttpServletResponse.class);
+        HttpServletRequest mockRequest = mock(HttpServletRequest.class);
+        doReturn("").when(mockRequest)
+                .getAttribute(Constants.REQ_ATTR_ERROR_KEY);
+        HttpSession mockSession = mock(HttpSession.class);
+        FilterChain mockChain = mock(FilterChain.class);
+        RequestRedirector mockRedirector = mock(RequestRedirector.class);
+        AuthenticationSettings mockSettings = mock(
+                AuthenticationSettings.class);
+        SAMLResponseExtractor mockExtractor = mock(SAMLResponseExtractor.class);
+        idpFilter.setExcludeUrlPattern("servletPathOther");
+        doReturn(mockSettings).when(idpFilter).getAuthenticationSettings();
+        SessionBean sessionBean = mock(SessionBean.class);
+        doReturn(sessionBean).when(idpFilter).getSessionBean();
+        FilterConfig filterConfig = mock(FilterConfig.class);
+        doReturn("exclude pattern").when(filterConfig)
+                .getInitParameter("exclude-url-pattern");
+        doReturn(mockSession).when(mockRequest).getSession();
+        doReturn(true).when(mockSettings).isServiceProvider();
+        doReturn("someSamlResponse").when(mockRequest)
+                .getParameter("SAMLResponse");
+        doReturn("someServletPath").when(mockRequest).getServletPath();
+        doReturn(mockExtractor).when(idpFilter).getSamlResponseExtractor();
+        doReturn(true).when(mockExtractor).isFromLogin("someSamlResponse");
+        doReturn("bad").when(mockExtractor)
+                .getIssuer("someSamlResponse");
+        idpFilter.init(filterConfig);
+        idpFilter.setRedirector(mockRedirector);
+
+        // when
+        idpFilter.doFilter(mockRequest, mockResponse, mockChain);
+
+        // verify
+        verify(mockRedirector, times(1)).forward(any(HttpServletRequest.class),
+                any(HttpServletResponse.class), any(String.class));
+        verify(mockRequest, times(1)).setAttribute(Constants.REQ_ATTR_ERROR_KEY,
+                BaseBean.ERROR_INVALID_SAML_RESPONSE);
+    }
+
 }

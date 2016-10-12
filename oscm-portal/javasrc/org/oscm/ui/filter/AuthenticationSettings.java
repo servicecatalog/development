@@ -43,6 +43,7 @@ public class AuthenticationSettings {
     private String signingKeystore;
     private String logoutURL;
     private String tenantID;
+    private String idpIssuer;
 
     public AuthenticationSettings(TenantService tenantService, ConfigurationService cfgService) {
         this.tenantService = tenantService;
@@ -102,6 +103,7 @@ public class AuthenticationSettings {
         signingKeyAlias = getConfigurationSetting(cfgService, ConfigurationKey.SSO_SIGNING_KEY_ALIAS);
         signingKeystore = getConfigurationSetting(cfgService, ConfigurationKey.SSO_SIGNING_KEYSTORE);
         logoutURL = tenant.getLogoutURL();
+        idpIssuer = tenant.getIDPIssuer();
     }
 
     private VOTenant getTenantWithSettings(String tenantID) throws NotExistentTenantException {
@@ -129,6 +131,8 @@ public class AuthenticationSettings {
         settings.put(IdpSettingType.SSO_IDP_AUTHENTICATION_REQUEST_HTTP_METHOD,
                 getConfigurationSetting(cfgService, ConfigurationKey.SSO_IDP_AUTHENTICATION_REQUEST_HTTP_METHOD));
         settings.put(IdpSettingType.SSO_LOGOUT_URL, getConfigurationSetting(cfgService, ConfigurationKey.SSO_LOGOUT_URL));
+        settings.put(IdpSettingType.SSO_IDP_SAML_ASSERTION_ISSUER_ID,
+                getConfigurationSetting(cfgService, ConfigurationKey.SSO_IDP_SAML_ASSERTION_ISSUER_ID));
 
         tenant.setTenantId(getConfigurationSetting(cfgService, ConfigurationKey.SSO_DEFAULT_TENANT_ID));
         tenant.setTenantSettings(settings);
@@ -165,5 +169,9 @@ public class AuthenticationSettings {
 
     public String getTenantID() {
         return tenantID;
+    }
+
+    public String getIdpIssuer() {
+        return idpIssuer;
     }
 }

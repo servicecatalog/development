@@ -10,15 +10,16 @@ package org.oscm.ui.filter;
 
 import static org.oscm.ui.common.Constants.SESSION_PARAM_SAML_LOGOUT_REQUEST;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
 import org.oscm.internal.intf.ConfigurationService;
 import org.oscm.internal.intf.TenantService;
+import org.oscm.internal.types.exception.IssuerNotMatchException;
 import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.internal.types.exception.SessionIndexNotFoundException;
 import org.oscm.logging.Log4jLogger;
@@ -118,6 +119,11 @@ public class IdPResponseFilter implements Filter {
                             LogMessageIdentifier.ERROR_SESSION_INDEX_NOT_FOUND);
                     httpRequest.setAttribute(Constants.REQ_ATTR_ERROR_KEY,
                             BaseBean.ERROR_INVALID_SAML_RESPONSE);
+                } catch (IssuerNotMatchException e) {
+                    LOGGER.logError(Log4jLogger.SYSTEM_LOG, e,
+                            LogMessageIdentifier.ERROR_ISSUER_DOES_NOT_MATCH);
+                    httpRequest.setAttribute(Constants.REQ_ATTR_ERROR_KEY,
+                            BaseBean.ERROR_INVALID_SAML_RESPONSE);
                 } catch (SaaSApplicationException e) {
                     LOGGER.logError(Log4jLogger.SYSTEM_LOG, e,
                             LogMessageIdentifier.ERROR);
@@ -147,7 +153,11 @@ public class IdPResponseFilter implements Filter {
                 .getSessionIndex(samlResponse);
         String nameID = getSamlResponseExtractor().getUserId(samlResponse);
         String tenantID = getSamlResponseExtractor().getTenantID(samlResponse);
+        String issuer = getSamlResponseExtractor().getIssuer(samlResponse);
         authSettings.init(tenantID);
+        if(!StringUtils.equalsIgnoreCase(issuer, authSettings.getIdpIssuer())) {
+            throw new IssuerNotMatchException();
+        }
         String logoutRequest = logoutRequestGenerator.generateLogoutRequest(
                     samlSessionId, nameID, getLogoutURL(),
                     getKeystorePath(), getIssuer(),
