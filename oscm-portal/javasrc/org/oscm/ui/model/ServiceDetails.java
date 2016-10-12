@@ -400,14 +400,6 @@ public class ServiceDetails {
         voDetails.setCustomTabUrl(customTabUrl);
     }
 
-    public String getCustomTabNameLanguage() {
-        return voDetails.getCustomTabNameLanguage();
-    }
-
-    public void setCustomTabNameLanguage(String language) {
-        voDetails.setCustomTabNameLanguage(language);
-    }
-
     public boolean isReseller() {
         return voDetails.getOfferingType() == OfferingType.RESELLER;
     }

@@ -15,14 +15,6 @@
         <adm:labelAndInputText id="customTabName" label="#{msg['service.customTabName']}"
                                value="#{service.customTabName}" maxlength="#{appBean.descriptionLen}" validatorId="idChar"
                                disabled="#{editDisabled}" converterId="trimConverter" />
-
-        <adm:labelAndSelect id="tabLanguageSelect" label="#{msg['service.tabNameLanguage']}" value="#{service.customTabNameLanguage}"
-                            disabled="#{editDisabled}" styleClass="selectXS">
-            <f:selectItem itemLabel="#{msg['service.tabNameLanguage.EN']}" itemValue="en" />
-            <f:selectItem itemLabel="#{msg['service.tabNameLanguage.DE']}" itemValue="de" />
-            <f:selectItem itemLabel="#{msg['service.tabNameLanguage.JP']}" itemValue="jp" />
-        </adm:labelAndSelect>
-
         <adm:labelAndInputText id="customTabUrl" label="#{msg['service.customTabUrl']}"
                                value="#{service.customTabUrl}" maxlength="#{appBean.descriptionLen}" validatorId="url"
                                disabled="#{editDisabled}" converterId="trimConverter" />

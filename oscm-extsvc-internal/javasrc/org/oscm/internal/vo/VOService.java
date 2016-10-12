@@ -649,18 +649,18 @@ public class VOService extends BaseVO implements Serializable {
         this.serviceType = serviceType;
     }
 
-    public String getCustomTabNameLanguage() {
-        return customTabNameLanguage;
-    }
-
-    public void setCustomTabNameLanguage(String customTabNameLanguage) {
-        this.customTabNameLanguage = customTabNameLanguage;
-    }
-
+    /**
+     * @return the name of the custom tab on the my subscriptions page
+     */
     public String getCustomTabName() {
         return customTabName;
     }
 
+    /**
+     * Sets the name of the custom tab on the my subscriptions page
+     *
+     * @param customTabName the custom tab name to set
+     */
     public void setCustomTabName(String customTabName) {
         this.customTabName = customTabName;
     }

@@ -1641,7 +1641,7 @@ public class ServiceProvisioningServiceBean
                 && !productCustomTabName.equals(oldCustomTabName)) {
             isLocalizedTextChanged = true;
             isCustomTabNameChanged = true;
-            localizer.storeLocalizedResource(productToModify.getCustomTabNameLanguage(), product.getKey(),
+            localizer.storeLocalizedResource(userLocale, product.getKey(),
                     LocalizedObjectTypes.PRODUCT_CUSTOM_TAB_NAME,
                     productCustomTabName);
         }
