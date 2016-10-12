@@ -19,5 +19,5 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-i18n-intsvc"/>
 	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/gf-client.jar"/>
 	<classpathentry kind="output" path="bin"/>
-	<classpathentry kind="lib" path="libraries/jersey/javalib/jersey-client.jar"/>
+	
 </classpath>
