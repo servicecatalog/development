@@ -242,6 +242,10 @@ public class ProductAssembler extends BaseAssembler {
                 LocalizedObjectTypes.PRODUCT_MARKETING_DESC);
         voProduct.setDescription(marketingDescription);
 
+        String customTabName = facade.getText(key,
+                LocalizedObjectTypes.PRODUCT_CUSTOM_TAB_NAME);
+        voProduct.setCustomTabName(customTabName);
+
         final ParameterSet parameterSet;
         if (product.getType() == ServiceType.PARTNER_TEMPLATE) {
             parameterSet = product.getTemplate().getParameterSet();

@@ -40,7 +40,17 @@
           </h:inputText>
         </h:panelGroup>
         <adm:message for="serviceName" />
-        
+
+        <adm:outputLabel value="#{msg['service.customTabName']}" />
+        <h:panelGroup>
+          <h:inputText id="srcCustomTabName" label="#{msg['service.customTabName']}" styleClass="field"
+            maxlength="#{appBean.nameLen}" disabled="true" required="false">
+            <f:converter converterId="trimConverter" />
+          </h:inputText>
+        </h:panelGroup>
+        <adm:message for="srcCustomTabName" />
+
+
         <adm:labelAndInputTextarea id="srcServiceShortDescription" label="#{msg['service.shortDescription']}" styleClass="field" 
           maxlength="#{appBean.descriptionLen}" disabled="true" required="false" />
       </adm:panelGrid>
@@ -81,6 +91,17 @@
           </h:inputText>
         </h:panelGroup>
         <adm:message for="trgServiceName" />
+
+        <!-- text area for the editable custom tab name-->
+        <adm:outputLabel value="#{msg['service.customTabName']}" />
+        <h:panelGroup>
+          <h:inputText id="trgCustomTabName" label="#{msg['service.customTabName']}" styleClass="field"
+                       maxlength="#{appBean.idLen}" onchange="Localize.field2Translation('trgLocale', 'customtabname_', this)" >
+            <f:validateLength maximum="#{appBean.nameLen}" />
+            <f:converter converterId="trimConverter" />
+          </h:inputText>
+        </h:panelGroup>
+        <adm:message for="trgCustomTabName" />
         
         <!-- text area for the editable short description -->
         <adm:outputLabel value="#{msg['service.shortDescription']}" />

@@ -19,6 +19,8 @@ public enum AuditLogParameter {
 
     DESCRIPTION,
 
+    CUSTOM_TAB_NAME,
+
     EVENT_NAME,
 
     LICENSE,

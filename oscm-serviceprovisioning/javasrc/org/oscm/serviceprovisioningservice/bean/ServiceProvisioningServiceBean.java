@@ -1404,7 +1404,7 @@ public class ServiceProvisioningServiceBean
         if (service.getVersion() < createdProduct.getVersion()
                 || isLocalizedTextChanged) {
             serviceAudit.updateService(dm, storedService,
-                    isShortDescriptionChanged, isDescriptionChanged,
+                    isShortDescriptionChanged, isDescriptionChanged, isCustomTabNameChanged,
                     dm.getCurrentUser().getLocale());
         }
 
