@@ -80,7 +80,7 @@ public abstract class ProvisioningValidator {
 
     /**
      * Check timeout for each operation. If operation is not finished during
-     * several times, SuspendException will be occurred.
+     * several times, APPlatformException will occur.
      * 
      * @param instanceId
      * @param ph
@@ -97,7 +97,7 @@ public abstract class ProvisioningValidator {
                 && TIMEOUT_OPERATION.contains(ph.getState())) {
             if (startTimeStr.equals(TIMEOUT)) {
                 logger.warn(
-                        "This request already timeout. This should not be occurred.");
+                        "This request already timeout. This should not occur.");
                 throw new APPlatformException(Messages.getAll(
                         "error_operation_timeout", Long.valueOf(readyTimeout)));
             }
