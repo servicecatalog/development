@@ -5,7 +5,7 @@
   xsi:schemaLocation="oscm.serviceprovisioning/1.9/TechnicalService.xsd ../../oscm-serviceprovisioning/javares/TechnicalServices.xsd"
   xmlns:tns="oscm.serviceprovisioning/1.9/TechnicalService.xsd">
   <tns:TechnicalService accessType="DIRECT" allowingOnBehalfActing="false" baseUrl=""
-    build="20140708" id="OPENSTACK_V2" loginPath=""
+    build="20140708" id="OPENSTACK_V3" loginPath=""
     onlyOneSubscriptionPerUser="false" provisioningType="ASYNCHRONOUS"
     provisioningUrl="https://<host>:<port>/ProvisioningService/AsynchronousProvisioningProxy?wsdl"
     provisioningVersion="1.0">
@@ -20,6 +20,10 @@
     <ParameterDefinition configurable="true" id="STACK_NAME" default="" mandatory="true" valueType="STRING" modificationType="ONE_TIME">
       <LocalizedDescription locale="en">OpenStack identifier</LocalizedDescription>
     </ParameterDefinition>
+    <ParameterDefinition configurable="true" default="([A-Za-z][A-Za-z0-9_-]*){1,30}" id="STACK_NAME_PATTERN"
+      modificationType="ONE_TIME" mandatory="true" valueType="STRING">
+      <LocalizedDescription locale="en">Validation pattern for stack name (regex)</LocalizedDescription>
+    </ParameterDefinition>
     <ParameterDefinition configurable="true" id="TEMPLATE_NAME" default="template.json" mandatory="true"
       valueType="ENUMERATION" modificationType="ONE_TIME">
       <Options>
@@ -31,6 +35,9 @@
         </Option>
       </Options>
       <LocalizedDescription locale="en">URL of the template schema</LocalizedDescription>
+    </ParameterDefinition>
+    <ParameterDefinition configurable="true" id="TENANT_ID" default="<your.tenant.id>" mandatory="true" valueType="STRING" modificationType="ONE_TIME">
+      <LocalizedDescription locale="en">Tenant(Project) ID</LocalizedDescription>
     </ParameterDefinition>
     <ParameterDefinition configurable="true" id="ACCESS_INFO_PATTERN" default="Key pair name: {KP_Out}; Ip: {IP_Out}" mandatory="true" valueType="STRING" modificationType="ONE_TIME">
       <LocalizedDescription locale="en">Pattern for access information</LocalizedDescription>

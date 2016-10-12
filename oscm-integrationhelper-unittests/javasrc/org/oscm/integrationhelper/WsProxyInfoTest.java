@@ -13,7 +13,7 @@ import org.junit.Test;
 public class WsProxyInfoTest {
 
     private static final String TOKENHANDLER_PROPERTY_FILE = "tokenhandler.properties";
-    private static final String CURRENT_VERSION = "1.8";
+    private static final String CURRENT_VERSION = "1.9";
 
     @Test
     public void WsProxyInfo_fileNameNull() {
@@ -96,7 +96,7 @@ public class WsProxyInfoTest {
                 TOKENHANDLER_PROPERTY_FILE);
 
         // then
-        assertEquals("https://xy.com:8081/fujitsu-bss/" + CURRENT_VERSION
+        assertEquals("https://xy.com:8081/oscm/" + CURRENT_VERSION
                 + "/SessionService/BASIC?wsdl", result.getWsInfo()
                 .getRemoteBssWsUrl());
     }
@@ -112,7 +112,7 @@ public class WsProxyInfoTest {
                 TOKENHANDLER_PROPERTY_FILE);
 
         // then
-        assertEquals("https://xy.com:8081/fujitsu-bss/" + CURRENT_VERSION
+        assertEquals("https://xy.com:8081/oscm/" + CURRENT_VERSION
                 + "/SessionService/CLIENTCERT?wsdl", result.getWsInfo()
                 .getRemoteBssWsUrl());
     }
@@ -128,7 +128,7 @@ public class WsProxyInfoTest {
                 TOKENHANDLER_PROPERTY_FILE);
 
         // then
-        assertEquals("https://xy.com:8081/fujitsu-bss/" + CURRENT_VERSION
+        assertEquals("https://xy.com:8081/oscm/" + CURRENT_VERSION
                 + "/SessionService/STS?wsdl", result.getWsInfo()
                 .getRemoteBssWsUrl());
     }
@@ -166,4 +166,36 @@ public class WsProxyInfoTest {
         assertNotNull(result.getWsInfo());
         assertNotNull(result.getUserCredentials());
     }
+
+    @Test
+    public void getAndLogTokenHandlerPropertyNullInputTest() {
+        // given
+        String fileName = "test_basic.properties";
+        String serviceName = "SessionService";
+        WsProxyInfo result = new WsProxyInfo(fileName, serviceName,
+                "tokenhandlerNull.properties");
+        assertNull(result.getAndLogTokenHandlerProperty(null));
+    }
+
+    @Test
+    public void getAndLogTokenHandlerPropertyNoSuchPropertyTest() {
+        // given
+        String fileName = "test_basic.properties";
+        String serviceName = "SessionService";
+        WsProxyInfo result = new WsProxyInfo(fileName, serviceName,
+                "tokenhandler.properties");
+        assertNull(result.getAndLogTokenHandlerProperty("unknown"));
+    }
+
+    @Test
+    public void getAndLogTokenHandlerPropertyValueTest() {
+        // given
+        String fileName = "test_basic.properties";
+        String serviceName = "SessionService";
+        WsProxyInfo result = new WsProxyInfo(fileName, serviceName,
+                "tokenhandler.properties");
+        assertEquals("/Welcome.jsp",
+                result.getAndLogTokenHandlerProperty("FORWARD"));
+    }
+
 }
