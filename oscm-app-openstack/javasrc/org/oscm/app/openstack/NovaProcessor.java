@@ -20,12 +20,15 @@ import org.oscm.app.openstack.exceptions.OpenStackConnectionException;
 import org.oscm.app.openstack.i18n.Messages;
 import org.oscm.app.v1_0.exceptions.APPlatformException;
 import org.oscm.app.v1_0.exceptions.InstanceNotAliveException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author tateiwamext
  *
  */
 public class NovaProcessor {
+    private final Logger logger = LoggerFactory.getLogger(NovaProcessor.class);
 
     private OpenStackConnection getConnection(PropertyHandler ph)
             throws APPlatformException, NovaException {
@@ -65,7 +68,34 @@ public class NovaProcessor {
 
         NovaClient nc = new NovaClient(connection);
         for (String id : serverIds) {
-            Boolean result = nc.startServer(ph, id);
+            Boolean result = Boolean.FALSE;
+            try {
+                result = nc.startServer(ph, id);
+            } catch (OpenStackConnectionException ex) {
+                if (ex.getResponseCode() == 401) {
+                    logger.info(
+                            "Could not start server (Server ID:" + id
+                                    + ") in stack (Stack ID: " + ph.getStackId()
+                                    + ") because of unauthorized. Retry once after authorised.",
+                            ex);
+                    try {
+                        connection = getConnection(ph);
+                        nc = new NovaClient(connection);
+                        result = nc.startServer(ph, id);
+                    } catch (OpenStackConnectionException e) {
+                        logger.info("Could not start server (Server ID:" + id
+                                + ") in stack (Stack ID: " + ph.getStackId()
+                                + ")", e);
+                        result = Boolean.FALSE;
+                    }
+                } else {
+
+                    logger.info("Could not start server (Server ID:" + id
+                            + ") in stack (Stack ID: " + ph.getStackId() + ")",
+                            ex);
+                    result = Boolean.FALSE;
+                }
+            }
             operationStatuses.put(id, result);
         }
         return operationStatuses;
@@ -95,7 +125,34 @@ public class NovaProcessor {
 
         NovaClient nc = new NovaClient(connection);
         for (String id : serverIds) {
-            Boolean result = nc.stopServer(ph, id);
+            Boolean result = Boolean.FALSE;
+            try {
+                result = nc.stopServer(ph, id);
+            } catch (OpenStackConnectionException ex) {
+                if (ex.getResponseCode() == 401) {
+                    logger.info(
+                            "Could not stop server (Server ID:" + id
+                                    + ") in stack (Stack ID: " + ph.getStackId()
+                                    + ") because of unauthorized. Retry once after authorised.",
+                            ex);
+                    try {
+                        connection = getConnection(ph);
+                        nc = new NovaClient(connection);
+                        result = nc.stopServer(ph, id);
+                    } catch (OpenStackConnectionException e) {
+                        logger.info("Could not stop server (Server ID:" + id
+                                + ") in stack (Stack ID: " + ph.getStackId()
+                                + ")", e);
+                        result = Boolean.FALSE;
+                    }
+                } else {
+
+                    logger.info("Could not stop server (Server ID:" + id
+                            + ") in stack (Stack ID: " + ph.getStackId() + ")",
+                            ex);
+                    result = Boolean.FALSE;
+                }
+            }
             operationStatuses.put(id, result);
         }
         return operationStatuses;
@@ -127,7 +184,40 @@ public class NovaProcessor {
 
         NovaClient nc = new NovaClient(connection);
         for (String id : serverIds) {
-            Server server = nc.getServerDetails(ph, id);
+            Server server = new Server(id);
+            try {
+                server = nc.getServerDetails(ph, id);
+            } catch (OpenStackConnectionException ex) {
+                if (ex.getResponseCode() == 401) {
+                    logger.info(
+                            "NovaClient.getServerDetails() Could not get server status (Server ID:"
+                                    + id + ") in stack (Stack ID: "
+                                    + ph.getStackId()
+                                    + ") because of unauthorized. Retry once after authorised.",
+                            ex);
+                    try {
+                        connection = getConnection(ph);
+                        nc = new NovaClient(connection);
+                        server = nc.getServerDetails(ph, id);
+                    } catch (OpenStackConnectionException e) {
+                        logger.error(
+                                "NovaClient.getServerDetails() Could not get server status (Server ID:"
+                                        + id + ") in stack (Stack ID: "
+                                        + ph.getStackId() + ")",
+                                e);
+                        server.setName("");
+                        server.setStatus("-1");
+                    }
+                } else {
+                    logger.error(
+                            "NovaClient.getServerDetails() Could not get server status (Server ID:"
+                                    + id + ") in stack (Stack ID: "
+                                    + ph.getStackId() + ")",
+                            ex);
+                    server.setName("");
+                    server.setStatus("-1");
+                }
+            }
             servers.add(server);
         }
         return servers;
