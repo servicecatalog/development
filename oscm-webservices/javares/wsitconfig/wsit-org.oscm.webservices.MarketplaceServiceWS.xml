@@ -11,6 +11,7 @@
   xmlns:wsaw="http://www.w3.org/2005/08/addressing" xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex">
   <message name="publishService" />
   <message name="publishServiceResponse" />
+  <message name="getAccessibleMarketplaces" />
   <message name="getMarketplacesForService" />
   <message name="getMarketplacesForServiceResponse" />
   <message name="getMarketplacesOwned" />

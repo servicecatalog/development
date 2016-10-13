@@ -119,9 +119,9 @@ public interface MarketplaceService {
      */
 
     public VOServiceDetails publishService(VOService service,
-            List<VOCatalogEntry> entries) throws ObjectNotFoundException,
-            ValidationException, NonUniqueBusinessKeyException,
-            OperationNotPermittedException,
+            List<VOCatalogEntry> entries)
+            throws ObjectNotFoundException, ValidationException,
+            NonUniqueBusinessKeyException, OperationNotPermittedException,
             PublishingToMarketplaceNotPermittedException;
 
     /**
@@ -171,8 +171,13 @@ public interface MarketplaceService {
 
     public List<VOMarketplace> getMarketplacesForOperator();
 
-    @RolesAllowed("PLATFORM_OPERATOR")
-    List<VOMarketplace> getAccessibleMarketplacesForOperator();
+    /**
+     * Returns a list of the marketplaces that are accessible for the logged in
+     * organization.
+     * 
+     * @return the list of marketplaces
+     */
+    public List<VOMarketplace> getAccessibleMarketplaces();
 
     /**
      * Modifies the name and/or owner of the given marketplace.
@@ -299,9 +304,9 @@ public interface MarketplaceService {
      */
 
     public void addOrganizationsToMarketplace(List<String> organizationIds,
-            String marketplaceId) throws ObjectNotFoundException,
-            OperationNotPermittedException, OrganizationAuthorityException,
-            OrganizationAlreadyExistsException,
+            String marketplaceId)
+            throws ObjectNotFoundException, OperationNotPermittedException,
+            OrganizationAuthorityException, OrganizationAlreadyExistsException,
             MarketplaceAccessTypeUneligibleForOperationException;
 
     /**
@@ -335,9 +340,9 @@ public interface MarketplaceService {
      */
 
     public void banOrganizationsFromMarketplace(List<String> organizationIds,
-            String marketplaceId) throws ObjectNotFoundException,
-            OperationNotPermittedException, OrganizationAuthorityException,
-            OrganizationAlreadyBannedException,
+            String marketplaceId)
+            throws ObjectNotFoundException, OperationNotPermittedException,
+            OrganizationAuthorityException, OrganizationAlreadyBannedException,
             MarketplaceAccessTypeUneligibleForOperationException;
 
     /**
@@ -366,8 +371,8 @@ public interface MarketplaceService {
      *             broker, or reseller role
      */
 
-    public void removeOrganizationsFromMarketplace(
-            List<String> organizationIds, String marketplaceId)
+    public void removeOrganizationsFromMarketplace(List<String> organizationIds,
+            String marketplaceId)
             throws ObjectNotFoundException, OperationNotPermittedException,
             MarketplaceAccessTypeUneligibleForOperationException,
             OrganizationAuthorityException;
@@ -427,8 +432,8 @@ public interface MarketplaceService {
      */
 
     public List<VOOrganization> getBannedOrganizationsForMarketplace(
-            String marketplaceId) throws ObjectNotFoundException,
-            OperationNotPermittedException,
+            String marketplaceId)
+            throws ObjectNotFoundException, OperationNotPermittedException,
             MarketplaceAccessTypeUneligibleForOperationException;
 
     /**
@@ -453,8 +458,8 @@ public interface MarketplaceService {
      */
 
     public List<VOOrganization> getOrganizationsForMarketplace(
-            String marketplaceId) throws ObjectNotFoundException,
-            OperationNotPermittedException,
+            String marketplaceId)
+            throws ObjectNotFoundException, OperationNotPermittedException,
             MarketplaceAccessTypeUneligibleForOperationException;
 
     /**
@@ -565,8 +570,8 @@ public interface MarketplaceService {
      */
     @RolesAllowed("MARKETPLACE_OWNER")
     void grantAccessToMarketPlaceToOrganization(VOMarketplace voMarketplace,
-            VOOrganization voOrganization) throws ValidationException,
-            NonUniqueBusinessKeyException;
+            VOOrganization voOrganization)
+            throws ValidationException, NonUniqueBusinessKeyException;
 
     /**
      * Method is used to remove restrictions to the given marketplace.

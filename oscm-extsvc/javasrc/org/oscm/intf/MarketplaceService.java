@@ -174,6 +174,15 @@ public interface MarketplaceService {
     public List<VOMarketplace> getMarketplacesForOperator();
 
     /**
+     * Returns a list of the marketplaces that are accessible for the logged in
+     * organization.
+     * 
+     * @return the list of marketplaces
+     */
+    @WebMethod
+    public List<VOMarketplace> getAccessibleMarketplaces();
+
+    /**
      * Modifies the name and/or owner of the given marketplace.
      * <p>
      * To set a new marketplace owner, specify the ID of the organization in the
