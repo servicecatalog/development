@@ -70,11 +70,11 @@ public class UdaAssembler extends BaseAssembler {
                 .getConfigurationType());
         voUdaDefinition.setEncrypted(udaDefinition.getDataContainer().isEncrypted());
 
-        String defaultAttrValue;
-        if (udaDefinition.getDataContainer().isEncrypted()) {
-            defaultAttrValue = ParameterEncrypter.decrypt(udaDefinition.getDefaultValue());
-        } else {
-            defaultAttrValue = udaDefinition.getDefaultValue();
+        String defaultAttrValue = udaDefinition.getDefaultValue();
+        if (StringUtils.isNotBlank(defaultAttrValue)) {
+            if (udaDefinition.getDataContainer().isEncrypted()) {
+                defaultAttrValue = ParameterEncrypter.decrypt(udaDefinition.getDefaultValue());
+            }
         }
         voUdaDefinition.setDefaultValue(defaultAttrValue);
 
@@ -116,11 +116,11 @@ public class UdaAssembler extends BaseAssembler {
         throws ValidationException, GeneralSecurityException {
         validateDefinition(voUdaDefinition);
 
-        String defaultAttrValue;
-        if (voUdaDefinition.isEncrypted()) {
-            defaultAttrValue = ParameterEncrypter.encrypt(voUdaDefinition.getDefaultValue());
-        } else {
-            defaultAttrValue = voUdaDefinition.getDefaultValue();
+        String defaultAttrValue = voUdaDefinition.getDefaultValue();
+        if (StringUtils.isNotBlank(defaultAttrValue)) {
+            if (voUdaDefinition.isEncrypted()) {
+                defaultAttrValue = ParameterEncrypter.encrypt(voUdaDefinition.getDefaultValue());
+            }
         }
         udaDefinition.setDefaultValue(defaultAttrValue);
         udaDefinition.setTargetType(UdaTargetType.valueOf(voUdaDefinition

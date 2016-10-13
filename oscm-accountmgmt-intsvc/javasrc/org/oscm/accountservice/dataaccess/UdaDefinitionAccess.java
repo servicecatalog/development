@@ -8,6 +8,7 @@
 
 package org.oscm.accountservice.dataaccess;
 
+import java.security.GeneralSecurityException;
 import java.util.List;
 import java.util.Set;
 
@@ -139,6 +140,8 @@ public class UdaDefinitionAccess {
                         voDef.getUdaId());
                 ctx.setRollbackOnly();
                 throw e;
+            } catch (GeneralSecurityException e) {
+                throw new ValidationException();
             }
             // check if target type is allowed for organization
             UdaTargetType type = def.getTargetType();
@@ -234,12 +237,18 @@ public class UdaDefinitionAccess {
         // inconsistencies for all depending UDAs
 
         // verify business key uniqueness
-        UdaDefinition tempForUniquenessCheck = UdaAssembler
-                .toUdaDefinition(voDef);
+        UdaDefinition tempForUniquenessCheck = null;
+        try {
+            tempForUniquenessCheck = UdaAssembler
+                    .toUdaDefinition(voDef);
+        } catch (GeneralSecurityException e) {
+            throw new ValidationException();
+        }
         tempForUniquenessCheck.setOrganization(owner);
         tempForUniquenessCheck.setKey(existing.getKey());
         try {
             ds.validateBusinessKeyUniqueness(tempForUniquenessCheck);
+            UdaAssembler.updateUdaDefinition(existing, voDef);
         } catch (NonUniqueBusinessKeyException e) {
             logger.logWarn(
                     Log4jLogger.SYSTEM_LOG,
@@ -247,9 +256,10 @@ public class UdaDefinitionAccess {
                     LogMessageIdentifier.WARN_NON_UNIQUE_BUSINESS_KEY_UDA_DEFINITION);
             ctx.setRollbackOnly();
             throw e;
+        } catch (GeneralSecurityException e) {
+            throw new ValidationException();
         }
-        UdaAssembler.updateUdaDefinition(existing, voDef);
-        
+
     }
 
     /**
