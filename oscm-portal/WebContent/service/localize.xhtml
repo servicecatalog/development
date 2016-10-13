@@ -17,6 +17,9 @@
       <c:forEach items="#{serviceBean.localization.descriptions}" var="it">
         <h:inputHidden id="desc_#{it.locale}" value="#{it.text}" />
       </c:forEach>
+      <c:forEach items="#{serviceBean.localization.customTabNames}" var="it">
+        <h:inputHidden id="customtabname_#{it.locale}" value="#{it.text}" />
+      </c:forEach>
 
       <adm:outputStep value="#{msg['service.localize.step1']}" />
       <adm:panelGrid>
@@ -188,6 +191,7 @@
 	  Localize.translation2Field(prefix+'Locale', 'name_', Localize.getElement(prefix+'ServiceName'));
 	  Localize.translation2Field(prefix+'Locale', 'shortdesc_', Localize.getElement(prefix+'ServiceShortDescription'));
 	  Localize.translation2Editor(prefix+'Locale', 'desc_', Localize.getEditor(prefix+'Description'));
+	  Localize.translation2Editor(prefix+'Locale', 'customtabname_', Localize.getEditor(prefix+'CustomTabName'));
 	}
 	
 	jQuery().ready(function(){

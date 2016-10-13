@@ -139,7 +139,7 @@ public class ServiceProvisioningServiceLocalizationBean implements
                 LocalizedObjectTypes.PRODUCT_SHORT_DESCRIPTION));
         l.setDescriptions(localizer.getLocalizedValues(service.getKey(),
                 LocalizedObjectTypes.PRODUCT_MARKETING_DESC));
-        l.setNames(localizer.getLocalizedValues(service.getKey(),
+        l.setCustomTabNames(localizer.getLocalizedValues(service.getKey(),
                 LocalizedObjectTypes.PRODUCT_CUSTOM_TAB_NAME));
 
         return l;

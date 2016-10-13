@@ -2126,6 +2126,7 @@ public class VOConverter {
                 .getDescriptions()));
         newVO.setShortDescriptions(convertToUpVOLocalizedText(oldVO
                 .getShortDescriptions()));
+        newVO.setCustomTabNames(convertToUpVOLocalizedText(oldVO.getCustomTabNames()));
         return newVO;
     }
 
@@ -2146,6 +2147,7 @@ public class VOConverter {
         newVO.setDescriptions(convertToVOLocalizedText(oldVO.getDescriptions()));
         newVO.setShortDescriptions(convertToVOLocalizedText(oldVO
                 .getShortDescriptions()));
+        newVO.setCustomTabNames(convertToVOLocalizedText(oldVO.getCustomTabNames()));
         return newVO;
     }
 
