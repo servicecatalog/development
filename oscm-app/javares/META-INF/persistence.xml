@@ -11,6 +11,7 @@
     <jta-data-source>BSSAppDS</jta-data-source>
     <class>org.oscm.app.domain.ServiceInstance</class>
     <class>org.oscm.app.domain.ConfigurationSetting</class>
+    <class>org.oscm.app.domain.CustomSetting</class>
     <class>org.oscm.app.domain.InstanceParameter</class>
     <properties>
       <property name="hibernate.hbm2ddl.auto" value="validate" />

@@ -19,6 +19,7 @@ import org.oscm.provisioning.data.BaseResult;
 import org.oscm.provisioning.data.InstanceInfo;
 import org.oscm.provisioning.data.InstanceRequest;
 import org.oscm.provisioning.data.InstanceResult;
+import org.oscm.provisioning.data.ServiceAttribute;
 import org.oscm.provisioning.data.ServiceParameter;
 import org.oscm.provisioning.data.User;
 import org.oscm.provisioning.data.UserResult;
@@ -201,7 +202,8 @@ public class ProvisioningServiceBean implements ProvisioningService {
     }
 
     @Override
-    public BaseResult deactivateInstance(String instanceId, User requestingUser) {
+    public BaseResult deactivateInstance(String instanceId,
+            User requestingUser) {
         final RequestLogEntry entry = createLogEntry("deactivateInstance");
         entry.addParameter("instanceId", instanceId);
         entry.addParameter("requestingUser", requestingUser);
@@ -233,7 +235,8 @@ public class ProvisioningServiceBean implements ProvisioningService {
     public BaseResult asyncUpgradeSubscription(String instanceId,
             String subscriptionId, List<ServiceParameter> parameterValues,
             User requestingUser) {
-        final RequestLogEntry entry = createLogEntry("asyncUpgradeSubscription");
+        final RequestLogEntry entry = createLogEntry(
+                "asyncUpgradeSubscription");
         entry.addParameter("instanceId", instanceId);
         entry.addParameter("subscriptionId", subscriptionId);
         entry.addParameter("parameterValues", parameterValues);
@@ -258,6 +261,16 @@ public class ProvisioningServiceBean implements ProvisioningService {
         entry.addParameter("instanceId", instanceId);
         entry.addParameter("subscriptionId", subscriptionId);
         entry.addParameter("parameterValues", parameterValues);
+        entry.addParameter("requestingUser", requestingUser);
+        return getBaseResultOk();
+    }
+
+    @Override
+    public BaseResult saveAttributes(String organizationId,
+            List<ServiceAttribute> attributeValues, User requestingUser) {
+        final RequestLogEntry entry = createLogEntry("upgradeSubscription");
+        entry.addParameter("organizationId", organizationId);
+        entry.addParameter("attributeValues", attributeValues);
         entry.addParameter("requestingUser", requestingUser);
         return getBaseResultOk();
     }

@@ -22,12 +22,9 @@ import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.oscm.string.Strings;
 import org.oscm.app.business.exceptions.BadResultException;
 import org.oscm.app.domain.ConfigurationSetting;
+import org.oscm.app.domain.CustomSetting;
 import org.oscm.app.domain.InstanceParameter;
 import org.oscm.app.domain.PlatformConfigurationKey;
 import org.oscm.app.domain.ServiceInstance;
@@ -38,7 +35,10 @@ import org.oscm.app.v1_0.data.PasswordAuthentication;
 import org.oscm.app.v1_0.data.ProvisioningSettings;
 import org.oscm.app.v1_0.data.ServiceUser;
 import org.oscm.app.v1_0.exceptions.ConfigurationException;
+import org.oscm.string.Strings;
 import org.oscm.vo.VOUserDetails;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of the configuration service.
@@ -105,7 +105,7 @@ public class APPConfigurationServiceBean {
     public HashMap<String, String> getControllerOrganizations() {
 
         LOGGER.debug("Retrieving configured controllers");
-        HashMap<String, String> result = new HashMap<String, String>();
+        HashMap<String, String> result = new HashMap<>();
         Query query = em
                 .createNamedQuery("ConfigurationSetting.getControllersForKey");
         query.setParameter("key",
@@ -113,7 +113,8 @@ public class APPConfigurationServiceBean {
         List<?> resultList = query.getResultList();
         for (Object entry : resultList) {
             ConfigurationSetting currentCs = (ConfigurationSetting) entry;
-            result.put(currentCs.getControllerId(), currentCs.getSettingValue());
+            result.put(currentCs.getControllerId(),
+                    currentCs.getSettingValue());
         }
         return result;
     }
@@ -147,9 +148,8 @@ public class APPConfigurationServiceBean {
                     && controllerOrganizations.get(key).trim().length() > 0) {
                 ConfigurationSetting newSetting = new ConfigurationSetting();
                 newSetting.setControllerId(key);
-                newSetting
-                        .setSettingKey(ControllerConfigurationKey.BSS_ORGANIZATION_ID
-                                .name());
+                newSetting.setSettingKey(
+                        ControllerConfigurationKey.BSS_ORGANIZATION_ID.name());
                 newSetting.setSettingValue(controllerOrganizations.get(key));
                 em.persist(newSetting);
             }
@@ -161,8 +161,9 @@ public class APPConfigurationServiceBean {
         try {
             String value = setting.getSettingValue();
             if (value != null
-                    && (setting.getSettingKey().endsWith(CRYPT_KEY_SUFFIX) || setting
-                            .getSettingKey().endsWith(CRYPT_KEY_SUFFIX_PASS))) {
+                    && (setting.getSettingKey().endsWith(CRYPT_KEY_SUFFIX)
+                            || setting.getSettingKey()
+                                    .endsWith(CRYPT_KEY_SUFFIX_PASS))) {
                 if (value.startsWith(CRYPT_PREFIX)) {
                     value = value.substring(CRYPT_PREFIX.length());
                     setting.setSettingValue(AESEncrypter.encrypt(value));
@@ -186,8 +187,9 @@ public class APPConfigurationServiceBean {
         try {
             String value = setting.getSettingValue();
             if (value != null
-                    && (setting.getSettingKey().endsWith(CRYPT_KEY_SUFFIX) || setting
-                            .getSettingKey().endsWith(CRYPT_KEY_SUFFIX_PASS))) {
+                    && (setting.getSettingKey().endsWith(CRYPT_KEY_SUFFIX)
+                            || setting.getSettingKey()
+                                    .endsWith(CRYPT_KEY_SUFFIX_PASS))) {
                 setting.setSettingValue(AESEncrypter.encrypt(value));
             }
         } catch (GeneralSecurityException e) {
@@ -203,7 +205,7 @@ public class APPConfigurationServiceBean {
     public HashMap<String, String> getAllProxyConfigurationSettings()
             throws ConfigurationException {
         LOGGER.debug("Retrieving all configuration settings for proxy");
-        HashMap<String, String> result = new HashMap<String, String>();
+        HashMap<String, String> result = new HashMap<>();
         Query query = em.createNamedQuery("ConfigurationSetting.getAllProxy");
         List<?> resultList = query.getResultList();
         for (Object entry : resultList) {
@@ -223,7 +225,8 @@ public class APPConfigurationServiceBean {
         if (missing.length() > 0) {
             throw new ConfigurationException(
                     "The configuration is missing the following parameter(s): "
-                            + missing.toString(), missing.toString());
+                            + missing.toString(),
+                    missing.toString());
         }
         return result;
     }
@@ -231,7 +234,8 @@ public class APPConfigurationServiceBean {
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     public VOUserDetails getAPPAdministrator() throws ConfigurationException {
         VOUserDetails adminuser = new VOUserDetails();
-        String adminemail = getProxyConfigurationSetting(PlatformConfigurationKey.APP_ADMIN_MAIL_ADDRESS);
+        String adminemail = getProxyConfigurationSetting(
+                PlatformConfigurationKey.APP_ADMIN_MAIL_ADDRESS);
         if (!Strings.isEmpty(adminemail)) {
             adminuser.setEMail(adminemail);
             adminuser.setLocale(Messages.DEFAULT_LOCALE);
@@ -245,7 +249,7 @@ public class APPConfigurationServiceBean {
 
         LOGGER.debug("Retrieving configuration settings for controller '{}'",
                 controllerId);
-        HashMap<String, String> result = new HashMap<String, String>();
+        HashMap<String, String> result = new HashMap<>();
         if (controllerId != null) {
             Query query = em
                     .createNamedQuery("ConfigurationSetting.getForController");
@@ -270,15 +274,43 @@ public class APPConfigurationServiceBean {
         if (missing.length() > 0) {
             throw new ConfigurationException(
                     "The controller configuration is missing the following parameter(s): "
-                            + missing.toString(), missing.toString());
+                            + missing.toString(),
+                    missing.toString());
         }
+        return result;
+    }
+
+    @TransactionAttribute(TransactionAttributeType.MANDATORY)
+    public HashMap<String, String> getCustomSettings(String organizationId)
+            throws ConfigurationException {
+
+        LOGGER.debug("Retrieving custom settings for organization '{}'",
+                organizationId);
+
+        HashMap<String, String> result = new HashMap<>();
+
+        if (organizationId != null) {
+            Query query = em.createNamedQuery("CustomSetting.getForController");
+            query.setParameter("organizationId", organizationId);
+            List<?> resultList = query.getResultList();
+            try {
+                for (Object entry : resultList) {
+                    CustomSetting currentCs = (CustomSetting) entry;
+                    result.put(currentCs.getSettingKey(),
+                            currentCs.getDecryptedValue());
+                }
+            } catch (BadResultException e) {
+                throw new ConfigurationException(e.getMessage());
+            }
+        }
+
         return result;
     }
 
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     public void setAPPSuspend(String isSupsend) {
         LOGGER.debug("Storing suspend setting for APP");
-        HashMap<String, String> setting = new HashMap<String, String>();
+        HashMap<String, String> setting = new HashMap<>();
         setting.put(APP_SUSPEND, isSupsend);
         try {
             storeControllerConfigurationSettings(PROXY_ID, setting);
@@ -291,7 +323,8 @@ public class APPConfigurationServiceBean {
     public boolean isAPPSuspend() {
         String isSuspend = "";
         try {
-            isSuspend = getProxyConfigurationSetting(PlatformConfigurationKey.APP_SUSPEND);
+            isSuspend = getProxyConfigurationSetting(
+                    PlatformConfigurationKey.APP_SUSPEND);
         } catch (ConfigurationException exception) {
             // this exception should not happen due to no decryption needed for
             // APP_SUSPEND, no handle needed
@@ -345,10 +378,12 @@ public class APPConfigurationServiceBean {
     public ProvisioningSettings getProvisioningSettings(
             final ServiceInstance instance, final ServiceUser requestingUser)
             throws BadResultException, ConfigurationException {
-        final HashMap<String, String> controllerSettings = getControllerConfigurationSettings(instance
-                .getControllerId());
+        final HashMap<String, String> controllerSettings = getControllerConfigurationSettings(
+                instance.getControllerId());
+        final HashMap<String, String> customSettings = getCustomSettings(
+                instance.getOrganizationId());
         final ProvisioningSettings settings = new ProvisioningSettings(
-                instance.getParameterMap(), controllerSettings,
+                instance.getParameterMap(), customSettings, controllerSettings,
                 instance.getDefaultLocale());
 
         settings.setOrganizationId(instance.getOrganizationId());
@@ -356,8 +391,8 @@ public class APPConfigurationServiceBean {
         settings.setSubscriptionId(instance.getSubscriptionId());
         settings.setBesLoginUrl(instance.getBesLoginURL());
         settings.setRequestingUser(requestingUser);
-        settings.setAuthentication(getAuthenticationForBESTechnologyManager(
-                null, instance, null));
+        settings.setAuthentication(
+                getAuthenticationForBESTechnologyManager(null, instance, null));
         copyCredentialsFromControllerSettings(settings, controllerSettings);
         return settings;
     }
@@ -405,10 +440,12 @@ public class APPConfigurationServiceBean {
         if (serviceInstance != null) {
             controllerId = serviceInstance.getControllerId();
         }
-        HashMap<String, String> controllerSettings = getControllerConfigurationSettings(controllerId);
+        HashMap<String, String> controllerSettings = getControllerConfigurationSettings(
+                controllerId);
 
-        String usernameKey = isSso ? ControllerConfigurationKey.BSS_USER_ID
-                .name() : ControllerConfigurationKey.BSS_USER_KEY.name();
+        String usernameKey = isSso
+                ? ControllerConfigurationKey.BSS_USER_ID.name()
+                : ControllerConfigurationKey.BSS_USER_KEY.name();
         String user = controllerSettings.get(usernameKey);
         String userPwd = controllerSettings
                 .get(ControllerConfigurationKey.BSS_USER_PWD.name());
@@ -432,10 +469,10 @@ public class APPConfigurationServiceBean {
                 InstanceParameter userPwdParam = serviceInstance
                         .getParameterForKey(InstanceParameter.BSS_USER_PWD);
                 try {
-                    ws_username = userParam == null ? null : userParam
-                            .getDecryptedValue();
-                    ws_password = userPwdParam == null ? null : userPwdParam
-                            .getDecryptedValue();
+                    ws_username = userParam == null ? null
+                            : userParam.getDecryptedValue();
+                    ws_password = userPwdParam == null ? null
+                            : userPwdParam.getDecryptedValue();
                 } catch (BadResultException e) {
                     throw new ConfigurationException(e.getMessage(),
                             InstanceParameter.BSS_USER_PWD);
@@ -449,8 +486,7 @@ public class APPConfigurationServiceBean {
                         "The controller settings for controller '"
                                 + controllerId
                                 + "' are missing complete technology manager credentials. Please define values for both "
-                                + usernameKey
-                                + " and "
+                                + usernameKey + " and "
                                 + ControllerConfigurationKey.BSS_USER_PWD
                                         .name(),
                         usernameKey);
@@ -466,17 +502,17 @@ public class APPConfigurationServiceBean {
             proxySettings = getAllProxyConfigurationSettings();
         }
         boolean isSso = isSsoMode(proxySettings);
-        String usernameKey = isSso ? PlatformConfigurationKey.BSS_USER_ID
-                .name() : PlatformConfigurationKey.BSS_USER_KEY.name();
+        String usernameKey = isSso ? PlatformConfigurationKey.BSS_USER_ID.name()
+                : PlatformConfigurationKey.BSS_USER_KEY.name();
         String ws_username = proxySettings.get(usernameKey);
         String ws_password = proxySettings
                 .get(PlatformConfigurationKey.BSS_USER_PWD.name());
         if (Strings.isEmpty(ws_username) || ws_password == null) {
-            LOGGER.error("Request context for web service call is incomplete due to missing credentials. Please check platform settings.");
+            LOGGER.error(
+                    "Request context for web service call is incomplete due to missing credentials. Please check platform settings.");
             throw new ConfigurationException(
                     "The APP configuration settings define incomplete admin credentials. Please define values for both "
-                            + usernameKey
-                            + " and "
+                            + usernameKey + " and "
                             + PlatformConfigurationKey.BSS_USER_PWD.name(),
                     usernameKey);
         }
@@ -484,8 +520,8 @@ public class APPConfigurationServiceBean {
     }
 
     private boolean isSsoMode(Map<String, String> settings) {
-        return "SAML_SP".equals(settings
-                .get(PlatformConfigurationKey.BSS_AUTH_MODE.name()));
+        return "SAML_SP".equals(
+                settings.get(PlatformConfigurationKey.BSS_AUTH_MODE.name()));
     }
 
 }

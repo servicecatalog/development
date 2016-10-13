@@ -88,6 +88,10 @@ public class PropertyHandler {
 
     // Start time of operation
     public static final String START_TIME = "START_TIME";
+    
+    // Attributes to overwrite credentials
+    public static final String OPENSTACK_USER_NAME = "OPENSTACK_USER_NAME";
+    public static final String OPENSTACK_USER_PWD = "OPENSTACK_USER_PWD";
 
     /**
      * Default constructor.
@@ -189,12 +193,17 @@ public class PropertyHandler {
         try {
             String url = getValidatedProperty(settings.getParameters(),
                     TEMPLATE_NAME);
+<<<<<<< 8085f023f5609892c35f54b1f182816d13a1e95e
 
             String baseUrl = settings.getParameters().get(TEMPLATE_BASE_URL);
             if (baseUrl == null || baseUrl.trim().length() == 0) {
                 baseUrl = getValidatedProperty(settings.getConfigSettings(),
                         TEMPLATE_BASE_URL);
             }
+=======
+            String baseUrl = getValidatedProperty(settings.getConfigSettings(),
+                    TEMPLATE_BASE_URL);
+>>>>>>> adapt app and controller for user attributes via custom settings
             return new URL(new URL(baseUrl), url).toExternalForm();
         } catch (MalformedURLException e) {
             throw new HeatException(
@@ -279,12 +288,18 @@ public class PropertyHandler {
     }
 
     /**
-     * Returns the configured password for API usage.
+     * Returns the configured or overwritten password for API usage.
      *
      * @return the password
      */
     public String getPassword() {
-        return getValidatedProperty(settings.getConfigSettings(), API_USER_PWD);
+        if (settings.getAttributes().containsKey(OPENSTACK_USER_PWD)
+                && settings.getAttributes().containsKey(OPENSTACK_USER_NAME)) {
+            return settings.getAttributes().get(OPENSTACK_USER_PWD);
+        } else {
+            return getValidatedProperty(settings.getConfigSettings(),
+                    API_USER_PWD);
+        }
     }
 
     /**
@@ -293,8 +308,13 @@ public class PropertyHandler {
      * @return the user name
      */
     public String getUserName() {
-        return getValidatedProperty(settings.getConfigSettings(),
-                API_USER_NAME);
+        if (settings.getAttributes().containsKey(OPENSTACK_USER_PWD)
+                && settings.getAttributes().containsKey(OPENSTACK_USER_NAME)) {
+            return settings.getAttributes().get(OPENSTACK_USER_NAME);
+        } else {
+            return getValidatedProperty(settings.getConfigSettings(),
+                    API_USER_NAME);
+        }
     }
 
     /**

@@ -71,6 +71,10 @@ public class PropertyHandler {
     public static String EAI_INSTANCE_PUBLIC_DNS = "instancePublicDns";
     public static String SNAPSHOT_ID = "snapshotId";
 
+    // Attributes to overwrite credentials
+    public static final String AWS_ACCESS_KEY_ID = "AWS_ACCESS_KEY_ID";
+    public static final String AWS_SECRET_ACCESS_PWD = "AWS_SECRET_ACCESS_PWD";
+
     /**
      * Default factory method.
      * 
@@ -134,14 +138,24 @@ public class PropertyHandler {
      * @return the configured AWS secret key
      */
     public String getSecretKey() {
-        return settings.getConfigSettings().get(SECRET_KEY_PWD);
+        if (settings.getAttributes().containsKey(AWS_ACCESS_KEY_ID) && settings
+                .getAttributes().containsKey(AWS_SECRET_ACCESS_PWD)) {
+            return settings.getAttributes().get(AWS_SECRET_ACCESS_PWD);
+        } else {
+            return settings.getConfigSettings().get(SECRET_KEY_PWD);
+        }
     }
 
     /**
      * @return the configured AWS access key ID
      */
     public String getAccessKeyId() {
-        return settings.getConfigSettings().get(ACCESS_KEY_ID_PWD);
+        if (settings.getAttributes().containsKey(AWS_ACCESS_KEY_ID) && settings
+                .getAttributes().containsKey(AWS_SECRET_ACCESS_PWD)) {
+            return settings.getAttributes().get(AWS_ACCESS_KEY_ID);
+        } else {
+            return settings.getConfigSettings().get(ACCESS_KEY_ID_PWD);
+        }
     }
 
     /**
@@ -259,7 +273,7 @@ public class PropertyHandler {
      *         <code>null</code>
      */
     public Collection<String> getSecurityGroups() {
-        Collection<String> result = new HashSet<String>();
+        Collection<String> result = new HashSet<>();
         String value = settings.getParameters().get(SECURITY_GROUP_NAMES);
         if (value != null) {
             String[] split = value.split(",");

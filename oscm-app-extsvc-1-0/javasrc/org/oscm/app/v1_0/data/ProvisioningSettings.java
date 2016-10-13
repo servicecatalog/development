@@ -19,13 +19,14 @@ import java.util.HashMap;
  * an application-specific service controller; they can also be evaluated by the
  * application.
  */
-public class ProvisioningSettings extends ControllerSettings implements
-        Serializable {
+public class ProvisioningSettings extends ControllerSettings
+        implements Serializable {
 
     private static final long serialVersionUID = 9161029657174458354L;
 
     private String locale;
     private HashMap<String, String> parameters;
+    private HashMap<String, String> attributes;
     private String organizationId;
     private String organizationName;
     private String subscriptionId;
@@ -51,6 +52,32 @@ public class ProvisioningSettings extends ControllerSettings implements
         super(configSettings);
         this.parameters = parameters;
         this.locale = locale;
+        this.attributes = new HashMap<>();
+    }
+
+    /**
+     * Constructs a new provisioning settings instance with the given service
+     * parameters, attributes and controller configuration settings. The
+     * specified locale is used for language-dependent strings.
+     * 
+     * @param parameters
+     *            the service parameters, consisting of a key and a value each
+     * @param attributes
+     *            the service attributes, consisting of a key and a value each
+     * @param configSettings
+     *            the configuration settings, consisting of a key and a value
+     *            each
+     * @param locale
+     *            the language. Specify a language code as returned by
+     *            <code>getLanguage()</code> of <code>java.util.Locale</code>.
+     */
+    public ProvisioningSettings(HashMap<String, String> parameters,
+            HashMap<String, String> attributes,
+            HashMap<String, String> configSettings, String locale) {
+        super(configSettings);
+        this.parameters = parameters;
+        this.locale = locale;
+        this.attributes = attributes;
     }
 
     /**
@@ -70,6 +97,25 @@ public class ProvisioningSettings extends ControllerSettings implements
      */
     public void setParameters(HashMap<String, String> parameters) {
         this.parameters = parameters;
+    }
+
+    /**
+     * Returns a list of the service attributes.
+     * 
+     * @return the service attributes, consisting of a key and a value each
+     */
+    public HashMap<String, String> getAttributes() {
+        return attributes;
+    }
+
+    /**
+     * Sets the service attributes.
+     * 
+     * @param parameters
+     *            the service attributes, consisting of a key and a value each
+     */
+    public void setAttributes(HashMap<String, String> attributes) {
+        this.attributes = attributes;
     }
 
     /**
@@ -188,11 +234,15 @@ public class ProvisioningSettings extends ControllerSettings implements
     }
 
     /**
-     * <p>If APP calls createInstance() of the controller, returns the user
-     * who requested the current provisioning operation.</p>
+     * <p>
+     * If APP calls createInstance() of the controller, returns the user who
+     * requested the current provisioning operation.
+     * </p>
      * 
-     * <p>If a timer calls the controller to switch from one status to the
-     * other, returns 'null'.</p>
+     * <p>
+     * If a timer calls the controller to switch from one status to the other,
+     * returns 'null'.
+     * </p>
      * 
      * @return the user or 'null'
      */

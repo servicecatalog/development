@@ -15,6 +15,7 @@ import javax.jws.WebService;
 import org.oscm.provisioning.data.BaseResult;
 import org.oscm.provisioning.data.InstanceRequest;
 import org.oscm.provisioning.data.InstanceResult;
+import org.oscm.provisioning.data.ServiceAttribute;
 import org.oscm.provisioning.data.ServiceParameter;
 import org.oscm.provisioning.data.User;
 import org.oscm.provisioning.data.UserResult;
@@ -89,7 +90,8 @@ public class ProvisioningServiceImpl implements ProvisioningService {
     }
 
     @Override
-    public BaseResult deactivateInstance(String instanceId, User requestingUser) {
+    public BaseResult deactivateInstance(String instanceId,
+            User requestingUser) {
         throw new UnsupportedOperationException();
     }
 
@@ -111,6 +113,12 @@ public class ProvisioningServiceImpl implements ProvisioningService {
     public BaseResult upgradeSubscription(String instanceId,
             String subscriptionId, List<ServiceParameter> parameterValues,
             User requestingUser) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public BaseResult saveAttributes(String organizationId,
+            List<ServiceAttribute> attributeValues, User requestingUser) {
         throw new UnsupportedOperationException();
     }
 

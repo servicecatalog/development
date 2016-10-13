@@ -21,6 +21,7 @@ import javax.jws.soap.SOAPBinding;
 import org.oscm.provisioning.data.BaseResult;
 import org.oscm.provisioning.data.InstanceRequest;
 import org.oscm.provisioning.data.InstanceResult;
+import org.oscm.provisioning.data.ServiceAttribute;
 import org.oscm.provisioning.data.ServiceParameter;
 import org.oscm.provisioning.data.User;
 import org.oscm.provisioning.data.UserResult;
@@ -509,6 +510,28 @@ public interface ProvisioningService {
             @WebParam(name = "instanceId") String instanceId,
             @WebParam(name = "subscriptionId") String subscriptionId,
             @WebParam(name = "parameterValues") List<ServiceParameter> parameterValues,
+            @WebParam(name = "requestingUser") User requestingUser);
+
+    /**
+     * This method is called when a customer sets user defined attributes for
+     * his subscriptions. The attributes are saved within the APP and used, for
+     * example, to overwrite the configured controller credentials.
+     * 
+     * @param organizationId
+     *            the id of the organization the customer belongs to.
+     * @param attributeValues
+     *            the values for the attributes.
+     * @param requestingUser
+     *            a <code>User</code> object specifying the platform user who
+     *            requests the instance operation.
+     * @return
+     */
+    @WebMethod(action = "urn:saveAttributes")
+    @WebResult(name = "return")
+    @SOAPBinding(parameterStyle = WRAPPED)
+    public BaseResult saveAttributes(
+            @WebParam(name = "organizationId") String organizationId,
+            @WebParam(name = "attributeValues") List<ServiceAttribute> attributeValues,
             @WebParam(name = "requestingUser") User requestingUser);
 
 }
