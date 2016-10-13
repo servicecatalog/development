@@ -78,6 +78,11 @@ public class AccountServiceStub implements AccountService, AccountServiceLocal {
     }
 
     @Override
+    public String getLocalizedAttributeName(long key, String locale) {
+        return null;
+    }
+
+    @Override
     public VOOrganization registerKnownCustomer(VOOrganization organization,
             VOUserDetails user, LdapProperties organizationProperties,
             String marketplaceId) throws ValidationException {

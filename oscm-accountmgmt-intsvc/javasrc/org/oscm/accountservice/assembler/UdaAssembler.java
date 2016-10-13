@@ -40,7 +40,7 @@ public class UdaAssembler extends BaseAssembler {
     }
 
     public static UdaDefinition toUdaDefinition(VOUdaDefinition voUdaDefinition)
-        throws ValidationException, GeneralSecurityException {
+        throws ValidationException {
         if (voUdaDefinition == null) {
             return null;
         }
@@ -51,14 +51,13 @@ public class UdaAssembler extends BaseAssembler {
 
     public static UdaDefinition updateUdaDefinition(
             UdaDefinition udaDefinition, VOUdaDefinition voUdaDefinition)
-        throws ValidationException, ConcurrentModificationException, GeneralSecurityException {
+        throws ValidationException, ConcurrentModificationException {
         verifyVersionAndKey(udaDefinition, voUdaDefinition);
         copyDefinitionAttributes(voUdaDefinition, udaDefinition);
         return udaDefinition;
     }
 
-    public static VOUdaDefinition toVOUdaDefinition(UdaDefinition udaDefinition, LocalizerFacade localizerFacade)
-        throws GeneralSecurityException {
+    public static VOUdaDefinition toVOUdaDefinition(UdaDefinition udaDefinition, LocalizerFacade localizerFacade)  {
         if (udaDefinition == null) {
             return null;
         }
@@ -71,10 +70,15 @@ public class UdaAssembler extends BaseAssembler {
         voUdaDefinition.setEncrypted(udaDefinition.getDataContainer().isEncrypted());
 
         String defaultAttrValue = udaDefinition.getDefaultValue();
-        if (StringUtils.isNotBlank(defaultAttrValue)) {
-            if (udaDefinition.getDataContainer().isEncrypted()) {
-                defaultAttrValue = ParameterEncrypter.decrypt(udaDefinition.getDefaultValue());
+        try {
+            if (StringUtils.isNotBlank(defaultAttrValue)) {
+                if (udaDefinition.getDataContainer().isEncrypted()) {
+                    defaultAttrValue = ParameterEncrypter
+                            .decrypt(udaDefinition.getDefaultValue());
+                }
             }
+        } catch (GeneralSecurityException e) {
+            e.printStackTrace();
         }
         voUdaDefinition.setDefaultValue(defaultAttrValue);
 
@@ -99,7 +103,7 @@ public class UdaAssembler extends BaseAssembler {
         return uda;
     }
 
-    public static VOUda toVOUda(Uda uda, LocalizerFacade localizerFacade) throws GeneralSecurityException {
+    public static VOUda toVOUda(Uda uda, LocalizerFacade localizerFacade) {
         if (uda == null) {
             return null;
         }
@@ -113,14 +117,19 @@ public class UdaAssembler extends BaseAssembler {
 
     private static void copyDefinitionAttributes(
             VOUdaDefinition voUdaDefinition, UdaDefinition udaDefinition)
-        throws ValidationException, GeneralSecurityException {
+        throws ValidationException {
         validateDefinition(voUdaDefinition);
 
         String defaultAttrValue = voUdaDefinition.getDefaultValue();
-        if (StringUtils.isNotBlank(defaultAttrValue)) {
-            if (voUdaDefinition.isEncrypted()) {
-                defaultAttrValue = ParameterEncrypter.encrypt(voUdaDefinition.getDefaultValue());
+        try {
+            if (StringUtils.isNotBlank(defaultAttrValue)) {
+                if (voUdaDefinition.isEncrypted()) {
+                    defaultAttrValue = ParameterEncrypter
+                            .encrypt(voUdaDefinition.getDefaultValue());
+                }
             }
+        } catch (GeneralSecurityException e) {
+            e.printStackTrace();
         }
         udaDefinition.setDefaultValue(defaultAttrValue);
         udaDefinition.setTargetType(UdaTargetType.valueOf(voUdaDefinition

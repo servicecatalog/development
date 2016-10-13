@@ -136,12 +136,10 @@ public class UdaDefinitionAccess {
                 def.setOrganization(caller);
             } catch (ValidationException e) {
                 logger.logWarn(Log4jLogger.SYSTEM_LOG, e,
-                        LogMessageIdentifier.WARN_INVALID_UDA_DEFINITION,
-                        voDef.getUdaId());
+                    LogMessageIdentifier.WARN_INVALID_UDA_DEFINITION,
+                    voDef.getUdaId());
                 ctx.setRollbackOnly();
                 throw e;
-            } catch (GeneralSecurityException e) {
-                throw new ValidationException();
             }
             // check if target type is allowed for organization
             UdaTargetType type = def.getTargetType();
@@ -238,12 +236,9 @@ public class UdaDefinitionAccess {
 
         // verify business key uniqueness
         UdaDefinition tempForUniquenessCheck = null;
-        try {
             tempForUniquenessCheck = UdaAssembler
                     .toUdaDefinition(voDef);
-        } catch (GeneralSecurityException e) {
-            throw new ValidationException();
-        }
+
         tempForUniquenessCheck.setOrganization(owner);
         tempForUniquenessCheck.setKey(existing.getKey());
         try {
@@ -251,13 +246,11 @@ public class UdaDefinitionAccess {
             UdaAssembler.updateUdaDefinition(existing, voDef);
         } catch (NonUniqueBusinessKeyException e) {
             logger.logWarn(
-                    Log4jLogger.SYSTEM_LOG,
-                    e,
-                    LogMessageIdentifier.WARN_NON_UNIQUE_BUSINESS_KEY_UDA_DEFINITION);
+                Log4jLogger.SYSTEM_LOG,
+                e,
+                LogMessageIdentifier.WARN_NON_UNIQUE_BUSINESS_KEY_UDA_DEFINITION);
             ctx.setRollbackOnly();
             throw e;
-        } catch (GeneralSecurityException e) {
-            throw new ValidationException();
         }
 
     }

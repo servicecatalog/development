@@ -1275,6 +1275,11 @@ public class MockService implements IdentityService, SubscriptionService,
         return "";
     }
 
+    @Override
+    public String getLocalizedAttributeName(long key, String locale) {
+        return null;
+    }
+
     /*
      * IConfigurationServiceRemote
      */

@@ -224,9 +224,6 @@ public class ManageUdaDefinitionBean extends BaseBean implements Serializable {
     public void changeLanguage(final ValueChangeEvent event) {
         String attrName = controller.getLocalizedAttributeName(controller.getModel().getCurrentUdaDefinition().getKey
             (), event.getNewValue().toString());
-        if (attrName == null) {
-            attrName = "";
-        }
         controller.getModel().getCurrentUdaDefinition().setName(attrName);
     }
 

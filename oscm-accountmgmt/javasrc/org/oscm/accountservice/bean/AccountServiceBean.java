@@ -357,9 +357,13 @@ public class AccountServiceBean implements AccountService, AccountServiceLocal {
 
     @Override
     public String getLocalizedAttributeName(long key, String locale) {
-        LocalizerFacade localizerEn = new LocalizerFacade(localizer, locale);
-        return localizerEn.getText(key,
-                LocalizedObjectTypes.CUSTOM_ATTRIBUTE_NAME);
+        List<VOLocalizedText> texts = localizer.getLocalizedValues(key, LocalizedObjectTypes.CUSTOM_ATTRIBUTE_NAME);
+        for (VOLocalizedText text : texts) {
+            if (text.getLocale().equals(locale)) {
+                return text.getText();
+            }
+        }
+        return "";
     }
 
     /**
