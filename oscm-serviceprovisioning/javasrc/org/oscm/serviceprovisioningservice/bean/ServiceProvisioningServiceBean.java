@@ -2264,10 +2264,8 @@ public class ServiceProvisioningServiceBean
         PlatformUser currentUser = dm.getCurrentUser();
         Organization org = currentUser.getOrganization();
 
-        validateExternalServiceMustBeFree(voPriceModel, voProductDetails);
-
-        Product product = dm.getReference(Product.class,
-                voProductDetails.getKey());
+        Product product = dm.getReference(Product.class, voProductDetails.getKey());
+        validateExternalServiceMustBeFree(voPriceModel, product.getTechnicalProduct().getAccessType());
 
         boolean isCreatePriceModel = product.getPriceModel() == null;
         boolean priceModelCreatedInTransaction = false;
@@ -2352,7 +2350,7 @@ public class ServiceProvisioningServiceBean
         boolean licenseChanged = false;
         if (!ServiceType.isSubscription(productType)) {
             licenseChanged = saveLicenseInformationForPriceModel(
-                    voProductDetails.getTechnicalService().getKey(),
+                    product.getTechnicalProduct().getKey(),
                     priceModel.getKey(), voPriceModel, currentUser,
                     newPriceModelCreated);
         }
@@ -3402,9 +3400,8 @@ public class ServiceProvisioningServiceBean
 
         PlatformUser currentUser = dm.getCurrentUser();
 
-        validateExternalServiceMustBeFree(priceModel, service);
-
         Product product = dm.getReference(Product.class, service.getKey());
+        validateExternalServiceMustBeFree(priceModel, product.getTechnicalProduct().getAccessType());
 
         // ensure the subscription belongs to the given product
         Subscription sub = validateSubscription(service, currentUser, product);
@@ -3557,10 +3554,9 @@ public class ServiceProvisioningServiceBean
     }
 
     private void validateExternalServiceMustBeFree(VOPriceModel priceModel,
-            VOServiceDetails serviceDetails) throws ValidationException {
+            ServiceAccessType sat) throws ValidationException {
 
-        if (priceModel.isChargeable() && serviceDetails
-                .getAccessType() == ServiceAccessType.EXTERNAL) {
+        if (priceModel.isChargeable() && sat == ServiceAccessType.EXTERNAL) {
             throw new ValidationException(
                     ReasonEnum.EXTERNAL_SERVICE_MUST_BE_FREE_OF_CHARGE, null,
                     null);
