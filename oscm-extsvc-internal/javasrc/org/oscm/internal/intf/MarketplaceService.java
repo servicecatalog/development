@@ -171,8 +171,13 @@ public interface MarketplaceService {
 
     List<VOMarketplace> getMarketplacesForOperator();
 
-    @RolesAllowed("PLATFORM_OPERATOR")
-    List<VOMarketplace> getAccessibleMarketplacesForOperator();
+    /**
+     * Returns a list of the marketplaces that are accessible for the logged in
+     * organization.
+     * 
+     * @return the list of marketplaces
+     */
+    public List<VOMarketplace> getAccessibleMarketplaces();
 
     /**
      * Modifies the name and/or owner of the given marketplace.
