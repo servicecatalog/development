@@ -24,14 +24,7 @@ import javax.faces.bean.ViewScoped;
 
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.types.enumtypes.UserAccountStatus;
-import org.oscm.internal.types.exception.MailOperationException;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.types.exception.OperationNotPermittedException;
-import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
-import org.oscm.internal.types.exception.OrganizationRemovedException;
-import org.oscm.internal.types.exception.SaaSApplicationException;
-import org.oscm.internal.types.exception.SaaSSystemException;
-import org.oscm.internal.types.exception.ValidationException;
+import org.oscm.internal.types.exception.*;
 import org.oscm.internal.usermanagement.POUserAndOrganization;
 import org.oscm.internal.usermanagement.UserManagementService;
 import org.oscm.internal.vo.VOConfigurationSetting;
@@ -301,7 +294,6 @@ public class OperatorManageUsersCtrl extends BaseOperatorBean implements
     List<Marketplace> getSelectableMarketplaces() {
         if (isLoggedInAndPlatformOperator()) {
             if (marketplaces.isEmpty()) {
-                marketplaces = new ArrayList<>();
                 for (VOMarketplace mp : getMarketplaceService()
                         .getMarketplacesForOperator()) {
                     marketplaces.add(new Marketplace(mp));

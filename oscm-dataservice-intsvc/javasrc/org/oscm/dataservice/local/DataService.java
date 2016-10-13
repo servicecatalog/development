@@ -319,6 +319,7 @@ public interface DataService {
      *
      * @param pu
      *            platform user object
+     * @param tenantId tenant id to which user will belong
      * @throws NonUniqueBusinessKeyException
      *             Thrown if an object with the same business key already exists
      *             in the database
