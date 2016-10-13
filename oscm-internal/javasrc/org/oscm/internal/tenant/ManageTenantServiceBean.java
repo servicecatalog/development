@@ -124,7 +124,7 @@ public class ManageTenantServiceBean implements ManageTenantService {
     @Override
     public void validateOrgUsersUniqnessInTenant(String orgId, long tenantKey) throws ValidationException {
         boolean duplicatedUserIdExists = tenantService
-                .doesOrgUsersExistInTenant(orgId, tenantKey);
+                .doOrgUsersExistInTenant(orgId, tenantKey);
         
         if(duplicatedUserIdExists){
             throw new ValidationException(ReasonEnum.USER_ID_DUPLICATED, null, null);

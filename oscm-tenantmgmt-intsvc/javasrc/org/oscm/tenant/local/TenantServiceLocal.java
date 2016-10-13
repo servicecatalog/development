@@ -45,5 +45,5 @@ public interface TenantServiceLocal {
 
     boolean doesMarketplaceAssignedToTenantExist(Tenant tenant);
     
-    boolean doesOrgUsersExistInTenant(String orgId, long tenantKey);
+    boolean doOrgUsersExistInTenant(String orgId, long tenantKey);
 }

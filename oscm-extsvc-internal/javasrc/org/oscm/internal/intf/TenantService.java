@@ -102,5 +102,5 @@ public interface TenantService {
      * @param tenantKey tenant tkey
      * @return
      */
-    boolean doesOrgUsersExistInTenant(String orgId, long tenantKey);
+    boolean doOrgUsersExistInTenant(String orgId, long tenantKey);
 }
