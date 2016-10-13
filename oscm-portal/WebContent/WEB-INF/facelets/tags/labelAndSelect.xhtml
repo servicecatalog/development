@@ -29,7 +29,7 @@
       <c:if test="#{not empty listenerBean}">
         <h:selectOneMenu id="#{id}" value="#{value}" styleClass="#{styleClass}" required="#{required}"
           disabled="#{disabled}" valueChangeListener="#{listenerBean['processValueChange']}">
-          <a4j:ajax event="change" render="#{render}" oncomplete="setDirty(true);" />
+          <a4j:ajax event="change" render="#{render}" oncomplete="setDirty(true); #{oncomplete}" />
           <ui:insert />
         </h:selectOneMenu>
       </c:if>
@@ -47,7 +47,7 @@
       <c:if test="#{not empty listenerBean}">
         <t:selectOneMenu id="#{id}" value="#{value}" styleClass="#{styleClass}" required="#{required}"
           disabled="#{disabled}" valueChangeListener="#{listenerBean['processValueChange']}">
-          <a4j:ajax event="change" render="#{render}" oncomplete="setDirty(true);" />
+          <a4j:ajax event="change" render="#{render}" oncomplete="setDirty(true); #{oncomplete}" />
           <ui:insert />
         </t:selectOneMenu>
       </c:if>

@@ -117,4 +117,7 @@ public class Constants {
 
     public static final String RADIO_UNSELECTED = "false";
 
+    public static final String REQ_PARAM_TENANT_ID = "tenantID";
+    public static final String SESSION_PARAM_SAML_LOGOUT_REQUEST = "LOGOUT_REQUEST";
+
 }

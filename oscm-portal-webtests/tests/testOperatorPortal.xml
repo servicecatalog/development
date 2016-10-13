@@ -118,6 +118,8 @@
 
       <mail.readPasswordAndUrlFromMail />
       <storeProperty name="supplierUserId" value="#{userId}" />
+      <storeProperty name="supplierUserPwd" value="#{userPwd}" />
+      <storeProperty name="orgUrl" value="#{orgUrl}" propertyType="ant" />
 
       <operatorPortal.login />
 
@@ -142,10 +144,15 @@
       <operatorPortal.manageCurrencies currencyCode="EUR" />
 
       <!-- manage users -->
+      <login.logout />
+      <login.initialLoginAndChangePassword userId="#{supplierUserId}" password="#{supplierUserPwd}" url="#{orgUrl}"/>
+      <login.logout />
+      <operatorPortal.login />
+
       <operatorPortal.lockUser userId="#{supplierUserId}" />
       <operatorPortal.unlockUser userId="#{supplierUserId}" />
-      <operatorPortal.resetPassword userId="#{supplierUserId}" />
 
+      <invoke url="${bes.http.url}/oscm-portal/" />
       <login.logout />
     </webtest>
 

@@ -324,9 +324,17 @@ public enum ConfigurationKey {
 
     @Doc({ "Path to the truststore holding the private key used for signing SAML messages." })
     @Example("<path>/keystore.jks")
-    SSO_SIGNING_KEYSTORE(false, null, "string");
+    SSO_SIGNING_KEYSTORE(false, null, "string"),
 
-    // //////////////////////////////////////////////////////////////////////////////////
+    @Doc({ "Default tenant ID used for proper identification default tenant. String has to have length of 8 characters." })
+    @Example("8f96dede")
+    SSO_DEFAULT_TENANT_ID(true, "8f96dede", "string", true, 8L),
+
+    @Doc({ "IDP issuer ID. Value used for validating if the response is being sent from proper IDP." })
+    @Example("IDP_ID")
+    SSO_IDP_SAML_ASSERTION_ISSUER_ID(true, "default", "string", true);
+
+    /////////////////////////////////////////////////////////////////////////////////////
 
     private final boolean isMandatory;
     private final boolean isReadonly;
@@ -340,6 +348,7 @@ public enum ConfigurationKey {
     public final static String TYPE_URL = "url";
     public final static String TYPE_MAIL = "mail";
     public final static String TYPE_BOOLEAN = "boolean";
+    private Long length;
     public final static String TYPE_PASSWORD = "password";
 
     /**
@@ -362,6 +371,17 @@ public enum ConfigurationKey {
 
     ConfigurationKey(boolean isMandatory, String fallbackValue, String type, boolean isReadonly) {
         this(isMandatory, fallbackValue, type, null, null, isReadonly);
+    }
+
+    ConfigurationKey(boolean isMandatory, String fallbackValue, String type,
+            boolean isReadonly, Long length) {
+        this(isMandatory, fallbackValue, type, null, null, isReadonly);
+        if (!TYPE_STRING.equals(type) && (length != null)) {
+            throw new IllegalArgumentException(
+                    "length is only allowed for configuration properties of type "
+                            + TYPE_STRING);
+        }
+        this.length = length;
     }
 
     /**
@@ -460,6 +480,16 @@ public enum ConfigurationKey {
     @Retention(RetentionPolicy.RUNTIME)
     private @interface Example {
         String value();
+    }
+
+    /**
+     * Retrieves the length value allowed for a string field.
+     *
+     * @return The length value if set, <code>null</code> if not set or if the
+     *         field is not of type long.
+     */
+    public Long getLength() {
+        return length;
     }
 
     /**

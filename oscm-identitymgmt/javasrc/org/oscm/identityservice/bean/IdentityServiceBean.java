@@ -15,31 +15,13 @@ package org.oscm.identityservice.bean;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Properties;
-import java.util.Random;
-import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.annotation.security.DeclareRoles;
 import javax.annotation.security.RolesAllowed;
-import javax.ejb.Asynchronous;
-import javax.ejb.EJB;
-import javax.ejb.Local;
-import javax.ejb.Remote;
-import javax.ejb.SessionContext;
-import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
+import javax.ejb.*;
 import javax.inject.Inject;
 import javax.interceptor.Interceptors;
 import javax.naming.Context;
@@ -48,6 +30,7 @@ import javax.persistence.NoResultException;
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.Query;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.GenericValidator;
 import org.oscm.authorization.PasswordHash;
 import org.oscm.communicationservice.data.SendMailStatus;
@@ -57,69 +40,25 @@ import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.converter.ParameterEncoder;
 import org.oscm.converter.ParameterizedTypes;
 import org.oscm.dataservice.local.DataService;
-import org.oscm.domobjects.ConfigurationSetting;
-import org.oscm.domobjects.Marketplace;
-import org.oscm.domobjects.OnBehalfUserReference;
-import org.oscm.domobjects.Organization;
-import org.oscm.domobjects.PlatformUser;
-import org.oscm.domobjects.RoleAssignment;
-import org.oscm.domobjects.Session;
-import org.oscm.domobjects.Subscription;
-import org.oscm.domobjects.TriggerDefinition;
-import org.oscm.domobjects.TriggerProcess;
-import org.oscm.domobjects.UnitUserRole;
-import org.oscm.domobjects.UsageLicense;
-import org.oscm.domobjects.UserGroup;
-import org.oscm.domobjects.UserRole;
+import org.oscm.domobjects.*;
 import org.oscm.domobjects.enums.ModificationType;
 import org.oscm.id.IdGenerator;
 import org.oscm.identityservice.assembler.UserDataAssembler;
 import org.oscm.identityservice.bean.BulkUserImportReader.Row;
 import org.oscm.identityservice.control.SendMailControl;
 import org.oscm.identityservice.ldap.UserModificationCheck;
-import org.oscm.identityservice.local.ILdapResultMapper;
-import org.oscm.identityservice.local.IdentityServiceLocal;
-import org.oscm.identityservice.local.LdapAccessServiceLocal;
-import org.oscm.identityservice.local.LdapConnector;
-import org.oscm.identityservice.local.LdapSettingsManagementServiceLocal;
-import org.oscm.identityservice.local.LdapVOUserDetailsMapper;
+import org.oscm.identityservice.local.*;
 import org.oscm.identityservice.pwdgen.PasswordGenerator;
-import org.oscm.interceptor.DateFactory;
-import org.oscm.interceptor.ExceptionMapper;
-import org.oscm.interceptor.InvocationDateContainer;
-import org.oscm.interceptor.PlatformOperatorServiceProviderInterceptor;
-import org.oscm.interceptor.ServiceProviderInterceptor;
+import org.oscm.interceptor.*;
 import org.oscm.internal.intf.IdentityService;
-import org.oscm.internal.types.enumtypes.ConfigurationKey;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.SettingType;
-import org.oscm.internal.types.enumtypes.SubscriptionStatus;
-import org.oscm.internal.types.enumtypes.TriggerType;
-import org.oscm.internal.types.enumtypes.UnitRoleType;
-import org.oscm.internal.types.enumtypes.UserAccountStatus;
-import org.oscm.internal.types.enumtypes.UserRoleType;
-import org.oscm.internal.types.exception.BulkUserImportException;
+import org.oscm.internal.types.enumtypes.*;
+import org.oscm.internal.types.exception.*;
 import org.oscm.internal.types.exception.ConcurrentModificationException;
 import org.oscm.internal.types.exception.DomainObjectException.ClassEnum;
 import org.oscm.internal.types.exception.IllegalArgumentException;
-import org.oscm.internal.types.exception.MailOperationException;
-import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.types.exception.OperationNotPermittedException;
-import org.oscm.internal.types.exception.OperationPendingException;
-import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
-import org.oscm.internal.types.exception.OrganizationRemovedException;
-import org.oscm.internal.types.exception.SaaSSystemException;
-import org.oscm.internal.types.exception.SecurityCheckException;
-import org.oscm.internal.types.exception.TechnicalServiceNotAliveException;
-import org.oscm.internal.types.exception.TechnicalServiceOperationException;
 import org.oscm.internal.types.exception.UnsupportedOperationException;
-import org.oscm.internal.types.exception.UserActiveException;
-import org.oscm.internal.types.exception.UserDeletionConstraintException;
 import org.oscm.internal.types.exception.UserDeletionConstraintException.Reason;
-import org.oscm.internal.types.exception.UserModificationConstraintException;
-import org.oscm.internal.types.exception.UserRoleAssignmentException;
-import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.internal.types.exception.ValidationException.ReasonEnum;
 import org.oscm.internal.vo.VOUser;
 import org.oscm.internal.vo.VOUserDetails;
@@ -338,9 +277,9 @@ public class IdentityServiceBean implements IdentityService,
     /**
      * Bug 9324 Trigger should not be fired if user exists
      */
-    private void checkIfUserExists(String userId)
+    private void checkIfUserExists(String userId, Tenant tenant)
             throws NonUniqueBusinessKeyException {
-        PlatformUser dbUser = loadUser(userId);
+        PlatformUser dbUser = loadUser(userId, tenant);
         if (dbUser != null) {
             throw new NonUniqueBusinessKeyException(ClassEnum.USER, userId);
         }
@@ -353,12 +292,18 @@ public class IdentityServiceBean implements IdentityService,
      *            user id
      * @return the user otherwise null if the user does not exist.
      */
-    PlatformUser loadUser(String userId) {
+    PlatformUser loadUser(String userId, Tenant tenant) {
         try {
-            PlatformUser user = new PlatformUser();
-            user.setUserId(userId);
-            return (PlatformUser) dm.getReferenceByBusinessKey(user);
-        } catch (ObjectNotFoundException e) {
+            if (tenant == null) {
+                PlatformUser user = new PlatformUser();
+                user.setUserId(userId);
+                return (PlatformUser) dm.getReferenceByBusinessKey(user);
+            }
+            Query q = dm.createNamedQuery("PlatformUser.findByUserIdAndTenant");
+            q.setParameter("userId", userId);
+            q.setParameter("tenantId", tenant.getTenantId());
+            return (PlatformUser) q.getSingleResult();
+        } catch (ObjectNotFoundException | NoResultException e) {
             return null;
         }
     }
@@ -1128,9 +1073,14 @@ public class IdentityServiceBean implements IdentityService,
             OperationNotPermittedException, OrganizationRemovedException {
 
         ArgumentValidator.notNull("user", user);
-        PlatformUser pUser = null;
+        PlatformUser pUser;
         try {
-            pUser = getPlatformUser(user.getUserId(), false);
+            if (StringUtils.isNotBlank(user.getTenantKey()) && tenantIsNotDefault(user.getTenantKey())) {
+                pUser = getPlatformUser(user.getUserId(), user.getTenantKey(), false);
+            } else {
+                pUser = getPlatformUser(user.getUserId(), false);
+            }
+
             if (pUser.getOrganization().getDeregistrationDate() != null) {
                 OperationNotPermittedException onp = new OperationNotPermittedException(
                         "The user doesn't belong to a active organization.");
@@ -1184,6 +1134,11 @@ public class IdentityServiceBean implements IdentityService,
         }
 
         return UserDataAssembler.toVOUser(pUser);
+    }
+
+    private boolean tenantIsNotDefault(String tenantKey) {
+        ConfigurationSetting defaultTenant = cs.getConfigurationSetting(ConfigurationKey.SSO_DEFAULT_TENANT_ID, "");
+        return !StringUtils.equals(tenantKey, defaultTenant.getValue());
     }
 
     @Override
@@ -1616,6 +1571,37 @@ public class IdentityServiceBean implements IdentityService,
 
     @Override
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
+    public PlatformUser getPlatformUser(String userId, String tenantId,
+        boolean validateOrganization) throws ObjectNotFoundException,
+        OperationNotPermittedException {
+
+        Query query = dm.createNamedQuery("PlatformUser.findByUserIdAndTenant");
+        query.setParameter("userId", userId);
+        query.setParameter("tenantId", tenantId);
+
+        PlatformUser platformUser;
+        try {
+            platformUser = (PlatformUser) query.getSingleResult();
+        } catch (NoResultException e) {
+            ObjectNotFoundException onf = new ObjectNotFoundException(
+                ObjectNotFoundException.ClassEnum.USER, userId);
+            logger.logWarn(Log4jLogger.SYSTEM_LOG, onf,
+                LogMessageIdentifier.WARN_USER_NOT_FOUND);
+            throw onf;
+        }
+
+        if (validateOrganization) {
+            // Validate whether the calling user belongs to the same
+            // organization as the requested user. Otherwise an exception will
+            // be thrown.
+            PermissionCheck.sameOrg(dm.getCurrentUser(), platformUser, logger);
+        }
+
+        return platformUser;
+    }
+
+    @Override
+    @TransactionAttribute(TransactionAttributeType.MANDATORY)
     public List<PlatformUser> getOverdueOrganizationAdmins(long currentTime) {
         String period = cs.getConfigurationSetting(
                 ConfigurationKey.PERMITTED_PERIOD_UNCONFIRMED_ORGANIZATIONS,
@@ -1773,13 +1759,6 @@ public class IdentityServiceBean implements IdentityService,
         PlatformUser pu = UserDataAssembler.toPlatformUser(userDetails);
 
         pu.setOrganization(organization);
-        // Set the user account status to active if CT-MG is a SAML SP
-        if (cs.isServiceProvider()
-                && UserAccountStatus.PASSWORD_MUST_BE_CHANGED.equals(lockLevel)) {
-            pu.setStatus(UserAccountStatus.ACTIVE);
-        } else {
-            pu.setStatus(lockLevel);
-        }
         if (userLocalLdap) {
             // Do not set the user password if CT-MG is a SAML SP
             if (!cs.isServiceProvider()) {
@@ -1795,7 +1774,15 @@ public class IdentityServiceBean implements IdentityService,
             pu.setRealmUserId(userDetails.getUserId());
         }
 
-        dm.persist(pu);
+        // Set the user account status to active if CT-MG is a SAML SP
+        if (cs.isServiceProvider()
+                && UserAccountStatus.PASSWORD_MUST_BE_CHANGED.equals(lockLevel)) {
+            pu.setStatus(UserAccountStatus.ACTIVE);
+            dm.persistPlatformUserWithTenant(pu, userDetails.getTenantId());
+        } else {
+            pu.setStatus(lockLevel);
+            dm.persist(pu);
+        }
 
         for (UserRoleType role : userDetails.getUserRoles()) {
             if (!pu.hasRole(role)) {
@@ -1840,6 +1827,7 @@ public class IdentityServiceBean implements IdentityService,
     public void sendMailToCreatedUser(String password, boolean userLocalLdap,
             Marketplace marketplace, PlatformUser pu)
             throws MailOperationException {
+        String tenantId = getTenantIdForEmail(pu);
         if (!SendMailControl.isSendMail()) {
             // keep password for later sending
             SendMailControl.setMailData(password, marketplace);
@@ -1861,7 +1849,7 @@ public class IdentityServiceBean implements IdentityService,
                         cm.sendMail(
                                 pu,
                                 EmailType.USER_CREATED_WITH_MARKETPLACE_SAML_SP,
-                                new Object[] { pu.getUserId(), cm.getBaseUrl(),
+                                new Object[] { pu.getUserId(), cm.getBaseUrlWithTenant(tenantId),
                                         cm.getMarketplaceUrl(marketplaceId) },
                                 marketplace);
 
@@ -1881,7 +1869,7 @@ public class IdentityServiceBean implements IdentityService,
                         cm.sendMail(
                                 pu,
                                 EmailType.USER_CREATED_SAML_SP,
-                                new Object[] { pu.getUserId(), cm.getBaseUrl() },
+                                new Object[] { pu.getUserId(), cm.getBaseUrlWithTenant(tenantId) },
                                 marketplace);
                     } else {
                         cm.sendMail(pu, EmailType.USER_CREATED, new Object[] {
@@ -1893,13 +1881,10 @@ public class IdentityServiceBean implements IdentityService,
 
             } else {
                 if (cs.isServiceProvider()) {
-                    cm.sendMail(
-                            pu,
-                            EmailType.USER_CREATED_SAML_SP,
+                    cm.sendMail(pu, EmailType.USER_CREATED_SAML_SP,
                             new Object[] { pu.getUserId(),
                                     cm.getMarketplaceUrl(marketplaceId) },
                             marketplace);
-
                 } else {
                     cm.sendMail(
                             pu,
@@ -1911,7 +1896,6 @@ public class IdentityServiceBean implements IdentityService,
 
             }
         } else {
-
             if (pu.hasManagerRole()) {
                 if (marketplaceId != null) {
                     cm.sendMail(
@@ -1936,6 +1920,15 @@ public class IdentityServiceBean implements IdentityService,
                                 String.valueOf(pu.getKey()) }, marketplace);
             }
         }
+    }
+
+    private String getTenantIdForEmail(PlatformUser user) {
+        final Tenant tenant = user.getOrganization().getTenant();
+        String tenantId = null;
+        if (tenant != null) {
+            tenantId = tenant.getTenantId();
+        }
+        return tenantId;
     }
 
     /**
@@ -2675,8 +2668,27 @@ public class IdentityServiceBean implements IdentityService,
             OperationPendingException {
         ArgumentValidator.notNull("user", user);
         ArgumentValidator.notNull("roles", roles);
+        
+        Tenant tenant = null;
+        try {
+            if (user.getTenantId() == null || user.getTenantId().equals("")) {
+                Marketplace m = new Marketplace();
+                m.setMarketplaceId(marketplaceId);
+                Marketplace mp = (Marketplace) dm.getReferenceByBusinessKey(m);
+                if (mp != null) {
+                    tenant = mp.getTenant();
+                }
+            } else {
+                Tenant t = new Tenant();
+                t.setTenantId(user.getTenantId());
+                tenant = (Tenant) dm.getReferenceByBusinessKey(t);
+            }
+        } catch (ObjectNotFoundException e) {
+            e.printStackTrace();
+        }
 
-        checkIfUserExists(user.getUserId());
+
+        checkIfUserExists(user.getUserId(), tenant);
 
         TriggerProcessValidator validator = new TriggerProcessValidator(dm);
         if (validator.isRegisterOwnUserPending(user.getUserId())) {

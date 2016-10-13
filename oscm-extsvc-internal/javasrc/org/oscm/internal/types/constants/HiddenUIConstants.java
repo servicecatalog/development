@@ -23,6 +23,7 @@ public interface HiddenUIConstants {
     String MENU_ITEM_ORGANIZATION_MANAGE_TRIGGERS = "organization.manageTriggers";
     String MENU_ITEM_OPERATOR_MANAGE_TIMERS = "operator.manageTimers";
     String MENU_ITEM_OPERATOR_MANAGE_USERS = "operator.manageUsers";
+    String MENU_ITEM_OPERATOR_MANAGE_TENANTS = "operator.manageTenants";
     String MENU_ITEM_OPERATOR_MANAGE_CURRENCIES = "operator.manageCurrencies";
     String MENU_ITEM_OPERATOR_MANAGE_LDAP = "operator.manageLdapSettings";
     String MENU_ITEM_OPERATOR_MANAGE_LANGUAGES = "operator.manageLanguages";
@@ -108,5 +109,6 @@ public interface HiddenUIConstants {
     String MARKETPLACE_MENU_ITEM_ACCOUNT_REPORTS = "marketplace.navigation.Reports";
     String MARKETPLACE_MENU_ITEM_ACCOUNT_PROCESSES = "marketplace.navigation.Processes";
     String MARKETPLACE_MENU_ITEM_ACCOUNT_OPERATIONS = "marketplace.navigation.Operations";
+    String MARKETPLACE_MENU_ITEM_ACCOUNT_ADMINISTRATION = "marketplace.navigation.Administration";
 
 }

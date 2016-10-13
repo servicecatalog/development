@@ -8,22 +8,23 @@
 
 package org.oscm.ui.filter;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.junit.Assert.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
+import static org.oscm.internal.types.enumtypes.ConfigurationKey.SSO_SIGNING_KEYSTORE;
 
 import org.junit.Before;
 import org.junit.Test;
-
-import org.oscm.types.constants.Configuration;
 import org.oscm.internal.intf.ConfigurationService;
+import org.oscm.internal.intf.TenantService;
 import org.oscm.internal.types.enumtypes.AuthenticationMode;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
+import org.oscm.internal.types.exception.NotExistentTenantException;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.vo.VOConfigurationSetting;
+import org.oscm.internal.vo.VOTenant;
+import org.oscm.tenant.bean.TenantServiceBean;
+import org.oscm.types.constants.Configuration;
 
 /**
  * @author stavreva
@@ -36,53 +37,28 @@ public class AuthenticationSettingsTest {
     private static final String IDP_UPPERCASE = IDP.toUpperCase();
     private static final String IDP_CONTEXT_ROOT = "http://idp.de:9080/openam";
     private static final String IDP_HTTP_METHOD = "POST";
-    private static final String KEYSTORE_PATH = "/openam/keystore.jks";
-    private static final String KEYSTORE_PASSWORD = "changeit";
+    private static final String IDP_KEYSTORE_PASS = "changeit";
     private static final String BASE_URL = "http://www.example.de";
 
     private AuthenticationSettings authSettings;
     private ConfigurationService cfgMock;
+    private TenantService tenantService;
+    private VOTenant mockTenant;
 
     @Before
     public void setup() throws Exception {
+        tenantService = spy(new TenantServiceBean() {
+        });
+        mockTenant = mock(VOTenant.class);
+        doReturn(ISSUER).when(mockTenant).getIssuer();
+        doReturn(IDP).when(mockTenant).getIDPURL();
+        doReturn(IDP_HTTP_METHOD).when(mockTenant).getIdpHttpMethod();
+        doReturn(IDP_KEYSTORE_PASS).when(mockTenant).getLogoutURL();
+        doReturn(mockTenant).when(tenantService).getTenantByTenantId(any(String.class));
         cfgMock = mock(ConfigurationService.class);
-        doReturn(
-                new VOConfigurationSetting(ConfigurationKey.BASE_URL,
-                        Configuration.GLOBAL_CONTEXT, BASE_URL)).when(cfgMock)
-                .getVOConfigurationSetting(ConfigurationKey.BASE_URL,
-                        Configuration.GLOBAL_CONTEXT);
-        doReturn(
-                new VOConfigurationSetting(ConfigurationKey.SSO_ISSUER_ID,
-                        Configuration.GLOBAL_CONTEXT, ISSUER)).when(cfgMock)
-                .getVOConfigurationSetting(ConfigurationKey.SSO_ISSUER_ID,
-                        Configuration.GLOBAL_CONTEXT);
-
-        doReturn(
-                new VOConfigurationSetting(ConfigurationKey.SSO_IDP_TRUSTSTORE,
-                        Configuration.GLOBAL_CONTEXT, KEYSTORE_PATH)).when(
-                cfgMock).getVOConfigurationSetting(
-                ConfigurationKey.SSO_IDP_TRUSTSTORE,
-                Configuration.GLOBAL_CONTEXT);
-
-        doReturn(
-                new VOConfigurationSetting(
-                        ConfigurationKey.SSO_IDP_TRUSTSTORE_PASSWORD,
-                        Configuration.GLOBAL_CONTEXT, KEYSTORE_PASSWORD)).when(
-                cfgMock).getVOConfigurationSetting(
-                ConfigurationKey.SSO_IDP_TRUSTSTORE_PASSWORD,
-                Configuration.GLOBAL_CONTEXT);
-
-        doReturn(
-                new VOConfigurationSetting(
-                        ConfigurationKey.SSO_IDP_AUTHENTICATION_REQUEST_HTTP_METHOD,
-                        Configuration.GLOBAL_CONTEXT, IDP_HTTP_METHOD)).when(
-                cfgMock).getVOConfigurationSetting(
-                ConfigurationKey.SSO_IDP_AUTHENTICATION_REQUEST_HTTP_METHOD,
-                Configuration.GLOBAL_CONTEXT);
-
     }
 
-    private void givenMock(AuthenticationMode authMode, String idpUrl) {
+    private void givenMock(AuthenticationMode authMode, String idpUrl) throws NotExistentTenantException {
         doReturn(
                 new VOConfigurationSetting(ConfigurationKey.AUTH_MODE,
                         Configuration.GLOBAL_CONTEXT, authMode.name())).when(
@@ -93,7 +69,28 @@ public class AuthenticationSettingsTest {
                         Configuration.GLOBAL_CONTEXT, idpUrl)).when(cfgMock)
                 .getVOConfigurationSetting(ConfigurationKey.SSO_IDP_URL,
                         Configuration.GLOBAL_CONTEXT);
-        authSettings = new AuthenticationSettings(cfgMock);
+        doReturn(
+                new VOConfigurationSetting(ConfigurationKey.BASE_URL,
+                        Configuration.GLOBAL_CONTEXT, idpUrl)).when(cfgMock)
+                .getVOConfigurationSetting(ConfigurationKey.BASE_URL,
+                        Configuration.GLOBAL_CONTEXT);
+        doReturn(
+                new VOConfigurationSetting(ConfigurationKey.SSO_SIGNING_KEY_ALIAS,
+                        Configuration.GLOBAL_CONTEXT, IDP_KEYSTORE_PASS)).when(cfgMock)
+                .getVOConfigurationSetting(ConfigurationKey.SSO_SIGNING_KEY_ALIAS,
+                        Configuration.GLOBAL_CONTEXT);
+        doReturn(
+                new VOConfigurationSetting(ConfigurationKey.SSO_SIGNING_KEYSTORE_PASS,
+                        Configuration.GLOBAL_CONTEXT, IDP_KEYSTORE_PASS)).when(cfgMock)
+                .getVOConfigurationSetting(ConfigurationKey.SSO_SIGNING_KEYSTORE_PASS,
+                        Configuration.GLOBAL_CONTEXT);
+        doReturn(
+                new VOConfigurationSetting(SSO_SIGNING_KEYSTORE,
+                        Configuration.GLOBAL_CONTEXT, IDP_KEYSTORE_PASS)).when(cfgMock)
+                .getVOConfigurationSetting(SSO_SIGNING_KEYSTORE,
+                        Configuration.GLOBAL_CONTEXT);
+        authSettings = new AuthenticationSettings(tenantService, cfgMock);
+        authSettings.init("tenantID");
     }
 
     @Test
@@ -105,18 +102,6 @@ public class AuthenticationSettingsTest {
         // then
         verify(cfgMock, times(1)).getVOConfigurationSetting(
                 ConfigurationKey.AUTH_MODE, Configuration.GLOBAL_CONTEXT);
-        verify(cfgMock, times(1)).getVOConfigurationSetting(
-                ConfigurationKey.BASE_URL, Configuration.GLOBAL_CONTEXT);
-        verify(cfgMock, times(1)).getVOConfigurationSetting(
-                ConfigurationKey.SSO_IDP_URL, Configuration.GLOBAL_CONTEXT);
-        verify(cfgMock, times(1)).getVOConfigurationSetting(
-                ConfigurationKey.SSO_ISSUER_ID, Configuration.GLOBAL_CONTEXT);
-        verify(cfgMock, times(1)).getVOConfigurationSetting(
-                ConfigurationKey.SSO_IDP_TRUSTSTORE,
-                Configuration.GLOBAL_CONTEXT);
-        verify(cfgMock, times(1)).getVOConfigurationSetting(
-                ConfigurationKey.SSO_IDP_TRUSTSTORE_PASSWORD,
-                Configuration.GLOBAL_CONTEXT);
     }
 
     @Test
@@ -130,16 +115,6 @@ public class AuthenticationSettingsTest {
     }
 
     @Test
-    public void isIdentityProvider() throws Exception {
-
-        // given
-        givenMock(AuthenticationMode.SAML_IDP, IDP);
-
-        // then
-        assertTrue(authSettings.isIdentityProvider());
-    }
-
-    @Test
     public void isInternal() throws Exception {
 
         // given
@@ -147,16 +122,6 @@ public class AuthenticationSettingsTest {
 
         // then
         assertTrue(authSettings.isInternal());
-    }
-
-    @Test
-    public void isOpenIdRelyingParty() throws Exception {
-
-        // given
-        givenMock(AuthenticationMode.OPENID_RP, IDP);
-
-        // then
-        assertTrue(authSettings.isOpenIdRelyingParty());
     }
 
     @Test
@@ -199,38 +164,6 @@ public class AuthenticationSettingsTest {
         // then
         assertEquals(IDP_CONTEXT_ROOT,
                 authSettings.getIdentityProviderURLContextRoot());
-    }
-
-    @Test
-    public void getKeystorePath() throws Exception {
-
-        // given
-        givenMock(AuthenticationMode.SAML_SP, IDP);
-
-        // then
-        assertEquals(KEYSTORE_PATH,
-                authSettings.getIdentityProviderTruststorePath());
-    }
-
-    @Test
-    public void getKeystorePassword() throws Exception {
-
-        // given
-        givenMock(AuthenticationMode.SAML_SP, IDP);
-
-        // then
-        assertEquals(KEYSTORE_PASSWORD,
-                authSettings.getIdentityProviderTruststorePassword());
-    }
-
-    @Test
-    public void getRecipient() throws Exception {
-
-        // given
-        givenMock(AuthenticationMode.SAML_SP, IDP);
-
-        // then
-        assertEquals(BASE_URL + "/", authSettings.getRecipient());
     }
 
     @Test
@@ -306,6 +239,76 @@ public class AuthenticationSettingsTest {
         // then
         assertEquals(IDP_HTTP_METHOD,
                 authSettings.getIdentityProviderHttpMethod());
+    }
+
+    @Test
+    public void getSigningKeystorePass() throws Exception {
+
+        // given
+        givenMock(AuthenticationMode.SAML_SP, IDP);
+
+        // then
+        assertEquals(IDP_KEYSTORE_PASS,
+                authSettings.getSigningKeystorePass());
+    }
+
+    @Test
+    public void getSigningKeystore() throws Exception {
+
+        // given
+        givenMock(AuthenticationMode.SAML_SP, IDP);
+
+        // then
+        assertEquals(IDP_KEYSTORE_PASS,
+                authSettings.getSigningKeystore());
+    }
+
+    @Test
+    public void getSigningKeyAlias() throws Exception {
+
+        // given
+        givenMock(AuthenticationMode.SAML_SP, IDP);
+
+        // then
+        assertEquals(IDP_KEYSTORE_PASS,
+                authSettings.getSigningKeyAlias());
+    }
+
+    @Test
+    public void getLogoutURL() throws Exception {
+
+        // given
+        givenMock(AuthenticationMode.SAML_SP, IDP);
+
+        // then
+        assertEquals(IDP_KEYSTORE_PASS,
+                authSettings.getLogoutURL());
+    }
+
+    @Test
+    public void getTenantBlank() throws Exception {
+        // given
+        givenMock(AuthenticationMode.SAML_SP, IDP);
+        authSettings = spy(authSettings);
+        doReturn(IDP_KEYSTORE_PASS).when(authSettings).
+                getConfigurationSetting(cfgMock, ConfigurationKey.SSO_SIGNING_KEYSTORE_PASS);
+
+        // then
+        assertEquals(IDP_KEYSTORE_PASS,
+                authSettings.getSigningKeystorePass());
+    }
+
+    @Test(expected = NotExistentTenantException.class)
+    public void findByTKey() throws ObjectNotFoundException, NotExistentTenantException {
+        // given
+        givenMock(AuthenticationMode.SAML_SP, IDP);
+        doThrow(new ObjectNotFoundException()).when(tenantService).getTenantByTenantId(anyString());
+        authSettings = spy(authSettings);
+        doReturn("notTheSame").when(authSettings).
+                getConfigurationSetting(cfgMock, ConfigurationKey.SSO_DEFAULT_TENANT_ID);
+
+        // then
+        authSettings.init("te");
     }
 
 }

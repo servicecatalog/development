@@ -138,7 +138,7 @@
       <verifyXPath xpath="//*[@class='rf-dt-c' and contains(text(), 'TIMER_INTERVAL_USER_COUNT')]" />
       <verifyXPath xpath="//*[@class='rf-dt-c' and contains(text(), 'MAX_NUMBER_ALLOWED_USERS')]" />
       <verifyElementText htmlId="configurationSettings:settingTable:20:configurationValue" text="10" />
-      <verifyElementText htmlId="configurationSettings:settingTable:58:configurationValue" text="43200000" />
+      <verifyElementText htmlId="configurationSettings:settingTable:60:configurationValue" text="43200000" />
       <login.logout />
     </webtest>
 

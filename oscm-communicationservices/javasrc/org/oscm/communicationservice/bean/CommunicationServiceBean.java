@@ -4,6 +4,8 @@
 
 package org.oscm.communicationservice.bean;
 
+import static org.oscm.communicationservice.Constants.*;
+
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -14,17 +16,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 
-import javax.ejb.EJB;
-import javax.ejb.Local;
-import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
-import javax.mail.Address;
-import javax.mail.Authenticator;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.Transport;
+import javax.ejb.*;
+import javax.mail.*;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
@@ -32,8 +25,7 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.oscm.communicationservice.data.SendMailStatus;
 import org.oscm.communicationservice.local.CommunicationServiceLocal;
 import org.oscm.communicationservice.smtp.SMTPAuthenticator;
@@ -43,14 +35,16 @@ import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
-import org.oscm.types.constants.Configuration;
-import org.oscm.types.enumtypes.EmailType;
-import org.oscm.types.enumtypes.LogMessageIdentifier;
-import org.oscm.validator.BLValidator;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.types.exception.MailOperationException;
 import org.oscm.internal.types.exception.SaaSSystemException;
 import org.oscm.internal.types.exception.ValidationException;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
+import org.oscm.types.constants.Configuration;
+import org.oscm.types.enumtypes.EmailType;
+import org.oscm.types.enumtypes.LogMessageIdentifier;
+import org.oscm.validator.BLValidator;
 
 /**
  * Session Bean implementation class CommunicationServiceBean
@@ -59,21 +53,8 @@ import org.oscm.internal.types.exception.ValidationException;
 @Local(CommunicationServiceLocal.class)
 public class CommunicationServiceBean implements CommunicationServiceLocal {
 
-    private static final String MAIL_SMTP_AUTH = "mail.smtp.auth";
-    private static final String MAIL_PASSWORD = "mail.smtp.password";
-    private static final String MAIL_USER = "mail.user";
-
     private static final Log4jLogger logger = LoggerFactory
             .getLogger(CommunicationServiceBean.class);
-
-    private static final String RESOURCE_TEXT_HEADER = "text.header";
-    private static final String RESOURCE_TEXT_FOOTER = "text.footer";
-    private static final String RESOURCE_SUBJECT = ".subject";
-    private static final String RESOURCE_TEXT = ".text";
-
-    private static final String MAIL_CHARSET = "UTF-8";
-
-    private static final String MAIL_RESOURCE = "mail/BSSMail";
 
     @EJB(beanInterface = ConfigurationServiceLocal.class)
     ConfigurationServiceLocal confSvc;
@@ -263,6 +244,25 @@ public class CommunicationServiceBean implements CommunicationServiceLocal {
         return sendMailStatus;
     }
 
+    public String getBaseUrlWithTenant(String tenantId) throws MailOperationException {
+        StringBuffer url = new StringBuffer();
+        try {
+            url.append(getBaseUrl());
+            if (StringUtils.isNotBlank(tenantId)) {
+                removeTrailingSlashes(url);
+                url.append("?" + TENANT_ID + "=");
+                url.append(URLEncoder.encode(tenantId.trim(), ENCODING));
+            }
+            return url.toString();
+        } catch (UnsupportedEncodingException e) {
+            logger.logError(Log4jLogger.SYSTEM_LOG, e,
+                    LogMessageIdentifier.ERROR_ENCODE_ORGANIZATION_ID_FAILED);
+            MailOperationException mof = new MailOperationException(
+                    "Tenant URL creation failed!", e);
+            throw mof;
+        }
+    }
+
     public String getMarketplaceUrl(String marketplaceId)
             throws MailOperationException {
         // send acknowledge e-mail
@@ -273,7 +273,7 @@ public class CommunicationServiceBean implements CommunicationServiceLocal {
                 removeTrailingSlashes(url);
                 url.append(org.oscm.types.constants.marketplace.Marketplace.MARKETPLACE_ROOT);
                 url.append("?mId=");
-                url.append(URLEncoder.encode(marketplaceId.trim(), "UTF-8"));
+                url.append(URLEncoder.encode(marketplaceId.trim(), ENCODING));
             }
             return url.toString();
         } catch (UnsupportedEncodingException e) {
@@ -358,7 +358,7 @@ public class CommunicationServiceBean implements CommunicationServiceLocal {
                     ConfigurationKey.MAIL_JA_CHARSET,
                     Configuration.GLOBAL_CONTEXT).getValue();
         } else {
-            encoding = MAIL_CHARSET;
+            encoding = ENCODING;
         }
 
         try {
@@ -430,7 +430,7 @@ public class CommunicationServiceBean implements CommunicationServiceLocal {
      *            access the resource bundle
      * @param key
      *            the key for the desired string.
-     * @param arguments
+     * @param params
      *            an array of objects to be formatted and substituted.
      */
     private String getText(String localeString, String key, Object[] params,

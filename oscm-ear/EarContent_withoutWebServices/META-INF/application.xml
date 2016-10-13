@@ -105,4 +105,7 @@
   <module>
     <ejb>oscm-billing-application.jar</ejb>
   </module>
+  <module>
+    <ejb>oscm-tenantmgmt.jar</ejb>
+  </module>
 </application>

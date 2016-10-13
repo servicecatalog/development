@@ -8,21 +8,9 @@
 
 package org.oscm.marketplace.cache;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
-import javax.ejb.ConcurrencyManagement;
-import javax.ejb.ConcurrencyManagementType;
-import javax.ejb.EJB;
-import javax.ejb.Lock;
-import javax.ejb.LockType;
-import javax.ejb.Remote;
-import javax.ejb.Schedule;
-import javax.ejb.Singleton;
+import javax.ejb.*;
 
 import org.oscm.internal.cache.MarketplaceConfiguration;
 import org.oscm.internal.intf.MarketplaceCacheService;
@@ -46,7 +34,7 @@ import org.oscm.types.enumtypes.LogMessageIdentifier;
 public class MarketplaceCacheServiceBean implements MarketplaceCacheService {
 
     /** Caching marketplace configurations */
-    private Map<String, MarketplaceConfiguration> configurationCache = new HashMap<String, MarketplaceConfiguration>();
+    private Map<String, MarketplaceConfiguration> configurationCache = new HashMap<>();
 
     private static final Log4jLogger logger = LoggerFactory
             .getLogger(MarketplaceCacheServiceBean.class);
@@ -75,8 +63,8 @@ public class MarketplaceCacheServiceBean implements MarketplaceCacheService {
     @Lock(LockType.WRITE)
     public MarketplaceConfiguration loadConfiguration(String marketplaceId) {
         MarketplaceConfiguration conf = new MarketplaceConfiguration();
-        VOMarketplace voMarketPlace = new VOMarketplace();
-        List<VOOrganization> allowedOrgs = new ArrayList<VOOrganization>();
+        VOMarketplace voMarketPlace;
+        List<VOOrganization> allowedOrgs;
         try {
             voMarketPlace = getMarketplaceService().getMarketplaceById(
                     marketplaceId);
@@ -89,7 +77,7 @@ public class MarketplaceCacheServiceBean implements MarketplaceCacheService {
             return null;
         }
 
-        Set<String> idSet = new TreeSet<String>();
+        Set<String> idSet = new TreeSet<>();
         for (VOOrganization org : allowedOrgs) {
             idSet.add(org.getOrganizationId());
         }
@@ -115,6 +103,7 @@ public class MarketplaceCacheServiceBean implements MarketplaceCacheService {
         conf.setCategoriesEnabled(voMarketPlace.isCategoriesEnabled());
         conf.setRestricted(voMarketPlace.isRestricted());
         conf.setLandingPage(voMarketPlace.isHasPublicLandingPage());
+        conf.setTenantId(voMarketPlace.getTenantId());
     }
 
     @Override

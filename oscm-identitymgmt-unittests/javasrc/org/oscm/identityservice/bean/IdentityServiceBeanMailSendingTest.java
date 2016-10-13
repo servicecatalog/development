@@ -46,15 +46,7 @@ import org.oscm.communicationservice.local.CommunicationServiceLocal;
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.converter.ParameterizedTypes;
 import org.oscm.dataservice.local.DataService;
-import org.oscm.domobjects.ConfigurationSetting;
-import org.oscm.domobjects.DomainObject;
-import org.oscm.domobjects.Marketplace;
-import org.oscm.domobjects.Organization;
-import org.oscm.domobjects.OrganizationSetting;
-import org.oscm.domobjects.PlatformUser;
-import org.oscm.domobjects.RoleAssignment;
-import org.oscm.domobjects.TriggerProcess;
-import org.oscm.domobjects.UserRole;
+import org.oscm.domobjects.*;
 import org.oscm.identityservice.control.SendMailControl;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.types.enumtypes.SettingType;
@@ -125,7 +117,7 @@ public class IdentityServiceBeanMailSendingTest {
                     }
                 });
 
-        doReturn(null).when(idSrv).loadUser(anyString());
+        doReturn(null).when(idSrv).loadUser(anyString(), any(Tenant.class));
         Query triggerQuery = mock(Query.class);
         when(triggerQuery.getSingleResult()).thenReturn(Long.valueOf(0));
         when(dm.createNamedQuery(contains("TriggerProcessIdentifier")))
@@ -144,6 +136,7 @@ public class IdentityServiceBeanMailSendingTest {
                 any(ConfigurationKey.class), anyString());
         doReturn(BASE_URL).when(cs).getBaseURL();
         doReturn("baseUrl").when(cm).getBaseUrl();
+        doReturn("baseUrl").when(cm).getBaseUrlWithTenant(anyString());
         doReturn("marketplaceUrl").when(cm).getMarketplaceUrl(anyString());
         TriggerQueueServiceLocal triggerQS = mock(TriggerQueueServiceLocal.class);
         idSrv.triggerQS = triggerQS;
@@ -683,7 +676,7 @@ public class IdentityServiceBeanMailSendingTest {
         idSrv.sendMailToCreatedUser("secret", true, new Marketplace(), pUser);
 
         // then verify that mail parameters are correct
-        verify(idSrv.cm, times(1)).getBaseUrl();
+        verify(idSrv.cm, times(1)).getBaseUrlWithTenant(anyString());
         verify(idSrv.cm, times(0)).getMarketplaceUrl(anyString());
 
         ArgumentCaptor<Object[]> ac = ArgumentCaptor.forClass(Object[].class);
@@ -692,7 +685,6 @@ public class IdentityServiceBeanMailSendingTest {
                 any(Marketplace.class));
         Object[] value = ac.getValue();
         assertEquals(pUser.getUserId(), value[0]);
-        assertEquals("baseUrl", value[1]);
     }
 
     @Test
@@ -712,7 +704,7 @@ public class IdentityServiceBeanMailSendingTest {
         idSrv.sendMailToCreatedUser("secret", true, marketplace, pUser);
 
         // then verify that mail parameters are correct
-        verify(idSrv.cm, times(1)).getBaseUrl();
+        verify(idSrv.cm, times(1)).getBaseUrlWithTenant(anyString());
         verify(idSrv.cm, times(1)).getMarketplaceUrl(anyString());
 
         ArgumentCaptor<Object[]> ac = ArgumentCaptor.forClass(Object[].class);

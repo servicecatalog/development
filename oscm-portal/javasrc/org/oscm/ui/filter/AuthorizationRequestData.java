@@ -12,11 +12,11 @@ import java.util.regex.Matcher;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.oscm.internal.types.enumtypes.UserAccountStatus;
+import org.oscm.internal.vo.VOUserDetails;
 import org.oscm.j2ep.AdmRule;
 import org.oscm.ui.common.ADMStringUtils;
 import org.oscm.ui.common.Constants;
-import org.oscm.internal.types.enumtypes.UserAccountStatus;
-import org.oscm.internal.vo.VOUserDetails;
 
 /**
  * @author kulle
@@ -38,6 +38,7 @@ public class AuthorizationRequestData {
     private String userId;
     private String subscriptionKey;
     private String contextPath;
+    private String tenantID;
 
     private VOUserDetails userDetails;
 
@@ -284,5 +285,13 @@ public class AuthorizationRequestData {
 
     public void setLandingPage(boolean isLandingPage) {
         this.isLandingPage = isLandingPage;
+    }
+
+    public String getTenantID() {
+        return tenantID;
+    }
+
+    public void setTenantID(String tenantID) {
+        this.tenantID = tenantID;
     }
 }

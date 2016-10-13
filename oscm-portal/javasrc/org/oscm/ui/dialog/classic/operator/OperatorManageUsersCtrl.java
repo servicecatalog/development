@@ -11,76 +11,79 @@ package org.oscm.ui.dialog.classic.operator;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.RequestScoped;
-import javax.faces.component.UIComponent;
-import javax.faces.context.FacesContext;
+import javax.faces.bean.ViewScoped;
 
+import org.oscm.internal.types.enumtypes.ConfigurationKey;
+import org.oscm.internal.types.enumtypes.UserAccountStatus;
+import org.oscm.internal.types.exception.*;
+import org.oscm.internal.usermanagement.POUserAndOrganization;
+import org.oscm.internal.usermanagement.UserManagementService;
+import org.oscm.internal.vo.VOConfigurationSetting;
+import org.oscm.internal.vo.VOMarketplace;
+import org.oscm.internal.vo.VOUser;
+import org.oscm.internal.vo.VOUserDetails;
 import org.oscm.types.constants.Configuration;
 import org.oscm.ui.beans.ApplicationBean;
 import org.oscm.ui.beans.BaseBean;
-import org.oscm.ui.beans.MarketplaceBean;
 import org.oscm.ui.beans.operator.BaseOperatorBean;
 import org.oscm.ui.beans.operator.OperatorSelectOrgBean;
 import org.oscm.ui.common.ExceptionHandler;
 import org.oscm.ui.model.Marketplace;
-import org.oscm.ui.model.User;
 import org.oscm.validation.ArgumentValidator;
-import org.oscm.internal.types.enumtypes.ConfigurationKey;
-import org.oscm.internal.types.enumtypes.UserAccountStatus;
-import org.oscm.internal.types.exception.MailOperationException;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.types.exception.OperationNotPermittedException;
-import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
-import org.oscm.internal.types.exception.OrganizationRemovedException;
-import org.oscm.internal.types.exception.SaaSApplicationException;
-import org.oscm.internal.types.exception.SaaSSystemException;
-import org.oscm.internal.types.exception.ValidationException;
-import org.oscm.internal.usermanagement.UserManagementService;
-import org.oscm.internal.vo.VOConfigurationSetting;
-import org.oscm.internal.vo.VOUser;
-import org.oscm.internal.vo.VOUserDetails;
+
 
 /**
  * Controller for operator manage users.
- * 
+ *
  * @author afschar
  */
-@ManagedBean(name="operatorManageUsersCtrl")
-@RequestScoped
+@ManagedBean(name = "operatorManageUsersCtrl")
+@ViewScoped
 public class OperatorManageUsersCtrl extends BaseOperatorBean implements
         Serializable {
 
     /**
-     * 
+     *
      */
     private static final String NO_SELECTION = "0";
     public static final String APPLICATION_BEAN = "appBean";
     private static final long serialVersionUID = -9126265695343363133L;
 
     transient ApplicationBean appBean;
+    private String selectedUserKey;
+    private List<String> dataTableHeaders = new ArrayList<>();
+    private List<POUserAndOrganization> userAndOrganizations = new ArrayList<>();
+    private List<Marketplace> marketplaces = new ArrayList<>();
+    private boolean isInternalAuthMode;
+    private Long maxRegisteredUsersCount;
 
     @ManagedProperty(value = "#{operatorManageUsersModel}")
     OperatorManageUsersModel model;
 
-    public String getInitialize() {
+    @PostConstruct
+    public void getInitialize() {
+        isInternalAuthMode = getApplicationBean().isInternalAuthMode();
         initModel();
-        return "";
     }
 
     long getMaxRegisteredUsersCount() {
-        VOConfigurationSetting configurationSetting = getConfigurationService()
-                .getVOConfigurationSetting(
-                        ConfigurationKey.MAX_NUMBER_ALLOWED_USERS,
-                        Configuration.GLOBAL_CONTEXT);
-        Long maxRegisteredUsersCount = Long.valueOf(configurationSetting
-                .getValue());
-
+        if (maxRegisteredUsersCount == null) {
+            VOConfigurationSetting configurationSetting = getConfigurationService()
+                    .getVOConfigurationSetting(
+                            ConfigurationKey.MAX_NUMBER_ALLOWED_USERS,
+                            Configuration.GLOBAL_CONTEXT);
+            maxRegisteredUsersCount = Long.valueOf(configurationSetting
+                    .getValue());
+        }
         return maxRegisteredUsersCount.longValue();
     }
 
@@ -109,26 +112,48 @@ public class OperatorManageUsersCtrl extends BaseOperatorBean implements
         return appBean;
     }
 
-    @SuppressWarnings("unused")
-    public List<User> suggest(FacesContext context, UIComponent component, String userId) {
-		userId = userId.replaceAll("\\p{C}", "");
-        Vo2ModelMapper<VOUserDetails, User> mapper = new Vo2ModelMapper<VOUserDetails, User>() {
-            @Override
-            public User createModel(final VOUserDetails vo) {
-                return new User(vo);
-            }
-        };
+    List<POUserAndOrganization> getUsersList() {
         try {
-            String pattern = userId + "%";
-            return mapper.map(getOperatorService().getUsers(pattern));
-        } catch (SaaSApplicationException e) {
+            final List<VOUserDetails> users = getOperatorService().getUsers();
+            List<POUserAndOrganization> poUsers = new ArrayList<>();
+            for (VOUserDetails voUser : users) {
+                POUserAndOrganization poUser = voUserToPO(voUser);
+                poUsers.add(poUser);
+            }
+            return poUsers;
+        } catch (OrganizationAuthoritiesException e) {
             ExceptionHandler.execute(e);
         }
-        return null;
+        return Collections.emptyList();
+    }
+
+    private POUserAndOrganization voUserToPO(VOUserDetails voUser) {
+        POUserAndOrganization poUser = new POUserAndOrganization();
+        poUser.setKey(voUser.getKey());
+        poUser.setUserId(voUser.getUserId());
+        poUser.setEmail(voUser.getEMail());
+        poUser.setOrganizationName(voUser.getOrganizationName());
+        poUser.setOrganizationId(voUser.getOrganizationId());
+        poUser.setStatus(voUser.getStatus());
+        return poUser;
+    }
+
+    public List<String> getDataTableHeaders() {
+        if (dataTableHeaders == null || dataTableHeaders.isEmpty()) {
+            try {
+                dataTableHeaders = Arrays.asList("userId", "email", "organizationName", "organizationId");
+            } catch (Exception e) {
+                throw new SaaSSystemException(e);
+            }
+        }
+        return dataTableHeaders;
+    }
+
+    public int getUsersListSize() {
+        return getUsersList().size();
     }
 
     public boolean isCheckResetPasswordSupported() {
-        final boolean b = getApplicationBean().isInternalAuthMode();
         if (model.isUserIdChanged()) {
             try {
                 reinitUser();
@@ -136,7 +161,7 @@ public class OperatorManageUsersCtrl extends BaseOperatorBean implements
                 ExceptionHandler.execute(e);
             }
         }
-        return b;
+        return getApplicationBean().isInternalAuthMode();
     }
 
     public boolean isExceedMaxNumberOfUsers() {
@@ -174,9 +199,11 @@ public class OperatorManageUsersCtrl extends BaseOperatorBean implements
         if (user != null) {
             getOperatorService().setUserAccountStatus(user,
                     UserAccountStatus.LOCKED);
+            model.getUser().setStatus(UserAccountStatus.LOCKED);
+            model.setUser(null);
         }
 
-        return (user != null) ? getOutcome(true) : OUTCOME_ERROR;
+        return getOutcome(true);
     }
 
     public String unlockUser() throws ObjectNotFoundException,
@@ -186,9 +213,32 @@ public class OperatorManageUsersCtrl extends BaseOperatorBean implements
         if (user != null) {
             getOperatorService().setUserAccountStatus(user,
                     UserAccountStatus.ACTIVE);
+            model.getUser().setStatus(UserAccountStatus.ACTIVE);
+            model.setUser(null);
         }
 
-        return (user != null) ? getOutcome(true) : OUTCOME_ERROR;
+        return getOutcome(true);
+    }
+
+    public void updateSelectedUser() throws OperationNotPermittedException, ObjectNotFoundException, OrganizationRemovedException {
+        for (POUserAndOrganization poUser : userAndOrganizations) {
+            if (poUser.getKey() == Long.valueOf(selectedUserKey)) {
+                VOUserDetails voUser = poUserToVO(poUser);
+                model.setUser(voUser);
+                return;
+            }
+        }
+    }
+
+    private VOUserDetails poUserToVO(POUserAndOrganization poUser) {
+        VOUserDetails voUser = new VOUserDetails();
+        voUser.setKey(poUser.getKey());
+        voUser.setUserId(poUser.getUserId());
+        voUser.setEMail(poUser.getEmail());
+        voUser.setOrganizationName(poUser.getOrganizationName());
+        voUser.setOrganizationId(poUser.getOrganizationId());
+        voUser.setStatus(poUser.getStatus());
+        return voUser;
     }
 
     public OperatorManageUsersModel getModel() {
@@ -220,6 +270,14 @@ public class OperatorManageUsersCtrl extends BaseOperatorBean implements
         return OUTCOME_SUCCESS;
     }
 
+    public void setSelectedUserKey(String userKey) {
+        this.selectedUserKey = userKey;
+    }
+
+    public String getSelectedUserKey() {
+        return selectedUserKey;
+    }
+
     String getSelectedMarketplace() {
         if (model.getSelectedMarketplace().equals(NO_SELECTION)) {
             return null;
@@ -235,14 +293,47 @@ public class OperatorManageUsersCtrl extends BaseOperatorBean implements
 
     List<Marketplace> getSelectableMarketplaces() {
         if (isLoggedInAndPlatformOperator()) {
-            List<Marketplace> marketplaces = ((MarketplaceBean) ui
-                    .findBean("marketplaceBean")).getMarketplacesForOperator();
-            if (marketplaces != null) {
+            if (marketplaces.isEmpty()) {
+                for (VOMarketplace mp : getMarketplaceService()
+                        .getMarketplacesForOperator()) {
+                    marketplaces.add(new Marketplace(mp));
+                }
                 return marketplaces;
             }
         }
-
         return Collections.emptyList();
+    }
+
+    public boolean isPwdButtonEnabled() {
+        return selectedUserKey != null && Long.valueOf(selectedUserKey) != 0L;
+    }
+
+    public boolean isLockButtonEnabled() throws ValidationException, ObjectNotFoundException {
+        if (model.getUser() == null) {
+            return false;
+        }
+        return isUserActive();
+    }
+
+    public boolean isUnlockButtonEnabled() throws ValidationException, ObjectNotFoundException {
+        if (model.getUser() == null) {
+            return false;
+        }
+        return isUserLocked();
+    }
+
+    private boolean isUserLocked() {
+        if (model.getUser().getStatus().equals(UserAccountStatus.LOCKED)) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean isUserActive() {
+        if (model.getUser().getStatus().equals(UserAccountStatus.ACTIVE)) {
+            return true;
+        }
+        return false;
     }
 
     private boolean validateLdapUser(VOUser user)
@@ -258,5 +349,24 @@ public class OperatorManageUsersCtrl extends BaseOperatorBean implements
             return true;
         }
         return false;
+    }
+
+    public List<POUserAndOrganization> getUserAndOrganizations() {
+        if (userAndOrganizations.isEmpty()) {
+            userAndOrganizations = getUsersList();
+        }
+        return userAndOrganizations;
+    }
+
+    public void setUserAndOrganizations(List<POUserAndOrganization> userAndOrganizations) {
+        this.userAndOrganizations = userAndOrganizations;
+    }
+
+    public boolean isInternalAuthMode() {
+        return isInternalAuthMode;
+    }
+
+    public void setInternalAuthMode(boolean internalAuthMode) {
+        isInternalAuthMode = internalAuthMode;
     }
 }

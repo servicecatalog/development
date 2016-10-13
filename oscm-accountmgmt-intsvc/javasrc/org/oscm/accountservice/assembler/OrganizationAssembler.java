@@ -258,6 +258,10 @@ public class OrganizationAssembler extends BaseAssembler {
             voOrganization.setOperatorRevenueShare(organization
                     .getOperatorPriceModel().getRevenueShare());
         }
+        
+        if(organization.getTenant()!=null){
+            voOrganization.setTenantKey(organization.getTenant().getKey());
+        }
     }
 
     /**

@@ -15,16 +15,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
+import javax.persistence.*;
 
 import org.oscm.domobjects.annotations.BusinessKey;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
@@ -50,7 +41,18 @@ import org.oscm.domobjects.enums.LocalizedObjectTypes;
                 + "AND mto.organization_tkey=:organization_tkey AND mto.dataContainer.publishingAccess=:publishingAccessGranted)) "
                 + "OR (mp.dataContainer.open = TRUE AND NOT EXISTS (SELECT mto FROM MarketplaceToOrganization mto "
                 + "WHERE mp.key = mto.marketplace_tkey AND mto.organization_tkey=:organization_tkey "
-                + "AND mto.dataContainer.publishingAccess=:publishingAccessDenied)) )") })
+                + "AND mto.dataContainer.publishingAccess=:publishingAccessDenied))) AND mp.tenant IS NULL"),
+    @NamedQuery(name = "Marketplace.findMarketplacesForPublishingForOrgAndTenant", query = "SELECT mp FROM "
+        + "Marketplace mp "
+        + "WHERE (mp.dataContainer.restricted = FALSE OR EXISTS (SELECT ma FROM MarketplaceAccess ma WHERE ma"
+        + ".marketplace_tkey = mp.key AND ma.organization_tkey = :organization_tkey)) AND ( (mp.dataContainer"
+        + ".open = FALSE AND EXISTS (SELECT mto FROM MarketplaceToOrganization mto WHERE mp.key = mto.marketplace_tkey "
+        + "AND mto.organization_tkey=:organization_tkey AND mto.dataContainer.publishingAccess=:publishingAccessGranted)) "
+        + "OR (mp.dataContainer.open = TRUE AND NOT EXISTS (SELECT mto FROM MarketplaceToOrganization mto "
+        + "WHERE mp.key = mto.marketplace_tkey AND mto.organization_tkey=:organization_tkey "
+        + "AND mto.dataContainer.publishingAccess=:publishingAccessDenied))) AND mp.tenant = :tenant"),
+        @NamedQuery(name = "Marketplace.getAllForTenant", query = "SELECT mp FROM Marketplace mp WHERE mp"
+                + ".tenant = :tenant") })
 @Entity
 public class Marketplace extends DomainObjectWithHistory<MarketplaceData> {
 
@@ -107,6 +109,10 @@ public class Marketplace extends DomainObjectWithHistory<MarketplaceData> {
 
     @OneToOne(optional = false, cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     private RevenueShareModel resellerPriceModel;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "tenant_tkey")
+    private Tenant tenant;
 
     public RevenueShareModel getPriceModel() {
         return priceModel;
@@ -270,5 +276,13 @@ public class Marketplace extends DomainObjectWithHistory<MarketplaceData> {
 
     public void setMarketplaceAccesses(List<MarketplaceAccess> marketplaceAccesses) {
         this.marketplaceAccesses = marketplaceAccesses;
+    }
+
+    public Tenant getTenant() {
+        return tenant;
+    }
+
+    public void setTenant(Tenant tenant) {
+        this.tenant = tenant;
     }
 }

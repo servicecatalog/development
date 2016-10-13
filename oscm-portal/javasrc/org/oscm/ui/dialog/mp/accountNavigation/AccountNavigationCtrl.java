@@ -114,6 +114,10 @@ public class AccountNavigationCtrl extends BaseBean implements Serializable {
                 .equals(hiddenElement)) {
             return isLoggedInAndUnitAdmin()
                     && !applicationBean.isUIElementHidden(hiddenElement);
+        } else if (HiddenUIConstants.MARKETPLACE_MENU_ITEM_ACCOUNT_ADMINISTRATION
+                .equals(hiddenElement)) {
+            return isAdministrationAccess()
+                    && !applicationBean.isUIElementHidden(hiddenElement);
         }
         return !applicationBean.isUIElementHidden(hiddenElement);
     }

@@ -8,20 +8,13 @@
 
 package org.oscm.ui.dialog.common.saml2;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.matches;
-import static org.mockito.Mockito.doCallRealMethod;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -30,15 +23,14 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.junit.Before;
 import org.junit.Test;
-
+import org.oscm.internal.intf.ConfigurationService;
+import org.oscm.internal.types.exception.NotExistentTenantException;
+import org.oscm.internal.types.exception.SAML2AuthnRequestException;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.saml2.api.AuthnRequestGenerator;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
 import org.oscm.ui.common.UiDelegate;
-import org.oscm.internal.intf.ConfigurationService;
-import org.oscm.internal.types.enumtypes.ConfigurationKey;
-import org.oscm.internal.types.exception.SAML2AuthnRequestException;
-import org.oscm.internal.vo.VOConfigurationSetting;
+import org.oscm.ui.filter.AuthenticationSettings;
 
 /**
  * @author roderus
@@ -57,22 +49,26 @@ public class Saml2CtrlTest {
     private static final String DUMMY_REQID = "some_requestid";
 
     private Saml2Ctrl saml2Ctrl;
-    private VOConfigurationSetting voConfigSetting;
     private AuthnRequestGenerator authnReqGenMock;
     private HttpServletRequest requestMock;
     private ConfigurationService configServiceMock;
     private Log4jLogger loggerMock;
     private Saml2Model saml2ModelMock;
     private UiDelegate uiDelegateMock;
+    private AuthenticationSettings authSett = mock(AuthenticationSettings.class);
 
     @Before
-    public void setup() throws SAML2AuthnRequestException,
-            MalformedURLException {
+    public void setup() throws Exception {
         requestMock = mock(HttpServletRequest.class);
         saml2Ctrl = spy(new Saml2Ctrl() {
             @Override
             protected HttpServletRequest getRequest() {
                 return requestMock;
+            }
+
+            @Override
+            protected ConfigurationService getConfigurationService() {
+                return configServiceMock;
             }
         });
 
@@ -85,22 +81,15 @@ public class Saml2CtrlTest {
         saml2Ctrl.ui = uiDelegateMock;
 
         configServiceMock = mock(ConfigurationService.class);
-        voConfigSetting = mock(VOConfigurationSetting.class);
         authnReqGenMock = mock(AuthnRequestGenerator.class);
 
         loggerMock = mock(Log4jLogger.class);
 
         doNothing().when(saml2Ctrl).storeRequestIdInSession(anyString());
         doReturn(TEST_RELAY_STATE).when(saml2Ctrl).getRelayState();
-        doReturn(configServiceMock).when(saml2Ctrl).getConfigService();
-        doReturn(authnReqGenMock).when(saml2Ctrl).getAuthnRequestGenerator();
         doReturn(authnReqGenMock).when(saml2Ctrl).getAuthnRequestGenerator();
         doReturn(requestMock).when(saml2Ctrl.ui).getRequest();
         doReturn(loggerMock).when(saml2Ctrl).getLogger();
-
-        doReturn(voConfigSetting).when(configServiceMock)
-                .getVOConfigurationSetting(any(ConfigurationKey.class),
-                        anyString());
 
         doReturn(DUMMY_AUTHREQUEST).when(authnReqGenMock)
                 .getEncodedAuthnRequest();
@@ -108,11 +97,13 @@ public class Saml2CtrlTest {
         doReturn(new URL(DUMMY_ACSURL)).when(saml2Ctrl).getAcsUrl();
         doReturn(DUMMY_REQID).when(authnReqGenMock).getRequestId();
         doNothing().when(saml2Ctrl).storeRequestIdInSession(anyString());
-
+        doReturn(authSett).when(saml2Ctrl).getAuthenticationSettings();
+        doReturn("https://some.different.acs.url.de").when(authSett).getIdentityProviderURL();
+        doReturn("some_issuerid").when(authSett).getIssuer();
     }
 
     @Test
-    public void initModelAndCheckForErrors_OK() {
+    public void initModelAndCheckForErrors_OK() throws NotExistentTenantException {
         // given
 
         // when
@@ -129,7 +120,7 @@ public class Saml2CtrlTest {
 
     @Test
     public void initModelAndCheckForErrors_AuthnRequestError_Portal()
-            throws SAML2AuthnRequestException {
+            throws Exception {
         // given
         doThrow(new SAML2AuthnRequestException()).when(authnReqGenMock)
                 .getEncodedAuthnRequest();
@@ -148,7 +139,7 @@ public class Saml2CtrlTest {
 
     @Test
     public void initModelAndCheckForErrors_AuthnRequestError_MP()
-            throws SAML2AuthnRequestException {
+            throws Exception {
         // given
         doThrow(new SAML2AuthnRequestException()).when(authnReqGenMock)
                 .getEncodedAuthnRequest();
@@ -167,7 +158,7 @@ public class Saml2CtrlTest {
 
     @Test
     public void initModelAndCheckForErrors_URLError_Portal()
-            throws MalformedURLException {
+            throws Exception {
         // given
         doThrow(new MalformedURLException()).when(saml2Ctrl).getAcsUrl();
         doReturn(Boolean.FALSE).when(saml2Ctrl).isOnMarketplace();
@@ -185,7 +176,7 @@ public class Saml2CtrlTest {
 
     @Test
     public void initModelAndCheckForErrors_URLError_MP()
-            throws MalformedURLException {
+            throws Exception {
         // given
         doThrow(new MalformedURLException()).when(saml2Ctrl).getAcsUrl();
         doReturn(Boolean.TRUE).when(saml2Ctrl).isOnMarketplace();
@@ -202,10 +193,9 @@ public class Saml2CtrlTest {
     }
 
     @Test
-    public void getAcsUrl_OK() throws MalformedURLException {
+    public void getAcsUrl_OK() throws Exception {
         // given
         final String expected = "https://some.different.acs.url.de";
-        doReturn(expected).when(voConfigSetting).getValue();
         doCallRealMethod().when(saml2Ctrl).getAcsUrl();
 
         // when
@@ -216,9 +206,9 @@ public class Saml2CtrlTest {
     }
 
     @Test(expected = MalformedURLException.class)
-    public void getAcsUrl_UIError() throws MalformedURLException {
+    public void getAcsUrl_UIError() throws Exception {
         // given
-        doReturn("no_url").when(voConfigSetting).getValue();
+        doReturn("nope").when(authSett).getIdentityProviderURL();
         doCallRealMethod().when(saml2Ctrl).getAcsUrl();
 
         // when
@@ -228,9 +218,9 @@ public class Saml2CtrlTest {
     }
 
     @Test(expected = MalformedURLException.class)
-    public void getAcsUrl_UIErrorNull() throws MalformedURLException {
+    public void getAcsUrl_UIErrorNull() throws Exception {
         // given
-        doReturn(null).when(voConfigSetting).getValue();
+        doReturn(null).when(authSett).getIdentityProviderURL();
         doCallRealMethod().when(saml2Ctrl).getAcsUrl();
 
         // when
@@ -240,13 +230,9 @@ public class Saml2CtrlTest {
     }
 
     @Test
-    public void getIssuer_OK() throws SAML2AuthnRequestException {
+    public void getIssuer_OK() throws Exception {
         // given
         final String expectedIssuer = "some_issuerid";
-        VOConfigurationSetting voConfig = new VOConfigurationSetting();
-        voConfig.setValue(expectedIssuer);
-        doReturn(voConfig).when(configServiceMock).getVOConfigurationSetting(
-                eq(ConfigurationKey.SSO_ISSUER_ID), matches("global"));
 
         // when
         String actualIssuer = saml2Ctrl.getIssuer();
@@ -256,16 +242,16 @@ public class Saml2CtrlTest {
     }
 
     @Test(expected = SAML2AuthnRequestException.class)
-    public void getIssuer_Error() throws SAML2AuthnRequestException {
+    public void getIssuer_Error() throws Exception {
         // given
-        VOConfigurationSetting voConfig = new VOConfigurationSetting();
-        doReturn(voConfig).when(configServiceMock).getVOConfigurationSetting(
-                eq(ConfigurationKey.SSO_ISSUER_ID), matches("global"));
+
+        doReturn(null).when(authSett).getIssuer();
 
         // when
         saml2Ctrl.getIssuer();
 
         // then exception
+        fail();
     }
 
     @Test

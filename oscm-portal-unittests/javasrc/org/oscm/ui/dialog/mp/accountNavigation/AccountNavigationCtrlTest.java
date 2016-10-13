@@ -10,6 +10,7 @@ package org.oscm.ui.dialog.mp.accountNavigation;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -21,6 +22,8 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
+import org.oscm.internal.vo.VOUser;
+import org.oscm.internal.vo.VOUserDetails;
 import org.oscm.ui.beans.ApplicationBean;
 import org.oscm.domobjects.ConfigurationSetting;
 import org.oscm.internal.intf.ConfigurationService;
@@ -28,6 +31,7 @@ import org.oscm.internal.types.constants.HiddenUIConstants;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.vo.VOConfigurationSetting;
 import org.oscm.types.constants.Configuration;
+import org.oscm.ui.beans.UserBean;
 
 /**
  * @author Yuyin
@@ -38,18 +42,26 @@ public class AccountNavigationCtrlTest {
     private AccountNavigationCtrl ctrl;
     private ApplicationBean abMock;
     private ConfigurationService cnfgSrv;
-
+    private UserBean userMock;
     @Before
     public void setup() throws Exception {
         abMock = mock(ApplicationBean.class);
         cnfgSrv = mock(ConfigurationService.class);
+        userMock = mock(UserBean.class);
 
         when(Boolean.valueOf(abMock.isReportingAvailable()))
                 .thenReturn(Boolean.TRUE);
+        when(abMock.getServerBaseUrl()).thenReturn("baseURL");
         ctrl = new AccountNavigationCtrl() {
             @Override
             protected ConfigurationService getConfigurationService() {
                 return cnfgSrv;
+            }
+
+            @Override
+            public VOUserDetails getUserFromSessionWithoutException() {
+                VOUserDetails mockUser = mock(VOUserDetails.class);
+                return mockUser;
             }
         };
         ctrl = spy(ctrl);
@@ -59,16 +71,27 @@ public class AccountNavigationCtrlTest {
                         ConfigurationKey.HIDE_PAYMENT_INFORMATION,
                         Configuration.GLOBAL_CONTEXT);
         ctrl.setApplicationBean(abMock);
-        ctrl.setModel(new AccountNavigationModel());
+        AccountNavigationModel model = new AccountNavigationModel(){
+            @Override
+            public UserBean getUserBean() {
+                return userMock;
+            }
+
+            @Override
+            public ApplicationBean getAppBean() {
+                return abMock;
+            }
+        };
+        ctrl.setModel(model);
     }
 
     @Test
     public void getModel() {
         AccountNavigationModel model = ctrl.getModel();
-        assertEquals(8, model.getHiddenElement().size());
-        assertEquals(9, model.getLink().size());
-        assertEquals(9, model.getTitle().size());
-        assertEquals("account/index.jsf", model.getLink().get(0));
+        assertEquals(9, model.getHiddenElement().size());
+        assertEquals(10, model.getLink().size());
+        assertEquals(10, model.getTitle().size());
+        assertTrue(model.getLink().get(0).endsWith("account/index.jsf"));
         assertEquals(AccountNavigationModel.MARKETPLACE_ACCOUNT_TITLE,
                 model.getTitle().get(0));
     }
@@ -76,14 +99,14 @@ public class AccountNavigationCtrlTest {
     @Test
     public void getLink() {
         List<String> result = ctrl.getLink();
-        assertEquals(9, result.size());
-        assertEquals("account/index.jsf", result.get(0));
+        assertEquals(10, result.size());
+        assertTrue(result.get(0).endsWith("account/index.jsf"));
     }
 
     @Test
     public void getTitle() {
         List<String> result = ctrl.getTitle();
-        assertEquals(9, result.size());
+        assertEquals(10, result.size());
         assertEquals(AccountNavigationModel.MARKETPLACE_ACCOUNT_TITLE,
                 result.get(0));
     }
@@ -91,7 +114,7 @@ public class AccountNavigationCtrlTest {
     @Test
     public void getHiddenElement() {
         List<String> result = ctrl.getHiddenElement();
-        assertEquals(8, result.size());
+        assertEquals(9, result.size());
         assertEquals(HiddenUIConstants.MARKETPLACE_MENU_ITEM_ACCOUNT_PROFILE,
                 result.get(0));
     }

@@ -51,6 +51,13 @@
             <h:panelGroup />
           </adm:panelGrid>
         </c:if>
+        
+        <c:if test="#{updateMarketplaceBean.model.tenantSelectVisible}">
+        <adm:panelGrid>
+            <adm:selectTenant context="#{updateMarketplaceBean.model.tenantId}" bean="#{updateMarketplaceBean}" />
+          </adm:panelGrid>
+        </c:if>
+        
         <adm:panelGrid>            
           <adm:labelAndInputText id="marketplaceName" label="#{msg['marketplace.name']}"
             disabled="#{updateMarketplaceBean.model.propertiesDisabled}" value="#{updateMarketplaceBean.model.name}"
