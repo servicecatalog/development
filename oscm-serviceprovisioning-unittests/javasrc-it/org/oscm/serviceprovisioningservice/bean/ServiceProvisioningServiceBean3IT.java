@@ -751,7 +751,7 @@ public class ServiceProvisioningServiceBean3IT extends EJBTestBase {
         assertEquals("Wrong product short description", "newShortDesc",
                 updateMarketingProduct.getShortDescription());
         verify(audit, times(1)).updateService(any(DataService.class),
-                any(Product.class), eq(true), eq(false), anyString());
+                any(Product.class), eq(true), eq(false), eq(true), anyString());
     }
 
     @Test
@@ -812,7 +812,7 @@ public class ServiceProvisioningServiceBean3IT extends EJBTestBase {
                 "Service short description",
                 updateMarketingProduct.getShortDescription());
         verify(audit, times(1)).updateService(any(DataService.class),
-                any(Product.class), eq(false), eq(false), anyString());
+                any(Product.class), eq(false), eq(false), eq(false), anyString());
     }
 
     @Test
@@ -873,7 +873,7 @@ public class ServiceProvisioningServiceBean3IT extends EJBTestBase {
                 "Service short description",
                 productDetails.getShortDescription());
         verify(audit, times(1)).updateService(any(DataService.class),
-                any(Product.class), eq(false), eq(true), anyString());
+                any(Product.class), eq(false), eq(true), eq(false), anyString());
     }
 
     @Test
@@ -923,7 +923,7 @@ public class ServiceProvisioningServiceBean3IT extends EJBTestBase {
         svcProv.updateService(productDetails, null);
 
         verify(audit, never()).updateService(any(DataService.class),
-                any(Product.class), anyBoolean(), anyBoolean(), anyString());
+                any(Product.class), anyBoolean(), anyBoolean(), anyBoolean(), anyString());
     }
 
     @Test
