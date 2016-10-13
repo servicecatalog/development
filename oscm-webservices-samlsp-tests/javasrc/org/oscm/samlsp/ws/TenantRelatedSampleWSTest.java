@@ -51,6 +51,7 @@ public class TenantRelatedSampleWSTest {
     private static final String TENANT_ID_2 = "tenant2";
     private static final String TENANT_ID_3 = "tenant3";
     private static final String TENANT_ID_4 = "tenant4";
+    private static final String TENANT_ID_5 = "tenant5";
 
     @Before
     public void setUp() throws Exception {
@@ -69,7 +70,7 @@ public class TenantRelatedSampleWSTest {
         WebserviceTestBase.createOrganization(USER_ID_FOR_TENANT, "org1",
                 tenant.getKey(), OrganizationRoleType.SUPPLIER);
 
-        identityService = ServiceFactory.getSTSServiceFactory(TENANT_ID_1)
+        identityService = ServiceFactory.getSTSServiceFactory(TENANT_ID_1, null)
                 .getIdentityService(USER_ID_FOR_TENANT, "secret");
 
         // when
@@ -94,11 +95,11 @@ public class TenantRelatedSampleWSTest {
                 OrganizationRoleType.SUPPLIER);
 
         IdentityService idServiceForFirstTenant = ServiceFactory
-                .getSTSServiceFactory(TENANT_ID_2)
+                .getSTSServiceFactory(TENANT_ID_2, null)
                 .getIdentityService(USER_ID_FOR_TENANT, "secret");
 
         IdentityService idServiceForSecTenant = ServiceFactory
-                .getSTSServiceFactory(TENANT_ID_3)
+                .getSTSServiceFactory(TENANT_ID_3, null)
                 .getIdentityService(USER_ID_FOR_TENANT, "secret");
 
         // when
@@ -120,7 +121,7 @@ public class TenantRelatedSampleWSTest {
         // given
         WebserviceTestBase.createOrganization(USER_ID,
                 OrganizationRoleType.SUPPLIER);
-        identityService = ServiceFactory.getSTSServiceFactory(TENANT_ID_4)
+        identityService = ServiceFactory.getSTSServiceFactory(TENANT_ID_4, null)
                 .getIdentityService(USER_ID, "secret");
 
         // when
@@ -128,6 +129,27 @@ public class TenantRelatedSampleWSTest {
 
         // then
         // expecting javax.xml.ws.WebServiceException
+    }
+    
+    @Test
+    public void testWSWithOrganizationInContext() throws Exception {
+
+        // given
+        
+        VOTenant tenant = createTenantWithSettings(TENANT_ID_5);
+        VOOrganization org = WebserviceTestBase.createOrganization(
+                USER_ID_FOR_TENANT, "org5", tenant.getKey(),
+                OrganizationRoleType.SUPPLIER);
+        
+        identityService = ServiceFactory.getSTSServiceFactory(null, org.getOrganizationId())
+                .getIdentityService(USER_ID_FOR_TENANT, "secret");
+
+        // when
+        VOUserDetails user = invokeSampleWSMethod();
+
+        // then
+        assertEquals(USER_ID_FOR_TENANT, user.getUserId());
+        assertEquals(org.getOrganizationId(), user.getOrganizationId());
     }
 
     private VOUserDetails invokeSampleWSMethod() throws Exception {
