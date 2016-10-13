@@ -45,6 +45,11 @@ public class UdaDefinitionRowModel {
     private String name;
 
     /**
+     * The language of attribute name.
+     */
+    private String language;
+
+    /**
      * the numeric key for the UDA
      */
     private long key;
@@ -163,5 +168,13 @@ public class UdaDefinitionRowModel {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
     }
 }

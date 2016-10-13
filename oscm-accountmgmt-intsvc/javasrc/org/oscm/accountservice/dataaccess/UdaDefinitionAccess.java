@@ -167,6 +167,9 @@ public class UdaDefinitionAccess {
 
     private void storeLocalizedAttributeName(long key, String attributeName,
         String language) {
+        if (attributeName == null) {
+            return;
+        }
         localizer.storeLocalizedResource(language, key,
             LocalizedObjectTypes.CUSTOM_ATTRIBUTE_NAME, attributeName);
     }

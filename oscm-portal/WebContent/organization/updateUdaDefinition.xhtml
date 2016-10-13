@@ -28,6 +28,28 @@
           <adm:labelAndInputText id="updateUdaIdInput" label="#{msg['udaDefinition.udaId']}" required="true"
             value="#{manageUdaDefinitionBean.currentUda.udaId}" maxlength="#{appBean.idLen}" styleClass="fieldXS"
             rendered="#{not empty manageUdaDefinitionBean.currentUda}" validatorId="idChar" converterId="trimConverter" />
+
+          <adm:outputLabel value="#{msg['udaDefinition.language']}"/>
+          <a4j:outputPanel styleClass="jqSelect" layout="block">
+            <a4j:outputPanel styleClass="select">
+              <a4j:outputPanel styleClass="option"/>
+            </a4j:outputPanel>
+            <h:selectOneMenu id="updateLanguage" styleClass="select"
+                             value="#{manageUdaDefinitionBean.currentUda.language}">
+              <adm:localeItems/>
+              <f:validator validatorId="SupportedLanguageValidator"/>
+              <a4j:ajax event="change"
+                        oncomplete="AdmUtils.setUIElements();"/>
+            </h:selectOneMenu>
+          </a4j:outputPanel>
+          <adm:message id="updateLanguageErrorMsg" for="updateLanguage"/>
+
+          <adm:labelAndInputText id="updateUdaNameInput" label="#{msg['udaDefinition.attributeName']}"
+                                 value="#{manageUdaDefinitionBean.currentUda.name}" maxlength="#{appBean.descriptionLen}"
+                                 converterId="trimConverter" styleClass="fieldXS"
+                                 rendered="#{not empty manageUdaDefinitionBean.currentUda}" />
+
+
           <adm:labelAndInputText id="updateUdaDefaultValueInput" label="#{msg['udaDefinition.defaultValue']}"
             value="#{manageUdaDefinitionBean.currentUda.defaultValue}" maxlength="#{appBean.descriptionLen}"
             converterId="trimConverter" styleClass="fieldXS" rendered="#{not empty manageUdaDefinitionBean.currentUda}" />
@@ -46,6 +68,13 @@
               disabled="#{not manageUdaDefinitionBean.currentUda.userOption}" />
           </a4j:outputPanel>
           <adm:message for="updateUdaMandatoryCheckBox" />
+
+          <adm:outputLabel value="#{msg['udaDefinition.encrypted']}" required="false" />
+          <a4j:outputPanel id="updateUdaEncryptedCheckBoxDiv" layout="block" >
+            <h:selectBooleanCheckbox id="updateUdaEncryptedCheckBox"
+                                     value="#{manageUdaDefinitionBean.currentUda.encrypted}" />
+          </a4j:outputPanel>
+          <adm:message for="updateUdaEncryptedCheckBoxDiv" />
         </adm:panelGrid>
 
         <adm:spacer height="20" />
@@ -103,6 +132,7 @@
              #{rich:element('deleteSubmitButton')}.click();
            }
          }
+         AdmUtils.setUIElements();
       </script>
     </a4j:outputPanel>
   </ui:define>

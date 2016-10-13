@@ -26,7 +26,8 @@
                 <h:outputText value="#{msg['button.edit']}" />
               </f:facet>
               <a4j:commandLink id="editCustomerUdaLink" 
-                oncomplete="#{rich:component('updateCustomUda')}.show()" render="updateUdaIdInput,updateUdaDefaultValueInput,updateUdaUserOptionCheckBox,updateUdaMandatoryCheckBox">
+                oncomplete="#{rich:component('updateCustomUda')}.show(); AdmUtils.setUIElements();"
+                               render="updateContentPanel, updateForm">
                 <h:graphicImage value="../img/transparentPixel.png" styleClass="editPen" />
                 <f:setPropertyActionListener value="CUSTOMER" target="#{manageUdaDefinitionBean.udaType}" />
                 <f:setPropertyActionListener value="#{rowKey}" target="#{manageUdaDefinitionBean.currentUdaIndex}" />

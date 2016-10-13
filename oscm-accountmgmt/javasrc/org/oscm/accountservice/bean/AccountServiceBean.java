@@ -3381,12 +3381,13 @@ public class AccountServiceBean implements AccountService, AccountServiceLocal {
         Organization organization = dm.getCurrentUser().getOrganization();
         List<UdaDefinition> defs = new UdaDefinitionAccess(dm, sessionCtx)
                 .getOwnUdaDefinitions(organization);
-        List<VOUdaDefinition> result = new ArrayList<VOUdaDefinition>();
+        List<VOUdaDefinition> result = new ArrayList<>();
         for (UdaDefinition def : defs) {
-            result.add(UdaAssembler.toVOUdaDefinition(def, new LocalizerFacade(
-                localizer, dm.getCurrentUser().getLocale())));
+            VOUdaDefinition voUdaDefinition = UdaAssembler.toVOUdaDefinition(def, new LocalizerFacade(
+                localizer, dm.getCurrentUser().getLocale()));
+            voUdaDefinition.setLanguage(dm.getCurrentUser().getLocale());
+            result.add(voUdaDefinition);
         }
-
         return result;
     }
 

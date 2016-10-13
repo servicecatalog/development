@@ -38,6 +38,7 @@ public class UdaModelConverter {
         udaModel.setVersion(voUdaDefinition.getVersion());
         udaModel.setEncrypted(voUdaDefinition.isEncrypted());
         udaModel.setName(voUdaDefinition.getName());
+        udaModel.setLanguage(voUdaDefinition.getLanguage());
         // USER_OPTION_MANDATORY map to udaModel.mandatory is true and
         // udaModel.userOption is true
         if (voUdaDefinition.getConfigurationType().equals(
@@ -121,6 +122,9 @@ public class UdaModelConverter {
         udaDetails.setVersion(rowModel.getVersion());
         udaDetails.setMandatory(rowModel.isMandatory());
         udaDetails.setUserOption(rowModel.isUserOption());
+        udaDetails.setName(rowModel.getName());
+        udaDetails.setLanguage(rowModel.getLanguage());
+        udaDetails.setEncrypted(rowModel.isEncrypted());
         return udaDetails;
     }
 
