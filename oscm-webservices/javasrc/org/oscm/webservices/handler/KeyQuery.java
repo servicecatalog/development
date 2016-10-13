@@ -27,7 +27,7 @@ public class KeyQuery extends AbstractQuery {
 
     @Override
     protected String getStatement() {
-        return "SELECT tkey FROM PlatformUser WHERE userid=?";
+        return "SELECT pu.tkey FROM PlatformUser pu JOIN organization o on pu.organizationkey=o.tkey where o.tenant_tkey is null and pu.userid=?";
     }
 
     @Override
