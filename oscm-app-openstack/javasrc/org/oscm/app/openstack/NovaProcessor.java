@@ -27,7 +27,7 @@ import org.oscm.app.v1_0.exceptions.InstanceNotAliveException;
  */
 public class NovaProcessor {
 
-    private NovaClient createNovaClient(PropertyHandler ph)
+    private OpenStackConnection getConnection(PropertyHandler ph)
             throws APPlatformException, NovaException {
         OpenStackConnection connection = new OpenStackConnection(
                 ph.getKeystoneUrl());
@@ -37,26 +37,10 @@ public class NovaProcessor {
                     ph.getDomainName(), ph.getTenantId());
         } catch (OpenStackConnectionException ex) {
             throw new NovaException(
-                    "Failed to connect to Heat: " + ex.getMessage(),
+                    "Failed to connect to Nova: " + ex.getMessage(),
                     ex.getResponseCode());
         }
-        return new NovaClient(connection);
-    }
-
-    private HeatClient createHeatClient(PropertyHandler ph)
-            throws HeatException, APPlatformException {
-        OpenStackConnection connection = new OpenStackConnection(
-                ph.getKeystoneUrl());
-        KeystoneClient client = new KeystoneClient(connection);
-        try {
-            client.authenticate(ph.getUserName(), ph.getPassword(),
-                    ph.getDomainName(), ph.getTenantId());
-        } catch (OpenStackConnectionException ex) {
-            throw new HeatException(
-                    "Failed to connect to Heat: " + ex.getMessage(),
-                    ex.getResponseCode());
-        }
-        return new HeatClient(connection);
+        return connection;
     }
 
     /**
@@ -68,16 +52,20 @@ public class NovaProcessor {
      */
     public HashMap<String, Boolean> startInstances(PropertyHandler ph)
             throws HeatException, APPlatformException, NovaException {
-        List<String> serverIds = createHeatClient(ph)
+        OpenStackConnection connection = getConnection(ph);
+
+        List<String> serverIds = new HeatClient(connection)
                 .getServerIds(ph.getStackName());
+
         HashMap<String, Boolean> operationStatuses = new HashMap<String, Boolean>();
         if (serverIds.size() == 0) {
             throw new InstanceNotAliveException(Messages
                     .getAll("error_starting_failed_instance_not_found"));
         }
 
+        NovaClient nc = new NovaClient(connection);
         for (String id : serverIds) {
-            Boolean result = createNovaClient(ph).startServer(ph, id);
+            Boolean result = nc.startServer(ph, id);
             operationStatuses.put(id, result);
         }
         return operationStatuses;
@@ -94,25 +82,42 @@ public class NovaProcessor {
      */
     public HashMap<String, Boolean> stopInstances(PropertyHandler ph)
             throws HeatException, APPlatformException, NovaException {
-        List<String> serverIds = createHeatClient(ph)
+        OpenStackConnection connection = getConnection(ph);
+
+        List<String> serverIds = new HeatClient(connection)
                 .getServerIds(ph.getStackName());
+
         HashMap<String, Boolean> operationStatuses = new HashMap<String, Boolean>();
         if (serverIds.size() == 0) {
             throw new InstanceNotAliveException(Messages
                     .getAll("error_stopping_failed_instance_not_found"));
         }
 
+        NovaClient nc = new NovaClient(connection);
         for (String id : serverIds) {
-            Boolean result = createNovaClient(ph).stopServer(ph, id);
+            Boolean result = nc.stopServer(ph, id);
             operationStatuses.put(id, result);
         }
         return operationStatuses;
     }
 
+    /**
+     * Get servers information which are in Stack. The stack is identified by
+     * its name.
+     * 
+     * @param ph
+     * @return The List of server object
+     * @throws HeatException
+     * @throws APPlatformException
+     * @throws NovaException
+     */
     public List<Server> getServersDetails(PropertyHandler ph)
             throws HeatException, APPlatformException, NovaException {
-        List<String> serverIds = createHeatClient(ph)
+        OpenStackConnection connection = getConnection(ph);
+
+        List<String> serverIds = new HeatClient(connection)
                 .getServerIds(ph.getStackName());
+
         List<Server> servers = new ArrayList<Server>();
         if (serverIds.size() == 0) {
             throw new InstanceNotAliveException(Messages.getAll(
@@ -120,8 +125,9 @@ public class NovaProcessor {
                     ph.getStackName()));
         }
 
+        NovaClient nc = new NovaClient(connection);
         for (String id : serverIds) {
-            Server server = createNovaClient(ph).getServerDetails(ph, id);
+            Server server = nc.getServerDetails(ph, id);
             servers.add(server);
         }
         return servers;
