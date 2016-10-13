@@ -16,6 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.oscm.domobjects.Uda;
 import org.oscm.domobjects.UdaDefinition;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
+import org.oscm.encrypter.ParameterEncrypter;
 import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.types.enumtypes.UdaTargetType;
 import org.oscm.validator.BLValidator;
@@ -25,6 +26,8 @@ import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.internal.types.exception.ValidationException.ReasonEnum;
 import org.oscm.internal.vo.VOUda;
 import org.oscm.internal.vo.VOUdaDefinition;
+
+import java.security.GeneralSecurityException;
 
 /**
  * @author weiser
@@ -37,7 +40,7 @@ public class UdaAssembler extends BaseAssembler {
     }
 
     public static UdaDefinition toUdaDefinition(VOUdaDefinition voUdaDefinition)
-            throws ValidationException {
+        throws ValidationException, GeneralSecurityException {
         if (voUdaDefinition == null) {
             return null;
         }
@@ -48,24 +51,33 @@ public class UdaAssembler extends BaseAssembler {
 
     public static UdaDefinition updateUdaDefinition(
             UdaDefinition udaDefinition, VOUdaDefinition voUdaDefinition)
-            throws ValidationException, ConcurrentModificationException {
+        throws ValidationException, ConcurrentModificationException, GeneralSecurityException {
         verifyVersionAndKey(udaDefinition, voUdaDefinition);
         copyDefinitionAttributes(voUdaDefinition, udaDefinition);
         return udaDefinition;
     }
 
-    public static VOUdaDefinition toVOUdaDefinition(UdaDefinition udaDefinition, LocalizerFacade localizerFacade) {
+    public static VOUdaDefinition toVOUdaDefinition(UdaDefinition udaDefinition, LocalizerFacade localizerFacade)
+        throws GeneralSecurityException {
         if (udaDefinition == null) {
             return null;
         }
         VOUdaDefinition voUdaDefinition = new VOUdaDefinition();
         updateValueObject(voUdaDefinition, udaDefinition);
-        voUdaDefinition.setDefaultValue(udaDefinition.getDefaultValue());
         voUdaDefinition.setTargetType(udaDefinition.getTargetType().name());
         voUdaDefinition.setUdaId(udaDefinition.getUdaId());
         voUdaDefinition.setConfigurationType(udaDefinition
                 .getConfigurationType());
         voUdaDefinition.setEncrypted(udaDefinition.getDataContainer().isEncrypted());
+
+        String defaultAttrValue;
+        if (udaDefinition.getDataContainer().isEncrypted()) {
+            defaultAttrValue = ParameterEncrypter.decrypt(udaDefinition.getDefaultValue());
+        } else {
+            defaultAttrValue = udaDefinition.getDefaultValue();
+        }
+        voUdaDefinition.setDefaultValue(defaultAttrValue);
+
         String attrName = localizerFacade.getText(voUdaDefinition.getKey(), LocalizedObjectTypes.CUSTOM_ATTRIBUTE_NAME);
         voUdaDefinition.setName(attrName);
         return voUdaDefinition;
@@ -87,7 +99,7 @@ public class UdaAssembler extends BaseAssembler {
         return uda;
     }
 
-    public static VOUda toVOUda(Uda uda, LocalizerFacade localizerFacade) {
+    public static VOUda toVOUda(Uda uda, LocalizerFacade localizerFacade) throws GeneralSecurityException {
         if (uda == null) {
             return null;
         }
@@ -101,9 +113,16 @@ public class UdaAssembler extends BaseAssembler {
 
     private static void copyDefinitionAttributes(
             VOUdaDefinition voUdaDefinition, UdaDefinition udaDefinition)
-            throws ValidationException {
+        throws ValidationException, GeneralSecurityException {
         validateDefinition(voUdaDefinition);
-        udaDefinition.setDefaultValue(voUdaDefinition.getDefaultValue());
+
+        String defaultAttrValue;
+        if (voUdaDefinition.isEncrypted()) {
+            defaultAttrValue = ParameterEncrypter.encrypt(voUdaDefinition.getDefaultValue());
+        } else {
+            defaultAttrValue = voUdaDefinition.getDefaultValue();
+        }
+        udaDefinition.setDefaultValue(defaultAttrValue);
         udaDefinition.setTargetType(UdaTargetType.valueOf(voUdaDefinition
                 .getTargetType()));
         udaDefinition.setUdaId(voUdaDefinition.getUdaId());

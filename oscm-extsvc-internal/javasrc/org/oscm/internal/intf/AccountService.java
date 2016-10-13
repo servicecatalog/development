@@ -133,6 +133,8 @@ public interface AccountService {
             throws ObjectNotFoundException, ServiceParameterException,
             OperationNotPermittedException, SubscriptionStateException;
 
+    String getLocalizedAttributeName(long key, String locale);
+
     /**
      * Registers a new customer organization for the calling user who is not yet
      * known to the platform. The registration establishes the contractual

@@ -35,10 +35,11 @@
               <a4j:outputPanel styleClass="option"/>
             </a4j:outputPanel>
             <h:selectOneMenu id="updateLanguage" styleClass="select"
+                             valueChangeListener="#{manageUdaDefinitionBean.changeLanguage}"
                              value="#{manageUdaDefinitionBean.currentUda.language}">
               <adm:localeItems/>
               <f:validator validatorId="SupportedLanguageValidator"/>
-              <a4j:ajax event="change"
+              <a4j:ajax event="change" render="updateUdaNameInput"
                         oncomplete="AdmUtils.setUIElements();"/>
             </h:selectOneMenu>
           </a4j:outputPanel>

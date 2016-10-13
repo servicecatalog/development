@@ -187,4 +187,8 @@ public class ManageUdaDefinitionCtrl {
         }
         model.setSubscriptionUdas(subscriptionUdas);
     }
+
+    public String getLocalizedAttributeName(long key, String locale) {
+        return as.getLocalizedAttributeName(key, locale);
+    }
 }

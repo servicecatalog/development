@@ -355,6 +355,13 @@ public class AccountServiceBean implements AccountService, AccountServiceLocal {
                 LocalizedObjectTypes.ORGANIZATION_DESCRIPTION);
     }
 
+    @Override
+    public String getLocalizedAttributeName(long key, String locale) {
+        LocalizerFacade localizerEn = new LocalizerFacade(localizer, locale);
+        return localizerEn.getText(key,
+                LocalizedObjectTypes.CUSTOM_ATTRIBUTE_NAME);
+    }
+
     /**
      * Returns true if an image is defined for the product with the given key.
      * 

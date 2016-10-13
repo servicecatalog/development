@@ -29,7 +29,7 @@
             value="#{manageUdaDefinitionBean.newUda.udaId}" maxlength="#{appBean.idLen}" styleClass="fieldXS"
             rendered="#{not empty manageUdaDefinitionBean.newUda}" validatorId="idChar" converterId="trimConverter" />
 
-          <adm:labelAndSelect id="language" required="false"
+          <adm:labelAndSelect id="language" required="false" styleClass="select"
                               value="#{manageUdaDefinitionBean.newUda.language}"
                               label="#{msg['udaDefinition.language']}" listenerBean="#{manageUdaDefinitionBean}">
             <adm:localeItems />
