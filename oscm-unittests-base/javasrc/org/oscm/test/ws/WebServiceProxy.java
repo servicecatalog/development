@@ -35,14 +35,14 @@ public class WebServiceProxy {
 
     public static <T> T get(String baseUrl, String version, String auth,
             String namespace, Class<T> remoteInterface, String userName,
-            String password, String tenantId) throws Exception {
+            String password, String tenantId, String orgId) throws Exception {
         return get(baseUrl, version, version, auth, namespace, remoteInterface,
-                userName, password, tenantId);
+                userName, password, tenantId, orgId);
     }
 
     public static <T> T get(String baseUrl, final String versionWSDL,
             String versionHeader, String auth, String namespace,
-            Class<T> remoteInterface, String userName, String password, String tenantId)
+            Class<T> remoteInterface, String userName, String password, String tenantId, String orgId)
             throws Exception {
         String wsdlUrl = baseUrl + "/oscm/" + versionWSDL + "/"
                 + remoteInterface.getSimpleName() + "/" + auth + "?wsdl";
@@ -79,13 +79,19 @@ public class WebServiceProxy {
             clientRequestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
                     baseUrl + "/" + remoteInterface.getSimpleName() + "/"
                             + auth);
-
+            
+            Map<String, List<String>> headers = new HashMap<String, List<String>>();
+            
             if (tenantId != null) {
-                Map<String, List<String>> headers = new HashMap<String, List<String>>();
                 headers.put("tenantId", Collections.singletonList(tenantId));
-                clientRequestContext.put(MessageContext.HTTP_REQUEST_HEADERS,
-                        headers);
             }
+            
+            if(orgId!= null){
+                headers.put("organizationId", Collections.singletonList(orgId)); 
+            }
+            
+            clientRequestContext.put(MessageContext.HTTP_REQUEST_HEADERS,
+                    headers);
             
         } else {
             clientRequestContext.put(BindingProvider.USERNAME_PROPERTY,
