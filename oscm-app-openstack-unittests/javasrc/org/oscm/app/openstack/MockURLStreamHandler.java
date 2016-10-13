@@ -33,6 +33,7 @@ public class MockURLStreamHandler extends URLStreamHandler {
 
     private final Map<String, MockHttpURLConnection> connection;
     private final Map<String, MockHttpsURLConnection> connectionHttps;
+    private Map<String, Integer> count;
 
     public MockURLStreamHandler() {
         List<String> serverNames = new ArrayList<>();
@@ -85,6 +86,7 @@ public class MockURLStreamHandler extends URLStreamHandler {
         put("/stacks/Instance4/sID/actions", new MockHttpsURLConnection(200,
                 respStacksInstance4sIdActions()));
         put("/stacks", new MockHttpsURLConnection(200, respStacks()));
+        this.count = new HashMap<String, Integer>();
     }
 
     /**
@@ -128,10 +130,41 @@ public class MockURLStreamHandler extends URLStreamHandler {
     @Override
     protected URLConnection openConnection(URL u) throws IOException {
         URLConnection conn = null;
-        if (u.getProtocol().equals("https")) {
-            conn = connectionHttps.get(u.getFile());
+        Integer count = this.count.get(u.getFile()) != null
+                ? this.count.get(u.getFile()) : Integer.valueOf(0);
+        int newCount = count.intValue();
+        if (newCount == 0) {
+            newCount = 1;
         } else {
-            conn = connection.get(u.getFile());
+            newCount = count.intValue() + 1;
+        }
+        this.count.put(u.getFile(), Integer.valueOf(newCount));
+        if (u.getProtocol().equals("https")) {
+            if (newCount > 1) {
+                String newURL = "https://" + u.getHost() + u.getPath() + "/"
+                        + newCount;
+                URL url = new URL(newURL);
+                if (connectionHttps.get(url.getFile()) != null) {
+                    conn = connectionHttps.get(url.getFile());
+                } else {
+                    conn = connectionHttps.get(u.getFile());
+                }
+            } else {
+                conn = connectionHttps.get(u.getFile());
+            }
+        } else {
+            if (newCount > 1) {
+                String newURL = "http://" + u.getHost() + u.getPath() + "/"
+                        + this.count;
+                URL url = new URL(newURL);
+                if (connection.get(url.getFile()) != null) {
+                    conn = connection.get(url.getFile());
+                } else {
+                    conn = connection.get(u.getFile());
+                }
+            } else {
+                conn = connection.get(u.getFile());
+            }
         }
         if (conn == null) {
             throw new RuntimeException(
@@ -143,10 +176,41 @@ public class MockURLStreamHandler extends URLStreamHandler {
     @Override
     protected URLConnection openConnection(URL u, Proxy p) throws IOException {
         URLConnection conn = null;
-        if (u.getProtocol().equals("https")) {
-            conn = connectionHttps.get(u.getFile());
+        Integer count = this.count.get(u.getFile()) != null
+                ? this.count.get(u.getFile()) : Integer.valueOf(0);
+        int newCount = count.intValue();
+        if (newCount == 0) {
+            newCount = 1;
         } else {
-            conn = connection.get(u.getFile());
+            newCount = count.intValue() + 1;
+        }
+        this.count.put(u.getFile(), Integer.valueOf(newCount));
+        if (u.getProtocol().equals("https")) {
+            if (newCount > 1) {
+                String newURL = "https://" + u.getHost() + u.getPath() + "/"
+                        + newCount;
+                URL url = new URL(newURL);
+                if (connectionHttps.get(url.getFile()) != null) {
+                    conn = connectionHttps.get(url.getFile());
+                } else {
+                    conn = connectionHttps.get(u.getFile());
+                }
+            } else {
+                conn = connectionHttps.get(u.getFile());
+            }
+        } else {
+            if (newCount > 1) {
+                String newURL = "http://" + u.getHost() + u.getPath() + "/"
+                        + newCount;
+                URL url = new URL(newURL);
+                if (connection.get(url.getFile()) != null) {
+                    conn = connection.get(url.getFile());
+                } else {
+                    conn = connection.get(u.getFile());
+                }
+            } else {
+                conn = connection.get(u.getFile());
+            }
         }
         if (conn == null) {
             throw new RuntimeException(
