@@ -3349,10 +3349,9 @@ public class AccountServiceBean implements AccountService, AccountServiceLocal {
         ArgumentValidator.notNull("udaDefinitionsToDelete",
                 udaDefinitionsToDelete);
         Organization org = dm.getCurrentUser().getOrganization();
-        UdaDefinitionAccess udaAccess = new UdaDefinitionAccess(dm, sessionCtx);
+        UdaDefinitionAccess udaAccess = new UdaDefinitionAccess(dm, sessionCtx, localizer);
         udaAccess.saveUdaDefinitions(udaDefinitionsToSave, org);
         udaAccess.deleteUdaDefinitions(udaDefinitionsToDelete, org);
-
     }
 
     /**
@@ -3384,7 +3383,8 @@ public class AccountServiceBean implements AccountService, AccountServiceLocal {
                 .getOwnUdaDefinitions(organization);
         List<VOUdaDefinition> result = new ArrayList<VOUdaDefinition>();
         for (UdaDefinition def : defs) {
-            result.add(UdaAssembler.toVOUdaDefinition(def));
+            result.add(UdaAssembler.toVOUdaDefinition(def, new LocalizerFacade(
+                localizer, dm.getCurrentUser().getLocale())));
         }
 
         return result;
@@ -3406,7 +3406,8 @@ public class AccountServiceBean implements AccountService, AccountServiceLocal {
         List<VOUda> voUdas = new ArrayList<VOUda>();
         for (Uda uda : udas) {
             // convert to VO list
-            voUdas.add(UdaAssembler.toVOUda(uda));
+            voUdas.add(UdaAssembler.toVOUda(uda, new LocalizerFacade(
+                localizer, dm.getCurrentUser().getLocale())));
         }
 
         return voUdas;
@@ -3802,7 +3803,8 @@ public class AccountServiceBean implements AccountService, AccountServiceLocal {
         List<VOUdaDefinition> voUdaDefs = new ArrayList<VOUdaDefinition>();
         for (UdaDefinition def : defs) {
             // convert to VO list
-            voUdaDefs.add(UdaAssembler.toVOUdaDefinition(def));
+            voUdaDefs.add(UdaAssembler.toVOUdaDefinition(def, new LocalizerFacade(
+                localizer, dm.getCurrentUser().getLocale())));
         }
 
         return voUdaDefs;
@@ -3863,7 +3865,8 @@ public class AccountServiceBean implements AccountService, AccountServiceLocal {
         List<VOUda> voUdas = new ArrayList<VOUda>();
         for (Uda uda : udas) {
             // convert to VO list
-            voUdas.add(UdaAssembler.toVOUda(uda));
+            voUdas.add(UdaAssembler.toVOUda(uda, new LocalizerFacade(
+                localizer, dm.getCurrentUser().getLocale())));
         }
 
         return voUdas;

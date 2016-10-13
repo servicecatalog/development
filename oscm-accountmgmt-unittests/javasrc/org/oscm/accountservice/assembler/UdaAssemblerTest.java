@@ -36,13 +36,13 @@ public class UdaAssemblerTest {
 
     @Test
     public void testToVOUdaDefinition_Null() throws Exception {
-        Assert.assertNull(UdaAssembler.toVOUdaDefinition(null));
+        Assert.assertNull(UdaAssembler.toVOUdaDefinition(null, null));
     }
 
     @Test
     public void testToVOUdaDefinition() throws Exception {
         UdaDefinition def = createUdaDefinition();
-        VOUdaDefinition voDef = UdaAssembler.toVOUdaDefinition(def);
+        VOUdaDefinition voDef = UdaAssembler.toVOUdaDefinition(def, null);
         verifyDefinition(def, voDef);
     }
 
@@ -129,7 +129,7 @@ public class UdaAssemblerTest {
     @Test(expected = ConcurrentModificationException.class)
     public void testUpdateUdaDefinition_DifferentVersion() throws Exception {
         UdaDefinition def = createUdaDefinition();
-        VOUdaDefinition voDef = UdaAssembler.toVOUdaDefinition(def);
+        VOUdaDefinition voDef = UdaAssembler.toVOUdaDefinition(def, null);
         voDef.setVersion(voDef.getVersion() - 1);
         UdaAssembler.updateUdaDefinition(def, voDef);
     }
@@ -137,7 +137,7 @@ public class UdaAssemblerTest {
     @Test(expected = SaaSSystemException.class)
     public void testUpdateUdaDefinition_DifferentKey() throws Exception {
         UdaDefinition def = createUdaDefinition();
-        VOUdaDefinition voDef = UdaAssembler.toVOUdaDefinition(def);
+        VOUdaDefinition voDef = UdaAssembler.toVOUdaDefinition(def, null);
         voDef.setKey(voDef.getKey() - 1);
         UdaAssembler.updateUdaDefinition(def, voDef);
     }
@@ -145,7 +145,7 @@ public class UdaAssemblerTest {
     @Test
     public void testUpdateUdaDefinition() throws Exception {
         UdaDefinition def = createUdaDefinition();
-        VOUdaDefinition voDef = UdaAssembler.toVOUdaDefinition(def);
+        VOUdaDefinition voDef = UdaAssembler.toVOUdaDefinition(def, null);
         voDef.setDefaultValue("newDefaultValue");
         voDef.setTargetType(UdaTargetType.CUSTOMER_SUBSCRIPTION.name());
         voDef.setUdaId("newUdaId");
@@ -169,7 +169,7 @@ public class UdaAssemblerTest {
         uda.setTargetObjectKey(2345);
         uda.setUdaDefinition(def);
         uda.setUdaValue("42");
-        VOUda voUda = UdaAssembler.toVOUda(uda);
+        VOUda voUda = UdaAssembler.toVOUda(uda, null);
         Assert.assertNotNull(voUda);
         Assert.assertEquals(uda.getKey(), voUda.getKey());
         Assert.assertEquals(uda.getTargetObjectKey(),
@@ -181,7 +181,7 @@ public class UdaAssemblerTest {
 
     @Test
     public void testToVOUda_Null() throws Exception {
-        Assert.assertNull(UdaAssembler.toVOUda(null));
+        Assert.assertNull(UdaAssembler.toVOUda(null, null));
     }
 
     @Test
@@ -233,7 +233,7 @@ public class UdaAssemblerTest {
     @Test
     public void testUpdateUda() throws Exception {
         Uda uda = createUda();
-        VOUda voUda = UdaAssembler.toVOUda(uda);
+        VOUda voUda = UdaAssembler.toVOUda(uda, null);
         voUda.setTargetObjectKey(5432);
         voUda.setUdaValue("newUdaValue");
         Uda updateUda = UdaAssembler.updateUda(uda, voUda);
@@ -248,7 +248,7 @@ public class UdaAssemblerTest {
     @Test(expected = SaaSSystemException.class)
     public void testUpdateUda_DifferentKey() throws Exception {
         Uda uda = createUda();
-        VOUda voUda = UdaAssembler.toVOUda(uda);
+        VOUda voUda = UdaAssembler.toVOUda(uda, null);
         voUda.setKey(voUda.getKey() - 1);
         UdaAssembler.updateUda(uda, voUda);
     }
@@ -256,7 +256,7 @@ public class UdaAssemblerTest {
     @Test(expected = ConcurrentModificationException.class)
     public void testUpdateUda_DifferentVersion() throws Exception {
         Uda uda = createUda();
-        VOUda voUda = UdaAssembler.toVOUda(uda);
+        VOUda voUda = UdaAssembler.toVOUda(uda, null);
         voUda.setVersion(voUda.getVersion() - 1);
         UdaAssembler.updateUda(uda, voUda);
     }

@@ -14,6 +14,7 @@ import java.util.List;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
+import javax.faces.event.ValueChangeEvent;
 
 import org.oscm.ui.beans.BaseBean;
 import org.oscm.internal.intf.AccountService;
@@ -218,6 +219,9 @@ public class ManageUdaDefinitionBean extends BaseBean implements Serializable {
         controller.setModel(null);
 
         return OUTCOME_SUCCESS;
+    }
+
+    public void processValueChange(final ValueChangeEvent event) {
     }
 
 }

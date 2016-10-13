@@ -1,2 +1,2 @@
-ALTER TABLE "udadefinition" ADD COLUMN "udaname" CHARACTER VARYING(255);
 ALTER TABLE "udadefinition" ADD COLUMN "encrypted" BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE "udadefinitionhistory" ADD COLUMN "encrypted" BOOLEAN NOT NULL DEFAULT FALSE;

@@ -12,8 +12,11 @@
 
 package org.oscm.accountservice.assembler;
 
+import org.apache.commons.lang3.StringUtils;
 import org.oscm.domobjects.Uda;
 import org.oscm.domobjects.UdaDefinition;
+import org.oscm.domobjects.enums.LocalizedObjectTypes;
+import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.types.enumtypes.UdaTargetType;
 import org.oscm.validator.BLValidator;
 import org.oscm.vo.BaseAssembler;
@@ -51,7 +54,7 @@ public class UdaAssembler extends BaseAssembler {
         return udaDefinition;
     }
 
-    public static VOUdaDefinition toVOUdaDefinition(UdaDefinition udaDefinition) {
+    public static VOUdaDefinition toVOUdaDefinition(UdaDefinition udaDefinition, LocalizerFacade localizerFacade) {
         if (udaDefinition == null) {
             return null;
         }
@@ -62,6 +65,9 @@ public class UdaAssembler extends BaseAssembler {
         voUdaDefinition.setUdaId(udaDefinition.getUdaId());
         voUdaDefinition.setConfigurationType(udaDefinition
                 .getConfigurationType());
+        voUdaDefinition.setEncrypted(udaDefinition.getDataContainer().isEncrypted());
+        String attrName = localizerFacade.getText(voUdaDefinition.getKey(), LocalizedObjectTypes.CUSTOM_ATTRIBUTE_NAME);
+        voUdaDefinition.setName(attrName);
         return voUdaDefinition;
     }
 
@@ -81,14 +87,14 @@ public class UdaAssembler extends BaseAssembler {
         return uda;
     }
 
-    public static VOUda toVOUda(Uda uda) {
+    public static VOUda toVOUda(Uda uda, LocalizerFacade localizerFacade) {
         if (uda == null) {
             return null;
         }
         VOUda voUda = new VOUda();
         updateValueObject(voUda, uda);
         voUda.setTargetObjectKey(uda.getTargetObjectKey());
-        voUda.setUdaDefinition(toVOUdaDefinition(uda.getUdaDefinition()));
+        voUda.setUdaDefinition(toVOUdaDefinition(uda.getUdaDefinition(), localizerFacade));
         voUda.setUdaValue(uda.getUdaValue());
         return voUda;
     }
@@ -103,6 +109,7 @@ public class UdaAssembler extends BaseAssembler {
         udaDefinition.setUdaId(voUdaDefinition.getUdaId());
         udaDefinition.setConfigurationType(voUdaDefinition
                 .getConfigurationType());
+        udaDefinition.getDataContainer().setEncrypted(voUdaDefinition.isEncrypted());
     }
 
     private static void validateDefinition(VOUdaDefinition def)

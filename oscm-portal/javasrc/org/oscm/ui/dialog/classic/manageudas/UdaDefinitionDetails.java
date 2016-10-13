@@ -50,6 +50,13 @@ public class UdaDefinitionDetails {
     private boolean encrypted;
 
     /**
+     * The custom user attribute name.
+     */
+    private String language;
+
+    private String name;
+
+    /**
      * @return the udaId
      */
     public String getUdaId() {
@@ -146,5 +153,21 @@ public class UdaDefinitionDetails {
 
     public void setEncrypted(boolean encrypted) {
         this.encrypted = encrypted;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
     }
 }

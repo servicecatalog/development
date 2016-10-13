@@ -849,7 +849,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
                 targetObjectKey, type, supplier, customer);
         List<VOUda> voUdas = new ArrayList<>();
         for (Uda uda : udas) {
-            voUdas.add(UdaAssembler.toVOUda(uda));
+            voUdas.add(UdaAssembler.toVOUda(uda, new LocalizerFacade(
+                localizer, dataManager.getCurrentUser().getLocale())));
         }
 
         return voUdas;

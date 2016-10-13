@@ -44,6 +44,13 @@
 
             <rich:column>
               <f:facet name="header">
+                <h:outputText value="#{msg['udaDefinition.attributeName']}" />
+              </f:facet>
+              <h:outputText id="udaName" value="#{rowItem.name}" styleClass="fieldS" maxlength="#{appBean.idLen}" />
+            </rich:column>
+
+            <rich:column>
+              <f:facet name="header">
                 <h:outputText value="#{msg['udaDefinition.defaultValue']}" />
               </f:facet>
               <h:outputText id="defaultValue" value="#{rowItem.defaultValue}" styleClass="field"
@@ -69,6 +76,15 @@
               </f:facet>
               <h:graphicImage id="isMandatory" value="../img/transparentPixel.png" styleClass="yes" rendered="#{rowItem.mandatory}" />
               <adm:message id="mandatoryMsg" for="isMandatory" />
+            </rich:column>
+
+            <!-- Encrypted -->
+            <rich:column style="text-align:center">
+              <f:facet name="header">
+                <h:outputText value="#{msg['udaDefinition.encrypted']}" />
+              </f:facet>
+              <h:graphicImage id="isEncrypted" value="../img/transparentPixel.png" styleClass="yes"
+                              rendered="#{rowItem.encrypted}" />
             </rich:column>
           </adm:dataTable>
         </a4j:outputPanel>
