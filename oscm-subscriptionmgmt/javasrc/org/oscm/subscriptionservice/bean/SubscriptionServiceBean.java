@@ -5527,4 +5527,13 @@ public class SubscriptionServiceBean implements SubscriptionService,
     public Subscription getMySubscriptionDetails(long key) {
         return getSubscriptionDao().getMySubscriptionDetails(key);
     }
+
+    @Override
+    @RolesAllowed({ "ORGANIZATION_ADMIN", "SUBSCRIPTION_MANAGER", "UNIT_ADMINISTRATOR" })
+    public boolean unsubscribeFromService(Long key) throws ObjectNotFoundException, SubscriptionStillActiveException,
+            SubscriptionStateException, TechnicalServiceNotAliveException, TechnicalServiceOperationException,
+            OperationPendingException, OperationNotPermittedException {
+        Subscription mySubscriptionDetails = getMySubscriptionDetails(key.longValue());
+        return unsubscribeFromService(mySubscriptionDetails.getSubscriptionId());
+    }
 }
