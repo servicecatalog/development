@@ -67,12 +67,12 @@ public class UdaAssembler extends BaseAssembler {
         voUdaDefinition.setUdaId(udaDefinition.getUdaId());
         voUdaDefinition.setConfigurationType(udaDefinition
                 .getConfigurationType());
-        voUdaDefinition.setEncrypted(udaDefinition.getDataContainer().isEncrypted());
+        voUdaDefinition.setEncrypted(udaDefinition.isEncrypted());
 
         String defaultAttrValue = udaDefinition.getDefaultValue();
         try {
             if (StringUtils.isNotBlank(defaultAttrValue)) {
-                if (udaDefinition.getDataContainer().isEncrypted()) {
+                if (udaDefinition.isEncrypted()) {
                     defaultAttrValue = ParameterEncrypter
                             .decrypt(udaDefinition.getDefaultValue());
                 }
