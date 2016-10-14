@@ -503,10 +503,15 @@ public class ProductAssembler extends BaseAssembler {
                     template.getConfiguratorUrl(), false);
 
             product.setConfiguratorUrl(template.getConfiguratorUrl());
+
+            BLValidator.isUrl(FIELD_NAME_CUSTOM_TAB_URL,
+                    template.getCustomTabUrl(), false);
+            product.setCustomTabUrl(template.getCustomTabUrl());
+
         } else {
             product.setConfiguratorUrl(null);
+            product.setCustomTabUrl(null);
         }
-        product.setCustomTabUrl(template.getCustomTabUrl());
     }
 
     /**
