@@ -43,6 +43,23 @@ public class LoginHandler implements SOAPHandler<SOAPMessageContext> {
     private static final String TENANT_ID_HEADER_PARAM = "tenantId";
     private static final String ORGANIZATION_ID_HEADER_PARAM = "organizationId";
     
+    private AbstractKeyQuery keyQuery;
+    
+    public AbstractKeyQuery getKeyQuery() {
+        return keyQuery;
+    }
+
+    public void setKeyQuery(AbstractKeyQuery keyQuery) {
+        this.keyQuery = keyQuery;
+    }
+    
+    public DataSource getDbSource() throws NamingException{
+        Context context = new InitialContext();
+        DataSource ds = (DataSource) context.lookup("BSSDS");
+        
+        return ds;
+    }
+
     @Override
     public boolean handleMessage(SOAPMessageContext context) {
 
@@ -129,19 +146,16 @@ public class LoginHandler implements SOAPHandler<SOAPMessageContext> {
     private String getUserKey(String userId, String orgId, String tenantId)
             throws NamingException, SQLException {
 
-        Context context = new InitialContext();
-        DataSource ds = (DataSource) context.lookup("BSSDS");
-
-        AbstractKeyQuery keyQuery;
+        DataSource dbSource = getDbSource();
 
         if (StringUtils.isNotEmpty(tenantId)) {
-            keyQuery = new UserKeyForTenantQuery(ds, userId, tenantId);
+            keyQuery = new UserKeyForTenantQuery(dbSource, userId, tenantId);
             
         } else if(StringUtils.isNotEmpty(orgId)){
-            keyQuery = new UserKeyForOrganizationQuery(ds, userId, orgId);
+            keyQuery = new UserKeyForOrganizationQuery(dbSource, userId, orgId);
         }
         else {
-            keyQuery = new UserKeyQuery(ds, userId);
+            keyQuery = new UserKeyQuery(dbSource, userId);
         }
 
         keyQuery.execute();
@@ -167,7 +181,7 @@ public class LoginHandler implements SOAPHandler<SOAPMessageContext> {
         return userId;
     }
     
-    private String getTenantIdFromContext(SOAPMessageContext context){
+    protected String getTenantIdFromContext(SOAPMessageContext context){
         
         String tenantId = null;
         
@@ -184,7 +198,7 @@ public class LoginHandler implements SOAPHandler<SOAPMessageContext> {
         return tenantId;
     }
     
-    private String getOrganizationIdFromContext(SOAPMessageContext context){
+    protected String getOrganizationIdFromContext(SOAPMessageContext context){
         
         String orgId = null;
         
