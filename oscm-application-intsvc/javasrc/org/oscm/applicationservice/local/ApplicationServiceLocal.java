@@ -134,7 +134,7 @@ public interface ApplicationServiceLocal {
      * 
      * @param subscription
      *            The subscription for which a product instance will be created.
-     * @return 
+     * @return
      * @throws TechnicalServiceNotAliveException
      * @throws TechnicalServiceOperationException
      */
@@ -254,9 +254,9 @@ public interface ApplicationServiceLocal {
 
     /**
      * Requests the available values for operation parameters that get their
-     * values from the external service. If there is no such operation parameter,
-     * an empty map will be returned without doing a call to the external
-     * system.
+     * values from the external service. If there is no such operation
+     * parameter, an empty map will be returned without doing a call to the
+     * external system.
      * 
      * @param userId
      *            the calling users id
@@ -270,6 +270,19 @@ public interface ApplicationServiceLocal {
      */
     public Map<String, List<String>> getOperationParameterValues(String userId,
             TechnicalProductOperation operation, Subscription subscription)
+            throws TechnicalServiceNotAliveException,
+            TechnicalServiceOperationException;
+
+    /**
+     * Saves the user defined attributes for the subscribing organization in the
+     * APP
+     * 
+     * @param subscription
+     *            the subscription to get the UDAs and the APP credentials
+     * @throws TechnicalServiceNotAliveException
+     * @throws TechnicalServiceOperationException
+     */
+    public void saveAttributes(Subscription subscription)
             throws TechnicalServiceNotAliveException,
             TechnicalServiceOperationException;
 

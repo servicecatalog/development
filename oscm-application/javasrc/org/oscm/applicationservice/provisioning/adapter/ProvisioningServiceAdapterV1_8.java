@@ -25,7 +25,7 @@ import org.oscm.provisioning.intf.ProvisioningService;
  * @author goebel
  * 
  */
-public class ProvisioningServiceAdapterV1_0
+public class ProvisioningServiceAdapterV1_8
         implements ProvisioningServiceAdapter {
 
     private ProvisioningService service;
@@ -129,10 +129,8 @@ public class ProvisioningServiceAdapterV1_0
     @Override
     public BaseResult saveAttributes(String organizationId,
             List<ServiceAttribute> attributeValues, User requestingUser) {
-        BaseResult br = new BaseResult();
-        br.setRc(0);
-        br.setDesc("saveAttributes");
-        return br;
+        return service.saveAttributes(organizationId, attributeValues,
+                requestingUser);
     }
 
 }

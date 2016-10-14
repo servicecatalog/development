@@ -18,6 +18,7 @@ import org.oscm.provisioning.data.BaseResult;
 import org.oscm.provisioning.data.InstanceInfo;
 import org.oscm.provisioning.data.InstanceRequest;
 import org.oscm.provisioning.data.InstanceResult;
+import org.oscm.provisioning.data.ServiceAttribute;
 import org.oscm.provisioning.data.ServiceParameter;
 import org.oscm.provisioning.data.User;
 import org.oscm.provisioning.data.UserResult;
@@ -90,7 +91,7 @@ public class ProvisioningServicePortStub implements ProvisioningServiceAdapter {
     }
 
     private void setParameters(List<ServiceParameter> serviceParams) {
-        parameters = new ArrayList<Parameter>();
+        parameters = new ArrayList<>();
         for (ServiceParameter serviceParam : serviceParams) {
             ParameterDefinition paramDef = new ParameterDefinition();
             paramDef.setParameterId(serviceParam.getParameterId());
@@ -102,7 +103,7 @@ public class ProvisioningServicePortStub implements ProvisioningServiceAdapter {
     }
 
     private void setUsers(List<User> serviceUsers) {
-        users = new ArrayList<PlatformUser>();
+        users = new ArrayList<>();
         for (User serviceUser : serviceUsers) {
             PlatformUser user = new PlatformUser();
             user.setUserId(serviceUser.getApplicationUserId());
@@ -251,7 +252,8 @@ public class ProvisioningServicePortStub implements ProvisioningServiceAdapter {
     }
 
     @Override
-    public BaseResult deactivateInstance(String instanceId, User requestingUser) {
+    public BaseResult deactivateInstance(String instanceId,
+            User requestingUser) {
         this.instanceId = instanceId;
         checkThrowError();
         this.requestingUser = requestingUser;
@@ -312,6 +314,12 @@ public class ProvisioningServicePortStub implements ProvisioningServiceAdapter {
      */
     public String getSubscriptionId() {
         return subscriptionId;
+    }
+
+    @Override
+    public BaseResult saveAttributes(String organizationId,
+            List<ServiceAttribute> attributeValues, User requestingUser) {
+        return setRcAndDesc(resultOk);
     }
 
 }

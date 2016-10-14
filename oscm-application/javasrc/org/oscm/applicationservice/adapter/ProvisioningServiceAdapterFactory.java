@@ -13,15 +13,16 @@ import java.net.URL;
 import javax.wsdl.WSDLException;
 import javax.xml.ws.WebServiceException;
 
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
 import org.oscm.applicationservice.data.SupportedProvisioningVersions;
 import org.oscm.applicationservice.provisioning.adapter.ProvisioningServiceAdapterV1_0;
+import org.oscm.applicationservice.provisioning.adapter.ProvisioningServiceAdapterV1_8;
 import org.oscm.domobjects.TechnicalProduct;
+import org.oscm.internal.types.exception.TechnicalServiceNotAliveException;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
 import org.oscm.ws.WSPortConnector;
 import org.oscm.ws.WSPortDescription;
-import org.oscm.internal.types.exception.TechnicalServiceNotAliveException;
 
 /**
  * Retrieves the provisioning service adapter according to the concrete
@@ -72,9 +73,7 @@ public class ProvisioningServiceAdapterFactory {
             } catch (WebServiceException e) {
                 TechnicalServiceNotAliveException tse = new TechnicalServiceNotAliveException(
                         TechnicalServiceNotAliveException.Reason.ENDPOINT, e);
-                logger.logWarn(
-                        Log4jLogger.SYSTEM_LOG,
-                        tse,
+                logger.logWarn(Log4jLogger.SYSTEM_LOG, tse,
                         LogMessageIdentifier.WARN_EX_TECHNICAL_SERVICE_NOT_ALIVE_EXCEPTION_ENDPOINT);
                 throw tse;
             }
@@ -88,18 +87,14 @@ public class ProvisioningServiceAdapterFactory {
             TechnicalServiceNotAliveException ex = new TechnicalServiceNotAliveException(
                     TechnicalServiceNotAliveException.Reason.CONNECTION_REFUSED,
                     e.getCause());
-            logger.logWarn(
-                    Log4jLogger.SYSTEM_LOG,
-                    e,
+            logger.logWarn(Log4jLogger.SYSTEM_LOG, e,
                     LogMessageIdentifier.WARN_TECH_SERVICE_NOT_ALIVE_CONNECTION_REFUSED);
             throw ex;
         } catch (Exception e) {
             TechnicalServiceNotAliveException ex = new TechnicalServiceNotAliveException(
                     TechnicalServiceNotAliveException.Reason.CONNECTION_REFUSED,
                     e);
-            logger.logWarn(
-                    Log4jLogger.SYSTEM_LOG,
-                    e,
+            logger.logWarn(Log4jLogger.SYSTEM_LOG, e,
                     LogMessageIdentifier.WARN_TECH_SERVICE_NOT_ALIVE_CONNECTION_REFUSED);
             throw ex;
         }
@@ -119,6 +114,9 @@ public class ProvisioningServiceAdapterFactory {
         switch (supportedVersion) {
         case VERSION_1_0:
             return new ProvisioningServiceAdapterV1_0();
+        case VERSION_1_8:
+            return new ProvisioningServiceAdapterV1_8();
+
         default:
             return new ProvisioningServiceAdapterV1_0();
         }

@@ -36,6 +36,7 @@ public class ApplicationServiceBaseStub implements ApplicationServiceLocal {
     public final static String PARAM_MAX_FOLDER_NUM = "MAX_FOLDER_NUMBER";
     public final static String PARAM_MAX_FILE_NUM = "MAX_FILE_NUMBER";
 
+    @Override
     public InstanceResult createInstance(Subscription subscription)
             throws TechnicalServiceNotAliveException,
             TechnicalServiceOperationException {
@@ -43,6 +44,7 @@ public class ApplicationServiceBaseStub implements ApplicationServiceLocal {
         return null;
     }
 
+    @Override
     public User[] createUsers(Subscription subscription,
             List<UsageLicense> usageLicenses)
             throws TechnicalServiceNotAliveException,
@@ -51,12 +53,14 @@ public class ApplicationServiceBaseStub implements ApplicationServiceLocal {
         return new User[] {};
     }
 
+    @Override
     public void deleteInstance(Subscription subscription)
             throws TechnicalServiceNotAliveException,
             TechnicalServiceOperationException {
 
     }
 
+    @Override
     public void deleteUsers(Subscription subscription,
             List<UsageLicense> licenses)
             throws TechnicalServiceNotAliveException,
@@ -64,16 +68,19 @@ public class ApplicationServiceBaseStub implements ApplicationServiceLocal {
 
     }
 
+    @Override
     public void validateCommunication(TechnicalProduct techProduct) {
 
     }
 
+    @Override
     public void modifySubscription(Subscription subscription)
             throws TechnicalServiceNotAliveException,
             TechnicalServiceOperationException {
 
     }
 
+    @Override
     public void updateUsers(Subscription subscription,
             List<UsageLicense> licenses)
             throws TechnicalServiceNotAliveException,
@@ -81,12 +88,14 @@ public class ApplicationServiceBaseStub implements ApplicationServiceLocal {
 
     }
 
+    @Override
     public BaseResult asyncCreateInstance(Subscription subscription)
             throws TechnicalServiceNotAliveException,
             TechnicalServiceOperationException {
         return new BaseResult();
     }
 
+    @Override
     public User[] createUsersForSubscription(Subscription subscription)
             throws TechnicalServiceNotAliveException,
             TechnicalServiceOperationException {
@@ -94,6 +103,7 @@ public class ApplicationServiceBaseStub implements ApplicationServiceLocal {
         return createUsers(subscription, subscription.getUsageLicenses());
     }
 
+    @Override
     public OperationResult executeServiceOperation(String userId,
             Subscription subscription, String transactionId,
             TechnicalProductOperation operation, Map<String, String> parameters)
@@ -102,30 +112,35 @@ public class ApplicationServiceBaseStub implements ApplicationServiceLocal {
         return new OperationResult();
     }
 
+    @Override
     public void activateInstance(Subscription subscription)
             throws TechnicalServiceNotAliveException,
             TechnicalServiceOperationException {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public void deactivateInstance(Subscription subscription)
             throws TechnicalServiceNotAliveException,
             TechnicalServiceOperationException {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public void asyncModifySubscription(Subscription subscription,
             Product product) throws TechnicalServiceNotAliveException,
             TechnicalServiceOperationException {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public void asyncUpgradeSubscription(Subscription subscription,
             Product product) throws TechnicalServiceNotAliveException,
             TechnicalServiceOperationException {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public void upgradeSubscription(Subscription subscription)
             throws TechnicalServiceNotAliveException,
             TechnicalServiceOperationException {
@@ -135,6 +150,13 @@ public class ApplicationServiceBaseStub implements ApplicationServiceLocal {
     @Override
     public Map<String, List<String>> getOperationParameterValues(String userId,
             TechnicalProductOperation operation, Subscription subscription)
+            throws TechnicalServiceNotAliveException,
+            TechnicalServiceOperationException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void saveAttributes(Subscription subscription)
             throws TechnicalServiceNotAliveException,
             TechnicalServiceOperationException {
         throw new UnsupportedOperationException();

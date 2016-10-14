@@ -12,6 +12,7 @@ package org.oscm.app.aws.controller;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Map;
 
 import org.oscm.app.aws.data.FlowState;
 import org.oscm.app.aws.data.Operation;
@@ -72,8 +73,7 @@ public class PropertyHandler {
     public static String SNAPSHOT_ID = "snapshotId";
 
     // Attributes to overwrite credentials
-    public static final String AWS_ACCESS_KEY_ID = "AWS_ACCESS_KEY_ID";
-    public static final String AWS_SECRET_ACCESS_PWD = "AWS_SECRET_ACCESS_PWD";
+    public static final String AWS_ATTRIBUTE_PREFIX = "AWS_";
 
     /**
      * Default factory method.
@@ -138,45 +138,38 @@ public class PropertyHandler {
      * @return the configured AWS secret key
      */
     public String getSecretKey() {
-        if (settings.getAttributes().containsKey(AWS_ACCESS_KEY_ID) && settings
-                .getAttributes().containsKey(AWS_SECRET_ACCESS_PWD)) {
-            return settings.getAttributes().get(AWS_SECRET_ACCESS_PWD);
-        } else {
-            return settings.getConfigSettings().get(SECRET_KEY_PWD);
-        }
+        return getOverwrittenProperty(settings.getConfigSettings(),
+                SECRET_KEY_PWD);
     }
 
     /**
      * @return the configured AWS access key ID
      */
     public String getAccessKeyId() {
-        if (settings.getAttributes().containsKey(AWS_ACCESS_KEY_ID) && settings
-                .getAttributes().containsKey(AWS_SECRET_ACCESS_PWD)) {
-            return settings.getAttributes().get(AWS_ACCESS_KEY_ID);
-        } else {
-            return settings.getConfigSettings().get(ACCESS_KEY_ID_PWD);
-        }
+        return getOverwrittenProperty(settings.getConfigSettings(),
+                ACCESS_KEY_ID_PWD);
     }
 
     /**
      * @return the configured AWS key pair name
      */
     public String getKeyPairName() {
-        return settings.getParameters().get(KEY_PAIR_NAME);
+        return getOverwrittenProperty(settings.getParameters(), KEY_PAIR_NAME);
     }
 
     /**
      * @return the region the instance is (to be) deployed to
      */
     public String getRegion() {
-        return settings.getParameters().get(REGION);
+        return getOverwrittenProperty(settings.getParameters(), REGION);
     }
 
     /**
      * @return the AWS generated instance ID
      */
     public String getAWSInstanceId() {
-        return settings.getParameters().get(AWS_INSTANCE_ID);
+        return getOverwrittenProperty(settings.getParameters(),
+                AWS_INSTANCE_ID);
     }
 
     /**
@@ -196,7 +189,7 @@ public class PropertyHandler {
      * @return the image name
      */
     public String getImageName() {
-        return settings.getParameters().get(IMAGE_NAME);
+        return getOverwrittenProperty(settings.getParameters(), IMAGE_NAME);
     }
 
     /**
@@ -205,11 +198,12 @@ public class PropertyHandler {
      * @return the instance type
      */
     public String getInstanceType() {
-        return settings.getParameters().get(INSTANCE_TYPE);
+        return getOverwrittenProperty(settings.getParameters(), INSTANCE_TYPE);
     }
 
     private String getInstanceNamePrefix() {
-        return settings.getParameters().get(INSTANCENAME_PREFIX);
+        return getOverwrittenProperty(settings.getParameters(),
+                INSTANCENAME_PREFIX);
     }
 
     /**
@@ -218,11 +212,12 @@ public class PropertyHandler {
      * @return the validation pattern
      */
     public String getInstanceNamePattern() {
-        return settings.getParameters().get(INSTANCENAME_PATTERN);
+        return getOverwrittenProperty(settings.getParameters(),
+                INSTANCENAME_PATTERN);
     }
 
     private String getInstanceNameRaw() {
-        return settings.getParameters().get(INSTANCENAME);
+        return getOverwrittenProperty(settings.getParameters(), INSTANCENAME);
     }
 
     /**
@@ -247,7 +242,8 @@ public class PropertyHandler {
      * Returns the current operation.
      */
     public Operation getOperation() {
-        String operation = settings.getParameters().get(OPERATION);
+        String operation = getOverwrittenProperty(settings.getParameters(),
+                OPERATION);
         return (operation != null) ? Operation.valueOf(operation)
                 : Operation.UNKNOWN;
     }
@@ -263,7 +259,7 @@ public class PropertyHandler {
      *  
      */
     public String getUserData() {
-        return settings.getParameters().get(USERDATA_URL);
+        return getOverwrittenProperty(settings.getParameters(), USERDATA_URL);
     }
 
     /**
@@ -274,7 +270,8 @@ public class PropertyHandler {
      */
     public Collection<String> getSecurityGroups() {
         Collection<String> result = new HashSet<>();
-        String value = settings.getParameters().get(SECURITY_GROUP_NAMES);
+        String value = getOverwrittenProperty(settings.getParameters(),
+                SECURITY_GROUP_NAMES);
         if (value != null) {
             String[] split = value.split(",");
             for (int i = 0; i < split.length; i++) {
@@ -300,7 +297,8 @@ public class PropertyHandler {
      * @return the mail address or <code>null</code> if no events are required
      */
     public String getMailForCompletion() {
-        String mail = settings.getParameters().get(MAIL_FOR_COMPLETION);
+        String mail = getOverwrittenProperty(settings.getParameters(),
+                MAIL_FOR_COMPLETION);
         return isNullOrEmpty(mail) ? null : mail;
     }
 
@@ -387,4 +385,33 @@ public class PropertyHandler {
 
     }
 
+    /**
+     * Reads the requested property from the given source. If the key exists
+     * with the corresponding prefix as attribute it will be read instead. If
+     * validate is true and no value can be found, a RuntimeException will be
+     * thrown.
+     *
+     * @param sourceProps
+     *            The property object to take the settings from
+     * @param key
+     *            The key to retrieve the setting for
+     * @return the parameter value corresponding to the provided key
+     */
+    private String getOverwrittenProperty(Map<String, String> sourceProps,
+            String key) {
+
+        String value = null;
+
+        if (settings.getAttributes().containsKey(AWS_ATTRIBUTE_PREFIX + key)) {
+            value = settings.getAttributes().get(AWS_ATTRIBUTE_PREFIX + key);
+
+            if (value.trim().length() == 0) {
+                value = sourceProps.get(key);
+            }
+        } else {
+            value = sourceProps.get(key);
+        }
+
+        return value;
+    }
 }
