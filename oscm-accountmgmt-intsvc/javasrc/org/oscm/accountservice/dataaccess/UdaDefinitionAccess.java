@@ -161,6 +161,9 @@ public class UdaDefinitionAccess {
                 createDefinition(def);
             }
             UdaDefinition storedUda = (UdaDefinition) ds.find(def);
+            if (storedUda == null) {
+                return;
+            }
             storeLocalizedAttributeName(storedUda.getKey(), voDef.getName(), voDef.getLanguage());
         }
         
