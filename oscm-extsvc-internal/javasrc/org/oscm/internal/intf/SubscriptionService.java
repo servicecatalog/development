@@ -1289,4 +1289,24 @@ public interface SubscriptionService {
      *         payment information in subscription process. false - otherwise
      */
     boolean isPaymentInfoHidden();
+
+    /**
+     * Delegate to unsubscribe from a service by the subscriptions technical
+     * key.
+     * 
+     * @param key
+     *            the subscriptions technical key
+     * @return <code>true</code> if unsubscribe was executed, <code>false</code>
+     *         in case of an existing suspending trigger
+     * @throws ObjectNotFoundException
+     * @throws SubscriptionStillActiveException
+     * @throws SubscriptionStateException
+     * @throws TechnicalServiceNotAliveException
+     * @throws TechnicalServiceOperationException
+     * @throws OperationPendingException
+     * @throws OperationNotPermittedException
+     */
+    boolean unsubscribeFromService(Long key) throws ObjectNotFoundException, SubscriptionStillActiveException,
+            SubscriptionStateException, TechnicalServiceNotAliveException, TechnicalServiceOperationException,
+            OperationPendingException, OperationNotPermittedException;
 }

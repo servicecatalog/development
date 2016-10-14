@@ -80,6 +80,7 @@ import org.oscm.internal.types.exception.MarketplaceAccessTypeUneligibleForOpera
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.OperationNotPermittedException;
+import org.oscm.internal.types.exception.OperationPendingException;
 import org.oscm.internal.types.exception.OperationStateException;
 import org.oscm.internal.types.exception.OrganizationAlreadyBannedException;
 import org.oscm.internal.types.exception.OrganizationAlreadyExistsException;
@@ -93,6 +94,7 @@ import org.oscm.internal.types.exception.ServiceOperationException;
 import org.oscm.internal.types.exception.ServiceParameterException;
 import org.oscm.internal.types.exception.ServiceStateException;
 import org.oscm.internal.types.exception.SubscriptionStateException;
+import org.oscm.internal.types.exception.SubscriptionStillActiveException;
 import org.oscm.internal.types.exception.TechnicalServiceActiveException;
 import org.oscm.internal.types.exception.TechnicalServiceNotAliveException;
 import org.oscm.internal.types.exception.TechnicalServiceOperationException;
@@ -2804,4 +2806,13 @@ public class MockService implements IdentityService, SubscriptionService,
         // TODO Auto-generated method stub
 
     }
+
+    @Override
+    public boolean unsubscribeFromService(Long key) throws ObjectNotFoundException, SubscriptionStillActiveException,
+            SubscriptionStateException, TechnicalServiceNotAliveException, TechnicalServiceOperationException,
+            OperationPendingException, OperationNotPermittedException {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
 }
