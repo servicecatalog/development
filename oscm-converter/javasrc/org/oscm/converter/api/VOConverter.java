@@ -5,18 +5,23 @@
 package org.oscm.converter.api;
 
 import java.lang.reflect.Method;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
 import org.oscm.converter.strategy.ConversionStrategy;
 import org.oscm.converter.strategy.TPPConversionStrategyFactory;
+import org.oscm.dataservice.local.DataService;
+import org.oscm.domobjects.UdaDefinition;
+import org.oscm.encrypter.ParameterEncrypter;
 import org.oscm.internal.types.exception.OperationNotPermittedException;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
 import org.oscm.types.enumtypes.OperationParameterType;
 import org.oscm.types.enumtypes.TriggerProcessParameterType;
+import org.oscm.vo.VOUdaDefinition;
 
 public class VOConverter {
 
@@ -25,11 +30,18 @@ public class VOConverter {
     private static final String VERSION_INTERNAL = "internal";
     private static final Log4jLogger LOGGER = LoggerFactory
             .getLogger(VOConverter.class);
+    private static DataService ds;
 
     @SuppressWarnings("unchecked")
     public static <T, U> T reflectiveConvert(U objectToConvert) {
 
-        String methodName = "";
+        return reflectiveConvert(objectToConvert, null);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T, U> T reflectiveConvert(U objectToConvert, DataService ds) {
+        VOConverter.ds = ds;
+        String methodName;
         if (objectToConvert.getClass().getPackage().getName()
                 .contains(VERSION_INTERNAL)) {
             methodName = METHOD_CONVERT_TO_API;
@@ -1536,7 +1548,22 @@ public class VOConverter {
         newVO.setConfigurationType(EnumConverter.convert(
                 oldVO.getConfigurationType(),
                 org.oscm.internal.types.enumtypes.UdaConfigurationType.class));
+
+        String valueToSave = oldVO.getDefaultValue();
+        UdaDefinition existing = getUdaFromDB(oldVO);
+        if (existing != null && existing.getDataContainer().isEncrypted()) {
+            try {
+                valueToSave = ParameterEncrypter.encrypt(valueToSave);
+            } catch (GeneralSecurityException e) {
+                LOGGER.logDebug("The value for uda definition " + oldVO.toString()  + " cannot be encrypted. Saving plain.");
+            }
+        }
+        newVO.setName(valueToSave);
         return newVO;
+    }
+
+    private static UdaDefinition getUdaFromDB(VOUdaDefinition oldVO) {
+        return ds.find(UdaDefinition.class, oldVO.getKey());
     }
 
     /**
