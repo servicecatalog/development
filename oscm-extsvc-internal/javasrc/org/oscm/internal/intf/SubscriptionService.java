@@ -15,8 +15,45 @@ import javax.ejb.Remote;
 
 import org.oscm.internal.types.enumtypes.OperationStatus;
 import org.oscm.internal.types.enumtypes.SubscriptionStatus;
-import org.oscm.internal.types.exception.*;
-import org.oscm.internal.vo.*;
+import org.oscm.internal.types.exception.ConcurrentModificationException;
+import org.oscm.internal.types.exception.MailOperationException;
+import org.oscm.internal.types.exception.MandatoryUdaMissingException;
+import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.internal.types.exception.OperationNotPermittedException;
+import org.oscm.internal.types.exception.OperationPendingException;
+import org.oscm.internal.types.exception.OperationStateException;
+import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
+import org.oscm.internal.types.exception.PaymentDataException;
+import org.oscm.internal.types.exception.PaymentInformationException;
+import org.oscm.internal.types.exception.PriceModelException;
+import org.oscm.internal.types.exception.ServiceChangedException;
+import org.oscm.internal.types.exception.ServiceParameterException;
+import org.oscm.internal.types.exception.SubscriptionAlreadyExistsException;
+import org.oscm.internal.types.exception.SubscriptionMigrationException;
+import org.oscm.internal.types.exception.SubscriptionStateException;
+import org.oscm.internal.types.exception.SubscriptionStillActiveException;
+import org.oscm.internal.types.exception.TechnicalServiceNotAliveException;
+import org.oscm.internal.types.exception.TechnicalServiceOperationException;
+import org.oscm.internal.types.exception.ValidationException;
+import org.oscm.internal.vo.VOBillingContact;
+import org.oscm.internal.vo.VOInstanceInfo;
+import org.oscm.internal.vo.VOLocalizedText;
+import org.oscm.internal.vo.VOOrganization;
+import org.oscm.internal.vo.VOParameter;
+import org.oscm.internal.vo.VOPaymentInfo;
+import org.oscm.internal.vo.VORoleDefinition;
+import org.oscm.internal.vo.VOService;
+import org.oscm.internal.vo.VOServiceOperationParameter;
+import org.oscm.internal.vo.VOServiceOperationParameterValues;
+import org.oscm.internal.vo.VOSubscription;
+import org.oscm.internal.vo.VOSubscriptionDetails;
+import org.oscm.internal.vo.VOSubscriptionIdAndOrganizations;
+import org.oscm.internal.vo.VOTechnicalServiceOperation;
+import org.oscm.internal.vo.VOUda;
+import org.oscm.internal.vo.VOUsageLicense;
+import org.oscm.internal.vo.VOUser;
+import org.oscm.internal.vo.VOUserSubscription;
 
 /**
  * Remote interface of the subscription management service.
@@ -109,18 +146,13 @@ public interface SubscriptionService {
      *             of this method
      */
 
-    VOSubscription subscribeToService(VOSubscription subscription,
-            VOService service, List<VOUsageLicense> users,
-            VOPaymentInfo paymentInfo, VOBillingContact billingContact,
-            List<VOUda> udas) throws ObjectNotFoundException,
-            NonUniqueBusinessKeyException, ValidationException,
-            PaymentInformationException, ServiceParameterException,
-            ServiceChangedException, PriceModelException,
-            TechnicalServiceNotAliveException,
-            TechnicalServiceOperationException, OperationNotPermittedException,
-            SubscriptionAlreadyExistsException, OperationPendingException,
-            MandatoryUdaMissingException, ConcurrentModificationException,
-            SubscriptionStateException;
+    VOSubscription subscribeToService(VOSubscription subscription, VOService service, List<VOUsageLicense> users,
+            VOPaymentInfo paymentInfo, VOBillingContact billingContact, List<VOUda> udas)
+            throws ObjectNotFoundException, NonUniqueBusinessKeyException, ValidationException,
+            PaymentInformationException, ServiceParameterException, ServiceChangedException, PriceModelException,
+            TechnicalServiceNotAliveException, TechnicalServiceOperationException, OperationNotPermittedException,
+            SubscriptionAlreadyExistsException, OperationPendingException, MandatoryUdaMissingException,
+            ConcurrentModificationException, SubscriptionStateException;
 
     /**
      * Assigns and/or removes users to/from a subscription.
@@ -166,11 +198,9 @@ public interface SubscriptionService {
      *             if another conflicting request is pending
      */
 
-    boolean addRevokeUser(String subscriptionId,
-            List<VOUsageLicense> usersToBeAdded, List<VOUser> usersToBeRevoked)
-            throws ObjectNotFoundException, ServiceParameterException,
-            SubscriptionStateException, TechnicalServiceNotAliveException,
-            TechnicalServiceOperationException, OperationNotPermittedException,
+    boolean addRevokeUser(String subscriptionId, List<VOUsageLicense> usersToBeAdded, List<VOUser> usersToBeRevoked)
+            throws ObjectNotFoundException, ServiceParameterException, SubscriptionStateException,
+            TechnicalServiceNotAliveException, TechnicalServiceOperationException, OperationNotPermittedException,
             ConcurrentModificationException, OperationPendingException;
 
     /**
@@ -190,8 +220,8 @@ public interface SubscriptionService {
      *             caller
      */
 
-    List<VOUserSubscription> getSubscriptionsForUser(VOUser user)
-            throws ObjectNotFoundException, OperationNotPermittedException;
+    List<VOUserSubscription> getSubscriptionsForUser(VOUser user) throws ObjectNotFoundException,
+            OperationNotPermittedException;
 
     /**
      * Retrieves the subscriptions the calling user is assigned to. The list
@@ -229,8 +259,7 @@ public interface SubscriptionService {
      * @return the list of subscriptions
      */
 
-    List<VOSubscription> getSubscriptionsForOrganizationWithFilter(
-            Set<SubscriptionStatus> requiredStatus);
+    List<VOSubscription> getSubscriptionsForOrganizationWithFilter(Set<SubscriptionStatus> requiredStatus);
 
     /**
      * Terminates the given subscription. Since bills may still be open for it,
@@ -267,10 +296,26 @@ public interface SubscriptionService {
      * @throws OperationNotPermittedException
      */
 
-    boolean unsubscribeFromService(String subscriptionId)
-            throws ObjectNotFoundException, SubscriptionStillActiveException,
-            SubscriptionStateException, TechnicalServiceNotAliveException,
-            TechnicalServiceOperationException, OperationPendingException,
+    boolean unsubscribeFromService(String subscriptionId) throws ObjectNotFoundException,
+            SubscriptionStillActiveException, SubscriptionStateException, TechnicalServiceNotAliveException,
+            TechnicalServiceOperationException, OperationPendingException, OperationNotPermittedException;
+
+    /**
+     * Returns detailed information on the given subscription of the calling
+     * user's organization, including user and price model details.
+     * <p>
+     * Required role: administrator of the organization that owns the
+     * subscription
+     * 
+     * @param subscriptionId
+     *            the subscription identifier
+     * @return the subscription details
+     * @throws ObjectNotFoundException
+     *             if the subscription is not found
+     * @throws OperationNotPermittedException
+     */
+
+    VOSubscriptionDetails getSubscriptionDetails(String subscriptionId) throws ObjectNotFoundException,
             OperationNotPermittedException;
 
     /**
@@ -280,24 +325,6 @@ public interface SubscriptionService {
      * Required role: administrator of the organization that owns the
      * subscription
      * 
-     * @param subscriptionId
-     *            the subscription identifier
-     * @return the subscription details
-     * @throws ObjectNotFoundException
-     *             if the subscription is not found
-     * @throws OperationNotPermittedException
-     */
-
-    VOSubscriptionDetails getSubscriptionDetails(String subscriptionId)
-            throws ObjectNotFoundException, OperationNotPermittedException;
-    
-    /**
-     * Returns detailed information on the given subscription of the calling
-     * user's organization, including user and price model details.
-     * <p>
-     * Required role: administrator of the organization that owns the
-     * subscription
-     * 
      * @param subscriptionKey
      *            the subscription key
      * @return the subscription details
@@ -306,8 +333,8 @@ public interface SubscriptionService {
      * @throws OperationNotPermittedException
      */
 
-    VOSubscriptionDetails getSubscriptionDetails(long subscriptionKey)
-            throws ObjectNotFoundException, OperationNotPermittedException;
+    VOSubscriptionDetails getSubscriptionDetails(long subscriptionKey) throws ObjectNotFoundException,
+            OperationNotPermittedException;
 
     /**
      * Returns the marketable services the given subscription can be upgraded or
@@ -326,9 +353,9 @@ public interface SubscriptionService {
      *             subscription
      */
 
-    List<VOService> getUpgradeOptions(String subscriptionId)
-            throws ObjectNotFoundException, OperationNotPermittedException;
-    
+    List<VOService> getUpgradeOptions(String subscriptionId) throws ObjectNotFoundException,
+            OperationNotPermittedException;
+
     /**
      * Returns the marketable services the given subscription can be upgraded or
      * downgraded to.
@@ -346,8 +373,8 @@ public interface SubscriptionService {
      *             subscription
      */
 
-    List<VOService> getUpgradeOptions(long subscriptionKey)
-            throws ObjectNotFoundException, OperationNotPermittedException;
+    List<VOService> getUpgradeOptions(long subscriptionKey) throws ObjectNotFoundException,
+            OperationNotPermittedException;
 
     /**
      * Upgrades or downgrades the given subscription to the specified marketable
@@ -374,9 +401,9 @@ public interface SubscriptionService {
      *            free of charge to a chargeable one. When passing
      *            <code>null</code>, the existing payment information of the
      *            subscription remains unchanged and will again be used after
-     *            the upgrade or downgrade. In the case when HIDE_PAYMENT_INFORMATION
-     *            setting equals TRUE and the service is not free of charge,
-     *            Invoice is used as default payment type
+     *            the upgrade or downgrade. In the case when
+     *            HIDE_PAYMENT_INFORMATION setting equals TRUE and the service
+     *            is not free of charge, Invoice is used as default payment type
      * @param billingContact
      *            the billing contact to be assigned to the subscription, if the
      *            service is not free of charge. In the case when
@@ -425,16 +452,12 @@ public interface SubscriptionService {
      *             if a custom attribute is invalid
      */
 
-    VOSubscription upgradeSubscription(VOSubscription subscription,
-            VOService service, VOPaymentInfo paymentInfo,
-            VOBillingContact billingContact, List<VOUda> udas)
-            throws ObjectNotFoundException, OperationNotPermittedException,
-            SubscriptionMigrationException, PaymentInformationException,
-            SubscriptionStateException, ServiceChangedException,
-            PriceModelException, ConcurrentModificationException,
-            TechnicalServiceNotAliveException, OperationPendingException,
-            MandatoryUdaMissingException, NonUniqueBusinessKeyException,
-            ValidationException;
+    VOSubscription upgradeSubscription(VOSubscription subscription, VOService service, VOPaymentInfo paymentInfo,
+            VOBillingContact billingContact, List<VOUda> udas) throws ObjectNotFoundException,
+            OperationNotPermittedException, SubscriptionMigrationException, PaymentInformationException,
+            SubscriptionStateException, ServiceChangedException, PriceModelException, ConcurrentModificationException,
+            TechnicalServiceNotAliveException, OperationPendingException, MandatoryUdaMissingException,
+            NonUniqueBusinessKeyException, ValidationException;
 
     /**
      * Modifies the given subscription. In order to rename the subscription, set
@@ -483,13 +506,10 @@ public interface SubscriptionService {
      *             if modification not allowed on current subscription state
      */
 
-    VOSubscriptionDetails modifySubscription(
-            VOSubscription subscription, List<VOParameter> parameters,
-            List<VOUda> udas) throws NonUniqueBusinessKeyException,
-            ObjectNotFoundException, OperationNotPermittedException,
-            ValidationException, SubscriptionMigrationException,
-            ConcurrentModificationException, TechnicalServiceNotAliveException,
-            OperationPendingException, MandatoryUdaMissingException,
+    VOSubscriptionDetails modifySubscription(VOSubscription subscription, List<VOParameter> parameters, List<VOUda> udas)
+            throws NonUniqueBusinessKeyException, ObjectNotFoundException, OperationNotPermittedException,
+            ValidationException, SubscriptionMigrationException, ConcurrentModificationException,
+            TechnicalServiceNotAliveException, OperationPendingException, MandatoryUdaMissingException,
             SubscriptionStateException;
 
     /**
@@ -533,12 +553,9 @@ public interface SubscriptionService {
      *             subscription process
      */
 
-    void completeAsyncSubscription(String subscriptionId,
-            String organizationId, VOInstanceInfo instance)
-            throws ObjectNotFoundException, SubscriptionStateException,
-            TechnicalServiceNotAliveException,
-            TechnicalServiceOperationException,
-            OrganizationAuthoritiesException, OperationNotPermittedException,
+    void completeAsyncSubscription(String subscriptionId, String organizationId, VOInstanceInfo instance)
+            throws ObjectNotFoundException, SubscriptionStateException, TechnicalServiceNotAliveException,
+            TechnicalServiceOperationException, OrganizationAuthoritiesException, OperationNotPermittedException,
             ValidationException;
 
     /**
@@ -573,10 +590,9 @@ public interface SubscriptionService {
      *             application and technical service
      */
 
-    void abortAsyncSubscription(String subscriptionId,
-            String organizationId, List<VOLocalizedText> reason)
-            throws ObjectNotFoundException, SubscriptionStateException,
-            OrganizationAuthoritiesException, OperationNotPermittedException;
+    void abortAsyncSubscription(String subscriptionId, String organizationId, List<VOLocalizedText> reason)
+            throws ObjectNotFoundException, SubscriptionStateException, OrganizationAuthoritiesException,
+            OperationNotPermittedException;
 
     /**
      * Updates the progress information for a subscription to a service with
@@ -607,10 +623,9 @@ public interface SubscriptionService {
      *             application and technical service
      */
 
-    void updateAsyncSubscriptionProgress(String subscriptionId,
-            String organizationId, List<VOLocalizedText> progress)
-            throws ObjectNotFoundException, SubscriptionStateException,
-            OrganizationAuthoritiesException, OperationNotPermittedException;
+    void updateAsyncSubscriptionProgress(String subscriptionId, String organizationId, List<VOLocalizedText> progress)
+            throws ObjectNotFoundException, SubscriptionStateException, OrganizationAuthoritiesException,
+            OperationNotPermittedException;
 
     /**
      * Completes the subscription modification process with asynchronous tenant
@@ -650,12 +665,9 @@ public interface SubscriptionService {
      *             application and technical service
      */
 
-    void completeAsyncModifySubscription(String subscriptionId,
-            String organizationId, VOInstanceInfo instance)
-            throws ObjectNotFoundException, SubscriptionStateException,
-            TechnicalServiceNotAliveException,
-            TechnicalServiceOperationException,
-            OrganizationAuthoritiesException, OperationNotPermittedException;
+    void completeAsyncModifySubscription(String subscriptionId, String organizationId, VOInstanceInfo instance)
+            throws ObjectNotFoundException, SubscriptionStateException, TechnicalServiceNotAliveException,
+            TechnicalServiceOperationException, OrganizationAuthoritiesException, OperationNotPermittedException;
 
     /**
      * Completes the subscription upgrade process with asynchronous tenant
@@ -695,12 +707,9 @@ public interface SubscriptionService {
      *             application and technical service
      */
 
-    void completeAsyncUpgradeSubscription(String subscriptionId,
-            String organizationId, VOInstanceInfo instance)
-            throws ObjectNotFoundException, SubscriptionStateException,
-            TechnicalServiceNotAliveException,
-            TechnicalServiceOperationException,
-            OrganizationAuthoritiesException, OperationNotPermittedException;
+    void completeAsyncUpgradeSubscription(String subscriptionId, String organizationId, VOInstanceInfo instance)
+            throws ObjectNotFoundException, SubscriptionStateException, TechnicalServiceNotAliveException,
+            TechnicalServiceOperationException, OrganizationAuthoritiesException, OperationNotPermittedException;
 
     /**
      * Aborts the subscription modification process with asynchronous tenant
@@ -738,10 +747,9 @@ public interface SubscriptionService {
      *             technology provider role
      */
 
-    void abortAsyncModifySubscription(String subscriptionId,
-            String organizationId, List<VOLocalizedText> reason)
-            throws ObjectNotFoundException, SubscriptionStateException,
-            OrganizationAuthoritiesException, OperationNotPermittedException;
+    void abortAsyncModifySubscription(String subscriptionId, String organizationId, List<VOLocalizedText> reason)
+            throws ObjectNotFoundException, SubscriptionStateException, OrganizationAuthoritiesException,
+            OperationNotPermittedException;
 
     /**
      * Aborts the subscription upgrade process with asynchronous tenant
@@ -779,10 +787,9 @@ public interface SubscriptionService {
      *             technology provider role
      */
 
-    void abortAsyncUpgradeSubscription(String subscriptionId,
-            String organizationId, List<VOLocalizedText> reason)
-            throws ObjectNotFoundException, SubscriptionStateException,
-            OrganizationAuthoritiesException, OperationNotPermittedException;
+    void abortAsyncUpgradeSubscription(String subscriptionId, String organizationId, List<VOLocalizedText> reason)
+            throws ObjectNotFoundException, SubscriptionStateException, OrganizationAuthoritiesException,
+            OperationNotPermittedException;
 
     /**
      * Returns the identifiers of all active and pending subscriptions to
@@ -797,8 +804,7 @@ public interface SubscriptionService {
      *             supplier, broker, or reseller role
      */
 
-    List<String> getSubscriptionIdentifiers()
-            throws OrganizationAuthoritiesException;
+    List<String> getSubscriptionIdentifiers() throws OrganizationAuthoritiesException;
 
     /**
      * Returns the customers which have an active or pending subscription with
@@ -816,8 +822,7 @@ public interface SubscriptionService {
      *             supplier, broker, or reseller role
      */
 
-    List<VOOrganization> getCustomersForSubscriptionId(
-            String subscriptionId) throws OrganizationAuthoritiesException;
+    List<VOOrganization> getCustomersForSubscriptionId(String subscriptionId) throws OrganizationAuthoritiesException;
 
     /**
      * Returns a list of subscription/customer mappings for the services
@@ -833,8 +838,7 @@ public interface SubscriptionService {
      *             supplier, broker, or reseller role
      */
 
-    List<VOSubscriptionIdAndOrganizations> getCustomerSubscriptions()
-            throws OrganizationAuthoritiesException;
+    List<VOSubscriptionIdAndOrganizations> getCustomerSubscriptions() throws OrganizationAuthoritiesException;
 
     /**
      * Returns the details of a given customer's subscription to a service
@@ -856,8 +860,7 @@ public interface SubscriptionService {
      *             user's organization
      */
 
-    VOSubscriptionDetails getSubscriptionForCustomer(
-            String organizationId, String subscriptionId)
+    VOSubscriptionDetails getSubscriptionForCustomer(String organizationId, String subscriptionId)
             throws ObjectNotFoundException, OperationNotPermittedException;
 
     /**
@@ -879,9 +882,9 @@ public interface SubscriptionService {
      *             organization
      */
 
-    List<VORoleDefinition> getServiceRolesForSubscription(String subscriptionId)
-            throws ObjectNotFoundException, OperationNotPermittedException;
-    
+    List<VORoleDefinition> getServiceRolesForSubscription(String subscriptionId) throws ObjectNotFoundException,
+            OperationNotPermittedException;
+
     /**
      * Retrieves the service roles defined for the technical service on which
      * the given subscription is based. The service roles can be set for the
@@ -901,8 +904,8 @@ public interface SubscriptionService {
      *             organization
      */
 
-    List<VORoleDefinition> getServiceRolesForSubscription(long subscriptionKey)
-            throws ObjectNotFoundException, OperationNotPermittedException;
+    List<VORoleDefinition> getServiceRolesForSubscription(long subscriptionKey) throws ObjectNotFoundException,
+            OperationNotPermittedException;
 
     /**
      * Retrieves the service roles defined for the technical service on which
@@ -922,8 +925,8 @@ public interface SubscriptionService {
      *             organization
      */
 
-    List<VORoleDefinition> getServiceRolesForService(VOService service)
-            throws ObjectNotFoundException, OperationNotPermittedException;
+    List<VORoleDefinition> getServiceRolesForService(VOService service) throws ObjectNotFoundException,
+            OperationNotPermittedException;
 
     /**
      * Executes the specified service operation for the given subscription.
@@ -970,14 +973,10 @@ public interface SubscriptionService {
      *             exists
      */
 
-    void executeServiceOperation(VOSubscription subscription,
-            VOTechnicalServiceOperation operation)
-            throws ObjectNotFoundException, OperationNotPermittedException,
-            TechnicalServiceNotAliveException,
-            TechnicalServiceOperationException,
-            OrganizationAuthoritiesException, ConcurrentModificationException,
-            ValidationException, SubscriptionStateException,
-            NonUniqueBusinessKeyException;
+    void executeServiceOperation(VOSubscription subscription, VOTechnicalServiceOperation operation)
+            throws ObjectNotFoundException, OperationNotPermittedException, TechnicalServiceNotAliveException,
+            TechnicalServiceOperationException, OrganizationAuthoritiesException, ConcurrentModificationException,
+            ValidationException, SubscriptionStateException, NonUniqueBusinessKeyException;
 
     /**
      * Returns a list of {@link VOServiceOperationParameter} that represent the
@@ -1005,11 +1004,9 @@ public interface SubscriptionService {
      * @throws TechnicalServiceOperationException
      *             in case requesting parameter values is not supported
      */
-    List<VOServiceOperationParameterValues> getServiceOperationParameterValues(
-            VOSubscription subscription, VOTechnicalServiceOperation operation)
-            throws ObjectNotFoundException, OperationNotPermittedException,
-            TechnicalServiceNotAliveException, ConcurrentModificationException,
-            TechnicalServiceOperationException;
+    List<VOServiceOperationParameterValues> getServiceOperationParameterValues(VOSubscription subscription,
+            VOTechnicalServiceOperation operation) throws ObjectNotFoundException, OperationNotPermittedException,
+            TechnicalServiceNotAliveException, ConcurrentModificationException, TechnicalServiceOperationException;
 
     /**
      * Allows a supplier or reseller to terminate a customer subscription.
@@ -1039,10 +1036,8 @@ public interface SubscriptionService {
      *             of this method
      */
 
-    void terminateSubscription(VOSubscription subscription, String reason)
-            throws ObjectNotFoundException, OrganizationAuthoritiesException,
-            TechnicalServiceNotAliveException,
-            TechnicalServiceOperationException,
+    void terminateSubscription(VOSubscription subscription, String reason) throws ObjectNotFoundException,
+            OrganizationAuthoritiesException, TechnicalServiceNotAliveException, TechnicalServiceOperationException,
             ConcurrentModificationException, SubscriptionStateException;
 
     /**
@@ -1102,13 +1097,10 @@ public interface SubscriptionService {
      *             subscription fails
      */
 
-    VOSubscriptionDetails modifySubscriptionPaymentData(
-            VOSubscription subscription, VOBillingContact billingContact,
-            VOPaymentInfo paymentInfo) throws ObjectNotFoundException,
-            ConcurrentModificationException, OperationNotPermittedException,
-            PaymentInformationException, SubscriptionStateException,
-            PaymentDataException, TechnicalServiceNotAliveException,
-            TechnicalServiceOperationException;
+    VOSubscriptionDetails modifySubscriptionPaymentData(VOSubscription subscription, VOBillingContact billingContact,
+            VOPaymentInfo paymentInfo) throws ObjectNotFoundException, ConcurrentModificationException,
+            OperationNotPermittedException, PaymentInformationException, SubscriptionStateException,
+            PaymentDataException, TechnicalServiceNotAliveException, TechnicalServiceOperationException;
 
     /**
      * Reports an issue on the given subscription to the supplier or reseller of
@@ -1141,10 +1133,8 @@ public interface SubscriptionService {
      *             if the subject or text of the email is too long
      */
 
-    void reportIssue(String subscriptionId, String subject,
-            String issueText) throws ObjectNotFoundException,
-            OperationNotPermittedException, MailOperationException,
-            ValidationException;
+    void reportIssue(String subscriptionId, String subject, String issueText) throws ObjectNotFoundException,
+            OperationNotPermittedException, MailOperationException, ValidationException;
 
     /**
      * Returns a list of subscription/customer mappings for the services
@@ -1160,8 +1150,7 @@ public interface SubscriptionService {
      *             if the calling user's organization does not have the
      *             supplier, broker, or reseller role
      */
-    List<VOSubscriptionIdAndOrganizations> getSubscriptionsForTerminate()
-            throws OrganizationAuthoritiesException;
+    List<VOSubscriptionIdAndOrganizations> getSubscriptionsForTerminate() throws OrganizationAuthoritiesException;
 
     /**
      * Update the access information for the given subscription.
@@ -1183,10 +1172,9 @@ public interface SubscriptionService {
      * @throws ValidationException
      *             in case provided access information is syntactically invalid
      */
-    void updateAccessInformation(String subscriptionId,
-            String organizationId, VOInstanceInfo instanceInfo)
-            throws ObjectNotFoundException, SubscriptionStateException,
-            OperationNotPermittedException, ValidationException;
+    void updateAccessInformation(String subscriptionId, String organizationId, VOInstanceInfo instanceInfo)
+            throws ObjectNotFoundException, SubscriptionStateException, OperationNotPermittedException,
+            ValidationException;
 
     /**
      * Updates the progress information for asynchronous operation record.
@@ -1208,8 +1196,7 @@ public interface SubscriptionService {
      *             if the operation record status does not allow for the
      *             execution of this method
      */
-    void updateAsyncOperationProgress(String transactionId,
-            OperationStatus status, List<VOLocalizedText> progress)
+    void updateAsyncOperationProgress(String transactionId, OperationStatus status, List<VOLocalizedText> progress)
             throws OperationNotPermittedException, OperationStateException;
 
     /**
@@ -1229,21 +1216,40 @@ public interface SubscriptionService {
      * @throws ObjectNotFoundException
      *             if the organization or subscription is not found
      */
-    void updateAsyncSubscriptionStatus(String subscriptionId,
-            String organizationId, VOInstanceInfo instanceInfo)
+    void updateAsyncSubscriptionStatus(String subscriptionId, String organizationId, VOInstanceInfo instanceInfo)
             throws ObjectNotFoundException;
 
     /**
-     * @param subscriptionKey - the subscription key
+     * @param subscriptionKey
+     *            - the subscription key
      * @return Subscription details
      * @throws ObjectNotFoundException
      */
-    VOSubscriptionDetails getSubscriptionDetailsWithoutOwnerCheck(
-            long subscriptionKey) throws ObjectNotFoundException;
+    VOSubscriptionDetails getSubscriptionDetailsWithoutOwnerCheck(long subscriptionKey) throws ObjectNotFoundException;
 
     /**
-     * @return true - if user doesn't need to provide billing contact and payment information in subscription process.
-     *         false - otherwise
+     * @return true - if user doesn't need to provide billing contact and
+     *         payment information in subscription process. false - otherwise
      */
     boolean isPaymentInfoHidden();
+
+    /**
+     * Delegate to unsubscribe from a service by the subscriptions technical
+     * key.
+     * 
+     * @param key
+     *            the subscriptions technical key
+     * @return <code>true</code> if unsubscribe was executed, <code>false</code>
+     *         in case of an existing suspending trigger
+     * @throws ObjectNotFoundException
+     * @throws SubscriptionStillActiveException
+     * @throws SubscriptionStateException
+     * @throws TechnicalServiceNotAliveException
+     * @throws TechnicalServiceOperationException
+     * @throws OperationPendingException
+     * @throws OperationNotPermittedException
+     */
+    boolean unsubscribeFromService(Long key) throws ObjectNotFoundException, SubscriptionStillActiveException,
+            SubscriptionStateException, TechnicalServiceNotAliveException, TechnicalServiceOperationException,
+            OperationPendingException, OperationNotPermittedException;
 }
