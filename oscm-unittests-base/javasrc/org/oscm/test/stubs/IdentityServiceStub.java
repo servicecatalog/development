@@ -4,34 +4,19 @@
 
 package org.oscm.test.stubs;
 
+import java.lang.UnsupportedOperationException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.oscm.domobjects.Marketplace;
-import org.oscm.domobjects.Organization;
-import org.oscm.domobjects.PlatformUser;
-import org.oscm.domobjects.TriggerProcess;
-import org.oscm.domobjects.UnitUserRole;
+import org.oscm.domobjects.*;
 import org.oscm.identityservice.local.IdentityServiceLocal;
 import org.oscm.internal.intf.IdentityService;
 import org.oscm.internal.types.enumtypes.UserAccountStatus;
 import org.oscm.internal.types.enumtypes.UserRoleType;
-import org.oscm.internal.types.exception.BulkUserImportException;
+import org.oscm.internal.types.exception.*;
 import org.oscm.internal.types.exception.IllegalArgumentException;
-import org.oscm.internal.types.exception.MailOperationException;
-import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.types.exception.OperationNotPermittedException;
-import org.oscm.internal.types.exception.OperationPendingException;
-import org.oscm.internal.types.exception.TechnicalServiceNotAliveException;
-import org.oscm.internal.types.exception.TechnicalServiceOperationException;
-import org.oscm.internal.types.exception.UserActiveException;
-import org.oscm.internal.types.exception.UserDeletionConstraintException;
-import org.oscm.internal.types.exception.UserModificationConstraintException;
-import org.oscm.internal.types.exception.UserRoleAssignmentException;
-import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.internal.vo.VOUser;
 import org.oscm.internal.vo.VOUserDetails;
 
@@ -163,6 +148,11 @@ public class IdentityServiceStub implements IdentityService,
             Organization organization, String password, Long serviceKey,
             Marketplace marketplace) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public PlatformUser getPlatformUser(String userId, String tenantKey, boolean validateOrganization) throws ObjectNotFoundException, OperationNotPermittedException {
+        return null;
     }
 
     @Override

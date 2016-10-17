@@ -10,11 +10,7 @@ package org.oscm.ui.filter;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 import java.util.Set;
 import java.util.TreeSet;
@@ -30,6 +26,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.oscm.internal.cache.MarketplaceConfiguration;
 import org.oscm.internal.intf.ConfigurationService;
+import org.oscm.internal.intf.TenantService;
 import org.oscm.internal.vo.VOUserDetails;
 import org.oscm.types.constants.marketplace.Marketplace;
 import org.oscm.ui.common.Constants;
@@ -205,8 +202,9 @@ public class ClosedMarketplaceFilterTest {
         ServiceAccess mockServiceAccess = mock(ServiceAccess.class);
         ConfigurationService mockConfServ = mock(ConfigurationService.class);
         closedMplFilter.serviceAccess = mockServiceAccess;
-        doReturn(mockConfServ).when(mockServiceAccess).getService(
-                any(Class.class));
+        doReturn(mockConfServ).when(mockServiceAccess).getService(ConfigurationService.class);
+        TenantService tenantMock = mock(TenantService.class);
+        doReturn(tenantMock).when(mockServiceAccess).getService(TenantService.class);
         // when
         closedMplFilter.isSAMLAuthentication();
         // then

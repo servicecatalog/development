@@ -71,6 +71,13 @@
           defaultContext="false"/>
       </adm:panelGrid>
 
+      <h:panelGroup id="tenantSelection" rendered="#{not newMarketplaceBean.menuBean.applicationBean.internalAuthMode}">
+        <adm:outputStep value="#{msg['marketplace.create.selectTenant']}" />
+        <adm:panelGrid>
+          <adm:selectTenant context="#{newMarketplaceBean.model.tenantId}" bean="#{newMarketplaceBean}" />
+        </adm:panelGrid>
+      </h:panelGroup>
+
       <adm:buttonPanel>
         <adm:button id="saveButton" value="#{msg['button.save']}" bean="#{newMarketplaceBean}" buttonType="save"
           action="createMarketplace" />

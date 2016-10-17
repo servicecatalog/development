@@ -97,21 +97,6 @@
     </managed-property>
   </managed-bean>
   <managed-bean>
-  	<managed-bean-name>saml2Ctrl</managed-bean-name>
-  	<managed-bean-class>org.oscm.ui.dialog.common.saml2.Saml2Ctrl</managed-bean-class>
-    <managed-bean-scope>request</managed-bean-scope>
-    <managed-property>
-    	<property-name>model</property-name>
-    	<property-class>org.oscm.ui.dialog.common.saml2.Saml2Model</property-class>
-    	<value>#{saml2Model}</value>
-    </managed-property>
-  </managed-bean>
-  <managed-bean>
-    <managed-bean-name>saml2Model</managed-bean-name>
-    <managed-bean-class>org.oscm.ui.dialog.common.saml2.Saml2Model</managed-bean-class>
-    <managed-bean-scope>request</managed-bean-scope>
-  </managed-bean>
-  <managed-bean>
     <managed-bean-name>customizeLandingpageCtrl</managed-bean-name>
     <managed-bean-class>org.oscm.ui.dialog.classic.customizelandingpage.CustomizeLandingpageCtrl</managed-bean-class>
     <managed-bean-scope>request</managed-bean-scope>

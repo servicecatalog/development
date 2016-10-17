@@ -13,10 +13,10 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 
-import org.oscm.ui.common.ExceptionActionListener;
-import org.oscm.ui.model.NewMarketplace;
 import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.internal.vo.VOMarketplace;
+import org.oscm.ui.common.ExceptionActionListener;
+import org.oscm.ui.model.NewMarketplace;
 
 /**
  * The bean responsible for providing model and action for creating a new
@@ -33,6 +33,7 @@ public class NewMarketplaceBean extends BaseBean {
     
     @ManagedProperty(value="#{menuBean}")
     MenuBean menuBean;
+   
 
     /**
      * @return the menuBean
@@ -48,7 +49,7 @@ public class NewMarketplaceBean extends BaseBean {
     public void setMenuBean(MenuBean menuBean) {
         this.menuBean = menuBean;
     }
-
+    
     /**
      * Returns the model to use for creating a new marketplace. If no model is
      * set, it will be initialized with the default values.
@@ -84,6 +85,7 @@ public class NewMarketplaceBean extends BaseBean {
         vmp.setReviewEnabled(nmp.isReviewEnabled());
         vmp.setSocialBookmarkEnabled(nmp.isSocialBookmarkEnabled());
         vmp.setCategoriesEnabled(nmp.isCategoriesEnabled());
+        vmp.setTenantId(nmp.getTenantId());
         return vmp;
     }
 

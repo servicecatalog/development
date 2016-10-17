@@ -13,12 +13,9 @@ package org.oscm.security;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -73,6 +70,7 @@ public class ADMRealmImpl {
     protected static final String[] GROUPLIST_ADMIN = { GROUP_USER, GROUP_ADMIN };
 
     private static final int SAML_REQUEST_ID_LEN = 43;
+    private static final int SAML_TENANT_ID_LEN = 8;
     private static final int SSO_CALLER_SPEC_LEN = 2;
     private static final int WS_PASSWORD_AGE_MILLIS = 300000;
 
@@ -222,21 +220,23 @@ public class ADMRealmImpl {
 
         String requestId = password.substring(SSO_CALLER_SPEC_LEN,
                 SAML_REQUEST_ID_LEN + SSO_CALLER_SPEC_LEN);
+        int passwordLen = SSO_CALLER_SPEC_LEN + SAML_REQUEST_ID_LEN;
+        String tenantID = password.substring(passwordLen, passwordLen + SAML_TENANT_ID_LEN);
         String samlResponse = password.substring(SSO_CALLER_SPEC_LEN
-                + SAML_REQUEST_ID_LEN);
+                + SAML_REQUEST_ID_LEN + SAML_TENANT_ID_LEN);
 
         AssertionConsumerService assertionConsumerService = getAssertionConsumerService(authModeQuery);
 
         try {
-            assertionConsumerService.validateResponse(samlResponse, requestId);
+            assertionConsumerService.validateResponse(samlResponse, requestId, tenantID);
         } catch (DigitalSignatureValidationException
                 | AssertionValidationException | ParserConfigurationException
                 | SAXException | IOException e) {
             logger.info(String
-                    .format("Single Sign On: User with key '%s' not logged in. Error validating the SAML response.\n" //
+                    .format("Single Sign On: User with key '%s' (tenantID: '%s') not logged in. Error validating the SAML response.\n" //
                             + "Reason: %s.\n" //
                             + "SAML response: %s\n", //
-                            userKey, e.getMessage(), samlResponse));
+                            userKey, tenantID, e.getMessage(), samlResponse));
             throw new LoginException(e.getMessage());
         }
     }

@@ -27,6 +27,7 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.interceptor.Interceptors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.paginator.Pagination;
@@ -129,15 +130,22 @@ public class UserServiceBean implements UserService {
 
     @Override
     @RolesAllowed("ORGANIZATION_ADMIN")
-    public POUserDetails getUserDetails(String userId)
+    public POUserDetails getUserDetails(String userId, String tenantId)
             throws SaaSApplicationException {
 
-        PlatformUser u = isl.getPlatformUser(userId, true);
+        PlatformUser u = getPlatformUserInGivenScope(userId, tenantId);
         Set<UserRoleType> availableRoles = isl.getAvailableUserRolesForUser(u);
         POUserDetails result = dc.toPOUserDetails(u, availableRoles);
         result.setMappedAttributes(lsmsl.getMappedAttributes());
 
         return result;
+    }
+
+    private PlatformUser getPlatformUserInGivenScope(String userId, String tenantId) throws SaaSApplicationException {
+        if (StringUtils.isBlank(tenantId)) {
+            return isl.getPlatformUser(userId, true);
+        }
+        return isl.getPlatformUser(userId, tenantId, true);
     }
 
     @Override
@@ -213,11 +221,11 @@ public class UserServiceBean implements UserService {
 
     @Override
     @RolesAllowed("ORGANIZATION_ADMIN")
-    public Response deleteUser(POUser user, String marketplaceId)
+    public Response deleteUser(POUser user, String marketplaceId, String tenantId)
             throws SaaSApplicationException {
 
         try {
-            PlatformUser u = isl.getPlatformUser(user.getUserId(), true);
+            PlatformUser u = getPlatformUserInGivenScope(user.getUserId(), tenantId);
             VersionAndKeyValidator.verify(u, user.getKey(), user.getVersion());
             userGroupService.addLogEntryWhenDeleteUser(u);
             isl.deleteUser(u, marketplaceId);
@@ -290,10 +298,11 @@ public class UserServiceBean implements UserService {
 
     @Override
     @RolesAllowed("ORGANIZATION_ADMIN")
-    public POUserAndSubscriptions getUserAndSubscriptionDetails(String userId)
+    public POUserAndSubscriptions getUserAndSubscriptionDetails(String userId, String tenantId)
             throws SaaSApplicationException {
 
-        PlatformUser u = isl.getPlatformUser(userId, true);
+
+        PlatformUser u = getPlatformUserInGivenScope(userId, tenantId);
         PlatformUser user = ds.getCurrentUser();
 
         List<SubscriptionWithRoles> list = Collections.emptyList();
@@ -426,7 +435,7 @@ public class UserServiceBean implements UserService {
         return result;
     }
 
-    UsageLicense getLicense(String subId, List<UsageLicense> assignments) {
+    private UsageLicense getLicense(String subId, List<UsageLicense> assignments) {
 
         UsageLicense result = null;
         for (UsageLicense lic : assignments) {
@@ -439,7 +448,7 @@ public class UserServiceBean implements UserService {
         return result;
     }
 
-    VOUsageLicense convertToLicense(POSubscription s, VOUser u) {
+    private VOUsageLicense convertToLicense(POSubscription s, VOUser u) {
 
         VOUsageLicense lic = new VOUsageLicense();
         lic.setUser(u);
@@ -518,7 +527,7 @@ public class UserServiceBean implements UserService {
         isl.setUserRolesInt(user.getAssignedRoles(), existing);
     }
 
-    void updateUserGroups(Map<UserGroup, UnitUserRole> userGroupsToBeAssigned,
+    private void updateUserGroups(Map<UserGroup, UnitUserRole> userGroupsToBeAssigned,
             POUserAndSubscriptions user, PlatformUser existing)
                     throws NonUniqueBusinessKeyException,
                     OperationNotPermittedException, ObjectNotFoundException,
@@ -665,9 +674,15 @@ public class UserServiceBean implements UserService {
 
     @Override
     public Long getUserAssignableSubscriptionsNumber(PaginationInt pagination,
-            String userId) throws SaaSApplicationException {
+            String userId, String tenantId) throws SaaSApplicationException {
 
-        PlatformUser user = isl.getPlatformUser(userId, true);
+        PlatformUser user;
+        if (StringUtils.isBlank(tenantId)) {
+            user = isl.getPlatformUser(userId, true);
+        } else {
+            user = isl.getPlatformUser(userId, tenantId, true);
+        }
+
 
         Long number = slsl.getUserAssignableSubscriptionsNumber(pagination,
                 user, Subscription.ASSIGNABLE_SUBSCRIPTION_STATUS);

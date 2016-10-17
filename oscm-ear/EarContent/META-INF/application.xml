@@ -122,4 +122,7 @@
       <context-root>oscm-trigger</context-root>
     </web>
   </module>
+  <module>
+    <ejb>oscm-tenantmgmt.jar</ejb>
+  </module>
 </application>

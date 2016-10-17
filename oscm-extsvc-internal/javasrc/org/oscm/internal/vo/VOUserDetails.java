@@ -32,6 +32,7 @@ public class VOUserDetails extends VOUser {
     private String phone;
     private String locale;
     private Salutation salutation;
+    private String tenantId;
 
     /**
      * The user ID in the context of a third-party realm, such as LDAP. The user
@@ -326,5 +327,13 @@ public class VOUserDetails extends VOUser {
      */
     public void setRemoteLdapAttributes(List<SettingType> remoteLdapAttributes) {
         this.remoteLdapAttributes = remoteLdapAttributes;
+    }
+
+    public String getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(String tenantId) {
+        this.tenantId = tenantId;
     }
 }

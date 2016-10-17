@@ -20,9 +20,6 @@ import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.oscm.app.common.controller.LogAndExceptionConverter;
 import org.oscm.app.common.data.Context;
 import org.oscm.app.openstack.data.FlowState;
@@ -39,6 +36,8 @@ import org.oscm.app.v1_0.data.ServiceUser;
 import org.oscm.app.v1_0.exceptions.APPlatformException;
 import org.oscm.app.v1_0.intf.APPlatformController;
 import org.oscm.app.v1_0.intf.APPlatformService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of an OpenStack service controller based on the Asynchronous
@@ -59,8 +58,8 @@ import org.oscm.app.v1_0.intf.APPlatformService;
  */
 @Stateless(mappedName = "bss/app/controller/" + OpenStackController.ID)
 @Remote(APPlatformController.class)
-public class OpenStackController extends ProvisioningValidator implements
-        APPlatformController {
+public class OpenStackController extends ProvisioningValidator
+        implements APPlatformController {
 
     public static final String ID = "ess.openstack";
 
@@ -186,13 +185,12 @@ public class OpenStackController extends ProvisioningValidator implements
     public InstanceStatus modifyInstance(String instanceId,
             ProvisioningSettings currentSettings,
             ProvisioningSettings newSettings) throws APPlatformException {
-        LOGGER.info("modifyInstance({})", LogAndExceptionConverter.getLogText(
-                instanceId, currentSettings));
+        LOGGER.info("modifyInstance({})", LogAndExceptionConverter
+                .getLogText(instanceId, currentSettings));
         try {
-            newSettings.getParameters().put(
-                    PropertyHandler.STACK_NAME,
-                    currentSettings.getParameters().get(
-                            PropertyHandler.STACK_NAME));
+            newSettings.getParameters().put(PropertyHandler.STACK_NAME,
+                    currentSettings.getParameters()
+                            .get(PropertyHandler.STACK_NAME));
             PropertyHandler ph = new PropertyHandler(newSettings);
             ph.setState(FlowState.MODIFICATION_REQUESTED);
 
@@ -232,6 +230,8 @@ public class OpenStackController extends ProvisioningValidator implements
                 LogAndExceptionConverter.getLogText(instanceId, settings));
         try {
             PropertyHandler ph = new PropertyHandler(settings);
+            ProvisioningValidator.validateTimeout(instanceId, ph,
+                    platformService);
             Dispatcher dp = new Dispatcher(platformService, instanceId, ph);
             InstanceStatus status = dp.dispatch();
             return status;
@@ -273,7 +273,8 @@ public class OpenStackController extends ProvisioningValidator implements
             if (FlowState.MANUAL.equals(propertyHandler.getState())) {
                 propertyHandler.setState(FlowState.FINISHED);
                 status = setNotificationStatus(settings, propertyHandler);
-                LOGGER.debug("Got finish event => changing instance status to finished");
+                LOGGER.debug(
+                        "Got finish event => changing instance status to finished");
             } else {
                 APPlatformException pe = new APPlatformException(
                         "Got finish event but instance is in state "
@@ -438,8 +439,8 @@ public class OpenStackController extends ProvisioningValidator implements
 
     @Override
     public List<OperationParameter> getOperationParameters(String userId,
-            String instanceId, String operationId, ProvisioningSettings settings)
-            throws APPlatformException {
+            String instanceId, String operationId,
+            ProvisioningSettings settings) throws APPlatformException {
         return null; // not applicable
     }
 
@@ -459,14 +460,31 @@ public class OpenStackController extends ProvisioningValidator implements
         try {
             PropertyHandler ph = new PropertyHandler(settings);
             boolean operationAccepted = false;
-            if ("START_VIRTUAL_SYSTEM".equals(operationId)) {
+            switch (operationId) {
+            case "START_VIRTUAL_SYSTEM":
+                ph.setState(FlowState.START_REQUESTED);
+                ph.setStartTime(String.valueOf(System.currentTimeMillis()));
+                operationAccepted = true;
+                break;
+
+            case "STOP_VIRTUAL_SYSTEM":
+                ph.setState(FlowState.STOP_REQUESTED);
+                ph.setStartTime(String.valueOf(System.currentTimeMillis()));
+                operationAccepted = true;
+                break;
+
+            case "RESUME_VIRTUAL_SYSTEM":
                 // FIXME decide whether activation process is sufficient or
                 // dedicated start/stop need to be used
                 ph.setState(FlowState.ACTIVATION_REQUESTED);
                 operationAccepted = true;
-            } else if ("STOP_VIRTUAL_SYSTEM".equals(operationId)) {
+                break;
+
+            case "SUSPEND_VIRTUAL_SYSTEM":
                 ph.setState(FlowState.DEACTIVATION_REQUESTED);
                 operationAccepted = true;
+                break;
+
             }
             if (operationAccepted) {
                 // when a valid operation has been requested, let the timer
@@ -501,12 +519,11 @@ public class OpenStackController extends ProvisioningValidator implements
 
     private List<LocalizedText> getProvisioningStatusText(
             PropertyHandler paramHandler) {
-        List<LocalizedText> messages = Messages.getAll("status_"
-                + paramHandler.getState());
+        List<LocalizedText> messages = Messages
+                .getAll("status_" + paramHandler.getState());
         for (LocalizedText message : messages) {
-            if (message.getText() == null
-                    || (message.getText().startsWith("!") && message.getText()
-                            .endsWith("!"))) {
+            if (message.getText() == null || (message.getText().startsWith("!")
+                    && message.getText().endsWith("!"))) {
                 message.setText(Messages.get(message.getLocale(),
                         "status_INSTANCE_OVERALL"));
             }

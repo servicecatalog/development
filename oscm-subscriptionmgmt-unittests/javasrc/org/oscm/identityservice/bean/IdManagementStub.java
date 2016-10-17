@@ -186,6 +186,12 @@ public class IdManagementStub implements IdentityService, IdentityServiceLocal {
     }
 
     @Override
+    public PlatformUser getPlatformUser(String userId, String tenantKey, boolean validateOrganization)
+        throws ObjectNotFoundException, OperationNotPermittedException {
+        return null;
+    }
+
+    @Override
     public VOUser getUser(VOUser user) throws ObjectNotFoundException {
 
         return null;

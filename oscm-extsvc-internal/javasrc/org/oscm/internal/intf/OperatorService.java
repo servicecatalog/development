@@ -100,10 +100,10 @@ public interface OperatorService {
      *             <code>SUPPLIER</code> or <code>TECHNOLOGY_PROVIDER</code>
      *             role.
      */
-    public VOOrganization registerOrganization(VOOrganization organization,
-            VOImageResource imageResource, VOUserDetails orgInitialUser,
-            LdapProperties organizationProperties, String marketplaceID,
-            OrganizationRoleType... rolesToGrant)
+    VOOrganization registerOrganization(VOOrganization organization,
+                                        VOImageResource imageResource, VOUserDetails orgInitialUser,
+                                        LdapProperties organizationProperties, String marketplaceID,
+                                        OrganizationRoleType... rolesToGrant)
             throws NonUniqueBusinessKeyException, ObjectNotFoundException,
             ValidationException, OrganizationAuthorityException,
             IncompatibleRolesException, MailOperationException,
@@ -138,8 +138,8 @@ public interface OperatorService {
      *             If the supplier could not be loaded or the organization does
      *             not have the supplier role.
      */
-    public void addOrganizationToRole(String organizationId,
-            OrganizationRoleType role) throws OrganizationAuthorityException,
+    void addOrganizationToRole(String organizationId,
+                               OrganizationRoleType role) throws OrganizationAuthorityException,
             IncompatibleRolesException, ObjectNotFoundException,
             OrganizationAuthoritiesException, AddMarketingPermissionException;
 
@@ -179,7 +179,7 @@ public interface OperatorService {
      *             Thrown in case the caller does not have the platform operator
      *             role.
      */
-    public boolean retryFailedPaymentProcesses()
+    boolean retryFailedPaymentProcesses()
             throws OrganizationAuthoritiesException;
 
     /**
@@ -191,7 +191,7 @@ public interface OperatorService {
      *             Thrown in case the caller does not have the platform operator
      *             role.
      */
-    public List<VOTimerInfo> getTimerExpirationInformation()
+    List<VOTimerInfo> getTimerExpirationInformation()
             throws OrganizationAuthoritiesException;
 
     /**
@@ -205,7 +205,7 @@ public interface OperatorService {
      * @throws ValidationException
      *             Thrown in case the next expiration date negative.
      */
-    public List<VOTimerInfo> reInitTimers()
+    List<VOTimerInfo> reInitTimers()
             throws OrganizationAuthoritiesException, ValidationException;
 
     /**
@@ -225,7 +225,7 @@ public interface OperatorService {
      *             Thrown in case the caller does not have the platform operator
      *             role.
      */
-    public boolean startBillingRun() throws OrganizationAuthoritiesException;
+    boolean startBillingRun() throws OrganizationAuthoritiesException;
 
     /**
      * Changes the status of the given user and sends the corresponding mail.
@@ -241,7 +241,7 @@ public interface OperatorService {
      *             Thrown in case the caller does not have the platform operator
      *             role.
      */
-    public void setUserAccountStatus(VOUser user, UserAccountStatus newStatus)
+    void setUserAccountStatus(VOUser user, UserAccountStatus newStatus)
             throws ObjectNotFoundException, ValidationException,
             OrganizationAuthoritiesException;
 
@@ -265,8 +265,8 @@ public interface OperatorService {
      *             Thrown in case the distinguished name contains more than 4096
      *             characters.
      */
-    public void setDistinguishedName(String organizationId,
-            String distinguishedName) throws ObjectNotFoundException,
+    void setDistinguishedName(String organizationId,
+                              String distinguishedName) throws ObjectNotFoundException,
             DistinguishedNameException, OrganizationAuthoritiesException,
             ValidationException;
 
@@ -289,8 +289,8 @@ public interface OperatorService {
      *             Thrown in case the caller does not have the platform operator
      *             role.
      */
-    public byte[] getOrganizationBillingData(long from, long to,
-            String organizationId) throws ObjectNotFoundException,
+    byte[] getOrganizationBillingData(long from, long to,
+                                      String organizationId) throws ObjectNotFoundException,
             OrganizationAuthoritiesException;
 
     /**
@@ -312,7 +312,7 @@ public interface OperatorService {
      *             Thrown in case the caller does not have the platform operator
      *             role.
      */
-    public void resetPasswordForUser(String userId)
+    void resetPasswordForUser(String userId)
             throws ObjectNotFoundException, OperationNotPermittedException,
             MailOperationException, OrganizationAuthoritiesException;
 
@@ -330,7 +330,7 @@ public interface OperatorService {
      *             Thrown in case the provided parameter value is not a valid
      *             ISO currency code.
      */
-    public void addCurrency(String currencyISOCode)
+    void addCurrency(String currencyISOCode)
             throws OrganizationAuthoritiesException, ValidationException;
 
     /**
@@ -341,7 +341,7 @@ public interface OperatorService {
      *             Thrown in case the caller is not authorized as platform
      *             operator.
      */
-    public List<VOConfigurationSetting> getConfigurationSettings()
+    List<VOConfigurationSetting> getConfigurationSettings()
             throws OrganizationAuthoritiesException;
 
     /**
@@ -359,7 +359,7 @@ public interface OperatorService {
      * @throws ConcurrentModificationException
      *             Thrown if the object was changed concurrently
      */
-    public void saveConfigurationSetting(VOConfigurationSetting setting)
+    void saveConfigurationSetting(VOConfigurationSetting setting)
             throws OrganizationAuthoritiesException, ValidationException,
             ConcurrentModificationException;
 
@@ -378,7 +378,7 @@ public interface OperatorService {
      * @throws ConcurrentModificationException
      *             Thrown if the object was changed concurrently
      */
-    public void saveConfigurationSettings(List<VOConfigurationSetting> settings)
+    void saveConfigurationSettings(List<VOConfigurationSetting> settings)
             throws OrganizationAuthoritiesException, ValidationException,
             ConcurrentModificationException;
 
@@ -395,7 +395,7 @@ public interface OperatorService {
      *             Thrown in case no organization can be found for the
      *             identifier.
      */
-    public VOOperatorOrganization getOrganization(String organizationId)
+    VOOperatorOrganization getOrganization(String organizationId)
             throws OrganizationAuthoritiesException, ObjectNotFoundException;
 
     /**
@@ -444,7 +444,7 @@ public interface OperatorService {
      *             If the supplier could not be loaded or the organization does
      *             not have the supplier role.
      */
-    public VOOperatorOrganization updateOrganization(
+    VOOperatorOrganization updateOrganization(
             VOOperatorOrganization organization, VOImageResource imageResource)
             throws OrganizationAuthoritiesException, ObjectNotFoundException,
             ValidationException, ConcurrentModificationException,
@@ -468,8 +468,8 @@ public interface OperatorService {
      *             Thrown in case the caller is not authorized as platform
      *             operator.
      */
-    public List<VOOrganization> getOrganizations(String organizationIdPattern,
-            List<OrganizationRoleType> organizationRoleTypes)
+    List<VOOrganization> getOrganizations(String organizationIdPattern,
+                                          List<OrganizationRoleType> organizationRoleTypes)
             throws OrganizationAuthoritiesException;
 
 
@@ -496,15 +496,12 @@ public interface OperatorService {
     /**
      * Returns all users having the specified filter criteria.
      * 
-     * @param userIdPattern
-     *            The user identifier of the found users must match this
-     *            pattern.
      * @return the list of users
      * @throws OrganizationAuthoritiesException
      *             Thrown in case the caller is not authorized as platform
      *             operator.
      */
-    public List<VOUserDetails> getUsers(String userIdPattern)
+    List<VOUserDetails> getUsers()
             throws OrganizationAuthoritiesException;
 
     /**
@@ -519,22 +516,7 @@ public interface OperatorService {
      *
      * @return the list of users available for subscription owner assignment.
      */
-    public List<VOUserDetails> getSubscriptionOwnersForAssignment(Long organizationKey);
-
-    /**
-     * Returns all users having the specified filter criteria.
-     *
-     * @param userIdPattern
-     *            The user identifier of the found users must match this
-     *            pattern.
-     * @param queryLimit Limits objects returned by the query
-     * @return the list of users
-     * @throws OrganizationAuthoritiesException
-     *             Thrown in case the caller is not authorized as platform
-     *             operator.
-     */
-    List<VOUserDetails> getUsersWithLimit(String userIdPattern, Integer queryLimit)
-            throws OrganizationAuthoritiesException;
+    List<VOUserDetails> getSubscriptionOwnersForAssignment(Long organizationKey);
 
     /**
      * Reads all currently unhandled billing result objects from the database
@@ -546,18 +528,8 @@ public interface OperatorService {
      *             Thrown in case the caller is not authorized as platform
      *             operator.
      */
-    public boolean startPaymentProcessing()
+    boolean startPaymentProcessing()
             throws OrganizationAuthoritiesException;
-
-    /**
-     * (Re)Creates the initial index from scratch for the objects already being
-     * in the database. The indexing operation is performed only if either the
-     * index is empty (which will be the case when the server is started for the
-     * very first time), and skipped otherwise, or if <code>force</code> is set
-     * to <code>true</code> (in this case, a possibly existing index is
-     * overridden).
-     */
-    public void initIndexForFulltextSearch(boolean force);
 
     /**
      * Exports the user operation log for the specified operationIds.
@@ -576,8 +548,8 @@ public interface OperatorService {
      *             Thrown in case the the audit log contains too many entries
      *             for the specified condition.
      */
-    public byte[] getUserOperationLog(List<String> operationIds, long fromDate,
-            long toDate) throws ValidationException,
+    byte[] getUserOperationLog(List<String> operationIds, long fromDate,
+                               long toDate) throws ValidationException,
             AuditLogTooManyRowsException;
 
     /**
@@ -588,20 +560,20 @@ public interface OperatorService {
      * operation display names, and the keys represent the internal log type
      * names referring to the operations.
      */
-    public Map<String, String> getAvailableAuditLogOperations();
+    Map<String, String> getAvailableAuditLogOperations();
 
     /**
      * Returns a map containing all groups of operations, which are written to
      * the audit log file.
      */
-    public Map<String, String> getAvailableAuditLogOperationGroups();
+    Map<String, String> getAvailableAuditLogOperationGroups();
 
     /**
      * Returns all existing PSPs defined in the BES installation.
      * 
      * @return The existing PSPs.
      */
-    public List<VOPSP> getPSPs();
+    List<VOPSP> getPSPs();
 
     /**
      * Creates or updates the specified PSP including its settings.
@@ -620,7 +592,7 @@ public interface OperatorService {
      * @throws ObjectNotFoundException
      *             Thrown in case the PSP to be updated cannot be found.
      */
-    public VOPSP savePSP(VOPSP psp) throws ConcurrentModificationException,
+    VOPSP savePSP(VOPSP psp) throws ConcurrentModificationException,
             ValidationException, NonUniqueBusinessKeyException,
             ObjectNotFoundException;
 
@@ -634,7 +606,7 @@ public interface OperatorService {
      * @throws ObjectNotFoundException
      *             Thrown in case the organization could not be found.
      */
-    public List<VOPSPAccount> getPSPAccounts(VOOrganization organization)
+    List<VOPSPAccount> getPSPAccounts(VOOrganization organization)
             throws ObjectNotFoundException;
 
     /**
@@ -659,8 +631,8 @@ public interface OperatorService {
      *             Thrown in case the PSP account has been modified in the
      *             meantime.
      */
-    public VOPSPAccount savePSPAccount(VOOrganization organization,
-            VOPSPAccount account) throws ObjectNotFoundException,
+    VOPSPAccount savePSPAccount(VOOrganization organization,
+                                VOPSPAccount account) throws ObjectNotFoundException,
             OrganizationAuthorityException, ConcurrentModificationException,
             ValidationException;
 
@@ -673,7 +645,7 @@ public interface OperatorService {
      * @throws ObjectNotFoundException
      *             Thrown in case the referenced PSP could not be found.
      */
-    public List<VOPaymentType> getPaymentTypes(VOPSP psp)
+    List<VOPaymentType> getPaymentTypes(VOPSP psp)
             throws ObjectNotFoundException;
 
     /**
@@ -693,7 +665,7 @@ public interface OperatorService {
      *             Thrown in case the payment type could not be validated.
      * @throws ConcurrentModificationException
      */
-    public VOPaymentType savePaymentType(VOPSP psp, VOPaymentType paymentType)
+    VOPaymentType savePaymentType(VOPSP psp, VOPaymentType paymentType)
             throws ObjectNotFoundException, NonUniqueBusinessKeyException,
             ValidationException, ConcurrentModificationException;
 
@@ -706,7 +678,7 @@ public interface OperatorService {
      *            are listed.
      * @return The revenue data csv as byte array.
      */
-    public byte[] getSupplierRevenueList(long month);
+    byte[] getSupplierRevenueList(long month);
 
     /**
      * @param subscriptionKey

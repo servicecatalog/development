@@ -10,6 +10,8 @@ package org.oscm.app.openstack;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.apache.sling.commons.json.JSONArray;
 import org.apache.sling.commons.json.JSONException;
@@ -18,6 +20,7 @@ import org.oscm.app.openstack.data.CreateStackRequest;
 import org.oscm.app.openstack.data.Stack;
 import org.oscm.app.openstack.data.UpdateStackRequest;
 import org.oscm.app.openstack.exceptions.HeatException;
+import org.oscm.app.openstack.exceptions.OpenStackConnectionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,9 +66,9 @@ public class HeatClient {
         logger.debug("HeatClient.createStack() Endpoint: "
                 + connection.getHeatEndpoint());
         String uri = connection.getHeatEndpoint() + "/stacks";
-        RESTResponse response = connection.processRequest(uri, "POST",
-                request.getJSON());
         try {
+            RESTResponse response = connection.processRequest(uri, "POST",
+                    request.getJSON());
             JSONObject responseJson = new JSONObject(
                     response.getResponseBody());
             JSONObject stack = responseJson.getJSONObject("stack");
@@ -74,6 +77,10 @@ public class HeatClient {
             logger.debug("HeatClient.createStack() Responsecode: "
                     + response.getResponseCode());
             return result;
+        } catch (OpenStackConnectionException ex) {
+            throw new HeatException(
+                    "Failed to connect to Heat: " + ex.getMessage(),
+                    ex.getResponseCode());
         } catch (JSONException ex) {
             logger.error("HeatClient.createStack()", ex);
             throw new HeatException(ex.getMessage());
@@ -87,20 +94,20 @@ public class HeatClient {
         try {
             uri = connection.getHeatEndpoint() + "/stacks/"
                     + URLEncoder.encode(request.getStackName(), "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
-        try {
             RESTResponse response = connection.processRequest(uri, "PUT",
                     request.getJSON());
             logger.debug("HeatClient.updateStack() Responsecode: "
                     + response.getResponseCode());
-        } catch (HeatException ex) {
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        } catch (OpenStackConnectionException ex) {
             if (ex.getResponseCode() == 400) {
                 throw new HeatException("Update not allowed in this status.",
                         400);
             }
-            throw ex;
+            throw new HeatException(
+                    "Failed to connect to Heat: " + ex.getMessage(),
+                    ex.getResponseCode());
         }
     }
 
@@ -111,10 +118,14 @@ public class HeatClient {
             uri = connection.getHeatEndpoint() + "/stacks/"
                     + URLEncoder.encode(stackName, "UTF-8") + '/' + stackId
                     + "/actions";
+            connection.processRequest(uri, "POST", "{\"resume\":null}");
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
+        } catch (OpenStackConnectionException ex) {
+            throw new HeatException(
+                    "Failed to connect to Heat: " + ex.getMessage(),
+                    ex.getResponseCode());
         }
-        connection.processRequest(uri, "POST", "{\"resume\":null}");
     }
 
     public void suspendStack(String stackName, String stackId)
@@ -124,10 +135,14 @@ public class HeatClient {
             uri = connection.getHeatEndpoint() + "/stacks/"
                     + URLEncoder.encode(stackName, "UTF-8") + '/' + stackId
                     + "/actions";
+            connection.processRequest(uri, "POST", "{\"suspend\":null}");
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
+        } catch (OpenStackConnectionException ex) {
+            throw new HeatException(
+                    "Failed to connect to Heat: " + ex.getMessage(),
+                    ex.getResponseCode());
         }
-        connection.processRequest(uri, "POST", "{\"suspend\":null}");
     }
 
     public boolean checkServerExists(String stackName) throws HeatException {
@@ -142,20 +157,67 @@ public class HeatClient {
         try {
             uri = connection.getNovaEndpoint() + "/servers/"
                     + URLEncoder.encode(serverId, "UTF-8");
+            RESTResponse response = connection.processRequest(uri, "GET");
+
+            String body = response.getResponseBody();
+
+            logger.debug("HeatClient.checkServerExists() Responsecode: "
+                    + response.getResponseCode());
+
+            if (body.contains(serverId)) {
+                return true;
+            }
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
-        }
-
-        RESTResponse response = connection.processRequest(uri, "GET");
-        String body = response.getResponseBody();
-
-        logger.debug("HeatClient.checkServerExists() Responsecode: "
-                + response.getResponseCode());
-
-        if (body.contains(serverId)) {
-            return true;
+        } catch (OpenStackConnectionException ex) {
+            throw new HeatException(
+                    "Failed to connect to Heat: " + ex.getMessage(),
+                    ex.getResponseCode());
         }
         return false;
+    }
+
+    public List<String> getServerIds(String stackName) throws HeatException {
+        logger.debug("HeatClient.getServerId() Endpoint: "
+                + connection.getHeatEndpoint());
+        String uri;
+        List<String> serverIds = new LinkedList<String>();
+        try {
+            uri = connection.getHeatEndpoint() + "/stacks/"
+                    + URLEncoder.encode(stackName, "UTF-8") + "/resources";
+
+            RESTResponse response = connection.processRequest(uri, "GET");
+            String body = response.getResponseBody();
+            JSONObject responseJson = new JSONObject(body);
+            JSONArray resources = responseJson.getJSONArray("resources");
+            for (int i = 0; i < resources.length(); i++) {
+                JSONObject resource = resources.getJSONObject(i);
+                InstanceType type = getInstanceType(
+                        resource.optString("resource_type"));
+                if (type == null) {
+                    continue;
+                }
+                switch (type) {
+                case NOVA:
+                case EC2:
+                case TROVE:
+                    serverIds.add(resource.optString("physical_resource_id"));
+                    break;
+                default:
+                    continue;
+                }
+            }
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        } catch (OpenStackConnectionException ex) {
+            throw new HeatException(
+                    "Failed to connect to Heat: " + ex.getMessage(),
+                    ex.getResponseCode());
+        } catch (JSONException e) {
+            logger.error("HeatClient.getStackDetails()", e);
+            throw new HeatException(e.getMessage());
+        }
+        return serverIds;
     }
 
     private String getServerIdByStackResource(String stackName)
@@ -166,14 +228,9 @@ public class HeatClient {
         try {
             uri = connection.getHeatEndpoint() + "/stacks/"
                     + URLEncoder.encode(stackName, "UTF-8") + "/resources";
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
 
-        RESTResponse response = connection.processRequest(uri, "GET");
-        String body = response.getResponseBody();
-
-        try {
+            RESTResponse response = connection.processRequest(uri, "GET");
+            String body = response.getResponseBody();
             JSONObject responseJson = new JSONObject(body);
             JSONArray resources = responseJson.getJSONArray("resources");
             for (int i = 0; i < resources.length(); i++) {
@@ -192,6 +249,12 @@ public class HeatClient {
                     continue;
                 }
             }
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        } catch (OpenStackConnectionException ex) {
+            throw new HeatException(
+                    "Failed to connect to Heat: " + ex.getMessage(),
+                    ex.getResponseCode());
         } catch (JSONException e) {
             logger.error("HeatClient.getStackDetails()", e);
             throw new HeatException(e.getMessage());
@@ -206,15 +269,11 @@ public class HeatClient {
         try {
             uri = connection.getHeatEndpoint() + "/stacks/"
                     + URLEncoder.encode(stackName, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
-        RESTResponse response = connection.processRequest(uri, "GET");
-        String body = response.getResponseBody();
-        logger.debug("HeatClient.getStackDetails() Responsecode: "
-                + response.getResponseCode());
 
-        try {
+            RESTResponse response = connection.processRequest(uri, "GET");
+            String body = response.getResponseBody();
+            logger.debug("HeatClient.getStackDetails() Responsecode: "
+                    + response.getResponseCode());
             JSONObject responseJson = new JSONObject(body);
             JSONObject stack = responseJson.getJSONObject("stack");
             Stack result = new Stack();
@@ -238,6 +297,12 @@ public class HeatClient {
                 // ignore if output is not yet here
             }
             return result;
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        } catch (OpenStackConnectionException ex) {
+            throw new HeatException(
+                    "Failed to connect to Heat: " + ex.getMessage(),
+                    ex.getResponseCode());
         } catch (JSONException e) {
             logger.error("HeatClient.getStackDetails()", e);
             throw new HeatException(e.getMessage());
@@ -251,11 +316,16 @@ public class HeatClient {
         try {
             uri = connection.getHeatEndpoint() + "/stacks/"
                     + URLEncoder.encode(stackName, "UTF-8");
+
+            RESTResponse response = connection.processRequest(uri, "DELETE");
+            logger.debug("HeatClient.deleteStack() Responsecode: "
+                    + response.getResponseCode());
+        } catch (OpenStackConnectionException ex) {
+            throw new HeatException(
+                    "Failed to connect to Heat: " + ex.getMessage(),
+                    ex.getResponseCode());
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
-        RESTResponse response = connection.processRequest(uri, "DELETE");
-        logger.debug("HeatClient.deleteStack() Responsecode: "
-                + response.getResponseCode());
     }
 }

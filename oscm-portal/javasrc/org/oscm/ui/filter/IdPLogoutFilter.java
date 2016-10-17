@@ -8,14 +8,11 @@
 
 package org.oscm.ui.filter;
 
+import static org.oscm.types.enumtypes.LogMessageIdentifier.ERROR_SAML2_INVALID_STATUS_CODE;
+
 import java.io.IOException;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -29,13 +26,10 @@ import org.oscm.saml2.api.SAMLLogoutResponseValidator;
 import org.oscm.saml2.api.SAMLResponseExtractor;
 import org.oscm.types.constants.marketplace.Marketplace;
 import org.oscm.ui.beans.BaseBean;
-import org.oscm.ui.common.ADMStringUtils;
 import org.oscm.ui.common.Constants;
 import org.oscm.ui.common.EJBServiceAccess;
 import org.oscm.ui.common.ServiceAccess;
 import org.oscm.ui.delegates.ServiceLocator;
-
-import static org.oscm.types.enumtypes.LogMessageIdentifier.ERROR_SAML2_INVALID_STATUS_CODE;
 
 /**
  * @author grubskim
@@ -45,12 +39,12 @@ public class IdPLogoutFilter implements Filter {
 
     private RequestRedirector redirector;
     private String excludeUrlPattern;
-    private AuthenticationSettings authSettings;
     private SAMLResponseExtractor samlResponseExtractor;
     private SAMLLogoutResponseValidator samlLogoutResponseValidator;
 
     private SessionService ssl;
     private static final Log4jLogger LOGGER = LoggerFactory.getLogger(IdPLogoutFilter.class);
+    private boolean isSaml;
 
     public SessionService getSsl() {
         if (ssl == null) {
@@ -64,11 +58,6 @@ public class IdPLogoutFilter implements Filter {
         redirector = new RequestRedirector(filterConfig);
         excludeUrlPattern = filterConfig
                 .getInitParameter("exclude-url-pattern");
-
-        ServiceAccess serviceAccess = new EJBServiceAccess();
-        ConfigurationService cfgService = serviceAccess
-                .getService(ConfigurationService.class);
-        authSettings = new AuthenticationSettings(cfgService);
 
         samlLogoutResponseValidator = new SAMLLogoutResponseValidator();
         samlResponseExtractor = new SAMLResponseExtractor();
@@ -203,14 +192,7 @@ public class IdPLogoutFilter implements Filter {
     }
 
     boolean containsSamlResponse(HttpServletRequest httpRequest) {
-
-        if (!authSettings.isServiceProvider()) {
-            return false;
-        }
-
-        if (isInvalidIdpUrl(authSettings)) {
-            httpRequest.setAttribute(Constants.REQ_ATTR_ERROR_KEY,
-                    BaseBean.ERROR_INVALID_IDP_URL);
+        if (!isServiceProvider()) {
             return false;
         }
 
@@ -222,10 +204,15 @@ public class IdPLogoutFilter implements Filter {
         return false;
     }
 
-    boolean isInvalidIdpUrl(AuthenticationSettings authSettings) {
-        return ADMStringUtils.isBlank(authSettings.getIdentityProviderURL())
-                || ADMStringUtils.isBlank(
-                authSettings.getIdentityProviderURLContextRoot());
+    private boolean isServiceProvider() {
+        if (!isSaml) {
+            ServiceAccess serviceAccess = new EJBServiceAccess();
+            ConfigurationService cfgService = serviceAccess
+                    .getService(ConfigurationService.class);
+            AuthenticationSettings authSettings = new AuthenticationSettings(null, cfgService);
+            isSaml = authSettings.isServiceProvider();
+        }
+        return isSaml;
     }
 
     @Override

@@ -20,19 +20,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.OrderBy;
-import javax.persistence.PrePersist;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-import javax.persistence.UniqueConstraint;
+import javax.persistence.*;
 
 import org.oscm.domobjects.annotations.BusinessKey;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
@@ -215,6 +203,10 @@ public class Organization extends DomainObjectWithHistory<OrganizationData> {
     @OneToMany(mappedBy = "organization", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     @OrderBy
     private List<MarketplaceAccess> marketplaceAccesses = new ArrayList<MarketplaceAccess>();
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "tenant_tkey")
+    private Tenant tenant;
 
     /**
      * OrganizationID of the platform operator. The platform operator is created
@@ -1206,5 +1198,13 @@ public class Organization extends DomainObjectWithHistory<OrganizationData> {
 
     public void setMarketplaceAccesses(List<MarketplaceAccess> marketplaceAccesses) {
         this.marketplaceAccesses = marketplaceAccesses;
+    }
+
+    public Tenant getTenant() {
+        return tenant;
+    }
+
+    public void setTenant(Tenant tenant) {
+        this.tenant = tenant;
     }
 }

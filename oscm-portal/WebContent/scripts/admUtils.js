@@ -2264,3 +2264,35 @@ AdmUtils.IE9AfterClick = function (id){
             }
      }
 }
+
+AdmUtils.sortSelect = function() {
+	// Applies the function to each select on the page
+	$("select").each(function(index, select) {
+		var $select = $(select);
+
+		// First we find out if one of the options is selected
+		var selectedIndex = select.options.selectedIndex;
+		if (typeof selectedIndex != 'undefined') {
+			selectedValue = select.options[selectedIndex].value;
+		}
+
+		// We sort the options
+		$select.find("option").sort(function(left, right) {
+			return left.text == right.text ? 0 : left.text < right.text ? -1 : 1;
+		}).appendTo($select);
+
+		// If an option was selected, we need to reselected it. This is necessary because
+		// after sorting, the item in position x won't be there anymore, and therefore the
+		// wrong option will be selected
+		if (typeof selectedValue != 'undefined') {
+			for (var i = 0; i < $select.find("option").length; i++) {
+				var option = $select.find("option")[i];
+				if (option.value == selectedValue) {
+					option.selected = true;
+					$select.find("option").selectedIndex = i;
+					break;
+				}
+			}
+		}
+	});
+}

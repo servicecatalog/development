@@ -31,6 +31,8 @@ public class MarketplaceConfiguration implements Serializable {
     private boolean landingPage;
 
     private Set<String> allowedOrganizations = null;
+    private String tenantId;
+    private String tenantTkey;
 
     /**
      * Indicating if the tag cloud is shown.
@@ -159,5 +161,21 @@ public class MarketplaceConfiguration implements Serializable {
      */
     public void setAllowedOrganizations(Set<String> allowedOrganizations) {
         this.allowedOrganizations = allowedOrganizations;
+    }
+
+    public void setTenantId(String tenantId) {
+        this.tenantId = tenantId;
+    }
+
+    public String getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantTkey(String tenantTkey) {
+        this.tenantTkey = tenantTkey;
+    }
+
+    public String getTenantTkey() {
+        return tenantTkey;
     }
 }

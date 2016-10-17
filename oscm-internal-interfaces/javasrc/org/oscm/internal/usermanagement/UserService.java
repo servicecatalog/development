@@ -39,7 +39,7 @@ public interface UserService {
      * @return the user details
      * @throws SaaSApplicationException
      */
-    POUserDetails getUserDetails(String userId) throws SaaSApplicationException;
+    POUserDetails getUserDetails(String userId, String tenantId) throws SaaSApplicationException;
 
     /**
      * Saves the user details and its role assignment. Also updates the user
@@ -74,10 +74,12 @@ public interface UserService {
      *            the user to delete
      * @param marketplaceId
      *            the marketplace context
+     * @param tenantId
+     *            the tenant context
      * @return the response
      * @throws SaaSApplicationException
      */
-    Response deleteUser(POUser user, String marketplaceId)
+    Response deleteUser(POUser user, String marketplaceId, String tenantId)
             throws SaaSApplicationException;
 
     /**
@@ -110,17 +112,19 @@ public interface UserService {
             throws SaaSApplicationException;
 
     /**
-     * Returns the user details for the passed user id including assigned and
+     * Returns the user details, in scope of given tenant, for the passed user id including assigned and
      * available user roles and assigned and available subscriptions (including
      * assigned and available service roles).
      * 
      * @param userId
      *            the user to get the details for
+     * @param tenantId
+     *            scope in which user should be found
      * @return the user details including assigned and available roles and
      *         subscriptions
      * @throws SaaSApplicationException
      */
-    POUserAndSubscriptions getUserAndSubscriptionDetails(String userId)
+    POUserAndSubscriptions getUserAndSubscriptionDetails(String userId, String tenantId)
             throws SaaSApplicationException;
 
     Response saveUserAndSubscriptionAssignment(POUserAndSubscriptions user,
@@ -203,5 +207,5 @@ public interface UserService {
             String userId) throws SaaSApplicationException;
 
     Long getUserAssignableSubscriptionsNumber(PaginationInt pagination,
-            String userId) throws SaaSApplicationException;
+            String userId, String tenantId) throws SaaSApplicationException;
 }

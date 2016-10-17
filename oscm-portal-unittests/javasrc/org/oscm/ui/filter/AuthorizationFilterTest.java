@@ -14,14 +14,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -38,17 +31,16 @@ import javax.servlet.http.HttpSession;
 
 import org.junit.Before;
 import org.junit.Test;
-
-import org.oscm.ui.beans.BaseBean;
-import org.oscm.ui.beans.MenuBean;
-import org.oscm.ui.common.Constants;
-import org.oscm.ui.common.ServiceAccess;
 import org.oscm.internal.intf.ConfigurationService;
 import org.oscm.internal.intf.IdentityService;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.UserAccountStatus;
 import org.oscm.internal.vo.VOUser;
 import org.oscm.internal.vo.VOUserDetails;
+import org.oscm.ui.beans.BaseBean;
+import org.oscm.ui.beans.MenuBean;
+import org.oscm.ui.common.Constants;
+import org.oscm.ui.common.ServiceAccess;
 
 /**
  * Unit testing of {@link AuthorizationFilter}.
@@ -418,7 +410,7 @@ public class AuthorizationFilterTest {
         doReturn("userId").when(authReqDataMock).getUserId();
         doReturn(Boolean.TRUE).when(authReqDataMock).isPasswordSet();
         doReturn(userDetails).when(authFilter).readTechnicalUserFromDb(
-                any(IdentityService.class), any(String.class));
+                any(IdentityService.class), eq(authReqDataMock));
         doReturn(Boolean.TRUE).when(authFilter).loginUser(
                 any(FilterChain.class), any(HttpServletRequest.class),
                 any(HttpServletResponse.class), any(VOUserDetails.class),
@@ -436,7 +428,7 @@ public class AuthorizationFilterTest {
                 any(HttpServletResponse.class), any(ServiceAccess.class),
                 any(AuthorizationRequestData.class));
         doReturn(userDetails).when(authFilter).readTechnicalUserFromDb(
-                any(IdentityService.class), any(String.class));
+                any(IdentityService.class), eq(authReqDataMock));
         doReturn(Boolean.TRUE).when(authFilter).loginUser(
                 any(FilterChain.class), any(HttpServletRequest.class),
                 any(HttpServletResponse.class), any(VOUserDetails.class),

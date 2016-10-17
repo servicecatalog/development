@@ -139,7 +139,9 @@
         'editGroupForm:servicesTable:filterServiceName','editGroupForm:servicesTable:filterProviderName',
         'editUserForm:userGroupsTable:filterUserGroupName','editUserForm:userGroupsTable:filterUserGroupRole',
         'editUserForm:subscriptionTable:id','editUserForm:subscriptionTable:selectedRole',
-    	'manageAccessForm:organizationsTable:filterOrganizationName', 'manageAccessForm:organizationsTable:filterOrganizationId']
+    	'manageAccessForm:organizationsTable:filterOrganizationName',
+        'manageAccessForm:organizationsTable:filterOrganizationId', 'manageUsers:manageUsersListTable:userIdInput',
+        'manageUsers:manageUsersListTable:emailInput', 'manageUsers:manageUsersListTable:organizationNameInput', 'manageUsers:manageUsersListTable:organizationIdInput']
 
         T: document.getElementsByAttribute('input', 'type', 'text').each{
           def id = it.getAttribute('id')

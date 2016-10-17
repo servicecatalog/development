@@ -14,13 +14,12 @@ import java.util.Date;
 import java.util.Locale;
 
 import org.apache.commons.validator.GenericValidator;
-
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
 import org.oscm.converter.PriceConverter;
-import org.oscm.types.enumtypes.LogMessageIdentifier;
 import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.internal.types.exception.ValidationException.ReasonEnum;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
+import org.oscm.types.enumtypes.LogMessageIdentifier;
 
 /**
  * Helper class which provides convenient methods to perform the validation in
@@ -897,6 +896,27 @@ public class BLValidator {
                     "To: " + toDate.toString() };
             ValidationException vf = new ValidationException(
                     ReasonEnum.INVALID_DATE_RANGE, null, params);
+            logValidationFailure(vf);
+            throw vf;
+        }
+    }
+
+    /**
+     * Checks that the length of string value is equals as given.
+     *
+     * @param name
+     *            the name of the member which holds the value.
+     * @param value
+     *            the value validation is being performed on.
+     * @param length
+     *            the required length.
+     * @throws ValidationException
+     */
+    public static void isLongEnough(String name, String value, Long length) throws ValidationException {
+        if (length != null && length != value.length()) {
+            ValidationException vf = new ValidationException(
+                    ReasonEnum.VALUE_NOT_IN_RANGE, name, new Object[] {
+                    Long.valueOf(value), length });
             logValidationFailure(vf);
             throw vf;
         }

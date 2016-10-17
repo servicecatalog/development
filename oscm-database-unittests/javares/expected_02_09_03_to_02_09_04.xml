@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2016-->
+
+<dataset>
+  <Organization tkey="1101" version="0" organizationid="TestOrgA" registrationdate="1234" cutoffday="1"
+                tenant_tkey="[NULL]" />
+  <Marketplace tkey="1100" version="0" marketplaceid="marketplaceid_1" organization_tkey="1101"
+               creationdate="121312312" pricemodel_tkey="6" brokerpricemodel_tkey="6" resellerpricemodel_tkey="6"
+               tenant_tkey="[NULL]" />
+</dataset>

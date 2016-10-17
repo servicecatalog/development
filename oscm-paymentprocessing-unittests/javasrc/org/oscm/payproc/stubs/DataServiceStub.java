@@ -18,14 +18,7 @@ import org.hibernate.Session;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.dataservice.local.DataSet;
 import org.oscm.dataservice.local.SqlQuery;
-import org.oscm.domobjects.DomainHistoryObject;
-import org.oscm.domobjects.DomainObject;
-import org.oscm.domobjects.Organization;
-import org.oscm.domobjects.PSP;
-import org.oscm.domobjects.PSPAccount;
-import org.oscm.domobjects.PaymentInfo;
-import org.oscm.domobjects.PaymentType;
-import org.oscm.domobjects.PlatformUser;
+import org.oscm.domobjects.*;
 import org.oscm.internal.types.enumtypes.PaymentCollectionType;
 import org.oscm.internal.types.exception.DomainObjectException.ClassEnum;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
@@ -282,5 +275,10 @@ public abstract class DataServiceStub implements DataService {
     @Override
     public EntityManager getEntityManager() {
         return null;
+    }
+
+    @Override
+    public void persistPlatformUserWithTenant(PlatformUser pu, String tenantId) throws NonUniqueBusinessKeyException {
+
     }
 }

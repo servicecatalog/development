@@ -12,7 +12,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.oscm.app.openstack.exceptions.HeatException;
+import org.oscm.app.openstack.exceptions.OpenStackConnectionException;
 import org.oscm.app.v1_0.exceptions.APPlatformException;
 
 public class KeystoneClientTest {
@@ -25,7 +25,8 @@ public class KeystoneClientTest {
     }
 
     @Test
-    public void authenticate() throws HeatException, APPlatformException {
+    public void authenticate()
+            throws APPlatformException, OpenStackConnectionException {
         // given
 
         // when
@@ -35,7 +36,7 @@ public class KeystoneClientTest {
 
     @Test
     public void authenticateWithNoDomain()
-            throws HeatException, APPlatformException {
+            throws APPlatformException, OpenStackConnectionException {
         // given
 
         // when
@@ -45,7 +46,7 @@ public class KeystoneClientTest {
 
     @Test
     public void authenticate_http_666()
-            throws HeatException, APPlatformException {
+            throws APPlatformException, OpenStackConnectionException {
         // given
         int status = 666;
         streamHandler.put("/v3/auth/tokens",
@@ -65,9 +66,9 @@ public class KeystoneClientTest {
         }
     }
 
-    @Test(expected = HeatException.class)
+    @Test(expected = OpenStackConnectionException.class)
     public void authenticate_malFormedURL()
-            throws HeatException, APPlatformException {
+            throws APPlatformException, OpenStackConnectionException {
         // given
 
         // when
@@ -77,7 +78,7 @@ public class KeystoneClientTest {
 
     @Test(expected = RuntimeException.class)
     public void authenticate_noJSONResponse()
-            throws HeatException, APPlatformException {
+            throws APPlatformException, OpenStackConnectionException {
         // given
         streamHandler.put("/v3/auth/tokens",
                 new MockHttpsURLConnection(201, ""));
@@ -90,7 +91,7 @@ public class KeystoneClientTest {
 
     @Test(expected = APPlatformException.class)
     public void authenticate_noHeatEndpoint()
-            throws HeatException, APPlatformException {
+            throws APPlatformException, OpenStackConnectionException {
         // given
         streamHandler.put("/v3/auth/tokens", new MockHttpsURLConnection(201,
                 MockURLStreamHandler.respTokens(false, true, true)));
@@ -102,7 +103,7 @@ public class KeystoneClientTest {
 
     @Test(expected = APPlatformException.class)
     public void authenticate_noNovaEndpoint()
-            throws HeatException, APPlatformException {
+            throws APPlatformException, OpenStackConnectionException {
         // given
         streamHandler.put("/v3/auth/tokens", new MockHttpsURLConnection(201,
                 MockURLStreamHandler.respTokens(true, false, true)));

@@ -12,27 +12,9 @@
 
 package org.oscm.domobjects;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.OrderBy;
-import javax.persistence.PrePersist;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
+import javax.persistence.*;
 
 import org.oscm.domobjects.annotations.BusinessKey;
 import org.oscm.internal.types.enumtypes.Salutation;
@@ -47,9 +29,12 @@ import org.oscm.internal.types.enumtypes.UserRoleType;
  * @author schmid
  */
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "userId" }))
 @NamedQueries({
-        @NamedQuery(name = "PlatformUser.findByBusinessKey", query = "select obj from PlatformUser obj where obj.dataContainer.userId=:userId"),
+        @NamedQuery(name = "PlatformUser.findByBusinessKey", query = "select obj from PlatformUser obj, Organization "
+            + "o where obj.dataContainer.userId=:userId AND obj.organization = o AND o.tenant IS NULL "),
+        @NamedQuery(name = "PlatformUser.findByUserIdAndTenant", query = "select obj from PlatformUser obj, "
+            + "Organization o, Tenant t where obj.dataContainer.userId=:userId AND obj.organization = o AND o"
+            + ".tenant = t AND t.dataContainer.tenantId = :tenantId "),
         @NamedQuery(name = "PlatformUser.getOverdueOrganizationAdmins", query = "select obj from PlatformUser obj where obj.dataContainer.status = :status and obj.dataContainer.creationDate < :date"),
         @NamedQuery(name = "PlatformUser.getVisibleForOrganization", query = "SELECT DISTINCT pu FROM PlatformUser pu LEFT JOIN FETCH pu.assignedRoles LEFT JOIN FETCH pu.master WHERE pu.organization = :organization AND NOT EXISTS (SELECT ref FROM OnBehalfUserReference ref WHERE ref.slaveUser = pu)"),
         @NamedQuery(name = "PlatformUser.countRegisteredUsers", query = "select count(obj) from PlatformUser obj "),
@@ -516,4 +501,5 @@ public class PlatformUser extends DomainObjectWithHistory<PlatformUserData> {
     public boolean isSubscriptionManager() {
         return hasRole(UserRoleType.SUBSCRIPTION_MANAGER);
     }
+
 }

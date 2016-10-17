@@ -17,18 +17,16 @@ import static org.mockito.Mockito.spy;
 
 import java.io.FileInputStream;
 
-import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
-import org.w3c.dom.Document;
-
 import org.oscm.converter.XMLConverter;
-import org.oscm.stream.Streams;
 import org.oscm.internal.types.exception.UserIdNotFoundException;
+import org.oscm.stream.Streams;
+import org.w3c.dom.Document;
 
 /**
  * Tests the retrieving of the userid from a saml response.
@@ -128,6 +126,30 @@ public class SAMLResponseExtractorTest {
 
         // then
         assertEquals("administrator", userId);
+    }
+
+    @Test
+    public void getIssuerId_Assertion() throws Exception {
+        // given
+        String encodedAssertion = getEncodedIdpResponse(FILE_UNSIGNED_ASSERTION);
+
+        // when
+        String issuerID = samlResponse.getIssuer(encodedAssertion);
+
+        // then
+        assertEquals("https://idp.example.org/SAML2", issuerID);
+    }
+
+    @Test
+    public void getTenantId_Assertion() throws Exception {
+        // given
+        String encodedAssertion = getEncodedIdpResponse(FILE_UNSIGNED_ASSERTION);
+
+        // when
+        String tenantID = samlResponse.getTenantID(encodedAssertion);
+
+        // then
+        assertEquals("8f96dede", tenantID);
     }
 
     @Test(expected = UserIdNotFoundException.class)

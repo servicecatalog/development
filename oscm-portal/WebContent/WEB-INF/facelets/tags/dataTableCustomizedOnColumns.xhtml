@@ -49,6 +49,11 @@
 
       <c:if test="#{not empty pagerId}">
         <f:facet name="header">
+          <c:if test="#{not empty showAddButton}">
+            <adm:buttonCustomizedOnClick id="addNewTenant" value="#{msg['button.add']}" buttonType="add"
+                                         onclick="addItem();"
+                                         buttonStyleClass="button-in-header" style="" />
+          </c:if>
           <adm:pager pagerId="#{tableId}Pager" render="#{render}"/>
         </f:facet>   
       </c:if>
