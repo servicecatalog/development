@@ -172,10 +172,11 @@ public interface MarketplaceService {
     List<VOMarketplace> getMarketplacesForOperator();
 
     /**
-     * Returns a list of the marketplaces that are accessible for the logged in
-     * organization.
+     * Returns a list of the marketplaces that are accessible for the
+     * organization of the calling user.
      * 
-     * @return the list of marketplaces
+     * @return the list of marketplaces that are accessible for the organization
+     *         of the calling user
      */
     public List<VOMarketplace> getAccessibleMarketplaces();
 
