@@ -257,6 +257,9 @@ public class ServiceProvisioningServiceBeanIT
                 localizer.setLocalizedValues(productVO.getKey(),
                         LocalizedObjectTypes.PRODUCT_SHORT_DESCRIPTION,
                         createLocalizedTexts("shortdesc"));
+                localizer.setLocalizedValues(productVO.getKey(),
+                        LocalizedObjectTypes.PRODUCT_CUSTOM_TAB_NAME,
+                        createLocalizedTexts("customtabname"));
                 return null;
             }
         });
@@ -266,6 +269,7 @@ public class ServiceProvisioningServiceBeanIT
         assertLocalizedTexts("name", loc.getNames());
         assertLocalizedTexts("desc", loc.getDescriptions());
         assertLocalizedTexts("shortdesc", loc.getShortDescriptions());
+        assertLocalizedTexts("customtabname", loc.getCustomTabNames());
     }
 
     /*
@@ -293,6 +297,9 @@ public class ServiceProvisioningServiceBeanIT
                 localizer.setLocalizedValues(productVO.getKey(),
                         LocalizedObjectTypes.PRODUCT_SHORT_DESCRIPTION,
                         createLocalizedTexts("shortdesc"));
+                localizer.setLocalizedValues(productVO.getKey(),
+                        LocalizedObjectTypes.PRODUCT_CUSTOM_TAB_NAME,
+                        createLocalizedTexts("customtabname"));
                 return null;
             }
 
@@ -303,6 +310,7 @@ public class ServiceProvisioningServiceBeanIT
         assertLocalizedTexts("name", loc.getNames());
         assertLocalizedTexts("desc", loc.getDescriptions());
         assertLocalizedTexts("shortdesc", loc.getShortDescriptions());
+        assertLocalizedTexts("customtabname", loc.getCustomTabNames());
     }
 
     @Test
