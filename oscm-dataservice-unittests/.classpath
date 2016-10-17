@@ -36,5 +36,6 @@
 	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/gf-client.jar"/>
 	<classpathentry kind="lib" path="/libraries/glassfish4/modules/web-core.jar"/>
 	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/internal-api-4.1.1.jar"/>
+	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/hk2-core-2.4.0-b31.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

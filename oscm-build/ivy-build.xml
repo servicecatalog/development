@@ -192,6 +192,7 @@
     <copy file="${ivy.lib.dir}/hk2-utils-2.4.0-b31.jar" todir="${root.dir}/libraries/glassfish4/javalib" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/javax.inject-1.jar" todir="${root.dir}/libraries/glassfish4/javalib" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/hk2-core-2.4.0-b31.jar" todir="${root.dir}/libraries/glassfish4/javalib" overwrite="true"></copy>
+    <copy file="${ivy.lib.dir}/hk2-locator-2.4.0-b31.jar" todir="${root.dir}/libraries/glassfish4/javalib" overwrite="true"></copy>
 
   	<!-- from Class-Path of javaee.jar -->
   	<copy file="${ivy.lib.dir}/javax.annotation-api-1.2.jar" tofile="${root.dir}/libraries/glassfish4/modules/endorsed/javax.annotation-api.jar" overwrite="true"/>

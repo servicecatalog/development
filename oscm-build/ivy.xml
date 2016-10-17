@@ -32,6 +32,7 @@
     </dependency>
 
     <dependency org="org.glassfish.hk2" name="hk2-core" rev="2.4.0-b31"/>
+    <dependency org="org.glassfish.hk2" name="hk2-locator" rev="2.4.0-b31"/>
     <dependency org="javax.inject" name="javax.inject" rev="1" transitive="false"/>
     <dependency org="org.glassfish.main.common" name="internal-api" rev="4.1.1" transitive="false"/>
     <dependency org="org.glassfish.hk2" name="hk2-utils" rev="2.4.0-b31" transitive="false"/>
