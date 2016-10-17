@@ -29,8 +29,10 @@ import org.oscm.test.ejb.TestContainer;
  * Authored by dawidch
  */
 public class KeyQueryIT extends EJBTestBase {
+    
     private DataService ds;
-    private KeyQuery kq;
+    
+    private AbstractKeyQuery kq;
 
     @Override
     protected void setup(TestContainer container) throws Exception {
@@ -47,7 +49,8 @@ public class KeyQueryIT extends EJBTestBase {
 
     @Test
     public void testQuery() throws Exception {
-        kq = new KeyQuery(mock(DataSource.class), "");
+        
+        kq = new UserKeyQuery(mock(DataSource.class), "");
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
