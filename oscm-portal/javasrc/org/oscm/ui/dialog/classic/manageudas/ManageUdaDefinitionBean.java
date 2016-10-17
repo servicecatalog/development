@@ -9,6 +9,7 @@
 package org.oscm.ui.dialog.classic.manageudas;
 
 import java.io.Serializable;
+import java.security.GeneralSecurityException;
 import java.util.List;
 
 import javax.faces.application.FacesMessage;
@@ -62,7 +63,7 @@ public class ManageUdaDefinitionBean extends BaseBean implements Serializable {
      *         OUTCOME_ERROR if encounter some error when creating
      * @throws SaaSApplicationException
      */
-    public String create() throws SaaSApplicationException {
+    public String create() throws SaaSApplicationException, GeneralSecurityException {
         // delegate to controller
         controller.createUdaDefinition();
         // evaluate result (e.g. add message on success)
@@ -76,7 +77,7 @@ public class ManageUdaDefinitionBean extends BaseBean implements Serializable {
      *         OUTCOME_ERROR if encounter some error when updating
      * @throws SaaSApplicationException
      */
-    public String update() throws SaaSApplicationException {
+    public String update() throws SaaSApplicationException, GeneralSecurityException {
         // delegate to controller
         try {
             controller.updateUdaDefinition();

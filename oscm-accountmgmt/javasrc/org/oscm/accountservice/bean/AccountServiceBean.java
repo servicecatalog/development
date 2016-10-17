@@ -13,6 +13,7 @@
 package org.oscm.accountservice.bean;
 
 import java.math.BigDecimal;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -85,6 +86,7 @@ import org.oscm.domobjects.UdaDefinition;
 import org.oscm.domobjects.UserGroup;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.domobjects.enums.OrganizationReferenceType;
+import org.oscm.encrypter.ParameterEncrypter;
 import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.i18nservice.local.ImageResourceServiceLocal;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
@@ -3882,6 +3884,18 @@ public class AccountServiceBean implements AccountService, AccountServiceLocal {
         }
 
         return voUdas;
+    }
+
+    @Override
+    public String decryptAttributeValue(String encryptedValue) throws GeneralSecurityException {
+        return ParameterEncrypter
+            .decrypt(encryptedValue);
+    }
+
+    @Override
+    public String encryptAttributeValue(String value)
+            throws GeneralSecurityException {
+        return ParameterEncrypter.encrypt(value);
     }
 
     @Override

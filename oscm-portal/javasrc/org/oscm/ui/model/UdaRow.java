@@ -101,6 +101,13 @@ public class UdaRow implements Serializable {
         return (udaDefinition.getConfigurationType() == UdaConfigurationType.USER_OPTION_MANDATORY);
     }
 
+    /**
+     * decide if an input field is encrypted
+     */
+    public boolean isInputEncrypted() {
+        return udaDefinition.isEncrypted();
+    }
+
     private VOUdaDefinition udaDefinition;
     private VOUda uda;
 

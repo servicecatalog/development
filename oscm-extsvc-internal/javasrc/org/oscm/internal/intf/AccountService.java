@@ -8,6 +8,7 @@
 
 package org.oscm.internal.intf;
 
+import java.security.GeneralSecurityException;
 import java.util.List;
 import java.util.Set;
 
@@ -969,6 +970,25 @@ public interface AccountService {
             long targetObjectKey, String supplierId)
             throws ValidationException, OrganizationAuthoritiesException,
             ObjectNotFoundException, OperationNotPermittedException;
+
+    /**
+     * Decrypts value of custom user attribute
+     *
+     * @param encryptedValue - value to be decrypted
+     * @return decrypted value
+     * @throws GeneralSecurityException
+     */
+    String decryptAttributeValue(String encryptedValue) throws GeneralSecurityException;
+
+    /**
+     * Encrypts value of custom user attribute
+     *
+     * @param value - value to be encrypted
+     * @return encrypted value
+     * @throws GeneralSecurityException
+     */
+    String encryptAttributeValue(String value)
+            throws GeneralSecurityException;
 
     /**
      * Retrieves current amount of registered users

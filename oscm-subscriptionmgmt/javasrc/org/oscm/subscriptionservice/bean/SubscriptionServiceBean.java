@@ -80,6 +80,7 @@ import org.oscm.domobjects.UserGroup;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.domobjects.enums.ModifiedEntityType;
 import org.oscm.domobjects.enums.OrganizationReferenceType;
+import org.oscm.encrypter.ParameterEncrypter;
 import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.id.IdGenerator;
@@ -337,6 +338,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
         validateUserAssignmentForSubscribing(service, users);
 
         validateTriggerProcessForCreateSubscription(subscription);
+
+        encryptUdaValues(udas);
 
         TriggerProcess triggerProcess = createTriggerProcessForCreateSubscription(
                 subscription, service, users, paymentInfo, billingContact, udas);
@@ -2687,6 +2690,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
 
         validateTriggerProcessForUpgradeSubscription(subscription);
 
+        encryptUdaValues(udas);
+
         TriggerProcess triggerProcess = createTriggerProcessForUpgradeSubscription(
                 subscription, service, paymentInfo, billingContact, udas);
 
@@ -2720,6 +2725,36 @@ public class SubscriptionServiceBean implements SubscriptionService,
         return SubscriptionAssembler.toVOSubscription(upgradedSub,
                 new LocalizerFacade(localizer, dataManager.getCurrentUser()
                         .getLocale()));
+    }
+
+    private void encryptUdaValues(List<VOUda> udas) throws ValidationException {
+        for (VOUda voUda : udas) {
+            if (!voUda.getUdaDefinition().isEncrypted()) {
+                continue;
+            }
+            if (StringUtils.isBlank(voUda.getUdaValue()) && StringUtils.isBlank(voUda.getUdaDefinition()
+                .getDefaultValue())) {
+                return;
+            }
+            try {
+                Uda existingUda = dataManager.getReference(Uda.class, voUda.getKey());
+                if (existingUda.getUdaValue().equals(voUda.getUdaValue())) {
+                    return;
+                }
+            } catch (ObjectNotFoundException e) {
+                e.printStackTrace();
+            }
+            if (voUda.getUdaValue().equals(voUda.getUdaDefinition().getDefaultValue())) {
+                return;
+            }
+            try {
+                String encryptedUdaValue = ParameterEncrypter
+                        .encrypt(voUda.getUdaValue());
+                voUda.setUdaValue(encryptedUdaValue);
+            } catch (GeneralSecurityException e) {
+                throw new ValidationException();
+            }
+        }
     }
 
     private TriggerProcess createTriggerProcessForUpgradeSubscription(
