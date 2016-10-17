@@ -9,7 +9,7 @@
                 xmlns:t="http://myfaces.apache.org/tomahawk">
 
     <adm:panelGrid>
-        <adm:labelAndInputText id="extConfiguratorUrl" label="#{msg['service.externalConfiguratorUrl']}"
+        <adm:labelAndInputText id="externalConfiguratorUrl" label="#{msg['service.externalConfiguratorUrl']}"
                                value="#{service.configuratorUrl}" maxlength="#{appBean.descriptionLen}" validatorId="url"
                                disabled="#{editDisabled}" converterId="trimConverter" />
         <adm:labelAndInputText id="customTabName" label="#{msg['service.customTabName']}"
