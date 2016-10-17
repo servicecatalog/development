@@ -226,7 +226,7 @@ public class OpenStackConnection {
 
         try {
 
-            if (ProxySettings.useProxyByPass(restUri)) {
+            if (ProxySettings.useProxyByPass(url)) {
                 connection = (HttpURLConnection) url
                         .openConnection(Proxy.NO_PROXY);
             } else {
