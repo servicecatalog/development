@@ -52,6 +52,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc-operation"/>
 	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/gf-client.jar"/>
 	<classpathentry kind="output" path="bin"/>
-	<classpathentry kind="lib" path="libraries/jersey/javalib/jersey-client.jar"/>
+	<classpathentry kind="lib" path="/libraries/jersey/javalib/jersey-client.jar"/>
 </classpath>
 

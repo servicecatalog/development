@@ -11,5 +11,5 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-configservice-intsvc"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc-internal"/>
 	<classpathentry kind="output" path="bin"/>
-	<classpathentry kind="lib" path="libraries/jersey/javalib/jersey-client.jar"/>
+	<classpathentry kind="lib" path="/libraries/jersey/javalib/jersey-client.jar"/>
 </classpath>

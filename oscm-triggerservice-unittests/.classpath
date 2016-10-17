@@ -39,6 +39,6 @@
 	<classpathentry kind="src" path="javasrc-it"/>
 	<classpathentry kind="lib" path="/libraries/jboss-richfaces/javalib/guava-18.0.jar"/>
 	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/javaee.jar"/>
-	<classpathentry kind="lib" path="libraries/jersey/javalib/jersey-client.jar"/>
+	<classpathentry kind="lib" path="/libraries/jersey/javalib/jersey-client.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
