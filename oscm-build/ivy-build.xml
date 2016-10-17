@@ -131,6 +131,7 @@
     <copy file="${ivy.lib.dir}/richfaces-core-4.5.0.Final.jar" todir="${root.dir}/libraries/jboss-richfaces/javalib/" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/sac-1.3.jar" todir="${root.dir}/libraries/jboss-richfaces/javalib/" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/javax.ws.rs-api-2.0.1.jar" todir="${root.dir}/libraries/jersey/javalib/" overwrite="true"></copy>
+    <copy file="${ivy.lib.dir}/jersey-guava-2.21.jar" tofile="${root.dir}/libraries/jersey/javalib/jersey-guava.jar" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/jersey-client-2.21.jar" tofile="${root.dir}/libraries/jersey/javalib/jersey-client.jar" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/jersey-common-2.21.jar" tofile="${root.dir}/libraries/jersey/javalib/jersey-common.jar" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/jolokia-core-1.1.1.jar" todir="${root.dir}/libraries/jolokia/WebContent/WEB-INF/lib/" overwrite="true"></copy>
