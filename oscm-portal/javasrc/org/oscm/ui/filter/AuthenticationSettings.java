@@ -8,13 +8,22 @@
 
 package org.oscm.ui.filter;
 
+import static org.oscm.internal.types.exception.NotExistentTenantException.Reason.TENANT_NOT_FOUND;
+
+import java.util.HashMap;
+import java.util.Map;
 import java.util.StringTokenizer;
 
-import org.oscm.types.constants.Configuration;
+import org.apache.commons.lang3.StringUtils;
 import org.oscm.internal.intf.ConfigurationService;
+import org.oscm.internal.intf.TenantService;
 import org.oscm.internal.types.enumtypes.AuthenticationMode;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
+import org.oscm.internal.types.enumtypes.IdpSettingType;
+import org.oscm.internal.types.exception.NotExistentTenantException;
 import org.oscm.internal.vo.VOConfigurationSetting;
+import org.oscm.internal.vo.VOTenant;
+import org.oscm.types.constants.Configuration;
 
 /**
  * @author stavreva
@@ -22,48 +31,25 @@ import org.oscm.internal.vo.VOConfigurationSetting;
  */
 public class AuthenticationSettings {
 
-    private final String authenticationMode;
-    private final String issuer;
-    private final String identityProviderHttpMethod;
-    private final String identityProviderURL;
-    private final String identityProviderURLContextRoot;
-    private final String tuststorePath;
-    private final String truststorePassword;
-    private String recipient;
+    private final ConfigurationService cfgService;
+    private String authenticationMode;
+    private String issuer;
+    private String identityProviderHttpMethod;
+    private String identityProviderURL;
+    private String identityProviderURLContextRoot;
+    private TenantService tenantService;
+    private String signingKeystorePass;
+    private String signingKeyAlias;
+    private String signingKeystore;
+    private String logoutURL;
+    private String tenantID;
+    private String idpIssuer;
 
-    public AuthenticationSettings(ConfigurationService cfgService) {
-
-        recipient = getConfigurationSetting(cfgService,
-                ConfigurationKey.BASE_URL);
-
-        if (recipient == null || recipient.length() == 0) {
-            recipient = getConfigurationSetting(cfgService,
-                    ConfigurationKey.BASE_URL_HTTPS);
-        }
-        if (recipient != null && !recipient.endsWith("/")) {
-            recipient += "/";
-        }
-
+    public AuthenticationSettings(TenantService tenantService, ConfigurationService cfgService) {
+        this.tenantService = tenantService;
         authenticationMode = getConfigurationSetting(cfgService,
                 ConfigurationKey.AUTH_MODE);
-
-        issuer = getConfigurationSetting(cfgService,
-                ConfigurationKey.SSO_ISSUER_ID);
-
-        identityProviderURL = getConfigurationSetting(cfgService,
-                ConfigurationKey.SSO_IDP_URL);
-
-        tuststorePath = getConfigurationSetting(cfgService,
-                ConfigurationKey.SSO_IDP_TRUSTSTORE);
-
-        truststorePassword = getConfigurationSetting(cfgService,
-                ConfigurationKey.SSO_IDP_TRUSTSTORE_PASSWORD);
-
-        identityProviderURLContextRoot = getContextRoot(identityProviderURL);
-
-        identityProviderHttpMethod = getConfigurationSetting(cfgService,
-                ConfigurationKey.SSO_IDP_AUTHENTICATION_REQUEST_HTTP_METHOD);
-
+        this.cfgService = cfgService;
     }
 
     String getConfigurationSetting(ConfigurationService cfgService,
@@ -98,20 +84,59 @@ public class AuthenticationSettings {
         return AuthenticationMode.SAML_SP.name().equals(authenticationMode);
     }
 
-    public boolean isIdentityProvider() {
-        return AuthenticationMode.SAML_IDP.name().equals(authenticationMode);
-    }
-
     public boolean isInternal() {
         return AuthenticationMode.INTERNAL.name().equals(authenticationMode);
     }
 
-    public boolean isOpenIdRelyingParty() {
-        return AuthenticationMode.OPENID_RP.name().equals(authenticationMode);
-    }
-
     public String getIssuer() {
         return issuer;
+    }
+
+    public void init(String tenantID) throws NotExistentTenantException {
+        this.tenantID = tenantID;
+        VOTenant tenant = getTenantWithSettings(tenantID);
+        issuer = tenant.getIssuer();
+        identityProviderURL = tenant.getIDPURL();
+        identityProviderHttpMethod = tenant.getIdpHttpMethod();
+        identityProviderURLContextRoot = getContextRoot(identityProviderURL);
+        signingKeystorePass = getConfigurationSetting(cfgService, ConfigurationKey.SSO_SIGNING_KEYSTORE_PASS);
+        signingKeyAlias = getConfigurationSetting(cfgService, ConfigurationKey.SSO_SIGNING_KEY_ALIAS);
+        signingKeystore = getConfigurationSetting(cfgService, ConfigurationKey.SSO_SIGNING_KEYSTORE);
+        logoutURL = tenant.getLogoutURL();
+        idpIssuer = tenant.getIDPIssuer();
+    }
+
+    private VOTenant getTenantWithSettings(String tenantID) throws NotExistentTenantException {
+        VOTenant tenant;
+        if (StringUtils.isBlank(tenantID)) {
+            tenantID = getConfigurationSetting(cfgService, ConfigurationKey.SSO_DEFAULT_TENANT_ID);
+        }
+        try {
+            tenant = tenantService.getTenantByTenantId(tenantID);
+        } catch (Exception e) {
+            // try default if custom tenant is not found
+            tenant = getTenantFromConfigSettings();
+            if (!tenant.getTenantId().equalsIgnoreCase(tenantID)) {
+                throw new NotExistentTenantException(TENANT_NOT_FOUND);
+            }
+        }
+        return tenant;
+    }
+
+    private VOTenant getTenantFromConfigSettings() {
+        VOTenant tenant = new VOTenant();
+        Map<IdpSettingType, String> settings = new HashMap<>();
+        settings.put(IdpSettingType.SSO_ISSUER_ID, getConfigurationSetting(cfgService, ConfigurationKey.SSO_ISSUER_ID));
+        settings.put(IdpSettingType.SSO_IDP_URL, getConfigurationSetting(cfgService, ConfigurationKey.SSO_IDP_URL));
+        settings.put(IdpSettingType.SSO_IDP_AUTHENTICATION_REQUEST_HTTP_METHOD,
+                getConfigurationSetting(cfgService, ConfigurationKey.SSO_IDP_AUTHENTICATION_REQUEST_HTTP_METHOD));
+        settings.put(IdpSettingType.SSO_LOGOUT_URL, getConfigurationSetting(cfgService, ConfigurationKey.SSO_LOGOUT_URL));
+        settings.put(IdpSettingType.SSO_IDP_SAML_ASSERTION_ISSUER_ID,
+                getConfigurationSetting(cfgService, ConfigurationKey.SSO_IDP_SAML_ASSERTION_ISSUER_ID));
+
+        tenant.setTenantId(getConfigurationSetting(cfgService, ConfigurationKey.SSO_DEFAULT_TENANT_ID));
+        tenant.setTenantSettings(settings);
+        return tenant;
     }
 
     public String getIdentityProviderURL() {
@@ -122,20 +147,31 @@ public class AuthenticationSettings {
         return identityProviderURLContextRoot;
     }
 
-    public String getIdentityProviderTruststorePath() {
-        return tuststorePath;
-    }
-
-    public String getIdentityProviderTruststorePassword() {
-        return truststorePassword;
-    }
-
     public String getIdentityProviderHttpMethod() {
         return identityProviderHttpMethod;
     }
 
-    public String getRecipient() {
-        return recipient;
+    public String getSigningKeystorePass() {
+        return signingKeystorePass;
     }
 
+    public String getSigningKeyAlias() {
+        return signingKeyAlias;
+    }
+
+    public String getSigningKeystore() {
+        return signingKeystore;
+    }
+
+    public String getLogoutURL() {
+        return logoutURL;
+    }
+
+    public String getTenantID() {
+        return tenantID;
+    }
+
+    public String getIdpIssuer() {
+        return idpIssuer;
+    }
 }

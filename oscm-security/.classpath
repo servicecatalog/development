@@ -5,7 +5,8 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/javalib/javaee.jar"/>
 	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/modules/security.jar"/>
-	<classpathentry kind="lib" path="/libraries/slf4j/javalib/slf4j-api-1.7.7.jar"/><classpathentry kind="lib" path="/libraries/slf4j/javalib/slf4j-simple-1.7.7.jar"/>
+	<classpathentry kind="lib" path="/libraries/slf4j/javalib/slf4j-api-1.7.7.jar"/>
+	<classpathentry kind="lib" path="/libraries/slf4j/javalib/slf4j-simple-1.7.7.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-server-common"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-common"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc-internal"/>

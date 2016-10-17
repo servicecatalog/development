@@ -96,6 +96,8 @@ public class VOOrganization extends BaseVO {
 
     private boolean hasPublishedServices;
 
+    private long tenantKey;
+
     /**
      * Retrieves the identifier of the organization.
      * 
@@ -414,5 +416,13 @@ public class VOOrganization extends BaseVO {
 
     public void setHasPublishedServices(boolean hasPublishedServices) {
         this.hasPublishedServices = hasPublishedServices;
+    }
+
+    public long getTenantKey() {
+        return tenantKey;
+    }
+
+    public void setTenantKey(long tenantKey) {
+        this.tenantKey = tenantKey;
     }
 }

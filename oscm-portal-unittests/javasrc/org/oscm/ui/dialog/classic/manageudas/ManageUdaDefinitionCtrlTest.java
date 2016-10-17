@@ -28,14 +28,10 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.MockitoAnnotations;
 
-import org.oscm.ui.beans.UdaBean;
-import org.oscm.ui.dialog.classic.manageudas.ManageUdaDefinitionCtrl;
-import org.oscm.ui.dialog.classic.manageudas.ManageUdaDefinitionPage;
-import org.oscm.ui.dialog.classic.manageudas.UdaDefinitionDetails;
-import org.oscm.ui.dialog.classic.manageudas.UdaDefinitionRowModel;
 import org.oscm.internal.intf.AccountService;
 import org.oscm.internal.types.enumtypes.UdaConfigurationType;
 import org.oscm.internal.vo.VOUdaDefinition;
+import org.oscm.ui.beans.UdaBean;
 
 /**
  * @author yuyin

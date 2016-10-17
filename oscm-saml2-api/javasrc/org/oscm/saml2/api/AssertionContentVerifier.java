@@ -13,11 +13,10 @@ import java.util.Calendar;
 import javax.xml.bind.DatatypeConverter;
 import javax.xml.xpath.XPathExpressionException;
 
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
 import org.oscm.converter.XMLConverter;
 import org.oscm.internal.types.exception.AssertionValidationException;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  * @author kulle
@@ -27,6 +26,11 @@ class AssertionContentVerifier {
 
     private final static String CONFIRMATION_DATA_XPATH_EXPR = "//*[local-name()='SubjectConfirmation']" //
             + "/*[local-name()='SubjectConfirmationData']";
+    private static final String ATTRIBUTE_TENANTID_XPATH_EXPR = "//*[local-name()='Assertion']" //
+            + "//*[local-name()='AttributeStatement']" //
+            + "//*[local-name()='Attribute'][@Name='tenantID']" //
+            + "/*[local-name()='AttributeValue']";
+    private final String tenantID;
 
     String acsUrl;
     String acsUrlHttps;
@@ -38,6 +42,7 @@ class AssertionContentVerifier {
         this.acsUrl = configuration.getAcsUrl();
         this.now = configuration.getReferenceTime();
         this.acsUrlHttps = configuration.getAcsUrlHttps();
+        this.tenantID = configuration.getTenantID();
     }
 
     public void verifyAssertionContent(Node nodeAssertion)
@@ -56,6 +61,7 @@ class AssertionContentVerifier {
                 verifyAssertionExpirationDate(nodeAssertion,
                         nodeConfirmationData);
                 verifyInResponseTo(nodeAssertion, nodeConfirmationData);
+                verifyTenantID(nodeAssertion);
             }
         } catch (XPathExpressionException exception) {
             throw new AssertionValidationException(
@@ -64,6 +70,32 @@ class AssertionContentVerifier {
                     exception);
         }
 
+    }
+
+    private void verifyTenantID(Node nodeAssertion)
+            throws AssertionValidationException {
+        try {
+            if (!tenantID.equals(XMLConverter
+                    .getNodeListByXPath(nodeAssertion,
+                            ATTRIBUTE_TENANTID_XPATH_EXPR)
+                    .item(0).getFirstChild().getNodeValue())) {
+                AssertionValidationException exception = new AssertionValidationException(
+                        String.format(
+                                "The attribute with the name tenantID does not correspond to the request tenantID: %s.",
+                                tenantID),
+                        AssertionValidationException.ReasonEnum.WRONG_TENANT,
+                        new String[] {tenantID });
+                throw exception;
+            }
+        } catch (Exception e) {
+            AssertionValidationException exception = new AssertionValidationException(
+                    String.format(
+                            "Cannot retrieve attribute tenantID for request attribute %s.",
+                            tenantID),
+                    AssertionValidationException.ReasonEnum.MISSING_TENANT,
+                    new String[] { tenantID });
+            throw exception;
+        }
     }
 
     NodeList loadConfirmationData(Node nodeAssertion)

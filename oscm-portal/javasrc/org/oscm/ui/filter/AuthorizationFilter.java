@@ -12,6 +12,10 @@
 
 package org.oscm.ui.filter;
 
+import static org.oscm.internal.types.enumtypes.ConfigurationKey.SSO_DEFAULT_TENANT_ID;
+import static org.oscm.types.constants.Configuration.GLOBAL_CONTEXT;
+import static org.oscm.ui.common.Constants.REQ_PARAM_TENANT_ID;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
@@ -27,17 +31,23 @@ import javax.ejb.EJBException;
 import javax.faces.application.ViewExpiredException;
 import javax.naming.CommunicationException;
 import javax.security.auth.login.LoginException;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 import javax.servlet.http.HttpSession;
 import javax.xml.datatype.DatatypeConfigurationException;
 
+import org.apache.commons.lang3.StringUtils;
+import org.oscm.internal.intf.IdentityService;
+import org.oscm.internal.intf.MarketplaceService;
+import org.oscm.internal.intf.SessionService;
+import org.oscm.internal.intf.SubscriptionService;
+import org.oscm.internal.landingpageconfiguration.LandingpageConfigurationService;
+import org.oscm.internal.types.enumtypes.*;
+import org.oscm.internal.types.exception.*;
+import org.oscm.internal.types.exception.SubscriptionStateException.Reason;
+import org.oscm.internal.vo.*;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.resolver.IPResolver;
@@ -49,41 +59,9 @@ import org.oscm.ui.authorization.PageAuthorizationBuilder;
 import org.oscm.ui.beans.BaseBean;
 import org.oscm.ui.beans.MenuBean;
 import org.oscm.ui.beans.SessionBean;
-import org.oscm.ui.common.ADMStringUtils;
-import org.oscm.ui.common.Constants;
-import org.oscm.ui.common.ExceptionHandler;
-import org.oscm.ui.common.IgnoreCharacterEncodingHttpRequestWrapper;
-import org.oscm.ui.common.JSFUtils;
-import org.oscm.ui.common.ServiceAccess;
-import org.oscm.ui.common.SessionListener;
+import org.oscm.ui.common.*;
 import org.oscm.ui.model.User;
 import org.oscm.ui.validator.PasswordValidator;
-import org.oscm.internal.intf.IdentityService;
-import org.oscm.internal.intf.MarketplaceService;
-import org.oscm.internal.intf.SessionService;
-import org.oscm.internal.intf.SubscriptionService;
-import org.oscm.internal.landingpageconfiguration.LandingpageConfigurationService;
-import org.oscm.internal.types.enumtypes.LandingpageType;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
-import org.oscm.internal.types.enumtypes.SubscriptionStatus;
-import org.oscm.internal.types.enumtypes.UserAccountStatus;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.types.exception.OperationNotPermittedException;
-import org.oscm.internal.types.exception.OrganizationRemovedException;
-import org.oscm.internal.types.exception.SAML2AuthnRequestException;
-import org.oscm.internal.types.exception.SaaSApplicationException;
-import org.oscm.internal.types.exception.SaaSSystemException;
-import org.oscm.internal.types.exception.ServiceParameterException;
-import org.oscm.internal.types.exception.ServiceSchemeException;
-import org.oscm.internal.types.exception.SubscriptionStateException;
-import org.oscm.internal.types.exception.SubscriptionStateException.Reason;
-import org.oscm.internal.types.exception.ValidationException;
-import org.oscm.internal.vo.VOMarketplace;
-import org.oscm.internal.vo.VOSubscription;
-import org.oscm.internal.vo.VOUser;
-import org.oscm.internal.vo.VOUserDetails;
-import org.oscm.internal.vo.VOUserSubscription;
 
 /**
  * Filter which checks that a request which tries to access a protected URL has
@@ -225,7 +203,7 @@ public class AuthorizationFilter extends BaseBesFilter {
                 rdo.setUserId(userId);
                 rdo.setPassword(httpRequest.getParameter(PARAM_LOGIN_PASSWORD));
                 VOUser voUser = readTechnicalUserFromDb(identityService,
-                        rdo.getUserId());
+                        rdo);
                 serviceAccess.login(voUser, rdo.getPassword(), httpRequest,
                         httpResponse);
                 httpRequest.getSession().setAttribute(Constants.SESS_ATTR_USER,
@@ -360,7 +338,7 @@ public class AuthorizationFilter extends BaseBesFilter {
             VOUser voUser;
             try {
                 voUser = readTechnicalUserFromDb(identityService,
-                        rdo.getUserId());
+                        rdo);
             } catch (ObjectNotFoundException e) {
                 handleUserNotRegistered(chain, httpRequest, httpResponse, rdo);
                 return;
@@ -511,6 +489,13 @@ public class AuthorizationFilter extends BaseBesFilter {
         }
     }
 
+    private void handleNonExistentTenatnException(HttpServletRequest httpRequest,
+                                                  HttpServletResponse httpResponse) throws ServletException, IOException {
+            httpRequest.setAttribute(Constants.REQ_ATTR_ERROR_KEY,
+                    BaseBean.ERROR_MISSING_TENANTID);
+            forward(errorPage, httpRequest, httpResponse);
+    }
+
     private void handleUserNotRegistered(FilterChain chain,
             HttpServletRequest httpRequest, HttpServletResponse httpResponse,
             AuthorizationRequestData rdo) throws IOException, ServletException {
@@ -538,6 +523,8 @@ public class AuthorizationFilter extends BaseBesFilter {
                              HttpServletResponse response) throws ServletException, IOException {
 
         if (authSettings.isServiceProvider()) {
+
+            rdo.setTenantID(getTenantID(rdo, request));
 
             if (!isSamlForward(request)) {
                 return;
@@ -568,6 +555,49 @@ public class AuthorizationFilter extends BaseBesFilter {
             request.setAttribute(Constants.REQ_PARAM_USER_ID, rdo.getUserId());
         }
 
+    }
+
+    public String getTenantID(AuthorizationRequestData ard, HttpServletRequest httpRequest) {
+        String tenantID;
+        if (ard.isMarketplace()) {
+            tenantID = getTenantIDFromMarketplace(httpRequest, ard);
+        } else {
+            tenantID = getTenantIDFromRequest(httpRequest);
+        }
+        if(StringUtils.isNotBlank(tenantID)) {
+            httpRequest.getSession().setAttribute(REQ_PARAM_TENANT_ID, tenantID);
+        } else {
+            tenantID = (String) httpRequest.getSession().getAttribute(REQ_PARAM_TENANT_ID);
+        }
+        if(StringUtils.isBlank(tenantID)) {
+            logger.logDebug("TenantID is missing. Using default.");
+            tenantID = getConfigurationService(httpRequest).getVOConfigurationSetting(SSO_DEFAULT_TENANT_ID, GLOBAL_CONTEXT).getValue();
+            httpRequest.getSession().setAttribute(REQ_PARAM_TENANT_ID, tenantID);
+        }
+        return tenantID;
+    }
+
+    private String getTenantIDFromMarketplace(HttpServletRequest httpRequest,
+                                              AuthorizationRequestData ard) {
+        String marketplaceId = ard.getMarketplaceId();
+        String tenantID = null;
+        if (StringUtils.isNotBlank(marketplaceId)) {
+            tenantID = getMarketplaceServiceCache(httpRequest)
+                    .getConfiguration(marketplaceId).getTenantId();
+            if (StringUtils.isBlank(tenantID)) {
+                try {
+                    tenantID = getMarketplaceService(httpRequest)
+                            .getMarketplaceById(marketplaceId).getTenantId();
+                } catch (ObjectNotFoundException e) {
+                    // TODO: hanlde somehow?
+                }
+            }
+        }
+        return tenantID;
+    }
+
+    private String getTenantIDFromRequest(HttpServletRequest request) {
+        return request.getParameter(REQ_PARAM_TENANT_ID);
     }
 
     private HttpServletRequest handleServiceUrl(FilterChain chain,
@@ -729,11 +759,12 @@ public class AuthorizationFilter extends BaseBesFilter {
         return false;
     }
 
-    VOUser readTechnicalUserFromDb(IdentityService service, String userId)
+    VOUser readTechnicalUserFromDb(IdentityService service, AuthorizationRequestData ard)
             throws ObjectNotFoundException, OperationNotPermittedException,
             OrganizationRemovedException {
         VOUser voUser = new VOUser();
-        voUser.setUserId(userId);
+        voUser.setUserId(ard.getUserId());
+        voUser.setTenantKey(ard.getTenantID());
         voUser = service.getUser(voUser);
         return voUser;
     }
@@ -787,8 +818,8 @@ public class AuthorizationFilter extends BaseBesFilter {
                     LogMessageIdentifier.INFO_USER_LOGIN_INVALID,
                     httpRequest.getRemoteHost(),
                     Integer.toString(httpRequest.getRemotePort()),
-                    voUser.getUserId(),
-                    IPResolver.resolveIpAddress(httpRequest));
+                    StringUtils.isNotBlank(voUser.getUserId()) ? voUser.getUserId() : "",
+                    IPResolver.resolveIpAddress(httpRequest), voUser.getTenantKey());
             try {
                 voUser = identityService.getUser(voUser);
             } catch (ObjectNotFoundException e1) {
@@ -851,7 +882,7 @@ public class AuthorizationFilter extends BaseBesFilter {
 
         logger.logInfo(Log4jLogger.ACCESS_LOG,
                 LogMessageIdentifier.INFO_USER_LOGIN_SUCCESS,
-                voUser.getUserId(), IPResolver.resolveIpAddress(httpRequest));
+                StringUtils.isNotBlank(voUser.getUserId()) ? voUser.getUserId() : "", IPResolver.resolveIpAddress(httpRequest), voUser.getTenantKey());
         return true;
     }
 

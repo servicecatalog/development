@@ -8,7 +8,6 @@
   xmlns:t="http://myfaces.apache.org/tomahawk" template="../templates/main.xhtml">
 
   <ui:define name="pageId">
-    <adm:initialize initializingMethod="#{operatorManageUsersCtrl.initialize}" />
     <c:set var="pageId" value="operator.manageUsers" />
     <c:set var="focusElement" value="userId" />
   </ui:define>
@@ -27,22 +26,30 @@
         styleClass="mandatory outputText_padding"
         value="#{msg['operator.numberOfUsers.currentNum']}#{operatorManageUsersModel.numberOfRegisteredUsers}" />
     </h:form>
-
     <h:form id="manageUsers">
-      <adm:outputStep value="#{msg['operator.manageUsers']}" />
-      <adm:panelGrid nowrap="true">
-        <adm:selectUser />
-      </adm:panelGrid>
-
+      <adm:outputStep value="#{msg['operator.selectUser']}" />
+      <a4j:outputPanel layout="block" styleClass="tablePanel table_padding">
+        <ui:include src="manageUsersTable.xhtml">
+          <ui:param name="users" value="#{operatorManageUsersCtrl.userAndOrganizations}" />
+          <ui:param name ="tableId" value="manageUsersListTable"/>
+          <ui:param name="size" value="#{operatorManageUsersCtrl.usersListSize}" />
+          <ui:param name="headers" value="#{operatorManageUsersCtrl.dataTableHeaders}"/>
+          <ui:param name="pagerId" value="usersTablePager"/>
+          <ui:param name="sortIcon" value="/img/transparentPixel.png?id=sort" />
+          <ui:param name="sortIconAscending" value="/img/transparentPixel.png?id=sortAscending" />
+          <ui:param name="sortIconDescending" value="/img/transparentPixel.png?id=sortDescending" />
+        </ui:include>
+      </a4j:outputPanel>
       <a4j:outputPanel id="buttonPanel" layout="block">
         <adm:buttonPanel>
           <adm:button id="resetPassword" value="#{msg['button.resetPwd']}" bean="#{operatorManageUsersCtrl}"
-            buttonType="reset" action="resetPasswordForUser"
-            rendered="#{operatorManageUsersCtrl.checkResetPasswordSupported}" />
+                      buttonType="reset" action="resetPasswordForUser"
+                      rendered="#{operatorManageUsersCtrl.checkResetPasswordSupported}"
+                      disabled="#{not operatorManageUsersCtrl.pwdButtonEnabled}"/>
           <adm:button id="unlockUser" value="#{msg['button.unlock']}" bean="#{operatorManageUsersCtrl}"
-            action="unlockUser" buttonType="unlock" />
+            action="unlockUser" buttonType="unlock" disabled="#{not operatorManageUsersCtrl.unlockButtonEnabled}" />
           <adm:button id="lockUser" value="#{msg['button.lock']}" bean="#{operatorManageUsersCtrl}" action="lockUser"
-            buttonType="lock" />
+        buttonType="lock" disabled="#{not operatorManageUsersCtrl.lockButtonEnabled}" />
         </adm:buttonPanel>
       </a4j:outputPanel>
     </h:form>

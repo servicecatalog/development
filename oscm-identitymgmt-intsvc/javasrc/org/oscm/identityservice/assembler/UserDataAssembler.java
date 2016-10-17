@@ -19,6 +19,7 @@ import org.apache.commons.validator.GenericValidator;
 import org.oscm.domobjects.OrganizationToRole;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.RoleAssignment;
+import org.oscm.domobjects.Tenant;
 import org.oscm.validator.BLValidator;
 import org.oscm.vo.BaseAssembler;
 import org.oscm.internal.types.enumtypes.SettingType;
@@ -76,8 +77,13 @@ public class UserDataAssembler extends BaseAssembler {
     static void updateVoUser(PlatformUser platformUser, VOUser voUser) {
         voUser.setOrganizationId(platformUser.getOrganization()
                 .getOrganizationId());
+        voUser.setOrganizationName(platformUser.getOrganization().getName());
         voUser.setUserId(platformUser.getUserId());
         voUser.setStatus(platformUser.getStatus());
+        final Tenant tenant = platformUser.getOrganization().getTenant();
+        if (tenant != null) {
+            voUser.setTenantKey(String.valueOf(tenant.getKey()));
+        }
         updateOrganizationRoles(platformUser, voUser);
         updateUserRoles(platformUser, voUser);
         updateValueObject(voUser, platformUser);
@@ -117,6 +123,11 @@ public class UserDataAssembler extends BaseAssembler {
                 .isRemoteLdapActive());
         userDetails.setRemoteLdapAttributes(platformUser.getOrganization()
                 .getLdapUserAttributes());
+        Tenant tenant = platformUser.getOrganization().getTenant();
+        if(tenant!=null){
+            userDetails.setTenantId(tenant.getTenantId());
+        }
+        
     }
 
     /**

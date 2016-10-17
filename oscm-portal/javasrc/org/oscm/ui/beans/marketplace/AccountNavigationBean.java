@@ -15,9 +15,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.oscm.internal.types.constants.HiddenUIConstants;
 import org.oscm.ui.beans.ApplicationBean;
 import org.oscm.ui.beans.BaseBean;
-import org.oscm.internal.types.constants.HiddenUIConstants;
+import org.oscm.ui.beans.UserBean;
+import org.oscm.ui.common.JSFUtils;
 
 /**
  * A simple backing bean keeping and managing the navigation menu.
@@ -37,6 +39,7 @@ public class AccountNavigationBean extends BaseBean implements Serializable {
     static final String MARKETPLACE_ACCOUNT_PAYMENTS_TITLE = "marketplace.account.payments.title";
     static final String MARKETPLACE_ACCOUNT_PROFILE_TITLE = "marketplace.account.profile.title";
     static final String MARKETPLACE_ACCOUNT_TITLE = "marketplace.account.title";
+    static final String MARKETPLACE_ACCOUNT_ADMINISTRATION_TITLE = "marketplace.account.administration";
 
     private static final String ACCOUNT_LINK = "account/index.jsf";
     private static final String PROFILE_LINK = "account/profile.jsf";
@@ -53,6 +56,7 @@ public class AccountNavigationBean extends BaseBean implements Serializable {
     private Map<String, String> linkMap;
 
     private ApplicationBean applicationBean;
+    private UserBean userBean;
 
     private void initLinks() {
         if (linkMap == null) {
@@ -67,6 +71,7 @@ public class AccountNavigationBean extends BaseBean implements Serializable {
             addReportsLink();
             addProcessesLink();
             addOperationsLink();
+            addAdministrationLink();
         }
     }
 
@@ -118,6 +123,14 @@ public class AccountNavigationBean extends BaseBean implements Serializable {
                 HiddenUIConstants.MARKETPLACE_MENU_ITEM_ACCOUNT_OPERATIONS);
     }
 
+    private void addAdministrationLink() {
+        if (isAdministrationAvailable()) {
+            setLinkVisible(MARKETPLACE_ACCOUNT_ADMINISTRATION_TITLE,
+                    userBean.getAdminPortalAddress(),
+                    HiddenUIConstants.MARKETPLACE_MENU_ITEM_ACCOUNT_ADMINISTRATION);
+        }
+    }
+
     private void setLinkVisible(String title, String link, String menuKey) {
         if (!applicationBean.isUIElementHidden(menuKey)) {
             linkMap.put(title, link);
@@ -127,7 +140,7 @@ public class AccountNavigationBean extends BaseBean implements Serializable {
     /**
      * Return the link map, for which the keys refer to the resource bundle keys
      * of the link names and values refer to the actual URLs.
-     * 
+     *
      * @return the described map
      */
     public Map<String, String> getLinkMap() {
@@ -158,5 +171,20 @@ public class AccountNavigationBean extends BaseBean implements Serializable {
      */
     public boolean isReportingAvailable() {
         return (getApplicationBean().isReportingAvailable() && isLoggedInAndAdmin());
+    }
+
+    public boolean isAdministrationAvailable() {
+        return (getUserBean().isAdministrationAccess());
+    }
+
+    public UserBean getUserBean() {
+        if (userBean != null) {
+            return userBean;
+        }
+        return JSFUtils.findBean("userBean");
+    }
+
+    public void setUserBean(UserBean userBean) {
+        this.userBean = userBean;
     }
 }

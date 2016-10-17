@@ -8,32 +8,16 @@
 
 package org.oscm.ui.beans;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isNull;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 import javax.faces.application.FacesMessage;
 import javax.security.auth.login.LoginException;
@@ -45,8 +29,20 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.oscm.internal.intf.ConfigurationService;
+import org.oscm.internal.intf.IdentityService;
 import org.oscm.internal.intf.MarketplaceService;
+import org.oscm.internal.intf.TenantService;
+import org.oscm.internal.types.enumtypes.AuthenticationMode;
+import org.oscm.internal.types.enumtypes.ConfigurationKey;
+import org.oscm.internal.types.enumtypes.UserAccountStatus;
+import org.oscm.internal.types.enumtypes.UserRoleType;
 import org.oscm.internal.types.exception.*;
+import org.oscm.internal.usergroupmgmt.UserGroupService;
+import org.oscm.internal.vo.VOConfigurationSetting;
+import org.oscm.internal.vo.VOTenant;
+import org.oscm.internal.vo.VOUser;
+import org.oscm.internal.vo.VOUserDetails;
 import org.oscm.types.constants.Configuration;
 import org.oscm.ui.common.Constants;
 import org.oscm.ui.common.ServiceAccess;
@@ -58,16 +54,6 @@ import org.oscm.ui.model.User;
 import org.oscm.ui.model.UserRole;
 import org.oscm.ui.stubs.FacesContextStub;
 import org.oscm.ui.stubs.UIViewRootStub;
-import org.oscm.internal.intf.ConfigurationService;
-import org.oscm.internal.intf.IdentityService;
-import org.oscm.internal.types.enumtypes.AuthenticationMode;
-import org.oscm.internal.types.enumtypes.ConfigurationKey;
-import org.oscm.internal.types.enumtypes.UserAccountStatus;
-import org.oscm.internal.types.enumtypes.UserRoleType;
-import org.oscm.internal.usergroupmgmt.UserGroupService;
-import org.oscm.internal.vo.VOConfigurationSetting;
-import org.oscm.internal.vo.VOUser;
-import org.oscm.internal.vo.VOUserDetails;
 
 /**
  * Unit tests for testing the UserBean.
@@ -109,9 +95,11 @@ public class UserBeanTest {
     static final String OUTCOME_ADD_USER = "addUser";
 
     private String errorCodeValue = null;
+    private TenantService tenantService;
 
     @Before
     public void setup() throws Exception {
+        tenantService = mock(TenantService.class);
         FacesContextStub contextStub = new FacesContextStub(Locale.ENGLISH) {
             @Override
             public void addMessage(String arg0, FacesMessage arg1) {
@@ -168,7 +156,6 @@ public class UserBeanTest {
         doReturn(loggedInUser).when(userBean).getLoggedInUser();
 
         authSettingsMock = mock(AuthenticationSettings.class);
-        when(authSettingsMock.getRecipient()).thenReturn(BASE_URL);
 
         authHandlerMock = mock(AuthenticationHandler.class);
         doReturn(OUTCOME_SAMLSP_REDIRECT).when(authHandlerMock)
@@ -197,6 +184,7 @@ public class UserBeanTest {
 
         doReturn(marketplaceService).when(userBean).getMarketplaceService();
         doReturn(true).when(marketplaceService).doesOrganizationHaveAccessMarketplace(anyString(), anyString());
+        userBean.getSessionBean().setTenantID("1");
     }
 
     void mockErrorAttribute(HttpServletRequest requestMock) {
@@ -418,21 +406,19 @@ public class UserBeanTest {
         // given
         ConfigurationService csMock = mockConfigurationService(AuthenticationMode.SAML_SP
                 .name());
-        AuthenticationSettings authSettings = new AuthenticationSettings(csMock);
+        AuthenticationSettings authSettings = new AuthenticationSettings(tenantService, csMock);
+        doReturn(authSettings).when(userBean).getAuthenticationSettings();
+        VOTenant tenant = new VOTenant();
+        tenant.setTenantId("tenantID");
+        doReturn(tenant).when(tenantService).getTenantByTenantId(anyString());
         // when
         AuthenticationSettings result = userBean.getAuthenticationSettings();
         // then
         assertEquals(authSettings.getIssuer(), result.getIssuer());
-        assertEquals(authSettings.getIdentityProviderTruststorePassword(),
-                result.getIdentityProviderTruststorePassword());
-        assertEquals(authSettings.getIdentityProviderTruststorePath(),
-                result.getIdentityProviderTruststorePath());
         assertEquals(authSettings.getIdentityProviderURL(),
                 result.getIdentityProviderURL());
         assertEquals(authSettings.getIdentityProviderURLContextRoot(),
                 result.getIdentityProviderURLContextRoot());
-        assertEquals(authSettings.getIssuer(), result.getIssuer());
-        assertEquals(authSettings.getRecipient(), result.getRecipient());
     }
 
     @Test

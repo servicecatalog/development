@@ -193,7 +193,7 @@ public class UserSubscriptionsLazyDataModel extends
             decorateWithChangedData(pagination);
 
             Long totalCount = userService.getUserAssignableSubscriptionsNumber(
-                    pagination, userId);
+                    pagination, userId, model.getTenantId());
 
             setTotalCount(totalCount.intValue());
 
@@ -230,4 +230,5 @@ public class UserSubscriptionsLazyDataModel extends
     public void setModel(UpdateUserModel model) {
         this.model = model;
     }
+
 }

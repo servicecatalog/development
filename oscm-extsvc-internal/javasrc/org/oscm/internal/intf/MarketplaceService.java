@@ -52,7 +52,7 @@ public interface MarketplaceService {
      * @return the list of marketplaces
      */
 
-    public List<VOMarketplace> getMarketplacesForOrganization();
+    List<VOMarketplace> getMarketplacesForOrganization();
 
     /**
      * Retrieves the catalog entries from all marketplaces to which the
@@ -73,7 +73,7 @@ public interface MarketplaceService {
      *             the service nor an authorized broker or reseller
      */
 
-    public List<VOCatalogEntry> getMarketplacesForService(VOService service)
+    List<VOCatalogEntry> getMarketplacesForService(VOService service)
             throws ObjectNotFoundException, OperationNotPermittedException;
 
     /**
@@ -118,7 +118,7 @@ public interface MarketplaceService {
      *             services on the given marketplace
      */
 
-    public VOServiceDetails publishService(VOService service,
+    VOServiceDetails publishService(VOService service,
             List<VOCatalogEntry> entries) throws ObjectNotFoundException,
             ValidationException, NonUniqueBusinessKeyException,
             OperationNotPermittedException,
@@ -145,7 +145,7 @@ public interface MarketplaceService {
      *             if the subscription is not found
      */
 
-    public VOMarketplace getMarketplaceForSubscription(long subscriptionKey,
+    VOMarketplace getMarketplaceForSubscription(long subscriptionKey,
             String locale) throws ObjectNotFoundException;
 
     /**
@@ -158,7 +158,7 @@ public interface MarketplaceService {
      * @return the list of marketplaces
      */
 
-    public List<VOMarketplace> getMarketplacesOwned();
+    List<VOMarketplace> getMarketplacesOwned();
 
     /**
      * Returns a list of the marketplaces defined on the platform. The platform
@@ -169,7 +169,7 @@ public interface MarketplaceService {
      * @return the list of marketplaces
      */
 
-    public List<VOMarketplace> getMarketplacesForOperator();
+    List<VOMarketplace> getMarketplacesForOperator();
 
     @RolesAllowed("PLATFORM_OPERATOR")
     List<VOMarketplace> getAccessibleMarketplacesForOperator();
@@ -204,7 +204,7 @@ public interface MarketplaceService {
      *             if a problem occurs in the user role assignment
      */
 
-    public VOMarketplace updateMarketplace(VOMarketplace marketplace)
+    VOMarketplace updateMarketplace(VOMarketplace marketplace)
             throws ObjectNotFoundException, OperationNotPermittedException,
             ConcurrentModificationException, ValidationException,
             UserRoleAssignmentException;
@@ -245,7 +245,7 @@ public interface MarketplaceService {
      *             if a problem occurs in the user role assignment
      */
 
-    public VOMarketplace createMarketplace(VOMarketplace marketplace)
+    VOMarketplace createMarketplace(VOMarketplace marketplace)
             throws OperationNotPermittedException, ObjectNotFoundException,
             ValidationException, UserRoleAssignmentException;
 
@@ -266,7 +266,7 @@ public interface MarketplaceService {
      *             if the marketplace is not found by its ID
      */
 
-    public void deleteMarketplace(String marketplaceId)
+    void deleteMarketplace(String marketplaceId)
             throws ObjectNotFoundException;
 
     /**
@@ -298,7 +298,7 @@ public interface MarketplaceService {
      *             reseller
      */
 
-    public void addOrganizationsToMarketplace(List<String> organizationIds,
+    void addOrganizationsToMarketplace(List<String> organizationIds,
             String marketplaceId) throws ObjectNotFoundException,
             OperationNotPermittedException, OrganizationAuthorityException,
             OrganizationAlreadyExistsException,
@@ -334,7 +334,7 @@ public interface MarketplaceService {
      *             reseller
      */
 
-    public void banOrganizationsFromMarketplace(List<String> organizationIds,
+    void banOrganizationsFromMarketplace(List<String> organizationIds,
             String marketplaceId) throws ObjectNotFoundException,
             OperationNotPermittedException, OrganizationAuthorityException,
             OrganizationAlreadyBannedException,
@@ -366,7 +366,7 @@ public interface MarketplaceService {
      *             broker, or reseller role
      */
 
-    public void removeOrganizationsFromMarketplace(
+    void removeOrganizationsFromMarketplace(
             List<String> organizationIds, String marketplaceId)
             throws ObjectNotFoundException, OperationNotPermittedException,
             MarketplaceAccessTypeUneligibleForOperationException,
@@ -399,7 +399,7 @@ public interface MarketplaceService {
      *             broker, or reseller role
      */
 
-    public void liftBanOrganizationsFromMarketplace(
+    void liftBanOrganizationsFromMarketplace(
             List<String> organizationIds, String marketplaceId)
             throws ObjectNotFoundException, OperationNotPermittedException,
             MarketplaceAccessTypeUneligibleForOperationException,
@@ -426,7 +426,7 @@ public interface MarketplaceService {
      *             reseller
      */
 
-    public List<VOOrganization> getBannedOrganizationsForMarketplace(
+    List<VOOrganization> getBannedOrganizationsForMarketplace(
             String marketplaceId) throws ObjectNotFoundException,
             OperationNotPermittedException,
             MarketplaceAccessTypeUneligibleForOperationException;
@@ -452,7 +452,7 @@ public interface MarketplaceService {
      *             reseller
      */
 
-    public List<VOOrganization> getOrganizationsForMarketplace(
+    List<VOOrganization> getOrganizationsForMarketplace(
             String marketplaceId) throws ObjectNotFoundException,
             OperationNotPermittedException,
             MarketplaceAccessTypeUneligibleForOperationException;
@@ -472,7 +472,7 @@ public interface MarketplaceService {
      * @return a value object with the marketplace definition
      */
 
-    public VOMarketplace getMarketplaceById(String marketplaceId)
+    VOMarketplace getMarketplaceById(String marketplaceId)
             throws ObjectNotFoundException;
 
     /**
@@ -490,7 +490,7 @@ public interface MarketplaceService {
      *             if the marketplace is not found
      */
 
-    public String getBrandingUrl(String marketplaceId)
+    String getBrandingUrl(String marketplaceId)
             throws ObjectNotFoundException;
 
     /**
@@ -515,14 +515,14 @@ public interface MarketplaceService {
      *             another user in the time between reading and writing it
      */
 
-    public void saveBrandingUrl(VOMarketplace marketplace, String brandingUrl)
+    void saveBrandingUrl(VOMarketplace marketplace, String brandingUrl)
             throws ObjectNotFoundException, ValidationException,
             OperationNotPermittedException, ConcurrentModificationException;
 
     /**
      * Returns all organizations created in the system with information about
      * access to the given marketplace.
-     * 
+     *
      * @return collection of all organizations.
      * @throws ObjectNotFoundException
      */
@@ -532,7 +532,7 @@ public interface MarketplaceService {
 
     /**
      * Method is used to restrict access to the given marketplace.
-     * 
+     *
      * @param marketplaceId
      * @param authorizedOrganizations
      *            - organizations to which access to marketplace should be
@@ -557,7 +557,7 @@ public interface MarketplaceService {
     /**
      * This method is used to grant access to given marketplace to given
      * organization.
-     * 
+     *
      * @param voMarketplace
      * @param voOrganization
      * @throws ValidationException
@@ -570,7 +570,7 @@ public interface MarketplaceService {
 
     /**
      * Method is used to remove restrictions to the given marketplace.
-     * 
+     *
      * @param marketplaceId
      * @throws OperationNotPermittedException
      * @throws ObjectNotFoundException
@@ -587,11 +587,11 @@ public interface MarketplaceService {
      * 
      * @return the list of marketplaces
      */
-    public List<VOMarketplace> getRestrictedMarketplaces();
+    List<VOMarketplace> getRestrictedMarketplaces();
 
     /**
      * Gives information if given organization has access to marketplace.
-     * 
+     *
      * @param marketplaceId
      * @param organizationId
      * @return true - if organization has access to marketplace, false -
@@ -609,7 +609,7 @@ public interface MarketplaceService {
      *            the marketplace id
      * @return the list of organizations or empty list if not restricted
      */
-    public List<VOOrganization> getAllOrganizationsWithAccessToMarketplace(
+    List<VOOrganization> getAllOrganizationsWithAccessToMarketplace(
             String marketplaceId);
 
     /**
@@ -620,7 +620,26 @@ public interface MarketplaceService {
      *            the marketplace id
      * @return the configuration or null if marketplace id is invalid
      */
-    public MarketplaceConfiguration getCachedMarketplaceConfiguration(
+    MarketplaceConfiguration getCachedMarketplaceConfiguration(
             String marketplaceId);
 
+    /**
+     * Clears the cache from the configuration of the marketplace with the given
+     * id.
+     * 
+     * @param marketplaceId
+     *            the marketplace id
+     */
+    void clearCachedMarketplaceConfiguration(String marketplaceId);
+
+    /**
+     *
+     * @param tenantKey - tanant technical key
+     * @return list of marketplaces assigned to the given tenant
+     * @throws ObjectNotFoundException
+     */
+    @RolesAllowed("PLATFORM_OPERATOR")
+    List<VOMarketplace> getAllMarketplacesForTenant(long tenantKey) throws ObjectNotFoundException;
+
+    String getTenantIdFromMarketplace(String marketplaceId) throws ObjectNotFoundException;
 }

@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.xml.bind.JAXBElement;
 
+import org.oscm.internal.types.exception.SAML2AuthnRequestException;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.saml2.api.AuthnRequestGenerator;
@@ -24,7 +25,6 @@ import org.oscm.types.enumtypes.LogMessageIdentifier;
 import org.oscm.ui.common.Constants;
 import org.oscm.ui.common.JSFUtils;
 import org.oscm.ui.filter.AuthenticationSettings;
-import org.oscm.internal.types.exception.SAML2AuthnRequestException;
 
 /**
  * @author roderus
@@ -42,7 +42,7 @@ public class AuthenticationHandler {
     private static final Log4jLogger LOGGER = LoggerFactory
             .getLogger(RedirectSamlURLBuilder.class);
     public AuthenticationHandler(HttpServletRequest request,
-            HttpServletResponse response, AuthenticationSettings authSettings) {
+                                 HttpServletResponse response, AuthenticationSettings authSettings) {
 
         this.request = request;
         this.response = response;
@@ -85,15 +85,16 @@ public class AuthenticationHandler {
         AuthnRequestGenerator gen = new AuthnRequestGenerator(
                 authSettings.getIssuer(), isHttps);
         JAXBElement<AuthnRequestType> authRequest = gen.generateAuthnRequest();
-        storeRequestIdInSession(gen.getRequestId());
+        storeAttributeInSession(Constants.SESS_ATTR_IDP_REQUEST_ID, gen.getRequestId());
+        storeAttributeInSession(Constants.REQ_PARAM_TENANT_ID, authSettings.getTenantID());
         String redirectUrl = generateRedirectURL(authRequest);
         JSFUtils.sendRedirect(response, redirectUrl);
         return null;
     }
 
-    void storeRequestIdInSession(String requestId) {
-        request.getSession().setAttribute(Constants.SESS_ATTR_IDP_REQUEST_ID,
-                requestId);
+    void storeAttributeInSession(String attirubte, String parameterName) {
+        request.getSession().setAttribute(attirubte,
+                parameterName);
     }
 
     private String handlePost(boolean isFromBean) throws Exception {
@@ -114,7 +115,7 @@ public class AuthenticationHandler {
         return OUTCOME_SAMLSP_REDIRECT;
     }
 
-    private String generateRedirectURL(JAXBElement<AuthnRequestType> authRequest) {
+    private String generateRedirectURL(JAXBElement<AuthnRequestType> authRequest){
 
         if (authSettings.getIssuer() == null) {
             return null;

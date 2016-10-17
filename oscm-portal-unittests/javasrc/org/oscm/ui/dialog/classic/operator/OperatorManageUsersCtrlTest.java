@@ -8,22 +8,25 @@
 
 package org.oscm.ui.dialog.classic.operator;
 
-import static org.oscm.test.matchers.JavaMatchers.hasItems;
-import static org.oscm.test.matchers.JavaMatchers.hasNoItems;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.oscm.test.matchers.JavaMatchers.hasItems;
+import static org.oscm.test.matchers.JavaMatchers.hasNoItems;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import javax.faces.application.FacesMessage;
@@ -31,6 +34,24 @@ import javax.faces.application.FacesMessage;
 import org.junit.Before;
 import org.junit.Test;
 
+import org.oscm.internal.intf.AccountService;
+import org.oscm.internal.intf.ConfigurationService;
+import org.oscm.internal.intf.IdentityService;
+import org.oscm.internal.intf.MarketplaceService;
+import org.oscm.internal.intf.OperatorService;
+import org.oscm.internal.types.enumtypes.ConfigurationKey;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.UserAccountStatus;
+import org.oscm.internal.types.exception.MailOperationException;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.internal.types.exception.OperationNotPermittedException;
+import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
+import org.oscm.internal.usermanagement.POUserAndOrganization;
+import org.oscm.internal.usermanagement.UserManagementService;
+import org.oscm.internal.vo.VOConfigurationSetting;
+import org.oscm.internal.vo.VOMarketplace;
+import org.oscm.internal.vo.VOUser;
+import org.oscm.internal.vo.VOUserDetails;
 import org.oscm.types.constants.Configuration;
 import org.oscm.ui.beans.ApplicationBean;
 import org.oscm.ui.beans.BaseBean;
@@ -38,26 +59,13 @@ import org.oscm.ui.beans.MarketplaceBean;
 import org.oscm.ui.common.UiDelegate;
 import org.oscm.ui.delegates.ServiceLocator;
 import org.oscm.ui.model.Marketplace;
-import org.oscm.internal.intf.AccountService;
-import org.oscm.internal.intf.ConfigurationService;
-import org.oscm.internal.intf.IdentityService;
-import org.oscm.internal.intf.OperatorService;
-import org.oscm.internal.types.enumtypes.ConfigurationKey;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.exception.MailOperationException;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.types.exception.OperationNotPermittedException;
-import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
-import org.oscm.internal.usermanagement.UserManagementService;
-import org.oscm.internal.vo.VOConfigurationSetting;
-import org.oscm.internal.vo.VOUser;
-import org.oscm.internal.vo.VOUserDetails;
 
 /**
  * @author ZhouMin
- * 
+ *
  */
 public class OperatorManageUsersCtrlTest {
+
     private VOUser user;
     private ServiceLocator sl;
     private OperatorManageUsersCtrl bean;
@@ -66,6 +74,7 @@ public class OperatorManageUsersCtrlTest {
     private final IdentityService idService = mock(IdentityService.class);
     private final AccountService accountingService = mock(AccountService.class);
     private final ConfigurationService configurationService = mock(ConfigurationService.class);
+    private final MarketplaceService marketplaceService = mock(MarketplaceService.class);
     private MarketplaceBean marketplaceBean;
     private UiDelegate ui;
     private final OperatorService operatorService = mock(OperatorService.class);
@@ -99,6 +108,11 @@ public class OperatorManageUsersCtrlTest {
             @Override
             protected ConfigurationService getConfigurationService() {
                 return configurationService;
+            }
+
+            @Override
+            protected MarketplaceService getMarketplaceService() {
+                return marketplaceService;
             }
         };
 
@@ -142,40 +156,38 @@ public class OperatorManageUsersCtrlTest {
     public void getInitialize() throws Exception {
         // given
         currentUser(OrganizationRoleType.PLATFORM_OPERATOR);
-        availableMarketplaces(123, 1234);
+        doReturn(mockVOMarketplaces(123, 1234)).when(marketplaceService).getMarketplacesForOperator();
         bean.model.setInitialized(false);
-        
+
         // when
         bean.getInitialize();
 
         // then
-        verify(marketplaceBean, times(1)).getMarketplacesForOperator();
-        assertThat(bean.getSelectableMarketplaces(), hasItems(2));
+        verify(marketplaceService, times(1)).getMarketplacesForOperator();
+        assertThat(bean.model.getMarketplaces(), hasItems(2));
     }
 
     @Test
     public void getInitialize_initialized() throws Exception {
         // given
         currentUser(OrganizationRoleType.PLATFORM_OPERATOR);
-        bean.model.setInitialized(true);
-        availableMarketplaces(123, 1234, 11);
-        
+
         // when
         bean.getInitialize();
 
         // then
-        verify(marketplaceBean, times(1)).getMarketplacesForOperator();
-        assertThat(bean.getSelectableMarketplaces(), hasItems(3));
+        verify(marketplaceService, times(1)).getMarketplacesForOperator();
     }
 
     @Test
     public void reinitUser() throws Exception {
         // when
+        OperatorManageUsersModel model = mock(OperatorManageUsersModel.class);
+        when(model.getUserId()).thenReturn("userID");
+        bean.setModel(model);
         bean.reinitUser();
-
         // then
-        assertEquals(Boolean.valueOf(true),
-                Boolean.valueOf(bean.isCheckResetPasswordSupported()));
+        verify(model, times(2)).setUser(any(VOUser.class));
     }
 
     @Test
@@ -193,33 +205,84 @@ public class OperatorManageUsersCtrlTest {
     @Test
     public void reinitUser_UserIdNull() throws Exception {
         // given
-        bean.getModel().setUserId(null);
+        OperatorManageUsersModel model = mock(OperatorManageUsersModel.class);
+        doReturn(null).when(model).getUserId();
+        bean.setModel(model);
         // when
         bean.reinitUser();
         // then
         verify(sl, never()).findService(UserManagementService.class);
         verify(bean.appBean, never()).isInternalAuthMode();
-        assertEquals(Boolean.valueOf(true),
-                Boolean.valueOf(bean.isCheckResetPasswordSupported()));
+        verify(model, times(1)).setUser(any(VOUser.class));
     }
 
     @Test
     public void isResetPasswordSupported() throws Exception {
         // when
+        bean.setInternalAuthMode(true);
         bean.isCheckResetPasswordSupported();
         // then
         assertEquals(Boolean.valueOf(true),
+                Boolean.valueOf(bean.isCheckResetPasswordSupported()));
+    }
+
+    @Test
+    public void userListSize() {
+        //given
+        bean = spy(bean);
+        final List<VOUserDetails> usersList = new ArrayList<>();
+        usersList.add(0, new VOUserDetails());
+        usersList.add(1, new VOUserDetails());
+        doReturn(usersList).when(bean).getUsersList();
+        //then
+        assertTrue(bean.getUsersListSize() == 2);
+    }
+
+    @Test
+    public void getSelectedMarketplace_null() {
+        //given
+        OperatorManageUsersModel model = mock(OperatorManageUsersModel.class);
+        doReturn(null).when(model).getUserId();
+        bean.setModel(model);
+        doReturn("0").when(model).getSelectedMarketplace();
+        //when
+        final String selectedMarketplace = bean.getSelectedMarketplace();
+        //then
+        assertTrue(selectedMarketplace == null);
+    }
+
+    @Test
+    public void getSelectedMarketplace() {
+        //given
+        OperatorManageUsersModel model = mock(OperatorManageUsersModel.class);
+        doReturn(null).when(model).getUserId();
+        bean.setModel(model);
+        doReturn("someID").when(model).getSelectedMarketplace();
+        //when
+        final String selectedMarketplace = bean.getSelectedMarketplace();
+        //then
+        assertTrue(selectedMarketplace == "someID");
+    }
+
+    @Test
+    public void isResetPasswordSupported_SAML() throws Exception {
+        //given
+        when(appBean.isInternalAuthMode()).thenReturn(false);
+        // when
+        bean.isCheckResetPasswordSupported();
+        // then
+        assertEquals(Boolean.valueOf(false),
                 Boolean.valueOf(bean.isCheckResetPasswordSupported()));
     }
 
     @Test
     public void isResetPasswordSupported_userIdChanged() throws Exception {
         // given
+        bean.setInternalAuthMode(true);
         bean.getModel().setUserId("userId1");
         // when
         bean.isCheckResetPasswordSupported();
         // then
-        verify(bean.appBean, times(1)).isInternalAuthMode();
         assertEquals(Boolean.valueOf(true),
                 Boolean.valueOf(bean.isCheckResetPasswordSupported()));
     }
@@ -233,13 +296,13 @@ public class OperatorManageUsersCtrlTest {
     public void getSelectableMarketplaces() {
         // given
         currentUser(OrganizationRoleType.PLATFORM_OPERATOR);
-        availableMarketplaces(123, 1234);
+        doReturn(mockVOMarketplaces(123, 1234)).when(marketplaceService).getMarketplacesForOperator();
 
         // when
         List<Marketplace> result = bean.getSelectableMarketplaces();
 
         // than
-        verify(marketplaceBean, times(1)).getMarketplacesForOperator();
+        verify(marketplaceService, times(1)).getMarketplacesForOperator();
         assertThat(result, hasItems(2));
     }
 
@@ -262,22 +325,17 @@ public class OperatorManageUsersCtrlTest {
         assertThat(result, hasNoItems());
     }
 
-    /**
-     * Test the retrieving of available marketplaces. This operation is allowed
-     * only to the PLATFORM_OPERATOR. All other organization roles will recieve
-     * empty list.
-     */
     @Test
     public void getSelectableMarketplaces_No_Marketplaces() {
         // given no existing marketplaces
         currentUser(OrganizationRoleType.PLATFORM_OPERATOR);
-        availableMarketplaces();
+        doReturn(mockVOMarketplaces()).when(marketplaceService).getMarketplacesForOperator();
 
         // when
         List<Marketplace> result = bean.getSelectableMarketplaces();
 
         // than
-        verify(marketplaceBean, times(1)).getMarketplacesForOperator();
+        verify(marketplaceService, times(1)).getMarketplacesForOperator();
         assertThat(result, hasNoItems());
     }
 
@@ -378,7 +436,106 @@ public class OperatorManageUsersCtrlTest {
         verify(bean.ui, times(0)).handle(anyString(), anyString());
     }
 
+    @Test
+    public void updateSelectedUserTest() throws Exception {
+        //given
+        String id = "someUser";
+        bean.setSelectedUserKey(id);
+        VOUser mockUser = mock(VOUser.class);
+        bean.model.setUser(mockUser);
+        when(mockUser.getUserId()).thenReturn(id);
+        //when
+        bean.updateSelectedUser();
+        //then
+        assertTrue(bean.model.getUser().getUserId().equals(id));
+    }
+
+    @Test
+    public void getUsersList() throws OrganizationAuthoritiesException {
+        // given
+        VOUserDetails user1 = new VOUserDetails();
+        user1.setUserId("user1ID");
+        user1.setEMail("user1Email");
+        user1.setOrganizationName("user1OrgName");
+        user1.setOrganizationId("user1OrgID");
+
+        VOUserDetails user2 = new VOUserDetails();
+        user2.setUserId("user2ID");
+        user2.setEMail("user2Email");
+        user2.setOrganizationName("user2OrgName");
+        user2.setOrganizationId("user2OrgID");
+
+        List<VOUserDetails> usersListVO = new ArrayList<>();
+        usersListVO.add(user1);
+        usersListVO.add(user2);
+
+        when(operatorService.getUsers()).thenReturn(usersListVO);
+        // when
+        final List<POUserAndOrganization> resultList = bean.getUsersList();
+        // then
+        boolean hasFirst = false;
+        boolean hasSecond = false;
+        for (POUserAndOrganization obj : resultList) {
+            if (obj.getUserId().equals("user1ID")
+                    && obj.getEmail().equals("user1Email")
+                    && obj.getOrganizationId().equals("user1OrgID")
+                    && obj.getOrganizationName().equals("user1OrgName")) {
+                hasFirst = true;
+            }
+            if (obj.getUserId().equals("user2ID")
+                    && obj.getEmail().equals("user2Email")
+                    && obj.getOrganizationId().equals("user2OrgID")
+                    && obj.getOrganizationName().equals("user2OrgName")) {
+                hasSecond = true;
+            }
+        }
+        assertTrue(hasFirst && hasSecond);
+    }
+
+    @Test
+    public void getDataTableHeaders() {
+        //given
+        List<String> expectedHeaders = new ArrayList<>();
+        expectedHeaders.add("userId");
+        expectedHeaders.add("email");
+        expectedHeaders.add("organizationName");
+        expectedHeaders.add("organizationId");
+        //when
+        final List<String> dataTableHeaders = bean.getDataTableHeaders();
+        //then
+        for (String header : expectedHeaders) {
+            assertTrue(dataTableHeaders.contains(header));
+        }
+    }
+
+    @Test
+    public void lockUser() throws Exception {
+        //given
+        VOUser voUser = mock(VOUser.class);
+        OperatorManageUsersModel mockModel = mock(OperatorManageUsersModel.class);
+        bean.setModel(mockModel);
+        doReturn(voUser).when(mockModel).getUser();
+        //when
+        bean.lockUser();
+        //then
+        verify(operatorService, times(1)).setUserAccountStatus(any(VOUser.class), any(UserAccountStatus.class));
+    }
+
+    @Test
+    public void unlockUser() throws Exception {
+        //given
+        VOUser voUser = mock(VOUser.class);
+        OperatorManageUsersModel mockModel = mock(OperatorManageUsersModel.class);
+        bean.setModel(mockModel);
+        doReturn(voUser).when(mockModel).getUser();
+        //when
+        bean.unlockUser();
+        //then
+        verify(operatorService, times(1)).setUserAccountStatus(any(VOUser.class), any(UserAccountStatus.class));
+    }
+
     private void prepareLdapUser() throws ObjectNotFoundException {
+
         VOUser voUser = new VOUser();
         voUser.setOrganizationId("organizationId");
         bean.getModel().setUser(voUser);
@@ -418,6 +575,25 @@ public class OperatorManageUsersCtrlTest {
         } else {
             when(marketplaceBean.getMarketplacesForOperator()).thenReturn(
                     marketplaces);
+        }
+    }
+
+    private List<VOMarketplace> mockVOMarketplaces(long... mIds) {
+        ArrayList<VOMarketplace> marketplaces = new ArrayList<>();
+        for (int i = 0; i < mIds.length; i++) {
+            VOMarketplace mp = new VOMarketplace();
+            long mKey = mIds[i];
+            mp.setKey(mKey);
+            mp.setVersion(i + 1);
+            mp.setMarketplaceId(String.valueOf(mKey) + "_id");
+            mp.setName(String.valueOf(mKey) + "_name");
+            mp.setOwningOrganizationId(String.valueOf(mKey) + "_org");
+            marketplaces.add(mp);
+        }
+        if (marketplaces.isEmpty()) {
+            return Collections.emptyList();
+        } else {
+            return marketplaces;
         }
     }
 

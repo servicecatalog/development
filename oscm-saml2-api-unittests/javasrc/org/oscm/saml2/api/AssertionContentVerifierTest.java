@@ -45,7 +45,7 @@ public class AssertionContentVerifierTest {
     @Before
     public void setup() throws Exception {
         verifier = spy(new AssertionContentVerifier(new VerifierConfiguration(
-                "identifier_1", "", "", Calendar.getInstance())));
+                "identifier_1", "", "", Calendar.getInstance(), "8f96dede")));
         assertion = loadDocument(FILE_UNSIGNED_ASSERTION);
     }
 

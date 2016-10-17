@@ -27,7 +27,6 @@ import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 
 /**
@@ -61,8 +60,8 @@ public class PropertyImportTest {
         countStatement = Mockito.mock(PreparedStatement.class);
         resultSet = Mockito.mock(ResultSet.class);
         countResultSet = Mockito.mock(ResultSet.class);
-        sqlStatementes = new ArrayList<String>();
-        prepStatements = new Stack<PreparedStatement>();
+        sqlStatementes = new ArrayList<>();
+        prepStatements = new Stack<>();
         Mockito.when(sqlConn.prepareStatement(Matchers.anyString()))
                 .thenReturn(statement);
         Mockito.when(statement.executeQuery()).thenReturn(resultSet);
@@ -177,7 +176,7 @@ public class PropertyImportTest {
                 "SELECT ", "INSERT ", "SELECT ", "INSERT ", "SELECT ",
                 "INSERT ", "SELECT ", "INSERT ", "SELECT ", "INSERT ",
                 "SELECT ", "INSERT ", "SELECT ", "INSERT ", "SELECT ",
-                "INSERT ", "SELECT ", "INSERT " };
+                "INSERT ", "SELECT ", "INSERT ", "SELECT ", "INSERT ", "SELECT ", "INSERT " };
         int cnt = 0;
         assertEquals(expected.length, sqlStatementes.size());
         for (String sql : sqlStatementes) {
@@ -327,7 +326,7 @@ public class PropertyImportTest {
                 "SELECT", "INSERT", "SELECT", "INSERT", "SELECT", "INSERT",
                 "SELECT", "INSERT", "SELECT", "INSERT", "SELECT", "INSERT",
                 "SELECT", "INSERT", "SELECT", "INSERT", "SELECT ", "INSERT ",
-                "SELECT", "INSERT"};
+                "SELECT", "INSERT", "SELECT", "INSERT", "SELECT", "INSERT"};
         int cnt = 0;
         assertEquals(expected.length, sqlStatementes.size());
         for (String sql : sqlStatementes) {
@@ -425,6 +424,9 @@ public class PropertyImportTest {
         p.put(ConfigurationKey.IDP_ASSERTION_EXPIRATION.name(), "1800000");
         p.put(ConfigurationKey.IDP_ASSERTION_VALIDITY_TOLERANCE.name(),
                 "600000");
+        p.put(ConfigurationKey.SSO_DEFAULT_TENANT_ID.name(), "8f96dede");
+        p.put(ConfigurationKey.SSO_IDP_SAML_ASSERTION_ISSUER_ID.name(),
+                "default");
         p.put(ConfigurationKey.IDP_PRIVATE_KEY_FILE_PATH.name(),
                 "D:/BES_CODE_152/");
         p.put(ConfigurationKey.IDP_PUBLIC_CERTIFICATE_FILE_PATH.name(),

@@ -13,13 +13,7 @@ import static org.oscm.ui.beans.BaseBean.ERROR_PAGE;
 import java.io.IOException;
 
 import javax.ejb.EJB;
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -45,6 +39,8 @@ public class ClosedMarketplaceFilter extends BaseBesFilter implements Filter {
 
     @EJB
     private MarketplaceService marketplaceService;
+
+    private boolean isSaml;
 
     public MarketplaceConfiguration getConfig(String marketplaceId) {
         return marketplaceService
@@ -115,10 +111,13 @@ public class ClosedMarketplaceFilter extends BaseBesFilter implements Filter {
     }
 
     boolean isSAMLAuthentication() {
-        ConfigurationService cfgService = getServiceAccess().getService(
-                ConfigurationService.class);
-        authSettings = new AuthenticationSettings(cfgService);
-        return authSettings.isServiceProvider();
+        if (!isSaml) {
+            ConfigurationService cfgService = getServiceAccess()
+                    .getService(ConfigurationService.class);
+            authSettings = new AuthenticationSettings(null, cfgService);
+            isSaml = authSettings.isServiceProvider();
+        }
+        return isSaml;
     }
 
     private ServiceAccess getServiceAccess() {

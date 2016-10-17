@@ -32,9 +32,10 @@ import javax.servlet.http.HttpSession;
 
 import org.junit.Before;
 import org.junit.Test;
-
+import org.oscm.internal.intf.IdentityService;
 import org.oscm.internal.intf.MarketplaceService;
 import org.oscm.internal.vo.VOMarketplace;
+import org.oscm.internal.vo.VOUserDetails;
 
 public class GotoMarketplaceBeanTest {
 
@@ -42,12 +43,14 @@ public class GotoMarketplaceBeanTest {
     private HttpServletRequest servletRequestMock;
     private GotoMarketplaceBean marketplaceGotoBean;
     private HttpSession httpSessionMock;
+    private IdentityService idServiceMock;
 
     @Before
     public void setup() {
         mpServiceMock = mock(MarketplaceService.class);
         marketplaceGotoBean = spy(new GotoMarketplaceBean());
         servletRequestMock = mock(HttpServletRequest.class);
+        idServiceMock = mock(IdentityService.class);
 
         doReturn(mpServiceMock).when(marketplaceGotoBean)
                 .getMarketplaceService();
@@ -56,11 +59,15 @@ public class GotoMarketplaceBeanTest {
         httpSessionMock = mock(HttpSession.class);
         when(servletRequestMock.getSession(anyBoolean())).thenReturn(
                 httpSessionMock);
-
+        
+        doReturn(idServiceMock).when(marketplaceGotoBean).getIdService();
+        
         doReturn(Boolean.TRUE).when(marketplaceGotoBean)
                 .isLoggedInAndMarketplaceOwner();
         doReturn(Boolean.TRUE).when(marketplaceGotoBean)
                 .isLoggedInAndVendorManager();
+        
+        given(idServiceMock.getCurrentUserDetails()).willReturn(getUserDetails());
     }
 
     @Test
@@ -211,6 +218,42 @@ public class GotoMarketplaceBeanTest {
         // then only one is loaded
         assertEquals(1, marketplaces.size());
         assertEquals("publishedMp", marketplaces.get(0).getValue());
+    }
+    
+    @Test
+    public void testValidateMarketplaceTenant(){
+        
+        //given
+        VOMarketplace mpl = new VOMarketplace();
+        mpl.setTenantId("tnt1");
+        String currentUserTenantId = "tnt1";
+        
+        //when
+        boolean validationResult = marketplaceGotoBean.validateMarketplaceTenant(mpl, currentUserTenantId);
+        
+        //then
+        assertTrue(validationResult);
+    }
+    
+    @Test
+    public void testValidateMarketplaceTenantWithDifferentTenant(){
+        
+        //given
+        VOMarketplace mpl = new VOMarketplace();
+        mpl.setTenantId("tnt1");
+        String currentUserTenantId = "tnt2";
+        
+        //when
+        boolean validationResult = marketplaceGotoBean.validateMarketplaceTenant(mpl, currentUserTenantId);
+        
+        //then
+        assertFalse(validationResult);
+    }
+    
+    private VOUserDetails getUserDetails(){
+        
+        VOUserDetails userDetails = new VOUserDetails(1, 0);
+        return userDetails;
     }
 
 }

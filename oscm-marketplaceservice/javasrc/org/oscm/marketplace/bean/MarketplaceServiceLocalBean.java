@@ -25,6 +25,7 @@ import javax.ejb.TransactionAttributeType;
 import javax.interceptor.Interceptors;
 import javax.persistence.Query;
 
+import org.apache.commons.lang3.StringUtils;
 import org.oscm.accountservice.local.AccountServiceLocal;
 import org.oscm.categorizationService.local.CategorizationServiceLocal;
 import org.oscm.communicationservice.local.CommunicationServiceLocal;
@@ -44,6 +45,7 @@ import org.oscm.domobjects.ProductReference;
 import org.oscm.domobjects.PublicLandingpage;
 import org.oscm.domobjects.RevenueShareModel;
 import org.oscm.domobjects.RoleAssignment;
+import org.oscm.domobjects.Tenant;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.domobjects.enums.PublishingAccess;
 import org.oscm.domobjects.enums.RevenueShareModelType;
@@ -179,6 +181,27 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
 
         List<Marketplace> marketplaceList = ParameterizedTypes.list(
                 query.getResultList(), Marketplace.class);
+
+        return marketplaceList;
+    }
+
+    @Override
+    @TransactionAttribute(TransactionAttributeType.MANDATORY)
+    public List<Marketplace> getMarketplacesForSupplierWithTenant() {
+
+        Organization supplier = ds.getCurrentUser().getOrganization();
+
+        Query query = ds
+            .createNamedQuery("Marketplace.findMarketplacesForPublishingForOrgAndTenant");
+        query.setParameter("organization_tkey", Long.valueOf(supplier.getKey()));
+        query.setParameter("publishingAccessGranted",
+            PublishingAccess.PUBLISHING_ACCESS_GRANTED);
+        query.setParameter("publishingAccessDenied",
+            PublishingAccess.PUBLISHING_ACCESS_DENIED);
+        query.setParameter("tenant", supplier.getTenant());
+
+        List<Marketplace> marketplaceList = ParameterizedTypes.list(
+            query.getResultList(), Marketplace.class);
 
         return marketplaceList;
     }
@@ -1176,5 +1199,40 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
 
         return marketplaceAccessDao
                 .getAllOrganizationsWithAccessToMarketplace(marketplaceKey);
+    }
+
+    @Override
+    public void updateTenant(Marketplace marketplace, String tenantId)
+            throws ObjectNotFoundException {
+        
+        if(StringUtils.isBlank(tenantId)){
+            marketplace.setTenant(null);
+            return;
+        }
+        
+        String currentTenantId = (marketplace.getTenant() != null)
+                ? marketplace.getTenant().getTenantId() : null;
+
+        if (currentTenantId == null || !currentTenantId.equals(tenantId)) {
+            Tenant tenant = new Tenant();
+            tenant.setTenantId(tenantId);
+            tenant = (Tenant) ds.getReferenceByBusinessKey(tenant);
+            marketplace.setTenant(tenant);
+        }
+
+    }
+
+    @Override
+    @TransactionAttribute(TransactionAttributeType.MANDATORY)
+    public List<Marketplace> getAllMarketplacesForTenant(
+        long tenantKey) throws ObjectNotFoundException {
+
+        Tenant tenant = ds.getReference(Tenant.class, tenantKey);
+        Query query = ds.createNamedQuery("Marketplace.getAllForTenant");
+        query.setParameter("tenant", tenant);
+        List<Marketplace> marketplaceList = ParameterizedTypes.list(
+            query.getResultList(), Marketplace.class);
+
+        return marketplaceList;
     }
 }

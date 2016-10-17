@@ -15,32 +15,17 @@ import java.util.Locale;
 import javax.persistence.Query;
 
 import org.junit.Assert;
-
 import org.oscm.authorization.PasswordHash;
 import org.oscm.dataservice.local.DataService;
-import org.oscm.domobjects.BillingContact;
-import org.oscm.domobjects.MarketingPermission;
-import org.oscm.domobjects.Organization;
-import org.oscm.domobjects.OrganizationHistory;
-import org.oscm.domobjects.OrganizationRefToPaymentType;
-import org.oscm.domobjects.OrganizationReference;
-import org.oscm.domobjects.OrganizationRole;
-import org.oscm.domobjects.OrganizationToRole;
-import org.oscm.domobjects.PaymentInfo;
-import org.oscm.domobjects.PaymentType;
-import org.oscm.domobjects.PlatformUser;
-import org.oscm.domobjects.RevenueShareModel;
-import org.oscm.domobjects.Subscription;
-import org.oscm.domobjects.SupportedCountry;
-import org.oscm.domobjects.TechnicalProduct;
+import org.oscm.domobjects.*;
 import org.oscm.domobjects.enums.ModificationType;
 import org.oscm.domobjects.enums.OrganizationReferenceType;
 import org.oscm.domobjects.enums.RevenueShareModelType;
-import org.oscm.test.BaseAdmUmTest;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.UserAccountStatus;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.test.BaseAdmUmTest;
 
 public class Organizations {
 
@@ -56,6 +41,15 @@ public class Organizations {
     public static PlatformUser createUserForOrg(DataService mgr,
             Organization org, boolean isAdmin, String userId, String locale)
             throws NonUniqueBusinessKeyException {
+        PlatformUser admin = prepareUser(mgr, org, isAdmin, userId, locale);
+        mgr.persist(admin);
+        if (isAdmin) {
+            PlatformUsers.grantAdminRole(mgr, admin);
+        }
+        return admin;
+    }
+
+    protected static PlatformUser prepareUser(DataService mgr, Organization org, boolean isAdmin, String userId, String locale) throws NonUniqueBusinessKeyException {
         PlatformUser admin = new PlatformUser();
         admin.setAdditionalName("AddName Admin");
         admin.setAddress("Address");
@@ -73,10 +67,41 @@ public class Organizations {
         byte[] passwordHash = PasswordHash.calculateHash(1, "secret");
         admin.setPasswordHash(passwordHash);
         admin.setPasswordSalt(1);
-        mgr.persist(admin);
+        return admin;
+    }
+
+    public static PlatformUser createNormalUserForOrg(DataService mgr,
+                                                      Organization org, boolean isAdmin, String userId, String locale, String tenantID)
+            throws NonUniqueBusinessKeyException {
+        PlatformUser admin = prepareUser(mgr, org, isAdmin, userId, locale);
+        admin.setUserId(userId);
+        mgr.persistPlatformUserWithTenant(admin, tenantID);
         if (isAdmin) {
             PlatformUsers.grantAdminRole(mgr, admin);
         }
+        return admin;
+    }
+    
+    public static PlatformUser createUserForOrgWithGivenId(DataService mgr, String userId, Organization org )
+            throws NonUniqueBusinessKeyException {
+        PlatformUser admin = new PlatformUser();
+        admin.setAdditionalName("AddName Admin");
+        admin.setAddress("Address");
+        admin.setCreationDate(GregorianCalendar.getInstance().getTime());
+        admin.setEmail("admin@organization.com");
+        admin.setFirstName("Mister");
+        // create system wide unique userId
+        admin.setUserId(userId);
+        admin.setRealmUserId(admin.getUserId());
+        admin.setLastName("Knowitall");
+        admin.setPhone("111111/111111");
+        admin.setStatus(UserAccountStatus.ACTIVE);
+        admin.setOrganization(org);
+        admin.setLocale("en");
+        byte[] passwordHash = PasswordHash.calculateHash(1, "secret");
+        admin.setPasswordHash(passwordHash);
+        admin.setPasswordSalt(1);
+        mgr.persist(admin);
         return admin;
     }
 
@@ -213,6 +238,42 @@ public class Organizations {
         return org;
     }
 
+    public static Organization createOrganizationWithTenant(DataService mgr,
+            String orgId, String tenantID, OrganizationRoleType... roles)
+            throws NonUniqueBusinessKeyException, ObjectNotFoundException {
+        Organization org = createOrganizationWithTenant(orgId, tenantID, mgr);
+        if (Arrays.asList(roles).contains(OrganizationRoleType.SUPPLIER)) {
+            createOperatorRevenueShare(mgr, org, BigDecimal.ZERO);
+        }
+
+        mgr.persist(org);
+
+        if (roles != null) {
+            createRoles(mgr, org, roles);
+        }
+        // assign CUSTOMER role for any organization if is not assigned
+        if (!org.hasRole(OrganizationRoleType.CUSTOMER)) {
+            createRole(mgr, org, OrganizationRoleType.CUSTOMER);
+        }
+        if (org.hasRole(OrganizationRoleType.CUSTOMER)) {
+            SupportedCountries.createOneSupportedCountry(mgr);
+            setDomicileCountry(org, "DE", mgr);
+        }
+        if (org.hasRole(OrganizationRoleType.SUPPLIER)) {
+            addSupplierToCustomer(mgr, org, org);
+            if (org.hasRole(OrganizationRoleType.TECHNOLOGY_PROVIDER)) {
+                addSupplierToCustomer(mgr, org, org);
+                supportAllCountries(mgr, org);
+            }
+        }
+        if (org.hasRole(OrganizationRoleType.BROKER)
+                || org.hasRole(OrganizationRoleType.RESELLER)) {
+            SupportedCountries.createOneSupportedCountry(mgr);
+            setDomicileCountry(org, "DE", mgr);
+        }
+        return org;
+    }
+
     public static void createRoles(DataService mgr, Organization org,
             OrganizationRoleType... roles) throws NonUniqueBusinessKeyException {
         for (OrganizationRoleType roleToBeAssigned : roles) {
@@ -267,6 +328,30 @@ public class Organizations {
         org.setLocale("en");
         org.setUrl("http://www.organization.com");
         org.setCutOffDay(1);
+        return org;
+    }
+
+    public static Organization createOrganizationWithTenant(String orgId, String tenantID, DataService mgr) {
+        Organization org = new Organization();
+        org.setOrganizationId(orgId);
+        org.setName("Name of organization " + org.getOrganizationId());
+        org.setAddress("Address of organization " + org.getOrganizationId());
+        org.setEmail(org.getOrganizationId() + "@organization.com");
+        org.setPhone("012345/678" + org.getOrganizationId());
+        org.setLocale("en");
+        org.setUrl("http://www.organization.com");
+        org.setCutOffDay(1);
+        if (tenantID != null && !tenantID.equals("")) {
+            Tenant tenant = new Tenant();
+            tenant.setTenantId(tenantID);
+            tenant.getDataContainer().setName(tenantID);
+            org.setTenant(tenant);
+            try {
+                mgr.persist(tenant);
+            } catch (NonUniqueBusinessKeyException e) {
+                e.printStackTrace();
+            }
+        }
         return org;
     }
 

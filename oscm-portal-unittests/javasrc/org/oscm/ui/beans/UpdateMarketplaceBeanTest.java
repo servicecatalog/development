@@ -8,25 +8,12 @@
 
 package org.oscm.ui.beans;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.matches;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -44,11 +31,8 @@ import org.mockito.ArgumentCaptor;
 import org.oscm.internal.components.response.Response;
 import org.oscm.internal.intf.MarketplaceService;
 import org.oscm.internal.marketplace.MarketplaceServiceManagePartner;
-import org.oscm.internal.pricing.POMarketplacePriceModel;
-import org.oscm.internal.pricing.POMarketplacePricing;
-import org.oscm.internal.pricing.POPartnerPriceModel;
-import org.oscm.internal.pricing.PORevenueShare;
-import org.oscm.internal.pricing.PricingService;
+import org.oscm.internal.pricing.*;
+import org.oscm.internal.tenant.ManageTenantService;
 import org.oscm.internal.types.exception.DomainObjectException.ClassEnum;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.OperationNotPermittedException;
@@ -68,6 +52,7 @@ import org.oscm.ui.stubs.UiDelegateStub;
 public class UpdateMarketplaceBeanTest {
 
     private UpdateMarketplaceBean umpb;
+    private ApplicationBean appBean;
     private MarketplaceService msmock;
     private VOMarketplace vMp1, vMp2;
     private Marketplace mp;
@@ -80,6 +65,7 @@ public class UpdateMarketplaceBeanTest {
     private Response updateMarketplaceResponse;
     private SelectOrganizationIncludeBean selectOrganizationIncludeBean;
     UiDelegateStub ui;
+    private ManageTenantService mts;
 
     @Before
     public void setup() throws Exception {
@@ -110,7 +96,7 @@ public class UpdateMarketplaceBeanTest {
         mp.setClosed(true);
 
         msmock = mock(MarketplaceService.class);
-
+        
         when(msmock.getMarketplacesOwned()).thenReturn(
                 Arrays.asList(vMp1, vMp2));
         when(msmock.getMarketplacesForOperator()).thenReturn(
@@ -119,12 +105,18 @@ public class UpdateMarketplaceBeanTest {
                 .thenReturn(vMp1);
         when(msmock.getMarketplaceById(matches(vMp2.getMarketplaceId())))
                 .thenReturn(vMp2);
-
+        
+        
+        
         mbMock = mock(MenuBean.class);
-
+        appBean = mock(ApplicationBean.class);
+        //mbMock.setApplicationBean(appBean);
+        when(mbMock.getApplicationBean()).thenReturn(appBean);
+        when(mbMock.getApplicationBean().isInternalAuthMode()).thenReturn(true);
         umpb = spy(new UpdateMarketplaceBean());
         ui = spy(new UiDelegateStub());
         umpb.ui = ui;
+        mts = mock(ManageTenantService.class);
 
         doReturn(Boolean.FALSE).when(umpb).isLoggedInAndPlatformOperator();
         doReturn(msmock).when(umpb).getMarketplaceService();
@@ -497,7 +489,6 @@ public class UpdateMarketplaceBeanTest {
 
         umpb.updateMarketplace();
 
-        verifyNoMoreInteractions(mbMock);
         verify(mmps, times(1)).updateMarketplace(captor.capture(),
                 any(POMarketplacePriceModel.class),
                 any(POPartnerPriceModel.class));
@@ -688,6 +679,7 @@ public class UpdateMarketplaceBeanTest {
         verify(umpb, times(1)).getService(
                 eq(MarketplaceServiceManagePartner.class), any());
     }
+    
 
     private static void verifyValueObject(Marketplace mp, VOMarketplace vMp) {
         assertEquals(mp.getMarketplaceId(), vMp.getMarketplaceId());

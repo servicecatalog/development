@@ -13,12 +13,7 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.ResourceBundle;
-import java.util.Set;
+import java.util.*;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIInput;
@@ -30,27 +25,7 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.oscm.internal.accountmgmt.AccountServiceManagement;
-import org.oscm.internal.intf.AccountService;
-import org.oscm.internal.intf.BillingService;
-import org.oscm.internal.intf.CategorizationService;
-import org.oscm.internal.intf.ConfigurationService;
-import org.oscm.internal.intf.DiscountService;
-import org.oscm.internal.intf.IdentityService;
-import org.oscm.internal.intf.MarketplaceService;
-import org.oscm.internal.intf.MarketplaceServiceInternal;
-import org.oscm.internal.intf.PaymentService;
-import org.oscm.internal.intf.ReportingService;
-import org.oscm.internal.intf.SamlService;
-import org.oscm.internal.intf.SearchService;
-import org.oscm.internal.intf.SearchServiceInternal;
-import org.oscm.internal.intf.ServiceProvisioningService;
-import org.oscm.internal.intf.ServiceProvisioningServiceInternal;
-import org.oscm.internal.intf.SessionService;
-import org.oscm.internal.intf.SubscriptionService;
-import org.oscm.internal.intf.SubscriptionServiceInternal;
-import org.oscm.internal.intf.TagService;
-import org.oscm.internal.intf.TriggerDefinitionService;
-import org.oscm.internal.intf.TriggerService;
+import org.oscm.internal.intf.*;
 import org.oscm.internal.landingpageconfiguration.LandingpageConfigurationService;
 import org.oscm.internal.operatorservice.LocalizedDataService;
 import org.oscm.internal.operatorservice.ManageLanguageService;
@@ -234,6 +209,9 @@ public class BaseBean {
     public static final String ERROR_TO_PROCEED_SELECT_UNIT = "error.subscription.unitHasToBeSelected";
     public static final String ERROR_EXTERNAL_PRICEMODEL_NOT_AVAILABLE = "error.externalPricemodel.notavailable";
     public static final String ERROR_BILLING_ID_ALREADY_EXISTS = "ex.NonUniqueBusinessKeyException.BILLING_ADAPTER";
+    public static final String ERROR_NO_FILE_WITH_IDP_SETTINGS = "error.tenant.idpsettings.nofile";
+    public static final String ERROR_MISSING_TENANTID = "error.missingtenant";
+    public static final String ERROR_TENANT_NO_LONGER_EXISTS = "error.tenant.noLongerExists";
 
     public static final String WARNING_SUBSCRIBE_ONLY_ONCE = "warning.subscription.onlyOne";
     public static final String WARNING_SUBSCRIBE_ONLY_BY_ADMIN = "warning.subscription.onlyByAdmin";
@@ -244,7 +222,6 @@ public class BaseBean {
     public static final String WARNING_UNIT_NOT_SELECTED_UNIT_ADMIN = "warning.editSubscription.subscriptionUnitNotSelected";
     public static final String WARNING_PAYMENT_TYPES_NOT_USED = "warning.paymentTypesAreNotUsed";
     public static final String WARNING_NO_CUSTOMER_ACCESS_TO_RESTRICTED_MPL = "warning.noCustomerAccessToRestrictedMpl";
-
 
     public static final String INFO_BILLING_CONTACT_DELETED = "info.billingContact.deleted";
     public static final String INFO_BILLING_CONTACT_DELETED_CONCURRENTLY = "info.billingContact.deletedConcurrently";
@@ -337,6 +314,11 @@ public class BaseBean {
     public static final String INFO_SUPPORTEDLANGUAGE_ADDED = "info.supportedlanguage.added";
     public static final String INFO_NO_MORE_USERS = "info.subscriptions.noMoreUsersForAssignment";
     public static final String INFO_EXTERNAL_PRICE_UPLOADED = "info.externalPriceModel.upload";
+    public static final String INFO_TENANT_SAVED = "info.tenant.saved";
+    public static final String INFO_TENANT_ADDED = "info.tenant.added";
+    public static final String INFO_TENANT_DELETED = "info.tenant.deleted";
+    public static final String INFO_IDP_SETTINGS_IMPORTED = "info.tenant.idpsettings.imported";
+    public static final String INFO_IDP_SETTINGS_CLEAR = "info.tenant.idpsettings.clear";
 
     public static final String LABEL_USERINTERFACE_TRANSLARIONS = "label.userinterface.title";
     public static final String LABEL_MAIL_TRANSLARIONS = "label.mail.title";
@@ -1444,6 +1426,23 @@ public class BaseBean {
                 || user.getUserRoles().contains(UserRoleType.ORGANIZATION_ADMIN)
                 || user.getUserRoles()
                         .contains(UserRoleType.UNIT_ADMINISTRATOR));
+    }
+
+    /**
+     * Checks if current user has access to admin portal
+     *
+     * @return true if user is organization admin or subscription manager or
+     *         technology manager, otherwise false.
+     */
+    public boolean isAdministrationAccess() {
+        VOUserDetails user = this.getUserFromSessionWithoutException();
+        return user != null
+                && (user.getUserRoles().contains(UserRoleType.SERVICE_MANAGER)
+                || user.getUserRoles().contains(UserRoleType.TECHNOLOGY_MANAGER)
+                || user.getUserRoles().contains(UserRoleType.MARKETPLACE_OWNER))
+                || user.getUserRoles().contains(UserRoleType.BROKER_MANAGER)
+                || user.getUserRoles().contains(UserRoleType.RESELLER_MANAGER)
+                || user.getUserRoles().contains(UserRoleType.PLATFORM_OPERATOR);
     }
 
     /**

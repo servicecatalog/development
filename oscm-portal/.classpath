@@ -45,9 +45,11 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-saml2-api"/>
-	<classpathentry kind="lib" path="/libraries/apache-commons-lang/javalib/commons-lang3-3.3.2.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-i18n"/>
 	<classpathentry kind="src" path="/oscm-app-aws"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-billing-external-interfaces"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-tenantmgmt-intsvc"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-tenantmgmt"/>
+	<classpathentry kind="lib" path="/libraries/apache-commons-lang/javalib/commons-lang3-3.3.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

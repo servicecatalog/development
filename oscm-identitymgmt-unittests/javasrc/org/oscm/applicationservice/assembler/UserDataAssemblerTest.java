@@ -25,6 +25,7 @@ import org.junit.Test;
 
 import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.PlatformUser;
+import org.oscm.domobjects.Tenant;
 import org.oscm.identityservice.assembler.UserDataAssembler;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.Salutation;
@@ -262,6 +263,7 @@ public class UserDataAssemblerTest {
         PlatformUser platformUser = UserDataAssembler.toPlatformUser(user);
         Organization org = new Organization();
         org.setOrganizationId("orgId");
+        org.setTenant(new Tenant());
         platformUser.setOrganization(org);
         VOUser voUser = UserDataAssembler.toVOUser(platformUser);
         assertEquals(user.getUserId(), voUser.getUserId());
@@ -289,6 +291,7 @@ public class UserDataAssemblerTest {
         PlatformUser platformUser = UserDataAssembler.toPlatformUser(user);
         Organization org = new Organization();
         org.setOrganizationId("orgId");
+        org.setTenant(new Tenant());
         platformUser.setOrganization(org);
         VOUserDetails voUser = UserDataAssembler.toVOUserDetails(platformUser);
         assertEquals("orgId", voUser.getOrganizationId());
@@ -310,6 +313,7 @@ public class UserDataAssemblerTest {
         PlatformUser platformUser = UserDataAssembler.toPlatformUser(user);
         Organization org = new Organization();
         org.setOrganizationId("orgId");
+        org.setTenant(new Tenant());
         platformUser.setOrganization(org);
         VOUserDetails voUser = UserDataAssembler.toVOUserDetails(platformUser);
         assertEquals(user.getAdditionalName(), voUser.getAdditionalName());
@@ -358,6 +362,7 @@ public class UserDataAssemblerTest {
         PlatformUser platformUser = UserDataAssembler.toPlatformUser(user);
         Organization org = new Organization();
         org.setOrganizationId("orgId");
+        org.setTenant(new Tenant());
         platformUser.setOrganization(org);
         VOUserDetails voUser = UserDataAssembler.toVOUserDetails(platformUser);
 

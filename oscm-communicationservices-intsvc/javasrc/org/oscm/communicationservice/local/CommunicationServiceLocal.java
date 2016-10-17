@@ -145,4 +145,13 @@ public interface CommunicationServiceLocal {
      * @return the administration URL of the blue portal
      */
     public String getBaseUrl();
+
+    /**
+     * Gets the administration URL of the blue portal with ID of the tenant
+     *
+     * @param tenantId
+     *            the tenant ID
+     * @return
+     */
+    public String getBaseUrlWithTenant(String tenantId) throws MailOperationException;
 }
