@@ -1,3 +1,11 @@
+/*******************************************************************************
+ *                                                                              
+ *  Copyright FUJITSU LIMITED 2016                                             
+ *                                                                                                                                 
+ *  Creation Date: 14.10.2016                                                      
+ *                                                                              
+ *******************************************************************************/
+
 package org.oscm.webservices.handler;
 
 import static org.junit.Assert.assertFalse;
