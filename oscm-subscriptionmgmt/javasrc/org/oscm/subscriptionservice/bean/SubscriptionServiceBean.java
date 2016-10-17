@@ -2902,6 +2902,15 @@ public class SubscriptionServiceBean
         }
         dataManager.flush();
 
+        try {
+            appManager.saveAttributes(subscription);
+        } catch (TechnicalServiceOperationException e) {
+            // Log and continue
+            LOG.logWarn(Log4jLogger.SYSTEM_LOG, e,
+                    LogMessageIdentifier.WARN_TECH_SERVICE_WS_ERROR,
+                    subscription.getSubscriptionId(), e.getMessage());
+        }
+
         // product and parameters are copied
         copyProductAndModifyParametersForUpgrade(subscription, dbTargetProduct,
                 currentUser, voTargetProduct.getParameters());
@@ -3579,6 +3588,15 @@ public class SubscriptionServiceBean
             saveUdasForSubscription(udas, dbSubscription);
         }
         dataManager.flush();
+
+        try {
+            appManager.saveAttributes(dbSubscription);
+        } catch (TechnicalServiceOperationException e) {
+            // Log and continue
+            LOG.logWarn(Log4jLogger.SYSTEM_LOG, e,
+                    LogMessageIdentifier.WARN_TECH_SERVICE_WS_ERROR,
+                    subscription.getSubscriptionId(), e.getMessage());
+        }
 
         try {
             if (subIdChanged || checkIfParametersAreModified(dbSubscription,
