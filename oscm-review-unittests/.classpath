@@ -21,4 +21,5 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc-internal"/>
 	<classpathentry kind="lib" path="/libraries/mockito/javalib/mockito-all-1.8.5.jar"/>
 	<classpathentry kind="output" path="bin"/>
+	<classpathentry kind="lib" path="libraries/jersey/javalib/jersey-client.jar"/>
 </classpath>
