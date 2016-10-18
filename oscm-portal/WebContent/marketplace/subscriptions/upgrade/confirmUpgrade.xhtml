@@ -67,7 +67,7 @@
 
                                 <c:forEach items="#{upgradeWizardConversation.model.subscriptionUdaRows}"
                                            var="subUda" varStatus="v">
-                                    <h:outputText value="#{subUda.udaId}" id="subUda#{v.index}Label"
+                                    <h:outputText value="#{subUda.udaNameToShow}" id="subUda#{v.index}Label"
                                                   styleClass="label"/>
                                     <h:outputText value="#{subUda.udaValue}" id="subUda#{v.index}Value"
                                                   rendered="#{not subUda.inputEncrypted}" />
@@ -84,7 +84,7 @@
                                              columnClasses="labelAndValuePanelCol1,labelAndValuePanelCol2">
                                     <c:forEach items="#{upgradeWizardConversation.model.organizationUdaRows}"
                                                var="orgUda" varStatus="v">
-                                        <h:outputText value="#{orgUda.udaId}" id="orgUda#{v.index}Label"
+                                        <h:outputText value="#{orgUda.udaNameToShow}" id="orgUda#{v.index}Label"
                                                       styleClass="label"/>
                                         <h:outputText value="#{orgUda.udaValue}" id="orgUda#{v.index}Value"
                                                       rendered="#{not orgUda.inputEncrypted}"/>

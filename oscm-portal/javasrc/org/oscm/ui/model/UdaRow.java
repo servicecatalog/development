@@ -16,6 +16,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.oscm.internal.types.enumtypes.UdaConfigurationType;
 import org.oscm.internal.vo.VOUda;
 import org.oscm.internal.vo.VOUdaDefinition;
@@ -84,7 +85,7 @@ public class UdaRow implements Serializable {
      * decide if an input field has to be rendered for the UDA value
      */
     public boolean isInputRendered() {
-        return (udaDefinition.getConfigurationType() == UdaConfigurationType.SUPPLIER);
+        return udaDefinition.getConfigurationType() == UdaConfigurationType.SUPPLIER;
     }
 
     /**
@@ -98,7 +99,7 @@ public class UdaRow implements Serializable {
      * decide if an input field is mandatory
      */
     public boolean isInputMandatory() {
-        return (udaDefinition.getConfigurationType() == UdaConfigurationType.USER_OPTION_MANDATORY);
+        return udaDefinition.getConfigurationType() == UdaConfigurationType.USER_OPTION_MANDATORY;
     }
 
     /**
@@ -121,6 +122,13 @@ public class UdaRow implements Serializable {
     }
 
     public String getUdaId() {
+        return udaDefinition.getUdaId();
+    }
+
+    public String getUdaNameToShow() {
+        if (StringUtils.isNoneBlank(udaDefinition.getName())) {
+            return udaDefinition.getName();
+        }
         return udaDefinition.getUdaId();
     }
 

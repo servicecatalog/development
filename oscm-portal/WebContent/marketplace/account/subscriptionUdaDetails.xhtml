@@ -9,14 +9,14 @@
   <!-- add "Your organization details": Subcription UDAs  -->
   <ui:repeat id="subscriptionUdaRepeat" value="#{inputList}" var="subscriptionUda" varStatus="v">
     <adm:panelGrid columns="3" styleClasses="specialPanelGridforUda">
-      <adm:labelAndInputText id="subscriptionUda#{v.index}" label="#{subscriptionUda.udaId}"
+      <adm:labelAndInputText id="subscriptionUda#{v.index}" label="#{subscriptionUda.udaNameToShow}"
                              required="#{subscriptionUda.inputMandatory}" value="#{subscriptionUda.udaValue}"
                              converterId="trimToNotNullConverter"
                              maxlength="#{appBean.descriptionLen}"
                              rendered="#{not subscriptionUda.inputEncrypted}"
                              disabled="#{not (subscriptionUda.labelRendered) or (udasReadOnly)}"/>
 
-      <adm:labelAndInputSecret id="secretSubscriptionUda#{v.index}" label="#{subscriptionUda.udaId}"
+      <adm:labelAndInputSecret id="secretSubscriptionUda#{v.index}" label="#{subscriptionUda.udaNameToShow}"
                                required="#{subscriptionUda.inputMandatory}" value="#{subscriptionUda.udaValue}"
                                converterId="trimToNotNullConverter"
                                maxlength="#{appBean.descriptionLen}"

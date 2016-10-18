@@ -69,7 +69,6 @@ public class UdaAssembler extends BaseAssembler {
                 .getConfigurationType());
         voUdaDefinition.setEncrypted(udaDefinition.isEncrypted());
         voUdaDefinition.setDefaultValue(udaDefinition.getDefaultValue());
-
         String attrName = localizerFacade.getText(voUdaDefinition.getKey(), LocalizedObjectTypes.CUSTOM_ATTRIBUTE_NAME);
         voUdaDefinition.setName(attrName);
         return voUdaDefinition;

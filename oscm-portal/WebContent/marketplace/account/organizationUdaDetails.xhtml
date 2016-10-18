@@ -16,14 +16,14 @@
   <!-- add "Your organization details": Customer UDAs  -->
   <ui:repeat id="organizationUdaRepeat" value="#{inputList}" var="organizationUda" varStatus="v">
     <adm:panelGrid columns="3" styleClasses="specialPanelGridforUda">
-      <adm:labelAndInputText id="organizationUda#{v.index}" label="#{organizationUda.udaId}"
+      <adm:labelAndInputText id="organizationUda#{v.index}" label="#{organizationUda.udaNameToShow}"
                              rendered="#{not organizationUda.inputEncrypted}"
                              value="#{organizationUda.udaValue}" maxlength="#{appBean.descriptionLen}"
                              converterId="trimToNotNullConverter"
                              required="#{organizationUda.inputMandatory}"
                              disabled="#{not (organizationUda.labelRendered) or (readOnly)}"/>
 
-      <adm:labelAndInputSecret id="secretOrganizationUda#{v.index}" label="#{organizationUda.udaId}"
+      <adm:labelAndInputSecret id="secretOrganizationUda#{v.index}" label="#{organizationUda.udaNameToShow}"
                                required="#{organizationUda.inputMandatory}" value="#{organizationUda.udaValue}"
                                converterId="trimToNotNullConverter"
                                maxlength="#{appBean.descriptionLen}"
