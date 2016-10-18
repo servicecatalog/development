@@ -49,7 +49,10 @@
 
             <!-- Go to the "My Subscriptions" page, click on the subscription details, check if the custom tab name is present -->
             <mpl_goto.subscriptions />
-            <clickElement htmlId="subListForm:subscriptionsList:0" />
+            <sleep seconds="120"/>
+            <verifyXPath xpath="//*[@id='subListForm:subscriptionsList:0']" />
+            <clickElement xpath="//*[@id='subListForm:subscriptionsList:0']" />
+            <sleep seconds="60" />
             <verifyXPath xpath="//*[contains(text(),'TehCustomTab')]" />
 
         </webtest>
