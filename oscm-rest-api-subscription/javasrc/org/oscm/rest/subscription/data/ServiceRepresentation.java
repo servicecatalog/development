@@ -13,7 +13,6 @@ public class ServiceRepresentation extends Representation {
 
     // TODO price model
     private String serviceId;
-    private boolean autoAssignUserEnabled;
 
     private List<ParameterRepresentation> parameters = new ArrayList<ParameterRepresentation>();
 
@@ -34,7 +33,6 @@ public class ServiceRepresentation extends Representation {
 
     @Override
     public void update() {
-        vo.setAutoAssignUserEnabled(isAutoAssignUserEnabled());
         vo.setKey(convertIdToKey());
         vo.setServiceId(serviceId);
         vo.setVersion(convertETagToVersion());
@@ -48,7 +46,6 @@ public class ServiceRepresentation extends Representation {
 
     @Override
     public void convert() {
-        setAutoAssignUserEnabled(vo.isAutoAssignUserEnabled());
         setId(Long.valueOf(vo.getKey()));
         setServiceId(vo.getServiceId());
         setETag(Long.valueOf(vo.getVersion()));
@@ -78,13 +75,5 @@ public class ServiceRepresentation extends Representation {
 
     public void setServiceId(String serviceId) {
         this.serviceId = serviceId;
-    }
-
-    public boolean isAutoAssignUserEnabled() {
-        return autoAssignUserEnabled;
-    }
-
-    public void setAutoAssignUserEnabled(boolean autoAssignUserEnabled) {
-        this.autoAssignUserEnabled = autoAssignUserEnabled;
     }
 }
