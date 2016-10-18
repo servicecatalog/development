@@ -41,12 +41,13 @@
 
   <target name="REST-all.BUILD" description="Builds the Rest API war files, the results can be found in oscm-build/result/package/&lt;project name&gt;">
     <ant dir="${adm.ue.buildscript.dir}" antfile="${adm.ue.buildscript.file}" target="package">
-      <property name="projects" value="oscm-rest-api-account,oscm-rest-api-identity,oscm-rest-api-operation,oscm-rest-api-service" />
+      <property name="projects" value="oscm-rest-api-account,oscm-rest-api-identity,oscm-rest-api-operation,oscm-rest-api-service,oscm-rest-api-subscription" />
     </ant>
     <patchForRedeployableWebContent file="${build.result.package.dir}/oscm-rest-api-account/oscm-rest-api-account.war" />
     <patchForRedeployableWebContent file="${build.result.package.dir}/oscm-rest-api-identity/oscm-rest-api-identity.war" />
     <patchForRedeployableWebContent file="${build.result.package.dir}/oscm-rest-api-operation/oscm-rest-api-operation.war" />
     <patchForRedeployableWebContent file="${build.result.package.dir}/oscm-rest-api-service/oscm-rest-api-service.war" />
+    <patchForRedeployableWebContent file="${build.result.package.dir}/oscm-rest-api-subscription/oscm-rest-api-subscription.war" />
   </target>
 
   <target name="REST-Trigger.DEPLOY" description="Deploys the Rest API war file into the BES domain">
