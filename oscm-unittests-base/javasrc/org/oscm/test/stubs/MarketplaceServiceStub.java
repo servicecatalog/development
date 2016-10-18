@@ -46,8 +46,7 @@ public class MarketplaceServiceStub implements MarketplaceService {
     public VOServiceDetails publishService(VOService service,
             List<VOCatalogEntry> entries) throws ObjectNotFoundException,
             ValidationException, NonUniqueBusinessKeyException,
-            OperationNotPermittedException,
-            PublishingToMarketplaceNotPermittedException {
+            OperationNotPermittedException {
         throw new UnsupportedOperationException();
 
     }
@@ -213,6 +212,21 @@ public class MarketplaceServiceStub implements MarketplaceService {
     public MarketplaceConfiguration getCachedMarketplaceConfiguration(
             String marketplaceId) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void clearCachedMarketplaceConfiguration(String marketplaceId) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public List<VOMarketplace> getAllMarketplacesForTenant(long tenantKey) throws ObjectNotFoundException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public String getTenantIdFromMarketplace(String marketplaceId) throws ObjectNotFoundException {
+        return null;
     }
 
 }

@@ -2252,3 +2252,12 @@ form .formHighlight div.div-for-input {
 #manageAccessForm tr.formHighlight textarea, #manageAccessForm .formHighlight select {
     border-color:  transparent !important;
 }
+
+.button-in-header img.buttonImg.add {
+    width: 18px;
+    height: 14px;
+}
+
+#manageTenants th.rf-dt-hdr-c {
+  padding-left: 0;
+}

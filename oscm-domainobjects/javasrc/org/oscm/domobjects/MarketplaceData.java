@@ -163,4 +163,5 @@ public class MarketplaceData extends DomainDataContainer implements
     public void setRestricted(boolean restricted) {
         this.restricted = restricted;
     }
+
 }

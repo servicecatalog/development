@@ -15,17 +15,17 @@ package org.oscm.configurationservice.assembler;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
 import org.oscm.domobjects.ConfigurationSetting;
-import org.oscm.types.enumtypes.LogMessageIdentifier;
-import org.oscm.validator.BLValidator;
-import org.oscm.vo.BaseAssembler;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.types.exception.ConcurrentModificationException;
 import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.internal.types.exception.ValidationException.ReasonEnum;
 import org.oscm.internal.vo.VOConfigurationSetting;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
+import org.oscm.types.enumtypes.LogMessageIdentifier;
+import org.oscm.validator.BLValidator;
+import org.oscm.vo.BaseAssembler;
 
 /**
  * Provides the assembling functionality to handle configuration setting
@@ -154,6 +154,11 @@ public class ConfigurationSettingAssembler extends BaseAssembler {
         } else if (ConfigurationKey.TYPE_BOOLEAN.equals(type)) {
             BLValidator.isBoolean(name, value);
             // length does not have to be proven
+        } else if (ConfigurationKey.TYPE_STRING.equals(type)) {
+            Long length = voConfigurationSetting.getInformationId()
+                    .getLength();
+            BLValidator.isLongEnough(name, value, length);
+            BLValidator.isDescription(name, value, false);
         } else {
             BLValidator.isDescription(name, value, false);
         }

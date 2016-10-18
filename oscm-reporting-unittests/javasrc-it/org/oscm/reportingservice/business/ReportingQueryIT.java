@@ -12,23 +12,18 @@
 
 package org.oscm.reportingservice.business;
 
+import static org.junit.Assert.*;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
 import static org.oscm.test.Numbers.L123;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Currency;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Callable;
 
 import javax.ejb.EJBAccessException;
@@ -38,10 +33,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.junit.Test;
-
-import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
-import org.w3c.dom.Document;
-
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.oscm.accountservice.assembler.BillingContactAssembler;
 import org.oscm.billingservice.dao.BillingDataRetrievalServiceBean;
 import org.oscm.billingservice.service.BillingServiceBean;
@@ -49,34 +42,7 @@ import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.converter.XMLConverter;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
-import org.oscm.domobjects.BillingResult;
-import org.oscm.domobjects.Event;
-import org.oscm.domobjects.GatheredEvent;
-import org.oscm.domobjects.LocalizedResource;
-import org.oscm.domobjects.MarketingPermission;
-import org.oscm.domobjects.Organization;
-import org.oscm.domobjects.OrganizationReference;
-import org.oscm.domobjects.OrganizationRole;
-import org.oscm.domobjects.Parameter;
-import org.oscm.domobjects.ParameterDefinition;
-import org.oscm.domobjects.ParameterOption;
-import org.oscm.domobjects.PaymentResult;
-import org.oscm.domobjects.PaymentType;
-import org.oscm.domobjects.PlatformUser;
-import org.oscm.domobjects.PriceModel;
-import org.oscm.domobjects.PricedEvent;
-import org.oscm.domobjects.PricedOption;
-import org.oscm.domobjects.PricedParameter;
-import org.oscm.domobjects.Product;
-import org.oscm.domobjects.ProductReference;
-import org.oscm.domobjects.Report;
-import org.oscm.domobjects.ReportData;
-import org.oscm.domobjects.Session;
-import org.oscm.domobjects.SteppedPrice;
-import org.oscm.domobjects.Subscription;
-import org.oscm.domobjects.SupportedCurrency;
-import org.oscm.domobjects.TechnicalProduct;
-import org.oscm.domobjects.TriggerProcess;
+import org.oscm.domobjects.*;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.domobjects.enums.OrganizationReferenceType;
 import org.oscm.eventservice.bean.EventServiceBean;
@@ -84,6 +50,14 @@ import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.identityservice.assembler.UserDataAssembler;
+import org.oscm.identityservice.local.IdentityServiceLocal;
+import org.oscm.internal.intf.IdentityService;
+import org.oscm.internal.intf.ReportingService;
+import org.oscm.internal.intf.SubscriptionService;
+import org.oscm.internal.types.enumtypes.*;
+import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.internal.vo.*;
 import org.oscm.reportingservice.bean.ReportingServiceBean;
 import org.oscm.reportingservice.business.model.billing.RDOSummary;
 import org.oscm.reportingservice.dao.BillingDao;
@@ -92,7 +66,6 @@ import org.oscm.reportingservice.dao.PlatformRevenueDao;
 import org.oscm.reportingservice.dao.PlatformRevenueDao.RowData;
 import org.oscm.reportingservice.dao.UnitDao;
 import org.oscm.reportingservice.service.stubs.ApplicationServiceStub;
-import org.oscm.reportingservice.service.stubs.IdManagementStub;
 import org.oscm.serviceprovisioningservice.assembler.ProductAssembler;
 import org.oscm.subscriptionservice.assembler.SubscriptionAssembler;
 import org.oscm.subscriptionservice.bean.ManageSubscriptionBean;
@@ -103,15 +76,7 @@ import org.oscm.techproductoperation.dao.OperationRecordDao;
 import org.oscm.tenantprovisioningservice.bean.TenantProvisioningServiceBean;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.ReflectiveClone;
-import org.oscm.test.data.Marketplaces;
-import org.oscm.test.data.Organizations;
-import org.oscm.test.data.PaymentInfos;
-import org.oscm.test.data.PaymentTypes;
-import org.oscm.test.data.Products;
-import org.oscm.test.data.Subscriptions;
-import org.oscm.test.data.SupportedCountries;
-import org.oscm.test.data.SupportedCurrencies;
-import org.oscm.test.data.TechnicalProducts;
+import org.oscm.test.data.*;
 import org.oscm.test.ejb.TestContainer;
 import org.oscm.test.stubs.CommunicationServiceStub;
 import org.oscm.test.stubs.ConfigurationServiceStub;
@@ -121,27 +86,8 @@ import org.oscm.triggerservice.local.TriggerMessage;
 import org.oscm.triggerservice.local.TriggerProcessMessageData;
 import org.oscm.types.enumtypes.PaymentProcessingStatus;
 import org.oscm.types.enumtypes.PlatformEventIdentifier;
-import org.oscm.internal.intf.IdentityService;
-import org.oscm.internal.intf.ReportingService;
-import org.oscm.internal.intf.SubscriptionService;
-import org.oscm.internal.types.enumtypes.ConfigurationKey;
-import org.oscm.internal.types.enumtypes.EventType;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ParameterType;
-import org.oscm.internal.types.enumtypes.ParameterValueType;
-import org.oscm.internal.types.enumtypes.PriceModelType;
-import org.oscm.internal.types.enumtypes.ReportType;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
-import org.oscm.internal.types.enumtypes.UserRoleType;
-import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.vo.VOBillingContact;
-import org.oscm.internal.vo.VOPaymentInfo;
-import org.oscm.internal.vo.VOReport;
-import org.oscm.internal.vo.VOService;
-import org.oscm.internal.vo.VOSubscription;
-import org.oscm.internal.vo.VOUda;
-import org.oscm.internal.vo.VOUser;
+import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
+import org.w3c.dom.Document;
 
 /**
  * The tests for reporting queries
@@ -372,7 +318,16 @@ public class ReportingQueryIT extends EJBTestBase {
         });
         container.addBean(new BillingDataRetrievalServiceBean());
         container.addBean(new BillingServiceBean());
-        container.addBean(new IdManagementStub());
+        IdentityServiceLocal mock = mock(IdentityServiceLocal.class);
+        doAnswer(new Answer() {
+            @Override
+            public PlatformUser answer(InvocationOnMock invocation) throws Throwable {
+                PlatformUser user = new PlatformUser();
+                user.setUserId((String) invocation.getArguments()[0]);
+                return (PlatformUser) mgr.getReferenceByBusinessKey(user);
+            }
+        }).when(mock).getPlatformUser(anyString(), anyBoolean());
+        container.addBean(mock);
         container.addBean(new TenantProvisioningServiceBean());
         container.addBean(new CommunicationServiceStub());
 

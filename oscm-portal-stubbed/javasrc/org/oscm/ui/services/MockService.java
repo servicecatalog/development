@@ -2780,4 +2780,19 @@ public class MockService implements IdentityService, SubscriptionService,
         return null;
     }
 
+    @Override
+    public void clearCachedMarketplaceConfiguration(String marketplaceId) {
+
+    }
+
+    @Override
+    public List<VOMarketplace> getAllMarketplacesForTenant(long tenantKey) throws ObjectNotFoundException {
+        return null;
+    }
+
+    @Override
+    public String getTenantIdFromMarketplace(String marketplaceId) throws ObjectNotFoundException {
+        return null;
+    }
+
 }

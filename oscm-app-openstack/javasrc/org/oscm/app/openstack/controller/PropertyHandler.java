@@ -36,13 +36,13 @@ import org.slf4j.LoggerFactory;
  */
 public class PropertyHandler {
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(PropertyHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PropertyHandler.class);
 
     private final ProvisioningSettings settings;
 
     public static final String STACK_NAME = "STACK_NAME";
     public static final String STACK_ID = "STACK_ID";
+    public static final String STACK_NAME_PATTERN = "STACK_NAME_PATTERN";
 
     // Name (not id) of the domain (if omitted, it is taken from
     // controller configuration)
@@ -81,6 +81,12 @@ public class PropertyHandler {
 
     // ID of the tenant/project
     public static final String TENANT_ID = "TENANT_ID";
+
+    // Timeout for status check (msec)
+    public static final String READY_TIMEOUT = "READY_TIMEOUT";
+
+    // Start time of operation
+    public static final String START_TIME = "START_TIME";
 
     /**
      * Default constructor.
@@ -140,6 +146,15 @@ public class PropertyHandler {
     }
 
     /**
+     * Returns the regex for the stack name
+     * 
+     * @return the regular expression
+     */
+    public String getStackNamePattern() {
+        return settings.getParameters().get(STACK_NAME_PATTERN);
+    }
+
+    /**
      * Returns the heat specific id of the stack.
      *
      * @return the id of the stack
@@ -159,8 +174,7 @@ public class PropertyHandler {
      * @return the access information pattern
      */
     public String getAccessInfoPattern() {
-        return getValidatedProperty(settings.getParameters(),
-                ACCESS_INFO_PATTERN);
+        return getValidatedProperty(settings.getParameters(), ACCESS_INFO_PATTERN);
     }
 
     /**
@@ -171,14 +185,11 @@ public class PropertyHandler {
     public String getTemplateUrl() throws HeatException {
 
         try {
-            String url = getValidatedProperty(settings.getParameters(),
-                    TEMPLATE_NAME);
-            String baseUrl = getValidatedProperty(settings.getConfigSettings(),
-                    TEMPLATE_BASE_URL);
+            String url = getValidatedProperty(settings.getParameters(), TEMPLATE_NAME);
+            String baseUrl = getValidatedProperty(settings.getConfigSettings(), TEMPLATE_BASE_URL);
             return new URL(new URL(baseUrl), url).toExternalForm();
         } catch (MalformedURLException e) {
-            throw new HeatException(
-                    "Cannot generate template URL: " + e.getMessage());
+            throw new HeatException("Cannot generate template URL: " + e.getMessage());
         }
     }
 
@@ -206,14 +217,11 @@ public class PropertyHandler {
         for (String key : keySet) {
             if (key.startsWith(TEMPLATE_PARAMETER_PREFIX)) {
                 try {
-                    parameters.put(
-                            key.substring(TEMPLATE_PARAMETER_PREFIX.length()),
+                    parameters.put(key.substring(TEMPLATE_PARAMETER_PREFIX.length()),
                             settings.getParameters().get(key));
                 } catch (JSONException e) {
                     // should not happen with Strings
-                    throw new RuntimeException(
-                            "JSON error when collection template parameters",
-                            e);
+                    throw new RuntimeException("JSON error when collection template parameters", e);
                 }
             }
         }
@@ -230,12 +238,10 @@ public class PropertyHandler {
      *            The key to retrieve the setting for
      * @return the parameter value corresponding to the provided key
      */
-    private String getValidatedProperty(Map<String, String> sourceProps,
-            String key) {
+    private String getValidatedProperty(Map<String, String> sourceProps, String key) {
         String value = sourceProps.get(key);
         if (value == null) {
-            String message = String.format("No value set for property '%s'",
-                    key);
+            String message = String.format("No value set for property '%s'", key);
             LOGGER.error(message);
             throw new RuntimeException(message);
         }
@@ -249,8 +255,7 @@ public class PropertyHandler {
      * @return the Keystone URL
      */
     public String getKeystoneUrl() {
-        return getValidatedProperty(settings.getConfigSettings(),
-                KEYSTONE_API_URL);
+        return getValidatedProperty(settings.getConfigSettings(), KEYSTONE_API_URL);
     }
 
     /**
@@ -312,8 +317,7 @@ public class PropertyHandler {
      * Returns service interfaces for BSS web service calls.
      */
     public <T> T getWebService(Class<T> serviceClass) throws Exception {
-        return BSSWebServiceFactory.getBSSWebService(serviceClass,
-                settings.getAuthentication());
+        return BSSWebServiceFactory.getBSSWebService(serviceClass, settings.getAuthentication());
     }
 
     /**
@@ -349,6 +353,47 @@ public class PropertyHandler {
                     TENANT_ID);
         }
         return tenant;
+    }
+
+    /**
+     * Set start time of operation
+     * 
+     * @param time
+     */
+    public void setStartTime(String time) {
+        settings.getParameters().put(START_TIME, time);
+    }
+
+    /**
+     * Return the start time of operation
+     * 
+     * @return the start time of string
+     */
+    public String getStartTime() {
+        return settings.getParameters().get(START_TIME);
+    }
+
+    /**
+     * Return the ready timeout which is waiting time of status changing If
+     * number is not corrected, return 0
+     * 
+     * @return timeout value of long
+     */
+    public long getReadyTimeout() {
+        String readyTimeout = settings.getConfigSettings().get(READY_TIMEOUT);
+        if (readyTimeout == null || readyTimeout.trim().length() == 0) {
+            LOGGER.warn("'READY_TIMEOUT' is not set and therefore ignored");
+            return 0;
+        }
+        try {
+            return Long
+                    .parseLong(settings.getConfigSettings().get(READY_TIMEOUT));
+        } catch (NumberFormatException ex) {
+            LOGGER.warn(
+                    "Wrong value set for property 'READY_TIMEOUT' and therefore ignored");
+        }
+        return 0;
+
     }
 
 }

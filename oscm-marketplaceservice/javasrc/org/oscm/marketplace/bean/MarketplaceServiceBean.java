@@ -34,15 +34,7 @@ import org.oscm.accountservice.local.AccountServiceLocal;
 import org.oscm.applicationservice.local.ApplicationServiceLocal;
 import org.oscm.converter.ParameterizedTypes;
 import org.oscm.dataservice.local.DataService;
-import org.oscm.domobjects.CatalogEntry;
-import org.oscm.domobjects.Category;
-import org.oscm.domobjects.Marketplace;
-import org.oscm.domobjects.MarketplaceToOrganization;
-import org.oscm.domobjects.Organization;
-import org.oscm.domobjects.PlatformUser;
-import org.oscm.domobjects.Product;
-import org.oscm.domobjects.PublicLandingpage;
-import org.oscm.domobjects.Subscription;
+import org.oscm.domobjects.*;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.domobjects.enums.PublishingAccess;
 import org.oscm.i18nservice.bean.LocalizerFacade;
@@ -135,8 +127,15 @@ public class MarketplaceServiceBean implements MarketplaceService {
     @RolesAllowed({ "SERVICE_MANAGER", "RESELLER_MANAGER", "BROKER_MANAGER" })
     public List<VOMarketplace> getMarketplacesForOrganization() {
 
-        List<Marketplace> marketplacesList = marketplaceServiceLocal
+        PlatformUser currentUser = dm.getCurrentUser();
+        List<Marketplace> marketplacesList;
+        if (currentUser.getOrganization().getTenant() != null) {
+            marketplacesList = marketplaceServiceLocal
+                .getMarketplacesForSupplierWithTenant();
+        } else {
+            marketplacesList = marketplaceServiceLocal
                 .getMarketplacesForSupplier();
+        }
 
         // finally convert all domain objects to VO representation and return
         List<VOMarketplace> result = new ArrayList<>();
@@ -274,6 +273,9 @@ public class MarketplaceServiceBean implements MarketplaceService {
         // Update owner organization and assign role
         marketplaceServiceLocal.updateOwningOrganization(mpNew,
                 marketplace.getOwningOrganizationId(), true);
+
+        // Update related tenant
+        marketplaceServiceLocal.updateTenant(mpNew, marketplace.getTenantId());
 
         PublicLandingpage landingpage = PublicLandingpage.newDefault();
         landingpage.setMarketplace(mpNew);
@@ -436,8 +438,8 @@ public class MarketplaceServiceBean implements MarketplaceService {
             marketplace.setOwningOrganizationId(ownID);
         }
 
-        VOMarketplace result = null;
-        Marketplace mpNew = null;
+        VOMarketplace result;
+        Marketplace mpNew;
         // Create new MP domain object (and Landingpage) copy from passed VO
         mpNew = createMarketplaceIntern(marketplace);
         List<VOLocalizedText> list = Arrays.asList(new VOLocalizedText(dm
@@ -1247,5 +1249,30 @@ public class MarketplaceServiceBean implements MarketplaceService {
             String marketplaceId) {
 
         return marketplaceCache.getConfiguration(marketplaceId);
+    }
+
+    @Override
+    public void clearCachedMarketplaceConfiguration(String marketplaceId) {
+        marketplaceCache.resetConfiguration(marketplaceId);
+    }
+
+    @Override
+    @RolesAllowed("PLATFORM_OPERATOR")
+    public List<VOMarketplace> getAllMarketplacesForTenant(long tenantKey) throws ObjectNotFoundException {
+        List<Marketplace> marketplaces = marketplaceServiceLocal
+            .getAllMarketplacesForTenant(tenantKey);
+        List<VOMarketplace> result = new ArrayList<>();
+        LocalizerFacade facade = new LocalizerFacade(localizer, dm
+            .getCurrentUser().getLocale());
+        for (Marketplace mp : marketplaces) {
+            result.add(MarketplaceAssembler.toVOMarketplace(mp, facade));
+        }
+        return result;
+    }
+
+    @Override
+    public String getTenantIdFromMarketplace(String marketplaceId) throws ObjectNotFoundException {
+        VOMarketplace marketplace = getMarketplaceById(marketplaceId);
+        return marketplace.getTenantId();
     }
 }

@@ -37,10 +37,8 @@ public class PropertyImport {
                     "Usage: java PropertyImport <driverClass> <driverURL> <userName> <userPwd> <propertyFile> [<overwriteFlag>] [<contextId>]");
         }
 
-        PropertyImport propertyImport = new PropertyImport(args[0], args[1],
-                args[2], args[3], args[4],
-                args.length >= 6 ? Boolean.parseBoolean(args[5]) : false,
-                args.length >= 7 ? args[6] : null);
+        PropertyImport propertyImport = new PropertyImport(args[0], args[1], args[2], args[3], args[4],
+                args.length >= 6 ? Boolean.parseBoolean(args[5]) : false, args.length >= 7 ? args[6] : null);
         propertyImport.execute();
     }
 
@@ -56,15 +54,13 @@ public class PropertyImport {
     public PropertyImport() {
     }
 
-    public PropertyImport(String driverClass, String driverURL,
-            String userName, String userPwd, String propertyFile,
+    public PropertyImport(String driverClass, String driverURL, String userName, String userPwd, String propertyFile,
             boolean overwriteFlag, String contextId) {
         try {
             Class.forName(driverClass);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
-            throw new RuntimeException("DriverClass '" + driverClass
-                    + "' could not be found");
+            throw new RuntimeException("DriverClass '" + driverClass + "' could not be found");
         }
 
         this.driverURL = driverURL;
@@ -91,8 +87,7 @@ public class PropertyImport {
             in = new FileInputStream(propertyFile);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-            throw new RuntimeException("Could not find resource file '"
-                    + propertyFile + "'.");
+            throw new RuntimeException("Could not find resource file '" + propertyFile + "'.");
         }
         final Properties p = PropertiesLoader.loadProperties(in);
 
@@ -104,17 +99,23 @@ public class PropertyImport {
                 String keyName = key.getKeyName();
                 String value = (String) p.get(keyName);
                 if (value == null || value.isEmpty()) {
-                    if (keyName
-                            .equals(ConfigurationKey.MAX_NUMBER_ALLOWED_USERS
-                                    .name())) {
+                    if (keyName.equals(ConfigurationKey.MAX_NUMBER_ALLOWED_USERS.name())) {
                         value = MAX_NUMBER_ALLOWED_USERS;
                     }
-                    if (keyName
-                            .equals(ConfigurationKey.TIMER_INTERVAL_USER_COUNT
-                                    .name())) {
+                    if (keyName.equals(ConfigurationKey.TIMER_INTERVAL_USER_COUNT.name())) {
                         value = TIMER_INTERVAL_USER_COUNT;
                     }
                 }
+
+                if (value != null) {
+                    if (key.getType() == ConfigurationKey.TYPE_BOOLEAN || key.getType() == ConfigurationKey.TYPE_LONG
+                            || key.getType() == ConfigurationKey.TYPE_STRING
+                            || key.getType() == ConfigurationKey.TYPE_PASSWORD) {
+
+                        value = value.trim();
+                    }
+                }
+
                 verifyValueValid(key, value, isSamlSP);
                 if (value != null) {
                     verifyAuthMode(keyName, value);
@@ -132,27 +133,22 @@ public class PropertyImport {
         }
     }
 
-    private void verifyValueValid(ConfigurationKey key, String value,
-            boolean isSamlSP) {
-        if (isNullValue(value)
-                && (key.isMandatory() || isMandatoryAttributeInSamlSPMode(
-                        isSamlSP, key.getKeyName()))) {
+    private void verifyValueValid(ConfigurationKey key, String value, boolean isSamlSP) {
+        if (isNullValue(value) && (key.isMandatory() || isMandatoryAttributeInSamlSPMode(isSamlSP, key.getKeyName()))) {
             if (isMandatoryFallBack(key.getKeyName())) {
                 value = key.getFallBackValue();
             } else {
-                throw new RuntimeException("Mandatory attribute "
-                        + key.getKeyName() + " can not be set a null value");
+                throw new RuntimeException("Mandatory attribute " + key.getKeyName() + " can not be set a null value");
             }
         }
     }
 
     private boolean isMandatoryFallBack(String keyName) {
-        return (keyName.equals(ConfigurationKey.AUDIT_LOG_ENABLED.name()) || keyName
-                .equals(ConfigurationKey.AUDIT_LOG_MAX_ENTRIES_RETRIEVED.name()));
+        return (keyName.equals(ConfigurationKey.AUDIT_LOG_ENABLED.name())
+                || keyName.equals(ConfigurationKey.AUDIT_LOG_MAX_ENTRIES_RETRIEVED.name()));
     }
 
-    private boolean isMandatoryAttributeInSamlSPMode(boolean isSamlSP,
-            String keyName) {
+    private boolean isMandatoryAttributeInSamlSPMode(boolean isSamlSP, String keyName) {
         return isSamlSP && verifyMandatoryInSamlSP(keyName);
     }
 
@@ -167,8 +163,7 @@ public class PropertyImport {
             String keyNameInConfig = key.getKeyName();
             String valueInConfig = (String) p.get(keyNameInConfig);
 
-            if (!isNullValue(valueInConfig)
-                    && valueInConfig.equals(AuthenticationMode.SAML_SP.name())) {
+            if (!isNullValue(valueInConfig) && valueInConfig.equals(AuthenticationMode.SAML_SP.name())) {
                 isSamlSPMode = true;
                 break;
             }
@@ -178,8 +173,7 @@ public class PropertyImport {
 
     private boolean verifyMandatoryInSamlSP(String keyName) {
         boolean isMandatory = false;
-        MandatoryAttributesInSamlSP[] attrs = MandatoryAttributesInSamlSP
-                .values();
+        MandatoryAttributesInSamlSP[] attrs = MandatoryAttributesInSamlSP.values();
         for (MandatoryAttributesInSamlSP attr : attrs) {
             if (attr.name().equals(keyName)) {
                 isMandatory = true;
@@ -213,8 +207,7 @@ public class PropertyImport {
     private void initStartCount(Connection conn) {
         try {
             Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT MAX(TKEY) FROM "
-                    + TABLE_NAME);
+            ResultSet rs = stmt.executeQuery("SELECT MAX(TKEY) FROM " + TABLE_NAME);
             while (rs.next()) {
                 count = rs.getInt(1);
             }
@@ -222,8 +215,7 @@ public class PropertyImport {
             stmt.close();
         } catch (SQLException e) {
             e.printStackTrace();
-            throw new RuntimeException(
-                    "Could not determine max id value in use.");
+            throw new RuntimeException("Could not determine max id value in use.");
         }
 
     }
@@ -232,18 +224,12 @@ public class PropertyImport {
         String query = null;
         if (getEntryCount(con, key) == 0) {
             count++;
-            query = "INSERT INTO "
-                    + TABLE_NAME
-                    + "(ENV_VALUE, INFORMATION_ID, CONTEXT_ID, TKEY, VERSION) VALUES(?, ?, ?,"
-                    + count + ", 0)";
-            System.out.println("Create Configuration " + key + " with value '"
-                    + property + "'");
+            query = "INSERT INTO " + TABLE_NAME
+                    + "(ENV_VALUE, INFORMATION_ID, CONTEXT_ID, TKEY, VERSION) VALUES(?, ?, ?," + count + ", 0)";
+            System.out.println("Create Configuration " + key + " with value '" + property + "'");
         } else if (overwriteFlag) {
-            query = "UPDATE "
-                    + TABLE_NAME
-                    + " SET ENV_VALUE = ? WHERE INFORMATION_ID = ? AND CONTEXT_ID = ?";
-            System.out.println("Update Configuration " + key + " to value '"
-                    + property + "'");
+            query = "UPDATE " + TABLE_NAME + " SET ENV_VALUE = ? WHERE INFORMATION_ID = ? AND CONTEXT_ID = ?";
+            System.out.println("Update Configuration " + key + " to value '" + property + "'");
         } else {
             System.out.println("Existing Configuration " + key + " skipped");
             return;
@@ -258,15 +244,13 @@ public class PropertyImport {
             stmt.close();
         } catch (SQLException e) {
             e.printStackTrace();
-            throw new RuntimeException(
-                    "Could not write the properties to the database", e);
+            throw new RuntimeException("Could not write the properties to the database", e);
         }
     }
 
     private int getEntryCount(Connection con, String key) {
         int count = 0;
-        String query = "SELECT COUNT(*) FROM " + TABLE_NAME
-                + " WHERE INFORMATION_ID = ? AND CONTEXT_ID = ?";
+        String query = "SELECT COUNT(*) FROM " + TABLE_NAME + " WHERE INFORMATION_ID = ? AND CONTEXT_ID = ?";
         PreparedStatement stmt;
         try {
             stmt = con.prepareStatement(query);
@@ -280,8 +264,7 @@ public class PropertyImport {
             stmt.close();
         } catch (SQLException e) {
             e.printStackTrace();
-            throw new RuntimeException(
-                    "Could not determine entry count of the table", e);
+            throw new RuntimeException("Could not determine entry count of the table", e);
         }
         return count;
     }

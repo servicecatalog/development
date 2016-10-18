@@ -39,6 +39,7 @@ public class UpdateUserModel extends CreateUserModel {
     private Map<String, String> changedRoles = new HashMap<String, String>();
     private long assignableSubscriptionsNumber;
     private Map<String, Subscription> allSubscriptions = new HashMap<>();
+    private String tenantId;
 
     public UpdateUserModel() {
         super();
@@ -131,5 +132,13 @@ public class UpdateUserModel extends CreateUserModel {
 
     public void setAllSubscriptions(Map<String, Subscription> allSubscriptions) {
         this.allSubscriptions = allSubscriptions;
+    }
+
+    public String getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(String tenantId) {
+        this.tenantId = tenantId;
     }
 }

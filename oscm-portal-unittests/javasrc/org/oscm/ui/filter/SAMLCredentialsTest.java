@@ -10,6 +10,7 @@ package org.oscm.ui.filter;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -45,6 +46,7 @@ public class SAMLCredentialsTest {
     private static final String REQ_ID = "reqid";
     private static final String USER_ID = "userid";
     private static final String CALLER_UI = "UI";
+    private static final String TENANT_ID = "TENANT_ID";
 
     private static HttpServletRequest reqMock;
     private static HttpSession sessionMock;
@@ -61,6 +63,7 @@ public class SAMLCredentialsTest {
         doReturn(sessionMock).when(reqMock).getSession();
 
         doReturn(USER_ID).when(samlResponseMock).getUserId(VALID_SAML_RESPONSE.toString());
+        doReturn(TENANT_ID).when(samlResponseMock).getTenantID(anyString());
 
         doReturn(VALID_SAML_RESPONSE).when(samlResponseMock).decode(
                 VALID_SAML_RESPONSE.toString());
@@ -117,12 +120,13 @@ public class SAMLCredentialsTest {
 
         // when
         SAMLCredentials spySamlCredentials = spy(new SAMLCredentials(reqMock));
+        when(spySamlCredentials.getTenantId()).thenReturn(TENANT_ID);
         when(spySamlCredentials.getLogger()).thenReturn(loggerMock);
         when(spySamlCredentials.getSAMLResponse()).thenReturn(samlResponseMock);
 
         // then
         assertEquals(USER_ID, spySamlCredentials.getUserId());
-        assertEquals(CALLER_UI + REQ_ID + new String(VALID_SAML_RESPONSE),
+        assertEquals(CALLER_UI + REQ_ID + TENANT_ID + new String(VALID_SAML_RESPONSE),
                 spySamlCredentials.generatePassword());
     }
 
@@ -140,6 +144,7 @@ public class SAMLCredentialsTest {
         SAMLCredentials spySamlCredentials = spy(new SAMLCredentials(reqMock));
         when(spySamlCredentials.getLogger()).thenReturn(loggerMock);
         when(spySamlCredentials.getSAMLResponse()).thenReturn(samlResponseMock);
+        when(spySamlCredentials.getTenantId()).thenReturn(TENANT_ID);
         spySamlCredentials.getUserId();
 
         // then
@@ -147,7 +152,7 @@ public class SAMLCredentialsTest {
                 .logError(
                         eq(LogMessageIdentifier.ERROR_GET_USER_FROM_SAML_RESPONSE_FAILED),
                         eq(new String(SAML_RESPONSE_WITHOUT_USERID)));
-        assertEquals(CALLER_UI + REQ_ID + new String(SAML_RESPONSE_WITHOUT_USERID),
+        assertEquals(CALLER_UI + REQ_ID + TENANT_ID + new String(SAML_RESPONSE_WITHOUT_USERID),
                 spySamlCredentials.generatePassword());
     }
 

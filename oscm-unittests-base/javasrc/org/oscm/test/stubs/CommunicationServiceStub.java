@@ -58,4 +58,9 @@ public class CommunicationServiceStub implements CommunicationServiceLocal {
     public String getBaseUrl() {
         return null;
     }
+
+    @Override
+    public String getBaseUrlWithTenant(String tenantId) throws MailOperationException {
+        throw new UnsupportedOperationException();
+    }
 }

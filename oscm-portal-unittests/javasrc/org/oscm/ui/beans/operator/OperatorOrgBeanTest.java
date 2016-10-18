@@ -8,32 +8,33 @@
 
 package org.oscm.ui.beans.operator;
 
-import org.oscm.ui.beans.ApplicationBean;
-import org.oscm.ui.beans.BaseBean;
-import org.oscm.ui.beans.SelectOrganizationIncludeBean;
-import org.oscm.ui.common.UiDelegate;
-import org.oscm.ui.stubs.FacesContextStub;
-import org.oscm.ui.stubs.UIViewRootStub;
-import org.oscm.internal.intf.MarketplaceService;
-import org.oscm.internal.intf.OperatorService;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
-import org.oscm.internal.vo.*;
-import org.junit.Before;
-import org.junit.Test;
-
-import javax.faces.application.FacesMessage;
-import javax.faces.application.FacesMessage.Severity;
-import javax.faces.model.SelectItem;
-import java.util.*;
-
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anySet;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
+
+import java.util.*;
+
+import javax.faces.application.FacesMessage;
+import javax.faces.application.FacesMessage.Severity;
+import javax.faces.model.SelectItem;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.oscm.internal.intf.MarketplaceService;
+import org.oscm.internal.intf.OperatorService;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
+import org.oscm.internal.vo.*;
+import org.oscm.ui.beans.ApplicationBean;
+import org.oscm.ui.beans.BaseBean;
+import org.oscm.ui.beans.SelectOrganizationIncludeBean;
+import org.oscm.ui.common.UiDelegate;
+import org.oscm.ui.stubs.FacesContextStub;
+import org.oscm.ui.stubs.UIViewRootStub;
 
 public class OperatorOrgBeanTest {
 
@@ -227,10 +228,8 @@ public class OperatorOrgBeanTest {
     public void getSelectableMarketplaces_Same() {
         setupMarketplaces();
         List<SelectItem> list1 = oob.getSelectableMarketplaces();
-        verify(msmock, times(1)).getAccessibleMarketplacesForOperator();
         List<SelectItem> list2 = oob.getSelectableMarketplaces();
-        verifyNoMoreInteractions(msmock);
-        assertSame(list1, list2);
+        verify(msmock, times(2)).getAccessibleMarketplacesForOperator();
     }
 
     @Test

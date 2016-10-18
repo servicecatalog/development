@@ -73,6 +73,7 @@ import org.oscm.internal.vo.VOUserDetails;
 import org.oscm.paginator.Pagination;
 import org.oscm.ui.beans.ApplicationBean;
 import org.oscm.ui.beans.BaseBean;
+import org.oscm.ui.beans.SessionBean;
 import org.oscm.ui.common.Constants;
 import org.oscm.ui.common.UiDelegate;
 import org.oscm.ui.dialog.mp.createuser.Subscription;
@@ -108,6 +109,7 @@ public class UpdateUserCtrlTest {
     private TableState ts;
     private User user;
     private Response response;
+    private SessionBean sessionBean = new SessionBean();
 
     @Before
     public void setup() throws Exception {
@@ -136,7 +138,7 @@ public class UpdateUserCtrlTest {
         when(ctrl.getUi().getText(anyString())).thenReturn(NAME);
         when(ctrl.getUi().getMyUserId()).thenReturn(MY_USER_ID);
 
-        when(us.getUserAndSubscriptionDetails(anyString())).thenReturn(uas);
+        when(us.getUserAndSubscriptionDetails(anyString(), anyString())).thenReturn(uas);
         response = new Response();
         when(us.saveUserAndSubscriptionAssignment(
                 any(POUserAndSubscriptions.class),
@@ -145,7 +147,7 @@ public class UpdateUserCtrlTest {
         when(us.getUserAssignableSubscriptions(any(Pagination.class),
                 anyString())).thenReturn(subs);
         when(us.getUserAssignableSubscriptionsNumber(any(Pagination.class),
-                anyString())).thenReturn((long) subs.size());
+                anyString(), anyString())).thenReturn((long) subs.size());
 
         when(Boolean.valueOf(applicationBean.isUIElementHidden(
                 eq(HiddenUIConstants.PANEL_USER_LIST_SUBSCRIPTIONS))))
@@ -177,12 +179,14 @@ public class UpdateUserCtrlTest {
         // when(ctrl.getAllSubscriptions(anyListOf(Subscription.class))).thenReturn(prepareSubscriptions());
         doNothing().when(ctrl).addMessage(any(FacesMessage.Severity.class),
                 anyString());
+        sessionBean.setTenantID("1");
+        ctrl.setSessionBean(sessionBean);
     }
 
     @Test
     public void isSubTableRendered_NoSubs() throws Exception {
         when(us.getUserAssignableSubscriptionsNumber(any(Pagination.class),
-                anyString())).thenReturn(0L);
+                anyString(), anyString())).thenReturn(0L);
         assertFalse(ctrl.isSubTableRendered());
     }
 
@@ -563,7 +567,7 @@ public class UpdateUserCtrlTest {
         verify(ctrl.getUi()).handle(any(Response.class),
                 eq(BaseBean.INFO_USER_DELETED), eq(userId));
         ArgumentCaptor<POUser> ac = ArgumentCaptor.forClass(POUser.class);
-        verify(us).deleteUser(ac.capture(), eq(MP_ID));
+        verify(us).deleteUser(ac.capture(), eq(MP_ID), anyString());
         assertEquals(userId, ac.getValue().getUserId());
         verify(ts).resetActivePages();
     }
@@ -576,12 +580,12 @@ public class UpdateUserCtrlTest {
         assertEquals(null, outcome);
         verify(ctrl.getUi(), never()).handle(any(Response.class), anyString(),
                 anyString());
-        verify(us, never()).deleteUser(any(POUser.class), anyString());
+        verify(us, never()).deleteUser(any(POUser.class), anyString(), anyString());
     }
 
     @Test(expected = OperationNotPermittedException.class)
     public void delete_Error() throws Exception {
-        when(us.deleteUser(any(POUser.class), anyString()))
+        when(us.deleteUser(any(POUser.class), anyString(), anyString()))
                 .thenThrow(new OperationNotPermittedException());
         model.setToken(model.getToken());
 
@@ -594,7 +598,7 @@ public class UpdateUserCtrlTest {
         doReturn(Boolean.TRUE).when(model).isTokenValid();
         doThrow(new TechnicalServiceNotAliveException()).when(us).deleteUser(
                 any(org.oscm.internal.usermanagement.POUser.class),
-                anyString());
+                anyString(), anyString());
         // when
         String result = ctrl.delete();
 
@@ -608,7 +612,7 @@ public class UpdateUserCtrlTest {
         doReturn(Boolean.TRUE).when(model).isTokenValid();
         doThrow(new TechnicalServiceOperationException()).when(us).deleteUser(
                 any(org.oscm.internal.usermanagement.POUser.class),
-                anyString());
+                anyString(), anyString());
         // when
         String result = ctrl.delete();
         // then

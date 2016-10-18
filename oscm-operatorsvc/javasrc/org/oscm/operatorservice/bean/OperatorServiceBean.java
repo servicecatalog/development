@@ -8,18 +8,10 @@
 
 package org.oscm.operatorservice.bean;
 
+import java.lang.IllegalArgumentException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Currency;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import javax.annotation.Resource;
 import javax.annotation.security.RolesAllowed;
@@ -28,6 +20,7 @@ import javax.ejb.Remote;
 import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
+import javax.persistence.NoResultException;
 import javax.persistence.Query;
 
 import org.oscm.accountservice.assembler.OrganizationAssembler;
@@ -38,29 +31,9 @@ import org.oscm.auditlog.bean.AuditLogServiceBean;
 import org.oscm.billingservice.service.BillingServiceLocal;
 import org.oscm.configurationservice.assembler.ConfigurationSettingAssembler;
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
-import org.oscm.converter.CsvCreator;
-import org.oscm.converter.LocaleHandler;
-import org.oscm.converter.ParameterizedTypes;
-import org.oscm.converter.PriceConverter;
-import org.oscm.converter.XMLConverter;
+import org.oscm.converter.*;
 import org.oscm.dataservice.local.DataService;
-import org.oscm.domobjects.BillingResult;
-import org.oscm.domobjects.ConfigurationSetting;
-import org.oscm.domobjects.ImageResource;
-import org.oscm.domobjects.Marketplace;
-import org.oscm.domobjects.Organization;
-import org.oscm.domobjects.OrganizationRefToPaymentType;
-import org.oscm.domobjects.OrganizationReference;
-import org.oscm.domobjects.OrganizationRole;
-import org.oscm.domobjects.OrganizationToRole;
-import org.oscm.domobjects.PSP;
-import org.oscm.domobjects.PSPAccount;
-import org.oscm.domobjects.PSPSetting;
-import org.oscm.domobjects.PaymentType;
-import org.oscm.domobjects.PlatformUser;
-import org.oscm.domobjects.RevenueShareModel;
-import org.oscm.domobjects.SupportedCountry;
-import org.oscm.domobjects.SupportedCurrency;
+import org.oscm.domobjects.*;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.domobjects.enums.OrganizationReferenceType;
 import org.oscm.domobjects.enums.RevenueShareModelType;
@@ -73,41 +46,12 @@ import org.oscm.interceptor.ExceptionMapper;
 import org.oscm.interceptor.InvocationDateContainer;
 import org.oscm.interceptor.ServiceProviderInterceptor;
 import org.oscm.internal.intf.OperatorService;
-import org.oscm.internal.types.enumtypes.ConfigurationKey;
-import org.oscm.internal.types.enumtypes.ImageType;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.PaymentCollectionType;
-import org.oscm.internal.types.enumtypes.UserAccountStatus;
-import org.oscm.internal.types.exception.AddMarketingPermissionException;
-import org.oscm.internal.types.exception.AuditLogTooManyRowsException;
+import org.oscm.internal.types.enumtypes.*;
+import org.oscm.internal.types.exception.*;
 import org.oscm.internal.types.exception.ConcurrentModificationException;
-import org.oscm.internal.types.exception.DistinguishedNameException;
-import org.oscm.internal.types.exception.ImageException;
-import org.oscm.internal.types.exception.IncompatibleRolesException;
-import org.oscm.internal.types.exception.MailOperationException;
-import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.types.exception.OperationNotPermittedException;
-import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
-import org.oscm.internal.types.exception.OrganizationAuthorityException;
-import org.oscm.internal.types.exception.PSPIdentifierForSellerException;
-import org.oscm.internal.types.exception.PaymentDataException;
 import org.oscm.internal.types.exception.PaymentDataException.Reason;
-import org.oscm.internal.types.exception.SaaSSystemException;
-import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.internal.types.exception.ValidationException.ReasonEnum;
-import org.oscm.internal.vo.LdapProperties;
-import org.oscm.internal.vo.VOConfigurationSetting;
-import org.oscm.internal.vo.VOImageResource;
-import org.oscm.internal.vo.VOOperatorOrganization;
-import org.oscm.internal.vo.VOOrganization;
-import org.oscm.internal.vo.VOPSP;
-import org.oscm.internal.vo.VOPSPAccount;
-import org.oscm.internal.vo.VOPSPSetting;
-import org.oscm.internal.vo.VOPaymentType;
-import org.oscm.internal.vo.VOTimerInfo;
-import org.oscm.internal.vo.VOUser;
-import org.oscm.internal.vo.VOUserDetails;
+import org.oscm.internal.vo.*;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.marketplaceservice.local.MarketplaceServiceLocal;
@@ -137,6 +81,16 @@ import org.oscm.validator.OrganizationRoleValidator;
 public class OperatorServiceBean implements OperatorService {
 
     private final static int DB_SEARCH_LIMIT = 100;
+    public static final int ID_INDEX = 1;
+    public static final int FIRST_NAME_INDEX = 2;
+    public static final int LAST_NAME_INDEX = 3;
+    public static final int USERID_INDEX = 0;
+    public static final int EMAIL_INDEX = 1;
+    public static final int ORGN_NAME_INDEX = 2;
+    public static final int ORG_ID_INDEX = 3;
+    public static final int STATUS_INDEX = 4;
+    public static final int TKEY_INDEX_5 = 5;
+    public static final int TKEY_INDEX = 0;
 
     private static Log4jLogger logger = LoggerFactory
             .getLogger(OperatorServiceBean.class);
@@ -183,9 +137,9 @@ public class OperatorServiceBean implements OperatorService {
     @Override
     @RolesAllowed("PLATFORM_OPERATOR")
     public VOOrganization registerOrganization(VOOrganization organization,
-            VOImageResource voImageResource, VOUserDetails orgInitialUser,
-            LdapProperties organizationProperties, String marketplaceID,
-            OrganizationRoleType... rolesToGrant)
+        VOImageResource voImageResource, VOUserDetails orgInitialUser,
+        LdapProperties organizationProperties, String marketplaceID,
+        OrganizationRoleType... rolesToGrant)
                     throws NonUniqueBusinessKeyException, ValidationException,
                     OrganizationAuthorityException, IncompatibleRolesException,
                     MailOperationException, OrganizationAuthoritiesException,
@@ -237,7 +191,16 @@ public class OperatorServiceBean implements OperatorService {
                 organizationToCreate = OrganizationAssembler
                         .toCustomer(organization);
             }
-
+            String tenantId = null;
+            if (organization.getTenantKey() != 0) {
+                Tenant tenant = dm.getReference(Tenant.class, organization.getTenantKey());
+                organizationToCreate.setTenant(tenant);
+                tenantId = tenant.getTenantId();
+            }
+            if (checkIfPlatformUserInGivenTenantExists(tenantId, orgInitialUser.getUserId())) {
+                throw new NonUniqueBusinessKeyException(DomainObjectException.ClassEnum.USER, orgInitialUser
+                    .getUserId());
+            }
             if (organization.getOperatorRevenueShare() != null) {
                 createOperatorPriceModel(organizationToCreate,
                         organization.getOperatorRevenueShare());
@@ -284,6 +247,34 @@ public class OperatorServiceBean implements OperatorService {
             sessionCtx.setRollbackOnly();
             throw e;
         }
+    }
+    
+    private boolean checkIfPlatformUserInGivenTenantExists(String tenantId,
+            String userId) {
+        if (tenantId != null) {
+            Query query = dm
+                    .createNamedQuery("PlatformUser.findByUserIdAndTenant");
+            query.setParameter("userId", userId);
+            query.setParameter("tenantId", tenantId);
+            try {
+                PlatformUser pu = (PlatformUser) query.getSingleResult();
+                if (pu != null) {
+                    return true;
+                }
+            } catch (NoResultException e) {
+            }
+            return false;
+        }
+        PlatformUser u = new PlatformUser();
+        u.setUserId(userId);
+        try {
+            PlatformUser user = (PlatformUser) dm.getReferenceByBusinessKey(u);
+            if (user != null) {
+                return true;
+            }
+        } catch (ObjectNotFoundException e) {
+        }
+        return false;
     }
     
     /**
@@ -727,8 +718,7 @@ public class OperatorServiceBean implements OperatorService {
                 voUser.getUserId(), true);
 
         PlatformUser user = new PlatformUser();
-        user.setUserId(voUser.getUserId());
-        user = (PlatformUser) dm.getReferenceByBusinessKey(user);
+        user = dm.getReference(PlatformUser.class, voUser.getKey());
 
         im.setUserAccountStatus(user, newStatus);
 
@@ -888,8 +878,6 @@ public class OperatorServiceBean implements OperatorService {
     /**
      * Returns true if an image is defined for the product with the given key.
      * 
-     * @param product
-     *            The product.
      * @return true if an image is defined for the product with the given key.
      */
     public boolean isImageDefined(Organization organization) {
@@ -914,31 +902,11 @@ public class OperatorServiceBean implements OperatorService {
                     NonUniqueBusinessKeyException {
         try {
             return updateOrganizationIntern(voOrganization, voImageResource);
-        } catch (ObjectNotFoundException e) {
-            sessionCtx.setRollbackOnly();
-            throw e;
-        } catch (ValidationException e) {
-            sessionCtx.setRollbackOnly();
-            throw e;
-        } catch (ConcurrentModificationException e) {
-            sessionCtx.setRollbackOnly();
-            throw e;
-        } catch (DistinguishedNameException e) {
-            sessionCtx.setRollbackOnly();
-            throw e;
-        } catch (OrganizationAuthorityException e) {
-            sessionCtx.setRollbackOnly();
-            throw e;
-        } catch (IncompatibleRolesException e) {
-            sessionCtx.setRollbackOnly();
-            throw e;
-        } catch (PSPIdentifierForSellerException e) {
-            sessionCtx.setRollbackOnly();
-            throw e;
-        } catch (PaymentDataException e) {
-            sessionCtx.setRollbackOnly();
-            throw e;
-        } catch (ImageException e) {
+        } catch (ObjectNotFoundException | OrganizationAuthorityException
+                | DistinguishedNameException | ConcurrentModificationException
+                | ValidationException | ImageException | PaymentDataException
+                | PSPIdentifierForSellerException
+                | IncompatibleRolesException e) {
             sessionCtx.setRollbackOnly();
             throw e;
         }
@@ -979,7 +947,7 @@ public class OperatorServiceBean implements OperatorService {
 
         accMgmt.checkDistinguishedName(organizationObj);
         updateDomicileCountry(voOrganization, organizationObj);
-
+        updateTenant(organizationObj, voOrganization);
         // important: add the new roles before setting the PSP identifier,
         // so the updated roles are validated when setting the PSP identifier
         updateOrganizationRoles(voOrganization, organizationObj);
@@ -990,6 +958,8 @@ public class OperatorServiceBean implements OperatorService {
 
         updateOrganizationDescription(organizationObj.getKey(),
                 voOrganization.getDescription());
+        
+        
 
         // check if image is set, WS 1.1 will send null at this point
         if (voImageResource != null) {
@@ -1047,6 +1017,18 @@ public class OperatorServiceBean implements OperatorService {
                 voOrganization.getDomicileCountry());
         sc = (SupportedCountry) dm.getReferenceByBusinessKey(sc);
         organizationObj.setDomicileCountry(sc);
+    }
+    
+    private void updateTenant(Organization organization, VOOperatorOrganization voOrganization) throws ObjectNotFoundException {
+        
+        long tenantKey = voOrganization.getTenantKey();
+        
+        if(voOrganization.getTenantKey()==0){
+            organization.setTenant(null);
+        } else{
+            Tenant tenant = (Tenant) dm.getReference(Tenant.class, tenantKey);
+            organization.setTenant(tenant);
+        }
     }
 
     private boolean isVendor(VOOperatorOrganization voOrganization) {
@@ -1117,26 +1099,23 @@ public class OperatorServiceBean implements OperatorService {
 
     @Override
     @RolesAllowed("PLATFORM_OPERATOR")
-    public List<VOUserDetails> getUsers(String userIdPattern)
+    public List<VOUserDetails> getUsers()
             throws OrganizationAuthoritiesException {
-        return getUsersWithLimit(userIdPattern, DB_SEARCH_LIMIT);
-    }
-
-    @Override
-    @RolesAllowed("PLATFORM_OPERATOR")
-    public List<VOUserDetails> getUsersWithLimit(String userIdPattern,
-            Integer queryLimit) throws OrganizationAuthoritiesException {
-
-        Query query = dm.createNamedQuery("PlatformUser.findByIdPattern");
-        query.setMaxResults(queryLimit.intValue());
-        query.setParameter("userId", userIdPattern);
+        Query query = dm.createQuery("select pu.dataContainer.userId, pu.dataContainer.email,o.dataContainer.name, o.dataContainer.organizationId, pu.dataContainer.status, pu.key from PlatformUser pu left join pu.organization o");
 
         List<VOUserDetails> result = new ArrayList<>();
-        for (PlatformUser user : ParameterizedTypes
-                .iterable(query.getResultList(), PlatformUser.class)) {
-            result.add(UserDataAssembler.toVOUserDetails(user));
+        final List resultList = query.getResultList();
+        for (Object o : resultList) {
+            Object[] row = (Object[]) o;
+            final VOUserDetails userDetails = new VOUserDetails();
+            userDetails.setUserId((String) row[USERID_INDEX]);
+            userDetails.setEMail((String) row[EMAIL_INDEX]);
+            userDetails.setOrganizationName((String) row[ORGN_NAME_INDEX]);
+            userDetails.setOrganizationId((String) row[ORG_ID_INDEX]);
+            userDetails.setStatus((UserAccountStatus) row[STATUS_INDEX]);
+            userDetails.setKey((Long)row[TKEY_INDEX_5]);
+            result.add(userDetails);
         }
-
         return result;
     }
 
@@ -1156,10 +1135,10 @@ public class OperatorServiceBean implements OperatorService {
         VOUserDetails pu;
         for (Object[] cols : resultList) {
             pu = new VOUserDetails();
-            pu.setKey(((BigInteger) cols[0]).longValue());
-            pu.setUserId((String) cols[1]);
-            pu.setFirstName((String) cols[2]);
-            pu.setLastName((String) cols[3]);
+            pu.setKey(((BigInteger) cols[TKEY_INDEX]).longValue());
+            pu.setUserId((String) cols[ID_INDEX]);
+            pu.setFirstName((String) cols[FIRST_NAME_INDEX]);
+            pu.setLastName((String) cols[LAST_NAME_INDEX]);
             result.add(pu);
         }
         return result;
@@ -1181,10 +1160,10 @@ public class OperatorServiceBean implements OperatorService {
         VOUserDetails pu;
         for (Object[] cols : resultList) {
             pu = new VOUserDetails();
-            pu.setKey(((BigInteger) cols[0]).longValue());
-            pu.setUserId((String) cols[1]);
-            pu.setFirstName((String) cols[2]);
-            pu.setLastName((String) cols[3]);
+            pu.setKey(((BigInteger) cols[TKEY_INDEX]).longValue());
+            pu.setUserId((String) cols[ID_INDEX]);
+            pu.setFirstName((String) cols[FIRST_NAME_INDEX]);
+            pu.setLastName((String) cols[LAST_NAME_INDEX]);
             result.add(pu);
         }
         return result;
@@ -1210,14 +1189,6 @@ public class OperatorServiceBean implements OperatorService {
         boolean result = payProc.chargeForOutstandingBills();
 
         return result;
-    }
-
-    @Override
-    @RolesAllowed("PLATFORM_OPERATOR")
-    public void initIndexForFulltextSearch(boolean force) {
-
-        searchService.initIndexForFulltextSearch(force);
-
     }
 
     @Override

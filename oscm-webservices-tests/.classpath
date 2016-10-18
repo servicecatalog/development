@@ -6,6 +6,7 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc"/>
 	<classpathentry kind="lib" path="/libraries/junit/javalib/junit-4.5.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-webservices-client"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-webservices"/>
 	<classpathentry kind="lib" path="/libraries/wsdl4j/javalib/wsdl4j.jar"/>
 	<classpathentry kind="lib" path="/libraries/apache-logging/javalib/commons-logging-1.1.3.jar"/>
 	<classpathentry kind="lib" path="/oscm-build/result/package/oscm-extsvc"/>
@@ -22,6 +23,9 @@
 	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/javalib/jndi-properties.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-converter"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-domainobjects"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-dataservice-intsvc"/>
+    <classpathentry combineaccessrules="false" kind="src" path="/oscm-dataservice"/>
+    <classpathentry kind="lib" path="/libraries/mockito/javalib/mockito-all-1.8.5.jar"/>
 	<classpathentry kind="src" path="/oscm-apiversioning-client-handler"/>
 	<classpathentry kind="src" path="/oscm-psp-extsvc"/>
 	<classpathentry kind="output" path="bin"/>
