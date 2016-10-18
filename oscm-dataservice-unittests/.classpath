@@ -40,5 +40,6 @@
 	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/hk2-api-2.4.0-b31.jar"/>
 	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/hk2-utils-2.4.0-b31.jar"/>
 	<classpathentry kind="lib" path="/libraries/glassfish4/modules/glassfish-naming.jar"/>
+	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/hk2-locator-2.4.0-b31.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
