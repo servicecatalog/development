@@ -36,7 +36,8 @@ import org.slf4j.LoggerFactory;
  */
 public class PropertyHandler {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PropertyHandler.class);
+    private static final Logger LOGGER = LoggerFactory
+            .getLogger(PropertyHandler.class);
 
     private final ProvisioningSettings settings;
 
@@ -174,7 +175,8 @@ public class PropertyHandler {
      * @return the access information pattern
      */
     public String getAccessInfoPattern() {
-        return getValidatedProperty(settings.getParameters(), ACCESS_INFO_PATTERN);
+        return getValidatedProperty(settings.getParameters(),
+                ACCESS_INFO_PATTERN);
     }
 
     /**
@@ -185,11 +187,18 @@ public class PropertyHandler {
     public String getTemplateUrl() throws HeatException {
 
         try {
-            String url = getValidatedProperty(settings.getParameters(), TEMPLATE_NAME);
-            String baseUrl = getValidatedProperty(settings.getConfigSettings(), TEMPLATE_BASE_URL);
+            String url = getValidatedProperty(settings.getParameters(),
+                    TEMPLATE_NAME);
+
+            String baseUrl = settings.getParameters().get(TEMPLATE_BASE_URL);
+            if (baseUrl == null || baseUrl.trim().length() == 0) {
+                baseUrl = getValidatedProperty(settings.getConfigSettings(),
+                        TEMPLATE_BASE_URL);
+            }
             return new URL(new URL(baseUrl), url).toExternalForm();
         } catch (MalformedURLException e) {
-            throw new HeatException("Cannot generate template URL: " + e.getMessage());
+            throw new HeatException(
+                    "Cannot generate template URL: " + e.getMessage());
         }
     }
 
@@ -217,11 +226,14 @@ public class PropertyHandler {
         for (String key : keySet) {
             if (key.startsWith(TEMPLATE_PARAMETER_PREFIX)) {
                 try {
-                    parameters.put(key.substring(TEMPLATE_PARAMETER_PREFIX.length()),
+                    parameters.put(
+                            key.substring(TEMPLATE_PARAMETER_PREFIX.length()),
                             settings.getParameters().get(key));
                 } catch (JSONException e) {
                     // should not happen with Strings
-                    throw new RuntimeException("JSON error when collection template parameters", e);
+                    throw new RuntimeException(
+                            "JSON error when collection template parameters",
+                            e);
                 }
             }
         }
@@ -238,10 +250,12 @@ public class PropertyHandler {
      *            The key to retrieve the setting for
      * @return the parameter value corresponding to the provided key
      */
-    private String getValidatedProperty(Map<String, String> sourceProps, String key) {
+    private String getValidatedProperty(Map<String, String> sourceProps,
+            String key) {
         String value = sourceProps.get(key);
         if (value == null) {
-            String message = String.format("No value set for property '%s'", key);
+            String message = String.format("No value set for property '%s'",
+                    key);
             LOGGER.error(message);
             throw new RuntimeException(message);
         }
@@ -255,7 +269,13 @@ public class PropertyHandler {
      * @return the Keystone URL
      */
     public String getKeystoneUrl() {
-        return getValidatedProperty(settings.getConfigSettings(), KEYSTONE_API_URL);
+
+        String keystoneURL = settings.getParameters().get(KEYSTONE_API_URL);
+        if (keystoneURL == null || keystoneURL.trim().length() == 0) {
+            keystoneURL = getValidatedProperty(settings.getConfigSettings(),
+                    KEYSTONE_API_URL);
+        }
+        return keystoneURL;
     }
 
     /**
@@ -317,7 +337,8 @@ public class PropertyHandler {
      * Returns service interfaces for BSS web service calls.
      */
     public <T> T getWebService(Class<T> serviceClass) throws Exception {
-        return BSSWebServiceFactory.getBSSWebService(serviceClass, settings.getAuthentication());
+        return BSSWebServiceFactory.getBSSWebService(serviceClass,
+                settings.getAuthentication());
     }
 
     /**
