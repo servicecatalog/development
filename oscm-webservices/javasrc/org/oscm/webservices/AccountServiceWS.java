@@ -31,9 +31,9 @@ import org.oscm.webservices.logger.WebServiceLogger;
 
 /**
  * End point facade for WS.
- * 
+ *
  * @author Aleh Khomich.
- * 
+ *
  */
 @WebService(endpointInterface = "org.oscm.intf.AccountService")
 public class AccountServiceWS implements AccountService {
@@ -432,7 +432,7 @@ public class AccountServiceWS implements AccountService {
         WS_LOGGER.logAccess(wsContext, ds);
         try {
             delegate.saveUdas(VOCollectionConverter.convertList(udas,
-                    org.oscm.internal.vo.VOUda.class));
+                    org.oscm.internal.vo.VOUda.class, ds));
         } catch (org.oscm.internal.types.exception.ObjectNotFoundException e) {
             throw ExceptionConverter.convertToApi(e);
         } catch (org.oscm.internal.types.exception.NonUniqueBusinessKeyException e) {
