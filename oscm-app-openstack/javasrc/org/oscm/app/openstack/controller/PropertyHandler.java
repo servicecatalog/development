@@ -270,6 +270,8 @@ public class PropertyHandler {
      *            The property object to take the settings from
      * @param key
      *            The key to retrieve the setting for
+     * @param validate
+     *            The flag for the validation of the value
      * @return the parameter value corresponding to the provided key
      */
     private String getOverwrittenProperty(Map<String, String> sourceProps,

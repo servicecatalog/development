@@ -757,19 +757,18 @@ public class SubscriptionServiceBean
 
         theProduct.setOwningSubscription(newSub);
         createAllowOnBehalfActingReference(newSub);
-
-        // save udas before calling WS to make them available for saveAttributes
-        saveUdasForSubscription(ParameterizedTypes.list(udas, VOUda.class),
-                newSub);
-
-        dataManager.flush();
-
-        appManager.saveAttributes(newSub);
         TenantProvisioningResult provisioningResult = createInstanceAndAddUsersToSubscription(
                 tp, newSub);
         newSub.setSuccessMessage(provisioningResult.getResultMesage());
 
         dataManager.flush();
+
+        saveUdasForSubscription(ParameterizedTypes.list(udas, VOUda.class),
+                newSub);
+
+        // as a temporary solution, save custom attributes here
+        dataManager.flush();
+        appManager.saveAttributes(newSub);
 
         triggerQS.sendAllNonSuspendingMessages(
                 TriggerMessage.create(TriggerType.SUBSCRIPTION_CREATION,
@@ -2860,6 +2859,10 @@ public class SubscriptionServiceBean
         subscription.setPaymentInfo(paymentInfo);
         subscription.setBillingContact(bc);
 
+        // product and parameters are copied
+        copyProductAndModifyParametersForUpgrade(subscription, dbTargetProduct,
+                currentUser, voTargetProduct.getParameters());
+
         List<Uda> existingUdas = manageBean.getExistingUdas(subscription);
         List<VOUda> updatedList = getUpdatedSubscriptionAttributes(udas,
                 existingUdas);
@@ -2902,18 +2905,15 @@ public class SubscriptionServiceBean
         }
         dataManager.flush();
 
+        // as a temporary solution, save custom attributes here
         try {
-            appManager.saveAttributes(subscription);
+            appManager.saveAttributes(dbSubscription);
         } catch (TechnicalServiceOperationException e) {
             // Log and continue
             LOG.logWarn(Log4jLogger.SYSTEM_LOG, e,
                     LogMessageIdentifier.WARN_TECH_SERVICE_WS_ERROR,
                     subscription.getSubscriptionId(), e.getMessage());
         }
-
-        // product and parameters are copied
-        copyProductAndModifyParametersForUpgrade(subscription, dbTargetProduct,
-                currentUser, voTargetProduct.getParameters());
 
         triggerQS.sendAllNonSuspendingMessages(
                 TriggerMessage.create(TriggerType.UPGRADE_SUBSCRIPTION,
@@ -3550,6 +3550,10 @@ public class SubscriptionServiceBean
         manageBean.setSubscriptionOwner(dbSubscription,
                 subscription.getOwnerId(), true);
 
+        boolean backupOldValues = handleParameterModifications(
+                modifiedParameters, dbSubscription, currentUser, subIdChanged,
+                dbProduct);
+
         List<Uda> existingUdas = manageBean.getExistingUdas(dbSubscription);
         List<VOUda> updatedUdas = getUpdatedSubscriptionAttributes(udas,
                 existingUdas);
@@ -3557,8 +3561,7 @@ public class SubscriptionServiceBean
         logSubscriptionAttributeForEdit(dbSubscription, updatedUdas);
         logSubscriptionOwner(dbSubscription, dbOwner);
 
-        if (dbProduct.getTechnicalProduct().getProvisioningType()
-                .equals(ProvisioningType.ASYNCHRONOUS)) {
+        if (backupOldValues) {
             long subscriptionKey = dbSubscription.getKey();
             modUpgBean.storeModifiedEntity(subscriptionKey,
                     ModifiedEntityType.SUBSCRIPTION_SUBSCRIPTIONID,
@@ -3589,6 +3592,7 @@ public class SubscriptionServiceBean
         }
         dataManager.flush();
 
+        // as a temporary solution, save custom attributes here
         try {
             appManager.saveAttributes(dbSubscription);
         } catch (TechnicalServiceOperationException e) {
@@ -3596,17 +3600,6 @@ public class SubscriptionServiceBean
             LOG.logWarn(Log4jLogger.SYSTEM_LOG, e,
                     LogMessageIdentifier.WARN_TECH_SERVICE_WS_ERROR,
                     subscription.getSubscriptionId(), e.getMessage());
-        }
-
-        try {
-            if (subIdChanged || checkIfParametersAreModified(dbSubscription,
-                    dbSubscription, dbProduct, dbProduct, modifiedParameters,
-                    false)) {
-                copyProductAndModifyParametersForUpdate(dbSubscription,
-                        dbProduct, currentUser, modifiedParameters);
-            }
-        } catch (ServiceChangedException e) {
-            throw new ConcurrentModificationException(e.getMessage());
         }
 
         LocalizerFacade facade = new LocalizerFacade(localizer,
@@ -3625,6 +3618,29 @@ public class SubscriptionServiceBean
                         dbSubscription.getProduct().getVendor()));
 
         return result;
+    }
+
+    private boolean handleParameterModifications(
+            List<VOParameter> modifiedParameters, Subscription dbSubscription,
+            final PlatformUser currentUser, boolean subIdChanged,
+            Product dbProduct) throws SubscriptionMigrationException,
+            ConcurrentModificationException, ValidationException,
+            TechnicalServiceNotAliveException {
+        try {
+            if (subIdChanged || checkIfParametersAreModified(dbSubscription,
+                    dbSubscription, dbProduct, dbProduct, modifiedParameters,
+                    false)) {
+                copyProductAndModifyParametersForUpdate(dbSubscription,
+                        dbProduct, currentUser, modifiedParameters);
+                if (dbProduct.getTechnicalProduct().getProvisioningType()
+                        .equals(ProvisioningType.ASYNCHRONOUS)) {
+                    return true;
+                }
+            }
+        } catch (ServiceChangedException e) {
+            throw new ConcurrentModificationException(e.getMessage());
+        }
+        return false;
     }
 
     /**
