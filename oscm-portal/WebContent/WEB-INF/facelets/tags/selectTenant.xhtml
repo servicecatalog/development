@@ -34,7 +34,7 @@
             onclick="AdmUtils.removeNonPrintedChars(#{rich:component('tenantId')});"
             oncomplete="AdmUtils.addNothingLabel(#{rich:component('tenantId')}, 'tenant-popup', '#{msg['tenant.noMatch']}');">
         <h:column>
-            <h:outputText value="#{tenant.tenantId}" />
+            <h:outputText value="#{tenant.tenantId} (#{tenant.name})" />
         </h:column>
     </rich:autocomplete>
 
