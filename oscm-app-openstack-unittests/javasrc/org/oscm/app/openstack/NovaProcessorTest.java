@@ -190,7 +190,7 @@ public class NovaProcessorTest {
         assertEquals(result.get(0).getStatus(), ServerStatus.ACTIVE.name());
         assertEquals(result.get(1).getId(), "1-Instance-otherserver2");
         assertEquals(result.get(1).getName(), "");
-        assertEquals(result.get(1).getStatus(), "-1");
+        assertEquals(result.get(1).getStatus(), ServerStatus.ERROR.toString());
     }
 
     @Test(expected = InstanceNotAliveException.class)
@@ -244,7 +244,7 @@ public class NovaProcessorTest {
         assertEquals(result.get(0).getStatus(), ServerStatus.ACTIVE.name());
         assertEquals(result.get(1).getId(), "1-Instance-otherserver2");
         assertEquals(result.get(1).getName(), "");
-        assertEquals(result.get(1).getStatus(), "-1");
+        assertEquals(result.get(1).getStatus(), ServerStatus.ERROR.toString());
     }
 
     @Test
