@@ -14,6 +14,7 @@ import java.util.Set;
 
 import javax.ejb.SessionContext;
 
+import org.apache.commons.lang3.StringUtils;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.logging.Log4jLogger;
@@ -171,7 +172,7 @@ public class UdaDefinitionAccess {
 
     private void storeLocalizedAttributeName(long key, String attributeName,
         String language) {
-        if (attributeName == null) {
+        if (StringUtils.isBlank(attributeName)) {
             return;
         }
         localizer.storeLocalizedResource(language, key,
