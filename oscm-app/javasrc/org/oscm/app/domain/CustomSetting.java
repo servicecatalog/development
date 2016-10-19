@@ -30,7 +30,8 @@ import org.oscm.app.security.AESEncrypter;
 @Entity
 @IdClass(CustomSetting.ScopedSettingKey.class)
 @NamedQueries({
-        @NamedQuery(name = "CustomSetting.getForOrg", query = "SELECT cs FROM CustomSetting cs WHERE cs.organizationId = :organizationId") })
+        @NamedQuery(name = "CustomSetting.getForOrg", query = "SELECT cs FROM CustomSetting cs WHERE cs.organizationId = :organizationId"),
+        @NamedQuery(name = "CustomSetting.deleteForOrg", query = "DELETE FROM CustomSetting cs WHERE cs.organizationId = :organizationId") })
 public class CustomSetting {
 
     /**

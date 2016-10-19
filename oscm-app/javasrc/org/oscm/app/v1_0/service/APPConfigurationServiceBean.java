@@ -21,6 +21,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 
 import org.oscm.app.business.exceptions.BadResultException;
 import org.oscm.app.domain.ConfigurationSetting;
@@ -290,14 +291,14 @@ public class APPConfigurationServiceBean {
         HashMap<String, String> result = new HashMap<>();
 
         if (organizationId != null) {
-            Query query = em.createNamedQuery("CustomSetting.getForController");
+            TypedQuery<CustomSetting> query = em.createNamedQuery(
+                    "CustomSetting.getForOrg", CustomSetting.class);
             query.setParameter("organizationId", organizationId);
-            List<?> resultList = query.getResultList();
+            List<CustomSetting> resultList = query.getResultList();
             try {
-                for (Object entry : resultList) {
-                    CustomSetting currentCs = (CustomSetting) entry;
-                    result.put(currentCs.getSettingKey(),
-                            currentCs.getDecryptedValue());
+                for (CustomSetting entry : resultList) {
+                    result.put(entry.getSettingKey(),
+                            entry.getDecryptedValue());
                 }
             } catch (BadResultException e) {
                 throw new ConfigurationException(e.getMessage());

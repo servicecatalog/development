@@ -15,6 +15,7 @@ import javax.inject.Inject;
 import javax.jws.WebService;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 
 import org.oscm.app.business.APPlatformControllerFactory;
 import org.oscm.app.business.AsynchronousProvisioningProxyImpl;
@@ -686,13 +687,18 @@ public class AsynchronousProvisioningProxy implements ProvisioningService {
             List<ServiceAttribute> attributeValues, User requestingUser) {
 
         try {
+
+            Query q = em.createNamedQuery("CustomSetting.deleteForOrg");
+            q.setParameter("organizationId", organizationId);
+            q.executeUpdate();
+
             CustomSetting cs;
             for (ServiceAttribute attr : attributeValues) {
                 cs = new CustomSetting();
                 cs.setOrganizationId(organizationId);
                 cs.setSettingKey(attr.getAttributeId());
                 cs.setDecryptedValue(attr.getValue());
-                em.merge(cs);
+                em.persist(cs);
             }
 
             return provResult.newOkBaseResult();
