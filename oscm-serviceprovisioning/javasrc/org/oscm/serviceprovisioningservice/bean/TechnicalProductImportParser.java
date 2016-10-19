@@ -109,6 +109,7 @@ public class TechnicalProductImportParser extends ImportParserBase {
     private static final String ELEMENT_LOCALIZED_NAME = "LocalizedName";
     private static final String ELEMENT_OPERATION = "Operation";
     private static final String ELEMENT_OPERATION_PARAMETER = "OperationParameter";
+    private static final String ELEMENT_CUSTOM_TAB_NAME = "CustomTabName";
 
     private static final String ATTRIBUTE_ID = "id";
     private static final String ATTRIBUTE_ACCESS_TYPE = "accessType";
@@ -123,6 +124,7 @@ public class TechnicalProductImportParser extends ImportParserBase {
     private static final String ATTRIBUTE_PROVISIONING_TIMEOUT = "provisioningTimeout";
     private static final String ATTRIBUTE_PROVISIONING_USERNAME = "provisioningUsername";
     private static final String ATTRIBUTE_PROVISIONING_PASSWORD = "provisioningPassword";
+    private static final String ATTRIBUTE_CUSTOM_TAB_URL = "customTabUrl";
     private static final String ATTRIBUTE_VALUE_TYPE = "valueType";
     private static final String ATTRIBUTE_TYPE = "type";
     private static final String ATTRIBUTE_ACTIONURL = "actionURL";
@@ -806,11 +808,13 @@ public class TechnicalProductImportParser extends ImportParserBase {
             String billingIdentifier = getValidatedBillingID(atts,
                     techProductId);
 
+            String customTabUrl = atts.getValue(ATTRIBUTE_CUSTOM_TAB_URL);
+
             techProduct = initTechnicalProduct(values[0],
                     ProvisioningType.valueOf(provisioningType), provisioningUrl,
                     provisioningVersion, accessType,
                     subscriptionRestriction.booleanValue(),
-                    onBehalfActing.booleanValue(), billingIdentifier);
+                    onBehalfActing.booleanValue(), billingIdentifier, customTabUrl);
 
             /*
              * if the technical product already refers to events or parameter
@@ -865,173 +869,172 @@ public class TechnicalProductImportParser extends ImportParserBase {
             techProduct.setBaseURL(baseUrl);
             techProduct.setBillingIdentifier(billingIdentifier);
 
-        } else if (ELEMENT_LOCALIZED_DESCRIPTION.equals(name)) {
+        } else if (ELEMENT_LOCALIZED_DESCRIPTION.equals(name)
+                || ELEMENT_LOCALIZED_NAME.equals(name)
+                || ELEMENT_LOCALIZED_TAG.equals(name)
+                || ELEMENT_ACCESS_INFO.equals(name)
+                || ELEMENT_LOCALIZED_LICENSE.equals(name)
+                || ELEMENT_CUSTOM_TAB_NAME.equals(name)) {
             locale = getLocaleValue(atts, ATTRIBUTE_LOCALE);
             cleanBuffer();
-        } else if (ELEMENT_LOCALIZED_NAME.equals(name)) {
-            locale = getLocaleValue(atts, ATTRIBUTE_LOCALE);
-            cleanBuffer();
-        } else if (ELEMENT_LOCALIZED_TAG.equals(name)) {
-            locale = getLocaleValue(atts, ATTRIBUTE_LOCALE);
-            cleanBuffer();
-        } else if (ELEMENT_ACCESS_INFO.equals(name)) {
-            locale = getLocaleValue(atts, ATTRIBUTE_LOCALE);
-            cleanBuffer();
-        } else if (ELEMENT_LOCALIZED_LICENSE.equals(name)) {
-            locale = getLocaleValue(atts, ATTRIBUTE_LOCALE);
-            cleanBuffer();
-        } else if (ELEMENT_EVENT.equals(name)) {
-            String id = getMandatoryValue(name, atts, ATTRIBUTE_ID);
-            if (id == null || techProduct == null) {
-                return;
-            }
-            if (eventIds.contains(id)) {
-                addError(name, "Duplicate event id: " + id);
-                logger.logWarn(Log4jLogger.SYSTEM_LOG,
-                        LogMessageIdentifier.WARN_IMPORT_PARSER_ERROR_DUPULICATE_EVENT_ID,
-                        id);
-                return;
-            }
-            event = initProductEvent(techProduct, id);
-        } else if (ELEMENT_ROLE.equals(name)) {
-            String id = getMandatoryValue(name, atts, ATTRIBUTE_ID);
-            if (id == null || techProduct == null) {
-                return;
-            }
-            if (techProduct.getAccessType() == ServiceAccessType.DIRECT) {
-                String message = "The definition of service roles is not allowed if %s is %s";
-                addError(name, String.format(message, ATTRIBUTE_ACCESS_TYPE,
-                        ServiceAccessType.DIRECT.name()));
-                logger.logWarn(Log4jLogger.SYSTEM_LOG,
-                        LogMessageIdentifier.WARN_IMPROT_PARSER_ERROR_ROLES_NOT_ALLOWED,
-                        ATTRIBUTE_ACCESS_TYPE, ServiceAccessType.DIRECT.name());
-                return;
-            }
-            if (roleIds.contains(id)) {
-                addError(name, "Duplicate role id: " + id);
-                logger.logWarn(Log4jLogger.SYSTEM_LOG,
-                        LogMessageIdentifier.WARN_IMPORT_PARSER_ERROR_DUPULICATE_ROLE_ID,
-                        id);
-                return;
-            }
-            role = initRole(techProduct, id);
-        } else if (ELEMENT_OPERATION.equals(name)) {
-            if (techProduct == null) {
-                return;
-            }
-            String id = getMandatoryValue(name, atts, ATTRIBUTE_ID);
-            String actionUrl = getMandatoryValue(name, atts,
-                    ATTRIBUTE_ACTIONURL);
-
-            if (operationIds.contains(id)) {
-                addError(name, "Duplicate operation id: " + id);
-                logger.logWarn(Log4jLogger.SYSTEM_LOG,
-                        LogMessageIdentifier.WARN_IMPORT_PARSER_ERROR_DUPULICATE_OPERATION_ID,
-                        id);
-                return;
-            }
-            operation = initOperation(techProduct, id, actionUrl);
-            obsoleteOperationParameters = new ArrayList<>(
-                    operation.getParameters());
-        } else if (ELEMENT_OPERATION_PARAMETER.equals(name)) {
-            if (!readOperationParameter(atts, name)) {
-                return;
-            }
-        } else if (ELEMENT_PARAMETER_DEFINITION.equals(name)) {
-            String[] mandatoryValues = getMandatoryValues(name, atts,
-                    ATTRIBUTE_ID, ATTRIBUTE_VALUE_TYPE);
-            if (mandatoryValues == null || techProduct == null) {
-                return;
-            }
-
-            // if parameter Id already exists
-            if (parameterIds.contains(mandatoryValues[0])) {
-                addError(name, "Duplicate parameter id: " + mandatoryValues[0]);
-                logger.logWarn(Log4jLogger.SYSTEM_LOG,
-                        LogMessageIdentifier.WARN_IMPORT_PARSER_ERROR_DUPULICATE_PARAMETER_ID,
-                        mandatoryValues[0]);
-                return;
-            }
-
-            try {
-                ParameterDefinition paramDef = prodParamDefFinder.find(
-                        techProduct.getParameterDefinitions(),
-                        mandatoryValues[0]);
-
-                parameterDef = parameterParser.parseParameterDef(
-                        mandatoryValues[0], mandatoryValues[1], atts,
-                        techProduct, paramDef);
-            } catch (UpdateConstraintException e) {
-                setAppException(e);
-                throw new SAXException(e);
-            } catch (ImportException e) {
-                addError(name, e.getDetails());
-                logger.logError(Log4jLogger.SYSTEM_LOG, e,
-                        LogMessageIdentifier.ERROR_IMPORT_TECHNICAL_PRODUCT_FAILED);
-                setAppException(e);
-                throw new SAXException(e);
-            }
-
-            parameterIds.add(parameterDef.getParameterId());
-
-            if (parameterParser.isCreateAction()) {
-                // if parameter definition is new, persist this parameterDef
-                persist(parameterDef);
-            } else {
-                // remove old Parameter definition from obsolete parameter
-                // definition list by Id
-                ParameterDefinition oldParamDef = prodParamDefFinder
-                        .find(obsoleteParameterDefs, mandatoryValues[0]);
-                if (obsoleteParameterDefs != null) {
-                    obsoleteParameterDefs.remove(oldParamDef);
-                }
-            }
-        } else if (ELEMENT_LOCALIZED_OPTION.equals(name)) {
-            locale = getLocaleValue(atts, ATTRIBUTE_LOCALE);
-
-            if (parOptionParser.hasProcessedLocale(locale)) {
-                addError(name,
-                        "Duplicate localized option. Option: "
-                                + parOptionParser.getCurrentOptionID()
-                                + " Locale: " + locale);
-                logger.logWarn(Log4jLogger.SYSTEM_LOG,
-                        LogMessageIdentifier.WARN_IMPORT_PARSER_ERROR_DUPULICATE_OPTION_ID,
-                        parOptionParser.getCurrentOptionID(), locale);
-                return;
-            }
-
-            cleanBuffer();
-        } else if (ELEMENT_TECHNICAL_SERVICES.equals(name)) {
-            // avoid reporting an error for this element
-        } else if (ELEMENT_OPTION.equals(name)) {
-            String values[] = getMandatoryValues(name, atts, ATTRIBUTE_ID);
-            String optionID = values[0];
-
-            if (!parOptionParser.hasProcessed(optionID)) {
-                parOptionParser.getOrCreateOption(optionID);
-            } else {
-                addError(name, "Duplicate option id: " + optionID);
-                logger.logWarn(Log4jLogger.SYSTEM_LOG,
-                        LogMessageIdentifier.WARN_IMPORT_PARSER_ERROR_DUPULICATE_OPTION_ID,
-                        optionID);
-                return;
-            }
-        } else if (ELEMENT_OPTIONS.equals(name)) {
-            // setup parameter option parser if the parameter is an enumeration
-            if (parameterDef.getValueType() == ParameterValueType.ENUMERATION) {
-                parOptionParser = new TechnicalProductParameterOptionImportParser(
-                        parameterDef, techProduct.getTechnicalProductId(), dm,
-                        localizer);
-            } else {
-                addError(name,
-                        "Option(s) defined for non-enumeration parameter");
-                logger.logWarn(Log4jLogger.SYSTEM_LOG,
-                        LogMessageIdentifier.WARN_IMPORT_PARSER_ERROR_IMPLAUSIBLE_OPTIONS);
-            }
         } else {
-            addError(name, "Unknown element ignored!");
-            logger.logWarn(Log4jLogger.SYSTEM_LOG,
-                    LogMessageIdentifier.WARN_IMPORT_PARSER_ERROR_UNKNOWN_ELEMENT);
+            if (ELEMENT_EVENT.equals(name)) {
+                String id = getMandatoryValue(name, atts, ATTRIBUTE_ID);
+                if (id == null || techProduct == null) {
+                    return;
+                }
+                if (eventIds.contains(id)) {
+                    addError(name, "Duplicate event id: " + id);
+                    logger.logWarn(Log4jLogger.SYSTEM_LOG,
+                            LogMessageIdentifier.WARN_IMPORT_PARSER_ERROR_DUPULICATE_EVENT_ID,
+                            id);
+                    return;
+                }
+                event = initProductEvent(techProduct, id);
+            } else if (ELEMENT_ROLE.equals(name)) {
+                String id = getMandatoryValue(name, atts, ATTRIBUTE_ID);
+                if (id == null || techProduct == null) {
+                    return;
+                }
+                if (techProduct.getAccessType() == ServiceAccessType.DIRECT) {
+                    String message = "The definition of service roles is not allowed if %s is %s";
+                    addError(name, String.format(message, ATTRIBUTE_ACCESS_TYPE,
+                            ServiceAccessType.DIRECT.name()));
+                    logger.logWarn(Log4jLogger.SYSTEM_LOG,
+                            LogMessageIdentifier.WARN_IMPROT_PARSER_ERROR_ROLES_NOT_ALLOWED,
+                            ATTRIBUTE_ACCESS_TYPE, ServiceAccessType.DIRECT.name());
+                    return;
+                }
+                if (roleIds.contains(id)) {
+                    addError(name, "Duplicate role id: " + id);
+                    logger.logWarn(Log4jLogger.SYSTEM_LOG,
+                            LogMessageIdentifier.WARN_IMPORT_PARSER_ERROR_DUPULICATE_ROLE_ID,
+                            id);
+                    return;
+                }
+                role = initRole(techProduct, id);
+            } else if (ELEMENT_OPERATION.equals(name)) {
+                if (techProduct == null) {
+                    return;
+                }
+                String id = getMandatoryValue(name, atts, ATTRIBUTE_ID);
+                String actionUrl = getMandatoryValue(name, atts,
+                        ATTRIBUTE_ACTIONURL);
+
+                if (operationIds.contains(id)) {
+                    addError(name, "Duplicate operation id: " + id);
+                    logger.logWarn(Log4jLogger.SYSTEM_LOG,
+                            LogMessageIdentifier.WARN_IMPORT_PARSER_ERROR_DUPULICATE_OPERATION_ID,
+                            id);
+                    return;
+                }
+                operation = initOperation(techProduct, id, actionUrl);
+                obsoleteOperationParameters = new ArrayList<>(
+                        operation.getParameters());
+            } else if (ELEMENT_OPERATION_PARAMETER.equals(name)) {
+                if (!readOperationParameter(atts, name)) {
+                    return;
+                }
+            } else if (ELEMENT_PARAMETER_DEFINITION.equals(name)) {
+                String[] mandatoryValues = getMandatoryValues(name, atts,
+                        ATTRIBUTE_ID, ATTRIBUTE_VALUE_TYPE);
+                if (mandatoryValues == null || techProduct == null) {
+                    return;
+                }
+
+                // if parameter Id already exists
+                if (parameterIds.contains(mandatoryValues[0])) {
+                    addError(name, "Duplicate parameter id: " + mandatoryValues[0]);
+                    logger.logWarn(Log4jLogger.SYSTEM_LOG,
+                            LogMessageIdentifier.WARN_IMPORT_PARSER_ERROR_DUPULICATE_PARAMETER_ID,
+                            mandatoryValues[0]);
+                    return;
+                }
+
+                try {
+                    ParameterDefinition paramDef = prodParamDefFinder.find(
+                            techProduct.getParameterDefinitions(),
+                            mandatoryValues[0]);
+
+                    parameterDef = parameterParser.parseParameterDef(
+                            mandatoryValues[0], mandatoryValues[1], atts,
+                            techProduct, paramDef);
+                } catch (UpdateConstraintException e) {
+                    setAppException(e);
+                    throw new SAXException(e);
+                } catch (ImportException e) {
+                    addError(name, e.getDetails());
+                    logger.logError(Log4jLogger.SYSTEM_LOG, e,
+                            LogMessageIdentifier.ERROR_IMPORT_TECHNICAL_PRODUCT_FAILED);
+                    setAppException(e);
+                    throw new SAXException(e);
+                }
+
+                parameterIds.add(parameterDef.getParameterId());
+
+                if (parameterParser.isCreateAction()) {
+                    // if parameter definition is new, persist this parameterDef
+                    persist(parameterDef);
+                } else {
+                    // remove old Parameter definition from obsolete parameter
+                    // definition list by Id
+                    ParameterDefinition oldParamDef = prodParamDefFinder
+                            .find(obsoleteParameterDefs, mandatoryValues[0]);
+                    if (obsoleteParameterDefs != null) {
+                        obsoleteParameterDefs.remove(oldParamDef);
+                    }
+                }
+            } else if (ELEMENT_LOCALIZED_OPTION.equals(name)) {
+                locale = getLocaleValue(atts, ATTRIBUTE_LOCALE);
+
+                if (parOptionParser.hasProcessedLocale(locale)) {
+                    addError(name,
+                            "Duplicate localized option. Option: "
+                                    + parOptionParser.getCurrentOptionID()
+                                    + " Locale: " + locale);
+                    logger.logWarn(Log4jLogger.SYSTEM_LOG,
+                            LogMessageIdentifier.WARN_IMPORT_PARSER_ERROR_DUPULICATE_OPTION_ID,
+                            parOptionParser.getCurrentOptionID(), locale);
+                    return;
+                }
+
+                cleanBuffer();
+            } else if (ELEMENT_TECHNICAL_SERVICES.equals(name)) {
+                // avoid reporting an error for this element
+            } else if (ELEMENT_OPTION.equals(name)) {
+                String values[] = getMandatoryValues(name, atts, ATTRIBUTE_ID);
+                String optionID = values[0];
+
+                if (!parOptionParser.hasProcessed(optionID)) {
+                    parOptionParser.getOrCreateOption(optionID);
+                } else {
+                    addError(name, "Duplicate option id: " + optionID);
+                    logger.logWarn(Log4jLogger.SYSTEM_LOG,
+                            LogMessageIdentifier.WARN_IMPORT_PARSER_ERROR_DUPULICATE_OPTION_ID,
+                            optionID);
+                    return;
+                }
+            } else if (ELEMENT_OPTIONS.equals(name)) {
+                // setup parameter option parser if the parameter is an
+                // enumeration
+                if (parameterDef
+                        .getValueType() == ParameterValueType.ENUMERATION) {
+                    parOptionParser = new TechnicalProductParameterOptionImportParser(
+                            parameterDef, techProduct.getTechnicalProductId(),
+                            dm, localizer);
+                } else {
+                    addError(name,
+                            "Option(s) defined for non-enumeration parameter");
+                    logger.logWarn(Log4jLogger.SYSTEM_LOG,
+                            LogMessageIdentifier.WARN_IMPORT_PARSER_ERROR_IMPLAUSIBLE_OPTIONS);
+                }
+            } else if (ELEMENT_CUSTOM_TAB_NAME.equals(name)) {
+                return;
+            } else {
+                addError(name, "Unknown element ignored!");
+                logger.logWarn(Log4jLogger.SYSTEM_LOG,
+                        LogMessageIdentifier.WARN_IMPORT_PARSER_ERROR_UNKNOWN_ELEMENT);
+            }
         }
     }
 
@@ -1448,6 +1451,10 @@ public class TechnicalProductImportParser extends ImportParserBase {
                 setAppException(e);
                 throw new SAXException(e);
             }
+        } else if (ELEMENT_CUSTOM_TAB_NAME.equals(name)) {
+            String newText = text.toString().trim();
+            localizer.storeLocalizedResource(locale, techProduct.getKey(),
+                    LocalizedObjectTypes.CUSTOM_TAB_NAME, newText);
         }
     }
 
@@ -1576,7 +1583,7 @@ public class TechnicalProductImportParser extends ImportParserBase {
             ProvisioningType provisioningType, String provisioningUrl,
             String provisioningVersion, ServiceAccessType accessType,
             boolean onlyOneSubscriptionAllowed, boolean allowingOnBehalfActing,
-            String billingIdentifier) throws SAXException {
+            String billingIdentifier, String customTabUrl) throws SAXException {
 
         // first check if the organization is a technology provider. if it's
         // not, an OperationNotPermitted will be thrown.
@@ -1605,6 +1612,8 @@ public class TechnicalProductImportParser extends ImportParserBase {
                     .setOnlyOneSubscriptionAllowed(onlyOneSubscriptionAllowed);
             techProduct.setAllowingOnBehalfActing(allowingOnBehalfActing);
             techProduct.setBillingIdentifier(billingIdentifier);
+            techProduct.setCustomTabUrl(customTabUrl);
+
             persist(techProduct);
         } else {
             if (pm.hasTechnicalProductActiveSessions(techProduct.getKey())) {

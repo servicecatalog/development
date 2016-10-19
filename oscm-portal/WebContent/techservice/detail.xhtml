@@ -82,6 +82,14 @@
 				<adm:outputLabel value="#{msg['techService.description']}" />
 				<adm:outputLarge
 					value="#{techServiceBean.selectedTechnicalService.technicalServiceDescription}" />
+
+				<adm:outputLabel value="#{msg['techService.customTabName']}" />
+				<h:outputText
+						value="#{techServiceBean.selectedTechnicalService.customTabName}" />
+
+				<adm:outputLabel value="#{msg['techService.customTabUrl']}" />
+				<h:outputText
+						value="#{techServiceBean.selectedTechnicalService.customTabUrl}" />
 			</h:panelGrid>
 
 			<adm:outputStep value="#{msg['techService.parameterDefinitions']}" />

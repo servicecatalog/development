@@ -118,6 +118,17 @@ public class TechnicalProductData extends DomainDataContainer implements
     @Column(nullable = false)
     private String billingIdentifier;
 
+    /**
+     * Name of the custom tab with additional provider's information
+     */
+    private String customTabName;
+
+    /**
+     * Name of the custom tab with additional provider's information
+     */
+    @Column
+    private String customTabUrl;
+
     public boolean isAllowingOnBehalfActing() {
         return allowingOnBehalfActing;
     }
@@ -228,5 +239,21 @@ public class TechnicalProductData extends DomainDataContainer implements
 
     public void setBillingIdentifier(String billingIdentifier) {
         this.billingIdentifier = billingIdentifier;
+    }
+
+    public String getCustomTabName() {
+        return customTabName;
+    }
+
+    public void setCustomTabName(String customTabName) {
+        this.customTabName = customTabName;
+    }
+
+    public String getCustomTabUrl() {
+        return customTabUrl;
+    }
+
+    public void setCustomTabUrl(String customTabUrl) {
+        this.customTabUrl = customTabUrl;
     }
 }

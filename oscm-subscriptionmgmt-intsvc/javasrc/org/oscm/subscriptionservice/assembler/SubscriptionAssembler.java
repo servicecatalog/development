@@ -257,6 +257,13 @@ public class SubscriptionAssembler extends BaseAssembler {
             voSubscription.setServiceLoginPath(subscription.getLoginPath());
         }
 
+        if (voSubscription.getCustomTabName() == null) {
+            voSubscription.setCustomTabName(facade.getText(techProd.getKey(), LocalizedObjectTypes.CUSTOM_TAB_NAME));
+        }
+        if (voSubscription.getCustomTabUrl() == null) {
+            voSubscription.setCustomTabUrl(techProd.getCustomTabUrl());
+        }
+
         voSubscription
                 .setServiceInstanceId(subscription.getProductInstanceId());
         voSubscription.setPurchaseOrderNumber(subscription
@@ -329,7 +336,8 @@ public class SubscriptionAssembler extends BaseAssembler {
                 LocalizedObjectTypes.TECHNICAL_PRODUCT_OPERATION_NAME,
                 LocalizedObjectTypes.TECHNICAL_PRODUCT_OPERATION_DESCRIPTION,
                 LocalizedObjectTypes.SUBSCRIPTION_PROVISIONING_PROGRESS,
-                LocalizedObjectTypes.TEC_PRODUCT_LOGIN_ACCESS_DESC }));
+                LocalizedObjectTypes.TEC_PRODUCT_LOGIN_ACCESS_DESC,
+                LocalizedObjectTypes.CUSTOM_TAB_NAME}));
     }
 
     public static VOUsageLicense toVOUsageLicense(UsageLicense lic,

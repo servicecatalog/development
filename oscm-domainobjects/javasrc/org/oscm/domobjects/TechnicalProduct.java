@@ -26,6 +26,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -58,7 +59,8 @@ public class TechnicalProduct
             .unmodifiableList(Arrays.asList(
                     LocalizedObjectTypes.TEC_PRODUCT_LOGIN_ACCESS_DESC,
                     LocalizedObjectTypes.TEC_PRODUCT_TECHNICAL_DESC,
-                    LocalizedObjectTypes.PRODUCT_LICENSE_DESC));
+                    LocalizedObjectTypes.PRODUCT_LICENSE_DESC,
+                    LocalizedObjectTypes.CUSTOM_TAB_NAME));
 
     public TechnicalProduct() {
         super();
@@ -292,6 +294,21 @@ public class TechnicalProduct
     public void setOnlyOneSubscriptionAllowed(
             boolean onlyOneSubscriptionAllowed) {
         dataContainer.setOnlyOneSubscriptionAllowed(onlyOneSubscriptionAllowed);
+    }
+
+    public String getCustomTabName() {
+        return dataContainer.getCustomTabName();
+    }
+
+    public void setCustomTabName(String name) {
+        dataContainer.setCustomTabName(name);
+    }
+    public String getCustomTabUrl() {
+        return dataContainer.getCustomTabUrl();
+    }
+
+    public void setCustomTabUrl(String name) {
+        dataContainer.setCustomTabUrl(name);
     }
 
     /**
