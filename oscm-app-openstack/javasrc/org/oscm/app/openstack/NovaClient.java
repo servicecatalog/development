@@ -14,6 +14,7 @@ import java.net.URLEncoder;
 import org.apache.sling.commons.json.JSONException;
 import org.apache.sling.commons.json.JSONObject;
 import org.oscm.app.openstack.controller.PropertyHandler;
+import org.oscm.app.openstack.controller.ServerStatus;
 import org.oscm.app.openstack.data.Server;
 import org.oscm.app.openstack.exceptions.OpenStackConnectionException;
 import org.slf4j.Logger;
@@ -127,7 +128,7 @@ public class NovaClient {
                     e);
         }
         result.setName("");
-        result.setStatus("-1");
+        result.setStatus(ServerStatus.ERROR.toString());
         return result;
     }
 
