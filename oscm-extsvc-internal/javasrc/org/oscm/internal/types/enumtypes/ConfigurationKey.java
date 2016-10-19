@@ -328,11 +328,11 @@ public enum ConfigurationKey {
 
     @Doc({ "Default tenant ID used for proper identification default tenant. String has to have length of 8 characters." })
     @Example("8f96dede")
-    SSO_DEFAULT_TENANT_ID(true, "8f96dede", "string", true, 8L),
+    SSO_DEFAULT_TENANT_ID(false, "8f96dede", "string", false, 8L),
 
     @Doc({ "IDP issuer ID. Value used for validating if the response is being sent from proper IDP." })
     @Example("IDP_ID")
-    SSO_IDP_SAML_ASSERTION_ISSUER_ID(true, "default", "string", true);
+    SSO_IDP_SAML_ASSERTION_ISSUER_ID(false, "default", "string", false);
 
     /////////////////////////////////////////////////////////////////////////////////////
 
