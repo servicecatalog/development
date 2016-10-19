@@ -61,22 +61,40 @@ public class PropertyHandlerTest {
 
         // case 1
         parameters.put(PropertyHandler.TEMPLATE_NAME, "template1.json");
-        configSettings.put(PropertyHandler.TEMPLATE_BASE_URL, "http://test.com");
+        configSettings.put(PropertyHandler.TEMPLATE_BASE_URL,
+                "http://test.com");
         propertyHandler = new PropertyHandler(settings);
         String url = propertyHandler.getTemplateUrl();
         assertEquals("http://test.com/template1.json", url);
 
         // case 2
-        parameters.put(PropertyHandler.TEMPLATE_NAME, "https://other.com/template1.json");
+        parameters.put(PropertyHandler.TEMPLATE_NAME,
+                "https://other.com/template1.json");
         url = propertyHandler.getTemplateUrl();
         assertEquals("https://other.com/template1.json", url);
 
         // case 3
-        configSettings.put(PropertyHandler.TEMPLATE_BASE_URL, "http://test.com/templates");
+        configSettings.put(PropertyHandler.TEMPLATE_BASE_URL,
+                "http://test.com/templates");
         parameters.put(PropertyHandler.TEMPLATE_NAME, "templates/apache.json");
         url = propertyHandler.getTemplateUrl();
         assertEquals("http://test.com/templates/apache.json", url);
 
+        // case 4
+        parameters.put(PropertyHandler.TEMPLATE_BASE_URL, "");
+        url = propertyHandler.getTemplateUrl();
+        assertEquals("http://test.com/templates/apache.json", url);
+    }
+
+    @Test()
+    public void testGetTemplateURL_onlyParam() throws HeatException {
+
+        // case 1
+        parameters.put(PropertyHandler.TEMPLATE_NAME, "template1.json");
+        parameters.put(PropertyHandler.TEMPLATE_BASE_URL, "http://test.com");
+        propertyHandler = new PropertyHandler(settings);
+        String url = propertyHandler.getTemplateUrl();
+        assertEquals("http://test.com/template1.json", url);
     }
 
     @Test()
@@ -111,6 +129,29 @@ public class PropertyHandlerTest {
         propertyHandler = new PropertyHandler(settings);
         String domainNameWithEmptyStr = propertyHandler.getDomainName();
         assertEquals("default", domainNameWithEmptyStr);
+    }
+
+    @Test()
+    public void testGetKeystoneURL() {
+        parameters.put(PropertyHandler.KEYSTONE_API_URL,
+                "http://keystone/v3/auth");
+        configSettings.put(PropertyHandler.KEYSTONE_API_URL,
+                "http://otherkeystone/v3/auth");
+        propertyHandler = new PropertyHandler(settings);
+        String keystoneURL = propertyHandler.getKeystoneUrl();
+        assertEquals("http://keystone/v3/auth", keystoneURL);
+    }
+
+    @Test()
+    public void testGetControllerKeystoneURL() {
+        configSettings.put(PropertyHandler.KEYSTONE_API_URL,
+                "http://otherkeystone/v3/auth");
+        propertyHandler = new PropertyHandler(settings);
+        String keystoneURL = propertyHandler.getKeystoneUrl();
+        assertEquals("http://otherkeystone/v3/auth", keystoneURL);
+        parameters.put(PropertyHandler.KEYSTONE_API_URL, "");
+        keystoneURL = propertyHandler.getKeystoneUrl();
+        assertEquals("http://otherkeystone/v3/auth", keystoneURL);
     }
 
     @Test()
@@ -172,22 +213,28 @@ public class PropertyHandlerTest {
 
     @Test
     public void testLocalizedResources() {
-        String messageEn = Messages.get("en", "status_" + FlowState.UPDATING.name());
-        String messageFr = Messages.get("fr", "status_" + FlowState.UPDATING.name());
+        String messageEn = Messages.get("en",
+                "status_" + FlowState.UPDATING.name());
+        String messageFr = Messages.get("fr",
+                "status_" + FlowState.UPDATING.name());
         assertTrue(messageEn.equals(messageFr));
     }
 
     @Test
     public void testArgsResources() {
-        String messageEn = Messages.get("en", "status_" + FlowState.UPDATING.name());
-        String messageEnParam = Messages.get("en", "status_" + FlowState.UPDATING.name(), "param 1");
+        String messageEn = Messages.get("en",
+                "status_" + FlowState.UPDATING.name());
+        String messageEnParam = Messages.get("en",
+                "status_" + FlowState.UPDATING.name(), "param 1");
         assertTrue(messageEn.equals(messageEnParam));
     }
 
     @Test
     public void testGetAllResources() {
-        List<LocalizedText> all = Messages.getAll("status_" + FlowState.UPDATING.name(), "testArg");
-        String messageEn = Messages.get("en", "status_" + FlowState.UPDATING.name());
+        List<LocalizedText> all = Messages
+                .getAll("status_" + FlowState.UPDATING.name(), "testArg");
+        String messageEn = Messages.get("en",
+                "status_" + FlowState.UPDATING.name());
         String found = null;
         for (LocalizedText test : all) {
             if ("en".equals(test.getLocale())) {
@@ -206,7 +253,8 @@ public class PropertyHandlerTest {
     @Test
     public void getMailForCompletion_empty() {
         String mailAddress = "";
-        propertyHandler.getSettings().getParameters().put(PropertyHandler.MAIL_FOR_COMPLETION, mailAddress);
+        propertyHandler.getSettings().getParameters()
+                .put(PropertyHandler.MAIL_FOR_COMPLETION, mailAddress);
         String mail = propertyHandler.getMailForCompletion();
         assertNull(mail);
     }
@@ -214,7 +262,8 @@ public class PropertyHandlerTest {
     @Test
     public void getMailForCompletion_notNull() {
         String mailAddress = "test@test.com";
-        propertyHandler.getSettings().getParameters().put(PropertyHandler.MAIL_FOR_COMPLETION, mailAddress);
+        propertyHandler.getSettings().getParameters()
+                .put(PropertyHandler.MAIL_FOR_COMPLETION, mailAddress);
         String mail = propertyHandler.getMailForCompletion();
         assertEquals(mailAddress, mail);
     }
