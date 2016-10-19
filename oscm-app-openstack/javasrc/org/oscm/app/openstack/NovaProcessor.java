@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.oscm.app.openstack.controller.PropertyHandler;
+import org.oscm.app.openstack.controller.ServerStatus;
 import org.oscm.app.openstack.data.Server;
 import org.oscm.app.openstack.exceptions.HeatException;
 import org.oscm.app.openstack.exceptions.NovaException;
@@ -206,7 +207,7 @@ public class NovaProcessor {
                                         + ph.getStackId() + ")",
                                 e);
                         server.setName("");
-                        server.setStatus("-1");
+                        server.setStatus(ServerStatus.ERROR.toString());
                     }
                 } else {
                     logger.error(
@@ -215,7 +216,7 @@ public class NovaProcessor {
                                     + ph.getStackId() + ")",
                             ex);
                     server.setName("");
-                    server.setStatus("-1");
+                    server.setStatus(ServerStatus.ERROR.toString());
                 }
             }
             servers.add(server);
