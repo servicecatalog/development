@@ -224,7 +224,7 @@ public class OperatorOrgBean extends BaseOperatorBean implements Serializable {
         List<POTenant> tenants = manageTenantService.getAllTenants();
         List<SelectItem> result = new ArrayList<SelectItem>();
         for (POTenant poTenant : tenants) {
-            result.add(new SelectItem(poTenant.getKey(), poTenant.getTenantId()));
+            result.add(new SelectItem(poTenant.getKey(), poTenant.getName()));
         }
         return result;
     }
