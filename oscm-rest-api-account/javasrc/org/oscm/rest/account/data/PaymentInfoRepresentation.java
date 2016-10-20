@@ -38,14 +38,10 @@ public class PaymentInfoRepresentation extends Representation {
         paymentType.update();
         vo.setAccountNumber(accountNumber);
         vo.setId(infoId);
-        if (getId() != null) {
-            vo.setKey(getId().longValue());
-        }
+        vo.setKey(convertIdToKey());
         vo.setPaymentType(paymentType.getVO());
         vo.setProviderName(providerName);
-        if (getETag() != null) {
-            vo.setVersion(getETag().intValue());
-        }
+        vo.setVersion(convertETagToVersion());
     }
 
     @Override
