@@ -12,6 +12,7 @@
   <message name="publishService" />
   <message name="publishServiceResponse" />
   <message name="getAccessibleMarketplaces" />
+  <message name="getAccessibleMarketplacesResponse" />
   <message name="getMarketplacesForService" />
   <message name="getMarketplacesForServiceResponse" />
   <message name="getMarketplacesOwned" />
@@ -270,6 +271,14 @@
         <wsp:PolicyReference URI="#MarketplaceServicePortSTSBinding_Output_Policy" />
       </output>
     </operation>
+    <operation name="getAccessibleMarketplaces">
+      <input>
+        <wsp:PolicyReference URI="#MarketplaceServicePortSTSBinding_Input_Policy" />
+      </input>
+      <output>
+        <wsp:PolicyReference URI="#MarketplaceServicePortSTSBinding_Output_Policy" />
+      </output>
+    </operation>    
   </binding>
   <service name="MarketplaceService">
     <port name="MarketplaceServicePortSTS" binding="tns:MarketplaceServicePortSTSBinding" />

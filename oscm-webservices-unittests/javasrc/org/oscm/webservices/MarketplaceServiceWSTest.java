@@ -91,8 +91,9 @@ public class MarketplaceServiceWSTest {
         serviceWS.getOrganizationsForMarketplace(null);
         serviceWS.getBrandingUrl(null);
         serviceWS.saveBrandingUrl(null, null);
+        serviceWS.getAccessibleMarketplaces();
 
-        verify(requestMock, times(17)).getRemoteAddr();
+        verify(requestMock, times(18)).getRemoteAddr();
 
         verify(serviceMock, times(1)).getAccessibleMarketplaces();
         verify(serviceMock, times(1)).getMarketplacesForOrganization();
