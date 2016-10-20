@@ -18,7 +18,7 @@ import org.oscm.rest.identity.data.RolesRepresentation;
 
 import com.sun.jersey.api.core.InjectParam;
 
-@Path(CommonParams.PATH_VERSION + "/users/{userid}/userroles")
+@Path(CommonParams.PATH_VERSION + "/users/{userId}/userroles")
 @Stateless
 public class RolesResource extends RestResource {
 
