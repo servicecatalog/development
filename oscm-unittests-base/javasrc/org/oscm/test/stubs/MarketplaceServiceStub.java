@@ -68,7 +68,7 @@ public class MarketplaceServiceStub implements MarketplaceService {
     }
 
     @Override
-    public List<VOMarketplace> getAccessibleMarketplacesForOperator() {
+    public List<VOMarketplace> getAccessibleMarketplaces() {
         throw new UnsupportedOperationException();
     }
 
@@ -220,12 +220,14 @@ public class MarketplaceServiceStub implements MarketplaceService {
     }
 
     @Override
-    public List<VOMarketplace> getAllMarketplacesForTenant(long tenantKey) throws ObjectNotFoundException {
+    public List<VOMarketplace> getAllMarketplacesForTenant(long tenantKey)
+            throws ObjectNotFoundException {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public String getTenantIdFromMarketplace(String marketplaceId) throws ObjectNotFoundException {
+    public String getTenantIdFromMarketplace(String marketplaceId)
+            throws ObjectNotFoundException {
         return null;
     }
 
