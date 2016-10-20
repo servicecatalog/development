@@ -30,13 +30,9 @@ public class RolesRepresentation extends Representation {
 
     @Override
     public void update() {
-        if (getId() != null) {
-            vo.setKey(getId().longValue());
-        }
+        vo.setKey(convertIdToKey());
         vo.setUserRoles(getUserRoles());
-        if (getETag() != null) {
-            vo.setVersion(getETag().intValue());
-        }
+        vo.setVersion(convertETagToVersion());
     }
 
     @Override
