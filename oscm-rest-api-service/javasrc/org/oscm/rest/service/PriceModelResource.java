@@ -43,7 +43,7 @@ public class PriceModelResource extends RestResource {
     @Since(CommonParams.VERSION_1)
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/customer/{orgId}")
+    @Path("/customer/{orgKey}")
     public Response getForCustomer(@Context Request request, @InjectParam ServiceParameters params) throws Exception {
         return get(request, pmb.getForCustomer(), params, true);
     }
@@ -51,7 +51,7 @@ public class PriceModelResource extends RestResource {
     @Since(CommonParams.VERSION_1)
     @PUT
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/customer/{orgId}")
+    @Path("/customer/{orgKey}")
     public Response updateForCustomer(@Context Request request, PriceModelRepresentation content,
             @InjectParam ServiceParameters params) throws Exception {
         return put(request, pmb.putForCustomer(), content, params);
