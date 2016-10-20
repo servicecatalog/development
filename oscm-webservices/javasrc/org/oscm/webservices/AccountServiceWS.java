@@ -408,7 +408,7 @@ public class AccountServiceWS implements AccountService {
                     udaDefinitionsToSave,
                     org.oscm.internal.vo.VOUdaDefinition.class, ds),
                     VOCollectionConverter.convertList(udaDefinitionsToDelete,
-                            org.oscm.internal.vo.VOUdaDefinition.class));
+                            org.oscm.internal.vo.VOUdaDefinition.class, ds));
         } catch (org.oscm.internal.types.exception.NonUniqueBusinessKeyException e) {
             throw ExceptionConverter.convertToApi(e);
         } catch (org.oscm.internal.types.exception.ObjectNotFoundException e) {
