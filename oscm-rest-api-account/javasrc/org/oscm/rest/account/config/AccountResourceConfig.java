@@ -44,7 +44,6 @@ public class AccountResourceConfig extends ResourceConfig {
     public Set<Class<?>> getRootResourceClasses() {
         Set<Class<?>> resource = new HashSet<Class<?>>();
 
-        // TODO
         return resource;
     }
 

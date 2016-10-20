@@ -34,17 +34,13 @@ public class BillingContactRepresentation extends Representation {
 
     @Override
     public void update() {
-        vo.setAddress(address);
-        vo.setCompanyName(companyName);
-        vo.setId(contactId);
-        vo.setEmail(email);
-        if (getId() != null) {
-            vo.setKey(getId().longValue());
-        }
-        vo.setOrgAddressUsed(orgAddressUsed);
-        if (getETag() != null) {
-            vo.setVersion(getETag().intValue());
-        }
+        vo.setAddress(getAddress());
+        vo.setCompanyName(getCompanyName());
+        vo.setId(getContactId());
+        vo.setEmail(getEmail());
+        vo.setKey(convertIdToKey());
+        vo.setOrgAddressUsed(isOrgAddressUsed());
+        vo.setVersion(convertETagToVersion());
     }
 
     @Override
