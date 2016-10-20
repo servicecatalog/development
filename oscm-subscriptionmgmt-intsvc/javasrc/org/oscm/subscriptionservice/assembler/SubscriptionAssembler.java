@@ -235,6 +235,11 @@ public class SubscriptionAssembler extends BaseAssembler {
 
                 voSubscription.setSellerName(supplierName);
             }
+            voSubscription.setCustomTabName(facade.getText(
+                    subscription.getProduct().getTemplate().getKey(),
+                    LocalizedObjectTypes.PRODUCT_CUSTOM_TAB_NAME));
+            voSubscription
+                    .setCustomTabUrl(product.getTemplate().getCustomTabUrl());
         }
 
         TechnicalProduct techProd = product.getTechnicalProduct();

@@ -17,6 +17,9 @@
       <c:forEach items="#{serviceBean.localization.descriptions}" var="it">
         <h:inputHidden id="desc_#{it.locale}" value="#{it.text}" />
       </c:forEach>
+      <c:forEach items="#{serviceBean.localization.customTabNames}" var="it">
+        <h:inputHidden id="customtabname_#{it.locale}" value="#{it.text}" />
+      </c:forEach>
 
       <adm:outputStep value="#{msg['service.localize.step1']}" />
       <adm:panelGrid>
@@ -40,7 +43,17 @@
           </h:inputText>
         </h:panelGroup>
         <adm:message for="serviceName" />
-        
+
+        <adm:outputLabel value="#{msg['service.customTabName']}" />
+        <h:panelGroup>
+          <h:inputText id="srcCustomTabName" label="#{msg['service.customTabName']}" styleClass="field"
+            maxlength="#{appBean.nameLen}" disabled="true" required="false">
+            <f:converter converterId="trimConverter" />
+          </h:inputText>
+        </h:panelGroup>
+        <adm:message for="srcCustomTabName" />
+
+
         <adm:labelAndInputTextarea id="srcServiceShortDescription" label="#{msg['service.shortDescription']}" styleClass="field" 
           maxlength="#{appBean.descriptionLen}" disabled="true" required="false" />
       </adm:panelGrid>
@@ -81,6 +94,17 @@
           </h:inputText>
         </h:panelGroup>
         <adm:message for="trgServiceName" />
+
+        <!-- text area for the editable custom tab name-->
+        <adm:outputLabel value="#{msg['service.customTabName']}" />
+        <h:panelGroup>
+          <h:inputText id="trgCustomTabName" label="#{msg['service.customTabName']}" styleClass="field"
+                       maxlength="#{appBean.idLen}" onchange="Localize.field2Translation('trgLocale', 'customtabname_', this)" >
+            <f:validateLength maximum="#{appBean.nameLen}" />
+            <f:converter converterId="trimConverter" />
+          </h:inputText>
+        </h:panelGroup>
+        <adm:message for="trgCustomTabName" />
         
         <!-- text area for the editable short description -->
         <adm:outputLabel value="#{msg['service.shortDescription']}" />
@@ -167,6 +191,7 @@
 	  Localize.translation2Field(prefix+'Locale', 'name_', Localize.getElement(prefix+'ServiceName'));
 	  Localize.translation2Field(prefix+'Locale', 'shortdesc_', Localize.getElement(prefix+'ServiceShortDescription'));
 	  Localize.translation2Editor(prefix+'Locale', 'desc_', Localize.getEditor(prefix+'Description'));
+	  Localize.translation2Editor(prefix+'Locale', 'customtabname_', Localize.getEditor(prefix+'CustomTabName'));
 	}
 	
 	jQuery().ready(function(){

@@ -40,6 +40,8 @@ public class ServiceAuditLogCollector_updateService_IT extends EJBTestBase {
     private final static boolean SHORTDESCRIPTIONCHANGED = true;
     private final static boolean DESCRIPTIONNOTCHANGED = false;
     private final static boolean SHORTDESCRIPTIONNOTCHANGED = false;
+    private static final boolean CUSTOMTABCHANGED = true;
+    private static final boolean CUSTOMTABNOTCHANGED = false;
     private final static String ORGANIZATIONID = "organizationid";
     private final static String LOCALE = "en";
     private final static String USERID = "userid";
@@ -55,6 +57,8 @@ public class ServiceAuditLogCollector_updateService_IT extends EJBTestBase {
     private final static String HAVENODESCRIPTION = "NO";
     private final static String HAVESHORTDESCRIPTION = "YES";
     private final static String HAVENOSHORTDESCRIPTION = "NO";
+    private final static String HAVECUSTOMTABNAME = "YES";
+    private final static String HAVENOCUSTOMTABNAME = "NO";
     private final static boolean AUTOASSIGNUSERENABLED = true;
     private final static boolean AUTOASSIGNUSERDISABLED = false;
 
@@ -89,10 +93,10 @@ public class ServiceAuditLogCollector_updateService_IT extends EJBTestBase {
         Product product = givenProduct();
 
         // when
-        updateService(product, DESCRIPTIONCHANGED, SHORTDESCRIPTIONCHANGED);
+        updateService(product, DESCRIPTIONCHANGED, SHORTDESCRIPTIONCHANGED, CUSTOMTABNOTCHANGED);
 
         // then
-        verifyLogEntries(HAVEDESCRIPTION, HAVESHORTDESCRIPTION,
+        verifyLogEntries(HAVEDESCRIPTION, HAVESHORTDESCRIPTION, HAVENOCUSTOMTABNAME,
                 AUTOASSIGNUSERDISABLED);
     }
 
@@ -103,10 +107,10 @@ public class ServiceAuditLogCollector_updateService_IT extends EJBTestBase {
         Product product = givenProduct();
 
         // when
-        updateService(product, DESCRIPTIONCHANGED, SHORTDESCRIPTIONNOTCHANGED);
+        updateService(product, DESCRIPTIONCHANGED, SHORTDESCRIPTIONNOTCHANGED, CUSTOMTABNOTCHANGED);
 
         // then
-        verifyLogEntries(HAVEDESCRIPTION, HAVENOSHORTDESCRIPTION,
+        verifyLogEntries(HAVEDESCRIPTION, HAVENOSHORTDESCRIPTION, HAVENOCUSTOMTABNAME,
                 AUTOASSIGNUSERDISABLED);
     }
 
@@ -117,10 +121,10 @@ public class ServiceAuditLogCollector_updateService_IT extends EJBTestBase {
         Product product = givenProduct();
 
         // when
-        updateService(product, DESCRIPTIONNOTCHANGED, SHORTDESCRIPTIONCHANGED);
+        updateService(product, DESCRIPTIONNOTCHANGED, SHORTDESCRIPTIONCHANGED, CUSTOMTABNOTCHANGED);
 
         // then
-        verifyLogEntries(HAVENODESCRIPTION, HAVESHORTDESCRIPTION,
+        verifyLogEntries(HAVENODESCRIPTION, HAVESHORTDESCRIPTION, HAVENOCUSTOMTABNAME,
                 AUTOASSIGNUSERDISABLED);
     }
 
@@ -132,10 +136,10 @@ public class ServiceAuditLogCollector_updateService_IT extends EJBTestBase {
 
         // when
         updateService(product, DESCRIPTIONNOTCHANGED,
-                SHORTDESCRIPTIONNOTCHANGED);
+                SHORTDESCRIPTIONNOTCHANGED, CUSTOMTABNOTCHANGED);
 
         // then
-        verifyLogEntries(HAVENODESCRIPTION, HAVENOSHORTDESCRIPTION,
+        verifyLogEntries(HAVENODESCRIPTION, HAVENOSHORTDESCRIPTION, HAVENOCUSTOMTABNAME,
                 AUTOASSIGNUSERDISABLED);
     }
 
@@ -147,23 +151,79 @@ public class ServiceAuditLogCollector_updateService_IT extends EJBTestBase {
         product.setAutoAssignUserEnabled(Boolean.TRUE);
         // when
         updateService(product, DESCRIPTIONNOTCHANGED,
-                SHORTDESCRIPTIONNOTCHANGED);
+                SHORTDESCRIPTIONNOTCHANGED, CUSTOMTABNOTCHANGED);
 
         // then
-        verifyLogEntries(HAVENODESCRIPTION, HAVENOSHORTDESCRIPTION,
+        verifyLogEntries(HAVENODESCRIPTION, HAVENOSHORTDESCRIPTION, HAVENOCUSTOMTABNAME,
+                AUTOASSIGNUSERENABLED);
+    }
+
+    @Test
+    public void updateService_CustomTabNameOnly() {
+        // given
+        Product product = givenProduct();
+        product.setAutoAssignUserEnabled(Boolean.TRUE);
+        // when
+        updateService(product, DESCRIPTIONNOTCHANGED,
+                SHORTDESCRIPTIONNOTCHANGED, CUSTOMTABCHANGED);
+
+        // then
+        verifyLogEntries(HAVENODESCRIPTION, HAVENOSHORTDESCRIPTION, HAVECUSTOMTABNAME,
+                AUTOASSIGNUSERENABLED);
+    }
+
+    @Test
+    public void updateService_CustomTabAndDesc() {
+        // given
+        Product product = givenProduct();
+        product.setAutoAssignUserEnabled(Boolean.TRUE);
+        // when
+        updateService(product, DESCRIPTIONCHANGED,
+                SHORTDESCRIPTIONNOTCHANGED, CUSTOMTABCHANGED);
+
+        // then
+        verifyLogEntries(HAVEDESCRIPTION, HAVENOSHORTDESCRIPTION, HAVECUSTOMTABNAME,
+                AUTOASSIGNUSERENABLED);
+    }
+
+    @Test
+    public void updateService_CustomTabAndShortDesc() {
+        // given
+        Product product = givenProduct();
+        product.setAutoAssignUserEnabled(Boolean.TRUE);
+        // when
+        updateService(product, DESCRIPTIONNOTCHANGED,
+                SHORTDESCRIPTIONCHANGED, CUSTOMTABCHANGED);
+
+        // then
+        verifyLogEntries(HAVENODESCRIPTION, HAVESHORTDESCRIPTION, HAVECUSTOMTABNAME,
+                AUTOASSIGNUSERENABLED);
+    }
+
+    @Test
+    public void updateService_CustomTabAndShortDescAndDesc() {
+        // given
+        Product product = givenProduct();
+        product.setAutoAssignUserEnabled(Boolean.TRUE);
+        // when
+        updateService(product, DESCRIPTIONCHANGED,
+                SHORTDESCRIPTIONCHANGED, CUSTOMTABCHANGED);
+
+        // then
+        verifyLogEntries(HAVEDESCRIPTION, HAVESHORTDESCRIPTION, HAVECUSTOMTABNAME,
                 AUTOASSIGNUSERENABLED);
     }
 
     private ServiceAuditLogCollector updateService(Product product,
-            boolean isDescriptionChanged, boolean isShortDescriptionChanged) {
+            boolean isDescriptionChanged, boolean isShortDescriptionChanged, boolean isCustomTabChanged) {
         AuditLogData.clear();
         logCollector.updateService(dsMock, product, isShortDescriptionChanged,
-                isDescriptionChanged, LOCALE);
+                isDescriptionChanged, isCustomTabChanged, LOCALE);
         return logCollector;
     }
 
     private void verifyLogEntries(String isHaveDescription,
-            String isHaveShortDescription, boolean autoAssignUserEnabled) {
+            String isHaveShortDescription, String isHaveCustomTabName, boolean autoAssignUserEnabled) {
         List<AuditLogEntry> logEntries = AuditLogData.get();
         assertEquals(1, logEntries.size());
         BESAuditLogEntry logEntry = (BESAuditLogEntry) AuditLogData.get()
@@ -176,6 +236,8 @@ public class ServiceAuditLogCollector_updateService_IT extends EJBTestBase {
                 logParams.get(AuditLogParameter.SHORT_DESCRIPTION));
         assertEquals(isHaveDescription,
                 logParams.get(AuditLogParameter.DESCRIPTION));
+        assertEquals(isHaveCustomTabName,
+                logParams.get(AuditLogParameter.CUSTOM_TAB_NAME));
         assertEquals(LOCALE, logParams.get(AuditLogParameter.LOCALE));
         assertEquals((autoAssignUserEnabled ? "YES" : "NO"),
                 logParams.get(AuditLogParameter.AUTO_ASSIGN_USER));

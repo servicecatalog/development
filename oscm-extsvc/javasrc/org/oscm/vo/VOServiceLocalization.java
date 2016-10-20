@@ -25,6 +25,7 @@ public class VOServiceLocalization implements Serializable {
     private List<VOLocalizedText> descriptions = new ArrayList<VOLocalizedText>();
 
     private List<VOLocalizedText> shortDescriptions = new ArrayList<VOLocalizedText>();
+    private List<VOLocalizedText> customTabNames = new ArrayList<>();
 
     /**
      * Returns the localized variants of the service's name.
@@ -83,4 +84,11 @@ public class VOServiceLocalization implements Serializable {
         this.shortDescriptions = shortDescriptions;
     }
 
+    public void setCustomTabNames(List<VOLocalizedText> customTabNames) {
+        this.customTabNames = customTabNames;
+    }
+
+    public List<VOLocalizedText> getCustomTabNames() {
+        return customTabNames;
+    }
 }

@@ -415,6 +415,22 @@ public class POSubscription implements Serializable {
 		this.serviceName = serviceName;
 	}
 
+    public String getCustomTabUrl() {
+        return voSubscription.getCustomTabUrl();
+    }
+
+    public void setCustomTabUrl(String customTabUrl) {
+        voSubscription.setCustomTabUrl(customTabUrl);
+    }
+
+    public String getCustomTabName() {
+        return voSubscription.getCustomTabName();
+    }
+
+    public void setCustomTabName(String customTabName) {
+        voSubscription.setCustomTabName(customTabName);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

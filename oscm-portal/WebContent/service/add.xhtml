@@ -50,8 +50,8 @@
         <ui:param name="creationMode" value="true" />
       </ui:include>
 
-     <adm:outputStep value="#{msg['service.add.step4']}" />
-      <ui:include src="configurator.xhtml">
+      <adm:outputStep value="#{msg['service.add.step4']}" />
+      <ui:include src="interfaceExtensions.xhtml">
         <ui:param name="editDisabled" value="#{serviceBean.editDisabledForCreation}" />
         <ui:param name="service" value="#{serviceBean.serviceForCreation}" />
       </ui:include>

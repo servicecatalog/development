@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2016-->
+
+<dataset>
+  <Product tkey="12345" version="0" productid="prod1" provisioningdate="121312312" status="ACTIVE"
+           technicalproduct_tkey="123" type="TEMPLATE" customtaburl="[NULL]"/>
+</dataset>

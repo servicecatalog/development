@@ -1296,4 +1296,47 @@ public class LocalizerServiceIT extends EJBTestBase {
         assertEquals("Wrong return text", "testValue_en", text);
     }
 
+    @Test
+    public void testGetLocalizedCustomTabName() throws Exception {
+        runTX(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                LocalizedResource resource_de = new LocalizedResource();
+                resource_de.setObjectKey(1L);
+                resource_de.setLocale("de");
+                resource_de
+                        .setObjectType(LocalizedObjectTypes.PRODUCT_CUSTOM_TAB_NAME);
+                resource_de.setValue("testValue_de");
+                mgr.persist(resource_de);
+
+                LocalizedResource resource_en = new LocalizedResource();
+                resource_en.setObjectKey(1L);
+                resource_en.setLocale("en");
+                resource_en
+                        .setObjectType(LocalizedObjectTypes.PRODUCT_CUSTOM_TAB_NAME);
+                resource_en.setValue("testValue_en");
+                mgr.persist(resource_en);
+                return null;
+            }
+        });
+        String text = runTX(new Callable<String>() {
+            @Override
+            public String call() throws Exception {
+                return localizer.getLocalizedTextFromDatabase("de", 1L,
+                        LocalizedObjectTypes.PRODUCT_CUSTOM_TAB_NAME);
+            }
+        });
+        assertEquals("Wrong return text", "testValue_de", text);
+
+        text = runTX(new Callable<String>() {
+            @Override
+            public String call() throws Exception {
+                return // Test the default mechanism
+                localizer.getLocalizedTextFromDatabase("ja", 1L,
+                        LocalizedObjectTypes.PRODUCT_CUSTOM_TAB_NAME);
+            }
+        });
+        assertEquals("Wrong return text", "testValue_en", text);
+    }
+
 }
