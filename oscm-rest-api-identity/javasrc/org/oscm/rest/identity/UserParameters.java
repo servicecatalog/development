@@ -10,7 +10,7 @@ import org.oscm.rest.common.WebException;
 
 public class UserParameters extends RequestParameters {
 
-    @PathParam("userid")
+    @PathParam("userId")
     private String userId;
 
     @QueryParam("mId")
