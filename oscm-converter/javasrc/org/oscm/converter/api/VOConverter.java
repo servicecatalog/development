@@ -1332,7 +1332,6 @@ public class VOConverter {
                 org.oscm.internal.types.enumtypes.OfferingType.class));
         newVO.setConfiguratorUrl(oldVO.getConfiguratorUrl());
         newVO.setCustomTabUrl(oldVO.getCustomTabUrl());
-        newVO.setCustomTabUrl(oldVO.getCustomTabUrl());
         newVO.setCustomTabName(oldVO.getCustomTabName());
         return newVO;
     }
