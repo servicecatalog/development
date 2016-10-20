@@ -847,6 +847,8 @@ public class OperatorServiceBean implements OperatorService {
             throws OrganizationAuthoritiesException, ValidationException,
             ConcurrentModificationException {
 
+        validateDefaultTenantIdUniqueness(setting);
+
         ConfigurationSetting dbSetting = configService.getConfigurationSetting(
                 setting.getInformationId(), setting.getContextId());
         dbSetting = ConfigurationSettingAssembler
@@ -859,6 +861,19 @@ public class OperatorServiceBean implements OperatorService {
 
         configService.setConfigurationSetting(dbSetting);
 
+    }
+
+    private void validateDefaultTenantIdUniqueness(VOConfigurationSetting setting) throws ValidationException {
+        if (setting.getInformationId().equals(ConfigurationKey.SSO_DEFAULT_TENANT_ID)) {
+            final String id = setting.getValue();
+            Query query = dm
+                    .createNamedQuery("Tenant.findByBusinessKey");
+            query.setParameter("tenantId", id);
+            List<Object[]> resultList = query.getResultList();
+            if (!resultList.isEmpty()) {
+                throw new ValidationException("Default tenant ID not unique");
+            }
+        }
     }
 
     @Override
