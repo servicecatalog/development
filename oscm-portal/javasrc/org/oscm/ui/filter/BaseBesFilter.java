@@ -141,7 +141,8 @@ public abstract class BaseBesFilter implements Filter {
         } catch (NotExistentTenantException e) {
             //ait gonna happen. Configsettins will be used.
         } catch (WrongTenantConfigurationException e) {
-            new UiDelegate().handleError(null, BaseBean.ERROR_TENANT_SETTINGS_MISSING);
+            logger.logError(Log4jLogger.SYSTEM_LOG, e,
+                    LogMessageIdentifier.ERROR_TENANT_MISCONFIGURED);
         }
     }
 
