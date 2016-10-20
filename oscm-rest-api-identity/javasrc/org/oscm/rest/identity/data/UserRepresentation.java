@@ -54,9 +54,7 @@ public class UserRepresentation extends Representation {
         vo.setAddress(getAddress());
         vo.setEMail(getEmail());
         vo.setFirstName(getFirstName());
-        if (getId() != null) {
-            vo.setKey(getId().longValue());
-        }
+        vo.setKey(convertIdToKey());
         vo.setLastName(getLastName());
         vo.setLocale(getLocale());
         vo.setOrganizationId(getOrganizationId());
@@ -68,9 +66,7 @@ public class UserRepresentation extends Representation {
         vo.setStatus(getStatus());
         vo.setUserId(getUserId());
         vo.setUserRoles(getUserRoles());
-        if (getETag() != null) {
-            vo.setVersion(getETag().intValue());
-        }
+        vo.setVersion(convertETagToVersion());
     }
 
     @Override

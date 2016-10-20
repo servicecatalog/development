@@ -24,7 +24,7 @@ import com.sun.jersey.api.core.InjectParam;
 @Stateless
 public class UserResource extends RestResource {
 
-    private static final String PATH_USERID = "/{userid}";
+    private static final String PATH_USERID = "/{userId}";
 
     @EJB
     UserBackend ub;
