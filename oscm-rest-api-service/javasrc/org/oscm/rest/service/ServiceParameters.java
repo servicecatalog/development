@@ -7,8 +7,11 @@ import org.oscm.rest.common.RequestParameters;
 
 public class ServiceParameters extends RequestParameters {
 
-    @PathParam("orgId")
+    @PathParam("orgKey")
     private Long orgKey;
+
+    @PathParam("orgId")
+    private String orgId;
 
     @Override
     public void validateParameters() throws WebApplicationException {
@@ -26,6 +29,14 @@ public class ServiceParameters extends RequestParameters {
 
     public void setOrgKey(Long orgKey) {
         this.orgKey = orgKey;
+    }
+
+    public String getOrgId() {
+        return orgId;
+    }
+
+    public void setOrgId(String orgId) {
+        this.orgId = orgId;
     }
 
 }
