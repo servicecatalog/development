@@ -28,7 +28,7 @@ public class OnBehalfUserRepresentation extends Representation {
 
     @Override
     public void update() {
-
+        // only used as input
     }
 
     @Override
