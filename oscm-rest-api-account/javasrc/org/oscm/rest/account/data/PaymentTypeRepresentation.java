@@ -30,14 +30,10 @@ public class PaymentTypeRepresentation extends Representation {
     @Override
     public void update() {
         vo.setCollectionType(collectionType);
-        if (getId() != null) {
-            vo.setKey(getId().longValue());
-        }
+        vo.setKey(convertIdToKey());
         vo.setName(name);
         vo.setPaymentTypeId(paymentTypeId);
-        if (getETag() != null) {
-            vo.setVersion(getETag().intValue());
-        }
+        vo.setVersion(convertETagToVersion());
     }
 
     @Override

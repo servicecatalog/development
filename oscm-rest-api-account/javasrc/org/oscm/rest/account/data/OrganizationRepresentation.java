@@ -35,22 +35,18 @@ public class OrganizationRepresentation extends Representation {
 
     @Override
     public void update() {
-        voOrg.setAddress(address);
-        voOrg.setDescription(description);
-        voOrg.setDomicileCountry(domicileCountry);
-        voOrg.setEmail(email);
-        if (getId() != null) {
-            voOrg.setKey(getId().longValue());
-        }
-        voOrg.setLocale(locale);
-        voOrg.setName(name);
-        voOrg.setOrganizationId(organizationId);
-        voOrg.setPhone(phone);
-        voOrg.setSupportEmail(supportEmail);
-        if (getETag() != null) {
-            voOrg.setVersion(getETag().intValue());
-        }
-        voOrg.setUrl(url);
+        voOrg.setAddress(getAddress());
+        voOrg.setDescription(getDescription());
+        voOrg.setDomicileCountry(getDomicileCountry());
+        voOrg.setEmail(getEmail());
+        voOrg.setKey(convertIdToKey());
+        voOrg.setLocale(getLocale());
+        voOrg.setName(getName());
+        voOrg.setOrganizationId(getOrganizationId());
+        voOrg.setPhone(getPhone());
+        voOrg.setSupportEmail(getSupportEmail());
+        voOrg.setVersion(convertETagToVersion());
+        voOrg.setUrl(getUrl());
     }
 
     @Override

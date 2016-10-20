@@ -41,9 +41,7 @@ public class UserRepresentation extends Representation {
         ud.setAddress(getAddress());
         ud.setEMail(getEmail());
         ud.setFirstName(getFirstName());
-        if (getId() != null) {
-            ud.setKey(getId().longValue());
-        }
+        ud.setKey(convertIdToKey());
         ud.setLastName(getLastName());
         ud.setLocale(getLocale());
         ud.setOrganizationId(getOrganizationId());
@@ -51,9 +49,7 @@ public class UserRepresentation extends Representation {
         ud.setRealmUserId(getRealmUserId());
         ud.setSalutation(getSalutation());
         ud.setUserId(getUserId());
-        if (getETag() != null) {
-            ud.setVersion(getETag().intValue());
-        }
+        ud.setVersion(convertETagToVersion());
     }
 
     @Override
