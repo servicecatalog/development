@@ -211,6 +211,7 @@ public class BaseBean {
     public static final String ERROR_BILLING_ID_ALREADY_EXISTS = "ex.NonUniqueBusinessKeyException.BILLING_ADAPTER";
     public static final String ERROR_NO_FILE_WITH_IDP_SETTINGS = "error.tenant.idpsettings.nofile";
     public static final String ERROR_MISSING_TENANTID = "error.missingtenant";
+    public static final String ERROR_TENANT_SETTINGS_MISSING = "error.missingtenantsettings";
     public static final String ERROR_TENANT_NO_LONGER_EXISTS = "error.tenant.noLongerExists";
 
     public static final String WARNING_SUBSCRIBE_ONLY_ONCE = "warning.subscription.onlyOne";
