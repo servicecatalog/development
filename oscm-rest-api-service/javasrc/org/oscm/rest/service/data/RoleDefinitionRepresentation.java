@@ -28,15 +28,11 @@ public class RoleDefinitionRepresentation extends Representation {
 
     @Override
     public void update() {
-        vo.setDescription(description);
-        if (getId() != null) {
-            vo.setKey(getId().longValue());
-        }
-        vo.setName(name);
-        vo.setRoleId(roleId);
-        if (getETag() != null) {
-            vo.setVersion(getETag().intValue());
-        }
+        vo.setDescription(getDescription());
+        vo.setKey(convertIdToKey());
+        vo.setName(getName());
+        vo.setRoleId(getRoleId());
+        vo.setVersion(convertETagToVersion());
     }
 
     @Override

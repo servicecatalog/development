@@ -28,18 +28,14 @@ public class ParameterRepresentation extends Representation {
 
     @Override
     public void update() {
-        vo.setConfigurable(configurable);
-        if (getId() != null) {
-            vo.setKey(getId().longValue());
-        }
+        vo.setConfigurable(isConfigurable());
+        vo.setKey(convertIdToKey());
         if (parameterDefinition != null) {
             parameterDefinition.update();
             vo.setParameterDefinition(parameterDefinition.getVO());
         }
-        vo.setValue(value);
-        if (getETag() != null) {
-            vo.setVersion(getETag().intValue());
-        }
+        vo.setValue(getValue());
+        vo.setVersion(convertETagToVersion());
     }
 
     @Override

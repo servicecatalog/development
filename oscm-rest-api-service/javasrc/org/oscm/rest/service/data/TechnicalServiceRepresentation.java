@@ -51,29 +51,25 @@ public class TechnicalServiceRepresentation extends Representation {
 
     @Override
     public void update() {
-        vo.setAccessInfo(accessInfo);
-        vo.setAccessType(accessType);
-        vo.setBaseUrl(baseUrl);
-        vo.setBillingIdentifier(billingIdentifier);
+        vo.setAccessInfo(getAccessInfo());
+        vo.setAccessType(getAccessType());
+        vo.setBaseUrl(getBaseUrl());
+        vo.setBillingIdentifier(getBillingIdentifier());
         vo.setEventDefinitions(updateEvents());
-        vo.setExternalBilling(externalBilling);
-        if (getId() != null) {
-            vo.setKey(getId().longValue());
-        }
-        vo.setLicense(license);
-        vo.setLoginPath(loginPath);
+        vo.setExternalBilling(isExternalBilling());
+        vo.setKey(convertIdToKey());
+        vo.setLicense(getLicense());
+        vo.setLoginPath(getLoginPath());
         vo.setParameterDefinitions(updateParameters());
-        vo.setProvisioningUrl(provisioningUrl);
-        vo.setProvisioningVersion(provisioningVersion);
+        vo.setProvisioningUrl(getProvisioningUrl());
+        vo.setProvisioningVersion(getProvisioningVersion());
         vo.setRoleDefinitions(updateRoles());
-        vo.setTags(tags);
-        vo.setTechnicalServiceBuildId(technicalServiceBuildId);
-        vo.setTechnicalServiceDescription(technicalServiceDescription);
-        vo.setTechnicalServiceId(technicalServiceId);
+        vo.setTags(getTags());
+        vo.setTechnicalServiceBuildId(getTechnicalServiceBuildId());
+        vo.setTechnicalServiceDescription(getTechnicalServiceDescription());
+        vo.setTechnicalServiceId(getTechnicalServiceId());
         vo.setTechnicalServiceOperations(updateOperations());
-        if (getETag() != null) {
-            vo.setVersion(getETag().intValue());
-        }
+        vo.setVersion(convertETagToVersion());
     }
 
     private List<VOTechnicalServiceOperation> updateOperations() {
