@@ -31,17 +31,13 @@ public class OperationParameterRepresentation extends Representation {
 
     @Override
     public void update() {
-        if (getId() != null) {
-            vo.setKey(getId().longValue());
-        }
-        vo.setMandatory(mandatory);
-        vo.setParameterId(parameterId);
-        vo.setParameterName(parameterName);
-        vo.setParameterValue(parameterValue);
-        vo.setType(type);
-        if (getETag() != null) {
-            vo.setVersion(getETag().intValue());
-        }
+        vo.setKey(convertIdToKey());
+        vo.setMandatory(isMandatory());
+        vo.setParameterId(getParameterId());
+        vo.setParameterName(getParameterName());
+        vo.setParameterValue(getParameterValue());
+        vo.setType(getType());
+        vo.setVersion(convertETagToVersion());
     }
 
     @Override

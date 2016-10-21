@@ -46,24 +46,20 @@ public class ServiceRepresentation extends Representation {
 
     @Override
     public void update() {
-        vo.setAccessType(accessType);
-        vo.setBillingIdentifier(billingIdentifier);
-        vo.setConfiguratorUrl(configuratorUrl);
-        vo.setDescription(description);
-        if (getId() != null) {
-            vo.setKey(getId().longValue());
-        }
-        vo.setName(name);
-        vo.setOfferingType(offeringType);
+        vo.setAccessType(getAccessType());
+        vo.setBillingIdentifier(getBillingIdentifier());
+        vo.setConfiguratorUrl(getConfiguratorUrl());
+        vo.setDescription(getDescription());
+        vo.setKey(convertIdToKey());
+        vo.setName(getName());
+        vo.setOfferingType(getOfferingType());
         vo.setParameters(updateParameters());
-        vo.setServiceId(serviceId);
-        vo.setServiceType(serviceType);
-        vo.setShortDescription(shortDescription);
-        vo.setStatus(status);
-        vo.setTechnicalId(technicalId);
-        if (getETag() != null) {
-            vo.setVersion(getETag().intValue());
-        }
+        vo.setServiceId(getServiceId());
+        vo.setServiceType(getServiceType());
+        vo.setShortDescription(getShortDescription());
+        vo.setStatus(getStatus());
+        vo.setTechnicalId(getTechnicalId());
+        vo.setVersion(convertETagToVersion());
     }
 
     private List<VOParameter> updateParameters() {
