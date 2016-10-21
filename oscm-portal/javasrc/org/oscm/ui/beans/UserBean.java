@@ -464,7 +464,7 @@ public class UserBean extends BaseBean implements Serializable {
             voUser.setOrganizationId(oId);
             voUser.setUserId(uId);
             try {
-                voUser.setTenantKey(getMarketplaceService().getTenantIdFromMarketplace(getMarketplaceId()));
+                voUser.setTenantId(getMarketplaceService().getTenantIdFromMarketplace(getMarketplaceId()));
                 voUser = service.getUser(voUser);
             } catch (ObjectNotFoundException e) {
                 if (isServiceProvider() && !ADMStringUtils.isBlank(uId)) {
@@ -550,7 +550,7 @@ public class UserBean extends BaseBean implements Serializable {
             logger.logInfo(Log4jLogger.ACCESS_LOG,
                     LogMessageIdentifier.INFO_USER_LOGIN_SUCCESS,
                     voUser.getUserId(),
-                    IPResolver.resolveIpAddress(httpRequest), voUser.getTenantKey());
+                    IPResolver.resolveIpAddress(httpRequest), voUser.getTenantId());
 
             // read the user details value object and store it in the session
             session.setAttribute(Constants.SESS_ATTR_USER,

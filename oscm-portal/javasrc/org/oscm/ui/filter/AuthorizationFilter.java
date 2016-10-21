@@ -765,7 +765,7 @@ public class AuthorizationFilter extends BaseBesFilter {
             OrganizationRemovedException {
         VOUser voUser = new VOUser();
         voUser.setUserId(ard.getUserId());
-        voUser.setTenantKey(ard.getTenantID());
+        voUser.setTenantId(ard.getTenantID());
         voUser = service.getUser(voUser);
         return voUser;
     }
@@ -820,7 +820,7 @@ public class AuthorizationFilter extends BaseBesFilter {
                     httpRequest.getRemoteHost(),
                     Integer.toString(httpRequest.getRemotePort()),
                     StringUtils.isNotBlank(voUser.getUserId()) ? voUser.getUserId() : "",
-                    IPResolver.resolveIpAddress(httpRequest), voUser.getTenantKey());
+                    IPResolver.resolveIpAddress(httpRequest), voUser.getTenantId());
             try {
                 voUser = identityService.getUser(voUser);
             } catch (ObjectNotFoundException e1) {
@@ -883,7 +883,7 @@ public class AuthorizationFilter extends BaseBesFilter {
 
         logger.logInfo(Log4jLogger.ACCESS_LOG,
                 LogMessageIdentifier.INFO_USER_LOGIN_SUCCESS,
-                StringUtils.isNotBlank(voUser.getUserId()) ? voUser.getUserId() : "", IPResolver.resolveIpAddress(httpRequest), voUser.getTenantKey());
+                StringUtils.isNotBlank(voUser.getUserId()) ? voUser.getUserId() : "", IPResolver.resolveIpAddress(httpRequest), voUser.getTenantId());
         return true;
     }
 
