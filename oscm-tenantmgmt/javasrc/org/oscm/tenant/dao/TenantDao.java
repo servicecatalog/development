@@ -85,15 +85,16 @@ public class TenantDao {
         return ParameterizedTypes.list(query.getResultList(), String.class);
     }
     
-    public String getTenantSetting(String settingKey, String tenantId) {
-
-        final String queryString = "SELECT ts.value FROM tenantsetting ts LEFT JOIN tenant t ON ts.tenant_tkey=t.tkey "
-                + "WHERE t.tenantid=:tenantId AND ts.name=:name";
-        Query query = dataManager.createNativeQuery(queryString);
-        query.setParameter("tenantId", tenantId);
+    public TenantSetting getTenantSetting(String settingKey, String tenantId) throws ObjectNotFoundException {
+        
+        Tenant tenant = this.getTenantByTenantId(tenantId);
+        
+        Query query = dataManager.createNamedQuery("TenantSetting.findByBusinessKey");
+        query.setParameter("tenant", tenant);
         query.setParameter("name", settingKey);
+        
+        TenantSetting tenantSetting = (TenantSetting) query.getSingleResult();
 
-        String value = (String) query.getSingleResult();
-        return value;
+        return tenantSetting;
     }
 }

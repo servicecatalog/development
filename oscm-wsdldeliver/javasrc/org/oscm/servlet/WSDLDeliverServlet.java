@@ -17,8 +17,10 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.domobjects.ConfigurationSetting;
+import org.oscm.domobjects.TenantSetting;
 import org.oscm.enums.APIVersion;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.tenant.local.TenantServiceLocal;
@@ -101,6 +103,9 @@ public class WSDLDeliverServlet extends HttpServlet {
         } catch (IOException e) {
             logger.logWarn(Log4jLogger.SYSTEM_LOG, e,
                     LogMessageIdentifier.WARN_GET_FILE_CONTENT_FAILED);
+        } catch (ObjectNotFoundException e) {
+            logger.logError(Log4jLogger.SYSTEM_LOG, e,
+                    LogMessageIdentifier.ERROR_TENANT_NOT_FOUND);
         } finally {
             if (fileStream != null) {
                 try {
@@ -159,7 +164,7 @@ public class WSDLDeliverServlet extends HttpServlet {
         return baos.toString();
     }
     
-    private String getTenantSetting(String settingKey, String tenantId) {
+    private String getTenantSetting(String settingKey, String tenantId) throws ObjectNotFoundException {
 
         if (StringUtils.isEmpty(tenantId)) {
             ConfigurationKey configurationKey = ConfigurationKey
@@ -169,9 +174,9 @@ public class WSDLDeliverServlet extends HttpServlet {
                             Configuration.GLOBAL_CONTEXT);
             return configurationSetting.getValue();
         } else {
-            String tenantSetting = tenantService.getTenantSetting(settingKey,
+            TenantSetting tenantSetting = tenantService.getTenantSetting(settingKey,
                     tenantId);
-            return tenantSetting;
+            return tenantSetting.getValue();
         }
     }
 }
