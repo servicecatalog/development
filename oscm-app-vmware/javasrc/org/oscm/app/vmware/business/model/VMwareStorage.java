@@ -67,6 +67,10 @@ public class VMwareStorage {
         return capacity;
     }
 
+    public double getFree() {
+        return free;
+    }
+
     public String getName() {
         return name;
     }
