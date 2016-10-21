@@ -35,13 +35,9 @@ public class SettingRepresentation extends Representation {
     public void update() {
         vo.setContextId(getContextId());
         vo.setInformationId(getInformationId());
-        if (getId() != null) {
-            vo.setKey(getId().longValue());
-        }
+        vo.setKey(convertIdToKey());
         vo.setValue(getValue());
-        if (getETag() != null) {
-            vo.setVersion(getETag().intValue());
-        }
+        vo.setVersion(convertETagToVersion());
     }
 
     @Override
