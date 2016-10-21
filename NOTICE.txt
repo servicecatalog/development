@@ -81,8 +81,8 @@ This software includes the following software developed by The Apache Software F
    - Apache CSV 1.0
    - Apache Digester 1.8.1
    - Apache Fileupload 1.2.1
-   - Apache Httpclient 4.3.1
-   - Apache HttpCore 3.1
+   - Apache Httpclient 4.5.2
+   - Apache HttpCore 4.4.1
    - Apache io 1.4
    - Apache Jakarta Oro 2.08
    - Apache Json 2.0.6
@@ -93,7 +93,8 @@ This software includes the following software developed by The Apache Software F
    - Apache Poi 3.5
    - Apache Tomahawk 1.1.9
    - Apache Validator 1.4.0
-   - AWS 1.5.2
+   - Amazon aws-java-sdk-ec2 1.11.37
+   - Amazon aws-java-sdk-core 1.11.37
    - Jackson 2.2.3
    - J2ep 1.0
    - Omnifaces 1.10
