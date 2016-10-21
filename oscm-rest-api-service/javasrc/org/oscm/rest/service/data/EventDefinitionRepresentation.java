@@ -29,15 +29,11 @@ public class EventDefinitionRepresentation extends Representation {
 
     @Override
     public void update() {
-        vo.setEventDescription(eventDescription);
-        vo.setEventId(eventId);
-        vo.setEventType(eventType);
-        if (getId() != null) {
-            vo.setKey(getId().longValue());
-        }
-        if (getETag() != null) {
-            vo.setVersion(getETag().intValue());
-        }
+        vo.setEventDescription(getEventDescription());
+        vo.setEventId(getEventId());
+        vo.setEventType(getEventType());
+        vo.setKey(convertIdToKey());
+        vo.setVersion(convertETagToVersion());
     }
 
     @Override
