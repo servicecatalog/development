@@ -118,7 +118,7 @@ public class TenantServiceLocalBean implements TenantServiceLocal {
     }
 
     @Override
-    public String getTenantSetting(String settingKey, String tenantId) {
+    public TenantSetting getTenantSetting(String settingKey, String tenantId) throws ObjectNotFoundException {
         return this.tenantDao.getTenantSetting(settingKey, tenantId);
     }
 }

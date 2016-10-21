@@ -47,5 +47,5 @@ public interface TenantServiceLocal {
     
     boolean doOrgUsersExistInTenant(String orgId, long tenantKey);
 
-    String getTenantSetting(String settingKey, String tenantId);
+    TenantSetting getTenantSetting(String settingKey, String tenantId) throws ObjectNotFoundException;
 }
