@@ -32,11 +32,9 @@ import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.myfaces.custom.fileupload.UploadedFile;
-import org.oscm.internal.intf.ConfigurationService;
-import org.oscm.internal.intf.IdentityService;
-import org.oscm.internal.intf.MarketplaceService;
-import org.oscm.internal.intf.TenantService;
+import org.oscm.internal.intf.*;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.types.enumtypes.UserAccountStatus;
 import org.oscm.internal.types.enumtypes.UserRoleType;
@@ -54,6 +52,7 @@ import org.oscm.ui.common.*;
 import org.oscm.ui.dialog.common.saml2.AuthenticationHandler;
 import org.oscm.ui.dialog.state.TableState;
 import org.oscm.ui.filter.AuthenticationSettings;
+import org.oscm.ui.filter.AuthorizationRequestData;
 import org.oscm.ui.model.User;
 import org.oscm.ui.model.UserRole;
 
@@ -812,7 +811,7 @@ public class UserBean extends BaseBean implements Serializable {
      * @throws OperationPendingException
      */
     public String createClassic() throws NonUniqueBusinessKeyException,
-            UserRoleAssignmentException, OperationPendingException {
+            UserRoleAssignmentException, OperationPendingException, MarketplaceRemovedException {
         if (isTokenValid()) {
             String newUserId = this.newUser.getUserId();
             String outcome = createInt(null);
@@ -843,7 +842,7 @@ public class UserBean extends BaseBean implements Serializable {
      * @throws OperationPendingException
      */
     String createInt(String mId) throws NonUniqueBusinessKeyException,
-            UserRoleAssignmentException, OperationPendingException {
+            UserRoleAssignmentException, OperationPendingException, MarketplaceRemovedException {
         try {
             List<UserRoleType> selectedRoles = new ArrayList<>();
             for (UserRole userRole : userRolesForNewUser) {
@@ -1077,9 +1076,7 @@ public class UserBean extends BaseBean implements Serializable {
                     session);
         } catch (SAML2AuthnRequestException e) {
             ui.handleError(null, BaseBean.ERROR_GENERATE_AUTHNREQUEST);
-        } catch (NotExistentTenantException e) {
-            ui.handleError(null, BaseBean.ERROR_MISSING_TENANTID);
-        } catch (ObjectNotFoundException e) {
+        } catch (NotExistentTenantException | ObjectNotFoundException | MarketplaceRemovedException e) {
             ui.handleError(null, BaseBean.ERROR_MISSING_TENANTID);
         }
         return OUTCOME_MARKETPLACE_ERROR_PAGE;
@@ -1093,7 +1090,7 @@ public class UserBean extends BaseBean implements Serializable {
         return authenticationSettings;
     }
 
-    protected AuthenticationHandler getAuthenticationHandler() throws ObjectNotFoundException, NotExistentTenantException {
+    protected AuthenticationHandler getAuthenticationHandler() throws ObjectNotFoundException, NotExistentTenantException, MarketplaceRemovedException {
         AuthenticationSettings authenticationSettings = getAuthenticationSettings();
         authenticationSettings.init(sessionBean.getTenantID());
         return new AuthenticationHandler(getRequest(), getResponse(),

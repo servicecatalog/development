@@ -391,6 +391,8 @@ public class AuthorizationFilter extends BaseBesFilter {
                     rdo);
         } catch (ServletException e) {
             handleServletException(httpRequest, httpResponse, e);
+        } catch (MarketplaceRemovedException e) {
+            handleMarketplaceRemovedException(httpRequest, httpResponse);
         }
     }
 
@@ -489,10 +491,9 @@ public class AuthorizationFilter extends BaseBesFilter {
         }
     }
 
-    private void handleNonExistentTenatnException(HttpServletRequest httpRequest,
-                                                  HttpServletResponse httpResponse) throws ServletException, IOException {
+    private void handleMarketplaceRemovedException(HttpServletRequest httpRequest, HttpServletResponse httpResponse) throws ServletException, IOException {
             httpRequest.setAttribute(Constants.REQ_ATTR_ERROR_KEY,
-                    BaseBean.ERROR_MISSING_TENANTID);
+                    BaseBean.ERROR_MARKETPLACE_REMOVED);
             forward(errorPage, httpRequest, httpResponse);
     }
 
@@ -520,7 +521,7 @@ public class AuthorizationFilter extends BaseBesFilter {
 
     private void refreshData(AuthenticationSettings authSettings,
                              AuthorizationRequestData rdo, HttpServletRequest request,
-                             HttpServletResponse response) throws ServletException, IOException {
+                             HttpServletResponse response) throws ServletException, IOException, MarketplaceRemovedException {
 
         if (authSettings.isServiceProvider()) {
 
@@ -557,7 +558,7 @@ public class AuthorizationFilter extends BaseBesFilter {
 
     }
 
-    public String getTenantID(AuthorizationRequestData ard, HttpServletRequest httpRequest) {
+    public String getTenantID(AuthorizationRequestData ard, HttpServletRequest httpRequest) throws MarketplaceRemovedException {
         String tenantID;
         if (ard.isMarketplace()) {
             tenantID = getTenantIDFromMarketplace(httpRequest, ard);
@@ -578,7 +579,7 @@ public class AuthorizationFilter extends BaseBesFilter {
     }
 
     private String getTenantIDFromMarketplace(HttpServletRequest httpRequest,
-                                              AuthorizationRequestData ard) {
+                                              AuthorizationRequestData ard) throws MarketplaceRemovedException {
         String marketplaceId = ard.getMarketplaceId();
         String tenantID = null;
         if (StringUtils.isNotBlank(marketplaceId)) {
@@ -589,7 +590,7 @@ public class AuthorizationFilter extends BaseBesFilter {
                     tenantID = getMarketplaceService(httpRequest)
                             .getMarketplaceById(marketplaceId).getTenantId();
                 } catch (ObjectNotFoundException e) {
-                    // TODO: hanlde somehow?
+                    throw new MarketplaceRemovedException();
                 }
             }
         }
