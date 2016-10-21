@@ -33,16 +33,12 @@ public class OperationRepresentation extends Representation {
 
     @Override
     public void update() {
-        if (getId() != null) {
-            vo.setKey(getId().longValue());
-        }
-        vo.setOperationDescription(operationDescription);
-        vo.setOperationId(operationId);
-        vo.setOperationName(operationName);
+        vo.setKey(convertIdToKey());
+        vo.setOperationDescription(getOperationDescription());
+        vo.setOperationId(getOperationId());
+        vo.setOperationName(getOperationName());
         vo.setOperationParameters(updateParameters());
-        if (getETag() != null) {
-            vo.setVersion(getETag().intValue());
-        }
+        vo.setVersion(convertETagToVersion());
     }
 
     private List<VOServiceOperationParameter> updateParameters() {
