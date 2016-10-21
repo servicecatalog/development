@@ -174,11 +174,11 @@ public interface MarketplaceService {
     public List<VOMarketplace> getMarketplacesForOperator();
 
     /**
-     * Returns a list of the marketplaces that are accessible for the
+     * Returns a list of all marketplaces that can be accessed by the
      * organization of the calling user.
      * 
-     * @return a list of marketplaces that are accessible for the organization
-     *         of the calling user
+     * @return a list of all marketplaces that can be accessed by the
+     *         organization of the calling user
      */
     @WebMethod
     public List<VOMarketplace> getAccessibleMarketplaces();
