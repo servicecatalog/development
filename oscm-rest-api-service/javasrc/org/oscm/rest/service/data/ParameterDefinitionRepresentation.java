@@ -43,23 +43,19 @@ public class ParameterDefinitionRepresentation extends Representation {
 
     @Override
     public void update() {
-        vo.setConfigurable(configurable);
-        vo.setDefaultValue(defaultValue);
-        vo.setDescription(description);
-        if (getId() != null) {
-            vo.setKey(getId().longValue());
-        }
-        vo.setMandatory(mandatory);
-        vo.setMaxValue(maxValue);
-        vo.setMinValue(minValue);
-        vo.setModificationType(modificationType);
-        vo.setParameterId(parameterId);
+        vo.setConfigurable(isConfigurable());
+        vo.setDefaultValue(getDefaultValue());
+        vo.setDescription(getDescription());
+        vo.setKey(convertIdToKey());
+        vo.setMandatory(isMandatory());
+        vo.setMaxValue(getMaxValue());
+        vo.setMinValue(getMinValue());
+        vo.setModificationType(getModificationType());
+        vo.setParameterId(getParameterId());
         vo.setParameterOptions(updateOptions());
-        vo.setParameterType(parameterType);
-        vo.setValueType(valueType);
-        if (getETag() != null) {
-            vo.setVersion(getETag().intValue());
-        }
+        vo.setParameterType(getParameterType());
+        vo.setValueType(getValueType());
+        vo.setVersion(convertETagToVersion());
     }
 
     private List<VOParameterOption> updateOptions() {
