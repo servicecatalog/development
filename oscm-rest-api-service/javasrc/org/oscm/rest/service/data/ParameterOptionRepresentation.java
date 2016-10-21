@@ -28,15 +28,11 @@ public class ParameterOptionRepresentation extends Representation {
 
     @Override
     public void update() {
-        if (getId() != null) {
-            vo.setKey(getId().longValue());
-        }
-        vo.setOptionDescription(optionDescription);
-        vo.setOptionId(optionId);
-        vo.setParamDefId(paramDefId);
-        if (getETag() != null) {
-            vo.setVersion(getETag().intValue());
-        }
+        vo.setKey(convertIdToKey());
+        vo.setOptionDescription(getOptionDescription());
+        vo.setOptionId(getOptionId());
+        vo.setParamDefId(getParamDefId());
+        vo.setVersion(convertETagToVersion());
     }
 
     @Override
