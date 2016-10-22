@@ -110,9 +110,9 @@ public class UpdateUserCtrl {
         ts.resetActiveUserGroupsAndSubscriptionsPage();
         ui = new UiDelegate();
         String userId = getSelectedUserId();
-        model.setTenantId(sessionBean.getTenantID());
 
         try {
+            model.setTenantId(sessionBean.getTenantID());
             Long subscriptionsNumber = getUserService()
                     .getUserAssignableSubscriptionsNumber(new Pagination(),
                             userId, sessionBean.getTenantID());

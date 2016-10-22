@@ -29,6 +29,7 @@ public class VOUser extends BaseVO {
     private Set<OrganizationRoleType> organizationRoles = new HashSet<OrganizationRoleType>();
     private Set<UserRoleType> userRoles = new HashSet<UserRoleType>();
     private String tenantKey;
+    private String tenantId;
 
     /**
      * Default constructor.
@@ -189,5 +190,20 @@ public class VOUser extends BaseVO {
      */
     public String getTenantKey() {
         return tenantKey;
+    }
+
+    /**
+     * Sets tenantID to which user belongs
+     * @param tenantId
+     */
+    public void setTenantId(String tenantId) {
+        this.tenantId = tenantId;
+    }
+
+    /**
+     * Returns tenantID to which user belongs
+     */
+    public String getTenantId() {
+        return tenantId;
     }
 }

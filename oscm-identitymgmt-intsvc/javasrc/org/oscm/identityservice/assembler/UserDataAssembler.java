@@ -83,6 +83,7 @@ public class UserDataAssembler extends BaseAssembler {
         final Tenant tenant = platformUser.getOrganization().getTenant();
         if (tenant != null) {
             voUser.setTenantKey(String.valueOf(tenant.getKey()));
+            voUser.setTenantId(String.valueOf(tenant.getTenantId()));
         }
         updateOrganizationRoles(platformUser, voUser);
         updateUserRoles(platformUser, voUser);
