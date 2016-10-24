@@ -1076,7 +1076,8 @@ public class IdentityServiceBean implements IdentityService,
         PlatformUser pUser;
         try {
             if (tenantIsNotDefault(user.getTenantId())) {
-                pUser = getPlatformUser(user.getUserId(), user.getTenantId(), false);
+                pUser = getPlatformUser(user.getUserId(), user.getTenantId(),
+                        false);
             } else {
                 pUser = getPlatformUser(user.getUserId(), false);
             }
@@ -1137,8 +1138,10 @@ public class IdentityServiceBean implements IdentityService,
     }
 
     private boolean tenantIsNotDefault(String tenantID) {
-        ConfigurationSetting defaultTenant = cs.getConfigurationSetting(ConfigurationKey.SSO_DEFAULT_TENANT_ID, "");
-        return StringUtils.isNotBlank(tenantID) && !StringUtils.equals(tenantID, defaultTenant.getValue());
+        ConfigurationSetting defaultTenant = cs.getConfigurationSetting(
+                ConfigurationKey.SSO_DEFAULT_TENANT_ID, "");
+        return StringUtils.isNotBlank(tenantID)
+                && !StringUtils.equals(tenantID, defaultTenant.getValue());
     }
 
     @Override
@@ -1572,8 +1575,8 @@ public class IdentityServiceBean implements IdentityService,
     @Override
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     public PlatformUser getPlatformUser(String userId, String tenantId,
-        boolean validateOrganization) throws ObjectNotFoundException,
-        OperationNotPermittedException {
+            boolean validateOrganization) throws ObjectNotFoundException,
+            OperationNotPermittedException {
 
         Query query = dm.createNamedQuery("PlatformUser.findByUserIdAndTenant");
         query.setParameter("userId", userId);
@@ -1584,9 +1587,9 @@ public class IdentityServiceBean implements IdentityService,
             platformUser = (PlatformUser) query.getSingleResult();
         } catch (NoResultException e) {
             ObjectNotFoundException onf = new ObjectNotFoundException(
-                ObjectNotFoundException.ClassEnum.USER, userId);
+                    ObjectNotFoundException.ClassEnum.USER, userId);
             logger.logWarn(Log4jLogger.SYSTEM_LOG, onf,
-                LogMessageIdentifier.WARN_USER_NOT_FOUND);
+                    LogMessageIdentifier.WARN_USER_NOT_FOUND);
             throw onf;
         }
 
@@ -1849,7 +1852,8 @@ public class IdentityServiceBean implements IdentityService,
                         cm.sendMail(
                                 pu,
                                 EmailType.USER_CREATED_WITH_MARKETPLACE_SAML_SP,
-                                new Object[] { pu.getUserId(), cm.getBaseUrlWithTenant(tenantId),
+                                new Object[] { pu.getUserId(),
+                                        cm.getBaseUrlWithTenant(tenantId),
                                         cm.getMarketplaceUrl(marketplaceId) },
                                 marketplace);
 
@@ -1869,7 +1873,8 @@ public class IdentityServiceBean implements IdentityService,
                         cm.sendMail(
                                 pu,
                                 EmailType.USER_CREATED_SAML_SP,
-                                new Object[] { pu.getUserId(), cm.getBaseUrlWithTenant(tenantId) },
+                                new Object[] { pu.getUserId(),
+                                        cm.getBaseUrlWithTenant(tenantId) },
                                 marketplace);
                     } else {
                         cm.sendMail(pu, EmailType.USER_CREATED, new Object[] {
@@ -1881,7 +1886,9 @@ public class IdentityServiceBean implements IdentityService,
 
             } else {
                 if (cs.isServiceProvider()) {
-                    cm.sendMail(pu, EmailType.USER_CREATED_SAML_SP,
+                    cm.sendMail(
+                            pu,
+                            EmailType.USER_CREATED_SAML_SP,
                             new Object[] { pu.getUserId(),
                                     cm.getMarketplaceUrl(marketplaceId) },
                             marketplace);
@@ -2668,7 +2675,7 @@ public class IdentityServiceBean implements IdentityService,
             OperationPendingException {
         ArgumentValidator.notNull("user", user);
         ArgumentValidator.notNull("roles", roles);
-        
+
         Tenant tenant = null;
         try {
             if (user.getTenantId() == null || user.getTenantId().equals("")) {
@@ -2686,7 +2693,6 @@ public class IdentityServiceBean implements IdentityService,
         } catch (ObjectNotFoundException e) {
             e.printStackTrace();
         }
-
 
         checkIfUserExists(user.getUserId(), tenant);
 
@@ -2771,6 +2777,7 @@ public class IdentityServiceBean implements IdentityService,
             validateForOnBehalfUserGroupAssignment(user, onBehalfUserKeys);
             PlatformUser platformUser = new PlatformUser();
             platformUser.setUserId(user.getUserId());
+            platformUser.setTenantId(user.getTenantId());
             added.add(platformUser);
         }
         for (VOUser user : usersToBeRevoked) {

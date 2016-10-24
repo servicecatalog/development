@@ -616,6 +616,7 @@ public class DataServiceBean implements DataService {
         Organization org = user.getOrganization();
         if (checkOrgDeregistration(org, lookupOnly)) {
             // org still valid => return user
+            user.setTenantId(org.getTenant().getTenantId());
             return user;
         }
         // lookup case => org not valid => no user
@@ -816,7 +817,8 @@ public class DataServiceBean implements DataService {
     }
 
     @Override
-    public void persistPlatformUserWithTenant(PlatformUser pu, String tenantId) throws NonUniqueBusinessKeyException {
+    public void persistPlatformUserWithTenant(PlatformUser pu, String tenantId)
+            throws NonUniqueBusinessKeyException {
         setThreadLocals();
         Query namedQuery = createNamedQuery("PlatformUser.findByUserIdAndTenant");
         namedQuery.setParameter("userId", pu.getUserId());
@@ -825,7 +827,8 @@ public class DataServiceBean implements DataService {
         if (users != null && !users.isEmpty()) {
             DomainObjectException.ClassEnum classEnum = class2Enum(pu
                     .getClass());
-            throw new NonUniqueBusinessKeyException(classEnum, pu.getUserId() + " " + tenantId);
+            throw new NonUniqueBusinessKeyException(classEnum, pu.getUserId()
+                    + " " + tenantId);
         }
         em.persist(pu);
     }
