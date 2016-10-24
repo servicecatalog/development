@@ -25,6 +25,7 @@ import javax.faces.event.ValueChangeEvent;
 
 import org.apache.myfaces.custom.fileupload.UploadedFile;
 
+import org.oscm.internal.vo.*;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.converter.PropertiesLoader;
@@ -52,13 +53,6 @@ import org.oscm.internal.types.exception.TechnicalServiceNotAliveException;
 import org.oscm.internal.types.exception.TechnicalServiceOperationException;
 import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.internal.usergroupmgmt.POUserGroup;
-import org.oscm.internal.vo.LdapProperties;
-import org.oscm.internal.vo.VODiscount;
-import org.oscm.internal.vo.VOOrganization;
-import org.oscm.internal.vo.VOTechnicalService;
-import org.oscm.internal.vo.VOUda;
-import org.oscm.internal.vo.VOUdaDefinition;
-import org.oscm.internal.vo.VOUserDetails;
 
 /**
  * Backing bean for organization related actions
@@ -521,7 +515,9 @@ public class OrganizationBean extends BaseBean implements Serializable {
     public VOOrganization getCustomerToAdd() {
         if (customerToAdd == null) {
             customerToAdd = new VOOrganization();
-            customerToAdd.setLocale(getUserFromSession().getLocale());
+            User user = getUserFromSession();
+            customerToAdd.setLocale(user.getLocale());
+            customerToAdd.setTenantKey(user.getTenantKey());
         }
         return customerToAdd;
     }
