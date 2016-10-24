@@ -1728,7 +1728,7 @@ public class IdentityServiceBean implements IdentityService,
                 sendMail, userLocalLdap, marketplace, performRoleCheck, false);
     }
 
-    // TODO: platform user persisting
+    // TODO: platform user persisting 
     private PlatformUser addPlatformUser(VOUserDetails userDetails,
             Organization organization, String password,
             UserAccountStatus lockLevel, boolean sendMail,

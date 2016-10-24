@@ -881,7 +881,7 @@ public class DataServiceBean implements DataService {
         // createNamedQuery("PlatformUser.findByUserIdAndTenant");
         // namedQuery.setParameter("userId", pu.getUserId());
         // namedQuery.setParameter("tenantId", tenantId);
-        // List users = namedQuery.getResultList();
+        // List users = namedQuery.getResultList(); 
         PlatformUser user = find(pu);
         if (user != null) {
             DomainObjectException.ClassEnum classEnum = class2Enum(pu

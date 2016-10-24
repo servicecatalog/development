@@ -502,7 +502,7 @@ public class PlatformUser extends DomainObjectWithHistory<PlatformUserData> {
     }
 
     /**
-     *
+     * 
      * @returns true if the user has SUBSCRIPTION_MANAGER role
      */
     public boolean isSubscriptionManager() {
