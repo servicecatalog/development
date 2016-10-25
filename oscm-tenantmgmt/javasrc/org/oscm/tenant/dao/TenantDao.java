@@ -18,6 +18,7 @@ import org.oscm.converter.ParameterizedTypes;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Tenant;
 import org.oscm.domobjects.TenantSetting;
+import org.oscm.internal.types.enumtypes.IdpSettingType;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 
 @Stateless
@@ -91,7 +92,7 @@ public class TenantDao {
         
         Query query = dataManager.createNamedQuery("TenantSetting.findByBusinessKey");
         query.setParameter("tenant", tenant);
-        query.setParameter("name", settingKey);
+        query.setParameter("name", IdpSettingType.valueOf(settingKey));
         
         TenantSetting tenantSetting = (TenantSetting) query.getSingleResult();
 
