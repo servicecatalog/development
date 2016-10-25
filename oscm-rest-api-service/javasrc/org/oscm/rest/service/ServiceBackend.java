@@ -84,4 +84,33 @@ public class ServiceBackend {
         };
     }
 
+    public RestBackend.GetCollection<ServiceRepresentation, ServiceParameters> getCompatibles() {
+        return new RestBackend.GetCollection<ServiceRepresentation, ServiceParameters>() {
+
+            @Override
+            public RepresentationCollection<ServiceRepresentation> getCollection(ServiceParameters params)
+                    throws Exception {
+                VOService vo = new VOService();
+                vo.setKey(params.getId().longValue());
+                List<VOService> compatibleServices = sps.getCompatibleServices(vo);
+                return new RepresentationCollection<ServiceRepresentation>(
+                        ServiceRepresentation.toCollection(compatibleServices));
+            }
+        };
+    }
+
+    public RestBackend.Put<RepresentationCollection<ServiceRepresentation>, ServiceParameters> putCompatibles() {
+        return new RestBackend.Put<RepresentationCollection<ServiceRepresentation>, ServiceParameters>() {
+
+            @Override
+            public boolean put(RepresentationCollection<ServiceRepresentation> content, ServiceParameters params)
+                    throws Exception {
+                VOService vo = new VOService();
+                vo.setKey(params.getId().longValue());
+                vo.setVersion(params.eTagToVersion());
+                sps.setCompatibleServices(vo, ServiceRepresentation.toList(content));
+                return true;
+            }
+        };
+    }
 }
