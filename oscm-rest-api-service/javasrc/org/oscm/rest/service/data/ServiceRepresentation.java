@@ -13,6 +13,7 @@ import org.oscm.internal.types.enumtypes.ServiceType;
 import org.oscm.internal.vo.VOParameter;
 import org.oscm.internal.vo.VOService;
 import org.oscm.rest.common.Representation;
+import org.oscm.rest.common.RepresentationCollection;
 
 public class ServiceRepresentation extends Representation {
 
@@ -101,14 +102,6 @@ public class ServiceRepresentation extends Representation {
             ParameterRepresentation pr = new ParameterRepresentation(p);
             pr.convert();
             result.add(pr);
-        }
-        return result;
-    }
-
-    public static Collection<ServiceRepresentation> toCollection(Collection<VOService> list) {
-        Collection<ServiceRepresentation> result = new ArrayList<ServiceRepresentation>();
-        for (VOService vo : list) {
-            result.add(new ServiceRepresentation(vo));
         }
         return result;
     }
@@ -211,5 +204,24 @@ public class ServiceRepresentation extends Representation {
 
     public void setServiceType(ServiceType serviceType) {
         this.serviceType = serviceType;
+    }
+
+    public static Collection<ServiceRepresentation> toCollection(Collection<VOService> list) {
+        Collection<ServiceRepresentation> result = new ArrayList<ServiceRepresentation>();
+        for (VOService vo : list) {
+            result.add(new ServiceRepresentation(vo));
+        }
+        return result;
+    }
+
+    public static List<VOService> toList(RepresentationCollection<ServiceRepresentation> content) {
+        if (content == null || content.getItems() == null) {
+            return null;
+        }
+        List<VOService> result = new ArrayList<VOService>();
+        for (ServiceRepresentation sr : content.getItems()) {
+            result.add(sr.getVO());
+        }
+        return result;
     }
 }
