@@ -174,6 +174,17 @@ public class NovaClient {
         return result;
     }
 
+    public boolean isServerExpectedStatus(ServerStatus expectedStatus,
+            PropertyHandler ph, String serverId)
+            throws OpenStackConnectionException {
+        boolean result = false;
+        Server server = getServerDetails(ph, serverId);
+        if (!server.getStatus().equals(expectedStatus.toString())) {
+            result = true;
+        }
+        return result;
+    }
+
     /**
      * Check the server status is not excepted
      * 
