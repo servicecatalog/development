@@ -302,7 +302,7 @@ public class IdentityServiceBean implements IdentityService,
             }
             return (PlatformUser) dm.getReferenceByBusinessKey(user);
             // }
-            // Query q =
+            // Query q = 
             // dm.createNamedQuery("PlatformUser.findByUserIdAndTenant");
             // q.setParameter("userId", userId);
             // q.setParameter("tenantId", tenant.getTenantId());
