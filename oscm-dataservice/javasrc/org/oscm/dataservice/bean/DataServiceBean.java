@@ -28,6 +28,7 @@ import javax.persistence.*;
 import javax.sql.DataSource;
 import javax.xml.ws.WebServiceContext;
 
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.dataservice.local.DataSet;
@@ -35,12 +36,14 @@ import org.oscm.dataservice.local.SqlQuery;
 import org.oscm.domobjects.*;
 import org.oscm.domobjects.Parameter;
 import org.oscm.domobjects.bridge.BridgeDataManager;
+import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.types.exception.DomainObjectException;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.SaaSSystemException;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
+import org.oscm.types.constants.Configuration;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
 import org.oscm.types.exceptions.InvalidUserSession;
 
@@ -276,10 +279,55 @@ public class DataServiceBean implements DataService {
 
     @Override
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
+    public PlatformUser find(PlatformUser pu) {
+        Query qry;
+        if (isNotDefaultTenant(pu.getTenantId())) {
+            qry = em.createNamedQuery("PlatformUser.findByBusinessKey", PlatformUser.class);
+            qry.setParameter("tenantId", pu.getTenantId());
+        } else {
+            qry = em.createNamedQuery("PlatformUser.findByUserId", PlatformUser.class);
+        }
+        qry.setParameter("userId", pu.getUserId());
+        try {
+            return (PlatformUser) qry.getSingleResult();
+        } catch (NonUniqueResultException e) {
+            String qrykey = "(" + "tenantId='" +
+                    pu.getTenantId() +
+                    "'," +
+                    "userId='" +
+                    pu.getUserId() +
+                    ")";
+            String msgText = "Non-Unique Business Key Search for PlatformUser and BusinessKey " + qrykey;
+            throw new SaaSSystemException(msgText, e);
+        } catch (Exception e) {
+            throw new SaaSSystemException(e);
+        }
+    }
+
+    private boolean isNotDefaultTenant(String tenantId) {
+        String defaultTenant = getDefaultTenant();
+        return !StringUtils.equals(tenantId, defaultTenant);
+    }
+
+    private String getDefaultTenant() {
+        TypedQuery<ConfigurationSetting> query = em.createNamedQuery("ConfigurationSetting.findByInfoAndContext",
+                ConfigurationSetting.class);
+        query.setParameter("informationId", ConfigurationKey.SSO_DEFAULT_TENANT_ID);
+        query.setParameter("contextId", Configuration.GLOBAL_CONTEXT);
+        try {
+            return query.getSingleResult().getValue();
+        } catch (Exception exc) {
+            //TODO: create specific exception.
+            throw new RuntimeException("Missing mandatory setting: SSO_DEFAULT_TENANT_ID");
+        }
+    }
+
+    @Override
+    @TransactionAttribute(TransactionAttributeType.MANDATORY)
     public DomainObject<?> getReferenceByBusinessKey(
             DomainObject<?> findTemplate) throws ObjectNotFoundException {
         setThreadLocals();
-        DomainObject<?> result = null;
+        DomainObject<?> result;
         result = find(findTemplate);
         if (result == null) {
             DomainObjectException.ClassEnum classEnum = class2Enum(findTemplate

@@ -15,6 +15,8 @@ package org.oscm.dataservice.local;
 import java.util.List;
 
 import javax.ejb.Local;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
@@ -65,6 +67,17 @@ public interface DataService {
      * @return the found DomainObject
      */
     public DomainObject<?> find(DomainObject<?> idobj);
+
+    /**
+     * Works similarly as the #{find} method but is dedicated for PlatformUsers only.
+     * It uses findByBusinessKey method if tenantIs set on user and findByUserId if
+     * tenant is null or equals to default tenant in the system.
+     *
+     * @param pu
+     *            PlatformUser object holding the search criteria
+     * @return the found DomainObject
+     */
+    PlatformUser find(PlatformUser pu);
 
     /**
      * Persists a domain object and automatically creates a corresponding

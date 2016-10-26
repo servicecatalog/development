@@ -1074,7 +1074,7 @@ public class IdentityServiceBean implements IdentityService,
 
         ArgumentValidator.notNull("user", user);
         PlatformUser pUser;
-        try {
+        try {//TODO: maybe not needed?
             if (tenantIsNotDefault(user.getTenantId())) {
                 pUser = getPlatformUser(user.getUserId(), user.getTenantId(),
                         false);
