@@ -294,15 +294,19 @@ public class IdentityServiceBean implements IdentityService,
      */
     PlatformUser loadUser(String userId, Tenant tenant) {
         try {
-            if (tenant == null) {
-                PlatformUser user = new PlatformUser();
-                user.setUserId(userId);
-                return (PlatformUser) dm.getReferenceByBusinessKey(user);
+            // if (tenant == null) {
+            PlatformUser user = new PlatformUser();
+            user.setUserId(userId);
+            if (tenant != null) {
+                user.setTenantId(tenant.getTenantId());
             }
-            Query q = dm.createNamedQuery("PlatformUser.findByUserIdAndTenant");
-            q.setParameter("userId", userId);
-            q.setParameter("tenantId", tenant.getTenantId());
-            return (PlatformUser) q.getSingleResult();
+            return (PlatformUser) dm.getReferenceByBusinessKey(user);
+            // }
+            // Query q =
+            // dm.createNamedQuery("PlatformUser.findByUserIdAndTenant");
+            // q.setParameter("userId", userId);
+            // q.setParameter("tenantId", tenant.getTenantId());
+            // return (PlatformUser) q.getSingleResult();
         } catch (ObjectNotFoundException | NoResultException e) {
             return null;
         }
@@ -503,7 +507,8 @@ public class IdentityServiceBean implements IdentityService,
 
         ArgumentValidator.notNull("user", user);
         ArgumentValidator.notNull("roles", roles);
-        PlatformUser pUser = getPlatformUser(user.getUserId(), true);
+        PlatformUser pUser = getPlatformUser(user.getUserId(),
+                user.getTenantId(), true);
         grantUserRoles(pUser, roles);
 
     }
@@ -515,7 +520,8 @@ public class IdentityServiceBean implements IdentityService,
 
         ArgumentValidator.notNull("user", user);
         ArgumentValidator.notNull("role", role);
-        PlatformUser pUser = getPlatformUser(user.getUserId(), true);
+        PlatformUser pUser = getPlatformUser(user.getUserId(),
+                user.getTenantId(), true);
         grantUnitRole(pUser, role);
     }
 
@@ -526,7 +532,8 @@ public class IdentityServiceBean implements IdentityService,
 
         ArgumentValidator.notNull("user", user);
         ArgumentValidator.notNull("role", role);
-        PlatformUser pUser = getPlatformUser(user.getUserId(), true);
+        PlatformUser pUser = getPlatformUser(user.getUserId(),
+                user.getTenantId(), true);
         revokeUnitRole(pUser, role);
     }
 
@@ -587,7 +594,8 @@ public class IdentityServiceBean implements IdentityService,
             ConcurrentModificationException {
 
         ArgumentValidator.notNull("user", user);
-        PlatformUser platformUser = getPlatformUser(user.getUserId(), true);
+        PlatformUser platformUser = getPlatformUser(user.getUserId(),
+                user.getTenantId(), true);
         BaseAssembler.verifyVersionAndKey(platformUser, user);
 
         resetUserPassword(platformUser, marketplaceId);
@@ -701,7 +709,8 @@ public class IdentityServiceBean implements IdentityService,
             throws ObjectNotFoundException, OperationNotPermittedException {
 
         ArgumentValidator.notNull("user", user);
-        PlatformUser pUser = getPlatformUser(user.getUserId(), true);
+        PlatformUser pUser = getPlatformUser(user.getUserId(),
+                user.getTenantId(), true);
 
         return UserDataAssembler.toVOUserDetails(pUser);
     }
@@ -1074,13 +1083,8 @@ public class IdentityServiceBean implements IdentityService,
 
         ArgumentValidator.notNull("user", user);
         PlatformUser pUser;
-        try {//TODO: maybe not needed?
-            if (tenantIsNotDefault(user.getTenantId())) {
-                pUser = getPlatformUser(user.getUserId(), user.getTenantId(),
-                        false);
-            } else {
-                pUser = getPlatformUser(user.getUserId(), false);
-            }
+        try {
+            pUser = getPlatformUser(user.getUserId(), user.getTenantId(), false);
 
             if (pUser.getOrganization().getDeregistrationDate() != null) {
                 OperationNotPermittedException onp = new OperationNotPermittedException(
@@ -1578,21 +1582,10 @@ public class IdentityServiceBean implements IdentityService,
             boolean validateOrganization) throws ObjectNotFoundException,
             OperationNotPermittedException {
 
-        Query query = dm.createNamedQuery("PlatformUser.findByUserIdAndTenant");
-        query.setParameter("userId", userId);
-        query.setParameter("tenantId", tenantId);
-
-        PlatformUser platformUser;
-        try {
-            platformUser = (PlatformUser) query.getSingleResult();
-        } catch (NoResultException e) {
-            ObjectNotFoundException onf = new ObjectNotFoundException(
-                    ObjectNotFoundException.ClassEnum.USER, userId);
-            logger.logWarn(Log4jLogger.SYSTEM_LOG, onf,
-                    LogMessageIdentifier.WARN_USER_NOT_FOUND);
-            throw onf;
-        }
-
+        PlatformUser platformUser = new PlatformUser();
+        platformUser.setUserId(userId);
+        platformUser.setTenantId(tenantId);
+        platformUser = dm.find(platformUser);
         if (validateOrganization) {
             // Validate whether the calling user belongs to the same
             // organization as the requested user. Otherwise an exception will
@@ -1725,7 +1718,8 @@ public class IdentityServiceBean implements IdentityService,
         return addPlatformUser(userDetails, organization, password, lockLevel,
                 sendMail, userLocalLdap, marketplace, performRoleCheck, false);
     }
-//TODO: platform user persisting
+
+    // TODO: platform user persisting
     private PlatformUser addPlatformUser(VOUserDetails userDetails,
             Organization organization, String password,
             UserAccountStatus lockLevel, boolean sendMail,

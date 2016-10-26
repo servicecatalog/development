@@ -73,7 +73,7 @@ public class SubscriptionServiceBeanEditSubscriptionOwnerTest {
         // given
         doReturn(admin).when(idManager).getPlatformUser(adminId, true);
         // when
-        bean.checkRolesForSubscriptionOwner(adminId);
+        bean.checkRolesForSubscriptionOwner(adminId, null);
     }
 
     @Test
@@ -83,7 +83,7 @@ public class SubscriptionServiceBeanEditSubscriptionOwnerTest {
         doReturn(subscriptionManager).when(idManager).getPlatformUser(
                 subscriptionManagerId, true);
         // when
-        bean.checkRolesForSubscriptionOwner(subscriptionManagerId);
+        bean.checkRolesForSubscriptionOwner(subscriptionManagerId, null);
     }
 
     @Test(expected = ObjectNotFoundException.class)
@@ -95,7 +95,7 @@ public class SubscriptionServiceBeanEditSubscriptionOwnerTest {
                 noneExsitUserId, true);
         // when
         try {
-            bean.checkRolesForSubscriptionOwner(noneExsitUserId);
+            bean.checkRolesForSubscriptionOwner(noneExsitUserId, null);
             // then
             fail();
         } catch (Exception e) {
@@ -110,7 +110,7 @@ public class SubscriptionServiceBeanEditSubscriptionOwnerTest {
         doReturn(user).when(idManager).getPlatformUser(userId, true);
         // when
         try {
-            bean.checkRolesForSubscriptionOwner(userId);
+            bean.checkRolesForSubscriptionOwner(userId, null);
             // then
             fail();
         } catch (Exception e) {
@@ -130,8 +130,8 @@ public class SubscriptionServiceBeanEditSubscriptionOwnerTest {
         bean.logSubscriptionOwner(sub, oldOwner);
 
         // then
-        verify(bean.audit, times(1)).editSubscriptionOwner(any(DataService.class), eq(sub),
-                eq(oldOwner));
+        verify(bean.audit, times(1)).editSubscriptionOwner(
+                any(DataService.class), eq(sub), eq(oldOwner));
     }
 
     private Subscription givenSubscription(String ownerId) {

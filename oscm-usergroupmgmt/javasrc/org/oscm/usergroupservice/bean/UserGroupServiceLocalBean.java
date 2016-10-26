@@ -408,6 +408,7 @@ public class UserGroupServiceLocalBean {
         VOUser voUser = new VOUser();
         voUser.setUserId(user.getUserId());
         voUser.setKey(user.getKey());
+        voUser.setTenantId(user.getTenantId());
         if (allUserAssignments.values().contains(UnitRoleType.ADMINISTRATOR)) {
             getIs().grantUnitRole(voUser, UserRoleType.UNIT_ADMINISTRATOR);
         } else {
@@ -1027,7 +1028,7 @@ public class UserGroupServiceLocalBean {
 
     private PlatformUser loadPlatformUser(PlatformUser platformUser)
             throws ObjectNotFoundException {
-        PlatformUser pu = (PlatformUser) dm.find(platformUser);
+        PlatformUser pu = dm.find(platformUser);
         if (pu == null) {
             ObjectNotFoundException onf = new ObjectNotFoundException(
                     ObjectNotFoundException.ClassEnum.USER,

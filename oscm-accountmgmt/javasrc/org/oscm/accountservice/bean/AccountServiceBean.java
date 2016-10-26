@@ -952,10 +952,11 @@ public class AccountServiceBean implements AccountService, AccountServiceLocal {
             MailOperationException, ObjectNotFoundException,
             IncompatibleRolesException, OrganizationAuthorityException {
 
-        long tenantKey = organization.getTenant() == null ? 0 : organization.getTenant().getKey();
+        long tenantKey = organization.getTenant() == null ? 0 : organization
+                .getTenant().getKey();
         if (checkIfPlatformUserInGivenTenantExists(tenantKey, user.getUserId())) {
-            throw new NonUniqueBusinessKeyException(DomainObjectException.ClassEnum.USER, user
-                    .getUserId());
+            throw new NonUniqueBusinessKeyException(
+                    DomainObjectException.ClassEnum.USER, user.getUserId());
         }
         for (OrganizationRoleType roleToSet : roles) {
             if (roleToSet.equals(OrganizationRoleType.PLATFORM_OPERATOR)) {
@@ -1630,16 +1631,18 @@ public class AccountServiceBean implements AccountService, AccountServiceLocal {
                     "Organization");
             throw vf;
         }
-        if (checkIfPlatformUserInGivenTenantExists(organization.getTenantKey(), user.getUserId())) {
-            throw new NonUniqueBusinessKeyException(DomainObjectException.ClassEnum.USER, user
-                    .getUserId());
+        if (checkIfPlatformUserInGivenTenantExists(organization.getTenantKey(),
+                user.getUserId())) {
+            throw new NonUniqueBusinessKeyException(
+                    DomainObjectException.ClassEnum.USER, user.getUserId());
         }
         return caller;
     }
 
-    //TODO: move it to tenant service as the operator service bean is also using the same code.
+    // TODO: move it to tenant service as the operator service bean is also
+    // using the same code.
     private boolean checkIfPlatformUserInGivenTenantExists(long tenantKey,
-                                                           String userId) {
+            String userId) {
         if (tenantKey != 0) {
             Query query = dm
                     .createNamedQuery("PlatformUser.findByUserIdAndTenantKey");
@@ -1651,7 +1654,7 @@ public class AccountServiceBean implements AccountService, AccountServiceLocal {
                     return true;
                 }
             } catch (NoResultException e) {
-                //That is good. No user for that tenant exists.
+                // That is good. No user for that tenant exists.
             }
             return false;
         }

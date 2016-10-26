@@ -282,10 +282,12 @@ public class DataServiceBean implements DataService {
     public PlatformUser find(PlatformUser pu) {
         Query qry;
         if (isNotDefaultTenant(pu.getTenantId())) {
-            qry = em.createNamedQuery("PlatformUser.findByBusinessKey", PlatformUser.class);
+            qry = em.createNamedQuery("PlatformUser.findByBusinessKey",
+                    PlatformUser.class);
             qry.setParameter("tenantId", pu.getTenantId());
         } else {
-            qry = em.createNamedQuery("PlatformUser.findByUserId", PlatformUser.class);
+            qry = em.createNamedQuery("PlatformUser.findByUserId",
+                    PlatformUser.class);
         }
         qry.setParameter("userId", pu.getUserId());
         try {
@@ -293,13 +295,10 @@ public class DataServiceBean implements DataService {
         } catch (NoResultException e) {
             return null;
         } catch (NonUniqueResultException e) {
-            String qrykey = "(" + "tenantId='" +
-                    pu.getTenantId() +
-                    "'," +
-                    "userId='" +
-                    pu.getUserId() +
-                    ")";
-            String msgText = "Non-Unique Business Key Search for PlatformUser and BusinessKey " + qrykey;
+            String qrykey = "(" + "tenantId='" + pu.getTenantId() + "',"
+                    + "userId='" + pu.getUserId() + ")";
+            String msgText = "Non-Unique Business Key Search for PlatformUser and BusinessKey "
+                    + qrykey;
             throw new SaaSSystemException(msgText, e);
         } catch (Exception e) {
             throw new SaaSSystemException(e);
@@ -308,19 +307,23 @@ public class DataServiceBean implements DataService {
 
     private boolean isNotDefaultTenant(String tenantId) {
         String defaultTenant = getDefaultTenant();
-        return StringUtils.isNotBlank(tenantId) && !StringUtils.equals(tenantId, defaultTenant);
+        return StringUtils.isNotBlank(tenantId)
+                && !StringUtils.equals(tenantId, defaultTenant);
     }
 
     private String getDefaultTenant() {
-        TypedQuery<ConfigurationSetting> query = em.createNamedQuery("ConfigurationSetting.findByInfoAndContext",
+        TypedQuery<ConfigurationSetting> query = em.createNamedQuery(
+                "ConfigurationSetting.findByInfoAndContext",
                 ConfigurationSetting.class);
-        query.setParameter("informationId", ConfigurationKey.SSO_DEFAULT_TENANT_ID);
+        query.setParameter("informationId",
+                ConfigurationKey.SSO_DEFAULT_TENANT_ID);
         query.setParameter("contextId", Configuration.GLOBAL_CONTEXT);
         try {
             return query.getSingleResult().getValue();
         } catch (Exception exc) {
-            //TODO: create specific exception.
-            throw new RuntimeException("Missing mandatory setting: SSO_DEFAULT_TENANT_ID");
+            // TODO: create specific exception.
+            throw new RuntimeException(
+                    "Missing mandatory setting: SSO_DEFAULT_TENANT_ID");
         }
     }
 
@@ -873,11 +876,13 @@ public class DataServiceBean implements DataService {
     public void persistPlatformUserWithTenant(PlatformUser pu, String tenantId)
             throws NonUniqueBusinessKeyException {
         setThreadLocals();
-        Query namedQuery = createNamedQuery("PlatformUser.findByUserIdAndTenant");
-        namedQuery.setParameter("userId", pu.getUserId());
-        namedQuery.setParameter("tenantId", tenantId);
-        List users = namedQuery.getResultList();
-        if (users != null && !users.isEmpty()) {
+        // Query namedQuery =
+        // createNamedQuery("PlatformUser.findByUserIdAndTenant");
+        // namedQuery.setParameter("userId", pu.getUserId());
+        // namedQuery.setParameter("tenantId", tenantId);
+        // List users = namedQuery.getResultList();
+        PlatformUser user = find(pu);
+        if (user != null) {
             DomainObjectException.ClassEnum classEnum = class2Enum(pu
                     .getClass());
             throw new NonUniqueBusinessKeyException(classEnum, pu.getUserId()
