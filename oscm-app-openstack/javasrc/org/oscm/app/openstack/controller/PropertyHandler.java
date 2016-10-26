@@ -15,6 +15,7 @@ import java.net.URL;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.sling.commons.json.JSONArray;
 import org.apache.sling.commons.json.JSONException;
 import org.apache.sling.commons.json.JSONObject;
 import org.oscm.app.openstack.data.FlowState;
@@ -88,6 +89,7 @@ public class PropertyHandler {
 
     // Start time of operation
     public static final String START_TIME = "START_TIME";
+    public static final String SECURITY_GROUPS = "SecurityGroupName";
 
     /**
      * Default constructor.
@@ -222,20 +224,35 @@ public class PropertyHandler {
 
     public JSONObject getTemplateParameters() {
         JSONObject parameters = new JSONObject();
+        // created security Group array , user can add security group separated
+        // by comma
+        JSONArray securityGroupSecurityGroup = new JSONArray();
         Set<String> keySet = settings.getParameters().keySet();
-        for (String key : keySet) {
-            if (key.startsWith(TEMPLATE_PARAMETER_PREFIX)) {
-                try {
+        try {
+            for (String key : keySet) {
+                if (key.startsWith(TEMPLATE_PARAMETER_PREFIX)) {
                     parameters.put(
                             key.substring(TEMPLATE_PARAMETER_PREFIX.length()),
                             settings.getParameters().get(key));
-                } catch (JSONException e) {
-                    // should not happen with Strings
-                    throw new RuntimeException(
-                            "JSON error when collection template parameters",
-                            e);
                 }
             }
+            // remove the empty parameter from object
+            parameters.remove("");
+            // below if execute only if technical service parameter have a
+            // security group parameters
+            if (!parameters.isNull(SECURITY_GROUPS)) {
+                String securityGroupArray[] = parameters
+                        .getString(SECURITY_GROUPS).split(",");
+                for (String groupName : securityGroupArray) {
+                    securityGroupSecurityGroup.put(groupName);
+                }
+                parameters.put(SECURITY_GROUPS, securityGroupSecurityGroup);
+            }
+
+        } catch (JSONException e) {
+            // should not happen with Strings
+            throw new RuntimeException(
+                    "JSON error when collection template parameters", e);
         }
         return parameters;
     }
