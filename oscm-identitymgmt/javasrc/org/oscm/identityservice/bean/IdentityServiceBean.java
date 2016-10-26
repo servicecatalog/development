@@ -1725,7 +1725,7 @@ public class IdentityServiceBean implements IdentityService,
         return addPlatformUser(userDetails, organization, password, lockLevel,
                 sendMail, userLocalLdap, marketplace, performRoleCheck, false);
     }
-
+//TODO: platform user persisting
     private PlatformUser addPlatformUser(VOUserDetails userDetails,
             Organization organization, String password,
             UserAccountStatus lockLevel, boolean sendMail,

@@ -1255,7 +1255,7 @@ public class MarketplaceServiceBean implements MarketplaceService {
 
     @Override
     @RolesAllowed("PLATFORM_OPERATOR")
-    public List<VOMarketplace> getAllMarketplacesForTenant(long tenantKey) throws ObjectNotFoundException {
+    public List<VOMarketplace> getAllMarketplacesForTenant(Long tenantKey) throws ObjectNotFoundException {
         List<Marketplace> marketplaces = marketplaceServiceLocal
             .getAllMarketplacesForTenant(tenantKey);
         List<VOMarketplace> result = new ArrayList<>();

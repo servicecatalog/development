@@ -52,7 +52,9 @@ import org.oscm.domobjects.enums.LocalizedObjectTypes;
         + "WHERE mp.key = mto.marketplace_tkey AND mto.organization_tkey=:organization_tkey "
         + "AND mto.dataContainer.publishingAccess=:publishingAccessDenied))) AND mp.tenant = :tenant"),
         @NamedQuery(name = "Marketplace.getAllForTenant", query = "SELECT mp FROM Marketplace mp WHERE mp"
-                + ".tenant = :tenant") })
+                + ".tenant = :tenant"),
+        @NamedQuery(name = "Marketplace.getAllForDefaultTenant", query = "SELECT mp FROM Marketplace mp WHERE mp"
+                + ".tenant is null") })
 @Entity
 public class Marketplace extends DomainObjectWithHistory<MarketplaceData> {
 
