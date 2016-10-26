@@ -1553,7 +1553,7 @@ public class IdentityServiceBean implements IdentityService,
 
         PlatformUser pUser = new PlatformUser();
         pUser.setUserId(userId);
-        pUser = (PlatformUser) dm.find(pUser);
+        pUser = dm.find(pUser);
         if (pUser == null) {
             ObjectNotFoundException onf = new ObjectNotFoundException(
                     ObjectNotFoundException.ClassEnum.USER, userId);

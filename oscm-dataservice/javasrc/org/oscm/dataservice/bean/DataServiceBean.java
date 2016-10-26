@@ -290,6 +290,8 @@ public class DataServiceBean implements DataService {
         qry.setParameter("userId", pu.getUserId());
         try {
             return (PlatformUser) qry.getSingleResult();
+        } catch (NoResultException e) {
+            return null;
         } catch (NonUniqueResultException e) {
             String qrykey = "(" + "tenantId='" +
                     pu.getTenantId() +
@@ -306,7 +308,7 @@ public class DataServiceBean implements DataService {
 
     private boolean isNotDefaultTenant(String tenantId) {
         String defaultTenant = getDefaultTenant();
-        return !StringUtils.equals(tenantId, defaultTenant);
+        return StringUtils.isNotBlank(tenantId) && !StringUtils.equals(tenantId, defaultTenant);
     }
 
     private String getDefaultTenant() {
@@ -664,7 +666,10 @@ public class DataServiceBean implements DataService {
         Organization org = user.getOrganization();
         if (checkOrgDeregistration(org, lookupOnly)) {
             // org still valid => return user
-            user.setTenantId(org.getTenant().getTenantId());
+            Tenant tenant = org.getTenant();
+            if (tenant != null) {
+                user.setTenantId(tenant.getTenantId());
+            }
             return user;
         }
         // lookup case => org not valid => no user
