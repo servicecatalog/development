@@ -301,6 +301,21 @@ public class SAMLResponseExtractor {
         }
         return getUserIdDecoded(samlAssertionString);
     }
+    
+    public String getTenantId(SAMLAssertion samlResponse)
+            throws NotExistentTenantException {
+        String samlAssertionString;
+        try {
+            Element samlAssertion = SAMLUtil.createSAMLAssertion(samlResponse
+                    .getSamlReader());
+            samlAssertionString = XMLConverter.convertToString(samlAssertion,
+                    false);
+        } catch (XWSSecurityException | XMLStreamException
+                | TransformerException exception) {
+            throw new NotExistentTenantException(MISSING_TEANT_ID_IN_SAML);
+        }   
+        return getTenantIdDecoded(samlAssertionString);
+    }
 
     public byte[] decode(String encodedString)
             throws UnsupportedEncodingException {
