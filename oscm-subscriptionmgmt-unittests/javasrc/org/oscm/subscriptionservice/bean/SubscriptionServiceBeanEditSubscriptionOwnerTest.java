@@ -11,6 +11,7 @@ package org.oscm.subscriptionservice.bean;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -71,7 +72,7 @@ public class SubscriptionServiceBeanEditSubscriptionOwnerTest {
     @Test
     public void checkRolesForSubscriptionOwner_Admin() throws Exception {
         // given
-        doReturn(admin).when(idManager).getPlatformUser(adminId, true);
+        doReturn(admin).when(idManager).getPlatformUser(adminId, null, true);
         // when
         bean.checkRolesForSubscriptionOwner(adminId, null);
     }
@@ -81,7 +82,7 @@ public class SubscriptionServiceBeanEditSubscriptionOwnerTest {
             throws Exception {
         // given
         doReturn(subscriptionManager).when(idManager).getPlatformUser(
-                subscriptionManagerId, true);
+                eq(subscriptionManagerId), anyString(), eq(true));
         // when
         bean.checkRolesForSubscriptionOwner(subscriptionManagerId, null);
     }
@@ -92,7 +93,7 @@ public class SubscriptionServiceBeanEditSubscriptionOwnerTest {
         // given
         String noneExsitUserId = "noneExsitUserId";
         doThrow(new ObjectNotFoundException()).when(idManager).getPlatformUser(
-                noneExsitUserId, true);
+                eq(noneExsitUserId), anyString(), eq(true));
         // when
         try {
             bean.checkRolesForSubscriptionOwner(noneExsitUserId, null);
@@ -107,7 +108,8 @@ public class SubscriptionServiceBeanEditSubscriptionOwnerTest {
     public void checkRolesForSubscriptionOwner_OperationNotPermittedException()
             throws Exception {
         // given
-        doReturn(user).when(idManager).getPlatformUser(userId, true);
+        doReturn(user).when(idManager).getPlatformUser(eq(userId), anyString(),
+                eq(true));
         // when
         try {
             bean.checkRolesForSubscriptionOwner(userId, null);

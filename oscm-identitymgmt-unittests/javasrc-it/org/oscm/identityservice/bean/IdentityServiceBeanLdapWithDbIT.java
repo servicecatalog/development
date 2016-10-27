@@ -46,7 +46,6 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-
 import org.oscm.communicationservice.data.SendMailStatus;
 import org.oscm.communicationservice.local.CommunicationServiceLocal;
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
@@ -71,6 +70,7 @@ import org.oscm.test.data.OrganizationReferences;
 import org.oscm.test.data.Organizations;
 import org.oscm.test.data.PlatformUsers;
 import org.oscm.test.ejb.TestContainer;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.triggerservice.local.TriggerMessage;
 import org.oscm.triggerservice.local.TriggerProcessMessageData;
 import org.oscm.triggerservice.local.TriggerQueueServiceLocal;
@@ -122,6 +122,7 @@ public class IdentityServiceBeanLdapWithDbIT extends EJBTestBase {
         container.addBean(cs);
         container.addBean(ldapService);
         container.addBean(triggerQS);
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         idMgmt = spy(new IdentityServiceBean());
 
@@ -132,6 +133,7 @@ public class IdentityServiceBeanLdapWithDbIT extends EJBTestBase {
         when(connectorMock.getAttrMap()).thenAnswer(
                 new Answer<Map<SettingType, String>>() {
 
+                    @Override
                     public Map<SettingType, String> answer(
                             InvocationOnMock invocation) throws Throwable {
                         final HashMap<SettingType, String> settingsMap = new HashMap<SettingType, String>();
@@ -146,6 +148,7 @@ public class IdentityServiceBeanLdapWithDbIT extends EJBTestBase {
                 any(Marketplace.class), any(PlatformUser[].class));
 
         doAnswer(new Answer<List<VOUserDetails>>() {
+            @Override
             public List<VOUserDetails> answer(InvocationOnMock invocation)
                     throws Throwable {
                 return Collections.singletonList(userToReturnByLdap);
@@ -154,12 +157,14 @@ public class IdentityServiceBeanLdapWithDbIT extends EJBTestBase {
                 anyString(), any(ILdapResultMapper.class), anyBoolean());
 
         doAnswer(new Answer<Set<SettingType>>() {
+            @Override
             public Set<SettingType> answer(InvocationOnMock invocation)
                     throws Throwable {
                 return mappedLdapSettings;
             }
         }).when(ldapSettingsMock).getMappedAttributes();
         doAnswer(new Answer<Properties>() {
+            @Override
             public Properties answer(InvocationOnMock invocation)
                     throws Throwable {
                 return ldapOrgSettingsResolved;
@@ -202,6 +207,7 @@ public class IdentityServiceBeanLdapWithDbIT extends EJBTestBase {
         userToReturnByLdap = user1;
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 idMgmt.importLdapUsers(Collections.singletonList(user1), MP_ID);
                 return null;
@@ -214,6 +220,7 @@ public class IdentityServiceBeanLdapWithDbIT extends EJBTestBase {
         userToReturnByLdap = user2;
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Organization org = ds.getReference(Organization.class,
                         customer.getKey());
@@ -245,6 +252,7 @@ public class IdentityServiceBeanLdapWithDbIT extends EJBTestBase {
         user1.setRealmUserId(user1.getUserId());
         userToReturnByLdap = user1;
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 idMgmt.importLdapUsers(Collections.singletonList(user1), MP_ID);
                 return null;
@@ -255,6 +263,7 @@ public class IdentityServiceBeanLdapWithDbIT extends EJBTestBase {
         user11.setUserId(user1.getEMail());
         userToReturnByLdap = user11;
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 idMgmt.importLdapUsers(Collections.singletonList(user11), MP_ID);
                 return null;
@@ -266,6 +275,7 @@ public class IdentityServiceBeanLdapWithDbIT extends EJBTestBase {
         user2.setRealmUserId(userid);
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Organization org = ds.getReference(Organization.class,
                         customer.getKey());
@@ -290,6 +300,7 @@ public class IdentityServiceBeanLdapWithDbIT extends EJBTestBase {
         user1.setRealmUserId(user1.getUserId());
         userToReturnByLdap = user1;
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 idMgmt.importLdapUsers(Collections.singletonList(user1), MP_ID);
                 return null;
@@ -299,6 +310,7 @@ public class IdentityServiceBeanLdapWithDbIT extends EJBTestBase {
         // a notify call synchronizes the user data with the LDAP system data,
         // so the mail address should be updated
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 userToReturnByLdap = retrieveUser(user1.getUserId());
                 userToReturnByLdap.setEMail("peter.pock@est.fujitsu.com");
@@ -339,6 +351,7 @@ public class IdentityServiceBeanLdapWithDbIT extends EJBTestBase {
     public void changePassword_LDAPUsed() throws Exception {
         try {
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     idMgmt.changePassword("bla", "blabla");
                     return null;
@@ -353,6 +366,7 @@ public class IdentityServiceBeanLdapWithDbIT extends EJBTestBase {
     public void requestResetOfUserPassword_LDAPUsed() throws Exception {
         try {
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     idMgmt.requestResetOfUserPassword(
                             idMgmt.getCurrentUserDetails(), null);
@@ -370,6 +384,7 @@ public class IdentityServiceBeanLdapWithDbIT extends EJBTestBase {
             final VOUserDetails userToCreate = new VOUserDetails();
             userToCreate.setUserId("newUser");
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     idMgmt.createUser(userToCreate, Collections
                             .singletonList(UserRoleType.ORGANIZATION_ADMIN),
@@ -386,6 +401,7 @@ public class IdentityServiceBeanLdapWithDbIT extends EJBTestBase {
     public void updateUser_LDAPUsedMappedAttributeViolation() throws Exception {
         try {
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     final VOUserDetails currentUserDetails = idMgmt
                             .getCurrentUserDetails();
@@ -405,6 +421,7 @@ public class IdentityServiceBeanLdapWithDbIT extends EJBTestBase {
             throws Exception {
         mappedLdapSettings.add(SettingType.LDAP_ATTR_FIRST_NAME);
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 VOUserDetails currentUserDetails = idMgmt
                         .getCurrentUserDetails();
@@ -419,6 +436,7 @@ public class IdentityServiceBeanLdapWithDbIT extends EJBTestBase {
         doNothing().when(idMgmt).deletePlatformUser(any(PlatformUser.class),
                 anyBoolean(), anyBoolean(), any(Marketplace.class));
         final VOUserDetails currentUserDetails = runTX(new Callable<VOUserDetails>() {
+            @Override
             public VOUserDetails call() throws Exception {
                 VOUserDetails user = idMgmt.getCurrentUserDetails();
                 idMgmt.deleteUser(user, null);
@@ -436,6 +454,7 @@ public class IdentityServiceBeanLdapWithDbIT extends EJBTestBase {
     public void lockUserAccount_LDAPUsed() throws Exception {
         try {
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     idMgmt.lockUserAccount(idMgmt.getCurrentUserDetails(),
                             UserAccountStatus.LOCKED, null);
@@ -451,6 +470,7 @@ public class IdentityServiceBeanLdapWithDbIT extends EJBTestBase {
     public void unlockUserAccount_LDAPUsed() throws Exception {
         try {
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     idMgmt.unlockUserAccount(idMgmt.getCurrentUserDetails(),
                             null);
@@ -466,6 +486,7 @@ public class IdentityServiceBeanLdapWithDbIT extends EJBTestBase {
     public void createOnBehalfUser_LDAPUsed() throws Exception {
         try {
             PlatformUser tpAdmin = runTX(new Callable<PlatformUser>() {
+                @Override
                 public PlatformUser call() throws Exception {
                     Organization tp = Organizations.createOrganization(ds,
                             OrganizationRoleType.TECHNOLOGY_PROVIDER);
@@ -483,6 +504,7 @@ public class IdentityServiceBeanLdapWithDbIT extends EJBTestBase {
             });
             container.login(tpAdmin.getKey(), ROLE_TECHNOLOGY_MANAGER);
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     idMgmt.createOnBehalfUser(customerAdmin.getOrganization()
                             .getOrganizationId(), "newPWD");
@@ -513,6 +535,7 @@ public class IdentityServiceBeanLdapWithDbIT extends EJBTestBase {
      */
     private VOUserDetails retrieveUser(String userId) throws Exception {
         List<VOUserDetails> users = runTX(new Callable<List<VOUserDetails>>() {
+            @Override
             public List<VOUserDetails> call() throws Exception {
                 return idMgmt.getUsersForOrganization();
             }
@@ -552,10 +575,11 @@ public class IdentityServiceBeanLdapWithDbIT extends EJBTestBase {
         assertEquals("12345", decodedParam[3]);
 
         PlatformUser createdUser = runTX(new Callable<PlatformUser>() {
+            @Override
             public PlatformUser call() throws Exception {
                 PlatformUser p = new PlatformUser();
                 p.setUserId(expectedUserId);
-                PlatformUser createdUser = (PlatformUser) ds.find(p);
+                PlatformUser createdUser = ds.find(p);
                 load(createdUser);
                 load(createdUser.getOrganization());
                 return createdUser;
