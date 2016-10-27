@@ -51,7 +51,7 @@ import org.oscm.internal.types.enumtypes.UserRoleType;
                 + "Organization o, Tenant t where obj.dataContainer.userId=:userId AND obj.organization = o AND o"
                 + ".tenant = t AND t.dataContainer.tenantId = :tenantId "),
         @NamedQuery(name = "PlatformUser.findByUserId", query = "select obj from PlatformUser obj, "
-                + "Organization o, where obj.dataContainer.userId=:userId AND obj.organization = o AND o"
+                + "Organization o where obj.dataContainer.userId=:userId AND obj.organization = o AND o"
                 + ".tenant is null "),
         @NamedQuery(name = "PlatformUser.findByUserIdAndTenantKey", query = "select obj from PlatformUser obj, "
                 + "Organization o, Tenant t where obj.dataContainer.userId=:userId AND obj.organization = o AND o"
