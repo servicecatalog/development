@@ -1586,6 +1586,15 @@ public class IdentityServiceBean implements IdentityService,
         platformUser.setUserId(userId);
         platformUser.setTenantId(tenantId);
         platformUser = dm.find(platformUser);
+
+        if (platformUser == null) {
+            ObjectNotFoundException onf = new ObjectNotFoundException(
+                    ObjectNotFoundException.ClassEnum.USER, userId);
+            logger.logWarn(Log4jLogger.SYSTEM_LOG, onf,
+                    LogMessageIdentifier.WARN_USER_NOT_FOUND);
+            throw onf;
+        }
+
         if (validateOrganization) {
             // Validate whether the calling user belongs to the same
             // organization as the requested user. Otherwise an exception will
