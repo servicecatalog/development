@@ -1658,14 +1658,15 @@ public class AccountServiceBean implements AccountService, AccountServiceLocal {
             }
             return false;
         }
-        PlatformUser u = new PlatformUser();
-        u.setUserId(userId);
+        Query query = dm.createNamedQuery("PlatformUser.findByUserId");
+        query.setParameter("userId", userId);
         try {
-            PlatformUser user = (PlatformUser) dm.getReferenceByBusinessKey(u);
-            if (user != null) {
+            PlatformUser pu = (PlatformUser) query.getSingleResult();
+            if (pu != null) {
                 return true;
             }
-        } catch (ObjectNotFoundException e) {
+        } catch (NoResultException e) {
+            // That is good. No user for that tenant exists.
         }
         return false;
     }

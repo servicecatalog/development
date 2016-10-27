@@ -24,9 +24,7 @@ import javax.ejb.EJBException;
 import javax.persistence.Query;
 
 import org.junit.Assert;
-
 import org.junit.Test;
-
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Organization;
@@ -40,6 +38,7 @@ import org.oscm.test.data.PlatformUsers;
 import org.oscm.test.data.SupportedCountries;
 import org.oscm.test.data.UserRoles;
 import org.oscm.test.ejb.TestContainer;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.SettingType;
 import org.oscm.internal.types.enumtypes.UserRoleType;
@@ -61,6 +60,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
 
     @Override
     protected void setup(TestContainer container) throws Exception {
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         container.addBean(new LdapSettingsManagementServiceBean());
 
@@ -69,6 +69,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
                 .get(LdapSettingsManagementServiceLocal.class);
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 SupportedCountries.setupSomeCountries(ds);
                 UserRoles.createSetupRoles(ds);
@@ -78,6 +79,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
         });
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Organization platformOrg = new Organization();
                 platformOrg
@@ -96,6 +98,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
         });
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 customerOrg = Organizations.createOrganization(ds,
                         customerOrgId, OrganizationRoleType.CUSTOMER);
@@ -132,6 +135,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
     @Test
     public void getPlatformSettings_default() throws Throwable {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Properties platformSettings = ldapSettingsMgmtSvc
                         .getPlatformSettings();
@@ -152,6 +156,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
         clearAllPlatformSettings();
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Properties platformSettings = ldapSettingsMgmtSvc
                         .getPlatformSettings();
@@ -166,6 +171,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
     public void getOrganizationSettings_nullOrgId() throws Throwable {
         try {
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     ldapSettingsMgmtSvc.getOrganizationSettings(null);
                     return null;
@@ -180,6 +186,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
     public void getOrganizationSettings_emptyOrgId() throws Throwable {
         try {
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     ldapSettingsMgmtSvc.getOrganizationSettings("");
                     return null;
@@ -193,6 +200,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
     @Test(expected = ObjectNotFoundException.class)
     public void getOrganizationSettings_invalidOrgId() throws Throwable {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 ldapSettingsMgmtSvc.getOrganizationSettings("myFantasyOrgId");
                 return null;
@@ -203,6 +211,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
     @Test
     public void getOrganizationSettings_default() throws Throwable {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Properties organizationSettings = ldapSettingsMgmtSvc
                         .getOrganizationSettings(customerOrgId);
@@ -221,6 +230,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
     @Test
     public void getOrganizationSettings_noPropertiesDefined() throws Throwable {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 container.login(customerOrgAdmin2.getKey(),
                         UserRoleType.ORGANIZATION_ADMIN.toString());
@@ -239,6 +249,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
                 UserRoleType.PLATFORM_OPERATOR.toString());
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 ldapSettingsMgmtSvc.setPlatformSettings(null);
                 return null;
@@ -260,6 +271,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
                 UserRoleType.PLATFORM_OPERATOR.toString());
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 ldapSettingsMgmtSvc.setPlatformSettings(new Properties());
                 return null;
@@ -284,6 +296,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
         final String myLdapUrl = "someUrl";
         final String myBaseDn = "ou=people,dc=est,dc=fujitsu,dc=de";
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 LdapProperties props = new LdapProperties();
                 props.setProperty(SettingType.LDAP_URL.name(), myLdapUrl);
@@ -318,6 +331,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
         final String myBaseDn = "ou=people,dc=est,dc=fujitsu,dc=de";
         final String myFantasyPropKey = "myFantasyPropKey";
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 LdapProperties props = new LdapProperties();
                 props.setProperty(SettingType.LDAP_URL.name(), myLdapUrl);
@@ -353,6 +367,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
         final String myBaseDn = "ou=people,dc=est,dc=fujitsu,dc=de";
         try {
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     LdapProperties props = new LdapProperties();
                     props.setProperty(SettingType.LDAP_URL.name(), myLdapUrl);
@@ -390,6 +405,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
     public void setOrganizationSettings_nullOrgId() throws Throwable {
         try {
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     ldapSettingsMgmtSvc.setOrganizationSettings(null, null);
                     return null;
@@ -404,6 +420,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
     public void setOrganizationSettings_emptyOrgId() throws Throwable {
         try {
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     ldapSettingsMgmtSvc.setOrganizationSettings("", null);
                     return null;
@@ -418,6 +435,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
     public void setOrganizationSettings_invalidOrganizationId()
             throws Throwable {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 ldapSettingsMgmtSvc.setOrganizationSettings("myFantasyOrgId",
                         null);
@@ -433,6 +451,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
                 UserRoleType.ORGANIZATION_ADMIN.toString());
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 ldapSettingsMgmtSvc.setOrganizationSettings(customerOrgId2,
                         null);
@@ -456,6 +475,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
     public void setOrganizationSettings_validOrganization_nullProperties()
             throws Throwable {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 ldapSettingsMgmtSvc
                         .setOrganizationSettings(customerOrgId, null);
@@ -473,6 +493,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
     public void setOrganizationSettings_validOrganization_emptyProperties()
             throws Throwable {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 ldapSettingsMgmtSvc.setOrganizationSettings(customerOrgId,
                         new Properties());
@@ -492,6 +513,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
         final String myLdapUrl = "someUrl";
         final String myBaseDn = "ou=people,dc=est,dc=fujitsu,dc=de";
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 LdapProperties props = new LdapProperties();
                 props.setProperty(SettingType.LDAP_URL.name(), myLdapUrl);
@@ -525,6 +547,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
         final String myBaseDn = "ou=people,dc=est,dc=fujitsu,dc=de";
         final String myFantasyPropKey = "myFantasyPropKey";
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 LdapProperties props = new LdapProperties();
                 props.setProperty(SettingType.LDAP_URL.name(), myLdapUrl);
@@ -557,6 +580,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
         final String myLdapUrl = "someUrl";
         final String myBaseDn = "ou=people,dc=est,dc=fujitsu,dc=de";
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 LdapProperties props = new LdapProperties();
                 props.setProperty(SettingType.LDAP_URL.name(), myLdapUrl);
@@ -593,6 +617,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
     public void resetOrganizationSettings_nullOrgId() throws Throwable {
         try {
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     ldapSettingsMgmtSvc.resetOrganizationSettings(null);
                     return null;
@@ -607,6 +632,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
     public void resetOrganizationSettings_emptyOrgId() throws Throwable {
         try {
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     ldapSettingsMgmtSvc.resetOrganizationSettings("");
                     return null;
@@ -620,6 +646,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
     @Test(expected = ObjectNotFoundException.class)
     public void resetOrganizationSettings_invalidOrgId() throws Throwable {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 ldapSettingsMgmtSvc.resetOrganizationSettings("myFantasyOrgId");
                 return null;
@@ -641,6 +668,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
         container.login(customerOrgAdmin2.getKey(),
                 UserRoleType.ORGANIZATION_ADMIN.toString());
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 ldapSettingsMgmtSvc.resetOrganizationSettings(customerOrgId2);
                 return null;
@@ -664,6 +692,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
         container.login(customerOrgAdmin2.getKey(),
                 UserRoleType.ORGANIZATION_ADMIN.toString());
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 ldapSettingsMgmtSvc.resetOrganizationSettings(customerOrgId2);
                 return null;
@@ -698,6 +727,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
                 getPlatformSettings(null).size());
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 ldapSettingsMgmtSvc.resetOrganizationSettings(customerOrgId);
                 return null;
@@ -715,6 +745,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
     public void resetOrganizationSettings_orgPropertiesDefined_platformPropertiesDefined()
             throws Throwable {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 ldapSettingsMgmtSvc.resetOrganizationSettings(customerOrgId);
                 return null;
@@ -749,6 +780,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
                 getPlatformSettings(null).size());
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 ldapSettingsMgmtSvc.clearPlatformSettings();
                 return null;
@@ -770,6 +802,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
                         .getSettingValue());
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 ldapSettingsMgmtSvc.clearPlatformSettings();
                 return null;
@@ -785,6 +818,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
     public void getOrganizationSettingsResolved_nullOrgId() throws Throwable {
         try {
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     ldapSettingsMgmtSvc.getOrganizationSettingsResolved(null);
                     return null;
@@ -799,6 +833,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
     public void getOrganizationSettingsResolved_emptyOrgId() throws Throwable {
         try {
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     ldapSettingsMgmtSvc.getOrganizationSettingsResolved("");
                     return null;
@@ -812,6 +847,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
     @Test(expected = ObjectNotFoundException.class)
     public void getOrganizationSettingsResolved_invalidOrgId() throws Throwable {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 ldapSettingsMgmtSvc
                         .getOrganizationSettingsResolved("myFantasyOrgId");
@@ -834,6 +870,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
         container.login(customerOrgAdmin2.getKey(),
                 UserRoleType.ORGANIZATION_ADMIN.toString());
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Properties propsResolved = ldapSettingsMgmtSvc
                         .getOrganizationSettingsResolved(customerOrgId2);
@@ -854,6 +891,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
         container.login(customerOrgAdmin2.getKey(),
                 UserRoleType.ORGANIZATION_ADMIN.toString());
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Properties propsResolved = ldapSettingsMgmtSvc
                         .getOrganizationSettingsResolved(customerOrgId2);
@@ -875,6 +913,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
                 getPlatformSettings(null).size());
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Properties propsResolved = ldapSettingsMgmtSvc
                         .getOrganizationSettingsResolved(customerOrgId);
@@ -895,6 +934,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
     public void getOrganizationSettingsResolved_orgPropertiesDefined_platformPropertiesDefined_distinct()
             throws Throwable {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Properties propsResolved = ldapSettingsMgmtSvc
                         .getOrganizationSettingsResolved(customerOrgId);
@@ -919,6 +959,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
     public void getOrganizationSettingsResolved_orgPropertyDefinedWithKeyAndValue_platformPropertyDefinedWithSameKey()
             throws Throwable {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 // define additional platform and org setting with same key but
                 // different values
@@ -930,6 +971,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
         });
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Properties propsResolved = ldapSettingsMgmtSvc
                         .getOrganizationSettingsResolved(customerOrgId);
@@ -958,6 +1000,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
     public void getOrganizationSettingsResolved_orgPropertyDefinedWithKeyButNoValue_platformPropertyDefinedWithSameKey()
             throws Throwable {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 // define additional platform and org setting with same key but
                 // only value for platform property
@@ -969,6 +1012,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
         });
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Properties propsResolved = ldapSettingsMgmtSvc
                         .getOrganizationSettingsResolved(customerOrgId);
@@ -997,6 +1041,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
     public void getOrganizationSettingsResolved_orgPropertyDefinedWithKeyButNoValue_noPlatformPropertyDefinedWithSameKey()
             throws Throwable {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 createAndStoreOrganizationSettingForCustomerOrg(
                         SettingType.LDAP_ATTR_UID, "");
@@ -1005,6 +1050,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
         });
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Properties propsResolved = ldapSettingsMgmtSvc
                         .getOrganizationSettingsResolved(customerOrgId);
@@ -1032,6 +1078,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
     public void getSettingsResolved_nullProperties() throws Throwable {
         try {
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     ldapSettingsMgmtSvc.getSettingsResolved(null);
                     return null;
@@ -1049,6 +1096,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
         clearAllPlatformSettings();
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Properties settingsResolved = ldapSettingsMgmtSvc
                         .getSettingsResolved(new Properties());
@@ -1067,6 +1115,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
                 getPlatformSettings(SettingType.LDAP_CONTEXT_FACTORY).size());
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Properties settingsResolved = ldapSettingsMgmtSvc
                         .getSettingsResolved(new Properties());
@@ -1089,6 +1138,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
         props.setProperty(SettingType.LDAP_BASE_DN.name(), myBaseDn);
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Properties settingsResolved = ldapSettingsMgmtSvc
                         .getSettingsResolved(props.asProperties());
@@ -1118,6 +1168,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
         props.setProperty(SettingType.LDAP_BASE_DN.name(), myBaseDn);
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Properties settingsResolved = ldapSettingsMgmtSvc
                         .getSettingsResolved(props.asProperties());
@@ -1154,6 +1205,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
         props.setProperty(SettingType.LDAP_CONTEXT_FACTORY.name(), myCtxFct);
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Properties settingsResolved = ldapSettingsMgmtSvc
                         .getSettingsResolved(props.asProperties());
@@ -1189,6 +1241,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
         props.setProperty(SettingType.LDAP_CONTEXT_FACTORY.name(), "");
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Properties settingsResolved = ldapSettingsMgmtSvc
                         .getSettingsResolved(props.asProperties());
@@ -1217,6 +1270,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
     public void getDefaultValueForSetting_nullSetting() throws Throwable {
         try {
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     ldapSettingsMgmtSvc.getDefaultValueForSetting(null);
                     return null;
@@ -1232,6 +1286,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
             throws Throwable {
         try {
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     ldapSettingsMgmtSvc
                             .getDefaultValueForSetting(SettingType.LDAP_ATTR_FIRST_NAME);
@@ -1250,6 +1305,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
         clearAllPlatformSettings();
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 String value = ldapSettingsMgmtSvc
                         .getDefaultValueForSetting(SettingType.LDAP_CONTEXT_FACTORY);
@@ -1266,6 +1322,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
             throws Throwable {
         // create another platform setting
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 createAndStorePlatformSetting(SettingType.LDAP_ATTR_LAST_NAME,
                         "Smith");
@@ -1274,6 +1331,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
         });
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 String value = ldapSettingsMgmtSvc
                         .getDefaultValueForSetting(SettingType.LDAP_ATTR_LAST_NAME);
@@ -1289,6 +1347,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
     public void getDefaultValueForSetting_platformPropertyForKeyDefined_propertyHasDefault()
             throws Throwable {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 String value = ldapSettingsMgmtSvc
                         .getDefaultValueForSetting(SettingType.LDAP_CONTEXT_FACTORY);
@@ -1313,6 +1372,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
         container.login(customerOrgAdmin2.getKey(),
                 UserRoleType.ORGANIZATION_ADMIN.toString());
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Set<SettingType> mappedAttributes = ldapSettingsMgmtSvc
                         .getMappedAttributes();
@@ -1336,6 +1396,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
         container.login(platformOrgAdmin.getKey(),
                 UserRoleType.ORGANIZATION_ADMIN.toString());
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Set<SettingType> mappedAttributes = ldapSettingsMgmtSvc
                         .getMappedAttributes();
@@ -1351,6 +1412,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
     public void getMappedAttributes_noOrgPropertiesDefined_platformPropertiesDefined()
             throws Throwable {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 createAndStorePlatformSetting(SettingType.LDAP_ATTR_UID, "uid");
                 return null;
@@ -1367,6 +1429,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
         container.login(customerOrgAdmin2.getKey(),
                 UserRoleType.ORGANIZATION_ADMIN.toString());
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Set<SettingType> mappedAttributes = ldapSettingsMgmtSvc
                         .getMappedAttributes();
@@ -1383,6 +1446,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
     public void getMappedAttributes_noOrgPropertiesDefined_platformPropertiesDefined_platformOp()
             throws Throwable {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 createAndStorePlatformSetting(SettingType.LDAP_ATTR_UID, "uid");
                 return null;
@@ -1399,6 +1463,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
         container.login(platformOrgAdmin.getKey(),
                 UserRoleType.ORGANIZATION_ADMIN.toString());
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Set<SettingType> mappedAttributes = ldapSettingsMgmtSvc
                         .getMappedAttributes();
@@ -1418,6 +1483,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
     public void getMappedAttributes_orgPropertiesDefined_platformPropertiesDefined_distinct()
             throws Throwable {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 createAndStorePlatformSetting(SettingType.LDAP_ATTR_UID, "uid");
                 createAndStoreOrganizationSettingForCustomerOrg(
@@ -1427,6 +1493,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
         });
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Set<SettingType> mappedAttributes = ldapSettingsMgmtSvc
                         .getMappedAttributes();
@@ -1446,6 +1513,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
     public void getMappedAttributes_orgPropertiesDefined_platformPropertiesDefined_distinct_platformOp()
             throws Throwable {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 createAndStorePlatformSetting(SettingType.LDAP_ATTR_UID, "uid");
                 createAndStoreOrganizationSettingForCustomerOrg(
@@ -1457,6 +1525,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
         container.login(platformOrgAdmin.getKey(),
                 UserRoleType.ORGANIZATION_ADMIN.toString());
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Set<SettingType> mappedAttributes = ldapSettingsMgmtSvc
                         .getMappedAttributes();
@@ -1476,6 +1545,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
             throws Throwable {
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 createAndStorePlatformSetting(SettingType.LDAP_ATTR_LOCALE,
                         "de");
@@ -1484,6 +1554,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
         });
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Set<SettingType> mappedAttributes = ldapSettingsMgmtSvc
                         .getMappedAttributes();
@@ -1504,6 +1575,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
             throws Throwable {
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 createAndStorePlatformSetting(SettingType.LDAP_ATTR_LOCALE,
                         "de");
@@ -1514,6 +1586,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
         container.login(platformOrgAdmin.getKey(),
                 UserRoleType.ORGANIZATION_ADMIN.toString());
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Set<SettingType> mappedAttributes = ldapSettingsMgmtSvc
                         .getMappedAttributes();
@@ -1532,6 +1605,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
     public void getMappedAttributes_orgPropertyDefinedWithKeyButNoValue_platformPropertyDefinedWithSameKey()
             throws Throwable {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 createAndStorePlatformSetting(SettingType.LDAP_ATTR_UID, "uid");
                 createAndStoreOrganizationSettingForCustomerOrg(
@@ -1541,6 +1615,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
         });
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Set<SettingType> mappedAttributes = ldapSettingsMgmtSvc
                         .getMappedAttributes();
@@ -1563,6 +1638,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
     public void getMappedAttributes_orgPropertyDefinedWithKeyButNoValue_platformPropertyDefinedWithSameKey_platformOp()
             throws Throwable {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 createAndStorePlatformSetting(SettingType.LDAP_ATTR_UID, "uid");
                 createAndStoreOrganizationSettingForCustomerOrg(
@@ -1574,6 +1650,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
         container.login(platformOrgAdmin.getKey(),
                 UserRoleType.ORGANIZATION_ADMIN.toString());
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Set<SettingType> mappedAttributes = ldapSettingsMgmtSvc
                         .getMappedAttributes();
@@ -1592,6 +1669,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
     public void getMappedAttributes_orgPropertyDefinedWithKeyButNoValue_noPlatformPropertyDefinedWithSameKey()
             throws Throwable {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 createAndStoreOrganizationSettingForCustomerOrg(
                         SettingType.LDAP_ATTR_UID, "");
@@ -1600,6 +1678,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
         });
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Set<SettingType> mappedAttributes = ldapSettingsMgmtSvc
                         .getMappedAttributes();
@@ -1619,6 +1698,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
     public void getMappedAttributes_orgPropertyDefinedWithKeyButNoValue_noPlatformPropertyDefinedWithSameKey_platformOp()
             throws Throwable {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 createAndStoreOrganizationSettingForCustomerOrg(
                         SettingType.LDAP_ATTR_UID, "");
@@ -1629,6 +1709,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
         container.login(platformOrgAdmin.getKey(),
                 UserRoleType.ORGANIZATION_ADMIN.toString());
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Set<SettingType> mappedAttributes = ldapSettingsMgmtSvc
                         .getMappedAttributes();
@@ -1648,6 +1729,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
                 UserRoleType.ORGANIZATION_ADMIN.toString());
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 List<OrganizationSetting> types = new ArrayList<OrganizationSetting>();
                 for (SettingType settings : SettingType.values()) {
@@ -1668,6 +1750,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
         });
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Set<SettingType> mappedAttributes = ldapSettingsMgmtSvc
                         .getMappedAttributes();
@@ -1689,6 +1772,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
             final Organization org, final SettingType type) throws Throwable {
         try {
             return runTX(new Callable<List<OrganizationSetting>>() {
+                @Override
                 @SuppressWarnings("unchecked")
                 public List<OrganizationSetting> call() throws Exception {
                     Query query = ds
@@ -1716,6 +1800,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
             throws Throwable {
         try {
             return runTX(new Callable<List<PlatformSetting>>() {
+                @Override
                 @SuppressWarnings("unchecked")
                 public List<PlatformSetting> call() throws Exception {
                     Query query = ds
@@ -1739,6 +1824,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
 
     private void clearAllPlatformSettings() throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Query query = ds.createNamedQuery("PlatformSetting.removeAll");
                 query.executeUpdate();
@@ -1777,6 +1863,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
     @Test
     public void getLdapManagedOrganization_NoneExisting() throws Exception {
         Set<Organization> result = runTX(new Callable<Set<Organization>>() {
+            @Override
             public Set<Organization> call() throws Exception {
                 return ldapSettingsMgmtSvc.getLdapManagedOrganizations();
             }
@@ -1787,6 +1874,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
     @Test
     public void getLdapManagedOrganization_OneExisting() throws Exception {
         Organization org = runTX(new Callable<Organization>() {
+            @Override
             public Organization call() throws Exception {
                 Organization org = Organizations.createOrganization(ds,
                         OrganizationRoleType.SUPPLIER);
@@ -1795,6 +1883,7 @@ public class LdapSettingsMangementServiceBeanIT extends EJBTestBase {
             }
         });
         Set<Organization> result = runTX(new Callable<Set<Organization>>() {
+            @Override
             public Set<Organization> call() throws Exception {
                 return ldapSettingsMgmtSvc.getLdapManagedOrganizations();
             }

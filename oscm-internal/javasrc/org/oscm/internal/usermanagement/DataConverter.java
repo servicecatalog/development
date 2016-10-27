@@ -16,10 +16,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.RoleAssignment;
 import org.oscm.domobjects.RoleDefinition;
 import org.oscm.domobjects.Subscription;
+import org.oscm.domobjects.Tenant;
 import org.oscm.domobjects.UnitRoleAssignment;
 import org.oscm.domobjects.UsageLicense;
 import org.oscm.domobjects.UserGroupToUser;
@@ -82,6 +84,7 @@ public class DataConverter {
         pu.setUserId(user.getUserId());
         pu.setLocale(user.getLocale());
         pu.setSalutation(user.getSalutation());
+        pu.setTenantId(user.getTenantId());
         // do not set account status
         return pu;
     }
@@ -124,6 +127,13 @@ public class DataConverter {
         poUser.setLastName(user.getLastName());
         poUser.setUserId(user.getUserId());
         poUser.setVersion(user.getVersion());
+        poUser.setTenantId(user.getTenantId());
+        if (StringUtils.isBlank(user.getTenantId())) {
+            Tenant tenant = user.getOrganization().getTenant();
+            if (tenant != null) {
+                poUser.setTenantId(tenant.getTenantId());
+            }
+        }
     }
 
     void updatePOUserDetails(PlatformUser user,
@@ -132,6 +142,7 @@ public class DataConverter {
         poUser.setLocale(user.getLocale());
         poUser.setSalutation(user.getSalutation());
         poUser.setStatus(user.getStatus());
+        poUser.setTenantId(user.getTenantId());
         if (availableRoles != null) {
             poUser.setAvailableRoles(availableRoles);
         }
@@ -256,8 +267,7 @@ public class DataConverter {
         return poUserInUnit;
     }
 
-    public PlatformUser toPlatformUser(POUserInUnit poUserInUnit)
-            throws ValidationException {
+    public PlatformUser toPlatformUser(POUserInUnit poUserInUnit) {
         if (poUserInUnit == null) {
             return null;
         }
@@ -265,8 +275,7 @@ public class DataConverter {
         return updatePlatformUser(poUserInUnit, pu);
     }
 
-    public PlatformUser updatePlatformUser(POUserInUnit user, PlatformUser pu)
-            throws ValidationException {
+    public PlatformUser updatePlatformUser(POUserInUnit user, PlatformUser pu) {
         pu.setEmail(user.getPoUser().getEmail());
         pu.setFirstName(user.getFirstName());
         pu.setLastName(user.getLastName());
@@ -283,6 +292,7 @@ public class DataConverter {
             grantedRoles.add(roleAssignment);
         }
         pu.setAssignedRoles(grantedRoles);
+        pu.setTenantId(user.getTenantId());
         return pu;
     }
 }

@@ -302,7 +302,7 @@ public class IdentityServiceBean implements IdentityService,
             }
             return (PlatformUser) dm.getReferenceByBusinessKey(user);
             // }
-            // Query q = 
+            // Query q =
             // dm.createNamedQuery("PlatformUser.findByUserIdAndTenant");
             // q.setParameter("userId", userId);
             // q.setParameter("tenantId", tenant.getTenantId());
@@ -1141,13 +1141,6 @@ public class IdentityServiceBean implements IdentityService,
         return UserDataAssembler.toVOUser(pUser);
     }
 
-    private boolean tenantIsNotDefault(String tenantID) {
-        ConfigurationSetting defaultTenant = cs.getConfigurationSetting(
-                ConfigurationKey.SSO_DEFAULT_TENANT_ID, "");
-        return StringUtils.isNotBlank(tenantID)
-                && !StringUtils.equals(tenantID, defaultTenant.getValue());
-    }
-
     @Override
     public VOUserDetails getCurrentUserDetails() {
         return UserDataAssembler.toVOUserDetails(dm.getCurrentUser());
@@ -1549,31 +1542,27 @@ public class IdentityServiceBean implements IdentityService,
         deletePlatformUser(user, true, true, marketplace);
     }
 
+    /**
+     * Method has been deprecated. Use #{@getPlatformUser}
+     * with tenant parmeter.
+     * 
+     * @param userId
+     *            The user identifying attributes' representation.
+     * @param validateOrganization
+     *            <code>true</code> if the calling user must be part of the same
+     *            organization as the requested user.
+     * @return
+     * @throws ObjectNotFoundException
+     * @throws OperationNotPermittedException
+     */
+    @Deprecated
     @Override
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     public PlatformUser getPlatformUser(String userId,
             boolean validateOrganization) throws ObjectNotFoundException,
             OperationNotPermittedException {
 
-        PlatformUser pUser = new PlatformUser();
-        pUser.setUserId(userId);
-        pUser = dm.find(pUser);
-        if (pUser == null) {
-            ObjectNotFoundException onf = new ObjectNotFoundException(
-                    ObjectNotFoundException.ClassEnum.USER, userId);
-            logger.logWarn(Log4jLogger.SYSTEM_LOG, onf,
-                    LogMessageIdentifier.WARN_USER_NOT_FOUND);
-            throw onf;
-        }
-
-        if (validateOrganization) {
-            // Validate whether the calling user belongs to the same
-            // organization as the requested user. Otherwise an exception will
-            // be thrown.
-            PermissionCheck.sameOrg(dm.getCurrentUser(), pUser, logger);
-        }
-
-        return pUser;
+        return getPlatformUser(userId, null, validateOrganization);
     }
 
     @Override
@@ -1784,11 +1773,10 @@ public class IdentityServiceBean implements IdentityService,
         if (cs.isServiceProvider()
                 && UserAccountStatus.PASSWORD_MUST_BE_CHANGED.equals(lockLevel)) {
             pu.setStatus(UserAccountStatus.ACTIVE);
-            dm.persistPlatformUserWithTenant(pu, userDetails.getTenantId());
         } else {
             pu.setStatus(lockLevel);
-            dm.persist(pu);
         }
+        dm.persist(pu);
 
         for (UserRoleType role : userDetails.getUserRoles()) {
             if (!pu.hasRole(role)) {
@@ -2679,6 +2667,7 @@ public class IdentityServiceBean implements IdentityService,
         ArgumentValidator.notNull("user", user);
         ArgumentValidator.notNull("roles", roles);
 
+        // TODO DEL
         Tenant tenant = null;
         try {
             if (user.getTenantId() == null || user.getTenantId().equals("")) {
@@ -2698,6 +2687,7 @@ public class IdentityServiceBean implements IdentityService,
         }
 
         checkIfUserExists(user.getUserId(), tenant);
+        // TODO DEL
 
         TriggerProcessValidator validator = new TriggerProcessValidator(dm);
         if (validator.isRegisterOwnUserPending(user.getUserId())) {

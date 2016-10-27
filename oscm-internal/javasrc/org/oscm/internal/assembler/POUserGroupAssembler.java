@@ -16,6 +16,7 @@ import java.util.Map;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.Product;
 import org.oscm.domobjects.RoleAssignment;
+import org.oscm.domobjects.Tenant;
 import org.oscm.domobjects.UnitRoleAssignment;
 import org.oscm.domobjects.UserGroup;
 import org.oscm.domobjects.UserGroupToInvisibleProduct;
@@ -105,6 +106,10 @@ public class POUserGroupAssembler extends BasePOAssembler {
             poUser.setUserId(userGroupToUser.getPlatformuser().getUserId());
             poUserInUnit.setPoUser(poUser);
             poUserInUnit.setSelected(true);
+            Tenant tenant = userGroup.getOrganization().getTenant();
+            if (tenant != null) {
+                poUserInUnit.setTenantId(tenant.getTenantId());
+            }
             if (!userGroupToUser.getUnitRoleAssignments().isEmpty()) {
                 UnitRoleAssignment unitRoleAssignment = userGroupToUser.getUnitRoleAssignments().get(0);
                 poUserInUnit.setRoleInUnit(unitRoleAssignment.getUnitUserRole().getRoleName().name());

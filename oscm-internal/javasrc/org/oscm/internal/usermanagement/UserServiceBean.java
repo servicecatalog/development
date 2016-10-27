@@ -27,11 +27,6 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.interceptor.Interceptors;
 
-import org.apache.commons.lang3.StringUtils;
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
-import org.oscm.paginator.Pagination;
-import org.oscm.paginator.PaginationInt;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.RoleDefinition;
@@ -48,13 +43,6 @@ import org.oscm.identityservice.local.IdentityServiceLocal;
 import org.oscm.identityservice.local.LdapSettingsManagementServiceLocal;
 import org.oscm.interceptor.ExceptionMapper;
 import org.oscm.interceptor.InvocationDateContainer;
-import org.oscm.permission.PermissionCheck;
-import org.oscm.subscriptionservice.local.SubscriptionListServiceLocal;
-import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
-import org.oscm.subscriptionservice.local.SubscriptionWithRoles;
-import org.oscm.types.enumtypes.LogMessageIdentifier;
-import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
-import org.oscm.validation.VersionAndKeyValidator;
 import org.oscm.internal.components.response.Response;
 import org.oscm.internal.components.response.ReturnCode;
 import org.oscm.internal.components.response.ReturnType;
@@ -73,6 +61,17 @@ import org.oscm.internal.vo.VORoleDefinition;
 import org.oscm.internal.vo.VOUsageLicense;
 import org.oscm.internal.vo.VOUser;
 import org.oscm.internal.vo.VOUserDetails;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
+import org.oscm.paginator.Pagination;
+import org.oscm.paginator.PaginationInt;
+import org.oscm.permission.PermissionCheck;
+import org.oscm.subscriptionservice.local.SubscriptionListServiceLocal;
+import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
+import org.oscm.subscriptionservice.local.SubscriptionWithRoles;
+import org.oscm.types.enumtypes.LogMessageIdentifier;
+import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
+import org.oscm.validation.VersionAndKeyValidator;
 
 /**
  * @author weiser
@@ -658,7 +657,8 @@ public class UserServiceBean implements UserService {
             throws SaaSApplicationException {
 
         // TODO MULTITENANT
-        PlatformUser user = isl.getPlatformUser(userId, true);
+        PlatformUser user = isl.getPlatformUser(userId, ds.getCurrentUser()
+                .getTenantId(), true);
 
         List<POSubscription> subscriptions = slsl
                 .getUserAssignableSubscriptions(pagination, user,

@@ -22,6 +22,7 @@ public class POUser extends BasePO {
     private String firstName;
     private String lastName;
     private String email;
+    private String tenantId;
 
     public String getUserId() {
         return userId;
@@ -55,4 +56,11 @@ public class POUser extends BasePO {
         this.email = email;
     }
 
+    public void setTenantId(String tenantId) {
+        this.tenantId = tenantId;
+    }
+
+    public String getTenantId() {
+        return tenantId;
+    }
 }

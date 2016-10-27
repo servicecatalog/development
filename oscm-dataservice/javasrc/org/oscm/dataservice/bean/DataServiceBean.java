@@ -296,7 +296,9 @@ public class DataServiceBean implements DataService {
         }
         qry.setParameter("userId", pu.getUserId());
         try {
-            return (PlatformUser) qry.getSingleResult();
+            PlatformUser singleResult = (PlatformUser) qry.getSingleResult();
+            assignTenantId(singleResult, singleResult.getOrganization());
+            return singleResult;
         } catch (NoResultException e) {
             return null;
         } catch (NonUniqueResultException e) {
@@ -307,6 +309,13 @@ public class DataServiceBean implements DataService {
             throw new SaaSSystemException(msgText, e);
         } catch (Exception e) {
             throw new SaaSSystemException(e);
+        }
+    }
+
+    protected void assignTenantId(PlatformUser singleResult, Organization organization) {
+        Tenant tenant = organization.getTenant();
+        if (tenant != null) {
+            singleResult.setTenantId(tenant.getTenantId());
         }
     }
 
@@ -511,6 +520,9 @@ public class DataServiceBean implements DataService {
         if (result == null) {
             throw new ObjectNotFoundException(class2Enum(objclass),
                     String.valueOf(id));
+        } else if (result instanceof PlatformUser) {
+            PlatformUser user = (PlatformUser) result;
+            assignTenantId(user, user.getOrganization());
         }
         return result;
     }
@@ -563,7 +575,12 @@ public class DataServiceBean implements DataService {
         Map<String, String> businessKeyMap = PersistenceReflection
                 .getBusinessKeys(obj);
         if (businessKeyMap != null) {
-            DomainObject<?> search = find(obj);
+            DomainObject<?> search;
+            if (obj instanceof PlatformUser) {
+                search = find((PlatformUser) obj);
+            } else {
+                search = find(obj);
+            }
             if (search != null && obj.getKey() != search.getKey()) {
                 DomainObjectException.ClassEnum classEnum = class2Enum(obj
                         .getClass());
@@ -672,7 +689,7 @@ public class DataServiceBean implements DataService {
             // org still valid => return user
             Tenant tenant = org.getTenant();
             if (tenant != null) {
-                user.setTenantId(tenant.getTenantId());
+                assignTenantId(user, org);
             }
             return user;
         }
