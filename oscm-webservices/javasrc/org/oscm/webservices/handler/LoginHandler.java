@@ -30,6 +30,7 @@ import org.oscm.logging.LoggerFactory;
 import org.oscm.converter.XMLConverter;
 import org.oscm.saml2.api.SAMLResponseExtractor;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
+import org.oscm.internal.types.exception.NotExistentTenantException;
 import org.oscm.internal.types.exception.UserIdNotFoundException;
 import org.oscm.types.exceptions.SecurityCheckException;
 import com.sun.appserv.security.ProgrammaticLogin;
@@ -44,6 +45,8 @@ public class LoginHandler implements SOAPHandler<SOAPMessageContext> {
     private static final String ORGANIZATION_ID_HEADER_PARAM = "organizationId";
     
     private AbstractKeyQuery keyQuery;
+    
+    private SAMLResponseExtractor samlExtractor = new SAMLResponseExtractor();
     
     public AbstractKeyQuery getKeyQuery() {
         return keyQuery;
@@ -172,11 +175,12 @@ public class LoginHandler implements SOAPHandler<SOAPMessageContext> {
 
     protected String getUserIdFromContext(SOAPMessageContext context)
             throws UserIdNotFoundException {
-        String userId = null;
-        SAMLAssertion samlAssertion = (SAMLAssertion) context
-                .get(MessageConstants.INCOMING_SAML_ASSERTION);
+        
+        String userId;
+        
+        SAMLAssertion samlAssertion = getSamlAssertion(context);
         SAMLResponseExtractor extractor = new SAMLResponseExtractor();
-        logDebugSamlAssertion(samlAssertion);
+
         userId = extractor.getUserId(samlAssertion);
         return userId;
     }
@@ -198,6 +202,17 @@ public class LoginHandler implements SOAPHandler<SOAPMessageContext> {
         return tenantId;
     }
     
+    protected String getTenantIdFromSamlResponse(SOAPMessageContext context) throws NotExistentTenantException {
+        
+        String tenantId;
+        
+        SAMLAssertion samlAssertion = (SAMLAssertion) context
+                .get(MessageConstants.INCOMING_SAML_ASSERTION);
+        
+        tenantId = samlExtractor.getTenantId(samlAssertion);
+        return tenantId;
+    }
+    
     protected String getOrganizationIdFromContext(SOAPMessageContext context){
         
         String orgId = null;
@@ -214,7 +229,17 @@ public class LoginHandler implements SOAPHandler<SOAPMessageContext> {
         
         return orgId;
     }
-
+    
+    private SAMLAssertion getSamlAssertion(SOAPMessageContext context){
+        
+        SAMLAssertion samlAssertion = (SAMLAssertion) context
+                .get(MessageConstants.INCOMING_SAML_ASSERTION);
+        
+        logDebugSamlAssertion(samlAssertion);
+        
+        return samlAssertion;
+    }
+    
     @Override
     public boolean handleFault(SOAPMessageContext context) {
         return false;
