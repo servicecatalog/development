@@ -10,6 +10,7 @@ package org.oscm.internal.assembler;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
@@ -19,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
+import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.Product;
 import org.oscm.domobjects.UnitRoleAssignment;
@@ -26,7 +28,6 @@ import org.oscm.domobjects.UnitUserRole;
 import org.oscm.domobjects.UserGroup;
 import org.oscm.domobjects.UserGroupToInvisibleProduct;
 import org.oscm.domobjects.UserGroupToUser;
-import org.oscm.validator.ADMValidator;
 import org.oscm.internal.types.enumtypes.PerformanceHint;
 import org.oscm.internal.types.enumtypes.UnitRoleType;
 import org.oscm.internal.types.exception.ValidationException;
@@ -35,6 +36,7 @@ import org.oscm.internal.usergroupmgmt.POService;
 import org.oscm.internal.usergroupmgmt.POUserGroup;
 import org.oscm.internal.usermanagement.POUserDetails;
 import org.oscm.internal.usermanagement.POUserInUnit;
+import org.oscm.validator.ADMValidator;
 
 /**
  * Unit test of POUserGroupAssembler
@@ -267,15 +269,15 @@ public class POUserGroupAssemblerTest {
         assertEquals(poUser.getFirstName(), user.getFirstName());
         assertEquals(poUser.getLocale(), user.getLocale());
     }
-    
+
     private void verifyUserInUnit(POUserGroup poUserGroup, UserGroup userGroup) {
         POUserInUnit poUserInUnit = poUserGroup.getUsersAssignedToUnit().get(0);
-        
+
         PlatformUser user = userGroup.getUserGroupToUsers().get(0)
                 .getPlatformuser();
         assertEquals(poUserInUnit.getUserId(), user.getUserId());
         assertEquals(poUserInUnit.getPoUser().getKey(), user.getKey());
-        assertEquals(poUserInUnit.isSelected(), true);
+        assertTrue(poUserInUnit.isSelected());
         assertEquals(poUserInUnit.getRoleInUnit(), UnitRoleType.USER.name());
     }
 
@@ -294,6 +296,7 @@ public class POUserGroupAssemblerTest {
         userGroup.setReferenceId("a referenceId");
         prepareUsers(userGroup);
         prepareProducts(userGroup);
+        userGroup.setOrganization(new Organization());
         return userGroup;
     }
 
@@ -314,7 +317,8 @@ public class POUserGroupAssemblerTest {
         UnitUserRole unitUserRole = new UnitUserRole();
         unitUserRole.setRoleName(UnitRoleType.USER);
         unitRoleAssignment.setUnitUserRole(unitUserRole);
-        userGroupToUser.setUnitRoleAssignments(Arrays.asList(unitRoleAssignment));
+        userGroupToUser.setUnitRoleAssignments(Arrays
+                .asList(unitRoleAssignment));
         userGroupToUsers.add(userGroupToUser);
         userGroup.setUserGroupToUsers(userGroupToUsers);
     }
@@ -329,10 +333,12 @@ public class POUserGroupAssemblerTest {
     }
 
     private PlatformUser preparePlatformUser() {
+        Organization org = new Organization();
         PlatformUser user = new PlatformUser();
         user.setUserId("userId");
         user.setFirstName("firstName");
         user.setLocale("en");
+        user.setOrganization(org);
         return user;
     }
 
