@@ -393,6 +393,7 @@ public class UserGroupServiceLocalBean {
         List<UnitRoleType> allAvailableUnitRoleTypes = new ArrayList<UnitRoleType>(
                 Arrays.asList(UnitRoleType.values()));
         for (PlatformUser user : usersToRoleUpdate.keySet()) {
+            user.setTenantId(dm.getCurrentUser().getTenantId());
             revokeUserRoles(user, allAvailableUnitRoleTypes, userGroup);
             String role = usersToRoleUpdate.get(user);
             grantUserRoles(user, Arrays.asList(UnitRoleType.valueOf(role)),

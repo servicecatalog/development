@@ -507,8 +507,8 @@ public class IdentityServiceBean implements IdentityService,
 
         ArgumentValidator.notNull("user", user);
         ArgumentValidator.notNull("roles", roles);
-        PlatformUser pUser = getPlatformUser(user.getUserId(),
-                user.getTenantId(), true);
+        PlatformUser pUser = getPlatformUser(user.getUserId(), dm
+                .getCurrentUser().getTenantId(), true);
         grantUserRoles(pUser, roles);
 
     }
@@ -520,8 +520,8 @@ public class IdentityServiceBean implements IdentityService,
 
         ArgumentValidator.notNull("user", user);
         ArgumentValidator.notNull("role", role);
-        PlatformUser pUser = getPlatformUser(user.getUserId(),
-                user.getTenantId(), true);
+        PlatformUser pUser = getPlatformUser(user.getUserId(), dm
+                .getCurrentUser().getTenantId(), true);
         grantUnitRole(pUser, role);
     }
 
@@ -532,8 +532,8 @@ public class IdentityServiceBean implements IdentityService,
 
         ArgumentValidator.notNull("user", user);
         ArgumentValidator.notNull("role", role);
-        PlatformUser pUser = getPlatformUser(user.getUserId(),
-                user.getTenantId(), true);
+        PlatformUser pUser = getPlatformUser(user.getUserId(), dm
+                .getCurrentUser().getTenantId(), true);
         revokeUnitRole(pUser, role);
     }
 
@@ -709,8 +709,8 @@ public class IdentityServiceBean implements IdentityService,
             throws ObjectNotFoundException, OperationNotPermittedException {
 
         ArgumentValidator.notNull("user", user);
-        PlatformUser pUser = getPlatformUser(user.getUserId(),
-                user.getTenantId(), true);
+        PlatformUser pUser = getPlatformUser(user.getUserId(), dm
+                .getCurrentUser().getTenantId(), true);
 
         return UserDataAssembler.toVOUserDetails(pUser);
     }
