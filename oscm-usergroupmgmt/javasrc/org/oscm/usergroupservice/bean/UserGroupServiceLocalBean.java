@@ -918,8 +918,7 @@ public class UserGroupServiceLocalBean {
             throws OperationNotPermittedException, ObjectNotFoundException {
         Organization org = dm.getCurrentUser().getOrganization();
         for (PlatformUser platformUser : platformUsers) {
-            PlatformUser user = dm.getReference(PlatformUser.class,
-                    platformUser.getKey());
+            PlatformUser user = dm.find(platformUser);
             if (user == null) {
                 ObjectNotFoundException onf = new ObjectNotFoundException(
                         ObjectNotFoundException.ClassEnum.USER,

@@ -477,8 +477,9 @@ public class SubscriptionServiceBeanOwnershipTest {
         // given
         PlatformUser user = givenSubscriptionOwner();
         Subscription subscriptionToModify = givenSubscription(null);
-        doReturn(user).when(idManager).getPlatformUser(eq(user.getUserId()),
-                anyString(), eq(true));
+        doReturn(user).when(modUpgBean.dataManager).getCurrentUser();
+        doReturn(user).when(bean.modUpgBean.idManager).getPlatformUser(
+                eq(user.getUserId()), anyString(), eq(true));
 
         // when
         bean.modUpgBean.setSubscriptionOwner(subscriptionToModify,
@@ -507,6 +508,7 @@ public class SubscriptionServiceBeanOwnershipTest {
         // given
         PlatformUser user = givenSubscriptionOwner();
         Subscription subscriptionToModify = givenSubscription(user);
+        doReturn(user).when(modUpgBean.dataManager).getCurrentUser();
         doReturn(user).when(idManager).getPlatformUser(eq(user.getUserId()),
                 anyString(), eq(true));
 
