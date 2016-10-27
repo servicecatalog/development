@@ -12,9 +12,26 @@
 
 package org.oscm.domobjects;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.OrderBy;
+import javax.persistence.PrePersist;
+import javax.persistence.Transient;
 
 import org.oscm.domobjects.annotations.BusinessKey;
 import org.oscm.internal.types.enumtypes.Salutation;
@@ -34,7 +51,7 @@ import org.oscm.internal.types.enumtypes.UserRoleType;
                 + "Organization o, Tenant t where obj.dataContainer.userId=:userId AND obj.organization = o AND o"
                 + ".tenant = t AND t.dataContainer.tenantId = :tenantId "),
         @NamedQuery(name = "PlatformUser.findByUserId", query = "select obj from PlatformUser obj, "
-                + "Organization o, Tenant t where obj.dataContainer.userId=:userId AND obj.organization = o AND o"
+                + "Organization o, where obj.dataContainer.userId=:userId AND obj.organization = o AND o"
                 + ".tenant is null "),
         @NamedQuery(name = "PlatformUser.findByUserIdAndTenantKey", query = "select obj from PlatformUser obj, "
                 + "Organization o, Tenant t where obj.dataContainer.userId=:userId AND obj.organization = o AND o"
@@ -68,25 +85,25 @@ public class PlatformUser extends DomainObjectWithHistory<PlatformUserData> {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     @OrderBy
-    private List<TriggerProcess> triggerProcesses = new ArrayList<TriggerProcess>();
+    private List<TriggerProcess> triggerProcesses = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     @OrderBy
-    private Set<RoleAssignment> assignedRoles = new HashSet<RoleAssignment>();
+    private Set<RoleAssignment> assignedRoles = new HashSet<>();
 
     @OneToMany(mappedBy = "masterUser", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     @OrderBy
-    private List<OnBehalfUserReference> onBehalfUserReferences = new ArrayList<OnBehalfUserReference>();
+    private List<OnBehalfUserReference> onBehalfUserReferences = new ArrayList<>();
 
     @OneToOne(optional = true, mappedBy = "slaveUser", fetch = FetchType.LAZY)
     private OnBehalfUserReference master;
 
     @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "platformuser", fetch = FetchType.LAZY)
-    private List<UserGroupToUser> userGroupToUsers = new ArrayList<UserGroupToUser>();
+    private List<UserGroupToUser> userGroupToUsers = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     @OrderBy
-    private List<OperationRecord> operationRecord = new ArrayList<OperationRecord>();
+    private List<OperationRecord> operationRecord = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     private Collection<UsageLicense> licenses;
@@ -380,7 +397,7 @@ public class PlatformUser extends DomainObjectWithHistory<PlatformUserData> {
      * @return a {@link Set} of {@link UserRoleType} assigned to the user
      */
     public Set<UserRoleType> getAssignedRoleTypes() {
-        Set<UserRoleType> result = new HashSet<UserRoleType>();
+        Set<UserRoleType> result = new HashSet<>();
         Set<RoleAssignment> roles = getAssignedRoles();
         for (RoleAssignment ra : roles) {
             result.add(ra.getRole().getRoleName());
@@ -446,9 +463,12 @@ public class PlatformUser extends DomainObjectWithHistory<PlatformUserData> {
      */
     public boolean hasSubscriptionOwnerRole() {
         for (RoleAssignment roleAssignment : assignedRoles) {
-            if ((roleAssignment.getRole().getRoleName() == UserRoleType.ORGANIZATION_ADMIN)
-                    || (roleAssignment.getRole().getRoleName() == UserRoleType.SUBSCRIPTION_MANAGER)
-                    || (roleAssignment.getRole().getRoleName() == UserRoleType.UNIT_ADMINISTRATOR))
+            if ((roleAssignment.getRole()
+                    .getRoleName() == UserRoleType.ORGANIZATION_ADMIN)
+                    || (roleAssignment.getRole()
+                            .getRoleName() == UserRoleType.SUBSCRIPTION_MANAGER)
+                    || (roleAssignment.getRole()
+                            .getRoleName() == UserRoleType.UNIT_ADMINISTRATOR))
                 return true;
         }
         return false;
