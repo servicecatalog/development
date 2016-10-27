@@ -23,9 +23,6 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import org.junit.Test;
-
-import org.oscm.billingservice.dao.BillingDataRetrievalServiceBean;
-import org.oscm.billingservice.dao.BillingDataRetrievalServiceLocal;
 import org.oscm.billingservice.service.model.CustomerData;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
@@ -41,6 +38,7 @@ import org.oscm.test.data.Scenario;
 import org.oscm.test.data.Subscriptions;
 import org.oscm.test.data.SupportedCountries;
 import org.oscm.test.ejb.TestContainer;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.test.stubs.LocalizerServiceStub;
 
 /**
@@ -56,8 +54,10 @@ public class BillingDataRetrievalServiceBeanCurrencyIT extends EJBTestBase {
     /**
      * Common setup for the test class.
      */
+    @Override
     public void setup(final TestContainer container) throws Exception {
         container.login("1");
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         container.addBean(new LocalizerServiceStub() {
             @Override
@@ -72,6 +72,7 @@ public class BillingDataRetrievalServiceBeanCurrencyIT extends EJBTestBase {
         bdr = container.get(BillingDataRetrievalServiceLocal.class);
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 SupportedCountries.createSomeSupportedCountries(dm);
                 Scenario.setup(container, true);
@@ -87,6 +88,7 @@ public class BillingDataRetrievalServiceBeanCurrencyIT extends EJBTestBase {
     public void testGetSubscriptionsForCustomer_NonExistingOrg()
             throws Exception {
         final CustomerData result = runTX(new Callable<CustomerData>() {
+            @Override
             public CustomerData call() throws Exception {
                 return new CustomerData(bdr.loadSubscriptionsForCustomer(-1, 1,
                         System.currentTimeMillis(), -1));
@@ -103,6 +105,7 @@ public class BillingDataRetrievalServiceBeanCurrencyIT extends EJBTestBase {
     public void testGetSubscriptionsForCustomer_CustomerOneCurrency()
             throws Exception {
         CustomerData result = runTX(new Callable<CustomerData>() {
+            @Override
             public CustomerData call() throws Exception {
                 return new CustomerData(bdr.loadSubscriptionsForCustomer(
                         Scenario.getCustomer().getKey(), 1,
@@ -126,6 +129,7 @@ public class BillingDataRetrievalServiceBeanCurrencyIT extends EJBTestBase {
             throws Exception {
         // price model, subscription and product were changed in the meantime
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Subscription sub = Scenario.getSubscription();
                 sub = (Subscription) dm.getReferenceByBusinessKey(sub);
@@ -137,8 +141,8 @@ public class BillingDataRetrievalServiceBeanCurrencyIT extends EJBTestBase {
 
                 PriceModel pm = p.getPriceModel();
                 pm = dm.getReference(PriceModel.class, pm.getKey());
-                pm.setPricePerPeriod(pm.getPricePerPeriod().add(
-                        new BigDecimal(1)));
+                pm.setPricePerPeriod(
+                        pm.getPricePerPeriod().add(new BigDecimal(1)));
                 return null;
             }
         });
@@ -146,6 +150,7 @@ public class BillingDataRetrievalServiceBeanCurrencyIT extends EJBTestBase {
         // scenario setup (BES queries exclude the end billing period):
         final long now = System.currentTimeMillis() + 1;
         CustomerData result = runTX(new Callable<CustomerData>() {
+            @Override
             public CustomerData call() throws Exception {
                 return new CustomerData(bdr.loadSubscriptionsForCustomer(
                         Scenario.getCustomer().getKey(), 1, now, -1));
@@ -172,6 +177,7 @@ public class BillingDataRetrievalServiceBeanCurrencyIT extends EJBTestBase {
         long modTime = billingTime - 1000;
         createSubUsingUSD(modTime);
         CustomerData result = runTX(new Callable<CustomerData>() {
+            @Override
             public CustomerData call() throws Exception {
                 return new CustomerData(bdr.loadSubscriptionsForCustomer(
                         Scenario.getCustomer().getKey(), 1, billingTime, -1));
@@ -182,6 +188,7 @@ public class BillingDataRetrievalServiceBeanCurrencyIT extends EJBTestBase {
                 .longValue();
 
         SupportedCurrency entry1 = runTX(new Callable<SupportedCurrency>() {
+            @Override
             public SupportedCurrency call() throws Exception {
                 return bdr.loadCurrency(subscriptionKey1, billingTime);
             }
@@ -191,6 +198,7 @@ public class BillingDataRetrievalServiceBeanCurrencyIT extends EJBTestBase {
         final long subscriptionKey2 = result.getSubscriptionKeys().get(1)
                 .longValue();
         SupportedCurrency entry2 = runTX(new Callable<SupportedCurrency>() {
+            @Override
             public SupportedCurrency call() throws Exception {
                 return bdr.loadCurrency(subscriptionKey2, billingTime);
             }
@@ -212,6 +220,7 @@ public class BillingDataRetrievalServiceBeanCurrencyIT extends EJBTestBase {
         long modTime = billingTime + 5000;
         createSubUsingUSD(modTime);
         CustomerData result = runTX(new Callable<CustomerData>() {
+            @Override
             public CustomerData call() throws Exception {
                 return new CustomerData(bdr.loadSubscriptionsForCustomer(
                         Scenario.getCustomer().getKey(), 1, billingTime, -1));
@@ -221,6 +230,7 @@ public class BillingDataRetrievalServiceBeanCurrencyIT extends EJBTestBase {
         final long subscriptionKey1 = result.getSubscriptionKeys().get(0)
                 .longValue();
         SupportedCurrency entry1 = runTX(new Callable<SupportedCurrency>() {
+            @Override
             public SupportedCurrency call() throws Exception {
                 return bdr.loadCurrency(subscriptionKey1, billingTime);
             }
@@ -230,6 +240,7 @@ public class BillingDataRetrievalServiceBeanCurrencyIT extends EJBTestBase {
         final long subscriptionKey2 = result.getSubscriptionKeys().get(1)
                 .longValue();
         SupportedCurrency entry2 = runTX(new Callable<SupportedCurrency>() {
+            @Override
             public SupportedCurrency call() throws Exception {
                 return bdr.loadCurrency(subscriptionKey2, billingTime);
             }
@@ -250,14 +261,15 @@ public class BillingDataRetrievalServiceBeanCurrencyIT extends EJBTestBase {
      */
     private void createSubUsingUSD(final long modTime) throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 SupportedCurrency sc = new SupportedCurrency();
                 sc.setCurrency(Currency.getInstance("USD"));
                 dm.persist(sc);
 
                 Subscription subNew = Subscriptions.createSubscription(dm,
-                        Scenario.getCustomer().getOrganizationId(), Scenario
-                                .getProduct().getProductId(), "SubUSD",
+                        Scenario.getCustomer().getOrganizationId(),
+                        Scenario.getProduct().getProductId(), "SubUSD",
                         Scenario.getSupplier());
                 dm.flush();
                 subNew.setHistoryModificationTime(Long.valueOf(modTime));

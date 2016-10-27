@@ -15,13 +15,17 @@ import javax.ejb.EJBAccessException;
 import javax.ejb.EJBException;
 
 import org.junit.Test;
-
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.Product;
 import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.TechnicalProduct;
+import org.oscm.internal.intf.SubscriptionService;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.ServiceAccessType;
+import org.oscm.internal.vo.VOOrganization;
+import org.oscm.internal.vo.VOSubscriptionIdAndOrganizations;
 import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.Marketplaces;
@@ -30,13 +34,10 @@ import org.oscm.test.data.Products;
 import org.oscm.test.data.Subscriptions;
 import org.oscm.test.data.TechnicalProducts;
 import org.oscm.test.ejb.TestContainer;
-import org.oscm.internal.intf.SubscriptionService;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
-import org.oscm.internal.vo.VOOrganization;
-import org.oscm.internal.vo.VOSubscriptionIdAndOrganizations;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 
-public class SubscriptionServiceBeanCustomerSubscriptionsIT extends EJBTestBase {
+public class SubscriptionServiceBeanCustomerSubscriptionsIT
+        extends EJBTestBase {
 
     private static final String SUPPLIER_SUB_ID = "supplierSubscription";
     private static final String SUPPLIER_CUST_SUB_ID = "supplierCustomerSubscription";
@@ -70,6 +71,7 @@ public class SubscriptionServiceBeanCustomerSubscriptionsIT extends EJBTestBase 
     public void setup(TestContainer container) throws Exception {
 
         container.enableInterfaceMocking(true);
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         container.addBean(new SubscriptionServiceBean());
         container.addBean(new TerminateSubscriptionBean());
@@ -86,15 +88,15 @@ public class SubscriptionServiceBeanCustomerSubscriptionsIT extends EJBTestBase 
         tpSupOrg = Organizations.createOrganization(mgr, "supplier",
                 OrganizationRoleType.SUPPLIER,
                 OrganizationRoleType.TECHNOLOGY_PROVIDER);
-        tpSupUserKey = Organizations.createUserForOrg(mgr, tpSupOrg, true,
-                "tpSup").getKey();
+        tpSupUserKey = Organizations
+                .createUserForOrg(mgr, tpSupOrg, true, "tpSup").getKey();
         supplierCustomerOrg = Organizations.createCustomer(mgr, tpSupOrg);
 
         brokerOrg = Organizations.createOrganization(mgr, "broker",
                 OrganizationRoleType.BROKER);
 
-        brokerUserKey = Organizations.createUserForOrg(mgr, brokerOrg, true,
-                "broker").getKey();
+        brokerUserKey = Organizations
+                .createUserForOrg(mgr, brokerOrg, true, "broker").getKey();
         brokerCustomerOrg = Organizations.createCustomer(mgr, brokerOrg);
         secondBrokerCustomerOrg = Organizations.createCustomer(mgr, brokerOrg);
 
@@ -106,8 +108,8 @@ public class SubscriptionServiceBeanCustomerSubscriptionsIT extends EJBTestBase 
 
         resellerOrg = Organizations.createOrganization(mgr, "reseller",
                 OrganizationRoleType.RESELLER);
-        resellerUserKey = Organizations.createUserForOrg(mgr, resellerOrg,
-                true, "reseller").getKey();
+        resellerUserKey = Organizations
+                .createUserForOrg(mgr, resellerOrg, true, "reseller").getKey();
         resellerCustomerOrg = Organizations.createCustomer(mgr, resellerOrg);
     }
 
@@ -119,8 +121,8 @@ public class SubscriptionServiceBeanCustomerSubscriptionsIT extends EJBTestBase 
         Marketplaces.createMarketplace(brokerOrg, "brokerMarketplace", true,
                 mgr);
         container.login(resellerUserKey, ROLE_RESELLER_MANAGER);
-        Marketplaces.createMarketplace(resellerOrg, "resellerMarketplace",
-                true, mgr);
+        Marketplaces.createMarketplace(resellerOrg, "resellerMarketplace", true,
+                mgr);
     }
 
     @Test
@@ -311,8 +313,8 @@ public class SubscriptionServiceBeanCustomerSubscriptionsIT extends EJBTestBase 
         assertEquals(supplierCustomerOrg.getKey(),
                 firstBrokerCustomerOrgs.get(0).getKey());
 
-        assertEquals(supplierCustomerOrg.getKey(), secondBrokerCustomerOrgs
-                .get(0).getKey());
+        assertEquals(supplierCustomerOrg.getKey(),
+                secondBrokerCustomerOrgs.get(0).getKey());
     }
 
     @Test
@@ -346,10 +348,10 @@ public class SubscriptionServiceBeanCustomerSubscriptionsIT extends EJBTestBase 
         List<VOOrganization> brokerCustomerOrgs = subIdAndOrg
                 .getOrganizations();
 
-        assertEquals(brokerCustomerOrg.getKey(), brokerCustomerOrgs.get(0)
-                .getKey());
-        assertEquals(secondBrokerCustomerOrg.getKey(), brokerCustomerOrgs
-                .get(1).getKey());
+        assertEquals(brokerCustomerOrg.getKey(),
+                brokerCustomerOrgs.get(0).getKey());
+        assertEquals(secondBrokerCustomerOrg.getKey(),
+                brokerCustomerOrgs.get(1).getKey());
     }
 
     @Test
@@ -383,10 +385,10 @@ public class SubscriptionServiceBeanCustomerSubscriptionsIT extends EJBTestBase 
         List<VOOrganization> brokerCustomerOrgs = subIdAndOrg
                 .getOrganizations();
 
-        assertEquals(brokerCustomerOrg.getKey(), brokerCustomerOrgs.get(0)
-                .getKey());
-        assertEquals(secondBrokerCustomerOrg.getKey(), brokerCustomerOrgs
-                .get(1).getKey());
+        assertEquals(brokerCustomerOrg.getKey(),
+                brokerCustomerOrgs.get(0).getKey());
+        assertEquals(secondBrokerCustomerOrg.getKey(),
+                brokerCustomerOrgs.get(1).getKey());
     }
 
     @Test
@@ -475,10 +477,10 @@ public class SubscriptionServiceBeanCustomerSubscriptionsIT extends EJBTestBase 
 
         createSubscriptionForOfferer(tProduct, resellerOrg, resellerOrg,
                 "resellerProduct", RESELLER_SUB_ID);
-        createSubscriptionForOfferer(tProduct, resellerOrg,
-                resellerCustomerOrg, "resellerProduct2", RESELLER_CUST_SUB_ID);
-        createSubscriptionForOfferer(tProduct, resellerOrg,
-                resellerCustomerOrg, "resellerCommonProduct", COMMON_SUB_ID);
+        createSubscriptionForOfferer(tProduct, resellerOrg, resellerCustomerOrg,
+                "resellerProduct2", RESELLER_CUST_SUB_ID);
+        createSubscriptionForOfferer(tProduct, resellerOrg, resellerCustomerOrg,
+                "resellerCommonProduct", COMMON_SUB_ID);
     }
 
     private void createSubscriptionsForBrokers() throws Exception {
@@ -508,6 +510,7 @@ public class SubscriptionServiceBeanCustomerSubscriptionsIT extends EJBTestBase 
     private TechnicalProduct createTechnicalProduct(final String serviceId,
             final ServiceAccessType accessType) throws Exception {
         return runTX(new Callable<TechnicalProduct>() {
+            @Override
             public TechnicalProduct call() throws Exception {
                 return TechnicalProducts.createTechnicalProduct(mgr, tpSupOrg,
                         serviceId, false, accessType);
@@ -520,6 +523,7 @@ public class SubscriptionServiceBeanCustomerSubscriptionsIT extends EJBTestBase 
             final String productId, final String subscriptionId)
             throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Product product = Products.createProduct(offerer, tProduct,
                         false, productId, null, mgr);
@@ -536,6 +540,7 @@ public class SubscriptionServiceBeanCustomerSubscriptionsIT extends EJBTestBase 
             final Organization grantee, final String productId,
             final String subscriptionId) throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
 
                 Product productTemplate = Products.createProduct(supplier,
@@ -545,8 +550,8 @@ public class SubscriptionServiceBeanCustomerSubscriptionsIT extends EJBTestBase 
                 mgr.persist(resaleCopy);
 
                 Subscriptions.createPartnerSubscription(mgr,
-                        customer.getOrganizationId(),
-                        resaleCopy.getProductId(), subscriptionId, grantee);
+                        customer.getOrganizationId(), resaleCopy.getProductId(),
+                        subscriptionId, grantee);
                 return null;
             }
         });
@@ -556,6 +561,7 @@ public class SubscriptionServiceBeanCustomerSubscriptionsIT extends EJBTestBase 
             final Organization supplier, final String productId)
             throws Exception {
         Product product = runTX(new Callable<Product>() {
+            @Override
             public Product call() throws Exception {
                 Product productTemplate = Products.createProduct(supplier,
                         tProduct, false, productId, null, mgr);
@@ -571,14 +577,15 @@ public class SubscriptionServiceBeanCustomerSubscriptionsIT extends EJBTestBase 
             final Product productTemplate, final String subscriptionId)
             throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
 
                 Product resaleCopy = productTemplate.copyForResale(grantee);
                 mgr.persist(resaleCopy);
 
                 Subscriptions.createPartnerSubscription(mgr,
-                        customer.getOrganizationId(),
-                        resaleCopy.getProductId(), subscriptionId, grantee);
+                        customer.getOrganizationId(), resaleCopy.getProductId(),
+                        subscriptionId, grantee);
                 return null;
             }
         });

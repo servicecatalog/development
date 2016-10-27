@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import org.junit.Test;
-
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.ModifiedEntity;
@@ -24,14 +23,15 @@ import org.oscm.domobjects.Product;
 import org.oscm.domobjects.RoleAssignment;
 import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.UserRole;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.ServiceAccessType;
+import org.oscm.internal.types.enumtypes.UserRoleType;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.Organizations;
 import org.oscm.test.data.Products;
 import org.oscm.test.data.Subscriptions;
 import org.oscm.test.ejb.TestContainer;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
-import org.oscm.internal.types.enumtypes.UserRoleType;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 
 /**
  * Unit tests for {@link ModifiedEntityDao} using the test EJB container.
@@ -58,6 +58,7 @@ public class ModifiedEntityDaoIT extends EJBTestBase {
                 return givenUserAdmin(1, "userId", org);
             }
         };
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(ds);
         dao = new ModifiedEntityDao(ds);
         supplier = createOrg("supplier", OrganizationRoleType.SUPPLIER,
@@ -73,8 +74,8 @@ public class ModifiedEntityDaoIT extends EJBTestBase {
 
         final Organization broker = createOrg("broker",
                 OrganizationRoleType.BROKER);
-        final Organization brokerCustomer1 = registerCustomer(
-                "brokerCustomer1", broker);
+        final Organization brokerCustomer1 = registerCustomer("brokerCustomer1",
+                broker);
         registerCustomer("brokerCustomer2", broker);
         Product partnerProduct = createPartnerProduct(product, broker);
         createPartnerSubscription(brokerCustomer1.getOrganizationId(),
@@ -85,7 +86,8 @@ public class ModifiedEntityDaoIT extends EJBTestBase {
         final Organization resellerCustomer1 = registerCustomer(
                 "resellerCustomer1", reseller);
         registerCustomer("resellerCustomer2", reseller);
-        Product partnerProductReseller = createPartnerProduct(product, reseller);
+        Product partnerProductReseller = createPartnerProduct(product,
+                reseller);
         createPartnerSubscription(resellerCustomer1.getOrganizationId(),
                 partnerProductReseller, "resellercustomer1Sub", reseller);
     }
@@ -110,12 +112,13 @@ public class ModifiedEntityDaoIT extends EJBTestBase {
     public void retrieveModifiedEntities() throws Exception {
 
         // when
-        List<ModifiedEntity> result = runTX(new Callable<List<ModifiedEntity>>() {
-            @Override
-            public List<ModifiedEntity> call() throws Exception {
-                return dao.retrieveModifiedEntities(subscription);
-            }
-        });
+        List<ModifiedEntity> result = runTX(
+                new Callable<List<ModifiedEntity>>() {
+                    @Override
+                    public List<ModifiedEntity> call() throws Exception {
+                        return dao.retrieveModifiedEntities(subscription);
+                    }
+                });
 
         // then
         assertEquals(0, result.size());
