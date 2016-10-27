@@ -72,7 +72,7 @@ public class NovaProcessor {
         for (String id : serverIds) {
             Boolean result = Boolean.FALSE;
             try {
-                if (nc.isServerExpectedStatus(ServerStatus.ACTIVE, ph, id)) {
+                if (nc.isNotServerExceptedStatus(ServerStatus.ACTIVE, ph, id)) {
                     result = nc.startServer(ph, id);
                 } else {
                     skippedServers.add(id);
@@ -88,8 +88,8 @@ public class NovaProcessor {
                         connection = getConnection(ph);
                         nc = new NovaClient(connection);
 
-                        if (nc.isServerExpectedStatus(ServerStatus.ACTIVE, ph,
-                                id)) {
+                        if (nc.isNotServerExceptedStatus(ServerStatus.ACTIVE,
+                                ph, id)) {
                             result = nc.startServer(ph, id);
                         } else {
                             skippedServers.add(id);
@@ -144,7 +144,8 @@ public class NovaProcessor {
         for (String id : serverIds) {
             Boolean result = Boolean.FALSE;
             try {
-                if (nc.isServerExpectedStatus(ServerStatus.SHUTOFF, ph, id)) {
+                if (nc.isNotServerExceptedStatus(ServerStatus.SHUTOFF, ph,
+                        id)) {
                     result = nc.stopServer(ph, id);
                 } else {
                     skippedServers.add(id);
@@ -159,8 +160,8 @@ public class NovaProcessor {
                     try {
                         connection = getConnection(ph);
                         nc = new NovaClient(connection);
-                        if (nc.isServerExpectedStatus(ServerStatus.SHUTOFF, ph,
-                                id)) {
+                        if (nc.isNotServerExceptedStatus(ServerStatus.SHUTOFF,
+                                ph, id)) {
                             result = nc.stopServer(ph, id);
                         } else {
                             skippedServers.add(id);
