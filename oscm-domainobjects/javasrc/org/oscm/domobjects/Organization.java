@@ -20,18 +20,31 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.OrderBy;
+import javax.persistence.PrePersist;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+import javax.persistence.UniqueConstraint;
 
 import org.oscm.domobjects.annotations.BusinessKey;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.domobjects.enums.OrganizationReferenceType;
-import org.oscm.types.enumtypes.UdaTargetType;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.SettingType;
 import org.oscm.internal.types.enumtypes.SubscriptionStatus;
 import org.oscm.internal.types.enumtypes.TriggerType;
 import org.oscm.internal.types.exception.IllegalArgumentException;
 import org.oscm.internal.types.exception.SaaSSystemException;
+import org.oscm.types.enumtypes.UdaTargetType;
 
 /**
  * We call the one who registers at the SaaS portal a organization. We consider
@@ -43,11 +56,13 @@ import org.oscm.internal.types.exception.SaaSSystemException;
  * @author schmid
  */
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "organizationId" }))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {
+        "organizationId" }))
 @NamedQueries({
         @NamedQuery(name = "Organization.getAdministrators", query = "SELECT pu FROM PlatformUser pu, RoleAssignment ra WHERE pu.organization.key=:orgkey and ra.user.key=pu.key and ra.userRole.dataContainer.roleName='ORGANIZATION_ADMIN'"),
         @NamedQuery(name = "Organization.findByBusinessKey", query = "SELECT c FROM Organization c WHERE c.dataContainer.organizationId=:organizationId"),
         @NamedQuery(name = "Organization.getAllOrganizations", query = "SELECT c FROM Organization c"),
+        @NamedQuery(name = "Organization.getAllSuppliers", query = "SELECT c FROM Organization c INNER JOIN c.grantedRoles otr INNER JOIN otr.organizationRole r WHERE r.dataContainer.roleName = org.oscm.internal.types.enumtypes.OrganizationRoleType.SUPPLIER"),
         @NamedQuery(name = "Organization.getForSupplierKey", query = "SELECT c FROM Organization c, OrganizationReference r WHERE r.target=c AND r.sourceKey=:supplierKey AND r.dataContainer.referenceType = :referenceType ORDER BY c.key ASC"),
         @NamedQuery(name = "Organization.getForSupplierKeyAndProduct", query = "SELECT c FROM Organization c, OrganizationReference r, Product p WHERE r.target=c AND r.sourceKey=:supplierKey AND r.dataContainer.referenceType = 'SUPPLIER_TO_CUSTOMER' AND c = p.targetCustomer AND p.template = :product AND NOT EXISTS (SELECT s.key FROM Subscription s WHERE s.product = p)"),
         @NamedQuery(name = "Organization.getForOffererKeyAndSubscriptionId", query = "SELECT c FROM Organization c, OrganizationReference r, Subscription sub WHERE r.target=c AND r.sourceKey=:offererKey AND r.dataContainer.referenceType IN ('SUPPLIER_TO_CUSTOMER','BROKER_TO_CUSTOMER','RESELLER_TO_CUSTOMER') AND sub.organization = c AND sub.dataContainer.subscriptionId = :subscriptionId AND sub.dataContainer.status IN (:states)"),
@@ -84,7 +99,7 @@ public class Organization extends DomainObjectWithHistory<OrganizationData> {
      * @see OrganizationRoleType#SUPPLIER
      */
     @OneToMany(mappedBy = "organization", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
-    private List<Marketplace> marketplaces = new ArrayList<Marketplace>();
+    private List<Marketplace> marketplaces = new ArrayList<>();
 
     /**
      * 1:n relation to PlatformUser: the users registered for the organization.
@@ -92,7 +107,7 @@ public class Organization extends DomainObjectWithHistory<OrganizationData> {
      */
     @OneToMany(mappedBy = "organization", fetch = FetchType.LAZY)
     @OrderBy
-    private List<PlatformUser> platformUsers = new ArrayList<PlatformUser>();
+    private List<PlatformUser> platformUsers = new ArrayList<>();
 
     /**
      * 1:n relation to Subscription: the subscriptions of the organization.
@@ -102,7 +117,7 @@ public class Organization extends DomainObjectWithHistory<OrganizationData> {
      */
     @OneToMany(mappedBy = "organization", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     @OrderBy
-    private List<Subscription> subscriptions = new ArrayList<Subscription>();
+    private List<Subscription> subscriptions = new ArrayList<>();
 
     /**
      * 1:n relation to OrganizationReference which references the sources (this
@@ -110,7 +125,7 @@ public class Organization extends DomainObjectWithHistory<OrganizationData> {
      */
     @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "target", fetch = FetchType.LAZY)
     @OrderBy
-    private List<OrganizationReference> sources = new ArrayList<OrganizationReference>();
+    private List<OrganizationReference> sources = new ArrayList<>();
 
     /**
      * 1:n relation to OrganizationReference which references the targets (this
@@ -118,7 +133,7 @@ public class Organization extends DomainObjectWithHistory<OrganizationData> {
      */
     @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "source", fetch = FetchType.LAZY)
     @OrderBy
-    private List<OrganizationReference> targets = new ArrayList<OrganizationReference>();
+    private List<OrganizationReference> targets = new ArrayList<>();
 
     /**
      * 1:n relation to Product: the organization is the supplier of the
@@ -128,7 +143,7 @@ public class Organization extends DomainObjectWithHistory<OrganizationData> {
      */
     @OneToMany(mappedBy = "vendor", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     @OrderBy
-    private List<Product> products = new ArrayList<Product>();
+    private List<Product> products = new ArrayList<>();
 
     /**
      * 1:n relation to TechnicalProduct: the organization is technology provider
@@ -138,33 +153,33 @@ public class Organization extends DomainObjectWithHistory<OrganizationData> {
      */
     @OneToMany(mappedBy = "organization", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     @OrderBy
-    private List<TechnicalProduct> technicalProducts = new ArrayList<TechnicalProduct>();
+    private List<TechnicalProduct> technicalProducts = new ArrayList<>();
 
     @OneToMany(mappedBy = "organization", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     @OrderBy
-    private Set<OrganizationToRole> grantedRoles = new HashSet<OrganizationToRole>();
+    private Set<OrganizationToRole> grantedRoles = new HashSet<>();
 
     @OneToMany(mappedBy = "organization", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     @OrderBy
-    private List<OrganizationSetting> organizationSettings = new ArrayList<OrganizationSetting>();
+    private List<OrganizationSetting> organizationSettings = new ArrayList<>();
 
     @OneToMany(mappedBy = "organization", fetch = FetchType.LAZY)
     @OrderBy
-    private List<TriggerDefinition> triggerDefinitions = new ArrayList<TriggerDefinition>();
+    private List<TriggerDefinition> triggerDefinitions = new ArrayList<>();
 
     @OneToMany(mappedBy = "organization", fetch = FetchType.LAZY)
     @OrderBy
-    private List<UdaDefinition> udaDefinitions = new ArrayList<UdaDefinition>();
+    private List<UdaDefinition> udaDefinitions = new ArrayList<>();
 
     @OneToMany(mappedBy = "organization", fetch = FetchType.LAZY)
     @OrderBy
-    private List<PSPAccount> pspAccounts = new ArrayList<PSPAccount>();
+    private List<PSPAccount> pspAccounts = new ArrayList<>();
 
     /**
      * @see OrganizationRoleType#SUPPLIER
      */
     @OneToMany(mappedBy = "organization", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<OrganizationToCountry> organizationToCountries = new ArrayList<OrganizationToCountry>();
+    private List<OrganizationToCountry> organizationToCountries = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     private SupportedCountry domicileCountry;
@@ -174,35 +189,35 @@ public class Organization extends DomainObjectWithHistory<OrganizationData> {
      */
     @OneToMany(mappedBy = "owningOrganization", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     @OrderBy
-    private List<VatRate> definedVatRates = new ArrayList<VatRate>();
+    private List<VatRate> definedVatRates = new ArrayList<>();
 
     /**
      * The billing contact information data stored for the current organization.
      */
     @OneToMany(mappedBy = "organization", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     @OrderBy
-    private List<BillingContact> billingContacts = new ArrayList<BillingContact>();
+    private List<BillingContact> billingContacts = new ArrayList<>();
 
     /**
      * The payment information stored for the current organization.
      */
     @OneToMany(mappedBy = "organization", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     @OrderBy
-    private List<PaymentInfo> paymentInfos = new ArrayList<PaymentInfo>();
+    private List<PaymentInfo> paymentInfos = new ArrayList<>();
 
     @OneToMany(mappedBy = "organization", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
-    private List<MarketplaceToOrganization> marketplaceToOrganizations = new ArrayList<MarketplaceToOrganization>();
+    private List<MarketplaceToOrganization> marketplaceToOrganizations = new ArrayList<>();
 
     @OneToOne(optional = true, cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     private RevenueShareModel operatorPriceModel;
 
     @OneToMany(mappedBy = "organization", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     @OrderBy
-    private List<UserGroup> userGroups = new ArrayList<UserGroup>();
+    private List<UserGroup> userGroups = new ArrayList<>();
 
     @OneToMany(mappedBy = "organization", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     @OrderBy
-    private List<MarketplaceAccess> marketplaceAccesses = new ArrayList<MarketplaceAccess>();
+    private List<MarketplaceAccess> marketplaceAccesses = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "tenant_tkey")
@@ -366,7 +381,7 @@ public class Organization extends DomainObjectWithHistory<OrganizationData> {
      * @return List of platform users
      */
     public List<PlatformUser> getVisiblePlatformUsers() {
-        List<PlatformUser> result = new ArrayList<PlatformUser>();
+        List<PlatformUser> result = new ArrayList<>();
         for (PlatformUser user : getPlatformUsers()) {
             if (!user.isOnBehalfUser()) {
                 result.add(user);
@@ -394,7 +409,7 @@ public class Organization extends DomainObjectWithHistory<OrganizationData> {
      * @return List of platform users
      */
     public List<PlatformUser> getOrganizationAdmins() {
-        List<PlatformUser> result = new ArrayList<PlatformUser>();
+        List<PlatformUser> result = new ArrayList<>();
         for (PlatformUser platformUser : getPlatformUsers()) {
             if (platformUser.isOrganizationAdmin()) {
                 result.add(platformUser);
@@ -416,8 +431,7 @@ public class Organization extends DomainObjectWithHistory<OrganizationData> {
      * usable if a user can eventually subscribe to it.
      */
     public List<Subscription> getUsableSubscriptions() {
-        List<Subscription> usableSubscriptions = new ArrayList<Subscription>(
-                subscriptions);
+        List<Subscription> usableSubscriptions = new ArrayList<>(subscriptions);
         for (Iterator<Subscription> i = usableSubscriptions.iterator(); i
                 .hasNext();) {
             Subscription subscription = i.next();
@@ -445,8 +459,7 @@ public class Organization extends DomainObjectWithHistory<OrganizationData> {
     }
 
     public List<Organization> getTechnologyProviders() {
-        List<Organization> result = new ArrayList<Organization>(getSources()
-                .size());
+        List<Organization> result = new ArrayList<>(getSources().size());
         for (OrganizationReference ref : getSources()) {
             if (ref.getReferenceType() == OrganizationReferenceType.TECHNOLOGY_PROVIDER_TO_SUPPLIER) {
                 result.add(ref.getSource());
@@ -456,8 +469,7 @@ public class Organization extends DomainObjectWithHistory<OrganizationData> {
     }
 
     public List<Organization> getGrantedSuppliers() {
-        List<Organization> result = new ArrayList<Organization>(getTargets()
-                .size());
+        List<Organization> result = new ArrayList<>(getTargets().size());
         for (OrganizationReference ref : getTargets()) {
             if (ref.getReferenceType() == OrganizationReferenceType.TECHNOLOGY_PROVIDER_TO_SUPPLIER) {
                 result.add(ref.getTarget());
@@ -467,8 +479,7 @@ public class Organization extends DomainObjectWithHistory<OrganizationData> {
     }
 
     public List<Organization> getCustomersOfSupplier() {
-        List<Organization> result = new ArrayList<Organization>(getTargets()
-                .size());
+        List<Organization> result = new ArrayList<>(getTargets().size());
         for (OrganizationReference ref : getTargets()) {
             if (ref.getReferenceType() == OrganizationReferenceType.SUPPLIER_TO_CUSTOMER) {
                 result.add(ref.getTarget());
@@ -478,8 +489,7 @@ public class Organization extends DomainObjectWithHistory<OrganizationData> {
     }
 
     public List<Organization> getCustomersOfBroker() {
-        List<Organization> result = new ArrayList<Organization>(getTargets()
-                .size());
+        List<Organization> result = new ArrayList<>(getTargets().size());
         for (OrganizationReference ref : getTargets()) {
             if (ref.getReferenceType() == OrganizationReferenceType.BROKER_TO_CUSTOMER) {
                 result.add(ref.getTarget());
@@ -489,8 +499,7 @@ public class Organization extends DomainObjectWithHistory<OrganizationData> {
     }
 
     public List<Organization> getCustomersOfReseller() {
-        List<Organization> result = new ArrayList<Organization>(getTargets()
-                .size());
+        List<Organization> result = new ArrayList<>(getTargets().size());
         for (OrganizationReference ref : getTargets()) {
             if (ref.getReferenceType() == OrganizationReferenceType.RESELLER_TO_CUSTOMER) {
                 result.add(ref.getTarget());
@@ -500,8 +509,7 @@ public class Organization extends DomainObjectWithHistory<OrganizationData> {
     }
 
     public List<Organization> getSuppliersOfCustomer() {
-        List<Organization> result = new ArrayList<Organization>(getSources()
-                .size());
+        List<Organization> result = new ArrayList<>(getSources().size());
         for (OrganizationReference ref : getSources()) {
             if (ref.getReferenceType() == OrganizationReferenceType.SUPPLIER_TO_CUSTOMER) {
                 result.add(ref.getSource());
@@ -511,8 +519,7 @@ public class Organization extends DomainObjectWithHistory<OrganizationData> {
     }
 
     public List<Organization> getVendorsOfCustomer() {
-        List<Organization> result = new ArrayList<Organization>(getSources()
-                .size());
+        List<Organization> result = new ArrayList<>(getSources().size());
         for (OrganizationReference ref : getSources()) {
             if ((ref.getReferenceType() == OrganizationReferenceType.SUPPLIER_TO_CUSTOMER)
                     || (ref.getReferenceType() == OrganizationReferenceType.BROKER_TO_CUSTOMER)
@@ -532,7 +539,7 @@ public class Organization extends DomainObjectWithHistory<OrganizationData> {
     }
 
     public Set<OrganizationRoleType> getGrantedRoleTypes() {
-        Set<OrganizationRoleType> result = new HashSet<OrganizationRoleType>();
+        Set<OrganizationRoleType> result = new HashSet<>();
         for (OrganizationToRole orgToRole : getGrantedRoles()) {
             result.add(orgToRole.getOrganizationRole().getRoleName());
         }
@@ -551,7 +558,8 @@ public class Organization extends DomainObjectWithHistory<OrganizationData> {
      */
     public boolean hasRole(OrganizationRoleType roleToCheckFor) {
         for (OrganizationToRole orgToRole : grantedRoles) {
-            if (orgToRole.getOrganizationRole().getRoleName() == roleToCheckFor) {
+            if (orgToRole.getOrganizationRole()
+                    .getRoleName() == roleToCheckFor) {
                 return true;
             }
         }
@@ -598,10 +606,10 @@ public class Organization extends DomainObjectWithHistory<OrganizationData> {
     public List<SettingType> getLdapUserAttributes() {
         if (ldapUserAttributes == null) {
             if (getOrganizationSettings() != null) {
-                ldapUserAttributes = new ArrayList<SettingType>();
+                ldapUserAttributes = new ArrayList<>();
                 for (OrganizationSetting setting : getOrganizationSettings()) {
-                    if (SettingType.LDAP_ATTRIBUTES.contains(setting
-                            .getSettingType())) {
+                    if (SettingType.LDAP_ATTRIBUTES
+                            .contains(setting.getSettingType())) {
                         ldapUserAttributes.add(setting.getSettingType());
                     }
                 }
@@ -620,10 +628,11 @@ public class Organization extends DomainObjectWithHistory<OrganizationData> {
      */
     public List<OrganizationRefToPaymentType> getPaymentTypes(
             String definingOrgId) {
-        List<OrganizationRefToPaymentType> result = new ArrayList<OrganizationRefToPaymentType>();
+        List<OrganizationRefToPaymentType> result = new ArrayList<>();
         for (OrganizationReference defOrgRef : getSources()) {
             String organizationId = defOrgRef.getSource().getOrganizationId();
-            if (organizationId != null && organizationId.equals(definingOrgId)) {
+            if (organizationId != null
+                    && organizationId.equals(definingOrgId)) {
                 // get org to payment ref and add to list
                 result.addAll(defOrgRef.getPaymentTypes());
             }
@@ -649,10 +658,12 @@ public class Organization extends DomainObjectWithHistory<OrganizationData> {
     public List<OrganizationRefToPaymentType> getPaymentTypes(
             boolean usedAsDefault, OrganizationRoleType role,
             String definingOrgId) {
-        List<OrganizationRefToPaymentType> types = getPaymentTypes(definingOrgId);
-        List<OrganizationRefToPaymentType> result = new ArrayList<OrganizationRefToPaymentType>();
+        List<OrganizationRefToPaymentType> types = getPaymentTypes(
+                definingOrgId);
+        List<OrganizationRefToPaymentType> result = new ArrayList<>();
         for (OrganizationRefToPaymentType ref : types) {
-            if ((!usedAsDefault || (usedAsDefault && ref.isUsedAsDefault() == true))
+            if ((!usedAsDefault
+                    || (usedAsDefault && ref.isUsedAsDefault() == true))
                     && ref.getOrganizationRole().getRoleName() == role) {
                 result.add(ref);
             }
@@ -668,14 +679,15 @@ public class Organization extends DomainObjectWithHistory<OrganizationData> {
      */
     public List<OrganizationRefToPaymentType> getDefaultServicePaymentTypes() {
 
-        List<OrganizationRefToPaymentType> types = getPaymentTypes(OrganizationRoleType.PLATFORM_OPERATOR
-                .name());
-        List<OrganizationRefToPaymentType> result = new ArrayList<OrganizationRefToPaymentType>();
+        List<OrganizationRefToPaymentType> types = getPaymentTypes(
+                OrganizationRoleType.PLATFORM_OPERATOR.name());
+        List<OrganizationRefToPaymentType> result = new ArrayList<>();
         for (OrganizationRefToPaymentType ref : types) {
             if ((ref.isUsedAsServiceDefault() == true)
-                    && (OrganizationRoleType.SUPPLIER.equals(ref
-                            .getOrganizationRole().getRoleName()) || OrganizationRoleType.RESELLER
-                            .equals(ref.getOrganizationRole().getRoleName()))) {
+                    && (OrganizationRoleType.SUPPLIER
+                            .equals(ref.getOrganizationRole().getRoleName())
+                            || OrganizationRoleType.RESELLER.equals(
+                                    ref.getOrganizationRole().getRoleName()))) {
                 result.add(ref);
             }
         }
@@ -702,7 +714,8 @@ public class Organization extends DomainObjectWithHistory<OrganizationData> {
         return triggerDefinitions;
     }
 
-    public void setTriggerDefinitions(List<TriggerDefinition> triggerDefinitions) {
+    public void setTriggerDefinitions(
+            List<TriggerDefinition> triggerDefinitions) {
         this.triggerDefinitions = triggerDefinitions;
     }
 
@@ -722,10 +735,9 @@ public class Organization extends DomainObjectWithHistory<OrganizationData> {
         for (TriggerDefinition td : this.triggerDefinitions) {
             if (td.getType() == type && td.isSuspendProcess()) {
                 if (result != null) {
-                    throw new SaaSSystemException(
-                            String.format(
-                                    "More than one suspending trigger definition found for organization '%s'. Data is inconsistent, operation aborted.",
-                                    String.valueOf(getKey())));
+                    throw new SaaSSystemException(String.format(
+                            "More than one suspending trigger definition found for organization '%s'. Data is inconsistent, operation aborted.",
+                            String.valueOf(getKey())));
                 }
                 result = td;
             }
@@ -748,7 +760,7 @@ public class Organization extends DomainObjectWithHistory<OrganizationData> {
 
     public Set<Long> getUdaDefinitionKeysWithTargetType(UdaTargetType type) {
         List<UdaDefinition> definitions = getUdaDefinitions();
-        Set<Long> result = new HashSet<Long>();
+        Set<Long> result = new HashSet<>();
         for (UdaDefinition def : definitions) {
             if (def.getTargetType() == type) {
                 result.add(Long.valueOf(def.getKey()));
@@ -803,7 +815,7 @@ public class Organization extends DomainObjectWithHistory<OrganizationData> {
      * @return List<String>
      */
     public List<String> getSupportedCountryCodes() {
-        List<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<>();
         for (OrganizationToCountry orgToCountry : organizationToCountries) {
             result.add(orgToCountry.getCode());
         }
@@ -905,7 +917,7 @@ public class Organization extends DomainObjectWithHistory<OrganizationData> {
     public List<OrganizationReference> getSourcesForType(
             OrganizationReferenceType orgRefType) {
         List<OrganizationReference> refsToSource = getSources();
-        List<OrganizationReference> result = new ArrayList<OrganizationReference>();
+        List<OrganizationReference> result = new ArrayList<>();
         for (OrganizationReference currentRef : refsToSource) {
             if (currentRef.getReferenceType() == orgRefType) {
                 result.add(currentRef);
@@ -934,7 +946,7 @@ public class Organization extends DomainObjectWithHistory<OrganizationData> {
      */
     public List<Subscription> getSubscriptionsForStateAndPaymentType(
             Set<SubscriptionStatus> states, String paymentType) {
-        List<Subscription> result = new ArrayList<Subscription>();
+        List<Subscription> result = new ArrayList<>();
         List<Subscription> subs = getSubscriptions();
         for (Subscription subscription : subs) {
             if (states.contains(subscription.getStatus())
@@ -952,16 +964,18 @@ public class Organization extends DomainObjectWithHistory<OrganizationData> {
      * subscription is considered usable if a user can eventually subscribe to
      * it.
      */
-    public List<Subscription> getUsableSubscriptionsForProduct(Product template) {
+    public List<Subscription> getUsableSubscriptionsForProduct(
+            Product template) {
         if (template.isCopy()) {
             throw new IllegalArgumentException("Only templates allowed");
         }
 
-        List<Subscription> result = new ArrayList<Subscription>();
+        List<Subscription> result = new ArrayList<>();
         for (Subscription subscription : getUsableSubscriptions()) {
             // A product copy for a subscription to a broker/reseller product
             // refers to the resale product copy, not to the product template!
-            if (subscription.getProduct().getProductTemplate().equals(template)) {
+            if (subscription.getProduct().getProductTemplate()
+                    .equals(template)) {
                 result.add(subscription);
             }
         }
@@ -974,8 +988,8 @@ public class Organization extends DomainObjectWithHistory<OrganizationData> {
      * organization.
      */
     public boolean isActingOnBehalf(Organization customer) {
-        for (OrganizationReference ref : customer
-                .getSourcesForType(OrganizationReferenceType.ON_BEHALF_ACTING)) {
+        for (OrganizationReference ref : customer.getSourcesForType(
+                OrganizationReferenceType.ON_BEHALF_ACTING)) {
             if (ref.getSource().equals(this)) {
                 return true;
             }
@@ -993,7 +1007,7 @@ public class Organization extends DomainObjectWithHistory<OrganizationData> {
     }
 
     private List<PlatformUser> getOnBehalfUsers(Organization customer) {
-        List<PlatformUser> userList = new ArrayList<PlatformUser>();
+        List<PlatformUser> userList = new ArrayList<>();
         for (PlatformUser user : customer.getPlatformUsers()) {
             if (user.isOnBehalfUser()) {
                 userList.add(user);
@@ -1013,8 +1027,8 @@ public class Organization extends DomainObjectWithHistory<OrganizationData> {
         Iterator<PlatformUser> iterator = userList.iterator();
         while (iterator.hasNext()) {
             PlatformUser onbehalfUser = iterator.next();
-            if (!getPlatformUsers().contains(
-                    onbehalfUser.getMaster().getMasterUser())) {
+            if (!getPlatformUsers()
+                    .contains(onbehalfUser.getMaster().getMasterUser())) {
                 iterator.remove();
             }
 
@@ -1100,7 +1114,7 @@ public class Organization extends DomainObjectWithHistory<OrganizationData> {
         List<UdaDefinition> definitions = getUdaDefinitions();
         // check which definition is readable by passed role (by configuration
         // type)
-        List<UdaDefinition> result = new ArrayList<UdaDefinition>();
+        List<UdaDefinition> result = new ArrayList<>();
         for (UdaDefinition def : definitions) {
             if (def.getConfigurationType().canRead(role)) {
                 result.add(def);
@@ -1115,7 +1129,7 @@ public class Organization extends DomainObjectWithHistory<OrganizationData> {
         // get the list of defintions
         List<UdaDefinition> definitions = getUdaDefinitions();
         // get all the mandatory uda definitions
-        List<UdaDefinition> result = new ArrayList<UdaDefinition>();
+        List<UdaDefinition> result = new ArrayList<>();
         for (UdaDefinition def : definitions) {
             if (def.getConfigurationType().isMandatory()) {
                 result.add(def);
@@ -1196,7 +1210,8 @@ public class Organization extends DomainObjectWithHistory<OrganizationData> {
         return marketplaceAccesses;
     }
 
-    public void setMarketplaceAccesses(List<MarketplaceAccess> marketplaceAccesses) {
+    public void setMarketplaceAccesses(
+            List<MarketplaceAccess> marketplaceAccesses) {
         this.marketplaceAccesses = marketplaceAccesses;
     }
 

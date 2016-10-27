@@ -27,6 +27,7 @@ import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 import javax.security.auth.login.LoginException;
 
 import org.oscm.accountservice.assembler.OrganizationAssembler;
@@ -34,7 +35,15 @@ import org.oscm.accountservice.local.AccountServiceLocal;
 import org.oscm.applicationservice.local.ApplicationServiceLocal;
 import org.oscm.converter.ParameterizedTypes;
 import org.oscm.dataservice.local.DataService;
-import org.oscm.domobjects.*;
+import org.oscm.domobjects.CatalogEntry;
+import org.oscm.domobjects.Category;
+import org.oscm.domobjects.Marketplace;
+import org.oscm.domobjects.MarketplaceToOrganization;
+import org.oscm.domobjects.Organization;
+import org.oscm.domobjects.PlatformUser;
+import org.oscm.domobjects.Product;
+import org.oscm.domobjects.PublicLandingpage;
+import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.domobjects.enums.PublishingAccess;
 import org.oscm.i18nservice.bean.LocalizerFacade;
@@ -131,10 +140,10 @@ public class MarketplaceServiceBean implements MarketplaceService {
         List<Marketplace> marketplacesList;
         if (currentUser.getOrganization().getTenant() != null) {
             marketplacesList = marketplaceServiceLocal
-                .getMarketplacesForSupplierWithTenant();
+                    .getMarketplacesForSupplierWithTenant();
         } else {
             marketplacesList = marketplaceServiceLocal
-                .getMarketplacesForSupplier();
+                    .getMarketplacesForSupplier();
         }
 
         // finally convert all domain objects to VO representation and return
@@ -791,6 +800,46 @@ public class MarketplaceServiceBean implements MarketplaceService {
                 PublishingAccess.PUBLISHING_ACCESS_GRANTED);
     }
 
+    @Override
+    public List<VOOrganization> getSuppliersForMarketplace(String marketplaceId)
+            throws ObjectNotFoundException, OperationNotPermittedException {
+
+        List<VOOrganization> result = new ArrayList<>();
+        LocalizerFacade facade = new LocalizerFacade(localizer,
+                dm.getCurrentUser().getLocale());
+
+        VOMarketplace mp = getMarketplaceById(marketplaceId);
+        if (mp.isOpen()) {
+
+            TypedQuery<Organization> query = dm.createNamedQuery(
+                    "Organization.getAllSuppliers", Organization.class);
+            List<Organization> list = query.getResultList();
+
+            for (Organization org : list) {
+                result.add(OrganizationAssembler.toVOOrganization(org, false,
+                        facade));
+            }
+        } else {
+
+            TypedQuery<MarketplaceToOrganization> query = dm.createNamedQuery(
+                    "MarketplaceToOrganization.findSuppliersForMpByPublishingAccess",
+                    MarketplaceToOrganization.class);
+            query.setParameter("marketplace_tkey", Long.valueOf(mp.getKey()));
+            query.setParameter("publishingAccess",
+                    PublishingAccess.PUBLISHING_ACCESS_GRANTED);
+
+            List<MarketplaceToOrganization> list = query.getResultList();
+
+            for (MarketplaceToOrganization mto : list) {
+                result.add(OrganizationAssembler.toVOOrganization(
+                        mto.getOrganization(), false, facade));
+            }
+
+        }
+
+        return result;
+    }
+
     private Marketplace getAndValidateMarketplace(String marketplaceId)
             throws ObjectNotFoundException, OperationNotPermittedException {
         ArgumentValidator.notNull("marketplaceId", marketplaceId);
@@ -1257,10 +1306,10 @@ public class MarketplaceServiceBean implements MarketplaceService {
     @RolesAllowed("PLATFORM_OPERATOR")
     public List<VOMarketplace> getAllMarketplacesForTenant(Long tenantKey) throws ObjectNotFoundException {
         List<Marketplace> marketplaces = marketplaceServiceLocal
-            .getAllMarketplacesForTenant(tenantKey);
+                .getAllMarketplacesForTenant(tenantKey);
         List<VOMarketplace> result = new ArrayList<>();
-        LocalizerFacade facade = new LocalizerFacade(localizer, dm
-            .getCurrentUser().getLocale());
+        LocalizerFacade facade = new LocalizerFacade(localizer,
+                dm.getCurrentUser().getLocale());
         for (Marketplace mp : marketplaces) {
             result.add(MarketplaceAssembler.toVOMarketplace(mp, facade));
         }
@@ -1268,7 +1317,8 @@ public class MarketplaceServiceBean implements MarketplaceService {
     }
 
     @Override
-    public String getTenantIdFromMarketplace(String marketplaceId) throws ObjectNotFoundException {
+    public String getTenantIdFromMarketplace(String marketplaceId)
+            throws ObjectNotFoundException {
         VOMarketplace marketplace = getMarketplaceById(marketplaceId);
         return marketplace.getTenantId();
     }

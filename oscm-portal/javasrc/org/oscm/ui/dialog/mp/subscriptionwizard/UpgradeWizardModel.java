@@ -18,6 +18,11 @@ import java.util.Map;
 
 import javax.inject.Named;
 
+import org.oscm.internal.vo.VOBillingContact;
+import org.oscm.internal.vo.VOPaymentInfo;
+import org.oscm.internal.vo.VORoleDefinition;
+import org.oscm.internal.vo.VOSubscriptionDetails;
+import org.oscm.internal.vo.VOUsageLicense;
 import org.oscm.ui.common.SteppedPriceHandler;
 import org.oscm.ui.dialog.mp.interfaces.ConfigParamValidateable;
 import org.oscm.ui.model.Discount;
@@ -30,17 +35,13 @@ import org.oscm.ui.model.RoleSpecificPrice;
 import org.oscm.ui.model.Service;
 import org.oscm.ui.model.UdaRow;
 import org.oscm.ui.model.User;
-import org.oscm.internal.vo.VOBillingContact;
-import org.oscm.internal.vo.VOPaymentInfo;
-import org.oscm.internal.vo.VORoleDefinition;
-import org.oscm.internal.vo.VOSubscriptionDetails;
-import org.oscm.internal.vo.VOUsageLicense;
 
 /**
  * Created by ChojnackiD on 2015-01-27.
  */
 @Named
-public class UpgradeWizardModel implements Serializable, ConfigParamValidateable {
+public class UpgradeWizardModel
+        implements Serializable, ConfigParamValidateable {
     private static final long serialVersionUID = -8824353344411915678L;
 
     private VOSubscriptionDetails subscription;
@@ -62,7 +63,6 @@ public class UpgradeWizardModel implements Serializable, ConfigParamValidateable
     private boolean cfgTabDisabled;
     private boolean readOnlyParams;
     private boolean directAccess;
-    private List<UdaRow> organizationUdaRows;
     private List<UdaRow> subscriptionUdaRows;
     private Integer maximumNamedUsers;
     private String confirmMessage;
@@ -109,10 +109,12 @@ public class UpgradeWizardModel implements Serializable, ConfigParamValidateable
         this.isReportIssueAllowed = isReportIssueAllowed;
     }
 
+    @Override
     public void setService(Service service) {
         this.service = service;
     }
 
+    @Override
     public Service getService() {
         return service;
     }
@@ -189,7 +191,8 @@ public class UpgradeWizardModel implements Serializable, ConfigParamValidateable
         return priceModel;
     }
 
-    public void setRoleSpecificPrices(List<RoleSpecificPrice> roleSpecificPrices) {
+    public void setRoleSpecificPrices(
+            List<RoleSpecificPrice> roleSpecificPrices) {
         this.roleSpecificPrices = roleSpecificPrices;
     }
 
@@ -197,15 +200,19 @@ public class UpgradeWizardModel implements Serializable, ConfigParamValidateable
         return roleSpecificPrices;
     }
 
-    public void setServiceParameters(List<PricedParameterRow> serviceParameters) {
+    @Override
+    public void setServiceParameters(
+            List<PricedParameterRow> serviceParameters) {
         this.serviceParameters = serviceParameters;
     }
 
+    @Override
     public List<PricedParameterRow> getServiceParameters() {
         return serviceParameters;
     }
 
-    public void setSubscriptionParameters(List<PricedParameterRow> subscriptionParameters) {
+    public void setSubscriptionParameters(
+            List<PricedParameterRow> subscriptionParameters) {
         this.subscriptionParameters = subscriptionParameters;
     }
 
@@ -229,10 +236,12 @@ public class UpgradeWizardModel implements Serializable, ConfigParamValidateable
         this.cfgTabDisabled = cfgTabDisabled;
     }
 
+    @Override
     public void setReadOnlyParams(boolean readOnlyParams) {
         this.readOnlyParams = readOnlyParams;
     }
 
+    @Override
     public boolean isReadOnlyParams() {
         return readOnlyParams;
     }
@@ -243,14 +252,6 @@ public class UpgradeWizardModel implements Serializable, ConfigParamValidateable
 
     public void setDirectAccess(boolean directAccess) {
         this.directAccess = directAccess;
-    }
-
-    public void setOrganizationUdaRows(List<UdaRow> organizationUdaRows) {
-        this.organizationUdaRows = organizationUdaRows;
-    }
-
-    public List<UdaRow> getOrganizationUdaRows() {
-        return organizationUdaRows;
     }
 
     public void setSubscriptionUdaRows(List<UdaRow> subscriptionUdaRows) {
@@ -281,7 +282,8 @@ public class UpgradeWizardModel implements Serializable, ConfigParamValidateable
         return usageLicenseMap;
     }
 
-    public void setUsageLicenseMap(Map<String, VOUsageLicense> usageLicenseMap) {
+    public void setUsageLicenseMap(
+            Map<String, VOUsageLicense> usageLicenseMap) {
         this.usageLicenseMap = usageLicenseMap;
     }
 
@@ -308,7 +310,6 @@ public class UpgradeWizardModel implements Serializable, ConfigParamValidateable
     public List<User> getAssignedUsers() {
         return assignedUsers;
     }
-
 
     public void setSubscriptionOwners(List<User> subscriptionOwners) {
         this.subscriptionOwners = subscriptionOwners;
@@ -357,14 +358,16 @@ public class UpgradeWizardModel implements Serializable, ConfigParamValidateable
     }
 
     public boolean getUseInternalConfigurator() {
-        return (serviceParameters != null && serviceParameters.size() > 0 && !service
-                .useExternalConfigurator()) || hideExternalConfigurator;
+        return (serviceParameters != null && serviceParameters.size() > 0
+                && !service.useExternalConfigurator())
+                || hideExternalConfigurator;
     }
 
     public boolean isHideExternalConfigurator() {
         return hideExternalConfigurator;
     }
 
+    @Override
     public void setHideExternalConfigurator(boolean hideExternalConfigurator) {
         this.hideExternalConfigurator = hideExternalConfigurator;
     }
@@ -399,7 +402,8 @@ public class UpgradeWizardModel implements Serializable, ConfigParamValidateable
      *         stepped price.
      */
     public boolean isPricedEventsWithSteppedPrices() {
-        return SteppedPriceHandler.isPricedEventsWithSteppedPrices(serviceEvents);
+        return SteppedPriceHandler
+                .isPricedEventsWithSteppedPrices(serviceEvents);
     }
 
     public VOPaymentInfo getSelectedPaymentInfo() {
@@ -414,7 +418,8 @@ public class UpgradeWizardModel implements Serializable, ConfigParamValidateable
         return selectedBillingContact;
     }
 
-    public void setSelectedBillingContact(VOBillingContact selectedBillingContact) {
+    public void setSelectedBillingContact(
+            VOBillingContact selectedBillingContact) {
         this.selectedBillingContact = selectedBillingContact;
     }
 
@@ -426,7 +431,8 @@ public class UpgradeWizardModel implements Serializable, ConfigParamValidateable
         this.agreed = agreed;
     }
 
-    public void setServiceParametersAsJSONString(String serviceParametersAsJSONString) {
+    public void setServiceParametersAsJSONString(
+            String serviceParametersAsJSONString) {
         this.serviceParametersAsJSONString = serviceParametersAsJSONString;
     }
 
@@ -466,27 +472,34 @@ public class UpgradeWizardModel implements Serializable, ConfigParamValidateable
         this.useFallback = useFallback;
     }
 
+    @Override
     public String getParameterConfigResponse() {
         return parameterConfigResponse;
     }
 
+    @Override
     public void setParameterConfigResponse(String parameterConfigResponse) {
         this.parameterConfigResponse = parameterConfigResponse;
     }
 
+    @Override
     public ParameterValidationResult getParameterValidationResult() {
         return parameterValidationResult;
     }
 
-    public void setParameterValidationResult(ParameterValidationResult parameterValidationResult) {
+    @Override
+    public void setParameterValidationResult(
+            ParameterValidationResult parameterValidationResult) {
         this.parameterValidationResult = parameterValidationResult;
     }
 
-	public boolean isSubscriptionExisting() {
-		return subscriptionExisting;
-	}
+    @Override
+    public boolean isSubscriptionExisting() {
+        return subscriptionExisting;
+    }
 
-	public void setSubscriptionExisting(boolean subscriptionExisting) {
-		this.subscriptionExisting = subscriptionExisting;
-	}
+    @Override
+    public void setSubscriptionExisting(boolean subscriptionExisting) {
+        this.subscriptionExisting = subscriptionExisting;
+    }
 }
