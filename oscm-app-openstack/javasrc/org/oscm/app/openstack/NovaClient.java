@@ -199,6 +199,30 @@ public class NovaClient {
     }
 
     /**
+     * Check the server status is not excepted
+     * 
+     * @param exceptedStatus:
+     *            the status which is excepted.
+     * @param ph:
+     *            PropertyHandler
+     * @param serverId:
+     *            server ID
+     * @return true: the status is not excepted. Operation can be executed.
+     *         false: the status is excepted. Operation cannot be executed.
+     * @throws OpenStackConnectionException
+     */
+    public boolean isNotServerExceptedStatus(ServerStatus exceptedStatus,
+            PropertyHandler ph, String serverId)
+            throws OpenStackConnectionException {
+        boolean result = false;
+        Server server = getServerDetails(ph, serverId);
+        if (!server.getStatus().equals(exceptedStatus.toString())) {
+            result = true;
+        }
+        return result;
+    }
+
+    /**
      * @param flavorID
      *            flavor ID
      * @return String flavor name
