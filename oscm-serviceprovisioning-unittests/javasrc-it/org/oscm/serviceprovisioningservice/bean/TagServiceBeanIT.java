@@ -27,7 +27,6 @@ import javax.ejb.EJBException;
 
 import org.junit.Assert;
 import org.junit.Test;
-
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
@@ -39,15 +38,6 @@ import org.oscm.domobjects.Product;
 import org.oscm.domobjects.Tag;
 import org.oscm.domobjects.TechnicalProduct;
 import org.oscm.domobjects.TechnicalProductTag;
-import org.oscm.serviceprovisioningservice.local.TagServiceLocal;
-import org.oscm.test.EJBTestBase;
-import org.oscm.test.data.Marketplaces;
-import org.oscm.test.data.Organizations;
-import org.oscm.test.data.Products;
-import org.oscm.test.data.TechnicalProducts;
-import org.oscm.test.ejb.TestContainer;
-import org.oscm.test.stubs.ConfigurationServiceStub;
-import org.oscm.types.constants.Configuration;
 import org.oscm.internal.intf.TagService;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
@@ -57,6 +47,15 @@ import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.internal.vo.VOTag;
+import org.oscm.serviceprovisioningservice.local.TagServiceLocal;
+import org.oscm.test.EJBTestBase;
+import org.oscm.test.data.Marketplaces;
+import org.oscm.test.data.Organizations;
+import org.oscm.test.data.Products;
+import org.oscm.test.data.TechnicalProducts;
+import org.oscm.test.ejb.TestContainer;
+import org.oscm.test.stubs.ConfigurationServiceStub;
+import org.oscm.types.constants.Configuration;
 
 /**
  * Tests for the tagging service bean.
@@ -79,7 +78,8 @@ public class TagServiceBeanIT extends EJBTestBase {
 
     private static final String FUJITSU_MID = "FUJITSU";
     private static final String GLOBAL_MID = "1234";
-    private static final String[] MIDS = new String[] { FUJITSU_MID, GLOBAL_MID };
+    private static final String[] MIDS = new String[] { FUJITSU_MID,
+            GLOBAL_MID };
 
     private static final int TAGGING_MIN_SCORE = 2;
     private static final int TAGGING_MAX_TAGS = 20;
@@ -104,23 +104,24 @@ public class TagServiceBeanIT extends EJBTestBase {
 
     @Override
     protected void setup(TestContainer container) throws Exception {
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         dm = container.get(DataService.class);
 
-        container.addBean(new ConfigurationServiceStub());
         container.addBean(new TagServiceBean());
         ts = container.get(TagService.class);
         tsLocal = container.get(TagServiceLocal.class);
 
         csLocal = container.get(ConfigurationServiceLocal.class);
         setUpDirServerStub(csLocal);
-        csLocal.setConfigurationSetting(new ConfigurationSetting(
-                ConfigurationKey.TAGGING_MIN_SCORE,
-                Configuration.GLOBAL_CONTEXT, TAGGING_MIN_SCORE + ""));
+        csLocal.setConfigurationSetting(
+                new ConfigurationSetting(ConfigurationKey.TAGGING_MIN_SCORE,
+                        Configuration.GLOBAL_CONTEXT, TAGGING_MIN_SCORE + ""));
     }
 
     private void setupTagData(final String... locales) throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Collection<String> localeSet = Arrays.asList(locales);
                 organization = Organizations.createOrganization(dm,
@@ -211,7 +212,8 @@ public class TagServiceBeanIT extends EJBTestBase {
             VOTag voTag = voTags.get(i);
             if (i >= 1) {
                 VOTag before = voTags.get(i - 1);
-                Assert.assertTrue(voTag.getValue().compareTo(before.getValue()) > 0);
+                Assert.assertTrue(
+                        voTag.getValue().compareTo(before.getValue()) > 0);
             }
         }
     }
@@ -220,7 +222,7 @@ public class TagServiceBeanIT extends EJBTestBase {
      * Test case for bug #9160
      * 
      * The tags with heaviest weights should be put in to tag cloud
-     * */
+     */
     @Test
     public void testTagsByLocale_LowerWeightTagsNotIncluded_B9160()
             throws NonUniqueBusinessKeyException, Exception {
@@ -244,7 +246,7 @@ public class TagServiceBeanIT extends EJBTestBase {
      * 
      * The tags with heaviest weights should be put in to tag cloud for certain
      * marketplace
-     * */
+     */
     @Test
     public void testTagsForMarketplace_LowerWeightTagsNotIncluded_B9160()
             throws NonUniqueBusinessKeyException, Exception {
@@ -261,8 +263,8 @@ public class TagServiceBeanIT extends EJBTestBase {
     }
 
     @Test
-    public void testGetTags_German() throws NonUniqueBusinessKeyException,
-            Exception {
+    public void testGetTags_German()
+            throws NonUniqueBusinessKeyException, Exception {
         setupTagData(LOCALE_DE, LOCALE_EN);
 
         List<VOTag> voTags = ts.getTagsForMarketplace(LOCALE_DE, GLOBAL_MID);
@@ -287,8 +289,8 @@ public class TagServiceBeanIT extends EJBTestBase {
     }
 
     @Test
-    public void testGetTags_English() throws NonUniqueBusinessKeyException,
-            Exception {
+    public void testGetTags_English()
+            throws NonUniqueBusinessKeyException, Exception {
         setupTagData(LOCALE_EN);
         List<VOTag> voTags = ts.getTagsForMarketplace(LOCALE_EN, FUJITSU_MID);
         assertNotNull(voTags);
@@ -337,8 +339,8 @@ public class TagServiceBeanIT extends EJBTestBase {
 
         TechnicalProduct foundTP = (TechnicalProduct) dm.find(tp);
         if (foundTP == null) {
-            foundTP = TechnicalProducts.createTechnicalProduct(dm,
-                    organization, Long.toString(tagObjectKey), false,
+            foundTP = TechnicalProducts.createTechnicalProduct(dm, organization,
+                    Long.toString(tagObjectKey), false,
                     ServiceAccessType.DIRECT);
             debug("  = Created TP " + foundTP.getTechnicalProductId());
             dm.flush();
@@ -496,6 +498,7 @@ public class TagServiceBeanIT extends EJBTestBase {
 
         setupTagData(LOCALE_EN, LOCALE_DE);
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 // Create an english tag with the same value than an already
                 // existing german tag:
@@ -512,6 +515,7 @@ public class TagServiceBeanIT extends EJBTestBase {
         int size = voTags.size();
         // also cover delete function here
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 tsLocal.deleteOrphanedTags();
                 return null;
@@ -538,6 +542,7 @@ public class TagServiceBeanIT extends EJBTestBase {
         final String tagValue = createValue(LOCALE_DE, 0);
         Tag tag = runTX(new Callable<Tag>() {
 
+            @Override
             public Tag call() throws Exception {
                 return tsLocal.getTag(tagValue, LOCALE_DE);
             }
@@ -554,6 +559,7 @@ public class TagServiceBeanIT extends EJBTestBase {
         try {
             runTX(new Callable<Tag>() {
 
+                @Override
                 public Tag call() throws Exception {
                     return tsLocal.getTag("notExisting", LOCALE_DE);
                 }
@@ -569,6 +575,7 @@ public class TagServiceBeanIT extends EJBTestBase {
         try {
             runTX(new Callable<Tag>() {
 
+                @Override
                 public Tag call() throws Exception {
                     return tsLocal.getTag(createValue(LOCALE_DE, 0), LOCALE_EN);
                 }
@@ -601,8 +608,7 @@ public class TagServiceBeanIT extends EJBTestBase {
             assertEquals(LOCALE_DE, voTag.getLocale());
             int tagIndex = getIndexFromValue(voTag.getValue());
 
-            assertEquals(
-                    calculateTagReferences(NUMBER_REFERENCES_DE, tagIndex),
+            assertEquals(calculateTagReferences(NUMBER_REFERENCES_DE, tagIndex),
                     voTag.getNumberReferences());
             assertEquals(createValue(LOCALE_DE, i), voTag.getValue());
         }
@@ -623,8 +629,7 @@ public class TagServiceBeanIT extends EJBTestBase {
             assertEquals(LOCALE_JA, voTag.getLocale());
             int tagIndex = getIndexFromValue(voTag.getValue());
 
-            assertEquals(
-                    calculateTagReferences(NUMBER_REFERENCES_JA, tagIndex),
+            assertEquals(calculateTagReferences(NUMBER_REFERENCES_JA, tagIndex),
                     voTag.getNumberReferences());
         }
     }
@@ -641,6 +646,7 @@ public class TagServiceBeanIT extends EJBTestBase {
         try {
             // create new tags for object 864238476
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     for (String tagValue : newTagValues) {
                         createTag(LOCALE_EN, tagValue, tagObjectKey);
@@ -651,6 +657,7 @@ public class TagServiceBeanIT extends EJBTestBase {
 
             // update tags
             final TechnicalProduct tp = runTX(new Callable<TechnicalProduct>() {
+                @Override
                 public TechnicalProduct call() throws Exception {
 
                     final TechnicalProduct tpDummy = new TechnicalProduct();
@@ -668,9 +675,11 @@ public class TagServiceBeanIT extends EJBTestBase {
 
             String[] newValueArray = new String[] { "q", "w", "e", "1", "2",
                     "3", "4", "5" };
-            final List<Tag> tags = createTransientTags(LOCALE_EN, newValueArray);
+            final List<Tag> tags = createTransientTags(LOCALE_EN,
+                    newValueArray);
 
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     // new transaction, so we must reload all domain objects
                     TechnicalProduct tpReloaded = (TechnicalProduct) dm
@@ -680,11 +689,13 @@ public class TagServiceBeanIT extends EJBTestBase {
                 }
             });
 
-            Assert.fail("Method UpdateTags doesn't throw a ValidationException.");
+            Assert.fail(
+                    "Method UpdateTags doesn't throw a ValidationException.");
 
         } catch (ValidationException e) {
             // verify tags
             final String[] tagValues = runTX(new Callable<String[]>() {
+                @Override
                 public String[] call() throws Exception {
                     final TechnicalProduct tpDummy = new TechnicalProduct();
                     tpDummy.setTechnicalProductId(Long.toString(tagObjectKey));
@@ -710,9 +721,10 @@ public class TagServiceBeanIT extends EJBTestBase {
     @Test
     public void testUpdateTags() throws Exception {
         setupTagData(LOCALE_RS);
-        final List<Tag> tagsDe = new ArrayList<Tag>();
-        final List<Tag> tagsEn = new ArrayList<Tag>();
+        final List<Tag> tagsDe = new ArrayList<>();
+        final List<Tag> tagsEn = new ArrayList<>();
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 // using two TPs due to minimum weight restriction
                 TechnicalProduct tp0 = new TechnicalProduct();
@@ -731,8 +743,8 @@ public class TagServiceBeanIT extends EJBTestBase {
                     dm.flush();
                 }
                 tagsDe.add(new Tag(LOCALE_DE, "tag1"));
-                tsLocal.updateTags(tp0, LOCALE_DE, new ArrayList<Tag>(tagsDe));
-                tsLocal.updateTags(tp1, LOCALE_DE, new ArrayList<Tag>(tagsDe));
+                tsLocal.updateTags(tp0, LOCALE_DE, new ArrayList<>(tagsDe));
+                tsLocal.updateTags(tp1, LOCALE_DE, new ArrayList<>(tagsDe));
                 return null;
             }
         });
@@ -742,6 +754,7 @@ public class TagServiceBeanIT extends EJBTestBase {
         assertEquals(1, tags.size());
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 TechnicalProduct tp0 = new TechnicalProduct();
                 tp0.setTechnicalProductId(Long.toString(0));
@@ -755,12 +768,12 @@ public class TagServiceBeanIT extends EJBTestBase {
                 assertNotNull(tp1);
                 tagsDe.add(new Tag(LOCALE_DE, "tag2"));
                 tagsDe.add(new Tag(LOCALE_DE, "tag3"));
-                tsLocal.updateTags(tp0, LOCALE_DE, new ArrayList<Tag>(tagsDe));
-                tsLocal.updateTags(tp1, LOCALE_DE, new ArrayList<Tag>(tagsDe));
+                tsLocal.updateTags(tp0, LOCALE_DE, new ArrayList<>(tagsDe));
+                tsLocal.updateTags(tp1, LOCALE_DE, new ArrayList<>(tagsDe));
                 tagsEn.add(new Tag(LOCALE_EN, "tag2"));
                 tagsEn.add(new Tag(LOCALE_EN, "tag3"));
-                tsLocal.updateTags(tp0, LOCALE_EN, new ArrayList<Tag>(tagsEn));
-                tsLocal.updateTags(tp1, LOCALE_EN, new ArrayList<Tag>(tagsEn));
+                tsLocal.updateTags(tp0, LOCALE_EN, new ArrayList<>(tagsEn));
+                tsLocal.updateTags(tp1, LOCALE_EN, new ArrayList<>(tagsEn));
                 return null;
             }
         });
@@ -773,6 +786,7 @@ public class TagServiceBeanIT extends EJBTestBase {
         assertEquals(2, tags.size());
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 TechnicalProduct tp0 = new TechnicalProduct();
                 tp0.setTechnicalProductId(Long.toString(0));
@@ -786,12 +800,12 @@ public class TagServiceBeanIT extends EJBTestBase {
                 assertNotNull(tp1);
                 tagsDe.clear();
                 tagsDe.add(new Tag(LOCALE_DE, "tag1"));
-                tsLocal.updateTags(tp0, LOCALE_DE, new ArrayList<Tag>(tagsDe));
-                tsLocal.updateTags(tp1, LOCALE_DE, new ArrayList<Tag>(tagsDe));
+                tsLocal.updateTags(tp0, LOCALE_DE, new ArrayList<>(tagsDe));
+                tsLocal.updateTags(tp1, LOCALE_DE, new ArrayList<>(tagsDe));
                 tagsEn.clear();
                 tagsEn.add(new Tag(LOCALE_EN, "tag3"));
-                tsLocal.updateTags(tp0, LOCALE_EN, new ArrayList<Tag>(tagsEn));
-                tsLocal.updateTags(tp1, LOCALE_EN, new ArrayList<Tag>(tagsEn));
+                tsLocal.updateTags(tp0, LOCALE_EN, new ArrayList<>(tagsEn));
+                tsLocal.updateTags(tp1, LOCALE_EN, new ArrayList<>(tagsEn));
                 return null;
             }
         });
@@ -806,7 +820,7 @@ public class TagServiceBeanIT extends EJBTestBase {
     }
 
     private List<Tag> createTransientTags(String locale, String[] tagValues) {
-        List<Tag> result = new LinkedList<Tag>();
+        List<Tag> result = new LinkedList<>();
 
         for (String tagValue : tagValues) {
             result.add(new Tag(locale, tagValue));

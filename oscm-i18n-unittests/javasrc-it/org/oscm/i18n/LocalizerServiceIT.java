@@ -24,7 +24,6 @@ import java.util.concurrent.Callable;
 import javax.ejb.EJBException;
 
 import org.junit.Test;
-
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.LocalizedResource;
@@ -36,16 +35,17 @@ import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
 import org.oscm.i18nservice.local.LocalizedDomainObject;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.ServiceAccessType;
+import org.oscm.internal.types.exception.ConcurrentModificationException;
+import org.oscm.internal.vo.VOLocalizedText;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.Marketplaces;
 import org.oscm.test.data.Organizations;
 import org.oscm.test.data.Products;
 import org.oscm.test.data.TechnicalProducts;
 import org.oscm.test.ejb.TestContainer;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
-import org.oscm.internal.types.exception.ConcurrentModificationException;
-import org.oscm.internal.vo.VOLocalizedText;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 
 public class LocalizerServiceIT extends EJBTestBase {
 
@@ -55,7 +55,7 @@ public class LocalizerServiceIT extends EJBTestBase {
     @Override
     protected void setup(TestContainer container) throws Exception {
         container.login("1");
-
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         container.addBean(new LocalizerServiceBean());
 
@@ -116,7 +116,8 @@ public class LocalizerServiceIT extends EJBTestBase {
                 LocalizedResource resource = new LocalizedResource();
                 resource.setObjectKey(2L);
                 resource.setLocale("de");
-                resource.setObjectType(LocalizedObjectTypes.OPTION_PARAMETER_DEF_DESC);
+                resource.setObjectType(
+                        LocalizedObjectTypes.OPTION_PARAMETER_DEF_DESC);
                 resource.setValue("testValue");
                 mgr.persist(resource);
                 return null;
@@ -145,14 +146,15 @@ public class LocalizerServiceIT extends EJBTestBase {
                 LocalizedResource resource = new LocalizedResource();
                 resource.setObjectKey(copy.getKey());
                 resource.setLocale("de");
-                resource.setObjectType(LocalizedObjectTypes.PRODUCT_LICENSE_DESC);
+                resource.setObjectType(
+                        LocalizedObjectTypes.PRODUCT_LICENSE_DESC);
                 resource.setValue("testValue");
                 mgr.persist(resource);
 
                 LocalizedResource resource2 = new LocalizedResource();
                 resource2.setLocale("de");
-                resource2
-                        .setObjectType(LocalizedObjectTypes.PRODUCT_LICENSE_DESC);
+                resource2.setObjectType(
+                        LocalizedObjectTypes.PRODUCT_LICENSE_DESC);
                 resource2.setObjectKey(product.getKey());
                 resource2.setValue("parentValue");
                 mgr.persist(resource2);
@@ -191,7 +193,8 @@ public class LocalizerServiceIT extends EJBTestBase {
                 LocalizedResource resource = new LocalizedResource();
                 resource.setObjectKey(product.getPriceModel().getKey());
                 resource.setLocale("de");
-                resource.setObjectType(LocalizedObjectTypes.PRICEMODEL_DESCRIPTION);
+                resource.setObjectType(
+                        LocalizedObjectTypes.PRICEMODEL_DESCRIPTION);
                 resource.setValue("testValue");
                 mgr.persist(resource);
                 return copy;
@@ -200,8 +203,8 @@ public class LocalizerServiceIT extends EJBTestBase {
         String text = runTX(new Callable<String>() {
             @Override
             public String call() throws Exception {
-                return localizer.getLocalizedTextFromDatabase("de", copy
-                        .getPriceModel().getKey(),
+                return localizer.getLocalizedTextFromDatabase("de",
+                        copy.getPriceModel().getKey(),
                         LocalizedObjectTypes.PRICEMODEL_DESCRIPTION);
             }
         });
@@ -209,7 +212,8 @@ public class LocalizerServiceIT extends EJBTestBase {
     }
 
     @Test
-    public void testLoadLocalizedPropertiesFromDatabaseNoHit() throws Exception {
+    public void testLoadLocalizedPropertiesFromDatabaseNoHit()
+            throws Exception {
         Properties result = runTX(new Callable<Properties>() {
             @Override
             public Properties call() throws Exception {
@@ -228,7 +232,8 @@ public class LocalizerServiceIT extends EJBTestBase {
                 LocalizedResource resource = new LocalizedResource();
                 resource.setObjectKey(2L);
                 resource.setLocale("de");
-                resource.setObjectType(LocalizedObjectTypes.SHOP_MESSAGE_PROPERTIES);
+                resource.setObjectType(
+                        LocalizedObjectTypes.SHOP_MESSAGE_PROPERTIES);
                 resource.setValue("testValue=bla");
                 mgr.persist(resource);
                 return null;
@@ -253,7 +258,8 @@ public class LocalizerServiceIT extends EJBTestBase {
                 LocalizedResource resource = new LocalizedResource();
                 resource.setObjectKey(2L);
                 resource.setLocale("de");
-                resource.setObjectType(LocalizedObjectTypes.SHOP_MESSAGE_PROPERTIES);
+                resource.setObjectType(
+                        LocalizedObjectTypes.SHOP_MESSAGE_PROPERTIES);
                 resource.setValue("testValue=bla\r\nanotherEntry=present");
                 mgr.persist(resource);
                 return null;
@@ -302,20 +308,21 @@ public class LocalizerServiceIT extends EJBTestBase {
                 return null;
             }
         });
-        List<VOLocalizedText> localizedValues = runTX(new Callable<List<VOLocalizedText>>() {
-            @Override
-            public List<VOLocalizedText> call() throws Exception {
-                return localizer.getLocalizedValues(1000L,
-                        LocalizedObjectTypes.EVENT_DESC);
-            }
-        });
+        List<VOLocalizedText> localizedValues = runTX(
+                new Callable<List<VOLocalizedText>>() {
+                    @Override
+                    public List<VOLocalizedText> call() throws Exception {
+                        return localizer.getLocalizedValues(1000L,
+                                LocalizedObjectTypes.EVENT_DESC);
+                    }
+                });
         sort(localizedValues);
         assertEquals("de", localizedValues.get(0).getLocale());
         assertEquals("Anmeldung eines Benutzers bei dem Service.",
                 localizedValues.get(0).getText());
         assertEquals("en", localizedValues.get(1).getLocale());
-        assertEquals("Wrong localized text returned", "event", localizedValues
-                .get(1).getText());
+        assertEquals("Wrong localized text returned", "event",
+                localizedValues.get(1).getText());
     }
 
     @Test
@@ -518,24 +525,22 @@ public class LocalizerServiceIT extends EJBTestBase {
 
                 // retrieve text for german locale
                 LocalizedDomainObject localizedObject = localizer
-                        .getLocalizedTextFromDatabase(
-                                "de",
+                        .getLocalizedTextFromDatabase("de",
                                 Collections.singletonList(Long.valueOf(123L)),
-                                Collections
-                                        .singletonList(LocalizedObjectTypes.EVENT_DESC))
+                                Collections.singletonList(
+                                        LocalizedObjectTypes.EVENT_DESC))
                         .get(0);
                 String localicedResource = localizedObject
-                        .getLocalizedResources().get(
-                                LocalizedObjectTypes.EVENT_DESC);
+                        .getLocalizedResources()
+                        .get(LocalizedObjectTypes.EVENT_DESC);
                 assertEquals("deutsch", localicedResource);
 
                 // retrieve text for english locale
                 localizedObject = localizer
-                        .getLocalizedTextFromDatabase(
-                                "en",
+                        .getLocalizedTextFromDatabase("en",
                                 Collections.singletonList(Long.valueOf(123L)),
-                                Collections
-                                        .singletonList(LocalizedObjectTypes.EVENT_DESC))
+                                Collections.singletonList(
+                                        LocalizedObjectTypes.EVENT_DESC))
                         .get(0);
                 localicedResource = localizedObject.getLocalizedResources()
                         .get(LocalizedObjectTypes.EVENT_DESC);
@@ -543,11 +548,10 @@ public class LocalizerServiceIT extends EJBTestBase {
 
                 // retrieve text for japanese locale
                 localizedObject = localizer
-                        .getLocalizedTextFromDatabase(
-                                "ja",
+                        .getLocalizedTextFromDatabase("ja",
                                 Collections.singletonList(Long.valueOf(123L)),
-                                Collections
-                                        .singletonList(LocalizedObjectTypes.EVENT_DESC))
+                                Collections.singletonList(
+                                        LocalizedObjectTypes.EVENT_DESC))
                         .get(0);
                 localicedResource = localizedObject.getLocalizedResources()
                         .get(LocalizedObjectTypes.EVENT_DESC);
@@ -586,24 +590,22 @@ public class LocalizerServiceIT extends EJBTestBase {
 
                 // retrieve text for german locale
                 LocalizedDomainObject localizedObject = localizer
-                        .getLocalizedTextFromDatabase(
-                                "de",
+                        .getLocalizedTextFromDatabase("de",
                                 Collections.singletonList(Long.valueOf(123L)),
-                                Collections
-                                        .singletonList(LocalizedObjectTypes.EVENT_DESC))
+                                Collections.singletonList(
+                                        LocalizedObjectTypes.EVENT_DESC))
                         .get(0);
                 String localicedResource = localizedObject
-                        .getLocalizedResources().get(
-                                LocalizedObjectTypes.EVENT_DESC);
+                        .getLocalizedResources()
+                        .get(LocalizedObjectTypes.EVENT_DESC);
                 assertEquals("deutsch", localicedResource);
 
                 // retrieve text for english locale
                 localizedObject = localizer
-                        .getLocalizedTextFromDatabase(
-                                "en",
+                        .getLocalizedTextFromDatabase("en",
                                 Collections.singletonList(Long.valueOf(123L)),
-                                Collections
-                                        .singletonList(LocalizedObjectTypes.EVENT_DESC))
+                                Collections.singletonList(
+                                        LocalizedObjectTypes.EVENT_DESC))
                         .get(0);
                 localicedResource = localizedObject.getLocalizedResources()
                         .get(LocalizedObjectTypes.EVENT_DESC);
@@ -611,11 +613,10 @@ public class LocalizerServiceIT extends EJBTestBase {
 
                 // retrieve text for japanese locale
                 localizedObject = localizer
-                        .getLocalizedTextFromDatabase(
-                                "ja",
+                        .getLocalizedTextFromDatabase("ja",
                                 Collections.singletonList(Long.valueOf(123L)),
-                                Collections
-                                        .singletonList(LocalizedObjectTypes.EVENT_DESC))
+                                Collections.singletonList(
+                                        LocalizedObjectTypes.EVENT_DESC))
                         .get(0);
                 localicedResource = localizedObject.getLocalizedResources()
                         .get(LocalizedObjectTypes.EVENT_DESC);
@@ -683,7 +684,7 @@ public class LocalizerServiceIT extends EJBTestBase {
 
     @Test
     public void testSetLocalizedValues() throws Exception {
-        final List<VOLocalizedText> values = new ArrayList<VOLocalizedText>();
+        final List<VOLocalizedText> values = new ArrayList<>();
         values.add(new VOLocalizedText("en", "house"));
         values.add(new VOLocalizedText("de", "Haus"));
         runTX(new Callable<Void>() {
@@ -694,13 +695,14 @@ public class LocalizerServiceIT extends EJBTestBase {
                 return null;
             }
         });
-        List<VOLocalizedText> localizedValues = runTX(new Callable<List<VOLocalizedText>>() {
-            @Override
-            public List<VOLocalizedText> call() throws Exception {
-                return localizer.getLocalizedValues(12L,
-                        LocalizedObjectTypes.SHOP_MESSAGE_PROPERTIES);
-            }
-        });
+        List<VOLocalizedText> localizedValues = runTX(
+                new Callable<List<VOLocalizedText>>() {
+                    @Override
+                    public List<VOLocalizedText> call() throws Exception {
+                        return localizer.getLocalizedValues(12L,
+                                LocalizedObjectTypes.SHOP_MESSAGE_PROPERTIES);
+                    }
+                });
         sort(localizedValues);
 
         assertEquals("Wrong number of values returned", 2,
@@ -714,13 +716,14 @@ public class LocalizerServiceIT extends EJBTestBase {
 
     @Test
     public void getLocalizedValues() throws Exception {
-        List<VOLocalizedText> localizedValues = runTX(new Callable<List<VOLocalizedText>>() {
-            @Override
-            public List<VOLocalizedText> call() throws Exception {
-                return localizer.getLocalizedValues(1000L,
-                        LocalizedObjectTypes.EVENT_DESC);
-            }
-        });
+        List<VOLocalizedText> localizedValues = runTX(
+                new Callable<List<VOLocalizedText>>() {
+                    @Override
+                    public List<VOLocalizedText> call() throws Exception {
+                        return localizer.getLocalizedValues(1000L,
+                                LocalizedObjectTypes.EVENT_DESC);
+                    }
+                });
         sort(localizedValues);
 
         assertEquals("Wrong number of values returned", 3,
@@ -729,14 +732,14 @@ public class LocalizerServiceIT extends EJBTestBase {
         assertEquals("Anmeldung eines Benutzers bei dem Service.",
                 localizedValues.get(0).getText());
         assertEquals("en", localizedValues.get(1).getLocale());
-        assertEquals("Login of a user to the service.", localizedValues.get(1)
-                .getText());
+        assertEquals("Login of a user to the service.",
+                localizedValues.get(1).getText());
     }
 
     @Test
     public void testUpdateLocalizedValues() throws Exception {
         // CREATE
-        final List<VOLocalizedText> values = new ArrayList<VOLocalizedText>();
+        final List<VOLocalizedText> values = new ArrayList<>();
         values.add(new VOLocalizedText("en", "house"));
         values.add(new VOLocalizedText("de", "Haus"));
         runTX(new Callable<Void>() {
@@ -748,13 +751,14 @@ public class LocalizerServiceIT extends EJBTestBase {
             }
         });
         // UPDATE
-        final List<VOLocalizedText> values1 = runTX(new Callable<List<VOLocalizedText>>() {
-            @Override
-            public List<VOLocalizedText> call() throws Exception {
-                return localizer.getLocalizedValues(12L,
-                        LocalizedObjectTypes.SHOP_MESSAGE_PROPERTIES);
-            }
-        });
+        final List<VOLocalizedText> values1 = runTX(
+                new Callable<List<VOLocalizedText>>() {
+                    @Override
+                    public List<VOLocalizedText> call() throws Exception {
+                        return localizer.getLocalizedValues(12L,
+                                LocalizedObjectTypes.SHOP_MESSAGE_PROPERTIES);
+                    }
+                });
         sort(values1);
         assertEquals("Wrong number of values returned", 2, values1.size());
         values1.get(0).setText("Wolkenkratzer");
@@ -769,13 +773,14 @@ public class LocalizerServiceIT extends EJBTestBase {
                 return null;
             }
         });
-        final List<VOLocalizedText> values2 = runTX(new Callable<List<VOLocalizedText>>() {
-            @Override
-            public List<VOLocalizedText> call() throws Exception {
-                return localizer.getLocalizedValues(12L,
-                        LocalizedObjectTypes.SHOP_MESSAGE_PROPERTIES);
-            }
-        });
+        final List<VOLocalizedText> values2 = runTX(
+                new Callable<List<VOLocalizedText>>() {
+                    @Override
+                    public List<VOLocalizedText> call() throws Exception {
+                        return localizer.getLocalizedValues(12L,
+                                LocalizedObjectTypes.SHOP_MESSAGE_PROPERTIES);
+                    }
+                });
         sort(values2);
         assertEquals("Wrong number of values returned", 2, values2.size());
         assertEquals("de", values2.get(0).getLocale());
@@ -786,7 +791,7 @@ public class LocalizerServiceIT extends EJBTestBase {
 
     @Test(expected = ConcurrentModificationException.class)
     public void testConcurrentSetLocalizedValues() throws Exception {
-        final List<VOLocalizedText> values = new ArrayList<VOLocalizedText>();
+        final List<VOLocalizedText> values = new ArrayList<>();
         values.add(new VOLocalizedText("en", "house"));
         values.add(new VOLocalizedText("de", "Haus"));
         runTX(new Callable<Void>() {
@@ -810,7 +815,7 @@ public class LocalizerServiceIT extends EJBTestBase {
 
     @Test
     public void testSetLocalizedValuesRemoveOldEntries() throws Exception {
-        final List<VOLocalizedText> values_0 = new ArrayList<VOLocalizedText>();
+        final List<VOLocalizedText> values_0 = new ArrayList<>();
         values_0.add(new VOLocalizedText("en", "house"));
         values_0.add(new VOLocalizedText("de", "Haus"));
         runTX(new Callable<Void>() {
@@ -821,13 +826,14 @@ public class LocalizerServiceIT extends EJBTestBase {
                 return null;
             }
         });
-        final List<VOLocalizedText> values = runTX(new Callable<List<VOLocalizedText>>() {
-            @Override
-            public List<VOLocalizedText> call() throws Exception {
-                return localizer.getLocalizedValues(12L,
-                        LocalizedObjectTypes.SHOP_MESSAGE_PROPERTIES);
-            }
-        });
+        final List<VOLocalizedText> values = runTX(
+                new Callable<List<VOLocalizedText>>() {
+                    @Override
+                    public List<VOLocalizedText> call() throws Exception {
+                        return localizer.getLocalizedValues(12L,
+                                LocalizedObjectTypes.SHOP_MESSAGE_PROPERTIES);
+                    }
+                });
         sort(values);
         values.get(0).setText(null);
 
@@ -840,13 +846,14 @@ public class LocalizerServiceIT extends EJBTestBase {
             }
         });
         // now retrieve the values again
-        final List<VOLocalizedText> localizedValues = runTX(new Callable<List<VOLocalizedText>>() {
-            @Override
-            public List<VOLocalizedText> call() throws Exception {
-                return localizer.getLocalizedValues(12L,
-                        LocalizedObjectTypes.SHOP_MESSAGE_PROPERTIES);
-            }
-        });
+        final List<VOLocalizedText> localizedValues = runTX(
+                new Callable<List<VOLocalizedText>>() {
+                    @Override
+                    public List<VOLocalizedText> call() throws Exception {
+                        return localizer.getLocalizedValues(12L,
+                                LocalizedObjectTypes.SHOP_MESSAGE_PROPERTIES);
+                    }
+                });
 
         assertEquals("Wrong number of values returned", 1,
                 localizedValues.size());
@@ -965,7 +972,8 @@ public class LocalizerServiceIT extends EJBTestBase {
                 LocalizedResource resource = new LocalizedResource();
                 resource.setObjectKey(mp.getKey());
                 resource.setLocale("en");
-                resource.setObjectType(LocalizedObjectTypes.SHOP_MESSAGE_PROPERTIES);
+                resource.setObjectType(
+                        LocalizedObjectTypes.SHOP_MESSAGE_PROPERTIES);
                 resource.setValue(properties);
                 mgr.persist(resource);
                 return null;
@@ -974,7 +982,8 @@ public class LocalizerServiceIT extends EJBTestBase {
     }
 
     @Test
-    public void testGetLocalizedTextFromBundleNonExistingKey() throws Exception {
+    public void testGetLocalizedTextFromBundleNonExistingKey()
+            throws Exception {
         String text = runTX(new Callable<String>() {
             @Override
             public String call() throws Exception {
@@ -1020,7 +1029,8 @@ public class LocalizerServiceIT extends EJBTestBase {
                 LocalizedResource resource = new LocalizedResource();
                 resource.setObjectKey(shop.getKey());
                 resource.setLocale("de");
-                resource.setObjectType(LocalizedObjectTypes.SHOP_MESSAGE_PROPERTIES);
+                resource.setObjectType(
+                        LocalizedObjectTypes.SHOP_MESSAGE_PROPERTIES);
                 resource.setValue("testValue=bla\r\nanotherEntry=present");
                 mgr.persist(resource);
                 return null;
@@ -1073,23 +1083,23 @@ public class LocalizerServiceIT extends EJBTestBase {
                 LocalizedResource resource = new LocalizedResource();
                 resource.setObjectKey(2L);
                 resource.setLocale("de");
-                resource.setObjectType(LocalizedObjectTypes.OPTION_PARAMETER_DEF_DESC);
+                resource.setObjectType(
+                        LocalizedObjectTypes.OPTION_PARAMETER_DEF_DESC);
                 resource.setValue("testValue");
                 mgr.persist(resource);
                 return null;
             }
         });
-        Map<LocalizedObjectTypes, String> resultMap = runTX(new Callable<Map<LocalizedObjectTypes, String>>() {
-            @Override
-            public Map<LocalizedObjectTypes, String> call() throws Exception {
-                return localizer
-                        .getLocalizedTextFromDatabase(
-                                "de",
-                                2L,
-                                Collections
-                                        .singletonList(LocalizedObjectTypes.OPTION_PARAMETER_DEF_DESC));
-            }
-        });
+        Map<LocalizedObjectTypes, String> resultMap = runTX(
+                new Callable<Map<LocalizedObjectTypes, String>>() {
+                    @Override
+                    public Map<LocalizedObjectTypes, String> call()
+                            throws Exception {
+                        return localizer.getLocalizedTextFromDatabase("de", 2L,
+                                Collections.singletonList(
+                                        LocalizedObjectTypes.OPTION_PARAMETER_DEF_DESC));
+                    }
+                });
         assertEquals(1, resultMap.size());
         assertEquals("Wrong return text", "testValue",
                 resultMap.get(LocalizedObjectTypes.OPTION_PARAMETER_DEF_DESC));
@@ -1110,14 +1120,15 @@ public class LocalizerServiceIT extends EJBTestBase {
                 LocalizedResource resource = new LocalizedResource();
                 resource.setObjectKey(copy.getKey());
                 resource.setLocale("de");
-                resource.setObjectType(LocalizedObjectTypes.PRODUCT_LICENSE_DESC);
+                resource.setObjectType(
+                        LocalizedObjectTypes.PRODUCT_LICENSE_DESC);
                 resource.setValue("testLicenseValue");
                 mgr.persist(resource);
 
                 LocalizedResource resource2 = new LocalizedResource();
                 resource2.setLocale("de");
-                resource2
-                        .setObjectType(LocalizedObjectTypes.PRODUCT_LICENSE_DESC);
+                resource2.setObjectType(
+                        LocalizedObjectTypes.PRODUCT_LICENSE_DESC);
                 resource2.setObjectKey(product.getKey());
                 resource2.setValue("parentValue");
                 mgr.persist(resource2);
@@ -1126,8 +1137,8 @@ public class LocalizerServiceIT extends EJBTestBase {
                 LocalizedResource marketingResource = new LocalizedResource();
                 marketingResource.setObjectKey(copy.getKey());
                 marketingResource.setLocale("de");
-                marketingResource
-                        .setObjectType(LocalizedObjectTypes.PRODUCT_MARKETING_DESC);
+                marketingResource.setObjectType(
+                        LocalizedObjectTypes.PRODUCT_MARKETING_DESC);
                 marketingResource.setValue("testDescriptionValue");
                 mgr.persist(marketingResource);
 
@@ -1135,15 +1146,18 @@ public class LocalizerServiceIT extends EJBTestBase {
             }
         });
 
-        Map<LocalizedObjectTypes, String> resultMap = runTX(new Callable<Map<LocalizedObjectTypes, String>>() {
-            @Override
-            public Map<LocalizedObjectTypes, String> call() throws Exception {
-                return localizer.getLocalizedTextFromDatabase("de", copy
-                        .getKey(), Arrays.asList(
-                        LocalizedObjectTypes.PRODUCT_LICENSE_DESC,
-                        LocalizedObjectTypes.PRODUCT_MARKETING_DESC));
-            }
-        });
+        Map<LocalizedObjectTypes, String> resultMap = runTX(
+                new Callable<Map<LocalizedObjectTypes, String>>() {
+                    @Override
+                    public Map<LocalizedObjectTypes, String> call()
+                            throws Exception {
+                        return localizer.getLocalizedTextFromDatabase("de",
+                                copy.getKey(),
+                                Arrays.asList(
+                                        LocalizedObjectTypes.PRODUCT_LICENSE_DESC,
+                                        LocalizedObjectTypes.PRODUCT_MARKETING_DESC));
+                    }
+                });
 
         assertEquals(2, resultMap.size());
         assertEquals("testLicenseValue",
@@ -1167,7 +1181,8 @@ public class LocalizerServiceIT extends EJBTestBase {
                 LocalizedResource resource = new LocalizedResource();
                 resource.setObjectKey(product.getPriceModel().getKey());
                 resource.setLocale("de");
-                resource.setObjectType(LocalizedObjectTypes.PRICEMODEL_DESCRIPTION);
+                resource.setObjectType(
+                        LocalizedObjectTypes.PRICEMODEL_DESCRIPTION);
                 resource.setValue("deTestValue");
                 mgr.persist(resource);
 
@@ -1175,8 +1190,8 @@ public class LocalizerServiceIT extends EJBTestBase {
                 LocalizedResource resource2 = new LocalizedResource();
                 resource2.setObjectKey(product.getPriceModel().getKey());
                 resource2.setLocale("en");
-                resource2
-                        .setObjectType(LocalizedObjectTypes.PRICEMODEL_DESCRIPTION);
+                resource2.setObjectType(
+                        LocalizedObjectTypes.PRICEMODEL_DESCRIPTION);
                 resource2.setValue("enTestValue");
                 mgr.persist(resource2);
 
@@ -1186,8 +1201,8 @@ public class LocalizerServiceIT extends EJBTestBase {
         String text = runTX(new Callable<String>() {
             @Override
             public String call() throws Exception {
-                return localizer.getLocalizedTextFromDatabase("de", copy
-                        .getPriceModel().getKey(),
+                return localizer.getLocalizedTextFromDatabase("de",
+                        copy.getPriceModel().getKey(),
                         LocalizedObjectTypes.PRICEMODEL_DESCRIPTION);
             }
         });
@@ -1261,16 +1276,16 @@ public class LocalizerServiceIT extends EJBTestBase {
                 LocalizedResource resource_de = new LocalizedResource();
                 resource_de.setObjectKey(1L);
                 resource_de.setLocale("de");
-                resource_de
-                        .setObjectType(LocalizedObjectTypes.PRODUCT_SHORT_DESCRIPTION);
+                resource_de.setObjectType(
+                        LocalizedObjectTypes.PRODUCT_SHORT_DESCRIPTION);
                 resource_de.setValue("testValue_de");
                 mgr.persist(resource_de);
 
                 LocalizedResource resource_en = new LocalizedResource();
                 resource_en.setObjectKey(1L);
                 resource_en.setLocale("en");
-                resource_en
-                        .setObjectType(LocalizedObjectTypes.PRODUCT_SHORT_DESCRIPTION);
+                resource_en.setObjectType(
+                        LocalizedObjectTypes.PRODUCT_SHORT_DESCRIPTION);
                 resource_en.setValue("testValue_en");
                 mgr.persist(resource_en);
                 return null;
@@ -1304,16 +1319,16 @@ public class LocalizerServiceIT extends EJBTestBase {
                 LocalizedResource resource_de = new LocalizedResource();
                 resource_de.setObjectKey(1L);
                 resource_de.setLocale("de");
-                resource_de
-                        .setObjectType(LocalizedObjectTypes.PRODUCT_CUSTOM_TAB_NAME);
+                resource_de.setObjectType(
+                        LocalizedObjectTypes.PRODUCT_CUSTOM_TAB_NAME);
                 resource_de.setValue("testValue_de");
                 mgr.persist(resource_de);
 
                 LocalizedResource resource_en = new LocalizedResource();
                 resource_en.setObjectKey(1L);
                 resource_en.setLocale("en");
-                resource_en
-                        .setObjectType(LocalizedObjectTypes.PRODUCT_CUSTOM_TAB_NAME);
+                resource_en.setObjectType(
+                        LocalizedObjectTypes.PRODUCT_CUSTOM_TAB_NAME);
                 resource_en.setValue("testValue_en");
                 mgr.persist(resource_en);
                 return null;

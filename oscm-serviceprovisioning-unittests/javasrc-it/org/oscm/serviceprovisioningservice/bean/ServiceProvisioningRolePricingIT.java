@@ -20,7 +20,6 @@ import javax.persistence.Query;
 
 import org.junit.Assert;
 import org.junit.Test;
-
 import org.oscm.accountservice.assembler.OrganizationAssembler;
 import org.oscm.accountservice.local.MarketingPermissionServiceLocal;
 import org.oscm.converter.ParameterizedTypes;
@@ -46,23 +45,6 @@ import org.oscm.domobjects.enums.ModificationType;
 import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
-import org.oscm.tenantprovisioningservice.bean.TenantProvisioningServiceBean;
-import org.oscm.test.EJBTestBase;
-import org.oscm.test.data.Organizations;
-import org.oscm.test.data.PaymentInfos;
-import org.oscm.test.data.Products;
-import org.oscm.test.data.Scenario;
-import org.oscm.test.data.Subscriptions;
-import org.oscm.test.data.SupportedCountries;
-import org.oscm.test.data.TechnicalProducts;
-import org.oscm.test.ejb.TestContainer;
-import org.oscm.test.stubs.ApplicationServiceStub;
-import org.oscm.test.stubs.CommunicationServiceStub;
-import org.oscm.test.stubs.ConfigurationServiceStub;
-import org.oscm.test.stubs.ImageResourceServiceStub;
-import org.oscm.test.stubs.MarketplaceServiceStub;
-import org.oscm.test.stubs.SessionServiceStub;
-import org.oscm.test.stubs.TriggerQueueServiceStub;
 import org.oscm.internal.intf.ServiceProvisioningService;
 import org.oscm.internal.types.enumtypes.ImageType;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
@@ -84,6 +66,23 @@ import org.oscm.internal.vo.VOPricedRole;
 import org.oscm.internal.vo.VORoleDefinition;
 import org.oscm.internal.vo.VOService;
 import org.oscm.internal.vo.VOServiceDetails;
+import org.oscm.tenantprovisioningservice.bean.TenantProvisioningServiceBean;
+import org.oscm.test.EJBTestBase;
+import org.oscm.test.data.Organizations;
+import org.oscm.test.data.PaymentInfos;
+import org.oscm.test.data.Products;
+import org.oscm.test.data.Scenario;
+import org.oscm.test.data.Subscriptions;
+import org.oscm.test.data.SupportedCountries;
+import org.oscm.test.data.TechnicalProducts;
+import org.oscm.test.ejb.TestContainer;
+import org.oscm.test.stubs.ApplicationServiceStub;
+import org.oscm.test.stubs.CommunicationServiceStub;
+import org.oscm.test.stubs.ConfigurationServiceStub;
+import org.oscm.test.stubs.ImageResourceServiceStub;
+import org.oscm.test.stubs.MarketplaceServiceStub;
+import org.oscm.test.stubs.SessionServiceStub;
+import org.oscm.test.stubs.TriggerQueueServiceStub;
 
 /**
  * Tests for the service provisiong that test the handling of role related
@@ -107,7 +106,7 @@ public class ServiceProvisioningRolePricingIT extends EJBTestBase {
     @Override
     protected void setup(TestContainer container) throws Exception {
         container.enableInterfaceMocking(true);
-
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         container.addBean(new SessionServiceStub());
         container.addBean(new CommunicationServiceStub());
@@ -181,8 +180,8 @@ public class ServiceProvisioningRolePricingIT extends EJBTestBase {
                 PlatformUser user = Organizations.createUserForOrg(dm,
                         supplierAndProvider, true, "admin");
 
-                customer = Organizations
-                        .createCustomer(dm, supplierAndProvider);
+                customer = Organizations.createCustomer(dm,
+                        supplierAndProvider);
                 // create technical product with roles};
                 techProd = TechnicalProducts.createTechnicalProduct(dm,
                         supplierAndProvider, "prodId", false,
@@ -196,7 +195,7 @@ public class ServiceProvisioningRolePricingIT extends EJBTestBase {
                 rd2.setRoleId("role2");
                 dm.persist(rd);
                 dm.persist(rd2);
-                ArrayList<RoleDefinition> roles = new ArrayList<RoleDefinition>();
+                ArrayList<RoleDefinition> roles = new ArrayList<>();
                 techProd.setRoleDefinitions(roles);
 
                 paramDef = TechnicalProducts.addParameterDefinition(
@@ -280,8 +279,8 @@ public class ServiceProvisioningRolePricingIT extends EJBTestBase {
      */
     private void assertCreatedProductSettings(
             List<VORoleDefinition> roleDefinitions,
-            final VOServiceDetails savedProduct,
-            final int expectedRoleDefCount, final boolean isCustomerSpecific,
+            final VOServiceDetails savedProduct, final int expectedRoleDefCount,
+            final boolean isCustomerSpecific,
             final boolean isSubscriptionSpecific,
             final BigDecimal expectedBasePrice, final boolean isUpdate,
             final VOPricedRole removedPricedProductRole) throws Exception {
@@ -297,8 +296,7 @@ public class ServiceProvisioningRolePricingIT extends EJBTestBase {
                             roleSpecificUserPrices.size());
                     PricedProductRole pricedProductRole = roleSpecificUserPrices
                             .get(i);
-                    Assert.assertEquals(
-                            createdProduct.getPriceModel().getKey(),
+                    Assert.assertEquals(createdProduct.getPriceModel().getKey(),
                             pricedProductRole.getPriceModel().getKey());
                     Assert.assertNull(pricedProductRole.getPricedParameter());
                     Assert.assertNull(pricedProductRole.getPricedOption());
@@ -310,9 +308,8 @@ public class ServiceProvisioningRolePricingIT extends EJBTestBase {
                     List<DomainHistoryObject<?>> findHistory = dm
                             .findHistory(pricedProductRole);
                     {
-                        Assert.assertEquals(createdProduct
-                                .getTechnicalProduct().getRoleDefinitions()
-                                .get(i), role);
+                        Assert.assertEquals(createdProduct.getTechnicalProduct()
+                                .getRoleDefinitions().get(i), role);
 
                         PricedProductRoleHistory history = (PricedProductRoleHistory) findHistory
                                 .get(0);
@@ -320,25 +317,25 @@ public class ServiceProvisioningRolePricingIT extends EJBTestBase {
                                 history.getModtype());
                         Assert.assertNull(history.getPricedOptionObjKey());
                         Assert.assertNull(history.getPricedParameterObjKey());
-                        Assert.assertEquals(createdProduct.getPriceModel()
-                                .getKey(), history.getPriceModelObjKey()
-                                .longValue());
-                        Assert.assertEquals(createdProduct
-                                .getTechnicalProduct().getRoleDefinitions()
-                                .get(i).getKey(),
+                        Assert.assertEquals(
+                                createdProduct.getPriceModel().getKey(),
+                                history.getPriceModelObjKey().longValue());
+                        Assert.assertEquals(
+                                createdProduct.getTechnicalProduct()
+                                        .getRoleDefinitions().get(i).getKey(),
                                 history.getRoleDefinitionObjKey());
                     }
 
                     if (!isCustomerSpecific && !isSubscriptionSpecific) {
                         Assert.assertNull(createdProduct.getTemplate());
-                        Assert.assertNull(createdProduct
-                                .getOwningSubscription());
+                        Assert.assertNull(
+                                createdProduct.getOwningSubscription());
                     }
 
                     if (isCustomerSpecific) {
                         Assert.assertNotNull(createdProduct.getTemplate());
-                        Assert.assertEquals(customer.getKey(), createdProduct
-                                .getTargetCustomer().getKey());
+                        Assert.assertEquals(customer.getKey(),
+                                createdProduct.getTargetCustomer().getKey());
                     }
 
                     if (isSubscriptionSpecific) {
@@ -354,19 +351,20 @@ public class ServiceProvisioningRolePricingIT extends EJBTestBase {
                             .list(dm.findHistory(ppr),
                                     PricedProductRoleHistory.class);
                     Assert.assertEquals(2, findHistory.size());
-                    Assert.assertEquals(ModificationType.DELETE, findHistory
-                            .get(1).getModtype());
+                    Assert.assertEquals(ModificationType.DELETE,
+                            findHistory.get(1).getModtype());
                 }
 
                 return null;
             }
         });
 
-        List<VOPricedRole> roleSpecificUserPrices = savedProduct
-                .getPriceModel().getRoleSpecificUserPrices();
-        Assert.assertEquals(expectedRoleDefCount, roleSpecificUserPrices.size());
-        Assert.assertEquals(expectedBasePrice, roleSpecificUserPrices.get(0)
-                .getPricePerUser());
+        List<VOPricedRole> roleSpecificUserPrices = savedProduct.getPriceModel()
+                .getRoleSpecificUserPrices();
+        Assert.assertEquals(expectedRoleDefCount,
+                roleSpecificUserPrices.size());
+        Assert.assertEquals(expectedBasePrice,
+                roleSpecificUserPrices.get(0).getPricePerUser());
         if (isUpdate) {
             Assert.assertEquals(roleDefinitions.get(0).getKey(),
                     roleSpecificUserPrices.get(0).getRole().getKey());
@@ -481,8 +479,8 @@ public class ServiceProvisioningRolePricingIT extends EJBTestBase {
         VOPriceModel pm = createPriceModelDefinition(
                 Collections.singletonList(ppr), productDetails);
 
-        final VOServiceDetails savedProduct = svcProv.savePriceModel(
-                productDetails, pm);
+        final VOServiceDetails savedProduct = svcProv
+                .savePriceModel(productDetails, pm);
 
         // and also assert domain object integrity and history object existence
         assertCreatedProductSettings(roleDefs, savedProduct, 1, false, false,
@@ -568,8 +566,8 @@ public class ServiceProvisioningRolePricingIT extends EJBTestBase {
 
         // and also assert domain object integrity and history object existence
         // for product
-        Assert.assertEquals(2, savedProduct.getTechnicalService()
-                .getRoleDefinitions().size());
+        Assert.assertEquals(2,
+                savedProduct.getTechnicalService().getRoleDefinitions().size());
         Product storedProduct = getProduct(savedProduct);
         Assert.assertNotNull(storedProduct.getTemplate());
 
@@ -578,7 +576,8 @@ public class ServiceProvisioningRolePricingIT extends EJBTestBase {
                 .getPriceModel().getRoleSpecificUserPrices();
         for (PricedProductRole pricedProductRole : roleSpecificUserPrices) {
             if (pricedProductRole.getRoleDefinition().getKey() == savedProduct
-                    .getTechnicalService().getRoleDefinitions().get(0).getKey()) {
+                    .getTechnicalService().getRoleDefinitions().get(0)
+                    .getKey()) {
                 Assert.assertEquals(0, pricedProductRole.getVersion());
                 Assert.assertEquals(new BigDecimal(246L),
                         pricedProductRole.getPricePerUser());
@@ -629,8 +628,8 @@ public class ServiceProvisioningRolePricingIT extends EJBTestBase {
         // and also assert domain object integrity and history object existence
         // for product
         final VOPriceModel savedPriceModel = savedProduct.getPriceModel();
-        Assert.assertEquals(0, savedPriceModel.getRoleSpecificUserPrices()
-                .size());
+        Assert.assertEquals(0,
+                savedPriceModel.getRoleSpecificUserPrices().size());
         Product storedProduct = getProduct(savedProduct);
         Assert.assertNotNull(storedProduct.getTemplate());
 
@@ -638,14 +637,15 @@ public class ServiceProvisioningRolePricingIT extends EJBTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                Query query = dm
-                        .createQuery("SELECT ph FROM PricedProductRoleHistory ph WHERE ph.priceModelObjKey = "
-                                + savedPriceModel.getKey() + " ORDER BY ph.key");
+                Query query = dm.createQuery(
+                        "SELECT ph FROM PricedProductRoleHistory ph WHERE ph.priceModelObjKey = "
+                                + savedPriceModel.getKey()
+                                + " ORDER BY ph.key");
                 List<PricedProductRoleHistory> list = ParameterizedTypes.list(
                         query.getResultList(), PricedProductRoleHistory.class);
                 Assert.assertEquals(2, list.size());
-                Assert.assertEquals(ModificationType.DELETE, list.get(1)
-                        .getModtype());
+                Assert.assertEquals(ModificationType.DELETE,
+                        list.get(1).getModtype());
                 return null;
             }
         });
@@ -698,13 +698,14 @@ public class ServiceProvisioningRolePricingIT extends EJBTestBase {
         ArrayList<VORoleDefinition> roleDefs = defineRoleDefinitionsForPM(
                 productDetails, 2);
 
-        ArrayList<VOPricedRole> pricedRoles = definePricedProductRoles(roleDefs);
+        ArrayList<VOPricedRole> pricedRoles = definePricedProductRoles(
+                roleDefs);
 
         VOPriceModel pm = createPriceModelDefinition(pricedRoles,
                 productDetails);
 
-        final VOServiceDetails savedProduct = svcProv.savePriceModel(
-                productDetails, pm);
+        final VOServiceDetails savedProduct = svcProv
+                .savePriceModel(productDetails, pm);
 
         // and also assert domain object integrity and history object existence
         assertCreatedProductSettings(roleDefs, savedProduct, 2, false, false,
@@ -720,7 +721,8 @@ public class ServiceProvisioningRolePricingIT extends EJBTestBase {
         ArrayList<VORoleDefinition> roleDefs = defineRoleDefinitionsForPM(
                 productDetails, 2);
 
-        ArrayList<VOPricedRole> pricedRoles = definePricedProductRoles(roleDefs);
+        ArrayList<VOPricedRole> pricedRoles = definePricedProductRoles(
+                roleDefs);
         pricedRoles.get(1).setRole(pricedRoles.get(0).getRole());
 
         VOPriceModel pm = createPriceModelDefinition(pricedRoles,
@@ -739,7 +741,8 @@ public class ServiceProvisioningRolePricingIT extends EJBTestBase {
         ArrayList<VORoleDefinition> roleDefs = defineRoleDefinitionsForPM(
                 productDetails, 2);
 
-        ArrayList<VOPricedRole> pricedRoles = definePricedProductRoles(roleDefs);
+        ArrayList<VOPricedRole> pricedRoles = definePricedProductRoles(
+                roleDefs);
 
         VOPriceModel pm = createPriceModelDefinition(pricedRoles,
                 productDetails);
@@ -761,14 +764,16 @@ public class ServiceProvisioningRolePricingIT extends EJBTestBase {
     @Test
     public void testSavePriceModelForCustomer() throws Exception {
         final VOServiceDetails productDetails = getProductDetails();
-        ArrayList<VORoleDefinition> roleDefs = runTX(new Callable<ArrayList<VORoleDefinition>>() {
-            @Override
-            public ArrayList<VORoleDefinition> call() throws Exception {
-                return defineRoleDefinitionsForPM(productDetails, 2);
-            }
-        });
+        ArrayList<VORoleDefinition> roleDefs = runTX(
+                new Callable<ArrayList<VORoleDefinition>>() {
+                    @Override
+                    public ArrayList<VORoleDefinition> call() throws Exception {
+                        return defineRoleDefinitionsForPM(productDetails, 2);
+                    }
+                });
 
-        ArrayList<VOPricedRole> pricedRoles = definePricedProductRoles(roleDefs);
+        ArrayList<VOPricedRole> pricedRoles = definePricedProductRoles(
+                roleDefs);
 
         final VOPriceModel pm = createPriceModelDefinition(pricedRoles,
                 productDetails);
@@ -802,7 +807,8 @@ public class ServiceProvisioningRolePricingIT extends EJBTestBase {
         ArrayList<VORoleDefinition> roleDefs = defineRoleDefinitionsForPM(
                 productDetails, 2);
 
-        ArrayList<VOPricedRole> pricedRoles = definePricedProductRoles(roleDefs);
+        ArrayList<VOPricedRole> pricedRoles = definePricedProductRoles(
+                roleDefs);
 
         VOPriceModel pm = createPriceModelDefinition(pricedRoles,
                 productDetails);
@@ -823,20 +829,21 @@ public class ServiceProvisioningRolePricingIT extends EJBTestBase {
         ArrayList<VORoleDefinition> roleDefs = defineRoleDefinitionsForPM(
                 productDetails, 2);
 
-        VOPriceModel pm = createPriceModelForParameter(productDetails,
-                roleDefs, new BigDecimal(-12), null);
+        VOPriceModel pm = createPriceModelForParameter(productDetails, roleDefs,
+                new BigDecimal(-12), null);
 
         svcProv.savePriceModel(productDetails, pm);
     }
 
     @Test(expected = OperationNotPermittedException.class)
-    public void testSavePriceModelPricedParameterInvalidRole() throws Exception {
+    public void testSavePriceModelPricedParameterInvalidRole()
+            throws Exception {
         VOServiceDetails productDetails = getProductDetails();
         ArrayList<VORoleDefinition> roleDefs = defineRoleDefinitionsForPM(
                 productDetails, 2);
 
-        VOPriceModel pm = createPriceModelForParameter(productDetails,
-                roleDefs, null, Long.valueOf(500L));
+        VOPriceModel pm = createPriceModelForParameter(productDetails, roleDefs,
+                null, Long.valueOf(500L));
 
         svcProv.savePriceModel(productDetails, pm);
     }
@@ -847,11 +854,11 @@ public class ServiceProvisioningRolePricingIT extends EJBTestBase {
         ArrayList<VORoleDefinition> roleDefs = defineRoleDefinitionsForPM(
                 productDetails, 2);
 
-        VOPriceModel pm = createPriceModelForParameter(productDetails,
-                roleDefs, null, null);
+        VOPriceModel pm = createPriceModelForParameter(productDetails, roleDefs,
+                null, null);
 
-        final VOServiceDetails savedProduct = svcProv.savePriceModel(
-                productDetails, pm);
+        final VOServiceDetails savedProduct = svcProv
+                .savePriceModel(productDetails, pm);
 
         // check that the priced product roles have been created
         runTX(new Callable<Void>() {
@@ -873,24 +880,23 @@ public class ServiceProvisioningRolePricingIT extends EJBTestBase {
 
                 List<DomainHistoryObject<?>> hist = dm.findHistory(ppr);
                 Assert.assertEquals(1, hist.size());
-                Assert.assertEquals(ModificationType.ADD, hist.get(0)
-                        .getModtype());
+                Assert.assertEquals(ModificationType.ADD,
+                        hist.get(0).getModtype());
                 return null;
             }
         });
 
         // also validate correctness of the value object
-        List<VOPricedRole> roleSpecificUserPrices = savedProduct
-                .getPriceModel().getSelectedParameters().get(0)
-                .getRoleSpecificUserPrices();
+        List<VOPricedRole> roleSpecificUserPrices = savedProduct.getPriceModel()
+                .getSelectedParameters().get(0).getRoleSpecificUserPrices();
         Assert.assertNotNull(roleSpecificUserPrices);
         Assert.assertEquals(2, roleSpecificUserPrices.size());
         VOPricedRole voPricedProductRole = roleSpecificUserPrices.get(0);
         Assert.assertEquals(BigDecimal.valueOf(33),
                 voPricedProductRole.getPricePerUser());
         Assert.assertEquals(savedProduct.getTechnicalService()
-                .getRoleDefinitions().get(0).getKey(), voPricedProductRole
-                .getRole().getKey());
+                .getRoleDefinitions().get(0).getKey(),
+                voPricedProductRole.getRole().getKey());
     }
 
     @Test(expected = ValidationException.class)
@@ -900,8 +906,8 @@ public class ServiceProvisioningRolePricingIT extends EJBTestBase {
         ArrayList<VORoleDefinition> roleDefs = defineRoleDefinitionsForPM(
                 productDetails, 2);
 
-        VOPriceModel pm = createPriceModelForParameter(productDetails,
-                roleDefs, null, null);
+        VOPriceModel pm = createPriceModelForParameter(productDetails, roleDefs,
+                null, null);
 
         VOServiceDetails savedProduct = svcProv.savePriceModel(productDetails,
                 pm);
@@ -925,8 +931,8 @@ public class ServiceProvisioningRolePricingIT extends EJBTestBase {
         ArrayList<VORoleDefinition> roleDefs = defineRoleDefinitionsForPM(
                 productDetails, 2);
 
-        VOPriceModel pm = createPriceModelForParameter(productDetails,
-                roleDefs, null, null);
+        VOPriceModel pm = createPriceModelForParameter(productDetails, roleDefs,
+                null, null);
 
         VOServiceDetails savedProduct = svcProv.savePriceModel(productDetails,
                 pm);
@@ -959,8 +965,8 @@ public class ServiceProvisioningRolePricingIT extends EJBTestBase {
         ArrayList<VORoleDefinition> roleDefs = defineRoleDefinitionsForPM(
                 productDetails, 2);
 
-        VOPriceModel pm = createPriceModelForParameter(productDetails,
-                roleDefs, null, null);
+        VOPriceModel pm = createPriceModelForParameter(productDetails, roleDefs,
+                null, null);
 
         VOServiceDetails savedProduct = svcProv.savePriceModel(productDetails,
                 pm);
@@ -992,8 +998,8 @@ public class ServiceProvisioningRolePricingIT extends EJBTestBase {
         Assert.assertEquals(BigDecimal.valueOf(111L),
                 voPricedProductRole.getPricePerUser());
         Assert.assertEquals(savedProduct.getTechnicalService()
-                .getRoleDefinitions().get(0).getKey(), voPricedProductRole
-                .getRole().getKey());
+                .getRoleDefinitions().get(0).getKey(),
+                voPricedProductRole.getRole().getKey());
     }
 
     @Test(expected = ValidationException.class)
@@ -1026,8 +1032,8 @@ public class ServiceProvisioningRolePricingIT extends EJBTestBase {
 
         VOPriceModel pm = setupPricedOptions(productDetails, roleDefs, null,
                 null);
-        final VOServiceDetails savedProduct = svcProv.savePriceModel(
-                productDetails, pm);
+        final VOServiceDetails savedProduct = svcProv
+                .savePriceModel(productDetails, pm);
 
         // read and verify the priced option role settings
         // check that the priced product roles have been created
@@ -1051,24 +1057,24 @@ public class ServiceProvisioningRolePricingIT extends EJBTestBase {
 
                 List<DomainHistoryObject<?>> hist = dm.findHistory(ppr);
                 Assert.assertEquals(1, hist.size());
-                Assert.assertEquals(ModificationType.ADD, hist.get(0)
-                        .getModtype());
+                Assert.assertEquals(ModificationType.ADD,
+                        hist.get(0).getModtype());
                 return null;
             }
         });
 
         // and also check the value object representation
-        List<VOPricedRole> roleSpecificUserPrices = savedProduct
-                .getPriceModel().getSelectedParameters().get(0)
-                .getPricedOptions().get(0).getRoleSpecificUserPrices();
+        List<VOPricedRole> roleSpecificUserPrices = savedProduct.getPriceModel()
+                .getSelectedParameters().get(0).getPricedOptions().get(0)
+                .getRoleSpecificUserPrices();
         Assert.assertNotNull(roleSpecificUserPrices);
         Assert.assertEquals(2, roleSpecificUserPrices.size());
         VOPricedRole voPricedProductRole = roleSpecificUserPrices.get(0);
         Assert.assertEquals(BigDecimal.valueOf(33L),
                 voPricedProductRole.getPricePerUser());
         Assert.assertEquals(savedProduct.getTechnicalService()
-                .getRoleDefinitions().get(0).getKey(), voPricedProductRole
-                .getRole().getKey());
+                .getRoleDefinitions().get(0).getKey(),
+                voPricedProductRole.getRole().getKey());
     }
 
     @Test
@@ -1129,8 +1135,8 @@ public class ServiceProvisioningRolePricingIT extends EJBTestBase {
         Assert.assertEquals(BigDecimal.valueOf(11111L),
                 voPricedProductRole2.getPricePerUser());
         Assert.assertEquals(savedProduct.getTechnicalService()
-                .getRoleDefinitions().get(1).getKey(), voPricedProductRole2
-                .getRole().getKey());
+                .getRoleDefinitions().get(1).getKey(),
+                voPricedProductRole2.getRole().getKey());
 
         // and assert that the latest history entry for that priced role also
         // has the correct pricing
@@ -1142,10 +1148,10 @@ public class ServiceProvisioningRolePricingIT extends EJBTestBase {
                 List<PricedProductRoleHistory> list = ParameterizedTypes.list(
                         dm.findHistory(role), PricedProductRoleHistory.class);
                 Assert.assertEquals(1, list.size());
-                Assert.assertEquals(new BigDecimal(11111L), list.get(0)
-                        .getPricePerUser());
-                Assert.assertEquals(ModificationType.ADD, list.get(0)
-                        .getModtype());
+                Assert.assertEquals(new BigDecimal(11111L),
+                        list.get(0).getPricePerUser());
+                Assert.assertEquals(ModificationType.ADD,
+                        list.get(0).getModtype());
                 return null;
             }
         });
@@ -1178,8 +1184,8 @@ public class ServiceProvisioningRolePricingIT extends EJBTestBase {
         Assert.assertEquals(BigDecimal.valueOf(11111L),
                 voPricedProductRole.getPricePerUser());
         Assert.assertEquals(savedProduct.getTechnicalService()
-                .getRoleDefinitions().get(0).getKey(), voPricedProductRole
-                .getRole().getKey());
+                .getRoleDefinitions().get(0).getKey(),
+                voPricedProductRole.getRole().getKey());
 
         VOPricedRole voPricedProductRole1 = savedProduct.getPriceModel()
                 .getSelectedParameters().get(0).getPricedOptions().get(0)
@@ -1189,8 +1195,8 @@ public class ServiceProvisioningRolePricingIT extends EJBTestBase {
                 voPricedProductRole1.getPricePerUser());
         Assert.assertEquals(0, voPricedProductRole1.getVersion());
         Assert.assertEquals(savedProduct.getTechnicalService()
-                .getRoleDefinitions().get(1).getKey(), voPricedProductRole1
-                .getRole().getKey());
+                .getRoleDefinitions().get(1).getKey(),
+                voPricedProductRole1.getRole().getKey());
 
     }
 
@@ -1212,7 +1218,8 @@ public class ServiceProvisioningRolePricingIT extends EJBTestBase {
             VOServiceDetails productDetails,
             ArrayList<VORoleDefinition> roleDefs, BigDecimal rolePrice,
             Long roleKey) {
-        ArrayList<VOPricedRole> pricedRoles = definePricedProductRoles(roleDefs);
+        ArrayList<VOPricedRole> pricedRoles = definePricedProductRoles(
+                roleDefs);
         if (rolePrice != null) {
             pricedRoles.get(0).setPricePerUser(rolePrice);
         }
@@ -1226,8 +1233,8 @@ public class ServiceProvisioningRolePricingIT extends EJBTestBase {
         VOPricedParameter pricedParameter = new VOPricedParameter();
         pricedParameter.setPricePerSubscription(BigDecimal.valueOf(12L));
         pricedParameter.setPricePerUser(BigDecimal.valueOf(999L));
-        pricedParameter.setVoParameterDef(productDetails.getParameters().get(0)
-                .getParameterDefinition());
+        pricedParameter.setVoParameterDef(
+                productDetails.getParameters().get(0).getParameterDefinition());
         pricedParameter.setRoleSpecificUserPrices(pricedRoles);
 
         pm.setSelectedParameters(Collections.singletonList(pricedParameter));
@@ -1251,7 +1258,8 @@ public class ServiceProvisioningRolePricingIT extends EJBTestBase {
     private VOPriceModel setupPricedOptions(VOServiceDetails productDetails,
             ArrayList<VORoleDefinition> roleDefs, BigDecimal priceForRole,
             Long roleKey) {
-        ArrayList<VOPricedRole> pricedRoles = definePricedProductRoles(roleDefs);
+        ArrayList<VOPricedRole> pricedRoles = definePricedProductRoles(
+                roleDefs);
         if (priceForRole != null) {
             pricedRoles.get(0).setPricePerUser(priceForRole);
         }
@@ -1268,16 +1276,17 @@ public class ServiceProvisioningRolePricingIT extends EJBTestBase {
 
         List<VOParameter> parameters = productDetails.getParameters();
         for (VOParameter voParameter : parameters) {
-            if (voParameter.getParameterDefinition().getValueType() == ParameterValueType.ENUMERATION) {
-                pricedParameter.setVoParameterDef(voParameter
-                        .getParameterDefinition());
+            if (voParameter.getParameterDefinition()
+                    .getValueType() == ParameterValueType.ENUMERATION) {
+                pricedParameter.setVoParameterDef(
+                        voParameter.getParameterDefinition());
             }
         }
 
         VOPricedOption vpo = new VOPricedOption();
-        vpo.setParameterOptionKey(productDetails.getTechnicalService()
-                .getParameterDefinitions().get(1).getParameterOptions().get(0)
-                .getKey());
+        vpo.setParameterOptionKey(
+                productDetails.getTechnicalService().getParameterDefinitions()
+                        .get(1).getParameterOptions().get(0).getKey());
         vpo.setPricePerUser(BigDecimal.valueOf(33L));
         vpo.setPricePerSubscription(BigDecimal.ZERO);
         pricedParameter.setPricedOptions(Collections.singletonList(vpo));
@@ -1320,7 +1329,7 @@ public class ServiceProvisioningRolePricingIT extends EJBTestBase {
         VORoleDefinition roleDefinition1 = roleDefinitions.get(0);
         VORoleDefinition roleDefinition2 = roleDefinitions.get(1);
 
-        ArrayList<VORoleDefinition> roleDefs = new ArrayList<VORoleDefinition>();
+        ArrayList<VORoleDefinition> roleDefs = new ArrayList<>();
         roleDefs.add(roleDefinition1);
         if (amount == 2) {
             roleDefs.add(roleDefinition2);
@@ -1345,7 +1354,7 @@ public class ServiceProvisioningRolePricingIT extends EJBTestBase {
         ppr2.setRole(roleDefs.get(1));
         ppr2.setPricePerUser(BigDecimal.valueOf(66L));
 
-        ArrayList<VOPricedRole> pricedRoles = new ArrayList<VOPricedRole>();
+        ArrayList<VOPricedRole> pricedRoles = new ArrayList<>();
         pricedRoles.add(ppr);
         pricedRoles.add(ppr2);
         return pricedRoles;
@@ -1357,8 +1366,8 @@ public class ServiceProvisioningRolePricingIT extends EJBTestBase {
         ArrayList<VORoleDefinition> roleDefs = defineRoleDefinitionsForPM(
                 productDetails, 2);
 
-        VOPriceModel pm = createPriceModelForParameter(productDetails,
-                roleDefs, null, null);
+        VOPriceModel pm = createPriceModelForParameter(productDetails, roleDefs,
+                null, null);
 
         VOServiceDetails savedProduct = svcProv.savePriceModel(productDetails,
                 pm);
@@ -1375,7 +1384,8 @@ public class ServiceProvisioningRolePricingIT extends EJBTestBase {
 
         storedPM = savedProduct.getPriceModel();
         voPricedParameter = storedPM.getSelectedParameters().get(0);
-        Assert.assertEquals(BigDecimal.ONE, voPricedParameter.getPricePerUser());
+        Assert.assertEquals(BigDecimal.ONE,
+                voPricedParameter.getPricePerUser());
     }
 
     @Test

@@ -25,16 +25,22 @@ import org.junit.Test;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.CatalogEntry;
-import org.oscm.domobjects.PublicLandingpage;
 import org.oscm.domobjects.LandingpageProduct;
 import org.oscm.domobjects.Marketplace;
 import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.Product;
+import org.oscm.domobjects.PublicLandingpage;
 import org.oscm.domobjects.TechnicalProduct;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.ServiceAccessType;
+import org.oscm.internal.types.enumtypes.ServiceStatus;
+import org.oscm.internal.types.enumtypes.ServiceType;
+import org.oscm.internal.types.enumtypes.UserRoleType;
+import org.oscm.internal.vo.VOService;
 import org.oscm.landingpageService.local.LandingpageServiceLocal;
 import org.oscm.marketplace.cache.MarketplaceCacheServiceBean;
 import org.oscm.test.EJBTestBase;
@@ -45,13 +51,8 @@ import org.oscm.test.data.Products;
 import org.oscm.test.data.Subscriptions;
 import org.oscm.test.data.TechnicalProducts;
 import org.oscm.test.ejb.TestContainer;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.types.enumtypes.FillinCriterion;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
-import org.oscm.internal.types.enumtypes.ServiceStatus;
-import org.oscm.internal.types.enumtypes.ServiceType;
-import org.oscm.internal.types.enumtypes.UserRoleType;
-import org.oscm.internal.vo.VOService;
 
 public class LandingpageServiceBeanVisIT extends EJBTestBase {
 
@@ -119,12 +120,13 @@ public class LandingpageServiceBeanVisIT extends EJBTestBase {
     }
 
     private Marketplace createSupplierMarketplace(
-            final Organization supplierOrg, final String name) throws Exception {
+            final Organization supplierOrg, final String name)
+            throws Exception {
         return runTX(new Callable<Marketplace>() {
             @Override
             public Marketplace call() throws Exception {
-                Marketplace supplierMp = Marketplaces.createMarketplace(
-                        supplierOrg, name, false, ds);
+                Marketplace supplierMp = Marketplaces
+                        .createMarketplace(supplierOrg, name, false, ds);
                 return supplierMp;
             }
         });
@@ -149,11 +151,11 @@ public class LandingpageServiceBeanVisIT extends EJBTestBase {
             public Product call() throws Exception {
 
                 Product product = Products.createProduct(supplier,
-                        technicalProduct, false, productId,
-                        productId + "Model", marketplace, ds);
+                        technicalProduct, false, productId, productId + "Model",
+                        marketplace, ds);
 
-                if (!supplier.getGrantedRoleTypes().contains(
-                        OrganizationRoleType.SUPPLIER)) {
+                if (!supplier.getGrantedRoleTypes()
+                        .contains(OrganizationRoleType.SUPPLIER)) {
                     product.setType(ServiceType.PARTNER_TEMPLATE);
                 }
                 product.setProvisioningDate(provisioningDate);
@@ -194,14 +196,14 @@ public class LandingpageServiceBeanVisIT extends EJBTestBase {
                 custSpecProduct = Products.createCustomerSpecifcProduct(ds,
                         customer, product, ServiceStatus.INACTIVE);
                 custSpecProduct.getPriceModel();
-                custSpecProduct.setProvisioningDate(product
-                        .getProvisioningDate());
+                custSpecProduct
+                        .setProvisioningDate(product.getProvisioningDate());
                 ds.persist(custSpecProduct);
 
                 localizer.storeLocalizedResource(locale,
                         custSpecProduct.getKey(),
-                        LocalizedObjectTypes.PRODUCT_MARKETING_NAME, namePrefix
-                                + product.getProductId());
+                        LocalizedObjectTypes.PRODUCT_MARKETING_NAME,
+                        namePrefix + product.getProductId());
 
                 Subscriptions.createSubscription(ds,
                         customer.getOrganizationId(), custSpecProduct);
@@ -233,8 +235,8 @@ public class LandingpageServiceBeanVisIT extends EJBTestBase {
                         brokerCopyName + productTemplate.getProductId()
                                 + vendor.getOrganizationId());
 
-                Subscriptions.createSubscription(ds,
-                        vendor.getOrganizationId(), brokerProductFill);
+                Subscriptions.createSubscription(ds, vendor.getOrganizationId(),
+                        brokerProductFill);
 
                 return brokerProductFill;
 
@@ -262,8 +264,8 @@ public class LandingpageServiceBeanVisIT extends EJBTestBase {
                         resellerCopyName + productTemplate.getProductId()
                                 + vendor.getOrganizationId());
 
-                Subscriptions.createSubscription(ds,
-                        vendor.getOrganizationId(), resellerProductFill);
+                Subscriptions.createSubscription(ds, vendor.getOrganizationId(),
+                        resellerProductFill);
 
                 return resellerProductFill;
 
@@ -381,6 +383,7 @@ public class LandingpageServiceBeanVisIT extends EJBTestBase {
     protected void setup(final TestContainer container) throws Exception {
         // container
         container.enableInterfaceMocking(true);
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         container.addBean(new MarketplaceCacheServiceBean());
         container.addBean(new LandingpageServiceBean());
@@ -394,8 +397,7 @@ public class LandingpageServiceBeanVisIT extends EJBTestBase {
 
         // setup db
         createPlatformOperator();
-        supplierOrg = createOrganization(
-                OrganizationRoleType.PLATFORM_OPERATOR,
+        supplierOrg = createOrganization(OrganizationRoleType.PLATFORM_OPERATOR,
                 OrganizationRoleType.MARKETPLACE_OWNER,
                 OrganizationRoleType.SUPPLIER);
         customerOrg = createOrganization(OrganizationRoleType.CUSTOMER);
@@ -419,8 +421,8 @@ public class LandingpageServiceBeanVisIT extends EJBTestBase {
                 product);
 
         // create products for marketplace 2
-        Product product2 = createProduct(supplierOrg, supplierMp2, productId
-                + "2");
+        Product product2 = createProduct(supplierOrg, supplierMp2,
+                productId + "2");
         Product productFill2 = createProduct(supplierOrg, supplierMp2,
                 productIdFill + "2");
         createCustomerProduct(customerOrg, product2, customerCopyName);
@@ -434,7 +436,8 @@ public class LandingpageServiceBeanVisIT extends EJBTestBase {
             boolean publicAccess) throws Exception {
         updateProduct(product, status, visibleInCatalog, publicAccess);
         updateProduct(productFill, status, visibleInCatalog, publicAccess);
-        updateProduct(brokerProductFill, status, visibleInCatalog, publicAccess);
+        updateProduct(brokerProductFill, status, visibleInCatalog,
+                publicAccess);
         updateProduct(resellerProductFill, status, visibleInCatalog,
                 publicAccess);
     }

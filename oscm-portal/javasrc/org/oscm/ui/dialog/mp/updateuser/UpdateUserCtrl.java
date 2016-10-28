@@ -76,8 +76,8 @@ public class UpdateUserCtrl {
     private static final String ROLE_NAME_TEMPLATE = "UserRoleType.%s.enum";
     private static final String UNIT_ROLE_NAME_TEMPLATE = "UnitRoleType.%s.enum";
     private static final Set<UserAccountStatus> LOCKED = Collections
-            .unmodifiableSet(
-                    EnumSet.of(UserAccountStatus.LOCKED_FAILED_LOGIN_ATTEMPTS));
+            .unmodifiableSet(EnumSet
+                    .of(UserAccountStatus.LOCKED_FAILED_LOGIN_ATTEMPTS));
 
     private UiDelegate ui;
 
@@ -118,7 +118,8 @@ public class UpdateUserCtrl {
                             userId, sessionBean.getTenantID());
             model.setAssignableSubscriptionsNumber(subscriptionsNumber);
 
-            POUserDetails user = getUserService().getUserDetails(userId, sessionBean.getTenantID());
+            POUserDetails user = getUserService().getUserDetails(userId,
+                    sessionBean.getTenantID());
 
             model.setUser(new User(new VOUserDetails()));
             model.getUser().setUserId(userId);
@@ -169,7 +170,7 @@ public class UpdateUserCtrl {
                 .getGroupListForOrganizationWithoutDefault();
         List<POUserGroup> userGroups = getUserGroupService()
                 .getUserGroupListForUserWithRolesWithoutDefault(
-                        model.getUser().getUserId());
+                        model.getUser().getUserId(), model.getKey());
         Map<Long, POUserGroup> userGroupMap = new HashMap<>();
         for (POUserGroup g : userGroups) {
             userGroupMap.put(Long.valueOf(g.getKey()), g);
@@ -195,9 +196,8 @@ public class UpdateUserCtrl {
             }
             userGroup.setRoles(roles);
             if (userGroupMap.containsKey(Long.valueOf(poUserGroup.getKey()))) {
-                userGroup.setSelectedRole(
-                        userGroupMap.get(Long.valueOf(poUserGroup.getKey()))
-                                .getSelectedRole());
+                userGroup.setSelectedRole(userGroupMap.get(
+                        Long.valueOf(poUserGroup.getKey())).getSelectedRole());
             } else {
                 userGroup.setSelectedRole(UnitRoleType.USER.name());
             }
@@ -233,8 +233,8 @@ public class UpdateUserCtrl {
         if (response.getReturnCodes().size() > 0) {
             outcome = BaseBean.OUTCOME_PENDING;
         }
-        if (Strings.areStringsEqual(ui.getMyUserId(),
-                model.getUser().getUserId())) {
+        if (Strings.areStringsEqual(ui.getMyUserId(), model.getUser()
+                .getUserId())) {
             ui.handle(response, BaseBean.INFO_USER_SAVED_ITSELF,
                     user.getUserId());
             refreshUser();
@@ -289,18 +289,19 @@ public class UpdateUserCtrl {
     void init(POUserDetails u) {
         boolean isLocked = LOCKED.contains(u.getStatus());
         Set<SettingType> set = u.getMappedAttributes();
-        model.setEmail(new FieldData<>(u.getEmail(),
-                set.contains(SettingType.LDAP_ATTR_EMAIL) || isLocked, true));
-        model.setFirstName(new FieldData<>(u.getFirstName(),
-                set.contains(SettingType.LDAP_ATTR_FIRST_NAME) || isLocked));
-        model.setLastName(new FieldData<>(u.getLastName(),
-                set.contains(SettingType.LDAP_ATTR_LAST_NAME) || isLocked));
+        model.setEmail(new FieldData<>(u.getEmail(), set
+                .contains(SettingType.LDAP_ATTR_EMAIL) || isLocked, true));
+        model.setFirstName(new FieldData<>(u.getFirstName(), set
+                .contains(SettingType.LDAP_ATTR_FIRST_NAME) || isLocked));
+        model.setLastName(new FieldData<>(u.getLastName(), set
+                .contains(SettingType.LDAP_ATTR_LAST_NAME) || isLocked));
         model.setLocale(new FieldData<>(u.getLocale(), isLocked, true));
-        model.setUserId(new FieldData<>(u.getUserId(),
-                set.contains(SettingType.LDAP_ATTR_UID) || isLocked
+        model.setUserId(new FieldData<>(
+                u.getUserId(),
+                set.contains(SettingType.LDAP_ATTR_UID)
+                        || isLocked
                         || (Strings.areStringsEqual(ui.getMyUserId(),
-                                u.getUserId())
-                        && !appBean.isInternalAuthMode()),
+                                u.getUserId()) && !appBean.isInternalAuthMode()),
                 true));
         String sal = null;
         if (u.getSalutation() != null) {
@@ -326,8 +327,8 @@ public class UpdateUserCtrl {
         for (UserRoleType r : roles) {
             String name = ui
                     .getText(String.format(ROLE_NAME_TEMPLATE, r.name()));
-            UserRole role = new UserRole(r, name,
-                    u.getAssignedRoles().contains(r));
+            UserRole role = new UserRole(r, name, u.getAssignedRoles()
+                    .contains(r));
             result.add(role);
         }
 
@@ -449,13 +450,15 @@ public class UpdateUserCtrl {
     }
 
     public boolean isResetPwdDisabled() {
-        return Strings.areStringsEqual(ui.getMyUserId(),
-                model.getUser().getUserId()) || model.isErrorOnRead();
+        return Strings.areStringsEqual(ui.getMyUserId(), model.getUser()
+                .getUserId())
+                || model.isErrorOnRead();
     }
 
     public boolean isDeleteDisabled() {
-        return Strings.areStringsEqual(ui.getMyUserId(),
-                model.getUser().getUserId()) || model.isErrorOnRead();
+        return Strings.areStringsEqual(ui.getMyUserId(), model.getUser()
+                .getUserId())
+                || model.isErrorOnRead();
     }
 
     public boolean isRoleColumnRendered() {
@@ -484,8 +487,8 @@ public class UpdateUserCtrl {
         Long number = model.getAssignableSubscriptionsNumber();
 
         return (number.intValue() > 0)
-                && (!appBean.isUIElementHidden(
-                        HiddenUIConstants.PANEL_USER_LIST_SUBSCRIPTIONS))
+                && (!appBean
+                        .isUIElementHidden(HiddenUIConstants.PANEL_USER_LIST_SUBSCRIPTIONS))
                 && !model.isErrorOnRead();
     }
 
@@ -544,8 +547,8 @@ public class UpdateUserCtrl {
 
         boolean existsInChangedSelectedSubs = model.getSelectedSubsIds()
                 .containsKey(subscriptionId);
-        boolean existsInChangedRoles = model.getChangedRoles()
-                .containsKey(subscriptionId);
+        boolean existsInChangedRoles = model.getChangedRoles().containsKey(
+                subscriptionId);
 
         if (existsInChangedSelectedSubs) {
             model.getSelectedSubsIds().remove(subscriptionId);
@@ -554,8 +557,8 @@ public class UpdateUserCtrl {
         }
 
         if (!items.isEmpty() && Boolean.TRUE.equals(selected)) {
-            model.getChangedRoles().put(subscriptionId,
-                    items.get(0).getLabel());
+            model.getChangedRoles()
+                    .put(subscriptionId, items.get(0).getLabel());
         } else if (existsInChangedRoles && Boolean.FALSE.equals(selected)) {
             model.getChangedRoles().remove(subscriptionId);
         }

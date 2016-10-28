@@ -7,7 +7,6 @@ package org.oscm.tenant.dao;
 
 import static org.junit.Assert.assertTrue;
 
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -15,7 +14,6 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import org.junit.Test;
-
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Marketplace;
@@ -36,6 +34,7 @@ import org.oscm.tenant.bean.TenantServiceLocalBean;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.Organizations;
 import org.oscm.test.ejb.TestContainer;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 
 /**
  * Created by PLGrubskiM on 2016-09-15.
@@ -57,6 +56,7 @@ public class TenantDaoIT extends EJBTestBase {
     protected void setup(TestContainer container) throws Exception {
 
         dm = new DataServiceBean();
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(dm);
         container.addBean(new TenantDao());
         container.addBean(new TenantServiceLocalBean());
@@ -118,7 +118,8 @@ public class TenantDaoIT extends EJBTestBase {
         });
         final Tenant returnedTenant = runTX(new Callable<Tenant>() {
             @Override
-            public Tenant call() throws NonUniqueBusinessKeyException, ObjectNotFoundException {
+            public Tenant call() throws NonUniqueBusinessKeyException,
+                    ObjectNotFoundException {
                 return tenantDao.getTenantByTenantId("tenantID1");
             }
         });
@@ -155,7 +156,6 @@ public class TenantDaoIT extends EJBTestBase {
         settingTwo.setValue("someIssuer");
         settingTwo.setVoTenant(returnedTenant);
 
-
         settingsList.add(settingOne);
         settingsList.add(settingTwo);
 
@@ -163,18 +163,21 @@ public class TenantDaoIT extends EJBTestBase {
             @Override
             public Object call() throws Exception {
                 for (VOTenantSetting voSetting : settingsList) {
-                    final TenantSetting domSetting = TenantAssembler.toTenantSetting(voSetting);
+                    final TenantSetting domSetting = TenantAssembler
+                            .toTenantSetting(voSetting);
                     dm.persist(domSetting);
                 }
                 return null;
             }
         });
-        final List<TenantSetting> tenantSettings = runTX(new Callable<List<TenantSetting>>() {
-            @Override
-            public List<TenantSetting> call() throws Exception {
-                return tenantDao.getAllTenantSettingsForTenant(TenantAssembler.toTenant(returnedTenant));
-            }
-        });
+        final List<TenantSetting> tenantSettings = runTX(
+                new Callable<List<TenantSetting>>() {
+                    @Override
+                    public List<TenantSetting> call() throws Exception {
+                        return tenantDao.getAllTenantSettingsForTenant(
+                                TenantAssembler.toTenant(returnedTenant));
+                    }
+                });
         assertTrue(tenantSettings.size() == 2);
     }
 
@@ -308,15 +311,17 @@ public class TenantDaoIT extends EJBTestBase {
                 return org;
             }
         });
-        final RevenueShareModel returnedPriceModel = runTX(new Callable<RevenueShareModel>() {
-            @Override
-            public RevenueShareModel call() throws Exception {
-                RevenueShareModel pm = new RevenueShareModel();
-                pm.setRevenueShareModelType(RevenueShareModelType.RESELLER_REVENUE_SHARE);
-                dm.persist(pm);
-                return pm;
-            }
-        });
+        final RevenueShareModel returnedPriceModel = runTX(
+                new Callable<RevenueShareModel>() {
+                    @Override
+                    public RevenueShareModel call() throws Exception {
+                        RevenueShareModel pm = new RevenueShareModel();
+                        pm.setRevenueShareModelType(
+                                RevenueShareModelType.RESELLER_REVENUE_SHARE);
+                        dm.persist(pm);
+                        return pm;
+                    }
+                });
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
@@ -334,12 +339,13 @@ public class TenantDaoIT extends EJBTestBase {
         final Long count = runTX(new Callable<Long>() {
             @Override
             public Long call() throws Exception {
-                return tenantDao.doesMarketplaceAssignedToTenantExist(returnedTenant);
+                return tenantDao
+                        .doesMarketplaceAssignedToTenantExist(returnedTenant);
             }
         });
         assertTrue(count == 1L);
     }
-    
+
     @Test
     public void testGetNonUniqueOrgUserIdsInTenant() throws Exception {
 
@@ -491,7 +497,8 @@ public class TenantDaoIT extends EJBTestBase {
     }
 
     @Test
-    public void testGetNonUniqueOrgUserIdsInTenantForDefaultTenant() throws Exception {
+    public void testGetNonUniqueOrgUserIdsInTenantForDefaultTenant()
+            throws Exception {
 
         runTX(new Callable<Void>() {
             @Override

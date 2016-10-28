@@ -27,5 +27,6 @@
     path="/libraries/redhat-hibernate/javalib/jboss-transaction-api_1.1_spec-1.0.0.Final.jar" />
   <classpathentry combineaccessrules="false" kind="src" path="/oscm-server-common" />
   <classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc-internal" />
+  <classpathentry kind="lib" path="/libraries/apache-commons-lang/javalib/commons-lang3-3.3.2.jar"/>
   <classpathentry kind="output" path="bin" />
 </classpath>

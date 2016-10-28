@@ -12,7 +12,6 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 
 import org.junit.Test;
-
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.CatalogEntry;
@@ -22,6 +21,11 @@ import org.oscm.domobjects.Marketplace;
 import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.Product;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.ServiceAccessType;
+import org.oscm.internal.types.enumtypes.ServiceStatus;
+import org.oscm.internal.types.enumtypes.Sorting;
+import org.oscm.internal.vo.ListCriteria;
 import org.oscm.serviceprovisioningservice.local.ProductSearchResult;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.CatalogEntries;
@@ -29,11 +33,7 @@ import org.oscm.test.data.Marketplaces;
 import org.oscm.test.data.Organizations;
 import org.oscm.test.data.Products;
 import org.oscm.test.ejb.TestContainer;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
-import org.oscm.internal.types.enumtypes.ServiceStatus;
-import org.oscm.internal.types.enumtypes.Sorting;
-import org.oscm.internal.vo.ListCriteria;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 
 public class ProductSearchExecuteIT extends EJBTestBase {
     private static final String SUPPLIER_ID = "MySupplier";
@@ -65,6 +65,7 @@ public class ProductSearchExecuteIT extends EJBTestBase {
     @Override
     protected void setup(final TestContainer container) throws Exception {
         container.enableInterfaceMocking(true);
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
 
         ds = container.get(DataService.class);
@@ -76,6 +77,7 @@ public class ProductSearchExecuteIT extends EJBTestBase {
 
     private void createSupplier() throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 supplier = Organizations.createOrganization(ds, SUPPLIER_ID,
                         OrganizationRoleType.SUPPLIER,
@@ -96,6 +98,7 @@ public class ProductSearchExecuteIT extends EJBTestBase {
     private void createSupplierProduct(final String marketplaceId)
             throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 // Create technical product and product without price model
                 supplierProduct = Products.createProduct(
@@ -116,6 +119,7 @@ public class ProductSearchExecuteIT extends EJBTestBase {
 
     private void createCustomerSpecificSupplierProduct() throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 customerSpecificSupplierProduct = Products
                         .createCustomerSpecifcProduct(ds, supplier,
@@ -128,6 +132,7 @@ public class ProductSearchExecuteIT extends EJBTestBase {
 
     private void createReseller() throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 reseller = Organizations.createOrganization(ds, RESELLER_ID,
                         OrganizationRoleType.RESELLER);
@@ -147,9 +152,10 @@ public class ProductSearchExecuteIT extends EJBTestBase {
     private void createResellerProduct(final String marketplaceId)
             throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
-                resellerProduct = Products.createProductResaleCopy(
-                        supplierProduct, reseller, ds);
+                resellerProduct = Products
+                        .createProductResaleCopy(supplierProduct, reseller, ds);
 
                 Marketplace mp = new Marketplace();
                 mp.setMarketplaceId(marketplaceId);
@@ -164,6 +170,7 @@ public class ProductSearchExecuteIT extends EJBTestBase {
 
     private void createBroker() throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 broker = Organizations.createOrganization(ds, BROKER_ID,
                         OrganizationRoleType.BROKER);
@@ -182,9 +189,10 @@ public class ProductSearchExecuteIT extends EJBTestBase {
     private void createBrokerProduct(final String marketplaceId)
             throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
-                brokerProduct = Products.createProductResaleCopy(
-                        supplierProduct, broker, ds);
+                brokerProduct = Products
+                        .createProductResaleCopy(supplierProduct, broker, ds);
 
                 Marketplace mp = new Marketplace();
                 mp.setMarketplaceId(marketplaceId);
@@ -210,6 +218,7 @@ public class ProductSearchExecuteIT extends EJBTestBase {
                 ROLE_TECHNOLOGY_MANAGER);
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 // when
                 productSearch = createProductSearch(SUPPLIER_MP_ID);
@@ -238,6 +247,7 @@ public class ProductSearchExecuteIT extends EJBTestBase {
                 ROLE_TECHNOLOGY_MANAGER);
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 // when
                 productSearch = createProductSearch(SUPPLIER_MP_ID);
@@ -299,6 +309,7 @@ public class ProductSearchExecuteIT extends EJBTestBase {
                 ROLE_TECHNOLOGY_MANAGER);
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 // when
                 productSearch = createProductSearch(SUPPLIER_MP_ID);
@@ -323,6 +334,7 @@ public class ProductSearchExecuteIT extends EJBTestBase {
         container.login(brokerUserKey, ROLE_BROKER_MANAGER);
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 // when
                 productSearch = createProductSearch(BROKER_MP_ID);
@@ -333,8 +345,8 @@ public class ProductSearchExecuteIT extends EJBTestBase {
                         "Only broker product should be visible on broker marketplace",
                         1, searchResult.getResultSize());
                 Product service = searchResult.getServices().get(0);
-                assertEquals("Wrong result service key",
-                        brokerProduct.getKey(), service.getKey());
+                assertEquals("Wrong result service key", brokerProduct.getKey(),
+                        service.getKey());
                 assertEquals("Wrong result service ID", PRODUCT_ID,
                         service.getCleanProductId());
 
@@ -354,6 +366,7 @@ public class ProductSearchExecuteIT extends EJBTestBase {
                 ROLE_TECHNOLOGY_MANAGER);
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 // when
                 productSearch = createProductSearch(SUPPLIER_MP_ID);
@@ -384,6 +397,7 @@ public class ProductSearchExecuteIT extends EJBTestBase {
                 ROLE_TECHNOLOGY_MANAGER);
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 // when
                 productSearch = createProductSearch(SUPPLIER_MP_ID,
@@ -414,6 +428,7 @@ public class ProductSearchExecuteIT extends EJBTestBase {
         container.login(brokerUserKey, ROLE_BROKER_MANAGER);
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 // when
                 productSearch = createProductSearch(SUPPLIER_MP_ID,
@@ -425,8 +440,8 @@ public class ProductSearchExecuteIT extends EJBTestBase {
                         "Only broker product should be visible under the category",
                         1, searchResult.getResultSize());
                 Product service = searchResult.getServices().get(0);
-                assertEquals("Wrong result service key",
-                        brokerProduct.getKey(), service.getKey());
+                assertEquals("Wrong result service key", brokerProduct.getKey(),
+                        service.getKey());
                 assertEquals("Wrong result service ID", PRODUCT_ID,
                         service.getCleanProductId());
 
@@ -444,6 +459,7 @@ public class ProductSearchExecuteIT extends EJBTestBase {
         container.login(resellerUserKey, ROLE_RESELLER_MANAGER);
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 // when
                 productSearch = createProductSearch(SUPPLIER_MP_ID,
@@ -484,6 +500,7 @@ public class ProductSearchExecuteIT extends EJBTestBase {
     private void createSupplierProductWithCategory(final String marketplaceId,
             final String categoryId) throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 // Create technical product and product without price model
                 supplierProduct = Products.createProduct(
@@ -500,9 +517,10 @@ public class ProductSearchExecuteIT extends EJBTestBase {
     private void createBrokerProductWithCategory(final String marketplaceId,
             final String categoryId) throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
-                brokerProduct = Products.createProductResaleCopy(
-                        supplierProduct, broker, ds);
+                brokerProduct = Products
+                        .createProductResaleCopy(supplierProduct, broker, ds);
                 createCategory(ds, categoryId, marketplaceId, brokerProduct);
 
                 return null;
@@ -513,9 +531,10 @@ public class ProductSearchExecuteIT extends EJBTestBase {
     private void createResellerProductWithCategory(final String marketplaceId,
             final String categoryId) throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
-                resellerProduct = Products.createProductResaleCopy(
-                        supplierProduct, reseller, ds);
+                resellerProduct = Products
+                        .createProductResaleCopy(supplierProduct, reseller, ds);
                 createCategory(ds, categoryId, marketplaceId, resellerProduct);
 
                 return null;
@@ -553,6 +572,7 @@ public class ProductSearchExecuteIT extends EJBTestBase {
         container.login(resellerUserKey, ROLE_RESELLER_MANAGER);
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 // when
                 productSearch = createProductSearch(RESELLER_MP_ID);
@@ -584,6 +604,7 @@ public class ProductSearchExecuteIT extends EJBTestBase {
                 ROLE_TECHNOLOGY_MANAGER);
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 // when
                 productSearch = createProductSearch(SUPPLIER_MP_ID);
@@ -617,6 +638,7 @@ public class ProductSearchExecuteIT extends EJBTestBase {
                 ROLE_TECHNOLOGY_MANAGER);
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 // when
                 productSearch = createProductSearch(SUPPLIER_MP_ID);
@@ -627,12 +649,12 @@ public class ProductSearchExecuteIT extends EJBTestBase {
                         "Customer specific supplier product and broker/reseller products should be visible",
                         3, searchResult.getResultSize());
 
-                Set<Long> expectedProductIds = new HashSet<Long>(Arrays.asList(
+                Set<Long> expectedProductIds = new HashSet<>(Arrays.asList(
                         Long.valueOf(customerSpecificSupplierProduct.getKey()),
                         Long.valueOf(brokerProduct.getKey()),
                         Long.valueOf(resellerProduct.getKey())));
 
-                Set<Long> resultedProductIds = new HashSet<Long>();
+                Set<Long> resultedProductIds = new HashSet<>();
                 for (Product service : searchResult.getServices()) {
                     resultedProductIds.add(Long.valueOf(service.getKey()));
                 }
@@ -657,6 +679,7 @@ public class ProductSearchExecuteIT extends EJBTestBase {
         container.login(brokerUserKey, ROLE_BROKER_MANAGER);
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 // when
                 productSearch = createProductSearch(SUPPLIER_MP_ID);
@@ -667,12 +690,12 @@ public class ProductSearchExecuteIT extends EJBTestBase {
                         "Supplier/broker/reseller products should be visible",
                         3, searchResult.getResultSize());
 
-                Set<Long> expectedProductIds = new HashSet<Long>(Arrays.asList(
-                        Long.valueOf(supplierProduct.getKey()),
-                        Long.valueOf(brokerProduct.getKey()),
-                        Long.valueOf(resellerProduct.getKey())));
+                Set<Long> expectedProductIds = new HashSet<>(
+                        Arrays.asList(Long.valueOf(supplierProduct.getKey()),
+                                Long.valueOf(brokerProduct.getKey()),
+                                Long.valueOf(resellerProduct.getKey())));
 
-                Set<Long> resultedProductIds = new HashSet<Long>();
+                Set<Long> resultedProductIds = new HashSet<>();
                 for (Product service : searchResult.getServices()) {
                     resultedProductIds.add(Long.valueOf(service.getKey()));
                 }

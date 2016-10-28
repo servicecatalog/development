@@ -28,6 +28,7 @@ import org.oscm.tenant.dao.TenantDao;
 import org.oscm.tenant.local.TenantServiceLocal;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.ejb.TestContainer;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 
 /**
  * Created by PLGrubskiM on 2016-09-15.
@@ -46,6 +47,7 @@ public class TenantServiceBeanIT extends EJBTestBase {
     @Override
     protected void setup(TestContainer container) throws Exception {
         dm = new DataServiceBean();
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(dm);
         container.addBean(new TenantDao());
         container.addBean(new TenantServiceLocalBean());
@@ -241,8 +243,10 @@ public class TenantServiceBeanIT extends EJBTestBase {
         final VOTenant returnedTenant = runTX(new Callable<VOTenant>() {
             @Override
             public VOTenant call() throws ObjectNotFoundException,
-                    NonUniqueBusinessKeyException, ConcurrentModificationException {
-                VOTenant tenant = tenantService.getTenantByTenantId("tenantID6");
+                    NonUniqueBusinessKeyException,
+                    ConcurrentModificationException {
+                VOTenant tenant = tenantService
+                        .getTenantByTenantId("tenantID6");
 
                 List<VOTenantSetting> tenantSettings = new ArrayList<>();
                 tenantSettings.add(createTenantSetting(
@@ -252,16 +256,14 @@ public class TenantServiceBeanIT extends EJBTestBase {
                 return tenant;
             }
         });
-        final List<VOTenantSetting> voTenantSettings = runTX(
-                new Callable<List<VOTenantSetting>>() {
-                    @Override
-                    public List<VOTenantSetting> call()
-                            throws ObjectNotFoundException {
-                        final List<VOTenantSetting> settingsForTenant = tenantService
-                                .getSettingsForTenant(returnedTenant.getKey());
-                        return settingsForTenant;
-                    }
-                });
+        final List<VOTenantSetting> voTenantSettings = runTX(new Callable<List<VOTenantSetting>>() {
+            @Override
+            public List<VOTenantSetting> call() throws ObjectNotFoundException {
+                final List<VOTenantSetting> settingsForTenant = tenantService
+                        .getSettingsForTenant(returnedTenant.getKey());
+                return settingsForTenant;
+            }
+        });
         assertTrue(voTenantSettings.size() == 1);
     }
 

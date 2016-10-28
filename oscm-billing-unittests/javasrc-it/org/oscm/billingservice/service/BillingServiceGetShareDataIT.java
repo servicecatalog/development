@@ -23,7 +23,6 @@ import javax.ejb.EJBAccessException;
 import javax.ejb.EJBException;
 
 import org.junit.Test;
-
 import org.oscm.accountservice.dao.UserLicenseDao;
 import org.oscm.billingservice.business.calculation.revenue.RevenueCalculatorBean;
 import org.oscm.billingservice.business.calculation.share.SharesCalculatorBean;
@@ -43,6 +42,14 @@ import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.RoleAssignment;
 import org.oscm.domobjects.UserRole;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
+import org.oscm.internal.intf.BillingService;
+import org.oscm.internal.types.enumtypes.BillingSharesResultType;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.UserRoleType;
+import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
+import org.oscm.internal.types.exception.OperationNotPermittedException;
+import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
+import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.Marketplaces;
 import org.oscm.test.data.Organizations;
@@ -52,14 +59,6 @@ import org.oscm.test.ejb.TestContainer;
 import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.test.stubs.TriggerQueueServiceStub;
 import org.oscm.validation.Invariants;
-import org.oscm.internal.intf.BillingService;
-import org.oscm.internal.types.enumtypes.BillingSharesResultType;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.UserRoleType;
-import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
-import org.oscm.internal.types.exception.OperationNotPermittedException;
-import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
-import org.oscm.internal.types.exception.ValidationException;
 
 @SuppressWarnings("boxing")
 public class BillingServiceGetShareDataIT extends EJBTestBase {
@@ -86,6 +85,7 @@ public class BillingServiceGetShareDataIT extends EJBTestBase {
     public void setup(TestContainer container) throws Exception {
         container.login("1");
 
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         container.addBean(new LocalizerServiceBean());
         container.addBean(new BillingDataRetrievalServiceBean());
@@ -116,8 +116,8 @@ public class BillingServiceGetShareDataIT extends EJBTestBase {
                 brokerOrg = Organizations.createOrganization(dm,
                         OrganizationRoleType.BROKER);
                 brokerOrg.setName("brokerOrg");
-                brokerUser = Organizations.createUserForOrg(dm, brokerOrg,
-                        true, "brokerUser");
+                brokerUser = Organizations.createUserForOrg(dm, brokerOrg, true,
+                        "brokerUser");
                 PlatformUsers.grantRoles(dm, brokerUser,
                         UserRoleType.BROKER_MANAGER);
 
@@ -216,21 +216,15 @@ public class BillingServiceGetShareDataIT extends EJBTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                createBillingData(
-                        dm,
-                        orgKey,
-                        PERIOD_START_MONTH1,
-                        PERIOD_END_MONTH1,
-                        expectedXml(PERIOD_START_MONTH1, PERIOD_END_MONTH1,
-                                orgKey), type);
+                createBillingData(dm, orgKey, PERIOD_START_MONTH1,
+                        PERIOD_END_MONTH1, expectedXml(PERIOD_START_MONTH1,
+                                PERIOD_END_MONTH1, orgKey),
+                        type);
 
-                createBillingData(
-                        dm,
-                        orgKey,
-                        PERIOD_START_MONTH2,
-                        PERIOD_END_MONTH2,
-                        expectedXml(PERIOD_START_MONTH2, PERIOD_END_MONTH2,
-                                orgKey), type);
+                createBillingData(dm, orgKey, PERIOD_START_MONTH2,
+                        PERIOD_END_MONTH2, expectedXml(PERIOD_START_MONTH2,
+                                PERIOD_END_MONTH2, orgKey),
+                        type);
                 return null;
             }
         });
@@ -383,7 +377,8 @@ public class BillingServiceGetShareDataIT extends EJBTestBase {
 
         // when
         bs.getRevenueShareData(Long.valueOf(PERIOD_START_MONTH1),
-                Long.valueOf(PERIOD_END_MONTH2), BillingSharesResultType.BROKER);
+                Long.valueOf(PERIOD_END_MONTH2),
+                BillingSharesResultType.BROKER);
 
         // then exception
     }
@@ -512,7 +507,8 @@ public class BillingServiceGetShareDataIT extends EJBTestBase {
 
         // when
         bs.getRevenueShareData(Long.valueOf(PERIOD_START_MONTH1),
-                Long.valueOf(PERIOD_END_MONTH1), BillingSharesResultType.BROKER);
+                Long.valueOf(PERIOD_END_MONTH1),
+                BillingSharesResultType.BROKER);
 
         // then exception, supplier has no organization role Broker
     }
@@ -590,7 +586,8 @@ public class BillingServiceGetShareDataIT extends EJBTestBase {
 
         // when
         bs.getRevenueShareData(Long.valueOf(PERIOD_START_MONTH1),
-                Long.valueOf(PERIOD_END_MONTH1), BillingSharesResultType.BROKER);
+                Long.valueOf(PERIOD_END_MONTH1),
+                BillingSharesResultType.BROKER);
 
         // then exception
     }

@@ -221,6 +221,7 @@ public class UserDataAssembler extends BaseAssembler {
         userToBeUpdated.setPhone(userDetails.getPhone());
         userToBeUpdated.setLocale(userDetails.getLocale());
         userToBeUpdated.setSalutation(userDetails.getSalutation());
+        userToBeUpdated.setTenantId(userDetails.getTenantId());
         // don't modify credentials!
     }
 

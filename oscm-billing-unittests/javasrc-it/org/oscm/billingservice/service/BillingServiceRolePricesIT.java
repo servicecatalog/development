@@ -11,8 +11,8 @@
  *******************************************************************************/
 package org.oscm.billingservice.service;
 
-import static org.oscm.test.BigDecimalAsserts.checkEquals;
 import static org.mockito.Mockito.mock;
+import static org.oscm.test.BigDecimalAsserts.checkEquals;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -24,8 +24,6 @@ import java.util.concurrent.Callable;
 import javax.persistence.Query;
 
 import org.junit.Test;
-import org.w3c.dom.Document;
-
 import org.oscm.accountservice.dao.UserLicenseDao;
 import org.oscm.billingservice.business.calculation.revenue.RevenueCalculatorBean;
 import org.oscm.billingservice.business.calculation.share.SharesCalculatorBean;
@@ -54,6 +52,13 @@ import org.oscm.domobjects.TechnicalProduct;
 import org.oscm.domobjects.UsageLicense;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
 import org.oscm.interceptor.DateFactory;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.ParameterType;
+import org.oscm.internal.types.enumtypes.ParameterValueType;
+import org.oscm.internal.types.enumtypes.PricingPeriod;
+import org.oscm.internal.types.enumtypes.ServiceAccessType;
+import org.oscm.internal.types.enumtypes.UserAccountStatus;
+import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.paymentservice.bean.PaymentServiceStub;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.Numbers;
@@ -68,13 +73,7 @@ import org.oscm.test.ejb.TestContainer;
 import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.test.stubs.TriggerQueueServiceStub;
 import org.oscm.triggerservice.local.TriggerMessage;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ParameterType;
-import org.oscm.internal.types.enumtypes.ParameterValueType;
-import org.oscm.internal.types.enumtypes.PricingPeriod;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
-import org.oscm.internal.types.enumtypes.UserAccountStatus;
-import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
+import org.w3c.dom.Document;
 
 /**
  * JUnit test.
@@ -98,7 +97,7 @@ public class BillingServiceRolePricesIT extends EJBTestBase {
     @Override
     protected void setup(TestContainer container) throws Exception {
         container.login("1");
-
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         container.addBean(new ConfigurationServiceStub());
         container.addBean(new PaymentServiceStub());
@@ -142,8 +141,8 @@ public class BillingServiceRolePricesIT extends EJBTestBase {
                         OrganizationRoleType.TECHNOLOGY_PROVIDER,
                         OrganizationRoleType.SUPPLIER);
 
-                technicalProduct = TechnicalProducts.createTechnicalProduct(
-                        mgr, supplierAndProvider, "techProdId", false,
+                technicalProduct = TechnicalProducts.createTechnicalProduct(mgr,
+                        supplierAndProvider, "techProdId", false,
                         ServiceAccessType.LOGIN);
 
                 product = Products.createProduct(supplierAndProvider,
@@ -360,8 +359,8 @@ public class BillingServiceRolePricesIT extends EJBTestBase {
             @Override
             public Document call() throws Exception {
 
-                Query query = mgr
-                        .createQuery("SELECT br FROM BillingResult br WHERE br.dataContainer.organizationTKey = :organizationTKey ORDER BY br.dataContainer.periodEndTime DESC");
+                Query query = mgr.createQuery(
+                        "SELECT br FROM BillingResult br WHERE br.dataContainer.organizationTKey = :organizationTKey ORDER BY br.dataContainer.periodEndTime DESC");
                 query.setParameter("organizationTKey",
                         Long.valueOf(customer.getKey()));
                 query.setMaxResults(1);
@@ -370,8 +369,8 @@ public class BillingServiceRolePricesIT extends EJBTestBase {
 
                 System.out.println(billingResult.getResultXML());
 
-                Document doc = XMLConverter.convertToDocument(
-                        billingResult.getResultXML(), true);
+                Document doc = XMLConverter
+                        .convertToDocument(billingResult.getResultXML(), true);
 
                 return doc;
             }
@@ -520,7 +519,7 @@ public class BillingServiceRolePricesIT extends EJBTestBase {
                 updateHistoryModDate(option2, creationDate);
                 mgr.persist(option2);
 
-                List<ParameterOption> paramOptions = new ArrayList<ParameterOption>();
+                List<ParameterOption> paramOptions = new ArrayList<>();
                 paramOptions.add(option);
                 paramOptions.add(option2);
                 enumParamDef.setOptionList(paramOptions);
@@ -540,7 +539,7 @@ public class BillingServiceRolePricesIT extends EJBTestBase {
                 pricedOption.setPricedParameter(pricedEnumParam);
                 pricedOption.setPricePerSubscription(new BigDecimal(777));
                 pricedOption.setPricePerUser(new BigDecimal(765));
-                List<PricedOption> pricedOptions = new ArrayList<PricedOption>();
+                List<PricedOption> pricedOptions = new ArrayList<>();
                 pricedOptions.add(pricedOption);
                 updateHistoryModDate(pricedOption, creationDate);
                 mgr.persist(pricedOption);
@@ -628,15 +627,15 @@ public class BillingServiceRolePricesIT extends EJBTestBase {
                                 "intParam", ParameterType.SERVICE_PARAMETER,
                                 technicalProduct, mgr, null, null, true);
 
-                Query query = mgr
-                        .createQuery("UPDATE ParameterDefinitionHistory pdh SET pdh.modDate = :date");
+                Query query = mgr.createQuery(
+                        "UPDATE ParameterDefinitionHistory pdh SET pdh.modDate = :date");
                 query.setParameter("date", creationDate);
                 query.executeUpdate();
 
                 Parameter param = Products.createParameter(paramDef, product,
                         mgr);
-                query = mgr
-                        .createQuery("UPDATE ParameterHistory ph SET ph.modDate = :date");
+                query = mgr.createQuery(
+                        "UPDATE ParameterHistory ph SET ph.modDate = :date");
                 query.setParameter("date", creationDate);
                 query.executeUpdate();
 
@@ -650,8 +649,8 @@ public class BillingServiceRolePricesIT extends EJBTestBase {
                 updateHistoryModDate(pricedParam, creationDate);
                 mgr.persist(pricedParam);
 
-                createPricedProductRoles(null, pricedParam, null,
-                        Numbers.BD100, creationDate);
+                createPricedProductRoles(null, pricedParam, null, Numbers.BD100,
+                        creationDate);
 
                 return null;
             }
@@ -720,7 +719,7 @@ public class BillingServiceRolePricesIT extends EJBTestBase {
         user.setStatus(UserAccountStatus.ACTIVE);
         user.setLocale("en");
         mgr.persist(user);
-        user = (PlatformUser) mgr.find(user);
+        user = mgr.find(user);
 
         UsageLicense license = new UsageLicense();
         license.setAssignmentDate(subscriptionCreationTime);

@@ -14,19 +14,19 @@ import static org.junit.Assert.assertNull;
 import java.util.concurrent.Callable;
 
 import org.junit.Test;
-
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.PriceModelHistory;
 import org.oscm.domobjects.SubscriptionHistory;
 import org.oscm.domobjects.enums.ModificationType;
+import org.oscm.internal.types.enumtypes.PriceModelType;
+import org.oscm.internal.types.enumtypes.SubscriptionStatus;
 import org.oscm.test.DateTimeHandling;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.PriceModels;
 import org.oscm.test.data.Subscriptions;
 import org.oscm.test.ejb.TestContainer;
-import org.oscm.internal.types.enumtypes.PriceModelType;
-import org.oscm.internal.types.enumtypes.SubscriptionStatus;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 
 /**
  * @author baumann
@@ -45,6 +45,7 @@ public class BillingDataRetrievalServiceBeanPriceModel2IT extends EJBTestBase {
 
     @Override
     protected void setup(TestContainer container) throws Exception {
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         container.addBean(new BillingDataRetrievalServiceBean());
         ds = container.get(DataService.class);
@@ -69,8 +70,8 @@ public class BillingDataRetrievalServiceBeanPriceModel2IT extends EJBTestBase {
     }
 
     private void createPriceModelHistory(final DataService ds,
-            final long objKey, final String modificationDate,
-            final int version, final ModificationType modificationType,
+            final long objKey, final String modificationDate, final int version,
+            final ModificationType modificationType,
             final PriceModelType priceModelType, final long productObjKey,
             final boolean provisioningCompleted) throws Exception {
 
@@ -91,13 +92,15 @@ public class BillingDataRetrievalServiceBeanPriceModel2IT extends EJBTestBase {
         setupSubAndPmHistoriesForAsyncUpgrade();
 
         // when
-        SubscriptionHistory subHistory = runTX(new Callable<SubscriptionHistory>() {
-            @Override
-            public SubscriptionHistory call() throws Exception {
-                return bdr.loadPreviousSubscriptionHistoryForPriceModel(
-                        PRICEMODEL1_KEY, dateToMillis("2012-10-01 08:00:00"));
-            }
-        });
+        SubscriptionHistory subHistory = runTX(
+                new Callable<SubscriptionHistory>() {
+                    @Override
+                    public SubscriptionHistory call() throws Exception {
+                        return bdr.loadPreviousSubscriptionHistoryForPriceModel(
+                                PRICEMODEL1_KEY,
+                                dateToMillis("2012-10-01 08:00:00"));
+                    }
+                });
 
         // then
         assertNull(subHistory);
@@ -110,13 +113,15 @@ public class BillingDataRetrievalServiceBeanPriceModel2IT extends EJBTestBase {
         setupSubAndPmHistoriesForAsyncUpgrade();
 
         // when
-        SubscriptionHistory subHistory = runTX(new Callable<SubscriptionHistory>() {
-            @Override
-            public SubscriptionHistory call() throws Exception {
-                return bdr.loadPreviousSubscriptionHistoryForPriceModel(
-                        PRICEMODEL1_KEY, dateToMillis("2012-10-01 08:20:00"));
-            }
-        });
+        SubscriptionHistory subHistory = runTX(
+                new Callable<SubscriptionHistory>() {
+                    @Override
+                    public SubscriptionHistory call() throws Exception {
+                        return bdr.loadPreviousSubscriptionHistoryForPriceModel(
+                                PRICEMODEL1_KEY,
+                                dateToMillis("2012-10-01 08:20:00"));
+                    }
+                });
 
         // then
         assertEquals(1, subHistory.getObjVersion());
@@ -129,13 +134,15 @@ public class BillingDataRetrievalServiceBeanPriceModel2IT extends EJBTestBase {
         setupSubAndPmHistoriesForAsyncUpgrade();
 
         // when
-        SubscriptionHistory subHistory = runTX(new Callable<SubscriptionHistory>() {
-            @Override
-            public SubscriptionHistory call() throws Exception {
-                return bdr.loadPreviousSubscriptionHistoryForPriceModel(
-                        PRICEMODEL1_KEY, dateToMillis("2012-10-03 10:10:00"));
-            }
-        });
+        SubscriptionHistory subHistory = runTX(
+                new Callable<SubscriptionHistory>() {
+                    @Override
+                    public SubscriptionHistory call() throws Exception {
+                        return bdr.loadPreviousSubscriptionHistoryForPriceModel(
+                                PRICEMODEL1_KEY,
+                                dateToMillis("2012-10-03 10:10:00"));
+                    }
+                });
 
         // then
         assertEquals(5, subHistory.getObjVersion());
@@ -148,13 +155,16 @@ public class BillingDataRetrievalServiceBeanPriceModel2IT extends EJBTestBase {
         setupSubAndPmHistoriesForAsyncUpgrade();
 
         // when
-        SubscriptionHistory subHistory = runTX(new Callable<SubscriptionHistory>() {
-            @Override
-            public SubscriptionHistory call() throws Exception {
-                return bdr.loadNextActiveSubscriptionHistoryForPriceModel(
-                        PRICEMODEL1_KEY, dateToMillis("2012-10-01 08:20:00"));
-            }
-        });
+        SubscriptionHistory subHistory = runTX(
+                new Callable<SubscriptionHistory>() {
+                    @Override
+                    public SubscriptionHistory call() throws Exception {
+                        return bdr
+                                .loadNextActiveSubscriptionHistoryForPriceModel(
+                                        PRICEMODEL1_KEY,
+                                        dateToMillis("2012-10-01 08:20:00"));
+                    }
+                });
 
         // then
         assertEquals(2, subHistory.getObjVersion());
@@ -167,13 +177,16 @@ public class BillingDataRetrievalServiceBeanPriceModel2IT extends EJBTestBase {
         setupSubAndPmHistoriesForAsyncUpgrade();
 
         // when
-        SubscriptionHistory subHistory = runTX(new Callable<SubscriptionHistory>() {
-            @Override
-            public SubscriptionHistory call() throws Exception {
-                return bdr.loadNextActiveSubscriptionHistoryForPriceModel(
-                        PRICEMODEL1_KEY, dateToMillis("2012-10-03 10:20:00"));
-            }
-        });
+        SubscriptionHistory subHistory = runTX(
+                new Callable<SubscriptionHistory>() {
+                    @Override
+                    public SubscriptionHistory call() throws Exception {
+                        return bdr
+                                .loadNextActiveSubscriptionHistoryForPriceModel(
+                                        PRICEMODEL1_KEY,
+                                        dateToMillis("2012-10-03 10:20:00"));
+                    }
+                });
 
         // then
         assertNull(subHistory);
@@ -186,13 +199,16 @@ public class BillingDataRetrievalServiceBeanPriceModel2IT extends EJBTestBase {
         setupSubAndPmHistoriesForAsyncUpgrade();
 
         // when
-        SubscriptionHistory subHistory = runTX(new Callable<SubscriptionHistory>() {
-            @Override
-            public SubscriptionHistory call() throws Exception {
-                return bdr.loadNextActiveSubscriptionHistoryForPriceModel(
-                        PRICEMODEL2_KEY, dateToMillis("2012-10-03 10:20:00"));
-            }
-        });
+        SubscriptionHistory subHistory = runTX(
+                new Callable<SubscriptionHistory>() {
+                    @Override
+                    public SubscriptionHistory call() throws Exception {
+                        return bdr
+                                .loadNextActiveSubscriptionHistoryForPriceModel(
+                                        PRICEMODEL2_KEY,
+                                        dateToMillis("2012-10-03 10:20:00"));
+                    }
+                });
 
         // then
         assertEquals(7, subHistory.getObjVersion());
@@ -205,13 +221,16 @@ public class BillingDataRetrievalServiceBeanPriceModel2IT extends EJBTestBase {
         setupSubAndPmHistoriesForAsyncUpgrade();
 
         // when
-        SubscriptionHistory subHistory = runTX(new Callable<SubscriptionHistory>() {
-            @Override
-            public SubscriptionHistory call() throws Exception {
-                return bdr.loadNextActiveSubscriptionHistoryForPriceModel(
-                        PRICEMODEL2_KEY, dateToMillis("2012-10-05 11:00:00"));
-            }
-        });
+        SubscriptionHistory subHistory = runTX(
+                new Callable<SubscriptionHistory>() {
+                    @Override
+                    public SubscriptionHistory call() throws Exception {
+                        return bdr
+                                .loadNextActiveSubscriptionHistoryForPriceModel(
+                                        PRICEMODEL2_KEY,
+                                        dateToMillis("2012-10-05 11:00:00"));
+                    }
+                });
 
         // then
         assertEquals(7, subHistory.getObjVersion());

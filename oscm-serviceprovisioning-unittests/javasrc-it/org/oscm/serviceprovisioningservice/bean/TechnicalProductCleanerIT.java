@@ -22,7 +22,6 @@ import javax.ejb.EJBException;
 
 import org.junit.Assert;
 import org.junit.Test;
-
 import org.oscm.applicationservice.local.ApplicationServiceLocal;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
@@ -34,15 +33,16 @@ import org.oscm.domobjects.TechnicalProduct;
 import org.oscm.domobjects.Uda;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.domobjects.enums.ModificationType;
+import org.oscm.internal.types.enumtypes.ServiceStatus;
+import org.oscm.internal.types.enumtypes.SubscriptionStatus;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.tenantprovisioningservice.bean.TenantProvisioningServiceBean;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.Scenario;
 import org.oscm.test.data.SupportedCountries;
 import org.oscm.test.ejb.TestContainer;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.test.stubs.LocalizerServiceStub;
-import org.oscm.internal.types.enumtypes.ServiceStatus;
-import org.oscm.internal.types.enumtypes.SubscriptionStatus;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
 
 /**
  * @author weiser
@@ -59,6 +59,7 @@ public class TechnicalProductCleanerIT extends EJBTestBase {
     @Override
     protected void setup(final TestContainer container) throws Exception {
         container.login("1");
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         container.addBean(new LocalizerServiceStub() {
             @Override
@@ -165,7 +166,8 @@ public class TechnicalProductCleanerIT extends EJBTestBase {
         }
         List<DomainHistoryObject<?>> history = mgr.findHistory(uda);
         DomainHistoryObject<?> historyObject = history.get(history.size() - 1);
-        Assert.assertEquals(ModificationType.DELETE, historyObject.getModtype());
+        Assert.assertEquals(ModificationType.DELETE,
+                historyObject.getModtype());
         Assert.assertEquals(moddate, historyObject.getModdate());
     }
 

@@ -33,6 +33,7 @@ import org.oscm.test.data.PlatformUsers;
 import org.oscm.test.data.Products;
 import org.oscm.test.data.Subscriptions;
 import org.oscm.test.ejb.TestContainer;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 
 public class SubscriptionDaoSubscriptionsIT extends EJBTestBase {
 
@@ -53,6 +54,7 @@ public class SubscriptionDaoSubscriptionsIT extends EJBTestBase {
     @Override
     protected void setup(TestContainer container) throws Exception {
 
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         ds = container.get(DataService.class);
         dao = new SubscriptionDao(ds);
@@ -73,7 +75,8 @@ public class SubscriptionDaoSubscriptionsIT extends EJBTestBase {
         supplierCustomer1 = registerCustomer("supplierCustomer1", supplier);
         PlatformUser user1Cust1 = createUser("User1Cust1", supplierCustomer1);
         PlatformUser user2Cust1 = createUser("User2Cust1", supplierCustomer1);
-        PlatformUser userNotAssignedCust1 = createUser("userNotAssignedCust1", supplierCustomer1);
+        PlatformUser userNotAssignedCust1 = createUser("userNotAssignedCust1",
+                supplierCustomer1);
 
         subCust1NoUsers = createSubscription(
                 supplierCustomer1.getOrganizationId(), productA.getProductId(),
@@ -102,7 +105,8 @@ public class SubscriptionDaoSubscriptionsIT extends EJBTestBase {
         supplierCustomer2 = registerCustomer("supplierCustomer2", supplier);
         PlatformUser user1Cust2 = createUser("User1Cust2", supplierCustomer2);
         PlatformUser user2Cust2 = createUser("User2Cust2", supplierCustomer2);
-        PlatformUser userNotAssignedCust2 = createUser("userNotAssignedCust2", supplierCustomer1);
+        PlatformUser userNotAssignedCust2 = createUser("userNotAssignedCust2",
+                supplierCustomer1);
 
         subCust2NoUsers = createSubscription(
                 supplierCustomer2.getOrganizationId(), productA.getProductId(),
@@ -134,8 +138,8 @@ public class SubscriptionDaoSubscriptionsIT extends EJBTestBase {
     public void retrieveSubscriptionReportDataCustomer1() throws Exception {
         // given setup
         // when
-        List<ReportResultData> result = retrieveSubscriptionReportData(supplierCustomer1
-                .getOrganizationId());
+        List<ReportResultData> result = retrieveSubscriptionReportData(
+                supplierCustomer1.getOrganizationId());
 
         // then
         assertEquals(3, result.size());
@@ -150,8 +154,8 @@ public class SubscriptionDaoSubscriptionsIT extends EJBTestBase {
     public void retrieveSubscriptionReportDataCustomer2() throws Exception {
         // given setup
         // when
-        List<ReportResultData> result = retrieveSubscriptionReportData(supplierCustomer2
-                .getOrganizationId());
+        List<ReportResultData> result = retrieveSubscriptionReportData(
+                supplierCustomer2.getOrganizationId());
 
         // then
         assertEquals(3, result.size());
@@ -163,7 +167,7 @@ public class SubscriptionDaoSubscriptionsIT extends EJBTestBase {
     }
 
     private Set<String> convertToSet(List<ReportResultData> list, int column) {
-        Set<String> subscriptionIds = new HashSet<String>();
+        Set<String> subscriptionIds = new HashSet<>();
         for (int i = 0; i < list.size(); i++) {
             List<Object> columnValues = list.get(i).getColumnValue();
             subscriptionIds.add((String) columnValues.get(column));
@@ -177,20 +181,20 @@ public class SubscriptionDaoSubscriptionsIT extends EJBTestBase {
         Set<String> userIds = convertToSet(result, 1);
         for (Subscription subscription : subscriptions) {
             if (verifyContains) {
-                assertTrue(subscriptionIds.contains(subscription
-                        .getSubscriptionId()));
+                assertTrue(subscriptionIds
+                        .contains(subscription.getSubscriptionId()));
             } else {
-                assertFalse(subscriptionIds.contains(subscription
-                        .getSubscriptionId()));
+                assertFalse(subscriptionIds
+                        .contains(subscription.getSubscriptionId()));
             }
             List<UsageLicense> usageLicenses = subscription.getUsageLicenses();
             for (UsageLicense usageLicense : usageLicenses) {
                 if (verifyContains) {
-                    assertTrue(userIds.contains(usageLicense.getUser()
-                            .getUserId()));
+                    assertTrue(userIds
+                            .contains(usageLicense.getUser().getUserId()));
                 } else {
-                    assertFalse(userIds.contains(usageLicense.getUser()
-                            .getUserId()));
+                    assertFalse(userIds
+                            .contains(usageLicense.getUser().getUserId()));
                 }
             }
         }

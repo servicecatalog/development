@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import org.junit.Test;
-
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Organization;
@@ -25,13 +24,6 @@ import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.TriggerDefinition;
 import org.oscm.domobjects.TriggerProcess;
 import org.oscm.domobjects.TriggerProcessIdentifier;
-import org.oscm.test.EJBTestBase;
-import org.oscm.test.data.Organizations;
-import org.oscm.test.data.PlatformUsers;
-import org.oscm.test.data.TriggerDefinitions;
-import org.oscm.test.data.TriggerProcesses;
-import org.oscm.test.ejb.TestContainer;
-import org.oscm.types.enumtypes.TriggerProcessIdentifierName;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.TriggerProcessStatus;
 import org.oscm.internal.types.enumtypes.TriggerType;
@@ -41,6 +33,14 @@ import org.oscm.internal.vo.VOSubscription;
 import org.oscm.internal.vo.VOUsageLicense;
 import org.oscm.internal.vo.VOUser;
 import org.oscm.internal.vo.VOUserDetails;
+import org.oscm.test.EJBTestBase;
+import org.oscm.test.data.Organizations;
+import org.oscm.test.data.PlatformUsers;
+import org.oscm.test.data.TriggerDefinitions;
+import org.oscm.test.data.TriggerProcesses;
+import org.oscm.test.ejb.TestContainer;
+import org.oscm.test.stubs.ConfigurationServiceStub;
+import org.oscm.types.enumtypes.TriggerProcessIdentifierName;
 
 /**
  * Unit tests for <code>TriggerProcessValidator</code>
@@ -70,6 +70,7 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
      */
     @Override
     protected void setup(TestContainer container) throws Exception {
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         ds = container.get(DataService.class);
         validator = new TriggerProcessValidator(ds);
@@ -77,6 +78,7 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
 
     private void initOrganization() throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 supplier = Organizations.createOrganization(ds,
                         OrganizationRoleType.SUPPLIER);
@@ -100,6 +102,7 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
             final boolean suspending, final TriggerProcessStatus status,
             final Organization org, final PlatformUser user) throws Exception {
         return runTX(new Callable<TriggerProcess>() {
+            @Override
             public TriggerProcess call() throws Exception {
                 TriggerDefinition triggerDefinition = TriggerDefinitions
                         .createTriggerDefinition(ds, org, triggerType,
@@ -126,13 +129,15 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
 
     private void createIdentifiers_ActivateDeactivateService(
             final TriggerProcess triggerProcess) throws Exception {
-        createIdentifiers_ActivateDeactivateService(triggerProcess, SERVICE_KEY);
+        createIdentifiers_ActivateDeactivateService(triggerProcess,
+                SERVICE_KEY);
     }
 
     private void createIdentifiers_ActivateDeactivateService(
             final TriggerProcess triggerProcess, final long serviceKey)
             throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 TriggerProcess tp = ds.getReference(TriggerProcess.class,
                         triggerProcess.getKey());
@@ -150,6 +155,7 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
     private Boolean isActivateOrDeactivateServicePending(final long serviceKey)
             throws Exception {
         return runTX(new Callable<Boolean>() {
+            @Override
             public Boolean call() throws Exception {
                 VOService service = new VOService();
                 service.setKey(serviceKey);
@@ -162,9 +168,9 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
     @Test
     public void isActivateDeactivateServicePending_Activate_SuspendingWaiting()
             throws Exception {
-        createIdentifiers_ActivateDeactivateService(initTriggerProcess(
-                TriggerType.ACTIVATE_SERVICE, true,
-                TriggerProcessStatus.WAITING_FOR_APPROVAL));
+        createIdentifiers_ActivateDeactivateService(
+                initTriggerProcess(TriggerType.ACTIVATE_SERVICE, true,
+                        TriggerProcessStatus.WAITING_FOR_APPROVAL));
         createIdentifiers_ActivateDeactivateService(
                 initTriggerProcess(TriggerType.ACTIVATE_SERVICE, true,
                         TriggerProcessStatus.WAITING_FOR_APPROVAL),
@@ -176,9 +182,9 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
     @Test
     public void isActivateDeactivateServicePending_Activate_SuspendingInitial()
             throws Exception {
-        createIdentifiers_ActivateDeactivateService(initTriggerProcess(
-                TriggerType.ACTIVATE_SERVICE, true,
-                TriggerProcessStatus.INITIAL));
+        createIdentifiers_ActivateDeactivateService(
+                initTriggerProcess(TriggerType.ACTIVATE_SERVICE, true,
+                        TriggerProcessStatus.INITIAL));
         assertEquals(Boolean.TRUE,
                 isActivateOrDeactivateServicePending(SERVICE_KEY));
     }
@@ -186,9 +192,9 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
     @Test
     public void isActivateDeactivateServicePending_Activate_SuspendingDone()
             throws Exception {
-        createIdentifiers_ActivateDeactivateService(initTriggerProcess(
-                TriggerType.ACTIVATE_SERVICE, true,
-                TriggerProcessStatus.REJECTED));
+        createIdentifiers_ActivateDeactivateService(
+                initTriggerProcess(TriggerType.ACTIVATE_SERVICE, true,
+                        TriggerProcessStatus.REJECTED));
         assertEquals(Boolean.FALSE,
                 isActivateOrDeactivateServicePending(SERVICE_KEY));
     }
@@ -196,9 +202,9 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
     @Test
     public void isActivateDeactivateServicePending_Activate_NonSuspendingInitial()
             throws Exception {
-        createIdentifiers_ActivateDeactivateService(initTriggerProcess(
-                TriggerType.ACTIVATE_SERVICE, false,
-                TriggerProcessStatus.INITIAL));
+        createIdentifiers_ActivateDeactivateService(
+                initTriggerProcess(TriggerType.ACTIVATE_SERVICE, false,
+                        TriggerProcessStatus.INITIAL));
         assertEquals(Boolean.FALSE,
                 isActivateOrDeactivateServicePending(SERVICE_KEY));
     }
@@ -206,8 +212,9 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
     @Test
     public void isActivateDeactivateServicePending_Activate_NonSuspendingDone()
             throws Exception {
-        createIdentifiers_ActivateDeactivateService(initTriggerProcess(
-                TriggerType.ACTIVATE_SERVICE, false, TriggerProcessStatus.ERROR));
+        createIdentifiers_ActivateDeactivateService(
+                initTriggerProcess(TriggerType.ACTIVATE_SERVICE, false,
+                        TriggerProcessStatus.ERROR));
         assertEquals(Boolean.FALSE,
                 isActivateOrDeactivateServicePending(SERVICE_KEY));
     }
@@ -215,9 +222,9 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
     @Test
     public void isActivateDeactivateServicePending_Activate_DifferentOrganization()
             throws Exception {
-        createIdentifiers_ActivateDeactivateService(initTriggerProcess(
-                TriggerType.ACTIVATE_SERVICE, true,
-                TriggerProcessStatus.WAITING_FOR_APPROVAL));
+        createIdentifiers_ActivateDeactivateService(
+                initTriggerProcess(TriggerType.ACTIVATE_SERVICE, true,
+                        TriggerProcessStatus.WAITING_FOR_APPROVAL));
         initOrganization();
         assertEquals(Boolean.TRUE,
                 isActivateOrDeactivateServicePending(SERVICE_KEY));
@@ -226,9 +233,9 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
     @Test
     public void isActivateDeactivateServicePending_Activate_DifferentService()
             throws Exception {
-        createIdentifiers_ActivateDeactivateService(initTriggerProcess(
-                TriggerType.ACTIVATE_SERVICE, true,
-                TriggerProcessStatus.WAITING_FOR_APPROVAL));
+        createIdentifiers_ActivateDeactivateService(
+                initTriggerProcess(TriggerType.ACTIVATE_SERVICE, true,
+                        TriggerProcessStatus.WAITING_FOR_APPROVAL));
         assertEquals(Boolean.FALSE,
                 isActivateOrDeactivateServicePending(SERVICE_KEY + 1L));
     }
@@ -236,9 +243,9 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
     @Test
     public void isActivateDeactivateServicePending_Deactivate_SuspendingWaiting()
             throws Exception {
-        createIdentifiers_ActivateDeactivateService(initTriggerProcess(
-                TriggerType.DEACTIVATE_SERVICE, true,
-                TriggerProcessStatus.WAITING_FOR_APPROVAL));
+        createIdentifiers_ActivateDeactivateService(
+                initTriggerProcess(TriggerType.DEACTIVATE_SERVICE, true,
+                        TriggerProcessStatus.WAITING_FOR_APPROVAL));
         assertEquals(Boolean.TRUE,
                 isActivateOrDeactivateServicePending(SERVICE_KEY));
     }
@@ -246,9 +253,9 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
     @Test
     public void isActivateDeactivateServicePending_Deactivate_SuspendingInitial()
             throws Exception {
-        createIdentifiers_ActivateDeactivateService(initTriggerProcess(
-                TriggerType.DEACTIVATE_SERVICE, true,
-                TriggerProcessStatus.INITIAL));
+        createIdentifiers_ActivateDeactivateService(
+                initTriggerProcess(TriggerType.DEACTIVATE_SERVICE, true,
+                        TriggerProcessStatus.INITIAL));
         assertEquals(Boolean.TRUE,
                 isActivateOrDeactivateServicePending(SERVICE_KEY));
     }
@@ -256,9 +263,9 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
     @Test
     public void isActivateDeactivateServicePending_Deactivate_SuspendingDone()
             throws Exception {
-        createIdentifiers_ActivateDeactivateService(initTriggerProcess(
-                TriggerType.DEACTIVATE_SERVICE, true,
-                TriggerProcessStatus.APPROVED));
+        createIdentifiers_ActivateDeactivateService(
+                initTriggerProcess(TriggerType.DEACTIVATE_SERVICE, true,
+                        TriggerProcessStatus.APPROVED));
         assertEquals(Boolean.FALSE,
                 isActivateOrDeactivateServicePending(SERVICE_KEY));
     }
@@ -266,9 +273,9 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
     @Test
     public void isActivateDeactivateServicePending_Deactivate_NonSuspendingInitial()
             throws Exception {
-        createIdentifiers_ActivateDeactivateService(initTriggerProcess(
-                TriggerType.DEACTIVATE_SERVICE, false,
-                TriggerProcessStatus.INITIAL));
+        createIdentifiers_ActivateDeactivateService(
+                initTriggerProcess(TriggerType.DEACTIVATE_SERVICE, false,
+                        TriggerProcessStatus.INITIAL));
         assertEquals(Boolean.FALSE,
                 isActivateOrDeactivateServicePending(SERVICE_KEY));
     }
@@ -276,9 +283,9 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
     @Test
     public void isActivateDeactivateServicePending_Deactivate_NonSuspendingDone()
             throws Exception {
-        createIdentifiers_ActivateDeactivateService(initTriggerProcess(
-                TriggerType.DEACTIVATE_SERVICE, false,
-                TriggerProcessStatus.FAILED));
+        createIdentifiers_ActivateDeactivateService(
+                initTriggerProcess(TriggerType.DEACTIVATE_SERVICE, false,
+                        TriggerProcessStatus.FAILED));
         assertEquals(Boolean.FALSE,
                 isActivateOrDeactivateServicePending(SERVICE_KEY));
     }
@@ -286,9 +293,9 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
     @Test
     public void isActivateDeactivateServicePending_Deactivate_DifferentOrganization()
             throws Exception {
-        createIdentifiers_ActivateDeactivateService(initTriggerProcess(
-                TriggerType.DEACTIVATE_SERVICE, true,
-                TriggerProcessStatus.WAITING_FOR_APPROVAL));
+        createIdentifiers_ActivateDeactivateService(
+                initTriggerProcess(TriggerType.DEACTIVATE_SERVICE, true,
+                        TriggerProcessStatus.WAITING_FOR_APPROVAL));
         initOrganization();
         assertEquals(Boolean.TRUE,
                 isActivateOrDeactivateServicePending(SERVICE_KEY));
@@ -315,14 +322,18 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
 
     @Test
     public void getPendingAddRevokeUsers_NullUsersToAdd() throws Exception {
-        assertTrue(validator.getPendingAddRevokeUsers("100", null,
-                new ArrayList<VOUser>()).isEmpty());
+        assertTrue(validator
+                .getPendingAddRevokeUsers("100", null, new ArrayList<VOUser>())
+                .isEmpty());
     }
 
     @Test
     public void getPendingAddRevokeUsers_NullUsersToRevoke() throws Exception {
-        assertTrue(validator.getPendingAddRevokeUsers("100",
-                new ArrayList<VOUsageLicense>(), null).isEmpty());
+        assertTrue(
+                validator
+                        .getPendingAddRevokeUsers("100",
+                                new ArrayList<VOUsageLicense>(), null)
+                        .isEmpty());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -356,14 +367,16 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
 
     private void createIdentifiers_AddRevokeUsers(
             final TriggerProcess triggerProcess) throws Exception {
-        createIdentifiers_AddRevokeUsers(triggerProcess, new String[] { USER_1,
-                USER_2 }, new String[] { USER_3, USER_4 });
+        createIdentifiers_AddRevokeUsers(triggerProcess,
+                new String[] { USER_1, USER_2 },
+                new String[] { USER_3, USER_4 });
     }
 
     private void createIdentifiers_AddRevokeUsers(
             final TriggerProcess triggerProcess, final String[] usersToAdd,
             final String[] usersToRevoke) throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 TriggerProcess tp = ds.getReference(TriggerProcess.class,
                         triggerProcess.getKey());
@@ -392,8 +405,9 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
             final String subscriptionId, final String[] usersToAdd,
             final String... usersToRevoke) throws Exception {
         return runTX(new Callable<List<TriggerProcessIdentifier>>() {
+            @Override
             public List<TriggerProcessIdentifier> call() throws Exception {
-                List<VOUsageLicense> usersToAddList = new ArrayList<VOUsageLicense>();
+                List<VOUsageLicense> usersToAddList = new ArrayList<>();
                 for (int i = 0; i < usersToAdd.length; i++) {
                     VOUser user = new VOUser();
                     user.setKey(1000L + i);
@@ -402,7 +416,7 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
                     license.setUser(user);
                     usersToAddList.add(license);
                 }
-                List<VOUser> usersToRevokeList = new ArrayList<VOUser>();
+                List<VOUser> usersToRevokeList = new ArrayList<>();
                 for (int i = 0; i < usersToRevoke.length; i++) {
                     VOUser user = new VOUser();
                     user.setKey(1000L + i);
@@ -417,22 +431,20 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
 
     @Test
     public void getPendingAddRevokeUsers_DifferentOrg() throws Exception {
-        createIdentifiers_AddRevokeUsers(initTriggerProcess(
-                TriggerType.ADD_REVOKE_USER, true,
-                TriggerProcessStatus.WAITING_FOR_APPROVAL));
+        createIdentifiers_AddRevokeUsers(
+                initTriggerProcess(TriggerType.ADD_REVOKE_USER, true,
+                        TriggerProcessStatus.WAITING_FOR_APPROVAL));
         initOrganization();
-        assertEquals(
-                0,
-                getPendingAddRevokeUsers(SUBSCRIPTION_ID, new String[] {},
-                        USER_3).size());
+        assertEquals(0, getPendingAddRevokeUsers(SUBSCRIPTION_ID,
+                new String[] {}, USER_3).size());
     }
 
     @Test
     public void getPendingAddRevokeUsers_DifferentSubscription()
             throws Exception {
-        createIdentifiers_AddRevokeUsers(initTriggerProcess(
-                TriggerType.ADD_REVOKE_USER, true,
-                TriggerProcessStatus.WAITING_FOR_APPROVAL));
+        createIdentifiers_AddRevokeUsers(
+                initTriggerProcess(TriggerType.ADD_REVOKE_USER, true,
+                        TriggerProcessStatus.WAITING_FOR_APPROVAL));
         assertEquals(0,
                 getPendingAddRevokeUsers("sub2", new String[] { USER_1 })
                         .size());
@@ -440,25 +452,24 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
 
     @Test
     public void getPendingAddRevokeUsers_DifferentUser() throws Exception {
-        createIdentifiers_AddRevokeUsers(initTriggerProcess(
-                TriggerType.ADD_REVOKE_USER, true,
-                TriggerProcessStatus.WAITING_FOR_APPROVAL));
-        assertEquals(
-                0,
-                getPendingAddRevokeUsers(SUBSCRIPTION_ID,
-                        new String[] { "root" }).size());
+        createIdentifiers_AddRevokeUsers(
+                initTriggerProcess(TriggerType.ADD_REVOKE_USER, true,
+                        TriggerProcessStatus.WAITING_FOR_APPROVAL));
+        assertEquals(0, getPendingAddRevokeUsers(SUBSCRIPTION_ID,
+                new String[] { "root" }).size());
     }
 
     @Test
     public void getPendingAddRevokeUsers_AddUserSuspendingWaiting()
             throws Exception {
-        createIdentifiers_AddRevokeUsers(initTriggerProcess(
-                TriggerType.ADD_REVOKE_USER, true,
-                TriggerProcessStatus.WAITING_FOR_APPROVAL));
+        createIdentifiers_AddRevokeUsers(
+                initTriggerProcess(TriggerType.ADD_REVOKE_USER, true,
+                        TriggerProcessStatus.WAITING_FOR_APPROVAL));
         createIdentifiers_AddRevokeUsers(
                 initTriggerProcess(TriggerType.ADD_REVOKE_USER, true,
                         TriggerProcessStatus.WAITING_FOR_APPROVAL, supplier,
-                        user), new String[] { "root" }, new String[] { USER_4 });
+                        user),
+                new String[] { "root" }, new String[] { USER_4 });
         List<TriggerProcessIdentifier> identifiers = getPendingAddRevokeUsers(
                 SUBSCRIPTION_ID, new String[] { USER_1 });
         assertEquals(1, identifiers.size());
@@ -470,8 +481,9 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
     @Test
     public void getPendingAddRevokeUsers_AddUser_SuspendingInitial()
             throws Exception {
-        createIdentifiers_AddRevokeUsers(initTriggerProcess(
-                TriggerType.ADD_REVOKE_USER, true, TriggerProcessStatus.INITIAL));
+        createIdentifiers_AddRevokeUsers(
+                initTriggerProcess(TriggerType.ADD_REVOKE_USER, true,
+                        TriggerProcessStatus.INITIAL));
         createIdentifiers_AddRevokeUsers(
                 initTriggerProcess(TriggerType.ADD_REVOKE_USER, false,
                         TriggerProcessStatus.INITIAL, supplier, user),
@@ -487,106 +499,96 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
     @Test
     public void getPendingAddRevokeUsers_AddUser_SuspendingDone()
             throws Exception {
-        createIdentifiers_AddRevokeUsers(initTriggerProcess(
-                TriggerType.ADD_REVOKE_USER, true,
-                TriggerProcessStatus.APPROVED));
-        assertEquals(
-                0,
-                getPendingAddRevokeUsers(SUBSCRIPTION_ID,
-                        new String[] { USER_1 }).size());
+        createIdentifiers_AddRevokeUsers(
+                initTriggerProcess(TriggerType.ADD_REVOKE_USER, true,
+                        TriggerProcessStatus.APPROVED));
+        assertEquals(0, getPendingAddRevokeUsers(SUBSCRIPTION_ID,
+                new String[] { USER_1 }).size());
     }
 
     @Test
     public void getPendingAddRevokeUsers_AddUser_NonSuspendingInitial()
             throws Exception {
-        createIdentifiers_AddRevokeUsers(initTriggerProcess(
-                TriggerType.ADD_REVOKE_USER, false,
-                TriggerProcessStatus.INITIAL));
-        assertEquals(
-                0,
-                getPendingAddRevokeUsers(SUBSCRIPTION_ID,
-                        new String[] { USER_1 }).size());
+        createIdentifiers_AddRevokeUsers(
+                initTriggerProcess(TriggerType.ADD_REVOKE_USER, false,
+                        TriggerProcessStatus.INITIAL));
+        assertEquals(0, getPendingAddRevokeUsers(SUBSCRIPTION_ID,
+                new String[] { USER_1 }).size());
     }
 
     @Test
     public void getPendingAddRevokeUsers_AddUser_NonSuspendingDone()
             throws Exception {
-        createIdentifiers_AddRevokeUsers(initTriggerProcess(
-                TriggerType.ADD_REVOKE_USER, false, TriggerProcessStatus.FAILED));
-        assertEquals(
-                0,
-                getPendingAddRevokeUsers(SUBSCRIPTION_ID,
-                        new String[] { USER_1 }).size());
+        createIdentifiers_AddRevokeUsers(
+                initTriggerProcess(TriggerType.ADD_REVOKE_USER, false,
+                        TriggerProcessStatus.FAILED));
+        assertEquals(0, getPendingAddRevokeUsers(SUBSCRIPTION_ID,
+                new String[] { USER_1 }).size());
     }
 
     @Test
     public void getPendingAddRevokeUsers_RevokeUser_SuspendingWaiting()
             throws Exception {
-        createIdentifiers_AddRevokeUsers(initTriggerProcess(
-                TriggerType.ADD_REVOKE_USER, true,
-                TriggerProcessStatus.WAITING_FOR_APPROVAL));
+        createIdentifiers_AddRevokeUsers(
+                initTriggerProcess(TriggerType.ADD_REVOKE_USER, true,
+                        TriggerProcessStatus.WAITING_FOR_APPROVAL));
         List<TriggerProcessIdentifier> identifiers = getPendingAddRevokeUsers(
                 SUBSCRIPTION_ID, new String[] {}, USER_3);
         assertEquals(1, identifiers.size());
-        assertEquals(TriggerProcessIdentifierName.USER_TO_REVOKE, identifiers
-                .get(0).getName());
+        assertEquals(TriggerProcessIdentifierName.USER_TO_REVOKE,
+                identifiers.get(0).getName());
         assertEquals(USER_3, identifiers.get(0).getValue());
     }
 
     @Test
     public void getPendingAddRevokeUsers_RevokeUser_SuspendingInitial()
             throws Exception {
-        createIdentifiers_AddRevokeUsers(initTriggerProcess(
-                TriggerType.ADD_REVOKE_USER, true, TriggerProcessStatus.INITIAL));
+        createIdentifiers_AddRevokeUsers(
+                initTriggerProcess(TriggerType.ADD_REVOKE_USER, true,
+                        TriggerProcessStatus.INITIAL));
         List<TriggerProcessIdentifier> identifiers = getPendingAddRevokeUsers(
                 SUBSCRIPTION_ID, new String[] {}, USER_3);
         assertEquals(1, identifiers.size());
-        assertEquals(TriggerProcessIdentifierName.USER_TO_REVOKE, identifiers
-                .get(0).getName());
+        assertEquals(TriggerProcessIdentifierName.USER_TO_REVOKE,
+                identifiers.get(0).getName());
         assertEquals(USER_3, identifiers.get(0).getValue());
     }
 
     @Test
     public void getPendingAddRevokeUsers_RevokeUser_SuspendingDone()
             throws Exception {
-        createIdentifiers_AddRevokeUsers(initTriggerProcess(
-                TriggerType.ADD_REVOKE_USER, true,
-                TriggerProcessStatus.APPROVED));
-        assertEquals(
-                0,
-                getPendingAddRevokeUsers(SUBSCRIPTION_ID, new String[] {},
-                        USER_3).size());
+        createIdentifiers_AddRevokeUsers(
+                initTriggerProcess(TriggerType.ADD_REVOKE_USER, true,
+                        TriggerProcessStatus.APPROVED));
+        assertEquals(0, getPendingAddRevokeUsers(SUBSCRIPTION_ID,
+                new String[] {}, USER_3).size());
     }
 
     @Test
     public void getPendingAddRevokeUsers_RevokeUser_NonSuspendingInitial()
             throws Exception {
-        createIdentifiers_AddRevokeUsers(initTriggerProcess(
-                TriggerType.ADD_REVOKE_USER, false,
-                TriggerProcessStatus.INITIAL));
-        assertEquals(
-                0,
-                getPendingAddRevokeUsers(SUBSCRIPTION_ID, new String[] {},
-                        USER_3).size());
+        createIdentifiers_AddRevokeUsers(
+                initTriggerProcess(TriggerType.ADD_REVOKE_USER, false,
+                        TriggerProcessStatus.INITIAL));
+        assertEquals(0, getPendingAddRevokeUsers(SUBSCRIPTION_ID,
+                new String[] {}, USER_3).size());
     }
 
     @Test
     public void getPendingAddRevokeUsers_RevokeUser_NonSuspendingDone()
             throws Exception {
-        createIdentifiers_AddRevokeUsers(initTriggerProcess(
-                TriggerType.ADD_REVOKE_USER, false,
-                TriggerProcessStatus.NOTIFIED));
-        assertEquals(
-                0,
-                getPendingAddRevokeUsers(SUBSCRIPTION_ID, new String[] {},
-                        USER_3).size());
+        createIdentifiers_AddRevokeUsers(
+                initTriggerProcess(TriggerType.ADD_REVOKE_USER, false,
+                        TriggerProcessStatus.NOTIFIED));
+        assertEquals(0, getPendingAddRevokeUsers(SUBSCRIPTION_ID,
+                new String[] {}, USER_3).size());
     }
 
     @Test
     public void getPendingAddRevokeUsers_EmptyUsers() throws Exception {
-        createIdentifiers_AddRevokeUsers(initTriggerProcess(
-                TriggerType.ADD_REVOKE_USER, true,
-                TriggerProcessStatus.WAITING_FOR_APPROVAL));
+        createIdentifiers_AddRevokeUsers(
+                initTriggerProcess(TriggerType.ADD_REVOKE_USER, true,
+                        TriggerProcessStatus.WAITING_FOR_APPROVAL));
         List<TriggerProcessIdentifier> identifiers = getPendingAddRevokeUsers(
                 SUBSCRIPTION_ID, new String[] {});
         assertEquals(0, identifiers.size());
@@ -612,6 +614,7 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
             final TriggerProcess triggerProcess, final VOUserDetails user)
             throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 TriggerProcess tp = ds.getReference(TriggerProcess.class,
                         triggerProcess.getKey());
@@ -631,12 +634,13 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
     private Boolean isRegisterCustomerForSupplierPending(final String userId,
             final String mail) throws Exception {
         return runTX(new Callable<Boolean>() {
+            @Override
             public Boolean call() throws Exception {
                 VOUserDetails user = new VOUserDetails(100L, 0);
                 user.setUserId(userId);
                 user.setEMail(mail);
-                return Boolean.valueOf(validator
-                        .isRegisterCustomerForSupplierPending(user));
+                return Boolean.valueOf(
+                        validator.isRegisterCustomerForSupplierPending(user));
             }
         });
     }
@@ -644,16 +648,17 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
     @Test
     public void isRegisterCustomerForSupplierPending_SuspendingWaiting()
             throws Exception {
-        createIdentifiers_RegisterCustomerForSupplier(initTriggerProcess(
-                TriggerType.REGISTER_CUSTOMER_FOR_SUPPLIER, true,
-                TriggerProcessStatus.WAITING_FOR_APPROVAL));
+        createIdentifiers_RegisterCustomerForSupplier(
+                initTriggerProcess(TriggerType.REGISTER_CUSTOMER_FOR_SUPPLIER,
+                        true, TriggerProcessStatus.WAITING_FOR_APPROVAL));
         VOUserDetails user2 = new VOUserDetails();
         user2.setUserId("root");
         user2.setEMail("x@y.de");
         createIdentifiers_RegisterCustomerForSupplier(
                 initTriggerProcess(TriggerType.REGISTER_CUSTOMER_FOR_SUPPLIER,
                         true, TriggerProcessStatus.WAITING_FOR_APPROVAL,
-                        supplier, user), user2);
+                        supplier, user),
+                user2);
         assertEquals(Boolean.TRUE,
                 isRegisterCustomerForSupplierPending(USER_ID, USER_EMAIL));
     }
@@ -661,9 +666,9 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
     @Test
     public void isRegisterCustomerForSupplierPending_SuspendingInitial()
             throws Exception {
-        createIdentifiers_RegisterCustomerForSupplier(initTriggerProcess(
-                TriggerType.REGISTER_CUSTOMER_FOR_SUPPLIER, true,
-                TriggerProcessStatus.INITIAL));
+        createIdentifiers_RegisterCustomerForSupplier(
+                initTriggerProcess(TriggerType.REGISTER_CUSTOMER_FOR_SUPPLIER,
+                        true, TriggerProcessStatus.INITIAL));
         assertEquals(Boolean.TRUE,
                 isRegisterCustomerForSupplierPending(USER_ID, USER_EMAIL));
     }
@@ -671,9 +676,9 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
     @Test
     public void isRegisterCustomerForSupplierPending_SuspendingDone()
             throws Exception {
-        createIdentifiers_RegisterCustomerForSupplier(initTriggerProcess(
-                TriggerType.REGISTER_CUSTOMER_FOR_SUPPLIER, true,
-                TriggerProcessStatus.CANCELLED));
+        createIdentifiers_RegisterCustomerForSupplier(
+                initTriggerProcess(TriggerType.REGISTER_CUSTOMER_FOR_SUPPLIER,
+                        true, TriggerProcessStatus.CANCELLED));
         assertEquals(Boolean.FALSE,
                 isRegisterCustomerForSupplierPending(USER_ID, USER_EMAIL));
     }
@@ -681,9 +686,9 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
     @Test
     public void isRegisterCustomerForSupplierPending_NonSuspendingInitial()
             throws Exception {
-        createIdentifiers_RegisterCustomerForSupplier(initTriggerProcess(
-                TriggerType.REGISTER_CUSTOMER_FOR_SUPPLIER, false,
-                TriggerProcessStatus.INITIAL));
+        createIdentifiers_RegisterCustomerForSupplier(
+                initTriggerProcess(TriggerType.REGISTER_CUSTOMER_FOR_SUPPLIER,
+                        false, TriggerProcessStatus.INITIAL));
         assertEquals(Boolean.FALSE,
                 isRegisterCustomerForSupplierPending(USER_ID, USER_EMAIL));
     }
@@ -691,9 +696,9 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
     @Test
     public void isRegisterCustomerForSupplierPending_NonSuspendingDone()
             throws Exception {
-        createIdentifiers_RegisterCustomerForSupplier(initTriggerProcess(
-                TriggerType.REGISTER_CUSTOMER_FOR_SUPPLIER, false,
-                TriggerProcessStatus.NOTIFIED));
+        createIdentifiers_RegisterCustomerForSupplier(
+                initTriggerProcess(TriggerType.REGISTER_CUSTOMER_FOR_SUPPLIER,
+                        false, TriggerProcessStatus.NOTIFIED));
         assertEquals(Boolean.FALSE,
                 isRegisterCustomerForSupplierPending(USER_ID, USER_EMAIL));
     }
@@ -701,37 +706,31 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
     @Test
     public void isRegisterCustomerForSupplierPending_DifferentUserId()
             throws Exception {
-        createIdentifiers_RegisterCustomerForSupplier(initTriggerProcess(
-                TriggerType.REGISTER_CUSTOMER_FOR_SUPPLIER, true,
-                TriggerProcessStatus.WAITING_FOR_APPROVAL));
-        assertEquals(
-                Boolean.TRUE,
-                isRegisterCustomerForSupplierPending(USER_ID + "_222",
-                        USER_EMAIL));
+        createIdentifiers_RegisterCustomerForSupplier(
+                initTriggerProcess(TriggerType.REGISTER_CUSTOMER_FOR_SUPPLIER,
+                        true, TriggerProcessStatus.WAITING_FOR_APPROVAL));
+        assertEquals(Boolean.TRUE, isRegisterCustomerForSupplierPending(
+                USER_ID + "_222", USER_EMAIL));
     }
 
     @Test
     public void isRegisterCustomerForSupplierPending_DifferentEmail()
             throws Exception {
-        createIdentifiers_RegisterCustomerForSupplier(initTriggerProcess(
-                TriggerType.REGISTER_CUSTOMER_FOR_SUPPLIER, true,
-                TriggerProcessStatus.WAITING_FOR_APPROVAL));
-        assertEquals(
-                Boolean.TRUE,
-                isRegisterCustomerForSupplierPending(USER_ID, USER_EMAIL
-                        + ".de"));
+        createIdentifiers_RegisterCustomerForSupplier(
+                initTriggerProcess(TriggerType.REGISTER_CUSTOMER_FOR_SUPPLIER,
+                        true, TriggerProcessStatus.WAITING_FOR_APPROVAL));
+        assertEquals(Boolean.TRUE, isRegisterCustomerForSupplierPending(USER_ID,
+                USER_EMAIL + ".de"));
     }
 
     @Test
     public void isRegisterCustomerForSupplierPending_DifferentUserAndEmail()
             throws Exception {
-        createIdentifiers_RegisterCustomerForSupplier(initTriggerProcess(
-                TriggerType.REGISTER_CUSTOMER_FOR_SUPPLIER, true,
-                TriggerProcessStatus.WAITING_FOR_APPROVAL));
-        assertEquals(
-                Boolean.FALSE,
-                isRegisterCustomerForSupplierPending(USER_ID + "_222",
-                        USER_EMAIL + ".de"));
+        createIdentifiers_RegisterCustomerForSupplier(
+                initTriggerProcess(TriggerType.REGISTER_CUSTOMER_FOR_SUPPLIER,
+                        true, TriggerProcessStatus.WAITING_FOR_APPROVAL));
+        assertEquals(Boolean.FALSE, isRegisterCustomerForSupplierPending(
+                USER_ID + "_222", USER_EMAIL + ".de"));
     }
 
     // SAVE_PAYMENT_CONFIGURATION
@@ -739,6 +738,7 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
     private void createIdentifiers_SavePaymentConfiguration(
             final TriggerProcess triggerProcess) throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 TriggerProcess tp = ds.getReference(TriggerProcess.class,
                         triggerProcess.getKey());
@@ -752,9 +752,10 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
 
     private Boolean isSavePaymentConfigurationPending() throws Exception {
         return runTX(new Callable<Boolean>() {
+            @Override
             public Boolean call() throws Exception {
-                return Boolean.valueOf(validator
-                        .isSavePaymentConfigurationPending());
+                return Boolean
+                        .valueOf(validator.isSavePaymentConfigurationPending());
             }
         });
     }
@@ -768,57 +769,57 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
     @Test
     public void isSavePaymentConfigurationPending_SuspendingWaiting()
             throws Exception {
-        createIdentifiers_SavePaymentConfiguration(initTriggerProcess(
-                TriggerType.SAVE_PAYMENT_CONFIGURATION, true,
-                TriggerProcessStatus.WAITING_FOR_APPROVAL));
+        createIdentifiers_SavePaymentConfiguration(
+                initTriggerProcess(TriggerType.SAVE_PAYMENT_CONFIGURATION, true,
+                        TriggerProcessStatus.WAITING_FOR_APPROVAL));
         assertEquals(Boolean.TRUE, isSavePaymentConfigurationPending());
     }
 
     @Test
     public void isSavePaymentConfigurationPending_SuspendingInitial()
             throws Exception {
-        createIdentifiers_SavePaymentConfiguration(initTriggerProcess(
-                TriggerType.SAVE_PAYMENT_CONFIGURATION, true,
-                TriggerProcessStatus.INITIAL));
+        createIdentifiers_SavePaymentConfiguration(
+                initTriggerProcess(TriggerType.SAVE_PAYMENT_CONFIGURATION, true,
+                        TriggerProcessStatus.INITIAL));
         assertEquals(Boolean.TRUE, isSavePaymentConfigurationPending());
     }
 
     @Test
     public void isSavePaymentConfigurationPending_SuspendingDone()
             throws Exception {
-        createIdentifiers_SavePaymentConfiguration(initTriggerProcess(
-                TriggerType.SAVE_PAYMENT_CONFIGURATION, true,
-                TriggerProcessStatus.APPROVED));
+        createIdentifiers_SavePaymentConfiguration(
+                initTriggerProcess(TriggerType.SAVE_PAYMENT_CONFIGURATION, true,
+                        TriggerProcessStatus.APPROVED));
         assertEquals(Boolean.FALSE, isSavePaymentConfigurationPending());
     }
 
     @Test
     public void isSavePaymentConfigurationPending_NonSuspendingInitial()
             throws Exception {
-        createIdentifiers_SavePaymentConfiguration(initTriggerProcess(
-                TriggerType.SAVE_PAYMENT_CONFIGURATION, false,
-                TriggerProcessStatus.INITIAL));
+        createIdentifiers_SavePaymentConfiguration(
+                initTriggerProcess(TriggerType.SAVE_PAYMENT_CONFIGURATION,
+                        false, TriggerProcessStatus.INITIAL));
         assertEquals(Boolean.FALSE, isSavePaymentConfigurationPending());
     }
 
     @Test
     public void isSavePaymentConfigurationPending_NonSuspendingDone()
             throws Exception {
-        createIdentifiers_SavePaymentConfiguration(initTriggerProcess(
-                TriggerType.SAVE_PAYMENT_CONFIGURATION, false,
-                TriggerProcessStatus.NOTIFIED));
+        createIdentifiers_SavePaymentConfiguration(
+                initTriggerProcess(TriggerType.SAVE_PAYMENT_CONFIGURATION,
+                        false, TriggerProcessStatus.NOTIFIED));
         assertEquals(Boolean.FALSE, isSavePaymentConfigurationPending());
     }
 
     @Test
     public void isSavePaymentConfigurationPending_DifferentOrg()
             throws Exception {
-        createIdentifiers_SavePaymentConfiguration(initTriggerProcess(
-                TriggerType.SAVE_PAYMENT_CONFIGURATION, true,
-                TriggerProcessStatus.WAITING_FOR_APPROVAL));
-        createIdentifiers_SavePaymentConfiguration(initTriggerProcess(
-                TriggerType.SAVE_PAYMENT_CONFIGURATION, true,
-                TriggerProcessStatus.WAITING_FOR_APPROVAL));
+        createIdentifiers_SavePaymentConfiguration(
+                initTriggerProcess(TriggerType.SAVE_PAYMENT_CONFIGURATION, true,
+                        TriggerProcessStatus.WAITING_FOR_APPROVAL));
+        createIdentifiers_SavePaymentConfiguration(
+                initTriggerProcess(TriggerType.SAVE_PAYMENT_CONFIGURATION, true,
+                        TriggerProcessStatus.WAITING_FOR_APPROVAL));
         initOrganization();
         assertEquals(Boolean.FALSE, isSavePaymentConfigurationPending());
     }
@@ -826,12 +827,12 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
     @Test
     public void isSavePaymentConfigurationPending_MultipleProcesses()
             throws Exception {
-        createIdentifiers_SavePaymentConfiguration(initTriggerProcess(
-                TriggerType.SAVE_PAYMENT_CONFIGURATION, true,
-                TriggerProcessStatus.WAITING_FOR_APPROVAL));
-        createIdentifiers_SavePaymentConfiguration(initTriggerProcess(
-                TriggerType.SAVE_PAYMENT_CONFIGURATION, true,
-                TriggerProcessStatus.WAITING_FOR_APPROVAL));
+        createIdentifiers_SavePaymentConfiguration(
+                initTriggerProcess(TriggerType.SAVE_PAYMENT_CONFIGURATION, true,
+                        TriggerProcessStatus.WAITING_FOR_APPROVAL));
+        createIdentifiers_SavePaymentConfiguration(
+                initTriggerProcess(TriggerType.SAVE_PAYMENT_CONFIGURATION, true,
+                        TriggerProcessStatus.WAITING_FOR_APPROVAL));
         assertEquals(Boolean.TRUE, isSavePaymentConfigurationPending());
     }
 
@@ -853,6 +854,7 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
             final TriggerProcess triggerProcess, final long subscriptionKey)
             throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 TriggerProcess tp = ds.getReference(TriggerProcess.class,
                         triggerProcess.getKey());
@@ -867,6 +869,7 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
     private Boolean isModifyOrUpgradeSubscriptionPending(
             final long subscriptionKey) throws Exception {
         return runTX(new Callable<Boolean>() {
+            @Override
             public Boolean call() throws Exception {
                 VOSubscription subscription = new VOSubscription();
                 subscription.setKey(subscriptionKey);
@@ -879,9 +882,10 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
     private Boolean isModifySubscriptionPending(final long subscriptionKey)
             throws Exception {
         return runTX(new Callable<Boolean>() {
+            @Override
             public Boolean call() throws Exception {
-                return Boolean.valueOf(validator
-                        .isModifySubscriptionPending(subscriptionKey));
+                return Boolean.valueOf(
+                        validator.isModifySubscriptionPending(subscriptionKey));
             }
         });
     }
@@ -889,6 +893,7 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
     private Boolean isUpgradeSubscriptionPending(final long subscriptionKey)
             throws Exception {
         return runTX(new Callable<Boolean>() {
+            @Override
             public Boolean call() throws Exception {
                 return Boolean.valueOf(validator
                         .isUpgradeSubscriptionPending(subscriptionKey));
@@ -898,43 +903,44 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
 
     @Test
     public void isModifySubscriptionPending_NoData() throws Exception {
-        //given
+        // given
         initOrganization();
 
-        //when
+        // when
         Boolean result = isModifySubscriptionPending(SUBSCRIPTION_KEY);
-        
-        //then
+
+        // then
         assertEquals(Boolean.FALSE, result);
     }
 
     @Test
     public void isModifySubscriptionPending_Modify_SuspendingWaiting()
             throws Exception {
-        //given
+        // given
         createIdentifiers_ModifyOrUpgradeSubscription(
                 initTriggerProcess(TriggerType.MODIFY_SUBSCRIPTION, true,
                         TriggerProcessStatus.WAITING_FOR_APPROVAL),
                 SUBSCRIPTION_KEY);
-        
-        //when
+
+        // when
         Boolean result = isModifySubscriptionPending(SUBSCRIPTION_KEY);
-        
-        //then
+
+        // then
         assertEquals(Boolean.TRUE, result);
     }
 
     @Test
     public void isModifySubscriptionPending_Modify_SuspendingInitial()
             throws Exception {
-        //given
+        // given
         createIdentifiers_ModifyOrUpgradeSubscription(
                 initTriggerProcess(TriggerType.MODIFY_SUBSCRIPTION, true,
-                        TriggerProcessStatus.INITIAL), SUBSCRIPTION_KEY);
-        //when
+                        TriggerProcessStatus.INITIAL),
+                SUBSCRIPTION_KEY);
+        // when
         Boolean result = isModifySubscriptionPending(SUBSCRIPTION_KEY);
-        
-        //then
+
+        // then
         assertEquals(Boolean.TRUE, result);
     }
 
@@ -946,39 +952,41 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
                 initTriggerProcess(TriggerType.UPGRADE_SUBSCRIPTION, true,
                         TriggerProcessStatus.WAITING_FOR_APPROVAL),
                 SUBSCRIPTION_KEY);
-        
-        //when
+
+        // when
         Boolean result = isUpgradeSubscriptionPending(SUBSCRIPTION_KEY);
-        
-        //then
+
+        // then
         assertEquals(Boolean.TRUE, result);
     }
 
     @Test
     public void isUpgradeSubscriptionPending_Upgrade_SuspendingInitial()
             throws Exception {
-        //given
+        // given
         createIdentifiers_ModifyOrUpgradeSubscription(
                 initTriggerProcess(TriggerType.UPGRADE_SUBSCRIPTION, true,
-                        TriggerProcessStatus.INITIAL), SUBSCRIPTION_KEY);
-        //when
+                        TriggerProcessStatus.INITIAL),
+                SUBSCRIPTION_KEY);
+        // when
         Boolean result = isUpgradeSubscriptionPending(SUBSCRIPTION_KEY);
-        
-        //then
+
+        // then
         assertEquals(Boolean.TRUE, result);
     }
 
     @Test
     public void isUpgradeSubscriptionPending_Upgrade_SuspendingDone()
             throws Exception {
-        //given
+        // given
         createIdentifiers_ModifyOrUpgradeSubscription(
                 initTriggerProcess(TriggerType.UPGRADE_SUBSCRIPTION, true,
-                        TriggerProcessStatus.FAILED), SUBSCRIPTION_KEY);
-        //when
+                        TriggerProcessStatus.FAILED),
+                SUBSCRIPTION_KEY);
+        // when
         Boolean result = isUpgradeSubscriptionPending(SUBSCRIPTION_KEY);
-        
-        //then
+
+        // then
         assertEquals(Boolean.FALSE, result);
     }
 
@@ -1005,7 +1013,8 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
             throws Exception {
         createIdentifiers_ModifyOrUpgradeSubscription(
                 initTriggerProcess(TriggerType.MODIFY_SUBSCRIPTION, true,
-                        TriggerProcessStatus.INITIAL), SUBSCRIPTION_KEY);
+                        TriggerProcessStatus.INITIAL),
+                SUBSCRIPTION_KEY);
         assertEquals(Boolean.TRUE,
                 isModifyOrUpgradeSubscriptionPending(SUBSCRIPTION_KEY));
     }
@@ -1015,7 +1024,8 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
             throws Exception {
         createIdentifiers_ModifyOrUpgradeSubscription(
                 initTriggerProcess(TriggerType.MODIFY_SUBSCRIPTION, true,
-                        TriggerProcessStatus.FAILED), SUBSCRIPTION_KEY);
+                        TriggerProcessStatus.FAILED),
+                SUBSCRIPTION_KEY);
         assertEquals(Boolean.FALSE,
                 isModifyOrUpgradeSubscriptionPending(SUBSCRIPTION_KEY));
     }
@@ -1025,7 +1035,8 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
             throws Exception {
         createIdentifiers_ModifyOrUpgradeSubscription(
                 initTriggerProcess(TriggerType.MODIFY_SUBSCRIPTION, false,
-                        TriggerProcessStatus.INITIAL), SUBSCRIPTION_KEY);
+                        TriggerProcessStatus.INITIAL),
+                SUBSCRIPTION_KEY);
         assertEquals(Boolean.FALSE,
                 isModifyOrUpgradeSubscriptionPending(SUBSCRIPTION_KEY));
     }
@@ -1035,7 +1046,8 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
             throws Exception {
         createIdentifiers_ModifyOrUpgradeSubscription(
                 initTriggerProcess(TriggerType.MODIFY_SUBSCRIPTION, false,
-                        TriggerProcessStatus.ERROR), SUBSCRIPTION_KEY);
+                        TriggerProcessStatus.ERROR),
+                SUBSCRIPTION_KEY);
         assertEquals(Boolean.FALSE,
                 isModifyOrUpgradeSubscriptionPending(SUBSCRIPTION_KEY));
     }
@@ -1045,7 +1057,8 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
             throws Exception {
         createIdentifiers_ModifyOrUpgradeSubscription(
                 initTriggerProcess(TriggerType.MODIFY_SUBSCRIPTION, false,
-                        TriggerProcessStatus.ERROR), SUBSCRIPTION_KEY + 100);
+                        TriggerProcessStatus.ERROR),
+                SUBSCRIPTION_KEY + 100);
         assertEquals(Boolean.FALSE,
                 isModifyOrUpgradeSubscriptionPending(SUBSCRIPTION_KEY));
     }
@@ -1066,7 +1079,8 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
             throws Exception {
         createIdentifiers_ModifyOrUpgradeSubscription(
                 initTriggerProcess(TriggerType.UPGRADE_SUBSCRIPTION, true,
-                        TriggerProcessStatus.INITIAL), SUBSCRIPTION_KEY);
+                        TriggerProcessStatus.INITIAL),
+                SUBSCRIPTION_KEY);
         assertEquals(Boolean.TRUE,
                 isModifyOrUpgradeSubscriptionPending(SUBSCRIPTION_KEY));
     }
@@ -1076,7 +1090,8 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
             throws Exception {
         createIdentifiers_ModifyOrUpgradeSubscription(
                 initTriggerProcess(TriggerType.UPGRADE_SUBSCRIPTION, true,
-                        TriggerProcessStatus.FAILED), SUBSCRIPTION_KEY);
+                        TriggerProcessStatus.FAILED),
+                SUBSCRIPTION_KEY);
         assertEquals(Boolean.FALSE,
                 isModifyOrUpgradeSubscriptionPending(SUBSCRIPTION_KEY));
     }
@@ -1086,7 +1101,8 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
             throws Exception {
         createIdentifiers_ModifyOrUpgradeSubscription(
                 initTriggerProcess(TriggerType.UPGRADE_SUBSCRIPTION, false,
-                        TriggerProcessStatus.INITIAL), SUBSCRIPTION_KEY);
+                        TriggerProcessStatus.INITIAL),
+                SUBSCRIPTION_KEY);
         assertEquals(Boolean.FALSE,
                 isModifyOrUpgradeSubscriptionPending(SUBSCRIPTION_KEY));
     }
@@ -1096,7 +1112,8 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
             throws Exception {
         createIdentifiers_ModifyOrUpgradeSubscription(
                 initTriggerProcess(TriggerType.UPGRADE_SUBSCRIPTION, false,
-                        TriggerProcessStatus.ERROR), SUBSCRIPTION_KEY);
+                        TriggerProcessStatus.ERROR),
+                SUBSCRIPTION_KEY);
         assertEquals(Boolean.FALSE,
                 isModifyOrUpgradeSubscriptionPending(SUBSCRIPTION_KEY));
     }
@@ -1106,7 +1123,8 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
             throws Exception {
         createIdentifiers_ModifyOrUpgradeSubscription(
                 initTriggerProcess(TriggerType.UPGRADE_SUBSCRIPTION, false,
-                        TriggerProcessStatus.ERROR), SUBSCRIPTION_KEY + 100);
+                        TriggerProcessStatus.ERROR),
+                SUBSCRIPTION_KEY + 100);
         assertEquals(Boolean.FALSE,
                 isModifyOrUpgradeSubscriptionPending(SUBSCRIPTION_KEY));
     }
@@ -1135,7 +1153,8 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
             throws Exception {
         createIdentifiers_ModifyOrUpgradeSubscription(
                 initTriggerProcess(TriggerType.MODIFY_SUBSCRIPTION, false,
-                        TriggerProcessStatus.INITIAL), SUBSCRIPTION_KEY);
+                        TriggerProcessStatus.INITIAL),
+                SUBSCRIPTION_KEY);
         createIdentifiers_ModifyOrUpgradeSubscription(
                 initTriggerProcess(TriggerType.MODIFY_SUBSCRIPTION, false,
                         TriggerProcessStatus.INITIAL, supplier, user),
@@ -1146,7 +1165,8 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
                 SUBSCRIPTION_KEY);
         createIdentifiers_ModifyOrUpgradeSubscription(
                 initTriggerProcess(TriggerType.UPGRADE_SUBSCRIPTION, false,
-                        TriggerProcessStatus.NOTIFIED), SUBSCRIPTION_KEY);
+                        TriggerProcessStatus.NOTIFIED),
+                SUBSCRIPTION_KEY);
         assertEquals(Boolean.FALSE,
                 isModifyOrUpgradeSubscriptionPending(SUBSCRIPTION_KEY));
     }
@@ -1163,6 +1183,7 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
             final TriggerProcess triggerProcess, final String subscriptionId)
             throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 TriggerProcess tp = ds.getReference(TriggerProcess.class,
                         triggerProcess.getKey());
@@ -1180,10 +1201,11 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
     private Boolean isSubscribeOrUnsubscribeServicePending(
             final String subscriptionId) throws Exception {
         return runTX(new Callable<Boolean>() {
+            @Override
             public Boolean call() throws Exception {
-                return Boolean
-                        .valueOf(validator
-                                .isSubscribeOrUnsubscribeServicePending(subscriptionId));
+                return Boolean.valueOf(
+                        validator.isSubscribeOrUnsubscribeServicePending(
+                                subscriptionId));
             }
         });
     }
@@ -1212,7 +1234,8 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
             throws Exception {
         createIdentifiers_SubscribeOrUnsubscribeService(
                 initTriggerProcess(TriggerType.SUBSCRIBE_TO_SERVICE, true,
-                        TriggerProcessStatus.INITIAL), SUBSCRIPTION_ID);
+                        TriggerProcessStatus.INITIAL),
+                SUBSCRIPTION_ID);
         assertEquals(Boolean.TRUE,
                 isSubscribeOrUnsubscribeServicePending(SUBSCRIPTION_ID));
     }
@@ -1222,7 +1245,8 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
             throws Exception {
         createIdentifiers_SubscribeOrUnsubscribeService(
                 initTriggerProcess(TriggerType.SUBSCRIBE_TO_SERVICE, true,
-                        TriggerProcessStatus.APPROVED), SUBSCRIPTION_ID);
+                        TriggerProcessStatus.APPROVED),
+                SUBSCRIPTION_ID);
         assertEquals(Boolean.FALSE,
                 isSubscribeOrUnsubscribeServicePending(SUBSCRIPTION_ID));
     }
@@ -1232,7 +1256,8 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
             throws Exception {
         createIdentifiers_SubscribeOrUnsubscribeService(
                 initTriggerProcess(TriggerType.SUBSCRIBE_TO_SERVICE, false,
-                        TriggerProcessStatus.INITIAL), SUBSCRIPTION_ID);
+                        TriggerProcessStatus.INITIAL),
+                SUBSCRIPTION_ID);
         assertEquals(Boolean.FALSE,
                 isSubscribeOrUnsubscribeServicePending(SUBSCRIPTION_ID));
     }
@@ -1242,7 +1267,8 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
             throws Exception {
         createIdentifiers_SubscribeOrUnsubscribeService(
                 initTriggerProcess(TriggerType.SUBSCRIBE_TO_SERVICE, false,
-                        TriggerProcessStatus.NOTIFIED), SUBSCRIPTION_ID);
+                        TriggerProcessStatus.NOTIFIED),
+                SUBSCRIPTION_ID);
         assertEquals(Boolean.FALSE,
                 isSubscribeOrUnsubscribeServicePending(SUBSCRIPTION_ID));
     }
@@ -1286,7 +1312,8 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
             throws Exception {
         createIdentifiers_SubscribeOrUnsubscribeService(
                 initTriggerProcess(TriggerType.UNSUBSCRIBE_FROM_SERVICE, true,
-                        TriggerProcessStatus.INITIAL), SUBSCRIPTION_ID);
+                        TriggerProcessStatus.INITIAL),
+                SUBSCRIPTION_ID);
         assertEquals(Boolean.TRUE,
                 isSubscribeOrUnsubscribeServicePending(SUBSCRIPTION_ID));
     }
@@ -1296,7 +1323,8 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
             throws Exception {
         createIdentifiers_SubscribeOrUnsubscribeService(
                 initTriggerProcess(TriggerType.UNSUBSCRIBE_FROM_SERVICE, true,
-                        TriggerProcessStatus.APPROVED), SUBSCRIPTION_ID);
+                        TriggerProcessStatus.APPROVED),
+                SUBSCRIPTION_ID);
         assertEquals(Boolean.FALSE,
                 isSubscribeOrUnsubscribeServicePending(SUBSCRIPTION_ID));
     }
@@ -1306,7 +1334,8 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
             throws Exception {
         createIdentifiers_SubscribeOrUnsubscribeService(
                 initTriggerProcess(TriggerType.UNSUBSCRIBE_FROM_SERVICE, false,
-                        TriggerProcessStatus.INITIAL), SUBSCRIPTION_ID);
+                        TriggerProcessStatus.INITIAL),
+                SUBSCRIPTION_ID);
         assertEquals(Boolean.FALSE,
                 isSubscribeOrUnsubscribeServicePending(SUBSCRIPTION_ID));
     }
@@ -1316,7 +1345,8 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
             throws Exception {
         createIdentifiers_SubscribeOrUnsubscribeService(
                 initTriggerProcess(TriggerType.UNSUBSCRIBE_FROM_SERVICE, false,
-                        TriggerProcessStatus.NOTIFIED), SUBSCRIPTION_ID);
+                        TriggerProcessStatus.NOTIFIED),
+                SUBSCRIPTION_ID);
         assertEquals(Boolean.FALSE,
                 isSubscribeOrUnsubscribeServicePending(SUBSCRIPTION_ID));
     }
@@ -1365,7 +1395,8 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
             throws Exception {
         createIdentifiers_SubscribeOrUnsubscribeService(
                 initTriggerProcess(TriggerType.SUBSCRIBE_TO_SERVICE, false,
-                        TriggerProcessStatus.INITIAL), SUBSCRIPTION_ID);
+                        TriggerProcessStatus.INITIAL),
+                SUBSCRIPTION_ID);
         createIdentifiers_SubscribeOrUnsubscribeService(
                 initTriggerProcess(TriggerType.SUBSCRIBE_TO_SERVICE, false,
                         TriggerProcessStatus.NOTIFIED, supplier, user),
@@ -1381,7 +1412,8 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
         // different organization
         createIdentifiers_SubscribeOrUnsubscribeService(
                 initTriggerProcess(TriggerType.SUBSCRIBE_TO_SERVICE, false,
-                        TriggerProcessStatus.INITIAL), SUBSCRIPTION_ID);
+                        TriggerProcessStatus.INITIAL),
+                SUBSCRIPTION_ID);
         createIdentifiers_SubscribeOrUnsubscribeService(
                 initTriggerProcess(TriggerType.SUBSCRIBE_TO_SERVICE, false,
                         TriggerProcessStatus.NOTIFIED, supplier, user),
@@ -1401,16 +1433,18 @@ public class TriggerProcessValidatorIT extends EJBTestBase {
     private Boolean isRegisterOwnUserPendingTX(final String userId)
             throws Exception {
         return runTX(new Callable<Boolean>() {
+            @Override
             public Boolean call() throws Exception {
-                return Boolean.valueOf(validator
-                        .isRegisterOwnUserPending(userId));
+                return Boolean
+                        .valueOf(validator.isRegisterOwnUserPending(userId));
             }
         });
     }
 
-    private void createIdentifiers_RegisterOwnUser(
-            final long triggerProcessKey, final String userId) throws Exception {
+    private void createIdentifiers_RegisterOwnUser(final long triggerProcessKey,
+            final String userId) throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 TriggerProcess tp = ds.getReference(TriggerProcess.class,
                         triggerProcessKey);

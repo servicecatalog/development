@@ -278,6 +278,11 @@ public abstract class DataServiceStub implements DataService {
     }
 
     @Override
+    public PlatformUser find(PlatformUser pu) {
+        return null;
+    }
+
+    @Override
     public void persistPlatformUserWithTenant(PlatformUser pu, String tenantId) throws NonUniqueBusinessKeyException {
 
     }

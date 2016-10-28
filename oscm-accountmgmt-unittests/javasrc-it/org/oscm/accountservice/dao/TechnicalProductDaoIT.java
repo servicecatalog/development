@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import org.junit.Test;
-
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.MarketingPermission;
@@ -26,12 +25,13 @@ import org.oscm.domobjects.OrganizationReference;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.TechnicalProduct;
 import org.oscm.domobjects.enums.OrganizationReferenceType;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.ServiceAccessType;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.Organizations;
 import org.oscm.test.data.TechnicalProducts;
 import org.oscm.test.ejb.TestContainer;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 
 /**
  * @author zhaoh
@@ -57,6 +57,7 @@ public class TechnicalProductDaoIT extends EJBTestBase {
 
     @Override
     protected void setup(TestContainer container) throws Exception {
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         container.addBean(new TechnicalProductDao());
 
@@ -71,6 +72,7 @@ public class TechnicalProductDaoIT extends EJBTestBase {
     @Test
     public void retrieveTechnicalProduct_NoResults() throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 List<TechnicalProduct> result = dao
                         .retrieveTechnicalProduct(supplier1);
@@ -84,6 +86,7 @@ public class TechnicalProductDaoIT extends EJBTestBase {
     @Test
     public void retrieveTechnicalProduct_NoSupplier() throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 List<TechnicalProduct> result = dao
                         .retrieveTechnicalProduct(techProvider1);
@@ -98,6 +101,7 @@ public class TechnicalProductDaoIT extends EJBTestBase {
     public void retrieveTechnicalProduct_OneHit() throws Exception {
         createMarketingPermission(supplier1.getKey(), techProdKey);
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 List<TechnicalProduct> result = dao
                         .retrieveTechnicalProduct(supplier1);
@@ -114,6 +118,7 @@ public class TechnicalProductDaoIT extends EJBTestBase {
         createMarketingPermission(supplier1.getKey(), techProdKey);
         createMarketingPermission(supplier1.getKey(), techProd3.getKey());
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 List<TechnicalProduct> result = dao
                         .retrieveTechnicalProduct(supplier1);
@@ -127,8 +132,7 @@ public class TechnicalProductDaoIT extends EJBTestBase {
     }
 
     @Test
-    public void retrieveTechnicalProduct_SeveralProviders()
-            throws Exception {
+    public void retrieveTechnicalProduct_SeveralProviders() throws Exception {
         createMarketingPermission(supplier1.getKey(), techProdKey);
         createMarketingPermission(supplier1.getKey(), techProd3.getKey());
         createMarketingPermission(supplier1.getKey(), tp3TechProd1.getKey());
@@ -137,6 +141,7 @@ public class TechnicalProductDaoIT extends EJBTestBase {
         createMarketingPermission(supplier3.getKey(), techProd2.getKey());
         createMarketingPermission(supplier3.getKey(), techProd3.getKey());
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 List<TechnicalProduct> result = dao
                         .retrieveTechnicalProduct(supplier1);
@@ -165,6 +170,7 @@ public class TechnicalProductDaoIT extends EJBTestBase {
 
     private void initData() throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 techProvider1 = Organizations.createOrganization(ds,
                         OrganizationRoleType.TECHNOLOGY_PROVIDER,
@@ -210,25 +216,24 @@ public class TechnicalProductDaoIT extends EJBTestBase {
         return runTX(new Callable<MarketingPermission>() {
             @Override
             public MarketingPermission call() throws Exception {
-                Organization targetSupplier = ds.getReference(
-                        Organization.class, supplierKey);
+                Organization targetSupplier = ds
+                        .getReference(Organization.class, supplierKey);
                 TechnicalProduct targetTS = ds.getReference(
                         TechnicalProduct.class, technicalServiceKey);
                 Organization targetTechProv = targetTS.getOrganization();
 
                 List<OrganizationReference> tps = targetSupplier
-                        .getSourcesForType(OrganizationReferenceType.TECHNOLOGY_PROVIDER_TO_SUPPLIER);
-                List<Organization> technologyProviders = new ArrayList<Organization>();
+                        .getSourcesForType(
+                                OrganizationReferenceType.TECHNOLOGY_PROVIDER_TO_SUPPLIER);
+                List<Organization> technologyProviders = new ArrayList<>();
                 for (OrganizationReference orgRef : tps) {
                     technologyProviders.add(orgRef.getSource());
                 }
                 if (!technologyProviders.contains(targetTechProv)) {
-                    Organizations
-                            .createOrganizationReference(
-                                    targetTechProv,
-                                    targetSupplier,
-                                    OrganizationReferenceType.TECHNOLOGY_PROVIDER_TO_SUPPLIER,
-                                    ds);
+                    Organizations.createOrganizationReference(targetTechProv,
+                            targetSupplier,
+                            OrganizationReferenceType.TECHNOLOGY_PROVIDER_TO_SUPPLIER,
+                            ds);
                 }
                 ds.flush();
                 ds.refresh(targetSupplier);

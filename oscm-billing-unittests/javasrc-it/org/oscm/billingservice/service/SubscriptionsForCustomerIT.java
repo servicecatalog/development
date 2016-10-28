@@ -16,17 +16,17 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import org.junit.Test;
-
 import org.oscm.billingservice.dao.BillingDataRetrievalServiceBean;
 import org.oscm.billingservice.dao.BillingDataRetrievalServiceLocal;
 import org.oscm.billingservice.service.model.CustomerData;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.SubscriptionHistory;
+import org.oscm.internal.types.enumtypes.PricingPeriod;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.Subscriptions;
 import org.oscm.test.ejb.TestContainer;
-import org.oscm.internal.types.enumtypes.PricingPeriod;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 
 public class SubscriptionsForCustomerIT extends EJBTestBase {
 
@@ -36,6 +36,7 @@ public class SubscriptionsForCustomerIT extends EJBTestBase {
     @Override
     public void setup(final TestContainer container) throws Exception {
         container.login("1");
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         container.addBean(new BillingDataRetrievalServiceBean());
 
@@ -83,7 +84,8 @@ public class SubscriptionsForCustomerIT extends EJBTestBase {
     }
 
     @Test
-    public void getSubscriptionsForCustomer_LastBeforePeriod() throws Exception {
+    public void getSubscriptionsForCustomer_LastBeforePeriod()
+            throws Exception {
         // given
         final long orgKey = 1L;
         givenSubscriptionHistory(orgKey,
@@ -100,8 +102,8 @@ public class SubscriptionsForCustomerIT extends EJBTestBase {
         CustomerData billingInput = runTX(new Callable<CustomerData>() {
             @Override
             public CustomerData call() throws Exception {
-                return new CustomerData(bdrs.loadSubscriptionsForCustomer(
-                        orgKey, 4, 10, -1));
+                return new CustomerData(
+                        bdrs.loadSubscriptionsForCustomer(orgKey, 4, 10, -1));
             }
         });
 
@@ -118,8 +120,8 @@ public class SubscriptionsForCustomerIT extends EJBTestBase {
         sh = list.get(3);
         assertEquals(orgKey, sh.getObjKey());
         assertEquals(1, sh.getObjVersion());
-        assertEquals(-PricingPeriod.DAY.getMilliseconds() * 35, sh.getModdate()
-                .getTime());
+        assertEquals(-PricingPeriod.DAY.getMilliseconds() * 35,
+                sh.getModdate().getTime());
     }
 
     @Test
@@ -145,8 +147,8 @@ public class SubscriptionsForCustomerIT extends EJBTestBase {
         CustomerData billingInput = runTX(new Callable<CustomerData>() {
             @Override
             public CustomerData call() throws Exception {
-                return new CustomerData(bdrs.loadSubscriptionsForCustomer(
-                        orgKey, 2, 10, -1));
+                return new CustomerData(
+                        bdrs.loadSubscriptionsForCustomer(orgKey, 2, 10, -1));
             }
         });
 
@@ -168,8 +170,8 @@ public class SubscriptionsForCustomerIT extends EJBTestBase {
         });
     }
 
-    private void givenSubscriptionHistory(final long orgKey,
-            final Date modDate, final int version) throws Exception {
+    private void givenSubscriptionHistory(final long orgKey, final Date modDate,
+            final int version) throws Exception {
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {

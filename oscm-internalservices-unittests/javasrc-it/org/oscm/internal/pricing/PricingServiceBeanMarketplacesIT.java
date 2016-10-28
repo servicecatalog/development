@@ -5,8 +5,8 @@
 package org.oscm.internal.pricing;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.math.BigDecimal;
@@ -17,20 +17,20 @@ import javax.ejb.EJBAccessException;
 import javax.ejb.EJBException;
 
 import org.junit.Test;
-
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.PlatformUser;
+import org.oscm.internal.components.response.Response;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.UserRoleType;
 import org.oscm.marketplace.bean.MarketplaceServiceLocalBean;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.Marketplaces;
 import org.oscm.test.data.Organizations;
 import org.oscm.test.data.PlatformUsers;
 import org.oscm.test.ejb.TestContainer;
-import org.oscm.internal.components.response.Response;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.UserRoleType;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 
 public class PricingServiceBeanMarketplacesIT extends EJBTestBase {
 
@@ -47,6 +47,7 @@ public class PricingServiceBeanMarketplacesIT extends EJBTestBase {
 
     @Override
     protected void setup(final TestContainer container) throws Exception {
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         container.enableInterfaceMocking(true);
         container.addBean(new MarketplaceServiceLocalBean());
@@ -61,13 +62,14 @@ public class PricingServiceBeanMarketplacesIT extends EJBTestBase {
 
     private void createPartnerOrgs() throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 // Create a broker org
                 broker = Organizations.createOrganization(ds,
                         OrganizationRoleType.BROKER);
 
-                PlatformUser brokerUserForOrg = Organizations.createUserForOrg(
-                        ds, broker, true, "admin");
+                PlatformUser brokerUserForOrg = Organizations
+                        .createUserForOrg(ds, broker, true, "admin");
 
                 PlatformUsers.grantRoles(ds, brokerUserForOrg,
                         UserRoleType.BROKER_MANAGER);
@@ -81,6 +83,7 @@ public class PricingServiceBeanMarketplacesIT extends EJBTestBase {
 
     private void createMarketplaces() throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
 
                 Marketplaces.createMarketplace(broker, OPEN_MP_ID, true, ds);
@@ -92,6 +95,7 @@ public class PricingServiceBeanMarketplacesIT extends EJBTestBase {
 
     private PlatformUser givenTechProvider() throws Exception {
         return runTX(new Callable<PlatformUser>() {
+            @Override
             public PlatformUser call() throws Exception {
                 Organization org = Organizations.createOrganization(ds,
                         OrganizationRoleType.TECHNOLOGY_PROVIDER);
@@ -123,6 +127,7 @@ public class PricingServiceBeanMarketplacesIT extends EJBTestBase {
 
     private PlatformUser givenMarketplaceManager() throws Exception {
         return runTX(new Callable<PlatformUser>() {
+            @Override
             public PlatformUser call() throws Exception {
                 Organization org = Organizations.createOrganization(ds,
                         OrganizationRoleType.SUPPLIER);
@@ -167,16 +172,16 @@ public class PricingServiceBeanMarketplacesIT extends EJBTestBase {
         assertEquals("One pricing expected - ", 1, pricings.size());
 
         POMarketplacePricing poPricing = (POMarketplacePricing) pricings.get(0);
-        assertEquals("Open marketplace expected - ", OPEN_MP_ID, poPricing
-                .getMarketplace().getMarketplaceId());
+        assertEquals("Open marketplace expected - ", OPEN_MP_ID,
+                poPricing.getMarketplace().getMarketplaceId());
         assertEquals("Marketplace revenue share should be zero", ZERO,
                 poPricing.getMarketplacePriceModel().getRevenueShare()
                         .getRevenueShare());
-        assertEquals("Broker revenue share should be zero", ZERO, poPricing
-                .getPartnerPriceModel().getRevenueShareBrokerModel()
-                .getRevenueShare());
-        assertEquals("Reseller revenue share should be zero", ZERO, poPricing
-                .getPartnerPriceModel().getRevenueShareResellerModel()
-                .getRevenueShare());
+        assertEquals("Broker revenue share should be zero", ZERO,
+                poPricing.getPartnerPriceModel().getRevenueShareBrokerModel()
+                        .getRevenueShare());
+        assertEquals("Reseller revenue share should be zero", ZERO,
+                poPricing.getPartnerPriceModel().getRevenueShareResellerModel()
+                        .getRevenueShare());
     }
 }

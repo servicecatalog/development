@@ -676,7 +676,7 @@ public class OrganizationBeanTest {
     public void initializeGroups() {
         // given
         doReturn(givenPOUserGroups()).when(userGroupServiceMock)
-                .getUserGroupsForUserWithoutDefault(anyString());
+                .getUserGroupsForUserWithoutDefault(anyLong());
         organizationBean.currentUser = new User(new VOUserDetails());
         organizationBean.currentUser.setUserId("UserId");
 
@@ -693,7 +693,7 @@ public class OrganizationBeanTest {
     public void initializeGroups_WhiteSpace() {
         // given
         doReturn(givenPOUserGroups()).when(userGroupServiceMock)
-                .getUserGroupsForUserWithoutDefault(anyString());
+                .getUserGroupsForUserWithoutDefault(anyLong());
         organizationBean.currentUser = new User(new VOUserDetails());
         organizationBean.currentUser.setUserId("UserId");
 
@@ -702,8 +702,7 @@ public class OrganizationBeanTest {
 
         // then
         assertEquals("Group_A, Group_B, Group_C", organizationBean
-                .getCurrentUser()
-                .getGroupsToDisplay());
+                .getCurrentUser().getGroupsToDisplay());
     }
 
     @Test
