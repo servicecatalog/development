@@ -16,7 +16,6 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 
 import org.junit.Test;
-
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Organization;
@@ -24,14 +23,15 @@ import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.UnitRoleAssignment;
 import org.oscm.domobjects.UserGroup;
 import org.oscm.domobjects.UserGroupToUser;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.UnitRoleType;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.Organizations;
 import org.oscm.test.data.PlatformUsers;
 import org.oscm.test.data.UnitUserRoles;
 import org.oscm.test.data.UserGroups;
 import org.oscm.test.ejb.TestContainer;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.UnitRoleType;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 
 public class UnitDaoIT extends EJBTestBase {
 
@@ -46,6 +46,7 @@ public class UnitDaoIT extends EJBTestBase {
 
     @Override
     protected void setup(TestContainer container) throws Exception {
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         ds = container.get(DataService.class);
         dao = new UnitDao(ds);

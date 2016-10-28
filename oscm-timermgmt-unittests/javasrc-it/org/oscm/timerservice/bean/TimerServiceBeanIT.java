@@ -24,7 +24,6 @@ import javax.persistence.Query;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
-
 import org.oscm.billingservice.service.BillingServiceLocal;
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.dataservice.bean.DataServiceBean;
@@ -57,6 +56,7 @@ public class TimerServiceBeanIT extends EJBTestBase {
     public void setup(TestContainer container) throws Exception {
 
         container.login("1");
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         container.addBean(new ConfigurationServiceStub());
         container.addBean(accountManagementStub = new AccountServiceStub());
@@ -135,7 +135,8 @@ public class TimerServiceBeanIT extends EJBTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                checkTimerHandlingEntryExistence(true, TimerType.USER_NUM_CHECK);
+                checkTimerHandlingEntryExistence(true,
+                        TimerType.USER_NUM_CHECK);
                 return null;
             }
         });
@@ -259,7 +260,8 @@ public class TimerServiceBeanIT extends EJBTestBase {
         });
 
         // then
-        Assert.assertEquals(TimerType.BILLING_INVOCATION, result.getTimerType());
+        Assert.assertEquals(TimerType.BILLING_INVOCATION,
+                result.getTimerType());
         Assert.assertEquals(startTime, result.getStartTime());
     }
 
@@ -272,11 +274,11 @@ public class TimerServiceBeanIT extends EJBTestBase {
             @Override
             public TimerProcessing call() throws Exception {
                 tm.createTimerProcessing(TimerType.BILLING_INVOCATION,
-                        DateTimeHandling.calculateMillis("2013-02-05 00:00:00"));
-                return tm
-                        .createTimerProcessing(TimerType.BILLING_INVOCATION,
-                                DateTimeHandling
-                                        .calculateMillis("2013-02-05 20:00:00"));
+                        DateTimeHandling
+                                .calculateMillis("2013-02-05 00:00:00"));
+                return tm.createTimerProcessing(TimerType.BILLING_INVOCATION,
+                        DateTimeHandling
+                                .calculateMillis("2013-02-05 20:00:00"));
             }
         });
 

@@ -18,7 +18,6 @@ import javax.ejb.EJBException;
 
 import org.junit.Assert;
 import org.junit.Test;
-
 import org.oscm.accountservice.bean.AccountServiceBean;
 import org.oscm.app.control.ApplicationServiceBaseStub;
 import org.oscm.dataservice.bean.DataServiceBean;
@@ -33,6 +32,17 @@ import org.oscm.domobjects.TriggerProcess;
 import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
+import org.oscm.internal.intf.MarketplaceService;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.ServiceAccessType;
+import org.oscm.internal.types.enumtypes.ServiceStatus;
+import org.oscm.internal.types.enumtypes.TriggerProcessStatus;
+import org.oscm.internal.types.enumtypes.TriggerTargetType;
+import org.oscm.internal.types.enumtypes.TriggerType;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.internal.vo.VOCatalogEntry;
+import org.oscm.internal.vo.VOMarketplace;
+import org.oscm.internal.vo.VOService;
 import org.oscm.landingpageService.local.LandingpageServiceLocal;
 import org.oscm.marketplace.assembler.MarketplaceAssembler;
 import org.oscm.marketplace.bean.MarketplaceServiceBean;
@@ -56,17 +66,6 @@ import org.oscm.triggerservice.bean.TriggerQueueServiceBean;
 import org.oscm.triggerservice.local.TriggerMessage;
 import org.oscm.types.enumtypes.TriggerProcessParameterName;
 import org.oscm.types.exceptions.InvalidUserSession;
-import org.oscm.internal.intf.MarketplaceService;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
-import org.oscm.internal.types.enumtypes.ServiceStatus;
-import org.oscm.internal.types.enumtypes.TriggerProcessStatus;
-import org.oscm.internal.types.enumtypes.TriggerTargetType;
-import org.oscm.internal.types.enumtypes.TriggerType;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.vo.VOCatalogEntry;
-import org.oscm.internal.vo.VOMarketplace;
-import org.oscm.internal.vo.VOService;
 
 public class ServiceProvisioningServiceBeanLocalIT extends EJBTestBase {
 
@@ -85,6 +84,7 @@ public class ServiceProvisioningServiceBeanLocalIT extends EJBTestBase {
     @Override
     protected void setup(TestContainer container) throws Exception {
         container.enableInterfaceMocking(true);
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean() {
             @Override
             public PlatformUser getCurrentUser() {
@@ -135,8 +135,8 @@ public class ServiceProvisioningServiceBeanLocalIT extends EJBTestBase {
                 Organization org = Organizations.createOrganization(dm,
                         organizationRoleTypes);
                 if (org.hasRole(OrganizationRoleType.SUPPLIER)) {
-                    Marketplaces.ensureMarketplace(org,
-                            org.getOrganizationId(), dm);
+                    Marketplaces.ensureMarketplace(org, org.getOrganizationId(),
+                            dm);
                 }
                 PlatformUser user = Organizations.createUserForOrg(dm, org,
                         true, userName);
@@ -262,15 +262,15 @@ public class ServiceProvisioningServiceBeanLocalIT extends EJBTestBase {
         Marketplace mp = Marketplaces.createMarketplace(user.getOrganization(),
                 id, false, dm);
         Marketplaces.grantPublishing(user.getOrganization(), mp, dm, true);
-        return MarketplaceAssembler.toVOMarketplace(mp, new LocalizerFacade(
-                localizer, "en"));
+        return MarketplaceAssembler.toVOMarketplace(mp,
+                new LocalizerFacade(localizer, "en"));
     }
 
     private void createCatalogEntry(VOMarketplace mp, VOService product)
             throws Exception {
         VOCatalogEntry mpcat = new VOCatalogEntry();
         mpcat.setMarketplace(mp);
-        List<VOCatalogEntry> mpcatentries = new ArrayList<VOCatalogEntry>();
+        List<VOCatalogEntry> mpcatentries = new ArrayList<>();
         mpcatentries.add(mpcat);
         mpProv.publishService(product, mpcatentries);
     }
@@ -301,7 +301,7 @@ public class ServiceProvisioningServiceBeanLocalIT extends EJBTestBase {
                 VOCatalogEntry entry = new VOCatalogEntry();
                 entry.setMarketplace(mp);
                 entry.setVisibleInCatalog(false);
-                List<VOCatalogEntry> entries = new ArrayList<VOCatalogEntry>();
+                List<VOCatalogEntry> entries = new ArrayList<>();
                 entries.add(entry);
 
                 createTriggerProcessParameter(true,
@@ -312,8 +312,8 @@ public class ServiceProvisioningServiceBeanLocalIT extends EJBTestBase {
                 triggerProc = dm.getReference(TriggerProcess.class,
                         triggerProc.getKey());
                 svcProv.activateServiceInt(triggerProc);
-                return ProductAssembler.toVOProduct(prod, new LocalizerFacade(
-                        localizer, "en"));
+                return ProductAssembler.toVOProduct(prod,
+                        new LocalizerFacade(localizer, "en"));
             }
         });
         Assert.assertEquals(ServiceStatus.ACTIVE, product.getStatus());
@@ -408,7 +408,7 @@ public class ServiceProvisioningServiceBeanLocalIT extends EJBTestBase {
                 VOCatalogEntry entry = new VOCatalogEntry();
                 entry.setMarketplace(mp);
                 entry.setVisibleInCatalog(false);
-                List<VOCatalogEntry> entries = new ArrayList<VOCatalogEntry>();
+                List<VOCatalogEntry> entries = new ArrayList<>();
                 entries.add(entry);
 
                 createTriggerProcessParameter(true,
