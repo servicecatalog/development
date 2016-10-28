@@ -16,18 +16,15 @@ import javax.ejb.TransactionAttributeType;
 
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.domobjects.ConfigurationSetting;
-import org.oscm.internal.intf.ConfigurationService;
-import org.oscm.internal.types.enumtypes.ConfigurationKey;
-import org.oscm.internal.vo.VOConfigurationSetting;
 import org.oscm.types.constants.Configuration;
+import org.oscm.internal.types.enumtypes.ConfigurationKey;
 
 /**
  * @author Mike J&auml;ger
  * 
  */
 @Stateless
-public class ConfigurationServiceStub
-        implements ConfigurationService, ConfigurationServiceLocal {
+public class ConfigurationServiceStub implements ConfigurationServiceLocal {
 
     private boolean isPSPUsageEnabled = true;
 
@@ -35,8 +32,8 @@ public class ConfigurationServiceStub
      * (non-Javadoc)
      * 
      * @seeorg.oscm.configsvc.intf.IConfigurationServiceLocal#
-     * getConfigurationSetting (org.oscm.types.enumtypes.ConfigurationKey,
-     * java.lang.String)
+     * getConfigurationSetting
+     * (org.oscm.types.enumtypes.ConfigurationKey, java.lang.String)
      */
     @Override
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
@@ -107,17 +104,6 @@ public class ConfigurationServiceStub
 
     @Override
     public boolean isPaymentInfoAvailable() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public VOConfigurationSetting getVOConfigurationSetting(
-            ConfigurationKey informationId, String contextId) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void setConfigurationSetting(String informationId, String value) {
         throw new UnsupportedOperationException();
     }
 }
