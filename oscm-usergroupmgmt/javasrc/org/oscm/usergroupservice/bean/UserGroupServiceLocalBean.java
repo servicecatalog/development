@@ -1047,7 +1047,6 @@ public class UserGroupServiceLocalBean {
         return name.substring(0, name.lastIndexOf(","));
     }
 
-    // TODO SUZANA
     private PlatformUser findUser(PlatformUser user)
             throws ObjectNotFoundException {
         if (user.getKey() == 0) {
