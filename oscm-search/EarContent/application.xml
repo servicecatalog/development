@@ -9,4 +9,8 @@
   <module>
     <ejb>oscm-dataservice.jar</ejb>
   </module>
+  <module>
+    <ejb>oscm-configservice.jar</ejb>
+  </module>
+  
 </application>
