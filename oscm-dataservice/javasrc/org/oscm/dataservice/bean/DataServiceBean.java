@@ -307,7 +307,8 @@ public class DataServiceBean implements DataService {
         }
     }
 
-    protected void assignTenantId(PlatformUser singleResult, Organization organization) {
+    protected void assignTenantId(PlatformUser singleResult,
+            Organization organization) {
         Tenant tenant = organization.getTenant();
         if (tenant != null) {
             singleResult.setTenantId(tenant.getTenantId());
@@ -321,9 +322,11 @@ public class DataServiceBean implements DataService {
     }
 
     private String getDefaultTenant() {
-        TypedQuery<ConfigurationSetting> query = em.createNamedQuery("ConfigurationSetting.findByInfoAndContext",
+        TypedQuery<ConfigurationSetting> query = em.createNamedQuery(
+                "ConfigurationSetting.findByInfoAndContext",
                 ConfigurationSetting.class);
-        query.setParameter("informationId", ConfigurationKey.SSO_DEFAULT_TENANT_ID);
+        query.setParameter("informationId",
+                ConfigurationKey.SSO_DEFAULT_TENANT_ID);
         query.setParameter("contextId", Configuration.GLOBAL_CONTEXT);
         try {
             return query.getSingleResult().getValue();
@@ -338,7 +341,11 @@ public class DataServiceBean implements DataService {
             DomainObject<?> findTemplate) throws ObjectNotFoundException {
         setThreadLocals();
         DomainObject<?> result;
-        result = find(findTemplate);
+        if (findTemplate instanceof PlatformUser) {
+            result = find((PlatformUser) findTemplate);
+        } else {
+            result = find(findTemplate);
+        }
         if (result == null) {
             DomainObjectException.ClassEnum classEnum = class2Enum(findTemplate
                     .getClass());
@@ -889,11 +896,11 @@ public class DataServiceBean implements DataService {
     public void persistPlatformUserWithTenant(PlatformUser pu, String tenantId)
             throws NonUniqueBusinessKeyException {
         setThreadLocals();
-        // Query namedQuery = 
+        // Query namedQuery =
         // createNamedQuery("PlatformUser.findByUserIdAndTenant");
         // namedQuery.setParameter("userId", pu.getUserId());
         // namedQuery.setParameter("tenantId", tenantId);
-        // List users = namedQuery.getResultList(); 
+        // List users = namedQuery.getResultList();
         PlatformUser user = find(pu);
         if (user != null) {
             DomainObjectException.ClassEnum classEnum = class2Enum(pu
