@@ -62,9 +62,9 @@ public class IdManagementStub implements IdentityService, IdentityServiceLocal {
 
     @Override
     public void revokeUserRoles(VOUser user, List<UserRoleType> roles)
-            throws ObjectNotFoundException,
-            UserModificationConstraintException, UserActiveException,
-            OperationNotPermittedException, UserRoleAssignmentException {
+            throws ObjectNotFoundException, UserModificationConstraintException,
+            UserActiveException, OperationNotPermittedException,
+            UserRoleAssignmentException {
 
     }
 
@@ -146,21 +146,28 @@ public class IdManagementStub implements IdentityService, IdentityServiceLocal {
     @Override
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     public PlatformUser getPlatformUser(String userId,
-            boolean validateOrganization) throws ObjectNotFoundException,
-            OperationNotPermittedException {
-        PlatformUser qryUser = new PlatformUser();
-        qryUser.setUserId(userId);
-        PlatformUser pu = (PlatformUser) dataManager
-                .getReferenceByBusinessKey(qryUser);
-        if (validateOrganization) {
-            if (!pu.getOrganization()
-                    .getOrganizationId()
-                    .equals(dataManager.getCurrentUser().getOrganization()
-                            .getOrganizationId()))
-                throw new OperationNotPermittedException();
+            boolean validateOrganization)
+            throws ObjectNotFoundException, OperationNotPermittedException {
+        return getPlatformUser(userId, null, validateOrganization);
+    }
+
+    @Override
+    public PlatformUser getPlatformUser(String userId, String tenantId,
+            boolean validateOrganization)
+            throws ObjectNotFoundException, OperationNotPermittedException {
+
+        PlatformUser platformUser = new PlatformUser();
+        platformUser.setUserId(userId);
+        platformUser.setTenantId(tenantId);
+        platformUser = dataManager.find(platformUser);
+
+        if (platformUser == null) {
+            ObjectNotFoundException onf = new ObjectNotFoundException(
+                    ObjectNotFoundException.ClassEnum.USER, userId);
+            throw onf;
         }
 
-        return pu;
+        return platformUser;
     }
 
     @Override
@@ -183,12 +190,6 @@ public class IdManagementStub implements IdentityService, IdentityServiceLocal {
             Marketplace marketplace) throws NonUniqueBusinessKeyException,
             ObjectNotFoundException, MailOperationException {
 
-    }
-
-    @Override
-    public PlatformUser getPlatformUser(String userId, String tenantKey, boolean validateOrganization)
-        throws ObjectNotFoundException, OperationNotPermittedException {
-        return null;
     }
 
     @Override
@@ -254,7 +255,8 @@ public class IdManagementStub implements IdentityService, IdentityServiceLocal {
 
     @Override
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
-    public void resetPasswordForUser(PlatformUser user, Marketplace marketplace) {
+    public void resetPasswordForUser(PlatformUser user,
+            Marketplace marketplace) {
 
     }
 
@@ -287,9 +289,9 @@ public class IdManagementStub implements IdentityService, IdentityServiceLocal {
     }
 
     @Override
-    public VOUserDetails createOnBehalfUser(String organizationId, String string)
-            throws ObjectNotFoundException, OperationNotPermittedException,
-            NonUniqueBusinessKeyException {
+    public VOUserDetails createOnBehalfUser(String organizationId,
+            String string) throws ObjectNotFoundException,
+            OperationNotPermittedException, NonUniqueBusinessKeyException {
 
         return null;
     }
@@ -329,8 +331,8 @@ public class IdManagementStub implements IdentityService, IdentityServiceLocal {
 
     @Override
     public void resetUserPassword(PlatformUser platformUser,
-            String marketplaceId) throws UserActiveException,
-            MailOperationException {
+            String marketplaceId)
+            throws UserActiveException, MailOperationException {
     }
 
     @Override
@@ -373,8 +375,8 @@ public class IdManagementStub implements IdentityService, IdentityServiceLocal {
 
     @Override
     public void importUsersInOwnOrganization(byte[] csvData,
-            String marketplaceId) throws BulkUserImportException,
-            ObjectNotFoundException {
+            String marketplaceId)
+            throws BulkUserImportException, ObjectNotFoundException {
     }
 
     @Override
