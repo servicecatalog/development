@@ -41,28 +41,25 @@ import org.oscm.domobjects.annotations.BusinessKey;
         @NamedQuery(name = "UserGroup.countUserForDefaultGroup", query = "SELECT COUNT(p) FROM PlatformUser p WHERE p.organization.dataContainer.organizationId = :organizationId"),
         @NamedQuery(name = "UserGroup.findAssignedUserIds", query = "SELECT pu.dataContainer.userId FROM UserGroupToUser g2u, PlatformUser pu WHERE g2u.usergroup_tkey = :usergroup_tkey AND pu = g2u.platformuser"),
         @NamedQuery(name = "UserGroup.countUserGroup", query = "SELECT COUNT(g2u1.userGroup) FROM UserGroupToUser g2u1 WHERE g2u1.platformuser_tkey = :user_tkey"),
-        @NamedQuery(name = "UserGroup.findByUserIdWithoutDefault", query = "SELECT obj FROM UserGroup obj, UserGroupToUser g2u, PlatformUser pu  WHERE pu.dataContainer.userId=:userId AND pu = g2u.platformuser AND g2u.userGroup = obj AND obj.dataContainer.isDefault = FALSE  ORDER BY obj.dataContainer.name ASC"),
+        @NamedQuery(name = "UserGroup.findByUserWithoutDefault", query = "SELECT obj FROM UserGroup obj, UserGroupToUser g2u, PlatformUser pu  WHERE pu.key=:userKey AND pu = g2u.platformuser AND g2u.userGroup = obj AND obj.dataContainer.isDefault = FALSE  ORDER BY obj.dataContainer.name ASC"),
         @NamedQuery(name = "UserGroup.findByUserId", query = "SELECT obj FROM UserGroup obj, UserGroupToUser g2u, PlatformUser pu  WHERE pu.dataContainer.userId=:userId AND pu = g2u.platformuser AND g2u.userGroup = obj ORDER BY obj.dataContainer.name ASC"),
         @NamedQuery(name = "UserGroup.findInvisibleProductKeys", query = "SELECT u2p.product_tkey FROM UserGroupToInvisibleProduct u2p WHERE u2p.userGroup IN (SELECT g2u1.userGroup FROM UserGroupToUser g2u1 WHERE g2u1.platformuser_tkey = :user_tkey AND g2u1.userGroup.dataContainer.isDefault = FALSE) AND u2p.userGroup.dataContainer.isDefault = FALSE GROUP BY u2p.product_tkey HAVING COUNT(u2p.product_tkey) = (SELECT COUNT(g2u) FROM  UserGroupToUser g2u WHERE g2u.platformuser_tkey = :user_tkey AND g2u.userGroup.dataContainer.isDefault = FALSE)"),
         @NamedQuery(name = "UserGroup.findInvisibleProductKeysForGroup", query = "SELECT u2p.product_tkey FROM UserGroupToInvisibleProduct u2p WHERE u2p.usergroup_tkey = :usergroup_tkey"),
         @NamedQuery(name = "UserGroup.findByUserWithRole", query = "SELECT ug FROM UserGroup ug, UserGroupToUser ugtu, UnitRoleAssignment ura WHERE ug=ugtu.userGroup AND ugtu = ura.userGroupToUser AND ugtu.platformuser_tkey = :platformuser_tkey AND ura.unituserrole_tkey = :unituserrole_tkey"),
         @NamedQuery(name = "UserGroup.findByUserWithRoleWithoutDefault", query = "SELECT ug FROM UserGroup ug, UserGroupToUser ugtu, UnitRoleAssignment ura WHERE ug=ugtu.userGroup AND ugtu = ura.userGroupToUser AND ugtu.platformuser_tkey = :platformuser_tkey AND ura.unituserrole_tkey = :unituserrole_tkey AND ug.dataContainer.isDefault = FALSE"),
         @NamedQuery(name = "UserGroup.getInvisibleProducts", query = "SELECT u2p FROM UserGroupToInvisibleProduct u2p WHERE u2p.usergroup_tkey = :usergroup_tkey"),
-        @NamedQuery(name = "UserGroup.findVisibleServices", query =
-                "SELECT p FROM Product p, CatalogEntry ce, UserGroup ug " +
-                "WHERE ce.marketplace.key=:marketplaceKey " +
-                "AND ce.product.key = p.key " +
-                "AND p.dataContainer.status IN ('SUSPENDED', 'ACTIVE') " +
-                "AND EXISTS (SELECT 1 FROM UserGroupToInvisibleProduct u2i WHERE u2i.usergroup_tkey=:userGroupKey AND u2i.product_tkey=p.key AND u2i.forallusers='false') " +
-                "AND ug.key=:userGroupKey"),
-        @NamedQuery(name = "UserGroup.findAccessibleServices", query =
-                "SELECT p FROM Product p, CatalogEntry ce, UserGroup ug " +
-                "WHERE ce.marketplace.key=:marketplaceKey " +
-                "AND ce.product.key = p.key " +
-                "AND p.dataContainer.status IN ('SUSPENDED', 'ACTIVE') " +
-                "AND NOT EXISTS (SELECT 1 FROM UserGroupToInvisibleProduct u2i WHERE u2i.usergroup_tkey=:userGroupKey AND u2i.product_tkey=p.key )" +
-                "AND ug.key=:userGroupKey")
-})
+        @NamedQuery(name = "UserGroup.findVisibleServices", query = "SELECT p FROM Product p, CatalogEntry ce, UserGroup ug "
+                + "WHERE ce.marketplace.key=:marketplaceKey "
+                + "AND ce.product.key = p.key "
+                + "AND p.dataContainer.status IN ('SUSPENDED', 'ACTIVE') "
+                + "AND EXISTS (SELECT 1 FROM UserGroupToInvisibleProduct u2i WHERE u2i.usergroup_tkey=:userGroupKey AND u2i.product_tkey=p.key AND u2i.forallusers='false') "
+                + "AND ug.key=:userGroupKey"),
+        @NamedQuery(name = "UserGroup.findAccessibleServices", query = "SELECT p FROM Product p, CatalogEntry ce, UserGroup ug "
+                + "WHERE ce.marketplace.key=:marketplaceKey "
+                + "AND ce.product.key = p.key "
+                + "AND p.dataContainer.status IN ('SUSPENDED', 'ACTIVE') "
+                + "AND NOT EXISTS (SELECT 1 FROM UserGroupToInvisibleProduct u2i WHERE u2i.usergroup_tkey=:userGroupKey AND u2i.product_tkey=p.key )"
+                + "AND ug.key=:userGroupKey") })
 @BusinessKey(attributes = { "name", "organization_tkey" })
 public class UserGroup extends DomainObjectWithHistory<UserGroupData> {
 

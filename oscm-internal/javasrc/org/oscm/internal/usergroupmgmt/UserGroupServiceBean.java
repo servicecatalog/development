@@ -214,15 +214,15 @@ public class UserGroupServiceBean implements UserGroupService {
     }
 
     @Override
-    public List<POUserGroup> getUserGroupsForUserWithoutDefault(String userId) {
+    public List<POUserGroup> getUserGroupsForUserWithoutDefault(long userKey) {
         return POUserGroupAssembler.toPOUserGroups(userGroupService
-                .getUserGroupsForUserWithoutDefault(userId));
+                .getUserGroupsForUserWithoutDefault(userKey));
     }
 
     @Override
-    public List<POUserGroup> getUserGroupListForUserWithoutDefault(String userId) {
+    public List<POUserGroup> getUserGroupListForUserWithoutDefault(long userKey) {
         return POUserGroupAssembler.toPOUserGroups(
-                userGroupService.getUserGroupsForUserWithoutDefault(userId),
+                userGroupService.getUserGroupsForUserWithoutDefault(userKey),
                 PerformanceHint.ONLY_FIELDS_FOR_LISTINGS);
     }
 
@@ -237,9 +237,9 @@ public class UserGroupServiceBean implements UserGroupService {
     @Override
     @RolesAllowed({ "ORGANIZATION_ADMIN" })
     public List<POUserGroup> getUserGroupListForUserWithRolesWithoutDefault(
-            String userId) {
+            String userId, long userKey) {
         return POUserGroupAssembler.toPOUserGroups(userGroupService
-                .getUserGroupsForUserWithRolesWithoutDefault(userId),
+                .getUserGroupsForUserWithRolesWithoutDefault(userId, userKey),
                 PerformanceHint.ONLY_FIELDS_FOR_LISTINGS);
     }
 

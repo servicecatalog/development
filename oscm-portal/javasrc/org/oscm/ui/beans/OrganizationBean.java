@@ -636,7 +636,7 @@ public class OrganizationBean extends BaseBean implements Serializable {
     void initializeGroups() {
         StringBuilder groupsToDisplay = new StringBuilder();
         List<POUserGroup> groups = getUserGroupService()
-                .getUserGroupsForUserWithoutDefault(currentUser.getUserId());
+                .getUserGroupsForUserWithoutDefault(currentUser.getKey());
         for (POUserGroup group : groups) {
             groupsToDisplay.append(group.getGroupName());
             groupsToDisplay.append(", ");

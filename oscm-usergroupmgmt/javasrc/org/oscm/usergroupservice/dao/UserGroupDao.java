@@ -84,10 +84,9 @@ public class UserGroupDao {
         return ParameterizedTypes.list(query.getResultList(), UserGroup.class);
     }
 
-    public List<UserGroup> getUserGroupsForUserWithoutDefault(String userId) {
-        Query query = dm
-                .createNamedQuery("UserGroup.findByUserIdWithoutDefault");
-        query.setParameter("userId", userId);
+    public List<UserGroup> getUserGroupsForUserWithoutDefault(long userKey) {
+        Query query = dm.createNamedQuery("UserGroup.findByUserWithoutDefault");
+        query.setParameter("userKey", userKey);
         return ParameterizedTypes.list(query.getResultList(), UserGroup.class);
     }
 
@@ -232,9 +231,9 @@ public class UserGroupDao {
         return (UnitRoleAssignment) dm.merge(unitRoleAssignment);
     }
 
-    public List<Product> getAccessibleServices(String unitId, Pagination pagination, String marketplaceId) {
-        Query query = dm
-                .createNamedQuery("UserGroup.findAccessibleServices");
+    public List<Product> getAccessibleServices(String unitId,
+            Pagination pagination, String marketplaceId) {
+        Query query = dm.createNamedQuery("UserGroup.findAccessibleServices");
         query.setParameter("userGroupKey", Long.valueOf(unitId));
         query.setParameter("marketplaceKey", Long.valueOf(marketplaceId));
         query.setFirstResult(pagination.getOffset());
@@ -244,9 +243,9 @@ public class UserGroupDao {
         return accessibleProducts;
     }
 
-    public List<Product> getVisibleServices(String unitId, Pagination pagination, String marketplaceId) {
-        Query query = dm
-                .createNamedQuery("UserGroup.findVisibleServices");
+    public List<Product> getVisibleServices(String unitId,
+            Pagination pagination, String marketplaceId) {
+        Query query = dm.createNamedQuery("UserGroup.findVisibleServices");
         query.setParameter("userGroupKey", Long.valueOf(unitId));
         query.setParameter("marketplaceKey", Long.valueOf(marketplaceId));
         query.setFirstResult(pagination.getOffset());

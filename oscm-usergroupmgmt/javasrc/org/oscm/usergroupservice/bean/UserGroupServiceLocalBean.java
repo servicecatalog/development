@@ -550,10 +550,10 @@ public class UserGroupServiceLocalBean {
 
     @RolesAllowed({ "ORGANIZATION_ADMIN" })
     public Map<UserGroup, UnitRoleType> getUserGroupsForUserWithRolesWithoutDefault(
-            String userId) {
+            String userId, long userKey) {
         Map<UserGroup, UnitRoleType> groupsWithRoles = new HashMap<>();
         List<UserGroup> groups = userGroupDao
-                .getUserGroupsForUserWithoutDefault(userId);
+                .getUserGroupsForUserWithoutDefault(userKey);
         for (UserGroup group : groups) {
             UnitRoleAssignment unitRoleAssignment = userGroupDao
                     .getRoleAssignmentByUserAndGroup(group.getKey(), userId);
@@ -567,8 +567,8 @@ public class UserGroupServiceLocalBean {
         return groupsWithRoles;
     }
 
-    public List<UserGroup> getUserGroupsForUserWithoutDefault(String userId) {
-        return userGroupDao.getUserGroupsForUserWithoutDefault(userId);
+    public List<UserGroup> getUserGroupsForUserWithoutDefault(long userKey) {
+        return userGroupDao.getUserGroupsForUserWithoutDefault(userKey);
     }
 
     @RolesAllowed({ "ORGANIZATION_ADMIN" })
@@ -841,7 +841,7 @@ public class UserGroupServiceLocalBean {
     public void addLogEntryWhenDeleteUser(PlatformUser user) {
         ArgumentValidator.notNull("user", user);
         List<UserGroup> groups = getUserGroupsForUserWithoutDefault(user
-                .getUserId());
+                .getKey());
         audit.removeUserFromGroups(dm, groups, user);
     }
 
@@ -1047,6 +1047,7 @@ public class UserGroupServiceLocalBean {
         return name.substring(0, name.lastIndexOf(","));
     }
 
+    // TODO SUZANA
     private PlatformUser findUser(PlatformUser user)
             throws ObjectNotFoundException {
         if (user.getKey() == 0) {

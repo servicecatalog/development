@@ -585,11 +585,11 @@ public class UserGroupServiceLocalBeanTest {
         group.setIsDefault(false);
 
         // when
-        userGroupService.getUserGroupsForUserWithoutDefault("userId");
+        userGroupService.getUserGroupsForUserWithoutDefault(1L);
 
         // then
         verify(userGroupService.getUserGroupDao(), times(1))
-                .getUserGroupsForUserWithoutDefault(eq("userId"));
+                .getUserGroupsForUserWithoutDefault(eq(1L));
     }
 
     @Test

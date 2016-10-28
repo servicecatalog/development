@@ -536,7 +536,7 @@ public class UserServiceBean implements UserService {
                     groupsWithRoles);
         }
         List<UserGroup> groupsAssigned = userGroupService
-                .getUserGroupsForUserWithoutDefault(existing.getUserId());
+                .getUserGroupsForUserWithoutDefault(existing.getKey());
         Map<UserGroup, UnitUserRole> groupsToAdd = new HashMap<>();
         List<UserGroup> groupsToRemove = new ArrayList<>();
         for (UserGroup g : groupsAssigned) {
