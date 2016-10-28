@@ -2839,6 +2839,7 @@ public class IdentityServiceBean implements IdentityService,
             validateForOnBehalfUserGroupAssignment(user, onBehalfUserKeys);
             PlatformUser platformUser = new PlatformUser();
             platformUser.setUserId(user.getUserId());
+            platformUser.setTenantId(user.getTenantId());
             revoked.add(platformUser);
         }
 
