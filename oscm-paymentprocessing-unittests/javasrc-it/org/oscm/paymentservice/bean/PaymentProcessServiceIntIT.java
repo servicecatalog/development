@@ -138,6 +138,7 @@ public class PaymentProcessServiceIntIT extends EJBTestBase {
 
         DataServiceBean ds = new DataServiceBean();
         DataServiceBean dsSpy = spy(ds);
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(dsSpy);
         doReturn(user).when(dsSpy).getCurrentUser();
 

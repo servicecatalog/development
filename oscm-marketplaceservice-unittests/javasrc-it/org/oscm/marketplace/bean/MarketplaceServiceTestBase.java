@@ -12,13 +12,13 @@
 
 package org.oscm.marketplace.bean;
 
-import static org.oscm.internal.types.enumtypes.OrganizationRoleType.SUPPLIER;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.oscm.internal.types.enumtypes.OrganizationRoleType.SUPPLIER;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -48,6 +48,23 @@ import org.oscm.domobjects.enums.PublishingAccess;
 import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
+import org.oscm.internal.intf.CategorizationService;
+import org.oscm.internal.intf.MarketplaceService;
+import org.oscm.internal.intf.ServiceProvisioningService;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.ServiceAccessType;
+import org.oscm.internal.types.enumtypes.ServiceStatus;
+import org.oscm.internal.types.enumtypes.UserRoleType;
+import org.oscm.internal.types.exception.MailOperationException;
+import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.internal.types.exception.OperationNotPermittedException;
+import org.oscm.internal.types.exception.UpdateConstraintException;
+import org.oscm.internal.types.exception.UserRoleAssignmentException;
+import org.oscm.internal.types.exception.ValidationException;
+import org.oscm.internal.vo.VOCatalogEntry;
+import org.oscm.internal.vo.VOMarketplace;
+import org.oscm.internal.vo.VOService;
 import org.oscm.marketplace.assembler.MarketplaceAssembler;
 import org.oscm.marketplace.cache.MarketplaceCacheServiceBean;
 import org.oscm.serviceprovisioningservice.assembler.ProductAssembler;
@@ -66,23 +83,6 @@ import org.oscm.test.stubs.CommunicationServiceStub;
 import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.test.stubs.TriggerQueueServiceStub;
 import org.oscm.types.enumtypes.EmailType;
-import org.oscm.internal.intf.CategorizationService;
-import org.oscm.internal.intf.MarketplaceService;
-import org.oscm.internal.intf.ServiceProvisioningService;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
-import org.oscm.internal.types.enumtypes.ServiceStatus;
-import org.oscm.internal.types.enumtypes.UserRoleType;
-import org.oscm.internal.types.exception.MailOperationException;
-import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.types.exception.OperationNotPermittedException;
-import org.oscm.internal.types.exception.UpdateConstraintException;
-import org.oscm.internal.types.exception.UserRoleAssignmentException;
-import org.oscm.internal.types.exception.ValidationException;
-import org.oscm.internal.vo.VOCatalogEntry;
-import org.oscm.internal.vo.VOMarketplace;
-import org.oscm.internal.vo.VOService;
 
 /**
  * For the management of marketplace unit tests. Since there are many methods
@@ -187,6 +187,7 @@ public class MarketplaceServiceTestBase extends EJBTestBase {
     @Override
     protected void setup(final TestContainer container) throws Exception {
         container.enableInterfaceMocking(true);
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         container.addBean(new LocalizerServiceBean());
 
@@ -212,10 +213,10 @@ public class MarketplaceServiceTestBase extends EJBTestBase {
             @Override
             public String getMarketplaceUrl(String marketplaceId)
                     throws MailOperationException {
-                return "myBaseUrl"
-                        + (marketplaceId == null
-                                || marketplaceId.trim().length() == 0 ? ""
-                                : "/marketplace/index.jsf?mId=" + marketplaceId);
+                return "myBaseUrl" + (marketplaceId == null
+                        || marketplaceId.trim().length() == 0 ? ""
+                                : "/marketplace/index.jsf?mId="
+                                        + marketplaceId);
             }
 
             @Override
@@ -224,7 +225,6 @@ public class MarketplaceServiceTestBase extends EJBTestBase {
             }
 
         });
-        container.addBean(new ConfigurationServiceStub());
         container.addBean(new TriggerQueueServiceStub());
         container.addBean(new ServiceProvisioningServiceBean());
         container.addBean(new AccountServiceBean());
@@ -254,8 +254,8 @@ public class MarketplaceServiceTestBase extends EJBTestBase {
                         OrganizationRoleType.PLATFORM_OPERATOR,
                         OrganizationRoleType.TECHNOLOGY_PROVIDER,
                         OrganizationRoleType.SUPPLIER);
-                PlatformUser createUserForOrg = Organizations.createUserForOrg(
-                        mgr, mpOwner, true, "admin");
+                PlatformUser createUserForOrg = Organizations
+                        .createUserForOrg(mgr, mpOwner, true, "admin");
                 mpOwnerUserKey = createUserForOrg.getKey();
                 PlatformUsers.grantRoles(mgr, createUserForOrg,
                         UserRoleType.PLATFORM_OPERATOR);
@@ -282,8 +282,8 @@ public class MarketplaceServiceTestBase extends EJBTestBase {
                         OrganizationRoleType.MARKETPLACE_OWNER,
                         OrganizationRoleType.PLATFORM_OPERATOR,
                         OrganizationRoleType.TECHNOLOGY_PROVIDER);
-                PlatformUser createUserForOrg = Organizations.createUserForOrg(
-                        mgr, mpOwner2, true, "admin");
+                PlatformUser createUserForOrg = Organizations
+                        .createUserForOrg(mgr, mpOwner2, true, "admin");
                 mpOwnerUserKey2 = createUserForOrg.getKey();
                 PlatformUsers.grantRoles(mgr, createUserForOrg,
                         UserRoleType.PLATFORM_OPERATOR);
@@ -319,8 +319,8 @@ public class MarketplaceServiceTestBase extends EJBTestBase {
                 mpSupp1 = mpGlobal;
                 LOCAL_MP_ID_SUPP1 = mpSupp1.getMarketplaceId();
 
-                PlatformUser createUserForOrg = Organizations.createUserForOrg(
-                        mgr, supp1, true, "admin");
+                PlatformUser createUserForOrg = Organizations
+                        .createUserForOrg(mgr, supp1, true, "admin");
                 supplier1Key = createUserForOrg.getKey();
 
                 supp2 = Organizations.createOrganization(mgr,
@@ -645,7 +645,7 @@ public class MarketplaceServiceTestBase extends EJBTestBase {
                 .getMarketplacesForOrganization();
         assertEquals("Result must contain global and open marketplace", 2,
                 availableMps.size());
-        Set<String> marketplaceIds = new HashSet<String>();
+        Set<String> marketplaceIds = new HashSet<>();
         for (VOMarketplace voMarketplace : availableMps) {
             marketplaceIds.add(voMarketplace.getMarketplaceId());
         }
@@ -654,10 +654,10 @@ public class MarketplaceServiceTestBase extends EJBTestBase {
     }
 
     protected void unpublish(final boolean isAnonymousVisible,
-            final boolean isVisibleInCatalog) throws ObjectNotFoundException,
-            ValidationException, NonUniqueBusinessKeyException,
-            OperationNotPermittedException, UpdateConstraintException,
-            Exception {
+            final boolean isVisibleInCatalog)
+            throws ObjectNotFoundException, ValidationException,
+            NonUniqueBusinessKeyException, OperationNotPermittedException,
+            UpdateConstraintException, Exception {
         VOCatalogEntry voCESvc1_Updated = new VOCatalogEntry();
         voCESvc1_Updated.setMarketplace(null);
         voCESvc1_Updated.setAnonymousVisible(isAnonymousVisible);
@@ -701,8 +701,8 @@ public class MarketplaceServiceTestBase extends EJBTestBase {
 
     protected static String getMarketplaceId(MarketplaceService service,
             long subscriptionKey) throws ObjectNotFoundException {
-        VOMarketplace mpl = service.getMarketplaceForSubscription(
-                subscriptionKey, null);
+        VOMarketplace mpl = service
+                .getMarketplaceForSubscription(subscriptionKey, null);
         return (mpl != null) ? mpl.getMarketplaceId() : null;
     }
 
@@ -712,8 +712,8 @@ public class MarketplaceServiceTestBase extends EJBTestBase {
         marketplace.setName(name);
         marketplace.setMarketplaceId(marketplaceId);
         if (ownerOrganization != null)
-            marketplace.setOwningOrganizationId(ownerOrganization
-                    .getOrganizationId());
+            marketplace.setOwningOrganizationId(
+                    ownerOrganization.getOrganizationId());
         return marketplace;
     }
 
@@ -770,8 +770,8 @@ public class MarketplaceServiceTestBase extends EJBTestBase {
             throws OperationNotPermittedException, ObjectNotFoundException,
             ValidationException, UserRoleAssignmentException, Exception {
         final VOMarketplace voMarketplace = marketplaceService
-                .createMarketplace(buildMarketplace("TEST_MP_NAME",
-                        "TEST_MP_ID", null));
+                .createMarketplace(
+                        buildMarketplace("TEST_MP_NAME", "TEST_MP_ID", null));
         assertNotNull(voMarketplace);
 
         // Switch to enterprise landingpage
@@ -859,8 +859,8 @@ public class MarketplaceServiceTestBase extends EJBTestBase {
                 for (CatalogEntry catalogEntry : mp.getCatalogEntries()) {
                     if (catalogEntry.getProduct().getStatus()
                             .equals(ServiceStatus.ACTIVE)) {
-                        catalogEntry.getProduct().setStatus(
-                                ServiceStatus.INACTIVE);
+                        catalogEntry.getProduct()
+                                .setStatus(ServiceStatus.INACTIVE);
                         mgr.persist(catalogEntry.getProduct());
                     }
                 }
@@ -889,7 +889,8 @@ public class MarketplaceServiceTestBase extends EJBTestBase {
      * Asserts that the given product has neither incoming nor outgoing product
      * references.
      */
-    protected void assertNotInUpgradePath(final VOService svc) throws Exception {
+    protected void assertNotInUpgradePath(final VOService svc)
+            throws Exception {
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
@@ -900,8 +901,8 @@ public class MarketplaceServiceTestBase extends EJBTestBase {
                 return null;
             }
         });
-        assertFalse("Service " + svc.getServiceId()
-                + " is part of an upgrade path",
+        assertFalse(
+                "Service " + svc.getServiceId() + " is part of an upgrade path",
                 provisioningService.isPartOfUpgradePath(svc));
     }
 
@@ -995,14 +996,15 @@ public class MarketplaceServiceTestBase extends EJBTestBase {
     protected MarketplaceToOrganization findMarketplaceToOrganization(
             final Marketplace marketplace, final Organization org)
             throws Exception {
-        MarketplaceToOrganization mto = runTX(new Callable<MarketplaceToOrganization>() {
-            @Override
-            public MarketplaceToOrganization call() throws Exception {
-                MarketplaceToOrganization mto = new MarketplaceToOrganization(
-                        marketplace, org);
-                return (MarketplaceToOrganization) mgr.find(mto);
-            }
-        });
+        MarketplaceToOrganization mto = runTX(
+                new Callable<MarketplaceToOrganization>() {
+                    @Override
+                    public MarketplaceToOrganization call() throws Exception {
+                        MarketplaceToOrganization mto = new MarketplaceToOrganization(
+                                marketplace, org);
+                        return (MarketplaceToOrganization) mgr.find(mto);
+                    }
+                });
         return mto;
     }
 
