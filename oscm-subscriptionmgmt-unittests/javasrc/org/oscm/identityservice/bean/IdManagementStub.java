@@ -167,6 +167,14 @@ public class IdManagementStub implements IdentityService, IdentityServiceLocal {
             throw onf;
         }
 
+        if (validateOrganization) {
+            PlatformUser cu = dataManager.getCurrentUser();
+            if (cu.getOrganization().getKey() != platformUser.getOrganization()
+                    .getKey()) {
+                throw new OperationNotPermittedException();
+            }
+        }
+
         return platformUser;
     }
 
