@@ -4,7 +4,6 @@
 	<comment></comment>
 	<projects>
 		<project>oscm-common</project>
-		<project>oscm-configservice</project>
 		<project>oscm-dataservice</project>
 		<project>oscm-dataservice-intsvc</project>
 		<project>oscm-domainobjects</project>

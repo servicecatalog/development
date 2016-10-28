@@ -20,7 +20,6 @@ import java.sql.SQLException;
 import java.util.*;
 
 import javax.annotation.Resource;
-import javax.ejb.EJB;
 import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
@@ -37,7 +36,6 @@ import org.oscm.dataservice.local.SqlQuery;
 import org.oscm.domobjects.*;
 import org.oscm.domobjects.Parameter;
 import org.oscm.domobjects.bridge.BridgeDataManager;
-import org.oscm.internal.intf.ConfigurationService;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.types.exception.DomainObjectException;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
@@ -80,9 +78,6 @@ public class DataServiceBean implements DataService {
 
     @Resource(name = "BSSDS")
     DataSource ds;
-
-    @EJB
-    ConfigurationService configService;
 
     public static String getCurrentHistoryUser() {
         return CURRENT_HISTORY_USER.get();
@@ -326,15 +321,15 @@ public class DataServiceBean implements DataService {
     }
 
     private String getDefaultTenant() {
-        String defaultTenantId = configService.getVOConfigurationSetting(
-                ConfigurationKey.SSO_DEFAULT_TENANT_ID,
-                Configuration.GLOBAL_CONTEXT).getValue();
-        if (defaultTenantId == null) {
-            throw new RuntimeException(
-                    "Missing mandatory setting: SSO_DEFAULT_TENANT_ID");
-
+        TypedQuery<ConfigurationSetting> query = em.createNamedQuery("ConfigurationSetting.findByInfoAndContext",
+                ConfigurationSetting.class);
+        query.setParameter("informationId", ConfigurationKey.SSO_DEFAULT_TENANT_ID);
+        query.setParameter("contextId", Configuration.GLOBAL_CONTEXT);
+        try {
+            return query.getSingleResult().getValue();
+        } catch (Exception exc) {
+            return null;
         }
-        return defaultTenantId;
     }
 
     @Override
