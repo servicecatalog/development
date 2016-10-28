@@ -472,6 +472,7 @@ public class UserServiceBean implements UserService {
         ud.setUserId(u.getUserId());
         ud.setKey(u.getKey());
         ud.setVersion(u.getVersion());
+        ud.setTenantId(u.getTenantId());
 
         return ud;
     }
