@@ -1641,8 +1641,7 @@ public class AccountServiceBean implements AccountService, AccountServiceLocal {
 
     // TODO: move it to tenant service as the operator service bean is also
     // using the same code.
-    private boolean checkIfPlatformUserInGivenTenantExists(long tenantKey,
-            String userId) {
+    boolean checkIfPlatformUserInGivenTenantExists(long tenantKey, String userId) {
         if (tenantKey != 0) {
             Query query = dm
                     .createNamedQuery("PlatformUser.findByUserIdAndTenantKey");
