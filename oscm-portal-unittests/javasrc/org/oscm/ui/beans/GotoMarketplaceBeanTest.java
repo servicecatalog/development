@@ -122,7 +122,7 @@ public class GotoMarketplaceBeanTest {
 
         // when
         String outcome = marketplaceGotoBean.gotoMarketplace();
-1`
+
         // then
         assertEquals("success", outcome);
         verify(marketplaceGotoBean, times(1)).setMarketplaceId(eq("mid"));
