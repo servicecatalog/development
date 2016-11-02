@@ -55,7 +55,7 @@ import com.sun.xml.ws.fault.ServerSOAPFaultException;
 public class IdentityServiceWSTest {
 
     private static final String VERSION = "Version not updated: %s > %s";
-
+    
     private static WebserviceSAMLSPTestSetup setup;
     private static VOFactory factory = new VOFactory();
     private static IdentityService is;
@@ -69,6 +69,7 @@ public class IdentityServiceWSTest {
 
         WebserviceTestBase.getMailReader().deleteMails();
         WebserviceSAMLSPTestSetup.getOperator().addCurrency("EUR");
+        
         setup = new WebserviceSAMLSPTestSetup();
         supplier1 = setup.createSupplier(namePrefix);
         is = ServiceFactory.getSTSServiceFactory().getIdentityService(

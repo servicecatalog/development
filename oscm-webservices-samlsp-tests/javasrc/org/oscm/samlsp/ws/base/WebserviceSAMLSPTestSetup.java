@@ -45,9 +45,16 @@ import org.oscm.ws.base.WebserviceTestSetup;
 import org.oscm.xml.Transformers;
 import org.oscm.converter.api.EnumConverter;
 import org.oscm.converter.api.VOConverter;
+import org.oscm.internal.intf.ConfigurationService;
 import org.oscm.internal.intf.OperatorService;
 import org.oscm.internal.intf.TenantService;
+import org.oscm.internal.types.enumtypes.ConfigurationKey;
+import org.oscm.internal.types.enumtypes.IdpSettingType;
+import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
+import org.oscm.internal.vo.VOConfigurationSetting;
 import org.oscm.internal.vo.VOTenant;
+import org.oscm.internal.vo.VOTenantSetting;
+import org.oscm.types.constants.Configuration;
 import org.oscm.types.enumtypes.OrganizationRoleType;
 import org.oscm.types.enumtypes.UserRoleType;
 import org.oscm.vo.VOOrganization;
@@ -60,13 +67,22 @@ public class WebserviceSAMLSPTestSetup extends WebserviceTestSetup {
 
     private static final String STSConfigTemplateFileName = "MockSTSServiceTemplate.xml";
     private static final String STSConfigFileName = "MockSTSService.xml";
+    private static final String STS_TENANT_ID = "asdqwe10";
+    
+    private static final String SSO_STS_URL = "SSO_STS_URL";
+    private static final String SSO_STS_ENCKEY_LEN = "SSO_STS_ENCKEY_LEN";
+    private static final String SSO_STS_METADATA_URL = "SSO_STS_METADATA_URL";
+
     private static VOFactory factory = new VOFactory();
     private String supplierUserId;
+    
     private static OperatorService operator;
     private static TenantService tenantService;
-
+    private static ConfigurationService configurationService;
+    
     public WebserviceSAMLSPTestSetup() {
         setJKSLocation(getExampleDomainPath());
+        createMockStsTenant();
     }
 
     private void setJKSLocation(String domainPath) {
@@ -136,7 +152,18 @@ public class WebserviceSAMLSPTestSetup extends WebserviceTestSetup {
         DocumentBuilder builder = factory.newDocumentBuilder();
         return builder.parse(file);
     }
-
+    
+    private void createMockStsTenant(){
+        
+        try {
+            createTenantWithDefaultSettings(STS_TENANT_ID);
+        } catch (NonUniqueBusinessKeyException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
     @Override
     public VOOrganization createSupplier(String namePrefix) throws Exception {
         supplierUserId = namePrefix + "_"
@@ -220,11 +247,58 @@ public class WebserviceSAMLSPTestSetup extends WebserviceTestSetup {
         return tenantService;
     }
     
-    public static void createTenant(String tenantId) throws Exception{
+    private static ConfigurationService getConfigurationService() throws Exception {
+        synchronized (WebserviceSAMLSPTestSetup.class) {
+            if (configurationService == null) {
+                configurationService = ServiceFactory.getDefault().getConfigurationService();
+            }
+        }
+        return configurationService;
+    }
+    
+    public static void createTenant(String tenantId) throws Exception  {
         
         VOTenant voTenant = factory.createTenantVo(tenantId);
-        getTenantService().addTenant(voTenant);
-        
-        
+        getTenantService().addTenant(voTenant);   
+    }
+    
+    private VOTenant createTenantWithDefaultSettings(String tenantId)
+            throws Exception {
+        createTenant(tenantId);
+        VOTenant tenant = getTenantService().getTenantByTenantId(tenantId);
+
+        VOConfigurationSetting stsUrlSetting = getConfigurationService()
+                .getVOConfigurationSetting(
+                        ConfigurationKey.valueOf(SSO_STS_URL),
+                        Configuration.GLOBAL_CONTEXT);
+        VOConfigurationSetting stsMetadataUrlSetting = getConfigurationService()
+                .getVOConfigurationSetting(
+                        ConfigurationKey.valueOf(SSO_STS_METADATA_URL),
+                        Configuration.GLOBAL_CONTEXT);
+        VOConfigurationSetting stsKeyLenSetting = getConfigurationService()
+                .getVOConfigurationSetting(
+                        ConfigurationKey.valueOf(SSO_STS_ENCKEY_LEN),
+                        Configuration.GLOBAL_CONTEXT);
+
+        List<VOTenantSetting> settings = new ArrayList<>();
+        settings.add(getTenantSetting(SSO_STS_URL, stsUrlSetting.getValue(),
+                tenant));
+        settings.add(getTenantSetting(SSO_STS_METADATA_URL,
+                stsMetadataUrlSetting.getValue(), tenant));
+        settings.add(getTenantSetting(SSO_STS_ENCKEY_LEN,
+                stsKeyLenSetting.getValue(), tenant));
+
+        tenantService.addTenantSettings(settings, tenant);
+        return tenant;
+    }
+
+    private VOTenantSetting getTenantSetting(String key, String value,
+            VOTenant tenant) {
+
+        VOTenantSetting voTenantSetting = new VOTenantSetting();
+        voTenantSetting.setName(IdpSettingType.valueOf(key));
+        voTenantSetting.setValue(value);
+        voTenantSetting.setVoTenant(tenant);
+        return voTenantSetting;
     }
 }

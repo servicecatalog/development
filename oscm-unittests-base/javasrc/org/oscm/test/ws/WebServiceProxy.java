@@ -82,10 +82,6 @@ public class WebServiceProxy {
             
             Map<String, List<String>> headers = new HashMap<String, List<String>>();
             
-            if (tenantId != null) {
-                headers.put("tenantId", Collections.singletonList(tenantId));
-            }
-            
             if(orgId!= null){
                 headers.put("organizationId", Collections.singletonList(orgId)); 
             }
