@@ -17,22 +17,22 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 
 import org.junit.Test;
-
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.Product;
 import org.oscm.domobjects.Subscription;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.ServiceAccessType;
+import org.oscm.internal.types.enumtypes.SubscriptionStatus;
+import org.oscm.paginator.Pagination;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.Organizations;
 import org.oscm.test.data.Products;
 import org.oscm.test.data.Subscriptions;
 import org.oscm.test.ejb.TestContainer;
-import org.oscm.paginator.*;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
-import org.oscm.internal.types.enumtypes.SubscriptionStatus;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 
 /**
  * @author ono
@@ -46,19 +46,20 @@ public class SubscriptionDaoIT_Paging extends EJBTestBase {
     private final int NUM_SUPP_SUBSCRIPTIONS = 20;
     private final int NUM_BROKER_SUBSCRIPTIONS = 30;
 
-    Set<SubscriptionStatus> states = Collections.unmodifiableSet(EnumSet.of(
-            SubscriptionStatus.ACTIVE, SubscriptionStatus.PENDING,
-            SubscriptionStatus.SUSPENDED));
+    Set<SubscriptionStatus> states = Collections
+            .unmodifiableSet(EnumSet.of(SubscriptionStatus.ACTIVE,
+                    SubscriptionStatus.PENDING, SubscriptionStatus.SUSPENDED));
 
     @Override
     protected void setup(TestContainer container) throws Exception {
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         ds = container.get(DataService.class);
         dao = new SubscriptionDao(ds);
 
         supplier = createOrg("supplier", OrganizationRoleType.SUPPLIER,
                 OrganizationRoleType.TECHNOLOGY_PROVIDER);
-        
+
         supplierUser = createOrgUser("supp_user", supplier, "en");
 
         final Organization supplierCustomer = registerCustomer(
@@ -72,25 +73,27 @@ public class SubscriptionDaoIT_Paging extends EJBTestBase {
 
         final Organization broker = createOrg("broker",
                 OrganizationRoleType.BROKER);
-        final Organization brokerCustomer1 = registerCustomer(
-                "brokerCustomer1", broker);
+        final Organization brokerCustomer1 = registerCustomer("brokerCustomer1",
+                broker);
         registerCustomer("brokerCustomer2", broker);
         Product partnerProduct = createPartnerProduct(product, broker);
         for (int i = 0; i < NUM_BROKER_SUBSCRIPTIONS; i++)
             createPartnerSubscription(brokerCustomer1.getOrganizationId(),
                     partnerProduct, "brokercustomer1Sub" + i, broker);
     }
-    
+
     private PlatformUser createOrgUser(final String userId,
-    		final Organization organization, final String locale) throws Exception {
+            final Organization organization, final String locale)
+            throws Exception {
         return runTX(new Callable<PlatformUser>() {
             @Override
             public PlatformUser call() throws Exception {
-                return Organizations.createUserForOrg(ds, organization, true, userId, locale);
+                return Organizations.createUserForOrg(ds, organization, true,
+                        userId, locale);
             }
         });
     }
-    
+
     private Organization createOrg(final String organizationId,
             final OrganizationRoleType... roles) throws Exception {
         return runTX(new Callable<Organization>() {
@@ -313,8 +316,7 @@ public class SubscriptionDaoIT_Paging extends EJBTestBase {
         });
 
         // then
-        assertEquals(limit_greater_listsize,
-                result.size());
+        assertEquals(limit_greater_listsize, result.size());
     }
 
     @Test

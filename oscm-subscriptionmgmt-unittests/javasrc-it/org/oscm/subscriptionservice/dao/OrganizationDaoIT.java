@@ -16,12 +16,14 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 
 import org.junit.Test;
-
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.Product;
 import org.oscm.domobjects.TechnicalProduct;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.ServiceAccessType;
+import org.oscm.internal.types.enumtypes.SubscriptionStatus;
 import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.Organizations;
@@ -29,9 +31,7 @@ import org.oscm.test.data.Products;
 import org.oscm.test.data.Subscriptions;
 import org.oscm.test.data.TechnicalProducts;
 import org.oscm.test.ejb.TestContainer;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
-import org.oscm.internal.types.enumtypes.SubscriptionStatus;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 
 /**
  * Unit tests for {@link OrganizationDao} using the test EJB container.
@@ -65,6 +65,7 @@ public class OrganizationDaoIT extends EJBTestBase {
     @Override
     protected void setup(TestContainer container) throws Exception {
         container.enableInterfaceMocking(true);
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         ds = container.get(DataService.class);
         dao = new OrganizationDao(ds);
@@ -75,8 +76,8 @@ public class OrganizationDaoIT extends EJBTestBase {
         tpSupOrg = Organizations.createOrganization(ds, "supplier",
                 OrganizationRoleType.SUPPLIER,
                 OrganizationRoleType.TECHNOLOGY_PROVIDER);
-        tpSupUserKey = Organizations.createUserForOrg(ds, tpSupOrg, true,
-                "tpSup").getKey();
+        tpSupUserKey = Organizations
+                .createUserForOrg(ds, tpSupOrg, true, "tpSup").getKey();
         supplierCustomerOrg = Organizations.createCustomer(ds, tpSupOrg);
         brokerOrg = Organizations.createOrganization(ds, "broker",
                 OrganizationRoleType.BROKER);
@@ -129,10 +130,10 @@ public class OrganizationDaoIT extends EJBTestBase {
 
         createSubscriptionForOfferer(tProduct, resellerOrg, resellerOrg,
                 "resellerProduct", RESELLER_SUB_ID);
-        createSubscriptionForOfferer(tProduct, resellerOrg,
-                resellerCustomerOrg, "resellerProduct2", RESELLER_CUST_SUB_ID);
-        createSubscriptionForOfferer(tProduct, resellerOrg,
-                resellerCustomerOrg, "resellerCommonProduct", COMMON_SUB_ID);
+        createSubscriptionForOfferer(tProduct, resellerOrg, resellerCustomerOrg,
+                "resellerProduct2", RESELLER_CUST_SUB_ID);
+        createSubscriptionForOfferer(tProduct, resellerOrg, resellerCustomerOrg,
+                "resellerCommonProduct", COMMON_SUB_ID);
     }
 
     private void createSubscriptionForOfferer(final TechnicalProduct tProduct,

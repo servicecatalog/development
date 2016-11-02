@@ -79,4 +79,5 @@ public class POUserDetails extends POUser {
     public UserAccountStatus getStatus() {
         return status;
     }
+
 }

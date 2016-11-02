@@ -17,7 +17,6 @@ import java.util.UUID;
 import java.util.concurrent.Callable;
 
 import org.junit.Test;
-
 import org.oscm.billingservice.dao.model.BillingSubscriptionData;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
@@ -27,6 +26,10 @@ import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.Product;
 import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.TechnicalProduct;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.ServiceAccessType;
+import org.oscm.internal.types.enumtypes.SubscriptionStatus;
+import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.test.DateTimeHandling;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.BillingSubscriptionStates;
@@ -34,20 +37,18 @@ import org.oscm.test.data.Organizations;
 import org.oscm.test.data.Products;
 import org.oscm.test.data.TechnicalProducts;
 import org.oscm.test.ejb.TestContainer;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
-import org.oscm.internal.types.enumtypes.SubscriptionStatus;
-import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 
 /**
  * @author baumann
  * 
  */
-public class BillingDataRetrievalServiceBeanSubscription2IT extends EJBTestBase {
+public class BillingDataRetrievalServiceBeanSubscription2IT
+        extends EJBTestBase {
 
     private BillingDataRetrievalServiceLocal bdr;
     private DataService ds;
-    private List<Subscription> subscriptions = new ArrayList<Subscription>();
+    private List<Subscription> subscriptions = new ArrayList<>();
     private Organization supplier;
     private TechnicalProduct techProd;
     private Product product;
@@ -55,6 +56,7 @@ public class BillingDataRetrievalServiceBeanSubscription2IT extends EJBTestBase 
 
     @Override
     protected void setup(TestContainer container) throws Exception {
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         container.addBean(new BillingDataRetrievalServiceBean());
         ds = container.get(DataService.class);
@@ -69,8 +71,8 @@ public class BillingDataRetrievalServiceBeanSubscription2IT extends EJBTestBase 
 
         product = Products.createProduct(supplier, techProd, true, "Product",
                 null, null, ds);
-        productFree = Products.createProduct(supplier, techProd, true, "Product free",
-                null, null, ds);
+        productFree = Products.createProduct(supplier, techProd, true,
+                "Product free", null, null, ds);
     }
 
     /**
@@ -79,8 +81,8 @@ public class BillingDataRetrievalServiceBeanSubscription2IT extends EJBTestBase 
      */
     @Test
     public void getSubscriptionsForBilling() throws Exception {
-        final Long subActivationDate = Long.valueOf(DateTimeHandling
-                .calculateMillis("2014-03-01 00:00:00"));
+        final Long subActivationDate = Long.valueOf(
+                DateTimeHandling.calculateMillis("2014-03-01 00:00:00"));
         final long endOfLastBilledPeriod = DateTimeHandling
                 .calculateMillis("2014-08-01 00:00:00");
         final long effectiveBillingEndDate = DateTimeHandling
@@ -112,13 +114,16 @@ public class BillingDataRetrievalServiceBeanSubscription2IT extends EJBTestBase 
         });
 
         // when
-        List<BillingSubscriptionData> subscriptionData = runTX(new Callable<List<BillingSubscriptionData>>() {
-            @Override
-            public List<BillingSubscriptionData> call() throws Exception {
-                return bdr.getSubscriptionsForBilling(effectiveBillingEndDate,
-                        cutoffBillingEndDate, cutoffDeactivationDate);
-            }
-        });
+        List<BillingSubscriptionData> subscriptionData = runTX(
+                new Callable<List<BillingSubscriptionData>>() {
+                    @Override
+                    public List<BillingSubscriptionData> call()
+                            throws Exception {
+                        return bdr.getSubscriptionsForBilling(
+                                effectiveBillingEndDate, cutoffBillingEndDate,
+                                cutoffDeactivationDate);
+                    }
+                });
 
         // then
         assertNotNull(subscriptionData);
@@ -140,8 +145,8 @@ public class BillingDataRetrievalServiceBeanSubscription2IT extends EJBTestBase 
      */
     @Test
     public void getSubscriptionsForBilling2() throws Exception {
-        final Long subActivationDate = Long.valueOf(DateTimeHandling
-                .calculateMillis("2014-03-01 00:00:00"));
+        final Long subActivationDate = Long.valueOf(
+                DateTimeHandling.calculateMillis("2014-03-01 00:00:00"));
         final long endOfLastBilledPeriod = DateTimeHandling
                 .calculateMillis("2014-07-15 00:00:00");
         final long endOfLastBilledPeriod2 = DateTimeHandling
@@ -179,13 +184,16 @@ public class BillingDataRetrievalServiceBeanSubscription2IT extends EJBTestBase 
         });
 
         // when
-        List<BillingSubscriptionData> subscriptionData = runTX(new Callable<List<BillingSubscriptionData>>() {
-            @Override
-            public List<BillingSubscriptionData> call() throws Exception {
-                return bdr.getSubscriptionsForBilling(effectiveBillingEndDate,
-                        cutoffBillingEndDate, cutoffDeactivationDate);
-            }
-        });
+        List<BillingSubscriptionData> subscriptionData = runTX(
+                new Callable<List<BillingSubscriptionData>>() {
+                    @Override
+                    public List<BillingSubscriptionData> call()
+                            throws Exception {
+                        return bdr.getSubscriptionsForBilling(
+                                effectiveBillingEndDate, cutoffBillingEndDate,
+                                cutoffDeactivationDate);
+                    }
+                });
 
         // then
         assertNotNull(subscriptionData);
@@ -207,14 +215,14 @@ public class BillingDataRetrievalServiceBeanSubscription2IT extends EJBTestBase 
      */
     @Test
     public void getSubscriptionsForBilling3() throws Exception {
-        final Long subCreationDate = Long.valueOf(DateTimeHandling
-                .calculateMillis("2014-03-01 00:00:00"));
-        final Long subActivationDate = Long.valueOf(DateTimeHandling
-                .calculateMillis("2014-03-01 00:00:10"));
-        final Long subDeactivationDate1 = Long.valueOf(DateTimeHandling
-                .calculateMillis("2014-07-30 00:00:00"));
-        final Long subDeactivationDate2 = Long.valueOf(DateTimeHandling
-                .calculateMillis("2014-06-15 00:00:00"));
+        final Long subCreationDate = Long.valueOf(
+                DateTimeHandling.calculateMillis("2014-03-01 00:00:00"));
+        final Long subActivationDate = Long.valueOf(
+                DateTimeHandling.calculateMillis("2014-03-01 00:00:10"));
+        final Long subDeactivationDate1 = Long.valueOf(
+                DateTimeHandling.calculateMillis("2014-07-30 00:00:00"));
+        final Long subDeactivationDate2 = Long.valueOf(
+                DateTimeHandling.calculateMillis("2014-06-15 00:00:00"));
         final long endOfLastBilledPeriod = DateTimeHandling
                 .calculateMillis("2014-08-01 00:00:00");
         final long endOfLastBilledPeriod2 = DateTimeHandling
@@ -256,13 +264,16 @@ public class BillingDataRetrievalServiceBeanSubscription2IT extends EJBTestBase 
         });
 
         // when
-        List<BillingSubscriptionData> subscriptionData = runTX(new Callable<List<BillingSubscriptionData>>() {
-            @Override
-            public List<BillingSubscriptionData> call() throws Exception {
-                return bdr.getSubscriptionsForBilling(effectiveBillingEndDate,
-                        cutoffBillingEndDate, cutoffDeactivationDate);
-            }
-        });
+        List<BillingSubscriptionData> subscriptionData = runTX(
+                new Callable<List<BillingSubscriptionData>>() {
+                    @Override
+                    public List<BillingSubscriptionData> call()
+                            throws Exception {
+                        return bdr.getSubscriptionsForBilling(
+                                effectiveBillingEndDate, cutoffBillingEndDate,
+                                cutoffDeactivationDate);
+                    }
+                });
 
         // then
         assertNotNull(subscriptionData);
@@ -285,14 +296,14 @@ public class BillingDataRetrievalServiceBeanSubscription2IT extends EJBTestBase 
      */
     @Test
     public void getSubscriptionsForBilling4() throws Exception {
-        final Long subActivationDate1 = Long.valueOf(DateTimeHandling
-                .calculateMillis("2014-03-01 00:00:00"));
-        final Long subActivationDate2 = Long.valueOf(DateTimeHandling
-                .calculateMillis("2014-09-08 00:00:00"));
-        final Long subActivationDate3 = Long.valueOf(DateTimeHandling
-                .calculateMillis("2014-09-01 00:00:00"));
-        final Long subActivationDate4 = Long.valueOf(DateTimeHandling
-                .calculateMillis("2014-08-20 00:00:00"));
+        final Long subActivationDate1 = Long.valueOf(
+                DateTimeHandling.calculateMillis("2014-03-01 00:00:00"));
+        final Long subActivationDate2 = Long.valueOf(
+                DateTimeHandling.calculateMillis("2014-09-08 00:00:00"));
+        final Long subActivationDate3 = Long.valueOf(
+                DateTimeHandling.calculateMillis("2014-09-01 00:00:00"));
+        final Long subActivationDate4 = Long.valueOf(
+                DateTimeHandling.calculateMillis("2014-08-20 00:00:00"));
         final long endOfLastBilledPeriod = DateTimeHandling
                 .calculateMillis("2014-08-01 00:00:00");
         final long effectiveBillingEndDate = DateTimeHandling
@@ -316,13 +327,16 @@ public class BillingDataRetrievalServiceBeanSubscription2IT extends EJBTestBase 
         });
 
         // when
-        List<BillingSubscriptionData> subscriptionData = runTX(new Callable<List<BillingSubscriptionData>>() {
-            @Override
-            public List<BillingSubscriptionData> call() throws Exception {
-                return bdr.getSubscriptionsForBilling(effectiveBillingEndDate,
-                        cutoffBillingEndDate, cutoffDeactivationDate);
-            }
-        });
+        List<BillingSubscriptionData> subscriptionData = runTX(
+                new Callable<List<BillingSubscriptionData>>() {
+                    @Override
+                    public List<BillingSubscriptionData> call()
+                            throws Exception {
+                        return bdr.getSubscriptionsForBilling(
+                                effectiveBillingEndDate, cutoffBillingEndDate,
+                                cutoffDeactivationDate);
+                    }
+                });
 
         // then
         assertNotNull(subscriptionData);
@@ -334,7 +348,10 @@ public class BillingDataRetrievalServiceBeanSubscription2IT extends EJBTestBase 
         assertSubscriptionData(subscriptionData, 3, 2, null);
     }
 
-    BillingSubscriptionStatus create4SubsAndBillingSubscriptionStatus(Long subActivationDate4, Long subActivationDate2, Long subActivationDate3, Long subActivationDate1, long endOfLastBilledPeriod) throws NonUniqueBusinessKeyException {
+    BillingSubscriptionStatus create4SubsAndBillingSubscriptionStatus(
+            Long subActivationDate4, Long subActivationDate2,
+            Long subActivationDate3, Long subActivationDate1,
+            long endOfLastBilledPeriod) throws NonUniqueBusinessKeyException {
         createSubscription(product, "subscription4", supplier,
                 subActivationDate4, subActivationDate4, 4);
         createSubscription(product, "subscription2", supplier,
@@ -344,106 +361,118 @@ public class BillingDataRetrievalServiceBeanSubscription2IT extends EJBTestBase 
         createSubscription(product, "subscription1", supplier,
                 subActivationDate1, subActivationDate1, 1);
 
-        BillingSubscriptionStatus billingSubscriptionStatus = BillingSubscriptionStates.createBillingSubscriptionStatus(ds,
-                subscriptions.get(0).getKey(), endOfLastBilledPeriod);
+        BillingSubscriptionStatus billingSubscriptionStatus = BillingSubscriptionStates
+                .createBillingSubscriptionStatus(ds,
+                        subscriptions.get(0).getKey(), endOfLastBilledPeriod);
         return billingSubscriptionStatus;
     }
 
     @Test
     public void testUpdateBillingSubscriptionStatus_update() throws Exception {
-        //given
-        final Long subActivationDate1 = Long.valueOf(DateTimeHandling
-                .calculateMillis("2014-03-01 00:00:00"));
-        final Long subActivationDate2 = Long.valueOf(DateTimeHandling
-                .calculateMillis("2014-09-08 00:00:00"));
-        final Long subActivationDate3 = Long.valueOf(DateTimeHandling
-                .calculateMillis("2014-09-01 00:00:00"));
-        final Long subActivationDate4 = Long.valueOf(DateTimeHandling
-                .calculateMillis("2014-08-20 00:00:00"));
+        // given
+        final Long subActivationDate1 = Long.valueOf(
+                DateTimeHandling.calculateMillis("2014-03-01 00:00:00"));
+        final Long subActivationDate2 = Long.valueOf(
+                DateTimeHandling.calculateMillis("2014-09-08 00:00:00"));
+        final Long subActivationDate3 = Long.valueOf(
+                DateTimeHandling.calculateMillis("2014-09-01 00:00:00"));
+        final Long subActivationDate4 = Long.valueOf(
+                DateTimeHandling.calculateMillis("2014-08-20 00:00:00"));
         final long endOfLastBilledPeriod = DateTimeHandling
                 .calculateMillis("2014-08-01 00:00:00");
         final long endOfLastBilledPeriod2 = DateTimeHandling
                 .calculateMillis("2014-07-01 00:00:00");
 
-        final BillingSubscriptionStatus status = runTX(new Callable<BillingSubscriptionStatus>() {
-            @Override
-            public BillingSubscriptionStatus call() throws Exception {
-                return create4SubsAndBillingSubscriptionStatus(subActivationDate4,
-                        subActivationDate2, subActivationDate3,
-                        subActivationDate1, endOfLastBilledPeriod);
-            }
-        });
-        //when
+        final BillingSubscriptionStatus status = runTX(
+                new Callable<BillingSubscriptionStatus>() {
+                    @Override
+                    public BillingSubscriptionStatus call() throws Exception {
+                        return create4SubsAndBillingSubscriptionStatus(
+                                subActivationDate4, subActivationDate2,
+                                subActivationDate3, subActivationDate1,
+                                endOfLastBilledPeriod);
+                    }
+                });
+        // when
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                bdr.updateBillingSubscriptionStatus(status.getSubscriptionKey(), endOfLastBilledPeriod2);
+                bdr.updateBillingSubscriptionStatus(status.getSubscriptionKey(),
+                        endOfLastBilledPeriod2);
                 return null;
             }
         });
 
-        //then
-        BillingSubscriptionStatus status2 = runTX(new Callable<BillingSubscriptionStatus>() {
-            @Override
-            public BillingSubscriptionStatus call() throws Exception {
-                BillingSubscriptionStatus billingSubStatus = new BillingSubscriptionStatus();
-                billingSubStatus.setSubscriptionKey(status.getSubscriptionKey());
-                return (BillingSubscriptionStatus) ds
-                        .find(billingSubStatus);
-            }
-        });
-        assertEquals(status.getEndOfLastBilledPeriod(), status2.getEndOfLastBilledPeriod());
+        // then
+        BillingSubscriptionStatus status2 = runTX(
+                new Callable<BillingSubscriptionStatus>() {
+                    @Override
+                    public BillingSubscriptionStatus call() throws Exception {
+                        BillingSubscriptionStatus billingSubStatus = new BillingSubscriptionStatus();
+                        billingSubStatus.setSubscriptionKey(
+                                status.getSubscriptionKey());
+                        return (BillingSubscriptionStatus) ds
+                                .find(billingSubStatus);
+                    }
+                });
+        assertEquals(status.getEndOfLastBilledPeriod(),
+                status2.getEndOfLastBilledPeriod());
     }
 
     @Test
-    public void testUpdateBillingSubscriptionStatus_createNew() throws Exception {
-        //given
-        final Long subActivationDate4 = Long.valueOf(DateTimeHandling
-                .calculateMillis("2014-08-20 00:00:00"));
+    public void testUpdateBillingSubscriptionStatus_createNew()
+            throws Exception {
+        // given
+        final Long subActivationDate4 = Long.valueOf(
+                DateTimeHandling.calculateMillis("2014-08-20 00:00:00"));
         final long endOfLastBilledPeriod2 = DateTimeHandling
                 .calculateMillis("2014-07-01 00:00:00");
 
         final Subscription createdSub = runTX(new Callable<Subscription>() {
             @Override
             public Subscription call() throws Exception {
-                return createSubscription(productFree, "subscription4", supplier,
-                        subActivationDate4, subActivationDate4, 1);
+                return createSubscription(productFree, "subscription4",
+                        supplier, subActivationDate4, subActivationDate4, 1);
             }
         });
-        //when
+        // when
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                bdr.updateBillingSubscriptionStatus(createdSub.getKey(), endOfLastBilledPeriod2);
+                bdr.updateBillingSubscriptionStatus(createdSub.getKey(),
+                        endOfLastBilledPeriod2);
                 return null;
             }
         });
 
-        //then
-        BillingSubscriptionStatus status2 = runTX(new Callable<BillingSubscriptionStatus>() {
-            @Override
-            public BillingSubscriptionStatus call() throws Exception {
-                BillingSubscriptionStatus billingSubStatus = new BillingSubscriptionStatus();
-                billingSubStatus.setSubscriptionKey(createdSub.getKey());
-                return (BillingSubscriptionStatus) ds
-                        .find(billingSubStatus);
-            }
-        });
-        assertEquals(endOfLastBilledPeriod2, status2.getEndOfLastBilledPeriod());
+        // then
+        BillingSubscriptionStatus status2 = runTX(
+                new Callable<BillingSubscriptionStatus>() {
+                    @Override
+                    public BillingSubscriptionStatus call() throws Exception {
+                        BillingSubscriptionStatus billingSubStatus = new BillingSubscriptionStatus();
+                        billingSubStatus
+                                .setSubscriptionKey(createdSub.getKey());
+                        return (BillingSubscriptionStatus) ds
+                                .find(billingSubStatus);
+                    }
+                });
+        assertEquals(endOfLastBilledPeriod2,
+                status2.getEndOfLastBilledPeriod());
     }
 
     private void assertSubscriptionData(
             List<BillingSubscriptionData> subscriptionData, int subIndex,
             int subDataIndex, Long endOfLastBilledPeriod) {
-        assertEquals("Wrong subscription key", subscriptions.get(subIndex)
-                .getKey(), subscriptionData.get(subDataIndex)
-                .getSubscriptionKey());
+        assertEquals("Wrong subscription key",
+                subscriptions.get(subIndex).getKey(),
+                subscriptionData.get(subDataIndex).getSubscriptionKey());
         assertEquals("Wrong subscription activation date",
                 subscriptions.get(subIndex).getActivationDate().longValue(),
                 subscriptionData.get(subDataIndex).getActivationDate());
         assertEquals("Wrong subscription cutoff day",
-                subscriptions.get(subIndex).getCutOffDay(), subscriptionData
-                        .get(subDataIndex).getCutOffDay());
+                subscriptions.get(subIndex).getCutOffDay(),
+                subscriptionData.get(subDataIndex).getCutOffDay());
         assertEquals("Wrong end of last billed period", endOfLastBilledPeriod,
                 subscriptionData.get(subDataIndex).getEndOfLastBilledPeriod());
     }
@@ -464,9 +493,9 @@ public class BillingDataRetrievalServiceBeanSubscription2IT extends EJBTestBase 
         return sub;
     }
 
-    private Subscription createSubscription(Product prod,
-            String subscriptionId, Organization org, Marketplace marketplace,
-            Long creationDate, Long activationDate, int cutoffDay)
+    private Subscription createSubscription(Product prod, String subscriptionId,
+            Organization org, Marketplace marketplace, Long creationDate,
+            Long activationDate, int cutoffDay)
             throws NonUniqueBusinessKeyException {
         Subscription sub = new Subscription();
         sub.setCreationDate(creationDate);

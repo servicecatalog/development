@@ -20,7 +20,6 @@ import java.util.concurrent.Callable;
 import javax.ejb.EJBTransactionRequiredException;
 
 import org.junit.Test;
-
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.CatalogEntry;
@@ -33,6 +32,11 @@ import org.oscm.domobjects.RevenueShareModel;
 import org.oscm.domobjects.TechnicalProduct;
 import org.oscm.domobjects.enums.ModificationType;
 import org.oscm.domobjects.enums.RevenueShareModelType;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.ServiceAccessType;
+import org.oscm.internal.types.enumtypes.ServiceStatus;
+import org.oscm.internal.types.enumtypes.UserRoleType;
+import org.oscm.internal.types.exception.ConcurrentModificationException;
 import org.oscm.serviceprovisioningservice.local.ServiceProvisioningPartnerServiceLocal;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.Marketplaces;
@@ -42,18 +46,14 @@ import org.oscm.test.data.Products;
 import org.oscm.test.data.Subscriptions;
 import org.oscm.test.data.TechnicalProducts;
 import org.oscm.test.ejb.TestContainer;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
-import org.oscm.internal.types.enumtypes.ServiceStatus;
-import org.oscm.internal.types.enumtypes.UserRoleType;
-import org.oscm.internal.types.exception.ConcurrentModificationException;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 
 /**
  * @author tokoda
  * 
  */
-public class ServiceProvisioningPartnerServiceLocalBeanContainerIT extends
-        EJBTestBase {
+public class ServiceProvisioningPartnerServiceLocalBeanContainerIT
+        extends EJBTestBase {
 
     private DataService ds;
     private ServiceProvisioningPartnerServiceLocal localService;
@@ -68,6 +68,7 @@ public class ServiceProvisioningPartnerServiceLocalBeanContainerIT extends
 
     @Override
     protected void setup(TestContainer container) throws Exception {
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         container.enableInterfaceMocking(true);
         container.addBean(new ServiceProvisioningPartnerServiceLocalBean());
@@ -81,6 +82,7 @@ public class ServiceProvisioningPartnerServiceLocalBeanContainerIT extends
 
     private void createOrg() throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 tpSup = Organizations.createOrganization(ds,
                         OrganizationRoleType.SUPPLIER,
@@ -100,12 +102,13 @@ public class ServiceProvisioningPartnerServiceLocalBeanContainerIT extends
 
     private void givenBrokerOrg() throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 broker = Organizations.createOrganization(ds,
                         OrganizationRoleType.BROKER);
 
-                PlatformUser createUserForOrg = Organizations.createUserForOrg(
-                        ds, broker, true, "admin");
+                PlatformUser createUserForOrg = Organizations
+                        .createUserForOrg(ds, broker, true, "admin");
                 PlatformUsers.grantRoles(ds, createUserForOrg,
                         UserRoleType.BROKER_MANAGER);
 
@@ -129,6 +132,7 @@ public class ServiceProvisioningPartnerServiceLocalBeanContainerIT extends
         // given
         // when
         List<Product> products = runTX(new Callable<List<Product>>() {
+            @Override
             public List<Product> call() {
                 return localService.getTemplateProducts();
             }
@@ -148,6 +152,7 @@ public class ServiceProvisioningPartnerServiceLocalBeanContainerIT extends
         final Product partnerTemplate = createPartnerProductCopy(template,
                 tpSup, ServiceStatus.ACTIVE);
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Subscriptions.createSubscription(ds, tpSup.getOrganizationId(),
                         template);
@@ -162,6 +167,7 @@ public class ServiceProvisioningPartnerServiceLocalBeanContainerIT extends
 
         // when
         List<Product> products = runTX(new Callable<List<Product>>() {
+            @Override
             public List<Product> call() {
                 return localService.getTemplateProducts();
             }
@@ -183,6 +189,7 @@ public class ServiceProvisioningPartnerServiceLocalBeanContainerIT extends
 
         // when
         List<Product> products = runTX(new Callable<List<Product>>() {
+            @Override
             public List<Product> call() {
                 return localService.getTemplateProducts();
             }
@@ -207,6 +214,7 @@ public class ServiceProvisioningPartnerServiceLocalBeanContainerIT extends
 
         // when
         List<Product> products = runTX(new Callable<List<Product>>() {
+            @Override
             public List<Product> call() {
                 return localService.getProductsForVendor();
             }
@@ -226,6 +234,7 @@ public class ServiceProvisioningPartnerServiceLocalBeanContainerIT extends
                 ServiceStatus.ACTIVE);
         // when
         List<Product> products = runTX(new Callable<List<Product>>() {
+            @Override
             public List<Product> call() {
                 return localService.getProductsForVendor();
             }
@@ -245,6 +254,7 @@ public class ServiceProvisioningPartnerServiceLocalBeanContainerIT extends
         createSubscriptionSpecificProductCopy(broker, template);
         // when
         List<Product> products = runTX(new Callable<List<Product>>() {
+            @Override
             public List<Product> call() {
                 return localService.getProductsForVendor();
             }
@@ -274,6 +284,7 @@ public class ServiceProvisioningPartnerServiceLocalBeanContainerIT extends
                 "techProductSuspended", ServiceStatus.SUSPENDED);
         // when
         List<Product> products = runTX(new Callable<List<Product>>() {
+            @Override
             public List<Product> call() {
                 return localService.getProductsForVendor();
             }
@@ -296,8 +307,10 @@ public class ServiceProvisioningPartnerServiceLocalBeanContainerIT extends
         Organization broker1 = createOrgWithRole(OrganizationRoleType.BROKER);
         Organization broker2 = createOrgWithRole(OrganizationRoleType.BROKER);
         Organization broker3 = createOrgWithRole(OrganizationRoleType.BROKER);
-        Organization reseller1 = createOrgWithRole(OrganizationRoleType.RESELLER);
-        Organization reseller2 = createOrgWithRole(OrganizationRoleType.RESELLER);
+        Organization reseller1 = createOrgWithRole(
+                OrganizationRoleType.RESELLER);
+        Organization reseller2 = createOrgWithRole(
+                OrganizationRoleType.RESELLER);
 
         final Product template = createTemplateProduct(
                 tpSup.getOrganizationId(), "product", "techProduct",
@@ -316,16 +329,18 @@ public class ServiceProvisioningPartnerServiceLocalBeanContainerIT extends
 
         // when
         List<Product> products = runTX(new Callable<List<Product>>() {
+            @Override
             public List<Product> call() throws Exception {
-                return localService.getPartnerProductsForTemplate(template
-                        .getKey());
+                return localService
+                        .getPartnerProductsForTemplate(template.getKey());
             }
         });
 
         // then
         assertEquals(5, products.size());
         assertEquals(brokerActiveProduct.getKey(), products.get(0).getKey());
-        assertEquals(resellerInactiveProduct.getKey(), products.get(1).getKey());
+        assertEquals(resellerInactiveProduct.getKey(),
+                products.get(1).getKey());
     }
 
     @Test
@@ -343,14 +358,16 @@ public class ServiceProvisioningPartnerServiceLocalBeanContainerIT extends
 
         // when
         container.login(poUserKey, ROLE_PLATFORM_OPERATOR);
-        Map<RevenueShareModelType, RevenueShareModel> revenueShares = runTX(new Callable<Map<RevenueShareModelType, RevenueShareModel>>() {
-            public Map<RevenueShareModelType, RevenueShareModel> call()
-                    throws Exception {
-                return localService.saveRevenueShareModelsForProduct(
-                        product.getKey(), brokerRevenueShare,
-                        resellerRevenueShare, 0, 0);
-            }
-        });
+        Map<RevenueShareModelType, RevenueShareModel> revenueShares = runTX(
+                new Callable<Map<RevenueShareModelType, RevenueShareModel>>() {
+                    @Override
+                    public Map<RevenueShareModelType, RevenueShareModel> call()
+                            throws Exception {
+                        return localService.saveRevenueShareModelsForProduct(
+                                product.getKey(), brokerRevenueShare,
+                                resellerRevenueShare, 0, 0);
+                    }
+                });
 
         // then
         assertEquals(new BigDecimal("100.00"),
@@ -361,6 +378,7 @@ public class ServiceProvisioningPartnerServiceLocalBeanContainerIT extends
                         .getRevenueShare());
         // validate stored values in the database
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Product result = ds.getReference(Product.class,
                         product.getKey());
@@ -380,14 +398,14 @@ public class ServiceProvisioningPartnerServiceLocalBeanContainerIT extends
                 List<DomainHistoryObject<?>> brokerRevenueHistories = ds
                         .findHistory(brokerRevenueShare);
                 assertEquals(1, brokerRevenueHistories.size());
-                assertEquals(ModificationType.ADD, brokerRevenueHistories
-                        .get(0).getModtype());
+                assertEquals(ModificationType.ADD,
+                        brokerRevenueHistories.get(0).getModtype());
 
                 List<DomainHistoryObject<?>> resellerRevenueHistories = ds
                         .findHistory(resellerRevenueShare);
                 assertEquals(1, resellerRevenueHistories.size());
-                assertEquals(ModificationType.ADD, resellerRevenueHistories
-                        .get(0).getModtype());
+                assertEquals(ModificationType.ADD,
+                        resellerRevenueHistories.get(0).getModtype());
                 return null;
             }
         });
@@ -401,26 +419,29 @@ public class ServiceProvisioningPartnerServiceLocalBeanContainerIT extends
                 "productA", "pm");
         final long productKey = product.getKey();
 
-        CatalogEntry catalogEntryOfProduct = getCatalogEntryForProduct(productKey);
+        CatalogEntry catalogEntryOfProduct = getCatalogEntryForProduct(
+                productKey);
         final RevenueShareModel brokerRevenueShare = new RevenueShareModel();
-        brokerRevenueShare.setKey(catalogEntryOfProduct.getBrokerPriceModel()
-                .getKey());
+        brokerRevenueShare
+                .setKey(catalogEntryOfProduct.getBrokerPriceModel().getKey());
         brokerRevenueShare.setRevenueShare(new BigDecimal("100.00"));
         final RevenueShareModel resellerRevenueShare = new RevenueShareModel();
-        resellerRevenueShare.setKey(catalogEntryOfProduct
-                .getResellerPriceModel().getKey());
+        resellerRevenueShare
+                .setKey(catalogEntryOfProduct.getResellerPriceModel().getKey());
         resellerRevenueShare.setRevenueShare(new BigDecimal("100.00"));
 
         // when
         container.login(poUserKey, ROLE_PLATFORM_OPERATOR);
-        Map<RevenueShareModelType, RevenueShareModel> revenueShares = runTX(new Callable<Map<RevenueShareModelType, RevenueShareModel>>() {
-            public Map<RevenueShareModelType, RevenueShareModel> call()
-                    throws Exception {
-                return localService.saveRevenueShareModelsForProduct(
-                        productKey, brokerRevenueShare, resellerRevenueShare,
-                        0, 0);
-            }
-        });
+        Map<RevenueShareModelType, RevenueShareModel> revenueShares = runTX(
+                new Callable<Map<RevenueShareModelType, RevenueShareModel>>() {
+                    @Override
+                    public Map<RevenueShareModelType, RevenueShareModel> call()
+                            throws Exception {
+                        return localService.saveRevenueShareModelsForProduct(
+                                productKey, brokerRevenueShare,
+                                resellerRevenueShare, 0, 0);
+                    }
+                });
 
         // then
         assertEquals(new BigDecimal("100.00"),
@@ -432,6 +453,7 @@ public class ServiceProvisioningPartnerServiceLocalBeanContainerIT extends
 
         // validate stored values in the database
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Product result = ds.getReference(Product.class, productKey);
                 List<CatalogEntry> entries = result.getCatalogEntries();
@@ -450,14 +472,14 @@ public class ServiceProvisioningPartnerServiceLocalBeanContainerIT extends
                 List<DomainHistoryObject<?>> brokerRevenueHistories = ds
                         .findHistory(brokerRevenueShare);
                 assertEquals(2, brokerRevenueHistories.size());
-                assertEquals(ModificationType.MODIFY, brokerRevenueHistories
-                        .get(1).getModtype());
+                assertEquals(ModificationType.MODIFY,
+                        brokerRevenueHistories.get(1).getModtype());
 
                 List<DomainHistoryObject<?>> resellerRevenueHistories = ds
                         .findHistory(resellerRevenueShare);
                 assertEquals(2, resellerRevenueHistories.size());
-                assertEquals(ModificationType.MODIFY, resellerRevenueHistories
-                        .get(1).getModtype());
+                assertEquals(ModificationType.MODIFY,
+                        resellerRevenueHistories.get(1).getModtype());
                 return null;
             }
         });
@@ -471,19 +493,21 @@ public class ServiceProvisioningPartnerServiceLocalBeanContainerIT extends
                 "productA", "pm");
         final long productKey = product.getKey();
 
-        CatalogEntry catalogEntryOfProduct = getCatalogEntryForProduct(productKey);
+        CatalogEntry catalogEntryOfProduct = getCatalogEntryForProduct(
+                productKey);
         final RevenueShareModel brokerRevenueShare = new RevenueShareModel();
-        brokerRevenueShare.setKey(catalogEntryOfProduct.getBrokerPriceModel()
-                .getKey());
+        brokerRevenueShare
+                .setKey(catalogEntryOfProduct.getBrokerPriceModel().getKey());
         brokerRevenueShare.setRevenueShare(new BigDecimal("100.00"));
         final RevenueShareModel resellerRevenueShare = new RevenueShareModel();
-        resellerRevenueShare.setKey(catalogEntryOfProduct
-                .getResellerPriceModel().getKey());
+        resellerRevenueShare
+                .setKey(catalogEntryOfProduct.getResellerPriceModel().getKey());
         resellerRevenueShare.setRevenueShare(new BigDecimal("100.00"));
 
         // when
         container.login(poUserKey, ROLE_PLATFORM_OPERATOR);
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 localService.saveRevenueShareModelsForProduct(productKey,
                         brokerRevenueShare, resellerRevenueShare, 0, 0);
@@ -491,6 +515,7 @@ public class ServiceProvisioningPartnerServiceLocalBeanContainerIT extends
             }
         });
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 localService.saveRevenueShareModelsForProduct(productKey,
                         brokerRevenueShare, resellerRevenueShare, 0, 0);
@@ -505,6 +530,7 @@ public class ServiceProvisioningPartnerServiceLocalBeanContainerIT extends
     private Organization createOrgWithRole(final OrganizationRoleType role)
             throws Exception {
         return runTX(new Callable<Organization>() {
+            @Override
             public Organization call() throws Exception {
                 return Organizations.createOrganization(ds, role);
             }
@@ -515,6 +541,7 @@ public class ServiceProvisioningPartnerServiceLocalBeanContainerIT extends
             final String productId, final String techProductId,
             final ServiceStatus status) throws Exception {
         return runTX(new Callable<Product>() {
+            @Override
             public Product call() throws Exception {
                 Product product = Products.createProduct(orgId, productId,
                         techProductId, ds);
@@ -528,6 +555,7 @@ public class ServiceProvisioningPartnerServiceLocalBeanContainerIT extends
             final Organization customer, final Product product,
             final ServiceStatus status) throws Exception {
         return runTX(new Callable<Product>() {
+            @Override
             public Product call() throws Exception {
                 return Products.createCustomerSpecifcProduct(ds, customer,
                         product, status);
@@ -539,6 +567,7 @@ public class ServiceProvisioningPartnerServiceLocalBeanContainerIT extends
             final Organization customer, final Product product)
             throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
 
                 Subscriptions.createSubscription(ds,
@@ -554,6 +583,7 @@ public class ServiceProvisioningPartnerServiceLocalBeanContainerIT extends
             final Organization vender, final ServiceStatus status)
             throws Exception {
         return runTX(new Callable<Product>() {
+            @Override
             public Product call() throws Exception {
                 Product product = Products.createProductResaleCopy(template,
                         vender, ds);
@@ -565,11 +595,13 @@ public class ServiceProvisioningPartnerServiceLocalBeanContainerIT extends
     private Product createProductForSave(final Organization mpOwner,
             final boolean withCatalogEntryRevenueShare,
             final String marketplaceId, final String techProductId,
-            final String productId, final String priceModelId) throws Exception {
+            final String productId, final String priceModelId)
+            throws Exception {
         return runTX(new Callable<Product>() {
+            @Override
             public Product call() throws Exception {
-                Marketplace marketplace = Marketplaces.createMarketplace(
-                        mpOwner, marketplaceId, true, ds);
+                Marketplace marketplace = Marketplaces
+                        .createMarketplace(mpOwner, marketplaceId, true, ds);
                 TechnicalProduct tp = TechnicalProducts.createTechnicalProduct(
                         ds, tpSup, techProductId, false,
                         ServiceAccessType.LOGIN);
@@ -583,6 +615,7 @@ public class ServiceProvisioningPartnerServiceLocalBeanContainerIT extends
     private CatalogEntry getCatalogEntryForProduct(final long productKey)
             throws Exception {
         return runTX(new Callable<CatalogEntry>() {
+            @Override
             public CatalogEntry call() throws Exception {
                 Product product = ds.getReference(Product.class, productKey);
                 return product.getCatalogEntries().get(0);

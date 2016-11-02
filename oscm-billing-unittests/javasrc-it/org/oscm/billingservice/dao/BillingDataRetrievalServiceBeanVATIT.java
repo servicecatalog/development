@@ -12,9 +12,9 @@
 
 package org.oscm.billingservice.dao;
 
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -25,9 +25,6 @@ import java.util.concurrent.Callable;
 import javax.persistence.Query;
 
 import org.junit.Test;
-
-import org.oscm.billingservice.dao.BillingDataRetrievalServiceBean;
-import org.oscm.billingservice.dao.BillingDataRetrievalServiceLocal;
 import org.oscm.billingservice.dao.model.VatRateDetails;
 import org.oscm.converter.ParameterizedTypes;
 import org.oscm.dataservice.bean.DataServiceBean;
@@ -36,12 +33,13 @@ import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.SupportedCountry;
 import org.oscm.domobjects.VatRate;
 import org.oscm.domobjects.VatRateHistory;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.Organizations;
 import org.oscm.test.data.SupportedCountries;
 import org.oscm.test.data.VatRates;
 import org.oscm.test.ejb.TestContainer;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 
 /**
  * Test class for BilllingDataRetrievalServiceBean functionality related to VAT
@@ -70,8 +68,10 @@ public class BillingDataRetrievalServiceBeanVATIT extends EJBTestBase {
     /**
      * Common setup for the test class.
      */
+    @Override
     public void setup(TestContainer container) throws Exception {
         container.login("1");
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         container.addBean(new BillingDataRetrievalServiceBean());
 
@@ -79,6 +79,7 @@ public class BillingDataRetrievalServiceBeanVATIT extends EJBTestBase {
         bdr = container.get(BillingDataRetrievalServiceLocal.class);
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 createPaymentTypes(dm);
                 SupportedCountries.createOneSupportedCountry(dm);
@@ -134,8 +135,8 @@ public class BillingDataRetrievalServiceBeanVATIT extends EJBTestBase {
                 VatRate customerVatRate = VatRates.createVatRate(dm, supplier,
                         BigDecimal.valueOf(32.25), null, customer3);
                 customerVatRateKey = customerVatRate.getKey();
-                VatRates.createVatRate(dm, supplier2,
-                        BigDecimal.valueOf(12.34), null, customer3);
+                VatRates.createVatRate(dm, supplier2, BigDecimal.valueOf(12.34),
+                        null, customer3);
 
                 VatRate complexCustomerVat = VatRates.createVatRate(dm,
                         supplier, BigDecimal.valueOf(61), null, customer4);
@@ -158,6 +159,7 @@ public class BillingDataRetrievalServiceBeanVATIT extends EJBTestBase {
     @Test
     public void testGetVATForCustomer_NonExistingOrg() throws Exception {
         VatRateDetails result = runTX(new Callable<VatRateDetails>() {
+            @Override
             public VatRateDetails call() throws Exception {
                 return bdr.loadVATForCustomer(-1, 1, supplierKey);
             }
@@ -172,6 +174,7 @@ public class BillingDataRetrievalServiceBeanVATIT extends EJBTestBase {
     @Test
     public void testGetVATForCustomer_SupplierOrg() throws Exception {
         VatRateDetails result = runTX(new Callable<VatRateDetails>() {
+            @Override
             public VatRateDetails call() throws Exception {
                 return bdr.loadVATForCustomer(supplierKey, 1, supplierKey);
             }
@@ -182,6 +185,7 @@ public class BillingDataRetrievalServiceBeanVATIT extends EJBTestBase {
     @Test
     public void testGetVATForCustomer_CustomerOrgDefaultVat() throws Exception {
         VatRateDetails result = runTX(new Callable<VatRateDetails>() {
+            @Override
             public VatRateDetails call() throws Exception {
                 return bdr.loadVATForCustomer(customerKeyForDefaultVat, 1,
                         supplierKey);
@@ -195,6 +199,7 @@ public class BillingDataRetrievalServiceBeanVATIT extends EJBTestBase {
             throws Exception {
         updateVATHistoryModDate(defaultVatRateKey, 2);
         VatRateDetails result = runTX(new Callable<VatRateDetails>() {
+            @Override
             public VatRateDetails call() throws Exception {
                 return bdr.loadVATForCustomer(customerKeyForDefaultVat, 1,
                         supplierKey);
@@ -208,6 +213,7 @@ public class BillingDataRetrievalServiceBeanVATIT extends EJBTestBase {
             throws Exception {
         updateVATRate(defaultVatRateKey, BigDecimal.valueOf(13), 2);
         VatRateDetails result = runTX(new Callable<VatRateDetails>() {
+            @Override
             public VatRateDetails call() throws Exception {
                 return bdr.loadVATForCustomer(customerKeyForDefaultVat, 1,
                         supplierKey);
@@ -221,6 +227,7 @@ public class BillingDataRetrievalServiceBeanVATIT extends EJBTestBase {
             throws Exception {
         updateVATRate(defaultVatRateKey, BigDecimal.valueOf(13), 1);
         VatRateDetails result = runTX(new Callable<VatRateDetails>() {
+            @Override
             public VatRateDetails call() throws Exception {
                 return bdr.loadVATForCustomer(customerKeyForDefaultVat, 2,
                         supplierKey);
@@ -234,6 +241,7 @@ public class BillingDataRetrievalServiceBeanVATIT extends EJBTestBase {
             throws Exception {
         deleteVatRate(defaultVatRateKey, 3);
         VatRateDetails result = runTX(new Callable<VatRateDetails>() {
+            @Override
             public VatRateDetails call() throws Exception {
                 return bdr.loadVATForCustomer(customerKeyForDefaultVat, 2,
                         supplierKey);
@@ -247,6 +255,7 @@ public class BillingDataRetrievalServiceBeanVATIT extends EJBTestBase {
             throws Exception {
         deleteVatRate(defaultVatRateKey, 1);
         VatRateDetails result = runTX(new Callable<VatRateDetails>() {
+            @Override
             public VatRateDetails call() throws Exception {
                 return bdr.loadVATForCustomer(customerKeyForDefaultVat, 2,
                         supplierKey);
@@ -259,6 +268,7 @@ public class BillingDataRetrievalServiceBeanVATIT extends EJBTestBase {
     public void testGetVATForCustomer_CountryVatDefinedInPeriod()
             throws Exception {
         VatRateDetails result = runTX(new Callable<VatRateDetails>() {
+            @Override
             public VatRateDetails call() throws Exception {
                 return bdr.loadVATForCustomer(customerKeyForCountryVat, 2,
                         supplierKey);
@@ -272,6 +282,7 @@ public class BillingDataRetrievalServiceBeanVATIT extends EJBTestBase {
             throws Exception {
         updateVATHistoryModDate(countryVatRateKey, 3);
         VatRateDetails result = runTX(new Callable<VatRateDetails>() {
+            @Override
             public VatRateDetails call() throws Exception {
                 return bdr.loadVATForCustomer(customerKeyForCountryVat, 2,
                         supplierKey);
@@ -285,6 +296,7 @@ public class BillingDataRetrievalServiceBeanVATIT extends EJBTestBase {
             throws Exception {
         updateVATRate(countryVatRateKey, BigDecimal.valueOf(50), 3);
         VatRateDetails result = runTX(new Callable<VatRateDetails>() {
+            @Override
             public VatRateDetails call() throws Exception {
                 return bdr.loadVATForCustomer(customerKeyForCountryVat, 2,
                         supplierKey);
@@ -298,6 +310,7 @@ public class BillingDataRetrievalServiceBeanVATIT extends EJBTestBase {
             throws Exception {
         updateVATRate(countryVatRateKey, BigDecimal.valueOf(50), 1);
         VatRateDetails result = runTX(new Callable<VatRateDetails>() {
+            @Override
             public VatRateDetails call() throws Exception {
                 return bdr.loadVATForCustomer(customerKeyForCountryVat, 2,
                         supplierKey);
@@ -311,6 +324,7 @@ public class BillingDataRetrievalServiceBeanVATIT extends EJBTestBase {
             throws Exception {
         deleteVatRate(countryVatRateKey, 3);
         VatRateDetails result = runTX(new Callable<VatRateDetails>() {
+            @Override
             public VatRateDetails call() throws Exception {
                 return bdr.loadVATForCustomer(customerKeyForCountryVat, 2,
                         supplierKey);
@@ -324,6 +338,7 @@ public class BillingDataRetrievalServiceBeanVATIT extends EJBTestBase {
             throws Exception {
         deleteVatRate(countryVatRateKey, 1);
         VatRateDetails result = runTX(new Callable<VatRateDetails>() {
+            @Override
             public VatRateDetails call() throws Exception {
                 return bdr.loadVATForCustomer(customerKeyForCountryVat, 2,
                         supplierKey);
@@ -336,6 +351,7 @@ public class BillingDataRetrievalServiceBeanVATIT extends EJBTestBase {
     public void testGetVATForCustomer_CustomerVatDefinedInPeriod()
             throws Exception {
         VatRateDetails result = runTX(new Callable<VatRateDetails>() {
+            @Override
             public VatRateDetails call() throws Exception {
                 return bdr.loadVATForCustomer(customerKeyForCustomerVat, 2,
                         supplierKey);
@@ -349,6 +365,7 @@ public class BillingDataRetrievalServiceBeanVATIT extends EJBTestBase {
             throws Exception {
         updateVATHistoryModDate(customerVatRateKey, 3);
         VatRateDetails result = runTX(new Callable<VatRateDetails>() {
+            @Override
             public VatRateDetails call() throws Exception {
                 return bdr.loadVATForCustomer(customerKeyForCustomerVat, 2,
                         supplierKey);
@@ -362,6 +379,7 @@ public class BillingDataRetrievalServiceBeanVATIT extends EJBTestBase {
             throws Exception {
         updateVATRate(customerVatRateKey, BigDecimal.valueOf(40), 4);
         VatRateDetails result = runTX(new Callable<VatRateDetails>() {
+            @Override
             public VatRateDetails call() throws Exception {
                 return bdr.loadVATForCustomer(customerKeyForCustomerVat, 2,
                         supplierKey);
@@ -375,6 +393,7 @@ public class BillingDataRetrievalServiceBeanVATIT extends EJBTestBase {
             throws Exception {
         updateVATRate(customerVatRateKey, BigDecimal.valueOf(40), 1);
         VatRateDetails result = runTX(new Callable<VatRateDetails>() {
+            @Override
             public VatRateDetails call() throws Exception {
                 return bdr.loadVATForCustomer(customerKeyForCustomerVat, 2,
                         supplierKey);
@@ -388,6 +407,7 @@ public class BillingDataRetrievalServiceBeanVATIT extends EJBTestBase {
             throws Exception {
         deleteVatRate(customerVatRateKey, 3);
         VatRateDetails result = runTX(new Callable<VatRateDetails>() {
+            @Override
             public VatRateDetails call() throws Exception {
                 return bdr.loadVATForCustomer(customerKeyForCustomerVat, 2,
                         supplierKey);
@@ -401,6 +421,7 @@ public class BillingDataRetrievalServiceBeanVATIT extends EJBTestBase {
             throws Exception {
         deleteVatRate(customerVatRateKey, 1);
         VatRateDetails result = runTX(new Callable<VatRateDetails>() {
+            @Override
             public VatRateDetails call() throws Exception {
                 return bdr.loadVATForCustomer(customerKeyForCustomerVat, 2,
                         supplierKey);
@@ -413,6 +434,7 @@ public class BillingDataRetrievalServiceBeanVATIT extends EJBTestBase {
     public void testGetVATForCustomer_complexScenarioNoChanges()
             throws Exception {
         VatRateDetails result = runTX(new Callable<VatRateDetails>() {
+            @Override
             public VatRateDetails call() throws Exception {
                 return bdr.loadVATForCustomer(customerKeyForComplexVatScenario,
                         2, supplierKey);
@@ -423,11 +445,13 @@ public class BillingDataRetrievalServiceBeanVATIT extends EJBTestBase {
     }
 
     @Test
-    public void testGetVATForCustomer_complexScenarioChanges() throws Exception {
+    public void testGetVATForCustomer_complexScenarioChanges()
+            throws Exception {
         deleteVatRate(complexCustomerVatRateKey, 1);
         updateVATRate(defaultVatRateKey, BigDecimal.valueOf(34), 1);
         updateVATRate(countryVatRateKey, BigDecimal.valueOf(99), 3);
         VatRateDetails result = runTX(new Callable<VatRateDetails>() {
+            @Override
             public VatRateDetails call() throws Exception {
                 return bdr.loadVATForCustomer(customerKeyForComplexVatScenario,
                         2, supplierKey);
@@ -443,6 +467,7 @@ public class BillingDataRetrievalServiceBeanVATIT extends EJBTestBase {
     private void deleteVatRate(final long vatRateKey, final long time)
             throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 VatRate reference = dm.getReference(VatRate.class, vatRateKey);
                 reference.setHistoryModificationTime(Long.valueOf(time));
@@ -455,6 +480,7 @@ public class BillingDataRetrievalServiceBeanVATIT extends EJBTestBase {
     private void updateVATRate(final long vatRateKey, final BigDecimal rate,
             final long time) throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 VatRate reference = dm.getReference(VatRate.class, vatRateKey);
                 reference.setRate(rate);
@@ -467,12 +493,13 @@ public class BillingDataRetrievalServiceBeanVATIT extends EJBTestBase {
     private void updateVATHistoryModDate(final long vatRateKey,
             final long modDate) throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
-                Query query = dm
-                        .createQuery("SELECT vh FROM VatRateHistory vh WHERE vh.objKey = :vatRateKey");
+                Query query = dm.createQuery(
+                        "SELECT vh FROM VatRateHistory vh WHERE vh.objKey = :vatRateKey");
                 query.setParameter("vatRateKey", Long.valueOf(vatRateKey));
-                List<VatRateHistory> entries = ParameterizedTypes.list(
-                        query.getResultList(), VatRateHistory.class);
+                List<VatRateHistory> entries = ParameterizedTypes
+                        .list(query.getResultList(), VatRateHistory.class);
                 for (VatRateHistory entry : entries) {
                     entry.setModdate(new Date(modDate));
                 }

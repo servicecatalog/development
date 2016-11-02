@@ -77,6 +77,7 @@ public class UserSubscriptionsLazyDataModel extends
         applySorting(getArrangeable().getSortFields(), pagination);
         decorateWithChangedData(pagination);
 
+        // TODO MULTITENANT
         List<Subscription> resultList = Collections.emptyList();
         String userId = model.getUser().getUserId();
 

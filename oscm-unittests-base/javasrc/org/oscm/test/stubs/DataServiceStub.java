@@ -68,6 +68,11 @@ public class DataServiceStub implements DataService {
     }
 
     @Override
+    public PlatformUser find(PlatformUser pu) {
+        return null;
+    }
+
+    @Override
     public List<DomainHistoryObject<?>> findHistory(DomainObject<?> obj) {
         throw new UnsupportedOperationException();
     }

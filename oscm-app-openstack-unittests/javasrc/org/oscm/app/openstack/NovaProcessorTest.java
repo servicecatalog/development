@@ -116,6 +116,83 @@ public class NovaProcessorTest {
         assertEquals(result.get(1).getStatus(), ServerStatus.ACTIVE.name());
     }
 
+    @Test
+    public void getServersDetails_withMultiVms_faild401_and_retry()
+            throws Exception {
+        // given
+        final String instanceName = "Instance4";
+        createBasicParameters(instanceName, "fosi_v2.json", "http");
+        final List<String> serverNames = Arrays.asList("server1",
+                "otherserver2");
+        MockHttpURLConnection connection2 = new MockHttpURLConnection(401,
+                MockURLStreamHandler.respServerActions());
+        connection2.setIOException(new IOException());
+
+        streamHandler
+                .put("/stacks/" + instanceName + "/resources",
+                        new MockHttpURLConnection(200,
+                                MockURLStreamHandler.respStacksResources(
+                                        serverNames,
+                                        InstanceType.EC2.getString())));
+        streamHandler.put("/servers/1-Instance-otherserver2", connection2);
+        streamHandler.put("/servers/1-Instance-otherserver2/2",
+                new MockHttpURLConnection(202,
+                        MockURLStreamHandler.respServerDetail("otherserver2",
+                                "1-Instance-otherserver2", ServerStatus.ACTIVE,
+                                "testTenantID")));
+
+        // when
+        List<Server> result = new NovaProcessor()
+                .getServersDetails(paramHandler);
+
+        // then
+        assertEquals("sID", paramHandler.getStackId());
+        assertEquals(instanceName, paramHandler.getStackName());
+        assertEquals(result.size(), 2);
+        assertEquals(result.get(0).getId(), "0-Instance-server1");
+        assertEquals(result.get(0).getName(), "server1");
+        assertEquals(result.get(0).getStatus(), ServerStatus.ACTIVE.name());
+        assertEquals(result.get(1).getId(), "1-Instance-otherserver2");
+        assertEquals(result.get(1).getName(), "otherserver2");
+        assertEquals(result.get(1).getStatus(), ServerStatus.ACTIVE.name());
+    }
+
+    @Test
+    public void getServersDetails_withMultiVms_faild401_twice()
+            throws Exception {
+        // given
+        final String instanceName = "Instance4";
+        createBasicParameters(instanceName, "fosi_v2.json", "http");
+        final List<String> serverNames = Arrays.asList("server1",
+                "otherserver2");
+        MockHttpURLConnection connection2 = new MockHttpURLConnection(401,
+                MockURLStreamHandler.respServerActions());
+        connection2.setIOException(new IOException());
+
+        streamHandler
+                .put("/stacks/" + instanceName + "/resources",
+                        new MockHttpURLConnection(200,
+                                MockURLStreamHandler.respStacksResources(
+                                        serverNames,
+                                        InstanceType.EC2.getString())));
+        streamHandler.put("/servers/1-Instance-otherserver2", connection2);
+
+        // when
+        List<Server> result = new NovaProcessor()
+                .getServersDetails(paramHandler);
+
+        // then
+        assertEquals("sID", paramHandler.getStackId());
+        assertEquals(instanceName, paramHandler.getStackName());
+        assertEquals(result.size(), 2);
+        assertEquals(result.get(0).getId(), "0-Instance-server1");
+        assertEquals(result.get(0).getName(), "server1");
+        assertEquals(result.get(0).getStatus(), ServerStatus.ACTIVE.name());
+        assertEquals(result.get(1).getId(), "1-Instance-otherserver2");
+        assertEquals(result.get(1).getName(), "");
+        assertEquals(result.get(1).getStatus(), ServerStatus.ERROR.toString());
+    }
+
     @Test(expected = InstanceNotAliveException.class)
     public void getServersDetails_InstanceNotAliveException_serverMissing()
             throws Exception {
@@ -167,7 +244,7 @@ public class NovaProcessorTest {
         assertEquals(result.get(0).getStatus(), ServerStatus.ACTIVE.name());
         assertEquals(result.get(1).getId(), "1-Instance-otherserver2");
         assertEquals(result.get(1).getName(), "");
-        assertEquals(result.get(1).getStatus(), "-1");
+        assertEquals(result.get(1).getStatus(), ServerStatus.ERROR.toString());
     }
 
     @Test
@@ -290,6 +367,80 @@ public class NovaProcessorTest {
         assertEquals(result.get("0-Instance-server1"), Boolean.TRUE);
         assertEquals(result.get("1-Instance-missingServer2"), Boolean.FALSE);
         assertEquals(result.get("2-Instance-otherServer"), Boolean.TRUE);
+        assertEquals("sID", paramHandler.getStackId());
+        assertEquals(instanceName, paramHandler.getStackName());
+    }
+
+    @Test
+    public void startInstances_lastVMFaild401_and_retry() throws Exception {
+        // given
+        final String instanceName = "Instance4";
+        createBasicParameters(instanceName, "fosi_v2.json", "http");
+        final List<String> serverNames = Arrays.asList("server1",
+                "otherserver2");
+        MockHttpURLConnection connection2 = new MockHttpURLConnection(401,
+                MockURLStreamHandler.respServerActions());
+        connection2.setIOException(new IOException());
+
+        streamHandler
+                .put("/stacks/" + instanceName + "/resources",
+                        new MockHttpURLConnection(200,
+                                MockURLStreamHandler.respStacksResources(
+                                        serverNames,
+                                        InstanceType.EC2.getString())));
+        streamHandler.put("/servers/1-Instance-otherserver2/action",
+                connection2);
+
+        streamHandler.put("/servers/1-Instance-otherserver2/action/2",
+                new MockHttpURLConnection(202,
+                        MockURLStreamHandler.respServerActions()));
+
+        // when
+        HashMap<String, Boolean> result = new NovaProcessor()
+                .startInstances(paramHandler);
+
+        // then
+        assertTrue(!result.containsValue(Boolean.FALSE));
+        assertEquals(result.size(), 2);
+        assertTrue(result.containsKey("0-Instance-server1"));
+        assertTrue(result.containsKey("1-Instance-otherserver2"));
+        assertEquals(result.get("0-Instance-server1"), Boolean.TRUE);
+        assertEquals(result.get("1-Instance-otherserver2"), Boolean.TRUE);
+        assertEquals("sID", paramHandler.getStackId());
+        assertEquals(instanceName, paramHandler.getStackName());
+    }
+
+    @Test
+    public void startInstances_lastVMFaild401_twice() throws Exception {
+        // given
+        final String instanceName = "Instance4";
+        createBasicParameters(instanceName, "fosi_v2.json", "http");
+        final List<String> serverNames = Arrays.asList("server1",
+                "otherserver2");
+        MockHttpURLConnection connection2 = new MockHttpURLConnection(401,
+                MockURLStreamHandler.respServerActions());
+        connection2.setIOException(new IOException());
+
+        streamHandler
+                .put("/stacks/" + instanceName + "/resources",
+                        new MockHttpURLConnection(200,
+                                MockURLStreamHandler.respStacksResources(
+                                        serverNames,
+                                        InstanceType.EC2.getString())));
+        streamHandler.put("/servers/1-Instance-otherserver2/action",
+                connection2);
+
+        // when
+        HashMap<String, Boolean> result = new NovaProcessor()
+                .startInstances(paramHandler);
+
+        // then
+        assertTrue(result.containsValue(Boolean.FALSE));
+        assertEquals(result.size(), 2);
+        assertTrue(result.containsKey("0-Instance-server1"));
+        assertTrue(result.containsKey("1-Instance-otherserver2"));
+        assertEquals(result.get("0-Instance-server1"), Boolean.TRUE);
+        assertEquals(result.get("1-Instance-otherserver2"), Boolean.FALSE);
         assertEquals("sID", paramHandler.getStackId());
         assertEquals(instanceName, paramHandler.getStackName());
     }
@@ -505,6 +656,80 @@ public class NovaProcessorTest {
         assertEquals(result.get("0-Instance-server1"), Boolean.TRUE);
         assertEquals(result.get("1-Instance-missingServer2"), Boolean.FALSE);
         assertEquals(result.get("2-Instance-otherServer"), Boolean.TRUE);
+        assertEquals("sID", paramHandler.getStackId());
+        assertEquals(instanceName, paramHandler.getStackName());
+    }
+
+    @Test
+    public void stopInstances_lastVMFaild401_and_retry() throws Exception {
+        // given
+        final String instanceName = "Instance4";
+        createBasicParameters(instanceName, "fosi_v2.json", "http");
+        final List<String> serverNames = Arrays.asList("server1",
+                "otherserver2");
+        MockHttpURLConnection connection2 = new MockHttpURLConnection(401,
+                MockURLStreamHandler.respServerActions());
+        connection2.setIOException(new IOException());
+
+        streamHandler
+                .put("/stacks/" + instanceName + "/resources",
+                        new MockHttpURLConnection(200,
+                                MockURLStreamHandler.respStacksResources(
+                                        serverNames,
+                                        InstanceType.EC2.getString())));
+        streamHandler.put("/servers/1-Instance-otherserver2/action",
+                connection2);
+
+        streamHandler.put("/servers/1-Instance-otherserver2/action/2",
+                new MockHttpURLConnection(202,
+                        MockURLStreamHandler.respServerActions()));
+
+        // when
+        HashMap<String, Boolean> result = new NovaProcessor()
+                .stopInstances(paramHandler);
+
+        // then
+        assertTrue(!result.containsValue(Boolean.FALSE));
+        assertEquals(result.size(), 2);
+        assertTrue(result.containsKey("0-Instance-server1"));
+        assertTrue(result.containsKey("1-Instance-otherserver2"));
+        assertEquals(result.get("0-Instance-server1"), Boolean.TRUE);
+        assertEquals(result.get("1-Instance-otherserver2"), Boolean.TRUE);
+        assertEquals("sID", paramHandler.getStackId());
+        assertEquals(instanceName, paramHandler.getStackName());
+    }
+
+    @Test
+    public void stopInstances_lastVMFaild401_twice() throws Exception {
+        // given
+        final String instanceName = "Instance4";
+        createBasicParameters(instanceName, "fosi_v2.json", "http");
+        final List<String> serverNames = Arrays.asList("server1",
+                "otherserver2");
+        MockHttpURLConnection connection2 = new MockHttpURLConnection(401,
+                MockURLStreamHandler.respServerActions());
+        connection2.setIOException(new IOException());
+
+        streamHandler
+                .put("/stacks/" + instanceName + "/resources",
+                        new MockHttpURLConnection(200,
+                                MockURLStreamHandler.respStacksResources(
+                                        serverNames,
+                                        InstanceType.EC2.getString())));
+        streamHandler.put("/servers/1-Instance-otherserver2/action",
+                connection2);
+
+        // when
+        HashMap<String, Boolean> result = new NovaProcessor()
+                .stopInstances(paramHandler);
+
+        // then
+        assertTrue(result.containsValue(Boolean.FALSE));
+        assertEquals(result.size(), 2);
+        assertTrue(result.containsKey("0-Instance-server1"));
+        assertTrue(result.containsKey("1-Instance-otherserver2"));
+        assertEquals(result.get("0-Instance-server1"), Boolean.TRUE);
+        assertEquals(result.get("1-Instance-otherserver2"), Boolean.FALSE);
         assertEquals("sID", paramHandler.getStackId());
         assertEquals(instanceName, paramHandler.getStackName());
     }

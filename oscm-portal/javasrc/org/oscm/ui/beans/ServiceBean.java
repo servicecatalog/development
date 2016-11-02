@@ -27,19 +27,6 @@ import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.event.ValueChangeEvent;
 
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
-import org.oscm.ui.common.ExceptionHandler;
-import org.oscm.ui.common.ImageUploader;
-import org.oscm.ui.common.JSFUtils;
-import org.oscm.ui.common.LocaleUtils;
-import org.oscm.ui.generator.IdGenerator;
-import org.oscm.ui.model.Category;
-import org.oscm.ui.model.CategoryRow;
-import org.oscm.ui.model.CustomerService;
-import org.oscm.ui.model.ParameterRow;
-import org.oscm.ui.model.Service;
-import org.oscm.ui.model.ServiceDetails;
 import org.oscm.internal.types.enumtypes.ImageType;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.ParameterType;
@@ -69,6 +56,19 @@ import org.oscm.internal.vo.VOServiceActivation;
 import org.oscm.internal.vo.VOServiceDetails;
 import org.oscm.internal.vo.VOServiceLocalization;
 import org.oscm.internal.vo.VOTechnicalService;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
+import org.oscm.ui.common.ExceptionHandler;
+import org.oscm.ui.common.ImageUploader;
+import org.oscm.ui.common.JSFUtils;
+import org.oscm.ui.common.LocaleUtils;
+import org.oscm.ui.generator.IdGenerator;
+import org.oscm.ui.model.Category;
+import org.oscm.ui.model.CategoryRow;
+import org.oscm.ui.model.CustomerService;
+import org.oscm.ui.model.ParameterRow;
+import org.oscm.ui.model.Service;
+import org.oscm.ui.model.ServiceDetails;
 
 /**
  * Backing bean for service related actions
@@ -139,9 +139,6 @@ public class ServiceBean extends BaseBean implements Serializable {
     public String create() throws SaaSApplicationException {
         if (serviceForCreation == null || selectedTechService == null) {
             return OUTCOME_ERROR;
-        }
-        if (logger.isDebugLoggingEnabled()) {
-
         }
 
         // read public flag from service beforehand since create method will
@@ -323,6 +320,9 @@ public class ServiceBean extends BaseBean implements Serializable {
             localization.setShortDescriptions(LocaleUtils.trim(
                     localization.getShortDescriptions(),
                     supportedLocales.iterator()));
+            localization.setCustomTabNames(
+                    LocaleUtils.trim(localization.getCustomTabNames(),
+                            supportedLocales.iterator()));
         }
         return localization;
     }
@@ -467,7 +467,7 @@ public class ServiceBean extends BaseBean implements Serializable {
     /**
      * Initialize the paramtersRows array.
      * 
-     * @param the
+     * @param parameters
      *            parameters for the array.
      */
     private void initParameterRows(List<VOParameter> parameters,
@@ -513,6 +513,8 @@ public class ServiceBean extends BaseBean implements Serializable {
                     localization.getShortDescriptions(), locale));
             selectedService.setDescription(LocaleUtils.get(
                     localization.getDescriptions(), locale));
+            selectedService.setCustomTabName(LocaleUtils.get(
+                    localization.getCustomTabNames(), locale));
         }
         dirty = true;
         menuBean.setCurrentPageLink(MenuBean.LINK_SERVICE_EDIT);
@@ -562,6 +564,8 @@ public class ServiceBean extends BaseBean implements Serializable {
                     selectedService.getDescription());
             LocaleUtils.set(getLocalization().getShortDescriptions(), locale,
                     selectedService.getShortDescription());
+            LocaleUtils.set(getLocalization().getCustomTabNames(), locale,
+                    selectedService.getCustomTabName());
         }
     }
 

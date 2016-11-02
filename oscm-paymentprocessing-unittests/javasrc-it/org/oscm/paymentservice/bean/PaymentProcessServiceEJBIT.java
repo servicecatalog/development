@@ -16,7 +16,6 @@ import java.util.concurrent.Callable;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
-
 import org.oscm.billingservice.dao.BillingDataRetrievalServiceLocal;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
@@ -31,6 +30,15 @@ import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.TechnicalProduct;
 import org.oscm.domobjects.enums.OrganizationReferenceType;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
+import org.oscm.internal.intf.PaymentService;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.ServiceAccessType;
+import org.oscm.internal.types.enumtypes.ServiceStatus;
+import org.oscm.internal.types.enumtypes.SubscriptionStatus;
+import org.oscm.internal.types.exception.PaymentDataException;
+import org.oscm.internal.types.exception.TechnicalServiceNotAliveException;
+import org.oscm.internal.types.exception.TechnicalServiceOperationException;
+import org.oscm.internal.vo.VOPaymentData;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.Organizations;
 import org.oscm.test.data.Products;
@@ -41,15 +49,6 @@ import org.oscm.test.ejb.TestContainer;
 import org.oscm.test.stubs.AccountServiceStub;
 import org.oscm.test.stubs.ApplicationServiceStub;
 import org.oscm.test.stubs.ConfigurationServiceStub;
-import org.oscm.internal.intf.PaymentService;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
-import org.oscm.internal.types.enumtypes.ServiceStatus;
-import org.oscm.internal.types.enumtypes.SubscriptionStatus;
-import org.oscm.internal.types.exception.PaymentDataException;
-import org.oscm.internal.types.exception.TechnicalServiceNotAliveException;
-import org.oscm.internal.types.exception.TechnicalServiceOperationException;
-import org.oscm.internal.vo.VOPaymentData;
 
 public class PaymentProcessServiceEJBIT extends EJBTestBase {
 
@@ -68,6 +67,7 @@ public class PaymentProcessServiceEJBIT extends EJBTestBase {
     public void setup(final TestContainer container) throws Exception {
         instanceActivated = false;
         container.login("1");
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         container.addBean(new ConfigurationServiceStub());
         container.addBean(new AccountServiceStub());
@@ -113,10 +113,10 @@ public class PaymentProcessServiceEJBIT extends EJBTestBase {
         supplier = runTX(new Callable<Organization>() {
             @Override
             public Organization call() throws Exception {
-                Organization organization = Organizations.createOrganization(
-                        mgr, OrganizationRoleType.SUPPLIER);
-                supplierUser = Organizations.createUserForOrg(mgr,
-                        organization, true, "SuppAdmin");
+                Organization organization = Organizations
+                        .createOrganization(mgr, OrganizationRoleType.SUPPLIER);
+                supplierUser = Organizations.createUserForOrg(mgr, organization,
+                        true, "SuppAdmin");
                 return organization;
             }
         });
@@ -131,8 +131,8 @@ public class PaymentProcessServiceEJBIT extends EJBTestBase {
             @Override
             public PaymentInfo call() throws Exception {
                 PaymentInfo paymentInfo = new PaymentInfo();
-                paymentInfo.setOrganization(orgPayType
-                        .getAffectedOrganization());
+                paymentInfo
+                        .setOrganization(orgPayType.getAffectedOrganization());
                 paymentInfo.setPaymentType(orgPayType.getPaymentType());
                 paymentInfo.setPaymentInfoId("name");
                 mgr.persist(paymentInfo);
@@ -155,29 +155,27 @@ public class PaymentProcessServiceEJBIT extends EJBTestBase {
         String account = "0123456";
 
         // Create a new PI (Registration)
-        VOPaymentData pd = getData(0, id, provider, account, org.getKey(), pi
-                .getPaymentType().getKey());
+        VOPaymentData pd = getData(0, id, provider, account, org.getKey(),
+                pi.getPaymentType().getKey());
         paymentMgmt.savePaymentIdentificationForOrganization(pd);
 
         PaymentInfo savedPi = findPaymentInfo(0);
-        Assert.assertEquals(
-                "Wrong external identifier for payment info stored", id,
-                savedPi.getExternalIdentifier());
+        Assert.assertEquals("Wrong external identifier for payment info stored",
+                id, savedPi.getExternalIdentifier());
         Assert.assertEquals("Wrong payment info type stored", CREDIT_CARD,
                 savedPi.getPaymentType().getPaymentTypeId());
         Assert.assertEquals(provider, savedPi.getProviderName());
         Assert.assertEquals(account, savedPi.getAccountNumber());
 
         // Now update an existing PI (Reregistration)
-        pd = getData(pi.getKey(), id, provider, account, org.getKey(), pi
-                .getPaymentType().getKey());
+        pd = getData(pi.getKey(), id, provider, account, org.getKey(),
+                pi.getPaymentType().getKey());
         pd.setPaymentInfoId(pd.getPaymentInfoId() + "2");
         paymentMgmt.savePaymentIdentificationForOrganization(pd);
 
         savedPi = findPaymentInfo(pi.getKey());
-        Assert.assertEquals(
-                "Wrong external identifier for payment info stored", id,
-                savedPi.getExternalIdentifier());
+        Assert.assertEquals("Wrong external identifier for payment info stored",
+                id, savedPi.getExternalIdentifier());
         Assert.assertEquals("Wrong payment info type stored", CREDIT_CARD,
                 savedPi.getPaymentType().getPaymentTypeId());
         Assert.assertEquals(provider, savedPi.getProviderName());
@@ -199,14 +197,13 @@ public class PaymentProcessServiceEJBIT extends EJBTestBase {
                 org, DIRECT_DEBIT);
         PaymentInfo pi = getPaymentInfoForOrg(orgPayType);
 
-        VOPaymentData pd = getData(pi.getKey(), "initialValueToSet", null,
-                null, org.getKey(), pi.getPaymentType().getKey());
+        VOPaymentData pd = getData(pi.getKey(), "initialValueToSet", null, null,
+                org.getKey(), pi.getPaymentType().getKey());
         paymentMgmt.savePaymentIdentificationForOrganization(pd);
 
         PaymentInfo savedPi = findPaymentInfo(pi.getKey());
 
-        Assert.assertEquals(
-                "Wrong external identifier for payment info stored",
+        Assert.assertEquals("Wrong external identifier for payment info stored",
                 "initialValueToSet", savedPi.getExternalIdentifier());
         Assert.assertEquals("Wrong payment info type stored", DIRECT_DEBIT,
                 savedPi.getPaymentType().getPaymentTypeId());
@@ -220,8 +217,8 @@ public class PaymentProcessServiceEJBIT extends EJBTestBase {
         Assert.assertEquals("Wrong payment info type updated", DIRECT_DEBIT,
                 updatedPi.getPaymentType().getPaymentTypeId());
 
-        Assert.assertEquals("Wrong object has been updated",
-                updatedPi.getKey(), savedPi.getKey());
+        Assert.assertEquals("Wrong object has been updated", updatedPi.getKey(),
+                savedPi.getKey());
 
     }
 
@@ -276,9 +273,9 @@ public class PaymentProcessServiceEJBIT extends EJBTestBase {
                 supplier.setOrganizationId(supplierId);
                 supplier = (Organization) mgr
                         .getReferenceByBusinessKey(supplier);
-                Subscription sub = Subscriptions
-                        .createSubscription(mgr, org.getOrganizationId(),
-                                "testProd1", "subId", supplier);
+                Subscription sub = Subscriptions.createSubscription(mgr,
+                        org.getOrganizationId(), "testProd1", "subId",
+                        supplier);
                 sub.setStatus(SubscriptionStatus.SUSPENDED);
                 sub.setPaymentInfo(pi);
                 return sub;
@@ -310,8 +307,9 @@ public class PaymentProcessServiceEJBIT extends EJBTestBase {
                 if (key > 0) {
                     payment = mgr.getReference(PaymentInfo.class, key);
                 } else {
-                    final List<?> list = mgr.createQuery(
-                            "select pi from PaymentInfo pi order by pi.key")
+                    final List<?> list = mgr
+                            .createQuery(
+                                    "select pi from PaymentInfo pi order by pi.key")
                             .getResultList();
                     payment = (PaymentInfo) list.get(list.size() - 1);
                 }
@@ -321,7 +319,8 @@ public class PaymentProcessServiceEJBIT extends EJBTestBase {
         });
     }
 
-    private Long[] prepareProducts(final ServiceStatus status) throws Exception {
+    private Long[] prepareProducts(final ServiceStatus status)
+            throws Exception {
         Long[] productKeys = runTX(new Callable<Long[]>() {
 
             @Override

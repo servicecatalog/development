@@ -1,0 +1,82 @@
+heat_template_version: 2013-05-23
+
+description: This is a Heat Orchestration template used for the creation and provisioning of a stack in FUJITSU Enterprise Cloud Service K5.
+
+parameters:
+  az:
+    type: string
+    description: availability zone
+    default: jp-west-1a
+  flavor:
+    type: string
+    description: flavor
+    default: P-1
+  ImageId:
+    description: The id of the image to provision.
+    type: string
+    default: <please input your image id>
+  KeyName:
+    description: The name of an already defined key pair in OpenStack, used for enabling SSH access to the web server.
+    type: string
+    default: <please input your keypair name>
+  network:
+    type: string
+    description: internal network uuid
+    default: <please input your internal network uuid>
+  sg_name:
+    type: string
+    description: security group
+    default: <please input your security group name>
+
+resources:
+  Sys-vol:
+    type: OS::Cinder::Volume
+    properties:
+      size: 3
+      volume_type: "M1"
+      availability_zone: {get_param: az}
+      image: {get_param: ImageId}
+
+  vm1:
+    type: OS::Nova::Server
+    properties:
+      flavor: {get_param: flavor}
+      key_name: {get_param: KeyName}
+      image: {get_param: ImageId}
+      block_device_mapping: [{"volume_size": 3, "volume_id": {get_resource: Sys-vol}, "delete_on_termination": True, "device_name": "/dev/vda"}]
+      availability_zone: {get_param: az}
+      networks: ["uuid": {get_param: network}]
+      security_groups: [{get_param: sg_name}]
+
+  Sys-vol2:
+    type: OS::Cinder::Volume
+    properties:
+      size: 3
+      volume_type: "M1"
+      availability_zone: { get_param: az}
+      image: {get_param: ImageId}
+
+  vm2:
+    type: OS::Nova::Server
+    properties:
+      flavor: {get_param: flavor}
+      image: {get_param: ImageId}
+      block_device_mapping: [{"volume_size": 3, "volume_id": {get_resource: Sys-vol2}, "delete_on_termination": True, "device_name": "/dev/vda"}]
+      availability_zone: {get_param: az}
+      networks: ["uuid": {get_param: network}]
+      security_groups: [{get_param: sg_name}]
+      key_name: {get_param: KeyName}
+
+outputs:
+  KP_Out:
+    description: Key pair name
+    value: {get_param: KeyName}
+  IP_Out:
+    description: IP Address of the access host
+    value: {get_attr: [vm1, networks, <your internal network name>, 0]}
+  KP_Out2:
+    description: Key pair name vm2
+    value: {get_param: KeyName}
+  IP_Out2:
+    description: IP Address of the access host
+    value: {get_attr: [vm2, networks, <your internal network name>, 0]}

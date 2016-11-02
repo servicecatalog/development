@@ -22,16 +22,6 @@ import javax.naming.InitialContext;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-
-import com.amazonaws.AmazonClientException;
-import com.amazonaws.AmazonServiceException;
-import com.amazonaws.services.ec2.AmazonEC2Client;
-import com.amazonaws.services.ec2.model.DescribeImagesRequest;
-import com.amazonaws.services.ec2.model.StartInstancesRequest;
-import com.amazonaws.services.ec2.model.StopInstancesRequest;
-import com.amazonaws.services.ec2.model.TerminateInstancesRequest;
-import org.oscm.test.EJBTestBase;
-import org.oscm.test.ejb.TestContainer;
 import org.oscm.app.aws.EC2Communication;
 import org.oscm.app.aws.EC2Mockup;
 import org.oscm.app.aws.data.FlowState;
@@ -43,6 +33,16 @@ import org.oscm.app.v1_0.exceptions.AbortException;
 import org.oscm.app.v1_0.exceptions.SuspendException;
 import org.oscm.app.v1_0.intf.APPlatformController;
 import org.oscm.app.v1_0.intf.APPlatformService;
+import org.oscm.test.EJBTestBase;
+import org.oscm.test.ejb.TestContainer;
+
+import com.amazonaws.AmazonClientException;
+import com.amazonaws.AmazonServiceException;
+import com.amazonaws.services.ec2.AmazonEC2Client;
+import com.amazonaws.services.ec2.model.DescribeImagesRequest;
+import com.amazonaws.services.ec2.model.StartInstancesRequest;
+import com.amazonaws.services.ec2.model.StopInstancesRequest;
+import com.amazonaws.services.ec2.model.TerminateInstancesRequest;
 
 public class AWSControllerIT extends EJBTestBase {
 
@@ -54,7 +54,8 @@ public class AWSControllerIT extends EJBTestBase {
     private ProvisioningSettings settings;
     private APPlatformController aws;
     private APPlatformService platformService;
-
+    public static final String SUBNET = "subnet";
+    public static final String SECURITY_GROUP_NAMES = "security_group1,security_group2";
     private EC2Mockup ec2mock;
     private AmazonEC2Client ec2;
 
@@ -64,7 +65,6 @@ public class AWSControllerIT extends EJBTestBase {
         enableJndiMock();
         InitialContext context = new InitialContext();
         context.bind(APPlatformService.JNDI_NAME, platformService);
-
         parameters = new HashMap<String, String>();
         configSettings = new HashMap<String, String>();
         settings = new ProvisioningSettings(parameters, configSettings,
@@ -78,6 +78,7 @@ public class AWSControllerIT extends EJBTestBase {
         EC2Communication.useMock(ec2);
 
         PropertyHandler ph = new PropertyHandler(settings) {
+            @Override
             public <T> T getWebService(java.lang.Class<T> serviceClass)
                     throws Exception {
                 return mock(serviceClass);
@@ -91,8 +92,8 @@ public class AWSControllerIT extends EJBTestBase {
 
         parameters.put(PropertyHandler.FLOW_STATE,
                 FlowState.CREATION_REQUESTED.name());
-        parameters
-                .put(PropertyHandler.OPERATION, Operation.EC2_CREATION.name());
+        parameters.put(PropertyHandler.OPERATION,
+                Operation.EC2_CREATION.name());
 
         ec2mock.createDescribeImagesResult(IMAGE_ID);
         ec2mock.createRunInstancesResult(INSTANCE_ID);
@@ -107,6 +108,7 @@ public class AWSControllerIT extends EJBTestBase {
 
         ec2mock.addDescribeInstancesResult(INSTANCE_ID, "running",
                 "2aws-1-2-3-4");
+        ec2mock.addDescribeInstancesResult(INSTANCE_ID, "ok", "1.2.3.4");
 
         runUntilReady();
 
@@ -120,8 +122,8 @@ public class AWSControllerIT extends EJBTestBase {
 
         parameters.put(PropertyHandler.FLOW_STATE,
                 FlowState.CREATION_REQUESTED.name());
-        parameters
-                .put(PropertyHandler.OPERATION, Operation.EC2_CREATION.name());
+        parameters.put(PropertyHandler.OPERATION,
+                Operation.EC2_CREATION.name());
 
         AmazonServiceException ase = new AmazonServiceException("Test message");
         ase.setErrorCode("AuthFailure");
@@ -135,8 +137,8 @@ public class AWSControllerIT extends EJBTestBase {
 
         parameters.put(PropertyHandler.FLOW_STATE,
                 FlowState.CREATION_REQUESTED.name());
-        parameters
-                .put(PropertyHandler.OPERATION, Operation.EC2_CREATION.name());
+        parameters.put(PropertyHandler.OPERATION,
+                Operation.EC2_CREATION.name());
 
         AmazonServiceException ase = new AmazonServiceException("Test message");
         ase.setErrorCode("UnauthorizedOperation");
@@ -150,8 +152,8 @@ public class AWSControllerIT extends EJBTestBase {
 
         parameters.put(PropertyHandler.FLOW_STATE,
                 FlowState.CREATION_REQUESTED.name());
-        parameters
-                .put(PropertyHandler.OPERATION, Operation.EC2_CREATION.name());
+        parameters.put(PropertyHandler.OPERATION,
+                Operation.EC2_CREATION.name());
 
         AmazonServiceException ase = new AmazonServiceException("Test message");
         ase.setErrorCode("Unknown1234");
@@ -182,8 +184,8 @@ public class AWSControllerIT extends EJBTestBase {
 
         parameters.put(PropertyHandler.FLOW_STATE,
                 FlowState.CREATION_REQUESTED.name());
-        parameters
-                .put(PropertyHandler.OPERATION, Operation.EC2_CREATION.name());
+        parameters.put(PropertyHandler.OPERATION,
+                Operation.EC2_CREATION.name());
 
         AmazonClientException ase = new AmazonClientException("Test message");
         ec2mock.createDescribeImagesException(ase);
@@ -212,8 +214,8 @@ public class AWSControllerIT extends EJBTestBase {
 
         parameters.put(PropertyHandler.FLOW_STATE,
                 FlowState.DELETION_REQUESTED.name());
-        parameters
-                .put(PropertyHandler.OPERATION, Operation.EC2_DELETION.name());
+        parameters.put(PropertyHandler.OPERATION,
+                Operation.EC2_DELETION.name());
 
         ec2mock.createDescribeImagesResult(IMAGE_ID);
         ec2mock.createRunInstancesResult(INSTANCE_ID);
@@ -225,8 +227,8 @@ public class AWSControllerIT extends EJBTestBase {
 
         ec2mock.addDescribeInstancesResult(INSTANCE_ID, "terminated",
                 "2aws-1-2-3-4");
-        ec2mock.addDescribeInstanceStatusResult(INSTANCE_ID, "terminated",
-                "ok", "ok");
+        ec2mock.addDescribeInstanceStatusResult(INSTANCE_ID, "terminated", "ok",
+                "ok");
 
         ec2mock.addDescribeInstancesResult(INSTANCE_ID, "terminated", null);
 
@@ -257,7 +259,8 @@ public class AWSControllerIT extends EJBTestBase {
         parameters.put(PropertyHandler.OPERATION,
                 Operation.EC2_MODIFICATION.name());
 
-        ec2mock.createDescribeInstancesResult("instance1", "running", "1.2.3.4");
+        ec2mock.createDescribeInstancesResult("instance1", "running",
+                "1.2.3.4");
         ec2mock.createDescribeInstanceStatusResult("instance1", "ok", "ok",
                 "ok");
         ec2mock.createDescribeImagesResult(IMAGE_ID);
@@ -274,7 +277,8 @@ public class AWSControllerIT extends EJBTestBase {
         parameters.put(PropertyHandler.OPERATION,
                 Operation.EC2_ACTIVATION.name());
 
-        ec2mock.createDescribeInstancesResult("instance1", "running", "1.2.3.4");
+        ec2mock.createDescribeInstancesResult("instance1", "running",
+                "1.2.3.4");
         ec2mock.createDescribeInstanceStatusResult("instance1", "ok", "ok",
                 "ok");
         ec2mock.createDescribeImagesResult(IMAGE_ID);
@@ -293,7 +297,8 @@ public class AWSControllerIT extends EJBTestBase {
         parameters.put(PropertyHandler.OPERATION,
                 Operation.EC2_ACTIVATION.name());
 
-        ec2mock.createDescribeInstancesResult("instance1", "stopped", "1.2.3.4");
+        ec2mock.createDescribeInstancesResult("instance1", "stopped",
+                "1.2.3.4");
         ec2mock.createDescribeInstanceStatusResult("instance1", "ok", "ok",
                 "ok");
         ec2mock.createDescribeImagesResult(IMAGE_ID);
@@ -312,7 +317,8 @@ public class AWSControllerIT extends EJBTestBase {
         parameters.put(PropertyHandler.OPERATION,
                 Operation.EC2_OPERATION.name());
 
-        ec2mock.createDescribeInstancesResult("instance1", "running", "1.2.3.4");
+        ec2mock.createDescribeInstancesResult("instance1", "running",
+                "1.2.3.4");
         ec2mock.createDescribeInstanceStatusResult("instance1", "ok", "ok",
                 "ok");
         ec2mock.createDescribeImagesResult(IMAGE_ID);
@@ -331,7 +337,8 @@ public class AWSControllerIT extends EJBTestBase {
         parameters.put(PropertyHandler.OPERATION,
                 Operation.EC2_OPERATION.name());
 
-        ec2mock.createDescribeInstancesResult("instance1", "stopped", "1.2.3.4");
+        ec2mock.createDescribeInstancesResult("instance1", "stopped",
+                "1.2.3.4");
         ec2mock.createDescribeInstanceStatusResult("instance1", "ok", "ok",
                 "ok");
         ec2mock.createDescribeImagesResult(IMAGE_ID);

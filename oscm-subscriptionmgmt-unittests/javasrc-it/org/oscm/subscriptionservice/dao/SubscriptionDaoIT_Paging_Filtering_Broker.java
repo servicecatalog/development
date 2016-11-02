@@ -19,26 +19,26 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 
 import org.junit.Test;
-
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.Product;
 import org.oscm.domobjects.Subscription;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.ServiceAccessType;
+import org.oscm.internal.types.enumtypes.SubscriptionStatus;
+import org.oscm.paginator.Filter;
+import org.oscm.paginator.Pagination;
+import org.oscm.paginator.SortOrder;
+import org.oscm.paginator.Sorting;
+import org.oscm.paginator.TableColumns;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.Organizations;
 import org.oscm.test.data.Products;
 import org.oscm.test.data.Subscriptions;
 import org.oscm.test.ejb.TestContainer;
-import org.oscm.paginator.*;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
-import org.oscm.internal.types.enumtypes.SubscriptionStatus;
-import org.oscm.paginator.Filter;
-import org.oscm.paginator.SortOrder;
-import org.oscm.paginator.Sorting;
-import org.oscm.paginator.TableColumns;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 
 /**
  * @author ono
@@ -52,9 +52,9 @@ public class SubscriptionDaoIT_Paging_Filtering_Broker extends EJBTestBase {
     private final int NUM_PARTNER_PRODUCTS = 2;
     private final int NUM_SUBSCRIPTIONS_PER_PRODUCT = 20;
     private final int NUM_CUSTOMER_SUBSCRIPTIONS = 80;
-    Set<SubscriptionStatus> states = Collections.unmodifiableSet(EnumSet.of(
-            SubscriptionStatus.ACTIVE, SubscriptionStatus.PENDING,
-            SubscriptionStatus.SUSPENDED));
+    Set<SubscriptionStatus> states = Collections
+            .unmodifiableSet(EnumSet.of(SubscriptionStatus.ACTIVE,
+                    SubscriptionStatus.PENDING, SubscriptionStatus.SUSPENDED));
     public final long TIMESTAMP1 = 1282816800000L;
     public final long TIMESTAMP2 = 1282903200000L;
 
@@ -76,15 +76,16 @@ public class SubscriptionDaoIT_Paging_Filtering_Broker extends EJBTestBase {
 
     @Override
     protected void setup(TestContainer container) throws Exception {
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         ds = container.get(DataService.class);
         dao = new SubscriptionDao(ds);
 
         supplier = createOrg("supplier", OrganizationRoleType.SUPPLIER,
                 OrganizationRoleType.TECHNOLOGY_PROVIDER);
-        
+
         supplierUser = createOrgUser("supp_user", supplier, "en");
-        
+
         final Organization broker = createOrg("broker",
                 OrganizationRoleType.BROKER);
 
@@ -92,37 +93,41 @@ public class SubscriptionDaoIT_Paging_Filtering_Broker extends EJBTestBase {
                 broker);
         final Organization brokerCustomer2 = registerCustomer(BROKER_CUSTOMER2,
                 broker);
-        List<Product> products = new ArrayList<Product>();
+        List<Product> products = new ArrayList<>();
         products.add(createProduct(SERVICE_ID1, TECH_SERVICE,
                 supplier.getOrganizationId(), ServiceAccessType.LOGIN));
         products.add(createProduct(SERVICE_ID2, TECH_SERVICE,
                 supplier.getOrganizationId(), ServiceAccessType.LOGIN));
 
-        List<Product> partnerProducts = new ArrayList<Product>();
+        List<Product> partnerProducts = new ArrayList<>();
         partnerProducts.add(createPartnerProduct(products.get(0), broker));
         partnerProducts.add(createPartnerProduct(products.get(1), broker));
         for (int i = 0; i < NUM_SUBSCRIPTIONS_PER_PRODUCT; i++) {
             for (int j = 0; j < NUM_PARTNER_PRODUCTS; j++) {
                 createPartnerSubscription(brokerCustomer1.getOrganizationId(),
-                        partnerProducts.get(j), SUBSCRIPTION_ID1 + i
-                                + SERVICE_ID1 + j, 0, TIMESTAMP1, broker);
+                        partnerProducts.get(j),
+                        SUBSCRIPTION_ID1 + i + SERVICE_ID1 + j, 0, TIMESTAMP1,
+                        broker);
                 createPartnerSubscription(brokerCustomer2.getOrganizationId(),
-                        partnerProducts.get(j), SUBSCRIPTION_ID2 + i
-                                + SERVICE_ID2 + j, 0, TIMESTAMP2, broker);
+                        partnerProducts.get(j),
+                        SUBSCRIPTION_ID2 + i + SERVICE_ID2 + j, 0, TIMESTAMP2,
+                        broker);
             }
         }
     }
-    
+
     private PlatformUser createOrgUser(final String userId,
-    		final Organization organization, final String locale) throws Exception {
+            final Organization organization, final String locale)
+            throws Exception {
         return runTX(new Callable<PlatformUser>() {
             @Override
             public PlatformUser call() throws Exception {
-                return Organizations.createUserForOrg(ds, organization, true, userId, locale);
+                return Organizations.createUserForOrg(ds, organization, true,
+                        userId, locale);
             }
         });
     }
-    
+
     private Organization createOrg(final String organizationId,
             final OrganizationRoleType... roles) throws Exception {
         return runTX(new Callable<Organization>() {
@@ -207,7 +212,7 @@ public class SubscriptionDaoIT_Paging_Filtering_Broker extends EJBTestBase {
                 customerName);
         final Filter productIdFilter = new Filter(TableColumns.SERVICE_ID,
                 ServiceId);
-        Set<Filter> filterSet = new HashSet<Filter>();
+        Set<Filter> filterSet = new HashSet<>();
         Collections.addAll(filterSet, subscriptionFilter, actTimeFilter,
                 orgIdFilter, orgNameFilter, productIdFilter);
         return filterSet;
@@ -233,8 +238,8 @@ public class SubscriptionDaoIT_Paging_Filtering_Broker extends EJBTestBase {
         // then
         assertEquals(NUM_CUSTOMER_SUBSCRIPTIONS, result.size());
         for (int i = 0; i < NUM_CUSTOMER_SUBSCRIPTIONS; i++)
-            assertEquals(SUBSCRIPTION_ID1.substring(0, 12), result.get(i)
-                    .getSubscriptionId().substring(0, 12));
+            assertEquals(SUBSCRIPTION_ID1.substring(0, 12),
+                    result.get(i).getSubscriptionId().substring(0, 12));
     }
 
     @Test
@@ -260,8 +265,8 @@ public class SubscriptionDaoIT_Paging_Filtering_Broker extends EJBTestBase {
                 result.size());
         for (int i = 0; i < NUM_PARTNER_PRODUCTS
                 * NUM_SUBSCRIPTIONS_PER_PRODUCT; i++)
-            assertEquals(SUBSCRIPTION_ID1, result.get(i).getSubscriptionId()
-                    .substring(0, 13));
+            assertEquals(SUBSCRIPTION_ID1,
+                    result.get(i).getSubscriptionId().substring(0, 13));
     }
 
     @Test
@@ -270,8 +275,8 @@ public class SubscriptionDaoIT_Paging_Filtering_Broker extends EJBTestBase {
         // given
         final String not_existing_subscription = "not existing";
         final int expected = 0;
-        Set<Filter> filterSet = createFilterSet(not_existing_subscription,
-                null, null, null, null);
+        Set<Filter> filterSet = createFilterSet(not_existing_subscription, null,
+                null, null, null);
         final Pagination pagination = createPagination(0,
                 NUM_CUSTOMER_SUBSCRIPTIONS, null, filterSet);
 
@@ -311,8 +316,8 @@ public class SubscriptionDaoIT_Paging_Filtering_Broker extends EJBTestBase {
                 result.size());
         for (int i = 0; i < NUM_PARTNER_PRODUCTS
                 * NUM_SUBSCRIPTIONS_PER_PRODUCT; i++)
-            assertEquals(TIMESTAMP1, result.get(i).getActivationDate()
-                    .longValue());
+            assertEquals(TIMESTAMP1,
+                    result.get(i).getActivationDate().longValue());
     }
 
     @Test
@@ -362,8 +367,8 @@ public class SubscriptionDaoIT_Paging_Filtering_Broker extends EJBTestBase {
                 result.size());
         for (int i = 0; i < NUM_PARTNER_PRODUCTS
                 * NUM_SUBSCRIPTIONS_PER_PRODUCT; i++)
-            assertEquals(SUBSCRIPTION_ID1, result.get(i).getSubscriptionId()
-                    .substring(0, 13));
+            assertEquals(SUBSCRIPTION_ID1,
+                    result.get(i).getSubscriptionId().substring(0, 13));
     }
 
     @Test
@@ -413,8 +418,8 @@ public class SubscriptionDaoIT_Paging_Filtering_Broker extends EJBTestBase {
                 result.size());
         for (int i = 0; i < NUM_PARTNER_PRODUCTS
                 * NUM_SUBSCRIPTIONS_PER_PRODUCT; i++)
-            assertEquals(SUBSCRIPTION_ID2, result.get(i).getSubscriptionId()
-                    .substring(0, 13));
+            assertEquals(SUBSCRIPTION_ID2,
+                    result.get(i).getSubscriptionId().substring(0, 13));
     }
 
     @Test
@@ -464,8 +469,8 @@ public class SubscriptionDaoIT_Paging_Filtering_Broker extends EJBTestBase {
                 result.size());
         for (int i = 0; i < NUM_PARTNER_PRODUCTS
                 * NUM_SUBSCRIPTIONS_PER_PRODUCT; i++)
-            assertEquals(SUBSCRIPTION_ID2.substring(0, 12), result.get(i)
-                    .getSubscriptionId().substring(0, 12));
+            assertEquals(SUBSCRIPTION_ID2.substring(0, 12),
+                    result.get(i).getSubscriptionId().substring(0, 12));
     }
 
     @Test
@@ -515,14 +520,14 @@ public class SubscriptionDaoIT_Paging_Filtering_Broker extends EJBTestBase {
 
         // then
         assertEquals(NUM_SUBSCRIPTIONS_PER_PRODUCT, result.size());
-        assertEquals(SUBSCRIPTION_ID1 + 0 + SERVICE_ID1 + 0, result.get(0)
-                .getSubscriptionId());
+        assertEquals(SUBSCRIPTION_ID1 + 0 + SERVICE_ID1 + 0,
+                result.get(0).getSubscriptionId());
         for (int i = 0; i < 10; i++)
-            assertEquals(SUBSCRIPTION_ID1 + (10 + i) + SERVICE_ID1 + 0, result
-                    .get(1 + i).getSubscriptionId());
+            assertEquals(SUBSCRIPTION_ID1 + (10 + i) + SERVICE_ID1 + 0,
+                    result.get(1 + i).getSubscriptionId());
         for (int i = 10; i < 19; i++)
-            assertEquals(SUBSCRIPTION_ID1 + (i - 9) + SERVICE_ID1 + 0, result
-                    .get(1 + i).getSubscriptionId());
+            assertEquals(SUBSCRIPTION_ID1 + (i - 9) + SERVICE_ID1 + 0,
+                    result.get(1 + i).getSubscriptionId());
     }
 
     @Test

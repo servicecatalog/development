@@ -446,6 +446,7 @@ public class ProductAssemblerTest {
         Assert.assertEquals(
                 LocalizedObjectTypes.PRODUCT_SHORT_DESCRIPTION.name(),
                 service.getShortDescription());
+        Assert.assertEquals(LocalizedObjectTypes.PRODUCT_CUSTOM_TAB_NAME.name(), service.getCustomTabName());
         Assert.assertEquals(product.getStatus(), service.getStatus());
         Assert.assertEquals(product.isAutoAssignUserEnabled(),
                 service.isAutoAssignUserEnabled());
@@ -483,6 +484,9 @@ public class ProductAssemblerTest {
         Assert.assertEquals(
                 LocalizedObjectTypes.PRODUCT_SHORT_DESCRIPTION.name(),
                 service.getShortDescription());
+        Assert.assertEquals(
+                LocalizedObjectTypes.PRODUCT_CUSTOM_TAB_NAME.name(),
+                service.getCustomTabName());
         Assert.assertEquals(partnerProduct.getStatus(), service.getStatus());
         Assert.assertEquals(
                 Boolean.valueOf(partnerProduct.isAutoAssignUserEnabled()),

@@ -127,21 +127,21 @@ public interface UserGroupService {
     /**
      * get user groups of specified user without default group
      * 
-     * @param userId
+     * @param userKey
      * @return POUserGroup list
      * 
      */
-    public List<POUserGroup> getUserGroupsForUserWithoutDefault(String userId);
+    public List<POUserGroup> getUserGroupsForUserWithoutDefault(long userKey);
 
     /**
      * get user groups of specified user without default group, only load fields
      * for listing
      * 
-     * @param userId
+     * @param userKey
      * @return POUserGroup list
      * 
      */
-    public List<POUserGroup> getUserGroupListForUserWithoutDefault(String userId);
+    public List<POUserGroup> getUserGroupListForUserWithoutDefault(long userKey);
 
     /**
      * get details of user group by key
@@ -212,7 +212,7 @@ public interface UserGroupService {
     /**
      * get all user groups to which user is assigned and role that user has in
      * particular group
-     *
+     * 
      * @param userId
      * @return the list of user groups
      */
@@ -221,7 +221,7 @@ public interface UserGroupService {
     /**
      * Get all Units, which are assigned to user with specific role (for example
      * User or Administrator).
-     *
+     * 
      * @param userKey
      *            user key
      * @param userRoleKey
@@ -234,7 +234,7 @@ public interface UserGroupService {
     /**
      * Get all Units without default one, which are assigned to user with
      * specific role (for example User or Administrator).
-     *
+     * 
      * @param userKey
      *            user key
      * @param userRoleKey
@@ -248,7 +248,7 @@ public interface UserGroupService {
      * This method is used to removing UNIT_ADMINISTRATOR role from the current
      * user when he loses user group. If user no longer can be subscription
      * owner, this method removes owner from his subscriptions.
-     *
+     * 
      * @return true - if UNIT_ADMINISTRATOR role has been removed, false -
      *         otherwise
      */
@@ -257,17 +257,18 @@ public interface UserGroupService {
     /**
      * get all user groups to which user is assigned and role that user has in
      * particular group without default group
-     *
+     * 
      * @param userId
+     * @param userKey
      * @return the list of user groups
      */
     List<POUserGroup> getUserGroupListForUserWithRolesWithoutDefault(
-            String userId);
+            String userId, long userKey);
 
     /**
      * get details of user group by key including details of users assigned to
      * this user group.
-     *
+     * 
      * @param groupKey
      *            the key of user group
      * @return POUserGroup
@@ -290,7 +291,7 @@ public interface UserGroupService {
 
     /**
      * get number of users assigned to this user group.
-     *
+     * 
      * @param selectedGroupId
      *            - the key of user group
      * @param pagination

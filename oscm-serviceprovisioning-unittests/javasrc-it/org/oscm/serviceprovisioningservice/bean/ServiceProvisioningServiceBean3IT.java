@@ -751,7 +751,7 @@ public class ServiceProvisioningServiceBean3IT extends EJBTestBase {
         assertEquals("Wrong product short description", "newShortDesc",
                 updateMarketingProduct.getShortDescription());
         verify(audit, times(1)).updateService(any(DataService.class),
-                any(Product.class), eq(true), eq(false), anyString());
+                any(Product.class), eq(true), eq(false), eq(false), anyString());
     }
 
     @Test
@@ -812,7 +812,7 @@ public class ServiceProvisioningServiceBean3IT extends EJBTestBase {
                 "Service short description",
                 updateMarketingProduct.getShortDescription());
         verify(audit, times(1)).updateService(any(DataService.class),
-                any(Product.class), eq(false), eq(false), anyString());
+                any(Product.class), eq(false), eq(false), eq(false), anyString());
     }
 
     @Test
@@ -873,7 +873,7 @@ public class ServiceProvisioningServiceBean3IT extends EJBTestBase {
                 "Service short description",
                 productDetails.getShortDescription());
         verify(audit, times(1)).updateService(any(DataService.class),
-                any(Product.class), eq(false), eq(true), anyString());
+                any(Product.class), eq(false), eq(true), eq(false), anyString());
     }
 
     @Test
@@ -923,7 +923,7 @@ public class ServiceProvisioningServiceBean3IT extends EJBTestBase {
         svcProv.updateService(productDetails, null);
 
         verify(audit, never()).updateService(any(DataService.class),
-                any(Product.class), anyBoolean(), anyBoolean(), anyString());
+                any(Product.class), anyBoolean(), anyBoolean(), anyBoolean(), anyString());
     }
 
     @Test
@@ -1513,6 +1513,70 @@ public class ServiceProvisioningServiceBean3IT extends EJBTestBase {
         VOServiceDetails serviceDetails = svcProv
                 .getServiceDetails(createdService);
         serviceDetails.setConfiguratorUrl("newConfigUrl");
+
+        // when
+        svcProv.updateService(serviceDetails, null);
+    }
+
+    @Test
+    public void updateService_customTabUrl() throws Exception {
+        // given
+        final VOTechnicalService tp = createTechnicalProduct(svcProv);
+        VOService service = new VOService();
+        service.setServiceId("serviceId");
+        service.setCustomTabUrl("http://www.oldUrl.example");
+
+        OrganizationReference ref = createOrgRef(provider.getKey());
+        createMarketingPermission(tp.getKey(), ref.getKey());
+
+        VOService createdService = svcProv.createService(tp, service, null);
+        VOServiceDetails serviceDetails = svcProv
+                .getServiceDetails(createdService);
+        serviceDetails.setCustomTabUrl("http://www.newUrl.example");
+
+        // when
+        VOServiceDetails updatedService = svcProv.updateService(serviceDetails,
+                null);
+
+        // then
+        assertEquals(service.getCustomTabUrl(),
+                createdService.getCustomTabUrl());
+
+        assertEquals(serviceDetails.getCustomTabUrl(),
+                updatedService.getCustomTabUrl());
+
+    }
+
+    @Test(expected = ValidationException.class)
+    public void createService_customTabUrl_invalid() throws Exception {
+        // given
+        final VOTechnicalService tp = createTechnicalProduct(svcProv);
+        VOService service = new VOService();
+        service.setServiceId("serviceId");
+        service.setCustomTabUrl("thisIsNotAnUrl");
+
+        OrganizationReference ref = createOrgRef(provider.getKey());
+        createMarketingPermission(tp.getKey(), ref.getKey());
+
+        // when
+        svcProv.createService(tp, service, null);
+    }
+
+    @Test(expected = ValidationException.class)
+    public void updateService_customTabUrl_invalid() throws Exception {
+        // given
+        final VOTechnicalService tp = createTechnicalProduct(svcProv);
+        VOService service = new VOService();
+        service.setServiceId("serviceId");
+        service.setCustomTabUrl("http://www.oldUrl.example");
+
+        OrganizationReference ref = createOrgRef(provider.getKey());
+        createMarketingPermission(tp.getKey(), ref.getKey());
+
+        VOService createdService = svcProv.createService(tp, service, null);
+        VOServiceDetails serviceDetails = svcProv
+                .getServiceDetails(createdService);
+        serviceDetails.setCustomTabUrl("thisIsNotAnUrl");
 
         // when
         svcProv.updateService(serviceDetails, null);

@@ -1,0 +1,22 @@
+<!-- Copyright FUJITSU LIMITED 2016-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:rich="http://richfaces.org/rich" xmlns:a4j="http://richfaces.org/a4j"
+                xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+                xmlns:t="http://myfaces.apache.org/tomahawk">
+
+    <adm:panelGrid>
+        <adm:labelAndInputText id="externalConfiguratorUrl" label="#{msg['service.externalConfiguratorUrl']}"
+                               value="#{service.configuratorUrl}" maxlength="#{appBean.descriptionLen}" validatorId="url"
+                               disabled="#{editDisabled}" converterId="trimConverter" />
+        <adm:labelAndInputText id="customTabName" label="#{msg['service.customTabName']}"
+                               value="#{service.customTabName}" maxlength="#{appBean.descriptionLen}" validatorId="idChar"
+                               disabled="#{editDisabled}" converterId="trimConverter" />
+        <adm:labelAndInputText id="customTabUrl" label="#{msg['service.customTabUrl']}"
+                               value="#{service.customTabUrl}" maxlength="#{appBean.descriptionLen}" validatorId="url"
+                               disabled="#{editDisabled}" converterId="trimConverter" />
+    </adm:panelGrid>
+</ui:composition>

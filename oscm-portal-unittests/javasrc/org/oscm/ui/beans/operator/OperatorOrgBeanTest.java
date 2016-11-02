@@ -60,6 +60,7 @@ public class OperatorOrgBeanTest {
         };
 
         UIViewRootStub vrStub = new UIViewRootStub() {
+            @Override
             public Locale getLocale() {
                 return Locale.ENGLISH;
             };
@@ -77,7 +78,8 @@ public class OperatorOrgBeanTest {
 
         doNothing().when(oob).resetUIComponents(anySet());
         doNothing().when(oob).resetUIInputChildren();
-        when(oob.ui.findBean(eq(OperatorOrgBean.APPLICATION_BEAN))).thenReturn(appBean);
+        when(oob.ui.findBean(eq(OperatorOrgBean.APPLICATION_BEAN))).thenReturn(
+                appBean);
     }
 
     @Test
@@ -180,7 +182,7 @@ public class OperatorOrgBeanTest {
                         any(LdapProperties.class), eq("myMp"));
 
     }
-    
+
     @Test
     public void isCustomerOrganization() {
         createNewOrganization(new LinkedList<OrganizationRoleType>());
@@ -217,26 +219,26 @@ public class OperatorOrgBeanTest {
     }
 
     @Test
-    public void getSelectableMarketplaces_NotNull() {
+    public void getSelectableMarketplaces_NotNull() throws ObjectNotFoundException {
         setupMarketplaces();
         List<SelectItem> list = oob.getSelectableMarketplaces();
         assertNotNull(list);
-        verify(msmock, times(1)).getAccessibleMarketplacesForOperator();
+        verify(msmock, times(1)).getAllMarketplacesForTenant(anyLong());
     }
 
     @Test
-    public void getSelectableMarketplaces_Same() {
+    public void getSelectableMarketplaces_Same() throws ObjectNotFoundException {
         setupMarketplaces();
         List<SelectItem> list1 = oob.getSelectableMarketplaces();
         List<SelectItem> list2 = oob.getSelectableMarketplaces();
-        verify(msmock, times(2)).getAccessibleMarketplacesForOperator();
+        verify(msmock, times(2)).getAllMarketplacesForTenant(anyLong());
     }
 
     @Test
-    public void getSelectableMarketplaces() {
+    public void getSelectableMarketplaces() throws ObjectNotFoundException {
         setupMarketplaces();
         List<SelectItem> list = oob.getSelectableMarketplaces();
-        verify(msmock, times(1)).getAccessibleMarketplacesForOperator();
+        verify(msmock, times(1)).getAllMarketplacesForTenant(anyLong());
 
         assertEquals(2, list.size());
         SelectItem item = list.get(0);
@@ -250,20 +252,21 @@ public class OperatorOrgBeanTest {
         setupMarketplaces();
         doReturn(Boolean.FALSE).when(oob).isLoggedInAndPlatformOperator();
         List<SelectItem> list = oob.getSelectableMarketplaces();
-        verify(msmock, never()).getAccessibleMarketplacesForOperator();
+        verify(msmock, never()).getAccessibleMarketplaces();
         assertEquals(0, list.size());
     }
 
     @Test
     public void isLdapSettingVisible() {
-        //given
-        when(Boolean.valueOf(appBean.isInternalAuthMode())).thenReturn(Boolean.TRUE);
-        //when
+        // given
+        when(Boolean.valueOf(appBean.isInternalAuthMode())).thenReturn(
+                Boolean.TRUE);
+        // when
         Boolean result = Boolean.valueOf(oob.isLdapSettingVisible());
-        //then
+        // then
         assertEquals(Boolean.TRUE, result);
     }
-    
+
     private void setupMarketplaces() {
         vMp1 = new VOMarketplace();
         vMp1.setKey(1234);
@@ -284,8 +287,12 @@ public class OperatorOrgBeanTest {
 
         msmock = mock(MarketplaceService.class);
 
-        when(msmock.getAccessibleMarketplacesForOperator()).thenReturn(
-                Arrays.asList(vMp1, vMp2));
+        try {
+            when(msmock.getAllMarketplacesForTenant(anyLong())).thenReturn(
+                    Arrays.asList(vMp1, vMp2));
+        } catch (ObjectNotFoundException e) {
+            fail();
+        }
 
         doReturn(Boolean.TRUE).when(oob).isLoggedInAndPlatformOperator();
         doReturn(msmock).when(oob).getMarketplaceService();

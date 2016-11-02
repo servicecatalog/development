@@ -12,11 +12,11 @@
 
 package org.oscm.billingservice.business.calculation.revenue;
 
-import static org.oscm.test.Numbers.L1;
-import static org.oscm.test.Numbers.L2;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.oscm.test.Numbers.L1;
+import static org.oscm.test.Numbers.L2;
 
 import java.util.Date;
 import java.util.List;
@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 
 import org.junit.Test;
-
 import org.oscm.billingservice.business.calculation.revenue.model.UsageDetails;
 import org.oscm.billingservice.business.calculation.revenue.model.UsageDetails.UsagePeriod;
 import org.oscm.billingservice.business.calculation.revenue.model.UserAssignmentDetails;
@@ -38,12 +37,13 @@ import org.oscm.domobjects.PriceModelData;
 import org.oscm.domobjects.PriceModelHistory;
 import org.oscm.domobjects.UsageLicenseHistory;
 import org.oscm.domobjects.enums.ModificationType;
-import org.oscm.test.EJBTestBase;
-import org.oscm.test.data.PlatformUsers;
-import org.oscm.test.ejb.TestContainer;
 import org.oscm.internal.types.enumtypes.PriceModelType;
 import org.oscm.internal.types.enumtypes.PricingPeriod;
 import org.oscm.internal.types.exception.IllegalArgumentException;
+import org.oscm.test.EJBTestBase;
+import org.oscm.test.data.PlatformUsers;
+import org.oscm.test.ejb.TestContainer;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 
 /**
  * 
@@ -82,7 +82,7 @@ public class CostCalculatorUserAssignmentFactorIT extends EJBTestBase {
     @Override
     protected void setup(TestContainer container) throws Exception {
         container.login("1");
-
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         container.addBean(new BillingDataRetrievalServiceBean());
 
@@ -208,10 +208,9 @@ public class CostCalculatorUserAssignmentFactorIT extends EJBTestBase {
             public UserAssignmentFactors call() throws Exception {
                 final List<UsageLicenseHistory> ulHistList = bdrs
                         .loadUsageLicenses(1L, 1000, 2000);
-                return CostCalculator.get(pmHist)
-                        .computeUserAssignmentsFactors(ulHistList, pmHist,
-                                BillingInputFactory.newBillingInput(0, 0),
-                                1000, 2000);
+                return CostCalculator.get(pmHist).computeUserAssignmentsFactors(
+                        ulHistList, pmHist,
+                        BillingInputFactory.newBillingInput(0, 0), 1000, 2000);
             }
         });
 
@@ -224,17 +223,19 @@ public class CostCalculatorUserAssignmentFactorIT extends EJBTestBase {
         initPriceModelHistory(true, PricingPeriod.DAY);
 
         // when
-        UserAssignmentFactors result = runTX(new Callable<UserAssignmentFactors>() {
-            @Override
-            public UserAssignmentFactors call() throws Exception {
-                final List<UsageLicenseHistory> ulHistList = bdrs
-                        .loadUsageLicenses(1L, 1000, 2000);
-                return CostCalculator.get(pmHist)
-                        .computeUserAssignmentsFactors(ulHistList, pmHist,
-                                BillingInputFactory.newBillingInput(0, 0),
-                                1000, 2000);
-            }
-        });
+        UserAssignmentFactors result = runTX(
+                new Callable<UserAssignmentFactors>() {
+                    @Override
+                    public UserAssignmentFactors call() throws Exception {
+                        final List<UsageLicenseHistory> ulHistList = bdrs
+                                .loadUsageLicenses(1L, 1000, 2000);
+                        return CostCalculator.get(pmHist)
+                                .computeUserAssignmentsFactors(ulHistList,
+                                        pmHist, BillingInputFactory
+                                                .newBillingInput(0, 0),
+                                        1000, 2000);
+                    }
+                });
 
         // then
         assertNotNull(result);
@@ -246,20 +247,23 @@ public class CostCalculatorUserAssignmentFactorIT extends EJBTestBase {
             throws Exception {
         // given
         initPriceModelHistory(true, PricingPeriod.DAY);
-        createUsageLicenseHistory(5000, ModificationType.ADD, 1, userKey1, null);
+        createUsageLicenseHistory(5000, ModificationType.ADD, 1, userKey1,
+                null);
 
         // when
-        UserAssignmentFactors result = runTX(new Callable<UserAssignmentFactors>() {
-            @Override
-            public UserAssignmentFactors call() throws Exception {
-                final List<UsageLicenseHistory> ulHistList = bdrs
-                        .loadUsageLicenses(1L, 1000, 2000);
-                return CostCalculator.get(pmHist)
-                        .computeUserAssignmentsFactors(ulHistList, pmHist,
-                                BillingInputFactory.newBillingInput(0, 0),
-                                1000, 2000);
-            }
-        });
+        UserAssignmentFactors result = runTX(
+                new Callable<UserAssignmentFactors>() {
+                    @Override
+                    public UserAssignmentFactors call() throws Exception {
+                        final List<UsageLicenseHistory> ulHistList = bdrs
+                                .loadUsageLicenses(1L, 1000, 2000);
+                        return CostCalculator.get(pmHist)
+                                .computeUserAssignmentsFactors(ulHistList,
+                                        pmHist, BillingInputFactory
+                                                .newBillingInput(0, 0),
+                                        1000, 2000);
+                    }
+                });
 
         // then
         assertNotNull(result);
@@ -271,22 +275,25 @@ public class CostCalculatorUserAssignmentFactorIT extends EJBTestBase {
             throws Exception {
         // given
         initPriceModelHistory(true, PricingPeriod.DAY);
-        createUsageLicenseHistory(5000, ModificationType.ADD, 1, userKey1, null);
+        createUsageLicenseHistory(5000, ModificationType.ADD, 1, userKey1,
+                null);
         createUsageLicenseHistory(15000, ModificationType.DELETE, 1, userKey1,
                 null);
 
         // when
-        UserAssignmentFactors result = runTX(new Callable<UserAssignmentFactors>() {
-            @Override
-            public UserAssignmentFactors call() throws Exception {
-                final List<UsageLicenseHistory> ulHistList = bdrs
-                        .loadUsageLicenses(1L, 1000, 2000);
-                return CostCalculator.get(pmHist)
-                        .computeUserAssignmentsFactors(ulHistList, pmHist,
-                                BillingInputFactory.newBillingInput(0, 0),
-                                1000, 2000);
-            }
-        });
+        UserAssignmentFactors result = runTX(
+                new Callable<UserAssignmentFactors>() {
+                    @Override
+                    public UserAssignmentFactors call() throws Exception {
+                        final List<UsageLicenseHistory> ulHistList = bdrs
+                                .loadUsageLicenses(1L, 1000, 2000);
+                        return CostCalculator.get(pmHist)
+                                .computeUserAssignmentsFactors(ulHistList,
+                                        pmHist, BillingInputFactory
+                                                .newBillingInput(0, 0),
+                                        1000, 2000);
+                    }
+                });
 
         // then
         assertNotNull(result);
@@ -298,22 +305,25 @@ public class CostCalculatorUserAssignmentFactorIT extends EJBTestBase {
             throws Exception {
         // given
         initPriceModelHistory(true, PricingPeriod.DAY);
-        createUsageLicenseHistory(5000, ModificationType.ADD, 1, userKey1, null);
+        createUsageLicenseHistory(5000, ModificationType.ADD, 1, userKey1,
+                null);
         createUsageLicenseHistory(15000, ModificationType.DELETE, 1, userKey1,
                 null);
 
         // when
-        UserAssignmentFactors result = runTX(new Callable<UserAssignmentFactors>() {
-            @Override
-            public UserAssignmentFactors call() throws Exception {
-                final List<UsageLicenseHistory> ulHistList = bdrs
-                        .loadUsageLicenses(1L, 100000, 120000);
-                return CostCalculator.get(pmHist)
-                        .computeUserAssignmentsFactors(ulHistList, pmHist,
-                                BillingInputFactory.newBillingInput(0, 0),
-                                100000, 120000);
-            }
-        });
+        UserAssignmentFactors result = runTX(
+                new Callable<UserAssignmentFactors>() {
+                    @Override
+                    public UserAssignmentFactors call() throws Exception {
+                        final List<UsageLicenseHistory> ulHistList = bdrs
+                                .loadUsageLicenses(1L, 100000, 120000);
+                        return CostCalculator.get(pmHist)
+                                .computeUserAssignmentsFactors(ulHistList,
+                                        pmHist, BillingInputFactory
+                                                .newBillingInput(0, 0),
+                                        100000, 120000);
+                    }
+                });
 
         // then
         assertNotNull(result);
@@ -325,28 +335,31 @@ public class CostCalculatorUserAssignmentFactorIT extends EJBTestBase {
             throws Exception {
         // given
         initPriceModelHistory(true, PricingPeriod.DAY);
-        createUsageLicenseHistory(5000, ModificationType.ADD, 1, userKey1, null);
+        createUsageLicenseHistory(5000, ModificationType.ADD, 1, userKey1,
+                null);
 
         // when
-        UserAssignmentFactors result = runTX(new Callable<UserAssignmentFactors>() {
-            @Override
-            public UserAssignmentFactors call() throws Exception {
-                final List<UsageLicenseHistory> ulHistList = bdrs
-                        .loadUsageLicenses(1L, 1000, 12000);
-                return CostCalculator.get(pmHist)
-                        .computeUserAssignmentsFactors(ulHistList, pmHist,
-                                BillingInputFactory.newBillingInput(0, 0),
-                                1000, 12000);
-            }
-        });
+        UserAssignmentFactors result = runTX(
+                new Callable<UserAssignmentFactors>() {
+                    @Override
+                    public UserAssignmentFactors call() throws Exception {
+                        final List<UsageLicenseHistory> ulHistList = bdrs
+                                .loadUsageLicenses(1L, 1000, 12000);
+                        return CostCalculator.get(pmHist)
+                                .computeUserAssignmentsFactors(ulHistList,
+                                        pmHist, BillingInputFactory
+                                                .newBillingInput(0, 0),
+                                        1000, 12000);
+                    }
+                });
 
         // then
         assertNotNull(result);
         assertEquals(1, result.getUserKeys().size());
-        UserAssignmentDetails details = result.getUserAssignmentDetails(Long
-                .valueOf(userKey1));
-        assertDetailsForUser(userId1, details,
-                simpleFactor(7000, DAY_DURATION), new UsagePeriod(5000, 12000));
+        UserAssignmentDetails details = result
+                .getUserAssignmentDetails(Long.valueOf(userKey1));
+        assertDetailsForUser(userId1, details, simpleFactor(7000, DAY_DURATION),
+                new UsagePeriod(5000, 12000));
     }
 
     @Test
@@ -354,30 +367,33 @@ public class CostCalculatorUserAssignmentFactorIT extends EJBTestBase {
             throws Exception {
         // given
         initPriceModelHistory(true, PricingPeriod.DAY);
-        createUsageLicenseHistory(5000, ModificationType.ADD, 1, userKey1, null);
+        createUsageLicenseHistory(5000, ModificationType.ADD, 1, userKey1,
+                null);
         createUsageLicenseHistory(15000, ModificationType.DELETE, 1, userKey1,
                 null);
 
         // when
-        final UserAssignmentFactors result = runTX(new Callable<UserAssignmentFactors>() {
-            @Override
-            public UserAssignmentFactors call() throws Exception {
-                final List<UsageLicenseHistory> ulHistList = bdrs
-                        .loadUsageLicenses(1L, 1000, 12000);
-                return CostCalculator.get(pmHist)
-                        .computeUserAssignmentsFactors(ulHistList, pmHist,
-                                BillingInputFactory.newBillingInput(0, 0),
-                                1000, 12000);
-            }
-        });
+        final UserAssignmentFactors result = runTX(
+                new Callable<UserAssignmentFactors>() {
+                    @Override
+                    public UserAssignmentFactors call() throws Exception {
+                        final List<UsageLicenseHistory> ulHistList = bdrs
+                                .loadUsageLicenses(1L, 1000, 12000);
+                        return CostCalculator.get(pmHist)
+                                .computeUserAssignmentsFactors(ulHistList,
+                                        pmHist, BillingInputFactory
+                                                .newBillingInput(0, 0),
+                                        1000, 12000);
+                    }
+                });
 
         // then
         assertNotNull(result);
         assertEquals(1, result.getUserKeys().size());
-        UserAssignmentDetails details = result.getUserAssignmentDetails(Long
-                .valueOf(userKey1));
-        assertDetailsForUser(userId1, details,
-                simpleFactor(7000, DAY_DURATION), new UsagePeriod(5000, 12000));
+        UserAssignmentDetails details = result
+                .getUserAssignmentDetails(Long.valueOf(userKey1));
+        assertDetailsForUser(userId1, details, simpleFactor(7000, DAY_DURATION),
+                new UsagePeriod(5000, 12000));
     }
 
     @Test
@@ -395,31 +411,33 @@ public class CostCalculatorUserAssignmentFactorIT extends EJBTestBase {
                 null);
 
         // when
-        final UserAssignmentFactors result = runTX(new Callable<UserAssignmentFactors>() {
-            @Override
-            public UserAssignmentFactors call() throws Exception {
-                final List<UsageLicenseHistory> ulHistList = bdrs
-                        .loadUsageLicenses(1L, 3550000, 3650000);
-                return CostCalculator.get(pmHist)
-                        .computeUserAssignmentsFactors(ulHistList, pmHist,
-                                BillingInputFactory.newBillingInput(0, 0),
-                                3550000, 3650000);
-            }
-        });
+        final UserAssignmentFactors result = runTX(
+                new Callable<UserAssignmentFactors>() {
+                    @Override
+                    public UserAssignmentFactors call() throws Exception {
+                        final List<UsageLicenseHistory> ulHistList = bdrs
+                                .loadUsageLicenses(1L, 3550000, 3650000);
+                        return CostCalculator.get(pmHist)
+                                .computeUserAssignmentsFactors(ulHistList,
+                                        pmHist, BillingInputFactory
+                                                .newBillingInput(0, 0),
+                                        3550000, 3650000);
+                    }
+                });
 
         // then
         assertNotNull(result);
         assertEquals(2, result.getUserKeys().size());
-        UserAssignmentDetails details = result.getUserAssignmentDetails(Long
-                .valueOf(userKey1));
+        UserAssignmentDetails details = result
+                .getUserAssignmentDetails(Long.valueOf(userKey1));
         assertDetailsForUser(userId1, details,
-                simpleFactor(100000, HOUR_DURATION), new UsagePeriod(3550000,
-                        3650000));
+                simpleFactor(100000, HOUR_DURATION),
+                new UsagePeriod(3550000, 3650000));
         assertNull(result.getUserAssignmentDetails(Long.valueOf(userKey2)));
         details = result.getUserAssignmentDetails(Long.valueOf(userKey3));
         assertDetailsForUser(userId3, details,
-                simpleFactor(100000, HOUR_DURATION), new UsagePeriod(3550000,
-                        3650000));
+                simpleFactor(100000, HOUR_DURATION),
+                new UsagePeriod(3550000, 3650000));
     }
 
     @Test
@@ -427,30 +445,33 @@ public class CostCalculatorUserAssignmentFactorIT extends EJBTestBase {
             throws Exception {
         // given
         initPriceModelHistory(true, PricingPeriod.DAY);
-        createUsageLicenseHistory(5000, ModificationType.ADD, 1, userKey1, null);
+        createUsageLicenseHistory(5000, ModificationType.ADD, 1, userKey1,
+                null);
         createUsageLicenseHistory(15000, ModificationType.DELETE, 1, userKey1,
                 null);
 
         // when
-        final UserAssignmentFactors result = runTX(new Callable<UserAssignmentFactors>() {
-            @Override
-            public UserAssignmentFactors call() throws Exception {
-                final List<UsageLicenseHistory> ulHistList = bdrs
-                        .loadUsageLicenses(1L, 10000, 20000);
-                return CostCalculator.get(pmHist)
-                        .computeUserAssignmentsFactors(ulHistList, pmHist,
-                                BillingInputFactory.newBillingInput(0, 0),
-                                10000, 20000);
-            }
-        });
+        final UserAssignmentFactors result = runTX(
+                new Callable<UserAssignmentFactors>() {
+                    @Override
+                    public UserAssignmentFactors call() throws Exception {
+                        final List<UsageLicenseHistory> ulHistList = bdrs
+                                .loadUsageLicenses(1L, 10000, 20000);
+                        return CostCalculator.get(pmHist)
+                                .computeUserAssignmentsFactors(ulHistList,
+                                        pmHist, BillingInputFactory
+                                                .newBillingInput(0, 0),
+                                        10000, 20000);
+                    }
+                });
 
         // then
         assertNotNull(result);
         assertEquals(1, result.getUserKeys().size());
-        UserAssignmentDetails details = result.getUserAssignmentDetails(Long
-                .valueOf(userKey1));
-        assertDetailsForUser(userId1, details,
-                simpleFactor(5000, DAY_DURATION), new UsagePeriod(10000, 15000));
+        UserAssignmentDetails details = result
+                .getUserAssignmentDetails(Long.valueOf(userKey1));
+        assertDetailsForUser(userId1, details, simpleFactor(5000, DAY_DURATION),
+                new UsagePeriod(10000, 15000));
     }
 
     @Test
@@ -458,26 +479,29 @@ public class CostCalculatorUserAssignmentFactorIT extends EJBTestBase {
             throws Exception {
         // given
         initPriceModelHistory(true, PricingPeriod.DAY);
-        createUsageLicenseHistory(5000, ModificationType.ADD, 1, userKey1, null);
+        createUsageLicenseHistory(5000, ModificationType.ADD, 1, userKey1,
+                null);
 
         // when
-        UserAssignmentFactors result = runTX(new Callable<UserAssignmentFactors>() {
-            @Override
-            public UserAssignmentFactors call() throws Exception {
-                final List<UsageLicenseHistory> ulHistList = bdrs
-                        .loadUsageLicenses(1L, 10000, 20000);
-                return CostCalculator.get(pmHist)
-                        .computeUserAssignmentsFactors(ulHistList, pmHist,
-                                BillingInputFactory.newBillingInput(0, 0),
-                                10000, 20000);
-            }
-        });
+        UserAssignmentFactors result = runTX(
+                new Callable<UserAssignmentFactors>() {
+                    @Override
+                    public UserAssignmentFactors call() throws Exception {
+                        final List<UsageLicenseHistory> ulHistList = bdrs
+                                .loadUsageLicenses(1L, 10000, 20000);
+                        return CostCalculator.get(pmHist)
+                                .computeUserAssignmentsFactors(ulHistList,
+                                        pmHist, BillingInputFactory
+                                                .newBillingInput(0, 0),
+                                        10000, 20000);
+                    }
+                });
 
         // then
         assertNotNull(result);
         assertEquals(1, result.getUserKeys().size());
-        UserAssignmentDetails details = result.getUserAssignmentDetails(Long
-                .valueOf(userKey1));
+        UserAssignmentDetails details = result
+                .getUserAssignmentDetails(Long.valueOf(userKey1));
         assertDetailsForUser(userId1, details,
                 simpleFactor(10000, DAY_DURATION),
                 new UsagePeriod(10000, 20000));
@@ -494,25 +518,27 @@ public class CostCalculatorUserAssignmentFactorIT extends EJBTestBase {
                 null);
 
         // when
-        UserAssignmentFactors result = runTX(new Callable<UserAssignmentFactors>() {
-            @Override
-            public UserAssignmentFactors call() throws Exception {
-                final List<UsageLicenseHistory> ulHistList = bdrs
-                        .loadUsageLicenses(1L, 10000, 20000);
-                return CostCalculator.get(pmHist)
-                        .computeUserAssignmentsFactors(ulHistList, pmHist,
-                                BillingInputFactory.newBillingInput(0, 0),
-                                10000, 20000);
-            }
-        });
+        UserAssignmentFactors result = runTX(
+                new Callable<UserAssignmentFactors>() {
+                    @Override
+                    public UserAssignmentFactors call() throws Exception {
+                        final List<UsageLicenseHistory> ulHistList = bdrs
+                                .loadUsageLicenses(1L, 10000, 20000);
+                        return CostCalculator.get(pmHist)
+                                .computeUserAssignmentsFactors(ulHistList,
+                                        pmHist, BillingInputFactory
+                                                .newBillingInput(0, 0),
+                                        10000, 20000);
+                    }
+                });
 
         // then
         assertNotNull(result);
         assertEquals(1, result.getUserKeys().size());
-        UserAssignmentDetails details = result.getUserAssignmentDetails(Long
-                .valueOf(userKey1));
-        assertDetailsForUser(userId1, details,
-                simpleFactor(3000, DAY_DURATION), new UsagePeriod(12000, 15000));
+        UserAssignmentDetails details = result
+                .getUserAssignmentDetails(Long.valueOf(userKey1));
+        assertDetailsForUser(userId1, details, simpleFactor(3000, DAY_DURATION),
+                new UsagePeriod(12000, 15000));
     }
 
     @Test
@@ -520,28 +546,31 @@ public class CostCalculatorUserAssignmentFactorIT extends EJBTestBase {
             throws Exception {
         // given
         initPriceModelHistory(true, PricingPeriod.DAY);
-        createUsageLicenseHistory(2000, ModificationType.ADD, 1, userKey1, null);
+        createUsageLicenseHistory(2000, ModificationType.ADD, 1, userKey1,
+                null);
         createUsageLicenseHistory(25000, ModificationType.DELETE, 1, userKey1,
                 null);
 
         // when
-        UserAssignmentFactors result = runTX(new Callable<UserAssignmentFactors>() {
-            @Override
-            public UserAssignmentFactors call() throws Exception {
-                final List<UsageLicenseHistory> ulHistList = bdrs
-                        .loadUsageLicenses(1L, 10000, 20000);
-                return CostCalculator.get(pmHist)
-                        .computeUserAssignmentsFactors(ulHistList, pmHist,
-                                BillingInputFactory.newBillingInput(0, 0),
-                                10000, 20000);
-            }
-        });
+        UserAssignmentFactors result = runTX(
+                new Callable<UserAssignmentFactors>() {
+                    @Override
+                    public UserAssignmentFactors call() throws Exception {
+                        final List<UsageLicenseHistory> ulHistList = bdrs
+                                .loadUsageLicenses(1L, 10000, 20000);
+                        return CostCalculator.get(pmHist)
+                                .computeUserAssignmentsFactors(ulHistList,
+                                        pmHist, BillingInputFactory
+                                                .newBillingInput(0, 0),
+                                        10000, 20000);
+                    }
+                });
 
         // then
         assertNotNull(result);
         assertEquals(1, result.getUserKeys().size());
-        UserAssignmentDetails details = result.getUserAssignmentDetails(Long
-                .valueOf(userKey1));
+        UserAssignmentDetails details = result
+                .getUserAssignmentDetails(Long.valueOf(userKey1));
         assertDetailsForUser(userId1, details,
                 simpleFactor(10000, DAY_DURATION),
                 new UsagePeriod(10000, 20000));
@@ -566,25 +595,26 @@ public class CostCalculatorUserAssignmentFactorIT extends EJBTestBase {
                 null);
 
         // when
-        UserAssignmentFactors result = runTX(new Callable<UserAssignmentFactors>() {
-            @Override
-            public UserAssignmentFactors call() throws Exception {
-                final List<UsageLicenseHistory> ulHistList = bdrs
-                        .loadUsageLicenses(1L, 10000, 20000);
-                return CostCalculator.get(pmHist)
-                        .computeUserAssignmentsFactors(ulHistList, pmHist,
-                                BillingInputFactory.newBillingInput(0, 0),
-                                10000, 20000);
-            }
-        });
+        UserAssignmentFactors result = runTX(
+                new Callable<UserAssignmentFactors>() {
+                    @Override
+                    public UserAssignmentFactors call() throws Exception {
+                        final List<UsageLicenseHistory> ulHistList = bdrs
+                                .loadUsageLicenses(1L, 10000, 20000);
+                        return CostCalculator.get(pmHist)
+                                .computeUserAssignmentsFactors(ulHistList,
+                                        pmHist, BillingInputFactory
+                                                .newBillingInput(0, 0),
+                                        10000, 20000);
+                    }
+                });
 
         // then
         assertNotNull(result);
         assertEquals(1, result.getUserKeys().size());
-        UserAssignmentDetails details = result.getUserAssignmentDetails(Long
-                .valueOf(userKey1));
-        assertDetailsForUser(userId1, details,
-                simpleFactor(5000, DAY_DURATION),
+        UserAssignmentDetails details = result
+                .getUserAssignmentDetails(Long.valueOf(userKey1));
+        assertDetailsForUser(userId1, details, simpleFactor(5000, DAY_DURATION),
                 new UsagePeriod(17000, 18000), new UsagePeriod(13000, 15000),
                 new UsagePeriod(10000, 12000));
     }
@@ -594,7 +624,8 @@ public class CostCalculatorUserAssignmentFactorIT extends EJBTestBase {
             throws Exception {
         // given
         initPriceModelHistory(true, PricingPeriod.DAY);
-        createUsageLicenseHistory(9000, ModificationType.ADD, 1, userKey1, null);
+        createUsageLicenseHistory(9000, ModificationType.ADD, 1, userKey1,
+                null);
         createUsageLicenseHistory(12000, ModificationType.DELETE, 1, userKey1,
                 null);
         createUsageLicenseHistory(13000, ModificationType.ADD, 1, userKey1,
@@ -603,25 +634,26 @@ public class CostCalculatorUserAssignmentFactorIT extends EJBTestBase {
                 null);
 
         // when
-        UserAssignmentFactors result = runTX(new Callable<UserAssignmentFactors>() {
-            @Override
-            public UserAssignmentFactors call() throws Exception {
-                final List<UsageLicenseHistory> ulHistList = bdrs
-                        .loadUsageLicenses(1L, 10000, 20000);
-                return CostCalculator.get(pmHist)
-                        .computeUserAssignmentsFactors(ulHistList, pmHist,
-                                BillingInputFactory.newBillingInput(0, 0),
-                                10000, 20000);
-            }
-        });
+        UserAssignmentFactors result = runTX(
+                new Callable<UserAssignmentFactors>() {
+                    @Override
+                    public UserAssignmentFactors call() throws Exception {
+                        final List<UsageLicenseHistory> ulHistList = bdrs
+                                .loadUsageLicenses(1L, 10000, 20000);
+                        return CostCalculator.get(pmHist)
+                                .computeUserAssignmentsFactors(ulHistList,
+                                        pmHist, BillingInputFactory
+                                                .newBillingInput(0, 0),
+                                        10000, 20000);
+                    }
+                });
 
         // then
         assertNotNull(result);
         assertEquals(1, result.getUserKeys().size());
-        UserAssignmentDetails details = result.getUserAssignmentDetails(Long
-                .valueOf(userKey1));
-        assertDetailsForUser(userId1, details,
-                simpleFactor(4000, DAY_DURATION),
+        UserAssignmentDetails details = result
+                .getUserAssignmentDetails(Long.valueOf(userKey1));
+        assertDetailsForUser(userId1, details, simpleFactor(4000, DAY_DURATION),
                 new UsagePeriod(13000, 15000), new UsagePeriod(10000, 12000));
     }
 
@@ -640,25 +672,26 @@ public class CostCalculatorUserAssignmentFactorIT extends EJBTestBase {
                 null);
 
         // when
-        UserAssignmentFactors result = runTX(new Callable<UserAssignmentFactors>() {
-            @Override
-            public UserAssignmentFactors call() throws Exception {
-                final List<UsageLicenseHistory> ulHistList = bdrs
-                        .loadUsageLicenses(1L, 10000, 20000);
-                return CostCalculator.get(pmHist)
-                        .computeUserAssignmentsFactors(ulHistList, pmHist,
-                                BillingInputFactory.newBillingInput(0, 0),
-                                10000, 20000);
-            }
-        });
+        UserAssignmentFactors result = runTX(
+                new Callable<UserAssignmentFactors>() {
+                    @Override
+                    public UserAssignmentFactors call() throws Exception {
+                        final List<UsageLicenseHistory> ulHistList = bdrs
+                                .loadUsageLicenses(1L, 10000, 20000);
+                        return CostCalculator.get(pmHist)
+                                .computeUserAssignmentsFactors(ulHistList,
+                                        pmHist, BillingInputFactory
+                                                .newBillingInput(0, 0),
+                                        10000, 20000);
+                    }
+                });
 
         // then
         assertNotNull(result);
         assertEquals(1, result.getUserKeys().size());
-        UserAssignmentDetails details = result.getUserAssignmentDetails(Long
-                .valueOf(userKey1));
-        assertDetailsForUser(userId1, details,
-                simpleFactor(3000, DAY_DURATION),
+        UserAssignmentDetails details = result
+                .getUserAssignmentDetails(Long.valueOf(userKey1));
+        assertDetailsForUser(userId1, details, simpleFactor(3000, DAY_DURATION),
                 new UsagePeriod(18000, 20000), new UsagePeriod(11000, 12000));
     }
 
@@ -667,7 +700,8 @@ public class CostCalculatorUserAssignmentFactorIT extends EJBTestBase {
             throws Exception {
         // given
         initPriceModelHistory(true, PricingPeriod.DAY);
-        createUsageLicenseHistory(9000, ModificationType.ADD, 1, userKey1, null);
+        createUsageLicenseHistory(9000, ModificationType.ADD, 1, userKey1,
+                null);
         createUsageLicenseHistory(12000, ModificationType.DELETE, 1, userKey1,
                 null);
         createUsageLicenseHistory(14000, ModificationType.ADD, 1, userKey1,
@@ -680,25 +714,26 @@ public class CostCalculatorUserAssignmentFactorIT extends EJBTestBase {
                 null);
 
         // when
-        UserAssignmentFactors result = runTX(new Callable<UserAssignmentFactors>() {
-            @Override
-            public UserAssignmentFactors call() throws Exception {
-                final List<UsageLicenseHistory> ulHistList = bdrs
-                        .loadUsageLicenses(1L, 10000, 20000);
-                return CostCalculator.get(pmHist)
-                        .computeUserAssignmentsFactors(ulHistList, pmHist,
-                                BillingInputFactory.newBillingInput(0, 0),
-                                10000, 20000);
-            }
-        });
+        UserAssignmentFactors result = runTX(
+                new Callable<UserAssignmentFactors>() {
+                    @Override
+                    public UserAssignmentFactors call() throws Exception {
+                        final List<UsageLicenseHistory> ulHistList = bdrs
+                                .loadUsageLicenses(1L, 10000, 20000);
+                        return CostCalculator.get(pmHist)
+                                .computeUserAssignmentsFactors(ulHistList,
+                                        pmHist, BillingInputFactory
+                                                .newBillingInput(0, 0),
+                                        10000, 20000);
+                    }
+                });
 
         // then
         assertNotNull(result);
         assertEquals(1, result.getUserKeys().size());
-        UserAssignmentDetails details = result.getUserAssignmentDetails(Long
-                .valueOf(userKey1));
-        assertDetailsForUser(userId1, details,
-                simpleFactor(7000, DAY_DURATION),
+        UserAssignmentDetails details = result
+                .getUserAssignmentDetails(Long.valueOf(userKey1));
+        assertDetailsForUser(userId1, details, simpleFactor(7000, DAY_DURATION),
                 new UsagePeriod(18000, 20000), new UsagePeriod(14000, 17000),
                 new UsagePeriod(10000, 12000));
     }
@@ -708,7 +743,8 @@ public class CostCalculatorUserAssignmentFactorIT extends EJBTestBase {
             throws Exception {
         // given
         initPriceModelHistory(true, PricingPeriod.DAY);
-        createUsageLicenseHistory(9000, ModificationType.ADD, 1, userKey1, null);
+        createUsageLicenseHistory(9000, ModificationType.ADD, 1, userKey1,
+                null);
         createUsageLicenseHistory(12000, ModificationType.DELETE, 1, userKey1,
                 null);
         createUsageLicenseHistory(14000, ModificationType.ADD, 1, userKey1,
@@ -725,30 +761,30 @@ public class CostCalculatorUserAssignmentFactorIT extends EJBTestBase {
                 null);
 
         // when
-        UserAssignmentFactors result = runTX(new Callable<UserAssignmentFactors>() {
-            @Override
-            public UserAssignmentFactors call() throws Exception {
-                final List<UsageLicenseHistory> ulHistList = bdrs
-                        .loadUsageLicenses(1L, 10000, 20000);
-                return CostCalculator.get(pmHist)
-                        .computeUserAssignmentsFactors(ulHistList, pmHist,
-                                BillingInputFactory.newBillingInput(0, 0),
-                                10000, 20000);
-            }
-        });
+        UserAssignmentFactors result = runTX(
+                new Callable<UserAssignmentFactors>() {
+                    @Override
+                    public UserAssignmentFactors call() throws Exception {
+                        final List<UsageLicenseHistory> ulHistList = bdrs
+                                .loadUsageLicenses(1L, 10000, 20000);
+                        return CostCalculator.get(pmHist)
+                                .computeUserAssignmentsFactors(ulHistList,
+                                        pmHist, BillingInputFactory
+                                                .newBillingInput(0, 0),
+                                        10000, 20000);
+                    }
+                });
 
         // then
         assertNotNull(result);
         assertEquals(2, result.getUserKeys().size());
-        UserAssignmentDetails details = result.getUserAssignmentDetails(Long
-                .valueOf(userKey1));
-        assertDetailsForUser(userId1, details,
-                simpleFactor(5000, DAY_DURATION),
+        UserAssignmentDetails details = result
+                .getUserAssignmentDetails(Long.valueOf(userKey1));
+        assertDetailsForUser(userId1, details, simpleFactor(5000, DAY_DURATION),
                 new UsagePeriod(14000, 17000), new UsagePeriod(10000, 12000));
 
         details = result.getUserAssignmentDetails(Long.valueOf(userKey2));
-        assertDetailsForUser(userId2, details,
-                simpleFactor(4000, DAY_DURATION),
+        assertDetailsForUser(userId2, details, simpleFactor(4000, DAY_DURATION),
                 new UsagePeriod(19000, 20000), new UsagePeriod(13000, 16000));
     }
 
@@ -798,17 +834,19 @@ public class CostCalculatorUserAssignmentFactorIT extends EJBTestBase {
                 ROLE2);
 
         // when
-        UserAssignmentFactors result = runTX(new Callable<UserAssignmentFactors>() {
-            @Override
-            public UserAssignmentFactors call() throws Exception {
-                final List<UsageLicenseHistory> ulHistList = bdrs
-                        .loadUsageLicenses(1L, 10000, 20000);
-                return CostCalculator.get(pmHist)
-                        .computeUserAssignmentsFactors(ulHistList, pmHist,
-                                BillingInputFactory.newBillingInput(0, 0),
-                                10000, 20000);
-            }
-        });
+        UserAssignmentFactors result = runTX(
+                new Callable<UserAssignmentFactors>() {
+                    @Override
+                    public UserAssignmentFactors call() throws Exception {
+                        final List<UsageLicenseHistory> ulHistList = bdrs
+                                .loadUsageLicenses(1L, 10000, 20000);
+                        return CostCalculator.get(pmHist)
+                                .computeUserAssignmentsFactors(ulHistList,
+                                        pmHist, BillingInputFactory
+                                                .newBillingInput(0, 0),
+                                        10000, 20000);
+                    }
+                });
 
         // then
         assertNotNull(result);
@@ -830,31 +868,32 @@ public class CostCalculatorUserAssignmentFactorIT extends EJBTestBase {
                 ROLE2);
 
         // when
-        UserAssignmentFactors result = runTX(new Callable<UserAssignmentFactors>() {
-            @Override
-            public UserAssignmentFactors call() throws Exception {
-                final List<UsageLicenseHistory> ulHistList = bdrs
-                        .loadUsageLicenses(1L, 10000, 20000);
-                return CostCalculator.get(pmHist)
-                        .computeUserAssignmentsFactors(ulHistList, pmHist,
-                                BillingInputFactory.newBillingInput(0, 0),
-                                10000, 20000);
-            }
-        });
+        UserAssignmentFactors result = runTX(
+                new Callable<UserAssignmentFactors>() {
+                    @Override
+                    public UserAssignmentFactors call() throws Exception {
+                        final List<UsageLicenseHistory> ulHistList = bdrs
+                                .loadUsageLicenses(1L, 10000, 20000);
+                        return CostCalculator.get(pmHist)
+                                .computeUserAssignmentsFactors(ulHistList,
+                                        pmHist, BillingInputFactory
+                                                .newBillingInput(0, 0),
+                                        10000, 20000);
+                    }
+                });
 
         // then
         assertNotNull(result);
         assertEquals(1, result.getUserKeys().size());
-        UserAssignmentDetails details = result.getUserAssignmentDetails(Long
-                .valueOf(userKey1));
+        UserAssignmentDetails details = result
+                .getUserAssignmentDetails(Long.valueOf(userKey1));
 
         assertRoleCount(details, 2);
         assertRoleDetails(details, ROLE1, simpleFactor(2000, DAY_DURATION),
                 new UsagePeriod(10000, 12000));
         assertRoleDetails(details, ROLE2, simpleFactor(3000, DAY_DURATION),
                 new UsagePeriod(17000, 20000));
-        assertDetailsForUser(userId1, details,
-                simpleFactor(5000, DAY_DURATION),
+        assertDetailsForUser(userId1, details, simpleFactor(5000, DAY_DURATION),
                 new UsagePeriod(17000, 20000), new UsagePeriod(10000, 12000));
     }
 
@@ -871,23 +910,25 @@ public class CostCalculatorUserAssignmentFactorIT extends EJBTestBase {
                 ROLE2);
 
         // when
-        UserAssignmentFactors result = runTX(new Callable<UserAssignmentFactors>() {
-            @Override
-            public UserAssignmentFactors call() throws Exception {
-                final List<UsageLicenseHistory> ulHistList = bdrs
-                        .loadUsageLicenses(1L, 10000, 20000);
-                return CostCalculator.get(pmHist)
-                        .computeUserAssignmentsFactors(ulHistList, pmHist,
-                                BillingInputFactory.newBillingInput(0, 0),
-                                10000, 20000);
-            }
-        });
+        UserAssignmentFactors result = runTX(
+                new Callable<UserAssignmentFactors>() {
+                    @Override
+                    public UserAssignmentFactors call() throws Exception {
+                        final List<UsageLicenseHistory> ulHistList = bdrs
+                                .loadUsageLicenses(1L, 10000, 20000);
+                        return CostCalculator.get(pmHist)
+                                .computeUserAssignmentsFactors(ulHistList,
+                                        pmHist, BillingInputFactory
+                                                .newBillingInput(0, 0),
+                                        10000, 20000);
+                    }
+                });
 
         // then
         assertNotNull(result);
         assertEquals(1, result.getUserKeys().size());
-        UserAssignmentDetails details = result.getUserAssignmentDetails(Long
-                .valueOf(userKey1));
+        UserAssignmentDetails details = result
+                .getUserAssignmentDetails(Long.valueOf(userKey1));
 
         assertRoleCount(details, 2);
         assertRoleDetails(details, ROLE1, simpleFactor(2000, DAY_DURATION),
@@ -895,8 +936,7 @@ public class CostCalculatorUserAssignmentFactorIT extends EJBTestBase {
         assertRoleDetails(details, ROLE2, simpleFactor(4000, DAY_DURATION),
                 new UsagePeriod(16000, 20000));
 
-        assertDetailsForUser(userId1, details,
-                simpleFactor(6000, DAY_DURATION),
+        assertDetailsForUser(userId1, details, simpleFactor(6000, DAY_DURATION),
                 new UsagePeriod(16000, 20000), new UsagePeriod(10000, 12000));
     }
 
@@ -915,23 +955,25 @@ public class CostCalculatorUserAssignmentFactorIT extends EJBTestBase {
                 ROLE2);
 
         // when
-        UserAssignmentFactors result = runTX(new Callable<UserAssignmentFactors>() {
-            @Override
-            public UserAssignmentFactors call() throws Exception {
-                final List<UsageLicenseHistory> ulHistList = bdrs
-                        .loadUsageLicenses(1L, 10000, 20000);
-                return CostCalculator.get(pmHist)
-                        .computeUserAssignmentsFactors(ulHistList, pmHist,
-                                BillingInputFactory.newBillingInput(0, 0),
-                                10000, 20000);
-            }
-        });
+        UserAssignmentFactors result = runTX(
+                new Callable<UserAssignmentFactors>() {
+                    @Override
+                    public UserAssignmentFactors call() throws Exception {
+                        final List<UsageLicenseHistory> ulHistList = bdrs
+                                .loadUsageLicenses(1L, 10000, 20000);
+                        return CostCalculator.get(pmHist)
+                                .computeUserAssignmentsFactors(ulHistList,
+                                        pmHist, BillingInputFactory
+                                                .newBillingInput(0, 0),
+                                        10000, 20000);
+                    }
+                });
 
         // then
         assertNotNull(result);
         assertEquals(1, result.getUserKeys().size());
-        UserAssignmentDetails details = result.getUserAssignmentDetails(Long
-                .valueOf(userKey1));
+        UserAssignmentDetails details = result
+                .getUserAssignmentDetails(Long.valueOf(userKey1));
 
         assertRoleCount(details, 1);
         assertRoleDetails(details, ROLE1, simpleFactor(10000, DAY_DURATION),
@@ -957,30 +999,31 @@ public class CostCalculatorUserAssignmentFactorIT extends EJBTestBase {
                 ROLE1);
 
         // when
-        UserAssignmentFactors result = runTX(new Callable<UserAssignmentFactors>() {
-            @Override
-            public UserAssignmentFactors call() throws Exception {
-                final List<UsageLicenseHistory> ulHistList = bdrs
-                        .loadUsageLicenses(1L, 10000, 20000);
-                return CostCalculator.get(pmHist)
-                        .computeUserAssignmentsFactors(ulHistList, pmHist,
-                                BillingInputFactory.newBillingInput(0, 0),
-                                10000, 20000);
-            }
-        });
+        UserAssignmentFactors result = runTX(
+                new Callable<UserAssignmentFactors>() {
+                    @Override
+                    public UserAssignmentFactors call() throws Exception {
+                        final List<UsageLicenseHistory> ulHistList = bdrs
+                                .loadUsageLicenses(1L, 10000, 20000);
+                        return CostCalculator.get(pmHist)
+                                .computeUserAssignmentsFactors(ulHistList,
+                                        pmHist, BillingInputFactory
+                                                .newBillingInput(0, 0),
+                                        10000, 20000);
+                    }
+                });
 
         // then
         assertNotNull(result);
         assertEquals(1, result.getUserKeys().size());
-        UserAssignmentDetails details = result.getUserAssignmentDetails(Long
-                .valueOf(userKey1));
+        UserAssignmentDetails details = result
+                .getUserAssignmentDetails(Long.valueOf(userKey1));
 
         assertRoleCount(details, 1);
         assertRoleDetails(details, ROLE1, simpleFactor(6000, DAY_DURATION),
                 new UsagePeriod(16000, 20000), new UsagePeriod(10000, 12000));
 
-        assertDetailsForUser(userId1, details,
-                simpleFactor(6000, DAY_DURATION),
+        assertDetailsForUser(userId1, details, simpleFactor(6000, DAY_DURATION),
                 new UsagePeriod(16000, 20000), new UsagePeriod(10000, 12000));
     }
 
@@ -1007,23 +1050,25 @@ public class CostCalculatorUserAssignmentFactorIT extends EJBTestBase {
                 ROLE2);
 
         // when
-        UserAssignmentFactors result = runTX(new Callable<UserAssignmentFactors>() {
-            @Override
-            public UserAssignmentFactors call() throws Exception {
-                final List<UsageLicenseHistory> ulHistList = bdrs
-                        .loadUsageLicenses(1L, 10000, 20000);
-                return CostCalculator.get(pmHist)
-                        .computeUserAssignmentsFactors(ulHistList, pmHist,
-                                BillingInputFactory.newBillingInput(0, 0),
-                                10000, 20000);
-            }
-        });
+        UserAssignmentFactors result = runTX(
+                new Callable<UserAssignmentFactors>() {
+                    @Override
+                    public UserAssignmentFactors call() throws Exception {
+                        final List<UsageLicenseHistory> ulHistList = bdrs
+                                .loadUsageLicenses(1L, 10000, 20000);
+                        return CostCalculator.get(pmHist)
+                                .computeUserAssignmentsFactors(ulHistList,
+                                        pmHist, BillingInputFactory
+                                                .newBillingInput(0, 0),
+                                        10000, 20000);
+                    }
+                });
 
         // then
         assertNotNull(result);
         assertEquals(1, result.getUserKeys().size());
-        UserAssignmentDetails details = result.getUserAssignmentDetails(Long
-                .valueOf(userKey1));
+        UserAssignmentDetails details = result
+                .getUserAssignmentDetails(Long.valueOf(userKey1));
 
         assertRoleCount(details, 2);
         assertRoleDetails(details, ROLE1, simpleFactor(2500, DAY_DURATION),
@@ -1031,8 +1076,7 @@ public class CostCalculatorUserAssignmentFactorIT extends EJBTestBase {
         assertRoleDetails(details, ROLE2, simpleFactor(2000, DAY_DURATION),
                 new UsagePeriod(19500, 20000), new UsagePeriod(12500, 14000));
 
-        assertDetailsForUser(userId1, details,
-                simpleFactor(4500, DAY_DURATION),
+        assertDetailsForUser(userId1, details, simpleFactor(4500, DAY_DURATION),
                 new UsagePeriod(19500, 20000), new UsagePeriod(16000, 16500),
                 new UsagePeriod(12500, 14000), new UsagePeriod(10000, 12000));
     }
@@ -1078,31 +1122,32 @@ public class CostCalculatorUserAssignmentFactorIT extends EJBTestBase {
                 ROLE2);
 
         // when
-        UserAssignmentFactors result = runTX(new Callable<UserAssignmentFactors>() {
-            @Override
-            public UserAssignmentFactors call() throws Exception {
-                final List<UsageLicenseHistory> ulHistList = bdrs
-                        .loadUsageLicenses(1L, 10000, 20000);
-                return CostCalculator.get(pmHist)
-                        .computeUserAssignmentsFactors(ulHistList, pmHist,
-                                BillingInputFactory.newBillingInput(0, 0),
-                                10000, 20000);
-            }
-        });
+        UserAssignmentFactors result = runTX(
+                new Callable<UserAssignmentFactors>() {
+                    @Override
+                    public UserAssignmentFactors call() throws Exception {
+                        final List<UsageLicenseHistory> ulHistList = bdrs
+                                .loadUsageLicenses(1L, 10000, 20000);
+                        return CostCalculator.get(pmHist)
+                                .computeUserAssignmentsFactors(ulHistList,
+                                        pmHist, BillingInputFactory
+                                                .newBillingInput(0, 0),
+                                        10000, 20000);
+                    }
+                });
 
         // then
         assertNotNull(result);
         assertEquals(2, result.getUserKeys().size());
 
-        UserAssignmentDetails details = result.getUserAssignmentDetails(Long
-                .valueOf(userKey1));
+        UserAssignmentDetails details = result
+                .getUserAssignmentDetails(Long.valueOf(userKey1));
         assertRoleCount(details, 2);
         assertRoleDetails(details, ROLE1, simpleFactor(2500, DAY_DURATION),
                 new UsagePeriod(16000, 16500), new UsagePeriod(10000, 12000));
         assertRoleDetails(details, ROLE2, simpleFactor(2000, DAY_DURATION),
                 new UsagePeriod(19500, 20000), new UsagePeriod(12500, 14000));
-        assertDetailsForUser(userId1, details,
-                simpleFactor(4500, DAY_DURATION),
+        assertDetailsForUser(userId1, details, simpleFactor(4500, DAY_DURATION),
                 new UsagePeriod(19500, 20000), new UsagePeriod(16000, 16500),
                 new UsagePeriod(12500, 14000), new UsagePeriod(10000, 12000));
 
@@ -1113,8 +1158,7 @@ public class CostCalculatorUserAssignmentFactorIT extends EJBTestBase {
                 new UsagePeriod(10000, 11500));
         assertRoleDetails(details, ROLE2, simpleFactor(3500, DAY_DURATION),
                 new UsagePeriod(17000, 20000), new UsagePeriod(14500, 15000));
-        assertDetailsForUser(userId2, details,
-                simpleFactor(5000, DAY_DURATION),
+        assertDetailsForUser(userId2, details, simpleFactor(5000, DAY_DURATION),
                 new UsagePeriod(17000, 20000), new UsagePeriod(14500, 15000),
                 new UsagePeriod(10000, 11500));
 
@@ -1149,23 +1193,25 @@ public class CostCalculatorUserAssignmentFactorIT extends EJBTestBase {
                 ROLE2);
 
         // when
-        UserAssignmentFactors result = runTX(new Callable<UserAssignmentFactors>() {
-            @Override
-            public UserAssignmentFactors call() throws Exception {
-                final List<UsageLicenseHistory> ulHistList = bdrs
-                        .loadUsageLicenses(1L, 10000, 20000);
-                return CostCalculator.get(pmHist)
-                        .computeUserAssignmentsFactors(ulHistList, pmHist,
-                                BillingInputFactory.newBillingInput(0, 0),
-                                10000, 20000);
-            }
-        });
+        UserAssignmentFactors result = runTX(
+                new Callable<UserAssignmentFactors>() {
+                    @Override
+                    public UserAssignmentFactors call() throws Exception {
+                        final List<UsageLicenseHistory> ulHistList = bdrs
+                                .loadUsageLicenses(1L, 10000, 20000);
+                        return CostCalculator.get(pmHist)
+                                .computeUserAssignmentsFactors(ulHistList,
+                                        pmHist, BillingInputFactory
+                                                .newBillingInput(0, 0),
+                                        10000, 20000);
+                    }
+                });
 
         // then
         assertNotNull(result);
         assertEquals(1, result.getUserKeys().size());
-        UserAssignmentDetails details = result.getUserAssignmentDetails(Long
-                .valueOf(userKey1));
+        UserAssignmentDetails details = result
+                .getUserAssignmentDetails(Long.valueOf(userKey1));
 
         assertRoleCount(details, 2);
         assertRoleDetails(details, ROLE1, simpleFactor(2500, DAY_DURATION),
@@ -1173,8 +1219,7 @@ public class CostCalculatorUserAssignmentFactorIT extends EJBTestBase {
         assertRoleDetails(details, ROLE2, simpleFactor(500, DAY_DURATION),
                 new UsagePeriod(19500, 20000));
 
-        assertDetailsForUser(userId1, details,
-                simpleFactor(4500, DAY_DURATION),
+        assertDetailsForUser(userId1, details, simpleFactor(4500, DAY_DURATION),
                 new UsagePeriod(19500, 20000), new UsagePeriod(16000, 16500),
                 new UsagePeriod(12500, 14000), new UsagePeriod(10000, 12000));
     }
@@ -1194,12 +1239,13 @@ public class CostCalculatorUserAssignmentFactorIT extends EJBTestBase {
                 ROLE1);
 
         // when
-        List<UsageLicenseHistory> result = runTX(new Callable<List<UsageLicenseHistory>>() {
-            @Override
-            public List<UsageLicenseHistory> call() throws Exception {
-                return bdrs.loadUsageLicenses(1L, 3000, 5000);
-            }
-        });
+        List<UsageLicenseHistory> result = runTX(
+                new Callable<List<UsageLicenseHistory>>() {
+                    @Override
+                    public List<UsageLicenseHistory> call() throws Exception {
+                        return bdrs.loadUsageLicenses(1L, 3000, 5000);
+                    }
+                });
 
         // then
         assertEquals(4, result.size());

@@ -1358,6 +1358,8 @@ public class VOConverter {
         newVO.setOfferingType(EnumConverter.convert(oldVO.getOfferingType(),
                 org.oscm.internal.types.enumtypes.OfferingType.class));
         newVO.setConfiguratorUrl(oldVO.getConfiguratorUrl());
+        newVO.setCustomTabUrl(oldVO.getCustomTabUrl());
+        newVO.setCustomTabName(oldVO.getCustomTabName());
         return newVO;
     }
 
@@ -1400,6 +1402,8 @@ public class VOConverter {
         newVO.setOfferingType(EnumConverter.convert(oldVO.getOfferingType(),
                 org.oscm.types.enumtypes.OfferingType.class));
         newVO.setConfiguratorUrl(oldVO.getConfiguratorUrl());
+        newVO.setCustomTabUrl(oldVO.getCustomTabUrl());
+        newVO.setCustomTabName(oldVO.getCustomTabName());
         return newVO;
     }
 
@@ -1441,6 +1445,8 @@ public class VOConverter {
                 org.oscm.types.enumtypes.OfferingType.class));
         newVO.setSubscriptionLimitReached(oldVO.isSubscriptionLimitReached());
         newVO.setConfiguratorUrl(oldVO.getConfiguratorUrl());
+        newVO.setCustomTabUrl(oldVO.getCustomTabUrl());
+        newVO.setCustomTabName(oldVO.getCustomTabName());
         return newVO;
     }
 
@@ -1483,6 +1489,8 @@ public class VOConverter {
                 org.oscm.internal.types.enumtypes.OfferingType.class));
         newVO.setSubscriptionLimitReached(oldVO.isSubscriptionLimitReached());
         newVO.setConfiguratorUrl(oldVO.getConfiguratorUrl());
+        newVO.setCustomTabUrl(oldVO.getCustomTabUrl());
+        newVO.setCustomTabName(oldVO.getCustomTabName());
         return newVO;
     }
 
@@ -2189,6 +2197,7 @@ public class VOConverter {
                 .getDescriptions()));
         newVO.setShortDescriptions(convertToUpVOLocalizedText(oldVO
                 .getShortDescriptions()));
+        newVO.setCustomTabNames(convertToUpVOLocalizedText(oldVO.getCustomTabNames()));
         return newVO;
     }
 
@@ -2209,6 +2218,7 @@ public class VOConverter {
         newVO.setDescriptions(convertToVOLocalizedText(oldVO.getDescriptions()));
         newVO.setShortDescriptions(convertToVOLocalizedText(oldVO
                 .getShortDescriptions()));
+        newVO.setCustomTabNames(convertToVOLocalizedText(oldVO.getCustomTabNames()));
         return newVO;
     }
 
@@ -2414,6 +2424,8 @@ public class VOConverter {
         newVO.setOfferingType(EnumConverter.convert(oldVO.getOfferingType(),
                 org.oscm.internal.types.enumtypes.OfferingType.class));
         newVO.setConfiguratorUrl(oldVO.getConfiguratorUrl());
+        newVO.setCustomTabUrl(oldVO.getCustomTabUrl());
+        newVO.setCustomTabName(oldVO.getCustomTabName());
         return newVO;
     }
 
@@ -2504,6 +2516,8 @@ public class VOConverter {
         newVO.setOfferingType(EnumConverter.convert(oldVO.getOfferingType(),
                 org.oscm.types.enumtypes.OfferingType.class));
         newVO.setConfiguratorUrl(oldVO.getConfiguratorUrl());
+        newVO.setCustomTabUrl(oldVO.getCustomTabUrl());
+        newVO.setCustomTabName(oldVO.getCustomTabName());
         return newVO;
     }
 
@@ -2847,6 +2861,8 @@ public class VOConverter {
         newVO.setOrganizationName(oldVO.getOrganizationName());
         newVO.setName(oldVO.getName());
         newVO.setConfiguratorUrl(oldVO.getConfiguratorUrl());
+        newVO.setCustomTabUrl(oldVO.getCustomTabUrl());
+        newVO.setCustomTabName(oldVO.getCustomTabName());
         return newVO;
     }
 
@@ -2892,6 +2908,8 @@ public class VOConverter {
         newVO.setOrganizationKey(oldVO.getOrganizationKey());
         newVO.setOrganizationName(oldVO.getOrganizationName());
         newVO.setConfiguratorUrl(oldVO.getConfiguratorUrl());
+        newVO.setCustomTabUrl(oldVO.getCustomTabUrl());
+        newVO.setCustomTabName(oldVO.getCustomTabName());
         return newVO;
     }
 
@@ -3710,6 +3728,8 @@ public class VOConverter {
                 org.oscm.internal.types.enumtypes.OfferingType.class));
         newVO.setCompatible(oldVO.isCompatible());
         newVO.setConfiguratorUrl(oldVO.getConfiguratorUrl());
+        newVO.setCustomTabUrl(oldVO.getCustomTabUrl());
+        newVO.setCustomTabName(oldVO.getCustomTabName());
         return newVO;
     }
 
@@ -3751,6 +3771,8 @@ public class VOConverter {
                 org.oscm.types.enumtypes.OfferingType.class));
         newVO.setCompatible(oldVO.isCompatible());
         newVO.setConfiguratorUrl(oldVO.getConfiguratorUrl());
+        newVO.setCustomTabUrl(oldVO.getCustomTabUrl());
+        newVO.setCustomTabName(oldVO.getCustomTabName());
         return newVO;
     }
 

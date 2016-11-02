@@ -140,6 +140,7 @@ public class BillingServiceBean2IT extends EJBTestBase {
 
         startTime = System.currentTimeMillis();
         container.login("1");
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         container.addBean(new ConfigurationServiceStub() {
             @Override

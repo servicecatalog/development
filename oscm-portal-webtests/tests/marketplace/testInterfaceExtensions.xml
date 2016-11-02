@@ -1,0 +1,66 @@
+<!-- Copyright FUJITSU LIMITED 2016-->
+<!DOCTYPE project SYSTEM "../../dtd/Project.dtd">
+<project default="testMPL_interfaceExtensions" xmlns:setup="antlib:org.oscm.webtest.setup">
+
+    <import file="../../macros/all.xml" />
+    <import file="../../macros/marketplace/all.xml" />
+
+    <target name="testMPL_interfaceExtensions">
+        <webtest name="testMPL_interfaceExtensions_customTabVisibility">
+            <testInfo type="DESCRIPTION">
+                When defined during marketable service creation, the contents of the custom tab
+                are visible on the "My subscriptions" page.
+            </testInfo>
+
+            <!-- Prepare technical service -->
+            <operator.addCurrency />
+            <scenario.setupSupplier />
+            <operator.createMarketplace ownerId="${supplierId}" baseurl="#{baseUrl}" name="Local Marketplace" mIdProperty="marketplaceId" />
+            <landingpage.setSortOrderForLandingpageWithLogin mId="${marketplaceId}" userId="${supplierUserId}" password="secret" />
+            <login.login url="${supplierUrl}" userId="${supplierUserId}" />
+            <techservice.import file="${techService.import.file}" />
+
+            <!-- Define marketable service with specified tab name and URL -->
+            <sequential>
+                <common.ignorePageScriptError />
+                <service.define serviceId="ExtIntSrv0"
+                                  name="ExtIntSrv0"
+                                  description="Ext Int Test"
+                                  customTabUrl="http://www.openservicecatalogmanager.org"
+                                  customTabName="TehCustomTab"
+                                  configurableChecked="true"
+                                  namedUser="1"
+                                  image="data/images/icon6.png"
+                                  marketplaceId="${marketplaceId}" />
+
+            <!-- Publish -->
+                <setup:pricemodel.define serviceId="ExtIntSrv0" isFree="true" />
+                <setup:service.activate serviceIds="ExtIntSrv" start="0" count="1" />
+            </sequential>
+
+            <!-- Go to the marketplace, create the subscription, assign yourself to the subscription -->
+            <mpl_login.user mid="${marketplaceId}" userId="${supplierUserId}" />
+            <mpl_service.subscribe mid="${marketplaceId}" index="0" />
+            <mpl_goto.account.subscriptions />
+            <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
+            <storeXPath property="givenSubscriptionId" xpath="//*[@id='serviceDetailName']/text()" />
+            <common.clickAjaxLink htmlId="usersForm:assignUsers" />
+            <mpl_subscription.assignUserToSubscription subscriptionId="#{givenSubscriptionId}" userId="${supplierUserId}" />
+
+            <!-- Go to the "My Subscriptions" page, click on the subscription details, check if the custom tab name is present -->
+            <mpl_goto.subscriptions />
+            <sleep seconds="120"/>
+            <verifyXPath xpath="//*[@id='subListForm:subscriptionsList:0']" />
+            <clickElement xpath="//*[@id='subListForm:subscriptionsList:0']" />
+            <sleep seconds="60" />
+            <verifyXPath xpath="//*[contains(text(),'TehCustomTab')]" />
+
+        </webtest>
+
+        <webtest name="testMPL_interfaceExtensions_cleanup">
+            <scenario.cleanUpLeftServicesIfAny url="${supplierUrl}" uId="${supplierUserId}" />
+            <mail.cleanInbox />
+        </webtest>
+    </target>
+
+</project>

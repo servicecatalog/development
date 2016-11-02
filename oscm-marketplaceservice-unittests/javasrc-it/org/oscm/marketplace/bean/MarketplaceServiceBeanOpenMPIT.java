@@ -87,6 +87,7 @@ import org.oscm.test.data.Products;
 import org.oscm.test.data.TechnicalProducts;
 import org.oscm.test.ejb.TestContainer;
 import org.oscm.test.stubs.CategorizationServiceStub;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.triggerservice.local.TriggerQueueServiceLocal;
 import org.oscm.types.enumtypes.EmailType;
 
@@ -135,6 +136,7 @@ public class MarketplaceServiceBeanOpenMPIT extends EJBTestBase {
         commSvcMock = mock(CommunicationServiceLocal.class);
         container.addBean(commSvcMock);
         container.addBean(mock(LocalizerServiceLocal.class));
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         container.addBean(mock(MarketplaceAccessDao.class));
         container.addBean(mock(MarketplaceCacheService.class));
@@ -173,8 +175,8 @@ public class MarketplaceServiceBeanOpenMPIT extends EJBTestBase {
                         OrganizationRoleType.PLATFORM_OPERATOR,
                         OrganizationRoleType.TECHNOLOGY_PROVIDER);
 
-                adminUserMpOwner = PlatformUsers.createAdmin(ds,
-                        mpOwner_userId, mpOwner);
+                adminUserMpOwner = PlatformUsers.createAdmin(ds, mpOwner_userId,
+                        mpOwner);
 
                 mpGlobalOpen = Marketplaces.createMarketplace(mpOwner,
                         GLOBAL_OPEN_MP_ID, true, ds);
@@ -186,8 +188,8 @@ public class MarketplaceServiceBeanOpenMPIT extends EJBTestBase {
                 // create suppliers with corresponding admin users
                 supplier1 = Organizations.createOrganization(ds,
                         supplier1_orgId, OrganizationRoleType.SUPPLIER);
-                adminUserSupp1 = PlatformUsers.createAdmin(ds,
-                        supplier1_userId, supplier1);
+                adminUserSupp1 = PlatformUsers.createAdmin(ds, supplier1_userId,
+                        supplier1);
 
                 supplier2 = Organizations.createOrganization(ds,
                         supplier2_orgId, OrganizationRoleType.SUPPLIER);
@@ -198,8 +200,8 @@ public class MarketplaceServiceBeanOpenMPIT extends EJBTestBase {
                 PlatformUsers.createAdmin(ds, "supplierBanned_userId",
                         supplierBanned);
 
-                supplierPublishingGranted = Organizations.createOrganization(
-                        ds, supplierPublishingGranted_orgId,
+                supplierPublishingGranted = Organizations.createOrganization(ds,
+                        supplierPublishingGranted_orgId,
                         OrganizationRoleType.SUPPLIER);
                 PlatformUsers.createAdmin(ds,
                         "supplierPublishingGranted_userId",
@@ -228,7 +230,7 @@ public class MarketplaceServiceBeanOpenMPIT extends EJBTestBase {
         // prepare email setup
         sentMailType = null;
         sentMailMarketplaceId = null;
-        sentMailOrgIds = new ArrayList<String>();
+        sentMailOrgIds = new ArrayList<>();
         doAnswer((new Answer<Void>() {
             @Override
             public Void answer(InvocationOnMock invocation) {
@@ -277,21 +279,24 @@ public class MarketplaceServiceBeanOpenMPIT extends EJBTestBase {
 
                 assertNotNull("Product not found", prod);
 
-                assertEquals("Product with id " + svcId
-                        + " has unexpected status", expectedStatus,
-                        prod.getStatus());
-                assertEquals("Catalog entry for product with id " + svcId
-                        + " expected", 1, prod.getCatalogEntries().size());
+                assertEquals(
+                        "Product with id " + svcId + " has unexpected status",
+                        expectedStatus, prod.getStatus());
+                assertEquals(
+                        "Catalog entry for product with id " + svcId
+                                + " expected",
+                        1, prod.getCatalogEntries().size());
                 if (expectedStatus.equals(ServiceStatus.ACTIVE)) {
                     assertEquals(
                             "Wrong marketplace set at catalog entry for product with id "
-                                    + svcId, mpId, prod.getCatalogEntries()
-                                    .get(0).getMarketplace().getMarketplaceId());
+                                    + svcId,
+                            mpId, prod.getCatalogEntries().get(0)
+                                    .getMarketplace().getMarketplaceId());
                 } else if (expectedStatus.equals(ServiceStatus.INACTIVE)) {
                     assertNull(
                             "Wrong marketplace set at catalog entry for product with id "
-                                    + svcId, prod.getCatalogEntries().get(0)
-                                    .getMarketplace());
+                                    + svcId,
+                            prod.getCatalogEntries().get(0).getMarketplace());
                 } else
                     throw new RuntimeException(
                             "No handling for expected service status defined - revise test!");
@@ -344,20 +349,23 @@ public class MarketplaceServiceBeanOpenMPIT extends EJBTestBase {
     }
 
     private void checkExistenceMTORef(final Marketplace mp,
-            final Organization org, final PublishingAccess pa) throws Exception {
-        MarketplaceToOrganization mto = runTX(new Callable<MarketplaceToOrganization>() {
-            @Override
-            public MarketplaceToOrganization call() throws Exception {
-                MarketplaceToOrganization mto = new MarketplaceToOrganization(
-                        mp, org);
-                return (MarketplaceToOrganization) ds.find(mto);
-            }
-        });
+            final Organization org, final PublishingAccess pa)
+            throws Exception {
+        MarketplaceToOrganization mto = runTX(
+                new Callable<MarketplaceToOrganization>() {
+                    @Override
+                    public MarketplaceToOrganization call() throws Exception {
+                        MarketplaceToOrganization mto = new MarketplaceToOrganization(
+                                mp, org);
+                        return (MarketplaceToOrganization) ds.find(mto);
+                    }
+                });
         assertNotNull("Relation object expected", mto);
         assertEquals("Wrong publishing access", pa, mto.getPublishingAccess());
         assertEquals("Wrong marketplace", mp.getKey(),
                 mto.getMarketplace_tkey());
-        assertEquals("Wrong supplier", org.getKey(), mto.getOrganization_tkey());
+        assertEquals("Wrong supplier", org.getKey(),
+                mto.getOrganization_tkey());
     }
 
     private void checkExpectedMailHasBeenSent(EmailType type, Marketplace mp,
@@ -374,8 +382,8 @@ public class MarketplaceServiceBeanOpenMPIT extends EJBTestBase {
         assertEquals("Wrong marketplace id used in sent email",
                 mp.getMarketplaceId(), sentMailMarketplaceId);
         for (int i = 0; i < orgs.size(); i++) {
-            assertEquals("Send email to wrong organization admin", orgs.get(i)
-                    .getOrganizationId(), sentMailOrgIds.get(i));
+            assertEquals("Send email to wrong organization admin",
+                    orgs.get(i).getOrganizationId(), sentMailOrgIds.get(i));
         }
     }
 
@@ -439,8 +447,8 @@ public class MarketplaceServiceBeanOpenMPIT extends EJBTestBase {
                     Collections.singletonList(supplier1_orgId),
                     GLOBAL_OPEN_MP_ID);
         } catch (EJBException e) {
-            assertTrue(e.getMessage().contains(
-                    "Allowed roles are: [MARKETPLACE_OWNER]"));
+            assertTrue(e.getMessage()
+                    .contains("Allowed roles are: [MARKETPLACE_OWNER]"));
             throw e.getCause();
         }
     }
@@ -512,8 +520,8 @@ public class MarketplaceServiceBeanOpenMPIT extends EJBTestBase {
 
         checkExistenceMTORef(mpGlobalOpen, supplier1,
                 PublishingAccess.PUBLISHING_ACCESS_DENIED);
-        assertServicePublishingStatus(SVC_ID, supplier1,
-                ServiceStatus.INACTIVE, null);
+        assertServicePublishingStatus(SVC_ID, supplier1, ServiceStatus.INACTIVE,
+                null);
 
         checkExpectedMailHasBeenSent(EmailType.MARKETPLACE_SUPPLIER_BANNED,
                 mpGlobalOpen, Collections.singletonList(supplier1));
@@ -707,8 +715,8 @@ public class MarketplaceServiceBeanOpenMPIT extends EJBTestBase {
                     Collections.singletonList(supplier1_orgId),
                     GLOBAL_OPEN_MP_ID);
         } catch (EJBException e) {
-            assertTrue(e.getMessage().contains(
-                    "Allowed roles are: [MARKETPLACE_OWNER]"));
+            assertTrue(e.getMessage()
+                    .contains("Allowed roles are: [MARKETPLACE_OWNER]"));
             throw e.getCause();
         }
     }
@@ -804,7 +812,8 @@ public class MarketplaceServiceBeanOpenMPIT extends EJBTestBase {
     }
 
     @Test
-    public void testLiftBanSupplier_LiftBanMultipleSuppliers() throws Exception {
+    public void testLiftBanSupplier_LiftBanMultipleSuppliers()
+            throws Exception {
         // Supplier2 + SupplierBanned have been banned before, Supplier1 has not
         // been banned before (but published a svc)
         createMTORef(mpGlobalOpen, supplier1,
@@ -812,8 +821,8 @@ public class MarketplaceServiceBeanOpenMPIT extends EJBTestBase {
         createMTORef(mpGlobalOpen, supplier2,
                 PublishingAccess.PUBLISHING_ACCESS_DENIED);
 
-        marketplaceService.liftBanOrganizationsFromMarketplace(Arrays.asList(
-                supplier1_orgId, supplier2_orgId, supplierBanned_orgId),
+        marketplaceService.liftBanOrganizationsFromMarketplace(Arrays
+                .asList(supplier1_orgId, supplier2_orgId, supplierBanned_orgId),
                 GLOBAL_OPEN_MP_ID);
 
         checkExistenceMTORef(mpGlobalOpen, supplier1,
@@ -975,8 +984,8 @@ public class MarketplaceServiceBeanOpenMPIT extends EJBTestBase {
     public void testGetBannedSuppliers_NonExistingMarketplace()
             throws Exception {
         try {
-            marketplaceService
-                    .getBannedOrganizationsForMarketplace("non_existing_marketplace");
+            marketplaceService.getBannedOrganizationsForMarketplace(
+                    "non_existing_marketplace");
         } catch (ObjectNotFoundException e) {
             assertEquals(ClassEnum.MARKETPLACE, e.getDomainObjectClassEnum());
             throw e;
@@ -991,8 +1000,8 @@ public class MarketplaceServiceBeanOpenMPIT extends EJBTestBase {
             marketplaceService
                     .getBannedOrganizationsForMarketplace(GLOBAL_OPEN_MP_ID);
         } catch (EJBException e) {
-            assertTrue(e.getMessage().contains(
-                    "Allowed roles are: [MARKETPLACE_OWNER]"));
+            assertTrue(e.getMessage()
+                    .contains("Allowed roles are: [MARKETPLACE_OWNER]"));
             throw e.getCause();
         }
     }
@@ -1082,13 +1091,14 @@ public class MarketplaceServiceBeanOpenMPIT extends EJBTestBase {
                 return mpOwner2;
             }
         });
-        final PlatformUser adminUserMpOwner2 = runTX(new Callable<PlatformUser>() {
-            @Override
-            public PlatformUser call() throws Exception {
-                return PlatformUsers.createAdmin(ds, "otherMpOwnerAdminUser",
-                        otherMpOwner);
-            }
-        });
+        final PlatformUser adminUserMpOwner2 = runTX(
+                new Callable<PlatformUser>() {
+                    @Override
+                    public PlatformUser call() throws Exception {
+                        return PlatformUsers.createAdmin(ds,
+                                "otherMpOwnerAdminUser", otherMpOwner);
+                    }
+                });
         Marketplace mpGlobalOpen2 = runTX(new Callable<Marketplace>() {
             @Override
             public Marketplace call() throws Exception {

@@ -27,6 +27,8 @@ import org.oscm.domobjects.Product;
 import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.UserGroup;
 import org.oscm.domobjects.enums.ModificationType;
+import org.oscm.internal.types.enumtypes.ServiceAccessType;
+import org.oscm.internal.types.enumtypes.SubscriptionStatus;
 import org.oscm.reportingservice.dao.BillingDao.ReportBillingData;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.Organizations;
@@ -36,8 +38,7 @@ import org.oscm.test.data.SupportedCountries;
 import org.oscm.test.data.SupportedCurrencies;
 import org.oscm.test.data.UserGroups;
 import org.oscm.test.ejb.TestContainer;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
-import org.oscm.internal.types.enumtypes.SubscriptionStatus;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 
 /**
  * @author Wenxin Gao
@@ -61,6 +62,7 @@ public class BillingDaoIT extends EJBTestBase {
 
     @Override
     protected void setup(TestContainer container) throws Exception {
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         ds = container.get(DataService.class);
         dao = new BillingDao(ds);
@@ -128,7 +130,8 @@ public class BillingDaoIT extends EJBTestBase {
     public void retrieveSupplierBillingBySupplierId_nonExistingSupplierId()
             throws Exception {
         // when
-        List<ReportResultData> reportData = retrieveSupplierBillingBySupplierId(NON_EXISTING_SUPPLIER_ID);
+        List<ReportResultData> reportData = retrieveSupplierBillingBySupplierId(
+                NON_EXISTING_SUPPLIER_ID);
 
         // then
         assertTrue(reportData.isEmpty());
@@ -151,13 +154,14 @@ public class BillingDaoIT extends EJBTestBase {
         final Organization customer = createOrganization(CUSTOMER_ORG_ID);
         createSupportedCountriesAndCurrencies();
         createSubscriptionHistory(2L, customer.getKey(), "2013-01-21 09:00:00",
-                19, ModificationType.ADD, SubscriptionStatus.ACTIVE, 100L, 200L);
+                19, ModificationType.ADD, SubscriptionStatus.ACTIVE, 100L,
+                200L);
         BillingResult br = createBillingResult(0L, 1L, 2L, customer.getKey(),
                 supplierOrg.getKey(), 0L);
 
         // when
-        List<ReportResultData> reportData = retrieveSupplierBillingBySupplierId(supplierOrg
-                .getOrganizationId());
+        List<ReportResultData> reportData = retrieveSupplierBillingBySupplierId(
+                supplierOrg.getOrganizationId());
 
         // then
         assertEquals(1, reportData.size());
@@ -197,7 +201,8 @@ public class BillingDaoIT extends EJBTestBase {
     }
 
     @Test
-    public void retrieveBillingDetailsForUnitOfBillingResult() throws Exception {
+    public void retrieveBillingDetailsForUnitOfBillingResult()
+            throws Exception {
         // given
         createSupportedCountriesAndCurrencies();
         UserGroup unit = createUnit("unit", supplierOrg, null);
@@ -295,8 +300,7 @@ public class BillingDaoIT extends EJBTestBase {
                 supplierOrg.getKey(), unit0.getKey());
 
         // when
-        List<ReportBillingData> result = retrieveBillingDetails(
-                br.getKey(),
+        List<ReportBillingData> result = retrieveBillingDetails(br.getKey(),
                 supplierOrg.getKey(),
                 Arrays.asList(Long.valueOf(unit0.getKey()),
                         Long.valueOf(unit1.getKey()),
@@ -502,7 +506,8 @@ public class BillingDaoIT extends EJBTestBase {
     @Test
     public void retrieveBillingDetailsByKey_nonExistingKey() throws Exception {
         // when
-        List<ReportBillingData> billingDetails = retrieveBillingDetailsByKey(NON_EXISTING_BILLING_KEY);
+        List<ReportBillingData> billingDetails = retrieveBillingDetailsByKey(
+                NON_EXISTING_BILLING_KEY);
 
         // then
         assertTrue(billingDetails.isEmpty());
@@ -526,8 +531,8 @@ public class BillingDaoIT extends EJBTestBase {
                 supplier.getKey(), 0L);
 
         // when
-        List<ReportBillingData> billingDetails = retrieveBillingDetailsByKey(br
-                .getKey());
+        List<ReportBillingData> billingDetails = retrieveBillingDetailsByKey(
+                br.getKey());
 
         // then
         assertEquals(1, billingDetails.size());

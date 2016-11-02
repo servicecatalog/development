@@ -54,7 +54,7 @@ import org.oscm.ui.model.PSPSettingRow;
  * organization to the operator user.
  */
 @ViewScoped
-@ManagedBean(name="operatorOrgBean")
+@ManagedBean(name = "operatorOrgBean")
 public class OperatorOrgBean extends BaseOperatorBean implements Serializable {
 
     private static final long serialVersionUID = -295463152427849927L;
@@ -72,7 +72,7 @@ public class OperatorOrgBean extends BaseOperatorBean implements Serializable {
             Arrays.asList("requiredEmail", "requiredPhone", "requiredUrl",
                     "requiredName", "requiredAddress"));
 
-    @ManagedProperty(value="#{operatorSelectOrgBean}")
+    @ManagedProperty(value = "#{operatorSelectOrgBean}")
     private OperatorSelectOrgBean operatorSelectOrgBean;
 
     // The new organization and administrator user
@@ -110,7 +110,7 @@ public class OperatorOrgBean extends BaseOperatorBean implements Serializable {
     @EJB
     ManageTenantService manageTenantService;
 
-    @ManagedProperty(value="#{menuBean}")
+    @ManagedProperty(value = "#{menuBean}")
     MenuBean menuBean;
 
     /**
@@ -170,7 +170,7 @@ public class OperatorOrgBean extends BaseOperatorBean implements Serializable {
 
     private String getSelectedTenantId() {
         for (SelectItem selectedTenantItem : getSelectableTenants()) {
-            if(selectedTenantItem.getValue().toString().equals(selectedTenant)) {
+            if (selectedTenantItem.getValue().toString().equals(selectedTenant)) {
                 return selectedTenantItem.getLabel();
             }
         }
@@ -190,16 +190,21 @@ public class OperatorOrgBean extends BaseOperatorBean implements Serializable {
             return selectableMarketplaces;
         }
         List<VOMarketplace> marketplaces;
-        if (getSelectedTenant() != null) {
-            try {
-                marketplaces = getMarketplaceService().getAllMarketplacesForTenant(Long.valueOf(this.selectedTenant));
-            } catch (ObjectNotFoundException e) {
-                selectableMarketplaces = new ArrayList<>();
-                return selectableMarketplaces;
-            }
-        } else {
+        Long tenantKey;
+        try {
+            tenantKey = Long.valueOf(this.selectedTenant);
+        } catch (Exception exc) {
+            //Selected tenant is not parseable, results will be displayed for default.
+            tenantKey = null;
+        }
+
+        try {
             marketplaces = getMarketplaceService()
-                .getAccessibleMarketplacesForOperator();
+                    .getAllMarketplacesForTenant(
+                            tenantKey);
+        } catch (ObjectNotFoundException e) {
+            selectableMarketplaces = new ArrayList<>();
+            return selectableMarketplaces;
         }
         selectableMarketplaces = toMarketplacesList(marketplaces);
         return selectableMarketplaces;
@@ -211,8 +216,7 @@ public class OperatorOrgBean extends BaseOperatorBean implements Serializable {
             return result;
         }
         for (VOMarketplace vMp : marketplaces) {
-            result.add(new SelectItem(vMp.getMarketplaceId(),
-                getLabel(vMp)));
+            result.add(new SelectItem(vMp.getMarketplaceId(), getLabel(vMp)));
         }
         return result;
     }
@@ -224,7 +228,7 @@ public class OperatorOrgBean extends BaseOperatorBean implements Serializable {
         List<POTenant> tenants = manageTenantService.getAllTenants();
         List<SelectItem> result = new ArrayList<SelectItem>();
         for (POTenant poTenant : tenants) {
-            result.add(new SelectItem(poTenant.getKey(), poTenant.getTenantId()));
+            result.add(new SelectItem(poTenant.getKey(), poTenant.getName()));
         }
         return result;
     }
@@ -232,6 +236,7 @@ public class OperatorOrgBean extends BaseOperatorBean implements Serializable {
     /**
      * For Unit Test only
      * */
+    @Override
     protected boolean isLoggedInAndPlatformOperator() {
         return super.isLoggedInAndPlatformOperator();
     }
@@ -239,6 +244,7 @@ public class OperatorOrgBean extends BaseOperatorBean implements Serializable {
     /**
      * For Unit Test only
      * */
+    @Override
     protected MarketplaceService getMarketplaceService() {
         return super.getMarketplaceService();
     }
@@ -246,6 +252,7 @@ public class OperatorOrgBean extends BaseOperatorBean implements Serializable {
     /**
      * For Unit Test only
      * */
+    @Override
     protected void addMessage(final String clientId,
             final FacesMessage.Severity severity, final String key,
             final Object[] params) {
@@ -264,23 +271,24 @@ public class OperatorOrgBean extends BaseOperatorBean implements Serializable {
 
     public void prepareDataForNewPaymentType() {
         selectedPaymentType = new VOPaymentType();
-        selectedPaymentType.setCollectionType(PaymentCollectionType.PAYMENT_SERVICE_PROVIDER);
+        selectedPaymentType
+                .setCollectionType(PaymentCollectionType.PAYMENT_SERVICE_PROVIDER);
     }
 
-	/**
-	 * Prepares payment type data for update
-	 */
-	public void prepareDataForEditPaymentType() {
-		if (selectedPaymentTypeKey == null) {
-			return;
-		}
-		for (VOPaymentType voPaymentType : getSelectedPSP().getPaymentTypes()) {
-			if (selectedPaymentTypeKey.equals(new Long(voPaymentType.getKey()))) {
-				selectedPaymentType = voPaymentType;
-				return;
-			}
-		}
-	}
+    /**
+     * Prepares payment type data for update
+     */
+    public void prepareDataForEditPaymentType() {
+        if (selectedPaymentTypeKey == null) {
+            return;
+        }
+        for (VOPaymentType voPaymentType : getSelectedPSP().getPaymentTypes()) {
+            if (selectedPaymentTypeKey.equals(new Long(voPaymentType.getKey()))) {
+                selectedPaymentType = voPaymentType;
+                return;
+            }
+        }
+    }
 
     /**
      * Registers payment types for PSP.
@@ -288,20 +296,20 @@ public class OperatorOrgBean extends BaseOperatorBean implements Serializable {
      * @return <code>OUTCOME_SUCCESS</code> if the payment type was successfully
      *         registered, otherwise <code>OUTCOME_ERROR</code>.
      */
-	public void savePaymentType() throws SaaSApplicationException {
-		getOperatorService().savePaymentType(getSelectedPSP(),
-				getSelectedPaymentType());
-		addMessage(null, FacesMessage.SEVERITY_INFO, INFO_PAYMENT_TYPE_SAVED);
-	}
+    public void savePaymentType() throws SaaSApplicationException {
+        getOperatorService().savePaymentType(getSelectedPSP(),
+                getSelectedPaymentType());
+        addMessage(null, FacesMessage.SEVERITY_INFO, INFO_PAYMENT_TYPE_SAVED);
+    }
 
-	/**
-	 * http://marketplace.eclipse.org/marketplace-client-intro?mpc_install=
-	 * 1775079 Registers payment types for an organization.
-	 * 
-	 * @return <code>OUTCOME_SUCCESS</code> if the payment type for organization
-	 *         was successfully registered, otherwise <code>OUTCOME_ERROR</code>
-	 *         .
-	 */
+    /**
+     * http://marketplace.eclipse.org/marketplace-client-intro?mpc_install=
+     * 1775079 Registers payment types for an organization.
+     * 
+     * @return <code>OUTCOME_SUCCESS</code> if the payment type for organization
+     *         was successfully registered, otherwise <code>OUTCOME_ERROR</code>
+     *         .
+     */
     public String savePaymentTypeForOrganization()
             throws SaaSApplicationException {
 
@@ -376,11 +384,12 @@ public class OperatorOrgBean extends BaseOperatorBean implements Serializable {
 
         OperatorService operatorService = getOperatorService();
         VOOperatorOrganization org = getSelectedOrganization();
-         
+
         long updatedTenantKey = selectedOrganization.getTenantKey();
-        
-        manageTenantService.validateOrgUsersUniqnessInTenant(org.getOrganizationId(), updatedTenantKey);
-        
+
+        manageTenantService.validateOrgUsersUniqnessInTenant(
+                org.getOrganizationId(), updatedTenantKey);
+
         selectedOrganization = operatorService.updateOrganization(org,
                 getImageUploader().getVOImageResource());
 
@@ -404,8 +413,8 @@ public class OperatorOrgBean extends BaseOperatorBean implements Serializable {
      * @throws ImageException
      *             Thrown in case the access to the uploaded file failed.
      */
-	public void savePSP() throws SaaSApplicationException {
-		if (!isTokenValid() && pspId != null) {
+    public void savePSP() throws SaaSApplicationException {
+        if (!isTokenValid() && pspId != null) {
             updateSelectedPSP();
         }
 
@@ -421,7 +430,7 @@ public class OperatorOrgBean extends BaseOperatorBean implements Serializable {
                 list.add(row.getDefinition());
             }
         }
-		final VOPSP psp = getSelectedPSP();
+        final VOPSP psp = getSelectedPSP();
         psp.setPspSettings(list);
 
         OperatorService operatorService = getOperatorService();
@@ -433,7 +442,7 @@ public class OperatorOrgBean extends BaseOperatorBean implements Serializable {
 
         // make sure the next page access will trigger the reload of the
         // selected organization the next time getSelectedOrg will be called
-		setSelectedPSP(selectedPSP);
+        setSelectedPSP(selectedPSP);
     }
 
     public OperatorSelectOrgBean getOperatorSelectOrgBean() {
@@ -1236,9 +1245,9 @@ public class OperatorOrgBean extends BaseOperatorBean implements Serializable {
         this.selectedTenant = selectedTenant;
     }
 
-    public void processValueChange(ValueChangeEvent e){
-        
-        if(e.getNewValue()==null){
+    public void processValueChange(ValueChangeEvent e) {
+
+        if (e.getNewValue() == null) {
             setSelectedTenant(null);
             return;
         }

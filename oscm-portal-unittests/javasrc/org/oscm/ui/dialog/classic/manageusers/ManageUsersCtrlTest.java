@@ -137,6 +137,7 @@ public class ManageUsersCtrlTest {
         sessionBean = new SessionBean() {
             private static final long serialVersionUID = -3460694623349548600L;
 
+            @Override
             public boolean getNameSequenceReversed() {
                 return isNameSequenceReversed;
             }
@@ -470,7 +471,8 @@ public class ManageUsersCtrlTest {
 
         ctrl.delete();
 
-        verify(us, times(1)).deleteUser(any(POUser.class), eq(MP_ID), anyString());
+        verify(us, times(1)).deleteUser(any(POUser.class), eq(MP_ID),
+                anyString());
         assertEquals(Boolean.FALSE, Boolean.valueOf(model.isInitialized()));
         assertNull(model.getSelectedUserId());
         verify(ctrl.ui, times(1)).handle(any(Response.class),
@@ -504,7 +506,7 @@ public class ManageUsersCtrlTest {
 
         assertEquals(BaseBean.ERROR_DELETE_USER_FROM_EXPIRED_SUBSCRIPTION,
                 messageKey);
-        assertEquals("",result);
+        assertEquals("", result);
     }
 
     @Test
@@ -522,13 +524,13 @@ public class ManageUsersCtrlTest {
 
         assertEquals(BaseBean.ERROR_DELETE_USER_FROM_EXPIRED_SUBSCRIPTION,
                 messageKey);
-        assertEquals("",result);
+        assertEquals("", result);
     }
 
     @Test(expected = OperationNotPermittedException.class)
     public void delete_Negative() throws Exception {
-        when(us.deleteUser(any(POUser.class), anyString(), anyString())).thenThrow(
-                new OperationNotPermittedException());
+        when(us.deleteUser(any(POUser.class), anyString(), anyString()))
+                .thenThrow(new OperationNotPermittedException());
         // initialize page and select user
         ctrl.getInitialize();
         ctrl.setSelectedUserId(ud.getUserId());
@@ -806,7 +808,7 @@ public class ManageUsersCtrlTest {
         List<String> headers = ctrl.getDataTableHeaders();
 
         // then
-        assertEquals(4, headers.size());
+        assertEquals(5, headers.size());
         assertEquals("userId", headers.get(0));
     }
 
@@ -817,7 +819,7 @@ public class ManageUsersCtrlTest {
         List<String> headers = ctrl.getDataTableHeaders();
 
         // then
-        assertEquals(4, headers.size());
+        assertEquals(5, headers.size());
         assertEquals("userId", headers.get(0));
         assertEquals(LASTNAME, headers.get(1));
         assertEquals(FIRSTNAME, headers.get(2));
@@ -844,7 +846,8 @@ public class ManageUsersCtrlTest {
             throws Exception {
         // given
         String selectedUserId = "selectedUserId";
-        when(us.getUserDetails(eq(selectedUserId), anyString())).thenReturn(null);
+        when(us.getUserDetails(eq(selectedUserId), anyString())).thenReturn(
+                null);
 
         // when
         ctrl.getUserDetailsAndValidateLocale(selectedUserId);
@@ -860,7 +863,8 @@ public class ManageUsersCtrlTest {
         String selectedUserId = "selectedUserId";
         POUserDetails result = new POUserDetails();
         result.setLocale(null);
-        when(us.getUserDetails(eq(selectedUserId), anyString())).thenReturn(result);
+        when(us.getUserDetails(eq(selectedUserId), anyString())).thenReturn(
+                result);
 
         // when
         ctrl.getUserDetailsAndValidateLocale(selectedUserId);
@@ -876,7 +880,8 @@ public class ManageUsersCtrlTest {
         String locale = "en";
         POUserDetails result = new POUserDetails();
         result.setLocale(locale);
-        when(us.getUserDetails(eq(selectedUserId), anyString())).thenReturn(result);
+        when(us.getUserDetails(eq(selectedUserId), anyString())).thenReturn(
+                result);
 
         // when
         ctrl.getUserDetailsAndValidateLocale(selectedUserId);

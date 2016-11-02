@@ -19,7 +19,6 @@ import org.oscm.internal.types.exception.OperationNotPermittedException;
 import org.oscm.internal.types.exception.OrganizationAlreadyBannedException;
 import org.oscm.internal.types.exception.OrganizationAlreadyExistsException;
 import org.oscm.internal.types.exception.OrganizationAuthorityException;
-import org.oscm.internal.types.exception.PublishingToMarketplaceNotPermittedException;
 import org.oscm.internal.types.exception.TechnicalServiceNotAliveException;
 import org.oscm.internal.types.exception.TechnicalServiceOperationException;
 import org.oscm.internal.types.exception.ValidationException;
@@ -68,7 +67,7 @@ public class MarketplaceServiceStub implements MarketplaceService {
     }
 
     @Override
-    public List<VOMarketplace> getAccessibleMarketplacesForOperator() {
+    public List<VOMarketplace> getAccessibleMarketplaces() {
         throw new UnsupportedOperationException();
     }
 
@@ -220,12 +219,14 @@ public class MarketplaceServiceStub implements MarketplaceService {
     }
 
     @Override
-    public List<VOMarketplace> getAllMarketplacesForTenant(long tenantKey) throws ObjectNotFoundException {
+    public List<VOMarketplace> getAllMarketplacesForTenant(Long tenantKey)
+            throws ObjectNotFoundException {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public String getTenantIdFromMarketplace(String marketplaceId) throws ObjectNotFoundException {
+    public String getTenantIdFromMarketplace(String marketplaceId)
+            throws ObjectNotFoundException {
         return null;
     }
 

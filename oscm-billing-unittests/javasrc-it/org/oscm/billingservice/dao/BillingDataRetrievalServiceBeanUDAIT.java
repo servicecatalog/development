@@ -22,9 +22,6 @@ import java.util.concurrent.Callable;
 import javax.persistence.Query;
 
 import org.junit.Test;
-
-import org.oscm.billingservice.dao.BillingDataRetrievalServiceBean;
-import org.oscm.billingservice.dao.BillingDataRetrievalServiceLocal;
 import org.oscm.billingservice.dao.model.UdaBillingData;
 import org.oscm.converter.ParameterizedTypes;
 import org.oscm.dataservice.bean.DataServiceBean;
@@ -35,6 +32,8 @@ import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.Uda;
 import org.oscm.domobjects.UdaDefinition;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.UdaConfigurationType;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.Organizations;
 import org.oscm.test.data.Scenario;
@@ -42,10 +41,9 @@ import org.oscm.test.data.Subscriptions;
 import org.oscm.test.data.SupportedCountries;
 import org.oscm.test.data.Udas;
 import org.oscm.test.ejb.TestContainer;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.test.stubs.LocalizerServiceStub;
 import org.oscm.types.enumtypes.UdaTargetType;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.UdaConfigurationType;
 
 /**
  * Test class for UDA related retrieval operations for billing.
@@ -63,8 +61,10 @@ public class BillingDataRetrievalServiceBeanUDAIT extends EJBTestBase {
     /**
      * Common setup for the test class.
      */
+    @Override
     public void setup(final TestContainer container) throws Exception {
         container.login("1");
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         container.addBean(new LocalizerServiceStub() {
             @Override
@@ -79,6 +79,7 @@ public class BillingDataRetrievalServiceBeanUDAIT extends EJBTestBase {
         bdr = container.get(BillingDataRetrievalServiceLocal.class);
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 SupportedCountries.createSomeSupportedCountries(dm);
                 Scenario.setup(container, true);
@@ -87,13 +88,13 @@ public class BillingDataRetrievalServiceBeanUDAIT extends EJBTestBase {
                 // create a second supplier that also defines a UDA for the same
                 // customer - test that there is no interference between the
                 // suppliers
-                Organization secondSupplier = Organizations.createOrganization(
-                        dm, OrganizationRoleType.SUPPLIER);
+                Organization secondSupplier = Organizations
+                        .createOrganization(dm, OrganizationRoleType.SUPPLIER);
                 secondSupplierKey = secondSupplier.getKey();
                 Organizations.addSupplierToCustomer(dm, secondSupplier,
                         customer);
-                secondSupplierUda = Udas.createUdaDefinition(dm,
-                        secondSupplier, UdaTargetType.CUSTOMER, TEST123, null,
+                secondSupplierUda = Udas.createUdaDefinition(dm, secondSupplier,
+                        UdaTargetType.CUSTOMER, TEST123, null,
                         UdaConfigurationType.SUPPLIER);
                 Udas.createUda(dm, customer, secondSupplierUda, TEST123);
                 return null;
@@ -105,22 +106,27 @@ public class BillingDataRetrievalServiceBeanUDAIT extends EJBTestBase {
     @Test
     public void testGetUdasForCustomer_NoUdas() throws Exception {
         final long customerKey = Scenario.getSecondCustomer().getKey();
-        List<UdaBillingData> result = runTX(new Callable<List<UdaBillingData>>() {
-            public List<UdaBillingData> call() throws Exception {
-                return bdr.loadUdasForCustomer(customerKey, supplierKey);
-            }
-        });
+        List<UdaBillingData> result = runTX(
+                new Callable<List<UdaBillingData>>() {
+                    @Override
+                    public List<UdaBillingData> call() throws Exception {
+                        return bdr.loadUdasForCustomer(customerKey,
+                                supplierKey);
+                    }
+                });
         assertNotNull(result);
         assertTrue(result.isEmpty());
     }
 
     @Test
     public void testGetUdasForCustomer_InvalidOrgHist() throws Exception {
-        List<UdaBillingData> result = runTX(new Callable<List<UdaBillingData>>() {
-            public List<UdaBillingData> call() throws Exception {
-                return bdr.loadUdasForCustomer(-5, supplierKey);
-            }
-        });
+        List<UdaBillingData> result = runTX(
+                new Callable<List<UdaBillingData>>() {
+                    @Override
+                    public List<UdaBillingData> call() throws Exception {
+                        return bdr.loadUdasForCustomer(-5, supplierKey);
+                    }
+                });
         // we don't expect an exception in this case, just return nothing...
         assertNotNull(result);
         assertTrue(result.isEmpty());
@@ -129,11 +135,14 @@ public class BillingDataRetrievalServiceBeanUDAIT extends EJBTestBase {
     @Test
     public void testGetUdasForCustomer_FoundUdas() throws Exception {
         final long customerKey = Scenario.getCustomer().getKey();
-        List<UdaBillingData> result = runTX(new Callable<List<UdaBillingData>>() {
-            public List<UdaBillingData> call() throws Exception {
-                return bdr.loadUdasForCustomer(customerKey, supplierKey);
-            }
-        });
+        List<UdaBillingData> result = runTX(
+                new Callable<List<UdaBillingData>>() {
+                    @Override
+                    public List<UdaBillingData> call() throws Exception {
+                        return bdr.loadUdasForCustomer(customerKey,
+                                supplierKey);
+                    }
+                });
         assertNotNull(result);
         assertEquals(2, result.size());
         UdaBillingData uh1 = result.get(0);
@@ -148,11 +157,14 @@ public class BillingDataRetrievalServiceBeanUDAIT extends EJBTestBase {
     public void testGetUdasForCustomer_FoundUdasSecondSupplier()
             throws Exception {
         final long customerKey = Scenario.getCustomer().getKey();
-        List<UdaBillingData> result = runTX(new Callable<List<UdaBillingData>>() {
-            public List<UdaBillingData> call() throws Exception {
-                return bdr.loadUdasForCustomer(customerKey, secondSupplierKey);
-            }
-        });
+        List<UdaBillingData> result = runTX(
+                new Callable<List<UdaBillingData>>() {
+                    @Override
+                    public List<UdaBillingData> call() throws Exception {
+                        return bdr.loadUdasForCustomer(customerKey,
+                                secondSupplierKey);
+                    }
+                });
         assertNotNull(result);
         assertEquals(1, result.size());
         UdaBillingData uh1 = result.get(0);
@@ -164,6 +176,7 @@ public class BillingDataRetrievalServiceBeanUDAIT extends EJBTestBase {
     public void testGetUdasForCustomer_ModifyUdaDef() throws Exception {
         final long customerKey = Scenario.getCustomer().getKey();
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 UdaDefinition udaDefCust1 = Scenario.getUdaDefCust1();
 
@@ -173,11 +186,14 @@ public class BillingDataRetrievalServiceBeanUDAIT extends EJBTestBase {
                 return null;
             }
         });
-        List<UdaBillingData> result = runTX(new Callable<List<UdaBillingData>>() {
-            public List<UdaBillingData> call() throws Exception {
-                return bdr.loadUdasForCustomer(customerKey, supplierKey);
-            }
-        });
+        List<UdaBillingData> result = runTX(
+                new Callable<List<UdaBillingData>>() {
+                    @Override
+                    public List<UdaBillingData> call() throws Exception {
+                        return bdr.loadUdasForCustomer(customerKey,
+                                supplierKey);
+                    }
+                });
         assertNotNull(result);
         assertEquals(2, result.size());
         UdaBillingData uh1 = result.get(0);
@@ -193,6 +209,7 @@ public class BillingDataRetrievalServiceBeanUDAIT extends EJBTestBase {
             throws Exception {
         final long customerKey = Scenario.getCustomer().getKey();
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 UdaDefinition udaDef = dm.find(UdaDefinition.class,
                         secondSupplierUda.getKey());
@@ -200,11 +217,14 @@ public class BillingDataRetrievalServiceBeanUDAIT extends EJBTestBase {
                 return null;
             }
         });
-        List<UdaBillingData> result = runTX(new Callable<List<UdaBillingData>>() {
-            public List<UdaBillingData> call() throws Exception {
-                return bdr.loadUdasForCustomer(customerKey, secondSupplierKey);
-            }
-        });
+        List<UdaBillingData> result = runTX(
+                new Callable<List<UdaBillingData>>() {
+                    @Override
+                    public List<UdaBillingData> call() throws Exception {
+                        return bdr.loadUdasForCustomer(customerKey,
+                                secondSupplierKey);
+                    }
+                });
         assertNotNull(result);
         assertEquals(1, result.size());
         UdaBillingData uh1 = result.get(0);
@@ -216,17 +236,21 @@ public class BillingDataRetrievalServiceBeanUDAIT extends EJBTestBase {
     public void testGetUdasForCustomer_ModifyCustomer() throws Exception {
         final long customerKey = Scenario.getCustomer().getKey();
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Organization cust = dm.find(Organization.class, customerKey);
                 cust.setAddress("xxx");
                 return null;
             }
         });
-        List<UdaBillingData> result = runTX(new Callable<List<UdaBillingData>>() {
-            public List<UdaBillingData> call() throws Exception {
-                return bdr.loadUdasForCustomer(customerKey, supplierKey);
-            }
-        });
+        List<UdaBillingData> result = runTX(
+                new Callable<List<UdaBillingData>>() {
+                    @Override
+                    public List<UdaBillingData> call() throws Exception {
+                        return bdr.loadUdasForCustomer(customerKey,
+                                supplierKey);
+                    }
+                });
         assertNotNull(result);
         assertEquals(2, result.size());
         UdaBillingData uh1 = result.get(0);
@@ -241,10 +265,11 @@ public class BillingDataRetrievalServiceBeanUDAIT extends EJBTestBase {
     public void testGetUdasForCustomer_ModifiedUdas() throws Exception {
         final long customerKey = Scenario.getCustomer().getKey();
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Uda customerUda1 = Scenario.getCustomerUda1();
-                customerUda1 = dm
-                        .getReference(Uda.class, customerUda1.getKey());
+                customerUda1 = dm.getReference(Uda.class,
+                        customerUda1.getKey());
                 customerUda1.setUdaValue("ModifiedValue1");
 
                 customerUda1.getUdaDefinition().getUdas().size();
@@ -252,11 +277,14 @@ public class BillingDataRetrievalServiceBeanUDAIT extends EJBTestBase {
                 return null;
             }
         });
-        List<UdaBillingData> result = runTX(new Callable<List<UdaBillingData>>() {
-            public List<UdaBillingData> call() throws Exception {
-                return bdr.loadUdasForCustomer(customerKey, supplierKey);
-            }
-        });
+        List<UdaBillingData> result = runTX(
+                new Callable<List<UdaBillingData>>() {
+                    @Override
+                    public List<UdaBillingData> call() throws Exception {
+                        return bdr.loadUdasForCustomer(customerKey,
+                                supplierKey);
+                    }
+                });
         assertNotNull(result);
         assertEquals(2, result.size());
         UdaBillingData uh1 = result.get(0);
@@ -271,21 +299,25 @@ public class BillingDataRetrievalServiceBeanUDAIT extends EJBTestBase {
     public void testGetUdasForCustomer_RemovedUdas() throws Exception {
         final long customerKey = Scenario.getCustomer().getKey();
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Uda customerUda1 = Scenario.getCustomerUda1();
-                customerUda1 = dm
-                        .getReference(Uda.class, customerUda1.getKey());
+                customerUda1 = dm.getReference(Uda.class,
+                        customerUda1.getKey());
 
                 customerUda1.getUdaDefinition().getUdas().size();
                 dm.remove(customerUda1);
                 return null;
             }
         });
-        List<UdaBillingData> result = runTX(new Callable<List<UdaBillingData>>() {
-            public List<UdaBillingData> call() throws Exception {
-                return bdr.loadUdasForCustomer(customerKey, supplierKey);
-            }
-        });
+        List<UdaBillingData> result = runTX(
+                new Callable<List<UdaBillingData>>() {
+                    @Override
+                    public List<UdaBillingData> call() throws Exception {
+                        return bdr.loadUdasForCustomer(customerKey,
+                                supplierKey);
+                    }
+                });
         assertNotNull(result);
         assertEquals(1, result.size());
         UdaBillingData uh = result.get(0);
@@ -298,14 +330,15 @@ public class BillingDataRetrievalServiceBeanUDAIT extends EJBTestBase {
             throws Exception {
         final long customerKey = Scenario.getCustomer().getKey();
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Uda customerUda1 = Scenario.getCustomerUda1();
-                customerUda1 = dm
-                        .getReference(Uda.class, customerUda1.getKey());
+                customerUda1 = dm.getReference(Uda.class,
+                        customerUda1.getKey());
 
                 Uda customerUda2 = Scenario.getCustomerUda2();
-                customerUda2 = dm
-                        .getReference(Uda.class, customerUda2.getKey());
+                customerUda2 = dm.getReference(Uda.class,
+                        customerUda2.getKey());
                 customerUda2.setUdaValue("ModifiedValue");
 
                 customerUda1.getUdaDefinition().getUdas().size();
@@ -315,11 +348,14 @@ public class BillingDataRetrievalServiceBeanUDAIT extends EJBTestBase {
                 return null;
             }
         });
-        List<UdaBillingData> result = runTX(new Callable<List<UdaBillingData>>() {
-            public List<UdaBillingData> call() throws Exception {
-                return bdr.loadUdasForCustomer(customerKey, supplierKey);
-            }
-        });
+        List<UdaBillingData> result = runTX(
+                new Callable<List<UdaBillingData>>() {
+                    @Override
+                    public List<UdaBillingData> call() throws Exception {
+                        return bdr.loadUdasForCustomer(customerKey,
+                                supplierKey);
+                    }
+                });
         assertNotNull(result);
         assertEquals(1, result.size());
         UdaBillingData uh = result.get(0);
@@ -330,30 +366,36 @@ public class BillingDataRetrievalServiceBeanUDAIT extends EJBTestBase {
     @Test
     public void testGetUdasForSubscription_NoUdas() throws Exception {
         Subscription sub = runTX(new Callable<Subscription>() {
+            @Override
             public Subscription call() throws Exception {
                 Product prod = Scenario.getProduct();
-                return Subscriptions.createSubscription(dm, Scenario
-                        .getSecondCustomer().getOrganizationId(), prod
-                        .getProductId(), "sub_without_udas", prod.getVendor());
+                return Subscriptions.createSubscription(dm,
+                        Scenario.getSecondCustomer().getOrganizationId(),
+                        prod.getProductId(), "sub_without_udas",
+                        prod.getVendor());
             }
         });
         final long subKey = sub.getKey();
-        List<UdaBillingData> result = runTX(new Callable<List<UdaBillingData>>() {
-            public List<UdaBillingData> call() throws Exception {
-                return bdr.loadUdasForSubscription(subKey, supplierKey);
-            }
-        });
+        List<UdaBillingData> result = runTX(
+                new Callable<List<UdaBillingData>>() {
+                    @Override
+                    public List<UdaBillingData> call() throws Exception {
+                        return bdr.loadUdasForSubscription(subKey, supplierKey);
+                    }
+                });
         assertNotNull(result);
         assertTrue(result.isEmpty());
     }
 
     @Test
     public void testGetUdasForSubscription_InvalidSubHist() throws Exception {
-        List<UdaBillingData> result = runTX(new Callable<List<UdaBillingData>>() {
-            public List<UdaBillingData> call() throws Exception {
-                return bdr.loadUdasForSubscription(-5, supplierKey);
-            }
-        });
+        List<UdaBillingData> result = runTX(
+                new Callable<List<UdaBillingData>>() {
+                    @Override
+                    public List<UdaBillingData> call() throws Exception {
+                        return bdr.loadUdasForSubscription(-5, supplierKey);
+                    }
+                });
         // we don't expect an exception in this case, just return nothing...
         assertNotNull(result);
         assertTrue(result.isEmpty());
@@ -362,11 +404,13 @@ public class BillingDataRetrievalServiceBeanUDAIT extends EJBTestBase {
     @Test
     public void testGetUdasForSubscription_FoundUdas() throws Exception {
         final long subKey = Scenario.getSubscription().getKey();
-        List<UdaBillingData> result = runTX(new Callable<List<UdaBillingData>>() {
-            public List<UdaBillingData> call() throws Exception {
-                return bdr.loadUdasForSubscription(subKey, supplierKey);
-            }
-        });
+        List<UdaBillingData> result = runTX(
+                new Callable<List<UdaBillingData>>() {
+                    @Override
+                    public List<UdaBillingData> call() throws Exception {
+                        return bdr.loadUdasForSubscription(subKey, supplierKey);
+                    }
+                });
         assertNotNull(result);
         assertEquals(2, result.size());
         UdaBillingData uh1 = result.get(0);
@@ -380,11 +424,14 @@ public class BillingDataRetrievalServiceBeanUDAIT extends EJBTestBase {
     @Test
     public void testGetUdasForSubscription_NotOwner() throws Exception {
         final long subKey = Scenario.getSubscription().getKey();
-        List<UdaBillingData> result = runTX(new Callable<List<UdaBillingData>>() {
-            public List<UdaBillingData> call() throws Exception {
-                return bdr.loadUdasForSubscription(subKey, secondSupplierKey);
-            }
-        });
+        List<UdaBillingData> result = runTX(
+                new Callable<List<UdaBillingData>>() {
+                    @Override
+                    public List<UdaBillingData> call() throws Exception {
+                        return bdr.loadUdasForSubscription(subKey,
+                                secondSupplierKey);
+                    }
+                });
         assertNotNull(result);
         // the second supplier must not see the UDAs of the first one
         assertEquals(0, result.size());
@@ -394,6 +441,7 @@ public class BillingDataRetrievalServiceBeanUDAIT extends EJBTestBase {
     public void testGetUdasForSubscription_ModifiedUdaDef() throws Exception {
         final long subKey = Scenario.getSubscription().getKey();
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 UdaDefinition uda1 = Scenario.getUdaDefSub1();
 
@@ -403,11 +451,13 @@ public class BillingDataRetrievalServiceBeanUDAIT extends EJBTestBase {
                 return null;
             }
         });
-        List<UdaBillingData> result = runTX(new Callable<List<UdaBillingData>>() {
-            public List<UdaBillingData> call() throws Exception {
-                return bdr.loadUdasForSubscription(subKey, supplierKey);
-            }
-        });
+        List<UdaBillingData> result = runTX(
+                new Callable<List<UdaBillingData>>() {
+                    @Override
+                    public List<UdaBillingData> call() throws Exception {
+                        return bdr.loadUdasForSubscription(subKey, supplierKey);
+                    }
+                });
         assertNotNull(result);
         assertEquals(2, result.size());
         UdaBillingData uh1 = result.get(0);
@@ -422,17 +472,20 @@ public class BillingDataRetrievalServiceBeanUDAIT extends EJBTestBase {
     public void testGetUdasForSubscription_ModifiedSub() throws Exception {
         final long subKey = Scenario.getSubscription().getKey();
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Subscription sub = dm.find(Subscription.class, subKey);
                 sub.setBaseURL("xxx");
                 return null;
             }
         });
-        List<UdaBillingData> result = runTX(new Callable<List<UdaBillingData>>() {
-            public List<UdaBillingData> call() throws Exception {
-                return bdr.loadUdasForSubscription(subKey, supplierKey);
-            }
-        });
+        List<UdaBillingData> result = runTX(
+                new Callable<List<UdaBillingData>>() {
+                    @Override
+                    public List<UdaBillingData> call() throws Exception {
+                        return bdr.loadUdasForSubscription(subKey, supplierKey);
+                    }
+                });
         assertNotNull(result);
         assertEquals(2, result.size());
         UdaBillingData uh1 = result.get(0);
@@ -447,6 +500,7 @@ public class BillingDataRetrievalServiceBeanUDAIT extends EJBTestBase {
     public void testGetUdasForSubscription_ModifiedUdas() throws Exception {
         final long subKey = Scenario.getSubscription().getKey();
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Uda uda1 = Scenario.getSubUda1();
                 uda1 = dm.getReference(Uda.class, uda1.getKey());
@@ -457,11 +511,13 @@ public class BillingDataRetrievalServiceBeanUDAIT extends EJBTestBase {
                 return null;
             }
         });
-        List<UdaBillingData> result = runTX(new Callable<List<UdaBillingData>>() {
-            public List<UdaBillingData> call() throws Exception {
-                return bdr.loadUdasForSubscription(subKey, supplierKey);
-            }
-        });
+        List<UdaBillingData> result = runTX(
+                new Callable<List<UdaBillingData>>() {
+                    @Override
+                    public List<UdaBillingData> call() throws Exception {
+                        return bdr.loadUdasForSubscription(subKey, supplierKey);
+                    }
+                });
         assertNotNull(result);
         assertEquals(2, result.size());
         UdaBillingData uh1 = result.get(0);
@@ -476,6 +532,7 @@ public class BillingDataRetrievalServiceBeanUDAIT extends EJBTestBase {
     public void testGetUdasForSubscription_RemovedUdas() throws Exception {
         final long subKey = Scenario.getSubscription().getKey();
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Uda uda1 = Scenario.getSubUda1();
                 uda1 = dm.getReference(Uda.class, uda1.getKey());
@@ -485,11 +542,13 @@ public class BillingDataRetrievalServiceBeanUDAIT extends EJBTestBase {
                 return null;
             }
         });
-        List<UdaBillingData> result = runTX(new Callable<List<UdaBillingData>>() {
-            public List<UdaBillingData> call() throws Exception {
-                return bdr.loadUdasForSubscription(subKey, supplierKey);
-            }
-        });
+        List<UdaBillingData> result = runTX(
+                new Callable<List<UdaBillingData>>() {
+                    @Override
+                    public List<UdaBillingData> call() throws Exception {
+                        return bdr.loadUdasForSubscription(subKey, supplierKey);
+                    }
+                });
         assertNotNull(result);
         assertEquals(1, result.size());
         UdaBillingData uh = result.get(0);
@@ -502,6 +561,7 @@ public class BillingDataRetrievalServiceBeanUDAIT extends EJBTestBase {
             throws Exception {
         final long subKey = Scenario.getSubscription().getKey();
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Uda uda1 = Scenario.getSubUda1();
                 uda1 = dm.getReference(Uda.class, uda1.getKey());
@@ -517,11 +577,13 @@ public class BillingDataRetrievalServiceBeanUDAIT extends EJBTestBase {
                 return null;
             }
         });
-        List<UdaBillingData> result = runTX(new Callable<List<UdaBillingData>>() {
-            public List<UdaBillingData> call() throws Exception {
-                return bdr.loadUdasForSubscription(subKey, supplierKey);
-            }
-        });
+        List<UdaBillingData> result = runTX(
+                new Callable<List<UdaBillingData>>() {
+                    @Override
+                    public List<UdaBillingData> call() throws Exception {
+                        return bdr.loadUdasForSubscription(subKey, supplierKey);
+                    }
+                });
         assertNotNull(result);
         assertEquals(1, result.size());
         UdaBillingData uh = result.get(0);
@@ -535,11 +597,13 @@ public class BillingDataRetrievalServiceBeanUDAIT extends EJBTestBase {
         final long subKey = Scenario.getSubscription().getKey();
         updateSubUda1("updatedValue");
         removeSubUda1();
-        List<UdaBillingData> result = runTX(new Callable<List<UdaBillingData>>() {
-            public List<UdaBillingData> call() throws Exception {
-                return bdr.loadUdasForSubscription(subKey, supplierKey);
-            }
-        });
+        List<UdaBillingData> result = runTX(
+                new Callable<List<UdaBillingData>>() {
+                    @Override
+                    public List<UdaBillingData> call() throws Exception {
+                        return bdr.loadUdasForSubscription(subKey, supplierKey);
+                    }
+                });
         assertNotNull(result);
         assertEquals(1, result.size());
         UdaBillingData uh = result.get(0);
@@ -555,11 +619,13 @@ public class BillingDataRetrievalServiceBeanUDAIT extends EJBTestBase {
         removeSubUda1();
         removeSubscription(subKey);
 
-        List<UdaBillingData> result = runTX(new Callable<List<UdaBillingData>>() {
-            public List<UdaBillingData> call() throws Exception {
-                return bdr.loadUdasForSubscription(subKey, supplierKey);
-            }
-        });
+        List<UdaBillingData> result = runTX(
+                new Callable<List<UdaBillingData>>() {
+                    @Override
+                    public List<UdaBillingData> call() throws Exception {
+                        return bdr.loadUdasForSubscription(subKey, supplierKey);
+                    }
+                });
         assertEquals(1, result.size());
         UdaBillingData uh = result.get(0);
         assertEquals("UdaSub_Value2", uh.getValue());
@@ -571,11 +637,13 @@ public class BillingDataRetrievalServiceBeanUDAIT extends EJBTestBase {
         final long subKey = Scenario.getSubscription().getKey();
         removeSubscription(subKey);
 
-        List<UdaBillingData> result = runTX(new Callable<List<UdaBillingData>>() {
-            public List<UdaBillingData> call() throws Exception {
-                return bdr.loadUdasForSubscription(subKey, supplierKey);
-            }
-        });
+        List<UdaBillingData> result = runTX(
+                new Callable<List<UdaBillingData>>() {
+                    @Override
+                    public List<UdaBillingData> call() throws Exception {
+                        return bdr.loadUdasForSubscription(subKey, supplierKey);
+                    }
+                });
         assertEquals(2, result.size());
         UdaBillingData uh1 = result.get(0);
         assertEquals("UdaSub_Value1", uh1.getValue());
@@ -592,11 +660,13 @@ public class BillingDataRetrievalServiceBeanUDAIT extends EJBTestBase {
         updateSubUda1("updatedValue");
         removeSubscription(subKey);
 
-        List<UdaBillingData> result = runTX(new Callable<List<UdaBillingData>>() {
-            public List<UdaBillingData> call() throws Exception {
-                return bdr.loadUdasForSubscription(subKey, supplierKey);
-            }
-        });
+        List<UdaBillingData> result = runTX(
+                new Callable<List<UdaBillingData>>() {
+                    @Override
+                    public List<UdaBillingData> call() throws Exception {
+                        return bdr.loadUdasForSubscription(subKey, supplierKey);
+                    }
+                });
         assertEquals(2, result.size());
         UdaBillingData uh1 = result.get(0);
         assertEquals("updatedValue", uh1.getValue());
@@ -611,6 +681,7 @@ public class BillingDataRetrievalServiceBeanUDAIT extends EJBTestBase {
             throws Exception {
         final long sub1Key = Scenario.getSubscription().getKey();
         final Long sub2Key = runTX(new Callable<Long>() {
+            @Override
             public Long call() throws Exception {
                 Organization secondCustomer = Scenario.getSecondCustomer();
                 secondCustomer = (Organization) dm.find(secondCustomer);
@@ -635,11 +706,14 @@ public class BillingDataRetrievalServiceBeanUDAIT extends EJBTestBase {
         updateSubUda1("newSub1UdaValue");
         removeSubscription(sub1Key);
 
-        List<UdaBillingData> result = runTX(new Callable<List<UdaBillingData>>() {
-            public List<UdaBillingData> call() throws Exception {
-                return bdr.loadUdasForSubscription(sub1Key, supplierKey);
-            }
-        });
+        List<UdaBillingData> result = runTX(
+                new Callable<List<UdaBillingData>>() {
+                    @Override
+                    public List<UdaBillingData> call() throws Exception {
+                        return bdr.loadUdasForSubscription(sub1Key,
+                                supplierKey);
+                    }
+                });
         assertEquals(2, result.size());
         UdaBillingData uh1 = result.get(0);
         assertEquals("newSub1UdaValue", uh1.getValue());
@@ -648,12 +722,14 @@ public class BillingDataRetrievalServiceBeanUDAIT extends EJBTestBase {
         assertEquals("UdaSub_Value2", uh2.getValue());
         assertEquals("UdaDefSub2", uh2.getIdentifier());
 
-        List<UdaBillingData> result2 = runTX(new Callable<List<UdaBillingData>>() {
-            public List<UdaBillingData> call() throws Exception {
-                return bdr.loadUdasForSubscription(sub2Key.longValue(),
-                        supplierKey);
-            }
-        });
+        List<UdaBillingData> result2 = runTX(
+                new Callable<List<UdaBillingData>>() {
+                    @Override
+                    public List<UdaBillingData> call() throws Exception {
+                        return bdr.loadUdasForSubscription(sub2Key.longValue(),
+                                supplierKey);
+                    }
+                });
         assertEquals(2, result2.size());
         uh1 = result2.get(0);
         assertEquals("newSub_Value1", uh1.getValue());
@@ -673,6 +749,7 @@ public class BillingDataRetrievalServiceBeanUDAIT extends EJBTestBase {
      */
     private void removeSubUda1() throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Uda uda1 = Scenario.getSubUda1();
                 uda1 = dm.getReference(Uda.class, uda1.getKey());
@@ -691,6 +768,7 @@ public class BillingDataRetrievalServiceBeanUDAIT extends EJBTestBase {
      */
     private void updateSubUda1(final String value) throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Uda uda1 = Scenario.getSubUda1();
                 uda1 = dm.getReference(Uda.class, uda1.getKey());
@@ -711,14 +789,15 @@ public class BillingDataRetrievalServiceBeanUDAIT extends EJBTestBase {
      */
     private void removeSubscription(final long subKey) throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Long timeMillis = Long.valueOf(System.currentTimeMillis() + 1);
                 Subscription reference = dm.getReference(Subscription.class,
                         subKey);
                 reference.setHistoryModificationTime(timeMillis);
                 dm.remove(reference);
-                Query query = dm
-                        .createQuery("SELECT uda FROM Uda uda WHERE uda.dataContainer.targetObjectKey = :key");
+                Query query = dm.createQuery(
+                        "SELECT uda FROM Uda uda WHERE uda.dataContainer.targetObjectKey = :key");
                 query.setParameter("key", Long.valueOf(subKey));
                 List<Uda> udas = ParameterizedTypes.list(query.getResultList(),
                         Uda.class);

@@ -75,7 +75,8 @@ public class Organizations {
             throws NonUniqueBusinessKeyException {
         PlatformUser admin = prepareUser(mgr, org, isAdmin, userId, locale);
         admin.setUserId(userId);
-        mgr.persistPlatformUserWithTenant(admin, tenantID);
+        admin.setTenantId(tenantID);
+        mgr.persist(admin);
         if (isAdmin) {
             PlatformUsers.grantAdminRole(mgr, admin);
         }

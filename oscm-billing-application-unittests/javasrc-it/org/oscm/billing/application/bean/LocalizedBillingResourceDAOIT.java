@@ -30,6 +30,7 @@ import org.oscm.domobjects.LocalizedBillingResource;
 import org.oscm.domobjects.enums.LocalizedBillingResourceType;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.ejb.TestContainer;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 
 public class LocalizedBillingResourceDAOIT extends EJBTestBase {
 
@@ -45,6 +46,7 @@ public class LocalizedBillingResourceDAOIT extends EJBTestBase {
     @Override
     protected void setup(TestContainer container) throws Exception {
         container.login("1");
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         container.addBean(new BillingAdapterDAO());
         ds = container.get(DataService.class);
@@ -114,11 +116,13 @@ public class LocalizedBillingResourceDAOIT extends EJBTestBase {
                 EXTERNAL_PRICE_MODEL_EN_JSON.getBytes());
 
         // when
-        LocalizedBillingResource dbResource = updateLocalizedBillingResource(newResource);
+        LocalizedBillingResource dbResource = updateLocalizedBillingResource(
+                newResource);
 
         // then
         assertTrue(dbResource.getKey() != 0L);
-        LocalizedBillingResource newResourceInDB = findLocalizedBillingResourceInDB(newResource);
+        LocalizedBillingResource newResourceInDB = findLocalizedBillingResourceInDB(
+                newResource);
         assertEquals("Wrong version", 0, newResourceInDB.getVersion());
         assertEquals("Wrong locale", "en", newResourceInDB.getLocale());
         assertEquals("Wrong type",
@@ -126,8 +130,8 @@ public class LocalizedBillingResourceDAOIT extends EJBTestBase {
                 newResourceInDB.getResourceType());
         assertEquals("Wrong data type", MediaType.APPLICATION_JSON,
                 newResourceInDB.getDataType());
-        assertEquals("Wrong value", EXTERNAL_PRICE_MODEL_EN_JSON, new String(
-                newResourceInDB.getValue()));
+        assertEquals("Wrong value", EXTERNAL_PRICE_MODEL_EN_JSON,
+                new String(newResourceInDB.getValue()));
     }
 
     @Test
@@ -143,15 +147,17 @@ public class LocalizedBillingResourceDAOIT extends EJBTestBase {
                 EXTERNAL_PRICE_MODEL_EN_HTML.getBytes());
 
         // when
-        LocalizedBillingResource dbResource = updateLocalizedBillingResource(changedResource);
+        LocalizedBillingResource dbResource = updateLocalizedBillingResource(
+                changedResource);
 
         // then
-        LocalizedBillingResource changedResourceInDB = findLocalizedBillingResourceInDB(changedResource);
+        LocalizedBillingResource changedResourceInDB = findLocalizedBillingResourceInDB(
+                changedResource);
         assertEquals("Wrong version", 1, changedResourceInDB.getVersion());
         assertEquals("Wrong data type", MediaType.APPLICATION_XML,
                 changedResourceInDB.getDataType());
-        assertEquals("Wrong value", EXTERNAL_PRICE_MODEL_EN_HTML, new String(
-                changedResourceInDB.getValue()));
+        assertEquals("Wrong value", EXTERNAL_PRICE_MODEL_EN_HTML,
+                new String(changedResourceInDB.getValue()));
         assertTrue(dbResource.getKey() != 0L);
     }
 
@@ -179,7 +185,8 @@ public class LocalizedBillingResourceDAOIT extends EJBTestBase {
         updateLocalizedBillingResource(newResource);
 
         // then
-        LocalizedBillingResource newResourceInDB = findLocalizedBillingResourceInDB(newResource);
+        LocalizedBillingResource newResourceInDB = findLocalizedBillingResourceInDB(
+                newResource);
         assertEquals("Wrong version", 1, newResourceInDB.getVersion());
         assertEquals("Wrong locale", "en", newResourceInDB.getLocale());
         assertEquals("Wrong type",
@@ -187,7 +194,7 @@ public class LocalizedBillingResourceDAOIT extends EJBTestBase {
                 newResourceInDB.getResourceType());
         assertEquals("Wrong data type", MediaType.APPLICATION_JSON,
                 newResourceInDB.getDataType());
-        assertEquals("Wrong value", EXTERNAL_PRICE_MODEL_EN_JSON, new String(
-                newResourceInDB.getValue()));
+        assertEquals("Wrong value", EXTERNAL_PRICE_MODEL_EN_JSON,
+                new String(newResourceInDB.getValue()));
     }
 }

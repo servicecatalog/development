@@ -14,6 +14,7 @@ import java.net.URLEncoder;
 import org.apache.sling.commons.json.JSONException;
 import org.apache.sling.commons.json.JSONObject;
 import org.oscm.app.openstack.controller.PropertyHandler;
+import org.oscm.app.openstack.controller.ServerStatus;
 import org.oscm.app.openstack.data.Server;
 import org.oscm.app.openstack.exceptions.OpenStackConnectionException;
 import org.slf4j.Logger;
@@ -46,8 +47,10 @@ public class NovaClient {
      *            API
      * @return Boolean: If the request is successful, return Boolean.TRUE. If
      *         the request is failed, return Boolean.FALSE.
+     * @throws OpenStackConnectionException
      */
-    public Boolean startServer(PropertyHandler ph, String serverId) {
+    public Boolean startServer(PropertyHandler ph, String serverId)
+            throws OpenStackConnectionException {
         String uri;
         try {
             uri = connection.getNovaEndpoint() + "/servers/"
@@ -59,13 +62,7 @@ public class NovaClient {
         } catch (UnsupportedEncodingException e) {
             logger.error("Runtime error happened during encoding", e);
             throw new RuntimeException(e);
-        } catch (OpenStackConnectionException e) {
-            logger.info(
-                    "Could not start server (Server ID:" + serverId
-                            + ") in stack (Stack ID: " + ph.getStackId() + ")",
-                    e);
         }
-        return Boolean.FALSE;
     }
 
     /**
@@ -79,8 +76,10 @@ public class NovaClient {
      *            API
      * @return Boolean: If the request is successful, return Boolean.TRUE. If
      *         the request is failed, return Boolean.FALSE.
+     * @throws OpenStackConnectionException
      */
-    public Boolean stopServer(PropertyHandler ph, String serverId) {
+    public Boolean stopServer(PropertyHandler ph, String serverId)
+            throws OpenStackConnectionException {
         String uri;
         try {
             uri = connection.getNovaEndpoint() + "/servers/"
@@ -91,13 +90,7 @@ public class NovaClient {
         } catch (UnsupportedEncodingException e) {
             logger.error("Runtime error happened during encoding", e);
             throw new RuntimeException(e);
-        } catch (OpenStackConnectionException e) {
-            logger.info(
-                    "Could not stop server (Server ID:" + serverId
-                            + ") in stack (Stack ID: " + ph.getStackId() + ")",
-                    e);
         }
-        return Boolean.FALSE;
     }
 
     /**
@@ -106,11 +99,12 @@ public class NovaClient {
      * @param ph
      * @param serverId
      * @return Server object which contain id, name and status
+     * @throws OpenStackConnectionException
      */
-    public Server getServerDetails(PropertyHandler ph, String serverId) {
+    public Server getServerDetails(PropertyHandler ph, String serverId)
+            throws OpenStackConnectionException {
         String uri;
-        Server result = new Server();
-        result.setId(serverId);
+        Server result = new Server(serverId);
         try {
             uri = connection.getNovaEndpoint() + "/servers/"
                     + URLEncoder.encode(serverId, "UTF-8");
@@ -132,15 +126,9 @@ public class NovaClient {
         } catch (JSONException e) {
             logger.error("NovaClient.getServerDetails() JSONException occurred",
                     e);
-        } catch (OpenStackConnectionException e) {
-            logger.error(
-                    "NovaClient.getServerDetails() Could not get server status (Server ID:"
-                            + serverId + ") in stack (Stack ID: "
-                            + ph.getStackId() + ")",
-                    e);
         }
         result.setName("");
-        result.setStatus("-1");
+        result.setStatus(ServerStatus.ERROR.toString());
         return result;
     }
 

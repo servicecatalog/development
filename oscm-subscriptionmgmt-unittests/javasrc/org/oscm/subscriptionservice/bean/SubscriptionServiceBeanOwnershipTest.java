@@ -13,6 +13,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -75,10 +76,10 @@ public class SubscriptionServiceBeanOwnershipTest {
         DataService dsMock = mock(DataService.class);
         bean.dataManager = dsMock;
         idManager = mock(IdentityServiceLocal.class);
-        
+
         cfgService = mock(ConfigurationServiceLocal.class);
         bean.cfgService = cfgService;
-        
+
         bean.manageBean = manageBean;
         manageBean.dataManager = dsMock;
 
@@ -213,7 +214,7 @@ public class SubscriptionServiceBeanOwnershipTest {
         createSubscriptionManagerAsOwner();
         mockSubscriptionNotFound();
 
-       // when
+        // when
         bean.getSubscriptionDetails(subscriptionID);
     }
 
@@ -261,7 +262,7 @@ public class SubscriptionServiceBeanOwnershipTest {
     public void unsubscribeFromService_Owner() throws Exception {
         // given
         createSubscriptionManagerAsOwner();
-       mockUserAndSubscription();
+        mockUserAndSubscription();
 
         // when
         bean.unsubscribeFromService(subscriptionID);
@@ -270,7 +271,7 @@ public class SubscriptionServiceBeanOwnershipTest {
     @Test(expected = ObjectNotFoundException.class)
     public void unsubscribeFromService_ObjectNotFound() throws Exception {
         // given
-       createSubscriptionManagerAsOwner();
+        createSubscriptionManagerAsOwner();
         mockSubscriptionNotFound();
 
         // when
@@ -476,7 +477,9 @@ public class SubscriptionServiceBeanOwnershipTest {
         // given
         PlatformUser user = givenSubscriptionOwner();
         Subscription subscriptionToModify = givenSubscription(null);
-        doReturn(user).when(idManager).getPlatformUser(user.getUserId(), true);
+        doReturn(user).when(modUpgBean.dataManager).getCurrentUser();
+        doReturn(user).when(bean.modUpgBean.idManager).getPlatformUser(
+                eq(user.getUserId()), anyString(), eq(true));
 
         // when
         bean.modUpgBean.setSubscriptionOwner(subscriptionToModify,
@@ -505,7 +508,9 @@ public class SubscriptionServiceBeanOwnershipTest {
         // given
         PlatformUser user = givenSubscriptionOwner();
         Subscription subscriptionToModify = givenSubscription(user);
-        doReturn(user).when(idManager).getPlatformUser(user.getUserId(), true);
+        doReturn(user).when(modUpgBean.dataManager).getCurrentUser();
+        doReturn(user).when(idManager).getPlatformUser(eq(user.getUserId()),
+                anyString(), eq(true));
 
         // when
         bean.modUpgBean.setSubscriptionOwner(subscriptionToModify,
@@ -595,4 +600,3 @@ public class SubscriptionServiceBeanOwnershipTest {
         return voUsers;
     }
 }
-

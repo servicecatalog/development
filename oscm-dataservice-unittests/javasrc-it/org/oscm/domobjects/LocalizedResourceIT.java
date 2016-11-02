@@ -22,16 +22,10 @@ import java.util.concurrent.Callable;
 
 import org.junit.Assert;
 import org.junit.Test;
-
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.enums.BillingAdapterIdentifier;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
-import org.oscm.test.EJBTestBase;
-import org.oscm.test.data.Marketplaces;
-import org.oscm.test.data.TechnicalProducts;
-import org.oscm.test.ejb.TestContainer;
-import org.oscm.types.enumtypes.OperationParameterType;
 import org.oscm.internal.types.enumtypes.EventType;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.ParameterType;
@@ -44,6 +38,12 @@ import org.oscm.internal.types.enumtypes.SubscriptionStatus;
 import org.oscm.internal.types.enumtypes.TriggerProcessStatus;
 import org.oscm.internal.types.enumtypes.TriggerTargetType;
 import org.oscm.internal.types.enumtypes.TriggerType;
+import org.oscm.test.EJBTestBase;
+import org.oscm.test.data.Marketplaces;
+import org.oscm.test.data.TechnicalProducts;
+import org.oscm.test.ejb.TestContainer;
+import org.oscm.test.stubs.ConfigurationServiceStub;
+import org.oscm.types.enumtypes.OperationParameterType;
 
 public class LocalizedResourceIT extends EJBTestBase {
 
@@ -52,6 +52,7 @@ public class LocalizedResourceIT extends EJBTestBase {
     @Override
     protected void setup(TestContainer container) throws Exception {
         container.login("testuser");
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         mgr = container.get(DataService.class);
     }
@@ -343,7 +344,8 @@ public class LocalizedResourceIT extends EJBTestBase {
     }
 
     @Test
-    public void removeLocalization_TechnicalProductOperation() throws Exception {
+    public void removeLocalization_TechnicalProductOperation()
+            throws Exception {
 
         TechnicalProduct tp = createTechnicalProduct(null);
         TechnicalProductOperation tpo = createTechnicalProductOperation(tp);
@@ -358,7 +360,8 @@ public class LocalizedResourceIT extends EJBTestBase {
 
     @Test
     public void removeLocalization_OperationParameter() throws Exception {
-        TechnicalProductOperation tpo = createTechnicalProductOperation(createTechnicalProduct(null));
+        TechnicalProductOperation tpo = createTechnicalProductOperation(
+                createTechnicalProduct(null));
         OperationParameter op = createOperationParameter(tpo);
 
         // remove object without localization
@@ -468,6 +471,7 @@ public class LocalizedResourceIT extends EJBTestBase {
 
     private void remove(final DomainObject<?> domobj) throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 mgr.remove(mgr.find(domobj.getClass(), domobj.getKey()));
                 return null;
@@ -479,6 +483,7 @@ public class LocalizedResourceIT extends EJBTestBase {
             throws Exception {
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 long key = domobj.getKey();
                 List<LocalizedObjectTypes> ltypes = domobj
@@ -509,6 +514,7 @@ public class LocalizedResourceIT extends EJBTestBase {
             final boolean existExpected) throws Exception {
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 long key = domobj.getKey();
                 for (LocalizedObjectTypes objectType : domobj
@@ -538,6 +544,7 @@ public class LocalizedResourceIT extends EJBTestBase {
     private Organization createOrganization() throws Exception {
 
         Organization org = runTX(new Callable<Organization>() {
+            @Override
             public Organization call() throws Exception {
                 Organization org = new Organization();
                 org.setOrganizationId("orgId");
@@ -556,9 +563,11 @@ public class LocalizedResourceIT extends EJBTestBase {
         return org;
     }
 
-    private PriceModel createPriceModel(final Product product) throws Exception {
+    private PriceModel createPriceModel(final Product product)
+            throws Exception {
 
         PriceModel priceModel = runTX(new Callable<PriceModel>() {
+            @Override
             public PriceModel call() throws Exception {
                 PriceModel priceModel = new PriceModel();
                 priceModel.setType(PriceModelType.FREE_OF_CHARGE);
@@ -579,6 +588,7 @@ public class LocalizedResourceIT extends EJBTestBase {
     private TechnicalProduct createTechnicalProduct(final Organization org)
             throws Exception {
         TechnicalProduct tp = runTX(new Callable<TechnicalProduct>() {
+            @Override
             public TechnicalProduct call() throws Exception {
                 Organization provider = null;
                 if (org != null) {
@@ -588,10 +598,10 @@ public class LocalizedResourceIT extends EJBTestBase {
                     provider = createOrganization();
                 }
                 TechnicalProduct tp = new TechnicalProduct();
-                tp.setBillingIdentifier(BillingAdapterIdentifier.NATIVE_BILLING
-                        .toString());
-                tp.setTechnicalProductId("technicalproductId"
-                        + System.currentTimeMillis());
+                tp.setBillingIdentifier(
+                        BillingAdapterIdentifier.NATIVE_BILLING.toString());
+                tp.setTechnicalProductId(
+                        "technicalproductId" + System.currentTimeMillis());
                 tp.setOrganization(provider);
                 tp.setProvisioningURL("http://test.com");
                 TechnicalProduct tp1 = (TechnicalProduct) mgr.find(tp);
@@ -610,21 +620,23 @@ public class LocalizedResourceIT extends EJBTestBase {
     private TechnicalProduct createTechnicalProductWithDependentEntities(
             final Organization org) throws Exception {
         TechnicalProduct tp = runTX(new Callable<TechnicalProduct>() {
+            @Override
             public TechnicalProduct call() throws Exception {
                 TechnicalProduct tp = createTechnicalProduct(org);
                 tp = mgr.find(tp.getClass(), tp.getKey());
                 Event event = createEvent(tp);
-                List<Event> events = new ArrayList<Event>();
+                List<Event> events = new ArrayList<>();
                 events.add(event);
                 event = createEvent(tp);
                 events.add(event);
                 tp.setEvents(events);
                 ParameterOption po = createParameterOption(tp);
-                List<ParameterDefinition> pds = new ArrayList<ParameterDefinition>();
+                List<ParameterDefinition> pds = new ArrayList<>();
                 pds.add(po.getParameterDefinition());
                 tp.setParameterDefinitions(pds);
-                TechnicalProductOperation tpo = createTechnicalProductOperation(tp);
-                List<TechnicalProductOperation> tpos = new ArrayList<TechnicalProductOperation>();
+                TechnicalProductOperation tpo = createTechnicalProductOperation(
+                        tp);
+                List<TechnicalProductOperation> tpos = new ArrayList<>();
                 tpos.add(tpo);
                 tp.setTechnicalProductOperations(tpos);
                 mgr.persist(tp);
@@ -637,13 +649,15 @@ public class LocalizedResourceIT extends EJBTestBase {
 
     private Event createEvent(final TechnicalProduct tp) throws Exception {
         Event event = runTX(new Callable<Event>() {
+            @Override
             public Event call() throws Exception {
                 TechnicalProduct tp1 = tp;
                 if (tp1 != null) {
                     tp1 = mgr.find(tp.getClass(), tp.getKey());
                 }
                 Event event = new Event();
-                event.setEventIdentifier("eventId" + System.currentTimeMillis());
+                event.setEventIdentifier(
+                        "eventId" + System.currentTimeMillis());
                 event.setEventType(EventType.PLATFORM_EVENT);
                 event.setTechnicalProduct(tp1);
                 mgr.persist(event);
@@ -656,6 +670,7 @@ public class LocalizedResourceIT extends EJBTestBase {
     private Report createReport() throws Exception {
 
         Report report = runTX(new Callable<Report>() {
+            @Override
             public Report call() throws Exception {
                 OrganizationRole orgrole = new OrganizationRole();
                 orgrole.setRoleName(OrganizationRoleType.MARKETPLACE_OWNER);
@@ -681,6 +696,7 @@ public class LocalizedResourceIT extends EJBTestBase {
             throws Exception {
 
         Marketplace mp = runTX(new Callable<Marketplace>() {
+            @Override
             public Marketplace call() throws Exception {
                 Organization org = owner;
                 if (org == null) {
@@ -698,6 +714,7 @@ public class LocalizedResourceIT extends EJBTestBase {
     private RoleDefinition createRoleDefinition() throws Exception {
 
         RoleDefinition roledef = runTX(new Callable<RoleDefinition>() {
+            @Override
             public RoleDefinition call() throws Exception {
                 TechnicalProduct tp = createTechnicalProduct(null);
                 RoleDefinition roledef = new RoleDefinition();
@@ -714,6 +731,7 @@ public class LocalizedResourceIT extends EJBTestBase {
             final TechnicalProduct tp) throws Exception {
 
         ParameterDefinition pd = runTX(new Callable<ParameterDefinition>() {
+            @Override
             public ParameterDefinition call() throws Exception {
                 TechnicalProduct tp1 = tp;
                 if (tp1 != null) {
@@ -735,6 +753,7 @@ public class LocalizedResourceIT extends EJBTestBase {
             throws Exception {
 
         ParameterOption po = runTX(new Callable<ParameterOption>() {
+            @Override
             public ParameterOption call() throws Exception {
                 ParameterDefinition pd = createParameterDefinition(tp);
                 ParameterOption po = new ParameterOption();
@@ -750,6 +769,7 @@ public class LocalizedResourceIT extends EJBTestBase {
     private TriggerProcess createTriggerProcess(final Organization org)
             throws Exception {
         TriggerProcess trigger = runTX(new Callable<TriggerProcess>() {
+            @Override
             public TriggerProcess call() throws Exception {
                 TriggerDefinition td = new TriggerDefinition();
                 td.setType(TriggerType.ACTIVATE_SERVICE);
@@ -773,20 +793,22 @@ public class LocalizedResourceIT extends EJBTestBase {
 
     private TechnicalProductOperation createTechnicalProductOperation(
             final TechnicalProduct tp) throws Exception {
-        TechnicalProductOperation tpo = runTX(new Callable<TechnicalProductOperation>() {
-            public TechnicalProductOperation call() throws Exception {
-                TechnicalProduct tp1 = null;
-                if (tp != null) {
-                    tp1 = mgr.find(tp.getClass(), tp.getKey());
-                }
-                TechnicalProductOperation tpo = new TechnicalProductOperation();
-                tpo.setOperationId("tpoId");
-                tpo.setActionUrl("htpp:\\ttt.de");
-                tpo.setTechnicalProduct(tp1);
-                mgr.persist(tpo);
-                return tpo;
-            }
-        });
+        TechnicalProductOperation tpo = runTX(
+                new Callable<TechnicalProductOperation>() {
+                    @Override
+                    public TechnicalProductOperation call() throws Exception {
+                        TechnicalProduct tp1 = null;
+                        if (tp != null) {
+                            tp1 = mgr.find(tp.getClass(), tp.getKey());
+                        }
+                        TechnicalProductOperation tpo = new TechnicalProductOperation();
+                        tpo.setOperationId("tpoId");
+                        tpo.setActionUrl("htpp:\\ttt.de");
+                        tpo.setTechnicalProduct(tp1);
+                        mgr.persist(tpo);
+                        return tpo;
+                    }
+                });
         return tpo;
     }
 
@@ -796,8 +818,8 @@ public class LocalizedResourceIT extends EJBTestBase {
 
             @Override
             public OperationParameter call() throws Exception {
-                TechnicalProductOperation read = mgr.getReference(
-                        tpo.getClass(), tpo.getKey());
+                TechnicalProductOperation read = mgr
+                        .getReference(tpo.getClass(), tpo.getKey());
                 return TechnicalProducts.addOperationParameter(mgr, read,
                         "PARAM1", false, OperationParameterType.INPUT_STRING);
             }
@@ -807,6 +829,7 @@ public class LocalizedResourceIT extends EJBTestBase {
 
     private PaymentType createPaymentType() throws Exception {
         PaymentType pt = runTX(new Callable<PaymentType>() {
+            @Override
             public PaymentType call() throws Exception {
                 PSP psp = new PSP();
                 psp.setIdentifier("pspID");
@@ -831,11 +854,12 @@ public class LocalizedResourceIT extends EJBTestBase {
     private Product createProduct(final Organization org,
             final boolean withPriceModel) throws Exception {
         Product product = runTX(new Callable<Product>() {
+            @Override
             public Product call() throws Exception {
                 TechnicalProduct tp = createTechnicalProduct(null);
                 Product product = new Product();
-                product.setProductId("testproductId"
-                        + System.currentTimeMillis());
+                product.setProductId(
+                        "testproductId" + System.currentTimeMillis());
                 product.setStatus(ServiceStatus.SUSPENDED);
                 Organization supplier = org;
                 if (supplier == null) {
@@ -867,6 +891,7 @@ public class LocalizedResourceIT extends EJBTestBase {
     private Subscription createSubscription(final Product prod,
             final Organization org) throws Exception {
         Subscription subscription = runTX(new Callable<Subscription>() {
+            @Override
             public Subscription call() throws Exception {
                 Product product = prod;
                 Organization owner = org;
@@ -897,6 +922,7 @@ public class LocalizedResourceIT extends EJBTestBase {
     private CatalogEntry createCatalogEntry(final Product prod)
             throws Exception {
         CatalogEntry catEntry = runTX(new Callable<CatalogEntry>() {
+            @Override
             public CatalogEntry call() throws Exception {
                 Product product = prod;
                 if (prod != null) {
@@ -915,6 +941,7 @@ public class LocalizedResourceIT extends EJBTestBase {
 
     private void clear() throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 mgr.clear();
                 return null;

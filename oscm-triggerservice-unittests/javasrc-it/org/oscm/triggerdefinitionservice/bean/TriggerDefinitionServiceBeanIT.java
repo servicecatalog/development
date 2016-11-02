@@ -17,24 +17,11 @@ import javax.ejb.EJBException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
-
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.TriggerDefinition;
-import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
-import org.oscm.test.EJBTestBase;
-import org.oscm.test.data.Organizations;
-import org.oscm.test.data.PlatformUsers;
-import org.oscm.test.data.TriggerDefinitions;
-import org.oscm.test.data.TriggerProcesses;
-import org.oscm.test.ejb.TestContainer;
-import org.oscm.test.stubs.AccountServiceStub;
-import org.oscm.test.stubs.CommunicationServiceStub;
-import org.oscm.test.stubs.LocalizerServiceStub;
-import org.oscm.test.stubs.ServiceProvisioningServiceStub;
-import org.oscm.triggerservice.bean.TriggerDefinitionServiceBean;
 import org.oscm.internal.intf.TriggerDefinitionService;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.TriggerTargetType;
@@ -46,6 +33,19 @@ import org.oscm.internal.types.exception.OperationNotPermittedException;
 import org.oscm.internal.types.exception.TriggerDefinitionDataException;
 import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.internal.vo.VOTriggerDefinition;
+import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
+import org.oscm.test.EJBTestBase;
+import org.oscm.test.data.Organizations;
+import org.oscm.test.data.PlatformUsers;
+import org.oscm.test.data.TriggerDefinitions;
+import org.oscm.test.data.TriggerProcesses;
+import org.oscm.test.ejb.TestContainer;
+import org.oscm.test.stubs.AccountServiceStub;
+import org.oscm.test.stubs.CommunicationServiceStub;
+import org.oscm.test.stubs.ConfigurationServiceStub;
+import org.oscm.test.stubs.LocalizerServiceStub;
+import org.oscm.test.stubs.ServiceProvisioningServiceStub;
+import org.oscm.triggerservice.bean.TriggerDefinitionServiceBean;
 
 @SuppressWarnings("boxing")
 public class TriggerDefinitionServiceBeanIT extends EJBTestBase {
@@ -56,7 +56,8 @@ public class TriggerDefinitionServiceBeanIT extends EJBTestBase {
             TriggerType.SAVE_PAYMENT_CONFIGURATION,
             TriggerType.START_BILLING_RUN, TriggerType.SUBSCRIPTION_CREATION,
             TriggerType.SUBSCRIPTION_MODIFICATION,
-            TriggerType.SUBSCRIPTION_TERMINATION, TriggerType.REGISTER_OWN_USER };
+            TriggerType.SUBSCRIPTION_TERMINATION,
+            TriggerType.REGISTER_OWN_USER };
 
     private TriggerType[] allowedTriggersForCustomer = {
             TriggerType.ADD_REVOKE_USER, TriggerType.MODIFY_SUBSCRIPTION,
@@ -87,6 +88,7 @@ public class TriggerDefinitionServiceBeanIT extends EJBTestBase {
 
     @Override
     protected void setup(TestContainer container) throws Exception {
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         mgr = container.get(DataService.class);
 
@@ -106,8 +108,8 @@ public class TriggerDefinitionServiceBeanIT extends EJBTestBase {
                 supp1 = Organizations.createOrganization(mgr,
                         OrganizationRoleType.SUPPLIER);
 
-                PlatformUser createUserForOrg = Organizations.createUserForOrg(
-                        mgr, supp1, false, "admin");
+                PlatformUser createUserForOrg = Organizations
+                        .createUserForOrg(mgr, supp1, false, "admin");
                 PlatformUsers.grantRoles(mgr, createUserForOrg,
                         UserRoleType.ORGANIZATION_ADMIN);
                 supplier1Key = createUserForOrg.getKey();
@@ -126,8 +128,8 @@ public class TriggerDefinitionServiceBeanIT extends EJBTestBase {
                 techProv = Organizations.createOrganization(mgr,
                         OrganizationRoleType.TECHNOLOGY_PROVIDER);
 
-                createUserForOrg = Organizations.createUserForOrg(mgr,
-                        techProv, false, "userS2");
+                createUserForOrg = Organizations.createUserForOrg(mgr, techProv,
+                        false, "userS2");
                 techProvKey = createUserForOrg.getKey();
                 PlatformUsers.grantRoles(mgr, createUserForOrg,
                         UserRoleType.ORGANIZATION_ADMIN);
@@ -398,8 +400,8 @@ public class TriggerDefinitionServiceBeanIT extends EJBTestBase {
         Assert.assertEquals(def1.getType(), list.get(0).getType());
         Assert.assertEquals(def1.getTargetType(), list.get(0).getTargetType());
         Assert.assertEquals(def1.getTarget(), list.get(0).getTarget());
-        Assert.assertEquals(def1.isSuspendProcess(), list.get(0)
-                .isSuspendProcess());
+        Assert.assertEquals(def1.isSuspendProcess(),
+                list.get(0).isSuspendProcess());
     }
 
     @Test
@@ -425,8 +427,8 @@ public class TriggerDefinitionServiceBeanIT extends EJBTestBase {
 
         triggerDefinition.setType(TriggerType.ACTIVATE_SERVICE);
         triggerDefinition.setTargetType(TriggerTargetType.WEB_SERVICE);
-        triggerDefinition
-                .setTarget("http://estbesdev1:8680/oscm-integrationtests-mockproduct/NotificationService?wsdl");
+        triggerDefinition.setTarget(
+                "http://estbesdev1:8680/oscm-integrationtests-mockproduct/NotificationService?wsdl");
         triggerDefinition.setSuspendProcess(true);
         triggerDefinition.setName("NAME_NEU");
         updateTriggerDefinition(triggerDefinition);
@@ -467,8 +469,8 @@ public class TriggerDefinitionServiceBeanIT extends EJBTestBase {
 
         triggerDefinition.setType(TriggerType.DEACTIVATE_SERVICE);
         triggerDefinition.setTargetType(TriggerTargetType.WEB_SERVICE);
-        triggerDefinition
-                .setTarget("http://estbesdev1:8680/oscm-integrationtests-mockproduct/NotificationService?wsdl");
+        triggerDefinition.setTarget(
+                "http://estbesdev1:8680/oscm-integrationtests-mockproduct/NotificationService?wsdl");
         triggerDefinition.setSuspendProcess(true);
         triggerDefinition.setName("NAME_NEU");
         updateTriggerDefinition(triggerDefinition);
@@ -497,9 +499,10 @@ public class TriggerDefinitionServiceBeanIT extends EJBTestBase {
                 .getTriggerDefinitions();
 
         Assert.assertEquals(1, list.size());
-        Assert.assertEquals(TriggerTargetType.WEB_SERVICE, list.get(0)
-                .getTargetType());
-        Assert.assertEquals(TriggerType.ACTIVATE_SERVICE, list.get(0).getType());
+        Assert.assertEquals(TriggerTargetType.WEB_SERVICE,
+                list.get(0).getTargetType());
+        Assert.assertEquals(TriggerType.ACTIVATE_SERVICE,
+                list.get(0).getType());
         Assert.assertEquals(true, list.get(0).isHasTriggerProcess());
     }
 
@@ -549,8 +552,8 @@ public class TriggerDefinitionServiceBeanIT extends EJBTestBase {
 
     // wrong role for delete
     @Test(expected = EJBAccessException.class)
-    public void testDeleteTriggerDefinition_WrongRole() throws Exception,
-            DeletionConstraintException {
+    public void testDeleteTriggerDefinition_WrongRole()
+            throws Exception, DeletionConstraintException {
         VOTriggerDefinition trigger = createTriggerForSupp1();
 
         container.login(nonAdminKey, UserRoleType.MARKETPLACE_OWNER.name());
@@ -583,8 +586,8 @@ public class TriggerDefinitionServiceBeanIT extends EJBTestBase {
         VOTriggerDefinition def1 = buildTriggerVO(true);
 
         def1.setType(TriggerType.DEACTIVATE_SERVICE);
-        def1.setSuspendProcess(TriggerType.DEACTIVATE_SERVICE
-                .isSuspendProcess());
+        def1.setSuspendProcess(
+                TriggerType.DEACTIVATE_SERVICE.isSuspendProcess());
         createTriggerDefinition(def1);
 
         List<VOTriggerDefinition> list = triggerDefinitionService
@@ -600,8 +603,8 @@ public class TriggerDefinitionServiceBeanIT extends EJBTestBase {
         VOTriggerDefinition def1 = buildTriggerVO(true);
 
         def1.setType(TriggerType.REGISTER_CUSTOMER_FOR_SUPPLIER);
-        def1.setSuspendProcess(TriggerType.REGISTER_CUSTOMER_FOR_SUPPLIER
-                .isSuspendProcess());
+        def1.setSuspendProcess(
+                TriggerType.REGISTER_CUSTOMER_FOR_SUPPLIER.isSuspendProcess());
         createTriggerDefinition(def1);
 
         List<VOTriggerDefinition> list = triggerDefinitionService
@@ -617,8 +620,8 @@ public class TriggerDefinitionServiceBeanIT extends EJBTestBase {
         VOTriggerDefinition def1 = buildTriggerVO(true);
 
         def1.setType(TriggerType.SAVE_PAYMENT_CONFIGURATION);
-        def1.setSuspendProcess(TriggerType.SAVE_PAYMENT_CONFIGURATION
-                .isSuspendProcess());
+        def1.setSuspendProcess(
+                TriggerType.SAVE_PAYMENT_CONFIGURATION.isSuspendProcess());
         createTriggerDefinition(def1);
 
         List<VOTriggerDefinition> list = triggerDefinitionService
@@ -634,7 +637,8 @@ public class TriggerDefinitionServiceBeanIT extends EJBTestBase {
         VOTriggerDefinition def1 = buildTriggerVO(true);
 
         def1.setType(TriggerType.START_BILLING_RUN);
-        def1.setSuspendProcess(TriggerType.START_BILLING_RUN.isSuspendProcess());
+        def1.setSuspendProcess(
+                TriggerType.START_BILLING_RUN.isSuspendProcess());
         createTriggerDefinition(def1);
 
         List<VOTriggerDefinition> list = triggerDefinitionService
@@ -710,8 +714,8 @@ public class TriggerDefinitionServiceBeanIT extends EJBTestBase {
 
         VOTriggerDefinition def1 = buildTriggerVO(true);
         def1.setType(TriggerType.MODIFY_SUBSCRIPTION);
-        def1.setSuspendProcess(TriggerType.MODIFY_SUBSCRIPTION
-                .isSuspendProcess());
+        def1.setSuspendProcess(
+                TriggerType.MODIFY_SUBSCRIPTION.isSuspendProcess());
         createTriggerDefinition(def1);
     }
 
@@ -722,8 +726,8 @@ public class TriggerDefinitionServiceBeanIT extends EJBTestBase {
 
         VOTriggerDefinition def1 = buildTriggerVO(true);
         def1.setType(TriggerType.SUBSCRIBE_TO_SERVICE);
-        def1.setSuspendProcess(TriggerType.SUBSCRIBE_TO_SERVICE
-                .isSuspendProcess());
+        def1.setSuspendProcess(
+                TriggerType.SUBSCRIBE_TO_SERVICE.isSuspendProcess());
         createTriggerDefinition(def1);
     }
 
@@ -734,8 +738,8 @@ public class TriggerDefinitionServiceBeanIT extends EJBTestBase {
 
         VOTriggerDefinition def1 = buildTriggerVO(true);
         def1.setType(TriggerType.UNSUBSCRIBE_FROM_SERVICE);
-        def1.setSuspendProcess(TriggerType.UNSUBSCRIBE_FROM_SERVICE
-                .isSuspendProcess());
+        def1.setSuspendProcess(
+                TriggerType.UNSUBSCRIBE_FROM_SERVICE.isSuspendProcess());
         createTriggerDefinition(def1);
     }
 
@@ -746,8 +750,8 @@ public class TriggerDefinitionServiceBeanIT extends EJBTestBase {
 
         VOTriggerDefinition def1 = buildTriggerVO(true);
         def1.setType(TriggerType.UPGRADE_SUBSCRIPTION);
-        def1.setSuspendProcess(TriggerType.UPGRADE_SUBSCRIPTION
-                .isSuspendProcess());
+        def1.setSuspendProcess(
+                TriggerType.UPGRADE_SUBSCRIPTION.isSuspendProcess());
         createTriggerDefinition(def1);
     }
 
@@ -758,7 +762,8 @@ public class TriggerDefinitionServiceBeanIT extends EJBTestBase {
 
         VOTriggerDefinition def1 = buildTriggerVO(true);
         def1.setType(TriggerType.START_BILLING_RUN);
-        def1.setSuspendProcess(TriggerType.START_BILLING_RUN.isSuspendProcess());
+        def1.setSuspendProcess(
+                TriggerType.START_BILLING_RUN.isSuspendProcess());
         createTriggerDefinition(def1);
     }
 
@@ -773,8 +778,8 @@ public class TriggerDefinitionServiceBeanIT extends EJBTestBase {
 
         // then
         assertEquals(allowedTriggersForCustomer.length, triggerTypes.size());
-        assertTrue(triggerTypes.containsAll(Arrays
-                .asList(allowedTriggersForCustomer)));
+        assertTrue(triggerTypes
+                .containsAll(Arrays.asList(allowedTriggersForCustomer)));
     }
 
     @Test
@@ -787,10 +792,10 @@ public class TriggerDefinitionServiceBeanIT extends EJBTestBase {
                 .getTriggerTypes();
 
         // then
-        assertTrue(triggerTypes.containsAll(Arrays
-                .asList(allowedTriggersForSupplier)));
-        assertTrue(triggerTypes.containsAll(Arrays
-                .asList(allowedTriggersForCustomer)));
+        assertTrue(triggerTypes
+                .containsAll(Arrays.asList(allowedTriggersForSupplier)));
+        assertTrue(triggerTypes
+                .containsAll(Arrays.asList(allowedTriggersForCustomer)));
     }
 
     @Test(expected = EJBAccessException.class)

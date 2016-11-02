@@ -222,7 +222,7 @@ public class ServiceAuditLogCollector {
 
     public void updateService(DataService ds, Product product,
             boolean isShortDescriptionChanged, boolean isDescriptionChanged,
-            String locale) {
+            boolean isCustomTabNameChanged, String locale) {
         BESAuditLogEntry logEntry = createAuditLogEntry(ds,
                 ServiceAuditLogOperation.UPDATE_SERVICE, product);
         logEntry.addParameter(AuditLogParameter.DESCRIPTION,
@@ -232,6 +232,8 @@ public class ServiceAuditLogCollector {
         logEntry.addParameter(AuditLogParameter.LOCALE, locale);
         logEntry.addParameter(AuditLogParameter.AUTO_ASSIGN_USER,
                 toYesOrNo(product.isAutoAssignUserEnabled().booleanValue()));
+        logEntry.addParameter(AuditLogParameter.CUSTOM_TAB_NAME,
+                toYesOrNo(isCustomTabNameChanged));
         AuditLogData.add(logEntry);
     }
 

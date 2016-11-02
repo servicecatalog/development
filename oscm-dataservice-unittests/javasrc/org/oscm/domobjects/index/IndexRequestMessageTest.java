@@ -17,7 +17,12 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Assert;
 import org.junit.Test;
 
-import org.oscm.domobjects.*;
+import org.oscm.domobjects.CatalogEntry;
+import org.oscm.domobjects.LocalizedResource;
+import org.oscm.domobjects.PriceModel;
+import org.oscm.domobjects.Product;
+import org.oscm.domobjects.TechnicalProductTag;
+import org.oscm.domobjects.UdaDefinition;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.domobjects.enums.ModificationType;
 
@@ -105,6 +110,11 @@ public class IndexRequestMessageTest {
 
         r = new LocalizedResource("es", key,
                 LocalizedObjectTypes.PRICEMODEL_LICENSE);
+        message = IndexRequestMessage.get(r, ModificationType.MODIFY);
+        Assert.assertNull("No message expected", message);
+
+        r = new LocalizedResource("en", key,
+                LocalizedObjectTypes.PRODUCT_CUSTOM_TAB_NAME);
         message = IndexRequestMessage.get(r, ModificationType.MODIFY);
         Assert.assertNull("No message expected", message);
     }

@@ -15,7 +15,10 @@ package org.oscm.security;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.matches;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -36,20 +39,20 @@ import javax.security.auth.login.LoginException;
 import javax.sql.DataSource;
 
 import org.junit.Test;
-
 import org.oscm.authorization.PasswordHash;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.domobjects.ConfigurationSetting;
 import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.PlatformUser;
+import org.oscm.internal.types.enumtypes.ConfigurationKey;
+import org.oscm.internal.types.enumtypes.UserAccountStatus;
 import org.oscm.saml2.api.AssertionConsumerService;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.Organizations;
 import org.oscm.test.ejb.TestContainer;
 import org.oscm.test.ejb.TestDataSources;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.types.constants.Configuration;
-import org.oscm.internal.types.enumtypes.ConfigurationKey;
-import org.oscm.internal.types.enumtypes.UserAccountStatus;
 
 public class ADMRealmImplIT extends EJBTestBase {
 
@@ -67,19 +70,20 @@ public class ADMRealmImplIT extends EJBTestBase {
     private static final String REQUEST_ID = "ID_0123456789012345678901234567890123456789";
     private static final String SAML_RESPONSE = "SAMLResponse";
     private static final String TENANT_ID = "11111111";
-    private static final String UI_PASSWORD = "UI" + REQUEST_ID + TENANT_ID + SAML_RESPONSE;
+    private static final String UI_PASSWORD = "UI" + REQUEST_ID + TENANT_ID
+            + SAML_RESPONSE;
     public static final String tenantID = "";
 
     @Override
     protected void setup(TestContainer container) throws Exception {
         container.login(1);
+        container.addBean(new ConfigurationServiceStub());
         dm = new DataServiceBean();
         container.addBean(dm);
         Context ctxMock = mock(Context.class);
         realm = spy(new ADMRealmImpl(mock(Logger.class), ctxMock));
 
-        dataSource = TestDataSources.get("oscm-domainobjects")
-                .getDataSource();
+        dataSource = TestDataSources.get("oscm-domainobjects").getDataSource();
         when(ctxMock.lookup(anyString())).thenReturn(dataSource);
 
         user = runTX(new Callable<PlatformUser>() {
@@ -89,29 +93,30 @@ public class ADMRealmImplIT extends EJBTestBase {
                 dm.flush();
                 PlatformUser user = Organizations.createUserForOrg(dm, org,
                         true, "some_username");
-                user.setPasswordHash(PasswordHash.calculateHash(
-                        user.getPasswordSalt(), PWD));
+                user.setPasswordHash(PasswordHash
+                        .calculateHash(user.getPasswordSalt(), PWD));
                 return user;
             }
         });
 
         userQuery = spy(realm.getUserQuery(String.valueOf(user.getKey())));
-        doReturn(userQuery).when(realm).getUserQuery(
-                String.valueOf(user.getKey()));
+        doReturn(userQuery).when(realm)
+                .getUserQuery(String.valueOf(user.getKey()));
 
-        organizationSettingQuery = spy(realm
-                .getOrganizationSettingQuery(userQuery));
+        organizationSettingQuery = spy(
+                realm.getOrganizationSettingQuery(userQuery));
         doReturn(organizationSettingQuery).when(realm)
                 .getOrganizationSettingQuery(any(UserQuery.class));
         doReturn(new Properties()).when(organizationSettingQuery)
                 .getProperties();
         doNothing().when(organizationSettingQuery).execute();
-        doReturn("").when(realm).findAndBind(any(Properties.class),
-                anyString(), anyString(), anyString());
+        doReturn("").when(realm).findAndBind(any(Properties.class), anyString(),
+                anyString(), anyString());
         acs = mock(AssertionConsumerService.class);
         doReturn(acs).when(realm).getAssertionConsumerService(
                 any(AuthenticationModeQuery.class));
-        doNothing().when(acs).validateResponse(anyString(), anyString(), eq(tenantID));
+        doNothing().when(acs).validateResponse(anyString(), anyString(),
+                eq(tenantID));
     }
 
     @Test
@@ -150,8 +155,10 @@ public class ADMRealmImplIT extends EJBTestBase {
             realm.authenticateUser(String.valueOf(user.getKey()), "");
             fail("Authentication must have failed");
         } catch (LoginException e) {
-            assertEquals("Login for user '" + user.getKey()
-                    + "' failed as the user account is locked.", e.getMessage());
+            assertEquals(
+                    "Login for user '" + user.getKey()
+                            + "' failed as the user account is locked.",
+                    e.getMessage());
             validateUserSettings(0, UserAccountStatus.ACTIVE, 1);
         }
     }
@@ -171,7 +178,8 @@ public class ADMRealmImplIT extends EJBTestBase {
     }
 
     @Test
-    public void authenticate_lockingScenarioThenValidAttempt() throws Exception {
+    public void authenticate_lockingScenarioThenValidAttempt()
+            throws Exception {
         for (int i = 0; i < 3; i++) {
             try {
                 realm.authenticateUser(String.valueOf(user.getKey()),
@@ -209,8 +217,8 @@ public class ADMRealmImplIT extends EJBTestBase {
                 }
             }
         }
-        validateUserSettings(10,
-                UserAccountStatus.LOCKED_FAILED_LOGIN_ATTEMPTS, 1);
+        validateUserSettings(10, UserAccountStatus.LOCKED_FAILED_LOGIN_ATTEMPTS,
+                1);
     }
 
     @Test
@@ -247,16 +255,18 @@ public class ADMRealmImplIT extends EJBTestBase {
             realm.authenticateUser(String.valueOf(user.getKey()), "");
             fail("Authentication must have failed");
         } catch (LoginException e) {
-            assertEquals("Login for user '" + user.getKey()
-                    + "' failed as the user account is locked.", e.getMessage());
+            assertEquals(
+                    "Login for user '" + user.getKey()
+                            + "' failed as the user account is locked.",
+                    e.getMessage());
             validateUserSettings(0, UserAccountStatus.ACTIVE, 1);
         }
     }
 
     @Test
     public void getGroupNames_GoodCase() throws Exception {
-        List<String> list = Collections.list(realm.getGroupNames(String
-                .valueOf(user.getKey())));
+        List<String> list = Collections
+                .list(realm.getGroupNames(String.valueOf(user.getKey())));
 
         assertTrue(list.contains(ADMRealmImpl.GROUP_USER));
         assertTrue(list.contains(ADMRealmImpl.GROUP_ADMIN));
@@ -281,7 +291,8 @@ public class ADMRealmImplIT extends EJBTestBase {
                 mock(AuthenticationModeQuery.class));
 
         // then
-        verify(acs, times(1)).validateResponse(SAML_RESPONSE, REQUEST_ID, TENANT_ID);
+        verify(acs, times(1)).validateResponse(SAML_RESPONSE, REQUEST_ID,
+                TENANT_ID);
     }
 
     @Test
@@ -338,7 +349,8 @@ public class ADMRealmImplIT extends EJBTestBase {
     public void handleSSO_UICaller() throws Exception {
 
         // given
-        AuthenticationModeQuery authModeQuery = mock(AuthenticationModeQuery.class);
+        AuthenticationModeQuery authModeQuery = mock(
+                AuthenticationModeQuery.class);
         mockCallerHandlers();
 
         // when
@@ -353,7 +365,8 @@ public class ADMRealmImplIT extends EJBTestBase {
     public void handleSSO_WebServiceCaller() throws Exception {
 
         // given
-        AuthenticationModeQuery authModeQuery = mock(AuthenticationModeQuery.class);
+        AuthenticationModeQuery authModeQuery = mock(
+                AuthenticationModeQuery.class);
         mockCallerHandlers();
 
         // when
@@ -367,7 +380,8 @@ public class ADMRealmImplIT extends EJBTestBase {
     public void handleSSO_OperatorClientCaller() throws Exception {
 
         // given
-        AuthenticationModeQuery authModeQuery = mock(AuthenticationModeQuery.class);
+        AuthenticationModeQuery authModeQuery = mock(
+                AuthenticationModeQuery.class);
         mockCallerHandlers();
 
         // when
@@ -381,8 +395,8 @@ public class ADMRealmImplIT extends EJBTestBase {
     private void mockCallerHandlers() throws Exception {
         doNothing().when(realm).handleUICaller(anyString(), anyString(),
                 any(AuthenticationModeQuery.class));
-        doNothing().when(realm)
-                .handleWebServiceCaller(anyString(), anyString());
+        doNothing().when(realm).handleWebServiceCaller(anyString(),
+                anyString());
         doNothing().when(realm).handleOperatorClientCaller(anyString(),
                 anyString(), any(UserQuery.class));
     }
@@ -393,7 +407,8 @@ public class ADMRealmImplIT extends EJBTestBase {
             public Void call() throws Exception {
                 ConfigurationSetting cs = new ConfigurationSetting(
                         ConfigurationKey.MAX_NUMBER_LOGIN_ATTEMPTS,
-                        Configuration.GLOBAL_CONTEXT, String.valueOf(max_tries));
+                        Configuration.GLOBAL_CONTEXT,
+                        String.valueOf(max_tries));
                 dm.persist(cs);
                 return null;
             }
@@ -401,7 +416,8 @@ public class ADMRealmImplIT extends EJBTestBase {
     }
 
     private void validateUserSettings(final int counter,
-            final UserAccountStatus status, final int version) throws Exception {
+            final UserAccountStatus status, final int version)
+            throws Exception {
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {

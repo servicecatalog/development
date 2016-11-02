@@ -572,5 +572,5 @@ public interface MarketplaceServiceLocal {
      */
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     List<Marketplace> getAllMarketplacesForTenant(
-        long tenantKey) throws ObjectNotFoundException;
+            Long tenantKey) throws ObjectNotFoundException;
 }

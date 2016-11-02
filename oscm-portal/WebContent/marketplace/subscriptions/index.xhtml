@@ -46,7 +46,7 @@
         <h:form id="subListForm">
           <a4j:jsFunction name="validateSubscriptionStatus"
                           action="#{mySubscriptionsCtrl.validateSubscriptionStatus}"
-                          render=":hiddenErrorPanel subListForm :subscriptionDetailsPanel"
+                          render=":hiddenErrorPanel @form :detailsAndCustomPanel"
                           oncomplete="jumpToSubscriptionDetails(); AdmUtils.showProgress(false); ">
             <a4j:param name="param1" assignTo="#{mySubscriptionsCtrl.model.selectedSubscriptionId}" />
           </a4j:jsFunction>
@@ -130,10 +130,13 @@
           </rich:dataTable>
         </h:form>
 
-        <ui:include src="subscriptionUsagePanel.xhtml">
-          <ui:param name="subscription" value="#{mySubscriptionsCtrl.model.selectedSubscription}" />
-        </ui:include>
+        <mp:pixelline />
 
+        <a4j:outputPanel id="extensionInterfaces">
+          <ui:include src="subscriptionUsagePanel.xhtml">
+            <ui:param name="subscription" value="#{mySubscriptionsCtrl.model.selectedSubscription}"/>
+          </ui:include>
+        </a4j:outputPanel>
       </a4j:outputPanel>
     </a4j:outputPanel>
     <mp:linkPageTop />

@@ -17,19 +17,19 @@ import javax.ejb.EJBAccessException;
 import javax.ejb.EJBException;
 
 import org.junit.Test;
-
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.PlatformUser;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.UserRoleType;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.Organizations;
 import org.oscm.test.data.PlatformUsers;
 import org.oscm.test.data.SupportedCountries;
 import org.oscm.test.data.UserRoles;
 import org.oscm.test.ejb.TestContainer;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.UserRoleType;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 
 public class PublishServiceBeanPermissionIT extends EJBTestBase {
 
@@ -38,6 +38,7 @@ public class PublishServiceBeanPermissionIT extends EJBTestBase {
 
     @Override
     protected void setup(TestContainer container) throws Exception {
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         container.enableInterfaceMocking(true);
         container.addBean(new PublishServiceBean());
@@ -46,6 +47,7 @@ public class PublishServiceBeanPermissionIT extends EJBTestBase {
         ds = container.get(DataService.class);
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 SupportedCountries.setupSomeCountries(ds);
                 UserRoles.createSetupRoles(ds);
@@ -58,11 +60,12 @@ public class PublishServiceBeanPermissionIT extends EJBTestBase {
 
     private PlatformUser givenReseller() throws Exception {
         return runTX(new Callable<PlatformUser>() {
+            @Override
             public PlatformUser call() throws Exception {
                 Organization reseller = Organizations.createOrganization(ds,
                         OrganizationRoleType.RESELLER);
-                PlatformUser user = Organizations.createUserForOrg(ds,
-                        reseller, true, "admin");
+                PlatformUser user = Organizations.createUserForOrg(ds, reseller,
+                        true, "admin");
                 PlatformUsers.grantRoles(ds, user,
                         UserRoleType.RESELLER_MANAGER);
                 return user;
@@ -72,11 +75,12 @@ public class PublishServiceBeanPermissionIT extends EJBTestBase {
 
     private PlatformUser givenBroker() throws Exception {
         return runTX(new Callable<PlatformUser>() {
+            @Override
             public PlatformUser call() throws Exception {
                 Organization reseller = Organizations.createOrganization(ds,
                         OrganizationRoleType.BROKER);
-                PlatformUser user = Organizations.createUserForOrg(ds,
-                        reseller, true, "admin");
+                PlatformUser user = Organizations.createUserForOrg(ds, reseller,
+                        true, "admin");
                 PlatformUsers.grantRoles(ds, user, UserRoleType.BROKER_MANAGER);
                 return user;
             }
