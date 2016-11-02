@@ -249,6 +249,51 @@ public class GotoMarketplaceBeanTest {
         //then
         assertFalse(validationResult);
     }
+
+    @Test
+    public void testValidateMarketplaceTenantWithDifferentTenantNull(){
+
+        //given
+        VOMarketplace mpl = new VOMarketplace();
+        mpl.setTenantId(null);
+        String currentUserTenantId = "tnt2";
+
+        //when
+        boolean validationResult = marketplaceGotoBean.validateMarketplaceTenant(mpl, currentUserTenantId);
+
+        //then
+        assertFalse(validationResult);
+    }
+
+    @Test
+    public void testValidateMarketplaceTenantWithDifferentNullTenant(){
+
+        //given
+        VOMarketplace mpl = new VOMarketplace();
+        mpl.setTenantId("tnt2");
+        String currentUserTenantId = "";
+
+        //when
+        boolean validationResult = marketplaceGotoBean.validateMarketplaceTenant(mpl, currentUserTenantId);
+
+        //then
+        assertFalse(validationResult);
+    }
+
+    @Test
+    public void testValidateMarketplaceTenantEmptyTenant(){
+
+        //given
+        VOMarketplace mpl = new VOMarketplace();
+        mpl.setTenantId(null);
+        String currentUserTenantId = "";
+
+        //when
+        boolean validationResult = marketplaceGotoBean.validateMarketplaceTenant(mpl, currentUserTenantId);
+
+        //then
+        assertFalse(validationResult);
+    }
     
     private VOUserDetails getUserDetails(){
         
