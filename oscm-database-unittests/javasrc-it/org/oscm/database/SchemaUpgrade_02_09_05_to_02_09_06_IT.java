@@ -11,22 +11,22 @@ import java.net.URL;
 
 import org.oscm.setup.DatabaseVersionInfo;
 
-public class SchemaUpgrade_02_09_04_to_02_09_05_IT extends
+public class SchemaUpgrade_02_09_05_to_02_09_06_IT extends
         SchemaUpgradeTestBase {
 
-    public SchemaUpgrade_02_09_04_to_02_09_05_IT() {
+    public SchemaUpgrade_02_09_05_to_02_09_06_IT() {
         super(new DatabaseVersionInfo(2, 9, 3),
                 new DatabaseVersionInfo(2, 9, 4));
     }
 
     @Override
     protected URL getSetupDataset() {
-        return getClass().getResource("/setup_02_09_03_to_02_09_04.xml");
+        return getClass().getResource("/setup_02_09_05_to_02_09_06.xml");
     }
 
     @Override
     protected URL getExpectedDataset() {
-        return getClass().getResource("/expected_02_09_03_to_02_09_04.xml");
+        return getClass().getResource("/expected_02_09_05_to_02_09_06.xml");
     }
 
 }
