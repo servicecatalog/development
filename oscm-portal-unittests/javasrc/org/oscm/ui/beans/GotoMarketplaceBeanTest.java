@@ -122,7 +122,7 @@ public class GotoMarketplaceBeanTest {
 
         // when
         String outcome = marketplaceGotoBean.gotoMarketplace();
-
+1`
         // then
         assertEquals("success", outcome);
         verify(marketplaceGotoBean, times(1)).setMarketplaceId(eq("mid"));
@@ -293,6 +293,36 @@ public class GotoMarketplaceBeanTest {
 
         //then
         assertFalse(validationResult);
+    }
+
+    @Test
+    public void testValidateMarketplaceTenantNullNull(){
+
+        //given
+        VOMarketplace mpl = new VOMarketplace();
+        mpl.setTenantId(null);
+        String currentUserTenantId = null;
+
+        //when
+        boolean validationResult = marketplaceGotoBean.validateMarketplaceTenant(mpl, currentUserTenantId);
+
+        //then
+        assertTrue(validationResult);
+    }
+
+    @Test
+    public void testValidateMarketplaceTenantEmptyEmpty(){
+
+        //given
+        VOMarketplace mpl = new VOMarketplace();
+        mpl.setTenantId("");
+        String currentUserTenantId = "";
+
+        //when
+        boolean validationResult = marketplaceGotoBean.validateMarketplaceTenant(mpl, currentUserTenantId);
+
+        //then
+        assertTrue(validationResult);
     }
     
     private VOUserDetails getUserDetails(){
