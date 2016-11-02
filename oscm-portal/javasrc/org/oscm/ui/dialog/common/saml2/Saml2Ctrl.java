@@ -77,15 +77,10 @@ public class Saml2Ctrl extends BaseBean {
                     LogMessageIdentifier.ERROR_MISSING_IDP_URL);
             ui.handleError(null, ERROR_INVALID_IDP_URL);
             return getErrorOutcome();
-        } catch (NotExistentTenantException | MarketplaceRemovedException e) {
+        } catch (NotExistentTenantException | MarketplaceRemovedException | WrongTenantConfigurationException e) {
             getLogger().logError(Log4jLogger.SYSTEM_LOG, e,
                     LogMessageIdentifier.ERROR_TENANT_NOT_FOUND);
             ui.handleError(null, ERROR_MISSING_TENANTID);
-            return getErrorOutcome();
-        } catch (WrongTenantConfigurationException e) {
-            getLogger().logError(Log4jLogger.SYSTEM_LOG, e,
-                    LogMessageIdentifier.ERROR_TENANT_NOT_FOUND, getTenantID());
-            ui.handleError(null, ERROR_TENANT_SETTINGS_MISSING);
             return getErrorOutcome();
         }
 
