@@ -27,7 +27,6 @@ import javax.ejb.EJBException;
 
 import org.junit.Assert;
 import org.junit.Test;
-
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.CatalogEntry;
@@ -43,6 +42,12 @@ import org.oscm.domobjects.TechnicalProduct;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.ServiceAccessType;
+import org.oscm.internal.types.enumtypes.ServiceStatus;
+import org.oscm.internal.types.enumtypes.UserRoleType;
+import org.oscm.internal.types.exception.IllegalArgumentException;
+import org.oscm.internal.vo.VOService;
 import org.oscm.landingpageService.local.LandingpageServiceLocal;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.Marketplaces;
@@ -51,14 +56,9 @@ import org.oscm.test.data.PlatformUsers;
 import org.oscm.test.data.Products;
 import org.oscm.test.data.TechnicalProducts;
 import org.oscm.test.ejb.TestContainer;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.types.enumtypes.FillinCriterion;
 import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
-import org.oscm.internal.types.enumtypes.ServiceStatus;
-import org.oscm.internal.types.enumtypes.UserRoleType;
-import org.oscm.internal.types.exception.IllegalArgumentException;
-import org.oscm.internal.vo.VOService;
 
 public class LandingpageServiceBean2IT extends EJBTestBase {
 
@@ -79,28 +79,28 @@ public class LandingpageServiceBean2IT extends EJBTestBase {
     private static final int NUMBER_OF_TEMP_PRODUCTS_NOT_ACTIVE = 3;
     private static final int NUMBER_OF_TEMP_PRODUCTS_NOT_VISIBLE_IN_CATALOG = 3;
     private static final int NUMBER_OF_TEMP_PRODUCTS_NOT_PUBLIC = 3;
-    private final List<Product> customerProducts = new ArrayList<Product>();
-    private List<Product> templateProductsPublished = new ArrayList<Product>();
-    private List<Product> templateProductsNotPublished = new ArrayList<Product>();
-    private List<Product> templateProductsNotActive = new ArrayList<Product>();
-    private List<Product> templateProductsNotVisible = new ArrayList<Product>();
-    private List<Product> templateProductsNotPublic = new ArrayList<Product>();
-    private final List<ProductFeedback> productFeedbacks = new ArrayList<ProductFeedback>();
+    private final List<Product> customerProducts = new ArrayList<>();
+    private List<Product> templateProductsPublished = new ArrayList<>();
+    private List<Product> templateProductsNotPublished = new ArrayList<>();
+    private List<Product> templateProductsNotActive = new ArrayList<>();
+    private List<Product> templateProductsNotVisible = new ArrayList<>();
+    private List<Product> templateProductsNotPublic = new ArrayList<>();
+    private final List<ProductFeedback> productFeedbacks = new ArrayList<>();
     private final String idPrefixPublished = "productId_";
     private final String idPrefixNotPublished = "z_productIdNotPublished_";
     private final String idPrefixNotActive = "zz_productIdNotActive_";
     private final String idPrefixNotVisible = "zz_productIdNotVisible_";
     private final String idPrefixNotPublic = "zz_productIdNotPublic_";
-    private final String[] templateProdNamesPublished = { "f0", "x1", "z2", "a3",
-            "j4", "c5" };
+    private final String[] templateProdNamesPublished = { "f0", "x1", "z2",
+            "a3", "j4", "c5" };
     private final String[] templateProdNamesNotPublished = { "b6", "a7" };
     private final String[] templateProdNamesNotPublic = { "zz1", "zz2", "zz3" };
     private final String[] customerProdNames = { "bb0", "aa1" };
-    private final BigDecimal[] averageRatingsPublished = { BigDecimal.valueOf(3.0),
-            BigDecimal.valueOf(1.1), BigDecimal.valueOf(2.2),
-            BigDecimal.valueOf(1.3), BigDecimal.valueOf(0.0),
-            BigDecimal.valueOf(1.5) };
-    private final List<ProductAndPosition> inputData = new ArrayList<ProductAndPosition>();
+    private final BigDecimal[] averageRatingsPublished = {
+            BigDecimal.valueOf(3.0), BigDecimal.valueOf(1.1),
+            BigDecimal.valueOf(2.2), BigDecimal.valueOf(1.3),
+            BigDecimal.valueOf(0.0), BigDecimal.valueOf(1.5) };
+    private final List<ProductAndPosition> inputData = new ArrayList<>();
     private UserGroupServiceLocalBean userGroupService;
 
     private class ProductAndPosition {
@@ -119,8 +119,8 @@ public class LandingpageServiceBean2IT extends EJBTestBase {
 
     }
 
-    class ProductAndPositionComparator implements
-            Comparator<ProductAndPosition> {
+    class ProductAndPositionComparator
+            implements Comparator<ProductAndPosition> {
         @Override
         public int compare(ProductAndPosition x, ProductAndPosition y) {
             return x.position - y.position;
@@ -153,8 +153,8 @@ public class LandingpageServiceBean2IT extends EJBTestBase {
                         OrganizationRoleType.MARKETPLACE_OWNER,
                         OrganizationRoleType.PLATFORM_OPERATOR,
                         OrganizationRoleType.TECHNOLOGY_PROVIDER);
-                PlatformUser createUserForOrg = Organizations.createUserForOrg(
-                        ds, supplierOrg, true, "admin");
+                PlatformUser createUserForOrg = Organizations
+                        .createUserForOrg(ds, supplierOrg, true, "admin");
                 PlatformUsers.grantRoles(ds, createUserForOrg,
                         UserRoleType.PLATFORM_OPERATOR);
                 PlatformUsers.grantRoles(ds, createUserForOrg,
@@ -208,7 +208,7 @@ public class LandingpageServiceBean2IT extends EJBTestBase {
             @Override
             public List<Product> call() throws Exception {
 
-                List<Product> productList = new ArrayList<Product>();
+                List<Product> productList = new ArrayList<>();
                 for (int i = 0; i < num; i++) {
                     Product product = Products.createProduct(supplierOrg,
                             technicalProduct, false, idPrefix + i,
@@ -246,12 +246,11 @@ public class LandingpageServiceBean2IT extends EJBTestBase {
 
                     if (i < numCustomerProducts) {
                         Product custSpecProduct;
-                        custSpecProduct = Products
-                                .createCustomerSpecifcProduct(ds, supplierOrg,
-                                        product, status);
+                        custSpecProduct = Products.createCustomerSpecifcProduct(
+                                ds, supplierOrg, product, status);
                         custSpecProduct.getPriceModel().getKey();
-                        custSpecProduct.setProvisioningDate(product
-                                .getProvisioningDate() + 1);
+                        custSpecProduct.setProvisioningDate(
+                                product.getProvisioningDate() + 1);
                         customerProducts.add(custSpecProduct);
                         ds.persist(custSpecProduct);
 
@@ -321,7 +320,8 @@ public class LandingpageServiceBean2IT extends EJBTestBase {
                 supplierMp = (Marketplace) ds
                         .getReferenceByBusinessKey(supplierMp);
 
-                PublicLandingpage landingpage = supplierMp.getPublicLandingpage();
+                PublicLandingpage landingpage = supplierMp
+                        .getPublicLandingpage();
                 List<LandingpageProduct> featuredList = landingpage
                         .getLandingpageProducts();
                 LandingpageProduct landingpageProduct = new LandingpageProduct();
@@ -343,7 +343,8 @@ public class LandingpageServiceBean2IT extends EJBTestBase {
             public Void call() throws Exception {
                 supplierMp = (Marketplace) ds
                         .getReferenceByBusinessKey(supplierMp);
-                PublicLandingpage landingpage = supplierMp.getPublicLandingpage();
+                PublicLandingpage landingpage = supplierMp
+                        .getPublicLandingpage();
                 landingpage.setFillinCriterion(fillinCriterion);
                 ds.persist(landingpage);
                 return null;
@@ -358,7 +359,8 @@ public class LandingpageServiceBean2IT extends EJBTestBase {
             public Void call() throws Exception {
                 supplierMp = (Marketplace) ds
                         .getReferenceByBusinessKey(supplierMp);
-                PublicLandingpage landingpage = supplierMp.getPublicLandingpage();
+                PublicLandingpage landingpage = supplierMp
+                        .getPublicLandingpage();
                 landingpage.setNumberServices(numberServices);
                 ds.persist(landingpage);
                 return null;
@@ -392,8 +394,8 @@ public class LandingpageServiceBean2IT extends EJBTestBase {
                 priceModelKey = product.getPriceModel().getKey();
             }
             assertEquals(productId, featuredServices.get(i).getServiceId());
-            assertEquals(priceModelKey, featuredServices.get(i).getPriceModel()
-                    .getKey());
+            assertEquals(priceModelKey,
+                    featuredServices.get(i).getPriceModel().getKey());
         }
     }
 
@@ -437,6 +439,7 @@ public class LandingpageServiceBean2IT extends EJBTestBase {
     protected void setup(final TestContainer container) throws Exception {
         // container
         container.enableInterfaceMocking(true);
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         container.addBean(new LandingpageServiceBean());
         container.addBean(new LocalizerServiceBean());
@@ -472,11 +475,12 @@ public class LandingpageServiceBean2IT extends EJBTestBase {
 
     @Test(expected = IllegalArgumentException.class)
     public void servicesForPublicLandingpage_anonymus_LocaleNull()
-			throws Exception {
+            throws Exception {
         // given
         try {
             // when
-            landingpageService.servicesForPublicLandingpage(SUPPLIER_MP_ID, null);
+            landingpageService.servicesForPublicLandingpage(SUPPLIER_MP_ID,
+                    null);
         } catch (EJBException e) {
             // then
             throw e.getCausedByException();
@@ -626,7 +630,8 @@ public class LandingpageServiceBean2IT extends EJBTestBase {
         // then
         assertNotNull(featuredServices);
         assertEquals(featuredListSize, featuredServices.size());
-        checkSortingAccordingPosition(featuredListSize, featuredServices, false);
+        checkSortingAccordingPosition(featuredListSize, featuredServices,
+                false);
     }
 
     @Test
@@ -645,17 +650,17 @@ public class LandingpageServiceBean2IT extends EJBTestBase {
         }
 
         int invisibleFeaturedListSize = 2;
-        List<Long> invisibleProductKeysList = new ArrayList<Long>();
-        invisibleProductKeysList.add(Long.valueOf(templateProductsPublished
-                .get(2).getKey()));
-        invisibleProductKeysList.add(Long.valueOf(templateProductsPublished
-                .get(4).getKey()));
+        List<Long> invisibleProductKeysList = new ArrayList<>();
+        invisibleProductKeysList
+                .add(Long.valueOf(templateProductsPublished.get(2).getKey()));
+        invisibleProductKeysList
+                .add(Long.valueOf(templateProductsPublished.get(4).getKey()));
         inputData.remove(2);
         inputData.remove(3);
 
-        when(
-                userGroupService.getInvisibleProductKeysForUser(subManager
-                        .getKey())).thenReturn(invisibleProductKeysList);
+        when(userGroupService
+                .getInvisibleProductKeysForUser(subManager.getKey()))
+                        .thenReturn(invisibleProductKeysList);
 
         container.login(subManager.getKey(), ROLE_SUBSCRIPTION_MANAGER);
 
@@ -667,8 +672,9 @@ public class LandingpageServiceBean2IT extends EJBTestBase {
         assertNotNull(featuredServices);
         assertEquals(featuredListSize - invisibleFeaturedListSize,
                 featuredServices.size());
-        checkSortingAccordingPosition(featuredListSize
-                - invisibleFeaturedListSize, featuredServices, true);
+        checkSortingAccordingPosition(
+                featuredListSize - invisibleFeaturedListSize, featuredServices,
+                true);
     }
 
     @Test
@@ -717,16 +723,17 @@ public class LandingpageServiceBean2IT extends EJBTestBase {
         assertEquals(maxServices, featuredServices.size());
         // ---- landing page services ----
         // check position 1
-        checkSortingAccordingPosition(featuredListSize, featuredServices, false);
+        checkSortingAccordingPosition(featuredListSize, featuredServices,
+                false);
 
         // ---- filling services ----
         // check positions
-        assertEquals(idPrefixPublished + "5", featuredServices.get(1)
-                .getServiceId());
-        assertEquals(idPrefixPublished + "4", featuredServices.get(2)
-                .getServiceId());
-        assertEquals(idPrefixPublished + "3", featuredServices.get(3)
-                .getServiceId());
+        assertEquals(idPrefixPublished + "5",
+                featuredServices.get(1).getServiceId());
+        assertEquals(idPrefixPublished + "4",
+                featuredServices.get(2).getServiceId());
+        assertEquals(idPrefixPublished + "3",
+                featuredServices.get(3).getServiceId());
     }
 
     @Test
@@ -758,22 +765,22 @@ public class LandingpageServiceBean2IT extends EJBTestBase {
 
         // ---- filling services ----
         // check positions
-        assertEquals(idPrefixPublished + "5", featuredServices.get(1)
-                .getServiceId());
-        assertEquals(idPrefixPublished + "4", featuredServices.get(2)
-                .getServiceId());
-        assertEquals(idPrefixPublished + "3", featuredServices.get(3)
-                .getServiceId());
-        assertEquals(idPrefixPublished + "2", featuredServices.get(4)
-                .getServiceId());
-        assertEquals(idPrefixPublished + "1", featuredServices.get(5)
-                .getServiceId());
+        assertEquals(idPrefixPublished + "5",
+                featuredServices.get(1).getServiceId());
+        assertEquals(idPrefixPublished + "4",
+                featuredServices.get(2).getServiceId());
+        assertEquals(idPrefixPublished + "3",
+                featuredServices.get(3).getServiceId());
+        assertEquals(idPrefixPublished + "2",
+                featuredServices.get(4).getServiceId());
+        assertEquals(idPrefixPublished + "1",
+                featuredServices.get(5).getServiceId());
         assertEquals(customerProdNames[1], featuredServices.get(5).getName());
 
-        assertEquals(idPrefixNotPublic + "2", featuredServices.get(6)
-                .getServiceId());
-        assertEquals(idPrefixNotPublic + "1", featuredServices.get(7)
-                .getServiceId());
+        assertEquals(idPrefixNotPublic + "2",
+                featuredServices.get(6).getServiceId());
+        assertEquals(idPrefixNotPublic + "1",
+                featuredServices.get(7).getServiceId());
     }
 
     @Test
@@ -798,16 +805,17 @@ public class LandingpageServiceBean2IT extends EJBTestBase {
         assertEquals(maxServices, featuredServices.size());
         // ---- landing page services ----
         // check position 1
-        checkSortingAccordingPosition(featuredListSize, featuredServices, false);
+        checkSortingAccordingPosition(featuredListSize, featuredServices,
+                false);
 
         // ---- filling services ----
         // check positions
-        assertEquals(idPrefixPublished + "2", featuredServices.get(1)
-                .getServiceId());
-        assertEquals(idPrefixPublished + "5", featuredServices.get(2)
-                .getServiceId());
-        assertEquals(idPrefixPublished + "3", featuredServices.get(3)
-                .getServiceId());
+        assertEquals(idPrefixPublished + "2",
+                featuredServices.get(1).getServiceId());
+        assertEquals(idPrefixPublished + "5",
+                featuredServices.get(2).getServiceId());
+        assertEquals(idPrefixPublished + "3",
+                featuredServices.get(3).getServiceId());
     }
 
     /**
@@ -820,8 +828,8 @@ public class LandingpageServiceBean2IT extends EJBTestBase {
         int maxServices = 4;
         setLandingpageNumberServices(maxServices);
         setLandingpageFillinCriterion(FillinCriterion.RATING_DESCENDING);
-        Product brokerService = createBrokerService(templateProductsPublished
-                .get(2));
+        Product brokerService = createBrokerService(
+                templateProductsPublished.get(2));
 
         int featuredListSize = 1;
         for (int i = 0; i < featuredListSize; i++) {
@@ -837,24 +845,25 @@ public class LandingpageServiceBean2IT extends EJBTestBase {
         assertEquals(maxServices, featuredServices.size());
         // ---- landing page services ----
         // check position 1
-        checkSortingAccordingPosition(featuredListSize, featuredServices, false);
+        checkSortingAccordingPosition(featuredListSize, featuredServices,
+                false);
 
         // ---- filling services ----
         // check positions - first the broker service as it was created as last
         // one with same rating as template
-        assertEquals(idPrefixPublished + "2", featuredServices.get(1)
-                .getServiceId());
+        assertEquals(idPrefixPublished + "2",
+                featuredServices.get(1).getServiceId());
         assertEquals(brokerService.getKey(), featuredServices.get(1).getKey());
 
         // then template (same name and rating but older (query criteria)
-        assertEquals(idPrefixPublished + "2", featuredServices.get(2)
-                .getServiceId());
+        assertEquals(idPrefixPublished + "2",
+                featuredServices.get(2).getServiceId());
         assertEquals(templateProductsPublished.get(2).getKey(),
                 featuredServices.get(2).getKey());
 
         // finally the next best rated service
-        assertEquals(idPrefixPublished + "5", featuredServices.get(3)
-                .getServiceId());
+        assertEquals(idPrefixPublished + "5",
+                featuredServices.get(3).getServiceId());
     }
 
     /**
@@ -883,25 +892,26 @@ public class LandingpageServiceBean2IT extends EJBTestBase {
         assertEquals(maxServices, featuredServices.size());
         // ---- landing page services ----
         // check position 1
-        checkSortingAccordingPosition(featuredListSize, featuredServices, false);
+        checkSortingAccordingPosition(featuredListSize, featuredServices,
+                false);
 
         // ---- filling services ----
         // check positions - 0 (f0) is in the featured list, so filled up with
         // a3, c5 and j4
-        assertEquals(idPrefixPublished + "3", featuredServices.get(1)
-                .getServiceId());
-        assertEquals(idPrefixPublished + "5", featuredServices.get(2)
-                .getServiceId());
-        assertEquals(idPrefixPublished + "4", featuredServices.get(3)
-                .getServiceId());
+        assertEquals(idPrefixPublished + "3",
+                featuredServices.get(1).getServiceId());
+        assertEquals(idPrefixPublished + "5",
+                featuredServices.get(2).getServiceId());
+        assertEquals(idPrefixPublished + "4",
+                featuredServices.get(3).getServiceId());
 
         // check names
-        assertEquals(templateProdNamesPublished[3], featuredServices.get(1)
-                .getName());
-        assertEquals(templateProdNamesPublished[5], featuredServices.get(2)
-                .getName());
-        assertEquals(templateProdNamesPublished[4], featuredServices.get(3)
-                .getName());
+        assertEquals(templateProdNamesPublished[3],
+                featuredServices.get(1).getName());
+        assertEquals(templateProdNamesPublished[5],
+                featuredServices.get(2).getName());
+        assertEquals(templateProdNamesPublished[4],
+                featuredServices.get(3).getName());
     }
 
     @Test
@@ -926,22 +936,23 @@ public class LandingpageServiceBean2IT extends EJBTestBase {
         assertEquals(maxServices, featuredServices.size());
         // ---- landing page services ----
         // check position 1
-        checkSortingAccordingPosition(featuredListSize, featuredServices, false);
+        checkSortingAccordingPosition(featuredListSize, featuredServices,
+                false);
 
         // ---- filling services ----
         // check positions
-        assertEquals(idPrefixPublished + "3", featuredServices.get(1)
-                .getServiceId());
-        assertEquals(templateProdNamesPublished[3], featuredServices.get(1)
-                .getName());
-        assertEquals(idPrefixPublished + "5", featuredServices.get(2)
-                .getServiceId());
-        assertEquals(templateProdNamesPublished[5], featuredServices.get(2)
-                .getName());
-        assertEquals(idPrefixPublished + "4", featuredServices.get(3)
-                .getServiceId());
-        assertEquals(templateProdNamesPublished[4], featuredServices.get(3)
-                .getName());
+        assertEquals(idPrefixPublished + "3",
+                featuredServices.get(1).getServiceId());
+        assertEquals(templateProdNamesPublished[3],
+                featuredServices.get(1).getName());
+        assertEquals(idPrefixPublished + "5",
+                featuredServices.get(2).getServiceId());
+        assertEquals(templateProdNamesPublished[5],
+                featuredServices.get(2).getName());
+        assertEquals(idPrefixPublished + "4",
+                featuredServices.get(3).getServiceId());
+        assertEquals(templateProdNamesPublished[4],
+                featuredServices.get(3).getName());
     }
 
     @Test
@@ -972,17 +983,17 @@ public class LandingpageServiceBean2IT extends EJBTestBase {
 
         // ---- filling services ----
         // check positions
-        assertEquals(idPrefixPublished + "3", featuredServices.get(1)
-                .getServiceId());
-        assertEquals(templateProdNamesPublished[3], featuredServices.get(1)
-                .getName());
-        assertEquals(idPrefixPublished + "1", featuredServices.get(2)
-                .getServiceId());
+        assertEquals(idPrefixPublished + "3",
+                featuredServices.get(1).getServiceId());
+        assertEquals(templateProdNamesPublished[3],
+                featuredServices.get(1).getName());
+        assertEquals(idPrefixPublished + "1",
+                featuredServices.get(2).getServiceId());
         assertEquals(customerProdNames[1], featuredServices.get(2).getName());
-        assertEquals(idPrefixPublished + "5", featuredServices.get(3)
-                .getServiceId());
-        assertEquals(templateProdNamesPublished[5], featuredServices.get(3)
-                .getName());
+        assertEquals(idPrefixPublished + "5",
+                featuredServices.get(3).getServiceId());
+        assertEquals(templateProdNamesPublished[5],
+                featuredServices.get(3).getName());
     }
 
     @Test
@@ -1027,8 +1038,10 @@ public class LandingpageServiceBean2IT extends EJBTestBase {
 
         // then
         assertNotNull(featuredServices);
-        assertEquals(NUMBER_OF_TEMP_PRODUCTS_PUBLISHED
-                + NUMBER_OF_TEMP_PRODUCTS_NOT_PUBLIC, featuredServices.size());
+        assertEquals(
+                NUMBER_OF_TEMP_PRODUCTS_PUBLISHED
+                        + NUMBER_OF_TEMP_PRODUCTS_NOT_PUBLIC,
+                featuredServices.size());
 
         for (VOService service : featuredServices) {
             assertFalse(service.getName().startsWith(idPrefixNotPublished));
@@ -1079,7 +1092,8 @@ public class LandingpageServiceBean2IT extends EJBTestBase {
 
         // then
         assertNotNull(featuredServices);
-        assertEquals(NUMBER_OF_TEMP_PRODUCTS_PUBLISHED, featuredServices.size());
+        assertEquals(NUMBER_OF_TEMP_PRODUCTS_PUBLISHED,
+                featuredServices.size());
 
         for (VOService service : featuredServices) {
             assertFalse(service.getName().startsWith(idPrefixNotPublished));
@@ -1097,8 +1111,8 @@ public class LandingpageServiceBean2IT extends EJBTestBase {
             public Void call() throws Exception {
                 for (Product temp : templateProductsPublished) {
                     Product p = ds.getReference(Product.class, temp.getKey());
-                    p.getProductFeedback().setAverageRating(
-                            BigDecimal.valueOf(3));
+                    p.getProductFeedback()
+                            .setAverageRating(BigDecimal.valueOf(3));
                 }
                 return null;
             }
@@ -1113,8 +1127,8 @@ public class LandingpageServiceBean2IT extends EJBTestBase {
             public Product call() throws Exception {
                 Organization broker = Organizations.createOrganization(ds,
                         OrganizationRoleType.BROKER);
-                Product template = ds
-                        .getReference(Product.class, prod.getKey());
+                Product template = ds.getReference(Product.class,
+                        prod.getKey());
                 Marketplace mp = ds.getReference(Marketplace.class,
                         supplierMp.getKey());
                 Product p = Products.createProductResaleCopy(template, broker,

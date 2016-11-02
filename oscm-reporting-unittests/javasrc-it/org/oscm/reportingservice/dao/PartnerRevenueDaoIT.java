@@ -15,19 +15,19 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 
 import org.junit.Test;
-
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.Product;
+import org.oscm.internal.types.enumtypes.BillingSharesResultType;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.ServiceStatus;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.BillingSharesResults;
 import org.oscm.test.data.Organizations;
 import org.oscm.test.data.Products;
 import org.oscm.test.ejb.TestContainer;
-import org.oscm.internal.types.enumtypes.BillingSharesResultType;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ServiceStatus;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 
 /**
  * @author tokoda
@@ -40,6 +40,7 @@ public class PartnerRevenueDaoIT extends EJBTestBase {
 
     @Override
     protected void setup(TestContainer container) throws Exception {
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         ds = container.get(DataService.class);
         createOrg();
@@ -47,6 +48,7 @@ public class PartnerRevenueDaoIT extends EJBTestBase {
 
     private void createOrg() throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 tpSup = Organizations.createOrganization(ds,
                         OrganizationRoleType.SUPPLIER,
@@ -76,13 +78,15 @@ public class PartnerRevenueDaoIT extends EJBTestBase {
         modifyProductId(productB.getKey(), "serviceB3", moddateFuture);
 
         // when
-        Map<String, String> serviceIdMap = runTX(new Callable<Map<String, String>>() {
-            public Map<String, String> call() throws Exception {
-                return new PartnerRevenueDao(ds)
-                        .readTemplateServiceIdsForSupplier(
-                                tpSup.getOrganizationId(), periodEnd);
-            }
-        });
+        Map<String, String> serviceIdMap = runTX(
+                new Callable<Map<String, String>>() {
+                    @Override
+                    public Map<String, String> call() throws Exception {
+                        return new PartnerRevenueDao(ds)
+                                .readTemplateServiceIdsForSupplier(
+                                        tpSup.getOrganizationId(), periodEnd);
+                    }
+                });
 
         // then
         assertEquals(2, serviceIdMap.size());
@@ -104,13 +108,15 @@ public class PartnerRevenueDaoIT extends EJBTestBase {
         final long periodEnd = calender.getTimeInMillis();
 
         // when
-        Map<String, String> serviceIdMap = runTX(new Callable<Map<String, String>>() {
-            public Map<String, String> call() throws Exception {
-                return new PartnerRevenueDao(ds)
-                        .readTemplateServiceIdsForSupplier(
-                                tpSup.getOrganizationId(), periodEnd);
-            }
-        });
+        Map<String, String> serviceIdMap = runTX(
+                new Callable<Map<String, String>>() {
+                    @Override
+                    public Map<String, String> call() throws Exception {
+                        return new PartnerRevenueDao(ds)
+                                .readTemplateServiceIdsForSupplier(
+                                        tpSup.getOrganizationId(), periodEnd);
+                    }
+                });
 
         // then
         assertEquals(1, serviceIdMap.size());
@@ -130,14 +136,15 @@ public class PartnerRevenueDaoIT extends EJBTestBase {
         createBillingSharesResult(periodStart, periodEnd);
         // when
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 // when
                 PartnerRevenueDao dao = new PartnerRevenueDao(ds);
                 dao.executePartnerQuery(periodStart, periodEnd);
                 // then
                 assertEquals(1, dao.getReportData().size());
-                assertEquals("DE", dao.getReportData().get(0)
-                        .getCountryIsoCode());
+                assertEquals("DE",
+                        dao.getReportData().get(0).getCountryIsoCode());
                 return null;
             }
         });
@@ -146,6 +153,7 @@ public class PartnerRevenueDaoIT extends EJBTestBase {
     private Product createProduct(final String productId,
             final String techProductId) throws Exception {
         return runTX(new Callable<Product>() {
+            @Override
             public Product call() throws Exception {
                 return Products.createProduct(tpSup.getOrganizationId(),
                         productId, techProductId, ds);
@@ -156,6 +164,7 @@ public class PartnerRevenueDaoIT extends EJBTestBase {
     private void modifyProductId(final long productKey, final String productId,
             final long moddate) throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Product product = ds.getReference(Product.class, productKey);
                 product.setProductId(productId);
@@ -168,8 +177,10 @@ public class PartnerRevenueDaoIT extends EJBTestBase {
 
     private void deleteProduct(final Product product) throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
-                Products.setStatusForProduct(ds, product, ServiceStatus.DELETED);
+                Products.setStatusForProduct(ds, product,
+                        ServiceStatus.DELETED);
                 return null;
             }
         });
@@ -177,6 +188,7 @@ public class PartnerRevenueDaoIT extends EJBTestBase {
 
     private void createPartnerOrg_Broker() throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 tpSup = Organizations.createOrganization(ds,
                         OrganizationRoleType.BROKER);
@@ -188,6 +200,7 @@ public class PartnerRevenueDaoIT extends EJBTestBase {
     private void createBillingSharesResult(final long periodStart,
             final long periodEnd) throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 BillingSharesResults.createBillingSharesResult(ds,
                         BillingSharesResultType.BROKER, tpSup.getKey(),

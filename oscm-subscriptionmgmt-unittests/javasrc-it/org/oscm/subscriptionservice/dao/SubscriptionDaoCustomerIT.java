@@ -8,7 +8,7 @@
 
 package org.oscm.subscriptionservice.dao;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 
 import java.math.BigInteger;
@@ -25,10 +25,21 @@ import javax.persistence.Query;
 import org.junit.Test;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
-import org.oscm.domobjects.*;
+import org.oscm.domobjects.Organization;
+import org.oscm.domobjects.PlatformUser;
+import org.oscm.domobjects.Product;
+import org.oscm.domobjects.RoleAssignment;
+import org.oscm.domobjects.Subscription;
+import org.oscm.domobjects.UdaDefinition;
+import org.oscm.domobjects.UserGroup;
+import org.oscm.domobjects.UserRole;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
 import org.oscm.internal.intf.IdentityService;
-import org.oscm.internal.types.enumtypes.*;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.ServiceAccessType;
+import org.oscm.internal.types.enumtypes.SubscriptionStatus;
+import org.oscm.internal.types.enumtypes.UdaConfigurationType;
+import org.oscm.internal.types.enumtypes.UserRoleType;
 import org.oscm.paginator.Filter;
 import org.oscm.paginator.Pagination;
 import org.oscm.subscriptionservice.bean.SubscriptionListServiceBean;
@@ -40,6 +51,7 @@ import org.oscm.test.data.Udas;
 import org.oscm.test.ejb.TestContainer;
 import org.oscm.test.stubs.AccountServiceStub;
 import org.oscm.test.stubs.CommunicationServiceStub;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.test.stubs.ServiceProvisioningServiceStub;
 import org.oscm.types.enumtypes.UdaTargetType;
 import org.oscm.usergroupservice.auditlog.UserGroupAuditLogCollector;
@@ -65,9 +77,9 @@ public class SubscriptionDaoCustomerIT extends EJBTestBase {
     private PlatformUser supplierAdmin1;
     private PlatformUser customerAdmin1;
 
-    Set<SubscriptionStatus> SUB_STATES = Collections.unmodifiableSet(EnumSet
-            .of(SubscriptionStatus.ACTIVE, SubscriptionStatus.PENDING,
-                    SubscriptionStatus.SUSPENDED));
+    Set<SubscriptionStatus> SUB_STATES = Collections
+            .unmodifiableSet(EnumSet.of(SubscriptionStatus.ACTIVE,
+                    SubscriptionStatus.PENDING, SubscriptionStatus.SUSPENDED));
 
     @Override
     protected void setup(TestContainer container) throws Exception {
@@ -75,6 +87,7 @@ public class SubscriptionDaoCustomerIT extends EJBTestBase {
         container.addBean(new CommunicationServiceStub());
         container.addBean(new AccountServiceStub());
         container.addBean(new ServiceProvisioningServiceStub());
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         container.addBean(new LocalizerServiceBean());
         container.addBean(new UserGroupDao());
@@ -193,32 +206,44 @@ public class SubscriptionDaoCustomerIT extends EJBTestBase {
     public void getSubscriptionsWithDefaultUdaValuesAndVendor()
             throws Exception {
         // given
-        final UdaDefinition udaWithoutDefaultValButWithAfterSubscribing = runTX(new Callable<UdaDefinition>() {
-            @Override
-            public UdaDefinition call() throws Exception {
-                return Udas.createUdaDefinition(ds, supplier1, UdaTargetType.CUSTOMER_SUBSCRIPTION, "CUSTOMER_SUBSCRIPTION", "",
-                        UdaConfigurationType.USER_OPTION_OPTIONAL);
-            }
-        });
-        final UdaDefinition udaDefinitionWithValue = runTX(new Callable<UdaDefinition>() {
-            @Override
-            public UdaDefinition call() throws Exception {
-                return Udas.createUdaDefinition(ds, supplier1, UdaTargetType.CUSTOMER_SUBSCRIPTION, "CUSTOMER_SUBSCRIPTION2", "defaultValue",
-                        UdaConfigurationType.USER_OPTION_OPTIONAL);
-            }
-        });
-        final Subscription sub1 = createSubscription(customer1.getOrganizationId(),
-                product.getProductId(), "sub1", supplier1, null, null);
-        final Subscription sub4 = createSubscription(supplier1.getOrganizationId(),
-                product.getProductId(), "sub4", supplier1, null, null);
+        final UdaDefinition udaWithoutDefaultValButWithAfterSubscribing = runTX(
+                new Callable<UdaDefinition>() {
+                    @Override
+                    public UdaDefinition call() throws Exception {
+                        return Udas.createUdaDefinition(ds, supplier1,
+                                UdaTargetType.CUSTOMER_SUBSCRIPTION,
+                                "CUSTOMER_SUBSCRIPTION", "",
+                                UdaConfigurationType.USER_OPTION_OPTIONAL);
+                    }
+                });
+        final UdaDefinition udaDefinitionWithValue = runTX(
+                new Callable<UdaDefinition>() {
+                    @Override
+                    public UdaDefinition call() throws Exception {
+                        return Udas.createUdaDefinition(ds, supplier1,
+                                UdaTargetType.CUSTOMER_SUBSCRIPTION,
+                                "CUSTOMER_SUBSCRIPTION2", "defaultValue",
+                                UdaConfigurationType.USER_OPTION_OPTIONAL);
+                    }
+                });
+        final Subscription sub1 = createSubscription(
+                customer1.getOrganizationId(), product.getProductId(), "sub1",
+                supplier1, null, null);
+        final Subscription sub4 = createSubscription(
+                supplier1.getOrganizationId(), product.getProductId(), "sub4",
+                supplier1, null, null);
         runTX(new Callable<Void>() {
 
             @Override
             public Void call() throws Exception {
-                Udas.createUda(ds, sub1, udaWithoutDefaultValButWithAfterSubscribing, "");
-                Udas.createUda(ds, sub1, udaDefinitionWithValue, "assignedValue");
-                Udas.createUda(ds, sub4, udaDefinitionWithValue, "assignedValue");
-                UdaDefinition udaDefinition = ds.find(UdaDefinition.class, udaWithoutDefaultValButWithAfterSubscribing.getKey());
+                Udas.createUda(ds, sub1,
+                        udaWithoutDefaultValButWithAfterSubscribing, "");
+                Udas.createUda(ds, sub1, udaDefinitionWithValue,
+                        "assignedValue");
+                Udas.createUda(ds, sub4, udaDefinitionWithValue,
+                        "assignedValue");
+                UdaDefinition udaDefinition = ds.find(UdaDefinition.class,
+                        udaWithoutDefaultValButWithAfterSubscribing.getKey());
                 udaDefinition.setDefaultValue("defaultValue");
                 ds.persist(udaDefinition);
                 return null;
@@ -226,32 +251,39 @@ public class SubscriptionDaoCustomerIT extends EJBTestBase {
         });
 
         final Set<Long> set = new HashSet<>();
-        set.addAll(Arrays.asList(Long.valueOf(udaDefinitionWithValue.getKey()), Long.valueOf(udaWithoutDefaultValButWithAfterSubscribing.getKey())));
+        set.addAll(Arrays.asList(Long.valueOf(udaDefinitionWithValue.getKey()),
+                Long.valueOf(
+                        udaWithoutDefaultValButWithAfterSubscribing.getKey())));
 
         // when
         List<BigInteger> result = runTX(new Callable<List<BigInteger>>() {
             @Override
             public List<BigInteger> call() throws Exception {
-                return dao.getSubscriptionsWithDefaultUdaValuesAndVendor(customerAdmin1, SUB_STATES, set);
+                return dao.getSubscriptionsWithDefaultUdaValuesAndVendor(
+                        customerAdmin1, SUB_STATES, set);
             }
         });
 
-        final UdaDefinition udaDefinitionWithValueAfterSubscr = runTX(new Callable<UdaDefinition>() {
-            @Override
-            public UdaDefinition call() throws Exception {
-                return Udas.createUdaDefinition(ds, supplier1, UdaTargetType.CUSTOMER_SUBSCRIPTION,
-                    "CUSTOMER_SUBSCRIPTION3", "value",
-                    UdaConfigurationType.USER_OPTION_OPTIONAL);
-            }
-        });
+        final UdaDefinition udaDefinitionWithValueAfterSubscr = runTX(
+                new Callable<UdaDefinition>() {
+                    @Override
+                    public UdaDefinition call() throws Exception {
+                        return Udas.createUdaDefinition(ds, supplier1,
+                                UdaTargetType.CUSTOMER_SUBSCRIPTION,
+                                "CUSTOMER_SUBSCRIPTION3", "value",
+                                UdaConfigurationType.USER_OPTION_OPTIONAL);
+                    }
+                });
 
         final Set<Long> setAfterSubscr = new HashSet<>();
-        set.addAll(Arrays.asList(Long.valueOf(udaDefinitionWithValueAfterSubscr.getKey())));
+        set.addAll(Arrays.asList(
+                Long.valueOf(udaDefinitionWithValueAfterSubscr.getKey())));
 
         List<BigInteger> result1 = runTX(new Callable<List<BigInteger>>() {
             @Override
             public List<BigInteger> call() throws Exception {
-                return dao.getSubscriptionsWithDefaultUdaValuesAndVendor(customerAdmin1, SUB_STATES, set);
+                return dao.getSubscriptionsWithDefaultUdaValuesAndVendor(
+                        customerAdmin1, SUB_STATES, set);
             }
         });
 
@@ -295,7 +327,7 @@ public class SubscriptionDaoCustomerIT extends EJBTestBase {
         // given
         final long key1 = createSubscription(customer1.getOrganizationId(),
                 product.getProductId(), "sub1_1", supplier1, null, null)
-                .getKey();
+                        .getKey();
         createSubscription(customer1.getOrganizationId(),
                 product.getProductId(), "sub1_2", supplier1, null, null);
         createSubscription(customer2.getOrganizationId(),
@@ -401,8 +433,8 @@ public class SubscriptionDaoCustomerIT extends EJBTestBase {
         return runTX(new Callable<PlatformUser>() {
             @Override
             public PlatformUser call() throws Exception {
-                return Organizations.createUserForOrg(ds, organization,
-                        isAdmin, userId);
+                return Organizations.createUserForOrg(ds, organization, isAdmin,
+                        userId);
             }
         });
     }

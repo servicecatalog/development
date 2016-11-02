@@ -15,6 +15,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
@@ -40,17 +41,16 @@ import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.identityservice.local.ILdapResultMapper;
 import org.oscm.identityservice.local.LdapAccessServiceLocal;
 import org.oscm.identityservice.local.LdapSettingsManagementServiceLocal;
-import org.oscm.marketplaceservice.local.MarketplaceServiceLocal;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.SettingType;
-import org.oscm.internal.vo.VOMarketplace;
 import org.oscm.internal.vo.VOUserDetails;
+import org.oscm.marketplaceservice.local.MarketplaceServiceLocal;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.ejb.TestContainer;
 
 public class AccountServiceLocalBeanIT extends EJBTestBase {
 
-    private AccountServiceLocal asl;
+    private AccountServiceBean asl;
     private VOUserDetails user;
     private Organization orgToRegister;
 
@@ -60,11 +60,13 @@ public class AccountServiceLocalBeanIT extends EJBTestBase {
     @Override
     protected void setup(TestContainer container) throws Exception {
         container.enableInterfaceMocking(true);
-        container.addBean(new AccountServiceBean());
+        container.addBean(spy(new AccountServiceBean()));
 
         addMocks();
 
-        asl = container.get(AccountServiceLocal.class);
+        asl = container.get(AccountServiceBean.class);
+        doReturn(Boolean.FALSE).when(asl)
+                .checkIfPlatformUserInGivenTenantExists(anyLong(), anyString());
 
         user = new VOUserDetails();
         user.setUserId("user1");

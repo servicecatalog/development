@@ -19,7 +19,6 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 
 import org.junit.Test;
-
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Organization;
@@ -29,6 +28,8 @@ import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.SubscriptionHistory;
 import org.oscm.domobjects.UsageLicense;
 import org.oscm.domobjects.UserGroup;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.ServiceAccessType;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.Organizations;
 import org.oscm.test.data.PlatformUsers;
@@ -36,11 +37,10 @@ import org.oscm.test.data.Products;
 import org.oscm.test.data.Subscriptions;
 import org.oscm.test.data.UserGroups;
 import org.oscm.test.ejb.TestContainer;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 
-public class BillingDataRetrievalServiceBeanSubscriptionUnitsIT extends
-        EJBTestBase {
+public class BillingDataRetrievalServiceBeanSubscriptionUnitsIT
+        extends EJBTestBase {
 
     private static final long END_TIME = System.currentTimeMillis() + 1000000L;
     private static final int NR_HISTORY_RECORDS = 4;
@@ -58,6 +58,7 @@ public class BillingDataRetrievalServiceBeanSubscriptionUnitsIT extends
 
     @Override
     protected void setup(TestContainer container) throws Exception {
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         container.addBean(new BillingDataRetrievalServiceBean());
         ds = container.get(DataService.class);
@@ -103,21 +104,33 @@ public class BillingDataRetrievalServiceBeanSubscriptionUnitsIT extends
         createUsageLicense(user1, subscriptionNoUnit);
 
         // last unit assignment is important
-        subscription1Unit1 = assignSubscriptionToUnit(subscription1Unit1, unit3);
-        subscription1Unit1 = assignSubscriptionToUnit(subscription1Unit1, unit2);
-        subscription1Unit1 = assignSubscriptionToUnit(subscription1Unit1, unit1);
+        subscription1Unit1 = assignSubscriptionToUnit(subscription1Unit1,
+                unit3);
+        subscription1Unit1 = assignSubscriptionToUnit(subscription1Unit1,
+                unit2);
+        subscription1Unit1 = assignSubscriptionToUnit(subscription1Unit1,
+                unit1);
 
-        subscription1Unit2 = assignSubscriptionToUnit(subscription1Unit2, unit1);
-        subscription1Unit2 = assignSubscriptionToUnit(subscription1Unit2, unit3);
-        subscription1Unit2 = assignSubscriptionToUnit(subscription1Unit2, unit2);
+        subscription1Unit2 = assignSubscriptionToUnit(subscription1Unit2,
+                unit1);
+        subscription1Unit2 = assignSubscriptionToUnit(subscription1Unit2,
+                unit3);
+        subscription1Unit2 = assignSubscriptionToUnit(subscription1Unit2,
+                unit2);
 
-        subscription2Unit2 = assignSubscriptionToUnit(subscription2Unit2, unit1);
-        subscription2Unit2 = assignSubscriptionToUnit(subscription2Unit2, unit3);
-        subscription2Unit2 = assignSubscriptionToUnit(subscription2Unit2, unit2);
+        subscription2Unit2 = assignSubscriptionToUnit(subscription2Unit2,
+                unit1);
+        subscription2Unit2 = assignSubscriptionToUnit(subscription2Unit2,
+                unit3);
+        subscription2Unit2 = assignSubscriptionToUnit(subscription2Unit2,
+                unit2);
 
-        subscription1Unit3 = assignSubscriptionToUnit(subscription1Unit3, unit1);
-        subscription1Unit3 = assignSubscriptionToUnit(subscription1Unit3, unit2);
-        subscription1Unit3 = assignSubscriptionToUnit(subscription1Unit3, unit3);
+        subscription1Unit3 = assignSubscriptionToUnit(subscription1Unit3,
+                unit1);
+        subscription1Unit3 = assignSubscriptionToUnit(subscription1Unit3,
+                unit2);
+        subscription1Unit3 = assignSubscriptionToUnit(subscription1Unit3,
+                unit3);
     }
 
     @Test
@@ -150,7 +163,8 @@ public class BillingDataRetrievalServiceBeanSubscriptionUnitsIT extends
         List<SubscriptionHistory> result = loadSubscriptionsForCustomer(
                 supplierCustomer.getKey(),
                 Arrays.asList(Long.valueOf(unit1.getKey()),
-                        Long.valueOf(unit2.getKey())), 0, END_TIME, 1);
+                        Long.valueOf(unit2.getKey())),
+                0, END_TIME, 1);
 
         // then
         assertEquals(3 * NR_HISTORY_RECORDS, result.size());
@@ -166,7 +180,8 @@ public class BillingDataRetrievalServiceBeanSubscriptionUnitsIT extends
                 supplierCustomer.getKey(),
                 Arrays.asList(Long.valueOf(unit1.getKey()),
                         Long.valueOf(unit2.getKey()),
-                        Long.valueOf(unit3.getKey())), 0, END_TIME, 1);
+                        Long.valueOf(unit3.getKey())),
+                0, END_TIME, 1);
 
         // then
         assertEquals(4 * NR_HISTORY_RECORDS, result.size());
@@ -214,7 +229,7 @@ public class BillingDataRetrievalServiceBeanSubscriptionUnitsIT extends
     }
 
     private Set<Long> convertToSet(List<SubscriptionHistory> list) {
-        Set<Long> subscriptionKeys = new HashSet<Long>();
+        Set<Long> subscriptionKeys = new HashSet<>();
         for (SubscriptionHistory history : list) {
             subscriptionKeys.add(Long.valueOf(history.getObjKey()));
         }
@@ -225,8 +240,8 @@ public class BillingDataRetrievalServiceBeanSubscriptionUnitsIT extends
             Subscription... subscriptions) {
         Set<Long> subscriptionKeys = convertToSet(result);
         for (Subscription subscription : subscriptions) {
-            assertTrue(subscriptionKeys.contains(Long.valueOf(subscription
-                    .getKey())));
+            assertTrue(subscriptionKeys
+                    .contains(Long.valueOf(subscription.getKey())));
         }
     }
 

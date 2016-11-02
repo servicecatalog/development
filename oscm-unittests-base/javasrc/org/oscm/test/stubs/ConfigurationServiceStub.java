@@ -14,10 +14,10 @@ import org.oscm.configurationservice.assembler.ConfigurationSettingAssembler;
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.converter.DateConverter;
 import org.oscm.domobjects.ConfigurationSetting;
-import org.oscm.types.constants.Configuration;
 import org.oscm.internal.intf.ConfigurationService;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.vo.VOConfigurationSetting;
+import org.oscm.types.constants.Configuration;
 
 /**
  * Simple stub that hold config settings in-memory.
@@ -40,6 +40,10 @@ public class ConfigurationServiceStub implements ConfigurationService,
     @Override
     public ConfigurationSetting getConfigurationSetting(
             ConfigurationKey informationId, String contextId) {
+        if (ConfigurationKey.SSO_DEFAULT_TENANT_ID.equals(informationId)) {
+            return new ConfigurationSetting(informationId,
+                    Configuration.GLOBAL_CONTEXT, "8f96dede");
+        }
         final ConfigurationSetting vo = settings.get(informationId);
 
         if (vo != null) {
@@ -101,8 +105,7 @@ public class ConfigurationServiceStub implements ConfigurationService,
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * org.oscm.internal.intf.ConfigurationService#isServiceProvider()
+     * @see org.oscm.internal.intf.ConfigurationService#isServiceProvider()
      */
     @Override
     public boolean isServiceProvider() {

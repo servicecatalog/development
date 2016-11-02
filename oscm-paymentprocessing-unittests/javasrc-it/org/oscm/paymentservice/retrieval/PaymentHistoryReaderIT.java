@@ -23,7 +23,6 @@ import java.util.concurrent.Callable;
 import javax.persistence.Query;
 
 import org.junit.Test;
-
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.DomainHistoryObject;
@@ -36,15 +35,16 @@ import org.oscm.domobjects.PaymentTypeHistory;
 import org.oscm.domobjects.ProductHistory;
 import org.oscm.domobjects.SubscriptionHistory;
 import org.oscm.domobjects.enums.ModificationType;
-import org.oscm.paymentservice.data.PaymentHistoryData;
-import org.oscm.test.EJBTestBase;
-import org.oscm.test.ejb.TestContainer;
 import org.oscm.internal.types.enumtypes.PaymentCollectionType;
 import org.oscm.internal.types.enumtypes.ServiceStatus;
 import org.oscm.internal.types.enumtypes.ServiceType;
 import org.oscm.internal.types.enumtypes.SubscriptionStatus;
 import org.oscm.internal.types.exception.IllegalArgumentException;
 import org.oscm.internal.types.exception.PSPProcessingException;
+import org.oscm.paymentservice.data.PaymentHistoryData;
+import org.oscm.test.EJBTestBase;
+import org.oscm.test.ejb.TestContainer;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 
 public class PaymentHistoryReaderIT extends EJBTestBase {
 
@@ -58,6 +58,7 @@ public class PaymentHistoryReaderIT extends EJBTestBase {
     @Override
     protected void setup(TestContainer container) throws Exception {
         ds = new DataServiceBean();
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(ds);
         reader = new PaymentHistoryReader(ds);
         initData();
@@ -71,6 +72,7 @@ public class PaymentHistoryReaderIT extends EJBTestBase {
     @Test(expected = PSPProcessingException.class)
     public void getPaymentHistory_NonExistingSub() throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 reader.getPaymentHistory(-12);
                 return null;
@@ -81,6 +83,7 @@ public class PaymentHistoryReaderIT extends EJBTestBase {
     @Test(expected = PSPProcessingException.class)
     public void getPaymentHistory_NoPaymentInformation() throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 deleteDbEntries(PaymentInfoHistory.class);
                 reader.getPaymentHistory(subscriptionKey);
@@ -92,6 +95,7 @@ public class PaymentHistoryReaderIT extends EJBTestBase {
     @Test(expected = PSPProcessingException.class)
     public void getPaymentHistory_NoPaymentType() throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 deleteDbEntries(PaymentTypeHistory.class);
                 reader.getPaymentHistory(subscriptionKey);
@@ -103,6 +107,7 @@ public class PaymentHistoryReaderIT extends EJBTestBase {
     @Test(expected = PSPProcessingException.class)
     public void getPaymentHistory_NoPSP() throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 deleteDbEntries(PSPHistory.class);
                 reader.getPaymentHistory(subscriptionKey);
@@ -114,6 +119,7 @@ public class PaymentHistoryReaderIT extends EJBTestBase {
     @Test
     public void getPaymentHistory_NoPSPAccount() throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 deleteDbEntries(PSPAccountHistory.class);
                 PaymentHistoryData data = reader
@@ -127,6 +133,7 @@ public class PaymentHistoryReaderIT extends EJBTestBase {
     @Test
     public void getPaymentHistory_NoPSPSettings() throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 deleteDbEntries(PSPSettingHistory.class);
                 PaymentHistoryData ph = reader
@@ -134,11 +141,11 @@ public class PaymentHistoryReaderIT extends EJBTestBase {
                 PaymentInfoHistory pih = ph.getPaymentInfoHistory();
                 assertEquals("accountNumber2", pih.getAccountNumber());
                 PaymentTypeHistory pth = ph.getPaymentTypeHistory();
-                assertEquals("CREDIT_CARD2", pth.getDataContainer()
-                        .getPaymentTypeId());
+                assertEquals("CREDIT_CARD2",
+                        pth.getDataContainer().getPaymentTypeId());
                 PSPHistory pspHistory = ph.getPspHistory();
-                assertEquals("distinguishedName2", pspHistory
-                        .getDataContainer().getDistinguishedName());
+                assertEquals("distinguishedName2",
+                        pspHistory.getDataContainer().getDistinguishedName());
                 assertNotNull(ph.getPspSettingsHistory());
                 assertTrue(ph.getPspSettingsHistory().isEmpty());
                 return null;
@@ -149,6 +156,7 @@ public class PaymentHistoryReaderIT extends EJBTestBase {
     @Test
     public void getPaymentHistory_SubscriptionSuspended() throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 SubscriptionHistory sh2 = new SubscriptionHistory();
                 setInitialHistData(sh2, new Date(60000));
@@ -166,19 +174,20 @@ public class PaymentHistoryReaderIT extends EJBTestBase {
             }
         });
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 PaymentHistoryData ph = reader
                         .getPaymentHistory(subscriptionKey);
                 PaymentInfoHistory pih = ph.getPaymentInfoHistory();
                 assertEquals("accountNumber2", pih.getAccountNumber());
                 PaymentTypeHistory pth = ph.getPaymentTypeHistory();
-                assertEquals("CREDIT_CARD2", pth.getDataContainer()
-                        .getPaymentTypeId());
+                assertEquals("CREDIT_CARD2",
+                        pth.getDataContainer().getPaymentTypeId());
                 PSPHistory pspHistory = ph.getPspHistory();
-                assertEquals("distinguishedName2", pspHistory
-                        .getDataContainer().getDistinguishedName());
-                assertEquals("psp_identifier2", ph.getPspAccountHistory()
-                        .getPspIdentifier());
+                assertEquals("distinguishedName2",
+                        pspHistory.getDataContainer().getDistinguishedName());
+                assertEquals("psp_identifier2",
+                        ph.getPspAccountHistory().getPspIdentifier());
                 assertNotNull(ph.getPspSettingsHistory());
                 assertEquals(1, ph.getPspSettingsHistory().size());
                 return null;
@@ -189,19 +198,20 @@ public class PaymentHistoryReaderIT extends EJBTestBase {
     @Test
     public void getPaymentHistory_Positive() throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 PaymentHistoryData ph = reader
                         .getPaymentHistory(subscriptionKey);
                 PaymentInfoHistory pih = ph.getPaymentInfoHistory();
                 assertEquals("accountNumber2", pih.getAccountNumber());
                 PaymentTypeHistory pth = ph.getPaymentTypeHistory();
-                assertEquals("CREDIT_CARD2", pth.getDataContainer()
-                        .getPaymentTypeId());
+                assertEquals("CREDIT_CARD2",
+                        pth.getDataContainer().getPaymentTypeId());
                 PSPHistory pspHistory = ph.getPspHistory();
-                assertEquals("distinguishedName2", pspHistory
-                        .getDataContainer().getDistinguishedName());
-                assertEquals("psp_identifier2", ph.getPspAccountHistory()
-                        .getPspIdentifier());
+                assertEquals("distinguishedName2",
+                        pspHistory.getDataContainer().getDistinguishedName());
+                assertEquals("psp_identifier2",
+                        ph.getPspAccountHistory().getPspIdentifier());
                 assertNotNull(ph.getPspSettingsHistory());
                 assertEquals(1, ph.getPspSettingsHistory().size());
                 return null;
@@ -213,6 +223,7 @@ public class PaymentHistoryReaderIT extends EJBTestBase {
         final Date modDate1 = new Date(10000);
         final Date modDate2 = new Date(50000);
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 // create two entries for every history type of subscription,
                 // paymentinfo, paymenttype, psp, pspsetting, pspaccount
@@ -233,8 +244,8 @@ public class PaymentHistoryReaderIT extends EJBTestBase {
                 psph2.setObjKey(psph1.getObjKey());
                 psph2.getDataContainer().setIdentifier(psph1.getIdentifier());
                 psph2.getDataContainer().setWsdlUrl(psph1.getWsdlUrl());
-                psph2.getDataContainer().setDistinguishedName(
-                        "distinguishedName2");
+                psph2.getDataContainer()
+                        .setDistinguishedName("distinguishedName2");
                 ds.persist(psph2);
 
                 PSPSettingHistory pspsh1 = new PSPSettingHistory();
@@ -273,8 +284,8 @@ public class PaymentHistoryReaderIT extends EJBTestBase {
                 setInitialHistData(ph1, modDate1);
                 ph1.setObjKey(++keyCounter);
                 ph1.getDataContainer().setAccountNumber("accountNumber");
-                ph1.getDataContainer().setExternalIdentifier(
-                        "externalIdentifier");
+                ph1.getDataContainer()
+                        .setExternalIdentifier("externalIdentifier");
                 ph1.getDataContainer().setPaymentInfoId("paymentInfoId");
                 ph1.getDataContainer().setProviderName("providerName");
                 ph1.setPaymentTypeObjKey(pth1.getObjKey());
@@ -283,10 +294,10 @@ public class PaymentHistoryReaderIT extends EJBTestBase {
                 PaymentInfoHistory ph2 = new PaymentInfoHistory();
                 setInitialHistData(ph2, modDate2);
                 ph2.setObjKey(ph1.getObjKey());
-                ph2.getDataContainer().setAccountNumber(
-                        ph1.getAccountNumber() + "2");
-                ph2.getDataContainer().setExternalIdentifier(
-                        ph1.getExternalIdentifier());
+                ph2.getDataContainer()
+                        .setAccountNumber(ph1.getAccountNumber() + "2");
+                ph2.getDataContainer()
+                        .setExternalIdentifier(ph1.getExternalIdentifier());
                 ph2.getDataContainer().setPaymentInfoId(ph1.getPaymentInfoId());
                 ph2.getDataContainer().setProviderName(ph1.getProviderName());
                 ph2.setPaymentTypeObjKey(pth1.getObjKey());
@@ -321,8 +332,8 @@ public class PaymentHistoryReaderIT extends EJBTestBase {
                 setInitialHistData(sh1, modDate1);
                 sh1.setObjKey(subscriptionKey);
                 sh1.setProductObjKey(prod.getObjKey());
-                sh1.getDataContainer().setCreationDate(
-                        Long.valueOf(modDate1.getTime()));
+                sh1.getDataContainer()
+                        .setCreationDate(Long.valueOf(modDate1.getTime()));
                 sh1.getDataContainer().setStatus(SubscriptionStatus.ACTIVE);
                 sh1.getDataContainer().setSubscriptionId("subId");
                 sh1.setPaymentInfoObjKey(Long.valueOf(ph1.getObjKey()));
@@ -332,8 +343,8 @@ public class PaymentHistoryReaderIT extends EJBTestBase {
                 setInitialHistData(sh2, modDate2);
                 sh2.setObjKey(subscriptionKey);
                 sh2.setProductObjKey(prod.getObjKey());
-                sh2.getDataContainer().setCreationDate(
-                        Long.valueOf(modDate1.getTime()));
+                sh2.getDataContainer()
+                        .setCreationDate(Long.valueOf(modDate1.getTime()));
                 sh2.getDataContainer().setStatus(SubscriptionStatus.ACTIVE);
                 sh2.getDataContainer().setSubscriptionId("subId");
                 sh2.setPaymentInfoObjKey(Long.valueOf(ph1.getObjKey()));
@@ -353,9 +364,10 @@ public class PaymentHistoryReaderIT extends EJBTestBase {
         data.setModuser("1000");
     }
 
-    private void deleteDbEntries(Class<? extends DomainHistoryObject<?>> clazz) {
-        Query query = ds.createQuery(String.format("DELETE FROM %s x",
-                clazz.getSimpleName()));
+    private void deleteDbEntries(
+            Class<? extends DomainHistoryObject<?>> clazz) {
+        Query query = ds.createQuery(
+                String.format("DELETE FROM %s x", clazz.getSimpleName()));
         query.executeUpdate();
     }
 

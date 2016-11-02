@@ -15,7 +15,6 @@ import java.util.Date;
 import java.util.concurrent.Callable;
 
 import org.junit.Test;
-
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.BillingResult;
@@ -23,6 +22,7 @@ import org.oscm.domobjects.OrganizationHistory;
 import org.oscm.domobjects.SupportedCountry;
 import org.oscm.domobjects.SupportedCurrency;
 import org.oscm.domobjects.enums.ModificationType;
+import org.oscm.internal.types.enumtypes.SubscriptionStatus;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.Marketplaces;
 import org.oscm.test.data.Organizations;
@@ -32,7 +32,7 @@ import org.oscm.test.data.SupportedCountries;
 import org.oscm.test.data.SupportedCurrencies;
 import org.oscm.test.data.TechnicalProducts;
 import org.oscm.test.ejb.TestContainer;
-import org.oscm.internal.types.enumtypes.SubscriptionStatus;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 
 /**
  * @author kulle
@@ -45,6 +45,7 @@ public class PlatformRevenueDaoIT extends EJBTestBase {
 
     @Override
     protected void setup(TestContainer container) throws Exception {
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         ds = container.get(DataService.class);
         dao = new PlatformRevenueDao(ds, "en");
@@ -79,10 +80,11 @@ public class PlatformRevenueDaoIT extends EJBTestBase {
                 1000L, supplier.getObjKey());
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() {
                 // when
-                dao.executeQuery(new Date(1349049600000L), new Date(
-                        1354320000000L));
+                dao.executeQuery(new Date(1349049600000L),
+                        new Date(1354320000000L));
 
                 // then
                 assertEquals(1, dao.getRowData().size());
@@ -114,10 +116,11 @@ public class PlatformRevenueDaoIT extends EJBTestBase {
                 1000L, supplier.getObjKey());
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() {
                 // when
-                dao.executeQuery(new Date(1349049600000L), new Date(
-                        1354320000000L));
+                dao.executeQuery(new Date(1349049600000L),
+                        new Date(1354320000000L));
 
                 // then
                 assertEquals(1, dao.getRowData().size());
@@ -131,12 +134,14 @@ public class PlatformRevenueDaoIT extends EJBTestBase {
             final String modDate) throws Exception {
 
         final SupportedCountry c = runTX(new Callable<SupportedCountry>() {
+            @Override
             public SupportedCountry call() throws Exception {
                 return SupportedCountries.findOrCreate(ds, "de");
             }
         });
 
         return runTX(new Callable<OrganizationHistory>() {
+            @Override
             public OrganizationHistory call() throws Exception {
                 return Organizations.createOrganizationHistory(ds, objKey,
                         modDate, 0, c.getKey());
@@ -148,6 +153,7 @@ public class PlatformRevenueDaoIT extends EJBTestBase {
             final String modificationDate, final ModificationType modType,
             final int version, final long organizationObjKey) throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Marketplaces.createMarketplaceHistory(ds, mpObjKey,
                         modificationDate, version, modType, organizationObjKey,
@@ -159,6 +165,7 @@ public class PlatformRevenueDaoIT extends EJBTestBase {
 
     private void createSupportedCountriesAndCurrencies() throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 SupportedCountries.createOneSupportedCountry(ds);
                 SupportedCurrencies.createOneSupportedCurrency(ds);
@@ -173,6 +180,7 @@ public class PlatformRevenueDaoIT extends EJBTestBase {
             final SubscriptionStatus subscriptionStatus,
             final long productobjKey, final long mpObjKey) throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Subscriptions.createSubscriptionHistory(ds, subscriptionObjKey,
                         customerOrganizationKey, modificationDate, version,
@@ -188,6 +196,7 @@ public class PlatformRevenueDaoIT extends EJBTestBase {
             final long periodEnd, final Long subscriptionKey,
             final long customerOrgKey, final long sellerKey) throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 BillingResult br = new BillingResult();
                 br.setCreationTime(0);
@@ -211,7 +220,8 @@ public class PlatformRevenueDaoIT extends EJBTestBase {
     private String getXml() {
         StringBuilder sb = new StringBuilder();
         sb.append("<BillingDetails key=\"10001\">");
-        sb.append("<Period endDate=\"1354320000000\" endDateIsoFormat=\"2012-12-01T00:00:00.000Z\" startDate=\"1349049600000\" startDateIsoFormat=\"2012-11-01T00:00:00.000Z\"/>");
+        sb.append(
+                "<Period endDate=\"1354320000000\" endDateIsoFormat=\"2012-12-01T00:00:00.000Z\" startDate=\"1349049600000\" startDateIsoFormat=\"2012-11-01T00:00:00.000Z\"/>");
         sb.append("<OrganizationDetails>");
         sb.append("<Email>sven.kulle@est.fujitsu.com</Email>");
         sb.append("<Name>EST</Name>");
@@ -220,22 +230,29 @@ public class PlatformRevenueDaoIT extends EJBTestBase {
         sb.append("<Paymenttype>INVOICE</Paymenttype>");
         sb.append("</OrganizationDetails>");
         sb.append("<Subscriptions>");
-        sb.append("<Subscription id=\"Php Product(2)\" purchaseOrderNumber=\"\">");
+        sb.append(
+                "<Subscription id=\"Php Product(2)\" purchaseOrderNumber=\"\">");
         sb.append("<PriceModels>");
         sb.append("<PriceModel id=\"11000\">");
-        sb.append("<UsagePeriod endDate=\"1352809470838\" endDateIsoFormat=\"2012-11-13T12:24:30.838Z\" startDate=\"1352809213216\" startDateIsoFormat=\"2012-11-13T12:20:13.216Z\"/>");
+        sb.append(
+                "<UsagePeriod endDate=\"1352809470838\" endDateIsoFormat=\"2012-11-13T12:24:30.838Z\" startDate=\"1352809213216\" startDateIsoFormat=\"2012-11-13T12:20:13.216Z\"/>");
         sb.append("<GatheredEvents>");
         sb.append("<GatheredEventsCosts amount=\"0.00\"/>");
         sb.append("</GatheredEvents>");
-        sb.append("<PeriodFee basePeriod=\"MONTH\" basePrice=\"0.10\" factor=\"9.939120370370371E-5\" price=\"0.00\"/>");
-        sb.append("<UserAssignmentCosts basePeriod=\"MONTH\" basePrice=\"10.00\" factor=\"0.0\" numberOfUsersTotal=\"0\" price=\"0.00\"/>");
-        sb.append("<OneTimeFee amount=\"110.00\" baseAmount=\"110.00\" factor=\"1\"/>");
-        sb.append("<PriceModelCosts amount=\"110.00\" currency=\"EUR\" grossAmount=\"110.00\"/>");
+        sb.append(
+                "<PeriodFee basePeriod=\"MONTH\" basePrice=\"0.10\" factor=\"9.939120370370371E-5\" price=\"0.00\"/>");
+        sb.append(
+                "<UserAssignmentCosts basePeriod=\"MONTH\" basePrice=\"10.00\" factor=\"0.0\" numberOfUsersTotal=\"0\" price=\"0.00\"/>");
+        sb.append(
+                "<OneTimeFee amount=\"110.00\" baseAmount=\"110.00\" factor=\"1\"/>");
+        sb.append(
+                "<PriceModelCosts amount=\"110.00\" currency=\"EUR\" grossAmount=\"110.00\"/>");
         sb.append("</PriceModel>");
         sb.append("</PriceModels>");
         sb.append("</Subscription>");
         sb.append("</Subscriptions>");
-        sb.append("<OverallCosts currency=\"EUR\" grossAmount=\"110.00\" netAmount=\"110.00\"/>");
+        sb.append(
+                "<OverallCosts currency=\"EUR\" grossAmount=\"110.00\" netAmount=\"110.00\"/>");
         sb.append("</BillingDetails>");
         return sb.toString();
     }
@@ -245,6 +262,7 @@ public class PlatformRevenueDaoIT extends EJBTestBase {
             final int version, final ModificationType modificationType)
             throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 TechnicalProducts.createTechnicalProductHistory(ds, orgKey,
                         prdObjKey, modificationDate, version, modificationType);
@@ -258,6 +276,7 @@ public class PlatformRevenueDaoIT extends EJBTestBase {
             final String modificationDate, final int version,
             final ModificationType modificationType) throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Products.createProductHistory(ds, technicalProductObjKey,
                         prdObjKey, sellerKey, modificationDate, version,

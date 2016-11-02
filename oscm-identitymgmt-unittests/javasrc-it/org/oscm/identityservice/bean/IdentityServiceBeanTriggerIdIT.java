@@ -28,9 +28,9 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.converter.ParameterizedTypes;
 import org.oscm.dataservice.bean.DataServiceBean;
@@ -43,17 +43,6 @@ import org.oscm.domobjects.TriggerProcess;
 import org.oscm.domobjects.TriggerProcessIdentifier;
 import org.oscm.domobjects.TriggerProcessParameter;
 import org.oscm.identityservice.local.IdentityServiceLocal;
-import org.oscm.test.EJBTestBase;
-import org.oscm.test.data.Organizations;
-import org.oscm.test.data.TriggerDefinitions;
-import org.oscm.test.data.TriggerProcesses;
-import org.oscm.test.ejb.TestContainer;
-import org.oscm.triggerservice.local.TriggerMessage;
-import org.oscm.triggerservice.local.TriggerProcessMessageData;
-import org.oscm.triggerservice.local.TriggerQueueServiceLocal;
-import org.oscm.types.constants.Configuration;
-import org.oscm.types.enumtypes.TriggerProcessIdentifierName;
-import org.oscm.types.enumtypes.TriggerProcessParameterName;
 import org.oscm.internal.intf.IdentityService;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
@@ -61,6 +50,18 @@ import org.oscm.internal.types.enumtypes.TriggerType;
 import org.oscm.internal.types.enumtypes.UserRoleType;
 import org.oscm.internal.types.exception.OperationPendingException;
 import org.oscm.internal.vo.VOUserDetails;
+import org.oscm.test.EJBTestBase;
+import org.oscm.test.data.Organizations;
+import org.oscm.test.data.TriggerDefinitions;
+import org.oscm.test.data.TriggerProcesses;
+import org.oscm.test.ejb.TestContainer;
+import org.oscm.test.stubs.ConfigurationServiceStub;
+import org.oscm.triggerservice.local.TriggerMessage;
+import org.oscm.triggerservice.local.TriggerProcessMessageData;
+import org.oscm.triggerservice.local.TriggerQueueServiceLocal;
+import org.oscm.types.constants.Configuration;
+import org.oscm.types.enumtypes.TriggerProcessIdentifierName;
+import org.oscm.types.enumtypes.TriggerProcessParameterName;
 
 public class IdentityServiceBeanTriggerIdIT extends EJBTestBase {
 
@@ -81,7 +82,7 @@ public class IdentityServiceBeanTriggerIdIT extends EJBTestBase {
     protected void setup(TestContainer container) throws Exception {
         container.enableInterfaceMocking(true);
         triggerQueueServiceLocal = mock(TriggerQueueServiceLocal.class);
-        cs = mock(ConfigurationServiceLocal.class);
+        cs = Mockito.spy(new ConfigurationServiceStub());
         container.addBean(cs);
         container.addBean(triggerQueueServiceLocal);
         container.addBean(new DataServiceBean());
@@ -103,8 +104,8 @@ public class IdentityServiceBeanTriggerIdIT extends EJBTestBase {
                     InvocationOnMock invocation) throws Throwable {
                 return Collections.singletonList(triggerProcessData);
             }
-        }).when(triggerQueueServiceLocal).sendSuspendingMessages(
-                anyListOf(TriggerMessage.class));
+        }).when(triggerQueueServiceLocal)
+                .sendSuspendingMessages(anyListOf(TriggerMessage.class));
 
     }
 

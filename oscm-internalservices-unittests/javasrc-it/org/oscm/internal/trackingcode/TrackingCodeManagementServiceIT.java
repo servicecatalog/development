@@ -12,12 +12,16 @@ import java.util.concurrent.Callable;
 import javax.ejb.EJBException;
 
 import org.junit.Test;
-
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Marketplace;
 import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.PlatformUser;
+import org.oscm.internal.components.response.Response;
+import org.oscm.internal.trackingCode.POTrackingCode;
+import org.oscm.internal.trackingCode.TrackingCodeManagementService;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.UserRoleType;
 import org.oscm.marketplace.bean.MarketplaceServiceLocalBean;
 import org.oscm.marketplaceservice.local.MarketplaceServiceLocal;
 import org.oscm.test.EJBTestBase;
@@ -25,11 +29,7 @@ import org.oscm.test.data.Marketplaces;
 import org.oscm.test.data.Organizations;
 import org.oscm.test.data.PlatformUsers;
 import org.oscm.test.ejb.TestContainer;
-import org.oscm.internal.components.response.Response;
-import org.oscm.internal.trackingCode.POTrackingCode;
-import org.oscm.internal.trackingCode.TrackingCodeManagementService;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.UserRoleType;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 
 /**
  * @author Tang
@@ -51,6 +51,7 @@ public class TrackingCodeManagementServiceIT extends EJBTestBase {
     @Override
     protected void setup(TestContainer container) throws Exception {
         container.enableInterfaceMocking(true);
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
 
         container.addBean(new MarketplaceServiceLocalBean());
@@ -61,11 +62,12 @@ public class TrackingCodeManagementServiceIT extends EJBTestBase {
         // create marketplace + corresponding owner
         runTX(new Callable<Void>() {
 
+            @Override
             public Void call() throws Exception {
                 mpOwner = Organizations.createOrganization(dataService,
                         OrganizationRoleType.MARKETPLACE_OWNER);
-                PlatformUser createUserForOrg = Organizations.createUserForOrg(
-                        dataService, mpOwner, true, "admin");
+                PlatformUser createUserForOrg = Organizations
+                        .createUserForOrg(dataService, mpOwner, true, "admin");
                 mpOwnerUserKey = createUserForOrg.getKey();
 
                 PlatformUsers.grantRoles(dataService, createUserForOrg,
@@ -76,6 +78,7 @@ public class TrackingCodeManagementServiceIT extends EJBTestBase {
         });
 
         runTX(new Callable<Marketplace>() {
+            @Override
             public Marketplace call() throws Exception {
                 return Marketplaces.createMarketplace(mpOwner, GLOBAL_MP_ID,
                         false, dataService);

@@ -219,26 +219,26 @@ public class OperatorOrgBeanTest {
     }
 
     @Test
-    public void getSelectableMarketplaces_NotNull() {
+    public void getSelectableMarketplaces_NotNull() throws ObjectNotFoundException {
         setupMarketplaces();
         List<SelectItem> list = oob.getSelectableMarketplaces();
         assertNotNull(list);
-        verify(msmock, times(1)).getAccessibleMarketplaces();
+        verify(msmock, times(1)).getAllMarketplacesForTenant(anyLong());
     }
 
     @Test
-    public void getSelectableMarketplaces_Same() {
+    public void getSelectableMarketplaces_Same() throws ObjectNotFoundException {
         setupMarketplaces();
         List<SelectItem> list1 = oob.getSelectableMarketplaces();
         List<SelectItem> list2 = oob.getSelectableMarketplaces();
-        verify(msmock, times(2)).getAccessibleMarketplaces();
+        verify(msmock, times(2)).getAllMarketplacesForTenant(anyLong());
     }
 
     @Test
-    public void getSelectableMarketplaces() {
+    public void getSelectableMarketplaces() throws ObjectNotFoundException {
         setupMarketplaces();
         List<SelectItem> list = oob.getSelectableMarketplaces();
-        verify(msmock, times(1)).getAccessibleMarketplaces();
+        verify(msmock, times(1)).getAllMarketplacesForTenant(anyLong());
 
         assertEquals(2, list.size());
         SelectItem item = list.get(0);
@@ -287,8 +287,12 @@ public class OperatorOrgBeanTest {
 
         msmock = mock(MarketplaceService.class);
 
-        when(msmock.getAccessibleMarketplaces()).thenReturn(
-                Arrays.asList(vMp1, vMp2));
+        try {
+            when(msmock.getAllMarketplacesForTenant(anyLong())).thenReturn(
+                    Arrays.asList(vMp1, vMp2));
+        } catch (ObjectNotFoundException e) {
+            fail();
+        }
 
         doReturn(Boolean.TRUE).when(oob).isLoggedInAndPlatformOperator();
         doReturn(msmock).when(oob).getMarketplaceService();

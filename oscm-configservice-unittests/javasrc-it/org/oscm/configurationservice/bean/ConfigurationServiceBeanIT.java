@@ -12,7 +12,6 @@
 
 package org.oscm.configurationservice.bean;
 
-import static org.oscm.test.matchers.BesMatchers.hasAnnotation;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
@@ -24,6 +23,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.oscm.test.matchers.BesMatchers.hasAnnotation;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -38,16 +38,16 @@ import javax.ejb.Schedule;
 import javax.persistence.TypedQuery;
 
 import org.junit.Test;
-
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.ConfigurationSetting;
-import org.oscm.test.EJBTestBase;
-import org.oscm.test.ejb.TestContainer;
-import org.oscm.types.constants.Configuration;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.vo.VOConfigurationSetting;
+import org.oscm.test.EJBTestBase;
+import org.oscm.test.ejb.TestContainer;
+import org.oscm.test.stubs.ConfigurationServiceStub;
+import org.oscm.types.constants.Configuration;
 
 /**
  * @author jaeger
@@ -59,6 +59,7 @@ public class ConfigurationServiceBeanIT extends EJBTestBase {
 
     @Override
     protected void setup(TestContainer container) throws Exception {
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         container.addBean(new ConfigurationServiceBean());
         confSvc = container.get(ConfigurationServiceBean.class);
@@ -206,13 +207,15 @@ public class ConfigurationServiceBeanIT extends EJBTestBase {
                 return null;
             }
         });
-        final ConfigurationSetting read = runTX(new Callable<ConfigurationSetting>() {
-            @Override
-            public ConfigurationSetting call() {
-                return confSvcLocal.getConfigurationSetting(
-                        setting.getInformationId(), setting.getContextId());
-            }
-        });
+        final ConfigurationSetting read = runTX(
+                new Callable<ConfigurationSetting>() {
+                    @Override
+                    public ConfigurationSetting call() {
+                        return confSvcLocal.getConfigurationSetting(
+                                setting.getInformationId(),
+                                setting.getContextId());
+                    }
+                });
         assertEquals(setting.getInformationId(), read.getInformationId());
         assertEquals(setting.getValue(), read.getValue());
         // and now delete it by setting value to empty string
@@ -225,13 +228,15 @@ public class ConfigurationServiceBeanIT extends EJBTestBase {
             }
         });
         // now check that the default value is used again
-        ConfigurationSetting read1 = runTX(new Callable<ConfigurationSetting>() {
-            @Override
-            public ConfigurationSetting call() {
-                return confSvcLocal.getConfigurationSetting(
-                        setting.getInformationId(), setting.getContextId());
-            }
-        });
+        ConfigurationSetting read1 = runTX(
+                new Callable<ConfigurationSetting>() {
+                    @Override
+                    public ConfigurationSetting call() {
+                        return confSvcLocal.getConfigurationSetting(
+                                setting.getInformationId(),
+                                setting.getContextId());
+                    }
+                });
         // must be a fresh object created with default value
         assertEquals(0, read1.getKey());
         assertEquals(setting.getInformationId().getFallBackValue(),
@@ -243,18 +248,19 @@ public class ConfigurationServiceBeanIT extends EJBTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                confSvcLocal.setConfigurationSetting(new ConfigurationSetting(
-                        ConfigurationKey.BASE_URL,
-                        Configuration.GLOBAL_CONTEXT, "initialValue"));
+                confSvcLocal.setConfigurationSetting(
+                        new ConfigurationSetting(ConfigurationKey.BASE_URL,
+                                Configuration.GLOBAL_CONTEXT, "initialValue"));
                 return null;
             }
         });
-        List<ConfigurationSetting> result = runTX(new Callable<List<ConfigurationSetting>>() {
-            @Override
-            public List<ConfigurationSetting> call() {
-                return confSvcLocal.getAllConfigurationSettings();
-            }
-        });
+        List<ConfigurationSetting> result = runTX(
+                new Callable<List<ConfigurationSetting>>() {
+                    @Override
+                    public List<ConfigurationSetting> call() {
+                        return confSvcLocal.getAllConfigurationSettings();
+                    }
+                });
         assertNotNull(result);
         assertEquals(1, result.size());
         ConfigurationSetting entry = result.get(0);
@@ -264,12 +270,13 @@ public class ConfigurationServiceBeanIT extends EJBTestBase {
 
     @Test
     public void testGetConfigurationSettings_NoHits() throws Exception {
-        List<ConfigurationSetting> result = runTX(new Callable<List<ConfigurationSetting>>() {
-            @Override
-            public List<ConfigurationSetting> call() {
-                return confSvcLocal.getAllConfigurationSettings();
-            }
-        });
+        List<ConfigurationSetting> result = runTX(
+                new Callable<List<ConfigurationSetting>>() {
+                    @Override
+                    public List<ConfigurationSetting> call() {
+                        return confSvcLocal.getAllConfigurationSettings();
+                    }
+                });
         assertNotNull(result);
         assertTrue(result.isEmpty());
     }
@@ -306,10 +313,10 @@ public class ConfigurationServiceBeanIT extends EJBTestBase {
         });
 
         // empty context id, global context will be used
-        assertEquals(
-                value,
-                confSvcLocal.getConfigurationSetting(
-                        ConfigurationKey.LOG_LEVEL, "").getValue());
+        assertEquals(value,
+                confSvcLocal
+                        .getConfigurationSetting(ConfigurationKey.LOG_LEVEL, "")
+                        .getValue());
     }
 
     @Test
@@ -324,9 +331,9 @@ public class ConfigurationServiceBeanIT extends EJBTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                confSvcLocal.setConfigurationSetting(new ConfigurationSetting(
-                        ConfigurationKey.BASE_URL,
-                        Configuration.GLOBAL_CONTEXT, "initialValue"));
+                confSvcLocal.setConfigurationSetting(
+                        new ConfigurationSetting(ConfigurationKey.BASE_URL,
+                                Configuration.GLOBAL_CONTEXT, "initialValue"));
                 return null;
             }
         });
@@ -339,12 +346,13 @@ public class ConfigurationServiceBeanIT extends EJBTestBase {
                 return null;
             }
         });
-        List<ConfigurationSetting> result = runTX(new Callable<List<ConfigurationSetting>>() {
-            @Override
-            public List<ConfigurationSetting> call() {
-                return confSvcLocal.getAllConfigurationSettings();
-            }
-        });
+        List<ConfigurationSetting> result = runTX(
+                new Callable<List<ConfigurationSetting>>() {
+                    @Override
+                    public List<ConfigurationSetting> call() {
+                        return confSvcLocal.getAllConfigurationSettings();
+                    }
+                });
         assertNotNull(result);
         assertEquals(2, result.size());
         ConfigurationSetting entry = result.get(0);
@@ -356,8 +364,8 @@ public class ConfigurationServiceBeanIT extends EJBTestBase {
         assertEquals("initialValue2", entry.getValue());
     }
 
-    private static ConfigurationSetting createConfigurationSetting(
-            String value, boolean mandatory) {
+    private static ConfigurationSetting createConfigurationSetting(String value,
+            boolean mandatory) {
         ConfigurationKey key;
         if (mandatory) {
             key = ConfigurationKey.LOG_FILE_PATH;
@@ -373,8 +381,8 @@ public class ConfigurationServiceBeanIT extends EJBTestBase {
         // given
         ConfigurationServiceBean service = spy(new ConfigurationServiceBean());
         service.dm = mock(DataService.class);
-        doReturn(mock(TypedQuery.class)).when(service.dm).createNamedQuery(
-                anyString(), eq(ConfigurationSetting.class));
+        doReturn(mock(TypedQuery.class)).when(service.dm)
+                .createNamedQuery(anyString(), eq(ConfigurationSetting.class));
 
         // when
         service.init();
@@ -398,7 +406,7 @@ public class ConfigurationServiceBeanIT extends EJBTestBase {
     }
 
     private List<ConfigurationSetting> givenConfigurationSettings() {
-        List<ConfigurationSetting> result = new ArrayList<ConfigurationSetting>();
+        List<ConfigurationSetting> result = new ArrayList<>();
         result.add(new ConfigurationSetting(ConfigurationKey.BASE_URL,
                 "aContext", "aValue"));
         return result;
@@ -422,7 +430,7 @@ public class ConfigurationServiceBeanIT extends EJBTestBase {
     }
 
     private List<Annotation> givenRefreshCacheAnnotations() {
-        List<Annotation> result = new ArrayList<Annotation>();
+        List<Annotation> result = new ArrayList<>();
         Annotation schedule = mock(Annotation.class);
         doReturn(Schedule.class).when(schedule).annotationType();
         doReturn("minute = \"*/10\"").when(schedule).toString();
@@ -444,8 +452,8 @@ public class ConfigurationServiceBeanIT extends EJBTestBase {
         // given
         ConfigurationServiceBean service = spy(new ConfigurationServiceBean());
         service.dm = mock(DataService.class);
-        doReturn(mock(TypedQuery.class)).when(service.dm).createNamedQuery(
-                anyString(), eq(ConfigurationSetting.class));
+        doReturn(mock(TypedQuery.class)).when(service.dm)
+                .createNamedQuery(anyString(), eq(ConfigurationSetting.class));
 
         // when
         service.setConfigurationSetting(new ConfigurationSetting());

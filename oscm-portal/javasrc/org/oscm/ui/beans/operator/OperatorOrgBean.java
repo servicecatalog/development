@@ -190,17 +190,21 @@ public class OperatorOrgBean extends BaseOperatorBean implements Serializable {
             return selectableMarketplaces;
         }
         List<VOMarketplace> marketplaces;
-        if (getSelectedTenant() != null) {
-            try {
-                marketplaces = getMarketplaceService()
-                        .getAllMarketplacesForTenant(
-                                Long.valueOf(this.selectedTenant));
-            } catch (ObjectNotFoundException e) {
-                selectableMarketplaces = new ArrayList<>();
-                return selectableMarketplaces;
-            }
-        } else {
-            marketplaces = getMarketplaceService().getAccessibleMarketplaces();
+        Long tenantKey;
+        try {
+            tenantKey = Long.valueOf(this.selectedTenant);
+        } catch (Exception exc) {
+            //Selected tenant is not parseable, results will be displayed for default.
+            tenantKey = null;
+        }
+
+        try {
+            marketplaces = getMarketplaceService()
+                    .getAllMarketplacesForTenant(
+                            tenantKey);
+        } catch (ObjectNotFoundException e) {
+            selectableMarketplaces = new ArrayList<>();
+            return selectableMarketplaces;
         }
         selectableMarketplaces = toMarketplacesList(marketplaces);
         return selectableMarketplaces;

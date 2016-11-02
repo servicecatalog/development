@@ -12,9 +12,26 @@
 
 package org.oscm.domobjects;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.OrderBy;
+import javax.persistence.PrePersist;
+import javax.persistence.Transient;
 
 import org.oscm.domobjects.annotations.BusinessKey;
 import org.oscm.internal.types.enumtypes.Salutation;
@@ -30,11 +47,15 @@ import org.oscm.internal.types.enumtypes.UserRoleType;
  */
 @Entity
 @NamedQueries({
-        @NamedQuery(name = "PlatformUser.findByBusinessKey", query = "select obj from PlatformUser obj, Organization "
-            + "o where obj.dataContainer.userId=:userId AND obj.organization = o AND o.tenant IS NULL "),
-        @NamedQuery(name = "PlatformUser.findByUserIdAndTenant", query = "select obj from PlatformUser obj, "
-            + "Organization o, Tenant t where obj.dataContainer.userId=:userId AND obj.organization = o AND o"
-            + ".tenant = t AND t.dataContainer.tenantId = :tenantId "),
+        @NamedQuery(name = "PlatformUser.findByBusinessKey", query = "select obj from PlatformUser obj, "
+                + "Organization o, Tenant t where obj.dataContainer.userId=:userId AND obj.organization = o AND o"
+                + ".tenant = t AND t.dataContainer.tenantId = :tenantId "),
+        @NamedQuery(name = "PlatformUser.findByUserId", query = "select obj from PlatformUser obj, "
+                + "Organization o where obj.dataContainer.userId=:userId AND obj.organization = o AND o"
+                + ".tenant is null "),
+        @NamedQuery(name = "PlatformUser.findByUserIdAndTenantKey", query = "select obj from PlatformUser obj, "
+                + "Organization o, Tenant t where obj.dataContainer.userId=:userId AND obj.organization = o AND o"
+                + ".tenant = t AND t.key = :tenantKey "),
         @NamedQuery(name = "PlatformUser.getOverdueOrganizationAdmins", query = "select obj from PlatformUser obj where obj.dataContainer.status = :status and obj.dataContainer.creationDate < :date"),
         @NamedQuery(name = "PlatformUser.getVisibleForOrganization", query = "SELECT DISTINCT pu FROM PlatformUser pu LEFT JOIN FETCH pu.assignedRoles LEFT JOIN FETCH pu.master WHERE pu.organization = :organization AND NOT EXISTS (SELECT ref FROM OnBehalfUserReference ref WHERE ref.slaveUser = pu)"),
         @NamedQuery(name = "PlatformUser.countRegisteredUsers", query = "select count(obj) from PlatformUser obj "),
@@ -42,7 +63,7 @@ import org.oscm.internal.types.enumtypes.UserRoleType;
         @NamedQuery(name = "PlatformUser.findByIdPattern", query = "SELECT DISTINCT obj FROM PlatformUser obj where obj.dataContainer.userId like :userId order by obj.dataContainer.userId"),
         @NamedQuery(name = "PlatformUser.findByOrgAndReamUserId", query = "select obj from PlatformUser obj where obj.organization = :organization and obj.dataContainer.realmUserId=:realmUserId"),
         @NamedQuery(name = "PlatformUser.findUnassignedByOrg", query = "select obj from PlatformUser obj left join obj.licenses lic where ((obj.licenses is empty) or lic.subscription.key != :subscriptionKey) and obj.organization.key=:organizationKey") })
-@BusinessKey(attributes = { "userId" })
+@BusinessKey(attributes = { "userId", "tenantId" })
 public class PlatformUser extends DomainObjectWithHistory<PlatformUserData> {
     private static final long serialVersionUID = 150016765620902326L;
 
@@ -50,6 +71,9 @@ public class PlatformUser extends DomainObjectWithHistory<PlatformUserData> {
         super();
         dataContainer = new PlatformUserData();
     }
+
+    @Transient
+    private String tenantId;
 
     /**
      * n:1 relation to the organization.<br>
@@ -61,25 +85,25 @@ public class PlatformUser extends DomainObjectWithHistory<PlatformUserData> {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     @OrderBy
-    private List<TriggerProcess> triggerProcesses = new ArrayList<TriggerProcess>();
+    private List<TriggerProcess> triggerProcesses = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     @OrderBy
-    private Set<RoleAssignment> assignedRoles = new HashSet<RoleAssignment>();
+    private Set<RoleAssignment> assignedRoles = new HashSet<>();
 
     @OneToMany(mappedBy = "masterUser", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     @OrderBy
-    private List<OnBehalfUserReference> onBehalfUserReferences = new ArrayList<OnBehalfUserReference>();
+    private List<OnBehalfUserReference> onBehalfUserReferences = new ArrayList<>();
 
     @OneToOne(optional = true, mappedBy = "slaveUser", fetch = FetchType.LAZY)
     private OnBehalfUserReference master;
 
     @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "platformuser", fetch = FetchType.LAZY)
-    private List<UserGroupToUser> userGroupToUsers = new ArrayList<UserGroupToUser>();
+    private List<UserGroupToUser> userGroupToUsers = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     @OrderBy
-    private List<OperationRecord> operationRecord = new ArrayList<OperationRecord>();
+    private List<OperationRecord> operationRecord = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     private Collection<UsageLicense> licenses;
@@ -373,7 +397,7 @@ public class PlatformUser extends DomainObjectWithHistory<PlatformUserData> {
      * @return a {@link Set} of {@link UserRoleType} assigned to the user
      */
     public Set<UserRoleType> getAssignedRoleTypes() {
-        Set<UserRoleType> result = new HashSet<UserRoleType>();
+        Set<UserRoleType> result = new HashSet<>();
         Set<RoleAssignment> roles = getAssignedRoles();
         for (RoleAssignment ra : roles) {
             result.add(ra.getRole().getRoleName());
@@ -439,9 +463,12 @@ public class PlatformUser extends DomainObjectWithHistory<PlatformUserData> {
      */
     public boolean hasSubscriptionOwnerRole() {
         for (RoleAssignment roleAssignment : assignedRoles) {
-            if ((roleAssignment.getRole().getRoleName() == UserRoleType.ORGANIZATION_ADMIN)
-                    || (roleAssignment.getRole().getRoleName() == UserRoleType.SUBSCRIPTION_MANAGER)
-                    || (roleAssignment.getRole().getRoleName() == UserRoleType.UNIT_ADMINISTRATOR))
+            if ((roleAssignment.getRole()
+                    .getRoleName() == UserRoleType.ORGANIZATION_ADMIN)
+                    || (roleAssignment.getRole()
+                            .getRoleName() == UserRoleType.SUBSCRIPTION_MANAGER)
+                    || (roleAssignment.getRole()
+                            .getRoleName() == UserRoleType.UNIT_ADMINISTRATOR))
                 return true;
         }
         return false;
@@ -495,11 +522,18 @@ public class PlatformUser extends DomainObjectWithHistory<PlatformUserData> {
     }
 
     /**
-     *
+     * 
      * @returns true if the user has SUBSCRIPTION_MANAGER role
      */
     public boolean isSubscriptionManager() {
         return hasRole(UserRoleType.SUBSCRIPTION_MANAGER);
     }
 
+    public String getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(String tenantId) {
+        this.tenantId = tenantId;
+    }
 }

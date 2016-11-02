@@ -20,16 +20,16 @@ import java.util.concurrent.Callable;
 import javax.persistence.PersistenceException;
 
 import org.junit.Test;
-
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.BillingAdapter;
 import org.oscm.domobjects.enums.BillingAdapterIdentifier;
+import org.oscm.internal.types.exception.DeletionConstraintException;
+import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.BillingAdapters;
 import org.oscm.test.ejb.TestContainer;
-import org.oscm.internal.types.exception.DeletionConstraintException;
-import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 
 /**
  * @author stavreva
@@ -45,6 +45,7 @@ public class BillingAdapterDAOIT extends EJBTestBase {
     @Override
     protected void setup(TestContainer container) throws Exception {
         container.login("1");
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(ds = new DataServiceBean());
         container.addBean(billAdapterDAO = new BillingAdapterDAO());
     }
@@ -85,7 +86,7 @@ public class BillingAdapterDAOIT extends EJBTestBase {
 
         // then
         assertEquals(2, list.size());
-        List<String> billingIds = new ArrayList<String>();
+        List<String> billingIds = new ArrayList<>();
         billingIds.add(list.get(0).getBillingIdentifier());
         billingIds.add(list.get(1).getBillingIdentifier());
         assertTrue(billingIds.contains(BILLING_ID));
@@ -127,7 +128,7 @@ public class BillingAdapterDAOIT extends EJBTestBase {
         List<BillingAdapter> list = getAll();
 
         assertEquals(1, list.size());
-        List<String> billingIds = new ArrayList<String>();
+        List<String> billingIds = new ArrayList<>();
         billingIds.add(list.get(0).getBillingIdentifier());
 
         assertTrue(billingIds
@@ -173,13 +174,13 @@ public class BillingAdapterDAOIT extends EJBTestBase {
         List<BillingAdapter> list = getAll();
 
         assertEquals(2, list.size());
-        List<String> billingIds = new ArrayList<String>();
+        List<String> billingIds = new ArrayList<>();
         billingIds.add(list.get(0).getBillingIdentifier());
         billingIds.add(list.get(1).getBillingIdentifier());
         assertTrue(billingIds.contains(BILLING_ID));
         assertTrue(billingIds
                 .contains(BillingAdapterIdentifier.NATIVE_BILLING.toString()));
-        List<String> adapterNames = new ArrayList<String>();
+        List<String> adapterNames = new ArrayList<>();
         adapterNames.add(list.get(0).getName());
         adapterNames.add(list.get(1).getName());
         assertTrue(adapterNames.contains("NewName1"));
@@ -218,7 +219,7 @@ public class BillingAdapterDAOIT extends EJBTestBase {
         List<BillingAdapter> list = getAll();
 
         assertEquals(2, list.size());
-        List<String> billingIds = new ArrayList<String>();
+        List<String> billingIds = new ArrayList<>();
         billingIds.add(list.get(0).getBillingIdentifier());
         billingIds.add(list.get(1).getBillingIdentifier());
         assertTrue(billingIds.contains(BILLING_ID));

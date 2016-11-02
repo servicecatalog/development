@@ -317,14 +317,17 @@ public class ReportingServiceBeanQueryIT extends EJBTestBase {
         container.addBean(new BillingDataRetrievalServiceBean());
         container.addBean(new BillingServiceBean());
         IdentityServiceLocal mock = mock(IdentityServiceLocal.class);
+
         doAnswer(new Answer() {
             @Override
-            public PlatformUser answer(InvocationOnMock invocation) throws Throwable {
+            public PlatformUser answer(InvocationOnMock invocation)
+                    throws Throwable {
                 PlatformUser user = new PlatformUser();
                 user.setUserId((String) invocation.getArguments()[0]);
-                return (PlatformUser) mgr.getReferenceByBusinessKey(user);
+                return mgr.find(user);
             }
-        }).when(mock).getPlatformUser(anyString(), anyBoolean());
+        }).when(mock).getPlatformUser(anyString(), anyString(), anyBoolean());
+
         container.addBean(mock);
         container.addBean(new TenantProvisioningServiceBean());
         container.addBean(new CommunicationServiceStub());
@@ -999,7 +1002,7 @@ public class ReportingServiceBeanQueryIT extends EJBTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                PlatformUser uAdmin = (PlatformUser) mgr.find(testUsers.get(
+                PlatformUser uAdmin = mgr.find(testUsers.get(
                         testOrganizations.get("A").get(0)).get(1));
                 uAdmin.setLocale("de");
                 mgr.persist(uAdmin);
@@ -1030,7 +1033,7 @@ public class ReportingServiceBeanQueryIT extends EJBTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                PlatformUser uAdmin = (PlatformUser) mgr.find(testUsers.get(
+                PlatformUser uAdmin = mgr.find(testUsers.get(
                         testOrganizations.get("A").get(0)).get(1));
                 uAdmin.setLocale("ja");
                 mgr.persist(uAdmin);

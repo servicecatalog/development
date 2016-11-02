@@ -28,6 +28,7 @@ import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.RoleAssignment;
 import org.oscm.domobjects.RoleDefinition;
@@ -68,6 +69,7 @@ public class DataConverterTest {
         user.setSalutation(Salutation.MR);
         user.setUserId("userId");
         user.setStatus(UserAccountStatus.LOCKED_NOT_CONFIRMED);
+        user.setOrganization(new Organization());
 
         RoleAssignment ra = new RoleAssignment();
         ra.setUser(user);
@@ -141,7 +143,7 @@ public class DataConverterTest {
 
         assertNull(pu);
     }
-    
+
     @Test
     public void toPlatformUser_FromPOUserInUnit() throws Exception {
         POUserInUnit ud = dc.toPoUserInUnit(user, UnitRoleType.USER.name());
@@ -159,7 +161,7 @@ public class DataConverterTest {
 
         validate(ud, pu);
     }
-    
+
     @Test
     public void toPOUserInUnit() throws Exception {
         POUserInUnit ud = dc.toPoUserInUnit(user, UnitRoleType.USER.name());

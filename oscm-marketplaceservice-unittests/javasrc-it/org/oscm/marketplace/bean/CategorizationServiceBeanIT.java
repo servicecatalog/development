@@ -26,7 +26,6 @@ import javax.persistence.Query;
 
 import org.junit.Assert;
 import org.junit.Test;
-
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.CatalogEntry;
@@ -39,6 +38,13 @@ import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.Product;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
+import org.oscm.internal.intf.CategorizationService;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.UserRoleType;
+import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.internal.vo.VOCategory;
+import org.oscm.internal.vo.VOService;
 import org.oscm.taskhandling.local.TaskMessage;
 import org.oscm.taskhandling.payloads.SendMailPayload;
 import org.oscm.test.EJBTestBase;
@@ -48,15 +54,9 @@ import org.oscm.test.data.Organizations;
 import org.oscm.test.data.PlatformUsers;
 import org.oscm.test.data.Products;
 import org.oscm.test.ejb.TestContainer;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.test.stubs.TaskQueueServiceStub;
 import org.oscm.types.enumtypes.EmailType;
-import org.oscm.internal.intf.CategorizationService;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.UserRoleType;
-import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.vo.VOCategory;
-import org.oscm.internal.vo.VOService;
 
 /**
  * Unit tests for categorization management.
@@ -89,6 +89,7 @@ public class CategorizationServiceBeanIT extends EJBTestBase {
     @Override
     protected void setup(final TestContainer container) throws Exception {
         container.enableInterfaceMocking(true);
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         container.addBean(new LocalizerServiceBean());
         container.addBean(new CategorizationServiceBean());
@@ -111,8 +112,8 @@ public class CategorizationServiceBeanIT extends EJBTestBase {
                         OrganizationRoleType.MARKETPLACE_OWNER,
                         OrganizationRoleType.PLATFORM_OPERATOR,
                         OrganizationRoleType.TECHNOLOGY_PROVIDER);
-                PlatformUser createUserForOrg = Organizations.createUserForOrg(
-                        mgr, mpOwner, true, "admin");
+                PlatformUser createUserForOrg = Organizations
+                        .createUserForOrg(mgr, mpOwner, true, "admin");
                 mpOwnerUserKey = createUserForOrg.getKey();
                 PlatformUsers.grantRoles(mgr, createUserForOrg,
                         UserRoleType.PLATFORM_OPERATOR);
@@ -132,8 +133,8 @@ public class CategorizationServiceBeanIT extends EJBTestBase {
         mpGlobal2 = runTX(new Callable<Marketplace>() {
             @Override
             public Marketplace call() throws Exception {
-                return Marketplaces.createMarketplace(mpOwner,
-                        GLOBAL_MP_ID + 2, false, mgr);
+                return Marketplaces.createMarketplace(mpOwner, GLOBAL_MP_ID + 2,
+                        false, mgr);
             }
         });
 
@@ -181,16 +182,16 @@ public class CategorizationServiceBeanIT extends EJBTestBase {
         mpGlobal3 = runTX(new Callable<Marketplace>() {
             @Override
             public Marketplace call() throws Exception {
-                return Marketplaces.createMarketplace(mpOwner,
-                        GLOBAL_MP_ID + 3, false, mgr);
+                return Marketplaces.createMarketplace(mpOwner, GLOBAL_MP_ID + 3,
+                        false, mgr);
             }
         });
 
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                Category cat1 = Categories
-                        .create(mgr, CATEGORY_ID_1, mpGlobal3);
+                Category cat1 = Categories.create(mgr, CATEGORY_ID_1,
+                        mpGlobal3);
                 LocalizedResource loc1 = new LocalizedResource();
                 loc1.setLocale("en");
                 loc1.setObjectType(LocalizedObjectTypes.CATEGORY_NAME);
@@ -198,8 +199,8 @@ public class CategorizationServiceBeanIT extends EJBTestBase {
                 loc1.setObjectKey(cat1.getKey());
                 mgr.persist(loc1);
 
-                Category cat2 = Categories
-                        .create(mgr, CATEGORY_ID_2, mpGlobal3);
+                Category cat2 = Categories.create(mgr, CATEGORY_ID_2,
+                        mpGlobal3);
                 LocalizedResource loc2 = new LocalizedResource();
                 loc2.setLocale("en");
                 loc2.setObjectType(LocalizedObjectTypes.CATEGORY_NAME);
@@ -207,8 +208,8 @@ public class CategorizationServiceBeanIT extends EJBTestBase {
                 loc2.setObjectKey(cat2.getKey());
                 mgr.persist(loc2);
 
-                Category cat3 = Categories
-                        .create(mgr, CATEGORY_ID_3, mpGlobal3);
+                Category cat3 = Categories.create(mgr, CATEGORY_ID_3,
+                        mpGlobal3);
                 LocalizedResource loc3 = new LocalizedResource();
                 loc3.setLocale("en");
                 loc3.setObjectType(LocalizedObjectTypes.CATEGORY_NAME);
@@ -222,18 +223,18 @@ public class CategorizationServiceBeanIT extends EJBTestBase {
 
     @Test
     public void getCategories() {
-        List<VOCategory> list = categorizationService.getCategories(
-                mpGlobal.getMarketplaceId(), "en");
+        List<VOCategory> list = categorizationService
+                .getCategories(mpGlobal.getMarketplaceId(), "en");
         Assert.assertEquals(2, list.size());
         Assert.assertEquals(CATEGORY_ID_1, list.get(0).getCategoryId());
         Assert.assertEquals(CATEGORY_NAME_EN_1, list.get(0).getName());
-        Assert.assertEquals(mpGlobal.getMarketplaceId(), list.get(0)
-                .getMarketplaceId());
+        Assert.assertEquals(mpGlobal.getMarketplaceId(),
+                list.get(0).getMarketplaceId());
         Assert.assertEquals(0, list.get(0).getVersion());
         Assert.assertEquals(CATEGORY_ID_2, list.get(1).getCategoryId());
         Assert.assertEquals("", list.get(1).getName());
-        Assert.assertEquals(mpGlobal.getMarketplaceId(), list.get(1)
-                .getMarketplaceId());
+        Assert.assertEquals(mpGlobal.getMarketplaceId(),
+                list.get(1).getMarketplaceId());
         Assert.assertEquals(0, list.get(1).getVersion());
 
         list = categorizationService.getCategories(mpGlobal.getMarketplaceId(),
@@ -242,21 +243,21 @@ public class CategorizationServiceBeanIT extends EJBTestBase {
         Assert.assertEquals(CATEGORY_NAME_EN_1, list.get(0).getName());
         Assert.assertEquals(CATEGORY_NAME_DE_2, list.get(1).getName());
 
-        list = categorizationService.getCategories(
-                mpGlobal2.getMarketplaceId(), "de");
+        list = categorizationService.getCategories(mpGlobal2.getMarketplaceId(),
+                "de");
         Assert.assertEquals(1, list.size());
     }
 
     @Test
     public void getCategories_nonExistingMP() {
-        List<VOCategory> list = categorizationService
-                .getCategories("xyz", "de");
+        List<VOCategory> list = categorizationService.getCategories("xyz",
+                "de");
         Assert.assertEquals(0, list.size());
     }
 
     @Test(expected = EJBException.class)
     public void saveCategories_IllegalAccess() throws Exception {
-        List<VOCategory> toBeSaved = new ArrayList<VOCategory>();
+        List<VOCategory> toBeSaved = new ArrayList<>();
         VOCategory c = new VOCategory();
         c.setCategoryId("1234");
         c.setMarketplaceId(mpGlobal.getMarketplaceId());
@@ -269,15 +270,15 @@ public class CategorizationServiceBeanIT extends EJBTestBase {
     public void createCategories() throws Exception {
         container.login(mpOwnerUserKey, ROLE_MARKETPLACE_OWNER,
                 OrganizationRoleType.MARKETPLACE_OWNER.name());
-        List<VOCategory> toBeSaved = new ArrayList<VOCategory>();
+        List<VOCategory> toBeSaved = new ArrayList<>();
         VOCategory c = new VOCategory();
         c.setCategoryId("1234");
         c.setMarketplaceId(mpGlobal.getMarketplaceId());
         c.setName("english 1234");
         toBeSaved.add(c);
         categorizationService.saveCategories(toBeSaved, null, "en");
-        List<VOCategory> list = categorizationService.getCategories(
-                mpGlobal.getMarketplaceId(), "en");
+        List<VOCategory> list = categorizationService
+                .getCategories(mpGlobal.getMarketplaceId(), "en");
         // we created 2 in setup plus one now, that makes.... ah, 3
         Assert.assertEquals(list.size(), 3);
         VOCategory catToCompare = null;
@@ -296,15 +297,15 @@ public class CategorizationServiceBeanIT extends EJBTestBase {
 
     @Test
     public void updateCategories() throws Exception {
-        List<VOCategory> list = categorizationService.getCategories(
-                mpGlobal2.getMarketplaceId(), "en");
+        List<VOCategory> list = categorizationService
+                .getCategories(mpGlobal2.getMarketplaceId(), "en");
         container.login(mpOwnerUserKey, ROLE_MARKETPLACE_OWNER,
                 OrganizationRoleType.MARKETPLACE_OWNER.name());
         list.get(0).setName("newname");
         list.get(0).setCategoryId("newID");
         categorizationService.saveCategories(list, null, "en");
-        list = categorizationService.getCategories(
-                mpGlobal2.getMarketplaceId(), "en");
+        list = categorizationService.getCategories(mpGlobal2.getMarketplaceId(),
+                "en");
         Assert.assertEquals(1, list.size());
         Assert.assertEquals("newname", list.get(0).getName());
         Assert.assertEquals("newID", list.get(0).getCategoryId());
@@ -312,15 +313,15 @@ public class CategorizationServiceBeanIT extends EJBTestBase {
 
     @Test
     public void updateCategories_noChanges() throws Exception {
-        List<VOCategory> list = categorizationService.getCategories(
-                mpGlobal2.getMarketplaceId(), "en");
+        List<VOCategory> list = categorizationService
+                .getCategories(mpGlobal2.getMarketplaceId(), "en");
         String name = list.get(0).getName();
         String id = list.get(0).getCategoryId();
         container.login(mpOwnerUserKey, ROLE_MARKETPLACE_OWNER,
                 OrganizationRoleType.MARKETPLACE_OWNER.name());
         categorizationService.saveCategories(list, null, "en");
-        list = categorizationService.getCategories(
-                mpGlobal2.getMarketplaceId(), "en");
+        list = categorizationService.getCategories(mpGlobal2.getMarketplaceId(),
+                "en");
         Assert.assertEquals(1, list.size());
         Assert.assertEquals(name, list.get(0).getName());
         Assert.assertEquals(id, list.get(0).getCategoryId());
@@ -328,7 +329,7 @@ public class CategorizationServiceBeanIT extends EJBTestBase {
 
     @Test(expected = NonUniqueBusinessKeyException.class)
     public void updateCategories_NonUniqueBusinessKey() throws Exception {
-        List<VOCategory> list = new ArrayList<VOCategory>();
+        List<VOCategory> list = new ArrayList<>();
         VOCategory vo = new VOCategory();
         vo.setCategoryId(CATEGORY_ID_3);
         vo.setName(CATEGORY_ID_3);
@@ -340,9 +341,10 @@ public class CategorizationServiceBeanIT extends EJBTestBase {
     }
 
     @Test(expected = NonUniqueBusinessKeyException.class)
-    public void updateSeveralCategories_NonUniqueBusinessKey() throws Exception {
-        List<VOCategory> list = categorizationService.getCategories(
-                mpGlobal.getMarketplaceId(), "en");
+    public void updateSeveralCategories_NonUniqueBusinessKey()
+            throws Exception {
+        List<VOCategory> list = categorizationService
+                .getCategories(mpGlobal.getMarketplaceId(), "en");
         list.get(1).setName("testtesttesttest");
         VOCategory vo = new VOCategory();
         vo.setCategoryId(CATEGORY_ID_3);
@@ -357,8 +359,8 @@ public class CategorizationServiceBeanIT extends EJBTestBase {
     @Test(expected = NonUniqueBusinessKeyException.class)
     public void updateCategories_NonUniqueBusinessKeyOnSameID()
             throws Exception {
-        List<VOCategory> list = categorizationService.getCategories(
-                mpGlobal.getMarketplaceId(), "en");
+        List<VOCategory> list = categorizationService
+                .getCategories(mpGlobal.getMarketplaceId(), "en");
         list.get(0).setCategoryId(list.get(1).getCategoryId());
         list.get(1).setName("testtesttesttest");
         container.login(mpOwnerUserKey, ROLE_MARKETPLACE_OWNER,
@@ -368,7 +370,7 @@ public class CategorizationServiceBeanIT extends EJBTestBase {
 
     @Test(expected = NonUniqueBusinessKeyException.class)
     public void updateCategories_NonUniqueName() throws Exception {
-        List<VOCategory> list = new ArrayList<VOCategory>();
+        List<VOCategory> list = new ArrayList<>();
         VOCategory vo = new VOCategory();
         vo.setCategoryId("Food 2");
         vo.setName(CATEGORY_NAME_EN_3);
@@ -382,7 +384,7 @@ public class CategorizationServiceBeanIT extends EJBTestBase {
     @Test
     public void updateCategories_NonUniqueName_InDifferentLocale()
             throws Exception {
-        List<VOCategory> list = new ArrayList<VOCategory>();
+        List<VOCategory> list = new ArrayList<>();
         VOCategory vo = new VOCategory();
         vo.setCategoryId("Food 2");
         vo.setName(CATEGORY_NAME_EN_3);
@@ -391,16 +393,17 @@ public class CategorizationServiceBeanIT extends EJBTestBase {
         container.login(mpOwnerUserKey, ROLE_MARKETPLACE_OWNER,
                 OrganizationRoleType.MARKETPLACE_OWNER.name());
         categorizationService.saveCategories(list, null, "de");
-        list = categorizationService.getCategories(
-                mpGlobal2.getMarketplaceId(), "de");
+        list = categorizationService.getCategories(mpGlobal2.getMarketplaceId(),
+                "de");
         Assert.assertEquals(2, list.size());
         Assert.assertEquals(CATEGORY_NAME_EN_3, list.get(1).getName());
         Assert.assertEquals("Food 2", list.get(1).getCategoryId());
     }
 
     @Test
-    public void updateCategories_NonUniqueName_InDifferentMP() throws Exception {
-        List<VOCategory> list = new ArrayList<VOCategory>();
+    public void updateCategories_NonUniqueName_InDifferentMP()
+            throws Exception {
+        List<VOCategory> list = new ArrayList<>();
         VOCategory vo = new VOCategory();
         vo.setCategoryId("Food 2");
         vo.setName(CATEGORY_NAME_EN_3);
@@ -419,8 +422,8 @@ public class CategorizationServiceBeanIT extends EJBTestBase {
     @Test
     public void updateCategories_SwitchTwoNames_Bug9064() throws Exception {
 
-        List<VOCategory> list = categorizationService.getCategories(
-                mpGlobal3.getMarketplaceId(), "en");
+        List<VOCategory> list = categorizationService
+                .getCategories(mpGlobal3.getMarketplaceId(), "en");
         for (VOCategory category : list) {
             if (category.getCategoryId().equals(CATEGORY_ID_1)) {
                 category.setName(CATEGORY_NAME_EN_2);
@@ -437,8 +440,8 @@ public class CategorizationServiceBeanIT extends EJBTestBase {
     @Test
     public void updateCategories_SwitchThreeNames_Bug9064() throws Exception {
 
-        List<VOCategory> list = categorizationService.getCategories(
-                mpGlobal3.getMarketplaceId(), "en");
+        List<VOCategory> list = categorizationService
+                .getCategories(mpGlobal3.getMarketplaceId(), "en");
         for (VOCategory category : list) {
             if (category.getCategoryId().equals(CATEGORY_ID_1)) {
                 category.setName(CATEGORY_NAME_EN_2);
@@ -458,11 +461,11 @@ public class CategorizationServiceBeanIT extends EJBTestBase {
 
     @Test
     public void deleteCategoriesAndCatalogEntries() throws Exception {
-        final List<VOCategory> list = categorizationService.getCategories(
-                mpGlobal.getMarketplaceId(), "en");
+        final List<VOCategory> list = categorizationService
+                .getCategories(mpGlobal.getMarketplaceId(), "en");
         container.login(mpOwnerUserKey, ROLE_MARKETPLACE_OWNER,
                 OrganizationRoleType.MARKETPLACE_OWNER.name());
-        final List<Long> catalogEntries = new ArrayList<Long>();
+        final List<Long> catalogEntries = new ArrayList<>();
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
@@ -478,15 +481,15 @@ public class CategorizationServiceBeanIT extends EJBTestBase {
                 mgr.persist(ce);
                 CategoryToCatalogEntry cc = new CategoryToCatalogEntry();
                 cc.setCatalogEntry(ce);
-                cc.setCategory(mgr.getReference(Category.class, list.get(0)
-                        .getKey()));
+                cc.setCategory(
+                        mgr.getReference(Category.class, list.get(0).getKey()));
                 mgr.persist(cc);
                 mgr.getReference(CategoryToCatalogEntry.class, cc.getKey());
                 catalogEntries.add(Long.valueOf(cc.getKey()));
                 cc = new CategoryToCatalogEntry();
                 cc.setCatalogEntry(ce);
-                cc.setCategory(mgr.getReference(Category.class, list.get(1)
-                        .getKey()));
+                cc.setCategory(
+                        mgr.getReference(Category.class, list.get(1).getKey()));
                 mgr.persist(cc);
                 catalogEntries.add(Long.valueOf(cc.getKey()));
                 mgr.getReference(CategoryToCatalogEntry.class, cc.getKey());
@@ -494,10 +497,8 @@ public class CategorizationServiceBeanIT extends EJBTestBase {
             }
         });
         categorizationService.saveCategories(null, list, null);
-        Assert.assertEquals(
-                0,
-                categorizationService.getCategories(
-                        mpGlobal.getMarketplaceId(), "en").size());
+        Assert.assertEquals(0, categorizationService
+                .getCategories(mpGlobal.getMarketplaceId(), "en").size());
         runTX(new Callable<Void>() {
             @Override
             public Void call() {
@@ -526,8 +527,8 @@ public class CategorizationServiceBeanIT extends EJBTestBase {
 
     @Test
     public void deleteCategories() throws Exception {
-        List<VOCategory> list = categorizationService.getCategories(
-                mpGlobal.getMarketplaceId(), "en");
+        List<VOCategory> list = categorizationService
+                .getCategories(mpGlobal.getMarketplaceId(), "en");
         container.login(mpOwnerUserKey, ROLE_MARKETPLACE_OWNER,
                 OrganizationRoleType.MARKETPLACE_OWNER.name());
         final VOCategory catToCompare = list.remove(0);
@@ -540,8 +541,8 @@ public class CategorizationServiceBeanIT extends EJBTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() {
-                Query deletedResource = mgr
-                        .createNamedQuery("LocalizedResource.findByBusinessKey");
+                Query deletedResource = mgr.createNamedQuery(
+                        "LocalizedResource.findByBusinessKey");
                 deletedResource.setParameter("objectKey",
                         Long.valueOf(deletedCat.getKey()));
                 deletedResource.setParameter("locale", "en");
@@ -569,14 +570,14 @@ public class CategorizationServiceBeanIT extends EJBTestBase {
         // then mail is sent
         SendMailPayload message = (SendMailPayload) sentMessages.get(0)
                 .getPayload();
-        assertEquals(EmailType.CATEGORY_REMOVED, message.getMailObjects()
-                .get(0).getType());
+        assertEquals(EmailType.CATEGORY_REMOVED,
+                message.getMailObjects().get(0).getType());
         assertEquals(mpGlobal.getKey(), message.getMailObjects().get(0)
                 .getMarketplaceKey().longValue());
-        assertEquals(mpOwnerUserKey, message.getMailObjects().get(0).getKey()
-                .longValue());
-        assertEquals(CATEGORY_NAME_EN_1, message.getMailObjects().get(0)
-                .getParams()[0]);
+        assertEquals(mpOwnerUserKey,
+                message.getMailObjects().get(0).getKey().longValue());
+        assertEquals(CATEGORY_NAME_EN_1,
+                message.getMailObjects().get(0).getParams()[0]);
     }
 
     @Test
@@ -594,12 +595,12 @@ public class CategorizationServiceBeanIT extends EJBTestBase {
         // then mail is sent
         SendMailPayload message = (SendMailPayload) sentMessages.get(0)
                 .getPayload();
-        assertEquals(EmailType.CATEGORY_REMOVED, message.getMailObjects()
-                .get(0).getType());
+        assertEquals(EmailType.CATEGORY_REMOVED,
+                message.getMailObjects().get(0).getType());
         assertEquals(mpGlobal.getKey(), message.getMailObjects().get(0)
                 .getMarketplaceKey().longValue());
-        assertEquals(mpOwnerUserKey, message.getMailObjects().get(0).getKey()
-                .longValue());
+        assertEquals(mpOwnerUserKey,
+                message.getMailObjects().get(0).getKey().longValue());
         assertEquals(CATEGORY_ID_2,
                 message.getMailObjects().get(0).getParams()[0]);
     }
@@ -630,30 +631,30 @@ public class CategorizationServiceBeanIT extends EJBTestBase {
         // then mail is sent in german locale
         SendMailPayload message = (SendMailPayload) sentMessages.get(0)
                 .getPayload();
-        assertEquals(EmailType.CATEGORY_REMOVED, message.getMailObjects()
-                .get(0).getType());
+        assertEquals(EmailType.CATEGORY_REMOVED,
+                message.getMailObjects().get(0).getType());
         assertEquals(mpGlobal.getKey(), message.getMailObjects().get(0)
                 .getMarketplaceKey().longValue());
-        assertEquals(mpOwnerUserKey, message.getMailObjects().get(0).getKey()
-                .longValue());
-        assertEquals(CATEGORY_NAME_DE_2, message.getMailObjects().get(0)
-                .getParams()[0]);
+        assertEquals(mpOwnerUserKey,
+                message.getMailObjects().get(0).getKey().longValue());
+        assertEquals(CATEGORY_NAME_DE_2,
+                message.getMailObjects().get(0).getParams()[0]);
     }
 
     @Test
     public void getServicesForCategory() throws Exception {
         container.login(mpOwnerUserKey, ROLE_MARKETPLACE_OWNER,
                 OrganizationRoleType.MARKETPLACE_OWNER.name());
-        List<VOCategory> categories = categorizationService.getCategories(
-                mpGlobal2.getMarketplaceId(), "en");
+        List<VOCategory> categories = categorizationService
+                .getCategories(mpGlobal2.getMarketplaceId(), "en");
         VOCategory category = categories.get(0);
         List<VOService> services = categorizationService
                 .getServicesForCategory(category.getKey());
         assertEquals(0, services.size());
         setupService(category, mpGlobal, 1);
         setupService(category, mpGlobal, 2);
-        services = categorizationService.getServicesForCategory(category
-                .getKey());
+        services = categorizationService
+                .getServicesForCategory(category.getKey());
         assertEquals(2, services.size());
         assertEquals(services.get(0).getServiceId(), "prodId1");
         assertEquals(services.get(1).getServiceId(), "prodId2");
@@ -674,8 +675,8 @@ public class CategorizationServiceBeanIT extends EJBTestBase {
                 mgr.persist(ce);
                 CategoryToCatalogEntry cc = new CategoryToCatalogEntry();
                 cc.setCatalogEntry(ce);
-                cc.setCategory(mgr.getReference(Category.class,
-                        category.getKey()));
+                cc.setCategory(
+                        mgr.getReference(Category.class, category.getKey()));
                 mgr.persist(cc);
                 return null;
             }
@@ -690,8 +691,8 @@ public class CategorizationServiceBeanIT extends EJBTestBase {
         container.login(mpOwnerUserKey, ROLE_MARKETPLACE_OWNER,
                 OrganizationRoleType.MARKETPLACE_OWNER.name());
 
-        List<VOCategory> categories = categorizationService.getCategories(
-                mpGlobal.getMarketplaceId(), "en");
+        List<VOCategory> categories = categorizationService
+                .getCategories(mpGlobal.getMarketplaceId(), "en");
         Assert.assertEquals(2, categories.size());
 
         // update category
@@ -713,8 +714,8 @@ public class CategorizationServiceBeanIT extends EJBTestBase {
 
         // the categories must first be updated and then be inserted!
         categorizationService.saveCategories(categories, null, "en");
-        categories = categorizationService.getCategories(
-                mpGlobal.getMarketplaceId(), "en");
+        categories = categorizationService
+                .getCategories(mpGlobal.getMarketplaceId(), "en");
         Assert.assertEquals(3, categories.size());
 
         for (VOCategory cat : categories) {
@@ -729,8 +730,8 @@ public class CategorizationServiceBeanIT extends EJBTestBase {
         container.login(mpOwnerUserKey, ROLE_MARKETPLACE_OWNER,
                 OrganizationRoleType.MARKETPLACE_OWNER.name());
 
-        List<VOCategory> createCategories = new ArrayList<VOCategory>();
-        List<VOCategory> deleteCategories = new ArrayList<VOCategory>();
+        List<VOCategory> createCategories = new ArrayList<>();
+        List<VOCategory> deleteCategories = new ArrayList<>();
         List<VOCategory> existingCategories = categorizationService
                 .getCategories(mpGlobal.getMarketplaceId(), "en");
         Assert.assertEquals(2, existingCategories.size());
@@ -750,10 +751,10 @@ public class CategorizationServiceBeanIT extends EJBTestBase {
         createCategories.add(category);
 
         // first delete category CATEGORY_ID_1 and then create it again
-        categorizationService.saveCategories(createCategories,
-                deleteCategories, "en");
-        existingCategories = categorizationService.getCategories(
-                mpGlobal.getMarketplaceId(), "en");
+        categorizationService.saveCategories(createCategories, deleteCategories,
+                "en");
+        existingCategories = categorizationService
+                .getCategories(mpGlobal.getMarketplaceId(), "en");
         Assert.assertEquals(2, existingCategories.size());
 
         for (VOCategory cat : existingCategories) {

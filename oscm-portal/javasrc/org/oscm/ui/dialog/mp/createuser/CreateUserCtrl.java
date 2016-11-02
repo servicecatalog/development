@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.oscm.internal.components.response.Response;
 import org.oscm.internal.types.enumtypes.Salutation;
 import org.oscm.internal.types.exception.MailOperationException;
+import org.oscm.internal.types.exception.MarketplaceRemovedException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.internal.usergroupmgmt.UserGroupService;
@@ -27,6 +28,7 @@ import org.oscm.internal.usermanagement.UserService;
 import org.oscm.string.Strings;
 import org.oscm.ui.beans.ApplicationBean;
 import org.oscm.ui.beans.BaseBean;
+import org.oscm.ui.beans.SessionBean;
 import org.oscm.ui.common.UiDelegate;
 import org.oscm.ui.dialog.state.TableState;
 import org.oscm.ui.profile.FieldData;
@@ -47,6 +49,8 @@ public class CreateUserCtrl {
     private ApplicationBean applicationBean;
     @ManagedProperty(value = "#{tableState}")
     private TableState tableState;
+    @ManagedProperty(value = "#{sessionBean}")
+    private SessionBean sessionBean;
 
     /**
      * EJB injected through setters.
@@ -104,13 +108,14 @@ public class CreateUserCtrl {
         return outcome;
     }
 
-    POUserAndSubscriptions toPOUserAndSubscriptions(CreateUserModel m) {
+    POUserAndSubscriptions toPOUserAndSubscriptions(CreateUserModel m) throws MarketplaceRemovedException {
 
         POUserAndSubscriptions uas = new POUserAndSubscriptions();
         uas.setEmail(m.getEmail().getValue());
         uas.setFirstName(m.getFirstName().getValue());
         uas.setLastName(m.getLastName().getValue());
         uas.setLocale(m.getLocale().getValue());
+        uas.setTenantId(sessionBean.getTenantID());
         String sal = m.getSalutation().getValue();
         if (!Strings.isEmpty(sal)) {
             uas.setSalutation(Salutation.valueOf(sal));
@@ -166,5 +171,13 @@ public class CreateUserCtrl {
 
     public ApplicationBean getApplicationBean() {
         return applicationBean;
+    }
+
+    public SessionBean getSessionBean() {
+        return sessionBean;
+    }
+
+    public void setSessionBean(SessionBean sessionBean) {
+        this.sessionBean = sessionBean;
     }
 }

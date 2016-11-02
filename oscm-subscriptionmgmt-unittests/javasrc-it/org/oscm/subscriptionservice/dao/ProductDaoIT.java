@@ -14,17 +14,17 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import org.junit.Test;
-
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.Product;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.ServiceAccessType;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.Organizations;
 import org.oscm.test.data.Products;
 import org.oscm.test.ejb.TestContainer;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 
 /**
  * Unit tests for {@link ProductDao} using the test EJB container.
@@ -41,6 +41,7 @@ public class ProductDaoIT extends EJBTestBase {
 
     @Override
     protected void setup(TestContainer container) throws Exception {
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         ds = container.get(DataService.class);
         dao = new ProductDao(ds);

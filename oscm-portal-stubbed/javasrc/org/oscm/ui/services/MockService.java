@@ -2770,7 +2770,7 @@ public class MockService implements IdentityService, SubscriptionService,
     }
 
     @Override
-    public List<VOMarketplace> getAllMarketplacesForTenant(long tenantKey)
+    public List<VOMarketplace> getAllMarketplacesForTenant(Long tenantKey)
             throws ObjectNotFoundException {
         return null;
     }

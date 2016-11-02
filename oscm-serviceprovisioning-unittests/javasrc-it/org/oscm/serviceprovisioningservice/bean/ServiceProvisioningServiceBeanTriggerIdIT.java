@@ -20,11 +20,9 @@ import java.util.concurrent.Callable;
 import javax.persistence.Query;
 
 import org.junit.Assert;
-
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-
 import org.oscm.converter.ParameterizedTypes;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
@@ -36,6 +34,13 @@ import org.oscm.domobjects.TriggerDefinition;
 import org.oscm.domobjects.TriggerProcess;
 import org.oscm.domobjects.TriggerProcessIdentifier;
 import org.oscm.domobjects.TriggerProcessParameter;
+import org.oscm.internal.intf.ServiceProvisioningService;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.ServiceAccessType;
+import org.oscm.internal.types.enumtypes.TriggerType;
+import org.oscm.internal.types.exception.OperationPendingException;
+import org.oscm.internal.vo.VOService;
+import org.oscm.internal.vo.VOServiceDetails;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.Marketplaces;
 import org.oscm.test.data.Organizations;
@@ -44,18 +49,12 @@ import org.oscm.test.data.TechnicalProducts;
 import org.oscm.test.data.TriggerDefinitions;
 import org.oscm.test.data.TriggerProcesses;
 import org.oscm.test.ejb.TestContainer;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.triggerservice.local.TriggerMessage;
 import org.oscm.triggerservice.local.TriggerProcessMessageData;
 import org.oscm.triggerservice.local.TriggerQueueServiceLocal;
 import org.oscm.types.enumtypes.TriggerProcessIdentifierName;
 import org.oscm.types.enumtypes.TriggerProcessParameterName;
-import org.oscm.internal.intf.ServiceProvisioningService;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
-import org.oscm.internal.types.enumtypes.TriggerType;
-import org.oscm.internal.types.exception.OperationPendingException;
-import org.oscm.internal.vo.VOService;
-import org.oscm.internal.vo.VOServiceDetails;
 
 public class ServiceProvisioningServiceBeanTriggerIdIT extends EJBTestBase {
 
@@ -74,9 +73,10 @@ public class ServiceProvisioningServiceBeanTriggerIdIT extends EJBTestBase {
     protected void setup(TestContainer container) throws Exception {
         container.enableInterfaceMocking(true);
 
-        TriggerQueueServiceLocal triggerQueueServiceLocal = mock(TriggerQueueServiceLocal.class);
+        TriggerQueueServiceLocal triggerQueueServiceLocal = mock(
+                TriggerQueueServiceLocal.class);
         container.addBean(triggerQueueServiceLocal);
-
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         container.addBean(new ServiceProvisioningServiceBean());
 
@@ -88,12 +88,13 @@ public class ServiceProvisioningServiceBeanTriggerIdIT extends EJBTestBase {
 
         // mock the answer of the trigger queue
         doAnswer(new Answer<List<TriggerProcessMessageData>>() {
+            @Override
             public List<TriggerProcessMessageData> answer(
                     InvocationOnMock invocation) throws Throwable {
                 return Collections.singletonList(triggerProcessData);
             }
-        }).when(triggerQueueServiceLocal).sendSuspendingMessages(
-                anyListOf(TriggerMessage.class));
+        }).when(triggerQueueServiceLocal)
+                .sendSuspendingMessages(anyListOf(TriggerMessage.class));
 
     }
 
@@ -183,6 +184,7 @@ public class ServiceProvisioningServiceBeanTriggerIdIT extends EJBTestBase {
      */
     private void initData() throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
 
                 // Create supported currencies;
@@ -236,6 +238,7 @@ public class ServiceProvisioningServiceBeanTriggerIdIT extends EJBTestBase {
     private void createTriggerData(final boolean createTriggerProcessIds,
             final TriggerType triggerType) throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
 
                 TriggerDefinition td = TriggerDefinitions
@@ -301,6 +304,7 @@ public class ServiceProvisioningServiceBeanTriggerIdIT extends EJBTestBase {
     private List<TriggerProcessIdentifier> getProcessIdentifiers(
             final Long... tpKeys) throws Exception {
         return runTX(new Callable<List<TriggerProcessIdentifier>>() {
+            @Override
             public List<TriggerProcessIdentifier> call() throws Exception {
                 String queryString = "SELECT tpi FROM TriggerProcessIdentifier tpi";
                 List<Long> keys = null;

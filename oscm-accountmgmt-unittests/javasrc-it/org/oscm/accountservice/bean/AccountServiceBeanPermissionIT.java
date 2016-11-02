@@ -22,20 +22,12 @@ import javax.ejb.EJBAccessException;
 import javax.ejb.EJBException;
 
 import org.junit.Assert;
-
 import org.junit.Test;
-
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.OrganizationRefToPaymentType;
 import org.oscm.domobjects.PlatformUser;
-import org.oscm.test.EJBTestBase;
-import org.oscm.test.data.Organizations;
-import org.oscm.test.data.PlatformUsers;
-import org.oscm.test.data.SupportedCountries;
-import org.oscm.test.data.UserRoles;
-import org.oscm.test.ejb.TestContainer;
 import org.oscm.internal.intf.AccountService;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.UserRoleType;
@@ -43,6 +35,13 @@ import org.oscm.internal.vo.VOOrganization;
 import org.oscm.internal.vo.VOOrganizationPaymentConfiguration;
 import org.oscm.internal.vo.VOPaymentType;
 import org.oscm.internal.vo.VOServicePaymentConfiguration;
+import org.oscm.test.EJBTestBase;
+import org.oscm.test.data.Organizations;
+import org.oscm.test.data.PlatformUsers;
+import org.oscm.test.data.SupportedCountries;
+import org.oscm.test.data.UserRoles;
+import org.oscm.test.ejb.TestContainer;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 
 public class AccountServiceBeanPermissionIT extends EJBTestBase {
 
@@ -51,6 +50,7 @@ public class AccountServiceBeanPermissionIT extends EJBTestBase {
 
     @Override
     protected void setup(TestContainer container) throws Exception {
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         container.enableInterfaceMocking(true);
         container.addBean(new AccountServiceBean());
@@ -59,6 +59,7 @@ public class AccountServiceBeanPermissionIT extends EJBTestBase {
         ds = container.get(DataService.class);
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 SupportedCountries.setupSomeCountries(ds);
                 UserRoles.createSetupRoles(ds);
@@ -71,11 +72,12 @@ public class AccountServiceBeanPermissionIT extends EJBTestBase {
 
     private PlatformUser givenReseller() throws Exception {
         return runTX(new Callable<PlatformUser>() {
+            @Override
             public PlatformUser call() throws Exception {
                 Organization reseller = Organizations.createOrganization(ds,
                         OrganizationRoleType.RESELLER);
-                PlatformUser user = Organizations.createUserForOrg(ds,
-                        reseller, true, "admin");
+                PlatformUser user = Organizations.createUserForOrg(ds, reseller,
+                        true, "admin");
                 PlatformUsers.grantRoles(ds, user,
                         UserRoleType.RESELLER_MANAGER);
                 return user;
@@ -85,11 +87,12 @@ public class AccountServiceBeanPermissionIT extends EJBTestBase {
 
     private PlatformUser givenBroker() throws Exception {
         return runTX(new Callable<PlatformUser>() {
+            @Override
             public PlatformUser call() throws Exception {
                 Organization reseller = Organizations.createOrganization(ds,
                         OrganizationRoleType.BROKER);
-                PlatformUser user = Organizations.createUserForOrg(ds,
-                        reseller, true, "admin");
+                PlatformUser user = Organizations.createUserForOrg(ds, reseller,
+                        true, "admin");
                 PlatformUsers.grantRoles(ds, user, UserRoleType.BROKER_MANAGER);
                 return user;
             }
@@ -100,6 +103,7 @@ public class AccountServiceBeanPermissionIT extends EJBTestBase {
             final PlatformUser user, final String... paymentTypes)
             throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Iterator<OrganizationRoleType> it = user.getOrganization()
                         .getGrantedRoleTypes().iterator();
@@ -110,8 +114,8 @@ public class AccountServiceBeanPermissionIT extends EJBTestBase {
                         break;
                     }
                 }
-                Organizations.addPaymentTypesToOrganizationRef(ds, user
-                        .getOrganization().getOrganizationId(), role,
+                Organizations.addPaymentTypesToOrganizationRef(ds,
+                        user.getOrganization().getOrganizationId(), role,
                         paymentTypes, null, null);
                 return null;
             }
@@ -121,7 +125,7 @@ public class AccountServiceBeanPermissionIT extends EJBTestBase {
                 UserRoleType.RESELLER_MANAGER.name());
 
         // return
-        Set<VOPaymentType> set = new HashSet<VOPaymentType>();
+        Set<VOPaymentType> set = new HashSet<>();
         for (String type : paymentTypes) {
             VOPaymentType pt = new VOPaymentType();
             pt.setPaymentTypeId(type);
@@ -134,9 +138,10 @@ public class AccountServiceBeanPermissionIT extends EJBTestBase {
             Set<VOPaymentType> expected) throws Exception {
         Set<String> result = runTX(new Callable<Set<String>>() {
 
+            @Override
             public Set<String> call() throws Exception {
-                Organization org = ds.getReference(Organization.class, user
-                        .getOrganization().getKey());
+                Organization org = ds.getReference(Organization.class,
+                        user.getOrganization().getKey());
                 Iterator<OrganizationRoleType> it = user.getOrganization()
                         .getGrantedRoleTypes().iterator();
                 OrganizationRoleType role = null;
@@ -149,7 +154,7 @@ public class AccountServiceBeanPermissionIT extends EJBTestBase {
                 List<OrganizationRefToPaymentType> types = org.getPaymentTypes(
                         false, role,
                         OrganizationRoleType.PLATFORM_OPERATOR.name());
-                Set<String> result = new HashSet<String>();
+                Set<String> result = new HashSet<>();
                 for (OrganizationRefToPaymentType dpt : types) {
                     result.add(dpt.getPaymentType().getPaymentTypeId());
                 }

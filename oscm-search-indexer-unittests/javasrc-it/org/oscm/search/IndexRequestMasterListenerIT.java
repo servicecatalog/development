@@ -83,6 +83,7 @@ import org.oscm.test.data.Scenario;
 import org.oscm.test.data.Subscriptions;
 import org.oscm.test.ejb.FifoJMSQueue;
 import org.oscm.test.ejb.TestContainer;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.triggerservice.bean.TriggerQueueServiceBean;
 import org.oscm.triggerservice.local.TriggerMessage;
 import org.oscm.types.exceptions.InvalidUserSession;
@@ -189,6 +190,7 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
         enableHibernateSearchListeners(true);
         indexerQueue.clear();
         container.enableInterfaceMocking(true);
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean() {
             @Override
             public PlatformUser getCurrentUser() {
@@ -287,11 +289,12 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
                 cat.setName("name en");
                 cat.setCategoryId("id");
                 cat.setMarketplaceId(mpGlobal.getMarketplaceId());
-                user.setOrganization(dm.getReference(Marketplace.class,
-                        mpGlobal.getKey()).getOrganization());
+                user.setOrganization(
+                        dm.getReference(Marketplace.class, mpGlobal.getKey())
+                                .getOrganization());
                 cs.saveCategories(Arrays.asList(cat), null, "en");
-                List<VOCategory> list = cs.getCategories(
-                        mpGlobal.getMarketplaceId(), "en");
+                List<VOCategory> list = cs
+                        .getCategories(mpGlobal.getMarketplaceId(), "en");
                 categoryKey = list.get(0).getKey();
                 return null;
             }
@@ -418,13 +421,11 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
                 return null;
             }
         });
-        assertDocsInIndex(
-                Product.class,
+        assertDocsInIndex(Product.class,
                 "Index must still contain 1 document after indexing (although the db contains 4 items)",
                 1, expectedIndexedAttributesProduct.size(),
                 expectedIndexedAttributesProduct);
-        assertDocsInIndex(
-                Subscription.class,
+        assertDocsInIndex(Subscription.class,
                 "Index must still contain 1 document after indexing (although the db contains 4 items)",
                 1, expectedIndexedAttributesSubscription.size(),
                 expectedIndexedAttributesSubscription);
@@ -482,13 +483,15 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
             }
         });
 
-        assertDocsInIndex(Product.class, "Index must contain " + 5
-                + " documents after indexing (and so does the db)", 5,
-                expectedIndexedAttributesProduct.size(),
+        assertDocsInIndex(Product.class,
+                "Index must contain " + 5
+                        + " documents after indexing (and so does the db)",
+                5, expectedIndexedAttributesProduct.size(),
                 expectedIndexedAttributesProduct);
-        assertDocsInIndex(Subscription.class, "Index must contain " + 5
-                + " documents after indexing (and so does the db)", 5,
-                expectedIndexedAttributesSubscription.size(),
+        assertDocsInIndex(Subscription.class,
+                "Index must contain " + 5
+                        + " documents after indexing (and so does the db)",
+                5, expectedIndexedAttributesSubscription.size(),
                 expectedIndexedAttributesSubscription);
     }
 
@@ -502,7 +505,7 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
     public void testDeleteCatalogEntry() throws Exception {
 
         final List<String> ids = addProductsToDatabase(1);
-        final List<Long> keys = new ArrayList<Long>();
+        final List<Long> keys = new ArrayList<>();
 
         assertNotNull(ids);
         assertEquals(1, ids.size());
@@ -534,8 +537,8 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
         IndexRequestMessage irm = (IndexRequestMessage) message;
         assertEquals("Wrong key expected - ", keys.get(0),
                 Long.valueOf(irm.getKey()));
-        assertEquals("Wrong class - ", Product.class.getName(), irm
-                .getObjectClass().getName());
+        assertEquals("Wrong class - ", Product.class.getName(),
+                irm.getObjectClass().getName());
     }
 
     @Test
@@ -591,8 +594,8 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
                 List<Product> products = irl
                         .getProductAndCopiesForIndexUpdate(prod);
                 assertEquals(2, products.size());
-                assertTrue("Keys equal.", products.get(0).getKey() != products
-                        .get(1).getKey());
+                assertTrue("Keys equal.",
+                        products.get(0).getKey() != products.get(1).getKey());
                 return null;
             }
         });
@@ -727,8 +730,8 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
             public Product call() throws Exception {
                 String prodId = "prodId";
                 final Product prod = Products.createProduct(
-                        Scenario.getSupplier(), techProd, true, prodId, "pMId"
-                                + svcCounter, mpGlobal, dm);
+                        Scenario.getSupplier(), techProd, true, prodId,
+                        "pMId" + svcCounter, mpGlobal, dm);
                 pm.setProduct(prod);
                 dm.persist(pm);
                 dm.flush();
@@ -740,8 +743,8 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                Product pd = dm.getReference(Product.class, pm.getProduct()
-                        .getKey());
+                Product pd = dm.getReference(Product.class,
+                        pm.getProduct().getKey());
                 dm.remove(pd);
                 dm.flush();
                 return null;
@@ -780,7 +783,7 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
     public void testDeleteTag() throws Exception {
 
         assertNotNull("No technical product present", techProd);
-        final List<Long> keys = new ArrayList<Long>();
+        final List<Long> keys = new ArrayList<>();
 
         runTX(new Callable<Void>() {
 
@@ -833,8 +836,8 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
         assertTrue(message instanceof IndexRequestMessage);
         IndexRequestMessage irm = (IndexRequestMessage) message;
         assertEquals("Wrong key - ", techProd.getKey(), irm.getKey());
-        assertEquals("Wrong class - ", TechnicalProduct.class.getName(), irm
-                .getObjectClass().getName());
+        assertEquals("Wrong class - ", TechnicalProduct.class.getName(),
+                irm.getObjectClass().getName());
     }
 
     private void assertDocsInIndex(final Class<?> clazz, final String comment,
@@ -855,14 +858,16 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
                             .open(clazz);
 
                     try {
-                        assertEquals(comment, expectedNumDocs, reader.numDocs());
+                        assertEquals(comment, expectedNumDocs,
+                                reader.numDocs());
                         if (expectedNumDocs > 0) {
                             final FieldInfos indexedFieldNames = ReaderUtil
                                     .getMergedFieldInfos(reader);
                             for (String expectedAttr : expectedAttributes) {
-                                assertNotNull("attribute " + expectedAttr
-                                        + " does not exist in index: "
-                                        + indexedFieldNames,
+                                assertNotNull(
+                                        "attribute " + expectedAttr
+                                                + " does not exist in index: "
+                                                + indexedFieldNames,
                                         indexedFieldNames
                                                 .fieldInfo(expectedAttr));
                             }
@@ -917,7 +922,7 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
 
     private List<String> addProductsToDatabase(final int num) throws Exception {
 
-        final List<String> createdProductIds = new ArrayList<String>();
+        final List<String> createdProductIds = new ArrayList<>();
 
         runTX(new Callable<Void>() {
 
@@ -955,7 +960,8 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
                     dm.persist(ce);
                     CategoryToCatalogEntry cc = new CategoryToCatalogEntry();
                     cc.setCatalogEntry(ce);
-                    cc.setCategory(dm.getReference(Category.class, categoryKey));
+                    cc.setCategory(
+                            dm.getReference(Category.class, categoryKey));
                     dm.persist(cc);
                     // also store given localized resources for created product
                     for (LocalizedObjectTypes type : localizedAttributes) {
@@ -1014,8 +1020,8 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
                 prod.setProductId(srcProductId);
                 prod.setVendor(Scenario.getSupplier());
                 prod = (Product) dm.getReferenceByBusinessKey(prod);
-                Organization customer = (serviceType == ServiceType.CUSTOMER_TEMPLATE) ? Scenario
-                        .getCustomer() : null;
+                Organization customer = (serviceType == ServiceType.CUSTOMER_TEMPLATE)
+                        ? Scenario.getCustomer() : null;
                 Product copy = prod.copyForCustomer(customer);
                 copy.setStatus(serviceStatus);
                 copy.setType(serviceType);

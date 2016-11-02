@@ -27,7 +27,6 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 
 import org.junit.Test;
-
 import org.oscm.billingservice.business.calculation.revenue.BillingInputFactory;
 import org.oscm.billingservice.business.calculation.revenue.model.PriceModelInput;
 import org.oscm.billingservice.dao.model.RolePricingData;
@@ -55,14 +54,15 @@ import org.oscm.domobjects.SteppedPriceHistory;
 import org.oscm.domobjects.SubscriptionHistory;
 import org.oscm.domobjects.UsageLicenseHistory;
 import org.oscm.domobjects.enums.ModificationType;
-import org.oscm.test.BigDecimalAsserts;
-import org.oscm.test.EJBTestBase;
-import org.oscm.test.ejb.TestContainer;
 import org.oscm.internal.types.enumtypes.ParameterType;
 import org.oscm.internal.types.enumtypes.ParameterValueType;
 import org.oscm.internal.types.enumtypes.PriceModelType;
 import org.oscm.internal.types.enumtypes.PricingPeriod;
 import org.oscm.internal.types.enumtypes.SubscriptionStatus;
+import org.oscm.test.BigDecimalAsserts;
+import org.oscm.test.EJBTestBase;
+import org.oscm.test.ejb.TestContainer;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 
 public class BillingDataRetrievalServiceBeanParametersIT extends EJBTestBase {
 
@@ -85,6 +85,7 @@ public class BillingDataRetrievalServiceBeanParametersIT extends EJBTestBase {
 
     @Override
     protected void setup(TestContainer container) throws Exception {
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         container.addBean(new BillingDataRetrievalServiceBean());
 
@@ -92,8 +93,8 @@ public class BillingDataRetrievalServiceBeanParametersIT extends EJBTestBase {
         bdr = container.get(BillingDataRetrievalServiceLocal.class);
     }
 
-    private PriceModelInput givenPriceModelInput(long key, long start,
-            long end, PricingPeriod period) {
+    private PriceModelInput givenPriceModelInput(long key, long start, long end,
+            PricingPeriod period) {
         PriceModelHistory history = new PriceModelHistory();
         history.setPeriod(period);
         PriceModelInput priceModelInput = new PriceModelInput(key, start, end,
@@ -185,8 +186,8 @@ public class BillingDataRetrievalServiceBeanParametersIT extends EJBTestBase {
         String paramId = "param1";
         ParameterValueType pvt = ParameterValueType.LONG;
         setupParameter(paramId, pvt, 30000L, "0", PricingPeriod.DAY);
-        updatePricedParameter(80000L, new BigDecimal("123.34"), new BigDecimal(
-                "124.45"));
+        updatePricedParameter(80000L, new BigDecimal("123.34"),
+                new BigDecimal("124.45"));
         validateSingleParam(paramId, pvt);
     }
 
@@ -211,9 +212,9 @@ public class BillingDataRetrievalServiceBeanParametersIT extends EJBTestBase {
             public XParameterData call() throws Exception {
                 PriceModelInput priceModelInput = givenPriceModelInput(
                         pmh.getObjKey(), 10000, 70000, PricingPeriod.DAY);
-                return bdr.loadParameterData(
-                        BillingInputFactory.newBillingInput(0, 0,
-                                sh.getObjKey()), priceModelInput);
+                return bdr.loadParameterData(BillingInputFactory
+                        .newBillingInput(0, 0, sh.getObjKey()),
+                        priceModelInput);
             }
         });
         assertNotNull(result);
@@ -227,7 +228,8 @@ public class BillingDataRetrievalServiceBeanParametersIT extends EJBTestBase {
     }
 
     @Test
-    public void getParameterData_OneEntryValidatePeriodValue() throws Exception {
+    public void getParameterData_OneEntryValidatePeriodValue()
+            throws Exception {
         String paramId = "param1";
         ParameterValueType pvt = ParameterValueType.LONG;
         setupParameter(paramId, pvt, 30000L, "0", PricingPeriod.DAY);
@@ -236,14 +238,14 @@ public class BillingDataRetrievalServiceBeanParametersIT extends EJBTestBase {
             public XParameterData call() throws Exception {
                 PriceModelInput priceModelInput = givenPriceModelInput(
                         pmh.getObjKey(), 10000, 43230000, PricingPeriod.DAY);
-                return bdr.loadParameterData(
-                        BillingInputFactory.newBillingInput(0, 0,
-                                sh.getObjKey()), priceModelInput);
+                return bdr.loadParameterData(BillingInputFactory
+                        .newBillingInput(0, 0, sh.getObjKey()),
+                        priceModelInput);
             }
         });
         assertEquals(1, result.getIdData().size());
-        List<XParameterPeriodValue> periodValues = result.getIdData()
-                .iterator().next().getPeriodValues();
+        List<XParameterPeriodValue> periodValues = result.getIdData().iterator()
+                .next().getPeriodValues();
         assertEquals(1, periodValues.size());
         XParameterPeriodValue periodValue = periodValues.get(0);
         assertEquals("0", periodValue.getValue());
@@ -274,9 +276,9 @@ public class BillingDataRetrievalServiceBeanParametersIT extends EJBTestBase {
             public XParameterData call() throws Exception {
                 PriceModelInput priceModelInput = givenPriceModelInput(
                         pmh.getObjKey(), 10000, 1840000, PricingPeriod.HOUR);
-                return bdr.loadParameterData(
-                        BillingInputFactory.newBillingInput(0, 0,
-                                sh.getObjKey()), priceModelInput);
+                return bdr.loadParameterData(BillingInputFactory
+                        .newBillingInput(0, 0, sh.getObjKey()),
+                        priceModelInput);
             }
         });
         Collection<XParameterIdData> idData = result.getIdData();
@@ -332,9 +334,9 @@ public class BillingDataRetrievalServiceBeanParametersIT extends EJBTestBase {
             public XParameterData call() throws Exception {
                 PriceModelInput priceModelInput = givenPriceModelInput(
                         pmh.getObjKey(), 5000, 1840000, PricingPeriod.HOUR);
-                return bdr.loadParameterData(
-                        BillingInputFactory.newBillingInput(0, 0,
-                                sh.getObjKey()), priceModelInput);
+                return bdr.loadParameterData(BillingInputFactory
+                        .newBillingInput(0, 0, sh.getObjKey()),
+                        priceModelInput);
             }
         });
         Collection<XParameterIdData> idData = result.getIdData();
@@ -375,9 +377,9 @@ public class BillingDataRetrievalServiceBeanParametersIT extends EJBTestBase {
             public XParameterData call() throws Exception {
                 PriceModelInput priceModelInput = givenPriceModelInput(
                         pmh.getObjKey(), 5000, 1900000, PricingPeriod.HOUR);
-                return bdr.loadParameterData(
-                        BillingInputFactory.newBillingInput(0, 0,
-                                sh.getObjKey()), priceModelInput);
+                return bdr.loadParameterData(BillingInputFactory
+                        .newBillingInput(0, 0, sh.getObjKey()),
+                        priceModelInput);
             }
         });
         Collection<XParameterIdData> idData = result.getIdData();
@@ -417,9 +419,9 @@ public class BillingDataRetrievalServiceBeanParametersIT extends EJBTestBase {
             public XParameterData call() throws Exception {
                 PriceModelInput priceModelInput = givenPriceModelInput(
                         pmh.getObjKey(), 5000, 1840000, PricingPeriod.HOUR);
-                return bdr.loadParameterData(
-                        BillingInputFactory.newBillingInput(0, 0,
-                                sh.getObjKey()), priceModelInput);
+                return bdr.loadParameterData(BillingInputFactory
+                        .newBillingInput(0, 0, sh.getObjKey()),
+                        priceModelInput);
             }
         });
         Collection<XParameterIdData> idData = result.getIdData();
@@ -452,9 +454,9 @@ public class BillingDataRetrievalServiceBeanParametersIT extends EJBTestBase {
             public XParameterData call() throws Exception {
                 PriceModelInput priceModelInput = givenPriceModelInput(
                         pmh.getObjKey(), 5000, 1840000, PricingPeriod.HOUR);
-                return bdr.loadParameterData(
-                        BillingInputFactory.newBillingInput(0, 0,
-                                sh.getObjKey()), priceModelInput);
+                return bdr.loadParameterData(BillingInputFactory
+                        .newBillingInput(0, 0, sh.getObjKey()),
+                        priceModelInput);
             }
         });
         Collection<XParameterIdData> idData = result.getIdData();
@@ -492,9 +494,9 @@ public class BillingDataRetrievalServiceBeanParametersIT extends EJBTestBase {
             public XParameterData call() throws Exception {
                 PriceModelInput priceModelInput = givenPriceModelInput(
                         pmh.getObjKey(), 5000, 1840000, PricingPeriod.HOUR);
-                return bdr.loadParameterData(
-                        BillingInputFactory.newBillingInput(0, 0,
-                                sh.getObjKey()), priceModelInput);
+                return bdr.loadParameterData(BillingInputFactory
+                        .newBillingInput(0, 0, sh.getObjKey()),
+                        priceModelInput);
             }
         });
         Collection<XParameterIdData> idData = result.getIdData();
@@ -526,14 +528,14 @@ public class BillingDataRetrievalServiceBeanParametersIT extends EJBTestBase {
             public XParameterData call() throws Exception {
                 PriceModelInput priceModelInput = givenPriceModelInput(
                         pmh.getObjKey(), 10000, 70000, PricingPeriod.HOUR);
-                return bdr.loadParameterData(
-                        BillingInputFactory.newBillingInput(0, 0,
-                                sh.getObjKey()), priceModelInput);
+                return bdr.loadParameterData(BillingInputFactory
+                        .newBillingInput(0, 0, sh.getObjKey()),
+                        priceModelInput);
             }
         });
         assertEquals(2, result.getIdData().size());
         Iterator<XParameterIdData> iterator = result.getIdData().iterator();
-        Set<String> idsToBeContained = new HashSet<String>();
+        Set<String> idsToBeContained = new HashSet<>();
         idsToBeContained.add(paramId1);
         idsToBeContained.add(paramId2);
         while (iterator.hasNext()) {
@@ -552,9 +554,9 @@ public class BillingDataRetrievalServiceBeanParametersIT extends EJBTestBase {
             public XParameterData call() throws Exception {
                 PriceModelInput priceModelInput = givenPriceModelInput(
                         pmh.getObjKey(), 10000, 1830000, PricingPeriod.HOUR);
-                return bdr.loadParameterData(
-                        BillingInputFactory.newBillingInput(0, 0,
-                                sh.getObjKey()), priceModelInput);
+                return bdr.loadParameterData(BillingInputFactory
+                        .newBillingInput(0, 0, sh.getObjKey()),
+                        priceModelInput);
             }
         });
         Iterator<XParameterIdData> iterator = result.getIdData().iterator();
@@ -575,16 +577,17 @@ public class BillingDataRetrievalServiceBeanParametersIT extends EJBTestBase {
                 PriceModelInput priceModelInput = givenPriceModelInput(
                         pmh.getObjKey(), 1317190847297L, 1317191307633L,
                         PricingPeriod.HOUR);
-                return bdr.loadParameterData(
-                        BillingInputFactory.newBillingInput(0, 0,
-                                sh.getObjKey()), priceModelInput);
+                return bdr.loadParameterData(BillingInputFactory
+                        .newBillingInput(0, 0, sh.getObjKey()),
+                        priceModelInput);
             }
         });
         XParameterIdData idData = result.getIdData().iterator().next();
         List<XParameterPeriodValue> periodValues = idData.getPeriodValues();
         assertEquals(2, periodValues.size());
         XParameterPeriodValue xParameterPeriodValue = periodValues.get(0);
-        assertTrue(xParameterPeriodValue instanceof XParameterPeriodPrimitiveType);
+        assertTrue(
+                xParameterPeriodValue instanceof XParameterPeriodPrimitiveType);
         XParameterPeriodPrimitiveType periodValue = (XParameterPeriodPrimitiveType) xParameterPeriodValue;
         assertEquals("35", periodValue.getValue());
         RolePricingData rolePrices = periodValue.getRolePrices();
@@ -601,8 +604,8 @@ public class BillingDataRetrievalServiceBeanParametersIT extends EJBTestBase {
         rolePrices = periodValue.getRolePrices();
         containerKeys = rolePrices.getContainerKeys();
         assertEquals(1, containerKeys.size());
-        allRolePrices = rolePrices.getAllRolePrices(containerKeys.iterator()
-                .next());
+        allRolePrices = rolePrices
+                .getAllRolePrices(containerKeys.iterator().next());
         assertEquals(1, allRolePrices.size());
         pricingDetails = allRolePrices.iterator().next();
         assertEquals(0.05093, pricingDetails.getFactor(), 0.00001);
@@ -620,9 +623,9 @@ public class BillingDataRetrievalServiceBeanParametersIT extends EJBTestBase {
             public XParameterData call() throws Exception {
                 PriceModelInput priceModelInput = givenPriceModelInput(
                         pmh.getObjKey(), 10000, 1830000, PricingPeriod.HOUR);
-                return bdr.loadParameterData(
-                        BillingInputFactory.newBillingInput(0, 0,
-                                sh.getObjKey()), priceModelInput);
+                return bdr.loadParameterData(BillingInputFactory
+                        .newBillingInput(0, 0, sh.getObjKey()),
+                        priceModelInput);
             }
         });
         Iterator<XParameterIdData> iterator = result.getIdData().iterator();
@@ -677,9 +680,9 @@ public class BillingDataRetrievalServiceBeanParametersIT extends EJBTestBase {
                 PriceModelInput priceModelInput = givenPriceModelInput(
                         pmh.getObjKey(), 1324512050000L, 1324515750000L,
                         PricingPeriod.HOUR);
-                return bdr.loadParameterData(
-                        BillingInputFactory.newBillingInput(0, 0,
-                                sh.getObjKey()), priceModelInput);
+                return bdr.loadParameterData(BillingInputFactory
+                        .newBillingInput(0, 0, sh.getObjKey()),
+                        priceModelInput);
             }
         });
         assertEquals(1, result.getIdData().size());
@@ -707,7 +710,8 @@ public class BillingDataRetrievalServiceBeanParametersIT extends EJBTestBase {
      * @throws Exception
      */
     @Test
-    public void getParameterData_OneParamWithValueNullChange() throws Exception {
+    public void getParameterData_OneParamWithValueNullChange()
+            throws Exception {
         setupParameter("paramId1", ParameterValueType.LONG, 50000L, "10",
                 PricingPeriod.HOUR);
         updateParameter(1850000L, null);
@@ -721,9 +725,9 @@ public class BillingDataRetrievalServiceBeanParametersIT extends EJBTestBase {
             public XParameterData call() throws Exception {
                 PriceModelInput priceModelInput = givenPriceModelInput(
                         pmh.getObjKey(), 50000, 3650000L, PricingPeriod.HOUR);
-                return bdr.loadParameterData(
-                        BillingInputFactory.newBillingInput(0, 0,
-                                sh.getObjKey()), priceModelInput);
+                return bdr.loadParameterData(BillingInputFactory
+                        .newBillingInput(0, 0, sh.getObjKey()),
+                        priceModelInput);
             }
         });
 
@@ -755,9 +759,9 @@ public class BillingDataRetrievalServiceBeanParametersIT extends EJBTestBase {
             public XParameterData call() throws Exception {
                 PriceModelInput priceModelInput = givenPriceModelInput(
                         pmh.getObjKey(), 10000, 1830000, PricingPeriod.HOUR);
-                return bdr.loadParameterData(
-                        BillingInputFactory.newBillingInput(0, 0,
-                                sh.getObjKey()), priceModelInput);
+                return bdr.loadParameterData(BillingInputFactory
+                        .newBillingInput(0, 0, sh.getObjKey()),
+                        priceModelInput);
 
             }
         });
@@ -767,8 +771,8 @@ public class BillingDataRetrievalServiceBeanParametersIT extends EJBTestBase {
         BigDecimalAsserts.checkEquals(BigDecimal.ZERO,
                 steppedPrices.getNormalizedCost());
         assertEquals(1, steppedPrices.getPriceData().size());
-        BigDecimalAsserts.checkEquals(new BigDecimal("40"), steppedPrices
-                .getPriceData().get(0).getBasePrice());
+        BigDecimalAsserts.checkEquals(new BigDecimal("40"),
+                steppedPrices.getPriceData().get(0).getBasePrice());
     }
 
     @Test
@@ -782,9 +786,9 @@ public class BillingDataRetrievalServiceBeanParametersIT extends EJBTestBase {
             public XParameterData call() throws Exception {
                 PriceModelInput priceModelInput = givenPriceModelInput(
                         pmh.getObjKey(), 10000, 1830000, PricingPeriod.HOUR);
-                return bdr.loadParameterData(
-                        BillingInputFactory.newBillingInput(0, 0,
-                                sh.getObjKey()), priceModelInput);
+                return bdr.loadParameterData(BillingInputFactory
+                        .newBillingInput(0, 0, sh.getObjKey()),
+                        priceModelInput);
             }
         });
         Iterator<XParameterIdData> iterator = result.getIdData().iterator();
@@ -794,8 +798,8 @@ public class BillingDataRetrievalServiceBeanParametersIT extends EJBTestBase {
         assertEquals(1, containerKeys.size());
         Map<Long, RolePricingDetails> prices = rolePricingData
                 .getRolePricesForContainerKey(Long.valueOf(pph.getObjKey()));
-        RolePricingDetails rolePricingDetails = prices.get(Long.valueOf(rdh
-                .getObjKey()));
+        RolePricingDetails rolePricingDetails = prices
+                .get(Long.valueOf(rdh.getObjKey()));
         BigDecimal pricePerUser = rolePricingDetails.getPricePerUser();
         BigDecimalAsserts.checkEquals(new BigDecimal("99.99"), pricePerUser);
         assertEquals(ROLE_ID, rolePricingDetails.getRoleId());
@@ -811,9 +815,9 @@ public class BillingDataRetrievalServiceBeanParametersIT extends EJBTestBase {
             public XParameterData call() throws Exception {
                 PriceModelInput priceModelInput = givenPriceModelInput(
                         pmh.getObjKey(), 10000, 1830000, PricingPeriod.HOUR);
-                return bdr.loadParameterData(
-                        BillingInputFactory.newBillingInput(0, 0,
-                                sh.getObjKey()), priceModelInput);
+                return bdr.loadParameterData(BillingInputFactory
+                        .newBillingInput(0, 0, sh.getObjKey()),
+                        priceModelInput);
             }
         });
         XParameterIdData idData = result.getIdData().iterator().next();
@@ -837,8 +841,8 @@ public class BillingDataRetrievalServiceBeanParametersIT extends EJBTestBase {
         assertNotNull(rolePrices);
         Map<Long, RolePricingDetails> rolePricesForOption = rolePrices
                 .getRolePricesForContainerKey(Long.valueOf(poh.getObjKey()));
-        RolePricingDetails rolePricingDetails = rolePricesForOption.get(Long
-                .valueOf(rdh.getObjKey()));
+        RolePricingDetails rolePricingDetails = rolePricesForOption
+                .get(Long.valueOf(rdh.getObjKey()));
         BigDecimal pricePerUser = rolePricingDetails.getPricePerUser();
         BigDecimalAsserts.checkEquals(new BigDecimal("99.99"), pricePerUser);
         assertEquals(ROLE_ID, rolePricingDetails.getRoleId());
@@ -860,9 +864,9 @@ public class BillingDataRetrievalServiceBeanParametersIT extends EJBTestBase {
                 PriceModelInput priceModelInput = givenPriceModelInput(
                         pmh.getObjKey(), 1317190847297L, 1317191307633L,
                         PricingPeriod.HOUR);
-                return bdr.loadParameterData(
-                        BillingInputFactory.newBillingInput(0, 0,
-                                sh.getObjKey()), priceModelInput);
+                return bdr.loadParameterData(BillingInputFactory
+                        .newBillingInput(0, 0, sh.getObjKey()),
+                        priceModelInput);
             }
         });
         XParameterIdData idData = result.getIdData().iterator().next();
@@ -925,9 +929,9 @@ public class BillingDataRetrievalServiceBeanParametersIT extends EJBTestBase {
             public XParameterData call() throws Exception {
                 PriceModelInput priceModelInput = givenPriceModelInput(
                         pmh.getObjKey(), 50000, 3750000L, PricingPeriod.HOUR);
-                return bdr.loadParameterData(
-                        BillingInputFactory.newBillingInput(0, 0,
-                                sh.getObjKey()), priceModelInput);
+                return bdr.loadParameterData(BillingInputFactory
+                        .newBillingInput(0, 0, sh.getObjKey()),
+                        priceModelInput);
             }
         });
         assertEquals(1, result.getIdData().size());
@@ -967,8 +971,8 @@ public class BillingDataRetrievalServiceBeanParametersIT extends EJBTestBase {
                 if (sh == null) {
                     sh = new SubscriptionHistory();
                     initDOH(sh, date);
-                    sh.getDataContainer().setCreationDate(
-                            Long.valueOf(date.getTime()));
+                    sh.getDataContainer()
+                            .setCreationDate(Long.valueOf(date.getTime()));
                     sh.getDataContainer().setStatus(SubscriptionStatus.ACTIVE);
                     sh.getDataContainer()
                             .setSubscriptionId(String.valueOf(key));
@@ -979,8 +983,8 @@ public class BillingDataRetrievalServiceBeanParametersIT extends EJBTestBase {
                 pdh = new ParameterDefinitionHistory();
                 initDOH(pdh, date);
                 pdh.getDataContainer().setParameterId(paramId);
-                pdh.getDataContainer().setParameterType(
-                        ParameterType.PLATFORM_PARAMETER);
+                pdh.getDataContainer()
+                        .setParameterType(ParameterType.PLATFORM_PARAMETER);
                 pdh.getDataContainer().setValueType(pvt);
                 ds.persist(pdh);
 
@@ -1057,8 +1061,8 @@ public class BillingDataRetrievalServiceBeanParametersIT extends EJBTestBase {
         });
     }
 
-    private void initDOH(
-            DomainHistoryObject<? extends DomainDataContainer> doh, Date date) {
+    private void initDOH(DomainHistoryObject<? extends DomainDataContainer> doh,
+            Date date) {
         doh.setObjVersion(++version);
         doh.setModdate(date);
         doh.setInvocationDate(date);
@@ -1122,8 +1126,8 @@ public class BillingDataRetrievalServiceBeanParametersIT extends EJBTestBase {
     }
 
     private void updatePricedParameter(final long modDate,
-            final BigDecimal pricePerUser, final BigDecimal pricePerSubscription)
-            throws Exception {
+            final BigDecimal pricePerUser,
+            final BigDecimal pricePerSubscription) throws Exception {
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
@@ -1156,8 +1160,8 @@ public class BillingDataRetrievalServiceBeanParametersIT extends EJBTestBase {
                 lpdh.setObjKey(pdh.getObjKey());
                 lpdh.setModtype(ModificationType.MODIFY);
                 lpdh.setModuser("user");
-                lpdh.getDataContainer().setParameterType(
-                        ParameterType.PLATFORM_PARAMETER);
+                lpdh.getDataContainer()
+                        .setParameterType(ParameterType.PLATFORM_PARAMETER);
                 lpdh.getDataContainer().setValueType(pdh.getValueType());
                 ds.persist(lpdh);
                 return null;
@@ -1187,7 +1191,8 @@ public class BillingDataRetrievalServiceBeanParametersIT extends EJBTestBase {
         });
     }
 
-    private void deleteUsageLicenseHistory(final long modDate) throws Exception {
+    private void deleteUsageLicenseHistory(final long modDate)
+            throws Exception {
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
@@ -1227,9 +1232,8 @@ public class BillingDataRetrievalServiceBeanParametersIT extends EJBTestBase {
         });
     }
 
-    private void createRolePrice(final long modDate,
-            final Long parameterObjKey, final Long optionObjKey)
-            throws Exception {
+    private void createRolePrice(final long modDate, final Long parameterObjKey,
+            final Long optionObjKey) throws Exception {
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {

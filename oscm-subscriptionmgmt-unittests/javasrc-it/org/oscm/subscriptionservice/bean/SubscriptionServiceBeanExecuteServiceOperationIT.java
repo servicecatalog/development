@@ -17,7 +17,6 @@ import java.util.Map;
 import javax.ejb.EJBException;
 
 import org.junit.Test;
-
 import org.oscm.applicationservice.bean.ApplicationServiceStub;
 import org.oscm.domobjects.DomainObject;
 import org.oscm.domobjects.OperationParameter;
@@ -30,10 +29,6 @@ import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.TechnicalProduct;
 import org.oscm.domobjects.TechnicalProductOperation;
 import org.oscm.domobjects.UsageLicense;
-import org.oscm.test.EJBTestBase;
-import org.oscm.test.ejb.TestContainer;
-import org.oscm.test.stubs.DataServiceStub;
-import org.oscm.types.enumtypes.OperationParameterType;
 import org.oscm.internal.intf.SubscriptionService;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.exception.ConcurrentModificationException;
@@ -46,13 +41,18 @@ import org.oscm.internal.vo.VOServiceOperationParameter;
 import org.oscm.internal.vo.VOSubscription;
 import org.oscm.internal.vo.VOTechnicalServiceOperation;
 import org.oscm.operation.data.OperationResult;
+import org.oscm.test.EJBTestBase;
+import org.oscm.test.ejb.TestContainer;
+import org.oscm.test.stubs.ConfigurationServiceStub;
+import org.oscm.test.stubs.DataServiceStub;
+import org.oscm.types.enumtypes.OperationParameterType;
 
 /**
  * @author weiser
  * 
  */
-public class SubscriptionServiceBeanExecuteServiceOperationIT extends
-        EJBTestBase {
+public class SubscriptionServiceBeanExecuteServiceOperationIT
+        extends EJBTestBase {
 
     private static final int ORG_KEY = 1234;
     private static final int OP_KEY = 1234;
@@ -87,6 +87,7 @@ public class SubscriptionServiceBeanExecuteServiceOperationIT extends
             }
 
         });
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceStub() {
 
             @Override
@@ -102,8 +103,8 @@ public class SubscriptionServiceBeanExecuteServiceOperationIT extends
                     Subscription sub = (Subscription) findTemplate;
                     if (sub.getOrganizationKey() == subscription
                             .getOrganizationKey()
-                            && sub.getSubscriptionId().equals(
-                                    subscription.getSubscriptionId())) {
+                            && sub.getSubscriptionId()
+                                    .equals(subscription.getSubscriptionId())) {
                         return subscription;
                     }
                 }
@@ -112,8 +113,8 @@ public class SubscriptionServiceBeanExecuteServiceOperationIT extends
             }
 
             @Override
-            public <T extends DomainObject<?>> T getReference(
-                    Class<T> objclass, long key) throws ObjectNotFoundException {
+            public <T extends DomainObject<?>> T getReference(Class<T> objclass,
+                    long key) throws ObjectNotFoundException {
                 if (objclass.equals(TechnicalProductOperation.class)
                         && key == OP_KEY) {
                     return objclass.cast(operation);
@@ -158,7 +159,8 @@ public class SubscriptionServiceBeanExecuteServiceOperationIT extends
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testExecuteServiceOperation_SubscriptionNull() throws Exception {
+    public void testExecuteServiceOperation_SubscriptionNull()
+            throws Exception {
         try {
             subSvc.executeServiceOperation(null, getOp());
         } catch (EJBException e) {
@@ -248,7 +250,7 @@ public class SubscriptionServiceBeanExecuteServiceOperationIT extends
         assertEquals(APP_USER_ID, passedValues[0]);
         assertEquals(subscription, passedValues[1]);
         assertNotNull(passedValues[2]);
-        HashMap<String, String> expected = new HashMap<String, String>();
+        HashMap<String, String> expected = new HashMap<>();
         expected.put("param1", "param1");
         expected.put("param2", "param2");
         assertEquals(expected, passedValues[4]);

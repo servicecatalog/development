@@ -75,11 +75,11 @@ public class MarketplaceServiceBeanBrandingIT extends EJBTestBase {
     }
 
     private void setupWithContainer() throws Exception {
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         container.addBean(mock(MarketplaceAccessDao.class));
         container.addBean(new LocalizerServiceBean());
         container.addBean(new CommunicationServiceStub());
-        container.addBean(new ConfigurationServiceStub());
         container.addBean(new TriggerQueueServiceStub());
         container.addBean(new ServiceProvisioningServiceStub());
         container.addBean(new AccountServiceStub());
@@ -103,13 +103,12 @@ public class MarketplaceServiceBeanBrandingIT extends EJBTestBase {
 
                 Organization supplier = Organizations.createOrganization(mgr,
                         OrganizationRoleType.SUPPLIER);
-                String mId = Marketplaces
-                        .ensureMarketplace(supplier, null, mgr)
+                String mId = Marketplaces.ensureMarketplace(supplier, null, mgr)
                         .getMarketplaceId();
                 voMarketplace.setMarketplaceId(mId);
 
-                PlatformUser createUserForOrg = Organizations.createUserForOrg(
-                        mgr, supplier, true, "admin");
+                PlatformUser createUserForOrg = Organizations
+                        .createUserForOrg(mgr, supplier, true, "admin");
                 PlatformUsers.grantRoles(mgr, createUserForOrg,
                         UserRoleType.SERVICE_MANAGER);
                 supplierUserKey = createUserForOrg.getKey();
@@ -119,9 +118,8 @@ public class MarketplaceServiceBeanBrandingIT extends EJBTestBase {
             }
         });
 
-        container.login(supplierUserKey, new String[] {
-                ROLE_ORGANIZATION_ADMIN, ROLE_SERVICE_MANAGER,
-                ROLE_MARKETPLACE_OWNER });
+        container.login(supplierUserKey, new String[] { ROLE_ORGANIZATION_ADMIN,
+                ROLE_SERVICE_MANAGER, ROLE_MARKETPLACE_OWNER });
 
     }
 
@@ -130,8 +128,8 @@ public class MarketplaceServiceBeanBrandingIT extends EJBTestBase {
         Organization org = new Organization();
         DataService mockDs = mock(DataService.class);
         mp.setOrganization(org);
-        doReturn(mp).when(mockDs).getReferenceByBusinessKey(
-                any(Marketplace.class));
+        doReturn(mp).when(mockDs)
+                .getReferenceByBusinessKey(any(Marketplace.class));
         PlatformUser user = new PlatformUser();
         user.setOrganization(org);
         doReturn(user).when(mockDs).getCurrentUser();

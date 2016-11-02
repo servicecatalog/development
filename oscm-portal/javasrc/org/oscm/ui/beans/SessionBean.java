@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.ejb.EJB;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.ExternalContext;
@@ -30,13 +31,16 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.oscm.billing.external.pricemodel.service.PriceModel;
+import org.oscm.internal.intf.MarketplaceCacheService;
 import org.oscm.internal.intf.MarketplaceService;
+import org.oscm.internal.types.exception.MarketplaceRemovedException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.SaaSSystemException;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
 import org.oscm.ui.common.*;
+import org.oscm.ui.filter.AuthorizationRequestData;
 
 /**
  * Managed bean to store session specific values which are not persisted in the
@@ -57,6 +61,10 @@ public class SessionBean implements Serializable {
     private Long subscribeToServiceKey;
     private transient MarketplaceService marketplaceService = null;
     private Boolean selfRegistrationEnabled = null;
+    @EJB
+    private MarketplaceCacheService mkpCache;
+    @EJB
+    private MarketplaceService mkpService;
 
 
     /**
@@ -558,7 +566,10 @@ public class SessionBean implements Serializable {
         return samlLogoutRequest;
     }
 
-    public String getTenantID() {
+    public String getTenantID() throws MarketplaceRemovedException {
+        if(StringUtils.isBlank(tenantID)) {
+            tenantID = getTenantIDFromMarketplace();
+        }
         if(StringUtils.isBlank(tenantID)) {
             tenantID = (String) new UiDelegate().getSession().getAttribute(REQ_PARAM_TENANT_ID);
         }
@@ -567,6 +578,24 @@ public class SessionBean implements Serializable {
 
     public void setTenantID(String tenantId) {
         this.tenantID = tenantId;
+    }
+
+    private String getTenantIDFromMarketplace() throws MarketplaceRemovedException {
+        String tenantID = null;
+        String marketplaceId = getMarketplaceId();
+        if (StringUtils.isNotBlank(marketplaceId)) {
+            tenantID = mkpCache
+                    .getConfiguration(marketplaceId).getTenantId();
+            if (StringUtils.isBlank(tenantID)) {
+                try {
+                    tenantID = mkpService
+                            .getMarketplaceById(marketplaceId).getTenantId();
+                } catch (ObjectNotFoundException e) {
+                    throw new MarketplaceRemovedException();
+                }
+            }
+        }
+        return tenantID;
     }
 
 }
