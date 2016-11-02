@@ -40,8 +40,7 @@ import com.sun.xml.wss.impl.MessageConstants;
 import com.sun.xml.wss.saml.util.SAMLUtil;
 
 public class LoginHandler implements SOAPHandler<SOAPMessageContext> {
-    
-    private static final String TENANT_ID_HEADER_PARAM = "tenantId";
+
     private static final String ORGANIZATION_ID_HEADER_PARAM = "organizationId";
     
     private AbstractKeyQuery keyQuery;
@@ -71,7 +70,7 @@ public class LoginHandler implements SOAPHandler<SOAPMessageContext> {
             String userKey = null;
             try {
                 userKey = getUserKeyFromContext(context);
-            } catch (UserIdNotFoundException | NamingException | SQLException exception) {
+            } catch (UserIdNotFoundException | NamingException | SQLException | NotExistentTenantException exception) {
                 logException(
                         exception,
                         LogMessageIdentifier.ERROR_GET_USER_FROM_SAML_RESPONSE_FAILED);
@@ -137,7 +136,7 @@ public class LoginHandler implements SOAPHandler<SOAPMessageContext> {
     }
 
     protected String getUserKeyFromContext(SOAPMessageContext context)
-            throws UserIdNotFoundException, NamingException, SQLException {
+            throws UserIdNotFoundException, NamingException, SQLException, NotExistentTenantException {
         
         String userId = getUserIdFromContext(context);
         String tenantId = getTenantIdFromContext(context);
@@ -156,9 +155,6 @@ public class LoginHandler implements SOAPHandler<SOAPMessageContext> {
             
         } else if(StringUtils.isNotEmpty(orgId)){
             keyQuery = new UserKeyForOrganizationQuery(dbSource, userId, orgId);
-        }
-        else {
-            keyQuery = new UserKeyQuery(dbSource, userId);
         }
 
         keyQuery.execute();
@@ -185,24 +181,7 @@ public class LoginHandler implements SOAPHandler<SOAPMessageContext> {
         return userId;
     }
     
-    protected String getTenantIdFromContext(SOAPMessageContext context){
-        
-        String tenantId = null;
-        
-        @SuppressWarnings("unchecked")
-        Map<String, List<String>> headers = (Map<String, List<String>>) context
-                .get(MessageContext.HTTP_REQUEST_HEADERS);
-        
-        List<String> tenantIdParams = headers.get(TENANT_ID_HEADER_PARAM);
-        
-        if(tenantIdParams!=null){
-            tenantId = tenantIdParams.get(0);
-        }
-        
-        return tenantId;
-    }
-    
-    protected String getTenantIdFromSamlResponse(SOAPMessageContext context) throws NotExistentTenantException {
+    protected String getTenantIdFromContext(SOAPMessageContext context) throws NotExistentTenantException {
         
         String tenantId;
         
