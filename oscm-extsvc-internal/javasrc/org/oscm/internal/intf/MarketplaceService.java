@@ -660,4 +660,6 @@ public interface MarketplaceService {
      */
     public List<VOOrganization> getSuppliersForMarketplace(String marketplaceId)
             throws ObjectNotFoundException, OperationNotPermittedException;
+
+    String getMarketplaceIdForKey(Long key) throws ObjectNotFoundException;
 }

@@ -2799,22 +2799,27 @@ public class MockService implements IdentityService, SubscriptionService,
     }
 
     public void deleteService(Long key) {
-        // TODO Auto-generated method stub
 
     }
 
     @Override
     public void deleteTechnicalService(Long key) {
-        // TODO Auto-generated method stub
 
     }
 
     @Override
-    public boolean unsubscribeFromService(Long key) throws ObjectNotFoundException, SubscriptionStillActiveException,
-            SubscriptionStateException, TechnicalServiceNotAliveException, TechnicalServiceOperationException,
-            OperationPendingException, OperationNotPermittedException {
-        // TODO Auto-generated method stub
+    public boolean unsubscribeFromService(Long key)
+            throws ObjectNotFoundException, SubscriptionStillActiveException,
+            SubscriptionStateException, TechnicalServiceNotAliveException,
+            TechnicalServiceOperationException, OperationPendingException,
+            OperationNotPermittedException {
         return false;
+    }
+
+    @Override
+    public String getMarketplaceIdForKey(Long key)
+            throws ObjectNotFoundException {
+        return null;
     }
 
 }
