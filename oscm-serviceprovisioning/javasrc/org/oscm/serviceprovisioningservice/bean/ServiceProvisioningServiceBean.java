@@ -3396,7 +3396,8 @@ public class ServiceProvisioningServiceBean
         PlatformUser currentUser = dm.getCurrentUser();
 
         Product product = dm.getReference(Product.class, service.getKey());
-        validateExternalServiceMustBeFree(priceModel, product.getTechnicalProduct().getAccessType());
+        validateExternalServiceMustBeFree(priceModel, product
+                .getTechnicalProduct().getAccessType());
 
         // ensure the subscription belongs to the given product
         Subscription sub = validateSubscription(service, currentUser, product);
