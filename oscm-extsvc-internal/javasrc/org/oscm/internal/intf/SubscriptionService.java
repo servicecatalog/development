@@ -1306,7 +1306,9 @@ public interface SubscriptionService {
      * @throws OperationPendingException
      * @throws OperationNotPermittedException
      */
-    boolean unsubscribeFromService(Long key) throws ObjectNotFoundException, SubscriptionStillActiveException,
-            SubscriptionStateException, TechnicalServiceNotAliveException, TechnicalServiceOperationException,
-            OperationPendingException, OperationNotPermittedException;
+    boolean unsubscribeFromService(Long key) throws ObjectNotFoundException,
+            SubscriptionStillActiveException, SubscriptionStateException,
+            TechnicalServiceNotAliveException,
+            TechnicalServiceOperationException, OperationPendingException,
+            OperationNotPermittedException;
 }
