@@ -4,11 +4,11 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response.Status;
 
 import org.oscm.internal.types.exception.SaaSApplicationException;
-import org.oscm.rest.common.Representation;
 
 public class ExceptionBody extends Representation {
 
-    public static ExceptionBody fromSaasApplicationException(SaaSApplicationException e, Status s) {
+    public static ExceptionBody fromSaasApplicationException(
+            SaaSApplicationException e, Status s) {
         ExceptionBody eb = new ExceptionBody();
         eb.setCode(s.getStatusCode());
         eb.setMessage(e.getMessage());

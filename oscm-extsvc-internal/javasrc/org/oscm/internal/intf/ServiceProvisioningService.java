@@ -102,8 +102,8 @@ public interface ServiceProvisioningService {
      *             specified role
      */
 
-    public List<VOTechnicalService> getTechnicalServices(OrganizationRoleType role)
-            throws OrganizationAuthoritiesException;
+    public List<VOTechnicalService> getTechnicalServices(
+            OrganizationRoleType role) throws OrganizationAuthoritiesException;
 
     /**
      * Validates whether the correct version of the provisioning service is
@@ -124,8 +124,10 @@ public interface ServiceProvisioningService {
      *             if the provisioning service does not respond correctly
      */
 
-    public void validateTechnicalServiceCommunication(VOTechnicalService technicalService)
-            throws ObjectNotFoundException, OperationNotPermittedException, TechnicalServiceNotAliveException;
+    public void validateTechnicalServiceCommunication(
+            VOTechnicalService technicalService)
+            throws ObjectNotFoundException, OperationNotPermittedException,
+            TechnicalServiceNotAliveException;
 
     /**
      * Deletes the given technical service, if it is not referenced by any
@@ -149,8 +151,9 @@ public interface ServiceProvisioningService {
      *             the time between reading and deleting it
      */
 
-    public void deleteTechnicalService(VOTechnicalService technicalService) throws OrganizationAuthoritiesException,
-            ObjectNotFoundException, DeletionConstraintException, ConcurrentModificationException;
+    public void deleteTechnicalService(VOTechnicalService technicalService)
+            throws OrganizationAuthoritiesException, ObjectNotFoundException,
+            DeletionConstraintException, ConcurrentModificationException;
 
     /**
      * Creates a marketable service based on the given technical service. The
@@ -189,10 +192,11 @@ public interface ServiceProvisioningService {
      *             service
      */
 
-    public VOServiceDetails createService(VOTechnicalService technicalService, VOService service,
-            VOImageResource imageResource) throws OrganizationAuthoritiesException, ObjectNotFoundException,
-            OperationNotPermittedException, ValidationException, NonUniqueBusinessKeyException,
-            ConcurrentModificationException;
+    public VOServiceDetails createService(VOTechnicalService technicalService,
+            VOService service, VOImageResource imageResource)
+            throws OrganizationAuthoritiesException, ObjectNotFoundException,
+            OperationNotPermittedException, ValidationException,
+            NonUniqueBusinessKeyException, ConcurrentModificationException;
 
     /**
      * Updates the definition of the given marketable service.
@@ -233,9 +237,11 @@ public interface ServiceProvisioningService {
      *             between reading and writing it
      */
 
-    public VOServiceDetails updateService(VOServiceDetails service, VOImageResource imageResource)
-            throws ObjectNotFoundException, OrganizationAuthoritiesException, OperationNotPermittedException,
-            ValidationException, NonUniqueBusinessKeyException, ServiceStateException, ConcurrentModificationException;
+    public VOServiceDetails updateService(VOServiceDetails service,
+            VOImageResource imageResource) throws ObjectNotFoundException,
+            OrganizationAuthoritiesException, OperationNotPermittedException,
+            ValidationException, NonUniqueBusinessKeyException,
+            ServiceStateException, ConcurrentModificationException;
 
     /**
      * Retrieves a customer-specific variant of a marketable service. The
@@ -259,8 +265,9 @@ public interface ServiceProvisioningService {
      *             if the given service or customer is not found
      */
 
-    public VOServiceDetails getServiceForCustomer(VOOrganization customer, VOService service)
-            throws OperationNotPermittedException, ObjectNotFoundException;
+    public VOServiceDetails getServiceForCustomer(VOOrganization customer,
+            VOService service) throws OperationNotPermittedException,
+            ObjectNotFoundException;
 
     /**
      * Retrieves a subscription-specific variant of a marketable service. The
@@ -284,8 +291,9 @@ public interface ServiceProvisioningService {
      *             if the customer is not found
      */
 
-    public VOServiceDetails getServiceForSubscription(VOOrganization customer, String subscriptionId)
-            throws OrganizationAuthoritiesException, ObjectNotFoundException;
+    public VOServiceDetails getServiceForSubscription(VOOrganization customer,
+            String subscriptionId) throws OrganizationAuthoritiesException,
+            ObjectNotFoundException;
 
     /**
      * Returns detailed information on the given marketable service.
@@ -303,8 +311,8 @@ public interface ServiceProvisioningService {
      *             if the calling user does not have the required permissions
      */
 
-    public VOServiceDetails getServiceDetails(VOService service) throws ObjectNotFoundException,
-            OperationNotPermittedException;
+    public VOServiceDetails getServiceDetails(VOService service)
+            throws ObjectNotFoundException, OperationNotPermittedException;
 
     /**
      * Returns the supplier, broker, or reseller organization that provides a
@@ -323,7 +331,8 @@ public interface ServiceProvisioningService {
      *             if the service is not found
      */
 
-    public VOOrganization getServiceSeller(long serviceKey, String locale) throws ObjectNotFoundException;
+    public VOOrganization getServiceSeller(long serviceKey, String locale)
+            throws ObjectNotFoundException;
 
     /**
      * Creates or updates the price model for the given marketable service.
@@ -362,9 +371,11 @@ public interface ServiceProvisioningService {
      *             user in the time between reading and writing it
      */
 
-    public VOServiceDetails savePriceModel(VOServiceDetails service, VOPriceModel priceModel)
-            throws ObjectNotFoundException, OperationNotPermittedException, CurrencyException, ValidationException,
-            ServiceStateException, PriceModelException, ConcurrentModificationException;
+    public VOServiceDetails savePriceModel(VOServiceDetails service,
+            VOPriceModel priceModel) throws ObjectNotFoundException,
+            OperationNotPermittedException, CurrencyException,
+            ValidationException, ServiceStateException, PriceModelException,
+            ConcurrentModificationException;
 
     /**
      * Creates or updates a customer-specific price model for the specified
@@ -412,10 +423,12 @@ public interface ServiceProvisioningService {
      *             user in the time between reading and writing it
      */
 
-    public VOServiceDetails savePriceModelForCustomer(VOServiceDetails service, VOPriceModel priceModel,
-            VOOrganization customer) throws OrganizationAuthoritiesException, ObjectNotFoundException,
-            OperationNotPermittedException, CurrencyException, ValidationException, ServiceStateException,
-            PriceModelException, ServiceOperationException, ConcurrentModificationException;
+    public VOServiceDetails savePriceModelForCustomer(VOServiceDetails service,
+            VOPriceModel priceModel, VOOrganization customer)
+            throws OrganizationAuthoritiesException, ObjectNotFoundException,
+            OperationNotPermittedException, CurrencyException,
+            ValidationException, ServiceStateException, PriceModelException,
+            ServiceOperationException, ConcurrentModificationException;
 
     /**
      * Creates or updates a subscription-specific price model for the specified
@@ -461,10 +474,13 @@ public interface ServiceProvisioningService {
      *             currency of the price model in a way which is not allowed
      */
 
-    public VOServiceDetails savePriceModelForSubscription(VOServiceDetails service, VOPriceModel priceModel)
-            throws OrganizationAuthoritiesException, ObjectNotFoundException, OperationNotPermittedException,
-            CurrencyException, ValidationException, ConcurrentModificationException, SubscriptionStateException,
-            PaymentInformationException, PriceModelException;
+    public VOServiceDetails savePriceModelForSubscription(
+            VOServiceDetails service, VOPriceModel priceModel)
+            throws OrganizationAuthoritiesException, ObjectNotFoundException,
+            OperationNotPermittedException, CurrencyException,
+            ValidationException, ConcurrentModificationException,
+            SubscriptionStateException, PaymentInformationException,
+            PriceModelException;
 
     /**
      * Returns all marketable services supplied by the calling user's
@@ -487,8 +503,9 @@ public interface ServiceProvisioningService {
      *             if the calling user does not have the required permissions
      */
 
-    public List<VOService> getCompatibleServices(VOService service) throws OrganizationAuthoritiesException,
-            ObjectNotFoundException, OperationNotPermittedException;
+    public List<VOService> getCompatibleServices(VOService service)
+            throws OrganizationAuthoritiesException, ObjectNotFoundException,
+            OperationNotPermittedException;
 
     /**
      * Registers a list of marketable services to which the specified source
@@ -519,9 +536,11 @@ public interface ServiceProvisioningService {
      *             the time between reading and writing it
      */
 
-    public void setCompatibleServices(VOService service, List<VOService> compatibleServices)
-            throws OrganizationAuthoritiesException, ObjectNotFoundException, OperationNotPermittedException,
-            ServiceCompatibilityException, ServiceStateException, ConcurrentModificationException;
+    public void setCompatibleServices(VOService service,
+            List<VOService> compatibleServices)
+            throws OrganizationAuthoritiesException, ObjectNotFoundException,
+            OperationNotPermittedException, ServiceCompatibilityException,
+            ServiceStateException, ConcurrentModificationException;
 
     /**
      * Deletes the specified marketable service, if there are no subscriptions
@@ -550,8 +569,10 @@ public interface ServiceProvisioningService {
      *             between reading and deleting it
      */
 
-    public void deleteService(VOService service) throws OrganizationAuthoritiesException,
-            OperationNotPermittedException, ObjectNotFoundException, ServiceOperationException, ServiceStateException,
+    public void deleteService(VOService service)
+            throws OrganizationAuthoritiesException,
+            OperationNotPermittedException, ObjectNotFoundException,
+            ServiceOperationException, ServiceStateException,
             ConcurrentModificationException;
 
     /**
@@ -574,8 +595,9 @@ public interface ServiceProvisioningService {
      *             between reading it and checking its status
      */
 
-    public boolean statusAllowsDeletion(VOService service) throws OperationNotPermittedException,
-            ObjectNotFoundException, ConcurrentModificationException;
+    public boolean statusAllowsDeletion(VOService service)
+            throws OperationNotPermittedException, ObjectNotFoundException,
+            ConcurrentModificationException;
 
     /**
      * Imports technical services from an XML file into the database.
@@ -611,9 +633,11 @@ public interface ServiceProvisioningService {
      *             identifier which is not registered in the system
      */
 
-    public String importTechnicalServices(byte[] xml) throws ImportException, OperationNotPermittedException,
-            TechnicalServiceActiveException, UpdateConstraintException, TechnicalServiceMultiSubscriptions,
-            UnchangeableAllowingOnBehalfActingException, BillingAdapterNotFoundException;
+    public String importTechnicalServices(byte[] xml) throws ImportException,
+            OperationNotPermittedException, TechnicalServiceActiveException,
+            UpdateConstraintException, TechnicalServiceMultiSubscriptions,
+            UnchangeableAllowingOnBehalfActingException,
+            BillingAdapterNotFoundException;
 
     /**
      * Activates a marketable service so that it becomes available to potential
@@ -659,9 +683,11 @@ public interface ServiceProvisioningService {
      * 
      */
 
-    public VOService activateService(VOService service) throws ObjectNotFoundException, ServiceStateException,
-            OrganizationAuthoritiesException, OperationNotPermittedException, ServiceOperationException,
-            TechnicalServiceNotAliveException, ServiceNotPublishedException, OperationPendingException,
+    public VOService activateService(VOService service)
+            throws ObjectNotFoundException, ServiceStateException,
+            OrganizationAuthoritiesException, OperationNotPermittedException,
+            ServiceOperationException, TechnicalServiceNotAliveException,
+            ServiceNotPublishedException, OperationPendingException,
             ConcurrentModificationException;
 
     /**
@@ -704,9 +730,11 @@ public interface ServiceProvisioningService {
      *             concurrently
      */
 
-    public VOService deactivateService(VOService service) throws ObjectNotFoundException, ServiceStateException,
-            OrganizationAuthoritiesException, OperationNotPermittedException, ServiceOperationException,
-            OperationPendingException, ConcurrentModificationException;
+    public VOService deactivateService(VOService service)
+            throws ObjectNotFoundException, ServiceStateException,
+            OrganizationAuthoritiesException, OperationNotPermittedException,
+            ServiceOperationException, OperationPendingException,
+            ConcurrentModificationException;
 
     /**
      * Updates the activation statuses for a given list of marketable services,
@@ -761,10 +789,13 @@ public interface ServiceProvisioningService {
      *             concurrently
      */
 
-    public List<VOService> setActivationStates(List<VOServiceActivation> activations) throws ObjectNotFoundException,
-            ServiceStateException, OrganizationAuthoritiesException, OperationNotPermittedException,
-            ServiceOperationException, TechnicalServiceNotAliveException, ServiceNotPublishedException,
-            OperationPendingException, ConcurrentModificationException;
+    public List<VOService> setActivationStates(
+            List<VOServiceActivation> activations)
+            throws ObjectNotFoundException, ServiceStateException,
+            OrganizationAuthoritiesException, OperationNotPermittedException,
+            ServiceOperationException, TechnicalServiceNotAliveException,
+            ServiceNotPublishedException, OperationPendingException,
+            ConcurrentModificationException;
 
     /**
      * Returns the localized texts for a marketable service.
@@ -781,8 +812,8 @@ public interface ServiceProvisioningService {
      *             if the calling user does not have read access to the service
      */
 
-    public VOServiceLocalization getServiceLocalization(VOService service) throws ObjectNotFoundException,
-            OperationNotPermittedException;
+    public VOServiceLocalization getServiceLocalization(VOService service)
+            throws ObjectNotFoundException, OperationNotPermittedException;
 
     /**
      * Saves the localized texts for a marketable service.
@@ -806,8 +837,9 @@ public interface ServiceProvisioningService {
      *             the time between reading and writing them
      */
 
-    public void saveServiceLocalization(VOService service, VOServiceLocalization localization)
-            throws ObjectNotFoundException, OperationNotPermittedException, ValidationException,
+    public void saveServiceLocalization(VOService service,
+            VOServiceLocalization localization) throws ObjectNotFoundException,
+            OperationNotPermittedException, ValidationException,
             ConcurrentModificationException;
 
     /**
@@ -826,7 +858,8 @@ public interface ServiceProvisioningService {
      *             model
      */
 
-    public VOPriceModelLocalization getPriceModelLocalization(VOPriceModel priceModel) throws ObjectNotFoundException,
+    public VOPriceModelLocalization getPriceModelLocalization(
+            VOPriceModel priceModel) throws ObjectNotFoundException,
             OperationNotPermittedException;
 
     /**
@@ -847,8 +880,9 @@ public interface ServiceProvisioningService {
      *         service
      */
 
-    public List<VOLocalizedText> getPriceModelLicenseTemplateLocalization(VOServiceDetails service)
-            throws ObjectNotFoundException, OperationNotPermittedException;
+    public List<VOLocalizedText> getPriceModelLicenseTemplateLocalization(
+            VOServiceDetails service) throws ObjectNotFoundException,
+            OperationNotPermittedException;
 
     /**
      * Saves the localized texts for a price model.
@@ -871,8 +905,10 @@ public interface ServiceProvisioningService {
      *             user in the time between reading and writing them
      */
 
-    public void savePriceModelLocalization(VOPriceModel priceModel, VOPriceModelLocalization localization)
-            throws ObjectNotFoundException, OperationNotPermittedException, ConcurrentModificationException;
+    public void savePriceModelLocalization(VOPriceModel priceModel,
+            VOPriceModelLocalization localization)
+            throws ObjectNotFoundException, OperationNotPermittedException,
+            ConcurrentModificationException;
 
     /**
      * Retrieves a list of the customer-specific services which are defined for
@@ -893,8 +929,8 @@ public interface ServiceProvisioningService {
      *             supplier organization the calling user is a member of
      */
 
-    public List<VOService> getServicesForCustomer(VOOrganization customer) throws ObjectNotFoundException,
-            OperationNotPermittedException;
+    public List<VOService> getServicesForCustomer(VOOrganization customer)
+            throws ObjectNotFoundException, OperationNotPermittedException;
 
     /**
      * Returns all currencies which are currently supported.
@@ -935,7 +971,8 @@ public interface ServiceProvisioningService {
      *             if the supplier is not found
      */
 
-    public VOImageResource loadImageForSupplier(String serviceId, String supplierId) throws ObjectNotFoundException;
+    public VOImageResource loadImageForSupplier(String serviceId,
+            String supplierId) throws ObjectNotFoundException;
 
     /**
      * Exports the definition of the specified technical services to a byte
@@ -957,8 +994,10 @@ public interface ServiceProvisioningService {
      *             the technical services
      */
 
-    public byte[] exportTechnicalServices(List<VOTechnicalService> technicalServices)
-            throws OrganizationAuthoritiesException, ObjectNotFoundException, OperationNotPermittedException;
+    public byte[] exportTechnicalServices(
+            List<VOTechnicalService> technicalServices)
+            throws OrganizationAuthoritiesException, ObjectNotFoundException,
+            OperationNotPermittedException;
 
     /**
      * Creates a technical service without any events, parameters, roles,
@@ -980,8 +1019,10 @@ public interface ServiceProvisioningService {
      *             is already provided by the calling user's organization
      */
 
-    public VOTechnicalService createTechnicalService(VOTechnicalService technicalService)
-            throws OrganizationAuthoritiesException, ValidationException, NonUniqueBusinessKeyException;
+    public VOTechnicalService createTechnicalService(
+            VOTechnicalService technicalService)
+            throws OrganizationAuthoritiesException, ValidationException,
+            NonUniqueBusinessKeyException;
 
     /**
      * Saves the localizable attributes of the given technical service as well
@@ -1010,9 +1051,11 @@ public interface ServiceProvisioningService {
      *             if a role definition or operation name is too long
      */
 
-    public void saveTechnicalServiceLocalization(VOTechnicalService technicalService)
-            throws OrganizationAuthoritiesException, ObjectNotFoundException, OperationNotPermittedException,
-            UpdateConstraintException, ValidationException;
+    public void saveTechnicalServiceLocalization(
+            VOTechnicalService technicalService)
+            throws OrganizationAuthoritiesException, ObjectNotFoundException,
+            OperationNotPermittedException, UpdateConstraintException,
+            ValidationException;
 
     /**
      * Returns a list of all customer-specific services provided by the calling
@@ -1029,7 +1072,8 @@ public interface ServiceProvisioningService {
      *             supplier, broker, or reseller role
      */
 
-    public List<VOCustomerService> getAllCustomerSpecificServices() throws OrganizationAuthoritiesException;
+    public List<VOCustomerService> getAllCustomerSpecificServices()
+            throws OrganizationAuthoritiesException;
 
     /**
      * Copies the specified marketable service and saves the copy with the given
@@ -1064,9 +1108,11 @@ public interface ServiceProvisioningService {
      *             if the service ID is invalid
      */
 
-    public VOServiceDetails copyService(VOService service, String serviceId) throws ObjectNotFoundException,
-            OrganizationAuthoritiesException, OperationNotPermittedException, ServiceStateException,
-            ConcurrentModificationException, NonUniqueBusinessKeyException, ValidationException;
+    public VOServiceDetails copyService(VOService service, String serviceId)
+            throws ObjectNotFoundException, OrganizationAuthoritiesException,
+            OperationNotPermittedException, ServiceStateException,
+            ConcurrentModificationException, NonUniqueBusinessKeyException,
+            ValidationException;
 
     /**
      * Retrieves the marketable services the calling user's organization can
@@ -1106,8 +1152,8 @@ public interface ServiceProvisioningService {
      *             if the specified service is not found
      */
 
-    public List<VOService> getRelatedServicesForMarketplace(VOService service, String marketplaceId, String locale)
-            throws ObjectNotFoundException;
+    public List<VOService> getRelatedServicesForMarketplace(VOService service,
+            String marketplaceId, String locale) throws ObjectNotFoundException;
 
     /**
      * Retrieves the marketable service which is identified by the specified key
@@ -1174,7 +1220,8 @@ public interface ServiceProvisioningService {
      *             than his own
      */
 
-    public VOServiceEntry getServiceForMarketplace(Long serviceKey, String marketplaceId, String locale)
+    public VOServiceEntry getServiceForMarketplace(Long serviceKey,
+            String marketplaceId, String locale)
             throws ObjectNotFoundException, OperationNotPermittedException;
 
     /**
@@ -1215,8 +1262,9 @@ public interface ServiceProvisioningService {
      *             if the service status is not {@link ServiceStatus#ACTIVE}
      */
 
-    public VOService suspendService(VOService service, String reason) throws ObjectNotFoundException,
-            OperationNotPermittedException, ServiceStateException;
+    public VOService suspendService(VOService service, String reason)
+            throws ObjectNotFoundException, OperationNotPermittedException,
+            ServiceStateException;
 
     /**
      * Reactivates a deactivated service on its associated marketplace so that
@@ -1238,7 +1286,8 @@ public interface ServiceProvisioningService {
      *             if the service status is not {@link ServiceStatus#SUSPENDED}
      */
 
-    public VOService resumeService(VOService service) throws ObjectNotFoundException, OperationNotPermittedException,
+    public VOService resumeService(VOService service)
+            throws ObjectNotFoundException, OperationNotPermittedException,
             ServiceStateException;
 
     /**
@@ -1262,8 +1311,8 @@ public interface ServiceProvisioningService {
      *             copy of a marketable service
      */
 
-    public boolean isPartOfUpgradePath(VOService service) throws ObjectNotFoundException,
-            OperationNotPermittedException;
+    public boolean isPartOfUpgradePath(VOService service)
+            throws ObjectNotFoundException, OperationNotPermittedException;
 
     /**
      * Returns the marketable services which are already included in or can be
@@ -1286,7 +1335,8 @@ public interface ServiceProvisioningService {
      *             organization
      */
 
-    public List<VOCompatibleService> getPotentialCompatibleServices(VOService service) throws ObjectNotFoundException,
+    public List<VOCompatibleService> getPotentialCompatibleServices(
+            VOService service) throws ObjectNotFoundException,
             OperationNotPermittedException;
 
     /**
@@ -1307,7 +1357,8 @@ public interface ServiceProvisioningService {
      * @throws ObjectNotFoundException
      *             if the service is not found
      */
-    VOOrganization getServiceSellerFallback(long serviceKey, String locale) throws ObjectNotFoundException;
+    VOOrganization getServiceSellerFallback(long serviceKey, String locale)
+            throws ObjectNotFoundException;
 
     /**
      * Validates if subscription can be processed.
@@ -1323,8 +1374,9 @@ public interface ServiceProvisioningService {
      * @throws ObjectNotFoundException
      *             if the product is not found
      */
-    VOSubscriptionDetails validateSubscription(VOService service) throws OperationNotPermittedException,
-            SubscriptionStateException, ObjectNotFoundException;
+    VOSubscriptionDetails validateSubscription(VOService service)
+            throws OperationNotPermittedException, SubscriptionStateException,
+            ObjectNotFoundException;
 
     /**
      * Returns a list of all customer-specific services provided by the calling
@@ -1337,8 +1389,8 @@ public interface ServiceProvisioningService {
      * @throws OperationNotPermittedException
      */
 
-    public List<VOCustomerService> getServiceCustomerTemplates(VOService service) throws ObjectNotFoundException,
-            OperationNotPermittedException;
+    public List<VOCustomerService> getServiceCustomerTemplates(VOService service)
+            throws ObjectNotFoundException, OperationNotPermittedException;
 
     /**
      * Delegate to delete a service by its key.
@@ -1352,8 +1404,9 @@ public interface ServiceProvisioningService {
      * @throws OrganizationAuthoritiesException
      * @throws ObjectNotFoundException
      */
-    public void deleteService(Long key) throws ObjectNotFoundException, OrganizationAuthoritiesException,
-            OperationNotPermittedException, ServiceOperationException, ServiceStateException,
+    public void deleteService(Long key) throws ObjectNotFoundException,
+            OrganizationAuthoritiesException, OperationNotPermittedException,
+            ServiceOperationException, ServiceStateException,
             ConcurrentModificationException;
 
     /**
@@ -1367,7 +1420,9 @@ public interface ServiceProvisioningService {
      * @throws OrganizationAuthoritiesException
      * @throws DeletionConstraintException
      */
-    public void deleteTechnicalService(Long key) throws ObjectNotFoundException, OperationNotPermittedException,
-            DeletionConstraintException, OrganizationAuthoritiesException, ConcurrentModificationException;
+    public void deleteTechnicalService(Long key)
+            throws ObjectNotFoundException, OperationNotPermittedException,
+            DeletionConstraintException, OrganizationAuthoritiesException,
+            ConcurrentModificationException;
 
 }

@@ -40,8 +40,9 @@ public abstract class RestResource {
      * @return the response with representation or -collection
      * @throws Exception
      */
-    protected <R extends Representation, P extends RequestParameters> Response get(Request request,
-            RestBackend.Get<R, P> backend, P params, boolean id) throws Exception {
+    protected <R extends Representation, P extends RequestParameters> Response get(
+            Request request, RestBackend.Get<R, P> backend, P params, boolean id)
+            throws Exception {
 
         int version = getVersion(request);
 
@@ -72,8 +73,9 @@ public abstract class RestResource {
      * @return the response with representation collection
      * @throws Exception
      */
-    protected <R extends Representation, P extends RequestParameters> Response getCollection(Request request,
-            RestBackend.GetCollection<R, P> backend, P params) throws Exception {
+    protected <R extends Representation, P extends RequestParameters> Response getCollection(
+            Request request, RestBackend.GetCollection<R, P> backend, P params)
+            throws Exception {
 
         int version = getVersion(request);
 
@@ -106,8 +108,9 @@ public abstract class RestResource {
      * @return the response with the new location
      * @throws Exception
      */
-    protected <R extends Representation, P extends RequestParameters> Response post(Request request,
-            RestBackend.Post<R, P> backend, R content, P params) throws Exception {
+    protected <R extends Representation, P extends RequestParameters> Response post(
+            Request request, RestBackend.Post<R, P> backend, R content, P params)
+            throws Exception {
         return post(request, backend, content, params, null, null);
     }
 
@@ -131,8 +134,9 @@ public abstract class RestResource {
      * @return the response with the new location
      * @throws Exception
      */
-    protected <R extends Representation, P extends RequestParameters> Response post(Request request,
-            RestBackend.Post<R, P> backend, R content, P params, Class<?> resource, String method) throws Exception {
+    protected <R extends Representation, P extends RequestParameters> Response post(
+            Request request, RestBackend.Post<R, P> backend, R content,
+            P params, Class<?> resource, String method) throws Exception {
 
         int version = getVersion(request);
 
@@ -173,8 +177,9 @@ public abstract class RestResource {
      * @return the response without content
      * @throws Exception
      */
-    protected <R extends Representation, P extends RequestParameters> Response put(Request request,
-            RestBackend.Put<R, P> backend, R content, P params) throws Exception {
+    protected <R extends Representation, P extends RequestParameters> Response put(
+            Request request, RestBackend.Put<R, P> backend, R content, P params)
+            throws Exception {
 
         int version = getVersion(request);
 
@@ -210,8 +215,8 @@ public abstract class RestResource {
      * @return the response without content
      * @throws Exception
      */
-    protected <P extends RequestParameters> Response delete(Request request, RestBackend.Delete<P> backend, P params)
-            throws Exception {
+    protected <P extends RequestParameters> Response delete(Request request,
+            RestBackend.Delete<P> backend, P params) throws Exception {
 
         int version = getVersion(request);
 
@@ -243,7 +248,8 @@ public abstract class RestResource {
         Object property = cr.getProperties().get(CommonParams.PARAM_VERSION);
 
         if (property == null) {
-            throw WebException.notFound().message(CommonParams.ERROR_INVALID_VERSION).build();
+            throw WebException.notFound()
+                    .message(CommonParams.ERROR_INVALID_VERSION).build();
         }
 
         return ((Integer) property).intValue();
@@ -262,8 +268,9 @@ public abstract class RestResource {
      *            the representation (can be null)
      * @throws WebApplicationException
      */
-    protected void prepareData(int version, RequestParameters params, boolean withId, Representation rep,
-            boolean withRep) throws WebApplicationException {
+    protected void prepareData(int version, RequestParameters params,
+            boolean withId, Representation rep, boolean withRep)
+            throws WebApplicationException {
 
         if (withId) {
             params.validateId();
@@ -278,7 +285,8 @@ public abstract class RestResource {
         if (withRep) {
 
             if (rep == null) {
-                throw WebException.badRequest().message(CommonParams.ERROR_MISSING_CONTENT).build();
+                throw WebException.badRequest()
+                        .message(CommonParams.ERROR_MISSING_CONTENT).build();
             }
 
             rep.validateContent();
