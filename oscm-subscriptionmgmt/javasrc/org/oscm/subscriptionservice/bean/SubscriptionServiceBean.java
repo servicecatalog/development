@@ -318,8 +318,10 @@ public class SubscriptionServiceBean
         Subscription sub;
         PlatformUser currentUser = dataManager.getCurrentUser();
 
-        Product prod = dataManager.getReference(Product.class, service.getKey());
-        checkIfServiceAvailable(service.getKey(), service.getServiceId(), currentUser);
+        Product prod = dataManager
+                .getReference(Product.class, service.getKey());
+        checkIfServiceAvailable(service.getKey(), service.getServiceId(),
+                currentUser);
         checkIfSubscriptionAlreadyExists(prod);
         verifyIdAndKeyUniqueness(currentUser, subscription);
 
@@ -624,7 +626,8 @@ public class SubscriptionServiceBean
         PlatformUser owner = dataManager.getReference(PlatformUser.class,
                 tp.getUser().getKey());
 
-        Product productTemplate = dataManager.getReference(Product.class, product.getKey());
+        Product productTemplate = dataManager.getReference(Product.class,
+                product.getKey());
         checkIfSubscriptionAlreadyExists(productTemplate);
 
         UserGroup unit = getUnit(subscription.getUnitKey(),
@@ -5516,11 +5519,15 @@ public class SubscriptionServiceBean
     }
 
     @Override
-    @RolesAllowed({ "ORGANIZATION_ADMIN", "SUBSCRIPTION_MANAGER", "UNIT_ADMINISTRATOR" })
-    public boolean unsubscribeFromService(Long key) throws ObjectNotFoundException, SubscriptionStillActiveException,
-            SubscriptionStateException, TechnicalServiceNotAliveException, TechnicalServiceOperationException,
-            OperationPendingException, OperationNotPermittedException {
-        Subscription mySubscriptionDetails = getMySubscriptionDetails(key.longValue());
+    @RolesAllowed({ "ORGANIZATION_ADMIN", "SUBSCRIPTION_MANAGER",
+            "UNIT_ADMINISTRATOR" })
+    public boolean unsubscribeFromService(Long key)
+            throws ObjectNotFoundException, SubscriptionStillActiveException,
+            SubscriptionStateException, TechnicalServiceNotAliveException,
+            TechnicalServiceOperationException, OperationPendingException,
+            OperationNotPermittedException {
+        Subscription mySubscriptionDetails = getMySubscriptionDetails(key
+                .longValue());
         return unsubscribeFromService(mySubscriptionDetails.getSubscriptionId());
     }
 }
