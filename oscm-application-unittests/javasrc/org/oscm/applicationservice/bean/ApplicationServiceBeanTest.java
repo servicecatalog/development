@@ -1485,7 +1485,7 @@ public class ApplicationServiceBeanTest {
 
         am.saveAttributes(sub);
 
-        assertEquals(2, AttributeFilter.getServiceParameterList(sub).size());
+        assertEquals(2, AttributeFilter.getCustomAttributeList(sub).size());
 
     }
 

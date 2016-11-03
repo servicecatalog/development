@@ -25,7 +25,7 @@ import javax.persistence.TypedQuery;
 
 import org.oscm.app.business.exceptions.BadResultException;
 import org.oscm.app.domain.ConfigurationSetting;
-import org.oscm.app.domain.CustomSetting;
+import org.oscm.app.domain.CustomAttribute;
 import org.oscm.app.domain.InstanceParameter;
 import org.oscm.app.domain.PlatformConfigurationKey;
 import org.oscm.app.domain.ServiceInstance;
@@ -282,7 +282,7 @@ public class APPConfigurationServiceBean {
     }
 
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
-    public HashMap<String, String> getCustomSettings(String organizationId)
+    public HashMap<String, String> getCustomAttributes(String organizationId)
             throws ConfigurationException {
 
         LOGGER.debug("Retrieving custom settings for organization '{}'",
@@ -291,13 +291,13 @@ public class APPConfigurationServiceBean {
         HashMap<String, String> result = new HashMap<>();
 
         if (organizationId != null) {
-            TypedQuery<CustomSetting> query = em.createNamedQuery(
-                    "CustomSetting.getForOrg", CustomSetting.class);
+            TypedQuery<CustomAttribute> query = em.createNamedQuery(
+                    "CustomAttributes.getForOrg", CustomAttribute.class);
             query.setParameter("organizationId", organizationId);
-            List<CustomSetting> resultList = query.getResultList();
+            List<CustomAttribute> resultList = query.getResultList();
             try {
-                for (CustomSetting entry : resultList) {
-                    result.put(entry.getSettingKey(),
+                for (CustomAttribute entry : resultList) {
+                    result.put(entry.getAttributeKey(),
                             entry.getDecryptedValue());
                 }
             } catch (BadResultException e) {
@@ -381,15 +381,17 @@ public class APPConfigurationServiceBean {
             throws BadResultException, ConfigurationException {
         final HashMap<String, String> controllerSettings = getControllerConfigurationSettings(
                 instance.getControllerId());
-        final HashMap<String, String> customSettings = getCustomSettings(
+        final HashMap<String, String> customAttributes = getCustomAttributes(
                 instance.getOrganizationId());
         final ProvisioningSettings settings = new ProvisioningSettings(
-                instance.getParameterMap(), customSettings, controllerSettings,
+                instance.getParameterMap(), instance.getAttributeMap(),
+                customAttributes, controllerSettings,
                 instance.getDefaultLocale());
 
         settings.setOrganizationId(instance.getOrganizationId());
         settings.setOrganizationName(instance.getOrganizationName());
         settings.setSubscriptionId(instance.getSubscriptionId());
+        settings.setReferenceId(instance.getReferenceId());
         settings.setBesLoginUrl(instance.getBesLoginURL());
         settings.setRequestingUser(requestingUser);
         settings.setAuthentication(

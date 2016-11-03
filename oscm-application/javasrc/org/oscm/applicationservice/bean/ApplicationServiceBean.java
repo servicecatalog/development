@@ -54,6 +54,7 @@ import org.oscm.provisioning.data.BaseResult;
 import org.oscm.provisioning.data.InstanceInfo;
 import org.oscm.provisioning.data.InstanceRequest;
 import org.oscm.provisioning.data.InstanceResult;
+import org.oscm.provisioning.data.ServiceAttribute;
 import org.oscm.provisioning.data.ServiceParameter;
 import org.oscm.provisioning.data.User;
 import org.oscm.provisioning.data.UserResult;
@@ -186,11 +187,14 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
 
         List<ServiceParameter> serviceParameterList = ParameterFilter
                 .getServiceParameterList(subscription, true);
+        List<ServiceAttribute> serviceAttributeList = AttributeFilter
+                .getCustomAttributeList(subscription);
         try {
             BaseResult result = getPort(subscription).modifySubscription(
                     subscription.getProductInstanceId(),
-                    subscription.getSubscriptionId(), serviceParameterList,
-                    getCurrentUser());
+                    subscription.getSubscriptionId(),
+                    subscription.getPurchaseOrderNumber(), serviceParameterList,
+                    serviceAttributeList, getCurrentUser());
             verifyResult(subscription, result);
         } catch (TechnicalServiceOperationException
                 | TechnicalServiceNotAliveException e) {
@@ -803,11 +807,14 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
 
         List<ServiceParameter> serviceParameterList = ParameterFilter
                 .getServiceParameterList(product, true);
+        List<ServiceAttribute> serviceAttributeList = AttributeFilter
+                .getCustomAttributeList(subscription);
         try {
             BaseResult result = getPort(subscription).asyncModifySubscription(
                     subscription.getProductInstanceId(),
-                    subscription.getSubscriptionId(), serviceParameterList,
-                    getCurrentUser());
+                    subscription.getSubscriptionId(),
+                    subscription.getPurchaseOrderNumber(), serviceParameterList,
+                    serviceAttributeList, getCurrentUser());
             verifyResult(subscription, result);
         } catch (TechnicalServiceOperationException
                 | TechnicalServiceNotAliveException e) {
@@ -828,11 +835,14 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
             TechnicalServiceOperationException {
         List<ServiceParameter> serviceParameterList = ParameterFilter
                 .getServiceParameterList(product, false);
+        List<ServiceAttribute> serviceAttributeList = AttributeFilter
+                .getCustomAttributeList(subscription);
         try {
             BaseResult result = getPort(subscription).asyncUpgradeSubscription(
                     subscription.getProductInstanceId(),
-                    subscription.getSubscriptionId(), serviceParameterList,
-                    getCurrentUser());
+                    subscription.getSubscriptionId(),
+                    subscription.getPurchaseOrderNumber(), serviceParameterList,
+                    serviceAttributeList, getCurrentUser());
             verifyResult(subscription, result);
         } catch (TechnicalServiceOperationException
                 | TechnicalServiceNotAliveException e) {
@@ -854,11 +864,14 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
             TechnicalServiceOperationException {
         List<ServiceParameter> serviceParameterList = ParameterFilter
                 .getServiceParameterList(subscription, false);
+        List<ServiceAttribute> serviceAttributeList = AttributeFilter
+                .getCustomAttributeList(subscription);
         try {
             BaseResult result = getPort(subscription).upgradeSubscription(
                     subscription.getProductInstanceId(),
-                    subscription.getSubscriptionId(), serviceParameterList,
-                    getCurrentUser());
+                    subscription.getSubscriptionId(),
+                    subscription.getPurchaseOrderNumber(), serviceParameterList,
+                    serviceAttributeList, getCurrentUser());
             verifyResult(subscription, result);
         } catch (TechnicalServiceOperationException
                 | TechnicalServiceNotAliveException e) {
@@ -946,7 +959,7 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
 
         try {
             getPort(subscription).saveAttributes(organizationId,
-                    AttributeFilter.getServiceParameterList(subscription),
+                    AttributeFilter.getCustomAttributeList(subscription),
                     getCurrentUser());
 
         } catch (TechnicalServiceNotAliveException e) {

@@ -199,8 +199,9 @@ public class ProvisioningServicePortStub implements ProvisioningServiceAdapter {
 
     @Override
     public BaseResult modifySubscription(String instanceId,
-            String subscriptionId, List<ServiceParameter> parameterValues,
-            User requestingUser) {
+            String subscriptionId, String referenceId,
+            List<ServiceParameter> parameterValues,
+            List<ServiceAttribute> attributeValues, User requestingUser) {
         this.instanceId = instanceId;
         checkThrowError();
         setParameters(parameterValues);
@@ -271,8 +272,9 @@ public class ProvisioningServicePortStub implements ProvisioningServiceAdapter {
 
     @Override
     public BaseResult asyncModifySubscription(String instanceId,
-            String subscriptionId, List<ServiceParameter> parameterValues,
-            User requestingUser) {
+            String subscriptionId, String referenceId,
+            List<ServiceParameter> parameterValues,
+            List<ServiceAttribute> attributeValues, User requestingUser) {
         this.instanceId = instanceId;
         checkThrowError();
         setParameters(parameterValues);
@@ -282,8 +284,9 @@ public class ProvisioningServicePortStub implements ProvisioningServiceAdapter {
 
     @Override
     public BaseResult asyncUpgradeSubscription(String instanceId,
-            String subscriptionId, List<ServiceParameter> parameterValues,
-            User requestingUser) {
+            String subscriptionId, String referenceId,
+            List<ServiceParameter> parameterValues,
+            List<ServiceAttribute> attributeValues, User requestingUser) {
         this.instanceId = instanceId;
         checkThrowError();
         setParameters(parameterValues);
@@ -293,8 +296,9 @@ public class ProvisioningServicePortStub implements ProvisioningServiceAdapter {
 
     @Override
     public BaseResult upgradeSubscription(String instanceId,
-            String subscriptionId, List<ServiceParameter> parameterValues,
-            User requestingUser) {
+            String subscriptionId, String referenceId,
+            List<ServiceParameter> parameterValues,
+            List<ServiceAttribute> attributeValues, User requestingUser) {
         this.instanceId = instanceId;
         checkThrowError();
         setParameters(parameterValues);

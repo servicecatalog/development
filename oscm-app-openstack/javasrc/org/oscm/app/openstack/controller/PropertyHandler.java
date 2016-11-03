@@ -89,9 +89,6 @@ public class PropertyHandler {
     // Start time of operation
     public static final String START_TIME = "START_TIME";
 
-    // Attributes to overwrite credentials
-    public static final String OPENSTACK_ATTRIBUTE_PREFIX = "OPENSTACK_";
-
     /**
      * Default constructor.
      *
@@ -142,8 +139,7 @@ public class PropertyHandler {
      * @return the name of the stack
      */
     public String getStackName() {
-        return getOverwrittenProperty(settings.getParameters(), STACK_NAME,
-                true);
+        return getValidatedProperty(settings.getParameters(), STACK_NAME);
     }
 
     public void setStackName(String stackName) {
@@ -156,8 +152,7 @@ public class PropertyHandler {
      * @return the regular expression
      */
     public String getStackNamePattern() {
-        return getOverwrittenProperty(settings.getParameters(),
-                STACK_NAME_PATTERN, false);
+        return settings.getParameters().get(STACK_NAME_PATTERN);
     }
 
     /**
@@ -166,8 +161,7 @@ public class PropertyHandler {
      * @return the id of the stack
      */
     public String getStackId() {
-        return getOverwrittenProperty(settings.getParameters(), STACK_ID,
-                false);
+        return settings.getParameters().get(STACK_ID);
     }
 
     public void setStackId(String stackId) {
@@ -181,8 +175,8 @@ public class PropertyHandler {
      * @return the access information pattern
      */
     public String getAccessInfoPattern() {
-        return getOverwrittenProperty(settings.getParameters(),
-                ACCESS_INFO_PATTERN, true);
+        return getValidatedProperty(settings.getParameters(),
+                ACCESS_INFO_PATTERN);
     }
 
     /**
@@ -193,26 +187,14 @@ public class PropertyHandler {
     public String getTemplateUrl() throws HeatException {
 
         try {
-<<<<<<< cf2913781d331aac796405fbf9d6203680dc32db
             String url = getValidatedProperty(settings.getParameters(),
                     TEMPLATE_NAME);
-<<<<<<< 8085f023f5609892c35f54b1f182816d13a1e95e
 
             String baseUrl = settings.getParameters().get(TEMPLATE_BASE_URL);
             if (baseUrl == null || baseUrl.trim().length() == 0) {
                 baseUrl = getValidatedProperty(settings.getConfigSettings(),
                         TEMPLATE_BASE_URL);
             }
-=======
-            String baseUrl = getValidatedProperty(settings.getConfigSettings(),
-                    TEMPLATE_BASE_URL);
->>>>>>> adapt app and controller for user attributes via custom settings
-=======
-            String url = getOverwrittenProperty(settings.getParameters(),
-                    TEMPLATE_NAME, true);
-            String baseUrl = getOverwrittenProperty(
-                    settings.getConfigSettings(), TEMPLATE_BASE_URL, true);
->>>>>>> replace all possible controller settings and add webservice to save
             return new URL(new URL(baseUrl), url).toExternalForm();
         } catch (MalformedURLException e) {
             throw new HeatException(
@@ -228,8 +210,7 @@ public class PropertyHandler {
      * @return the domain name
      */
     public String getDomainName() {
-        String domain = getOverwrittenProperty(settings.getParameters(),
-                DOMAIN_NAME, false);
+        String domain = settings.getParameters().get(DOMAIN_NAME);
         if (domain == null || domain.trim().length() == 0) {
             domain = settings.getConfigSettings().get(DOMAIN_NAME);
             if (domain == null || domain.trim().length() == 0) {
@@ -247,8 +228,7 @@ public class PropertyHandler {
                 try {
                     parameters.put(
                             key.substring(TEMPLATE_PARAMETER_PREFIX.length()),
-                            getOverwrittenProperty(settings.getParameters(),
-                                    key, false));
+                            settings.getParameters().get(key));
                 } catch (JSONException e) {
                     // should not happen with Strings
                     throw new RuntimeException(
@@ -261,44 +241,24 @@ public class PropertyHandler {
     }
 
     /**
-     * Reads the requested property from the given source. If the key exists
-     * with the corresponding prefix as attribute it will be read instead. If
-     * validate is true and no value can be found, a RuntimeException will be
-     * thrown.
+     * Reads the requested property from the available parameters. If no value
+     * can be found, a RuntimeException will be thrown.
      *
      * @param sourceProps
      *            The property object to take the settings from
      * @param key
      *            The key to retrieve the setting for
-     * @param validate
-     *            The flag for the validation of the value
      * @return the parameter value corresponding to the provided key
      */
-    private String getOverwrittenProperty(Map<String, String> sourceProps,
-            String key, boolean validate) {
-
-        String value = null;
-
-        if (settings.getAttributes()
-                .containsKey(OPENSTACK_ATTRIBUTE_PREFIX + key)) {
-            value = settings.getAttributes()
-                    .get(OPENSTACK_ATTRIBUTE_PREFIX + key);
-
-            if (value.trim().length() == 0) {
-                value = sourceProps.get(key);
-            }
-
-        } else {
-            value = sourceProps.get(key);
-        }
-
-        if (value == null && validate) {
+    private String getValidatedProperty(Map<String, String> sourceProps,
+            String key) {
+        String value = sourceProps.get(key);
+        if (value == null) {
             String message = String.format("No value set for property '%s'",
                     key);
             LOGGER.error(message);
             throw new RuntimeException(message);
         }
-
         return value;
     }
 
@@ -310,22 +270,21 @@ public class PropertyHandler {
      */
     public String getKeystoneUrl() {
 
-        String keystoneURL = getOverwrittenProperty(settings.getParameters(),KEYSTONE_API_URL, false);
+        String keystoneURL = settings.getParameters().get(KEYSTONE_API_URL);
         if (keystoneURL == null || keystoneURL.trim().length() == 0) {
-            keystoneURL = getOverwrittenProperty(settings.getConfigSettings(),
-                    KEYSTONE_API_URL,true);
+            keystoneURL = getValidatedProperty(settings.getConfigSettings(),
+                    KEYSTONE_API_URL);
         }
         return keystoneURL;
     }
 
     /**
-     * Returns the configured or overwritten password for API usage.
+     * Returns the configured password for API usage.
      *
      * @return the password
      */
     public String getPassword() {
-        return getOverwrittenProperty(settings.getConfigSettings(),
-                API_USER_PWD, true);
+        return getValidatedProperty(settings.getConfigSettings(), API_USER_PWD);
     }
 
     /**
@@ -334,8 +293,8 @@ public class PropertyHandler {
      * @return the user name
      */
     public String getUserName() {
-        return getOverwrittenProperty(settings.getConfigSettings(),
-                API_USER_NAME, true);
+        return getValidatedProperty(settings.getConfigSettings(),
+                API_USER_NAME);
     }
 
     /**
@@ -345,8 +304,7 @@ public class PropertyHandler {
      * @return the mail address or <code>null</code> if no events are required
      */
     public String getMailForCompletion() {
-        String value = getOverwrittenProperty(settings.getParameters(),
-                MAIL_FOR_COMPLETION, false);
+        String value = settings.getParameters().get(MAIL_FOR_COMPLETION);
         if (value == null || value.trim().length() == 0) {
             value = null;
         }
@@ -412,8 +370,8 @@ public class PropertyHandler {
     public String getTenantId() {
         String tenant = settings.getParameters().get(TENANT_ID);
         if (tenant == null || tenant.trim().length() == 0) {
-            tenant = getOverwrittenProperty(settings.getConfigSettings(),
-                    TENANT_ID, true);
+            tenant = getValidatedProperty(settings.getConfigSettings(),
+                    TENANT_ID);
         }
         return tenant;
     }

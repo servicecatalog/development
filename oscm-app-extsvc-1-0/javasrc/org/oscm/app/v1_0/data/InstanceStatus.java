@@ -25,6 +25,7 @@ public class InstanceStatus implements Serializable {
     private boolean instanceProvisioningRequested = false;
     private List<LocalizedText> description;
     private HashMap<String, String> parameters;
+    private HashMap<String, String> attributes;
 
     private String baseUrl;
     private String accessInfo;
@@ -98,7 +99,8 @@ public class InstanceStatus implements Serializable {
      * <code>APPlatformService</code>.<br>
      * <code><i>instance_id</i></code> is the ID of the relevant application
      * instance.<br>
-     * <code><i>controller_id</i></code> is the ID of the service controller.<br>
+     * <code><i>controller_id</i></code> is the ID of the service
+     * controller.<br>
      * <code><i>options</i></code> are optional commands or parameters to be
      * passed to the controller.<br>
      * Example:<br>
@@ -195,6 +197,27 @@ public class InstanceStatus implements Serializable {
     }
 
     /**
+     * Returns the attributes of the application instance that are to be
+     * persisted as instance information by APP.
+     * 
+     * @return the attributes to store, consisting of a key and a value each
+     */
+    public HashMap<String, String> getChangedAttributes() {
+        return attributes;
+    }
+
+    /**
+     * Sets the attributes of the application instance that are to be persisted
+     * as instance information by APP.
+     * 
+     * @param attributes
+     *            the attributes to store, consisting of a key and a value each
+     */
+    public void setChangedAttributes(HashMap<String, String> attributes) {
+        this.attributes = attributes;
+    }
+
+    /**
      * Retrieves the URL of the application's remote interface.
      * 
      * @return the URL
@@ -211,7 +234,8 @@ public class InstanceStatus implements Serializable {
      *            the URL of the application<br>
      *            Be aware that internet domain names must follow the following
      *            rules: <br>
-     *            They must start with a letter and end with a letter or number.<br>
+     *            They must start with a letter and end with a letter or
+     *            number.<br>
      *            They may contain letters, numbers, or hyphens only. Special
      *            characters are not allowed.<br>
      *            They may consist of a maximum of 63 characters.

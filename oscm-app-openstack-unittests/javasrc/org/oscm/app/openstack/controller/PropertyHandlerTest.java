@@ -13,7 +13,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.util.HashMap;
 import java.util.List;
@@ -29,7 +28,6 @@ import org.oscm.app.v1_0.data.ProvisioningSettings;
 public class PropertyHandlerTest {
 
     private HashMap<String, String> parameters;
-    private HashMap<String, String> attributes;
     private HashMap<String, String> configSettings;
     private ProvisioningSettings settings;
     private PropertyHandler propertyHandler;
@@ -37,10 +35,8 @@ public class PropertyHandlerTest {
     @Before
     public void setUp() {
         parameters = new HashMap<>();
-        attributes = new HashMap<>();
         configSettings = new HashMap<>();
-        settings = new ProvisioningSettings(parameters, attributes,
-                configSettings, "en");
+        settings = new ProvisioningSettings(parameters, configSettings, "en");
         propertyHandler = new PropertyHandler(settings);
     }
 
@@ -364,37 +360,5 @@ public class PropertyHandlerTest {
         // then
         assertEquals(timeStr, null);
 
-    }
-
-    @Test
-    public void testOverwrittenProperty_overwrite() {
-        attributes.put(PropertyHandler.OPENSTACK_ATTRIBUTE_PREFIX
-                + PropertyHandler.STACK_NAME, "db1");
-        parameters.put(PropertyHandler.STACK_NAME, "db2");
-        propertyHandler = new PropertyHandler(settings);
-        String instanceName = propertyHandler.getStackName();
-        assertEquals("db1", instanceName);
-    }
-
-    @Test
-    public void testOverwrittenProperty_empty() {
-        attributes.put(PropertyHandler.OPENSTACK_ATTRIBUTE_PREFIX
-                + PropertyHandler.STACK_NAME, " ");
-        parameters.put(PropertyHandler.STACK_NAME, "db2");
-        propertyHandler = new PropertyHandler(settings);
-        String instanceName = propertyHandler.getStackName();
-        assertEquals("db2", instanceName);
-    }
-
-    @Test
-    public void testOverwrittenProperty_validate() {
-        parameters.put(PropertyHandler.STACK_NAME, null);
-        propertyHandler = new PropertyHandler(settings);
-
-        try {
-            propertyHandler.getStackName();
-            fail();
-        } catch (RuntimeException e) {
-        }
     }
 }

@@ -27,9 +27,11 @@ public class ProvisioningSettings extends ControllerSettings
     private String locale;
     private HashMap<String, String> parameters;
     private HashMap<String, String> attributes;
+    private HashMap<String, String> customAttributes;
     private String organizationId;
     private String organizationName;
     private String subscriptionId;
+    private String referenceId;
     private String besLoginURL;
     private ServiceUser requestingUser;
 
@@ -57,13 +59,15 @@ public class ProvisioningSettings extends ControllerSettings
 
     /**
      * Constructs a new provisioning settings instance with the given service
-     * parameters, attributes and controller configuration settings. The
-     * specified locale is used for language-dependent strings.
+     * parameters, attributes, custom settings and controller configuration
+     * settings. The specified locale is used for language-dependent strings.
      * 
      * @param parameters
      *            the service parameters, consisting of a key and a value each
      * @param attributes
      *            the service attributes, consisting of a key and a value each
+     * @param customSettings
+     *            the custom settings, consisting of a key and a value each
      * @param configSettings
      *            the configuration settings, consisting of a key and a value
      *            each
@@ -73,11 +77,13 @@ public class ProvisioningSettings extends ControllerSettings
      */
     public ProvisioningSettings(HashMap<String, String> parameters,
             HashMap<String, String> attributes,
+            HashMap<String, String> customSettings,
             HashMap<String, String> configSettings, String locale) {
         super(configSettings);
         this.parameters = parameters;
         this.locale = locale;
         this.attributes = attributes;
+        this.customAttributes = customSettings;
     }
 
     /**
@@ -100,22 +106,41 @@ public class ProvisioningSettings extends ControllerSettings
     }
 
     /**
-     * Returns a list of the service attributes.
+     * Returns a list of the instance attributes.
      * 
-     * @return the service attributes, consisting of a key and a value each
+     * @return the instance attributes, consisting of a key and a value each
      */
     public HashMap<String, String> getAttributes() {
         return attributes;
     }
 
     /**
-     * Sets the service attributes.
+     * Sets the instance attributes.
      * 
      * @param parameters
-     *            the service attributes, consisting of a key and a value each
+     *            the instance attributes, consisting of a key and a value each
      */
     public void setAttributes(HashMap<String, String> attributes) {
         this.attributes = attributes;
+    }
+
+    /**
+     * Returns a list of the custom attributes.
+     * 
+     * @return the custom attributes, consisting of a key and a value each
+     */
+    public HashMap<String, String> getCustomAttributes() {
+        return customAttributes;
+    }
+
+    /**
+     * Sets the custom attributes.
+     * 
+     * @param customAttributes
+     *            the custom attributes, consisting of a key and a value each
+     */
+    public void setCustomAttributes(HashMap<String, String> customAttributes) {
+        this.customAttributes = customAttributes;
     }
 
     /**
@@ -200,6 +225,25 @@ public class ProvisioningSettings extends ControllerSettings
      */
     public void setSubscriptionId(String subscriptionId) {
         this.subscriptionId = subscriptionId;
+    }
+
+    /**
+     * Returns the id specified by the customer to refer to the subscription.
+     * 
+     * @return the referenceId
+     */
+    public String getReferenceId() {
+        return referenceId;
+    }
+
+    /**
+     * Sets the id specified by the customer to refer to the subscription.
+     * 
+     * @param referenceId
+     *            the referenceId to set
+     */
+    public void setReferenceId(String referenceId) {
+        this.referenceId = referenceId;
     }
 
     /**

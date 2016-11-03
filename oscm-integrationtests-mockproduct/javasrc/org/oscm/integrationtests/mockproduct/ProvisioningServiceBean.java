@@ -171,12 +171,15 @@ public class ProvisioningServiceBean implements ProvisioningService {
 
     @Override
     public BaseResult modifySubscription(String instanceId,
-            String subscriptionId, List<ServiceParameter> parameterValues,
-            User requestingUser) {
+            String subscriptionId, String referenceId,
+            List<ServiceParameter> parameterValues,
+            List<ServiceAttribute> attributeValues, User requestingUser) {
         final RequestLogEntry entry = createLogEntry("modifySubscription");
         entry.addParameter("instanceId", instanceId);
         entry.addParameter("subscriptionId", subscriptionId);
+        entry.addParameter("referenceId", referenceId);
         entry.addParameter("parameterValues", parameterValues);
+        entry.addParameter("attributeValues", attributeValues);
         entry.addParameter("requestingUser", requestingUser);
 
         return getBaseResultOk();
@@ -212,12 +215,15 @@ public class ProvisioningServiceBean implements ProvisioningService {
 
     @Override
     public BaseResult asyncModifySubscription(String instanceId,
-            String subscriptionId, List<ServiceParameter> parameterValues,
-            User requestingUser) {
+            String subscriptionId, String referenceId,
+            List<ServiceParameter> parameterValues,
+            List<ServiceAttribute> attributeValues, User requestingUser) {
         final RequestLogEntry entry = createLogEntry("asyncModifySubscription");
         entry.addParameter("instanceId", instanceId);
         entry.addParameter("subscriptionId", subscriptionId);
+        entry.addParameter("referenceId", referenceId);
         entry.addParameter("parameterValues", parameterValues);
+        entry.addParameter("attributeValues", attributeValues);
         entry.addParameter("requestingUser", requestingUser);
         final QuickLink link1 = entry.addQuickLink("abort",
                 "SubscriptionService.abortAsyncModifySubscription");
@@ -233,13 +239,16 @@ public class ProvisioningServiceBean implements ProvisioningService {
 
     @Override
     public BaseResult asyncUpgradeSubscription(String instanceId,
-            String subscriptionId, List<ServiceParameter> parameterValues,
-            User requestingUser) {
+            String subscriptionId, String referenceId,
+            List<ServiceParameter> parameterValues,
+            List<ServiceAttribute> attributeValues, User requestingUser) {
         final RequestLogEntry entry = createLogEntry(
                 "asyncUpgradeSubscription");
         entry.addParameter("instanceId", instanceId);
         entry.addParameter("subscriptionId", subscriptionId);
+        entry.addParameter("referenceId", referenceId);
         entry.addParameter("parameterValues", parameterValues);
+        entry.addParameter("attributeValues", attributeValues);
         entry.addParameter("requestingUser", requestingUser);
         final QuickLink link1 = entry.addQuickLink("abort",
                 "SubscriptionService.abortAsyncUpgradeSubscription");
@@ -255,12 +264,15 @@ public class ProvisioningServiceBean implements ProvisioningService {
 
     @Override
     public BaseResult upgradeSubscription(String instanceId,
-            String subscriptionId, List<ServiceParameter> parameterValues,
-            User requestingUser) {
+            String subscriptionId, String referenceId,
+            List<ServiceParameter> parameterValues,
+            List<ServiceAttribute> attributeValues, User requestingUser) {
         final RequestLogEntry entry = createLogEntry("upgradeSubscription");
         entry.addParameter("instanceId", instanceId);
         entry.addParameter("subscriptionId", subscriptionId);
+        entry.addParameter("referenceId", referenceId);
         entry.addParameter("parameterValues", parameterValues);
+        entry.addParameter("attributeValues", attributeValues);
         entry.addParameter("requestingUser", requestingUser);
         return getBaseResultOk();
     }

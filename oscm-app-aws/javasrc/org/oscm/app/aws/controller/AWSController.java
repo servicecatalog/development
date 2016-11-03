@@ -83,6 +83,7 @@ public class AWSController implements APPlatformController {
             InstanceDescription id = new InstanceDescription();
             id.setInstanceId("aws-" + UUID.randomUUID().toString());
             id.setChangedParameters(settings.getParameters());
+            id.setChangedAttributes(settings.getAttributes());
             LOGGER.info("createInstance({})", LogAndExceptionConverter
                     .getLogText(id.getInstanceId(), settings));
             return id;
@@ -122,6 +123,7 @@ public class AWSController implements APPlatformController {
 
             InstanceStatus result = new InstanceStatus();
             result.setChangedParameters(settings.getParameters());
+            result.setChangedAttributes(settings.getAttributes());
             return result;
         } catch (Throwable t) {
             throw LogAndExceptionConverter.createAndLogPlatformException(t,
@@ -163,6 +165,7 @@ public class AWSController implements APPlatformController {
 
             InstanceStatus result = new InstanceStatus();
             result.setChangedParameters(newSettings.getParameters());
+            result.setChangedAttributes(newSettings.getAttributes());
             return result;
         } catch (Throwable t) {
             throw LogAndExceptionConverter.createAndLogPlatformException(t,
@@ -282,6 +285,7 @@ public class AWSController implements APPlatformController {
 
             InstanceStatus result = new InstanceStatus();
             result.setChangedParameters(settings.getParameters());
+            result.setChangedAttributes(settings.getAttributes());
             return result;
         } catch (Throwable t) {
             throw LogAndExceptionConverter.createAndLogPlatformException(t,
@@ -320,6 +324,7 @@ public class AWSController implements APPlatformController {
 
             InstanceStatus result = new InstanceStatus();
             result.setChangedParameters(settings.getParameters());
+            result.setChangedAttributes(settings.getAttributes());
             return result;
         } catch (Throwable t) {
             throw LogAndExceptionConverter.createAndLogPlatformException(t,
@@ -425,6 +430,7 @@ public class AWSController implements APPlatformController {
                 status.setRunWithTimer(true);
                 status.setIsReady(false);
                 status.setChangedParameters(settings.getParameters());
+                status.setChangedAttributes(settings.getAttributes());
             }
             return status;
         } catch (Throwable t) {
@@ -508,6 +514,7 @@ public class AWSController implements APPlatformController {
         status.setRunWithTimer(true);
         status.setDescription(getProvisioningStatusText(propertyHandler));
         status.setChangedParameters(settings.getParameters());
+        status.setChangedAttributes(settings.getAttributes());
         return status;
     }
 

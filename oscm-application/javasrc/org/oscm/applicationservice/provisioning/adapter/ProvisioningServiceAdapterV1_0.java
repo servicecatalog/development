@@ -79,10 +79,11 @@ public class ProvisioningServiceAdapterV1_0
 
     @Override
     public BaseResult modifySubscription(String instanceId,
-            String subscriptionId, List<ServiceParameter> parameterValues,
-            User requestingUser) {
+            String subscriptionId, String referenceId,
+            List<ServiceParameter> parameterValues,
+            List<ServiceAttribute> attributeValues, User requestingUser) {
         return service.modifySubscription(instanceId, subscriptionId,
-                parameterValues, requestingUser);
+                referenceId, parameterValues, attributeValues, requestingUser);
     }
 
     @Override
@@ -104,26 +105,29 @@ public class ProvisioningServiceAdapterV1_0
 
     @Override
     public BaseResult asyncModifySubscription(String instanceId,
-            String subscriptionId, List<ServiceParameter> parameterValues,
-            User requestingUser) {
+            String subscriptionId, String referenceId,
+            List<ServiceParameter> parameterValues,
+            List<ServiceAttribute> attributeValues, User requestingUser) {
         return service.asyncModifySubscription(instanceId, subscriptionId,
-                parameterValues, requestingUser);
+                referenceId, parameterValues, attributeValues, requestingUser);
     }
 
     @Override
     public BaseResult asyncUpgradeSubscription(String instanceId,
-            String subscriptionId, List<ServiceParameter> parameterValues,
-            User requestingUser) {
+            String subscriptionId, String referenceId,
+            List<ServiceParameter> parameterValues,
+            List<ServiceAttribute> attributeValues, User requestingUser) {
         return service.asyncUpgradeSubscription(instanceId, subscriptionId,
-                parameterValues, requestingUser);
+                referenceId, parameterValues, attributeValues, requestingUser);
     }
 
     @Override
     public BaseResult upgradeSubscription(String instanceId,
-            String subscriptionId, List<ServiceParameter> parameterValues,
-            User requestingUser) {
+            String subscriptionId, String referenceId,
+            List<ServiceParameter> parameterValues,
+            List<ServiceAttribute> attributeValues, User requestingUser) {
         return service.upgradeSubscription(instanceId, subscriptionId,
-                parameterValues, requestingUser);
+                referenceId, parameterValues, attributeValues, requestingUser);
     }
 
     @Override

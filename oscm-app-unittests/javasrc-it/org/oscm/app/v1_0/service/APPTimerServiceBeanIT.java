@@ -67,6 +67,7 @@ import org.oscm.operation.data.OperationResult;
 import org.oscm.provisioning.data.InstanceInfo;
 import org.oscm.provisioning.data.InstanceRequest;
 import org.oscm.provisioning.data.InstanceResult;
+import org.oscm.provisioning.data.ServiceAttribute;
 import org.oscm.provisioning.data.ServiceParameter;
 import org.oscm.provisioning.data.User;
 import org.oscm.provisioning.intf.ProvisioningService;
@@ -117,11 +118,11 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
                 .mock(ProductProvisioningServiceFactoryBean.class));
 
         provService = mock(ProvisioningService.class);
-        doReturn(provService).when(provFactoryBean).getInstance(
-                any(ServiceInstance.class));
+        doReturn(provService).when(provFactoryBean)
+                .getInstance(any(ServiceInstance.class));
 
-        container.addBean(mailService = Mockito
-                .mock(APPCommunicationServiceBean.class));
+        container.addBean(
+                mailService = Mockito.mock(APPCommunicationServiceBean.class));
 
         container.addBean(besDAOMock = mock(BesDAO.class));
         doReturn(Arrays.asList(new VOUserDetails())).when(besDAOMock)
@@ -206,15 +207,15 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
         setControllerReady = true;
         createServiceInstance(ProvisioningStatus.WAITING_FOR_SYSTEM_CREATION,
                 InstanceParameter.PUBLIC_IP);
-        doReturn(getInstanceResult(0)).when(provService).createInstance(
-                any(InstanceRequest.class), any(User.class));
+        doReturn(getInstanceResult(0)).when(provService)
+                .createInstance(any(InstanceRequest.class), any(User.class));
 
         // when
         handleTimer();
 
         // then
-        verify(provFactoryBean, times(1)).getInstance(
-                any(ServiceInstance.class));
+        verify(provFactoryBean, times(1))
+                .getInstance(any(ServiceInstance.class));
         validateServiceInstanceStatus(ProvisioningStatus.COMPLETED);
     }
 
@@ -226,11 +227,11 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
         ServiceInstance si = createServiceInstance(
                 ProvisioningStatus.WAITING_FOR_SYSTEM_ACTIVATION,
                 InstanceParameter.PUBLIC_IP);
-        doReturn(getInstanceResult(0)).when(provService).activateInstance(
-                anyString(), any(User.class));
-        doThrow(new APPlatformException(ERROR_MESSAGE))
-                .when(controller)
-                .getInstanceStatus(anyString(), any(ProvisioningSettings.class));
+        doReturn(getInstanceResult(0)).when(provService)
+                .activateInstance(anyString(), any(User.class));
+        doThrow(new APPlatformException(ERROR_MESSAGE)).when(controller)
+                .getInstanceStatus(anyString(),
+                        any(ProvisioningSettings.class));
 
         // when
         handleTimer();
@@ -251,19 +252,20 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
         ServiceInstance si = createServiceInstance(
                 ProvisioningStatus.WAITING_FOR_SYSTEM_CREATION,
                 InstanceParameter.PUBLIC_IP);
-        doReturn(getInstanceResult(0)).when(provService).activateInstance(
-                anyString(), any(User.class));
-        doThrow(new SuspendException(ERROR_MESSAGE, RESPONSE_CODE)).when(
-                controller).getInstanceStatus(anyString(),
-                any(ProvisioningSettings.class));
+        doReturn(getInstanceResult(0)).when(provService)
+                .activateInstance(anyString(), any(User.class));
+        doThrow(new SuspendException(ERROR_MESSAGE, RESPONSE_CODE))
+                .when(controller).getInstanceStatus(anyString(),
+                        any(ProvisioningSettings.class));
 
         // when
         handleTimer();
 
         // then
-        String subject = Messages.get("en",
-                "mail_server_connect_error.subject", si.getSubscriptionId());
-        validateServiceInstanceStatus(ProvisioningStatus.WAITING_FOR_SYSTEM_CREATION);
+        String subject = Messages.get("en", "mail_server_connect_error.subject",
+                si.getSubscriptionId());
+        validateServiceInstanceStatus(
+                ProvisioningStatus.WAITING_FOR_SYSTEM_CREATION);
         verify(mailService, times(1)).sendMail(anyListOf(String.class),
                 eq(subject), anyString());
     }
@@ -276,11 +278,10 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
         ServiceInstance si = createServiceInstance(
                 ProvisioningStatus.WAITING_FOR_SYSTEM_DEACTIVATION,
                 InstanceParameter.PUBLIC_IP);
-        doReturn(getInstanceResult(0)).when(provService).activateInstance(
-                anyString(), any(User.class));
-        doThrow(new APPlatformException(""))
-                .when(controller)
-                .getInstanceStatus(anyString(), any(ProvisioningSettings.class));
+        doReturn(getInstanceResult(0)).when(provService)
+                .activateInstance(anyString(), any(User.class));
+        doThrow(new APPlatformException("")).when(controller).getInstanceStatus(
+                anyString(), any(ProvisioningSettings.class));
 
         // when
         handleTimer();
@@ -306,9 +307,10 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
         handleTimer();
 
         // then
-        verify(provFactoryBean, times(1)).getInstance(
-                any(ServiceInstance.class));
-        validateServiceInstanceStatus(ProvisioningStatus.WAITING_FOR_SYSTEM_CREATION);
+        verify(provFactoryBean, times(1))
+                .getInstance(any(ServiceInstance.class));
+        validateServiceInstanceStatus(
+                ProvisioningStatus.WAITING_FOR_SYSTEM_CREATION);
     }
 
     @Test
@@ -318,21 +320,20 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
                 InstanceParameter.PUBLIC_IP);
 
         InstanceStatus status = new InstanceStatus();
-        List<LocalizedText> list = new ArrayList<LocalizedText>();
+        List<LocalizedText> list = new ArrayList<>();
         list.add(new LocalizedText("en", "finished"));
         status.setDescription(list);
         status.setIsReady(true);
-        HashMap<String, String> parameters = new HashMap<String, String>();
+        HashMap<String, String> parameters = new HashMap<>();
         parameters.put(InstanceParameter.PUBLIC_IP, "4.3.2.1");
         status.setChangedParameters(parameters);
 
         OperationResult operationResult = new OperationResult();
         operationResult.setErrorMessage(null);
-        when(opBean.executeServiceOperationFromQueue(anyString())).thenReturn(
-                operationResult);
-        when(
-                controller.getInstanceStatus(matches("appInstanceId"),
-                        any(ProvisioningSettings.class))).thenReturn(status);
+        when(opBean.executeServiceOperationFromQueue(anyString()))
+                .thenReturn(operationResult);
+        when(controller.getInstanceStatus(matches("appInstanceId"),
+                any(ProvisioningSettings.class))).thenReturn(status);
 
         // when
         handleTimer();
@@ -371,21 +372,21 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
                 InstanceParameter.PUBLIC_IP);
 
         InstanceStatus status = new InstanceStatus();
-        List<LocalizedText> list = new ArrayList<LocalizedText>();
+        List<LocalizedText> list = new ArrayList<>();
         list.add(new LocalizedText("en", "finished"));
         status.setDescription(list);
         status.setIsReady(true);
         status.setChangedParameters(null);
         status.setInstanceProvisioningRequired(true);
-        when(
-                controller.getInstanceStatus(matches("appInstanceId"),
-                        any(ProvisioningSettings.class))).thenReturn(status);
+        when(controller.getInstanceStatus(matches("appInstanceId"),
+                any(ProvisioningSettings.class))).thenReturn(status);
 
         // when
         handleTimer();
 
         // then
-        validateServiceInstanceStatus(ProvisioningStatus.WAITING_FOR_SYSTEM_CREATION);
+        validateServiceInstanceStatus(
+                ProvisioningStatus.WAITING_FOR_SYSTEM_CREATION);
         validateServiceInstanceFlags(null, new Boolean[] { Boolean.TRUE },
                 new Boolean[] { Boolean.TRUE });
     }
@@ -406,10 +407,8 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
         status2.setIsReady(true);
         status2.setInstanceProvisioningRequired(false);
 
-        when(
-                controller.getInstanceStatus(anyString(),
-                        any(ProvisioningSettings.class))).thenReturn(status1,
-                status2);
+        when(controller.getInstanceStatus(anyString(),
+                any(ProvisioningSettings.class))).thenReturn(status1, status2);
 
         // when
         handleTimer();
@@ -417,8 +416,8 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
         handleTimer();
 
         // then
-        verify(provFactoryBean, timeout(1)).getInstance(
-                any(ServiceInstance.class));
+        verify(provFactoryBean, timeout(1))
+                .getInstance(any(ServiceInstance.class));
         validateServiceInstanceStatus(ProvisioningStatus.COMPLETED);
         validateServiceInstanceFlags(null, new Boolean[] { Boolean.FALSE },
                 new Boolean[] { Boolean.TRUE });
@@ -439,7 +438,8 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
 
         // then
         verify(provFactoryBean).getInstance(any(ServiceInstance.class));
-        validateServiceInstanceStatus(ProvisioningStatus.WAITING_FOR_SYSTEM_MODIFICATION);
+        validateServiceInstanceStatus(
+                ProvisioningStatus.WAITING_FOR_SYSTEM_MODIFICATION);
         validateServiceInstanceFlags(null, new Boolean[] { Boolean.FALSE },
                 new Boolean[] { Boolean.FALSE });
     }
@@ -459,8 +459,8 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
         handleTimer();
 
         // then
-        verify(provFactoryBean, times(1)).getInstance(
-                any(ServiceInstance.class));
+        verify(provFactoryBean, times(1))
+                .getInstance(any(ServiceInstance.class));
         validateServiceInstanceStatus(ProvisioningStatus.COMPLETED);
         validateServiceInstanceFlags(null, new Boolean[] { Boolean.FALSE },
                 new Boolean[] { Boolean.TRUE });
@@ -479,9 +479,10 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
         handleTimer();
 
         // then
-        verify(provFactoryBean, times(1)).getInstance(
-                any(ServiceInstance.class));
-        validateServiceInstanceStatus(ProvisioningStatus.WAITING_FOR_SYSTEM_DELETION);
+        verify(provFactoryBean, times(1))
+                .getInstance(any(ServiceInstance.class));
+        validateServiceInstanceStatus(
+                ProvisioningStatus.WAITING_FOR_SYSTEM_DELETION);
         validateServiceInstanceFlags(null, new Boolean[] { Boolean.FALSE },
                 new Boolean[] { Boolean.FALSE });
     }
@@ -494,15 +495,15 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
         setControllerReady = true;
         createServiceInstance(ProvisioningStatus.WAITING_FOR_SYSTEM_ACTIVATION,
                 InstanceParameter.PUBLIC_IP);
-        doReturn(getInstanceResult(0)).when(provService).activateInstance(
-                anyString(), any(User.class));
+        doReturn(getInstanceResult(0)).when(provService)
+                .activateInstance(anyString(), any(User.class));
 
         // when
         handleTimer();
 
         // then
-        verify(provFactoryBean, times(1)).getInstance(
-                any(ServiceInstance.class));
+        verify(provFactoryBean, times(1))
+                .getInstance(any(ServiceInstance.class));
         validateServiceInstanceStatus(ProvisioningStatus.COMPLETED);
         validateServiceInstanceFlags(null, new Boolean[] { Boolean.FALSE },
                 new Boolean[] { Boolean.TRUE });
@@ -521,9 +522,10 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
         handleTimer();
 
         // then
-        verify(provFactoryBean, times(1)).getInstance(
-                any(ServiceInstance.class));
-        validateServiceInstanceStatus(ProvisioningStatus.WAITING_FOR_SYSTEM_ACTIVATION);
+        verify(provFactoryBean, times(1))
+                .getInstance(any(ServiceInstance.class));
+        validateServiceInstanceStatus(
+                ProvisioningStatus.WAITING_FOR_SYSTEM_ACTIVATION);
         validateServiceInstanceFlags(null, new Boolean[] { Boolean.FALSE },
                 new Boolean[] { Boolean.FALSE });
     }
@@ -537,15 +539,15 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
         createServiceInstance(
                 ProvisioningStatus.WAITING_FOR_SYSTEM_DEACTIVATION,
                 InstanceParameter.PUBLIC_IP);
-        doReturn(getInstanceResult(0)).when(provService).deactivateInstance(
-                anyString(), any(User.class));
+        doReturn(getInstanceResult(0)).when(provService)
+                .deactivateInstance(anyString(), any(User.class));
 
         // when
         handleTimer();
 
         // then
-        verify(provFactoryBean, times(1)).getInstance(
-                any(ServiceInstance.class));
+        verify(provFactoryBean, times(1))
+                .getInstance(any(ServiceInstance.class));
         validateServiceInstanceStatus(ProvisioningStatus.COMPLETED);
         validateServiceInstanceFlags(null, new Boolean[] { Boolean.FALSE },
                 new Boolean[] { Boolean.TRUE });
@@ -565,9 +567,10 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
         handleTimer();
 
         // then
-        verify(provFactoryBean, times(1)).getInstance(
-                any(ServiceInstance.class));
-        validateServiceInstanceStatus(ProvisioningStatus.WAITING_FOR_SYSTEM_DEACTIVATION);
+        verify(provFactoryBean, times(1))
+                .getInstance(any(ServiceInstance.class));
+        validateServiceInstanceStatus(
+                ProvisioningStatus.WAITING_FOR_SYSTEM_DEACTIVATION);
         validateServiceInstanceFlags(null, new Boolean[] { Boolean.FALSE },
                 new Boolean[] { Boolean.FALSE });
     }
@@ -578,14 +581,14 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
         // given
         requestInstanceProvisioning = true;
         setControllerReady = true;
-        Map<String, String> params = new HashMap<String, String>();
+        Map<String, String> params = new HashMap<>();
         params.put(InstanceParameter.PUBLIC_IP, "1.2.3.4");
         params.put("subscriptionId", "sub1");
         params.put("instanceId", "inst1");
         createServiceInstance(ProvisioningStatus.WAITING_FOR_USER_CREATION,
                 params);
-        doReturn(getInstanceResult(0)).when(provService).createInstance(
-                any(InstanceRequest.class), any(User.class));
+        doReturn(getInstanceResult(0)).when(provService)
+                .createInstance(any(InstanceRequest.class), any(User.class));
 
         // when
         handleTimer();
@@ -593,15 +596,16 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
         // given
         requestInstanceProvisioning = true;
         setControllerReady = true;
-        params = new HashMap<String, String>();
+        params = new HashMap<>();
         params.put(InstanceParameter.PUBLIC_IP, "1.2.3.4");
         params.put("subscriptionId", "sub2");
         params.put("instanceId", "inst2");
         createServiceInstance(ProvisioningStatus.WAITING_FOR_USER_MODIFICATION,
                 params);
         doReturn(getInstanceResult(0)).when(provService).modifySubscription(
-                anyString(), anyString(), anyListOf(ServiceParameter.class),
-                any(User.class));
+                anyString(), anyString(), anyString(),
+                anyListOf(ServiceParameter.class),
+                anyListOf(ServiceAttribute.class), any(User.class));
 
         // when
         handleTimer();
@@ -609,7 +613,7 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
         // given
         requestInstanceProvisioning = true;
         setControllerReady = true;
-        params = new HashMap<String, String>();
+        params = new HashMap<>();
         params.put(InstanceParameter.PUBLIC_IP, "1.2.3.4");
         params.put("subscriptionId", "sub3");
         params.put("instanceId", "inst3");
@@ -622,13 +626,13 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
         handleTimer();
 
         // then
-        verify(provFactoryBean, times(3)).getInstance(
-                any(ServiceInstance.class));
+        verify(provFactoryBean, times(3))
+                .getInstance(any(ServiceInstance.class));
         validateServiceInstanceStatus(ProvisioningStatus.COMPLETED,
                 ProvisioningStatus.COMPLETED, ProvisioningStatus.COMPLETED);
-        validateServiceInstanceFlags(null, new Boolean[] { Boolean.FALSE,
-                Boolean.FALSE, Boolean.FALSE }, new Boolean[] { Boolean.TRUE,
-                Boolean.TRUE, Boolean.TRUE });
+        validateServiceInstanceFlags(null,
+                new Boolean[] { Boolean.FALSE, Boolean.FALSE, Boolean.FALSE },
+                new Boolean[] { Boolean.TRUE, Boolean.TRUE, Boolean.TRUE });
     }
 
     @Test
@@ -643,9 +647,10 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
         handleTimer();
 
         // then
-        verify(provFactoryBean, times(1)).getInstance(
-                any(ServiceInstance.class));
-        validateServiceInstanceStatus(ProvisioningStatus.WAITING_FOR_SYSTEM_CREATION);
+        verify(provFactoryBean, times(1))
+                .getInstance(any(ServiceInstance.class));
+        validateServiceInstanceStatus(
+                ProvisioningStatus.WAITING_FOR_SYSTEM_CREATION);
     }
 
     @Test
@@ -659,15 +664,16 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
         handleTimer();
 
         // then
-        verify(provFactoryBean, times(1)).getInstance(
-                any(ServiceInstance.class));
-        validateServiceInstanceStatus(ProvisioningStatus.WAITING_FOR_SYSTEM_CREATION);
+        verify(provFactoryBean, times(1))
+                .getInstance(any(ServiceInstance.class));
+        validateServiceInstanceStatus(
+                ProvisioningStatus.WAITING_FOR_SYSTEM_CREATION);
     }
 
     @Test
     public void testHandleTimerWaitingServiceInstances() throws Exception {
         // given
-        Map<String, String> params1 = new HashMap<String, String>();
+        Map<String, String> params1 = new HashMap<>();
         params1.put(InstanceParameter.PUBLIC_IP, "1.2.3.4");
         params1.put("subscriptionId", "sub1");
         params1.put("instanceId", "inst1");
@@ -675,14 +681,14 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
         setControllerReady = true;
         createServiceInstance(ProvisioningStatus.WAITING_FOR_SYSTEM_CREATION,
                 params1);
-        Map<String, String> params2 = new HashMap<String, String>();
+        Map<String, String> params2 = new HashMap<>();
         params2.put(InstanceParameter.PUBLIC_IP, "1.2.3.5");
         params2.put("subscriptionId", "sub2");
         params2.put("instanceId", "inst2");
         requestInstanceProvisioning = false;
         setControllerReady = true;
         createServiceInstance(ProvisioningStatus.COMPLETED, params2);
-        Map<String, String> params3 = new HashMap<String, String>();
+        Map<String, String> params3 = new HashMap<>();
         params3.put(InstanceParameter.PUBLIC_IP, "1.2.3.6");
         params3.put("subscriptionId", "sub3");
         params3.put("instanceId", "inst3");
@@ -690,7 +696,7 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
         setControllerReady = true;
         createServiceInstance(ProvisioningStatus.WAITING_FOR_SYSTEM_CREATION,
                 params3);
-        Map<String, String> params4 = new HashMap<String, String>();
+        Map<String, String> params4 = new HashMap<>();
         params4.put("instanceId", "inst4");
         params4.put(InstanceParameter.PUBLIC_IP, "1.2.3.7");
         params4.put("subscriptionId", "sub4");
@@ -698,15 +704,15 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
         setControllerReady = true;
         createServiceInstance(ProvisioningStatus.COMPLETED, params4);
 
-        doReturn(getInstanceResult(0)).when(provService).createInstance(
-                any(InstanceRequest.class), any(User.class));
+        doReturn(getInstanceResult(0)).when(provService)
+                .createInstance(any(InstanceRequest.class), any(User.class));
 
         // when
         handleTimer();
 
         // then
-        verify(provFactoryBean, times(2)).getInstance(
-                any(ServiceInstance.class));
+        verify(provFactoryBean, times(2))
+                .getInstance(any(ServiceInstance.class));
         validateServiceInstanceStatus(ProvisioningStatus.COMPLETED,
                 ProvisioningStatus.COMPLETED, ProvisioningStatus.COMPLETED,
                 ProvisioningStatus.COMPLETED);
@@ -716,7 +722,7 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
     public void testHandleTimerWaitingServiceInstancesProcessingException()
             throws Exception {
         // given
-        Map<String, String> params1 = new HashMap<String, String>();
+        Map<String, String> params1 = new HashMap<>();
         params1.put(InstanceParameter.PUBLIC_IP, "1.2.3.4");
         params1.put("subscriptionId", "sub1");
         params1.put("instanceId", "inst1");
@@ -724,14 +730,14 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
         setControllerReady = true;
         createServiceInstance(ProvisioningStatus.WAITING_FOR_SYSTEM_CREATION,
                 params1);
-        Map<String, String> params2 = new HashMap<String, String>();
+        Map<String, String> params2 = new HashMap<>();
         params2.put(InstanceParameter.PUBLIC_IP, "1.2.3.5");
         params2.put("subscriptionId", "sub2");
         params2.put("instanceId", "inst2");
         requestInstanceProvisioning = false;
         setControllerReady = true;
         createServiceInstance(ProvisioningStatus.COMPLETED, params2);
-        Map<String, String> params3 = new HashMap<String, String>();
+        Map<String, String> params3 = new HashMap<>();
         params3.put(InstanceParameter.PUBLIC_IP, "1.2.3.6");
         params3.put("subscriptionId", "sub3");
         params3.put("instanceId", "inst3");
@@ -739,7 +745,7 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
         setControllerReady = true;
         createServiceInstance(ProvisioningStatus.WAITING_FOR_SYSTEM_CREATION,
                 params3);
-        Map<String, String> params4 = new HashMap<String, String>();
+        Map<String, String> params4 = new HashMap<>();
         params4.put(InstanceParameter.PUBLIC_IP, "1.2.3.7");
         params4.put("subscriptionId", "sub4");
         params4.put("instanceId", "inst4");
@@ -752,15 +758,15 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
                 .sendPing(anyString());
         // 1 invocation for first WAITING_FOR_SYSTEM_CREATION, no second
         // invocation because of the exception
-        doReturn(getInstanceResult(0)).when(provService).createInstance(
-                any(InstanceRequest.class), any(User.class));
+        doReturn(getInstanceResult(0)).when(provService)
+                .createInstance(any(InstanceRequest.class), any(User.class));
 
         // when
         handleTimer();
 
         // then
-        verify(provFactoryBean, times(2)).getInstance(
-                any(ServiceInstance.class));
+        verify(provFactoryBean, times(2))
+                .getInstance(any(ServiceInstance.class));
         validateServiceInstanceStatus(ProvisioningStatus.COMPLETED,
                 ProvisioningStatus.COMPLETED,
                 ProvisioningStatus.WAITING_FOR_SYSTEM_CREATION,
@@ -789,8 +795,8 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
         createServiceInstance(ProvisioningStatus.WAITING_FOR_SYSTEM_CREATION,
                 "param1", "param2");
         InstanceRequest ir = new InstanceRequest();
-        doReturn(ir).when(timerService).getInstanceRequest(
-                any(ServiceInstance.class));
+        doReturn(ir).when(timerService)
+                .getInstanceRequest(any(ServiceInstance.class));
 
         // when
         handleTimer();
@@ -830,8 +836,8 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
         setControllerReady = true;
         createServiceInstance(ProvisioningStatus.WAITING_FOR_SYSTEM_CREATION,
                 InstanceParameter.PUBLIC_IP);
-        doReturn(getInstanceResult(0)).when(provService).createInstance(
-                any(InstanceRequest.class), any(User.class));
+        doReturn(getInstanceResult(0)).when(provService)
+                .createInstance(any(InstanceRequest.class), any(User.class));
 
         // when
         handleTimer();
@@ -849,8 +855,8 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
         setControllerReady = true;
         createServiceInstance(ProvisioningStatus.WAITING_FOR_SYSTEM_CREATION,
                 InstanceParameter.PUBLIC_IP);
-        doReturn(getInstanceResult(1)).when(provService).createInstance(
-                any(InstanceRequest.class), any(User.class));
+        doReturn(getInstanceResult(1)).when(provService)
+                .createInstance(any(InstanceRequest.class), any(User.class));
 
         // when
         handleTimer();
@@ -868,17 +874,16 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
         requestInstanceProvisioning = true;
         setControllerReady = true;
         doReturn(new VOUserDetails()).when(configService).getAPPAdministrator();
-        doThrow(new APPlatformException(""))
-                .when(controller)
-                .getInstanceStatus(anyString(), any(ProvisioningSettings.class));
-        doThrow(new BESNotificationException("", new Throwable())).when(
-                timerService).notifyOnProvisioningAbortion(
-                any(ServiceInstance.class), any(InstanceResult.class),
-                any(APPlatformException.class));
+        doThrow(new APPlatformException("")).when(controller).getInstanceStatus(
+                anyString(), any(ProvisioningSettings.class));
+        doThrow(new BESNotificationException("", new Throwable()))
+                .when(timerService).notifyOnProvisioningAbortion(
+                        any(ServiceInstance.class), any(InstanceResult.class),
+                        any(APPlatformException.class));
         createServiceInstance(ProvisioningStatus.WAITING_FOR_SYSTEM_CREATION,
                 InstanceParameter.PUBLIC_IP);
-        doReturn(getInstanceResult(1)).when(provService).createInstance(
-                any(InstanceRequest.class), any(User.class));
+        doReturn(getInstanceResult(1)).when(provService)
+                .createInstance(any(InstanceRequest.class), any(User.class));
 
         // when
         handleTimer();
@@ -896,7 +901,7 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
         setControllerReady = true;
         createServiceInstance(ProvisioningStatus.WAITING_FOR_SYSTEM_CREATION);
         doThrow(new RuntimeException()).when(provService).sendPing(anyString());
-        List<LocalizedText> messages = new ArrayList<LocalizedText>();
+        List<LocalizedText> messages = new ArrayList<>();
         messages.add(new LocalizedText());
         doReturn(messages).when(timerService).getErrorMessages();
 
@@ -916,8 +921,8 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
         setControllerReady = true;
         createServiceInstance(ProvisioningStatus.WAITING_FOR_SYSTEM_CREATION,
                 InstanceParameter.PUBLIC_IP);
-        doReturn(getInstanceResult(0)).when(provService).createInstance(
-                any(InstanceRequest.class), any(User.class));
+        doReturn(getInstanceResult(0)).when(provService)
+                .createInstance(any(InstanceRequest.class), any(User.class));
 
         // when
         handleTimer();
@@ -935,16 +940,16 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
         createServiceInstance(ProvisioningStatus.WAITING_FOR_SYSTEM_CREATION);
 
         InstanceStatus status = new InstanceStatus();
-        List<LocalizedText> list = new ArrayList<LocalizedText>();
+        List<LocalizedText> list = new ArrayList<>();
         list.add(new LocalizedText("en", "nextStep"));
         status.setDescription(list);
-        when(
-                controller.getInstanceStatus(matches("appInstanceId"),
-                        any(ProvisioningSettings.class))).thenReturn(status);
+        when(controller.getInstanceStatus(matches("appInstanceId"),
+                any(ProvisioningSettings.class))).thenReturn(status);
         doReturn(new VOUserDetails()).when(configService).getAPPAdministrator();
-        doThrow(new BESNotificationException("", new Throwable())).when(
-                besDAOMock).notifyOnProvisioningStatusUpdate(
-                any(ServiceInstance.class), anyListOf(LocalizedText.class));
+        doThrow(new BESNotificationException("", new Throwable()))
+                .when(besDAOMock)
+                .notifyOnProvisioningStatusUpdate(any(ServiceInstance.class),
+                        anyListOf(LocalizedText.class));
 
         ServiceInstance si = getServiceInstance();
         Assert.assertTrue(si.getRunWithTimer());
@@ -957,7 +962,8 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
                 anyString());
         si = getServiceInstance();
         Assert.assertFalse(si.getRunWithTimer());
-        validateServiceInstanceStatus(ProvisioningStatus.WAITING_FOR_SYSTEM_CREATION);
+        validateServiceInstanceStatus(
+                ProvisioningStatus.WAITING_FOR_SYSTEM_CREATION);
     }
 
     @Test
@@ -969,8 +975,8 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
         createServiceInstance(ProvisioningStatus.WAITING_FOR_SYSTEM_CREATION,
                 InstanceParameter.PUBLIC_IP);
         InstanceResult ir = getInstanceResult(0);
-        doReturn(ir).when(provService).createInstance(
-                any(InstanceRequest.class), any(User.class));
+        doReturn(ir).when(provService)
+                .createInstance(any(InstanceRequest.class), any(User.class));
 
         // when
         handleTimer();
@@ -997,12 +1003,11 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
         HashMap<String, String> parameters = new HashMap<>();
         parameters.put(InstanceParameter.PUBLIC_IP, "");
         status.setChangedParameters(parameters);
-        List<LocalizedText> list = new ArrayList<LocalizedText>();
+        List<LocalizedText> list = new ArrayList<>();
         list.add(new LocalizedText("en", "nextStep"));
         status.setDescription(list);
-        when(
-                controller.getInstanceStatus(anyString(),
-                        any(ProvisioningSettings.class))).thenReturn(status);
+        when(controller.getInstanceStatus(anyString(),
+                any(ProvisioningSettings.class))).thenReturn(status);
 
         ServiceInstance si = getServiceInstance();
         Assert.assertTrue(si.getRunWithTimer());
@@ -1015,7 +1020,8 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
                 anyString());
         si = getServiceInstance();
         Assert.assertFalse(si.getRunWithTimer());
-        validateServiceInstanceStatus(ProvisioningStatus.WAITING_FOR_SYSTEM_CREATION);
+        validateServiceInstanceStatus(
+                ProvisioningStatus.WAITING_FOR_SYSTEM_CREATION);
     }
 
     @Test
@@ -1023,9 +1029,8 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
         // given
         createServiceInstance(ProvisioningStatus.WAITING_FOR_SYSTEM_CREATION);
         SuspendException ex = new SuspendException("suspended");
-        when(
-                controller.getInstanceStatus(anyString(),
-                        any(ProvisioningSettings.class))).thenThrow(ex);
+        when(controller.getInstanceStatus(anyString(),
+                any(ProvisioningSettings.class))).thenThrow(ex);
 
         ServiceInstance si = getServiceInstance();
         Assert.assertTrue(si.getRunWithTimer());
@@ -1038,17 +1043,18 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
                 anyString());
         si = getServiceInstance();
         Assert.assertFalse(si.getRunWithTimer());
-        validateServiceInstanceStatus(ProvisioningStatus.WAITING_FOR_SYSTEM_CREATION);
+        validateServiceInstanceStatus(
+                ProvisioningStatus.WAITING_FOR_SYSTEM_CREATION);
     }
 
     @Test
     public void testHandleTimerSuspendDuringUpdate() throws Exception {
         // given
-        createServiceInstance(ProvisioningStatus.WAITING_FOR_SYSTEM_MODIFICATION);
+        createServiceInstance(
+                ProvisioningStatus.WAITING_FOR_SYSTEM_MODIFICATION);
         SuspendException ex = new SuspendException("suspended");
-        when(
-                controller.getInstanceStatus(anyString(),
-                        any(ProvisioningSettings.class))).thenThrow(ex);
+        when(controller.getInstanceStatus(anyString(),
+                any(ProvisioningSettings.class))).thenThrow(ex);
 
         ServiceInstance si = getServiceInstance();
         Assert.assertTrue(si.getRunWithTimer());
@@ -1061,7 +1067,8 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
                 anyString());
         si = getServiceInstance();
         Assert.assertFalse(si.getRunWithTimer());
-        validateServiceInstanceStatus(ProvisioningStatus.WAITING_FOR_SYSTEM_MODIFICATION);
+        validateServiceInstanceStatus(
+                ProvisioningStatus.WAITING_FOR_SYSTEM_MODIFICATION);
     }
 
     @Test
@@ -1069,9 +1076,8 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
         // given
         createServiceInstance(ProvisioningStatus.WAITING_FOR_SYSTEM_DELETION);
         SuspendException ex = new SuspendException("suspended");
-        when(
-                controller.getInstanceStatus(anyString(),
-                        any(ProvisioningSettings.class))).thenThrow(ex);
+        when(controller.getInstanceStatus(anyString(),
+                any(ProvisioningSettings.class))).thenThrow(ex);
 
         ServiceInstance si = getServiceInstance();
         Assert.assertTrue(si.getRunWithTimer());
@@ -1084,7 +1090,8 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
                 anyString());
         si = getServiceInstance();
         Assert.assertFalse(si.getRunWithTimer());
-        validateServiceInstanceStatus(ProvisioningStatus.WAITING_FOR_SYSTEM_DELETION);
+        validateServiceInstanceStatus(
+                ProvisioningStatus.WAITING_FOR_SYSTEM_DELETION);
     }
 
     @Test
@@ -1092,9 +1099,8 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
         // given
         createServiceInstance(ProvisioningStatus.WAITING_FOR_SYSTEM_ACTIVATION);
         SuspendException ex = new SuspendException("suspended");
-        when(
-                controller.getInstanceStatus(anyString(),
-                        any(ProvisioningSettings.class))).thenThrow(ex);
+        when(controller.getInstanceStatus(anyString(),
+                any(ProvisioningSettings.class))).thenThrow(ex);
         ServiceInstance si = getServiceInstance();
         Assert.assertTrue(si.getRunWithTimer());
 
@@ -1106,7 +1112,8 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
                 anyString());
         si = getServiceInstance();
         Assert.assertFalse(si.getRunWithTimer());
-        validateServiceInstanceStatus(ProvisioningStatus.WAITING_FOR_SYSTEM_ACTIVATION);
+        validateServiceInstanceStatus(
+                ProvisioningStatus.WAITING_FOR_SYSTEM_ACTIVATION);
     }
 
     @Test(expected = APPlatformException.class)
@@ -1162,7 +1169,8 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
     }
 
     @Test
-    public void testRaiseEventOneServiceInstanceDisableTimer() throws Exception {
+    public void testRaiseEventOneServiceInstanceDisableTimer()
+            throws Exception {
         // given
         requestInstanceProvisioning = true;
         setControllerReady = true;
@@ -1172,10 +1180,9 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
         // Disable timer through event
         InstanceStatus rcStatus = new InstanceStatus();
         rcStatus.setRunWithTimer(false);
-        when(
-                controller.notifyInstance(matches("appInstanceId"),
-                        any(ProvisioningSettings.class), any(Properties.class)))
-                .thenReturn(rcStatus);
+        when(controller.notifyInstance(matches("appInstanceId"),
+                any(ProvisioningSettings.class), any(Properties.class)))
+                        .thenReturn(rcStatus);
 
         // when
         raiseEvent(CTRL_ID, "appInstanceId", null);
@@ -1183,7 +1190,8 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
 
         // then
         verifyZeroInteractions(provFactoryBean);
-        validateServiceInstanceStatus(ProvisioningStatus.WAITING_FOR_SYSTEM_CREATION);
+        validateServiceInstanceStatus(
+                ProvisioningStatus.WAITING_FOR_SYSTEM_CREATION);
     }
 
     @Test
@@ -1200,13 +1208,14 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
 
         // then
         verifyZeroInteractions(provFactoryBean);
-        validateServiceInstanceStatus(ProvisioningStatus.WAITING_FOR_SYSTEM_CREATION);
+        validateServiceInstanceStatus(
+                ProvisioningStatus.WAITING_FOR_SYSTEM_CREATION);
     }
 
     @Test
     public void testHandleNoTimerTwoWaitingServiceInstances() throws Exception {
         // given
-        Map<String, String> params1 = new HashMap<String, String>();
+        Map<String, String> params1 = new HashMap<>();
         params1.put(InstanceParameter.PUBLIC_IP, "1.2.3.4");
         params1.put("subscriptionId", "sub1");
         params1.put("instanceId", "inst1");
@@ -1215,7 +1224,7 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
         createServiceInstance(ProvisioningStatus.WAITING_FOR_SYSTEM_CREATION,
                 params1);
         String key1 = instanceId;
-        Map<String, String> params2 = new HashMap<String, String>();
+        Map<String, String> params2 = new HashMap<>();
         params2.put(InstanceParameter.PUBLIC_IP, "1.2.3.5");
         params2.put("subscriptionId", "sub2");
         params2.put("instanceId", "inst2");
@@ -1227,15 +1236,15 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
         setServiceInstanceRunWithTimer(key1, false);
         setServiceInstanceRunWithTimer(key2, true);
 
-        doReturn(getInstanceResult(0)).when(provService).createInstance(
-                any(InstanceRequest.class), any(User.class));
+        doReturn(getInstanceResult(0)).when(provService)
+                .createInstance(any(InstanceRequest.class), any(User.class));
 
         // when
         handleTimer();
 
         // then
-        verify(provFactoryBean, times(1)).getInstance(
-                any(ServiceInstance.class));
+        verify(provFactoryBean, times(1))
+                .getInstance(any(ServiceInstance.class));
         validateServiceInstanceStatus(
                 ProvisioningStatus.WAITING_FOR_SYSTEM_CREATION,
                 ProvisioningStatus.COMPLETED);
@@ -1252,9 +1261,8 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
 
         // Throw EJB exception when creation status is invoked
         EJBException e = new EJBException("ejb_error");
-        when(
-                controller.getInstanceStatus(matches("appInstanceId"),
-                        any(ProvisioningSettings.class))).thenThrow(e);
+        when(controller.getInstanceStatus(matches("appInstanceId"),
+                any(ProvisioningSettings.class))).thenThrow(e);
 
         // when
         handleTimer();
@@ -1276,14 +1284,13 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
 
         // Throw EJB exception when creation status is invoked
         EJBException e = new EJBException("ejb_error");
-        when(
-                controller.getInstanceStatus(matches("appInstanceId"),
-                        any(ProvisioningSettings.class))).thenThrow(e);
+        when(controller.getInstanceStatus(matches("appInstanceId"),
+                any(ProvisioningSettings.class))).thenThrow(e);
 
-        doThrow(new BESNotificationException("", new Throwable())).when(
-                besDAOMock).notifyAsyncSubscription(any(ServiceInstance.class),
-                any(InstanceResult.class), eq(false),
-                any(APPlatformException.class));
+        doThrow(new BESNotificationException("", new Throwable()))
+                .when(besDAOMock).notifyAsyncSubscription(
+                        any(ServiceInstance.class), any(InstanceResult.class),
+                        eq(false), any(APPlatformException.class));
 
         doReturn(new VOUserDetails()).when(configService).getAPPAdministrator();
 
@@ -1295,7 +1302,8 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
                 anyString());
         ServiceInstance si = getServiceInstance();
         Assert.assertFalse(si.getRunWithTimer());
-        validateServiceInstanceStatus(ProvisioningStatus.WAITING_FOR_SYSTEM_CREATION);
+        validateServiceInstanceStatus(
+                ProvisioningStatus.WAITING_FOR_SYSTEM_CREATION);
     }
 
     /**
@@ -1308,9 +1316,8 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
 
         // Throw exception when deletion status is invoked
         APPlatformException e = new APPlatformException("error");
-        when(
-                controller.getInstanceStatus(matches("appInstanceId"),
-                        any(ProvisioningSettings.class))).thenThrow(e);
+        when(controller.getInstanceStatus(matches("appInstanceId"),
+                any(ProvisioningSettings.class))).thenThrow(e);
 
         VOUserDetails admin = new VOUserDetails();
         admin.setEMail("sss");
@@ -1333,7 +1340,8 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
     @Test
     public void testHandleTimerErrorDuringUpdate() throws Exception {
         // given
-        createServiceInstance(ProvisioningStatus.WAITING_FOR_SYSTEM_MODIFICATION);
+        createServiceInstance(
+                ProvisioningStatus.WAITING_FOR_SYSTEM_MODIFICATION);
         String baseUrl = "BASEURL";
         HashMap<String, String> parameters = new HashMap<>();
         parameters.put("KEY1", "VALUE1");
@@ -1341,9 +1349,8 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
 
         // Throw exception when deletion status is invoked
         APPlatformException e = new APPlatformException("error");
-        when(
-                controller.getInstanceStatus(matches("appInstanceId"),
-                        any(ProvisioningSettings.class))).thenThrow(e);
+        when(controller.getInstanceStatus(matches("appInstanceId"),
+                any(ProvisioningSettings.class))).thenThrow(e);
         doReturn(baseUrl).when(configService).getProxyConfigurationSetting(
                 PlatformConfigurationKey.APP_BASE_URL);
         // when
@@ -1353,8 +1360,8 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
         // => instance must be set to COMPLETED but mail is sent to TP
         validateServiceInstanceStatus(ProvisioningStatus.COMPLETED);
         validateRollbackedInstanceParameters(parameters);
-        verify(timerService, times(1)).generateLinkForControllerUI(
-                any(ServiceInstance.class));
+        verify(timerService, times(1))
+                .generateLinkForControllerUI(any(ServiceInstance.class));
         verify(timerService).sendActionMail(eq(true),
                 any(ServiceInstance.class), anyString(),
                 any(APPlatformException.class),
@@ -1394,8 +1401,8 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                Query query = em
-                        .createQuery("SELECT si FROM ServiceInstance si ORDER BY si.tkey ASC");
+                Query query = em.createQuery(
+                        "SELECT si FROM ServiceInstance si ORDER BY si.tkey ASC");
                 List<?> result = query.getResultList();
                 Assert.assertEquals(expectedStatus.length, result.size());
                 for (int i = 0; i < result.size(); i++) {
@@ -1415,8 +1422,8 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                Query query = em
-                        .createQuery("SELECT si FROM ServiceInstance si ORDER BY si.tkey ASC");
+                Query query = em.createQuery(
+                        "SELECT si FROM ServiceInstance si ORDER BY si.tkey ASC");
                 List<?> result = query.getResultList();
                 for (int i = 0; i < result.size(); i++) {
                     ServiceInstance currentEntry = (ServiceInstance) result
@@ -1427,11 +1434,12 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
                     Assert.assertEquals(parameterMap.size(), params.size());
 
                     for (InstanceParameter tempParameter : params) {
-                        assertTrue(parameterMap.containsKey(tempParameter
-                                .getParameterKey()));
-                        Assert.assertEquals(parameterMap.get(tempParameter
-                                .getParameterKey()), tempParameter
-                                .getParameterValue());
+                        assertTrue(parameterMap
+                                .containsKey(tempParameter.getParameterKey()));
+                        Assert.assertEquals(
+                                parameterMap
+                                        .get(tempParameter.getParameterKey()),
+                                tempParameter.getParameterValue());
                     }
                 }
                 return null;
@@ -1449,8 +1457,8 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                Query query = em
-                        .createQuery("SELECT si FROM ServiceInstance si ORDER BY si.tkey ASC");
+                Query query = em.createQuery(
+                        "SELECT si FROM ServiceInstance si ORDER BY si.tkey ASC");
                 List<?> result = query.getResultList();
                 assertTrue(isRunWithTimer == null
                         || result.size() == isRunWithTimer.length);
@@ -1463,8 +1471,7 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
                             .get(i);
                     if (isRunWithTimer != null) {
                         assertTrue(
-                                "Instance '"
-                                        + currentEntry.getInstanceId()
+                                "Instance '" + currentEntry.getInstanceId()
                                         + "' should "
                                         + (isRunWithTimer[i].booleanValue() ? ""
                                                 : "not ")
@@ -1474,25 +1481,25 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
                     }
                     if (isInstanceProvisioning != null) {
                         assertTrue(
-                                "Instance '"
-                                        + currentEntry.getInstanceId()
+                                "Instance '" + currentEntry.getInstanceId()
                                         + "' should "
                                         + (isInstanceProvisioning[i]
                                                 .booleanValue() ? "" : "not ")
                                         + "have instanceProvisioning flag set to TRUE",
-                                isInstanceProvisioning[i].booleanValue() == currentEntry
-                                        .isInstanceProvisioning());
+                                isInstanceProvisioning[i]
+                                        .booleanValue() == currentEntry
+                                                .isInstanceProvisioning());
                     }
                     if (isControllerReady != null) {
                         assertTrue(
-                                "Instance '"
-                                        + currentEntry.getInstanceId()
+                                "Instance '" + currentEntry.getInstanceId()
                                         + "' should "
-                                        + (isControllerReady[i].booleanValue() ? ""
-                                                : "not ")
+                                        + (isControllerReady[i].booleanValue()
+                                                ? "" : "not ")
                                         + "have controllerReady flag set to TRUE",
-                                isControllerReady[i].booleanValue() == currentEntry
-                                        .isControllerReady());
+                                isControllerReady[i]
+                                        .booleanValue() == currentEntry
+                                                .isControllerReady());
                     }
                 }
                 return null;
@@ -1513,7 +1520,7 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
             throws Exception {
 
         // Use linked hash map to keep order of entries (for asserts)
-        Map<String, String> parameters = new LinkedHashMap<String, String>();
+        Map<String, String> parameters = new LinkedHashMap<>();
         for (String parameterKey : parameter) {
             if (InstanceParameter.PUBLIC_IP.equals(parameterKey)) {
                 parameters.put(InstanceParameter.PUBLIC_IP, "4.3.2.1");
@@ -1557,7 +1564,8 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
                 } else {
                     si.setSubscriptionId("subId");
                 }
-                if (parameters != null && parameters.get("instanceId") != null) {
+                if (parameters != null
+                        && parameters.get("instanceId") != null) {
                     si.setInstanceId(parameters.get("instanceId"));
                 } else {
                     si.setInstanceId("appInstanceId");
@@ -1578,9 +1586,10 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
                         si.getInstanceParameters().add(ip);
                     }
                 }
-                si.setRollbackParameters("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<!DOCTYPE properties SYSTEM \"http://java.sun.com/dtd/properties.dtd\">\r\n<properties>\r\n<entry key=\"KEY2\">VALUE2</entry>\r\n<entry key=\"ROLLBACK_SUBSCRIPTIONID\">"
-                        + si.getSubscriptionId()
-                        + "</entry>\r\n<entry key=\"KEY1\">VALUE1</entry>\r\n</properties>\r\n");
+                si.setRollbackParameters(
+                        "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<!DOCTYPE properties SYSTEM \"http://java.sun.com/dtd/properties.dtd\">\r\n<properties>\r\n<entry key=\"KEY2\">VALUE2</entry>\r\n<entry key=\"ROLLBACK_SUBSCRIPTIONID\">"
+                                + si.getSubscriptionId()
+                                + "</entry>\r\n<entry key=\"KEY1\">VALUE1</entry>\r\n</properties>\r\n");
                 em.persist(si);
                 em.flush();
                 instanceId = si.getInstanceId();
@@ -1602,8 +1611,8 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                Query query = em
-                        .createQuery("SELECT si FROM ServiceInstance si WHERE si.instanceId = :key");
+                Query query = em.createQuery(
+                        "SELECT si FROM ServiceInstance si WHERE si.instanceId = :key");
                 query.setParameter("key", instanceKey);
                 List<?> resultList = query.getResultList();
                 if (resultList.size() != 1) {
@@ -1626,14 +1635,14 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
                 ProvisioningStatus.WAITING_FOR_SYSTEM_CREATION,
                 ProvisioningStatus.WAITING_FOR_SYSTEM_DELETION);
         ServiceInstance si_creation = new ServiceInstance();
-        si_creation
-                .setProvisioningStatus(ProvisioningStatus.WAITING_FOR_SYSTEM_CREATION);
+        si_creation.setProvisioningStatus(
+                ProvisioningStatus.WAITING_FOR_SYSTEM_CREATION);
         ServiceInstance si_deletion = new ServiceInstance();
-        si_deletion
-                .setProvisioningStatus(ProvisioningStatus.WAITING_FOR_SYSTEM_DELETION);
+        si_deletion.setProvisioningStatus(
+                ProvisioningStatus.WAITING_FOR_SYSTEM_DELETION);
         ServiceInstance si_activation = new ServiceInstance();
-        si_activation
-                .setProvisioningStatus(ProvisioningStatus.WAITING_FOR_SYSTEM_ACTIVATION);
+        si_activation.setProvisioningStatus(
+                ProvisioningStatus.WAITING_FOR_SYSTEM_ACTIVATION);
         List<?> result = Arrays.asList(si_creation, si_deletion, si_activation);
 
         // when
@@ -1662,8 +1671,8 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
         timerService.doHandleControllerProvisioning(si);
 
         // then
-        verify(logger, times(0))
-                .error("The application could not be contacted. Please try again later.");
+        verify(logger, times(0)).error(
+                "The application could not be contacted. Please try again later.");
 
     }
 
@@ -1675,13 +1684,13 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
                 ProvisioningStatus.WAITING_FOR_SYSTEM_DEACTIVATION,
                 InstanceParameter.APP_PARAM_KEY_PREFIX + "param1", "param2");
 
-        doThrow(new SuspendException(ERROR_MESSAGE, RESPONSE_CODE)).when(
-                controller).getInstanceStatus(anyString(),
-                any(ProvisioningSettings.class));
+        doThrow(new SuspendException(ERROR_MESSAGE, RESPONSE_CODE))
+                .when(controller).getInstanceStatus(anyString(),
+                        any(ProvisioningSettings.class));
         Operation op = new Operation();
         op.setTransactionId("transactionId");
-        doReturn(op).when(operationDAOMock).getOperationByInstanceId(
-                anyString());
+        doReturn(op).when(operationDAOMock)
+                .getOperationByInstanceId(anyString());
         doNothing().when(timerService).handleSuspendException(
                 any(ServiceInstance.class), any(ProvisioningStatus.class),
                 any(SuspendException.class));

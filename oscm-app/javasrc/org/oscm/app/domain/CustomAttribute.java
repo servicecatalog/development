@@ -22,17 +22,17 @@ import org.oscm.app.business.exceptions.BadResultException;
 import org.oscm.app.security.AESEncrypter;
 
 /**
- * A custom setting for the asynchronous provisioning proxy.
+ * A custom attribute for the asynchronous provisioning proxy.
  * 
  * @author miethaner
  * 
  */
 @Entity
-@IdClass(CustomSetting.ScopedSettingKey.class)
+@IdClass(CustomAttribute.ScopedSettingKey.class)
 @NamedQueries({
-        @NamedQuery(name = "CustomSetting.getForOrg", query = "SELECT cs FROM CustomSetting cs WHERE cs.organizationId = :organizationId"),
-        @NamedQuery(name = "CustomSetting.deleteForOrg", query = "DELETE FROM CustomSetting cs WHERE cs.organizationId = :organizationId") })
-public class CustomSetting {
+        @NamedQuery(name = "CustomAttribute.getForOrg", query = "SELECT ca FROM CustomAttribute ca WHERE ca.organizationId = :organizationId"),
+        @NamedQuery(name = "CustomAttribute.deleteForOrg", query = "DELETE FROM CustomAttribute ca WHERE ca.organizationId = :organizationId") })
+public class CustomAttribute {
 
     /**
      * Setting keys ending with this suffix will have their values stored
@@ -44,7 +44,7 @@ public class CustomSetting {
      * The key of the custom setting.
      */
     @Id
-    private String settingKey;
+    private String attributeKey;
 
     @Id
     private String organizationId;
@@ -53,22 +53,22 @@ public class CustomSetting {
      * The value of the custom setting.
      */
     @Column(nullable = false)
-    private String settingValue;
+    private String attributeValue;
 
-    public String getSettingKey() {
-        return settingKey;
+    public String getAttributeKey() {
+        return attributeKey;
     }
 
-    public String getSettingValue() {
-        return settingValue;
+    public String getAttributeValue() {
+        return attributeValue;
     }
 
-    public void setSettingKey(String settingKey) {
-        this.settingKey = settingKey;
+    public void setAttributeKey(String settingKey) {
+        this.attributeKey = settingKey;
     }
 
-    public void setSettingValue(String settingValue) {
-        this.settingValue = settingValue;
+    public void setAttributeValue(String settingValue) {
+        this.attributeValue = settingValue;
     }
 
     public String getOrganizationId() {
@@ -82,42 +82,42 @@ public class CustomSetting {
     public void setDecryptedValue(String parameterValue)
             throws BadResultException {
         try {
-            this.settingValue = isEncrypted()
+            this.attributeValue = isEncrypted()
                     ? AESEncrypter.encrypt(parameterValue) : parameterValue;
         } catch (GeneralSecurityException e) {
             throw new BadResultException(String.format(
                     "Parameter for key '%s' could not be encrypted",
-                    getSettingKey()));
+                    getAttributeKey()));
         }
     }
 
     public String getDecryptedValue() throws BadResultException {
         try {
-            return isEncrypted() ? AESEncrypter.decrypt(settingValue)
-                    : settingValue;
+            return isEncrypted() ? AESEncrypter.decrypt(attributeValue)
+                    : attributeValue;
         } catch (GeneralSecurityException e) {
             throw new BadResultException(String.format(
                     "Parameter for key '%s' could not be decrypted",
-                    getSettingKey()));
+                    getAttributeKey()));
         }
     }
 
     public boolean isEncrypted() {
-        return settingKey != null && settingKey.endsWith(CRYPT_KEY_SUFFIX);
+        return attributeKey != null && attributeKey.endsWith(CRYPT_KEY_SUFFIX);
     }
 
     public static class ScopedSettingKey implements Serializable {
 
         private static final long serialVersionUID = 6127964456252235253L;
 
-        protected String settingKey;
+        protected String attributeKey;
         protected String organizationId;
 
         public ScopedSettingKey() {
         }
 
-        public ScopedSettingKey(String settingKey, String organizationId) {
-            this.settingKey = settingKey;
+        public ScopedSettingKey(String attributeKey, String organizationId) {
+            this.attributeKey = attributeKey;
             this.organizationId = organizationId;
         }
 
@@ -133,9 +133,9 @@ public class CustomSetting {
                 return false;
             }
             ScopedSettingKey other = (ScopedSettingKey) obj;
-            return ((settingKey == null && other.settingKey == null)
-                    || (settingKey != null
-                            && settingKey.equals(other.settingKey)))
+            return ((attributeKey == null && other.attributeKey == null)
+                    || (attributeKey != null
+                            && attributeKey.equals(other.attributeKey)))
                     && ((organizationId == null && other.organizationId == null)
                             || (organizationId != null && organizationId
                                     .equals(other.organizationId)));
@@ -143,7 +143,7 @@ public class CustomSetting {
 
         @Override
         public int hashCode() {
-            int result = (settingKey != null ? (53 * settingKey.hashCode())
+            int result = (attributeKey != null ? (53 * attributeKey.hashCode())
                     : 0);
             result = result + (organizationId != null
                     ? (13 * organizationId.hashCode()) : 0);

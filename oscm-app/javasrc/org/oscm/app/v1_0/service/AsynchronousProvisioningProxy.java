@@ -19,14 +19,15 @@ import javax.persistence.Query;
 
 import org.oscm.app.business.APPlatformControllerFactory;
 import org.oscm.app.business.AsynchronousProvisioningProxyImpl;
-import org.oscm.app.business.InstanceParameterFilter;
+import org.oscm.app.business.InstanceFilter;
 import org.oscm.app.business.ProductProvisioningServiceFactoryBean;
 import org.oscm.app.business.ProvisioningResults;
 import org.oscm.app.business.UserMapper;
 import org.oscm.app.business.exceptions.BadResultException;
 import org.oscm.app.business.exceptions.ServiceInstanceInProcessingException;
 import org.oscm.app.dao.ServiceInstanceDAO;
-import org.oscm.app.domain.CustomSetting;
+import org.oscm.app.domain.CustomAttribute;
+import org.oscm.app.domain.InstanceAttribute;
 import org.oscm.app.domain.InstanceParameter;
 import org.oscm.app.domain.ProvisioningStatus;
 import org.oscm.app.domain.ServiceInstance;
@@ -132,6 +133,7 @@ public class AsynchronousProvisioningProxy implements ProvisioningService {
         si.setOrganizationId(request.getOrganizationId());
         si.setOrganizationName(request.getOrganizationName());
         si.setSubscriptionId(request.getSubscriptionId());
+        si.setReferenceId(request.getReferenceId());
         si.setDefaultLocale(request.getDefaultLocale());
         si.setProvisioningStatus(
                 ProvisioningStatus.WAITING_FOR_SYSTEM_CREATION);
@@ -140,6 +142,8 @@ public class AsynchronousProvisioningProxy implements ProvisioningService {
         si.setRequestTime(System.currentTimeMillis());
         si.setInstanceParameters(
                 createParameters(si, descr.getChangedParameters()));
+        si.setInstanceAttributes(
+                createAttributes(si, descr.getChangedAttributes()));
         si.setServiceBaseURL(descr.getBaseUrl());
         si.setInstanceId(descr.getInstanceId());
         em.persist(si);
@@ -151,6 +155,8 @@ public class AsynchronousProvisioningProxy implements ProvisioningService {
             throws APPlatformException, BadResultException {
         final HashMap<String, String> parameters = createParameterMap(
                 request.getParameterValue());
+        final HashMap<String, String> attributes = createAttributeMap(
+                request.getAttributeValue());
         String controllerId = parameters.get(InstanceParameter.CONTROLLER_ID);
         if (controllerId == null) {
             logger.warn(
@@ -161,11 +167,15 @@ public class AsynchronousProvisioningProxy implements ProvisioningService {
 
         HashMap<String, String> controllerSettings = configService
                 .getControllerConfigurationSettings(controllerId);
+        HashMap<String, String> customAttributes = configService
+                .getCustomAttributes(request.getOrganizationId());
         final ProvisioningSettings settings = new ProvisioningSettings(
-                parameters, controllerSettings, request.getDefaultLocale());
+                parameters, attributes, customAttributes, controllerSettings,
+                request.getDefaultLocale());
         settings.setOrganizationId(request.getOrganizationId());
         settings.setOrganizationName(request.getOrganizationName());
         settings.setSubscriptionId(request.getSubscriptionId());
+        settings.setReferenceId(request.getReferenceId());
         settings.setBesLoginUrl(request.getLoginUrl());
 
         ServiceInstance si = new ServiceInstance();
@@ -209,6 +219,23 @@ public class AsynchronousProvisioningProxy implements ProvisioningService {
                     final InstanceParameter d = new InstanceParameter();
                     d.setServiceInstance(si);
                     d.setParameterKey(key);
+                    d.setDecryptedValue(src.get(key));
+                    dest.add(d);
+                }
+            }
+        }
+        return dest;
+    }
+
+    private List<InstanceAttribute> createAttributes(final ServiceInstance si,
+            final Map<String, String> src) throws BadResultException {
+        final ArrayList<InstanceAttribute> dest = new ArrayList<>();
+        if (src != null) {
+            for (final String key : src.keySet()) {
+                if (key != null) {
+                    final InstanceAttribute d = new InstanceAttribute();
+                    d.setServiceInstance(si);
+                    d.setAttributeKey(key);
                     d.setDecryptedValue(src.get(key));
                     dest.add(d);
                 }
@@ -395,21 +422,27 @@ public class AsynchronousProvisioningProxy implements ProvisioningService {
 
     @Override
     public BaseResult asyncModifySubscription(String instanceId,
-            String subscriptionId, List<ServiceParameter> parameterValues,
-            User requestingUser) {
+            String subscriptionId, String referenceId,
+            List<ServiceParameter> parameterValues,
+            List<ServiceAttribute> attributeValues, User requestingUser) {
         final HashMap<String, String> parameterMap = createParameterMap(
                 parameterValues);
+        final HashMap<String, String> attributeMap = createAttributeMap(
+                attributeValues);
         logger.info("Modify parameters for instance {}: {}", instanceId,
                 parameterMap);
-        return modifySubscription(instanceId, subscriptionId, parameterValues,
-                parameterMap,
+        return modifySubscription(instanceId, subscriptionId, referenceId,
+                parameterValues, attributeValues, parameterMap, attributeMap,
                 ProvisioningStatus.WAITING_FOR_SYSTEM_MODIFICATION,
                 requestingUser);
     }
 
     private BaseResult modifySubscription(String instanceId,
-            String subscriptionId, List<ServiceParameter> parameterValues,
+            String subscriptionId, String referenceId,
+            List<ServiceParameter> parameterValues,
+            List<ServiceAttribute> attributeValues,
             final HashMap<String, String> parameterMap,
+            final HashMap<String, String> attributeMap,
             ProvisioningStatus targetStatus, User requestingUser) {
 
         ServiceInstance instance = null;
@@ -431,7 +464,8 @@ public class AsynchronousProvisioningProxy implements ProvisioningService {
                     .getProvisioningSettings(instance,
                             UserMapper.toServiceUser(requestingUser));
             final ProvisioningSettings newSettings = new ProvisioningSettings(
-                    parameterMap, controllerSettings,
+                    parameterMap, attributeMap,
+                    currentSettings.getCustomAttributes(), controllerSettings,
                     instance.getDefaultLocale());
             newSettings.setAuthentication(currentSettings.getAuthentication());
             configService.copyCredentialsFromControllerSettings(newSettings,
@@ -448,12 +482,13 @@ public class AsynchronousProvisioningProxy implements ProvisioningService {
                 if (status.isInstanceProvisioningRequested()) {
                     final ProvisioningService provisioning = provisioningFactory
                             .getInstance(instance);
-                    final List<ServiceParameter> filteredParameters = InstanceParameterFilter
+                    final List<ServiceParameter> filteredParameters = InstanceFilter
                             .getFilteredInstanceParametersForService(
                                     parameterValues);
                     final BaseResult result = provisioning.modifySubscription(
-                            instanceId, subscriptionId, filteredParameters,
-                            requestingUser);
+                            instanceId, subscriptionId, referenceId,
+                            filteredParameters, attributeValues,
+                            requestingUser); // TODO analyze
                     if (provResult.isError(result)) {
                         return result;
                     }
@@ -461,10 +496,12 @@ public class AsynchronousProvisioningProxy implements ProvisioningService {
 
                 // If everything worked well we will save all changed parameters
                 instance.setInstanceParameters(status.getChangedParameters());
+                instance.setInstanceAttributes(status.getChangedAttributes());
             }
 
             instance.setProvisioningStatus(targetStatus);
             instance.setSubscriptionId(subscriptionId);
+            instance.setReferenceId(referenceId);
             em.persist(instance);
 
             timerService.initTimers();
@@ -500,6 +537,18 @@ public class AsynchronousProvisioningProxy implements ProvisioningService {
             for (final ServiceParameter p : parameterValues) {
                 String value = p.getValue();
                 map.put(p.getParameterId(), value != null ? value : "");
+            }
+        }
+        return map;
+    }
+
+    private HashMap<String, String> createAttributeMap(
+            List<ServiceAttribute> attributeValues) {
+        final HashMap<String, String> map = new HashMap<>();
+        if (attributeValues != null) {
+            for (final ServiceAttribute a : attributeValues) {
+                String value = a.getValue();
+                map.put(a.getAttributeId(), value != null ? value : "");
             }
         }
         return map;
@@ -621,28 +670,33 @@ public class AsynchronousProvisioningProxy implements ProvisioningService {
 
     @Override
     public BaseResult modifySubscription(String instanceId,
-            String subscriptionId, List<ServiceParameter> parameterValues,
-            User requestingUser) {
+            String subscriptionId, String referenceId,
+            List<ServiceParameter> parameterValues,
+            List<ServiceAttribute> attributeValues, User requestingUser) {
         return provResult.getBaseResult(BaseResult.class, 1, Messages.get(
                 getLocale(requestingUser), "error_synchronous_provisioning"));
     }
 
     @Override
     public BaseResult asyncUpgradeSubscription(String instanceId,
-            String subscriptionId, List<ServiceParameter> parameterValues,
-            User requestingUser) {
+            String subscriptionId, String referenceId,
+            List<ServiceParameter> parameterValues,
+            List<ServiceAttribute> attributeValues, User requestingUser) {
         final HashMap<String, String> parameterMap = createParameterMap(
                 parameterValues);
+        final HashMap<String, String> attributesMap = createAttributeMap(
+                attributeValues);
         logger.info("Upgrade instance {}: {}", instanceId, parameterMap);
-        return modifySubscription(instanceId, subscriptionId, parameterValues,
-                parameterMap, ProvisioningStatus.WAITING_FOR_SYSTEM_UPGRADE,
-                requestingUser);
+        return modifySubscription(instanceId, subscriptionId, referenceId,
+                parameterValues, attributeValues, parameterMap, attributesMap,
+                ProvisioningStatus.WAITING_FOR_SYSTEM_UPGRADE, requestingUser);
     }
 
     @Override
     public BaseResult upgradeSubscription(String instanceId,
-            String subscriptionId, List<ServiceParameter> parameterValues,
-            User requestingUser) {
+            String subscriptionId, String referenceId,
+            List<ServiceParameter> parameterValues,
+            List<ServiceAttribute> attributeValues, User requestingUser) {
         return provResult.getBaseResult(BaseResult.class, 1, Messages.get(
                 getLocale(requestingUser), "error_synchronous_provisioning"));
     }
@@ -692,11 +746,11 @@ public class AsynchronousProvisioningProxy implements ProvisioningService {
             q.setParameter("organizationId", organizationId);
             q.executeUpdate();
 
-            CustomSetting cs;
+            CustomAttribute cs;
             for (ServiceAttribute attr : attributeValues) {
-                cs = new CustomSetting();
+                cs = new CustomAttribute();
                 cs.setOrganizationId(organizationId);
-                cs.setSettingKey(attr.getAttributeId());
+                cs.setAttributeKey(attr.getAttributeId());
                 cs.setDecryptedValue(attr.getValue());
                 em.persist(cs);
             }

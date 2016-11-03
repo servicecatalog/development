@@ -148,8 +148,9 @@ public interface ProvisioningServiceAdapter {
      *         0 indicates an error.
      */
     public BaseResult modifySubscription(String instanceId,
-            String subscriptionId, List<ServiceParameter> parameterValues,
-            User requestingUser);
+            String subscriptionId, String referenceId,
+            List<ServiceParameter> parameterValues,
+            List<ServiceAttribute> attributeValues, User requestingUser);
 
     /**
      * Retrieves the status message and the return code of an update operation.
@@ -170,8 +171,14 @@ public interface ProvisioningServiceAdapter {
      *            subscription.
      * @param subscriptionId
      *            the subscription's id, can be changed by a user
+     * @param referenceId
+     *            the subscription's reference, can be changed by a user
      * @param parameterValues
      *            New values for parameters. The parameters are passed to your
+     *            application when <code>createInstance</code> or
+     *            <code>asynchCreateInstance</code> is called.
+     * @param attributesValues
+     *            New values for attributes. The attributes are passed to your
      *            application when <code>createInstance</code> or
      *            <code>asynchCreateInstance</code> is called.
      * @return Object of type <code>BaseResult</code> containing a status
@@ -180,8 +187,9 @@ public interface ProvisioningServiceAdapter {
      *         0 indicates an error.
      */
     public BaseResult asyncModifySubscription(String instanceId,
-            String subscriptionId, List<ServiceParameter> parameterValues,
-            User requestingUser);
+            String subscriptionId, String referenceId,
+            List<ServiceParameter> parameterValues,
+            List<ServiceAttribute> attributeValues, User requestingUser);
 
     /**
      * Retrieves the status message and the return code of an upgrade or
@@ -203,8 +211,14 @@ public interface ProvisioningServiceAdapter {
      *            subscription.
      * @param subscriptionId
      *            the subscription's id, can be changed by a user
+     * @param referenceId
+     *            the subscription's reference, can be changed by a user
      * @param parameterValues
      *            New values for parameters. The parameters are passed to your
+     *            application when <code>createInstance</code> or
+     *            <code>asynchCreateInstance</code> is called.
+     * @param attributesValues
+     *            New values for attributes. The attributes are passed to your
      *            application when <code>createInstance</code> or
      *            <code>asynchCreateInstance</code> is called.
      * @return Object of type <code>BaseResult</code> containing a status
@@ -213,8 +227,9 @@ public interface ProvisioningServiceAdapter {
      *         0 indicates an error.
      */
     public BaseResult asyncUpgradeSubscription(String instanceId,
-            String subscriptionId, List<ServiceParameter> parameterValues,
-            User requestingUser);
+            String subscriptionId, String referenceId,
+            List<ServiceParameter> parameterValues,
+            List<ServiceAttribute> attributeValues, User requestingUser);
 
     /**
      * Retrieves the status message and the return code of an upgrade or
@@ -235,8 +250,14 @@ public interface ProvisioningServiceAdapter {
      *            subscription.
      * @param subscriptionId
      *            the subscription's id, can be changed by a user
+     * @param referenceId
+     *            the subscription's reference, can be changed by a user
      * @param parameterValues
      *            New values for parameters. The parameters are passed to your
+     *            application when <code>createInstance</code> or
+     *            <code>asynchCreateInstance</code> is called.
+     * @param attributesValues
+     *            New values for attributes. The attributes are passed to your
      *            application when <code>createInstance</code> or
      *            <code>asynchCreateInstance</code> is called.
      * @return Object of type <code>BaseResult</code> containing a status
@@ -245,8 +266,9 @@ public interface ProvisioningServiceAdapter {
      *         0 indicates an error.
      */
     public BaseResult upgradeSubscription(String instanceId,
-            String subscriptionId, List<ServiceParameter> parameterValues,
-            User requestingUser);
+            String subscriptionId, String referenceId,
+            List<ServiceParameter> parameterValues,
+            List<ServiceAttribute> attributeValues, User requestingUser);
 
     /**
      * Assigns new users to the subscription of a service. The operation is only

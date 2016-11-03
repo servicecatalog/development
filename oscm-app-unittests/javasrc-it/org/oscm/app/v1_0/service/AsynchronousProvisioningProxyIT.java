@@ -460,7 +460,9 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
     @Test
     public void testModifySubscription() {
         final BaseResult result = proxy.modifySubscription("instanceId",
-                "subscriptionId", new ArrayList<ServiceParameter>(), null);
+                "subscriptionId", "referenceId",
+                new ArrayList<ServiceParameter>(),
+                new ArrayList<ServiceAttribute>(), null);
         assertEquals(1, result.getRc());
         assertEquals(Messages.get("en", "error_synchronous_provisioning"),
                 result.getDesc());
@@ -469,7 +471,9 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
     @Test
     public void testUpgradeSubscription() {
         final BaseResult result = proxy.upgradeSubscription("instanceId",
-                "subscriptionId", new ArrayList<ServiceParameter>(), null);
+                "subscriptionId", "referenceId",
+                new ArrayList<ServiceParameter>(),
+                new ArrayList<ServiceAttribute>(), null);
         assertEquals(1, result.getRc());
         assertEquals(Messages.get("en", "error_synchronous_provisioning"),
                 result.getDesc());
@@ -955,9 +959,9 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
             @Override
             public BaseResult call() {
                 // Invoke modify although creation is just active
-                List<ServiceParameter> params = new ArrayList<>();
                 return proxy.asyncModifySubscription(null, subscriptionId,
-                        params, null);
+                        "referenceId", new ArrayList<ServiceParameter>(),
+                        new ArrayList<ServiceAttribute>(), null);
             }
         });
         assertEquals(1, result.getRc());
@@ -975,9 +979,9 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
             @Override
             public BaseResult call() {
                 // Invoke modify although modification is just active
-                List<ServiceParameter> params = new ArrayList<>();
                 return proxy.asyncModifySubscription(instanceId, subscriptionId,
-                        params, null);
+                        "referenceId", new ArrayList<ServiceParameter>(),
+                        new ArrayList<ServiceAttribute>(), null);
             }
         });
         assertEquals(1, result.getRc());
@@ -989,9 +993,10 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
     @Test
     public void modifySubscription_appException() throws Exception {
         final String instanceId = createService(ProvisioningStatus.COMPLETED);
-        final List<ServiceParameter> params = new ArrayList<>();
         doReturn(new BaseResult()).when(provServiceMock)
-                .asyncModifySubscription(instanceId, "", params, null);
+                .asyncModifySubscription(instanceId, "", "referenceId",
+                        new ArrayList<ServiceParameter>(),
+                        new ArrayList<ServiceAttribute>(), null);
 
         when(controllerMock.modifyInstance(anyString(),
                 any(ProvisioningSettings.class),
@@ -1000,8 +1005,9 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
         final BaseResult result = runTX(new Callable<BaseResult>() {
             @Override
             public BaseResult call() {
-                return proxy.asyncModifySubscription(instanceId, "", params,
-                        null);
+                return proxy.asyncModifySubscription(instanceId, "",
+                        "referenceId", new ArrayList<ServiceParameter>(),
+                        new ArrayList<ServiceAttribute>(), null);
             }
         });
         assertEquals(1, result.getRc());
@@ -1015,9 +1021,9 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
         final BaseResult result = runTX(new Callable<BaseResult>() {
             @Override
             public BaseResult call() {
-                List<ServiceParameter> params = new ArrayList<>();
                 return proxy.asyncModifySubscription("unknown", subscriptionId,
-                        params, null);
+                        "referenceId", new ArrayList<ServiceParameter>(),
+                        new ArrayList<ServiceAttribute>(), null);
             }
         });
         assertEquals(1, result.getRc());
@@ -1030,12 +1036,13 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
     public void modifySubscription_ProductFailure() throws Exception {
         final String instanceId = createService(ProvisioningStatus.COMPLETED);
         final String subscriptionId = "";
-        final List<ServiceParameter> params = Collections.emptyList();
         final BaseResult result = new BaseResult();
         result.setRc(1);
 
         doReturn(result).when(provServiceMock).modifySubscription(instanceId,
-                subscriptionId, params, null);
+                subscriptionId, "referenceId",
+                new ArrayList<ServiceParameter>(),
+                new ArrayList<ServiceAttribute>(), null);
 
         InstanceStatus mockStatus = new InstanceStatus();
         mockStatus.setInstanceProvisioningRequired(true);
@@ -1047,25 +1054,28 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
             @Override
             public BaseResult call() {
                 return proxy.asyncModifySubscription(instanceId, subscriptionId,
-                        params, null);
+                        "referenceId", new ArrayList<ServiceParameter>(),
+                        new ArrayList<ServiceAttribute>(), null);
             }
         });
         Assert.assertEquals(result.getDesc(), br.getDesc());
         Assert.assertEquals(result.getRc(), br.getRc());
         verify(provServiceMock).modifySubscription(instanceId, subscriptionId,
-                params, null);
+                "referenceId", new ArrayList<ServiceParameter>(),
+                new ArrayList<ServiceAttribute>(), null);
     }
 
     @Test
     public void modifySubscription_NoProvOnInstance() throws Exception {
         final String instanceId = createService(ProvisioningStatus.COMPLETED);
         final String subscriptionId = "";
-        final List<ServiceParameter> params = Collections.emptyList();
         final BaseResult result = new BaseResult();
         result.setRc(1);
 
         doReturn(result).when(provServiceMock).modifySubscription(instanceId,
-                subscriptionId, params, null);
+                subscriptionId, "referenceId",
+                new ArrayList<ServiceParameter>(),
+                new ArrayList<ServiceAttribute>(), null);
 
         when(controllerMock.modifyInstance(anyString(),
                 any(ProvisioningSettings.class),
@@ -1076,7 +1086,8 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
             @Override
             public BaseResult call() {
                 return proxy.asyncModifySubscription(instanceId, subscriptionId,
-                        params, null);
+                        "referenceId", new ArrayList<ServiceParameter>(),
+                        new ArrayList<ServiceAttribute>(), null);
             }
         });
         // OK result because provisioning on instance has never been called
@@ -1087,6 +1098,8 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
     @Test
     public void modifySubscription() throws Exception {
         final List<ServiceParameter> parameters = new ArrayList<>();
+        final List<ServiceAttribute> attributes = new ArrayList<>();
+
         ServiceParameter p1 = new ServiceParameter();
         p1.setParameterId("param1");
         p1.setValue("value1");
@@ -1095,6 +1108,11 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
         p2.setParameterId("APP_param2");
         p2.setValue("xxxx");
         parameters.add(p2);
+
+        ServiceAttribute a1 = new ServiceAttribute();
+        a1.setAttributeId("attr1");
+        a1.setValue("value1");
+        attributes.add(a1);
 
         final List<ServiceParameter> filteredParameters = new ArrayList<>();
         filteredParameters.add(p1);
@@ -1107,7 +1125,8 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
                 "param1", "1", "APP_param2", "xyz");
 
         doReturn(new BaseResult()).when(provServiceMock).modifySubscription(
-                instanceId, subscriptionId, filteredParameters, null);
+                instanceId, subscriptionId, "referenceId", filteredParameters,
+                attributes, null);
 
         when(controllerMock.modifyInstance(anyString(),
                 any(ProvisioningSettings.class),
@@ -1116,7 +1135,7 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
             @Override
             public BaseResult call() {
                 return proxy.asyncModifySubscription(instanceId, subscriptionId,
-                        parameters, null);
+                        "referenceId", parameters, attributes, null);
             }
         });
 
@@ -1132,7 +1151,7 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
         assertEquals("Ok", result.getDesc());
 
         verify(provServiceMock).modifySubscription(instanceId, subscriptionId,
-                filteredParameters, null);
+                "referenceId", filteredParameters, attributes, null);
         ArgumentCaptor<String> stringCaptor = ArgumentCaptor
                 .forClass(String.class);
         ArgumentCaptor<ProvisioningSettings> oldCaptor = ArgumentCaptor
@@ -1157,6 +1176,8 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
     @Test
     public void upgradeSubscription() throws Exception {
         final List<ServiceParameter> parameters = new ArrayList<>();
+        final List<ServiceAttribute> attributes = new ArrayList<>();
+
         ServiceParameter p1 = new ServiceParameter();
         p1.setParameterId("param1");
         p1.setValue("value1");
@@ -1165,6 +1186,11 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
         p2.setParameterId("APP_param2");
         p2.setValue("xxxx");
         parameters.add(p2);
+
+        ServiceAttribute a1 = new ServiceAttribute();
+        a1.setAttributeId("attr1");
+        a1.setValue("value1");
+        attributes.add(a1);
 
         final List<ServiceParameter> filteredParameters = new ArrayList<>();
         filteredParameters.add(p1);
@@ -1183,7 +1209,8 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
             @Override
             public BaseResult call() {
                 return proxy.asyncUpgradeSubscription(instanceId,
-                        subscriptionId, parameters, null);
+                        subscriptionId, "referenceId", parameters, attributes,
+                        null);
             }
         });
 

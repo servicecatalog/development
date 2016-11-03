@@ -26,20 +26,15 @@ import org.oscm.types.enumtypes.UdaTargetType;
 public class AttributeFilter {
 
     /**
-     * Converts the UDA list of the subscription related organization into a
-     * ServiceAttribute list.
+     * Converts the customer UDA list of the subscription related organization
+     * into a ServiceAttribute list.
      * 
-     * @param parameterSet
-     *            The ParameterSet of parameters which have to be converted.
-     * @param technicalProduct
-     *            The related technical product the
-     * @param filterOnetimeParameter
-     *            To filter out the product parameters with ONE_TIME
-     *            modificationType
+     * @param subscription
+     *            the related subscription
      * 
      * @return the created ServiceAttribute list.
      */
-    public static List<ServiceAttribute> getServiceParameterList(
+    public static List<ServiceAttribute> getCustomAttributeList(
             Subscription subscription) {
 
         ArrayList<ServiceAttribute> list = new ArrayList<>();
@@ -72,4 +67,44 @@ public class AttributeFilter {
         return list;
     }
 
+    /**
+     * Converts the subscription UDA list into a ServiceAttribute list.
+     * 
+     * @param subscription
+     *            the related subscription
+     * 
+     * @return the created ServiceAttribute list.
+     */
+    public static List<ServiceAttribute> getSubscriptionAttributeList(
+            Subscription subscription) {
+
+        ArrayList<ServiceAttribute> list = new ArrayList<>();
+
+        Organization org = subscription.getProduct().getVendor();
+
+        for (UdaDefinition def : org.getUdaDefinitions()) {
+            if (def.getTargetType() == UdaTargetType.CUSTOMER_SUBSCRIPTION) {
+                boolean exists = false;
+
+                for (Uda uda : def.getUdas()) {
+                    if (uda.getTargetObjectKey() == subscription.getKey()) {
+                        ServiceAttribute attr = new ServiceAttribute();
+                        attr.setAttributeId(def.getUdaId());
+                        attr.setValue(uda.getUdaValue());
+                        list.add(attr);
+                        exists = true;
+                    }
+                }
+
+                if (!exists) {
+                    ServiceAttribute attr = new ServiceAttribute();
+                    attr.setAttributeId(def.getUdaId());
+                    attr.setValue(def.getDefaultValue());
+                    list.add(attr);
+                }
+            }
+        }
+
+        return list;
+    }
 }
