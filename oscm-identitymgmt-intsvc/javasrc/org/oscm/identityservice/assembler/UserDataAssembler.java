@@ -357,6 +357,7 @@ public class UserDataAssembler extends BaseAssembler {
         u.setLocale(platformUser.getLocale());
         u.setSalutation(platformUser.getSalutation());
         u.setKey(platformUser.getKey());
+        u.setTenantId(platformUser.getTenantId());
         return u;
     }
 }
