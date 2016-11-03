@@ -230,4 +230,10 @@ public class MarketplaceServiceStub implements MarketplaceService {
         return null;
     }
 
+    @Override
+    public String getMarketplaceIdForKey(Long key)
+            throws ObjectNotFoundException {
+        throw new UnsupportedOperationException();
+    }
+
 }
