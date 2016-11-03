@@ -88,7 +88,8 @@ public abstract class RequestParameters {
     public void validateId() throws WebApplicationException {
 
         if (id == null) {
-            throw WebException.notFound().message(CommonParams.ERROR_INVALID_ID).build();
+            throw WebException.notFound()
+                    .message(CommonParams.ERROR_INVALID_ID).build();
         }
     }
 
@@ -106,7 +107,8 @@ public abstract class RequestParameters {
             try {
                 etag = new Long(Long.parseLong(noneMatch));
             } catch (NumberFormatException e) {
-                throw WebException.badRequest().message(CommonParams.ERROR_INVALID_TAG).build();
+                throw WebException.badRequest()
+                        .message(CommonParams.ERROR_INVALID_TAG).build();
             }
         }
 
@@ -114,7 +116,8 @@ public abstract class RequestParameters {
             try {
                 etag = new Long(Long.parseLong(match));
             } catch (NumberFormatException e) {
-                throw WebException.badRequest().message(CommonParams.ERROR_INVALID_TAG).build();
+                throw WebException.badRequest()
+                        .message(CommonParams.ERROR_INVALID_TAG).build();
             }
         }
     }
