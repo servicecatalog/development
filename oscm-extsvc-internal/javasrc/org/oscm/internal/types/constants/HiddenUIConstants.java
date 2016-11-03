@@ -109,7 +109,6 @@ public interface HiddenUIConstants {
     String MARKETPLACE_MENU_ITEM_ACCOUNT_REPORTS = "marketplace.navigation.Reports";
     String MARKETPLACE_MENU_ITEM_ACCOUNT_PROCESSES = "marketplace.navigation.Processes";
     String MARKETPLACE_MENU_ITEM_ACCOUNT_OPERATIONS = "marketplace.navigation.Operations";
-    String MARKETPLACE_MENU_ITEM_ACCOUNT_ATTRIBUTES = "marketplace.navigation.Attributes";
     String MARKETPLACE_MENU_ITEM_ACCOUNT_ADMINISTRATION = "marketplace.navigation.Administration";
 
 }

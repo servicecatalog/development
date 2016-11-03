@@ -30,7 +30,6 @@ import org.oscm.ui.common.JSFUtils;
 
 public class AccountNavigationBean extends BaseBean implements Serializable {
 
-    static final String MARKETPLACE_ACCOUNT_ATTRIBUTES_TITLE = "marketplace.account.attributes.title";
     static final String MARKETPLACE_ACCOUNT_OPERATIONS_TITLE = "marketplace.account.operations.title";
     static final String MARKETPLACE_ACCOUNT_PROCESSES_TITLE = "marketplace.account.processes.title";
     static final String MARKETPLACE_ACCOUNT_REPORTS_TITLE = "marketplace.account.reports.title";
@@ -51,7 +50,6 @@ public class AccountNavigationBean extends BaseBean implements Serializable {
     private static final String REPORTS_LINK = "account/reports.jsf";
     private static final String PROCESSES_LINK = "account/processes.jsf";
     private static final String OPERATIONS_LINK = "account/operations.jsf";
-    private static final String ATTRIBUTES_LINK = "account/attributes.jsf";
 
     private static final long serialVersionUID = -8392197098976931792L;
 
@@ -62,7 +60,7 @@ public class AccountNavigationBean extends BaseBean implements Serializable {
 
     private void initLinks() {
         if (linkMap == null) {
-            linkMap = new LinkedHashMap<>(10);
+            linkMap = new LinkedHashMap<>(7);
             linkMap.put(MARKETPLACE_ACCOUNT_TITLE, ACCOUNT_LINK);
 
             boolean isLoggedInAndAdmin = isLoggedInAndAdmin();
@@ -73,7 +71,6 @@ public class AccountNavigationBean extends BaseBean implements Serializable {
             addReportsLink();
             addProcessesLink();
             addOperationsLink();
-            addAttributeLink(isLoggedInAndAdmin);
             addAdministrationLink();
         }
     }
@@ -92,7 +89,8 @@ public class AccountNavigationBean extends BaseBean implements Serializable {
 
     private void addSubscriptionsLink(boolean isLoggedInAndAdmin) {
         if (isLoggedInAndAdmin || isLoggedInAndSubscriptionManager()) {
-            setLinkVisible(MARKETPLACE_ACCOUNT_SUBSCRIPTIONS_TITLE,
+            setLinkVisible(
+                    MARKETPLACE_ACCOUNT_SUBSCRIPTIONS_TITLE,
                     SUBSCRIPTIONS_LINK,
                     HiddenUIConstants.MARKETPLACE_MENU_ITEM_ACCOUNT_SUBSCRIPTIONS);
         }
@@ -123,14 +121,6 @@ public class AccountNavigationBean extends BaseBean implements Serializable {
     private void addOperationsLink() {
         setLinkVisible(MARKETPLACE_ACCOUNT_OPERATIONS_TITLE, OPERATIONS_LINK,
                 HiddenUIConstants.MARKETPLACE_MENU_ITEM_ACCOUNT_OPERATIONS);
-    }
-
-    private void addAttributeLink(boolean isLoggedInAndAdmin) {
-        if (isLoggedInAndAdmin) {
-            setLinkVisible(MARKETPLACE_ACCOUNT_ATTRIBUTES_TITLE,
-                    ATTRIBUTES_LINK,
-                    HiddenUIConstants.MARKETPLACE_MENU_ITEM_ACCOUNT_ATTRIBUTES);
-        }
     }
 
     private void addAdministrationLink() {
@@ -180,8 +170,7 @@ public class AccountNavigationBean extends BaseBean implements Serializable {
      *         otherwise.
      */
     public boolean isReportingAvailable() {
-        return (getApplicationBean().isReportingAvailable()
-                && isLoggedInAndAdmin());
+        return (getApplicationBean().isReportingAvailable() && isLoggedInAndAdmin());
     }
 
     public boolean isAdministrationAvailable() {

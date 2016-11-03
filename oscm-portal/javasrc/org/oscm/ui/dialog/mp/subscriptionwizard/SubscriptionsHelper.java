@@ -35,10 +35,9 @@ public class SubscriptionsHelper implements Serializable {
     }
 
     /**
-     * get VOUdas from subscriptionUdaRows and organizationUdaRows
+     * get VOUdas from subscriptionUdaRows
      *
      * @param subscriptionUdaRows
-     * @param organizationUdaRows
      * @return list of all VOUdas
      */
     public List<VOUda> getVoUdaFromUdaRows(List<UdaRow> subscriptionUdaRows) {
