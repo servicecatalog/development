@@ -16,6 +16,5 @@
 	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/modules/jersey-gf-server.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-common"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc-internal"/>
-	<classpathentry kind="src" path="/oscm-configservice-intsvc"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
