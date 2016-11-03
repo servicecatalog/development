@@ -43,7 +43,8 @@ public class RestTriggerResourceTest {
 
     @Test
     public void testAction() throws Exception {
-        RestTriggerResource.Action action = new RestTriggerResource().redirectToAction();
+        RestTriggerResource.Action action = new RestTriggerResource()
+                .redirectToAction();
 
         TriggerParameters params = new TriggerParameters();
         params.setId(new Long(1L));
@@ -55,7 +56,8 @@ public class RestTriggerResourceTest {
         Mockito.when(request.getProperties()).thenReturn(map);
 
         Response response = action.getCollection(request, params);
-        assertThat(response.getEntity(), instanceOf(RepresentationCollection.class));
+        assertThat(response.getEntity(),
+                instanceOf(RepresentationCollection.class));
 
         assertNull(action.getItem(request, params));
     }
@@ -63,10 +65,12 @@ public class RestTriggerResourceTest {
     @Test
     public void testDefinition() throws Exception {
         RestTriggerResource resource = new RestTriggerResource();
-        RestTriggerResource.Definition definition = resource.redirectToTrigger();
+        RestTriggerResource.Definition definition = resource
+                .redirectToTrigger();
 
         DefinitionBackend backend = new DefinitionBackend();
-        TriggerDefinitionService service = Mockito.mock(TriggerDefinitionService.class);
+        TriggerDefinitionService service = Mockito
+                .mock(TriggerDefinitionService.class);
         backend.setService(service);
         resource.setDefinitionBackend(backend);
 
@@ -79,13 +83,16 @@ public class RestTriggerResourceTest {
 
         ContainerRequest request = Mockito.mock(ContainerRequest.class);
         Mockito.when(request.getProperties()).thenReturn(map);
-        Mockito.when(request.getAbsolutePathBuilder()).thenReturn(new UriBuilderImpl());
+        Mockito.when(request.getAbsolutePathBuilder()).thenReturn(
+                new UriBuilderImpl());
 
         Response response = definition.getCollection(request, params);
-        assertThat(response.getEntity(), instanceOf(RepresentationCollection.class));
+        assertThat(response.getEntity(),
+                instanceOf(RepresentationCollection.class));
 
         response = definition.getItem(request, params);
-        assertThat(response.getEntity(), instanceOf(DefinitionRepresentation.class));
+        assertThat(response.getEntity(),
+                instanceOf(DefinitionRepresentation.class));
 
         DefinitionRepresentation content = new DefinitionRepresentation();
         content.setId(new Long(1L));
@@ -97,10 +104,12 @@ public class RestTriggerResourceTest {
         content.setAction("SUBSCRIBE_TO_SERVICE");
 
         response = definition.postCollection(request, content, params);
-        assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
+        assertEquals(Response.Status.CREATED.getStatusCode(),
+                response.getStatus());
 
         response = definition.putItem(request, content, params);
-        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
+        assertEquals(Response.Status.NO_CONTENT.getStatusCode(),
+                response.getStatus());
     }
 
     @Test
@@ -126,10 +135,12 @@ public class RestTriggerResourceTest {
         content.setComment("abc");
 
         Response response = process.putApprove(request, params);
-        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
+        assertEquals(Response.Status.NO_CONTENT.getStatusCode(),
+                response.getStatus());
 
         response = process.putReject(request, content, params);
-        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
+        assertEquals(Response.Status.NO_CONTENT.getStatusCode(),
+                response.getStatus());
     }
 
 }
