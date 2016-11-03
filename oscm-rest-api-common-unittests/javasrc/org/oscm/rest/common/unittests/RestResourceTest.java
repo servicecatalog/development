@@ -82,7 +82,8 @@ public class RestResourceTest extends RestResource {
     private RestBackend.Post<MockRepresentation, MockRequestParameters> backendPost = new RestBackend.Post<MockRepresentation, MockRequestParameters>() {
 
         @Override
-        public Object post(MockRepresentation content, MockRequestParameters params) {
+        public Object post(MockRepresentation content,
+                MockRequestParameters params) {
 
             assertNotNull(content);
             assertNotNull(params);
@@ -94,7 +95,8 @@ public class RestResourceTest extends RestResource {
     private RestBackend.Put<MockRepresentation, MockRequestParameters> backendPut = new RestBackend.Put<MockRepresentation, MockRequestParameters>() {
 
         @Override
-        public boolean put(MockRepresentation content, MockRequestParameters params) {
+        public boolean put(MockRepresentation content,
+                MockRequestParameters params) {
 
             assertNotNull(content);
             assertNull(content.getETag());
@@ -106,7 +108,8 @@ public class RestResourceTest extends RestResource {
     private RestBackend.Put<MockRepresentation, MockRequestParameters> backendPutETag = new RestBackend.Put<MockRepresentation, MockRequestParameters>() {
 
         @Override
-        public boolean put(MockRepresentation content, MockRequestParameters params) {
+        public boolean put(MockRepresentation content,
+                MockRequestParameters params) {
 
             assertNotNull(content);
             assertNotNull(content.getETag());
@@ -243,49 +246,56 @@ public class RestResourceTest extends RestResource {
             get(requestWithout, backendGet, params, false);
             fail();
         } catch (WebApplicationException e) {
-            assertEquals(Status.NOT_FOUND.getStatusCode(), e.getResponse().getStatus());
+            assertEquals(Status.NOT_FOUND.getStatusCode(), e.getResponse()
+                    .getStatus());
         }
 
         try {
             post(requestWithout, backendPost, null, params);
             fail();
         } catch (WebApplicationException e) {
-            assertEquals(Status.NOT_FOUND.getStatusCode(), e.getResponse().getStatus());
+            assertEquals(Status.NOT_FOUND.getStatusCode(), e.getResponse()
+                    .getStatus());
         }
 
         try {
             put(requestWithout, backendPut, null, params);
             fail();
         } catch (WebApplicationException e) {
-            assertEquals(Status.NOT_FOUND.getStatusCode(), e.getResponse().getStatus());
+            assertEquals(Status.NOT_FOUND.getStatusCode(), e.getResponse()
+                    .getStatus());
         }
 
         try {
             delete(requestWithout, backendDelete, params);
             fail();
         } catch (WebApplicationException e) {
-            assertEquals(Status.NOT_FOUND.getStatusCode(), e.getResponse().getStatus());
+            assertEquals(Status.NOT_FOUND.getStatusCode(), e.getResponse()
+                    .getStatus());
         }
 
         try {
             get(requestWith, backendGet, params, true);
             fail();
         } catch (WebApplicationException e) {
-            assertEquals(Status.NOT_FOUND.getStatusCode(), e.getResponse().getStatus());
+            assertEquals(Status.NOT_FOUND.getStatusCode(), e.getResponse()
+                    .getStatus());
         }
 
         try {
             put(requestWith, backendPut, null, params);
             fail();
         } catch (WebApplicationException e) {
-            assertEquals(Status.NOT_FOUND.getStatusCode(), e.getResponse().getStatus());
+            assertEquals(Status.NOT_FOUND.getStatusCode(), e.getResponse()
+                    .getStatus());
         }
 
         try {
             delete(requestWith, backendDelete, params);
             fail();
         } catch (WebApplicationException e) {
-            assertEquals(Status.NOT_FOUND.getStatusCode(), e.getResponse().getStatus());
+            assertEquals(Status.NOT_FOUND.getStatusCode(), e.getResponse()
+                    .getStatus());
         }
     }
 }

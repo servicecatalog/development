@@ -53,7 +53,8 @@ public class SubscriptionServiceWSTest {
         serviceWS.ds = ds;
     }
 
-    private WebServiceContext createWebServiceContextMock(String expectedIP, String expectedUser) {
+    private WebServiceContext createWebServiceContextMock(String expectedIP,
+            String expectedUser) {
         requestMock = mock(HttpServletRequest.class);
         when(requestMock.getRemoteAddr()).thenReturn(expectedIP);
 
@@ -106,7 +107,8 @@ public class SubscriptionServiceWSTest {
 
         verify(serviceMock, times(1)).abortAsyncSubscription(null, null, null);
         verify(serviceMock, times(1)).addRevokeUser(null, null, null);
-        verify(serviceMock, times(1)).completeAsyncSubscription(null, null, null);
+        verify(serviceMock, times(1)).completeAsyncSubscription(null, null,
+                null);
         verify(serviceMock, times(1)).getSubscriptionsForCurrentUser();
         verify(serviceMock, times(1)).getSubscriptionsForUser(null);
         verify(serviceMock, times(1)).getCustomersForSubscriptionId(null);
@@ -118,19 +120,26 @@ public class SubscriptionServiceWSTest {
         verify(serviceMock, times(1)).getSubscriptionsForOrganization();
         verify(serviceMock, times(1)).getUpgradeOptions(null);
         verify(serviceMock, times(1)).modifySubscription(null, null, null);
-        verify(serviceMock, times(1)).subscribeToService(null, null, null, null, null, null);
+        verify(serviceMock, times(1)).subscribeToService(null, null, null,
+                null, null, null);
         verify(serviceMock, times(1)).unsubscribeFromService((String) null);
-        verify(serviceMock, times(1)).upgradeSubscription(null, null, null, null, null);
+        verify(serviceMock, times(1)).upgradeSubscription(null, null, null,
+                null, null);
         verify(serviceMock, times(1)).getServiceRolesForService(null);
-        verify(serviceMock, times(1)).updateAsyncSubscriptionProgress(null, null, null);
+        verify(serviceMock, times(1)).updateAsyncSubscriptionProgress(null,
+                null, null);
         verify(serviceMock, times(1)).executeServiceOperation(null, null);
         verify(serviceMock, times(1)).terminateSubscription(null, null);
         verify(serviceMock, times(1)).hasCurrentUserSubscriptions();
-        verify(serviceMock, times(1)).modifySubscriptionPaymentData(null, null, null);
-        verify(serviceMock, times(1)).getSubscriptionsForOrganizationWithFilter(null);
+        verify(serviceMock, times(1)).modifySubscriptionPaymentData(null, null,
+                null);
+        verify(serviceMock, times(1))
+                .getSubscriptionsForOrganizationWithFilter(null);
         verify(serviceMock, times(1)).reportIssue(null, null, null);
-        verify(serviceMock, times(1)).getServiceOperationParameterValues(null, null);
-        verify(serviceMock, times(1)).updateAsyncOperationProgress(null, null, null);
+        verify(serviceMock, times(1)).getServiceOperationParameterValues(null,
+                null);
+        verify(serviceMock, times(1)).updateAsyncOperationProgress(null, null,
+                null);
     }
 
 }

@@ -51,7 +51,8 @@ public interface RestFrontend {
          * @return the response with the representations
          * @throws Exception
          */
-        public Response getCollection(Request request, P params) throws Exception;
+        public Response getCollection(Request request, P params)
+                throws Exception;
     }
 
     /**
@@ -79,7 +80,8 @@ public interface RestFrontend {
          * @return the response with the location
          * @throws Exception
          */
-        public Response postCollection(Request request, R content, P params) throws Exception;
+        public Response postCollection(Request request, R content, P params)
+                throws Exception;
     }
 
     /**
@@ -107,7 +109,8 @@ public interface RestFrontend {
          * @return the response without content
          * @throws Exception
          */
-        public Response putItem(Request request, R content, P params) throws Exception;
+        public Response putItem(Request request, R content, P params)
+                throws Exception;
     }
 
     /**
@@ -143,8 +146,8 @@ public interface RestFrontend {
      * @param <P>
      *            request parameters
      */
-    public interface Crud<R extends Representation, P extends RequestParameters> extends Get<P>, Post<R, P>, Put<R, P>,
-            Delete<P> {
+    public interface Crud<R extends Representation, P extends RequestParameters>
+            extends Get<P>, Post<R, P>, Put<R, P>, Delete<P> {
     }
 
 }
