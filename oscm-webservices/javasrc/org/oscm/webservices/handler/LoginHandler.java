@@ -23,16 +23,20 @@ import javax.xml.ws.handler.soap.SOAPMessageContext;
 
 import org.apache.commons.lang3.StringUtils;
 import org.glassfish.security.common.PrincipalImpl;
-import org.w3c.dom.Element;
-
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
 import org.oscm.converter.XMLConverter;
-import org.oscm.saml2.api.SAMLResponseExtractor;
-import org.oscm.types.enumtypes.LogMessageIdentifier;
+import org.oscm.internal.intf.ConfigurationService;
+import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.types.exception.NotExistentTenantException;
 import org.oscm.internal.types.exception.UserIdNotFoundException;
+import org.oscm.internal.vo.VOConfigurationSetting;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
+import org.oscm.saml2.api.SAMLResponseExtractor;
+import org.oscm.types.constants.Configuration;
+import org.oscm.types.enumtypes.LogMessageIdentifier;
 import org.oscm.types.exceptions.SecurityCheckException;
+import org.w3c.dom.Element;
+
 import com.sun.appserv.security.ProgrammaticLogin;
 import com.sun.xml.ws.security.opt.impl.incoming.SAMLAssertion;
 import com.sun.xml.wss.XWSSecurityException;
@@ -43,30 +47,17 @@ public class LoginHandler implements SOAPHandler<SOAPMessageContext> {
 
     private static final String ORGANIZATION_ID_HEADER_PARAM = "organizationId";
     
+    private Context context;
+    private DataSource dataSource;
+    private ConfigurationService configService;
     private AbstractKeyQuery keyQuery;
-    
-    private SAMLResponseExtractor samlExtractor = new SAMLResponseExtractor();
-    
-    public AbstractKeyQuery getKeyQuery() {
-        return keyQuery;
-    }
-
-    public void setKeyQuery(AbstractKeyQuery keyQuery) {
-        this.keyQuery = keyQuery;
-    }
-    
-    public DataSource getDbSource() throws NamingException{
-        Context context = new InitialContext();
-        DataSource ds = (DataSource) context.lookup("BSSDS");
-        
-        return ds;
-    }
+    private SAMLResponseExtractor samlExtractor;
 
     @Override
     public boolean handleMessage(SOAPMessageContext context) {
 
         if (isInboundMessage(context).booleanValue()) {
-      
+
             String userKey = null;
             try {
                 userKey = getUserKeyFromContext(context);
@@ -147,14 +138,25 @@ public class LoginHandler implements SOAPHandler<SOAPMessageContext> {
     
     private String getUserKey(String userId, String orgId, String tenantId)
             throws NamingException, SQLException {
-
-        DataSource dbSource = getDbSource();
-
+        
         if (StringUtils.isNotEmpty(tenantId)) {
-            keyQuery = new UserKeyForTenantQuery(dbSource, userId, tenantId);
-            
-        } else if(StringUtils.isNotEmpty(orgId)){
-            keyQuery = new UserKeyForOrganizationQuery(dbSource, userId, orgId);
+
+            VOConfigurationSetting setting = getConfigService()
+                    .getVOConfigurationSetting(
+                            ConfigurationKey.SSO_DEFAULT_TENANT_ID,
+                            Configuration.GLOBAL_CONTEXT);
+            String defaultTenantId = setting.getValue();
+
+            if (tenantId.equals(defaultTenantId)) {
+                keyQuery = new UserKeyQuery(getDataSource(), userId);
+            } else {
+                keyQuery = new UserKeyForTenantQuery(getDataSource(), userId,
+                        tenantId);
+            }
+
+        } else if (StringUtils.isNotEmpty(orgId)) {
+            keyQuery = new UserKeyForOrganizationQuery(getDataSource(), userId,
+                    orgId);
         }
 
         keyQuery.execute();
@@ -175,9 +177,8 @@ public class LoginHandler implements SOAPHandler<SOAPMessageContext> {
         String userId;
         
         SAMLAssertion samlAssertion = getSamlAssertion(context);
-        SAMLResponseExtractor extractor = new SAMLResponseExtractor();
 
-        userId = extractor.getUserId(samlAssertion);
+        userId = getSamlExtractor().getUserId(samlAssertion);
         return userId;
     }
     
@@ -185,10 +186,9 @@ public class LoginHandler implements SOAPHandler<SOAPMessageContext> {
         
         String tenantId;
         
-        SAMLAssertion samlAssertion = (SAMLAssertion) context
-                .get(MessageConstants.INCOMING_SAML_ASSERTION);
+        SAMLAssertion samlAssertion = getSamlAssertion(context);
         
-        tenantId = samlExtractor.getTenantId(samlAssertion);
+        tenantId = getSamlExtractor().getTenantId(samlAssertion);
         return tenantId;
     }
     
@@ -217,6 +217,43 @@ public class LoginHandler implements SOAPHandler<SOAPMessageContext> {
         logDebugSamlAssertion(samlAssertion);
         
         return samlAssertion;
+    }
+    
+    private Context getContext() throws NamingException {
+
+        if (this.context == null) {
+            this.context = new InitialContext();
+        }
+        return this.context;
+    }
+
+    private DataSource getDataSource() throws NamingException {
+
+        Context context = getContext();
+
+        if (this.dataSource == null) {
+            this.dataSource = (DataSource) context.lookup("BSSDS");
+        }
+        return this.dataSource;
+    }
+
+    private ConfigurationService getConfigService() throws NamingException {
+
+        Context context = getContext();
+
+        if (this.configService == null) {
+            this.configService = (ConfigurationService) context
+                    .lookup(ConfigurationService.class.getName());
+        }
+        return this.configService;
+    }
+
+    private SAMLResponseExtractor getSamlExtractor() {
+
+        if (this.samlExtractor == null) {
+            this.samlExtractor = new SAMLResponseExtractor();
+        }
+        return this.samlExtractor;
     }
     
     @Override

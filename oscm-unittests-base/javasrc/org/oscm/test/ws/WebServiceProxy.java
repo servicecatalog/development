@@ -32,7 +32,9 @@ import com.sun.xml.wss.XWSSConstants;
  * 
  */
 public class WebServiceProxy {
-
+    
+    private static final String TENANT_ID = "tenantID";
+    
     public static <T> T get(String baseUrl, String version, String auth,
             String namespace, Class<T> remoteInterface, String userName,
             String password, String tenantId, String orgId) throws Exception {
@@ -48,7 +50,7 @@ public class WebServiceProxy {
                 + remoteInterface.getSimpleName() + "/" + auth + "?wsdl";
         
         if (tenantId != null) {
-            wsdlUrl += "&tenantId=" + tenantId;
+            wsdlUrl += "&" + TENANT_ID + "=" + tenantId;
         }
         
         URL url = new URL(wsdlUrl);
@@ -76,11 +78,17 @@ public class WebServiceProxy {
         if ("STS".equals(auth)) {
             clientRequestContext.put(XWSSConstants.USERNAME_PROPERTY, userName);
             clientRequestContext.put(XWSSConstants.PASSWORD_PROPERTY, password);
+            
+            
             clientRequestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
                     baseUrl + "/" + remoteInterface.getSimpleName() + "/"
                             + auth);
             
             Map<String, List<String>> headers = new HashMap<String, List<String>>();
+            
+            if(tenantId!= null){
+                headers.put(TENANT_ID, Collections.singletonList(tenantId)); 
+            }
             
             if(orgId!= null){
                 headers.put("organizationId", Collections.singletonList(orgId)); 
