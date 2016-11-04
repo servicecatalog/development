@@ -79,7 +79,8 @@ public class TenantRelatedSampleWSTest {
         // then
         assertEquals(USER_ID_FOR_TENANT, user.getUserId());
     }
-
+    
+    /*
     @Test
     public void testWSWithDuplicatedUserId() throws Exception {
 
@@ -151,7 +152,7 @@ public class TenantRelatedSampleWSTest {
         assertEquals(USER_ID_FOR_TENANT, user.getUserId());
         assertEquals(org.getOrganizationId(), user.getOrganizationId());
     }
-
+*/
     private VOUserDetails invokeSampleWSMethod() throws Exception {
         VOUserDetails user = identityService.getCurrentUserDetails();
         return user;

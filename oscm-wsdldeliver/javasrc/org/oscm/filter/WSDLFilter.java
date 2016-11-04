@@ -30,7 +30,7 @@ public class WSDLFilter implements Filter {
 
     private final String urlPattern = "/(v.*/)?(.*service)/(basic|sts|clientcert)";
     private final String servletUrl = "/WSDLDeliverServlet";
-    private final String tenantIdParam = "tenantId";
+    private final String tenantIdParam = "tenantID";
     @Override
     public void destroy() {
 

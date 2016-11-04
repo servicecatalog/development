@@ -50,7 +50,6 @@ import org.oscm.internal.intf.OperatorService;
 import org.oscm.internal.intf.TenantService;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.types.enumtypes.IdpSettingType;
-import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.vo.VOConfigurationSetting;
 import org.oscm.internal.vo.VOTenant;
 import org.oscm.internal.vo.VOTenantSetting;
@@ -67,7 +66,6 @@ public class WebserviceSAMLSPTestSetup extends WebserviceTestSetup {
 
     private static final String STSConfigTemplateFileName = "MockSTSServiceTemplate.xml";
     private static final String STSConfigFileName = "MockSTSService.xml";
-    private static final String STS_TENANT_ID = "asdqwe10";
     
     private static final String SSO_STS_URL = "SSO_STS_URL";
     private static final String SSO_STS_ENCKEY_LEN = "SSO_STS_ENCKEY_LEN";
@@ -82,7 +80,6 @@ public class WebserviceSAMLSPTestSetup extends WebserviceTestSetup {
     
     public WebserviceSAMLSPTestSetup() {
         setJKSLocation(getExampleDomainPath());
-        createMockStsTenant();
     }
 
     private void setJKSLocation(String domainPath) {
@@ -151,17 +148,6 @@ public class WebserviceSAMLSPTestSetup extends WebserviceTestSetup {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
         return builder.parse(file);
-    }
-    
-    private void createMockStsTenant(){
-        
-        try {
-            createTenantWithDefaultSettings(STS_TENANT_ID);
-        } catch (NonUniqueBusinessKeyException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
     
     @Override
@@ -262,7 +248,7 @@ public class WebserviceSAMLSPTestSetup extends WebserviceTestSetup {
         getTenantService().addTenant(voTenant);   
     }
     
-    private VOTenant createTenantWithDefaultSettings(String tenantId)
+    public VOTenant createTenantWithDefaultSettings(String tenantId)
             throws Exception {
         createTenant(tenantId);
         VOTenant tenant = getTenantService().getTenantByTenantId(tenantId);
