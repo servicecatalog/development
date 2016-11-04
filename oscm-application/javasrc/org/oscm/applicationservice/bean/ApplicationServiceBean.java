@@ -528,6 +528,7 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
         request.setDefaultLocale(subscription.getOrganization().getLocale());
         request.setOrganizationId(
                 subscription.getOrganization().getOrganizationId());
+        request.setReferenceId(subscription.getPurchaseOrderNumber());
         if (subscription.getProduct().getTechnicalProduct()
                 .getAccessType() != ServiceAccessType.DIRECT
                 && subscription.getProduct().getTechnicalProduct()
@@ -539,6 +540,8 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
         request.setOrganizationName(subscription.getOrganization().getName());
         request.setParameterValue(
                 ParameterFilter.getServiceParameterList(subscription, false));
+        request.setAttributeValue(
+                AttributeFilter.getSubscriptionAttributeList(subscription));
         return request;
     }
 

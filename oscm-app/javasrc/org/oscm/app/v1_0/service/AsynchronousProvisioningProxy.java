@@ -171,7 +171,7 @@ public class AsynchronousProvisioningProxy implements ProvisioningService {
                 .getCustomAttributes(request.getOrganizationId());
         final ProvisioningSettings settings = new ProvisioningSettings(
                 parameters, attributes, customAttributes, controllerSettings,
-                request.getDefaultLocale());
+                request.getDefaultLocale(), controllerId);
         settings.setOrganizationId(request.getOrganizationId());
         settings.setOrganizationName(request.getOrganizationName());
         settings.setSubscriptionId(request.getSubscriptionId());
@@ -466,7 +466,7 @@ public class AsynchronousProvisioningProxy implements ProvisioningService {
             final ProvisioningSettings newSettings = new ProvisioningSettings(
                     parameterMap, attributeMap,
                     currentSettings.getCustomAttributes(), controllerSettings,
-                    instance.getDefaultLocale());
+                    instance.getDefaultLocale(), instance.getControllerId());
             newSettings.setAuthentication(currentSettings.getAuthentication());
             configService.copyCredentialsFromControllerSettings(newSettings,
                     controllerSettings);

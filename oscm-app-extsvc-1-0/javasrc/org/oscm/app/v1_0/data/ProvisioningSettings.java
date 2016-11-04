@@ -9,7 +9,10 @@
 package org.oscm.app.v1_0.data;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Wrapper object for service parameters and configuration settings. Service
@@ -23,6 +26,8 @@ public class ProvisioningSettings extends ControllerSettings
         implements Serializable {
 
     private static final long serialVersionUID = 9161029657174458354L;
+
+    private static final String SEPARATOR = "_";
 
     private String locale;
     private HashMap<String, String> parameters;
@@ -78,12 +83,14 @@ public class ProvisioningSettings extends ControllerSettings
     public ProvisioningSettings(HashMap<String, String> parameters,
             HashMap<String, String> attributes,
             HashMap<String, String> customSettings,
-            HashMap<String, String> configSettings, String locale) {
+            HashMap<String, String> configSettings, String locale,
+            String controllerId) {
         super(configSettings);
         this.parameters = parameters;
         this.locale = locale;
         this.attributes = attributes;
         this.customAttributes = customSettings;
+        overwriteProperties(controllerId);
     }
 
     /**
@@ -304,4 +311,33 @@ public class ProvisioningSettings extends ControllerSettings
         this.requestingUser = user;
     }
 
+    public void overwriteProperties(String controllerId) {
+
+        String prefix = controllerId + SEPARATOR;
+
+        overwriteProperties("", getParameters(),
+                Arrays.asList(getConfigSettings()));
+        overwriteProperties(prefix, getCustomAttributes(),
+                Arrays.asList(getParameters(), getConfigSettings()));
+        overwriteProperties(prefix, getAttributes(),
+                Arrays.asList(getParameters(), getConfigSettings()));
+    }
+
+    private void overwriteProperties(String prefix,
+            HashMap<String, String> source,
+            List<HashMap<String, String>> targets) {
+
+        for (Map<String, String> target : targets) {
+            for (String key : source.keySet()) {
+                if (key != null && key.startsWith(prefix)) {
+                    String targetKey = key.substring(prefix.length());
+
+                    if (target.containsKey(targetKey)) {
+                        target.put(targetKey, source.get(key));
+                    }
+                }
+            }
+        }
+
+    }
 }

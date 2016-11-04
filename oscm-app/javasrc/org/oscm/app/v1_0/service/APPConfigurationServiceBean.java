@@ -380,7 +380,7 @@ public class APPConfigurationServiceBean {
         final ProvisioningSettings settings = new ProvisioningSettings(
                 instance.getParameterMap(), instance.getAttributeMap(),
                 customAttributes, controllerSettings,
-                instance.getDefaultLocale());
+                instance.getDefaultLocale(), instance.getControllerId());
 
         settings.setOrganizationId(instance.getOrganizationId());
         settings.setOrganizationName(instance.getOrganizationName());
