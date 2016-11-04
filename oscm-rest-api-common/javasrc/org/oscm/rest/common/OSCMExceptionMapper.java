@@ -1,3 +1,11 @@
+/*******************************************************************************
+ *                                                                              
+ *  Copyright FUJITSU LIMITED 2016                                           
+ *                                                                                                                                 
+ *  Creation Date: August 26, 2016                                                      
+ *                                                                              
+ *******************************************************************************/
+
 package org.oscm.rest.common;
 
 import javax.ws.rs.core.Response;
