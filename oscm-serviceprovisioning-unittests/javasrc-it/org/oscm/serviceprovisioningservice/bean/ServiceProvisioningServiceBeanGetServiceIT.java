@@ -108,8 +108,8 @@ import org.oscm.triggerservice.local.TriggerProcessMessageData;
  * 
  */
 @SuppressWarnings("boxing")
-public class ServiceProvisioningServiceBeanGetServiceIT extends
-        StaticEJBTestBase {
+public class ServiceProvisioningServiceBeanGetServiceIT
+        extends StaticEJBTestBase {
 
     private static ServiceProvisioningService sps;
     private static DataService ds;
@@ -155,9 +155,9 @@ public class ServiceProvisioningServiceBeanGetServiceIT extends
     @BeforeClass
     public static void setupOnce() throws Exception {
 
-        baseServices = new ArrayList<VOServiceDetails>();
-        suspendedServices = new ArrayList<VOServiceDetails>();
-        suspendedServiceIds = new HashSet<String>();
+        baseServices = new ArrayList<>();
+        suspendedServices = new ArrayList<>();
+        suspendedServiceIds = new HashSet<>();
 
         container.enableInterfaceMocking(true);
         container.login("1");
@@ -190,7 +190,7 @@ public class ServiceProvisioningServiceBeanGetServiceIT extends
                     List<UsageLicense> usageLicenses)
                     throws TechnicalServiceNotAliveException,
                     TechnicalServiceOperationException {
-                List<User> users = new ArrayList<User>();
+                List<User> users = new ArrayList<>();
                 for (UsageLicense ul : usageLicenses) {
                     User user = new User();
                     user.setApplicationUserId(ul.getUser().getUserId());
@@ -198,6 +198,12 @@ public class ServiceProvisioningServiceBeanGetServiceIT extends
                     users.add(user);
                 }
                 return users.toArray(new User[0]);
+            }
+
+            @Override
+            public void saveAttributes(Subscription subscription)
+                    throws TechnicalServiceNotAliveException,
+                    TechnicalServiceOperationException {
             }
 
         });
@@ -208,7 +214,7 @@ public class ServiceProvisioningServiceBeanGetServiceIT extends
             @Override
             public List<TriggerProcessMessageData> sendSuspendingMessages(
                     List<TriggerMessage> messageData) {
-                List<TriggerProcessMessageData> result = new ArrayList<TriggerProcessMessageData>();
+                List<TriggerProcessMessageData> result = new ArrayList<>();
                 for (TriggerMessage m : messageData) {
                     TriggerProcess tp = new TriggerProcess();
                     PlatformUser user = new PlatformUser();
@@ -271,8 +277,8 @@ public class ServiceProvisioningServiceBeanGetServiceIT extends
         provider = runTX(new Callable<Organization>() {
             @Override
             public Organization call() throws Exception {
-                Organization organization = Organizations.createOrganization(
-                        ds, OrganizationRoleType.TECHNOLOGY_PROVIDER,
+                Organization organization = Organizations.createOrganization(ds,
+                        OrganizationRoleType.TECHNOLOGY_PROVIDER,
                         OrganizationRoleType.SUPPLIER);
                 PlatformUser user = Organizations.createUserForOrg(ds,
                         organization, true, "admin");
@@ -286,8 +292,8 @@ public class ServiceProvisioningServiceBeanGetServiceIT extends
         supplier1 = runTX(new Callable<Organization>() {
             @Override
             public Organization call() throws Exception {
-                Organization organization = Organizations.createOrganization(
-                        ds, OrganizationRoleType.SUPPLIER);
+                Organization organization = Organizations.createOrganization(ds,
+                        OrganizationRoleType.SUPPLIER);
                 PlatformUser user = Organizations.createUserForOrg(ds,
                         organization, true, "admin");
                 supplierUserKey1 = String.valueOf(user.getKey());
@@ -306,8 +312,8 @@ public class ServiceProvisioningServiceBeanGetServiceIT extends
         runTX(new Callable<Organization>() {
             @Override
             public Organization call() throws Exception {
-                Organization organization = Organizations.createOrganization(
-                        ds, OrganizationRoleType.SUPPLIER);
+                Organization organization = Organizations.createOrganization(ds,
+                        OrganizationRoleType.SUPPLIER);
                 PlatformUser user = Organizations.createUserForOrg(ds,
                         organization, true, "admin");
                 supplierUserKey2 = String.valueOf(user.getKey());
@@ -375,8 +381,8 @@ public class ServiceProvisioningServiceBeanGetServiceIT extends
                         "user");
                 mpOwnerUserKey = String.valueOf(user.getKey());
 
-                Marketplace mp2 = Marketplaces.createMarketplace(mpOwner,
-                        "EST", false, ds);
+                Marketplace mp2 = Marketplaces.createMarketplace(mpOwner, "EST",
+                        false, ds);
                 Marketplaces.grantPublishing(supplier, mp2, ds, false);
                 Marketplaces.grantPublishing(supplier2, mp2, ds, false);
 
@@ -447,8 +453,9 @@ public class ServiceProvisioningServiceBeanGetServiceIT extends
                 return null;
             }
         });
-        VOTechnicalService techProduct = sps.getTechnicalServices(
-                OrganizationRoleType.TECHNOLOGY_PROVIDER).get(tpCnt);
+        VOTechnicalService techProduct = sps
+                .getTechnicalServices(OrganizationRoleType.TECHNOLOGY_PROVIDER)
+                .get(tpCnt);
         tpCnt++;
         container.logout();
         return techProduct;
@@ -464,9 +471,8 @@ public class ServiceProvisioningServiceBeanGetServiceIT extends
     private static VOServiceDetails createSingleService(String supplierUserKey,
             VOTechnicalService tp) throws Exception {
         container.login(supplierUserKey, ROLE_SERVICE_MANAGER);
-        VOServiceDetails voProduct = createProduct(tp,
-                "single_product2_" + tp.getTechnicalServiceId() + "_"
-                        + supplierUserKey, sps);
+        VOServiceDetails voProduct = createProduct(tp, "single_product2_"
+                + tp.getTechnicalServiceId() + "_" + supplierUserKey, sps);
         VOPriceModel priceModel = new VOPriceModel();
         voProduct = sps.savePriceModel(voProduct, priceModel);
 
@@ -480,7 +486,8 @@ public class ServiceProvisioningServiceBeanGetServiceIT extends
     }
 
     private static void publishServiceToMarketplace(VOService svc,
-            VOMarketplace mp, boolean anonymousVisible, boolean visibleInCatalog)
+            VOMarketplace mp, boolean anonymousVisible,
+            boolean visibleInCatalog)
             throws ObjectNotFoundException, NonUniqueBusinessKeyException,
             ValidationException, OperationNotPermittedException {
         VOCatalogEntry ce = new VOCatalogEntry();
@@ -500,8 +507,8 @@ public class ServiceProvisioningServiceBeanGetServiceIT extends
      * @return one service of the set of services which all are based on the
      *         same technical product.
      */
-    private static List<VOServiceDetails> createServiceSet(VOTechnicalService tp)
-            throws Exception {
+    private static List<VOServiceDetails> createServiceSet(
+            VOTechnicalService tp) throws Exception {
         container.login(supplierUserKey1, ROLE_SERVICE_MANAGER);
         VOServiceDetails voProduct1 = createProduct(tp,
                 "product1_" + tp.getTechnicalServiceId(), sps);
@@ -535,8 +542,8 @@ public class ServiceProvisioningServiceBeanGetServiceIT extends
                 "product15_" + tp.getTechnicalServiceId(), sps);
         VOServiceDetails voProductOBSOLETE = createProduct(tp,
                 "productOBSOLETE_" + tp.getTechnicalServiceId(), sps);
-        VOServiceDetails voProductDELETED = createProduct(tp, "productDELETED_"
-                + tp.getTechnicalServiceId(), sps);
+        VOServiceDetails voProductDELETED = createProduct(tp,
+                "productDELETED_" + tp.getTechnicalServiceId(), sps);
         VOServiceDetails voProductSUSPENDED = createProduct(tp,
                 "productSUSPENDED_" + tp.getTechnicalServiceId(), sps);
         VOServiceDetails voProductOBSOLETE2 = createProduct(tp,
@@ -573,28 +580,28 @@ public class ServiceProvisioningServiceBeanGetServiceIT extends
         VOOrganization org = getOrganizationForOrgId(customerOrgId);
         VOPriceModel pm = new VOPriceModel();
         sps.savePriceModelForCustomer(voProduct3, pm, org);
-        VOServiceDetails voProductCust4 = sps.savePriceModelForCustomer(
-                voProduct4, pm, org);
-        VOServiceDetails voProductCust5 = sps.savePriceModelForCustomer(
-                voProduct5, pm, org);
-        VOServiceDetails voProductCust6 = sps.savePriceModelForCustomer(
-                voProduct6, pm, org);
-        VOServiceDetails voProductCust7 = sps.savePriceModelForCustomer(
-                voProduct7, pm, org);
-        VOServiceDetails voProductCust8 = sps.savePriceModelForCustomer(
-                voProduct8, pm, org);
-        VOServiceDetails voProductCust9 = sps.savePriceModelForCustomer(
-                voProduct9, pm, org);
-        VOServiceDetails voProductCust10 = sps.savePriceModelForCustomer(
-                voProduct10, pm, org);
-        VOServiceDetails voProductCust14 = sps.savePriceModelForCustomer(
-                voProduct14, pm, org);
-        VOServiceDetails voProductCust15 = sps.savePriceModelForCustomer(
-                voProduct15, pm, org);
-        VOServiceDetails voProductCustOBSOLETE = sps.savePriceModelForCustomer(
-                voProductOBSOLETE, pm, org);
-        VOServiceDetails voProductCustDELETED = sps.savePriceModelForCustomer(
-                voProductDELETED, pm, org);
+        VOServiceDetails voProductCust4 = sps
+                .savePriceModelForCustomer(voProduct4, pm, org);
+        VOServiceDetails voProductCust5 = sps
+                .savePriceModelForCustomer(voProduct5, pm, org);
+        VOServiceDetails voProductCust6 = sps
+                .savePriceModelForCustomer(voProduct6, pm, org);
+        VOServiceDetails voProductCust7 = sps
+                .savePriceModelForCustomer(voProduct7, pm, org);
+        VOServiceDetails voProductCust8 = sps
+                .savePriceModelForCustomer(voProduct8, pm, org);
+        VOServiceDetails voProductCust9 = sps
+                .savePriceModelForCustomer(voProduct9, pm, org);
+        VOServiceDetails voProductCust10 = sps
+                .savePriceModelForCustomer(voProduct10, pm, org);
+        VOServiceDetails voProductCust14 = sps
+                .savePriceModelForCustomer(voProduct14, pm, org);
+        VOServiceDetails voProductCust15 = sps
+                .savePriceModelForCustomer(voProduct15, pm, org);
+        VOServiceDetails voProductCustOBSOLETE = sps
+                .savePriceModelForCustomer(voProductOBSOLETE, pm, org);
+        VOServiceDetails voProductCustDELETED = sps
+                .savePriceModelForCustomer(voProductDELETED, pm, org);
         VOServiceDetails voProductCustSUSPENDED = sps
                 .savePriceModelForCustomer(voProductSUSPENDED, pm, org);
 
@@ -606,7 +613,8 @@ public class ServiceProvisioningServiceBeanGetServiceIT extends
 
         publishServiceToMarketplace(voProduct6, voMarketplaceLocal, true, true);
 
-        publishServiceToMarketplace(voProduct14, voMarketplaceLocal, true, true);
+        publishServiceToMarketplace(voProduct14, voMarketplaceLocal, true,
+                true);
 
         VOMarketplace voMarketplace = new VOMarketplace();
         voMarketplace.setMarketplaceId("FUJITSU");
@@ -641,7 +649,8 @@ public class ServiceProvisioningServiceBeanGetServiceIT extends
         publishServiceToMarketplace(voProductCustOBSOLETE, voMarketplace, true,
                 true);
 
-        publishServiceToMarketplace(voProductDELETED, voMarketplace, true, true);
+        publishServiceToMarketplace(voProductDELETED, voMarketplace, true,
+                true);
 
         publishServiceToMarketplace(voProductDELETED2, voMarketplace, true,
                 true);
@@ -655,8 +664,8 @@ public class ServiceProvisioningServiceBeanGetServiceIT extends
         publishServiceToMarketplace(voProductSUSPENDED2, voMarketplace, true,
                 true);
 
-        publishServiceToMarketplace(voProductCustSUSPENDED, voMarketplace,
-                true, true);
+        publishServiceToMarketplace(voProductCustSUSPENDED, voMarketplace, true,
+                true);
 
         sps.activateService(voProduct2);
         sps.activateService(voProduct5);
@@ -694,12 +703,14 @@ public class ServiceProvisioningServiceBeanGetServiceIT extends
         suspendedServiceIds.add(voProductCustSUSPENDED.getServiceId());
 
         // Create a subscription for the public/active CSS
-        VOSubscription voSubscriptionCustProduct7 = createSubscription(voActiveCustProduct7);
+        VOSubscription voSubscriptionCustProduct7 = createSubscription(
+                voActiveCustProduct7);
 
         // Create a subscription for the public/active service
-        VOSubscription voSubscriptionProduct13 = createSubscription(voActiveProduct13);
+        VOSubscription voSubscriptionProduct13 = createSubscription(
+                voActiveProduct13);
 
-        List<VOServiceDetails> list = new ArrayList<VOServiceDetails>();
+        List<VOServiceDetails> list = new ArrayList<>();
         list.add(voProduct1); // [0] not active (no price model)
 
         list.add(voProduct2); // [1] active, price model defined
@@ -756,14 +767,14 @@ public class ServiceProvisioningServiceBeanGetServiceIT extends
         list.add(voProduct13); // [18] not active , visible, not in catalog,
 
         VOServiceDetails copyOfVoProduct7 = new VOServiceDetails();
-        copyOfVoProduct7.setKey(getProductCopyKey(voSubscriptionCustProduct7)
-                .longValue());
+        copyOfVoProduct7.setKey(
+                getProductCopyKey(voSubscriptionCustProduct7).longValue());
         list.add(copyOfVoProduct7); // [19] subscription copy of cust product7
                                     // (should never be visible)
 
         VOServiceDetails copyOfVoProduct13 = new VOServiceDetails();
-        copyOfVoProduct13.setKey(getProductCopyKey(voSubscriptionProduct13)
-                .longValue());
+        copyOfVoProduct13
+                .setKey(getProductCopyKey(voSubscriptionProduct13).longValue());
         list.add(copyOfVoProduct13); // [20] subscription copy of product 12
                                      // (should
                                      // never be visible)
@@ -865,10 +876,10 @@ public class ServiceProvisioningServiceBeanGetServiceIT extends
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                TechnicalProduct technicalProduct = ds.find(
-                        TechnicalProduct.class, tpKey);
-                OrganizationReference reference = ds.find(
-                        OrganizationReference.class, orgRefKey);
+                TechnicalProduct technicalProduct = ds
+                        .find(TechnicalProduct.class, tpKey);
+                OrganizationReference reference = ds
+                        .find(OrganizationReference.class, orgRefKey);
 
                 MarketingPermission permission = new MarketingPermission();
                 permission.setOrganizationReference(reference);
@@ -893,8 +904,8 @@ public class ServiceProvisioningServiceBeanGetServiceIT extends
                 Product product = new Product();
                 product.setProductId(voProduct.getServiceId());// productId
                 product.setVendorKey(voProduct.getSellerKey());// organizationKey
-                product = Product.class.cast(ds
-                        .getReferenceByBusinessKey(product));
+                product = Product.class
+                        .cast(ds.getReferenceByBusinessKey(product));
                 product.setStatus(newServiceStatus);
 
                 return null;
@@ -1170,11 +1181,13 @@ public class ServiceProvisioningServiceBeanGetServiceIT extends
 
                 Assert.assertFalse(
                         "Operation not permitted exception expected for index "
-                                + i, onpExceptionExpected[i]);
+                                + i,
+                        onpExceptionExpected[i]);
 
-                Assert.assertEquals("service with index " + i
-                        + " should not have been returned", isVisible[i],
-                        product != null);
+                Assert.assertEquals(
+                        "service with index " + i
+                                + " should not have been returned",
+                        isVisible[i], product != null);
 
                 if (isVisible[i]) {
                     Assert.assertNotNull(product);
@@ -1190,8 +1203,9 @@ public class ServiceProvisioningServiceBeanGetServiceIT extends
                 }
             } catch (OperationNotPermittedException onp) {
                 if (!onpExceptionExpected[i]) {
-                    Assert.fail("OperationNotPermittedException was not excpeted for index "
-                            + i);
+                    Assert.fail(
+                            "OperationNotPermittedException was not excpeted for index "
+                                    + i);
                 }
             }
         }
@@ -1364,7 +1378,8 @@ public class ServiceProvisioningServiceBeanGetServiceIT extends
             throws Exception {
         container.logout();
         sps.getServiceForMarketplace(
-                Long.valueOf(serviceListSet1.get(18).getKey()), "FUJITSU", null);
+                Long.valueOf(serviceListSet1.get(18).getKey()), "FUJITSU",
+                null);
     }
 
     @Test
@@ -1372,17 +1387,17 @@ public class ServiceProvisioningServiceBeanGetServiceIT extends
             throws Exception {
         container.login(customerUserKey2, ROLE_ORGANIZATION_ADMIN);
         sps.getServiceForMarketplace(
-                Long.valueOf(serviceListSet1.get(18).getKey()), "FUJITSU", null);
+                Long.valueOf(serviceListSet1.get(18).getKey()), "FUJITSU",
+                null);
     }
 
     @Test
     public void testGetServiceFormarketplace_hasOneSubscription_login_False()
             throws Exception {
         container.login(customerUserKey2, ROLE_ORGANIZATION_ADMIN);
-        VOServiceEntry se = sps
-                .getServiceForMarketplace(
-                        Long.valueOf(serviceListSet1.get(18).getKey()),
-                        "FUJITSU", null);
+        VOServiceEntry se = sps.getServiceForMarketplace(
+                Long.valueOf(serviceListSet1.get(18).getKey()), "FUJITSU",
+                null);
         Assert.assertFalse(se.isSubscriptionLimitReached());
     }
 
@@ -1446,10 +1461,9 @@ public class ServiceProvisioningServiceBeanGetServiceIT extends
     public void testGetServiceFormarketplace_hasOneSubscription_anonymous()
             throws Exception {
         container.logout();
-        VOServiceEntry se = sps
-                .getServiceForMarketplace(
-                        Long.valueOf(serviceListSet1.get(18).getKey()),
-                        "FUJITSU", "EN");
+        VOServiceEntry se = sps.getServiceForMarketplace(
+                Long.valueOf(serviceListSet1.get(18).getKey()), "FUJITSU",
+                "EN");
         Assert.assertFalse(se.isSubscriptionLimitReached());
     }
 
@@ -1457,7 +1471,8 @@ public class ServiceProvisioningServiceBeanGetServiceIT extends
      * Login as MP owner admin. Must see suspended services.
      */
     @Test
-    public void testGetRelatedServicesForMarketplace_MpAdmin() throws Exception {
+    public void testGetRelatedServicesForMarketplace_MpAdmin()
+            throws Exception {
         container.login(mpOwnerAdminKey, ROLE_PLATFORM_OPERATOR,
                 ROLE_ORGANIZATION_ADMIN);
 
@@ -1468,7 +1483,7 @@ public class ServiceProvisioningServiceBeanGetServiceIT extends
         Assert.assertTrue("The list of products must not be empty",
                 products.size() > 0);
 
-        HashSet<String> foundIds = new HashSet<String>();
+        HashSet<String> foundIds = new HashSet<>();
         for (VOService prod : products) {
             if (prod.getStatus() == ServiceStatus.SUSPENDED)
                 foundIds.add(prod.getServiceId());
@@ -1512,7 +1527,7 @@ public class ServiceProvisioningServiceBeanGetServiceIT extends
         Assert.assertTrue("The list of products must not be empty",
                 products.size() > 0);
 
-        HashSet<String> foundIds = new HashSet<String>();
+        HashSet<String> foundIds = new HashSet<>();
         for (VOService prod : products) {
             if (prod.getStatus() == ServiceStatus.SUSPENDED)
                 foundIds.add(prod.getServiceId());

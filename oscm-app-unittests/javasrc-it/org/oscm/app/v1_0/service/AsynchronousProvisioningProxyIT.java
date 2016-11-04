@@ -164,11 +164,20 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
         final ServiceParameter p = new ServiceParameter();
         p.setParameterId(InstanceParameter.CONTROLLER_ID);
         p.setValue("test.controller");
+
+        final ServiceAttribute a = new ServiceAttribute();
+        a.setAttributeId("attrId");
+        a.setValue("value");
+
         basicInstanceRequest = new InstanceRequest();
         basicInstanceRequest
                 .setParameterValue(new ArrayList<ServiceParameter>());
+        basicInstanceRequest
+                .setAttributeValue(new ArrayList<ServiceAttribute>());
         basicInstanceRequest.getParameterValue().add(p);
+        basicInstanceRequest.getAttributeValue().add(a);
         basicInstanceRequest.setDefaultLocale("en");
+        basicInstanceRequest.setReferenceId("referenceId");
 
         final HashMap<String, String> controllerSetting = new HashMap<>();
         controllerSetting.put("BSS_ORGANIZATION_ID", "testorg");
@@ -182,7 +191,8 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
                 Object[] args = invocation.getArguments();
                 ServiceInstance instance = (ServiceInstance) args[0];
                 return new ProvisioningSettings(instance.getParameterMap(),
-                        controllerSetting, "en");
+                        instance.getAttributeMap(),
+                        new HashMap<String, String>(), controllerSetting, "en");
             }
         };
         doAnswer(answer).when(configService).getProvisioningSettings(

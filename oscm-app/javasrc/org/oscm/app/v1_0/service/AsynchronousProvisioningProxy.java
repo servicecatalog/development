@@ -171,12 +171,14 @@ public class AsynchronousProvisioningProxy implements ProvisioningService {
                 .getCustomAttributes(request.getOrganizationId());
         final ProvisioningSettings settings = new ProvisioningSettings(
                 parameters, attributes, customAttributes, controllerSettings,
-                request.getDefaultLocale(), controllerId);
+                request.getDefaultLocale());
         settings.setOrganizationId(request.getOrganizationId());
         settings.setOrganizationName(request.getOrganizationName());
         settings.setSubscriptionId(request.getSubscriptionId());
         settings.setReferenceId(request.getReferenceId());
         settings.setBesLoginUrl(request.getLoginUrl());
+
+        settings.overwriteProperties(controllerId);
 
         ServiceInstance si = new ServiceInstance();
         si.setInstanceParameters(createParameters(si, parameters));
@@ -466,13 +468,16 @@ public class AsynchronousProvisioningProxy implements ProvisioningService {
             final ProvisioningSettings newSettings = new ProvisioningSettings(
                     parameterMap, attributeMap,
                     currentSettings.getCustomAttributes(), controllerSettings,
-                    instance.getDefaultLocale(), instance.getControllerId());
+                    instance.getDefaultLocale());
             newSettings.setAuthentication(currentSettings.getAuthentication());
             configService.copyCredentialsFromControllerSettings(newSettings,
                     controllerSettings);
             newSettings.setRequestingUser(
                     UserMapper.toServiceUser(requestingUser));
             newSettings.setSubscriptionId(subscriptionId);
+            newSettings.setReferenceId(referenceId);
+
+            newSettings.overwriteProperties(instance.getControllerId());
 
             // Forward modification request
             final InstanceStatus status = controller.modifyInstance(
@@ -488,7 +493,7 @@ public class AsynchronousProvisioningProxy implements ProvisioningService {
                     final BaseResult result = provisioning.modifySubscription(
                             instanceId, subscriptionId, referenceId,
                             filteredParameters, attributeValues,
-                            requestingUser); // TODO analyze
+                            requestingUser);
                     if (provResult.isError(result)) {
                         return result;
                     }
@@ -742,17 +747,17 @@ public class AsynchronousProvisioningProxy implements ProvisioningService {
 
         try {
 
-            Query q = em.createNamedQuery("CustomSetting.deleteForOrg");
+            Query q = em.createNamedQuery("CustomAttribute.deleteForOrg");
             q.setParameter("organizationId", organizationId);
             q.executeUpdate();
 
-            CustomAttribute cs;
+            CustomAttribute ca;
             for (ServiceAttribute attr : attributeValues) {
-                cs = new CustomAttribute();
-                cs.setOrganizationId(organizationId);
-                cs.setAttributeKey(attr.getAttributeId());
-                cs.setDecryptedValue(attr.getValue());
-                em.persist(cs);
+                ca = new CustomAttribute();
+                ca.setOrganizationId(organizationId);
+                ca.setAttributeKey(attr.getAttributeId());
+                ca.setDecryptedValue(attr.getValue());
+                em.persist(ca);
             }
 
             return provResult.newOkBaseResult();

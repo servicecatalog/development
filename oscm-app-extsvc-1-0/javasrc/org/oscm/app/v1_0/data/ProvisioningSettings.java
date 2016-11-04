@@ -56,23 +56,22 @@ public class ProvisioningSettings extends ControllerSettings
      */
     public ProvisioningSettings(HashMap<String, String> parameters,
             HashMap<String, String> configSettings, String locale) {
-        super(configSettings);
-        this.parameters = parameters;
-        this.locale = locale;
-        this.attributes = new HashMap<>();
+
+        this(parameters, new HashMap<String, String>(),
+                new HashMap<String, String>(), configSettings, locale);
     }
 
     /**
      * Constructs a new provisioning settings instance with the given service
-     * parameters, attributes, custom settings and controller configuration
+     * parameters, attributes, custom attributes and controller configuration
      * settings. The specified locale is used for language-dependent strings.
      * 
      * @param parameters
      *            the service parameters, consisting of a key and a value each
      * @param attributes
      *            the service attributes, consisting of a key and a value each
-     * @param customSettings
-     *            the custom settings, consisting of a key and a value each
+     * @param customAttributes
+     *            the custom attributes, consisting of a key and a value each
      * @param configSettings
      *            the configuration settings, consisting of a key and a value
      *            each
@@ -82,15 +81,13 @@ public class ProvisioningSettings extends ControllerSettings
      */
     public ProvisioningSettings(HashMap<String, String> parameters,
             HashMap<String, String> attributes,
-            HashMap<String, String> customSettings,
-            HashMap<String, String> configSettings, String locale,
-            String controllerId) {
+            HashMap<String, String> customAttributes,
+            HashMap<String, String> configSettings, String locale) {
         super(configSettings);
         this.parameters = parameters;
         this.locale = locale;
         this.attributes = attributes;
-        this.customAttributes = customSettings;
-        overwriteProperties(controllerId);
+        this.customAttributes = customAttributes;
     }
 
     /**
@@ -311,6 +308,14 @@ public class ProvisioningSettings extends ControllerSettings
         this.requestingUser = user;
     }
 
+    /**
+     * Replaces properties of configuration settings or parameters with values
+     * from attributes or parameters. In the case of parameters a prefix is used
+     * which is the controller id and an underscore.
+     * 
+     * @param controllerId
+     *            the id of the controller the settings are for.
+     */
     public void overwriteProperties(String controllerId) {
 
         String prefix = controllerId + SEPARATOR;
