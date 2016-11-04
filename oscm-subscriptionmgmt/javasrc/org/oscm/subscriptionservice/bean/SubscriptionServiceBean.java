@@ -452,6 +452,7 @@ public class SubscriptionServiceBean
         TechnicalProduct techProd = prod.getTechnicalProduct();
 
         if (ProvisioningType.SYNCHRONOUS.equals(techProd.getProvisioningType())
+                && prod.isAutoAssignUserEnabled() != null
                 && prod.isAutoAssignUserEnabled().booleanValue()) {
             VOService svc = new VOService();
             svc.setKey(prod.getKey());
