@@ -827,7 +827,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
 
         if (ProvisioningType.SYNCHRONOUS.equals(techProd.getProvisioningType())
                 && tp.getTriggerDefinition() != null
-                && product.isAutoAssignUserEnabled().booleanValue()
+                && (prod.isAutoAssignUserEnabled() != null && prod
+                        .isAutoAssignUserEnabled().booleanValue())
                 && newSub.getUsageLicenseForUser(owner) == null) {
             // TODO 1. assign users only for SYNCHRONOUS case.
             // 2. extract code to another method (more readability).

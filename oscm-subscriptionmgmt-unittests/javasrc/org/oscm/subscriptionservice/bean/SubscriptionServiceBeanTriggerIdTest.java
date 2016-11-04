@@ -35,7 +35,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-
 import org.oscm.communicationservice.local.CommunicationServiceLocal;
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.dataservice.local.DataService;
@@ -51,12 +50,6 @@ import org.oscm.domobjects.TriggerDefinition;
 import org.oscm.domobjects.TriggerProcess;
 import org.oscm.domobjects.TriggerProcessIdentifier;
 import org.oscm.domobjects.UserRole;
-import org.oscm.subscriptionservice.dao.ProductDao;
-import org.oscm.triggerservice.local.TriggerMessage;
-import org.oscm.triggerservice.local.TriggerProcessMessageData;
-import org.oscm.triggerservice.local.TriggerQueueServiceLocal;
-import org.oscm.types.enumtypes.TriggerProcessIdentifierName;
-import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
 import org.oscm.internal.types.enumtypes.ServiceStatus;
 import org.oscm.internal.types.enumtypes.ServiceType;
 import org.oscm.internal.types.enumtypes.SubscriptionStatus;
@@ -69,6 +62,12 @@ import org.oscm.internal.vo.VOSubscription;
 import org.oscm.internal.vo.VOUda;
 import org.oscm.internal.vo.VOUsageLicense;
 import org.oscm.internal.vo.VOUser;
+import org.oscm.subscriptionservice.dao.ProductDao;
+import org.oscm.triggerservice.local.TriggerMessage;
+import org.oscm.triggerservice.local.TriggerProcessMessageData;
+import org.oscm.triggerservice.local.TriggerQueueServiceLocal;
+import org.oscm.types.enumtypes.TriggerProcessIdentifierName;
+import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
 
 public class SubscriptionServiceBeanTriggerIdTest extends
         SubscriptionServiceMockBase {
@@ -347,8 +346,9 @@ public class SubscriptionServiceBeanTriggerIdTest extends
         initMessageData(TriggerType.SUBSCRIBE_TO_SERVICE, callingOrg);
         doReturn(sub).when(subscriptionServiceBean).subscribeToServiceInt(
                 any(TriggerProcess.class));
+        prod.setAutoAssignUserEnabled(Boolean.TRUE);
+
         // when
-        service.setAutoAssignUserEnabled(Boolean.TRUE);
         subscriptionServiceBean.subscribeToService(subscription, service, null,
                 null, null, new ArrayList<VOUda>());
 
@@ -597,6 +597,7 @@ public class SubscriptionServiceBeanTriggerIdTest extends
 
     private void defineMockBehavior() throws Exception {
         doAnswer(new Answer<Query>() {
+
             @Override
             public Query answer(InvocationOnMock invocation) throws Throwable {
                 queryName = (String) invocation.getArguments()[0];
@@ -605,6 +606,7 @@ public class SubscriptionServiceBeanTriggerIdTest extends
         }).when(dsMock).createNamedQuery(anyString());
 
         doAnswer(new Answer<List<?>>() {
+
             @Override
             public List<?> answer(InvocationOnMock invocation) throws Throwable {
                 if ("Product.getCopyForCustomer".equals(queryName)
@@ -616,6 +618,7 @@ public class SubscriptionServiceBeanTriggerIdTest extends
         }).when(queryMock).getResultList();
 
         doAnswer(new Answer<Object>() {
+
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 if ("TriggerProcessIdentifier.isSubscribeOrUnsubscribeServicePending"
@@ -638,6 +641,7 @@ public class SubscriptionServiceBeanTriggerIdTest extends
                 anyLong());
 
         doAnswer(new Answer<PlatformUser>() {
+
             @Override
             public PlatformUser answer(InvocationOnMock invocation)
                     throws Throwable {
@@ -650,6 +654,7 @@ public class SubscriptionServiceBeanTriggerIdTest extends
         // getReferenceByBusinessKey for type subscription must return a
         // subscription
         doAnswer(new Answer<Subscription>() {
+
             @Override
             public Subscription answer(InvocationOnMock invocation)
                     throws Throwable {
@@ -658,6 +663,7 @@ public class SubscriptionServiceBeanTriggerIdTest extends
         }).when(dsMock).getReferenceByBusinessKey(any(Subscription.class));
 
         doAnswer(new Answer<List<TriggerProcessMessageData>>() {
+
             @Override
             public List<TriggerProcessMessageData> answer(
                     InvocationOnMock invocation) throws Throwable {
@@ -687,6 +693,7 @@ public class SubscriptionServiceBeanTriggerIdTest extends
     private void prepareForModifyAndUpgradeSubscriptionConflict()
             throws Exception {
         doAnswer(new Answer<List<?>>() {
+
             @Override
             public List<?> answer(InvocationOnMock invocation) throws Throwable {
                 return new ArrayList<TriggerProcessIdentifier>();
@@ -694,6 +701,7 @@ public class SubscriptionServiceBeanTriggerIdTest extends
         }).when(queryMock).getResultList();
 
         doAnswer(new Answer<Object>() {
+
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 if ("TriggerProcessIdentifier.isModifyOrUpgradeSubscriptionPending"
@@ -709,6 +717,7 @@ public class SubscriptionServiceBeanTriggerIdTest extends
 
     private void prepareForTerminateSubscriptionConflict() throws Exception {
         doAnswer(new Answer<List<?>>() {
+
             @Override
             public List<?> answer(InvocationOnMock invocation) throws Throwable {
                 return new ArrayList<TriggerProcessIdentifier>();
@@ -716,6 +725,7 @@ public class SubscriptionServiceBeanTriggerIdTest extends
         }).when(queryMock).getResultList();
 
         doAnswer(new Answer<Object>() {
+
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 if ("TriggerProcessIdentifier.isSubscribeOrUnsubscribeServicePending"
