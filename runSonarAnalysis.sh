@@ -29,7 +29,8 @@ if [ "$TRAVIS_BRANCH" = "master" ] && [ "$TRAVIS_PULL_REQUEST" = "false" ]; then
 	#
 	# Analysis is done only on master so that build of branches don't push analyses to the same project and therefore "pollute" the results
 	echo "Starting analysis by SonarQube..."
-	sonar-scanner \
+	sonar-runner \
+	#sonar-scanner \
 		-Dsonar.host.url=$SONAR_HOST_URL \
 		-Dsonar.login=$SONAR_TOKEN
 
