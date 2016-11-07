@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import org.junit.Test;
-
 import org.oscm.converter.PriceConverter;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
@@ -33,6 +32,8 @@ import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.Product;
 import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.TechnicalProduct;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.ServiceAccessType;
 import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.Marketplaces;
@@ -48,8 +49,6 @@ import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.test.stubs.IdentityServiceStub;
 import org.oscm.test.stubs.PaymentServiceStub;
 import org.oscm.timerservice.bean.TimerServiceBean;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
 
 /**
  * Tests for the SQL query class for the command to get supplier revenue list.
@@ -78,7 +77,7 @@ public class SupplierRevenueSqlResultIT extends EJBTestBase {
     @Override
     protected void setup(TestContainer container) throws Exception {
         container.login(1);
-
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         container.addBean(new ConfigurationServiceStub());
         container.addBean(new BillingServiceStub());
@@ -106,10 +105,10 @@ public class SupplierRevenueSqlResultIT extends EJBTestBase {
                 final TechnicalProduct tp1 = TechnicalProducts
                         .createTechnicalProduct(dm, supplier1, "tp1", false,
                                 ServiceAccessType.DIRECT);
-                final Product p1 = Products.createProduct(supplier1, tp1,
-                        false, "p1", null, dm);
-                final Marketplace mp1 = Marketplaces.createGlobalMarketplace(
-                        supplier1, MP_ID_S1, dm);
+                final Product p1 = Products.createProduct(supplier1, tp1, false,
+                        "p1", null, dm);
+                final Marketplace mp1 = Marketplaces
+                        .createGlobalMarketplace(supplier1, MP_ID_S1, dm);
 
                 customer11 = Organizations.createCustomer(dm, supplier1);
                 customer11.setName("customer11");
@@ -123,10 +122,10 @@ public class SupplierRevenueSqlResultIT extends EJBTestBase {
                 final TechnicalProduct tp2 = TechnicalProducts
                         .createTechnicalProduct(dm, supplier2, "tp2", false,
                                 ServiceAccessType.DIRECT);
-                final Product p2 = Products.createProduct(supplier2, tp2,
-                        false, "p2", null, dm);
-                final Marketplace mp2 = Marketplaces.createGlobalMarketplace(
-                        supplier2, MP_ID_S2, dm);
+                final Product p2 = Products.createProduct(supplier2, tp2, false,
+                        "p2", null, dm);
+                final Marketplace mp2 = Marketplaces
+                        .createGlobalMarketplace(supplier2, MP_ID_S2, dm);
                 customer21 = Organizations.createCustomer(dm, supplier2);
                 customer21.setName("customer21");
                 customer22 = Organizations.createCustomer(dm, supplier2);
@@ -157,11 +156,11 @@ public class SupplierRevenueSqlResultIT extends EJBTestBase {
                         mp1, p1);
 
                 createBillingResultAndSubscription(customer21, "2011-07",
-                        "2011-08", createResultXML(bd10, "EUR"), supplier2,
-                        mp2, p2);
+                        "2011-08", createResultXML(bd10, "EUR"), supplier2, mp2,
+                        p2);
                 createBillingResultAndSubscription(customer21, "2011-07",
-                        "2011-08", createResultXML(bd10, "JPY"), supplier2,
-                        mp2, p2);
+                        "2011-08", createResultXML(bd10, "JPY"), supplier2, mp2,
+                        p2);
 
                 createBillingResultAndSubscription(customer22, "2011-07",
                         "2011-08", createResultXML(bd1_5, "USD"), supplier2,
@@ -257,8 +256,8 @@ public class SupplierRevenueSqlResultIT extends EJBTestBase {
      */
     private void verifyResult(SupplierRevenueSqlResult.RowData result,
             String expectedStart, String expectedEnd, String expectedId,
-            String expectedName, String expectedAmount,
-            String expectedCurrency, String mp) {
+            String expectedName, String expectedAmount, String expectedCurrency,
+            String mp) {
         assertEquals(expectedStart, result.fromDate);
         assertEquals(expectedEnd, result.toDate);
         assertEquals(expectedId, result.supplierId);
@@ -338,8 +337,8 @@ public class SupplierRevenueSqlResultIT extends EJBTestBase {
                 + pc.getValueToDisplay(amount, false) + "\" currency=\""
                 + currency + "\" grossAmount=\"14691\">");
         resultxml.append("<Discount percent=\"0.00\" discountNetAmount=\"0\" ");
-        resultxml
-                .append("netAmountAfterDiscount=\"0\" netAmountBeforeDiscount=\"0\" />");
+        resultxml.append(
+                "netAmountAfterDiscount=\"0\" netAmountBeforeDiscount=\"0\" />");
         resultxml.append("<VAT percent=\"5.00\" amount=\"10\"/>");
         resultxml.append("</OverallCosts>");
         resultxml.append("</BillingDetails>");

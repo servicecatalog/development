@@ -171,8 +171,14 @@ public interface MarketplaceService {
 
     List<VOMarketplace> getMarketplacesForOperator();
 
-    @RolesAllowed("PLATFORM_OPERATOR")
-    List<VOMarketplace> getAccessibleMarketplacesForOperator();
+    /**
+     * Returns a list of the marketplaces that are accessible for the
+     * organization of the calling user.
+     * 
+     * @return the list of marketplaces that are accessible for the organization
+     *         of the calling user
+     */
+    public List<VOMarketplace> getAccessibleMarketplaces();
 
     /**
      * Modifies the name and/or owner of the given marketplace.
@@ -639,7 +645,7 @@ public interface MarketplaceService {
      * @throws ObjectNotFoundException
      */
     @RolesAllowed("PLATFORM_OPERATOR")
-    List<VOMarketplace> getAllMarketplacesForTenant(long tenantKey) throws ObjectNotFoundException;
+    List<VOMarketplace> getAllMarketplacesForTenant(Long tenantKey) throws ObjectNotFoundException;
 
     String getTenantIdFromMarketplace(String marketplaceId) throws ObjectNotFoundException;
 }

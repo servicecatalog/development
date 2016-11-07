@@ -18,7 +18,6 @@ import javax.ejb.EJBAccessException;
 import javax.ejb.EJBException;
 
 import org.junit.Test;
-
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Marketplace;
@@ -28,6 +27,13 @@ import org.oscm.domobjects.Product;
 import org.oscm.domobjects.RevenueShareModel;
 import org.oscm.domobjects.TechnicalProduct;
 import org.oscm.domobjects.enums.RevenueShareModelType;
+import org.oscm.internal.components.response.Response;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.ServiceAccessType;
+import org.oscm.internal.types.enumtypes.UserRoleType;
+import org.oscm.internal.types.exception.IllegalArgumentException;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.internal.types.exception.OperationNotPermittedException;
 import org.oscm.serviceprovisioningservice.bean.ServiceProvisioningPartnerServiceLocalBean;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.Marketplaces;
@@ -36,16 +42,10 @@ import org.oscm.test.data.PlatformUsers;
 import org.oscm.test.data.Products;
 import org.oscm.test.data.TechnicalProducts;
 import org.oscm.test.ejb.TestContainer;
-import org.oscm.internal.components.response.Response;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
-import org.oscm.internal.types.enumtypes.UserRoleType;
-import org.oscm.internal.types.exception.IllegalArgumentException;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.types.exception.OperationNotPermittedException;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 
-public class PricingServiceBeanAllStatesServiceRevenueSharesIT extends
-        EJBTestBase {
+public class PricingServiceBeanAllStatesServiceRevenueSharesIT
+        extends EJBTestBase {
 
     private DataService ds;
     private PricingService pricingService;
@@ -64,6 +64,7 @@ public class PricingServiceBeanAllStatesServiceRevenueSharesIT extends
     }
 
     private void setupWithContainer() throws Exception {
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         container.enableInterfaceMocking(true);
         container.addBean(new PricingServiceBean());
@@ -95,8 +96,8 @@ public class PricingServiceBeanAllStatesServiceRevenueSharesIT extends
         container.login(mpOwnerUserKey, UserRoleType.SERVICE_MANAGER.name());
 
         // when
-        pricingService
-                .getPartnerRevenueShareForAllStatesService(new POServiceForPricing());
+        pricingService.getPartnerRevenueShareForAllStatesService(
+                new POServiceForPricing());
 
         // then an ObjectNotFoundException occurs
 
@@ -186,8 +187,8 @@ public class PricingServiceBeanAllStatesServiceRevenueSharesIT extends
 
         // when
         try {
-            pricingService
-                    .getPartnerRevenueShareForAllStatesService(new POServiceForPricing());
+            pricingService.getPartnerRevenueShareForAllStatesService(
+                    new POServiceForPricing());
             fail();
         } catch (EJBException e) {
 
@@ -289,7 +290,7 @@ public class PricingServiceBeanAllStatesServiceRevenueSharesIT extends
     public void getRevenueShareModels() throws Exception {
 
         // given
-        Map<RevenueShareModelType, RevenueShareModel> revenueShareModels = new HashMap<RevenueShareModelType, RevenueShareModel>();
+        Map<RevenueShareModelType, RevenueShareModel> revenueShareModels = new HashMap<>();
         RevenueShareModel brokerPriceModel = new RevenueShareModel();
         brokerPriceModel.setRevenueShare(ZERO);
         revenueShareModels.put(RevenueShareModelType.BROKER_REVENUE_SHARE,
@@ -323,8 +324,8 @@ public class PricingServiceBeanAllStatesServiceRevenueSharesIT extends
         runTX(new Callable<Marketplace>() {
             @Override
             public Marketplace call() throws Exception {
-                marketplace = Marketplaces.createMarketplace(mpOwner,
-                        "1234567", true, ds);
+                marketplace = Marketplaces.createMarketplace(mpOwner, "1234567",
+                        true, ds);
 
                 return marketplace;
             }
@@ -363,8 +364,8 @@ public class PricingServiceBeanAllStatesServiceRevenueSharesIT extends
                         OrganizationRoleType.BROKER,
                         OrganizationRoleType.RESELLER);
 
-                PlatformUser createUserForOrg = Organizations.createUserForOrg(
-                        ds, mpOwner, true, "admin");
+                PlatformUser createUserForOrg = Organizations
+                        .createUserForOrg(ds, mpOwner, true, "admin");
 
                 PlatformUsers.grantRoles(ds, createUserForOrg,
                         UserRoleType.MARKETPLACE_OWNER);
@@ -392,8 +393,8 @@ public class PricingServiceBeanAllStatesServiceRevenueSharesIT extends
                         OrganizationRoleType.SUPPLIER);
                 PlatformUser user = Organizations.createUserForOrg(ds, org,
                         true, "admin");
-                PlatformUsers
-                        .grantRoles(ds, user, UserRoleType.SERVICE_MANAGER);
+                PlatformUsers.grantRoles(ds, user,
+                        UserRoleType.SERVICE_MANAGER);
                 return user;
             }
         });

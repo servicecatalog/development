@@ -40,7 +40,7 @@ public abstract class ProvisioningValidator {
                     new Object[] { stackName }));
         }
 
-        String regex = "([A-Za-z][A-Za-z0-9_-]*){1,30}";
+        String regex = "([A-Za-z][A-Za-z0-9_.-]*){1,30}";
         Pattern p = Pattern.compile(regex);
         Matcher m = p.matcher(stackName);
         if (!m.matches()) {

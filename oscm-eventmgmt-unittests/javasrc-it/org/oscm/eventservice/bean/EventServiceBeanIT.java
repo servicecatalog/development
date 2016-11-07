@@ -22,9 +22,7 @@ import javax.persistence.NonUniqueResultException;
 import javax.persistence.Query;
 
 import org.junit.Assert;
-
 import org.junit.Test;
-
 import org.oscm.converter.ParameterizedTypes;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
@@ -35,14 +33,6 @@ import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.Product;
 import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.TechnicalProduct;
-import org.oscm.test.EJBTestBase;
-import org.oscm.test.data.Organizations;
-import org.oscm.test.data.Products;
-import org.oscm.test.data.Subscriptions;
-import org.oscm.test.data.SupportedCountries;
-import org.oscm.test.data.TechnicalProducts;
-import org.oscm.test.ejb.TestContainer;
-import org.oscm.types.enumtypes.PlatformEventIdentifier;
 import org.oscm.internal.intf.EventService;
 import org.oscm.internal.types.enumtypes.EventType;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
@@ -52,6 +42,15 @@ import org.oscm.internal.types.exception.DuplicateEventException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.internal.vo.VOGatheredEvent;
+import org.oscm.test.EJBTestBase;
+import org.oscm.test.data.Organizations;
+import org.oscm.test.data.Products;
+import org.oscm.test.data.Subscriptions;
+import org.oscm.test.data.SupportedCountries;
+import org.oscm.test.data.TechnicalProducts;
+import org.oscm.test.ejb.TestContainer;
+import org.oscm.test.stubs.ConfigurationServiceStub;
+import org.oscm.types.enumtypes.PlatformEventIdentifier;
 
 /**
  * @author Mike J&auml;ger
@@ -80,12 +79,14 @@ public class EventServiceBeanIT extends EJBTestBase {
     @Override
     protected void setup(TestContainer container) throws Exception {
         container.login(USER_KEY_EXISTING);
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         container.addBean(new EventServiceBean());
         mgr = container.get(DataService.class);
         evMgmt = container.get(EventService.class);
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 createPaymentTypes(mgr);
                 SupportedCountries.createSomeSupportedCountries(mgr);
@@ -157,6 +158,7 @@ public class EventServiceBeanIT extends EJBTestBase {
         final VOGatheredEvent evt = new VOGatheredEvent();
         runTX(new Callable<Void>() {
 
+            @Override
             public Void call() throws Exception {
                 evt.setActor(ACTOR);
                 evt.setOccurrenceTime(TIMESTAMP);
@@ -170,6 +172,7 @@ public class EventServiceBeanIT extends EJBTestBase {
         });
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 evt.setOccurrenceTime(TIMESTAMP + 100);
                 evMgmt.recordEventForSubscription(SUBSCRIPTION_KEY, evt);
@@ -183,6 +186,7 @@ public class EventServiceBeanIT extends EJBTestBase {
             throws Exception {
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 // login as another technology provider
                 Organization provider = Organizations.createOrganization(mgr,
@@ -239,12 +243,13 @@ public class EventServiceBeanIT extends EJBTestBase {
         event.setUniqueId(UNIQUEID);
 
         evMgmt.recordEventForInstance(technicalProductId, instanceId, event);
-        GatheredEvent savedEvent = readEvent(ACTOR, TIMESTAMP,
-                SUBSCRIPTION_KEY, EventType.SERVICE_EVENT);
+        GatheredEvent savedEvent = readEvent(ACTOR, TIMESTAMP, SUBSCRIPTION_KEY,
+                EventType.SERVICE_EVENT);
         testSavedEvent(TIMESTAMP, MULTIPLIER, UNIQUEID, savedEvent,
                 EventType.SERVICE_EVENT);
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
 
                 Subscription subscription = Subscriptions.createSubscription(
@@ -254,11 +259,12 @@ public class EventServiceBeanIT extends EJBTestBase {
             }
         });
         try {
-            evMgmt.recordEventForInstance(technicalProductId, instanceId, event);
+            evMgmt.recordEventForInstance(technicalProductId, instanceId,
+                    event);
             Assert.fail("recordEvent() must faile!");
         } catch (EJBException e) {
-            Assert.assertEquals(NonUniqueResultException.class, e.getCause()
-                    .getCause().getClass());
+            Assert.assertEquals(NonUniqueResultException.class,
+                    e.getCause().getCause().getClass());
         }
     }
 
@@ -304,10 +310,11 @@ public class EventServiceBeanIT extends EJBTestBase {
             final long occurrenceTime, final long subKey,
             final EventType eventType) throws Exception {
         GatheredEvent eventLocal = runTX(new Callable<GatheredEvent>() {
+            @Override
             public GatheredEvent call() throws Exception {
                 long key = -1;
-                Query query = mgr
-                        .createQuery("select c from GatheredEvent c where c.dataContainer.actor=:actor and "
+                Query query = mgr.createQuery(
+                        "select c from GatheredEvent c where c.dataContainer.actor=:actor and "
                                 + "c.dataContainer.occurrenceTime=:occurrencetime and "
                                 + "c.dataContainer.subscriptionTKey=:subscriptionTKey and "
                                 + "c.dataContainer.type=:type");
@@ -405,7 +412,7 @@ public class EventServiceBeanIT extends EJBTestBase {
         SUBSCRIPTION_KEY = subscription.getKey();
         instanceId = subscription.getProductInstanceId();
 
-        List<TechnicalProduct> list = new ArrayList<TechnicalProduct>();
+        List<TechnicalProduct> list = new ArrayList<>();
         list.add(technicalProduct);
         supplier.setTechnicalProducts(list);
         Event event = new Event();
@@ -414,7 +421,7 @@ public class EventServiceBeanIT extends EJBTestBase {
         event.setTechnicalProduct(technicalProduct);
         mgr.persist(event);
 
-        List<Event> eventList = new ArrayList<Event>();
+        List<Event> eventList = new ArrayList<>();
         eventList.add(event);
         technicalProduct.setEvents(eventList);
     }

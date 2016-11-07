@@ -71,6 +71,12 @@ public class ProductData extends DomainDataContainer implements Serializable {
     @Column(nullable = true)
     private String configuratorUrl;
 
+    /**
+     * URL of the custom tab on my subscriptions page
+     */
+    @Column(nullable = true)
+    private String customTabUrl;
+
     public String getConfiguratorUrl() {
         return configuratorUrl;
     }
@@ -140,5 +146,13 @@ public class ProductData extends DomainDataContainer implements Serializable {
 
     public void setAutoAssignUserEnabled(Boolean autoAssignUserEnabled) {
         this.autoAssignUserEnabled = autoAssignUserEnabled;
+    }
+
+    public String getCustomTabUrl() {
+        return customTabUrl;
+    }
+
+    public void setCustomTabUrl(String customTabUrl) {
+        this.customTabUrl = customTabUrl;
     }
 }

@@ -8,7 +8,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -49,7 +52,6 @@ import org.oscm.domobjects.TriggerDefinition;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.identityservice.local.LdapSettingsManagementServiceLocal;
 import org.oscm.internal.intf.AccountService;
-import org.oscm.marketplaceservice.local.MarketplaceServiceLocal;
 import org.oscm.internal.intf.OperatorService;
 import org.oscm.internal.types.enumtypes.ImageType;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
@@ -63,7 +65,7 @@ import org.oscm.internal.vo.VOOperatorOrganization;
 import org.oscm.internal.vo.VOOrganization;
 import org.oscm.internal.vo.VOTimerInfo;
 import org.oscm.internal.vo.VOUserDetails;
-import org.oscm.marketplace.assembler.MarketplaceAssembler;
+import org.oscm.marketplaceservice.local.MarketplaceServiceLocal;
 import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.ejb.TestContainer;
@@ -97,14 +99,14 @@ public class OperatorServiceBeanRoleIT extends EJBTestBase {
 
     // The following fields store the parameters and results of stub services:
 
-    private Stack<DomainObject<?>> dataManager_getReferenceByBusinessKey_return = new Stack<DomainObject<?>>();
-    private Stack<DomainObject<?>> dataManager_getReference_return = new Stack<DomainObject<?>>();
-    private final List<DomainObject<?>> dataManager_persist_objects_orgreftopt = new ArrayList<DomainObject<?>>();
-    private final List<DomainObject<?>> dataManager_persist_objects_triggerdef = new ArrayList<DomainObject<?>>();
-    private final List<DomainObject<?>> dataManager_persist_objects_currencies = new ArrayList<DomainObject<?>>();
-    private final List<DomainObject<?>> dataManager_persist_objects_organizations = new ArrayList<DomainObject<?>>();
-    private final List<DomainObject<?>> dataManager_persist_objects_orgToRoles = new ArrayList<DomainObject<?>>();
-    private final List<DomainObject<?>> dataManager_removed_objects = new ArrayList<DomainObject<?>>();
+    private Stack<DomainObject<?>> dataManager_getReferenceByBusinessKey_return = new Stack<>();
+    private Stack<DomainObject<?>> dataManager_getReference_return = new Stack<>();
+    private final List<DomainObject<?>> dataManager_persist_objects_orgreftopt = new ArrayList<>();
+    private final List<DomainObject<?>> dataManager_persist_objects_triggerdef = new ArrayList<>();
+    private final List<DomainObject<?>> dataManager_persist_objects_currencies = new ArrayList<>();
+    private final List<DomainObject<?>> dataManager_persist_objects_organizations = new ArrayList<>();
+    private final List<DomainObject<?>> dataManager_persist_objects_orgToRoles = new ArrayList<>();
+    private final List<DomainObject<?>> dataManager_removed_objects = new ArrayList<>();
     private boolean dataManager_throwSaasNonUniqueBusinessKeyException = false;
 
     private VOUserDetails identityService_createdOrgAdmin = null;
@@ -113,12 +115,12 @@ public class OperatorServiceBeanRoleIT extends EJBTestBase {
     private Organization organization = new Organization();
     private PlatformUser platformUser = new PlatformUser();
     private List<?> query_getResultList = Collections.emptyList();
-    private Map<String, Object> queryParameters = new HashMap<String, Object>();
+    private Map<String, Object> queryParameters = new HashMap<>();
     protected boolean passwordReset;
-    private List<BillingResult> billingResultList = new ArrayList<BillingResult>();
+    private List<BillingResult> billingResultList = new ArrayList<>();
     private OrganizationReference dataManaber_findOrgRef = null;
 
-    private List<ConfigurationSetting> configSettings = new ArrayList<ConfigurationSetting>();
+    private List<ConfigurationSetting> configSettings = new ArrayList<>();
     protected boolean configSettingSaved;
     private List<ConfigurationSetting> storedConfigSettings;
     protected boolean paymentProcessingStarted;
@@ -143,7 +145,7 @@ public class OperatorServiceBeanRoleIT extends EJBTestBase {
             @Override
             public List<VOLocalizedText> getLocalizedValues(long objectKey,
                     LocalizedObjectTypes objectType) {
-                return new ArrayList<VOLocalizedText>();
+                return new ArrayList<>();
             }
 
             @Override
@@ -190,8 +192,8 @@ public class OperatorServiceBeanRoleIT extends EJBTestBase {
 
             @SuppressWarnings("unchecked")
             @Override
-            public <T extends DomainObject<?>> T getReference(
-                    Class<T> objclass, long key) {
+            public <T extends DomainObject<?>> T getReference(Class<T> objclass,
+                    long key) {
                 return (T) dataManager_getReference_return.pop();
             }
 
@@ -219,9 +221,8 @@ public class OperatorServiceBeanRoleIT extends EJBTestBase {
 
                     for (DomainObject<?> domObj : dataManager_persist_objects_organizations) {
                         Organization persistedOrg = (Organization) domObj;
-                        if (persistedOrg.getOrganizationId()
-                                .equals(orgToRole.getOrganization()
-                                        .getOrganizationId())) {
+                        if (persistedOrg.getOrganizationId().equals(orgToRole
+                                .getOrganization().getOrganizationId())) {
                             persistedOrg.getGrantedRoles().add(orgToRole);
                         }
                     }
@@ -235,6 +236,12 @@ public class OperatorServiceBeanRoleIT extends EJBTestBase {
                     @Override
                     public List<?> getResultList() {
                         return query_getResultList;
+                    }
+
+                    @Override
+                    public Object getSingleResult() {
+                        return query_getResultList.size() > 0
+                                ? query_getResultList.get(0) : null;
                     }
 
                     @Override
@@ -288,12 +295,14 @@ public class OperatorServiceBeanRoleIT extends EJBTestBase {
         doAnswer(new Answer() {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
-                if (invocation.getArguments()[0].getClass().equals(PlatformUser.class)) {
+                if (invocation.getArguments()[0].getClass()
+                        .equals(PlatformUser.class)) {
                     throw new ObjectNotFoundException();
                 }
                 return invocation.callRealMethod();
             }
-        }).when(dataServiceStub).getReferenceByBusinessKey(any(DomainObject.class));
+        }).when(dataServiceStub)
+                .getReferenceByBusinessKey(any(DomainObject.class));
         container.addBean(dataServiceStub);
 
         container.addBean(new IdentityServiceStub() {
@@ -311,8 +320,8 @@ public class OperatorServiceBeanRoleIT extends EJBTestBase {
 
             @Override
             public void createOrganizationAdmin(VOUserDetails userDetails,
-                    Organization organization, String password,
-                    Long serviceKey, Marketplace marketplace) {
+                    Organization organization, String password, Long serviceKey,
+                    Marketplace marketplace) {
                 identityService_createdOrgAdmin = userDetails;
             }
 
@@ -332,8 +341,8 @@ public class OperatorServiceBeanRoleIT extends EJBTestBase {
         });
 
         TimerServiceBean tsMock = mock(TimerServiceBean.class);
-        when(tsMock.getCurrentTimerExpirationDates()).thenReturn(
-                new ArrayList<VOTimerInfo>());
+        when(tsMock.getCurrentTimerExpirationDates())
+                .thenReturn(new ArrayList<VOTimerInfo>());
         container.addBean(tsMock);
         container.addBean(new BillingServiceStub() {
             @Override
@@ -343,7 +352,8 @@ public class OperatorServiceBeanRoleIT extends EJBTestBase {
 
             @Override
             public List<BillingResult> generateBillingForAnyPeriod(
-                    long startOfPeriod, long endOfPeriod, long organizationKey) {
+                    long startOfPeriod, long endOfPeriod,
+                    long organizationKey) {
                 return billingResultList;
             }
 
@@ -379,8 +389,10 @@ public class OperatorServiceBeanRoleIT extends EJBTestBase {
         container.addBean(mock(MarketingPermissionServiceLocal.class));
         container.addBean(mock(LdapSettingsManagementServiceLocal.class));
 
-        MarketplaceServiceLocal marketplaceServiceLocal = mock(MarketplaceServiceLocal.class);        
-        when(marketplaceServiceLocal.getMarketplaceForId(anyString())).thenReturn(new Marketplace("testMpl"));
+        MarketplaceServiceLocal marketplaceServiceLocal = mock(
+                MarketplaceServiceLocal.class);
+        when(marketplaceServiceLocal.getMarketplaceForId(anyString()))
+                .thenReturn(new Marketplace("testMpl"));
         container.addBean(marketplaceServiceLocal);
 
         container.addBean(new AccountServiceBean());
@@ -388,16 +400,15 @@ public class OperatorServiceBeanRoleIT extends EJBTestBase {
         accountMgmtLocal = container.get(AccountServiceLocal.class);
 
         AuditLogServiceBean auditLogMock = mock(AuditLogServiceBean.class);
-        when(
-                auditLogMock.loadAuditLogs(Mockito.anyListOf(String.class),
-                        Mockito.anyLong(), Mockito.anyLong())).thenReturn(
-                new String("").getBytes());
+        when(auditLogMock.loadAuditLogs(Mockito.anyListOf(String.class),
+                Mockito.anyLong(), Mockito.anyLong()))
+                        .thenReturn(new String("").getBytes());
         container.addBean(auditLogMock);
 
         container.addBean(new OperatorServiceBean());
 
         operatorService = container.get(OperatorService.class);
-        storedConfigSettings = new ArrayList<ConfigurationSetting>();
+        storedConfigSettings = new ArrayList<>();
     }
 
     // -------------------------------------------------------------
@@ -472,19 +483,20 @@ public class OperatorServiceBeanRoleIT extends EJBTestBase {
 
         dataManager_getReferenceByBusinessKey_return
                 .push(dataManager_persist_objects_organizations.get(0));
-        dataManager_getReferenceByBusinessKey_return.push(new SupportedCountry(
-                "en"));
+        dataManager_getReferenceByBusinessKey_return
+                .push(new SupportedCountry("en"));
         dataManager_getReferenceByBusinessKey_return
                 .push(dataManager_persist_objects_organizations.get(0));
 
-        VOOperatorOrganization updatedOrg = runTX(new Callable<VOOperatorOrganization>() {
-            @Override
-            public VOOperatorOrganization call() throws Exception {
-                VOOperatorOrganization updOrg = operatorService
-                        .updateOrganization(org, null);
-                return updOrg;
-            }
-        });
+        VOOperatorOrganization updatedOrg = runTX(
+                new Callable<VOOperatorOrganization>() {
+                    @Override
+                    public VOOperatorOrganization call() throws Exception {
+                        VOOperatorOrganization updOrg = operatorService
+                                .updateOrganization(org, null);
+                        return updOrg;
+                    }
+                });
 
         assertEquals("Wrong org ID in organization role",
                 updatedOrg.getOrganizationId(),
@@ -515,19 +527,20 @@ public class OperatorServiceBeanRoleIT extends EJBTestBase {
 
         dataManager_getReferenceByBusinessKey_return
                 .push(dataManager_persist_objects_organizations.get(0));
-        dataManager_getReferenceByBusinessKey_return.push(new SupportedCountry(
-                "en"));
+        dataManager_getReferenceByBusinessKey_return
+                .push(new SupportedCountry("en"));
         dataManager_getReferenceByBusinessKey_return
                 .push(dataManager_persist_objects_organizations.get(0));
 
-        VOOperatorOrganization updatedOrg = runTX(new Callable<VOOperatorOrganization>() {
-            @Override
-            public VOOperatorOrganization call() throws Exception {
-                VOOperatorOrganization updOrg = operatorService
-                        .updateOrganization(org, null);
-                return updOrg;
-            }
-        });
+        VOOperatorOrganization updatedOrg = runTX(
+                new Callable<VOOperatorOrganization>() {
+                    @Override
+                    public VOOperatorOrganization call() throws Exception {
+                        VOOperatorOrganization updOrg = operatorService
+                                .updateOrganization(org, null);
+                        return updOrg;
+                    }
+                });
 
         assertEquals("Wrong org ID in organization role",
                 updatedOrg.getOrganizationId(),
@@ -560,8 +573,8 @@ public class OperatorServiceBeanRoleIT extends EJBTestBase {
 
         dataManager_getReferenceByBusinessKey_return
                 .push(dataManager_persist_objects_organizations.get(0));
-        dataManager_getReferenceByBusinessKey_return.push(new SupportedCountry(
-                "en"));
+        dataManager_getReferenceByBusinessKey_return
+                .push(new SupportedCountry("en"));
         dataManager_getReferenceByBusinessKey_return
                 .push(dataManager_persist_objects_organizations.get(0));
 
@@ -594,8 +607,8 @@ public class OperatorServiceBeanRoleIT extends EJBTestBase {
 
         dataManager_getReferenceByBusinessKey_return
                 .push(dataManager_persist_objects_organizations.get(0));
-        dataManager_getReferenceByBusinessKey_return.push(new SupportedCountry(
-                "en"));
+        dataManager_getReferenceByBusinessKey_return
+                .push(new SupportedCountry("en"));
         dataManager_getReferenceByBusinessKey_return
                 .push(dataManager_persist_objects_organizations.get(0));
 
@@ -628,8 +641,8 @@ public class OperatorServiceBeanRoleIT extends EJBTestBase {
 
         dataManager_getReferenceByBusinessKey_return
                 .push(dataManager_persist_objects_organizations.get(0));
-        dataManager_getReferenceByBusinessKey_return.push(new SupportedCountry(
-                "en"));
+        dataManager_getReferenceByBusinessKey_return
+                .push(new SupportedCountry("en"));
         dataManager_getReferenceByBusinessKey_return
                 .push(dataManager_persist_objects_organizations.get(0));
 
@@ -686,8 +699,8 @@ public class OperatorServiceBeanRoleIT extends EJBTestBase {
             orgRoles = roles;
         }
 
-        dataManager_getReferenceByBusinessKey_return.add(new OrganizationRole(
-                OrganizationRoleType.SUPPLIER));
+        dataManager_getReferenceByBusinessKey_return
+                .add(new OrganizationRole(OrganizationRoleType.SUPPLIER));
 
         PaymentType pt = new PaymentType();
         pt.setPaymentTypeId(PaymentType.INVOICE);
@@ -724,23 +737,23 @@ public class OperatorServiceBeanRoleIT extends EJBTestBase {
         assertEquals("Wrong persisted organization name", ORGANIZATION_NAME,
                 persistedOrg.getName());
 
-        List<OrganizationRoleType> persistedRoleTypes = new ArrayList<OrganizationRoleType>();
+        List<OrganizationRoleType> persistedRoleTypes = new ArrayList<>();
         for (DomainObject<?> domObj : dataManager_persist_objects_orgToRoles) {
             OrganizationToRole orgToRole = (OrganizationToRole) domObj;
 
             assertEquals("Wrong org ID in persisted organization role",
-                    persistedOrgId, orgToRole.getOrganization()
-                            .getOrganizationId());
-            persistedRoleTypes.add(orgToRole.getOrganizationRole()
-                    .getRoleName());
+                    persistedOrgId,
+                    orgToRole.getOrganization().getOrganizationId());
+            persistedRoleTypes
+                    .add(orgToRole.getOrganizationRole().getRoleName());
         }
 
         assertTrue("Role CUSTOMER missing in persisted role types",
                 persistedRoleTypes.contains(OrganizationRoleType.CUSTOMER));
 
         for (OrganizationRoleType role : orgRoles) {
-            assertTrue("Role " + role.name()
-                    + " missing in persisted role types",
+            assertTrue(
+                    "Role " + role.name() + " missing in persisted role types",
                     persistedRoleTypes.contains(role));
         }
 

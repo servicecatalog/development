@@ -391,4 +391,12 @@ public class User implements Serializable {
         this.groupsToDisplay = groupsToDisplay;
     }
 
+    public long getTenantKey() {
+        try {
+            return Long.parseLong(voUserDetails.getTenantKey());
+        } catch(Exception exc) {
+            //Do nothing. Current user is in default tenant.
+            return 0;
+        }
+    }
 }

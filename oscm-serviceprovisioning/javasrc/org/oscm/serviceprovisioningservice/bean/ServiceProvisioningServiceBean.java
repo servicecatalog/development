@@ -276,6 +276,7 @@ public class ServiceProvisioningServiceBean
     private boolean isLocalizedTextChanged;
     private boolean isDescriptionChanged;
     private boolean isShortDescriptionChanged;
+    private boolean isCustomTabNameChanged;
 
     private static String DEFINEIPDOWNGRADE_ON = "ON";
     private static String DEFINEIPDOWNGRADE_OFF = "OFF";
@@ -1403,7 +1404,7 @@ public class ServiceProvisioningServiceBean
         if (service.getVersion() < createdProduct.getVersion()
                 || isLocalizedTextChanged) {
             serviceAudit.updateService(dm, storedService,
-                    isShortDescriptionChanged, isDescriptionChanged,
+                    isShortDescriptionChanged, isDescriptionChanged, isCustomTabNameChanged,
                     dm.getCurrentUser().getLocale());
         }
 
@@ -1591,6 +1592,7 @@ public class ServiceProvisioningServiceBean
         String productName = productToModify.getName();
         String productDescription = productToModify.getDescription();
         String productShortDescription = productToModify.getShortDescription();
+        String productCustomTabName = productToModify.getCustomTabName();
         String userLocale = currentUser.getLocale();
         String oldDescription = localizer.getLocalizedTextFromDatabase(
                 userLocale, product.getKey(),
@@ -1601,6 +1603,9 @@ public class ServiceProvisioningServiceBean
         String oldProductName = localizer.getLocalizedTextFromDatabase(
                 userLocale, product.getKey(),
                 LocalizedObjectTypes.PRODUCT_MARKETING_NAME);
+        String oldCustomTabName = localizer.getLocalizedTextFromDatabase(
+                userLocale, product.getKey(),
+                LocalizedObjectTypes.PRODUCT_CUSTOM_TAB_NAME);
 
         isLocalizedTextChanged = false;
         if (productName != null && !productName.equals(oldProductName)) {
@@ -1629,6 +1634,16 @@ public class ServiceProvisioningServiceBean
             localizer.storeLocalizedResource(userLocale, product.getKey(),
                     LocalizedObjectTypes.PRODUCT_SHORT_DESCRIPTION,
                     productShortDescription);
+        }
+
+        isCustomTabNameChanged = false;
+        if (productCustomTabName != null
+                && !productCustomTabName.equals(oldCustomTabName)) {
+            isLocalizedTextChanged = true;
+            isCustomTabNameChanged = true;
+            localizer.storeLocalizedResource(userLocale, product.getKey(),
+                    LocalizedObjectTypes.PRODUCT_CUSTOM_TAB_NAME,
+                    productCustomTabName);
         }
 
         if (isCreation) {
@@ -5292,6 +5307,11 @@ public class ServiceProvisioningServiceBean
                 product.getKey(), LocalizedObjectTypes.PRODUCT_MARKETING_NAME);
         localizer.setLocalizedValues(copy.getKey(),
                 LocalizedObjectTypes.PRODUCT_MARKETING_NAME, locNames);
+        List<VOLocalizedText> locCustomTabNames = localizer.getLocalizedValues(
+                product.getKey(), LocalizedObjectTypes.PRODUCT_CUSTOM_TAB_NAME);
+        localizer.setLocalizedValues(copy.getKey(),
+                LocalizedObjectTypes.PRODUCT_CUSTOM_TAB_NAME,
+                locCustomTabNames);
 
         PriceModel pm = product.getPriceModel();
         if (pm != null) {

@@ -36,6 +36,7 @@ import org.oscm.test.data.Products;
 import org.oscm.test.data.Subscriptions;
 import org.oscm.test.data.TechnicalProducts;
 import org.oscm.test.ejb.TestContainer;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 
 import junit.framework.Assert;
 
@@ -49,7 +50,7 @@ public class UserSubscriptionDaoIT extends EJBTestBase {
 
     @Override
     protected void setup(TestContainer container) throws Exception {
-
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         ds = container.get(DataService.class);
         dao = new UserSubscriptionDao(ds);
@@ -240,7 +241,7 @@ public class UserSubscriptionDaoIT extends EJBTestBase {
         pagination.setSorting(sorting);
         pagination.setFilterSet(filterSet);
 
-        Map<String, Boolean> changedSelectedSubs = new HashMap<String, Boolean>();
+        Map<String, Boolean> changedSelectedSubs = new HashMap<>();
         changedSelectedSubs.put("sub1", true);
         pagination.setSelectedUsersIds(changedSelectedSubs);
 
@@ -274,8 +275,8 @@ public class UserSubscriptionDaoIT extends EJBTestBase {
         return runTX(new Callable<PlatformUser>() {
             @Override
             public PlatformUser call() throws Exception {
-                return Organizations.createUserForOrg(ds, organization,
-                        isAdmin, userId);
+                return Organizations.createUserForOrg(ds, organization, isAdmin,
+                        userId);
             }
         });
     }

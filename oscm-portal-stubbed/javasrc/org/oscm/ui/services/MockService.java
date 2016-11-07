@@ -2293,7 +2293,7 @@ public class MockService implements IdentityService, SubscriptionService,
     }
 
     @Override
-    public List<VOMarketplace> getAccessibleMarketplacesForOperator() {
+    public List<VOMarketplace> getAccessibleMarketplaces() {
         return null;
     }
 
@@ -2770,12 +2770,14 @@ public class MockService implements IdentityService, SubscriptionService,
     }
 
     @Override
-    public List<VOMarketplace> getAllMarketplacesForTenant(long tenantKey) throws ObjectNotFoundException {
+    public List<VOMarketplace> getAllMarketplacesForTenant(Long tenantKey)
+            throws ObjectNotFoundException {
         return null;
     }
 
     @Override
-    public String getTenantIdFromMarketplace(String marketplaceId) throws ObjectNotFoundException {
+    public String getTenantIdFromMarketplace(String marketplaceId)
+            throws ObjectNotFoundException {
         return null;
     }
 

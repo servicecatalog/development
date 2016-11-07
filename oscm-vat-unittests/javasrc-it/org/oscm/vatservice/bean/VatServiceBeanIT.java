@@ -12,7 +12,8 @@
 
 package org.oscm.vatservice.bean;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -24,7 +25,6 @@ import javax.ejb.EJBException;
 
 import org.junit.Assert;
 import org.junit.Test;
-
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.DomainObject;
@@ -32,14 +32,6 @@ import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.SupportedCountry;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
-import org.oscm.test.BaseAdmUmTest;
-import org.oscm.test.EJBTestBase;
-import org.oscm.test.data.Organizations;
-import org.oscm.test.data.SupportedCountries;
-import org.oscm.test.data.VatRates;
-import org.oscm.test.ejb.TestContainer;
-import org.oscm.test.stubs.LocalizerServiceStub;
-import org.oscm.vatservice.assembler.VatRateAssembler;
 import org.oscm.internal.intf.VatService;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.exception.ConcurrentModificationException;
@@ -50,6 +42,15 @@ import org.oscm.internal.vo.VOCountryVatRate;
 import org.oscm.internal.vo.VOOrganization;
 import org.oscm.internal.vo.VOOrganizationVatRate;
 import org.oscm.internal.vo.VOVatRate;
+import org.oscm.test.BaseAdmUmTest;
+import org.oscm.test.EJBTestBase;
+import org.oscm.test.data.Organizations;
+import org.oscm.test.data.SupportedCountries;
+import org.oscm.test.data.VatRates;
+import org.oscm.test.ejb.TestContainer;
+import org.oscm.test.stubs.ConfigurationServiceStub;
+import org.oscm.test.stubs.LocalizerServiceStub;
+import org.oscm.vatservice.assembler.VatRateAssembler;
 
 public class VatServiceBeanIT extends EJBTestBase {
 
@@ -61,11 +62,12 @@ public class VatServiceBeanIT extends EJBTestBase {
     private VatService vatService;
 
     private Organization supplier;
-    private List<Organization> customers = new ArrayList<Organization>();
+    private List<Organization> customers = new ArrayList<>();
     private String userKey;
 
     @Override
     public void setup(final TestContainer container) throws Exception {
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         container.addBean(new LocalizerServiceStub() {
             @Override
@@ -83,13 +85,14 @@ public class VatServiceBeanIT extends EJBTestBase {
 
         container.login("setup", ROLE_ORGANIZATION_ADMIN);
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 BaseAdmUmTest.createPaymentTypes(mgr);
-                SupportedCountry de_country = SupportedCountries.findOrCreate(
-                        mgr, Locale.GERMANY.getCountry());
+                SupportedCountry de_country = SupportedCountries
+                        .findOrCreate(mgr, Locale.GERMANY.getCountry());
 
-                SupportedCountry ja_country = SupportedCountries.findOrCreate(
-                        mgr, Locale.JAPAN.getCountry());
+                SupportedCountry ja_country = SupportedCountries
+                        .findOrCreate(mgr, Locale.JAPAN.getCountry());
 
                 supplier = Organizations.createOrganization(mgr,
                         OrganizationRoleType.SUPPLIER);
@@ -120,6 +123,7 @@ public class VatServiceBeanIT extends EJBTestBase {
     @Test
     public void testVatSupportEnabled() throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 supplier = mgr.getReference(Organization.class,
                         supplier.getKey());
@@ -135,6 +139,7 @@ public class VatServiceBeanIT extends EJBTestBase {
     @Test(expected = EJBException.class)
     public void testMissingDefaultVat() throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 supplier = mgr.getReference(Organization.class,
                         supplier.getKey());
@@ -150,6 +155,7 @@ public class VatServiceBeanIT extends EJBTestBase {
     @Test
     public void testGetCountryVats() throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 supplier = mgr.getReference(Organization.class,
                         supplier.getKey());
@@ -167,6 +173,7 @@ public class VatServiceBeanIT extends EJBTestBase {
     @Test
     public void testGetOrganizationVats() throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 supplier = mgr.getReference(Organization.class,
                         supplier.getKey());
@@ -174,20 +181,20 @@ public class VatServiceBeanIT extends EJBTestBase {
                 VatRates.createVatRate(mgr, supplier, BigDecimal.ZERO, null,
                         null);
                 Organization customer;
-                customer = mgr.getReference(Organization.class, customers
-                        .get(0).getKey());
+                customer = mgr.getReference(Organization.class,
+                        customers.get(0).getKey());
                 VatRates.createVatRate(mgr, supplier, ONE, null, customer);
-                customer = mgr.getReference(Organization.class, customers
-                        .get(1).getKey());
+                customer = mgr.getReference(Organization.class,
+                        customers.get(1).getKey());
                 VatRates.createVatRate(mgr, supplier, TEN, null, customer);
                 return null;
             }
         });
 
-        Assert.assertEquals(ONE, vatService.getOrganizationVats().get(0)
-                .getRate());
-        Assert.assertEquals(TEN, vatService.getOrganizationVats().get(1)
-                .getRate());
+        Assert.assertEquals(ONE,
+                vatService.getOrganizationVats().get(0).getRate());
+        Assert.assertEquals(TEN,
+                vatService.getOrganizationVats().get(1).getRate());
     }
 
     @Test
@@ -286,8 +293,8 @@ public class VatServiceBeanIT extends EJBTestBase {
         List<VOOrganizationVatRate> orgVatRates = vatService
                 .getOrganizationVats();
         Assert.assertEquals(1, orgVatRates.size());
-        Assert.assertEquals(customers.get(0).getOrganizationId(), orgVatRates
-                .get(0).getOrganization().getOrganizationId());
+        Assert.assertEquals(customers.get(0).getOrganizationId(),
+                orgVatRates.get(0).getOrganization().getOrganizationId());
         Assert.assertEquals(TEN, orgVatRates.get(0).getRate());
 
         vatService.saveOrganizationVats(null);
@@ -297,17 +304,17 @@ public class VatServiceBeanIT extends EJBTestBase {
         Assert.assertEquals(1, vatService.getOrganizationVats().size());
 
         // add a second VAT
-        orgVatRates = new ArrayList<VOOrganizationVatRate>();
+        orgVatRates = new ArrayList<>();
         VOOrganizationVatRate orgVatRate = new VOOrganizationVatRate();
         orgVatRate.setOrganization(new VOOrganization());
-        orgVatRate.getOrganization().setOrganizationId(
-                customers.get(1).getOrganizationId());
+        orgVatRate.getOrganization()
+                .setOrganizationId(customers.get(1).getOrganizationId());
         orgVatRate.setRate(ONE);
         orgVatRates.add(orgVatRate);
         vatService.saveOrganizationVats(orgVatRates);
         Assert.assertEquals(2, vatService.getOrganizationVats().size());
-        Assert.assertEquals(ONE, vatService.getOrganizationVats().get(1)
-                .getRate());
+        Assert.assertEquals(ONE,
+                vatService.getOrganizationVats().get(1).getRate());
     }
 
     @Test
@@ -319,8 +326,8 @@ public class VatServiceBeanIT extends EJBTestBase {
                 .getOrganizationVats();
         orgVatRates.get(0).setRate(ONE);
         vatService.saveOrganizationVats(orgVatRates);
-        Assert.assertEquals(ONE, vatService.getOrganizationVats().get(0)
-                .getRate());
+        Assert.assertEquals(ONE,
+                vatService.getOrganizationVats().get(0).getRate());
     }
 
     @Test
@@ -336,10 +343,11 @@ public class VatServiceBeanIT extends EJBTestBase {
     }
 
     @Test
-    public void testSaveOrganizationVats_missingOrganization() throws Exception {
+    public void testSaveOrganizationVats_missingOrganization()
+            throws Exception {
         createDefaultVat(BigDecimal.ZERO);
 
-        List<VOOrganizationVatRate> orgVatRates = new ArrayList<VOOrganizationVatRate>();
+        List<VOOrganizationVatRate> orgVatRates = new ArrayList<>();
         VOOrganizationVatRate orgVatRate = new VOOrganizationVatRate();
         orgVatRate.setOrganization(new VOOrganization());
         orgVatRate.setRate(TEN);
@@ -354,10 +362,11 @@ public class VatServiceBeanIT extends EJBTestBase {
     }
 
     @Test(expected = OperationNotPermittedException.class)
-    public void testSaveOrganizationVats_unknownOrganization() throws Exception {
+    public void testSaveOrganizationVats_unknownOrganization()
+            throws Exception {
         createDefaultVat(BigDecimal.ZERO);
 
-        List<VOOrganizationVatRate> orgVatRates = new ArrayList<VOOrganizationVatRate>();
+        List<VOOrganizationVatRate> orgVatRates = new ArrayList<>();
         VOOrganizationVatRate orgVatRate = new VOOrganizationVatRate();
         orgVatRate.setOrganization(new VOOrganization());
         orgVatRate.getOrganization().setOrganizationId("unknown");
@@ -374,20 +383,20 @@ public class VatServiceBeanIT extends EJBTestBase {
         container.login(userKey, ROLE_SERVICE_MANAGER);
         vatService.saveDefaultVat(defaultVat);
 
-        List<VOOrganizationVatRate> orgVatRates = new ArrayList<VOOrganizationVatRate>();
+        List<VOOrganizationVatRate> orgVatRates = new ArrayList<>();
 
         VOOrganizationVatRate orgVatRate;
         orgVatRate = new VOOrganizationVatRate();
         orgVatRate.setOrganization(new VOOrganization());
-        orgVatRate.getOrganization().setOrganizationId(
-                customers.get(0).getOrganizationId());
+        orgVatRate.getOrganization()
+                .setOrganizationId(customers.get(0).getOrganizationId());
         orgVatRate.setRate(TEN);
         orgVatRates.add(orgVatRate);
 
         orgVatRate = new VOOrganizationVatRate();
         orgVatRate.setOrganization(new VOOrganization());
-        orgVatRate.getOrganization().setOrganizationId(
-                customers.get(0).getOrganizationId());
+        orgVatRate.getOrganization()
+                .setOrganizationId(customers.get(0).getOrganizationId());
         orgVatRate.setRate(TEN);
         orgVatRates.add(orgVatRate);
         try {
@@ -412,8 +421,8 @@ public class VatServiceBeanIT extends EJBTestBase {
 
         List<VOCountryVatRate> countryVatRates = vatService.getCountryVats();
         Assert.assertEquals(1, countryVatRates.size());
-        Assert.assertEquals(Locale.GERMANY.getCountry(), countryVatRates.get(0)
-                .getCountry());
+        Assert.assertEquals(Locale.GERMANY.getCountry(),
+                countryVatRates.get(0).getCountry());
         Assert.assertEquals(TEN, countryVatRates.get(0).getRate());
 
         vatService.saveCountryVats(null);
@@ -423,7 +432,7 @@ public class VatServiceBeanIT extends EJBTestBase {
         Assert.assertEquals(1, vatService.getCountryVats().size());
 
         // add a second VAT
-        countryVatRates = new ArrayList<VOCountryVatRate>();
+        countryVatRates = new ArrayList<>();
         VOCountryVatRate countryVatRate = new VOCountryVatRate();
         countryVatRate.setCountry(Locale.JAPAN.getCountry());
         countryVatRate.setRate(ONE);
@@ -462,7 +471,7 @@ public class VatServiceBeanIT extends EJBTestBase {
         container.login(userKey, ROLE_SERVICE_MANAGER);
         vatService.saveDefaultVat(defaultVat);
 
-        List<VOCountryVatRate> countryVatRates = new ArrayList<VOCountryVatRate>();
+        List<VOCountryVatRate> countryVatRates = new ArrayList<>();
         VOCountryVatRate countryVatRate = new VOCountryVatRate();
         countryVatRate.setRate(TEN);
         countryVatRates.add(countryVatRate);
@@ -482,7 +491,7 @@ public class VatServiceBeanIT extends EJBTestBase {
         container.login(userKey, ROLE_SERVICE_MANAGER);
         vatService.saveDefaultVat(defaultVat);
 
-        List<VOCountryVatRate> countryVatRates = new ArrayList<VOCountryVatRate>();
+        List<VOCountryVatRate> countryVatRates = new ArrayList<>();
         VOCountryVatRate countryVatRate = new VOCountryVatRate();
         countryVatRate.setCountry(Locale.FRANCE.getCountry());
         countryVatRate.setRate(TEN);
@@ -504,7 +513,7 @@ public class VatServiceBeanIT extends EJBTestBase {
         container.login(userKey, ROLE_SERVICE_MANAGER);
         vatService.saveDefaultVat(defaultVat);
 
-        List<VOCountryVatRate> countryVatRates = new ArrayList<VOCountryVatRate>();
+        List<VOCountryVatRate> countryVatRates = new ArrayList<>();
         VOCountryVatRate countryVatRate;
         countryVatRate = new VOCountryVatRate();
         countryVatRate.setCountry(Locale.GERMANY.getCountry());
@@ -538,7 +547,7 @@ public class VatServiceBeanIT extends EJBTestBase {
 
     @Test(expected = ValidationException.class)
     public void testSaveAllVats_invalidCountryList() throws Exception {
-        List<VOCountryVatRate> list = new ArrayList<VOCountryVatRate>();
+        List<VOCountryVatRate> list = new ArrayList<>();
         list.add(new VOCountryVatRate());
         container.login(userKey, ROLE_SERVICE_MANAGER);
         vatService.saveAllVats(null, list, null);
@@ -546,7 +555,7 @@ public class VatServiceBeanIT extends EJBTestBase {
 
     @Test(expected = ValidationException.class)
     public void testSaveAllVats_invalidOrganizationList() throws Exception {
-        List<VOOrganizationVatRate> list = new ArrayList<VOOrganizationVatRate>();
+        List<VOOrganizationVatRate> list = new ArrayList<>();
         list.add(new VOOrganizationVatRate());
         container.login(userKey, ROLE_SERVICE_MANAGER);
         vatService.saveAllVats(null, null, list);
@@ -588,7 +597,7 @@ public class VatServiceBeanIT extends EJBTestBase {
     }
 
     private void createCountryVat(BigDecimal rate) throws Exception {
-        List<VOCountryVatRate> countryVats = new ArrayList<VOCountryVatRate>();
+        List<VOCountryVatRate> countryVats = new ArrayList<>();
         VOCountryVatRate countryVat = new VOCountryVatRate();
         countryVat.setCountry(Locale.GERMANY.getCountry());
         countryVat.setRate(rate);
@@ -597,11 +606,11 @@ public class VatServiceBeanIT extends EJBTestBase {
     }
 
     private void createOrganizationVat(BigDecimal rate) throws Exception {
-        List<VOOrganizationVatRate> orgVatRates = new ArrayList<VOOrganizationVatRate>();
+        List<VOOrganizationVatRate> orgVatRates = new ArrayList<>();
         VOOrganizationVatRate orgVatRate = new VOOrganizationVatRate();
         orgVatRate.setOrganization(new VOOrganization());
-        orgVatRate.getOrganization().setOrganizationId(
-                customers.get(0).getOrganizationId());
+        orgVatRate.getOrganization()
+                .setOrganizationId(customers.get(0).getOrganizationId());
         orgVatRate.setRate(rate);
         orgVatRates.add(orgVatRate);
         vatService.saveOrganizationVats(orgVatRates);

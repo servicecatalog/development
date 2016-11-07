@@ -49,6 +49,7 @@ import org.oscm.test.data.Subscriptions;
 import org.oscm.test.ejb.TestContainer;
 import org.oscm.test.stubs.AccountServiceStub;
 import org.oscm.test.stubs.CommunicationServiceStub;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.test.stubs.ServiceProvisioningServiceStub;
 import org.oscm.usergroupservice.auditlog.UserGroupAuditLogCollector;
 import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
@@ -73,17 +74,18 @@ public class SubscriptionDaoIT_KeyFiltering extends EJBTestBase {
     private PlatformUser unitAdmin;
     private UserGroup unit;
 
-    Set<SubscriptionStatus> SUB_STATES = Collections.unmodifiableSet(EnumSet
-            .of(SubscriptionStatus.ACTIVE, SubscriptionStatus.PENDING,
-                    SubscriptionStatus.SUSPENDED));
+    Set<SubscriptionStatus> SUB_STATES = Collections
+            .unmodifiableSet(EnumSet.of(SubscriptionStatus.ACTIVE,
+                    SubscriptionStatus.PENDING, SubscriptionStatus.SUSPENDED));
 
-    private static final Set<UserRoleType> UNIT_ADMINISTRATOR_ROLE = new HashSet<UserRoleType>(
+    private static final Set<UserRoleType> UNIT_ADMINISTRATOR_ROLE = new HashSet<>(
             Arrays.asList(UserRoleType.UNIT_ADMINISTRATOR));
 
     @Override
     protected void setup(TestContainer container) throws Exception {
         container.enableInterfaceMocking(true);
         container.addBean(new CommunicationServiceStub());
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new AccountServiceStub());
         container.addBean(new ServiceProvisioningServiceStub());
         container.addBean(new DataServiceBean());
@@ -143,8 +145,8 @@ public class SubscriptionDaoIT_KeyFiltering extends EJBTestBase {
         // given
         subscription = createSubscription(customer.getOrganizationId(),
                 product.getProductId(), "sub1", supplier, unit, unitAdmin);
-        createSubscription(customer.getOrganizationId(),
-                product.getProductId(), "sub2", supplier, unit, unitAdmin);
+        createSubscription(customer.getOrganizationId(), product.getProductId(),
+                "sub2", supplier, unit, unitAdmin);
 
         final Pagination pagination = new Pagination();
         pagination.setFilterSet(new HashSet<Filter>());
@@ -261,8 +263,8 @@ public class SubscriptionDaoIT_KeyFiltering extends EJBTestBase {
         return runTX(new Callable<PlatformUser>() {
             @Override
             public PlatformUser call() throws Exception {
-                return Organizations.createUserForOrg(ds, organization,
-                        isAdmin, userId);
+                return Organizations.createUserForOrg(ds, organization, isAdmin,
+                        userId);
             }
         });
     }

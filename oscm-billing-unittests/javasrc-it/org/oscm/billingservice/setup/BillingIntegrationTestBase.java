@@ -172,9 +172,9 @@ public class BillingIntegrationTestBase extends StaticEJBTestBase {
         containerSetup(container);
         basicSetup = new TestBasicSetup(container);
 
-        customersPerScenario = new HashMap<String, List<VOOrganization>>();
-        subscriptionCache = new HashMap<String, List<VOSubscriptionDetails>>();
-        testCache = new HashMap<String, TestData>();
+        customersPerScenario = new HashMap<>();
+        subscriptionCache = new HashMap<>();
+        testCache = new HashMap<>();
     }
 
     public static TestData getTestData(String testName) {
@@ -195,8 +195,8 @@ public class BillingIntegrationTestBase extends StaticEJBTestBase {
      */
     public static void createBasicTestData(final boolean basicSetupRequired)
             throws Exception {
-        setDateFactoryInstance(DateTimeHandling
-                .calculateMillis("2010-01-01 00:00:00"));
+        setDateFactoryInstance(
+                DateTimeHandling.calculateMillis("2010-01-01 00:00:00"));
 
         basicDataSetup(basicSetupRequired);
 
@@ -261,7 +261,7 @@ public class BillingIntegrationTestBase extends StaticEJBTestBase {
             @Override
             public List<TriggerProcessMessageData> sendSuspendingMessages(
                     List<TriggerMessage> messageData) {
-                List<TriggerProcessMessageData> result = new ArrayList<TriggerProcessMessageData>();
+                List<TriggerProcessMessageData> result = new ArrayList<>();
                 for (TriggerMessage m : messageData) {
                     TriggerProcess tp = new TriggerProcess();
                     PlatformUser user = new PlatformUser();
@@ -357,7 +357,8 @@ public class BillingIntegrationTestBase extends StaticEJBTestBase {
                 TenantProvisioningResult result = new TenantProvisioningResult();
                 ProvisioningType provType = subscription.getProduct()
                         .getTechnicalProduct().getProvisioningType();
-                result.setAsyncProvisioning(provType == ProvisioningType.ASYNCHRONOUS);
+                result.setAsyncProvisioning(
+                        provType == ProvisioningType.ASYNCHRONOUS);
                 return result;
             }
 
@@ -378,8 +379,9 @@ public class BillingIntegrationTestBase extends StaticEJBTestBase {
 
                     super.setConfigurationSetting(new ConfigurationSetting(
                             ConfigurationKey.SUPPLIER_SETS_INVOICE_AS_DEFAULT,
-                            Configuration.GLOBAL_CONTEXT, Boolean.valueOf(
-                                    setInvoiceAsDefaultPayment).toString()));
+                            Configuration.GLOBAL_CONTEXT,
+                            Boolean.valueOf(setInvoiceAsDefaultPayment)
+                                    .toString()));
                 }
                 return super.getConfigurationSetting(informationId, contextId);
             }
@@ -412,6 +414,21 @@ public class BillingIntegrationTestBase extends StaticEJBTestBase {
                 PlatformUser user = null;
                 try {
                     user = identityServiceLocal.getPlatformUser(userId, false);
+                } catch (ObjectNotFoundException e) {
+                    throw new UnsupportedOperationException();
+                } catch (OperationNotPermittedException e) {
+                    throw new UnsupportedOperationException();
+                }
+                return user;
+            }
+
+            @Override
+            public PlatformUser getPlatformUser(String userId, String tenantId,
+                    boolean validateOrganization) {
+                PlatformUser user = null;
+                try {
+                    user = identityServiceLocal.getPlatformUser(userId,
+                            tenantId, false);
                 } catch (ObjectNotFoundException e) {
                     throw new UnsupportedOperationException();
                 } catch (OperationNotPermittedException e) {
@@ -564,15 +581,16 @@ public class BillingIntegrationTestBase extends StaticEJBTestBase {
             public Void call() throws Exception {
                 container.login(basicSetup.getSupplierAdminKey(),
                         ROLE_TECHNOLOGY_MANAGER);
-                basicSetup
-                        .createAsyncTechnicalService(TECHNICAL_SERVICES_ASYNC_XML);
+                basicSetup.createAsyncTechnicalService(
+                        TECHNICAL_SERVICES_ASYNC_XML);
                 return null;
             }
         });
 
     }
 
-    public static List<VOSubscriptionDetails> getSubscriptionDetails(String key) {
+    public static List<VOSubscriptionDetails> getSubscriptionDetails(
+            String key) {
         return subscriptionCache.get(key);
     }
 
@@ -590,7 +608,7 @@ public class BillingIntegrationTestBase extends StaticEJBTestBase {
             VOSubscriptionDetails subDetails) {
         List<VOSubscriptionDetails> subDetailsList = subscriptionCache.get(key);
         if (subDetailsList == null) {
-            subDetailsList = new ArrayList<VOSubscriptionDetails>();
+            subDetailsList = new ArrayList<>();
             subscriptionCache.put(key, subDetailsList);
         }
         subDetailsList.add(subDetails);
@@ -601,7 +619,7 @@ public class BillingIntegrationTestBase extends StaticEJBTestBase {
         List<VOOrganization> customerList = customersPerScenario
                 .get(scenarioId);
         if (customerList == null) {
-            customerList = new ArrayList<VOOrganization>();
+            customerList = new ArrayList<>();
             customersPerScenario.put(scenarioId, customerList);
         }
         customerList.add(customer);
@@ -613,8 +631,8 @@ public class BillingIntegrationTestBase extends StaticEJBTestBase {
             public Void call() {
                 ConfigurationSetting config = new ConfigurationSetting(
                         ConfigurationKey.TIMER_INTERVAL_BILLING_OFFSET,
-                        Configuration.GLOBAL_CONTEXT, Long.valueOf(offsetInMs)
-                                .toString());
+                        Configuration.GLOBAL_CONTEXT,
+                        Long.valueOf(offsetInMs).toString());
                 configurationService.setConfigurationSetting(config);
                 return null;
             }
@@ -630,8 +648,8 @@ public class BillingIntegrationTestBase extends StaticEJBTestBase {
     protected void performBillingRun(final long billingOffsetInDays,
             final long invocationTime) throws Exception {
         setDateFactoryInstance(invocationTime);
-        setBillingRunOffset(billingOffsetInDays
-                * DateConverter.MILLISECONDS_PER_DAY);
+        setBillingRunOffset(
+                billingOffsetInDays * DateConverter.MILLISECONDS_PER_DAY);
 
         runTX(new Callable<Void>() {
             @Override
@@ -713,8 +731,8 @@ public class BillingIntegrationTestBase extends StaticEJBTestBase {
         return runTX(new Callable<Document>() {
             @Override
             public Document call() throws Exception {
-                Query query = dataService
-                        .createNamedQuery("BillingSharesResult.getSharesResult");
+                Query query = dataService.createNamedQuery(
+                        "BillingSharesResult.getSharesResult");
                 query.setParameter("fromDate", Long.valueOf(periodStart));
                 query.setParameter("toDate", Long.valueOf(periodEnd));
                 query.setParameter("resultType", resultType);
@@ -734,8 +752,8 @@ public class BillingIntegrationTestBase extends StaticEJBTestBase {
                     }
 
                     System.out.println(result.getResultXML());
-                    Document doc = XMLConverter.convertToDocument(
-                            result.getResultXML(), true);
+                    Document doc = XMLConverter
+                            .convertToDocument(result.getResultXML(), true);
                     return doc;
                 } catch (NoResultException e) {
                     return null;

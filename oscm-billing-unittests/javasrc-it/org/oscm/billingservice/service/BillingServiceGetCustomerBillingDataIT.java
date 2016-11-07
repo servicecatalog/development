@@ -14,7 +14,6 @@ import java.util.concurrent.Callable;
 
 import org.junit.Assert;
 import org.junit.Test;
-
 import org.oscm.accountservice.dao.UserLicenseDao;
 import org.oscm.billingservice.business.calculation.revenue.RevenueCalculatorBean;
 import org.oscm.billingservice.business.calculation.share.SharesCalculatorBean;
@@ -29,6 +28,9 @@ import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.SupportedCurrency;
 import org.oscm.domobjects.enums.OrganizationReferenceType;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
+import org.oscm.internal.intf.BillingService;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.Organizations;
 import org.oscm.test.data.SupportedCountries;
@@ -36,9 +38,6 @@ import org.oscm.test.data.SupportedCurrencies;
 import org.oscm.test.ejb.TestContainer;
 import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.test.stubs.TriggerQueueServiceStub;
-import org.oscm.internal.intf.BillingService;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 
 // Temporary ignored because of RQ: Flexible billing cut-off day 
 public class BillingServiceGetCustomerBillingDataIT extends EJBTestBase {
@@ -57,14 +56,13 @@ public class BillingServiceGetCustomerBillingDataIT extends EJBTestBase {
     protected long end1;
     protected long start2;
     protected long end2;
-    private static final BigDecimal GROSS_REVENUE = BigDecimal
-            .valueOf(743342);
+    private static final BigDecimal GROSS_REVENUE = BigDecimal.valueOf(743342);
     private static final BigDecimal NET_REVENUE = BigDecimal.valueOf(423746);
 
     @Override
     protected void setup(TestContainer container) throws Exception {
         container.login("1");
-
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         container.addBean(new LocalizerServiceBean());
         container.addBean(new BillingDataRetrievalServiceBean());

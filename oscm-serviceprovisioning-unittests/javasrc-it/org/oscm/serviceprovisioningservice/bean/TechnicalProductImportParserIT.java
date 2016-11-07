@@ -4,7 +4,6 @@
 
 package org.oscm.serviceprovisioningservice.bean;
 
-import static org.oscm.test.Numbers.L_TIMESTAMP;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -16,6 +15,7 @@ import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.oscm.test.Numbers.L_TIMESTAMP;
 
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
@@ -32,7 +32,6 @@ import javax.ejb.EJBException;
 
 import org.junit.Test;
 import org.mockito.Mockito;
-
 import org.oscm.accountservice.local.MarketingPermissionServiceLocal;
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.dataservice.bean.DataServiceBean;
@@ -55,30 +54,6 @@ import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.domobjects.enums.OrganizationReferenceType;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
-import org.oscm.serviceprovisioningservice.local.TagServiceLocal;
-import org.oscm.sessionservice.local.SessionServiceLocal;
-import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
-import org.oscm.tenantprovisioningservice.bean.TenantProvisioningServiceBean;
-import org.oscm.test.EJBTestBase;
-import org.oscm.test.data.BillingAdapters;
-import org.oscm.test.data.Organizations;
-import org.oscm.test.data.Products;
-import org.oscm.test.data.Subscriptions;
-import org.oscm.test.data.SupportedCountries;
-import org.oscm.test.data.TSXML;
-import org.oscm.test.ejb.TestContainer;
-import org.oscm.test.stubs.ApplicationServiceStub;
-import org.oscm.test.stubs.CommunicationServiceStub;
-import org.oscm.test.stubs.ConfigurationServiceStub;
-import org.oscm.test.stubs.IdentityServiceStub;
-import org.oscm.test.stubs.ImageResourceServiceStub;
-import org.oscm.test.stubs.LdapAccessServiceStub;
-import org.oscm.test.stubs.MarketplaceServiceStub;
-import org.oscm.test.stubs.PaymentServiceStub;
-import org.oscm.test.stubs.SessionServiceStub;
-import org.oscm.test.stubs.TriggerQueueServiceStub;
-import org.oscm.types.enumtypes.OperationParameterType;
-import org.oscm.types.enumtypes.ProvisioningType;
 import org.oscm.internal.intf.ServiceProvisioningService;
 import org.oscm.internal.types.enumtypes.ImageType;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
@@ -110,6 +85,30 @@ import org.oscm.internal.vo.VOService;
 import org.oscm.internal.vo.VOServiceDetails;
 import org.oscm.internal.vo.VOTechnicalService;
 import org.oscm.internal.vo.VOTechnicalServiceOperation;
+import org.oscm.serviceprovisioningservice.local.TagServiceLocal;
+import org.oscm.sessionservice.local.SessionServiceLocal;
+import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
+import org.oscm.tenantprovisioningservice.bean.TenantProvisioningServiceBean;
+import org.oscm.test.EJBTestBase;
+import org.oscm.test.data.BillingAdapters;
+import org.oscm.test.data.Organizations;
+import org.oscm.test.data.Products;
+import org.oscm.test.data.Subscriptions;
+import org.oscm.test.data.SupportedCountries;
+import org.oscm.test.data.TSXML;
+import org.oscm.test.ejb.TestContainer;
+import org.oscm.test.stubs.ApplicationServiceStub;
+import org.oscm.test.stubs.CommunicationServiceStub;
+import org.oscm.test.stubs.ConfigurationServiceStub;
+import org.oscm.test.stubs.IdentityServiceStub;
+import org.oscm.test.stubs.ImageResourceServiceStub;
+import org.oscm.test.stubs.LdapAccessServiceStub;
+import org.oscm.test.stubs.MarketplaceServiceStub;
+import org.oscm.test.stubs.PaymentServiceStub;
+import org.oscm.test.stubs.SessionServiceStub;
+import org.oscm.test.stubs.TriggerQueueServiceStub;
+import org.oscm.types.enumtypes.OperationParameterType;
+import org.oscm.types.enumtypes.ProvisioningType;
 
 @SuppressWarnings("boxing")
 public class TechnicalProductImportParserIT extends EJBTestBase {
@@ -132,6 +131,7 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
         container.enableInterfaceMocking(true);
 
         container.addBean(mock(TenantProvisioningServiceBean.class));
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         mgr = container.get(DataService.class);
         mpsMock = mock(MarketingPermissionServiceLocal.class);
@@ -256,10 +256,9 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
             svcProv.importTechnicalServices(tsxml.getBytes("UTF-8"));
         } catch (ImportException e) {
             final String[] errMsg = e.getDetails().split("\n");
-            assertTrue(
-                    "Unexpected error:" + errMsg,
-                    errMsg[errMsg.length - 1]
-                            .matches(".*ture.*configurable.*ParameterDefinition.*boolean.*"));
+            assertTrue("Unexpected error:" + errMsg,
+                    errMsg[errMsg.length - 1].matches(
+                            ".*ture.*configurable.*ParameterDefinition.*boolean.*"));
             throw e;
         }
 
@@ -278,10 +277,9 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
             svcProv.importTechnicalServices(tsxml.getBytes("UTF-8"));
         } catch (ImportException e) {
             final String[] errMsg = e.getDetails().split("\n");
-            assertTrue(
-                    "Unexpected error:" + errMsg,
-                    errMsg[errMsg.length - 1]
-                            .matches(".*ture.*mandatory.*ParameterDefinition.*boolean.*"));
+            assertTrue("Unexpected error:" + errMsg,
+                    errMsg[errMsg.length - 1].matches(
+                            ".*ture.*mandatory.*ParameterDefinition.*boolean.*"));
             throw e;
         }
     }
@@ -299,11 +297,9 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
             svcProv.importTechnicalServices(tsxml.getBytes("UTF-8"));
             fail("ImportException expected.");
         } catch (ImportException e) {
-            assertTrue(
-                    "Unexpected error:" + e.getDetails(),
-                    e.getDetails()
-                            .indexOf(
-                                    "The value 'misst' for the attribute 'default' does not match with the required type INTEGER.") > 0);
+            assertTrue("Unexpected error:" + e.getDetails(),
+                    e.getDetails().indexOf(
+                            "The value 'misst' for the attribute 'default' does not match with the required type INTEGER.") > 0);
         }
     }
 
@@ -320,11 +316,9 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
             svcProv.importTechnicalServices(tsxml.getBytes("UTF-8"));
             fail("ImportException expected.");
         } catch (ImportException e) {
-            assertTrue(
-                    "Unexpected error:" + e.getDetails(),
-                    e.getDetails()
-                            .indexOf(
-                                    "The value 'misst' for the attribute 'minValue' does not match with the required type INTEGER.") > 0);
+            assertTrue("Unexpected error:" + e.getDetails(),
+                    e.getDetails().indexOf(
+                            "The value 'misst' for the attribute 'minValue' does not match with the required type INTEGER.") > 0);
         }
     }
 
@@ -341,9 +335,8 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
             svcProv.importTechnicalServices(tsxml.getBytes("UTF-8"));
         } catch (ImportException e) {
             final String[] errMsg = e.getDetails().split("\n");
-            assertTrue("Unexpected error:" + errMsg,
-                    errMsg[errMsg.length - 1]
-                            .matches(".*baseUrl.*is not valid url*"));
+            assertTrue("Unexpected error:" + errMsg, errMsg[errMsg.length - 1]
+                    .matches(".*baseUrl.*is not valid url*"));
             throw e;
         }
     }
@@ -399,8 +392,8 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
     @Test
     public void testImportTechnicalService_OneSubscriptionNotSet()
             throws Exception {
-        svcProv.importTechnicalServices(TECHNICAL_SERVICES_XML
-                .getBytes("UTF-8"));
+        svcProv.importTechnicalServices(
+                TECHNICAL_SERVICES_XML.getBytes("UTF-8"));
 
         runTX(new Callable<Void>() {
 
@@ -488,8 +481,8 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
         svcProv.importTechnicalServices(tsxml.getBytes("UTF-8"));
 
         // then
-        verify(mpsMock, never()).addMarketingPermission(
-                any(Organization.class), anyLong(), anyListOf(String.class));
+        verify(mpsMock, never()).addMarketingPermission(any(Organization.class),
+                anyLong(), anyListOf(String.class));
 
     }
 
@@ -591,8 +584,8 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
     @Test
     public void testImportTechnicalService_OnBehalfActingNotSet()
             throws Exception {
-        svcProv.importTechnicalServices(TECHNICAL_SERVICES_XML
-                .getBytes("UTF-8"));
+        svcProv.importTechnicalServices(
+                TECHNICAL_SERVICES_XML.getBytes("UTF-8"));
 
         runTX(new Callable<Void>() {
 
@@ -649,15 +642,16 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
 
     @Test(expected = ImportException.class)
     public void testImportTechnicalServicessSyntaxError() throws Exception {
-        svcProv.importTechnicalServices(TECHNICAL_SERVICES_XML.replaceAll("/",
-                "").getBytes("UTF-8"));
+        svcProv.importTechnicalServices(
+                TECHNICAL_SERVICES_XML.replaceAll("/", "").getBytes("UTF-8"));
     }
 
     @Test
     public void testImportTechnicalServicessValidationError() throws Exception {
         try {
-            svcProv.importTechnicalServices(TECHNICAL_SERVICES_XML.replaceAll(
-                    "LocalizedDescription", "Description").getBytes("UTF-8"));
+            svcProv.importTechnicalServices(TECHNICAL_SERVICES_XML
+                    .replaceAll("LocalizedDescription", "Description")
+                    .getBytes("UTF-8"));
             fail("The import must fail");
         } catch (ImportException e) {
             System.out.println(TECHNICAL_SERVICES_XML);
@@ -667,9 +661,10 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
     }
 
     @Test
-    public void testImportTechnicslProductsMissingAccessType() throws Exception {
-        String tpXml = TECHNICAL_SERVICES_XML.replace(
-                " accessType=\"PLATFORM\"\n", "");
+    public void testImportTechnicslProductsMissingAccessType()
+            throws Exception {
+        String tpXml = TECHNICAL_SERVICES_XML
+                .replace(" accessType=\"PLATFORM\"\n", "");
         try {
             svcProv.importTechnicalServices(tpXml.getBytes("UTF-8"));
         } catch (ImportException e) {
@@ -679,8 +674,8 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
 
     @Test
     public void testImportTechnicslProductExternal() throws Exception {
-        String tpXml = TECHNICAL_SERVICES_XML.replace(
-                " accessType=\"EXTERNAL\"\n", "");
+        String tpXml = TECHNICAL_SERVICES_XML
+                .replace(" accessType=\"EXTERNAL\"\n", "");
         svcProv.importTechnicalServices(tpXml.getBytes("UTF-8"));
     }
 
@@ -745,7 +740,8 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
      *             On error.
      */
     @Test(expected = ImportException.class)
-    public void testImportTechnicslProductsTrailingBlankInId() throws Exception {
+    public void testImportTechnicslProductsTrailingBlankInId()
+            throws Exception {
         String tpXml = TECHNICAL_SERVICES_XML.replace("id=\"example\"",
                 "id=\"example   \"");
 
@@ -766,16 +762,16 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
         assertEquals("LocalizedDescription",
                 techProduct.getTechnicalServiceDescription());
 
-        assertEquals("Wrong number of parameter definitions", 10, techProduct
-                .getParameterDefinitions().size());
+        assertEquals("Wrong number of parameter definitions", 10,
+                techProduct.getParameterDefinitions().size());
 
         VOParameterDefinition pramDef = techProduct.getParameterDefinitions()
                 .get(4);
 
         assertEquals("HAS_OPTIONS", pramDef.getParameterId());
         assertEquals(ParameterValueType.ENUMERATION, pramDef.getValueType());
-        assertEquals("Wrong number of parameter options", 3, pramDef
-                .getParameterOptions().size());
+        assertEquals("Wrong number of parameter options", 3,
+                pramDef.getParameterOptions().size());
 
         assertEquals("MEMORY_STORAGE", pramDef.getDescription());
 
@@ -791,8 +787,8 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
         createTechnicalProduct();
 
         svcProv.importTechnicalServices(getXmlWithModifiedLicense());
-        assertEquals("License update failed.", "", getTechnicalProduct()
-                .getLicense());
+        assertEquals("License update failed.", "",
+                getTechnicalProduct().getLicense());
 
         svcProv.importTechnicalServices(getXmlWithModifiedParameterDefs());
         assertEquals("ParameterDefinition update failed.",
@@ -853,14 +849,15 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
         });
 
         // positive test case
-        svcProv.importTechnicalServices(TECHNICAL_SERVICES_XML
-                .getBytes("UTF-8"));
+        svcProv.importTechnicalServices(
+                TECHNICAL_SERVICES_XML.getBytes("UTF-8"));
         assertEquals("The existing license was not updated.",
                 "LocalizedLicense", getTechnicalProduct().getLicense());
     }
 
     @Test
-    public void testReimportTechnicalProductsUpdateParameter() throws Exception {
+    public void testReimportTechnicalProductsUpdateParameter()
+            throws Exception {
         VOTechnicalService techProduct = createTechnicalProduct();
         OrganizationReference orgRef = createOrgRef(providerKey);
         createMarketingPermission(techProduct.getKey(), orgRef.getKey());
@@ -897,7 +894,8 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
     }
 
     @Test
-    public void testReimportTechnicalProductsDeleteParameter() throws Exception {
+    public void testReimportTechnicalProductsDeleteParameter()
+            throws Exception {
         VOTechnicalService techProduct = createTechnicalProduct();
         OrganizationReference orgRef = createOrgRef(providerKey);
         createMarketingPermission(techProduct.getKey(), orgRef.getKey());
@@ -954,10 +952,11 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
 
         List<VOParameterDefinition> parDefinitions = getTechnicalProduct()
                 .getParameterDefinitions();
-        List<VOParameterOption> parOptions = new ArrayList<VOParameterOption>();
+        List<VOParameterOption> parOptions = new ArrayList<>();
         for (VOParameterDefinition parDef : parDefinitions) {
             if ((parDef.getParameterType() == ParameterType.SERVICE_PARAMETER)
-                    && (parDef.getValueType() == ParameterValueType.ENUMERATION)) {
+                    && (parDef
+                            .getValueType() == ParameterValueType.ENUMERATION)) {
                 parOptions = parDef.getParameterOptions();
                 break;
             }
@@ -1001,8 +1000,9 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
         assertEquals("The existing event definition must be deleted.", 2,
                 techProducts.get(0).getEventDefinitions().size());
     }
-    //Bug-12684 - locale no longer mandatory
-    @Test//(expected = ImportException.class)
+
+    // Bug-12684 - locale no longer mandatory
+    @Test // (expected = ImportException.class)
     public void testImportTechnicalServicesMissingAccessInfoLocale()
             throws Exception {
         String xml = TSXML.createTSXML("test", "1",
@@ -1011,8 +1011,9 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
                 new String[] { "", "en", "en" });
         svcProv.importTechnicalServices(xml.getBytes("UTF-8"));
     }
-    //Bug-12684 - locale no longer mandatory
-    @Test//(expected = ImportException.class)
+
+    // Bug-12684 - locale no longer mandatory
+    @Test // (expected = ImportException.class)
     public void testImportTechnicalServicesMissingDescriptionLocale()
             throws Exception {
         String xml = TSXML.createTSXML("test", "1",
@@ -1021,8 +1022,9 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
                 new String[] { "en", "", "en" });
         svcProv.importTechnicalServices(xml.getBytes("UTF-8"));
     }
-    //Bug-12684 - locale no longer mandatory
-    @Test//(expected = ImportException.class)
+
+    // Bug-12684 - locale no longer mandatory
+    @Test // (expected = ImportException.class)
     public void testImportTechnicalServicesMissingLicenseLocale()
             throws Exception {
         String xml = TSXML.createTSXML("test", "1",
@@ -1036,8 +1038,8 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
     public void testImportTechnicalServicesMissingBaseUrl() throws Exception {
         String xml = TSXML.createTSXML("test", "1",
                 ProvisioningType.SYNCHRONOUS.name(), "http://someurl", "1.0",
-                ServiceAccessType.LOGIN.name(), "", "loginpath", new String[] {
-                        "en", "en", "en" });
+                ServiceAccessType.LOGIN.name(), "", "loginpath",
+                new String[] { "en", "en", "en" });
         svcProv.importTechnicalServices(xml.getBytes("UTF-8"));
     }
 
@@ -1096,8 +1098,8 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
                 .getTechnicalServices(OrganizationRoleType.TECHNOLOGY_PROVIDER);
         assertEquals(1, list.size());
         VOTechnicalService tp = list.get(0);
-        VOParameterDefinition pd = tp.getParameterDefinitions().get(
-                tp.getParameterDefinitions().size() - 1);
+        VOParameterDefinition pd = tp.getParameterDefinitions()
+                .get(tp.getParameterDefinitions().size() - 1);
         assertEquals("param", pd.getParameterId());
         assertEquals(ParameterValueType.INTEGER, pd.getValueType());
         assertEquals(1, pd.getMinValue().longValue());
@@ -1105,13 +1107,14 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
         assertEquals("50", pd.getDefaultValue());
         assertEquals(false, pd.isConfigurable());
         assertEquals(true, pd.isMandatory());
-        VOEventDefinition ed = tp.getEventDefinitions().get(
-                tp.getEventDefinitions().size() - 1);
+        VOEventDefinition ed = tp.getEventDefinitions()
+                .get(tp.getEventDefinitions().size() - 1);
         assertEquals("event", ed.getEventId());
     }
 
     @Test(expected = ImportException.class)
-    public void testImportTechnicalServicesDefaultOutOfRange() throws Exception {
+    public void testImportTechnicalServicesDefaultOutOfRange()
+            throws Exception {
         String xml = TSXML.createTSXMLWithEventAndParameter("param",
                 ParameterValueType.INTEGER.name(), "5", "10", "1", "true",
                 "false", "event", new String[] { "en", "en" });
@@ -1151,8 +1154,8 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
                 .getTechnicalServices(OrganizationRoleType.TECHNOLOGY_PROVIDER);
         assertEquals(1, list.size());
         VOTechnicalService tp = list.get(0);
-        VOParameterDefinition pd = tp.getParameterDefinitions().get(
-                tp.getParameterDefinitions().size() - 1);
+        VOParameterDefinition pd = tp.getParameterDefinitions()
+                .get(tp.getParameterDefinitions().size() - 1);
         assertEquals("param", pd.getParameterId());
         assertEquals(ParameterValueType.INTEGER, pd.getValueType());
         assertEquals(5, pd.getMinValue().longValue());
@@ -1160,8 +1163,8 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
         assertEquals("10", pd.getDefaultValue());
         assertEquals(true, pd.isConfigurable());
         assertEquals(false, pd.isMandatory());
-        VOEventDefinition ed = tp.getEventDefinitions().get(
-                tp.getEventDefinitions().size() - 1);
+        VOEventDefinition ed = tp.getEventDefinitions()
+                .get(tp.getEventDefinitions().size() - 1);
         assertEquals("event", ed.getEventId());
     }
 
@@ -1180,8 +1183,8 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
                 .getTechnicalServices(OrganizationRoleType.TECHNOLOGY_PROVIDER);
         assertEquals(1, list.size());
         VOTechnicalService tp = list.get(0);
-        VOParameterDefinition pd = tp.getParameterDefinitions().get(
-                tp.getParameterDefinitions().size() - 1);
+        VOParameterDefinition pd = tp.getParameterDefinitions()
+                .get(tp.getParameterDefinitions().size() - 1);
         assertEquals("param", pd.getParameterId());
         assertEquals(ParameterValueType.INTEGER, pd.getValueType());
         assertEquals(Long.valueOf(0), pd.getMinValue());
@@ -1189,8 +1192,8 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
         assertEquals(null, pd.getDefaultValue());
         assertEquals(true, pd.isConfigurable());
         assertEquals(false, pd.isMandatory());
-        VOEventDefinition ed = tp.getEventDefinitions().get(
-                tp.getEventDefinitions().size() - 1);
+        VOEventDefinition ed = tp.getEventDefinitions()
+                .get(tp.getEventDefinitions().size() - 1);
         assertEquals("event", ed.getEventId());
     }
 
@@ -1202,8 +1205,8 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
         String[] locales = new String[] { "en", "de" };
         String xml = TSXML.createTSXMLWithEvents(eventIds, locales);
         VOTechnicalService tp = importAndGetTechnicalService(xml);
-        VOEventDefinition ed = tp.getEventDefinitions().get(
-                tp.getEventDefinitions().size() - 1);
+        VOEventDefinition ed = tp.getEventDefinitions()
+                .get(tp.getEventDefinitions().size() - 1);
         // verify the en description is correct
         assertEquals("description_en", ed.getEventDescription());
 
@@ -1244,8 +1247,8 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
         String[] actionUrls = new String[] { "http://someUrl0" };
         // import xml with localized description "en" and "de"
         String[] locales = new String[] { "en", "de" };
-        String xml = TSXML
-                .createTSXMLWithOperations(opIds, actionUrls, locales);
+        String xml = TSXML.createTSXMLWithOperations(opIds, actionUrls,
+                locales);
         VOTechnicalService tp = importAndGetTechnicalService(xml);
         VOTechnicalServiceOperation operation = tp
                 .getTechnicalServiceOperations().get(0);
@@ -1319,11 +1322,12 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
 
             @Override
             public Void call() throws Exception {
-                TechnicalProduct reference = mgr.getReference(
-                        TechnicalProduct.class, tp.getKey());
+                TechnicalProduct reference = mgr
+                        .getReference(TechnicalProduct.class, tp.getKey());
                 assertEquals(ProvisioningType.ASYNCHRONOUS,
                         reference.getProvisioningType());
-                assertEquals(ServiceAccessType.LOGIN, reference.getAccessType());
+                assertEquals(ServiceAccessType.LOGIN,
+                        reference.getAccessType());
                 return null;
             }
         });
@@ -1350,11 +1354,12 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                TechnicalProduct reference = mgr.getReference(
-                        TechnicalProduct.class, tp.getKey());
+                TechnicalProduct reference = mgr
+                        .getReference(TechnicalProduct.class, tp.getKey());
                 assertEquals(ProvisioningType.ASYNCHRONOUS,
                         reference.getProvisioningType());
-                assertEquals(ServiceAccessType.LOGIN, reference.getAccessType());
+                assertEquals(ServiceAccessType.LOGIN,
+                        reference.getAccessType());
                 return null;
             }
         });
@@ -1386,8 +1391,8 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                TechnicalProduct reference = mgr.getReference(
-                        TechnicalProduct.class, tp.getKey());
+                TechnicalProduct reference = mgr
+                        .getReference(TechnicalProduct.class, tp.getKey());
                 assertEquals(ProvisioningType.ASYNCHRONOUS,
                         reference.getProvisioningType());
                 assertEquals(ServiceAccessType.USER, reference.getAccessType());
@@ -1422,8 +1427,8 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
 
             @Override
             public Void call() throws Exception {
-                TechnicalProduct reference = mgr.getReference(
-                        TechnicalProduct.class, tp.getKey());
+                TechnicalProduct reference = mgr
+                        .getReference(TechnicalProduct.class, tp.getKey());
                 assertEquals(ProvisioningType.ASYNCHRONOUS,
                         reference.getProvisioningType());
                 assertEquals(ServiceAccessType.USER, reference.getAccessType());
@@ -1442,8 +1447,8 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
         // with both base url and login path with slashes
         String xml = TSXML.createTSXML("test", "1",
                 ProvisioningType.ASYNCHRONOUS.name(), "http://provurl", "1.0",
-                ServiceAccessType.LOGIN.name(), "http://baseurl/",
-                "/loginpath", new String[] { "en", "en", "en" });
+                ServiceAccessType.LOGIN.name(), "http://baseurl/", "/loginpath",
+                new String[] { "en", "en", "en" });
 
         // when importing the technical service
         svcProv.importTechnicalServices(xml.getBytes("UTF-8"));
@@ -1457,11 +1462,12 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
 
             @Override
             public Void call() throws Exception {
-                TechnicalProduct reference = mgr.getReference(
-                        TechnicalProduct.class, tp.getKey());
+                TechnicalProduct reference = mgr
+                        .getReference(TechnicalProduct.class, tp.getKey());
                 assertEquals(ProvisioningType.ASYNCHRONOUS,
                         reference.getProvisioningType());
-                assertEquals(ServiceAccessType.LOGIN, reference.getAccessType());
+                assertEquals(ServiceAccessType.LOGIN,
+                        reference.getAccessType());
                 return null;
             }
         });
@@ -1479,7 +1485,8 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
     @Test(expected = ImportException.class)
     public void testImportTechnicalServicesWithRolesWithLeadingBlanks()
             throws Exception {
-        final String[] roleIdsBeforeSaving = new String[] { "  ADMIN", "GUEST" };
+        final String[] roleIdsBeforeSaving = new String[] { "  ADMIN",
+                "GUEST" };
         String[] locales = new String[] { "de", "en" };
         String xml = TSXML.createTSXMLWithRoles(roleIdsBeforeSaving, locales);
         svcProv.importTechnicalServices(xml.getBytes("UTF-8"));
@@ -1494,7 +1501,8 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
     @Test(expected = ImportException.class)
     public void testImportTechnicalServicesWithRolesWithTrailingBlanks()
             throws Exception {
-        final String[] roleIdsBeforeSaving = new String[] { "ADMIN", "GUEST  " };
+        final String[] roleIdsBeforeSaving = new String[] { "ADMIN",
+                "GUEST  " };
         String[] locales = new String[] { "de", "en" };
         String xml = TSXML.createTSXMLWithRoles(roleIdsBeforeSaving, locales);
         svcProv.importTechnicalServices(xml.getBytes("UTF-8"));
@@ -1516,12 +1524,12 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
 
                 @Override
                 public Void call() throws Exception {
-                    TechnicalProduct reference = mgr.getReference(
-                            TechnicalProduct.class, tp.getKey());
+                    TechnicalProduct reference = mgr
+                            .getReference(TechnicalProduct.class, tp.getKey());
                     List<RoleDefinition> roles = reference.getRoleDefinitions();
                     assertNotNull(roles);
                     assertEquals(2, roles.size());
-                    Set<String> ids = new HashSet<String>(
+                    Set<String> ids = new HashSet<>(
                             Arrays.asList(roleIds));
                     for (RoleDefinition role : roles) {
                         assertTrue(ids.remove(role.getRoleId()));
@@ -1570,8 +1578,9 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
         String xml = TSXML.createTSXMLWithRoles(roleIds, locales);
         svcProv.importTechnicalServices(xml.getBytes("UTF-8"));
     }
-//    //Bug-12684 - locale no longer mandatory
-    @Test//(expected = ImportException.class)
+
+    // //Bug-12684 - locale no longer mandatory
+    @Test // (expected = ImportException.class)
     public void testImportTechnicalServicesWithRolesMissingLocale()
             throws Exception {
         String[] roleIds = new String[] { "ADMIN", "GUEST" };
@@ -1584,8 +1593,8 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
     public void testImportTechnicalServicesWithNonConfigurableParamDefButNoDefault()
             throws Exception {
         String xml = TSXML.createTSXMLWithEventAndParameter("param",
-                ParameterValueType.INTEGER.name(), "", "", "", "false",
-                "false", "eventId", new String[] { "de", "en" });
+                ParameterValueType.INTEGER.name(), "", "", "", "false", "false",
+                "eventId", new String[] { "de", "en" });
         svcProv.importTechnicalServices(xml.getBytes("UTF-8"));
     }
 
@@ -1595,8 +1604,8 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
         String[] opIds = new String[] { TOO_LONG_ID };
         String[] actionUrls = new String[] { "http://someUrl/test" };
         String[] locales = new String[] { "de", "en" };
-        String xml = TSXML
-                .createTSXMLWithOperations(opIds, actionUrls, locales);
+        String xml = TSXML.createTSXMLWithOperations(opIds, actionUrls,
+                locales);
         svcProv.importTechnicalServices(xml.getBytes("UTF-8"));
     }
 
@@ -1645,8 +1654,8 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
         String[] opIds = new String[] { "ACTION" };
         String[] actionUrls = new String[] { "http://someUrl/test" };
         String[] locales = new String[] { "en" };
-        String xml = TSXML
-                .createTSXMLWithOperations(opIds, actionUrls, locales);
+        String xml = TSXML.createTSXMLWithOperations(opIds, actionUrls,
+                locales);
         xml = xml.replaceAll("name_en", TOO_LONG_NAME);
         svcProv.importTechnicalServices(xml.getBytes("UTF-8"));
     }
@@ -1657,19 +1666,20 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
         String[] opIds = new String[] { "ACTION" };
         String[] actionUrls = new String[] { "http://someUrl/test" };
         String[] locales = new String[] {};
-        String xml = TSXML
-                .createTSXMLWithOperations(opIds, actionUrls, locales);
+        String xml = TSXML.createTSXMLWithOperations(opIds, actionUrls,
+                locales);
         svcProv.importTechnicalServices(xml.getBytes("UTF-8"));
     }
-    //Bug-12684 - locale no longer mandatory
-    @Test//(expected = ImportException.class)
+
+    // Bug-12684 - locale no longer mandatory
+    @Test // (expected = ImportException.class)
     public void testImportTechnicalServicesWithOperationsMissingLocale()
             throws Exception {
         String[] opIds = new String[] { "ACTION" };
         String[] actionUrls = new String[] { "http://someUrl/test" };
         String[] locales = new String[] { "" };
-        String xml = TSXML
-                .createTSXMLWithOperations(opIds, actionUrls, locales);
+        String xml = TSXML.createTSXMLWithOperations(opIds, actionUrls,
+                locales);
         svcProv.importTechnicalServices(xml.getBytes("UTF-8"));
     }
 
@@ -1679,8 +1689,8 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
         String[] opIds = new String[] { "ACTION" };
         String[] actionUrls = new String[] { "" };
         String[] locales = new String[] { "en" };
-        String xml = TSXML
-                .createTSXMLWithOperations(opIds, actionUrls, locales);
+        String xml = TSXML.createTSXMLWithOperations(opIds, actionUrls,
+                locales);
         svcProv.importTechnicalServices(xml.getBytes("UTF-8"));
     }
 
@@ -1690,8 +1700,8 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
         String[] opIds = new String[] { "ACTION" };
         String[] actionUrls = new String[] { "" };
         String[] locales = new String[] { "en" };
-        String xml = TSXML
-                .createTSXMLWithOperations(opIds, actionUrls, locales);
+        String xml = TSXML.createTSXMLWithOperations(opIds, actionUrls,
+                locales);
         svcProv.importTechnicalServices(xml.getBytes("UTF-8"));
     }
 
@@ -1701,8 +1711,8 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
         String[] actionUrls = new String[] { "http://someUrl0",
                 "http://someUrl1" };
         String[] locales = new String[] { "en" };
-        String xml = TSXML
-                .createTSXMLWithOperations(opIds, actionUrls, locales);
+        String xml = TSXML.createTSXMLWithOperations(opIds, actionUrls,
+                locales);
         svcProv.importTechnicalServices(xml.getBytes("UTF-8"));
 
         List<VOTechnicalService> list = svcProv
@@ -1714,8 +1724,8 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
 
                 @Override
                 public Void call() throws Exception {
-                    TechnicalProduct reference = mgr.getReference(
-                            TechnicalProduct.class, tp.getKey());
+                    TechnicalProduct reference = mgr
+                            .getReference(TechnicalProduct.class, tp.getKey());
                     List<TechnicalProductOperation> operations = reference
                             .getTechnicalProductOperations();
                     assertNotNull(operations);
@@ -1751,12 +1761,9 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
         String[] actionUrls = new String[] { "http://someUrl0",
                 "http://someUrl1" };
         String[] locales = new String[] { "en" };
-        String[][] params = new String[][] {
-                new String[] {
-                        "param1:true:"
-                                + OperationParameterType.REQUEST_SELECT.name(),
-                        "param2:false:"
-                                + OperationParameterType.INPUT_STRING.name() },
+        String[][] params = new String[][] { new String[] {
+                "param1:true:" + OperationParameterType.REQUEST_SELECT.name(),
+                "param2:false:" + OperationParameterType.INPUT_STRING.name() },
                 new String[] { "param1:false:"
                         + OperationParameterType.INPUT_STRING.name() } };
         String xml = TSXML.createTSXMLWithOperationsAndOperationParams(opIds,
@@ -1767,8 +1774,8 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
 
                 @Override
                 public Void call() throws Exception {
-                    TechnicalProduct reference = mgr.getReference(
-                            TechnicalProduct.class, tp.getKey());
+                    TechnicalProduct reference = mgr
+                            .getReference(TechnicalProduct.class, tp.getKey());
                     List<TechnicalProductOperation> operations = reference
                             .getTechnicalProductOperations();
                     assertNotNull(operations);
@@ -1804,11 +1811,9 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
         assertEquals(mandatory, op.isMandatory());
         assertEquals(type, op.getType());
         assertTrue(op.getKey() > 0);
-        String text = localizer
-                .getLocalizedTextFromDatabase(
-                        locale,
-                        op.getKey(),
-                        LocalizedObjectTypes.TECHNICAL_PRODUCT_OPERATION_PARAMETER_NAME);
+        String text = localizer.getLocalizedTextFromDatabase(locale,
+                op.getKey(),
+                LocalizedObjectTypes.TECHNICAL_PRODUCT_OPERATION_PARAMETER_NAME);
         assertEquals("parametername_" + locale, text);
     }
 
@@ -1818,16 +1823,16 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
         final String EMPTY_STRING = "   ";
         final String CHANGED_VALUE = "Changed description";
 
-        VOTechnicalService tp = importAndGetTechnicalService(String.format(
-                LOCALIZED_TECHNICAL_SERVICE_XML, INIT_VALUE));
+        VOTechnicalService tp = importAndGetTechnicalService(
+                String.format(LOCALIZED_TECHNICAL_SERVICE_XML, INIT_VALUE));
         assertEquals(tp.getTechnicalServiceDescription(), INIT_VALUE);
 
-        tp = importAndGetTechnicalService(String.format(
-                LOCALIZED_TECHNICAL_SERVICE_XML, EMPTY_STRING));
+        tp = importAndGetTechnicalService(
+                String.format(LOCALIZED_TECHNICAL_SERVICE_XML, EMPTY_STRING));
         assertEquals(tp.getTechnicalServiceDescription(), INIT_VALUE);
 
-        tp = importAndGetTechnicalService(String.format(
-                LOCALIZED_TECHNICAL_SERVICE_XML, CHANGED_VALUE));
+        tp = importAndGetTechnicalService(
+                String.format(LOCALIZED_TECHNICAL_SERVICE_XML, CHANGED_VALUE));
         assertEquals(tp.getTechnicalServiceDescription(), CHANGED_VALUE);
     }
 
@@ -1838,8 +1843,8 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
         String[] actionUrls = new String[] { "http://someUrl0",
                 "http://someUrl1" };
         String[] locales = new String[] { "en" };
-        String xml = TSXML
-                .createTSXMLWithOperations(opIds, actionUrls, locales);
+        String xml = TSXML.createTSXMLWithOperations(opIds, actionUrls,
+                locales);
         try {
             svcProv.importTechnicalServices(xml.getBytes("UTF-8"));
         } catch (ImportException e) {
@@ -1856,13 +1861,12 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
         String[] actionUrls = new String[] { "http://someUrl0",
                 "http://someUrl1" };
         String[] locales = new String[] { "en" };
-        String xml = TSXML
-                .createTSXMLWithOperations(opIds, actionUrls, locales);
+        String xml = TSXML.createTSXMLWithOperations(opIds, actionUrls,
+                locales);
         xml = xml + xml.replaceAll("tp1", "tp2");
-        xml = xml
-                .replaceAll(
-                        "</tns:TechnicalServices><tns:TechnicalServices xmlns:tns=\"oscm.serviceprovisioning/1.9/TechnicalService.xsd\">",
-                        "");
+        xml = xml.replaceAll(
+                "</tns:TechnicalServices><tns:TechnicalServices xmlns:tns=\"oscm.serviceprovisioning/1.9/TechnicalService.xsd\">",
+                "");
         svcProv.importTechnicalServices(xml.getBytes("UTF-8"));
         final List<VOTechnicalService> list = svcProv
                 .getTechnicalServices(OrganizationRoleType.TECHNOLOGY_PROVIDER);
@@ -1879,7 +1883,8 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
                                 .getTechnicalProductOperations();
                         assertNotNull(operations);
                         assertEquals(2, operations.size());
-                        for (int index = 0; index < operations.size(); index++) {
+                        for (int index = 0; index < operations
+                                .size(); index++) {
                             TechnicalProductOperation op = operations
                                     .get(index);
                             assertEquals("ACTION" + index, op.getOperationId());
@@ -1914,12 +1919,13 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
         String[] actionUrls = new String[] { "http://someUrl0",
                 "http://someUrl1" };
         String[] locales = new String[] { "en" };
-        String xml = TSXML
-                .createTSXMLWithOperations(opIds, actionUrls, locales);
+        String xml = TSXML.createTSXMLWithOperations(opIds, actionUrls,
+                locales);
         try {
             svcProv.importTechnicalServices(xml.getBytes("UTF-8"));
         } catch (ImportException e) {
-            assertTrue(e.getDetails().indexOf("Duplicate operation id: ACTION") > 0);
+            assertTrue(e.getDetails()
+                    .indexOf("Duplicate operation id: ACTION") > 0);
             throw e;
         }
     }
@@ -1932,14 +1938,15 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
         String[] locales = new String[] { "en" };
         String[][] params = new String[][] { new String[] {
                 "param1:true:" + OperationParameterType.REQUEST_SELECT.name(),
-                "param1:false:" + OperationParameterType.INPUT_STRING.name() } };
+                "param1:false:"
+                        + OperationParameterType.INPUT_STRING.name() } };
         String xml = TSXML.createTSXMLWithOperationsAndOperationParams(opIds,
                 actionUrls, locales, params);
         try {
             svcProv.importTechnicalServices(xml.getBytes("UTF-8"));
         } catch (ImportException e) {
-            assertTrue(e.getDetails().indexOf(
-                    "Duplicate operation parameter id: param1") > 0);
+            assertTrue(e.getDetails()
+                    .indexOf("Duplicate operation parameter id: param1") > 0);
             throw e;
         }
     }
@@ -1958,7 +1965,8 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
     }
 
     @Test(expected = ImportException.class)
-    public void testImportTechnicalServices_DuplicateEventId() throws Exception {
+    public void testImportTechnicalServices_DuplicateEventId()
+            throws Exception {
         String[] eventIds = new String[] { "EVENT", "EVENT" };
         String[] locales = new String[] { "en" };
         String xml = TSXML.createTSXMLWithEvents(eventIds, locales);
@@ -1981,12 +1989,13 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
         String[] optionIds = new String[0];
         String[] locales = new String[] { "en" };
         String xml = TSXML.createTSXMLWithParameters(parameterIds, types,
-                minMaxDefault, minMaxDefault, minMaxDefault, confMand,
-                confMand, optionIds, locales);
+                minMaxDefault, minMaxDefault, minMaxDefault, confMand, confMand,
+                optionIds, locales);
         try {
             svcProv.importTechnicalServices(xml.getBytes("UTF-8"));
         } catch (ImportException e) {
-            assertTrue(e.getDetails().indexOf("Duplicate parameter id: PARAM") > 0);
+            assertTrue(e.getDetails()
+                    .indexOf("Duplicate parameter id: PARAM") > 0);
             throw e;
         }
     }
@@ -1995,7 +2004,8 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
     public void testImportTechnicalServices_DuplicateOptionId()
             throws Exception {
         String[] parameterIds = new String[] { "PARAM" };
-        ParameterValueType[] types = new ParameterValueType[] { ParameterValueType.ENUMERATION };
+        ParameterValueType[] types = new ParameterValueType[] {
+                ParameterValueType.ENUMERATION };
         String[] minValue = new String[] { "0" };
         String[] maxValue = new String[] { "1000" };
         String[] defaultValue = new String[] { "" };
@@ -2003,8 +2013,8 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
         String[] optionIds = new String[] { "1", "1" };
         String[] locales = new String[] { "en" };
         String xml = TSXML.createTSXMLWithParameters(parameterIds, types,
-                minValue, maxValue, defaultValue, confMand, confMand,
-                optionIds, locales);
+                minValue, maxValue, defaultValue, confMand, confMand, optionIds,
+                locales);
         try {
             svcProv.importTechnicalServices(xml.getBytes("UTF-8"));
         } catch (ImportException e) {
@@ -2111,8 +2121,10 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
                         providerOrganizationId);
                 TechnicalProduct techPrd = org.getTechnicalProducts().get(0);
                 Product prod = createProduct(techPrd, "myProd", org);
-                createSubscription(prod, "sub1", org, SubscriptionStatus.ACTIVE);
-                createSubscription(prod, "sub2", org, SubscriptionStatus.ACTIVE);
+                createSubscription(prod, "sub1", org,
+                        SubscriptionStatus.ACTIVE);
+                createSubscription(prod, "sub2", org,
+                        SubscriptionStatus.ACTIVE);
                 return null;
             }
         });
@@ -2336,8 +2348,8 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
     }
 
     Product createProduct(TechnicalProduct tProd, String productId,
-            Organization supplier) throws NonUniqueBusinessKeyException,
-            ObjectNotFoundException {
+            Organization supplier)
+            throws NonUniqueBusinessKeyException, ObjectNotFoundException {
         Product prod = Products.createProduct(supplier.getOrganizationId(),
                 productId, tProd.getTechnicalProductId(), mgr);
         return prod;
@@ -2365,20 +2377,20 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
 
     private byte[] getXmlWithModifiedParameterDefs()
             throws UnsupportedEncodingException {
-        return TECHNICAL_SERVICES_XML.replaceAll("INTEGER", "LONG").getBytes(
-                "UTF-8");
+        return TECHNICAL_SERVICES_XML.replaceAll("INTEGER", "LONG")
+                .getBytes("UTF-8");
     }
 
     private byte[] getXmlWithoutParameterDefs()
             throws UnsupportedEncodingException {
-        return TECHNICAL_SERVICES_XML.replaceAll(
-                "<ParameterDefinition.*</ParameterDefinition>", "").getBytes(
-                "UTF-8");
+        return TECHNICAL_SERVICES_XML
+                .replaceAll("<ParameterDefinition.*</ParameterDefinition>", "")
+                .getBytes("UTF-8");
     }
 
     private byte[] getXmlWithoutOptions() throws UnsupportedEncodingException {
-        String xml = TECHNICAL_SERVICES_XML.replaceAll(
-                "<Option id=\\\"1.*?</Option>", "");
+        String xml = TECHNICAL_SERVICES_XML
+                .replaceAll("<Option id=\\\"1.*?</Option>", "");
         xml = xml.replaceAll("<Option id=\\\"3.*?</Option>", "");
         return xml.getBytes("UTF-8");
     }
@@ -2389,13 +2401,14 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
     }
 
     private VOTechnicalService getTechnicalProduct() throws Exception {
-        return svcProv.getTechnicalServices(
-                OrganizationRoleType.TECHNOLOGY_PROVIDER).get(0);
+        return svcProv
+                .getTechnicalServices(OrganizationRoleType.TECHNOLOGY_PROVIDER)
+                .get(0);
     }
 
     private VOTechnicalService createTechnicalProduct() throws Exception {
-        String rc = svcProv.importTechnicalServices(TECHNICAL_SERVICES_XML
-                .getBytes("UTF-8"));
+        String rc = svcProv.importTechnicalServices(
+                TECHNICAL_SERVICES_XML.getBytes("UTF-8"));
         assertEquals("", rc);
         return getTechnicalProduct();
     }
@@ -2434,7 +2447,7 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
             VOTechnicalService technicalProduct, String id) throws Exception {
         VOService product = new VOService();
         product.setServiceId(id);
-        List<VOParameter> paramList = new ArrayList<VOParameter>();
+        List<VOParameter> paramList = new ArrayList<>();
         for (VOParameterDefinition paramDef : technicalProduct
                 .getParameterDefinitions()) {
             if (paramDef.getParameterId().equals("MAX_FILE_NUMBER")) {
@@ -2451,7 +2464,7 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
     private VOServiceDetails createProductWithPricedEvent(
             VOTechnicalService technicalProduct, String id) throws Exception {
         VOServiceDetails product = createProduct(technicalProduct, id);
-        List<VOPricedEvent> pricedEventList = new ArrayList<VOPricedEvent>();
+        List<VOPricedEvent> pricedEventList = new ArrayList<>();
         for (VOEventDefinition event : technicalProduct.getEventDefinitions()) {
             if (event.getEventId().equals("FILE_DOWNLOAD")) {
                 VOPricedEvent pricedEvent = new VOPricedEvent(event);
@@ -2475,10 +2488,11 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
         return runTX(new Callable<Long>() {
             @Override
             public Long call() throws Exception {
-                Organization organization = Organizations.createOrganization(
-                        mgr, roles);
-                return Long.valueOf(Organizations.createUserForOrg(mgr,
-                        organization, true, "admin").getKey());
+                Organization organization = Organizations
+                        .createOrganization(mgr, roles);
+                return Long.valueOf(Organizations
+                        .createUserForOrg(mgr, organization, true, "admin")
+                        .getKey());
             }
         }).longValue();
     }
@@ -2505,7 +2519,8 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
     }
 
     @Test(expected = ImportException.class)
-    public void testImportTechnicalServicesWithDuplicateTags() throws Exception {
+    public void testImportTechnicalServicesWithDuplicateTags()
+            throws Exception {
         String[] tagValues = new String[] { "storage", "storage" };
         String[] locales = new String[] { "en", "en" };
         String xml = TSXML.createTSXMLWithTags(tagValues, locales);
@@ -2513,8 +2528,8 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
         try {
             svcProv.importTechnicalServices(xml.getBytes("UTF-8"));
         } catch (ImportException e) {
-            assertTrue(e.getDetails().indexOf(
-                    "Duplicate tag storage for locale en") > 0);
+            assertTrue(e.getDetails()
+                    .indexOf("Duplicate tag storage for locale en") > 0);
             throw e;
         }
     }
@@ -2553,16 +2568,18 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
                 Organization org = Organizations.findOrganization(mgr,
                         providerOrganizationId);
                 TechnicalProduct techPrd = org.getTechnicalProducts().get(0);
-                validateTags(techPrd, new String[] { "en", "en", "en", "en",
-                        "de", "en" }, new String[] { "tag1", "tag2", "tag3",
-                        "tag4", "de_tag5", "tag6" });
+                validateTags(techPrd,
+                        new String[] { "en", "en", "en", "en", "de", "en" },
+                        new String[] { "tag1", "tag2", "tag3", "tag4",
+                                "de_tag5", "tag6" });
                 return null;
             }
         });
     }
 
     @Test
-    public void testReimportTechnicalServicesWithChangedTags() throws Exception {
+    public void testReimportTechnicalServicesWithChangedTags()
+            throws Exception {
         String[] tagValues = new String[] { "speicher", "storage" };
         String[] locales = new String[] { "de", "en" };
         String xml = TSXML.createTSXMLWithTags(tagValues, locales);
@@ -2730,10 +2747,10 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                TechnicalProduct technicalProduct = mgr.find(
-                        TechnicalProduct.class, tpKey);
-                OrganizationReference reference = mgr.find(
-                        OrganizationReference.class, orgRefKey);
+                TechnicalProduct technicalProduct = mgr
+                        .find(TechnicalProduct.class, tpKey);
+                OrganizationReference reference = mgr
+                        .find(OrganizationReference.class, orgRefKey);
 
                 MarketingPermission permission = new MarketingPermission();
                 permission.setOrganizationReference(reference);
@@ -2749,11 +2766,10 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
         return runTX(new Callable<OrganizationReference>() {
             @Override
             public OrganizationReference call() throws Exception {
-                Organization organization = mgr
-                        .find(Organization.class, orgKey);
+                Organization organization = mgr.find(Organization.class,
+                        orgKey);
                 OrganizationReference orgRef = new OrganizationReference(
-                        organization,
-                        organization,
+                        organization, organization,
                         OrganizationReferenceType.TECHNOLOGY_PROVIDER_TO_SUPPLIER);
                 mgr.persist(orgRef);
                 return orgRef;
@@ -2773,7 +2789,8 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
 
     private String anyTSXMLWithIntParameters() {
         String[] parameterIds = new String[] { "PARAM2" };
-        ParameterValueType[] types = new ParameterValueType[] { ParameterValueType.INTEGER };
+        ParameterValueType[] types = new ParameterValueType[] {
+                ParameterValueType.INTEGER };
         String[] minValue = new String[] { "0" };
         String[] maxValue = new String[] { "1000" };
         String[] defaultValue = new String[] { "2" };
@@ -2788,9 +2805,8 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
     @Test
     public void testImportTechnicalService_NativeBilling() throws Exception {
         // given
-        String tsxml = TSXML
-                .createTSXMLWithBillingIdentifier(BillingAdapterIdentifier.NATIVE_BILLING
-                        .toString() + "   ");
+        String tsxml = TSXML.createTSXMLWithBillingIdentifier(
+                BillingAdapterIdentifier.NATIVE_BILLING.toString() + "   ");
 
         // when
         VOTechnicalService voTechService = importAndGetTechnicalService(tsxml);
@@ -2833,8 +2849,7 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
         } catch (Exception e) {
             // then
             assertTrue(e.getCause() instanceof SaaSSystemException);
-            assertTrue(
-                    "Unexpected error:" + e.getLocalizedMessage(),
+            assertTrue("Unexpected error:" + e.getLocalizedMessage(),
                     e.getLocalizedMessage().indexOf(
                             "More than one default billing adapter were found") > 0);
         }

@@ -17,19 +17,19 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 
 import org.junit.Test;
-
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.Product;
 import org.oscm.domobjects.Subscription;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.ServiceAccessType;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.Organizations;
 import org.oscm.test.data.Products;
 import org.oscm.test.data.Subscriptions;
 import org.oscm.test.ejb.TestContainer;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 
 /**
  * Unit tests for {@link SubscriptionDao} using the test EJB container.
@@ -47,6 +47,8 @@ public class SubscriptionDaoIT extends EJBTestBase {
 
     @Override
     protected void setup(TestContainer container) throws Exception {
+
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         ds = container.get(DataService.class);
         dao = new SubscriptionDao(ds);
@@ -65,8 +67,8 @@ public class SubscriptionDaoIT extends EJBTestBase {
 
         final Organization broker = createOrg("broker",
                 OrganizationRoleType.BROKER);
-        final Organization brokerCustomer1 = registerCustomer(
-                "brokerCustomer1", broker);
+        final Organization brokerCustomer1 = registerCustomer("brokerCustomer1",
+                broker);
         registerCustomer("brokerCustomer2", broker);
         Product partnerProduct = createPartnerProduct(product, broker);
         createPartnerSubscription(brokerCustomer1.getOrganizationId(),
@@ -77,7 +79,8 @@ public class SubscriptionDaoIT extends EJBTestBase {
         final Organization resellerCustomer1 = registerCustomer(
                 "resellerCustomer1", reseller);
         registerCustomer("resellerCustomer2", reseller);
-        Product partnerProductReseller = createPartnerProduct(product, reseller);
+        Product partnerProductReseller = createPartnerProduct(product,
+                reseller);
         createPartnerSubscription(resellerCustomer1.getOrganizationId(),
                 partnerProductReseller, "resellercustomer1Sub", reseller);
     }
@@ -87,18 +90,19 @@ public class SubscriptionDaoIT extends EJBTestBase {
         // given
 
         // when
-        List<ReportResultData> result = runTX(new Callable<List<ReportResultData>>() {
-            @Override
-            public List<ReportResultData> call() throws Exception {
-                return dao.retrieveSupplierCustomerReportData(supplier
-                        .getOrganizationId());
-            }
-        });
+        List<ReportResultData> result = runTX(
+                new Callable<List<ReportResultData>>() {
+                    @Override
+                    public List<ReportResultData> call() throws Exception {
+                        return dao.retrieveSupplierCustomerReportData(
+                                supplier.getOrganizationId());
+                    }
+                });
 
         // then
         assertEquals(2, result.size());
-        assertEquals("brokercustomer1Sub", result.get(0).getColumnValue()
-                .get(0));
+        assertEquals("brokercustomer1Sub",
+                result.get(0).getColumnValue().get(0));
         assertEquals("brokerCustomer1", result.get(0).getColumnValue().get(3));
         assertEquals("sub1", result.get(1).getColumnValue().get(0));
         assertEquals("supplierCustomer", result.get(1).getColumnValue().get(3));
@@ -111,19 +115,20 @@ public class SubscriptionDaoIT extends EJBTestBase {
         teminateSubscription(subscription);
         Map<String, String> lastSubIdMap = retrieveLastValidSubscriptionIdMap();
         // when
-        List<ReportResultData> result = runTX(new Callable<List<ReportResultData>>() {
-            @Override
-            public List<ReportResultData> call() throws Exception {
-                return dao.retrieveSupplierCustomerReportData(supplier
-                        .getOrganizationId());
-            }
-        });
+        List<ReportResultData> result = runTX(
+                new Callable<List<ReportResultData>>() {
+                    @Override
+                    public List<ReportResultData> call() throws Exception {
+                        return dao.retrieveSupplierCustomerReportData(
+                                supplier.getOrganizationId());
+                    }
+                });
 
         // then
         assertEquals(2, result.size());
 
-        assertEquals("brokercustomer1Sub", result.get(0).getColumnValue()
-                .get(0));
+        assertEquals("brokercustomer1Sub",
+                result.get(0).getColumnValue().get(0));
         assertEquals("ACTIVE", result.get(0).getColumnValue().get(1));
         assertEquals("brokerCustomer1", result.get(0).getColumnValue().get(3));
         assertEquals("sub1",
@@ -136,7 +141,8 @@ public class SubscriptionDaoIT extends EJBTestBase {
     public void retrieveSupplierCustomerReportOfASupplierData_nonExistingSupplierId()
             throws Exception {
         // when
-        List<ReportResultData> reportData = retrieveSupplierCustomerReportOfASupplierData(NON_EXISTING_SUPPLIER_ID);
+        List<ReportResultData> reportData = retrieveSupplierCustomerReportOfASupplierData(
+                NON_EXISTING_SUPPLIER_ID);
 
         // then
         assertTrue(reportData.isEmpty());
@@ -148,8 +154,8 @@ public class SubscriptionDaoIT extends EJBTestBase {
             @Override
             public List<ReportResultData> call() throws Exception {
                 // when
-                return dao
-                        .retrieveSupplierCustomerReportOfASupplierData(supplierOrgId);
+                return dao.retrieveSupplierCustomerReportOfASupplierData(
+                        supplierOrgId);
             }
         });
     }
@@ -158,13 +164,13 @@ public class SubscriptionDaoIT extends EJBTestBase {
     public void retrieveSupplierCustomerReportOfASupplierData()
             throws Exception {
         // when
-        List<ReportResultData> result = retrieveSupplierCustomerReportOfASupplierData(supplier
-                .getOrganizationId());
+        List<ReportResultData> result = retrieveSupplierCustomerReportOfASupplierData(
+                supplier.getOrganizationId());
 
         // then
         assertEquals(2, result.size());
-        assertEquals("brokercustomer1Sub", result.get(0).getColumnValue()
-                .get(0));
+        assertEquals("brokercustomer1Sub",
+                result.get(0).getColumnValue().get(0));
         assertEquals("ACTIVE", result.get(0).getColumnValue().get(1));
         assertEquals("brokerCustomer1", result.get(0).getColumnValue().get(2));
         assertTrue(result.get(0).getColumnValue().get(3).toString()
@@ -182,14 +188,14 @@ public class SubscriptionDaoIT extends EJBTestBase {
         // given
         teminateSubscription(subscription);
         // when
-        List<ReportResultData> result = retrieveSupplierCustomerReportOfASupplierData(supplier
-                .getOrganizationId());
+        List<ReportResultData> result = retrieveSupplierCustomerReportOfASupplierData(
+                supplier.getOrganizationId());
         Map<String, String> lastSubIdMap = retrieveLastValidSubscriptionIdMap();
 
         // then
         assertEquals(2, result.size());
-        assertEquals("brokercustomer1Sub", result.get(0).getColumnValue()
-                .get(0));
+        assertEquals("brokercustomer1Sub",
+                result.get(0).getColumnValue().get(0));
         assertEquals("ACTIVE", result.get(0).getColumnValue().get(1));
         assertEquals("brokerCustomer1", result.get(0).getColumnValue().get(2));
         assertTrue(result.get(0).getColumnValue().get(3).toString()
@@ -216,8 +222,8 @@ public class SubscriptionDaoIT extends EJBTestBase {
     @Test
     public void retrieveSupplierProductReportData() throws Exception {
         // when
-        List<ReportResultData> result = retrieveSupplierProductReportData(supplier
-                .getOrganizationId());
+        List<ReportResultData> result = retrieveSupplierProductReportData(
+                supplier.getOrganizationId());
 
         // then
         assertEquals(2, result.size());
@@ -226,7 +232,7 @@ public class SubscriptionDaoIT extends EJBTestBase {
         assertTrue(result.get(1).getColumnValue().get(3).toString()
                 .startsWith("serviceB"));
 
-        List<String> subIds = new ArrayList<String>();
+        List<String> subIds = new ArrayList<>();
         subIds.add(result.get(0).getColumnValue().get(0).toString());
         subIds.add(result.get(1).getColumnValue().get(0).toString());
 
@@ -241,8 +247,8 @@ public class SubscriptionDaoIT extends EJBTestBase {
         teminateSubscription(subscription);
         Map<String, String> lastSubIdMap = retrieveLastValidSubscriptionIdMap();
         // when
-        List<ReportResultData> result = retrieveSupplierProductReportData(supplier
-                .getOrganizationId());
+        List<ReportResultData> result = retrieveSupplierProductReportData(
+                supplier.getOrganizationId());
 
         // then
         assertEquals(2, result.size());
@@ -251,11 +257,11 @@ public class SubscriptionDaoIT extends EJBTestBase {
         assertTrue(result.get(1).getColumnValue().get(3).toString()
                 .startsWith("serviceB"));
 
-        List<String> subIds = new ArrayList<String>();
-        subIds.add(lastSubIdMap.get(result.get(0).getColumnValue().get(0)
-                .toString()));
-        subIds.add(lastSubIdMap.get(result.get(1).getColumnValue().get(0)
-                .toString()));
+        List<String> subIds = new ArrayList<>();
+        subIds.add(lastSubIdMap
+                .get(result.get(0).getColumnValue().get(0).toString()));
+        subIds.add(lastSubIdMap
+                .get(result.get(1).getColumnValue().get(0).toString()));
 
         assertTrue(subIds.contains("brokercustomer1Sub"));
         assertTrue(subIds.contains("sub1"));
@@ -265,7 +271,8 @@ public class SubscriptionDaoIT extends EJBTestBase {
     public void retrieveSupplierProductReportData_nonExistingSupplierId()
             throws Exception {
         // when
-        List<ReportResultData> reportData = retrieveSupplierProductReportData(NON_EXISTING_SUPPLIER_ID);
+        List<ReportResultData> reportData = retrieveSupplierProductReportData(
+                NON_EXISTING_SUPPLIER_ID);
 
         // then
         assertTrue(reportData.isEmpty());
@@ -331,7 +338,7 @@ public class SubscriptionDaoIT extends EJBTestBase {
 
     /**
      * teminate the subscription
-     * */
+     */
     private void teminateSubscription(final Subscription subscription)
             throws Exception {
         runTX(new Callable<Void>() {
@@ -357,7 +364,7 @@ public class SubscriptionDaoIT extends EJBTestBase {
 
     /**
      * @return Map the subscriptionId with the latest valid one
-     * */
+     */
     private Map<String, String> retrieveLastValidSubscriptionIdMap()
             throws Exception {
         return runTX(new Callable<Map<String, String>>() {

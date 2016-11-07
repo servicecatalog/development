@@ -185,7 +185,12 @@ public enum LocalizedObjectTypes {
      * the user for each marketplace independently and for the platform in
      * general.
      */
-    EXCEPTION_PROPERTIES(InformationSource.RESOURCE_BUNDLE, "ExceptionMessages");
+    EXCEPTION_PROPERTIES(InformationSource.RESOURCE_BUNDLE, "ExceptionMessages"),
+
+    /**
+     * Name of the custom tab on my subscriptions page
+     */
+    PRODUCT_CUSTOM_TAB_NAME(InformationSource.DATABASE);
 
     private InformationSource source;
     private String sourceLocation;

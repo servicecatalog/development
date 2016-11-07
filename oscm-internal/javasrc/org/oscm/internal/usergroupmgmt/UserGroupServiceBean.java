@@ -141,8 +141,7 @@ public class UserGroupServiceBean implements UserGroupService {
         return userGroupService.deleteUserGroup(storedGroup);
     }
 
-    private List<PlatformUser> convertToPlatformUsers(List<POUserInUnit> poUsers)
-            throws ValidationException {
+    private List<PlatformUser> convertToPlatformUsers(List<POUserInUnit> poUsers) {
         if (poUsers == null) {
             return null;
         }
@@ -155,7 +154,7 @@ public class UserGroupServiceBean implements UserGroupService {
     }
 
     private Map<PlatformUser, String> convertToPlatformUsersWithRole(
-            List<POUserInUnit> poUsers) throws ValidationException {
+            List<POUserInUnit> poUsers) {
         if (poUsers == null) {
             return null;
         }
@@ -215,15 +214,15 @@ public class UserGroupServiceBean implements UserGroupService {
     }
 
     @Override
-    public List<POUserGroup> getUserGroupsForUserWithoutDefault(String userId) {
+    public List<POUserGroup> getUserGroupsForUserWithoutDefault(long userKey) {
         return POUserGroupAssembler.toPOUserGroups(userGroupService
-                .getUserGroupsForUserWithoutDefault(userId));
+                .getUserGroupsForUserWithoutDefault(userKey));
     }
 
     @Override
-    public List<POUserGroup> getUserGroupListForUserWithoutDefault(String userId) {
+    public List<POUserGroup> getUserGroupListForUserWithoutDefault(long userKey) {
         return POUserGroupAssembler.toPOUserGroups(
-                userGroupService.getUserGroupsForUserWithoutDefault(userId),
+                userGroupService.getUserGroupsForUserWithoutDefault(userKey),
                 PerformanceHint.ONLY_FIELDS_FOR_LISTINGS);
     }
 
@@ -238,9 +237,9 @@ public class UserGroupServiceBean implements UserGroupService {
     @Override
     @RolesAllowed({ "ORGANIZATION_ADMIN" })
     public List<POUserGroup> getUserGroupListForUserWithRolesWithoutDefault(
-            String userId) {
+            String userId, long userKey) {
         return POUserGroupAssembler.toPOUserGroups(userGroupService
-                .getUserGroupsForUserWithRolesWithoutDefault(userId),
+                .getUserGroupsForUserWithRolesWithoutDefault(userId, userKey),
                 PerformanceHint.ONLY_FIELDS_FOR_LISTINGS);
     }
 
@@ -285,10 +284,15 @@ public class UserGroupServiceBean implements UserGroupService {
         List<POUserGroupToInvisibleProduct> invisibleProductsPO = new ArrayList<POUserGroupToInvisibleProduct>();
         for (UserGroupToInvisibleProduct userGroupToInvisibleProduct : invisibleProducts) {
             POUserGroupToInvisibleProduct poUserGroupToInvisibleProduct = new POUserGroupToInvisibleProduct();
-            poUserGroupToInvisibleProduct.setKey(userGroupToInvisibleProduct.getKey());
-            poUserGroupToInvisibleProduct.setVersion(userGroupToInvisibleProduct.getVersion());
-            poUserGroupToInvisibleProduct.setForAllUsers(userGroupToInvisibleProduct.isForallusers());
-            poUserGroupToInvisibleProduct.setServiceKey(userGroupToInvisibleProduct.getProduct_tkey());
+            poUserGroupToInvisibleProduct.setKey(userGroupToInvisibleProduct
+                    .getKey());
+            poUserGroupToInvisibleProduct
+                    .setVersion(userGroupToInvisibleProduct.getVersion());
+            poUserGroupToInvisibleProduct
+                    .setForAllUsers(userGroupToInvisibleProduct.isForallusers());
+            poUserGroupToInvisibleProduct
+                    .setServiceKey(userGroupToInvisibleProduct
+                            .getProduct_tkey());
             invisibleProductsPO.add(poUserGroupToInvisibleProduct);
         }
         return invisibleProductsPO;
@@ -305,20 +309,22 @@ public class UserGroupServiceBean implements UserGroupService {
         return products;
     }
 
-    private void verifyInvisibleProducts(List<POUserGroupToInvisibleProduct> invisibleProducts, long userGroupKey)
-            throws ConcurrentModificationException {
+    private void verifyInvisibleProducts(
+            List<POUserGroupToInvisibleProduct> invisibleProducts,
+            long userGroupKey) throws ConcurrentModificationException {
         if (invisibleProducts == null) {
             return;
         }
         for (POUserGroupToInvisibleProduct invisibleProduct : invisibleProducts) {
             UserGroupToInvisibleProduct product;
             try {
-                product = dm.getReference(UserGroupToInvisibleProduct.class, invisibleProduct.getKey());
+                product = dm.getReference(UserGroupToInvisibleProduct.class,
+                        invisibleProduct.getKey());
             } catch (ObjectNotFoundException e) {
                 throw new ConcurrentModificationException();
             }
             BasePOAssembler.verifyVersionAndKey(product, invisibleProduct);
-            }
+        }
 
         List<POUserGroupToInvisibleProduct> currentlyStoredInvisibilities = getInvisibleProducts(userGroupKey);
         boolean entryFound = false;

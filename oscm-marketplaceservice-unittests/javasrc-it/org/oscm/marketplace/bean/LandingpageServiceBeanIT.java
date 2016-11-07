@@ -71,6 +71,7 @@ import org.oscm.test.data.PlatformUsers;
 import org.oscm.test.data.Products;
 import org.oscm.test.data.TechnicalProducts;
 import org.oscm.test.ejb.TestContainer;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.types.enumtypes.FillinCriterion;
 
 /**
@@ -80,7 +81,8 @@ public class LandingpageServiceBeanIT extends EJBTestBase {
     private DataService mgr;
     private LandingpageServiceLocal landingpageServiceLocal;
     private LocalizerServiceLocal localizer;
-    private MarketplaceCacheServiceBean mpCache = spy(new MarketplaceCacheServiceBean());
+    private MarketplaceCacheServiceBean mpCache = spy(
+            new MarketplaceCacheServiceBean());
 
     private Marketplace marketplace;
     private PublicLandingpage defaultLandingpage;
@@ -220,8 +222,8 @@ public class LandingpageServiceBeanIT extends EJBTestBase {
 
         assertNotNull(voLandingpage);
 
-        verify(mpCache, atLeastOnce()).resetConfiguration(
-                MARKETPLACEID_ENTERPRISE);
+        verify(mpCache, atLeastOnce())
+                .resetConfiguration(MARKETPLACEID_ENTERPRISE);
     }
 
     @Test
@@ -233,8 +235,8 @@ public class LandingpageServiceBeanIT extends EJBTestBase {
         landingpageServiceLocal.resetLandingpage(MARKETPLACEID_ENTERPRISE);
 
         // then
-        verify(mpCache, atLeastOnce()).resetConfiguration(
-                MARKETPLACEID_ENTERPRISE);
+        verify(mpCache, atLeastOnce())
+                .resetConfiguration(MARKETPLACEID_ENTERPRISE);
     }
 
     @Test
@@ -252,8 +254,8 @@ public class LandingpageServiceBeanIT extends EJBTestBase {
         // then
         VOPublicLandingpage voLandingpage = landingpageServiceLocal
                 .loadPublicLandingpageConfig(MARKETPLACEID);
-        assertEquals(countLandingpageProductsWithValidStatus(), voLandingpage
-                .getLandingpageServices().size());
+        assertEquals(countLandingpageProductsWithValidStatus(),
+                voLandingpage.getLandingpageServices().size());
     }
 
     /**
@@ -269,14 +271,15 @@ public class LandingpageServiceBeanIT extends EJBTestBase {
         landingpageServiceLocal.saveEnterpriseLandingpageConfig(MARKETPLACEID);
 
         // when saving a public landing page config
-        VOPublicLandingpage publicLandingpage = newVOPublicLandingpage(MARKETPLACEID);
+        VOPublicLandingpage publicLandingpage = newVOPublicLandingpage(
+                MARKETPLACEID);
         publicLandingpage.setNumberServices(10);
         landingpageServiceLocal.savePublicLandingpageConfig(publicLandingpage);
 
         // then
         marketplace = reload(marketplace);
-        PublicLandingpage landingPage = reload(marketplace
-                .getPublicLandingpage());
+        PublicLandingpage landingPage = reload(
+                marketplace.getPublicLandingpage());
         assertNull(marketplace.getEnterpriseLandingpage());
         assertNotNull(marketplace.getPublicLandingpage());
         assertEquals(10, landingPage.getNumberServices());
@@ -300,7 +303,7 @@ public class LandingpageServiceBeanIT extends EJBTestBase {
                         technicalProduct, false, "ProductId_9843124", null,
                         marketplace, mgr);
 
-                List<Product> products = new LinkedList<Product>();
+                List<Product> products = new LinkedList<>();
                 products.add(product);
 
                 Marketplace marketplace = Marketplaces.findMarketplace(mgr,
@@ -358,7 +361,8 @@ public class LandingpageServiceBeanIT extends EJBTestBase {
 
         // given concurrently changed landing page
         container.login(mpOwnerUserKey, UserRoleType.MARKETPLACE_OWNER.name());
-        VOPublicLandingpage voLandingpage = newVOPublicLandingpage(MARKETPLACEID);
+        VOPublicLandingpage voLandingpage = newVOPublicLandingpage(
+                MARKETPLACEID);
         voLandingpage.setKey(defaultLandingpage.getKey());
         voLandingpage.setNumberServices(66);
         landingpageServiceLocal.savePublicLandingpageConfig(voLandingpage);
@@ -535,8 +539,8 @@ public class LandingpageServiceBeanIT extends EJBTestBase {
             @Override
             public Integer call() throws Exception {
                 Marketplace marketplace = (Marketplace) mgr
-                        .getReferenceByBusinessKey(new Marketplace(
-                                MARKETPLACEID));
+                        .getReferenceByBusinessKey(
+                                new Marketplace(MARKETPLACEID));
 
                 int counter = 0;
                 for (LandingpageProduct lp : marketplace.getPublicLandingpage()
@@ -557,8 +561,8 @@ public class LandingpageServiceBeanIT extends EJBTestBase {
             @Override
             public Integer call() throws Exception {
                 Marketplace marketplace = (Marketplace) mgr
-                        .getReferenceByBusinessKey(new Marketplace(
-                                MARKETPLACEID));
+                        .getReferenceByBusinessKey(
+                                new Marketplace(MARKETPLACEID));
                 Query query = mgr
                         .createNamedQuery(
                                 "Product.getPublishedProductTemplates")
@@ -650,7 +654,8 @@ public class LandingpageServiceBeanIT extends EJBTestBase {
                 0, PublicLandingpage.DEFAULT_FILLINCRITERION,
                 PublicLandingpage.DEFAULT_NUMBERSERVICES);
 
-        assertEquals(0, voLandingpageAfterReset.getLandingpageServices().size());
+        assertEquals(0,
+                voLandingpageAfterReset.getLandingpageServices().size());
     }
 
     /**
@@ -731,7 +736,8 @@ public class LandingpageServiceBeanIT extends EJBTestBase {
 
         // then landing page must be cleaned up
         List<LandingpageProduct> reloadedProducts = reload(landingPageroducts);
-        assertThat(reloadedProducts, hasItems(numberOfProductsBeforeRemove - 1));
+        assertThat(reloadedProducts,
+                hasItems(numberOfProductsBeforeRemove - 1));
     }
 
     /**
@@ -773,8 +779,8 @@ public class LandingpageServiceBeanIT extends EJBTestBase {
             assertNotNull(availableService.getServiceId());
             assertNotNull(availableService.getStatus());
             assertNotNull(availableService.getSellerName());
-            assertTrue(availableService.getStatus()
-                    .isStatusValidForLandingPage());
+            assertTrue(
+                    availableService.getStatus().isStatusValidForLandingPage());
         }
     }
 
@@ -889,8 +895,8 @@ public class LandingpageServiceBeanIT extends EJBTestBase {
             assertNotNull(availableService.getServiceId());
             assertNotNull(availableService.getStatus());
             assertNotNull(availableService.getSellerName());
-            assertTrue(availableService.getStatus()
-                    .isStatusValidForLandingPage());
+            assertTrue(
+                    availableService.getStatus().isStatusValidForLandingPage());
             if (availableService.getOfferingType() != OfferingType.DIRECT) {
                 foundPartnerServices++;
             }
@@ -912,6 +918,7 @@ public class LandingpageServiceBeanIT extends EJBTestBase {
     }
 
     private void initBeans(TestContainer container) throws Exception {
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         mgr = container.get(DataService.class);
         container.addBean(new LocalizerServiceBean());
@@ -932,8 +939,8 @@ public class LandingpageServiceBeanIT extends EJBTestBase {
                         OrganizationRoleType.PLATFORM_OPERATOR,
                         OrganizationRoleType.TECHNOLOGY_PROVIDER,
                         OrganizationRoleType.SUPPLIER);
-                PlatformUser createUserForOrg = Organizations.createUserForOrg(
-                        mgr, mpOwner, true, "admin");
+                PlatformUser createUserForOrg = Organizations
+                        .createUserForOrg(mgr, mpOwner, true, "admin");
                 mpOwnerUserKey = createUserForOrg.getKey();
                 PlatformUsers.grantRoles(mgr, createUserForOrg,
                         UserRoleType.PLATFORM_OPERATOR);
@@ -955,8 +962,8 @@ public class LandingpageServiceBeanIT extends EJBTestBase {
             public Void call() throws Exception {
                 Organization org = Organizations.createOrganization(mgr,
                         OrganizationRoleType.MARKETPLACE_OWNER);
-                PlatformUser createUserForOrg = Organizations.createUserForOrg(
-                        mgr, org, true, "admin");
+                PlatformUser createUserForOrg = Organizations
+                        .createUserForOrg(mgr, org, true, "admin");
                 dummyOrgUserKey = createUserForOrg.getKey();
                 return null;
             }
@@ -968,17 +975,17 @@ public class LandingpageServiceBeanIT extends EJBTestBase {
         products = runTX(new Callable<List<Product>>() {
             @Override
             public List<Product> call() throws Exception {
-                technicalProduct = TechnicalProducts.createTestData(mgr,
-                        mpOwner, 1).get(0);
+                technicalProduct = TechnicalProducts
+                        .createTestData(mgr, mpOwner, 1).get(0);
 
-                List<Product> result = new LinkedList<Product>();
+                List<Product> result = new LinkedList<>();
                 ServiceStatus[] serviceStatusArray = ServiceStatus.values();
                 for (int i = 0; i < NUMBER_PRODUCTS; i++) {
                     Product product = Products.createProduct(mpOwner,
                             technicalProduct, false, "ProductId_" + i, null,
                             marketplace, mgr);
-                    product.setStatus(serviceStatusArray[i
-                            % serviceStatusArray.length]);
+                    product.setStatus(
+                            serviceStatusArray[i % serviceStatusArray.length]);
                     result.add(product);
                 }
                 return result;
@@ -996,13 +1003,13 @@ public class LandingpageServiceBeanIT extends EJBTestBase {
             public List<Product> call() {
                 mgr.createQuery("SELECT p FROM Product p").getResultList();
 
-                voServices = new LinkedList<VOService>();
+                voServices = new LinkedList<>();
                 final LocalizerFacade facade = new LocalizerFacade(localizer,
                         "en");
                 for (Product product : products) {
                     product = (Product) mgr.find(product);
-                    voServices.add(ProductAssembler
-                            .toVOProduct(product, facade));
+                    voServices
+                            .add(ProductAssembler.toVOProduct(product, facade));
                 }
                 return null;
             }
@@ -1022,8 +1029,8 @@ public class LandingpageServiceBeanIT extends EJBTestBase {
                         products.get(0), broker, marketplace, mgr);
                 brokerProduct.setStatus(ServiceStatus.ACTIVE);
                 products.add(brokerProduct);
-                voServices.add(ProductAssembler.toVOProduct(brokerProduct,
-                        facade));
+                voServices.add(
+                        ProductAssembler.toVOProduct(brokerProduct, facade));
 
                 Organization reseller = Organizations.createOrganization(mgr,
                         OrganizationRoleType.RESELLER);
@@ -1031,8 +1038,8 @@ public class LandingpageServiceBeanIT extends EJBTestBase {
                         products.get(0), reseller, marketplace, mgr);
                 resellerProduct.setStatus(ServiceStatus.INACTIVE);
                 products.add(resellerProduct);
-                voServices.add(ProductAssembler.toVOProduct(resellerProduct,
-                        facade));
+                voServices.add(
+                        ProductAssembler.toVOProduct(resellerProduct, facade));
 
                 return Integer.valueOf(2);
             }
@@ -1050,7 +1057,8 @@ public class LandingpageServiceBeanIT extends EJBTestBase {
         });
     }
 
-    private void createMarketplaceWithEnterpriseLaandingpage() throws Exception {
+    private void createMarketplaceWithEnterpriseLaandingpage()
+            throws Exception {
         runTX(new Callable<Marketplace>() {
             @Override
             public Marketplace call() throws Exception {
@@ -1080,7 +1088,8 @@ public class LandingpageServiceBeanIT extends EJBTestBase {
 
     private void assertLandingpage(VOPublicLandingpage voLandingpage,
             long expectedKey, int expectedVersion,
-            FillinCriterion expectedFillinCriterion, int expectedNumberServices) {
+            FillinCriterion expectedFillinCriterion,
+            int expectedNumberServices) {
         assertNotNull(voLandingpage);
         assertEquals(expectedKey, voLandingpage.getKey());
         assertEquals(expectedVersion, voLandingpage.getVersion());
@@ -1095,7 +1104,7 @@ public class LandingpageServiceBeanIT extends EJBTestBase {
             VOService expectedVOService) {
         assertNotNull(voLandingpageService);
         assertNotNull(expectedVOService);
-        assertEquals(expectedVOService.getKey(), voLandingpageService
-                .getService().getKey());
+        assertEquals(expectedVOService.getKey(),
+                voLandingpageService.getService().getKey());
     }
 }

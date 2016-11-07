@@ -14,18 +14,17 @@ import java.util.concurrent.Callable;
 import javax.persistence.Query;
 
 import org.junit.Assert;
-
 import org.junit.Test;
-
 import org.oscm.converter.ParameterizedTypes;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.ImageResource;
 import org.oscm.i18nservice.bean.ImageResourceServiceBean;
 import org.oscm.i18nservice.local.ImageResourceServiceLocal;
+import org.oscm.internal.types.enumtypes.ImageType;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.ejb.TestContainer;
-import org.oscm.internal.types.enumtypes.ImageType;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 
 public class ImageResMgmtServiceIT extends EJBTestBase {
 
@@ -35,7 +34,7 @@ public class ImageResMgmtServiceIT extends EJBTestBase {
     @Override
     protected void setup(TestContainer container) throws Exception {
         container.login("1");
-
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         container.addBean(new ImageResourceServiceBean());
 
@@ -47,12 +46,14 @@ public class ImageResMgmtServiceIT extends EJBTestBase {
     public void testSave() throws Exception {
         final ImageResource res = initImageResource();
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 imageMgmt.save(res);
                 return null;
             }
         });
         ImageResource ir = runTX(new Callable<ImageResource>() {
+            @Override
             public ImageResource call() throws Exception {
                 Query query = ds.createQuery("SELECT ir FROM ImageResource ir");
                 return (ImageResource) query.getSingleResult();
@@ -70,6 +71,7 @@ public class ImageResMgmtServiceIT extends EJBTestBase {
     @Test
     public void testDeleteNullArgument() throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 imageMgmt.delete(0, null);
                 return null;
@@ -80,6 +82,7 @@ public class ImageResMgmtServiceIT extends EJBTestBase {
     @Test
     public void testDeleteNonExisting() throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 imageMgmt.delete(0, ImageType.SERVICE_IMAGE);
                 return null;
@@ -92,22 +95,25 @@ public class ImageResMgmtServiceIT extends EJBTestBase {
         final ImageResource ir = initImageResource();
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 imageMgmt.save(ir);
                 return null;
             }
         });
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 imageMgmt.delete(ir.getObjectKey(), ir.getImageType());
                 return null;
             }
         });
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Query query = ds.createQuery("SELECT ir FROM ImageResource ir");
-                List<ImageResource> list = ParameterizedTypes.list(
-                        query.getResultList(), ImageResource.class);
+                List<ImageResource> list = ParameterizedTypes
+                        .list(query.getResultList(), ImageResource.class);
                 Assert.assertEquals("No object must exist anymore", 0,
                         list.size());
                 return null;
@@ -121,12 +127,14 @@ public class ImageResMgmtServiceIT extends EJBTestBase {
         final ImageResource ir = initImageResource();
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 imageMgmt.save(ir);
                 return null;
             }
         });
         ImageResource storedObject = runTX(new Callable<ImageResource>() {
+            @Override
             public ImageResource call() throws Exception {
                 return imageMgmt.read(ir.getObjectKey(), ir.getImageType());
             }
@@ -146,6 +154,7 @@ public class ImageResMgmtServiceIT extends EJBTestBase {
     @Test
     public void testReadNullInput() throws Exception {
         ImageResource res = runTX(new Callable<ImageResource>() {
+            @Override
             public ImageResource call() throws Exception {
                 return imageMgmt.read(0, null);
             }

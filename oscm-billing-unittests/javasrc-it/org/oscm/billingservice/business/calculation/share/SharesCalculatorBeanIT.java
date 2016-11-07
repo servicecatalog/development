@@ -10,11 +10,11 @@
 
 package org.oscm.billingservice.business.calculation.share;
 
-import static org.oscm.test.matchers.JavaMatchers.hasNoItems;
-import static org.oscm.test.matchers.JavaMatchers.hasOneItem;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
+import static org.oscm.test.matchers.JavaMatchers.hasNoItems;
+import static org.oscm.test.matchers.JavaMatchers.hasOneItem;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -26,11 +26,6 @@ import javax.persistence.Query;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.junit.Test;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
-import org.oscm.billingservice.business.calculation.share.SharesCalculatorBean;
 import org.oscm.billingservice.business.model.suppliershare.OfferingType;
 import org.oscm.billingservice.dao.BillingDataRetrievalServiceBean;
 import org.oscm.billingservice.dao.SharesDataRetrievalServiceBean;
@@ -43,6 +38,8 @@ import org.oscm.domobjects.Marketplace;
 import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.Product;
 import org.oscm.domobjects.Subscription;
+import org.oscm.internal.types.enumtypes.BillingSharesResultType;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.BillingResults;
 import org.oscm.test.data.CatalogEntries;
@@ -51,8 +48,10 @@ import org.oscm.test.data.Organizations;
 import org.oscm.test.data.Products;
 import org.oscm.test.data.Subscriptions;
 import org.oscm.test.ejb.TestContainer;
-import org.oscm.internal.types.enumtypes.BillingSharesResultType;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.test.stubs.ConfigurationServiceStub;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  * Integration test for the broker share calculation
@@ -62,7 +61,8 @@ import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 public class SharesCalculatorBeanIT extends EJBTestBase {
 
     private static final long BILLING_PERIOD_START = 0L;
-    private static final long BILLING_PERIOD_END = System.currentTimeMillis() + 1000 * 60;
+    private static final long BILLING_PERIOD_END = System.currentTimeMillis()
+            + 1000 * 60;
     private static final BigDecimal NET_REVENUE = new BigDecimal(50);
     private static final BigDecimal GROSS_REVENUE = new BigDecimal(53);
     private static final BigDecimal REVENUE_SHARE_PERCENT = BigDecimal.TEN;
@@ -71,8 +71,8 @@ public class SharesCalculatorBeanIT extends EJBTestBase {
     private static final BigDecimal MP_BROKER_REVENUE_SHARE = BigDecimal.ONE;
     private static final BigDecimal MP_RESELLER_REVENUE_SHARE = BigDecimal.ONE;
 
-    List<String> SupplierResult_RevenueShareDetails_DIRECT = Arrays.asList(
-            null, null, null, null, "0.50", "1.00", "50.00", "49.50");
+    List<String> SupplierResult_RevenueShareDetails_DIRECT = Arrays.asList(null,
+            null, null, null, "0.50", "1.00", "50.00", "49.50");
     List<String> SupplierResult_RevenueShareDetails_BROKER = Arrays.asList(
             "5.00", "10.00", null, null, "0.50", "1.00", "50.00", "44.50");
     List<String> SupplierResult_RevenueShareDetails_RESELLER = Arrays.asList(
@@ -104,6 +104,7 @@ public class SharesCalculatorBeanIT extends EJBTestBase {
     @Override
     protected void setup(TestContainer container) throws Exception {
         container.login("1");
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         ds = container.get(DataService.class);
         container.addBean(new SharesDataRetrievalServiceBean());
@@ -125,8 +126,8 @@ public class SharesCalculatorBeanIT extends EJBTestBase {
         return runTX(new Callable<List<BillingSharesResult>>() {
             @Override
             public List<BillingSharesResult> call() {
-                Query query = ds
-                        .createNamedQuery("BillingSharesResult.getSharesResultForOrganization");
+                Query query = ds.createNamedQuery(
+                        "BillingSharesResult.getSharesResultForOrganization");
                 query.setParameter("orgKey", orgKey);
                 query.setParameter("resultType", type);
                 query.setParameter("fromDate", fromDate);
@@ -145,9 +146,10 @@ public class SharesCalculatorBeanIT extends EJBTestBase {
                 supplier = Organizations.createOrganization(ds, "supplierId",
                         OrganizationRoleType.SUPPLIER,
                         OrganizationRoleType.MARKETPLACE_OWNER);
-                mp = Marketplaces.createGlobalMarketplace(supplier, "mp_"
-                        + supplier.getOrganizationId(), ds, MP_REVENUE_SHARE,
-                        MP_BROKER_REVENUE_SHARE, MP_RESELLER_REVENUE_SHARE);
+                mp = Marketplaces.createGlobalMarketplace(supplier,
+                        "mp_" + supplier.getOrganizationId(), ds,
+                        MP_REVENUE_SHARE, MP_BROKER_REVENUE_SHARE,
+                        MP_RESELLER_REVENUE_SHARE);
                 product = Products.createProduct(supplier, "techProd", true,
                         "product_supplier", "priceModelId", ds);
                 customer = Organizations.createOrganization(ds, "customerId",
@@ -161,8 +163,8 @@ public class SharesCalculatorBeanIT extends EJBTestBase {
                     BillingResults.createBillingResult(ds, sub,
                             supplier.getKey(), supplier.getKey(),
                             BILLING_PERIOD_START, BILLING_PERIOD_END,
-                            NET_REVENUE, GROSS_REVENUE, "<PriceModel id=\""
-                                    + sub.getPriceModel().getKey()
+                            NET_REVENUE, GROSS_REVENUE,
+                            "<PriceModel id=\"" + sub.getPriceModel().getKey()
                                     + "\"><PriceModelCosts amount=\""
                                     + NET_REVENUE
                                     + "\"></PriceModelCosts></PriceModel>");
@@ -180,9 +182,8 @@ public class SharesCalculatorBeanIT extends EJBTestBase {
                 supplier2 = Organizations.createOrganization(ds, "supplierId2",
                         OrganizationRoleType.SUPPLIER,
                         OrganizationRoleType.MARKETPLACE_OWNER);
-                Product product2 = Products.createProduct(supplier2,
-                        "techprod", true, "product_supplier2", "priceModelId2",
-                        ds);
+                Product product2 = Products.createProduct(supplier2, "techprod",
+                        true, "product_supplier2", "priceModelId2", ds);
                 CatalogEntry ce = CatalogEntries.create(ds, mp, product2);
 
                 Subscription sub = Subscriptions.createSubscription(ds,
@@ -194,8 +195,8 @@ public class SharesCalculatorBeanIT extends EJBTestBase {
                     BillingResults.createBillingResult(ds, sub,
                             supplier2.getKey(), supplier2.getKey(),
                             BILLING_PERIOD_START, BILLING_PERIOD_END,
-                            NET_REVENUE, GROSS_REVENUE, "<PriceModel id=\""
-                                    + sub.getPriceModel().getKey()
+                            NET_REVENUE, GROSS_REVENUE,
+                            "<PriceModel id=\"" + sub.getPriceModel().getKey()
                                     + "\"><PriceModelCosts amount=\""
                                     + NET_REVENUE
                                     + "\"></PriceModelCosts></PriceModel>");
@@ -267,8 +268,8 @@ public class SharesCalculatorBeanIT extends EJBTestBase {
         givenBillingResult();
 
         // when
-        calculator.performMarketplacesSharesCalculationRun(
-                BILLING_PERIOD_START, BILLING_PERIOD_END);
+        calculator.performMarketplacesSharesCalculationRun(BILLING_PERIOD_START,
+                BILLING_PERIOD_END);
 
         // then
         String xmlAsString = loadResultXML(supplier,
@@ -362,13 +363,12 @@ public class SharesCalculatorBeanIT extends EJBTestBase {
         givenVendorsWithoutBillingResult();
 
         // when
-        calculator.performMarketplacesSharesCalculationRun(
-                BILLING_PERIOD_START, BILLING_PERIOD_END);
+        calculator.performMarketplacesSharesCalculationRun(BILLING_PERIOD_START,
+                BILLING_PERIOD_END);
 
         // then verify that root node and period exist
-        Document xml = XMLConverter.convertToDocument(
-                loadResultXML(supplier,
-                        BillingSharesResultType.MARKETPLACE_OWNER), false);
+        Document xml = XMLConverter.convertToDocument(loadResultXML(supplier,
+                BillingSharesResultType.MARKETPLACE_OWNER), false);
         assertNotNull(XMLConverter.getNodeByXPath(xml,
                 "/MarketplaceOwnerRevenueShareResult/Period"));
     }
@@ -384,7 +384,8 @@ public class SharesCalculatorBeanIT extends EJBTestBase {
      * only for one broker.
      */
     @Test
-    public void performBrokerSharesCalculationRun_oneFailing() throws Exception {
+    public void performBrokerSharesCalculationRun_oneFailing()
+            throws Exception {
 
         // given two brokers. The second has data that causes the calculation to
         // fail.
@@ -530,16 +531,14 @@ public class SharesCalculatorBeanIT extends EJBTestBase {
         givenTwoSuppliersOneUnpublishedSub();
 
         // when
-        calculator.performMarketplacesSharesCalculationRun(
-                BILLING_PERIOD_START, BILLING_PERIOD_END);
+        calculator.performMarketplacesSharesCalculationRun(BILLING_PERIOD_START,
+                BILLING_PERIOD_END);
 
         // then verify that both services exist in the result
-        Document xml = XMLConverter.convertToDocument(
-                loadResultXML(supplier,
-                        BillingSharesResultType.MARKETPLACE_OWNER), false);
-        NodeList services = XMLConverter
-                .getNodeListByXPath(xml,
-                        "/MarketplaceOwnerRevenueShareResult/Currency/Marketplace/Service");
+        Document xml = XMLConverter.convertToDocument(loadResultXML(supplier,
+                BillingSharesResultType.MARKETPLACE_OWNER), false);
+        NodeList services = XMLConverter.getNodeListByXPath(xml,
+                "/MarketplaceOwnerRevenueShareResult/Currency/Marketplace/Service");
         assertEquals(2, services.getLength());
     }
 
@@ -606,12 +605,12 @@ public class SharesCalculatorBeanIT extends EJBTestBase {
 
         // given vendors with a published product, but no subscriptions
         givenVendorsWithoutBillingResult();
-        calculator.performMarketplacesSharesCalculationRun(
-                BILLING_PERIOD_START, BILLING_PERIOD_END);
+        calculator.performMarketplacesSharesCalculationRun(BILLING_PERIOD_START,
+                BILLING_PERIOD_END);
 
         // when
-        calculator.performMarketplacesSharesCalculationRun(
-                BILLING_PERIOD_START, BILLING_PERIOD_END);
+        calculator.performMarketplacesSharesCalculationRun(BILLING_PERIOD_START,
+                BILLING_PERIOD_END);
 
         // then verify that result exists
         List<BillingSharesResult> result = loadSharesResult(supplier.getKey(),
@@ -630,8 +629,8 @@ public class SharesCalculatorBeanIT extends EJBTestBase {
                 BILLING_PERIOD_END);
 
         // when
-        calculator.performMarketplacesSharesCalculationRun(
-                BILLING_PERIOD_START, BILLING_PERIOD_END);
+        calculator.performMarketplacesSharesCalculationRun(BILLING_PERIOD_START,
+                BILLING_PERIOD_END);
 
         // then verify that result exists
         List<BillingSharesResult> result = loadSharesResult(supplier.getKey(),
@@ -687,8 +686,8 @@ public class SharesCalculatorBeanIT extends EJBTestBase {
                         OrganizationRoleType.BROKER);
                 Product resaleCopy = Products.createProductResaleCopy(product,
                         broker, ds);
-                resaleCopy.setProductId("resaleProd_"
-                        + OrganizationRoleType.BROKER.name());
+                resaleCopy.setProductId(
+                        "resaleProd_" + OrganizationRoleType.BROKER.name());
 
                 // publish to marketplace
                 CatalogEntries.createWithBrokerShare(ds, mp, resaleCopy,
@@ -700,11 +699,10 @@ public class SharesCalculatorBeanIT extends EJBTestBase {
 
                 if (withBillingResult) {
                     // normal billing run as prerequisite
-                    BillingResults.createBillingResult(ds, sub,
-                            broker.getKey(), broker.getKey(),
-                            BILLING_PERIOD_START, BILLING_PERIOD_END,
-                            NET_REVENUE, GROSS_REVENUE, "<PriceModel id=\""
-                                    + sub.getPriceModel().getKey()
+                    BillingResults.createBillingResult(ds, sub, broker.getKey(),
+                            broker.getKey(), BILLING_PERIOD_START,
+                            BILLING_PERIOD_END, NET_REVENUE, GROSS_REVENUE,
+                            "<PriceModel id=\"" + sub.getPriceModel().getKey()
                                     + "\"><PriceModelCosts amount=\""
                                     + NET_REVENUE
                                     + "\"></PriceModelCosts></PriceModel>");
@@ -714,8 +712,8 @@ public class SharesCalculatorBeanIT extends EJBTestBase {
         });
     }
 
-    private void createBrokerProductAndUnpublish(final boolean withBillingResult)
-            throws Exception {
+    private void createBrokerProductAndUnpublish(
+            final boolean withBillingResult) throws Exception {
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
@@ -724,8 +722,8 @@ public class SharesCalculatorBeanIT extends EJBTestBase {
                         OrganizationRoleType.BROKER);
                 Product resaleCopy = Products.createProductResaleCopy(product,
                         broker2, ds);
-                resaleCopy.setProductId("resaleProd_"
-                        + OrganizationRoleType.BROKER.name());
+                resaleCopy.setProductId(
+                        "resaleProd_" + OrganizationRoleType.BROKER.name());
 
                 // publish to marketplace
                 CatalogEntry ce = CatalogEntries.createWithBrokerShare(ds, mp,
@@ -740,11 +738,10 @@ public class SharesCalculatorBeanIT extends EJBTestBase {
 
                 if (withBillingResult) {
                     // normal billing run as prerequisite
-                    BillingResults.createBillingResult(ds, sub,
-                            broker.getKey(), broker.getKey(),
-                            BILLING_PERIOD_START, BILLING_PERIOD_END,
-                            NET_REVENUE, GROSS_REVENUE, "<PriceModel id=\""
-                                    + sub.getPriceModel().getKey()
+                    BillingResults.createBillingResult(ds, sub, broker.getKey(),
+                            broker.getKey(), BILLING_PERIOD_START,
+                            BILLING_PERIOD_END, NET_REVENUE, GROSS_REVENUE,
+                            "<PriceModel id=\"" + sub.getPriceModel().getKey()
                                     + "\"><PriceModelCosts amount=\""
                                     + NET_REVENUE
                                     + "\"></PriceModelCosts></PriceModel>");
@@ -764,8 +761,8 @@ public class SharesCalculatorBeanIT extends EJBTestBase {
                         OrganizationRoleType.BROKER);
                 Product resaleCopy = Products.createProductResaleCopy(product,
                         broker2, ds);
-                resaleCopy.setProductId("resaleProd_"
-                        + OrganizationRoleType.BROKER.name());
+                resaleCopy.setProductId(
+                        "resaleProd_" + OrganizationRoleType.BROKER.name());
 
                 // publish to marketplace
                 CatalogEntries.createWithBrokerShare(ds, null, resaleCopy,
@@ -777,10 +774,9 @@ public class SharesCalculatorBeanIT extends EJBTestBase {
 
                 if (withBillingResult) {
                     // normal billing run as prerequisite
-                    BillingResults.createBillingResult(ds, sub,
-                            broker.getKey(), broker.getKey(),
-                            BILLING_PERIOD_START, BILLING_PERIOD_END,
-                            NET_REVENUE, GROSS_REVENUE);
+                    BillingResults.createBillingResult(ds, sub, broker.getKey(),
+                            broker.getKey(), BILLING_PERIOD_START,
+                            BILLING_PERIOD_END, NET_REVENUE, GROSS_REVENUE);
                 }
                 return null;
             }
@@ -797,8 +793,8 @@ public class SharesCalculatorBeanIT extends EJBTestBase {
                         OrganizationRoleType.RESELLER);
                 Product resaleCopy = Products.createProductResaleCopy(product,
                         reseller, ds);
-                resaleCopy.setProductId("resaleProd_"
-                        + OrganizationRoleType.RESELLER.name());
+                resaleCopy.setProductId(
+                        "resaleProd_" + OrganizationRoleType.RESELLER.name());
 
                 // publish to marketplace
                 CatalogEntries.createWithResellerShare(ds, mp, resaleCopy,
@@ -813,8 +809,8 @@ public class SharesCalculatorBeanIT extends EJBTestBase {
                     BillingResults.createBillingResult(ds, sub,
                             reseller.getKey(), reseller.getKey(),
                             BILLING_PERIOD_START, BILLING_PERIOD_END,
-                            NET_REVENUE, GROSS_REVENUE, "<PriceModel id=\""
-                                    + sub.getPriceModel().getKey()
+                            NET_REVENUE, GROSS_REVENUE,
+                            "<PriceModel id=\"" + sub.getPriceModel().getKey()
                                     + "\"><PriceModelCosts amount=\""
                                     + NET_REVENUE
                                     + "\"></PriceModelCosts></PriceModel>");
@@ -834,8 +830,8 @@ public class SharesCalculatorBeanIT extends EJBTestBase {
                         OrganizationRoleType.RESELLER);
                 Product resaleCopy = Products.createProductResaleCopy(product,
                         reseller2, ds);
-                resaleCopy.setProductId("resaleProd_"
-                        + OrganizationRoleType.RESELLER.name());
+                resaleCopy.setProductId(
+                        "resaleProd_" + OrganizationRoleType.RESELLER.name());
 
                 // publish to marketplace
                 CatalogEntries.createWithResellerShare(ds, null, resaleCopy,
@@ -867,12 +863,12 @@ public class SharesCalculatorBeanIT extends EJBTestBase {
                         OrganizationRoleType.RESELLER);
                 Product resaleCopy = Products.createProductResaleCopy(product,
                         reseller2, ds);
-                resaleCopy.setProductId("resaleProd_"
-                        + OrganizationRoleType.RESELLER.name());
+                resaleCopy.setProductId(
+                        "resaleProd_" + OrganizationRoleType.RESELLER.name());
 
                 // publish to marketplace
-                CatalogEntry ce = CatalogEntries.createWithResellerShare(ds,
-                        mp, resaleCopy, REVENUE_SHARE_PERCENT);
+                CatalogEntry ce = CatalogEntries.createWithResellerShare(ds, mp,
+                        resaleCopy, REVENUE_SHARE_PERCENT);
 
                 // subscribe to resale copy
                 Subscription sub = Subscriptions.createSubscription(ds,
@@ -886,8 +882,8 @@ public class SharesCalculatorBeanIT extends EJBTestBase {
                     BillingResults.createBillingResult(ds, sub,
                             reseller2.getKey(), reseller2.getKey(),
                             BILLING_PERIOD_START, BILLING_PERIOD_END,
-                            NET_REVENUE, GROSS_REVENUE, "<PriceModel id=\""
-                                    + sub.getPriceModel().getKey()
+                            NET_REVENUE, GROSS_REVENUE,
+                            "<PriceModel id=\"" + sub.getPriceModel().getKey()
                                     + "\"><PriceModelCosts amount=\""
                                     + NET_REVENUE
                                     + "\"></PriceModelCosts></PriceModel>");
@@ -974,7 +970,8 @@ public class SharesCalculatorBeanIT extends EJBTestBase {
         Document xml = XMLConverter.convertToDocument(xmlAsString, false);
 
         // get strings
-        String roleString = getRoleString(OrganizationRoleType.MARKETPLACE_OWNER);
+        String roleString = getRoleString(
+                OrganizationRoleType.MARKETPLACE_OWNER);
 
         // verify root node
         verify_RootNode(xml, supplier, roleString);
@@ -1009,8 +1006,8 @@ public class SharesCalculatorBeanIT extends EJBTestBase {
 
     private void verify_RootNode(Document xml, Organization org,
             String roleString) throws XPathExpressionException {
-        Node rootNode = XMLConverter.getNodeByXPath(xml, "/" + roleString
-                + "RevenueShareResult");
+        Node rootNode = XMLConverter.getNodeByXPath(xml,
+                "/" + roleString + "RevenueShareResult");
         assertEquals(org.getKey(),
                 XMLConverter.getLongAttValue(rootNode, "organizationKey"));
         assertEquals(org.getOrganizationId(),
@@ -1019,8 +1016,8 @@ public class SharesCalculatorBeanIT extends EJBTestBase {
 
     private void verify_Period(Document xml, String roleString)
             throws XPathExpressionException {
-        Node period = XMLConverter.getNodeByXPath(xml, "/" + roleString
-                + "RevenueShareResult/Period");
+        Node period = XMLConverter.getNodeByXPath(xml,
+                "/" + roleString + "RevenueShareResult/Period");
         assertEquals(BILLING_PERIOD_START,
                 XMLConverter.getLongAttValue(period, "startDate"));
         assertEquals(BILLING_PERIOD_END,
@@ -1029,8 +1026,8 @@ public class SharesCalculatorBeanIT extends EJBTestBase {
 
     private void verify_Currency(Document xml, String roleString)
             throws XPathExpressionException {
-        Node currency = XMLConverter.getNodeByXPath(xml, "/" + roleString
-                + "RevenueShareResult/Currency");
+        Node currency = XMLConverter.getNodeByXPath(xml,
+                "/" + roleString + "RevenueShareResult/Currency");
         assertEquals("EUR", XMLConverter.getStringAttValue(currency, "id"));
     }
 
@@ -1043,7 +1040,8 @@ public class SharesCalculatorBeanIT extends EJBTestBase {
                 XMLConverter.getLongAttValue(organizationData, "key"));
     }
 
-    private void verify_ResaleOrganization(Node service, Organization resaleOrg) {
+    private void verify_ResaleOrganization(Node service,
+            Organization resaleOrg) {
         String model = XMLConverter.getStringAttValue(service, "model");
 
         String resaleRole = null;
@@ -1065,18 +1063,11 @@ public class SharesCalculatorBeanIT extends EJBTestBase {
 
     private void verify_ServiceRevenue(Document xml, String roleString)
             throws XPathExpressionException {
-        Node serviceRevenue = XMLConverter
-                .getNodeByXPath(
-                        xml,
-                        "/"
-                                + roleString
-                                + "RevenueShareResult/Currency/Supplier/Service/ServiceRevenue");
-        assertEquals(
-                REVENUE_SHARE + ".00",
-                XMLConverter.getStringAttValue(serviceRevenue,
-                        roleString.toLowerCase() + "Revenue"));
-        assertEquals(
-                REVENUE_SHARE_PERCENT.intValue() + ".00",
+        Node serviceRevenue = XMLConverter.getNodeByXPath(xml, "/" + roleString
+                + "RevenueShareResult/Currency/Supplier/Service/ServiceRevenue");
+        assertEquals(REVENUE_SHARE + ".00", XMLConverter.getStringAttValue(
+                serviceRevenue, roleString.toLowerCase() + "Revenue"));
+        assertEquals(REVENUE_SHARE_PERCENT.intValue() + ".00",
                 XMLConverter.getStringAttValue(serviceRevenue,
                         roleString.toLowerCase() + "RevenueSharePercentage"));
         assertEquals(NET_REVENUE.intValue() + ".00",
@@ -1087,7 +1078,7 @@ public class SharesCalculatorBeanIT extends EJBTestBase {
 
         String model = XMLConverter.getStringAttValue(service, "model");
 
-        List<String> expected = new ArrayList<String>();
+        List<String> expected = new ArrayList<>();
         if (OfferingType.DIRECT.name().equals(model)) {
             expected = SupplierResult_RevenueShareDetails_DIRECT;
         } else if (OfferingType.BROKER.name().equals(model)) {
@@ -1099,30 +1090,30 @@ public class SharesCalculatorBeanIT extends EJBTestBase {
 
         Node revenueShareDetails = XMLConverter.getLastChildNode(service,
                 "RevenueShareDetails");
-        assertEquals(expected.get(0), XMLConverter.getStringAttValue(
-                revenueShareDetails, "brokerRevenue"));
+        assertEquals(expected.get(0), XMLConverter
+                .getStringAttValue(revenueShareDetails, "brokerRevenue"));
         assertEquals(expected.get(1), XMLConverter.getStringAttValue(
                 revenueShareDetails, "brokerRevenueSharePercentage"));
-        assertEquals(expected.get(2), XMLConverter.getStringAttValue(
-                revenueShareDetails, "resellerRevenue"));
+        assertEquals(expected.get(2), XMLConverter
+                .getStringAttValue(revenueShareDetails, "resellerRevenue"));
         assertEquals(expected.get(3), XMLConverter.getStringAttValue(
                 revenueShareDetails, "resellerRevenueSharePercentage"));
-        assertEquals(expected.get(4), XMLConverter.getStringAttValue(
-                revenueShareDetails, "marketplaceRevenue"));
+        assertEquals(expected.get(4), XMLConverter
+                .getStringAttValue(revenueShareDetails, "marketplaceRevenue"));
         assertEquals(expected.get(5), XMLConverter.getStringAttValue(
                 revenueShareDetails, "marketplaceRevenueSharePercentage"));
-        assertEquals(expected.get(6), XMLConverter.getStringAttValue(
-                revenueShareDetails, "serviceRevenue"));
-        assertEquals(expected.get(7), XMLConverter.getStringAttValue(
-                revenueShareDetails, "amountForSupplier"));
+        assertEquals(expected.get(6), XMLConverter
+                .getStringAttValue(revenueShareDetails, "serviceRevenue"));
+        assertEquals(expected.get(7), XMLConverter
+                .getStringAttValue(revenueShareDetails, "amountForSupplier"));
     }
 
-    private void verify_MarketplaceOwnerResult_RevenueShareDetails(
-            Node service, OfferingType type) {
+    private void verify_MarketplaceOwnerResult_RevenueShareDetails(Node service,
+            OfferingType type) {
 
         String model = XMLConverter.getStringAttValue(service, "model");
 
-        List<String> expected = new ArrayList<String>();
+        List<String> expected = new ArrayList<>();
         if (OfferingType.DIRECT.name().equals(model)) {
             expected = MarketplaceOwnerResult_RevenueShareDetails_DIRECT;
         } else if (OfferingType.BROKER.name().equals(model)) {
@@ -1134,34 +1125,34 @@ public class SharesCalculatorBeanIT extends EJBTestBase {
 
         Node revenueShareDetails = XMLConverter.getLastChildNode(service,
                 "RevenueShareDetails");
-        assertEquals(expected.get(0), XMLConverter.getStringAttValue(
-                revenueShareDetails, "serviceRevenue"));
+        assertEquals(expected.get(0), XMLConverter
+                .getStringAttValue(revenueShareDetails, "serviceRevenue"));
         assertEquals(expected.get(1), XMLConverter.getStringAttValue(
                 revenueShareDetails, "marketplaceRevenueSharePercentage"));
-        assertEquals(expected.get(2), XMLConverter.getStringAttValue(
-                revenueShareDetails, "marketplaceRevenue"));
-        assertEquals(expected.get(6), XMLConverter.getStringAttValue(
-                revenueShareDetails, "amountForSupplier"));
+        assertEquals(expected.get(2), XMLConverter
+                .getStringAttValue(revenueShareDetails, "marketplaceRevenue"));
+        assertEquals(expected.get(6), XMLConverter
+                .getStringAttValue(revenueShareDetails, "amountForSupplier"));
         if (OfferingType.BROKER.equals(type)) {
             assertEquals(expected.get(7), XMLConverter.getStringAttValue(
                     revenueShareDetails, "brokerRevenueSharePercentage"));
-            assertEquals(expected.get(8), XMLConverter.getStringAttValue(
-                    revenueShareDetails, "brokerRevenue"));
+            assertEquals(expected.get(8), XMLConverter
+                    .getStringAttValue(revenueShareDetails, "brokerRevenue"));
         } else if (OfferingType.RESELLER.equals(type)) {
             assertEquals(expected.get(7), XMLConverter.getStringAttValue(
                     revenueShareDetails, "resellerRevenueSharePercentage"));
-            assertEquals(expected.get(8), XMLConverter.getStringAttValue(
-                    revenueShareDetails, "resellerRevenue"));
+            assertEquals(expected.get(8), XMLConverter
+                    .getStringAttValue(revenueShareDetails, "resellerRevenue"));
         }
     }
 
     private void verify_ResaleOrganization_RevenuePerSupplier(Document xml,
             String roleString) throws XPathExpressionException {
-        Node resaleRevenuePerSupplier = XMLConverter.getNodeByXPath(xml, "/"
-                + roleString + "RevenueShareResult/Currency/Supplier/"
-                + roleString + "RevenuePerSupplier");
-        assertEquals(REVENUE_SHARE + ".00", XMLConverter.getStringAttValue(
-                resaleRevenuePerSupplier, "amount"));
+        Node resaleRevenuePerSupplier = XMLConverter.getNodeByXPath(xml,
+                "/" + roleString + "RevenueShareResult/Currency/Supplier/"
+                        + roleString + "RevenuePerSupplier");
+        assertEquals(REVENUE_SHARE + ".00", XMLConverter
+                .getStringAttValue(resaleRevenuePerSupplier, "amount"));
     }
 
     private void verify_ResaleOrganization_Revenue(Document xml,
@@ -1184,8 +1175,8 @@ public class SharesCalculatorBeanIT extends EJBTestBase {
 
     private void verify_Marketplace(Document xml, Marketplace mp,
             String roleString) throws XPathExpressionException {
-        Node marketplace = XMLConverter.getNodeByXPath(xml, "/" + roleString
-                + "RevenueShareResult/Currency/Marketplace");
+        Node marketplace = XMLConverter.getNodeByXPath(xml,
+                "/" + roleString + "RevenueShareResult/Currency/Marketplace");
         assertEquals(mp.getMarketplaceId(),
                 XMLConverter.getStringAttValue(marketplace, "id"));
         if ("Supplier".equals(roleString)) {
@@ -1231,9 +1222,8 @@ public class SharesCalculatorBeanIT extends EJBTestBase {
 
     private void verify_RevenuesOverAllMarketplaces(Document xml)
             throws XPathExpressionException {
-        Node allMarketplaces = XMLConverter
-                .getNodeByXPath(xml,
-                        "/MarketplaceOwnerRevenueShareResult/Currency/RevenuesOverAllMarketplaces");
+        Node allMarketplaces = XMLConverter.getNodeByXPath(xml,
+                "/MarketplaceOwnerRevenueShareResult/Currency/RevenuesOverAllMarketplaces");
         verify_RevenuesPerMarketplace_Suppliers(allMarketplaces);
         verify_RevenuesPerMarketplace_Brokers(allMarketplaces);
         verify_RevenuesPerMarketplace_Resellers(allMarketplaces);
@@ -1247,11 +1237,10 @@ public class SharesCalculatorBeanIT extends EJBTestBase {
                 XMLConverter.getStringAttValue(revenuePerMp, "overallRevenue"));
         assertEquals(SupplierResult_RevenuePerMarketplace.get(1),
                 XMLConverter.getStringAttValue(revenuePerMp, "brokerRevenue"));
-        assertEquals(SupplierResult_RevenuePerMarketplace.get(2),
-                XMLConverter.getStringAttValue(revenuePerMp, "resellerRevenue"));
-        assertEquals(SupplierResult_RevenuePerMarketplace.get(3),
-                XMLConverter.getStringAttValue(revenuePerMp,
-                        "marketplaceRevenue"));
+        assertEquals(SupplierResult_RevenuePerMarketplace.get(2), XMLConverter
+                .getStringAttValue(revenuePerMp, "resellerRevenue"));
+        assertEquals(SupplierResult_RevenuePerMarketplace.get(3), XMLConverter
+                .getStringAttValue(revenuePerMp, "marketplaceRevenue"));
         assertEquals(SupplierResult_RevenuePerMarketplace.get(4),
                 XMLConverter.getStringAttValue(revenuePerMp, "serviceRevenue"));
     }
@@ -1274,9 +1263,9 @@ public class SharesCalculatorBeanIT extends EJBTestBase {
             Organization resaleOrg, Product prod, OfferingType type,
             String roleString) throws XPathExpressionException {
 
-        NodeList services = XMLConverter.getNodeListByXPath(xml, "/"
-                + roleString
-                + "RevenueShareResult/Currency/Marketplace/Service");
+        NodeList services = XMLConverter.getNodeListByXPath(xml,
+                "/" + roleString
+                        + "RevenueShareResult/Currency/Marketplace/Service");
 
         for (int i = 0; i < services.getLength(); i++) {
             String model = XMLConverter.getStringAttValue(services.item(i),
@@ -1289,9 +1278,8 @@ public class SharesCalculatorBeanIT extends EJBTestBase {
                         XMLConverter.getStringAttValue(services.item(i), "id"));
 
                 if (!type.name().equals(OfferingType.DIRECT.name())) {
-                    assertEquals(prod.getTemplate().getKey(),
-                            XMLConverter.getLongAttValue(services.item(i),
-                                    "templateKey"));
+                    assertEquals(prod.getTemplate().getKey(), XMLConverter
+                            .getLongAttValue(services.item(i), "templateKey"));
                 }
 
                 verify_SupplierResult_RevenueShareDetails(services.item(i));
@@ -1307,9 +1295,9 @@ public class SharesCalculatorBeanIT extends EJBTestBase {
             Organization resaleOrg, Product prod, OfferingType type,
             String roleString) throws XPathExpressionException {
 
-        NodeList services = XMLConverter.getNodeListByXPath(xml, "/"
-                + roleString
-                + "RevenueShareResult/Currency/Marketplace/Service");
+        NodeList services = XMLConverter.getNodeListByXPath(xml,
+                "/" + roleString
+                        + "RevenueShareResult/Currency/Marketplace/Service");
 
         for (int i = 0; i < services.getLength(); i++) {
             String model = XMLConverter.getStringAttValue(services.item(i),
@@ -1322,9 +1310,8 @@ public class SharesCalculatorBeanIT extends EJBTestBase {
                         XMLConverter.getStringAttValue(services.item(i), "id"));
 
                 if (!type.name().equals(OfferingType.DIRECT.name())) {
-                    assertEquals(prod.getTemplate().getKey(),
-                            XMLConverter.getLongAttValue(services.item(i),
-                                    "templateKey"));
+                    assertEquals(prod.getTemplate().getKey(), XMLConverter
+                            .getLongAttValue(services.item(i), "templateKey"));
                 }
 
                 verify_MarketplaceOwnerResult_RevenueShareDetails(

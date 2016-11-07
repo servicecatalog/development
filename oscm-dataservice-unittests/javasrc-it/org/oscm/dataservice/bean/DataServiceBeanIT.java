@@ -17,17 +17,17 @@ import javax.ejb.EJBException;
 
 import org.junit.Assert;
 import org.junit.Test;
-
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Event;
 import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.PlatformUser;
+import org.oscm.internal.types.enumtypes.EventType;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.Organizations;
 import org.oscm.test.ejb.TestContainer;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.types.exceptions.InvalidUserSession;
-import org.oscm.internal.types.enumtypes.EventType;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 
 /**
  * Unit tests for the credential management.
@@ -43,6 +43,7 @@ public class DataServiceBeanIT extends EJBTestBase {
     @Override
     protected void setup(TestContainer container) throws Exception {
         container.login("1");
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
 
         mgr = container.get(DataService.class);
@@ -68,9 +69,11 @@ public class DataServiceBeanIT extends EJBTestBase {
                     return null;
                 }
             });
-            Assert.fail("Call must fail, as no dataset is present in the database for this user!");
+            Assert.fail(
+                    "Call must fail, as no dataset is present in the database for this user!");
         } catch (EJBException e) {
-            Assert.assertTrue(e.getCausedByException() instanceof InvalidUserSession);
+            Assert.assertTrue(
+                    e.getCausedByException() instanceof InvalidUserSession);
             Assert.assertNotNull(e.getCausedByException().getCause());
         }
     }
@@ -88,9 +91,11 @@ public class DataServiceBeanIT extends EJBTestBase {
                     return null;
                 }
             });
-            Assert.fail("Call must fail, as no user is present in the database for this organization!");
+            Assert.fail(
+                    "Call must fail, as no user is present in the database for this organization!");
         } catch (EJBException e) {
-            Assert.assertTrue(e.getCausedByException() instanceof InvalidUserSession);
+            Assert.assertTrue(
+                    e.getCausedByException() instanceof InvalidUserSession);
         }
     }
 
@@ -114,9 +119,11 @@ public class DataServiceBeanIT extends EJBTestBase {
                     return null;
                 }
             });
-            Assert.fail("Call must fail, as no dataset is present in the database for this user!");
+            Assert.fail(
+                    "Call must fail, as no dataset is present in the database for this user!");
         } catch (EJBException e) {
-            Assert.assertTrue(e.getCausedByException() instanceof InvalidUserSession);
+            Assert.assertTrue(
+                    e.getCausedByException() instanceof InvalidUserSession);
         }
     }
 
@@ -179,9 +186,11 @@ public class DataServiceBeanIT extends EJBTestBase {
                     return mgr.getCurrentUser();
                 }
             });
-            Assert.fail("Call must fail, as no dataset is present in the database for this user!");
+            Assert.fail(
+                    "Call must fail, as no dataset is present in the database for this user!");
         } catch (EJBException e) {
-            Assert.assertTrue(e.getCausedByException() instanceof InvalidUserSession);
+            Assert.assertTrue(
+                    e.getCausedByException() instanceof InvalidUserSession);
             Assert.assertNotNull(e.getCausedByException().getCause());
         } finally {
             runTX(new Callable<Void>() {

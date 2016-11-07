@@ -16,6 +16,8 @@
     <attribute name="expectedSaveState" default="ok" />
     <attribute name="autoAssignUsers" default="false" />
     <attribute name="externalConfiguratorUrl" default="" />
+    <attribute name="customTabName" default="" />
+    <attribute name="customTabUrl" default="" />
 
     <sequential>
       <common.clickAndVerfyLink label="${service.add.title}" />
@@ -47,6 +49,8 @@
       <setCheckbox htmlId="editForm:parameterTable:16:configurable" checked="@{configurableChecked}" />
       <verifyElementText htmlId="editForm:parameterTable:15:parameterDescription" text="Rename any user folder" />
       <setInputField htmlId="editForm:externalConfiguratorUrl" value="@{externalConfiguratorUrl}" />
+      <setInputField htmlId="editForm:customTabName" value="@{customTabName}" />
+      <setInputField htmlId="editForm:customTabUrl" value="@{customTabUrl}" />
       <clickButton label="${button.save}" />
 
       <verifyTextarea htmlId="editForm:description:inp" text="@{description}" />

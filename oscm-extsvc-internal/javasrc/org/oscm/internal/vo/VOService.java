@@ -133,6 +133,11 @@ public class VOService extends BaseVO implements Serializable {
      * The URL of an external parameter tool
      */
     private String configuratorUrl;
+
+    /**
+     * The URL of the custom tab on my subscriptions page
+     */
+    private String customTabUrl;
     
     /**
      * The identifier of adapter for external billing system, if null System
@@ -141,6 +146,16 @@ public class VOService extends BaseVO implements Serializable {
     private String billingIdentifier;
     
     private ServiceType serviceType;
+
+    /**
+     * Locale value for custom tab name
+     */
+    private String customTabNameLanguage;
+
+    /**
+     * Name of the custom tab on my subscriptions page
+     */
+    private String customTabName;
 
     /**
      * Retrieves the service Id to display.
@@ -578,12 +593,30 @@ public class VOService extends BaseVO implements Serializable {
     }
 
     /**
+     * @return the URL of the custom tab on my subscriptions page if configured. Null
+     *         otherwise.
+     */
+    public String getCustomTabUrl() {
+        return customTabUrl;
+    }
+
+    /**
      * Sets the URL of an external parameter tool.
      * 
      * @param configuratorUrl
      */
     public void setConfiguratorUrl(String configuratorUrl) {
         this.configuratorUrl = configuratorUrl;
+    }
+
+
+    /**
+     * Sets the URL of custom tab on my subscriptions page.
+     *
+     * @param customTabUrl
+     */
+    public void setCustomTabUrl(String customTabUrl) {
+        this.customTabUrl = customTabUrl;
     }
     
     /**
@@ -614,5 +647,21 @@ public class VOService extends BaseVO implements Serializable {
      */
     public void setServiceType(ServiceType serviceType) {
         this.serviceType = serviceType;
+    }
+
+    /**
+     * @return the name of the custom tab on the my subscriptions page
+     */
+    public String getCustomTabName() {
+        return customTabName;
+    }
+
+    /**
+     * Sets the name of the custom tab on the my subscriptions page
+     *
+     * @param customTabName the custom tab name to set
+     */
+    public void setCustomTabName(String customTabName) {
+        this.customTabName = customTabName;
     }
 }

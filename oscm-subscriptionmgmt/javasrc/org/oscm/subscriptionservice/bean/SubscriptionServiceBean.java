@@ -313,10 +313,10 @@ public class SubscriptionServiceBean implements SubscriptionService,
 
         ArgumentValidator.notNull("subscription", subscription);
         ArgumentValidator.notNull("service", service);
-        
+
         Subscription sub;
         PlatformUser currentUser = dataManager.getCurrentUser();
-        
+
         checkIfServiceAvailable(service.getKey(), service.getServiceId(),
                 currentUser);
         checkIfSubscriptionAlreadyExists(service);
@@ -376,24 +376,25 @@ public class SubscriptionServiceBean implements SubscriptionService,
 
         return voSub;
     }
-    
+
+    @Override
     public boolean isPaymentInfoHidden() {
         return !cfgService.isPaymentInfoAvailable();
     }
 
     private VOBillingContact createBillingContactForOrganization(
             PlatformUser user) throws ObjectNotFoundException,
-                    NonUniqueBusinessKeyException {
+            NonUniqueBusinessKeyException {
         Organization organization = user.getOrganization();
         BillingContact orgBillingContact = new BillingContact();
-        String email = organization.getEmail() == null ? " "
-                : organization.getEmail();
+        String email = organization.getEmail() == null ? " " : organization
+                .getEmail();
 
-        String address = organization.getAddress() == null ? " "
-                : organization.getAddress();
+        String address = organization.getAddress() == null ? " " : organization
+                .getAddress();
         List<BillingContact> billingContacts = getBillingContactDao()
-                .getBillingContactsForOrganization(organization.getKey(), email,
-                        address);
+                .getBillingContactsForOrganization(organization.getKey(),
+                        email, address);
         if (!billingContacts.isEmpty()) {
             orgBillingContact = billingContacts.get(0);
         } else {
@@ -402,8 +403,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
             orgBillingContact.setOrganization_tkey(organization.getKey());
             orgBillingContact.setOrgAddressUsed(true);
             orgBillingContact.setEmail(email);
-            String organizationId = organization.getName() == null
-                    ? user.getUserId() : organization.getName();
+            String organizationId = organization.getName() == null ? user
+                    .getUserId() : organization.getName();
             orgBillingContact.setBillingContactId(organizationId
                     + DateFactory.getInstance().getTransactionTime());
             orgBillingContact.setOrganization(organization);
@@ -415,18 +416,18 @@ public class SubscriptionServiceBean implements SubscriptionService,
 
     private VOPaymentInfo createPaymentInfoForOrganization(
             Organization organization) throws ObjectNotFoundException,
-                    NonUniqueBusinessKeyException {
-        PaymentInfo paInfo = new PaymentInfo(
-                DateFactory.getInstance().getTransactionTime());
+            NonUniqueBusinessKeyException {
+        PaymentInfo paInfo = new PaymentInfo(DateFactory.getInstance()
+                .getTransactionTime());
         paInfo.setOrganization_tkey(organization.getKey());
         PaymentType paymentType = new PaymentType();
         paymentType.setPaymentTypeId(PaymentType.INVOICE);
         paymentType = (PaymentType) dataManager.find(paymentType);
         paInfo.setOrganization(organization);
         paInfo.setPaymentType(paymentType);
-        LocalizerFacade localizerFacade = new LocalizerFacade(
-                localizer, dataManager.getCurrentUser().getLocale());
-        
+        LocalizerFacade localizerFacade = new LocalizerFacade(localizer,
+                dataManager.getCurrentUser().getLocale());
+
         paInfo.setPaymentInfoId(localizerFacade.getText(PAYMENTTYPE_INVOICE,
                 LocalizedObjectTypes.PAYMENT_TYPE_NAME));
         try {
@@ -696,7 +697,7 @@ public class SubscriptionServiceBean implements SubscriptionService,
             // is still in PENDING, but must be fitered for billing. Set the
             // indicating flag before persisting.
             theProduct.getPriceModel().setProvisioningCompleted(false);
-            if(theProduct.getPriceModel().isExternal()){
+            if (theProduct.getPriceModel().isExternal()) {
                 newSub.setExternal(true);
             }
         }
@@ -792,8 +793,9 @@ public class SubscriptionServiceBean implements SubscriptionService,
         return newSub;
     }
 
-    private void verifyUnitAndRoles(PlatformUser currentUser, UserGroup unit, Subscription newSub) throws OperationNotPermittedException {
-        if(!currentUser.isOrganizationAdmin()){
+    private void verifyUnitAndRoles(PlatformUser currentUser, UserGroup unit,
+            Subscription newSub) throws OperationNotPermittedException {
+        if (!currentUser.isOrganizationAdmin()) {
             boolean isUnitAdmin = currentUser.isUnitAdmin();
             boolean isSubMgr = currentUser.isSubscriptionManager();
             boolean isUnitToBeAssigned = unit != null;
@@ -803,7 +805,7 @@ public class SubscriptionServiceBean implements SubscriptionService,
             if (isUnitToBeAssigned && unitIsForbidden) {
                 throw new OperationNotPermittedException();
             } else if (unitIsMandatory && !isUnitToBeAssigned) {
-                    throw new OperationNotPermittedException();
+                throw new OperationNotPermittedException();
             }
         }
         if (currentUser.isOrganizationAdmin() || currentUser.isUnitAdmin()) {
@@ -1012,8 +1014,9 @@ public class SubscriptionServiceBean implements SubscriptionService,
             for (Object o : users) {
                 VOUsageLicense lic = VOUsageLicense.class.cast(o);
                 PlatformUser usr = idManager.getPlatformUser(lic.getUser()
-                        .getUserId(), true); // not found? => throws
-                                             // ObjectNotFoundException
+                        .getUserId(), dataManager.getCurrentUser()
+                        .getTenantId(), true); // not found? => throws
+                // ObjectNotFoundException
                 RoleDefinition role = getAndCheckServiceRole(lic,
                         subscription.getProduct());
                 try {
@@ -1289,14 +1292,15 @@ public class SubscriptionServiceBean implements SubscriptionService,
      *             Thrown in case the product is chargeable but the customer
      *             does not have a payment information stored.
      * @throws ConcurrentModificationException
-     * @throws NonUniqueBusinessKeyException 
+     * @throws NonUniqueBusinessKeyException
      */
     private void validateSettingsForSubscribing(VOSubscription subscription,
             VOService product, VOPaymentInfo paymentInfo,
             VOBillingContact voBillingContact) throws ValidationException,
             ObjectNotFoundException, OperationNotPermittedException,
             ServiceChangedException, PriceModelException,
-            PaymentInformationException, ConcurrentModificationException, NonUniqueBusinessKeyException {
+            PaymentInformationException, ConcurrentModificationException,
+            NonUniqueBusinessKeyException {
         String subscriptionId = subscription.getSubscriptionId();
         BLValidator.isId("subscriptionId", subscriptionId, true);
         String pon = subscription.getPurchaseOrderNumber();
@@ -1538,7 +1542,7 @@ public class SubscriptionServiceBean implements SubscriptionService,
             if (param != null) {
                 String oldValue = param.getValue();
                 param.setValue(voParameter.getValue());
-                
+
                 String defaultValue = param.getParameterDefinition()
                         .getDefaultValue();
                 if ((oldValue != null && !oldValue.equals(param.getValue()))
@@ -2052,7 +2056,7 @@ public class SubscriptionServiceBean implements SubscriptionService,
         ArgumentValidator.notNull("user", user);
 
         PlatformUser platformUser = idManager.getPlatformUser(user.getUserId(),
-                true);
+                user.getTenantId(), true);
         LocalizerFacade facade = new LocalizerFacade(localizer,
                 platformUser.getLocale());
         List<Subscription> subs = getSubscriptionsForUserInt(platformUser);
@@ -2094,7 +2098,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
         return getSubscriptionsForOrganizationWithFilter(null, performanceHint);
     }
 
-    @RolesAllowed({ "ORGANIZATION_ADMIN", "SUBSCRIPTION_MANAGER", "UNIT_ADMINISTRATOR" })
+    @RolesAllowed({ "ORGANIZATION_ADMIN", "SUBSCRIPTION_MANAGER",
+            "UNIT_ADMINISTRATOR" })
     public List<VOSubscription> getAllSubscriptionsForOrganization(
             PerformanceHint performanceHint) {
         ArrayList<VOSubscription> result = new ArrayList<>();
@@ -2186,8 +2191,10 @@ public class SubscriptionServiceBean implements SubscriptionService,
     @Override
     @RolesAllowed({ "ORGANIZATION_ADMIN", "SUBSCRIPTION_MANAGER",
             "UNIT_ADMINISTRATOR" })
-    public VOSubscriptionDetails getSubscriptionDetailsWithoutOwnerCheck(long subscriptionKey) throws ObjectNotFoundException {
-        Subscription subscription = manageBean.loadSubscription(null, subscriptionKey);
+    public VOSubscriptionDetails getSubscriptionDetailsWithoutOwnerCheck(
+            long subscriptionKey) throws ObjectNotFoundException {
+        Subscription subscription = manageBean.loadSubscription(null,
+                subscriptionKey);
         return getSubscriptionDetails(subscription);
     }
 
@@ -2668,7 +2675,7 @@ public class SubscriptionServiceBean implements SubscriptionService,
 
         ArgumentValidator.notNull("subscription", subscription);
         ArgumentValidator.notNull("service", service);
-        
+
         PlatformUser currentUser = dataManager.getCurrentUser();
 
         if (isPaymentInfoHidden() && service.getPriceModel().isChargeable()) {
@@ -3056,7 +3063,7 @@ public class SubscriptionServiceBean implements SubscriptionService,
         }
 
         List<Parameter> modifiedParametersForLog = updateConfiguredParameterValues(
-                    targetProductCopy, voTargetParameters, subscription);
+                targetProductCopy, voTargetParameters, subscription);
 
         // verify the platform parameter and send the new parameter to the
         // technical product
@@ -3125,7 +3132,7 @@ public class SubscriptionServiceBean implements SubscriptionService,
         Product targetProductCopy = copyProductForSubscription(targetProduct,
                 subscription, false);
         List<Parameter> modifiedParametersForLog = updateConfiguredParameterValues(
-                    targetProductCopy, voTargetParameters, subscription);
+                targetProductCopy, voTargetParameters, subscription);
 
         // verify the platform parameter
         checkPlatformParameterConstraints(subscription, targetProductCopy,
@@ -3663,7 +3670,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
 
         String ownerId = subscription.getOwnerId();
         if (ownerId != null && ownerId.length() != 0) {
-            checkRolesForSubscriptionOwner(ownerId);
+            checkRolesForSubscriptionOwner(ownerId, dataManager
+                    .getCurrentUser().getTenantId());
         }
         if (!subscriptionToModify.getSubscriptionId().equals(subscriptionId)) {
             Subscription sub = new Subscription();
@@ -3690,9 +3698,9 @@ public class SubscriptionServiceBean implements SubscriptionService,
         return subscriptionToModify;
     }
 
-    void checkRolesForSubscriptionOwner(String ownerId)
+    void checkRolesForSubscriptionOwner(String ownerId, String tenantId)
             throws ObjectNotFoundException, OperationNotPermittedException {
-        PlatformUser owner = idManager.getPlatformUser(ownerId, true);
+        PlatformUser owner = idManager.getPlatformUser(ownerId, tenantId, true);
         if (!owner.hasSubscriptionOwnerRole()) {
             String rolesString = UserRoleType.ORGANIZATION_ADMIN + ", "
                     + UserRoleType.SUBSCRIPTION_MANAGER;
@@ -5366,7 +5374,7 @@ public class SubscriptionServiceBean implements SubscriptionService,
     public SessionDao getSessionDao() {
         return new SessionDao(dataManager);
     }
-    
+
     public BillingContactDao getBillingContactDao() {
         return new BillingContactDao(dataManager);
     }
@@ -5419,7 +5427,7 @@ public class SubscriptionServiceBean implements SubscriptionService,
 
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     private List<Subscription> getSubscriptionsForUserInt(PlatformUser user,
-                                                          PaginationFullTextFilter pagination) {
+            PaginationFullTextFilter pagination) {
         String fullTextFilterValue = pagination.getFullTextFilterValue();
         List<Subscription> subscriptions = Collections.emptyList();
         if (StringUtils.isNotEmpty(fullTextFilterValue)) {
@@ -5427,26 +5435,34 @@ public class SubscriptionServiceBean implements SubscriptionService,
             try {
                 subscriptionKeys = getFilteredOutSubscriptionKeys(fullTextFilterValue);
             } catch (InvalidPhraseException e) {
-                LOG.logError(Log4jLogger.SYSTEM_LOG, e, LogMessageIdentifier.ERROR);
+                LOG.logError(Log4jLogger.SYSTEM_LOG, e,
+                        LogMessageIdentifier.ERROR);
             } catch (ObjectNotFoundException e) {
                 LOG.logDebug("No subscription keys found");
             }
-            if(!subscriptionKeys.isEmpty()) {
-                subscriptions = getSubscriptionDao().getSubscriptionsForUserWithSubscriptionKeys(user, pagination, subscriptionKeys);
+            if (!subscriptionKeys.isEmpty()) {
+                subscriptions = getSubscriptionDao()
+                        .getSubscriptionsForUserWithSubscriptionKeys(user,
+                                pagination, subscriptionKeys);
             }
         } else {
-            subscriptions = getSubscriptionDao().getSubscriptionsForUser(user, pagination);
+            subscriptions = getSubscriptionDao().getSubscriptionsForUser(user,
+                    pagination);
         }
         return subscriptions;
     }
 
     /**
-     * Implementation of method which should return set of Long object, which represents subscriptions retunred
-     * in full text search process
-     * @param filterValue Text enetered by user to filter subscriptions by
-     * @return Set of primary keys of subscriptions which are valid against the filter value or empty (not null!) set.
+     * Implementation of method which should return set of Long object, which
+     * represents subscriptions retunred in full text search process
+     * 
+     * @param filterValue
+     *            Text enetered by user to filter subscriptions by
+     * @return Set of primary keys of subscriptions which are valid against the
+     *         filter value or empty (not null!) set.
      */
-    private Collection<Long> getFilteredOutSubscriptionKeys(String filterValue) throws InvalidPhraseException, ObjectNotFoundException {
+    private Collection<Long> getFilteredOutSubscriptionKeys(String filterValue)
+            throws InvalidPhraseException, ObjectNotFoundException {
         return subscriptionSearchService.searchSubscriptions(filterValue);
     }
 

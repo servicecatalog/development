@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.oscm.billingservice.service;
 
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.mock;
 import static org.oscm.test.BigDecimalAsserts.checkEquals;
 import static org.oscm.test.Numbers.BD100;
 import static org.oscm.test.Numbers.BD1000;
@@ -24,8 +26,6 @@ import static org.oscm.test.Numbers.BD90;
 import static org.oscm.test.Numbers.BD900;
 import static org.oscm.test.Numbers.L10;
 import static org.oscm.test.Numbers.L20;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.mock;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -43,10 +43,6 @@ import javax.xml.xpath.XPathExpressionException;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
 import org.oscm.accountservice.dao.UserLicenseDao;
 import org.oscm.billingservice.business.calculation.revenue.RevenueCalculatorBean;
 import org.oscm.billingservice.business.calculation.share.SharesCalculatorBean;
@@ -75,6 +71,14 @@ import org.oscm.domobjects.TechnicalProduct;
 import org.oscm.domobjects.UsageLicense;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
 import org.oscm.interceptor.DateFactory;
+import org.oscm.internal.types.enumtypes.EventType;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.ParameterType;
+import org.oscm.internal.types.enumtypes.ParameterValueType;
+import org.oscm.internal.types.enumtypes.PricingPeriod;
+import org.oscm.internal.types.enumtypes.ServiceAccessType;
+import org.oscm.internal.types.enumtypes.UserAccountStatus;
+import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.paymentservice.bean.PaymentServiceStub;
 import org.oscm.serviceprovisioningservice.bean.SteppedPriceComparator;
 import org.oscm.test.EJBTestBase;
@@ -90,14 +94,9 @@ import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.test.stubs.TriggerQueueServiceStub;
 import org.oscm.triggerservice.local.TriggerMessage;
 import org.oscm.types.constants.BillingResultXMLTags;
-import org.oscm.internal.types.enumtypes.EventType;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ParameterType;
-import org.oscm.internal.types.enumtypes.ParameterValueType;
-import org.oscm.internal.types.enumtypes.PricingPeriod;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
-import org.oscm.internal.types.enumtypes.UserAccountStatus;
-import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  * JUnit test.
@@ -120,7 +119,7 @@ public class BillingServiceBeanSteppedPriceIT extends EJBTestBase {
     @Override
     protected void setup(TestContainer container) throws Exception {
         container.login("1");
-
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         container.addBean(new ConfigurationServiceStub());
         container.addBean(new PaymentServiceStub());
@@ -164,8 +163,8 @@ public class BillingServiceBeanSteppedPriceIT extends EJBTestBase {
                         OrganizationRoleType.TECHNOLOGY_PROVIDER,
                         OrganizationRoleType.SUPPLIER);
 
-                technicalProduct = TechnicalProducts.createTechnicalProduct(
-                        mgr, supplierAndProvider, "techProdId", false,
+                technicalProduct = TechnicalProducts.createTechnicalProduct(mgr,
+                        supplierAndProvider, "techProdId", false,
                         ServiceAccessType.LOGIN);
 
                 product = Products.createProduct(supplierAndProvider,
@@ -490,9 +489,9 @@ public class BillingServiceBeanSteppedPriceIT extends EJBTestBase {
 
         testBillingWithSteppedPricesForPriceModel(freePeriod, numUser,
                 expectedPrice, differentAssignmentTime, limitArray, priceArray,
-                freeAmountArray, additionalPriceArray,
-                subscriptionCreationTime, subscriptionActivationTime,
-                BigDecimal.ZERO, BigDecimal.ZERO, billingTime, stepAmountArray);
+                freeAmountArray, additionalPriceArray, subscriptionCreationTime,
+                subscriptionActivationTime, BigDecimal.ZERO, BigDecimal.ZERO,
+                billingTime, stepAmountArray);
 
     }
 
@@ -503,9 +502,9 @@ public class BillingServiceBeanSteppedPriceIT extends EJBTestBase {
             final BigDecimal[] additionalPriceArray,
             final long subscriptionCreationTime,
             final long subscriptionActivationTime,
-            final BigDecimal pricePerUserAssigment,
-            final BigDecimal oneTimeFee, final long billingTime,
-            final BigDecimal... stepAmountArray) throws Exception {
+            final BigDecimal pricePerUserAssigment, final BigDecimal oneTimeFee,
+            final long billingTime, final BigDecimal... stepAmountArray)
+            throws Exception {
         int userNumber = numUser;
         int stepNum = 3;
 
@@ -762,20 +761,18 @@ public class BillingServiceBeanSteppedPriceIT extends EJBTestBase {
                 netCosts);
 
         // check single step costs
-        NodeList nodeList = XMLConverter.getNodeListByXPath(doc, "//"
-                + BillingResultXMLTags.STEPPED_PRICE_NODE_NAME);
+        NodeList nodeList = XMLConverter.getNodeListByXPath(doc,
+                "//" + BillingResultXMLTags.STEPPED_PRICE_NODE_NAME);
 
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node paramNode = nodeList.item(i);
             assertNotNull(paramNode);
             // check stepCost
-            String amount = paramNode
-                    .getAttributes()
+            String amount = paramNode.getAttributes()
                     .getNamedItem(
                             BillingResultXMLTags.STEP_AMOUNT_ATTRIBUTE_NAME)
                     .getTextContent();
-            String entityCount = paramNode
-                    .getAttributes()
+            String entityCount = paramNode.getAttributes()
                     .getNamedItem(
                             BillingResultXMLTags.STEP_ENTITY_COUNT_ATTRIBUTE_NAME)
                     .getTextContent();
@@ -890,10 +887,8 @@ public class BillingServiceBeanSteppedPriceIT extends EJBTestBase {
         });
         Document doc = getBillingDocument();
 
-        String SteppedPricesAmount = XMLConverter
-                .getNodeTextContentByXPath(
-                        doc,
-                        "/BillingDetails/Subscriptions/Subscription/PriceModels/PriceModel/Parameters/Parameter/PeriodFee/SteppedPrices/@amount");
+        String SteppedPricesAmount = XMLConverter.getNodeTextContentByXPath(doc,
+                "/BillingDetails/Subscriptions/Subscription/PriceModels/PriceModel/Parameters/Parameter/PeriodFee/SteppedPrices/@amount");
         checkEquals("Wrong net costs found",
                 expectedSteppedPricesAmount.toPlainString(),
                 SteppedPricesAmount);
@@ -906,21 +901,19 @@ public class BillingServiceBeanSteppedPriceIT extends EJBTestBase {
         // check step costs and step counts
         // compare step counts
         // check single step costs
-        NodeList nodeList = XMLConverter.getNodeListByXPath(doc, "//"
-                + BillingResultXMLTags.STEPPED_PRICE_NODE_NAME);
+        NodeList nodeList = XMLConverter.getNodeListByXPath(doc,
+                "//" + BillingResultXMLTags.STEPPED_PRICE_NODE_NAME);
 
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node paramNode = nodeList.item(i);
             assertNotNull(paramNode);
 
-            String amount = paramNode
-                    .getAttributes()
+            String amount = paramNode.getAttributes()
                     .getNamedItem(
                             BillingResultXMLTags.STEP_AMOUNT_ATTRIBUTE_NAME)
                     .getTextContent();
 
-            String entityCount = paramNode
-                    .getAttributes()
+            String entityCount = paramNode.getAttributes()
                     .getNamedItem(
                             BillingResultXMLTags.STEP_ENTITY_COUNT_ATTRIBUTE_NAME)
                     .getTextContent();
@@ -1160,10 +1153,8 @@ public class BillingServiceBeanSteppedPriceIT extends EJBTestBase {
         });
         Document doc = getBillingDocument();
 
-        String steppedPricesAmount = XMLConverter
-                .getNodeTextContentByXPath(
-                        doc,
-                        "/BillingDetails/Subscriptions/Subscription/PriceModels/PriceModel/Parameters/Parameter/PeriodFee/SteppedPrices/@amount");
+        String steppedPricesAmount = XMLConverter.getNodeTextContentByXPath(doc,
+                "/BillingDetails/Subscriptions/Subscription/PriceModels/PriceModel/Parameters/Parameter/PeriodFee/SteppedPrices/@amount");
         checkEquals("Wrong net costs found",
                 expectedSteppedPricesAmount.toPlainString(),
                 steppedPricesAmount);
@@ -1176,21 +1167,19 @@ public class BillingServiceBeanSteppedPriceIT extends EJBTestBase {
         // check step costs and step counts
         // compare step counts
         // check single step costs
-        NodeList nodeList = XMLConverter.getNodeListByXPath(doc, "//"
-                + BillingResultXMLTags.STEPPED_PRICE_NODE_NAME);
+        NodeList nodeList = XMLConverter.getNodeListByXPath(doc,
+                "//" + BillingResultXMLTags.STEPPED_PRICE_NODE_NAME);
 
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node paramNode = nodeList.item(i);
             assertNotNull(paramNode);
 
-            String amount = paramNode
-                    .getAttributes()
+            String amount = paramNode.getAttributes()
                     .getNamedItem(
                             BillingResultXMLTags.STEP_AMOUNT_ATTRIBUTE_NAME)
                     .getTextContent();
 
-            String entityCount = paramNode
-                    .getAttributes()
+            String entityCount = paramNode.getAttributes()
                     .getNamedItem(
                             BillingResultXMLTags.STEP_ENTITY_COUNT_ATTRIBUTE_NAME)
                     .getTextContent();
@@ -1198,7 +1187,8 @@ public class BillingServiceBeanSteppedPriceIT extends EJBTestBase {
             if (i < stepAmountArray.length) {
                 checkEquals(stepAmountArray[i].toPlainString(), amount,
                         PriceConverter.NORMALIZED_PRICE_SCALING);
-                checkEquals(stepEventCountArray[i].toPlainString(), entityCount);
+                checkEquals(stepEventCountArray[i].toPlainString(),
+                        entityCount);
             }
         }
     }
@@ -1281,10 +1271,8 @@ public class BillingServiceBeanSteppedPriceIT extends EJBTestBase {
         });
         Document doc = getBillingDocument();
 
-        String parameterId = XMLConverter
-                .getNodeTextContentByXPath(
-                        doc,
-                        "/BillingDetails/Subscriptions/Subscription/PriceModels/PriceModel/Parameters/Parameter/@id");
+        String parameterId = XMLConverter.getNodeTextContentByXPath(doc,
+                "/BillingDetails/Subscriptions/Subscription/PriceModels/PriceModel/Parameters/Parameter/@id");
         Assert.assertEquals("Wrong structure of billin.xml", "integerParam",
                 parameterId);
         xmlValidator.validateBillingResultXML();
@@ -1321,8 +1309,7 @@ public class BillingServiceBeanSteppedPriceIT extends EJBTestBase {
 
                 ParameterDefinition paramDef = TechnicalProducts
                         .addParameterDefinition(ParameterValueType.INTEGER,
-                                "integerParam",
-                                ParameterType.SERVICE_PARAMETER,
+                                "integerParam", ParameterType.SERVICE_PARAMETER,
                                 technicalProduct, mgr, null, null, true);
 
                 Parameter param = Products.createParameter(paramDef, product,
@@ -1339,8 +1326,8 @@ public class BillingServiceBeanSteppedPriceIT extends EJBTestBase {
                 PriceModel pm = subscription.getPriceModel();
 
                 pm.setPricePerUserAssignment(new BigDecimal(2L));
-                pm.setHistoryModificationTime(Long.valueOf(creationDate
-                        .getTime()));
+                pm.setHistoryModificationTime(
+                        Long.valueOf(creationDate.getTime()));
 
                 mgr.flush();
 
@@ -1350,8 +1337,8 @@ public class BillingServiceBeanSteppedPriceIT extends EJBTestBase {
                 pricedEvent.setEvent(event);
                 pricedEvent.setPriceModel(pm);
                 pricedEvent.setEventPrice(new BigDecimal(100));
-                pricedEvent.setHistoryModificationTime(Long
-                        .valueOf(creationDate.getTime()));
+                pricedEvent.setHistoryModificationTime(
+                        Long.valueOf(creationDate.getTime()));
 
                 mgr.persist(pricedEvent);
                 mgr.flush();
@@ -1370,8 +1357,8 @@ public class BillingServiceBeanSteppedPriceIT extends EJBTestBase {
                 int stepNum = 3;
 
                 createSteppedPrices(stepNum, creationDate, limitArray,
-                        priceArray, freeAmountArray, additionalPriceArray,
-                        null, pricedEvent, null);
+                        priceArray, freeAmountArray, additionalPriceArray, null,
+                        pricedEvent, null);
 
                 createSteppedPrices(stepNum, creationDate, limitArray,
                         priceArray, freeAmountArray, additionalPriceArray, pm,
@@ -1382,19 +1369,19 @@ public class BillingServiceBeanSteppedPriceIT extends EJBTestBase {
                 pricedParam.setPriceModel(pm);
                 pricedParam.setPricePerSubscription(new BigDecimal(555));
                 pricedParam.setPricePerUser(new BigDecimal(543));
-                pricedParam.setHistoryModificationTime(Long
-                        .valueOf(creationDate.getTime()));
+                pricedParam.setHistoryModificationTime(
+                        Long.valueOf(creationDate.getTime()));
 
                 pm.setSelectedParameters(new ArrayList<PricedParameter>());
                 pm.getSelectedParameters().add(pricedParam);
                 mgr.persist(pricedParam);
 
                 createSteppedPrices(stepNum, creationDate, limitArray,
-                        priceArray, freeAmountArray, additionalPriceArray,
-                        null, null, pricedParam);
+                        priceArray, freeAmountArray, additionalPriceArray, null,
+                        null, pricedParam);
 
-                updateParameterHistoryEntries(new Date(
-                        subscriptionActivationTime));
+                updateParameterHistoryEntries(
+                        new Date(subscriptionActivationTime));
 
                 return null;
             }
@@ -1436,7 +1423,8 @@ public class BillingServiceBeanSteppedPriceIT extends EJBTestBase {
      *            The month.
      * @return The time matching the specified parameters in milliseconds.
      */
-    private int getDaysOfMonth(final int paramTestYear, final int paramTestMonth) {
+    private int getDaysOfMonth(final int paramTestYear,
+            final int paramTestMonth) {
         final Calendar billingCalendar = Calendar.getInstance();
         billingCalendar.set(Calendar.YEAR, paramTestYear);
         billingCalendar.set(Calendar.MONTH, paramTestMonth);
@@ -1461,8 +1449,8 @@ public class BillingServiceBeanSteppedPriceIT extends EJBTestBase {
         return runTX(new Callable<Document>() {
             @Override
             public Document call() throws Exception {
-                Query query = mgr
-                        .createQuery("SELECT br FROM BillingResult br WHERE br.dataContainer.organizationTKey = :organizationTKey ORDER BY br.dataContainer.periodEndTime DESC");
+                Query query = mgr.createQuery(
+                        "SELECT br FROM BillingResult br WHERE br.dataContainer.organizationTKey = :organizationTKey ORDER BY br.dataContainer.periodEndTime DESC");
                 query.setParameter("organizationTKey",
                         Long.valueOf(customer.getKey()));
                 query.setMaxResults(1);
@@ -1471,8 +1459,8 @@ public class BillingServiceBeanSteppedPriceIT extends EJBTestBase {
 
                 System.out.println(billingResult.getResultXML());
 
-                Document doc = XMLConverter.convertToDocument(
-                        billingResult.getResultXML(), true);
+                Document doc = XMLConverter
+                        .convertToDocument(billingResult.getResultXML(), true);
 
                 return doc;
             }
@@ -1504,7 +1492,8 @@ public class BillingServiceBeanSteppedPriceIT extends EJBTestBase {
                         createUserAndLicense(userName, subscriptionCreationTime
                                 + i * (7 * 24 * 60 * 60 * 1000L));
                     } else {
-                        createUserAndLicense(userName, subscriptionCreationTime);
+                        createUserAndLicense(userName,
+                                subscriptionCreationTime);
 
                     }
                 }
@@ -1514,8 +1503,8 @@ public class BillingServiceBeanSteppedPriceIT extends EJBTestBase {
                 pm.setPricePerUserAssignment(priceperUserAssigment);
                 pm.setOneTimeFee(oneTimeFee);
                 pm.setFreePeriod(freePeriod);
-                pm.setHistoryModificationTime(Long.valueOf(creationDate
-                        .getTime()));
+                pm.setHistoryModificationTime(
+                        Long.valueOf(creationDate.getTime()));
                 mgr.flush();
 
                 createSteppedPrices(stepNum, creationDate, limitArray,
@@ -1572,7 +1561,8 @@ public class BillingServiceBeanSteppedPriceIT extends EJBTestBase {
                         createUserAndLicense(userName, subscriptionCreationTime
                                 + i * (7 * 24 * 60 * 60 * 1000L));
                     } else {
-                        createUserAndLicense(userName, subscriptionCreationTime);
+                        createUserAndLicense(userName,
+                                subscriptionCreationTime);
 
                     }
                 }
@@ -1582,8 +1572,8 @@ public class BillingServiceBeanSteppedPriceIT extends EJBTestBase {
                 pm.setPricePerUserAssignment(priceperUserAssigment);
                 pm.setOneTimeFee(oneTimeFee);
                 pm.setFreePeriod(freePeriod);
-                pm.setHistoryModificationTime(Long.valueOf(creationDate
-                        .getTime()));
+                pm.setHistoryModificationTime(
+                        Long.valueOf(creationDate.getTime()));
                 mgr.flush();
 
                 createSteppedPrices(stepNum, creationDate, limitArray,
@@ -1665,8 +1655,8 @@ public class BillingServiceBeanSteppedPriceIT extends EJBTestBase {
                 pm.setFreePeriod(freePeriod);
                 pm.setPeriod(PricingPeriod.MONTH);
                 pm.setPricePerUserAssignment(new BigDecimal(2l));
-                pm.setHistoryModificationTime(Long.valueOf(creationDate
-                        .getTime()));
+                pm.setHistoryModificationTime(
+                        Long.valueOf(creationDate.getTime()));
                 mgr.flush();
 
                 Event event = TechnicalProducts.addEvent("event1",
@@ -1675,8 +1665,8 @@ public class BillingServiceBeanSteppedPriceIT extends EJBTestBase {
                 pricedEvent.setEvent(event);
                 pricedEvent.setPriceModel(pm);
                 pricedEvent.setEventPrice(new BigDecimal(100));
-                pricedEvent.setHistoryModificationTime(Long
-                        .valueOf(creationDate.getTime()));
+                pricedEvent.setHistoryModificationTime(
+                        Long.valueOf(creationDate.getTime()));
 
                 mgr.persist(pricedEvent);
                 mgr.flush();
@@ -1693,8 +1683,8 @@ public class BillingServiceBeanSteppedPriceIT extends EJBTestBase {
                 mgr.flush();
 
                 createSteppedPrices(stepNum, creationDate, limitArray,
-                        priceArray, freeAmountArray, additionalPriceArray,
-                        null, pricedEvent, null);
+                        priceArray, freeAmountArray, additionalPriceArray, null,
+                        pricedEvent, null);
 
                 return null;
             }
@@ -1740,8 +1730,7 @@ public class BillingServiceBeanSteppedPriceIT extends EJBTestBase {
             public Void call() throws Exception {
                 ParameterDefinition paramDef = TechnicalProducts
                         .addParameterDefinition(ParameterValueType.INTEGER,
-                                "integerParam",
-                                ParameterType.SERVICE_PARAMETER,
+                                "integerParam", ParameterType.SERVICE_PARAMETER,
                                 technicalProduct, mgr, null, null, true);
                 Date activationDate = null;
                 if (paramModificationTime != 0) {
@@ -1771,8 +1760,8 @@ public class BillingServiceBeanSteppedPriceIT extends EJBTestBase {
                 pm.setPeriod(pricingPeriod);
                 pm.setFreePeriod(freePeriod);
                 pm.setPricePerUserAssignment(new BigDecimal(2L));
-                pm.setHistoryModificationTime(Long.valueOf(modificationDate
-                        .getTime()));
+                pm.setHistoryModificationTime(
+                        Long.valueOf(modificationDate.getTime()));
                 mgr.flush();
 
                 PricedParameter pricedParam = new PricedParameter();
@@ -1780,16 +1769,16 @@ public class BillingServiceBeanSteppedPriceIT extends EJBTestBase {
                 pricedParam.setPriceModel(pm);
                 pricedParam.setPricePerSubscription(new BigDecimal(555));
                 pricedParam.setPricePerUser(new BigDecimal(1));
-                pricedParam.setHistoryModificationTime(Long
-                        .valueOf(modificationDate.getTime()));
+                pricedParam.setHistoryModificationTime(
+                        Long.valueOf(modificationDate.getTime()));
 
                 pm.setSelectedParameters(new ArrayList<PricedParameter>());
                 pm.getSelectedParameters().add(pricedParam);
                 mgr.persist(pricedParam);
 
                 createSteppedPrices(stepNum, modificationDate, limitArray,
-                        priceArray, freeAmountArray, additionalPriceArray,
-                        null, null, pricedParam);
+                        priceArray, freeAmountArray, additionalPriceArray, null,
+                        null, pricedParam);
 
                 updateParameterHistoryEntries(activationDate);
 
@@ -1799,12 +1788,12 @@ public class BillingServiceBeanSteppedPriceIT extends EJBTestBase {
     }
 
     private void updateParameterHistoryEntries(final Date modDate) {
-        Query query = mgr
-                .createQuery("UPDATE ParameterDefinitionHistory pdh SET pdh.modDate = :modDate");
+        Query query = mgr.createQuery(
+                "UPDATE ParameterDefinitionHistory pdh SET pdh.modDate = :modDate");
         query.setParameter("modDate", modDate);
         query.executeUpdate();
-        query = mgr
-                .createQuery("UPDATE ParameterHistory ph SET ph.modDate = :modDate");
+        query = mgr.createQuery(
+                "UPDATE ParameterHistory ph SET ph.modDate = :modDate");
         query.setParameter("modDate", modDate);
         query.executeUpdate();
     }
@@ -1829,14 +1818,14 @@ public class BillingServiceBeanSteppedPriceIT extends EJBTestBase {
         user.setStatus(UserAccountStatus.ACTIVE);
         user.setLocale("en");
         mgr.persist(user);
-        user = (PlatformUser) mgr.find(user);
+        user = mgr.find(user);
 
         UsageLicense license = new UsageLicense();
         license.setAssignmentDate(subscriptionCreationTime);
         license.setSubscription(subscription);
         license.setUser(user);
-        license.setHistoryModificationTime(Long
-                .valueOf(subscriptionCreationTime));
+        license.setHistoryModificationTime(
+                Long.valueOf(subscriptionCreationTime));
 
         mgr.flush();
         mgr.persist(license);
@@ -1874,7 +1863,7 @@ public class BillingServiceBeanSteppedPriceIT extends EJBTestBase {
             Long[] limitArray, BigDecimal[] priceArray, PriceModel pm,
             PricedEvent pricedEvent, PricedParameter pricedParameter)
             throws NonUniqueBusinessKeyException {
-        List<SteppedPrice> steppList = new ArrayList<SteppedPrice>();
+        List<SteppedPrice> steppList = new ArrayList<>();
         for (int i = 0; i < stepNum; i++) {
             SteppedPrice steppedPrice = new SteppedPrice();
             steppedPrice.setPriceModel(pm);
@@ -1882,8 +1871,8 @@ public class BillingServiceBeanSteppedPriceIT extends EJBTestBase {
             steppedPrice.setPricedParameter(pricedParameter);
             steppedPrice.setLimit(limitArray[i]);
             steppedPrice.setPrice(priceArray[i]);
-            steppedPrice.setHistoryModificationTime(Long
-                    .valueOf(modificationDate.getTime()));
+            steppedPrice.setHistoryModificationTime(
+                    Long.valueOf(modificationDate.getTime()));
             steppList.add(steppedPrice);
         }
         updateFreeAmountAndAdditionalPrice(steppList);
@@ -1912,8 +1901,8 @@ public class BillingServiceBeanSteppedPriceIT extends EJBTestBase {
             steppedPrice.setPrice(priceArray[i]);
             steppedPrice.setFreeEntityCount(freeAmountArray[i]);
             steppedPrice.setAdditionalPrice(additionalPriceArray[i]);
-            steppedPrice.setHistoryModificationTime(Long
-                    .valueOf(modificationDate.getTime()));
+            steppedPrice.setHistoryModificationTime(
+                    Long.valueOf(modificationDate.getTime()));
 
             mgr.persist(steppedPrice);
             mgr.flush();
@@ -1929,37 +1918,35 @@ public class BillingServiceBeanSteppedPriceIT extends EJBTestBase {
             SteppedPrice prevStep = list.get(i - 1);
             if (prevStep.getLimit() == null) {
                 list.get(i).setFreeEntityCount(0);
-                list.get(i)
-                        .setAdditionalPrice(
-                                BigDecimal.ZERO
-                                        .setScale(PriceConverter.NORMALIZED_PRICE_SCALING));
+                list.get(i).setAdditionalPrice(BigDecimal.ZERO
+                        .setScale(PriceConverter.NORMALIZED_PRICE_SCALING));
             } else {
                 list.get(i).setFreeEntityCount(prevStep.getLimit().longValue());
                 list.get(i)
-                        .setAdditionalPrice(
-                                (BigDecimal.valueOf(prevStep.getLimit()
-                                        .longValue()).subtract(BigDecimal
-                                        .valueOf(prevStep.getFreeEntityCount())))
-                                        .multiply(prevStep.getPrice())
-                                        .add(prevStep.getAdditionalPrice())
-                                        .setScale(
-                                                PriceConverter.NORMALIZED_PRICE_SCALING,
-                                                RoundingMode.HALF_UP));
+                        .setAdditionalPrice((BigDecimal
+                                .valueOf(prevStep.getLimit().longValue())
+                                .subtract(BigDecimal.valueOf(
+                                        prevStep.getFreeEntityCount())))
+                                                .multiply(prevStep.getPrice())
+                                                .add(prevStep
+                                                        .getAdditionalPrice())
+                                                .setScale(
+                                                        PriceConverter.NORMALIZED_PRICE_SCALING,
+                                                        RoundingMode.HALF_UP));
             }
         }
         if (size > 0) {
             list.get(0).setFreeEntityCount(0);
-            list.get(0).setAdditionalPrice(
-                    BigDecimal.ZERO
-                            .setScale(PriceConverter.NORMALIZED_PRICE_SCALING));
+            list.get(0).setAdditionalPrice(BigDecimal.ZERO
+                    .setScale(PriceConverter.NORMALIZED_PRICE_SCALING));
             list.get(size - 1).setLimit(null);
         }
     }
 
     private void ValidateBillingUserAssingmentCostsNode(
             BigDecimal expectedPrice, final long billingTime,
-            final BigDecimal... stepAmountArray) throws Exception,
-            XPathExpressionException {
+            final BigDecimal... stepAmountArray)
+            throws Exception, XPathExpressionException {
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
@@ -1978,29 +1965,27 @@ public class BillingServiceBeanSteppedPriceIT extends EJBTestBase {
 
         // compare step counts
 
-        Node node = XMLConverter.getNodeByXPath(doc, "//"
-                + BillingResultXMLTags.USER_ASSIGNMENT_COSTS_NODE_NAME);
+        Node node = XMLConverter.getNodeByXPath(doc,
+                "//" + BillingResultXMLTags.USER_ASSIGNMENT_COSTS_NODE_NAME);
 
         BigDecimal factor = new BigDecimal(node.getAttributes()
                 .getNamedItem(BillingResultXMLTags.FACTOR_ATTRIBUTE_NAME)
                 .getTextContent());
         // check single step costs
-        NodeList nodeList = XMLConverter.getNodeListByXPath(doc, "//"
-                + BillingResultXMLTags.STEPPED_PRICE_NODE_NAME);
+        NodeList nodeList = XMLConverter.getNodeListByXPath(doc,
+                "//" + BillingResultXMLTags.STEPPED_PRICE_NODE_NAME);
 
         BigDecimal stepLimit;
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node paramNode = nodeList.item(i);
             assertNotNull(paramNode);
 
-            String amount = paramNode
-                    .getAttributes()
+            String amount = paramNode.getAttributes()
                     .getNamedItem(
                             BillingResultXMLTags.STEP_AMOUNT_ATTRIBUTE_NAME)
                     .getTextContent();
 
-            String entityCount = paramNode
-                    .getAttributes()
+            String entityCount = paramNode.getAttributes()
                     .getNamedItem(
                             BillingResultXMLTags.STEP_ENTITY_COUNT_ATTRIBUTE_NAME)
                     .getTextContent();

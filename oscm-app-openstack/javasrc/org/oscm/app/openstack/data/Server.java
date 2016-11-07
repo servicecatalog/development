@@ -18,10 +18,10 @@ public class Server {
     private String status;
 
     /**
-     * @param name
-     *            the name of the stack
+     * @param serverId
      */
-    public Server() {
+    public Server(String id) {
+        this.id = id;
     }
 
     /**

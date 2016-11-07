@@ -19,7 +19,6 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 
 import org.junit.Test;
-
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Organization;
@@ -28,6 +27,8 @@ import org.oscm.domobjects.Product;
 import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.UsageLicense;
 import org.oscm.domobjects.UserGroup;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.ServiceAccessType;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.Organizations;
 import org.oscm.test.data.PlatformUsers;
@@ -35,8 +36,7 @@ import org.oscm.test.data.Products;
 import org.oscm.test.data.Subscriptions;
 import org.oscm.test.data.UserGroups;
 import org.oscm.test.ejb.TestContainer;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 
 public class SubscriptionDaoUnitsIT extends EJBTestBase {
 
@@ -55,6 +55,7 @@ public class SubscriptionDaoUnitsIT extends EJBTestBase {
     @Override
     protected void setup(TestContainer container) throws Exception {
 
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         ds = container.get(DataService.class);
         dao = new SubscriptionDao(ds);
@@ -99,21 +100,33 @@ public class SubscriptionDaoUnitsIT extends EJBTestBase {
         createUsageLicense(user1, subscriptionNoUnit);
 
         // last unit assignment is important
-        subscription1Unit1 = assignSubscriptionToUnit(subscription1Unit1, unit3);
-        subscription1Unit1 = assignSubscriptionToUnit(subscription1Unit1, unit2);
-        subscription1Unit1 = assignSubscriptionToUnit(subscription1Unit1, unit1);
+        subscription1Unit1 = assignSubscriptionToUnit(subscription1Unit1,
+                unit3);
+        subscription1Unit1 = assignSubscriptionToUnit(subscription1Unit1,
+                unit2);
+        subscription1Unit1 = assignSubscriptionToUnit(subscription1Unit1,
+                unit1);
 
-        subscription1Unit2 = assignSubscriptionToUnit(subscription1Unit2, unit1);
-        subscription1Unit2 = assignSubscriptionToUnit(subscription1Unit2, unit3);
-        subscription1Unit2 = assignSubscriptionToUnit(subscription1Unit2, unit2);
+        subscription1Unit2 = assignSubscriptionToUnit(subscription1Unit2,
+                unit1);
+        subscription1Unit2 = assignSubscriptionToUnit(subscription1Unit2,
+                unit3);
+        subscription1Unit2 = assignSubscriptionToUnit(subscription1Unit2,
+                unit2);
 
-        subscription2Unit2 = assignSubscriptionToUnit(subscription2Unit2, unit1);
-        subscription2Unit2 = assignSubscriptionToUnit(subscription2Unit2, unit3);
-        subscription2Unit2 = assignSubscriptionToUnit(subscription2Unit2, unit2);
+        subscription2Unit2 = assignSubscriptionToUnit(subscription2Unit2,
+                unit1);
+        subscription2Unit2 = assignSubscriptionToUnit(subscription2Unit2,
+                unit3);
+        subscription2Unit2 = assignSubscriptionToUnit(subscription2Unit2,
+                unit2);
 
-        subscription1Unit3 = assignSubscriptionToUnit(subscription1Unit3, unit1);
-        subscription1Unit3 = assignSubscriptionToUnit(subscription1Unit3, unit2);
-        subscription1Unit3 = assignSubscriptionToUnit(subscription1Unit3, unit3);
+        subscription1Unit3 = assignSubscriptionToUnit(subscription1Unit3,
+                unit1);
+        subscription1Unit3 = assignSubscriptionToUnit(subscription1Unit3,
+                unit2);
+        subscription1Unit3 = assignSubscriptionToUnit(subscription1Unit3,
+                unit3);
     }
 
     @Test
@@ -211,7 +224,7 @@ public class SubscriptionDaoUnitsIT extends EJBTestBase {
     }
 
     private Set<String> convertToSet(List<ReportResultData> list) {
-        Set<String> subscriptionIds = new HashSet<String>();
+        Set<String> subscriptionIds = new HashSet<>();
         for (int i = 0; i < list.size(); i++) {
             List<Object> columnValues = list.get(i).getColumnValue();
             subscriptionIds.add((String) columnValues.get(5));
@@ -223,8 +236,8 @@ public class SubscriptionDaoUnitsIT extends EJBTestBase {
             Subscription... subscriptions) {
         Set<String> subscriptionIds = convertToSet(result);
         for (Subscription subscription : subscriptions) {
-            assertTrue(subscriptionIds.contains(subscription
-                    .getSubscriptionId()));
+            assertTrue(
+                    subscriptionIds.contains(subscription.getSubscriptionId()));
         }
     }
 

@@ -108,6 +108,19 @@ public class IdentityServiceBeanUserCreationIT extends EJBTestBase {
     protected void setup(TestContainer container) throws Exception {
         container.login("1");
         container.enableInterfaceMocking(true);
+        container.addBean(new ConfigurationServiceStub() {
+            @Override
+            public boolean isServiceProvider() {
+                ConfigurationSetting setting = getConfigurationSetting(
+                        ConfigurationKey.AUTH_MODE,
+                        Configuration.GLOBAL_CONTEXT);
+                if ("SAML_SP".equals(setting.getValue())) {
+                    return true;
+
+                }
+                return false;
+            }
+        });
         container.addBean(new DataServiceBean() {
             @Override
             public void persist(DomainObject<?> obj)
@@ -126,19 +139,7 @@ public class IdentityServiceBeanUserCreationIT extends EJBTestBase {
         container.addBean(new LdapAccessServiceStub());
         container.addBean(new SessionServiceStub());
         container.addBean(new TriggerQueueServiceStub());
-        container.addBean(new ConfigurationServiceStub() {
-            @Override
-            public boolean isServiceProvider() {
-                ConfigurationSetting setting = getConfigurationSetting(
-                        ConfigurationKey.AUTH_MODE,
-                        Configuration.GLOBAL_CONTEXT);
-                if ("SAML_SP".equals(setting.getValue())) {
-                    return true;
 
-                }
-                return false;
-            }
-        });
         container.addBean(new CommunicationServiceStub() {
             @Override
             public String getMarketplaceUrl(String marketplaceId)
@@ -177,8 +178,9 @@ public class IdentityServiceBeanUserCreationIT extends EJBTestBase {
         Integer result = runTX(new Callable<Integer>() {
             @Override
             public Integer call() throws Exception {
-                return Integer.valueOf(dm.find(Organization.class,
-                        supplier.getKey()).getVersion());
+                return Integer
+                        .valueOf(dm.find(Organization.class, supplier.getKey())
+                                .getVersion());
             }
         });
         assertEquals(
@@ -197,7 +199,7 @@ public class IdentityServiceBeanUserCreationIT extends EJBTestBase {
                         "delete from organizationtorole where organization_tkey="
                                 + supplierAdminUser.getOrganization().getKey())
                         .executeUpdate();
-                final Set<OrganizationToRole> roles = new HashSet<OrganizationToRole>();
+                final Set<OrganizationToRole> roles = new HashSet<>();
                 for (OrganizationRoleType roleType : roleTypes) {
                     final OrganizationToRole r1 = new OrganizationToRole();
                     r1.setOrganization(org);
@@ -259,8 +261,9 @@ public class IdentityServiceBeanUserCreationIT extends EJBTestBase {
                     allowedUserRoles.contains(UserRoleType.MARKETPLACE_OWNER)));
         }
         if (orgRoles.contains(OrganizationRoleType.TECHNOLOGY_PROVIDER)) {
-            assertTrue(testRole(UserRoleType.TECHNOLOGY_MANAGER,
-                    allowedUserRoles.contains(UserRoleType.TECHNOLOGY_MANAGER)));
+            assertTrue(
+                    testRole(UserRoleType.TECHNOLOGY_MANAGER, allowedUserRoles
+                            .contains(UserRoleType.TECHNOLOGY_MANAGER)));
         }
         if (orgRoles.contains(OrganizationRoleType.PLATFORM_OPERATOR)) {
             assertTrue(testRole(UserRoleType.PLATFORM_OPERATOR,
@@ -274,11 +277,11 @@ public class IdentityServiceBeanUserCreationIT extends EJBTestBase {
 
     @Test
     public void testCreateUser_OrgRolesAll() throws Exception {
-        createUserOrgRoles(Arrays.asList(
-                OrganizationRoleType.PLATFORM_OPERATOR,
-                OrganizationRoleType.SUPPLIER,
-                OrganizationRoleType.TECHNOLOGY_PROVIDER,
-                OrganizationRoleType.MARKETPLACE_OWNER),
+        createUserOrgRoles(
+                Arrays.asList(OrganizationRoleType.PLATFORM_OPERATOR,
+                        OrganizationRoleType.SUPPLIER,
+                        OrganizationRoleType.TECHNOLOGY_PROVIDER,
+                        OrganizationRoleType.MARKETPLACE_OWNER),
                 Arrays.asList(UserRoleType.PLATFORM_OPERATOR,
                         UserRoleType.SERVICE_MANAGER,
                         UserRoleType.TECHNOLOGY_MANAGER,
@@ -341,10 +344,12 @@ public class IdentityServiceBeanUserCreationIT extends EJBTestBase {
     @Test
     public void testCreateUser_OrgRolesSupplierAndTechnologyProvider()
             throws Exception {
-        createUserOrgRoles(Arrays.asList(OrganizationRoleType.SUPPLIER,
-                OrganizationRoleType.TECHNOLOGY_PROVIDER), Arrays.asList(
-                UserRoleType.SERVICE_MANAGER, UserRoleType.TECHNOLOGY_MANAGER,
-                UserRoleType.ORGANIZATION_ADMIN));
+        createUserOrgRoles(
+                Arrays.asList(OrganizationRoleType.SUPPLIER,
+                        OrganizationRoleType.TECHNOLOGY_PROVIDER),
+                Arrays.asList(UserRoleType.SERVICE_MANAGER,
+                        UserRoleType.TECHNOLOGY_MANAGER,
+                        UserRoleType.ORGANIZATION_ADMIN));
     }
 
     @Test(expected = EJBException.class)
@@ -394,8 +399,8 @@ public class IdentityServiceBeanUserCreationIT extends EJBTestBase {
     @Test
     public void testCreateOnBehalfUser() throws Exception {
         String password = "abcdef";
-        VOUserDetails result = idService.createOnBehalfUser(
-                customer.getOrganizationId(), password);
+        VOUserDetails result = idService
+                .createOnBehalfUser(customer.getOrganizationId(), password);
         checkCreatedUser(result, customer, password, false);
     }
 
@@ -407,8 +412,8 @@ public class IdentityServiceBeanUserCreationIT extends EJBTestBase {
     @Test
     public void testCreateOnBehalfUser_asTechnologyManager() throws Exception {
         container.login(supplierAdminUser.getKey(), ROLE_TECHNOLOGY_MANAGER);
-        VOUserDetails result = idService.createOnBehalfUser(
-                customer.getOrganizationId(), "abcdef");
+        VOUserDetails result = idService
+                .createOnBehalfUser(customer.getOrganizationId(), "abcdef");
         checkCreatedUser(result, customer, "abcdef", false);
         checkUserRoleAssignment(result, ROLE_ORGANIZATION_ADMIN);
     }
@@ -416,8 +421,8 @@ public class IdentityServiceBeanUserCreationIT extends EJBTestBase {
     @Test
     public void testCreateOnBehalfUser_ForSupplierOrg() throws Exception {
         container.login(supplierAdminUser.getKey(), ROLE_TECHNOLOGY_MANAGER);
-        VOUserDetails result = idService.createOnBehalfUser(
-                supplier2.getOrganizationId(), "abcdef");
+        VOUserDetails result = idService
+                .createOnBehalfUser(supplier2.getOrganizationId(), "abcdef");
         checkCreatedUser(result, supplier2, "abcdef", false);
         checkUserRoleAssignment(result, ROLE_ORGANIZATION_ADMIN,
                 ROLE_SERVICE_MANAGER);
@@ -429,14 +434,14 @@ public class IdentityServiceBeanUserCreationIT extends EJBTestBase {
 
         // given
         cs = container.get(ConfigurationServiceLocal.class);
-        cs.setConfigurationSetting(new ConfigurationSetting(
-                ConfigurationKey.AUTH_MODE, Configuration.GLOBAL_CONTEXT,
-                "SAML_SP"));
+        cs.setConfigurationSetting(
+                new ConfigurationSetting(ConfigurationKey.AUTH_MODE,
+                        Configuration.GLOBAL_CONTEXT, "SAML_SP"));
 
         // when
         container.login(supplierAdminUser.getKey(), ROLE_TECHNOLOGY_MANAGER);
-        VOUserDetails result = idService.createOnBehalfUser(
-                supplier2.getOrganizationId(), "abcdef");
+        VOUserDetails result = idService
+                .createOnBehalfUser(supplier2.getOrganizationId(), "abcdef");
 
         // then
         checkCreatedUser(result, supplier2, "abcdef", true);
@@ -450,14 +455,14 @@ public class IdentityServiceBeanUserCreationIT extends EJBTestBase {
 
         // given
         cs = container.get(ConfigurationServiceLocal.class);
-        cs.setConfigurationSetting(new ConfigurationSetting(
-                ConfigurationKey.AUTH_MODE, Configuration.GLOBAL_CONTEXT,
-                "SAML_SP"));
+        cs.setConfigurationSetting(
+                new ConfigurationSetting(ConfigurationKey.AUTH_MODE,
+                        Configuration.GLOBAL_CONTEXT, "SAML_SP"));
 
         // when
         container.login(supplierAdminUser.getKey(), ROLE_TECHNOLOGY_MANAGER);
-        VOUserDetails result = idService.createOnBehalfUser(
-                supplier2.getOrganizationId(), "abcdef");
+        VOUserDetails result = idService
+                .createOnBehalfUser(supplier2.getOrganizationId(), "abcdef");
         result = idService.createOnBehalfUser(supplier2.getOrganizationId(),
                 "abcdef");
 
@@ -481,8 +486,8 @@ public class IdentityServiceBeanUserCreationIT extends EJBTestBase {
     @Test
     public void testCreateOnBehalfUser_ForTPAndSup() throws Exception {
         container.login(supplierAdminUser.getKey(), ROLE_TECHNOLOGY_MANAGER);
-        VOUserDetails result = idService.createOnBehalfUser(
-                tpAndSup.getOrganizationId(), "abcdef");
+        VOUserDetails result = idService
+                .createOnBehalfUser(tpAndSup.getOrganizationId(), "abcdef");
         checkCreatedUser(result, tpAndSup, "abcdef", false);
         checkUserRoleAssignment(result, ROLE_ORGANIZATION_ADMIN,
                 ROLE_TECHNOLOGY_MANAGER, ROLE_SERVICE_MANAGER);
@@ -526,8 +531,8 @@ public class IdentityServiceBeanUserCreationIT extends EJBTestBase {
     public void testCreateOnBehalfUser_IdClashAcceptable() throws Exception {
         numberOfNUBKEs = 10;
         String password = "abcdef";
-        VOUserDetails result = idService.createOnBehalfUser(
-                customer.getOrganizationId(), password);
+        VOUserDetails result = idService
+                .createOnBehalfUser(customer.getOrganizationId(), password);
         checkCreatedUser(result, customer, password, false);
     }
 
@@ -539,8 +544,8 @@ public class IdentityServiceBeanUserCreationIT extends EJBTestBase {
 
     @Test
     public void testCleanupCurrentUser_OnBehalfUser() throws Exception {
-        VOUserDetails obUser = idService.createOnBehalfUser(
-                customer.getOrganizationId(), "pwd123");
+        VOUserDetails obUser = idService
+                .createOnBehalfUser(customer.getOrganizationId(), "pwd123");
 
         container.login(obUser.getKey());
         PlatformUser newUser = new PlatformUser();
@@ -557,8 +562,8 @@ public class IdentityServiceBeanUserCreationIT extends EJBTestBase {
         }
         List<PlatformUserHistory> userHist = getHistory(newUser,
                 PlatformUserHistory.class);
-        assertEquals(ModificationType.DELETE, userHist.get(userHist.size() - 1)
-                .getModtype());
+        assertEquals(ModificationType.DELETE,
+                userHist.get(userHist.size() - 1).getModtype());
 
         // verify user relation is deleted
         OnBehalfUserReference onBehalf = newUser.getMaster();
@@ -609,13 +614,13 @@ public class IdentityServiceBeanUserCreationIT extends EJBTestBase {
         cs.setConfigurationSetting(new ConfigurationSetting(
                 ConfigurationKey.PERMITTED_PERIOD_INACTIVE_ON_BEHALF_USERS,
                 Configuration.GLOBAL_CONTEXT, String.valueOf(period)));
-        VOUserDetails custUser1 = idService.createOnBehalfUser(
-                customer.getOrganizationId(), "user1");
+        VOUserDetails custUser1 = idService
+                .createOnBehalfUser(customer.getOrganizationId(), "user1");
         PlatformUser custPU1 = new PlatformUser();
         custPU1.setKey(custUser1.getKey());
         custPU1 = getDomainObject(custPU1, PlatformUser.class);
-        VOUserDetails custUser2 = idService.createOnBehalfUser(
-                customer.getOrganizationId(), "user2");
+        VOUserDetails custUser2 = idService
+                .createOnBehalfUser(customer.getOrganizationId(), "user2");
         PlatformUser custPU2 = new PlatformUser();
         custPU2.setKey(custUser2.getKey());
         custPU2 = getDomainObject(custPU2, PlatformUser.class);
@@ -623,7 +628,8 @@ public class IdentityServiceBeanUserCreationIT extends EJBTestBase {
         setSlaveUserAccessTime(custUser1, lastAccessTime);
         setSlaveUserAccessTime(custUser2, lastAccessTime);
 
-        List<OnBehalfUserReference> utobus = getAllPersistedObjectsOfType(OnBehalfUserReference.class);
+        List<OnBehalfUserReference> utobus = getAllPersistedObjectsOfType(
+                OnBehalfUserReference.class);
         assertEquals(2, utobus.size());
 
         runTX(new Callable<Void>() {
@@ -637,7 +643,8 @@ public class IdentityServiceBeanUserCreationIT extends EJBTestBase {
         // assert deletion of users
         assertTrue(getAllPersistedObjectsOfType(OnBehalfUserReference.class)
                 .isEmpty());
-        List<PlatformUser> allUsers = getAllPersistedObjectsOfType(PlatformUser.class);
+        List<PlatformUser> allUsers = getAllPersistedObjectsOfType(
+                PlatformUser.class);
         assertFalse(allUsers.contains(custPU1));
         assertFalse(allUsers.contains(custPU2));
 
@@ -670,10 +677,10 @@ public class IdentityServiceBeanUserCreationIT extends EJBTestBase {
                 ConfigurationKey.PERMITTED_PERIOD_INACTIVE_ON_BEHALF_USERS,
                 Configuration.GLOBAL_CONTEXT, String.valueOf(period)));
         final long permittedPeriod = period;
-        final VOUserDetails custUser1 = idService.createOnBehalfUser(
-                customer.getOrganizationId(), "user1");
-        final VOUserDetails custUser2 = idService.createOnBehalfUser(
-                customer.getOrganizationId(), "user2");
+        final VOUserDetails custUser1 = idService
+                .createOnBehalfUser(customer.getOrganizationId(), "user1");
+        final VOUserDetails custUser2 = idService
+                .createOnBehalfUser(customer.getOrganizationId(), "user2");
         setSlaveUserAccessTime(custUser1,
                 Long.valueOf(System.currentTimeMillis() - permittedPeriod - 1));
         setSlaveUserAccessTime(custUser2,
@@ -687,12 +694,13 @@ public class IdentityServiceBeanUserCreationIT extends EJBTestBase {
                 return null;
             }
         });
-        assertEquals(Boolean.FALSE, Boolean.valueOf(millis == DateFactory
-                .getInstance().getTransactionTime()));
-        List<OnBehalfUserReference> onBehalfUsers = getAllPersistedObjectsOfType(OnBehalfUserReference.class);
+        assertEquals(Boolean.FALSE, Boolean.valueOf(
+                millis == DateFactory.getInstance().getTransactionTime()));
+        List<OnBehalfUserReference> onBehalfUsers = getAllPersistedObjectsOfType(
+                OnBehalfUserReference.class);
         assertEquals(1, onBehalfUsers.size());
-        assertEquals(custUser2.getKey(), onBehalfUsers.get(0).getSlaveUser()
-                .getKey());
+        assertEquals(custUser2.getKey(),
+                onBehalfUsers.get(0).getSlaveUser().getKey());
     }
 
     /**
@@ -818,8 +826,8 @@ public class IdentityServiceBeanUserCreationIT extends EJBTestBase {
                 tpAndSup = Organizations.createOrganization(dm,
                         OrganizationRoleType.TECHNOLOGY_PROVIDER,
                         OrganizationRoleType.SUPPLIER);
-                supplierAdminUser = Organizations.createUserForOrg(dm,
-                        supplier, true, "admin");
+                supplierAdminUser = Organizations.createUserForOrg(dm, supplier,
+                        true, "admin");
                 supplier2 = Organizations.createOrganization(dm,
                         OrganizationRoleType.SUPPLIER);
                 UserGroup defaultGroup = new UserGroup();

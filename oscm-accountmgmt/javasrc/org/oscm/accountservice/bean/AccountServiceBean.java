@@ -60,29 +60,7 @@ import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.converter.BigDecimalComparator;
 import org.oscm.converter.ParameterizedTypes;
 import org.oscm.dataservice.local.DataService;
-import org.oscm.domobjects.BillingContact;
-import org.oscm.domobjects.Discount;
-import org.oscm.domobjects.ImageResource;
-import org.oscm.domobjects.Marketplace;
-import org.oscm.domobjects.Organization;
-import org.oscm.domobjects.OrganizationRefToPaymentType;
-import org.oscm.domobjects.OrganizationReference;
-import org.oscm.domobjects.OrganizationRole;
-import org.oscm.domobjects.OrganizationToRole;
-import org.oscm.domobjects.PaymentInfo;
-import org.oscm.domobjects.PaymentType;
-import org.oscm.domobjects.PlatformUser;
-import org.oscm.domobjects.Product;
-import org.oscm.domobjects.ProductToPaymentType;
-import org.oscm.domobjects.Subscription;
-import org.oscm.domobjects.SupportedCountry;
-import org.oscm.domobjects.TechnicalProduct;
-import org.oscm.domobjects.TriggerDefinition;
-import org.oscm.domobjects.TriggerProcess;
-import org.oscm.domobjects.TriggerProcessParameter;
-import org.oscm.domobjects.Uda;
-import org.oscm.domobjects.UdaDefinition;
-import org.oscm.domobjects.UserGroup;
+import org.oscm.domobjects.*;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.domobjects.enums.OrganizationReferenceType;
 import org.oscm.i18nservice.bean.LocalizerFacade;
@@ -112,32 +90,8 @@ import org.oscm.internal.types.enumtypes.ServiceType;
 import org.oscm.internal.types.enumtypes.SettingType;
 import org.oscm.internal.types.enumtypes.SubscriptionStatus;
 import org.oscm.internal.types.enumtypes.TriggerType;
-import org.oscm.internal.types.exception.AddMarketingPermissionException;
-import org.oscm.internal.types.exception.ConcurrentModificationException;
-import org.oscm.internal.types.exception.DeletionConstraintException;
-import org.oscm.internal.types.exception.DistinguishedNameException;
+import org.oscm.internal.types.exception.*;
 import org.oscm.internal.types.exception.DomainObjectException.ClassEnum;
-import org.oscm.internal.types.exception.ImageException;
-import org.oscm.internal.types.exception.IncompatibleRolesException;
-import org.oscm.internal.types.exception.MailOperationException;
-import org.oscm.internal.types.exception.MandatoryUdaMissingException;
-import org.oscm.internal.types.exception.MarketingPermissionNotFoundException;
-import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.types.exception.OperationNotPermittedException;
-import org.oscm.internal.types.exception.OperationPendingException;
-import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
-import org.oscm.internal.types.exception.OrganizationAuthorityException;
-import org.oscm.internal.types.exception.PaymentDataException;
-import org.oscm.internal.types.exception.PaymentDeregistrationException;
-import org.oscm.internal.types.exception.RegistrationException;
-import org.oscm.internal.types.exception.SaaSSystemException;
-import org.oscm.internal.types.exception.ServiceParameterException;
-import org.oscm.internal.types.exception.SubscriptionStateException;
-import org.oscm.internal.types.exception.TechnicalServiceNotAliveException;
-import org.oscm.internal.types.exception.TechnicalServiceOperationException;
-import org.oscm.internal.types.exception.UserDeletionConstraintException;
-import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.internal.types.exception.ValidationException.ReasonEnum;
 import org.oscm.internal.vo.LdapProperties;
 import org.oscm.internal.vo.VOBillingContact;
@@ -998,6 +952,12 @@ public class AccountServiceBean implements AccountService, AccountServiceLocal {
             MailOperationException, ObjectNotFoundException,
             IncompatibleRolesException, OrganizationAuthorityException {
 
+        long tenantKey = organization.getTenant() == null ? 0 : organization
+                .getTenant().getKey();
+        if (checkIfPlatformUserInGivenTenantExists(tenantKey, user.getUserId())) {
+            throw new NonUniqueBusinessKeyException(
+                    DomainObjectException.ClassEnum.USER, user.getUserId());
+        }
         for (OrganizationRoleType roleToSet : roles) {
             if (roleToSet.equals(OrganizationRoleType.PLATFORM_OPERATOR)) {
                 OrganizationAuthorityException ioa = new OrganizationAuthorityException(
@@ -1541,7 +1501,7 @@ public class AccountServiceBean implements AccountService, AccountServiceLocal {
 
         Organization seller = validateOrganizationDataForRegistration(
                 organization, user);
-        Organization customer = null;
+        Organization customer;
         try {
             customer = registerOrganization(
                     OrganizationAssembler.toCustomer(organization), null, user,
@@ -1656,7 +1616,7 @@ public class AccountServiceBean implements AccountService, AccountServiceLocal {
      */
     private Organization validateOrganizationDataForRegistration(
             VOOrganization organization, VOUserDetails user)
-            throws ValidationException {
+            throws ValidationException, NonUniqueBusinessKeyException {
         Organization caller = dm.getCurrentUser().getOrganization();
         String id = organization.getOrganizationId();
         if (id != null && id.length() > 0) {
@@ -1671,7 +1631,43 @@ public class AccountServiceBean implements AccountService, AccountServiceLocal {
                     "Organization");
             throw vf;
         }
+        if (checkIfPlatformUserInGivenTenantExists(organization.getTenantKey(),
+                user.getUserId())) {
+            throw new NonUniqueBusinessKeyException(
+                    DomainObjectException.ClassEnum.USER, user.getUserId());
+        }
         return caller;
+    }
+
+    // TODO: move it to tenant service as the operator service bean is also
+    // using the same code.
+    boolean checkIfPlatformUserInGivenTenantExists(long tenantKey, String userId) {
+        if (tenantKey != 0) {
+            Query query = dm
+                    .createNamedQuery("PlatformUser.findByUserIdAndTenantKey");
+            query.setParameter("userId", userId);
+            query.setParameter("tenantKey", tenantKey);
+            try {
+                PlatformUser pu = (PlatformUser) query.getSingleResult();
+                if (pu != null) {
+                    return true;
+                }
+            } catch (NoResultException e) {
+                // That is good. No user for that tenant exists.
+            }
+            return false;
+        }
+        Query query = dm.createNamedQuery("PlatformUser.findByUserId");
+        query.setParameter("userId", userId);
+        try {
+            PlatformUser pu = (PlatformUser) query.getSingleResult();
+            if (pu != null) {
+                return true;
+            }
+        } catch (NoResultException e) {
+            // That is good. No user for that tenant exists.
+        }
+        return false;
     }
 
     /**

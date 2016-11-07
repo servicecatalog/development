@@ -14,6 +14,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isNull;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -41,6 +42,7 @@ import org.oscm.internal.usermanagement.POUserAndSubscriptions;
 import org.oscm.internal.usermanagement.UserService;
 import org.oscm.ui.beans.ApplicationBean;
 import org.oscm.ui.beans.BaseBean;
+import org.oscm.ui.beans.SessionBean;
 import org.oscm.ui.common.UiDelegate;
 import org.oscm.ui.dialog.state.TableState;
 import org.oscm.ui.stubs.FacesContextStub;
@@ -88,6 +90,9 @@ public class CreateUserCtrlTest {
         us = mock(UserService.class);
         ctrl = new CreateUserCtrl();
         ctrl.setUserService(us);
+        SessionBean mock = mock(SessionBean.class);
+        doReturn("tenantId").when(mock).getTenantID();
+        ctrl.setSessionBean(mock);
         ctrl.setUserGroupService(userGroupService);
 
         model = new CreateUserModel();
@@ -107,9 +112,10 @@ public class CreateUserCtrlTest {
         when(us.createNewUser(any(POUserAndSubscriptions.class), anyString()))
                 .thenReturn(new Response());
 
-        when(Boolean.valueOf(applicationBean.isUIElementHidden(
-                eq(HiddenUIConstants.PANEL_USER_LIST_SUBSCRIPTIONS))))
-                        .thenReturn(Boolean.FALSE);
+        when(
+                Boolean.valueOf(applicationBean
+                        .isUIElementHidden(eq(HiddenUIConstants.PANEL_USER_LIST_SUBSCRIPTIONS))))
+                .thenReturn(Boolean.FALSE);
 
         ts = mock(TableState.class);
         ctrl.setTableState(ts);
@@ -147,8 +153,8 @@ public class CreateUserCtrlTest {
         when(us.createNewUser(any(POUserAndSubscriptions.class), anyString()))
                 .thenThrow(new MailOperationException());
         setData(ctrl.getModel());
-        when(Boolean.valueOf(applicationBean.isInternalAuthMode()))
-                .thenReturn(Boolean.TRUE);
+        when(Boolean.valueOf(applicationBean.isInternalAuthMode())).thenReturn(
+                Boolean.TRUE);
 
         // when
         String outcome = ctrl.create();
@@ -166,8 +172,8 @@ public class CreateUserCtrlTest {
         when(us.createNewUser(any(POUserAndSubscriptions.class), anyString()))
                 .thenThrow(new MailOperationException());
         setData(ctrl.getModel());
-        when(Boolean.valueOf(applicationBean.isInternalAuthMode()))
-                .thenReturn(Boolean.FALSE);
+        when(Boolean.valueOf(applicationBean.isInternalAuthMode())).thenReturn(
+                Boolean.FALSE);
 
         // when
         String outcome = ctrl.create();

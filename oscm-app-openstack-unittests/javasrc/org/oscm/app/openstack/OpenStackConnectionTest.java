@@ -30,6 +30,13 @@ import sun.net.www.protocol.http.HttpURLConnection;
  */
 public class OpenStackConnectionTest {
 
+    public static final String HTTPS_PROXY_HOST = "https.proxyHost";
+    public static final String HTTPS_PROXY_PORT = "https.proxyPort";
+    public static final String HTTP_NON_PROXY_HOSTS = "http.nonProxyHosts";
+
+    public static final String HTTPS_PROXY_USER = "https.proxyUser";
+    public static final String HTTPS_PROXY_PASSWORD = "https.proxyPassword";
+
     @Before
     public void setUp() {
         OpenStackConnection.setURLStreamHandler(new MockURLStreamHandler());
@@ -324,6 +331,246 @@ public class OpenStackConnectionTest {
             assertTrue(ex.getMessage().indexOf("send failed") > -1);
             assertTrue(ex.getMessage().indexOf(msg) > -1);
         }
+    }
+
+    @Test
+    public void processRequest_usingProxy()
+            throws OpenStackConnectionException {
+        // given
+        System.setProperty(HTTPS_PROXY_HOST, "host.fqdn");
+        System.setProperty(HTTPS_PROXY_PORT, "9876");
+        System.setProperty(HTTP_NON_PROXY_HOSTS,
+                "localhost|127.0.0.1|testHost*");
+        System.setProperty(HTTPS_PROXY_USER, "testuser");
+        System.setProperty(HTTPS_PROXY_PASSWORD, "testpassword");
+        MockURLStreamHandler st = new MockURLStreamHandler() {
+            @Override
+            protected URLConnection openConnection(URL u, Proxy p)
+                    throws IOException {
+                return new HttpURLConnection(u, p) {
+                    @Override
+                    public void connect() throws IOException {
+                        assertTrue("Connect successful", true);
+                    }
+
+                    @Override
+                    public int getResponseCode() throws IOException {
+                        return 200;
+                    }
+
+                    @Override
+                    public InputStream getInputStream() throws IOException {
+                        connect();
+                        return new ByteArrayInputStream(
+                                "connect success".getBytes());
+                    }
+                };
+            }
+        };
+        OpenStackConnection.setURLStreamHandler(st);
+
+        // when
+        new OpenStackConnection("some bullshit")
+                .processRequest("http://processUsingProxy.de/hoge", "POST");
+
+        // then
+        assertTrue("finish connection", true);
+    }
+
+    @Test
+    public void processRequest_setProxyAndConnectNonProxy()
+            throws OpenStackConnectionException {
+        // given
+        System.setProperty(HTTPS_PROXY_HOST, "host.fqdn");
+        System.setProperty(HTTPS_PROXY_PORT, "9876");
+        System.setProperty(HTTP_NON_PROXY_HOSTS,
+                "localhost|127.0.0.1|testHost*");
+        System.setProperty(HTTPS_PROXY_USER, "testuser");
+        System.setProperty(HTTPS_PROXY_PASSWORD, "testpassword");
+        MockURLStreamHandler st = new MockURLStreamHandler() {
+            @Override
+            protected URLConnection openConnection(URL u, Proxy p)
+                    throws IOException {
+                if (p == Proxy.NO_PROXY) {
+                    assertTrue("Connect successful", true);
+
+                    return new HttpURLConnection(u, p) {
+                        @Override
+                        public void connect() throws IOException {
+                        }
+
+                        @Override
+                        public int getResponseCode() throws IOException {
+                            return 200;
+                        }
+
+                        @Override
+                        public InputStream getInputStream() throws IOException {
+                            connect();
+                            return new ByteArrayInputStream(
+                                    "connect success".getBytes());
+                        }
+                    };
+                } else {
+                    throw new IOException("Please not use proxy!!");
+                }
+            }
+        };
+        OpenStackConnection.setURLStreamHandler(st);
+
+        // when
+        new OpenStackConnection("some bullshit")
+                .processRequest("http://testHost/hoge", "POST");
+
+        // then
+        assertTrue("finish connection", true);
+    }
+
+    @Test
+    public void processRequest_nonProxyFirstStar()
+            throws OpenStackConnectionException {
+        // given
+        System.setProperty(HTTPS_PROXY_HOST, "host.fqdn");
+        System.setProperty(HTTPS_PROXY_PORT, "9876");
+        System.setProperty(HTTP_NON_PROXY_HOSTS,
+                "localhost|127.0.0.1|*testHost");
+        System.setProperty(HTTPS_PROXY_USER, "testuser");
+        System.setProperty(HTTPS_PROXY_PASSWORD, "testpassword");
+        MockURLStreamHandler st = new MockURLStreamHandler() {
+            @Override
+            protected URLConnection openConnection(URL u, Proxy p)
+                    throws IOException {
+                if (p == Proxy.NO_PROXY) {
+                    assertTrue("Connect successful", true);
+
+                    return new HttpURLConnection(u, p) {
+                        @Override
+                        public void connect() throws IOException {
+                        }
+
+                        @Override
+                        public int getResponseCode() throws IOException {
+                            return 200;
+                        }
+
+                        @Override
+                        public InputStream getInputStream() throws IOException {
+                            connect();
+                            return new ByteArrayInputStream(
+                                    "connect success".getBytes());
+                        }
+                    };
+                } else {
+                    throw new IOException("Please not use proxy!!");
+                }
+            }
+        };
+        OpenStackConnection.setURLStreamHandler(st);
+
+        // when
+        new OpenStackConnection("some bullshit")
+                .processRequest("http://testHost/hoge", "POST");
+
+        // then
+        assertTrue("finish connection", true);
+    }
+
+    @Test
+    public void processRequest_nonProxyFirstAndLastStar()
+            throws OpenStackConnectionException {
+        // given
+        System.setProperty(HTTPS_PROXY_HOST, "host.fqdn");
+        System.setProperty(HTTPS_PROXY_PORT, "9876");
+        System.setProperty(HTTP_NON_PROXY_HOSTS,
+                "localhost|127.0.0.1|*testHost*");
+        System.setProperty(HTTPS_PROXY_USER, "testuser");
+        System.setProperty(HTTPS_PROXY_PASSWORD, "testpassword");
+        MockURLStreamHandler st = new MockURLStreamHandler() {
+            @Override
+            protected URLConnection openConnection(URL u, Proxy p)
+                    throws IOException {
+                if (p == Proxy.NO_PROXY) {
+                    assertTrue("Connect successful", true);
+
+                    return new HttpURLConnection(u, p) {
+                        @Override
+                        public void connect() throws IOException {
+                        }
+
+                        @Override
+                        public int getResponseCode() throws IOException {
+                            return 200;
+                        }
+
+                        @Override
+                        public InputStream getInputStream() throws IOException {
+                            connect();
+                            return new ByteArrayInputStream(
+                                    "connect success".getBytes());
+                        }
+                    };
+                } else {
+                    throw new IOException("Please not use proxy!!");
+                }
+            }
+        };
+        OpenStackConnection.setURLStreamHandler(st);
+
+        // when
+        new OpenStackConnection("some bullshit")
+                .processRequest("http://testHost/hoge", "POST");
+
+        // then
+        assertTrue("finish connection", true);
+    }
+
+    @Test
+    public void processRequest_nonProxyNoStar()
+            throws OpenStackConnectionException {
+        // given
+        System.setProperty(HTTPS_PROXY_HOST, "host.fqdn");
+        System.setProperty(HTTPS_PROXY_PORT, "9876");
+        System.setProperty(HTTP_NON_PROXY_HOSTS,
+                "localhost|127.0.0.1|testHost");
+        System.setProperty(HTTPS_PROXY_USER, "testuser");
+        System.setProperty(HTTPS_PROXY_PASSWORD, "testpassword");
+        MockURLStreamHandler st = new MockURLStreamHandler() {
+            @Override
+            protected URLConnection openConnection(URL u, Proxy p)
+                    throws IOException {
+                if (p == Proxy.NO_PROXY) {
+                    assertTrue("Connect successful", true);
+
+                    return new HttpURLConnection(u, p) {
+                        @Override
+                        public void connect() throws IOException {
+                        }
+
+                        @Override
+                        public int getResponseCode() throws IOException {
+                            return 200;
+                        }
+
+                        @Override
+                        public InputStream getInputStream() throws IOException {
+                            connect();
+                            return new ByteArrayInputStream(
+                                    "connect success".getBytes());
+                        }
+                    };
+                } else {
+                    throw new IOException("Please not use proxy!!");
+                }
+            }
+        };
+        OpenStackConnection.setURLStreamHandler(st);
+
+        // when
+        new OpenStackConnection("some bullshit")
+                .processRequest("http://testHost/hoge", "POST");
+
+        // then
+        assertTrue("finish connection", true);
     }
 
 }

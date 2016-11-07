@@ -11,7 +11,6 @@ import java.util.concurrent.Callable;
 
 import org.junit.Assert;
 import org.junit.Test;
-
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Marketplace;
@@ -19,6 +18,11 @@ import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.Product;
 import org.oscm.domobjects.TechnicalProduct;
+import org.oscm.internal.intf.DiscountService;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.ServiceAccessType;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.internal.vo.VODiscount;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.Discounts;
 import org.oscm.test.data.Marketplaces;
@@ -26,11 +30,7 @@ import org.oscm.test.data.Organizations;
 import org.oscm.test.data.Products;
 import org.oscm.test.data.TechnicalProducts;
 import org.oscm.test.ejb.TestContainer;
-import org.oscm.internal.intf.DiscountService;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.vo.VODiscount;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 
 public class DiscountServiceBeanIT extends EJBTestBase {
 
@@ -38,13 +38,14 @@ public class DiscountServiceBeanIT extends EJBTestBase {
     protected DiscountService discountService;
 
     private Product product;
-    private List<String> customerUserKeys = new ArrayList<String>();
+    private List<String> customerUserKeys = new ArrayList<>();
     List<Organization> customers;
     private String supplierUserKey;
 
     @Override
     protected void setup(TestContainer container) throws Exception {
         container.enableInterfaceMocking(true);
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         container.addBean(new DiscountServiceBean());
 
@@ -78,7 +79,7 @@ public class DiscountServiceBeanIT extends EJBTestBase {
                         "productId", "priceModelId", marketplace, mgr);
 
                 // Create two customers for the same supplier
-                customers = new ArrayList<Organization>();
+                customers = new ArrayList<>();
                 customers.add(Organizations.createCustomer(mgr, supplier));
                 customers.add(Organizations.createCustomer(mgr, supplier));
                 // Create a customer who has no association to a supplier
@@ -86,8 +87,8 @@ public class DiscountServiceBeanIT extends EJBTestBase {
 
                 // Define a discount for the first customer only
                 final BigDecimal discountValue = new BigDecimal("2.00");
-                Discounts.createDiscount(mgr, customers.get(0).getSources()
-                        .get(0), discountValue);
+                Discounts.createDiscount(mgr,
+                        customers.get(0).getSources().get(0), discountValue);
 
                 // Create platform users for all the three customers
                 PlatformUser firstUser = Organizations.createUserForOrg(mgr,
@@ -115,8 +116,8 @@ public class DiscountServiceBeanIT extends EJBTestBase {
 
     @Test
     public void testGetDiscountForService() throws Exception {
-        VODiscount voDiscount = discountService.getDiscountForService(product
-                .getKey());
+        VODiscount voDiscount = discountService
+                .getDiscountForService(product.getKey());
         Assert.assertEquals(voDiscount.getValue(), new BigDecimal("2.00"));
     }
 
@@ -130,16 +131,17 @@ public class DiscountServiceBeanIT extends EJBTestBase {
         // Log-in as the customer for whom no discount has
         // been specified by the supplier
         container.login(customerUserKeys.get(1));
-        Assert.assertNull(discountService.getDiscountForService(product
-                .getKey()));
+        Assert.assertNull(
+                discountService.getDiscountForService(product.getKey()));
     }
 
     @Test
-    public void testGetDiscountAssociationToSupplierNotFound() throws Exception {
+    public void testGetDiscountAssociationToSupplierNotFound()
+            throws Exception {
         // Log-in as the customer with no association to the supplier.
         container.login(customerUserKeys.get(2));
-        Assert.assertNull(discountService.getDiscountForService(product
-                .getKey()));
+        Assert.assertNull(
+                discountService.getDiscountForService(product.getKey()));
     }
 
     @Test
@@ -158,8 +160,8 @@ public class DiscountServiceBeanIT extends EJBTestBase {
     @Test
     public void testGetDiscountNoLoggedInUser() throws Exception {
         container.logout();
-        Assert.assertNull(discountService.getDiscountForService(product
-                .getKey()));
+        Assert.assertNull(
+                discountService.getDiscountForService(product.getKey()));
     }
 
 }

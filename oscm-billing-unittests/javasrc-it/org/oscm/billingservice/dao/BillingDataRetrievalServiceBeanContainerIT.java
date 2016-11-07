@@ -12,11 +12,11 @@
 
 package org.oscm.billingservice.dao;
 
-import static org.oscm.test.Numbers.L100;
-import static org.oscm.test.Numbers.L200;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.oscm.test.Numbers.L100;
+import static org.oscm.test.Numbers.L200;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -29,7 +29,6 @@ import javax.persistence.Query;
 
 import org.junit.Assert;
 import org.junit.Test;
-
 import org.oscm.billingservice.dao.model.EventPricingData;
 import org.oscm.billingservice.dao.model.OrganizationAddressData;
 import org.oscm.billingservice.dao.model.SteppedPriceData;
@@ -51,6 +50,12 @@ import org.oscm.domobjects.SteppedPrice;
 import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.SupportedCurrency;
 import org.oscm.domobjects.TechnicalProduct;
+import org.oscm.internal.types.enumtypes.EventType;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.PriceModelType;
+import org.oscm.internal.types.enumtypes.ServiceAccessType;
+import org.oscm.internal.types.enumtypes.ServiceStatus;
+import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.CatalogEntries;
 import org.oscm.test.data.Marketplaces;
@@ -61,12 +66,7 @@ import org.oscm.test.data.Subscriptions;
 import org.oscm.test.data.SupportedCountries;
 import org.oscm.test.data.TechnicalProducts;
 import org.oscm.test.ejb.TestContainer;
-import org.oscm.internal.types.enumtypes.EventType;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.PriceModelType;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
-import org.oscm.internal.types.enumtypes.ServiceStatus;
-import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 
 /**
  * Test class for BilllingDataRetrievalServiceBean.
@@ -103,6 +103,7 @@ public class BillingDataRetrievalServiceBeanContainerIT extends EJBTestBase {
     @Override
     public void setup(TestContainer container) throws Exception {
         container.login("1");
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         container.addBean(new BillingDataRetrievalServiceBean());
 
@@ -125,8 +126,8 @@ public class BillingDataRetrievalServiceBeanContainerIT extends EJBTestBase {
             public Organization call() throws Exception {
                 Organization customer = Organizations.createCustomer(dm,
                         supplier);
-                secondSupplierForDiscount = Organizations.createOrganization(
-                        dm, OrganizationRoleType.SUPPLIER);
+                secondSupplierForDiscount = Organizations.createOrganization(dm,
+                        OrganizationRoleType.SUPPLIER);
                 return customer;
             }
         });
@@ -180,8 +181,8 @@ public class BillingDataRetrievalServiceBeanContainerIT extends EJBTestBase {
                                 System.currentTimeMillis() * 2);
 
                 assertEquals(1, steppedPriceHistory.size());
-                assertEquals(100, steppedPriceHistory.get(0).getLimit()
-                        .longValue());
+                assertEquals(100,
+                        steppedPriceHistory.get(0).getLimit().longValue());
                 return null;
             }
         });
@@ -232,21 +233,22 @@ public class BillingDataRetrievalServiceBeanContainerIT extends EJBTestBase {
             @Override
             public Void call() throws Exception {
                 SteppedPrice steppedPrice = new SteppedPrice();
-                steppedPrice.setPricedEvent(priceModel.getConsideredEvents()
-                        .get(0));
+                steppedPrice.setPricedEvent(
+                        priceModel.getConsideredEvents().get(0));
                 steppedPrice.setLimit(L200);
 
                 dm.persist(steppedPrice);
                 dm.flush();
 
                 List<SteppedPriceData> steppedPriceHistory = bdr
-                        .loadSteppedPricesForEvent(priceModel
-                                .getConsideredEvents().get(0).getKey(),
+                        .loadSteppedPricesForEvent(
+                                priceModel.getConsideredEvents().get(0)
+                                        .getKey(),
                                 System.currentTimeMillis() * 2);
 
                 assertEquals(1, steppedPriceHistory.size());
-                assertEquals(200, steppedPriceHistory.get(0).getLimit()
-                        .longValue());
+                assertEquals(200,
+                        steppedPriceHistory.get(0).getLimit().longValue());
                 return null;
             }
         });
@@ -648,8 +650,8 @@ public class BillingDataRetrievalServiceBeanContainerIT extends EJBTestBase {
             @Override
             public Void call() {
                 Query query = dm.createQuery("SELECT d FROM Discount d");
-                List<Discount> list = ParameterizedTypes.list(
-                        query.getResultList(), Discount.class);
+                List<Discount> list = ParameterizedTypes
+                        .list(query.getResultList(), Discount.class);
                 for (Discount discount : list) {
                     dm.remove(discount);
                 }
@@ -827,7 +829,8 @@ public class BillingDataRetrievalServiceBeanContainerIT extends EJBTestBase {
 
                 // also create a discount from the second supplier to check
                 // that there is no interference
-                BigDecimal secondSupplierDiscount = getSecondDiscount(expectedValue);
+                BigDecimal secondSupplierDiscount = getSecondDiscount(
+                        expectedValue);
                 long secondSupplierKey = secondSupplierForDiscount.getKey();
                 createDiscount(discountCustomerKey, secondSupplierDiscount,
                         Long.valueOf(discountStart), null, secondSupplierKey);
@@ -851,8 +854,8 @@ public class BillingDataRetrievalServiceBeanContainerIT extends EJBTestBase {
             @Override
             public Void call() {
                 Query query = dm.createQuery("SELECT d FROM Discount d");
-                List<Discount> list = ParameterizedTypes.list(
-                        query.getResultList(), Discount.class);
+                List<Discount> list = ParameterizedTypes
+                        .list(query.getResultList(), Discount.class);
                 for (Discount discount : list) {
                     discount.setEndTime(discountEnd);
                     discount.setStartTime(discountStart);
@@ -900,25 +903,28 @@ public class BillingDataRetrievalServiceBeanContainerIT extends EJBTestBase {
     @Test
     public void testGetOrganizationBillingAddressFromHistoryNoMatch()
             throws Exception {
-        OrganizationAddressData result = runTX(new Callable<OrganizationAddressData>() {
-            @Override
-            public OrganizationAddressData call() {
-                return bdr.loadOrganizationBillingDataFromHistory(1L, 0L);
-            }
-        });
+        OrganizationAddressData result = runTX(
+                new Callable<OrganizationAddressData>() {
+                    @Override
+                    public OrganizationAddressData call() {
+                        return bdr.loadOrganizationBillingDataFromHistory(1L,
+                                0L);
+                    }
+                });
         Assert.assertNull(result);
     }
 
     @Test
     public void testGetOrganizationBillingAddressFromHistoryNoBillingContact()
             throws Exception {
-        OrganizationAddressData orgData = runTX(new Callable<OrganizationAddressData>() {
-            @Override
-            public OrganizationAddressData call() {
-                return bdr.loadOrganizationBillingDataFromHistory(
-                        supplier.getKey(), 0L);
-            }
-        });
+        OrganizationAddressData orgData = runTX(
+                new Callable<OrganizationAddressData>() {
+                    @Override
+                    public OrganizationAddressData call() {
+                        return bdr.loadOrganizationBillingDataFromHistory(
+                                supplier.getKey(), 0L);
+                    }
+                });
         Assert.assertEquals(supplier.getName(), orgData.getOrganizationName());
         Assert.assertEquals(supplier.getAddress(), orgData.getAddress());
         Assert.assertEquals(supplier.getEmail(), orgData.getEmail());
@@ -928,13 +934,14 @@ public class BillingDataRetrievalServiceBeanContainerIT extends EJBTestBase {
     public void testGetOrganizationBillingAddressFromHistoryEvaluateOrgData()
             throws Exception {
         useOrgAdress();
-        OrganizationAddressData orgData = runTX(new Callable<OrganizationAddressData>() {
-            @Override
-            public OrganizationAddressData call() {
-                return bdr.loadOrganizationBillingDataFromHistory(
-                        supplier.getKey(), sub.getKey());
-            }
-        });
+        OrganizationAddressData orgData = runTX(
+                new Callable<OrganizationAddressData>() {
+                    @Override
+                    public OrganizationAddressData call() {
+                        return bdr.loadOrganizationBillingDataFromHistory(
+                                supplier.getKey(), sub.getKey());
+                    }
+                });
         Assert.assertEquals(supplier.getName(), orgData.getOrganizationName());
         Assert.assertEquals(supplier.getAddress(), orgData.getAddress());
         Assert.assertEquals(supplier.getEmail(), orgData.getEmail());
@@ -943,13 +950,14 @@ public class BillingDataRetrievalServiceBeanContainerIT extends EJBTestBase {
     @Test
     public void testGetOrganizationBillingAddressFromHistoryEvaluateBillingContact()
             throws Exception {
-        OrganizationAddressData orgData = runTX(new Callable<OrganizationAddressData>() {
-            @Override
-            public OrganizationAddressData call() {
-                return bdr.loadOrganizationBillingDataFromHistory(
-                        supplier.getKey(), sub.getKey());
-            }
-        });
+        OrganizationAddressData orgData = runTX(
+                new Callable<OrganizationAddressData>() {
+                    @Override
+                    public OrganizationAddressData call() {
+                        return bdr.loadOrganizationBillingDataFromHistory(
+                                supplier.getKey(), sub.getKey());
+                    }
+                });
         Assert.assertEquals(sub.getBillingContact().getCompanyName(),
                 orgData.getOrganizationName());
         Assert.assertEquals(sub.getBillingContact().getAddress(),
@@ -973,13 +981,14 @@ public class BillingDataRetrievalServiceBeanContainerIT extends EJBTestBase {
             }
         });
         useOrgAdress();
-        OrganizationAddressData orgData = runTX(new Callable<OrganizationAddressData>() {
-            @Override
-            public OrganizationAddressData call() {
-                return bdr.loadOrganizationBillingDataFromHistory(
-                        supplier.getKey(), sub.getKey());
-            }
-        });
+        OrganizationAddressData orgData = runTX(
+                new Callable<OrganizationAddressData>() {
+                    @Override
+                    public OrganizationAddressData call() {
+                        return bdr.loadOrganizationBillingDataFromHistory(
+                                supplier.getKey(), sub.getKey());
+                    }
+                });
         Assert.assertEquals("new Name", orgData.getOrganizationName());
         Assert.assertEquals("new Address", orgData.getAddress());
         Assert.assertEquals("new Mail", orgData.getEmail());
@@ -1013,13 +1022,14 @@ public class BillingDataRetrievalServiceBeanContainerIT extends EJBTestBase {
                 return null;
             }
         });
-        OrganizationAddressData orgData = runTX(new Callable<OrganizationAddressData>() {
-            @Override
-            public OrganizationAddressData call() {
-                return bdr.loadOrganizationBillingDataFromHistory(
-                        supplier.getKey(), sub.getKey());
-            }
-        });
+        OrganizationAddressData orgData = runTX(
+                new Callable<OrganizationAddressData>() {
+                    @Override
+                    public OrganizationAddressData call() {
+                        return bdr.loadOrganizationBillingDataFromHistory(
+                                supplier.getKey(), sub.getKey());
+                    }
+                });
         Assert.assertEquals("new bc Name", orgData.getOrganizationName());
         Assert.assertEquals("new bc Address", orgData.getAddress());
         Assert.assertEquals("new bc Mail", orgData.getEmail());
@@ -1030,8 +1040,8 @@ public class BillingDataRetrievalServiceBeanContainerIT extends EJBTestBase {
         Long supplierKey = runTX(new Callable<Long>() {
             @Override
             public Long call() {
-                return Long.valueOf(bdr.loadChargingOrgKeyForSubscription(sub
-                        .getKey()));
+                return Long.valueOf(
+                        bdr.loadChargingOrgKeyForSubscription(sub.getKey()));
             }
         });
         assertEquals(supplier.getKey(), supplierKey.longValue());
@@ -1048,9 +1058,9 @@ public class BillingDataRetrievalServiceBeanContainerIT extends EJBTestBase {
                 Organization supp = dm.getReference(Organization.class,
                         supplier.getKey());
                 Organization customer = Organizations.createCustomer(dm, supp);
-                Subscription subscription = Subscriptions.createSubscription(
-                        dm, customer.getOrganizationId(),
-                        product.getProductId(), "test", supp);
+                Subscription subscription = Subscriptions.createSubscription(dm,
+                        customer.getOrganizationId(), product.getProductId(),
+                        "test", supp);
                 return Long.valueOf(subscription.getKey());
             }
         });
@@ -1068,7 +1078,8 @@ public class BillingDataRetrievalServiceBeanContainerIT extends EJBTestBase {
     public void getChargingOrgKeyForSubscription_OnBrokerService()
             throws Exception {
         // given
-        final Organization broker = givenOrganization(OrganizationRoleType.BROKER);
+        final Organization broker = givenOrganization(
+                OrganizationRoleType.BROKER);
         final Marketplace mp = givenMarketplace(broker);
         final Product partnerTemplate = createPartnerProductCopy(product,
                 broker, mp, ServiceStatus.ACTIVE);
@@ -1079,9 +1090,8 @@ public class BillingDataRetrievalServiceBeanContainerIT extends EJBTestBase {
         Long chargingOrgKey = runTX(new Callable<Long>() {
             @Override
             public Long call() {
-                return Long.valueOf(bdr
-                        .loadChargingOrgKeyForSubscription(subscription
-                                .getKey()));
+                return Long.valueOf(bdr.loadChargingOrgKeyForSubscription(
+                        subscription.getKey()));
             }
         });
 
@@ -1095,7 +1105,8 @@ public class BillingDataRetrievalServiceBeanContainerIT extends EJBTestBase {
     public void getChargingOrgKeyForSubscription_OnResellerService()
             throws Exception {
         // given
-        final Organization reseller = givenOrganization(OrganizationRoleType.RESELLER);
+        final Organization reseller = givenOrganization(
+                OrganizationRoleType.RESELLER);
         final Marketplace mp = givenMarketplace(reseller);
         final Product partnerTemplate = createPartnerProductCopy(product,
                 reseller, mp, ServiceStatus.ACTIVE);
@@ -1106,9 +1117,8 @@ public class BillingDataRetrievalServiceBeanContainerIT extends EJBTestBase {
         Long chargingOrgKey = runTX(new Callable<Long>() {
             @Override
             public Long call() {
-                return Long.valueOf(bdr
-                        .loadChargingOrgKeyForSubscription(subscription
-                                .getKey()));
+                return Long.valueOf(bdr.loadChargingOrgKeyForSubscription(
+                        subscription.getKey()));
             }
         });
 
@@ -1119,12 +1129,13 @@ public class BillingDataRetrievalServiceBeanContainerIT extends EJBTestBase {
     @Test
     public void getVendorRolesForSubscription_Supplier() throws Exception {
         // when
-        List<OrganizationRoleType> roles = runTX(new Callable<List<OrganizationRoleType>>() {
-            @Override
-            public List<OrganizationRoleType> call() {
-                return bdr.loadVendorRolesForSubscription(sub.getKey());
-            }
-        });
+        List<OrganizationRoleType> roles = runTX(
+                new Callable<List<OrganizationRoleType>>() {
+                    @Override
+                    public List<OrganizationRoleType> call() {
+                        return bdr.loadVendorRolesForSubscription(sub.getKey());
+                    }
+                });
 
         // then
         assertEquals(2, roles.size());
@@ -1135,7 +1146,8 @@ public class BillingDataRetrievalServiceBeanContainerIT extends EJBTestBase {
     @Test
     public void getVendorRolesForSubscription_Reseller() throws Exception {
         // given
-        final Organization reseller = givenOrganization(OrganizationRoleType.RESELLER);
+        final Organization reseller = givenOrganization(
+                OrganizationRoleType.RESELLER);
         final Marketplace mp = givenMarketplace(reseller);
         final Product partnerTemplate = createPartnerProductCopy(product,
                 reseller, mp, ServiceStatus.ACTIVE);
@@ -1143,13 +1155,14 @@ public class BillingDataRetrievalServiceBeanContainerIT extends EJBTestBase {
                 reseller, mp);
 
         // when
-        List<OrganizationRoleType> roles = runTX(new Callable<List<OrganizationRoleType>>() {
-            @Override
-            public List<OrganizationRoleType> call() {
-                return bdr
-                        .loadVendorRolesForSubscription(subscription.getKey());
-            }
-        });
+        List<OrganizationRoleType> roles = runTX(
+                new Callable<List<OrganizationRoleType>>() {
+                    @Override
+                    public List<OrganizationRoleType> call() {
+                        return bdr.loadVendorRolesForSubscription(
+                                subscription.getKey());
+                    }
+                });
 
         // then
         assertEquals(3, roles.size());
@@ -1161,7 +1174,8 @@ public class BillingDataRetrievalServiceBeanContainerIT extends EJBTestBase {
     @Test
     public void getVendorRolesForSubscription_Broker() throws Exception {
         // given
-        final Organization reseller = givenOrganization(OrganizationRoleType.BROKER);
+        final Organization reseller = givenOrganization(
+                OrganizationRoleType.BROKER);
         final Marketplace mp = givenMarketplace(reseller);
         final Product partnerTemplate = createPartnerProductCopy(product,
                 reseller, mp, ServiceStatus.ACTIVE);
@@ -1169,13 +1183,14 @@ public class BillingDataRetrievalServiceBeanContainerIT extends EJBTestBase {
                 reseller, mp);
 
         // when
-        List<OrganizationRoleType> roles = runTX(new Callable<List<OrganizationRoleType>>() {
-            @Override
-            public List<OrganizationRoleType> call() {
-                return bdr
-                        .loadVendorRolesForSubscription(subscription.getKey());
-            }
-        });
+        List<OrganizationRoleType> roles = runTX(
+                new Callable<List<OrganizationRoleType>>() {
+                    @Override
+                    public List<OrganizationRoleType> call() {
+                        return bdr.loadVendorRolesForSubscription(
+                                subscription.getKey());
+                    }
+                });
 
         // then
         assertEquals(3, roles.size());
@@ -1190,8 +1205,8 @@ public class BillingDataRetrievalServiceBeanContainerIT extends EJBTestBase {
         Long supplierKey = runTX(new Callable<Long>() {
             @Override
             public Long call() {
-                return Long.valueOf(bdr.loadSupplierKeyForSubscription(sub
-                        .getKey()));
+                return Long.valueOf(
+                        bdr.loadSupplierKeyForSubscription(sub.getKey()));
             }
         });
 
@@ -1202,7 +1217,8 @@ public class BillingDataRetrievalServiceBeanContainerIT extends EJBTestBase {
     @Test
     public void getSupplierKeyForSubscription_vendor() throws Exception {
         // given
-        final Organization reseller = givenOrganization(OrganizationRoleType.RESELLER);
+        final Organization reseller = givenOrganization(
+                OrganizationRoleType.RESELLER);
         final Marketplace mp = givenMarketplace(reseller);
         final Product partnerTemplate = createPartnerProductCopy(product,
                 reseller, mp, ServiceStatus.ACTIVE);
@@ -1227,10 +1243,10 @@ public class BillingDataRetrievalServiceBeanContainerIT extends EJBTestBase {
         return runTX(new Callable<Subscription>() {
             @Override
             public Subscription call() throws Exception {
-                Organization customer = Organizations
-                        .createCustomer(dm, vendor);
-                Subscription subscription = Subscriptions.createSubscription(
-                        dm, customer.getOrganizationId(), template, mp, 1);
+                Organization customer = Organizations.createCustomer(dm,
+                        vendor);
+                Subscription subscription = Subscriptions.createSubscription(dm,
+                        customer.getOrganizationId(), template, mp, 1);
                 return subscription;
             }
         });
@@ -1271,7 +1287,8 @@ public class BillingDataRetrievalServiceBeanContainerIT extends EJBTestBase {
      * @return
      * @throws Exception
      */
-    private PriceModel createPriceModel(final Product product) throws Exception {
+    private PriceModel createPriceModel(final Product product)
+            throws Exception {
         final PriceModel priceModel = runTX(new Callable<PriceModel>() {
             @Override
             public PriceModel call() throws Exception {
@@ -1281,7 +1298,7 @@ public class BillingDataRetrievalServiceBeanContainerIT extends EJBTestBase {
                 priceModel.setType(PriceModelType.PRO_RATA);
                 priceModel.setProduct(product);
 
-                List<PricedEvent> events = new ArrayList<PricedEvent>();
+                List<PricedEvent> events = new ArrayList<>();
 
                 Event event = new Event();
                 event.setEventIdentifier("eventIdentifier");
@@ -1325,11 +1342,12 @@ public class BillingDataRetrievalServiceBeanContainerIT extends EJBTestBase {
                 Product product = null;
 
                 try {
-                    product = Products.createProduct(supplier,
-                            technicalProduct, true, PRODUCT_1, null, dm);
+                    product = Products.createProduct(supplier, technicalProduct,
+                            true, PRODUCT_1, null, dm);
 
                 } catch (NonUniqueBusinessKeyException ex) {
-                    Assert.fail("Error on creating input data for test. SaasNonUniqueBusinessKeyException");
+                    Assert.fail(
+                            "Error on creating input data for test. SaasNonUniqueBusinessKeyException");
                 }
                 return product;
             }
@@ -1345,7 +1363,8 @@ public class BillingDataRetrievalServiceBeanContainerIT extends EJBTestBase {
             public Product call() throws Exception {
                 Product product = Products.createProductResaleCopy(template,
                         vendor, dm);
-                product.setProductId("resaleProd_" + vendor.getOrganizationId());
+                product.setProductId(
+                        "resaleProd_" + vendor.getOrganizationId());
                 product = Products.setStatusForProduct(dm, product, status);
 
                 CatalogEntries.createWithBrokerShare(dm, mp, product,
@@ -1362,23 +1381,25 @@ public class BillingDataRetrievalServiceBeanContainerIT extends EJBTestBase {
      * @throws Exception
      */
     private TechnicalProduct createTechnicalProduct() throws Exception {
-        final TechnicalProduct technicalProduct = runTX(new Callable<TechnicalProduct>() {
-            @Override
-            public TechnicalProduct call() {
-                TechnicalProduct technicalProduct = null;
+        final TechnicalProduct technicalProduct = runTX(
+                new Callable<TechnicalProduct>() {
+                    @Override
+                    public TechnicalProduct call() {
+                        TechnicalProduct technicalProduct = null;
 
-                try {
-                    technicalProduct = TechnicalProducts
-                            .createTechnicalProduct(dm, supplier,
-                                    TECHNICAL_PRODUCT, false,
-                                    ServiceAccessType.LOGIN);
+                        try {
+                            technicalProduct = TechnicalProducts
+                                    .createTechnicalProduct(dm, supplier,
+                                            TECHNICAL_PRODUCT, false,
+                                            ServiceAccessType.LOGIN);
 
-                } catch (NonUniqueBusinessKeyException ex) {
-                    Assert.fail("Error on creating input data for test. SaasNonUniqueBusinessKeyException");
-                }
-                return technicalProduct;
-            }
-        });
+                        } catch (NonUniqueBusinessKeyException ex) {
+                            Assert.fail(
+                                    "Error on creating input data for test. SaasNonUniqueBusinessKeyException");
+                        }
+                        return technicalProduct;
+                    }
+                });
         return technicalProduct;
     }
 

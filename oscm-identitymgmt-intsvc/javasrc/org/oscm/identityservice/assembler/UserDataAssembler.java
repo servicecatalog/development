@@ -83,6 +83,7 @@ public class UserDataAssembler extends BaseAssembler {
         final Tenant tenant = platformUser.getOrganization().getTenant();
         if (tenant != null) {
             voUser.setTenantKey(String.valueOf(tenant.getKey()));
+            voUser.setTenantId(String.valueOf(tenant.getTenantId()));
         }
         updateOrganizationRoles(platformUser, voUser);
         updateUserRoles(platformUser, voUser);
@@ -220,6 +221,7 @@ public class UserDataAssembler extends BaseAssembler {
         userToBeUpdated.setPhone(userDetails.getPhone());
         userToBeUpdated.setLocale(userDetails.getLocale());
         userToBeUpdated.setSalutation(userDetails.getSalutation());
+        userToBeUpdated.setTenantId(userDetails.getTenantId());
         // don't modify credentials!
     }
 

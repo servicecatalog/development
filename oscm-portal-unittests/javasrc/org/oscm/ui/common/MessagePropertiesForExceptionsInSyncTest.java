@@ -213,6 +213,7 @@ public class MessagePropertiesForExceptionsInSyncTest {
                     + MISSING_TEANT_ID_IN_SAML,
             UpdateConstraintException.class.getSimpleName() + "."
                     + ClassEnum.MARKETPLACE_ACCESS,
+            WrongTenantConfigurationException.class.getSimpleName(),
                     
             ObjectNotFoundException.class.getSimpleName() + "."
                     + ClassEnum.USER_GROUP_TO_USER,

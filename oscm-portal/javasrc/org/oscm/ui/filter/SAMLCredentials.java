@@ -73,14 +73,25 @@ public class SAMLCredentials {
      * It will be used in the custom realm implementation for authenticating the
      * user in case OSCM acts as a service provider.
      * 
-     * @param request
      * @return
      */
     protected String generatePassword() {
 
+        return generatePassword(getTenantId());
+    }
+
+    /**
+     * Generate password which consist of the request id and the SAML response.
+     * It will be used in the custom realm implementation for authenticating the
+     * user in case OSCM acts as a service provider.
+     *
+     * @param tenantId generates password using thenant
+     * @return
+     */
+    protected String generatePassword(String tenantId) {
+
         String response = httpRequest.getParameter("SAMLResponse");
         String requestId = getRequestId();
-        String tenantId = getTenantId();
         if (ADMStringUtils.isBlank(response)
                 || ADMStringUtils.isBlank(requestId)) {
             return null;

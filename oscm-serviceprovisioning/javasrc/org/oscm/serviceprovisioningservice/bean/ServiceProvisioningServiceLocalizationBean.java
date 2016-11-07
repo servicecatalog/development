@@ -139,6 +139,8 @@ public class ServiceProvisioningServiceLocalizationBean implements
                 LocalizedObjectTypes.PRODUCT_SHORT_DESCRIPTION));
         l.setDescriptions(localizer.getLocalizedValues(service.getKey(),
                 LocalizedObjectTypes.PRODUCT_MARKETING_DESC));
+        l.setCustomTabNames(localizer.getLocalizedValues(service.getKey(),
+                LocalizedObjectTypes.PRODUCT_CUSTOM_TAB_NAME));
 
         return l;
     }
@@ -171,6 +173,9 @@ public class ServiceProvisioningServiceLocalizationBean implements
             localizer.setLocalizedValues(serviceKey,
                     LocalizedObjectTypes.PRODUCT_SHORT_DESCRIPTION,
                     localization.getShortDescriptions());
+            localizer.setLocalizedValues(serviceKey,
+                    LocalizedObjectTypes.PRODUCT_CUSTOM_TAB_NAME,
+                    localization.getCustomTabNames());
         }
         serviceAudit.localizeService(ds, product, storedServiceLocalization,
                 localization);

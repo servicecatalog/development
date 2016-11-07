@@ -10,9 +10,7 @@ package org.oscm.ui.filter;
 
 import static org.oscm.internal.types.exception.NotExistentTenantException.Reason.TENANT_NOT_FOUND;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.StringTokenizer;
+import java.util.*;
 
 import org.apache.commons.lang3.StringUtils;
 import org.oscm.internal.intf.ConfigurationService;
@@ -21,6 +19,7 @@ import org.oscm.internal.types.enumtypes.AuthenticationMode;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.types.enumtypes.IdpSettingType;
 import org.oscm.internal.types.exception.NotExistentTenantException;
+import org.oscm.internal.types.exception.WrongTenantConfigurationException;
 import org.oscm.internal.vo.VOConfigurationSetting;
 import org.oscm.internal.vo.VOTenant;
 import org.oscm.types.constants.Configuration;
@@ -92,7 +91,7 @@ public class AuthenticationSettings {
         return issuer;
     }
 
-    public void init(String tenantID) throws NotExistentTenantException {
+    public void init(String tenantID) throws NotExistentTenantException, WrongTenantConfigurationException {
         this.tenantID = tenantID;
         VOTenant tenant = getTenantWithSettings(tenantID);
         issuer = tenant.getIssuer();
@@ -106,7 +105,7 @@ public class AuthenticationSettings {
         idpIssuer = tenant.getIDPIssuer();
     }
 
-    private VOTenant getTenantWithSettings(String tenantID) throws NotExistentTenantException {
+    private VOTenant getTenantWithSettings(String tenantID) throws NotExistentTenantException, WrongTenantConfigurationException {
         VOTenant tenant;
         if (StringUtils.isBlank(tenantID)) {
             tenantID = getConfigurationSetting(cfgService, ConfigurationKey.SSO_DEFAULT_TENANT_ID);
@@ -120,7 +119,24 @@ public class AuthenticationSettings {
                 throw new NotExistentTenantException(TENANT_NOT_FOUND);
             }
         }
+        validateTenant(tenant);
         return tenant;
+    }
+
+    private void validateTenant(VOTenant tenant) throws WrongTenantConfigurationException {
+        for (IdpSettingType idpSettingType : getMandatorySSOSettingKeys()) {
+            String value = tenant.getTenantSettings().get(idpSettingType);
+            if(StringUtils.isBlank(value)) {
+                throw new WrongTenantConfigurationException("Mandatory setting "
+                        + idpSettingType.name() + " for tenant " + tenantID + " are missing");
+            }
+        }
+    }
+
+    private List<IdpSettingType> getMandatorySSOSettingKeys() {
+        return Arrays.asList(IdpSettingType.SSO_ISSUER_ID, IdpSettingType.SSO_IDP_URL,
+                IdpSettingType.SSO_IDP_AUTHENTICATION_REQUEST_HTTP_METHOD, IdpSettingType.SSO_LOGOUT_URL,
+                IdpSettingType.SSO_IDP_SAML_ASSERTION_ISSUER_ID);
     }
 
     private VOTenant getTenantFromConfigSettings() {

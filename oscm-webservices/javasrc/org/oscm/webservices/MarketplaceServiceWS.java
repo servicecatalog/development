@@ -16,13 +16,12 @@ import java.util.List;
 import javax.jws.WebService;
 import javax.xml.ws.WebServiceContext;
 
-import org.oscm.logging.LoggerFactory;
-import org.oscm.dataservice.local.DataService;
-import org.oscm.webservices.logger.WebServiceLogger;
 import org.oscm.converter.api.ExceptionConverter;
-import org.oscm.converter.api.VOConverter;
 import org.oscm.converter.api.VOCollectionConverter;
+import org.oscm.converter.api.VOConverter;
+import org.oscm.dataservice.local.DataService;
 import org.oscm.intf.MarketplaceService;
+import org.oscm.logging.LoggerFactory;
 import org.oscm.types.exceptions.ConcurrentModificationException;
 import org.oscm.types.exceptions.MarketplaceAccessTypeUneligibleForOperationException;
 import org.oscm.types.exceptions.NonUniqueBusinessKeyException;
@@ -39,6 +38,7 @@ import org.oscm.vo.VOMarketplace;
 import org.oscm.vo.VOOrganization;
 import org.oscm.vo.VOService;
 import org.oscm.vo.VOServiceDetails;
+import org.oscm.webservices.logger.WebServiceLogger;
 
 /**
  * End point facade for marketplace WS.
@@ -69,8 +69,8 @@ public class MarketplaceServiceWS implements MarketplaceService {
         WS_LOGGER.logAccess(wsContext, ds);
         try {
             return VOCollectionConverter.convertList(
-                    delegate.getMarketplacesForService(VOConverter
-                            .convertToUp(service)),
+                    delegate.getMarketplacesForService(
+                            VOConverter.convertToUp(service)),
                     org.oscm.vo.VOCatalogEntry.class);
         } catch (org.oscm.internal.types.exception.ObjectNotFoundException e) {
             throw ExceptionConverter.convertToApi(e);
@@ -81,9 +81,9 @@ public class MarketplaceServiceWS implements MarketplaceService {
 
     @Override
     public VOServiceDetails publishService(VOService service,
-            List<VOCatalogEntry> entries) throws ObjectNotFoundException,
-            ValidationException, NonUniqueBusinessKeyException,
-            OperationNotPermittedException,
+            List<VOCatalogEntry> entries)
+            throws ObjectNotFoundException, ValidationException,
+            NonUniqueBusinessKeyException, OperationNotPermittedException,
             PublishingToMarketplaceNotPermittedException {
         WS_LOGGER.logAccess(wsContext, ds);
         try {
@@ -119,7 +119,16 @@ public class MarketplaceServiceWS implements MarketplaceService {
     @Override
     public List<VOMarketplace> getMarketplacesOwned() {
         WS_LOGGER.logAccess(wsContext, ds);
-        return VOCollectionConverter.convertList(delegate.getMarketplacesOwned(),
+        return VOCollectionConverter.convertList(
+                delegate.getMarketplacesOwned(),
+                org.oscm.vo.VOMarketplace.class);
+    }
+
+    @Override
+    public List<VOMarketplace> getAccessibleMarketplaces() {
+        WS_LOGGER.logAccess(wsContext, ds);
+        return VOCollectionConverter.convertList(
+                delegate.getAccessibleMarketplaces(),
                 org.oscm.vo.VOMarketplace.class);
     }
 
@@ -185,9 +194,9 @@ public class MarketplaceServiceWS implements MarketplaceService {
 
     @Override
     public void addOrganizationsToMarketplace(List<String> organizationIds,
-            String marketplaceId) throws ObjectNotFoundException,
-            OperationNotPermittedException, OrganizationAuthorityException,
-            OrganizationAlreadyExistsException,
+            String marketplaceId)
+            throws ObjectNotFoundException, OperationNotPermittedException,
+            OrganizationAuthorityException, OrganizationAlreadyExistsException,
             MarketplaceAccessTypeUneligibleForOperationException {
         WS_LOGGER.logAccess(wsContext, ds);
         try {
@@ -207,8 +216,8 @@ public class MarketplaceServiceWS implements MarketplaceService {
     }
 
     @Override
-    public void removeOrganizationsFromMarketplace(
-            List<String> organizationIds, String marketplaceId)
+    public void removeOrganizationsFromMarketplace(List<String> organizationIds,
+            String marketplaceId)
             throws ObjectNotFoundException, OperationNotPermittedException,
             MarketplaceAccessTypeUneligibleForOperationException,
             OrganizationAuthorityException {
@@ -229,8 +238,8 @@ public class MarketplaceServiceWS implements MarketplaceService {
 
     @Override
     public List<VOOrganization> getOrganizationsForMarketplace(
-            String marketplaceId) throws ObjectNotFoundException,
-            OperationNotPermittedException,
+            String marketplaceId)
+            throws ObjectNotFoundException, OperationNotPermittedException,
             MarketplaceAccessTypeUneligibleForOperationException {
         WS_LOGGER.logAccess(wsContext, ds);
         try {
@@ -251,8 +260,8 @@ public class MarketplaceServiceWS implements MarketplaceService {
             throws ObjectNotFoundException {
         WS_LOGGER.logAccess(wsContext, ds);
         try {
-            return VOConverter.convertToApi(delegate
-                    .getMarketplaceById(marketplaceId));
+            return VOConverter
+                    .convertToApi(delegate.getMarketplaceById(marketplaceId));
         } catch (org.oscm.internal.types.exception.ObjectNotFoundException e) {
             throw ExceptionConverter.convertToApi(e);
         }
@@ -304,14 +313,16 @@ public class MarketplaceServiceWS implements MarketplaceService {
 
     @Override
     public List<VOOrganization> getBannedOrganizationsForMarketplace(
-            String marketplaceId) throws ObjectNotFoundException,
-            OperationNotPermittedException,
+            String marketplaceId)
+            throws ObjectNotFoundException, OperationNotPermittedException,
             MarketplaceAccessTypeUneligibleForOperationException {
         WS_LOGGER.logAccess(wsContext, ds);
         try {
-            return VOCollectionConverter.convertList(delegate
-                    .getBannedOrganizationsForMarketplace(marketplaceId),
-                    org.oscm.vo.VOOrganization.class);
+            return VOCollectionConverter
+                    .convertList(
+                            delegate.getBannedOrganizationsForMarketplace(
+                                    marketplaceId),
+                            org.oscm.vo.VOOrganization.class);
         } catch (org.oscm.internal.types.exception.ObjectNotFoundException e) {
             throw ExceptionConverter.convertToApi(e);
         } catch (org.oscm.internal.types.exception.OperationNotPermittedException e) {

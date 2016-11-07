@@ -19,7 +19,6 @@ import java.util.concurrent.Callable;
 import javax.ejb.SessionContext;
 
 import org.junit.Test;
-
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.OperationRecord;
@@ -32,14 +31,6 @@ import org.oscm.domobjects.TechnicalProductOperation;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
-import org.oscm.techproductoperation.dao.OperationRecordDao;
-import org.oscm.test.EJBTestBase;
-import org.oscm.test.data.Organizations;
-import org.oscm.test.data.PlatformUsers;
-import org.oscm.test.data.Products;
-import org.oscm.test.data.Subscriptions;
-import org.oscm.test.data.TechnicalProducts;
-import org.oscm.test.ejb.TestContainer;
 import org.oscm.internal.types.enumtypes.OperationStatus;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.ServiceAccessType;
@@ -48,6 +39,15 @@ import org.oscm.internal.types.exception.IllegalArgumentException;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.vo.VOLocalizedText;
+import org.oscm.techproductoperation.dao.OperationRecordDao;
+import org.oscm.test.EJBTestBase;
+import org.oscm.test.data.Organizations;
+import org.oscm.test.data.PlatformUsers;
+import org.oscm.test.data.Products;
+import org.oscm.test.data.Subscriptions;
+import org.oscm.test.data.TechnicalProducts;
+import org.oscm.test.ejb.TestContainer;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 
 /**
  * @author sun
@@ -74,6 +74,7 @@ public class OperationRecordServiceLocalBeanIT extends EJBTestBase {
 
     @Override
     protected void setup(TestContainer container) throws Exception {
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         ds = container.get(DataService.class);
         container.addBean(new OperationRecordDao());
@@ -127,12 +128,14 @@ public class OperationRecordServiceLocalBeanIT extends EJBTestBase {
             }
         });
 
-        List<OperationRecord> result = runTX(new Callable<List<OperationRecord>>() {
-            @Override
-            public List<OperationRecord> call() throws Exception {
-                return operationRecordDao.getOperationsForUser(user.getKey());
-            }
-        });
+        List<OperationRecord> result = runTX(
+                new Callable<List<OperationRecord>>() {
+                    @Override
+                    public List<OperationRecord> call() throws Exception {
+                        return operationRecordDao
+                                .getOperationsForUser(user.getKey());
+                    }
+                });
         // then
         assertEquals(3, result.size());
     }
@@ -176,7 +179,7 @@ public class OperationRecordServiceLocalBeanIT extends EJBTestBase {
     public void deleteOperationRecords() throws Exception {
         // when
         container.login(user.getKey());
-        final List<Long> recordKeys = new ArrayList<Long>();
+        final List<Long> recordKeys = new ArrayList<>();
         recordKeys.add(Long.valueOf(recordForUserSub1.getKey()));
         recordKeys.add(Long.valueOf(recordForUserSub2.getKey()));
         runTX(new Callable<Void>() {
@@ -187,12 +190,14 @@ public class OperationRecordServiceLocalBeanIT extends EJBTestBase {
             }
         });
 
-        List<OperationRecord> result = runTX(new Callable<List<OperationRecord>>() {
-            @Override
-            public List<OperationRecord> call() throws Exception {
-                return operationRecordDao.getOperationsForUser(user.getKey());
-            }
-        });
+        List<OperationRecord> result = runTX(
+                new Callable<List<OperationRecord>>() {
+                    @Override
+                    public List<OperationRecord> call() throws Exception {
+                        return operationRecordDao
+                                .getOperationsForUser(user.getKey());
+                    }
+                });
         // then
         assertEquals(0, result.size());
     }
@@ -202,7 +207,7 @@ public class OperationRecordServiceLocalBeanIT extends EJBTestBase {
             throws Exception {
         // when
         container.login(user.getKey());
-        final List<Long> recordKeys = new ArrayList<Long>();
+        final List<Long> recordKeys = new ArrayList<>();
         recordKeys.add(Long.valueOf(recordForUserSub1.getKey()));
         recordKeys.add(Long.valueOf(1L));
         recordKeys.add(Long.valueOf(recordForUserSub2.getKey()));
@@ -233,7 +238,7 @@ public class OperationRecordServiceLocalBeanIT extends EJBTestBase {
     public void changeOperationStatus_ProgressIsNotEmpty() throws Exception {
         // when
         container.login(user.getKey());
-        final List<VOLocalizedText> progress = new ArrayList<VOLocalizedText>();
+        final List<VOLocalizedText> progress = new ArrayList<>();
         VOLocalizedText text = new VOLocalizedText();
         text.setLocale("en");
         text.setText("text");
@@ -276,7 +281,7 @@ public class OperationRecordServiceLocalBeanIT extends EJBTestBase {
     public void changeOperationStatus_ProgressIsEmpty() throws Exception {
         // when
         container.login(user.getKey());
-        final List<VOLocalizedText> progress = new ArrayList<VOLocalizedText>();
+        final List<VOLocalizedText> progress = new ArrayList<>();
         VOLocalizedText text = new VOLocalizedText();
         text.setLocale("en");
         text.setText("text");
@@ -295,7 +300,8 @@ public class OperationRecordServiceLocalBeanIT extends EJBTestBase {
             @Override
             public Void call() throws Exception {
                 orslb.updateOperationStatus("transactionId1",
-                        OperationStatus.ERROR, new ArrayList<VOLocalizedText>());
+                        OperationStatus.ERROR,
+                        new ArrayList<VOLocalizedText>());
                 return null;
             }
         });
@@ -404,7 +410,8 @@ public class OperationRecordServiceLocalBeanIT extends EJBTestBase {
 
     private Product createProduct(final Organization supplier,
             final String techProdId, final boolean chargeable,
-            final String productId, final String priceModelId) throws Exception {
+            final String productId, final String priceModelId)
+            throws Exception {
         return runTX(new Callable<Product>() {
             @Override
             public Product call() throws Exception {
@@ -421,9 +428,9 @@ public class OperationRecordServiceLocalBeanIT extends EJBTestBase {
         return runTX(new Callable<Subscription>() {
             @Override
             public Subscription call() throws Exception {
-                return Subscriptions.createSubscriptionWithOwner(ds,
-                        customerId, productId, subscriptionId, null, TIMESTAMP,
-                        TIMESTAMP, supplier, null, 1, owner);
+                return Subscriptions.createSubscriptionWithOwner(ds, customerId,
+                        productId, subscriptionId, null, TIMESTAMP, TIMESTAMP,
+                        supplier, null, 1, owner);
             }
         });
     }

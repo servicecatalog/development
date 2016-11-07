@@ -7,22 +7,22 @@ package org.oscm.accountservice.bean;
 import java.util.concurrent.Callable;
 
 import org.junit.Test;
-
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.identityservice.bean.IdentityServiceBean;
-import org.oscm.test.EJBTestBase;
-import org.oscm.test.data.Organizations;
-import org.oscm.test.data.PlatformUsers;
-import org.oscm.test.ejb.TestContainer;
 import org.oscm.internal.intf.AccountService;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.UserRoleType;
 import org.oscm.internal.types.exception.OperationNotPermittedException;
 import org.oscm.internal.vo.VOOrganization;
 import org.oscm.internal.vo.VOUserDetails;
+import org.oscm.test.EJBTestBase;
+import org.oscm.test.data.Organizations;
+import org.oscm.test.data.PlatformUsers;
+import org.oscm.test.ejb.TestContainer;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 
 public class AccountServiceBeanBrokerResellerIT extends EJBTestBase {
 
@@ -31,6 +31,7 @@ public class AccountServiceBeanBrokerResellerIT extends EJBTestBase {
 
     @Override
     protected void setup(TestContainer container) throws Exception {
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         container.enableInterfaceMocking(true);
         container.addBean(new AccountServiceBean());
@@ -102,8 +103,8 @@ public class AccountServiceBeanBrokerResellerIT extends EJBTestBase {
 
     private VOOrganization givenOrganization(final PlatformUser platformUser) {
         VOOrganization organization = new VOOrganization();
-        organization.setOrganizationId(platformUser.getOrganization()
-                .getOrganizationId());
+        organization.setOrganizationId(
+                platformUser.getOrganization().getOrganizationId());
         organization.setEmail("admin@organization.com");
         organization.setPhone("123456");
         organization.setUrl("http://www.example.com");
@@ -128,8 +129,8 @@ public class AccountServiceBeanBrokerResellerIT extends EJBTestBase {
         user.setKey(platformUser.getKey());
         user.setUserId(platformUser.getUserId());
         user.setEMail("admin@organization.com");
-        user.setOrganizationId(platformUser.getOrganization()
-                .getOrganizationId());
+        user.setOrganizationId(
+                platformUser.getOrganization().getOrganizationId());
         user.setLocale(platformUser.getLocale());
 
         return user;
@@ -138,6 +139,7 @@ public class AccountServiceBeanBrokerResellerIT extends EJBTestBase {
     private PlatformUser createUserAndLogin(final boolean isAdmin,
             final OrganizationRoleType orgRoleType) throws Exception {
         return runTX(new Callable<PlatformUser>() {
+            @Override
             public PlatformUser call() throws Exception {
                 Organization org = Organizations.createOrganization(ds,
                         orgRoleType);
