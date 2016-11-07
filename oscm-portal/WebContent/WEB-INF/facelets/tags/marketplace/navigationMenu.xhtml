@@ -8,7 +8,7 @@
   <a4j:outputPanel layout="block" styleClass="accd1span">
     <!-- First row -->
     <a4j:outputPanel layout="block" styleClass="accdsection first">
-      <h:outputLink id="link0" value="#{bean['link'][0]}" onclick="if(AdmUtils.isNotDirtyOrConfirmed()){AdmUtils.showProgress(true);return true;}else{return false;}"
+      <h:outputLink id="link0" value="#" onclick="if(AdmUtils.isNotDirtyOrConfirmed()){AdmUtils.showProgress(true);location.href='#{bean['link'][0]}';return true;}else{return false;}"
         style="text-decoration:none;" onmouseover="this.style.cursor='pointer'">
         <a4j:outputPanel layout="block" styleClass="heading accordion-open">
           <h4 id="menu0">
@@ -26,9 +26,9 @@
             <c:forEach items="#{bean['title']}" var="key" varStatus="index">
               <c:if test="#{not(first eq key)}">
                 <c:if test="#{selected eq key}">
-                  <h:outputLink id="link#{index.index}" value="#{bean['link'][index.index]}"
+                  <h:outputLink id="link#{index.index}" value="#"
                     style="text-decoration:none;"
-                    onclick="if(AdmUtils.isNotDirtyOrConfirmed()){AdmUtils.showProgress(true);return true;}else{return false;}">
+                    onclick="if(AdmUtils.isNotDirtyOrConfirmed()){AdmUtils.showProgress(true);location.href='#{bean['link'][index.index]}';return true;}else{return false;}">
                     <a4j:outputPanel layout="block" styleClass="menubox menuActive"
                       onmouseover="this.style.cursor='pointer'">
                       <h4 id="menu#{index.index}">
@@ -36,11 +36,12 @@
                       </h4>
                     </a4j:outputPanel>
                   </h:outputLink>
+                  
                 </c:if>
                 <c:if test="#{not(selected eq key)}">
-                  <h:outputLink id="link#{index.index}" value="#{bean['link'][index.index]}"
+                  <h:outputLink id="link#{index.index}" value="#"
                     style="text-decoration:none;" rendered="#{bean.isLinkVisible(index.index)}"
-                    onclick="if(AdmUtils.isNotDirtyOrConfirmed()){AdmUtils.showProgress(true);return true;}else{return false;}">
+                    onclick="if(AdmUtils.isNotDirtyOrConfirmed()){AdmUtils.showProgress(true);location.href='#{bean['link'][index.index]}';return true;}else{return false;}">
                     <a4j:outputPanel layout="block" styleClass="menubox menuActive menuStyle"
                       onmouseover="this.className=this.className.replace('menuStyle','menuStyleOver')"
                       onmouseout="this.className=this.className.replace('menuStyleOver','menuStyle')">
