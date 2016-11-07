@@ -24,4 +24,3 @@ script:
   - $TRAVIS_BUILD_DIR/runSonarAnalysis.sh
 after_success:
   - codecov
-  - coveralls
