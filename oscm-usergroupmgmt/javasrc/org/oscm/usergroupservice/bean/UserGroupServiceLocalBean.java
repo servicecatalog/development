@@ -1050,6 +1050,9 @@ public class UserGroupServiceLocalBean {
     private PlatformUser findUser(PlatformUser user)
             throws ObjectNotFoundException {
         if (user.getKey() == 0) {
+            if(user.getTenantId()==null){
+                user.setTenantId(dm.getCurrentUser().getTenantId());
+            }
             return (PlatformUser) dm.getReferenceByBusinessKey(user);
         }
 

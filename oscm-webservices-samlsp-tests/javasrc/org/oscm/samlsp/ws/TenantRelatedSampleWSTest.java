@@ -8,15 +8,18 @@
 
 package org.oscm.samlsp.ws;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.*;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import javax.xml.ws.WebServiceException;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.oscm.internal.intf.ConfigurationService;
 import org.oscm.internal.intf.TenantService;
@@ -26,10 +29,16 @@ import org.oscm.internal.vo.VOConfigurationSetting;
 import org.oscm.internal.vo.VOTenant;
 import org.oscm.internal.vo.VOTenantSetting;
 import org.oscm.intf.IdentityService;
+import org.oscm.intf.OrganizationalUnitService;
 import org.oscm.samlsp.ws.base.WebserviceSAMLSPTestSetup;
 import org.oscm.types.constants.Configuration;
 import org.oscm.types.enumtypes.OrganizationRoleType;
+import org.oscm.types.enumtypes.UnitRoleType;
+import org.oscm.types.enumtypes.UserRoleType;
+import org.oscm.types.exceptions.ObjectNotFoundException;
 import org.oscm.vo.VOOrganization;
+import org.oscm.vo.VOOrganizationalUnit;
+import org.oscm.vo.VOUser;
 import org.oscm.vo.VOUserDetails;
 import org.oscm.ws.base.ServiceFactory;
 import org.oscm.ws.base.WebserviceTestBase;
@@ -39,9 +48,8 @@ public class TenantRelatedSampleWSTest {
     private final static String USER_ID_FOR_TENANT = "IntegrationTest_UserId_1000";
     private final static String USER_ID = "IntegrationTest_UserId_2000";
 
-    private TenantService tenantService;
-    private IdentityService identityService;
-    private ConfigurationService configurationService;
+    private static TenantService tenantService;
+    private static ConfigurationService configurationService;
 
     private static final String SSO_STS_URL = "SSO_STS_URL";
     private static final String SSO_STS_ENCKEY_LEN = "SSO_STS_ENCKEY_LEN";
@@ -52,113 +60,220 @@ public class TenantRelatedSampleWSTest {
     private static final String TENANT_ID_3 = "tenant3";
     private static final String TENANT_ID_4 = "tenant4";
     private static final String TENANT_ID_5 = "tenant5";
-
-    @Before
-    public void setUp() throws Exception {
+    
+    private static VOTenant sampleTenant;
+    private static VOOrganization sampleTenantOrg;
+    
+    @BeforeClass
+    public static void setUp() throws Exception {
         new WebserviceSAMLSPTestSetup();
 
         tenantService = ServiceFactory.getDefault().getTenantService();
         configurationService = ServiceFactory.getDefault()
                 .getConfigurationService();
-    }
-
-    @Test
-    public void testWSWithValidTenant() throws Exception {
-
-        // given
-        VOTenant tenant = createTenantWithSettings(TENANT_ID_1);
-        WebserviceTestBase.createOrganization(USER_ID_FOR_TENANT, "org1",
-                tenant.getKey(), OrganizationRoleType.SUPPLIER);
-
-        identityService = ServiceFactory.getSTSServiceFactory(TENANT_ID_1, null)
+        
+        sampleTenant = createTenantWithSettings("sampleTenent");
+        
+        sampleTenantOrg = WebserviceTestBase.createOrganization(
+                USER_ID_FOR_TENANT, "sampleTenantOrg", sampleTenant.getKey(),
+                OrganizationRoleType.SUPPLIER); 
+        
+        IdentityService sampleTenantIS = ServiceFactory
+                .getSTSServiceFactory("sampleTenent", null)
                 .getIdentityService(USER_ID_FOR_TENANT, "secret");
+        
+        VOUserDetails sampleUser = prepareUser(USER_ID,
+                sampleTenantOrg.getOrganizationId());
 
-        // when
-        VOUserDetails user = invokeSampleWSMethod();
-
-        // then
-        assertEquals(USER_ID_FOR_TENANT, user.getUserId());
-    }
-    
-    /*
-    @Test
-    public void testWSWithDuplicatedUserId() throws Exception {
-
-        // given
-        VOTenant tenant = createTenantWithSettings(TENANT_ID_2);
-        VOOrganization org2 = WebserviceTestBase.createOrganization(
-                USER_ID_FOR_TENANT, "org2", tenant.getKey(),
-                OrganizationRoleType.SUPPLIER);
-
-        VOTenant anotherTenant = createTenantWithSettings(TENANT_ID_3);
-        VOOrganization org3 = WebserviceTestBase.createOrganization(
-                USER_ID_FOR_TENANT, "org3", anotherTenant.getKey(),
-                OrganizationRoleType.SUPPLIER);
-
-        IdentityService idServiceForFirstTenant = ServiceFactory
-                .getSTSServiceFactory(TENANT_ID_2, null)
-                .getIdentityService(USER_ID_FOR_TENANT, "secret");
-
-        IdentityService idServiceForSecTenant = ServiceFactory
-                .getSTSServiceFactory(TENANT_ID_3, null)
-                .getIdentityService(USER_ID_FOR_TENANT, "secret");
-
-        // when
-        VOUserDetails userFirst = idServiceForFirstTenant
-                .getCurrentUserDetails();
-        VOUserDetails userSec = idServiceForSecTenant.getCurrentUserDetails();
-
-        // then
-        assertEquals(USER_ID_FOR_TENANT, userFirst.getUserId());
-        assertEquals(USER_ID_FOR_TENANT, userSec.getUserId());
-        assertFalse(userFirst.getKey() == userSec.getKey());
-        assertEquals(org2.getOrganizationId(), userFirst.getOrganizationId());
-        assertEquals(org3.getOrganizationId(), userSec.getOrganizationId());
-    }
-
-    @Test(expected = WebServiceException.class)
-    public void testWSWithNotExistingTenant() throws Exception {
-
-        // given
-        WebserviceTestBase.createOrganization(USER_ID,
-                OrganizationRoleType.SUPPLIER);
-        identityService = ServiceFactory.getSTSServiceFactory(TENANT_ID_4, null)
-                .getIdentityService(USER_ID, "secret");
-
-        // when
-        invokeSampleWSMethod();
-
-        // then
-        // expecting javax.xml.ws.WebServiceException
+        List<UserRoleType> roles = new ArrayList<UserRoleType>();
+        roles.add(UserRoleType.SUBSCRIPTION_MANAGER);
+        roles.add(UserRoleType.SERVICE_MANAGER);
+        
+        sampleTenantIS.createUser(sampleUser, roles, null);
     }
     
     @Test
-    public void testWSWithOrganizationInContext() throws Exception {
+    public void testGetUserDetails() throws Exception {
 
         // given
-        
-        VOTenant tenant = createTenantWithSettings(TENANT_ID_5);
-        VOOrganization org = WebserviceTestBase.createOrganization(
-                USER_ID_FOR_TENANT, "org5", tenant.getKey(),
+        VOTenant tenant = createTenantWithSettings("qwerty10");
+
+        VOOrganization orgWithTenant = WebserviceTestBase.createOrganization(
+                USER_ID_FOR_TENANT, "qwerty10org", tenant.getKey(),
                 OrganizationRoleType.SUPPLIER);
+
+        IdentityService isWithTenant = ServiceFactory
+                .getSTSServiceFactory("qwerty10", null)
+                .getIdentityService(USER_ID_FOR_TENANT, "secret");
+
+        VOUser user = prepareUser(USER_ID_FOR_TENANT);
+
+        // when
+        VOUserDetails userDetails = isWithTenant.getUserDetails(user);
+
+        // then
+        assertEquals(orgWithTenant.getOrganizationId(),
+                userDetails.getOrganizationId());
+    }
+    
+    @Test
+    public void testGrantUserRoles() throws Exception {
+
+        // given
+        VOTenant tenant = createTenantWithSettings("qwerty20");
+
+        WebserviceTestBase.createOrganization(USER_ID_FOR_TENANT,
+                "qwerty20org", tenant.getKey(), OrganizationRoleType.SUPPLIER);
+
+        IdentityService isWithTenant = ServiceFactory
+                .getSTSServiceFactory("qwerty20", null)
+                .getIdentityService(USER_ID_FOR_TENANT, "secret");
+
+        VOUser user = prepareUser(USER_ID_FOR_TENANT);
+
+        // when
+        List<UserRoleType> roles = new ArrayList<UserRoleType>();
+        roles.add(UserRoleType.SUBSCRIPTION_MANAGER);
+        roles.add(UserRoleType.SERVICE_MANAGER);
+
+        isWithTenant.grantUserRoles(user, roles);
+
+        // then
+        VOUserDetails userDetails = isWithTenant.getUserDetails(user);
+        Set<UserRoleType> userRoles = userDetails.getUserRoles();
+
+        assertTrue(userRoles.contains(UserRoleType.SUBSCRIPTION_MANAGER));
+        assertTrue(userRoles.contains(UserRoleType.SERVICE_MANAGER));
+    }
+    
+    @Test
+    public void testAddRevokeUserUnitAssignment() throws Exception {
+
+        // given
+        VOTenant tenant = createTenantWithSettings("tenant100");
+
+        VOOrganization organization = WebserviceTestBase.createOrganization(USER_ID_FOR_TENANT,
+                "tenant100org", tenant.getKey(), OrganizationRoleType.SUPPLIER);
         
-        identityService = ServiceFactory.getSTSServiceFactory(null, org.getOrganizationId())
+        OrganizationalUnitService unitService = ServiceFactory
+                .getSTSServiceFactory("tenant100", null)
+                .getOrganizationalUnitService(USER_ID_FOR_TENANT, "secret");
+        
+        unitService.createUnit("tenant100Unit", "description", "refNumId");
+        
+        IdentityService isWithTenant = ServiceFactory
+                .getSTSServiceFactory("tenant100", null)
+                .getIdentityService(USER_ID_FOR_TENANT, "secret");
+
+        VOUserDetails user = prepareUser(USER_ID, organization.getOrganizationId());
+
+        List<UserRoleType> roles = new ArrayList<UserRoleType>();
+        roles.add(UserRoleType.SUBSCRIPTION_MANAGER);
+        roles.add(UserRoleType.SERVICE_MANAGER);
+        
+        isWithTenant.createUser(user, roles, null);
+
+        // when
+        List<VOUser> usersToBeAdded = new ArrayList<>();
+        usersToBeAdded.add(user);
+
+        isWithTenant.addRevokeUserUnitAssignment("tenant100Unit", usersToBeAdded, null);
+
+        // then
+        // user is assigned  
+    }
+    
+    @Test
+    public void testGetUser() throws Exception {
+
+        // given
+        VOTenant tenant = createTenantWithSettings("tenant200");
+
+        VOOrganization organization = WebserviceTestBase.createOrganization(USER_ID_FOR_TENANT,
+                "tenant200org", tenant.getKey(), OrganizationRoleType.SUPPLIER);
+        
+        IdentityService identityService = ServiceFactory
+                .getSTSServiceFactory("tenant200", null)
+                .getIdentityService(USER_ID_FOR_TENANT, "secret");
+        
+        VOUserDetails userToBeCreated = prepareUser(USER_ID,
+                organization.getOrganizationId());
+
+        List<UserRoleType> roles = new ArrayList<UserRoleType>();
+        roles.add(UserRoleType.SUBSCRIPTION_MANAGER);
+        roles.add(UserRoleType.SERVICE_MANAGER);
+        
+        VOUserDetails createdUser = identityService.createUser(userToBeCreated, roles, null);
+
+        // when
+        VOUser adminUser = identityService.getUser(prepareUser(USER_ID_FOR_TENANT, organization.getOrganizationId()));
+        VOUser user = identityService.getUser(userToBeCreated);
+        
+        // then
+        assertEquals(organization.getOrganizationId(), adminUser.getOrganizationId());
+        assertEquals(createdUser.getKey(), user.getKey());  
+    }
+    
+    @Test(expected = ObjectNotFoundException.class)
+    public void testGetUserNoOrgSet() throws Exception {
+
+        // given
+        VOTenant tenant = createTenantWithSettings("tenant1000");
+
+        WebserviceTestBase.createOrganization(USER_ID_FOR_TENANT,
+                "tenant1000org", tenant.getKey(),
+                OrganizationRoleType.SUPPLIER);
+
+        IdentityService identityService = ServiceFactory
+                .getSTSServiceFactory("tenant1000", null)
                 .getIdentityService(USER_ID_FOR_TENANT, "secret");
 
         // when
-        VOUserDetails user = invokeSampleWSMethod();
+        identityService.getUser(prepareUser(USER_ID_FOR_TENANT));
 
         // then
-        assertEquals(USER_ID_FOR_TENANT, user.getUserId());
-        assertEquals(org.getOrganizationId(), user.getOrganizationId());
+        // ObjectNotFoundException expected
     }
-*/
-    private VOUserDetails invokeSampleWSMethod() throws Exception {
-        VOUserDetails user = identityService.getCurrentUserDetails();
-        return user;
-    }
+    
+    @Ignore
+    public void testUnitGrantUserRoles() throws Exception {
 
-    private VOTenant createTenantWithSettings(String tenantId)
+        // given
+        VOTenant tenant = createTenantWithSettings("tenant_10");
+
+        WebserviceTestBase.createOrganization(USER_ID_FOR_TENANT,
+                "tenant_10org", tenant.getKey(),
+                OrganizationRoleType.SUPPLIER);
+        
+        IdentityService identityService = ServiceFactory
+                .getSTSServiceFactory("tenant_10", null)
+                .getIdentityService(USER_ID_FOR_TENANT, "secret");
+        
+        OrganizationalUnitService unitService = ServiceFactory
+                .getSTSServiceFactory("tenant_10", null)
+                .getOrganizationalUnitService(USER_ID_FOR_TENANT, "secret");
+        
+        VOOrganizationalUnit unit = unitService.createUnit("tenant_10unit", "desc", "refId");
+        VOUserDetails user = prepareUser(USER_ID, "tenant_10org");
+        
+        List<UserRoleType> roles = new ArrayList<UserRoleType>();
+        roles.add(UserRoleType.SUBSCRIPTION_MANAGER);
+        roles.add(UserRoleType.SERVICE_MANAGER);
+        
+        identityService.createUser(user, roles, null);
+        
+        identityService.addRevokeUserUnitAssignment("tenant_10unit", Collections.<VOUser>singletonList(user), Collections.<VOUser>emptyList());
+
+        List<UnitRoleType> unitRoles = new ArrayList<UnitRoleType>();
+        unitRoles.add(UnitRoleType.ADMINISTRATOR);
+        
+        // when
+        unitService.grantUserRoles(user, unitRoles, unit);
+
+        // then
+    }
+    
+    private static VOTenant createTenantWithSettings(String tenantId)
             throws Exception {
         WebserviceSAMLSPTestSetup.createTenant(tenantId);
         VOTenant tenant = tenantService.getTenantByTenantId(tenantId);
@@ -188,7 +303,7 @@ public class TenantRelatedSampleWSTest {
         return tenant;
     }
 
-    private VOTenantSetting getTenantSetting(String key, String value,
+    private static VOTenantSetting getTenantSetting(String key, String value,
             VOTenant tenant) {
 
         VOTenantSetting voTenantSetting = new VOTenantSetting();
@@ -196,6 +311,21 @@ public class TenantRelatedSampleWSTest {
         voTenantSetting.setValue(value);
         voTenantSetting.setVoTenant(tenant);
         return voTenantSetting;
+    }
+    
+    private static VOUserDetails prepareUser(String userId){
+        return prepareUser(userId, null);
+    }
+
+    private static VOUserDetails prepareUser(String userId, String organizationId){
+        
+        VOUserDetails user = new VOUserDetails();
+        user.setUserId(userId);
+        user.setOrganizationId(organizationId);
+        user.setEMail("supplier@dev.est.fujitsu.com");
+        user.setLocale("en");
+        
+        return user;
     }
 
 }

@@ -375,4 +375,10 @@ public class IdentityServiceStub implements IdentityService,
             throws ObjectNotFoundException, OperationNotPermittedException {
     }
 
+    @Override
+    public PlatformUser getPlatformUserByOrganization(String userId,
+            String orgId) throws ObjectNotFoundException {
+        throw new UnsupportedOperationException();
+    }
+
 }

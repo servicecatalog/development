@@ -454,4 +454,10 @@ public class IdManagementStub implements IdentityService, IdentityServiceLocal {
             throws ObjectNotFoundException, OperationNotPermittedException {
     }
 
+    @Override
+    public PlatformUser getPlatformUserByOrganization(String userId,
+            String orgId) throws ObjectNotFoundException {
+        return null;
+    }
+
 }
