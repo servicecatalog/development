@@ -7,10 +7,10 @@ set -e
 # - SONAR_TOKEN    => token of a user who has the "Execute Analysis" permission on the SQ server
 
 installSonarQubeScanner() {
-	export SONAR_SCANNER_HOME=$HOME/.sonar/sonar-scanner-2.5
+	export SONAR_SCANNER_HOME=$HOME/.sonar/sonar-scanner-2.6
 	rm -rf $SONAR_SCANNER_HOME
 	mkdir -p $SONAR_SCANNER_HOME
-	curl -sSLo $HOME/.sonar/sonar-scanner.zip http://repo1.maven.org/maven2/org/sonarsource/scanner/cli/sonar-scanner-cli/2.5/sonar-scanner-cli-2.5.zip
+	curl -sSLo $HOME/.sonar/sonar-scanner.zip http://repo1.maven.org/maven2/org/sonarsource/scanner/cli/sonar-scanner-cli/2.6/sonar-scanner-cli-2.6.zip
 	unzip $HOME/.sonar/sonar-scanner.zip -d $HOME/.sonar/
 	rm $HOME/.sonar/sonar-scanner.zip
 	export PATH=$SONAR_SCANNER_HOME/bin:$PATH
@@ -29,8 +29,7 @@ if [ "$TRAVIS_BRANCH" = "master" ] && [ "$TRAVIS_PULL_REQUEST" = "false" ]; then
 	#
 	# Analysis is done only on master so that build of branches don't push analyses to the same project and therefore "pollute" the results
 	echo "Starting analysis by SonarQube..."
-	sonar-runner -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN
-	#sonar-scanner
+	sonar-scanner -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN
 
 elif [ "$TRAVIS_PULL_REQUEST" != "false" ] && [ -n "${GITHUB_TOKEN-}" ]; then
 	# => This will analyse the PR and display found issues as comments in the PR, but it won't push results to the SonarQube server
