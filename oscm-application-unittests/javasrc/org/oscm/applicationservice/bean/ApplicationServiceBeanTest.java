@@ -120,8 +120,8 @@ public class ApplicationServiceBeanTest {
 
         am = spy(new ApplicationServiceBean());
 
-        doReturn(operationPort).when(am).getServiceClient(
-                any(TechnicalProductOperation.class));
+        doReturn(operationPort).when(am)
+                .getServiceClient(any(TechnicalProductOperation.class));
         doReturn(servicePort).when(am).getPort(any(TechnicalProduct.class));
 
         am.cs = new ConfigurationServiceStub() {
@@ -175,7 +175,8 @@ public class ApplicationServiceBeanTest {
                 request.getDefaultLocale());
         assertEquals(
                 ApplicationServiceBean.SERVICE_PATH
-                        + Long.toHexString(sub.getKey()), request.getLoginUrl());
+                        + Long.toHexString(sub.getKey()),
+                request.getLoginUrl());
         assertEquals(sub.getOrganization().getOrganizationId(),
                 request.getOrganizationId());
         assertEquals(sub.getOrganization().getName(),
@@ -189,8 +190,10 @@ public class ApplicationServiceBeanTest {
         assertNotNull(servicePort.getRequestingUser());
         assertTrue(servicePort.getRequestingUser().getEmail().length() > 0);
         assertTrue(servicePort.getRequestingUser().getUserId().length() > 0);
-        assertTrue(servicePort.getRequestingUser().getUserFirstName().length() > 0);
-        assertTrue(servicePort.getRequestingUser().getUserLastName().length() > 0);
+        assertTrue(servicePort.getRequestingUser().getUserFirstName()
+                .length() > 0);
+        assertTrue(
+                servicePort.getRequestingUser().getUserLastName().length() > 0);
     }
 
     @Test
@@ -203,8 +206,7 @@ public class ApplicationServiceBeanTest {
             am.asyncCreateInstance(sub);
             fail();
         } catch (TechnicalServiceOperationException e) {
-            assertArrayEquals(
-                    new String[] { sub.getSubscriptionId(), "Error" },
+            assertArrayEquals(new String[] { sub.getSubscriptionId(), "Error" },
                     e.getMessageParams());
         }
     }
@@ -244,18 +246,18 @@ public class ApplicationServiceBeanTest {
 
         assertEquals(sub.getOrganization().getLocale(), info.getAccessInfo());
         assertEquals(BASE_URL, info.getBaseUrl());
-        assertEquals(
-                sub.getOrganization().getOrganizationId()
-                        + sub.getSubscriptionId(), info.getInstanceId());
-        assertEquals(
-                ApplicationServiceBean.SERVICE_PATH
-                        + Long.toHexString(sub.getKey()), info.getLoginPath());
+        assertEquals(sub.getOrganization().getOrganizationId()
+                + sub.getSubscriptionId(), info.getInstanceId());
+        assertEquals(ApplicationServiceBean.SERVICE_PATH
+                + Long.toHexString(sub.getKey()), info.getLoginPath());
         validateParameters(sub, null);
         assertNotNull(servicePort.getRequestingUser());
         assertTrue(servicePort.getRequestingUser().getEmail().length() > 0);
         assertTrue(servicePort.getRequestingUser().getUserId().length() > 0);
-        assertTrue(servicePort.getRequestingUser().getUserFirstName().length() > 0);
-        assertTrue(servicePort.getRequestingUser().getUserLastName().length() > 0);
+        assertTrue(servicePort.getRequestingUser().getUserFirstName()
+                .length() > 0);
+        assertTrue(
+                servicePort.getRequestingUser().getUserLastName().length() > 0);
     }
 
     @Test
@@ -269,13 +271,15 @@ public class ApplicationServiceBeanTest {
         List<Parameter> parameters = servicePort.getParameters();
         assertNotNull(parameters);
         assertEquals(1, parameters.size());
-        assertEquals("NonConfigurable", parameters.get(0)
-                .getParameterDefinition().getParameterId());
+        assertEquals("NonConfigurable",
+                parameters.get(0).getParameterDefinition().getParameterId());
         assertNotNull(servicePort.getRequestingUser());
         assertTrue(servicePort.getRequestingUser().getEmail().length() > 0);
         assertTrue(servicePort.getRequestingUser().getUserId().length() > 0);
-        assertTrue(servicePort.getRequestingUser().getUserFirstName().length() > 0);
-        assertTrue(servicePort.getRequestingUser().getUserLastName().length() > 0);
+        assertTrue(servicePort.getRequestingUser().getUserFirstName()
+                .length() > 0);
+        assertTrue(
+                servicePort.getRequestingUser().getUserLastName().length() > 0);
     }
 
     @Test(expected = TechnicalServiceOperationException.class)
@@ -305,8 +309,8 @@ public class ApplicationServiceBeanTest {
 
     @Test(expected = ValidationException.class)
     public void createInstance_ReturnedInstanceIdNull() throws Throwable {
-        servicePort.setReturnedInstanceInfo(createInstanceInfo(null, null,
-                null, null));
+        servicePort.setReturnedInstanceInfo(
+                createInstanceInfo(null, null, null, null));
         Subscription sub = createSubscription(true);
         try {
             am.createInstance(sub);
@@ -329,8 +333,8 @@ public class ApplicationServiceBeanTest {
 
     @Test(expected = ValidationException.class)
     public void createInstance_ReturnedBaseUrlInvalid() throws Throwable {
-        servicePort.setReturnedInstanceInfo(createInstanceInfo(null,
-                "some invalid url", "id", LOGIN_PATH));
+        servicePort.setReturnedInstanceInfo(
+                createInstanceInfo(null, "some invalid url", "id", LOGIN_PATH));
         Subscription sub = createSubscription(true);
         try {
             am.createInstance(sub);
@@ -341,8 +345,8 @@ public class ApplicationServiceBeanTest {
 
     @Test(expected = ValidationException.class)
     public void createInstance_ReturnedBaseUrlToLong() throws Throwable {
-        servicePort.setReturnedInstanceInfo(createInstanceInfo(null,
-                TOO_LONG_URL, "id", LOGIN_PATH));
+        servicePort.setReturnedInstanceInfo(
+                createInstanceInfo(null, TOO_LONG_URL, "id", LOGIN_PATH));
         Subscription sub = createSubscription(true);
         try {
             am.createInstance(sub);
@@ -369,8 +373,8 @@ public class ApplicationServiceBeanTest {
                         + BaseAdmUmTest.TOO_LONG_DESCRIPTION
                         + BaseAdmUmTest.TOO_LONG_DESCRIPTION
                         + BaseAdmUmTest.TOO_LONG_DESCRIPTION
-                        + BaseAdmUmTest.TOO_LONG_DESCRIPTION + "1", null, "id",
-                null));
+                        + BaseAdmUmTest.TOO_LONG_DESCRIPTION + "1",
+                null, "id", null));
         Subscription sub = createSubscription(true);
         try {
             am.createInstance(sub);
@@ -394,8 +398,8 @@ public class ApplicationServiceBeanTest {
     @Test(expected = ValidationException.class)
     public void createInstance_ReturnedLoginPathWithoutBaseUrl()
             throws Throwable {
-        servicePort.setReturnedInstanceInfo(createInstanceInfo(null, null,
-                "id", LOGIN_PATH));
+        servicePort.setReturnedInstanceInfo(
+                createInstanceInfo(null, null, "id", LOGIN_PATH));
         Subscription sub = createSubscription(true, ServiceAccessType.USER);
         try {
             am.createInstance(sub);
@@ -407,8 +411,8 @@ public class ApplicationServiceBeanTest {
     @Test(expected = ValidationException.class)
     public void createInstance_ReturnedBaseUrlWithoutLoginPath()
             throws Throwable {
-        servicePort.setReturnedInstanceInfo(createInstanceInfo(null, BASE_URL,
-                "id", null));
+        servicePort.setReturnedInstanceInfo(
+                createInstanceInfo(null, BASE_URL, "id", null));
         Subscription sub = createSubscription(true, ServiceAccessType.USER);
         try {
             am.createInstance(sub);
@@ -429,8 +433,10 @@ public class ApplicationServiceBeanTest {
         assertNotNull(servicePort.getRequestingUser());
         assertTrue(servicePort.getRequestingUser().getEmail().length() > 0);
         assertTrue(servicePort.getRequestingUser().getUserId().length() > 0);
-        assertTrue(servicePort.getRequestingUser().getUserFirstName().length() > 0);
-        assertTrue(servicePort.getRequestingUser().getUserLastName().length() > 0);
+        assertTrue(servicePort.getRequestingUser().getUserFirstName()
+                .length() > 0);
+        assertTrue(
+                servicePort.getRequestingUser().getUserLastName().length() > 0);
     }
 
     @Test(expected = TechnicalServiceOperationException.class)
@@ -458,8 +464,10 @@ public class ApplicationServiceBeanTest {
         assertNotNull(servicePort.getRequestingUser());
         assertTrue(servicePort.getRequestingUser().getEmail().length() > 0);
         assertTrue(servicePort.getRequestingUser().getUserId().length() > 0);
-        assertTrue(servicePort.getRequestingUser().getUserFirstName().length() > 0);
-        assertTrue(servicePort.getRequestingUser().getUserLastName().length() > 0);
+        assertTrue(servicePort.getRequestingUser().getUserFirstName()
+                .length() > 0);
+        assertTrue(
+                servicePort.getRequestingUser().getUserLastName().length() > 0);
     }
 
     @Test
@@ -473,8 +481,10 @@ public class ApplicationServiceBeanTest {
         assertNotNull(servicePort.getRequestingUser());
         assertTrue(servicePort.getRequestingUser().getEmail().length() > 0);
         assertTrue(servicePort.getRequestingUser().getUserId().length() > 0);
-        assertTrue(servicePort.getRequestingUser().getUserFirstName().length() > 0);
-        assertTrue(servicePort.getRequestingUser().getUserLastName().length() > 0);
+        assertTrue(servicePort.getRequestingUser().getUserFirstName()
+                .length() > 0);
+        assertTrue(
+                servicePort.getRequestingUser().getUserLastName().length() > 0);
     }
 
     @Test
@@ -490,8 +500,10 @@ public class ApplicationServiceBeanTest {
         assertNotNull(servicePort.getRequestingUser());
         assertTrue(servicePort.getRequestingUser().getEmail().length() > 0);
         assertTrue(servicePort.getRequestingUser().getUserId().length() > 0);
-        assertTrue(servicePort.getRequestingUser().getUserFirstName().length() > 0);
-        assertTrue(servicePort.getRequestingUser().getUserLastName().length() > 0);
+        assertTrue(servicePort.getRequestingUser().getUserFirstName()
+                .length() > 0);
+        assertTrue(
+                servicePort.getRequestingUser().getUserLastName().length() > 0);
     }
 
     @Test(expected = TechnicalServiceOperationException.class)
@@ -523,8 +535,10 @@ public class ApplicationServiceBeanTest {
         assertNotNull(servicePort.getRequestingUser());
         assertTrue(servicePort.getRequestingUser().getEmail().length() > 0);
         assertTrue(servicePort.getRequestingUser().getUserId().length() > 0);
-        assertTrue(servicePort.getRequestingUser().getUserFirstName().length() > 0);
-        assertTrue(servicePort.getRequestingUser().getUserLastName().length() > 0);
+        assertTrue(servicePort.getRequestingUser().getUserFirstName()
+                .length() > 0);
+        assertTrue(
+                servicePort.getRequestingUser().getUserLastName().length() > 0);
     }
 
     @Test
@@ -541,8 +555,10 @@ public class ApplicationServiceBeanTest {
         assertNotNull(servicePort.getRequestingUser());
         assertTrue(servicePort.getRequestingUser().getEmail().length() > 0);
         assertTrue(servicePort.getRequestingUser().getUserId().length() > 0);
-        assertTrue(servicePort.getRequestingUser().getUserFirstName().length() > 0);
-        assertTrue(servicePort.getRequestingUser().getUserLastName().length() > 0);
+        assertTrue(servicePort.getRequestingUser().getUserFirstName()
+                .length() > 0);
+        assertTrue(
+                servicePort.getRequestingUser().getUserLastName().length() > 0);
     }
 
     @Test
@@ -559,8 +575,10 @@ public class ApplicationServiceBeanTest {
         assertNotNull(servicePort.getRequestingUser());
         assertTrue(servicePort.getRequestingUser().getEmail().length() > 0);
         assertTrue(servicePort.getRequestingUser().getUserId().length() > 0);
-        assertTrue(servicePort.getRequestingUser().getUserFirstName().length() > 0);
-        assertTrue(servicePort.getRequestingUser().getUserLastName().length() > 0);
+        assertTrue(servicePort.getRequestingUser().getUserFirstName()
+                .length() > 0);
+        assertTrue(
+                servicePort.getRequestingUser().getUserLastName().length() > 0);
     }
 
     @Test(expected = TechnicalServiceOperationException.class)
@@ -597,8 +615,10 @@ public class ApplicationServiceBeanTest {
         assertNotNull(servicePort.getRequestingUser());
         assertTrue(servicePort.getRequestingUser().getEmail().length() > 0);
         assertTrue(servicePort.getRequestingUser().getUserId().length() > 0);
-        assertTrue(servicePort.getRequestingUser().getUserFirstName().length() > 0);
-        assertTrue(servicePort.getRequestingUser().getUserLastName().length() > 0);
+        assertTrue(servicePort.getRequestingUser().getUserFirstName()
+                .length() > 0);
+        assertTrue(
+                servicePort.getRequestingUser().getUserLastName().length() > 0);
     }
 
     @Test
@@ -615,8 +635,10 @@ public class ApplicationServiceBeanTest {
         assertNotNull(servicePort.getRequestingUser());
         assertTrue(servicePort.getRequestingUser().getEmail().length() > 0);
         assertTrue(servicePort.getRequestingUser().getUserId().length() > 0);
-        assertTrue(servicePort.getRequestingUser().getUserFirstName().length() > 0);
-        assertTrue(servicePort.getRequestingUser().getUserLastName().length() > 0);
+        assertTrue(servicePort.getRequestingUser().getUserFirstName()
+                .length() > 0);
+        assertTrue(
+                servicePort.getRequestingUser().getUserLastName().length() > 0);
     }
 
     @Test
@@ -634,8 +656,10 @@ public class ApplicationServiceBeanTest {
         assertNotNull(servicePort.getRequestingUser());
         assertTrue(servicePort.getRequestingUser().getEmail().length() > 0);
         assertTrue(servicePort.getRequestingUser().getUserId().length() > 0);
-        assertTrue(servicePort.getRequestingUser().getUserFirstName().length() > 0);
-        assertTrue(servicePort.getRequestingUser().getUserLastName().length() > 0);
+        assertTrue(servicePort.getRequestingUser().getUserFirstName()
+                .length() > 0);
+        assertTrue(
+                servicePort.getRequestingUser().getUserLastName().length() > 0);
     }
 
     @Test(expected = TechnicalServiceOperationException.class)
@@ -672,8 +696,10 @@ public class ApplicationServiceBeanTest {
         assertNotNull(servicePort.getRequestingUser());
         assertTrue(servicePort.getRequestingUser().getEmail().length() > 0);
         assertTrue(servicePort.getRequestingUser().getUserId().length() > 0);
-        assertTrue(servicePort.getRequestingUser().getUserFirstName().length() > 0);
-        assertTrue(servicePort.getRequestingUser().getUserLastName().length() > 0);
+        assertTrue(servicePort.getRequestingUser().getUserFirstName()
+                .length() > 0);
+        assertTrue(
+                servicePort.getRequestingUser().getUserLastName().length() > 0);
     }
 
     @Test
@@ -689,8 +715,10 @@ public class ApplicationServiceBeanTest {
         assertNotNull(servicePort.getRequestingUser());
         assertTrue(servicePort.getRequestingUser().getEmail().length() > 0);
         assertTrue(servicePort.getRequestingUser().getUserId().length() > 0);
-        assertTrue(servicePort.getRequestingUser().getUserFirstName().length() > 0);
-        assertTrue(servicePort.getRequestingUser().getUserLastName().length() > 0);
+        assertTrue(servicePort.getRequestingUser().getUserFirstName()
+                .length() > 0);
+        assertTrue(
+                servicePort.getRequestingUser().getUserLastName().length() > 0);
     }
 
     @Test
@@ -707,8 +735,10 @@ public class ApplicationServiceBeanTest {
         assertNotNull(servicePort.getRequestingUser());
         assertTrue(servicePort.getRequestingUser().getEmail().length() > 0);
         assertTrue(servicePort.getRequestingUser().getUserId().length() > 0);
-        assertTrue(servicePort.getRequestingUser().getUserFirstName().length() > 0);
-        assertTrue(servicePort.getRequestingUser().getUserLastName().length() > 0);
+        assertTrue(servicePort.getRequestingUser().getUserFirstName()
+                .length() > 0);
+        assertTrue(
+                servicePort.getRequestingUser().getUserLastName().length() > 0);
     }
 
     @Test(expected = TechnicalServiceOperationException.class)
@@ -749,8 +779,10 @@ public class ApplicationServiceBeanTest {
         assertNotNull(servicePort.getRequestingUser());
         assertTrue(servicePort.getRequestingUser().getEmail().length() > 0);
         assertTrue(servicePort.getRequestingUser().getUserId().length() > 0);
-        assertTrue(servicePort.getRequestingUser().getUserFirstName().length() > 0);
-        assertTrue(servicePort.getRequestingUser().getUserLastName().length() > 0);
+        assertTrue(servicePort.getRequestingUser().getUserFirstName()
+                .length() > 0);
+        assertTrue(
+                servicePort.getRequestingUser().getUserLastName().length() > 0);
     }
 
     @Test
@@ -835,8 +867,10 @@ public class ApplicationServiceBeanTest {
         assertNotNull(servicePort.getRequestingUser());
         assertTrue(servicePort.getRequestingUser().getEmail().length() > 0);
         assertTrue(servicePort.getRequestingUser().getUserId().length() > 0);
-        assertTrue(servicePort.getRequestingUser().getUserFirstName().length() > 0);
-        assertTrue(servicePort.getRequestingUser().getUserLastName().length() > 0);
+        assertTrue(servicePort.getRequestingUser().getUserFirstName()
+                .length() > 0);
+        assertTrue(
+                servicePort.getRequestingUser().getUserLastName().length() > 0);
     }
 
     @Test
@@ -895,8 +929,10 @@ public class ApplicationServiceBeanTest {
         assertNotNull(servicePort.getRequestingUser());
         assertTrue(servicePort.getRequestingUser().getEmail().length() > 0);
         assertTrue(servicePort.getRequestingUser().getUserId().length() > 0);
-        assertTrue(servicePort.getRequestingUser().getUserFirstName().length() > 0);
-        assertTrue(servicePort.getRequestingUser().getUserLastName().length() > 0);
+        assertTrue(servicePort.getRequestingUser().getUserFirstName()
+                .length() > 0);
+        assertTrue(
+                servicePort.getRequestingUser().getUserLastName().length() > 0);
     }
 
     @Test
@@ -960,21 +996,18 @@ public class ApplicationServiceBeanTest {
     public void getPortFault() throws TechnicalServiceNotAliveException,
             TechnicalServiceOperationException {
         Subscription sub = createSubscription(true);
-        doThrow(
-                new TechnicalServiceNotAliveException(
-                        TechnicalServiceNotAliveException.Reason.ENDPOINT))
-                .when(am).getPort(any(TechnicalProduct.class));
+        doThrow(new TechnicalServiceNotAliveException(
+                TechnicalServiceNotAliveException.Reason.ENDPOINT)).when(am)
+                        .getPort(any(TechnicalProduct.class));
 
         am.asyncCreateInstance(sub);
     }
 
     @Test
     public void executeServiceOperation_NullReturned() throws Exception {
-        when(
-                operationPort.executeServiceOperation(anyString(), anyString(),
-                        anyString(), anyString(),
-                        anyListOf(OperationParameter.class))).thenReturn(
-                operationResult);
+        when(operationPort.executeServiceOperation(anyString(), anyString(),
+                anyString(), anyString(), anyListOf(OperationParameter.class)))
+                        .thenReturn(operationResult);
 
         String userId = "1";
         String operationId = "OP";
@@ -987,10 +1020,9 @@ public class ApplicationServiceBeanTest {
 
     @Test
     public void executeServiceOperation_EmptyReturned() throws Exception {
-        when(
-                operationPort.executeServiceOperation(anyString(), anyString(),
-                        anyString(), anyString(), passedParams.capture()))
-                .thenReturn(operationResult);
+        when(operationPort.executeServiceOperation(anyString(), anyString(),
+                anyString(), anyString(), passedParams.capture()))
+                        .thenReturn(operationResult);
         String userId = "1";
         String operationId = "OP";
         am.executeServiceOperation(userId, createSubscription(false), null,
@@ -1003,10 +1035,9 @@ public class ApplicationServiceBeanTest {
 
     @Test
     public void executeServiceOperation_Parameters() throws Exception {
-        when(
-                operationPort.executeServiceOperation(anyString(), anyString(),
-                        anyString(), anyString(), passedParams.capture()))
-                .thenReturn(operationResult);
+        when(operationPort.executeServiceOperation(anyString(), anyString(),
+                anyString(), anyString(), passedParams.capture()))
+                        .thenReturn(operationResult);
         String userId = "1";
         String operationId = "OP";
         String trasactionId = "transactionid";
@@ -1032,11 +1063,9 @@ public class ApplicationServiceBeanTest {
     public void executeServiceOperation_MessageReturned() throws Exception {
         String error = "some error message";
         operationResult.setErrorMessage(error);
-        when(
-                operationPort.executeServiceOperation(anyString(), anyString(),
-                        anyString(), anyString(),
-                        anyListOf(OperationParameter.class))).thenReturn(
-                operationResult);
+        when(operationPort.executeServiceOperation(anyString(), anyString(),
+                anyString(), anyString(), anyListOf(OperationParameter.class)))
+                        .thenReturn(operationResult);
         Subscription sub = createSubscription(false);
         String userId = "1";
         String operationId = "OP";
@@ -1054,11 +1083,9 @@ public class ApplicationServiceBeanTest {
 
     @Test(expected = TechnicalServiceNotAliveException.class)
     public void executeServiceOperation_ErrorThrown() throws Exception {
-        when(
-                operationPort.executeServiceOperation(anyString(), anyString(),
-                        anyString(), anyString(),
-                        anyListOf(OperationParameter.class))).thenThrow(
-                new Error("error"));
+        when(operationPort.executeServiceOperation(anyString(), anyString(),
+                anyString(), anyString(), anyListOf(OperationParameter.class)))
+                        .thenThrow(new Error("error"));
         Subscription sub = createSubscription(false);
         String userId = "1";
         String operationId = "OP";
@@ -1075,8 +1102,10 @@ public class ApplicationServiceBeanTest {
         assertNotNull(servicePort.getRequestingUser());
         assertTrue(servicePort.getRequestingUser().getEmail().length() > 0);
         assertTrue(servicePort.getRequestingUser().getUserId().length() > 0);
-        assertTrue(servicePort.getRequestingUser().getUserFirstName().length() > 0);
-        assertTrue(servicePort.getRequestingUser().getUserLastName().length() > 0);
+        assertTrue(servicePort.getRequestingUser().getUserFirstName()
+                .length() > 0);
+        assertTrue(
+                servicePort.getRequestingUser().getUserLastName().length() > 0);
     }
 
     @Test(expected = TechnicalServiceOperationException.class)
@@ -1104,8 +1133,10 @@ public class ApplicationServiceBeanTest {
         assertNotNull(servicePort.getRequestingUser());
         assertTrue(servicePort.getRequestingUser().getEmail().length() > 0);
         assertTrue(servicePort.getRequestingUser().getUserId().length() > 0);
-        assertTrue(servicePort.getRequestingUser().getUserFirstName().length() > 0);
-        assertTrue(servicePort.getRequestingUser().getUserLastName().length() > 0);
+        assertTrue(servicePort.getRequestingUser().getUserFirstName()
+                .length() > 0);
+        assertTrue(
+                servicePort.getRequestingUser().getUserLastName().length() > 0);
     }
 
     @Test(expected = TechnicalServiceOperationException.class)
@@ -1212,16 +1243,17 @@ public class ApplicationServiceBeanTest {
     @Test
     public void validateInstanceInfo_DIRECT_NoAccessInfo_ExistingOnTP()
             throws Throwable {
-        validateInstanceInfo_NoAccessInfo_ExistingOnTP(ServiceAccessType.DIRECT);
+        validateInstanceInfo_NoAccessInfo_ExistingOnTP(
+                ServiceAccessType.DIRECT);
     }
 
     private void validateInstanceInfo_NoAccessInfo_ExistingOnTP(
             ServiceAccessType accessType) throws Throwable {
         ApplicationServiceBean bean = mockForInstanceInfoValidation(accessType);
-        doReturn("Existing access info on technical product").when(
-                bean.localizer).getLocalizedTextFromDatabase(anyString(),
-                anyLong(),
-                eq(LocalizedObjectTypes.TEC_PRODUCT_LOGIN_ACCESS_DESC));
+        doReturn("Existing access info on technical product")
+                .when(bean.localizer).getLocalizedTextFromDatabase(anyString(),
+                        anyLong(),
+                        eq(LocalizedObjectTypes.TEC_PRODUCT_LOGIN_ACCESS_DESC));
         InstanceInfo info = createInstanceInfo();
         info.setAccessInfo(null);
 
@@ -1251,7 +1283,8 @@ public class ApplicationServiceBeanTest {
 
     @Test
     public void validateInstanceInfo_NoBaseUrl_USER() throws Throwable {
-        ApplicationServiceBean bean = mockForInstanceInfoValidation(ServiceAccessType.USER);
+        ApplicationServiceBean bean = mockForInstanceInfoValidation(
+                ServiceAccessType.USER);
         InstanceInfo info = createInstanceInfo();
         info.setBaseUrl(null);
 
@@ -1260,7 +1293,8 @@ public class ApplicationServiceBeanTest {
 
     @Test
     public void validateInstanceInfo_NoBaseUrl_DIRECT() throws Throwable {
-        ApplicationServiceBean bean = mockForInstanceInfoValidation(ServiceAccessType.DIRECT);
+        ApplicationServiceBean bean = mockForInstanceInfoValidation(
+                ServiceAccessType.DIRECT);
         InstanceInfo info = createInstanceInfo();
         info.setBaseUrl(null);
 
@@ -1290,7 +1324,8 @@ public class ApplicationServiceBeanTest {
 
     @Test
     public void validateInstanceInfo_NoLoginPath_USER() throws Throwable {
-        ApplicationServiceBean bean = mockForInstanceInfoValidation(ServiceAccessType.USER);
+        ApplicationServiceBean bean = mockForInstanceInfoValidation(
+                ServiceAccessType.USER);
         InstanceInfo info = createInstanceInfo();
         info.setLoginPath(null);
 
@@ -1299,7 +1334,8 @@ public class ApplicationServiceBeanTest {
 
     @Test
     public void validateInstanceInfo_NoLoginPath_DIRECT() throws Throwable {
-        ApplicationServiceBean bean = mockForInstanceInfoValidation(ServiceAccessType.DIRECT);
+        ApplicationServiceBean bean = mockForInstanceInfoValidation(
+                ServiceAccessType.DIRECT);
         InstanceInfo info = createInstanceInfo();
         info.setLoginPath(null);
 
@@ -1325,8 +1361,8 @@ public class ApplicationServiceBeanTest {
                 INPUT_STRING);
         Subscription sub = createSubscription(false);
 
-        Map<String, List<String>> result = am.getOperationParameterValues(
-                USER_ID, tpo, sub);
+        Map<String, List<String>> result = am
+                .getOperationParameterValues(USER_ID, tpo, sub);
 
         assertTrue(result.isEmpty());
         verifyZeroInteractions(operationPort);
@@ -1337,12 +1373,11 @@ public class ApplicationServiceBeanTest {
         TechnicalProductOperation tpo = createTechnicalProductOperation("op1",
                 REQUEST_SELECT);
         Subscription sub = createSubscription(false);
-        when(
-                operationPort.getParameterValues(anyString(), anyString(),
-                        anyString())).thenReturn(null);
+        when(operationPort.getParameterValues(anyString(), anyString(),
+                anyString())).thenReturn(null);
 
-        Map<String, List<String>> result = am.getOperationParameterValues(
-                USER_ID, tpo, sub);
+        Map<String, List<String>> result = am
+                .getOperationParameterValues(USER_ID, tpo, sub);
 
         assertTrue(result.isEmpty());
         verify(operationPort).getParameterValues(same(USER_ID),
@@ -1351,10 +1386,9 @@ public class ApplicationServiceBeanTest {
 
     @Test(expected = TechnicalServiceNotAliveException.class)
     public void getOperationParameterValues_Timeout() throws Exception {
-        when(
-                operationPort.getParameterValues(anyString(), anyString(),
-                        anyString())).thenThrow(
-                new WebServiceException(new SocketTimeoutException()));
+        when(operationPort.getParameterValues(anyString(), anyString(),
+                anyString())).thenThrow(
+                        new WebServiceException(new SocketTimeoutException()));
         TechnicalProductOperation tpo = createTechnicalProductOperation("op1",
                 REQUEST_SELECT);
         Subscription sub = createSubscription(false);
@@ -1364,9 +1398,8 @@ public class ApplicationServiceBeanTest {
 
     @Test(expected = TechnicalServiceNotAliveException.class)
     public void getOperationParameterValues_Throwable() throws Exception {
-        when(
-                operationPort.getParameterValues(anyString(), anyString(),
-                        anyString())).thenThrow(new RuntimeException());
+        when(operationPort.getParameterValues(anyString(), anyString(),
+                anyString())).thenThrow(new RuntimeException());
         TechnicalProductOperation tpo = createTechnicalProductOperation("op1",
                 REQUEST_SELECT);
         Subscription sub = createSubscription(false);
@@ -1377,9 +1410,8 @@ public class ApplicationServiceBeanTest {
     @Test(expected = TechnicalServiceOperationException.class)
     public void getOperationParameterValues_WebServiceException()
             throws Exception {
-        when(
-                operationPort.getParameterValues(anyString(), anyString(),
-                        anyString())).thenThrow(new WebServiceException());
+        when(operationPort.getParameterValues(anyString(), anyString(),
+                anyString())).thenThrow(new WebServiceException());
         TechnicalProductOperation tpo = createTechnicalProductOperation("op1",
                 REQUEST_SELECT);
         Subscription sub = createSubscription(false);
@@ -1389,10 +1421,8 @@ public class ApplicationServiceBeanTest {
 
     @Test(expected = TechnicalServiceOperationException.class)
     public void getOperationParameterValues_Unsupported() throws Exception {
-        when(
-                operationPort.getParameterValues(anyString(), anyString(),
-                        anyString())).thenThrow(
-                new UnsupportedOperationException());
+        when(operationPort.getParameterValues(anyString(), anyString(),
+                anyString())).thenThrow(new UnsupportedOperationException());
         TechnicalProductOperation tpo = createTechnicalProductOperation("op1",
                 REQUEST_SELECT);
         Subscription sub = createSubscription(false);
@@ -1405,13 +1435,11 @@ public class ApplicationServiceBeanTest {
         TechnicalProductOperation tpo = createTechnicalProductOperation("op1",
                 REQUEST_SELECT, REQUEST_SELECT);
         Subscription sub = createSubscription(false);
-        when(
-                operationPort.getParameterValues(anyString(), anyString(),
-                        anyString())).thenReturn(
-                initOperationParameters(tpo, 3));
+        when(operationPort.getParameterValues(anyString(), anyString(),
+                anyString())).thenReturn(initOperationParameters(tpo, 3));
 
-        Map<String, List<String>> result = am.getOperationParameterValues(
-                USER_ID, tpo, sub);
+        Map<String, List<String>> result = am
+                .getOperationParameterValues(USER_ID, tpo, sub);
 
         for (org.oscm.domobjects.OperationParameter op : tpo.getParameters()) {
             assertTrue(result.containsKey(op.getId()));
@@ -1478,15 +1506,14 @@ public class ApplicationServiceBeanTest {
     private InstanceRequest toInstanceRequest(ServiceAccessType accessType)
             throws Throwable {
         ApplicationServiceBean bean = mockForInstanceInfoValidation(accessType);
-        Organization org = new Organization();
-        subscription.setOrganization(org);
-        org.setLocale("en");
+        Subscription sub = createSubscription(true, accessType);
+
         bean.cs = mock(ConfigurationServiceLocal.class);
         ConfigurationSetting setting = new ConfigurationSetting();
         doReturn(setting).when(bean.cs).getConfigurationSetting(
                 any(ConfigurationKey.class), anyString());
 
-        return bean.toInstanceRequest(subscription);
+        return bean.toInstanceRequest(sub);
     }
 
     private ApplicationServiceBean mockForInstanceInfoValidation(
@@ -1554,8 +1581,9 @@ public class ApplicationServiceBeanTest {
 
         ParameterDefinition parmDef = new ParameterDefinition();
         parmDef.setParameterId(parameterId);
-        parmDef.setModificationType(ParamDefOneTime ? ParameterModificationType.ONE_TIME
-                : ParameterModificationType.STANDARD);
+        parmDef.setModificationType(
+                ParamDefOneTime ? ParameterModificationType.ONE_TIME
+                        : ParameterModificationType.STANDARD);
         techProd.getParameterDefinitions().add(parmDef);
         Parameter param = new Parameter();
 
@@ -1600,7 +1628,8 @@ public class ApplicationServiceBeanTest {
      * @param productInstanceId
      *            The expected product instance id.
      */
-    private void validateParameters(Subscription sub, String productInstanceId) {
+    private void validateParameters(Subscription sub,
+            String productInstanceId) {
         if (productInstanceId != null) {
             assertEquals(sub.getProductInstanceId(),
                     servicePort.getInstanceId());
@@ -1615,21 +1644,22 @@ public class ApplicationServiceBeanTest {
             Parameter serviceParam1 = parameters.get(paramIndex);
             assertEquals(paramSet.getParameters().get(paramIndex).getValue(),
                     serviceParam1.getValue());
-            assertEquals(paramSet.getParameters().get(paramIndex)
-                    .getParameterDefinition().getParameterId(), serviceParam1
-                    .getParameterDefinition().getParameterId());
+            assertEquals(
+                    paramSet.getParameters().get(paramIndex)
+                            .getParameterDefinition().getParameterId(),
+                    serviceParam1.getParameterDefinition().getParameterId());
             paramIndex++;
         }
 
         Parameter serviceParam2 = parameters.get(paramIndex);
-        assertEquals("NonConfigurable", serviceParam2.getParameterDefinition()
-                .getParameterId());
+        assertEquals("NonConfigurable",
+                serviceParam2.getParameterDefinition().getParameterId());
         assertEquals("123", serviceParam2.getValue());
 
     }
 
-    private TechnicalProductOperation createTechnicalProductOperation(
-            String id, OperationParameterType... types) {
+    private TechnicalProductOperation createTechnicalProductOperation(String id,
+            OperationParameterType... types) {
         TechnicalProductOperation op = new TechnicalProductOperation();
         op.setOperationId(id);
         for (OperationParameterType type : types) {
