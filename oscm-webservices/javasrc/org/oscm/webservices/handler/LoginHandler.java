@@ -219,7 +219,7 @@ public class LoginHandler implements SOAPHandler<SOAPMessageContext> {
         return samlAssertion;
     }
     
-    private Context getContext() throws NamingException {
+    protected Context getContext() throws NamingException {
 
         if (this.context == null) {
             this.context = new InitialContext();
@@ -227,7 +227,7 @@ public class LoginHandler implements SOAPHandler<SOAPMessageContext> {
         return this.context;
     }
 
-    private DataSource getDataSource() throws NamingException {
+    protected DataSource getDataSource() throws NamingException {
 
         Context context = getContext();
 
@@ -237,7 +237,7 @@ public class LoginHandler implements SOAPHandler<SOAPMessageContext> {
         return this.dataSource;
     }
 
-    private ConfigurationService getConfigService() throws NamingException {
+    protected ConfigurationService getConfigService() throws NamingException {
 
         Context context = getContext();
 
@@ -254,6 +254,10 @@ public class LoginHandler implements SOAPHandler<SOAPMessageContext> {
             this.samlExtractor = new SAMLResponseExtractor();
         }
         return this.samlExtractor;
+    }
+    
+    public AbstractKeyQuery getKeyQuery() {
+        return keyQuery;
     }
     
     @Override
