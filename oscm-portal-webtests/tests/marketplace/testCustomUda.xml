@@ -177,6 +177,38 @@
       <clickLink htmlId="confirmForm:confirmLink" />
       <common.reSetPageScriptError />
     </webtest>
+    
+    <webtest name="testMPL_customUda_setCustomUda" description="
+    	(1) Goto Marketplace and administrate an existing Service ;
+		(2)	Goto 'Up/Downgrade' tab and select the first option;   
+      	(3) Setting up advanced options (payments/billing address);
+		(4) Confirm the updation.">
+      <!-- (1) Goto Marketplace and administrate an existing Service -->
+      <mpl_login.user mid="${marketplaceId}" userId="${supplierUserId}" />
+      <mpl_goto.account.profile />
+      <mpl_goto.tab label="${marketplace.account.profile.attributeTab}" />
+      <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
+      
+      <!-- (2)	Goto 'Configuration' tab and check/change the Uda values -->
+      <mpl_goto.tab label="${subscription.upgrade}" />
+      <clickLink label="${button.select}" />
+      <!--(3) Check Uda default values, change the writable Udas  -->
+
+      <setInputField htmlId="configurationForm:subscriptionIdText" value="Mega Office Upgraded" />
+      <changeUdaValue index="0" isMandatory="false" newValue="optional sub uda starter" oldValue="optional sub uda changed" />
+      <changeUdaValue index="1" isMandatory="true" newValue="mandatory sub uda starter" oldValue="mandatory sub uda changed" />
+
+      <!-- (3) Setting up advanced options (payments/billing address) -->
+      <common.ignorePageScriptError />
+      <clickLink htmlId="configurationForm:nextLink" />
+      <mpl_user.selectBillingContact />
+      <setSelectField htmlId="payment:selectPaymentInfo" optionIndex="1" />
+      <clickLink htmlId="payment:nextLink" />
+      <!-- (4) Confirm the updation -->
+      <setCheckbox htmlId="confirmForm:agreeCheckbox" checked="true" />
+      <clickLink htmlId="confirmForm:confirmLink" />
+      <common.reSetPageScriptError />
+    </webtest>
 
     <webtest name="cleanUp" description="Delete the 2 services">
       <scenario.deleteSimpleServices />

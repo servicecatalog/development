@@ -389,14 +389,14 @@ public class SubscriptionServiceBean
             throws ObjectNotFoundException, NonUniqueBusinessKeyException {
         Organization organization = user.getOrganization();
         BillingContact orgBillingContact = new BillingContact();
-        String email = organization.getEmail() == null ? " " : organization
-                .getEmail();
+        String email = organization.getEmail() == null ? " "
+                : organization.getEmail();
 
-        String address = organization.getAddress() == null ? " " : organization
-                .getAddress();
+        String address = organization.getAddress() == null ? " "
+                : organization.getAddress();
         List<BillingContact> billingContacts = getBillingContactDao()
-                .getBillingContactsForOrganization(organization.getKey(),
-                        email, address);
+                .getBillingContactsForOrganization(organization.getKey(), email,
+                        address);
         if (!billingContacts.isEmpty()) {
             orgBillingContact = billingContacts.get(0);
         } else {
@@ -405,8 +405,8 @@ public class SubscriptionServiceBean
             orgBillingContact.setOrganization_tkey(organization.getKey());
             orgBillingContact.setOrgAddressUsed(true);
             orgBillingContact.setEmail(email);
-            String organizationId = organization.getName() == null ? user
-                    .getUserId() : organization.getName();
+            String organizationId = organization.getName() == null
+                    ? user.getUserId() : organization.getName();
             orgBillingContact.setBillingContactId(organizationId
                     + DateFactory.getInstance().getTransactionTime());
             orgBillingContact.setOrganization(organization);
@@ -1021,9 +1021,12 @@ public class SubscriptionServiceBean
         if (users != null) {
             for (Object o : users) {
                 VOUsageLicense lic = VOUsageLicense.class.cast(o);
-                PlatformUser usr = idManager.getPlatformUser(lic.getUser()
-                        .getUserId(), dataManager.getCurrentUser()
-                        .getTenantId(), true); // not found? => throws
+                PlatformUser usr = idManager.getPlatformUser(
+                        lic.getUser().getUserId(),
+                        dataManager.getCurrentUser().getTenantId(), true); // not
+                                                                           // found?
+                                                                           // =>
+                                                                           // throws
                 // ObjectNotFoundException
                 RoleDefinition role = getAndCheckServiceRole(lic,
                         subscription.getProduct());
@@ -3534,6 +3537,9 @@ public class SubscriptionServiceBean
         String dbSubscriptionId = dbSubscription.getSubscriptionId();
         boolean subIdChanged = !dbSubscriptionId
                 .equals(subscription.getSubscriptionId());
+        String dbReferenceId = dbSubscription.getPurchaseOrderNumber();
+        boolean refIdChanged = !dbReferenceId
+                .equals(subscription.getPurchaseOrderNumber());
         PlatformUser dbOwner = dbSubscription.getOwner();
         Product dbProduct = dbSubscription.getProduct();
         String dbPurchaseNumber = dbSubscription.getPurchaseOrderNumber();
@@ -3560,7 +3566,7 @@ public class SubscriptionServiceBean
 
         boolean backupOldValues = handleParameterModifications(
                 modifiedParameters, dbSubscription, currentUser, subIdChanged,
-                dbProduct);
+                refIdChanged, dbProduct);
 
         List<Uda> existingUdas = manageBean.getExistingUdas(dbSubscription);
         List<VOUda> updatedUdas = getUpdatedSubscriptionAttributes(udas,
@@ -3621,13 +3627,15 @@ public class SubscriptionServiceBean
     private boolean handleParameterModifications(
             List<VOParameter> modifiedParameters, Subscription dbSubscription,
             final PlatformUser currentUser, boolean subIdChanged,
-            Product dbProduct) throws SubscriptionMigrationException,
+            boolean refIdChanged, Product dbProduct)
+            throws SubscriptionMigrationException,
             ConcurrentModificationException, ValidationException,
             TechnicalServiceNotAliveException {
         try {
-            if (subIdChanged || checkIfParametersAreModified(dbSubscription,
-                    dbSubscription, dbProduct, dbProduct, modifiedParameters,
-                    false)) {
+            if (subIdChanged || refIdChanged
+                    || checkIfParametersAreModified(dbSubscription,
+                            dbSubscription, dbProduct, dbProduct,
+                            modifiedParameters, false)) {
                 copyProductAndModifyParametersForUpdate(dbSubscription,
                         dbProduct, currentUser, modifiedParameters);
                 if (dbProduct.getTechnicalProduct().getProvisioningType()
@@ -3681,8 +3689,8 @@ public class SubscriptionServiceBean
 
         String ownerId = subscription.getOwnerId();
         if (ownerId != null && ownerId.length() != 0) {
-            checkRolesForSubscriptionOwner(ownerId, dataManager
-                    .getCurrentUser().getTenantId());
+            checkRolesForSubscriptionOwner(ownerId,
+                    dataManager.getCurrentUser().getTenantId());
         }
         if (!subscriptionToModify.getSubscriptionId().equals(subscriptionId)) {
             Subscription sub = new Subscription();
