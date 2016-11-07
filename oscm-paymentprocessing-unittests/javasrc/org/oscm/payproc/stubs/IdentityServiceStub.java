@@ -308,4 +308,10 @@ public class IdentityServiceStub implements IdentityServiceLocal {
     public void revokeUnitRole(PlatformUser user, UserRoleType role)
             throws UserModificationConstraintException {
     }
+
+    @Override
+    public PlatformUser getPlatformUserByOrganization(String userId,
+            String orgId) throws ObjectNotFoundException {
+        return null;
+    }
 }
