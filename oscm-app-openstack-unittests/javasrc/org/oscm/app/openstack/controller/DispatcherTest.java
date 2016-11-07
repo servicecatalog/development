@@ -166,6 +166,11 @@ public class DispatcherTest {
     public void startRequested() throws Exception {
         // given
         paramHandler.setState(FlowState.START_REQUESTED);
+        streamHandler.put("/servers/0-Instance-server1",
+                new MockHttpURLConnection(200,
+                        MockURLStreamHandler.respServerDetail("server1",
+                                "0-Instance-server1", ServerStatus.SHUTOFF,
+                                "testTenantID")));
 
         // when
         InstanceStatus result = dispatcher.dispatch();
@@ -185,6 +190,16 @@ public class DispatcherTest {
         MockHttpURLConnection connection = new MockHttpURLConnection(404,
                 MockURLStreamHandler.respServerActions());
         connection.setIOException(new IOException());
+        streamHandler.put("/servers/0-Instance-server1",
+                new MockHttpURLConnection(200,
+                        MockURLStreamHandler.respServerDetail("server1",
+                                "0-Instance-server1", ServerStatus.SHUTOFF,
+                                "testTenantID")));
+        streamHandler.put("/servers/1-Instance-otherserver2",
+                new MockHttpURLConnection(200,
+                        MockURLStreamHandler.respServerDetail("otherserver2",
+                                "1-Instance-otherserver2", ServerStatus.SHUTOFF,
+                                "testTenantID")));
 
         streamHandler
                 .put("/stacks/" + paramHandler.getStackName() + "/resources",
@@ -223,6 +238,11 @@ public class DispatcherTest {
         MockHttpURLConnection connection = new MockHttpURLConnection(404,
                 MockURLStreamHandler.respServerActions());
         connection.setIOException(new IOException());
+        streamHandler.put("/servers/1-Instance-otherserver2",
+                new MockHttpURLConnection(200,
+                        MockURLStreamHandler.respServerDetail("otherserver2",
+                                "1-Instance-otherserver2", ServerStatus.ACTIVE,
+                                "testTenantID")));
 
         streamHandler
                 .put("/stacks/" + paramHandler.getStackName() + "/resources",

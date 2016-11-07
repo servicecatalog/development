@@ -57,6 +57,7 @@ public class NovaProcessor {
     public HashMap<String, Boolean> startInstances(PropertyHandler ph)
             throws HeatException, APPlatformException, NovaException {
         OpenStackConnection connection = getConnection(ph);
+        List<String> skippedServers = new ArrayList<String>();
 
         List<String> serverIds = new HeatClient(connection)
                 .getServerIds(ph.getStackName());
@@ -71,7 +72,11 @@ public class NovaProcessor {
         for (String id : serverIds) {
             Boolean result = Boolean.FALSE;
             try {
-                result = nc.startServer(ph, id);
+                if (nc.isNotServerExceptedStatus(ServerStatus.ACTIVE, ph, id)) {
+                    result = nc.startServer(ph, id);
+                } else {
+                    skippedServers.add(id);
+                }
             } catch (OpenStackConnectionException ex) {
                 if (ex.getResponseCode() == 401) {
                     logger.info(
@@ -82,7 +87,13 @@ public class NovaProcessor {
                     try {
                         connection = getConnection(ph);
                         nc = new NovaClient(connection);
-                        result = nc.startServer(ph, id);
+
+                        if (nc.isNotServerExceptedStatus(ServerStatus.ACTIVE,
+                                ph, id)) {
+                            result = nc.startServer(ph, id);
+                        } else {
+                            skippedServers.add(id);
+                        }
                     } catch (OpenStackConnectionException e) {
                         logger.info("Could not start server (Server ID:" + id
                                 + ") in stack (Stack ID: " + ph.getStackId()
@@ -99,6 +110,10 @@ public class NovaProcessor {
             }
             operationStatuses.put(id, result);
         }
+        if (skippedServers.size() == serverIds.size()) {
+            throw new APPlatformException(
+                    Messages.getAll("error_all_servers_active"));
+        }
         return operationStatuses;
     }
 
@@ -114,6 +129,7 @@ public class NovaProcessor {
     public HashMap<String, Boolean> stopInstances(PropertyHandler ph)
             throws HeatException, APPlatformException, NovaException {
         OpenStackConnection connection = getConnection(ph);
+        List<String> skippedServers = new ArrayList<String>();
 
         List<String> serverIds = new HeatClient(connection)
                 .getServerIds(ph.getStackName());
@@ -128,7 +144,12 @@ public class NovaProcessor {
         for (String id : serverIds) {
             Boolean result = Boolean.FALSE;
             try {
-                result = nc.stopServer(ph, id);
+                if (nc.isNotServerExceptedStatus(ServerStatus.SHUTOFF, ph,
+                        id)) {
+                    result = nc.stopServer(ph, id);
+                } else {
+                    skippedServers.add(id);
+                }
             } catch (OpenStackConnectionException ex) {
                 if (ex.getResponseCode() == 401) {
                     logger.info(
@@ -139,7 +160,12 @@ public class NovaProcessor {
                     try {
                         connection = getConnection(ph);
                         nc = new NovaClient(connection);
-                        result = nc.stopServer(ph, id);
+                        if (nc.isNotServerExceptedStatus(ServerStatus.SHUTOFF,
+                                ph, id)) {
+                            result = nc.stopServer(ph, id);
+                        } else {
+                            skippedServers.add(id);
+                        }
                     } catch (OpenStackConnectionException e) {
                         logger.info("Could not stop server (Server ID:" + id
                                 + ") in stack (Stack ID: " + ph.getStackId()
@@ -155,6 +181,10 @@ public class NovaProcessor {
                 }
             }
             operationStatuses.put(id, result);
+        }
+        if (skippedServers.size() == serverIds.size()) {
+            throw new APPlatformException(
+                    Messages.getAll("error_all_servers_stopped"));
         }
         return operationStatuses;
     }
