@@ -17,6 +17,8 @@ import static org.junit.Assert.assertTrue;
 import java.util.HashMap;
 import java.util.List;
 
+import org.apache.sling.commons.json.JSONException;
+import org.apache.sling.commons.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.oscm.app.openstack.data.FlowState;
@@ -359,6 +361,51 @@ public class PropertyHandlerTest {
 
         // then
         assertEquals(timeStr, null);
+
+    }
+
+    @Test
+    public void TestMultipleSecurityGroup() {
+        parameters.put("TP_" + PropertyHandler.SECURITY_GROUPS,
+                "testOne,testTwo");
+        propertyHandler = new PropertyHandler(settings);
+        JSONObject parameters = propertyHandler.getTemplateParameters();
+        assertNotNull(parameters);
+        try {
+            assertTrue(parameters.has(PropertyHandler.SECURITY_GROUPS));
+            assertTrue(parameters.getJSONArray(PropertyHandler.SECURITY_GROUPS)
+                    .getString(0).equals("testOne"));
+            assertTrue(parameters.getJSONArray(PropertyHandler.SECURITY_GROUPS)
+                    .getString(1).equals("testTwo"));
+        } catch (JSONException e) {
+
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void TestSingleSecurityGroup() {
+        parameters.put("TP_" + PropertyHandler.SECURITY_GROUPS, "testOne");
+        propertyHandler = new PropertyHandler(settings);
+        JSONObject parameters = propertyHandler.getTemplateParameters();
+        assertNotNull(parameters);
+        try {
+            assertTrue(parameters.has(PropertyHandler.SECURITY_GROUPS));
+            assertTrue(parameters.getJSONArray(PropertyHandler.SECURITY_GROUPS)
+                    .getString(0).equals("testOne"));
+
+        } catch (JSONException e) {
+
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void TestEmptySecurityGroup() {
+        propertyHandler = new PropertyHandler(settings);
+        JSONObject parameters = propertyHandler.getTemplateParameters();
+        assertNotNull(parameters);
+        assertTrue(!parameters.has(PropertyHandler.SECURITY_GROUPS));
 
     }
 }
