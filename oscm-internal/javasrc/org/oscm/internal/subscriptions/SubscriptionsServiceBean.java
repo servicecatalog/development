@@ -177,6 +177,7 @@ public class SubscriptionsServiceBean implements SubscriptionsService {
                 + subscription.getStatus().name());
         result.setNumberOfAssignedUsers(subscription.getNumberOfAssignedUsers());
         result.setSupplierName(subscription.getSellerName());
+        result.setSubscriptionName(subscription.getSubscriptionId());
         return result;
     }
 
