@@ -1,6 +1,7 @@
 language: java
 sudo: required
-jdk: oraclejdk7
+jdk:
+  - oraclejdk7
 #cache:
 #  directories:
 #    - $TRAVIS_BUILD_DIR/libraries
@@ -19,8 +20,10 @@ env:
     - COMUPTERNAME=travis
     - HOSTNAME=travis
 script:
+  - jdk_switcher use oraclejdk7
   - ant -lib $TRAVIS_BUILD_DIR/libraries/apache-ant-contrib/javalib -file $TRAVIS_BUILD_DIR/oscm-build/cruisecontrol.xml runTravisUT
 #  - ant -lib $TRAVIS_BUILD_DIR/libraries/apache-ant-contrib/javalib -file $TRAVIS_BUILD_DIR/oscm-build/cruisecontrol.xml runTravisIT
- # - $TRAVIS_BUILD_DIR/runSonarAnalysis.sh
+  - jdk_switcher use oraclejdk8
+  - $TRAVIS_BUILD_DIR/runSonarAnalysis.sh
 after_success:
   - codecov
