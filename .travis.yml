@@ -1,3 +1,5 @@
+addons:
+  sonarqube: true
 language: java
 sudo: required
 jdk:
