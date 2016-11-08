@@ -73,7 +73,9 @@ public class ProvisioningServiceAdapterFactory {
             } catch (WebServiceException e) {
                 TechnicalServiceNotAliveException tse = new TechnicalServiceNotAliveException(
                         TechnicalServiceNotAliveException.Reason.ENDPOINT, e);
-                logger.logWarn(Log4jLogger.SYSTEM_LOG, tse,
+                logger.logWarn(
+                        Log4jLogger.SYSTEM_LOG,
+                        tse,
                         LogMessageIdentifier.WARN_EX_TECHNICAL_SERVICE_NOT_ALIVE_EXCEPTION_ENDPOINT);
                 throw tse;
             }
@@ -87,14 +89,18 @@ public class ProvisioningServiceAdapterFactory {
             TechnicalServiceNotAliveException ex = new TechnicalServiceNotAliveException(
                     TechnicalServiceNotAliveException.Reason.CONNECTION_REFUSED,
                     e.getCause());
-            logger.logWarn(Log4jLogger.SYSTEM_LOG, e,
+            logger.logWarn(
+                    Log4jLogger.SYSTEM_LOG,
+                    e,
                     LogMessageIdentifier.WARN_TECH_SERVICE_NOT_ALIVE_CONNECTION_REFUSED);
             throw ex;
         } catch (Exception e) {
             TechnicalServiceNotAliveException ex = new TechnicalServiceNotAliveException(
                     TechnicalServiceNotAliveException.Reason.CONNECTION_REFUSED,
                     e);
-            logger.logWarn(Log4jLogger.SYSTEM_LOG, e,
+            logger.logWarn(
+                    Log4jLogger.SYSTEM_LOG,
+                    e,
                     LogMessageIdentifier.WARN_TECH_SERVICE_NOT_ALIVE_CONNECTION_REFUSED);
             throw ex;
         }
@@ -118,7 +124,7 @@ public class ProvisioningServiceAdapterFactory {
             return new ProvisioningServiceAdapterV1_8();
 
         default:
-            return new ProvisioningServiceAdapterV1_0();
+            return new ProvisioningServiceAdapterV1_8();
         }
     }
 

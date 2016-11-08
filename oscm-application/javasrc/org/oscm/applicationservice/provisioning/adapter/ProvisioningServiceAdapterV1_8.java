@@ -25,15 +25,15 @@ import org.oscm.provisioning.intf.ProvisioningService;
  * @author goebel
  * 
  */
-public class ProvisioningServiceAdapterV1_8
-        implements ProvisioningServiceAdapter {
+public class ProvisioningServiceAdapterV1_8 implements
+        ProvisioningServiceAdapter {
 
     private ProvisioningService service;
 
     @Override
     public URL getLocalWSDL() {
-        return this.getClass()
-                .getResource("/wsdl/provisioning/ProvisioningService.wsdl");
+        return this.getClass().getResource(
+                "/wsdl/provisioning/ProvisioningService.wsdl");
     }
 
     @Override
@@ -99,8 +99,7 @@ public class ProvisioningServiceAdapterV1_8
     }
 
     @Override
-    public BaseResult deactivateInstance(String instanceId,
-            User requestingUser) {
+    public BaseResult deactivateInstance(String instanceId, User requestingUser) {
         return service.deactivateInstance(instanceId, requestingUser);
     }
 
