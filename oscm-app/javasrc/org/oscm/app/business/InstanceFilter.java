@@ -12,8 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.oscm.app.business.exceptions.BadResultException;
+import org.oscm.app.domain.InstanceAttribute;
 import org.oscm.app.domain.InstanceParameter;
 import org.oscm.app.domain.ServiceInstance;
+import org.oscm.provisioning.data.ServiceAttribute;
 import org.oscm.provisioning.data.ServiceParameter;
 
 /**
@@ -23,7 +25,7 @@ import org.oscm.provisioning.data.ServiceParameter;
  * @author Mike J&auml;ger
  * 
  */
-public class InstanceParameterFilter {
+public class InstanceFilter {
 
     /**
      * Parses all parameters of the service instance and returns those that do
@@ -40,7 +42,7 @@ public class InstanceParameterFilter {
             ServiceInstance serviceInstance) throws BadResultException {
         List<InstanceParameter> parameters = serviceInstance
                 .getInstanceParameters();
-        List<ServiceParameter> result = new ArrayList<ServiceParameter>();
+        List<ServiceParameter> result = new ArrayList<>();
         for (InstanceParameter param : parameters) {
             String parameterKey = param.getParameterKey();
             if (includeParameter(parameterKey)) {
@@ -63,7 +65,7 @@ public class InstanceParameterFilter {
      */
     public static List<ServiceParameter> getFilteredInstanceParametersForService(
             List<ServiceParameter> serviceParameter) {
-        List<ServiceParameter> result = new ArrayList<ServiceParameter>();
+        List<ServiceParameter> result = new ArrayList<>();
         for (ServiceParameter param : serviceParameter) {
             String parameterKey = param.getParameterId();
             if (includeParameter(parameterKey)) {
@@ -84,5 +86,21 @@ public class InstanceParameterFilter {
      */
     private static boolean includeParameter(String parameterKey) {
         return !parameterKey.startsWith(InstanceParameter.APP_PARAM_KEY_PREFIX);
+    }
+
+    public static List<ServiceAttribute> getFilteredInstanceAttributeForService(
+            ServiceInstance serviceInstance) throws BadResultException {
+        List<InstanceAttribute> attributes = serviceInstance
+                .getInstanceAttributes();
+
+        List<ServiceAttribute> result = new ArrayList<>();
+        for (InstanceAttribute attr : attributes) {
+            ServiceAttribute sa = new ServiceAttribute();
+            sa.setAttributeId(attr.getAttributeKey());
+            sa.setValue(attr.getDecryptedValue());
+            result.add(sa);
+        }
+
+        return result;
     }
 }

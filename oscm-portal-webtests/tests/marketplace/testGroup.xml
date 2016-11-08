@@ -40,11 +40,12 @@
       <mpl_login.user userId="${userId}" mid="${mId}" />
       <mpl_goto.account.profile />
       <!-- bug11355 -->
-      <verifyXPath xpath="//*[@id='editForm:userId']" />
-      <verifyElementText htmlId="editForm:userId" text="${userId}" />
+      <mpl_goto.tab label="${marketplace.account.profile.userTab}" />
+      <verifyXPath xpath="//*[@id='userForm:userId']" />
+      <verifyElementText htmlId="userForm:userId" text="${userId}" />
       <!-- bug11194 -->
-      <verifyXPath xpath="//*[@id='editForm:userGroups']" />
-      <verifyElementText htmlId="editForm:userGroups" text="" />
+      <verifyXPath xpath="//*[@id='userForm:userGroups']" />
+      <verifyElementText htmlId="userForm:userGroups" text="" />
       <login.logout />
     </webtest>
 

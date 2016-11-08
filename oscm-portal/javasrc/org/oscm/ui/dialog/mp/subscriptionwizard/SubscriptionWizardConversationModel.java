@@ -15,6 +15,9 @@ import java.util.List;
 
 import javax.inject.Named;
 
+import org.oscm.internal.vo.VOBillingContact;
+import org.oscm.internal.vo.VOPaymentInfo;
+import org.oscm.internal.vo.VOSubscriptionDetails;
 import org.oscm.ui.common.SteppedPriceHandler;
 import org.oscm.ui.dialog.mp.interfaces.ConfigParamValidateable;
 import org.oscm.ui.model.Discount;
@@ -25,22 +28,19 @@ import org.oscm.ui.model.PricedParameterRow;
 import org.oscm.ui.model.RoleSpecificPrice;
 import org.oscm.ui.model.Service;
 import org.oscm.ui.model.UdaRow;
-import org.oscm.internal.vo.VOBillingContact;
-import org.oscm.internal.vo.VOPaymentInfo;
-import org.oscm.internal.vo.VOSubscriptionDetails;
 
 /**
  * all service detail information
  */
 @Named
-public class SubscriptionWizardConversationModel implements Serializable, ConfigParamValidateable {
+public class SubscriptionWizardConversationModel
+        implements Serializable, ConfigParamValidateable {
 
     private static final long serialVersionUID = -8514493198989595102L;
 
     private Service service;
     private PriceModel priceModel;
     private List<RoleSpecificPrice> roleSpecificPrices;
-    private List<UdaRow> organizationUdaRows;
     private List<UdaRow> subscriptionUdaRows;
     private boolean showServicePrices;
     private VOSubscriptionDetails subscription;
@@ -91,20 +91,13 @@ public class SubscriptionWizardConversationModel implements Serializable, Config
         return priceModel;
     }
 
-    public void setRoleSpecificPrices(List<RoleSpecificPrice> roleSpecificPrices) {
+    public void setRoleSpecificPrices(
+            List<RoleSpecificPrice> roleSpecificPrices) {
         this.roleSpecificPrices = roleSpecificPrices;
     }
 
     public List<RoleSpecificPrice> getRoleSpecificPrices() {
         return roleSpecificPrices;
-    }
-
-    public void setOrganizationUdaRows(List<UdaRow> organizationUdaRows) {
-        this.organizationUdaRows = organizationUdaRows;
-    }
-
-    public List<UdaRow> getOrganizationUdaRows() {
-        return organizationUdaRows;
     }
 
     public void setSubscriptionUdaRows(List<UdaRow> subscriptionUdaRows) {
@@ -140,7 +133,8 @@ public class SubscriptionWizardConversationModel implements Serializable, Config
     }
 
     @Override
-    public void setServiceParameters(List<PricedParameterRow> serviceParameters) {
+    public void setServiceParameters(
+            List<PricedParameterRow> serviceParameters) {
         this.serviceParameters = serviceParameters;
     }
 
@@ -188,14 +182,16 @@ public class SubscriptionWizardConversationModel implements Serializable, Config
     }
 
     public boolean getUseInternalConfigurator() {
-        return (serviceParameters != null && serviceParameters.size() > 0 && !service
-                .useExternalConfigurator()) || hideExternalConfigurator;
+        return (serviceParameters != null && serviceParameters.size() > 0
+                && !service.useExternalConfigurator())
+                || hideExternalConfigurator;
     }
 
     public boolean isHideExternalConfigurator() {
         return hideExternalConfigurator;
     }
 
+    @Override
     public void setHideExternalConfigurator(boolean hideExternalConfigurator) {
         this.hideExternalConfigurator = hideExternalConfigurator;
     }
@@ -228,10 +224,11 @@ public class SubscriptionWizardConversationModel implements Serializable, Config
         return selectedBillingContact;
     }
 
-    public void setSelectedBillingContact(VOBillingContact selectedBillingContact) {
+    public void setSelectedBillingContact(
+            VOBillingContact selectedBillingContact) {
         this.selectedBillingContact = selectedBillingContact;
     }
-    
+
     public boolean getLoadIframe() {
         return !useFallback && loadIframe;
     }
@@ -239,7 +236,7 @@ public class SubscriptionWizardConversationModel implements Serializable, Config
     public void setLoadIframe(boolean loadIframe) {
         this.loadIframe = loadIframe;
     }
-    
+
     public boolean getUseFallback() {
         return useFallback;
     }
@@ -262,39 +259,40 @@ public class SubscriptionWizardConversationModel implements Serializable, Config
      *         stepped price.
      */
     public boolean isPricedEventsWithSteppedPrices() {
-        return SteppedPriceHandler.isPricedEventsWithSteppedPrices(serviceEvents);
+        return SteppedPriceHandler
+                .isPricedEventsWithSteppedPrices(serviceEvents);
     }
 
-	public String getServiceParametersAsJSONString() {
-		return serviceParametersAsJSONString;
-	}
+    public String getServiceParametersAsJSONString() {
+        return serviceParametersAsJSONString;
+    }
 
-	public void setServiceParametersAsJSONString(
-			String serviceParametersAsJSONString) {
-		this.serviceParametersAsJSONString = serviceParametersAsJSONString;
-	}
+    public void setServiceParametersAsJSONString(
+            String serviceParametersAsJSONString) {
+        this.serviceParametersAsJSONString = serviceParametersAsJSONString;
+    }
 
-	@Override
+    @Override
     public boolean isReadOnlyParams() {
-		return readOnlyParams;
-	}
+        return readOnlyParams;
+    }
 
-	@Override
+    @Override
     public void setReadOnlyParams(boolean readOnlyParams) {
-		this.readOnlyParams = readOnlyParams;
-	}
+        this.readOnlyParams = readOnlyParams;
+    }
 
-	@Override
+    @Override
     public boolean isSubscriptionExisting() {
-		return subscriptionExisting;
-	}
+        return subscriptionExisting;
+    }
 
-	@Override
+    @Override
     public void setSubscriptionExisting(boolean subscriptionExisting) {
-		this.subscriptionExisting = subscriptionExisting;
-	}
-	
-	public boolean getShowTitle() {
+        this.subscriptionExisting = subscriptionExisting;
+    }
+
+    public boolean getShowTitle() {
         return showTitle;
     }
 
@@ -310,25 +308,26 @@ public class SubscriptionWizardConversationModel implements Serializable, Config
         this.configurationChanged = configurationChanged;
     }
 
-	@Override
+    @Override
     public String getParameterConfigResponse() {
-		return parameterConfigResponse;
-	}
+        return parameterConfigResponse;
+    }
 
-	@Override
+    @Override
     public void setParameterConfigResponse(String parameterConfigResponse) {
-		this.parameterConfigResponse = parameterConfigResponse;
-	}
+        this.parameterConfigResponse = parameterConfigResponse;
+    }
 
-	@Override
+    @Override
     public ParameterValidationResult getParameterValidationResult() {
-		return parameterValidationResult;
-	}
+        return parameterValidationResult;
+    }
 
-	@Override
-    public void setParameterValidationResult(ParameterValidationResult parameterValidationResult) {
-		this.parameterValidationResult = parameterValidationResult;
-	}
+    @Override
+    public void setParameterValidationResult(
+            ParameterValidationResult parameterValidationResult) {
+        this.parameterValidationResult = parameterValidationResult;
+    }
 
     public boolean isAnyPaymentAvailable() {
         return anyPaymentAvailable;

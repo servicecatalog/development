@@ -20,9 +20,6 @@ import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.oscm.app.sample.i18n.Messages;
 import org.oscm.app.v1_0.APPlatformServiceFactory;
 import org.oscm.app.v1_0.data.ControllerSettings;
@@ -36,6 +33,8 @@ import org.oscm.app.v1_0.data.ServiceUser;
 import org.oscm.app.v1_0.exceptions.APPlatformException;
 import org.oscm.app.v1_0.intf.APPlatformController;
 import org.oscm.app.v1_0.intf.APPlatformService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Sample implementation of a service controller based on the Asynchronous
@@ -110,6 +109,7 @@ public class SampleController implements APPlatformController {
         InstanceDescription id = new InstanceDescription();
         id.setInstanceId("Instance_" + System.currentTimeMillis());
         id.setChangedParameters(settings.getParameters());
+        id.setChangedAttributes(settings.getAttributes());
         return id;
     }
 
@@ -141,6 +141,7 @@ public class SampleController implements APPlatformController {
 
         InstanceStatus result = new InstanceStatus();
         result.setChangedParameters(settings.getParameters());
+        result.setChangedAttributes(settings.getAttributes());
         return result;
     }
 
@@ -180,6 +181,7 @@ public class SampleController implements APPlatformController {
 
         InstanceStatus result = new InstanceStatus();
         result.setChangedParameters(newSettings.getParameters());
+        result.setChangedAttributes(newSettings.getAttributes());
         return result;
     }
 
@@ -266,6 +268,7 @@ public class SampleController implements APPlatformController {
 
         InstanceStatus result = new InstanceStatus();
         result.setChangedParameters(settings.getParameters());
+        result.setChangedAttributes(settings.getAttributes());
         return result;
     }
 
@@ -297,6 +300,7 @@ public class SampleController implements APPlatformController {
 
         InstanceStatus result = new InstanceStatus();
         result.setChangedParameters(settings.getParameters());
+        result.setChangedAttributes(settings.getAttributes());
         return result;
     }
 
@@ -395,8 +399,8 @@ public class SampleController implements APPlatformController {
 
     @Override
     public List<OperationParameter> getOperationParameters(String userId,
-            String instanceId, String operationId, ProvisioningSettings settings)
-            throws APPlatformException {
+            String instanceId, String operationId,
+            ProvisioningSettings settings) throws APPlatformException {
         // TODO Auto-generated method stub
         return null;
     }

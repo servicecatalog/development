@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.oscm.internal.types.enumtypes.UdaConfigurationType;
+import org.oscm.internal.vo.VOOrganization;
 import org.oscm.internal.vo.VOUda;
 import org.oscm.internal.vo.VOUdaDefinition;
 
@@ -42,7 +43,7 @@ public class UdaRow implements Serializable {
      */
     public static List<UdaRow> getUdaRows(List<VOUdaDefinition> definitons,
             List<VOUda> udas) {
-        List<UdaRow> result = new ArrayList<UdaRow>();
+        List<UdaRow> result = new ArrayList<>();
         if (definitons == null) {
             return result;
         }
@@ -84,7 +85,8 @@ public class UdaRow implements Serializable {
      * decide if an input field has to be rendered for the UDA value
      */
     public boolean isInputRendered() {
-        return (udaDefinition.getConfigurationType() == UdaConfigurationType.SUPPLIER);
+        return (udaDefinition
+                .getConfigurationType() == UdaConfigurationType.SUPPLIER);
     }
 
     /**
@@ -98,19 +100,27 @@ public class UdaRow implements Serializable {
      * decide if an input field is mandatory
      */
     public boolean isInputMandatory() {
-        return (udaDefinition.getConfigurationType() == UdaConfigurationType.USER_OPTION_MANDATORY);
+        return (udaDefinition
+                .getConfigurationType() == UdaConfigurationType.USER_OPTION_MANDATORY);
     }
 
     private VOUdaDefinition udaDefinition;
     private VOUda uda;
+    private VOOrganization vendor;
 
-    UdaRow(VOUdaDefinition voUdaDefinition, VOUda voUda) {
+    public UdaRow(VOUdaDefinition voUdaDefinition, VOUda voUda,
+            VOOrganization voVendor) {
         udaDefinition = voUdaDefinition;
         uda = voUda;
+        vendor = voVendor;
         // apply the default value only for new UDAs
         if (uda.getUdaValue() == null) {
             uda.setUdaValue(udaDefinition.getDefaultValue());
         }
+    }
+
+    public UdaRow(VOUdaDefinition voUdaDefinition, VOUda voUda) {
+        this(voUdaDefinition, voUda, null);
     }
 
     public String getUdaId() {
@@ -133,4 +143,11 @@ public class UdaRow implements Serializable {
         return uda;
     }
 
+    public VOOrganization getVendor() {
+        return vendor;
+    }
+
+    public void setVendor(VOOrganization vendor) {
+        this.vendor = vendor;
+    }
 }

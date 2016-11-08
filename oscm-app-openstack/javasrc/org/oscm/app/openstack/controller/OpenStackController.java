@@ -113,6 +113,7 @@ public class OpenStackController extends ProvisioningValidator
             id.setInstanceId("stack-" + UUID.randomUUID().toString());
             id.setBaseUrl("baseurl");
             id.setChangedParameters(settings.getParameters());
+            id.setChangedAttributes(settings.getAttributes());
             LOGGER.info("createInstance({})", LogAndExceptionConverter
                     .getLogText(id.getInstanceId(), settings));
             return id;
@@ -152,6 +153,7 @@ public class OpenStackController extends ProvisioningValidator
 
             InstanceStatus result = new InstanceStatus();
             result.setChangedParameters(settings.getParameters());
+            result.setChangedAttributes(settings.getAttributes());
             return result;
         } catch (Exception t) {
             throw LogAndExceptionConverter.createAndLogPlatformException(t,
@@ -196,6 +198,7 @@ public class OpenStackController extends ProvisioningValidator
 
             InstanceStatus result = new InstanceStatus();
             result.setChangedParameters(newSettings.getParameters());
+            result.setChangedAttributes(newSettings.getAttributes());
             return result;
         } catch (Exception t) {
             throw LogAndExceptionConverter.createAndLogPlatformException(t,
@@ -317,6 +320,7 @@ public class OpenStackController extends ProvisioningValidator
 
             InstanceStatus result = new InstanceStatus();
             result.setChangedParameters(settings.getParameters());
+            result.setChangedAttributes(settings.getAttributes());
             return result;
         } catch (Exception t) {
             throw LogAndExceptionConverter.createAndLogPlatformException(t,
@@ -355,6 +359,7 @@ public class OpenStackController extends ProvisioningValidator
 
             InstanceStatus result = new InstanceStatus();
             result.setChangedParameters(settings.getParameters());
+            result.setChangedAttributes(settings.getAttributes());
             return result;
         } catch (Exception t) {
             throw LogAndExceptionConverter.createAndLogPlatformException(t,
@@ -493,6 +498,7 @@ public class OpenStackController extends ProvisioningValidator
                 status.setRunWithTimer(true);
                 status.setIsReady(false);
                 status.setChangedParameters(settings.getParameters());
+                status.setChangedAttributes(settings.getAttributes());
             }
             return status;
         } catch (Exception t) {
@@ -514,6 +520,7 @@ public class OpenStackController extends ProvisioningValidator
         status.setRunWithTimer(true);
         status.setDescription(getProvisioningStatusText(propertyHandler));
         status.setChangedParameters(settings.getParameters());
+        status.setChangedAttributes(settings.getAttributes());
         return status;
     }
 

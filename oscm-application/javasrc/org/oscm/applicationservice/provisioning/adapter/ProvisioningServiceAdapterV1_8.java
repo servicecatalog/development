@@ -1,17 +1,18 @@
 /*******************************************************************************
- *  Copyright FUJITSU LIMITED 2016 
+ *                                                                              
+ *  Copyright FUJITSU LIMITED 2016                                             
+ *                                                                                                                                 
+ *  Creation Date: 19.03.2014                                                      
+ *                                                                              
  *******************************************************************************/
 
-package org.oscm.saml.sp;
+package org.oscm.applicationservice.provisioning.adapter;
 
+import java.net.URL;
 import java.util.List;
 
-import javax.annotation.Resource;
-import javax.jws.WebService;
-import javax.xml.ws.WebServiceContext;
-
+import org.oscm.applicationservice.adapter.ProvisioningServiceAdapter;
 import org.oscm.provisioning.data.BaseResult;
-import org.oscm.provisioning.data.InstanceInfo;
 import org.oscm.provisioning.data.InstanceRequest;
 import org.oscm.provisioning.data.InstanceResult;
 import org.oscm.provisioning.data.ServiceAttribute;
@@ -21,76 +22,59 @@ import org.oscm.provisioning.data.UserResult;
 import org.oscm.provisioning.intf.ProvisioningService;
 
 /**
- * This is a stub implementation of the {@link ProvisioningService}
+ * @author goebel
  * 
- * @author kulle
  */
-@WebService(serviceName = "SamlProvisioningService", targetNamespace = "http://oscm.org/xsd", endpointInterface = "org.oscm.provisioning.intf.ProvisioningService")
-public class ProvisioningServiceBean implements ProvisioningService {
+public class ProvisioningServiceAdapterV1_8 implements
+        ProvisioningServiceAdapter {
 
-    @Resource
-    private WebServiceContext context;
+    private ProvisioningService service;
 
-    private static final int RETURN_CODE_OK = 0;
-
-    private <T extends BaseResult> T setOk(T result) {
-        result.setRc(RETURN_CODE_OK);
-        result.setDesc("Ok");
-        return result;
+    @Override
+    public URL getLocalWSDL() {
+        return this.getClass().getResource(
+                "/wsdl/provisioning/ProvisioningService.wsdl");
     }
 
-    private BaseResult getBaseResultOk() {
-        return setOk(new BaseResult());
+    @Override
+    public void setProvisioningService(Object provServ) {
+        this.service = ProvisioningService.class.cast(provServ);
     }
 
     @Override
     public BaseResult asyncCreateInstance(InstanceRequest request,
             User requestingUser) {
-        return getBaseResultOk();
+        return service.asyncCreateInstance(request, requestingUser);
     }
 
     @Override
     public InstanceResult createInstance(InstanceRequest request,
             User requestingUser) {
-        InstanceInfo instance = new InstanceInfo();
-        instance.setInstanceId(request.getSubscriptionId());
-        instance.setAccessInfo(null);
-
-        InstanceResult instanceResult = new InstanceResult();
-        instanceResult.setInstance(instance);
-        setOk(instanceResult);
-
-        return instanceResult;
+        return service.createInstance(request, requestingUser);
     }
 
     @Override
     public UserResult createUsers(String instanceId, List<User> users,
             User requestingUser) {
-        UserResult userResult = new UserResult();
-        for (User user : users) {
-            user.setApplicationUserId(user.getUserId());
-        }
-        userResult.setUsers(users);
-        setOk(userResult);
-
-        return userResult;
+        return service.createUsers(instanceId, users, requestingUser);
     }
 
     @Override
     public BaseResult deleteInstance(String instanceId, String organizationId,
             String subscriptionId, User requestingUser) {
-        return getBaseResultOk();
+        return service.deleteInstance(instanceId, organizationId,
+                subscriptionId, requestingUser);
     }
 
     @Override
     public BaseResult deleteUsers(String instanceId, List<User> users,
             User requestingUser) {
-        return getBaseResultOk();
+        return service.deleteUsers(instanceId, users, requestingUser);
     }
 
     @Override
     public String sendPing(String arg) {
-        return arg;
+        return service.sendPing(arg);
     }
 
     @Override
@@ -98,24 +82,25 @@ public class ProvisioningServiceBean implements ProvisioningService {
             String subscriptionId, String referenceId,
             List<ServiceParameter> parameterValues,
             List<ServiceAttribute> attributeValues, User requestingUser) {
-        return getBaseResultOk();
+        return service.modifySubscription(instanceId, referenceId,
+                subscriptionId, parameterValues, attributeValues,
+                requestingUser);
     }
 
     @Override
     public BaseResult updateUsers(String instanceId, List<User> users,
             User requestingUser) {
-        return getBaseResultOk();
+        return service.updateUsers(instanceId, users, requestingUser);
     }
 
     @Override
     public BaseResult activateInstance(String instanceId, User requestingUser) {
-        return getBaseResultOk();
+        return service.activateInstance(instanceId, requestingUser);
     }
 
     @Override
-    public BaseResult deactivateInstance(String instanceId,
-            User requestingUser) {
-        return getBaseResultOk();
+    public BaseResult deactivateInstance(String instanceId, User requestingUser) {
+        return service.deactivateInstance(instanceId, requestingUser);
     }
 
     @Override
@@ -123,7 +108,9 @@ public class ProvisioningServiceBean implements ProvisioningService {
             String subscriptionId, String referenceId,
             List<ServiceParameter> parameterValues,
             List<ServiceAttribute> attributeValues, User requestingUser) {
-        return getBaseResultOk();
+        return service.asyncModifySubscription(instanceId, referenceId,
+                subscriptionId, parameterValues, attributeValues,
+                requestingUser);
     }
 
     @Override
@@ -131,7 +118,9 @@ public class ProvisioningServiceBean implements ProvisioningService {
             String subscriptionId, String referenceId,
             List<ServiceParameter> parameterValues,
             List<ServiceAttribute> attributeValues, User requestingUser) {
-        return getBaseResultOk();
+        return service.asyncUpgradeSubscription(instanceId, referenceId,
+                subscriptionId, parameterValues, attributeValues,
+                requestingUser);
     }
 
     @Override
@@ -139,13 +128,16 @@ public class ProvisioningServiceBean implements ProvisioningService {
             String subscriptionId, String referenceId,
             List<ServiceParameter> parameterValues,
             List<ServiceAttribute> attributeValues, User requestingUser) {
-        return getBaseResultOk();
+        return service.upgradeSubscription(instanceId, referenceId,
+                subscriptionId, parameterValues, attributeValues,
+                requestingUser);
     }
 
     @Override
     public BaseResult saveAttributes(String organizationId,
             List<ServiceAttribute> attributeValues, User requestingUser) {
-        return getBaseResultOk();
+        return service.saveAttributes(organizationId, attributeValues,
+                requestingUser);
     }
 
 }

@@ -9,7 +9,10 @@
 package org.oscm.app.v1_0.data;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Wrapper object for service parameters and configuration settings. Service
@@ -19,16 +22,21 @@ import java.util.HashMap;
  * an application-specific service controller; they can also be evaluated by the
  * application.
  */
-public class ProvisioningSettings extends ControllerSettings implements
-        Serializable {
+public class ProvisioningSettings extends ControllerSettings
+        implements Serializable {
 
     private static final long serialVersionUID = 9161029657174458354L;
 
+    private static final String SEPARATOR = "_";
+
     private String locale;
     private HashMap<String, String> parameters;
+    private HashMap<String, String> attributes;
+    private HashMap<String, String> customAttributes;
     private String organizationId;
     private String organizationName;
     private String subscriptionId;
+    private String referenceId;
     private String besLoginURL;
     private ServiceUser requestingUser;
 
@@ -48,9 +56,38 @@ public class ProvisioningSettings extends ControllerSettings implements
      */
     public ProvisioningSettings(HashMap<String, String> parameters,
             HashMap<String, String> configSettings, String locale) {
+
+        this(parameters, new HashMap<String, String>(),
+                new HashMap<String, String>(), configSettings, locale);
+    }
+
+    /**
+     * Constructs a new provisioning settings instance with the given service
+     * parameters, attributes, custom attributes and controller configuration
+     * settings. The specified locale is used for language-dependent strings.
+     * 
+     * @param parameters
+     *            the service parameters, consisting of a key and a value each
+     * @param attributes
+     *            the service attributes, consisting of a key and a value each
+     * @param customAttributes
+     *            the custom attributes, consisting of a key and a value each
+     * @param configSettings
+     *            the configuration settings, consisting of a key and a value
+     *            each
+     * @param locale
+     *            the language. Specify a language code as returned by
+     *            <code>getLanguage()</code> of <code>java.util.Locale</code>.
+     */
+    public ProvisioningSettings(HashMap<String, String> parameters,
+            HashMap<String, String> attributes,
+            HashMap<String, String> customAttributes,
+            HashMap<String, String> configSettings, String locale) {
         super(configSettings);
         this.parameters = parameters;
         this.locale = locale;
+        this.attributes = attributes;
+        this.customAttributes = customAttributes;
     }
 
     /**
@@ -70,6 +107,44 @@ public class ProvisioningSettings extends ControllerSettings implements
      */
     public void setParameters(HashMap<String, String> parameters) {
         this.parameters = parameters;
+    }
+
+    /**
+     * Returns a list of the instance attributes.
+     * 
+     * @return the instance attributes, consisting of a key and a value each
+     */
+    public HashMap<String, String> getAttributes() {
+        return attributes;
+    }
+
+    /**
+     * Sets the instance attributes.
+     * 
+     * @param parameters
+     *            the instance attributes, consisting of a key and a value each
+     */
+    public void setAttributes(HashMap<String, String> attributes) {
+        this.attributes = attributes;
+    }
+
+    /**
+     * Returns a list of the custom attributes.
+     * 
+     * @return the custom attributes, consisting of a key and a value each
+     */
+    public HashMap<String, String> getCustomAttributes() {
+        return customAttributes;
+    }
+
+    /**
+     * Sets the custom attributes.
+     * 
+     * @param customAttributes
+     *            the custom attributes, consisting of a key and a value each
+     */
+    public void setCustomAttributes(HashMap<String, String> customAttributes) {
+        this.customAttributes = customAttributes;
     }
 
     /**
@@ -157,6 +232,25 @@ public class ProvisioningSettings extends ControllerSettings implements
     }
 
     /**
+     * Returns the id specified by the customer to refer to the subscription.
+     * 
+     * @return the referenceId
+     */
+    public String getReferenceId() {
+        return referenceId;
+    }
+
+    /**
+     * Sets the id specified by the customer to refer to the subscription.
+     * 
+     * @param referenceId
+     *            the referenceId to set
+     */
+    public void setReferenceId(String referenceId) {
+        this.referenceId = referenceId;
+    }
+
+    /**
      * Returns the platform's login page to which the application can redirect
      * users who need to log in. This value is set for the <code>LOGIN</code>
      * access types.
@@ -188,11 +282,15 @@ public class ProvisioningSettings extends ControllerSettings implements
     }
 
     /**
-     * <p>If APP calls createInstance() of the controller, returns the user
-     * who requested the current provisioning operation.</p>
+     * <p>
+     * If APP calls createInstance() of the controller, returns the user who
+     * requested the current provisioning operation.
+     * </p>
      * 
-     * <p>If a timer calls the controller to switch from one status to the
-     * other, returns 'null'.</p>
+     * <p>
+     * If a timer calls the controller to switch from one status to the other,
+     * returns 'null'.
+     * </p>
      * 
      * @return the user or 'null'
      */
@@ -210,4 +308,45 @@ public class ProvisioningSettings extends ControllerSettings implements
         this.requestingUser = user;
     }
 
+    /**
+     * Replaces properties of configuration settings or parameters with values
+     * from attributes or parameters. In the case of attributes a prefix is used
+     * which is the controller id and an underscore. Properties will only be
+     * overwritten if the source value is not null or empty.
+     * 
+     * @param controllerId
+     *            the id of the controller the settings are for.
+     */
+    public void overwriteProperties(String controllerId) {
+
+        String prefix = controllerId + SEPARATOR;
+
+        overwriteProperties("", getParameters(),
+                Arrays.asList(getConfigSettings()));
+        overwriteProperties(prefix, getCustomAttributes(),
+                Arrays.asList(getParameters(), getConfigSettings()));
+        overwriteProperties(prefix, getAttributes(),
+                Arrays.asList(getParameters(), getConfigSettings()));
+    }
+
+    private void overwriteProperties(String prefix,
+            HashMap<String, String> source,
+            List<HashMap<String, String>> targets) {
+
+        for (Map<String, String> target : targets) {
+            for (String key : source.keySet()) {
+                if (key != null && key.startsWith(prefix)) {
+                    String targetKey = key.substring(prefix.length());
+
+                    if (target.containsKey(targetKey)) {
+                        String value = source.get(key);
+                        if (value != null && value.trim().length() > 0) {
+                            target.put(targetKey, value);
+                        }
+                    }
+                }
+            }
+        }
+
+    }
 }

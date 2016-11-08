@@ -14,7 +14,7 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
-import org.oscm.app.business.InstanceParameterFilter;
+import org.oscm.app.business.InstanceFilter;
 import org.oscm.app.domain.InstanceParameter;
 import org.oscm.app.domain.ServiceInstance;
 import org.oscm.provisioning.data.ServiceParameter;
@@ -27,8 +27,8 @@ public class InstanceParameterFilterTest {
     @Test
     public void testFilterInstanceParametersForServiceEmptyInput()
             throws Exception {
-        new InstanceParameterFilter(); // coverage
-        List<ServiceParameter> result = InstanceParameterFilter
+        new InstanceFilter(); // coverage
+        List<ServiceParameter> result = InstanceFilter
                 .getFilteredInstanceParametersForService(serviceParamInput);
         Assert.assertNotNull(result);
         Assert.assertEquals(0, result.size());
@@ -38,7 +38,7 @@ public class InstanceParameterFilterTest {
     public void testFilterInstanceParametersForServiceSingleInput()
             throws Exception {
         addServiceParameter("param", "value");
-        List<ServiceParameter> result = InstanceParameterFilter
+        List<ServiceParameter> result = InstanceFilter
                 .getFilteredInstanceParametersForService(serviceParamInput);
         Assert.assertNotNull(result);
         Assert.assertEquals(1, result.size());
@@ -51,7 +51,7 @@ public class InstanceParameterFilterTest {
     public void testFilterInstanceParametersForServiceSingleFilterInput()
             throws Exception {
         addServiceParameter("APP_param", "value");
-        List<ServiceParameter> result = InstanceParameterFilter
+        List<ServiceParameter> result = InstanceFilter
                 .getFilteredInstanceParametersForService(serviceParamInput);
         Assert.assertNotNull(result);
         Assert.assertEquals(0, result.size());
@@ -62,7 +62,7 @@ public class InstanceParameterFilterTest {
             throws Exception {
         addServiceParameter("param1", "value1");
         addServiceParameter("param2", "value2");
-        List<ServiceParameter> result = InstanceParameterFilter
+        List<ServiceParameter> result = InstanceFilter
                 .getFilteredInstanceParametersForService(serviceParamInput);
         Assert.assertNotNull(result);
         Assert.assertEquals(2, result.size());
@@ -79,7 +79,7 @@ public class InstanceParameterFilterTest {
             throws Exception {
         addServiceParameter("APP_param1", "value1");
         addServiceParameter("APP_param2", "value2");
-        List<ServiceParameter> result = InstanceParameterFilter
+        List<ServiceParameter> result = InstanceFilter
                 .getFilteredInstanceParametersForService(serviceParamInput);
         Assert.assertNotNull(result);
         Assert.assertEquals(0, result.size());
@@ -90,7 +90,7 @@ public class InstanceParameterFilterTest {
             throws Exception {
         addServiceParameter("APP_param1", "value1");
         addServiceParameter("param2", "value2");
-        List<ServiceParameter> result = InstanceParameterFilter
+        List<ServiceParameter> result = InstanceFilter
                 .getFilteredInstanceParametersForService(serviceParamInput);
         Assert.assertNotNull(result);
         Assert.assertEquals(1, result.size());
@@ -102,7 +102,7 @@ public class InstanceParameterFilterTest {
     @Test
     public void testFilterInstanceParametersForServiceInstanceEmptyInput()
             throws Exception {
-        List<ServiceParameter> result = InstanceParameterFilter
+        List<ServiceParameter> result = InstanceFilter
                 .getFilteredInstanceParametersForService(instance);
         Assert.assertNotNull(result);
         Assert.assertEquals(0, result.size());
@@ -112,7 +112,7 @@ public class InstanceParameterFilterTest {
     public void testFilterInstanceParametersForServiceInstanceSingleInput()
             throws Exception {
         addInstanceParameterToService("param1", "value1");
-        List<ServiceParameter> result = InstanceParameterFilter
+        List<ServiceParameter> result = InstanceFilter
                 .getFilteredInstanceParametersForService(instance);
         Assert.assertNotNull(result);
         Assert.assertEquals(1, result.size());
@@ -125,7 +125,7 @@ public class InstanceParameterFilterTest {
     public void testFilterInstanceParametersForServiceInstanceSingleFilterInput()
             throws Exception {
         addInstanceParameterToService("APP_param1", "value1");
-        List<ServiceParameter> result = InstanceParameterFilter
+        List<ServiceParameter> result = InstanceFilter
                 .getFilteredInstanceParametersForService(instance);
         Assert.assertNotNull(result);
         Assert.assertEquals(0, result.size());
@@ -136,7 +136,7 @@ public class InstanceParameterFilterTest {
             throws Exception {
         addInstanceParameterToService("param1", "value1");
         addInstanceParameterToService("param2", "value2");
-        List<ServiceParameter> result = InstanceParameterFilter
+        List<ServiceParameter> result = InstanceFilter
                 .getFilteredInstanceParametersForService(instance);
         Assert.assertNotNull(result);
         Assert.assertEquals(2, result.size());
@@ -153,7 +153,7 @@ public class InstanceParameterFilterTest {
             throws Exception {
         addInstanceParameterToService("APP_param1", "value1");
         addInstanceParameterToService("APP_param2", "value2");
-        List<ServiceParameter> result = InstanceParameterFilter
+        List<ServiceParameter> result = InstanceFilter
                 .getFilteredInstanceParametersForService(instance);
         Assert.assertNotNull(result);
         Assert.assertEquals(0, result.size());
@@ -164,7 +164,7 @@ public class InstanceParameterFilterTest {
             throws Exception {
         addInstanceParameterToService("APP_param1", "value1");
         addInstanceParameterToService("param2", "value2");
-        List<ServiceParameter> result = InstanceParameterFilter
+        List<ServiceParameter> result = InstanceFilter
                 .getFilteredInstanceParametersForService(instance);
         Assert.assertNotNull(result);
         Assert.assertEquals(1, result.size());

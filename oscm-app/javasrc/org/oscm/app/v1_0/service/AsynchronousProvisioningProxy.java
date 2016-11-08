@@ -15,19 +15,19 @@ import javax.inject.Inject;
 import javax.jws.WebService;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 
-import org.slf4j.Logger;
-
-import org.oscm.string.Strings;
 import org.oscm.app.business.APPlatformControllerFactory;
 import org.oscm.app.business.AsynchronousProvisioningProxyImpl;
-import org.oscm.app.business.InstanceParameterFilter;
+import org.oscm.app.business.InstanceFilter;
 import org.oscm.app.business.ProductProvisioningServiceFactoryBean;
 import org.oscm.app.business.ProvisioningResults;
 import org.oscm.app.business.UserMapper;
 import org.oscm.app.business.exceptions.BadResultException;
 import org.oscm.app.business.exceptions.ServiceInstanceInProcessingException;
 import org.oscm.app.dao.ServiceInstanceDAO;
+import org.oscm.app.domain.CustomAttribute;
+import org.oscm.app.domain.InstanceAttribute;
 import org.oscm.app.domain.InstanceParameter;
 import org.oscm.app.domain.ProvisioningStatus;
 import org.oscm.app.domain.ServiceInstance;
@@ -43,10 +43,13 @@ import org.oscm.app.v1_0.intf.APPlatformController;
 import org.oscm.provisioning.data.BaseResult;
 import org.oscm.provisioning.data.InstanceRequest;
 import org.oscm.provisioning.data.InstanceResult;
+import org.oscm.provisioning.data.ServiceAttribute;
 import org.oscm.provisioning.data.ServiceParameter;
 import org.oscm.provisioning.data.User;
 import org.oscm.provisioning.data.UserResult;
 import org.oscm.provisioning.intf.ProvisioningService;
+import org.oscm.string.Strings;
+import org.slf4j.Logger;
 
 /**
  * Implements the latest OSCM provisioning service interface.
@@ -105,8 +108,8 @@ public class AsynchronousProvisioningProxy implements ProvisioningService {
             String successMsg = null;
             if (descriptions != null) {
                 for (LocalizedText description : descriptions) {
-                    if (description.getLocale().equals(
-                            getLocale(requestingUser))) {
+                    if (description.getLocale()
+                            .equals(getLocale(requestingUser))) {
                         successMsg = description.getText();
                     }
                 }
@@ -123,20 +126,24 @@ public class AsynchronousProvisioningProxy implements ProvisioningService {
 
     ServiceInstance createPersistentServiceInstance(InstanceRequest request,
             InstanceDescription descr) throws BadResultException {
-        final HashMap<String, String> parameters = createParameterMap(request
-                .getParameterValue());
+        final HashMap<String, String> parameters = createParameterMap(
+                request.getParameterValue());
         String controllerId = parameters.get(InstanceParameter.CONTROLLER_ID);
         ServiceInstance si = new ServiceInstance();
         si.setOrganizationId(request.getOrganizationId());
         si.setOrganizationName(request.getOrganizationName());
         si.setSubscriptionId(request.getSubscriptionId());
+        si.setReferenceId(request.getReferenceId());
         si.setDefaultLocale(request.getDefaultLocale());
-        si.setProvisioningStatus(ProvisioningStatus.WAITING_FOR_SYSTEM_CREATION);
+        si.setProvisioningStatus(
+                ProvisioningStatus.WAITING_FOR_SYSTEM_CREATION);
         si.setControllerId(controllerId);
         si.setBesLoginURL(request.getLoginUrl());
         si.setRequestTime(System.currentTimeMillis());
-        si.setInstanceParameters(createParameters(si,
-                descr.getChangedParameters()));
+        si.setInstanceParameters(
+                createParameters(si, descr.getChangedParameters()));
+        si.setInstanceAttributes(
+                createAttributes(si, descr.getChangedAttributes()));
         si.setServiceBaseURL(descr.getBaseUrl());
         si.setInstanceId(descr.getInstanceId());
         em.persist(si);
@@ -144,32 +151,42 @@ public class AsynchronousProvisioningProxy implements ProvisioningService {
     }
 
     InstanceDescription getInstanceDescription(InstanceRequest request,
-            User requestingUser) throws APPlatformException, BadResultException {
-        final HashMap<String, String> parameters = createParameterMap(request
-                .getParameterValue());
+            User requestingUser)
+            throws APPlatformException, BadResultException {
+        final HashMap<String, String> parameters = createParameterMap(
+                request.getParameterValue());
+        final HashMap<String, String> attributes = createAttributeMap(
+                request.getAttributeValue());
         String controllerId = parameters.get(InstanceParameter.CONTROLLER_ID);
         if (controllerId == null) {
-            logger.warn("The technical service does not define a controller implementation");
-            throw new BadResultException(Messages.get(
-                    request.getDefaultLocale(), "error_configuration"));
+            logger.warn(
+                    "The technical service does not define a controller implementation");
+            throw new BadResultException(Messages
+                    .get(request.getDefaultLocale(), "error_configuration"));
         }
 
         HashMap<String, String> controllerSettings = configService
                 .getControllerConfigurationSettings(controllerId);
+        HashMap<String, String> customAttributes = configService
+                .getCustomAttributes(request.getOrganizationId());
         final ProvisioningSettings settings = new ProvisioningSettings(
-                parameters, controllerSettings, request.getDefaultLocale());
+                parameters, attributes, customAttributes, controllerSettings,
+                request.getDefaultLocale());
         settings.setOrganizationId(request.getOrganizationId());
         settings.setOrganizationName(request.getOrganizationName());
         settings.setSubscriptionId(request.getSubscriptionId());
+        settings.setReferenceId(request.getReferenceId());
         settings.setBesLoginUrl(request.getLoginUrl());
+
+        settings.overwriteProperties(controllerId);
 
         ServiceInstance si = new ServiceInstance();
         si.setInstanceParameters(createParameters(si, parameters));
         si.setControllerId(controllerId);
 
-        settings.setAuthentication(configService
-                .getAuthenticationForBESTechnologyManager(controllerId, si,
-                        null));
+        settings.setAuthentication(
+                configService.getAuthenticationForBESTechnologyManager(
+                        controllerId, si, null));
         configService.copyCredentialsFromControllerSettings(settings,
                 controllerSettings);
         settings.setRequestingUser(UserMapper.toServiceUser(requestingUser));
@@ -182,22 +199,22 @@ public class AsynchronousProvisioningProxy implements ProvisioningService {
         // Check whether instanceId is filled and unique
         if (Strings.isEmpty(descr.getInstanceId())) {
             logger.error("Instance ID not specified by controller.");
-            throw new BadResultException(Messages.get(
-                    request.getDefaultLocale(), "error_instanceid_empty"));
+            throw new BadResultException(Messages
+                    .get(request.getDefaultLocale(), "error_instanceid_empty"));
         }
         if (instanceDAO.exists(descr.getInstanceId())) {
             logger.error("Instance ID " + descr.getInstanceId()
                     + " already used by another instance.");
-            throw new BadResultException(Messages.get(
-                    request.getDefaultLocale(), "error_instanceid_exists",
-                    descr.getInstanceId()));
+            throw new BadResultException(
+                    Messages.get(request.getDefaultLocale(),
+                            "error_instanceid_exists", descr.getInstanceId()));
         }
         return descr;
     }
 
     private List<InstanceParameter> createParameters(final ServiceInstance si,
             final Map<String, String> src) throws BadResultException {
-        final ArrayList<InstanceParameter> dest = new ArrayList<InstanceParameter>();
+        final ArrayList<InstanceParameter> dest = new ArrayList<>();
         if (src != null) {
             for (final String key : src.keySet()) {
                 if (key != null) {
@@ -212,10 +229,28 @@ public class AsynchronousProvisioningProxy implements ProvisioningService {
         return dest;
     }
 
+    private List<InstanceAttribute> createAttributes(final ServiceInstance si,
+            final Map<String, String> src) throws BadResultException {
+        final ArrayList<InstanceAttribute> dest = new ArrayList<>();
+        if (src != null) {
+            for (final String key : src.keySet()) {
+                if (key != null) {
+                    final InstanceAttribute d = new InstanceAttribute();
+                    d.setServiceInstance(si);
+                    d.setAttributeKey(key);
+                    d.setDecryptedValue(src.get(key));
+                    dest.add(d);
+                }
+            }
+        }
+        return dest;
+    }
+
     @Override
     public UserResult createUsers(String instanceId, List<User> users,
             User requestingUser) {
-        logger.info("Create users for service instance with ID {}.", instanceId);
+        logger.info("Create users for service instance with ID {}.",
+                instanceId);
 
         ServiceInstance instance = null;
 
@@ -246,8 +281,8 @@ public class AsynchronousProvisioningProxy implements ProvisioningService {
                 if (status.isInstanceProvisioningRequested()) {
                     final ProvisioningService provisioning = provisioningFactory
                             .getInstance(instance);
-                    final UserResult result = provisioning.createUsers(
-                            instanceId, users, requestingUser);
+                    final UserResult result = provisioning
+                            .createUsers(instanceId, users, requestingUser);
                     if (provResult.isError(result)) {
                         return result;
                     }
@@ -262,7 +297,8 @@ public class AsynchronousProvisioningProxy implements ProvisioningService {
                 instance.setInstanceParameters(status.getChangedParameters());
             }
 
-            instance.setProvisioningStatus(ProvisioningStatus.WAITING_FOR_USER_CREATION);
+            instance.setProvisioningStatus(
+                    ProvisioningStatus.WAITING_FOR_USER_CREATION);
             em.persist(instance);
 
             timerService.initTimers();
@@ -305,8 +341,8 @@ public class AsynchronousProvisioningProxy implements ProvisioningService {
                 if (status.isInstanceProvisioningRequested()) {
                     final ProvisioningService provisioning = provisioningFactory
                             .getInstance(instance);
-                    final BaseResult result = provisioning.updateUsers(
-                            instanceId, users, requestingUser);
+                    final BaseResult result = provisioning
+                            .updateUsers(instanceId, users, requestingUser);
                     if (provResult.isError(result)) {
                         return result;
                     }
@@ -316,7 +352,8 @@ public class AsynchronousProvisioningProxy implements ProvisioningService {
                 instance.setInstanceParameters(status.getChangedParameters());
             }
 
-            instance.setProvisioningStatus(ProvisioningStatus.WAITING_FOR_USER_MODIFICATION);
+            instance.setProvisioningStatus(
+                    ProvisioningStatus.WAITING_FOR_USER_MODIFICATION);
             em.persist(instance);
 
             timerService.initTimers();
@@ -354,8 +391,8 @@ public class AsynchronousProvisioningProxy implements ProvisioningService {
                 if (status.isInstanceProvisioningRequested()) {
                     final ProvisioningService provisioning = provisioningFactory
                             .getInstance(instance);
-                    final BaseResult result = provisioning.deleteUsers(
-                            instanceId, users, requestingUser);
+                    final BaseResult result = provisioning
+                            .deleteUsers(instanceId, users, requestingUser);
                     if (provResult.isError(result)) {
                         return result;
                     }
@@ -365,7 +402,8 @@ public class AsynchronousProvisioningProxy implements ProvisioningService {
                 instance.setInstanceParameters(status.getChangedParameters());
             }
 
-            instance.setProvisioningStatus(ProvisioningStatus.WAITING_FOR_USER_DELETION);
+            instance.setProvisioningStatus(
+                    ProvisioningStatus.WAITING_FOR_USER_DELETION);
             em.persist(instance);
 
             timerService.initTimers();
@@ -386,20 +424,27 @@ public class AsynchronousProvisioningProxy implements ProvisioningService {
 
     @Override
     public BaseResult asyncModifySubscription(String instanceId,
-            String subscriptionId, List<ServiceParameter> parameterValues,
-            User requestingUser) {
-        final HashMap<String, String> parameterMap = createParameterMap(parameterValues);
+            String subscriptionId, String referenceId,
+            List<ServiceParameter> parameterValues,
+            List<ServiceAttribute> attributeValues, User requestingUser) {
+        final HashMap<String, String> parameterMap = createParameterMap(
+                parameterValues);
+        final HashMap<String, String> attributeMap = createAttributeMap(
+                attributeValues);
         logger.info("Modify parameters for instance {}: {}", instanceId,
                 parameterMap);
-        return modifySubscription(instanceId, subscriptionId, parameterValues,
-                parameterMap,
+        return modifySubscription(instanceId, subscriptionId, referenceId,
+                parameterValues, attributeValues, parameterMap, attributeMap,
                 ProvisioningStatus.WAITING_FOR_SYSTEM_MODIFICATION,
                 requestingUser);
     }
 
     private BaseResult modifySubscription(String instanceId,
-            String subscriptionId, List<ServiceParameter> parameterValues,
+            String subscriptionId, String referenceId,
+            List<ServiceParameter> parameterValues,
+            List<ServiceAttribute> attributeValues,
             final HashMap<String, String> parameterMap,
+            final HashMap<String, String> attributeMap,
             ProvisioningStatus targetStatus, User requestingUser) {
 
         ServiceInstance instance = null;
@@ -412,8 +457,8 @@ public class AsynchronousProvisioningProxy implements ProvisioningService {
             checkInstanceAvailability(instance);
 
             final HashMap<String, String> controllerSettings = configService
-                    .getControllerConfigurationSettings(instance
-                            .getControllerId());
+                    .getControllerConfigurationSettings(
+                            instance.getControllerId());
             final APPlatformController controller = APPlatformControllerFactory
                     .getInstance(instance.getControllerId());
 
@@ -421,14 +466,18 @@ public class AsynchronousProvisioningProxy implements ProvisioningService {
                     .getProvisioningSettings(instance,
                             UserMapper.toServiceUser(requestingUser));
             final ProvisioningSettings newSettings = new ProvisioningSettings(
-                    parameterMap, controllerSettings,
+                    parameterMap, attributeMap,
+                    currentSettings.getCustomAttributes(), controllerSettings,
                     instance.getDefaultLocale());
             newSettings.setAuthentication(currentSettings.getAuthentication());
             configService.copyCredentialsFromControllerSettings(newSettings,
                     controllerSettings);
-            newSettings.setRequestingUser(UserMapper
-                    .toServiceUser(requestingUser));
+            newSettings.setRequestingUser(
+                    UserMapper.toServiceUser(requestingUser));
             newSettings.setSubscriptionId(subscriptionId);
+            newSettings.setReferenceId(referenceId);
+
+            newSettings.overwriteProperties(instance.getControllerId());
 
             // Forward modification request
             final InstanceStatus status = controller.modifyInstance(
@@ -438,10 +487,12 @@ public class AsynchronousProvisioningProxy implements ProvisioningService {
                 if (status.isInstanceProvisioningRequested()) {
                     final ProvisioningService provisioning = provisioningFactory
                             .getInstance(instance);
-                    final List<ServiceParameter> filteredParameters = InstanceParameterFilter
-                            .getFilteredInstanceParametersForService(parameterValues);
+                    final List<ServiceParameter> filteredParameters = InstanceFilter
+                            .getFilteredInstanceParametersForService(
+                                    parameterValues);
                     final BaseResult result = provisioning.modifySubscription(
-                            instanceId, subscriptionId, filteredParameters,
+                            instanceId, subscriptionId, referenceId,
+                            filteredParameters, attributeValues,
                             requestingUser);
                     if (provResult.isError(result)) {
                         return result;
@@ -450,10 +501,12 @@ public class AsynchronousProvisioningProxy implements ProvisioningService {
 
                 // If everything worked well we will save all changed parameters
                 instance.setInstanceParameters(status.getChangedParameters());
+                instance.setInstanceAttributes(status.getChangedAttributes());
             }
 
             instance.setProvisioningStatus(targetStatus);
             instance.setSubscriptionId(subscriptionId);
+            instance.setReferenceId(referenceId);
             em.persist(instance);
 
             timerService.initTimers();
@@ -484,11 +537,23 @@ public class AsynchronousProvisioningProxy implements ProvisioningService {
 
     private HashMap<String, String> createParameterMap(
             List<ServiceParameter> parameterValues) {
-        final HashMap<String, String> map = new HashMap<String, String>();
+        final HashMap<String, String> map = new HashMap<>();
         if (parameterValues != null) {
             for (final ServiceParameter p : parameterValues) {
                 String value = p.getValue();
                 map.put(p.getParameterId(), value != null ? value : "");
+            }
+        }
+        return map;
+    }
+
+    private HashMap<String, String> createAttributeMap(
+            List<ServiceAttribute> attributeValues) {
+        final HashMap<String, String> map = new HashMap<>();
+        if (attributeValues != null) {
+            for (final ServiceAttribute a : attributeValues) {
+                String value = a.getValue();
+                map.put(a.getAttributeId(), value != null ? value : "");
             }
         }
         return map;
@@ -511,15 +576,15 @@ public class AsynchronousProvisioningProxy implements ProvisioningService {
                             UserMapper.toServiceUser(requestingUser));
 
             // Forward request
-            final InstanceStatus status = controller.activateInstance(
-                    instance.getInstanceId(), settings);
+            final InstanceStatus status = controller
+                    .activateInstance(instance.getInstanceId(), settings);
             if (status != null) {
                 // forward call to provisioning service on application instance
                 if (status.isInstanceProvisioningRequested()) {
                     final ProvisioningService provisioning = provisioningFactory
                             .getInstance(instance);
-                    final BaseResult result = provisioning.activateInstance(
-                            instanceId, requestingUser);
+                    final BaseResult result = provisioning
+                            .activateInstance(instanceId, requestingUser);
                     if (provResult.isError(result)) {
                         return result;
                     }
@@ -530,7 +595,8 @@ public class AsynchronousProvisioningProxy implements ProvisioningService {
             }
 
             // Update current state
-            instance.setProvisioningStatus(ProvisioningStatus.WAITING_FOR_SYSTEM_ACTIVATION);
+            instance.setProvisioningStatus(
+                    ProvisioningStatus.WAITING_FOR_SYSTEM_ACTIVATION);
             em.persist(instance);
 
             timerService.initTimers();
@@ -549,13 +615,14 @@ public class AsynchronousProvisioningProxy implements ProvisioningService {
         if (!instance.isAvailable()) {
             throw new ServiceInstanceInProcessingException(
                     "Parallel processing requested, but not allowed: instance %s is in state %s",
-                    instance.getInstanceId(), instance.getProvisioningStatus()
-                            .name());
+                    instance.getInstanceId(),
+                    instance.getProvisioningStatus().name());
         }
     }
 
     @Override
-    public BaseResult deactivateInstance(String instanceId, User requestingUser) {
+    public BaseResult deactivateInstance(String instanceId,
+            User requestingUser) {
         logger.info("Deactivate instance {}.", instanceId);
         ServiceInstance instance = null;
 
@@ -572,15 +639,15 @@ public class AsynchronousProvisioningProxy implements ProvisioningService {
                             UserMapper.toServiceUser(requestingUser));
 
             // Forward request
-            final InstanceStatus status = controller.deactivateInstance(
-                    instance.getInstanceId(), settings);
+            final InstanceStatus status = controller
+                    .deactivateInstance(instance.getInstanceId(), settings);
             if (status != null) {
                 // forward call to provisioning service on application instance
                 if (status.isInstanceProvisioningRequested()) {
                     final ProvisioningService provisioning = provisioningFactory
                             .getInstance(instance);
-                    final BaseResult result = provisioning.deactivateInstance(
-                            instanceId, requestingUser);
+                    final BaseResult result = provisioning
+                            .deactivateInstance(instanceId, requestingUser);
                     if (provResult.isError(result)) {
                         return result;
                     }
@@ -591,7 +658,8 @@ public class AsynchronousProvisioningProxy implements ProvisioningService {
             }
 
             // Update current state
-            instance.setProvisioningStatus(ProvisioningStatus.WAITING_FOR_SYSTEM_DEACTIVATION);
+            instance.setProvisioningStatus(
+                    ProvisioningStatus.WAITING_FOR_SYSTEM_DEACTIVATION);
             em.persist(instance);
 
             timerService.initTimers();
@@ -607,27 +675,33 @@ public class AsynchronousProvisioningProxy implements ProvisioningService {
 
     @Override
     public BaseResult modifySubscription(String instanceId,
-            String subscriptionId, List<ServiceParameter> parameterValues,
-            User requestingUser) {
+            String subscriptionId, String referenceId,
+            List<ServiceParameter> parameterValues,
+            List<ServiceAttribute> attributeValues, User requestingUser) {
         return provResult.getBaseResult(BaseResult.class, 1, Messages.get(
                 getLocale(requestingUser), "error_synchronous_provisioning"));
     }
 
     @Override
     public BaseResult asyncUpgradeSubscription(String instanceId,
-            String subscriptionId, List<ServiceParameter> parameterValues,
-            User requestingUser) {
-        final HashMap<String, String> parameterMap = createParameterMap(parameterValues);
+            String subscriptionId, String referenceId,
+            List<ServiceParameter> parameterValues,
+            List<ServiceAttribute> attributeValues, User requestingUser) {
+        final HashMap<String, String> parameterMap = createParameterMap(
+                parameterValues);
+        final HashMap<String, String> attributesMap = createAttributeMap(
+                attributeValues);
         logger.info("Upgrade instance {}: {}", instanceId, parameterMap);
-        return modifySubscription(instanceId, subscriptionId, parameterValues,
-                parameterMap, ProvisioningStatus.WAITING_FOR_SYSTEM_UPGRADE,
-                requestingUser);
+        return modifySubscription(instanceId, subscriptionId, referenceId,
+                parameterValues, attributeValues, parameterMap, attributesMap,
+                ProvisioningStatus.WAITING_FOR_SYSTEM_UPGRADE, requestingUser);
     }
 
     @Override
     public BaseResult upgradeSubscription(String instanceId,
-            String subscriptionId, List<ServiceParameter> parameterValues,
-            User requestingUser) {
+            String subscriptionId, String referenceId,
+            List<ServiceParameter> parameterValues,
+            List<ServiceAttribute> attributeValues, User requestingUser) {
         return provResult.getBaseResult(BaseResult.class, 1, Messages.get(
                 getLocale(requestingUser), "error_synchronous_provisioning"));
     }
@@ -636,7 +710,7 @@ public class AsynchronousProvisioningProxy implements ProvisioningService {
      * Transforms a list of user entities into service user entities.
      */
     private List<ServiceUser> mapToServiceUsers(List<User> users) {
-        List<ServiceUser> list = new ArrayList<ServiceUser>();
+        List<ServiceUser> list = new ArrayList<>();
         for (User user : users) {
             list.add(UserMapper.toServiceUser(user));
         }
@@ -651,8 +725,8 @@ public class AsynchronousProvisioningProxy implements ProvisioningService {
         for (ServiceUser updatedUser : updatedUsers) {
             for (User user : users) {
                 if (user.getUserId().equals(updatedUser.getUserId())) {
-                    user.setApplicationUserId(updatedUser
-                            .getApplicationUserId());
+                    user.setApplicationUserId(
+                            updatedUser.getApplicationUserId());
                     break;
                 }
             }
@@ -665,6 +739,34 @@ public class AsynchronousProvisioningProxy implements ProvisioningService {
             locale = requestingUser.getLocale();
         }
         return locale;
+    }
+
+    @Override
+    public BaseResult saveAttributes(String organizationId,
+            List<ServiceAttribute> attributeValues, User requestingUser) {
+
+        try {
+
+            Query q = em.createNamedQuery("CustomAttribute.deleteForOrg");
+            q.setParameter("organizationId", organizationId);
+            q.executeUpdate();
+
+            CustomAttribute ca;
+            for (ServiceAttribute attr : attributeValues) {
+                ca = new CustomAttribute();
+                ca.setOrganizationId(organizationId);
+                ca.setAttributeKey(attr.getAttributeId());
+                ca.setDecryptedValue(attr.getValue());
+                em.persist(ca);
+            }
+
+            return provResult.newOkBaseResult();
+
+        } catch (Exception e) {
+            logger.warn(e.getMessage(), e);
+            return provResult.getErrorResult(BaseResult.class, e,
+                    getLocale(requestingUser), null, null);
+        }
     }
 
 }

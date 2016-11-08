@@ -37,7 +37,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import org.oscm.app.business.APPlatformControllerFactory;
-import org.oscm.app.business.InstanceParameterFilter;
+import org.oscm.app.business.InstanceFilter;
 import org.oscm.app.business.ProductProvisioningServiceFactoryBean;
 import org.oscm.app.business.exceptions.BESNotificationException;
 import org.oscm.app.business.exceptions.BadResultException;
@@ -96,7 +96,7 @@ public class APPTimerServiceBean implements Cloneable {
 
     /**
      * Used to identify the timer service
-     * */
+     */
     private static final String APP_TIMER_INFO = "d432dac0-5f81-11e4-9803-0800200c9a66";
 
     @Inject
@@ -156,13 +156,15 @@ public class APPTimerServiceBean implements Cloneable {
             logger.info("Timer create.");
             try {
                 String timerIntervalSetting = configService
-                        .getProxyConfigurationSetting(PlatformConfigurationKey.APP_TIMER_INTERVAL);
+                        .getProxyConfigurationSetting(
+                                PlatformConfigurationKey.APP_TIMER_INTERVAL);
                 long interval = Long.parseLong(timerIntervalSetting);
                 timerService.createTimer(0, interval, APP_TIMER_INFO);
             } catch (ConfigurationException e) {
                 timerService.createTimer(0, DEFAULT_TIMER_INTERVAL,
                         APP_TIMER_INFO);
-                logger.info("Timer interval not set, switch to default 15 sec.");
+                logger.info(
+                        "Timer interval not set, switch to default 15 sec.");
             }
         }
     }
@@ -236,7 +238,8 @@ public class APPTimerServiceBean implements Cloneable {
         }
 
         try {
-            doHandleSystems(result, ProvisioningStatus.getWaitingForOperation());
+            doHandleSystems(result,
+                    ProvisioningStatus.getWaitingForOperation());
         } catch (Throwable e) {
             logger.error(ERROR_TIMER, e);
         }
@@ -245,7 +248,7 @@ public class APPTimerServiceBean implements Cloneable {
 
     List<ServiceInstance> filterList(List<?> result,
             EnumSet<ProvisioningStatus> status) {
-        List<ServiceInstance> filteredList = new ArrayList<ServiceInstance>();
+        List<ServiceInstance> filteredList = new ArrayList<>();
         for (Object entry : result) {
             ServiceInstance currentSI = (ServiceInstance) entry;
             if (status.contains(currentSI.getProvisioningStatus())) {
@@ -279,7 +282,7 @@ public class APPTimerServiceBean implements Cloneable {
     void doHandleControllerProvisioning(ServiceInstance serviceInstance) {
         final ProvisioningStatus provisioningStatus = serviceInstance
                 .getProvisioningStatus();
-        HashMap<String, String> changedParameters = new HashMap<String, String>();
+        HashMap<String, String> changedParameters = new HashMap<>();
 
         try {
             final ProvisioningSettings settings = configService
@@ -294,7 +297,7 @@ public class APPTimerServiceBean implements Cloneable {
 
             changedParameters = instanceStatus.getChangedParameters();
             if (changedParameters == null) {
-                changedParameters = new HashMap<String, String>();
+                changedParameters = new HashMap<>();
             }
 
             if (!instanceStatus.isReady()) {
@@ -302,9 +305,8 @@ public class APPTimerServiceBean implements Cloneable {
                     besDAO.notifyOnProvisioningStatusUpdate(serviceInstance,
                             instanceStatus.getDescription());
                 } else if (provisioningStatus.isWaitingForOperation()) {
-                    Operation operation = operationDAO
-                            .getOperationByInstanceId(serviceInstance
-                                    .getInstanceId());
+                    Operation operation = operationDAO.getOperationByInstanceId(
+                            serviceInstance.getInstanceId());
                     if (operation != null) {
                         besDAO.notifyAsyncOperationStatus(serviceInstance,
                                 operation.getTransactionId(),
@@ -326,14 +328,14 @@ public class APPTimerServiceBean implements Cloneable {
                                 .get(InstanceParameter.PUBLIC_IP);
                     } else {
                         InstanceParameter publicIpParam = serviceInstance
-                                .getParameterForKey(InstanceParameter.PUBLIC_IP);
-                        publicIp = publicIpParam == null ? null : publicIpParam
-                                .getDecryptedValue();
+                                .getParameterForKey(
+                                        InstanceParameter.PUBLIC_IP);
+                        publicIp = publicIpParam == null ? null
+                                : publicIpParam.getDecryptedValue();
                     }
                     if (Strings.isEmpty(publicIp)) {
                         // no IP for instance provisioning available
-                        suspendServiceInstance(
-                                serviceInstance,
+                        suspendServiceInstance(serviceInstance,
                                 new IllegalStateException(
                                         "Instance status is ready and instance provisioning has been requested, but there is no public IP available for the instance."),
                                 provisioningStatus.getSuspendMailMessage(),
@@ -341,34 +343,35 @@ public class APPTimerServiceBean implements Cloneable {
                         instanceStatus.setIsReady(false);
                     }
                 } else {
-                    InstanceResult instanceResult = createInstanceResult(instanceStatus);
+                    InstanceResult instanceResult = createInstanceResult(
+                            instanceStatus);
                     notifyOnProvisioningCompletion(serviceInstance,
                             instanceResult);
-                    serviceInstance
-                            .setProvisioningStatus(ProvisioningStatus.COMPLETED);
+                    serviceInstance.setProvisioningStatus(
+                            ProvisioningStatus.COMPLETED);
                 }
                 serviceInstance.setServiceBaseURL(instanceStatus.getBaseUrl());
-                serviceInstance.setServiceAccessInfo(instanceStatus
-                        .getAccessInfo());
-                serviceInstance.setServiceLoginPath(instanceStatus
-                        .getLoginPath());
+                serviceInstance
+                        .setServiceAccessInfo(instanceStatus.getAccessInfo());
+                serviceInstance
+                        .setServiceLoginPath(instanceStatus.getLoginPath());
             }
 
             serviceInstance.setInstanceParameters(changedParameters);
             serviceInstance.setControllerReady(instanceStatus.isReady());
-            serviceInstance.setInstanceProvisioning(instanceStatus
-                    .isInstanceProvisioningRequested());
+            serviceInstance.setInstanceProvisioning(
+                    instanceStatus.isInstanceProvisioningRequested());
             em.persist(serviceInstance);
             if (serviceInstance.getProvisioningStatus().isCompleted()) {
                 OperationResult result = opBean
-                        .executeServiceOperationFromQueue(serviceInstance
-                                .getInstanceId());
+                        .executeServiceOperationFromQueue(
+                                serviceInstance.getInstanceId());
                 if (result.getErrorMessage() == null) {
                     try {
-                        ServiceInstance si = instanceDAO
-                                .getInstanceById(serviceInstance
-                                        .getInstanceId());
-                        if (si.getProvisioningStatus().isWaitingForOperation()) {
+                        ServiceInstance si = instanceDAO.getInstanceById(
+                                serviceInstance.getInstanceId());
+                        if (si.getProvisioningStatus()
+                                .isWaitingForOperation()) {
                             initTimers();
                         }
                     } catch (ServiceInstanceNotFoundException e) {
@@ -390,9 +393,10 @@ public class APPTimerServiceBean implements Cloneable {
             if (operation != null) {
                 try {
                     besDAO.notifyAsyncOperationStatus(serviceInstance,
-                            operation.getTransactionId(),
-                            OperationStatus.ERROR, inae.getLocalizedMessages());
-                    besDAO.notifyInstanceStatusOfAsyncOperation(serviceInstance);
+                            operation.getTransactionId(), OperationStatus.ERROR,
+                            inae.getLocalizedMessages());
+                    besDAO.notifyInstanceStatusOfAsyncOperation(
+                            serviceInstance);
                 } catch (BESNotificationException bne) {
                     handleBESNotificationException(serviceInstance,
                             provisioningStatus, changedParameters, bne);
@@ -409,8 +413,8 @@ public class APPTimerServiceBean implements Cloneable {
             if (operation != null) {
                 try {
                     besDAO.notifyAsyncOperationStatus(serviceInstance,
-                            operation.getTransactionId(),
-                            OperationStatus.ERROR, se.getLocalizedMessages());
+                            operation.getTransactionId(), OperationStatus.ERROR,
+                            se.getLocalizedMessages());
                 } catch (BESNotificationException bne) {
                     handleBESNotificationException(serviceInstance,
                             provisioningStatus, changedParameters, bne);
@@ -473,9 +477,8 @@ public class APPTimerServiceBean implements Cloneable {
     void sendMailToAppAdmin(String msgKey) {
         StringBuffer eventLink = new StringBuffer();
         try {
-            eventLink
-                    .append(configService
-                            .getProxyConfigurationSetting(PlatformConfigurationKey.APP_BASE_URL));
+            eventLink.append(configService.getProxyConfigurationSetting(
+                    PlatformConfigurationKey.APP_BASE_URL));
         } catch (Exception e) {
             logger.error(
                     "Failure during generation of link for error mail with message '{}'",
@@ -486,12 +489,14 @@ public class APPTimerServiceBean implements Cloneable {
     }
 
     void sendActionMailToAppAdmin(String msgKey, String actionLink) {
-        List<VOUserDetails> mailUsers = new ArrayList<VOUserDetails>();
+        List<VOUserDetails> mailUsers = new ArrayList<>();
         try {
             mailUsers.add(configService.getAPPAdministrator());
         } catch (ConfigurationException e) {
-            logger.warn("APP administrator mail not configured. Update the configuration setting: "
-                    + PlatformConfigurationKey.APP_ADMIN_MAIL_ADDRESS.name());
+            logger.warn(
+                    "APP administrator mail not configured. Update the configuration setting: "
+                            + PlatformConfigurationKey.APP_ADMIN_MAIL_ADDRESS
+                                    .name());
         }
         if (!mailUsers.isEmpty()) {
             for (VOUserDetails user : mailUsers) {
@@ -659,14 +664,13 @@ public class APPTimerServiceBean implements Cloneable {
                 // persist the data retrieved from the service
                 InstanceInfo instance = instanceResult.getInstance();
                 if (instance == null) {
-                    throw new BadResultException(
-                            String.format(
-                                    "Returned object of type InstanceInfo is null for service '%s'",
-                                    Long.valueOf(serviceInstance.getTkey())));
+                    throw new BadResultException(String.format(
+                            "Returned object of type InstanceInfo is null for service '%s'",
+                            Long.valueOf(serviceInstance.getTkey())));
                 }
                 if (instance.getAccessInfo() != null) {
-                    serviceInstance.setServiceAccessInfo(instance
-                            .getAccessInfo());
+                    serviceInstance
+                            .setServiceAccessInfo(instance.getAccessInfo());
                 }
                 if (instance.getBaseUrl() != null) {
                     String serviceBaseURL = getBaseUrlWithPublicIp(
@@ -693,22 +697,24 @@ public class APPTimerServiceBean implements Cloneable {
                         null);
                 break;
             case WAITING_FOR_SYSTEM_MODIFICATION:
-                baseResult = provisioningService
-                        .modifySubscription(
-                                instanceId,
-                                serviceInstance.getSubscriptionId(),
-                                InstanceParameterFilter
-                                        .getFilteredInstanceParametersForService(serviceInstance),
-                                null);
+                baseResult = provisioningService.modifySubscription(instanceId,
+                        serviceInstance.getSubscriptionId(),
+                        serviceInstance.getReferenceId(),
+                        InstanceFilter.getFilteredInstanceParametersForService(
+                                serviceInstance),
+                        InstanceFilter.getFilteredInstanceAttributeForService(
+                                serviceInstance),
+                        null);
                 break;
             case WAITING_FOR_SYSTEM_UPGRADE:
-                baseResult = provisioningService
-                        .upgradeSubscription(
-                                instanceId,
-                                serviceInstance.getSubscriptionId(),
-                                InstanceParameterFilter
-                                        .getFilteredInstanceParametersForService(serviceInstance),
-                                null);
+                baseResult = provisioningService.upgradeSubscription(instanceId,
+                        serviceInstance.getSubscriptionId(),
+                        serviceInstance.getReferenceId(),
+                        InstanceFilter.getFilteredInstanceParametersForService(
+                                serviceInstance),
+                        InstanceFilter.getFilteredInstanceAttributeForService(
+                                serviceInstance),
+                        null);
                 break;
             case WAITING_FOR_USER_CREATION:
             case WAITING_FOR_USER_MODIFICATION:
@@ -736,8 +742,8 @@ public class APPTimerServiceBean implements Cloneable {
                             notifyOnProvisioningCompletion(serviceInstance,
                                     instanceResult);
                         }
-                        serviceInstance
-                                .setProvisioningStatus(ProvisioningStatus.COMPLETED);
+                        serviceInstance.setProvisioningStatus(
+                                ProvisioningStatus.COMPLETED);
                     }
                 } else {
                     // otherwise abort
@@ -746,8 +752,8 @@ public class APPTimerServiceBean implements Cloneable {
                                 instanceResult, new APPlatformException(
                                         instanceResult.getDesc()));
                     }
-                    serviceInstance
-                            .setProvisioningStatus(ProvisioningStatus.COMPLETED);
+                    serviceInstance.setProvisioningStatus(
+                            ProvisioningStatus.COMPLETED);
                 }
             } catch (BESNotificationException bne) {
                 // Suspend process and inform admin with an e-mail
@@ -802,9 +808,9 @@ public class APPTimerServiceBean implements Cloneable {
         InstanceParameter publicIpParam = si
                 .getParameterForKey(InstanceParameter.PUBLIC_IP);
         if (publicIpParam == null) {
-            BadResultException bre = new BadResultException(String.format(
-                    "Parameter for key '%s' not found",
-                    InstanceParameter.PUBLIC_IP));
+            BadResultException bre = new BadResultException(
+                    String.format("Parameter for key '%s' not found",
+                            InstanceParameter.PUBLIC_IP));
             logger.warn(bre.getMessage(), bre);
             throw bre;
         }
@@ -915,8 +921,8 @@ public class APPTimerServiceBean implements Cloneable {
                     .getOperationByInstanceId(currentSI.getInstanceId());
             if (operation != null) {
                 besDAO.notifyAsyncOperationStatus(currentSI,
-                        operation.getTransactionId(),
-                        OperationStatus.COMPLETED, null);
+                        operation.getTransactionId(), OperationStatus.COMPLETED,
+                        null);
                 em.remove(operation);
             }
             break;
@@ -950,8 +956,8 @@ public class APPTimerServiceBean implements Cloneable {
     InstanceResult createServiceInstance(ServiceInstance currentSI,
             ProvisioningService provisioningService) throws BadResultException {
         InstanceRequest request = getInstanceRequest(currentSI);
-        InstanceResult instanceResult = provisioningService.createInstance(
-                request, null);
+        InstanceResult instanceResult = provisioningService
+                .createInstance(request, null);
         return instanceResult;
     }
 
@@ -963,7 +969,7 @@ public class APPTimerServiceBean implements Cloneable {
         request.setOrganizationName(currentSI.getOrganizationName());
         request.setSubscriptionId(currentSI.getSubscriptionId());
         request.setLoginUrl(currentSI.getBesLoginURL());
-        request.setParameterValue(InstanceParameterFilter
+        request.setParameterValue(InstanceFilter
                 .getFilteredInstanceParametersForService(currentSI));
         return request;
     }
@@ -992,9 +998,8 @@ public class APPTimerServiceBean implements Cloneable {
                     settings, properties);
 
             // Check for internal call
-            if (properties != null
-                    && EVENT_VALUE_YES.equals(properties.getProperty(
-                            EVENT_KEY_RESUME, ""))) {
+            if (properties != null && EVENT_VALUE_YES
+                    .equals(properties.getProperty(EVENT_KEY_RESUME, ""))) {
                 // Resume suspended process
                 if (newStatus == null) {
                     newStatus = new InstanceStatus();
@@ -1007,8 +1012,8 @@ public class APPTimerServiceBean implements Cloneable {
 
             if (newStatus != null) {
                 // Update changed parameters for the instance
-                currentSI.setInstanceParameters(newStatus
-                        .getChangedParameters());
+                currentSI.setInstanceParameters(
+                        newStatus.getChangedParameters());
                 em.persist(currentSI);
                 if (newStatus.getRunWithTimer()) {
                     // Ensure running timers
@@ -1052,8 +1057,8 @@ public class APPTimerServiceBean implements Cloneable {
             return (APPlatformException) ex;
         }
 
-        String causeMessage = (ex.getMessage() != null) ? ex.getMessage() : ex
-                .getClass().getName();
+        String causeMessage = (ex.getMessage() != null) ? ex.getMessage()
+                : ex.getClass().getName();
         return new APPlatformException(causeMessage, ex);
     }
 
@@ -1072,7 +1077,7 @@ public class APPTimerServiceBean implements Cloneable {
     void sendMail(boolean informTechnologyManagers, ServiceInstance si,
             String msgKey, Throwable cause, String actionLink,
             boolean withProvStatus) {
-        List<VOUserDetails> mailUsers = new ArrayList<VOUserDetails>();
+        List<VOUserDetails> mailUsers = new ArrayList<>();
         if (informTechnologyManagers) {
             mailUsers.addAll(besDAO.getBESTechnologyManagers(si));
             if (cause instanceof AbortException) {
@@ -1087,9 +1092,10 @@ public class APPTimerServiceBean implements Cloneable {
             try {
                 mailUsers.add(configService.getAPPAdministrator());
             } catch (ConfigurationException e) {
-                logger.warn("APP administrator mail not configured. Update the configuration setting: "
-                        + PlatformConfigurationKey.APP_ADMIN_MAIL_ADDRESS
-                                .name());
+                logger.warn(
+                        "APP administrator mail not configured. Update the configuration setting: "
+                                + PlatformConfigurationKey.APP_ADMIN_MAIL_ADDRESS
+                                        .name());
             }
         }
 
@@ -1115,8 +1121,8 @@ public class APPTimerServiceBean implements Cloneable {
                     }
                     logger.error(
                             "Failure during error mail notification for service instance '{}' with message '{}'",
-                            si.getInstanceId(), pe.getMessage() + " [Cause: "
-                                    + causeStr + "]");
+                            si.getInstanceId(),
+                            pe.getMessage() + " [Cause: " + causeStr + "]");
                 }
             }
         }
@@ -1132,9 +1138,8 @@ public class APPTimerServiceBean implements Cloneable {
             Throwable cause) {
         String causeMsg = getCauseMessage(cause, locale);
         String body = Messages.get(locale, "mail_header.text")
-                + Messages.get(locale, msgKey + ".text",
-                        si.getSubscriptionId(), si.getOrganizationId(),
-                        si.getInstanceId(), causeMsg)
+                + Messages.get(locale, msgKey + ".text", si.getSubscriptionId(),
+                        si.getOrganizationId(), si.getInstanceId(), causeMsg)
                 + Messages.get(locale, "mail_footer.text");
         return body;
     }
@@ -1155,26 +1160,24 @@ public class APPTimerServiceBean implements Cloneable {
                             si.getOrganizationId(), si.getInstanceId(),
                             si.getProvisioningStatus(), causeMsg);
         } else if ("mail_server_connect_error.text".equals(msgKey)) {
-            body = Messages.get(locale, "mail_header.text")
-                    + Messages.get(locale, msgKey, si.getSubscriptionId(),
-                            si.getOrganizationId(), si.getInstanceId(),
-                            causeMsg);
+            body = Messages.get(locale, "mail_header.text") + Messages.get(
+                    locale, msgKey, si.getSubscriptionId(),
+                    si.getOrganizationId(), si.getInstanceId(), causeMsg);
         } else if ("mail_bes_notification_connection_success.text"
                 .equals(msgKey)) {
-            body = Messages.get(locale, "mail_header.text")
-                    + Messages.get(locale, msgKey, si.getSubscriptionId(),
-                            si.getOrganizationId(), si.getInstanceId(),
-                            actionLink);
-        } else if ("mail_bes_notification_error_app_admin.text".equals(msgKey)) {
+            body = Messages.get(locale, "mail_header.text") + Messages.get(
+                    locale, msgKey, si.getSubscriptionId(),
+                    si.getOrganizationId(), si.getInstanceId(), actionLink);
+        } else if ("mail_bes_notification_error_app_admin.text"
+                .equals(msgKey)) {
             body = Messages.get(locale, "mail_header.text")
                     + Messages.get(locale, msgKey, actionLink);
         } else {
             if (withProvStatus) {
-                body = Messages.get(locale, "mail_header.text")
-                        + Messages.get(locale, msgKey, si.getSubscriptionId(),
-                                si.getOrganizationId(), si.getInstanceId(),
-                                si.getProvisioningStatus(), causeMsg,
-                                actionLink);
+                body = Messages.get(locale, "mail_header.text") + Messages.get(
+                        locale, msgKey, si.getSubscriptionId(),
+                        si.getOrganizationId(), si.getInstanceId(),
+                        si.getProvisioningStatus(), causeMsg, actionLink);
             } else {
                 body = Messages.get(locale, "mail_header.text")
                         + Messages.get(locale, msgKey, si.getSubscriptionId(),
@@ -1220,16 +1223,14 @@ public class APPTimerServiceBean implements Cloneable {
                 eventLink = generateLinkForControllerUI(si);
             } else {
                 eventLink
-                        .append(configService
-                                .getProxyConfigurationSetting(PlatformConfigurationKey.APP_BASE_URL))
-                        .append("/")
-                        .append(EVENT_KEY_NOTIFY)
-                        .append("?")
+                        .append(configService.getProxyConfigurationSetting(
+                                PlatformConfigurationKey.APP_BASE_URL))
+                        .append("/").append(EVENT_KEY_NOTIFY).append("?")
                         .append("sid=")
                         .append(URLEncoder.encode(si.getInstanceId(), "UTF-8"))
-                        .append('&')
-                        .append("cid=")
-                        .append(URLEncoder.encode(si.getControllerId(), "UTF-8"))
+                        .append('&').append("cid=")
+                        .append(URLEncoder.encode(si.getControllerId(),
+                                "UTF-8"))
                         .append('&').append(EVENT_KEY_RESUME).append('=')
                         .append(EVENT_VALUE_YES);
             }
@@ -1248,8 +1249,8 @@ public class APPTimerServiceBean implements Cloneable {
             throws ConfigurationException, UnsupportedEncodingException {
         StringBuffer eventLink = new StringBuffer();
         eventLink
-                .append(configService
-                        .getProxyConfigurationSetting(PlatformConfigurationKey.APP_BASE_URL))
+                .append(configService.getProxyConfigurationSetting(
+                        PlatformConfigurationKey.APP_BASE_URL))
                 .append("/controller?cid=")
                 .append(URLEncoder.encode(si.getControllerId(), "UTF-8"));
         return eventLink;
@@ -1338,8 +1339,8 @@ public class APPTimerServiceBean implements Cloneable {
             sendActionMail(true, instance, messageKey, null, actionLink, false);
             instance.setSuspendedByApp(false);
         }
-        configService.setAPPSuspend(Boolean.valueOf(isSuspendedByApp)
-                .toString());
+        configService
+                .setAPPSuspend(Boolean.valueOf(isSuspendedByApp).toString());
         return true;
     }
 
@@ -1347,18 +1348,17 @@ public class APPTimerServiceBean implements Cloneable {
         StringBuffer actionLink = new StringBuffer();
         try {
             actionLink
-                    .append(configService
-                            .getProxyConfigurationSetting(PlatformConfigurationKey.APP_BASE_URL))
-                    .append("/")
-                    .append(EVENT_KEY_NOTIFY)
-                    .append("?")
+                    .append(configService.getProxyConfigurationSetting(
+                            PlatformConfigurationKey.APP_BASE_URL))
+                    .append("/").append(EVENT_KEY_NOTIFY).append("?")
                     .append("sid=")
-                    .append(URLEncoder.encode(instance.getInstanceId(), "UTF-8"))
-                    .append('&')
-                    .append("cid=")
+                    .append(URLEncoder.encode(instance.getInstanceId(),
+                            "UTF-8"))
+                    .append('&').append("cid=")
                     .append(URLEncoder.encode(instance.getControllerId(),
-                            "UTF-8")).append('&').append(EVENT_KEY_RESUME)
-                    .append('=').append(EVENT_VALUE_YES);
+                            "UTF-8"))
+                    .append('&').append(EVENT_KEY_RESUME).append('=')
+                    .append(EVENT_VALUE_YES);
         } catch (Exception e) {
             logger.error(
                     "Failure during error mail notification for service instance '{}' with message '{}'",

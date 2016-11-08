@@ -19,9 +19,6 @@ import javax.ejb.EJBException;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.oscm.app.iaas.ProcessManagerBean;
 import org.oscm.app.iaas.PropertyHandler;
 import org.oscm.app.iaas.data.FlowState;
@@ -43,9 +40,11 @@ import org.oscm.app.v1_0.exceptions.InstanceNotAliveException;
 import org.oscm.app.v1_0.exceptions.SuspendException;
 import org.oscm.app.v1_0.intf.APPlatformController;
 import org.oscm.app.v1_0.intf.APPlatformService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public abstract class IaasController extends ProvisioningValidator implements
-        APPlatformController {
+public abstract class IaasController extends ProvisioningValidator
+        implements APPlatformController {
 
     private static final Logger logger = LoggerFactory
             .getLogger(IaasController.class);
@@ -88,15 +87,18 @@ public abstract class IaasController extends ProvisioningValidator implements
                 validateParametersForVsysProvisioning(null, paramHandler);
                 paramHandler.setState(FlowState.VSYSTEM_CREATION_REQUESTED);
             } else {
-                boolean isAdditionalDiskSelected = isAdditionalDiskSelected(paramHandler);
+                boolean isAdditionalDiskSelected = isAdditionalDiskSelected(
+                        paramHandler);
                 validateParametersForVserverProvisioning(null, paramHandler,
                         isAdditionalDiskSelected);
                 paramHandler.setState(FlowState.VSERVER_CREATION_REQUESTED);
             }
             // Return generated instance name
             InstanceDescription id = new InstanceDescription();
-            id.setInstanceId(getInstancePrefix() + UUID.randomUUID().toString());
+            id.setInstanceId(
+                    getInstancePrefix() + UUID.randomUUID().toString());
             id.setChangedParameters(settings.getParameters());
+            id.setChangedAttributes(settings.getAttributes());
             return id;
         } catch (APPlatformException e) {
             // pass on
@@ -133,6 +135,7 @@ public abstract class IaasController extends ProvisioningValidator implements
             }
             InstanceStatus result = new InstanceStatus();
             result.setChangedParameters(settings.getParameters());
+            result.setChangedAttributes(settings.getAttributes());
             return result;
         } catch (Exception e) {
             logger.error("Error while scheduling VSERVER instance deletion", e);
@@ -157,19 +160,21 @@ public abstract class IaasController extends ProvisioningValidator implements
                 validateParametersForVsysProvisioning(oldParams, newParams);
                 newParams.setState(FlowState.VSYSTEM_MODIFICATION_REQUESTED);
             } else {
-                boolean isAdditionalDiskSelected = isAdditionalDiskSelected(newParams);
+                boolean isAdditionalDiskSelected = isAdditionalDiskSelected(
+                        newParams);
                 validateParametersForVserverProvisioning(oldParams, newParams,
                         isAdditionalDiskSelected);
                 newParams.setState(FlowState.VSERVER_MODIFICATION_REQUESTED);
             }
             InstanceStatus result = new InstanceStatus();
             result.setChangedParameters(newSettings.getParameters());
+            result.setChangedAttributes(newSettings.getAttributes());
             return result;
         } catch (APPlatformException e) {
             throw e;
         } catch (Exception e) {
-            logger.error(
-                    "Error while scheduling VSERVER instance modification", e);
+            logger.error("Error while scheduling VSERVER instance modification",
+                    e);
             APPlatformException exception = getPlatformException(e,
                     "error_modification_overall");
             throw exception;
@@ -192,6 +197,7 @@ public abstract class IaasController extends ProvisioningValidator implements
             // Update provisioning status description
             status.setDescription(getProvisioningStatusText(paramHandler));
             status.setChangedParameters(settings.getParameters());
+            status.setChangedAttributes(settings.getAttributes());
             return status;
         } catch (SuspendException | AbortException | InstanceNotAliveException
                 | InstanceExistsException e) {
@@ -214,7 +220,7 @@ public abstract class IaasController extends ProvisioningValidator implements
     private void filterStackTrace(Exception e) {
         if (e != null) {
             StackTraceElement[] stackTrace = e.getStackTrace();
-            List<StackTraceElement> result = new LinkedList<StackTraceElement>();
+            List<StackTraceElement> result = new LinkedList<>();
             if (stackTrace != null) {
                 boolean startFiltering = false;
                 for (StackTraceElement ste : stackTrace) {
@@ -276,10 +282,10 @@ public abstract class IaasController extends ProvisioningValidator implements
             if (ex.getCause() != null) {
                 ex = ex.getCause();
             } else {
-                String causeMessage = (ex.getMessage() != null) ? ex
-                        .getMessage() : ex.getClass().getName();
-                return new APPlatformException(Messages.getAll(messageType,
-                        causeMessage));
+                String causeMessage = (ex.getMessage() != null)
+                        ? ex.getMessage() : ex.getClass().getName();
+                return new APPlatformException(
+                        Messages.getAll(messageType, causeMessage));
             }
         }
         if (ex instanceof APPlatformException) {
@@ -290,10 +296,10 @@ public abstract class IaasController extends ProvisioningValidator implements
         }
 
         // Map to platform exception
-        String causeMessage = (ex.getMessage() != null) ? ex.getMessage() : ex
-                .getClass().getName();
-        return new APPlatformException(Messages.getAll(messageType,
-                causeMessage));
+        String causeMessage = (ex.getMessage() != null) ? ex.getMessage()
+                : ex.getClass().getName();
+        return new APPlatformException(
+                Messages.getAll(messageType, causeMessage));
     }
 
     /**
@@ -305,12 +311,11 @@ public abstract class IaasController extends ProvisioningValidator implements
      */
     private List<LocalizedText> getProvisioningStatusText(
             PropertyHandler paramHandler) {
-        List<LocalizedText> messages = Messages.getAll("status_"
-                + paramHandler.getState());
+        List<LocalizedText> messages = Messages
+                .getAll("status_" + paramHandler.getState());
         for (LocalizedText message : messages) {
-            if (message.getText() == null
-                    || (message.getText().startsWith("!") && message.getText()
-                            .endsWith("!"))) {
+            if (message.getText() == null || (message.getText().startsWith("!")
+                    && message.getText().endsWith("!"))) {
                 message.setText(Messages.get(message.getLocale(),
                         "status_INSTANCE_OVERALL"));
             }
@@ -337,7 +342,8 @@ public abstract class IaasController extends ProvisioningValidator implements
                 if (FlowState.MANUAL.equals(propertyHandler.getState())) {
                     propertyHandler.setState(FlowState.FINISHED);
                     status = setNotificationStatus(settings, propertyHandler);
-                    logger.debug("Got finish event => changing instance status to finished");
+                    logger.debug(
+                            "Got finish event => changing instance status to finished");
                 } else {
                     APPlatformException pe = new APPlatformException(
                             "Got finish event but instance is in state "
@@ -367,6 +373,7 @@ public abstract class IaasController extends ProvisioningValidator implements
             }
             InstanceStatus result = new InstanceStatus();
             result.setChangedParameters(settings.getParameters());
+            result.setChangedAttributes(settings.getAttributes());
             return result;
         } catch (Exception e) {
             logger.error("Error while scheduling instance activation", e);
@@ -390,6 +397,7 @@ public abstract class IaasController extends ProvisioningValidator implements
             }
             InstanceStatus result = new InstanceStatus();
             result.setChangedParameters(settings.getParameters());
+            result.setChangedAttributes(settings.getAttributes());
             return result;
         } catch (Exception e) {
             logger.error("Error while scheduling instance deactivation", e);
@@ -432,8 +440,8 @@ public abstract class IaasController extends ProvisioningValidator implements
     @Override
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public List<OperationParameter> getOperationParameters(String userId,
-            String instanceId, String operationId, ProvisioningSettings settings)
-            throws APPlatformException {
+            String instanceId, String operationId,
+            ProvisioningSettings settings) throws APPlatformException {
         // TODO Auto-generated method stub
         return null;
     }
@@ -483,6 +491,7 @@ public abstract class IaasController extends ProvisioningValidator implements
             status.setIsReady(false);
             // settings changed in propertyHandler
             status.setChangedParameters(settings.getParameters());
+            status.setChangedAttributes(settings.getAttributes());
         }
         return status;
     }
@@ -561,12 +570,12 @@ public abstract class IaasController extends ProvisioningValidator implements
                 newParams.setOperation(Operation.VSERVER_MODIFICATION);
             }
             if (isCreateVDiskFound(oldParams, newParams)) {
-                newParams
-                        .setOperation(Operation.VSERVER_MODIFICATION_VDISK_CREATION);
+                newParams.setOperation(
+                        Operation.VSERVER_MODIFICATION_VDISK_CREATION);
             }
             if (isDeleteVDiskFound(oldParams, newParams)) {
-                newParams
-                        .setOperation(Operation.VSERVER_MODIFICATION_VDISK_DELETION);
+                newParams.setOperation(
+                        Operation.VSERVER_MODIFICATION_VDISK_DELETION);
             }
         } else if (Operation.DELETION.equals(type)) {
             if (newParams.isVirtualSystemProvisioning()) {
@@ -585,6 +594,7 @@ public abstract class IaasController extends ProvisioningValidator implements
         status.setRunWithTimer(true);
         status.setDescription(getProvisioningStatusText(propertyHandler));
         status.setChangedParameters(settings.getParameters());
+        status.setChangedAttributes(settings.getAttributes());
         return status;
     }
 

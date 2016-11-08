@@ -139,4 +139,11 @@ public class ApplicationServiceStub implements ApplicationServiceLocal {
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public void saveAttributes(Subscription subscription)
+            throws TechnicalServiceNotAliveException,
+            TechnicalServiceOperationException {
+        throw new UnsupportedOperationException();
+    }
+
 }

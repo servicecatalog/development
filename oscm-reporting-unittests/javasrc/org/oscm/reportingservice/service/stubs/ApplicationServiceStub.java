@@ -46,9 +46,9 @@ public class ApplicationServiceStub implements ApplicationServiceLocal {
 
     public boolean throwTechnicalServiceNotAliveExceptionCustomer = false;
 
-    public Map<String, PlatformUser> addedUsers = new HashMap<String, PlatformUser>();
+    public Map<String, PlatformUser> addedUsers = new HashMap<>();
 
-    public List<PlatformUser> deletedUsers = new ArrayList<PlatformUser>();
+    public List<PlatformUser> deletedUsers = new ArrayList<>();
 
     public boolean isProductDeleted = false;
 
@@ -74,7 +74,7 @@ public class ApplicationServiceStub implements ApplicationServiceLocal {
             throws TechnicalServiceNotAliveException,
             TechnicalServiceOperationException {
         User[] users = new User[usageLicenses.size()];
-        List<User> userList = new ArrayList<User>();
+        List<User> userList = new ArrayList<>();
         for (UsageLicense usageLicense : usageLicenses) {
             PlatformUser platformUser = usageLicense.getUser();
             addedUsers.put(platformUser.getUserId(), platformUser);
@@ -238,6 +238,12 @@ public class ApplicationServiceStub implements ApplicationServiceLocal {
             throws TechnicalServiceNotAliveException,
             TechnicalServiceOperationException {
         return new HashMap<>();
+    }
+
+    @Override
+    public void saveAttributes(Subscription subscription)
+            throws TechnicalServiceNotAliveException,
+            TechnicalServiceOperationException {
     }
 
 }

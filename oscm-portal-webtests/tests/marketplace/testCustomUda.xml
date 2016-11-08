@@ -192,6 +192,18 @@
       <common.reSetPageScriptError />
     </webtest>
 
+  	<webtest name="testMPL_customUda_setCustomUda" description="
+		(1) Goto Marketplace and custom attribute on profile page;
+		(2)	Goto 'Custom Attributes' tab and save the Uda values;">
+		<!-- (1) Goto Marketplace and to the profile page -->
+		<mpl_login.user mid="${marketplaceId}" userId="${supplierUserId}" />
+		<mpl_goto.account.profile />
+		
+		<!-- (2)	Goto 'Custom Attributes' tab and save the Uda values -->
+		<mpl_goto.tab label="${marketplace.account.profile.attributeTab}" />
+		<clickLink label="${button.save}" />
+  	</webtest>
+    
     <webtest name="cleanUp" description="Delete the 2 services">
       <scenario.deleteSimpleServices />
     </webtest>
