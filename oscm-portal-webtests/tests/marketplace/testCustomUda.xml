@@ -66,6 +66,8 @@
       <changeUdaValue index="0" isMandatory="false" oldValue="def s value 2nd" newValue="optional sub uda trial" />
       <changeUdaValue index="1" isMandatory="true" oldValue="def s value 3rd" newValue="mandatory sub uda trial" />
 
+      <changeUdaValue index="0" isMandatory="false" isSubscription="false" oldValue="def c value 2nd" newValue="optional org uda trial" />
+      <changeUdaValue index="1" isMandatory="true" isSubscription="false" oldValue="def c value 3rd" newValue="mandatory org uda trial" />
       <clickElement htmlId="configurationForm:nextLink" />
 
       <!-- (4) Agree the terms to complete the subscription -->
@@ -84,6 +86,8 @@
       <changeUdaValue index="0" isMandatory="false" newValue="new optional sub uda starter" oldValue="optional sub uda trial" />
       <changeUdaValue index="1" isMandatory="true" newValue="new mandatory sub uda starter" oldValue="mandatory sub uda trial" />
 
+      <changeUdaValue index="0" isMandatory="false" isSubscription="false" oldValue="optional org uda trial" newValue="new optional org uda trial" />
+      <changeUdaValue index="1" isMandatory="true" isSubscription="false" oldValue="mandatory org uda trial" newValue="new mandatory org uda trial" />
       <clickElement htmlId="configurationForm:saveConfigurationButtonLink" />
       <common.handleMessageParameters property="infoMsg" att0="Mega Office Trial" value="${info.subscription.saved}" />
       <verifyXPath xpath="//*[contains(text(),'The subscription Mega Office Trial has been successfully saved.')]" />
@@ -91,6 +95,8 @@
       <!-- update udas without any change  -->
       <changeUdaValue index="0" isMandatory="false" newValue="new optional sub uda starter" oldValue="new optional sub uda starter" />
       <changeUdaValue index="1" isMandatory="true" newValue="new mandatory sub uda starter" oldValue="new mandatory sub uda starter" />
+  	  <changeUdaValue index="0" isMandatory="false" isSubscription="false" oldValue="new optional org uda trial" newValue="new optional org uda trial" />
+  	  <changeUdaValue index="1" isMandatory="true" isSubscription="false" oldValue="new mandatory org uda trial" newValue="new mandatory org uda trial" />
       <clickElement htmlId="configurationForm:saveConfigurationButtonLink" />
       <common.handleMessageParameters property="infoMsg" att0="Mega Office Trial" value="${info.subscription.saved}" />
       <verifyXPath xpath="//*[contains(text(),'The subscription Mega Office Trial has been successfully saved.')]" />
@@ -98,6 +104,8 @@
       <changeUdaValue index="0" isMandatory="false" oldValue="new optional sub uda starter" newValue="optional sub uda trial" />
       <changeUdaValue index="1" isMandatory="true" oldValue="new mandatory sub uda starter" newValue="mandatory sub uda trial" />
 
+      <changeUdaValue index="0" isMandatory="false" isSubscription="false" newValue="optional org uda trial" oldValue="new optional org uda trial" />
+      <changeUdaValue index="1" isMandatory="true" isSubscription="false" newValue="mandatory org uda trial" oldValue="new mandatory org uda trial" />
       <clickElement htmlId="configurationForm:saveConfigurationButtonLink" />
       <common.handleMessageParameters property="infoMsg" att0="Mega Office Trial" value="${info.subscription.saved}" />
       <verifyXPath xpath="//*[contains(text(),'The subscription Mega Office Trial has been successfully saved.')]" />
@@ -139,6 +147,9 @@
       <changeUdaValue index="0" isMandatory="false" oldValue="optional sub uda trial" newValue="optional sub uda changed" />
       <changeUdaValue index="1" isMandatory="true" oldValue="" newValue="mandatory sub uda changed" />
 
+      <changeUdaValue index="0" isMandatory="false" isSubscription="false" oldValue="optional org uda trial" newValue="optional org uda changed" />
+      <changeUdaValue index="1" isMandatory="true" isSubscription="false" oldValue="mandatory org uda trial" newValue="mandatory org uda changed" />
+
       <!--(4) Save the changed Udas -->
       <clickElement htmlId="configurationForm:saveConfigurationButtonLink" />
 
@@ -166,6 +177,9 @@
       <changeUdaValue index="0" isMandatory="false" newValue="optional sub uda starter" oldValue="optional sub uda changed" />
       <changeUdaValue index="1" isMandatory="true" newValue="mandatory sub uda starter" oldValue="mandatory sub uda changed" />
 
+      <changeUdaValue index="0" isMandatory="false" isSubscription="false" oldValue="optional org uda changed" newValue="optional org uda starter" />
+      <changeUdaValue index="1" isMandatory="true" isSubscription="false" oldValue="mandatory org uda changed" newValue="mandatory org uda starter" />
+
       <!-- (3) Setting up advanced options (payments/billing address) -->
       <common.ignorePageScriptError />
       <clickLink htmlId="configurationForm:nextLink" />
@@ -177,39 +191,19 @@
       <clickLink htmlId="confirmForm:confirmLink" />
       <common.reSetPageScriptError />
     </webtest>
+
+  	<webtest name="testMPL_customUda_setCustomUda" description="
+		(1) Goto Marketplace and custom attribute on profile page;
+		(2)	Goto 'Custom Attributes' tab and save the Uda values;">
+		<!-- (1) Goto Marketplace and to the profile page -->
+		<mpl_login.user mid="${marketplaceId}" userId="${supplierUserId}" />
+		<mpl_goto.account.profile />
+		
+		<!-- (2)	Goto 'Custom Attributes' tab and save the Uda values -->
+		<mpl_goto.tab label="${marketplace.account.profile.attributeTab}" />
+		<clickLink label="${button.save}" />
+  	</webtest>
     
-    <webtest name="testMPL_customUda_setCustomUda" description="
-    	(1) Goto Marketplace and administrate an existing Service ;
-		(2)	Goto 'Up/Downgrade' tab and select the first option;   
-      	(3) Setting up advanced options (payments/billing address);
-		(4) Confirm the updation.">
-      <!-- (1) Goto Marketplace and administrate an existing Service -->
-      <mpl_login.user mid="${marketplaceId}" userId="${supplierUserId}" />
-      <mpl_goto.account.profile />
-      <mpl_goto.tab label="${marketplace.account.profile.attributeTab}" />
-      <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
-      
-      <!-- (2)	Goto 'Configuration' tab and check/change the Uda values -->
-      <mpl_goto.tab label="${subscription.upgrade}" />
-      <clickLink label="${button.select}" />
-      <!--(3) Check Uda default values, change the writable Udas  -->
-
-      <setInputField htmlId="configurationForm:subscriptionIdText" value="Mega Office Upgraded" />
-      <changeUdaValue index="0" isMandatory="false" newValue="optional sub uda starter" oldValue="optional sub uda changed" />
-      <changeUdaValue index="1" isMandatory="true" newValue="mandatory sub uda starter" oldValue="mandatory sub uda changed" />
-
-      <!-- (3) Setting up advanced options (payments/billing address) -->
-      <common.ignorePageScriptError />
-      <clickLink htmlId="configurationForm:nextLink" />
-      <mpl_user.selectBillingContact />
-      <setSelectField htmlId="payment:selectPaymentInfo" optionIndex="1" />
-      <clickLink htmlId="payment:nextLink" />
-      <!-- (4) Confirm the updation -->
-      <setCheckbox htmlId="confirmForm:agreeCheckbox" checked="true" />
-      <clickLink htmlId="confirmForm:confirmLink" />
-      <common.reSetPageScriptError />
-    </webtest>
-
     <webtest name="cleanUp" description="Delete the 2 services">
       <scenario.deleteSimpleServices />
     </webtest>

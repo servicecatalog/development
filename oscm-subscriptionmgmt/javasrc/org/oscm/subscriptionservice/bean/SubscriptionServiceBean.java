@@ -755,6 +755,8 @@ public class SubscriptionServiceBean
         // with a subsequent call to the application.
         dataManager.persist(newSub);
 
+        // save subscription attributes before provisioning call, to have them
+        // available at the API
         saveUdasForSubscription(ParameterizedTypes.list(udas, VOUda.class),
                 newSub);
         dataManager.flush();
@@ -2876,6 +2878,8 @@ public class SubscriptionServiceBean
                 existingUdas);
         logSubscriptionAttributeForEdit(subscription, updatedList);
 
+        // save subscription attributes before provisioning call, to have them
+        // available at the API
         if (dbTargetProduct.getTechnicalProduct().getProvisioningType()
                 .equals(ProvisioningType.ASYNCHRONOUS)) {
             saveUdasForAsyncModifyOrUpgradeSubscription(udas, dbSubscription);
@@ -3615,6 +3619,9 @@ public class SubscriptionServiceBean
             manageBean.setSubscriptionOwner(dbSubscription, dbOwnerId, true);
             dbSubscription.setUserGroup(dbUnit);
 
+            // save subscription attributes before provisioning call, to have
+            // them
+            // available at the API
             saveUdasForAsyncModifyOrUpgradeSubscription(udas, dbSubscription);
         } else {
             saveUdasForSubscription(udas, dbSubscription);

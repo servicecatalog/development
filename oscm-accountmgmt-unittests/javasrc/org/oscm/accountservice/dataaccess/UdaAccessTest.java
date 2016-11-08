@@ -36,7 +36,6 @@ import javax.persistence.Query;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-
 import org.oscm.accountservice.dataaccess.validator.MandatoryUdaValidator;
 import org.oscm.accountservice.dataaccess.validator.UdaAccessValidator;
 import org.oscm.dataservice.local.DataService;
@@ -44,7 +43,6 @@ import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.Uda;
 import org.oscm.domobjects.UdaDefinition;
-import org.oscm.types.enumtypes.UdaTargetType;
 import org.oscm.internal.types.enumtypes.UdaConfigurationType;
 import org.oscm.internal.types.exception.ConcurrentModificationException;
 import org.oscm.internal.types.exception.DomainObjectException.ClassEnum;
@@ -55,6 +53,7 @@ import org.oscm.internal.types.exception.OperationNotPermittedException;
 import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.internal.vo.VOUda;
 import org.oscm.internal.vo.VOUdaDefinition;
+import org.oscm.types.enumtypes.UdaTargetType;
 
 /**
  * @author weiser
@@ -94,8 +93,8 @@ public class UdaAccessTest {
         uda.setUdaValue("some value");
         uda.setKey(5678);
 
-        supplier.setUdaDefinitions(new ArrayList<UdaDefinition>(Arrays
-                .asList(defSupplier)));
+        supplier.setUdaDefinitions(
+                new ArrayList<>(Arrays.asList(defSupplier)));
 
         sub = new Subscription();
         sub.setKey(9876);
@@ -204,8 +203,8 @@ public class UdaAccessTest {
         final ObjectNotFoundException definitionNotFound = new ObjectNotFoundException(
                 ClassEnum.UDA_DEFINITION, "1");
 
-        when(ds.getReference(eq(Uda.class), eq(uda.getKey()))).thenThrow(
-                definitionNotFound);
+        when(ds.getReference(eq(Uda.class), eq(uda.getKey())))
+                .thenThrow(definitionNotFound);
 
         try {
             // when
@@ -234,9 +233,9 @@ public class UdaAccessTest {
     @Test(expected = MandatoryUdaMissingException.class)
     public void deleteUda_Mandatory() throws Exception {
         // given: mandatory uda
-        doThrow(new MandatoryUdaMissingException()).when(
-                ua.mandatoryUdaValidator).checkMandatory(
-                any(UdaDefinition.class));
+        doThrow(new MandatoryUdaMissingException())
+                .when(ua.mandatoryUdaValidator)
+                .checkMandatory(any(UdaDefinition.class));
 
         try {
             // when
@@ -250,9 +249,9 @@ public class UdaAccessTest {
     @Test(expected = OperationNotPermittedException.class)
     public void deleteUda_NotPermitted() throws Exception {
         // given: mandatory uda
-        doThrow(new OperationNotPermittedException()).when(
-                ua.udaAccessValidator).canDeleteUda(any(Uda.class),
-                any(Organization.class));
+        doThrow(new OperationNotPermittedException())
+                .when(ua.udaAccessValidator)
+                .canDeleteUda(any(Uda.class), any(Organization.class));
 
         try {
             // when
@@ -278,8 +277,8 @@ public class UdaAccessTest {
 
     @Test(expected = NonUniqueBusinessKeyException.class)
     public void createUda_NonUniqueBK() throws Exception {
-        doThrow(new NonUniqueBusinessKeyException()).when(ds).persist(
-                any(Uda.class));
+        doThrow(new NonUniqueBusinessKeyException()).when(ds)
+                .persist(any(Uda.class));
 
         try {
             ua.createUda(defSupplier, uda);
@@ -297,8 +296,8 @@ public class UdaAccessTest {
 
     @Test(expected = ObjectNotFoundException.class)
     public void updateUda_NotFound() throws Exception {
-        doThrow(new ObjectNotFoundException()).when(ds).getReference(
-                eq(Uda.class), anyLong());
+        doThrow(new ObjectNotFoundException()).when(ds)
+                .getReference(eq(Uda.class), anyLong());
 
         try {
             ua.updateUda(voUda, defSupplier, supplier);
@@ -373,8 +372,6 @@ public class UdaAccessTest {
         List<Uda> list = ua.getUdasForTypeAndTarget(123L,
                 UdaTargetType.CUSTOMER, supplier);
 
-        verify(ua.udaAccessValidator, times(1)).checkSellerReadPermission(
-                eq(supplier), eq(UdaTargetType.CUSTOMER), eq(123L));
         assertEquals(1, list.size());
         assertSame(uda, list.get(0));
     }

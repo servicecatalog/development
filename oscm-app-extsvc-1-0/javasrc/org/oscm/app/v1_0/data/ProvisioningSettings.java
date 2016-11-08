@@ -310,8 +310,9 @@ public class ProvisioningSettings extends ControllerSettings
 
     /**
      * Replaces properties of configuration settings or parameters with values
-     * from attributes or parameters. In the case of parameters a prefix is used
-     * which is the controller id and an underscore.
+     * from attributes or parameters. In the case of attributes a prefix is used
+     * which is the controller id and an underscore. Properties will only be
+     * overwritten if the source value is not null or empty.
      * 
      * @param controllerId
      *            the id of the controller the settings are for.
@@ -338,7 +339,10 @@ public class ProvisioningSettings extends ControllerSettings
                     String targetKey = key.substring(prefix.length());
 
                     if (target.containsKey(targetKey)) {
-                        target.put(targetKey, source.get(key));
+                        String value = source.get(key);
+                        if (value != null && value.trim().length() > 0) {
+                            target.put(targetKey, value);
+                        }
                     }
                 }
             }
