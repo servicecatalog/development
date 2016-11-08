@@ -5,18 +5,29 @@
 package org.oscm.converter.api;
 
 import java.lang.reflect.Method;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
+import org.oscm.converter.ParameterizedTypes;
 import org.oscm.converter.strategy.ConversionStrategy;
 import org.oscm.converter.strategy.TPPConversionStrategyFactory;
+import org.oscm.dataservice.local.DataService;
+import org.oscm.domobjects.LocalizedResource;
+import org.oscm.domobjects.Uda;
+import org.oscm.domobjects.UdaDefinition;
+import org.oscm.domobjects.enums.LocalizedObjectTypes;
+import org.oscm.encrypter.ParameterEncrypter;
 import org.oscm.internal.types.exception.OperationNotPermittedException;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
 import org.oscm.types.enumtypes.OperationParameterType;
 import org.oscm.types.enumtypes.TriggerProcessParameterType;
+import org.oscm.vo.VOUdaDefinition;
+
+import javax.persistence.Query;
 
 public class VOConverter {
 
@@ -25,11 +36,18 @@ public class VOConverter {
     private static final String VERSION_INTERNAL = "internal";
     private static final Log4jLogger LOGGER = LoggerFactory
             .getLogger(VOConverter.class);
+    private static DataService ds;
 
     @SuppressWarnings("unchecked")
     public static <T, U> T reflectiveConvert(U objectToConvert) {
 
-        String methodName = "";
+        return reflectiveConvert(objectToConvert, null);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T, U> T reflectiveConvert(U objectToConvert, DataService ds) {
+        VOConverter.ds = ds;
+        String methodName;
         if (objectToConvert.getClass().getPackage().getName()
                 .contains(VERSION_INTERNAL)) {
             methodName = METHOD_CONVERT_TO_API;
@@ -422,8 +440,17 @@ public class VOConverter {
         newVO.setKey(oldVO.getKey());
         newVO.setVersion(oldVO.getVersion());
         newVO.setUdaDefinition(convertToUp(oldVO.getUdaDefinition()));
-        newVO.setUdaValue(oldVO.getUdaValue());
         newVO.setTargetObjectKey(oldVO.getTargetObjectKey());
+        Uda existing = getUdaFromDB(oldVO);
+        String valueToSave = oldVO.getUdaValue();
+        if (existing != null && existing.getUdaDefinition().isEncrypted()) {
+            try {
+                valueToSave = ParameterEncrypter.encrypt(valueToSave);
+            } catch (GeneralSecurityException e) {
+                LOGGER.logDebug("The value for uda definition " + oldVO.toString()  + " cannot be encrypted. Saving plain.");
+            }
+        }
+        newVO.setUdaValue(valueToSave);
         return newVO;
     }
 
@@ -1544,7 +1571,44 @@ public class VOConverter {
         newVO.setConfigurationType(EnumConverter.convert(
                 oldVO.getConfigurationType(),
                 org.oscm.internal.types.enumtypes.UdaConfigurationType.class));
+        newVO.setEncrypted(false);
+        newVO.setName("");
+
+        UdaDefinition existing = getUdaFromDB(oldVO);
+        if (existing != null) {
+            if (existing.getDataContainer().isEncrypted()) {
+                newVO.setEncrypted(true);
+                try {
+                    String encryptedValue = ParameterEncrypter.encrypt(oldVO.getDefaultValue());
+                    newVO.setDefaultValue(encryptedValue);
+                } catch (GeneralSecurityException e) {
+                    LOGGER.logDebug("The value for uda definition " + oldVO.toString() + " cannot be encrypted. Saving plain.");
+                }
+            }
+            String value = retrieveNameForUdaDefinition(existing);
+            newVO.setName(value);
+        }
         return newVO;
+    }
+
+    protected static String retrieveNameForUdaDefinition(UdaDefinition existing) {
+        String value = "";
+        Query query = ds
+                .createNamedQuery("LocalizedResource.getAllTextsWithLocale");
+        query.setParameter("objectKey", existing.getKey());
+        query.setParameter("objectType", LocalizedObjectTypes.CUSTOM_ATTRIBUTE_NAME);
+        for (LocalizedResource resource : ParameterizedTypes.iterable(
+                query.getResultList(), LocalizedResource.class)) {
+            if(resource.getLocale().equals(ds.getCurrentUser().getLocale())) {
+                value = resource.getValue();
+                break;
+            }
+        }
+        return value;
+    }
+
+    private static UdaDefinition getUdaFromDB(VOUdaDefinition oldVO) {
+        return ds.find(UdaDefinition.class, oldVO.getKey());
     }
 
     /**
@@ -1569,6 +1633,10 @@ public class VOConverter {
                 oldVO.getConfigurationType(),
                 org.oscm.types.enumtypes.UdaConfigurationType.class));
         return newVO;
+    }
+
+    private static Uda getUdaFromDB(org.oscm.vo.VOUda oldVO) {
+        return ds.find(Uda.class, oldVO.getKey());
     }
 
     /**

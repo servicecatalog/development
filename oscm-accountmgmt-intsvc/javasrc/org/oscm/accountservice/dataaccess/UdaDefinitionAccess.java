@@ -8,11 +8,15 @@
 
 package org.oscm.accountservice.dataaccess;
 
+import java.security.GeneralSecurityException;
 import java.util.List;
 import java.util.Set;
 
 import javax.ejb.SessionContext;
 
+import org.apache.commons.lang3.StringUtils;
+import org.oscm.domobjects.enums.LocalizedObjectTypes;
+import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.accountservice.assembler.UdaAssembler;
@@ -43,10 +47,17 @@ public class UdaDefinitionAccess {
 
     DataService ds;
     SessionContext ctx;
+    LocalizerServiceLocal localizer;
 
     public UdaDefinitionAccess(DataService ds, SessionContext sc) {
         this.ds = ds;
         this.ctx = sc;
+    }
+
+    public UdaDefinitionAccess(DataService ds, SessionContext sc, LocalizerServiceLocal localizer) {
+        this.ds = ds;
+        this.ctx = sc;
+        this.localizer = localizer;
     }
 
     /**
@@ -126,8 +137,8 @@ public class UdaDefinitionAccess {
                 def.setOrganization(caller);
             } catch (ValidationException e) {
                 logger.logWarn(Log4jLogger.SYSTEM_LOG, e,
-                        LogMessageIdentifier.WARN_INVALID_UDA_DEFINITION,
-                        voDef.getUdaId());
+                    LogMessageIdentifier.WARN_INVALID_UDA_DEFINITION,
+                    voDef.getUdaId());
                 ctx.setRollbackOnly();
                 throw e;
             }
@@ -150,8 +161,22 @@ public class UdaDefinitionAccess {
             } else {
                 createDefinition(def);
             }
+            UdaDefinition storedUda = (UdaDefinition) ds.find(def);
+            if (storedUda == null) {
+                return;
+            }
+            storeLocalizedAttributeName(storedUda.getKey(), voDef.getName(), voDef.getLanguage());
         }
         
+    }
+
+    private void storeLocalizedAttributeName(long key, String attributeName,
+        String language) {
+        if (StringUtils.isBlank(attributeName)) {
+            return;
+        }
+        localizer.storeLocalizedResource(language, key,
+            LocalizedObjectTypes.CUSTOM_ATTRIBUTE_NAME, attributeName);
     }
 
     /**
@@ -214,22 +239,24 @@ public class UdaDefinitionAccess {
         // inconsistencies for all depending UDAs
 
         // verify business key uniqueness
-        UdaDefinition tempForUniquenessCheck = UdaAssembler
-                .toUdaDefinition(voDef);
+        UdaDefinition tempForUniquenessCheck = null;
+            tempForUniquenessCheck = UdaAssembler
+                    .toUdaDefinition(voDef);
+
         tempForUniquenessCheck.setOrganization(owner);
         tempForUniquenessCheck.setKey(existing.getKey());
         try {
             ds.validateBusinessKeyUniqueness(tempForUniquenessCheck);
+            UdaAssembler.updateUdaDefinition(existing, voDef);
         } catch (NonUniqueBusinessKeyException e) {
             logger.logWarn(
-                    Log4jLogger.SYSTEM_LOG,
-                    e,
-                    LogMessageIdentifier.WARN_NON_UNIQUE_BUSINESS_KEY_UDA_DEFINITION);
+                Log4jLogger.SYSTEM_LOG,
+                e,
+                LogMessageIdentifier.WARN_NON_UNIQUE_BUSINESS_KEY_UDA_DEFINITION);
             ctx.setRollbackOnly();
             throw e;
         }
-        UdaAssembler.updateUdaDefinition(existing, voDef);
-        
+
     }
 
     /**

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2016-->
+
+<dataset>
+  <Organization tkey="1" version="0" organizationid="TestOrgA" registrationdate="1234" cutoffday="1" />
+  <UdaDefinition tkey="1" version="0" defaultValue="0" targetType="CUSTOMER" udaId="udaid1" organizationKey="1"
+                 configurationType="USER_OPTION_MANDATORY" />
+
+</dataset>

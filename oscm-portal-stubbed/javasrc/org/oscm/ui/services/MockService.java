@@ -12,6 +12,7 @@
 package org.oscm.ui.services;
 
 import java.math.BigDecimal;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -1262,6 +1263,11 @@ public class MockService implements IdentityService, SubscriptionService,
         return "";
     }
 
+    @Override
+    public String getLocalizedAttributeName(long key, String locale) {
+        return null;
+    }
+
     /*
      * IConfigurationServiceRemote
      */
@@ -2433,6 +2439,16 @@ public class MockService implements IdentityService, SubscriptionService,
             long targetObjectKey, String supplierId)
             throws ValidationException, OrganizationAuthoritiesException,
             ObjectNotFoundException, OperationNotPermittedException {
+        return null;
+    }
+
+    @Override
+    public String decryptAttributeValue(String encryptedValue) throws GeneralSecurityException {
+        return null;
+    }
+
+    @Override
+    public String encryptAttributeValue(String value) throws GeneralSecurityException {
         return null;
     }
 

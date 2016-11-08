@@ -13,6 +13,7 @@
 package org.oscm.accountservice.bean;
 
 import java.math.BigDecimal;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -63,6 +64,7 @@ import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.*;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.domobjects.enums.OrganizationReferenceType;
+import org.oscm.encrypter.ParameterEncrypter;
 import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.i18nservice.local.ImageResourceServiceLocal;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
@@ -307,6 +309,17 @@ public class AccountServiceBean implements AccountService, AccountServiceLocal {
         LocalizerFacade localizerEn = new LocalizerFacade(localizer, "en");
         return localizerEn.getText(orgKey,
                 LocalizedObjectTypes.ORGANIZATION_DESCRIPTION);
+    }
+
+    @Override
+    public String getLocalizedAttributeName(long key, String locale) {
+        List<VOLocalizedText> texts = localizer.getLocalizedValues(key, LocalizedObjectTypes.CUSTOM_ATTRIBUTE_NAME);
+        for (VOLocalizedText text : texts) {
+            if (text.getLocale().equals(locale)) {
+                return text.getText();
+            }
+        }
+        return "";
     }
 
     /**
@@ -3345,10 +3358,9 @@ public class AccountServiceBean implements AccountService, AccountServiceLocal {
         ArgumentValidator.notNull("udaDefinitionsToDelete",
                 udaDefinitionsToDelete);
         Organization org = dm.getCurrentUser().getOrganization();
-        UdaDefinitionAccess udaAccess = new UdaDefinitionAccess(dm, sessionCtx);
+        UdaDefinitionAccess udaAccess = new UdaDefinitionAccess(dm, sessionCtx, localizer);
         udaAccess.saveUdaDefinitions(udaDefinitionsToSave, org);
         udaAccess.deleteUdaDefinitions(udaDefinitionsToDelete, org);
-
     }
 
     /**
@@ -3378,11 +3390,13 @@ public class AccountServiceBean implements AccountService, AccountServiceLocal {
         Organization organization = dm.getCurrentUser().getOrganization();
         List<UdaDefinition> defs = new UdaDefinitionAccess(dm, sessionCtx)
                 .getOwnUdaDefinitions(organization);
-        List<VOUdaDefinition> result = new ArrayList<VOUdaDefinition>();
+        List<VOUdaDefinition> result = new ArrayList<>();
         for (UdaDefinition def : defs) {
-            result.add(UdaAssembler.toVOUdaDefinition(def));
+            VOUdaDefinition voUdaDefinition = UdaAssembler.toVOUdaDefinition(def, new LocalizerFacade(
+                localizer, dm.getCurrentUser().getLocale()));
+            voUdaDefinition.setLanguage(dm.getCurrentUser().getLocale());
+            result.add(voUdaDefinition);
         }
-
         return result;
     }
 
@@ -3402,7 +3416,8 @@ public class AccountServiceBean implements AccountService, AccountServiceLocal {
         List<VOUda> voUdas = new ArrayList<VOUda>();
         for (Uda uda : udas) {
             // convert to VO list
-            voUdas.add(UdaAssembler.toVOUda(uda));
+            voUdas.add(UdaAssembler.toVOUda(uda, new LocalizerFacade(
+                localizer, dm.getCurrentUser().getLocale())));
         }
 
         return voUdas;
@@ -3798,7 +3813,8 @@ public class AccountServiceBean implements AccountService, AccountServiceLocal {
         List<VOUdaDefinition> voUdaDefs = new ArrayList<VOUdaDefinition>();
         for (UdaDefinition def : defs) {
             // convert to VO list
-            voUdaDefs.add(UdaAssembler.toVOUdaDefinition(def));
+            voUdaDefs.add(UdaAssembler.toVOUdaDefinition(def, new LocalizerFacade(
+                localizer, dm.getCurrentUser().getLocale())));
         }
 
         return voUdaDefs;
@@ -3859,10 +3875,23 @@ public class AccountServiceBean implements AccountService, AccountServiceLocal {
         List<VOUda> voUdas = new ArrayList<VOUda>();
         for (Uda uda : udas) {
             // convert to VO list
-            voUdas.add(UdaAssembler.toVOUda(uda));
+            voUdas.add(UdaAssembler.toVOUda(uda, new LocalizerFacade(
+                localizer, dm.getCurrentUser().getLocale())));
         }
 
         return voUdas;
+    }
+
+    @Override
+    public String decryptAttributeValue(String encryptedValue) throws GeneralSecurityException {
+        return ParameterEncrypter
+            .decrypt(encryptedValue);
+    }
+
+    @Override
+    public String encryptAttributeValue(String value)
+            throws GeneralSecurityException {
+        return ParameterEncrypter.encrypt(value);
     }
 
     @Override

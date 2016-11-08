@@ -412,7 +412,7 @@ public class SubscriptionServiceWS implements SubscriptionService {
                     VOCollectionConverter.convertList(modifiedParameters,
                             org.oscm.internal.vo.VOParameter.class),
                     VOCollectionConverter.convertList(udas,
-                            org.oscm.internal.vo.VOUda.class)));
+                            org.oscm.internal.vo.VOUda.class, ds)));
         } catch (org.oscm.internal.types.exception.NonUniqueBusinessKeyException e) {
             throw ExceptionConverter.convertToApi(e);
         } catch (org.oscm.internal.types.exception.ObjectNotFoundException e) {
@@ -465,7 +465,7 @@ public class SubscriptionServiceWS implements SubscriptionService {
                     VOConverter.convertToUp(paymentInfo), VOConverter
                             .convertToUp(billingContact), VOCollectionConverter
                             .convertList(udas,
-                                    org.oscm.internal.vo.VOUda.class)));
+                                    org.oscm.internal.vo.VOUda.class, ds)));
         } catch (org.oscm.internal.types.exception.ObjectNotFoundException e) {
             throw ExceptionConverter.convertToApi(e);
         } catch (org.oscm.internal.types.exception.NonUniqueBusinessKeyException e) {
@@ -544,7 +544,7 @@ public class SubscriptionServiceWS implements SubscriptionService {
                             .convertToUp(paymentInfo), VOConverter
                             .convertToUp(billingContact), VOCollectionConverter
                             .convertList(udas,
-                                    org.oscm.internal.vo.VOUda.class)));
+                                    org.oscm.internal.vo.VOUda.class, ds)));
         } catch (org.oscm.internal.types.exception.ObjectNotFoundException e) {
             throw ExceptionConverter.convertToApi(e);
         } catch (org.oscm.internal.types.exception.NonUniqueBusinessKeyException e) {

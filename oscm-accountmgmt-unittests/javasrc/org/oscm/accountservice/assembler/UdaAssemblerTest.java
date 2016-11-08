@@ -18,6 +18,8 @@ import org.junit.Test;
 
 import org.oscm.domobjects.Uda;
 import org.oscm.domobjects.UdaDefinition;
+import org.oscm.domobjects.enums.LocalizedObjectTypes;
+import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.test.BaseAdmUmTest;
 import org.oscm.test.data.Udas;
 import org.oscm.types.enumtypes.UdaTargetType;
@@ -28,6 +30,11 @@ import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.internal.vo.VOUda;
 import org.oscm.internal.vo.VOUdaDefinition;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 /**
  * @author weiser
  * 
@@ -36,13 +43,15 @@ public class UdaAssemblerTest {
 
     @Test
     public void testToVOUdaDefinition_Null() throws Exception {
-        Assert.assertNull(UdaAssembler.toVOUdaDefinition(null));
+        Assert.assertNull(UdaAssembler.toVOUdaDefinition(null, null));
     }
 
     @Test
     public void testToVOUdaDefinition() throws Exception {
         UdaDefinition def = createUdaDefinition();
-        VOUdaDefinition voDef = UdaAssembler.toVOUdaDefinition(def);
+        LocalizerFacade facade = mock(LocalizerFacade.class);
+        when(facade.getText(anyLong(), any(LocalizedObjectTypes.class))).thenReturn("localizatgion");
+        VOUdaDefinition voDef = UdaAssembler.toVOUdaDefinition(def, facade);
         verifyDefinition(def, voDef);
     }
 
@@ -129,7 +138,9 @@ public class UdaAssemblerTest {
     @Test(expected = ConcurrentModificationException.class)
     public void testUpdateUdaDefinition_DifferentVersion() throws Exception {
         UdaDefinition def = createUdaDefinition();
-        VOUdaDefinition voDef = UdaAssembler.toVOUdaDefinition(def);
+        LocalizerFacade facade = mock(LocalizerFacade.class);
+        when(facade.getText(anyLong(), any(LocalizedObjectTypes.class))).thenReturn("localizatgion");
+        VOUdaDefinition voDef = UdaAssembler.toVOUdaDefinition(def, facade);
         voDef.setVersion(voDef.getVersion() - 1);
         UdaAssembler.updateUdaDefinition(def, voDef);
     }
@@ -137,7 +148,9 @@ public class UdaAssemblerTest {
     @Test(expected = SaaSSystemException.class)
     public void testUpdateUdaDefinition_DifferentKey() throws Exception {
         UdaDefinition def = createUdaDefinition();
-        VOUdaDefinition voDef = UdaAssembler.toVOUdaDefinition(def);
+        LocalizerFacade facade = mock(LocalizerFacade.class);
+        when(facade.getText(anyLong(), any(LocalizedObjectTypes.class))).thenReturn("localizatgion");
+        VOUdaDefinition voDef = UdaAssembler.toVOUdaDefinition(def, facade);
         voDef.setKey(voDef.getKey() - 1);
         UdaAssembler.updateUdaDefinition(def, voDef);
     }
@@ -145,7 +158,9 @@ public class UdaAssemblerTest {
     @Test
     public void testUpdateUdaDefinition() throws Exception {
         UdaDefinition def = createUdaDefinition();
-        VOUdaDefinition voDef = UdaAssembler.toVOUdaDefinition(def);
+        LocalizerFacade facade = mock(LocalizerFacade.class);
+        when(facade.getText(anyLong(), any(LocalizedObjectTypes.class))).thenReturn("localizatgion");
+        VOUdaDefinition voDef = UdaAssembler.toVOUdaDefinition(def, facade);
         voDef.setDefaultValue("newDefaultValue");
         voDef.setTargetType(UdaTargetType.CUSTOMER_SUBSCRIPTION.name());
         voDef.setUdaId("newUdaId");
@@ -169,7 +184,10 @@ public class UdaAssemblerTest {
         uda.setTargetObjectKey(2345);
         uda.setUdaDefinition(def);
         uda.setUdaValue("42");
-        VOUda voUda = UdaAssembler.toVOUda(uda);
+
+        LocalizerFacade facade = mock(LocalizerFacade.class);
+        when(facade.getText(anyLong(), any(LocalizedObjectTypes.class))).thenReturn("localizatgion");
+        VOUda voUda = UdaAssembler.toVOUda(uda, facade);
         Assert.assertNotNull(voUda);
         Assert.assertEquals(uda.getKey(), voUda.getKey());
         Assert.assertEquals(uda.getTargetObjectKey(),
@@ -181,7 +199,7 @@ public class UdaAssemblerTest {
 
     @Test
     public void testToVOUda_Null() throws Exception {
-        Assert.assertNull(UdaAssembler.toVOUda(null));
+        Assert.assertNull(UdaAssembler.toVOUda(null, null));
     }
 
     @Test
@@ -233,7 +251,9 @@ public class UdaAssemblerTest {
     @Test
     public void testUpdateUda() throws Exception {
         Uda uda = createUda();
-        VOUda voUda = UdaAssembler.toVOUda(uda);
+        LocalizerFacade facade = mock(LocalizerFacade.class);
+        when(facade.getText(anyLong(), any(LocalizedObjectTypes.class))).thenReturn("localizatgion");
+        VOUda voUda = UdaAssembler.toVOUda(uda, facade);
         voUda.setTargetObjectKey(5432);
         voUda.setUdaValue("newUdaValue");
         Uda updateUda = UdaAssembler.updateUda(uda, voUda);
@@ -248,7 +268,9 @@ public class UdaAssemblerTest {
     @Test(expected = SaaSSystemException.class)
     public void testUpdateUda_DifferentKey() throws Exception {
         Uda uda = createUda();
-        VOUda voUda = UdaAssembler.toVOUda(uda);
+        LocalizerFacade facade = mock(LocalizerFacade.class);
+        when(facade.getText(anyLong(), any(LocalizedObjectTypes.class))).thenReturn("localizatgion");
+        VOUda voUda = UdaAssembler.toVOUda(uda, facade);
         voUda.setKey(voUda.getKey() - 1);
         UdaAssembler.updateUda(uda, voUda);
     }
@@ -256,7 +278,9 @@ public class UdaAssemblerTest {
     @Test(expected = ConcurrentModificationException.class)
     public void testUpdateUda_DifferentVersion() throws Exception {
         Uda uda = createUda();
-        VOUda voUda = UdaAssembler.toVOUda(uda);
+        LocalizerFacade facade = mock(LocalizerFacade.class);
+        when(facade.getText(anyLong(), any(LocalizedObjectTypes.class))).thenReturn("localizatgion");
+        VOUda voUda = UdaAssembler.toVOUda(uda, facade);
         voUda.setVersion(voUda.getVersion() - 1);
         UdaAssembler.updateUda(uda, voUda);
     }

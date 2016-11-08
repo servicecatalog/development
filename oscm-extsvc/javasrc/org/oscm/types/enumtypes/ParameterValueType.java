@@ -44,6 +44,11 @@ public enum ParameterValueType {
     /**
      * The parameter values are selected from a given list of options.
      */
-    ENUMERATION;
+    ENUMERATION,
+
+    /**
+     * The parameter values are strings with hidden input field and encrypted data storage.
+     */
+    PWD
 
 }

@@ -8,9 +8,11 @@
 
 package org.oscm.ui.dialog.classic.manageudas;
 
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.oscm.ui.beans.UdaBean;
 import org.oscm.validation.ArgumentValidator;
 import org.oscm.internal.intf.AccountService;
@@ -41,11 +43,14 @@ public class ManageUdaDefinitionCtrl {
     /**
      * @return all UdaDefinitionRow for CUSTOMER type
      */
-    private List<VOUdaDefinition> getCustomerUdaDefinitions() {
+    private List<VOUdaDefinition> getCustomerUdaDefinitions() throws GeneralSecurityException {
         List<VOUdaDefinition> result = new ArrayList<VOUdaDefinition>();
         List<VOUdaDefinition> udaDefinitions = as.getUdaDefinitions();
         for (VOUdaDefinition def : udaDefinitions) {
             if (def.getTargetType().equals(UdaBean.CUSTOMER)) {
+                if (def.getDefaultValue() != null && def.isEncrypted()) {
+                    def.setDefaultValue(as.decryptAttributeValue(def.getDefaultValue()));
+                }
                 result.add(def);
             }
         }
@@ -55,11 +60,14 @@ public class ManageUdaDefinitionCtrl {
     /**
      * @return all UdaDefinitionRow for CUSTOMER_SUBSCRIPTION type
      */
-    private List<VOUdaDefinition> getSubscriptionUdaDefinitions() {
+    private List<VOUdaDefinition> getSubscriptionUdaDefinitions() throws GeneralSecurityException {
         List<VOUdaDefinition> result = new ArrayList<VOUdaDefinition>();
         List<VOUdaDefinition> udaDefinitions = as.getUdaDefinitions();
         for (VOUdaDefinition def : udaDefinitions) {
             if (def.getTargetType().equals(UdaBean.CUSTOMER_SUBSCRIPTION)) {
+                if (def.getDefaultValue() != null && def.isEncrypted()) {
+                    def.setDefaultValue(as.decryptAttributeValue(def.getDefaultValue()));
+                }
                 result.add(def);
             }
         }
@@ -72,7 +80,11 @@ public class ManageUdaDefinitionCtrl {
      */
     public ManageUdaDefinitionPage getModel() {
         if (model == null) {
-            refreshModel();
+            try {
+                refreshModel();
+            } catch (GeneralSecurityException e) {
+                e.printStackTrace();
+            }
         }
         return model;
     }
@@ -83,12 +95,16 @@ public class ManageUdaDefinitionCtrl {
      * 
      * @throws SaaSApplicationException
      */
-    public void createUdaDefinition() throws SaaSApplicationException {
+    public void createUdaDefinition() throws SaaSApplicationException, GeneralSecurityException {
         ArgumentValidator.notNull("UdaDefinitionDetails", model);
         VOUdaDefinition udaDefitionDetails = UdaModelConverter
                 .convertUdaDefDetailsToVoUdaDefinition(model
                         .getNewUdaDefinition());
         // the TargetType value kept by model
+        if (udaDefitionDetails.isEncrypted() && StringUtils.isNotBlank(udaDefitionDetails.getDefaultValue())) {
+            udaDefitionDetails.setDefaultValue(as.encryptAttributeValue(
+                    udaDefitionDetails.getDefaultValue()));
+        }
         if (model.getUdaType().equals(UdaBean.CUSTOMER)) {
             udaDefitionDetails.setTargetType(UdaBean.CUSTOMER);
         } else {
@@ -103,11 +119,15 @@ public class ManageUdaDefinitionCtrl {
      * 
      * @throws SaaSApplicationException
      */
-    public void updateUdaDefinition() throws SaaSApplicationException {
+    public void updateUdaDefinition() throws SaaSApplicationException, GeneralSecurityException {
         ArgumentValidator.notNull("UdaDefinitionDetails", model);
         VOUdaDefinition udaDefitionDetails = UdaModelConverter
                 .convertUdaDefDetailsToVoUdaDefinition(model
                         .getCurrentUdaDefinition());
+        if (udaDefitionDetails.isEncrypted() && StringUtils.isNotBlank(udaDefitionDetails.getDefaultValue())) {
+            udaDefitionDetails.setDefaultValue(as.encryptAttributeValue(
+                udaDefitionDetails.getDefaultValue()));
+        }
         // the TargetType value kept by model
         if (model.getUdaType().equals(UdaBean.CUSTOMER)) {
             udaDefitionDetails.setTargetType(UdaBean.CUSTOMER);
@@ -163,7 +183,7 @@ public class ManageUdaDefinitionCtrl {
     /**
      * initialize the model when model is null
      */
-    void refreshModel() {
+    void refreshModel() throws GeneralSecurityException {
         // initialize the model
         model = new ManageUdaDefinitionPage();
 
@@ -186,5 +206,9 @@ public class ManageUdaDefinitionCtrl {
                     .convertVoUdaDefinitionToRowModel(voUdaDef));
         }
         model.setSubscriptionUdas(subscriptionUdas);
+    }
+
+    public String getLocalizedAttributeName(long key, String locale) {
+        return as.getLocalizedAttributeName(key, locale);
     }
 }

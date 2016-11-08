@@ -51,6 +51,8 @@ public class UdaDefinitionData extends DomainDataContainer {
     @Enumerated(EnumType.STRING)
     private UdaConfigurationType configurationType;
 
+    private boolean encrypted;
+
     public String getUdaId() {
         return udaId;
     }
@@ -81,5 +83,13 @@ public class UdaDefinitionData extends DomainDataContainer {
 
     public UdaConfigurationType getConfigurationType() {
         return configurationType;
+    }
+
+    public boolean isEncrypted() {
+        return encrypted;
+    }
+
+    public void setEncrypted(boolean encrypted) {
+        this.encrypted = encrypted;
     }
 }

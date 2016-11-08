@@ -133,6 +133,7 @@
 					<xsd:enumeration value="LONG" />
 					<xsd:enumeration value="STRING" />
 					<xsd:enumeration value="ENUMERATION" />
+					<xsd:enumeration value="PWD" />
 				</xsd:restriction>
 			</xsd:simpleType>
 		</xsd:attribute>

@@ -40,7 +40,7 @@ public class LocalizerServiceStub implements LocalizerServiceLocal {
     @Override
     public String getLocalizedTextFromDatabase(String localeString,
             long objectKey, LocalizedObjectTypes objectType) {
-        throw new UnsupportedOperationException();
+        return null;
     }
 
     @Override

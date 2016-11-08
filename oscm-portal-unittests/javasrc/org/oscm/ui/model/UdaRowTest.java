@@ -37,6 +37,7 @@ public class UdaRowTest {
     public void testUdaRow() {
         VOUdaDefinition def = Udas.createVOUdaDefinition("CUSTOMER", "udaId",
                 "defaultValue", UdaConfigurationType.SUPPLIER);
+        def.setName("name");
         VOUda uda = Udas.createVOUda(def, null, 12345);
         UdaRow row = new UdaRow(def, uda);
         assertEquals(def.getUdaId(), row.getUdaId());
@@ -113,10 +114,23 @@ public class UdaRowTest {
         assertFalse(result);
     }
 
+    @Test
+    public void getUdaNameToShowTest() {
+        //given
+        UdaRow row = prepareUdaRow(UdaConfigurationType.USER_OPTION_OPTIONAL);
+
+        //when
+        String udaNameToShow = row.getUdaNameToShow();
+
+        //then
+        assertEquals(udaNameToShow, "name");
+    }
+
     private UdaRow prepareUdaRow(UdaConfigurationType type) {
         VOUdaDefinition def = Udas.createVOUdaDefinition("SUPPLIER", "udaId",
                 "defaultValue", type);
         VOUda uda = Udas.createVOUda(def, "value", 12345);
+        def.setName("name");
         UdaRow row = new UdaRow(def, uda);
         return row;
     }

@@ -117,4 +117,8 @@ public class UdaDefinition extends DomainObjectWithHistory<UdaDefinitionData> {
     public UdaConfigurationType getConfigurationType() {
         return dataContainer.getConfigurationType();
     }
+
+    public boolean isEncrypted() {
+        return this.dataContainer.isEncrypted();
+    }
 }

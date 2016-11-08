@@ -5,12 +5,14 @@
 package org.oscm.converter.api;
 
 import static org.junit.Assert.assertNull;
+import static org.mockito.Mockito.mock;
 
 import org.junit.AfterClass;
 import org.junit.Test;
 
 import org.oscm.converter.common.VOAssert;
 import org.oscm.converter.common.VOInitializer;
+import org.oscm.dataservice.local.DataService;
 import org.oscm.internal.vo.VOService;
 import org.oscm.internal.vo.VOTriggerProcessParameter;
 import org.oscm.vo.VOServiceOperationParameter;
@@ -1600,7 +1602,7 @@ public class VOConverterApiTest {
         org.oscm.vo.VOUda oldVO = new org.oscm.vo.VOUda();
         VOInitializer.initialize(oldVO);
         org.oscm.internal.vo.VOUda newVO = org.oscm.converter.api.VOConverter
-                .convertToUp(oldVO);
+                .reflectiveConvert(oldVO, mock(DataService.class));
         voAssert.assertValueObjects(oldVO, newVO);
     }
 
@@ -1630,7 +1632,7 @@ public class VOConverterApiTest {
         org.oscm.vo.VOUdaDefinition oldVO = new org.oscm.vo.VOUdaDefinition();
         VOInitializer.initialize(oldVO);
         org.oscm.internal.vo.VOUdaDefinition newVO = org.oscm.converter.api.VOConverter
-                .convertToUp(oldVO);
+                .reflectiveConvert(oldVO, mock(DataService.class));
         voAssert.assertValueObjects(oldVO, newVO);
     }
 
