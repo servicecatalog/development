@@ -16,6 +16,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -811,13 +812,31 @@ public class MarketplaceServiceBean implements MarketplaceService {
         VOMarketplace mp = getMarketplaceById(marketplaceId);
         if (mp.isOpen()) {
 
-            TypedQuery<Organization> query = dm.createNamedQuery(
-                    "Organization.getAllSuppliers", Organization.class);
-            List<Organization> list = query.getResultList();
+            TypedQuery<MarketplaceToOrganization> mtoQuery = dm
+                    .createNamedQuery(
+                            "MarketplaceToOrganization.findSuppliersForMpByPublishingAccess",
+                            MarketplaceToOrganization.class);
+            mtoQuery.setParameter("marketplace_tkey",
+                    Long.valueOf(mp.getKey()));
+            mtoQuery.setParameter("publishingAccess",
+                    PublishingAccess.PUBLISHING_ACCESS_DENIED);
 
-            for (Organization org : list) {
-                result.add(OrganizationAssembler.toVOOrganization(org, false,
-                        facade));
+            List<MarketplaceToOrganization> mtoList = mtoQuery.getResultList();
+            HashSet<Long> set = new HashSet<>();
+
+            for (MarketplaceToOrganization mto : mtoList) {
+                set.add(new Long(mto.getOrganization_tkey()));
+            }
+
+            TypedQuery<Organization> orgQuery = dm.createNamedQuery(
+                    "Organization.getAllSuppliers", Organization.class);
+            List<Organization> orgList = orgQuery.getResultList();
+
+            for (Organization org : orgList) {
+                if (!set.contains(new Long(org.getKey()))) {
+                    result.add(OrganizationAssembler.toVOOrganization(org,
+                            false, facade));
+                }
             }
         } else {
 
@@ -1304,7 +1323,8 @@ public class MarketplaceServiceBean implements MarketplaceService {
 
     @Override
     @RolesAllowed("PLATFORM_OPERATOR")
-    public List<VOMarketplace> getAllMarketplacesForTenant(Long tenantKey) throws ObjectNotFoundException {
+    public List<VOMarketplace> getAllMarketplacesForTenant(Long tenantKey)
+            throws ObjectNotFoundException {
         List<Marketplace> marketplaces = marketplaceServiceLocal
                 .getAllMarketplacesForTenant(tenantKey);
         List<VOMarketplace> result = new ArrayList<>();

@@ -11,7 +11,6 @@ package org.oscm.app.domain;
 import java.io.Serializable;
 import java.security.GeneralSecurityException;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
@@ -52,7 +51,6 @@ public class CustomAttribute {
     /**
      * The value of the custom setting.
      */
-    @Column(nullable = false)
     private String attributeValue;
 
     public String getAttributeKey() {

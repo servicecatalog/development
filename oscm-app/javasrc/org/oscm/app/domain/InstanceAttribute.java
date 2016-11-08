@@ -58,7 +58,6 @@ public class InstanceAttribute {
     /**
      * The value of the instance parameter.
      */
-    @Column(nullable = false)
     private String attributeValue;
 
     /**

@@ -52,6 +52,7 @@ import java.util.Locale;
 import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 
 import javax.ejb.EJBAccessException;
@@ -228,7 +229,7 @@ public class AccountServiceBeanIT extends EJBTestBase {
 
     private String organizationId;
 
-    private final List<String> supplierIds = new ArrayList<String>();
+    private final List<String> supplierIds = new ArrayList<>();
 
     private String providerId;
 
@@ -258,7 +259,7 @@ public class AccountServiceBeanIT extends EJBTestBase {
     private final List<VOLocalizedText>[] passedLocalizedTexts = (List<VOLocalizedText>[]) Array
             .newInstance(List.class, 2);
 
-    private final List<MailDetails<PlatformUser>> sendedMails = new LinkedList<MailDetails<PlatformUser>>();
+    private final List<MailDetails<PlatformUser>> sendedMails = new LinkedList<>();
     private boolean throwMailOperationException = false;
     private MarketingPermissionServiceLocal mpMock;
     private LdapSettingsManagementServiceLocal ldapSettingMmgtMock;
@@ -308,7 +309,7 @@ public class AccountServiceBeanIT extends EJBTestBase {
             public List<VOLocalizedText> getLocalizedValues(long objectKey,
                     LocalizedObjectTypes objectType) {
 
-                List<VOLocalizedText> texts = new ArrayList<VOLocalizedText>();
+                List<VOLocalizedText> texts = new ArrayList<>();
                 if (objectType == LocalizedObjectTypes.PAYMENT_TYPE_NAME) {
                     texts.add(new VOLocalizedText("en", PAYMENT_INFO_NAME));
                     texts.add(new VOLocalizedText("de", PAYMENT_INFO_NAME));
@@ -381,8 +382,9 @@ public class AccountServiceBeanIT extends EJBTestBase {
 
                     super.setConfigurationSetting(new ConfigurationSetting(
                             ConfigurationKey.SUPPLIER_SETS_INVOICE_AS_DEFAULT,
-                            Configuration.GLOBAL_CONTEXT, Boolean.valueOf(
-                                    setInvoiceAsDefaultPayment).toString()));
+                            Configuration.GLOBAL_CONTEXT,
+                            Boolean.valueOf(setInvoiceAsDefaultPayment)
+                                    .toString()));
                 }
                 return super.getConfigurationSetting(informationId, contextId);
             }
@@ -409,7 +411,7 @@ public class AccountServiceBeanIT extends EJBTestBase {
         container.addBean(new SessionServiceStub() {
             @Override
             public List<Session> getSessionsForUserKey(long platformUserKey) {
-                return new ArrayList<Session>();
+                return new ArrayList<>();
             }
         });
 
@@ -421,8 +423,7 @@ public class AccountServiceBeanIT extends EJBTestBase {
                 if (throwMailOperationException) {
                     throw new MailOperationException("Mail could not be sent.");
                 } else {
-                    sendedMails.add(new MailDetails<PlatformUser>(recipient,
-                            type, params));
+                    sendedMails.add(new MailDetails<>(recipient, type, params));
                 }
             }
 
@@ -430,7 +431,7 @@ public class AccountServiceBeanIT extends EJBTestBase {
             public SendMailStatus<PlatformUser> sendMail(EmailType type,
                     Object[] params, Marketplace marketplace,
                     PlatformUser... recipients) {
-                SendMailStatus<PlatformUser> mailStatus = new SendMailStatus<PlatformUser>();
+                SendMailStatus<PlatformUser> mailStatus = new SendMailStatus<>();
                 for (PlatformUser recipient : recipients) {
                     try {
                         sendMail(recipient, type, params, marketplace);
@@ -450,7 +451,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
         });
 
         container.addBean(new LdapAccessStub());
-        SubscriptionServiceLocal subService = mock(SubscriptionServiceLocal.class);
+        SubscriptionServiceLocal subService = mock(
+                SubscriptionServiceLocal.class);
 
         doAnswer(new Answer<Subscription>() {
             @Override
@@ -462,8 +464,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
                     throw new ObjectNotFoundException(ClassEnum.SUBSCRIPTION,
                             "");
                 } else if (subscriptionKey > 1) {
-                    return mgr
-                            .getReference(Subscription.class, subscriptionKey);
+                    return mgr.getReference(Subscription.class,
+                            subscriptionKey);
                 }
                 Organization organization = new Organization();
                 organization.setOrganizationId("BMW");
@@ -515,7 +517,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
         mpMock = mock(MarketingPermissionServiceLocal.class);
         container.addBean(mpMock);
 
-        subscriptionAuditLogCollector = mock(SubscriptionAuditLogCollector.class);
+        subscriptionAuditLogCollector = mock(
+                SubscriptionAuditLogCollector.class);
         container.addBean(subscriptionAuditLogCollector);
         container.addBean(new AccountServiceBean());
 
@@ -563,8 +566,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
                         true, "SuppAdmin1");
                 Organizations.supportAllCountries(mgr, supplier1);
 
-                Organization platformOperator = Organizations.findOrganization(
-                        mgr, "PLATFORM_OPERATOR");
+                Organization platformOperator = Organizations
+                        .findOrganization(mgr, "PLATFORM_OPERATOR");
                 OrganizationReference ref = new OrganizationReference(
                         platformOperator, supplier1,
                         OrganizationReferenceType.PLATFORM_OPERATOR_TO_SUPPLIER);
@@ -630,13 +633,13 @@ public class AccountServiceBeanIT extends EJBTestBase {
         user.setKey(supplier1User.getKey());
         user.setUserId(supplier1User.getUserId());
         user.setEMail(changedEmail);
-        user.setOrganizationId(supplier1User.getOrganization()
-                .getOrganizationId());
+        user.setOrganizationId(
+                supplier1User.getOrganization().getOrganizationId());
         user.setLocale(supplier1User.getLocale());
 
         VOOrganization organization = new VOOrganization();
-        organization.setOrganizationId(supplier1User.getOrganization()
-                .getOrganizationId());
+        organization.setOrganizationId(
+                supplier1User.getOrganization().getOrganizationId());
         organization.setEmail(oldEmail);
         organization.setPhone("123456");
         organization.setUrl("http://www.example.com");
@@ -653,11 +656,11 @@ public class AccountServiceBeanIT extends EJBTestBase {
     }
 
     private void checkEmail(int index, String expectedEmail) {
-        assertEquals(expectedEmail, sendedMails.get(index).getInstance()
-                .getEmail());
+        assertEquals(expectedEmail,
+                sendedMails.get(index).getInstance().getEmail());
 
-        assertEquals(EmailType.ORGANIZATION_UPDATED, sendedMails.get(index)
-                .getEmailType());
+        assertEquals(EmailType.ORGANIZATION_UPDATED,
+                sendedMails.get(index).getEmailType());
 
         assertNull(sendedMails.get(index).getParams());
     }
@@ -942,7 +945,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
             @Override
             public Void call() throws Exception {
                 List<OrganizationReference> orgList = accountMgmtLocal
-                        .getOrganizationForDiscountEndNotificiation(currentTime);
+                        .getOrganizationForDiscountEndNotificiation(
+                                currentTime);
 
                 Assert.assertEquals(1, orgList.size());
 
@@ -990,8 +994,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
 
                 Discount discount = new Discount();
 
-                discount.setOrganizationReference(organization.getSources()
-                        .get(0));
+                discount.setOrganizationReference(
+                        organization.getSources().get(0));
                 discount.setValue(value);
                 discount.setStartTime(startTime);
                 discount.setEndTime(endTime);
@@ -1005,7 +1009,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
             @Override
             public Void call() throws Exception {
                 List<OrganizationReference> orgList = accountMgmtLocal
-                        .getOrganizationForDiscountEndNotificiation(currentTime);
+                        .getOrganizationForDiscountEndNotificiation(
+                                currentTime);
 
                 Assert.assertEquals(0, orgList.size());
 
@@ -1024,15 +1029,17 @@ public class AccountServiceBeanIT extends EJBTestBase {
         String orgId = organizationId;
         final Organization org = getOrganization(orgId);
 
-        final VOOrganization voOrganization = runTX(new Callable<VOOrganization>() {
-            @Override
-            public VOOrganization call() throws Exception {
-                Organization organization = mgr.getReference(
-                        Organization.class, org.getKey());
-                return OrganizationAssembler.toVOOrganization(organization,
-                        false, new LocalizerFacade(localizer, "en"));
-            }
-        });
+        final VOOrganization voOrganization = runTX(
+                new Callable<VOOrganization>() {
+                    @Override
+                    public VOOrganization call() throws Exception {
+                        Organization organization = mgr
+                                .getReference(Organization.class, org.getKey());
+                        return OrganizationAssembler.toVOOrganization(
+                                organization, false,
+                                new LocalizerFacade(localizer, "en"));
+                    }
+                });
 
         // log in with a supplier which is not the supplier of voOrganization
         container.login(supplier1User.getKey(), ROLE_SERVICE_MANAGER);
@@ -1177,15 +1184,16 @@ public class AccountServiceBeanIT extends EJBTestBase {
         assertEquals(2, list.size());
         VOOrganization initial_voOrganization = list.get(0);
         for (VOOrganization voOrg : list) {
-            if (!voOrg.getOrganizationId().equals(supplier.getOrganizationId())) {
+            if (!voOrg.getOrganizationId()
+                    .equals(supplier.getOrganizationId())) {
                 initial_voOrganization = voOrg;
                 break;
             }
         }
         final VOOrganization voOrganization = initial_voOrganization;
         assertNotNull(voOrganization);
-        Assert.assertEquals(valueBefore, voOrganization.getDiscount()
-                .getValue());
+        Assert.assertEquals(valueBefore,
+                voOrganization.getDiscount().getValue());
 
         voOrganization.getDiscount().setValue(valueAfter);
         voOrganization.getDiscount().setStartTime(discountBegin);
@@ -1204,7 +1212,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
         VOOrganization voOrganizationAfter = list.get(0);
 
         for (VOOrganization voOrg : list) {
-            if (!voOrg.getOrganizationId().equals(supplier.getOrganizationId())) {
+            if (!voOrg.getOrganizationId()
+                    .equals(supplier.getOrganizationId())) {
                 voOrganizationAfter = voOrg;
                 break;
             }
@@ -1251,31 +1260,34 @@ public class AccountServiceBeanIT extends EJBTestBase {
         customer.setDiscount(voDiscount);
 
         // create discount
-        final VOOrganization customerAfterInsert = runTX(new Callable<VOOrganization>() {
-            @Override
-            public VOOrganization call() throws Exception {
-                return accountMgmt.updateCustomerDiscount(customer);
-            }
-        });
+        final VOOrganization customerAfterInsert = runTX(
+                new Callable<VOOrganization>() {
+                    @Override
+                    public VOOrganization call() throws Exception {
+                        return accountMgmt.updateCustomerDiscount(customer);
+                    }
+                });
 
         // check persisted discount values
-        assertEquals(valueBeforeInsert, customerAfterInsert.getDiscount()
-                .getValue());
+        assertEquals(valueBeforeInsert,
+                customerAfterInsert.getDiscount().getValue());
         assertEquals(0, customerAfterInsert.getDiscount().getVersion());
         assertTrue(customerAfterInsert.getDiscount().getKey() > 0);
 
         // change existing discount
         customerAfterInsert.getDiscount().setValue(valueAfterInsert);
-        VOOrganization customerAfterChange = runTX(new Callable<VOOrganization>() {
-            @Override
-            public VOOrganization call() throws Exception {
-                return accountMgmt.updateCustomerDiscount(customerAfterInsert);
-            }
-        });
+        VOOrganization customerAfterChange = runTX(
+                new Callable<VOOrganization>() {
+                    @Override
+                    public VOOrganization call() throws Exception {
+                        return accountMgmt
+                                .updateCustomerDiscount(customerAfterInsert);
+                    }
+                });
 
         // check changes discount values
-        assertEquals(valueAfterInsert, customerAfterChange.getDiscount()
-                .getValue());
+        assertEquals(valueAfterInsert,
+                customerAfterChange.getDiscount().getValue());
         assertEquals(1, customerAfterChange.getDiscount().getVersion());
     }
 
@@ -1309,15 +1321,16 @@ public class AccountServiceBeanIT extends EJBTestBase {
         assertEquals(2, list.size());
         VOOrganization initial_voOrganization = list.get(0);
         for (VOOrganization voOrg : list) {
-            if (!voOrg.getOrganizationId().equals(supplier.getOrganizationId())) {
+            if (!voOrg.getOrganizationId()
+                    .equals(supplier.getOrganizationId())) {
                 initial_voOrganization = voOrg;
                 break;
             }
         }
         final VOOrganization voOrganization = initial_voOrganization;
         assertNotNull(voOrganization);
-        Assert.assertEquals(valueBefore, voOrganization.getDiscount()
-                .getValue());
+        Assert.assertEquals(valueBefore,
+                voOrganization.getDiscount().getValue());
 
         voOrganization.setDiscount(null);
 
@@ -1335,7 +1348,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
         VOOrganization voOrganizationAfter = list.get(0);
 
         for (VOOrganization voOrg : list) {
-            if (!voOrg.getOrganizationId().equals(supplier.getOrganizationId())) {
+            if (!voOrg.getOrganizationId()
+                    .equals(supplier.getOrganizationId())) {
                 voOrganizationAfter = voOrg;
                 break;
             }
@@ -1430,8 +1444,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
                         isNullLocalizedFieldValue);
                 Assert.assertEquals(1, org.getPaymentInfos().size());
                 PaymentInfo pi = org.getPaymentInfos().get(0);
-                Assert.assertEquals(PaymentType.INVOICE, pi.getPaymentType()
-                        .getPaymentTypeId());
+                Assert.assertEquals(PaymentType.INVOICE,
+                        pi.getPaymentType().getPaymentTypeId());
                 Assert.assertEquals(PAYMENT_INFO_NAME, pi.getPaymentInfoId());
                 return null;
             }
@@ -1451,8 +1465,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
         user.setLocale(org.getLocale());
         user.setUserId("initialUser");
         final VOOrganization customer = accountMgmt.registerCustomer(org, user,
-                "admin", null, marketplaceId, supplier1User.getOrganization()
-                        .getOrganizationId());
+                "admin", null, marketplaceId,
+                supplier1User.getOrganization().getOrganizationId());
 
         Assert.assertNotNull(customer);
 
@@ -1500,8 +1514,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
         user.setLocale(org.getLocale());
         user.setUserId("initialUser");
         final VOOrganization customer = accountMgmt.registerCustomer(org, user,
-                "admin", null, marketplaceId, supplier1User.getOrganization()
-                        .getOrganizationId());
+                "admin", null, marketplaceId,
+                supplier1User.getOrganization().getOrganizationId());
         // when
         List<VOOrganization> customers = accountMgmt
                 .getMyCustomersOptimization();
@@ -1563,8 +1577,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
             user.setLocale(org.getLocale());
             user.setUserId("initialUserA" + i);
             accountMgmt.registerCustomer(org, user, "admin", null,
-                    marketplaceId, supplier1User.getOrganization()
-                            .getOrganizationId());
+                    marketplaceId,
+                    supplier1User.getOrganization().getOrganizationId());
         }
         container.logout();
         container.login(String.valueOf(supplier2User.getKey()),
@@ -1579,8 +1593,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
             user.setLocale(org.getLocale());
             user.setUserId("initialUserB" + i);
             accountMgmt.registerCustomer(org, user, "admin", null,
-                    marketplaceId, supplier2User.getOrganization()
-                            .getOrganizationId());
+                    marketplaceId,
+                    supplier2User.getOrganization().getOrganizationId());
         }
 
         // when
@@ -1590,10 +1604,9 @@ public class AccountServiceBeanIT extends EJBTestBase {
         // then
         Assert.assertEquals(newCustomerOf2 + 1, customers.size());
         for (int i = 0; i < newCustomerOf2; i++)
-            Assert.assertEquals(
-                    expectedName + expectedLetter,
-                    customers.get(1 + i).getName()
-                            .substring(0, expectedName.length() + 1));
+            Assert.assertEquals(expectedName + expectedLetter,
+                    customers.get(1 + i).getName().substring(0,
+                            expectedName.length() + 1));
 
     }
 
@@ -1617,8 +1630,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
             user.setLocale(org.getLocale());
             user.setUserId("initialUserA" + i);
             accountMgmt.registerCustomer(org, user, "admin", null,
-                    marketplaceId, supplier1User.getOrganization()
-                            .getOrganizationId());
+                    marketplaceId,
+                    supplier1User.getOrganization().getOrganizationId());
         }
         container.logout();
         container.login(String.valueOf(supplier2User.getKey()),
@@ -1633,8 +1646,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
             user.setLocale(org.getLocale());
             user.setUserId("initialUserB" + i);
             accountMgmt.registerCustomer(org, user, "admin", null,
-                    marketplaceId, supplier2User.getOrganization()
-                            .getOrganizationId());
+                    marketplaceId,
+                    supplier2User.getOrganization().getOrganizationId());
         }
         container.logout();
         container.login(String.valueOf(supplier1User.getKey()),
@@ -1647,10 +1660,9 @@ public class AccountServiceBeanIT extends EJBTestBase {
         // then
         Assert.assertEquals(newCustomerOf1 + 1, customers.size());
         for (int i = 0; i < newCustomerOf1; i++)
-            Assert.assertEquals(
-                    expectedName + expectedLetter,
-                    customers.get(1 + i).getName()
-                            .substring(0, expectedName.length() + 1));
+            Assert.assertEquals(expectedName + expectedLetter,
+                    customers.get(1 + i).getName().substring(0,
+                            expectedName.length() + 1));
 
     }
 
@@ -1663,35 +1675,35 @@ public class AccountServiceBeanIT extends EJBTestBase {
             @Override
             public Void call() throws Exception {
                 // get history entry for the registered organization
-                Organization organization = mgr.getReference(
-                        Organization.class, voOrg.getKey());
+                Organization organization = mgr.getReference(Organization.class,
+                        voOrg.getKey());
                 List<DomainHistoryObject<?>> findHistory = mgr
                         .findHistory(organization);
-                Assert.assertTrue("No history entries found for organization "
-                        + organization.getOrganizationId(),
+                Assert.assertTrue(
+                        "No history entries found for organization "
+                                + organization.getOrganizationId(),
                         findHistory.size() > 0);
                 DomainHistoryObject<?> orgHist = findHistory.get(0);
                 // get history entry for the registered user
-                List<PlatformUser> users = getUsersForOrganization(organization
-                        .getOrganizationId());
+                List<PlatformUser> users = getUsersForOrganization(
+                        organization.getOrganizationId());
                 Assert.assertEquals(
                         "Expected exactly one user for organization "
-                                + organization.getOrganizationId(), 1,
-                        users.size());
+                                + organization.getOrganizationId(),
+                        1, users.size());
                 PlatformUser user = users.get(0);
                 findHistory = mgr.findHistory(user);
                 Assert.assertEquals(
                         "Expected exactly one history entry for user "
-                                + user.getUserId(), 1, findHistory.size());
+                                + user.getUserId(),
+                        1, findHistory.size());
                 DomainHistoryObject<?> userHist = findHistory.get(0);
 
                 // history moddate of organization and user must be exactly the
                 // same as they were created inside one transaction
                 assertEquals(
-                        "Organization "
-                                + organization.getOrganizationId()
-                                + " and user "
-                                + user.getUserId()
+                        "Organization " + organization.getOrganizationId()
+                                + " and user " + user.getUserId()
                                 + " must have the same history moddate (created in same transaction)",
                         orgHist.getModdate(), userHist.getModdate());
                 return null;
@@ -1711,7 +1723,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
     }
 
     @Test
-    public void testUpdateCustomerDiscount_VersionNotChanged() throws Exception {
+    public void testUpdateCustomerDiscount_VersionNotChanged()
+            throws Exception {
         container.login(supplier1User.getKey(),
                 UserRoleType.ORGANIZATION_ADMIN.toString(),
                 UserRoleType.SERVICE_MANAGER.toString());
@@ -1940,8 +1953,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                accountMgmt.updateAccountInformation(voOrganization, null,
-                        null, null);
+                accountMgmt.updateAccountInformation(voOrganization, null, null,
+                        null);
                 return null;
             }
         });
@@ -1962,7 +1975,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
 
         try {
             accountMgmt.getOrganizationData();
-            Assert.fail("Operation must not work as the organization does not exist anymore");
+            Assert.fail(
+                    "Operation must not work as the organization does not exist anymore");
         } catch (EJBException e) {
 
         }
@@ -1978,14 +1992,12 @@ public class AccountServiceBeanIT extends EJBTestBase {
                 int entryCount = findHistory.size();
                 Assert.assertTrue("History entries missing for organization",
                         entryCount > 1);
-                Assert.assertEquals(
-                        "Last historized version has wrong modType",
-                        ModificationType.DELETE, findHistory
-                                .get(entryCount - 1).getModtype());
-                Assert.assertFalse(
-                        "Historized version has wrong modType",
-                        ModificationType.DELETE == findHistory.get(
-                                entryCount - 2).getModtype());
+                Assert.assertEquals("Last historized version has wrong modType",
+                        ModificationType.DELETE,
+                        findHistory.get(entryCount - 1).getModtype());
+                Assert.assertFalse("Historized version has wrong modType",
+                        ModificationType.DELETE == findHistory
+                                .get(entryCount - 2).getModtype());
                 return null;
             }
         });
@@ -2006,12 +2018,13 @@ public class AccountServiceBeanIT extends EJBTestBase {
     @Test
     public void testRemoveOverdueOrganizationsRemoveOneUser() throws Exception {
         registerSupplier("admin");
-        List<PlatformUser> platformUsers = runTX(new Callable<List<PlatformUser>>() {
-            @Override
-            public List<PlatformUser> call() throws Exception {
-                return getUsersForOrganization(organizationId);
-            }
-        });
+        List<PlatformUser> platformUsers = runTX(
+                new Callable<List<PlatformUser>>() {
+                    @Override
+                    public List<PlatformUser> call() throws Exception {
+                        return getUsersForOrganization(organizationId);
+                    }
+                });
         Assert.assertTrue("No users found for organization, but are required",
                 platformUsers.size() > 0);
         final PlatformUser platformUser = platformUsers.get(0);
@@ -2022,8 +2035,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
                         .getTransactionTime();
                 // now specify a time that simulates waiting long enough so that
                 // the organization initial admin is recognized as overdue
-                accountMgmtLocal.removeOverdueOrganizations(System
-                        .currentTimeMillis() + 2000L);
+                accountMgmtLocal.removeOverdueOrganizations(
+                        System.currentTimeMillis() + 2000L);
                 assertEquals(Boolean.FALSE,
                         Boolean.valueOf(transactionTime == DateFactory
                                 .getInstance().getTransactionTime()));
@@ -2046,8 +2059,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
                         entryCount);
                 Assert.assertEquals(
                         "Deletion is not tracked in the history entries",
-                        ModificationType.DELETE, hist.get(entryCount - 1)
-                                .getModtype());
+                        ModificationType.DELETE,
+                        hist.get(entryCount - 1).getModtype());
                 Assert.assertFalse(
                         "Deletion must be mentioned only once in the history entries",
                         ModificationType.DELETE == hist.get(entryCount - 2)
@@ -2093,9 +2106,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
             @Override
             public Boolean call() throws Exception {
                 return Boolean
-                        .valueOf(accountMgmtLocal
-                                .removeOverdueOrganizations(System
-                                        .currentTimeMillis() + 2000L));
+                        .valueOf(accountMgmtLocal.removeOverdueOrganizations(
+                                System.currentTimeMillis() + 2000L));
             }
         });
 
@@ -2180,8 +2192,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
                 l_organization = accountMgmtLocal.registerOrganization(
                         l_organization, null, userDetails, null, "DE", null,
                         null, OrganizationRoleType.SUPPLIER);
-                Assert.assertEquals(0, l_organization
-                        .getMarketplaceToOrganizations().size());
+                Assert.assertEquals(0,
+                        l_organization.getMarketplaceToOrganizations().size());
                 load(l_organization);
                 return l_organization;
             }
@@ -2202,23 +2214,29 @@ public class AccountServiceBeanIT extends EJBTestBase {
         assertLocalizedResources();
 
         final long orgKey = organization.getKey();
-        List<PlatformUser> platformUsers = runTX(new Callable<List<PlatformUser>>() {
-            @Override
-            public List<PlatformUser> call() throws Exception {
-                Organization org = mgr.getReference(Organization.class, orgKey);
-                List<PlatformUser> users = org.getPlatformUsers();
-                Assert.assertEquals("User has not been stored", 1, users.size());
-                Assert.assertTrue("This supplier is not customer of itself",
-                        org.getCustomersOfSupplier().contains(org));
-                return users;
-            }
-        });
+        List<PlatformUser> platformUsers = runTX(
+                new Callable<List<PlatformUser>>() {
+                    @Override
+                    public List<PlatformUser> call() throws Exception {
+                        Organization org = mgr.getReference(Organization.class,
+                                orgKey);
+                        List<PlatformUser> users = org.getPlatformUsers();
+                        Assert.assertEquals("User has not been stored", 1,
+                                users.size());
+                        Assert.assertTrue(
+                                "This supplier is not customer of itself",
+                                org.getCustomersOfSupplier().contains(org));
+                        return users;
+                    }
+                });
 
         PlatformUser adminUser = platformUsers.get(0);
 
         Assert.assertTrue("Wrong key for user", 0 != adminUser.getKey());
-        Assert.assertEquals("Wrong user data", "Hans", adminUser.getFirstName());
-        Assert.assertEquals("Wrong user data", "Meier", adminUser.getLastName());
+        Assert.assertEquals("Wrong user data", "Hans",
+                adminUser.getFirstName());
+        Assert.assertEquals("Wrong user data", "Meier",
+                adminUser.getLastName());
         Assert.assertEquals("Wrong user data", "admin", adminUser.getUserId());
         Assert.assertEquals("Wrong user data", Salutation.MR,
                 adminUser.getSalutation());
@@ -2295,7 +2313,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
                 Organization org = accountMgmtLocal.registerOrganization(
                         l_organization, null, userDetails, null, "DE", null,
                         null, OrganizationRoleType.TECHNOLOGY_PROVIDER);
-                Assert.assertTrue(org.getMarketplaceToOrganizations().isEmpty());
+                Assert.assertTrue(
+                        org.getMarketplaceToOrganizations().isEmpty());
                 load(org);
                 return org;
             }
@@ -2391,12 +2410,12 @@ public class AccountServiceBeanIT extends EJBTestBase {
             @Override
             public Organization call() throws Exception {
                 Organization org = accountMgmtLocal.registerOrganization(
-                        organization, null, userDetails, null, "DE", null,
-                        null, new OrganizationRoleType[] {
+                        organization, null, userDetails, null, "DE", null, null,
+                        new OrganizationRoleType[] {
                                 OrganizationRoleType.SUPPLIER,
                                 OrganizationRoleType.TECHNOLOGY_PROVIDER });
-                Assert.assertEquals(0, org.getMarketplaceToOrganizations()
-                        .size());
+                Assert.assertEquals(0,
+                        org.getMarketplaceToOrganizations().size());
                 load(org);
                 return org;
             }
@@ -2409,8 +2428,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
         Assert.assertTrue("Wrong roles assigned to organization",
                 updatedOrg.hasRole(OrganizationRoleType.TECHNOLOGY_PROVIDER));
         assertLocalizedResources();
-        Assert.assertTrue("Supported countries set for supplier", updatedOrg
-                .getSupportedCountryCodes().size() == 0);
+        Assert.assertTrue("Supported countries set for supplier",
+                updatedOrg.getSupportedCountryCodes().size() == 0);
     }
 
     @Test
@@ -2431,8 +2450,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
                 l_organization = accountMgmtLocal.registerOrganization(
                         l_organization, null, userDetails, null, "DE", null,
                         null, OrganizationRoleType.BROKER);
-                Assert.assertEquals(0, l_organization
-                        .getMarketplaceToOrganizations().size());
+                Assert.assertEquals(0,
+                        l_organization.getMarketplaceToOrganizations().size());
                 load(l_organization);
                 return l_organization;
             }
@@ -2459,7 +2478,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
                 Organization org = mgr.getReference(Organization.class, orgKey);
                 List<PlatformUser> users = org.getPlatformUsers();
                 PlatformUser admin = users.get(0);
-                Assert.assertEquals("User has not been stored", 1, users.size());
+                Assert.assertEquals("User has not been stored", 1,
+                        users.size());
                 Assert.assertTrue("Mising BROKER_MANAGER role for user",
                         admin.hasRole(UserRoleType.BROKER_MANAGER));
                 return admin;
@@ -2467,8 +2487,10 @@ public class AccountServiceBeanIT extends EJBTestBase {
         });
 
         Assert.assertTrue("Wrong key for user", 0 != adminUser.getKey());
-        Assert.assertEquals("Wrong user data", "Hans", adminUser.getFirstName());
-        Assert.assertEquals("Wrong user data", "Meier", adminUser.getLastName());
+        Assert.assertEquals("Wrong user data", "Hans",
+                adminUser.getFirstName());
+        Assert.assertEquals("Wrong user data", "Meier",
+                adminUser.getLastName());
         Assert.assertEquals("Wrong user data", "admin", adminUser.getUserId());
         Assert.assertEquals("Wrong user data", Salutation.MR,
                 adminUser.getSalutation());
@@ -2497,8 +2519,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
                 l_organization = accountMgmtLocal.registerOrganization(
                         l_organization, null, userDetails, null, "DE", null,
                         null, OrganizationRoleType.RESELLER);
-                Assert.assertEquals(0, l_organization
-                        .getMarketplaceToOrganizations().size());
+                Assert.assertEquals(0,
+                        l_organization.getMarketplaceToOrganizations().size());
                 load(l_organization);
                 return l_organization;
             }
@@ -2525,7 +2547,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
                 Organization org = mgr.getReference(Organization.class, orgKey);
                 List<PlatformUser> users = org.getPlatformUsers();
                 PlatformUser admin = users.get(0);
-                Assert.assertEquals("User has not been stored", 1, users.size());
+                Assert.assertEquals("User has not been stored", 1,
+                        users.size());
                 Assert.assertTrue("Mising RESELLER_MANAGER role for user",
                         admin.hasRole(UserRoleType.RESELLER_MANAGER));
                 return admin;
@@ -2533,8 +2556,10 @@ public class AccountServiceBeanIT extends EJBTestBase {
         });
 
         Assert.assertTrue("Wrong key for user", 0 != adminUser.getKey());
-        Assert.assertEquals("Wrong user data", "Hans", adminUser.getFirstName());
-        Assert.assertEquals("Wrong user data", "Meier", adminUser.getLastName());
+        Assert.assertEquals("Wrong user data", "Hans",
+                adminUser.getFirstName());
+        Assert.assertEquals("Wrong user data", "Meier",
+                adminUser.getLastName());
         Assert.assertEquals("Wrong user data", "admin", adminUser.getUserId());
         Assert.assertEquals("Wrong user data", Salutation.MR,
                 adminUser.getSalutation());
@@ -2564,8 +2589,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
                         l_organization, null, userDetails, null, "DE", null,
                         null, OrganizationRoleType.BROKER,
                         OrganizationRoleType.RESELLER);
-                Assert.assertEquals(0, l_organization
-                        .getMarketplaceToOrganizations().size());
+                Assert.assertEquals(0,
+                        l_organization.getMarketplaceToOrganizations().size());
                 load(l_organization);
                 return l_organization;
             }
@@ -2591,8 +2616,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
                         l_organization, null, userDetails, null, "DE", null,
                         null, OrganizationRoleType.RESELLER,
                         OrganizationRoleType.TECHNOLOGY_PROVIDER);
-                Assert.assertEquals(0, l_organization
-                        .getMarketplaceToOrganizations().size());
+                Assert.assertEquals(0,
+                        l_organization.getMarketplaceToOrganizations().size());
                 load(l_organization);
                 return l_organization;
             }
@@ -2618,8 +2643,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
                         l_organization, null, userDetails, null, "DE", null,
                         null, OrganizationRoleType.BROKER,
                         OrganizationRoleType.SUPPLIER);
-                Assert.assertEquals(0, l_organization
-                        .getMarketplaceToOrganizations().size());
+                Assert.assertEquals(0,
+                        l_organization.getMarketplaceToOrganizations().size());
                 load(l_organization);
                 return l_organization;
             }
@@ -2642,8 +2667,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
                 l_organization = accountMgmtLocal.registerOrganization(
                         l_organization, null, userDetails, null, "DE", null,
                         null, OrganizationRoleType.SUPPLIER);
-                Assert.assertEquals(0, l_organization
-                        .getMarketplaceToOrganizations().size());
+                Assert.assertEquals(0,
+                        l_organization.getMarketplaceToOrganizations().size());
                 load(l_organization);
                 return l_organization;
             }
@@ -2735,8 +2760,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
                 Organization updated = accountMgmtLocal.addOrganizationToRole(
                         org.getOrganizationId(),
                         OrganizationRoleType.TECHNOLOGY_PROVIDER);
-                Assert.assertTrue(updated.getMarketplaceToOrganizations()
-                        .isEmpty());
+                Assert.assertTrue(
+                        updated.getMarketplaceToOrganizations().isEmpty());
                 return updated;
             }
         });
@@ -2757,8 +2782,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
             public Organization call() throws Exception {
                 Organization updated = accountMgmtLocal.addOrganizationToRole(
                         org.getOrganizationId(), OrganizationRoleType.SUPPLIER);
-                Assert.assertEquals(0, updated.getMarketplaceToOrganizations()
-                        .size());
+                Assert.assertEquals(0,
+                        updated.getMarketplaceToOrganizations().size());
                 return updated;
 
             }
@@ -2781,10 +2806,10 @@ public class AccountServiceBeanIT extends EJBTestBase {
             public Organization call() throws Exception {
                 Organization updated = accountMgmtLocal.addOrganizationToRole(
                         org.getOrganizationId(), OrganizationRoleType.BROKER);
-                Assert.assertEquals(0, updated.getMarketplaceToOrganizations()
-                        .size());
-                Assert.assertTrue(updated
-                        .hasRole(OrganizationRoleType.CUSTOMER));
+                Assert.assertEquals(0,
+                        updated.getMarketplaceToOrganizations().size());
+                Assert.assertTrue(
+                        updated.hasRole(OrganizationRoleType.CUSTOMER));
                 Assert.assertTrue(updated.hasRole(OrganizationRoleType.BROKER));
                 return updated;
 
@@ -2808,12 +2833,12 @@ public class AccountServiceBeanIT extends EJBTestBase {
             public Organization call() throws Exception {
                 Organization updated = accountMgmtLocal.addOrganizationToRole(
                         org.getOrganizationId(), OrganizationRoleType.RESELLER);
-                Assert.assertEquals(0, updated.getMarketplaceToOrganizations()
-                        .size());
-                Assert.assertTrue(updated
-                        .hasRole(OrganizationRoleType.CUSTOMER));
-                Assert.assertTrue(updated
-                        .hasRole(OrganizationRoleType.RESELLER));
+                Assert.assertEquals(0,
+                        updated.getMarketplaceToOrganizations().size());
+                Assert.assertTrue(
+                        updated.hasRole(OrganizationRoleType.CUSTOMER));
+                Assert.assertTrue(
+                        updated.hasRole(OrganizationRoleType.RESELLER));
                 return updated;
 
             }
@@ -2837,8 +2862,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
             public Organization call() throws Exception {
                 Organization updated = accountMgmtLocal.addOrganizationToRole(
                         org.getOrganizationId(), OrganizationRoleType.BROKER);
-                Assert.assertEquals(0, updated.getMarketplaceToOrganizations()
-                        .size());
+                Assert.assertEquals(0,
+                        updated.getMarketplaceToOrganizations().size());
                 return updated;
 
             }
@@ -2862,8 +2887,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
             public Organization call() throws Exception {
                 Organization updated = accountMgmtLocal.addOrganizationToRole(
                         org.getOrganizationId(), OrganizationRoleType.RESELLER);
-                Assert.assertEquals(0, updated.getMarketplaceToOrganizations()
-                        .size());
+                Assert.assertEquals(0,
+                        updated.getMarketplaceToOrganizations().size());
                 return updated;
 
             }
@@ -2872,7 +2897,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
     }
 
     @Test(expected = IncompatibleRolesException.class)
-    public void addOrganizationToRole_ResellerToTechProvider() throws Exception {
+    public void addOrganizationToRole_ResellerToTechProvider()
+            throws Exception {
         final Organization org = runTX(new Callable<Organization>() {
             @Override
             public Organization call() throws Exception {
@@ -2887,8 +2913,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
             public Organization call() throws Exception {
                 Organization updated = accountMgmtLocal.addOrganizationToRole(
                         org.getOrganizationId(), OrganizationRoleType.RESELLER);
-                Assert.assertEquals(0, updated.getMarketplaceToOrganizations()
-                        .size());
+                Assert.assertEquals(0,
+                        updated.getMarketplaceToOrganizations().size());
                 return updated;
 
             }
@@ -2923,10 +2949,9 @@ public class AccountServiceBeanIT extends EJBTestBase {
         Assert.assertTrue(isTriggerQueueService_sendSuspendingMessageCalled);
         Assert.assertEquals("Wrong trigger type used",
                 TriggerType.REGISTER_CUSTOMER_FOR_SUPPLIER, usedTriggerType);
-        Assert.assertFalse(
-                "Wrong roles assigned to organization",
-                platformUser.getOrganization().hasRole(
-                        OrganizationRoleType.MARKETPLACE_OWNER));
+        Assert.assertFalse("Wrong roles assigned to organization",
+                platformUser.getOrganization()
+                        .hasRole(OrganizationRoleType.MARKETPLACE_OWNER));
     }
 
     @Test
@@ -3103,20 +3128,19 @@ public class AccountServiceBeanIT extends EJBTestBase {
 
         // props.setProperty("ERROR",
         // "This is a wrong setting key and should be ignored");
-        doNothing().when(ldapSettingMmgtMock).setOrganizationSettings(
-                anyString(), storedProps.capture());
-        when(
-                ldapSettingMmgtMock.getOrganizationSettingsResolved(Mockito
-                        .anyString())).thenReturn(props.asProperties());
-        when(
-                ldapSettingMmgtMock.getSettingsResolved(Mockito
-                        .any(Properties.class))).thenReturn(
-                props.asProperties());
+        doNothing().when(ldapSettingMmgtMock)
+                .setOrganizationSettings(anyString(), storedProps.capture());
+        when(ldapSettingMmgtMock
+                .getOrganizationSettingsResolved(Mockito.anyString()))
+                        .thenReturn(props.asProperties());
+        when(ldapSettingMmgtMock
+                .getSettingsResolved(Mockito.any(Properties.class)))
+                        .thenReturn(props.asProperties());
         return props;
     }
 
-    private VOOrganization registerCustomerForSupplierLdap(
-            LdapProperties props, String userId, String email) throws Exception {
+    private VOOrganization registerCustomerForSupplierLdap(LdapProperties props,
+            String userId, String email) throws Exception {
         container.login(String.valueOf(supplier1User.getKey()),
                 ROLE_SERVICE_MANAGER);
 
@@ -3140,8 +3164,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
         verify(ldapSettingMmgtMock, times(1)).setOrganizationSettings(
                 Matchers.anyString(), Matchers.any(Properties.class));
         assertEquals(props.asProperties(), storedProps.getValue());
-        verify(ldapSettingMmgtMock, times(1)).getOrganizationSettingsResolved(
-                Matchers.anyString());
+        verify(ldapSettingMmgtMock, times(1))
+                .getOrganizationSettingsResolved(Matchers.anyString());
     }
 
     @Test(expected = ValidationException.class)
@@ -3187,11 +3211,9 @@ public class AccountServiceBeanIT extends EJBTestBase {
         final Organization org = runTX(new Callable<Organization>() {
             @Override
             public Organization call() throws Exception {
-                Organization org = Organizations
-                        .createCustomer(
-                                mgr,
-                                Organizations.findOrganization(mgr,
-                                        supplierIds.get(0)));
+                Organization org = Organizations.createCustomer(mgr,
+                        Organizations.findOrganization(mgr,
+                                supplierIds.get(0)));
                 return org;
             }
         });
@@ -3229,8 +3251,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
             }
         });
 
-        Assert.assertEquals("Organization id must not have been changed",
-                orgId, newOrg.getOrganizationId());
+        Assert.assertEquals("Organization id must not have been changed", orgId,
+                newOrg.getOrganizationId());
 
     }
 
@@ -3411,7 +3433,7 @@ public class AccountServiceBeanIT extends EJBTestBase {
 
         if (!testIsSupplier) {
             Assert.assertEquals(1, set.size());
-            Set<String> hashSet = new HashSet<String>();
+            Set<String> hashSet = new HashSet<>();
             hashSet.add(CREDIT_CARD);
 
             for (VOPaymentType type : set) {
@@ -3444,7 +3466,7 @@ public class AccountServiceBeanIT extends EJBTestBase {
         Set<VOPaymentType> set = accountMgmt
                 .getAvailablePaymentTypesForOrganization();
         Assert.assertEquals(2, set.size());
-        Set<String> hashSet = new HashSet<String>();
+        Set<String> hashSet = new HashSet<>();
         hashSet.add(DIRECT_DEBIT);
         hashSet.add(CREDIT_CARD);
         for (VOPaymentType type : set) {
@@ -3522,7 +3544,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
         return custUserKey.longValue();
     }
 
-    private Long[] prepareProducts(final ServiceStatus status) throws Exception {
+    private Long[] prepareProducts(final ServiceStatus status)
+            throws Exception {
         Long[] productKeys = runTX(new Callable<Long[]>() {
 
             @Override
@@ -3566,16 +3589,15 @@ public class AccountServiceBeanIT extends EJBTestBase {
 
             @Override
             public Set<Product> call() throws Exception {
-                Set<Product> result = new HashSet<Product>();
+                Set<Product> result = new HashSet<>();
                 Organization provider = getOrganization(providerId);
                 TechnicalProduct tp = TechnicalProducts.createTechnicalProduct(
-                        mgr, provider, "TP_" + System.currentTimeMillis() + "_"
-                                + status, false, ServiceAccessType.LOGIN);
+                        mgr, provider, "TP_" + UUID.randomUUID() + "_" + status,
+                        false, ServiceAccessType.LOGIN);
 
                 Organization supplier = getOrganization(supplierId);
                 Product product = Products.createProduct(supplier, tp, true,
-                        "PR_" + System.currentTimeMillis() + "_" + status,
-                        null, mgr);
+                        "PR_" + UUID.randomUUID() + "_" + status, null, mgr);
                 if (status != null) {
                     product.setStatus(status);
                 }
@@ -3585,9 +3607,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
 
                 if (createCustomerSpecific) {
                     Organization customer = getOrganization(customerId);
-                    Product copyProduct = Products
-                            .createCustomerSpecifcProduct(mgr, customer,
-                                    product, product.getStatus());
+                    Product copyProduct = Products.createCustomerSpecifcProduct(
+                            mgr, customer, product, product.getStatus());
                     // add customer-specific product
                     result.add(copyProduct);
 
@@ -3611,17 +3632,17 @@ public class AccountServiceBeanIT extends EJBTestBase {
 
             @Override
             public Set<Product> call() throws Exception {
-                Set<Product> result = new HashSet<Product>();
+                Set<Product> result = new HashSet<>();
                 Organization provider = getOrganization(providerId);
                 TechnicalProduct tp = TechnicalProducts.createTechnicalProduct(
-                        mgr, provider, "TP_" + System.currentTimeMillis() + "_"
-                                + ServiceStatus.ACTIVE, false,
-                        ServiceAccessType.LOGIN);
+                        mgr, provider,
+                        "TP_" + UUID.randomUUID() + "_" + ServiceStatus.ACTIVE,
+                        false, ServiceAccessType.LOGIN);
 
                 Organization supplier = getOrganization(supplierId);
                 Product product = Products.createProduct(supplier, tp, true,
-                        "PR_" + System.currentTimeMillis() + "_"
-                                + ServiceStatus.ACTIVE, null, mgr);
+                        "PR_" + UUID.randomUUID() + "_" + ServiceStatus.ACTIVE,
+                        null, mgr);
                 product.setStatus(ServiceStatus.ACTIVE);
 
                 if (createPriceModel) {
@@ -3660,14 +3681,14 @@ public class AccountServiceBeanIT extends EJBTestBase {
                 Set<Product> result = new HashSet<>();
                 Organization provider = getOrganization(providerId);
                 TechnicalProduct tp = TechnicalProducts.createTechnicalProduct(
-                        mgr, provider, "TP_" + System.currentTimeMillis() + "_"
-                                + ServiceStatus.ACTIVE, false,
-                        ServiceAccessType.LOGIN, false, true);
+                        mgr, provider,
+                        "TP_" + UUID.randomUUID() + "_" + ServiceStatus.ACTIVE,
+                        false, ServiceAccessType.LOGIN, false, true);
 
                 Organization supplier = getOrganization(supplierId);
                 Product product = Products.createProduct(supplier, tp, true,
-                        "PR_" + System.currentTimeMillis() + "_"
-                                + ServiceStatus.ACTIVE, null, mgr);
+                        "PR_" + UUID.randomUUID() + "_" + ServiceStatus.ACTIVE,
+                        null, mgr);
                 product.setStatus(ServiceStatus.ACTIVE);
                 // add template product
                 result.add(product);
@@ -3740,8 +3761,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
                 return null;
             }
         });
-        Assert.assertEquals(distinguishedName, accountMgmt
-                .getOrganizationData().getDistinguishedName());
+        Assert.assertEquals(distinguishedName,
+                accountMgmt.getOrganizationData().getDistinguishedName());
     }
 
     @Test
@@ -3772,8 +3793,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
                         user.getOrganization(), null, null);
                 assertEquals(
                         "Local methods are not allowed to change the remote interface method invocation date",
-                        invocationDate, DateFactory.getInstance()
-                                .getTransactionDate());
+                        invocationDate,
+                        DateFactory.getInstance().getTransactionDate());
                 return null;
             }
         });
@@ -3832,8 +3853,9 @@ public class AccountServiceBeanIT extends EJBTestBase {
     public void testSavePaymentConfigurationDefault() throws Exception {
         addPaymentTypesToOrganizationRef(supplierIds.get(0),
                 OrganizationRoleType.SUPPLIER);
-        Set<VOPaymentType> expected = createVOPaymentTypes(INVOICE, CREDIT_CARD);
-        List<VOOrganizationPaymentConfiguration> empty = new ArrayList<VOOrganizationPaymentConfiguration>();
+        Set<VOPaymentType> expected = createVOPaymentTypes(INVOICE,
+                CREDIT_CARD);
+        List<VOOrganizationPaymentConfiguration> empty = new ArrayList<>();
         container.login(String.valueOf(supplier1User.getKey()),
                 ROLE_SERVICE_MANAGER);
         accountMgmt.savePaymentConfiguration(expected, empty, expected, null);
@@ -3841,11 +3863,13 @@ public class AccountServiceBeanIT extends EJBTestBase {
     }
 
     @Test
-    public void testSavePaymentConfigurationDefaultAndModify() throws Exception {
+    public void testSavePaymentConfigurationDefaultAndModify()
+            throws Exception {
         addPaymentTypesToOrganizationRef(supplierIds.get(0),
                 OrganizationRoleType.SUPPLIER);
-        List<VOOrganizationPaymentConfiguration> empty = new ArrayList<VOOrganizationPaymentConfiguration>();
-        Set<VOPaymentType> expected = createVOPaymentTypes(INVOICE, CREDIT_CARD);
+        List<VOOrganizationPaymentConfiguration> empty = new ArrayList<>();
+        Set<VOPaymentType> expected = createVOPaymentTypes(INVOICE,
+                CREDIT_CARD);
         container.login(String.valueOf(supplier1User.getKey()),
                 ROLE_SERVICE_MANAGER);
         accountMgmt.savePaymentConfiguration(expected, empty, expected, null);
@@ -3859,15 +3883,16 @@ public class AccountServiceBeanIT extends EJBTestBase {
     public void testSavePaymentConfigurationDefaultAndClear() throws Exception {
         addPaymentTypesToOrganizationRef(supplierIds.get(0),
                 OrganizationRoleType.SUPPLIER);
-        List<VOOrganizationPaymentConfiguration> empty = new ArrayList<VOOrganizationPaymentConfiguration>();
-        Set<VOPaymentType> expected = createVOPaymentTypes(INVOICE, CREDIT_CARD);
+        List<VOOrganizationPaymentConfiguration> empty = new ArrayList<>();
+        Set<VOPaymentType> expected = createVOPaymentTypes(INVOICE,
+                CREDIT_CARD);
         container.login(String.valueOf(supplier1User.getKey()),
                 ROLE_SERVICE_MANAGER);
         accountMgmt.savePaymentConfiguration(expected, empty, expected, null);
         verifyDefaultPaymentConfiguration(expected);
-        expected = new HashSet<VOPaymentType>();
-        boolean executed = accountMgmt.savePaymentConfiguration(expected,
-                empty, expected, null);
+        expected = new HashSet<>();
+        boolean executed = accountMgmt.savePaymentConfiguration(expected, empty,
+                expected, null);
         Assert.assertTrue(executed);
         verifyDefaultPaymentConfiguration(expected);
     }
@@ -3919,15 +3944,16 @@ public class AccountServiceBeanIT extends EJBTestBase {
     public void testGetDefaultPaymentConfiguration() throws Exception {
         addPaymentTypesToOrganizationRef(supplierIds.get(0),
                 OrganizationRoleType.SUPPLIER);
-        List<VOOrganizationPaymentConfiguration> empty = new ArrayList<VOOrganizationPaymentConfiguration>();
+        List<VOOrganizationPaymentConfiguration> empty = new ArrayList<>();
         container.login(String.valueOf(supplier1User.getKey()),
                 ROLE_SERVICE_MANAGER);
-        Set<VOPaymentType> expected = createVOPaymentTypes(INVOICE, CREDIT_CARD);
+        Set<VOPaymentType> expected = createVOPaymentTypes(INVOICE,
+                CREDIT_CARD);
         accountMgmt.savePaymentConfiguration(expected, empty, expected, null);
         Set<VOPaymentType> actual = accountMgmt
                 .getDefaultPaymentConfiguration();
         Assert.assertEquals(expected.size(), actual.size());
-        Set<String> set = new HashSet<String>();
+        Set<String> set = new HashSet<>();
         for (VOPaymentType voPaymentType : actual) {
             set.add(voPaymentType.getPaymentTypeId());
         }
@@ -3947,7 +3973,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
     }
 
     @Test(expected = javax.ejb.EJBException.class)
-    public void testSetDefaultPaymentConfigurationAsCustomer() throws Exception {
+    public void testSetDefaultPaymentConfigurationAsCustomer()
+            throws Exception {
         PlatformUser custUser = createCustomerWithPaymentAndUser();
         container.login(String.valueOf(custUser.getKey()));
         accountMgmt.getDefaultPaymentConfiguration();
@@ -4210,7 +4237,7 @@ public class AccountServiceBeanIT extends EJBTestBase {
 
         addPaymentTypesToOrganizationRef(supplierIds.get(0),
                 OrganizationRoleType.SUPPLIER);
-        List<VOOrganizationPaymentConfiguration> empty = new ArrayList<VOOrganizationPaymentConfiguration>();
+        List<VOOrganizationPaymentConfiguration> empty = new ArrayList<>();
         container.login(String.valueOf(supplier1User.getKey()),
                 ROLE_SERVICE_MANAGER);
 
@@ -4299,8 +4326,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
         Set<VOPaymentType> actual = accountMgmt
                 .getAvailablePaymentTypesFromOrganization(productKeys[1]);
         Assert.assertEquals(1, actual.size());
-        Assert.assertEquals("INVOICE", actual.iterator().next()
-                .getPaymentTypeId());
+        Assert.assertEquals("INVOICE",
+                actual.iterator().next().getPaymentTypeId());
     }
 
     @Test
@@ -4325,7 +4352,7 @@ public class AccountServiceBeanIT extends EJBTestBase {
         Long[] productKeys = prepareProducts(ServiceStatus.ACTIVE);
 
         container.login(customerUserKey, ROLE_ORGANIZATION_ADMIN);
-        Set<VOPaymentType> expected = new HashSet<VOPaymentType>();
+        Set<VOPaymentType> expected = new HashSet<>();
         Set<VOPaymentType> actual = accountMgmt
                 .getAvailablePaymentTypesFromOrganization(productKeys[0]);
         // ensure that after registration no payment type is available
@@ -4337,22 +4364,22 @@ public class AccountServiceBeanIT extends EJBTestBase {
         VOOrganizationPaymentConfiguration configuration = new VOOrganizationPaymentConfiguration();
         configuration.setOrganization(customer);
         configuration.setEnabledPaymentTypes(expected);
-        List<VOOrganizationPaymentConfiguration> conf = new ArrayList<VOOrganizationPaymentConfiguration>();
+        List<VOOrganizationPaymentConfiguration> conf = new ArrayList<>();
         conf.add(configuration);
         accountMgmt.savePaymentConfiguration(expected, conf, expected, null);
         actual = runTX(new Callable<Set<VOPaymentType>>() {
 
             @Override
             public Set<VOPaymentType> call() throws Exception {
-                Set<VOPaymentType> set = new HashSet<VOPaymentType>();
+                Set<VOPaymentType> set = new HashSet<>();
                 Organization org = mgr.getReference(Organization.class,
                         customer.getKey());
                 List<OrganizationRefToPaymentType> types = org
                         .getPaymentTypes(supplierIds.get(0));
                 for (OrganizationRefToPaymentType orgToPt : types) {
-                    set.add(PaymentTypeAssembler.toVOPaymentType(orgToPt
-                            .getPaymentType(), new LocalizerFacade(localizer,
-                            supplier1User.getLocale())));
+                    set.add(PaymentTypeAssembler.toVOPaymentType(
+                            orgToPt.getPaymentType(), new LocalizerFacade(
+                                    localizer, supplier1User.getLocale())));
                 }
                 return set;
             }
@@ -4369,7 +4396,7 @@ public class AccountServiceBeanIT extends EJBTestBase {
 
         addPaymentTypesToOrganizationRef(supplierIds.get(0),
                 OrganizationRoleType.SUPPLIER);
-        List<VOOrganizationPaymentConfiguration> empty = new ArrayList<VOOrganizationPaymentConfiguration>();
+        List<VOOrganizationPaymentConfiguration> empty = new ArrayList<>();
         container.login(String.valueOf(supplier1User.getKey()),
                 ROLE_SERVICE_MANAGER);
         Set<VOPaymentType> orgPt = createVOPaymentTypes(INVOICE, CREDIT_CARD);
@@ -4396,26 +4423,26 @@ public class AccountServiceBeanIT extends EJBTestBase {
 
         container.login(String.valueOf(supplier1User.getKey()),
                 ROLE_SERVICE_MANAGER);
-        expected = new HashSet<VOPaymentType>();
+        expected = new HashSet<>();
         VOOrganizationPaymentConfiguration configuration = new VOOrganizationPaymentConfiguration();
         configuration.setOrganization(customer);
         configuration.setEnabledPaymentTypes(expected);
-        List<VOOrganizationPaymentConfiguration> conf = new ArrayList<VOOrganizationPaymentConfiguration>();
+        List<VOOrganizationPaymentConfiguration> conf = new ArrayList<>();
         conf.add(configuration);
         accountMgmt.savePaymentConfiguration(expected, conf, expected, null);
         actual = runTX(new Callable<Set<VOPaymentType>>() {
 
             @Override
             public Set<VOPaymentType> call() throws Exception {
-                Set<VOPaymentType> set = new HashSet<VOPaymentType>();
+                Set<VOPaymentType> set = new HashSet<>();
                 Organization org = mgr.getReference(Organization.class,
                         customer.getKey());
                 List<OrganizationRefToPaymentType> types = org
                         .getPaymentTypes(supplierIds.get(0));
                 for (OrganizationRefToPaymentType orgToPt : types) {
-                    set.add(PaymentTypeAssembler.toVOPaymentType(orgToPt
-                            .getPaymentType(), new LocalizerFacade(localizer,
-                            supplier1User.getLocale())));
+                    set.add(PaymentTypeAssembler.toVOPaymentType(
+                            orgToPt.getPaymentType(), new LocalizerFacade(
+                                    localizer, supplier1User.getLocale())));
                 }
                 return set;
             }
@@ -4432,7 +4459,7 @@ public class AccountServiceBeanIT extends EJBTestBase {
                 ROLE_SERVICE_MANAGER);
         Set<VOPaymentType> orgPt = createVOPaymentTypes(INVOICE, CREDIT_CARD);
         Set<VOPaymentType> expected = createVOPaymentTypes(CREDIT_CARD);
-        List<VOOrganizationPaymentConfiguration> conf = new ArrayList<VOOrganizationPaymentConfiguration>();
+        List<VOOrganizationPaymentConfiguration> conf = new ArrayList<>();
         accountMgmt.savePaymentConfiguration(orgPt, conf, expected, null);
 
         Long userKey = runTX(new Callable<Long>() {
@@ -4463,7 +4490,7 @@ public class AccountServiceBeanIT extends EJBTestBase {
         container.login(String.valueOf(supplier1User.getKey()),
                 ROLE_SERVICE_MANAGER);
         Set<VOPaymentType> orgPt = createVOPaymentTypes(INVOICE, CREDIT_CARD);
-        List<VOOrganizationPaymentConfiguration> conf = new ArrayList<VOOrganizationPaymentConfiguration>();
+        List<VOOrganizationPaymentConfiguration> conf = new ArrayList<>();
         accountMgmt.savePaymentConfiguration(orgPt, conf, orgPt, null);
 
         Long userKey = runTX(new Callable<Long>() {
@@ -4507,11 +4534,11 @@ public class AccountServiceBeanIT extends EJBTestBase {
 
         Set<VOPaymentType> orgPt = createVOPaymentTypes(INVOICE, CREDIT_CARD);
         Set<VOPaymentType> expected = createVOPaymentTypes(CREDIT_CARD);
-        Set<VOPaymentType> def = new HashSet<VOPaymentType>();
+        Set<VOPaymentType> def = new HashSet<>();
         VOOrganizationPaymentConfiguration configuration = new VOOrganizationPaymentConfiguration();
         configuration.setOrganization(customer);
         configuration.setEnabledPaymentTypes(orgPt);
-        List<VOOrganizationPaymentConfiguration> conf = new ArrayList<VOOrganizationPaymentConfiguration>();
+        List<VOOrganizationPaymentConfiguration> conf = new ArrayList<>();
         conf.add(configuration);
         accountMgmt.savePaymentConfiguration(def, conf, def, null);
 
@@ -4532,8 +4559,9 @@ public class AccountServiceBeanIT extends EJBTestBase {
         container.login(String.valueOf(supplier1User.getKey()),
                 ROLE_SERVICE_MANAGER);
 
-        Set<VOPaymentType> expected = createVOPaymentTypes(INVOICE, CREDIT_CARD);
-        List<VOOrganizationPaymentConfiguration> customerConf = new ArrayList<VOOrganizationPaymentConfiguration>();
+        Set<VOPaymentType> expected = createVOPaymentTypes(INVOICE,
+                CREDIT_CARD);
+        List<VOOrganizationPaymentConfiguration> customerConf = new ArrayList<>();
 
         VOOrganization org = new VOOrganization();
         org.setLocale(Locale.ENGLISH.toString());
@@ -4572,7 +4600,7 @@ public class AccountServiceBeanIT extends EJBTestBase {
         customerConf = accountMgmt.getCustomerPaymentConfiguration();
         Assert.assertNotNull(customerConf);
 
-        List<VOOrganizationPaymentConfiguration> result = new LinkedList<VOOrganizationPaymentConfiguration>();
+        List<VOOrganizationPaymentConfiguration> result = new LinkedList<>();
         for (VOOrganizationPaymentConfiguration pc : customerConf) {
             if (pc.getOrganization().getKey() == customer1.getKey()
                     || pc.getOrganization().getKey() == customer2.getKey()) {
@@ -4580,10 +4608,10 @@ public class AccountServiceBeanIT extends EJBTestBase {
             }
         }
         Assert.assertEquals(2, result.size());
-        Assert.assertEquals(customer1.getOrganizationId(), result.get(0)
-                .getOrganization().getOrganizationId());
-        Assert.assertEquals(customer2.getOrganizationId(), result.get(1)
-                .getOrganization().getOrganizationId());
+        Assert.assertEquals(customer1.getOrganizationId(),
+                result.get(0).getOrganization().getOrganizationId());
+        Assert.assertEquals(customer2.getOrganizationId(),
+                result.get(1).getOrganization().getOrganizationId());
         Assert.assertEquals(set1, result.get(0).getEnabledPaymentTypes());
         Assert.assertEquals(set2, result.get(1).getEnabledPaymentTypes());
     }
@@ -4592,8 +4620,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
     public void testSavePaymentConfigurationForCustomerRemoveWithActiveSubscription()
             throws Exception {
         prepareProducts(null);
-        Set<String> pts = new HashSet<String>(Arrays.asList(INVOICE,
-                CREDIT_CARD, DIRECT_DEBIT));
+        Set<String> pts = new HashSet<>(
+                Arrays.asList(INVOICE, CREDIT_CARD, DIRECT_DEBIT));
         final Product productOfSupplier2 = prepareProduct(
                 technologyProviderUser.getOrganization().getOrganizationId(),
                 supplierIds.get(1), true, pts, true).iterator().next();
@@ -4606,7 +4634,7 @@ public class AccountServiceBeanIT extends EJBTestBase {
                 ROLE_SERVICE_MANAGER);
         Set<VOPaymentType> def = createVOPaymentTypes(INVOICE, CREDIT_CARD,
                 DIRECT_DEBIT);
-        List<VOOrganizationPaymentConfiguration> customerConf = new ArrayList<VOOrganizationPaymentConfiguration>();
+        List<VOOrganizationPaymentConfiguration> customerConf = new ArrayList<>();
         accountMgmt.savePaymentConfiguration(def, customerConf, def, null);
 
         VOOrganization org = new VOOrganization();
@@ -4628,21 +4656,18 @@ public class AccountServiceBeanIT extends EJBTestBase {
                 PaymentInfo paymentInfo = PaymentInfos.createPaymentInfo(org,
                         mgr, paymentTypes.get(0));
                 paymentInfo.setExternalIdentifier("test");
-                Subscription sub = Subscriptions
-                        .createSubscription(
-                                mgr,
-                                customer.getOrganizationId(),
-                                "testProd1",
-                                "testSub",
-                                Organizations.findOrganization(mgr,
-                                        supplierIds.get(0)));
+                Subscription sub = Subscriptions.createSubscription(mgr,
+                        customer.getOrganizationId(), "testProd1", "testSub",
+                        Organizations.findOrganization(mgr,
+                                supplierIds.get(0)));
                 sub.setPaymentInfo(paymentInfo);
                 BillingContact bc = PaymentInfos.createBillingContact(mgr, org);
                 sub.setBillingContact(bc);
                 Subscription sub2 = Subscriptions.createSubscription(mgr,
                         customer.getOrganizationId(),
                         productOfSupplier2.getProductId(), "testSub2",
-                        Organizations.findOrganization(mgr, supplierIds.get(1)));
+                        Organizations.findOrganization(mgr,
+                                supplierIds.get(1)));
                 sub2.setPaymentInfo(paymentInfo);
                 sub2.setBillingContact(bc);
                 sub2Key.append(sub2.getKey());
@@ -4651,7 +4676,7 @@ public class AccountServiceBeanIT extends EJBTestBase {
         }).longValue();
         VOOrganizationPaymentConfiguration conf = new VOOrganizationPaymentConfiguration();
         conf.setOrganization(customer);
-        def = new HashSet<VOPaymentType>();
+        def = new HashSet<>();
         conf.setEnabledPaymentTypes(def);
         customerConf.add(conf);
         accountMgmt.savePaymentConfiguration(def, customerConf, def, null);
@@ -4682,8 +4707,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
     public void testSavePaymentConfigurationForCustomerAddWithSuspendedSubscription()
             throws Exception {
         prepareProducts(null);
-        Set<String> pts = new HashSet<String>(Arrays.asList(INVOICE,
-                CREDIT_CARD, DIRECT_DEBIT));
+        Set<String> pts = new HashSet<>(
+                Arrays.asList(INVOICE, CREDIT_CARD, DIRECT_DEBIT));
         final Product productOfSupplier2 = prepareProduct(
                 technologyProviderUser.getOrganization().getOrganizationId(),
                 supplierIds.get(1), true, pts, true).iterator().next();
@@ -4696,7 +4721,7 @@ public class AccountServiceBeanIT extends EJBTestBase {
                 ROLE_SERVICE_MANAGER);
 
         Set<VOPaymentType> def = createVOPaymentTypes();
-        List<VOOrganizationPaymentConfiguration> customerConf = new ArrayList<VOOrganizationPaymentConfiguration>();
+        List<VOOrganizationPaymentConfiguration> customerConf = new ArrayList<>();
         accountMgmt.savePaymentConfiguration(def, customerConf, def, null);
 
         VOOrganization org = new VOOrganization();
@@ -4719,14 +4744,10 @@ public class AccountServiceBeanIT extends EJBTestBase {
                 PaymentInfo paymentInfo = PaymentInfos.createPaymentInfo(org,
                         mgr, paymentTypes.get(0));
                 paymentInfo.setExternalIdentifier("test");
-                Subscription sub = Subscriptions
-                        .createSubscription(
-                                mgr,
-                                customer.getOrganizationId(),
-                                "testProd1",
-                                "testSub",
-                                Organizations.findOrganization(mgr,
-                                        supplierIds.get(0)));
+                Subscription sub = Subscriptions.createSubscription(mgr,
+                        customer.getOrganizationId(), "testProd1", "testSub",
+                        Organizations.findOrganization(mgr,
+                                supplierIds.get(0)));
                 sub.setStatus(SubscriptionStatus.SUSPENDED);
                 BillingContact bc = PaymentInfos.createBillingContact(mgr, org);
                 sub.setBillingContact(bc);
@@ -4734,7 +4755,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
                 Subscription sub2 = Subscriptions.createSubscription(mgr,
                         customer.getOrganizationId(),
                         productOfSupplier2.getProductId(), "testSub2",
-                        Organizations.findOrganization(mgr, supplierIds.get(1)));
+                        Organizations.findOrganization(mgr,
+                                supplierIds.get(1)));
                 sub2.setStatus(SubscriptionStatus.SUSPENDED);
                 sub2.setPaymentInfo(paymentInfo);
                 sub2.setBillingContact(bc);
@@ -4780,8 +4802,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
 
             @Override
             public VOOrganization call() throws Exception {
-                Organization organization = mgr.getReference(
-                        Organization.class, org.getKey());
+                Organization organization = mgr.getReference(Organization.class,
+                        org.getKey());
                 return OrganizationAssembler.toVOOrganization(organization,
                         false, new LocalizerFacade(localizer, "en"));
             }
@@ -4982,13 +5004,15 @@ public class AccountServiceBeanIT extends EJBTestBase {
 
         Assert.assertEquals(1, sizeAfterRegistration - initialSize);
         Assert.assertTrue(org.getKey() > 0);
-        Assert.assertTrue(isTriggerQueueService_sendAllNonSuspendingMessageCalled);
+        Assert.assertTrue(
+                isTriggerQueueService_sendAllNonSuspendingMessageCalled);
         Assert.assertEquals(TriggerType.REGISTER_CUSTOMER_FOR_SUPPLIER,
                 usedTriggerType);
     }
 
     @Test(expected = javax.ejb.EJBException.class)
-    public void testSavePaymentConfigurationIntNotAuthorized() throws Exception {
+    public void testSavePaymentConfigurationIntNotAuthorized()
+            throws Exception {
         TriggerProcess tp = new TriggerProcess();
         tp.addTriggerProcessParameter(
                 TriggerProcessParameterName.DEFAULT_CONFIGURATION,
@@ -5035,7 +5059,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
                 return null;
             }
         });
-        Assert.assertTrue(isTriggerQueueService_sendAllNonSuspendingMessageCalled);
+        Assert.assertTrue(
+                isTriggerQueueService_sendAllNonSuspendingMessageCalled);
         Assert.assertEquals(TriggerType.SAVE_PAYMENT_CONFIGURATION,
                 usedTriggerType);
     }
@@ -5045,11 +5070,9 @@ public class AccountServiceBeanIT extends EJBTestBase {
         final Organization customer = runTX(new Callable<Organization>() {
             @Override
             public Organization call() throws Exception {
-                Organization customer = Organizations
-                        .createCustomer(
-                                mgr,
-                                Organizations.findOrganization(mgr,
-                                        supplierIds.get(0)));
+                Organization customer = Organizations.createCustomer(mgr,
+                        Organizations.findOrganization(mgr,
+                                supplierIds.get(0)));
 
                 PaymentType paymentType = findPaymentType(CREDIT_CARD, mgr);
                 PaymentInfos.createPaymentInfo(customer, mgr, paymentType);
@@ -5102,11 +5125,9 @@ public class AccountServiceBeanIT extends EJBTestBase {
         Organization org = runTX(new Callable<Organization>() {
             @Override
             public Organization call() throws Exception {
-                Organization org = Organizations
-                        .createCustomer(
-                                mgr,
-                                Organizations.findOrganization(mgr,
-                                        supplierIds.get(0)));
+                Organization org = Organizations.createCustomer(mgr,
+                        Organizations.findOrganization(mgr,
+                                supplierIds.get(0)));
                 PlatformUser user = Organizations.createUserForOrg(mgr, org,
                         isAdmin, "admin");
                 if (isAdmin) {
@@ -5144,7 +5165,7 @@ public class AccountServiceBeanIT extends EJBTestBase {
                 List<OrganizationRefToPaymentType> types = org.getPaymentTypes(
                         true, OrganizationRoleType.SUPPLIER,
                         OrganizationRoleType.PLATFORM_OPERATOR.name());
-                Set<String> result = new HashSet<String>();
+                Set<String> result = new HashSet<>();
                 for (OrganizationRefToPaymentType dpt : types) {
                     result.add(dpt.getPaymentType().getPaymentTypeId());
                 }
@@ -5171,11 +5192,9 @@ public class AccountServiceBeanIT extends EJBTestBase {
         PlatformUser user = runTX(new Callable<PlatformUser>() {
             @Override
             public PlatformUser call() throws Exception {
-                Organization customer = Organizations
-                        .createCustomer(
-                                mgr,
-                                Organizations.findOrganization(mgr,
-                                        supplierIds.get(0)));
+                Organization customer = Organizations.createCustomer(mgr,
+                        Organizations.findOrganization(mgr,
+                                supplierIds.get(0)));
                 PlatformUser user = Organizations.createUserForOrg(mgr,
                         customer, true, "admin");
 
@@ -5195,8 +5214,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
 
             @Override
             public Long call() throws Exception {
-                Organization organization = mgr.getReference(
-                        Organization.class, org.getKey());
+                Organization organization = mgr.getReference(Organization.class,
+                        org.getKey());
                 return organization.getDeregistrationDate();
             }
         });
@@ -5242,8 +5261,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
         }
 
         apt.setOrganizationReference(orgRef);
-        PaymentType pt = mgr.getReference(PaymentType.class, paymentTypes
-                .get(1).getKey());
+        PaymentType pt = mgr.getReference(PaymentType.class,
+                paymentTypes.get(1).getKey());
         apt.setPaymentType(pt);
         apt.setOrganizationRole(role);
         apt.setUsedAsDefault(false);
@@ -5308,7 +5327,7 @@ public class AccountServiceBeanIT extends EJBTestBase {
     }
 
     private Set<VOPaymentType> createVOPaymentTypes(String... types) {
-        Set<VOPaymentType> set = new HashSet<VOPaymentType>();
+        Set<VOPaymentType> set = new HashSet<>();
         for (String type : types) {
             VOPaymentType pt = new VOPaymentType();
             pt.setPaymentTypeId(type);
@@ -5350,8 +5369,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
         final Organization persistedOrg = runTX(new Callable<Organization>() {
             @Override
             public Organization call() throws Exception {
-                return accountMgmtLocal.registerOrganization(organization,
-                        null, userDetails, null, "DE", null, null,
+                return accountMgmtLocal.registerOrganization(organization, null,
+                        userDetails, null, "DE", null, null,
                         OrganizationRoleType.SUPPLIER);
             }
         });
@@ -5383,8 +5402,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
         final Organization persistedOrg = runTX(new Callable<Organization>() {
             @Override
             public Organization call() throws Exception {
-                return accountMgmtLocal.registerOrganization(organization,
-                        null, userDetails, null, "DE", null, "The description",
+                return accountMgmtLocal.registerOrganization(organization, null,
+                        userDetails, null, "DE", null, "The description",
                         OrganizationRoleType.SUPPLIER);
             }
         });
@@ -5484,8 +5503,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
 
         long wrongServiceKey = 111111111111112L;
         try {
-            accountMgmt.getAvailablePaymentTypesFromOrganization(Long
-                    .valueOf(wrongServiceKey));
+            accountMgmt.getAvailablePaymentTypesFromOrganization(
+                    Long.valueOf(wrongServiceKey));
         } catch (ObjectNotFoundException e) {
             return;
         }
@@ -5544,8 +5563,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
         Set<VOPaymentType> types = accountMgmt.getAvailablePaymentTypes();
         Assert.assertNotNull(types);
         Assert.assertEquals(2, types.size());
-        Set<String> set = new HashSet<String>(Arrays.asList(
-                PaymentType.CREDIT_CARD, PaymentType.DIRECT_DEBIT));
+        Set<String> set = new HashSet<>(Arrays.asList(PaymentType.CREDIT_CARD,
+                PaymentType.DIRECT_DEBIT));
         for (VOPaymentType pt : types) {
             Assert.assertTrue(set.remove(pt.getPaymentTypeId()));
         }
@@ -5559,8 +5578,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
         Set<VOPaymentType> types = accountMgmt.getAvailablePaymentTypes();
         Assert.assertNotNull(types);
         Assert.assertEquals(2, types.size());
-        Set<String> set = new HashSet<String>(Arrays.asList(
-                PaymentType.CREDIT_CARD, PaymentType.DIRECT_DEBIT));
+        Set<String> set = new HashSet<>(Arrays.asList(PaymentType.CREDIT_CARD,
+                PaymentType.DIRECT_DEBIT));
         for (VOPaymentType pt : types) {
             Assert.assertTrue(set.remove(pt.getPaymentTypeId()));
         }
@@ -5701,7 +5720,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
 
                 PaymentInfo pi = new PaymentInfo();
                 pi.setPaymentInfoId(id);
-                pi.setOrganization(mgr.getReference(Organization.class, orgKey));
+                pi.setOrganization(
+                        mgr.getReference(Organization.class, orgKey));
                 pi.setPaymentType(pt);
                 mgr.persist(pi);
                 return pi;
@@ -5726,8 +5746,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
                         temp.getKey());
                 Assert.assertEquals(1, org.getPaymentInfos().size());
                 PaymentInfo pi = org.getPaymentInfos().get(0);
-                Assert.assertEquals(PaymentType.INVOICE, pi.getPaymentType()
-                        .getPaymentTypeId());
+                Assert.assertEquals(PaymentType.INVOICE,
+                        pi.getPaymentType().getPaymentTypeId());
                 Assert.assertEquals(PAYMENT_INFO_NAME, pi.getPaymentInfoId());
                 return null;
             }
@@ -5789,11 +5809,11 @@ public class AccountServiceBeanIT extends EJBTestBase {
                 OrganizationRoleType.SUPPLIER);
 
         // prepare expected payment types per product
-        final Set<String> expectedActive = new HashSet<String>(
+        final Set<String> expectedActive = new HashSet<>(
                 Arrays.asList(BaseAdmUmTest.PAYMENT_TYPE_IDS));
-        final Set<String> expectedInactive = new HashSet<String>(
+        final Set<String> expectedInactive = new HashSet<>(
                 Arrays.asList(BaseAdmUmTest.PAYMENT_TYPE_IDS_INV_CC));
-        final Set<String> expectedSuspended = new HashSet<String>(
+        final Set<String> expectedSuspended = new HashSet<>(
                 Arrays.asList(BaseAdmUmTest.PAYMENT_TYPE_IDS_CC_DD));
 
         // create customer - needed for customer specific products
@@ -5837,7 +5857,7 @@ public class AccountServiceBeanIT extends EJBTestBase {
 
             VOService voService = iter.getService();
             Set<VOPaymentType> servicePT = iter.getEnabledPaymentTypes();
-            Set<String> resultPt = new HashSet<String>();
+            Set<String> resultPt = new HashSet<>();
             for (VOPaymentType spt : servicePT) {
                 resultPt.add(spt.getPaymentTypeId());
             }
@@ -5872,7 +5892,7 @@ public class AccountServiceBeanIT extends EJBTestBase {
                 OrganizationRoleType.SUPPLIER);
 
         // prepare expected payment types per product
-        final Set<String> paymentTypes = new HashSet<String>(
+        final Set<String> paymentTypes = new HashSet<>(
                 Arrays.asList(BaseAdmUmTest.PAYMENT_TYPE_IDS));
 
         // prepare chargeable services
@@ -5895,8 +5915,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
 
         // prepare services with external price model
         for (int i = 0; i < numNoPriceModel; i++) {
-            prepareProductWithExternalPriceModel(providerId,
-                    supplierIds.get(0), false, paymentTypes, false);
+            prepareProductWithExternalPriceModel(providerId, supplierIds.get(0),
+                    false, paymentTypes, false);
         }
 
         // login as supplier user
@@ -5916,7 +5936,7 @@ public class AccountServiceBeanIT extends EJBTestBase {
             VOPriceModel pm = iter.getService().getPriceModel();
             if (pm != null && pm.isChargeable()) {
                 Set<VOPaymentType> servicePT = iter.getEnabledPaymentTypes();
-                Set<String> resultPt = new HashSet<String>();
+                Set<String> resultPt = new HashSet<>();
                 for (VOPaymentType spt : servicePT) {
                     resultPt.add(spt.getPaymentTypeId());
                 }
@@ -5930,23 +5950,23 @@ public class AccountServiceBeanIT extends EJBTestBase {
     @Test
     public void testGetAvailablePaymentTypesFromSupplier_WithRelationNoServicePaymentTypes()
             throws Exception {
-        Set<String> prodPt = new HashSet<String>();
-        Set<String> custPt = new HashSet<String>(
+        Set<String> prodPt = new HashSet<>();
+        Set<String> custPt = new HashSet<>(
                 Arrays.asList(BaseAdmUmTest.PAYMENT_TYPE_IDS_INV_CC));
         // intersect prodPt and custPt
-        Set<String> expPt = new HashSet<String>();
+        Set<String> expPt = new HashSet<>();
         getAvailablePaymentTypesFromSupplier(prodPt, custPt, true, expPt);
     }
 
     @Test
     public void testGetAvailablePaymentTypesFromSupplier_WithRelationSomeServicePaymentTypes()
             throws Exception {
-        Set<String> prodPt = new HashSet<String>(
+        Set<String> prodPt = new HashSet<>(
                 Arrays.asList(BaseAdmUmTest.PAYMENT_TYPE_IDS_INV_DD));
-        Set<String> custPt = new HashSet<String>(
+        Set<String> custPt = new HashSet<>(
                 Arrays.asList(BaseAdmUmTest.PAYMENT_TYPE_IDS_CC_DD));
         // expected: intersect prodPt and custPt
-        Set<String> expPt = new HashSet<String>(
+        Set<String> expPt = new HashSet<>(
                 Arrays.asList(BaseAdmUmTest.PAYMENT_TYPE_IDS_DD));
         getAvailablePaymentTypesFromSupplier(prodPt, custPt, true, expPt);
     }
@@ -5954,12 +5974,12 @@ public class AccountServiceBeanIT extends EJBTestBase {
     @Test
     public void testGetAvailablePaymentTypesFromSupplier_WithRelationAllServicePaymentTypes()
             throws Exception {
-        Set<String> prodPt = new HashSet<String>(
+        Set<String> prodPt = new HashSet<>(
                 Arrays.asList(BaseAdmUmTest.PAYMENT_TYPE_IDS));
-        Set<String> custPt = new HashSet<String>(
+        Set<String> custPt = new HashSet<>(
                 Arrays.asList(BaseAdmUmTest.PAYMENT_TYPE_IDS_INV_CC));
         // expected: intersect prodPt and custPt
-        Set<String> expPt = new HashSet<String>(
+        Set<String> expPt = new HashSet<>(
                 Arrays.asList(BaseAdmUmTest.PAYMENT_TYPE_IDS_INV_CC));
         getAvailablePaymentTypesFromSupplier(prodPt, custPt, true, expPt);
     }
@@ -5967,23 +5987,23 @@ public class AccountServiceBeanIT extends EJBTestBase {
     @Test
     public void testGetAvailablePaymentTypesFromSupplier_NoRelationNoSupplierDefaults()
             throws Exception {
-        Set<String> prodPt = new HashSet<String>(
+        Set<String> prodPt = new HashSet<>(
                 Arrays.asList(BaseAdmUmTest.PAYMENT_TYPE_IDS_INV));
-        Set<String> suppDefPt = new HashSet<String>();
+        Set<String> suppDefPt = new HashSet<>();
         // expected: intersect prodPt and suppDefPt
-        Set<String> expPt = new HashSet<String>();
+        Set<String> expPt = new HashSet<>();
         getAvailablePaymentTypesFromSupplier(prodPt, suppDefPt, false, expPt);
     }
 
     @Test
     public void testGetAvailablePaymentTypesFromSupplier_NoRelationSomeSupplierDefaults()
             throws Exception {
-        Set<String> prodPt = new HashSet<String>(
+        Set<String> prodPt = new HashSet<>(
                 Arrays.asList(BaseAdmUmTest.PAYMENT_TYPE_IDS_INV_DD));
-        Set<String> suppDefPt = new HashSet<String>(
+        Set<String> suppDefPt = new HashSet<>(
                 Arrays.asList(BaseAdmUmTest.PAYMENT_TYPE_IDS_INV));
         // expected: intersect prodPt and suppDefPt
-        Set<String> expPt = new HashSet<String>(
+        Set<String> expPt = new HashSet<>(
                 Arrays.asList(BaseAdmUmTest.PAYMENT_TYPE_IDS_INV));
         getAvailablePaymentTypesFromSupplier(prodPt, suppDefPt, false, expPt);
     }
@@ -5991,12 +6011,12 @@ public class AccountServiceBeanIT extends EJBTestBase {
     @Test
     public void testGetAvailablePaymentTypesFromSupplier_NoRelationAllSupplierDefaults()
             throws Exception {
-        Set<String> prodPt = new HashSet<String>(
+        Set<String> prodPt = new HashSet<>(
                 Arrays.asList(BaseAdmUmTest.PAYMENT_TYPE_IDS_INV_DD));
-        Set<String> suppDefPt = new HashSet<String>(
+        Set<String> suppDefPt = new HashSet<>(
                 Arrays.asList(BaseAdmUmTest.PAYMENT_TYPE_IDS));
         // expected: intersect prodPt and suppDefPt
-        Set<String> expPt = new HashSet<String>(
+        Set<String> expPt = new HashSet<>(
                 Arrays.asList(BaseAdmUmTest.PAYMENT_TYPE_IDS_INV_DD));
         getAvailablePaymentTypesFromSupplier(prodPt, suppDefPt, false, expPt);
     }
@@ -6075,11 +6095,11 @@ public class AccountServiceBeanIT extends EJBTestBase {
 
             // call the method to be tested
             Set<VOPaymentType> voResult = accountMgmt
-                    .getAvailablePaymentTypesFromOrganization(new Long(
-                            testProduct.getKey()));
+                    .getAvailablePaymentTypesFromOrganization(
+                            new Long(testProduct.getKey()));
 
             // verify results
-            Set<String> result = new HashSet<String>();
+            Set<String> result = new HashSet<>();
             for (VOPaymentType iter : voResult) {
                 result.add(iter.getPaymentTypeId());
             }
@@ -6131,10 +6151,9 @@ public class AccountServiceBeanIT extends EJBTestBase {
         String myBaseDn = "ou=people,dc=est,dc=fujitsu,dc=de";
         props.setProperty(SettingType.LDAP_URL.name(), myLdapUrl);
         props.setProperty(SettingType.LDAP_BASE_DN.name(), myBaseDn);
-        when(
-                ldapSettingMmgtMock
-                        .getDefaultValueForSetting(any(SettingType.class)))
-                .thenReturn("someDefault");
+        when(ldapSettingMmgtMock
+                .getDefaultValueForSetting(any(SettingType.class)))
+                        .thenReturn("someDefault");
 
         try {
             createCustomerOrganizationWithAdmin(organization, userDetails,
@@ -6144,8 +6163,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
             // automatically
             verify(ldapSettingMmgtMock, times(1)).getDefaultValueForSetting(
                     eq(SettingType.LDAP_CONTEXT_FACTORY));
-            verify(ldapSettingMmgtMock, times(1)).getDefaultValueForSetting(
-                    eq(SettingType.LDAP_ATTR_UID));
+            verify(ldapSettingMmgtMock, times(1))
+                    .getDefaultValueForSetting(eq(SettingType.LDAP_ATTR_UID));
         }
     }
 
@@ -6182,7 +6201,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
         // in the tested in the CTs then
 
         // verify customer organization has been persisted
-        assertTrue("Organization has not been stored", 0 != createdOrg.getKey());
+        assertTrue("Organization has not been stored",
+                0 != createdOrg.getKey());
         assertTrue("Organization id not set",
                 null != createdOrg.getOrganizationId());
         assertTrue("Missing authority for role",
@@ -6207,11 +6227,13 @@ public class AccountServiceBeanIT extends EJBTestBase {
                 adminUser.getFirstName());
         assertEquals("Wrong user data", user.getLastName(),
                 adminUser.getLastName());
-        assertEquals("Wrong user data", user.getUserId(), adminUser.getUserId());
+        assertEquals("Wrong user data", user.getUserId(),
+                adminUser.getUserId());
         assertEquals("Wrong user data", user.getSalutation(),
                 adminUser.getSalutation());
         assertEquals("Wrong user data", user.getPhone(), adminUser.getPhone());
-        assertEquals("Wrong user data", user.getLocale(), adminUser.getLocale());
+        assertEquals("Wrong user data", user.getLocale(),
+                adminUser.getLocale());
         assertEquals("Wrong mail for user", user.getEMail(),
                 adminUser.getEmail());
 
@@ -6225,9 +6247,10 @@ public class AccountServiceBeanIT extends EJBTestBase {
                 @Override
                 @SuppressWarnings("unchecked")
                 public List<OrganizationSetting> call() throws Exception {
-                    Query query = mgr
-                            .createQuery("SELECT obj FROM OrganizationSetting obj WHERE "
-                                    + (type != null ? "obj.dataContainer.settingType = :settingType and "
+                    Query query = mgr.createQuery(
+                            "SELECT obj FROM OrganizationSetting obj WHERE "
+                                    + (type != null
+                                            ? "obj.dataContainer.settingType = :settingType and "
                                             : "")
                                     + "obj.organization = :organization");
                     query.setParameter("organization", org);
@@ -6409,8 +6432,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
                             .findOrganization(mgr, "PLATFORM_OPERATOR");
                     mpRestricted = Marketplaces
                             .createMarketplaceWithRestrictedAccessAndAccessibleOrganizations(
-                                    platformOperator, marketplaceId
-                                            + "_restricted", mgr,
+                                    platformOperator,
+                                    marketplaceId + "_restricted", mgr,
                                     Arrays.asList(supplier));
                 }
                 return MarketplaceAssembler.toVOMarketplace(mpRestricted,
@@ -6427,8 +6450,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
         user.setLocale(org.getLocale());
         user.setEMail(TEST_MAIL_ADDRESS);
         user.setUserId("testuser");
-        accountMgmt.registerKnownCustomer(org, user, null, marketplaceId
-                + "_restricted");
+        accountMgmt.registerKnownCustomer(org, user, null,
+                marketplaceId + "_restricted");
     }
 
     private Product setupSupplierAndReseller(final OrganizationRoleType role,
@@ -6441,8 +6464,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
                 Organizations.createUserForOrg(mgr, b, true, "SuppAdmin1");
                 Organizations.supportAllCountries(mgr, b);
 
-                Organization platformOperator = Organizations.findOrganization(
-                        mgr, "PLATFORM_OPERATOR");
+                Organization platformOperator = Organizations
+                        .findOrganization(mgr, "PLATFORM_OPERATOR");
                 OrganizationReference ref = new OrganizationReference(
                         platformOperator, b,
                         OrganizationReferenceType.PLATFORM_OPERATOR_TO_RESELLER);
@@ -6452,17 +6475,20 @@ public class AccountServiceBeanIT extends EJBTestBase {
             }
         });
 
-        PlatformUser technologyProviderUser = runTX(new Callable<PlatformUser>() {
-            @Override
-            public PlatformUser call() throws Exception {
-                Organization organization = Organizations.createOrganization(
-                        mgr, OrganizationRoleType.TECHNOLOGY_PROVIDER);
-                return Organizations.createUserForOrg(mgr, organization, true,
-                        "PROV_ADMIN");
-            }
-        });
-        final Set<String> pts = addPaymentTypesToService ? new HashSet<String>(
-                Arrays.asList(INVOICE, CREDIT_CARD, DIRECT_DEBIT))
+        PlatformUser technologyProviderUser = runTX(
+                new Callable<PlatformUser>() {
+                    @Override
+                    public PlatformUser call() throws Exception {
+                        Organization organization = Organizations
+                                .createOrganization(mgr,
+                                        OrganizationRoleType.TECHNOLOGY_PROVIDER);
+                        return Organizations.createUserForOrg(mgr, organization,
+                                true, "PROV_ADMIN");
+                    }
+                });
+        final Set<String> pts = addPaymentTypesToService
+                ? new HashSet<>(
+                        Arrays.asList(INVOICE, CREDIT_CARD, DIRECT_DEBIT))
                 : new HashSet<String>();
         final Product productOfSupplier = prepareProduct(
                 technologyProviderUser.getOrganization().getOrganizationId(),
@@ -6488,13 +6514,15 @@ public class AccountServiceBeanIT extends EJBTestBase {
             }
         });
 
-        addPaymentTypesToOrganizationRef(supplier1User.getOrganization()
-                .getOrganizationId(), OrganizationRoleType.SUPPLIER);
+        addPaymentTypesToOrganizationRef(
+                supplier1User.getOrganization().getOrganizationId(),
+                OrganizationRoleType.SUPPLIER);
         container.login(String.valueOf(supplier1User.getKey()),
                 ROLE_SERVICE_MANAGER);
 
-        Set<VOPaymentType> defaultPaymentTypes = addPaymentTypesToCustomer ? createVOPaymentTypes(
-                CREDIT_CARD, DIRECT_DEBIT, INVOICE) : createVOPaymentTypes();
+        Set<VOPaymentType> defaultPaymentTypes = addPaymentTypesToCustomer
+                ? createVOPaymentTypes(CREDIT_CARD, DIRECT_DEBIT, INVOICE)
+                : createVOPaymentTypes();
         accountMgmt.savePaymentConfiguration(defaultPaymentTypes,
                 new ArrayList<VOOrganizationPaymentConfiguration>(),
                 defaultPaymentTypes, null);
@@ -6521,28 +6549,24 @@ public class AccountServiceBeanIT extends EJBTestBase {
                 PaymentInfo paymentInfo = PaymentInfos.createPaymentInfo(org,
                         mgr, paymentTypes.get(0));
                 paymentInfo.setExternalIdentifier("test");
-                Subscription sub = Subscriptions
-                        .createSubscription(mgr, customer.getOrganizationId(),
-                                productOfSupplier.getProductId(), "testSub",
-                                Organizations.findOrganization(mgr,
-                                        supplier1User.getOrganization()
-                                                .getOrganizationId()));
+                Subscription sub = Subscriptions.createSubscription(mgr,
+                        customer.getOrganizationId(),
+                        productOfSupplier.getProductId(), "testSub",
+                        Organizations.findOrganization(mgr, supplier1User
+                                .getOrganization().getOrganizationId()));
                 sub.setStatus(status);
                 BillingContact bc = PaymentInfos.createBillingContact(mgr, org);
                 sub.setBillingContact(bc);
                 sub.setPaymentInfo(paymentInfo);
-                Subscription sub2 = Subscriptions.createSubscription(
-                        mgr,
+                Subscription sub2 = Subscriptions.createSubscription(mgr,
                         customer.getOrganizationId(),
-                        productOfBroker.getProductId(),
-                        "testSub2",
+                        productOfBroker.getProductId(), "testSub2",
                         Organizations.findOrganization(mgr,
                                 broker.getOrganizationId()));
                 sub2.setStatus(status);
                 sub2.setPaymentInfo(paymentInfo);
                 sub2.setBillingContact(bc);
-                OrganizationReference ref = new OrganizationReference(
-                        broker,
+                OrganizationReference ref = new OrganizationReference(broker,
                         mgr.getReference(Organization.class, customer.getKey()),
                         OrganizationReferenceType.BROKER_TO_CUSTOMER);
                 mgr.persist(ref);
@@ -6557,12 +6581,13 @@ public class AccountServiceBeanIT extends EJBTestBase {
 
     private List<VOOrganizationPaymentConfiguration> getOrganizationPaymentConfiguration(
             boolean removePaymentTypesToCustomer) {
-        List<VOOrganizationPaymentConfiguration> customerPaymentTypeConfiguration = new ArrayList<VOOrganizationPaymentConfiguration>();
+        List<VOOrganizationPaymentConfiguration> customerPaymentTypeConfiguration = new ArrayList<>();
         VOOrganizationPaymentConfiguration conf = new VOOrganizationPaymentConfiguration();
         conf.setOrganization(OrganizationAssembler.toVOOrganization(
-                customerUser.getOrganization(), false, new LocalizerFacade(
-                        localizer, Locale.ENGLISH.toString())));
-        Set<VOPaymentType> defaultPaymentTypes = removePaymentTypesToCustomer ? createVOPaymentTypes()
+                customerUser.getOrganization(), false,
+                new LocalizerFacade(localizer, Locale.ENGLISH.toString())));
+        Set<VOPaymentType> defaultPaymentTypes = removePaymentTypesToCustomer
+                ? createVOPaymentTypes()
                 : createVOPaymentTypes(CREDIT_CARD, DIRECT_DEBIT, INVOICE);
         conf.setEnabledPaymentTypes(defaultPaymentTypes);
         customerPaymentTypeConfiguration.add(conf);
@@ -6577,11 +6602,11 @@ public class AccountServiceBeanIT extends EJBTestBase {
             @Override
             public List<VOServicePaymentConfiguration> call() throws Exception {
                 DomainObject<?> domainObject = mgr.find(productOfSupplier);
-                List<VOServicePaymentConfiguration> servicePaymentTypeConfiguration = new ArrayList<VOServicePaymentConfiguration>();
+                List<VOServicePaymentConfiguration> servicePaymentTypeConfiguration = new ArrayList<>();
                 VOServicePaymentConfiguration conf2 = new VOServicePaymentConfiguration();
-                conf2.setService(ProductAssembler.toVOProduct(
-                        (Product) domainObject, new LocalizerFacade(localizer,
-                                "EN")));
+                conf2.setService(
+                        ProductAssembler.toVOProduct((Product) domainObject,
+                                new LocalizerFacade(localizer, "EN")));
                 servicePaymentTypeConfiguration.add(conf2);
                 if (suspendService) {
                     Set<VOPaymentType> pts = createVOPaymentTypes(CREDIT_CARD,
@@ -6589,9 +6614,11 @@ public class AccountServiceBeanIT extends EJBTestBase {
                     accountMgmt.savePaymentConfiguration(pts, null, pts,
                             servicePaymentTypeConfiguration);
                 }
-                conf2.setEnabledPaymentTypes(suspendService ? createVOPaymentTypes(
-                        CREDIT_CARD, DIRECT_DEBIT, INVOICE)
-                        : createVOPaymentTypes());
+                conf2.setEnabledPaymentTypes(
+                        suspendService
+                                ? createVOPaymentTypes(CREDIT_CARD,
+                                        DIRECT_DEBIT, INVOICE)
+                                : createVOPaymentTypes());
                 return servicePaymentTypeConfiguration;
             }
 
