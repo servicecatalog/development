@@ -8,7 +8,6 @@
 
 package org.oscm.identityservice.bean;
 
-import static org.oscm.test.matchers.BesMatchers.isPersisted;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -18,20 +17,17 @@ import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.oscm.test.matchers.BesMatchers.isPersisted;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 
@@ -57,7 +53,6 @@ import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.RoleAssignment;
 import org.oscm.domobjects.Session;
 import org.oscm.domobjects.Subscription;
-import org.oscm.domobjects.UnitUserRole;
 import org.oscm.domobjects.UsageLicense;
 import org.oscm.domobjects.UserGroup;
 import org.oscm.domobjects.UserGroupToUser;
@@ -65,6 +60,28 @@ import org.oscm.identityservice.assembler.UserDataAssembler;
 import org.oscm.identityservice.ldap.LdapAccessStub;
 import org.oscm.identityservice.local.IdentityServiceLocal;
 import org.oscm.identityservice.local.LdapSettingsManagementServiceLocal;
+import org.oscm.internal.intf.IdentityService;
+import org.oscm.internal.types.enumtypes.ConfigurationKey;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.SettingType;
+import org.oscm.internal.types.enumtypes.SubscriptionStatus;
+import org.oscm.internal.types.enumtypes.UserAccountStatus;
+import org.oscm.internal.types.enumtypes.UserRoleType;
+import org.oscm.internal.types.exception.ConcurrentModificationException;
+import org.oscm.internal.types.exception.MailOperationException;
+import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.internal.types.exception.OperationNotPermittedException;
+import org.oscm.internal.types.exception.OperationPendingException;
+import org.oscm.internal.types.exception.OrganizationRemovedException;
+import org.oscm.internal.types.exception.SecurityCheckException;
+import org.oscm.internal.types.exception.UserActiveException;
+import org.oscm.internal.types.exception.UserDeletionConstraintException;
+import org.oscm.internal.types.exception.UserRoleAssignmentException;
+import org.oscm.internal.types.exception.ValidationException;
+import org.oscm.internal.types.exception.ValidationException.ReasonEnum;
+import org.oscm.internal.vo.VOUser;
+import org.oscm.internal.vo.VOUserDetails;
 import org.oscm.reviewservice.bean.ReviewServiceLocalBean;
 import org.oscm.sessionservice.bean.SessionManagementStub;
 import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
@@ -86,29 +103,6 @@ import org.oscm.types.enumtypes.EmailType;
 import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
 import org.oscm.usergroupservice.dao.UserGroupDao;
 import org.oscm.usergroupservice.dao.UserGroupUsersDao;
-import org.oscm.internal.intf.IdentityService;
-import org.oscm.internal.types.enumtypes.ConfigurationKey;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.SettingType;
-import org.oscm.internal.types.enumtypes.SubscriptionStatus;
-import org.oscm.internal.types.enumtypes.UnitRoleType;
-import org.oscm.internal.types.enumtypes.UserAccountStatus;
-import org.oscm.internal.types.enumtypes.UserRoleType;
-import org.oscm.internal.types.exception.ConcurrentModificationException;
-import org.oscm.internal.types.exception.MailOperationException;
-import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.types.exception.OperationNotPermittedException;
-import org.oscm.internal.types.exception.OperationPendingException;
-import org.oscm.internal.types.exception.OrganizationRemovedException;
-import org.oscm.internal.types.exception.SecurityCheckException;
-import org.oscm.internal.types.exception.UserActiveException;
-import org.oscm.internal.types.exception.UserDeletionConstraintException;
-import org.oscm.internal.types.exception.UserRoleAssignmentException;
-import org.oscm.internal.types.exception.ValidationException;
-import org.oscm.internal.types.exception.ValidationException.ReasonEnum;
-import org.oscm.internal.vo.VOUser;
-import org.oscm.internal.vo.VOUserDetails;
 
 @SuppressWarnings("boxing")
 public class IdentityServiceBeanIT extends EJBTestBase {
@@ -321,14 +315,6 @@ public class IdentityServiceBeanIT extends EJBTestBase {
         query.setParameter(2, version);
         query.setParameter(3, roleName);
         query.executeUpdate();
-    }
-
-    private PlatformUser givenUser(long key, String id, Organization org) {
-        PlatformUser user = new PlatformUser();
-        user.setKey(key);
-        user.setUserId(id);
-        user.setOrganization(org);
-        return user;
     }
 
     public String setupUsers() throws Exception {
@@ -819,7 +805,6 @@ public class IdentityServiceBeanIT extends EJBTestBase {
         });
     }
 
-    @SuppressWarnings("null")
     @Test
     public void testDeletePlatformUserWithExistingRoles() throws Exception {
         final VOUserDetails user = createTestUser();

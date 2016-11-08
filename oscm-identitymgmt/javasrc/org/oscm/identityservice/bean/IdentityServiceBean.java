@@ -1156,7 +1156,7 @@ public class IdentityServiceBean implements IdentityService,
             } else {
                 pUser = getPlatformUser(userId, tenantId, false);
             }
-            
+           
             if (pUser.getOrganization().getDeregistrationDate() != null) {
                 OperationNotPermittedException onp = new OperationNotPermittedException(
                         "The user doesn't belong to a active organization.");
@@ -2914,23 +2914,33 @@ public class IdentityServiceBean implements IdentityService,
     @Override
     public PlatformUser getPlatformUserByOrganization(String userId,
             String orgId) throws ObjectNotFoundException {
-        
+
         Query query = dm.createNamedQuery("PlatformUser.findByUserIdAndOrgId");
-        
+
         query.setParameter("userId", userId);
         query.setParameter("organizationId", orgId);
-        
-        PlatformUser platformUser = (PlatformUser) query.getSingleResult();
+
+        PlatformUser platformUser = null;
+
+        try {
+            platformUser = (PlatformUser) query.getSingleResult();
+        } catch (NoResultException e) {
+            throwONFExcp(userId);
+        }
 
         if (platformUser == null) {
-            ObjectNotFoundException onf = new ObjectNotFoundException(
-                    ObjectNotFoundException.ClassEnum.USER, userId);
-            logger.logWarn(Log4jLogger.SYSTEM_LOG, onf,
-                    LogMessageIdentifier.WARN_USER_NOT_FOUND);
-            throw onf;
+            throwONFExcp(userId);
         }
 
         return platformUser;
     }
 
+    private void throwONFExcp(String userId) throws ObjectNotFoundException {
+        
+        ObjectNotFoundException onf = new ObjectNotFoundException(
+                ObjectNotFoundException.ClassEnum.USER, userId);
+        logger.logWarn(Log4jLogger.SYSTEM_LOG, onf,
+                LogMessageIdentifier.WARN_USER_NOT_FOUND);
+        throw onf;
+    }
 }
