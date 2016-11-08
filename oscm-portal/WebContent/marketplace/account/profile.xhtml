@@ -251,6 +251,13 @@
             
           </rich:tab>
         </rich:tabPanel>
+        
+        <h:form>
+          <a4j:jsFunction name="setSelectedTab" oncomplete="setTimeout(focusSubscriptionId, 10);">
+            <a4j:param name="param1" assignTo="#{sessionBean.selectedTab}" />
+          </a4j:jsFunction>
+        </h:form>
+        
       </a4j:outputPanel>
       <mp:reloginConfirmPanel />
     </a4j:outputPanel>

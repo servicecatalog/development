@@ -1,7 +1,7 @@
 CREATE TABLE "customattribute"
 (
   "attributekey" character varying(255) NOT NULL,
-  "attributevalue" text NOT NULL,
+  "attributevalue" text,
   "organizationid" character varying(255) NOT NULL,
   CONSTRAINT "customattribute_pk" PRIMARY KEY ("attributekey", "organizationid")
 );
@@ -11,7 +11,7 @@ CREATE TABLE "instanceattribute"
   "tkey" bigint NOT NULL,
   "serviceinstance_tkey" bigint NOT NULL,
   "attributekey" character varying(255) NOT NULL,
-  "attributevalue" text NOT NULL,
+  "attributevalue" text,
   CONSTRAINT "instanceattr_pk" PRIMARY KEY ("tkey"),
   CONSTRAINT "instanceattr_serviceinst_fk" FOREIGN KEY ("serviceinstance_tkey")
       REFERENCES "serviceinstance" ("tkey") MATCH SIMPLE

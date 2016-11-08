@@ -755,8 +755,11 @@ public class SubscriptionServiceBean
         // with a subsequent call to the application.
         dataManager.persist(newSub);
 
-        // send customer udas to corresponding app
+        saveUdasForSubscription(ParameterizedTypes.list(udas, VOUda.class),
+                newSub);
         dataManager.flush();
+
+        // send customer udas to corresponding app
         appManager.saveAttributes(newSub);
 
         theProduct.setOwningSubscription(newSub);
@@ -766,9 +769,6 @@ public class SubscriptionServiceBean
         newSub.setSuccessMessage(provisioningResult.getResultMesage());
 
         dataManager.flush();
-
-        saveUdasForSubscription(ParameterizedTypes.list(udas, VOUda.class),
-                newSub);
 
         triggerQS.sendAllNonSuspendingMessages(
                 TriggerMessage.create(TriggerType.SUBSCRIPTION_CREATION,
@@ -2862,10 +2862,6 @@ public class SubscriptionServiceBean
         subscription.setPaymentInfo(paymentInfo);
         subscription.setBillingContact(bc);
 
-        // product and parameters are copied
-        copyProductAndModifyParametersForUpgrade(subscription, dbTargetProduct,
-                currentUser, voTargetProduct.getParameters());
-
         try {
             appManager.saveAttributes(dbSubscription);
         } catch (TechnicalServiceOperationException e) {
@@ -2881,6 +2877,17 @@ public class SubscriptionServiceBean
         logSubscriptionAttributeForEdit(subscription, updatedList);
 
         if (dbTargetProduct.getTechnicalProduct().getProvisioningType()
+                .equals(ProvisioningType.ASYNCHRONOUS)) {
+            saveUdasForAsyncModifyOrUpgradeSubscription(udas, dbSubscription);
+        } else {
+            saveUdasForSubscription(udas, subscription);
+        }
+
+        // product and parameters are copied
+        copyProductAndModifyParametersForUpgrade(subscription, dbTargetProduct,
+                currentUser, voTargetProduct.getParameters());
+
+        if (dbTargetProduct.getTechnicalProduct().getProvisioningType()
                 .equals(ProvisioningType.SYNCHRONOUS)) {
             // bugfix 8068
             String oldServiceId = initialProduct.getTemplate() != null
@@ -2892,8 +2899,6 @@ public class SubscriptionServiceBean
 
             // remove old product
             dataManager.remove(initialProduct);
-
-            saveUdasForSubscription(udas, subscription);
 
             // finally send confirmation mail to the organization admin
             modUpgBean.sendConfirmUpgradationEmail(subscription, oldServiceId,
@@ -2913,7 +2918,6 @@ public class SubscriptionServiceBean
             }
             subscription.setPaymentInfo(initialPaymentInfo);
             subscription.setBillingContact(initialBillingContact);
-            saveUdasForAsyncModifyOrUpgradeSubscription(udas, dbSubscription);
         }
         dataManager.flush();
 
@@ -3538,8 +3542,10 @@ public class SubscriptionServiceBean
         boolean subIdChanged = !dbSubscriptionId
                 .equals(subscription.getSubscriptionId());
         String dbReferenceId = dbSubscription.getPurchaseOrderNumber();
-        boolean refIdChanged = !dbReferenceId
-                .equals(subscription.getPurchaseOrderNumber());
+        boolean refIdChanged = dbReferenceId == null
+                && subscription.getPurchaseOrderNumber() != null
+                || dbReferenceId != null && !dbReferenceId
+                        .equals(subscription.getPurchaseOrderNumber());
         PlatformUser dbOwner = dbSubscription.getOwner();
         Product dbProduct = dbSubscription.getProduct();
         String dbPurchaseNumber = dbSubscription.getPurchaseOrderNumber();
@@ -3564,9 +3570,18 @@ public class SubscriptionServiceBean
                     subscription.getSubscriptionId(), e.getMessage());
         }
 
-        boolean backupOldValues = handleParameterModifications(
-                modifiedParameters, dbSubscription, currentUser, subIdChanged,
-                refIdChanged, dbProduct);
+        boolean changedValues = false;
+        try {
+            changedValues = subIdChanged || refIdChanged
+                    || checkIfParametersAreModified(dbSubscription,
+                            dbSubscription, dbProduct, dbProduct,
+                            modifiedParameters, false);
+        } catch (ServiceChangedException e) {
+            throw new ConcurrentModificationException(e.getMessage());
+        }
+
+        boolean asynch = dbProduct.getTechnicalProduct().getProvisioningType()
+                .equals(ProvisioningType.ASYNCHRONOUS);
 
         List<Uda> existingUdas = manageBean.getExistingUdas(dbSubscription);
         List<VOUda> updatedUdas = getUpdatedSubscriptionAttributes(udas,
@@ -3575,7 +3590,7 @@ public class SubscriptionServiceBean
         logSubscriptionAttributeForEdit(dbSubscription, updatedUdas);
         logSubscriptionOwner(dbSubscription, dbOwner);
 
-        if (backupOldValues) {
+        if (changedValues && asynch) {
             long subscriptionKey = dbSubscription.getKey();
             modUpgBean.storeModifiedEntity(subscriptionKey,
                     ModifiedEntityType.SUBSCRIPTION_SUBSCRIPTIONID,
@@ -3606,6 +3621,11 @@ public class SubscriptionServiceBean
         }
         dataManager.flush();
 
+        if (changedValues) {
+            copyProductAndModifyParametersForUpdate(dbSubscription, dbProduct,
+                    currentUser, modifiedParameters);
+        }
+
         LocalizerFacade facade = new LocalizerFacade(localizer,
                 currentUser.getLocale());
         VOSubscriptionDetails result = SubscriptionAssembler
@@ -3622,31 +3642,6 @@ public class SubscriptionServiceBean
                         dbSubscription.getProduct().getVendor()));
 
         return result;
-    }
-
-    private boolean handleParameterModifications(
-            List<VOParameter> modifiedParameters, Subscription dbSubscription,
-            final PlatformUser currentUser, boolean subIdChanged,
-            boolean refIdChanged, Product dbProduct)
-            throws SubscriptionMigrationException,
-            ConcurrentModificationException, ValidationException,
-            TechnicalServiceNotAliveException {
-        try {
-            if (subIdChanged || refIdChanged
-                    || checkIfParametersAreModified(dbSubscription,
-                            dbSubscription, dbProduct, dbProduct,
-                            modifiedParameters, false)) {
-                copyProductAndModifyParametersForUpdate(dbSubscription,
-                        dbProduct, currentUser, modifiedParameters);
-                if (dbProduct.getTechnicalProduct().getProvisioningType()
-                        .equals(ProvisioningType.ASYNCHRONOUS)) {
-                    return true;
-                }
-            }
-        } catch (ServiceChangedException e) {
-            throw new ConcurrentModificationException(e.getMessage());
-        }
-        return false;
     }
 
     /**
