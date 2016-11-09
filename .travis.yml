@@ -27,6 +27,6 @@ script:
   - ant -lib $TRAVIS_BUILD_DIR/libraries/apache-ant-contrib/javalib -file $TRAVIS_BUILD_DIR/oscm-build/cruisecontrol.xml runTravisUT
 #  - ant -lib $TRAVIS_BUILD_DIR/libraries/apache-ant-contrib/javalib -file $TRAVIS_BUILD_DIR/oscm-build/cruisecontrol.xml runTravisIT
   - jdk_switcher use oraclejdk8
-  - sonar-scanner -Dsonar.login=$SONAR_TOKEN
+  - sonar-scanner -Dsonar.login=$SONAR_TOKEN -Dsonar.projectKey=CTMG -Dsonar.projectName=CTMG -Dsonar.projectVersion=16.2 -Dsonar.sources=$TRAVIS_BUILD_DIR
 after_success:
   - codecov
