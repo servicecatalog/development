@@ -326,6 +326,7 @@ public class IdentityServiceBean implements IdentityService,
             Organization organization = getOrganization(user
                     .getOrganizationId());
             String password = new PasswordGenerator().generatePassword();
+            user.setTenantId(organization.getTenant().getTenantId());
             addPlatformUser(user, organization, password,
                     UserAccountStatus.PASSWORD_MUST_BE_CHANGED, true, true,
                     marketplace, true);
