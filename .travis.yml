@@ -27,7 +27,7 @@ script:
 #  - ant -lib $TRAVIS_BUILD_DIR/libraries/apache-ant-contrib/javalib -file $TRAVIS_BUILD_DIR/oscm-build/cruisecontrol.xml runTravisIT
   - jdk_switcher use oraclejdk8
   - sonar-scanner -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN -Dsonar.projectName=CTMG -Dsonar.projectVersion=16.2 -Dsonar.projectKey=CTMG -Dsonar.sources=.
-  - cp -f sonar-scanner.properties /home/travis/.sonarscanner/sonar-scanner-2.8/conf/
+  - cp -f $TRAVIS_BUILD_DIR/sonar-scanner.properties /home/travis/.sonarscanner/sonar-scanner-2.8/conf/
   - sonar-scanner -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN -Dsonar.projectName=CTMG -Dsonar.projectVersion=16.2 -Dsonar.projectKey=CTMG -Dsonar.sources=.
 after_success:
   - codecov
