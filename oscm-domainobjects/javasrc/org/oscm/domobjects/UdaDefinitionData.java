@@ -53,6 +53,8 @@ public class UdaDefinitionData extends DomainDataContainer {
 
     private boolean encrypted;
 
+    private String controllerId;
+
     public String getUdaId() {
         return udaId;
     }
@@ -92,4 +94,13 @@ public class UdaDefinitionData extends DomainDataContainer {
     public void setEncrypted(boolean encrypted) {
         this.encrypted = encrypted;
     }
+
+    public String getControllerId() {
+        return controllerId;
+    }
+
+    public void setControllerId(String controllerId) {
+        this.controllerId = controllerId;
+    }
+
 }

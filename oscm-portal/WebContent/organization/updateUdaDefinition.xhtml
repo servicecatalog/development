@@ -54,6 +54,10 @@
           <adm:labelAndInputText id="updateUdaDefaultValueInput" label="#{msg['udaDefinition.defaultValue']}"
             value="#{manageUdaDefinitionBean.currentUda.defaultValue}" maxlength="#{appBean.descriptionLen}"
             converterId="trimConverter" styleClass="fieldXS" rendered="#{not empty manageUdaDefinitionBean.currentUda}" />
+          <adm:labelAndInputText id="updateUdaControllerIdInput" label="#{msg['udaDefinition.controllerId']}"
+            value="#{manageUdaDefinitionBean.currentUda.controllerId}" maxlength="#{appBean.descriptionLen}"
+            converterId="trimConverter" styleClass="fieldXS" rendered="#{not empty manageUdaDefinitionBean.currentUda}" />
+            
           <adm:outputLabel value="#{msg['udaDefinition.userOption']}" required="false" />
           <a4j:outputPanel layout="block">
             <h:selectBooleanCheckbox id="updateUdaUserOptionCheckBox"

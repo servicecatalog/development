@@ -42,7 +42,9 @@ public class AttributeFilter {
         Organization org = subscription.getProduct().getVendor();
 
         for (UdaDefinition def : org.getUdaDefinitions()) {
-            if (def.getTargetType() == UdaTargetType.CUSTOMER) {
+            if (def.getTargetType() == UdaTargetType.CUSTOMER
+                    && def.getControllerId() != null
+                    && def.getControllerId().trim().length() > 0) {
                 boolean exists = false;
 
                 for (Uda uda : def.getUdas()) {
@@ -50,6 +52,8 @@ public class AttributeFilter {
                         ServiceAttribute attr = new ServiceAttribute();
                         attr.setAttributeId(def.getUdaId());
                         attr.setValue(uda.getUdaValue());
+                        attr.setEncrypted(def.isEncrypted());
+                        attr.setControllerId(def.getControllerId());
                         list.add(attr);
                         exists = true;
                     }
@@ -59,6 +63,8 @@ public class AttributeFilter {
                     ServiceAttribute attr = new ServiceAttribute();
                     attr.setAttributeId(def.getUdaId());
                     attr.setValue(def.getDefaultValue());
+                    attr.setEncrypted(def.isEncrypted());
+                    attr.setControllerId(def.getControllerId());
                     list.add(attr);
                 }
             }
@@ -83,7 +89,9 @@ public class AttributeFilter {
         Organization org = subscription.getProduct().getVendor();
 
         for (UdaDefinition def : org.getUdaDefinitions()) {
-            if (def.getTargetType() == UdaTargetType.CUSTOMER_SUBSCRIPTION) {
+            if (def.getTargetType() == UdaTargetType.CUSTOMER_SUBSCRIPTION
+                    && def.getControllerId() != null
+                    && def.getControllerId().trim().length() > 0) {
                 boolean exists = false;
 
                 for (Uda uda : def.getUdas()) {
@@ -91,6 +99,8 @@ public class AttributeFilter {
                         ServiceAttribute attr = new ServiceAttribute();
                         attr.setAttributeId(def.getUdaId());
                         attr.setValue(uda.getUdaValue());
+                        attr.setEncrypted(def.isEncrypted());
+                        attr.setControllerId(def.getControllerId());
                         list.add(attr);
                         exists = true;
                     }
@@ -100,6 +110,8 @@ public class AttributeFilter {
                     ServiceAttribute attr = new ServiceAttribute();
                     attr.setAttributeId(def.getUdaId());
                     attr.setValue(def.getDefaultValue());
+                    attr.setEncrypted(def.isEncrypted());
+                    attr.setControllerId(def.getControllerId());
                     list.add(attr);
                 }
             }

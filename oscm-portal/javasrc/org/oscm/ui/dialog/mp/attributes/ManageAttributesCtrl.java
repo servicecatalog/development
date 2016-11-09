@@ -40,8 +40,10 @@ import org.oscm.ui.common.JSFUtils;
 import org.oscm.ui.model.UdaRow;
 
 /**
+ * Manages the custom attributes of all suppliers that are allowed to publish to
+ * the marketplace for the customer.
+ * 
  * @author miethaner
- *
  */
 @ManagedBean(name = "manageAttributesCtrl")
 @ViewScoped
@@ -85,6 +87,14 @@ public class ManageAttributesCtrl {
 
     public void setUserBean(UserBean userBean) {
         this.userBean = userBean;
+    }
+
+    public void setAccountService(AccountService accountService) {
+        this.accountService = accountService;
+    }
+
+    public void setMarketplaceService(MarketplaceService marketplaceService) {
+        this.marketplaceService = marketplaceService;
     }
 
     @PostConstruct

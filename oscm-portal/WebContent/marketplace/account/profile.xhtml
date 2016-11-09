@@ -93,12 +93,6 @@
               </adm:panelGrid>
               
               <mp:pixelline />
-              <!-- a4j:outputPanel layout="block" styleClass="clearfix">
-              <h:commandButton id="saveButton" action="#{organizationBean.save}" value="#{msg['button.save']}"
-                style="display:none;" />
-              <adm:buttonCustomizedOnClick id="saveButtonLink" value="#{msg['button.save']}"
-                onclick="validateCurrentUserRoles();return false;" />
-              </a4j:outputPanel-->
               <adm:buttonPanel layout="block" styleClass="clearfix">
                 <adm:button id="saveUserButton" value="#{msg['button.save']}" bean="#{organizationBean}" action="save"
                 onclick="validateCurrentUserRoles();return false;" />
@@ -141,12 +135,6 @@
               </adm:panelGrid>
     
               <mp:pixelline />
-              <!-- a4j:outputPanel layout="block" styleClass="clearfix">
-                <h:commandButton id="saveOrgButton" action="#{organizationBean.save}" value="#{msg['button.save']}"
-                  style="display:none;" />
-                <adm:buttonCustomizedOnClick id="saveOrgButtonLink" value="#{msg['button.save']}"
-                  onclick="validateCurrentUserRoles();return false;" />
-              </a4j:outputPanel-->
               <adm:buttonPanel layout="block" styleClass="clearfix">
                 <adm:button id="saveOrgButton" value="#{msg['button.save']}" bean="#{organizationBean}" action="save"
                 onclick="validateCurrentUserRoles();return false;"/>
@@ -184,18 +172,18 @@
                       <adm:pager pagerId="attributePager" />
                     </a4j:outputPanel>
                   </f:facet>
-                  <rich:column id="colUdaId" width="#{mediumWidth}" sortBy="#{item.udaId}" sortIcon="#{sortIcon}" 
+                  <rich:column id="colUdaName" width="#{mediumWidth}" sortBy="#{item.udaNameToShow}" sortIcon="#{sortIcon}" 
                     sortIconAscending="#{sortIconAscending}" sortIconDescending="#{sortIconDescending}"
-                    sortOrder="#{tableState.sortOrders['mpColUdaId']}"
-                    filterType="custom" filterValue="#{tableState.filterValues['colUdaId']}"
-                    filterExpression="#{adm:matchBegin(item.udaId, tableState.filterValues['colUdaId'], false)}" >
+                    sortOrder="#{tableState.sortOrders['mpColUdaName']}"
+                    filterType="custom" filterValue="#{tableState.filterValues['colUdaName']}"
+                    filterExpression="#{adm:matchBegin(item.udaNameToShow, tableState.filterValues['colUdaName'], false)}" >
                     <f:facet name="header">
-                      <h:outputText value="#{msg['marketplace.account.profile.attributes.udaId']}" />
-                      <adm:filterInput inputId="filterUdaId" inputValue="#{tableState.filterValues['colUdaId']}" 
+                      <h:outputText value="#{msg['marketplace.account.profile.attributes.udaName']}" />
+                      <adm:filterInput inputId="filterUdaName" inputValue="#{tableState.filterValues['colUdaName']}" 
                       render="attributesTable@body pagerPanel"
                       onkeyup="AdmUtils.setFirstPage(#{rich:element('attributePager')});" />
                     </f:facet>
-                    <h:outputText value="#{item.udaId}" />
+                    <h:outputText value="#{item.udaName}" />
                   </rich:column>
                   
                   <rich:column id="colVendor" width="#{mediumWidth}" sortBy="#{item.vendor.name}" sortIcon="#{sortIcon}" 
@@ -234,8 +222,12 @@
                     </f:facet>
                     <h:inputText id="udaValue" onchange="setDirty(true)" value="#{item.udaValue}"
                       maxlength="#{appBean.descriptionLen}" required="#{item.inputMandatory}" 
-                      label="#{item.udaId}" style="width:100%">
+                      label="#{item.udaId}" style="width:100%" rendered="not item.inputEncrypted">
                     </h:inputText>
+                    <h:inputSecret id="udaValue" onchange="setDirty(true)" value="#{item.udaValue}"
+                      maxlength="#{appBean.descriptionLen}" required="#{item.inputMandatory}" 
+                      label="#{item.udaId}" style="width:100%" rendered="item.inputEncrypted">
+                    </h:inputSecret>
                   </rich:column>
                 </rich:dataTable>
               </a4j:outputPanel>

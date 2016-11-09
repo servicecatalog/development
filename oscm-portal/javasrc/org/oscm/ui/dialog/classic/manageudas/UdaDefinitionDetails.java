@@ -57,6 +57,11 @@ public class UdaDefinitionDetails {
     private String name;
 
     /**
+     * Determine the controller the UDA is meant for.
+     */
+    private String controllerId;
+
+    /**
      * @return the udaId
      */
     public String getUdaId() {
@@ -169,5 +174,13 @@ public class UdaDefinitionDetails {
 
     public void setLanguage(String language) {
         this.language = language;
+    }
+
+    public String getControllerId() {
+        return controllerId;
+    }
+
+    public void setControllerId(String controllerId) {
+        this.controllerId = controllerId;
     }
 }

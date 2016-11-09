@@ -21,16 +21,13 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-
-import org.oscm.internal.vo.VOUser;
-import org.oscm.internal.vo.VOUserDetails;
-import org.oscm.ui.beans.ApplicationBean;
-import org.oscm.domobjects.ConfigurationSetting;
 import org.oscm.internal.intf.ConfigurationService;
 import org.oscm.internal.types.constants.HiddenUIConstants;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.vo.VOConfigurationSetting;
+import org.oscm.internal.vo.VOUserDetails;
 import org.oscm.types.constants.Configuration;
+import org.oscm.ui.beans.ApplicationBean;
 import org.oscm.ui.beans.UserBean;
 
 /**
@@ -43,6 +40,7 @@ public class AccountNavigationCtrlTest {
     private ApplicationBean abMock;
     private ConfigurationService cnfgSrv;
     private UserBean userMock;
+
     @Before
     public void setup() throws Exception {
         abMock = mock(ApplicationBean.class);
@@ -71,7 +69,7 @@ public class AccountNavigationCtrlTest {
                         ConfigurationKey.HIDE_PAYMENT_INFORMATION,
                         Configuration.GLOBAL_CONTEXT);
         ctrl.setApplicationBean(abMock);
-        AccountNavigationModel model = new AccountNavigationModel(){
+        AccountNavigationModel model = new AccountNavigationModel() {
             @Override
             public UserBean getUserBean() {
                 return userMock;
@@ -91,7 +89,7 @@ public class AccountNavigationCtrlTest {
         assertEquals(9, model.getHiddenElement().size());
         assertEquals(10, model.getLink().size());
         assertEquals(10, model.getTitle().size());
-        assertTrue(model.getLink().get(0).endsWith("account/index.jsf"));
+        assertTrue(model.getLink().get(0).endsWith("index.jsf"));
         assertEquals(AccountNavigationModel.MARKETPLACE_ACCOUNT_TITLE,
                 model.getTitle().get(0));
     }
@@ -100,7 +98,7 @@ public class AccountNavigationCtrlTest {
     public void getLink() {
         List<String> result = ctrl.getLink();
         assertEquals(10, result.size());
-        assertTrue(result.get(0).endsWith("account/index.jsf"));
+        assertTrue(result.get(0).endsWith("index.jsf"));
     }
 
     @Test
@@ -214,7 +212,7 @@ public class AccountNavigationCtrlTest {
         doReturn(setting).when(cnfgSrv).getVOConfigurationSetting(
                 ConfigurationKey.HIDE_PAYMENT_INFORMATION,
                 Configuration.GLOBAL_CONTEXT);
-        
+
         // when
         boolean isPaymentAvailable = ctrl.isPaymentAvailable();
 

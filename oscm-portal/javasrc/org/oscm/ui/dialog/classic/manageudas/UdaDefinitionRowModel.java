@@ -40,6 +40,11 @@ public class UdaDefinitionRowModel {
     private boolean encrypted;
 
     /**
+     * Determine the controller the UDA is meant for.
+     */
+    private String controllerId;
+
+    /**
      * The localized name for the custom attribute
      */
     private String name;
@@ -160,6 +165,14 @@ public class UdaDefinitionRowModel {
 
     public void setEncrypted(boolean encrypted) {
         this.encrypted = encrypted;
+    }
+
+    public String getControllerId() {
+        return controllerId;
+    }
+
+    public void setControllerId(String controllerId) {
+        this.controllerId = controllerId;
     }
 
     public String getName() {

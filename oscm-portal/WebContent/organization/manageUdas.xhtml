@@ -135,6 +135,13 @@
               </f:facet>
               <h:outputText id="udaName" value="#{rowItem.name}" styleClass="fieldS" maxlength="#{appBean.idLen}" />
             </rich:column>
+            
+            <rich:column>
+              <f:facet name="header">
+                <h:outputText value="#{msg['udaDefinition.controllerId']}" />
+              </f:facet>
+              <h:outputText id="udaControllerId" value="#{rowItem.controllerId}" styleClass="fieldS" maxlength="#{appBean.idLen}" />
+            </rich:column>
 
             <rich:column>
               <f:facet name="header">

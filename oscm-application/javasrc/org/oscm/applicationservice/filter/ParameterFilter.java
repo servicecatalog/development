@@ -15,6 +15,7 @@ import org.oscm.domobjects.Product;
 import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.TechnicalProduct;
 import org.oscm.internal.types.enumtypes.ParameterModificationType;
+import org.oscm.internal.types.enumtypes.ParameterValueType;
 import org.oscm.provisioning.data.ServiceParameter;
 
 public class ParameterFilter {
@@ -57,17 +58,21 @@ public class ParameterFilter {
     private static List<ServiceParameter> getServiceParameterList(
             ParameterSet parameterSet, TechnicalProduct technicalProduct,
             boolean filterOnetimeParameter) {
-        List<ServiceParameter> list = new ArrayList<ServiceParameter>();
+        List<ServiceParameter> list = new ArrayList<>();
 
         // first add the product parameters
         if (parameterSet != null && parameterSet.getParameters() != null) {
             for (Parameter parameter : parameterSet.getParameters()) {
-                if (!(filterOnetimeParameter && ParameterModificationType.ONE_TIME == parameter
-                        .getParameterDefinition().getModificationType())) {
+                if (!(filterOnetimeParameter
+                        && ParameterModificationType.ONE_TIME == parameter
+                                .getParameterDefinition()
+                                .getModificationType())) {
                     ServiceParameter param = new ServiceParameter();
                     param.setParameterId(parameter.getParameterDefinition()
                             .getParameterId());
                     param.setValue(parameter.getValue());
+                    param.setEncrypted(parameter.getParameterDefinition()
+                            .getValueType() == ParameterValueType.PWD);
                     list.add(param);
                 }
             }
@@ -81,6 +86,8 @@ public class ParameterFilter {
                 ServiceParameter param = new ServiceParameter();
                 param.setParameterId(paramDef.getParameterId());
                 param.setValue(paramDef.getDefaultValue());
+                param.setEncrypted(
+                        paramDef.getValueType() == ParameterValueType.PWD);
                 list.add(param);
             }
         }
