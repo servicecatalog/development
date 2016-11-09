@@ -184,7 +184,7 @@
       <LocalizedDescription locale="de"/>
       <LocalizedDescription locale="ja"/>
     </ParameterDefinition>
-    <ParameterDefinition configurable="true" id="TP_SecurityGroupName" mandatory="true" modificationType="ONE_TIME" valueType="STRING">
+    <ParameterDefinition configurable="true" id="TP_ARRAY_SecurityGroupName" mandatory="true" modificationType="ONE_TIME" valueType="STRING">
       <LocalizedDescription locale="en">SecurityGroupName</LocalizedDescription>
       <LocalizedDescription locale="de"/>
       <LocalizedDescription locale="ja"/>

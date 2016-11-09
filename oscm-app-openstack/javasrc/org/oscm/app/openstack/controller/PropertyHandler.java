@@ -89,7 +89,8 @@ public class PropertyHandler {
 
     // Start time of operation
     public static final String START_TIME = "START_TIME";
-    public static final String SECURITY_GROUPS = "SecurityGroupName";
+
+    public static final String SECURITY_GROUPS_PARAM = "TP_ARRAY_";
 
     /**
      * Default constructor.
@@ -228,27 +229,36 @@ public class PropertyHandler {
         // by comma
         JSONArray securityGroupSecurityGroup = new JSONArray();
         Set<String> keySet = settings.getParameters().keySet();
+        String securityGroup = null;
         try {
+
             for (String key : keySet) {
                 if (key.startsWith(TEMPLATE_PARAMETER_PREFIX)) {
-                    parameters.put(
-                            key.substring(TEMPLATE_PARAMETER_PREFIX.length()),
-                            settings.getParameters().get(key));
+                    if (key.startsWith(SECURITY_GROUPS_PARAM)) {
+                        // below if execute only if technical service parameter
+                        // have a
+                        // security group parameters
+                        securityGroup = key
+                                .substring(SECURITY_GROUPS_PARAM.length());
+                        String securityGroupArray[] = settings.getParameters()
+                                .get(key).split(",");
+                        for (String groupName : securityGroupArray) {
+                            securityGroupSecurityGroup.put(groupName);
+                        }
+                        parameters.put(securityGroup,
+                                securityGroupSecurityGroup);
+
+                    } else {
+                        parameters.put(
+                                key.substring(
+                                        TEMPLATE_PARAMETER_PREFIX.length()),
+                                settings.getParameters().get(key));
+                    }
                 }
+
             }
             // remove the empty parameter from object
             parameters.remove("");
-            // below if execute only if technical service parameter have a
-            // security group parameters
-            if (!parameters.isNull(SECURITY_GROUPS)) {
-                String securityGroupArray[] = parameters
-                        .getString(SECURITY_GROUPS).split(",");
-                for (String groupName : securityGroupArray) {
-                    securityGroupSecurityGroup.put(groupName);
-                }
-                parameters.put(SECURITY_GROUPS, securityGroupSecurityGroup);
-            }
-
         } catch (JSONException e) {
             // should not happen with Strings
             throw new RuntimeException(
