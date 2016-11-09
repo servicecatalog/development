@@ -366,17 +366,17 @@ public class PropertyHandlerTest {
 
     @Test
     public void TestMultipleSecurityGroup() {
-        parameters.put("TP_" + PropertyHandler.SECURITY_GROUPS,
-                "testOne,testTwo");
+        parameters.put("TP_ARRAY_" + "SecurityGroupName", "testOne,testTwo");
         propertyHandler = new PropertyHandler(settings);
+        final String SECURITY_GROUPS = "SecurityGroupName";
         JSONObject parameters = propertyHandler.getTemplateParameters();
         assertNotNull(parameters);
         try {
-            assertTrue(parameters.has(PropertyHandler.SECURITY_GROUPS));
-            assertTrue(parameters.getJSONArray(PropertyHandler.SECURITY_GROUPS)
-                    .getString(0).equals("testOne"));
-            assertTrue(parameters.getJSONArray(PropertyHandler.SECURITY_GROUPS)
-                    .getString(1).equals("testTwo"));
+            assertTrue(parameters.has(SECURITY_GROUPS));
+            assertTrue(parameters.getJSONArray(SECURITY_GROUPS).getString(0)
+                    .equals("testOne"));
+            assertTrue(parameters.getJSONArray(SECURITY_GROUPS).getString(1)
+                    .equals("testTwo"));
         } catch (JSONException e) {
 
             e.printStackTrace();
@@ -385,14 +385,15 @@ public class PropertyHandlerTest {
 
     @Test
     public void TestSingleSecurityGroup() {
-        parameters.put("TP_" + PropertyHandler.SECURITY_GROUPS, "testOne");
+        final String SECURITY_GROUPS = "SG";
+        parameters.put("TP_ARRAY_" + SECURITY_GROUPS, "testOne");
         propertyHandler = new PropertyHandler(settings);
         JSONObject parameters = propertyHandler.getTemplateParameters();
         assertNotNull(parameters);
         try {
-            assertTrue(parameters.has(PropertyHandler.SECURITY_GROUPS));
-            assertTrue(parameters.getJSONArray(PropertyHandler.SECURITY_GROUPS)
-                    .getString(0).equals("testOne"));
+            assertTrue(parameters.has(SECURITY_GROUPS));
+            assertTrue(parameters.getJSONArray(SECURITY_GROUPS).getString(0)
+                    .equals("testOne"));
 
         } catch (JSONException e) {
 
@@ -403,9 +404,10 @@ public class PropertyHandlerTest {
     @Test
     public void TestEmptySecurityGroup() {
         propertyHandler = new PropertyHandler(settings);
+        final String SECURITY_GROUPS = "SG";
         JSONObject parameters = propertyHandler.getTemplateParameters();
         assertNotNull(parameters);
-        assertTrue(!parameters.has(PropertyHandler.SECURITY_GROUPS));
+        assertTrue(!parameters.has(SECURITY_GROUPS));
 
     }
 }
