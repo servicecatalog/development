@@ -90,7 +90,7 @@ public class PropertyHandler {
     // Start time of operation
     public static final String START_TIME = "START_TIME";
 
-    public static final String SECURITY_GROUPS_PARAM = "TP_ARRAY_";
+    public static final String TEMPLATE_PARAMETER_ARRAY_PREFIX = "TP_ARRAY_";
 
     /**
      * Default constructor.
@@ -234,12 +234,12 @@ public class PropertyHandler {
 
             for (String key : keySet) {
                 if (key.startsWith(TEMPLATE_PARAMETER_PREFIX)) {
-                    if (key.startsWith(SECURITY_GROUPS_PARAM)) {
+                    if (key.startsWith(TEMPLATE_PARAMETER_ARRAY_PREFIX)) {
                         // below if execute only if technical service parameter
                         // have a
                         // security group parameters
                         securityGroup = key
-                                .substring(SECURITY_GROUPS_PARAM.length());
+                                .substring(TEMPLATE_PARAMETER_ARRAY_PREFIX.length());
                         String securityGroupArray[] = settings.getParameters()
                                 .get(key).split(",");
                         for (String groupName : securityGroupArray) {
