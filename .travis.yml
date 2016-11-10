@@ -27,6 +27,6 @@ script:
   - ant -lib $TRAVIS_BUILD_DIR/libraries/apache-ant-contrib/javalib -file $TRAVIS_BUILD_DIR/oscm-build/cruisecontrol.xml runTravisUT
 #  - ant -lib $TRAVIS_BUILD_DIR/libraries/apache-ant-contrib/javalib -file $TRAVIS_BUILD_DIR/oscm-build/cruisecontrol.xml runTravisIT
   - jdk_switcher use oraclejdk8
-  - sonar-scanner -Dsonar.login=$SONAR_TOKEN -Dsonar.projectKey=CTMG -Dsonar.projectName=CTMG -Dsonar.projectVersion=16.2 -Dsonar.sources=$TRAVIS_BUILD_DIR -Dsonar.tests=$TRAVIS_BUILD_DIR -Dsonar.sourceEncoding=UTF-8 -Dsonar.inclusions=**/*.java -Dsonar.exclusions=**/*IT.java,**/*IT2.java,**/*Test.java -Dsonar.test.inclusions=**/*IT.java,**/*IT2.java,**/*Test.java -Dsonar.jacoco.reportPath=$TRAVIS_BUILD_DIR/oscm-build/result/reports/merged_jacoco.exec -Dsonar.java.source=1.7
+  - sonar-scanner -Dsonar.login=$SONAR_TOKEN -Dsonar.projectKey=CTMG -Dsonar.projectName=CTMG -Dsonar.projectVersion=16.2 -Dsonar.sources=$TRAVIS_BUILD_DIR -Dsonar.tests=$TRAVIS_BUILD_DIR -Dsonar.sourceEncoding=UTF-8 -Dsonar.inclusions=**/*.java -Dsonar.exclusions=**/*IT.java,**/*IT2.java,**/*Test.java,**/OperationParameterType.java -Dsonar.test.inclusions=**/*IT.java,**/*IT2.java,**/*Test.java -Dsonar.jacoco.reportPath=$TRAVIS_BUILD_DIR/oscm-build/result/reports/merged_jacoco.exec -Dsonar.java.source=1.7
 after_success:
   - codecov
