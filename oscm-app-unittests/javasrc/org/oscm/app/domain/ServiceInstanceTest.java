@@ -25,6 +25,7 @@ import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.oscm.app.business.exceptions.BadResultException;
 import org.oscm.app.v1_0.data.InstanceStatus;
+import org.oscm.app.v1_0.data.Setting;
 
 /**
  * Unit tests for {@link ServiceInstance}.
@@ -387,9 +388,9 @@ public class ServiceInstanceTest {
     public void rollbackInstanceParameters() throws Exception {
         // given
         ServiceInstance si = Mockito.spy(new ServiceInstance());
-        HashMap<String, String> expectedParams = new HashMap<>();
-        expectedParams.put("KEY1", "VALUE1");
-        expectedParams.put("KEY2", "VALUE2");
+        HashMap<String, Setting> expectedParams = new HashMap<>();
+        expectedParams.put("KEY1", new Setting("KEY1", "VALUE1"));
+        expectedParams.put("KEY2", new Setting("KEY2", "VALUE2"));
 
         String rollbackXML = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<!DOCTYPE properties SYSTEM \"http://java.sun.com/dtd/properties.dtd\">\r\n<properties>\r\n<entry key=\"KEY2\">VALUE2</entry>\r\n<entry key=\"ROLLBACK_SUBSCRIPTIONID\">subscriptionId</entry>\r\n<entry key=\"KEY1\">VALUE1</entry>\r\n</properties>\r\n";
 
@@ -452,9 +453,9 @@ public class ServiceInstanceTest {
     @Test
     public void setInstanceParameters() throws Exception {
         // given
-        HashMap<String, String> newParameters = new HashMap<>();
-        newParameters.put("KEY1", "NEWVALUE1");
-        newParameters.put("KEY2", "NEWVALUE2");
+        HashMap<String, Setting> newParameters = new HashMap<>();
+        newParameters.put("KEY1", new Setting("KEY1", "NEWVALUE1"));
+        newParameters.put("KEY2", new Setting("KEY2", "NEWVALUE2"));
         InstanceParameter ip = new InstanceParameter();
         ip.setParameterKey("KEY1");
         ip.setParameterValue("OLDVALUE1");
@@ -472,9 +473,9 @@ public class ServiceInstanceTest {
     @Test
     public void setInstanceAttributes() throws Exception {
         // given
-        HashMap<String, String> newAttributes = new HashMap<>();
-        newAttributes.put("KEY1", "NEWVALUE1");
-        newAttributes.put("KEY2", "NEWVALUE2");
+        HashMap<String, Setting> newAttributes = new HashMap<>();
+        newAttributes.put("KEY1", new Setting("KEY1", "NEWVALUE1"));
+        newAttributes.put("KEY2", new Setting("KEY2", "NEWVALUE2"));
         InstanceAttribute ip = new InstanceAttribute();
         ip.setAttributeKey("KEY1");
         ip.setAttributeValue("OLDVALUE1");
@@ -504,8 +505,8 @@ public class ServiceInstanceTest {
         currentIpList.add(ip2);
         si.setInstanceParameters(currentIpList);
 
-        HashMap<String, String> newParameters = new HashMap<>();
-        newParameters.put("KEY1", "NEWVALUE1");
+        HashMap<String, Setting> newParameters = new HashMap<>();
+        newParameters.put("KEY1", new Setting("KEY1", "NEWVALUE1"));
 
         // when
         si.removeParams(newParameters, em);

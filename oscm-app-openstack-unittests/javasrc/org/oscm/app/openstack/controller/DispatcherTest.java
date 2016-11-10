@@ -39,6 +39,7 @@ import org.oscm.app.openstack.data.FlowState;
 import org.oscm.app.v1_0.data.InstanceStatus;
 import org.oscm.app.v1_0.data.PasswordAuthentication;
 import org.oscm.app.v1_0.data.ProvisioningSettings;
+import org.oscm.app.v1_0.data.Setting;
 import org.oscm.app.v1_0.data.User;
 import org.oscm.app.v1_0.exceptions.APPlatformException;
 import org.oscm.app.v1_0.exceptions.AbortException;
@@ -53,8 +54,8 @@ import org.oscm.app.v1_0.intf.APPlatformService;
 public class DispatcherTest {
 
     private PropertyHandler paramHandler;
-    private HashMap<String, String> parameters;
-    private HashMap<String, String> configSettings;
+    private HashMap<String, Setting> parameters;
+    private HashMap<String, Setting> configSettings;
     private ProvisioningSettings settings;
     private Dispatcher dispatcher;
     private final MockURLStreamHandler streamHandler = new MockURLStreamHandler();
@@ -84,22 +85,28 @@ public class DispatcherTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        parameters = new HashMap<String, String>();
-        configSettings = new HashMap<String, String>();
+        parameters = new HashMap<>();
+        configSettings = new HashMap<>();
         configSettings.put(PropertyHandler.KEYSTONE_API_URL,
-                "http://keystone:8080/v3/auth");
-        configSettings.put(PropertyHandler.API_USER_NAME, "api_user");
-        configSettings.put(PropertyHandler.API_USER_PWD, "secret");
-        configSettings.put(PropertyHandler.TENANT_ID, "testTenantID");
-        configSettings.put(PropertyHandler.DOMAIN_NAME, "demo");
+                new Setting(PropertyHandler.KEYSTONE_API_URL,
+                        "http://keystone:8080/v3/auth"));
+        configSettings.put(PropertyHandler.API_USER_NAME,
+                new Setting(PropertyHandler.API_USER_NAME, "api_user"));
+        configSettings.put(PropertyHandler.API_USER_PWD,
+                new Setting(PropertyHandler.API_USER_PWD, "secret"));
+        configSettings.put(PropertyHandler.TENANT_ID,
+                new Setting(PropertyHandler.TENANT_ID, "testTenantID"));
+        configSettings.put(PropertyHandler.DOMAIN_NAME,
+                new Setting(PropertyHandler.DOMAIN_NAME, "demo"));
         configSettings.put(PropertyHandler.TEMPLATE_BASE_URL,
-                "http://estfarmaki2:8880/templates/");
+                new Setting(PropertyHandler.TEMPLATE_BASE_URL,
+                        "http://estfarmaki2:8880/templates/"));
         settings = new ProvisioningSettings(parameters, configSettings, "en");
         settings.setSubscriptionId("subscriptionId");
         settings.getParameters().put(PropertyHandler.ACCESS_INFO_PATTERN,
-                ACCESS_INFO);
-        settings.getParameters().put(PropertyHandler.TEMPLATE_NAME,
-                "/templates/fosi_v2.json");
+                new Setting(PropertyHandler.ACCESS_INFO_PATTERN, ACCESS_INFO));
+        settings.getParameters().put(PropertyHandler.TEMPLATE_NAME, new Setting(
+                PropertyHandler.TEMPLATE_NAME, "/templates/fosi_v2.json"));
         paramHandler = spy(new PropertyHandler(settings));
         paramHandler.setStackId("sID");
         platformService = mock(APPlatformService.class);
@@ -124,7 +131,7 @@ public class DispatcherTest {
         InstanceStatus result = dispatcher.dispatch();
 
         // then
-        String status = parameters.get(PropertyHandler.STATUS);
+        String status = parameters.get(PropertyHandler.STATUS).getValue();
         assertEquals(FlowState.CREATING_STACK.toString(), status);
         assertFalse(result.isReady());
     }
@@ -138,7 +145,7 @@ public class DispatcherTest {
         InstanceStatus result = dispatcher.dispatch();
 
         // then
-        String status = parameters.get(PropertyHandler.STATUS);
+        String status = parameters.get(PropertyHandler.STATUS).getValue();
         assertEquals(FlowState.FINISHED.toString(), status);
         assertEquals(ACCESS_INFO, result.getAccessInfo());
         assertTrue(result.isReady());
@@ -149,7 +156,8 @@ public class DispatcherTest {
         // given
         String url = "/templates/xyz.json";
         paramHandler.setState(FlowState.CREATION_REQUESTED);
-        settings.getParameters().put(PropertyHandler.TEMPLATE_NAME, url);
+        settings.getParameters().put(PropertyHandler.TEMPLATE_NAME,
+                new Setting(PropertyHandler.TEMPLATE_NAME, url));
 
         try {
             // when
@@ -176,7 +184,7 @@ public class DispatcherTest {
         InstanceStatus result = dispatcher.dispatch();
 
         // then
-        String status = parameters.get(PropertyHandler.STATUS);
+        String status = parameters.get(PropertyHandler.STATUS).getValue();
         assertEquals(FlowState.STARTING.toString(), status);
         assertFalse(result.isReady());
     }
@@ -201,12 +209,11 @@ public class DispatcherTest {
                                 "1-Instance-otherserver2", ServerStatus.SHUTOFF,
                                 "testTenantID")));
 
-        streamHandler
-                .put("/stacks/" + paramHandler.getStackName() + "/resources",
-                        new MockHttpURLConnection(200,
-                                MockURLStreamHandler.respStacksResources(
-                                        serverNames,
-                                        InstanceType.EC2.getString())));
+        streamHandler.put(
+                "/stacks/" + paramHandler.getStackName() + "/resources",
+                new MockHttpURLConnection(200,
+                        MockURLStreamHandler.respStacksResources(serverNames,
+                                InstanceType.EC2.getString())));
         streamHandler.put("/servers/0-Instance-server1/action", connection);
         streamHandler.put("/servers/1-Instance-otherserver2/action",
                 connection);
@@ -224,7 +231,7 @@ public class DispatcherTest {
         InstanceStatus result = dispatcher.dispatch();
 
         // then
-        String status = parameters.get(PropertyHandler.STATUS);
+        String status = parameters.get(PropertyHandler.STATUS).getValue();
         assertEquals(FlowState.STOPPING.toString(), status);
         assertFalse(result.isReady());
     }
@@ -244,12 +251,11 @@ public class DispatcherTest {
                                 "1-Instance-otherserver2", ServerStatus.ACTIVE,
                                 "testTenantID")));
 
-        streamHandler
-                .put("/stacks/" + paramHandler.getStackName() + "/resources",
-                        new MockHttpURLConnection(200,
-                                MockURLStreamHandler.respStacksResources(
-                                        serverNames,
-                                        InstanceType.EC2.getString())));
+        streamHandler.put(
+                "/stacks/" + paramHandler.getStackName() + "/resources",
+                new MockHttpURLConnection(200,
+                        MockURLStreamHandler.respStacksResources(serverNames,
+                                InstanceType.EC2.getString())));
         streamHandler.put("/servers/0-Instance-server1/action", connection);
         streamHandler.put("/servers/1-Instance-otherserver2/action",
                 connection);
@@ -267,7 +273,7 @@ public class DispatcherTest {
         InstanceStatus result = dispatcher.dispatch();
 
         // then
-        String status = parameters.get(PropertyHandler.STATUS);
+        String status = parameters.get(PropertyHandler.STATUS).getValue();
         assertEquals(FlowState.DEACTIVATING.toString(), status);
         assertEquals(ACCESS_INFO_NOT_AVAILABLE, result.getAccessInfo());
         assertFalse(result.isReady());
@@ -286,7 +292,7 @@ public class DispatcherTest {
         InstanceStatus result = dispatcher.dispatch();
 
         // then
-        String status = parameters.get(PropertyHandler.STATUS);
+        String status = parameters.get(PropertyHandler.STATUS).getValue();
         assertEquals(FlowState.FINISHED.toString(), status);
         assertEquals(ACCESS_INFO, result.getAccessInfo());
         assertTrue(result.isReady());
@@ -327,7 +333,7 @@ public class DispatcherTest {
         InstanceStatus result = dispatcher.dispatch();
 
         // then
-        String status = parameters.get(PropertyHandler.STATUS);
+        String status = parameters.get(PropertyHandler.STATUS).getValue();
         assertEquals(FlowState.FINISHED.toString(), status);
         assertEquals(ACCESS_INFO, result.getAccessInfo());
         assertTrue(result.isReady());
@@ -374,7 +380,7 @@ public class DispatcherTest {
         InstanceStatus result = dispatcher.dispatch();
 
         // then
-        String status = parameters.get(PropertyHandler.STATUS);
+        String status = parameters.get(PropertyHandler.STATUS).getValue();
         assertEquals(FlowState.FINISHED.toString(), status);
         assertEquals(ACCESS_INFO, result.getAccessInfo());
         assertTrue(result.isReady());
@@ -412,10 +418,14 @@ public class DispatcherTest {
     public void creating_sendMail() throws Exception {
         // given
         configSettings.put(PropertyHandler.KEYSTONE_API_URL,
-                "https://keystone:8080/v3/auth");
-        configSettings.put(PropertyHandler.DOMAIN_NAME, "domain1");
-        configSettings.put(PropertyHandler.TENANT_ID, "098765");
-        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, "test@mail.com");
+                new Setting(PropertyHandler.KEYSTONE_API_URL,
+                        "https://keystone:8080/v3/auth"));
+        configSettings.put(PropertyHandler.DOMAIN_NAME,
+                new Setting(PropertyHandler.DOMAIN_NAME, "domain1"));
+        configSettings.put(PropertyHandler.TENANT_ID,
+                new Setting(PropertyHandler.TENANT_ID, "098765"));
+        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, new Setting(
+                PropertyHandler.MAIL_FOR_COMPLETION, "test@mail.com"));
         paramHandler.setState(FlowState.CREATING_STACK);
         streamHandler.put("/stacks/Instance4",
                 new MockHttpsURLConnection(200,
@@ -426,7 +436,7 @@ public class DispatcherTest {
         InstanceStatus result = dispatcher.dispatch();
 
         // then
-        String status = parameters.get(PropertyHandler.STATUS);
+        String status = parameters.get(PropertyHandler.STATUS).getValue();
         assertEquals(FlowState.MANUAL.toString(), status);
         assertFalse(result.isReady());
         assertFalse(result.getRunWithTimer());
@@ -439,11 +449,15 @@ public class DispatcherTest {
     @Test
     public void updating() throws Exception {
         // given
-        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, "test@mail.com");
+        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, new Setting(
+                PropertyHandler.MAIL_FOR_COMPLETION, "test@mail.com"));
         configSettings.put(PropertyHandler.KEYSTONE_API_URL,
-                "https://keystone:8080/v3/auth");
-        configSettings.put(PropertyHandler.DOMAIN_NAME, "domain1");
-        configSettings.put(PropertyHandler.TENANT_ID, "87654");
+                new Setting(PropertyHandler.KEYSTONE_API_URL,
+                        "https://keystone:8080/v3/auth"));
+        configSettings.put(PropertyHandler.DOMAIN_NAME,
+                new Setting(PropertyHandler.DOMAIN_NAME, "domain1"));
+        configSettings.put(PropertyHandler.TENANT_ID,
+                new Setting(PropertyHandler.TENANT_ID, "87654"));
         paramHandler.setState(FlowState.UPDATING);
         streamHandler.put("/stacks/Instance4",
                 new MockHttpsURLConnection(200,
@@ -454,7 +468,7 @@ public class DispatcherTest {
         InstanceStatus result = dispatcher.dispatch();
 
         // then
-        String status = parameters.get(PropertyHandler.STATUS);
+        String status = parameters.get(PropertyHandler.STATUS).getValue();
         assertEquals(FlowState.FINISHED.toString(), status);
         assertEquals(ACCESS_INFO, result.getAccessInfo());
         assertTrue(result.isReady());
@@ -465,7 +479,8 @@ public class DispatcherTest {
     @Test
     public void updating_sendMail() throws Exception {
         // given
-        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, "test@mail.com");
+        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, new Setting(
+                PropertyHandler.MAIL_FOR_COMPLETION, "test@mail.com"));
         paramHandler.setState(FlowState.UPDATING);
         streamHandler.put("/stacks/Instance4",
                 new MockHttpURLConnection(200,
@@ -475,7 +490,7 @@ public class DispatcherTest {
         InstanceStatus result = dispatcher.dispatch();
 
         // then
-        String status = parameters.get(PropertyHandler.STATUS);
+        String status = parameters.get(PropertyHandler.STATUS).getValue();
         assertEquals(FlowState.FINISHED.toString(), status);
         assertTrue(result.isReady());
         assertTrue(result.getRunWithTimer());
@@ -521,7 +536,7 @@ public class DispatcherTest {
         InstanceStatus result = dispatcher.dispatch();
 
         // then
-        String status = parameters.get(PropertyHandler.STATUS);
+        String status = parameters.get(PropertyHandler.STATUS).getValue();
         assertEquals(FlowState.DESTROYED.toString(), status);
         assertTrue(result.isReady());
     }
@@ -529,7 +544,8 @@ public class DispatcherTest {
     @Test
     public void deletingStack_sendMail() throws Exception {
         // given
-        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, "test@mail.com");
+        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, new Setting(
+                PropertyHandler.MAIL_FOR_COMPLETION, "test@mail.com"));
         paramHandler.setState(FlowState.DELETING_STACK);
         streamHandler.put("/stacks/Instance4",
                 new MockHttpURLConnection(200,
@@ -539,7 +555,7 @@ public class DispatcherTest {
         InstanceStatus result = dispatcher.dispatch();
 
         // then
-        String status = parameters.get(PropertyHandler.STATUS);
+        String status = parameters.get(PropertyHandler.STATUS).getValue();
         assertEquals(FlowState.DESTROYED.toString(), status);
         assertTrue(result.isReady());
         assertTrue(result.getRunWithTimer());
@@ -558,7 +574,7 @@ public class DispatcherTest {
         InstanceStatus result = dispatcher.dispatch();
 
         // then
-        String status = parameters.get(PropertyHandler.STATUS);
+        String status = parameters.get(PropertyHandler.STATUS).getValue();
         assertEquals(FlowState.DESTROYED.toString(), status);
         assertTrue(result.isReady());
     }
@@ -698,7 +714,7 @@ public class DispatcherTest {
         InstanceStatus result = dispatcher.dispatch();
 
         // then
-        String status = parameters.get(PropertyHandler.STATUS);
+        String status = parameters.get(PropertyHandler.STATUS).getValue();
         assertEquals(FlowState.FINISHED.toString(), status);
         assertEquals(ACCESS_INFO_NOT_AVAILABLE, result.getAccessInfo());
         assertTrue(result.isReady());
@@ -756,7 +772,7 @@ public class DispatcherTest {
         InstanceStatus result = dispatcher.dispatch();
 
         // then
-        String status = parameters.get(PropertyHandler.STATUS);
+        String status = parameters.get(PropertyHandler.STATUS).getValue();
         assertEquals(FlowState.FINISHED.toString(), status);
         assertEquals(ACCESS_INFO, result.getAccessInfo());
         assertTrue(result.isReady());
@@ -771,7 +787,7 @@ public class DispatcherTest {
         InstanceStatus result = dispatcher.dispatch();
 
         // then
-        String status = parameters.get(PropertyHandler.STATUS);
+        String status = parameters.get(PropertyHandler.STATUS).getValue();
         assertEquals(FlowState.UPDATING.toString(), status);
         assertFalse(result.isReady());
 
@@ -786,7 +802,7 @@ public class DispatcherTest {
         InstanceStatus result = dispatcher.dispatch();
 
         // then
-        String status = parameters.get(PropertyHandler.STATUS);
+        String status = parameters.get(PropertyHandler.STATUS).getValue();
         assertEquals(FlowState.DELETING_STACK.toString(), status);
         assertFalse(result.isReady());
 

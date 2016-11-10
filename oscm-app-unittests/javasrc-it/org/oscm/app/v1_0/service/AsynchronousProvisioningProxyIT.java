@@ -61,6 +61,7 @@ import org.oscm.app.v1_0.data.LocalizedText;
 import org.oscm.app.v1_0.data.PasswordAuthentication;
 import org.oscm.app.v1_0.data.ProvisioningSettings;
 import org.oscm.app.v1_0.data.ServiceUser;
+import org.oscm.app.v1_0.data.Setting;
 import org.oscm.app.v1_0.exceptions.APPlatformException;
 import org.oscm.app.v1_0.exceptions.AuthenticationException;
 import org.oscm.app.v1_0.intf.APPlatformController;
@@ -179,8 +180,9 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
         basicInstanceRequest.setDefaultLocale("en");
         basicInstanceRequest.setReferenceId("referenceId");
 
-        final HashMap<String, String> controllerSetting = new HashMap<>();
-        controllerSetting.put("BSS_ORGANIZATION_ID", "testorg");
+        final HashMap<String, Setting> controllerSetting = new HashMap<>();
+        controllerSetting.put("BSS_ORGANIZATION_ID",
+                new Setting("BSS_ORGANIZATION_ID", "testorg"));
         when(configService
                 .getControllerConfigurationSettings("test.controller"))
                         .thenReturn(controllerSetting);
@@ -192,7 +194,8 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
                 ServiceInstance instance = (ServiceInstance) args[0];
                 return new ProvisioningSettings(instance.getParameterMap(),
                         instance.getAttributeMap(),
-                        new HashMap<String, String>(), controllerSetting, "en");
+                        new HashMap<String, Setting>(), controllerSetting,
+                        "en");
             }
         };
         doAnswer(answer).when(configService).getProvisioningSettings(
@@ -295,9 +298,10 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
         final InstanceDescription descr = new InstanceDescription();
         descr.setInstanceId("appId123");
         descr.setBaseUrl("http://here/");
-        HashMap<String, String> map = new HashMap<>();
-        map.put(param.getParameterId(), param.getValue());
-        map.put(null, "null"); // check error resistance
+        HashMap<String, Setting> map = new HashMap<>();
+        map.put(param.getParameterId(),
+                new Setting(param.getParameterId(), param.getValue()));
+        map.put(null, new Setting(null, "null")); // check error resistance
         descr.setChangedParameters(map);
 
         List<LocalizedText> msgs = Arrays.asList(
@@ -376,7 +380,7 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
         final InstanceDescription descr = new InstanceDescription();
         descr.setInstanceId("appId123");
         descr.setBaseUrl("http://here/");
-        HashMap<String, String> map = new HashMap<>();
+        HashMap<String, Setting> map = new HashMap<>();
         descr.setChangedParameters(map);
         when(controllerMock
                 .createInstance(Matchers.any(ProvisioningSettings.class)))
@@ -407,7 +411,7 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
         final InstanceDescription descr = new InstanceDescription();
         descr.setInstanceId("");
         descr.setBaseUrl("http://here/");
-        HashMap<String, String> map = new HashMap<>();
+        HashMap<String, Setting> map = new HashMap<>();
         descr.setChangedParameters(map);
         when(controllerMock
                 .createInstance(Matchers.any(ProvisioningSettings.class)))
@@ -436,7 +440,7 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
         final InstanceDescription descr = new InstanceDescription();
         descr.setInstanceId(null);
         descr.setBaseUrl("http://here/");
-        HashMap<String, String> map = new HashMap<>();
+        HashMap<String, Setting> map = new HashMap<>();
         descr.setChangedParameters(map);
         when(controllerMock
                 .createInstance(Matchers.any(ProvisioningSettings.class)))
@@ -1174,7 +1178,7 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
         final Map<String, String> expectedNew = new HashMap<>();
         expectedNew.put("param1", "value1");
         expectedNew.put("APP_param2", "xxxx");
-        Map<String, String> params = newCaptor.getValue().getParameters();
+        Map<String, Setting> params = newCaptor.getValue().getParameters();
         assertEquals("New parameters not sent correctly", expectedNew, params);
         final Map<String, String> expectedOld = new HashMap<>();
         expectedOld.put("param1", "1");
@@ -1247,7 +1251,7 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
         final Map<String, String> expectedNew = new HashMap<>();
         expectedNew.put("param1", "value1");
         expectedNew.put("APP_param2", "xxxx");
-        Map<String, String> params = newCaptor.getValue().getParameters();
+        Map<String, Setting> params = newCaptor.getValue().getParameters();
         assertEquals("New parameters not sent correctly", expectedNew, params);
         final Map<String, String> expectedOld = new HashMap<>();
         expectedOld.put("param1", "1");
@@ -1331,8 +1335,9 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
         verify(controllerMock, times(1))
                 .activateInstance(stringCaptor.capture(), settings.capture());
         assertEquals("appId123", stringCaptor.getValue());
-        Map<String, String> params = settings.getValue().getParameters();
-        assertEquals(Collections.singletonMap("param1", "value1"), params);
+        Map<String, Setting> params = settings.getValue().getParameters();
+        assertEquals(Collections.singletonMap("param1",
+                new Setting("param1", "value1")), params);
     }
 
     @Test
@@ -1385,8 +1390,9 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
         verify(controllerMock, times(1))
                 .deactivateInstance(stringCaptor.capture(), settings.capture());
         assertEquals("appId123", stringCaptor.getValue());
-        Map<String, String> params = settings.getValue().getParameters();
-        assertEquals(Collections.singletonMap("param1", "value1"), params);
+        Map<String, Setting> params = settings.getValue().getParameters();
+        assertEquals(Collections.singletonMap("param1",
+                new Setting("param1", "value1")), params);
     }
 
     @Test
@@ -1449,8 +1455,9 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
         verify(controllerMock, times(1)).deleteInstance(stringCaptor.capture(),
                 settings.capture());
         assertEquals("appId123", stringCaptor.getValue());
-        Map<String, String> params = settings.getValue().getParameters();
-        assertEquals(Collections.singletonMap("param1", "value1"), params);
+        Map<String, Setting> params = settings.getValue().getParameters();
+        assertEquals(Collections.singletonMap("param1",
+                new Setting("param1", "value1")), params);
     }
 
     @Test

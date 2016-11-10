@@ -38,6 +38,7 @@ import org.oscm.app.v1_0.data.InstanceStatusUsers;
 import org.oscm.app.v1_0.data.LocalizedText;
 import org.oscm.app.v1_0.data.ProvisioningSettings;
 import org.oscm.app.v1_0.data.ServiceUser;
+import org.oscm.app.v1_0.data.Setting;
 import org.oscm.app.v1_0.exceptions.APPlatformException;
 import org.oscm.app.v1_0.intf.APPlatformController;
 import org.oscm.provisioning.data.BaseResult;
@@ -126,9 +127,10 @@ public class AsynchronousProvisioningProxy implements ProvisioningService {
 
     ServiceInstance createPersistentServiceInstance(InstanceRequest request,
             InstanceDescription descr) throws BadResultException {
-        final HashMap<String, String> parameters = createParameterMap(
+        final HashMap<String, Setting> parameters = createParameterMap(
                 request.getParameterValue());
-        String controllerId = parameters.get(InstanceParameter.CONTROLLER_ID);
+        String controllerId = parameters.get(InstanceParameter.CONTROLLER_ID)
+                .getValue();
         ServiceInstance si = new ServiceInstance();
         si.setOrganizationId(request.getOrganizationId());
         si.setOrganizationName(request.getOrganizationName());
@@ -153,11 +155,12 @@ public class AsynchronousProvisioningProxy implements ProvisioningService {
     InstanceDescription getInstanceDescription(InstanceRequest request,
             User requestingUser)
             throws APPlatformException, BadResultException {
-        final HashMap<String, String> parameters = createParameterMap(
+        final HashMap<String, Setting> parameters = createParameterMap(
                 request.getParameterValue());
-        final HashMap<String, String> attributes = createAttributeMap(
+        final HashMap<String, Setting> attributes = createAttributeMap(
                 request.getAttributeValue());
-        String controllerId = parameters.get(InstanceParameter.CONTROLLER_ID);
+        String controllerId = parameters.get(InstanceParameter.CONTROLLER_ID)
+                .getValue();
         if (controllerId == null) {
             logger.warn(
                     "The technical service does not define a controller implementation");
@@ -165,9 +168,9 @@ public class AsynchronousProvisioningProxy implements ProvisioningService {
                     .get(request.getDefaultLocale(), "error_configuration"));
         }
 
-        HashMap<String, String> controllerSettings = configService
+        HashMap<String, Setting> controllerSettings = configService
                 .getControllerConfigurationSettings(controllerId);
-        HashMap<String, String> customAttributes = configService
+        HashMap<String, Setting> customAttributes = configService
                 .getCustomAttributes(request.getOrganizationId());
         final ProvisioningSettings settings = new ProvisioningSettings(
                 parameters, attributes, customAttributes, controllerSettings,
@@ -213,15 +216,17 @@ public class AsynchronousProvisioningProxy implements ProvisioningService {
     }
 
     private List<InstanceParameter> createParameters(final ServiceInstance si,
-            final Map<String, String> src) throws BadResultException {
+            final Map<String, Setting> src) throws BadResultException {
         final ArrayList<InstanceParameter> dest = new ArrayList<>();
         if (src != null) {
             for (final String key : src.keySet()) {
                 if (key != null) {
+                    Setting param = src.get(key);
                     final InstanceParameter d = new InstanceParameter();
                     d.setServiceInstance(si);
                     d.setParameterKey(key);
-                    d.setDecryptedValue(src.get(key));
+                    d.setEncrypted(param.isEncrypted());
+                    d.setDecryptedValue(param.getValue());
                     dest.add(d);
                 }
             }
@@ -230,15 +235,18 @@ public class AsynchronousProvisioningProxy implements ProvisioningService {
     }
 
     private List<InstanceAttribute> createAttributes(final ServiceInstance si,
-            final Map<String, String> src) throws BadResultException {
+            final Map<String, Setting> src) throws BadResultException {
         final ArrayList<InstanceAttribute> dest = new ArrayList<>();
         if (src != null) {
             for (final String key : src.keySet()) {
                 if (key != null) {
+                    Setting attr = src.get(key);
                     final InstanceAttribute d = new InstanceAttribute();
                     d.setServiceInstance(si);
                     d.setAttributeKey(key);
-                    d.setDecryptedValue(src.get(key));
+                    d.setEncrypted(attr.isEncrypted());
+                    d.setDecryptedValue(attr.getValue());
+                    d.setControllerId(attr.getControllerId());
                     dest.add(d);
                 }
             }
@@ -427,9 +435,9 @@ public class AsynchronousProvisioningProxy implements ProvisioningService {
             String subscriptionId, String referenceId,
             List<ServiceParameter> parameterValues,
             List<ServiceAttribute> attributeValues, User requestingUser) {
-        final HashMap<String, String> parameterMap = createParameterMap(
+        final HashMap<String, Setting> parameterMap = createParameterMap(
                 parameterValues);
-        final HashMap<String, String> attributeMap = createAttributeMap(
+        final HashMap<String, Setting> attributeMap = createAttributeMap(
                 attributeValues);
         logger.info("Modify parameters for instance {}: {}", instanceId,
                 parameterMap);
@@ -443,8 +451,8 @@ public class AsynchronousProvisioningProxy implements ProvisioningService {
             String subscriptionId, String referenceId,
             List<ServiceParameter> parameterValues,
             List<ServiceAttribute> attributeValues,
-            final HashMap<String, String> parameterMap,
-            final HashMap<String, String> attributeMap,
+            final HashMap<String, Setting> parameterMap,
+            final HashMap<String, Setting> attributeMap,
             ProvisioningStatus targetStatus, User requestingUser) {
 
         ServiceInstance instance = null;
@@ -456,7 +464,7 @@ public class AsynchronousProvisioningProxy implements ProvisioningService {
 
             checkInstanceAvailability(instance);
 
-            final HashMap<String, String> controllerSettings = configService
+            final HashMap<String, Setting> controllerSettings = configService
                     .getControllerConfigurationSettings(
                             instance.getControllerId());
             final APPlatformController controller = APPlatformControllerFactory
@@ -535,25 +543,27 @@ public class AsynchronousProvisioningProxy implements ProvisioningService {
                 getLocale(requestingUser), "error_synchronous_provisioning"));
     }
 
-    private HashMap<String, String> createParameterMap(
+    private HashMap<String, Setting> createParameterMap(
             List<ServiceParameter> parameterValues) {
-        final HashMap<String, String> map = new HashMap<>();
+        final HashMap<String, Setting> map = new HashMap<>();
         if (parameterValues != null) {
             for (final ServiceParameter p : parameterValues) {
-                String value = p.getValue();
-                map.put(p.getParameterId(), value != null ? value : "");
+                String value = p.getValue() != null ? p.getValue() : "";
+                map.put(p.getParameterId(), new Setting(p.getParameterId(),
+                        value, p.isEncrypted()));
             }
         }
         return map;
     }
 
-    private HashMap<String, String> createAttributeMap(
+    private HashMap<String, Setting> createAttributeMap(
             List<ServiceAttribute> attributeValues) {
-        final HashMap<String, String> map = new HashMap<>();
+        final HashMap<String, Setting> map = new HashMap<>();
         if (attributeValues != null) {
             for (final ServiceAttribute a : attributeValues) {
-                String value = a.getValue();
-                map.put(a.getAttributeId(), value != null ? value : "");
+                String value = a.getValue() != null ? a.getValue() : "";
+                map.put(a.getAttributeId(), new Setting(a.getAttributeId(),
+                        value, a.isEncrypted(), a.getControllerId()));
             }
         }
         return map;
@@ -687,9 +697,9 @@ public class AsynchronousProvisioningProxy implements ProvisioningService {
             String subscriptionId, String referenceId,
             List<ServiceParameter> parameterValues,
             List<ServiceAttribute> attributeValues, User requestingUser) {
-        final HashMap<String, String> parameterMap = createParameterMap(
+        final HashMap<String, Setting> parameterMap = createParameterMap(
                 parameterValues);
-        final HashMap<String, String> attributesMap = createAttributeMap(
+        final HashMap<String, Setting> attributesMap = createAttributeMap(
                 attributeValues);
         logger.info("Upgrade instance {}: {}", instanceId, parameterMap);
         return modifySubscription(instanceId, subscriptionId, referenceId,
@@ -757,6 +767,7 @@ public class AsynchronousProvisioningProxy implements ProvisioningService {
                 ca.setOrganizationId(organizationId);
                 ca.setAttributeKey(attr.getAttributeId());
                 ca.setDecryptedValue(attr.getValue());
+                ca.setControllerId(attr.getControllerId());
                 em.persist(ca);
             }
 

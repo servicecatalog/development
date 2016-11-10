@@ -37,7 +37,6 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-
 import org.oscm.app.iaas.data.DiskImage;
 import org.oscm.app.iaas.data.FlowState;
 import org.oscm.app.iaas.data.IaasContext;
@@ -55,6 +54,7 @@ import org.oscm.app.iaas.intf.VServerCommunication;
 import org.oscm.app.iaas.intf.VSystemCommunication;
 import org.oscm.app.v1_0.data.PasswordAuthentication;
 import org.oscm.app.v1_0.data.ProvisioningSettings;
+import org.oscm.app.v1_0.data.Setting;
 import org.oscm.app.v1_0.data.User;
 import org.oscm.app.v1_0.exceptions.AbortException;
 import org.oscm.app.v1_0.exceptions.InstanceNotAliveException;
@@ -75,8 +75,8 @@ public class VSystemProcessorBeanTest {
     @Captor
     private ArgumentCaptor<String> text;
 
-    private HashMap<String, String> parameters;
-    HashMap<String, String> configSettings;
+    private HashMap<String, Setting> parameters;
+    HashMap<String, Setting> configSettings;
     private ProvisioningSettings settings;
     private PropertyHandler paramHandler;
     private HashMap<String, DiskImage> diskImages;
@@ -116,14 +116,15 @@ public class VSystemProcessorBeanTest {
                 any(PasswordAuthentication.class));
         vSystemProcessor.setPlatformService(platformService);
 
-        parameters = new HashMap<String, String>();
-        configSettings = new HashMap<String, String>();
-        parameters.put("SYSTEM_TEMPLATE_ID", "template");
+        parameters = new HashMap<>();
+        configSettings = new HashMap<>();
+        parameters.put("SYSTEM_TEMPLATE_ID",
+                new Setting("SYSTEM_TEMPLATE_ID", "template"));
         settings = new ProvisioningSettings(parameters, configSettings, "en");
         settings.setSubscriptionId("subId");
         paramHandler = spy(new PropertyHandler(settings));
         // images to be validated against
-        diskImages = new HashMap<String, DiskImage>();
+        diskImages = new HashMap<>();
     }
 
     private void addDiskImageAnswer() throws Exception {
@@ -223,15 +224,18 @@ public class VSystemProcessorBeanTest {
         paramHandler.setState(FlowState.VSYSTEM_CREATION_REQUESTED);
         doReturn(Boolean.TRUE).when(vSystemProcessor).isAdminAgentReachable();
         addDiskImageAnswer();
-        parameters.put(PropertyHandler.COUNT_CPU, "2");
-        parameters.put(PropertyHandler.CLUSTER_SIZE, "2");
+        parameters.put(PropertyHandler.COUNT_CPU,
+                new Setting(PropertyHandler.COUNT_CPU, "2"));
+        parameters.put(PropertyHandler.CLUSTER_SIZE,
+                new Setting(PropertyHandler.CLUSTER_SIZE, "2"));
         parameters.put(PropertyHandler.MASTER_TEMPLATE_ID,
-                masterImage.getDiskImageId());
+                new Setting(PropertyHandler.MASTER_TEMPLATE_ID,
+                        masterImage.getDiskImageId()));
         parameters.put(PropertyHandler.SLAVE_TEMPLATE_ID,
-                slaveImage.getDiskImageId());
-        doNothing().when(vSystemProcessor).validateClusterSize(
-                eq(paramHandler), eq(true), eq(false),
-                any(VSystemTemplateConfiguration.class));
+                new Setting(PropertyHandler.SLAVE_TEMPLATE_ID,
+                        slaveImage.getDiskImageId()));
+        doNothing().when(vSystemProcessor).validateClusterSize(eq(paramHandler),
+                eq(true), eq(false), any(VSystemTemplateConfiguration.class));
 
         // when
         vSystemProcessor.validateParameters(paramHandler);
@@ -255,12 +259,16 @@ public class VSystemProcessorBeanTest {
         paramHandler.setState(FlowState.VSYSTEM_CREATION_REQUESTED);
         doReturn(Boolean.TRUE).when(vSystemProcessor).isAdminAgentReachable();
         addDiskImageAnswer();
-        parameters.put(PropertyHandler.COUNT_CPU, "2");
-        parameters.put(PropertyHandler.CLUSTER_SIZE, "2");
+        parameters.put(PropertyHandler.COUNT_CPU,
+                new Setting(PropertyHandler.COUNT_CPU, "2"));
+        parameters.put(PropertyHandler.CLUSTER_SIZE,
+                new Setting(PropertyHandler.CLUSTER_SIZE, "2"));
         parameters.put(PropertyHandler.MASTER_TEMPLATE_ID,
-                masterImage.getDiskImageId() + "x");
+                new Setting(PropertyHandler.MASTER_TEMPLATE_ID,
+                        masterImage.getDiskImageId() + "x"));
         parameters.put(PropertyHandler.SLAVE_TEMPLATE_ID,
-                slaveImage.getDiskImageId());
+                new Setting(PropertyHandler.SLAVE_TEMPLATE_ID,
+                        slaveImage.getDiskImageId()));
 
         // when
         vSystemProcessor.validateParameters(paramHandler);
@@ -284,12 +292,17 @@ public class VSystemProcessorBeanTest {
         paramHandler.setState(FlowState.VSYSTEM_CREATION_REQUESTED);
         doReturn(Boolean.TRUE).when(vSystemProcessor).isAdminAgentReachable();
         addDiskImageAnswer();
-        parameters.put(PropertyHandler.COUNT_CPU, "2");
-        parameters.put(PropertyHandler.CLUSTER_SIZE, "2");
+
+        parameters.put(PropertyHandler.COUNT_CPU,
+                new Setting(PropertyHandler.COUNT_CPU, "2"));
+        parameters.put(PropertyHandler.CLUSTER_SIZE,
+                new Setting(PropertyHandler.CLUSTER_SIZE, "2"));
         parameters.put(PropertyHandler.MASTER_TEMPLATE_ID,
-                masterImage.getDiskImageId());
+                new Setting(PropertyHandler.MASTER_TEMPLATE_ID,
+                        masterImage.getDiskImageId()));
         parameters.put(PropertyHandler.SLAVE_TEMPLATE_ID,
-                slaveImage.getDiskImageId() + "x");
+                new Setting(PropertyHandler.SLAVE_TEMPLATE_ID,
+                        slaveImage.getDiskImageId() + "x"));
 
         // when
         vSystemProcessor.validateParameters(paramHandler);
@@ -313,12 +326,17 @@ public class VSystemProcessorBeanTest {
         paramHandler.setState(FlowState.VSYSTEM_CREATION_REQUESTED);
         doReturn(Boolean.TRUE).when(vSystemProcessor).isAdminAgentReachable();
         addDiskImageAnswer();
-        parameters.put(PropertyHandler.COUNT_CPU, "4");
-        parameters.put(PropertyHandler.CLUSTER_SIZE, "2");
+
+        parameters.put(PropertyHandler.COUNT_CPU,
+                new Setting(PropertyHandler.COUNT_CPU, "4"));
+        parameters.put(PropertyHandler.CLUSTER_SIZE,
+                new Setting(PropertyHandler.CLUSTER_SIZE, "2"));
         parameters.put(PropertyHandler.MASTER_TEMPLATE_ID,
-                masterImage.getDiskImageId());
+                new Setting(PropertyHandler.MASTER_TEMPLATE_ID,
+                        masterImage.getDiskImageId()));
         parameters.put(PropertyHandler.SLAVE_TEMPLATE_ID,
-                slaveImage.getDiskImageId());
+                new Setting(PropertyHandler.SLAVE_TEMPLATE_ID,
+                        slaveImage.getDiskImageId()));
 
         doNothing().when(vSystemProcessor).validateClusterSize(
                 any(PropertyHandler.class), anyBoolean(), anyBoolean(),
@@ -346,12 +364,16 @@ public class VSystemProcessorBeanTest {
         paramHandler.setState(FlowState.VSYSTEM_CREATION_REQUESTED);
         doReturn(Boolean.TRUE).when(vSystemProcessor).isAdminAgentReachable();
         addDiskImageAnswer();
-        parameters.put(PropertyHandler.COUNT_CPU, "4");
-        parameters.put(PropertyHandler.CLUSTER_SIZE, "2");
+        parameters.put(PropertyHandler.COUNT_CPU,
+                new Setting(PropertyHandler.COUNT_CPU, "4"));
+        parameters.put(PropertyHandler.CLUSTER_SIZE,
+                new Setting(PropertyHandler.CLUSTER_SIZE, "2"));
         parameters.put(PropertyHandler.MASTER_TEMPLATE_ID,
-                masterImage.getDiskImageId());
+                new Setting(PropertyHandler.MASTER_TEMPLATE_ID,
+                        masterImage.getDiskImageId()));
         parameters.put(PropertyHandler.SLAVE_TEMPLATE_ID,
-                slaveImage.getDiskImageId());
+                new Setting(PropertyHandler.SLAVE_TEMPLATE_ID,
+                        slaveImage.getDiskImageId()));
 
         doNothing().when(vSystemProcessor).validateClusterSize(
                 any(PropertyHandler.class), anyBoolean(), anyBoolean(),
@@ -378,12 +400,16 @@ public class VSystemProcessorBeanTest {
         paramHandler.setState(FlowState.VSYSTEM_CREATION_REQUESTED);
         doReturn(Boolean.TRUE).when(vSystemProcessor).isAdminAgentReachable();
         addDiskImageAnswer();
-        parameters.put(PropertyHandler.COUNT_CPU, "4");
-        parameters.put(PropertyHandler.CLUSTER_SIZE, "2");
+        parameters.put(PropertyHandler.COUNT_CPU,
+                new Setting(PropertyHandler.COUNT_CPU, "4"));
+        parameters.put(PropertyHandler.CLUSTER_SIZE,
+                new Setting(PropertyHandler.CLUSTER_SIZE, "2"));
         parameters.put(PropertyHandler.MASTER_TEMPLATE_ID,
-                masterImage.getDiskImageId());
+                new Setting(PropertyHandler.MASTER_TEMPLATE_ID,
+                        masterImage.getDiskImageId()));
         parameters.put(PropertyHandler.SLAVE_TEMPLATE_ID,
-                slaveImage.getDiskImageId());
+                new Setting(PropertyHandler.SLAVE_TEMPLATE_ID,
+                        slaveImage.getDiskImageId()));
 
         doNothing().when(vSystemProcessor).validateClusterSize(
                 any(PropertyHandler.class), anyBoolean(), anyBoolean(),
@@ -410,12 +436,16 @@ public class VSystemProcessorBeanTest {
         paramHandler.setState(FlowState.VSYSTEM_CREATION_REQUESTED);
         doReturn(Boolean.TRUE).when(vSystemProcessor).isAdminAgentReachable();
         addDiskImageAnswer();
-        parameters.put(PropertyHandler.COUNT_CPU, "4");
-        parameters.put(PropertyHandler.CLUSTER_SIZE, "2");
+        parameters.put(PropertyHandler.COUNT_CPU,
+                new Setting(PropertyHandler.COUNT_CPU, "4"));
+        parameters.put(PropertyHandler.CLUSTER_SIZE,
+                new Setting(PropertyHandler.CLUSTER_SIZE, "2"));
         parameters.put(PropertyHandler.MASTER_TEMPLATE_ID,
-                masterImage.getDiskImageId());
+                new Setting(PropertyHandler.MASTER_TEMPLATE_ID,
+                        masterImage.getDiskImageId()));
         parameters.put(PropertyHandler.SLAVE_TEMPLATE_ID,
-                slaveImage.getDiskImageId());
+                new Setting(PropertyHandler.SLAVE_TEMPLATE_ID,
+                        slaveImage.getDiskImageId()));
 
         // when
         vSystemProcessor.validateParameters(paramHandler);
@@ -439,13 +469,16 @@ public class VSystemProcessorBeanTest {
         paramHandler.setState(FlowState.VSYSTEM_CREATION_REQUESTED);
         doReturn(Boolean.TRUE).when(vSystemProcessor).isAdminAgentReachable();
         addDiskImageAnswer();
-        parameters.put(PropertyHandler.COUNT_CPU, "4");
-        parameters.put(PropertyHandler.CLUSTER_SIZE, "2");
+        parameters.put(PropertyHandler.COUNT_CPU,
+                new Setting(PropertyHandler.COUNT_CPU, "4"));
+        parameters.put(PropertyHandler.CLUSTER_SIZE,
+                new Setting(PropertyHandler.CLUSTER_SIZE, "2"));
         parameters.put(PropertyHandler.MASTER_TEMPLATE_ID,
-                masterImage.getDiskImageId());
+                new Setting(PropertyHandler.MASTER_TEMPLATE_ID,
+                        masterImage.getDiskImageId()));
         parameters.put(PropertyHandler.SLAVE_TEMPLATE_ID,
-                slaveImage.getDiskImageId());
-
+                new Setting(PropertyHandler.SLAVE_TEMPLATE_ID,
+                        slaveImage.getDiskImageId()));
         // when
         vSystemProcessor.validateParameters(paramHandler);
     }
@@ -513,8 +546,8 @@ public class VSystemProcessorBeanTest {
     public void manageModificationProcess_VSYSTEM_CREATING() throws Exception {
         // given
         paramHandler.getIaasContext().setVSystemStatus(NORMAL);
-        doReturn(Boolean.TRUE).when(vSystemProcessor.vsysComm).startAllEFMs(
-                paramHandler);
+        doReturn(Boolean.TRUE).when(vSystemProcessor.vsysComm)
+                .startAllEFMs(paramHandler);
         // when
         FlowState newState = vSystemProcessor.manageModificationProcess(
                 CONTROLLER_ID, INSTANCE_ID, paramHandler,
@@ -543,8 +576,8 @@ public class VSystemProcessorBeanTest {
         doReturn(Boolean.TRUE).when(vSystemProcessor.vsysComm)
                 .getCombinedVServerState(paramHandler, VServerStatus.RUNNING);
         doReturn(Boolean.FALSE).when(vSystemProcessor).checkNextStatus(
-                CONTROLLER_ID, INSTANCE_ID,
-                FlowState.VSYSTEM_SCALING_COMPLETED, paramHandler);
+                CONTROLLER_ID, INSTANCE_ID, FlowState.VSYSTEM_SCALING_COMPLETED,
+                paramHandler);
 
         // when
         FlowState newState = vSystemProcessor.manageModificationProcess(
@@ -575,8 +608,8 @@ public class VSystemProcessorBeanTest {
             throws Exception {
         // given
         doReturn(Boolean.FALSE).when(vSystemProcessor).checkNextStatus(
-                CONTROLLER_ID, INSTANCE_ID,
-                FlowState.VSYSTEM_SCALING_COMPLETED, paramHandler);
+                CONTROLLER_ID, INSTANCE_ID, FlowState.VSYSTEM_SCALING_COMPLETED,
+                paramHandler);
 
         // when
         FlowState newState = vSystemProcessor.manageModificationProcess(
@@ -603,7 +636,8 @@ public class VSystemProcessorBeanTest {
     public void manageModificationProcess_VSYSTEM_RETRIEVEGUEST_MailNotNull()
             throws Exception {
         // given
-        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, "test@email.com");
+        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, new Setting(
+                PropertyHandler.MAIL_FOR_COMPLETION, "test@email.com"));
 
         // when
         FlowState newState = vSystemProcessor.manageModificationProcess(
@@ -737,7 +771,8 @@ public class VSystemProcessorBeanTest {
     public void manageDeletionProcess_VSYSTEM_DELETING_MailNotNull()
             throws Exception {
         // given
-        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, "test@email.com");
+        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, new Setting(
+                PropertyHandler.MAIL_FOR_COMPLETION, "test@email.com"));
         paramHandler.setOperation(Operation.VSYSTEM_DELETION);
         doReturn(Boolean.TRUE).when(vSystemProcessor).checkNextStatus(
                 CONTROLLER_ID, INSTANCE_ID, FlowState.VSYSTEM_DELETING,
@@ -823,8 +858,8 @@ public class VSystemProcessorBeanTest {
     public void manageOperations_VSYSTEM_START_REQUESTED() throws Exception {
         // given
         paramHandler.getIaasContext().setVSystemStatus(NORMAL);
-        doReturn(Boolean.TRUE).when(vSystemProcessor.vsysComm).startAllEFMs(
-                paramHandler);
+        doReturn(Boolean.TRUE).when(vSystemProcessor.vsysComm)
+                .startAllEFMs(paramHandler);
 
         // when
         FlowState newState = vSystemProcessor.manageOperations(CONTROLLER_ID,
@@ -1022,8 +1057,8 @@ public class VSystemProcessorBeanTest {
 
         // then
         assertEquals(FlowState.FINISHED, newState);
-        List<Object> serversToBeStarted = Arrays.asList(paramHandler
-                .getVserversToBeStarted().toArray());
+        List<Object> serversToBeStarted = Arrays
+                .asList(paramHandler.getVserversToBeStarted().toArray());
         assertTrue(serversToBeStarted.isEmpty());
     }
 
@@ -1081,8 +1116,8 @@ public class VSystemProcessorBeanTest {
 
         // then
         assertEquals(FlowState.VSERVERS_STOPPING, newState);
-        List<Object> serversToBeStarted = Arrays.asList(paramHandler
-                .getVserversToBeStarted().toArray());
+        List<Object> serversToBeStarted = Arrays
+                .asList(paramHandler.getVserversToBeStarted().toArray());
         assertTrue(serversToBeStarted.size() == 3);
         assertTrue(serversToBeStarted.containsAll(stoppedServers));
     }
@@ -1211,8 +1246,8 @@ public class VSystemProcessorBeanTest {
     public void dispatch_VSysStatusNormal() throws Exception {
         // given
         paramHandler.setVsysId(VSYS_ID);
-        doReturn(NORMAL).when(vSystemProcessor.vsysComm).getVSystemState(
-                paramHandler);
+        doReturn(NORMAL).when(vSystemProcessor.vsysComm)
+                .getVSystemState(paramHandler);
 
         // when
         vSystemProcessor.dispatch(CONTROLLER_ID, INSTANCE_ID, paramHandler);
@@ -1225,8 +1260,8 @@ public class VSystemProcessorBeanTest {
     public void dispatch_VSysStatusError() throws Exception {
         // given
         paramHandler.setVsysId(VSYS_ID);
-        doReturn(ERROR).when(vSystemProcessor.vsysComm).getVSystemState(
-                paramHandler);
+        doReturn(ERROR).when(vSystemProcessor.vsysComm)
+                .getVSystemState(paramHandler);
 
         // when
         vSystemProcessor.dispatch(CONTROLLER_ID, INSTANCE_ID, paramHandler);
@@ -1280,8 +1315,8 @@ public class VSystemProcessorBeanTest {
         // given
         paramHandler.setOperation(Operation.VSYSTEM_OPERATION);
         paramHandler.setState(FlowState.VSYSTEM_START_REQUESTED);
-        doReturn(Boolean.TRUE).when(vSystemProcessor.vsysComm).startAllEFMs(
-                paramHandler);
+        doReturn(Boolean.TRUE).when(vSystemProcessor.vsysComm)
+                .startAllEFMs(paramHandler);
 
         // when
         vSystemProcessor.dispatch(CONTROLLER_ID, INSTANCE_ID, paramHandler);
@@ -1315,7 +1350,8 @@ public class VSystemProcessorBeanTest {
     }
 
     @Test
-    public void determineScalingAndSizing_VSYSTEM_SCALE_DOWN() throws Exception {
+    public void determineScalingAndSizing_VSYSTEM_SCALE_DOWN()
+            throws Exception {
         // given
         doReturn(Boolean.TRUE).when(paramHandler).isClusterDefined();
         prepareSlaveClusterSizeAndServerIds(ONE, TWO);
@@ -1334,8 +1370,8 @@ public class VSystemProcessorBeanTest {
         // given
         doReturn(Boolean.TRUE).when(paramHandler).isClusterDefined();
         prepareSlaveClusterSizeAndServerIds(TWO, TWO);
-        doReturn("serverId").when(vSystemProcessor).isResizingRequired(
-                paramHandler);
+        doReturn("serverId").when(vSystemProcessor)
+                .isResizingRequired(paramHandler);
 
         // when
         FlowState newState = vSystemProcessor
@@ -1389,7 +1425,8 @@ public class VSystemProcessorBeanTest {
     }
 
     @Test
-    public void isResizingRequired_ExistingCPUEqualsCountCPU() throws Exception {
+    public void isResizingRequired_ExistingCPUEqualsCountCPU()
+            throws Exception {
         // given
         paramHandler.setCountCPU(Integer.toString(ONE));
         VServerConfiguration server = givenVServerConfiguration(
@@ -1440,7 +1477,8 @@ public class VSystemProcessorBeanTest {
     public void isResizingRequired_MasterTemplateId() throws Exception {
         // given
         paramHandler.setCountCPU(Integer.toString(ONE));
-        parameters.put(PropertyHandler.MASTER_TEMPLATE_ID, DISK_IMAGE_ID);
+        parameters.put(PropertyHandler.MASTER_TEMPLATE_ID,
+                new Setting(PropertyHandler.MASTER_TEMPLATE_ID, DISK_IMAGE_ID));
         VServerConfiguration server = givenVServerConfiguration(
                 Integer.toString(TWO), DISK_IMAGE_ID);
         VSystemConfiguration configuration = givenVSystemConfiguration(server);
@@ -1451,18 +1489,20 @@ public class VSystemProcessorBeanTest {
 
         // then
         assertEquals(SERVER_ID, result);
-        assertEquals(FlowState.VSYSTEM_RESIZE_VSERVERS, paramHandler.getState());
-        assertEquals(FlowState.VSERVER_MODIFICATION_REQUESTED, paramHandler
-                .getTemporaryVserver(server).getState());
-        assertEquals(Operation.VSERVER_MODIFICATION, paramHandler
-                .getTemporaryVserver(server).getOperation());
+        assertEquals(FlowState.VSYSTEM_RESIZE_VSERVERS,
+                paramHandler.getState());
+        assertEquals(FlowState.VSERVER_MODIFICATION_REQUESTED,
+                paramHandler.getTemporaryVserver(server).getState());
+        assertEquals(Operation.VSERVER_MODIFICATION,
+                paramHandler.getTemporaryVserver(server).getOperation());
     }
 
     @Test
     public void isResizingRequired_SlaveTemplateId() throws Exception {
         // given
         paramHandler.setCountCPU(Integer.toString(ONE));
-        parameters.put(PropertyHandler.SLAVE_TEMPLATE_ID, DISK_IMAGE_ID);
+        parameters.put(PropertyHandler.SLAVE_TEMPLATE_ID,
+                new Setting(PropertyHandler.SLAVE_TEMPLATE_ID, DISK_IMAGE_ID));
         VServerConfiguration server = givenVServerConfiguration(
                 Integer.toString(TWO), DISK_IMAGE_ID);
         VSystemConfiguration configuration = givenVSystemConfiguration(server);
@@ -1473,17 +1513,19 @@ public class VSystemProcessorBeanTest {
 
         // then
         assertEquals(SERVER_ID, result);
-        assertEquals(FlowState.VSYSTEM_RESIZE_VSERVERS, paramHandler.getState());
-        assertEquals(FlowState.VSERVER_MODIFICATION_REQUESTED, paramHandler
-                .getTemporaryVserver(server).getState());
-        assertEquals(Operation.VSERVER_MODIFICATION, paramHandler
-                .getTemporaryVserver(server).getOperation());
+        assertEquals(FlowState.VSYSTEM_RESIZE_VSERVERS,
+                paramHandler.getState());
+        assertEquals(FlowState.VSERVER_MODIFICATION_REQUESTED,
+                paramHandler.getTemporaryVserver(server).getState());
+        assertEquals(Operation.VSERVER_MODIFICATION,
+                paramHandler.getTemporaryVserver(server).getOperation());
     }
 
     @Test
     public void getSlaveClusterSize_SlaveTemplateIdNull() throws Exception {
         // given
-        parameters.put(PropertyHandler.CLUSTER_SIZE, Integer.toString(THREE));
+        parameters.put(PropertyHandler.CLUSTER_SIZE, new Setting(
+                PropertyHandler.CLUSTER_SIZE, Integer.toString(THREE)));
 
         // when
         int size = vSystemProcessor.getSlaveClusterSize(paramHandler);
@@ -1495,8 +1537,10 @@ public class VSystemProcessorBeanTest {
     @Test
     public void getSlaveClusterSize_SlaveTemplateIdNotNull() throws Exception {
         // given
-        parameters.put(PropertyHandler.CLUSTER_SIZE, Integer.toString(THREE));
-        parameters.put(PropertyHandler.SLAVE_TEMPLATE_ID, DISK_IMAGE_ID);
+        parameters.put(PropertyHandler.CLUSTER_SIZE, new Setting(
+                PropertyHandler.CLUSTER_SIZE, Integer.toString(THREE)));
+        parameters.put(PropertyHandler.SLAVE_TEMPLATE_ID,
+                new Setting(PropertyHandler.SLAVE_TEMPLATE_ID, DISK_IMAGE_ID));
 
         // when
         int size = vSystemProcessor.getSlaveClusterSize(paramHandler);
@@ -1508,9 +1552,12 @@ public class VSystemProcessorBeanTest {
     @Test
     public void getSlaveClusterSize() throws Exception {
         // given
-        parameters.put(PropertyHandler.CLUSTER_SIZE, Integer.toString(THREE));
-        parameters.put(PropertyHandler.SLAVE_TEMPLATE_ID, DISK_IMAGE_ID);
-        parameters.put(PropertyHandler.MASTER_TEMPLATE_ID, DISK_IMAGE_ID);
+        parameters.put(PropertyHandler.CLUSTER_SIZE, new Setting(
+                PropertyHandler.CLUSTER_SIZE, Integer.toString(THREE)));
+        parameters.put(PropertyHandler.SLAVE_TEMPLATE_ID,
+                new Setting(PropertyHandler.SLAVE_TEMPLATE_ID, DISK_IMAGE_ID));
+        parameters.put(PropertyHandler.MASTER_TEMPLATE_ID,
+                new Setting(PropertyHandler.MASTER_TEMPLATE_ID, DISK_IMAGE_ID));
 
         // when
         int size = vSystemProcessor.getSlaveClusterSize(paramHandler);
@@ -1522,8 +1569,8 @@ public class VSystemProcessorBeanTest {
     @Test(expected = Exception.class)
     public void scaleUp_Exception() throws Exception {
         // given
-        doThrow(new Exception()).when(vSystemProcessor).getSlaveClusterSize(
-                eq(paramHandler));
+        doThrow(new Exception()).when(vSystemProcessor)
+                .getSlaveClusterSize(eq(paramHandler));
 
         // when
         vSystemProcessor.scaleUp(paramHandler, FlowState.VSYSTEM_CREATING,
@@ -1574,7 +1621,8 @@ public class VSystemProcessorBeanTest {
     public void scaleUp() throws Exception {
         // given
         prepareSlaveClusterSizeAndServerIds(THREE, TWO);
-        parameters.put(PropertyHandler.ADMIN_REST_URL, REST_URL);
+        parameters.put(PropertyHandler.ADMIN_REST_URL,
+                new Setting(PropertyHandler.ADMIN_REST_URL, REST_URL));
 
         // when
         FlowState newState = vSystemProcessor.scaleUp(paramHandler,
@@ -1654,7 +1702,8 @@ public class VSystemProcessorBeanTest {
     @Test
     public void validateClusterSize() throws Exception {
         // given
-        VSystemTemplateConfiguration templateConfiguration = mock(VSystemTemplateConfiguration.class);
+        VSystemTemplateConfiguration templateConfiguration = mock(
+                VSystemTemplateConfiguration.class);
         DiskImage masterImage = mock(DiskImage.class);
         doReturn("masterId").when(masterImage).getDiskImageId();
         doReturn("master").when(masterImage).getDiskImageName();
@@ -1667,8 +1716,8 @@ public class VSystemProcessorBeanTest {
         doReturn("4").when(slaveImage).getMaxCpuCount();
         diskImages.put(slaveImage.getDiskImageId(), slaveImage);
 
-        Network network = new Network("network", "networkCategory",
-                "networkId", 4);
+        Network network = new Network("network", "networkCategory", "networkId",
+                4);
         ArrayList<Network> networkList = new ArrayList<>();
         networkList.add(network);
         doReturn(networkList).when(templateConfiguration).getNetworks();
@@ -1688,12 +1737,16 @@ public class VSystemProcessorBeanTest {
         doReturn(vServerList).when(templateConfiguration).getVServers();
 
         paramHandler.setState(FlowState.VSYSTEM_CREATION_REQUESTED);
-        parameters.put(PropertyHandler.COUNT_CPU, "2");
-        parameters.put(PropertyHandler.CLUSTER_SIZE, "2");
+        parameters.put(PropertyHandler.COUNT_CPU,
+                new Setting(PropertyHandler.COUNT_CPU, "2"));
+        parameters.put(PropertyHandler.CLUSTER_SIZE,
+                new Setting(PropertyHandler.CLUSTER_SIZE, "2"));
         parameters.put(PropertyHandler.MASTER_TEMPLATE_ID,
-                masterImage.getDiskImageId());
+                new Setting(PropertyHandler.MASTER_TEMPLATE_ID,
+                        masterImage.getDiskImageId()));
         parameters.put(PropertyHandler.SLAVE_TEMPLATE_ID,
-                slaveImage.getDiskImageId());
+                new Setting(PropertyHandler.SLAVE_TEMPLATE_ID,
+                        slaveImage.getDiskImageId()));
         // when
         vSystemProcessor.validateClusterSize(paramHandler, true, false,
                 templateConfiguration);
@@ -1702,7 +1755,8 @@ public class VSystemProcessorBeanTest {
     @Test(expected = AbortException.class)
     public void validateClusterSize_CreateLimitReached() throws Exception {
         // given
-        VSystemTemplateConfiguration templateConfiguration = mock(VSystemTemplateConfiguration.class);
+        VSystemTemplateConfiguration templateConfiguration = mock(
+                VSystemTemplateConfiguration.class);
         DiskImage masterImage = mock(DiskImage.class);
         doReturn("masterId").when(masterImage).getDiskImageId();
         doReturn("master").when(masterImage).getDiskImageName();
@@ -1715,8 +1769,8 @@ public class VSystemProcessorBeanTest {
         doReturn("4").when(slaveImage).getMaxCpuCount();
         diskImages.put(slaveImage.getDiskImageId(), slaveImage);
 
-        Network network = new Network("network", "networkCategory",
-                "networkId", 1);
+        Network network = new Network("network", "networkCategory", "networkId",
+                1);
         ArrayList<Network> networkList = new ArrayList<>();
         networkList.add(network);
         doReturn(networkList).when(templateConfiguration).getNetworks();
@@ -1735,12 +1789,16 @@ public class VSystemProcessorBeanTest {
         doReturn(vServerList).when(templateConfiguration).getVServers();
 
         paramHandler.setState(FlowState.VSYSTEM_CREATION_REQUESTED);
-        parameters.put(PropertyHandler.COUNT_CPU, "2");
-        parameters.put(PropertyHandler.CLUSTER_SIZE, "2");
+        parameters.put(PropertyHandler.COUNT_CPU,
+                new Setting(PropertyHandler.COUNT_CPU, "2"));
+        parameters.put(PropertyHandler.CLUSTER_SIZE,
+                new Setting(PropertyHandler.CLUSTER_SIZE, "2"));
         parameters.put(PropertyHandler.MASTER_TEMPLATE_ID,
-                masterImage.getDiskImageId());
+                new Setting(PropertyHandler.MASTER_TEMPLATE_ID,
+                        masterImage.getDiskImageId()));
         parameters.put(PropertyHandler.SLAVE_TEMPLATE_ID,
-                slaveImage.getDiskImageId());
+                new Setting(PropertyHandler.SLAVE_TEMPLATE_ID,
+                        slaveImage.getDiskImageId()));
         // when
         vSystemProcessor.validateClusterSize(paramHandler, true, false,
                 templateConfiguration);
@@ -1749,7 +1807,8 @@ public class VSystemProcessorBeanTest {
     @Test(expected = AbortException.class)
     public void validateClusterSize_ModifyLimitReached() throws Exception {
         // given
-        VSystemConfiguration vSystemConfiguration = mock(VSystemConfiguration.class);
+        VSystemConfiguration vSystemConfiguration = mock(
+                VSystemConfiguration.class);
         doReturn(vSystemConfiguration).when(vSystemProcessor)
                 .getVSystemConfiguration(paramHandler);
         DiskImage masterImage = mock(DiskImage.class);
@@ -1764,8 +1823,8 @@ public class VSystemProcessorBeanTest {
         doReturn("4").when(slaveImage).getMaxCpuCount();
         diskImages.put(slaveImage.getDiskImageId(), slaveImage);
 
-        Network network = new Network("network", "networkCategory",
-                "networkId", 1);
+        Network network = new Network("network", "networkCategory", "networkId",
+                1);
         ArrayList<Network> networkList = new ArrayList<>();
         networkList.add(network);
         doReturn(networkList).when(vSystemConfiguration).getNetworks();
@@ -1785,12 +1844,16 @@ public class VSystemProcessorBeanTest {
         doReturn(vServerList).when(vSystemConfiguration).getVServers();
 
         paramHandler.setState(FlowState.VSYSTEM_CREATION_REQUESTED);
-        parameters.put(PropertyHandler.COUNT_CPU, "2");
-        parameters.put(PropertyHandler.CLUSTER_SIZE, "2");
+        parameters.put(PropertyHandler.COUNT_CPU,
+                new Setting(PropertyHandler.COUNT_CPU, "2"));
+        parameters.put(PropertyHandler.CLUSTER_SIZE,
+                new Setting(PropertyHandler.CLUSTER_SIZE, "2"));
         parameters.put(PropertyHandler.MASTER_TEMPLATE_ID,
-                masterImage.getDiskImageId());
+                new Setting(PropertyHandler.MASTER_TEMPLATE_ID,
+                        masterImage.getDiskImageId()));
         parameters.put(PropertyHandler.SLAVE_TEMPLATE_ID,
-                slaveImage.getDiskImageId());
+                new Setting(PropertyHandler.SLAVE_TEMPLATE_ID,
+                        slaveImage.getDiskImageId()));
         // when
         vSystemProcessor.validateClusterSize(paramHandler, false, true, null);
     }
@@ -1855,15 +1918,14 @@ public class VSystemProcessorBeanTest {
         paramHandler.getIaasContext().setVSystemStatus(NORMAL);
         paramHandler.setVserverId(SERVER_ID);
         doReturn(INSTANCE_ID).when(paramHandler).getInstanceName();
-        doReturn(VServerStatus.STOP_ERROR).when(
-                this.vSystemProcessor.vserverComm).getVServerStatus(
-                paramHandler);
-        doThrow(
-                new SuspendException(Messages.getAll(
-                        "error_failed_to_stop_vserver", new Object[] {
-                                SERVER_ID, INSTANCE_ID }))).when(
-                this.vSystemProcessor.vserverComm).getNonErrorVServerStatus(
-                paramHandler);
+        doReturn(VServerStatus.STOP_ERROR)
+                .when(this.vSystemProcessor.vserverComm)
+                .getVServerStatus(paramHandler);
+        doThrow(new SuspendException(
+                Messages.getAll("error_failed_to_stop_vserver",
+                        new Object[] { SERVER_ID, INSTANCE_ID })))
+                                .when(this.vSystemProcessor.vserverComm)
+                                .getNonErrorVServerStatus(paramHandler);
 
         FlowState newflowState = null;
 
@@ -1876,13 +1938,14 @@ public class VSystemProcessorBeanTest {
         }
         // then
         catch (SuspendException se) {
-            assertEquals(Messages.get("en", "error_failed_to_stop_vserver",
-                    new Object[] { SERVER_ID, INSTANCE_ID }),
+            assertEquals(
+                    Messages.get("en", "error_failed_to_stop_vserver",
+                            new Object[] { SERVER_ID, INSTANCE_ID }),
                     se.getLocalizedMessage("en"));
             assertEquals(
                     Messages.getAll("error_failed_to_stop_vserver",
-                            new Object[] { SERVER_ID, INSTANCE_ID }).size(), se
-                            .getLocalizedMessages().size());
+                            new Object[] { SERVER_ID, INSTANCE_ID }).size(),
+                    se.getLocalizedMessages().size());
             throw se;
 
         }
@@ -1895,10 +1958,9 @@ public class VSystemProcessorBeanTest {
         paramHandler.setOperation(Operation.VSYSTEM_DELETION);
         paramHandler.setVsysId("systemId");
 
-        doThrow(
-                new MissingResourceException("test", ResourceType.VSYSTEM,
-                        "systemId")).when(vSystemProcessor).validateParameters(
-                paramHandler);
+        doThrow(new MissingResourceException("test", ResourceType.VSYSTEM,
+                "systemId")).when(vSystemProcessor)
+                        .validateParameters(paramHandler);
 
         // when
         vSystemProcessor.process("controllerId", "instanceId", paramHandler);
@@ -1912,22 +1974,21 @@ public class VSystemProcessorBeanTest {
     public void process_ThrowSuspendException_ResourceTypeFalse()
             throws Exception {
         // given
-        doThrow(
-                new MissingResourceException("test", ResourceType.UNKNOWN,
-                        "systemId")).when(vSystemProcessor).validateParameters(
-                paramHandler);
+        doThrow(new MissingResourceException("test", ResourceType.UNKNOWN,
+                "systemId")).when(vSystemProcessor)
+                        .validateParameters(paramHandler);
 
         // when
         vSystemProcessor.process("controllerId", "instanceId", paramHandler);
     }
 
     @Test(expected = SuspendException.class)
-    public void process_ThrowSuspendException_NoResourceType() throws Exception {
+    public void process_ThrowSuspendException_NoResourceType()
+            throws Exception {
         // given
-        doThrow(
-                new MissingResourceException("test", ResourceType.VSYSTEM,
-                        "systemId")).when(vSystemProcessor).validateParameters(
-                paramHandler);
+        doThrow(new MissingResourceException("test", ResourceType.VSYSTEM,
+                "systemId")).when(vSystemProcessor)
+                        .validateParameters(paramHandler);
 
         // when
         vSystemProcessor.process("controllerId", "instanceId", paramHandler);
@@ -1938,10 +1999,9 @@ public class VSystemProcessorBeanTest {
         // given
         paramHandler.setOperation(Operation.VSYSTEM_DELETION);
         paramHandler.setVsysId(null);
-        doThrow(
-                new MissingResourceException("test", ResourceType.VSYSTEM,
-                        "systemId")).when(vSystemProcessor).validateParameters(
-                paramHandler);
+        doThrow(new MissingResourceException("test", ResourceType.VSYSTEM,
+                "systemId")).when(vSystemProcessor)
+                        .validateParameters(paramHandler);
 
         // when
         vSystemProcessor.process("controllerId", "instanceId", paramHandler);
@@ -1952,10 +2012,9 @@ public class VSystemProcessorBeanTest {
         // given
         paramHandler.setOperation(Operation.VSYSTEM_DELETION);
         paramHandler.setVsysId("serverIdTest");
-        doThrow(
-                new MissingResourceException("test", ResourceType.VSYSTEM,
-                        "systemId")).when(vSystemProcessor).validateParameters(
-                paramHandler);
+        doThrow(new MissingResourceException("test", ResourceType.VSYSTEM,
+                "systemId")).when(vSystemProcessor)
+                        .validateParameters(paramHandler);
 
         // when
         vSystemProcessor.process("controllerId", "instanceId", paramHandler);
@@ -1966,10 +2025,9 @@ public class VSystemProcessorBeanTest {
         // given
         paramHandler.setOperation(Operation.VSYSTEM_OPERATION);
         paramHandler.setVsysId("serverIdTest");
-        doThrow(
-                new MissingResourceException("test", ResourceType.VSYSTEM,
-                        "systemId")).when(vSystemProcessor).validateParameters(
-                paramHandler);
+        doThrow(new MissingResourceException("test", ResourceType.VSYSTEM,
+                "systemId")).when(vSystemProcessor)
+                        .validateParameters(paramHandler);
 
         // when
         vSystemProcessor.process("controllerId", "instanceId", paramHandler);
@@ -1983,19 +2041,18 @@ public class VSystemProcessorBeanTest {
     }
 
     private void prepareServerIds(int slaveServersPresent) throws Exception {
-        List<String> serverIds = new ArrayList<String>();
+        List<String> serverIds = new ArrayList<>();
         for (int i = 0; i < slaveServersPresent; i++) {
             serverIds.add(SERVER_ID);
         }
-        when(
-                vSystemProcessor.vsysComm.getVServersForTemplate(anyString(),
-                        eq(paramHandler))).thenReturn(serverIds);
+        when(vSystemProcessor.vsysComm.getVServersForTemplate(anyString(),
+                eq(paramHandler))).thenReturn(serverIds);
     }
 
     private VSystemConfiguration givenVSystemConfiguration(
             VServerConfiguration server) throws Exception {
         VSystemConfiguration configuration = mock(VSystemConfiguration.class);
-        List<VServerConfiguration> servers = new ArrayList<VServerConfiguration>();
+        List<VServerConfiguration> servers = new ArrayList<>();
         servers.add(server);
         doReturn(servers).when(configuration).getVServers();
         return configuration;

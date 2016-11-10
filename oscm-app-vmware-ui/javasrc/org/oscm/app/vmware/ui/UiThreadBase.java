@@ -15,6 +15,7 @@ import java.util.HashMap;
 
 import org.oscm.app.v1_0.APPlatformServiceFactory;
 import org.oscm.app.v1_0.data.ProvisioningSettings;
+import org.oscm.app.v1_0.data.Setting;
 import org.oscm.app.v1_0.intf.APPlatformService;
 import org.oscm.app.vmware.business.Controller;
 import org.oscm.app.vmware.business.VMPropertyHandler;
@@ -127,11 +128,11 @@ public abstract class UiThreadBase implements Runnable {
      * Get controller configuration from APP.
      */
     private VMPropertyHandler getVMwareAPPSettings() throws Exception {
-        HashMap<String, String> ctrlSettings = platformService
+        HashMap<String, Setting> ctrlSettings = platformService
                 .getControllerSettings(Controller.ID,
                         tpCredentials.toPasswordAuthentication());
         ProvisioningSettings settings = new ProvisioningSettings(
-                new HashMap<String, String>(), ctrlSettings,
+                new HashMap<String, Setting>(), ctrlSettings,
                 Messages.DEFAULT_LOCALE);
         return new VMPropertyHandler(settings);
     }

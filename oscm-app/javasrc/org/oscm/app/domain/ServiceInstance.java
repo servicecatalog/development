@@ -39,6 +39,7 @@ import javax.persistence.Version;
 import org.oscm.app.business.exceptions.BadResultException;
 import org.oscm.app.i18n.Messages;
 import org.oscm.app.v1_0.data.InstanceStatus;
+import org.oscm.app.v1_0.data.Setting;
 import org.oscm.string.Strings;
 
 /**
@@ -418,10 +419,13 @@ public class ServiceInstance implements Serializable {
      * @return map from parameter keys to their corresponding values.
      * @throws BadResultException
      */
-    public HashMap<String, String> getParameterMap() throws BadResultException {
-        final HashMap<String, String> map = new HashMap<>();
+    public HashMap<String, Setting> getParameterMap()
+            throws BadResultException {
+        final HashMap<String, Setting> map = new HashMap<>();
         for (InstanceParameter param : instanceParameters) {
-            map.put(param.getParameterKey(), param.getDecryptedValue());
+            map.put(param.getParameterKey(),
+                    new Setting(param.getParameterKey(),
+                            param.getDecryptedValue(), param.isEncrypted()));
         }
         return map;
     }
@@ -434,23 +438,25 @@ public class ServiceInstance implements Serializable {
      * 
      * @throws BadResultException
      */
-    public void setInstanceParameters(HashMap<String, String> parameters)
+    public void setInstanceParameters(HashMap<String, Setting> parameters)
             throws BadResultException {
         if (parameters != null) {
             List<InstanceParameter> instanceParamList = new ArrayList<>();
             for (String key : parameters.keySet()) {
                 if (key != null) {
                     InstanceParameter ip = getParameterForKey(key);
-                    String value = parameters.get(key);
+                    Setting param = parameters.get(key);
                     if (ip != null) { // Existing parameter
-                        if (!ip.getDecryptedValue().equals(value)) {
+                        if (!ip.getDecryptedValue().equals(param.getValue())) {
                             // Changed => Update
-                            ip.setDecryptedValue(value);
+                            ip.setEncrypted(param.isEncrypted());
+                            ip.setDecryptedValue(param.getValue());
                         }
                     } else { // Added parameter
                         ip = new InstanceParameter();
                         ip.setParameterKey(key);
-                        ip.setDecryptedValue(value);
+                        ip.setEncrypted(param.isEncrypted());
+                        ip.setDecryptedValue(param.getValue());
                         ip.setServiceInstance(this);
                     }
                     instanceParamList.add(ip);
@@ -483,10 +489,14 @@ public class ServiceInstance implements Serializable {
      * @return map from attribute keys to their corresponding values.
      * @throws BadResultException
      */
-    public HashMap<String, String> getAttributeMap() throws BadResultException {
-        final HashMap<String, String> map = new HashMap<>();
+    public HashMap<String, Setting> getAttributeMap()
+            throws BadResultException {
+        final HashMap<String, Setting> map = new HashMap<>();
         for (InstanceAttribute attr : instanceAttributes) {
-            map.put(attr.getAttributeKey(), attr.getDecryptedValue());
+            map.put(attr.getAttributeKey(),
+                    new Setting(attr.getAttributeKey(),
+                            attr.getDecryptedValue(), attr.isEncrypted(),
+                            attr.getControllerId()));
         }
         return map;
     }
@@ -499,23 +509,25 @@ public class ServiceInstance implements Serializable {
      * 
      * @throws BadResultException
      */
-    public void setInstanceAttributes(HashMap<String, String> attributes)
+    public void setInstanceAttributes(HashMap<String, Setting> attributes)
             throws BadResultException {
         if (attributes != null) {
             List<InstanceAttribute> instanceAttrList = new ArrayList<>();
             for (String key : attributes.keySet()) {
                 if (key != null) {
                     InstanceAttribute ia = getAttributeForKey(key);
-                    String value = attributes.get(key);
+                    Setting attr = attributes.get(key);
                     if (ia != null) { // Existing parameter
-                        if (!ia.getDecryptedValue().equals(value)) {
+                        if (!ia.getDecryptedValue().equals(attr.getValue())) {
                             // Changed => Update
-                            ia.setDecryptedValue(value);
+                            ia.setEncrypted(attr.isEncrypted());
+                            ia.setDecryptedValue(attr.getValue());
                         }
                     } else { // Added parameter
                         ia = new InstanceAttribute();
                         ia.setAttributeKey(key);
-                        ia.setDecryptedValue(value);
+                        ia.setEncrypted(attr.isEncrypted());
+                        ia.setDecryptedValue(attr.getValue());
                         ia.setServiceInstance(this);
                     }
                     instanceAttrList.add(ia);
@@ -530,7 +542,7 @@ public class ServiceInstance implements Serializable {
         this.instanceAttributes = instanceAttributes;
     }
 
-    public void removeParams(HashMap<String, String> parameters,
+    public void removeParams(HashMap<String, Setting> parameters,
             EntityManager em) {
 
         List<InstanceParameter> paramsToRemove = new ArrayList<>();
@@ -656,11 +668,11 @@ public class ServiceInstance implements Serializable {
             Properties rollbackInstanceParameters, EntityManager em)
             throws BadResultException {
 
-        HashMap<String, String> rollbackParams = new HashMap<>();
+        HashMap<String, Setting> rollbackParams = new HashMap<>();
 
         for (String name : rollbackInstanceParameters.stringPropertyNames()) {
-            rollbackParams.put(name,
-                    rollbackInstanceParameters.getProperty(name));
+            rollbackParams.put(name, new Setting(name,
+                    rollbackInstanceParameters.getProperty(name)));
         }
         this.removeParams(rollbackParams, em);
         this.setInstanceParameters(rollbackParams);

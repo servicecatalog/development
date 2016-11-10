@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.oscm.app.v1_0.data.ProvisioningSettings;
+import org.oscm.app.v1_0.data.Setting;
 import org.oscm.app.vmware.LoggerMocking;
 import org.oscm.app.vmware.business.VMPropertyHandler;
 import org.oscm.app.vmware.business.VMwareDatacenterInventory;
@@ -40,15 +41,15 @@ import org.slf4j.impl.SimpleLogger;
 public class EquipartitionHostBalancerTest {
 
     private VMPropertyHandler properties;
-    private HashMap<String, String> parameters;
-    private HashMap<String, String> configSettings;
+    private HashMap<String, Setting> parameters;
+    private HashMap<String, Setting> configSettings;
     private ProvisioningSettings settings;
     private SimpleLogger mogger;
 
     @Before
     public void setup() throws Exception {
-        parameters = new HashMap<String, String>();
-        configSettings = new HashMap<String, String>();
+        parameters = new HashMap<>();
+        configSettings = new HashMap<>();
         settings = new ProvisioningSettings(parameters, configSettings,
                 Messages.DEFAULT_LOCALE);
         properties = new VMPropertyHandler(settings);
@@ -446,11 +447,12 @@ public class EquipartitionHostBalancerTest {
      * @param cpu
      */
     private void setCreateParameters(int mem, int cpu) {
-        parameters.put(VMPropertyHandler.TS_NUMBER_OF_CPU,
-                Integer.toString(cpu));
-        parameters.put(VMPropertyHandler.TS_AMOUNT_OF_RAM,
-                Integer.toString(mem));
-        parameters.put(VMPropertyHandler.TS_DISK_SIZE, Integer.toString(20));
+        parameters.put(VMPropertyHandler.TS_NUMBER_OF_CPU, new Setting(
+                VMPropertyHandler.TS_NUMBER_OF_CPU, Integer.toString(cpu)));
+        parameters.put(VMPropertyHandler.TS_AMOUNT_OF_RAM, new Setting(
+                VMPropertyHandler.TS_AMOUNT_OF_RAM, Integer.toString(mem)));
+        parameters.put(VMPropertyHandler.TS_DISK_SIZE, new Setting(
+                VMPropertyHandler.TS_DISK_SIZE, Integer.toString(20)));
     }
 
     private VMwareHost createHost(VMwareDatacenterInventory inventory,

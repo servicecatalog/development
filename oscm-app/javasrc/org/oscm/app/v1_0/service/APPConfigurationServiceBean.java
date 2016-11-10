@@ -35,6 +35,7 @@ import org.oscm.app.v1_0.data.ControllerConfigurationKey;
 import org.oscm.app.v1_0.data.PasswordAuthentication;
 import org.oscm.app.v1_0.data.ProvisioningSettings;
 import org.oscm.app.v1_0.data.ServiceUser;
+import org.oscm.app.v1_0.data.Setting;
 import org.oscm.app.v1_0.exceptions.ConfigurationException;
 import org.oscm.string.Strings;
 import org.oscm.vo.VOUserDetails;
@@ -203,15 +204,16 @@ public class APPConfigurationServiceBean {
     }
 
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
-    public HashMap<String, String> getAllProxyConfigurationSettings()
+    public HashMap<String, Setting> getAllProxyConfigurationSettings()
             throws ConfigurationException {
         LOGGER.debug("Retrieving all configuration settings for proxy");
-        HashMap<String, String> result = new HashMap<>();
+        HashMap<String, Setting> result = new HashMap<>();
         Query query = em.createNamedQuery("ConfigurationSetting.getAllProxy");
         List<?> resultList = query.getResultList();
         for (Object entry : resultList) {
             ConfigurationSetting currentCs = (ConfigurationSetting) entry;
-            result.put(currentCs.getSettingKey(), handleDecryption(currentCs));
+            result.put(currentCs.getSettingKey(), new Setting(
+                    currentCs.getSettingKey(), handleDecryption(currentCs)));
         }
         PlatformConfigurationKey[] keys = PlatformConfigurationKey.values();
         StringBuffer missing = new StringBuffer();
@@ -245,12 +247,12 @@ public class APPConfigurationServiceBean {
     }
 
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
-    public HashMap<String, String> getControllerConfigurationSettings(
+    public HashMap<String, Setting> getControllerConfigurationSettings(
             String controllerId) throws ConfigurationException {
 
         LOGGER.debug("Retrieving configuration settings for controller '{}'",
                 controllerId);
-        HashMap<String, String> result = new HashMap<>();
+        HashMap<String, Setting> result = new HashMap<>();
         if (controllerId != null) {
             Query query = em
                     .createNamedQuery("ConfigurationSetting.getForController");
@@ -259,7 +261,8 @@ public class APPConfigurationServiceBean {
             for (Object entry : resultList) {
                 ConfigurationSetting currentCs = (ConfigurationSetting) entry;
                 result.put(currentCs.getSettingKey(),
-                        handleDecryption(currentCs));
+                        new Setting(currentCs.getSettingKey(),
+                                handleDecryption(currentCs)));
             }
         }
         ControllerConfigurationKey[] keys = ControllerConfigurationKey.values();
@@ -282,23 +285,25 @@ public class APPConfigurationServiceBean {
     }
 
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
-    public HashMap<String, String> getCustomAttributes(String organizationId)
+    public HashMap<String, Setting> getCustomAttributes(String organizationId)
             throws ConfigurationException {
 
         LOGGER.debug("Retrieving custom settings for organization '{}'",
                 organizationId);
 
-        HashMap<String, String> result = new HashMap<>();
+        HashMap<String, Setting> result = new HashMap<>();
 
         if (organizationId != null) {
             TypedQuery<CustomAttribute> query = em.createNamedQuery(
-                    "CustomAttribute.getForOrg", CustomAttribute.class);
-            query.setParameter("organizationId", organizationId);
+                    "CustomAttribute.getForOrgAndController",
+                    CustomAttribute.class);
+            query.setParameter("oid", organizationId);
             List<CustomAttribute> resultList = query.getResultList();
             try {
                 for (CustomAttribute entry : resultList) {
-                    result.put(entry.getAttributeKey(),
-                            entry.getDecryptedValue());
+                    result.put(entry.getAttributeKey(), new Setting(
+                            entry.getAttributeKey(), entry.getDecryptedValue(),
+                            entry.isEncrypted(), entry.getControllerId()));
                 }
             } catch (BadResultException e) {
                 throw new ConfigurationException(e.getMessage());
@@ -311,8 +316,8 @@ public class APPConfigurationServiceBean {
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     public void setAPPSuspend(String isSupsend) {
         LOGGER.debug("Storing suspend setting for APP");
-        HashMap<String, String> setting = new HashMap<>();
-        setting.put(APP_SUSPEND, isSupsend);
+        HashMap<String, Setting> setting = new HashMap<>();
+        setting.put(APP_SUSPEND, new Setting(APP_SUSPEND, isSupsend));
         try {
             storeControllerConfigurationSettings(PROXY_ID, setting);
         } catch (ConfigurationException exception) {
@@ -338,7 +343,7 @@ public class APPConfigurationServiceBean {
 
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void storeControllerConfigurationSettings(String controllerId,
-            HashMap<String, String> settings) throws ConfigurationException {
+            HashMap<String, Setting> settings) throws ConfigurationException {
 
         LOGGER.debug("Storing configuration settings for controller '{}'",
                 controllerId);
@@ -356,7 +361,7 @@ public class APPConfigurationServiceBean {
                 if (settings.get(key) == null) {
                     em.remove(setting);
                 } else {
-                    setting.setSettingValue(settings.get(key));
+                    setting.setSettingValue(settings.get(key).getValue());
                     handleEncryption(setting);
                     em.persist(setting);
                 }
@@ -367,7 +372,8 @@ public class APPConfigurationServiceBean {
             ConfigurationSetting newSetting = new ConfigurationSetting();
             newSetting.setControllerId(controllerId);
             newSetting.setSettingKey(newKey);
-            newSetting.setSettingValue(settings.get(newKey));
+            newSetting.setSettingValue(settings.get(newKey) != null
+                    ? settings.get(newKey).getValue() : null);
             handleEncryption(newSetting);
             em.persist(newSetting);
         }
@@ -379,9 +385,9 @@ public class APPConfigurationServiceBean {
     public ProvisioningSettings getProvisioningSettings(
             final ServiceInstance instance, final ServiceUser requestingUser)
             throws BadResultException, ConfigurationException {
-        final HashMap<String, String> controllerSettings = getControllerConfigurationSettings(
+        final HashMap<String, Setting> controllerSettings = getControllerConfigurationSettings(
                 instance.getControllerId());
-        final HashMap<String, String> customAttributes = getCustomAttributes(
+        final HashMap<String, Setting> customAttributes = getCustomAttributes(
                 instance.getOrganizationId());
         final ProvisioningSettings settings = new ProvisioningSettings(
                 instance.getParameterMap(), instance.getAttributeMap(),
@@ -413,12 +419,13 @@ public class APPConfigurationServiceBean {
      */
     public void copyCredentialsFromControllerSettings(
             ProvisioningSettings settings,
-            HashMap<String, String> controllerSettings) {
-        String userKey = controllerSettings
+            HashMap<String, Setting> controllerSettings) {
+        Setting userKey = controllerSettings
                 .get(ControllerConfigurationKey.BSS_USER_KEY.name());
-        String userPwd = controllerSettings
+        Setting userPwd = controllerSettings
                 .get(ControllerConfigurationKey.BSS_USER_PWD.name());
-        if (!Strings.isEmpty(userKey) && !Strings.isEmpty(userPwd)) {
+        if (userKey != null && !Strings.isEmpty(userKey.getValue())
+                && userPwd != null && !Strings.isEmpty(userPwd.getValue())) {
             // override technology manager user credentials in parameters
             // (for backwards compatibility)
             settings.getParameters().put(InstanceParameter.BSS_USER, userKey);
@@ -428,7 +435,7 @@ public class APPConfigurationServiceBean {
     }
 
     public PasswordAuthentication getWebServiceAuthentication(
-            ServiceInstance serviceInstance, Map<String, String> proxySettings)
+            ServiceInstance serviceInstance, Map<String, Setting> proxySettings)
             throws ConfigurationException {
         if (serviceInstance != null) {
             return getAuthenticationForBESTechnologyManager(null,
@@ -439,7 +446,7 @@ public class APPConfigurationServiceBean {
 
     public PasswordAuthentication getAuthenticationForBESTechnologyManager(
             String controllerId, ServiceInstance serviceInstance,
-            Map<String, String> proxySettings) throws ConfigurationException {
+            Map<String, Setting> proxySettings) throws ConfigurationException {
         if (proxySettings == null) {
             proxySettings = getAllProxyConfigurationSettings();
         }
@@ -447,17 +454,18 @@ public class APPConfigurationServiceBean {
         if (serviceInstance != null) {
             controllerId = serviceInstance.getControllerId();
         }
-        HashMap<String, String> controllerSettings = getControllerConfigurationSettings(
+        HashMap<String, Setting> controllerSettings = getControllerConfigurationSettings(
                 controllerId);
 
         String usernameKey = isSso
                 ? ControllerConfigurationKey.BSS_USER_ID.name()
                 : ControllerConfigurationKey.BSS_USER_KEY.name();
-        String user = controllerSettings.get(usernameKey);
-        String userPwd = controllerSettings
+        Setting user = controllerSettings.get(usernameKey);
+        Setting userPwd = controllerSettings
                 .get(ControllerConfigurationKey.BSS_USER_PWD.name());
 
-        if (!Strings.isEmpty(user) ^ !Strings.isEmpty(userPwd)) {
+        if (user == null || Strings.isEmpty(user.getValue()) || userPwd == null
+                || Strings.isEmpty(userPwd.getValue())) {
             LOGGER.warn(
                     "The controller settings for controller '{}' define incomplete technology manager credentials. Please define values for both {} and {}.",
                     new String[] { controllerId, usernameKey,
@@ -466,9 +474,10 @@ public class APPConfigurationServiceBean {
         String ws_username = null;
         String ws_password = null;
 
-        if (!Strings.isEmpty(user) && !Strings.isEmpty(userPwd)) {
-            ws_username = user;
-            ws_password = userPwd;
+        if (user != null && !Strings.isEmpty(user.getValue()) && userPwd != null
+                && !Strings.isEmpty(userPwd.getValue())) {
+            ws_username = user.getValue();
+            ws_password = userPwd.getValue();
         } else {
             if (serviceInstance != null) {
                 InstanceParameter userParam = serviceInstance
@@ -504,16 +513,21 @@ public class APPConfigurationServiceBean {
     }
 
     public PasswordAuthentication getAuthenticationForAPPAdmin(
-            Map<String, String> proxySettings) throws ConfigurationException {
+            Map<String, Setting> proxySettings) throws ConfigurationException {
         if (proxySettings == null) {
             proxySettings = getAllProxyConfigurationSettings();
         }
         boolean isSso = isSsoMode(proxySettings);
         String usernameKey = isSso ? PlatformConfigurationKey.BSS_USER_ID.name()
                 : PlatformConfigurationKey.BSS_USER_KEY.name();
-        String ws_username = proxySettings.get(usernameKey);
+        String ws_username = proxySettings.get(usernameKey) != null
+                ? proxySettings.get(usernameKey).getValue() : null;
         String ws_password = proxySettings
-                .get(PlatformConfigurationKey.BSS_USER_PWD.name());
+                .get(PlatformConfigurationKey.BSS_USER_PWD.name()) != null
+                        ? proxySettings.get(
+                                PlatformConfigurationKey.BSS_USER_PWD.name())
+                                .getValue()
+                        : null;
         if (Strings.isEmpty(ws_username) || ws_password == null) {
             LOGGER.error(
                     "Request context for web service call is incomplete due to missing credentials. Please check platform settings.");
@@ -526,9 +540,9 @@ public class APPConfigurationServiceBean {
         return new PasswordAuthentication(ws_username, ws_password);
     }
 
-    private boolean isSsoMode(Map<String, String> settings) {
-        return "SAML_SP".equals(
-                settings.get(PlatformConfigurationKey.BSS_AUTH_MODE.name()));
+    private boolean isSsoMode(Map<String, Setting> settings) {
+        return "SAML_SP".equals(settings
+                .get(PlatformConfigurationKey.BSS_AUTH_MODE.name()).getValue());
     }
 
 }

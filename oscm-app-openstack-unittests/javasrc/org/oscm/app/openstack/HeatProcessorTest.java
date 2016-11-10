@@ -26,6 +26,7 @@ import org.oscm.app.openstack.controller.StackStatus;
 import org.oscm.app.openstack.data.Stack;
 import org.oscm.app.openstack.exceptions.HeatException;
 import org.oscm.app.v1_0.data.ProvisioningSettings;
+import org.oscm.app.v1_0.data.Setting;
 import org.oscm.app.v1_0.exceptions.AbortException;
 import org.oscm.app.v1_0.exceptions.InstanceNotAliveException;
 
@@ -35,8 +36,8 @@ import org.oscm.app.v1_0.exceptions.InstanceNotAliveException;
  */
 public class HeatProcessorTest {
 
-    private final HashMap<String, String> parameters = new HashMap<String, String>();
-    private final HashMap<String, String> configSettings = new HashMap<String, String>();
+    private final HashMap<String, Setting> parameters = new HashMap<>();
+    private final HashMap<String, Setting> configSettings = new HashMap<>();
     private final ProvisioningSettings settings = new ProvisioningSettings(
             parameters, configSettings, "en");
     private final PropertyHandler paramHandler = new PropertyHandler(settings);
@@ -99,7 +100,8 @@ public class HeatProcessorTest {
         final String instanceName = "Instance4";
         createBasicParameters(instanceName, "fosi_v2.json", "https");
         configSettings.put(PropertyHandler.TEMPLATE_BASE_URL,
-                "estfarmaki2:8880/templates/");
+                new Setting(PropertyHandler.TEMPLATE_BASE_URL,
+                        "estfarmaki2:8880/templates/"));
         // when
         new HeatProcessor().createStack(paramHandler);
     }
@@ -110,7 +112,8 @@ public class HeatProcessorTest {
         final String instanceName = "Instance4";
         createBasicParameters(instanceName, "fosi_v2.json", "https");
         configSettings.put(PropertyHandler.TEMPLATE_BASE_URL,
-                "https://objectstorage/v1/templates/");
+                new Setting(PropertyHandler.TEMPLATE_BASE_URL,
+                        "https://objectstorage/v1/templates/"));
 
         // when
         new HeatProcessor().createStack(paramHandler);
@@ -232,12 +235,10 @@ public class HeatProcessorTest {
                 new MockHttpURLConnection(200,
                         MockURLStreamHandler.respStacksInstanceName(
                                 StackStatus.SUSPEND_COMPLETE, false)));
-        streamHandler
-                .put("/stacks/" + instanceName + "/resources",
-                        new MockHttpURLConnection(200,
-                                MockURLStreamHandler.respStacksResources(
-                                        serverNames, InstanceType.NOVA
-                                                .getString())));
+        streamHandler.put("/stacks/" + instanceName + "/resources",
+                new MockHttpURLConnection(200,
+                        MockURLStreamHandler.respStacksResources(serverNames,
+                                InstanceType.NOVA.getString())));
 
         // when
         boolean result = new HeatProcessor().resumeStack(paramHandler);
@@ -258,12 +259,10 @@ public class HeatProcessorTest {
                 new MockHttpURLConnection(200,
                         MockURLStreamHandler.respStacksInstanceName(
                                 StackStatus.SUSPEND_COMPLETE, false)));
-        streamHandler
-                .put("/stacks/" + instanceName + "/resources",
-                        new MockHttpURLConnection(200,
-                                MockURLStreamHandler.respStacksResources(
-                                        serverNames, InstanceType.TROVE
-                                                .getString())));
+        streamHandler.put("/stacks/" + instanceName + "/resources",
+                new MockHttpURLConnection(200,
+                        MockURLStreamHandler.respStacksResources(serverNames,
+                                InstanceType.TROVE.getString())));
 
         // when
         boolean result = new HeatProcessor().resumeStack(paramHandler);
@@ -298,13 +297,11 @@ public class HeatProcessorTest {
         // given
         final String instanceName = "Instance4";
         createBasicParameters(instanceName, "fosi_v2.json", "http");
-        List<String> serverNames = new LinkedList<String>();
-        streamHandler
-                .put("/stacks/" + instanceName + "/resources",
-                        new MockHttpURLConnection(200,
-                                MockURLStreamHandler.respStacksResources(
-                                        serverNames,
-                                        InstanceType.EC2.getString())));
+        List<String> serverNames = new LinkedList<>();
+        streamHandler.put("/stacks/" + instanceName + "/resources",
+                new MockHttpURLConnection(200,
+                        MockURLStreamHandler.respStacksResources(serverNames,
+                                InstanceType.EC2.getString())));
         // when
         new HeatProcessor().resumeStack(paramHandler);
     }
@@ -376,14 +373,12 @@ public class HeatProcessorTest {
             throws Exception {
         // given
         final String instanceName = "Instance4";
-        final List<String> serverNames = new ArrayList<String>();
+        final List<String> serverNames = new ArrayList<>();
         createBasicParameters(instanceName, "fosi_v2.json", "http");
-        streamHandler
-                .put("/stacks/Instance4/resources",
-                        new MockHttpURLConnection(200,
-                                MockURLStreamHandler.respStacksResources(
-                                        serverNames,
-                                        InstanceType.EC2.getString())));
+        streamHandler.put("/stacks/Instance4/resources",
+                new MockHttpURLConnection(200,
+                        MockURLStreamHandler.respStacksResources(serverNames,
+                                InstanceType.EC2.getString())));
         // when
         new HeatProcessor().suspendStack(paramHandler);
     }
@@ -430,12 +425,10 @@ public class HeatProcessorTest {
         final String instanceName = "Instance4";
         final List<String> serverNames = Arrays.asList("serv");
         createBasicParameters(instanceName, "fosi_v2.json", "http");
-        streamHandler
-                .put("/stacks/Instance4/resources",
-                        new MockHttpURLConnection(200,
-                                MockURLStreamHandler.respStacksResources(
-                                        serverNames,
-                                        InstanceType.EC2.getString())));
+        streamHandler.put("/stacks/Instance4/resources",
+                new MockHttpURLConnection(200,
+                        MockURLStreamHandler.respStacksResources(serverNames,
+                                InstanceType.EC2.getString())));
         // when
         new HeatProcessor().suspendStack(paramHandler);
     }
@@ -495,24 +488,35 @@ public class HeatProcessorTest {
 
     private void createBasicParameters(String instanceName, String templateName,
             String httpMethod) {
-        parameters.put(PropertyHandler.STACK_NAME, instanceName);
-        parameters.put(PropertyHandler.TEMPLATE_NAME, templateName);
+        parameters.put(PropertyHandler.STACK_NAME,
+                new Setting(PropertyHandler.STACK_NAME, instanceName));
+        parameters.put(PropertyHandler.TEMPLATE_NAME,
+                new Setting(PropertyHandler.TEMPLATE_NAME, templateName));
         parameters.put(PropertyHandler.TEMPLATE_PARAMETER_PREFIX + "KeyName",
-                "key");
+                new Setting(
+                        PropertyHandler.TEMPLATE_PARAMETER_PREFIX + "KeyName",
+                        "key"));
         if (httpMethod == "https") {
             configSettings.put(PropertyHandler.KEYSTONE_API_URL,
-                    "https://keystone:8080/v3/auth");
+                    new Setting(PropertyHandler.KEYSTONE_API_URL,
+                            "https://keystone:8080/v3/auth"));
         } else {
 
             configSettings.put(PropertyHandler.KEYSTONE_API_URL,
-                    "http://keystone:8080/v3/auth");
+                    new Setting(PropertyHandler.KEYSTONE_API_URL,
+                            "http://keystone:8080/v3/auth"));
         }
-        configSettings.put(PropertyHandler.DOMAIN_NAME, "testDomain");
-        configSettings.put(PropertyHandler.TENANT_ID, "testTenantID");
-        configSettings.put(PropertyHandler.API_USER_NAME, "api_user");
-        configSettings.put(PropertyHandler.API_USER_PWD, "secret");
+        configSettings.put(PropertyHandler.DOMAIN_NAME,
+                new Setting(PropertyHandler.DOMAIN_NAME, "testDomain"));
+        configSettings.put(PropertyHandler.TENANT_ID,
+                new Setting(PropertyHandler.TENANT_ID, "testTenantID"));
+        configSettings.put(PropertyHandler.API_USER_NAME,
+                new Setting(PropertyHandler.API_USER_NAME, "api_user"));
+        configSettings.put(PropertyHandler.API_USER_PWD,
+                new Setting(PropertyHandler.API_USER_PWD, "secret"));
         configSettings.put(PropertyHandler.TEMPLATE_BASE_URL,
-                "http://estfarmaki2:8880/templates/");
+                new Setting(PropertyHandler.TEMPLATE_BASE_URL,
+                        "http://estfarmaki2:8880/templates/"));
     }
 
     @Test

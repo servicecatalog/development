@@ -28,6 +28,7 @@ import org.oscm.app.domain.PlatformConfigurationKey;
 import org.oscm.app.domain.ServiceInstance;
 import org.oscm.app.v1_0.data.ControllerConfigurationKey;
 import org.oscm.app.v1_0.data.ProvisioningSettings;
+import org.oscm.app.v1_0.data.Setting;
 import org.oscm.app.v1_0.exceptions.ConfigurationException;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.ejb.TestContainer;
@@ -87,9 +88,9 @@ public class APPConfigurationServiceIT extends EJBTestBase {
 
     @Test(expected = ConfigurationException.class)
     public void testGetAllConfigurationSettings_NoCS() throws Exception {
-        runTX(new Callable<Map<String, String>>() {
+        runTX(new Callable<Map<String, Setting>>() {
             @Override
-            public Map<String, String> call() throws Exception {
+            public Map<String, Setting> call() throws Exception {
                 return cs.getAllProxyConfigurationSettings();
             }
         });
@@ -108,12 +109,13 @@ public class APPConfigurationServiceIT extends EJBTestBase {
         for (int i = 0; i < keys.length; i++) {
             createConfigSetting(keys[i].name(), "testValue");
         }
-        Map<String, String> result = runTX(new Callable<Map<String, String>>() {
-            @Override
-            public Map<String, String> call() throws Exception {
-                return cs.getAllProxyConfigurationSettings();
-            }
-        });
+        Map<String, Setting> result = runTX(
+                new Callable<Map<String, Setting>>() {
+                    @Override
+                    public Map<String, Setting> call() throws Exception {
+                        return cs.getAllProxyConfigurationSettings();
+                    }
+                });
         assertNotNull(result);
         assertEquals(keys.length + 3, result.keySet().size());
         assertTrue(result.keySet().contains("setting1"));
@@ -126,9 +128,9 @@ public class APPConfigurationServiceIT extends EJBTestBase {
 
     @Test(expected = ConfigurationException.class)
     public void testControllerSetting_allEmpty() throws Exception {
-        runTX(new Callable<Map<String, String>>() {
+        runTX(new Callable<Map<String, Setting>>() {
             @Override
-            public Map<String, String> call() throws Exception {
+            public Map<String, Setting> call() throws Exception {
                 return cs.getControllerConfigurationSettings("");
             }
         });
@@ -136,9 +138,9 @@ public class APPConfigurationServiceIT extends EJBTestBase {
 
     @Test(expected = ConfigurationException.class)
     public void testControllerSetting_null() throws Exception {
-        runTX(new Callable<Map<String, String>>() {
+        runTX(new Callable<Map<String, Setting>>() {
             @Override
-            public Map<String, String> call() throws Exception {
+            public Map<String, Setting> call() throws Exception {
                 return cs.getControllerConfigurationSettings(null);
             }
         });
@@ -153,12 +155,14 @@ public class APPConfigurationServiceIT extends EJBTestBase {
         createContorllerConfigSetting("controller2", "key1", "value");
         createContorllerConfigSetting("controller2", "key2", "value");
         createContorllerConfigSetting("controller3", "key1", "value");
-        Map<String, String> result = runTX(new Callable<Map<String, String>>() {
-            @Override
-            public Map<String, String> call() throws Exception {
-                return cs.getControllerConfigurationSettings("controller1");
-            }
-        });
+        Map<String, Setting> result = runTX(
+                new Callable<Map<String, Setting>>() {
+                    @Override
+                    public Map<String, Setting> call() throws Exception {
+                        return cs.getControllerConfigurationSettings(
+                                "controller1");
+                    }
+                });
         assertNotNull(result);
         assertTrue(result.keySet().size() == 2);
     }
@@ -170,7 +174,7 @@ public class APPConfigurationServiceIT extends EJBTestBase {
                 @Override
                 public Void call() throws Exception {
                     cs.storeControllerConfigurationSettings(null,
-                            new HashMap<String, String>());
+                            new HashMap<String, Setting>());
                     return null;
                 }
             });
@@ -289,19 +293,21 @@ public class APPConfigurationServiceIT extends EJBTestBase {
         createContorllerConfigSetting("controller3",
                 ControllerConfigurationKey.BSS_ORGANIZATION_ID.name(),
                 "value2_c3");
-        final HashMap<String, String> result1 = new HashMap<>();
-        final HashMap<String, String> result2 = new HashMap<>();
-        final HashMap<String, String> result3 = new HashMap<>();
+        final HashMap<String, Setting> result1 = new HashMap<>();
+        final HashMap<String, Setting> result2 = new HashMap<>();
+        final HashMap<String, Setting> result3 = new HashMap<>();
         try {
             runTX(new Callable<Void>() {
                 @Override
                 public Void call() throws Exception {
-                    HashMap<String, String> map = new HashMap<>();
-                    map.put("update", "new");
-                    map.put("update_PWD", "new_crypt");
-                    map.put("create", "very_new");
-                    map.put("create_PWD", "very_new_crypt");
-                    map.put("delete", null);
+                    HashMap<String, Setting> map = new HashMap<>();
+                    map.put("update", new Setting("update", "new"));
+                    map.put("update_PWD",
+                            new Setting("update_PWD", "new_crypt"));
+                    map.put("create", new Setting("create", "very_new"));
+                    map.put("create_PWD",
+                            new Setting("create_PWD", "very_new_crypt"));
+                    map.put("delete", new Setting("delete", null));
                     cs.storeControllerConfigurationSettings("controller1", map);
                     return null;
                 }

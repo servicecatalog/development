@@ -14,10 +14,6 @@ import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.oscm.string.Strings;
 import org.oscm.app.business.exceptions.ServiceInstanceNotFoundException;
 import org.oscm.app.dao.BesDAO;
 import org.oscm.app.dao.ServiceInstanceDAO;
@@ -25,12 +21,17 @@ import org.oscm.app.domain.PlatformConfigurationKey;
 import org.oscm.app.domain.ServiceInstance;
 import org.oscm.app.v1_0.data.ControllerConfigurationKey;
 import org.oscm.app.v1_0.data.PasswordAuthentication;
+import org.oscm.app.v1_0.data.Setting;
 import org.oscm.app.v1_0.exceptions.APPlatformException;
 import org.oscm.app.v1_0.exceptions.AuthenticationException;
 import org.oscm.app.v1_0.exceptions.ConfigurationException;
+import org.oscm.string.Strings;
 import org.oscm.types.enumtypes.UserRoleType;
 import org.oscm.vo.VOUser;
 import org.oscm.vo.VOUserDetails;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sun.xml.ws.client.ClientTransportException;
 
 @Stateless
@@ -102,18 +103,19 @@ public class APPAuthenticationServiceBean {
         if (controllerId == null || auth == null) {
             throw new IllegalArgumentException("Parameters must not be null");
         }
-        HashMap<String, String> controllerSettings = configService
+        HashMap<String, Setting> controllerSettings = configService
                 .getControllerConfigurationSettings(controllerId);
-        String organizationId = controllerSettings
+        Setting organizationId = controllerSettings
                 .get(ControllerConfigurationKey.BSS_ORGANIZATION_ID.name());
-        if (organizationId == null) {
+        if (organizationId == null || organizationId.getValue() == null) {
             ConfigurationException ce = new ConfigurationException(
-                    "No organization configured for controller " + controllerId);
+                    "No organization configured for controller "
+                            + controllerId);
             LOGGER.debug("No organization configured for controller {}",
                     controllerId);
             throw ce;
         }
-        return authenticateUser(null, organizationId, auth,
+        return authenticateUser(null, organizationId.getValue(), auth,
                 UserRoleType.TECHNOLOGY_MANAGER);
     }
 
@@ -139,13 +141,13 @@ public class APPAuthenticationServiceBean {
         // if no explicit organizationID is set, the user to be authenticated
         // must come from the organization currently set in the identityService
         if (organizationId == null) {
-            VOUserDetails currentUserDetails = besDAO.getUserDetails(
-                    serviceInstance, null, null);
+            VOUserDetails currentUserDetails = besDAO
+                    .getUserDetails(serviceInstance, null, null);
             if (currentUserDetails != null) {
                 organizationId = currentUserDetails.getOrganizationId();
                 // check if current web service user equals requesting user
-                if ((user.getKey() == 0 || currentUserDetails.getKey() == user
-                        .getKey())
+                if ((user.getKey() == 0
+                        || currentUserDetails.getKey() == user.getKey())
                         && (user.getUserId() == null || user.getUserId()
                                 .equals(currentUserDetails.getUserId()))) {
                     PasswordAuthentication pwAuth = configService
@@ -158,10 +160,10 @@ public class APPAuthenticationServiceBean {
             }
         }
 
-        Map<String, String> settings = configService
+        Map<String, Setting> settings = configService
                 .getAllProxyConfigurationSettings();
-        boolean isSsoMode = "SAML_SP".equals(settings
-                .get(PlatformConfigurationKey.BSS_AUTH_MODE.name()));
+        boolean isSsoMode = "SAML_SP".equals(
+                settings.get(PlatformConfigurationKey.BSS_AUTH_MODE.name()));
 
         if (user.getUserId() == null && isSsoMode) {
             // in SSO mode the userId must always be present since no

@@ -23,21 +23,16 @@ import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-
-import org.oscm.test.EJBTestBase;
-import org.oscm.test.ejb.TestContainer;
 import org.oscm.app.dao.BesDAO;
 import org.oscm.app.dao.ServiceInstanceDAO;
 import org.oscm.app.v1_0.data.PasswordAuthentication;
+import org.oscm.app.v1_0.data.Setting;
 import org.oscm.app.v1_0.exceptions.APPlatformException;
 import org.oscm.app.v1_0.exceptions.AuthenticationException;
 import org.oscm.app.v1_0.exceptions.SuspendException;
 import org.oscm.app.v1_0.intf.APPlatformService;
-import org.oscm.app.v1_0.service.APPAuthenticationServiceBean;
-import org.oscm.app.v1_0.service.APPCommunicationServiceBean;
-import org.oscm.app.v1_0.service.APPConcurrencyServiceBean;
-import org.oscm.app.v1_0.service.APPConfigurationServiceBean;
-import org.oscm.app.v1_0.service.APPlatformServiceBean;
+import org.oscm.test.EJBTestBase;
+import org.oscm.test.ejb.TestContainer;
 import org.oscm.vo.VOUser;
 
 /**
@@ -60,14 +55,14 @@ public class APPlatformServiceBeanIT extends EJBTestBase {
         container.enableInterfaceMocking(true);
         container.addBean(Mockito.mock(BesDAO.class));
         container.addBean(instanceDAO = Mockito.mock(ServiceInstanceDAO.class));
-        container.addBean(authSvc = Mockito
-                .mock(APPAuthenticationServiceBean.class));
-        container.addBean(concSvc = Mockito
-                .mock(APPConcurrencyServiceBean.class));
-        container.addBean(configSvc = Mockito
-                .mock(APPConfigurationServiceBean.class));
-        container.addBean(commSvc = Mockito
-                .mock(APPCommunicationServiceBean.class));
+        container.addBean(
+                authSvc = Mockito.mock(APPAuthenticationServiceBean.class));
+        container.addBean(
+                concSvc = Mockito.mock(APPConcurrencyServiceBean.class));
+        container.addBean(
+                configSvc = Mockito.mock(APPConfigurationServiceBean.class));
+        container.addBean(
+                commSvc = Mockito.mock(APPCommunicationServiceBean.class));
         container.addBean(platformSvc = spy(new APPlatformServiceBean()));
         container.get(APPlatformService.class);
         Answer<HashMap<String, String>> answer = new Answer<HashMap<String, String>>() {
@@ -75,7 +70,7 @@ public class APPlatformServiceBeanIT extends EJBTestBase {
             @Override
             public HashMap<String, String> answer(InvocationOnMock invocation)
                     throws Throwable {
-                HashMap<String, String> map = new HashMap<String, String>();
+                HashMap<String, String> map = new HashMap<>();
                 map.put("key", "value");
                 return map;
             }
@@ -90,8 +85,8 @@ public class APPlatformServiceBeanIT extends EJBTestBase {
 
     @Test
     public void testGetControllerSettings() throws Exception {
-        HashMap<String, String> settings = platformSvc.getControllerSettings(
-                "test", defaultAuth);
+        HashMap<String, Setting> settings = platformSvc
+                .getControllerSettings("test", defaultAuth);
         assertNotNull(settings);
         assertEquals(settings.get("key"), "value");
         Mockito.verify(authSvc, Mockito.times(1)).authenticateTMForController(
@@ -104,8 +99,8 @@ public class APPlatformServiceBeanIT extends EJBTestBase {
     public void testStoreControllerSettings() throws Exception {
         // given
         doNothing().when(platformSvc).requestControllerSettings(anyString());
-        final HashMap<String, String> map = new HashMap<String, String>();
-        map.put("key2", "value2");
+        final HashMap<String, Setting> map = new HashMap<>();
+        map.put("key2", new Setting("key2", "value2"));
         Answer<Void> answer = new Answer<Void>() {
             @Override
             public Void answer(InvocationOnMock invocation) throws Throwable {
@@ -117,8 +112,7 @@ public class APPlatformServiceBeanIT extends EJBTestBase {
             }
         };
 
-        Mockito.doAnswer(answer)
-                .when(configSvc)
+        Mockito.doAnswer(answer).when(configSvc)
                 .storeControllerConfigurationSettings(Matchers.anyString(),
                         Matchers.any(HashMap.class));
 
@@ -134,8 +128,7 @@ public class APPlatformServiceBeanIT extends EJBTestBase {
     @Test(expected = AuthenticationException.class)
     public void testGetControllerSettings_unauthorized() throws Exception {
         // given
-        Mockito.doThrow(new AuthenticationException("some"))
-                .when(authSvc)
+        Mockito.doThrow(new AuthenticationException("some")).when(authSvc)
                 .authenticateTMForController(Mockito.anyString(),
                         Matchers.any(PasswordAuthentication.class));
 
@@ -146,36 +139,33 @@ public class APPlatformServiceBeanIT extends EJBTestBase {
     @Test(expected = AuthenticationException.class)
     public void testStoreControllerSettings_unauthorized() throws Exception {
         // given
-        Mockito.doThrow(new AuthenticationException("some"))
-                .when(authSvc)
+        Mockito.doThrow(new AuthenticationException("some")).when(authSvc)
                 .authenticateTMForController(Mockito.anyString(),
                         Matchers.any(PasswordAuthentication.class));
 
         // when
         platformSvc.storeControllerSettings("test",
-                new HashMap<String, String>(), defaultAuth);
+                new HashMap<String, Setting>(), defaultAuth);
     }
 
     @Test
     public void testExists() throws Exception {
         // given
-        Mockito.when(
-                new Boolean(instanceDAO.exists(Matchers.matches("ctrl.id"),
-                        Matchers.matches("inst.id")))).thenReturn(Boolean.TRUE);
+        Mockito.when(new Boolean(instanceDAO.exists(Matchers.matches("ctrl.id"),
+                Matchers.matches("inst.id")))).thenReturn(Boolean.TRUE);
 
         // then
         assertTrue(platformSvc.exists("ctrl.id", "inst.id"));
-        Mockito.verify(instanceDAO, Mockito.times(1)).exists(
-                Matchers.eq("ctrl.id"), Matchers.eq("inst.id"));
+        Mockito.verify(instanceDAO, Mockito.times(1))
+                .exists(Matchers.eq("ctrl.id"), Matchers.eq("inst.id"));
     }
 
     @Test
     public void testLockServiceInstance() throws Exception {
         // given
-        Mockito.when(
-                new Boolean(concSvc.lockServiceInstance(
-                        Matchers.matches("ctrl.id"),
-                        Matchers.matches("inst.id")))).thenReturn(Boolean.TRUE);
+        Mockito.when(new Boolean(concSvc.lockServiceInstance(
+                Matchers.matches("ctrl.id"), Matchers.matches("inst.id"))))
+                .thenReturn(Boolean.TRUE);
 
         // then
         assertTrue(platformSvc.lockServiceInstance("ctrl.id", "inst.id",
@@ -203,8 +193,7 @@ public class APPlatformServiceBeanIT extends EJBTestBase {
     @Test(expected = AuthenticationException.class)
     public void testLockServiceInstance_unauthorized() throws Exception {
         // given
-        Mockito.doThrow(new AuthenticationException("some"))
-                .when(authSvc)
+        Mockito.doThrow(new AuthenticationException("some")).when(authSvc)
                 .authenticateTMForInstance(Mockito.anyString(),
                         Mockito.anyString(),
                         Matchers.any(PasswordAuthentication.class));
@@ -215,8 +204,7 @@ public class APPlatformServiceBeanIT extends EJBTestBase {
     @Test(expected = AuthenticationException.class)
     public void testUnlockServiceInstance_unauthorized() throws Exception {
         // given
-        Mockito.doThrow(new AuthenticationException("some"))
-                .when(authSvc)
+        Mockito.doThrow(new AuthenticationException("some")).when(authSvc)
                 .authenticateTMForInstance(Mockito.anyString(),
                         Mockito.anyString(),
                         Matchers.any(PasswordAuthentication.class));
@@ -228,8 +216,7 @@ public class APPlatformServiceBeanIT extends EJBTestBase {
     @Test(expected = SuspendException.class)
     public void testSendMail() throws APPlatformException {
         // given
-        Mockito.doThrow(new APPlatformException("some cause"))
-                .when(commSvc)
+        Mockito.doThrow(new APPlatformException("some cause")).when(commSvc)
                 .sendMail(Matchers.anyListOf(String.class),
                         Matchers.anyString(), Matchers.anyString());
 

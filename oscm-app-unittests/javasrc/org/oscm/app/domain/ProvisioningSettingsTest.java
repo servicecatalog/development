@@ -18,6 +18,7 @@ import java.util.Set;
 
 import org.junit.Test;
 import org.oscm.app.v1_0.data.ProvisioningSettings;
+import org.oscm.app.v1_0.data.Setting;
 
 /**
  * @author Dirk Bernsau
@@ -28,16 +29,16 @@ public class ProvisioningSettingsTest {
     @Test
     public void testSetters() {
 
-        HashMap<String, String> parameters = new HashMap<>();
-        parameters.put("key", "value");
-        HashMap<String, String> configSettings = new HashMap<>();
-        configSettings.put("key2", "value2");
-        configSettings.put("key2a", "value2a");
+        HashMap<String, Setting> parameters = new HashMap<>();
+        parameters.put("key", new Setting("key", "value"));
+        HashMap<String, Setting> configSettings = new HashMap<>();
+        configSettings.put("key2", new Setting("key2", "value2"));
+        configSettings.put("key2a", new Setting("key2a", "value2a"));
 
-        HashMap<String, String> attributes = new HashMap<>();
-        parameters.put("key3", "value3");
-        HashMap<String, String> customAttributes = new HashMap<>();
-        parameters.put("key4", "value4");
+        HashMap<String, Setting> attributes = new HashMap<>();
+        parameters.put("key3", new Setting("key3", "value3"));
+        HashMap<String, Setting> customAttributes = new HashMap<>();
+        parameters.put("key4", new Setting("key4", "value4"));
 
         ProvisioningSettings pSettings = new ProvisioningSettings(parameters,
                 configSettings, "en");
@@ -51,13 +52,13 @@ public class ProvisioningSettingsTest {
         assertSame(configSettings, pSettings.getConfigSettings());
 
         parameters = new HashMap<>();
-        parameters.put("key5", "value5");
+        parameters.put("key5", new Setting("key5", "value5"));
         attributes = new HashMap<>();
-        attributes.put("key6", "value6");
+        attributes.put("key6", new Setting("key6", "value6"));
         customAttributes = new HashMap<>();
-        customAttributes.put("key7", "value7");
+        customAttributes.put("key7", new Setting("key7", "value7"));
         configSettings = new HashMap<>();
-        configSettings.put("key8", "value8");
+        configSettings.put("key8", new Setting("key8", "value8"));
         pSettings.setParameters(parameters);
         pSettings.setAttributes(attributes);
         pSettings.setCustomAttributes(customAttributes);
@@ -82,7 +83,8 @@ public class ProvisioningSettingsTest {
         assertEquals("besUrl", pSettings.getBesLoginURL());
     }
 
-    private void assertSame(Map<String, String> one, Map<String, String> two) {
+    private void assertSame(Map<String, Setting> one,
+            Map<String, Setting> two) {
         assertNotNull(one);
         assertNotNull(two);
         assertEquals(one.size(), two.size());
@@ -90,43 +92,46 @@ public class ProvisioningSettingsTest {
         keySet.removeAll(two.keySet());
         assertTrue(keySet.isEmpty());
         for (String key : two.keySet()) {
-            assertEquals(one.get(key), two.get(key));
+            assertEquals(one.get(key).getValue(), two.get(key).getValue());
         }
     }
 
     @Test
     public void testOverwrite() {
 
-        String controller = "ess.example";
+        String controllerId = "controllerId";
 
-        HashMap<String, String> configSettings = new HashMap<>();
-        configSettings.put("key1", "value1s");
-        configSettings.put("key2", "value2s");
-        configSettings.put("key3", "value3s");
-        configSettings.put("key4", "value4s");
+        HashMap<String, Setting> configSettings = new HashMap<>();
+        configSettings.put("key1", new Setting("key1", "value1s"));
+        configSettings.put("key2", new Setting("key2", "value2s"));
+        configSettings.put("key3", new Setting("key3", "value3s"));
+        configSettings.put("key4", new Setting("key4", "value4s"));
 
-        HashMap<String, String> parameters = new HashMap<>();
-        parameters.put("key2", "value2p");
-        parameters.put("key3", "value3p");
-        parameters.put("key4", "value4p");
+        HashMap<String, Setting> parameters = new HashMap<>();
+        parameters.put("key2", new Setting("key2", "value2p"));
+        parameters.put("key3", new Setting("key3", "value3p"));
+        parameters.put("key4", new Setting("key4", "value4p"));
 
-        HashMap<String, String> customAttributes = new HashMap<>();
-        customAttributes.put(controller + "_key3", "value3c");
-        customAttributes.put(controller + "_key4", "value4c");
+        HashMap<String, Setting> customAttributes = new HashMap<>();
+        customAttributes.put("key3",
+                new Setting("key3", "value3c", false, controllerId));
+        customAttributes.put("key4",
+                new Setting("key4", "value4c", false, controllerId));
 
-        HashMap<String, String> attributes = new HashMap<>();
-        attributes.put(controller + "_key4", "value4a");
+        HashMap<String, Setting> attributes = new HashMap<>();
+        attributes.put("key4",
+                new Setting("key4", "value4a", false, controllerId));
 
         ProvisioningSettings pSettings = new ProvisioningSettings(parameters,
                 attributes, customAttributes, configSettings, "en");
 
-        pSettings.overwriteProperties(controller);
+        pSettings.overwriteProperties(controllerId);
 
-        assertEquals("value1s", configSettings.get("key1"));
-        assertEquals("value2p", configSettings.get("key2"));
-        assertEquals("value3c", configSettings.get("key3"));
-        assertEquals("value4a", configSettings.get("key4"));
-        assertEquals("value3c", parameters.get("key3"));
-        assertEquals("value4a", parameters.get("key4"));
+        assertEquals("value1s", configSettings.get("key1").getValue());
+        assertEquals("value2p", configSettings.get("key2").getValue());
+        assertEquals("value3c", configSettings.get("key3").getValue());
+        assertEquals("value4a", configSettings.get("key4").getValue());
+        assertEquals("value3c", parameters.get("key3").getValue());
+        assertEquals("value4a", parameters.get("key4").getValue());
     }
 }

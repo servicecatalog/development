@@ -45,7 +45,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
-
 import org.oscm.app.business.exceptions.BESNotificationException;
 import org.oscm.app.business.exceptions.BadResultException;
 import org.oscm.app.domain.InstanceParameter;
@@ -54,6 +53,7 @@ import org.oscm.app.domain.ServiceInstance;
 import org.oscm.app.v1_0.data.ControllerConfigurationKey;
 import org.oscm.app.v1_0.data.LocalizedText;
 import org.oscm.app.v1_0.data.PasswordAuthentication;
+import org.oscm.app.v1_0.data.Setting;
 import org.oscm.app.v1_0.exceptions.APPlatformException;
 import org.oscm.app.v1_0.exceptions.AuthenticationException;
 import org.oscm.app.v1_0.exceptions.ConfigurationException;
@@ -77,6 +77,7 @@ import org.oscm.vo.VOLocalizedText;
 import org.oscm.vo.VOSubscription;
 import org.oscm.vo.VOUser;
 import org.oscm.vo.VOUserDetails;
+
 import com.sun.xml.wss.XWSSConstants;
 
 public class BesDAOTest {
@@ -93,16 +94,18 @@ public class BesDAOTest {
     private final static String USER_PWD_TM_TechSvc = "userPwd";
 
     private final BesDAO besDAO = spy(new BesDAO());
-    private final EnhancedIdentityService idServ = mock(EnhancedIdentityService.class);
+    private final EnhancedIdentityService idServ = mock(
+            EnhancedIdentityService.class);
     private final SubscriptionService subServ = mock(SubscriptionService.class);
-    private final APPConfigurationServiceBean confServ = mock(APPConfigurationServiceBean.class);
+    private final APPConfigurationServiceBean confServ = mock(
+            APPConfigurationServiceBean.class);
 
     /**
      * Internal interface combining IdentityService with BindingProvider to
      * allow easy mocking.
      */
-    private static interface EnhancedIdentityService extends IdentityService,
-            BindingProvider {
+    private static interface EnhancedIdentityService
+            extends IdentityService, BindingProvider {
     }
 
     @SuppressWarnings("unchecked")
@@ -115,15 +118,15 @@ public class BesDAOTest {
                 eq(IdentityService.class), any(ServiceInstance.class));
         doReturn(idServ).when(besDAO).getServicePort(eq(IdentityService.class),
                 anyMap());
-        doReturn(subServ).when(besDAO).getServicePort(
-                eq(SubscriptionService.class), anyMap());
+        doReturn(subServ).when(besDAO)
+                .getServicePort(eq(SubscriptionService.class), anyMap());
         doNothing().when(besDAO).validateVersion(anyString());
     }
 
     @Test
     public void isSsoMode_true() {
         // given
-        Map<String, String> settings = getSettingsForMode("SAML_SP");
+        Map<String, Setting> settings = getSettingsForMode("SAML_SP");
 
         // when
         Boolean actual = Boolean.valueOf(besDAO.isSsoMode(settings));
@@ -135,7 +138,7 @@ public class BesDAOTest {
     @Test
     public void isSsoMode_false() {
         // given
-        Map<String, String> settings = getSettingsForMode("INTERNAL");
+        Map<String, Setting> settings = getSettingsForMode("INTERNAL");
 
         // when
         Boolean actual = Boolean.valueOf(besDAO.isSsoMode(settings));
@@ -147,7 +150,7 @@ public class BesDAOTest {
     @Test
     public void getWsdlUrl_INTERNAL() throws MalformedURLException {
         // given
-        Map<String, String> settings = getSettingsForMode("INTERNAL");
+        Map<String, Setting> settings = getSettingsForMode("INTERNAL");
 
         // when
         URL actual = besDAO.getWsdlUrl(IdentityService.class, settings);
@@ -161,7 +164,7 @@ public class BesDAOTest {
     @Test
     public void getWsdlUrl_SAML_SP() throws MalformedURLException {
         // given
-        Map<String, String> settings = getSettingsForMode("SAML_SP");
+        Map<String, Setting> settings = getSettingsForMode("SAML_SP");
 
         // when
         URL actual = besDAO.getWsdlUrl(IdentityService.class, settings);
@@ -175,7 +178,7 @@ public class BesDAOTest {
     @Test
     public void getPortSuffix_INTERNAL() {
         // given
-        Map<String, String> settings = getSettingsForMode("INTERNAL");
+        Map<String, Setting> settings = getSettingsForMode("INTERNAL");
 
         // when
         String actual = besDAO.getPortSuffix(settings);
@@ -187,7 +190,7 @@ public class BesDAOTest {
     @Test
     public void getPortSuffix_SAML_SP() {
         // given
-        Map<String, String> settings = getSettingsForMode("SAML_SP");
+        Map<String, Setting> settings = getSettingsForMode("SAML_SP");
 
         // when
         String actual = besDAO.getPortSuffix(settings);
@@ -199,7 +202,7 @@ public class BesDAOTest {
     @Test
     public void getPasswordConstant_INTERNAL() {
         // given
-        Map<String, String> settings = getSettingsForMode("INTERNAL");
+        Map<String, Setting> settings = getSettingsForMode("INTERNAL");
 
         // when
         String actual = besDAO.getPasswordConstant(settings);
@@ -211,7 +214,7 @@ public class BesDAOTest {
     @Test
     public void getPasswordConstant_SAML_SP() {
         // given
-        Map<String, String> settings = getSettingsForMode("SAML_SP");
+        Map<String, Setting> settings = getSettingsForMode("SAML_SP");
 
         // when
         String actual = besDAO.getPasswordConstant(settings);
@@ -223,7 +226,7 @@ public class BesDAOTest {
     @Test
     public void getUsernameConstant_INTERNAL() {
         // given
-        Map<String, String> settings = getSettingsForMode("INTERNAL");
+        Map<String, Setting> settings = getSettingsForMode("INTERNAL");
 
         // when
         String actual = besDAO.getUsernameConstant(settings);
@@ -235,7 +238,7 @@ public class BesDAOTest {
     @Test
     public void getUsernameConstant_SAML_SP() {
         // given
-        Map<String, String> settings = getSettingsForMode("SAML_SP");
+        Map<String, Setting> settings = getSettingsForMode("SAML_SP");
 
         // when
         String actual = besDAO.getUsernameConstant(settings);
@@ -247,62 +250,57 @@ public class BesDAOTest {
     @Test
     public void setUserCredentialsInContext_INTERNAL() {
         // given
-        Map<String, String> settings = getSettingsForMode("INTERNAL");
+        Map<String, Setting> settings = getSettingsForMode("INTERNAL");
         BindingProvider client = Mockito.mock(BindingProvider.class);
-        Map<String, String> context = new HashMap<String, String>();
+        Map<String, String> context = new HashMap<>();
         Mockito.doReturn(context).when(client).getRequestContext();
 
         // when
         besDAO.setUserCredentialsInContext(client, USER, PASSWORD, settings);
 
         // then
-        assertNull(client.getRequestContext().get(
-                XWSSConstants.USERNAME_PROPERTY));
-        assertNull(client.getRequestContext().get(
-                XWSSConstants.PASSWORD_PROPERTY));
-        assertEquals(
-                USER,
-                client.getRequestContext().get(
-                        BindingProvider.USERNAME_PROPERTY));
-        assertEquals(
-                PASSWORD,
-                client.getRequestContext().get(
-                        BindingProvider.PASSWORD_PROPERTY));
+        assertNull(client.getRequestContext()
+                .get(XWSSConstants.USERNAME_PROPERTY));
+        assertNull(client.getRequestContext()
+                .get(XWSSConstants.PASSWORD_PROPERTY));
+        assertEquals(USER, client.getRequestContext()
+                .get(BindingProvider.USERNAME_PROPERTY));
+        assertEquals(PASSWORD, client.getRequestContext()
+                .get(BindingProvider.PASSWORD_PROPERTY));
     }
 
     @Test
     public void setUserCredentialsInContext_SAML_SP() {
         // given
-        Map<String, String> settings = getSettingsForMode("SAML_SP");
+        Map<String, Setting> settings = getSettingsForMode("SAML_SP");
         BindingProvider client = Mockito.mock(BindingProvider.class);
-        Map<String, String> context = new HashMap<String, String>();
+        Map<String, String> context = new HashMap<>();
         Mockito.doReturn(context).when(client).getRequestContext();
 
         // when
         besDAO.setUserCredentialsInContext(client, USER, PASSWORD, settings);
 
         // then
-        assertNull(client.getRequestContext().get(
-                BindingProvider.USERNAME_PROPERTY));
-        assertNull(client.getRequestContext().get(
-                BindingProvider.PASSWORD_PROPERTY));
-        assertEquals(USER,
-                client.getRequestContext().get(XWSSConstants.USERNAME_PROPERTY));
-        assertEquals(PASSWORD,
-                client.getRequestContext().get(XWSSConstants.PASSWORD_PROPERTY));
+        assertNull(client.getRequestContext()
+                .get(BindingProvider.USERNAME_PROPERTY));
+        assertNull(client.getRequestContext()
+                .get(BindingProvider.PASSWORD_PROPERTY));
+        assertEquals(USER, client.getRequestContext()
+                .get(XWSSConstants.USERNAME_PROPERTY));
+        assertEquals(PASSWORD, client.getRequestContext()
+                .get(XWSSConstants.PASSWORD_PROPERTY));
     }
 
     @Test
     public void getServicePort() throws MalformedURLException {
         // given
-        Map<String, String> settings = getSettingsForMode("SAML_SP");
+        Map<String, Setting> settings = getSettingsForMode("SAML_SP");
         IdentityService idSvcMock = Mockito.mock(IdentityService.class);
         Service serviceMock = Mockito.mock(Service.class);
         doReturn(serviceMock).when(besDAO).createWebService(any(URL.class),
                 any(QName.class));
-        when(
-                serviceMock.getPort(Matchers.any(QName.class),
-                        eq(IdentityService.class))).thenReturn(idSvcMock);
+        when(serviceMock.getPort(Matchers.any(QName.class),
+                eq(IdentityService.class))).thenReturn(idSvcMock);
 
         // when
         IdentityService idSvc = besDAO.getServicePort(IdentityService.class,
@@ -315,15 +313,14 @@ public class BesDAOTest {
     @Test
     public void getTechnologyProviderManagers() throws APPlatformException {
         // given
-        List<VOUserDetails> users = new ArrayList<VOUserDetails>();
+        List<VOUserDetails> users = new ArrayList<>();
         users.add(givenUser(UserRoleType.TECHNOLOGY_MANAGER, "mail"));
         users.add(givenUser(UserRoleType.MARKETPLACE_OWNER, "mail"));
         users.add(givenUser(UserRoleType.ORGANIZATION_ADMIN, ""));
         IdentityService is = Mockito.mock(IdentityService.class);
-        Mockito.doReturn(is)
-                .when(besDAO)
-                .getBESWebService(Matchers.eq(IdentityService.class),
-                        Matchers.any(ServiceInstance.class));
+        Mockito.doReturn(is).when(besDAO).getBESWebService(
+                Matchers.eq(IdentityService.class),
+                Matchers.any(ServiceInstance.class));
         Mockito.doReturn(users).when(is).getUsersForOrganization();
 
         // when
@@ -341,10 +338,9 @@ public class BesDAOTest {
     public void getTechnologyProviderManagers_Exception()
             throws APPlatformException {
         // given
-        Mockito.doThrow(new RuntimeException())
-                .when(besDAO)
-                .getBESWebService(Matchers.eq(IdentityService.class),
-                        Matchers.any(ServiceInstance.class));
+        Mockito.doThrow(new RuntimeException()).when(besDAO).getBESWebService(
+                Matchers.eq(IdentityService.class),
+                Matchers.any(ServiceInstance.class));
 
         // when
         List<VOUserDetails> admins = besDAO
@@ -374,28 +370,28 @@ public class BesDAOTest {
     }
 
     @Test(expected = AuthenticationException.class)
-    public void getUser_ObjectNotFound() throws ObjectNotFoundException,
-            OperationNotPermittedException, OrganizationRemovedException,
-            APPlatformException {
+    public void getUser_ObjectNotFound()
+            throws ObjectNotFoundException, OperationNotPermittedException,
+            OrganizationRemovedException, APPlatformException {
         // given
         doReturn(idServ).when(besDAO).getBESWebService(
                 eq(IdentityService.class), any(ServiceInstance.class));
-        doThrow(new ObjectNotFoundException()).when(idServ).getUser(
-                any(VOUser.class));
+        doThrow(new ObjectNotFoundException()).when(idServ)
+                .getUser(any(VOUser.class));
 
         // when
         besDAO.getUser(new ServiceInstance(), new VOUser());
     }
 
     @Test(expected = AuthenticationException.class)
-    public void getUser_OperationNotPermitted() throws ObjectNotFoundException,
-            OperationNotPermittedException, OrganizationRemovedException,
-            APPlatformException {
+    public void getUser_OperationNotPermitted()
+            throws ObjectNotFoundException, OperationNotPermittedException,
+            OrganizationRemovedException, APPlatformException {
         // given
         doReturn(idServ).when(besDAO).getBESWebService(
                 eq(IdentityService.class), any(ServiceInstance.class));
-        doThrow(new OperationNotPermittedException()).when(idServ).getUser(
-                any(VOUser.class));
+        doThrow(new OperationNotPermittedException()).when(idServ)
+                .getUser(any(VOUser.class));
 
         // when
         besDAO.getUser(new ServiceInstance(), new VOUser());
@@ -408,8 +404,8 @@ public class BesDAOTest {
         // given
         doReturn(idServ).when(besDAO).getBESWebService(
                 eq(IdentityService.class), any(ServiceInstance.class));
-        doThrow(new OrganizationRemovedException()).when(idServ).getUser(
-                any(VOUser.class));
+        doThrow(new OrganizationRemovedException()).when(idServ)
+                .getUser(any(VOUser.class));
 
         // when
         besDAO.getUser(new ServiceInstance(), new VOUser());
@@ -426,7 +422,8 @@ public class BesDAOTest {
     }
 
     @Test(expected = APPlatformException.class)
-    public void getUserDetails_APPlatformException() throws APPlatformException {
+    public void getUserDetails_APPlatformException()
+            throws APPlatformException {
         // given
         doThrow(new APPlatformException(Arrays.asList(new LocalizedText())))
                 .when(besDAO).getBESWebService(eq(IdentityService.class),
@@ -436,9 +433,9 @@ public class BesDAOTest {
     }
 
     @Test
-    public void getUser() throws ObjectNotFoundException,
-            OperationNotPermittedException, OrganizationRemovedException,
-            APPlatformException {
+    public void getUser()
+            throws ObjectNotFoundException, OperationNotPermittedException,
+            OrganizationRemovedException, APPlatformException {
         // given
         doReturn(idServ).when(besDAO).getBESWebService(
                 eq(IdentityService.class), any(ServiceInstance.class));
@@ -468,7 +465,7 @@ public class BesDAOTest {
     public void getUserDetails_givenUser_INTERNAL() throws APPlatformException {
         // given
         besDAO.configService = confServ;
-        Map<String, String> settings = getSettingsForMode("INTERNAL");
+        Map<String, Setting> settings = getSettingsForMode("INTERNAL");
         doReturn(settings).when(besDAO.configService)
                 .getAllProxyConfigurationSettings();
         doReturn(idServ).when(besDAO).getBESWebService(
@@ -489,7 +486,7 @@ public class BesDAOTest {
     public void getUserDetails_givenUser_SSO() throws APPlatformException {
         // given
         besDAO.configService = confServ;
-        Map<String, String> settings = getSettingsForMode("SAML_SP");
+        Map<String, Setting> settings = getSettingsForMode("SAML_SP");
         doReturn(settings).when(besDAO.configService)
                 .getAllProxyConfigurationSettings();
         doReturn(idServ).when(besDAO).getBESWebService(
@@ -506,10 +503,9 @@ public class BesDAOTest {
     }
 
     @Test
-    public void notifyAsyncSubscription_completion()
-            throws APPlatformException, BESNotificationException,
-            ObjectNotFoundException, SubscriptionStateException,
-            TechnicalServiceNotAliveException,
+    public void notifyAsyncSubscription_completion() throws APPlatformException,
+            BESNotificationException, ObjectNotFoundException,
+            SubscriptionStateException, TechnicalServiceNotAliveException,
             TechnicalServiceOperationException,
             OrganizationAuthoritiesException, OperationNotPermittedException,
             ValidationException {
@@ -574,8 +570,8 @@ public class BesDAOTest {
                 new APPlatformException(""));
 
         // then
-        verify(subServ).completeAsyncUpgradeSubscription(
-                si.getSubscriptionId(), si.getOrganizationId(), info);
+        verify(subServ).completeAsyncUpgradeSubscription(si.getSubscriptionId(),
+                si.getOrganizationId(), info);
     }
 
     @Test(expected = BESNotificationException.class)
@@ -937,8 +933,8 @@ public class BesDAOTest {
                 .completeAsyncSubscription(anyString(), anyString(),
                         any(VOInstanceInfo.class));
         doNothing().when(besDAO).handleSubscriptionStateException(
-                any(ServiceInstance.class), any(InstanceResult.class),
-                eq(true), any(SubscriptionStateException.class));
+                any(ServiceInstance.class), any(InstanceResult.class), eq(true),
+                any(SubscriptionStateException.class));
 
         // when
         besDAO.notifyAsyncSubscription(si, new InstanceResult(), true,
@@ -964,8 +960,8 @@ public class BesDAOTest {
                 .completeAsyncModifySubscription(anyString(), anyString(),
                         any(VOInstanceInfo.class));
         doNothing().when(besDAO).handleSubscriptionStateException(
-                any(ServiceInstance.class), any(InstanceResult.class),
-                eq(true), any(SubscriptionStateException.class));
+                any(ServiceInstance.class), any(InstanceResult.class), eq(true),
+                any(SubscriptionStateException.class));
 
         // when
         besDAO.notifyAsyncModifySubscription(si, new InstanceResult(), true,
@@ -991,8 +987,8 @@ public class BesDAOTest {
                 .completeAsyncUpgradeSubscription(anyString(), anyString(),
                         any(VOInstanceInfo.class));
         doNothing().when(besDAO).handleSubscriptionStateException(
-                any(ServiceInstance.class), any(InstanceResult.class),
-                eq(true), any(SubscriptionStateException.class));
+                any(ServiceInstance.class), any(InstanceResult.class), eq(true),
+                any(SubscriptionStateException.class));
 
         // when
         besDAO.notifyAsyncUpgradeSubscription(si, new InstanceResult(), true,
@@ -1002,17 +998,17 @@ public class BesDAOTest {
     }
 
     @Test
-    public void notifyAsyncSubscription_abortion() throws APPlatformException,
-            BESNotificationException, ObjectNotFoundException,
-            SubscriptionStateException, OrganizationAuthoritiesException,
-            OperationNotPermittedException {
+    public void notifyAsyncSubscription_abortion()
+            throws APPlatformException, BESNotificationException,
+            ObjectNotFoundException, SubscriptionStateException,
+            OrganizationAuthoritiesException, OperationNotPermittedException {
         // given
         doReturn(subServ).when(besDAO).getBESWebService(
                 eq(SubscriptionService.class), any(ServiceInstance.class));
         VOInstanceInfo info = new VOInstanceInfo();
         doReturn(info).when(besDAO).getInstanceInfo(any(ServiceInstance.class),
                 any(InstanceResult.class));
-        List<VOLocalizedText> besText = new ArrayList<VOLocalizedText>();
+        List<VOLocalizedText> besText = new ArrayList<>();
         besText.add(new VOLocalizedText("de", "text"));
         doReturn(besText).when(besDAO).toBES(anyListOf(LocalizedText.class));
         ServiceInstance si = givenServiceInstance(false);
@@ -1037,7 +1033,7 @@ public class BesDAOTest {
         VOInstanceInfo info = new VOInstanceInfo();
         doReturn(info).when(besDAO).getInstanceInfo(any(ServiceInstance.class),
                 any(InstanceResult.class));
-        List<VOLocalizedText> besText = new ArrayList<VOLocalizedText>();
+        List<VOLocalizedText> besText = new ArrayList<>();
         besText.add(new VOLocalizedText("de", "text"));
         doReturn(besText).when(besDAO).toBES(anyListOf(LocalizedText.class));
         ServiceInstance si = givenServiceInstance(false);
@@ -1048,9 +1044,8 @@ public class BesDAOTest {
                 cause);
 
         // then
-        verify(subServ).abortAsyncModifySubscription(
-                eq(si.getSubscriptionId()), eq(si.getOrganizationId()),
-                eq(besText));
+        verify(subServ).abortAsyncModifySubscription(eq(si.getSubscriptionId()),
+                eq(si.getOrganizationId()), eq(besText));
     }
 
     @Test
@@ -1064,7 +1059,7 @@ public class BesDAOTest {
         VOInstanceInfo info = new VOInstanceInfo();
         doReturn(info).when(besDAO).getInstanceInfo(any(ServiceInstance.class),
                 any(InstanceResult.class));
-        List<VOLocalizedText> besText = new ArrayList<VOLocalizedText>();
+        List<VOLocalizedText> besText = new ArrayList<>();
         besText.add(new VOLocalizedText("de", "text"));
         doReturn(besText).when(besDAO).toBES(anyListOf(LocalizedText.class));
         ServiceInstance si = givenServiceInstance(false);
@@ -1160,7 +1155,7 @@ public class BesDAOTest {
             SubscriptionStateException, OrganizationAuthoritiesException,
             OperationNotPermittedException {
         // given
-        List<LocalizedText> list = new ArrayList<LocalizedText>();
+        List<LocalizedText> list = new ArrayList<>();
         list.add(new LocalizedText("de", "text"));
         doNothing().when(subServ).updateAsyncSubscriptionProgress(anyString(),
                 anyString(), anyListOf(VOLocalizedText.class));
@@ -1175,10 +1170,10 @@ public class BesDAOTest {
     }
 
     @Test
-    public void getClientForBESAdmin_INTERNAL() throws APPlatformException,
-            MalformedURLException {
+    public void getClientForBESAdmin_INTERNAL()
+            throws APPlatformException, MalformedURLException {
         // given
-        Map<String, String> proxySettings = getSettingsForMode("INTERNAL");
+        Map<String, Setting> proxySettings = getSettingsForMode("INTERNAL");
         BesDAO besDAO = mockWebServiceSetup(proxySettings, null);
 
         // when
@@ -1194,7 +1189,7 @@ public class BesDAOTest {
     public void getClientForBESAdmin_INTERNAL_noUserPwd()
             throws ConfigurationException {
         // given
-        Map<String, String> proxySettings = getSettingsForMode("INTERNAL",
+        Map<String, Setting> proxySettings = getSettingsForMode("INTERNAL",
                 true, true, false);
 
         // when
@@ -1206,7 +1201,7 @@ public class BesDAOTest {
     public void getClientForBESAdmin_INTERNAL_noUserKey()
             throws ConfigurationException {
         // given
-        Map<String, String> proxySettings = getSettingsForMode("INTERNAL",
+        Map<String, Setting> proxySettings = getSettingsForMode("INTERNAL",
                 true, false, true);
 
         // when
@@ -1215,10 +1210,10 @@ public class BesDAOTest {
     }
 
     @Test
-    public void getClientForBESAdmin_SSO() throws APPlatformException,
-            MalformedURLException {
+    public void getClientForBESAdmin_SSO()
+            throws APPlatformException, MalformedURLException {
         // given
-        Map<String, String> proxySettings = getSettingsForMode("SAML_SP");
+        Map<String, Setting> proxySettings = getSettingsForMode("SAML_SP");
         BesDAO besDAO = mockWebServiceSetup(proxySettings, null);
 
         // when
@@ -1234,7 +1229,7 @@ public class BesDAOTest {
     public void getClientForBESAdmin_SSO_noUserPwd()
             throws ConfigurationException {
         // given
-        Map<String, String> proxySettings = getSettingsForMode("SAML_SP", true,
+        Map<String, Setting> proxySettings = getSettingsForMode("SAML_SP", true,
                 true, false);
 
         // when
@@ -1246,7 +1241,7 @@ public class BesDAOTest {
     public void getClientForBESAdmin_SSO_noUserId()
             throws ConfigurationException {
         // given
-        Map<String, String> proxySettings = getSettingsForMode("SAML_SP",
+        Map<String, Setting> proxySettings = getSettingsForMode("SAML_SP",
                 false, true, true);
 
         // when
@@ -1258,8 +1253,8 @@ public class BesDAOTest {
     public void getClientForBESTechnologyManager_INTERNAL_userInConfig()
             throws MalformedURLException, APPlatformException {
         // given
-        Map<String, String> proxySettings = getSettingsForMode("INTERNAL");
-        Map<String, String> controllerSettings = getControllerSettings(true,
+        Map<String, Setting> proxySettings = getSettingsForMode("INTERNAL");
+        Map<String, Setting> controllerSettings = getControllerSettings(true,
                 true, true);
         BesDAO besDAO = mockWebServiceSetup(proxySettings, controllerSettings);
 
@@ -1278,8 +1273,8 @@ public class BesDAOTest {
             throws MalformedURLException, BadResultException,
             APPlatformException {
         // given
-        Map<String, String> proxySettings = getSettingsForMode("INTERNAL");
-        Map<String, String> controllerSettings = getControllerSettings(true,
+        Map<String, Setting> proxySettings = getSettingsForMode("INTERNAL");
+        Map<String, Setting> controllerSettings = getControllerSettings(true,
                 false, true);
         BesDAO besDAO = mockWebServiceSetup(proxySettings, controllerSettings);
         ServiceInstance si = getServiceInstanceWithParameters(true, true);
@@ -1299,8 +1294,8 @@ public class BesDAOTest {
             throws MalformedURLException, BadResultException,
             APPlatformException {
         // given
-        Map<String, String> proxySettings = getSettingsForMode("INTERNAL");
-        Map<String, String> controllerSettings = getControllerSettings(true,
+        Map<String, Setting> proxySettings = getSettingsForMode("INTERNAL");
+        Map<String, Setting> controllerSettings = getControllerSettings(true,
                 true, false);
         BesDAO besDAO = mockWebServiceSetup(proxySettings, controllerSettings);
         ServiceInstance si = getServiceInstanceWithParameters(true, true);
@@ -1319,8 +1314,8 @@ public class BesDAOTest {
     public void getClientForBESTechnologyManager_INTERNAL_userKeyNotInConfig_userNotInTS()
             throws ConfigurationException, BadResultException {
         // given
-        Map<String, String> proxySettings = getSettingsForMode("INTERNAL");
-        Map<String, String> controllerSettings = getControllerSettings(true,
+        Map<String, Setting> proxySettings = getSettingsForMode("INTERNAL");
+        Map<String, Setting> controllerSettings = getControllerSettings(true,
                 false, true);
         doReturn(controllerSettings).when(confServ)
                 .getControllerConfigurationSettings(anyString());
@@ -1336,8 +1331,8 @@ public class BesDAOTest {
     public void getClientForBESTechnologyManager_INTERNAL_userKeyNotInConfig_pwdNotInTS()
             throws ConfigurationException, BadResultException {
         // given
-        Map<String, String> proxySettings = getSettingsForMode("INTERNAL");
-        Map<String, String> controllerSettings = getControllerSettings(true,
+        Map<String, Setting> proxySettings = getSettingsForMode("INTERNAL");
+        Map<String, Setting> controllerSettings = getControllerSettings(true,
                 false, true);
         doReturn(controllerSettings).when(confServ)
                 .getControllerConfigurationSettings(anyString());
@@ -1353,14 +1348,14 @@ public class BesDAOTest {
     public void getAuthenticationForBESTechnologyManager_INTERNAL_nothingInConfig()
             throws ConfigurationException, BadResultException {
         // given
-        Map<String, String> proxySettings = getSettingsForMode("INTERNAL");
-        final HashMap<String, String> controllerSettings = getControllerSettings(
+        Map<String, Setting> proxySettings = getSettingsForMode("INTERNAL");
+        final HashMap<String, Setting> controllerSettings = getControllerSettings(
                 false, false, false);
 
         // when
         APPConfigurationServiceBean configurationServiceBean = new APPConfigurationServiceBean() {
             @Override
-            public HashMap<String, String> getControllerConfigurationSettings(
+            public HashMap<String, Setting> getControllerConfigurationSettings(
                     String controllerId) throws ConfigurationException {
                 return controllerSettings;
             }
@@ -1373,8 +1368,8 @@ public class BesDAOTest {
     public void getClientForBESTechnologyManager_SSO_userInConfig()
             throws MalformedURLException, APPlatformException {
         // given
-        Map<String, String> proxySettings = getSettingsForMode("SAML_SP");
-        Map<String, String> controllerSettings = getControllerSettings(true,
+        Map<String, Setting> proxySettings = getSettingsForMode("SAML_SP");
+        Map<String, Setting> controllerSettings = getControllerSettings(true,
                 true, true);
         BesDAO besDAO = mockWebServiceSetup(proxySettings, controllerSettings);
 
@@ -1393,8 +1388,8 @@ public class BesDAOTest {
             throws MalformedURLException, BadResultException,
             APPlatformException {
         // given
-        Map<String, String> proxySettings = getSettingsForMode("SAML_SP");
-        Map<String, String> controllerSettings = getControllerSettings(false,
+        Map<String, Setting> proxySettings = getSettingsForMode("SAML_SP");
+        Map<String, Setting> controllerSettings = getControllerSettings(false,
                 true, true);
         BesDAO besDAO = mockWebServiceSetup(proxySettings, controllerSettings);
         ServiceInstance si = getServiceInstanceWithParameters(true, true);
@@ -1414,8 +1409,8 @@ public class BesDAOTest {
             throws MalformedURLException, BadResultException,
             APPlatformException {
         // given
-        Map<String, String> proxySettings = getSettingsForMode("SAML_SP");
-        Map<String, String> controllerSettings = getControllerSettings(true,
+        Map<String, Setting> proxySettings = getSettingsForMode("SAML_SP");
+        Map<String, Setting> controllerSettings = getControllerSettings(true,
                 true, false);
         BesDAO besDAO = mockWebServiceSetup(proxySettings, controllerSettings);
         ServiceInstance si = getServiceInstanceWithParameters(true, true);
@@ -1434,8 +1429,8 @@ public class BesDAOTest {
     public void getClientForBESTechnologyManager_SSO_userIdNotInConfig_userNotInTS()
             throws ConfigurationException, BadResultException {
         // given
-        Map<String, String> proxySettings = getSettingsForMode("SAML_SP");
-        Map<String, String> controllerSettings = getControllerSettings(false,
+        Map<String, Setting> proxySettings = getSettingsForMode("SAML_SP");
+        Map<String, Setting> controllerSettings = getControllerSettings(false,
                 true, true);
         doReturn(controllerSettings).when(confServ)
                 .getControllerConfigurationSettings(anyString());
@@ -1451,8 +1446,8 @@ public class BesDAOTest {
     public void getClientForBESTechnologyManager_SSO_userKeyNotInConfig_pwdNotInTS()
             throws ConfigurationException, BadResultException {
         // given
-        Map<String, String> proxySettings = getSettingsForMode("SAML_SP");
-        Map<String, String> controllerSettings = getControllerSettings(false,
+        Map<String, Setting> proxySettings = getSettingsForMode("SAML_SP");
+        Map<String, Setting> controllerSettings = getControllerSettings(false,
                 true, true);
         doReturn(controllerSettings).when(confServ)
                 .getControllerConfigurationSettings(anyString());
@@ -1466,12 +1461,12 @@ public class BesDAOTest {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void getBESWebService_nullInstance() throws MalformedURLException,
-            APPlatformException {
+    public void getBESWebService_nullInstance()
+            throws MalformedURLException, APPlatformException {
         // given
         BesDAO besDAO = spy(new BesDAO());
         besDAO.configService = spy(new APPConfigurationServiceBean());
-        Map<String, String> settings = getSettingsForMode("INTERNAL");
+        Map<String, Setting> settings = getSettingsForMode("INTERNAL");
         doReturn(settings).when(besDAO.configService)
                 .getAllProxyConfigurationSettings();
         Service serviceMock = Mockito.mock(Service.class);
@@ -1479,37 +1474,39 @@ public class BesDAOTest {
                 any(QName.class));
         doReturn(idServ).when(besDAO).getServicePort(eq(IdentityService.class),
                 anyMap());
-        doReturn(new PasswordAuthentication("user", "password")).when(
-                besDAO.configService).getAuthenticationForAPPAdmin(anyMap());
+        doReturn(new PasswordAuthentication("user", "password"))
+                .when(besDAO.configService)
+                .getAuthenticationForAPPAdmin(anyMap());
 
         // when
         besDAO.getBESWebService(IdentityService.class, null);
 
         // then
-        verify(besDAO.configService, times(1)).getAuthenticationForAPPAdmin(
-                anyMap());
+        verify(besDAO.configService, times(1))
+                .getAuthenticationForAPPAdmin(anyMap());
     }
 
     @SuppressWarnings("unchecked")
     @Test
-    public void getBESWebService_withInstance() throws MalformedURLException,
-            APPlatformException {
+    public void getBESWebService_withInstance()
+            throws MalformedURLException, APPlatformException {
         // given
         BesDAO besDAO = spy(new BesDAO());
         besDAO.configService = spy(new APPConfigurationServiceBean());
-        Map<String, String> settings = getSettingsForMode("INTERNAL");
+        Map<String, Setting> settings = getSettingsForMode("INTERNAL");
         doReturn(settings).when(besDAO.configService)
                 .getAllProxyConfigurationSettings();
-        Map<String, String> controllerSettings = getControllerSettings(true,
+        Map<String, Setting> controllerSettings = getControllerSettings(true,
                 true, true);
         doReturn(controllerSettings).when(besDAO.configService)
                 .getControllerConfigurationSettings(anyString());
-        doReturn(mock(Service.class)).when(besDAO).createWebService(
-                any(URL.class), any(QName.class));
+        doReturn(mock(Service.class)).when(besDAO)
+                .createWebService(any(URL.class), any(QName.class));
         doReturn(idServ).when(besDAO).getServicePort(eq(IdentityService.class),
                 anyMap());
-        doReturn(new PasswordAuthentication("user", "password")).when(
-                besDAO.configService).getAuthenticationForAPPAdmin(anyMap());
+        doReturn(new PasswordAuthentication("user", "password"))
+                .when(besDAO.configService)
+                .getAuthenticationForAPPAdmin(anyMap());
         ServiceInstance si = new ServiceInstance();
 
         // when
@@ -1540,15 +1537,15 @@ public class BesDAOTest {
 
     @SuppressWarnings("unchecked")
     @Test(expected = ConfigurationException.class)
-    public void getBESWebService_malformedURL() throws MalformedURLException,
-            APPlatformException {
+    public void getBESWebService_malformedURL()
+            throws MalformedURLException, APPlatformException {
         // given
         BesDAO besDAO = spy(new BesDAO());
         besDAO.configService = mock(APPConfigurationServiceBean.class);
         doReturn(new HashMap<>()).when(besDAO.configService)
                 .getAllProxyConfigurationSettings();
-        doThrow(new MalformedURLException()).when(besDAO).getServicePort(
-                eq(IdentityService.class), anyMap());
+        doThrow(new MalformedURLException()).when(besDAO)
+                .getServicePort(eq(IdentityService.class), anyMap());
 
         // when
         besDAO.getBESWebService(IdentityService.class, null);
@@ -1574,7 +1571,7 @@ public class BesDAOTest {
     public void notifyOnProvisioningStatusUpdate_deletedInstance()
             throws BESNotificationException, APPlatformException {
 
-        List<LocalizedText> list = new ArrayList<LocalizedText>();
+        List<LocalizedText> list = new ArrayList<>();
         list.add(new LocalizedText("de", "text"));
 
         // when
@@ -1628,9 +1625,9 @@ public class BesDAOTest {
     @Test
     public void isBESAvalible_false() throws Exception {
         // given
-        doThrow(new APPlatformException("", new ConnectException())).when(
-                besDAO).getBESWebService(eq(IdentityService.class),
-                any(ServiceInstance.class));
+        doThrow(new APPlatformException("", new ConnectException()))
+                .when(besDAO).getBESWebService(eq(IdentityService.class),
+                        any(ServiceInstance.class));
         // when
         boolean result = besDAO.isBESAvalible();
 
@@ -1653,11 +1650,9 @@ public class BesDAOTest {
     @Test
     public void terminateSubscription_successful() throws APPlatformException,
             ObjectNotFoundException, OperationNotPermittedException,
-            OrganizationAuthoritiesException,
-            TechnicalServiceNotAliveException,
-            TechnicalServiceOperationException,
-            ConcurrentModificationException, SubscriptionStateException,
-            BESNotificationException {
+            OrganizationAuthoritiesException, TechnicalServiceNotAliveException,
+            TechnicalServiceOperationException, ConcurrentModificationException,
+            SubscriptionStateException, BESNotificationException {
         // given
         doReturn(subServ).when(besDAO).getBESWebService(
                 eq(SubscriptionService.class), any(ServiceInstance.class));
@@ -1671,8 +1666,8 @@ public class BesDAOTest {
         // then
         verify(subServ, times(1)).getSubscriptionForCustomer(
                 si.getOrganizationId(), si.getSubscriptionId());
-        verify(subServ, times(1)).terminateSubscription(
-                any(VOSubscription.class), anyString());
+        verify(subServ, times(1))
+                .terminateSubscription(any(VOSubscription.class), anyString());
 
     }
 
@@ -1699,8 +1694,8 @@ public class BesDAOTest {
         // then
         verify(subServ, times(0)).getSubscriptionForCustomer(
                 si.getOrganizationId(), si.getSubscriptionId());
-        verify(subServ, times(0)).terminateSubscription(
-                any(VOSubscription.class), anyString());
+        verify(subServ, times(0))
+                .terminateSubscription(any(VOSubscription.class), anyString());
 
     }
 
@@ -1729,8 +1724,8 @@ public class BesDAOTest {
         // then
         verify(subServ, times(1)).getSubscriptionForCustomer(
                 si.getOrganizationId(), si.getSubscriptionId());
-        verify(subServ, times(0)).terminateSubscription(
-                any(VOSubscription.class), anyString());
+        verify(subServ, times(0))
+                .terminateSubscription(any(VOSubscription.class), anyString());
 
     }
 
@@ -1754,8 +1749,8 @@ public class BesDAOTest {
     }
 
     @SuppressWarnings("unchecked")
-    private BesDAO mockWebServiceSetup(final Map<String, String> proxySettings,
-            final Map<String, String> controllerSettings)
+    private BesDAO mockWebServiceSetup(final Map<String, Setting> proxySettings,
+            final Map<String, Setting> controllerSettings)
             throws APPlatformException, MalformedURLException {
         BesDAO besDAO = spy(new BesDAO());
         besDAO.configService = spy(new APPConfigurationServiceBean());
@@ -1765,65 +1760,85 @@ public class BesDAOTest {
             doReturn(controllerSettings).when(besDAO.configService)
                     .getControllerConfigurationSettings(anyString());
         }
-        doReturn(mock(Service.class)).when(besDAO).createWebService(
-                any(URL.class), any(QName.class));
+        doReturn(mock(Service.class)).when(besDAO)
+                .createWebService(any(URL.class), any(QName.class));
         doReturn(idServ).when(besDAO).getServicePort(eq(IdentityService.class),
                 anyMap());
-        doReturn(subServ).when(besDAO).getServicePort(
-                eq(SubscriptionService.class), anyMap());
+        doReturn(subServ).when(besDAO)
+                .getServicePort(eq(SubscriptionService.class), anyMap());
         return besDAO;
     }
 
-    private Map<String, String> getSettingsForMode(String mode) {
+    private Map<String, Setting> getSettingsForMode(String mode) {
         return getSettingsForMode(mode, true, true, true);
     }
 
-    private Map<String, String> getSettingsForMode(String mode, boolean userId,
+    private Map<String, Setting> getSettingsForMode(String mode, boolean userId,
             boolean userKey, boolean userPwd) {
-        Map<String, String> settings = new HashMap<String, String>();
+        Map<String, Setting> settings = new HashMap<>();
         if ("SAML_SP".equals(mode)) {
             settings.put(PlatformConfigurationKey.BSS_AUTH_MODE.name(),
-                    "SAML_SP");
+                    new Setting(PlatformConfigurationKey.BSS_AUTH_MODE.name(),
+                            "SAML_SP"));
         } else {
             settings.put(PlatformConfigurationKey.BSS_AUTH_MODE.name(),
-                    "INTERNAL");
+                    new Setting(PlatformConfigurationKey.BSS_AUTH_MODE.name(),
+                            "INTERNAL"));
         }
         if (userId) {
-            settings.put(PlatformConfigurationKey.BSS_USER_ID.name(), USER_ID);
+            settings.put(PlatformConfigurationKey.BSS_USER_ID.name(),
+                    new Setting(PlatformConfigurationKey.BSS_USER_ID.name(),
+                            USER_ID));
         }
         if (userKey) {
-            settings.put(PlatformConfigurationKey.BSS_USER_KEY.name(), USER_KEY);
+            settings.put(PlatformConfigurationKey.BSS_USER_KEY.name(),
+                    new Setting(PlatformConfigurationKey.BSS_USER_KEY.name(),
+                            USER_KEY));
         }
         if (userPwd) {
-            settings.put(PlatformConfigurationKey.BSS_USER_PWD.name(), USER_PWD);
+            settings.put(PlatformConfigurationKey.BSS_USER_PWD.name(),
+                    new Setting(PlatformConfigurationKey.BSS_USER_PWD.name(),
+                            USER_PWD));
         }
         settings.put(PlatformConfigurationKey.BSS_WEBSERVICE_URL.name(),
-                "https://localhost:8181/{SERVICE}/BASIC?wsdl");
+                new Setting(PlatformConfigurationKey.BSS_WEBSERVICE_URL.name(),
+                        "https://localhost:8181/{SERVICE}/BASIC?wsdl"));
         settings.put(PlatformConfigurationKey.BSS_STS_WEBSERVICE_URL.name(),
-                "https://localhost:8181/{SERVICE}/STS?wsdl");
+                new Setting(
+                        PlatformConfigurationKey.BSS_STS_WEBSERVICE_URL.name(),
+                        "https://localhost:8181/{SERVICE}/STS?wsdl"));
 
         settings.put(PlatformConfigurationKey.BSS_WEBSERVICE_WSDL_URL.name(),
-                "https://localhost:8181/oscm/v1.9/{SERVICE}/BASIC?wsdl");
+                new Setting(
+                        PlatformConfigurationKey.BSS_STS_WEBSERVICE_WSDL_URL
+                                .name(),
+                        "https://localhost:8181/oscm/v1.9/{SERVICE}/BASIC?wsdl"));
         settings.put(
                 PlatformConfigurationKey.BSS_STS_WEBSERVICE_WSDL_URL.name(),
-                "https://localhost:8181/oscm/v1.9/{SERVICE}/STS?wsdl");
+                new Setting(
+                        PlatformConfigurationKey.BSS_STS_WEBSERVICE_WSDL_URL
+                                .name(),
+                        "https://localhost:8181/oscm/v1.9/{SERVICE}/STS?wsdl"));
         return settings;
     }
 
-    private HashMap<String, String> getControllerSettings(boolean userId,
+    private HashMap<String, Setting> getControllerSettings(boolean userId,
             boolean userKey, boolean userPwd) {
-        HashMap<String, String> settings = new HashMap<String, String>();
+        HashMap<String, Setting> settings = new HashMap<>();
         if (userId) {
             settings.put(ControllerConfigurationKey.BSS_USER_ID.name(),
-                    USER_ID_TM);
+                    new Setting(ControllerConfigurationKey.BSS_USER_ID.name(),
+                            USER_ID_TM));
         }
         if (userKey) {
             settings.put(ControllerConfigurationKey.BSS_USER_KEY.name(),
-                    USER_KEY_TM);
+                    new Setting(ControllerConfigurationKey.BSS_USER_KEY.name(),
+                            USER_KEY_TM));
         }
         if (userPwd) {
             settings.put(ControllerConfigurationKey.BSS_USER_PWD.name(),
-                    USER_PWD_TM);
+                    new Setting(ControllerConfigurationKey.BSS_USER_PWD.name(),
+                            USER_PWD_TM));
         }
         return settings;
     }
@@ -1831,7 +1846,7 @@ public class BesDAOTest {
     private ServiceInstance getServiceInstanceWithParameters(boolean user,
             boolean userPwd) throws BadResultException {
         ServiceInstance si = new ServiceInstance();
-        List<InstanceParameter> list = new ArrayList<InstanceParameter>();
+        List<InstanceParameter> list = new ArrayList<>();
         if (user) {
             InstanceParameter p = spy(new InstanceParameter());
             p.setParameterKey(InstanceParameter.BSS_USER);

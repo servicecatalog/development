@@ -13,10 +13,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.oscm.app.v1_0.data.PasswordAuthentication;
 import org.oscm.app.v1_0.data.ProvisioningSettings;
 import org.oscm.app.v1_0.data.ServiceUser;
+import org.oscm.app.v1_0.data.Setting;
 import org.oscm.app.v1_0.exceptions.APPlatformException;
 import org.oscm.app.vmware.business.VMwareValue.Unit;
 import org.oscm.app.vmware.business.model.Cluster;
@@ -155,10 +157,7 @@ public class VMPropertyHandler {
      * several stages until it is automatically deleted
      */
     public enum SubscriptionEndStatus {
-        UNDEFINED,
-        SCHEDULED_FOR_NOTIFICATION,
-        SCHEDULED_FOR_DEACTIVATION,
-        SCHEDULED_FOR_DELETION
+        UNDEFINED, SCHEDULED_FOR_NOTIFICATION, SCHEDULED_FOR_DEACTIVATION, SCHEDULED_FOR_DELETION
     };
 
     public static final String SUBSCRIPTION_END_STATUS = "SUBSCRIPTION_END_STATUS";
@@ -411,7 +410,7 @@ public class VMPropertyHandler {
 
     public void setSetting(String key, String value) {
         if (value != null) {
-            settings.getParameters().put(key, value);
+            settings.getParameters().put(key, new Setting(key, value));
         } else {
             logger.warn("Setting not set because null value. key:" + key);
         }
@@ -423,7 +422,7 @@ public class VMPropertyHandler {
      */
     public List<String> getDataDiskMountPointParameterKeys() {
         String regex = TS_DATA_DISK_TARGET.replace("#", "").concat("\\d+");
-        List<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<>();
         for (String key : settings.getParameters().keySet()) {
             if (key.matches(regex)) {
                 result.add(key);
@@ -439,7 +438,7 @@ public class VMPropertyHandler {
      */
     public List<String> getDataDiskSizeParameterKeys() {
         String regex = TS_DATA_DISK_SIZE.replace("#", "").concat("\\d+");
-        List<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<>();
         for (String key : settings.getParameters().keySet()) {
             if (key.matches(regex)) {
                 result.add(key);
@@ -452,14 +451,14 @@ public class VMPropertyHandler {
     public String getMountPointValidationPattern(String mointPointKey) {
         String patternKey = mointPointKey.replace("TARGET_",
                 "TARGET_VALIDATION_");
-        return settings.getParameters().get(patternKey);
+        return getValue(patternKey, settings.getParameters());
     }
 
     public String getGuestReadyTimeout(String key) {
         if (settings.getParameters().containsKey(key)) {
-            return settings.getParameters().get(key);
+            return getValue(key, settings.getParameters());
         }
-        return settings.getConfigSettings().get(key);
+        return getValue(key, settings.getConfigSettings());
     }
 
     public int getNumberOfNetworkAdapter() {
@@ -528,7 +527,7 @@ public class VMPropertyHandler {
                 }
 
                 settings.getParameters().put("NIC" + i + "_NETWORK_ADAPTER",
-                        vlan);
+                        new Setting("NIC" + i + "_NETWORK_ADAPTER", vlan));
 
                 String ipAddress;
                 VMwareNetwork nw;
@@ -551,45 +550,53 @@ public class VMPropertyHandler {
                         + nw.getDnsSuffix());
 
                 if (i == 1) {
-                    settings.getParameters().put(TS_NIC1_IP_ADDRESS, ipAddress);
+                    settings.getParameters().put(TS_NIC1_IP_ADDRESS,
+                            new Setting(TS_NIC1_IP_ADDRESS, ipAddress));
                     settings.getParameters().put(TS_NIC1_SUBNET_MASK,
-                            nw.getSubnetMask());
+                            new Setting(TS_NIC1_SUBNET_MASK,
+                                    nw.getSubnetMask()));
                     settings.getParameters().put(TS_NIC1_GATEWAY,
-                            nw.getGateway());
+                            new Setting(TS_NIC1_GATEWAY, nw.getGateway()));
                     settings.getParameters().put(TS_NIC1_DNS_SERVER,
-                            nw.getDnsServer());
+                            new Setting(TS_NIC1_DNS_SERVER, nw.getDnsServer()));
                     settings.getParameters().put(TS_NIC1_DNS_SUFFIX,
-                            nw.getDnsSuffix());
+                            new Setting(TS_NIC1_DNS_SUFFIX, nw.getDnsSuffix()));
                 } else if (i == 2) {
-                    settings.getParameters().put(TS_NIC2_IP_ADDRESS, ipAddress);
+                    settings.getParameters().put(TS_NIC2_IP_ADDRESS,
+                            new Setting(TS_NIC1_IP_ADDRESS, ipAddress));
                     settings.getParameters().put(TS_NIC2_SUBNET_MASK,
-                            nw.getSubnetMask());
+                            new Setting(TS_NIC1_SUBNET_MASK,
+                                    nw.getSubnetMask()));
                     settings.getParameters().put(TS_NIC2_GATEWAY,
-                            nw.getGateway());
+                            new Setting(TS_NIC1_GATEWAY, nw.getGateway()));
                     settings.getParameters().put(TS_NIC2_DNS_SERVER,
-                            nw.getDnsServer());
+                            new Setting(TS_NIC1_DNS_SERVER, nw.getDnsServer()));
                     settings.getParameters().put(TS_NIC2_DNS_SUFFIX,
-                            nw.getDnsSuffix());
+                            new Setting(TS_NIC1_DNS_SUFFIX, nw.getDnsSuffix()));
                 } else if (i == 3) {
-                    settings.getParameters().put(TS_NIC3_IP_ADDRESS, ipAddress);
+                    settings.getParameters().put(TS_NIC3_IP_ADDRESS,
+                            new Setting(TS_NIC1_IP_ADDRESS, ipAddress));
                     settings.getParameters().put(TS_NIC3_SUBNET_MASK,
-                            nw.getSubnetMask());
+                            new Setting(TS_NIC1_SUBNET_MASK,
+                                    nw.getSubnetMask()));
                     settings.getParameters().put(TS_NIC3_GATEWAY,
-                            nw.getGateway());
+                            new Setting(TS_NIC1_GATEWAY, nw.getGateway()));
                     settings.getParameters().put(TS_NIC3_DNS_SERVER,
-                            nw.getDnsServer());
+                            new Setting(TS_NIC1_DNS_SERVER, nw.getDnsServer()));
                     settings.getParameters().put(TS_NIC3_DNS_SUFFIX,
-                            nw.getDnsSuffix());
+                            new Setting(TS_NIC1_DNS_SUFFIX, nw.getDnsSuffix()));
                 } else if (i == 4) {
-                    settings.getParameters().put(TS_NIC4_IP_ADDRESS, ipAddress);
+                    settings.getParameters().put(TS_NIC4_IP_ADDRESS,
+                            new Setting(TS_NIC1_IP_ADDRESS, ipAddress));
                     settings.getParameters().put(TS_NIC4_SUBNET_MASK,
-                            nw.getSubnetMask());
+                            new Setting(TS_NIC1_SUBNET_MASK,
+                                    nw.getSubnetMask()));
                     settings.getParameters().put(TS_NIC4_GATEWAY,
-                            nw.getGateway());
+                            new Setting(TS_NIC1_GATEWAY, nw.getGateway()));
                     settings.getParameters().put(TS_NIC4_DNS_SERVER,
-                            nw.getDnsServer());
+                            new Setting(TS_NIC1_DNS_SERVER, nw.getDnsServer()));
                     settings.getParameters().put(TS_NIC4_DNS_SUFFIX,
-                            nw.getDnsSuffix());
+                            new Setting(TS_NIC1_DNS_SUFFIX, nw.getDnsSuffix()));
                 }
 
             }
@@ -635,7 +642,7 @@ public class VMPropertyHandler {
      * @return a list of Long values for all defined data disks
      */
     public Double[] getDataDisksMB() {
-        List<Double> ddlist = new ArrayList<Double>();
+        List<Double> ddlist = new ArrayList<>();
         for (int i = 1; i <= 999; i++) {
             String diskPrefix = TS_DATA_DISK_SIZE.replace("#",
                     Integer.toString(i));
@@ -670,8 +677,8 @@ public class VMPropertyHandler {
      * Returns the key of a custom virtual disk or "0" if not defined
      */
     public int getDataDiskKey(int index) {
-        String val = settings.getParameters()
-                .get(DATA_DISK_KEY + Integer.toString(index));
+        String val = getValue(DATA_DISK_KEY + Integer.toString(index),
+                settings.getParameters());
         return (val != null && val.length() > 0) ? Integer.parseInt(val) : 0;
     }
 
@@ -680,8 +687,8 @@ public class VMPropertyHandler {
      * VMware device key.
      */
     public void setDataDiskKey(int index, int key) {
-        settings.getParameters().put(DATA_DISK_KEY + Integer.toString(index),
-                Integer.toString(key));
+        setValue(DATA_DISK_KEY + Integer.toString(index), Integer.toString(key),
+                settings.getParameters());
     }
 
     public List<VLAN> getVLANs(Cluster cluster) {
@@ -690,7 +697,7 @@ public class VMPropertyHandler {
             return das.getVLANs(cluster);
         } catch (Exception e) {
             logger.error("Failed to retrieve VLAN list.", e);
-            return new ArrayList<VLAN>();
+            return new ArrayList<>();
         }
     }
 
@@ -752,7 +759,7 @@ public class VMPropertyHandler {
             vcenter = das.getVCenter();
         } catch (Exception e) {
             logger.error("Failed to retrieve vCenter server list.", e);
-            vcenter = new ArrayList<VCenter>();
+            vcenter = new ArrayList<>();
         }
 
         return vcenter;
@@ -798,7 +805,7 @@ public class VMPropertyHandler {
                 && targetFolder.indexOf(PLACEHOLDER_ORGID) >= 0) {
             String orgId = settings.getOrganizationId();
             targetFolder = targetFolder.replace(PLACEHOLDER_ORGID, orgId);
-            settings.getParameters().put(TS_TARGET_FOLDER, targetFolder);
+            setValue(TS_TARGET_FOLDER, targetFolder, settings.getParameters());
         }
         return targetFolder;
     }
@@ -870,7 +877,7 @@ public class VMPropertyHandler {
                 name = name.replace(PLACEHOLDER_ID12, seqNum);
             }
 
-            settings.getParameters().put(TS_INSTANCENAME, name);
+            setValue(TS_INSTANCENAME, name, settings.getParameters());
 
         } catch (Exception e) {
             logger.error("Failed to generate instance name", e);
@@ -894,17 +901,18 @@ public class VMPropertyHandler {
     }
 
     public void setAccessInfo(String value) {
-        settings.getParameters().put(TS_ACCESS_INFO, value);
+        setValue(TS_ACCESS_INFO, value, settings.getParameters());
     }
 
     public void setRequestingUser(ServiceUser userInfo) {
         if (userInfo != null && userInfo.getUserId() != null) {
-            settings.getParameters().put(REQUESTING_USER, userInfo.getUserId());
+            setValue(REQUESTING_USER, userInfo.getUserId(),
+                    settings.getParameters());
         }
 
         if (userInfo != null && userInfo.getEmail() != null) {
-            settings.getParameters().put(REQUESTING_USER_EMAIL,
-                    userInfo.getEmail());
+            setValue(REQUESTING_USER_EMAIL, userInfo.getEmail(),
+                    settings.getParameters());
         }
     }
 
@@ -941,16 +949,16 @@ public class VMPropertyHandler {
      * Updates the key of the last created task.
      */
     public void setTask(String key) {
-        settings.getParameters().put(TASK_KEY, key);
-        settings.getParameters().put(TASK_STARTTIME,
-                Long.toString(System.currentTimeMillis()));
+        setValue(TASK_KEY, key, settings.getParameters());
+        setValue(TASK_STARTTIME, Long.toString(System.currentTimeMillis()),
+                settings.getParameters());
     }
 
     /**
      * Returns the start time of the last created task.
      */
     public Date getTaskStartTime() {
-        String dateVal = settings.getParameters().get(TASK_STARTTIME);
+        String dateVal = getValue(TASK_STARTTIME, settings.getParameters());
         return (dateVal != null) ? new Date(Long.parseLong(dateVal)) : null;
     }
 
@@ -1086,7 +1094,7 @@ public class VMPropertyHandler {
         if (notNullNorEmpty(configUserPwd)) {
             return configUserPwd;
         }
-        return settings.getParameters().get(BSS_USER_PWD);
+        return getValue(BSS_USER_PWD, settings.getParameters());
     }
 
     /**
@@ -1118,7 +1126,7 @@ public class VMPropertyHandler {
      * @return true if the defined instance should be imported
      */
     public boolean isImportOfExistingVM() {
-        String rc = settings.getParameters().get(TS_IMPORT_EXISTING_VM);
+        String rc = getValue(TS_IMPORT_EXISTING_VM, settings.getParameters());
         return rc != null && rc.toLowerCase().equals("true");
     }
 
@@ -1128,8 +1136,8 @@ public class VMPropertyHandler {
      * Will be cleared after upgrade operations.
      */
     public void setImportOfExistingVM(boolean value) {
-        settings.getParameters().put(TS_IMPORT_EXISTING_VM,
-                value ? "true" : "false");
+        setValue(TS_IMPORT_EXISTING_VM, value ? "true" : "false",
+                settings.getParameters());
     }
 
     /**
@@ -1439,7 +1447,8 @@ public class VMPropertyHandler {
     }
 
     public void setSubscriptionEndStatus(SubscriptionEndStatus status) {
-        settings.getParameters().put(SUBSCRIPTION_END_STATUS, status.name());
+        setValue(SUBSCRIPTION_END_STATUS, status.name(),
+                settings.getParameters());
     }
 
     /**
@@ -1482,14 +1491,14 @@ public class VMPropertyHandler {
      * Returns a controller setting or NULL of not defined
      */
     public String getControllerSetting(String key) {
-        return settings.getConfigSettings().get(key);
+        return getValue(key, settings.getConfigSettings());
     }
 
     /**
      * Returns a service setting. If not set a RuntimeException is thrown.
      */
     public String getServiceSettingValidated(String key) {
-        String value = settings.getParameters().get(key);
+        String value = getValue(key, settings.getParameters());
         if (value == null) {
             String message = String.format("No value set for property '%s'",
                     key);
@@ -1502,7 +1511,7 @@ public class VMPropertyHandler {
      * Returns a service setting or NULL if not set
      */
     public String getServiceSetting(String key) {
-        return settings.getParameters().get(key);
+        return getValue(key, settings.getParameters());
     }
 
     public void useMock(DataAccessService das) {
@@ -1515,5 +1524,15 @@ public class VMPropertyHandler {
         } else {
             return new DataAccessService(getLocale());
         }
+    }
+
+    private String getValue(String key, Map<String, Setting> source) {
+        Setting setting = source.get(key);
+        return setting != null ? setting.getValue() : null;
+    }
+
+    private void setValue(String key, String value,
+            Map<String, Setting> target) {
+        target.put(key, new Setting(key, value));
     }
 }

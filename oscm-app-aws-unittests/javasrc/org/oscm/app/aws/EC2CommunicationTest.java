@@ -30,6 +30,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 import org.oscm.app.aws.controller.PropertyHandler;
 import org.oscm.app.v1_0.data.ProvisioningSettings;
+import org.oscm.app.v1_0.data.Setting;
 import org.oscm.app.v1_0.exceptions.APPlatformException;
 
 import com.amazonaws.ClientConfiguration;
@@ -53,8 +54,8 @@ import com.amazonaws.services.ec2.model.TerminateInstancesRequest;
 
 public class EC2CommunicationTest {
 
-    private HashMap<String, String> parameters;
-    private HashMap<String, String> configSettings;
+    private HashMap<String, Setting> parameters;
+    private HashMap<String, Setting> configSettings;
     private ProvisioningSettings settings;
     private PropertyHandler ph;
     private EC2Communication ec2comm;
@@ -76,21 +77,30 @@ public class EC2CommunicationTest {
         System.clearProperty("http.nonProxyHosts");
 
         // Define controller settings
-        configSettings = new HashMap<String, String>();
-        configSettings.put(PropertyHandler.SECRET_KEY_PWD, "secret_key");
-        configSettings.put(PropertyHandler.ACCESS_KEY_ID_PWD, "access_key");
+        configSettings = new HashMap<>();
+        configSettings.put(PropertyHandler.SECRET_KEY_PWD,
+                new Setting(PropertyHandler.SECRET_KEY_PWD, "secret_key"));
+        configSettings.put(PropertyHandler.ACCESS_KEY_ID_PWD,
+                new Setting(PropertyHandler.ACCESS_KEY_ID_PWD, "access_key"));
 
         // Define parameters
-        parameters = new HashMap<String, String>();
-        parameters.put(PropertyHandler.REGION, "test");
-        parameters.put(PropertyHandler.KEY_PAIR_NAME, "key_pair");
-        parameters.put(PropertyHandler.INSTANCE_TYPE, "type1");
-        parameters.put(PropertyHandler.INSTANCENAME, "name1");
+        parameters = new HashMap<>();
+        parameters.put(PropertyHandler.REGION,
+                new Setting(PropertyHandler.REGION, "test"));
+        parameters.put(PropertyHandler.KEY_PAIR_NAME,
+                new Setting(PropertyHandler.KEY_PAIR_NAME, "key_pair"));
+        parameters.put(PropertyHandler.INSTANCE_TYPE,
+                new Setting(PropertyHandler.INSTANCE_TYPE, "type1"));
+        parameters.put(PropertyHandler.INSTANCENAME,
+                new Setting(PropertyHandler.INSTANCENAME, "name1"));
         // new data
-        parameters.put(PropertyHandler.DISK_SIZE, "3");
-        parameters.put(PropertyHandler.SUBNET, "subnet-a77430d0");
+        parameters.put(PropertyHandler.DISK_SIZE,
+                new Setting(PropertyHandler.DISK_SIZE, "3"));
+        parameters.put(PropertyHandler.SUBNET,
+                new Setting(PropertyHandler.SUBNET, "subnet-a77430d0"));
         parameters.put(PropertyHandler.SECURITY_GROUP_NAMES,
-                "security_group1,security_group2");
+                new Setting(PropertyHandler.SECURITY_GROUP_NAMES,
+                        "security_group1,security_group2"));
 
         settings = new ProvisioningSettings(parameters, configSettings, "en");
         settings.setOrganizationId("orgId");
@@ -362,7 +372,7 @@ public class EC2CommunicationTest {
             }
         }
 
-        parameters.put("USERDATA_URL", "userdata");
+        parameters.put("USERDATA_URL", new Setting("USERDATA_URL", "userdata"));
 
     }
 
@@ -385,7 +395,8 @@ public class EC2CommunicationTest {
         File myFile = createUserDataFile(userData);
         try {
             URL fileUrl = myFile.toURI().toURL();
-            parameters.put(PropertyHandler.USERDATA_URL, fileUrl.toString());
+            parameters.put(PropertyHandler.USERDATA_URL, new Setting(
+                    PropertyHandler.USERDATA_URL, fileUrl.toString()));
             ec2mock.createRunInstancesResult("instance2");
             ec2mock.createDescribeImagesResult("image1");
             ec2mock.createDescribeSubnetsResult("subnet-a77430d0");
@@ -421,7 +432,8 @@ public class EC2CommunicationTest {
     @Test
     public void testCreateInstanceUserDataMalformedUrl() throws Exception {
         try {
-            parameters.put(PropertyHandler.USERDATA_URL, "MALFORMED_URL");
+            parameters.put(PropertyHandler.USERDATA_URL,
+                    new Setting(PropertyHandler.USERDATA_URL, "MALFORMED_URL"));
             ec2mock.createRunInstancesResult("instance2");
             ec2mock.createDescribeImagesResult("image1");
             ec2mock.createDescribeSubnetsResult("subnet-a77430d0");
@@ -441,7 +453,8 @@ public class EC2CommunicationTest {
 
     @Test
     public void testCreateInstanceUserDataEmptyUrl() throws Exception {
-        parameters.put(PropertyHandler.USERDATA_URL, "");
+        parameters.put(PropertyHandler.USERDATA_URL,
+                new Setting(PropertyHandler.USERDATA_URL, ""));
         ec2mock.createRunInstancesResult("instance3");
         ec2mock.createDescribeImagesResult("image1");
         ec2mock.createDescribeSubnetsResult("subnet-a77430d0");
@@ -460,7 +473,8 @@ public class EC2CommunicationTest {
         try {
             URL fileUrl = myFile.toURI().toURL();
             parameters.put(PropertyHandler.USERDATA_URL,
-                    fileUrl.toString() + "_notexisting");
+                    new Setting(PropertyHandler.USERDATA_URL,
+                            fileUrl.toString() + "_notexisting"));
             ec2mock.createRunInstancesResult("instance2");
             ec2mock.createDescribeImagesResult("image1");
             ec2mock.createDescribeSubnetsResult("subnet-a77430d0");
@@ -482,7 +496,8 @@ public class EC2CommunicationTest {
 
     @Test
     public void testCreateInstanceSecurityGroups() throws Exception {
-        parameters.put(PropertyHandler.SECURITY_GROUP_NAMES, "security_group");
+        parameters.put(PropertyHandler.SECURITY_GROUP_NAMES, new Setting(
+                PropertyHandler.SECURITY_GROUP_NAMES, "security_group"));
         ec2mock.createRunInstancesResult("instance3");
 
         ec2mock.createDescribeImagesResult("image1");
@@ -511,7 +526,8 @@ public class EC2CommunicationTest {
     @Test
     public void testCreateInstanceSecurityGroupsMultiple() throws Exception {
         parameters.put(PropertyHandler.SECURITY_GROUP_NAMES,
-                "security_group1, security_group2");
+                new Setting(PropertyHandler.SECURITY_GROUP_NAMES,
+                        "security_group1, security_group2"));
         ec2mock.createRunInstancesResult("instance3");
         ec2mock.createDescribeImagesResult("image1");
         ec2mock.createDescribeSubnetsResult("subnet-a77430d0");

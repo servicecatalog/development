@@ -15,6 +15,7 @@ import javax.servlet.http.HttpSession;
 
 import org.oscm.app.v1_0.data.PasswordAuthentication;
 import org.oscm.app.v1_0.data.ProvisioningSettings;
+import org.oscm.app.v1_0.data.Setting;
 import org.oscm.app.v1_0.exceptions.APPlatformException;
 import org.oscm.app.v1_0.exceptions.AuthenticationException;
 import org.oscm.app.v1_0.exceptions.ConfigurationException;
@@ -33,16 +34,16 @@ public class ManagedBeans {
             APPlatformService platformService) throws AuthenticationException,
             ConfigurationException, APPlatformException {
 
-        HashMap<String, String> controllerSettings = getControllerSettings(
+        HashMap<String, Setting> controllerSettings = getControllerSettings(
                 platformService);
 
         ProvisioningSettings settings = new ProvisioningSettings(
-                new HashMap<String, String>(), controllerSettings,
+                new HashMap<String, Setting>(), controllerSettings,
                 Messages.DEFAULT_LOCALE);
         return new VMPropertyHandler(settings);
     }
 
-    private HashMap<String, String> getControllerSettings(
+    private HashMap<String, Setting> getControllerSettings(
             APPlatformService platformService) throws AuthenticationException,
             ConfigurationException, APPlatformException {
 

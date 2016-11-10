@@ -16,6 +16,7 @@ import javax.ejb.Remote;
 
 import org.oscm.app.v1_0.data.PasswordAuthentication;
 import org.oscm.app.v1_0.data.ProvisioningSettings;
+import org.oscm.app.v1_0.data.Setting;
 import org.oscm.app.v1_0.data.User;
 import org.oscm.app.v1_0.exceptions.APPlatformException;
 import org.oscm.app.v1_0.exceptions.AuthenticationException;
@@ -179,7 +180,7 @@ public interface APPlatformService {
      * @throws APPlatformException
      *             if a general problem occurs in accessing APP
      */
-    public HashMap<String, String> getControllerSettings(String controllerId,
+    public HashMap<String, Setting> getControllerSettings(String controllerId,
             PasswordAuthentication authentication)
             throws AuthenticationException, ConfigurationException,
             APPlatformException;
@@ -208,7 +209,7 @@ public interface APPlatformService {
      *             if a general problem occurs in accessing APP
      */
     public void storeControllerSettings(String controllerId,
-            HashMap<String, String> controllerSettings,
+            HashMap<String, Setting> controllerSettings,
             PasswordAuthentication authentication)
             throws AuthenticationException, ConfigurationException,
             APPlatformException;

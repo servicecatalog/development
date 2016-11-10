@@ -24,8 +24,8 @@ public class InstanceStatus implements Serializable {
     private boolean runWithTimer = true;
     private boolean instanceProvisioningRequested = false;
     private List<LocalizedText> description;
-    private HashMap<String, String> parameters;
-    private HashMap<String, String> attributes;
+    private HashMap<String, Setting> parameters;
+    private HashMap<String, Setting> attributes;
 
     private String baseUrl;
     private String accessInfo;
@@ -180,7 +180,7 @@ public class InstanceStatus implements Serializable {
      * @return the parameters and settings to store, consisting of a key and a
      *         value each
      */
-    public HashMap<String, String> getChangedParameters() {
+    public HashMap<String, Setting> getChangedParameters() {
         return parameters;
     }
 
@@ -192,7 +192,7 @@ public class InstanceStatus implements Serializable {
      *            the parameters and settings to store, consisting of a key and
      *            a value each
      */
-    public void setChangedParameters(HashMap<String, String> parameters) {
+    public void setChangedParameters(HashMap<String, Setting> parameters) {
         this.parameters = parameters;
     }
 
@@ -202,7 +202,7 @@ public class InstanceStatus implements Serializable {
      * 
      * @return the attributes to store, consisting of a key and a value each
      */
-    public HashMap<String, String> getChangedAttributes() {
+    public HashMap<String, Setting> getChangedAttributes() {
         return attributes;
     }
 
@@ -213,7 +213,7 @@ public class InstanceStatus implements Serializable {
      * @param attributes
      *            the attributes to store, consisting of a key and a value each
      */
-    public void setChangedAttributes(HashMap<String, String> attributes) {
+    public void setChangedAttributes(HashMap<String, Setting> attributes) {
         this.attributes = attributes;
     }
 

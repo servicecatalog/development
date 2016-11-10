@@ -32,17 +32,12 @@ import java.util.concurrent.Callable;
 
 import javax.naming.InitialContext;
 
-import junit.framework.Assert;
-
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-
-import org.oscm.test.EJBTestBase;
-import org.oscm.test.ejb.TestContainer;
 import org.oscm.app.iaas.ProcessManagerBean;
 import org.oscm.app.iaas.PropertyHandler;
 import org.oscm.app.iaas.VServerProcessorBean;
@@ -77,11 +72,16 @@ import org.oscm.app.v1_0.data.InstanceDescription;
 import org.oscm.app.v1_0.data.InstanceStatus;
 import org.oscm.app.v1_0.data.PasswordAuthentication;
 import org.oscm.app.v1_0.data.ProvisioningSettings;
+import org.oscm.app.v1_0.data.Setting;
 import org.oscm.app.v1_0.data.User;
 import org.oscm.app.v1_0.exceptions.APPlatformException;
 import org.oscm.app.v1_0.exceptions.SuspendException;
 import org.oscm.app.v1_0.intf.APPlatformController;
 import org.oscm.app.v1_0.intf.APPlatformService;
+import org.oscm.test.EJBTestBase;
+import org.oscm.test.ejb.TestContainer;
+
+import junit.framework.Assert;
 
 public class RORControllerIT extends EJBTestBase {
 
@@ -90,10 +90,10 @@ public class RORControllerIT extends EJBTestBase {
 
     private APPlatformController controller;
     private APPlatformService platformService;
-    private final HashMap<String, String> parameters = new HashMap<String, String>();
-    private final HashMap<String, String> configSettings = new HashMap<String, String>();
-    private ProvisioningSettings settings = new ProvisioningSettings(
-            parameters, configSettings, "en");
+    private final HashMap<String, Setting> parameters = new HashMap<>();
+    private final HashMap<String, Setting> configSettings = new HashMap<>();
+    private ProvisioningSettings settings = new ProvisioningSettings(parameters,
+            configSettings, "en");
     private boolean anyServiceLocked;
     private String existingInstanceId;
     private Exception wantedException;
@@ -103,7 +103,7 @@ public class RORControllerIT extends EJBTestBase {
     private ProvisioningSettings oldSettings;
     private RORClient wantedVDCClient;
     private LPlatformClient wantedVSYSClient;
-    private final List<String> serverIds = new LinkedList<String>();
+    private final List<String> serverIds = new LinkedList<>();
     private String platformStatus = "";
     private String combinedServerStatus = "";
     private LServerConfiguration vserverConfig;
@@ -133,21 +133,21 @@ public class RORControllerIT extends EJBTestBase {
         context.bind(APPlatformService.JNDI_NAME, platformService);
         Answer<Boolean> answerLock = new Answer<Boolean>() {
             @Override
-            public Boolean answer(InvocationOnMock invocation) throws Throwable {
+            public Boolean answer(InvocationOnMock invocation)
+                    throws Throwable {
                 return Boolean.valueOf(!anyServiceLocked);
             }
         };
-        Mockito.doAnswer(answerLock)
-                .when(platformService)
-                .lockServiceInstance(Matchers.eq(RORController.ID),
-                        Matchers.anyString(),
-                        Matchers.any(PasswordAuthentication.class));
+        Mockito.doAnswer(answerLock).when(platformService).lockServiceInstance(
+                Matchers.eq(RORController.ID), Matchers.anyString(),
+                Matchers.any(PasswordAuthentication.class));
         Answer<Boolean> answerExists = new Answer<Boolean>() {
             @Override
-            public Boolean answer(InvocationOnMock invocation) throws Throwable {
+            public Boolean answer(InvocationOnMock invocation)
+                    throws Throwable {
                 Object[] arguments = invocation.getArguments();
-                return Boolean.valueOf(arguments != null
-                        && arguments.length > 1 && existingInstanceId != null
+                return Boolean.valueOf(arguments != null && arguments.length > 1
+                        && existingInstanceId != null
                         && existingInstanceId.equals(arguments[1]));
             }
         };
@@ -166,30 +166,42 @@ public class RORControllerIT extends EJBTestBase {
         addProcessManagerBean(container);
         container.addBean(new RORController());
         controller = container.get(APPlatformController.class);
-        parameters.put(PropertyHandler.INSTANCENAME_PREFIX, "estess");
+        parameters.put(PropertyHandler.INSTANCENAME_PREFIX,
+                new Setting(PropertyHandler.INSTANCENAME_PREFIX, "estess"));
         parameters.put(PropertyHandler.INSTANCENAME_PATTERN,
-                "estess([a-z0-9]){2,25}");
-        parameters.put(PropertyHandler.INSTANCENAME_CUSTOM, "demo2");
-        parameters.put(PropertyHandler.SYSTEM_TEMPLATE_ID,
-                "template-13c8ab3348d");
-        parameters.put(PropertyHandler.MASTER_TEMPLATE_ID, MASTER_TEMPLATE_ID);
-        parameters.put(PropertyHandler.SLAVE_TEMPLATE_ID, SLAVE_TEMPLATE_ID);
-        parameters.put(PropertyHandler.VSYS_ID, "SampleTe-3KGU9G1N4");
-        parameters.put(PropertyHandler.VSERVER_ID, "SampleTe-M3Z010QCV-S-0007");
+                new Setting(PropertyHandler.INSTANCENAME_PATTERN,
+                        "estess([a-z0-9]){2,25}"));
+        parameters.put(PropertyHandler.INSTANCENAME_CUSTOM,
+                new Setting(PropertyHandler.INSTANCENAME_CUSTOM, "demo2"));
+        parameters.put(PropertyHandler.SYSTEM_TEMPLATE_ID, new Setting(
+                PropertyHandler.SYSTEM_TEMPLATE_ID, "template-13c8ab3348d"));
+        parameters.put(PropertyHandler.MASTER_TEMPLATE_ID, new Setting(
+                PropertyHandler.MASTER_TEMPLATE_ID, MASTER_TEMPLATE_ID));
+        parameters.put(PropertyHandler.SLAVE_TEMPLATE_ID, new Setting(
+                PropertyHandler.SLAVE_TEMPLATE_ID, SLAVE_TEMPLATE_ID));
+        parameters.put(PropertyHandler.VSYS_ID,
+                new Setting(PropertyHandler.VSYS_ID, "SampleTe-3KGU9G1N4"));
+        parameters.put(PropertyHandler.VSERVER_ID, new Setting(
+                PropertyHandler.VSERVER_ID, "SampleTe-M3Z010QCV-S-0007"));
         parameters.put(PropertyHandler.IAAS_API_URI,
-                "https://ror-demo.fujitsu.com:8014/cfmgapi/endpoint");
-        parameters.put(PropertyHandler.CLUSTER_SIZE, "2");
-        settings.getConfigSettings().put(PropertyHandler.IAAS_API_LOCALE, "en");
+                new Setting(PropertyHandler.IAAS_API_URI,
+                        "https://ror-demo.fujitsu.com:8014/cfmgapi/endpoint"));
+        parameters.put(PropertyHandler.CLUSTER_SIZE,
+                new Setting(PropertyHandler.CLUSTER_SIZE, "2"));
+        settings.getConfigSettings().put(PropertyHandler.IAAS_API_LOCALE,
+                new Setting(PropertyHandler.IAAS_API_LOCALE, "en"));
         settings.getConfigSettings().put(PropertyHandler.IAAS_API_TENANT,
-                "SampleTenant");
+                new Setting(PropertyHandler.IAAS_API_TENANT, "SampleTenant"));
         settings.getConfigSettings().put(PropertyHandler.IAAS_API_USER,
-                "tenant_admin");
+                new Setting(PropertyHandler.IAAS_API_USER, "tenant_admin"));
         settings.getConfigSettings().put(PropertyHandler.IAAS_API_PWD,
-                "tenantadmin");
-        settings.getConfigSettings().put(
-                PropertyHandler.ENABLE_PARALLEL_PROVISIONING, "false");
+                new Setting(PropertyHandler.IAAS_API_PWD, "tenantadmin"));
+        settings.getConfigSettings()
+                .put(PropertyHandler.ENABLE_PARALLEL_PROVISIONING, new Setting(
+                        PropertyHandler.ENABLE_PARALLEL_PROVISIONING, "false"));
         settings = new ProvisioningSettings(parameters, configSettings, "en");
-        parameters.put(PropertyHandler.VDISK_NAME, "disk1");
+        parameters.put(PropertyHandler.VDISK_NAME,
+                new Setting(PropertyHandler.VDISK_NAME, "disk1"));
         systemTemplates = new ArrayList<>();
         systemTemplates.add(new SimpleSystemTemplate("template-13c8ab3348d"));
         anyServiceLocked = false;
@@ -208,8 +220,8 @@ public class RORControllerIT extends EJBTestBase {
                 Arrays.asList(new Network("kcuf", "123", "456", 6)));
         final HierarchicalConfiguration hc = new HierarchicalConfiguration();
         hc.addProperty("nics.nic.networkId", "456");
-        when(vsysConfig.getVServers()).thenAnswer(
-                new Answer<List<? extends VServerConfiguration>>() {
+        when(vsysConfig.getVServers())
+                .thenAnswer(new Answer<List<? extends VServerConfiguration>>() {
                     @Override
                     public List<? extends VServerConfiguration> answer(
                             InvocationOnMock invocation) throws Throwable {
@@ -261,7 +273,8 @@ public class RORControllerIT extends EJBTestBase {
             }
 
             @Override
-            public LServerClient getLServerClient(PropertyHandler paramHandler) {
+            public LServerClient getLServerClient(
+                    PropertyHandler paramHandler) {
                 return vserverClient;
             }
 
@@ -294,7 +307,8 @@ public class RORControllerIT extends EJBTestBase {
             }
 
             @Override
-            public LServerClient getLServerClient(PropertyHandler paramHandler) {
+            public LServerClient getLServerClient(
+                    PropertyHandler paramHandler) {
                 return vserverClient;
             }
         });
@@ -304,9 +318,9 @@ public class RORControllerIT extends EJBTestBase {
         container.addBean(new FWCommunication() {
 
             @Override
-            public Set<String> updateFirewallSetting(
-                    PropertyHandler properties, Set<FWPolicy> policies,
-                    Set<String> knownPolicyIds) throws Exception {
+            public Set<String> updateFirewallSetting(PropertyHandler properties,
+                    Set<FWPolicy> policies, Set<String> knownPolicyIds)
+                    throws Exception {
                 return null;
             }
 
@@ -352,7 +366,8 @@ public class RORControllerIT extends EJBTestBase {
             }
 
             @Override
-            public LServerClient getLServerClient(PropertyHandler paramHandler) {
+            public LServerClient getLServerClient(
+                    PropertyHandler paramHandler) {
                 return vserverClient;
             }
 
@@ -362,7 +377,7 @@ public class RORControllerIT extends EJBTestBase {
                 if (serverIds.size() > 1) {
                     return serverIds.subList(1, serverIds.size());
                 }
-                return new ArrayList<String>();
+                return new ArrayList<>();
             }
 
             @Override
@@ -413,13 +428,14 @@ public class RORControllerIT extends EJBTestBase {
             @Override
             public List<AccessInformation> getAccessInfo(
                     PropertyHandler properties) throws Exception {
-                return new ArrayList<AccessInformation>();
+                return new ArrayList<>();
             }
 
             @Override
             public VSystemTemplateConfiguration getVSystemTemplateConfiguration(
                     PropertyHandler properties) throws Exception {
-                LPlatformDescriptorConfiguration conf = mock(LPlatformDescriptorConfiguration.class);
+                LPlatformDescriptorConfiguration conf = mock(
+                        LPlatformDescriptorConfiguration.class);
 
                 final HierarchicalConfiguration hc = new HierarchicalConfiguration();
                 hc.addProperty("nics.nic.networkId", "456");
@@ -431,8 +447,8 @@ public class RORControllerIT extends EJBTestBase {
                             public List<? extends VServerConfiguration> answer(
                                     InvocationOnMock invocation)
                                     throws Throwable {
-                                return Arrays.asList(new LServerConfiguration(
-                                        hc));
+                                return Arrays
+                                        .asList(new LServerConfiguration(hc));
                             }
                         });
                 return conf;
@@ -443,7 +459,8 @@ public class RORControllerIT extends EJBTestBase {
     @Test
     public void createInstance_Creation_Requested() throws Exception {
 
-        parameters.put(PropertyHandler.CLUSTER_SIZE, "2");
+        parameters.put(PropertyHandler.CLUSTER_SIZE,
+                new Setting(PropertyHandler.CLUSTER_SIZE, "2"));
         InstanceDescription instance = createInstance();
 
         Assert.assertNotNull(instance);
@@ -457,14 +474,17 @@ public class RORControllerIT extends EJBTestBase {
 
     @Test(expected = APPlatformException.class)
     public void createInstance_EmptyName() throws Exception {
-        parameters.put(PropertyHandler.INSTANCENAME_PREFIX, "");
-        parameters.put(PropertyHandler.INSTANCENAME_CUSTOM, "");
+        parameters.put(PropertyHandler.INSTANCENAME_PREFIX,
+                new Setting(PropertyHandler.INSTANCENAME_PREFIX, ""));
+        parameters.put(PropertyHandler.INSTANCENAME_CUSTOM,
+                new Setting(PropertyHandler.INSTANCENAME_CUSTOM, ""));
         createInstance();
     }
 
     @Test(expected = APPlatformException.class)
     public void createInstance_invalidName() throws Exception {
-        parameters.put(PropertyHandler.INSTANCENAME_CUSTOM, "");
+        parameters.put(PropertyHandler.INSTANCENAME_CUSTOM,
+                new Setting(PropertyHandler.INSTANCENAME_CUSTOM, ""));
         createInstance();
     }
 
@@ -474,7 +494,7 @@ public class RORControllerIT extends EJBTestBase {
             private static final long serialVersionUID = 1L;
 
             @Override
-            public HashMap<String, String> getParameters() {
+            public HashMap<String, Setting> getParameters() {
                 throw new RuntimeException("Test");
             }
         };
@@ -484,18 +504,18 @@ public class RORControllerIT extends EJBTestBase {
     @Test(expected = APPlatformException.class)
     public void createInstance_duplicateName() throws Exception {
         existingInstanceId = "estessdemo1";
-        parameters.put(PropertyHandler.INSTANCENAME_CUSTOM, "demo1");
+        parameters.put(PropertyHandler.INSTANCENAME_CUSTOM,
+                new Setting(PropertyHandler.INSTANCENAME_CUSTOM, "demo1"));
         createInstance();
     }
 
     @Test
     public void modifyInstance() throws Exception {
-        oldSettings = new ProvisioningSettings(new HashMap<String, String>(
-                parameters), configSettings, "en");
+        oldSettings = new ProvisioningSettings(new HashMap<>(parameters),
+                configSettings, "en");
         settings = new ProvisioningSettings(parameters, configSettings, "en");
         modifyInstance("abc");
-        Assert.assertEquals(
-                FlowState.VSYSTEM_MODIFICATION_REQUESTED.toString(),
+        Assert.assertEquals(FlowState.VSYSTEM_MODIFICATION_REQUESTED.toString(),
                 parameters.get(PropertyHandler.API_STATUS));
         Assert.assertEquals(Operation.VSYSTEM_MODIFICATION.toString(),
                 parameters.get(PropertyHandler.OPERATION));
@@ -509,8 +529,10 @@ public class RORControllerIT extends EJBTestBase {
 
     @Test(expected = APPlatformException.class)
     public void modifyInstance_invalidName() throws Exception {
-        parameters.put(PropertyHandler.INSTANCENAME_PREFIX, "");
-        parameters.put(PropertyHandler.INSTANCENAME_CUSTOM, "");
+        parameters.put(PropertyHandler.INSTANCENAME_PREFIX,
+                new Setting(PropertyHandler.INSTANCENAME_PREFIX, ""));
+        parameters.put(PropertyHandler.INSTANCENAME_CUSTOM,
+                new Setting(PropertyHandler.INSTANCENAME_CUSTOM, ""));
         modifyInstance("abc");
     }
 
@@ -520,7 +542,7 @@ public class RORControllerIT extends EJBTestBase {
             private static final long serialVersionUID = 1L;
 
             @Override
-            public HashMap<String, String> getParameters() {
+            public HashMap<String, Setting> getParameters() {
                 throw new RuntimeException("Test");
             }
         };
@@ -541,12 +563,13 @@ public class RORControllerIT extends EJBTestBase {
             throws Exception {
 
         platformStatus = "NORMAL";
-        parameters.put(PropertyHandler.OPERATION,
-                Operation.VSYSTEM_DELETION.name());
+        parameters.put(PropertyHandler.OPERATION, new Setting(
+                PropertyHandler.OPERATION, Operation.VSYSTEM_DELETION.name()));
         parameters.put(PropertyHandler.API_STATUS,
-                FlowState.VSYSTEM_DELETION_REQUESTED.name());
+                new Setting(PropertyHandler.API_STATUS,
+                        FlowState.VSYSTEM_DELETION_REQUESTED.name()));
         InstanceStatus instanceStatus = getInstanceStatus("host1");
-        String status = parameters.get(PropertyHandler.API_STATUS);
+        String status = parameters.get(PropertyHandler.API_STATUS).getValue();
         assertEquals(FlowState.VNET_DELETING.toString(), status);
         platformStatus = "NORMAL";
         combinedServerStatus = "STOPPED";
@@ -554,35 +577,36 @@ public class RORControllerIT extends EJBTestBase {
         // stopping servers
         instanceStatus = getInstanceStatus("Guest1");
         assertNotNull(instanceStatus);
-        status = parameters.get(PropertyHandler.API_STATUS);
+        status = parameters.get(PropertyHandler.API_STATUS).getValue();
         assertEquals(FlowState.VSERVERS_STOPPING.toString(), status);
         // deleting system
         instanceStatus = getInstanceStatus("Guest1");
         assertNotNull(instanceStatus);
-        status = parameters.get(PropertyHandler.API_STATUS);
+        status = parameters.get(PropertyHandler.API_STATUS).getValue();
         assertEquals(FlowState.VSYSTEM_DELETING.toString(), status);
 
         // 4. guest_info
-        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, "test@email.com");
+        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, new Setting(
+                PropertyHandler.MAIL_FOR_COMPLETION, "test@email.com"));
         instanceStatus = getInstanceStatus("host1");
         assertNotNull(instanceStatus);
         assertTrue(instanceStatus.isReady());
-        status = parameters.get(PropertyHandler.API_STATUS);
+        status = parameters.get(PropertyHandler.API_STATUS).getValue();
         assertEquals(FlowState.DESTROYED.toString(), status);
     }
 
     @Test
     public void getInstanceStatus_VSYSTEM_DELETING_noMail() throws Exception {
 
-        parameters.put(PropertyHandler.OPERATION,
-                Operation.VSYSTEM_DELETION.name());
-        parameters.put(PropertyHandler.API_STATUS,
-                FlowState.VSYSTEM_DELETING.name());
+        parameters.put(PropertyHandler.OPERATION, new Setting(
+                PropertyHandler.OPERATION, Operation.VSYSTEM_DELETION.name()));
+        parameters.put(PropertyHandler.API_STATUS, new Setting(
+                PropertyHandler.API_STATUS, FlowState.VSYSTEM_DELETING.name()));
         InstanceStatus instanceStatus = getInstanceStatus("host1");
         // then
         assertNotNull(instanceStatus);
         assertTrue(instanceStatus.isReady());
-        String status = parameters.get(PropertyHandler.API_STATUS);
+        String status = parameters.get(PropertyHandler.API_STATUS).getValue();
         assertEquals(FlowState.DESTROYED.toString(), status);
         // check that the right API calls were made
         Mockito.verify(platformService, Mockito.never()).sendMail(
@@ -593,17 +617,18 @@ public class RORControllerIT extends EJBTestBase {
     @Test
     public void getInstanceStatus_VSYSTEM_DELETING_mail() throws Exception {
 
-        parameters.put(PropertyHandler.OPERATION,
-                Operation.VSYSTEM_DELETION.name());
-        parameters.put(PropertyHandler.API_STATUS,
-                FlowState.VSYSTEM_DELETING.name());
+        parameters.put(PropertyHandler.OPERATION, new Setting(
+                PropertyHandler.OPERATION, Operation.VSYSTEM_DELETION.name()));
+        parameters.put(PropertyHandler.API_STATUS, new Setting(
+                PropertyHandler.API_STATUS, FlowState.VSYSTEM_DELETING.name()));
         settings.setSubscriptionId("subscriptionId");
         // 4. guest_info
-        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, "test@email.com");
+        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, new Setting(
+                PropertyHandler.MAIL_FOR_COMPLETION, "test@email.com"));
         InstanceStatus instanceStatus = getInstanceStatus("host1");
         assertNotNull(instanceStatus);
         assertTrue(instanceStatus.isReady());
-        String status = parameters.get(PropertyHandler.API_STATUS);
+        String status = parameters.get(PropertyHandler.API_STATUS).getValue();
         assertEquals(FlowState.DESTROYED.toString(), status);
         // check that the right API calls were made
         Mockito.verify(platformService, Mockito.times(1)).sendMail(
@@ -614,54 +639,58 @@ public class RORControllerIT extends EJBTestBase {
     @Test
     public void getInstanceStatus_VSYSTEM_CREATION_REQUESTED_without_SCALING()
             throws Exception {
-        Mockito.when(platformService.getEventServiceUrl()).thenReturn(
-                "http://127.0.0.1/something");
-        parameters.put(PropertyHandler.OPERATION,
-                Operation.VSYSTEM_CREATION.name());
-        parameters.put(PropertyHandler.CLUSTER_SIZE, "2");
-        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, "test@email.com");
+        Mockito.when(platformService.getEventServiceUrl())
+                .thenReturn("http://127.0.0.1/something");
+        parameters.put(PropertyHandler.OPERATION, new Setting(
+                PropertyHandler.OPERATION, Operation.VSYSTEM_CREATION.name()));
+        parameters.put(PropertyHandler.CLUSTER_SIZE,
+                new Setting(PropertyHandler.CLUSTER_SIZE, "2"));
+        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, new Setting(
+                PropertyHandler.MAIL_FOR_COMPLETION, "test@email.com"));
         serverIds.add("vserverId1");
         serverIds.add("vserverId2");
         platformStatus = "NORMAL";
         combinedServerStatus = "RUNNING";
         parameters.put(PropertyHandler.API_STATUS,
-                FlowState.VSYSTEM_CREATION_REQUESTED.name());
+                new Setting(PropertyHandler.API_STATUS,
+                        FlowState.VSYSTEM_CREATION_REQUESTED.name()));
 
         settings.setSubscriptionId("subscriptionId");
         // =======================
         InstanceStatus instanceStatus = getInstanceStatus("host1");
         assertNotNull(instanceStatus);
         assertFalse(instanceStatus.isReady());
-        String status = parameters.get(PropertyHandler.API_STATUS);
+        String status = parameters.get(PropertyHandler.API_STATUS).getValue();
         assertEquals(FlowState.VSYSTEM_CREATING.toString(), status);
 
         // =======================
         instanceStatus = getInstanceStatus("host1");
         assertNotNull(instanceStatus);
         assertFalse(instanceStatus.isReady());
-        status = parameters.get(PropertyHandler.API_STATUS);
+        status = parameters.get(PropertyHandler.API_STATUS).getValue();
         assertEquals(FlowState.VSERVERS_STARTING.toString(), status);
 
         // =======================
         instanceStatus = getInstanceStatus("host1");
         assertNotNull(instanceStatus);
         assertFalse(instanceStatus.isReady());
-        status = parameters.get(PropertyHandler.API_STATUS);
+        status = parameters.get(PropertyHandler.API_STATUS).getValue();
         assertEquals(FlowState.VSYSTEM_SCALING_COMPLETED.toString(), status);
 
         // =======================
         instanceStatus = getInstanceStatus("host1");
         assertNotNull(instanceStatus);
         assertFalse(instanceStatus.isReady());
-        status = parameters.get(PropertyHandler.API_STATUS);
+        status = parameters.get(PropertyHandler.API_STATUS).getValue();
         assertEquals(FlowState.VSYSTEM_RETRIEVEGUEST.toString(), status);
-        parameters.put(PropertyHandler.VSYS_ID, "demo_vsysid");
+        parameters.put(PropertyHandler.VSYS_ID,
+                new Setting(PropertyHandler.VSYS_ID, "demo_vsysid"));
 
         // =======================
         instanceStatus = getInstanceStatus("host1");
         assertNotNull(instanceStatus);
         assertFalse(instanceStatus.isReady());
-        status = parameters.get(PropertyHandler.API_STATUS);
+        status = parameters.get(PropertyHandler.API_STATUS).getValue();
         assertEquals(FlowState.MANUAL.toString(), status);
     }
 
@@ -669,51 +698,57 @@ public class RORControllerIT extends EJBTestBase {
     public void getInstanceStatus_VSYSTEM_CREATION_REQUESTED_with_SCALING()
             throws Exception {
 
-        Mockito.when(platformService.getEventServiceUrl()).thenReturn(
-                "http://127.0.0.1/something");
-        parameters.put(PropertyHandler.OPERATION,
-                Operation.VSYSTEM_CREATION.name());
-        parameters.put(PropertyHandler.CLUSTER_SIZE, "2");
-        String masterId = parameters.get(PropertyHandler.MASTER_TEMPLATE_ID);
-        parameters.put(PropertyHandler.SLAVE_TEMPLATE_ID, masterId);
-        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, "test@email.com");
+        Mockito.when(platformService.getEventServiceUrl())
+                .thenReturn("http://127.0.0.1/something");
+        parameters.put(PropertyHandler.OPERATION, new Setting(
+                PropertyHandler.OPERATION, Operation.VSYSTEM_CREATION.name()));
+        parameters.put(PropertyHandler.CLUSTER_SIZE,
+                new Setting(PropertyHandler.CLUSTER_SIZE, "2"));
+        String masterId = parameters.get(PropertyHandler.MASTER_TEMPLATE_ID)
+                .getValue();
+        parameters.put(PropertyHandler.SLAVE_TEMPLATE_ID,
+                new Setting(PropertyHandler.SLAVE_TEMPLATE_ID, masterId));
+        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, new Setting(
+                PropertyHandler.MAIL_FOR_COMPLETION, "test@email.com"));
         serverIds.add("vserverId1");
         serverIds.add("vserverId2");
         platformStatus = "NORMAL";
         combinedServerStatus = "RUNNING";
 
         parameters.put(PropertyHandler.API_STATUS,
-                FlowState.VSYSTEM_CREATION_REQUESTED.name());
+                new Setting(PropertyHandler.API_STATUS,
+                        FlowState.VSYSTEM_CREATION_REQUESTED.name()));
         parameters.put(PropertyHandler.ADMIN_REST_URL,
-                "http://{MASTER_IP}/{SLAVE_IP}");
+                new Setting(PropertyHandler.ADMIN_REST_URL,
+                        "http://{MASTER_IP}/{SLAVE_IP}"));
 
         settings.setSubscriptionId("subscriptionId");
         // =======================
         InstanceStatus instanceStatus = getInstanceStatus("host1");
         assertNotNull(instanceStatus);
         assertFalse(instanceStatus.isReady());
-        String status = parameters.get(PropertyHandler.API_STATUS);
+        String status = parameters.get(PropertyHandler.API_STATUS).getValue();
         assertEquals(FlowState.VSYSTEM_CREATING.toString(), status);
 
         // =======================
         instanceStatus = getInstanceStatus("host1");
         assertNotNull(instanceStatus);
         assertFalse(instanceStatus.isReady());
-        status = parameters.get(PropertyHandler.API_STATUS);
+        status = parameters.get(PropertyHandler.API_STATUS).getValue();
         assertEquals(FlowState.VSERVERS_STARTING.toString(), status);
 
         // =======================
         instanceStatus = getInstanceStatus("host1");
         assertNotNull(instanceStatus);
         assertFalse(instanceStatus.isReady());
-        status = parameters.get(PropertyHandler.API_STATUS);
+        status = parameters.get(PropertyHandler.API_STATUS).getValue();
         assertEquals(FlowState.VSYSTEM_SCALE_UP.toString(), status);
 
         // =======================
         instanceStatus = getInstanceStatus("host1");
         assertNotNull(instanceStatus);
         assertFalse(instanceStatus.isReady());
-        status = parameters.get(PropertyHandler.API_STATUS);
+        status = parameters.get(PropertyHandler.API_STATUS).getValue();
         assertEquals(
                 FlowState.VSYSTEM_SCALE_UP_WAIT_BEFORE_NOTIFICATION.toString(),
                 status);
@@ -722,7 +757,7 @@ public class RORControllerIT extends EJBTestBase {
         instanceStatus = getInstanceStatus("host1");
         assertNotNull(instanceStatus);
         assertFalse(instanceStatus.isReady());
-        status = parameters.get(PropertyHandler.API_STATUS);
+        status = parameters.get(PropertyHandler.API_STATUS).getValue();
         assertEquals(FlowState.VSYSTEM_SCALE_UP_NOTIFY_ADMIN_AGENT.toString(),
                 status);
 
@@ -732,7 +767,7 @@ public class RORControllerIT extends EJBTestBase {
         assertNotNull(instanceStatus);
         assertFalse(instanceStatus.isReady());
         assertTrue(instanceStatus.getRunWithTimer());
-        status = parameters.get(PropertyHandler.API_STATUS);
+        status = parameters.get(PropertyHandler.API_STATUS).getValue();
         assertEquals(FlowState.VSYSTEM_SCALE_UP_NOTIFY_ADMIN_AGENT.toString(),
                 status);
         // remove suspension
@@ -746,28 +781,29 @@ public class RORControllerIT extends EJBTestBase {
         instanceStatus = getInstanceStatus("host1");
         assertNotNull(instanceStatus);
         assertFalse(instanceStatus.isReady());
-        status = parameters.get(PropertyHandler.API_STATUS);
+        status = parameters.get(PropertyHandler.API_STATUS).getValue();
         assertEquals(FlowState.VSYSTEM_SCALE_UP.toString(), status);
 
         // =======================
         Mockito.when(vserverClient.getStatus()).thenReturn("STOPPED");
         instanceStatus = getInstanceStatus("host1");
-        status = parameters.get(PropertyHandler.API_STATUS);
+        status = parameters.get(PropertyHandler.API_STATUS).getValue();
         assertEquals(FlowState.VSYSTEM_SCALING_COMPLETED.toString(), status);
 
         // =======================
         instanceStatus = getInstanceStatus("host1");
         assertNotNull(instanceStatus);
         assertFalse(instanceStatus.isReady());
-        status = parameters.get(PropertyHandler.API_STATUS);
+        status = parameters.get(PropertyHandler.API_STATUS).getValue();
         assertEquals(FlowState.VSYSTEM_RETRIEVEGUEST.toString(), status);
-        parameters.put(PropertyHandler.VSYS_ID, "demo_vsysid");
+        parameters.put(PropertyHandler.VSYS_ID,
+                new Setting(PropertyHandler.VSYS_ID, "demo_vsysid"));
 
         // =======================
         instanceStatus = getInstanceStatus("host1");
         assertNotNull(instanceStatus);
         assertFalse(instanceStatus.isReady());
-        status = parameters.get(PropertyHandler.API_STATUS);
+        status = parameters.get(PropertyHandler.API_STATUS).getValue();
         assertEquals(FlowState.MANUAL.toString(), status);
     }
 
@@ -777,29 +813,32 @@ public class RORControllerIT extends EJBTestBase {
 
         anyServiceLocked = true;
         // Simulate parallel creation task
-        parameters.put(PropertyHandler.OPERATION,
-                Operation.VSYSTEM_CREATION.name());
-        parameters.put(PropertyHandler.CLUSTER_SIZE, "2");
+        parameters.put(PropertyHandler.OPERATION, new Setting(
+                PropertyHandler.OPERATION, Operation.VSYSTEM_CREATION.name()));
+        parameters.put(PropertyHandler.CLUSTER_SIZE,
+                new Setting(PropertyHandler.CLUSTER_SIZE, "2"));
         serverIds.add("vserverId1");
         serverIds.add("vserverId2");
         platformStatus = "NORMAL";
         combinedServerStatus = "RUNNING";
         parameters.put(PropertyHandler.API_STATUS,
-                FlowState.VSYSTEM_CREATION_REQUESTED.name());
+                new Setting(PropertyHandler.API_STATUS,
+                        FlowState.VSYSTEM_CREATION_REQUESTED.name()));
         InstanceStatus instanceStatus = getInstanceStatus("host1");
         // then
         assertNotNull(instanceStatus);
         assertFalse(instanceStatus.isReady());
-        String status = parameters.get(PropertyHandler.API_STATUS);
+        String status = parameters.get(PropertyHandler.API_STATUS).getValue();
         assertEquals(FlowState.VSYSTEM_CREATION_REQUESTED.toString(), status);
         // Unlock service
         anyServiceLocked = false;
         parameters.put(PropertyHandler.API_STATUS,
-                FlowState.VSYSTEM_CREATION_REQUESTED.name());
+                new Setting(PropertyHandler.API_STATUS,
+                        FlowState.VSYSTEM_CREATION_REQUESTED.name()));
         instanceStatus = getInstanceStatus("host1");
         assertNotNull(instanceStatus);
         assertFalse(instanceStatus.isReady());
-        status = parameters.get(PropertyHandler.API_STATUS);
+        status = parameters.get(PropertyHandler.API_STATUS).getValue();
         // Now it should work
         assertEquals(FlowState.VSYSTEM_CREATING.toString(), status);
     }
@@ -812,12 +851,16 @@ public class RORControllerIT extends EJBTestBase {
         platformStatus = "NORMAL";
         combinedServerStatus = "RUNNING";
         parameters.put(PropertyHandler.OPERATION,
-                Operation.VSYSTEM_MODIFICATION.name());
+                new Setting(PropertyHandler.OPERATION,
+                        Operation.VSYSTEM_MODIFICATION.name()));
         parameters.put(PropertyHandler.API_STATUS,
-                FlowState.VSYSTEM_MODIFICATION_REQUESTED.name());
-        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, "test@email.com");
+                new Setting(PropertyHandler.API_STATUS,
+                        FlowState.VSYSTEM_MODIFICATION_REQUESTED.name()));
+        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, new Setting(
+                PropertyHandler.MAIL_FOR_COMPLETION, "test@email.com"));
         parameters.put(PropertyHandler.ADMIN_REST_URL,
-                "http://{MASTER_IP}/{SLAVE_IP}");
+                new Setting(PropertyHandler.ADMIN_REST_URL,
+                        "http://{MASTER_IP}/{SLAVE_IP}"));
 
         settings.setSubscriptionId("subscriptionId");
         // =======================
@@ -825,14 +868,14 @@ public class RORControllerIT extends EJBTestBase {
 
         assertNotNull(instanceStatus);
         assertFalse(instanceStatus.isReady());
-        String status = parameters.get(PropertyHandler.API_STATUS);
+        String status = parameters.get(PropertyHandler.API_STATUS).getValue();
         assertEquals(FlowState.VSYSTEM_SCALE_UP.toString(), status);
 
         // =======================
         instanceStatus = getInstanceStatus("host1");
         assertNotNull(instanceStatus);
         assertFalse(instanceStatus.isReady());
-        status = parameters.get(PropertyHandler.API_STATUS);
+        status = parameters.get(PropertyHandler.API_STATUS).getValue();
         assertEquals(
                 FlowState.VSYSTEM_SCALE_UP_WAIT_BEFORE_NOTIFICATION.toString(),
                 status);
@@ -841,7 +884,7 @@ public class RORControllerIT extends EJBTestBase {
         instanceStatus = getInstanceStatus("host1");
         assertNotNull(instanceStatus);
         assertFalse(instanceStatus.isReady());
-        status = parameters.get(PropertyHandler.API_STATUS);
+        status = parameters.get(PropertyHandler.API_STATUS).getValue();
         assertEquals(FlowState.VSYSTEM_SCALE_UP_NOTIFY_ADMIN_AGENT.toString(),
                 status);
         // remove suspension
@@ -854,27 +897,27 @@ public class RORControllerIT extends EJBTestBase {
         instanceStatus = getInstanceStatus("host1");
         assertNotNull(instanceStatus);
         assertFalse(instanceStatus.isReady());
-        status = parameters.get(PropertyHandler.API_STATUS);
+        status = parameters.get(PropertyHandler.API_STATUS).getValue();
         assertEquals(FlowState.VSYSTEM_SCALE_UP.toString(), status);
 
         // =======================
         Mockito.when(vserverClient.getStatus()).thenReturn("STOPPED");
         instanceStatus = getInstanceStatus("host1");
-        status = parameters.get(PropertyHandler.API_STATUS);
+        status = parameters.get(PropertyHandler.API_STATUS).getValue();
         assertEquals(FlowState.VSYSTEM_SCALING_COMPLETED.toString(), status);
 
         // =======================
         instanceStatus = getInstanceStatus("host1");
         assertNotNull(instanceStatus);
         assertFalse(instanceStatus.isReady());
-        status = parameters.get(PropertyHandler.API_STATUS);
+        status = parameters.get(PropertyHandler.API_STATUS).getValue();
         assertEquals(FlowState.VSYSTEM_RETRIEVEGUEST.toString(), status);
 
         // =======================
         instanceStatus = getInstanceStatus("host1");
         assertNotNull(instanceStatus);
         assertTrue(instanceStatus.isReady());
-        status = parameters.get(PropertyHandler.API_STATUS);
+        status = parameters.get(PropertyHandler.API_STATUS).getValue();
         assertEquals(FlowState.FINISHED.toString(), status);
     }
 
@@ -888,17 +931,20 @@ public class RORControllerIT extends EJBTestBase {
         platformStatus = "NORMAL";
         combinedServerStatus = "RUNNING";
         parameters.put(PropertyHandler.OPERATION,
-                Operation.VSYSTEM_MODIFICATION.name());
+                new Setting(PropertyHandler.OPERATION,
+                        Operation.VSYSTEM_MODIFICATION.name()));
         parameters.put(PropertyHandler.API_STATUS,
-                FlowState.VSYSTEM_MODIFICATION_REQUESTED.name());
-        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, "test@email.com");
+                new Setting(PropertyHandler.API_STATUS,
+                        FlowState.VSYSTEM_MODIFICATION_REQUESTED.name()));
+        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, new Setting(
+                PropertyHandler.MAIL_FOR_COMPLETION, "test@email.com"));
 
         settings.setSubscriptionId("subscriptionId");
         // =======================
         InstanceStatus instanceStatus = getInstanceStatus("host1");
         assertNotNull(instanceStatus);
         assertFalse(instanceStatus.isReady());
-        String status = parameters.get(PropertyHandler.API_STATUS);
+        String status = parameters.get(PropertyHandler.API_STATUS).getValue();
         assertEquals(FlowState.VSYSTEM_SCALE_DOWN.toString(), status);
         combinedServerStatus = "STOPPED";
 
@@ -906,14 +952,14 @@ public class RORControllerIT extends EJBTestBase {
         instanceStatus = getInstanceStatus("host1");
         assertNotNull(instanceStatus);
         assertFalse(instanceStatus.isReady());
-        status = parameters.get(PropertyHandler.API_STATUS);
+        status = parameters.get(PropertyHandler.API_STATUS).getValue();
         assertEquals(FlowState.VSYSTEM_SCALE_DOWN_STOP_SERVER.toString(),
                 status);
 
         // =======================
         Mockito.when(vserverClient.getStatus()).thenReturn("STOPPED");
         instanceStatus = getInstanceStatus("host1");
-        status = parameters.get(PropertyHandler.API_STATUS);
+        status = parameters.get(PropertyHandler.API_STATUS).getValue();
         assertEquals(FlowState.VSYSTEM_SCALE_DOWN_DESTROY_SERVER.toString(),
                 status);
         serverIds.remove("vserverId3");
@@ -921,12 +967,12 @@ public class RORControllerIT extends EJBTestBase {
         // =======================
         Mockito.when(vserverClient.getStatus()).thenReturn("STOPPED");
         instanceStatus = getInstanceStatus("host1");
-        status = parameters.get(PropertyHandler.API_STATUS);
+        status = parameters.get(PropertyHandler.API_STATUS).getValue();
         assertEquals(FlowState.VSYSTEM_SCALE_DOWN.toString(), status);
 
         // =======================
         instanceStatus = getInstanceStatus("host1");
-        status = parameters.get(PropertyHandler.API_STATUS);
+        status = parameters.get(PropertyHandler.API_STATUS).getValue();
         assertEquals(FlowState.VSYSTEM_SCALING_COMPLETED.toString(), status);
         combinedServerStatus = "RUNNING";
 
@@ -934,14 +980,14 @@ public class RORControllerIT extends EJBTestBase {
         instanceStatus = getInstanceStatus("host1");
         assertNotNull(instanceStatus);
         assertFalse(instanceStatus.isReady());
-        status = parameters.get(PropertyHandler.API_STATUS);
+        status = parameters.get(PropertyHandler.API_STATUS).getValue();
         assertEquals(FlowState.VSYSTEM_RETRIEVEGUEST.toString(), status);
 
         // =======================
         instanceStatus = getInstanceStatus("host1");
         assertNotNull(instanceStatus);
         assertTrue(instanceStatus.isReady());
-        status = parameters.get(PropertyHandler.API_STATUS);
+        status = parameters.get(PropertyHandler.API_STATUS).getValue();
         assertEquals(FlowState.FINISHED.toString(), status);
     }
 
@@ -955,17 +1001,20 @@ public class RORControllerIT extends EJBTestBase {
         platformStatus = "NORMAL";
         combinedServerStatus = "RUNNING";
         parameters.put(PropertyHandler.OPERATION,
-                Operation.VSYSTEM_MODIFICATION.name());
+                new Setting(PropertyHandler.OPERATION,
+                        Operation.VSYSTEM_MODIFICATION.name()));
         parameters.put(PropertyHandler.API_STATUS,
-                FlowState.VSYSTEM_MODIFICATION_REQUESTED.name());
-        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, "test@email.com");
+                new Setting(PropertyHandler.API_STATUS,
+                        FlowState.VSYSTEM_MODIFICATION_REQUESTED.name()));
+        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, new Setting(
+                PropertyHandler.MAIL_FOR_COMPLETION, "test@email.com"));
 
         settings.setSubscriptionId("subscriptionId");
         // =======================
         InstanceStatus instanceStatus = getInstanceStatus("host1");
         assertNotNull(instanceStatus);
         assertFalse(instanceStatus.isReady());
-        String status = parameters.get(PropertyHandler.API_STATUS);
+        String status = parameters.get(PropertyHandler.API_STATUS).getValue();
         assertEquals(FlowState.VSYSTEM_SCALE_DOWN.toString(), status);
         combinedServerStatus = "STOPPED";
 
@@ -973,47 +1022,48 @@ public class RORControllerIT extends EJBTestBase {
         instanceStatus = getInstanceStatus("host1");
         assertNotNull(instanceStatus);
         assertFalse(instanceStatus.isReady());
-        status = parameters.get(PropertyHandler.API_STATUS);
+        status = parameters.get(PropertyHandler.API_STATUS).getValue();
         assertEquals(FlowState.VSYSTEM_SCALE_DOWN_STOP_SERVER.toString(),
                 status);
 
         // =======================
-        Mockito.when(vserverClient.getStatus()).thenReturn(
-                VServerStatus.STOPPED);
+        Mockito.when(vserverClient.getStatus())
+                .thenReturn(VServerStatus.STOPPED);
         instanceStatus = getInstanceStatus("host1");
-        status = parameters.get(PropertyHandler.API_STATUS);
+        status = parameters.get(PropertyHandler.API_STATUS).getValue();
         assertEquals(FlowState.VSYSTEM_SCALE_DOWN_DESTROY_SERVER.toString(),
                 status);
         serverIds.remove("vserverId3");
 
         // =======================
 
-        Mockito.when(vserverClient.getStatus()).thenReturn(
-                VServerStatus.STOP_ERROR);
+        Mockito.when(vserverClient.getStatus())
+                .thenReturn(VServerStatus.STOP_ERROR);
         try {
             instanceStatus = getInstanceStatus("host1");
         } catch (SuspendException se) {
-            assertEquals(Messages.get("en", "error_failed_to_stop_vserver",
-                    new Object[] { "vserverId3", "estessdemo2" }),
-                    se.getLocalizedMessage("en"));
             assertEquals(
-                    Messages.getAll("error_failed_to_stop_vserver",
+                    Messages.get("en", "error_failed_to_stop_vserver",
+                            new Object[] { "vserverId3", "estessdemo2" }),
+                    se.getLocalizedMessage("en"));
+            assertEquals(Messages
+                    .getAll("error_failed_to_stop_vserver",
                             new Object[] { "vserverId3", "estessdemo2" })
-                            .size(), se.getLocalizedMessages().size());
+                    .size(), se.getLocalizedMessages().size());
         }
-        status = parameters.get(PropertyHandler.API_STATUS);
+        status = parameters.get(PropertyHandler.API_STATUS).getValue();
         assertEquals(FlowState.VSYSTEM_SCALE_DOWN_DESTROY_SERVER.toString(),
                 status);
 
         // =======================
         Mockito.when(vserverClient.getStatus()).thenReturn("STOPPED");
         instanceStatus = getInstanceStatus("host1");
-        status = parameters.get(PropertyHandler.API_STATUS);
+        status = parameters.get(PropertyHandler.API_STATUS).getValue();
         assertEquals(FlowState.VSYSTEM_SCALE_DOWN.toString(), status);
 
         // =======================
         instanceStatus = getInstanceStatus("host1");
-        status = parameters.get(PropertyHandler.API_STATUS);
+        status = parameters.get(PropertyHandler.API_STATUS).getValue();
         assertEquals(FlowState.VSYSTEM_SCALING_COMPLETED.toString(), status);
         combinedServerStatus = "RUNNING";
 
@@ -1021,14 +1071,14 @@ public class RORControllerIT extends EJBTestBase {
         instanceStatus = getInstanceStatus("host1");
         assertNotNull(instanceStatus);
         assertFalse(instanceStatus.isReady());
-        status = parameters.get(PropertyHandler.API_STATUS);
+        status = parameters.get(PropertyHandler.API_STATUS).getValue();
         assertEquals(FlowState.VSYSTEM_RETRIEVEGUEST.toString(), status);
 
         // =======================
         instanceStatus = getInstanceStatus("host1");
         assertNotNull(instanceStatus);
         assertTrue(instanceStatus.isReady());
-        status = parameters.get(PropertyHandler.API_STATUS);
+        status = parameters.get(PropertyHandler.API_STATUS).getValue();
         assertEquals(FlowState.FINISHED.toString(), status);
     }
 
@@ -1041,23 +1091,26 @@ public class RORControllerIT extends EJBTestBase {
         platformStatus = "NORMAL";
         combinedServerStatus = "RUNNING";
         parameters.put(PropertyHandler.OPERATION,
-                Operation.VSYSTEM_MODIFICATION.name());
+                new Setting(PropertyHandler.OPERATION,
+                        Operation.VSYSTEM_MODIFICATION.name()));
         parameters.put(PropertyHandler.API_STATUS,
-                FlowState.VSYSTEM_MODIFICATION_REQUESTED.name());
-        parameters.put(PropertyHandler.COUNT_CPU, "2");
+                new Setting(PropertyHandler.API_STATUS,
+                        FlowState.VSYSTEM_MODIFICATION_REQUESTED.name()));
+        parameters.put(PropertyHandler.COUNT_CPU,
+                new Setting(PropertyHandler.COUNT_CPU, "2"));
         vsysConfig = Mockito.mock(VSystemConfiguration.class);
         Mockito.when(vserverConfig.getNumOfCPU()).thenReturn("1");
         Mockito.when(vserverClient.getStatus()).thenReturn("RUNNING");
-        final List<VServerConfiguration> servers = new ArrayList<VServerConfiguration>();
+        final List<VServerConfiguration> servers = new ArrayList<>();
         Answer<List<VServerConfiguration>> answerservers = new Answer<List<VServerConfiguration>>() {
             @Override
-            public List<VServerConfiguration> answer(InvocationOnMock invocation)
-                    throws Throwable {
+            public List<VServerConfiguration> answer(
+                    InvocationOnMock invocation) throws Throwable {
                 return servers;
             }
         };
 
-        final List<Network> networks = new ArrayList<Network>();
+        final List<Network> networks = new ArrayList<>();
         Answer<List<Network>> answernetworks = new Answer<List<Network>>() {
             @Override
             public List<Network> answer(InvocationOnMock invocation)
@@ -1088,7 +1141,7 @@ public class RORControllerIT extends EJBTestBase {
         InstanceStatus instanceStatus = getInstanceStatus("host1");
         assertNotNull(instanceStatus);
         assertFalse(instanceStatus.isReady());
-        String status = parameters.get(PropertyHandler.API_STATUS);
+        String status = parameters.get(PropertyHandler.API_STATUS).getValue();
         assertEquals(FlowState.VSYSTEM_RESIZE_VSERVERS.toString(), status);
         assertEquals(FlowState.VSERVER_MODIFICATION_REQUESTED.toString(),
                 parameters.get("VSERVER_X_API_STATUS"));
@@ -1098,7 +1151,7 @@ public class RORControllerIT extends EJBTestBase {
         instanceStatus = getInstanceStatus("host1");
         assertNotNull(instanceStatus);
         assertFalse(instanceStatus.isReady());
-        status = parameters.get(PropertyHandler.API_STATUS);
+        status = parameters.get(PropertyHandler.API_STATUS).getValue();
         assertEquals(FlowState.VSYSTEM_RESIZE_VSERVERS.toString(), status);
         assertEquals(FlowState.VSERVER_STOPPING_FOR_MODIFICATION.toString(),
                 parameters.get("VSERVER_X_API_STATUS"));
@@ -1108,7 +1161,7 @@ public class RORControllerIT extends EJBTestBase {
         instanceStatus = getInstanceStatus("host1");
         assertNotNull(instanceStatus);
         assertFalse(instanceStatus.isReady());
-        status = parameters.get(PropertyHandler.API_STATUS);
+        status = parameters.get(PropertyHandler.API_STATUS).getValue();
         assertEquals(FlowState.VSYSTEM_RESIZE_VSERVERS.toString(), status);
         assertEquals(FlowState.VSERVER_UPDATING.toString(),
                 parameters.get("VSERVER_X_API_STATUS"));
@@ -1119,7 +1172,7 @@ public class RORControllerIT extends EJBTestBase {
         instanceStatus = getInstanceStatus("host1");
         assertNotNull(instanceStatus);
         assertFalse(instanceStatus.isReady());
-        status = parameters.get(PropertyHandler.API_STATUS);
+        status = parameters.get(PropertyHandler.API_STATUS).getValue();
         assertEquals(FlowState.VSYSTEM_RESIZE_VSERVERS.toString(), status);
         assertEquals(FlowState.VSERVER_STARTING.toString(),
                 parameters.get("VSERVER_X_API_STATUS"));
@@ -1129,7 +1182,7 @@ public class RORControllerIT extends EJBTestBase {
         instanceStatus = getInstanceStatus("host1");
         assertNotNull(instanceStatus);
         assertFalse(instanceStatus.isReady());
-        status = parameters.get(PropertyHandler.API_STATUS);
+        status = parameters.get(PropertyHandler.API_STATUS).getValue();
         assertEquals(FlowState.VSYSTEM_RESIZE_VSERVERS.toString(), status);
         assertEquals(FlowState.VSERVER_STARTED.toString(),
                 parameters.get("VSERVER_X_API_STATUS"));
@@ -1138,7 +1191,7 @@ public class RORControllerIT extends EJBTestBase {
         instanceStatus = getInstanceStatus("host1");
         assertNotNull(instanceStatus);
         assertFalse(instanceStatus.isReady());
-        status = parameters.get(PropertyHandler.API_STATUS);
+        status = parameters.get(PropertyHandler.API_STATUS).getValue();
         assertEquals(FlowState.VSYSTEM_RESIZE_VSERVERS.toString(), status);
         assertEquals(FlowState.VSERVER_RETRIEVEGUEST.toString(),
                 parameters.get("VSERVER_X_API_STATUS"));
@@ -1147,7 +1200,7 @@ public class RORControllerIT extends EJBTestBase {
         instanceStatus = getInstanceStatus("host1");
         assertNotNull(instanceStatus);
         assertFalse(instanceStatus.isReady());
-        status = parameters.get(PropertyHandler.API_STATUS);
+        status = parameters.get(PropertyHandler.API_STATUS).getValue();
         assertEquals(FlowState.VSYSTEM_SCALING_COMPLETED.toString(), status);
 
     }
@@ -1155,15 +1208,16 @@ public class RORControllerIT extends EJBTestBase {
     @Test
     public void getInstanceStatus_RETRIEVEGUEST_noMail() throws Exception {
 
-        parameters.put(PropertyHandler.OPERATION,
-                Operation.VSYSTEM_CREATION.name());
+        parameters.put(PropertyHandler.OPERATION, new Setting(
+                PropertyHandler.OPERATION, Operation.VSYSTEM_CREATION.name()));
         parameters.put(PropertyHandler.API_STATUS,
-                FlowState.VSYSTEM_RETRIEVEGUEST.name());
+                new Setting(PropertyHandler.API_STATUS,
+                        FlowState.VSYSTEM_RETRIEVEGUEST.name()));
         InstanceStatus instanceStatus = getInstanceStatus("Guest1");
 
         assertNotNull(instanceStatus);
         assertTrue(instanceStatus.isReady());
-        String status = parameters.get(PropertyHandler.API_STATUS);
+        String status = parameters.get(PropertyHandler.API_STATUS).getValue();
         assertEquals(FlowState.FINISHED.toString(), status);
         // check that the right API calls were made
         Mockito.verify(platformService, Mockito.never()).sendMail(
@@ -1175,13 +1229,15 @@ public class RORControllerIT extends EJBTestBase {
     public void getInstanceStatus_RETRIEVEGUEST_mail() throws Exception {
 
         settings.setSubscriptionId("subscriptionId");
-        parameters.put(PropertyHandler.OPERATION,
-                Operation.VSYSTEM_CREATION.name());
+        parameters.put(PropertyHandler.OPERATION, new Setting(
+                PropertyHandler.OPERATION, Operation.VSYSTEM_CREATION.name()));
         parameters.put(PropertyHandler.API_STATUS,
-                FlowState.VSYSTEM_RETRIEVEGUEST.name());
-        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, "test@email.com");
-        Mockito.when(platformService.getEventServiceUrl()).thenReturn(
-                "http://127.0.0.1/something");
+                new Setting(PropertyHandler.API_STATUS,
+                        FlowState.VSYSTEM_RETRIEVEGUEST.name()));
+        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, new Setting(
+                PropertyHandler.MAIL_FOR_COMPLETION, "test@email.com"));
+        Mockito.when(platformService.getEventServiceUrl())
+                .thenReturn("http://127.0.0.1/something");
         InstanceStatus instanceStatus = getInstanceStatus("Guest1");
 
         assertNotNull(instanceStatus);
@@ -1197,14 +1253,16 @@ public class RORControllerIT extends EJBTestBase {
     public void getInstanceStatus_MODIFICATION_noMail() throws Exception {
 
         parameters.put(PropertyHandler.OPERATION,
-                Operation.VSYSTEM_MODIFICATION.name());
+                new Setting(PropertyHandler.OPERATION,
+                        Operation.VSYSTEM_MODIFICATION.name()));
         parameters.put(PropertyHandler.API_STATUS,
-                FlowState.VSYSTEM_RETRIEVEGUEST.name());
+                new Setting(PropertyHandler.API_STATUS,
+                        FlowState.VSYSTEM_RETRIEVEGUEST.name()));
         InstanceStatus instanceStatus = getInstanceStatus("Guest1");
 
         assertNotNull(instanceStatus);
         assertTrue(instanceStatus.isReady());
-        String status = parameters.get(PropertyHandler.API_STATUS);
+        String status = parameters.get(PropertyHandler.API_STATUS).getValue();
         assertEquals(FlowState.FINISHED.toString(), status);
         // check that the right API calls were made
         Mockito.verify(platformService, Mockito.never()).sendMail(
@@ -1216,14 +1274,17 @@ public class RORControllerIT extends EJBTestBase {
     public void getInstanceStatus_MODIFICATION_mail() throws Exception {
 
         parameters.put(PropertyHandler.OPERATION,
-                Operation.VSYSTEM_MODIFICATION.name());
+                new Setting(PropertyHandler.OPERATION,
+                        Operation.VSYSTEM_MODIFICATION.name()));
         parameters.put(PropertyHandler.API_STATUS,
-                FlowState.VSYSTEM_RETRIEVEGUEST.name());
-        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, "test@email.com");
+                new Setting(PropertyHandler.API_STATUS,
+                        FlowState.VSYSTEM_RETRIEVEGUEST.name()));
+        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, new Setting(
+                PropertyHandler.MAIL_FOR_COMPLETION, "test@email.com"));
 
         settings.setSubscriptionId("subscriptionId");
-        Mockito.when(platformService.getEventServiceUrl()).thenReturn(
-                "http://127.0.0.1/something");
+        Mockito.when(platformService.getEventServiceUrl())
+                .thenReturn("http://127.0.0.1/something");
         InstanceStatus instanceStatus = getInstanceStatus("Guest1");
 
         assertNotNull(instanceStatus);
@@ -1262,13 +1323,14 @@ public class RORControllerIT extends EJBTestBase {
     }
 
     private InstanceDescription createInstance() throws Exception {
-        InstanceDescription instance = runTX(new Callable<InstanceDescription>() {
+        InstanceDescription instance = runTX(
+                new Callable<InstanceDescription>() {
 
-            @Override
-            public InstanceDescription call() throws Exception {
-                return controller.createInstance(settings);
-            }
-        });
+                    @Override
+                    public InstanceDescription call() throws Exception {
+                        return controller.createInstance(settings);
+                    }
+                });
         return instance;
     }
 

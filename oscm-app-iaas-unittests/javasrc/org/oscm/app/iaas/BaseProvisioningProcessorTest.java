@@ -22,10 +22,10 @@ import java.util.HashMap;
 
 import org.junit.Before;
 import org.junit.Test;
-
 import org.oscm.app.iaas.data.FlowState;
 import org.oscm.app.v1_0.data.PasswordAuthentication;
 import org.oscm.app.v1_0.data.ProvisioningSettings;
+import org.oscm.app.v1_0.data.Setting;
 import org.oscm.app.v1_0.intf.APPlatformService;
 
 /**
@@ -60,10 +60,11 @@ public class BaseProvisioningProcessorTest {
         baseProvisioningProcessor.setPlatformService(platformService);
 
         ProvisioningSettings settings = new ProvisioningSettings(
-                new HashMap<String, String>(), new HashMap<String, String>(),
+                new HashMap<String, Setting>(), new HashMap<String, Setting>(),
                 "en");
-        settings.getConfigSettings().put(
-                PropertyHandler.ENABLE_PARALLEL_PROVISIONING, "false");
+        settings.getConfigSettings()
+                .put(PropertyHandler.ENABLE_PARALLEL_PROVISIONING, new Setting(
+                        PropertyHandler.ENABLE_PARALLEL_PROVISIONING, "false"));
         paramHandler = new PropertyHandler(settings);
     }
 
@@ -72,9 +73,9 @@ public class BaseProvisioningProcessorTest {
         // given a conflicting operation
 
         // when
-        boolean isNextStatusDefined = baseProvisioningProcessor
-                .checkNextStatus(CONTROLLER_ID, "instanceId",
-                        FlowState.VSERVER_CREATING, paramHandler);
+        boolean isNextStatusDefined = baseProvisioningProcessor.checkNextStatus(
+                CONTROLLER_ID, "instanceId", FlowState.VSERVER_CREATING,
+                paramHandler);
 
         // then ask for exclusive processing
         assertFalse(isNextStatusDefined);
@@ -87,9 +88,8 @@ public class BaseProvisioningProcessorTest {
         // given a safe operation
 
         // when
-        boolean isNextStatusDefined = baseProvisioningProcessor
-                .checkNextStatus(CONTROLLER_ID, "instanceId",
-                        FlowState.FINISHED, paramHandler);
+        boolean isNextStatusDefined = baseProvisioningProcessor.checkNextStatus(
+                CONTROLLER_ID, "instanceId", FlowState.FINISHED, paramHandler);
 
         // then the exclusive token is released.
         assertTrue(isNextStatusDefined);

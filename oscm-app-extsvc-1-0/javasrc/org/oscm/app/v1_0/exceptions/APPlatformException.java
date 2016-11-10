@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.oscm.app.v1_0.data.LocalizedText;
+import org.oscm.app.v1_0.data.Setting;
 
 /**
  * Exception thrown when a problem occurs in accessing APP.
@@ -25,7 +26,7 @@ public class APPlatformException extends Exception {
 
     private List<LocalizedText> messages;
 
-    private HashMap<String, String> parameters;
+    private HashMap<String, Setting> parameters;
 
     /**
      * Constructs a new exception with the specified detail message. The cause
@@ -36,7 +37,7 @@ public class APPlatformException extends Exception {
      */
     public APPlatformException(String message) {
         super(message);
-        this.messages = new ArrayList<LocalizedText>();
+        this.messages = new ArrayList<>();
         this.messages.add(new LocalizedText(DEFAULT_LOCALE, message));
     }
 
@@ -50,7 +51,7 @@ public class APPlatformException extends Exception {
      */
     public APPlatformException(String message, Throwable cause) {
         super(message, cause);
-        this.messages = new ArrayList<LocalizedText>();
+        this.messages = new ArrayList<>();
         this.messages.add(new LocalizedText(DEFAULT_LOCALE, message));
     }
 
@@ -121,7 +122,7 @@ public class APPlatformException extends Exception {
      * @return the parameters and settings to store, consisting of a key and a
      *         value each
      */
-    public HashMap<String, String> getChangedParameters() {
+    public HashMap<String, Setting> getChangedParameters() {
         return parameters;
     }
 
@@ -133,7 +134,7 @@ public class APPlatformException extends Exception {
      *            the parameters and settings to store, consisting of a key and
      *            a value each
      */
-    public void setChangedParameters(HashMap<String, String> parameters) {
+    public void setChangedParameters(HashMap<String, Setting> parameters) {
         this.parameters = parameters;
     }
 

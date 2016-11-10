@@ -54,6 +54,7 @@ import org.oscm.app.i18n.Messages;
 import org.oscm.app.v1_0.data.InstanceStatus;
 import org.oscm.app.v1_0.data.LocalizedText;
 import org.oscm.app.v1_0.data.ProvisioningSettings;
+import org.oscm.app.v1_0.data.Setting;
 import org.oscm.app.v1_0.exceptions.APPlatformException;
 import org.oscm.app.v1_0.exceptions.AbortException;
 import org.oscm.app.v1_0.exceptions.ConfigurationException;
@@ -282,7 +283,7 @@ public class APPTimerServiceBean implements Cloneable {
     void doHandleControllerProvisioning(ServiceInstance serviceInstance) {
         final ProvisioningStatus provisioningStatus = serviceInstance
                 .getProvisioningStatus();
-        HashMap<String, String> changedParameters = new HashMap<>();
+        HashMap<String, Setting> changedParameters = new HashMap<>();
 
         try {
             final ProvisioningSettings settings = configService
@@ -321,7 +322,7 @@ public class APPTimerServiceBean implements Cloneable {
                 }
 
                 if (instanceStatus.isInstanceProvisioningRequested()) {
-                    String publicIp = null;
+                    Setting publicIp = null;
                     if (changedParameters
                             .containsKey(InstanceParameter.PUBLIC_IP)) {
                         publicIp = changedParameters
@@ -331,9 +332,12 @@ public class APPTimerServiceBean implements Cloneable {
                                 .getParameterForKey(
                                         InstanceParameter.PUBLIC_IP);
                         publicIp = publicIpParam == null ? null
-                                : publicIpParam.getDecryptedValue();
+                                : new Setting(publicIpParam.getParameterKey(),
+                                        publicIpParam.getDecryptedValue(),
+                                        publicIpParam.isEncrypted());
                     }
-                    if (Strings.isEmpty(publicIp)) {
+                    if (publicIp == null
+                            || Strings.isEmpty(publicIp.getValue())) {
                         // no IP for instance provisioning available
                         suspendServiceInstance(serviceInstance,
                                 new IllegalStateException(
@@ -427,7 +431,7 @@ public class APPTimerServiceBean implements Cloneable {
     }
 
     void handleInstanceNotAliveException(ServiceInstance currentSI,
-            HashMap<String, String> changedParameters,
+            HashMap<String, Setting> changedParameters,
             InstanceNotAliveException bne) {
 
         updateParameterMapSafe(currentSI, changedParameters);
@@ -443,7 +447,7 @@ public class APPTimerServiceBean implements Cloneable {
 
     void handleBESNotificationException(ServiceInstance currentSI,
             final ProvisioningStatus instanceProvStatus,
-            HashMap<String, String> changedParameters,
+            HashMap<String, Setting> changedParameters,
             BESNotificationException bne) {
         // write the parameters back
         updateParameterMapSafe(currentSI, changedParameters);
@@ -1276,7 +1280,7 @@ public class APPTimerServiceBean implements Cloneable {
      * Exceptions will be catched and traced.
      */
     private void updateParameterMapSafe(ServiceInstance si,
-            HashMap<String, String> changedParameters) {
+            HashMap<String, Setting> changedParameters) {
         try {
             si.setInstanceParameters(changedParameters);
             em.persist(si);

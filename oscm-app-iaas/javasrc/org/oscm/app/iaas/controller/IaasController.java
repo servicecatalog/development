@@ -33,6 +33,7 @@ import org.oscm.app.v1_0.data.LocalizedText;
 import org.oscm.app.v1_0.data.OperationParameter;
 import org.oscm.app.v1_0.data.ProvisioningSettings;
 import org.oscm.app.v1_0.data.ServiceUser;
+import org.oscm.app.v1_0.data.Setting;
 import org.oscm.app.v1_0.exceptions.APPlatformException;
 import org.oscm.app.v1_0.exceptions.AbortException;
 import org.oscm.app.v1_0.exceptions.InstanceExistsException;
@@ -244,15 +245,16 @@ public abstract class IaasController extends ProvisioningValidator
         return ste != null && ste.getClassName().startsWith("org.oscm");
     }
 
-    private void debugHashMap(String name, HashMap<String, String> map) {
+    private void debugHashMap(String name, HashMap<String, Setting> map) {
         if (map == null) {
             logger.debug("Map is null: " + name);
             return;
         }
         logger.debug("Contents of map " + name);
         for (String key : map.keySet()) {
-            String value = "" + map.get(key);
-            if (key.toLowerCase().endsWith("_pwd")) {
+            Setting setting = map.get(key);
+            String value = setting != null ? setting.getValue() : "";
+            if (setting != null && setting.isEncrypted()) {
                 logger.debug(key + " => " + value.replaceAll(".", "*"));
             } else {
                 logger.debug(key + " => " + value);
@@ -598,8 +600,8 @@ public abstract class IaasController extends ProvisioningValidator
         return status;
     }
 
-    private void handleServiceParameters(HashMap<String, String> allParams,
-            HashMap<String, String> serviceParams) {
+    private void handleServiceParameters(HashMap<String, Setting> allParams,
+            HashMap<String, Setting> serviceParams) {
         for (String paraKey : allParams.keySet()) {
             if (!serviceParams.containsKey(paraKey)) {
                 serviceParams.put(paraKey, allParams.get(paraKey));

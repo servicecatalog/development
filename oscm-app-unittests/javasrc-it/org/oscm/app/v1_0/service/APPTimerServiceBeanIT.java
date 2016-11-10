@@ -60,6 +60,7 @@ import org.oscm.app.security.AESEncrypter;
 import org.oscm.app.v1_0.data.InstanceStatus;
 import org.oscm.app.v1_0.data.LocalizedText;
 import org.oscm.app.v1_0.data.ProvisioningSettings;
+import org.oscm.app.v1_0.data.Setting;
 import org.oscm.app.v1_0.exceptions.APPlatformException;
 import org.oscm.app.v1_0.exceptions.SuspendException;
 import org.oscm.app.v1_0.intf.APPlatformController;
@@ -324,8 +325,9 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
         list.add(new LocalizedText("en", "finished"));
         status.setDescription(list);
         status.setIsReady(true);
-        HashMap<String, String> parameters = new HashMap<>();
-        parameters.put(InstanceParameter.PUBLIC_IP, "4.3.2.1");
+        HashMap<String, Setting> parameters = new HashMap<>();
+        parameters.put(InstanceParameter.PUBLIC_IP,
+                new Setting(InstanceParameter.PUBLIC_IP, "4.3.2.1"));
         status.setChangedParameters(parameters);
 
         OperationResult operationResult = new OperationResult();
@@ -581,10 +583,11 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
         // given
         requestInstanceProvisioning = true;
         setControllerReady = true;
-        Map<String, String> params = new HashMap<>();
-        params.put(InstanceParameter.PUBLIC_IP, "1.2.3.4");
-        params.put("subscriptionId", "sub1");
-        params.put("instanceId", "inst1");
+        Map<String, Setting> params = new HashMap<>();
+        params.put(InstanceParameter.PUBLIC_IP,
+                new Setting(InstanceParameter.PUBLIC_IP, "1.2.3.4"));
+        params.put("subscriptionId", new Setting("subscriptionId", "sub1"));
+        params.put("instanceId", new Setting("instanceId", "inst1"));
         createServiceInstance(ProvisioningStatus.WAITING_FOR_USER_CREATION,
                 params);
         doReturn(getInstanceResult(0)).when(provService)
@@ -597,9 +600,10 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
         requestInstanceProvisioning = true;
         setControllerReady = true;
         params = new HashMap<>();
-        params.put(InstanceParameter.PUBLIC_IP, "1.2.3.4");
-        params.put("subscriptionId", "sub2");
-        params.put("instanceId", "inst2");
+        params.put(InstanceParameter.PUBLIC_IP,
+                new Setting(InstanceParameter.PUBLIC_IP, "1.2.3.4"));
+        params.put("subscriptionId", new Setting("subscriptionId", "sub2"));
+        params.put("instanceId", new Setting("instanceId", "inst2"));
         createServiceInstance(ProvisioningStatus.WAITING_FOR_USER_MODIFICATION,
                 params);
         doReturn(getInstanceResult(0)).when(provService).modifySubscription(
@@ -614,9 +618,10 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
         requestInstanceProvisioning = true;
         setControllerReady = true;
         params = new HashMap<>();
-        params.put(InstanceParameter.PUBLIC_IP, "1.2.3.4");
-        params.put("subscriptionId", "sub3");
-        params.put("instanceId", "inst3");
+        params.put(InstanceParameter.PUBLIC_IP,
+                new Setting(InstanceParameter.PUBLIC_IP, "1.2.3.4"));
+        params.put("subscriptionId", new Setting("subscriptionId", "sub3"));
+        params.put("instanceId", new Setting("instanceId", "inst3"));
         createServiceInstance(ProvisioningStatus.WAITING_FOR_USER_DELETION,
                 params);
         doReturn(getInstanceResult(0)).when(provService).deleteInstance(
@@ -673,33 +678,37 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
     @Test
     public void testHandleTimerWaitingServiceInstances() throws Exception {
         // given
-        Map<String, String> params1 = new HashMap<>();
-        params1.put(InstanceParameter.PUBLIC_IP, "1.2.3.4");
-        params1.put("subscriptionId", "sub1");
-        params1.put("instanceId", "inst1");
+        Map<String, Setting> params1 = new HashMap<>();
+        params1.put(InstanceParameter.PUBLIC_IP,
+                new Setting(InstanceParameter.PUBLIC_IP, "1.2.3.4"));
+        params1.put("subscriptionId", new Setting("subscriptionId", "sub1"));
+        params1.put("instanceId", new Setting("instanceId", "inst1"));
         requestInstanceProvisioning = true;
         setControllerReady = true;
         createServiceInstance(ProvisioningStatus.WAITING_FOR_SYSTEM_CREATION,
                 params1);
-        Map<String, String> params2 = new HashMap<>();
-        params2.put(InstanceParameter.PUBLIC_IP, "1.2.3.5");
-        params2.put("subscriptionId", "sub2");
-        params2.put("instanceId", "inst2");
+        Map<String, Setting> params2 = new HashMap<>();
+        params2.put(InstanceParameter.PUBLIC_IP,
+                new Setting(InstanceParameter.PUBLIC_IP, "1.2.3.4"));
+        params2.put("subscriptionId", new Setting("subscriptionId", "sub2"));
+        params2.put("instanceId", new Setting("instanceId", "inst2"));
         requestInstanceProvisioning = false;
         setControllerReady = true;
         createServiceInstance(ProvisioningStatus.COMPLETED, params2);
-        Map<String, String> params3 = new HashMap<>();
-        params3.put(InstanceParameter.PUBLIC_IP, "1.2.3.6");
-        params3.put("subscriptionId", "sub3");
-        params3.put("instanceId", "inst3");
+        Map<String, Setting> params3 = new HashMap<>();
+        params3.put(InstanceParameter.PUBLIC_IP,
+                new Setting(InstanceParameter.PUBLIC_IP, "1.2.3.4"));
+        params3.put("subscriptionId", new Setting("subscriptionId", "sub3"));
+        params3.put("instanceId", new Setting("instanceId", "inst3"));
         requestInstanceProvisioning = true;
         setControllerReady = true;
         createServiceInstance(ProvisioningStatus.WAITING_FOR_SYSTEM_CREATION,
                 params3);
-        Map<String, String> params4 = new HashMap<>();
-        params4.put("instanceId", "inst4");
-        params4.put(InstanceParameter.PUBLIC_IP, "1.2.3.7");
-        params4.put("subscriptionId", "sub4");
+        Map<String, Setting> params4 = new HashMap<>();
+        params4.put(InstanceParameter.PUBLIC_IP,
+                new Setting(InstanceParameter.PUBLIC_IP, "1.2.3.4"));
+        params4.put("subscriptionId", new Setting("subscriptionId", "sub4"));
+        params4.put("instanceId", new Setting("instanceId", "inst4"));
         requestInstanceProvisioning = false;
         setControllerReady = true;
         createServiceInstance(ProvisioningStatus.COMPLETED, params4);
@@ -722,33 +731,37 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
     public void testHandleTimerWaitingServiceInstancesProcessingException()
             throws Exception {
         // given
-        Map<String, String> params1 = new HashMap<>();
-        params1.put(InstanceParameter.PUBLIC_IP, "1.2.3.4");
-        params1.put("subscriptionId", "sub1");
-        params1.put("instanceId", "inst1");
+        Map<String, Setting> params1 = new HashMap<>();
+        params1.put(InstanceParameter.PUBLIC_IP,
+                new Setting(InstanceParameter.PUBLIC_IP, "1.2.3.4"));
+        params1.put("subscriptionId", new Setting("subscriptionId", "sub1"));
+        params1.put("instanceId", new Setting("instanceId", "inst1"));
         requestInstanceProvisioning = true;
         setControllerReady = true;
         createServiceInstance(ProvisioningStatus.WAITING_FOR_SYSTEM_CREATION,
                 params1);
-        Map<String, String> params2 = new HashMap<>();
-        params2.put(InstanceParameter.PUBLIC_IP, "1.2.3.5");
-        params2.put("subscriptionId", "sub2");
-        params2.put("instanceId", "inst2");
+        Map<String, Setting> params2 = new HashMap<>();
+        params2.put(InstanceParameter.PUBLIC_IP,
+                new Setting(InstanceParameter.PUBLIC_IP, "1.2.3.4"));
+        params2.put("subscriptionId", new Setting("subscriptionId", "sub2"));
+        params2.put("instanceId", new Setting("instanceId", "inst2"));
         requestInstanceProvisioning = false;
         setControllerReady = true;
         createServiceInstance(ProvisioningStatus.COMPLETED, params2);
-        Map<String, String> params3 = new HashMap<>();
-        params3.put(InstanceParameter.PUBLIC_IP, "1.2.3.6");
-        params3.put("subscriptionId", "sub3");
-        params3.put("instanceId", "inst3");
+        Map<String, Setting> params3 = new HashMap<>();
+        params3.put(InstanceParameter.PUBLIC_IP,
+                new Setting(InstanceParameter.PUBLIC_IP, "1.2.3.4"));
+        params3.put("subscriptionId", new Setting("subscriptionId", "sub3"));
+        params3.put("instanceId", new Setting("instanceId", "inst3"));
         requestInstanceProvisioning = true;
         setControllerReady = true;
         createServiceInstance(ProvisioningStatus.WAITING_FOR_SYSTEM_CREATION,
                 params3);
-        Map<String, String> params4 = new HashMap<>();
-        params4.put(InstanceParameter.PUBLIC_IP, "1.2.3.7");
-        params4.put("subscriptionId", "sub4");
-        params4.put("instanceId", "inst4");
+        Map<String, Setting> params4 = new HashMap<>();
+        params4.put(InstanceParameter.PUBLIC_IP,
+                new Setting(InstanceParameter.PUBLIC_IP, "1.2.3.4"));
+        params4.put("subscriptionId", new Setting("subscriptionId", "sub4"));
+        params4.put("instanceId", new Setting("instanceId", "inst4"));
         requestInstanceProvisioning = false;
         setControllerReady = true;
         createServiceInstance(ProvisioningStatus.COMPLETED, params4);
@@ -1000,8 +1013,9 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
         InstanceStatus status = new InstanceStatus();
         status.setIsReady(true);
         status.setInstanceProvisioningRequired(true);
-        HashMap<String, String> parameters = new HashMap<>();
-        parameters.put(InstanceParameter.PUBLIC_IP, "");
+        HashMap<String, Setting> parameters = new HashMap<>();
+        parameters.put(InstanceParameter.PUBLIC_IP,
+                new Setting(InstanceParameter.PUBLIC_IP, ""));
         status.setChangedParameters(parameters);
         List<LocalizedText> list = new ArrayList<>();
         list.add(new LocalizedText("en", "nextStep"));
@@ -1215,19 +1229,21 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
     @Test
     public void testHandleNoTimerTwoWaitingServiceInstances() throws Exception {
         // given
-        Map<String, String> params1 = new HashMap<>();
-        params1.put(InstanceParameter.PUBLIC_IP, "1.2.3.4");
-        params1.put("subscriptionId", "sub1");
-        params1.put("instanceId", "inst1");
+        Map<String, Setting> params1 = new HashMap<>();
+        params1.put(InstanceParameter.PUBLIC_IP,
+                new Setting(InstanceParameter.PUBLIC_IP, "1.2.3.4"));
+        params1.put("subscriptionId", new Setting("subscriptionId", "sub1"));
+        params1.put("instanceId", new Setting("instanceId", "inst1"));
         requestInstanceProvisioning = true;
         setControllerReady = true;
         createServiceInstance(ProvisioningStatus.WAITING_FOR_SYSTEM_CREATION,
                 params1);
         String key1 = instanceId;
-        Map<String, String> params2 = new HashMap<>();
-        params2.put(InstanceParameter.PUBLIC_IP, "1.2.3.5");
-        params2.put("subscriptionId", "sub2");
-        params2.put("instanceId", "inst2");
+        Map<String, Setting> params2 = new HashMap<>();
+        params2.put(InstanceParameter.PUBLIC_IP,
+                new Setting(InstanceParameter.PUBLIC_IP, "1.2.3.5"));
+        params2.put("subscriptionId", new Setting("subscriptionId", "sub2"));
+        params2.put("instanceId", new Setting("instanceId", "inst2"));
         requestInstanceProvisioning = true;
         setControllerReady = true;
         createServiceInstance(ProvisioningStatus.WAITING_FOR_SYSTEM_CREATION,
@@ -1520,16 +1536,19 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
             throws Exception {
 
         // Use linked hash map to keep order of entries (for asserts)
-        Map<String, String> parameters = new LinkedHashMap<>();
+        Map<String, Setting> parameters = new LinkedHashMap<>();
         for (String parameterKey : parameter) {
             if (InstanceParameter.PUBLIC_IP.equals(parameterKey)) {
-                parameters.put(InstanceParameter.PUBLIC_IP, "4.3.2.1");
+                parameters.put(InstanceParameter.PUBLIC_IP,
+                        new Setting(InstanceParameter.PUBLIC_IP, "4.3.2.1"));
             } else {
                 String pValue = parameterKey + "Value";
-                if (parameterKey.endsWith(InstanceParameter.CRYPT_KEY_SUFFIX)) {
+                Setting setting = new Setting(parameterKey, pValue);
+                if (parameterKey.endsWith("_PWD")) {
                     pValue = AESEncrypter.encrypt(pValue);
+                    setting.setEncrypted(true);
                 }
-                parameters.put(parameterKey, pValue);
+                parameters.put(parameterKey, setting);
             }
         }
         return createServiceInstance(status, parameters);
@@ -1547,7 +1566,7 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
      */
     private ServiceInstance createServiceInstance(
             final ProvisioningStatus status,
-            final Map<String, String> parameters) throws Exception {
+            final Map<String, Setting> parameters) throws Exception {
         return runTX(new Callable<ServiceInstance>() {
             @Override
             public ServiceInstance call() throws Exception {
@@ -1560,13 +1579,14 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
                 si.setControllerReady(setControllerReady);
                 if (parameters != null
                         && parameters.get("subscriptionId") != null) {
-                    si.setSubscriptionId(parameters.get("subscriptionId"));
+                    si.setSubscriptionId(
+                            parameters.get("subscriptionId").getValue());
                 } else {
                     si.setSubscriptionId("subId");
                 }
                 if (parameters != null
                         && parameters.get("instanceId") != null) {
-                    si.setInstanceId(parameters.get("instanceId"));
+                    si.setInstanceId(parameters.get("instanceId").getValue());
                 } else {
                     si.setInstanceId("appInstanceId");
                 }
@@ -1581,7 +1601,8 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
                         }
                         InstanceParameter ip = new InstanceParameter();
                         ip.setParameterKey(parameterKey);
-                        ip.setParameterValue(parameters.get(parameterKey));
+                        ip.setParameterValue(
+                                parameters.get(parameterKey).getValue());
                         ip.setServiceInstance(si);
                         si.getInstanceParameters().add(ip);
                     }

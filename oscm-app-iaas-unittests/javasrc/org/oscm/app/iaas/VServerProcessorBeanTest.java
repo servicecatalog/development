@@ -35,7 +35,6 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.MockitoAnnotations;
-
 import org.oscm.app.iaas.data.DiskImage;
 import org.oscm.app.iaas.data.FlowState;
 import org.oscm.app.iaas.data.Operation;
@@ -49,6 +48,7 @@ import org.oscm.app.iaas.intf.VServerCommunication;
 import org.oscm.app.iaas.intf.VSystemCommunication;
 import org.oscm.app.v1_0.data.PasswordAuthentication;
 import org.oscm.app.v1_0.data.ProvisioningSettings;
+import org.oscm.app.v1_0.data.Setting;
 import org.oscm.app.v1_0.data.User;
 import org.oscm.app.v1_0.exceptions.SuspendException;
 import org.oscm.app.v1_0.intf.APPlatformService;
@@ -62,8 +62,8 @@ public class VServerProcessorBeanTest {
     private VServerProcessorBean vServerProcessor;
     private APPlatformService platformService;
 
-    private HashMap<String, String> parameters;
-    HashMap<String, String> configSettings;
+    private HashMap<String, Setting> parameters;
+    HashMap<String, Setting> configSettings;
     private ProvisioningSettings settings;
     private PropertyHandler paramHandler;
     private final String DISKIDORNAME1 = "DISKIDORNAME1";
@@ -84,8 +84,8 @@ public class VServerProcessorBeanTest {
         vServerProcessor.fwComm = mock(FWCommunication.class);
         vServerProcessor.vdiskInfo = mock(VDiskCommunication.class);
         platformService = mock(APPlatformService.class);
-        doReturn("RUNNING").when(vServerProcessor.fwComm).getFirewallStatus(
-                any(PropertyHandler.class));
+        doReturn("RUNNING").when(vServerProcessor.fwComm)
+                .getFirewallStatus(any(PropertyHandler.class));
         doReturn(Boolean.TRUE).when(platformService).lockServiceInstance(
                 anyString(), anyString(), any(PasswordAuthentication.class));
         doNothing().when(platformService).unlockServiceInstance(anyString(),
@@ -98,8 +98,8 @@ public class VServerProcessorBeanTest {
                 any(PasswordAuthentication.class));
         vServerProcessor.setPlatformService(platformService);
 
-        parameters = new HashMap<String, String>();
-        configSettings = new HashMap<String, String>();
+        parameters = new HashMap<>();
+        configSettings = new HashMap<>();
         settings = new ProvisioningSettings(parameters, configSettings, "en");
         settings.setSubscriptionId("subId");
         paramHandler = new PropertyHandler(settings);
@@ -260,7 +260,8 @@ public class VServerProcessorBeanTest {
     public void manageCreationProcess_VSERVER_RETRIEVEGUEST_manualOperation()
             throws Exception {
         // given
-        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, "test@email.com");
+        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, new Setting(
+                PropertyHandler.MAIL_FOR_COMPLETION, "test@email.com"));
 
         // when
         FlowState newState = vServerProcessor.manageCreationProcess(null, null,
@@ -385,9 +386,9 @@ public class VServerProcessorBeanTest {
             throws Exception {
         // given
         paramHandler.getIaasContext().setVSystemStatus("NORMAL");
-        doReturn(FlowState.VSERVER_STOPPING_FOR_MODIFICATION).when(
-                vServerProcessor.vserverComm).modifyVServerAttributes(
-                any(PropertyHandler.class));
+        doReturn(FlowState.VSERVER_STOPPING_FOR_MODIFICATION)
+                .when(vServerProcessor.vserverComm)
+                .modifyVServerAttributes(any(PropertyHandler.class));
 
         // when
         FlowState newState = vServerProcessor.manageModificationProcess(null,
@@ -403,8 +404,8 @@ public class VServerProcessorBeanTest {
             throws Exception {
         // when
         FlowState newState = vServerProcessor.manageModificationProcess(null,
-                null, paramHandler,
-                FlowState.VSERVER_STOPPING_FOR_MODIFICATION, null);
+                null, paramHandler, FlowState.VSERVER_STOPPING_FOR_MODIFICATION,
+                null);
 
         // then
         assertNull(newState);
@@ -420,8 +421,8 @@ public class VServerProcessorBeanTest {
 
         // when
         FlowState newState = vServerProcessor.manageModificationProcess(null,
-                null, paramHandler,
-                FlowState.VSERVER_STOPPING_FOR_MODIFICATION, null);
+                null, paramHandler, FlowState.VSERVER_STOPPING_FOR_MODIFICATION,
+                null);
 
         // then the state is not modified.
         assertNull(newState);
@@ -440,8 +441,8 @@ public class VServerProcessorBeanTest {
 
         // when
         FlowState newState = vServerProcessor.manageModificationProcess(null,
-                null, paramHandler,
-                FlowState.VSERVER_STOPPING_FOR_MODIFICATION, null);
+                null, paramHandler, FlowState.VSERVER_STOPPING_FOR_MODIFICATION,
+                null);
 
         // then
         assertEquals(FlowState.VSERVER_UPDATING, newState);
@@ -500,8 +501,8 @@ public class VServerProcessorBeanTest {
         paramHandler.setVserverId(vServerId);
         paramHandler.addVserverToBeStarted(vServerId);
 
-        doReturn(Boolean.TRUE).when(vServerProcessor.vserverComm).startVServer(
-                any(PropertyHandler.class));
+        doReturn(Boolean.TRUE).when(vServerProcessor.vserverComm)
+                .startVServer(any(PropertyHandler.class));
 
         // when
         FlowState newState = vServerProcessor.manageModificationProcess(null,
@@ -542,8 +543,8 @@ public class VServerProcessorBeanTest {
     public void manageModificationProcess_VSERVER_UPDATED() throws Exception {
         // given
         paramHandler.getIaasContext().setVSystemStatus("NORMAL");
-        doReturn(Boolean.TRUE).when(vServerProcessor.vserverComm).startVServer(
-                paramHandler);
+        doReturn(Boolean.TRUE).when(vServerProcessor.vserverComm)
+                .startVServer(paramHandler);
 
         // when
         FlowState newState = vServerProcessor.manageModificationProcess(null,
@@ -626,7 +627,8 @@ public class VServerProcessorBeanTest {
     public void manageModificationProcess_VSERVER_RETRIEVEGUEST_manualOperation()
             throws Exception {
         // given
-        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, "test@email.com");
+        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, new Setting(
+                PropertyHandler.MAIL_FOR_COMPLETION, "test@email.com"));
 
         // when
         FlowState newState = vServerProcessor.manageModificationProcess(null,
@@ -644,9 +646,9 @@ public class VServerProcessorBeanTest {
         FlowState newState = null;
 
         // when
-        newState = vServerProcessor
-                .manageModificationVDiskCreation("controllerId", "instanceId",
-                        paramHandler, flowState, newState);
+        newState = vServerProcessor.manageModificationVDiskCreation(
+                "controllerId", "instanceId", paramHandler, flowState,
+                newState);
 
         // then
         assertNull(newState);
@@ -663,14 +665,14 @@ public class VServerProcessorBeanTest {
                 .getVServerStatus(any(PropertyHandler.class));
 
         // when
-        newState = vServerProcessor
-                .manageModificationVDiskCreation("controllerId", "instanceId",
-                        paramHandler, flowState, newState);
+        newState = vServerProcessor.manageModificationVDiskCreation(
+                "controllerId", "instanceId", paramHandler, flowState,
+                newState);
 
         // then
         assertNull(newState);
-        verify(vServerProcessor.vserverComm, times(1)).stopVServer(
-                eq(paramHandler));
+        verify(vServerProcessor.vserverComm, times(1))
+                .stopVServer(eq(paramHandler));
     }
 
     @Test
@@ -684,9 +686,9 @@ public class VServerProcessorBeanTest {
                 .getVServerStatus(any(PropertyHandler.class));
 
         // when
-        newState = vServerProcessor
-                .manageModificationVDiskCreation("controllerId", "instanceId",
-                        paramHandler, flowState, newState);
+        newState = vServerProcessor.manageModificationVDiskCreation(
+                "controllerId", "instanceId", paramHandler, flowState,
+                newState);
 
         // then
         assertEquals(FlowState.VSERVER_STOPPED_FOR_MODIFICATION, newState);
@@ -700,9 +702,9 @@ public class VServerProcessorBeanTest {
         FlowState newState = null;
 
         // when
-        newState = vServerProcessor
-                .manageModificationVDiskCreation("controllerId", "instanceId",
-                        paramHandler, flowState, newState);
+        newState = vServerProcessor.manageModificationVDiskCreation(
+                "controllerId", "instanceId", paramHandler, flowState,
+                newState);
 
         // then
         assertNull(newState);
@@ -718,9 +720,9 @@ public class VServerProcessorBeanTest {
         paramHandler.getIaasContext().setVSystemStatus("NORMAL");
 
         // when
-        newState = vServerProcessor
-                .manageModificationVDiskCreation("controllerId", "instanceId",
-                        paramHandler, flowState, newState);
+        newState = vServerProcessor.manageModificationVDiskCreation(
+                "controllerId", "instanceId", paramHandler, flowState,
+                newState);
 
         // then
         assertEquals(FlowState.VSERVER_UPDATING, newState);
@@ -738,9 +740,9 @@ public class VServerProcessorBeanTest {
                 .isAdditionalDiskSelected(any(PropertyHandler.class));
 
         // when
-        newState = vServerProcessor
-                .manageModificationVDiskCreation("controllerId", "instanceId",
-                        paramHandler, flowState, newState);
+        newState = vServerProcessor.manageModificationVDiskCreation(
+                "controllerId", "instanceId", paramHandler, flowState,
+                newState);
 
         // then
         assertEquals(FlowState.VSDISK_CREATION_REQUESTED, newState);
@@ -754,9 +756,9 @@ public class VServerProcessorBeanTest {
         FlowState newState = null;
 
         // when
-        newState = vServerProcessor
-                .manageModificationVDiskCreation("controllerId", "instanceId",
-                        paramHandler, flowState, newState);
+        newState = vServerProcessor.manageModificationVDiskCreation(
+                "controllerId", "instanceId", paramHandler, flowState,
+                newState);
         // then
         assertNull(newState);
     }
@@ -770,9 +772,9 @@ public class VServerProcessorBeanTest {
         FlowState newState = null;
 
         // when
-        newState = vServerProcessor
-                .manageModificationVDiskCreation("controllerId", "instanceId",
-                        paramHandler, flowState, newState);
+        newState = vServerProcessor.manageModificationVDiskCreation(
+                "controllerId", "instanceId", paramHandler, flowState,
+                newState);
 
         // then
         assertEquals(FlowState.VSDISK_CREATING, newState);
@@ -786,9 +788,9 @@ public class VServerProcessorBeanTest {
         FlowState newState = null;
 
         // when
-        newState = vServerProcessor
-                .manageModificationVDiskCreation("controllerId", "instanceId",
-                        paramHandler, flowState, newState);
+        newState = vServerProcessor.manageModificationVDiskCreation(
+                "controllerId", "instanceId", paramHandler, flowState,
+                newState);
 
         // then
         assertNull(newState);
@@ -804,9 +806,9 @@ public class VServerProcessorBeanTest {
         doReturn(Boolean.TRUE).when(vServerProcessor.vdiskInfo)
                 .isVDiskDeployed(any(PropertyHandler.class));
         // when
-        newState = vServerProcessor
-                .manageModificationVDiskCreation("controllerId", "instanceId",
-                        paramHandler, flowState, newState);
+        newState = vServerProcessor.manageModificationVDiskCreation(
+                "controllerId", "instanceId", paramHandler, flowState,
+                newState);
 
         // then
         assertEquals(FlowState.VSDISK_CREATED, newState);
@@ -820,9 +822,9 @@ public class VServerProcessorBeanTest {
         FlowState newState = null;
 
         // when
-        newState = vServerProcessor
-                .manageModificationVDiskCreation("controllerId", "instanceId",
-                        paramHandler, flowState, newState);
+        newState = vServerProcessor.manageModificationVDiskCreation(
+                "controllerId", "instanceId", paramHandler, flowState,
+                newState);
 
         // then
         assertNull(newState);
@@ -838,9 +840,9 @@ public class VServerProcessorBeanTest {
         paramHandler.getIaasContext().setVSystemStatus("NORMAL");
 
         // when
-        newState = vServerProcessor
-                .manageModificationVDiskCreation("controllerId", "instanceId",
-                        paramHandler, flowState, newState);
+        newState = vServerProcessor.manageModificationVDiskCreation(
+                "controllerId", "instanceId", paramHandler, flowState,
+                newState);
 
         // then
         assertEquals(FlowState.VSDISK_ATTACHING, newState);
@@ -854,9 +856,9 @@ public class VServerProcessorBeanTest {
         FlowState newState = null;
 
         // when
-        newState = vServerProcessor
-                .manageModificationVDiskCreation("controllerId", "instanceId",
-                        paramHandler, flowState, newState);
+        newState = vServerProcessor.manageModificationVDiskCreation(
+                "controllerId", "instanceId", paramHandler, flowState,
+                newState);
 
         // then
         assertNull(newState);
@@ -872,9 +874,9 @@ public class VServerProcessorBeanTest {
         doReturn(Boolean.TRUE).when(vServerProcessor.vdiskInfo)
                 .isVDiskAttached(any(PropertyHandler.class));
         // when
-        newState = vServerProcessor
-                .manageModificationVDiskCreation("controllerId", "instanceId",
-                        paramHandler, flowState, newState);
+        newState = vServerProcessor.manageModificationVDiskCreation(
+                "controllerId", "instanceId", paramHandler, flowState,
+                newState);
 
         // then
         assertEquals(FlowState.VSDISK_ATTACHED, newState);
@@ -888,9 +890,9 @@ public class VServerProcessorBeanTest {
         FlowState newState = null;
 
         // when
-        newState = vServerProcessor
-                .manageModificationVDiskCreation("controllerId", "instanceId",
-                        paramHandler, flowState, newState);
+        newState = vServerProcessor.manageModificationVDiskCreation(
+                "controllerId", "instanceId", paramHandler, flowState,
+                newState);
 
         // then
         assertEquals(FlowState.VSERVER_UPDATING, newState);
@@ -907,9 +909,9 @@ public class VServerProcessorBeanTest {
                 .getVServerStatus(any(PropertyHandler.class));
 
         // when
-        newState = vServerProcessor
-                .manageModificationVDiskCreation("controllerId", "instanceId",
-                        paramHandler, flowState, newState);
+        newState = vServerProcessor.manageModificationVDiskCreation(
+                "controllerId", "instanceId", paramHandler, flowState,
+                newState);
 
         // then
         assertNull(newState);
@@ -926,9 +928,9 @@ public class VServerProcessorBeanTest {
                 .getVServerStatus(any(PropertyHandler.class));
 
         // when
-        newState = vServerProcessor
-                .manageModificationVDiskCreation("controllerId", "instanceId",
-                        paramHandler, flowState, newState);
+        newState = vServerProcessor.manageModificationVDiskCreation(
+                "controllerId", "instanceId", paramHandler, flowState,
+                newState);
 
         // then
         assertEquals(FlowState.VSERVER_UPDATED, newState);
@@ -945,9 +947,9 @@ public class VServerProcessorBeanTest {
                 .getVServerStatus(any(PropertyHandler.class));
 
         // when
-        newState = vServerProcessor
-                .manageModificationVDiskCreation("controllerId", "instanceId",
-                        paramHandler, flowState, newState);
+        newState = vServerProcessor.manageModificationVDiskCreation(
+                "controllerId", "instanceId", paramHandler, flowState,
+                newState);
 
         // then
         assertNull(newState);
@@ -960,13 +962,13 @@ public class VServerProcessorBeanTest {
         FlowState flowState = FlowState.VSERVER_UPDATED;
         FlowState newState = null;
 
-        doReturn(Boolean.TRUE).when(vServerProcessor.vserverComm).startVServer(
-                paramHandler);
+        doReturn(Boolean.TRUE).when(vServerProcessor.vserverComm)
+                .startVServer(paramHandler);
 
         // when
-        newState = vServerProcessor
-                .manageModificationVDiskCreation("controllerId", "instanceId",
-                        paramHandler, flowState, newState);
+        newState = vServerProcessor.manageModificationVDiskCreation(
+                "controllerId", "instanceId", paramHandler, flowState,
+                newState);
 
         // then
         assertEquals(FlowState.VSERVER_STARTING, newState);
@@ -983,9 +985,9 @@ public class VServerProcessorBeanTest {
                 .getVServerStatus(any(PropertyHandler.class));
 
         // when
-        newState = vServerProcessor
-                .manageModificationVDiskCreation("controllerId", "instanceId",
-                        paramHandler, flowState, newState);
+        newState = vServerProcessor.manageModificationVDiskCreation(
+                "controllerId", "instanceId", paramHandler, flowState,
+                newState);
 
         // then
         assertEquals(FlowState.VSERVER_STARTED, newState);
@@ -1002,9 +1004,9 @@ public class VServerProcessorBeanTest {
                 .getVServerStatus(any(PropertyHandler.class));
 
         // when
-        newState = vServerProcessor
-                .manageModificationVDiskCreation("controllerId", "instanceId",
-                        paramHandler, flowState, newState);
+        newState = vServerProcessor.manageModificationVDiskCreation(
+                "controllerId", "instanceId", paramHandler, flowState,
+                newState);
 
         // then
         assertNull(newState);
@@ -1021,9 +1023,9 @@ public class VServerProcessorBeanTest {
                 .getVServerStatus(any(PropertyHandler.class));
 
         // when
-        newState = vServerProcessor
-                .manageModificationVDiskCreation("controllerId", "instanceId",
-                        paramHandler, flowState, newState);
+        newState = vServerProcessor.manageModificationVDiskCreation(
+                "controllerId", "instanceId", paramHandler, flowState,
+                newState);
 
         // then
         assertNull(newState);
@@ -1040,9 +1042,9 @@ public class VServerProcessorBeanTest {
                 .getVServerStatus(any(PropertyHandler.class));
 
         // when
-        newState = vServerProcessor
-                .manageModificationVDiskCreation("controllerId", "instanceId",
-                        paramHandler, flowState, newState);
+        newState = vServerProcessor.manageModificationVDiskCreation(
+                "controllerId", "instanceId", paramHandler, flowState,
+                newState);
 
         // then
         assertEquals(FlowState.VSERVER_RETRIEVEGUEST, newState);
@@ -1056,9 +1058,9 @@ public class VServerProcessorBeanTest {
         FlowState newState = null;
 
         // when
-        newState = vServerProcessor
-                .manageModificationVDiskCreation("controllerId", "instanceId",
-                        paramHandler, flowState, newState);
+        newState = vServerProcessor.manageModificationVDiskCreation(
+                "controllerId", "instanceId", paramHandler, flowState,
+                newState);
 
         // then
         assertEquals(FlowState.FINISHED, newState);
@@ -1071,12 +1073,13 @@ public class VServerProcessorBeanTest {
         FlowState flowState = FlowState.VSERVER_RETRIEVEGUEST;
         FlowState newState = null;
 
-        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, "test@email.com");
+        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, new Setting(
+                PropertyHandler.MAIL_FOR_COMPLETION, "test@email.com"));
 
         // when
-        newState = vServerProcessor
-                .manageModificationVDiskCreation("controllerId", "instanceId",
-                        paramHandler, flowState, newState);
+        newState = vServerProcessor.manageModificationVDiskCreation(
+                "controllerId", "instanceId", paramHandler, flowState,
+                newState);
 
         // then
         assertEquals(FlowState.FINISHED, newState);
@@ -1248,9 +1251,9 @@ public class VServerProcessorBeanTest {
     public void isDiskImageIdValid_UniqueDiskImageName() throws Exception {
         // given
         paramHandler.setDiskImageId(DISKIDORNAME3);
-        doReturn(givenDiskImagesUniqueDiskname()).when(
-                vServerProcessor.vsysComm).getDiskImages(
-                any(PropertyHandler.class));
+        doReturn(givenDiskImagesUniqueDiskname())
+                .when(vServerProcessor.vsysComm)
+                .getDiskImages(any(PropertyHandler.class));
 
         // when
         DiskImage validDiskImage = vServerProcessor.isDiskImageIdValid(null,
@@ -1265,9 +1268,9 @@ public class VServerProcessorBeanTest {
     public void isDiskImageIdValid_DiskNonUniqueImageName() throws Exception {
         // given
         paramHandler.setDiskImageId(DISKIDORNAME3);
-        doReturn(givenDiskImagesNonUniqueDiskname()).when(
-                vServerProcessor.vsysComm).getDiskImages(
-                any(PropertyHandler.class));
+        doReturn(givenDiskImagesNonUniqueDiskname())
+                .when(vServerProcessor.vsysComm)
+                .getDiskImages(any(PropertyHandler.class));
 
         // when
         DiskImage validDiskImage = vServerProcessor.isDiskImageIdValid(null,
@@ -1282,9 +1285,9 @@ public class VServerProcessorBeanTest {
     public void isDiskImageIdValid_InvalidDiskImages() throws Exception {
         // given
         paramHandler.setDiskImageId("diskId");
-        doReturn(givenDiskImagesUniqueDiskname()).when(
-                vServerProcessor.vsysComm).getDiskImages(
-                any(PropertyHandler.class));
+        doReturn(givenDiskImagesUniqueDiskname())
+                .when(vServerProcessor.vsysComm)
+                .getDiskImages(any(PropertyHandler.class));
 
         // when
         DiskImage validDiskImage = vServerProcessor.isDiskImageIdValid(null,
@@ -1384,8 +1387,8 @@ public class VServerProcessorBeanTest {
 
         // then
         assertEquals(FlowState.VSERVER_DELETING, newState);
-        verify(vServerProcessor.vserverComm, times(1)).destroyVServer(
-                paramHandler);
+        verify(vServerProcessor.vserverComm, times(1))
+                .destroyVServer(paramHandler);
     }
 
     @Test
@@ -1426,7 +1429,8 @@ public class VServerProcessorBeanTest {
     @Test
     public void manageDeletionProcess_VSERVER_DELETING_Mail() throws Exception {
         // given
-        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, "test@email.com");
+        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, new Setting(
+                PropertyHandler.MAIL_FOR_COMPLETION, "test@email.com"));
         FlowState flowState = FlowState.VSERVER_DELETING;
         FlowState newState = null;
         paramHandler.getIaasContext().setVSystemStatus("NORMAL");
@@ -1440,8 +1444,8 @@ public class VServerProcessorBeanTest {
         // then
         assertEquals(FlowState.DESTROYED, newState);
         verify(platformService, times(1)).sendMail(
-                Collections.singletonList(any(String.class)),
-                any(String.class), any(String.class));
+                Collections.singletonList(any(String.class)), any(String.class),
+                any(String.class));
     }
 
     @Test
@@ -1461,8 +1465,8 @@ public class VServerProcessorBeanTest {
         // then
         assertEquals(FlowState.DESTROYED, newState);
         verify(platformService, times(0)).sendMail(
-                Collections.singletonList(any(String.class)),
-                any(String.class), any(String.class));
+                Collections.singletonList(any(String.class)), any(String.class),
+                any(String.class));
     }
 
     @Test
@@ -1606,9 +1610,9 @@ public class VServerProcessorBeanTest {
                 .getVServerStatus(paramHandler);
 
         // when
-        newState = vServerProcessor
-                .manageModificationVDiskDeletion("controllerId", "instanceId",
-                        paramHandler, flowState, newState);
+        newState = vServerProcessor.manageModificationVDiskDeletion(
+                "controllerId", "instanceId", paramHandler, flowState,
+                newState);
 
         // then
         assertNull(newState);
@@ -1625,9 +1629,9 @@ public class VServerProcessorBeanTest {
                 .getVServerStatus(paramHandler);
 
         // when
-        newState = vServerProcessor
-                .manageModificationVDiskDeletion("controllerId", "instanceId",
-                        paramHandler, flowState, newState);
+        newState = vServerProcessor.manageModificationVDiskDeletion(
+                "controllerId", "instanceId", paramHandler, flowState,
+                newState);
 
         // then
         verify(vServerProcessor.vserverComm, times(1))
@@ -1645,9 +1649,9 @@ public class VServerProcessorBeanTest {
                 .getVServerStatus(paramHandler);
 
         // when
-        newState = vServerProcessor
-                .manageModificationVDiskDeletion("controllerId", "instanceId",
-                        paramHandler, flowState, newState);
+        newState = vServerProcessor.manageModificationVDiskDeletion(
+                "controllerId", "instanceId", paramHandler, flowState,
+                newState);
 
         // then
         assertEquals(FlowState.VSERVER_STOPPED_FOR_MODIFICATION, newState);
@@ -1661,9 +1665,9 @@ public class VServerProcessorBeanTest {
         FlowState newState = null;
 
         // when
-        newState = vServerProcessor
-                .manageModificationVDiskDeletion("controllerId", "instanceId",
-                        paramHandler, flowState, newState);
+        newState = vServerProcessor.manageModificationVDiskDeletion(
+                "controllerId", "instanceId", paramHandler, flowState,
+                newState);
 
         // then
         assertNull(newState);
@@ -1681,14 +1685,14 @@ public class VServerProcessorBeanTest {
                 .isAttachedVDisksFound(paramHandler);
 
         // when
-        newState = vServerProcessor
-                .manageModificationVDiskDeletion("controllerId", "instanceId",
-                        paramHandler, flowState, newState);
+        newState = vServerProcessor.manageModificationVDiskDeletion(
+                "controllerId", "instanceId", paramHandler, flowState,
+                newState);
 
         // then
         assertEquals(FlowState.VSDISK_DELETION_REQUESTED, newState);
-        verify(vServerProcessor.vserverComm, times(1)).modifyVServerAttributes(
-                paramHandler);
+        verify(vServerProcessor.vserverComm, times(1))
+                .modifyVServerAttributes(paramHandler);
     }
 
     @Test
@@ -1702,9 +1706,9 @@ public class VServerProcessorBeanTest {
                 .isAttachedVDisksFound(paramHandler);
 
         // when
-        newState = vServerProcessor
-                .manageModificationVDiskDeletion("controllerId", "instanceId",
-                        paramHandler, flowState, newState);
+        newState = vServerProcessor.manageModificationVDiskDeletion(
+                "controllerId", "instanceId", paramHandler, flowState,
+                newState);
 
         // then
         assertEquals(FlowState.VSERVER_UPDATING, newState);
@@ -1720,14 +1724,14 @@ public class VServerProcessorBeanTest {
         paramHandler.getIaasContext().setVSystemStatus("NORMAL");
 
         // when
-        newState = vServerProcessor
-                .manageModificationVDiskDeletion("controllerId", "instanceId",
-                        paramHandler, flowState, newState);
+        newState = vServerProcessor.manageModificationVDiskDeletion(
+                "controllerId", "instanceId", paramHandler, flowState,
+                newState);
 
         // then
         assertEquals(FlowState.VSDISK_DETACHING, newState);
-        verify(vServerProcessor.vdiskInfo, times(1)).detachVDisks(
-                eq(paramHandler));
+        verify(vServerProcessor.vdiskInfo, times(1))
+                .detachVDisks(eq(paramHandler));
 
     }
 
@@ -1739,9 +1743,9 @@ public class VServerProcessorBeanTest {
         FlowState newState = null;
 
         // when
-        newState = vServerProcessor
-                .manageModificationVDiskDeletion("controllerId", "instanceId",
-                        paramHandler, flowState, newState);
+        newState = vServerProcessor.manageModificationVDiskDeletion(
+                "controllerId", "instanceId", paramHandler, flowState,
+                newState);
 
         // then
         assertNull(newState);
@@ -1759,9 +1763,9 @@ public class VServerProcessorBeanTest {
                 .areVDisksDetached(paramHandler);
 
         // when
-        newState = vServerProcessor
-                .manageModificationVDiskDeletion("controllerId", "instanceId",
-                        paramHandler, flowState, newState);
+        newState = vServerProcessor.manageModificationVDiskDeletion(
+                "controllerId", "instanceId", paramHandler, flowState,
+                newState);
 
         // then
         assertEquals(FlowState.VSDISK_DETACHED, newState);
@@ -1777,9 +1781,9 @@ public class VServerProcessorBeanTest {
                 .areVDisksDetached(paramHandler);
 
         // when
-        newState = vServerProcessor
-                .manageModificationVDiskDeletion("controllerId", "instanceId",
-                        paramHandler, flowState, newState);
+        newState = vServerProcessor.manageModificationVDiskDeletion(
+                "controllerId", "instanceId", paramHandler, flowState,
+                newState);
 
         // then
         assertNull(newState);
@@ -1794,14 +1798,14 @@ public class VServerProcessorBeanTest {
         paramHandler.getIaasContext().setVSystemStatus("NORMAL");
 
         // when
-        newState = vServerProcessor
-                .manageModificationVDiskDeletion("controllerId", "instanceId",
-                        paramHandler, flowState, newState);
+        newState = vServerProcessor.manageModificationVDiskDeletion(
+                "controllerId", "instanceId", paramHandler, flowState,
+                newState);
 
         // then
         assertEquals(FlowState.VSDISK_DELETING, newState);
-        verify(vServerProcessor.vdiskInfo, times(1)).destroyVDisks(
-                eq(paramHandler));
+        verify(vServerProcessor.vdiskInfo, times(1))
+                .destroyVDisks(eq(paramHandler));
     }
 
     @Test
@@ -1812,9 +1816,9 @@ public class VServerProcessorBeanTest {
         FlowState newState = null;
 
         // when
-        newState = vServerProcessor
-                .manageModificationVDiskDeletion("controllerId", "instanceId",
-                        paramHandler, flowState, newState);
+        newState = vServerProcessor.manageModificationVDiskDeletion(
+                "controllerId", "instanceId", paramHandler, flowState,
+                newState);
 
         // then
         assertNull(newState);
@@ -1831,9 +1835,9 @@ public class VServerProcessorBeanTest {
                 .areVDisksDestroyed(paramHandler);
 
         // when
-        newState = vServerProcessor
-                .manageModificationVDiskDeletion("controllerId", "instanceId",
-                        paramHandler, flowState, newState);
+        newState = vServerProcessor.manageModificationVDiskDeletion(
+                "controllerId", "instanceId", paramHandler, flowState,
+                newState);
 
         // then
         assertEquals(FlowState.VSERVER_UPDATING, newState);
@@ -1850,9 +1854,9 @@ public class VServerProcessorBeanTest {
                 .areVDisksDestroyed(paramHandler);
 
         // when
-        newState = vServerProcessor
-                .manageModificationVDiskDeletion("controllerId", "instanceId",
-                        paramHandler, flowState, newState);
+        newState = vServerProcessor.manageModificationVDiskDeletion(
+                "controllerId", "instanceId", paramHandler, flowState,
+                newState);
 
         // then
         assertNull(newState);
@@ -1868,9 +1872,9 @@ public class VServerProcessorBeanTest {
                 .getVServerStatus(paramHandler);
 
         // when
-        newState = vServerProcessor
-                .manageModificationVDiskDeletion("controllerId", "instanceId",
-                        paramHandler, flowState, newState);
+        newState = vServerProcessor.manageModificationVDiskDeletion(
+                "controllerId", "instanceId", paramHandler, flowState,
+                newState);
 
         // then
         assertEquals(FlowState.VSERVER_UPDATED, newState);
@@ -1886,9 +1890,9 @@ public class VServerProcessorBeanTest {
                 .getVServerStatus(paramHandler);
 
         // when
-        newState = vServerProcessor
-                .manageModificationVDiskDeletion("controllerId", "instanceId",
-                        paramHandler, flowState, newState);
+        newState = vServerProcessor.manageModificationVDiskDeletion(
+                "controllerId", "instanceId", paramHandler, flowState,
+                newState);
 
         // then
         assertNull(newState);
@@ -1900,18 +1904,18 @@ public class VServerProcessorBeanTest {
         // given
         FlowState flowState = FlowState.VSERVER_UPDATED;
         FlowState newState = null;
-        doReturn(Boolean.TRUE).when(vServerProcessor.vserverComm).startVServer(
-                paramHandler);
+        doReturn(Boolean.TRUE).when(vServerProcessor.vserverComm)
+                .startVServer(paramHandler);
 
         // when
-        newState = vServerProcessor
-                .manageModificationVDiskDeletion("controllerId", "instanceId",
-                        paramHandler, flowState, newState);
+        newState = vServerProcessor.manageModificationVDiskDeletion(
+                "controllerId", "instanceId", paramHandler, flowState,
+                newState);
 
         // then
         assertEquals(FlowState.VSERVER_STARTING, newState);
-        verify(vServerProcessor.vserverComm, times(1)).startVServer(
-                eq(paramHandler));
+        verify(vServerProcessor.vserverComm, times(1))
+                .startVServer(eq(paramHandler));
     }
 
     @Test
@@ -1924,9 +1928,9 @@ public class VServerProcessorBeanTest {
                 .getVServerStatus(paramHandler);
 
         // when
-        newState = vServerProcessor
-                .manageModificationVDiskDeletion("controllerId", "instanceId",
-                        paramHandler, flowState, newState);
+        newState = vServerProcessor.manageModificationVDiskDeletion(
+                "controllerId", "instanceId", paramHandler, flowState,
+                newState);
 
         // then
         assertNull(newState);
@@ -1942,9 +1946,9 @@ public class VServerProcessorBeanTest {
                 .getVServerStatus(paramHandler);
 
         // when
-        newState = vServerProcessor
-                .manageModificationVDiskDeletion("controllerId", "instanceId",
-                        paramHandler, flowState, newState);
+        newState = vServerProcessor.manageModificationVDiskDeletion(
+                "controllerId", "instanceId", paramHandler, flowState,
+                newState);
 
         // then
         assertEquals(FlowState.VSERVER_STARTED, newState);
@@ -1960,9 +1964,9 @@ public class VServerProcessorBeanTest {
                 .getVServerStatus(paramHandler);
 
         // when
-        newState = vServerProcessor
-                .manageModificationVDiskDeletion("controllerId", "instanceId",
-                        paramHandler, flowState, newState);
+        newState = vServerProcessor.manageModificationVDiskDeletion(
+                "controllerId", "instanceId", paramHandler, flowState,
+                newState);
 
         // then
         assertNull(newState);
@@ -1974,14 +1978,15 @@ public class VServerProcessorBeanTest {
         // given
         FlowState flowState = FlowState.VSERVER_STARTED;
         FlowState newState = null;
-        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, "test@email.com");
+        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, new Setting(
+                PropertyHandler.MAIL_FOR_COMPLETION, "test@email.com"));
         doReturn(VServerStatus.RUNNING).when(vServerProcessor.vserverComm)
                 .getVServerStatus(paramHandler);
 
         // when
-        newState = vServerProcessor
-                .manageModificationVDiskDeletion("controllerId", "instanceId",
-                        paramHandler, flowState, newState);
+        newState = vServerProcessor.manageModificationVDiskDeletion(
+                "controllerId", "instanceId", paramHandler, flowState,
+                newState);
 
         // then
         assertEquals(FlowState.VSERVER_RETRIEVEGUEST, newState);
@@ -1997,9 +2002,9 @@ public class VServerProcessorBeanTest {
                 .getVServerStatus(paramHandler);
 
         // when
-        newState = vServerProcessor
-                .manageModificationVDiskDeletion("controllerId", "instanceId",
-                        paramHandler, flowState, newState);
+        newState = vServerProcessor.manageModificationVDiskDeletion(
+                "controllerId", "instanceId", paramHandler, flowState,
+                newState);
 
         // then
         assertEquals(FlowState.FINISHED, newState);
@@ -2015,9 +2020,9 @@ public class VServerProcessorBeanTest {
                 .getVServerStatus(paramHandler);
 
         // when
-        newState = vServerProcessor
-                .manageModificationVDiskDeletion("controllerId", "instanceId",
-                        paramHandler, flowState, newState);
+        newState = vServerProcessor.manageModificationVDiskDeletion(
+                "controllerId", "instanceId", paramHandler, flowState,
+                newState);
 
         // then
         assertNull(newState);
@@ -2029,12 +2034,13 @@ public class VServerProcessorBeanTest {
         // given
         FlowState flowState = FlowState.VSERVER_RETRIEVEGUEST;
         FlowState newState = null;
-        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, "test@email.com");
+        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, new Setting(
+                PropertyHandler.MAIL_FOR_COMPLETION, "test@email.com"));
 
         // when
-        newState = vServerProcessor
-                .manageModificationVDiskDeletion("controllerId", "instanceId",
-                        paramHandler, flowState, newState);
+        newState = vServerProcessor.manageModificationVDiskDeletion(
+                "controllerId", "instanceId", paramHandler, flowState,
+                newState);
 
         // then
         assertEquals(FlowState.FINISHED, newState);
@@ -2048,9 +2054,9 @@ public class VServerProcessorBeanTest {
         FlowState newState = null;
 
         // when
-        newState = vServerProcessor
-                .manageModificationVDiskDeletion("controllerId", "instanceId",
-                        paramHandler, flowState, newState);
+        newState = vServerProcessor.manageModificationVDiskDeletion(
+                "controllerId", "instanceId", paramHandler, flowState,
+                newState);
 
         // then
         assertEquals(FlowState.FINISHED, newState);
@@ -2062,8 +2068,8 @@ public class VServerProcessorBeanTest {
         // given
         FlowState flowState = FlowState.VSERVER_ACTIVATION_REQUESTED;
         FlowState newState = null;
-        doReturn(Boolean.TRUE).when(vServerProcessor.vserverComm).startVServer(
-                paramHandler);
+        doReturn(Boolean.TRUE).when(vServerProcessor.vserverComm)
+                .startVServer(paramHandler);
 
         // when
         newState = vServerProcessor.manageActivationProcess("controllerId",
@@ -2164,8 +2170,8 @@ public class VServerProcessorBeanTest {
 
         // then
         assertNull(newState);
-        verify(vServerProcessor.vserverComm, times(1)).stopVServer(
-                eq(paramHandler));
+        verify(vServerProcessor.vserverComm, times(1))
+                .stopVServer(eq(paramHandler));
     }
 
     @Test
@@ -2365,9 +2371,9 @@ public class VServerProcessorBeanTest {
         // given
         paramHandler.setOperation(Operation.VSERVER_MODIFICATION);
         paramHandler.setState(FlowState.VSERVER_MODIFICATION_REQUESTED);
-        doReturn(FlowState.VSERVER_STOPPING_FOR_MODIFICATION).when(
-                vServerProcessor.vserverComm).modifyVServerAttributes(
-                any(PropertyHandler.class));
+        doReturn(FlowState.VSERVER_STOPPING_FOR_MODIFICATION)
+                .when(vServerProcessor.vserverComm)
+                .modifyVServerAttributes(any(PropertyHandler.class));
         paramHandler.getIaasContext().setVSystemStatus("NORMAL");
 
         // when
@@ -2379,7 +2385,8 @@ public class VServerProcessorBeanTest {
     }
 
     @Test
-    public void dispatch_VSERVER_MODIFICATION_VDISK_CREATION() throws Exception {
+    public void dispatch_VSERVER_MODIFICATION_VDISK_CREATION()
+            throws Exception {
         // given
         paramHandler
                 .setOperation(Operation.VSERVER_MODIFICATION_VDISK_CREATION);
@@ -2394,7 +2401,8 @@ public class VServerProcessorBeanTest {
     }
 
     @Test
-    public void dispatch_VSERVER_MODIFICATION_VDISK_DELETION() throws Exception {
+    public void dispatch_VSERVER_MODIFICATION_VDISK_DELETION()
+            throws Exception {
         // given
         paramHandler
                 .setOperation(Operation.VSERVER_MODIFICATION_VDISK_DELETION);
@@ -2430,8 +2438,8 @@ public class VServerProcessorBeanTest {
         paramHandler.setState(FlowState.VSERVER_ACTIVATION_REQUESTED);
         doReturn(VServerStatus.STOPPED).when(vServerProcessor.vserverComm)
                 .getVServerStatus(any(PropertyHandler.class));
-        doReturn(Boolean.TRUE).when(vServerProcessor.vserverComm).startVServer(
-                paramHandler);
+        doReturn(Boolean.TRUE).when(vServerProcessor.vserverComm)
+                .startVServer(paramHandler);
 
         // when
         vServerProcessor.dispatch("controllerId", "instanceId", paramHandler);
@@ -2443,7 +2451,8 @@ public class VServerProcessorBeanTest {
     @Test(expected = RuntimeException.class)
     public void process_ThrowRuntimeException() throws Exception {
         // given
-        parameters.put(PropertyHandler.SYSTEM_TEMPLATE_ID, "template");
+        parameters.put(PropertyHandler.SYSTEM_TEMPLATE_ID,
+                new Setting(PropertyHandler.SYSTEM_TEMPLATE_ID, "template"));
 
         // when
         vServerProcessor.process("controllerId", "instanceId", paramHandler);
@@ -2486,8 +2495,8 @@ public class VServerProcessorBeanTest {
         vServerProcessor.process("controllerId", "instanceId", paramHandler);
 
         // then
-        assertFalse(VSystemStatus.NORMAL.equals(vServerProcessor.vsysComm
-                .getVSystemState(paramHandler)));
+        assertFalse(VSystemStatus.NORMAL.equals(
+                vServerProcessor.vsysComm.getVSystemState(paramHandler)));
     }
 
     @Test
@@ -2496,10 +2505,9 @@ public class VServerProcessorBeanTest {
         paramHandler.setOperation(Operation.VSERVER_DELETION);
         paramHandler.setVserverId("serverId");
 
-        doThrow(
-                new MissingResourceException("test", ResourceType.VSERVER,
-                        "serverId")).when(vServerProcessor).validateParameters(
-                paramHandler);
+        doThrow(new MissingResourceException("test", ResourceType.VSERVER,
+                "serverId")).when(vServerProcessor)
+                        .validateParameters(paramHandler);
 
         // when
         vServerProcessor.process("controllerId", "instanceId", paramHandler);
@@ -2513,22 +2521,21 @@ public class VServerProcessorBeanTest {
     public void process_ThrowSuspendException_ResourceTypeFalse()
             throws Exception {
         // given
-        doThrow(
-                new MissingResourceException("test", ResourceType.UNKNOWN,
-                        "serverId")).when(vServerProcessor).validateParameters(
-                paramHandler);
+        doThrow(new MissingResourceException("test", ResourceType.UNKNOWN,
+                "serverId")).when(vServerProcessor)
+                        .validateParameters(paramHandler);
 
         // when
         vServerProcessor.process("controllerId", "instanceId", paramHandler);
     }
 
     @Test(expected = SuspendException.class)
-    public void process_ThrowSuspendException_NoResourceType() throws Exception {
+    public void process_ThrowSuspendException_NoResourceType()
+            throws Exception {
         // given
-        doThrow(
-                new MissingResourceException("test", ResourceType.VSERVER,
-                        "serverId")).when(vServerProcessor).validateParameters(
-                paramHandler);
+        doThrow(new MissingResourceException("test", ResourceType.VSERVER,
+                "serverId")).when(vServerProcessor)
+                        .validateParameters(paramHandler);
 
         // when
         vServerProcessor.process("controllerId", "instanceId", paramHandler);
@@ -2539,10 +2546,9 @@ public class VServerProcessorBeanTest {
         // given
         paramHandler.setOperation(Operation.VSERVER_DELETION);
         paramHandler.setVserverId(null);
-        doThrow(
-                new MissingResourceException("test", ResourceType.VSERVER,
-                        "serverId")).when(vServerProcessor).validateParameters(
-                paramHandler);
+        doThrow(new MissingResourceException("test", ResourceType.VSERVER,
+                "serverId")).when(vServerProcessor)
+                        .validateParameters(paramHandler);
 
         // when
         vServerProcessor.process("controllerId", "instanceId", paramHandler);
@@ -2553,10 +2559,9 @@ public class VServerProcessorBeanTest {
         // given
         paramHandler.setOperation(Operation.VSERVER_DELETION);
         paramHandler.setVserverId("serverIdTest");
-        doThrow(
-                new MissingResourceException("test", ResourceType.VSERVER,
-                        "serverId")).when(vServerProcessor).validateParameters(
-                paramHandler);
+        doThrow(new MissingResourceException("test", ResourceType.VSERVER,
+                "serverId")).when(vServerProcessor)
+                        .validateParameters(paramHandler);
 
         // when
         vServerProcessor.process("controllerId", "instanceId", paramHandler);
@@ -2567,8 +2572,8 @@ public class VServerProcessorBeanTest {
         // given
         paramHandler.setOperation(Operation.VSERVER_OPERATION);
         paramHandler.setState(FlowState.VSERVER_START_REQUESTED);
-        doReturn(Boolean.TRUE).when(vServerProcessor.vserverComm).startVServer(
-                paramHandler);
+        doReturn(Boolean.TRUE).when(vServerProcessor.vserverComm)
+                .startVServer(paramHandler);
         // when
         vServerProcessor.dispatch("controllerId", "instanceId", paramHandler);
         // then
@@ -2579,8 +2584,8 @@ public class VServerProcessorBeanTest {
     public void manageOperationsProcess_VSERVER_START_REQUESTED()
             throws Exception {
         // given
-        doReturn(Boolean.TRUE).when(vServerProcessor.vserverComm).startVServer(
-                paramHandler);
+        doReturn(Boolean.TRUE).when(vServerProcessor.vserverComm)
+                .startVServer(paramHandler);
         // when
         FlowState result = vServerProcessor.manageOperationsProcess(
                 "controllerId", "instanceId", paramHandler,
@@ -2658,12 +2663,14 @@ public class VServerProcessorBeanTest {
 
     private void setParameters() {
         paramHandler.setVserverType("VSERVER_TYPE");
-        parameters.put(PropertyHandler.INSTANCENAME_CUSTOM, "instance");
-        parameters.put(PropertyHandler.DISKIMG_ID, "diskimg");
+        parameters.put(PropertyHandler.INSTANCENAME_CUSTOM,
+                new Setting(PropertyHandler.INSTANCENAME_CUSTOM, "instance"));
+        parameters.put(PropertyHandler.DISKIMG_ID,
+                new Setting(PropertyHandler.DISKIMG_ID, "diskimg"));
     }
 
     private List<DiskImage> givenDiskImages() {
-        List<DiskImage> diskImages = new ArrayList<DiskImage>();
+        List<DiskImage> diskImages = new ArrayList<>();
         DiskImage diskImage = mock(DiskImage.class);
 
         doReturn("diskimgid").when(diskImage).getDiskImageId();
@@ -2673,7 +2680,7 @@ public class VServerProcessorBeanTest {
     }
 
     private List<DiskImage> givenDiskImagesNonUniqueDiskname() {
-        List<DiskImage> diskImages = new ArrayList<DiskImage>();
+        List<DiskImage> diskImages = new ArrayList<>();
         DiskImage diskImage1 = mock(DiskImage.class);
         doReturn(DISKIDORNAME1).when(diskImage1).getDiskImageId();
         doReturn(DISKIDORNAME3).when(diskImage1).getDiskImageName();
@@ -2686,7 +2693,7 @@ public class VServerProcessorBeanTest {
     }
 
     private List<DiskImage> givenDiskImagesUniqueDiskname() {
-        List<DiskImage> diskImages = new ArrayList<DiskImage>();
+        List<DiskImage> diskImages = new ArrayList<>();
         DiskImage diskImage1 = mock(DiskImage.class);
         doReturn(DISKIDORNAME1).when(diskImage1).getDiskImageId();
         doReturn(DISKIDORNAME3).when(diskImage1).getDiskImageName();

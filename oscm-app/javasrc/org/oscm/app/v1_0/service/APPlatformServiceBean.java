@@ -26,6 +26,7 @@ import org.oscm.app.domain.ServiceInstance;
 import org.oscm.app.v1_0.data.ControllerSettings;
 import org.oscm.app.v1_0.data.PasswordAuthentication;
 import org.oscm.app.v1_0.data.ProvisioningSettings;
+import org.oscm.app.v1_0.data.Setting;
 import org.oscm.app.v1_0.data.User;
 import org.oscm.app.v1_0.exceptions.APPlatformException;
 import org.oscm.app.v1_0.exceptions.AuthenticationException;
@@ -123,7 +124,7 @@ public class APPlatformServiceBean implements APPlatformService {
     }
 
     @Override
-    public HashMap<String, String> getControllerSettings(String controllerId,
+    public HashMap<String, Setting> getControllerSettings(String controllerId,
             PasswordAuthentication authentication) throws APPlatformException {
         authService.authenticateTMForController(controllerId, authentication);
         return configService.getControllerConfigurationSettings(controllerId);
@@ -131,7 +132,7 @@ public class APPlatformServiceBean implements APPlatformService {
 
     @Override
     public void storeControllerSettings(String controllerId,
-            HashMap<String, String> controllerSettings,
+            HashMap<String, Setting> controllerSettings,
             PasswordAuthentication authentication) throws APPlatformException {
 
         authService.authenticateTMForController(controllerId, authentication);
@@ -160,7 +161,7 @@ public class APPlatformServiceBean implements APPlatformService {
     @Override
     public void requestControllerSettings(String controllerId)
             throws ConfigurationException, ControllerLookupException {
-        HashMap<String, String> settings = configService
+        HashMap<String, Setting> settings = configService
                 .getControllerConfigurationSettings(controllerId);
         APPlatformController controller = APPlatformControllerFactory
                 .getInstance(controllerId);
@@ -177,7 +178,7 @@ public class APPlatformServiceBean implements APPlatformService {
             PasswordAuthentication authentication)
             throws AuthenticationException, APPlatformException {
         authService.authenticateTMForController(controllerId, authentication);
-        Collection<String> result = new ArrayList<String>();
+        Collection<String> result = new ArrayList<>();
         List<ServiceInstance> instances = instanceDAO
                 .getInstancesForController(controllerId);
         for (ServiceInstance instance : instances) {

@@ -29,15 +29,9 @@ import org.oscm.app.security.AESEncrypter;
 @Entity
 @IdClass(CustomAttribute.ScopedSettingKey.class)
 @NamedQueries({
-        @NamedQuery(name = "CustomAttribute.getForOrg", query = "SELECT ca FROM CustomAttribute ca WHERE ca.organizationId = :organizationId"),
-        @NamedQuery(name = "CustomAttribute.deleteForOrg", query = "DELETE FROM CustomAttribute ca WHERE ca.organizationId = :organizationId") })
+        @NamedQuery(name = "CustomAttribute.getForOrg", query = "SELECT ca FROM CustomAttribute ca WHERE ca.organizationId = :oid"),
+        @NamedQuery(name = "CustomAttribute.deleteForOrg", query = "DELETE FROM CustomAttribute ca WHERE ca.organizationId = :oid") })
 public class CustomAttribute {
-
-    /**
-     * Setting keys ending with this suffix will have their values stored
-     * encrypted.
-     */
-    public static final String CRYPT_KEY_SUFFIX = "_PWD";
 
     /**
      * The key of the custom setting.
@@ -52,6 +46,16 @@ public class CustomAttribute {
      * The value of the custom setting.
      */
     private String attributeValue;
+
+    /**
+     * The indicator if the value is encrypted.
+     */
+    private boolean encrypted;
+
+    /**
+     * The controller this attribute is meant for.
+     */
+    private String controllerId;
 
     public String getAttributeKey() {
         return attributeKey;
@@ -101,7 +105,19 @@ public class CustomAttribute {
     }
 
     public boolean isEncrypted() {
-        return attributeKey != null && attributeKey.endsWith(CRYPT_KEY_SUFFIX);
+        return encrypted;
+    }
+
+    public void setEncrypted(boolean encrypted) {
+        this.encrypted = encrypted;
+    }
+
+    public String getControllerId() {
+        return controllerId;
+    }
+
+    public void setControllerId(String controllerId) {
+        this.controllerId = controllerId;
     }
 
     public static class ScopedSettingKey implements Serializable {

@@ -30,15 +30,9 @@ import org.oscm.app.security.AESEncrypter;
  * 
  */
 @NamedQueries({
-        @NamedQuery(name = "InstanceAttribute.getAllForInstanceId", query = "SELECT ia FROM InstanceAttribute ia WHERE ia.serviceInstance.instanceId = :sid and ia.serviceInstance.controllerId = :cid") })
+        @NamedQuery(name = "InstanceAttribute.getAllForInstanceId", query = "SELECT ia FROM InstanceAttribute ia WHERE ia.serviceInstance.instanceId = :sid and ia.serviceInstance.controllerId = :cid and ia.controllerId = :cid") })
 @Entity
 public class InstanceAttribute {
-
-    /**
-     * Setting keys ending with this suffix will have their values stored
-     * encrypted.
-     */
-    public static final String CRYPT_KEY_SUFFIX = "_PWD";
 
     /**
      * The technical key of the entity.
@@ -64,6 +58,16 @@ public class InstanceAttribute {
      * The key of the parameter.
      */
     private String attributeKey;
+
+    /**
+     * The indicator if the value is encrypted.
+     */
+    private boolean encrypted;
+
+    /**
+     * The controller this attribute is meant for.
+     */
+    private String controllerId;
 
     public long getTkey() {
         return tkey;
@@ -121,6 +125,18 @@ public class InstanceAttribute {
     }
 
     public boolean isEncrypted() {
-        return attributeKey != null && attributeKey.endsWith(CRYPT_KEY_SUFFIX);
+        return encrypted;
+    }
+
+    public void setEncrypted(boolean encrypted) {
+        this.encrypted = encrypted;
+    }
+
+    public String getControllerId() {
+        return controllerId;
+    }
+
+    public void setControllerId(String controllerId) {
+        this.controllerId = controllerId;
     }
 }

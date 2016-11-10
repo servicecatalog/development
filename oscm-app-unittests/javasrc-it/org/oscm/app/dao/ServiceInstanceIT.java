@@ -17,14 +17,14 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
 import org.junit.Test;
-
-import org.oscm.test.EJBTestBase;
-import org.oscm.test.ejb.TestContainer;
 import org.oscm.app.business.exceptions.BadResultException;
 import org.oscm.app.domain.InstanceParameter;
 import org.oscm.app.domain.Operation;
 import org.oscm.app.domain.ProvisioningStatus;
 import org.oscm.app.domain.ServiceInstance;
+import org.oscm.app.v1_0.data.Setting;
+import org.oscm.test.EJBTestBase;
+import org.oscm.test.ejb.TestContainer;
 
 /**
  * Unit tests for {@link ServiceInstance}.
@@ -46,7 +46,8 @@ public class ServiceInstanceIT extends EJBTestBase {
         instance.setSubscriptionId("subId");
         instance.setInstanceId("appInstanceId");
         instance.setControllerId("ess.vmware");
-        instance.setProvisioningStatus(ProvisioningStatus.WAITING_FOR_SYSTEM_CREATION);
+        instance.setProvisioningStatus(
+                ProvisioningStatus.WAITING_FOR_SYSTEM_CREATION);
         em = container.getPersistenceUnit("oscm-app");
     }
 
@@ -70,25 +71,27 @@ public class ServiceInstanceIT extends EJBTestBase {
             }
         });
 
-        final ServiceInstance dbInstance = runTX(new Callable<ServiceInstance>() {
-            @Override
-            public ServiceInstance call() throws Exception {
-                ServiceInstance foundInstance = em.find(ServiceInstance.class,
-                        Long.valueOf(instance.getTkey()));
-                foundInstance.getOperations();
-                if (foundInstance.getOperations().size() > 0) {
-                    foundInstance.getOperations().get(0);
-                }
-                return foundInstance;
-            }
-        });
+        final ServiceInstance dbInstance = runTX(
+                new Callable<ServiceInstance>() {
+                    @Override
+                    public ServiceInstance call() throws Exception {
+                        ServiceInstance foundInstance = em.find(
+                                ServiceInstance.class,
+                                Long.valueOf(instance.getTkey()));
+                        foundInstance.getOperations();
+                        if (foundInstance.getOperations().size() > 0) {
+                            foundInstance.getOperations().get(0);
+                        }
+                        return foundInstance;
+                    }
+                });
 
         // then
         assertNotNull(dbInstance.getOperations());
-        assertEquals("operationId", dbInstance.getOperations().get(0)
-                .getOperationId());
-        assertEquals("parameters", dbInstance.getOperations().get(0)
-                .getParameters());
+        assertEquals("operationId",
+                dbInstance.getOperations().get(0).getOperationId());
+        assertEquals("parameters",
+                dbInstance.getOperations().get(0).getParameters());
     }
 
     @Test
@@ -110,10 +113,12 @@ public class ServiceInstanceIT extends EJBTestBase {
                 instance.setInstanceParameters(Arrays.asList(p1, p2));
                 em.persist(instance);
 
-                final HashMap<String, String> map = instance.getParameterMap();
-                map.put(InstanceParameter.BSS_USER, "username_new");
-                map.put("param3", "value3new");
-                map.put(null, "null"); // should be silently ignored
+                final HashMap<String, Setting> map = instance.getParameterMap();
+                map.put(InstanceParameter.BSS_USER, new Setting(
+                        InstanceParameter.BSS_USER, "username_new"));
+                map.put("param3", new Setting("param3", "value3new"));
+                map.put(null, new Setting(null, "null")); // should be silently
+                                                          // ignored
                 instance.setInstanceParameters(map);
 
                 em.flush();
@@ -122,21 +127,23 @@ public class ServiceInstanceIT extends EJBTestBase {
             }
         });
 
-        final Map<String, String> params = runTX(new Callable<Map<String, String>>() {
-            @Override
-            public Map<String, String> call() throws Exception {
-                Query query = em
-                        .createQuery("SELECT si FROM ServiceInstance si");
-                List<?> resultList = query.getResultList();
-                if (resultList.isEmpty()) {
-                    return null;
-                }
-                ServiceInstance si = (ServiceInstance) resultList.get(0);
-                return si.getParameterMap();
-            }
-        });
+        final Map<String, Setting> params = runTX(
+                new Callable<Map<String, Setting>>() {
+                    @Override
+                    public Map<String, Setting> call() throws Exception {
+                        Query query = em.createQuery(
+                                "SELECT si FROM ServiceInstance si");
+                        List<?> resultList = query.getResultList();
+                        if (resultList.isEmpty()) {
+                            return null;
+                        }
+                        ServiceInstance si = (ServiceInstance) resultList
+                                .get(0);
+                        return si.getParameterMap();
+                    }
+                });
 
-        final Map<String, String> expected = new HashMap<String, String>();
+        final Map<String, String> expected = new HashMap<>();
         expected.put(InstanceParameter.BSS_USER, "username_new");
         expected.put(InstanceParameter.BSS_USER_PWD, "secret");
         expected.put("param3", "value3new");
@@ -166,9 +173,9 @@ public class ServiceInstanceIT extends EJBTestBase {
             }
         });
 
-        runTX(new Callable<Map<String, String>>() {
+        runTX(new Callable<Map<String, Setting>>() {
             @Override
-            public Map<String, String> call() throws Exception {
+            public Map<String, Setting> call() throws Exception {
                 Query query = em
                         .createQuery("SELECT si FROM ServiceInstance si");
                 List<?> resultList = query.getResultList();

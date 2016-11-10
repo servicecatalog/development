@@ -18,13 +18,13 @@ import java.util.HashMap;
  */
 public class ControllerSettings implements Serializable {
 
-    public ControllerSettings(HashMap<String, String> configSettings) {
+    public ControllerSettings(HashMap<String, Setting> configSettings) {
         this.configSettings = configSettings;
     }
 
     private static final long serialVersionUID = 5979452043430510811L;
 
-    private HashMap<String, String> configSettings;
+    private HashMap<String, Setting> configSettings;
 
     /**
      * Returns the user ID and password used for authentication of the service
@@ -56,7 +56,7 @@ public class ControllerSettings implements Serializable {
      * 
      * @return the configuration settings, consisting of a key and a value each
      */
-    public HashMap<String, String> getConfigSettings() {
+    public HashMap<String, Setting> getConfigSettings() {
         return configSettings;
     }
 
@@ -67,7 +67,7 @@ public class ControllerSettings implements Serializable {
      *            the configuration settings, consisting of a key and a value
      *            each
      */
-    public void setConfigSettings(HashMap<String, String> configSettings) {
+    public void setConfigSettings(HashMap<String, Setting> configSettings) {
         this.configSettings = configSettings;
     }
 

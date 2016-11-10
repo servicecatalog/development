@@ -27,12 +27,10 @@ public class ProvisioningSettings extends ControllerSettings
 
     private static final long serialVersionUID = 9161029657174458354L;
 
-    private static final String SEPARATOR = "_";
-
     private String locale;
-    private HashMap<String, String> parameters;
-    private HashMap<String, String> attributes;
-    private HashMap<String, String> customAttributes;
+    private HashMap<String, Setting> parameters;
+    private HashMap<String, Setting> attributes;
+    private HashMap<String, Setting> customAttributes;
     private String organizationId;
     private String organizationName;
     private String subscriptionId;
@@ -54,11 +52,11 @@ public class ProvisioningSettings extends ControllerSettings
      *            the language. Specify a language code as returned by
      *            <code>getLanguage()</code> of <code>java.util.Locale</code>.
      */
-    public ProvisioningSettings(HashMap<String, String> parameters,
-            HashMap<String, String> configSettings, String locale) {
+    public ProvisioningSettings(HashMap<String, Setting> parameters,
+            HashMap<String, Setting> configSettings, String locale) {
 
-        this(parameters, new HashMap<String, String>(),
-                new HashMap<String, String>(), configSettings, locale);
+        this(parameters, new HashMap<String, Setting>(),
+                new HashMap<String, Setting>(), configSettings, locale);
     }
 
     /**
@@ -79,10 +77,10 @@ public class ProvisioningSettings extends ControllerSettings
      *            the language. Specify a language code as returned by
      *            <code>getLanguage()</code> of <code>java.util.Locale</code>.
      */
-    public ProvisioningSettings(HashMap<String, String> parameters,
-            HashMap<String, String> attributes,
-            HashMap<String, String> customAttributes,
-            HashMap<String, String> configSettings, String locale) {
+    public ProvisioningSettings(HashMap<String, Setting> parameters,
+            HashMap<String, Setting> attributes,
+            HashMap<String, Setting> customAttributes,
+            HashMap<String, Setting> configSettings, String locale) {
         super(configSettings);
         this.parameters = parameters;
         this.locale = locale;
@@ -95,7 +93,7 @@ public class ProvisioningSettings extends ControllerSettings
      * 
      * @return the service parameters, consisting of a key and a value each
      */
-    public HashMap<String, String> getParameters() {
+    public HashMap<String, Setting> getParameters() {
         return parameters;
     }
 
@@ -105,7 +103,7 @@ public class ProvisioningSettings extends ControllerSettings
      * @param parameters
      *            the service parameters, consisting of a key and a value each
      */
-    public void setParameters(HashMap<String, String> parameters) {
+    public void setParameters(HashMap<String, Setting> parameters) {
         this.parameters = parameters;
     }
 
@@ -114,7 +112,7 @@ public class ProvisioningSettings extends ControllerSettings
      * 
      * @return the instance attributes, consisting of a key and a value each
      */
-    public HashMap<String, String> getAttributes() {
+    public HashMap<String, Setting> getAttributes() {
         return attributes;
     }
 
@@ -124,7 +122,7 @@ public class ProvisioningSettings extends ControllerSettings
      * @param parameters
      *            the instance attributes, consisting of a key and a value each
      */
-    public void setAttributes(HashMap<String, String> attributes) {
+    public void setAttributes(HashMap<String, Setting> attributes) {
         this.attributes = attributes;
     }
 
@@ -133,7 +131,7 @@ public class ProvisioningSettings extends ControllerSettings
      * 
      * @return the custom attributes, consisting of a key and a value each
      */
-    public HashMap<String, String> getCustomAttributes() {
+    public HashMap<String, Setting> getCustomAttributes() {
         return customAttributes;
     }
 
@@ -143,7 +141,7 @@ public class ProvisioningSettings extends ControllerSettings
      * @param customAttributes
      *            the custom attributes, consisting of a key and a value each
      */
-    public void setCustomAttributes(HashMap<String, String> customAttributes) {
+    public void setCustomAttributes(HashMap<String, Setting> customAttributes) {
         this.customAttributes = customAttributes;
     }
 
@@ -319,30 +317,28 @@ public class ProvisioningSettings extends ControllerSettings
      */
     public void overwriteProperties(String controllerId) {
 
-        String prefix = controllerId + SEPARATOR;
-
-        overwriteProperties("", getParameters(),
-                Arrays.asList(getConfigSettings()));
-        overwriteProperties(prefix, getCustomAttributes(),
-                Arrays.asList(getParameters(), getConfigSettings()));
-        overwriteProperties(prefix, getAttributes(),
-                Arrays.asList(getParameters(), getConfigSettings()));
+        overwriteProperties(getParameters(), Arrays.asList(getConfigSettings()),
+                null);
+        overwriteProperties(getCustomAttributes(),
+                Arrays.asList(getParameters(), getConfigSettings()),
+                controllerId);
+        overwriteProperties(getAttributes(),
+                Arrays.asList(getParameters(), getConfigSettings()),
+                controllerId);
     }
 
-    private void overwriteProperties(String prefix,
-            HashMap<String, String> source,
-            List<HashMap<String, String>> targets) {
+    private void overwriteProperties(HashMap<String, Setting> source,
+            List<HashMap<String, Setting>> targets, String controllerId) {
 
-        for (Map<String, String> target : targets) {
+        for (Map<String, Setting> target : targets) {
             for (String key : source.keySet()) {
-                if (key != null && key.startsWith(prefix)) {
-                    String targetKey = key.substring(prefix.length());
-
-                    if (target.containsKey(targetKey)) {
-                        String value = source.get(key);
-                        if (value != null && value.trim().length() > 0) {
-                            target.put(targetKey, value);
-                        }
+                if (key != null && target.containsKey(key)) {
+                    Setting setting = source.get(key);
+                    if (setting != null
+                            && setting.getValue().trim().length() > 0
+                            && (controllerId == null || controllerId
+                                    .equals(setting.getControllerId()))) {
+                        target.put(key, setting);
                     }
                 }
             }

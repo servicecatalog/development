@@ -17,6 +17,7 @@ import org.oscm.app.v1_0.APPlatformServiceFactory;
 import org.oscm.app.v1_0.data.InstanceStatus;
 import org.oscm.app.v1_0.data.PasswordAuthentication;
 import org.oscm.app.v1_0.data.ProvisioningSettings;
+import org.oscm.app.v1_0.data.Setting;
 import org.oscm.app.v1_0.exceptions.APPlatformException;
 import org.oscm.app.v1_0.exceptions.AuthenticationException;
 import org.oscm.app.v1_0.exceptions.ConfigurationException;
@@ -43,20 +44,21 @@ public class StateMachine {
 
     public StateMachine(ProvisioningSettings settings)
             throws StateMachineException {
-        machine = settings.getParameters().get(
-                StateMachineProperties.SM_STATE_MACHINE);
+        machine = settings.getParameters()
+                .get(StateMachineProperties.SM_STATE_MACHINE).getValue();
         states = loadStateMachine(machine);
-        history = settings.getParameters().get(
-                StateMachineProperties.SM_STATE_HISTORY);
-        stateId = settings.getParameters().get(StateMachineProperties.SM_STATE);
+        history = settings.getParameters()
+                .get(StateMachineProperties.SM_STATE_HISTORY).getValue();
+        stateId = settings.getParameters().get(StateMachineProperties.SM_STATE)
+                .getValue();
     }
 
     private States loadStateMachine(String filename)
             throws StateMachineException {
         logger.debug("filename: " + filename);
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
-        try (InputStream stream = loader.getResourceAsStream("statemachines/"
-                + filename);) {
+        try (InputStream stream = loader
+                .getResourceAsStream("statemachines/" + filename);) {
             JAXBContext jaxbContext = JAXBContext.newInstance(States.class);
             Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
             return (States) jaxbUnmarshaller.unmarshal(stream);
@@ -78,10 +80,12 @@ public class StateMachine {
     public static void initializeProvisioningSettings(
             ProvisioningSettings settings, String stateMachine) {
         settings.getParameters().put(StateMachineProperties.SM_STATE_HISTORY,
-                "");
+                new Setting(StateMachineProperties.SM_STATE_HISTORY, ""));
         settings.getParameters().put(StateMachineProperties.SM_STATE_MACHINE,
-                stateMachine);
-        settings.getParameters().put(StateMachineProperties.SM_STATE, "BEGIN");
+                new Setting(StateMachineProperties.SM_STATE_MACHINE,
+                        stateMachine));
+        settings.getParameters().put(StateMachineProperties.SM_STATE,
+                new Setting(StateMachineProperties.SM_STATE, "BEGIN"));
     }
 
     public String executeAction(ProvisioningSettings settings,
@@ -90,8 +94,8 @@ public class StateMachine {
             APPlatformException {
 
         State currentState = getState(stateId);
-        String eventId = states.invokeAction(currentState, instanceId,
-                settings, result);
+        String eventId = states.invokeAction(currentState, instanceId, settings,
+                result);
         history = appendStateToHistory(stateId, history);
         stateId = getNextState(currentState, eventId);
 
@@ -100,10 +104,10 @@ public class StateMachine {
             VMPropertyHandler config = new VMPropertyHandler(settings);
 
             if (sameState(currentState, nextState)) {
-                if ("suspended"
-                        .equals(config
-                                .getServiceSetting(VMPropertyHandler.GUEST_READY_TIMEOUT_REF))) {
-                    logger.debug("Reinitialize timeout reference after an occured timeout.");
+                if ("suspended".equals(config.getServiceSetting(
+                        VMPropertyHandler.GUEST_READY_TIMEOUT_REF))) {
+                    logger.debug(
+                            "Reinitialize timeout reference after an occured timeout.");
                     setReferenceForTimeout(config);
                 } else {
                     String timeoutInMs = getReadyTimeout(nextState, config);
@@ -162,7 +166,8 @@ public class StateMachine {
         return timeoutInMs;
     }
 
-    private boolean exceededTimeout(VMPropertyHandler config, String timeoutInMs) {
+    private boolean exceededTimeout(VMPropertyHandler config,
+            String timeoutInMs) {
 
         if (timeoutInMs == null || timeoutInMs.trim().length() == 0) {
             logger.warn("Action timeout is not set and therefore ignored!");
@@ -170,11 +175,10 @@ public class StateMachine {
         }
 
         try {
-            return System.currentTimeMillis()
-                    - Long.valueOf(
-                            config.getServiceSetting(VMPropertyHandler.GUEST_READY_TIMEOUT_REF))
-                            .longValue() > Long.valueOf(timeoutInMs)
-                    .longValue();
+            return System.currentTimeMillis() - Long
+                    .valueOf(config.getServiceSetting(
+                            VMPropertyHandler.GUEST_READY_TIMEOUT_REF))
+                    .longValue() > Long.valueOf(timeoutInMs).longValue();
         } catch (NumberFormatException e) {
             logger.warn("The action timeout '" + timeoutInMs
                     + " 'is not a number and therefore ignored.");
@@ -221,10 +225,10 @@ public class StateMachine {
     public String loadPreviousStateFromHistory(ProvisioningSettings settings)
             throws StateMachineException {
 
-        String currentState = settings.getParameters().get(
-                StateMachineProperties.SM_STATE);
-        String stateHistory = settings.getParameters().get(
-                StateMachineProperties.SM_STATE_HISTORY);
+        String currentState = settings.getParameters()
+                .get(StateMachineProperties.SM_STATE).getValue();
+        String stateHistory = settings.getParameters()
+                .get(StateMachineProperties.SM_STATE_HISTORY).getValue();
         String[] states = stateHistory.split(",");
         for (int i = states.length - 1; i >= 0; i--) {
             if (!states[i].equals(currentState)) {

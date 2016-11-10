@@ -42,9 +42,7 @@ public class AttributeFilter {
         Organization org = subscription.getProduct().getVendor();
 
         for (UdaDefinition def : org.getUdaDefinitions()) {
-            if (def.getTargetType() == UdaTargetType.CUSTOMER
-                    && def.getControllerId() != null
-                    && def.getControllerId().trim().length() > 0) {
+            if (def.getTargetType() == UdaTargetType.CUSTOMER) {
                 boolean exists = false;
 
                 for (Uda uda : def.getUdas()) {
@@ -89,9 +87,7 @@ public class AttributeFilter {
         Organization org = subscription.getProduct().getVendor();
 
         for (UdaDefinition def : org.getUdaDefinitions()) {
-            if (def.getTargetType() == UdaTargetType.CUSTOMER_SUBSCRIPTION
-                    && def.getControllerId() != null
-                    && def.getControllerId().trim().length() > 0) {
+            if (def.getTargetType() == UdaTargetType.CUSTOMER_SUBSCRIPTION) {
                 boolean exists = false;
 
                 for (Uda uda : def.getUdas()) {
