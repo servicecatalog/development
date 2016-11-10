@@ -36,7 +36,7 @@ import org.oscm.domobjects.UsageLicense;
 import org.oscm.domobjects.UserRole;
 import org.oscm.domobjects.enums.OrganizationReferenceType;
 import org.oscm.i18nservice.bean.LocalizerFacade;
-import org.oscm.i18nservice.bean.LocalizerServiceStub;
+import org.oscm.i18nservice.bean.LocalizerServiceStub2;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.identityservice.assembler.UserDataAssembler;
 import org.oscm.identityservice.bean.IdManagementStub;
@@ -51,7 +51,7 @@ import org.oscm.internal.vo.VOService;
 import org.oscm.internal.vo.VOUda;
 import org.oscm.internal.vo.VOUser;
 import org.oscm.serviceprovisioningservice.assembler.ProductAssembler;
-import org.oscm.sessionservice.bean.SessionManagementStub;
+import org.oscm.sessionservice.bean.SessionManagementStub2;
 import org.oscm.subscriptionservice.bean.SubscriptionServiceBean;
 import org.oscm.taskhandling.local.TaskMessage;
 import org.oscm.tenantprovisioningservice.bean.TenantProvisioningServiceBean;
@@ -109,10 +109,10 @@ public class UsageLicenseDaoIT extends EJBTestBase {
         container.enableInterfaceMocking(true);
         container.addBean(new DataServiceBean());
         container.addBean(new ApplicationServiceStub());
-        container.addBean(new SessionManagementStub());
+        container.addBean(new SessionManagementStub2());
         container.addBean(new IdManagementStub());
         container.addBean(new TenantProvisioningServiceBean());
-        container.addBean(new LocalizerServiceStub());
+        container.addBean(new LocalizerServiceStub2());
         container.addBean(new SubscriptionServiceBean());
         container.addBean(new TaskQueueServiceStub() {
             @Override

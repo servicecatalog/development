@@ -16,7 +16,7 @@ import org.oscm.vo.VOUserDetails;
 /**
  * Factory for value objects.
  */
-public class VOFactory {
+public class VOFactory2 {
 
     public static String createUniqueKey() {
         return Long.toString(System.currentTimeMillis());

@@ -20,9 +20,9 @@ import org.oscm.internal.vo.VOUser;
 /**
  * Implementation to access the mock service
  */
-public class CustomServiceAccess extends ServiceAccess {
+public class CustomServiceAccess2 extends ServiceAccess {
 
-    protected CustomServiceAccess() {
+    protected CustomServiceAccess2() {
     }
 
     @Override

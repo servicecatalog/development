@@ -24,7 +24,7 @@ import org.oscm.internal.types.exception.ServiceParameterException;
 @Stateless
 @Local(SessionServiceLocal.class)
 @Remote(SessionService.class)
-public class SessionManagementStub implements SessionServiceLocal,
+public class SessionManagementStub2 implements SessionServiceLocal,
         SessionService {
 
     public void deleteAllSessions() {
