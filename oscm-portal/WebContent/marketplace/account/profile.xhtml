@@ -183,7 +183,7 @@
                       render="attributesTable@body pagerPanel"
                       onkeyup="AdmUtils.setFirstPage(#{rich:element('attributePager')});" />
                     </f:facet>
-                    <h:outputText value="#{item.udaName}" />
+                    <h:outputText value="#{item.udaNameToShow}" />
                   </rich:column>
                   
                   <rich:column id="colVendor" width="#{mediumWidth}" sortBy="#{item.vendor.name}" sortIcon="#{sortIcon}" 
@@ -220,13 +220,13 @@
                       render="attributesTable@body pagerPanel"
                       onkeyup="AdmUtils.setFirstPage(#{rich:element('attributePager')});" />
                     </f:facet>
-                    <h:inputText id="udaValue" onchange="setDirty(true)" value="#{item.udaValue}"
+                    <h:inputText id="udaVsalueClear" onchange="setDirty(true)" value="#{item.udaValue}"
                       maxlength="#{appBean.descriptionLen}" required="#{item.inputMandatory}" 
-                      label="#{item.udaId}" style="width:100%" rendered="not item.inputEncrypted">
+                      label="#{item.udaId}" style="width:100%" rendered="#{not item.inputEncrypted}">
                     </h:inputText>
-                    <h:inputSecret id="udaValue" onchange="setDirty(true)" value="#{item.udaValue}"
-                      maxlength="#{appBean.descriptionLen}" required="#{item.inputMandatory}" 
-                      label="#{item.udaId}" style="width:100%" rendered="item.inputEncrypted">
+                    <h:inputSecret id="udaValuePassword" onchange="setDirty(true)" value="#{item.udaValue}"
+                      maxlength="#{appBean.descriptionLen}" required="#{item.inputMandatory}" redisplay="true"
+                      label="#{item.udaId}" style="width:100%" rendered="#{item.inputEncrypted}">
                     </h:inputSecret>
                   </rich:column>
                 </rich:dataTable>

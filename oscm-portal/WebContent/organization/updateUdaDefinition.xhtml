@@ -77,7 +77,7 @@
           <adm:outputLabel value="#{msg['udaDefinition.encrypted']}" required="false" />
           <a4j:outputPanel id="updateUdaEncryptedCheckBoxDiv" layout="block" >
             <h:selectBooleanCheckbox id="updateUdaEncryptedCheckBox"
-                                     value="#{manageUdaDefinitionBean.currentUda.encrypted}" />
+                                     value="#{manageUdaDefinitionBean.currentUda.encrypted}" disabled="true" />
           </a4j:outputPanel>
           <adm:message for="updateUdaEncryptedCheckBoxDiv" />
         </adm:panelGrid>

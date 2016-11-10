@@ -295,8 +295,7 @@ public class APPConfigurationServiceBean {
 
         if (organizationId != null) {
             TypedQuery<CustomAttribute> query = em.createNamedQuery(
-                    "CustomAttribute.getForOrgAndController",
-                    CustomAttribute.class);
+                    "CustomAttribute.getForOrg", CustomAttribute.class);
             query.setParameter("oid", organizationId);
             List<CustomAttribute> resultList = query.getResultList();
             try {

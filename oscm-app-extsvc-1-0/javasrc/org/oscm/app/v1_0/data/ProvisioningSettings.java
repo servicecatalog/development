@@ -332,13 +332,27 @@ public class ProvisioningSettings extends ControllerSettings
 
         for (Map<String, Setting> target : targets) {
             for (String key : source.keySet()) {
+
                 if (key != null && target.containsKey(key)) {
-                    Setting setting = source.get(key);
-                    if (setting != null
-                            && setting.getValue().trim().length() > 0
+
+                    Setting sourceSetting = source.get(key);
+                    Setting targetSetting = target.get(key);
+
+                    if (sourceSetting != null
+                            && sourceSetting.getValue().trim().length() > 0
                             && (controllerId == null || controllerId
-                                    .equals(setting.getControllerId()))) {
-                        target.put(key, setting);
+                                    .equals(sourceSetting.getControllerId()))) {
+
+                        Setting newSetting = new Setting(key,
+                                sourceSetting.getValue());
+
+                        if (targetSetting != null
+                                && targetSetting.isEncrypted()) {
+                            sourceSetting.setEncrypted(true);
+                            newSetting.setEncrypted(true);
+                        }
+
+                        target.put(key, newSetting);
                     }
                 }
             }

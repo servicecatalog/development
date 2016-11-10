@@ -758,7 +758,7 @@ public class AsynchronousProvisioningProxy implements ProvisioningService {
         try {
 
             Query q = em.createNamedQuery("CustomAttribute.deleteForOrg");
-            q.setParameter("organizationId", organizationId);
+            q.setParameter("oid", organizationId);
             q.executeUpdate();
 
             CustomAttribute ca;

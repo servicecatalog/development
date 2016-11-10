@@ -8,12 +8,16 @@
 
 package org.oscm.app.v1_0.data;
 
+import java.io.Serializable;
+
 /**
  * Structure class for settings, parameters and attributes.
  * 
  * @author miethaner
  */
-public class Setting {
+public class Setting implements Serializable {
+
+    private static final long serialVersionUID = -2244142463898101402L;
 
     private String key;
     private String value;
