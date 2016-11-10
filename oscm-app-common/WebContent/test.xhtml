@@ -1,0 +1,66 @@
+<!-- Copyright FUJITSU LIMITED 2016-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:rich="http://richfaces.org/rich"
+  xmlns:a4j="http://richfaces.org/a4j" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage">
+<h:head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta content="Fujitsu Limited" name="description" />
+  <meta content="Fujitsu Limited" name="author" />
+  <meta content="IE=8" http-equiv="X-UA-Compatible" />
+  <link rel="shortcut icon" href="favicon.ico" />
+  <link rel="stylesheet" type="text/css" href="css/style.css" />
+
+  <title><h:outputText value="test view" /></title>
+
+  <link rel="stylesheet" type="text/css" href="css/import_en.css" />
+  <script type="text/javascript" src="js/heading_data_4.js"></script>
+</h:head>
+
+<h:body class="middle_product_class">
+  <h:outputStylesheet name="override_richfaces.css" />
+  <h:outputStylesheet name="test.css" />
+
+  <adm:initialize initializingMethod="#{extentionInterfaceBean.initialize}" />
+
+  <div class="heading_data_1_class">
+    <div class="heading_data_1_bg_class">
+      <h2>
+        <h:outputText value="#{extentionInterfaceBean.subscriptionName}" />
+      </h2>
+    </div>
+  </div>
+  <span class="description"><h:outputText value="#{extentionInterfaceBean.accessInfo}" /> </span>
+  <rich:dataTable id="testTable" value="#{extentionInterfaceBean.instanceDetails}" var="detail" rows="5">
+      <rich:column>
+          <f:facet name="header">Name</f:facet>
+              <h:outputText value="#{detail.name}" />
+      </rich:column>
+      <rich:column>
+          <f:facet name="header">Instance ID</f:facet>
+              <h:outputText value="#{detail.id}" />
+      </rich:column>
+      <rich:column>
+          <f:facet name="header">Instance Type</f:facet>
+              <h:outputText value="#{detail.type}" />
+      </rich:column>
+      <rich:column>
+          <f:facet name="header">Status</f:facet>
+              <h:outputText value="#{detail.status}" />
+      </rich:column>
+      <rich:column>
+          <f:facet name="header">Public IP</f:facet>
+              <h:outputText value="#{detail.publicIP}" />
+      </rich:column>
+      <rich:column>
+          <f:facet name="header">Private IPs</f:facet>
+              <h:outputText value="#{detail.privateIP}" styleClass="preformatted" />
+      </rich:column>
+      <f:facet name="footer">
+          <rich:dataScroller for="testTable" renderIfSinglePage="false" fastControls="hide" />
+      </f:facet>
+  </rich:dataTable>
+</h:body>
+</html>
