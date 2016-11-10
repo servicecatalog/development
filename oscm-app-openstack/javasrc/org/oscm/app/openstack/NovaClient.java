@@ -197,6 +197,37 @@ public class NovaClient {
         }
         return result;
     }
+    /**
+     * @param flavorID
+     *            flavor ID
+     * @return String flavor name
+     * @throws OpenStackConnectionException
+     */
+    private String getFlavorName(String flavorID)
+            throws OpenStackConnectionException {
+        // TODO Auto-generated method stub
+
+        String uri;
+        try {
+            uri = connection.getNovaEndpoint() + "/flavors/"
+                    + URLEncoder.encode(flavorID, "UTF-8");
+
+            RESTResponse response = connection.processRequest(uri, "GET");
+            String body = response.getResponseBody();
+            logger.debug("NovaClient.getFlavorName() Responsecode: "
+                    + response.getResponseCode());
+            JSONObject responseJson = new JSONObject(body);
+            JSONObject flavor = responseJson.getJSONObject("flavor");
+            return flavor.getString("name");
+        } catch (UnsupportedEncodingException e) {
+            logger.error("Runtime error happened during encoding", e);
+            throw new RuntimeException(e);
+        } catch (JSONException e) {
+            logger.error("NovaClient.getFlavorName() JSONException occurred",
+                    e);
+        }
+        return "-";
+    }
 
     /**
      * Check the server status is not excepted
