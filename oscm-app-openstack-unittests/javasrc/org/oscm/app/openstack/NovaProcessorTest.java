@@ -69,7 +69,7 @@ public class NovaProcessorTest {
 
         // when
         List<Server> result = new NovaProcessor()
-                .getServersDetails(paramHandler);
+                .getServersDetails(paramHandler, false);
 
         // then
         assertEquals("sID", paramHandler.getStackId());
@@ -78,6 +78,29 @@ public class NovaProcessorTest {
         assertEquals(result.get(0).getId(), "0-Instance-server1");
         assertEquals(result.get(0).getName(), "server1");
         assertEquals(result.get(0).getStatus(), ServerStatus.ACTIVE.name());
+    }
+
+    @Test
+    public void getServersDetails_moreInfo() throws Exception {
+        // given
+        final String instanceName = "Instance4";
+        createBasicParameters(instanceName, "fosi_v2.json", "http");
+
+        // when
+        List<Server> result = new NovaProcessor()
+                .getServersDetails(paramHandler, true);
+
+        // then
+        assertEquals("sID", paramHandler.getStackId());
+        assertEquals(instanceName, paramHandler.getStackName());
+        assertEquals(1, result.size());
+        assertEquals("0-Instance-server1", result.get(0).getId());
+        assertEquals("server1", result.get(0).getName());
+        assertEquals(ServerStatus.ACTIVE.name(), result.get(0).getStatus());
+        assertEquals("S-1", result.get(0).getFlavor());
+        assertEquals(Arrays.asList("133.162.161.216"),
+                result.get(0).getFloatingIP());
+        assertEquals(Arrays.asList("192.168.0.4"), result.get(0).getFixedIP());
     }
 
     @Test
@@ -102,7 +125,7 @@ public class NovaProcessorTest {
 
         // when
         List<Server> result = new NovaProcessor()
-                .getServersDetails(paramHandler);
+                .getServersDetails(paramHandler, false);
 
         // then
         assertEquals("sID", paramHandler.getStackId());
@@ -143,7 +166,7 @@ public class NovaProcessorTest {
 
         // when
         List<Server> result = new NovaProcessor()
-                .getServersDetails(paramHandler);
+                .getServersDetails(paramHandler, false);
 
         // then
         assertEquals("sID", paramHandler.getStackId());
@@ -179,7 +202,7 @@ public class NovaProcessorTest {
 
         // when
         List<Server> result = new NovaProcessor()
-                .getServersDetails(paramHandler);
+                .getServersDetails(paramHandler, false);
 
         // then
         assertEquals("sID", paramHandler.getStackId());
@@ -190,7 +213,8 @@ public class NovaProcessorTest {
         assertEquals(result.get(0).getStatus(), ServerStatus.ACTIVE.name());
         assertEquals(result.get(1).getId(), "1-Instance-otherserver2");
         assertEquals(result.get(1).getName(), "");
-        assertEquals(result.get(1).getStatus(), ServerStatus.ERROR.toString());
+        assertEquals(result.get(1).getStatus(),
+                ServerStatus.UNKNOWN.toString());
     }
 
     @Test(expected = InstanceNotAliveException.class)
@@ -209,7 +233,7 @@ public class NovaProcessorTest {
                                         InstanceType.EC2.getString())));
 
         // when
-        new NovaProcessor().getServersDetails(paramHandler);
+        new NovaProcessor().getServersDetails(paramHandler, false);
     }
 
     @Test
@@ -233,7 +257,7 @@ public class NovaProcessorTest {
 
         // when
         List<Server> result = new NovaProcessor()
-                .getServersDetails(paramHandler);
+                .getServersDetails(paramHandler, false);
 
         // then
         assertEquals("sID", paramHandler.getStackId());
@@ -244,7 +268,8 @@ public class NovaProcessorTest {
         assertEquals(result.get(0).getStatus(), ServerStatus.ACTIVE.name());
         assertEquals(result.get(1).getId(), "1-Instance-otherserver2");
         assertEquals(result.get(1).getName(), "");
-        assertEquals(result.get(1).getStatus(), ServerStatus.ERROR.toString());
+        assertEquals(result.get(1).getStatus(),
+                ServerStatus.UNKNOWN.toString());
     }
 
     @Test

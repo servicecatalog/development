@@ -69,6 +69,7 @@ public class MockURLStreamHandler extends URLStreamHandler {
                 new MockHttpURLConnection(200,
                         respServerDetail("server1", "0-Instance-server1",
                                 ServerStatus.ACTIVE, "testTenantID")));
+        put("/flavors/1", new MockHttpURLConnection(200, respFlavor(1, "S-1")));
 
         connectionHttps = new HashMap<String, MockHttpsURLConnection>();
         put("/v3/auth/tokens",
@@ -87,6 +88,24 @@ public class MockURLStreamHandler extends URLStreamHandler {
                 respStacksInstance4sIdActions()));
         put("/stacks", new MockHttpsURLConnection(200, respStacks()));
         this.count = new HashMap<String, Integer>();
+    }
+
+    /**
+     * @param string
+     * @return
+     */
+    public static String respFlavor(int id, String flavorName) {
+        try {
+            JSONObject response = new JSONObject();
+            JSONObject flavor = new JSONObject();
+            flavor.put("id", id);
+            flavor.put("name", flavorName);
+
+            response.put("flavor", flavor);
+            return response.toString();
+        } catch (JSONException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
     /**
@@ -353,6 +372,25 @@ public class MockURLStreamHandler extends URLStreamHandler {
             server.put("status", status);
             server.put("tenant_id", tenant_id);
             server.put("accessIPv4", "192.0.2.0");
+            JSONObject flavor = new JSONObject();
+            flavor.put("id", 1);
+            server.put("flavor", flavor);
+            JSONObject addresses = new JSONObject();
+            JSONArray networkDetail = new JSONArray();
+            JSONObject fixedNetwork = new JSONObject();
+            JSONObject floatingNetwork = new JSONObject();
+            fixedNetwork.put("OS-EXT-IPS-MAC:mac_addr", "fa:16:3e:e5:b7:f8");
+            fixedNetwork.put("version", "4");
+            fixedNetwork.put("addr", "192.168.0.4");
+            fixedNetwork.put("OS-EXT-IPS:type", "fixed");
+            floatingNetwork.put("OS-EXT-IPS-MAC:mac_addr", "fa:16:3e:e5:b7:f8");
+            floatingNetwork.put("version", "4");
+            floatingNetwork.put("addr", "133.162.161.216");
+            floatingNetwork.put("OS-EXT-IPS:type", "floating");
+            networkDetail.put(fixedNetwork);
+            networkDetail.put(floatingNetwork);
+            addresses.put(serverName + "-network", networkDetail);
+            server.put("addresses", addresses);
 
             return response.toString();
         } catch (JSONException ex) {
