@@ -242,7 +242,7 @@
 
   <target name="merge">
     <!-- Invoke the ant task and provide the name of the merged result file -->
-    <jacoco:merge destfile="${result.reports.coverage.dir}/merged_jacoco.exec">
+    <jacoco:merge destfile="${result.dir}/reports/merged_jacoco.exec">
       <!-- specify the folder which contains all exec files which have to be merged -->
       <fileset dir="${result.dir}/work" includes="**/*.exec"/>
     </jacoco:merge>
