@@ -94,7 +94,8 @@ public class AccountNavigationCtrlTest {
         assertEquals(9, model.getHiddenElement().size());
         assertEquals(10, model.getLink().size());
         assertEquals(10, model.getTitle().size());
-        assertTrue(model.getLink().get(0).endsWith("index.jsf"));
+        assertTrue(model.getLink().get(0),
+                model.getLink().get(0).endsWith("index.jsf"));
         assertEquals(AccountNavigationModel.MARKETPLACE_ACCOUNT_TITLE, model
                 .getTitle().get(0));
     }
