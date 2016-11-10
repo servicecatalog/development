@@ -8,6 +8,8 @@
 
 package org.oscm.app.openstack.data;
 
+import java.util.List;
+
 /**
  * @author tateiwamext
  *
@@ -16,6 +18,9 @@ public class Server {
     private String id;
     private String name;
     private String status;
+    private String flavor;
+    private List<String> floatingIP;
+    private List<String> fixedIP;
 
     /**
      * @param serverId
@@ -67,5 +72,50 @@ public class Server {
      */
     public void setName(String name) {
         this.name = name;
+    }
+
+    /**
+     * @return the flavor
+     */
+    public String getFlavor() {
+        return flavor;
+    }
+
+    /**
+     * @param flavor
+     *            the flavor to set
+     */
+    public void setFlavor(String flavor) {
+        this.flavor = flavor;
+    }
+
+    /**
+     * @return the floatingIP
+     */
+    public List<String> getFloatingIP() {
+        return floatingIP;
+    }
+
+    /**
+     * @param floatingIP
+     *            the floatingIP to set
+     */
+    public void setFloatingIP(List<String> floatingIP) {
+        this.floatingIP = floatingIP;
+    }
+
+    /**
+     * @return the fixedIP
+     */
+    public List<String> getFixedIP() {
+        return fixedIP;
+    }
+
+    /**
+     * @param fixedIP
+     *            the fixedIP to set
+     */
+    public void setFixedIP(List<String> fixedIP) {
+        this.fixedIP = fixedIP;
     }
 }
