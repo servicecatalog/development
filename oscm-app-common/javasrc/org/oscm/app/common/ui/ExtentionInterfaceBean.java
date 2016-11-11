@@ -61,6 +61,10 @@ public class ExtentionInterfaceBean implements Serializable {
     }
 
     public String getAccessInfo() {
+        return "http://xxxx:1111/test/url";
+    }
+
+    public String getAccessInfoTitle() {
         return "Access info";
     }
 
