@@ -4,7 +4,6 @@
 
 package org.oscm.test.stubs;
 
-import java.security.GeneralSecurityException;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -351,16 +350,6 @@ public class AccountServiceStub implements AccountService, AccountServiceLocal {
     }
 
     @Override
-    public String decryptAttributeValue(String encryptedValue) throws GeneralSecurityException {
-        return null;
-    }
-
-    @Override
-    public String encryptAttributeValue(String value) throws GeneralSecurityException {
-        return null;
-    }
-
-    @Override
     public List<PlatformUser> getOrganizationAdmins(long organizationKey) {
         throw new UnsupportedOperationException();
     }
@@ -378,8 +367,8 @@ public class AccountServiceStub implements AccountService, AccountServiceLocal {
 
     @Override
     public Set<VOPaymentType> getAvailablePaymentTypesFromOrganization(
-            Long serviceKey) throws OrganizationAuthoritiesException,
-            ObjectNotFoundException {
+            Long serviceKey)
+            throws OrganizationAuthoritiesException, ObjectNotFoundException {
         return null;
     }
 
@@ -397,7 +386,7 @@ public class AccountServiceStub implements AccountService, AccountServiceLocal {
     public List<VOPaymentInfo> getPaymentInfosForOrgAdmin() {
         return null;
     }
-    
+
     @Override
     public VOOrganization getMyCustomer(VOOrganization org, String locale)
             throws ObjectNotFoundException {
@@ -408,7 +397,6 @@ public class AccountServiceStub implements AccountService, AccountServiceLocal {
     public List<VOServicePaymentConfiguration> getServicePaymentConfiguration(
             PerformanceHint performanceHint) {
         return null;
-    }   
-
+    }
 
 }

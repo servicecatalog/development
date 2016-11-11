@@ -112,8 +112,7 @@ public class UdaAssembler extends BaseAssembler {
         udaDefinition.setUdaId(voUdaDefinition.getUdaId());
         udaDefinition
                 .setConfigurationType(voUdaDefinition.getConfigurationType());
-        udaDefinition.getDataContainer()
-                .setEncrypted(voUdaDefinition.isEncrypted());
+        udaDefinition.setEncrypted(voUdaDefinition.isEncrypted());
         udaDefinition.getDataContainer()
                 .setControllerId(voUdaDefinition.getControllerId());
     }

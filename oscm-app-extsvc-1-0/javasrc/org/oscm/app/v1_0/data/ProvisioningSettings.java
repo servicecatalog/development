@@ -346,10 +346,9 @@ public class ProvisioningSettings extends ControllerSettings
                         Setting newSetting = new Setting(key,
                                 sourceSetting.getValue());
 
-                        if (targetSetting != null
-                                && targetSetting.isEncrypted()) {
-                            sourceSetting.setEncrypted(true);
-                            newSetting.setEncrypted(true);
+                        if (targetSetting != null) {
+                            newSetting
+                                    .setEncrypted(targetSetting.isEncrypted());
                         }
 
                         target.put(key, newSetting);

@@ -12,6 +12,7 @@
 
 package org.oscm.domobjects;
 
+import java.security.GeneralSecurityException;
 import java.util.List;
 
 import javax.persistence.Entity;
@@ -19,6 +20,8 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
+import org.oscm.encrypter.AESEncrypter;
+import org.oscm.internal.types.enumtypes.ParameterValueType;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
@@ -65,8 +68,14 @@ public class Parameter extends DomainObjectWithHistory<ParameterData> {
         return parameterDefinition;
     }
 
-    public void setParameterDefinition(ParameterDefinition parameterDefinition) {
+    public void setParameterDefinition(
+            ParameterDefinition parameterDefinition) {
+
+        String value = getValue();
+
         this.parameterDefinition = parameterDefinition;
+
+        setValue(value);
     }
 
     /**
@@ -114,7 +123,17 @@ public class Parameter extends DomainObjectWithHistory<ParameterData> {
      * Refer to {@link ParameterData#value}
      */
     public String getValue() {
-        return dataContainer.getValue();
+        if (parameterDefinition != null
+                && parameterDefinition.getValueType() == ParameterValueType.PWD
+                && dataContainer.getValue() != null) {
+            try {
+                return AESEncrypter.decrypt(dataContainer.getValue());
+            } catch (GeneralSecurityException e) {
+                return null;
+            }
+        } else {
+            return dataContainer.getValue();
+        }
     }
 
     /**
@@ -123,6 +142,13 @@ public class Parameter extends DomainObjectWithHistory<ParameterData> {
     public void setValue(String value) {
         if (value == null || value.trim().length() == 0) {
             dataContainer.setValue(null);
+        } else if (parameterDefinition != null && parameterDefinition
+                .getValueType() == ParameterValueType.PWD) {
+            try {
+                dataContainer.setValue(AESEncrypter.encrypt(value));
+            } catch (GeneralSecurityException e) {
+                // ignore
+            }
         } else {
             dataContainer.setValue(value);
         }

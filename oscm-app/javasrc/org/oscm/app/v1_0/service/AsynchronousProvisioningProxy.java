@@ -766,6 +766,7 @@ public class AsynchronousProvisioningProxy implements ProvisioningService {
                 ca = new CustomAttribute();
                 ca.setOrganizationId(organizationId);
                 ca.setAttributeKey(attr.getAttributeId());
+                ca.setEncrypted(attr.isEncrypted());
                 ca.setDecryptedValue(attr.getValue());
                 ca.setControllerId(attr.getControllerId());
                 em.persist(ca);

@@ -12,6 +12,7 @@
 
 package org.oscm.domobjects;
 
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -32,6 +33,7 @@ import javax.persistence.UniqueConstraint;
 
 import org.oscm.domobjects.annotations.BusinessKey;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
+import org.oscm.encrypter.AESEncrypter;
 import org.oscm.internal.types.enumtypes.ParameterModificationType;
 import org.oscm.internal.types.enumtypes.ParameterType;
 import org.oscm.internal.types.enumtypes.ParameterValueType;
@@ -52,14 +54,14 @@ import org.oscm.internal.types.enumtypes.ParameterValueType;
         @NamedQuery(name = "ParameterDefinition.findByBusinessKey", query = "select c from ParameterDefinition c where c.dataContainer.parameterId=:parameterId AND c.dataContainer.parameterType=:parameterType AND c.technicalProduct_tkey=:technicalProduct_tkey") })
 @BusinessKey(attributes = { "technicalProduct_tkey", "parameterId",
         "parameterType" })
-public class ParameterDefinition extends
-        DomainObjectWithHistory<ParameterDefinitionData> {
+public class ParameterDefinition
+        extends DomainObjectWithHistory<ParameterDefinitionData> {
 
     private static final long serialVersionUID = -2321303407897558512L;
 
     private static final List<LocalizedObjectTypes> LOCALIZATION_TYPES = Collections
-            .unmodifiableList(Arrays
-                    .asList(LocalizedObjectTypes.PARAMETER_DEF_DESC));
+            .unmodifiableList(
+                    Arrays.asList(LocalizedObjectTypes.PARAMETER_DEF_DESC));
 
     @Column(name = "technicalProduct_tkey", insertable = false, updatable = false, nullable = true)
     private Long technicalProduct_tkey;
@@ -73,11 +75,11 @@ public class ParameterDefinition extends
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "parameterDefinition", fetch = FetchType.LAZY)
     @OrderBy
-    private List<ParameterOption> optionList = new ArrayList<ParameterOption>();
+    private List<ParameterOption> optionList = new ArrayList<>();
 
     @OneToMany(cascade = {}, mappedBy = "parameterDefinition", fetch = FetchType.LAZY)
     @OrderBy
-    private List<Parameter> parameters = new ArrayList<Parameter>();
+    private List<Parameter> parameters = new ArrayList<>();
 
     public ParameterDefinition() {
         super();
@@ -128,7 +130,12 @@ public class ParameterDefinition extends
     }
 
     public void setValueType(ParameterValueType valueType) {
+
+        String value = getDefaultValue();
+
         dataContainer.setValueType(valueType);
+
+        setDefaultValue(value);
     }
 
     /**
@@ -142,7 +149,8 @@ public class ParameterDefinition extends
      * @param parameterModificationType
      *            the parameterModificationType to set
      */
-    public void setModificationType(ParameterModificationType modificationType) {
+    public void setModificationType(
+            ParameterModificationType modificationType) {
         dataContainer.setModificationType(modificationType);
     }
 
@@ -150,7 +158,16 @@ public class ParameterDefinition extends
      * @return the defaultValue
      */
     public String getDefaultValue() {
-        return dataContainer.getDefaultValue();
+        if (getValueType() == ParameterValueType.PWD
+                && dataContainer.getDefaultValue() != null) {
+            try {
+                return AESEncrypter.decrypt(dataContainer.getDefaultValue());
+            } catch (GeneralSecurityException e) {
+                return null;
+            }
+        } else {
+            return dataContainer.getDefaultValue();
+        }
     }
 
     /**
@@ -158,7 +175,16 @@ public class ParameterDefinition extends
      *            the defaultValue to set
      */
     public void setDefaultValue(String defaultValue) {
-        dataContainer.setDefaultValue(defaultValue);
+        if (getValueType() == ParameterValueType.PWD && defaultValue != null) {
+            try {
+                dataContainer
+                        .setDefaultValue(AESEncrypter.encrypt(defaultValue));
+            } catch (GeneralSecurityException e) {
+                // ignore
+            }
+        } else {
+            dataContainer.setDefaultValue(defaultValue);
+        }
     }
 
     /**

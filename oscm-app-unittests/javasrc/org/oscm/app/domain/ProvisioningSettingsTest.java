@@ -105,7 +105,7 @@ public class ProvisioningSettingsTest {
         configSettings.put("key1", new Setting("key1", "value1s"));
         configSettings.put("key2", new Setting("key2", "value2s"));
         configSettings.put("key3", new Setting("key3", "value3s"));
-        configSettings.put("key4", new Setting("key4", "value4s"));
+        configSettings.put("key4", new Setting("key4", "value4s", true));
 
         HashMap<String, Setting> parameters = new HashMap<>();
         parameters.put("key2", new Setting("key2", "value2p"));
@@ -133,5 +133,9 @@ public class ProvisioningSettingsTest {
         assertEquals("value4a", configSettings.get("key4").getValue());
         assertEquals("value3c", parameters.get("key3").getValue());
         assertEquals("value4a", parameters.get("key4").getValue());
+        assertTrue(configSettings.get("key4").isEncrypted());
+        assertTrue(parameters.get("key4").isEncrypted());
+        assertTrue(customAttributes.get("key4").isEncrypted());
+        assertTrue(attributes.get("key4").isEncrypted());
     }
 }

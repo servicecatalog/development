@@ -12,7 +12,6 @@ import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
 import org.oscm.internal.intf.AccountService;
 import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.internal.vo.VOUdaDefinition;
@@ -43,16 +42,11 @@ public class ManageUdaDefinitionCtrl {
     /**
      * @return all UdaDefinitionRow for CUSTOMER type
      */
-    private List<VOUdaDefinition> getCustomerUdaDefinitions()
-            throws GeneralSecurityException {
+    private List<VOUdaDefinition> getCustomerUdaDefinitions() {
         List<VOUdaDefinition> result = new ArrayList<>();
         List<VOUdaDefinition> udaDefinitions = as.getUdaDefinitions();
         for (VOUdaDefinition def : udaDefinitions) {
             if (def.getTargetType().equals(UdaBean.CUSTOMER)) {
-                if (def.getDefaultValue() != null && def.isEncrypted()) {
-                    def.setDefaultValue(
-                            as.decryptAttributeValue(def.getDefaultValue()));
-                }
                 result.add(def);
             }
         }
@@ -62,16 +56,11 @@ public class ManageUdaDefinitionCtrl {
     /**
      * @return all UdaDefinitionRow for CUSTOMER_SUBSCRIPTION type
      */
-    private List<VOUdaDefinition> getSubscriptionUdaDefinitions()
-            throws GeneralSecurityException {
+    private List<VOUdaDefinition> getSubscriptionUdaDefinitions() {
         List<VOUdaDefinition> result = new ArrayList<>();
         List<VOUdaDefinition> udaDefinitions = as.getUdaDefinitions();
         for (VOUdaDefinition def : udaDefinitions) {
             if (def.getTargetType().equals(UdaBean.CUSTOMER_SUBSCRIPTION)) {
-                if (def.getDefaultValue() != null && def.isEncrypted()) {
-                    def.setDefaultValue(
-                            as.decryptAttributeValue(def.getDefaultValue()));
-                }
                 result.add(def);
             }
         }
@@ -84,11 +73,7 @@ public class ManageUdaDefinitionCtrl {
      */
     public ManageUdaDefinitionPage getModel() {
         if (model == null) {
-            try {
-                refreshModel();
-            } catch (GeneralSecurityException e) {
-                e.printStackTrace();
-            }
+            refreshModel();
         }
         return model;
     }
@@ -99,18 +84,11 @@ public class ManageUdaDefinitionCtrl {
      * 
      * @throws SaaSApplicationException
      */
-    public void createUdaDefinition()
-            throws SaaSApplicationException, GeneralSecurityException {
+    public void createUdaDefinition() throws SaaSApplicationException {
         ArgumentValidator.notNull("UdaDefinitionDetails", model);
         VOUdaDefinition udaDefitionDetails = UdaModelConverter
                 .convertUdaDefDetailsToVoUdaDefinition(
                         model.getNewUdaDefinition());
-
-        if (udaDefitionDetails.isEncrypted() && StringUtils
-                .isNotBlank(udaDefitionDetails.getDefaultValue())) {
-            udaDefitionDetails.setDefaultValue(as.encryptAttributeValue(
-                    udaDefitionDetails.getDefaultValue()));
-        }
 
         // the TargetType value kept by model
         if (model.getUdaType().equals(UdaBean.CUSTOMER)) {
@@ -134,12 +112,6 @@ public class ManageUdaDefinitionCtrl {
         VOUdaDefinition udaDefitionDetails = UdaModelConverter
                 .convertUdaDefDetailsToVoUdaDefinition(
                         model.getCurrentUdaDefinition());
-
-        if (udaDefitionDetails.isEncrypted() && StringUtils
-                .isNotBlank(udaDefitionDetails.getDefaultValue())) {
-            udaDefitionDetails.setDefaultValue(as.encryptAttributeValue(
-                    udaDefitionDetails.getDefaultValue()));
-        }
 
         // the TargetType value kept by model
         if (model.getUdaType().equals(UdaBean.CUSTOMER)) {
@@ -196,7 +168,7 @@ public class ManageUdaDefinitionCtrl {
     /**
      * initialize the model when model is null
      */
-    void refreshModel() throws GeneralSecurityException {
+    void refreshModel() {
         // initialize the model
         model = new ManageUdaDefinitionPage();
 
