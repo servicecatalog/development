@@ -22,8 +22,8 @@
             <handler-class>org.oscm.webservices.handler.LoginHandler</handler-class>
           </handler>
           <handler>
-            <handler-name>org.oscm.ess.converter.SupportedVersionHandler</handler-name>
-            <handler-class>org.oscm.ess.converter.SupportedVersionHandler</handler-class>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
           </handler>                    
         </handler-chain>
       </handler-chains>
@@ -40,8 +40,8 @@
       <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
         <handler-chain>
           <handler>
-            <handler-name>org.oscm.ess.converter.SupportedVersionHandler</handler-name>
-            <handler-class>org.oscm.ess.converter.SupportedVersionHandler</handler-class>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
           </handler>                    
         </handler-chain>
       </handler-chains>
@@ -68,8 +68,8 @@
             <handler-class>org.oscm.webservices.handler.LoginHandler</handler-class>
           </handler>
           <handler>
-            <handler-name>org.oscm.ess.converter.SupportedVersionHandler</handler-name>
-            <handler-class>org.oscm.ess.converter.SupportedVersionHandler</handler-class>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
           </handler>                    
         </handler-chain>
       </handler-chains>
@@ -86,8 +86,8 @@
       <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
         <handler-chain>
           <handler>
-            <handler-name>org.oscm.ess.converter.SupportedVersionHandler</handler-name>
-            <handler-class>org.oscm.ess.converter.SupportedVersionHandler</handler-class>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
           </handler>                    
         </handler-chain>
       </handler-chains>
@@ -114,8 +114,8 @@
             <handler-class>org.oscm.webservices.handler.LoginHandler</handler-class>
           </handler>
           <handler>
-            <handler-name>org.oscm.ess.converter.SupportedVersionHandler</handler-name>
-            <handler-class>org.oscm.ess.converter.SupportedVersionHandler</handler-class>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
           </handler>                    
         </handler-chain>
       </handler-chains>
@@ -132,8 +132,8 @@
       <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
         <handler-chain>
           <handler>
-            <handler-name>org.oscm.ess.converter.SupportedVersionHandler</handler-name>
-            <handler-class>org.oscm.ess.converter.SupportedVersionHandler</handler-class>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
           </handler>                    
         </handler-chain>
       </handler-chains>
@@ -161,8 +161,8 @@
             <handler-class>org.oscm.webservices.handler.LoginHandler</handler-class>
           </handler>
           <handler>
-            <handler-name>org.oscm.ess.converter.SupportedVersionHandler</handler-name>
-            <handler-class>org.oscm.ess.converter.SupportedVersionHandler</handler-class>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
           </handler>                    
         </handler-chain>
       </handler-chains>
@@ -179,8 +179,8 @@
       <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
         <handler-chain>
           <handler>
-            <handler-name>org.oscm.ess.converter.SupportedVersionHandler</handler-name>
-            <handler-class>org.oscm.ess.converter.SupportedVersionHandler</handler-class>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
           </handler>                    
         </handler-chain>
       </handler-chains>
@@ -208,8 +208,8 @@
             <handler-class>org.oscm.webservices.handler.LoginHandler</handler-class>
           </handler>
           <handler>
-            <handler-name>org.oscm.ess.converter.SupportedVersionHandler</handler-name>
-            <handler-class>org.oscm.ess.converter.SupportedVersionHandler</handler-class>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
           </handler>                    
         </handler-chain>
       </handler-chains>
@@ -226,8 +226,8 @@
       <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
         <handler-chain>
           <handler>
-            <handler-name>org.oscm.ess.converter.SupportedVersionHandler</handler-name>
-            <handler-class>org.oscm.ess.converter.SupportedVersionHandler</handler-class>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
           </handler>                    
         </handler-chain>
       </handler-chains>
@@ -255,8 +255,8 @@
             <handler-class>org.oscm.webservices.handler.LoginHandler</handler-class>
           </handler>
           <handler>
-            <handler-name>org.oscm.ess.converter.SupportedVersionHandler</handler-name>
-            <handler-class>org.oscm.ess.converter.SupportedVersionHandler</handler-class>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
           </handler>                    
         </handler-chain>
       </handler-chains>
@@ -273,8 +273,8 @@
       <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
         <handler-chain>
           <handler>
-            <handler-name>org.oscm.ess.converter.SupportedVersionHandler</handler-name>
-            <handler-class>org.oscm.ess.converter.SupportedVersionHandler</handler-class>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
           </handler>                    
         </handler-chain>
       </handler-chains>
@@ -302,8 +302,8 @@
             <handler-class>org.oscm.webservices.handler.LoginHandler</handler-class>
           </handler>
           <handler>
-            <handler-name>org.oscm.ess.converter.SupportedVersionHandler</handler-name>
-            <handler-class>org.oscm.ess.converter.SupportedVersionHandler</handler-class>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
           </handler>                    
         </handler-chain>
       </handler-chains>
@@ -320,8 +320,8 @@
       <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
         <handler-chain>
           <handler>
-            <handler-name>org.oscm.ess.converter.SupportedVersionHandler</handler-name>
-            <handler-class>org.oscm.ess.converter.SupportedVersionHandler</handler-class>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
           </handler>                    
         </handler-chain>
       </handler-chains>
@@ -349,8 +349,8 @@
             <handler-class>org.oscm.webservices.handler.LoginHandler</handler-class>
           </handler>
           <handler>
-            <handler-name>org.oscm.ess.converter.SupportedVersionHandler</handler-name>
-            <handler-class>org.oscm.ess.converter.SupportedVersionHandler</handler-class>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
           </handler>                    
         </handler-chain>
       </handler-chains>
@@ -367,8 +367,8 @@
       <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
         <handler-chain>
           <handler>
-            <handler-name>org.oscm.ess.converter.SupportedVersionHandler</handler-name>
-            <handler-class>org.oscm.ess.converter.SupportedVersionHandler</handler-class>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
           </handler>                    
         </handler-chain>
       </handler-chains>
@@ -396,8 +396,8 @@
             <handler-class>org.oscm.webservices.handler.LoginHandler</handler-class>
           </handler>
           <handler>
-            <handler-name>org.oscm.ess.converter.SupportedVersionHandler</handler-name>
-            <handler-class>org.oscm.ess.converter.SupportedVersionHandler</handler-class>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
           </handler>                    
         </handler-chain>
       </handler-chains>
@@ -414,8 +414,8 @@
       <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
         <handler-chain>
           <handler>
-            <handler-name>org.oscm.ess.converter.SupportedVersionHandler</handler-name>
-            <handler-class>org.oscm.ess.converter.SupportedVersionHandler</handler-class>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
           </handler>                    
         </handler-chain>
       </handler-chains>
@@ -443,8 +443,8 @@
             <handler-class>org.oscm.webservices.handler.LoginHandler</handler-class>
           </handler>
           <handler>
-            <handler-name>org.oscm.ess.converter.SupportedVersionHandler</handler-name>
-            <handler-class>org.oscm.ess.converter.SupportedVersionHandler</handler-class>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
           </handler>                    
         </handler-chain>
       </handler-chains>
@@ -461,8 +461,8 @@
       <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
         <handler-chain>
           <handler>
-            <handler-name>org.oscm.ess.converter.SupportedVersionHandler</handler-name>
-            <handler-class>org.oscm.ess.converter.SupportedVersionHandler</handler-class>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
           </handler>                    
         </handler-chain>
       </handler-chains>
@@ -490,8 +490,8 @@
             <handler-class>org.oscm.webservices.handler.LoginHandler</handler-class>
           </handler>
           <handler>
-            <handler-name>org.oscm.ess.converter.SupportedVersionHandler</handler-name>
-            <handler-class>org.oscm.ess.converter.SupportedVersionHandler</handler-class>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
           </handler>                    
         </handler-chain>
       </handler-chains>
@@ -508,8 +508,8 @@
       <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
         <handler-chain>
           <handler>
-            <handler-name>org.oscm.ess.converter.SupportedVersionHandler</handler-name>
-            <handler-class>org.oscm.ess.converter.SupportedVersionHandler</handler-class>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
           </handler>                    
         </handler-chain>
       </handler-chains>
@@ -537,8 +537,8 @@
             <handler-class>org.oscm.webservices.handler.LoginHandler</handler-class>
           </handler>
           <handler>
-            <handler-name>org.oscm.ess.converter.SupportedVersionHandler</handler-name>
-            <handler-class>org.oscm.ess.converter.SupportedVersionHandler</handler-class>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
           </handler>                    
         </handler-chain>
       </handler-chains>
@@ -555,8 +555,8 @@
       <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
         <handler-chain>        
           <handler>
-            <handler-name>org.oscm.ess.converter.SupportedVersionHandler</handler-name>
-            <handler-class>org.oscm.ess.converter.SupportedVersionHandler</handler-class>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
           </handler>                    
         </handler-chain>
       </handler-chains>
@@ -584,8 +584,8 @@
             <handler-class>org.oscm.webservices.handler.LoginHandler</handler-class>
           </handler>
           <handler>
-            <handler-name>org.oscm.ess.converter.SupportedVersionHandler</handler-name>
-            <handler-class>org.oscm.ess.converter.SupportedVersionHandler</handler-class>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
           </handler>                    
         </handler-chain>
       </handler-chains>
@@ -602,8 +602,8 @@
       <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
         <handler-chain>
           <handler>
-            <handler-name>org.oscm.ess.converter.SupportedVersionHandler</handler-name>
-            <handler-class>org.oscm.ess.converter.SupportedVersionHandler</handler-class>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
           </handler>                    
         </handler-chain>
       </handler-chains>
@@ -631,8 +631,8 @@
             <handler-class>org.oscm.webservices.handler.LoginHandler</handler-class>
           </handler>
           <handler>
-            <handler-name>org.oscm.ess.converter.SupportedVersionHandler</handler-name>
-            <handler-class>org.oscm.ess.converter.SupportedVersionHandler</handler-class>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
           </handler>                    
         </handler-chain>
       </handler-chains>
@@ -649,8 +649,8 @@
       <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
         <handler-chain>
           <handler>
-            <handler-name>org.oscm.ess.converter.SupportedVersionHandler</handler-name>
-            <handler-class>org.oscm.ess.converter.SupportedVersionHandler</handler-class>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
           </handler>                    
         </handler-chain>
       </handler-chains>
@@ -679,8 +679,8 @@
             <handler-class>org.oscm.webservices.handler.LoginHandler</handler-class>
           </handler>
           <handler>
-            <handler-name>org.oscm.ess.converter.SupportedVersionHandler</handler-name>
-            <handler-class>org.oscm.ess.converter.SupportedVersionHandler</handler-class>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
           </handler>                    
         </handler-chain>
       </handler-chains>
@@ -697,8 +697,8 @@
       <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
         <handler-chain>
           <handler>
-            <handler-name>org.oscm.ess.converter.SupportedVersionHandler</handler-name>
-            <handler-class>org.oscm.ess.converter.SupportedVersionHandler</handler-class>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
           </handler>                    
         </handler-chain>
       </handler-chains>
@@ -722,8 +722,8 @@
       <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
         <handler-chain>
           <handler>
-            <handler-name>org.oscm.ess.converter.SupportedVersionHandler</handler-name>
-            <handler-class>org.oscm.ess.converter.SupportedVersionHandler</handler-class>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
           </handler>                    
         </handler-chain>
       </handler-chains>
@@ -751,8 +751,8 @@
             <handler-class>org.oscm.webservices.handler.LoginHandler</handler-class>
           </handler>
           <handler>
-            <handler-name>org.oscm.ess.converter.SupportedVersionHandler</handler-name>
-            <handler-class>org.oscm.ess.converter.SupportedVersionHandler</handler-class>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
           </handler>                    
         </handler-chain>
       </handler-chains>
@@ -769,8 +769,8 @@
       <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
         <handler-chain>
           <handler>
-            <handler-name>org.oscm.ess.converter.SupportedVersionHandler</handler-name>
-            <handler-class>org.oscm.ess.converter.SupportedVersionHandler</handler-class>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
           </handler>                    
         </handler-chain>
       </handler-chains>
@@ -799,8 +799,8 @@
             <handler-class>org.oscm.webservices.handler.LoginHandler</handler-class>
           </handler>
           <handler>
-            <handler-name>org.oscm.ess.converter.SupportedVersionHandler</handler-name>
-            <handler-class>org.oscm.ess.converter.SupportedVersionHandler</handler-class>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
           </handler>                    
         </handler-chain>
       </handler-chains>
@@ -817,8 +817,8 @@
       <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
         <handler-chain>
           <handler>
-            <handler-name>org.oscm.ess.converter.SupportedVersionHandler</handler-name>
-            <handler-class>org.oscm.ess.converter.SupportedVersionHandler</handler-class>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
           </handler>                    
         </handler-chain>
       </handler-chains>
@@ -847,8 +847,8 @@
             <handler-class>org.oscm.webservices.handler.LoginHandler</handler-class>
           </handler>
           <handler>
-            <handler-name>org.oscm.ess.converter.SupportedVersionHandler</handler-name>
-            <handler-class>org.oscm.ess.converter.SupportedVersionHandler</handler-class>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
           </handler>                    
         </handler-chain>
       </handler-chains>
@@ -865,8 +865,8 @@
       <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
         <handler-chain>
           <handler>
-            <handler-name>org.oscm.ess.converter.SupportedVersionHandler</handler-name>
-            <handler-class>org.oscm.ess.converter.SupportedVersionHandler</handler-class>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
           </handler>                    
         </handler-chain>
       </handler-chains>
@@ -894,8 +894,8 @@
             <handler-class>org.oscm.webservices.handler.LoginHandler</handler-class>
           </handler>
           <handler>
-            <handler-name>org.oscm.ess.converter.SupportedVersionHandler</handler-name>
-            <handler-class>org.oscm.ess.converter.SupportedVersionHandler</handler-class>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
           </handler>                    
         </handler-chain>
       </handler-chains>
@@ -912,8 +912,8 @@
       <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
         <handler-chain>
           <handler>
-            <handler-name>org.oscm.ess.converter.SupportedVersionHandler</handler-name>
-            <handler-class>org.oscm.ess.converter.SupportedVersionHandler</handler-class>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
           </handler>                    
         </handler-chain>
       </handler-chains>
