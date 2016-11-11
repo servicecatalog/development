@@ -68,8 +68,13 @@ public class ExtentionInterfaceBean implements Serializable {
         FacesContext facesContext = getContext();
         Map<String, String> paramters = facesContext.getExternalContext()
                 .getRequestParameterMap();
-        List<ServerInfo> serverInfos = instanceAccess
-                .getServerDetails(paramters.get("instId"));
+        List<ServerInfo> serverInfos = null;
+        try {
+            serverInfos = instanceAccess
+                    .getServerDetails(paramters.get("instId"));
+        } catch (Exception e) {
+            // TODO throw exception
+        }
         setServerInfo(serverInfos);
     }
 
