@@ -6,7 +6,7 @@
  *                                                                              
  *******************************************************************************/
 
-package org.oscm.app.common.ui;
+package org.oscm.app.common.data;
 
 import java.io.Serializable;
 
