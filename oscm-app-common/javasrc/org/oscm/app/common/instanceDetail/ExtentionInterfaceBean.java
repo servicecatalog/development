@@ -8,17 +8,22 @@
  *  Creation Date: 2013-10-17                                                      
  *                                                                              
  *******************************************************************************/
-package org.oscm.app.common.ui;
+package org.oscm.app.common.instanceDetail;
 
 import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
 
 import javax.enterprise.context.SessionScoped;
+import javax.faces.context.FacesContext;
 import javax.inject.Named;
 
+import org.oscm.app.common.data.ServerInfo;
+import org.oscm.app.common.intf.InstanceAccess;
 import org.oscm.app.v1_0.data.ControllerConfigurationKey;
 
 /**
- * Bean for reading and writing controller configuration settings.
+ * Bean for showing server information.
  */
 @SessionScoped
 @Named
@@ -35,7 +40,8 @@ public class ExtentionInterfaceBean implements Serializable {
             ControllerConfigurationKey.BSS_USER_KEY.name(),
             ControllerConfigurationKey.BSS_USER_PWD.name() };
 
-    private ServerInfoModel servers = new ServerInfoModel();
+    private List<ServerInfo> servers;
+    private InstanceAccess instanceAccess;
 
     /**
      * Constructor.
@@ -48,12 +54,27 @@ public class ExtentionInterfaceBean implements Serializable {
         return "";
     }
 
-    public ServerInfoModel getInstanceDetails() {
+    public List<ServerInfo> getInstanceDetails() {
+        if (servers == null) {
+            readServerInfo();
+        }
         return servers;
     }
 
-    public void setServerInfo(ServerInfoModel server) {
-        this.servers = server;
+    /**
+     * 
+     */
+    private void readServerInfo() {
+        FacesContext facesContext = getContext();
+        Map<String, String> paramters = facesContext.getExternalContext()
+                .getRequestParameterMap();
+        List<ServerInfo> serverInfos = instanceAccess
+                .getServerDetails(paramters.get("instId"));
+        setServerInfo(serverInfos);
+    }
+
+    public void setServerInfo(List<ServerInfo> servers) {
+        this.servers = servers;
     }
 
     public String getSubscriptionName() {
@@ -66,6 +87,11 @@ public class ExtentionInterfaceBean implements Serializable {
 
     public String getAccessInfoTitle() {
         return "Access info";
+    }
+
+    // allow stubbing in unit tests
+    protected FacesContext getContext() {
+        return FacesContext.getCurrentInstance();
     }
 
 }

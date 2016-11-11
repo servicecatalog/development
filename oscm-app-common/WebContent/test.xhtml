@@ -35,7 +35,7 @@
           <dd><h:outputText value="#{extentionInterfaceBean.accessInfo}"/></dd>
   </dl>
   <h:form>
-      <rich:dataTable id="testTable" value="#{extentionInterfaceBean.instanceDetails}" var="detail" rows="5" headerClass="rowTitle" footerClass="navigation" rowClasses="rowOdd,rowEven" style="min-width:300px;position:relative; width: 100%;">
+      <rich:dataTable id="testTable" value="#{extentionInterfaceBean.instanceDetails}" var="detail" headerClass="rowTitle" footerClass="navigation" rowClasses="rowOdd,rowEven" style="min-width:300px;position:relative; width: 100%;">
           <rich:column>
               <f:facet name="header">Name</f:facet>
               <h:outputText value="#{detail.name}" />
@@ -60,9 +60,9 @@
               <f:facet name="header">Private IPs</f:facet>
               <h:outputText value="#{detail.privateIP}" styleClass="preformatted" />
           </rich:column>
-          <f:facet name="footer">
+          <!-- <f:facet name="footer">
               <rich:dataScroller for="testTable" renderIfSinglePage="false" fastControls="hide"/>
-          </f:facet>
+          </f:facet> -->
       </rich:dataTable>
   </h:form>
 </h:body>
