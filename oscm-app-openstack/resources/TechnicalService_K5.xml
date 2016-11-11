@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Copyright FUJITSU LIMITED 2016-->
-
 <tns:TechnicalServices xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="oscm.serviceprovisioning/1.9/TechnicalService.xsd ../../oscm-serviceprovisioning/javares/TechnicalServices.xsd"
   xmlns:tns="oscm.serviceprovisioning/1.9/TechnicalService.xsd">
@@ -130,12 +129,6 @@
     <ParameterDefinition configurable="true" id="TP_KeyName" default="<your.keypair.name>" mandatory="true" valueType="STRING" modificationType="ONE_TIME">
       <LocalizedDescription locale="en">Key name</LocalizedDescription>
     </ParameterDefinition>
-    <ParameterDefinition configurable="true" id="TP_network" default="<your.network.uuid>" mandatory="true" valueType="STRING" modificationType="ONE_TIME">
-      <LocalizedDescription locale="en">Internal network UUID</LocalizedDescription>
-    </ParameterDefinition>
-    <ParameterDefinition configurable="true" id="TP_sg_name" default="<your.security.group.name>" mandatory="true" valueType="STRING" modificationType="ONE_TIME">
-      <LocalizedDescription locale="en">Security group</LocalizedDescription>
-    </ParameterDefinition>
     <ParameterDefinition configurable="true" id="TP_az" default="jp-east-1a" mandatory="true"
       valueType="ENUMERATION" modificationType="ONE_TIME">
       <Options>
@@ -165,6 +158,36 @@
         </Option>
       </Options>
       <LocalizedDescription locale="en">Availability zone</LocalizedDescription>
+    </ParameterDefinition>
+	<ParameterDefinition configurable="true" id="TP_VmName" mandatory="true" modificationType="ONE_TIME" valueType="STRING">
+      <LocalizedDescription locale="en">VmName</LocalizedDescription>
+      <LocalizedDescription locale="de"/>
+      <LocalizedDescription locale="ja"/>
+    </ParameterDefinition>
+	<ParameterDefinition configurable="true" id="TP_AdminPassword" mandatory="true" modificationType="ONE_TIME" valueType="STRING">
+      <LocalizedDescription locale="en">AdminPassword</LocalizedDescription>
+      <LocalizedDescription locale="de"/>
+      <LocalizedDescription locale="ja"/>
+    </ParameterDefinition>
+	 <ParameterDefinition configurable="true" id="TP_PrivateNetworkId" mandatory="true" modificationType="ONE_TIME" valueType="STRING">
+      <LocalizedDescription locale="en">PrivateNetworkId</LocalizedDescription>
+      <LocalizedDescription locale="de"/>
+      <LocalizedDescription locale="ja"/>
+    </ParameterDefinition>
+    <ParameterDefinition configurable="true" id="TP_SubnetId" mandatory="true" modificationType="ONE_TIME" valueType="STRING">
+      <LocalizedDescription locale="en">SubnetId</LocalizedDescription>
+      <LocalizedDescription locale="de"/>
+      <LocalizedDescription locale="ja"/>
+    </ParameterDefinition>
+    <ParameterDefinition configurable="true" id="TP_PublicNetworkId" mandatory="true" modificationType="ONE_TIME" valueType="STRING">
+      <LocalizedDescription locale="en">PublicNetworkId</LocalizedDescription>
+      <LocalizedDescription locale="de"/>
+      <LocalizedDescription locale="ja"/>
+    </ParameterDefinition>
+    <ParameterDefinition configurable="true" id="TP_ARRAY_SecurityGroupName" mandatory="true" modificationType="ONE_TIME" valueType="STRING">
+      <LocalizedDescription locale="en">SecurityGroupName</LocalizedDescription>
+      <LocalizedDescription locale="de"/>
+      <LocalizedDescription locale="ja"/>
     </ParameterDefinition>
     <ParameterDefinition configurable="false" id="MAIL_FOR_COMPLETION" default="<your.mail>"
       mandatory="false" valueType="STRING" modificationType="ONE_TIME">
