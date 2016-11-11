@@ -73,7 +73,9 @@ public class ServerInfoModel extends ExtendedDataModel<ServerInfo> {
      */
     private ServerInfo[] getRange(int start, int count) {
         List<ServerInfo> r = new ArrayList<>();
-        for (int i = start; i < start + count; i++) {
+        int limit = start + count < getRowCount() ? start + count
+                : getRowCount();
+        for (int i = start; i < limit; i++) {
             r.add(new ServerInfo("instance-" + String.valueOf(i),
                     String.valueOf(i), "Small", "ACTIVE", "1.2.3.4",
                     "192.168.1.1\n192.168.1.2"));
