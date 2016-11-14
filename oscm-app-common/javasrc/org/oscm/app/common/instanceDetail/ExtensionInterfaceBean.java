@@ -88,6 +88,7 @@ public class ExtensionInterfaceBean implements Serializable {
             serverInfos = instanceAccess.getServerDetails(instanceId);
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
+            LOGGER.error(e.getMessage());
         }
         setServerInfo(serverInfos);
     }
