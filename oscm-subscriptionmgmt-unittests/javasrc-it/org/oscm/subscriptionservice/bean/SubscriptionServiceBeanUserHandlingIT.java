@@ -50,7 +50,7 @@ import org.oscm.internal.types.exception.TechnicalServiceOperationException;
 import org.oscm.internal.vo.VOUsageLicense;
 import org.oscm.internal.vo.VOUser;
 import org.oscm.provisioning.data.User;
-import org.oscm.sessionservice.bean.SessionManagementStub;
+import org.oscm.sessionservice.bean.SessionManagementStub2;
 import org.oscm.taskhandling.local.TaskMessage;
 import org.oscm.taskhandling.operations.SendMailHandler;
 import org.oscm.taskhandling.payloads.SendMailPayload;
@@ -129,7 +129,7 @@ public class SubscriptionServiceBeanUserHandlingIT extends EJBTestBase {
                     List<UsageLicense> licenses) {
             }
         });
-        container.addBean(new SessionManagementStub());
+        container.addBean(new SessionManagementStub2());
         container.addBean(new IdManagementStub());
         container.addBean(mock(TenantProvisioningServiceBean.class));
         container.addBean(new CommunicationServiceStub() {

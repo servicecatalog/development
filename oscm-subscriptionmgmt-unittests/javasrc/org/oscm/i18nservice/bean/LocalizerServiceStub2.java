@@ -35,7 +35,7 @@ import org.oscm.internal.vo.VOLocalizedText;
  */
 @Stateless
 @Local(LocalizerServiceLocal.class)
-public class LocalizerServiceStub implements LocalizerServiceLocal {
+public class LocalizerServiceStub2 implements LocalizerServiceLocal {
 
     public Locale getDefaultLocale() {
         return Locale.ENGLISH;

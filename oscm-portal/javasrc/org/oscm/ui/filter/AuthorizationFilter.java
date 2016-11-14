@@ -855,7 +855,7 @@ public class AuthorizationFilter extends BaseBesFilter {
                         .getOrganizationRoles()
                         .contains(OrganizationRoleType.CUSTOMER)) {
             if (ADMStringUtils.isBlank(rdo.getMarketplaceId())) {
-                if (redirectToMpUrl(serviceAccess, httpRequest, httpResponse)) {
+                if (redirectToMpUrl(httpRequest, httpResponse)) {
                     setupUserDetail(httpRequest, rdo, identityService, session);
                     return false;
                 } else {
