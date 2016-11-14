@@ -20,6 +20,7 @@ import org.oscm.domobjects.ConfigurationSetting;
 import org.oscm.domobjects.TenantSetting;
 import org.oscm.enums.APIVersion;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
+import org.oscm.internal.types.exception.DomainObjectException.ClassEnum;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
