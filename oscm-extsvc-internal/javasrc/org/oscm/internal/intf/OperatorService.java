@@ -20,6 +20,7 @@ import org.oscm.internal.types.exception.AddMarketingPermissionException;
 import org.oscm.internal.types.exception.AuditLogTooManyRowsException;
 import org.oscm.internal.types.exception.ConcurrentModificationException;
 import org.oscm.internal.types.exception.DistinguishedNameException;
+import org.oscm.internal.types.exception.DuplicateTenantIdException;
 import org.oscm.internal.types.exception.ImageException;
 import org.oscm.internal.types.exception.IncompatibleRolesException;
 import org.oscm.internal.types.exception.MailOperationException;
@@ -361,7 +362,7 @@ public interface OperatorService {
      */
     void saveConfigurationSetting(VOConfigurationSetting setting)
             throws OrganizationAuthoritiesException, ValidationException,
-            ConcurrentModificationException;
+            ConcurrentModificationException, DuplicateTenantIdException;
 
     /**
      * Saves the specified configuration settings. If a setting with the same
@@ -380,7 +381,7 @@ public interface OperatorService {
      */
     void saveConfigurationSettings(List<VOConfigurationSetting> settings)
             throws OrganizationAuthoritiesException, ValidationException,
-            ConcurrentModificationException;
+            ConcurrentModificationException, DuplicateTenantIdException;
 
     /**
      * Retrieves the organization with the given identifier.

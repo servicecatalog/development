@@ -142,7 +142,7 @@
       </a4j:outputPanel>
     </rich:tab>
     <rich:tab id="customTab" header="#{subscription.customTabName}" rendered="#{not empty subscription.customTabName}">
-      <iframe id="customData" src="#{subscription.customTabUrl}" width="100%" height="500"
+      <iframe id="customData" src="#{mySubscriptionsCtrl.customTabUrlWithParameters}" width="100%" height="500"
               style="border: none" />
     </rich:tab>
   </rich:tabPanel>

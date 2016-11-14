@@ -23,6 +23,7 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 
+import org.oscm.internal.types.exception.DuplicateTenantIdException;
 import org.oscm.types.constants.Configuration;
 import org.oscm.ui.beans.ApplicationBean;
 import org.oscm.ui.beans.BaseBean;
@@ -177,7 +178,7 @@ public class ConfigurationSettingsBean extends BaseOperatorBean implements
     }
 
     public String save() throws OrganizationAuthoritiesException,
-            ValidationException, ConcurrentModificationException {
+            ValidationException, ConcurrentModificationException, DuplicateTenantIdException {
 
         getOperatorService().saveConfigurationSettings(configurationSettings);
         addMessage(null, FacesMessage.SEVERITY_INFO, INFO_CONFIGURATION_SAVED);

@@ -21,6 +21,6 @@ env:
 script:
   - ant -lib $TRAVIS_BUILD_DIR/libraries/apache-ant-contrib/javalib -file $TRAVIS_BUILD_DIR/oscm-build/cruisecontrol.xml runTravisUT
 #  - ant -lib $TRAVIS_BUILD_DIR/libraries/apache-ant-contrib/javalib -file $TRAVIS_BUILD_DIR/oscm-build/cruisecontrol.xml runTravisIT
+  - $TRAVIS_BUILD_DIR/runSonarAnalysis.sh
 after_success:
   - codecov
-  - coveralls

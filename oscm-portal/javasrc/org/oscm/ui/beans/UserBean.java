@@ -1078,6 +1078,8 @@ public class UserBean extends BaseBean implements Serializable {
             ui.handleError(null, BaseBean.ERROR_GENERATE_AUTHNREQUEST);
         } catch (NotExistentTenantException | ObjectNotFoundException | MarketplaceRemovedException e) {
             ui.handleError(null, BaseBean.ERROR_MISSING_TENANTID);
+        } catch (WrongTenantConfigurationException e) {
+            ui.handleError(null, BaseBean.ERROR_TENANT_SETTINGS_MISSING);
         }
         return OUTCOME_MARKETPLACE_ERROR_PAGE;
     }
@@ -1090,7 +1092,7 @@ public class UserBean extends BaseBean implements Serializable {
         return authenticationSettings;
     }
 
-    protected AuthenticationHandler getAuthenticationHandler() throws ObjectNotFoundException, NotExistentTenantException, MarketplaceRemovedException {
+    protected AuthenticationHandler getAuthenticationHandler() throws ObjectNotFoundException, NotExistentTenantException, WrongTenantConfigurationException, MarketplaceRemovedException {
         AuthenticationSettings authenticationSettings = getAuthenticationSettings();
         authenticationSettings.init(sessionBean.getTenantID());
         return new AuthenticationHandler(getRequest(), getResponse(),
