@@ -9,6 +9,7 @@
 package org.oscm.app.common.ui;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.faces.context.FacesContext;
@@ -78,8 +79,9 @@ public class ServerInfoModel extends ExtendedDataModel<ServerInfo> {
                 : getRowCount();
         for (int i = start; i < limit; i++) {
             r.add(new ServerInfo("instance-" + String.valueOf(i),
-                    String.valueOf(i), "Small", "ACTIVE", "1.2.3.4",
-                    "192.168.1.1\n192.168.1.2"));
+                    String.valueOf(i), "Small", "ACTIVE",
+                    Arrays.asList("1.2.3.4"),
+                    Arrays.asList("192.168.1.1", "192.168.1.2")));
         }
         return r.toArray(new ServerInfo[r.size()]);
     }
