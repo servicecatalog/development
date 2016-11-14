@@ -46,8 +46,7 @@ public class ServiceInstanceIT extends EJBTestBase {
         instance.setSubscriptionId("subId");
         instance.setInstanceId("appInstanceId");
         instance.setControllerId("ess.vmware");
-        instance.setProvisioningStatus(
-                ProvisioningStatus.WAITING_FOR_SYSTEM_CREATION);
+        instance.setProvisioningStatus(ProvisioningStatus.WAITING_FOR_SYSTEM_CREATION);
         em = container.getPersistenceUnit("oscm-app");
     }
 
@@ -71,27 +70,25 @@ public class ServiceInstanceIT extends EJBTestBase {
             }
         });
 
-        final ServiceInstance dbInstance = runTX(
-                new Callable<ServiceInstance>() {
-                    @Override
-                    public ServiceInstance call() throws Exception {
-                        ServiceInstance foundInstance = em.find(
-                                ServiceInstance.class,
-                                Long.valueOf(instance.getTkey()));
-                        foundInstance.getOperations();
-                        if (foundInstance.getOperations().size() > 0) {
-                            foundInstance.getOperations().get(0);
-                        }
-                        return foundInstance;
-                    }
-                });
+        final ServiceInstance dbInstance = runTX(new Callable<ServiceInstance>() {
+            @Override
+            public ServiceInstance call() throws Exception {
+                ServiceInstance foundInstance = em.find(ServiceInstance.class,
+                        Long.valueOf(instance.getTkey()));
+                foundInstance.getOperations();
+                if (foundInstance.getOperations().size() > 0) {
+                    foundInstance.getOperations().get(0);
+                }
+                return foundInstance;
+            }
+        });
 
         // then
         assertNotNull(dbInstance.getOperations());
-        assertEquals("operationId",
-                dbInstance.getOperations().get(0).getOperationId());
-        assertEquals("parameters",
-                dbInstance.getOperations().get(0).getParameters());
+        assertEquals("operationId", dbInstance.getOperations().get(0)
+                .getOperationId());
+        assertEquals("parameters", dbInstance.getOperations().get(0)
+                .getParameters());
     }
 
     @Test
@@ -127,28 +124,29 @@ public class ServiceInstanceIT extends EJBTestBase {
             }
         });
 
-        final Map<String, Setting> params = runTX(
-                new Callable<Map<String, Setting>>() {
-                    @Override
-                    public Map<String, Setting> call() throws Exception {
-                        Query query = em.createQuery(
-                                "SELECT si FROM ServiceInstance si");
-                        List<?> resultList = query.getResultList();
-                        if (resultList.isEmpty()) {
-                            return null;
-                        }
-                        ServiceInstance si = (ServiceInstance) resultList
-                                .get(0);
-                        return si.getParameterMap();
-                    }
-                });
+        final Map<String, Setting> params = runTX(new Callable<Map<String, Setting>>() {
+            @Override
+            public Map<String, Setting> call() throws Exception {
+                Query query = em
+                        .createQuery("SELECT si FROM ServiceInstance si");
+                List<?> resultList = query.getResultList();
+                if (resultList.isEmpty()) {
+                    return null;
+                }
+                ServiceInstance si = (ServiceInstance) resultList.get(0);
+                return si.getParameterMap();
+            }
+        });
 
         final Map<String, String> expected = new HashMap<>();
         expected.put(InstanceParameter.BSS_USER, "username_new");
         expected.put(InstanceParameter.BSS_USER_PWD, "secret");
         expected.put("param3", "value3new");
-        assertEquals(expected, params);
-
+        assertEquals("value3new", params.get("param3").getValue());
+        assertEquals("username_new", params.get(InstanceParameter.BSS_USER)
+                .getValue());
+        assertEquals("secret", params.get(InstanceParameter.BSS_USER_PWD)
+                .getValue());
     }
 
     @Test(expected = BadResultException.class)

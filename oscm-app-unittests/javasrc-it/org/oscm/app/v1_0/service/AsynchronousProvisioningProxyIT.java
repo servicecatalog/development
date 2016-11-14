@@ -100,14 +100,14 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
 
     @Override
     protected void setup(TestContainer container) throws Exception {
-        container.addBean(
-                LoggerFactory.getLogger(AsynchronousProvisioningProxy.class));
+        container.addBean(LoggerFactory
+                .getLogger(AsynchronousProvisioningProxy.class));
         container.addBean(provisioningFactory = Mockito
                 .mock(ProductProvisioningServiceFactoryBean.class));
 
         provServiceMock = mock(ProvisioningService.class);
-        doReturn(provServiceMock).when(provisioningFactory)
-                .getInstance(any(ServiceInstance.class));
+        doReturn(provServiceMock).when(provisioningFactory).getInstance(
+                any(ServiceInstance.class));
         container.addBean(configService = Mockito
                 .mock(APPConfigurationServiceBean.class));
 
@@ -117,12 +117,12 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
         container.addBean(instanceDAO = new ServiceInstanceDAO());
         em = instanceDAO.em;
         container.addBean(mock(OperationServiceBean.class));
-        container.addBean(
-                authService = Mockito.mock(APPAuthenticationServiceBean.class));
-        container.addBean(
-                timerService = Mockito.mock(APPTimerServiceBean.class));
-        container.addBean(
-                timerService1 = Mockito.mock(APPTimerServiceBean.class));
+        container.addBean(authService = Mockito
+                .mock(APPAuthenticationServiceBean.class));
+        container.addBean(timerService = Mockito
+                .mock(APPTimerServiceBean.class));
+        container.addBean(timerService1 = Mockito
+                .mock(APPTimerServiceBean.class));
 
         timerService.em = em;
         timerService1.em = em;
@@ -147,8 +147,8 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
         container.addBean(new ProvisioningResults());
         AsynchronousProvisioningProxyImpl bean = new AsynchronousProvisioningProxyImpl();
         container.addBean(bean);
-        container.addBean(
-                proxy = Mockito.spy(new AsynchronousProvisioningProxy()));
+        container.addBean(proxy = Mockito
+                .spy(new AsynchronousProvisioningProxy()));
         proxy.em = em;
         proxy.timerService = timerService;
         proxy.configService = configService;
@@ -181,11 +181,12 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
         basicInstanceRequest.setReferenceId("referenceId");
 
         final HashMap<String, Setting> controllerSetting = new HashMap<>();
-        controllerSetting.put("BSS_ORGANIZATION_ID",
-                new Setting("BSS_ORGANIZATION_ID", "testorg"));
-        when(configService
-                .getControllerConfigurationSettings("test.controller"))
-                        .thenReturn(controllerSetting);
+        controllerSetting.put("BSS_ORGANIZATION_ID", new Setting(
+                "BSS_ORGANIZATION_ID", "testorg"));
+        when(
+                configService
+                        .getControllerConfigurationSettings("test.controller"))
+                .thenReturn(controllerSetting);
         Answer<ProvisioningSettings> answer = new Answer<ProvisioningSettings>() {
             @Override
             public ProvisioningSettings answer(InvocationOnMock invocation)
@@ -194,8 +195,7 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
                 ServiceInstance instance = (ServiceInstance) args[0];
                 return new ProvisioningSettings(instance.getParameterMap(),
                         instance.getAttributeMap(),
-                        new HashMap<String, Setting>(), controllerSetting,
-                        "en");
+                        new HashMap<String, Setting>(), controllerSetting, "en");
             }
         };
         doAnswer(answer).when(configService).getProvisioningSettings(
@@ -205,9 +205,10 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
     @Test
     public void testAsyncCreateInstanceAppException() throws Exception {
 
-        when(controllerMock
-                .createInstance(Matchers.any(ProvisioningSettings.class)))
-                        .thenThrow(new APPlatformException("APP Fault"));
+        when(
+                controllerMock.createInstance(Matchers
+                        .any(ProvisioningSettings.class))).thenThrow(
+                new APPlatformException("APP Fault"));
 
         final BaseResult result = runTX(new Callable<BaseResult>() {
 
@@ -226,9 +227,9 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
         final InstanceDescription descr = new InstanceDescription();
         descr.setInstanceId("appId123");
         descr.setBaseUrl("http://here/");
-        when(controllerMock
-                .createInstance(Matchers.any(ProvisioningSettings.class)))
-                        .thenReturn(descr);
+        when(
+                controllerMock.createInstance(Matchers
+                        .any(ProvisioningSettings.class))).thenReturn(descr);
 
         doThrow(new APPlatformException("TimerInitFailure")).when(timerService)
                 .initTimers();
@@ -299,20 +300,19 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
         descr.setInstanceId("appId123");
         descr.setBaseUrl("http://here/");
         HashMap<String, Setting> map = new HashMap<>();
-        map.put(param.getParameterId(),
-                new Setting(param.getParameterId(), param.getValue()));
+        map.put(param.getParameterId(), new Setting(param.getParameterId(),
+                param.getValue()));
         map.put(null, new Setting(null, "null")); // check error resistance
         descr.setChangedParameters(map);
 
-        List<LocalizedText> msgs = Arrays.asList(
-                new LocalizedText("en", "enMsg"),
-                new LocalizedText("de", "deMsg"),
-                new LocalizedText("ja", "ja"));
+        List<LocalizedText> msgs = Arrays.asList(new LocalizedText("en",
+                "enMsg"), new LocalizedText("de", "deMsg"), new LocalizedText(
+                "ja", "ja"));
         descr.setDescription(msgs);
 
-        when(controllerMock
-                .createInstance(Matchers.any(ProvisioningSettings.class)))
-                        .thenReturn(descr);
+        when(
+                controllerMock.createInstance(Matchers
+                        .any(ProvisioningSettings.class))).thenReturn(descr);
 
         doReturn("en").when(proxy).getLocale(any(User.class));
 
@@ -326,19 +326,18 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
         assertEquals(0, result.getRc());
         assertEquals("enMsg", result.getDesc());
 
-        final List<ServiceInstance> services = runTX(
-                new Callable<List<ServiceInstance>>() {
-                    @Override
-                    public List<ServiceInstance> call() {
-                        final Query q = em
-                                .createQuery("SELECT s FROM ServiceInstance s");
-                        @SuppressWarnings("unchecked")
-                        List<ServiceInstance> services = q.getResultList();
-                        ServiceInstance service = services.get(0);
-                        load(service.getInstanceParameters());
-                        return services;
-                    }
-                });
+        final List<ServiceInstance> services = runTX(new Callable<List<ServiceInstance>>() {
+            @Override
+            public List<ServiceInstance> call() {
+                final Query q = em
+                        .createQuery("SELECT s FROM ServiceInstance s");
+                @SuppressWarnings("unchecked")
+                List<ServiceInstance> services = q.getResultList();
+                ServiceInstance service = services.get(0);
+                load(service.getInstanceParameters());
+                return services;
+            }
+        });
 
         assertEquals(1, services.size());
         final ServiceInstance service = services.get(0);
@@ -382,9 +381,9 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
         descr.setBaseUrl("http://here/");
         HashMap<String, Setting> map = new HashMap<>();
         descr.setChangedParameters(map);
-        when(controllerMock
-                .createInstance(Matchers.any(ProvisioningSettings.class)))
-                        .thenReturn(descr);
+        when(
+                controllerMock.createInstance(Matchers
+                        .any(ProvisioningSettings.class))).thenReturn(descr);
 
         final BaseResult result = runTX(new Callable<BaseResult>() {
             @Override
@@ -413,9 +412,9 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
         descr.setBaseUrl("http://here/");
         HashMap<String, Setting> map = new HashMap<>();
         descr.setChangedParameters(map);
-        when(controllerMock
-                .createInstance(Matchers.any(ProvisioningSettings.class)))
-                        .thenReturn(descr);
+        when(
+                controllerMock.createInstance(Matchers
+                        .any(ProvisioningSettings.class))).thenReturn(descr);
 
         final BaseResult result = runTX(new Callable<BaseResult>() {
             @Override
@@ -442,9 +441,9 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
         descr.setBaseUrl("http://here/");
         HashMap<String, Setting> map = new HashMap<>();
         descr.setChangedParameters(map);
-        when(controllerMock
-                .createInstance(Matchers.any(ProvisioningSettings.class)))
-                        .thenReturn(descr);
+        when(
+                controllerMock.createInstance(Matchers
+                        .any(ProvisioningSettings.class))).thenReturn(descr);
 
         final BaseResult result = runTX(new Callable<BaseResult>() {
             @Override
@@ -464,8 +463,8 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
 
     @Test
     public void testCreateInstance() {
-        final InstanceResult result = proxy
-                .createInstance(new InstanceRequest(), null);
+        final InstanceResult result = proxy.createInstance(
+                new InstanceRequest(), null);
         assertEquals(1, result.getRc());
         assertEquals(Messages.get("en", "error_synchronous_provisioning"),
                 result.getDesc());
@@ -503,7 +502,8 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
             }
         });
         assertEquals(1, result.getRc());
-        assertEquals(Messages.get("en", "error_instance_not_exists", "unknown"),
+        assertEquals(
+                Messages.get("en", "error_instance_not_exists", "unknown"),
                 result.getDesc());
     }
 
@@ -534,9 +534,10 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
 
         InstanceStatusUsers mockStatus = new InstanceStatusUsers();
         mockStatus.setInstanceProvisioningRequired(true);
-        when(controllerMock.createUsers(anyString(),
-                any(ProvisioningSettings.class), any(List.class)))
-                        .thenReturn(mockStatus);
+        when(
+                controllerMock.createUsers(anyString(),
+                        any(ProvisioningSettings.class), any(List.class)))
+                .thenReturn(mockStatus);
 
         UserResult ur = runTX(new Callable<UserResult>() {
             @Override
@@ -582,9 +583,10 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
         InstanceStatusUsers mockStatus = new InstanceStatusUsers();
         mockStatus.setInstanceProvisioningRequired(true);
         mockStatus.setChangedUsers(svcUsers);
-        when(controllerMock.createUsers(anyString(),
-                any(ProvisioningSettings.class), any(List.class)))
-                        .thenReturn(mockStatus);
+        when(
+                controllerMock.createUsers(anyString(),
+                        any(ProvisioningSettings.class), any(List.class)))
+                .thenReturn(mockStatus);
 
         UserResult ur = runTX(new Callable<UserResult>() {
             @Override
@@ -597,10 +599,10 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
 
         verify(provServiceMock).createUsers(instanceId, users, null);
         Assert.assertEquals(2, ur.getUsers().size());
-        Assert.assertEquals("user1app",
-                ur.getUsers().get(0).getApplicationUserId());
-        Assert.assertEquals("user2app",
-                ur.getUsers().get(1).getApplicationUserId());
+        Assert.assertEquals("user1app", ur.getUsers().get(0)
+                .getApplicationUserId());
+        Assert.assertEquals("user2app", ur.getUsers().get(1)
+                .getApplicationUserId());
 
     }
 
@@ -634,9 +636,10 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
         InstanceStatusUsers mockStatus = new InstanceStatusUsers();
         mockStatus.setInstanceProvisioningRequired(true);
         mockStatus.setChangedUsers(svcUsers);
-        when(controllerMock.createUsers(anyString(),
-                any(ProvisioningSettings.class), any(List.class)))
-                        .thenReturn(mockStatus);
+        when(
+                controllerMock.createUsers(anyString(),
+                        any(ProvisioningSettings.class), any(List.class)))
+                .thenReturn(mockStatus);
 
         UserResult ur = runTX(new Callable<UserResult>() {
             @Override
@@ -649,8 +652,8 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
 
         verify(provServiceMock).createUsers(instanceId, users, null);
         Assert.assertEquals(2, ur.getUsers().size());
-        Assert.assertEquals("user1app",
-                ur.getUsers().get(0).getApplicationUserId());
+        Assert.assertEquals("user1app", ur.getUsers().get(0)
+                .getApplicationUserId());
         Assert.assertNull(ur.getUsers().get(1).getApplicationUserId());
 
     }
@@ -685,9 +688,10 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
 
         InstanceStatusUsers mockStatus = new InstanceStatusUsers();
         mockStatus.setInstanceProvisioningRequired(true);
-        when(controllerMock.createUsers(anyString(),
-                any(ProvisioningSettings.class), any(List.class)))
-                        .thenReturn(mockStatus);
+        when(
+                controllerMock.createUsers(anyString(),
+                        any(ProvisioningSettings.class), any(List.class)))
+                .thenReturn(mockStatus);
 
         UserResult ur = runTX(new Callable<UserResult>() {
             @Override
@@ -699,10 +703,10 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
         Assert.assertEquals(result.getRc(), ur.getRc());
         verify(provServiceMock).createUsers(instanceId, users, null);
         Assert.assertEquals(2, ur.getUsers().size());
-        Assert.assertEquals("user1app",
-                ur.getUsers().get(0).getApplicationUserId());
-        Assert.assertEquals("user2app",
-                ur.getUsers().get(1).getApplicationUserId());
+        Assert.assertEquals("user1app", ur.getUsers().get(0)
+                .getApplicationUserId());
+        Assert.assertEquals("user2app", ur.getUsers().get(1)
+                .getApplicationUserId());
 
     }
 
@@ -717,9 +721,10 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
         doReturn(result).when(provServiceMock).createUsers(instanceId, users,
                 null);
 
-        when(controllerMock.createUsers(anyString(),
-                any(ProvisioningSettings.class), any(List.class)))
-                        .thenReturn(new InstanceStatusUsers());
+        when(
+                controllerMock.createUsers(anyString(),
+                        any(ProvisioningSettings.class), any(List.class)))
+                .thenReturn(new InstanceStatusUsers());
 
         UserResult ur = runTX(new Callable<UserResult>() {
             @Override
@@ -773,9 +778,10 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
 
         doReturn(result).when(provServiceMock).createUsers(instanceId, users,
                 null);
-        when(controllerMock.createUsers(anyString(),
-                any(ProvisioningSettings.class), any(List.class)))
-                        .thenReturn(new InstanceStatusUsers());
+        when(
+                controllerMock.createUsers(anyString(),
+                        any(ProvisioningSettings.class), any(List.class)))
+                .thenReturn(new InstanceStatusUsers());
 
         UserResult ur = runTX(new Callable<UserResult>() {
             @Override
@@ -802,7 +808,8 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
             }
         });
         assertEquals(1, result.getRc());
-        assertEquals(Messages.get("en", "error_instance_not_exists", "unknown"),
+        assertEquals(
+                Messages.get("en", "error_instance_not_exists", "unknown"),
                 result.getDesc());
     }
 
@@ -819,9 +826,10 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
 
         InstanceStatus mockStatus = new InstanceStatus();
         mockStatus.setInstanceProvisioningRequired(true);
-        when(controllerMock.updateUsers(anyString(),
-                any(ProvisioningSettings.class), any(List.class)))
-                        .thenReturn(mockStatus);
+        when(
+                controllerMock.updateUsers(anyString(),
+                        any(ProvisioningSettings.class), any(List.class)))
+                .thenReturn(mockStatus);
 
         BaseResult br = runTX(new Callable<BaseResult>() {
             @Override
@@ -844,9 +852,10 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
 
         doReturn(result).when(provServiceMock).updateUsers(instanceId, users,
                 null);
-        when(controllerMock.updateUsers(anyString(),
-                any(ProvisioningSettings.class), any(List.class)))
-                        .thenReturn(new InstanceStatus());
+        when(
+                controllerMock.updateUsers(anyString(),
+                        any(ProvisioningSettings.class), any(List.class)))
+                .thenReturn(new InstanceStatus());
 
         BaseResult ur = runTX(new Callable<BaseResult>() {
             @Override
@@ -889,7 +898,8 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
             }
         });
         assertEquals(1, result.getRc());
-        assertEquals(Messages.get("en", "error_instance_not_exists", "unknown"),
+        assertEquals(
+                Messages.get("en", "error_instance_not_exists", "unknown"),
                 result.getDesc());
     }
 
@@ -906,9 +916,10 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
 
         InstanceStatus mockStatus = new InstanceStatus();
         mockStatus.setInstanceProvisioningRequired(true);
-        when(controllerMock.deleteUsers(anyString(),
-                any(ProvisioningSettings.class), any(List.class)))
-                        .thenReturn(mockStatus);
+        when(
+                controllerMock.deleteUsers(anyString(),
+                        any(ProvisioningSettings.class), any(List.class)))
+                .thenReturn(mockStatus);
 
         BaseResult br = runTX(new Callable<BaseResult>() {
             @Override
@@ -931,9 +942,10 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
 
         doReturn(result).when(provServiceMock).deleteUsers(instanceId, users,
                 null);
-        when(controllerMock.deleteUsers(anyString(),
-                any(ProvisioningSettings.class), any(List.class)))
-                        .thenReturn(new InstanceStatus());
+        when(
+                controllerMock.deleteUsers(anyString(),
+                        any(ProvisioningSettings.class), any(List.class)))
+                .thenReturn(new InstanceStatus());
 
         BaseResult ur = runTX(new Callable<BaseResult>() {
             @Override
@@ -986,15 +998,15 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
 
     @Test
     public void modifySubscription_ConcurrencyConflict() throws Exception {
-        final String instanceId = createService(
-                ProvisioningStatus.WAITING_FOR_SYSTEM_MODIFICATION);
+        final String instanceId = createService(ProvisioningStatus.WAITING_FOR_SYSTEM_MODIFICATION);
         final String subscriptionId = "newId";
         final BaseResult result = runTX(new Callable<BaseResult>() {
             @Override
             public BaseResult call() {
                 // Invoke modify although modification is just active
-                return proxy.asyncModifySubscription(instanceId, subscriptionId,
-                        "referenceId", new ArrayList<ServiceParameter>(),
+                return proxy.asyncModifySubscription(instanceId,
+                        subscriptionId, "referenceId",
+                        new ArrayList<ServiceParameter>(),
                         new ArrayList<ServiceAttribute>(), null);
             }
         });
@@ -1012,10 +1024,11 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
                         new ArrayList<ServiceParameter>(),
                         new ArrayList<ServiceAttribute>(), null);
 
-        when(controllerMock.modifyInstance(anyString(),
-                any(ProvisioningSettings.class),
-                any(ProvisioningSettings.class)))
-                        .thenThrow(new APPlatformException("app Fault"));
+        when(
+                controllerMock.modifyInstance(anyString(),
+                        any(ProvisioningSettings.class),
+                        any(ProvisioningSettings.class))).thenThrow(
+                new APPlatformException("app Fault"));
         final BaseResult result = runTX(new Callable<BaseResult>() {
             @Override
             public BaseResult call() {
@@ -1041,7 +1054,8 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
             }
         });
         assertEquals(1, result.getRc());
-        assertEquals(Messages.get("en", "error_instance_not_exists", "unknown"),
+        assertEquals(
+                Messages.get("en", "error_instance_not_exists", "unknown"),
                 result.getDesc());
         verifyZeroInteractions(provServiceMock);
     }
@@ -1060,15 +1074,18 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
 
         InstanceStatus mockStatus = new InstanceStatus();
         mockStatus.setInstanceProvisioningRequired(true);
-        when(controllerMock.modifyInstance(anyString(),
-                any(ProvisioningSettings.class),
-                any(ProvisioningSettings.class))).thenReturn(mockStatus);
+        when(
+                controllerMock.modifyInstance(anyString(),
+                        any(ProvisioningSettings.class),
+                        any(ProvisioningSettings.class)))
+                .thenReturn(mockStatus);
 
         BaseResult br = runTX(new Callable<BaseResult>() {
             @Override
             public BaseResult call() {
-                return proxy.asyncModifySubscription(instanceId, subscriptionId,
-                        "referenceId", new ArrayList<ServiceParameter>(),
+                return proxy.asyncModifySubscription(instanceId,
+                        subscriptionId, "referenceId",
+                        new ArrayList<ServiceParameter>(),
                         new ArrayList<ServiceAttribute>(), null);
             }
         });
@@ -1091,16 +1108,18 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
                 new ArrayList<ServiceParameter>(),
                 new ArrayList<ServiceAttribute>(), null);
 
-        when(controllerMock.modifyInstance(anyString(),
-                any(ProvisioningSettings.class),
-                any(ProvisioningSettings.class)))
-                        .thenReturn(new InstanceStatus());
+        when(
+                controllerMock.modifyInstance(anyString(),
+                        any(ProvisioningSettings.class),
+                        any(ProvisioningSettings.class))).thenReturn(
+                new InstanceStatus());
 
         BaseResult br = runTX(new Callable<BaseResult>() {
             @Override
             public BaseResult call() {
-                return proxy.asyncModifySubscription(instanceId, subscriptionId,
-                        "referenceId", new ArrayList<ServiceParameter>(),
+                return proxy.asyncModifySubscription(instanceId,
+                        subscriptionId, "referenceId",
+                        new ArrayList<ServiceParameter>(),
                         new ArrayList<ServiceAttribute>(), null);
             }
         });
@@ -1142,14 +1161,17 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
                 instanceId, subscriptionId, "referenceId", filteredParameters,
                 attributes, null);
 
-        when(controllerMock.modifyInstance(anyString(),
-                any(ProvisioningSettings.class),
-                any(ProvisioningSettings.class))).thenReturn(mockStatus);
+        when(
+                controllerMock.modifyInstance(anyString(),
+                        any(ProvisioningSettings.class),
+                        any(ProvisioningSettings.class)))
+                .thenReturn(mockStatus);
         final BaseResult result = runTX(new Callable<BaseResult>() {
             @Override
             public BaseResult call() {
-                return proxy.asyncModifySubscription(instanceId, subscriptionId,
-                        "referenceId", parameters, attributes, null);
+                return proxy.asyncModifySubscription(instanceId,
+                        subscriptionId, "referenceId", parameters, attributes,
+                        null);
             }
         });
 
@@ -1179,12 +1201,14 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
         expectedNew.put("param1", "value1");
         expectedNew.put("APP_param2", "xxxx");
         Map<String, Setting> params = newCaptor.getValue().getParameters();
-        assertEquals("New parameters not sent correctly", expectedNew, params);
+        assertEquals("value1", params.get("param1").getValue());
+        assertEquals("xxxx", params.get("APP_param2").getValue());
         final Map<String, String> expectedOld = new HashMap<>();
         expectedOld.put("param1", "1");
         expectedOld.put("APP_param2", "xyz");
         params = oldCaptor.getValue().getParameters();
-        assertEquals("Old parameters not sent correctly", expectedOld, params);
+        assertEquals("1", params.get("param1").getValue());
+        assertEquals("xyz", params.get("APP_param2").getValue());
     }
 
     @Test
@@ -1216,9 +1240,11 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
         final String instanceId = createService(ProvisioningStatus.COMPLETED,
                 "param1", "1", "APP_param2", "xyz");
 
-        when(controllerMock.modifyInstance(anyString(),
-                any(ProvisioningSettings.class),
-                any(ProvisioningSettings.class))).thenReturn(mockStatus);
+        when(
+                controllerMock.modifyInstance(anyString(),
+                        any(ProvisioningSettings.class),
+                        any(ProvisioningSettings.class)))
+                .thenReturn(mockStatus);
         final BaseResult result = runTX(new Callable<BaseResult>() {
             @Override
             public BaseResult call() {
@@ -1252,18 +1278,19 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
         expectedNew.put("param1", "value1");
         expectedNew.put("APP_param2", "xxxx");
         Map<String, Setting> params = newCaptor.getValue().getParameters();
-        assertEquals("New parameters not sent correctly", expectedNew, params);
+        assertEquals("value1", params.get("param1").getValue());
+        assertEquals("xxxx", params.get("APP_param2").getValue());
         final Map<String, String> expectedOld = new HashMap<>();
         expectedOld.put("param1", "1");
         expectedOld.put("APP_param2", "xyz");
         params = oldCaptor.getValue().getParameters();
-        assertEquals("Old parameters not sent correctly", expectedOld, params);
+        assertEquals("1", params.get("param1").getValue());
+        assertEquals("xyz", params.get("APP_param2").getValue());
     }
 
     @Test
     public void testDeleteInstanceConcurrencyNoConflict() throws Exception {
-        final String instanceId = createService(
-                ProvisioningStatus.WAITING_FOR_SYSTEM_MODIFICATION);
+        final String instanceId = createService(ProvisioningStatus.WAITING_FOR_SYSTEM_MODIFICATION);
         doReturn(new BaseResult()).when(provServiceMock).deleteInstance(
                 eq(instanceId), anyString(), anyString(), any(User.class));
 
@@ -1293,8 +1320,10 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
 
         InstanceStatus mockStatus = new InstanceStatus();
         mockStatus.setInstanceProvisioningRequired(true);
-        when(controllerMock.activateInstance(anyString(),
-                any(ProvisioningSettings.class))).thenReturn(mockStatus);
+        when(
+                controllerMock.activateInstance(anyString(),
+                        any(ProvisioningSettings.class)))
+                .thenReturn(mockStatus);
 
         BaseResult br = runTX(new Callable<BaseResult>() {
             @Override
@@ -1311,11 +1340,12 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
     public void testActivateInstance_NoProvOnInstance() throws Exception {
         final String instanceId = createService(ProvisioningStatus.COMPLETED,
                 "param1", "value1");
-        doReturn(new BaseResult()).when(provServiceMock)
-                .activateInstance(instanceId, null);
+        doReturn(new BaseResult()).when(provServiceMock).activateInstance(
+                instanceId, null);
 
-        when(controllerMock.activateInstance(anyString(),
-                any(ProvisioningSettings.class))).thenReturn(null);
+        when(
+                controllerMock.activateInstance(anyString(),
+                        any(ProvisioningSettings.class))).thenReturn(null);
         final BaseResult result = runTX(new Callable<BaseResult>() {
             @Override
             public BaseResult call() {
@@ -1332,12 +1362,11 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
         ArgumentCaptor<ProvisioningSettings> settings = ArgumentCaptor
                 .forClass(ProvisioningSettings.class);
 
-        verify(controllerMock, times(1))
-                .activateInstance(stringCaptor.capture(), settings.capture());
+        verify(controllerMock, times(1)).activateInstance(
+                stringCaptor.capture(), settings.capture());
         assertEquals("appId123", stringCaptor.getValue());
         Map<String, Setting> params = settings.getValue().getParameters();
-        assertEquals(Collections.singletonMap("param1",
-                new Setting("param1", "value1")), params);
+        assertEquals("value1", params.get("param1").getValue());
     }
 
     @Test
@@ -1350,8 +1379,10 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
 
         InstanceStatus mockStatus = new InstanceStatus();
         mockStatus.setInstanceProvisioningRequired(true);
-        when(controllerMock.deactivateInstance(anyString(),
-                any(ProvisioningSettings.class))).thenReturn(mockStatus);
+        when(
+                controllerMock.deactivateInstance(anyString(),
+                        any(ProvisioningSettings.class)))
+                .thenReturn(mockStatus);
 
         BaseResult br = runTX(new Callable<BaseResult>() {
             @Override
@@ -1369,8 +1400,9 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
         final String instanceId = createService(ProvisioningStatus.COMPLETED,
                 "param1", "value1");
 
-        when(controllerMock.deactivateInstance(anyString(),
-                any(ProvisioningSettings.class))).thenReturn(null);
+        when(
+                controllerMock.deactivateInstance(anyString(),
+                        any(ProvisioningSettings.class))).thenReturn(null);
         final BaseResult result = runTX(new Callable<BaseResult>() {
             @Override
             public BaseResult call() {
@@ -1387,20 +1419,20 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
         ArgumentCaptor<ProvisioningSettings> settings = ArgumentCaptor
                 .forClass(ProvisioningSettings.class);
 
-        verify(controllerMock, times(1))
-                .deactivateInstance(stringCaptor.capture(), settings.capture());
+        verify(controllerMock, times(1)).deactivateInstance(
+                stringCaptor.capture(), settings.capture());
         assertEquals("appId123", stringCaptor.getValue());
         Map<String, Setting> params = settings.getValue().getParameters();
-        assertEquals(Collections.singletonMap("param1",
-                new Setting("param1", "value1")), params);
+        assertEquals("value1", params.get("param1").getValue());
     }
 
     @Test
     public void testDeleteInstanceAppException() throws Exception {
         final String instanceId = createService(ProvisioningStatus.COMPLETED);
-        when(controllerMock.deleteInstance(anyString(),
-                any(ProvisioningSettings.class)))
-                        .thenThrow(new APPlatformException("APP Fault"));
+        when(
+                controllerMock.deleteInstance(anyString(),
+                        any(ProvisioningSettings.class))).thenThrow(
+                new APPlatformException("APP Fault"));
         final BaseResult result = runTX(new Callable<BaseResult>() {
             @Override
             public BaseResult call() {
@@ -1433,8 +1465,9 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
         final String instanceId = createService(ProvisioningStatus.COMPLETED,
                 "param1", "value1");
 
-        when(controllerMock.deleteInstance(anyString(),
-                any(ProvisioningSettings.class))).thenReturn(null);
+        when(
+                controllerMock.deleteInstance(anyString(),
+                        any(ProvisioningSettings.class))).thenReturn(null);
         final BaseResult result = runTX(new Callable<BaseResult>() {
             @Override
             public BaseResult call() {
@@ -1456,8 +1489,7 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
                 settings.capture());
         assertEquals("appId123", stringCaptor.getValue());
         Map<String, Setting> params = settings.getValue().getParameters();
-        assertEquals(Collections.singletonMap("param1",
-                new Setting("param1", "value1")), params);
+        assertEquals("value1", params.get("param1").getValue());
     }
 
     @Test
@@ -1471,8 +1503,10 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
 
         InstanceStatus mockStatus = new InstanceStatus();
         mockStatus.setInstanceProvisioningRequired(true);
-        when(controllerMock.deleteInstance(anyString(),
-                any(ProvisioningSettings.class))).thenReturn(mockStatus);
+        when(
+                controllerMock.deleteInstance(anyString(),
+                        any(ProvisioningSettings.class)))
+                .thenReturn(mockStatus);
 
         // when
         BaseResult br = runTX(new Callable<BaseResult>() {
