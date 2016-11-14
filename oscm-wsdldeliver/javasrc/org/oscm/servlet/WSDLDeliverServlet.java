@@ -88,10 +88,11 @@ public class WSDLDeliverServlet extends HttpServlet {
             
             if("STS".equals(portType)){
                 String tenantId = getValueFromRequest(request, TENANT_ID);
-
-                String settingUrl = getTenantSetting(SSO_STS_URL, tenantId);
-                String settingMetadataUrl = getTenantSetting(SSO_STS_METADATA_URL, tenantId);
-                String settingEnckeyLen = getTenantSetting(SSO_STS_ENCKEY_LEN, tenantId);
+                
+                boolean isDefault = isDefaultTenant(tenantId);
+                String settingUrl = getTenantSetting(SSO_STS_URL, tenantId, isDefault);
+                String settingMetadataUrl = getTenantSetting(SSO_STS_METADATA_URL, tenantId, isDefault);
+                String settingEnckeyLen = getTenantSetting(SSO_STS_ENCKEY_LEN, tenantId, isDefault);
                 
                 fileContent = fileContent.replaceAll("@"+SSO_STS_URL +"@", settingUrl);
                 fileContent = fileContent.replaceAll("@"+SSO_STS_ENCKEY_LEN +"@", settingEnckeyLen);
@@ -164,9 +165,10 @@ public class WSDLDeliverServlet extends HttpServlet {
         return baos.toString();
     }
     
-    private String getTenantSetting(String settingKey, String tenantId) throws ObjectNotFoundException {
+    private String getTenantSetting(String settingKey, String tenantId,
+            boolean isDefault) throws ObjectNotFoundException {
 
-        if (StringUtils.isEmpty(tenantId)) {
+        if (StringUtils.isEmpty(tenantId) || isDefault) {
             ConfigurationKey configurationKey = ConfigurationKey
                     .valueOf(settingKey);
             ConfigurationSetting configurationSetting = configurationService
@@ -174,9 +176,19 @@ public class WSDLDeliverServlet extends HttpServlet {
                             Configuration.GLOBAL_CONTEXT);
             return configurationSetting.getValue();
         } else {
-            TenantSetting tenantSetting = tenantService.getTenantSetting(settingKey,
-                    tenantId);
+            TenantSetting tenantSetting = tenantService
+                    .getTenantSetting(settingKey, tenantId);
             return tenantSetting.getValue();
         }
+    }
+    
+    private boolean isDefaultTenant(String tenantId) {
+
+        ConfigurationSetting setting = configurationService
+                .getConfigurationSetting(ConfigurationKey.SSO_DEFAULT_TENANT_ID,
+                        Configuration.GLOBAL_CONTEXT);
+        String defaultTenantId = setting.getValue();
+
+        return tenantId.equals(defaultTenantId);
     }
 }
