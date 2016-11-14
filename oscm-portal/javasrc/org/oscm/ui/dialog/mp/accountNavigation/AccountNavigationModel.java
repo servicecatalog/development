@@ -38,15 +38,15 @@ public class AccountNavigationModel implements Serializable {
     static final String MARKETPLACE_ACCOUNT_ADMINISTRATION_TITLE = "marketplace.account.administration.title";
     static final String MARKETPLACE_ACCOUNT_TITLE = "marketplace.account.title";
 
-    private static final String ACCOUNT_LINK = "account/index.jsf";
-    private static final String PROFILE_LINK = "account/profile.jsf";
-    private static final String PAYMENT_LINK = "account/payments.jsf";
-    private static final String SUBSCRIPTIONS_LINK = "account/subscriptions.jsf";
-    private static final String USERS_LINK = "account/users.jsf";
-    private static final String UNITS_LINK = "account/units.jsf";
-    private static final String REPORTS_LINK = "account/reports.jsf";
-    private static final String PROCESSES_LINK = "account/processes.jsf";
-    private static final String OPERATIONS_LINK = "account/operations.jsf";
+    private static final String ACCOUNT_LINK = "index.jsf";
+    private static final String PROFILE_LINK = "profile.jsf";
+    private static final String PAYMENT_LINK = "payments.jsf";
+    private static final String SUBSCRIPTIONS_LINK = "subscriptions.jsf";
+    private static final String USERS_LINK = "users.jsf";
+    private static final String UNITS_LINK = "units.jsf";
+    private static final String REPORTS_LINK = "reports.jsf";
+    private static final String PROCESSES_LINK = "processes.jsf";
+    private static final String OPERATIONS_LINK = "operations.jsf";
     private static final long serialVersionUID = 5299680432886964724L;
 
     private final List<String> link;
@@ -66,20 +66,20 @@ public class AccountNavigationModel implements Serializable {
     }
 
     private void initHiddenElement() {
-        getHiddenElement().add(
-                HiddenUIConstants.MARKETPLACE_MENU_ITEM_ACCOUNT_PROFILE);
-        getHiddenElement().add(
-                HiddenUIConstants.MARKETPLACE_MENU_ITEM_ACCOUNT_PAYMENT);
+        getHiddenElement()
+                .add(HiddenUIConstants.MARKETPLACE_MENU_ITEM_ACCOUNT_PROFILE);
+        getHiddenElement()
+                .add(HiddenUIConstants.MARKETPLACE_MENU_ITEM_ACCOUNT_PAYMENT);
         getHiddenElement().add(
                 HiddenUIConstants.MARKETPLACE_MENU_ITEM_ACCOUNT_SUBSCRIPTIONS);
-        getHiddenElement().add(
-                HiddenUIConstants.MARKETPLACE_MENU_ITEM_ACCOUNT_USERS);
-        getHiddenElement().add(
-                HiddenUIConstants.MARKETPLACE_MENU_ITEM_ACCOUNT_UNITS);
-        getHiddenElement().add(
-                HiddenUIConstants.MARKETPLACE_MENU_ITEM_ACCOUNT_REPORTS);
-        getHiddenElement().add(
-                HiddenUIConstants.MARKETPLACE_MENU_ITEM_ACCOUNT_PROCESSES);
+        getHiddenElement()
+                .add(HiddenUIConstants.MARKETPLACE_MENU_ITEM_ACCOUNT_USERS);
+        getHiddenElement()
+                .add(HiddenUIConstants.MARKETPLACE_MENU_ITEM_ACCOUNT_UNITS);
+        getHiddenElement()
+                .add(HiddenUIConstants.MARKETPLACE_MENU_ITEM_ACCOUNT_REPORTS);
+        getHiddenElement()
+                .add(HiddenUIConstants.MARKETPLACE_MENU_ITEM_ACCOUNT_PROCESSES);
         getHiddenElement().add(
                 HiddenUIConstants.MARKETPLACE_MENU_ITEM_ACCOUNT_OPERATIONS);
         getHiddenElement().add(
@@ -100,17 +100,15 @@ public class AccountNavigationModel implements Serializable {
     }
 
     private void initLink() {
-        final String serverBaseUrl = getAppBean().getServerBaseUrl();
-        final String mpBase = serverBaseUrl + "/marketplace/";
-        getLink().add(mpBase + ACCOUNT_LINK);
-        getLink().add(mpBase + PROFILE_LINK);
-        getLink().add(mpBase + PAYMENT_LINK);
-        getLink().add(mpBase + SUBSCRIPTIONS_LINK);
-        getLink().add(mpBase + USERS_LINK);
-        getLink().add(mpBase + UNITS_LINK);
-        getLink().add(mpBase + REPORTS_LINK);
-        getLink().add(mpBase + PROCESSES_LINK);
-        getLink().add(mpBase + OPERATIONS_LINK);
+        getLink().add(ACCOUNT_LINK);
+        getLink().add(PROFILE_LINK);
+        getLink().add(PAYMENT_LINK);
+        getLink().add(SUBSCRIPTIONS_LINK);
+        getLink().add(USERS_LINK);
+        getLink().add(UNITS_LINK);
+        getLink().add(REPORTS_LINK);
+        getLink().add(PROCESSES_LINK);
+        getLink().add(OPERATIONS_LINK);
         getLink().add(getUserBean().getAdminPortalAddress());
     }
 

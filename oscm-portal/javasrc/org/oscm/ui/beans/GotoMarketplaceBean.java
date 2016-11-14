@@ -95,19 +95,7 @@ public class GotoMarketplaceBean extends BaseBean implements Serializable {
     
     boolean validateMarketplaceTenant(VOMarketplace marketplace,
             String tenantId) {
-
-        String mplTenantId = marketplace.getTenantId();
-
-        if (StringUtils.isNotBlank(mplTenantId)) {
-
-            if (mplTenantId.equals(tenantId)) {
-                return true;
-            }
-            return false;
-        }
-        return true;
-        
-        
+        return StringUtils.equals(marketplace.getTenantId(), tenantId);
     }
 
     private List<SelectItem> convertToUIModel(Set<VOMarketplace> marketplaces) {

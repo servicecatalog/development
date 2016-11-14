@@ -1,6 +1,9 @@
+addons:
+  sonarqube: true
 language: java
 sudo: required
-jdk: oraclejdk7
+jdk:
+  - oraclejdk7
 #cache:
 #  directories:
 #    - $TRAVIS_BUILD_DIR/libraries
@@ -13,14 +16,17 @@ install:
   - wget https://github.com/servicecatalog/documentation/archive/master.zip
   - unzip master.zip
   - mv documentation-master/* .
+  - cd ../development
 env:
   global:
     - ANT_OPTS=-Xmx4g
     - COMUPTERNAME=travis
     - HOSTNAME=travis
 script:
+  - jdk_switcher use oraclejdk7
   - ant -lib $TRAVIS_BUILD_DIR/libraries/apache-ant-contrib/javalib -file $TRAVIS_BUILD_DIR/oscm-build/cruisecontrol.xml runTravisUT
 #  - ant -lib $TRAVIS_BUILD_DIR/libraries/apache-ant-contrib/javalib -file $TRAVIS_BUILD_DIR/oscm-build/cruisecontrol.xml runTravisIT
+  - jdk_switcher use oraclejdk8
+  - sonar-scanner -Dsonar.login=$SONAR_TOKEN -Dsonar.projectKey=CTMG -Dsonar.projectName=CTMG -Dsonar.projectVersion=16.2 -Dsonar.sources=$TRAVIS_BUILD_DIR -Dsonar.tests=$TRAVIS_BUILD_DIR -Dsonar.sourceEncoding=UTF-8 -Dsonar.inclusions=**/*.java -Dsonar.exclusions=**/*IT.java,**/*IT2.java,**/*Test.java -Dsonar.test.inclusions=**/*IT.java,**/*IT2.java,**/*Test.java -Dsonar.jacoco.reportPath=$TRAVIS_BUILD_DIR/oscm-build/result/reports/merged_jacoco.exec -Dsonar.java.source=1.7 -Dsonar.java.binaries=$TRAVIS_BUILD_DIR/oscm-build/result/work -Dsonar.java.test.binaries=$TRAVIS_BUILD_DIR/oscm-build/result
 after_success:
   - codecov
-  - coveralls

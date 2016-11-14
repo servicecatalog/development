@@ -17,6 +17,8 @@ import static org.junit.Assert.assertTrue;
 import java.util.HashMap;
 import java.util.List;
 
+import org.apache.sling.commons.json.JSONException;
+import org.apache.sling.commons.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.oscm.app.openstack.data.FlowState;
@@ -359,6 +361,53 @@ public class PropertyHandlerTest {
 
         // then
         assertEquals(timeStr, null);
+
+    }
+
+    @Test
+    public void TestMultipleSecurityGroup() {
+        parameters.put("TP_ARRAY_" + "SecurityGroupName", "testOne,testTwo");
+        propertyHandler = new PropertyHandler(settings);
+        final String SECURITY_GROUPS = "SecurityGroupName";
+        JSONObject parameters = propertyHandler.getTemplateParameters();
+        assertNotNull(parameters);
+        try {
+            assertTrue(parameters.has(SECURITY_GROUPS));
+            assertTrue(parameters.getJSONArray(SECURITY_GROUPS).getString(0)
+                    .equals("testOne"));
+            assertTrue(parameters.getJSONArray(SECURITY_GROUPS).getString(1)
+                    .equals("testTwo"));
+        } catch (JSONException e) {
+
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void TestSingleSecurityGroup() {
+        final String SECURITY_GROUPS = "SG";
+        parameters.put("TP_ARRAY_" + SECURITY_GROUPS, "testOne");
+        propertyHandler = new PropertyHandler(settings);
+        JSONObject parameters = propertyHandler.getTemplateParameters();
+        assertNotNull(parameters);
+        try {
+            assertTrue(parameters.has(SECURITY_GROUPS));
+            assertTrue(parameters.getJSONArray(SECURITY_GROUPS).getString(0)
+                    .equals("testOne"));
+
+        } catch (JSONException e) {
+
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void TestEmptySecurityGroup() {
+        propertyHandler = new PropertyHandler(settings);
+        final String SECURITY_GROUPS = "SG";
+        JSONObject parameters = propertyHandler.getTemplateParameters();
+        assertNotNull(parameters);
+        assertTrue(!parameters.has(SECURITY_GROUPS));
 
     }
 }
