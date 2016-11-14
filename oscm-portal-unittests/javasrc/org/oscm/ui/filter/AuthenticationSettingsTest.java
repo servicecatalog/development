@@ -11,6 +11,7 @@ package org.oscm.ui.filter;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
+import static org.oscm.internal.types.enumtypes.ConfigurationKey.SSO_DEFAULT_TENANT_ID;
 import static org.oscm.internal.types.enumtypes.ConfigurationKey.SSO_SIGNING_KEYSTORE;
 
 import org.junit.Before;
@@ -19,12 +20,17 @@ import org.oscm.internal.intf.ConfigurationService;
 import org.oscm.internal.intf.TenantService;
 import org.oscm.internal.types.enumtypes.AuthenticationMode;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
+import org.oscm.internal.types.enumtypes.IdpSettingType;
 import org.oscm.internal.types.exception.NotExistentTenantException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.internal.types.exception.WrongTenantConfigurationException;
 import org.oscm.internal.vo.VOConfigurationSetting;
 import org.oscm.internal.vo.VOTenant;
 import org.oscm.tenant.bean.TenantServiceBean;
 import org.oscm.types.constants.Configuration;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author stavreva
@@ -43,22 +49,28 @@ public class AuthenticationSettingsTest {
     private AuthenticationSettings authSettings;
     private ConfigurationService cfgMock;
     private TenantService tenantService;
-    private VOTenant mockTenant;
+    private VOTenant tenant;
 
     @Before
     public void setup() throws Exception {
         tenantService = spy(new TenantServiceBean() {
         });
-        mockTenant = mock(VOTenant.class);
-        doReturn(ISSUER).when(mockTenant).getIssuer();
-        doReturn(IDP).when(mockTenant).getIDPURL();
-        doReturn(IDP_HTTP_METHOD).when(mockTenant).getIdpHttpMethod();
-        doReturn(IDP_KEYSTORE_PASS).when(mockTenant).getLogoutURL();
-        doReturn(mockTenant).when(tenantService).getTenantByTenantId(any(String.class));
+        tenant = new VOTenant();
+        tenant.setTenantId("tenantID");
+        Map<IdpSettingType, String> settings = new HashMap<>();
+        settings.put(IdpSettingType.SSO_ISSUER_ID, ISSUER);
+        settings.put(IdpSettingType.SSO_IDP_URL, IDP);
+        settings.put(IdpSettingType.SSO_IDP_AUTHENTICATION_REQUEST_HTTP_METHOD, IDP_HTTP_METHOD);
+        settings.put(IdpSettingType.SSO_LOGOUT_URL, IDP);
+        settings.put(IdpSettingType.SSO_IDP_SAML_ASSERTION_ISSUER_ID, BASE_URL);
+        tenant.setTenantSettings(settings);
+
+        doReturn(tenant).when(tenantService).getTenantByTenantId("tenantID");
+
         cfgMock = mock(ConfigurationService.class);
     }
 
-    private void givenMock(AuthenticationMode authMode, String idpUrl) throws NotExistentTenantException {
+    private void givenMock(AuthenticationMode authMode, String idpUrl) throws NotExistentTenantException, WrongTenantConfigurationException {
         doReturn(
                 new VOConfigurationSetting(ConfigurationKey.AUTH_MODE,
                         Configuration.GLOBAL_CONTEXT, authMode.name())).when(
@@ -68,6 +80,11 @@ public class AuthenticationSettingsTest {
                 new VOConfigurationSetting(ConfigurationKey.SSO_IDP_URL,
                         Configuration.GLOBAL_CONTEXT, idpUrl)).when(cfgMock)
                 .getVOConfigurationSetting(ConfigurationKey.SSO_IDP_URL,
+                        Configuration.GLOBAL_CONTEXT);
+        doReturn(
+                new VOConfigurationSetting(ConfigurationKey.SSO_ISSUER_ID,
+                        Configuration.GLOBAL_CONTEXT, idpUrl)).when(cfgMock)
+                .getVOConfigurationSetting(ConfigurationKey.SSO_ISSUER_ID,
                         Configuration.GLOBAL_CONTEXT);
         doReturn(
                 new VOConfigurationSetting(ConfigurationKey.BASE_URL,
@@ -89,8 +106,24 @@ public class AuthenticationSettingsTest {
                         Configuration.GLOBAL_CONTEXT, IDP_KEYSTORE_PASS)).when(cfgMock)
                 .getVOConfigurationSetting(SSO_SIGNING_KEYSTORE,
                         Configuration.GLOBAL_CONTEXT);
+        doReturn(
+                new VOConfigurationSetting(SSO_DEFAULT_TENANT_ID,
+                        Configuration.GLOBAL_CONTEXT, "tenantID")).when(cfgMock)
+                .getVOConfigurationSetting(SSO_DEFAULT_TENANT_ID,
+                        Configuration.GLOBAL_CONTEXT);
         authSettings = new AuthenticationSettings(tenantService, cfgMock);
         authSettings.init("tenantID");
+    }
+
+    private void givenMockWithoutSettings() throws NotExistentTenantException, WrongTenantConfigurationException {
+        doReturn(
+                new VOConfigurationSetting(SSO_DEFAULT_TENANT_ID,
+                        Configuration.GLOBAL_CONTEXT, "tenantID")).when(cfgMock)
+                .getVOConfigurationSetting(SSO_DEFAULT_TENANT_ID,
+                        Configuration.GLOBAL_CONTEXT);
+        authSettings = new AuthenticationSettings(tenantService, cfgMock);
+        tenant.getTenantSettings().put(IdpSettingType.SSO_ISSUER_ID, null);
+        authSettings.init(null);
     }
 
     @Test
@@ -281,8 +314,14 @@ public class AuthenticationSettingsTest {
         givenMock(AuthenticationMode.SAML_SP, IDP);
 
         // then
-        assertEquals(IDP_KEYSTORE_PASS,
+        assertEquals(IDP,
                 authSettings.getLogoutURL());
+    }
+
+    @Test(expected = WrongTenantConfigurationException.class)
+    public void givenMockWithoutSettingsTest() throws Exception {
+        givenMockWithoutSettings();
+        fail();
     }
 
     @Test
@@ -299,7 +338,7 @@ public class AuthenticationSettingsTest {
     }
 
     @Test(expected = NotExistentTenantException.class)
-    public void findByTKey() throws ObjectNotFoundException, NotExistentTenantException {
+    public void findByTKey() throws ObjectNotFoundException, NotExistentTenantException, WrongTenantConfigurationException {
         // given
         givenMock(AuthenticationMode.SAML_SP, IDP);
         doThrow(new ObjectNotFoundException()).when(tenantService).getTenantByTenantId(anyString());

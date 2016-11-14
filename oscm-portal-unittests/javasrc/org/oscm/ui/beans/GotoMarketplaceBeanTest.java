@@ -249,6 +249,81 @@ public class GotoMarketplaceBeanTest {
         //then
         assertFalse(validationResult);
     }
+
+    @Test
+    public void testValidateMarketplaceTenantWithDifferentTenantNull(){
+
+        //given
+        VOMarketplace mpl = new VOMarketplace();
+        mpl.setTenantId(null);
+        String currentUserTenantId = "tnt2";
+
+        //when
+        boolean validationResult = marketplaceGotoBean.validateMarketplaceTenant(mpl, currentUserTenantId);
+
+        //then
+        assertFalse(validationResult);
+    }
+
+    @Test
+    public void testValidateMarketplaceTenantWithDifferentNullTenant(){
+
+        //given
+        VOMarketplace mpl = new VOMarketplace();
+        mpl.setTenantId("tnt2");
+        String currentUserTenantId = "";
+
+        //when
+        boolean validationResult = marketplaceGotoBean.validateMarketplaceTenant(mpl, currentUserTenantId);
+
+        //then
+        assertFalse(validationResult);
+    }
+
+    @Test
+    public void testValidateMarketplaceTenantEmptyTenant(){
+
+        //given
+        VOMarketplace mpl = new VOMarketplace();
+        mpl.setTenantId(null);
+        String currentUserTenantId = "";
+
+        //when
+        boolean validationResult = marketplaceGotoBean.validateMarketplaceTenant(mpl, currentUserTenantId);
+
+        //then
+        assertFalse(validationResult);
+    }
+
+    @Test
+    public void testValidateMarketplaceTenantNullNull(){
+
+        //given
+        VOMarketplace mpl = new VOMarketplace();
+        mpl.setTenantId(null);
+        String currentUserTenantId = null;
+
+        //when
+        boolean validationResult = marketplaceGotoBean.validateMarketplaceTenant(mpl, currentUserTenantId);
+
+        //then
+        assertTrue(validationResult);
+    }
+
+    @Test
+    public void testValidateMarketplaceTenantEmptyEmpty(){
+
+        //given
+        VOMarketplace mpl = new VOMarketplace();
+        mpl.setTenantId("");
+        String currentUserTenantId = "";
+
+        //when
+        boolean validationResult = marketplaceGotoBean.validateMarketplaceTenant(mpl, currentUserTenantId);
+
+        //then
+        assertTrue(validationResult);
+    }
     
     private VOUserDetails getUserDetails(){
         

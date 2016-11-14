@@ -9,6 +9,8 @@
 package org.oscm.ui.dialog.mp.usesubscriptions;
 
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -258,4 +260,18 @@ public class MySubscriptionsCtrl implements Serializable {
             }
         }
     }
+
+    public String getCustomTabUrlWithParameters() throws UnsupportedEncodingException {
+        String orgId = model.getSelectedSubscription().getOrganizationId();
+        String subId = model.getSelectedSubscription().getSubscriptionName();
+        String instId = model.getSelectedSubscription().getServiceInstanceId();
+
+        String encodedSubId = URLEncoder.encode(subId, "UTF-8");
+
+        return model.getSelectedSubscription().getCustomTabUrl()
+                + "?orgId=" + orgId
+                + "&subId=" + encodedSubId
+                + "&instId=" + instId;
+    }
+
 }
