@@ -115,7 +115,7 @@ public class AESEncrypter {
         } catch (BadPaddingException exc) {
             LOG.logError(Log4jLogger.SYSTEM_LOG, exc,
                     LogMessageIdentifier.ERROR_BAD_PASSWORD);
-            return null;
+            return "".getBytes();
         }
     }
 }
