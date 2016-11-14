@@ -249,7 +249,7 @@ public class MarketplaceContextFilter extends BaseBesFilter {
         String page = getDefaultUrl(serviceAccess, rdo, httpRequest);
         String uri = httpRequest.getRequestURI();
         if (uri != null
-                && redirectToMpUrl(serviceAccess, httpRequest, httpResponse)) {
+                && redirectToMpUrl(httpRequest, httpResponse)) {
             return;
         }
 

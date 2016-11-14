@@ -12,7 +12,7 @@ import java.net.URL;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.oscm.integrationtests.apiversioning.client.CTMGClient;
+import org.oscm.integrationtests.apiversioning.client.CTMGClient2;
 import org.oscm.integrationtests.apiversioning.factory.ServiceFactory;
 import org.oscm.intf.AccountService;
 import org.oscm.vo.VOOrganization;
@@ -26,7 +26,7 @@ public class AccountServiceClient {
     private AccountService accountServ;
 
     public AccountServiceClient(String userKey, String password) {
-        URL wsdlURL = CTMGClient.class.getResource(wsdlFile);
+        URL wsdlURL = CTMGClient2.class.getResource(wsdlFile);
         ServiceFactory factory = new ServiceFactory(userKey, password, wsdlURL);
         try {
             accountServ = factory.getBESWebService(AccountService.class);

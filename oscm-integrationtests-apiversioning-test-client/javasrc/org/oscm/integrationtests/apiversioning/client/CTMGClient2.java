@@ -18,21 +18,21 @@ import org.junit.Test;
 
 import org.oscm.apiversioning.handler.PropertyFileReader;
 import org.oscm.integrationtests.apiversioning.ws.AccountServiceClient;
-import org.oscm.integrationtests.apiversioning.ws.IdentityServiceClient;
+import org.oscm.integrationtests.apiversioning.ws.IdentityServiceClient2;
 import org.oscm.vo.VOUser;
 import org.oscm.vo.VOUserDetails;
 
 /**
  * Main entrance of DEMO client
  */
-public class CTMGClient {
+public class CTMGClient2 {
     private static final String PROPERTY_FILE_NAME = "configuration.properties";
     private static final String KEYSTORE_PATH = "keystore.path";
     private static final String KEYSTORE_PASSWORD = "keystore.password";
     private static final String TRUSTSTORE_PATH = "truststore.path";
     private static final String TRUSTSTORE_PASSWORD = "truststore.password";
 
-    private final IdentityServiceClient identityServiceClient;
+    private final IdentityServiceClient2 identityServiceClient;
     private final AccountServiceClient accountServiceClient;
 
     /**
@@ -44,7 +44,7 @@ public class CTMGClient {
     @Test
     public void renameMethod() {
         // when
-        CTMGClient client = new CTMGClient();
+        CTMGClient2 client = new CTMGClient2();
         VOUserDetails user = client.getAdminUserInfo();
 
         // then
@@ -61,7 +61,7 @@ public class CTMGClient {
     @Test
     public void renameWebParameter() {
         // when
-        CTMGClient client = new CTMGClient();
+        CTMGClient2 client = new CTMGClient2();
         VOUserDetails voUser = client.createUserAndReturnDetails();
 
         // then
@@ -83,7 +83,7 @@ public class CTMGClient {
     @Test
     public void renameWebParameterField() {
         // when
-        CTMGClient client = new CTMGClient();
+        CTMGClient2 client = new CTMGClient2();
         client.getAdminUserInfo();
         VOUserDetails voUser = client.createUserAndReturnDetails();
 
@@ -123,7 +123,7 @@ public class CTMGClient {
     @Test
     public void renameFieldInReturnValue() {
         // when
-        CTMGClient client = new CTMGClient();
+        CTMGClient2 client = new CTMGClient2();
         client.getAdminUserInfo();
         VOUserDetails voUser = client.createUserAndReturnDetails();
 
@@ -132,13 +132,13 @@ public class CTMGClient {
         // voUser.getLocaleNew());
     }
 
-    public CTMGClient() {
+    public CTMGClient2() {
         loadConfiguration();
         String defaultAdminKey = "1000";
         String defaultAdminPassword = "admin123";
         // Connect to services and logged in as default administrator
         // user
-        identityServiceClient = new IdentityServiceClient(defaultAdminKey,
+        identityServiceClient = new IdentityServiceClient2(defaultAdminKey,
                 defaultAdminPassword);
         accountServiceClient = new AccountServiceClient(defaultAdminKey,
                 defaultAdminPassword);

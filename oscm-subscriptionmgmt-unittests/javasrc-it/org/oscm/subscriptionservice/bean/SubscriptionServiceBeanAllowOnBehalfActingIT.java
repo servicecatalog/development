@@ -49,13 +49,13 @@ import org.oscm.domobjects.TriggerProcess;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.domobjects.enums.OrganizationReferenceType;
 import org.oscm.i18nservice.bean.LocalizerFacade;
-import org.oscm.i18nservice.bean.LocalizerServiceStub;
+import org.oscm.i18nservice.bean.LocalizerServiceStub2;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.identityservice.bean.IdManagementStub;
 import org.oscm.serviceprovisioningservice.assembler.ProductAssembler;
 import org.oscm.serviceprovisioningservice.bean.ServiceProvisioningServiceBean;
 import org.oscm.serviceprovisioningservice.bean.TagServiceBean;
-import org.oscm.sessionservice.bean.SessionManagementStub;
+import org.oscm.sessionservice.bean.SessionManagementStub2;
 import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
 import org.oscm.taskhandling.local.TaskQueueServiceLocal;
 import org.oscm.tenantprovisioningservice.bean.TenantProvisioningServiceBean;
@@ -155,7 +155,7 @@ public class SubscriptionServiceBeanAllowOnBehalfActingIT extends EJBTestBase {
 
         container.addBean(new DataServiceBean());
         container.addBean(appMgmtStub = new ApplicationServiceStub());
-        container.addBean(new SessionManagementStub() {
+        container.addBean(new SessionManagementStub2() {
             public List<Session> getProductSessionsForSubscriptionTKey(
                     long subscriptionTKey) {
                 Query query = mgr
@@ -171,7 +171,7 @@ public class SubscriptionServiceBeanAllowOnBehalfActingIT extends EJBTestBase {
         container.addBean(new IdManagementStub());
         container.addBean(new TenantProvisioningServiceBean());
         container.addBean(new CommunicationServiceStub());
-        container.addBean(new LocalizerServiceStub() {
+        container.addBean(new LocalizerServiceStub2() {
 
             Map<String, List<VOLocalizedText>> map = new HashMap<String, List<VOLocalizedText>>();
 
