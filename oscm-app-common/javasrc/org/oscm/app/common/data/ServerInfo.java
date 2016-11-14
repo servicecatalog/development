@@ -8,26 +8,31 @@
 
 package org.oscm.app.common.data;
 
-import java.io.Serializable;
+import java.util.List;
 
 /**
  * Value object for configuration settings.
  */
-public class ServerInfo implements Serializable {
+public class ServerInfo {
 
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 2558051545969373003L;
     private String name;
     private String id;
     private String type;
     private String status;
-    private String publicIP;
-    private String privateIP;
+    private List<String> publicIP;
+    private List<String> privateIP;
 
+    /**
+     * @param name
+     * @param id
+     * @param type
+     * @param status
+     * @param publicIP
+     * @param privateIP
+     */
     public ServerInfo(String name, String id, String type, String status,
-            String publicIP, String privateIP) {
+            List<String> publicIP, List<String> privateIP) {
+        // TODO Auto-generated constructor stub
         this.setName(name);
         this.setId(id);
         this.setType(type);
@@ -99,7 +104,7 @@ public class ServerInfo implements Serializable {
     /**
      * @return the publicIP
      */
-    public String getPublicIP() {
+    public List<String> getPublicIP() {
         return publicIP;
     }
 
@@ -107,14 +112,14 @@ public class ServerInfo implements Serializable {
      * @param publicIP
      *            the publicIP to set
      */
-    public void setPublicIP(String publicIP) {
+    public void setPublicIP(List<String> publicIP) {
         this.publicIP = publicIP;
     }
 
     /**
      * @return the privateIP
      */
-    public String getPrivateIP() {
+    public List<String> getPrivateIP() {
         return privateIP;
     }
 
@@ -122,8 +127,16 @@ public class ServerInfo implements Serializable {
      * @param privateIP
      *            the privateIP to set
      */
-    public void setPrivateIP(String privateIP) {
+    public void setPrivateIP(List<String> privateIP) {
         this.privateIP = privateIP;
     }
+
+    /**
+     * public String getPrivateIPasList(){ StringBuilder sb = new
+     * StringBuilder(); for (Iterator iterator = privateIP.iterator();
+     * iterator.hasNext();) { String string = (String) iterator.next();
+     * 
+     * } }
+     */
 
 }

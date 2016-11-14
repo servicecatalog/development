@@ -11,7 +11,6 @@ package org.oscm.app.common.intf;
 import java.io.Serializable;
 import java.util.List;
 
-import org.oscm.app.common.data.ServerInfo;
 import org.oscm.app.v1_0.exceptions.APPlatformException;
 import org.oscm.app.v1_0.exceptions.AuthenticationException;
 import org.oscm.app.v1_0.exceptions.ConfigurationException;
@@ -28,12 +27,13 @@ public interface InstanceAccess extends Serializable {
     /**
      * Return server information from IaaS
      * 
-     * @return the list of ServerInfo
+     * @return the list of ServerInformation which is contain id, name, status,
+     *         type, public IPs and private IPs
      * @throws APPlatformException
      * @throws ConfigurationException
      * @throws AuthenticationException
      */
-    public List<ServerInfo> getServerDetails(String instanceId)
+    public List<? extends ServerInformation> getServerDetails(String instanceId)
             throws AuthenticationException, ConfigurationException,
             APPlatformException;
 

@@ -97,10 +97,11 @@ public class NovaProcessorTest {
         assertEquals("0-Instance-server1", result.get(0).getId());
         assertEquals("server1", result.get(0).getName());
         assertEquals(ServerStatus.ACTIVE.name(), result.get(0).getStatus());
-        assertEquals("S-1", result.get(0).getFlavor());
+        assertEquals("S-1", result.get(0).getType());
         assertEquals(Arrays.asList("133.162.161.216"),
-                result.get(0).getFloatingIP());
-        assertEquals(Arrays.asList("192.168.0.4"), result.get(0).getFixedIP());
+                result.get(0).getPublicIP());
+        assertEquals(Arrays.asList("192.168.0.4"),
+                result.get(0).getPrivateIP());
     }
 
     @Test

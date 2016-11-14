@@ -54,15 +54,12 @@
           </rich:column>
           <rich:column>
               <f:facet name="header">Public IP</f:facet>
-              <h:outputText value="#{detail.publicIP}" />
+              <h:outputText value="#{detail.publicIPasString}" styleClass="preformatted" />
           </rich:column>
           <rich:column>
               <f:facet name="header">Private IPs</f:facet>
-              <h:outputText value="#{detail.privateIP}" styleClass="preformatted" />
+              <h:outputText value="#{detail.privateIPasString}" styleClass="preformatted" />
           </rich:column>
-          <!-- <f:facet name="footer">
-              <rich:dataScroller for="testTable" renderIfSinglePage="false" fastControls="hide"/>
-          </f:facet> -->
       </rich:dataTable>
   </h:form>
 </h:body>

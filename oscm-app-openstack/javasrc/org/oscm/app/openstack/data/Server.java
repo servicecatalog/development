@@ -8,13 +8,20 @@
 
 package org.oscm.app.openstack.data;
 
+import java.util.Iterator;
 import java.util.List;
+
+import org.oscm.app.common.intf.ServerInformation;
 
 /**
  * @author tateiwamext
  *
  */
-public class Server {
+public class Server implements ServerInformation {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 12051120577966326L;
     private String id;
     private String name;
     private String status;
@@ -32,6 +39,7 @@ public class Server {
     /**
      * @return the id
      */
+    @Override
     public String getId() {
         return id;
     }
@@ -40,6 +48,7 @@ public class Server {
      * @param id
      *            the id to set
      */
+    @Override
     public void setId(String id) {
         this.id = id;
     }
@@ -47,6 +56,7 @@ public class Server {
     /**
      * @return the status
      */
+    @Override
     public String getStatus() {
         return status;
     }
@@ -55,6 +65,7 @@ public class Server {
      * @param status
      *            the status to set
      */
+    @Override
     public void setStatus(String status) {
         this.status = status;
     }
@@ -62,6 +73,7 @@ public class Server {
     /**
      * @return the name
      */
+    @Override
     public String getName() {
         return name;
     }
@@ -70,6 +82,7 @@ public class Server {
      * @param name
      *            the name to set
      */
+    @Override
     public void setName(String name) {
         this.name = name;
     }
@@ -77,7 +90,8 @@ public class Server {
     /**
      * @return the flavor
      */
-    public String getFlavor() {
+    @Override
+    public String getType() {
         return flavor;
     }
 
@@ -85,14 +99,16 @@ public class Server {
      * @param flavor
      *            the flavor to set
      */
-    public void setFlavor(String flavor) {
+    @Override
+    public void setType(String flavor) {
         this.flavor = flavor;
     }
 
     /**
      * @return the floatingIP
      */
-    public List<String> getFloatingIP() {
+    @Override
+    public List<String> getPublicIP() {
         return floatingIP;
     }
 
@@ -100,14 +116,16 @@ public class Server {
      * @param floatingIP
      *            the floatingIP to set
      */
-    public void setFloatingIP(List<String> floatingIP) {
+    @Override
+    public void setPublicIP(List<String> floatingIP) {
         this.floatingIP = floatingIP;
     }
 
     /**
      * @return the fixedIP
      */
-    public List<String> getFixedIP() {
+    @Override
+    public List<String> getPrivateIP() {
         return fixedIP;
     }
 
@@ -115,7 +133,47 @@ public class Server {
      * @param fixedIP
      *            the fixedIP to set
      */
-    public void setFixedIP(List<String> fixedIP) {
+    @Override
+    public void setPrivateIP(List<String> fixedIP) {
         this.fixedIP = fixedIP;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.oscm.app.common.intf.ServerInformation#getPrivateIPasString()
+     */
+    @Override
+    public String getPrivateIPasString() {
+        StringBuilder sb = new StringBuilder();
+        for (Iterator<String> iterator = fixedIP.iterator(); iterator
+                .hasNext();) {
+            String ip = iterator.next();
+            sb.append(ip);
+            if (iterator.hasNext()) {
+                sb.append("\n");
+            }
+        }
+        return sb.toString();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.oscm.app.common.intf.ServerInformation#getPublicIPasString()
+     */
+    @Override
+    public String getPublicIPasString() {
+
+        StringBuilder sb = new StringBuilder();
+        for (Iterator<String> iterator = floatingIP.iterator(); iterator
+                .hasNext();) {
+            String ip = iterator.next();
+            sb.append(ip);
+            if (iterator.hasNext()) {
+                sb.append("\n");
+            }
+        }
+        return sb.toString();
     }
 }

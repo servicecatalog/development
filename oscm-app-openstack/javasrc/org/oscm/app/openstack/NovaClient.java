@@ -113,6 +113,9 @@ public class NovaClient {
             boolean moreInfo) throws OpenStackConnectionException {
         String uri;
         Server result = new Server(serverId);
+        String flavorName = "-";
+        List<String> fixedIP = new ArrayList<String>();
+        List<String> floatingIP = new ArrayList<String>();
         try {
             uri = connection.getNovaEndpoint() + "/servers/"
                     + URLEncoder.encode(serverId, "UTF-8");
@@ -127,10 +130,9 @@ public class NovaClient {
             result.setStatus(server.getString("status"));
             result.setName(server.getString("name"));
             if (moreInfo) {
-                List<String> fixedIP = new ArrayList<String>();
-                List<String> floatingIP = new ArrayList<String>();
                 JSONObject flavor = server.getJSONObject("flavor");
-                result.setFlavor(getFlavorName(flavor.getString("id")));
+                flavorName = getFlavorName(flavor.getString("id"));
+                result.setType(flavorName);
                 if (server.has("addresses")) {
                     JSONObject addresses = server.getJSONObject("addresses");
                     Iterator<?> networkNames = addresses.keys();
@@ -151,9 +153,10 @@ public class NovaClient {
                         }
                     }
                 }
-                result.setFixedIP(fixedIP);
-                result.setFloatingIP(floatingIP);
             }
+            result.setType(flavorName);
+            result.setPrivateIP(fixedIP);
+            result.setPublicIP(floatingIP);
             return result;
         } catch (UnsupportedEncodingException e) {
             logger.error("Runtime error happened during encoding", e);
@@ -164,11 +167,10 @@ public class NovaClient {
         }
         result.setName("");
         result.setStatus(ServerStatus.UNKNOWN.toString());
-        if (moreInfo) {
-            result.setFlavor("-");
-            result.setFixedIP(null);
-            result.setFloatingIP(null);
-        }
+        result.setType(flavorName);
+        result.setPrivateIP(fixedIP);
+        result.setPublicIP(floatingIP);
+
         return result;
     }
 
