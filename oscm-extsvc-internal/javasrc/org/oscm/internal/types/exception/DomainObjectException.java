@@ -377,7 +377,12 @@ public abstract class DomainObjectException extends SaaSApplicationException {
         /**
          * Tenant
          */
-        TENANT("tenantId");
+        TENANT("tenantId"),
+        
+        /**
+         * 
+         */
+        TENANT_SETTING("name, tenant_tkey");
 
         /**
          * Stores the name of the fields containing the attribute name that
