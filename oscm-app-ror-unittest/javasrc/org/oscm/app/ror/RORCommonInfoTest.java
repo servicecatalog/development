@@ -34,8 +34,8 @@ public class RORCommonInfoTest {
     private PropertyHandler ph;
     private final HashMap<String, Setting> parameters = new HashMap<>();
     private final HashMap<String, Setting> configSettings = new HashMap<>();
-    private ProvisioningSettings settings = new ProvisioningSettings(parameters,
-            configSettings, "en");
+    private ProvisioningSettings settings = new ProvisioningSettings(
+            parameters, configSettings, "en");
 
     @Before
     public void setup() throws Exception {
@@ -49,10 +49,10 @@ public class RORCommonInfoTest {
         // when
         RORClient client = rorCommonInfo.getVdcClient(ph);
         // then
-        assertEquals(configSettings.get(PropertyHandler.IAAS_API_USER),
-                client.getBasicParameters().get("userId"));
-        assertEquals(configSettings.get(PropertyHandler.IAAS_API_TENANT),
-                client.getBasicParameters().get("orgId"));
+        assertEquals(configSettings.get(PropertyHandler.IAAS_API_USER)
+                .getValue(), client.getBasicParameters().get("userId"));
+        assertEquals(configSettings.get(PropertyHandler.IAAS_API_TENANT)
+                .getValue(), client.getBasicParameters().get("orgId"));
     }
 
     @Test
@@ -60,9 +60,11 @@ public class RORCommonInfoTest {
         // when
         LPlatformClient client = rorCommonInfo.getLPlatformClient(ph);
         // then
-        assertEquals(configSettings.get(PropertyHandler.IAAS_API_USER),
+        assertEquals(configSettings.get(PropertyHandler.IAAS_API_USER)
+                .getValue(),
                 client.getVdcClient().getBasicParameters().get("userId"));
-        assertEquals(configSettings.get(PropertyHandler.IAAS_API_TENANT),
+        assertEquals(configSettings.get(PropertyHandler.IAAS_API_TENANT)
+                .getValue(),
                 client.getVdcClient().getBasicParameters().get("orgId"));
     }
 
@@ -77,17 +79,17 @@ public class RORCommonInfoTest {
     }
 
     private void prepareSettings() {
-        configSettings.put(PropertyHandler.IAAS_API_URI,
-                new Setting(PropertyHandler.IAAS_API_URI,
-                        "https://ror-demo.fujitsu.com:8014/cfmgapi/endpoint"));
-        configSettings.put(PropertyHandler.IAAS_API_LOCALE,
-                new Setting(PropertyHandler.IAAS_API_LOCALE, "en"));
-        configSettings.put(PropertyHandler.IAAS_API_TENANT,
-                new Setting(PropertyHandler.IAAS_API_TENANT, "SampleTenant"));
-        configSettings.put(PropertyHandler.IAAS_API_USER,
-                new Setting(PropertyHandler.IAAS_API_USER, "tenant_admin"));
-        configSettings.put(PropertyHandler.IAAS_API_PWD,
-                new Setting(PropertyHandler.IAAS_API_PWD, "tenantadmin"));
+        configSettings.put(PropertyHandler.IAAS_API_URI, new Setting(
+                PropertyHandler.IAAS_API_URI,
+                "https://ror-demo.fujitsu.com:8014/cfmgapi/endpoint"));
+        configSettings.put(PropertyHandler.IAAS_API_LOCALE, new Setting(
+                PropertyHandler.IAAS_API_LOCALE, "en"));
+        configSettings.put(PropertyHandler.IAAS_API_TENANT, new Setting(
+                PropertyHandler.IAAS_API_TENANT, "SampleTenant"));
+        configSettings.put(PropertyHandler.IAAS_API_USER, new Setting(
+                PropertyHandler.IAAS_API_USER, "tenant_admin"));
+        configSettings.put(PropertyHandler.IAAS_API_PWD, new Setting(
+                PropertyHandler.IAAS_API_PWD, "tenantadmin"));
     }
 
 }

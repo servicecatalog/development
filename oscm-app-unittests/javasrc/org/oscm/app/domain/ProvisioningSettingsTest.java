@@ -83,8 +83,7 @@ public class ProvisioningSettingsTest {
         assertEquals("besUrl", pSettings.getBesLoginURL());
     }
 
-    private void assertSame(Map<String, Setting> one,
-            Map<String, Setting> two) {
+    private void assertSame(Map<String, Setting> one, Map<String, Setting> two) {
         assertNotNull(one);
         assertNotNull(two);
         assertEquals(one.size(), two.size());
@@ -113,14 +112,14 @@ public class ProvisioningSettingsTest {
         parameters.put("key4", new Setting("key4", "value4p"));
 
         HashMap<String, Setting> customAttributes = new HashMap<>();
-        customAttributes.put("key3",
-                new Setting("key3", "value3c", false, controllerId));
-        customAttributes.put("key4",
-                new Setting("key4", "value4c", false, controllerId));
+        customAttributes.put("key3", new Setting("key3", "value3c", false,
+                controllerId));
+        customAttributes.put("key4", new Setting("key4", "value4c", false,
+                controllerId));
 
         HashMap<String, Setting> attributes = new HashMap<>();
-        attributes.put("key4",
-                new Setting("key4", "value4a", false, controllerId));
+        attributes.put("key4", new Setting("key4", "value4a", false,
+                controllerId));
 
         ProvisioningSettings pSettings = new ProvisioningSettings(parameters,
                 attributes, customAttributes, configSettings, "en");

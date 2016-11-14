@@ -58,15 +58,15 @@ public class IaasControllerTest {
 
     @Test
     public void activateInstance_System() throws APPlatformException {
-        parameters.put("SYSTEM_TEMPLATE_ID",
-                new Setting("SYSTEM_TEMPLATE_ID", "some value"));
+        parameters.put("SYSTEM_TEMPLATE_ID", new Setting("SYSTEM_TEMPLATE_ID",
+                "some value"));
         InstanceStatus result = controller.activateInstance("instanceId",
                 settings);
         HashMap<String, Setting> params = result.getChangedParameters();
         assertEquals(Operation.VSYSTEM_ACTIVATION.name(),
-                params.get("OPERATION"));
+                params.get("OPERATION").getValue());
         assertEquals(FlowState.VSYSTEM_ACTIVATION_REQUESTED.name(),
-                params.get("API_STATUS"));
+                params.get("API_STATUS").getValue());
     }
 
     @Test
@@ -81,16 +81,16 @@ public class IaasControllerTest {
         // then
         HashMap<String, Setting> params = result.getChangedParameters();
         assertEquals(Operation.VSERVER_ACTIVATION.name(),
-                params.get("OPERATION"));
+                params.get("OPERATION").getValue());
         assertEquals(FlowState.VSERVER_ACTIVATION_REQUESTED.name(),
-                params.get("API_STATUS"));
+                params.get("API_STATUS").getValue());
     }
 
     @Test
     public void deactivateInstance_System() throws APPlatformException {
         // given
-        parameters.put("SYSTEM_TEMPLATE_ID",
-                new Setting("SYSTEM_TEMPLATE_ID", "some value"));
+        parameters.put("SYSTEM_TEMPLATE_ID", new Setting("SYSTEM_TEMPLATE_ID",
+                "some value"));
 
         // when
         InstanceStatus result = controller.deactivateInstance("instanceId",
@@ -99,9 +99,9 @@ public class IaasControllerTest {
         // then
         HashMap<String, Setting> params = result.getChangedParameters();
         assertEquals(Operation.VSYSTEM_ACTIVATION.name(),
-                params.get("OPERATION"));
-        assertEquals(FlowState.VSYSTEM_DEACTIVATION_REQUESTED.name(),
-                params.get("API_STATUS"));
+                params.get("OPERATION").getValue());
+        assertEquals(FlowState.VSYSTEM_DEACTIVATION_REQUESTED.name(), params
+                .get("API_STATUS").getValue());
     }
 
     @Test
@@ -116,9 +116,9 @@ public class IaasControllerTest {
         // then
         HashMap<String, Setting> params = result.getChangedParameters();
         assertEquals(Operation.VSERVER_ACTIVATION.name(),
-                params.get("OPERATION"));
-        assertEquals(FlowState.VSERVER_DEACTIVATION_REQUESTED.name(),
-                params.get("API_STATUS"));
+                params.get("OPERATION").getValue());
+        assertEquals(FlowState.VSERVER_DEACTIVATION_REQUESTED.name(), params
+                .get("API_STATUS").getValue());
     }
 
     @Test
@@ -132,10 +132,10 @@ public class IaasControllerTest {
                 parameters, settings);
         // then
         HashMap<String, Setting> params = result.getChangedParameters();
-        assertEquals(Operation.VSERVER_OPERATION.name(),
-                params.get("OPERATION"));
+        assertEquals(Operation.VSERVER_OPERATION.name(), params
+                .get("OPERATION").getValue());
         assertEquals(FlowState.VSERVER_START_REQUESTED.name(),
-                params.get("API_STATUS"));
+                params.get("API_STATUS").getValue());
     }
 
     @Test
@@ -149,10 +149,10 @@ public class IaasControllerTest {
                 parameters, settings);
         // then
         HashMap<String, Setting> params = result.getChangedParameters();
-        assertEquals(Operation.VSERVER_OPERATION.name(),
-                params.get("OPERATION"));
+        assertEquals(Operation.VSERVER_OPERATION.name(), params
+                .get("OPERATION").getValue());
         assertEquals(FlowState.VSERVER_STOP_REQUESTED.name(),
-                params.get("API_STATUS"));
+                params.get("API_STATUS").getValue());
     }
 
 }
