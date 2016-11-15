@@ -47,6 +47,9 @@ public class ExtensionInterfaceBean implements Serializable {
             ControllerConfigurationKey.BSS_USER_PWD.name() };
 
     private List<? extends ServerInformation> servers;
+    private String subscriptionId;
+    private String accessInfo;
+    private String instanceId;
 
     @Inject
     private InstanceAccess instanceAccess;
@@ -55,6 +58,13 @@ public class ExtensionInterfaceBean implements Serializable {
      * Constructor.
      */
     public ExtensionInterfaceBean() {
+        FacesContext facesContext = getContext();
+        Map<String, String> parameters = facesContext.getExternalContext()
+                .getRequestParameterMap();
+        this.subscriptionId = parameters.get("subId") != null
+                ? parameters.get("subId") : "";
+        this.instanceId = parameters.get("instId") != null
+                ? parameters.get("instId") : "";
     }
 
     public List<? extends ServerInformation> getInstanceDetails() {
@@ -69,13 +79,9 @@ public class ExtensionInterfaceBean implements Serializable {
      * 
      */
     private void readServerInfo() {
-        FacesContext facesContext = getContext();
-        Map<String, String> paramters = facesContext.getExternalContext()
-                .getRequestParameterMap();
         List<? extends ServerInformation> serverInfos = new ArrayList<ServerInformation>();
         try {
-            serverInfos = instanceAccess
-                    .getServerDetails(paramters.get("instId"));
+            serverInfos = instanceAccess.getServerDetails(instanceId);
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
         }
@@ -87,11 +93,27 @@ public class ExtensionInterfaceBean implements Serializable {
     }
 
     public String getSubscriptionName() {
-        return "Test instance";
+        return subscriptionId;
     }
 
     public String getAccessInfo() {
-        return "http://xxxx:1111/test/url";
+        if (accessInfo == null) {
+            setAccessInfo();
+        }
+        return accessInfo;
+    }
+
+    /**
+     * 
+     */
+    private void setAccessInfo() {
+        String accessInfo = "";
+        try {
+            accessInfo = instanceAccess.getAccessInfo(instanceId);
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage());
+        }
+        this.accessInfo = accessInfo;
     }
 
     // allow stubbing in unit tests

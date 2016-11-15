@@ -19,8 +19,8 @@ import java.util.HashMap;
  * an application-specific service controller; they can also be evaluated by the
  * application.
  */
-public class ProvisioningSettings extends ControllerSettings implements
-        Serializable {
+public class ProvisioningSettings extends ControllerSettings
+        implements Serializable {
 
     private static final long serialVersionUID = 9161029657174458354L;
 
@@ -31,6 +31,7 @@ public class ProvisioningSettings extends ControllerSettings implements
     private String subscriptionId;
     private String besLoginURL;
     private ServiceUser requestingUser;
+    private String serviceAccessInfo;
 
     /**
      * Constructs a new provisioning settings instance with the given service
@@ -188,11 +189,15 @@ public class ProvisioningSettings extends ControllerSettings implements
     }
 
     /**
-     * <p>If APP calls createInstance() of the controller, returns the user
-     * who requested the current provisioning operation.</p>
+     * <p>
+     * If APP calls createInstance() of the controller, returns the user who
+     * requested the current provisioning operation.
+     * </p>
      * 
-     * <p>If a timer calls the controller to switch from one status to the
-     * other, returns 'null'.</p>
+     * <p>
+     * If a timer calls the controller to switch from one status to the other,
+     * returns 'null'.
+     * </p>
      * 
      * @return the user or 'null'
      */
@@ -208,6 +213,25 @@ public class ProvisioningSettings extends ControllerSettings implements
      */
     public void setRequestingUser(ServiceUser user) {
         this.requestingUser = user;
+    }
+
+    /**
+     * Return service access information for instance
+     * 
+     * @return the service access information or 'null'
+     */
+    public String getServiceAccessInfo() {
+        return serviceAccessInfo;
+    }
+
+    /**
+     * Set access information for instance
+     * 
+     * @param serviceAccessInfo
+     *            the service access info
+     */
+    public void setServiceAccessInfo(String serviceAccessInfo) {
+        this.serviceAccessInfo = serviceAccessInfo;
     }
 
 }

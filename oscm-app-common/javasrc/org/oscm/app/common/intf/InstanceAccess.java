@@ -38,6 +38,18 @@ public interface InstanceAccess extends Serializable {
             APPlatformException;
 
     /**
+     * Return access information
+     * 
+     * @return access information
+     * @throws APPlatformException
+     * @throws ConfigurationException
+     * @throws AuthenticationException
+     */
+    public String getAccessInfo(String instanceId)
+            throws AuthenticationException, ConfigurationException,
+            APPlatformException;
+
+    /**
      * Returns the localized message for the given key, locale and arguments.
      * 
      * @param locale
