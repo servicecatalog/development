@@ -147,7 +147,10 @@ public class WsProxyInfo {
         String serviceVersion = getAndLogServiceClientProperty(Constants.CM_SERVICE_VERSION);
         this.setServiceVersion(serviceVersion);
         wsInfo.setServiceVersion(serviceVersion);
-
+        
+        String tenantId = getAndLogServiceClientProperty(Constants.CM_SERVICE_TENANT_ID);
+        wsInfo.setTenantId(tenantId);
+        
         forward = getAndLogTokenHandlerProperty(Constants.FORWARD);
     }
 
