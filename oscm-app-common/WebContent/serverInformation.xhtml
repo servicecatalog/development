@@ -23,41 +23,39 @@
 
 <h:body>
   <h:outputStylesheet name="override_richfaces.css" />
-  <h:outputStylesheet name="test.css" />
-
-  <adm:initialize initializingMethod="#{extentionInterfaceBean.initialize}" />
+  <h:outputStylesheet name="server_info_view.css" />
 
   <h2>
-      <h:outputText value="#{extentionInterfaceBean.subscriptionName}" />
+      <h:outputText value="#{extensionInterfaceBean.subscriptionName}" />
   </h2>
   <dl class="clearfix">
-      <dt><h:outputText value="#{extentionInterfaceBean.accessInfoTitle}" /></dt>
-          <dd><h:outputText value="#{extentionInterfaceBean.accessInfo}"/></dd>
+      <dt><h:outputText value="#{msg['ui.extensionInterface.accessInfoTitle']}" /></dt>
+          <dd><h:outputText value="#{extensionInterfaceBean.accessInfo}"/></dd>
   </dl>
   <h:form>
-      <rich:dataTable id="testTable" value="#{extentionInterfaceBean.instanceDetails}" var="detail" headerClass="rowTitle" footerClass="navigation" rowClasses="rowOdd,rowEven" style="min-width:300px;position:relative; width: 100%;">
+      <rich:dataTable id="testTable" value="#{extensionInterfaceBean.instanceDetails}" var="detail" headerClass="rowTitle" footerClass="navigation" rowClasses="rowOdd,rowEven" style="min-width:300px;position:relative; width: 100%;">
           <rich:column>
-              <f:facet name="header">Name</f:facet>
+              <f:facet name="header"><h:outputText value="#{msg['ui.extensionInterface.serverName']}" /></f:facet>
               <h:outputText value="#{detail.name}" />
           </rich:column>
           <rich:column>
-              <f:facet name="header">Instance ID</f:facet>
+              <f:facet name="header"><h:outputText value="#{msg['ui.extensionInterface.serverID']}" /></f:facet>
               <h:outputText value="#{detail.id}" />
           </rich:column>
           <rich:column>
-              <f:facet name="header">Instance Type</f:facet>
+              <f:facet name="header"><h:outputText value="#{msg['ui.extensionInterface.serverType']}" /></f:facet>
               <h:outputText value="#{detail.type}" />
           </rich:column>
           <rich:column>
-              <f:facet name="header">Status</f:facet>
+              <f:facet name="header"><h:outputText value="#{msg['ui.extensionInterface.serverStatus']}" /></f:facet>
               <h:outputText value="#{detail.status}" />
           </rich:column>
           <rich:column>
-              <f:facet name="header">Public IP</f:facet>
+              <f:facet name="header"><h:outputText value="#{msg['ui.extensionInterface.serverPublicIP']}" /></f:facet>
               <h:outputText value="#{detail.publicIPasString}" styleClass="preformatted" />
           </rich:column>
           <rich:column>
-              <f:facet name="header">Private IPs</f:facet>
+              <f:facet name="header"><h:outputText value="#{msg['ui.extensionInterface.serverPrivateIP']}" /></f:facet>
               <h:outputText value="#{detail.privateIPasString}" styleClass="preformatted" />
           </rich:column>
       </rich:dataTable>
