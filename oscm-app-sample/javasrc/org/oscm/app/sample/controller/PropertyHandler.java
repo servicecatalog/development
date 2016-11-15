@@ -44,6 +44,20 @@ public class PropertyHandler {
     public static final String TECPARAM_EMAIL = "PARAM_EMAIL";
 
     /**
+     * The user identifier for the provisioning system e.g IaaS (AWS, OpenStack
+     * etc.) The user is specified as a service parameter in the technical
+     * service definition.
+     */
+    public static final String TECPARAM_USER = "PARAM_USER";
+
+    /**
+     * The user password for the provisioning system e.g IaaS (AWS, OpenStack
+     * etc.) The password is specified as a service parameter in the technical
+     * service definition.
+     */
+    public static final String TECPARAM_PWD = "PARAM_PWD";
+
+    /**
      * The internal status of a provisioning operation as set by the controller
      * or the status dispatcher.
      */
@@ -95,6 +109,24 @@ public class PropertyHandler {
     }
 
     /**
+     * Returns the user for the provisioning system.
+     * 
+     * @return the user identifier as a string
+     */
+    public String getUser() {
+        return getValue(TECPARAM_USER, settings.getParameters());
+    }
+
+    /**
+     * Returns the user password for the provisioning system.
+     * 
+     * @return the user password as a string
+     */
+    public String getPassword() {
+        return getValue(TECPARAM_PWD, settings.getParameters());
+    }
+
+    /**
      * Returns the internal status of the current provisioning operation as set
      * by the controller or the status dispatcher.
      * 
@@ -139,8 +171,7 @@ public class PropertyHandler {
         return setting != null ? setting.getValue() : null;
     }
 
-    private void setValue(String key, String value,
-            Map<String, Setting> target) {
+    private void setValue(String key, String value, Map<String, Setting> target) {
         target.put(key, new Setting(key, value));
     }
 }

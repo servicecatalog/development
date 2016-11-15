@@ -388,6 +388,15 @@ public class SampleController implements APPlatformController {
                 || newParams.getMessage().length() < 5)
             throw new APPlatformException(
                     Messages.getAll("error_missing_message"));
+
+        if (newParams.getUser() == null || newParams.getUser().length() < 5)
+            throw new APPlatformException(Messages.getAll("error_missing_user"));
+
+        if (newParams.getPassword() == null
+                || newParams.getPassword().length() < 5)
+            throw new APPlatformException(
+                    Messages.getAll("error_missing_password"));
+
     }
 
     @Override
@@ -399,8 +408,8 @@ public class SampleController implements APPlatformController {
 
     @Override
     public List<OperationParameter> getOperationParameters(String userId,
-            String instanceId, String operationId,
-            ProvisioningSettings settings) throws APPlatformException {
+            String instanceId, String operationId, ProvisioningSettings settings)
+            throws APPlatformException {
         // TODO Auto-generated method stub
         return null;
     }
