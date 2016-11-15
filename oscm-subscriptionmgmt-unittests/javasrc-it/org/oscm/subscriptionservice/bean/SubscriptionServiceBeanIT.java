@@ -7762,13 +7762,19 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                         product.getKey());
                 List<Parameter> result = currentProduct.getParameterSet()
                         .getParameters();
-                result.size(); // only to avoid lazy initialization problems
+                for (int i = 0; i < result.size(); i++) {
+                    ParameterDefinition paramDef = result.get(i)
+                            .getParameterDefinition();
+                    result.get(i).getParameterDefinition().getValueType();
+                    result.get(i).setParameterDefinition(paramDef);
+                }
+                // result.size(); // only to avoid lazy initialization problems
                 return result;
             }
         });
         final List<VOParameter> modifiedParameters = new ArrayList<VOParameter>();
         // prepare VOParameter list for using as method argument
-        for (Parameter parameter : parameters) {
+        for (final Parameter parameter : parameters) {
             final long parameterDefinitionKey = parameter
                     .getParameterDefinition().getKey();
             // get parameter definition
@@ -7793,7 +7799,6 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                     // set the same value
                     voParam.setValue(parameter.getValue());
                 } else {
-                    // set different value
                     String value = parameter.getValue();
                     StringBuffer str = new StringBuffer();
                     if (value != null) {

@@ -162,6 +162,7 @@ public class ServiceInstanceIT extends EJBTestBase {
                 // will later fail
                 p1.setParameterValue("secret");
                 p1.setServiceInstance(instance);
+                p1.setEncrypted(true);
 
                 instance.setInstanceParameters(Arrays.asList(p1));
                 em.persist(instance);
