@@ -112,9 +112,12 @@ public class WsInfo {
         }
         servletAddress += serviceName + "/" + servicePort.name();
         
-        String tenantParam = "&tenantID=" + tenantId;
-
-        String url = servletAddress + "?wsdl" + tenantParam;
+        String url = servletAddress + "?wsdl";
+        
+        if(ServicePort.STS.equals(servicePort)){
+            String tenantParam = "&tenantID=" + tenantId;
+            url+=tenantParam;
+        }
       
         logger.debug(url);
         verifyAttributes(url);
