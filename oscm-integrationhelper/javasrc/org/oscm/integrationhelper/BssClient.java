@@ -250,6 +250,7 @@ public class BssClient {
                 + wsProxyInfo.getServiceVersion() + "</br>");
         out.println("User: " + wsProxyInfo.getUserCredentials().getUser()
                 + "</br>");
-        out.println("Password: ****</br></br></br>");
+        out.println("Password: ****</br>");
+        out.println("Tenant ID: ****</br></br></br>");
     }
 }
