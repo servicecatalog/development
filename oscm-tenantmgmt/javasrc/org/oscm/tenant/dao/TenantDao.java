@@ -103,7 +103,8 @@ public class TenantDao {
         try {
             tenantSetting = (TenantSetting) query.getSingleResult();
         } catch (NoResultException e) {
-            throw new ObjectNotFoundException(ClassEnum.TENANT_SETTING, settingKey);
+            throw new ObjectNotFoundException(ClassEnum.TENANT_SETTING,
+                    settingKey + " for tenant: " + tenantId);
         }
 
         return tenantSetting;
