@@ -27,6 +27,7 @@ import org.oscm.converter.XMLConverter;
 import org.oscm.internal.intf.ConfigurationService;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.types.exception.NotExistentTenantException;
+import org.oscm.internal.types.exception.NotExistentTenantException.Reason;
 import org.oscm.internal.types.exception.UserIdNotFoundException;
 import org.oscm.internal.vo.VOConfigurationSetting;
 import org.oscm.logging.Log4jLogger;
@@ -187,8 +188,12 @@ public class LoginHandler implements SOAPHandler<SOAPMessageContext> {
         String tenantId;
         
         SAMLAssertion samlAssertion = getSamlAssertion(context);
-        
         tenantId = getSamlExtractor().getTenantId(samlAssertion);
+        
+        if(StringUtils.isEmpty(tenantId)){
+            throw new NotExistentTenantException(Reason.MISSING_TEANT_ID_IN_SAML);
+        }
+        
         return tenantId;
     }
     
