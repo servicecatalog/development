@@ -336,7 +336,6 @@ public class ProvisioningSettings extends ControllerSettings implements
                 if (key != null && target.containsKey(key)) {
 
                     Setting sourceSetting = source.get(key);
-                    Setting targetSetting = target.get(key);
 
                     if (sourceSetting != null
                             && sourceSetting.getValue() != null
@@ -347,11 +346,7 @@ public class ProvisioningSettings extends ControllerSettings implements
                         Setting newSetting = new Setting(key,
                                 sourceSetting.getValue());
 
-                        if (targetSetting != null) {
-                            newSetting
-                                    .setEncrypted(sourceSetting.isEncrypted());
-                        }
-
+                        newSetting.setEncrypted(sourceSetting.isEncrypted());
                         target.put(key, newSetting);
                     }
                 }
