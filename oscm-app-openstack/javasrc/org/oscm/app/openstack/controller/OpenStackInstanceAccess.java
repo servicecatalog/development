@@ -83,4 +83,16 @@ public class OpenStackInstanceAccess implements InstanceAccess {
         return null;
     }
 
+    @Override
+    public String getAccessInfo(String instanceId)
+            throws AuthenticationException, ConfigurationException,
+            APPlatformException {
+        // TODO Replace the method which don't need authentication after
+        // implementation.
+        ProvisioningSettings settings = platformService
+                .getServiceInstanceDetails(OpenStackController.ID, instanceId,
+                        new PasswordAuthentication("misako", "misako"));
+        return settings.getServiceAccessInfo();
+    }
+
 }
