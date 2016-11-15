@@ -100,10 +100,12 @@ public class UdaAccess {
             try {
                 uda = UdaAssembler.toUda(voUda);
             } catch (ValidationException e) {
-                logger.logWarn(Log4jLogger.SYSTEM_LOG, e,
+                logger.logWarn(
+                        Log4jLogger.SYSTEM_LOG,
+                        e,
                         LogMessageIdentifier.WARN_INVALID_UDA,
-                        ((voUda == null || voUda.getUdaDefinition() == null)
-                                ? null : voUda.getUdaDefinition().getUdaId()));
+                        ((voUda == null || voUda.getUdaDefinition() == null) ? null
+                                : voUda.getUdaDefinition().getUdaId()));
                 ctx.setRollbackOnly();
                 throw e;
             }
@@ -246,8 +248,8 @@ public class UdaAccess {
      *             in case the {@link Uda} has been concurrently changed
      */
     void deleteUda(VOUda voUda, Organization caller)
-            throws MandatoryUdaMissingException, OperationNotPermittedException,
-            ConcurrentModificationException {
+            throws MandatoryUdaMissingException,
+            OperationNotPermittedException, ConcurrentModificationException {
         Uda existing = ds.find(Uda.class, voUda.getKey());
         if (existing != null) {
             udaAccessValidator.canDeleteUda(existing, caller);
@@ -285,8 +287,8 @@ public class UdaAccess {
      * @throws ConcurrentModificationException
      *             in case a UDA to update has been changed concurrently
      */
-    public void saveUdasForSubscription(List<VOUda> udas, Organization supplier,
-            Subscription sub)
+    public void saveUdasForSubscription(List<VOUda> udas,
+            Organization supplier, Subscription sub)
             throws MandatoryUdaMissingException, ObjectNotFoundException,
             NonUniqueBusinessKeyException, ValidationException,
             OperationNotPermittedException, ConcurrentModificationException {
@@ -322,8 +324,8 @@ public class UdaAccess {
             voUda.setTargetObjectKey(1);
 
             UdaAssembler.validate(voUda);
-            UdaTargetType type = UdaAssembler
-                    .toUdaTargetType(voUda.getUdaDefinition().getTargetType());
+            UdaTargetType type = UdaAssembler.toUdaTargetType(voUda
+                    .getUdaDefinition().getTargetType());
 
             // now depending on the target type adapt the target keys
             switch (type) {
@@ -338,8 +340,7 @@ public class UdaAccess {
         mandatoryUdaValidator.checkAllRequiredUdasPassed(
                 supplier.getMandatoryUdaDefinitions(),
                 getExistingUdas(sub.getOrganization().getKey(), sub.getKey(),
-                        supplier),
-                udas);
+                        supplier), udas);
     }
 
     /**
@@ -363,9 +364,9 @@ public class UdaAccess {
         q.setParameter("subType", UdaTargetType.CUSTOMER_SUBSCRIPTION);
         q.setParameter("custKey", Long.valueOf(customerKey));
         q.setParameter("custType", UdaTargetType.CUSTOMER);
-        q.setParameter("configTypes",
-                EnumSet.of(UdaConfigurationType.USER_OPTION_MANDATORY,
-                        UdaConfigurationType.USER_OPTION_OPTIONAL));
+        q.setParameter("configTypes", EnumSet.of(
+                UdaConfigurationType.USER_OPTION_MANDATORY,
+                UdaConfigurationType.USER_OPTION_OPTIONAL));
         q.setParameter("supplierKey", Long.valueOf(supplier.getKey()));
         return ParameterizedTypes.list(q.getResultList(), Uda.class);
     }
@@ -382,6 +383,9 @@ public class UdaAccess {
      *            the {@link UdaTargetType}
      * @param seller
      *            the seller {@link Organization}
+     * @param checkSeller
+     *            boolean flag if the organization specified with the
+     *            targetObjectKey is a customer of the seller organization.
      * @return the list of existing {@link Uda}s
      * @throws OperationNotPermittedException
      *             in case the supplier is not a supplier of the referenced
@@ -391,8 +395,12 @@ public class UdaAccess {
      *             {@link Subscription} wasn't found
      */
     public List<Uda> getUdasForTypeAndTarget(long targetObjectKey,
-            UdaTargetType type, Organization seller)
+            UdaTargetType type, Organization seller, boolean checkSeller)
             throws OperationNotPermittedException, ObjectNotFoundException {
+        if (checkSeller) {
+            udaAccessValidator.checkSellerReadPermission(seller, type,
+                    targetObjectKey);
+        }
         return getUdas(targetObjectKey, type, seller);
     }
 

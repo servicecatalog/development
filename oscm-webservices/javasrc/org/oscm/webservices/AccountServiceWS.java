@@ -31,9 +31,9 @@ import org.oscm.webservices.logger.WebServiceLogger;
 
 /**
  * End point facade for WS.
- *
+ * 
  * @author Aleh Khomich.
- *
+ * 
  */
 @WebService(endpointInterface = "org.oscm.intf.AccountService")
 public class AccountServiceWS implements AccountService {
@@ -263,10 +263,9 @@ public class AccountServiceWS implements AccountService {
                                     .convertList(
                                             customerConfigurations,
                                             org.oscm.internal.vo.VOOrganizationPaymentConfiguration.class),
-                            VOCollectionConverter
-                                    .convertSet(
-                                            defaultServiceConfiguration,
-                                            org.oscm.internal.vo.VOPaymentType.class),
+                            VOCollectionConverter.convertSet(
+                                    defaultServiceConfiguration,
+                                    org.oscm.internal.vo.VOPaymentType.class),
                             VOCollectionConverter
                                     .convertList(
                                             serviceConfigurations,
@@ -383,7 +382,7 @@ public class AccountServiceWS implements AccountService {
         WS_LOGGER.logAccess(wsContext, ds);
         try {
             return VOCollectionConverter.convertList(
-                    delegate.getUdas(targetType, targetObjectKey),
+                    delegate.getUdas(targetType, targetObjectKey, true),
                     org.oscm.vo.VOUda.class);
         } catch (org.oscm.internal.types.exception.ObjectNotFoundException e) {
             throw ExceptionConverter.convertToApi(e);
@@ -473,8 +472,8 @@ public class AccountServiceWS implements AccountService {
             throws ObjectNotFoundException {
         WS_LOGGER.logAccess(wsContext, ds);
         try {
-            return VOConverter.convertToApi(delegate.getSeller(sellerId,
-                    locale));
+            return VOConverter.convertToApi(delegate
+                    .getSeller(sellerId, locale));
         } catch (org.oscm.internal.types.exception.ObjectNotFoundException e) {
             throw ExceptionConverter.convertToApi(e);
         }
@@ -605,9 +604,9 @@ public class AccountServiceWS implements AccountService {
             ObjectNotFoundException, OperationNotPermittedException {
         WS_LOGGER.logAccess(wsContext, ds);
         try {
-            return VOCollectionConverter.convertList(delegate.getUdasForCustomer(
-                    targetType, targetObjectKey, supplierId),
-                    org.oscm.vo.VOUda.class);
+            return VOCollectionConverter.convertList(
+                    delegate.getUdasForCustomer(targetType, targetObjectKey,
+                            supplierId), org.oscm.vo.VOUda.class);
         } catch (org.oscm.internal.types.exception.ObjectNotFoundException e) {
             throw ExceptionConverter.convertToApi(e);
         } catch (org.oscm.internal.types.exception.ValidationException e) {

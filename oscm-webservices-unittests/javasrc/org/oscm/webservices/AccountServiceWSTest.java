@@ -133,7 +133,7 @@ public class AccountServiceWSTest {
         verify(serviceMock, times(1)).updateCustomerDiscount(null);
         verify(serviceMock, times(1)).getUdaTargetTypes();
         verify(serviceMock, times(1)).getUdaDefinitions();
-        verify(serviceMock, times(1)).getUdas(null, 0);
+        verify(serviceMock, times(1)).getUdas(null, 0, true);
         verify(serviceMock, times(1)).saveUdaDefinitions(null, null);
         verify(serviceMock, times(1)).saveUdas(null);
         verify(serviceMock, times(1)).getSupportedCountryCodes();

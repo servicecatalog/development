@@ -225,9 +225,10 @@ public class AccountServiceStub implements AccountService, AccountServiceLocal {
     }
 
     @Override
-    public List<VOUda> getUdas(String targetType, long targetObjectKey)
-            throws ValidationException, OrganizationAuthoritiesException,
-            ObjectNotFoundException, OperationNotPermittedException {
+    public List<VOUda> getUdas(String targetType, long targetObjectKey,
+            boolean checkSeller) throws ValidationException,
+            OrganizationAuthoritiesException, ObjectNotFoundException,
+            OperationNotPermittedException {
         throw new UnsupportedOperationException();
     }
 
@@ -367,8 +368,8 @@ public class AccountServiceStub implements AccountService, AccountServiceLocal {
 
     @Override
     public Set<VOPaymentType> getAvailablePaymentTypesFromOrganization(
-            Long serviceKey)
-            throws OrganizationAuthoritiesException, ObjectNotFoundException {
+            Long serviceKey) throws OrganizationAuthoritiesException,
+            ObjectNotFoundException {
         return null;
     }
 

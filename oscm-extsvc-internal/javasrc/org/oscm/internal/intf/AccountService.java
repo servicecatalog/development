@@ -235,10 +235,10 @@ public interface AccountService {
 
     public VOOrganization registerKnownCustomer(VOOrganization organization,
             VOUserDetails user, LdapProperties organizationProperties,
-            String marketplaceId)
-            throws OrganizationAuthoritiesException, ValidationException,
-            NonUniqueBusinessKeyException, MailOperationException,
-            ObjectNotFoundException, OperationPendingException;
+            String marketplaceId) throws OrganizationAuthoritiesException,
+            ValidationException, NonUniqueBusinessKeyException,
+            MailOperationException, ObjectNotFoundException,
+            OperationPendingException;
 
     /**
      * Updates the data of the organization to which the calling user belongs,
@@ -295,9 +295,9 @@ public interface AccountService {
 
     public void updateAccountInformation(VOOrganization organization,
             VOUserDetails user, String marketplaceId,
-            VOImageResource imageResource)
-            throws ValidationException, NonUniqueBusinessKeyException,
-            OperationNotPermittedException, TechnicalServiceNotAliveException,
+            VOImageResource imageResource) throws ValidationException,
+            NonUniqueBusinessKeyException, OperationNotPermittedException,
+            TechnicalServiceNotAliveException,
             TechnicalServiceOperationException, ObjectNotFoundException,
             DistinguishedNameException, ConcurrentModificationException,
             ImageException;
@@ -483,8 +483,8 @@ public interface AccountService {
      */
 
     public Set<VOPaymentType> getAvailablePaymentTypesFromOrganization(
-            Long serviceKey)
-            throws OrganizationAuthoritiesException, ObjectNotFoundException;
+            Long serviceKey) throws OrganizationAuthoritiesException,
+            ObjectNotFoundException;
 
     /**
      * Retrieves the billing contacts of the calling user's organization.
@@ -720,6 +720,10 @@ public interface AccountService {
      * @param targetObjectKey
      *            the numeric key of the entity (e.g. customer or subscription)
      *            for which the custom attribute is to be retrieved
+     * @param checkSeller
+     *            boolean flag which determines if the calling organization
+     *            should be checked if it is a seller for the specified customer
+     *            with the targetObjectKey
      * @return the list of custom attributes
      * @throws ValidationException
      *             if the given target type is not valid
@@ -735,9 +739,10 @@ public interface AccountService {
      *             if the target object is not found
      */
 
-    public List<VOUda> getUdas(String targetType, long targetObjectKey)
-            throws ValidationException, OrganizationAuthoritiesException,
-            ObjectNotFoundException, OperationNotPermittedException;
+    public List<VOUda> getUdas(String targetType, long targetObjectKey,
+            boolean checkSeller) throws ValidationException,
+            OrganizationAuthoritiesException, ObjectNotFoundException,
+            OperationNotPermittedException;
 
     /**
      * Saves the specified list of custom attributes. For each attribute in the

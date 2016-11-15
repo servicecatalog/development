@@ -93,8 +93,7 @@ public class UdaAccessTest {
         uda.setUdaValue("some value");
         uda.setKey(5678);
 
-        supplier.setUdaDefinitions(
-                new ArrayList<>(Arrays.asList(defSupplier)));
+        supplier.setUdaDefinitions(new ArrayList<>(Arrays.asList(defSupplier)));
 
         sub = new Subscription();
         sub.setKey(9876);
@@ -203,8 +202,8 @@ public class UdaAccessTest {
         final ObjectNotFoundException definitionNotFound = new ObjectNotFoundException(
                 ClassEnum.UDA_DEFINITION, "1");
 
-        when(ds.getReference(eq(Uda.class), eq(uda.getKey())))
-                .thenThrow(definitionNotFound);
+        when(ds.getReference(eq(Uda.class), eq(uda.getKey()))).thenThrow(
+                definitionNotFound);
 
         try {
             // when
@@ -233,9 +232,9 @@ public class UdaAccessTest {
     @Test(expected = MandatoryUdaMissingException.class)
     public void deleteUda_Mandatory() throws Exception {
         // given: mandatory uda
-        doThrow(new MandatoryUdaMissingException())
-                .when(ua.mandatoryUdaValidator)
-                .checkMandatory(any(UdaDefinition.class));
+        doThrow(new MandatoryUdaMissingException()).when(
+                ua.mandatoryUdaValidator).checkMandatory(
+                any(UdaDefinition.class));
 
         try {
             // when
@@ -249,9 +248,9 @@ public class UdaAccessTest {
     @Test(expected = OperationNotPermittedException.class)
     public void deleteUda_NotPermitted() throws Exception {
         // given: mandatory uda
-        doThrow(new OperationNotPermittedException())
-                .when(ua.udaAccessValidator)
-                .canDeleteUda(any(Uda.class), any(Organization.class));
+        doThrow(new OperationNotPermittedException()).when(
+                ua.udaAccessValidator).canDeleteUda(any(Uda.class),
+                any(Organization.class));
 
         try {
             // when
@@ -277,8 +276,8 @@ public class UdaAccessTest {
 
     @Test(expected = NonUniqueBusinessKeyException.class)
     public void createUda_NonUniqueBK() throws Exception {
-        doThrow(new NonUniqueBusinessKeyException()).when(ds)
-                .persist(any(Uda.class));
+        doThrow(new NonUniqueBusinessKeyException()).when(ds).persist(
+                any(Uda.class));
 
         try {
             ua.createUda(defSupplier, uda);
@@ -296,8 +295,8 @@ public class UdaAccessTest {
 
     @Test(expected = ObjectNotFoundException.class)
     public void updateUda_NotFound() throws Exception {
-        doThrow(new ObjectNotFoundException()).when(ds)
-                .getReference(eq(Uda.class), anyLong());
+        doThrow(new ObjectNotFoundException()).when(ds).getReference(
+                eq(Uda.class), anyLong());
 
         try {
             ua.updateUda(voUda, defSupplier, supplier);
@@ -370,7 +369,7 @@ public class UdaAccessTest {
     @Test
     public void getUdasForTypeAndTarget() throws Exception {
         List<Uda> list = ua.getUdasForTypeAndTarget(123L,
-                UdaTargetType.CUSTOMER, supplier);
+                UdaTargetType.CUSTOMER, supplier, false);
 
         assertEquals(1, list.size());
         assertSame(uda, list.get(0));
