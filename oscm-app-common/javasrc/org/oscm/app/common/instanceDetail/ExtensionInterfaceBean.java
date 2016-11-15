@@ -31,14 +31,14 @@ import org.slf4j.LoggerFactory;
  */
 @SessionScoped
 @Named
-public class ExtentionInterfaceBean implements Serializable {
+public class ExtensionInterfaceBean implements Serializable {
 
     /**
      * 
      */
     private static final long serialVersionUID = -2153894219559699861L;
     private static final Logger LOGGER = LoggerFactory
-            .getLogger(ExtentionInterfaceBean.class);
+            .getLogger(ExtensionInterfaceBean.class);
 
     public static final String[] ACCESS_PARAMETERS = new String[] {
             ControllerConfigurationKey.BSS_ORGANIZATION_ID.name(),
@@ -47,25 +47,18 @@ public class ExtentionInterfaceBean implements Serializable {
             ControllerConfigurationKey.BSS_USER_PWD.name() };
 
     private List<? extends ServerInformation> servers;
+
+    @Inject
     private InstanceAccess instanceAccess;
 
     /**
      * Constructor.
      */
-    public ExtentionInterfaceBean() {
-    }
-
-    @Inject
-    public void setInstanceAccess(final InstanceAccess instanceAccess) {
-        this.instanceAccess = instanceAccess;
-    }
-
-    public String getInitialize() {
-
-        return "";
+    public ExtensionInterfaceBean() {
     }
 
     public List<? extends ServerInformation> getInstanceDetails() {
+        // TODO should I update information every get request??
         if (servers == null) {
             readServerInfo();
         }
@@ -84,7 +77,6 @@ public class ExtentionInterfaceBean implements Serializable {
             serverInfos = instanceAccess
                     .getServerDetails(paramters.get("instId"));
         } catch (Exception e) {
-            // TODO throw exception
             LOGGER.error(e.getMessage());
         }
         setServerInfo(serverInfos);
@@ -100,10 +92,6 @@ public class ExtentionInterfaceBean implements Serializable {
 
     public String getAccessInfo() {
         return "http://xxxx:1111/test/url";
-    }
-
-    public String getAccessInfoTitle() {
-        return "Access info";
     }
 
     // allow stubbing in unit tests

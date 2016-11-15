@@ -56,16 +56,12 @@ public class OpenStackInstanceAccess implements InstanceAccess {
         platformService = APPlatformServiceFactory.getInstance();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.oscm.app.common.intf.InstanceAccess#getServerDetails(java.lang.
-     * String)
-     */
     @Override
     public List<? extends ServerInformation> getServerDetails(String instanceId)
             throws AuthenticationException, ConfigurationException,
             APPlatformException {
+        // TODO Replace the method which don't need authentication after
+        // implementation.
         ProvisioningSettings settings = platformService
                 .getServiceInstanceDetails(OpenStackController.ID, instanceId,
                         new PasswordAuthentication("misako", "misako"));
@@ -81,12 +77,6 @@ public class OpenStackInstanceAccess implements InstanceAccess {
         return servers;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.oscm.app.common.intf.InstanceAccess#getMessage(java.lang.String,
-     * java.lang.String, java.lang.Object[])
-     */
     @Override
     public String getMessage(String locale, String key, Object... arguments) {
         // TODO Auto-generated method stub
