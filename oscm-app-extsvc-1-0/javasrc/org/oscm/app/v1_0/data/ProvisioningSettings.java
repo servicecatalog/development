@@ -22,8 +22,8 @@ import java.util.Map;
  * an application-specific service controller; they can also be evaluated by the
  * application.
  */
-public class ProvisioningSettings extends ControllerSettings
-        implements Serializable {
+public class ProvisioningSettings extends ControllerSettings implements
+        Serializable {
 
     private static final long serialVersionUID = 9161029657174458354L;
 
@@ -317,8 +317,8 @@ public class ProvisioningSettings extends ControllerSettings
      */
     public void overwriteProperties(String controllerId) {
 
-        overwriteProperties(getParameters(), Arrays.asList(getConfigSettings()),
-                null);
+        overwriteProperties(getParameters(),
+                Arrays.asList(getConfigSettings()), null);
         overwriteProperties(getCustomAttributes(),
                 Arrays.asList(getParameters(), getConfigSettings()),
                 controllerId);
@@ -339,6 +339,7 @@ public class ProvisioningSettings extends ControllerSettings
                     Setting targetSetting = target.get(key);
 
                     if (sourceSetting != null
+                            && sourceSetting.getValue() != null
                             && sourceSetting.getValue().trim().length() > 0
                             && (controllerId == null || controllerId
                                     .equals(sourceSetting.getControllerId()))) {
@@ -348,7 +349,7 @@ public class ProvisioningSettings extends ControllerSettings
 
                         if (targetSetting != null) {
                             newSetting
-                                    .setEncrypted(targetSetting.isEncrypted());
+                                    .setEncrypted(sourceSetting.isEncrypted());
                         }
 
                         target.put(key, newSetting);

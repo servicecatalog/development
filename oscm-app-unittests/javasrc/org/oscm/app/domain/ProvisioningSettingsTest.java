@@ -8,9 +8,7 @@
 
 package org.oscm.app.domain;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -114,7 +112,7 @@ public class ProvisioningSettingsTest {
         HashMap<String, Setting> customAttributes = new HashMap<>();
         customAttributes.put("key3", new Setting("key3", "value3c", false,
                 controllerId));
-        customAttributes.put("key4", new Setting("key4", "value4c", false,
+        customAttributes.put("key4", new Setting("key4", "value4c", true,
                 controllerId));
 
         HashMap<String, Setting> attributes = new HashMap<>();
@@ -130,11 +128,101 @@ public class ProvisioningSettingsTest {
         assertEquals("value2p", configSettings.get("key2").getValue());
         assertEquals("value3c", configSettings.get("key3").getValue());
         assertEquals("value4a", configSettings.get("key4").getValue());
+
         assertEquals("value3c", parameters.get("key3").getValue());
         assertEquals("value4a", parameters.get("key4").getValue());
+
+        assertFalse(configSettings.get("key4").isEncrypted());
+        assertFalse(parameters.get("key4").isEncrypted());
+        assertTrue(customAttributes.get("key4").isEncrypted());
+        assertFalse(attributes.get("key4").isEncrypted());
+    }
+
+    @Test
+    public void testOverwriteNullValues() {
+
+        String controllerId = "controllerId";
+
+        HashMap<String, Setting> configSettings = new HashMap<>();
+        configSettings.put("key1", new Setting("key1", "value1s"));
+        configSettings.put("key2", new Setting("key2", "value2s"));
+        configSettings.put("key3", new Setting("key3", "value3s"));
+        configSettings.put("key4", new Setting("key4", "value4s", true));
+
+        HashMap<String, Setting> parameters = new HashMap<>();
+        parameters.put("key2", new Setting("key2", "value2p"));
+        parameters.put("key3", new Setting("key3", "value3p"));
+        parameters.put("key4", new Setting("key4", "value4p"));
+
+        HashMap<String, Setting> customAttributes = new HashMap<>();
+        customAttributes.put("key3", new Setting("key3", "value3c", false,
+                controllerId));
+        customAttributes.put("key4", new Setting("key4", "value4c", true,
+                controllerId));
+
+        HashMap<String, Setting> attributes = new HashMap<>();
+        attributes.put("key4", new Setting("key4", null, false, controllerId));
+
+        ProvisioningSettings pSettings = new ProvisioningSettings(parameters,
+                attributes, customAttributes, configSettings, "en");
+
+        pSettings.overwriteProperties(controllerId);
+
+        assertEquals("value1s", configSettings.get("key1").getValue());
+        assertEquals("value2p", configSettings.get("key2").getValue());
+        assertEquals("value3c", configSettings.get("key3").getValue());
+        assertEquals("value4c", configSettings.get("key4").getValue());
+
+        assertEquals("value3c", parameters.get("key3").getValue());
+        assertEquals("value4c", parameters.get("key4").getValue());
+
         assertTrue(configSettings.get("key4").isEncrypted());
         assertTrue(parameters.get("key4").isEncrypted());
         assertTrue(customAttributes.get("key4").isEncrypted());
-        assertTrue(attributes.get("key4").isEncrypted());
+        assertFalse(attributes.get("key4").isEncrypted());
+    }
+
+    @Test
+    public void testOverwriteEmptyValues() {
+
+        String controllerId = "controllerId";
+
+        HashMap<String, Setting> configSettings = new HashMap<>();
+        configSettings.put("key1", new Setting("key1", "value1s"));
+        configSettings.put("key2", new Setting("key2", "value2s"));
+        configSettings.put("key3", new Setting("key3", "value3s"));
+        configSettings.put("key4", new Setting("key4", "value4s", true));
+
+        HashMap<String, Setting> parameters = new HashMap<>();
+        parameters.put("key2", new Setting("key2", "value2p"));
+        parameters.put("key3", new Setting("key3", "value3p"));
+        parameters.put("key4", new Setting("key4", "value4p"));
+
+        HashMap<String, Setting> customAttributes = new HashMap<>();
+        customAttributes.put("key3", new Setting("key3", "value3c", false,
+                controllerId));
+        customAttributes.put("key4", new Setting("key4", "value4c", true,
+                controllerId));
+
+        HashMap<String, Setting> attributes = new HashMap<>();
+        attributes.put("key4", new Setting("key4", " ", false, controllerId));
+
+        ProvisioningSettings pSettings = new ProvisioningSettings(parameters,
+                attributes, customAttributes, configSettings, "en");
+
+        pSettings.overwriteProperties(controllerId);
+
+        assertEquals("value1s", configSettings.get("key1").getValue());
+        assertEquals("value2p", configSettings.get("key2").getValue());
+        assertEquals("value3c", configSettings.get("key3").getValue());
+        assertEquals("value4c", configSettings.get("key4").getValue());
+
+        assertEquals("value3c", parameters.get("key3").getValue());
+        assertEquals("value4c", parameters.get("key4").getValue());
+
+        assertTrue(configSettings.get("key4").isEncrypted());
+        assertTrue(parameters.get("key4").isEncrypted());
+        assertTrue(customAttributes.get("key4").isEncrypted());
+        assertFalse(attributes.get("key4").isEncrypted());
     }
 }
