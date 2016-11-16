@@ -82,8 +82,7 @@ public class EC2Communication {
     /**
      * Constructor
      * 
-     * @param PropertyHandler
-     *            ph
+     * @param ph
      */
     public EC2Communication(PropertyHandler ph) {
         this.ph = ph;
@@ -160,8 +159,7 @@ public class EC2Communication {
     /**
      * Define AWS mockup for unit tests
      * 
-     * @param AmazonEC2Client
-     *            ec2
+     * @param ec2
      */
     public static void useMock(AmazonEC2Client ec2) {
         ec2_stub = ec2;
@@ -170,8 +168,8 @@ public class EC2Communication {
     /**
      * Allow mocking of EC2 client by having it in separate creation method
      * 
-     * @param AWSCredentialsProvider
-     * @param ClientConfiguration
+     * @param credentialsProvider
+     * @param clientConfiguration
      */
     AmazonEC2Client getEC2(AWSCredentialsProvider credentialsProvider,
             ClientConfiguration clientConfiguration) {
@@ -524,6 +522,21 @@ public class EC2Communication {
             instances.addAll(reservation.getInstances());
             if (instances.size() > 0) {
                 return instances.iterator().next().getPublicDnsName();
+            }
+        }
+        return null;
+    }
+
+    public List<Instance> getInstance(String instanceId) {
+        DescribeInstancesResult result = getEC2().describeInstances(
+                new DescribeInstancesRequest().withInstanceIds(instanceId));
+        List<Reservation> reservations = result.getReservations();
+        Set<Instance> instances = new HashSet<>();
+
+        for (Reservation reservation : reservations) {
+            instances.addAll(reservation.getInstances());
+            if (instances.size() > 0) {
+                return (List<Instance>) instances.iterator().next();
             }
         }
         return null;

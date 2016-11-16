@@ -108,7 +108,7 @@ public class ExtensionInterfaceBean implements Serializable {
     }
 
     /**
-     * 
+     *
      */
     private void setAccessInfo() {
         String accessInfo = "";
