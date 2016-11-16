@@ -1,3 +1,4 @@
+
 /**
  * User.java
  *
@@ -10,12 +11,90 @@ package org.oscm.xsd;
 /**
  * User bean class
  */
-@SuppressWarnings({ "rawtypes", "unchecked", "unused", "serial", "null" })
+
 public class User implements org.apache.axis2.databinding.ADBBean {
     /*
      * This type was generated from the piece of schema that had name = user
      * Namespace URI = http://oscm.org/xsd Namespace Prefix = ns1
      */
+
+    /**
+     * field for ApplicationUserId
+     */
+
+    protected java.lang.String localApplicationUserId;
+    /*
+     * This tracker boolean wil be used to detect whether the user called the
+     * set method for this attribute. It will be used to determine whether to
+     * include this field in the serialized XML
+     */
+    protected boolean localApplicationUserIdTracker = false;
+    /**
+     * field for Email
+     */
+
+    protected java.lang.String localEmail;
+    /*
+     * This tracker boolean wil be used to detect whether the user called the
+     * set method for this attribute. It will be used to determine whether to
+     * include this field in the serialized XML
+     */
+    protected boolean localEmailTracker = false;
+    /**
+     * field for Locale
+     */
+
+    protected java.lang.String localLocale;
+    /*
+     * This tracker boolean wil be used to detect whether the user called the
+     * set method for this attribute. It will be used to determine whether to
+     * include this field in the serialized XML
+     */
+    protected boolean localLocaleTracker = false;
+    /**
+     * field for RoleIdentifier
+     */
+
+    protected java.lang.String localRoleIdentifier;
+    /*
+     * This tracker boolean wil be used to detect whether the user called the
+     * set method for this attribute. It will be used to determine whether to
+     * include this field in the serialized XML
+     */
+    protected boolean localRoleIdentifierTracker = false;
+    /**
+     * field for UserFirstName
+     */
+
+    protected java.lang.String localUserFirstName;
+    /*
+     * This tracker boolean wil be used to detect whether the user called the
+     * set method for this attribute. It will be used to determine whether to
+     * include this field in the serialized XML
+     */
+    protected boolean localUserFirstNameTracker = false;
+    /**
+     * field for UserId
+     */
+
+    protected java.lang.String localUserId;
+    /*
+     * This tracker boolean wil be used to detect whether the user called the
+     * set method for this attribute. It will be used to determine whether to
+     * include this field in the serialized XML
+     */
+    protected boolean localUserIdTracker = false;
+    /**
+     * field for UserLastName
+     */
+
+    protected java.lang.String localUserLastName;
+    /*
+     * This tracker boolean wil be used to detect whether the user called the
+     * set method for this attribute. It will be used to determine whether to
+     * include this field in the serialized XML
+     */
+    protected boolean localUserLastNameTracker = false;
 
     private static java.lang.String generatePrefix(java.lang.String namespace) {
         if (namespace.equals("http://oscm.org/xsd")) {
@@ -25,21 +104,27 @@ public class User implements org.apache.axis2.databinding.ADBBean {
     }
 
     /**
-     * field for ApplicationUserId
+     * isReaderMTOMAware
+     *
+     * @return true if the reader supports MTOM
      */
+    public static boolean isReaderMTOMAware(
+            javax.xml.stream.XMLStreamReader reader) {
+        boolean isReaderMTOMAware = false;
 
-    protected java.lang.String localApplicationUserId;
-
-    /*
-     * This tracker boolean wil be used to detect whether the user called the
-     * set method for this attribute. It will be used to determine whether to
-     * include this field in the serialized XML
-     */
-    protected boolean localApplicationUserIdTracker = false;
+        try {
+            isReaderMTOMAware = java.lang.Boolean.TRUE
+                    .equals(reader.getProperty(
+                            org.apache.axiom.om.OMConstants.IS_DATA_HANDLERS_AWARE));
+        } catch (java.lang.IllegalArgumentException e) {
+            isReaderMTOMAware = false;
+        }
+        return isReaderMTOMAware;
+    }
 
     /**
      * Auto generated getter method
-     * 
+     *
      * @return java.lang.String
      */
     public java.lang.String getApplicationUserId() {
@@ -48,7 +133,7 @@ public class User implements org.apache.axis2.databinding.ADBBean {
 
     /**
      * Auto generated setter method
-     * 
+     *
      * @param param
      *            ApplicationUserId
      */
@@ -67,21 +152,8 @@ public class User implements org.apache.axis2.databinding.ADBBean {
     }
 
     /**
-     * field for Email
-     */
-
-    protected java.lang.String localEmail;
-
-    /*
-     * This tracker boolean wil be used to detect whether the user called the
-     * set method for this attribute. It will be used to determine whether to
-     * include this field in the serialized XML
-     */
-    protected boolean localEmailTracker = false;
-
-    /**
      * Auto generated getter method
-     * 
+     *
      * @return java.lang.String
      */
     public java.lang.String getEmail() {
@@ -90,7 +162,7 @@ public class User implements org.apache.axis2.databinding.ADBBean {
 
     /**
      * Auto generated setter method
-     * 
+     *
      * @param param
      *            Email
      */
@@ -109,21 +181,8 @@ public class User implements org.apache.axis2.databinding.ADBBean {
     }
 
     /**
-     * field for Locale
-     */
-
-    protected java.lang.String localLocale;
-
-    /*
-     * This tracker boolean wil be used to detect whether the user called the
-     * set method for this attribute. It will be used to determine whether to
-     * include this field in the serialized XML
-     */
-    protected boolean localLocaleTracker = false;
-
-    /**
      * Auto generated getter method
-     * 
+     *
      * @return java.lang.String
      */
     public java.lang.String getLocale() {
@@ -132,7 +191,7 @@ public class User implements org.apache.axis2.databinding.ADBBean {
 
     /**
      * Auto generated setter method
-     * 
+     *
      * @param param
      *            Locale
      */
@@ -151,21 +210,8 @@ public class User implements org.apache.axis2.databinding.ADBBean {
     }
 
     /**
-     * field for RoleIdentifier
-     */
-
-    protected java.lang.String localRoleIdentifier;
-
-    /*
-     * This tracker boolean wil be used to detect whether the user called the
-     * set method for this attribute. It will be used to determine whether to
-     * include this field in the serialized XML
-     */
-    protected boolean localRoleIdentifierTracker = false;
-
-    /**
      * Auto generated getter method
-     * 
+     *
      * @return java.lang.String
      */
     public java.lang.String getRoleIdentifier() {
@@ -174,7 +220,7 @@ public class User implements org.apache.axis2.databinding.ADBBean {
 
     /**
      * Auto generated setter method
-     * 
+     *
      * @param param
      *            RoleIdentifier
      */
@@ -193,21 +239,8 @@ public class User implements org.apache.axis2.databinding.ADBBean {
     }
 
     /**
-     * field for UserFirstName
-     */
-
-    protected java.lang.String localUserFirstName;
-
-    /*
-     * This tracker boolean wil be used to detect whether the user called the
-     * set method for this attribute. It will be used to determine whether to
-     * include this field in the serialized XML
-     */
-    protected boolean localUserFirstNameTracker = false;
-
-    /**
      * Auto generated getter method
-     * 
+     *
      * @return java.lang.String
      */
     public java.lang.String getUserFirstName() {
@@ -216,7 +249,7 @@ public class User implements org.apache.axis2.databinding.ADBBean {
 
     /**
      * Auto generated setter method
-     * 
+     *
      * @param param
      *            UserFirstName
      */
@@ -235,21 +268,8 @@ public class User implements org.apache.axis2.databinding.ADBBean {
     }
 
     /**
-     * field for UserId
-     */
-
-    protected java.lang.String localUserId;
-
-    /*
-     * This tracker boolean wil be used to detect whether the user called the
-     * set method for this attribute. It will be used to determine whether to
-     * include this field in the serialized XML
-     */
-    protected boolean localUserIdTracker = false;
-
-    /**
      * Auto generated getter method
-     * 
+     *
      * @return java.lang.String
      */
     public java.lang.String getUserId() {
@@ -258,7 +278,7 @@ public class User implements org.apache.axis2.databinding.ADBBean {
 
     /**
      * Auto generated setter method
-     * 
+     *
      * @param param
      *            UserId
      */
@@ -277,21 +297,8 @@ public class User implements org.apache.axis2.databinding.ADBBean {
     }
 
     /**
-     * field for UserLastName
-     */
-
-    protected java.lang.String localUserLastName;
-
-    /*
-     * This tracker boolean wil be used to detect whether the user called the
-     * set method for this attribute. It will be used to determine whether to
-     * include this field in the serialized XML
-     */
-    protected boolean localUserLastNameTracker = false;
-
-    /**
      * Auto generated getter method
-     * 
+     *
      * @return java.lang.String
      */
     public java.lang.String getUserLastName() {
@@ -300,7 +307,7 @@ public class User implements org.apache.axis2.databinding.ADBBean {
 
     /**
      * Auto generated setter method
-     * 
+     *
      * @param param
      *            UserLastName
      */
@@ -319,26 +326,7 @@ public class User implements org.apache.axis2.databinding.ADBBean {
     }
 
     /**
-     * isReaderMTOMAware
-     * 
-     * @return true if the reader supports MTOM
-     */
-    public static boolean isReaderMTOMAware(
-            javax.xml.stream.XMLStreamReader reader) {
-        boolean isReaderMTOMAware = false;
-
-        try {
-            isReaderMTOMAware = java.lang.Boolean.TRUE
-                    .equals(reader
-                            .getProperty(org.apache.axiom.om.OMConstants.IS_DATA_HANDLERS_AWARE));
-        } catch (java.lang.IllegalArgumentException e) {
-            isReaderMTOMAware = false;
-        }
-        return isReaderMTOMAware;
-    }
-
-    /**
-     * 
+     *
      * @param parentQName
      * @param factory
      * @return org.apache.axiom.om.OMElement
@@ -351,7 +339,6 @@ public class User implements org.apache.axis2.databinding.ADBBean {
         org.apache.axiom.om.OMDataSource dataSource = new org.apache.axis2.databinding.ADBDataSource(
                 this, parentQName) {
 
-            @Override
             public void serialize(
                     org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter)
                     throws javax.xml.stream.XMLStreamException {
@@ -363,8 +350,7 @@ public class User implements org.apache.axis2.databinding.ADBBean {
 
     }
 
-    public void serialize(
-            final javax.xml.namespace.QName parentQName,
+    public void serialize(final javax.xml.namespace.QName parentQName,
             final org.apache.axiom.om.OMFactory factory,
             org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter)
             throws javax.xml.stream.XMLStreamException,
@@ -372,8 +358,7 @@ public class User implements org.apache.axis2.databinding.ADBBean {
         serialize(parentQName, factory, xmlWriter, false);
     }
 
-    public void serialize(
-            final javax.xml.namespace.QName parentQName,
+    public void serialize(final javax.xml.namespace.QName parentQName,
             final org.apache.axiom.om.OMFactory factory,
             org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter,
             boolean serializeType) throws javax.xml.stream.XMLStreamException,
@@ -745,20 +730,19 @@ public class User implements org.apache.axis2.databinding.ADBBean {
             }
 
             if (prefix.trim().length() > 0) {
-                xmlWriter.writeCharacters(prefix
-                        + ":"
+                xmlWriter.writeCharacters(prefix + ":"
                         + org.apache.axis2.databinding.utils.ConverterUtil
                                 .convertToString(qname));
             } else {
                 // i.e this is the default namespace
-                xmlWriter
-                        .writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil
+                xmlWriter.writeCharacters(
+                        org.apache.axis2.databinding.utils.ConverterUtil
                                 .convertToString(qname));
             }
 
         } else {
-            xmlWriter
-                    .writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil
+            xmlWriter.writeCharacters(
+                    org.apache.axis2.databinding.utils.ConverterUtil
                             .convertToString(qname));
         }
     }
@@ -789,9 +773,7 @@ public class User implements org.apache.axis2.databinding.ADBBean {
                     }
 
                     if (prefix.trim().length() > 0) {
-                        stringToWrite
-                                .append(prefix)
-                                .append(":")
+                        stringToWrite.append(prefix).append(":")
                                 .append(org.apache.axis2.databinding.utils.ConverterUtil
                                         .convertToString(qnames[i]));
                     } else {
@@ -822,7 +804,8 @@ public class User implements org.apache.axis2.databinding.ADBBean {
         if (prefix == null) {
             prefix = generatePrefix(namespace);
 
-            while (xmlWriter.getNamespaceContext().getNamespaceURI(prefix) != null) {
+            while (xmlWriter.getNamespaceContext()
+                    .getNamespaceURI(prefix) != null) {
                 prefix = org.apache.axis2.databinding.utils.BeanUtil
                         .getUniquePrefix();
             }
@@ -836,7 +819,7 @@ public class User implements org.apache.axis2.databinding.ADBBean {
 
     /**
      * databinding method to get an XML representation of this object
-     * 
+     *
      */
     public javax.xml.stream.XMLStreamReader getPullParser(
             javax.xml.namespace.QName qName)
@@ -846,91 +829,84 @@ public class User implements org.apache.axis2.databinding.ADBBean {
         java.util.ArrayList attribList = new java.util.ArrayList();
 
         if (localApplicationUserIdTracker) {
-            elementList.add(new javax.xml.namespace.QName(
-                    "http://oscm.org/xsd", "applicationUserId"));
+            elementList.add(new javax.xml.namespace.QName("http://oscm.org/xsd",
+                    "applicationUserId"));
 
             if (localApplicationUserId != null) {
-                elementList
-                        .add(org.apache.axis2.databinding.utils.ConverterUtil
-                                .convertToString(localApplicationUserId));
+                elementList.add(org.apache.axis2.databinding.utils.ConverterUtil
+                        .convertToString(localApplicationUserId));
             } else {
                 throw new org.apache.axis2.databinding.ADBException(
                         "applicationUserId cannot be null!!");
             }
         }
         if (localEmailTracker) {
-            elementList.add(new javax.xml.namespace.QName(
-                    "http://oscm.org/xsd", "email"));
+            elementList.add(new javax.xml.namespace.QName("http://oscm.org/xsd",
+                    "email"));
 
             if (localEmail != null) {
-                elementList
-                        .add(org.apache.axis2.databinding.utils.ConverterUtil
-                                .convertToString(localEmail));
+                elementList.add(org.apache.axis2.databinding.utils.ConverterUtil
+                        .convertToString(localEmail));
             } else {
                 throw new org.apache.axis2.databinding.ADBException(
                         "email cannot be null!!");
             }
         }
         if (localLocaleTracker) {
-            elementList.add(new javax.xml.namespace.QName(
-                    "http://oscm.org/xsd", "locale"));
+            elementList.add(new javax.xml.namespace.QName("http://oscm.org/xsd",
+                    "locale"));
 
             if (localLocale != null) {
-                elementList
-                        .add(org.apache.axis2.databinding.utils.ConverterUtil
-                                .convertToString(localLocale));
+                elementList.add(org.apache.axis2.databinding.utils.ConverterUtil
+                        .convertToString(localLocale));
             } else {
                 throw new org.apache.axis2.databinding.ADBException(
                         "locale cannot be null!!");
             }
         }
         if (localRoleIdentifierTracker) {
-            elementList.add(new javax.xml.namespace.QName(
-                    "http://oscm.org/xsd", "roleIdentifier"));
+            elementList.add(new javax.xml.namespace.QName("http://oscm.org/xsd",
+                    "roleIdentifier"));
 
             if (localRoleIdentifier != null) {
-                elementList
-                        .add(org.apache.axis2.databinding.utils.ConverterUtil
-                                .convertToString(localRoleIdentifier));
+                elementList.add(org.apache.axis2.databinding.utils.ConverterUtil
+                        .convertToString(localRoleIdentifier));
             } else {
                 throw new org.apache.axis2.databinding.ADBException(
                         "roleIdentifier cannot be null!!");
             }
         }
         if (localUserFirstNameTracker) {
-            elementList.add(new javax.xml.namespace.QName(
-                    "http://oscm.org/xsd", "userFirstName"));
+            elementList.add(new javax.xml.namespace.QName("http://oscm.org/xsd",
+                    "userFirstName"));
 
             if (localUserFirstName != null) {
-                elementList
-                        .add(org.apache.axis2.databinding.utils.ConverterUtil
-                                .convertToString(localUserFirstName));
+                elementList.add(org.apache.axis2.databinding.utils.ConverterUtil
+                        .convertToString(localUserFirstName));
             } else {
                 throw new org.apache.axis2.databinding.ADBException(
                         "userFirstName cannot be null!!");
             }
         }
         if (localUserIdTracker) {
-            elementList.add(new javax.xml.namespace.QName(
-                    "http://oscm.org/xsd", "userId"));
+            elementList.add(new javax.xml.namespace.QName("http://oscm.org/xsd",
+                    "userId"));
 
             if (localUserId != null) {
-                elementList
-                        .add(org.apache.axis2.databinding.utils.ConverterUtil
-                                .convertToString(localUserId));
+                elementList.add(org.apache.axis2.databinding.utils.ConverterUtil
+                        .convertToString(localUserId));
             } else {
                 throw new org.apache.axis2.databinding.ADBException(
                         "userId cannot be null!!");
             }
         }
         if (localUserLastNameTracker) {
-            elementList.add(new javax.xml.namespace.QName(
-                    "http://oscm.org/xsd", "userLastName"));
+            elementList.add(new javax.xml.namespace.QName("http://oscm.org/xsd",
+                    "userLastName"));
 
             if (localUserLastName != null) {
-                elementList
-                        .add(org.apache.axis2.databinding.utils.ConverterUtil
-                                .convertToString(localUserLastName));
+                elementList.add(org.apache.axis2.databinding.utils.ConverterUtil
+                        .convertToString(localUserLastName));
             } else {
                 throw new org.apache.axis2.databinding.ADBException(
                         "userLastName cannot be null!!");
@@ -971,11 +947,11 @@ public class User implements org.apache.axis2.databinding.ADBBean {
                     reader.next();
 
                 if (reader.getAttributeValue(
-                        "http://www.w3.org/2001/XMLSchema-instance", "type") != null) {
-                    java.lang.String fullTypeName = reader
-                            .getAttributeValue(
-                                    "http://www.w3.org/2001/XMLSchema-instance",
-                                    "type");
+                        "http://www.w3.org/2001/XMLSchema-instance",
+                        "type") != null) {
+                    java.lang.String fullTypeName = reader.getAttributeValue(
+                            "http://www.w3.org/2001/XMLSchema-instance",
+                            "type");
                     if (fullTypeName != null) {
                         java.lang.String nsPrefix = null;
                         if (fullTypeName.indexOf(":") > -1) {
@@ -990,8 +966,8 @@ public class User implements org.apache.axis2.databinding.ADBBean {
                         if (!"user".equals(type)) {
                             // find namespace for the prefix
                             java.lang.String nsUri = reader
-                                    .getNamespaceContext().getNamespaceURI(
-                                            nsPrefix);
+                                    .getNamespaceContext()
+                                    .getNamespaceURI(nsPrefix);
                             return (User) org.oscm.xsd.ExtensionMapper
                                     .getTypeObject(nsUri, type, reader);
                         }
@@ -1011,14 +987,14 @@ public class User implements org.apache.axis2.databinding.ADBBean {
                     reader.next();
 
                 if (reader.isStartElement()
-                        && new javax.xml.namespace.QName(
-                                "http://oscm.org/xsd",
+                        && new javax.xml.namespace.QName("http://oscm.org/xsd",
                                 "applicationUserId").equals(reader.getName())) {
 
                     java.lang.String content = reader.getElementText();
 
-                    object.setApplicationUserId(org.apache.axis2.databinding.utils.ConverterUtil
-                            .convertToString(content));
+                    object.setApplicationUserId(
+                            org.apache.axis2.databinding.utils.ConverterUtil
+                                    .convertToString(content));
 
                     reader.next();
 
@@ -1032,14 +1008,14 @@ public class User implements org.apache.axis2.databinding.ADBBean {
                     reader.next();
 
                 if (reader.isStartElement()
-                        && new javax.xml.namespace.QName(
-                                "http://oscm.org/xsd", "email")
-                                .equals(reader.getName())) {
+                        && new javax.xml.namespace.QName("http://oscm.org/xsd",
+                                "email").equals(reader.getName())) {
 
                     java.lang.String content = reader.getElementText();
 
-                    object.setEmail(org.apache.axis2.databinding.utils.ConverterUtil
-                            .convertToString(content));
+                    object.setEmail(
+                            org.apache.axis2.databinding.utils.ConverterUtil
+                                    .convertToString(content));
 
                     reader.next();
 
@@ -1053,14 +1029,14 @@ public class User implements org.apache.axis2.databinding.ADBBean {
                     reader.next();
 
                 if (reader.isStartElement()
-                        && new javax.xml.namespace.QName(
-                                "http://oscm.org/xsd", "locale")
-                                .equals(reader.getName())) {
+                        && new javax.xml.namespace.QName("http://oscm.org/xsd",
+                                "locale").equals(reader.getName())) {
 
                     java.lang.String content = reader.getElementText();
 
-                    object.setLocale(org.apache.axis2.databinding.utils.ConverterUtil
-                            .convertToString(content));
+                    object.setLocale(
+                            org.apache.axis2.databinding.utils.ConverterUtil
+                                    .convertToString(content));
 
                     reader.next();
 
@@ -1074,14 +1050,14 @@ public class User implements org.apache.axis2.databinding.ADBBean {
                     reader.next();
 
                 if (reader.isStartElement()
-                        && new javax.xml.namespace.QName(
-                                "http://oscm.org/xsd", "roleIdentifier")
-                                .equals(reader.getName())) {
+                        && new javax.xml.namespace.QName("http://oscm.org/xsd",
+                                "roleIdentifier").equals(reader.getName())) {
 
                     java.lang.String content = reader.getElementText();
 
-                    object.setRoleIdentifier(org.apache.axis2.databinding.utils.ConverterUtil
-                            .convertToString(content));
+                    object.setRoleIdentifier(
+                            org.apache.axis2.databinding.utils.ConverterUtil
+                                    .convertToString(content));
 
                     reader.next();
 
@@ -1095,14 +1071,14 @@ public class User implements org.apache.axis2.databinding.ADBBean {
                     reader.next();
 
                 if (reader.isStartElement()
-                        && new javax.xml.namespace.QName(
-                                "http://oscm.org/xsd", "userFirstName")
-                                .equals(reader.getName())) {
+                        && new javax.xml.namespace.QName("http://oscm.org/xsd",
+                                "userFirstName").equals(reader.getName())) {
 
                     java.lang.String content = reader.getElementText();
 
-                    object.setUserFirstName(org.apache.axis2.databinding.utils.ConverterUtil
-                            .convertToString(content));
+                    object.setUserFirstName(
+                            org.apache.axis2.databinding.utils.ConverterUtil
+                                    .convertToString(content));
 
                     reader.next();
 
@@ -1116,14 +1092,14 @@ public class User implements org.apache.axis2.databinding.ADBBean {
                     reader.next();
 
                 if (reader.isStartElement()
-                        && new javax.xml.namespace.QName(
-                                "http://oscm.org/xsd", "userId")
-                                .equals(reader.getName())) {
+                        && new javax.xml.namespace.QName("http://oscm.org/xsd",
+                                "userId").equals(reader.getName())) {
 
                     java.lang.String content = reader.getElementText();
 
-                    object.setUserId(org.apache.axis2.databinding.utils.ConverterUtil
-                            .convertToString(content));
+                    object.setUserId(
+                            org.apache.axis2.databinding.utils.ConverterUtil
+                                    .convertToString(content));
 
                     reader.next();
 
@@ -1137,14 +1113,14 @@ public class User implements org.apache.axis2.databinding.ADBBean {
                     reader.next();
 
                 if (reader.isStartElement()
-                        && new javax.xml.namespace.QName(
-                                "http://oscm.org/xsd", "userLastName")
-                                .equals(reader.getName())) {
+                        && new javax.xml.namespace.QName("http://oscm.org/xsd",
+                                "userLastName").equals(reader.getName())) {
 
                     java.lang.String content = reader.getElementText();
 
-                    object.setUserLastName(org.apache.axis2.databinding.utils.ConverterUtil
-                            .convertToString(content));
+                    object.setUserLastName(
+                            org.apache.axis2.databinding.utils.ConverterUtil
+                                    .convertToString(content));
 
                     reader.next();
 

@@ -1,3 +1,4 @@
+
 /**
  * ActivateInstanceE.java
  *
@@ -10,11 +11,16 @@ package org.oscm.xsd;
 /**
  * ActivateInstanceE bean class
  */
-@SuppressWarnings({ "rawtypes", "unused", "serial", "null" })
+
 public class ActivateInstanceE implements org.apache.axis2.databinding.ADBBean {
 
     public static final javax.xml.namespace.QName MY_QNAME = new javax.xml.namespace.QName(
             "http://oscm.org/xsd", "activateInstance", "ns1");
+    /**
+     * field for ActivateInstance
+     */
+
+    protected org.oscm.xsd.ActivateInstance localActivateInstance;
 
     private static java.lang.String generatePrefix(java.lang.String namespace) {
         if (namespace.equals("http://oscm.org/xsd")) {
@@ -24,14 +30,27 @@ public class ActivateInstanceE implements org.apache.axis2.databinding.ADBBean {
     }
 
     /**
-     * field for ActivateInstance
+     * isReaderMTOMAware
+     *
+     * @return true if the reader supports MTOM
      */
+    public static boolean isReaderMTOMAware(
+            javax.xml.stream.XMLStreamReader reader) {
+        boolean isReaderMTOMAware = false;
 
-    protected org.oscm.xsd.ActivateInstance localActivateInstance;
+        try {
+            isReaderMTOMAware = java.lang.Boolean.TRUE
+                    .equals(reader.getProperty(
+                            org.apache.axiom.om.OMConstants.IS_DATA_HANDLERS_AWARE));
+        } catch (java.lang.IllegalArgumentException e) {
+            isReaderMTOMAware = false;
+        }
+        return isReaderMTOMAware;
+    }
 
     /**
      * Auto generated getter method
-     * 
+     *
      * @return org.oscm.xsd.ActivateInstance
      */
     public org.oscm.xsd.ActivateInstance getActivateInstance() {
@@ -40,7 +59,7 @@ public class ActivateInstanceE implements org.apache.axis2.databinding.ADBBean {
 
     /**
      * Auto generated setter method
-     * 
+     *
      * @param param
      *            ActivateInstance
      */
@@ -51,26 +70,7 @@ public class ActivateInstanceE implements org.apache.axis2.databinding.ADBBean {
     }
 
     /**
-     * isReaderMTOMAware
-     * 
-     * @return true if the reader supports MTOM
-     */
-    public static boolean isReaderMTOMAware(
-            javax.xml.stream.XMLStreamReader reader) {
-        boolean isReaderMTOMAware = false;
-
-        try {
-            isReaderMTOMAware = java.lang.Boolean.TRUE
-                    .equals(reader
-                            .getProperty(org.apache.axiom.om.OMConstants.IS_DATA_HANDLERS_AWARE));
-        } catch (java.lang.IllegalArgumentException e) {
-            isReaderMTOMAware = false;
-        }
-        return isReaderMTOMAware;
-    }
-
-    /**
-     * 
+     *
      * @param parentQName
      * @param factory
      * @return org.apache.axiom.om.OMElement
@@ -83,7 +83,6 @@ public class ActivateInstanceE implements org.apache.axis2.databinding.ADBBean {
         org.apache.axiom.om.OMDataSource dataSource = new org.apache.axis2.databinding.ADBDataSource(
                 this, MY_QNAME) {
 
-            @Override
             public void serialize(
                     org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter)
                     throws javax.xml.stream.XMLStreamException {
@@ -95,8 +94,7 @@ public class ActivateInstanceE implements org.apache.axis2.databinding.ADBBean {
 
     }
 
-    public void serialize(
-            final javax.xml.namespace.QName parentQName,
+    public void serialize(final javax.xml.namespace.QName parentQName,
             final org.apache.axiom.om.OMFactory factory,
             org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter)
             throws javax.xml.stream.XMLStreamException,
@@ -104,8 +102,7 @@ public class ActivateInstanceE implements org.apache.axis2.databinding.ADBBean {
         serialize(parentQName, factory, xmlWriter, false);
     }
 
-    public void serialize(
-            final javax.xml.namespace.QName parentQName,
+    public void serialize(final javax.xml.namespace.QName parentQName,
             final org.apache.axiom.om.OMFactory factory,
             org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter,
             boolean serializeType) throws javax.xml.stream.XMLStreamException,
@@ -200,20 +197,19 @@ public class ActivateInstanceE implements org.apache.axis2.databinding.ADBBean {
             }
 
             if (prefix.trim().length() > 0) {
-                xmlWriter.writeCharacters(prefix
-                        + ":"
+                xmlWriter.writeCharacters(prefix + ":"
                         + org.apache.axis2.databinding.utils.ConverterUtil
                                 .convertToString(qname));
             } else {
                 // i.e this is the default namespace
-                xmlWriter
-                        .writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil
+                xmlWriter.writeCharacters(
+                        org.apache.axis2.databinding.utils.ConverterUtil
                                 .convertToString(qname));
             }
 
         } else {
-            xmlWriter
-                    .writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil
+            xmlWriter.writeCharacters(
+                    org.apache.axis2.databinding.utils.ConverterUtil
                             .convertToString(qname));
         }
     }
@@ -244,9 +240,7 @@ public class ActivateInstanceE implements org.apache.axis2.databinding.ADBBean {
                     }
 
                     if (prefix.trim().length() > 0) {
-                        stringToWrite
-                                .append(prefix)
-                                .append(":")
+                        stringToWrite.append(prefix).append(":")
                                 .append(org.apache.axis2.databinding.utils.ConverterUtil
                                         .convertToString(qnames[i]));
                     } else {
@@ -277,7 +271,8 @@ public class ActivateInstanceE implements org.apache.axis2.databinding.ADBBean {
         if (prefix == null) {
             prefix = generatePrefix(namespace);
 
-            while (xmlWriter.getNamespaceContext().getNamespaceURI(prefix) != null) {
+            while (xmlWriter.getNamespaceContext()
+                    .getNamespaceURI(prefix) != null) {
                 prefix = org.apache.axis2.databinding.utils.BeanUtil
                         .getUniquePrefix();
             }
@@ -291,7 +286,7 @@ public class ActivateInstanceE implements org.apache.axis2.databinding.ADBBean {
 
     /**
      * databinding method to get an XML representation of this object
-     * 
+     *
      */
     public javax.xml.stream.XMLStreamReader getPullParser(
             javax.xml.namespace.QName qName)
@@ -342,11 +337,12 @@ public class ActivateInstanceE implements org.apache.axis2.databinding.ADBBean {
                         if (reader.isStartElement()
                                 && new javax.xml.namespace.QName(
                                         "http://oscm.org/xsd",
-                                        "activateInstance").equals(reader
-                                        .getName())) {
+                                        "activateInstance")
+                                                .equals(reader.getName())) {
 
-                            object.setActivateInstance(org.oscm.xsd.ActivateInstance.Factory
-                                    .parse(reader));
+                            object.setActivateInstance(
+                                    org.oscm.xsd.ActivateInstance.Factory
+                                            .parse(reader));
 
                         } // End of if for expected property start element
 
