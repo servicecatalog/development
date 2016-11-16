@@ -12,12 +12,15 @@ import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
+import javax.persistence.NoResultException;
 import javax.persistence.Query;
 
 import org.oscm.converter.ParameterizedTypes;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Tenant;
 import org.oscm.domobjects.TenantSetting;
+import org.oscm.internal.types.enumtypes.IdpSettingType;
+import org.oscm.internal.types.exception.DomainObjectException.ClassEnum;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 
 @Stateless
@@ -83,5 +86,27 @@ public class TenantDao {
         query.setParameter("tenantKey", tenantKey);
         
         return ParameterizedTypes.list(query.getResultList(), String.class);
+    }
+    
+    public TenantSetting getTenantSetting(String settingKey, String tenantId)
+            throws ObjectNotFoundException {
+
+        Tenant tenant = this.getTenantByTenantId(tenantId);
+
+        Query query = dataManager
+                .createNamedQuery("TenantSetting.findByBusinessKey");
+        query.setParameter("tenant", tenant);
+        query.setParameter("name", IdpSettingType.valueOf(settingKey));
+
+        TenantSetting tenantSetting;
+
+        try {
+            tenantSetting = (TenantSetting) query.getSingleResult();
+        } catch (NoResultException e) {
+            throw new ObjectNotFoundException(ClassEnum.TENANT_SETTING,
+                    settingKey + " for tenant: " + tenantId);
+        }
+
+        return tenantSetting;
     }
 }

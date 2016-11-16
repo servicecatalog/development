@@ -14,9 +14,9 @@ import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.oscm.integrationtests.apiversioning.client.CTMGClient;
+import org.oscm.integrationtests.apiversioning.client.CTMGClient2;
 import org.oscm.integrationtests.apiversioning.factory.ServiceFactory;
-import org.oscm.integrationtests.apiversioning.factory.VOFactory;
+import org.oscm.integrationtests.apiversioning.factory.VOFactory2;
 import org.oscm.intf.IdentityService;
 import org.oscm.types.enumtypes.UserAccountStatus;
 import org.oscm.types.enumtypes.UserRoleType;
@@ -38,13 +38,13 @@ import org.oscm.vo.VOUserDetails;
 /**
  * Client of IdentityService
  */
-public class IdentityServiceClient {
+public class IdentityServiceClient2 {
 
     private static final String wsdlFile = "/IdentityService.wsdl";
     private IdentityService idServ;
 
-    public IdentityServiceClient(String userKey, String password) {
-        URL wsdlURL = CTMGClient.class.getResource(wsdlFile);
+    public IdentityServiceClient2(String userKey, String password) {
+        URL wsdlURL = CTMGClient2.class.getResource(wsdlFile);
         ServiceFactory factory = new ServiceFactory(userKey, password, wsdlURL);
         try {
             idServ = factory.getBESWebService(IdentityService.class);
@@ -59,7 +59,7 @@ public class IdentityServiceClient {
     }
 
     public VOUserDetails createUser(String organizationId) {
-        VOUserDetails user = VOFactory.createVOUserDetails(organizationId);
+        VOUserDetails user = VOFactory2.createVOUserDetails(organizationId);
         try {
             return idServ.createUser(user,
                     Arrays.asList(UserRoleType.MARKETPLACE_OWNER), null);
@@ -84,7 +84,7 @@ public class IdentityServiceClient {
     }
 
     public void grantUserRoles(String userId, UserRoleType role) {
-        VOUser user = VOFactory.createVOUser(userId);
+        VOUser user = VOFactory2.createVOUser(userId);
         try {
             idServ.grantUserRoles(user, Arrays.asList(role));
         } catch (ObjectNotFoundException | OperationNotPermittedException
@@ -95,7 +95,7 @@ public class IdentityServiceClient {
     }
 
     public void revokeUserRoles(long userKey, UserRoleType role) {
-        VOUser user = VOFactory.createVOUserWithKey(userKey);
+        VOUser user = VOFactory2.createVOUserWithKey(userKey);
         try {
             idServ.revokeUserRoles(user, Arrays.asList(role));
         } catch (ObjectNotFoundException | OperationNotPermittedException
@@ -131,7 +131,7 @@ public class IdentityServiceClient {
     }
 
     public VOUser getVOUser(String userId) {
-        VOUser user = VOFactory.createVOUser(userId);
+        VOUser user = VOFactory2.createVOUser(userId);
         try {
             return idServ.getUser(user);
         } catch (ObjectNotFoundException | OperationNotPermittedException

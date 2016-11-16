@@ -48,6 +48,7 @@ import javax.persistence.NoResultException;
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.Query;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.GenericValidator;
 import org.oscm.authorization.PasswordHash;
 import org.oscm.communicationservice.data.SendMailStatus;
@@ -1146,8 +1147,16 @@ public class IdentityServiceBean implements IdentityService,
         ArgumentValidator.notNull("user", user);
         PlatformUser pUser;
         try {
-            pUser = getPlatformUser(user.getUserId(), user.getTenantId(), false);
-
+            String userId = user.getUserId();
+            String orgId = user.getOrganizationId();
+            String tenantId = user.getTenantId();
+            
+            if(StringUtils.isNotBlank(orgId)){
+                pUser = getPlatformUserByOrganization(userId, orgId);
+            } else {
+                pUser = getPlatformUser(userId, tenantId, false);
+            }
+           
             if (pUser.getOrganization().getDeregistrationDate() != null) {
                 OperationNotPermittedException onp = new OperationNotPermittedException(
                         "The user doesn't belong to a active organization.");
@@ -1637,7 +1646,7 @@ public class IdentityServiceBean implements IdentityService,
         platformUser.setUserId(userId);
         platformUser.setTenantId(tenantId);
         platformUser = dm.find(platformUser);
-
+        
         if (platformUser == null) {
             ObjectNotFoundException onf = new ObjectNotFoundException(
                     ObjectNotFoundException.ClassEnum.USER, userId);
@@ -2827,16 +2836,24 @@ public class IdentityServiceBean implements IdentityService,
                 onBehalfUserKeys.add(Long.valueOf(user.getKey()));
             }
         }
-
+        
+        String currentUserTenant = dm.getCurrentUser().getTenantId();
+        
         for (VOUser user : usersToBeAdded) {
             validateForOnBehalfUserGroupAssignment(user, onBehalfUserKeys);
+            if(StringUtils.isBlank(user.getTenantId())){
+                user.setTenantId(currentUserTenant);
+            }
             PlatformUser platformUser = new PlatformUser();
             platformUser.setUserId(user.getUserId());
             platformUser.setTenantId(user.getTenantId());
             added.add(platformUser);
         }
         for (VOUser user : usersToBeRevoked) {
-            validateForOnBehalfUserGroupAssignment(user, onBehalfUserKeys);
+            validateForOnBehalfUserGroupAssignment(user, onBehalfUserKeys);  
+            if(StringUtils.isBlank(user.getTenantId())){
+                user.setTenantId(currentUserTenant);
+            }
             PlatformUser platformUser = new PlatformUser();
             platformUser.setUserId(user.getUserId());
             platformUser.setTenantId(user.getTenantId());
@@ -2894,4 +2911,36 @@ public class IdentityServiceBean implements IdentityService,
         return allExpired;
     }
 
+    @Override
+    public PlatformUser getPlatformUserByOrganization(String userId,
+            String orgId) throws ObjectNotFoundException {
+
+        Query query = dm.createNamedQuery("PlatformUser.findByUserIdAndOrgId");
+
+        query.setParameter("userId", userId);
+        query.setParameter("organizationId", orgId);
+
+        PlatformUser platformUser = null;
+
+        try {
+            platformUser = (PlatformUser) query.getSingleResult();
+        } catch (NoResultException e) {
+            throwONFExcp(userId);
+        }
+
+        if (platformUser == null) {
+            throwONFExcp(userId);
+        }
+
+        return platformUser;
+    }
+
+    private void throwONFExcp(String userId) throws ObjectNotFoundException {
+        
+        ObjectNotFoundException onf = new ObjectNotFoundException(
+                ObjectNotFoundException.ClassEnum.USER, userId);
+        logger.logWarn(Log4jLogger.SYSTEM_LOG, onf,
+                LogMessageIdentifier.WARN_USER_NOT_FOUND);
+        throw onf;
+    }
 }

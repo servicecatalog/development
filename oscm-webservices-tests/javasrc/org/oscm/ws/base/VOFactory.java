@@ -11,6 +11,7 @@ package org.oscm.ws.base;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.oscm.internal.vo.VOTenant;
 import org.oscm.types.enumtypes.PriceModelType;
 import org.oscm.types.enumtypes.PricingPeriod;
 import org.oscm.vo.VOBillingContact;
@@ -140,5 +141,14 @@ public class VOFactory {
         user.setEMail(email);
         user.setLocale("en");
         return user;
+    }
+    
+    public VOTenant createTenantVo(String tenantId){
+        
+        VOTenant tenant = new VOTenant();
+        tenant.setTenantId(tenantId);
+        tenant.setName("customName");
+        
+        return tenant;
     }
 }

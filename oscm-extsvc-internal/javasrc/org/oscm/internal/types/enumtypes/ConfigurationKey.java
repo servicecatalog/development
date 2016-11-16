@@ -327,7 +327,8 @@ public enum ConfigurationKey {
 
     @Doc({ "Encryption key length for STS." })
     @Example("128")
-    SSO_STS_ENCKEY_LEN(false, null, "long", Long.valueOf(1L), Long.valueOf(Integer.MAX_VALUE), true),
+    SSO_STS_ENCKEY_LEN(false, null, "long", Long.valueOf(1L), Long
+            .valueOf(Integer.MAX_VALUE), false),
 
     @Doc({ "Specifies whether the audit logging is enabled" })
     @Example("false")
@@ -339,11 +340,11 @@ public enum ConfigurationKey {
 
     @Doc({ "URL of STS service" })
     @Example("https://<host>:<port>/<ServiceEndpoint>")
-    SSO_STS_URL(false, null, "url", true),
+    SSO_STS_URL(false, null, "url"),
 
     @Doc({ "MetadataReference URL of STS service" })
     @Example("https://<host>:<port>/<MEXAddress>")
-    SSO_STS_METADATA_URL(false, null, "url", true),
+    SSO_STS_METADATA_URL(false, null, "url"),
 
     @Doc({ "URL of the Identity Provider's single logout service" })
     @Example("https://<host>:<port>/<LogoutServiceEndpoint>")

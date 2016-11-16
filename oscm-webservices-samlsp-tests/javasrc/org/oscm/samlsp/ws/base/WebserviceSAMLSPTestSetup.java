@@ -33,23 +33,24 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
-
+import org.oscm.converter.api.EnumConverter;
+import org.oscm.converter.api.VOConverter;
+import org.oscm.internal.intf.OperatorService;
+import org.oscm.internal.intf.TenantService;
+import org.oscm.internal.vo.VOTenant;
 import org.oscm.test.setup.PropertiesReader;
+import org.oscm.types.enumtypes.OrganizationRoleType;
+import org.oscm.types.enumtypes.UserRoleType;
+import org.oscm.vo.VOOrganization;
+import org.oscm.vo.VOUserDetails;
 import org.oscm.ws.base.ServiceFactory;
 import org.oscm.ws.base.VOFactory;
 import org.oscm.ws.base.WebserviceTestBase;
 import org.oscm.ws.base.WebserviceTestSetup;
 import org.oscm.xml.Transformers;
-import org.oscm.converter.api.EnumConverter;
-import org.oscm.converter.api.VOConverter;
-import org.oscm.internal.intf.OperatorService;
-import org.oscm.types.enumtypes.OrganizationRoleType;
-import org.oscm.types.enumtypes.UserRoleType;
-import org.oscm.vo.VOOrganization;
-import org.oscm.vo.VOUserDetails;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
 
 /**
  * @author Qiu
@@ -58,10 +59,13 @@ public class WebserviceSAMLSPTestSetup extends WebserviceTestSetup {
 
     private static final String STSConfigTemplateFileName = "MockSTSServiceTemplate.xml";
     private static final String STSConfigFileName = "MockSTSService.xml";
+
     private static VOFactory factory = new VOFactory();
     private String supplierUserId;
+    
     private static OperatorService operator;
-
+    private static TenantService tenantService;
+    
     public WebserviceSAMLSPTestSetup() {
         setJKSLocation(getExampleDomainPath());
     }
@@ -133,7 +137,7 @@ public class WebserviceSAMLSPTestSetup extends WebserviceTestSetup {
         DocumentBuilder builder = factory.newDocumentBuilder();
         return builder.parse(file);
     }
-
+    
     @Override
     public VOOrganization createSupplier(String namePrefix) throws Exception {
         supplierUserId = namePrefix + "_"
@@ -159,7 +163,7 @@ public class WebserviceSAMLSPTestSetup extends WebserviceTestSetup {
         return supplierUserId;
     }
 
-    private static VOOrganization createOrganization(String administratorId,
+    public static VOOrganization createOrganization(String administratorId,
             String name, OrganizationRoleType... rolesToGrant) throws Exception {
 
         VOUserDetails adminUser = factory.createUserVO(administratorId);
@@ -207,4 +211,20 @@ public class WebserviceSAMLSPTestSetup extends WebserviceTestSetup {
         }
         return operator;
     }
+    
+    private static TenantService getTenantService() throws Exception {
+        synchronized (WebserviceSAMLSPTestSetup.class) {
+            if (tenantService == null) {
+                tenantService = ServiceFactory.getDefault().getTenantService();
+            }
+        }
+        return tenantService;
+    }
+    
+    public static void createTenant(String tenantId) throws Exception  {
+        
+        VOTenant voTenant = factory.createTenantVo(tenantId);
+        getTenantService().addTenant(voTenant);   
+    }
+    
 }

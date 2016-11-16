@@ -549,12 +549,10 @@ public abstract class BaseBesFilter implements Filter {
     /**
      * redirectToMp Url
      */
-    protected boolean redirectToMpUrl(ServiceAccess serviceAccess,
-            HttpServletRequest httpRequest, HttpServletResponse httpResponse)
+    protected boolean redirectToMpUrl(HttpServletRequest httpRequest, HttpServletResponse httpResponse)
             throws IOException {
         String uri = httpRequest.getRequestURI();
-        ConfigurationService cs = serviceAccess
-                .getService(ConfigurationService.class);
+        ConfigurationService cs = getConfigurationService(httpRequest);
         if (httpRequest.getRequestURL() == null)
             return false;
         String requestUrl = httpRequest.getRequestURL().toString();

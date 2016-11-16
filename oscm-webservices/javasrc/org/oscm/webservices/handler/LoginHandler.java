@@ -5,6 +5,8 @@
 package org.oscm.webservices.handler;
 
 import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.naming.Context;
@@ -19,16 +21,23 @@ import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 
+import org.apache.commons.lang3.StringUtils;
 import org.glassfish.security.common.PrincipalImpl;
-import org.w3c.dom.Element;
-
+import org.oscm.converter.XMLConverter;
+import org.oscm.internal.intf.ConfigurationService;
+import org.oscm.internal.types.enumtypes.ConfigurationKey;
+import org.oscm.internal.types.exception.NotExistentTenantException;
+import org.oscm.internal.types.exception.NotExistentTenantException.Reason;
+import org.oscm.internal.types.exception.UserIdNotFoundException;
+import org.oscm.internal.vo.VOConfigurationSetting;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
-import org.oscm.converter.XMLConverter;
 import org.oscm.saml2.api.SAMLResponseExtractor;
+import org.oscm.types.constants.Configuration;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
-import org.oscm.internal.types.exception.UserIdNotFoundException;
 import org.oscm.types.exceptions.SecurityCheckException;
+import org.w3c.dom.Element;
+
 import com.sun.appserv.security.ProgrammaticLogin;
 import com.sun.xml.ws.security.opt.impl.incoming.SAMLAssertion;
 import com.sun.xml.wss.XWSSecurityException;
@@ -36,6 +45,14 @@ import com.sun.xml.wss.impl.MessageConstants;
 import com.sun.xml.wss.saml.util.SAMLUtil;
 
 public class LoginHandler implements SOAPHandler<SOAPMessageContext> {
+
+    private static final String ORGANIZATION_ID_HEADER_PARAM = "organizationId";
+    
+    private Context context;
+    private DataSource dataSource;
+    private ConfigurationService configService;
+    private AbstractKeyQuery keyQuery;
+    private SAMLResponseExtractor samlExtractor;
 
     @Override
     public boolean handleMessage(SOAPMessageContext context) {
@@ -45,7 +62,7 @@ public class LoginHandler implements SOAPHandler<SOAPMessageContext> {
             String userKey = null;
             try {
                 userKey = getUserKeyFromContext(context);
-            } catch (UserIdNotFoundException | NamingException | SQLException exception) {
+            } catch (UserIdNotFoundException | NamingException | SQLException | NotExistentTenantException exception) {
                 logException(
                         exception,
                         LogMessageIdentifier.ERROR_GET_USER_FROM_SAML_RESPONSE_FAILED);
@@ -111,33 +128,143 @@ public class LoginHandler implements SOAPHandler<SOAPMessageContext> {
     }
 
     protected String getUserKeyFromContext(SOAPMessageContext context)
-            throws UserIdNotFoundException, NamingException, SQLException {
+            throws UserIdNotFoundException, NamingException, SQLException, NotExistentTenantException {
+        
         String userId = getUserIdFromContext(context);
-        return getUserKeyFromId(userId);
+        String tenantId = getTenantIdFromContext(context);
+        String orgId = getOrganizationIdFromContext(context);
+        
+        return getUserKey(userId, orgId, tenantId);
     }
+    
+    private String getUserKey(String userId, String orgId, String tenantId)
+            throws NamingException, SQLException {
+        
+        if (StringUtils.isNotEmpty(tenantId)) {
 
-    private String getUserKeyFromId(String userId) throws NamingException,
-            SQLException {
-        long userKey = -1;
-        Context context = new InitialContext();
-        DataSource ds = (DataSource) context.lookup("BSSDS");
-        KeyQuery keyQuery = new KeyQuery(ds, userId);
+            VOConfigurationSetting setting = getConfigService()
+                    .getVOConfigurationSetting(
+                            ConfigurationKey.SSO_DEFAULT_TENANT_ID,
+                            Configuration.GLOBAL_CONTEXT);
+            String defaultTenantId = setting.getValue();
+
+            if (tenantId.equals(defaultTenantId)) {
+                keyQuery = new UserKeyQuery(getDataSource(), userId);
+            } else {
+                keyQuery = new UserKeyForTenantQuery(getDataSource(), userId,
+                        tenantId);
+            }
+
+        } else if (StringUtils.isNotEmpty(orgId)) {
+            keyQuery = new UserKeyForOrganizationQuery(getDataSource(), userId,
+                    orgId);
+        }
+
         keyQuery.execute();
-        userKey = keyQuery.getUserKey();
+        long userKey = keyQuery.getKey();
+        
+        if (userKey == 0) {
+            throw new SQLException(
+                    "User not found [user id: " + userId + ", tenant id: "
+                            + tenantId + ", orgaznization id: " + orgId + " ]");
+        }
+        
         return String.valueOf(userKey);
     }
 
     protected String getUserIdFromContext(SOAPMessageContext context)
             throws UserIdNotFoundException {
-        String userId = null;
-        SAMLAssertion samlAssertion = (SAMLAssertion) context
-                .get(MessageConstants.INCOMING_SAML_ASSERTION);
-        SAMLResponseExtractor extractor = new SAMLResponseExtractor();
-        logDebugSamlAssertion(samlAssertion);
-        userId = extractor.getUserId(samlAssertion);
+        
+        String userId;
+        
+        SAMLAssertion samlAssertion = getSamlAssertion(context);
+
+        userId = getSamlExtractor().getUserId(samlAssertion);
         return userId;
     }
+    
+    protected String getTenantIdFromContext(SOAPMessageContext context) throws NotExistentTenantException {
+        
+        String tenantId;
+        
+        SAMLAssertion samlAssertion = getSamlAssertion(context);
+        tenantId = getSamlExtractor().getTenantId(samlAssertion);
+        
+        if(StringUtils.isEmpty(tenantId)){
+            throw new NotExistentTenantException(Reason.MISSING_TEANT_ID_IN_SAML);
+        }
+        
+        return tenantId;
+    }
+    
+    protected String getOrganizationIdFromContext(SOAPMessageContext context){
+        
+        String orgId = null;
+        
+        @SuppressWarnings("unchecked")
+        Map<String, List<String>> headers = (Map<String, List<String>>) context
+                .get(MessageContext.HTTP_REQUEST_HEADERS);
+        
+        List<String> orgIdParams = headers.get(ORGANIZATION_ID_HEADER_PARAM);
+        
+        if(orgIdParams!=null){
+            orgId = orgIdParams.get(0);
+        }
+        
+        return orgId;
+    }
+    
+    private SAMLAssertion getSamlAssertion(SOAPMessageContext context){
+        
+        SAMLAssertion samlAssertion = (SAMLAssertion) context
+                .get(MessageConstants.INCOMING_SAML_ASSERTION);
+        
+        logDebugSamlAssertion(samlAssertion);
+        
+        return samlAssertion;
+    }
+    
+    protected Context getContext() throws NamingException {
 
+        if (this.context == null) {
+            this.context = new InitialContext();
+        }
+        return this.context;
+    }
+
+    protected DataSource getDataSource() throws NamingException {
+
+        Context context = getContext();
+
+        if (this.dataSource == null) {
+            this.dataSource = (DataSource) context.lookup("BSSDS");
+        }
+        return this.dataSource;
+    }
+
+    protected ConfigurationService getConfigService() throws NamingException {
+
+        Context context = getContext();
+
+        if (this.configService == null) {
+            this.configService = (ConfigurationService) context
+                    .lookup(ConfigurationService.class.getName());
+        }
+        return this.configService;
+    }
+
+    private SAMLResponseExtractor getSamlExtractor() {
+
+        if (this.samlExtractor == null) {
+            this.samlExtractor = new SAMLResponseExtractor();
+        }
+        return this.samlExtractor;
+    }
+    
+    public AbstractKeyQuery getKeyQuery() {
+        return keyQuery;
+    }
+    
     @Override
     public boolean handleFault(SOAPMessageContext context) {
         return false;

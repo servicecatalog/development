@@ -10,10 +10,12 @@ import java.util.List;
 import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
+import javax.interceptor.Interceptors;
 
 import org.oscm.domobjects.Session;
 import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.UsageLicense;
+import org.oscm.interceptor.InvocationDateContainer;
 import org.oscm.sessionservice.local.SessionServiceLocal;
 import org.oscm.internal.intf.SessionService;
 import org.oscm.internal.types.exception.ServiceParameterException;
@@ -24,7 +26,8 @@ import org.oscm.internal.types.exception.ServiceParameterException;
 @Stateless
 @Local(SessionServiceLocal.class)
 @Remote(SessionService.class)
-public class SessionManagementStub implements SessionServiceLocal,
+@Interceptors(InvocationDateContainer.class)
+public class SessionManagementStub2 implements SessionServiceLocal,
         SessionService {
 
     public void deleteAllSessions() {
