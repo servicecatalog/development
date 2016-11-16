@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="javasrc"/>
+	<classpathentry kind="src" path="javasrc-it"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-common"/>
 	<classpathentry kind="lib" path="/libraries/mockito/javalib/mockito-all-1.8.5.jar"/>
@@ -33,5 +34,7 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-accountmgmt"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-accountmgmt-intsvc"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc-internal-impl"/>
+	<classpathentry kind="src" path="/oscm-saml2-api"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-dataservice"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

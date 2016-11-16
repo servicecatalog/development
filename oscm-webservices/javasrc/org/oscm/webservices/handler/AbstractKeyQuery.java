@@ -20,11 +20,12 @@ import javax.sql.DataSource;
  * Base class to perform a SQL query.
  * 
  */
-abstract public class AbstractQuery {
+abstract public class AbstractKeyQuery{
 
     private DataSource ds;
-
-    AbstractQuery(DataSource ds) {
+    private long key;
+    
+    AbstractKeyQuery(DataSource ds) {
         this.ds = ds;
     }
 
@@ -72,7 +73,23 @@ abstract public class AbstractQuery {
         }
 
     }
-
+    
+    public long getKey(){
+        return this.key;
+    }
+    
+    /**
+     * Processes one row of the result set.
+     * 
+     * @param the
+     *            result set.
+     * @throws SQLException
+     *             if a database access error occurs.
+     */
+    public void mapResult(ResultSet rs) throws SQLException{
+        this.key = rs.getLong(1);  
+    }
+    
     /**
      * Returns the SQL statement that should be performed.
      * 
@@ -90,15 +107,5 @@ abstract public class AbstractQuery {
      */
     abstract protected void setParameters(PreparedStatement p)
             throws SQLException;
-
-    /**
-     * Processes one row of the result set.
-     * 
-     * @param the
-     *            result set.
-     * @throws SQLException
-     *             if a database access error occurs.
-     */
-    abstract protected void mapResult(ResultSet rs) throws SQLException;
 
 }

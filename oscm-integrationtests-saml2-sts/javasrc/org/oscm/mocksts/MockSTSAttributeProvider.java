@@ -19,6 +19,8 @@ import java.util.Set;
 import javax.security.auth.Subject;
 import javax.xml.namespace.QName;
 
+import org.oscm.mocksts.handler.SamlAssertionBreakHandler;
+
 import com.sun.xml.ws.api.security.trust.Claims;
 import com.sun.xml.ws.api.security.trust.STSAttributeProvider;
 
@@ -33,12 +35,16 @@ import com.sun.xml.ws.api.security.trust.STSAttributeProvider;
  * 
  */
 public class MockSTSAttributeProvider implements STSAttributeProvider {
-
+    
+    private static final String COMMON_PROPERTIES_PATH = "common.properties";
+    private static final String TENANT_ID = "tenantID";
+    
+    
     @Override
     public Map<QName, List<String>> getClaimedAttributes(Subject subject,
             String appliesTo, String tokenType, Claims claims) {
         String name = null;
-
+        
         Set<Principal> principals = subject.getPrincipals();
         if (principals != null) {
             final Iterator<Principal> iterator = principals.iterator();
@@ -50,30 +56,33 @@ public class MockSTSAttributeProvider implements STSAttributeProvider {
             }
         }
 
-        Map<QName, List<String>> attrs = new HashMap<QName, List<String>>();
+        Map<QName, List<String>> attributes = new HashMap<QName, List<String>>();
+        
+        addAttribute(attributes, STSAttributeProvider.NAME_IDENTIFIER, name);
+        addAttribute(attributes, "dummy_id1", "test_dummy_attribute1");
+        addAttribute(attributes, "userid", name);
+        addAttribute(attributes, "dummy_id2", "test_dummy_attribute2");
+        
+        String tenantId = SamlAssertionBreakHandler.getTenantIdFromContext();
 
-        List<String> nameIdAttrs = new ArrayList<String>();
-        QName nameIdQName = new QName(STSAttributeProvider.NAME_IDENTIFIER);
-        nameIdAttrs.add(name);
-        attrs.put(nameIdQName, nameIdAttrs);
+        if (tenantId == null) {
+            tenantId = PropertyLoader.getInstance().load(COMMON_PROPERTIES_PATH)
+                    .getProperty(TENANT_ID);
+        }
 
-        nameIdAttrs = new ArrayList<String>();
-        nameIdQName = new QName("dummy_id1");
-        nameIdAttrs.add("test_dummy_attribute1");
-        attrs.put(nameIdQName, nameIdAttrs);
-
-        nameIdAttrs = new ArrayList<String>();
-        nameIdQName = new QName("userid");
-        nameIdAttrs.add(name);
-        attrs.put(nameIdQName, nameIdAttrs);
-
-        nameIdAttrs = new ArrayList<String>();
-        nameIdQName = new QName("dummy_id2");
-        nameIdAttrs.add("test_dummy_attribute2");
-        attrs.put(nameIdQName, nameIdAttrs);
-
+        addAttribute(attributes, TENANT_ID, tenantId);
         // claims not considered here
 
-        return attrs;
+        return attributes;
+    }
+    
+    private void addAttribute(Map<QName, List<String>> attributes, String name, String value){
+        
+        ArrayList<String> namedAttributes = new ArrayList<String>();
+        namedAttributes.add(value);
+        
+        QName qName = new QName(name);
+        
+        attributes.put(qName, namedAttributes);
     }
 }

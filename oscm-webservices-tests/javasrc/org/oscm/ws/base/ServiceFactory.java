@@ -13,7 +13,9 @@ import java.util.Properties;
 import javax.naming.InitialContext;
 
 import org.oscm.ct.login.LoginHandlerFactory;
+import org.oscm.internal.intf.ConfigurationService;
 import org.oscm.internal.intf.OperatorService;
+import org.oscm.internal.intf.TenantService;
 import org.oscm.intf.AccountService;
 import org.oscm.intf.BillingService;
 import org.oscm.intf.CategorizationService;
@@ -51,6 +53,8 @@ public class ServiceFactory {
     private boolean useCertAuth = false;
     private boolean useSTSAuth = false;
     private final Properties props;
+    private String tenantId;
+    private String orgId;
 
     private static ServiceFactory defaultFactory;
 
@@ -73,6 +77,8 @@ public class ServiceFactory {
             return defaultFactory;
         }
         defaultFactory.setUseCertAuth(false);
+        defaultFactory.setTenantId(null);
+        defaultFactory.setOrgId(null);
         return defaultFactory;
     }
 
@@ -85,6 +91,17 @@ public class ServiceFactory {
         }
         defaultFactory.setUseCertAuth(false);
         defaultFactory.setUseSTSAuth(true);
+        defaultFactory.setTenantId(null);
+        defaultFactory.setOrgId(null);
+        return defaultFactory;
+    }
+    
+    public static synchronized ServiceFactory getSTSServiceFactory(String tenantId, String orgId)
+            throws Exception {
+        
+        defaultFactory = getSTSServiceFactory();
+        defaultFactory.setOrgId(orgId);
+        defaultFactory.setTenantId(tenantId);
         return defaultFactory;
     }
 
@@ -241,14 +258,14 @@ public class ServiceFactory {
     private <T> T connectToWebService(Class<T> remoteInterface,
             String userName, String password) throws Exception {
         return WebServiceProxy.get(getWebServiceBaseUrl(), "v1.9", getAuth(),
-                "http://oscm.org/xsd", remoteInterface, userName, password);
+                "http://oscm.org/xsd", remoteInterface, userName, password, getTenantId(), getOrgId());
     }
 
     public <T> T connectToWebService(Class<T> remoteInterface, String userName,
             String password, String versionInHeader) throws Exception {
         return WebServiceProxy.get(getWebServiceBaseUrl(), "v1.9",
                 versionInHeader, getAuth(), "http://oscm.org/xsd",
-                remoteInterface, userName, password);
+                remoteInterface, userName, password, getTenantId(), getOrgId());
     }
 
     public OperatorService getOperatorService() throws Exception {
@@ -306,6 +323,24 @@ public class ServiceFactory {
             throws Exception {
         return connectToWebService(SamlService.class, userName, password);
     }
+    
+    public TenantService getTenantService() throws Exception {
+        return getTenantService(getDefaultUserName(), getDefaultPassword());
+    }
+
+    public TenantService getTenantService(String userName, String password)
+            throws Exception {
+        return connectToEJB(TenantService.class, userName, password);
+    }
+    
+    public ConfigurationService getConfigurationService() throws Exception {
+        return getConfigurationService(getDefaultUserName(), getDefaultPassword());
+    }
+
+    public ConfigurationService getConfigurationService(String userName, String password)
+            throws Exception {
+        return connectToEJB(ConfigurationService.class, userName, password);
+    }
 
     private <T> T connectToEJB(Class<T> remoteInterface, String userName,
             String password) throws Exception {
@@ -356,4 +391,19 @@ public class ServiceFactory {
         System.out.println();
     }
 
+    public String getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(String tenantId) {
+        this.tenantId = tenantId;
+    }
+
+    public String getOrgId() {
+        return orgId;
+    }
+
+    public void setOrgId(String orgId) {
+        this.orgId = orgId;
+    }
 }

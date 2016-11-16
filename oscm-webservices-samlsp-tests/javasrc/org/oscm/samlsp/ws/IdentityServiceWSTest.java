@@ -22,12 +22,12 @@ import java.util.Set;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import org.oscm.samlsp.ws.base.WebserviceSAMLSPTestSetup;
 import org.oscm.ws.base.ServiceFactory;
 import org.oscm.ws.base.VOFactory;
 import org.oscm.ws.base.WebserviceTestBase;
 import org.oscm.intf.IdentityService;
 import org.oscm.intf.SessionService;
+import org.oscm.samlsp.ws.base.WebserviceSAMLSPTestSetup;
 import org.oscm.types.enumtypes.OrganizationRoleType;
 import org.oscm.types.enumtypes.Salutation;
 import org.oscm.types.enumtypes.UserAccountStatus;
@@ -55,7 +55,7 @@ import com.sun.xml.ws.fault.ServerSOAPFaultException;
 public class IdentityServiceWSTest {
 
     private static final String VERSION = "Version not updated: %s > %s";
-
+    
     private static WebserviceSAMLSPTestSetup setup;
     private static VOFactory factory = new VOFactory();
     private static IdentityService is;
@@ -69,6 +69,7 @@ public class IdentityServiceWSTest {
 
         WebserviceTestBase.getMailReader().deleteMails();
         WebserviceSAMLSPTestSetup.getOperator().addCurrency("EUR");
+        
         setup = new WebserviceSAMLSPTestSetup();
         supplier1 = setup.createSupplier(namePrefix);
         is = ServiceFactory.getSTSServiceFactory().getIdentityService(
@@ -99,7 +100,7 @@ public class IdentityServiceWSTest {
         validateUser(u, read);
         is.deleteUser(read, null);
     }
-
+    
     @Test(expected = UserRoleAssignmentException.class)
     public void createUser_WrongRole() throws Exception {
         VOUserDetails u = createUniqueUser();
@@ -635,7 +636,7 @@ public class IdentityServiceWSTest {
             checkEJBTransactionRolledbackException(e);
         }
     }
-
+    
     private void checkEJBTransactionRolledbackException(
             ServerSOAPFaultException e) {
         assertEquals(

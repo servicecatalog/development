@@ -424,4 +424,21 @@ public interface IdentityServiceLocal {
      */
     public void revokeUnitRole(PlatformUser user, UserRoleType role)
             throws UserModificationConstraintException;
+    
+    /**
+     * Retrieves the platform user matching the userId and orgId in the VOUser parameter
+     * and returns the user details including the key information.
+     * 
+     * @param userId
+     *            The user identifying attributes' representation.
+     * @param orgId
+     *            The organization identifying attributes' representation.
+     * @return The platform user corresponding to the given identifying
+     *         attributes.
+     * @throws ObjectNotFoundException
+     *             Thrown in case the user does not exist.
+
+     */
+    PlatformUser getPlatformUserByOrganization(String userId, String orgId)
+            throws ObjectNotFoundException;
 }

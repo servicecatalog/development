@@ -56,6 +56,8 @@ import org.oscm.internal.types.enumtypes.UserRoleType;
         @NamedQuery(name = "PlatformUser.findByUserIdAndTenantKey", query = "select obj from PlatformUser obj, "
                 + "Organization o, Tenant t where obj.dataContainer.userId=:userId AND obj.organization = o AND o"
                 + ".tenant = t AND t.key = :tenantKey "),
+        @NamedQuery(name = "PlatformUser.findByUserIdAndOrgId", query = "select obj from PlatformUser obj, "
+                + "Organization o where obj.dataContainer.userId=:userId AND obj.organization = o AND o.dataContainer.organizationId = :organizationId "),
         @NamedQuery(name = "PlatformUser.getOverdueOrganizationAdmins", query = "select obj from PlatformUser obj where obj.dataContainer.status = :status and obj.dataContainer.creationDate < :date"),
         @NamedQuery(name = "PlatformUser.getVisibleForOrganization", query = "SELECT DISTINCT pu FROM PlatformUser pu LEFT JOIN FETCH pu.assignedRoles LEFT JOIN FETCH pu.master WHERE pu.organization = :organization AND NOT EXISTS (SELECT ref FROM OnBehalfUserReference ref WHERE ref.slaveUser = pu)"),
         @NamedQuery(name = "PlatformUser.countRegisteredUsers", query = "select count(obj) from PlatformUser obj "),

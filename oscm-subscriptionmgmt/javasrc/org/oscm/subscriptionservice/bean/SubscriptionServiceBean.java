@@ -2054,9 +2054,9 @@ public class SubscriptionServiceBean implements SubscriptionService,
             PerformanceHint performanceHint) throws ObjectNotFoundException,
             OperationNotPermittedException {
         ArgumentValidator.notNull("user", user);
-
+        
         PlatformUser platformUser = idManager.getPlatformUser(user.getUserId(),
-                user.getTenantId(), true);
+                dataManager.getCurrentUser().getTenantId(), true);
         LocalizerFacade facade = new LocalizerFacade(localizer,
                 platformUser.getLocale());
         List<Subscription> subs = getSubscriptionsForUserInt(platformUser);

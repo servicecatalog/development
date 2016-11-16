@@ -46,4 +46,6 @@ public interface TenantServiceLocal {
     boolean doesMarketplaceAssignedToTenantExist(Tenant tenant);
     
     boolean doOrgUsersExistInTenant(String orgId, long tenantKey);
+
+    TenantSetting getTenantSetting(String settingKey, String tenantId) throws ObjectNotFoundException;
 }

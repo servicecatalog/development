@@ -21,13 +21,12 @@ import javax.xml.ws.WebServiceException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import org.oscm.samlsp.ws.base.WebserviceSAMLSPTestSetup;
-import org.oscm.ws.base.ServiceFactory;
-import org.oscm.ws.base.VOFactory;
 import org.oscm.intf.IdentityService;
+import org.oscm.samlsp.ws.base.WebserviceSAMLSPTestSetup;
 import org.oscm.types.enumtypes.UserRoleType;
 import org.oscm.vo.VOUserDetails;
+import org.oscm.ws.base.ServiceFactory;
+import org.oscm.ws.base.VOFactory;
 
 /**
  * @author gao
@@ -70,6 +69,7 @@ public class MockSTSWSTest {
 
     @Test
     public void testSecuredWS_OK() throws Exception {
+        
         // given
         idS = adminIdentityService;
 
@@ -79,6 +79,8 @@ public class MockSTSWSTest {
         // then
         assertEquals("administrator", user.getUserId());
     }
+    
+    
 
     @Test
     public void testSecuredWS_Modify_Issuer() throws Exception {

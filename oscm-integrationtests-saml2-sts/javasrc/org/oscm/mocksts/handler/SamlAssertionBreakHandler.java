@@ -9,6 +9,7 @@
 package org.oscm.mocksts.handler;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -27,8 +28,13 @@ import org.w3c.dom.NodeList;
  */
 public class SamlAssertionBreakHandler implements
         SOAPHandler<SOAPMessageContext> {
+    
+    private static final String TENANT_ID = "tenantID";
+    
     private final Map<String, String> userAndTagMap = new HashMap<String, String>();
-
+    
+    private static String tenantIdFromContext;
+    
     public SamlAssertionBreakHandler() {
         userAndTagMap.put("MockSTSTest_Issuer", "saml2:Issuer");
         userAndTagMap.put("MockSTSTest_DigestValue", "ds:DigestValue");
@@ -66,10 +72,12 @@ public class SamlAssertionBreakHandler implements
     }
 
     private void modifyAssertion(SOAPMessageContext context) throws Exception {
+        
         if (isOutboundMessage(context).booleanValue()) {
             Document messageDoc = context.getMessage().getSOAPBody()
                     .getOwnerDocument();
             String tagName = getModifyTagName(messageDoc);
+
             if (tagName != null && tagName.length() != 0) {
                 NodeList nodes = messageDoc.getElementsByTagName(tagName);
                 if (nodes.getLength() == 0) {
@@ -78,6 +86,10 @@ public class SamlAssertionBreakHandler implements
                 Node node = nodes.item(0);
                 removeLastCharacter(node);
             }
+            
+        } else{
+            String tenantId = getTenantFromRequest(context);
+            setTenantIdFromContext(tenantId);
         }
     }
 
@@ -101,11 +113,51 @@ public class SamlAssertionBreakHandler implements
             node.setTextContent(textContent);
         }
     }
-
+    
     protected Boolean isOutboundMessage(SOAPMessageContext context) {
         Boolean outBoundProperty = (Boolean) context
                 .get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
         return outBoundProperty;
     }
+    
+    private String getTenantFromRequest(SOAPMessageContext context) {
 
+        @SuppressWarnings("unchecked")
+        Map<String, List<String>> headers = (Map<String, List<String>>) context
+                .get(MessageContext.HTTP_REQUEST_HEADERS);
+
+        List<String> tenantParam = headers.get(TENANT_ID);
+
+        if (tenantParam != null) {
+            return tenantParam.get(0);
+        }
+
+        return null;
+    }
+
+    /*private void modifyTenantAttribute(SOAPMessageContext context,
+            String tenantId) throws SOAPException {
+
+        NodeList list = context.getMessage().getSOAPBody().getOwnerDocument()
+                .getElementsByTagName("saml2:Attribute");
+
+        for (int i = 0; i < list.getLength(); i++) {
+
+            Element item = (Element) list.item(i);
+            String attribute = item.getAttribute("AttributeName");
+
+            if (TENANT_ID.equals(attribute)) {
+                item.getFirstChild().setTextContent(tenantId);
+                System.out.println(item.getFirstChild().getTextContent());
+            }
+        }
+    }*/
+
+    public static String getTenantIdFromContext() {
+        return tenantIdFromContext;
+    }
+
+    public static void setTenantIdFromContext(String tenantIdFromContext) {
+        SamlAssertionBreakHandler.tenantIdFromContext = tenantIdFromContext;
+    }
 }
