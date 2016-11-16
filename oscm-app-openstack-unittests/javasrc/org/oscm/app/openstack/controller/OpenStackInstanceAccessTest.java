@@ -15,6 +15,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -78,7 +79,7 @@ public class OpenStackInstanceAccessTest extends EJBTestBase {
                 any(PasswordAuthentication.class))).thenReturn(settings);
         // when
         List<? extends ServerInformation> result = instanceAccess
-                .getServerDetails("Instance4");
+                .getServerDetails(instanceName);
 
         // then
         assertEquals(1, result.size());
@@ -101,17 +102,60 @@ public class OpenStackInstanceAccessTest extends EJBTestBase {
                 eq(OpenStackController.ID), eq("Instance4"),
                 any(PasswordAuthentication.class))).thenReturn(settings);
         MockHttpURLConnection connection = new MockHttpURLConnection(401,
-                MockURLStreamHandler.respServerActions());
+                MockURLStreamHandler.respTokens(true, true, false));
         connection.setIOException(new IOException());
         streamHandler.put("/v3/auth/tokens", connection);
         // when
-        instanceAccess.getServerDetails("Instance4");
+        instanceAccess.getServerDetails(instanceName);
+
+    }
+
+    @Test
+    public void getServerDetails_getInstanceNotAliveException()
+            throws Exception {
+        // given
+        final String instanceName = "Instance4";
+        createBasicParameters(instanceName, "fosi_v2.json", "http");
+        when(platformService.getServiceInstanceDetails(
+                eq(OpenStackController.ID), eq("Instance4"),
+                any(PasswordAuthentication.class))).thenReturn(settings);
+        MockHttpURLConnection connection = new MockHttpURLConnection(401,
+                MockURLStreamHandler.respServerActions());
+        connection.setIOException(new IOException());
+        streamHandler.put("/stacks/" + instanceName + "/resources",
+                new MockHttpURLConnection(200, MockURLStreamHandler
+                        .respStacksResources(new ArrayList<String>(), null)));
+        // when
+        List<? extends ServerInformation> result = instanceAccess
+                .getServerDetails(instanceName);
+
+        // then
+        assertEquals(0, result.size());
 
     }
 
     @Test
     public void getMessage() throws Exception {
 
+        String result = instanceAccess.getMessage(null, null, new Object());
+
+        assertEquals(null, result);
+    }
+
+    @Test
+    public void getAccessInfo() throws Exception {
+        // given
+        final String instanceName = "Instance4";
+        createBasicParameters(instanceName, "fosi_v2.json", "http");
+        when(platformService.getServiceInstanceDetails(
+                eq(OpenStackController.ID), eq("Instance4"),
+                any(PasswordAuthentication.class))).thenReturn(settings);
+        settings.setServiceAccessInfo("Access Information");
+
+        // when
+        String result = instanceAccess.getAccessInfo(instanceName);
+        // then
+        assertEquals("Access Information", result);
     }
 
     private void createBasicParameters(String instanceName, String templateName,

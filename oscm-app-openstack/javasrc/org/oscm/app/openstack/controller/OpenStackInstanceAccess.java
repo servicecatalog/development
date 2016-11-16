@@ -70,7 +70,7 @@ public class OpenStackInstanceAccess implements InstanceAccess {
         try {
             servers = new NovaProcessor().getServersDetails(ph, true);
         } catch (InstanceNotAliveException ex) {
-            LOGGER.warn("Server are not found.");
+            LOGGER.warn(ex.getMessage());
         } catch (Exception e) {
             throw new APPlatformException(e.getMessage());
         }
