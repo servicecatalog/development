@@ -408,8 +408,6 @@ public class ManageServiceInstanceCtrlTest {
         assertEquals("instanceId2", row.getServiceInstance().getInstanceId());
         assertEquals("PARAM_A_PWD", model.getServiceInstanceRows().get(1)
                 .getInstanceParameters().get(0).getParameterKey());
-        assertEquals(ENCRYPTED_PWD, model.getServiceInstanceRows().get(1)
-                .getInstanceParameters().get(0).getParameterValue());
         assertEquals("PARAM_B", model.getServiceInstanceRows().get(1)
                 .getInstanceParameters().get(1).getParameterKey());
         assertEquals("123", model.getServiceInstanceRows().get(1)
