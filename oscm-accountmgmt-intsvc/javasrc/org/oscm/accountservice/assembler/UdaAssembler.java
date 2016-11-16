@@ -45,16 +45,16 @@ public class UdaAssembler extends BaseAssembler {
         return udaDefinition;
     }
 
-    public static UdaDefinition updateUdaDefinition(UdaDefinition udaDefinition,
-            VOUdaDefinition voUdaDefinition)
+    public static UdaDefinition updateUdaDefinition(
+            UdaDefinition udaDefinition, VOUdaDefinition voUdaDefinition)
             throws ValidationException, ConcurrentModificationException {
         verifyVersionAndKey(udaDefinition, voUdaDefinition);
         copyDefinitionAttributes(voUdaDefinition, udaDefinition);
         return udaDefinition;
     }
 
-    public static VOUdaDefinition toVOUdaDefinition(UdaDefinition udaDefinition,
-            LocalizerFacade localizerFacade) {
+    public static VOUdaDefinition toVOUdaDefinition(
+            UdaDefinition udaDefinition, LocalizerFacade localizerFacade) {
         if (udaDefinition == null) {
             return null;
         }
@@ -62,8 +62,8 @@ public class UdaAssembler extends BaseAssembler {
         updateValueObject(voUdaDefinition, udaDefinition);
         voUdaDefinition.setTargetType(udaDefinition.getTargetType().name());
         voUdaDefinition.setUdaId(udaDefinition.getUdaId());
-        voUdaDefinition
-                .setConfigurationType(udaDefinition.getConfigurationType());
+        voUdaDefinition.setConfigurationType(udaDefinition
+                .getConfigurationType());
         voUdaDefinition.setEncrypted(udaDefinition.isEncrypted());
         voUdaDefinition.setDefaultValue(udaDefinition.getDefaultValue());
         String attrName = localizerFacade.getText(voUdaDefinition.getKey(),
@@ -82,6 +82,17 @@ public class UdaAssembler extends BaseAssembler {
         return uda;
     }
 
+    public static Uda toUdaWithDefinition(VOUda voUda,
+            UdaDefinition udaDefinition) throws ValidationException {
+        if (voUda == null) {
+            return null;
+        }
+        Uda uda = new Uda();
+        uda.setUdaDefinition(udaDefinition);
+        copyAttributes(voUda, uda);
+        return uda;
+    }
+
     public static Uda updateUda(Uda uda, VOUda voUda)
             throws ValidationException, ConcurrentModificationException {
         verifyVersionAndKey(uda, voUda);
@@ -96,8 +107,8 @@ public class UdaAssembler extends BaseAssembler {
         VOUda voUda = new VOUda();
         updateValueObject(voUda, uda);
         voUda.setTargetObjectKey(uda.getTargetObjectKey());
-        voUda.setUdaDefinition(
-                toVOUdaDefinition(uda.getUdaDefinition(), localizerFacade));
+        voUda.setUdaDefinition(toVOUdaDefinition(uda.getUdaDefinition(),
+                localizerFacade));
         voUda.setUdaValue(uda.getUdaValue());
         return voUda;
     }
@@ -107,14 +118,14 @@ public class UdaAssembler extends BaseAssembler {
             throws ValidationException {
         validateDefinition(voUdaDefinition);
         udaDefinition.setDefaultValue(voUdaDefinition.getDefaultValue());
-        udaDefinition.setTargetType(
-                UdaTargetType.valueOf(voUdaDefinition.getTargetType()));
+        udaDefinition.setTargetType(UdaTargetType.valueOf(voUdaDefinition
+                .getTargetType()));
         udaDefinition.setUdaId(voUdaDefinition.getUdaId());
-        udaDefinition
-                .setConfigurationType(voUdaDefinition.getConfigurationType());
+        udaDefinition.setConfigurationType(voUdaDefinition
+                .getConfigurationType());
         udaDefinition.setEncrypted(voUdaDefinition.isEncrypted());
-        udaDefinition.getDataContainer()
-                .setControllerId(voUdaDefinition.getControllerId());
+        udaDefinition.getDataContainer().setControllerId(
+                voUdaDefinition.getControllerId());
     }
 
     private static void validateDefinition(VOUdaDefinition def)

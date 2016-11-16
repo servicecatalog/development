@@ -96,28 +96,15 @@ public class UdaAccess {
             NonUniqueBusinessKeyException, ConcurrentModificationException {
 
         for (VOUda voUda : udas) {
-            Uda uda = null;
-            try {
-                uda = UdaAssembler.toUda(voUda);
-            } catch (ValidationException e) {
-                logger.logWarn(
-                        Log4jLogger.SYSTEM_LOG,
-                        e,
-                        LogMessageIdentifier.WARN_INVALID_UDA,
-                        ((voUda == null || voUda.getUdaDefinition() == null) ? null
-                                : voUda.getUdaDefinition().getUdaId()));
-                ctx.setRollbackOnly();
-                throw e;
-            }
             if (voUda.getUdaValue() == null) {
                 deleteUda(voUda, caller);
                 continue;
             }
-            updateOrCreate(caller, voUda, uda);
+            updateOrCreate(caller, voUda);
         }
     }
 
-    private void updateOrCreate(Organization caller, VOUda voUda, Uda uda)
+    private void updateOrCreate(Organization caller, VOUda voUda)
             throws ConcurrentModificationException,
             OperationNotPermittedException, ValidationException,
             NonUniqueBusinessKeyException, ObjectNotFoundException {
@@ -131,6 +118,7 @@ public class UdaAccess {
             if (voUda.getKey() > 0) {
                 updateUda(voUda, def, caller);
             } else {
+                Uda uda = UdaAssembler.toUdaWithDefinition(voUda, def);
                 createUda(def, uda);
             }
         } catch (ObjectNotFoundException onfe) {
@@ -143,6 +131,13 @@ public class UdaAccess {
                 throw cme;
             }
             throw onfe;
+        } catch (ValidationException e) {
+            logger.logWarn(Log4jLogger.SYSTEM_LOG, e,
+                    LogMessageIdentifier.WARN_INVALID_UDA, ((voUda
+                            .getUdaDefinition() == null) ? null : voUda
+                            .getUdaDefinition().getUdaId()));
+            ctx.setRollbackOnly();
+            throw e;
         }
     }
 
