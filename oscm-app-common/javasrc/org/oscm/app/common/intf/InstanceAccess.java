@@ -51,6 +51,7 @@ public interface InstanceAccess extends Serializable {
 
     /**
      * Returns the localized message for the given key, locale and arguments.
+     * For now it is not used so please return null.
      * 
      * @param locale
      *            the locale

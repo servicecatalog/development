@@ -67,6 +67,10 @@ public class ExtensionInterfaceBean implements Serializable {
                 ? parameters.get("instId") : "";
     }
 
+    public void setInstanceAccess(InstanceAccess instanceAccess) {
+        this.instanceAccess = instanceAccess;
+    }
+
     public List<? extends ServerInformation> getInstanceDetails() {
         // TODO should I update information every get request??
         if (servers == null) {
