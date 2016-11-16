@@ -243,7 +243,7 @@ public class PropertyHandler {
                         securityGroup = key
                                 .substring(TEMPLATE_PARAMETER_ARRAY_PREFIX.length());
                         String securityGroupArray[] = settings.getParameters()
-                                .get(key).split(",");
+                                .get(key).getValue().split(",");
                         for (String groupName : securityGroupArray) {
                             securityGroupSecurityGroup.put(groupName);
                         }
