@@ -67,7 +67,7 @@
                   <h:outputText value="#{subUda.udaNameToShow}" id="subUda#{v.index}Label" styleClass="label" />
                   <h:outputText value="#{subUda.udaValue}" id="subUda#{v.index}Value"
                                 rendered="#{not subUda.inputEncrypted}"/>
-                  <h:outputText value="#{subUda.udaValue}" id="secretSubUda#{v.index}Value"
+                  <h:outputText value="*********" id="secretSubUda#{v.index}Value"
                                 styleClass="output-password" rendered="#{subUda.inputEncrypted}"/>
                 </c:forEach>
               </t:panelGrid>
@@ -172,23 +172,5 @@
         </a4j:outputPanel>
       </mp:subscriptionProcess>
     </a4j:outputPanel>
-    <script type="text/javascript">
-        	  function showExternalConfigurator(){
-        		  sessionStorage.alreadyClicked = 1;
-        	  };
-            $(document).ready(function() {
-              $(".output-password").each(function() {
-                  var oldVal = $(this).html();
-                  var newVal = '*';
-                  for(i = 1; i &lt; oldVal.length; i++) {
-        	          newVal = newVal + '*';
-        	        }
-        	        if (oldVal.length &gt; 1) {
-                    $(this).html(newVal);
-                  }
-              })
-            })
-
-        </script>
   </ui:define>
 </ui:composition>
