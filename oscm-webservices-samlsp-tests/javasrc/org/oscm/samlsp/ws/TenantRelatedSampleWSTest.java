@@ -339,17 +339,19 @@ public class TenantRelatedSampleWSTest {
         return voTenantSetting;
     }
 
-    private static VOUserDetails prepareUser(String userId) {
+    private static VOUserDetails prepareUser(String userId) throws Exception {
         return prepareUser(userId, null);
     }
 
     private static VOUserDetails prepareUser(String userId,
-            String organizationId) {
+            String organizationId) throws Exception {
 
         VOUserDetails user = new VOUserDetails();
         user.setUserId(userId);
         user.setOrganizationId(organizationId);
-        user.setEMail("supplier@dev.est.fujitsu.com");
+        String mailAddress = WebserviceTestBase.getMailReader()
+                .getMailAddress();
+        user.setEMail(mailAddress);
         user.setLocale("en");
 
         return user;
