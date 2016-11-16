@@ -396,7 +396,7 @@ public class PropertyHandlerTest {
 
     @Test
     public void TestMultipleSecurityGroup() {
-        parameters.put("TP_ARRAY_" + "SecurityGroupName", "testOne,testTwo");
+        parameters.put("TP_ARRAY_" + "SecurityGroupName", new Setting("TP_ARRAY_" + "SecurityGroupName", "testOne,testTwo"));
         propertyHandler = new PropertyHandler(settings);
         final String SECURITY_GROUPS = "SecurityGroupName";
         JSONObject parameters = propertyHandler.getTemplateParameters();
@@ -416,7 +416,7 @@ public class PropertyHandlerTest {
     @Test
     public void TestSingleSecurityGroup() {
         final String SECURITY_GROUPS = "SG";
-        parameters.put("TP_ARRAY_" + SECURITY_GROUPS, "testOne");
+        parameters.put("TP_ARRAY_" + SECURITY_GROUPS, new Setting("TP_ARRAY_" + SECURITY_GROUPS, "testOne"));
         propertyHandler = new PropertyHandler(settings);
         JSONObject parameters = propertyHandler.getTemplateParameters();
         assertNotNull(parameters);
