@@ -278,7 +278,6 @@
       <mpl_goto.account.profile />
       <mpl_goto.tab label="${marketplace.account.profile.userTab}" />
       <setInputField htmlId="userForm:email" value="${common.email}" />
-      <setSelectField name="userForm:country" value="DE" />
       <clickButton label="${button.save}" />
 
       <!-- Subscribe as platform operator to a service -->

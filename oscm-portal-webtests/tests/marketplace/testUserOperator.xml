@@ -267,14 +267,14 @@
         <mpl_goto.account.profile />
         <mpl_goto.tab label="${marketplace.account.profile.userTab}" />
         <setInputField htmlId="userForm:email" value="${common.email}" />
-        <setSelectField htmlId="userForm:country" value="GB" />
         <clickButton label="${button.save}" />
         <mpl_verify.success label="${info.user.profileSaved}" />
 
         <!-- Bug#8300: Organization address is not shown on the Account dashboard  -->
         <mpl_goto.tab label="${marketplace.account.profile.organizationTab}" />
-        <setInputField htmlId="userForm:organizationName" value="ORG_NAME" />
-        <setInputField htmlId="userForm:organizationAddress" value="ORG_ADDRESS" />
+        <setInputField htmlId="orgForm:organizationName" value="ORG_NAME" />
+        <setInputField htmlId="orgForm:organizationAddress" value="ORG_ADDRESS" />
+        <setSelectField htmlId="orgForm:country" value="GB" />
         <clickButton label="${button.save}" />
         <mpl_verify.success label="${info.user.profileSaved}" />
         <mpl_goto.account />

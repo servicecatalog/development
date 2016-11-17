@@ -1030,9 +1030,9 @@
     <sequential>
       <!-- Pass validation for select but fail for another field -->
       <setSelectField name="orgForm:country" value="AM" />
-      <setInputField htmlId="orgForm:email" value="" />
+      <setInputField htmlId="orgForm:organizationEmail" value="" />
       <clickLink htmlId="orgForm:saveOrgButtonLink" />
-      <common.verifyFieldError fieldId="orgForm:email" label="${javax.faces.component.UIInput.REQUIRED}" regex="false" />
+      <common.verifyFieldError fieldId="orgForm:organizationEmail" label="${javax.faces.component.UIInput.REQUIRED}" regex="false" />
       <not>
         <common.verifyFieldError fieldId="orgForm:country" label="${javax.faces.component.UIInput.REQUIRED}" regex="false" />
       </not>
@@ -1040,10 +1040,10 @@
 
       <!-- Let the validation fail for the select field -->
       <setSelectField name="orgForm:country" value="" />
-      <setInputField htmlId="orgForm:email" value="${common.email}" />
+      <setInputField htmlId="orgForm:organizationEmail" value="${common.email}" />
       <clickLink htmlId="orgForm:saveButtonLink" />
       <not>
-        <common.verifyFieldError fieldId="orgForm:email" label="${javax.faces.component.UIInput.REQUIRED}" regex="false" />
+        <common.verifyFieldError fieldId="orgForm:organizationEmail" label="${javax.faces.component.UIInput.REQUIRED}" regex="false" />
       </not>
       <common.verifyFieldError fieldId="orgForm:country" label="${javax.faces.component.UIInput.REQUIRED}" regex="false" />
       <!-- The select field must contain the invalid value (not the previously select valid one) -->
