@@ -22,6 +22,11 @@ import javax.persistence.Enumerated;
 @Embeddable
 public class TenantSettingData extends DomainDataContainer {
 
+    /**
+     * Generated serial ID.
+     */
+    private static final long serialVersionUID = 6900999015801280393L;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private IdpSettingType name;
