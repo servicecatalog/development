@@ -39,7 +39,6 @@ import javax.persistence.Query;
 
 import org.junit.Assert;
 import org.junit.Test;
-
 import org.oscm.accountservice.bean.MarketingPermissionServiceBean;
 import org.oscm.applicationservice.bean.ApplicationServiceStub;
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
@@ -96,58 +95,6 @@ import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.identityservice.assembler.UserDataAssembler;
 import org.oscm.identityservice.bean.IdManagementStub;
 import org.oscm.interceptor.DateFactory;
-import org.oscm.marketplace.bean.LandingpageServiceBean;
-import org.oscm.marketplace.bean.MarketplaceServiceBean;
-import org.oscm.marketplace.bean.MarketplaceServiceLocalBean;
-import org.oscm.serviceprovisioningservice.assembler.ProductAssembler;
-import org.oscm.serviceprovisioningservice.assembler.RoleAssembler;
-import org.oscm.serviceprovisioningservice.bean.ServiceProvisioningServiceBean;
-import org.oscm.serviceprovisioningservice.bean.ServiceProvisioningServiceLocalizationBean;
-import org.oscm.serviceprovisioningservice.bean.TagServiceBean;
-import org.oscm.sessionservice.bean.SessionManagementStub2;
-import org.oscm.subscriptionservice.assembler.SubscriptionAssembler;
-import org.oscm.subscriptionservice.dao.SubscriptionHistoryDao;
-import org.oscm.subscriptionservice.dao.UsageLicenseDao;
-import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
-import org.oscm.taskhandling.local.TaskMessage;
-import org.oscm.taskhandling.local.TaskQueueServiceLocal;
-import org.oscm.taskhandling.operations.NotifyProvisioningServiceHandler;
-import org.oscm.taskhandling.operations.SendMailHandler;
-import org.oscm.taskhandling.payloads.NotifyProvisioningServicePayload;
-import org.oscm.taskhandling.payloads.SendMailPayload;
-import org.oscm.tenantprovisioningservice.bean.TenantProvisioningServiceBean;
-import org.oscm.test.BaseAdmUmTest;
-import org.oscm.test.EJBTestBase;
-import org.oscm.test.ReflectiveClone;
-import org.oscm.test.data.BillingAdapters;
-import org.oscm.test.data.Marketplaces;
-import org.oscm.test.data.Organizations;
-import org.oscm.test.data.PaymentInfos;
-import org.oscm.test.data.PaymentTypes;
-import org.oscm.test.data.PlatformUsers;
-import org.oscm.test.data.Products;
-import org.oscm.test.data.Scenario;
-import org.oscm.test.data.Subscriptions;
-import org.oscm.test.data.SupportedCountries;
-import org.oscm.test.data.TechnicalProducts;
-import org.oscm.test.ejb.TestContainer;
-import org.oscm.test.stubs.AccountServiceStub;
-import org.oscm.test.stubs.CategorizationServiceStub;
-import org.oscm.test.stubs.CommunicationServiceStub;
-import org.oscm.test.stubs.ConfigurationServiceStub;
-import org.oscm.test.stubs.ImageResourceServiceStub;
-import org.oscm.test.stubs.MarketplaceServiceStub;
-import org.oscm.test.stubs.TaskQueueServiceStub;
-import org.oscm.test.stubs.TriggerQueueServiceStub;
-import org.oscm.triggerservice.local.TriggerMessage;
-import org.oscm.triggerservice.local.TriggerProcessMessageData;
-import org.oscm.types.constants.Configuration;
-import org.oscm.types.enumtypes.EmailType;
-import org.oscm.types.enumtypes.PlatformParameterIdentifiers;
-import org.oscm.types.enumtypes.ProvisioningType;
-import org.oscm.types.enumtypes.TriggerProcessParameterName;
-import org.oscm.types.exceptions.UserAlreadyAssignedException;
-import org.oscm.types.exceptions.UserNotAssignedException;
 import org.oscm.internal.intf.IdentityService;
 import org.oscm.internal.intf.MarketplaceService;
 import org.oscm.internal.intf.ServiceProvisioningService;
@@ -206,6 +153,58 @@ import org.oscm.internal.vo.VOUda;
 import org.oscm.internal.vo.VOUsageLicense;
 import org.oscm.internal.vo.VOUser;
 import org.oscm.internal.vo.VOUserSubscription;
+import org.oscm.marketplace.bean.LandingpageServiceBean;
+import org.oscm.marketplace.bean.MarketplaceServiceBean;
+import org.oscm.marketplace.bean.MarketplaceServiceLocalBean;
+import org.oscm.serviceprovisioningservice.assembler.ProductAssembler;
+import org.oscm.serviceprovisioningservice.assembler.RoleAssembler;
+import org.oscm.serviceprovisioningservice.bean.ServiceProvisioningServiceBean;
+import org.oscm.serviceprovisioningservice.bean.ServiceProvisioningServiceLocalizationBean;
+import org.oscm.serviceprovisioningservice.bean.TagServiceBean;
+import org.oscm.sessionservice.bean.SessionManagementStub2;
+import org.oscm.subscriptionservice.assembler.SubscriptionAssembler;
+import org.oscm.subscriptionservice.dao.SubscriptionHistoryDao;
+import org.oscm.subscriptionservice.dao.UsageLicenseDao;
+import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
+import org.oscm.taskhandling.local.TaskMessage;
+import org.oscm.taskhandling.local.TaskQueueServiceLocal;
+import org.oscm.taskhandling.operations.NotifyProvisioningServiceHandler;
+import org.oscm.taskhandling.operations.SendMailHandler;
+import org.oscm.taskhandling.payloads.NotifyProvisioningServicePayload;
+import org.oscm.taskhandling.payloads.SendMailPayload;
+import org.oscm.tenantprovisioningservice.bean.TenantProvisioningServiceBean;
+import org.oscm.test.BaseAdmUmTest;
+import org.oscm.test.EJBTestBase;
+import org.oscm.test.ReflectiveClone;
+import org.oscm.test.data.BillingAdapters;
+import org.oscm.test.data.Marketplaces;
+import org.oscm.test.data.Organizations;
+import org.oscm.test.data.PaymentInfos;
+import org.oscm.test.data.PaymentTypes;
+import org.oscm.test.data.PlatformUsers;
+import org.oscm.test.data.Products;
+import org.oscm.test.data.Scenario;
+import org.oscm.test.data.Subscriptions;
+import org.oscm.test.data.SupportedCountries;
+import org.oscm.test.data.TechnicalProducts;
+import org.oscm.test.ejb.TestContainer;
+import org.oscm.test.stubs.AccountServiceStub;
+import org.oscm.test.stubs.CategorizationServiceStub;
+import org.oscm.test.stubs.CommunicationServiceStub;
+import org.oscm.test.stubs.ConfigurationServiceStub;
+import org.oscm.test.stubs.ImageResourceServiceStub;
+import org.oscm.test.stubs.MarketplaceServiceStub;
+import org.oscm.test.stubs.TaskQueueServiceStub;
+import org.oscm.test.stubs.TriggerQueueServiceStub;
+import org.oscm.triggerservice.local.TriggerMessage;
+import org.oscm.triggerservice.local.TriggerProcessMessageData;
+import org.oscm.types.constants.Configuration;
+import org.oscm.types.enumtypes.EmailType;
+import org.oscm.types.enumtypes.PlatformParameterIdentifiers;
+import org.oscm.types.enumtypes.ProvisioningType;
+import org.oscm.types.enumtypes.TriggerProcessParameterName;
+import org.oscm.types.exceptions.UserAlreadyAssignedException;
+import org.oscm.types.exceptions.UserNotAssignedException;
 
 public class SubscriptionServiceBeanIT extends EJBTestBase {
 
@@ -272,6 +271,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         container.addBean(new DataServiceBean());
         container.addBean(appMgmtStub = new ApplicationServiceStub());
         container.addBean(new SessionManagementStub2() {
+
             @Override
             public List<Session> getProductSessionsForSubscriptionTKey(
                     long subscriptionTKey) {
@@ -288,10 +288,10 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         container.addBean(new IdManagementStub());
         container.addBean(new TenantProvisioningServiceBean());
         container.addBean(new CommunicationServiceStub() {
+
             @Override
             public void sendMail(PlatformUser recipient, EmailType type,
-                    Object[] params,
-                    org.oscm.domobjects.Marketplace marketplace) {
+                    Object[] params, org.oscm.domobjects.Marketplace marketplace) {
 
                 isCorrectSubscriptionIdForMail = params[0]
                         .equals(SUBSCRIPTION_ID);
@@ -397,6 +397,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
             }
         });
         container.addBean(new TriggerQueueServiceStub() {
+
             @Override
             public List<TriggerProcessMessageData> sendSuspendingMessages(
                     List<TriggerMessage> messageData) {
@@ -428,6 +429,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         container.addBean(new ServiceProvisioningServiceLocalizationBean());
         container.addBean(new ServiceProvisioningServiceBean());
         container.addBean(new AccountServiceStub() {
+
             @Override
             public boolean isPaymentTypeEnabled(long serviceKey,
                     long paymentTypeKey) {
@@ -435,6 +437,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
             }
         });
         container.addBean(new CategorizationServiceStub() {
+
             @Override
             public boolean updateAssignedCategories(CatalogEntry catalogEntry,
                     List<VOCategory> categories) {
@@ -472,6 +475,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
             }
         });
         Long userKey = runTX(new Callable<Long>() {
+
             @Override
             public Long call() throws Exception {
                 return initMasterData();
@@ -586,6 +590,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         final String subscriptionId = "testSubscribeToProduct";
 
         final VOSubscription subscription = runTX(new Callable<VOSubscription>() {
+
             @Override
             public VOSubscription call() throws Exception {
                 VOService product = getProductToSubscribe(testProducts.get(0)
@@ -616,6 +621,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         final String subscriptionId = "testSubscribeToProduct";
 
         final VOSubscription subscription = runTX(new Callable<VOSubscription>() {
+
             @Override
             public VOSubscription call() throws Exception {
                 VOService product = getProductToSubscribe(testProducts.get(0)
@@ -651,6 +657,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         newSub.setUnitKey(unit1.getKey());
 
         final VOSubscription subscription = runTX(new Callable<VOSubscription>() {
+
             @Override
             public VOSubscription call() throws Exception {
                 VOService product = getProductToSubscribe(testProducts.get(0)
@@ -667,6 +674,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         });
 
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
                 Session session = new Session();
@@ -692,6 +700,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         subMgmt.terminateSubscription(sub, reason);
 
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
                 // check subscription status
@@ -738,6 +747,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         final String subscriptionId = "testConcurrent";
 
         final VOSubscription subscription = runTX(new Callable<VOSubscription>() {
+
             @Override
             public VOSubscription call() throws Exception {
                 VOService product = getProductToSubscribe(testProducts.get(0)
@@ -755,6 +765,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         });
 
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
                 Subscription sub = mgr.getReference(Subscription.class,
@@ -803,6 +814,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 new ArrayList<VOUda>());
 
         String customerId = runTX(new Callable<String>() {
+
             @Override
             public String call() {
                 return mgr.getCurrentUser().getOrganization()
@@ -834,6 +846,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 new ArrayList<VOUda>());
 
         String customerId = runTX(new Callable<String>() {
+
             @Override
             public String call() {
                 return mgr.getCurrentUser().getOrganization()
@@ -842,6 +855,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         });
 
         PlatformUser oldUser = runTX(new Callable<PlatformUser>() {
+
             @Override
             public PlatformUser call() {
                 return mgr.getCurrentUser();
@@ -881,6 +895,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // Now check results
         try {
             runTX(new Callable<Void>() {
+
                 @Override
                 public Void call() {
                     checkSubscribeToProduct(false, "testSubscribeToProduct",
@@ -916,6 +931,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         assertNotNull(subMgmt);
 
         Organization customerOrg = runTX(new Callable<Organization>() {
+
             @Override
             public Organization call() {
                 return testOrganizations.get(0);
@@ -940,6 +956,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // Now check results
         try {
             runTX(new Callable<Void>() {
+
                 @Override
                 public Void call() {
                     checkSubscribeToProduct(false, "testSubscribeToProduct",
@@ -964,6 +981,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         assertNotNull(subMgmt);
 
         Organization customerOrg = runTX(new Callable<Organization>() {
+
             @Override
             public Organization call() {
                 return testOrganizations.get(0);
@@ -992,6 +1010,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // Now check results
         try {
             runTX(new Callable<Void>() {
+
                 @Override
                 public Void call() {
                     checkSubscribeToProduct(false, "testSubscribeToProduct",
@@ -1056,6 +1075,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 tpAndSupplier.getOrganizationId(), testOrganizations.get(0));
 
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
                 // remove supplier-customer-reference
@@ -1103,6 +1123,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // Now check results
         try {
             runTX(new Callable<Void>() {
+
                 @Override
                 public Void call() throws Exception {
                     checkSubscribeToProduct(false, "testSubscribeToProduct",
@@ -1151,6 +1172,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // Now check results
         try {
             runTX(new Callable<Void>() {
+
                 @Override
                 public Void call() {
                     checkSubscribeToProduct(false, "testSubscribeTo Product",
@@ -1191,6 +1213,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // Now check results
         try {
             runTX(new Callable<Void>() {
+
                 @Override
                 public Void call() {
                     checkSubscribeToProduct(false, "testSubscribeTo Product",
@@ -1228,6 +1251,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 tpAndSupplier.getOrganizationId(), testOrganizations.get(0));
 
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
                 PaymentInfo pi = mgr.getReference(PaymentInfo.class,
@@ -1262,6 +1286,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 tpAndSupplier.getOrganizationId(), testOrganizations.get(0));
 
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
                 Product product = asyncTestProducts.get(1);
@@ -1378,6 +1403,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // sort by Key
         Collections.sort(subscription.getUsageLicenses(),
                 new Comparator<UsageLicense>() {
+
                     @Override
                     public int compare(UsageLicense b1, UsageLicense b2) {
                         if (b1 == null || b1.getUser() == null)
@@ -1511,6 +1537,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         assertNotNull(subMgmt);
 
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() {
                 // Fetch the technical product and set the flag for only one
@@ -1670,6 +1697,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     private UserGroup getUnit(final String unitNamePrefix,
             final Organization org) throws Exception {
         UserGroup unit = runTX(new Callable<UserGroup>() {
+
             @Override
             public UserGroup call() throws ObjectNotFoundException {
                 UserGroup unit = new UserGroup();
@@ -1721,6 +1749,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
         // First expire the subscription, the up-/downgrade it
         Subscription subDomObj = runTX(new Callable<Subscription>() {
+
             @Override
             public Subscription call() {
                 return getSubscription("testUpgrade", testOrganizations.get(0)
@@ -1770,6 +1799,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         sub = subMgmt.getSubscriptionDetails(sub.getSubscriptionId());
 
         Subscription subDomObj = runTX(new Callable<Subscription>() {
+
             @Override
             public Subscription call() {
                 Subscription sub = getSubscription("testUpgrade",
@@ -1782,6 +1812,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // Create a configurable parameter for the subscription product
         final String productID = subDomObj.getProduct().getProductId();
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
                 doSetParameterSetForProduct(productID, true, "1000");
@@ -1901,6 +1932,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         final Product product = sub.getProduct().getTemplate();
 
         final Product targetProduct = runTX(new Callable<Product>() {
+
             @Override
             public Product call() throws Exception {
                 Product newProduct = Products.createProduct(org,
@@ -1944,6 +1976,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         });
 
         PlatformUser user = runTX(new Callable<PlatformUser>() {
+
             @Override
             public PlatformUser call() throws Exception {
                 Organization organization = mgr.getReference(
@@ -1955,6 +1988,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         container.login(user.getKey(), ROLE_ORGANIZATION_ADMIN);
 
         Subscription upgradedSub = runTX(new Callable<Subscription>() {
+
             @Override
             public Subscription call() throws Exception {
                 return subMgmtLocal.upgradeSubscriptionInt(tp);
@@ -1986,6 +2020,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 new ArrayList<VOUda>());
 
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
                 subMgmtLocal.upgradeSubscriptionInt(tp);
@@ -2141,6 +2176,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // Now check results, needs TX-context to use DataManager
         try {
             runTX(new Callable<Void>() {
+
                 @Override
                 public Void call() {
                     checkAddRevokeUserOK(revokeUsers);
@@ -2173,6 +2209,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // then
         try {
             runTX(new Callable<Void>() {
+
                 @Override
                 public Void call() {
                     assertOnlyOneUserAssigned();
@@ -2278,6 +2315,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // sort by UserId
         Collections.sort(subscription.getUsageLicenses(),
                 new Comparator<UsageLicense>() {
+
                     @Override
                     public int compare(UsageLicense b1, UsageLicense b2) {
                         if (b1 == null || b1.getUser() == null)
@@ -2325,6 +2363,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     @Test(expected = ServiceParameterException.class)
     public void testAddRevokeUserWithParam() throws Throwable {
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
                 Product product = (Product) mgr.find(testProducts.get(3));
@@ -2398,6 +2437,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // Now check results, needs TX-context to use DataManager
         try {
             runTX(new Callable<Void>() {
+
                 @Override
                 public Void call() {
                     checkAddRevokeUserUserAssignedTwice();
@@ -2427,6 +2467,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // sort by UserId
         Collections.sort(subscription.getUsageLicenses(),
                 new Comparator<UsageLicense>() {
+
                     @Override
                     public int compare(UsageLicense b1, UsageLicense b2) {
                         if (b1 == null || b1.getUser() == null)
@@ -2485,6 +2526,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // Now check results (Rollback !!!), needs TX-context to use DataManager
         try {
             runTX(new Callable<Void>() {
+
                 @Override
                 public Void call() {
                     checkAddRevokeUserUserToBeAssignedNotFound();
@@ -2546,6 +2588,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // Now check results (Rollback !!!), needs TX-context to use DataManager
         try {
             runTX(new Callable<Void>() {
+
                 @Override
                 public Void call() {
                     checkAddRevokeUserUserToBeRevokedNotFound();
@@ -2600,6 +2643,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // Now check results (Rollback !!!), needs TX-context to use DataManager
         try {
             runTX(new Callable<Void>() {
+
                 @Override
                 public Void call() {
                     checkAddRevokeUserRevokeLastUser();
@@ -2915,6 +2959,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // now unsubscribe
         boolean wasExecuted = subMgmt.unsubscribeFromService(subscriptionId);
         String newSubId = runTX(new Callable<String>() {
+
             @Override
             public String call() {
                 Subscription subscription = new Subscription();
@@ -2956,6 +3001,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 subId);
 
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
                 subMgmtLocal.unsubscribeFromServiceInt(tp);
@@ -2973,6 +3019,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 subId);
 
         PlatformUser user = runTX(new Callable<PlatformUser>() {
+
             @Override
             public PlatformUser call() throws Exception {
                 Organization organization = mgr.getReference(
@@ -2983,6 +3030,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         container.login(user.getKey(), ROLE_ORGANIZATION_ADMIN);
 
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
                 subMgmtLocal.unsubscribeFromServiceInt(tp);
@@ -3047,6 +3095,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         }
 
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
                 assertEquals(subscriptionId1,
@@ -3083,6 +3132,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
         // when terminating one
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
                 Subscription sub = mgr.find(Subscription.class, sub2.getKey());
@@ -3117,6 +3167,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // do the work (local interface, thus needs tx boundary)
         try {
             runTX(new Callable<Void>() {
+
                 @Override
                 public Void call() throws Exception {
                     doTestAddUserToSubscriptionOK();
@@ -3129,6 +3180,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // check results
         try {
             runTX(new Callable<Void>() {
+
                 @Override
                 public Void call() throws Exception {
                     checkAddUserToSubscriptionOK();
@@ -3178,6 +3230,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // do the work (local interface, thus needs tx boundary)
         try {
             runTX(new Callable<Void>() {
+
                 @Override
                 public Void call() throws Exception {
                     doTestAddUserToSubscriptionAlreadyAssigned();
@@ -3222,6 +3275,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // do the work (local interface, thus needs tx boundary)
         try {
             runTX(new Callable<Void>() {
+
                 @Override
                 public Void call() throws Exception {
                     doTestRevokeUserToSubscriptionOK();
@@ -3234,6 +3288,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // check results
         try {
             runTX(new Callable<Void>() {
+
                 @Override
                 public Void call() throws Exception {
                     checkRevokeUserToSubscriptionOK();
@@ -3287,6 +3342,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // do the work (local interface, thus needs tx boundary)
         try {
             runTX(new Callable<Void>() {
+
                 @Override
                 public Void call() throws Exception {
                     doTestGrantAdminRoleOK();
@@ -3299,6 +3355,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // check results
         try {
             runTX(new Callable<Void>() {
+
                 @Override
                 public Void call() throws Exception {
                     checkGrantAdminRoleOK();
@@ -3348,6 +3405,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // do the work (local interface, thus needs tx boundary)
         try {
             runTX(new Callable<Void>() {
+
                 @Override
                 public Void call() throws Exception {
                     doTestGrantAdminRoleNotAssigned();
@@ -3391,6 +3449,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // do the work (local interface, thus needs tx boundary)
         try {
             runTX(new Callable<Void>() {
+
                 @Override
                 public Void call() throws Exception {
                     doTestRevokeAdminRoleOK();
@@ -3403,6 +3462,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // check results
         try {
             runTX(new Callable<Void>() {
+
                 @Override
                 public Void call() throws Exception {
                     checkRevokeAdminRoleOK();
@@ -3452,6 +3512,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // do the work (local interface, thus needs tx boundary)
         try {
             runTX(new Callable<Void>() {
+
                 @Override
                 public Void call() throws Exception {
                     doTestRevokeAdminRoleNotAssigned();
@@ -3641,6 +3702,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     @Test
     public void testExpireOverdueSubscriptionsForTime() throws Exception {
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
                 doSetParameterSetForProduct("Product1", false,
@@ -3658,6 +3720,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 new ArrayList<VOUda>());
 
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() {
                 long initialTransactionTime = DateFactory.getInstance()
@@ -3671,6 +3734,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
             }
         });
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() {
                 doCheckSubscriptionStatus("expirationTest1", testOrganizations
@@ -3684,6 +3748,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     @Test
     public void testExpireSubscription() throws Exception {
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
                 doSetParameterSetForProduct("Product2", false,
@@ -3704,6 +3769,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 getUsersToAdd(admins, users), voPaymentInfo, bc,
                 new ArrayList<VOUda>());
         Subscription sub = runTX(new Callable<Subscription>() {
+
             @Override
             public Subscription call() {
                 return getSubscription("expirationTest2", testOrganizations
@@ -3715,6 +3781,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         subMgmtLocal.expireSubscription(sub);
 
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() {
                 doCheckSubscriptionStatus("expirationTest2", testOrganizations
@@ -3735,6 +3802,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     public void testExpireOverdueSubscriptionsForTimeOneOutOfTwo()
             throws Exception {
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
                 doSetParameterSetForProduct("Product1", false, null);
@@ -3758,6 +3826,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 new ArrayList<VOUda>());
 
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() {
                 doChangeActivationDateForSubscription("expirationTest4",
@@ -3767,6 +3836,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         });
 
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() {
                 subMgmtLocal.expireOverdueSubscriptions(System
@@ -3775,6 +3845,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
             }
         });
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() {
                 doCheckSubscriptionStatus("expirationTest4", testOrganizations
@@ -3791,6 +3862,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     public void testExpireOverdueSubscriptionAppStopFails() throws Exception {
         appMgmtStub.throwProductOperationFailed = true;
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
                 doSetParameterSetForProduct("Product2", false,
@@ -3811,6 +3883,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 getUsersToAdd(admins, users), voPaymentInfo, bc,
                 new ArrayList<VOUda>());
         final Subscription sub = runTX(new Callable<Subscription>() {
+
             @Override
             public Subscription call() {
                 return getSubscription("expirationTest5", testOrganizations
@@ -3822,6 +3895,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // in bad case, execute the expiration call in a transaction as it would
         // happen in the container
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() {
                 subMgmtLocal.expireSubscription(sub);
@@ -3830,6 +3904,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         });
 
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() {
                 doCheckSubscriptionStatus("expirationTest5", testOrganizations
@@ -3950,6 +4025,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         subMgmt.completeAsyncSubscription(id, orgId, instanceInfo);
         try {
             runTX(new Callable<Void>() {
+
                 @Override
                 public Void call() {
                     checkSubscribeToProduct(false, id,
@@ -3981,6 +4057,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
         // get just created subscription for getting correct subscription key
         final Subscription subscription = runTX(new Callable<Subscription>() {
+
             @Override
             public Subscription call() {
                 Subscription returnSubscription = getSubscription(id,
@@ -3999,6 +4076,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         subMgmt.completeAsyncSubscription(id, orgId, instanceInfo);
         try {
             runTX(new Callable<Void>() {
+
                 @Override
                 public Void call() {
                     checkSubscribeToProduct(false, id,
@@ -4027,6 +4105,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         subMgmt.abortAsyncSubscription(id, orgId, null);
         try {
             runTX(new Callable<Void>() {
+
                 @Override
                 public Void call() {
                     checkSubscribeToProduct(true, id, asyncTestProducts.get(0),
@@ -4047,6 +4126,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         subscribeAsync(id, 1, false);
 
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
                 // Change the payment type of the PI to one which is not used
@@ -4090,6 +4170,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         subMgmt.completeAsyncSubscription(id, orgId, instanceInfo);
         try {
             runTX(new Callable<Void>() {
+
                 @Override
                 public Void call() {
                     checkSubscribeToProduct(false, id,
@@ -4124,6 +4205,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         subMgmt.completeAsyncSubscription(id, orgId, instanceInfo);
         try {
             runTX(new Callable<Void>() {
+
                 @Override
                 public Void call() {
                     checkSubscribeToProduct(false, id,
@@ -4147,6 +4229,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         subscribeAsync(id, 1, false);
 
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
                 Product product = asyncTestProducts.get(1);
@@ -4168,6 +4251,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         subMgmt.completeAsyncSubscription(id, orgId, instanceInfo);
         try {
             runTX(new Callable<Void>() {
+
                 @Override
                 public Void call() {
                     checkSubscribeToProduct(false, id,
@@ -4204,6 +4288,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         subMgmt.completeAsyncSubscription(id, orgId, instanceInfo);
         try {
             runTX(new Callable<Void>() {
+
                 @Override
                 public Void call() {
                     checkSubscribeToProduct(false, id,
@@ -4418,6 +4503,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         subMgmt.abortAsyncSubscription(id, orgId, null);
         try {
             runTX(new Callable<Void>() {
+
                 @Override
                 public Void call() {
                     checkSubscribeToProduct(true, id, asyncTestProducts.get(0),
@@ -4533,6 +4619,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
         try {
             runTX(new Callable<Void>() {
+
                 @Override
                 public Void call() throws Exception {
 
@@ -4620,6 +4707,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         subMgmt.abortAsyncSubscription(id, orgId, null);
         try {
             runTX(new Callable<Void>() {
+
                 @Override
                 public Void call() throws Exception {
                     Subscription loadSubscription = findInvalidSubscription(id,
@@ -4647,6 +4735,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         subMgmt.abortAsyncSubscription(id, orgId, null);
         try {
             runTX(new Callable<Void>() {
+
                 @Override
                 public Void call() throws Exception {
                     Subscription loadSubscription = findInvalidSubscription(id,
@@ -4674,6 +4763,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         subMgmt.abortAsyncSubscription(id, orgId, null);
         try {
             runTX(new Callable<Void>() {
+
                 @Override
                 public Void call() throws Exception {
                     Subscription loadSubscription = findInvalidSubscription(id,
@@ -4697,6 +4787,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         final String id = "testGrantAdminRolePending";
         subscribeAsync(id, 0, false);
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
                 Subscription loadSubscription = loadSubscription(id,
@@ -4717,6 +4808,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         final String id = "testInformProductAboutNewUsersPending";
         subscribeAsync(id, 0, false);
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
                 Subscription loadSubscription = loadSubscription(id,
@@ -4737,6 +4829,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         final String id = "testRevokeAdminRolePending";
         subscribeAsync(id, 0, false);
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
                 Subscription loadSubscription = loadSubscription(id,
@@ -4752,6 +4845,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     protected void checkUsersAddedButNotToApllication(final String id)
             throws Exception {
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
                 Subscription subscription = loadSubscription(id,
@@ -4777,6 +4871,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         final String id = "testNotifyAboutTimedoutSubscriptions";
         subscribeAsync(id, 0, false);
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() {
                 subMgmtLocal.notifyAboutTimedoutSubscriptions(System
@@ -4785,6 +4880,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
             }
         });
         Subscription sub = runTX(new Callable<Subscription>() {
+
             @Override
             public Subscription call() throws Exception {
                 Subscription subscription = loadSubscription(id,
@@ -4800,6 +4896,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     public void testGetUpgradeOptionsThroughTemplate() throws Exception {
         final String subId = "testGetUpgradeOptionsDirect";
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
                 final Product prod1 = testProducts.get(0);
@@ -4820,6 +4917,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 product, getUsersToAdd(admins, users), null, null,
                 new ArrayList<VOUda>());
         String id = runTX(new Callable<String>() {
+
             @Override
             public String call() throws Exception {
                 Subscription sub = loadSubscription(subId, testOrganizations
@@ -4837,6 +4935,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     public void testGetUpgradeOptionsThroughTemplateToCustom() throws Exception {
         final String subId = "UpgradeOptionsThroughTemplateToCustom";
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
                 final Product prod1 = testProducts.get(0);
@@ -4847,6 +4946,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
             }
         });
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() {
                 testProducts.set(1,
@@ -4871,6 +4971,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 product, getUsersToAdd(admins, users), null, null,
                 new ArrayList<VOUda>());
         String id = runTX(new Callable<String>() {
+
             @Override
             public String call() throws Exception {
                 Subscription sub = loadSubscription(subId, testOrganizations
@@ -4903,6 +5004,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         String subId = "testSubscribeToProductInactive";
         VOService product = findProduct(testProducts.get(0).getKey());
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() {
                 final Product prod = mgr.find(Product.class, testProducts
@@ -4927,6 +5029,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         String subId = "testSubscribeToProductInactive";
         VOService product = findProduct(testProducts.get(0).getKey());
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() {
                 final Product prod = mgr.find(Product.class, testProducts
@@ -4951,6 +5054,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         String subId = "testSubscribeToProductInactive";
         VOService product = findProduct(testProducts.get(0).getKey());
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() {
                 final Product prod = mgr.find(Product.class, testProducts
@@ -5021,6 +5125,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 getUsersToAdd(admins, users), voPaymentInfo, bc,
                 new ArrayList<VOUda>());
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() {
                 Product prod = mgr.find(Product.class, testProducts.get(1)
@@ -5054,6 +5159,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 getUsersToAdd(admins, users), voPaymentInfo, bc,
                 new ArrayList<VOUda>());
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() {
                 Product prod = mgr.find(Product.class, testProducts.get(1)
@@ -5087,6 +5193,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 getUsersToAdd(admins, users), voPaymentInfo, bc,
                 new ArrayList<VOUda>());
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() {
                 Product prod = mgr.find(Product.class, testProducts.get(1)
@@ -5115,6 +5222,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
         // when
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
                 sBean.modifySubscription(subscription, null,
@@ -5141,6 +5249,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
         // when
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
                 sBean.modifySubscription(subscription, null,
@@ -5158,6 +5267,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         VOSubscription subToModify;
         try {
             subToModify = runTX(new Callable<VOSubscription>() {
+
                 @Override
                 public VOSubscription call() {
                     checkSubscribeToProduct(false, id, testProducts.get(3),
@@ -5177,6 +5287,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         subMgmt.modifySubscription(subToModify, null, new ArrayList<VOUda>());
         try {
             runTX(new Callable<Void>() {
+
                 @Override
                 public Void call() {
                     Subscription sub = getSubscription(id, testOrganizations
@@ -5254,6 +5365,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
             ValidationException, SubscriptionMigrationException {
         createAvailablePayment(testOrganizations.get(0));
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
                 Product product = (Product) mgr.find(testProducts.get(3));
@@ -5312,6 +5424,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     public void testModifySubscriptionInvalidParamValue() throws Throwable {
         createAvailablePayment(testOrganizations.get(0));
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
                 Product product = (Product) mgr.find(testProducts.get(3));
@@ -5340,6 +5453,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 .getSubscriptionDetails(commonSubscribeToProduct());
 
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() {
                 Subscription sub = mgr.find(Subscription.class,
@@ -5367,6 +5481,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         VOSubscription subToModify;
         try {
             subToModify = runTX(new Callable<VOSubscription>() {
+
                 @Override
                 public VOSubscription call() {
                     checkSubscribeToProduct(false, id, testProducts.get(3),
@@ -5396,6 +5511,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // Now check results
         VOSubscription subToModify;
         subToModify = runTX(new Callable<VOSubscription>() {
+
             @Override
             public VOSubscription call() {
                 checkSubscribeToProduct(false, id, testProducts.get(3),
@@ -5432,6 +5548,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // Now check results
         VOSubscriptionDetails subToModify;
         subToModify = runTX(new Callable<VOSubscriptionDetails>() {
+
             @Override
             public VOSubscriptionDetails call() {
                 checkSubscribeToProduct(false, id, testProducts.get(3),
@@ -5530,6 +5647,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 new ArrayList<VOUda>());
 
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
                 subMgmtLocal.modifySubscriptionInt(tp);
@@ -5544,6 +5662,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
         // data setup
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
                 Scenario.setup(container, false);
@@ -5584,6 +5703,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 new ArrayList<VOUda>());
 
         PlatformUser user = runTX(new Callable<PlatformUser>() {
+
             @Override
             public PlatformUser call() throws Exception {
                 Organization organization = mgr.getReference(
@@ -5594,6 +5714,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         container.login(user.getKey(), ROLE_ORGANIZATION_ADMIN);
 
         final VOSubscriptionDetails voSubDetails = runTX(new Callable<VOSubscriptionDetails>() {
+
             @Override
             public VOSubscriptionDetails call() throws Exception {
                 return subMgmtLocal.modifySubscriptionInt(tp);
@@ -5604,6 +5725,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         assertTrue(isMessageSend(TriggerType.SUBSCRIPTION_MODIFICATION));
 
         Product subTemplate = runTX(new Callable<Product>() {
+
             @Override
             public Product call() throws Exception {
                 return mgr.getReference(Product.class,
@@ -5613,6 +5735,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         assertNotNull(subTemplate.getConfiguratorUrl());
 
         Product subCopy = runTX(new Callable<Product>() {
+
             @Override
             public Product call() throws Exception {
                 Subscription subscription = mgr.getReference(
@@ -5641,6 +5764,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
         VOSubscriptionDetails subToModify;
         subToModify = runTX(new Callable<VOSubscriptionDetails>() {
+
             @Override
             public VOSubscriptionDetails call() {
                 checkSubscribeToProduct(false, id, testProducts.get(3),
@@ -5656,6 +5780,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         });
 
         final PlatformUser customerAdmin = runTX(new Callable<PlatformUser>() {
+
             @Override
             public PlatformUser call() throws ObjectNotFoundException,
                     NumberFormatException {
@@ -5666,6 +5791,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
         final long subKey = subToModify.getKey();
         PlatformUser subOwnerBefore = runTX(new Callable<PlatformUser>() {
+
             @Override
             public PlatformUser call() throws ObjectNotFoundException,
                     NumberFormatException {
@@ -5677,6 +5803,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         assertEquals(customerAdmin, subOwnerBefore);
 
         PlatformUser subManager = runTX(new Callable<PlatformUser>() {
+
             @Override
             public PlatformUser call() throws ObjectNotFoundException,
                     NumberFormatException, NonUniqueBusinessKeyException {
@@ -5695,6 +5822,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         subMgmt.modifySubscription(subToModify, null, new ArrayList<VOUda>());
 
         PlatformUser subOwnerAfter = runTX(new Callable<PlatformUser>() {
+
             @Override
             public PlatformUser call() throws ObjectNotFoundException,
                     NumberFormatException {
@@ -5714,6 +5842,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
         VOSubscriptionDetails subToModify;
         subToModify = runTX(new Callable<VOSubscriptionDetails>() {
+
             @Override
             public VOSubscriptionDetails call() {
                 checkSubscribeToProduct(false, id, testProducts.get(3),
@@ -5729,6 +5858,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         });
 
         final PlatformUser customerAdmin = runTX(new Callable<PlatformUser>() {
+
             @Override
             public PlatformUser call() throws ObjectNotFoundException,
                     NumberFormatException {
@@ -5739,6 +5869,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
         final long subKey = subToModify.getKey();
         PlatformUser subOwnerBefore = runTX(new Callable<PlatformUser>() {
+
             @Override
             public PlatformUser call() throws ObjectNotFoundException,
                     NumberFormatException {
@@ -5750,6 +5881,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         assertEquals(customerAdmin, subOwnerBefore);
 
         PlatformUser user = runTX(new Callable<PlatformUser>() {
+
             @Override
             public PlatformUser call() throws ObjectNotFoundException,
                     NumberFormatException, NonUniqueBusinessKeyException {
@@ -5772,6 +5904,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     public void testModifySubscriptionUnitChange() throws Exception {
 
         Organization customerOrg = runTX(new Callable<Organization>() {
+
             @Override
             public Organization call() {
                 return testOrganizations.get(0);
@@ -5784,6 +5917,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         final String id = prepareSubscriptionForModification(unit1.getKey());
 
         VOSubscriptionDetails subToModify = runTX(new Callable<VOSubscriptionDetails>() {
+
             @Override
             public VOSubscriptionDetails call() {
                 checkSubscribeToProduct(false, id, testProducts.get(3),
@@ -5800,6 +5934,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
         final long subKey = subToModify.getKey();
         UserGroup subUnitBefore = runTX(new Callable<UserGroup>() {
+
             @Override
             public UserGroup call() throws ObjectNotFoundException {
                 Subscription sub = mgr.getReference(Subscription.class, subKey);
@@ -5813,6 +5948,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         subMgmt.modifySubscription(subToModify, null, new ArrayList<VOUda>());
 
         UserGroup subUnitAfter = runTX(new Callable<UserGroup>() {
+
             @Override
             public UserGroup call() throws ObjectNotFoundException {
                 Subscription sub = mgr.getReference(Subscription.class, subKey);
@@ -5827,6 +5963,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     public void testModifySubscriptionUnitAssign() throws Exception {
 
         Organization customerOrg = runTX(new Callable<Organization>() {
+
             @Override
             public Organization call() {
                 return testOrganizations.get(0);
@@ -5838,6 +5975,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         final String id = prepareSubscriptionForModification(0L);
 
         VOSubscriptionDetails subToModify = runTX(new Callable<VOSubscriptionDetails>() {
+
             @Override
             public VOSubscriptionDetails call() {
                 checkSubscribeToProduct(false, id, testProducts.get(3),
@@ -5854,6 +5992,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
         final long subKey = subToModify.getKey();
         UserGroup subUnitBefore = runTX(new Callable<UserGroup>() {
+
             @Override
             public UserGroup call() throws ObjectNotFoundException {
                 Subscription sub = mgr.getReference(Subscription.class, subKey);
@@ -5867,6 +6006,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         subMgmt.modifySubscription(subToModify, null, new ArrayList<VOUda>());
 
         UserGroup subUnitAfter = runTX(new Callable<UserGroup>() {
+
             @Override
             public UserGroup call() throws ObjectNotFoundException {
                 Subscription sub = mgr.getReference(Subscription.class, subKey);
@@ -5881,6 +6021,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     public void testModifySubscriptionUnitAssignSubManager() throws Exception {
 
         Organization customerOrg = runTX(new Callable<Organization>() {
+
             @Override
             public Organization call() {
                 return testOrganizations.get(0);
@@ -5892,6 +6033,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         final String id = prepareSubscriptionForModification(0L);
 
         VOSubscriptionDetails subToModify = runTX(new Callable<VOSubscriptionDetails>() {
+
             @Override
             public VOSubscriptionDetails call() {
                 checkSubscribeToProduct(false, id, testProducts.get(3),
@@ -5908,6 +6050,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
         final long subKey = subToModify.getKey();
         UserGroup subUnitBefore = runTX(new Callable<UserGroup>() {
+
             @Override
             public UserGroup call() throws ObjectNotFoundException {
                 Subscription sub = mgr.getReference(Subscription.class, subKey);
@@ -5918,6 +6061,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         assertNull(subUnitBefore);
 
         PlatformUser subManager = runTX(new Callable<PlatformUser>() {
+
             @Override
             public PlatformUser call() throws ObjectNotFoundException,
                     NumberFormatException, NonUniqueBusinessKeyException {
@@ -5938,6 +6082,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         container.login(subManager.getKey(), ROLE_SUBSCRIPTION_MANAGER);
 
         subToModify = runTX(new Callable<VOSubscriptionDetails>() {
+
             @Override
             public VOSubscriptionDetails call() {
                 checkSubscribeToProduct(false, id, testProducts.get(3),
@@ -5956,6 +6101,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         subMgmt.modifySubscription(subToModify, null, new ArrayList<VOUda>());
 
         UserGroup subUnitAfter = runTX(new Callable<UserGroup>() {
+
             @Override
             public UserGroup call() throws ObjectNotFoundException {
                 Subscription sub = mgr.getReference(Subscription.class, subKey);
@@ -5972,6 +6118,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         final String id = prepareSubscriptionForModification(0L);
 
         VOSubscriptionDetails subToModify = runTX(new Callable<VOSubscriptionDetails>() {
+
             @Override
             public VOSubscriptionDetails call() {
                 checkSubscribeToProduct(false, id, testProducts.get(3),
@@ -5988,6 +6135,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
         final long subKey = subToModify.getKey();
         UserGroup subUnitBefore = runTX(new Callable<UserGroup>() {
+
             @Override
             public UserGroup call() throws ObjectNotFoundException {
                 Subscription sub = mgr.getReference(Subscription.class, subKey);
@@ -6005,6 +6153,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     public void testModifySubscriptionUnitAssignOtherOrg() throws Exception {
 
         Long unitOtherOrgKey = runTX(new Callable<Long>() {
+
             @Override
             public Long call() throws ObjectNotFoundException {
                 UserGroup unit = new UserGroup();
@@ -6018,6 +6167,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         final String id = prepareSubscriptionForModification(0L);
 
         VOSubscriptionDetails subToModify = runTX(new Callable<VOSubscriptionDetails>() {
+
             @Override
             public VOSubscriptionDetails call() {
                 checkSubscribeToProduct(false, id, testProducts.get(3),
@@ -6034,6 +6184,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
         final long subKey = subToModify.getKey();
         UserGroup subUnitBefore = runTX(new Callable<UserGroup>() {
+
             @Override
             public UserGroup call() throws ObjectNotFoundException {
                 Subscription sub = mgr.getReference(Subscription.class, subKey);
@@ -6051,6 +6202,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     public void testModifySubscriptionUnitDeassign() throws Exception {
 
         Organization customerOrg = runTX(new Callable<Organization>() {
+
             @Override
             public Organization call() {
                 return testOrganizations.get(0);
@@ -6060,6 +6212,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         final String customerOrgId = customerOrg.getOrganizationId();
         final long customerOrgKey = customerOrg.getKey();
         Long unit1Key = runTX(new Callable<Long>() {
+
             @Override
             public Long call() throws ObjectNotFoundException {
                 UserGroup unit = new UserGroup();
@@ -6074,6 +6227,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 .longValue());
 
         VOSubscriptionDetails subToModify = runTX(new Callable<VOSubscriptionDetails>() {
+
             @Override
             public VOSubscriptionDetails call() {
                 checkSubscribeToProduct(false, id, testProducts.get(3),
@@ -6090,6 +6244,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
         final long subKey = subToModify.getKey();
         UserGroup subUnitBefore = runTX(new Callable<UserGroup>() {
+
             @Override
             public UserGroup call() throws ObjectNotFoundException {
                 Subscription sub = mgr.getReference(Subscription.class, subKey);
@@ -6104,6 +6259,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         subMgmt.modifySubscription(subToModify, null, new ArrayList<VOUda>());
 
         UserGroup subUnitAfter = runTX(new Callable<UserGroup>() {
+
             @Override
             public UserGroup call() throws ObjectNotFoundException {
                 Subscription sub = mgr.getReference(Subscription.class, subKey);
@@ -6134,6 +6290,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 instanceInfo);
 
         VOSubscriptionDetails subToModify = runTX(new Callable<VOSubscriptionDetails>() {
+
             @Override
             public VOSubscriptionDetails call() {
                 checkSubscribeToProduct(false, subscriptionIdBefore,
@@ -6153,6 +6310,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         subToModify.setUnitKey(unitAfter.getKey());
         subToModify.setSubscriptionId(subscriptionIdAfter);
         PlatformUser user = runTX(new Callable<PlatformUser>() {
+
             @Override
             public PlatformUser call() throws Exception {
                 Organization organization = mgr.getReference(
@@ -6179,6 +6337,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // Now check results
         try {
             runTX(new Callable<Void>() {
+
                 @Override
                 public Void call() {
                     checkSubscribeToProduct(false, subscriptionIdAfter,
@@ -6196,6 +6355,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         }
         final long subKey = subToModify.getKey();
         UserGroup subscriptionUnit = runTX(new Callable<UserGroup>() {
+
             @Override
             public UserGroup call() throws ObjectNotFoundException {
                 Subscription sub = mgr.getReference(Subscription.class, subKey);
@@ -6225,6 +6385,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 instanceInfo);
 
         VOSubscriptionDetails subToModify = runTX(new Callable<VOSubscriptionDetails>() {
+
             @Override
             public VOSubscriptionDetails call() {
                 checkSubscribeToProduct(false, subscriptionIdBefore,
@@ -6244,6 +6405,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         subToModify.setUnitKey(unitAfter.getKey());
         subToModify.setSubscriptionId(subscriptionIdAfter);
         PlatformUser user = runTX(new Callable<PlatformUser>() {
+
             @Override
             public PlatformUser call() throws Exception {
                 Organization organization = mgr.getReference(
@@ -6269,6 +6431,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // Now check results
         try {
             runTX(new Callable<Void>() {
+
                 @Override
                 public Void call() {
                     checkSubscribeToProduct(false, subscriptionIdBefore,
@@ -6286,6 +6449,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
         final long subKey = subToModify.getKey();
         UserGroup subscriptionUnit = runTX(new Callable<UserGroup>() {
+
             @Override
             public UserGroup call() throws ObjectNotFoundException {
                 Subscription sub = mgr.getReference(Subscription.class, subKey);
@@ -6322,6 +6486,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
         try {
             runTX(new Callable<Void>() {
+
                 @Override
                 public Void call() throws Exception {
 
@@ -6350,6 +6515,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
     private void callModifyInt(final TriggerProcess tp) throws Exception {
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
                 subMgmtLocal.modifySubscriptionInt(tp);
@@ -6376,6 +6542,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     private VOSubscription getSubscription(final String subscriptionId)
             throws Exception {
         VOSubscription subToModify = runTX(new Callable<VOSubscription>() {
+
             @Override
             public VOSubscription call() throws Exception {
                 Subscription subscription = getSubscription(subscriptionId,
@@ -6456,6 +6623,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     private VOService modifyParams(final String subscriptionId)
             throws Exception {
         VOService voService = runTX(new Callable<VOService>() {
+
             @Override
             public VOService call() throws Exception {
                 Subscription subscription = getSubscription(subscriptionId,
@@ -6680,6 +6848,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
             throws Exception {
         // set target customer as different organization
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() {
                 initCustomerProduct(1);
@@ -6712,6 +6881,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
             throws Exception {
         // set target customer the same organization
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() {
                 Product product = initCustomerProduct(0);
@@ -6774,6 +6944,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         prepareSubscription(sourceProductCustomerSpecific);
         // remember the subscription
         Subscription storedSubscription = runTX(new Callable<Subscription>() {
+
             @Override
             public Subscription call() {
                 Query query = mgr.createQuery("SELECT s FROM Subscription s");
@@ -6810,6 +6981,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
         // check amount of products and their settings
         List<Product> allMyProducts = runTX(new Callable<List<Product>>() {
+
             @Override
             public List<Product> call() {
                 Query query = mgr.createQuery("SELECT p FROM Product p");
@@ -6839,6 +7011,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     public void testSubscribeToProductIntNoUsers() throws Throwable {
         assertNotNull(subMgmtLocal);
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
                 subMgmtLocal
@@ -6855,6 +7028,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
         // activate the 'onlyOneSubscriptionPerUser' flag
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
                 TechnicalProduct techProduct = mgr.getReference(
@@ -6867,6 +7041,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
         // try to subscribe twice
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
                 subMgmtLocal
@@ -6916,6 +7091,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 ROLE_SERVICE_MANAGER);
         try {
             runTX(new Callable<Void>() {
+
                 @Override
                 public Void call() throws Exception {
                     createTriggerDefinition(
@@ -6933,6 +7109,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 subId);
 
         PlatformUser user = runTX(new Callable<PlatformUser>() {
+
             @Override
             public PlatformUser call() throws Exception {
                 Organization organization = mgr.getReference(
@@ -6944,6 +7121,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         container.login(user.getKey(), ROLE_ORGANIZATION_ADMIN);
 
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
                 subMgmtLocal.unsubscribeFromServiceInt(tp);
@@ -6959,6 +7137,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     private void createTriggerDefinition(final TriggerType type,
             final boolean isSuspendable) throws Exception {
         runTX(new Callable<TriggerDefinition>() {
+
             @Override
             public TriggerDefinition call() throws Exception {
                 TriggerDefinition td = new TriggerDefinition();
@@ -7003,6 +7182,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 new ArrayList<VOUda>());
         tp.setUser(testUsers.get(testOrganizations.get(0)).get(1));
         final Subscription newSub = runTX(new Callable<Subscription>() {
+
             @Override
             public Subscription call() throws Exception {
                 return subMgmtLocal.subscribeToServiceInt(tp);
@@ -7012,6 +7192,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // Now check results
         try {
             runTX(new Callable<Void>() {
+
                 @Override
                 public Void call() throws Exception {
                     checkSubscribeToProduct(false, "testSubscribeToProduct",
@@ -7048,6 +7229,16 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     public void testSubscribeToProductWithTrigger_AutoAssignUser()
             throws Throwable {
         assertNotNull(subMgmtLocal);
+        runTX(new Callable<Void>() {
+
+            @Override
+            public Void call() throws Exception {
+                Product product = mgr.getReference(Product.class, testProducts
+                        .get(0).getKey());
+                product.setAutoAssignUserEnabled(Boolean.TRUE);
+                return null;
+            }
+        });
         VOService product = getProductToSubscribe(testProducts.get(0).getKey());
         product.setAutoAssignUserEnabled(Boolean.TRUE);
 
@@ -7077,6 +7268,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         tp.setUser(testUsers.get(testOrganizations.get(0)).get(1));
 
         final Subscription newSub = runTX(new Callable<Subscription>() {
+
             @Override
             public Subscription call() throws Exception {
                 return subMgmtLocal.subscribeToServiceInt(tp);
@@ -7086,6 +7278,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // Now check results
         try {
             runTX(new Callable<Void>() {
+
                 @Override
                 public Void call() throws Exception {
                     checkSubscribeToProduct(false, "testSubscribeToProduct",
@@ -7122,6 +7315,16 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     public void testSubscribeToProductWithTrigger_AutoAssignUser2()
             throws Throwable {
         assertNotNull(subMgmtLocal);
+        runTX(new Callable<Void>() {
+
+            @Override
+            public Void call() throws Exception {
+                Product product = mgr.getReference(Product.class, testProducts
+                        .get(0).getKey());
+                product.setAutoAssignUserEnabled(Boolean.TRUE);
+                return null;
+            }
+        });
         VOService product = getProductToSubscribe(testProducts.get(0).getKey());
         product.setAutoAssignUserEnabled(Boolean.TRUE);
 
@@ -7151,6 +7354,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         tp.setUser(testUsers.get(testOrganizations.get(0)).get(0));
 
         final Subscription newSub = runTX(new Callable<Subscription>() {
+
             @Override
             public Subscription call() throws Exception {
                 return subMgmtLocal.subscribeToServiceInt(tp);
@@ -7160,6 +7364,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // Now check results
         try {
             runTX(new Callable<Void>() {
+
                 @Override
                 public Void call() throws Exception {
                     checkSubscribeToProduct(false, "testSubscribeToProduct",
@@ -7229,6 +7434,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         tp.setUser(testUsers.get(testOrganizations.get(0)).get(1));
 
         final Subscription newSub = runTX(new Callable<Subscription>() {
+
             @Override
             public Subscription call() throws Exception {
                 return subMgmtLocal.subscribeToServiceInt(tp);
@@ -7238,6 +7444,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // Now check results
         try {
             runTX(new Callable<Void>() {
+
                 @Override
                 public Void call() throws Exception {
                     checkSubscribeToProduct(false, "testSubscribeToProduct",
@@ -7307,6 +7514,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         tp.setUser(testUsers.get(testOrganizations.get(0)).get(2));
 
         final Subscription newSub = runTX(new Callable<Subscription>() {
+
             @Override
             public Subscription call() throws Exception {
                 return subMgmtLocal.subscribeToServiceInt(tp);
@@ -7316,6 +7524,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // Now check results
         try {
             runTX(new Callable<Void>() {
+
                 @Override
                 public Void call() throws Exception {
                     checkSubscribeToProduct(false, "testSubscribeToProduct",
@@ -7358,6 +7567,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 .get(0));
 
         final Product product = runTX(new Callable<Product>() {
+
             @Override
             public Product call() throws Exception {
                 TechnicalProduct tp = TechnicalProducts.createTechnicalProduct(
@@ -7436,6 +7646,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         final long subKey = createdSub.getKey();
 
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
                 Subscription sub = mgr.getReference(Subscription.class, subKey);
@@ -7476,6 +7687,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
             final Product oldSubSpecificProduct) throws Exception {
         final List<DomainObject<?>> productRelatedObjects = new ArrayList<DomainObject<?>>();
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
                 Product currentProduct = mgr.getReference(Product.class,
@@ -7540,6 +7752,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     private void verifyDeletion(final List<DomainObject<?>> searchTemplates)
             throws Exception {
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() {
                 for (DomainObject<?> searchTemplate : searchTemplates) {
@@ -7601,6 +7814,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     private Product prepareCustomerProduct(final Product template)
             throws Exception {
         return runTX(new Callable<Product>() {
+
             @Override
             public Product call() throws Exception {
                 List<PlatformUser> users = testUsers.get(testOrganizations
@@ -7618,6 +7832,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
     private Product[] prepareTemplates() throws Exception {
         return runTX(new Callable<Product[]>() {
+
             @Override
             public Product[] call() {
                 testProducts.set(10,
@@ -7637,6 +7852,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
     private Product activate(final Product product) throws Exception {
         return runTX(new Callable<Product>() {
+
             @Override
             public Product call() {
                 Product find = mgr.find(Product.class, product.getKey());
@@ -7722,6 +7938,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // get just created subscription for getting correct reference to new
         // product instance
         final Subscription subscription = runTX(new Callable<Subscription>() {
+
             @Override
             public Subscription call() {
                 Subscription returnSubscription = getSubscription(id,
@@ -7732,6 +7949,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         });
         // get VOSubscription, which is needed as tested method argument
         VOSubscription subToModify = runTX(new Callable<VOSubscription>() {
+
             @Override
             public VOSubscription call() {
                 Subscription subscription = getSubscription(id,
@@ -7745,6 +7963,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         final String productID = subscription.getProduct().getProductId();
         // create parameter for subscription product
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
                 doSetParameterSetForProduct(productID, isConfigurable,
@@ -7757,6 +7976,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         final Product product = subscription.getProduct();
         List<Parameter> parameters = new ArrayList<Parameter>();
         parameters = runTX(new Callable<List<Parameter>>() {
+
             @Override
             public List<Parameter> call() throws Exception {
                 Product currentProduct = mgr.getReference(Product.class,
@@ -7774,6 +7994,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                     .getParameterDefinition().getKey();
             // get parameter definition
             ParameterDefinition parameterDefinition = runTX(new Callable<ParameterDefinition>() {
+
                 @Override
                 public ParameterDefinition call() {
                     ParameterDefinition parameterDefinition = mgr.find(
@@ -7830,6 +8051,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // check changes
         if (modifiedParameters.size() > 0) {
             runTX(new Callable<Void>() {
+
                 @Override
                 public Void call() {
                     // test parameters values
@@ -7936,6 +8158,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
     private Subscription createSubscription() throws Exception {
         Subscription sub = runTX(new Callable<Subscription>() {
+
             @Override
             public Subscription call() throws Exception {
                 org = Organizations.createOrganization(mgr,
@@ -7970,6 +8193,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     private void createMarketingPermission(final long tpKey,
             final long orgRefKey) throws Exception {
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() {
                 TechnicalProduct technicalProduct = mgr.find(
@@ -7993,6 +8217,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     private OrganizationReference createOrgRef(final long orgKey)
             throws Exception {
         return runTX(new Callable<OrganizationReference>() {
+
             @Override
             public OrganizationReference call() {
                 Organization organization = mgr
@@ -8348,6 +8573,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
         // make sure the service has a chargeable price model
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() {
                 Product product = initCustomerProduct(0);
@@ -8388,6 +8614,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
         // Create a
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() {
                 Product product = initCustomerProduct(0);
@@ -8431,6 +8658,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     public void testSubscribeToProduct_NotSupported() throws Throwable {
 
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() {
                 Product product = initCustomerProduct(0);
@@ -8447,6 +8675,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
             }
         });
         final Organization tpAndSupplier2 = runTX(new Callable<Organization>() {
+
             @Override
             public Organization call() throws Exception {
                 return Organizations.createOrganization(mgr,
@@ -8480,6 +8709,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     public void testSubscribeToProductForeignPaymentInfo() throws Throwable {
 
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() {
                 Product product = initCustomerProduct(0);
@@ -8496,6 +8726,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
             }
         });
         final Organization tpAndSupplier2 = runTX(new Callable<Organization>() {
+
             @Override
             public Organization call() throws Exception {
                 Organization newOrg = Organizations.createOrganization(mgr,
@@ -8534,6 +8765,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
         // make sure the service has a chargeable price model
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() {
                 Product product = initCustomerProduct(0);
@@ -8593,6 +8825,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     public void testSubscribeToProductFreePaymentInfoNull() throws Throwable {
         // make sure the service has a non chargeable price model
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() {
                 Product product = mgr.find(Product.class, testProducts.get(10)
@@ -8623,6 +8856,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         assertNotNull(voSubscription);
 
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() {
                 checkSubscribeToProduct(false, "testSubscribeToProduct",
@@ -8642,6 +8876,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
             throws Throwable {
         // make sure the service has a non chargeable price model
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() {
                 Product product = initCustomerProduct(0);
@@ -8674,6 +8909,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 new ArrayList<VOUda>());
 
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() {
                 checkSubscribeToProduct(false, "testSubscribeToProduct",
@@ -8714,6 +8950,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                         new ArrayList<VOUda>());
 
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
                 Subscription sub = mgr.getReference(Subscription.class,
@@ -8766,6 +9003,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                         new ArrayList<VOUda>());
 
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
                 Subscription sub = mgr.getReference(Subscription.class,
@@ -8791,6 +9029,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     @Test
     public void testUpgradeToProductChargeableToFreeOk() throws Throwable {
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
                 Product product = mgr.getReference(Product.class, testProducts
@@ -8833,6 +9072,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                         new ArrayList<VOUda>());
 
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
                 Subscription sub = mgr.getReference(Subscription.class,
@@ -8861,6 +9101,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         createAvailablePayment(testOrganizations.get(0));
 
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
                 Product product = mgr.getReference(Product.class, testProducts
@@ -8902,6 +9143,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                         new ArrayList<VOUda>());
 
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
                 Subscription sub = mgr.getReference(Subscription.class,
@@ -8927,6 +9169,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         createAvailablePayment(testOrganizations.get(0));
 
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
                 Product product = mgr.getReference(Product.class, testProducts
@@ -8984,6 +9227,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                         new ArrayList<VOUda>());
 
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
                 Subscription sub = mgr.getReference(Subscription.class,
@@ -9057,6 +9301,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         assertTrue(products.get(0).getPriceModel().isChargeable());
 
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
                 VOService product = products.get(0);
@@ -9087,6 +9332,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         createAvailablePayment(testOrganizations.get(0));
 
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
                 Product product = mgr.getReference(Product.class, testProducts
@@ -9132,6 +9378,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     @Test(expected = PaymentInformationException.class)
     public void testUpgradeProductForeignPaymentInfo() throws Throwable {
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() {
                 Product product = initCustomerProduct(0);
@@ -9148,6 +9395,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
             }
         });
         final Organization tpAndSupplier2 = runTX(new Callable<Organization>() {
+
             @Override
             public Organization call() throws Exception {
                 return Organizations.createOrganization(mgr,
@@ -9195,6 +9443,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
             throws Throwable {
 
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() {
                 Product product = initCustomerProduct(0);
@@ -9211,6 +9460,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
             }
         });
         final Organization tpAndSupplier2 = runTX(new Callable<Organization>() {
+
             @Override
             public Organization call() throws Exception {
                 Organization newOrg = Organizations.createOrganization(mgr,
@@ -9318,6 +9568,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
             final Organization organization) throws Exception {
         if (!voPaymentInfos.containsKey(supplierId)) {
             runTX(new Callable<Void>() {
+
                 @Override
                 public Void call() throws Exception {
                     VOPaymentInfo newPaymentInfo = PaymentInfos
@@ -9349,6 +9600,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     private VOSubscription prepareSubForGetUpgradeOptions(final String subId,
             final ServiceStatus state) throws Exception {
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() {
                 // the template used for the subscription
@@ -9383,6 +9635,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         final VOSubscription sub = createNewSubscription();
 
         VOService voService = runTX(new Callable<VOService>() {
+
             @Override
             public VOService call() throws Exception {
                 Subscription subscriptionToModify = mgr.getReference(
@@ -9415,6 +9668,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         final VOSubscription sub = createNewSubscription();
 
         VOService voService = runTX(new Callable<VOService>() {
+
             @Override
             public VOService call() throws Exception {
                 // DataService dm = container.get(DataService.class);
@@ -9460,6 +9714,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         final VOService voTargetProduct = targetProducts.get(1);
 
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
 
@@ -9498,6 +9753,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         final VOService voTargetProduct = targetProducts.get(1);
 
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
                 removeReferences();
@@ -9536,6 +9792,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         final long targetProductKey = targetProducts.get(1).getKey();
 
         VOService voTargetProduct = runTX(new Callable<VOService>() {
+
             @Override
             public VOService call() throws Exception {
                 removeReferences();
@@ -9594,6 +9851,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         assertNotNull(subMgmt);
 
         Product prod = runTX(new Callable<Product>() {
+
             @Override
             public Product call() throws Exception {
                 TechnicalProduct tProd = TechnicalProducts
@@ -9632,12 +9890,13 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         assertTrue(((String) receivedSendMailPayload.get(0).getMailObjects()
                 .get(0).getParams()[1]).startsWith(BASE_URL_BES_HTTPS));
     }
-    
+
     @Test
     public void testSubscribeToProductWithExternalBilling() throws Throwable {
         assertNotNull(subMgmt);
 
         Product prod = runTX(new Callable<Product>() {
+
             @Override
             public Product call() throws Exception {
                 TechnicalProduct tProd = TechnicalProducts
@@ -9654,7 +9913,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         });
 
         VOService product = getProductToSubscribe(prod.getKey());
-        
+
         VOUser[] users = new VOUser[2];
         VOUser[] admins = new VOUser[1];
         setUsers(users, admins);
@@ -9665,15 +9924,16 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         final VOSubscription newSub = subMgmt.subscribeToService(sub, product,
                 getUsersToAdd(admins, users), null, null,
                 new ArrayList<VOUda>());
-        
+
         Subscription createdSub = runTX(new Callable<Subscription>() {
+
             @Override
             public Subscription call() throws ObjectNotFoundException {
                 return mgr.find(Subscription.class, newSub.getKey());
             }
         });
 
-        assertEquals(true, createdSub.isExternal()); 
+        assertEquals(true, createdSub.isExternal());
     }
 
     @Test
@@ -9703,6 +9963,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
         // when
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() {
                 Subscription qryObj = new Subscription();
@@ -9742,6 +10003,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
         // when
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() {
                 Subscription qryObj = new Subscription();
@@ -9920,6 +10182,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         final Product product = testProducts.get(10);
 
         final VOSubscription sub = runTX(new Callable<VOSubscription>() {
+
             @Override
             public VOSubscription call() throws Exception {
                 Product dbProduct = mgr.getReference(Product.class,
@@ -9948,6 +10211,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         final Product sourceProduct = testProducts.get(10);
 
         final VOService voSourceProduct = runTX(new Callable<VOService>() {
+
             @Override
             public VOService call() throws Exception {
                 Product product = mgr.getReference(Product.class,
@@ -9972,6 +10236,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         assertEquals(1, voTargetProduct.getParameters().size());
 
         VOService voTargetProduct2 = runTX(new Callable<VOService>() {
+
             @Override
             public VOService call() throws Exception {
                 DataService dm = container.get(DataService.class);
