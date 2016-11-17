@@ -191,7 +191,7 @@ public class NovaClient {
             PropertyHandler ph, String serverId)
             throws OpenStackConnectionException {
         boolean result = false;
-        Server server = getServerDetails(ph, serverId);
+        Server server = getServerDetails(ph, serverId, false);
         if (!server.getStatus().equals(exceptedStatus.toString())) {
             result = true;
         }
@@ -228,4 +228,5 @@ public class NovaClient {
                     e);
         }
         return "-";
-    }}
+    }
+}
