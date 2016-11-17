@@ -154,30 +154,12 @@ public class UdaAccessTest {
 
     @Test(expected = ValidationException.class)
     public void saveUdas_ValidationError_NoDefinition() throws Exception {
-        // given: no definition set will cause validation error
-        voUda.setUdaDefinition(null);
-
-        try {
-            // when
-            ua.saveUdas(Arrays.asList(voUda), supplier);
-        } finally {
-            // then
-            verify(ctx, times(1)).setRollbackOnly();
+        String udaValue="";
+        for (int i = 0; i < 30; i++) {
+            udaValue += "1234567890";
         }
-    }
-
-    @Test(expected = ValidationException.class)
-    public void saveUdas_ValidationError_NoTarget() throws Exception {
-        // given: no definition set will cause validation error
-        voUda.setTargetObjectKey(0);
-
-        try {
-            // when
-            ua.saveUdas(Arrays.asList(voUda), supplier);
-        } finally {
-            // then
-            verify(ctx, times(1)).setRollbackOnly();
-        }
+        voUda.setUdaValue(udaValue);
+        ua.saveUdas(Arrays.asList(voUda), supplier);
     }
 
     @Test(expected = ConcurrentModificationException.class)
