@@ -7101,6 +7101,16 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     public void testSubscribeToProductWithTrigger_AutoAssignUser()
             throws Throwable {
         assertNotNull(subMgmtLocal);
+        runTX(new Callable<Void>() {
+
+            @Override
+            public Void call() throws Exception {
+                Product product = mgr.getReference(Product.class, testProducts
+                        .get(0).getKey());
+                product.setAutoAssignUserEnabled(Boolean.TRUE);
+                return null;
+            }
+        });
         VOService product = getProductToSubscribe(testProducts.get(0).getKey());
         product.setAutoAssignUserEnabled(Boolean.TRUE);
 
@@ -7175,6 +7185,16 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     public void testSubscribeToProductWithTrigger_AutoAssignUser2()
             throws Throwable {
         assertNotNull(subMgmtLocal);
+        runTX(new Callable<Void>() {
+
+            @Override
+            public Void call() throws Exception {
+                Product product = mgr.getReference(Product.class, testProducts
+                        .get(0).getKey());
+                product.setAutoAssignUserEnabled(Boolean.TRUE);
+                return null;
+            }
+        });
         VOService product = getProductToSubscribe(testProducts.get(0).getKey());
         product.setAutoAssignUserEnabled(Boolean.TRUE);
 
