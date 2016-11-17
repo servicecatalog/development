@@ -27,6 +27,7 @@ import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.event.ValueChangeEvent;
 
+import org.apache.commons.lang3.StringUtils;
 import org.oscm.internal.types.enumtypes.ImageType;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.ParameterType;
@@ -86,6 +87,7 @@ public class ServiceBean extends BaseBean implements Serializable {
     private static final String SERVICE_NO_LONGER_EXISTS = "error.service.noLonger.exists";
     private static final String SERVICE_DELETED = "error.service.deleted";
     private static final String CANNOT_DELETE_ACTIVE_SERVICE = "error.service.cannot.delete.active";
+    static final String HIDDEN_PWD = "*****";
 
     private List<VOTechnicalService> availableTechServices;
     private VOTechnicalService selectedTechService;
@@ -144,6 +146,8 @@ public class ServiceBean extends BaseBean implements Serializable {
         // read public flag from service beforehand since create method will
         // always return false
         boolean isPublicService = serviceForCreation.isPublicService();
+
+        rewritePasswordsValues();
         serviceForCreation = new ServiceDetails(
                 cleanupParameter(serviceForCreation.getVoServiceDetails()));
 
@@ -199,6 +203,18 @@ public class ServiceBean extends BaseBean implements Serializable {
 
         }
         return OUTCOME_SUCCESS;
+    }
+
+    private void rewritePasswordsValues() {
+        for (ParameterRow parameterRow : parameterRows) {
+            if (!parameterRow.getParameterDefinition().isValueTypePWD() & !parameterRow.isPasswordType()) {
+                continue;
+            }
+            if (parameterRow.getPasswordValueToStore() == null || !parameterRow
+                .getPasswordValueToStore().trim().equals(HIDDEN_PWD)) {
+                parameterRow.getParameter().setValue(parameterRow.getPasswordValueToStore());
+            }
+        }
     }
 
     /**
@@ -477,6 +493,14 @@ public class ServiceBean extends BaseBean implements Serializable {
             VOParameterDefinition parameterDefinition = voParameter
                     .getParameterDefinition();
             ParameterRow row = new ParameterRow(voParameter, null, initDefault);
+
+            if (row.getParameterDefinition().isValueTypePWD() || row.isPasswordType()) {
+                if (StringUtils.isNotBlank(row.getParameter().getValue())) {
+                    row.setPasswordValueToStore(HIDDEN_PWD);
+                } else {
+                    row.setPasswordValueToStore("");
+                }
+            }
             parameterRows.add(row);
             if (parameterDefinition.getValueType() == ParameterValueType.ENUMERATION) {
                 int optionIndex = 0;
@@ -763,6 +787,7 @@ public class ServiceBean extends BaseBean implements Serializable {
         // read public flag from service beforehand since create method will
         // always return false
         boolean isPublicService = selectedService.isPublicService();
+        rewritePasswordsValues();
         selectedService = new ServiceDetails(
                 cleanupParameter(selectedService.getVoServiceDetails()));
 

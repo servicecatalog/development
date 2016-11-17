@@ -28,6 +28,7 @@ public class ParameterRow {
     private VOParameterDefinition parameterDefinition;
 
     private int optionIndex;
+    private String passwordValueToStore;
 
     public ParameterRow() {
 
@@ -208,5 +209,13 @@ public class ParameterRow {
     
     public boolean isPasswordType(){
         return parameterDefinition.getParameterId().contains("_PWD");
+    }
+
+    public String getPasswordValueToStore() {
+        return passwordValueToStore;
+    }
+
+    public void setPasswordValueToStore(String passwordValueToStore) {
+        this.passwordValueToStore = passwordValueToStore;
     }
 }

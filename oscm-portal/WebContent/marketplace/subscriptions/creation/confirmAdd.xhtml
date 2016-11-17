@@ -67,7 +67,7 @@
                   <h:outputText value="#{subUda.udaNameToShow}" id="subUda#{v.index}Label" styleClass="label" />
                   <h:outputText value="#{subUda.udaValue}" id="subUda#{v.index}Value"
                                 rendered="#{not subUda.inputEncrypted}"/>
-                  <h:outputText value="*********" id="secretSubUda#{v.index}Value"
+                  <h:outputText value="*****" id="secretSubUda#{v.index}Value"
                                 styleClass="output-password" rendered="#{subUda.inputEncrypted}"/>
                 </c:forEach>
               </t:panelGrid>
