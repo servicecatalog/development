@@ -63,7 +63,8 @@
               </f:facet>
               <h:outputText id="defaultValue" value="#{rowItem.defaultValue}" styleClass="field"
                 required="#{!empty param['udaDefinitionsCustomerForm:confirmedButton'] and empty param[checkboxId]}"
-                maxlength="#{appBean.descriptionLen}" />
+                maxlength="#{appBean.descriptionLen}" rendered="#{not rowItem.encrypted}" />
+              <adm:secretOutputText id="secretDefaultValue" rendered="#{rowItem.encrypted and not empty rowItem.defaultValue}"/>
               <adm:message id="defaultValueErrorMsg" for="defaultValue" />
             </rich:column>
 
@@ -156,7 +157,8 @@
               </f:facet>
               <h:outputText id="defaultValue" value="#{rowItem.defaultValue}" styleClass="field"
                 required="#{!empty param['udaDefinitionsSubscriptionForm:confirmedButton'] and empty param[checkboxId]}"
-                maxlength="#{appBean.descriptionLen}" />
+                maxlength="#{appBean.descriptionLen}" rendered="#{not rowItem.encrypted}" />
+              <adm:secretOutputText id="secretDefaultValue" rendered="#{rowItem.encrypted and not empty rowItem.defaultValue}"/>
               <adm:message id="defaultValueErrorMsg" for="defaultValue" />
             </rich:column>
 

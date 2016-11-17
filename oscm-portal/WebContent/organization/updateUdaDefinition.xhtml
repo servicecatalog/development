@@ -53,7 +53,20 @@
 
           <adm:labelAndInputText id="updateUdaDefaultValueInput" label="#{msg['udaDefinition.defaultValue']}"
             value="#{manageUdaDefinitionBean.currentUda.defaultValue}" maxlength="#{appBean.descriptionLen}"
-            converterId="trimConverter" styleClass="fieldXS" rendered="#{not empty manageUdaDefinitionBean.currentUda}" />
+            converterId="trimConverter" styleClass="fieldXS"
+            rendered="#{not empty manageUdaDefinitionBean.currentUda and not manageUdaDefinitionBean.currentUda.encrypted}" />
+
+          <adm:labelAndInputSecret id="updateUdaDefaultValueInputSecret"
+                                   label="#{msg['udaDefinition.defaultValue']}"
+                                   value="#{manageUdaDefinitionBean.currentUda.defaultValue}"
+                                   converterId="trimToNotNullConverter"
+                                   maxlength="#{appBean.descriptionLen}"
+                                   rendered="#{not empty manageUdaDefinitionBean.currentUda and manageUdaDefinitionBean.currentUda.encrypted}"
+                                   styleClass="fieldXS"/>
+
+          <adm:message id="updateUdaDefaultValueInputSecretErrorMsg" for="updateUdaDefaultValueInputSecret"
+                       rendered="#{not empty manageUdaDefinitionBean.currentUda and manageUdaDefinitionBean.currentUda.encrypted}"/>
+
           <adm:labelAndInputText id="updateUdaControllerIdInput" label="#{msg['udaDefinition.controllerId']}"
             value="#{manageUdaDefinitionBean.currentUda.controllerId}" maxlength="#{appBean.descriptionLen}"
             converterId="trimConverter" styleClass="fieldXS" rendered="#{not empty manageUdaDefinitionBean.currentUda}" />
