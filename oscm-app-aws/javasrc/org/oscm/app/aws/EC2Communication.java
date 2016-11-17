@@ -531,15 +531,12 @@ public class EC2Communication {
         DescribeInstancesResult result = getEC2().describeInstances(
                 new DescribeInstancesRequest().withInstanceIds(instanceId));
         List<Reservation> reservations = result.getReservations();
-        Set<Instance> instances = new HashSet<>();
+        List<Instance> instances = new ArrayList<>();
 
         for (Reservation reservation : reservations) {
             instances.addAll(reservation.getInstances());
-            if (instances.size() > 0) {
-                return (List<Instance>) instances.iterator().next();
-            }
         }
-        return null;
+        return instances;
     }
 
     private String getTextBASE64(String url) throws APPlatformException {

@@ -8,7 +8,6 @@
 
 package org.oscm.app.aws.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -20,8 +19,6 @@ import org.oscm.app.v1_0.APPlatformServiceFactory;
 import org.oscm.app.v1_0.data.PasswordAuthentication;
 import org.oscm.app.v1_0.data.ProvisioningSettings;
 import org.oscm.app.v1_0.exceptions.APPlatformException;
-import org.oscm.app.v1_0.exceptions.AuthenticationException;
-import org.oscm.app.v1_0.exceptions.ConfigurationException;
 import org.oscm.app.v1_0.intf.APPlatformService;
 
 import org.slf4j.Logger;
@@ -69,8 +66,11 @@ public class AWSInstanceAccess implements InstanceAccess {
     }
 
     @Override
-    public String getAccessInfo(String instanceId) throws AuthenticationException, ConfigurationException, APPlatformException {
-        return null;
+    public String getAccessInfo(String instanceId) throws APPlatformException {
+        ProvisioningSettings settings = platformService
+                .getServiceInstanceDetails(AWSController.ID, instanceId,
+                        new PasswordAuthentication("supplier", "admin123"));
+        return settings.getServiceAccessInfo();
     }
 
     @Override

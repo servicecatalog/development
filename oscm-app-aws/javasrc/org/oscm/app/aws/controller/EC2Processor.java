@@ -176,7 +176,7 @@ public class EC2Processor {
         result.setChangedParameters(ph.getSettings().getParameters());
         return result;
     }
-// TODO connection?
+
     public List<Server> getServerDetails() {
         EC2Communication ec2comm = new EC2Communication(ph);
         List<Instance> instances = ec2comm.getInstance(instanceId);
