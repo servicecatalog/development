@@ -11,6 +11,7 @@ package org.oscm.ui.dialog.mp.accountNavigation;
 import java.io.Serializable;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
@@ -33,6 +34,18 @@ public class AccountNavigationCtrl extends BaseBean implements Serializable {
     private ApplicationBean applicationBean;
     @ManagedProperty(value = "#{accountNavigationModel}")
     private AccountNavigationModel model;
+
+    @PostConstruct
+    public void getInitialize() {
+        String url = getRequest().getRequestURL().toString();
+        computeBaseUrl(url);
+    }
+
+    protected void computeBaseUrl(String url) {
+        String baseUrl = url.replaceFirst("/marketplace/.*", "");
+        getModel().setBaseUrl(baseUrl);
+        getModel().initLink();
+    }
 
     public ApplicationBean getApplicationBean() {
         return applicationBean;

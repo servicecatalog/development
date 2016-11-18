@@ -21,7 +21,6 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.oscm.internal.intf.ConfigurationService;
 import org.oscm.internal.types.constants.HiddenUIConstants;
@@ -43,6 +42,8 @@ public class AccountNavigationCtrlTest {
     private ConfigurationService cnfgSrv;
     private UserBean userMock;
 
+    private final String CURRENT_URL = "https://estgoebel:8180/oscm-portal/marketplace/index?mId=\"e1d423ce\"";
+
     @SuppressWarnings({ "serial" })
     @Before
     public void setup() throws Exception {
@@ -50,8 +51,8 @@ public class AccountNavigationCtrlTest {
         cnfgSrv = mock(ConfigurationService.class);
         userMock = mock(UserBean.class);
 
-        when(Boolean.valueOf(abMock.isReportingAvailable())).thenReturn(
-                Boolean.TRUE);
+        when(Boolean.valueOf(abMock.isReportingAvailable()))
+                .thenReturn(Boolean.TRUE);
         when(abMock.getServerBaseUrl()).thenReturn("baseURL");
         ctrl = new AccountNavigationCtrl() {
 
@@ -87,7 +88,6 @@ public class AccountNavigationCtrlTest {
         ctrl.setModel(model);
     }
 
-    @Ignore
     @Test
     public void getModel() {
         AccountNavigationModel model = ctrl.getModel();
@@ -96,16 +96,34 @@ public class AccountNavigationCtrlTest {
         assertEquals(10, model.getTitle().size());
         assertTrue(model.getLink().get(0),
                 model.getLink().get(0).endsWith("index.jsf"));
-        assertEquals(AccountNavigationModel.MARKETPLACE_ACCOUNT_TITLE, model
-                .getTitle().get(0));
+        assertEquals(AccountNavigationModel.MARKETPLACE_ACCOUNT_TITLE,
+                model.getTitle().get(0));
     }
 
-    @Ignore
+    @Test
+    public void computeBaseUrl() {
+        // when
+        ctrl.computeBaseUrl(
+                "https://estgoebel:8180/oscm-portal/marketplace/index?mId=\"ed123ge\"");
+        AccountNavigationModel model = ctrl.getModel();
+        assertEquals("https://estgoebel:8180/oscm-portal", model.getBaseUrl());
+
+    }
+
     @Test
     public void getLink() {
+        AccountNavigationModel model = ctrl.getModel();
+        ctrl.computeBaseUrl(CURRENT_URL);
+
+        assertEquals("https://estgoebel:8180/oscm-portal", model.getBaseUrl());
+
         List<String> result = ctrl.getLink();
         assertEquals(10, result.size());
-        assertTrue(result.get(0).endsWith("index.jsf"));
+
+        assertEquals(result.get(0),
+                "https://estgoebel:8180/oscm-portal/marketplace/account/index.jsf");
+        assertEquals(result.get(1),
+                "https://estgoebel:8180/oscm-portal/marketplace/account/profile.jsf");
     }
 
     @Test
