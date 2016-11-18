@@ -9,6 +9,8 @@
 package org.oscm.app.common.ui.filter;
 
 import java.io.IOException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.StringTokenizer;
 
 import javax.inject.Inject;
@@ -23,15 +25,14 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.codec.binary.Base64;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.oscm.app.common.i18n.Messages;
 import org.oscm.app.common.intf.ControllerAccess;
 import org.oscm.app.v1_0.APPlatformServiceFactory;
 import org.oscm.app.v1_0.data.PasswordAuthentication;
 import org.oscm.app.v1_0.data.User;
 import org.oscm.app.v1_0.intf.APPlatformService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Dirk Bernsau
@@ -72,53 +73,81 @@ public class AuthorizationFilter implements Filter {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
         HttpSession session = httpRequest.getSession();
-        Object loggedInUserId = session.getAttribute("loggedInUserId");
-        if (loggedInUserId != null) {
-            // logged in continue normally
-            chain.doFilter(httpRequest, response);
-            return;
-        }
-
-        // Check HTTP Basic authentication
-        String authHeader = httpRequest.getHeader("Authorization");
-        if (authHeader != null) {
-            StringTokenizer st = new StringTokenizer(authHeader);
-            if (st.hasMoreTokens()) {
-                String basic = st.nextToken();
-
-                // only handle HTTP Basic authentication
-                if (basic.equalsIgnoreCase("basic")) {
-                    String credentials = st.nextToken();
-                    String userPass = new String(
-                            Base64.decodeBase64(credentials));
-
-                    // The decoded string is in the form "userID:password".
-                    int p = userPass.indexOf(":");
-                    if (p != -1) {
-                        String username = userPass.substring(0, p);
-                        String password = userPass.substring(p + 1);
-
-                        PasswordAuthentication tpUser = new PasswordAuthentication(
-                                username, password);
-                        APPlatformService pSvc = APPlatformServiceFactory
-                                .getInstance();
-                        try {
-                            // Check authority
-                            User user = pSvc.authenticate(controllerId, tpUser);
-                            // It worked! => store credentials in session for
-                            // later use
-                            session.setAttribute("loggedInUserId", username);
-                            session.setAttribute("loggedInUserPassword",
-                                    password);
-                            session.setAttribute("loggedInUserLocale",
-                                    user.getLocale());
-                            // And continue
+        String path = httpRequest.getServletPath();
+        if (path != null && path.matches("/.+/serverInformation.jsf")) {
+            String token = httpRequest.getParameter("token");
+            String instId = httpRequest.getParameter("instId");
+            if (token != null && instId != null) {
+                String hashParams[] = token.split("_");
+                if (hashParams[0] == instId) {
+                    byte[] cipher_byte;
+                    String checkStr = hashParams[0] + "_" + hashParams[1] + "_"
+                            + hashParams[2];
+                    try {
+                        MessageDigest md = MessageDigest.getInstance("SHA-256");
+                        md.update(checkStr.getBytes());
+                        cipher_byte = md.digest();
+                        if (cipher_byte.equals(hashParams[3])) {
                             chain.doFilter(httpRequest, response);
                             return;
+                        }
+                    } catch (NoSuchAlgorithmException e) {
+                        LOGGER.error(e.getMessage());
+                    }
+                }
+            }
+        } else {
+            Object loggedInUserId = session.getAttribute("loggedInUserId");
+            if (loggedInUserId != null) {
+                // logged in continue normally
+                chain.doFilter(httpRequest, response);
+                return;
+            }
 
-                        } catch (Exception e) {
-                            // Problem occurred...
-                            LOGGER.debug("doFilter: " + e.getMessage());
+            // Check HTTP Basic authentication
+            String authHeader = httpRequest.getHeader("Authorization");
+            if (authHeader != null) {
+                StringTokenizer st = new StringTokenizer(authHeader);
+                if (st.hasMoreTokens()) {
+                    String basic = st.nextToken();
+
+                    // only handle HTTP Basic authentication
+                    if (basic.equalsIgnoreCase("basic")) {
+                        String credentials = st.nextToken();
+                        String userPass = new String(
+                                Base64.decodeBase64(credentials));
+
+                        // The decoded string is in the form "userID:password".
+                        int p = userPass.indexOf(":");
+                        if (p != -1) {
+                            String username = userPass.substring(0, p);
+                            String password = userPass.substring(p + 1);
+
+                            PasswordAuthentication tpUser = new PasswordAuthentication(
+                                    username, password);
+                            APPlatformService pSvc = APPlatformServiceFactory
+                                    .getInstance();
+                            try {
+                                // Check authority
+                                User user = pSvc.authenticate(controllerId,
+                                        tpUser);
+                                // It worked! => store credentials in session
+                                // for
+                                // later use
+                                session.setAttribute("loggedInUserId",
+                                        username);
+                                session.setAttribute("loggedInUserPassword",
+                                        password);
+                                session.setAttribute("loggedInUserLocale",
+                                        user.getLocale());
+                                // And continue
+                                chain.doFilter(httpRequest, response);
+                                return;
+
+                            } catch (Exception e) {
+                                // Problem occurred...
+                                LOGGER.debug("doFilter: " + e.getMessage());
+                            }
                         }
                     }
                 }
@@ -130,11 +159,9 @@ public class AuthorizationFilter implements Filter {
         if (clientLocale.equals(LOCALE_JA)) {
             clientLocale = LOCALE_DEFAULT;
         }
-        httpResponse.setHeader(
-                "WWW-Authenticate",
+        httpResponse.setHeader("WWW-Authenticate",
                 "Basic realm=\""
-                        + Messages
-                                .get(clientLocale, "ui.config.authentication")
+                        + Messages.get(clientLocale, "ui.config.authentication")
                         + "\"");
         httpResponse.setStatus(401);
         httpResponse.setContentType("text/html");
