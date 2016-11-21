@@ -15,8 +15,8 @@ import org.slf4j.LoggerFactory;
 
 import org.oscm.app.common.data.Context;
 import org.oscm.app.common.i18n.Messages;
-import org.oscm.app.v1_0.data.ProvisioningSettings;
-import org.oscm.app.v1_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.data.ProvisioningSettings;
+import org.oscm.app.v2_0.exceptions.APPlatformException;
 
 public class LogAndExceptionConverter {
 

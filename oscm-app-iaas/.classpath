@@ -4,7 +4,7 @@
   <classpathentry kind="src" path="javares" />
   <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER" />
   <classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/javalib/javaee.jar" />
-  <classpathentry combineaccessrules="false" kind="src" path="/oscm-app-extsvc-1-0" />
+  <classpathentry combineaccessrules="false" kind="src" path="/oscm-app-extsvc-2-0" />
   <classpathentry kind="lib" path="/libraries/slf4j/javalib/slf4j-api-1.7.7.jar" />
   <classpathentry kind="lib" path="/libraries/slf4j/javalib/slf4j-simple-1.7.7.jar" />
   <classpathentry kind="lib" path="/libraries/antlr/javalib/antlr4-runtime-4.1.jar" />

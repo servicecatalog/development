@@ -11,7 +11,7 @@ package org.oscm.app.vmware.business.balancer;
 import java.util.Collection;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.oscm.app.v1_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.exceptions.APPlatformException;
 import org.oscm.app.vmware.business.VMPropertyHandler;
 import org.oscm.app.vmware.business.model.VMwareHost;
 import org.oscm.app.vmware.i18n.Messages;
@@ -19,9 +19,9 @@ import org.oscm.app.vmware.i18n.Messages;
 /**
  * Balancer implementation determining dynamically from vSphere the host with
  * the lowest number of VMs running on it.
- *
+ * 
  * @author Oliver Petrovski
- *
+ * 
  */
 public class DynamicEquipartitionHostBalancer extends HostBalancer {
 

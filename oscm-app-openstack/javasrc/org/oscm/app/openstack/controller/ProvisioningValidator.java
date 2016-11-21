@@ -16,10 +16,10 @@ import java.util.regex.PatternSyntaxException;
 
 import org.oscm.app.openstack.data.FlowState;
 import org.oscm.app.openstack.i18n.Messages;
-import org.oscm.app.v1_0.exceptions.APPlatformException;
-import org.oscm.app.v1_0.exceptions.AuthenticationException;
-import org.oscm.app.v1_0.exceptions.ConfigurationException;
-import org.oscm.app.v1_0.intf.APPlatformService;
+import org.oscm.app.v2_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.exceptions.AuthenticationException;
+import org.oscm.app.v2_0.exceptions.ConfigurationException;
+import org.oscm.app.v2_0.intf.APPlatformService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,18 +58,18 @@ public abstract class ProvisioningValidator {
             } catch (PatternSyntaxException e) {
                 logger.error("Compile error on stack name pattern: ["
                         + stackNamePattern + "]");
-                throw new APPlatformException(
-                        Messages.getAll("error_invalid_pattern",
-                                new Object[] { stackNamePattern }));
+                throw new APPlatformException(Messages.getAll(
+                        "error_invalid_pattern",
+                        new Object[] { stackNamePattern }));
             }
 
             m = p.matcher(stackName);
             if (!m.matches()) {
                 logger.error("Validation error on stack name: [" + stackName
                         + "/" + stackNamePattern + "]");
-                throw new APPlatformException(
-                        Messages.getAll("error_name_match",
-                                new Object[] { stackName, stackNamePattern }));
+                throw new APPlatformException(Messages.getAll(
+                        "error_name_match", new Object[] { stackName,
+                                stackNamePattern }));
             }
         }
     }
@@ -96,8 +96,7 @@ public abstract class ProvisioningValidator {
         if (readyTimeout != 0 && startTimeStr != null
                 && TIMEOUT_OPERATION.contains(ph.getState())) {
             if (startTimeStr.equals(TIMEOUT)) {
-                logger.warn(
-                        "This request already timeout. This should not occur.");
+                logger.warn("This request already timeout. This should not occur.");
                 throw new APPlatformException(Messages.getAll(
                         "error_operation_timeout", Long.valueOf(readyTimeout)));
             }
@@ -130,8 +129,7 @@ public abstract class ProvisioningValidator {
                     }
                 }
             } catch (NumberFormatException ex) {
-                logger.warn(
-                        "The action timeout is not a number and therefore ignored.");
+                logger.warn("The action timeout is not a number and therefore ignored.");
             }
         }
 

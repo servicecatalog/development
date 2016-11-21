@@ -8,7 +8,7 @@
 
 package org.oscm.app.vmware.business;
 
-import org.oscm.app.v1_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.exceptions.APPlatformException;
 
 import com.vmware.vim25.GuestInfo;
 import com.vmware.vim25.GuestNicInfo;

@@ -30,11 +30,11 @@ import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.oscm.app.common.APPlatformServiceMockup;
 import org.oscm.app.common.intf.ControllerAccess;
-import org.oscm.app.v1_0.data.ControllerConfigurationKey;
-import org.oscm.app.v1_0.data.PasswordAuthentication;
-import org.oscm.app.v1_0.data.Setting;
-import org.oscm.app.v1_0.exceptions.APPlatformException;
-import org.oscm.app.v1_0.intf.APPlatformService;
+import org.oscm.app.v2_0.data.ControllerConfigurationKey;
+import org.oscm.app.v2_0.data.PasswordAuthentication;
+import org.oscm.app.v2_0.data.Setting;
+import org.oscm.app.v2_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.intf.APPlatformService;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.ejb.TestContainer;
 
@@ -44,8 +44,8 @@ import org.oscm.test.ejb.TestContainer;
 public class ConfigurationBeanTest extends EJBTestBase {
 
     // Local mockups
-    private static final List<String> TEST_KEYS = Arrays
-            .asList(new String[] { "TEST1", "TEST2" });
+    private static final List<String> TEST_KEYS = Arrays.asList(new String[] {
+            "TEST1", "TEST2" });
     private APPlatformServiceMockup platformService;
     private FacesContext facesContext;
     private ExternalContext externalContext;
@@ -75,8 +75,8 @@ public class ConfigurationBeanTest extends EJBTestBase {
         controllerAccess = Mockito.mock(ControllerAccess.class);
         viewRoot = Mockito.mock(UIViewRoot.class);
 
-        Mockito.when(facesContext.getExternalContext())
-                .thenReturn(externalContext);
+        Mockito.when(facesContext.getExternalContext()).thenReturn(
+                externalContext);
         Mockito.when(facesContext.getApplication()).thenReturn(application);
         Mockito.when(externalContext.getSession(Matchers.anyBoolean()))
                 .thenReturn(httpSession);
@@ -84,10 +84,10 @@ public class ConfigurationBeanTest extends EJBTestBase {
                 .thenReturn("aValue");
         Mockito.when(facesContext.getViewRoot()).thenReturn(viewRoot);
         Mockito.when(viewRoot.getLocale()).thenReturn(new Locale("en"));
-        Mockito.when(controllerAccess.getControllerId())
-                .thenReturn("ess.common");
-        Mockito.when(controllerAccess.getControllerParameterKeys())
-                .thenReturn(TEST_KEYS);
+        Mockito.when(controllerAccess.getControllerId()).thenReturn(
+                "ess.common");
+        Mockito.when(controllerAccess.getControllerParameterKeys()).thenReturn(
+                TEST_KEYS);
 
         // Init testing bean
         ConfigurationBean bean = new ConfigurationBean() {
@@ -105,8 +105,7 @@ public class ConfigurationBeanTest extends EJBTestBase {
         return bean;
     }
 
-    private ConfigurationItem findItem(List<ConfigurationItem> items,
-            String key) {
+    private ConfigurationItem findItem(List<ConfigurationItem> items, String key) {
         for (ConfigurationItem item : items) {
             if (key.equals(item.getKey())) {
                 return item;
@@ -202,8 +201,8 @@ public class ConfigurationBeanTest extends EJBTestBase {
         HashMap<String, Setting> def_settings = platformService
                 .getControllerSettings("ess.common",
                         new PasswordAuthentication("user", "password"));
-        def_settings
-                .remove(ControllerConfigurationKey.BSS_ORGANIZATION_ID.name());
+        def_settings.remove(ControllerConfigurationKey.BSS_ORGANIZATION_ID
+                .name());
         def_settings.remove("TEST1");
         platformService.storeControllerSettings("ess.common", def_settings,
                 new PasswordAuthentication("user", "password"));
@@ -225,8 +224,8 @@ public class ConfigurationBeanTest extends EJBTestBase {
         ConfigurationBean bean = getTestBean();
 
         // Throw exception when settings are evaluated
-        Mockito.when(httpSession.getAttribute(Matchers.anyString()))
-                .thenThrow(new RuntimeException("problem"));
+        Mockito.when(httpSession.getAttribute(Matchers.anyString())).thenThrow(
+                new RuntimeException("problem"));
 
         // Get items
         List<ConfigurationItem> items = bean.getItems();
@@ -357,10 +356,12 @@ public class ConfigurationBeanTest extends EJBTestBase {
         // Get test bean
         ConfigurationBean bean = getTestBean();
 
-        Mockito.when(controllerAccess.getMessage(Matchers.eq("en"),
-                Matchers.anyString())).thenReturn("english");
-        Mockito.when(controllerAccess.getMessage(Matchers.eq("de"),
-                Matchers.anyString())).thenReturn("german");
+        Mockito.when(
+                controllerAccess.getMessage(Matchers.eq("en"),
+                        Matchers.anyString())).thenReturn("english");
+        Mockito.when(
+                controllerAccess.getMessage(Matchers.eq("de"),
+                        Matchers.anyString())).thenReturn("german");
 
         // First try: "en"
         Mockito.when(viewRoot.getLocale()).thenReturn(new Locale("en"));
@@ -389,10 +390,12 @@ public class ConfigurationBeanTest extends EJBTestBase {
         // Get test bean
         ConfigurationBean bean = getTestBean();
 
-        Mockito.when(controllerAccess.getMessage(Matchers.eq("en"),
-                Matchers.anyString())).thenReturn("english");
-        Mockito.when(controllerAccess.getMessage(Matchers.eq("un"),
-                Matchers.anyString())).thenReturn("!unknown-locale!");
+        Mockito.when(
+                controllerAccess.getMessage(Matchers.eq("en"),
+                        Matchers.anyString())).thenReturn("english");
+        Mockito.when(
+                controllerAccess.getMessage(Matchers.eq("un"),
+                        Matchers.anyString())).thenReturn("!unknown-locale!");
 
         // First try: "en"
         Mockito.when(viewRoot.getLocale()).thenReturn(new Locale("en"));
@@ -458,8 +461,9 @@ public class ConfigurationBeanTest extends EJBTestBase {
         // Get test bean
         ConfigurationBean bean = getTestBean();
 
-        Mockito.when(controllerAccess.getMessage(Matchers.anyString(),
-                Matchers.eq("config_ui_title"))).thenReturn("title");
+        Mockito.when(
+                controllerAccess.getMessage(Matchers.anyString(),
+                        Matchers.eq("config_ui_title"))).thenReturn("title");
 
         String title = bean.getConfigurationTitle();
         assertEquals("title", title);
@@ -470,9 +474,10 @@ public class ConfigurationBeanTest extends EJBTestBase {
         // Get test bean
         ConfigurationBean bean = getTestBean();
 
-        Mockito.when(controllerAccess.getMessage(Matchers.anyString(),
-                Matchers.eq("config_ui_title")))
-                .thenReturn("!config_ui_title!");
+        Mockito.when(
+                controllerAccess.getMessage(Matchers.anyString(),
+                        Matchers.eq("config_ui_title"))).thenReturn(
+                "!config_ui_title!");
 
         String title = bean.getConfigurationTitle();
         assertTrue(title.contains("ess.common"));

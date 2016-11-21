@@ -34,13 +34,13 @@ import org.oscm.app.domain.Operation;
 import org.oscm.app.domain.PlatformConfigurationKey;
 import org.oscm.app.domain.ServiceInstance;
 import org.oscm.app.i18n.Messages;
-import org.oscm.app.v1_0.data.LocalizedText;
-import org.oscm.app.v1_0.data.PasswordAuthentication;
-import org.oscm.app.v1_0.data.Setting;
-import org.oscm.app.v1_0.exceptions.APPlatformException;
-import org.oscm.app.v1_0.exceptions.AuthenticationException;
-import org.oscm.app.v1_0.exceptions.ConfigurationException;
-import org.oscm.app.v1_0.service.APPConfigurationServiceBean;
+import org.oscm.app.v2_0.data.LocalizedText;
+import org.oscm.app.v2_0.data.PasswordAuthentication;
+import org.oscm.app.v2_0.data.Setting;
+import org.oscm.app.v2_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.exceptions.AuthenticationException;
+import org.oscm.app.v2_0.exceptions.ConfigurationException;
+import org.oscm.app.v2_0.service.APPConfigurationServiceBean;
 import org.oscm.intf.IdentityService;
 import org.oscm.intf.SubscriptionService;
 import org.oscm.provisioning.data.InstanceInfo;
@@ -95,8 +95,7 @@ public class BesDAO {
             T client = getServicePort(serviceClass, proxySettings);
 
             PasswordAuthentication pwAuth = configService
-                    .getWebServiceAuthentication(serviceInstance,
-                            proxySettings);
+                    .getWebServiceAuthentication(serviceInstance, proxySettings);
             setUserCredentialsInContext(((BindingProvider) client),
                     pwAuth.getUserName(), pwAuth.getPassword(), proxySettings);
             setEndpointInContext(((BindingProvider) client), proxySettings,
@@ -116,8 +115,8 @@ public class BesDAO {
         }
     }
 
-    public void setUserCredentialsInContext(BindingProvider client, String user,
-            String password, Map<String, Setting> settings) {
+    public void setUserCredentialsInContext(BindingProvider client,
+            String user, String password, Map<String, Setting> settings) {
         Map<String, Object> clientRequestContext = client.getRequestContext();
         clientRequestContext.put(getUsernameConstant(settings), user);
         clientRequestContext.put(getPasswordConstant(settings), password);
@@ -128,12 +127,12 @@ public class BesDAO {
         Map<String, Object> clientRequestContext = client.getRequestContext();
         String wsUrl = "";
         if (isSsoMode(settings)) {
-            wsUrl = settings
-                    .get(PlatformConfigurationKey.BSS_STS_WEBSERVICE_URL.name())
+            wsUrl = settings.get(
+                    PlatformConfigurationKey.BSS_STS_WEBSERVICE_URL.name())
                     .getValue();
         } else {
-            wsUrl = settings
-                    .get(PlatformConfigurationKey.BSS_WEBSERVICE_URL.name())
+            wsUrl = settings.get(
+                    PlatformConfigurationKey.BSS_WEBSERVICE_URL.name())
                     .getValue();
         }
         wsUrl = wsUrl.replace("{SERVICE}", serviceClass.getSimpleName());
@@ -156,8 +155,8 @@ public class BesDAO {
             IdentityService is = getBESWebService(IdentityService.class, si);
             List<VOUserDetails> orgUsers = is.getUsersForOrganization();
             for (VOUserDetails user : orgUsers) {
-                if (user.getUserRoles()
-                        .contains(UserRoleType.TECHNOLOGY_MANAGER)
+                if (user.getUserRoles().contains(
+                        UserRoleType.TECHNOLOGY_MANAGER)
                         && !Strings.isEmpty(user.getEMail())) {
                     mailUsers.add(user);
                 }
@@ -165,8 +164,7 @@ public class BesDAO {
         } catch (Exception ex) {
             LOGGER.warn(
                     "Technology managers mail addresses cannot be retrieved from CT_MG. [Cause: "
-                            + ex.getMessage() + "]",
-                    ex);
+                            + ex.getMessage() + "]", ex);
         }
         if (mailUsers.isEmpty()) {
             LOGGER.warn("No technology managers mails set.");
@@ -224,9 +222,9 @@ public class BesDAO {
         String wsdlUrl = null;
 
         if (isSsoMode(settings)) {
-            wsdlUrl = settings.get(
-                    PlatformConfigurationKey.BSS_STS_WEBSERVICE_WSDL_URL.name())
-                    .getValue();
+            wsdlUrl = settings
+                    .get(PlatformConfigurationKey.BSS_STS_WEBSERVICE_WSDL_URL
+                            .name()).getValue();
         } else {
             wsdlUrl = settings.get(
                     PlatformConfigurationKey.BSS_WEBSERVICE_WSDL_URL.name())
@@ -251,13 +249,11 @@ public class BesDAO {
             serviceDefinition = wsdlReader.readWSDL(locator);
             Element versionElement = serviceDefinition
                     .getDocumentationElement();
-            if (!CTMGApiVersion.version
-                    .equals(versionElement.getTextContent())) {
-                LOGGER.warn(
-                        "Web service mismatches and the version value, expected: "
-                                + CTMGApiVersion.version
-                                + " and the one got from wsdl: "
-                                + versionElement.getTextContent());
+            if (!CTMGApiVersion.version.equals(versionElement.getTextContent())) {
+                LOGGER.warn("Web service mismatches and the version value, expected: "
+                        + CTMGApiVersion.version
+                        + " and the one got from wsdl: "
+                        + versionElement.getTextContent());
             }
         } catch (WSDLException e) {
             LOGGER.warn("Remote wsdl cannot be retrieved from CT_MG. [Cause: "
@@ -275,8 +271,8 @@ public class BesDAO {
     }
 
     boolean isSsoMode(Map<String, Setting> settings) {
-        return "SAML_SP".equals(settings
-                .get(PlatformConfigurationKey.BSS_AUTH_MODE.name()).getValue());
+        return "SAML_SP".equals(settings.get(
+                PlatformConfigurationKey.BSS_AUTH_MODE.name()).getValue());
     }
 
     public void terminateSubscription(ServiceInstance currentSI, String locale)
@@ -316,7 +312,8 @@ public class BesDAO {
 
                 VOInstanceInfo voInstanceInfo = getInstanceInfo(currentSI,
                         instanceResult);
-                subServ.completeAsyncSubscription(currentSI.getSubscriptionId(),
+                subServ.completeAsyncSubscription(
+                        currentSI.getSubscriptionId(),
                         currentSI.getOrganizationId(), voInstanceInfo);
             } else {
                 subServ.abortAsyncSubscription(currentSI.getSubscriptionId(),
@@ -355,8 +352,9 @@ public class BesDAO {
             } else {
                 subServ.abortAsyncModifySubscription(
                         currentSI.getSubscriptionId(),
-                        currentSI.getOrganizationId(), cause == null ? null
-                                : toBES(cause.getLocalizedMessages()));
+                        currentSI.getOrganizationId(),
+                        cause == null ? null : toBES(cause
+                                .getLocalizedMessages()));
             }
 
         } catch (SubscriptionStateException se) {
@@ -411,7 +409,8 @@ public class BesDAO {
             VOInstanceInfo vo = new VOInstanceInfo();
             vo.setInstanceId(currentSI.getInstanceId());
             vo.setAccessInfo(currentSI.getServiceAccessInfo());
-            subServ.updateAsyncSubscriptionStatus(currentSI.getSubscriptionId(),
+            subServ.updateAsyncSubscriptionStatus(
+                    currentSI.getSubscriptionId(),
                     currentSI.getOrganizationId(), vo);
 
         } catch (Exception e) {
@@ -439,8 +438,7 @@ public class BesDAO {
         // Forward mapped BES notification exception
         BESNotificationException bne = new BESNotificationException(
                 "Could not notify OSCM on processing result. Current status is "
-                        + statusText,
-                e);
+                        + statusText, e);
         LOGGER.error(bne.getMessage(), e);
         throw bne;
     }
@@ -493,8 +491,9 @@ public class BesDAO {
             } else {
                 subServ.abortAsyncUpgradeSubscription(
                         currentSI.getSubscriptionId(),
-                        currentSI.getOrganizationId(), cause == null ? null
-                                : toBES(cause.getLocalizedMessages()));
+                        currentSI.getOrganizationId(),
+                        cause == null ? null : toBES(cause
+                                .getLocalizedMessages()));
             }
         } catch (SubscriptionStateException se) {
             handleSubscriptionStateException(currentSI, instanceResult,
@@ -629,8 +628,7 @@ public class BesDAO {
         List<VOLocalizedText> result = new ArrayList<>();
         if (texts != null) {
             for (LocalizedText text : texts) {
-                result.add(
-                        new VOLocalizedText(text.getLocale(), text.getText()));
+                result.add(new VOLocalizedText(text.getLocale(), text.getText()));
             }
         }
         return result;

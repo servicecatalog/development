@@ -28,7 +28,7 @@ import javax.persistence.SequenceGenerator;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.string.Strings;
-import org.oscm.app.v1_0.intf.APPlatformController;
+import org.oscm.app.v2_0.intf.APPlatformController;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
 
 /**
@@ -183,7 +183,8 @@ public class Operation {
             properties.storeToXML(out, null, "UTF-8");
             xmlString = out.toString();
         } catch (IOException e) {
-            LOGGER.logError(Log4jLogger.SYSTEM_LOG, e, LogMessageIdentifier.ERROR);
+            LOGGER.logError(Log4jLogger.SYSTEM_LOG, e,
+                    LogMessageIdentifier.ERROR);
         }
         return xmlString;
     }
@@ -193,7 +194,8 @@ public class Operation {
         try (InputStream in = new ByteArrayInputStream(xmlString.getBytes())) {
             properties.loadFromXML(in);
         } catch (IOException e) {
-            LOGGER.logError(Log4jLogger.SYSTEM_LOG, e, LogMessageIdentifier.ERROR);
+            LOGGER.logError(Log4jLogger.SYSTEM_LOG, e,
+                    LogMessageIdentifier.ERROR);
         }
         return properties;
     }

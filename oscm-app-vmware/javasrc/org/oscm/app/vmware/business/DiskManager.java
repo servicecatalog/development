@@ -10,7 +10,7 @@ package org.oscm.app.vmware.business;
 
 import java.util.List;
 
-import org.oscm.app.v1_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.exceptions.APPlatformException;
 import org.oscm.app.vmware.i18n.Messages;
 import org.oscm.app.vmware.remote.vmware.VMwareClient;
 import org.slf4j.Logger;
@@ -67,8 +67,7 @@ public class DiskManager {
         Double[] dataDisksMB = paramHandler.getDataDisksMB();
 
         if (dataDisksMB.length == 0) {
-            logger.debug(
-                    "Reconfiguration of data disk not possible because data disk size is not defined.");
+            logger.debug("Reconfiguration of data disk not possible because data disk size is not defined.");
             return;
         }
 
@@ -95,8 +94,7 @@ public class DiskManager {
                 ++maxDeviceKey;
                 ++maxUnitNumber;
                 VirtualDeviceConfigSpec vmDeviceSpec = createNewDataDisk(
-                        vdSystemDisk, newDiskSpace, maxDeviceKey,
-                        maxUnitNumber);
+                        vdSystemDisk, newDiskSpace, maxDeviceKey, maxUnitNumber);
                 vmConfigSpec.getDeviceChange().add(vmDeviceSpec);
                 paramHandler.setDataDiskKey(vdIndex, maxDeviceKey);
             } else {
@@ -119,12 +117,12 @@ public class DiskManager {
             if (newDiskSpace < vdDataDisk.getCapacityInKB()) {
                 logger.error("Cannot reduce size of data disk "
                         + vdDataDisk.getDeviceInfo().getLabel());
-                logger.error(
-                        "Current disk space: " + vdDataDisk.getCapacityInKB()
-                                + " new disk space: " + newDiskSpace);
-                throw new Exception(
-                        Messages.getAll("error_invalid_diskspacereduction")
-                                .get(0).getText());
+                logger.error("Current disk space: "
+                        + vdDataDisk.getCapacityInKB() + " new disk space: "
+                        + newDiskSpace);
+                throw new Exception(Messages
+                        .getAll("error_invalid_diskspacereduction").get(0)
+                        .getText());
             } else if (newDiskSpace > vdDataDisk.getCapacityInKB()) {
                 vdDataDisk.setCapacityInKB(newDiskSpace);
                 VirtualDeviceConfigSpec vmDeviceSpec = new VirtualDeviceConfigSpec();
@@ -196,13 +194,13 @@ public class DiskManager {
             if (newDiskSpace < vdSystemDisk.getCapacityInKB()) {
                 logger.error("Cannot reduce size of system disk \""
                         + vdSystemDisk.getDeviceInfo().getLabel() + "\"");
-                logger.error(
-                        "Current disk size: " + vdSystemDisk.getCapacityInKB()
-                                + " new disk space: " + newDiskSpace);
+                logger.error("Current disk size: "
+                        + vdSystemDisk.getCapacityInKB() + " new disk space: "
+                        + newDiskSpace);
 
-                throw new Exception(
-                        Messages.getAll("error_invalid_diskspacereduction")
-                                .get(0).getText());
+                throw new Exception(Messages
+                        .getAll("error_invalid_diskspacereduction").get(0)
+                        .getText());
             } else if (newDiskSpace > vdSystemDisk.getCapacityInKB()) {
                 logger.info("reconfigureDisks() extend system disk space to "
                         + newDiskSpace + " ("
@@ -218,8 +216,7 @@ public class DiskManager {
                         + newDiskSpace + " KB");
             }
         } else {
-            logger.error(
-                    "Reconfiguration of system disk not possible because system disk size is not defined.");
+            logger.error("Reconfiguration of system disk not possible because system disk size is not defined.");
         }
     }
 

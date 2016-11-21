@@ -14,8 +14,8 @@ import java.util.Properties;
 import org.junit.Test;
 
 import org.oscm.app.domain.Operation;
-import org.oscm.app.v1_0.intf.APPlatformController;
-import org.oscm.app.v1_0.service.OperationServiceBean;
+import org.oscm.app.v2_0.intf.APPlatformController;
+import org.oscm.app.v2_0.service.OperationServiceBean;
 import org.oscm.operation.data.OperationParameter;
 
 /**

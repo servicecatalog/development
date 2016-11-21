@@ -18,7 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.oscm.app.ui.i18n.Messages;
-import org.oscm.app.v1_0.data.ServiceUser;
+import org.oscm.app.v2_0.data.ServiceUser;
 
 /**
  * Base class for backing beans implementing UI controllers.
@@ -120,7 +120,7 @@ public class BaseCtrl {
         }
         return user;
     }
-    
+
     protected String readUserLocaleFromSession() {
         String currentUserLocale = ""
                 + getRequest().getSession().getAttribute(

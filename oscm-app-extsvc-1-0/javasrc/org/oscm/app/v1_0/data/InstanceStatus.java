@@ -24,8 +24,7 @@ public class InstanceStatus implements Serializable {
     private boolean runWithTimer = true;
     private boolean instanceProvisioningRequested = false;
     private List<LocalizedText> description;
-    private HashMap<String, Setting> parameters;
-    private HashMap<String, Setting> attributes;
+    private HashMap<String, String> parameters;
 
     private String baseUrl;
     private String accessInfo;
@@ -99,8 +98,7 @@ public class InstanceStatus implements Serializable {
      * <code>APPlatformService</code>.<br>
      * <code><i>instance_id</i></code> is the ID of the relevant application
      * instance.<br>
-     * <code><i>controller_id</i></code> is the ID of the service
-     * controller.<br>
+     * <code><i>controller_id</i></code> is the ID of the service controller.<br>
      * <code><i>options</i></code> are optional commands or parameters to be
      * passed to the controller.<br>
      * Example:<br>
@@ -180,7 +178,7 @@ public class InstanceStatus implements Serializable {
      * @return the parameters and settings to store, consisting of a key and a
      *         value each
      */
-    public HashMap<String, Setting> getChangedParameters() {
+    public HashMap<String, String> getChangedParameters() {
         return parameters;
     }
 
@@ -192,29 +190,8 @@ public class InstanceStatus implements Serializable {
      *            the parameters and settings to store, consisting of a key and
      *            a value each
      */
-    public void setChangedParameters(HashMap<String, Setting> parameters) {
+    public void setChangedParameters(HashMap<String, String> parameters) {
         this.parameters = parameters;
-    }
-
-    /**
-     * Returns the attributes of the application instance that are to be
-     * persisted as instance information by APP.
-     * 
-     * @return the attributes to store, consisting of a key and a value each
-     */
-    public HashMap<String, Setting> getChangedAttributes() {
-        return attributes;
-    }
-
-    /**
-     * Sets the attributes of the application instance that are to be persisted
-     * as instance information by APP.
-     * 
-     * @param attributes
-     *            the attributes to store, consisting of a key and a value each
-     */
-    public void setChangedAttributes(HashMap<String, Setting> attributes) {
-        this.attributes = attributes;
     }
 
     /**
@@ -234,8 +211,7 @@ public class InstanceStatus implements Serializable {
      *            the URL of the application<br>
      *            Be aware that internet domain names must follow the following
      *            rules: <br>
-     *            They must start with a letter and end with a letter or
-     *            number.<br>
+     *            They must start with a letter and end with a letter or number.<br>
      *            They may contain letters, numbers, or hyphens only. Special
      *            characters are not allowed.<br>
      *            They may consist of a maximum of 63 characters.

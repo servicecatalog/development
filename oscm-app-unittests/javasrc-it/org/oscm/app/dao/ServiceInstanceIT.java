@@ -22,7 +22,7 @@ import org.oscm.app.domain.InstanceParameter;
 import org.oscm.app.domain.Operation;
 import org.oscm.app.domain.ProvisioningStatus;
 import org.oscm.app.domain.ServiceInstance;
-import org.oscm.app.v1_0.data.Setting;
+import org.oscm.app.v2_0.data.Setting;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.ejb.TestContainer;
 

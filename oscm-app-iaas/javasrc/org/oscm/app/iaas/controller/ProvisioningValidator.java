@@ -17,8 +17,8 @@ import org.slf4j.LoggerFactory;
 import org.oscm.app.iaas.PropertyHandler;
 import org.oscm.app.iaas.SubPropertyHandler;
 import org.oscm.app.iaas.i18n.Messages;
-import org.oscm.app.v1_0.exceptions.APPlatformException;
-import org.oscm.app.v1_0.intf.APPlatformService;
+import org.oscm.app.v2_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.intf.APPlatformService;
 
 public abstract class ProvisioningValidator {
 

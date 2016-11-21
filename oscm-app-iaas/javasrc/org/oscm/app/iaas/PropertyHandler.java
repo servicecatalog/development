@@ -29,10 +29,10 @@ import org.oscm.app.iaas.fwpolicy.FWPolicyLexer;
 import org.oscm.app.iaas.fwpolicy.FWPolicyParser;
 import org.oscm.app.iaas.fwpolicy.FWPolicyParser.PoliciesContext;
 import org.oscm.app.iaas.i18n.Messages;
-import org.oscm.app.v1_0.data.PasswordAuthentication;
-import org.oscm.app.v1_0.data.ProvisioningSettings;
-import org.oscm.app.v1_0.data.Setting;
-import org.oscm.app.v1_0.exceptions.ConfigurationException;
+import org.oscm.app.v2_0.data.PasswordAuthentication;
+import org.oscm.app.v2_0.data.ProvisioningSettings;
+import org.oscm.app.v2_0.data.Setting;
+import org.oscm.app.v2_0.exceptions.ConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -443,8 +443,8 @@ public class PropertyHandler {
                     Integer.toString(i));
             if (props.getProperty(propPrefix) != null) {
                 // Next defined VSERVER found?
-                boolean isEnabled = Boolean
-                        .parseBoolean(props.getProperty(propPrefix));
+                boolean isEnabled = Boolean.parseBoolean(props
+                        .getProperty(propPrefix));
                 vsl.add(new SubPropertyHandler(settings, propPrefix + "_",
                         isEnabled, getIaasContext()));
             } else {
@@ -788,8 +788,8 @@ public class PropertyHandler {
             Matcher matcher = pattern.matcher(fw);
             while (matcher.find()) {
                 String varName = matcher.group(1);
-                String varValue = getPropertyValue(
-                        FIREWALL_VARIABLE_PREFIX + varName);
+                String varValue = getPropertyValue(FIREWALL_VARIABLE_PREFIX
+                        + varName);
                 if (varValue == null) {
                     varValue = "";
                 }
@@ -817,11 +817,12 @@ public class PropertyHandler {
                 lexer = new FWPolicyLexer(input) {
                     @Override
                     public void recover(LexerNoViableAltException e) {
-                        Interval interval = new Interval(e.getStartIndex(),
-                                e.getInputStream().size() - 1);
+                        Interval interval = new Interval(e.getStartIndex(), e
+                                .getInputStream().size() - 1);
 
                         String policy = e.getInputStream().getText(interval);
-                        String message = Messages.get(Messages.DEFAULT_LOCALE,
+                        String message = Messages.get(
+                                Messages.DEFAULT_LOCALE,
                                 "error_invalid_firewallconfig_character",
                                 new Object[] {
                                         Integer.valueOf(e.getStartIndex()),
@@ -855,8 +856,8 @@ public class PropertyHandler {
     public Set<String> getManagedPublicIPs() {
         String value = props.getProperty(MANAGED_PUBLIC_IPS);
         if (value != null) {
-            return Collections.unmodifiableSet(
-                    new HashSet<>(Arrays.asList(value.split(","))));
+            return Collections.unmodifiableSet(new HashSet<>(Arrays
+                    .asList(value.split(","))));
         }
         return Collections.unmodifiableSet(new HashSet<String>());
     }
@@ -880,8 +881,8 @@ public class PropertyHandler {
     public Set<String> getManagedFirewallPolicies() {
         String value = props.getProperty(MANAGED_FW_POLICIES);
         if (value != null) {
-            return Collections.unmodifiableSet(
-                    new HashSet<>(Arrays.asList(value.split(","))));
+            return Collections.unmodifiableSet(new HashSet<>(Arrays
+                    .asList(value.split(","))));
         }
         return Collections.unmodifiableSet(new HashSet<String>());
     }
@@ -929,8 +930,8 @@ public class PropertyHandler {
      *            the time to sleep in seconds
      */
     public void suspendProcessInstanceFor(long seconds) {
-        props.setProperty(SUSPEND_UNTIL,
-                "" + (System.currentTimeMillis() + (1000L * seconds)));
+        props.setProperty(SUSPEND_UNTIL, ""
+                + (System.currentTimeMillis() + (1000L * seconds)));
     }
 
     public boolean isVirtualSystemProvisioning() {
@@ -958,8 +959,7 @@ public class PropertyHandler {
                 }
                 props.setProperty(SUSPEND_UNTIL, "");
             } catch (NumberFormatException e) {
-                logger.debug(
-                        "Invalid value for SUSPEND_UNTIL: " + suspendUntil);
+                logger.debug("Invalid value for SUSPEND_UNTIL: " + suspendUntil);
                 props.setProperty(SUSPEND_UNTIL, "");
             }
         }
@@ -988,8 +988,7 @@ public class PropertyHandler {
     public Set<String> getVserversToBeStarted() {
         String value = props.getProperty(VSERVERS_TO_BE_STARTED);
         if (value != null) {
-            HashSet<String> set = new HashSet<>(
-                    Arrays.asList(value.split(",")));
+            HashSet<String> set = new HashSet<>(Arrays.asList(value.split(",")));
             set.remove("");
             return Collections.unmodifiableSet(set);
         }
@@ -1037,8 +1036,8 @@ public class PropertyHandler {
     public Set<String> getVserversTouched() {
         String value = props.getProperty(VSERVERS_TOUCHED);
         if (value != null) {
-            return Collections.unmodifiableSet(
-                    new HashSet<>(Arrays.asList(value.split(","))));
+            return Collections.unmodifiableSet(new HashSet<>(Arrays
+                    .asList(value.split(","))));
         }
         return Collections.unmodifiableSet(new HashSet<String>());
     }
@@ -1154,8 +1153,10 @@ public class PropertyHandler {
     public long getControllerWaitTime() {
         long waitTime = 0;
         try {
-            waitTime = Long.valueOf(getValue(CONTROLLER_WAIT_TIME,
-                    settings.getConfigSettings())).longValue();
+            waitTime = Long
+                    .valueOf(
+                            getValue(CONTROLLER_WAIT_TIME,
+                                    settings.getConfigSettings())).longValue();
         } catch (NumberFormatException e) {
         }
         return waitTime;

@@ -20,10 +20,10 @@ import org.apache.sling.commons.json.JSONException;
 import org.apache.sling.commons.json.JSONObject;
 import org.oscm.app.openstack.data.FlowState;
 import org.oscm.app.openstack.exceptions.HeatException;
-import org.oscm.app.v1_0.BSSWebServiceFactory;
-import org.oscm.app.v1_0.data.PasswordAuthentication;
-import org.oscm.app.v1_0.data.ProvisioningSettings;
-import org.oscm.app.v1_0.data.Setting;
+import org.oscm.app.v2_0.BSSWebServiceFactory;
+import org.oscm.app.v2_0.data.PasswordAuthentication;
+import org.oscm.app.v2_0.data.ProvisioningSettings;
+import org.oscm.app.v2_0.data.Setting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,11 +95,11 @@ public class PropertyHandler {
 
     /**
      * Default constructor.
-     *
+     * 
      * @param settings
      *            a <code>ProvisioningSettings</code> object specifying the
      *            service parameters and configuration settings
-     *
+     * 
      */
     public PropertyHandler(ProvisioningSettings settings) {
         this.settings = settings;
@@ -108,7 +108,7 @@ public class PropertyHandler {
     /**
      * Returns the internal state of the current provisioning operation as set
      * by the controller or the dispatcher.
-     *
+     * 
      * @return the current status
      */
     public FlowState getState() {
@@ -118,7 +118,7 @@ public class PropertyHandler {
 
     /**
      * Changes the internal state for the current provisioning operation.
-     *
+     * 
      * @param newState
      *            the new state to set
      */
@@ -129,7 +129,7 @@ public class PropertyHandler {
     /**
      * Returns the current service parameters and controller configuration
      * settings.
-     *
+     * 
      * @return a <code>ProvisioningSettings</code> object specifying the
      *         parameters and settings
      */
@@ -139,7 +139,7 @@ public class PropertyHandler {
 
     /**
      * Returns the name of the stack (=instance identifier).
-     *
+     * 
      * @return the name of the stack
      */
     public String getStackName() {
@@ -161,7 +161,7 @@ public class PropertyHandler {
 
     /**
      * Returns the heat specific id of the stack.
-     *
+     * 
      * @return the id of the stack
      */
     public String getStackId() {
@@ -175,7 +175,7 @@ public class PropertyHandler {
     /**
      * Returns the access information pattern used to created the instance
      * access information using the output parameters of the created stack.
-     *
+     * 
      * @return the access information pattern
      */
     public String getAccessInfoPattern() {
@@ -185,7 +185,7 @@ public class PropertyHandler {
 
     /**
      * Returns the URL of the template to be used for provisioning.
-     *
+     * 
      * @return the template URL
      */
     public String getTemplateUrl() throws HeatException {
@@ -202,8 +202,8 @@ public class PropertyHandler {
             }
             return new URL(new URL(baseUrl), url).toExternalForm();
         } catch (MalformedURLException e) {
-            throw new HeatException(
-                    "Cannot generate template URL: " + e.getMessage());
+            throw new HeatException("Cannot generate template URL: "
+                    + e.getMessage());
         }
     }
 
@@ -211,7 +211,7 @@ public class PropertyHandler {
      * Returns the domain name that defines the context for the provisioning. It
      * can either be defined within the controller settings of as instance
      * parameter. When present, the service parameter is preferred.
-     *
+     * 
      * @return the domain name
      */
     public String getDomainName() {
@@ -241,7 +241,8 @@ public class PropertyHandler {
                         // have a
                         // security group parameters
                         securityGroup = key
-                                .substring(TEMPLATE_PARAMETER_ARRAY_PREFIX.length());
+                                .substring(TEMPLATE_PARAMETER_ARRAY_PREFIX
+                                        .length());
                         String securityGroupArray[] = settings.getParameters()
                                 .get(key).getValue().split(",");
                         for (String groupName : securityGroupArray) {
@@ -251,10 +252,8 @@ public class PropertyHandler {
                                 securityGroupSecurityGroup);
 
                     } else {
-                        parameters.put(
-                                key.substring(
-                                        TEMPLATE_PARAMETER_PREFIX.length()),
-                                settings.getParameters().get(key));
+                        parameters.put(key.substring(TEMPLATE_PARAMETER_PREFIX
+                                .length()), settings.getParameters().get(key));
                     }
                 }
 
@@ -272,7 +271,7 @@ public class PropertyHandler {
     /**
      * Reads the requested property from the available parameters. If no value
      * can be found, a RuntimeException will be thrown.
-     *
+     * 
      * @param sourceProps
      *            The property object to take the settings from
      * @param key
@@ -294,7 +293,7 @@ public class PropertyHandler {
     /**
      * Return the URL of the Keystone API which acts as entry point to all other
      * API endpoints.
-     *
+     * 
      * @return the Keystone URL
      */
     public String getKeystoneUrl() {
@@ -310,7 +309,7 @@ public class PropertyHandler {
 
     /**
      * Returns the configured password for API usage.
-     *
+     * 
      * @return the password
      */
     public String getPassword() {
@@ -319,18 +318,17 @@ public class PropertyHandler {
 
     /**
      * Returns the configured user name for API usage.
-     *
+     * 
      * @return the user name
      */
     public String getUserName() {
-        return getValidatedProperty(settings.getConfigSettings(),
-                API_USER_NAME);
+        return getValidatedProperty(settings.getConfigSettings(), API_USER_NAME);
     }
 
     /**
      * Returns the mail address to be used for completion events (provisioned,
      * deleted). If not set, no events are required.
-     *
+     * 
      * @return the mail address or <code>null</code> if no events are required
      */
     public String getMailForCompletion() {
@@ -381,7 +379,7 @@ public class PropertyHandler {
 
     /**
      * Returns the locale set as default for the customer organization.
-     *
+     * 
      * @return the customer locale
      */
     public String getCustomerLocale() {
@@ -394,7 +392,7 @@ public class PropertyHandler {
 
     /**
      * Returns the tenant id that defines the context for the provisioning.
-     *
+     * 
      * @return the tenant id
      */
     public String getTenantId() {
@@ -438,11 +436,10 @@ public class PropertyHandler {
             return 0;
         }
         try {
-            return Long.parseLong(
-                    getValue(READY_TIMEOUT, settings.getConfigSettings()));
+            return Long.parseLong(getValue(READY_TIMEOUT,
+                    settings.getConfigSettings()));
         } catch (NumberFormatException ex) {
-            LOGGER.warn(
-                    "Wrong value set for property 'READY_TIMEOUT' and therefore ignored");
+            LOGGER.warn("Wrong value set for property 'READY_TIMEOUT' and therefore ignored");
         }
         return 0;
 
@@ -453,8 +450,7 @@ public class PropertyHandler {
         return setting != null ? setting.getValue() : null;
     }
 
-    private void setValue(String key, String value,
-            Map<String, Setting> target) {
+    private void setValue(String key, String value, Map<String, Setting> target) {
         target.put(key, new Setting(key, value));
     }
 

@@ -28,9 +28,9 @@ import org.oscm.app.domain.InstanceParameter;
 import org.oscm.app.domain.ServiceInstance;
 import org.oscm.app.ui.BaseCtrl;
 import org.oscm.app.ui.SessionConstants;
-import org.oscm.app.v1_0.data.ServiceUser;
-import org.oscm.app.v1_0.service.APPTimerServiceBean;
-import org.oscm.app.v1_0.service.ServiceInstanceServiceBean;
+import org.oscm.app.v2_0.data.ServiceUser;
+import org.oscm.app.v2_0.service.APPTimerServiceBean;
+import org.oscm.app.v2_0.service.ServiceInstanceServiceBean;
 
 /**
  * Controller of manage service instance page
@@ -45,8 +45,8 @@ public class ManageServiceInstanceCtrl extends BaseCtrl {
     private static final String ENCRYPTED_PWD = "*********";
     protected ServiceInstanceServiceBean serviceInstanceService;
     protected APPTimerServiceBean timerService;
-    
-    @ManagedProperty(value="#{manageServiceInstanceModel}")
+
+    @ManagedProperty(value = "#{manageServiceInstanceModel}")
     protected ManageServiceInstanceModel model;
 
     public String getInitialize() {
@@ -117,10 +117,12 @@ public class ManageServiceInstanceCtrl extends BaseCtrl {
 
     private String getControllerId() {
         HttpServletRequest request = getRequest();
-        String controllerId = request.getParameter(SessionConstants.SESSION_CTRL_ID);
+        String controllerId = request
+                .getParameter(SessionConstants.SESSION_CTRL_ID);
 
         if (isEmpty(controllerId)) {
-            controllerId = (String) request.getSession().getAttribute(SessionConstants.SESSION_CTRL_ID);
+            controllerId = (String) request.getSession().getAttribute(
+                    SessionConstants.SESSION_CTRL_ID);
         }
 
         if (isEmpty(controllerId)) {

@@ -36,12 +36,12 @@ import org.oscm.app.iaas.exceptions.CommunicationException;
 import org.oscm.app.iaas.exceptions.IaasException;
 import org.oscm.app.iaas.intf.VServerCommunication;
 import org.oscm.app.iaas.intf.VSystemCommunication;
-import org.oscm.app.v1_0.data.InstanceStatus;
-import org.oscm.app.v1_0.data.ProvisioningSettings;
-import org.oscm.app.v1_0.data.Setting;
-import org.oscm.app.v1_0.exceptions.APPlatformException;
-import org.oscm.app.v1_0.exceptions.SuspendException;
-import org.oscm.app.v1_0.intf.APPlatformService;
+import org.oscm.app.v2_0.data.InstanceStatus;
+import org.oscm.app.v2_0.data.ProvisioningSettings;
+import org.oscm.app.v2_0.data.Setting;
+import org.oscm.app.v2_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.exceptions.SuspendException;
+import org.oscm.app.v2_0.intf.APPlatformService;
 
 /**
  * @author iversen
@@ -66,8 +66,8 @@ public class ProcessManagerBeanTest {
 
         processManagerBean.platformService = mock(APPlatformService.class);
 
-        doNothing().when(processManagerBean.platformService)
-                .sendMail(anyListOf(String.class), anyString(), anyString());
+        doNothing().when(processManagerBean.platformService).sendMail(
+                anyListOf(String.class), anyString(), anyString());
 
         parameters = new HashMap<>();
         HashMap<String, Setting> configSettings = new HashMap<>();
@@ -79,8 +79,8 @@ public class ProcessManagerBeanTest {
     @Test
     public void getConnectionData_NoPublicIP() throws Exception {
         // given
-        parameters.put(PropertyHandler.SYSTEM_TEMPLATE_ID,
-                new Setting(PropertyHandler.SYSTEM_TEMPLATE_ID, "template"));
+        parameters.put(PropertyHandler.SYSTEM_TEMPLATE_ID, new Setting(
+                PropertyHandler.SYSTEM_TEMPLATE_ID, "template"));
 
         // when
         String result = processManagerBean.getConnectionData(INSTANCEID,
@@ -94,13 +94,13 @@ public class ProcessManagerBeanTest {
     @Test
     public void getConnectionDatais_PublicIP() throws Exception {
         // given
-        parameters.put(PropertyHandler.SYSTEM_TEMPLATE_ID,
-                new Setting(PropertyHandler.SYSTEM_TEMPLATE_ID, "template"));
+        parameters.put(PropertyHandler.SYSTEM_TEMPLATE_ID, new Setting(
+                PropertyHandler.SYSTEM_TEMPLATE_ID, "template"));
         List<AccessInformation> publicIps = new ArrayList<>();
         publicIps.add(new AccessInformation("1.2.3.4", "password"));
         publicIps.add(new AccessInformation("1.2.3.5", "secret"));
-        doReturn(publicIps).when(processManagerBean.vsystemComm)
-                .getAccessInfo(paramHandler);
+        doReturn(publicIps).when(processManagerBean.vsystemComm).getAccessInfo(
+                paramHandler);
 
         // when
         String result = processManagerBean.getConnectionData(INSTANCEID,
@@ -115,8 +115,8 @@ public class ProcessManagerBeanTest {
     @Test
     public void getConnectionData_PrivateIp() throws Exception {
         // given
-        doReturn(PRIVATEIP).when(processManagerBean.vserverComm)
-                .getInternalIp(paramHandler);
+        doReturn(PRIVATEIP).when(processManagerBean.vserverComm).getInternalIp(
+                paramHandler);
         doReturn(IPPASSWORD).when(processManagerBean.vserverComm)
                 .getVServerInitialPassword(paramHandler);
 
@@ -132,8 +132,8 @@ public class ProcessManagerBeanTest {
     @Test
     public void getConnectionData_NoPrivateIp() throws Exception {
         // given
-        doReturn(null).when(processManagerBean.vserverComm)
-                .getInternalIp(paramHandler);
+        doReturn(null).when(processManagerBean.vserverComm).getInternalIp(
+                paramHandler);
         doReturn(IPPASSWORD).when(processManagerBean.vserverComm)
                 .getVServerInitialPassword(paramHandler);
 
@@ -232,8 +232,8 @@ public class ProcessManagerBeanTest {
     public void getControllerInstanceStatus_VServerProvisioning()
             throws Exception {
         // given a VServer provisioning
-        parameters.put(PropertyHandler.SYSTEM_TEMPLATE_ID,
-                new Setting(PropertyHandler.SYSTEM_TEMPLATE_ID, ""));
+        parameters.put(PropertyHandler.SYSTEM_TEMPLATE_ID, new Setting(
+                PropertyHandler.SYSTEM_TEMPLATE_ID, ""));
         paramHandler.setState(FlowState.VSERVER_CREATED);
 
         // when
@@ -248,8 +248,8 @@ public class ProcessManagerBeanTest {
     public void getControllerInstanceStatus_VSystemProvisioning()
             throws Exception {
         // given a VSystem provisioning
-        parameters.put(PropertyHandler.SYSTEM_TEMPLATE_ID,
-                new Setting(PropertyHandler.SYSTEM_TEMPLATE_ID, "template"));
+        parameters.put(PropertyHandler.SYSTEM_TEMPLATE_ID, new Setting(
+                PropertyHandler.SYSTEM_TEMPLATE_ID, "template"));
         paramHandler.setState(FlowState.VSERVER_CREATED);
 
         // when
@@ -296,8 +296,8 @@ public class ProcessManagerBeanTest {
         // given no ROR connection
         paramHandler.setState(FlowState.VSERVER_CREATION_REQUESTED);
         doThrow(new CommunicationException("Connection failed", "hostname"))
-                .when(processManagerBean.vServerProcessor)
-                .process("controllerId", "instanceId", paramHandler);
+                .when(processManagerBean.vServerProcessor).process(
+                        "controllerId", "instanceId", paramHandler);
 
         // when
         processManagerBean.getControllerInstanceStatus("controllerId",
@@ -308,12 +308,12 @@ public class ProcessManagerBeanTest {
     public void getControllerInstanceStatus_NoConnection_SysProcessor()
             throws Exception {
         // given no ROR connection
-        parameters.put(PropertyHandler.SYSTEM_TEMPLATE_ID,
-                new Setting(PropertyHandler.SYSTEM_TEMPLATE_ID, "template"));
+        parameters.put(PropertyHandler.SYSTEM_TEMPLATE_ID, new Setting(
+                PropertyHandler.SYSTEM_TEMPLATE_ID, "template"));
         paramHandler.setState(FlowState.VSERVER_CREATION_REQUESTED);
         doThrow(new CommunicationException("Connection failed", "hostname"))
-                .when(processManagerBean.vSysProcessor)
-                .process("controllerId", "instanceId", paramHandler);
+                .when(processManagerBean.vSysProcessor).process("controllerId",
+                        "instanceId", paramHandler);
 
         // when
         processManagerBean.getControllerInstanceStatus("controllerId",
@@ -350,8 +350,8 @@ public class ProcessManagerBeanTest {
         assertNotNull(instanceStatus);
         assertTrue(instanceStatus.isReady());
         // no notification email is sent
-        verify(processManagerBean.platformService, times(0))
-                .sendMail(anyListOf(String.class), anyString(), anyString());
+        verify(processManagerBean.platformService, times(0)).sendMail(
+                anyListOf(String.class), anyString(), anyString());
     }
 
     @Test
@@ -371,8 +371,8 @@ public class ProcessManagerBeanTest {
         assertNotNull(instanceStatus);
         assertTrue(instanceStatus.isReady());
         // no notification email is sent
-        verify(processManagerBean.platformService, times(1))
-                .sendMail(anyListOf(String.class), anyString(), anyString());
+        verify(processManagerBean.platformService, times(1)).sendMail(
+                anyListOf(String.class), anyString(), anyString());
     }
 
     @Test
@@ -393,8 +393,8 @@ public class ProcessManagerBeanTest {
         assertNotNull(instanceStatus);
         assertTrue(instanceStatus.isReady());
         // no notification email is sent.
-        verify(processManagerBean.platformService, times(0))
-                .sendMail(anyListOf(String.class), anyString(), anyString());
+        verify(processManagerBean.platformService, times(0)).sendMail(
+                anyListOf(String.class), anyString(), anyString());
 
     }
 }
