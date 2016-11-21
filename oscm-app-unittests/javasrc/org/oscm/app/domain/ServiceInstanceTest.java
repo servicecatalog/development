@@ -5,8 +5,7 @@
 package org.oscm.app.domain;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,7 +33,7 @@ import org.oscm.app.v2_0.data.Setting;
 public class ServiceInstanceTest {
 
     private ServiceInstance instance;
-    private final EntityManager em = Mockito.mock(EntityManager.class);
+    private final EntityManager em = mock(EntityManager.class);
 
     @Before
     public void setup() throws Exception {
@@ -276,7 +275,7 @@ public class ServiceInstanceTest {
         si.updateStatus(em, new InstanceStatus());
 
         // then
-        Mockito.verify(em, Mockito.times(0)).persist(si);
+        verify(em, Mockito.times(0)).persist(si);
     }
 
     @Test
@@ -295,7 +294,7 @@ public class ServiceInstanceTest {
         si.updateStatus(em, status);
 
         // then
-        Mockito.verify(em, Mockito.times(1)).persist(si);
+        verify(em, Mockito.times(1)).persist(si);
     }
 
     @Test
@@ -314,7 +313,7 @@ public class ServiceInstanceTest {
         si.updateStatus(em, status);
 
         // then
-        Mockito.verify(em, Mockito.times(1)).persist(si);
+        verify(em, Mockito.times(1)).persist(si);
     }
 
     @Test
@@ -333,7 +332,7 @@ public class ServiceInstanceTest {
         si.updateStatus(em, status);
 
         // then
-        Mockito.verify(em, Mockito.times(1)).persist(si);
+        verify(em, Mockito.times(1)).persist(si);
     }
 
     @Test
@@ -392,6 +391,15 @@ public class ServiceInstanceTest {
     public void rollbackInstanceParameters() throws Exception {
         // given
         ServiceInstance si = Mockito.spy(new ServiceInstance());
+        List<InstanceAttribute> listOfAttrs = new ArrayList<>();
+        InstanceAttribute it = new InstanceAttribute();
+        it.setAttributeKey("AAA");
+        listOfAttrs.add(it);
+        InstanceAttribute it2 = new InstanceAttribute();
+        it2.setAttributeKey("BBB");
+        listOfAttrs.add(it2);
+        doReturn(listOfAttrs).when(si).getInstanceAttributes();
+
         List<InstanceParameter> expectedParams = new ArrayList<InstanceParameter>();
         InstanceParameter param = new InstanceParameter();
         param.setParameterKey("KEY1");
@@ -405,9 +413,10 @@ public class ServiceInstanceTest {
         String rollbackXML = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<!DOCTYPE properties SYSTEM \"http://java.sun.com/dtd/properties.dtd\">\r\n<properties>\r\n<entry key=\"KEY2\">VALUE2</entry>\r\n<entry key=\"ROLLBACK_SUBSCRIPTIONID\">subscriptionId</entry>\r\n<entry key=\"KEY1\">VALUE1</entry>\r\n</properties>\r\n";
 
         Mockito.doReturn(rollbackXML).when(si).getRollbackParameters();
+        EntityManager em = mock(EntityManager.class);
 
         // when
-        si.rollbackServiceInstance(null);
+        si.rollbackServiceInstance(em);
 
         // then
         List<InstanceParameter> stored = si.getInstanceParameters();
@@ -420,7 +429,8 @@ public class ServiceInstanceTest {
             }
             fail();
         }
-
+        verify(em, times(1)).remove(it);
+        verify(em, times(1)).remove(it2);
     }
 
     @Test(expected = BadResultException.class)
