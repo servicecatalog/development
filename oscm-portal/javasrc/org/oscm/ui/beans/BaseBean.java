@@ -436,6 +436,7 @@ public class BaseBean {
     public static final String OUTCOME_RELOAD = "reloadGroup";
 
     public static final String OUTCOME_STAY_ON_PAGE = null;
+    public static final String HIDDEN_PWD = "*****";
 
     // Without the @EJB annotation we can run the GUI without an EJB container
     IdentityService idService;

@@ -224,10 +224,11 @@
                       maxlength="#{appBean.descriptionLen}" required="#{item.inputMandatory}" 
                       label="#{item.udaId}" style="width:100%" rendered="#{not item.inputEncrypted}">
                     </h:inputText>
-                    <h:inputSecret id="udaValuePassword" onchange="setDirty(true)" value="#{item.udaValue}"
+                    <h:inputSecret id="udaValuePassword" onchange="setDirty(true)" value="#{item.passwordValueToStore}"
                       maxlength="#{appBean.descriptionLen}" required="#{item.inputMandatory}" redisplay="true"
                       label="#{item.udaId}" style="width:100%" rendered="#{item.inputEncrypted}">
                     </h:inputSecret>
+
                   </rich:column>
                 </rich:dataTable>
               </a4j:outputPanel>

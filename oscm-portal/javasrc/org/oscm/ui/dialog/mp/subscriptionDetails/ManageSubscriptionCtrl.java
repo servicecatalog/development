@@ -325,6 +325,10 @@ public class ManageSubscriptionCtrl implements Serializable {
         model.setSubscriptionUdaRows(UdaRow.getUdaRows(subUdaDefinitions,
                 subscriptionDetails.getUdasSubscription()));
 
+        for (UdaRow udaRow : model.getSubscriptionUdaRows()) {
+            udaRow.initPasswordValueToStore();
+        }
+
         initializePriceModelForSubscription(model.getSubscription());
 
         List<PricedParameterRow> serviceParameters = PricedParameterRow
@@ -897,6 +901,9 @@ public class ManageSubscriptionCtrl implements Serializable {
         model.getSubscription().setOwnerId(model.getSelectedOwner() != null
                 ? model.getSelectedOwner().getUserId() : null);
         updateSelectedUnit();
+        for (UdaRow udaRow : model.getSubscriptionUdaRows()) {
+            udaRow.rewriteEncryptedValues();
+        }
         VOSubscriptionDetails changedSubscription = getSubscriptionService()
                 .modifySubscription(model.getSubscription(),
                         getSubscriptionParameterForModification(),

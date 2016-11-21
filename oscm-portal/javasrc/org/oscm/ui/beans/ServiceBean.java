@@ -87,7 +87,6 @@ public class ServiceBean extends BaseBean implements Serializable {
     private static final String SERVICE_NO_LONGER_EXISTS = "error.service.noLonger.exists";
     private static final String SERVICE_DELETED = "error.service.deleted";
     private static final String CANNOT_DELETE_ACTIVE_SERVICE = "error.service.cannot.delete.active";
-    static final String HIDDEN_PWD = "*****";
 
     private List<VOTechnicalService> availableTechServices;
     private VOTechnicalService selectedTechService;
@@ -494,7 +493,7 @@ public class ServiceBean extends BaseBean implements Serializable {
                     .getParameterDefinition();
             ParameterRow row = new ParameterRow(voParameter, null, initDefault);
 
-            if (row.getParameterDefinition().isValueTypePWD() || row.isPasswordType()) {
+            if (row.getParameterDefinition().isValueTypeSecret()) {
                 if (StringUtils.isNotBlank(row.getParameter().getValue())) {
                     row.setPasswordValueToStore(HIDDEN_PWD);
                 } else {
