@@ -81,6 +81,7 @@ import org.oscm.internal.vo.VOSubscriptionDetails;
 import org.oscm.internal.vo.VOUda;
 import org.oscm.internal.vo.VOUdaDefinition;
 import org.oscm.internal.vo.VOUserDetails;
+import org.oscm.ui.model.UdaRow;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UpgradeWizardConversationTest {
@@ -138,6 +139,8 @@ public class UpgradeWizardConversationTest {
         paymentAndBillingVisibleBean.setBillingContactBean(billingConactBean);
         bean.setPaymentAndBillingVisibleBean(paymentAndBillingVisibleBean);
         bean.setPaymentInfoBean(paymentInfoBean);
+        List<UdaRow> udaRows = new ArrayList<>();
+        model.setSubscriptionUdaRows(udaRows);
     }
 
     @Test

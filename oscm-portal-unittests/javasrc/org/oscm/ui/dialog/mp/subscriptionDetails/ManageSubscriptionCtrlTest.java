@@ -213,6 +213,8 @@ public class ManageSubscriptionCtrlTest {
         doReturn(Boolean.FALSE).when(subscriptionDetailsService)
                 .isUserAssignedToTheSubscription(anyLong(), anyLong());
         stubMessageBundles();
+        List<UdaRow> udaRows = new ArrayList<>();
+        model.setSubscriptionUdaRows(udaRows);
     }
 
     private VOSubscriptionDetails givenSubscription(boolean isFree) {

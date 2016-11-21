@@ -106,6 +106,7 @@ import org.oscm.ui.dialog.mp.userGroups.SubscriptionUnitModel;
 import org.oscm.ui.model.PriceModel;
 import org.oscm.ui.model.PricedParameterRow;
 import org.oscm.ui.model.Service;
+import org.oscm.ui.model.UdaRow;
 import org.oscm.ui.stubs.FacesContextStub;
 import org.oscm.ui.stubs.HttpServletRequestStub;
 
@@ -186,6 +187,8 @@ public class SubscriptionWizardConversationTest {
         bean.setAccountingService(accountService);
         bean.setPaymentAndBillingVisibleBean(pabv);
         bean.setSubscriptionUnitCtrl(unitCtrl);
+        List<UdaRow> udaRows = new ArrayList<>();
+        model.setSubscriptionUdaRows(udaRows);
     }
 
     @Test
