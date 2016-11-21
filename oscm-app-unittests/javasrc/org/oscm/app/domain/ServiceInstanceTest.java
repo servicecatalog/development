@@ -4,10 +4,7 @@
 
 package org.oscm.app.domain;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 
@@ -392,7 +389,6 @@ public class ServiceInstanceTest {
     }
 
     @Test
-    @Ignore
     public void rollbackInstanceParameters() throws Exception {
         // given
         ServiceInstance si = Mockito.spy(new ServiceInstance());
@@ -401,10 +397,10 @@ public class ServiceInstanceTest {
         param.setParameterKey("KEY1");
         param.setParameterValue("VALUE1");
         expectedParams.add(param);
-        param = new InstanceParameter();
-        param.setParameterKey("KEY2");
-        param.setParameterValue("VALUE2");
-        expectedParams.add(param);
+        InstanceParameter param2 = new InstanceParameter();
+        param2.setParameterKey("KEY2");
+        param2.setParameterValue("VALUE2");
+        expectedParams.add(param2);
 
         String rollbackXML = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<!DOCTYPE properties SYSTEM \"http://java.sun.com/dtd/properties.dtd\">\r\n<properties>\r\n<entry key=\"KEY2\">VALUE2</entry>\r\n<entry key=\"ROLLBACK_SUBSCRIPTIONID\">subscriptionId</entry>\r\n<entry key=\"KEY1\">VALUE1</entry>\r\n</properties>\r\n";
 
@@ -414,8 +410,16 @@ public class ServiceInstanceTest {
         si.rollbackServiceInstance(null);
 
         // then
-        Mockito.verify(si, Mockito.times(1)).setInstanceParameters(
-                expectedParams);
+        List<InstanceParameter> stored = si.getInstanceParameters();
+        for (InstanceParameter instanceParameter : stored) {
+            if (instanceParameter.getParameterKey().equals(param.getParameterKey())) {
+                continue;
+            }
+            if (instanceParameter.getParameterKey().equals(param2.getParameterKey())) {
+                continue;
+            }
+            fail();
+        }
 
     }
 
