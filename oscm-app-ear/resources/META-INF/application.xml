@@ -8,6 +8,9 @@
   <module>
     <ejb>oscm-app.jar</ejb>
   </module>
+    <module>
+    <ejb>oscm-app-converter.jar</ejb>
+  </module>  
   <module>
     <web>
       <web-uri>oscm-app-startup.war</web-uri>
