@@ -38,16 +38,17 @@ public class AccountNavigationModel implements Serializable {
     static final String MARKETPLACE_ACCOUNT_ADMINISTRATION_TITLE = "marketplace.account.administration.title";
     static final String MARKETPLACE_ACCOUNT_TITLE = "marketplace.account.title";
 
-    private static final String ACCOUNT_LINK = "index.jsf";
-    private static final String PROFILE_LINK = "profile.jsf";
-    private static final String PAYMENT_LINK = "payments.jsf";
-    private static final String SUBSCRIPTIONS_LINK = "subscriptions.jsf";
-    private static final String USERS_LINK = "users.jsf";
-    private static final String UNITS_LINK = "units.jsf";
-    private static final String REPORTS_LINK = "reports.jsf";
-    private static final String PROCESSES_LINK = "processes.jsf";
-    private static final String OPERATIONS_LINK = "operations.jsf";
+    private static final String ACCOUNT_LINK = "account/index.jsf";
+    private static final String PROFILE_LINK = "account/profile.jsf";
+    private static final String PAYMENT_LINK = "account/payments.jsf";
+    private static final String SUBSCRIPTIONS_LINK = "account/subscriptions.jsf";
+    private static final String USERS_LINK = "account/users.jsf";
+    private static final String UNITS_LINK = "account/units.jsf";
+    private static final String REPORTS_LINK = "account/reports.jsf";
+    private static final String PROCESSES_LINK = "account/processes.jsf";
+    private static final String OPERATIONS_LINK = "account/operations.jsf";
     private static final long serialVersionUID = 5299680432886964724L;
+    private String baseUrl;
 
     private final List<String> link;
     private final List<String> title;
@@ -99,16 +100,19 @@ public class AccountNavigationModel implements Serializable {
         getTitle().add(MARKETPLACE_ACCOUNT_ADMINISTRATION_TITLE);
     }
 
-    private void initLink() {
-        getLink().add(ACCOUNT_LINK);
-        getLink().add(PROFILE_LINK);
-        getLink().add(PAYMENT_LINK);
-        getLink().add(SUBSCRIPTIONS_LINK);
-        getLink().add(USERS_LINK);
-        getLink().add(UNITS_LINK);
-        getLink().add(REPORTS_LINK);
-        getLink().add(PROCESSES_LINK);
-        getLink().add(OPERATIONS_LINK);
+    void initLink() {
+        link.clear();
+        final String baseURL = getBaseUrl();
+        final String mpBase = baseURL + "/marketplace/";
+        getLink().add(mpBase + ACCOUNT_LINK);
+        getLink().add(mpBase + PROFILE_LINK);
+        getLink().add(mpBase + PAYMENT_LINK);
+        getLink().add(mpBase + SUBSCRIPTIONS_LINK);
+        getLink().add(mpBase + USERS_LINK);
+        getLink().add(mpBase + UNITS_LINK);
+        getLink().add(mpBase + REPORTS_LINK);
+        getLink().add(mpBase + PROCESSES_LINK);
+        getLink().add(mpBase + OPERATIONS_LINK);
         getLink().add(getUserBean().getAdminPortalAddress());
     }
 
@@ -140,5 +144,20 @@ public class AccountNavigationModel implements Serializable {
 
     public void setUserBean(UserBean userBean) {
         this.userBean = userBean;
+    }
+
+    /**
+     * @return the baseUrl
+     */
+    public String getBaseUrl() {
+        return baseUrl;
+    }
+
+    /**
+     * @param baseUrl
+     *            the baseUrl to set
+     */
+    public void setBaseUrl(String baseUrl) {
+        this.baseUrl = baseUrl;
     }
 }

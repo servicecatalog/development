@@ -16,10 +16,10 @@ import java.util.Map;
 
 import org.oscm.app.aws.data.FlowState;
 import org.oscm.app.aws.data.Operation;
-import org.oscm.app.v1_0.BSSWebServiceFactory;
-import org.oscm.app.v1_0.data.PasswordAuthentication;
-import org.oscm.app.v1_0.data.ProvisioningSettings;
-import org.oscm.app.v1_0.data.Setting;
+import org.oscm.app.v2_0.BSSWebServiceFactory;
+import org.oscm.app.v2_0.data.PasswordAuthentication;
+import org.oscm.app.v2_0.data.ProvisioningSettings;
+import org.oscm.app.v2_0.data.Setting;
 
 /**
  * Helper class to handle service parameters and controller configuration
@@ -108,8 +108,8 @@ public class PropertyHandler {
      */
     public FlowState getState() {
         Setting status = settings.getParameters().get(FLOW_STATE);
-        return (status != null && status.getValue() != null)
-                ? FlowState.valueOf(status.getValue()) : FlowState.FAILED;
+        return (status != null && status.getValue() != null) ? FlowState
+                .valueOf(status.getValue()) : FlowState.FAILED;
     }
 
     /**
@@ -237,8 +237,8 @@ public class PropertyHandler {
      */
     public Operation getOperation() {
         Setting operation = settings.getParameters().get(OPERATION);
-        return (operation != null && operation.getValue() != null)
-                ? Operation.valueOf(operation.getValue()) : Operation.UNKNOWN;
+        return (operation != null && operation.getValue() != null) ? Operation
+                .valueOf(operation.getValue()) : Operation.UNKNOWN;
     }
 
     /**
@@ -378,8 +378,7 @@ public class PropertyHandler {
         return setting != null ? setting.getValue() : null;
     }
 
-    private void setValue(String key, String value,
-            Map<String, Setting> target) {
+    private void setValue(String key, String value, Map<String, Setting> target) {
         target.put(key, new Setting(key, value));
     }
 

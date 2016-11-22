@@ -8,7 +8,7 @@
 
 package org.oscm.app.business;
 
-import org.oscm.app.v1_0.data.ServiceUser;
+import org.oscm.app.v2_0.data.ServiceUser;
 import org.oscm.provisioning.data.User;
 
 /**

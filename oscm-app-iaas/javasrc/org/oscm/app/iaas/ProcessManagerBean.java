@@ -23,10 +23,10 @@ import org.oscm.app.iaas.exceptions.IaasException;
 import org.oscm.app.iaas.i18n.Messages;
 import org.oscm.app.iaas.intf.VServerCommunication;
 import org.oscm.app.iaas.intf.VSystemCommunication;
-import org.oscm.app.v1_0.APPlatformServiceFactory;
-import org.oscm.app.v1_0.data.InstanceStatus;
-import org.oscm.app.v1_0.exceptions.APPlatformException;
-import org.oscm.app.v1_0.intf.APPlatformService;
+import org.oscm.app.v2_0.APPlatformServiceFactory;
+import org.oscm.app.v2_0.data.InstanceStatus;
+import org.oscm.app.v2_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.intf.APPlatformService;
 
 /**
  * 

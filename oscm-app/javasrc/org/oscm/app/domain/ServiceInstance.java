@@ -34,8 +34,8 @@ import javax.persistence.Version;
 
 import org.oscm.app.business.exceptions.BadResultException;
 import org.oscm.app.i18n.Messages;
-import org.oscm.app.v1_0.data.InstanceStatus;
-import org.oscm.app.v1_0.data.Setting;
+import org.oscm.app.v2_0.data.InstanceStatus;
+import org.oscm.app.v2_0.data.Setting;
 import org.oscm.string.Strings;
 
 /**
@@ -303,8 +303,7 @@ public class ServiceInstance implements Serializable {
         return instanceAttributes;
     }
 
-    public void  setInstanceParameters(
-            List<InstanceParameter> instanceParameters) {
+    public void setInstanceParameters(List<InstanceParameter> instanceParameters) {
         this.instanceParameters = instanceParameters;
     }
 
@@ -415,13 +414,12 @@ public class ServiceInstance implements Serializable {
      * @return map from parameter keys to their corresponding values.
      * @throws BadResultException
      */
-    public HashMap<String, Setting> getParameterMap()
-            throws BadResultException {
+    public HashMap<String, Setting> getParameterMap() throws BadResultException {
         final HashMap<String, Setting> map = new HashMap<>();
         for (InstanceParameter param : instanceParameters) {
             map.put(param.getParameterKey(),
-                    new Setting(param.getParameterKey(),
-                            param.getDecryptedValue(), param.isEncrypted()));
+                    new Setting(param.getParameterKey(), param
+                            .getDecryptedValue(), param.isEncrypted()));
         }
         return map;
     }
@@ -485,14 +483,13 @@ public class ServiceInstance implements Serializable {
      * @return map from attribute keys to their corresponding values.
      * @throws BadResultException
      */
-    public HashMap<String, Setting> getAttributeMap()
-            throws BadResultException {
+    public HashMap<String, Setting> getAttributeMap() throws BadResultException {
         final HashMap<String, Setting> map = new HashMap<>();
         for (InstanceAttribute attr : instanceAttributes) {
             map.put(attr.getAttributeKey(),
-                    new Setting(attr.getAttributeKey(),
-                            attr.getDecryptedValue(), attr.isEncrypted(),
-                            attr.getControllerId()));
+                    new Setting(attr.getAttributeKey(), attr
+                            .getDecryptedValue(), attr.isEncrypted(), attr
+                            .getControllerId()));
         }
         return map;
     }
@@ -533,8 +530,7 @@ public class ServiceInstance implements Serializable {
         }
     }
 
-    public void setInstanceAttributes(
-            List<InstanceAttribute> instanceAttributes) {
+    public void setInstanceAttributes(List<InstanceAttribute> instanceAttributes) {
         this.instanceAttributes = instanceAttributes;
     }
 
@@ -634,8 +630,8 @@ public class ServiceInstance implements Serializable {
         Properties actualProperties = new Properties();
         actualProperties.put(ROLLBACK_SUBSCRIPTIONID, this.getSubscriptionId());
         actualProperties.putAll(this.getParameterMap());
-        this.setRollbackParameters(
-                this.convertPropertiesToXML(actualProperties));
+        this.setRollbackParameters(this
+                .convertPropertiesToXML(actualProperties));
     }
 
     public void rollbackServiceInstance(EntityManager em)

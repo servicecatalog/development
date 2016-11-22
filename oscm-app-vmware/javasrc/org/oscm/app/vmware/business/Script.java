@@ -23,7 +23,7 @@ import javax.net.ssl.SSLSession;
 import javax.xml.datatype.DatatypeFactory;
 
 import org.apache.commons.io.IOUtils;
-import org.oscm.app.v1_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.exceptions.APPlatformException;
 import org.oscm.app.vmware.persistence.DataAccessService;
 import org.oscm.app.vmware.remote.bes.ServiceParamRetrieval;
 import org.oscm.app.vmware.remote.vmware.ManagedObjectAccessor;

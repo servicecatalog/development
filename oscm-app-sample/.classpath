@@ -13,6 +13,6 @@
 	<classpathentry kind="lib" path="/libraries/apache-logging/javalib/commons-logging-1.1.3.jar"/>
 	<classpathentry kind="lib" path="/libraries/apache-log4j/javalib/log4j-1.2.16.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/oscm-app-extsvc-1-0"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-app-extsvc-2-0"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

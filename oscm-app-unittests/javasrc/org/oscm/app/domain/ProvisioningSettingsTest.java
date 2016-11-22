@@ -15,8 +15,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.junit.Test;
-import org.oscm.app.v1_0.data.ProvisioningSettings;
-import org.oscm.app.v1_0.data.Setting;
+import org.oscm.app.v2_0.data.ProvisioningSettings;
+import org.oscm.app.v2_0.data.Setting;
 
 /**
  * @author Dirk Bernsau

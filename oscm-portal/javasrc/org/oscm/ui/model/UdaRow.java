@@ -30,6 +30,7 @@ import org.oscm.internal.vo.VOUdaDefinition;
  */
 public class UdaRow implements Serializable {
     private static final long serialVersionUID = 1L;
+    public static final String HIDDEN_PWD = "*****";
 
     /**
      * Maps the existing {@link VOUda}s to their {@link VOUdaDefinition}s and
@@ -54,7 +55,9 @@ public class UdaRow implements Serializable {
                 uda = new VOUda();
                 uda.setUdaDefinition(def);
             }
-            result.add(new UdaRow(def, uda));
+            UdaRow udaRow = new UdaRow(def, uda);
+            udaRow.initPasswordValueToStore();
+            result.add(udaRow);
         }
         return result;
     }
@@ -113,6 +116,7 @@ public class UdaRow implements Serializable {
     private VOUdaDefinition udaDefinition;
     private VOUda uda;
     private VOOrganization vendor;
+    private String passwordValueToStore;
 
     public UdaRow(VOUdaDefinition voUdaDefinition, VOUda voUda,
             VOOrganization voVendor) {
@@ -162,5 +166,34 @@ public class UdaRow implements Serializable {
 
     public void setVendor(VOOrganization vendor) {
         this.vendor = vendor;
+    }
+
+    public String getPasswordValueToStore() {
+        return passwordValueToStore;
+    }
+
+    public void setPasswordValueToStore(String passwordValueToStore) {
+        this.passwordValueToStore = passwordValueToStore;
+    }
+
+    public void rewriteEncryptedValues() {
+        if (!this.isInputEncrypted()) {
+            return;
+        }
+        if (this.getPasswordValueToStore() == null
+                || !this.getPasswordValueToStore().trim().equals(HIDDEN_PWD)) {
+            this.setUdaValue(this.getPasswordValueToStore());
+        }
+    }
+
+    public void initPasswordValueToStore() {
+        if (!this.isInputEncrypted()) {
+            return;
+        }
+        if (StringUtils.isNotBlank(this.getUdaValue())) {
+            this.setPasswordValueToStore(HIDDEN_PWD);
+        } else {
+            this.setPasswordValueToStore("");
+        }
     }
 }

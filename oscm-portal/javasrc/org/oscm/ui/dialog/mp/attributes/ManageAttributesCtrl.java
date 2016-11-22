@@ -20,6 +20,7 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.oscm.internal.intf.AccountService;
 import org.oscm.internal.intf.MarketplaceService;
@@ -140,8 +141,14 @@ public class ManageAttributesCtrl {
                 | ValidationException | OrganizationAuthoritiesException e) {
             LOGGER.error(e.getMessage());
         }
-
+        initPasswordFields(result);
         return result;
+    }
+
+    private void initPasswordFields(Map<String, UdaRow> udas) {
+        for (Map.Entry<String, UdaRow> row : udas.entrySet()) {
+            row.getValue().initPasswordValueToStore();
+        }
     }
 
     public String saveAttributes() {
@@ -155,7 +162,7 @@ public class ManageAttributesCtrl {
                     && uda.getUdaValue().trim().length() == 0) {
                 uda.setUdaValue(null);
             }
-
+            row.rewriteEncryptedValues();
             list.add(uda);
         }
 

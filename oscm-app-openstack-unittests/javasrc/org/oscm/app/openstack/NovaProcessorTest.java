@@ -23,14 +23,14 @@ import org.oscm.app.openstack.controller.PropertyHandler;
 import org.oscm.app.openstack.controller.ServerStatus;
 import org.oscm.app.openstack.data.Server;
 import org.oscm.app.openstack.exceptions.HeatException;
-import org.oscm.app.v1_0.data.ProvisioningSettings;
-import org.oscm.app.v1_0.data.Setting;
-import org.oscm.app.v1_0.exceptions.APPlatformException;
-import org.oscm.app.v1_0.exceptions.InstanceNotAliveException;
+import org.oscm.app.v2_0.data.ProvisioningSettings;
+import org.oscm.app.v2_0.data.Setting;
+import org.oscm.app.v2_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.exceptions.InstanceNotAliveException;
 
 /**
  * @author tateiwamext
- *
+ * 
  */
 public class NovaProcessorTest {
 
@@ -90,13 +90,15 @@ public class NovaProcessorTest {
         final List<String> serverNames = Arrays.asList("server1",
                 "otherserver2");
 
-        streamHandler.put("/stacks/" + instanceName + "/resources",
-                new MockHttpURLConnection(200,
-                        MockURLStreamHandler.respStacksResources(serverNames,
+        streamHandler.put(
+                "/stacks/" + instanceName + "/resources",
+                new MockHttpURLConnection(200, MockURLStreamHandler
+                        .respStacksResources(serverNames,
                                 InstanceType.EC2.getString())));
-        streamHandler.put("/servers/1-Instance-otherserver2",
-                new MockHttpURLConnection(202,
-                        MockURLStreamHandler.respServerDetail("otherserver2",
+        streamHandler.put(
+                "/servers/1-Instance-otherserver2",
+                new MockHttpURLConnection(202, MockURLStreamHandler
+                        .respServerDetail("otherserver2",
                                 "1-Instance-otherserver2", ServerStatus.ACTIVE,
                                 "testTenantID")));
 
@@ -128,14 +130,16 @@ public class NovaProcessorTest {
                 MockURLStreamHandler.respServerActions());
         connection2.setIOException(new IOException());
 
-        streamHandler.put("/stacks/" + instanceName + "/resources",
-                new MockHttpURLConnection(200,
-                        MockURLStreamHandler.respStacksResources(serverNames,
+        streamHandler.put(
+                "/stacks/" + instanceName + "/resources",
+                new MockHttpURLConnection(200, MockURLStreamHandler
+                        .respStacksResources(serverNames,
                                 InstanceType.EC2.getString())));
         streamHandler.put("/servers/1-Instance-otherserver2", connection2);
-        streamHandler.put("/servers/1-Instance-otherserver2/2",
-                new MockHttpURLConnection(202,
-                        MockURLStreamHandler.respServerDetail("otherserver2",
+        streamHandler.put(
+                "/servers/1-Instance-otherserver2/2",
+                new MockHttpURLConnection(202, MockURLStreamHandler
+                        .respServerDetail("otherserver2",
                                 "1-Instance-otherserver2", ServerStatus.ACTIVE,
                                 "testTenantID")));
 
@@ -167,9 +171,10 @@ public class NovaProcessorTest {
                 MockURLStreamHandler.respServerActions());
         connection2.setIOException(new IOException());
 
-        streamHandler.put("/stacks/" + instanceName + "/resources",
-                new MockHttpURLConnection(200,
-                        MockURLStreamHandler.respStacksResources(serverNames,
+        streamHandler.put(
+                "/stacks/" + instanceName + "/resources",
+                new MockHttpURLConnection(200, MockURLStreamHandler
+                        .respStacksResources(serverNames,
                                 InstanceType.EC2.getString())));
         streamHandler.put("/servers/1-Instance-otherserver2", connection2);
 
@@ -197,9 +202,10 @@ public class NovaProcessorTest {
         createBasicParameters(instanceName, "fosi_v2.json", "http");
         final List<String> serverNames = new LinkedList<>();
 
-        streamHandler.put("/stacks/" + instanceName + "/resources",
-                new MockHttpURLConnection(200,
-                        MockURLStreamHandler.respStacksResources(serverNames,
+        streamHandler.put(
+                "/stacks/" + instanceName + "/resources",
+                new MockHttpURLConnection(200, MockURLStreamHandler
+                        .respStacksResources(serverNames,
                                 InstanceType.EC2.getString())));
 
         // when
@@ -217,9 +223,10 @@ public class NovaProcessorTest {
                 MockURLStreamHandler.respServerDetail(null, null, null, null));
         connection2.setIOException(new IOException());
 
-        streamHandler.put("/stacks/" + instanceName + "/resources",
-                new MockHttpURLConnection(200,
-                        MockURLStreamHandler.respStacksResources(serverNames,
+        streamHandler.put(
+                "/stacks/" + instanceName + "/resources",
+                new MockHttpURLConnection(200, MockURLStreamHandler
+                        .respStacksResources(serverNames,
                                 InstanceType.EC2.getString())));
         streamHandler.put("/servers/1-Instance-otherserver2", connection2);
 
@@ -244,11 +251,11 @@ public class NovaProcessorTest {
         // given
         final String instanceName = "Instance4";
         createBasicParameters(instanceName, "fosi_v2.json", "http");
-        streamHandler.put("/servers/0-Instance-server1",
-                new MockHttpURLConnection(200,
-                        MockURLStreamHandler.respServerDetail("server1",
-                                "0-Instance-server1", ServerStatus.SHUTOFF,
-                                "testTenantID")));
+        streamHandler.put(
+                "/servers/0-Instance-server1",
+                new MockHttpURLConnection(200, MockURLStreamHandler
+                        .respServerDetail("server1", "0-Instance-server1",
+                                ServerStatus.SHUTOFF, "testTenantID")));
 
         // when
         HashMap<String, Boolean> result = new NovaProcessor()
@@ -270,23 +277,26 @@ public class NovaProcessorTest {
         final List<String> serverNames = Arrays.asList("server1",
                 "otherserver2");
 
-        streamHandler.put("/stacks/" + instanceName + "/resources",
-                new MockHttpURLConnection(200,
-                        MockURLStreamHandler.respStacksResources(serverNames,
+        streamHandler.put(
+                "/stacks/" + instanceName + "/resources",
+                new MockHttpURLConnection(200, MockURLStreamHandler
+                        .respStacksResources(serverNames,
                                 InstanceType.EC2.getString())));
-        streamHandler.put("/servers/1-Instance-otherserver2/action",
-                new MockHttpURLConnection(202,
-                        MockURLStreamHandler.respServerActions()));
-        streamHandler.put("/servers/0-Instance-server1",
-                new MockHttpURLConnection(200,
-                        MockURLStreamHandler.respServerDetail("server1",
-                                "0-Instance-server1", ServerStatus.SHUTOFF,
-                                "testTenantID")));
-        streamHandler.put("/servers/1-Instance-otherserver2",
-                new MockHttpURLConnection(200,
-                        MockURLStreamHandler.respServerDetail("otherserver2",
-                                "1-Instance-otherserver2", ServerStatus.SHUTOFF,
-                                "testTenantID")));
+        streamHandler.put(
+                "/servers/1-Instance-otherserver2/action",
+                new MockHttpURLConnection(202, MockURLStreamHandler
+                        .respServerActions()));
+        streamHandler.put(
+                "/servers/0-Instance-server1",
+                new MockHttpURLConnection(200, MockURLStreamHandler
+                        .respServerDetail("server1", "0-Instance-server1",
+                                ServerStatus.SHUTOFF, "testTenantID")));
+        streamHandler.put(
+                "/servers/1-Instance-otherserver2",
+                new MockHttpURLConnection(200, MockURLStreamHandler
+                        .respServerDetail("otherserver2",
+                                "1-Instance-otherserver2",
+                                ServerStatus.SHUTOFF, "testTenantID")));
 
         // when
         HashMap<String, Boolean> result = new NovaProcessor()
@@ -308,23 +318,25 @@ public class NovaProcessorTest {
         createBasicParameters(instanceName, "fosi_v2.json", "http");
         final List<String> serverNames = Arrays.asList("server1",
                 "otherserver2");
-        streamHandler.put("/servers/0-Instance-server1",
-                new MockHttpURLConnection(200,
-                        MockURLStreamHandler.respServerDetail("server1",
-                                "0-Instance-server1", ServerStatus.SHUTOFF,
-                                "testTenantID")));
-        streamHandler.put("/servers/1-Instance-otherserver2",
-                new MockHttpURLConnection(200,
-                        MockURLStreamHandler.respServerDetail("otherserver2",
-                                "1-Instance-otherserver2", ServerStatus.SHUTOFF,
-                                "testTenantID")));
+        streamHandler.put(
+                "/servers/0-Instance-server1",
+                new MockHttpURLConnection(200, MockURLStreamHandler
+                        .respServerDetail("server1", "0-Instance-server1",
+                                ServerStatus.SHUTOFF, "testTenantID")));
+        streamHandler.put(
+                "/servers/1-Instance-otherserver2",
+                new MockHttpURLConnection(200, MockURLStreamHandler
+                        .respServerDetail("otherserver2",
+                                "1-Instance-otherserver2",
+                                ServerStatus.SHUTOFF, "testTenantID")));
         MockHttpURLConnection connection2 = new MockHttpURLConnection(404,
                 MockURLStreamHandler.respServerActions());
         connection2.setIOException(new IOException());
 
-        streamHandler.put("/stacks/" + instanceName + "/resources",
-                new MockHttpURLConnection(200,
-                        MockURLStreamHandler.respStacksResources(serverNames,
+        streamHandler.put(
+                "/stacks/" + instanceName + "/resources",
+                new MockHttpURLConnection(200, MockURLStreamHandler
+                        .respStacksResources(serverNames,
                                 InstanceType.EC2.getString())));
         streamHandler.put("/servers/1-Instance-otherserver2/action",
                 connection2);
@@ -354,31 +366,34 @@ public class NovaProcessorTest {
         MockHttpURLConnection connection2 = new MockHttpURLConnection(404,
                 MockURLStreamHandler.respServerActions());
         connection2.setIOException(new IOException());
-        streamHandler.put("/servers/0-Instance-server1",
-                new MockHttpURLConnection(200,
-                        MockURLStreamHandler.respServerDetail("server1",
-                                "0-Instance-server1", ServerStatus.SHUTOFF,
-                                "testTenantID")));
-        streamHandler.put("/servers/1-Instance-missingServer2",
-                new MockHttpURLConnection(200,
-                        MockURLStreamHandler.respServerDetail("missingServer2",
-                                "missingServer2", ServerStatus.SHUTOFF,
-                                "testTenantID")));
-        streamHandler.put("/servers/2-Instance-otherServer",
-                new MockHttpURLConnection(200,
-                        MockURLStreamHandler.respServerDetail("otherServer",
+        streamHandler.put(
+                "/servers/0-Instance-server1",
+                new MockHttpURLConnection(200, MockURLStreamHandler
+                        .respServerDetail("server1", "0-Instance-server1",
+                                ServerStatus.SHUTOFF, "testTenantID")));
+        streamHandler.put(
+                "/servers/1-Instance-missingServer2",
+                new MockHttpURLConnection(200, MockURLStreamHandler
+                        .respServerDetail("missingServer2", "missingServer2",
+                                ServerStatus.SHUTOFF, "testTenantID")));
+        streamHandler.put(
+                "/servers/2-Instance-otherServer",
+                new MockHttpURLConnection(200, MockURLStreamHandler
+                        .respServerDetail("otherServer",
                                 "2-Instance-otherServer", ServerStatus.SHUTOFF,
                                 "testTenantID")));
 
-        streamHandler.put("/stacks/" + instanceName + "/resources",
-                new MockHttpURLConnection(200,
-                        MockURLStreamHandler.respStacksResources(serverNames,
+        streamHandler.put(
+                "/stacks/" + instanceName + "/resources",
+                new MockHttpURLConnection(200, MockURLStreamHandler
+                        .respStacksResources(serverNames,
                                 InstanceType.EC2.getString())));
         streamHandler.put("/servers/1-Instance-missingServer2/action",
                 connection2);
-        streamHandler.put("/servers/2-Instance-otherServer/action",
-                new MockHttpURLConnection(202,
-                        MockURLStreamHandler.respServerActions()));
+        streamHandler.put(
+                "/servers/2-Instance-otherServer/action",
+                new MockHttpURLConnection(202, MockURLStreamHandler
+                        .respServerActions()));
 
         // when
         HashMap<String, Boolean> result = new NovaProcessor()
@@ -407,27 +422,30 @@ public class NovaProcessorTest {
         MockHttpURLConnection connection2 = new MockHttpURLConnection(401,
                 MockURLStreamHandler.respServerActions());
         connection2.setIOException(new IOException());
-        streamHandler.put("/servers/0-Instance-server1",
-                new MockHttpURLConnection(200,
-                        MockURLStreamHandler.respServerDetail("server1",
-                                "0-Instance-server1", ServerStatus.SHUTOFF,
-                                "testTenantID")));
-        streamHandler.put("/servers/1-Instance-otherserver2",
-                new MockHttpURLConnection(200,
-                        MockURLStreamHandler.respServerDetail("otherserver2",
-                                "1-Instance-otherserver2", ServerStatus.SHUTOFF,
-                                "testTenantID")));
+        streamHandler.put(
+                "/servers/0-Instance-server1",
+                new MockHttpURLConnection(200, MockURLStreamHandler
+                        .respServerDetail("server1", "0-Instance-server1",
+                                ServerStatus.SHUTOFF, "testTenantID")));
+        streamHandler.put(
+                "/servers/1-Instance-otherserver2",
+                new MockHttpURLConnection(200, MockURLStreamHandler
+                        .respServerDetail("otherserver2",
+                                "1-Instance-otherserver2",
+                                ServerStatus.SHUTOFF, "testTenantID")));
 
-        streamHandler.put("/stacks/" + instanceName + "/resources",
-                new MockHttpURLConnection(200,
-                        MockURLStreamHandler.respStacksResources(serverNames,
+        streamHandler.put(
+                "/stacks/" + instanceName + "/resources",
+                new MockHttpURLConnection(200, MockURLStreamHandler
+                        .respStacksResources(serverNames,
                                 InstanceType.EC2.getString())));
         streamHandler.put("/servers/1-Instance-otherserver2/action",
                 connection2);
 
-        streamHandler.put("/servers/1-Instance-otherserver2/action/2",
-                new MockHttpURLConnection(202,
-                        MockURLStreamHandler.respServerActions()));
+        streamHandler.put(
+                "/servers/1-Instance-otherserver2/action/2",
+                new MockHttpURLConnection(202, MockURLStreamHandler
+                        .respServerActions()));
 
         // when
         HashMap<String, Boolean> result = new NovaProcessor()
@@ -454,20 +472,22 @@ public class NovaProcessorTest {
         MockHttpURLConnection connection2 = new MockHttpURLConnection(401,
                 MockURLStreamHandler.respServerActions());
         connection2.setIOException(new IOException());
-        streamHandler.put("/servers/0-Instance-server1",
-                new MockHttpURLConnection(200,
-                        MockURLStreamHandler.respServerDetail("server1",
-                                "0-Instance-server1", ServerStatus.SHUTOFF,
-                                "testTenantID")));
-        streamHandler.put("/servers/1-Instance-otherserver2",
-                new MockHttpURLConnection(200,
-                        MockURLStreamHandler.respServerDetail("otherserver2",
-                                "1-Instance-otherserver2", ServerStatus.SHUTOFF,
-                                "testTenantID")));
+        streamHandler.put(
+                "/servers/0-Instance-server1",
+                new MockHttpURLConnection(200, MockURLStreamHandler
+                        .respServerDetail("server1", "0-Instance-server1",
+                                ServerStatus.SHUTOFF, "testTenantID")));
+        streamHandler.put(
+                "/servers/1-Instance-otherserver2",
+                new MockHttpURLConnection(200, MockURLStreamHandler
+                        .respServerDetail("otherserver2",
+                                "1-Instance-otherserver2",
+                                ServerStatus.SHUTOFF, "testTenantID")));
 
-        streamHandler.put("/stacks/" + instanceName + "/resources",
-                new MockHttpURLConnection(200,
-                        MockURLStreamHandler.respStacksResources(serverNames,
+        streamHandler.put(
+                "/stacks/" + instanceName + "/resources",
+                new MockHttpURLConnection(200, MockURLStreamHandler
+                        .respStacksResources(serverNames,
                                 InstanceType.EC2.getString())));
         streamHandler.put("/servers/1-Instance-otherserver2/action",
                 connection2);
@@ -493,15 +513,16 @@ public class NovaProcessorTest {
         final String instanceName = "Instance4";
         final List<String> serverNames = Arrays.asList("server1");
         createBasicParameters(instanceName, "fosi_v2.json", "http");
-        streamHandler.put("/stacks/" + instanceName + "/resources",
-                new MockHttpURLConnection(200,
-                        MockURLStreamHandler.respStacksResources(serverNames,
+        streamHandler.put(
+                "/stacks/" + instanceName + "/resources",
+                new MockHttpURLConnection(200, MockURLStreamHandler
+                        .respStacksResources(serverNames,
                                 InstanceType.NOVA.getString())));
-        streamHandler.put("/servers/0-Instance-server1",
-                new MockHttpURLConnection(200,
-                        MockURLStreamHandler.respServerDetail("server1",
-                                "0-Instance-server1", ServerStatus.SHUTOFF,
-                                "testTenantID")));
+        streamHandler.put(
+                "/servers/0-Instance-server1",
+                new MockHttpURLConnection(200, MockURLStreamHandler
+                        .respServerDetail("server1", "0-Instance-server1",
+                                ServerStatus.SHUTOFF, "testTenantID")));
         // when
         HashMap<String, Boolean> result = new NovaProcessor()
                 .startInstances(paramHandler);
@@ -518,15 +539,16 @@ public class NovaProcessorTest {
         final String instanceName = "Instance4";
         final List<String> serverNames = Arrays.asList("server1");
         createBasicParameters(instanceName, "fosi_v2.json", "http");
-        streamHandler.put("/stacks/" + instanceName + "/resources",
-                new MockHttpURLConnection(200,
-                        MockURLStreamHandler.respStacksResources(serverNames,
+        streamHandler.put(
+                "/stacks/" + instanceName + "/resources",
+                new MockHttpURLConnection(200, MockURLStreamHandler
+                        .respStacksResources(serverNames,
                                 InstanceType.TROVE.getString())));
-        streamHandler.put("/servers/0-Instance-server1",
-                new MockHttpURLConnection(200,
-                        MockURLStreamHandler.respServerDetail("server1",
-                                "0-Instance-server1", ServerStatus.SHUTOFF,
-                                "testTenantID")));
+        streamHandler.put(
+                "/servers/0-Instance-server1",
+                new MockHttpURLConnection(200, MockURLStreamHandler
+                        .respServerDetail("server1", "0-Instance-server1",
+                                ServerStatus.SHUTOFF, "testTenantID")));
 
         // when
         HashMap<String, Boolean> result = new NovaProcessor()
@@ -545,10 +567,11 @@ public class NovaProcessorTest {
         final String instanceName = "Instance4";
         createBasicParameters(instanceName, "fosi_v2.json", "http");
         List<String> serverNames = new LinkedList<>();
-        streamHandler.put("/stacks/" + instanceName + "/resources",
-                new MockHttpURLConnection(200,
-                        MockURLStreamHandler.respStacksResources(serverNames,
-                                "AWS::EC2::Instance")));
+        streamHandler
+                .put("/stacks/" + instanceName + "/resources",
+                        new MockHttpURLConnection(200, MockURLStreamHandler
+                                .respStacksResources(serverNames,
+                                        "AWS::EC2::Instance")));
 
         // when
         new NovaProcessor().startInstances(paramHandler);
@@ -578,13 +601,15 @@ public class NovaProcessorTest {
         final List<String> serverNames = Arrays.asList("server1",
                 "otherserver2");
 
-        streamHandler.put("/stacks/" + instanceName + "/resources",
-                new MockHttpURLConnection(200,
-                        MockURLStreamHandler.respStacksResources(serverNames,
+        streamHandler.put(
+                "/stacks/" + instanceName + "/resources",
+                new MockHttpURLConnection(200, MockURLStreamHandler
+                        .respStacksResources(serverNames,
                                 InstanceType.EC2.getString())));
-        streamHandler.put("/servers/1-Instance-otherserver2",
-                new MockHttpURLConnection(200,
-                        MockURLStreamHandler.respServerDetail("otherserver2",
+        streamHandler.put(
+                "/servers/1-Instance-otherserver2",
+                new MockHttpURLConnection(200, MockURLStreamHandler
+                        .respServerDetail("otherserver2",
                                 "1-Instance-otherserver2", ServerStatus.ACTIVE,
                                 "testTenantID")));
 
@@ -599,10 +624,11 @@ public class NovaProcessorTest {
         final String instanceName = "Instance4";
         createBasicParameters(instanceName, "fosi_v2.json", "http");
         List<String> serverNames = new LinkedList<>();
-        streamHandler.put("/stacks/" + instanceName + "/resources",
-                new MockHttpURLConnection(200,
-                        MockURLStreamHandler.respStacksResources(serverNames,
-                                "AWS::EC2::Instance")));
+        streamHandler
+                .put("/stacks/" + instanceName + "/resources",
+                        new MockHttpURLConnection(200, MockURLStreamHandler
+                                .respStacksResources(serverNames,
+                                        "AWS::EC2::Instance")));
         // when
         new NovaProcessor().stopInstances(paramHandler);
     }
@@ -633,16 +659,19 @@ public class NovaProcessorTest {
         final List<String> serverNames = Arrays.asList("server1",
                 "otherserver2");
 
-        streamHandler.put("/stacks/" + instanceName + "/resources",
-                new MockHttpURLConnection(200,
-                        MockURLStreamHandler.respStacksResources(serverNames,
+        streamHandler.put(
+                "/stacks/" + instanceName + "/resources",
+                new MockHttpURLConnection(200, MockURLStreamHandler
+                        .respStacksResources(serverNames,
                                 InstanceType.EC2.getString())));
-        streamHandler.put("/servers/1-Instance-otherserver2/action",
-                new MockHttpURLConnection(202,
-                        MockURLStreamHandler.respServerActions()));
-        streamHandler.put("/servers/1-Instance-otherserver2",
-                new MockHttpURLConnection(200,
-                        MockURLStreamHandler.respServerDetail("otherserver2",
+        streamHandler.put(
+                "/servers/1-Instance-otherserver2/action",
+                new MockHttpURLConnection(202, MockURLStreamHandler
+                        .respServerActions()));
+        streamHandler.put(
+                "/servers/1-Instance-otherserver2",
+                new MockHttpURLConnection(200, MockURLStreamHandler
+                        .respServerDetail("otherserver2",
                                 "1-Instance-otherserver2", ServerStatus.ACTIVE,
                                 "testTenantID")));
 
@@ -670,15 +699,17 @@ public class NovaProcessorTest {
                 MockURLStreamHandler.respServerActions());
         connection2.setIOException(new IOException());
 
-        streamHandler.put("/stacks/" + instanceName + "/resources",
-                new MockHttpURLConnection(200,
-                        MockURLStreamHandler.respStacksResources(serverNames,
+        streamHandler.put(
+                "/stacks/" + instanceName + "/resources",
+                new MockHttpURLConnection(200, MockURLStreamHandler
+                        .respStacksResources(serverNames,
                                 InstanceType.EC2.getString())));
         streamHandler.put("/servers/1-Instance-otherserver2/action",
                 connection2);
-        streamHandler.put("/servers/1-Instance-otherserver2",
-                new MockHttpURLConnection(200,
-                        MockURLStreamHandler.respServerDetail("otherserver2",
+        streamHandler.put(
+                "/servers/1-Instance-otherserver2",
+                new MockHttpURLConnection(200, MockURLStreamHandler
+                        .respServerDetail("otherserver2",
                                 "1-Instance-otherserver2", ServerStatus.ERROR,
                                 "testTenantID")));
 
@@ -708,23 +739,27 @@ public class NovaProcessorTest {
                 MockURLStreamHandler.respServerActions());
         connection2.setIOException(new IOException());
 
-        streamHandler.put("/stacks/" + instanceName + "/resources",
-                new MockHttpURLConnection(200,
-                        MockURLStreamHandler.respStacksResources(serverNames,
+        streamHandler.put(
+                "/stacks/" + instanceName + "/resources",
+                new MockHttpURLConnection(200, MockURLStreamHandler
+                        .respStacksResources(serverNames,
                                 InstanceType.EC2.getString())));
         streamHandler.put("/servers/1-Instance-missingServer2/action",
                 connection2);
-        streamHandler.put("/servers/2-Instance-otherServer/action",
-                new MockHttpURLConnection(202,
-                        MockURLStreamHandler.respServerActions()));
-        streamHandler.put("/servers/1-Instance-missingServer2",
-                new MockHttpURLConnection(200,
-                        MockURLStreamHandler.respServerDetail("missingServer2",
+        streamHandler.put(
+                "/servers/2-Instance-otherServer/action",
+                new MockHttpURLConnection(202, MockURLStreamHandler
+                        .respServerActions()));
+        streamHandler.put(
+                "/servers/1-Instance-missingServer2",
+                new MockHttpURLConnection(200, MockURLStreamHandler
+                        .respServerDetail("missingServer2",
                                 "1-Instance-missingServer2",
                                 ServerStatus.ACTIVE, "testTenantID")));
-        streamHandler.put("/servers/2-Instance-otherServer",
-                new MockHttpURLConnection(200,
-                        MockURLStreamHandler.respServerDetail("otherServer",
+        streamHandler.put(
+                "/servers/2-Instance-otherServer",
+                new MockHttpURLConnection(200, MockURLStreamHandler
+                        .respServerDetail("otherServer",
                                 "2-Instance-otherServer", ServerStatus.ACTIVE,
                                 "testTenantID")));
         // when
@@ -755,19 +790,22 @@ public class NovaProcessorTest {
                 MockURLStreamHandler.respServerActions());
         connection2.setIOException(new IOException());
 
-        streamHandler.put("/stacks/" + instanceName + "/resources",
-                new MockHttpURLConnection(200,
-                        MockURLStreamHandler.respStacksResources(serverNames,
+        streamHandler.put(
+                "/stacks/" + instanceName + "/resources",
+                new MockHttpURLConnection(200, MockURLStreamHandler
+                        .respStacksResources(serverNames,
                                 InstanceType.EC2.getString())));
         streamHandler.put("/servers/1-Instance-otherserver2/action",
                 connection2);
 
-        streamHandler.put("/servers/1-Instance-otherserver2/action/2",
-                new MockHttpURLConnection(202,
-                        MockURLStreamHandler.respServerActions()));
-        streamHandler.put("/servers/1-Instance-otherserver2",
-                new MockHttpURLConnection(200,
-                        MockURLStreamHandler.respServerDetail("otherserver2",
+        streamHandler.put(
+                "/servers/1-Instance-otherserver2/action/2",
+                new MockHttpURLConnection(202, MockURLStreamHandler
+                        .respServerActions()));
+        streamHandler.put(
+                "/servers/1-Instance-otherserver2",
+                new MockHttpURLConnection(200, MockURLStreamHandler
+                        .respServerDetail("otherserver2",
                                 "1-Instance-otherserver2", ServerStatus.ACTIVE,
                                 "testTenantID")));
 
@@ -797,15 +835,17 @@ public class NovaProcessorTest {
                 MockURLStreamHandler.respServerActions());
         connection2.setIOException(new IOException());
 
-        streamHandler.put("/stacks/" + instanceName + "/resources",
-                new MockHttpURLConnection(200,
-                        MockURLStreamHandler.respStacksResources(serverNames,
+        streamHandler.put(
+                "/stacks/" + instanceName + "/resources",
+                new MockHttpURLConnection(200, MockURLStreamHandler
+                        .respStacksResources(serverNames,
                                 InstanceType.EC2.getString())));
         streamHandler.put("/servers/1-Instance-otherserver2/action",
                 connection2);
-        streamHandler.put("/servers/1-Instance-otherserver2",
-                new MockHttpURLConnection(200,
-                        MockURLStreamHandler.respServerDetail("otherserver2",
+        streamHandler.put(
+                "/servers/1-Instance-otherserver2",
+                new MockHttpURLConnection(200, MockURLStreamHandler
+                        .respServerDetail("otherserver2",
                                 "1-Instance-otherserver2", ServerStatus.ACTIVE,
                                 "testTenantID")));
 
@@ -833,55 +873,56 @@ public class NovaProcessorTest {
         final List<String> serverNames = Arrays.asList("server1",
                 "otherserver2");
 
-        streamHandler.put("/stacks/" + instanceName + "/resources",
-                new MockHttpURLConnection(200,
-                        MockURLStreamHandler.respStacksResources(serverNames,
+        streamHandler.put(
+                "/stacks/" + instanceName + "/resources",
+                new MockHttpURLConnection(200, MockURLStreamHandler
+                        .respStacksResources(serverNames,
                                 InstanceType.EC2.getString())));
-        streamHandler.put("/servers/0-Instance-server1",
-                new MockHttpURLConnection(200,
-                        MockURLStreamHandler.respServerDetail("server1",
-                                "0-Instance-server1", ServerStatus.SHUTOFF,
-                                "testTenantID")));
-        streamHandler.put("/servers/1-Instance-otherserver2",
-                new MockHttpURLConnection(200,
-                        MockURLStreamHandler.respServerDetail("otherserver2",
-                                "1-Instance-otherserver2", ServerStatus.SHUTOFF,
-                                "testTenantID")));
+        streamHandler.put(
+                "/servers/0-Instance-server1",
+                new MockHttpURLConnection(200, MockURLStreamHandler
+                        .respServerDetail("server1", "0-Instance-server1",
+                                ServerStatus.SHUTOFF, "testTenantID")));
+        streamHandler.put(
+                "/servers/1-Instance-otherserver2",
+                new MockHttpURLConnection(200, MockURLStreamHandler
+                        .respServerDetail("otherserver2",
+                                "1-Instance-otherserver2",
+                                ServerStatus.SHUTOFF, "testTenantID")));
 
         // when
         new NovaProcessor().stopInstances(paramHandler);
     }
 
-    private void createBasicParameters(String instanceName, String templateName,
-            String httpMethod) {
-        parameters.put(PropertyHandler.STACK_NAME,
-                new Setting(PropertyHandler.STACK_NAME, instanceName));
-        parameters.put(PropertyHandler.TEMPLATE_NAME,
-                new Setting(PropertyHandler.TEMPLATE_NAME, templateName));
+    private void createBasicParameters(String instanceName,
+            String templateName, String httpMethod) {
+        parameters.put(PropertyHandler.STACK_NAME, new Setting(
+                PropertyHandler.STACK_NAME, instanceName));
+        parameters.put(PropertyHandler.TEMPLATE_NAME, new Setting(
+                PropertyHandler.TEMPLATE_NAME, templateName));
         parameters.put(PropertyHandler.TEMPLATE_PARAMETER_PREFIX + "KeyName",
-                new Setting(
-                        PropertyHandler.TEMPLATE_PARAMETER_PREFIX + "KeyName",
-                        "key"));
+                new Setting(PropertyHandler.TEMPLATE_PARAMETER_PREFIX
+                        + "KeyName", "key"));
         if (httpMethod == "https") {
-            configSettings.put(PropertyHandler.KEYSTONE_API_URL,
-                    new Setting(PropertyHandler.KEYSTONE_API_URL,
-                            "https://keystone:8080/v3/auth"));
+            configSettings.put(PropertyHandler.KEYSTONE_API_URL, new Setting(
+                    PropertyHandler.KEYSTONE_API_URL,
+                    "https://keystone:8080/v3/auth"));
         } else {
 
-            configSettings.put(PropertyHandler.KEYSTONE_API_URL,
-                    new Setting(PropertyHandler.KEYSTONE_API_URL,
-                            "http://keystone:8080/v3/auth"));
+            configSettings.put(PropertyHandler.KEYSTONE_API_URL, new Setting(
+                    PropertyHandler.KEYSTONE_API_URL,
+                    "http://keystone:8080/v3/auth"));
         }
-        configSettings.put(PropertyHandler.DOMAIN_NAME,
-                new Setting(PropertyHandler.DOMAIN_NAME, "testDomain"));
-        configSettings.put(PropertyHandler.TENANT_ID,
-                new Setting(PropertyHandler.TENANT_ID, "testTenantID"));
-        configSettings.put(PropertyHandler.API_USER_NAME,
-                new Setting(PropertyHandler.API_USER_NAME, "api_user"));
-        configSettings.put(PropertyHandler.API_USER_PWD,
-                new Setting(PropertyHandler.API_USER_PWD, "secret"));
-        configSettings.put(PropertyHandler.TEMPLATE_BASE_URL,
-                new Setting(PropertyHandler.TEMPLATE_BASE_URL,
-                        "http://estfarmaki2:8880/templates/"));
+        configSettings.put(PropertyHandler.DOMAIN_NAME, new Setting(
+                PropertyHandler.DOMAIN_NAME, "testDomain"));
+        configSettings.put(PropertyHandler.TENANT_ID, new Setting(
+                PropertyHandler.TENANT_ID, "testTenantID"));
+        configSettings.put(PropertyHandler.API_USER_NAME, new Setting(
+                PropertyHandler.API_USER_NAME, "api_user"));
+        configSettings.put(PropertyHandler.API_USER_PWD, new Setting(
+                PropertyHandler.API_USER_PWD, "secret"));
+        configSettings.put(PropertyHandler.TEMPLATE_BASE_URL, new Setting(
+                PropertyHandler.TEMPLATE_BASE_URL,
+                "http://estfarmaki2:8880/templates/"));
     }
 }

@@ -32,6 +32,11 @@ import java.util.Collection;
 @BusinessKey(attributes = { "tenantId" })
 public class Tenant extends DomainObjectWithVersioning<TenantData> {
 
+    /**
+     * Generated serial ID.
+     */
+    private static final long serialVersionUID = 7294477200910856344L;
+
     public Tenant() {
         super();
         dataContainer = new TenantData();

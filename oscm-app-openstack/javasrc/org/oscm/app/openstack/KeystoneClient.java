@@ -13,7 +13,7 @@ import org.apache.sling.commons.json.JSONException;
 import org.apache.sling.commons.json.JSONObject;
 import org.oscm.app.common.i18n.Messages;
 import org.oscm.app.openstack.exceptions.OpenStackConnectionException;
-import org.oscm.app.v1_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.exceptions.APPlatformException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +33,7 @@ public class KeystoneClient {
     private final OpenStackConnection connection;
 
     /**
-     *
+     * 
      * @param connection
      *            The connection that needs to be authenticated
      */
@@ -43,20 +43,20 @@ public class KeystoneClient {
 
     /**
      * Authenticate the connection that was given in the constructor for V3 API.
-     *
+     * 
      * @param user
      * @param password
      * @param domainName
      * @param tenantId
-     *
+     * 
      * @throws OpenStackConnectionException
      */
     public void authenticate(String user, String password, String domainName,
-            String tenantId)
-            throws APPlatformException, OpenStackConnectionException {
-        LOGGER.debug("KeystoneClient.authenticate() user: " + user + "  domain:"
-                + domainName + " tenant ID:" + tenantId + "  endpoint: "
-                + connection.getKeystoneEndpoint());
+            String tenantId) throws APPlatformException,
+            OpenStackConnectionException {
+        LOGGER.debug("KeystoneClient.authenticate() user: " + user
+                + "  domain:" + domainName + " tenant ID:" + tenantId
+                + "  endpoint: " + connection.getKeystoneEndpoint());
         String uri = connection.getKeystoneEndpoint() + "/tokens";
 
         JSONObject request = new JSONObject();
@@ -86,7 +86,9 @@ public class KeystoneClient {
             // this can basically not happen with string parameters
             throw new RuntimeException(e);
         }
-        LOGGER.debug("URL is " + uri + " request is "
+        LOGGER.debug("URL is "
+                + uri
+                + " request is "
                 + request.toString().replaceFirst(
                         "\"password\":\"" + password + "\"",
                         "\"password\":\"******\""));
@@ -142,8 +144,7 @@ public class KeystoneClient {
                 }
             }
             if (heatEndpoint == null) {
-                LOGGER.error(
-                        "KeystoneClient.authenticate() heat endpoint not defined");
+                LOGGER.error("KeystoneClient.authenticate() heat endpoint not defined");
                 throw new APPlatformException(
                         Messages.getAll("error_missing_heat_endpoint"));
             } else {
@@ -151,8 +152,7 @@ public class KeystoneClient {
                         + heatEndpoint);
             }
             if (novaEndpoint == null) {
-                LOGGER.error(
-                        "KeystoneClient.authenticate() nova endpoint not defined");
+                LOGGER.error("KeystoneClient.authenticate() nova endpoint not defined");
                 throw new APPlatformException(
                         Messages.getAll("error_missing_nova_endpoint"));
             } else {

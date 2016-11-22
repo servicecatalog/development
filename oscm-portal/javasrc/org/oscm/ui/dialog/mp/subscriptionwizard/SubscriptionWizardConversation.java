@@ -46,6 +46,7 @@ import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
 import org.oscm.internal.intf.AccountService;
 import org.oscm.internal.intf.SubscriptionService;
 import org.oscm.internal.intf.SubscriptionServiceInternal;
@@ -324,10 +325,17 @@ public class SubscriptionWizardConversation implements Serializable {
                 }
                 model.setSubscriptionUdaRows(UdaRow
                         .getUdaRows(subUdaDefinitions, new ArrayList<VOUda>()));
+                initPasswordFields(model.getSubscriptionUdaRows());
             }
         }
         getSubscriptionUnitCtrl().initializeUnitListForCreateSubscription();
         return result;
+    }
+
+    private void initPasswordFields(List<UdaRow> udas) {
+        for (UdaRow udaRow : udas) {
+            udaRow.initPasswordValueToStore();
+        }
     }
 
     private List<VOSubscription> getTriggeredSubscriptionsIds() {
@@ -415,6 +423,9 @@ public class SubscriptionWizardConversation implements Serializable {
             return BaseBean.MARKETPLACE_ACCESS_DENY_PAGE;
         }
         try {
+            for (UdaRow udaRow : model.getSubscriptionUdaRows()) {
+                udaRow.rewriteEncryptedValues();
+            }
             VOSubscription rc = getSubscriptionService().subscribeToService(
                     model.getSubscription(), model.getService().getVO(),
                     new ArrayList<VOUsageLicense>(),

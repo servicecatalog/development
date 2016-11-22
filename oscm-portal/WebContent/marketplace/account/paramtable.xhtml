@@ -88,7 +88,7 @@
           <f:validator validatorId="ParameterValueValidator" />
           <f:converter converterId="trimConverter" />
         </h:inputSecret>
-        <h:outputText id ="pwdValueRO" label="#{row.label}" value="*********"
+        <h:outputText id ="pwdValueRO" label="#{row.label}" value="*****"
                      rendered="#{row.parameterDefinition.valueTypeString and row.passwordType and readOnly}"/>
         <!-- enumeration value-->
         <t:inputHidden id="enumValue" value="#{row.parameter.value}"

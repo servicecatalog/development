@@ -22,8 +22,8 @@ import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.oscm.app.business.exceptions.BadResultException;
-import org.oscm.app.v1_0.data.InstanceStatus;
-import org.oscm.app.v1_0.data.Setting;
+import org.oscm.app.v2_0.data.InstanceStatus;
+import org.oscm.app.v2_0.data.Setting;
 
 /**
  * Unit tests for {@link ServiceInstance}.

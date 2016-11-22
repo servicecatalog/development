@@ -40,11 +40,10 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
-
 import org.oscm.app.ui.appconfiguration.AppConfigurationCtrl;
 import org.oscm.app.ui.appconfiguration.AppConfigurationModel;
-import org.oscm.app.v1_0.service.APPConfigurationServiceBean;
-import org.oscm.app.v1_0.service.APPTimerServiceBean;
+import org.oscm.app.v2_0.service.APPConfigurationServiceBean;
+import org.oscm.app.v2_0.service.APPTimerServiceBean;
 
 /**
  * Test case for AppConfigurationCtrl

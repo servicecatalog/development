@@ -20,12 +20,12 @@ import org.mockito.Mockito;
 import org.oscm.app.iaas.PropertyHandler;
 import org.oscm.app.iaas.data.FlowState;
 import org.oscm.app.iaas.data.Operation;
-import org.oscm.app.v1_0.data.InstanceStatus;
-import org.oscm.app.v1_0.data.OperationParameter;
-import org.oscm.app.v1_0.data.ProvisioningSettings;
-import org.oscm.app.v1_0.data.Setting;
-import org.oscm.app.v1_0.exceptions.APPlatformException;
-import org.oscm.app.v1_0.intf.APPlatformController;
+import org.oscm.app.v2_0.data.InstanceStatus;
+import org.oscm.app.v2_0.data.OperationParameter;
+import org.oscm.app.v2_0.data.ProvisioningSettings;
+import org.oscm.app.v2_0.data.Setting;
+import org.oscm.app.v2_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.intf.APPlatformController;
 
 /**
  * @author stavreva

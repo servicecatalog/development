@@ -17,7 +17,7 @@
                              disabled="#{not (subscriptionUda.labelRendered) or (udasReadOnly)}"/>
 
       <adm:labelAndInputSecret id="secretSubscriptionUda#{v.index}" label="#{subscriptionUda.udaNameToShow}"
-                               required="#{subscriptionUda.inputMandatory}" value="#{subscriptionUda.udaValue}"
+                               required="#{subscriptionUda.inputMandatory}" value="#{subscriptionUda.passwordValueToStore}"
                                converterId="trimToNotNullConverter"
                                maxlength="#{appBean.descriptionLen}"
                                rendered="#{subscriptionUda.inputEncrypted}"

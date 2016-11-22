@@ -278,6 +278,7 @@
         <clickButton label="${button.save}" />
         <mpl_verify.success label="${info.user.profileSaved}" />
         <mpl_goto.account />
+        <mpl_goto.tab label="${marketplace.account.profile.organizationTab}" />
         <verifyXPath xpath="//*[@id='organizationName']" text="ORG_NAME" />
 
         <!-- Check all editable fields -->

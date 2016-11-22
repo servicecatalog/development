@@ -234,7 +234,9 @@ public class UpgradeWizardConversation implements Serializable {
 
         model.setSubscriptionUdaRows(UdaRow.getUdaRows(subUdaDefinitions,
                 subscriptionDetails.getUdasSubscription()));
-
+        for (UdaRow udaRow : model.getSubscriptionUdaRows()) {
+            udaRow.initPasswordValueToStore();
+        }
         initializePriceModelForSubscription(model.getSubscription());
 
         setConfirmationData(subscriptionDetails);
@@ -489,6 +491,9 @@ public class UpgradeWizardConversation implements Serializable {
      */
     public String upgrade() throws SaaSApplicationException {
         String result = OUTCOME_SUCCESS;
+        for (UdaRow udaRow : model.getSubscriptionUdaRows()) {
+            udaRow.rewriteEncryptedValues();
+        }
         VOSubscription rc = getSubscriptionService().upgradeSubscription(
                 model.getSubscription(), model.getService().getVO(),
                 model.getSelectedPaymentInfo(),

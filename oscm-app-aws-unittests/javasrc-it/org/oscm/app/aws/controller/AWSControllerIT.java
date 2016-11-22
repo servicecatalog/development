@@ -27,13 +27,13 @@ import org.oscm.app.aws.EC2Mockup;
 import org.oscm.app.aws.data.FlowState;
 import org.oscm.app.aws.data.Operation;
 import org.oscm.app.aws.i18n.Messages;
-import org.oscm.app.v1_0.data.InstanceStatus;
-import org.oscm.app.v1_0.data.ProvisioningSettings;
-import org.oscm.app.v1_0.data.Setting;
-import org.oscm.app.v1_0.exceptions.AbortException;
-import org.oscm.app.v1_0.exceptions.SuspendException;
-import org.oscm.app.v1_0.intf.APPlatformController;
-import org.oscm.app.v1_0.intf.APPlatformService;
+import org.oscm.app.v2_0.data.InstanceStatus;
+import org.oscm.app.v2_0.data.ProvisioningSettings;
+import org.oscm.app.v2_0.data.Setting;
+import org.oscm.app.v2_0.exceptions.AbortException;
+import org.oscm.app.v2_0.exceptions.SuspendException;
+import org.oscm.app.v2_0.intf.APPlatformController;
+import org.oscm.app.v2_0.intf.APPlatformService;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.ejb.TestContainer;
 
@@ -235,8 +235,8 @@ public class AWSControllerIT extends EJBTestBase {
 
         ec2mock.addDescribeInstancesResult(INSTANCE_ID, "terminated",
                 "2aws-1-2-3-4");
-        ec2mock.addDescribeInstanceStatusResult(INSTANCE_ID, "terminated", "ok",
-                "ok");
+        ec2mock.addDescribeInstanceStatusResult(INSTANCE_ID, "terminated",
+                "ok", "ok");
 
         ec2mock.addDescribeInstancesResult(INSTANCE_ID, "terminated", null);
 
@@ -268,8 +268,7 @@ public class AWSControllerIT extends EJBTestBase {
         parameters.put(PropertyHandler.OPERATION, new Setting(
                 PropertyHandler.OPERATION, Operation.EC2_MODIFICATION.name()));
 
-        ec2mock.createDescribeInstancesResult("instance1", "running",
-                "1.2.3.4");
+        ec2mock.createDescribeInstancesResult("instance1", "running", "1.2.3.4");
         ec2mock.createDescribeInstanceStatusResult("instance1", "ok", "ok",
                 "ok");
         ec2mock.createDescribeImagesResult(IMAGE_ID);
@@ -288,8 +287,7 @@ public class AWSControllerIT extends EJBTestBase {
         parameters.put(PropertyHandler.OPERATION, new Setting(
                 PropertyHandler.OPERATION, Operation.EC2_ACTIVATION.name()));
 
-        ec2mock.createDescribeInstancesResult("instance1", "running",
-                "1.2.3.4");
+        ec2mock.createDescribeInstancesResult("instance1", "running", "1.2.3.4");
         ec2mock.createDescribeInstanceStatusResult("instance1", "ok", "ok",
                 "ok");
         ec2mock.createDescribeImagesResult(IMAGE_ID);
@@ -310,8 +308,7 @@ public class AWSControllerIT extends EJBTestBase {
         parameters.put(PropertyHandler.OPERATION, new Setting(
                 PropertyHandler.OPERATION, Operation.EC2_ACTIVATION.name()));
 
-        ec2mock.createDescribeInstancesResult("instance1", "stopped",
-                "1.2.3.4");
+        ec2mock.createDescribeInstancesResult("instance1", "stopped", "1.2.3.4");
         ec2mock.createDescribeInstanceStatusResult("instance1", "ok", "ok",
                 "ok");
         ec2mock.createDescribeImagesResult(IMAGE_ID);
@@ -331,8 +328,7 @@ public class AWSControllerIT extends EJBTestBase {
         parameters.put(PropertyHandler.OPERATION, new Setting(
                 PropertyHandler.OPERATION, Operation.EC2_OPERATION.name()));
 
-        ec2mock.createDescribeInstancesResult("instance1", "running",
-                "1.2.3.4");
+        ec2mock.createDescribeInstancesResult("instance1", "running", "1.2.3.4");
         ec2mock.createDescribeInstanceStatusResult("instance1", "ok", "ok",
                 "ok");
         ec2mock.createDescribeImagesResult(IMAGE_ID);
@@ -352,8 +348,7 @@ public class AWSControllerIT extends EJBTestBase {
         parameters.put(PropertyHandler.OPERATION, new Setting(
                 PropertyHandler.OPERATION, Operation.EC2_OPERATION.name()));
 
-        ec2mock.createDescribeInstancesResult("instance1", "stopped",
-                "1.2.3.4");
+        ec2mock.createDescribeInstancesResult("instance1", "stopped", "1.2.3.4");
         ec2mock.createDescribeInstanceStatusResult("instance1", "ok", "ok",
                 "ok");
         ec2mock.createDescribeImagesResult(IMAGE_ID);

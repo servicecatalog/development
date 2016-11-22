@@ -14,11 +14,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.oscm.app.iaas.data.FlowState;
-import org.oscm.app.v1_0.data.User;
-import org.oscm.app.v1_0.exceptions.APPlatformException;
-import org.oscm.app.v1_0.exceptions.AuthenticationException;
-import org.oscm.app.v1_0.exceptions.ConfigurationException;
-import org.oscm.app.v1_0.intf.APPlatformService;
+import org.oscm.app.v2_0.data.User;
+import org.oscm.app.v2_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.exceptions.AuthenticationException;
+import org.oscm.app.v2_0.exceptions.ConfigurationException;
+import org.oscm.app.v2_0.intf.APPlatformService;
 
 /**
  * @author malhotra
@@ -124,7 +124,8 @@ public abstract class BaseProvisioningProcessor implements
     public String getTechnicalProviderLocale(String controllerId,
             PropertyHandler paramHandler) throws AuthenticationException,
             ConfigurationException, APPlatformException {
-        User user = platformService.authenticate(controllerId, paramHandler.getTPAuthentication());
+        User user = platformService.authenticate(controllerId,
+                paramHandler.getTPAuthentication());
         return user.getLocale();
     }
 }

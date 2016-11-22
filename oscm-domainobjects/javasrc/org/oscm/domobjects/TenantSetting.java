@@ -28,6 +28,10 @@ import javax.persistence.*;
 @BusinessKey(attributes = { "tenant", "name" })
 public class TenantSetting extends DomainObjectWithVersioning<TenantSettingData> {
 
+    /**
+     * Generated serial ID.
+     */
+    private static final long serialVersionUID = -4272380804853076168L;
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "tenant_tkey")
     private Tenant tenant;

@@ -27,12 +27,12 @@ import org.oscm.app.aws.EC2Communication;
 import org.oscm.app.aws.EC2Mockup;
 import org.oscm.app.aws.data.FlowState;
 import org.oscm.app.aws.data.Operation;
-import org.oscm.app.v1_0.data.InstanceDescription;
-import org.oscm.app.v1_0.data.InstanceStatus;
-import org.oscm.app.v1_0.data.ProvisioningSettings;
-import org.oscm.app.v1_0.data.Setting;
-import org.oscm.app.v1_0.exceptions.APPlatformException;
-import org.oscm.app.v1_0.intf.APPlatformService;
+import org.oscm.app.v2_0.data.InstanceDescription;
+import org.oscm.app.v2_0.data.InstanceStatus;
+import org.oscm.app.v2_0.data.ProvisioningSettings;
+import org.oscm.app.v2_0.data.Setting;
+import org.oscm.app.v2_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.intf.APPlatformService;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.ejb.TestContainer;
 
@@ -84,21 +84,21 @@ public class AWSControllerTest extends EJBTestBase {
     }
 
     private void setValidParameters() {
-        parameters.put(PropertyHandler.INSTANCENAME,
-                new Setting(PropertyHandler.INSTANCENAME, "name"));
+        parameters.put(PropertyHandler.INSTANCENAME, new Setting(
+                PropertyHandler.INSTANCENAME, "name"));
         parameters.put(PropertyHandler.INSTANCENAME_PATTERN, new Setting(
                 PropertyHandler.INSTANCENAME_PATTERN, "[a-z]{2,25}"));
-        parameters.put(PropertyHandler.KEY_PAIR_NAME,
-                new Setting(PropertyHandler.KEY_PAIR_NAME, "mySecret"));
-        parameters.put(PropertyHandler.IMAGE_NAME,
-                new Setting(PropertyHandler.IMAGE_NAME, "ami-12345"));
-        parameters.put(PropertyHandler.INSTANCE_TYPE,
-                new Setting(PropertyHandler.INSTANCE_TYPE, "m1.small"));
+        parameters.put(PropertyHandler.KEY_PAIR_NAME, new Setting(
+                PropertyHandler.KEY_PAIR_NAME, "mySecret"));
+        parameters.put(PropertyHandler.IMAGE_NAME, new Setting(
+                PropertyHandler.IMAGE_NAME, "ami-12345"));
+        parameters.put(PropertyHandler.INSTANCE_TYPE, new Setting(
+                PropertyHandler.INSTANCE_TYPE, "m1.small"));
         // new data
-        parameters.put(PropertyHandler.DISK_SIZE,
-                new Setting(PropertyHandler.DISK_SIZE, DISK_SIZE));
-        parameters.put(PropertyHandler.SUBNET,
-                new Setting(PropertyHandler.SUBNET, SUBNET));
+        parameters.put(PropertyHandler.DISK_SIZE, new Setting(
+                PropertyHandler.DISK_SIZE, DISK_SIZE));
+        parameters.put(PropertyHandler.SUBNET, new Setting(
+                PropertyHandler.SUBNET, SUBNET));
         parameters.put(PropertyHandler.SECURITY_GROUP_NAMES, new Setting(
                 PropertyHandler.SECURITY_GROUP_NAMES, SECURITY_GROUP_NAMES));
 
@@ -150,22 +150,22 @@ public class AWSControllerTest extends EJBTestBase {
     public void testCreateInstance() throws Exception {
 
         // given
-        parameters.put(PropertyHandler.INSTANCENAME,
-                new Setting(PropertyHandler.INSTANCENAME, "myInstance"));
-        parameters.put(PropertyHandler.KEY_PAIR_NAME,
-                new Setting(PropertyHandler.KEY_PAIR_NAME, "myKey"));
-        parameters.put(PropertyHandler.IMAGE_NAME,
-                new Setting(PropertyHandler.IMAGE_NAME, "myImage"));
-        parameters.put(PropertyHandler.INSTANCE_TYPE,
-                new Setting(PropertyHandler.INSTANCE_TYPE, "m1.tiny"));
+        parameters.put(PropertyHandler.INSTANCENAME, new Setting(
+                PropertyHandler.INSTANCENAME, "myInstance"));
+        parameters.put(PropertyHandler.KEY_PAIR_NAME, new Setting(
+                PropertyHandler.KEY_PAIR_NAME, "myKey"));
+        parameters.put(PropertyHandler.IMAGE_NAME, new Setting(
+                PropertyHandler.IMAGE_NAME, "myImage"));
+        parameters.put(PropertyHandler.INSTANCE_TYPE, new Setting(
+                PropertyHandler.INSTANCE_TYPE, "m1.tiny"));
         // new data
-        parameters.put(PropertyHandler.DISK_SIZE,
-                new Setting(PropertyHandler.DISK_SIZE, "3"));
-        parameters.put(PropertyHandler.SUBNET,
-                new Setting(PropertyHandler.SUBNET, "subnet-a77430d0"));
-        parameters.put(PropertyHandler.SECURITY_GROUP_NAMES,
-                new Setting(PropertyHandler.SECURITY_GROUP_NAMES,
-                        "security_group1,security_group2"));
+        parameters.put(PropertyHandler.DISK_SIZE, new Setting(
+                PropertyHandler.DISK_SIZE, "3"));
+        parameters.put(PropertyHandler.SUBNET, new Setting(
+                PropertyHandler.SUBNET, "subnet-a77430d0"));
+        parameters.put(PropertyHandler.SECURITY_GROUP_NAMES, new Setting(
+                PropertyHandler.SECURITY_GROUP_NAMES,
+                "security_group1,security_group2"));
 
         // when
         InstanceDescription instanceDescription = aws.createInstance(settings);
@@ -194,8 +194,8 @@ public class AWSControllerTest extends EJBTestBase {
 
         // given
         setValidParameters();
-        parameters.put(PropertyHandler.INSTANCENAME,
-                new Setting(PropertyHandler.INSTANCENAME, "NAME"));
+        parameters.put(PropertyHandler.INSTANCENAME, new Setting(
+                PropertyHandler.INSTANCENAME, "NAME"));
         parameters.put(PropertyHandler.INSTANCENAME_PATTERN, new Setting(
                 PropertyHandler.INSTANCENAME_PATTERN, "[a-z]{2,25}"));
 
@@ -229,20 +229,20 @@ public class AWSControllerTest extends EJBTestBase {
     public void testCreateInstance_validateNameEmptyPattern() throws Exception {
 
         // given
-        parameters.put(PropertyHandler.INSTANCENAME,
-                new Setting(PropertyHandler.INSTANCENAME, "NAME"));
-        parameters.put(PropertyHandler.INSTANCENAME_PATTERN,
-                new Setting(PropertyHandler.INSTANCENAME_PATTERN, ""));
-        parameters.put(PropertyHandler.KEY_PAIR_NAME,
-                new Setting(PropertyHandler.KEY_PAIR_NAME, "myKey"));
-        parameters.put(PropertyHandler.IMAGE_NAME,
-                new Setting(PropertyHandler.IMAGE_NAME, "myImage"));
-        parameters.put(PropertyHandler.INSTANCE_TYPE,
-                new Setting(PropertyHandler.INSTANCE_TYPE, "m1.tiny"));
-        parameters.put(PropertyHandler.DISK_SIZE,
-                new Setting(PropertyHandler.DISK_SIZE, "3"));
-        parameters.put(PropertyHandler.SUBNET,
-                new Setting(PropertyHandler.SUBNET, "subnettest"));
+        parameters.put(PropertyHandler.INSTANCENAME, new Setting(
+                PropertyHandler.INSTANCENAME, "NAME"));
+        parameters.put(PropertyHandler.INSTANCENAME_PATTERN, new Setting(
+                PropertyHandler.INSTANCENAME_PATTERN, ""));
+        parameters.put(PropertyHandler.KEY_PAIR_NAME, new Setting(
+                PropertyHandler.KEY_PAIR_NAME, "myKey"));
+        parameters.put(PropertyHandler.IMAGE_NAME, new Setting(
+                PropertyHandler.IMAGE_NAME, "myImage"));
+        parameters.put(PropertyHandler.INSTANCE_TYPE, new Setting(
+                PropertyHandler.INSTANCE_TYPE, "m1.tiny"));
+        parameters.put(PropertyHandler.DISK_SIZE, new Setting(
+                PropertyHandler.DISK_SIZE, "3"));
+        parameters.put(PropertyHandler.SUBNET, new Setting(
+                PropertyHandler.SUBNET, "subnettest"));
 
         // when
         InstanceDescription instanceDescription = aws.createInstance(settings);
@@ -310,8 +310,7 @@ public class AWSControllerTest extends EJBTestBase {
     }
 
     @Test(expected = APPlatformException.class)
-    public void testCreateInstance_validateEmptyInstanceType()
-            throws Exception {
+    public void testCreateInstance_validateEmptyInstanceType() throws Exception {
 
         // given
         setValidParameters();
@@ -561,10 +560,14 @@ public class AWSControllerTest extends EJBTestBase {
         // given
         Properties properties = new Properties();
         properties.put("command", "finish");
-        settings.getParameters().put(PropertyHandler.OPERATION, new Setting(
-                PropertyHandler.OPERATION, Operation.EC2_CREATION.toString()));
-        settings.getParameters().put(PropertyHandler.FLOW_STATE, new Setting(
-                PropertyHandler.FLOW_STATE, FlowState.MANUAL.toString()));
+        settings.getParameters().put(
+                PropertyHandler.OPERATION,
+                new Setting(PropertyHandler.OPERATION, Operation.EC2_CREATION
+                        .toString()));
+        settings.getParameters().put(
+                PropertyHandler.FLOW_STATE,
+                new Setting(PropertyHandler.FLOW_STATE, FlowState.MANUAL
+                        .toString()));
 
         // when
         InstanceStatus result = aws.notifyInstance(INSTANCE_ID, settings,
@@ -581,10 +584,14 @@ public class AWSControllerTest extends EJBTestBase {
         // given
         Properties properties = new Properties();
         properties.put("command", "finish");
-        settings.getParameters().put(PropertyHandler.OPERATION, new Setting(
-                PropertyHandler.OPERATION, Operation.EC2_CREATION.toString()));
-        settings.getParameters().put(PropertyHandler.FLOW_STATE, new Setting(
-                PropertyHandler.FLOW_STATE, FlowState.CREATING.toString()));
+        settings.getParameters().put(
+                PropertyHandler.OPERATION,
+                new Setting(PropertyHandler.OPERATION, Operation.EC2_CREATION
+                        .toString()));
+        settings.getParameters().put(
+                PropertyHandler.FLOW_STATE,
+                new Setting(PropertyHandler.FLOW_STATE, FlowState.CREATING
+                        .toString()));
 
         // when
         aws.notifyInstance(INSTANCE_ID, settings, properties);
