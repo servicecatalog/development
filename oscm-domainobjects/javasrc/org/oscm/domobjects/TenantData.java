@@ -20,6 +20,11 @@ import java.io.Serializable;
 public class TenantData extends DomainDataContainer implements
     Serializable {
 
+    /**
+     * Generated serial ID.
+     */
+    private static final long serialVersionUID = 4658562180120496892L;
+
     @Column(nullable = false)
     private String tenantId;
 
