@@ -11,6 +11,8 @@
 package org.oscm.app.common.instanceDetail;
 
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +22,7 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.oscm.app.common.i18n.Messages;
 import org.oscm.app.common.intf.InstanceAccess;
 import org.oscm.app.common.intf.ServerInformation;
 import org.oscm.app.v1_0.data.ControllerConfigurationKey;
@@ -50,6 +53,7 @@ public class ExtensionInterfaceBean implements Serializable {
     private String subscriptionId;
     private String accessInfo;
     private String instanceId;
+    private String locale;
 
     @Inject
     private InstanceAccess instanceAccess;
@@ -61,8 +65,15 @@ public class ExtensionInterfaceBean implements Serializable {
         FacesContext facesContext = getContext();
         Map<String, String> parameters = facesContext.getExternalContext()
                 .getRequestParameterMap();
-        this.subscriptionId = parameters.get("subId") != null
-                ? parameters.get("subId") : "";
+        this.locale = facesContext.getViewRoot().getLocale().getLanguage();
+        try {
+            this.subscriptionId = parameters.get("subId") != null
+                    ? URLDecoder.decode(parameters.get("subId"), "UTF-8") : "";
+        } catch (UnsupportedEncodingException e) {
+            // TODO Auto-generated catch block
+            this.subscriptionId = Messages.get(locale,
+                    "ui.extentionInterface.noSubscriptionName");
+        }
         this.instanceId = parameters.get("instId") != null
                 ? parameters.get("instId") : "";
     }
@@ -87,7 +98,6 @@ public class ExtensionInterfaceBean implements Serializable {
         try {
             serverInfos = instanceAccess.getServerDetails(instanceId);
         } catch (Exception e) {
-            LOGGER.error(e.getMessage());
             LOGGER.error(e.getMessage());
         }
         setServerInfo(serverInfos);
