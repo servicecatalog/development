@@ -29,6 +29,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.codec.binary.Base64;
 import org.oscm.internal.intf.SubscriptionService;
 import org.oscm.internal.subscriptions.OperationModel;
 import org.oscm.internal.subscriptions.OperationParameterModel;
@@ -286,17 +287,27 @@ public class MySubscriptionsCtrl implements Serializable {
         byte[] cipher_byte;
 
         MessageDigest md = MessageDigest.getInstance("SHA-256");
-        md.update(token.getBytes());
+        md.update(token.getBytes("UTF-8"));
         cipher_byte = md.digest();
+        String cipher_string = new String(Base64.encodeBase64(cipher_byte),
+                "UTF-8");
 
         Date date = new Date();
         long timestamp = date.getTime();
 
-        String encodedSubId = URLEncoder.encode(subId, "UTF-8");
+        String encodedSubId = encodeParam(subId);
 
         return model.getSelectedSubscription().getCustomTabUrl() + "?orgId="
                 + orgId + "&subId=" + encodedSubId + "&instId=" + instId
-                + "&token=" + token + "_" + cipher_byte + "_" + timestamp;
+                + "&token="
+                + encodeParam(token + "_" + cipher_string + "_" + timestamp);
+    }
+
+    private String encodeParam(String value)
+            throws UnsupportedEncodingException {
+
+        return URLEncoder.encode(value, "UTF-8");
+
     }
 
 }

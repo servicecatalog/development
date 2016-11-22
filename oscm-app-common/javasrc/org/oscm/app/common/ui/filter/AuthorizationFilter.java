@@ -9,6 +9,7 @@
 package org.oscm.app.common.ui.filter;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.StringTokenizer;
@@ -48,6 +49,12 @@ public class AuthorizationFilter implements Filter {
 
     private String controllerId;
     private ControllerAccess controllerAccess;
+    private String excludeUrlPattern;
+
+    final int INSTANCE_ID = 0;
+    final int USER_ID = 1;
+    final int ORG_ID = 2;
+    final int HASH = 3;
 
     @Inject
     public void setControllerAccess(final ControllerAccess controllerAccess) {
@@ -56,6 +63,8 @@ public class AuthorizationFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
+        excludeUrlPattern = filterConfig
+                .getInitParameter("exclude-url-pattern");
     }
 
     @Override
@@ -66,35 +75,33 @@ public class AuthorizationFilter implements Filter {
             response.getWriter().print(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
+
+        HttpServletRequest httpRequest = (HttpServletRequest) request;
+        if (!httpRequest.getServletPath().matches(excludeUrlPattern)) {
+            chain.doFilter(httpRequest, response);
+            return;
+        }
+
         if (controllerId == null) {
             controllerId = controllerAccess.getControllerId();
         }
 
-        HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
         HttpSession session = httpRequest.getSession();
+        Object serverInfoLoggedIn = session.getAttribute("serverInfoLoggedIn");
         String path = httpRequest.getServletPath();
-        if (path != null && path.matches("/.+/serverInformation.jsf")) {
-            String token = httpRequest.getParameter("token");
-            String instId = httpRequest.getParameter("instId");
-            if (token != null && instId != null) {
-                String hashParams[] = token.split("_");
-                if (hashParams[0] == instId) {
-                    byte[] cipher_byte;
-                    String checkStr = hashParams[0] + "_" + hashParams[1] + "_"
-                            + hashParams[2];
-                    try {
-                        MessageDigest md = MessageDigest.getInstance("SHA-256");
-                        md.update(checkStr.getBytes());
-                        cipher_byte = md.digest();
-                        if (cipher_byte.equals(hashParams[3])) {
-                            chain.doFilter(httpRequest, response);
-                            return;
-                        }
-                    } catch (NoSuchAlgorithmException e) {
-                        LOGGER.error(e.getMessage());
-                    }
-                }
+        if ((path != null && path.matches("/serverInformation.jsf"))
+                || serverInfoLoggedIn != null) {
+            if (checkToken(httpRequest) || serverInfoLoggedIn != null) {
+                session.setAttribute("serverInfoLoggedIn",
+                        httpRequest.getParameter("instId"));
+                chain.doFilter(httpRequest, response);
+                return;
+            } else {
+                // Return 401 error
+                httpResponse.setStatus(401);
+                httpResponse.setContentType("text/html");
+                return;
             }
         } else {
             Object loggedInUserId = session.getAttribute("loggedInUserId");
@@ -165,6 +172,40 @@ public class AuthorizationFilter implements Filter {
                         + "\"");
         httpResponse.setStatus(401);
         httpResponse.setContentType("text/html");
+    }
+
+    /**
+     * @param httpRequest
+     */
+    protected boolean checkToken(HttpServletRequest httpRequest) {
+        String token = httpRequest.getParameter("token");
+        String instId = httpRequest.getParameter("instId");
+        if (token != null && instId != null) {
+            try {
+                String hashParams[] = token.split("_");
+                String tokenHash = new String(
+                        Base64.decodeBase64(hashParams[HASH].getBytes("UTF-8")),
+                        "UTF-8");
+
+                if (hashParams[0].equals(instId)) {
+                    byte[] cipher_byte;
+                    String checkStr = hashParams[INSTANCE_ID] + "_"
+                            + hashParams[USER_ID] + "_" + hashParams[ORG_ID];
+
+                    MessageDigest md = MessageDigest.getInstance("SHA-256");
+                    md.update(checkStr.getBytes("UTF-8"));
+                    cipher_byte = md.digest();
+                    if (new String(cipher_byte, "UTF-8").equals(tokenHash)) {
+                        return true;
+                    }
+
+                }
+            } catch (NoSuchAlgorithmException
+                    | UnsupportedEncodingException e) {
+                LOGGER.error(e.getMessage());
+            }
+        }
+        return false;
     }
 
     @Override
