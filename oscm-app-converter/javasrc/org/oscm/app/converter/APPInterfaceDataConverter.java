@@ -544,6 +544,9 @@ public class APPInterfaceDataConverter {
         for (String key : map.keySet()) {
             org.oscm.app.v2_0.data.Setting setting = new org.oscm.app.v2_0.data.Setting(
                     key, map.get(key));
+            if (key.endsWith(PASS_SUFFIX) || key.endsWith(PWD_SUFFIX)) {
+                setting.setEncrypted(true);
+            }
             newMap.put(key, setting);
             if (key.endsWith(PASS_SUFFIX) || key.endsWith(PWD_SUFFIX)) {
                 setting.setEncrypted(true);
