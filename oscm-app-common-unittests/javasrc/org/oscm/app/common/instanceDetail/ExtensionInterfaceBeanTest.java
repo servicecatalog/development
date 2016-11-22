@@ -14,9 +14,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.faces.application.Application;
+import javax.faces.component.UIViewRoot;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 
@@ -49,6 +51,7 @@ public class ExtensionInterfaceBeanTest extends EJBTestBase {
         externalContext = Mockito.mock(ExternalContext.class);
         application = Mockito.mock(Application.class);
         instanceAccess = Mockito.mock(InstanceAccess.class);
+        UIViewRoot viewRoot = Mockito.mock(UIViewRoot.class);
         paramters = new HashMap<String, String>();
         paramters.put("subId", subscriptionId);
         paramters.put("instId", instanceId);
@@ -60,6 +63,8 @@ public class ExtensionInterfaceBeanTest extends EJBTestBase {
         Mockito.when(facesContext.getApplication()).thenReturn(application);
         Mockito.when(externalContext.getRequestParameterMap())
                 .thenReturn(paramters);
+        Mockito.when(facesContext.getViewRoot()).thenReturn(viewRoot);
+        Mockito.when(viewRoot.getLocale()).thenReturn(new Locale("en"));
         Mockito.when(instanceAccess.getAccessInfo(instanceId))
                 .thenReturn("Access info from IaaS");
         Mockito.<List<? extends ServerInformation>> when(
