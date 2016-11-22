@@ -14,9 +14,13 @@
     <param-name>javax.faces.PROJECT_STAGE</param-name>
     <param-value>Production</param-value>
   </context-param>
-  <context-param>
+  <!-- <context-param>
     <param-name>org.richfaces.skin</param-name>
     <param-value>plain</param-value>
+  </context-param> -->
+  <context-param>
+    <param-name>org.richfaces.skin</param-name>
+    <param-value>interstage</param-value>
   </context-param>
   <context-param>
     <param-name>org.richfaces.enableControlSkinning</param-name>
@@ -46,6 +50,10 @@
     <display-name>Authorization Filter</display-name>
     <filter-name>auth</filter-name>
     <filter-class>org.oscm.app.common.ui.filter.AuthorizationFilter</filter-class>
+    <init-param>
+      <param-name>exclude-url-pattern</param-name>
+      <param-value>(.*/a4j/.*|.*/img/.*|.*/css/.*|.*/fonts/.*|.*/scripts/.*|.*/faq/.*|.*/org.richfaces.resources|.*/javax.faces.resource/.*|^/public/.*)</param-value>
+    </init-param>
   </filter>
   <filter-mapping>
     <filter-name>auth</filter-name>

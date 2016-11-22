@@ -10,7 +10,11 @@ package org.oscm.app.openstack;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
+import org.apache.sling.commons.json.JSONArray;
 import org.apache.sling.commons.json.JSONException;
 import org.apache.sling.commons.json.JSONObject;
 import org.oscm.app.openstack.controller.PropertyHandler;
@@ -28,6 +32,10 @@ public class NovaClient {
 
     private final OpenStackConnection connection;
     private final Logger logger = LoggerFactory.getLogger(NovaClient.class);
+
+    private enum IP_TYPE {
+        fixed, floating
+    }
 
     /**
      * @param connection
@@ -101,10 +109,13 @@ public class NovaClient {
      * @return Server object which contain id, name and status
      * @throws OpenStackConnectionException
      */
-    public Server getServerDetails(PropertyHandler ph, String serverId)
-            throws OpenStackConnectionException {
+    public Server getServerDetails(PropertyHandler ph, String serverId,
+            boolean moreInfo) throws OpenStackConnectionException {
         String uri;
         Server result = new Server(serverId);
+        String flavorName = "-";
+        List<String> fixedIP = new ArrayList<String>();
+        List<String> floatingIP = new ArrayList<String>();
         try {
             uri = connection.getNovaEndpoint() + "/servers/"
                     + URLEncoder.encode(serverId, "UTF-8");
@@ -118,7 +129,34 @@ public class NovaClient {
             result.setId(server.getString("id"));
             result.setStatus(server.getString("status"));
             result.setName(server.getString("name"));
-
+            if (moreInfo) {
+                JSONObject flavor = server.getJSONObject("flavor");
+                flavorName = getFlavorName(flavor.getString("id"));
+                result.setType(flavorName);
+                if (server.has("addresses")) {
+                    JSONObject addresses = server.getJSONObject("addresses");
+                    Iterator<?> networkNames = addresses.keys();
+                    while (networkNames.hasNext()) {
+                        String key = (String) networkNames.next();
+                        if (addresses.get(key) instanceof JSONArray) {
+                            JSONArray networks = addresses.getJSONArray(key);
+                            for (int i = 0; i < networks.length(); i++) {
+                                JSONObject network = networks.getJSONObject(i);
+                                if (network.getString("OS-EXT-IPS:type")
+                                        .equals(IP_TYPE.fixed.toString())) {
+                                    fixedIP.add(network.getString("addr"));
+                                } else if (network.getString("OS-EXT-IPS:type")
+                                        .equals(IP_TYPE.floating.toString())) {
+                                    floatingIP.add(network.getString("addr"));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            result.setType(flavorName);
+            result.setPrivateIP(fixedIP);
+            result.setPublicIP(floatingIP);
             return result;
         } catch (UnsupportedEncodingException e) {
             logger.error("Runtime error happened during encoding", e);
@@ -128,7 +166,11 @@ public class NovaClient {
                     e);
         }
         result.setName("");
-        result.setStatus(ServerStatus.ERROR.toString());
+        result.setStatus(ServerStatus.UNKNOWN.toString());
+        result.setType(flavorName);
+        result.setPrivateIP(fixedIP);
+        result.setPublicIP(floatingIP);
+
         return result;
     }
 
@@ -149,11 +191,42 @@ public class NovaClient {
             PropertyHandler ph, String serverId)
             throws OpenStackConnectionException {
         boolean result = false;
-        Server server = getServerDetails(ph, serverId);
+        Server server = getServerDetails(ph, serverId, false);
         if (!server.getStatus().equals(exceptedStatus.toString())) {
             result = true;
         }
         return result;
     }
 
+    /**
+     * @param flavorID
+     *            flavor ID
+     * @return String flavor name
+     * @throws OpenStackConnectionException
+     */
+    private String getFlavorName(String flavorID)
+            throws OpenStackConnectionException {
+        // TODO Auto-generated method stub
+
+        String uri;
+        try {
+            uri = connection.getNovaEndpoint() + "/flavors/"
+                    + URLEncoder.encode(flavorID, "UTF-8");
+
+            RESTResponse response = connection.processRequest(uri, "GET");
+            String body = response.getResponseBody();
+            logger.debug("NovaClient.getFlavorName() Responsecode: "
+                    + response.getResponseCode());
+            JSONObject responseJson = new JSONObject(body);
+            JSONObject flavor = responseJson.getJSONObject("flavor");
+            return flavor.getString("name");
+        } catch (UnsupportedEncodingException e) {
+            logger.error("Runtime error happened during encoding", e);
+            throw new RuntimeException(e);
+        } catch (JSONException e) {
+            logger.error("NovaClient.getFlavorName() JSONException occurred",
+                    e);
+        }
+        return "-";
+    }
 }

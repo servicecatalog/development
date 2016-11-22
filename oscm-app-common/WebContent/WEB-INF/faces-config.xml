@@ -14,6 +14,11 @@
     <managed-bean-class>org.oscm.app.common.ui.ApplicationBean</managed-bean-class>
     <managed-bean-scope>session</managed-bean-scope>
   </managed-bean>
+  <managed-bean>
+    <managed-bean-name>extentionInterfaceBean</managed-bean-name>
+    <managed-bean-class>org.oscm.app.common.instanceDetail.extentionInterfaceBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
   
   <application>
     <locale-config>

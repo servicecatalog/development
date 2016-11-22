@@ -304,7 +304,7 @@ public class OpenStackControllerTest extends EJBTestBase {
                                 "testTenantID")));
 
         // when
-        InstanceStatus status = getInstanceStatus("123");
+        getInstanceStatus("123");
     }
 
     @Test(expected = APPlatformException.class)
@@ -388,7 +388,7 @@ public class OpenStackControllerTest extends EJBTestBase {
                                 "testTenantID")));
 
         // when
-        InstanceStatus status = getInstanceStatus("123");
+        getInstanceStatus("123");
     }
 
     @Test

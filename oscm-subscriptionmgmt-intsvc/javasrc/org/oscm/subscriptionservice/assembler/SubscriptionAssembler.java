@@ -240,6 +240,7 @@ public class SubscriptionAssembler extends BaseAssembler {
                     LocalizedObjectTypes.PRODUCT_CUSTOM_TAB_NAME));
             voSubscription
                     .setCustomTabUrl(product.getTemplate().getCustomTabUrl());
+            voSubscription.setOrganizationId(product.getTemplate().getVendor().getOrganizationId());
         }
 
         TechnicalProduct techProd = product.getTechnicalProduct();
