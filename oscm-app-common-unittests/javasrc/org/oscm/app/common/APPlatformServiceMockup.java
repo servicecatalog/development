@@ -13,14 +13,14 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
-import org.oscm.app.v1_0.data.PasswordAuthentication;
-import org.oscm.app.v1_0.data.ProvisioningSettings;
-import org.oscm.app.v1_0.data.Setting;
-import org.oscm.app.v1_0.data.User;
-import org.oscm.app.v1_0.exceptions.APPlatformException;
-import org.oscm.app.v1_0.exceptions.AuthenticationException;
-import org.oscm.app.v1_0.exceptions.ConfigurationException;
-import org.oscm.app.v1_0.intf.APPlatformService;
+import org.oscm.app.v2_0.data.PasswordAuthentication;
+import org.oscm.app.v2_0.data.ProvisioningSettings;
+import org.oscm.app.v2_0.data.Setting;
+import org.oscm.app.v2_0.data.User;
+import org.oscm.app.v2_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.exceptions.AuthenticationException;
+import org.oscm.app.v2_0.exceptions.ConfigurationException;
+import org.oscm.app.v2_0.intf.APPlatformService;
 
 /**
  * Mockup for the APP platform service
@@ -33,8 +33,8 @@ public class APPlatformServiceMockup implements APPlatformService {
     public APPlatformServiceMockup() {
         // Set default controller settings
         ctrl_settings = new HashMap<>();
-        ctrl_settings.put("BSS_ORGANIZATION_ID",
-                new Setting("BSS_ORGANIZATION_ID", "orgId"));
+        ctrl_settings.put("BSS_ORGANIZATION_ID", new Setting(
+                "BSS_ORGANIZATION_ID", "orgId"));
         ctrl_settings.put("BSS_USER_KEY", new Setting("BSS_USER_KEY", "12345"));
         ctrl_settings.put("BSS_USER_ID", new Setting("BSS_USER_ID", "userId"));
         ctrl_settings.put("BSS_USER_PWD",
@@ -44,8 +44,8 @@ public class APPlatformServiceMockup implements APPlatformService {
     }
 
     @Override
-    public void sendMail(List<String> mailAddresses, String subject,
-            String text) throws APPlatformException {
+    public void sendMail(List<String> mailAddresses, String subject, String text)
+            throws APPlatformException {
     }
 
     @Override
@@ -75,8 +75,8 @@ public class APPlatformServiceMockup implements APPlatformService {
 
     @Override
     public boolean lockServiceInstance(String arg0, String arg1,
-            PasswordAuthentication arg2)
-            throws AuthenticationException, APPlatformException {
+            PasswordAuthentication arg2) throws AuthenticationException,
+            APPlatformException {
         return false;
     }
 
@@ -93,8 +93,8 @@ public class APPlatformServiceMockup implements APPlatformService {
 
     @Override
     public void unlockServiceInstance(String arg0, String arg1,
-            PasswordAuthentication arg2)
-            throws AuthenticationException, APPlatformException {
+            PasswordAuthentication arg2) throws AuthenticationException,
+            APPlatformException {
     }
 
     @Override

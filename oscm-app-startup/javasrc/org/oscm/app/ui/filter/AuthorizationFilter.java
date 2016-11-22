@@ -27,12 +27,11 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
-
 import org.oscm.app.ui.SessionConstants;
 import org.oscm.app.ui.i18n.Messages;
-import org.oscm.app.v1_0.data.PasswordAuthentication;
-import org.oscm.app.v1_0.service.APPAuthenticationServiceBean;
-import org.oscm.app.v1_0.service.APPConfigurationServiceBean;
+import org.oscm.app.v2_0.data.PasswordAuthentication;
+import org.oscm.app.v2_0.service.APPAuthenticationServiceBean;
+import org.oscm.app.v2_0.service.APPConfigurationServiceBean;
 import org.oscm.types.enumtypes.UserRoleType;
 import org.oscm.vo.VOUserDetails;
 
@@ -82,7 +81,8 @@ public class AuthorizationFilter implements Filter {
 
             String path = httpRequest.getServletPath();
             if (path != null && path.startsWith("/controller/")) {
-                controllerId = httpRequest.getParameter(SessionConstants.SESSION_CTRL_ID);
+                controllerId = httpRequest
+                        .getParameter(SessionConstants.SESSION_CTRL_ID);
                 if (controllerId == null || controllerId.trim().isEmpty()) {
                     controllerId = (String) session
                             .getAttribute(SessionConstants.SESSION_CTRL_ID);

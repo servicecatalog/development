@@ -9,7 +9,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import org.oscm.app.v1_0.data.PasswordAuthentication;
+import org.oscm.app.v2_0.data.PasswordAuthentication;
 
 public class PasswordAuthenticationTest {
 

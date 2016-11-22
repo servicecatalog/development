@@ -23,15 +23,15 @@ import java.util.HashMap;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.oscm.app.v1_0.data.ProvisioningSettings;
-import org.oscm.app.v1_0.data.Setting;
-import org.oscm.app.v1_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.data.ProvisioningSettings;
+import org.oscm.app.v2_0.data.Setting;
+import org.oscm.app.v2_0.exceptions.APPlatformException;
 import org.oscm.app.vmware.i18n.Messages;
 import org.oscm.app.vmware.persistence.DataAccessService;
 
 /**
  * @author Dirk Bernsau
- *
+ * 
  */
 public class VMwarePropertyHandlerTest {
 
@@ -55,18 +55,22 @@ public class VMwarePropertyHandlerTest {
 
     @Test
     public void testNetworkParameter() {
-        settings.getParameters().put(VMPropertyHandler.TS_NIC1_NETWORK_SETTINGS,
-                new Setting(VMPropertyHandler.TS_NIC1_NETWORK_SETTINGS,
-                        "DHCP"));
-        settings.getParameters().put(VMPropertyHandler.TS_NIC2_NETWORK_SETTINGS,
-                new Setting(VMPropertyHandler.TS_NIC2_NETWORK_SETTINGS,
-                        "DHCP"));
-        settings.getParameters().put(VMPropertyHandler.TS_NIC3_NETWORK_SETTINGS,
-                new Setting(VMPropertyHandler.TS_NIC3_NETWORK_SETTINGS,
-                        "DHCP"));
-        settings.getParameters().put(VMPropertyHandler.TS_NIC4_NETWORK_SETTINGS,
-                new Setting(VMPropertyHandler.TS_NIC4_NETWORK_SETTINGS,
-                        "DHCP"));
+        settings.getParameters()
+                .put(VMPropertyHandler.TS_NIC1_NETWORK_SETTINGS,
+                        new Setting(VMPropertyHandler.TS_NIC1_NETWORK_SETTINGS,
+                                "DHCP"));
+        settings.getParameters()
+                .put(VMPropertyHandler.TS_NIC2_NETWORK_SETTINGS,
+                        new Setting(VMPropertyHandler.TS_NIC2_NETWORK_SETTINGS,
+                                "DHCP"));
+        settings.getParameters()
+                .put(VMPropertyHandler.TS_NIC3_NETWORK_SETTINGS,
+                        new Setting(VMPropertyHandler.TS_NIC3_NETWORK_SETTINGS,
+                                "DHCP"));
+        settings.getParameters()
+                .put(VMPropertyHandler.TS_NIC4_NETWORK_SETTINGS,
+                        new Setting(VMPropertyHandler.TS_NIC4_NETWORK_SETTINGS,
+                                "DHCP"));
 
         settings.getParameters().put(VMPropertyHandler.TS_NIC1_GATEWAY,
                 new Setting(VMPropertyHandler.TS_NIC1_GATEWAY, "127.0.0.1"));
@@ -104,16 +108,20 @@ public class VMwarePropertyHandlerTest {
         settings.getParameters().put(VMPropertyHandler.TS_NIC4_DNS_SUFFIX,
                 new Setting(VMPropertyHandler.TS_NIC4_DNS_SUFFIX, "suffix4"));
 
-        settings.getParameters().put(VMPropertyHandler.TS_NIC1_SUBNET_MASK,
+        settings.getParameters().put(
+                VMPropertyHandler.TS_NIC1_SUBNET_MASK,
                 new Setting(VMPropertyHandler.TS_NIC1_SUBNET_MASK,
                         "255.255.1.0"));
-        settings.getParameters().put(VMPropertyHandler.TS_NIC2_SUBNET_MASK,
+        settings.getParameters().put(
+                VMPropertyHandler.TS_NIC2_SUBNET_MASK,
                 new Setting(VMPropertyHandler.TS_NIC2_SUBNET_MASK,
                         "255.255.2.0"));
-        settings.getParameters().put(VMPropertyHandler.TS_NIC3_SUBNET_MASK,
+        settings.getParameters().put(
+                VMPropertyHandler.TS_NIC3_SUBNET_MASK,
                 new Setting(VMPropertyHandler.TS_NIC3_SUBNET_MASK,
                         "255.255.3.0"));
-        settings.getParameters().put(VMPropertyHandler.TS_NIC4_SUBNET_MASK,
+        settings.getParameters().put(
+                VMPropertyHandler.TS_NIC4_SUBNET_MASK,
                 new Setting(VMPropertyHandler.TS_NIC4_SUBNET_MASK,
                         "255.255.4.0"));
 
@@ -314,8 +322,8 @@ public class VMwarePropertyHandlerTest {
     @Test
     public void releaseManuallyDefinedIPAddresses() throws Exception {
         // given
-        parameters.put(VMPropertyHandler.TS_NUMBER_OF_NICS,
-                new Setting(VMPropertyHandler.TS_NUMBER_OF_NICS, "1"));
+        parameters.put(VMPropertyHandler.TS_NUMBER_OF_NICS, new Setting(
+                VMPropertyHandler.TS_NUMBER_OF_NICS, "1"));
         doReturn(Boolean.TRUE).when(propertyHandler)
                 .isAdapterConfiguredByDatabase(1);
         doReturn("ipaddress").when(propertyHandler).getIpAddress(anyInt());

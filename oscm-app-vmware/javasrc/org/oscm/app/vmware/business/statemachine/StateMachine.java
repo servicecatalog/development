@@ -13,15 +13,15 @@ import java.io.InputStream;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
 
-import org.oscm.app.v1_0.APPlatformServiceFactory;
-import org.oscm.app.v1_0.data.InstanceStatus;
-import org.oscm.app.v1_0.data.PasswordAuthentication;
-import org.oscm.app.v1_0.data.ProvisioningSettings;
-import org.oscm.app.v1_0.data.Setting;
-import org.oscm.app.v1_0.exceptions.APPlatformException;
-import org.oscm.app.v1_0.exceptions.AuthenticationException;
-import org.oscm.app.v1_0.exceptions.ConfigurationException;
-import org.oscm.app.v1_0.exceptions.SuspendException;
+import org.oscm.app.v2_0.APPlatformServiceFactory;
+import org.oscm.app.v2_0.data.InstanceStatus;
+import org.oscm.app.v2_0.data.PasswordAuthentication;
+import org.oscm.app.v2_0.data.ProvisioningSettings;
+import org.oscm.app.v2_0.data.Setting;
+import org.oscm.app.v2_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.exceptions.AuthenticationException;
+import org.oscm.app.v2_0.exceptions.ConfigurationException;
+import org.oscm.app.v2_0.exceptions.SuspendException;
 import org.oscm.app.vmware.business.Controller;
 import org.oscm.app.vmware.business.VMPropertyHandler;
 import org.oscm.app.vmware.business.statemachine.api.StateMachineException;
@@ -57,8 +57,8 @@ public class StateMachine {
             throws StateMachineException {
         logger.debug("filename: " + filename);
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
-        try (InputStream stream = loader
-                .getResourceAsStream("statemachines/" + filename);) {
+        try (InputStream stream = loader.getResourceAsStream("statemachines/"
+                + filename);) {
             JAXBContext jaxbContext = JAXBContext.newInstance(States.class);
             Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
             return (States) jaxbUnmarshaller.unmarshal(stream);
@@ -81,7 +81,8 @@ public class StateMachine {
             ProvisioningSettings settings, String stateMachine) {
         settings.getParameters().put(StateMachineProperties.SM_STATE_HISTORY,
                 new Setting(StateMachineProperties.SM_STATE_HISTORY, ""));
-        settings.getParameters().put(StateMachineProperties.SM_STATE_MACHINE,
+        settings.getParameters().put(
+                StateMachineProperties.SM_STATE_MACHINE,
                 new Setting(StateMachineProperties.SM_STATE_MACHINE,
                         stateMachine));
         settings.getParameters().put(StateMachineProperties.SM_STATE,
@@ -94,8 +95,8 @@ public class StateMachine {
             APPlatformException {
 
         State currentState = getState(stateId);
-        String eventId = states.invokeAction(currentState, instanceId, settings,
-                result);
+        String eventId = states.invokeAction(currentState, instanceId,
+                settings, result);
         history = appendStateToHistory(stateId, history);
         stateId = getNextState(currentState, eventId);
 
@@ -104,10 +105,10 @@ public class StateMachine {
             VMPropertyHandler config = new VMPropertyHandler(settings);
 
             if (sameState(currentState, nextState)) {
-                if ("suspended".equals(config.getServiceSetting(
-                        VMPropertyHandler.GUEST_READY_TIMEOUT_REF))) {
-                    logger.debug(
-                            "Reinitialize timeout reference after an occured timeout.");
+                if ("suspended"
+                        .equals(config
+                                .getServiceSetting(VMPropertyHandler.GUEST_READY_TIMEOUT_REF))) {
+                    logger.debug("Reinitialize timeout reference after an occured timeout.");
                     setReferenceForTimeout(config);
                 } else {
                     String timeoutInMs = getReadyTimeout(nextState, config);
@@ -166,8 +167,7 @@ public class StateMachine {
         return timeoutInMs;
     }
 
-    private boolean exceededTimeout(VMPropertyHandler config,
-            String timeoutInMs) {
+    private boolean exceededTimeout(VMPropertyHandler config, String timeoutInMs) {
 
         if (timeoutInMs == null || timeoutInMs.trim().length() == 0) {
             logger.warn("Action timeout is not set and therefore ignored!");
@@ -175,10 +175,11 @@ public class StateMachine {
         }
 
         try {
-            return System.currentTimeMillis() - Long
-                    .valueOf(config.getServiceSetting(
-                            VMPropertyHandler.GUEST_READY_TIMEOUT_REF))
-                    .longValue() > Long.valueOf(timeoutInMs).longValue();
+            return System.currentTimeMillis()
+                    - Long.valueOf(
+                            config.getServiceSetting(VMPropertyHandler.GUEST_READY_TIMEOUT_REF))
+                            .longValue() > Long.valueOf(timeoutInMs)
+                    .longValue();
         } catch (NumberFormatException e) {
             logger.warn("The action timeout '" + timeoutInMs
                     + " 'is not a number and therefore ignored.");

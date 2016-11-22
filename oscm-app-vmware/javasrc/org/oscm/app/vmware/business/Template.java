@@ -11,7 +11,7 @@ package org.oscm.app.vmware.business;
 import java.text.DecimalFormat;
 import java.util.List;
 
-import org.oscm.app.v1_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.exceptions.APPlatformException;
 import org.oscm.app.vmware.business.VMwareValue.Unit;
 import org.oscm.app.vmware.business.balancer.LoadBalancerConfiguration;
 import org.oscm.app.vmware.business.model.VMwareHost;

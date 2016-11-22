@@ -23,13 +23,12 @@ import org.oscm.app.ror.data.LPlatformConfiguration;
 import org.oscm.app.ror.data.LPlatformDescriptor;
 import org.oscm.app.ror.data.LPlatformDescriptorConfiguration;
 import org.oscm.app.ror.data.LServerConfiguration;
-import org.oscm.app.v1_0.data.ProvisioningSettings;
-import org.oscm.app.v1_0.data.Setting;
+import org.oscm.app.v2_0.data.ProvisioningSettings;
+import org.oscm.app.v2_0.data.Setting;
 
 /**
  * Intention: Use this class manually to retrieve information from a running ROR
- * hardware simulator. This class should not be used for any automated
- * tests.<br />
+ * hardware simulator. This class should not be used for any automated tests.<br />
  * <br />
  * Note: In order to access the ROR API we need the ROR domain certificate, it
  * can be found in the javares folder, see ror.jks. If the ROR installation
@@ -67,8 +66,10 @@ public class RorClientIT {
 
         settings.getParameters().put(PropertyHandler.VSYS_ID,
                 new Setting(PropertyHandler.VSYS_ID, "SampleTe-IZ3MDGZSB"));
-        settings.getParameters().put(PropertyHandler.VSERVER_ID, new Setting(
-                PropertyHandler.VSERVER_ID, "SampleTe-IZ3MDGZSB-S-0001"));
+        settings.getParameters().put(
+                PropertyHandler.VSERVER_ID,
+                new Setting(PropertyHandler.VSERVER_ID,
+                        "SampleTe-IZ3MDGZSB-S-0001"));
 
         settings.getConfigSettings().put(PropertyHandler.IAAS_API_LOCALE,
                 new Setting(PropertyHandler.IAAS_API_LOCALE, "en"));
@@ -93,8 +94,8 @@ public class RorClientIT {
             System.out.println("ID:\t" + lpd.getVSystemTemplateId());
             System.out.println("Name:\t" + lpd.getVSystemTemplateName());
             LPlatformDescriptorConfiguration configuration = vdcClient
-                    .getLPlatformDescriptorConfiguration(
-                            lpd.getVSystemTemplateId());
+                    .getLPlatformDescriptorConfiguration(lpd
+                            .getVSystemTemplateId());
             for (LServerConfiguration lsc : configuration.getVServers()) {
                 System.out.println(lsc.toString());
             }
@@ -108,17 +109,18 @@ public class RorClientIT {
         for (LPlatformConfiguration platformConfiguration : platforms) {
             System.out.println("LPLATFORM CONFIGURATION:");
             System.out.println("ID:\t" + platformConfiguration.getVSystemId());
-            System.out.println(
-                    "Name:\t" + platformConfiguration.getVSystemName());
-            System.out.println(
-                    "Stati:\t" + platformConfiguration.getServerStatus());
-            System.out.println(
-                    "networkIDs: " + platformConfiguration.getNetworks());
+            System.out.println("Name:\t"
+                    + platformConfiguration.getVSystemName());
+            System.out.println("Stati:\t"
+                    + platformConfiguration.getServerStatus());
+            System.out.println("networkIDs: "
+                    + platformConfiguration.getNetworks());
             System.out.println("");
 
-            settings.getParameters().put(PropertyHandler.VSYS_ID,
-                    new Setting(PropertyHandler.VSYS_ID,
-                            platformConfiguration.getVSystemId()));
+            settings.getParameters().put(
+                    PropertyHandler.VSYS_ID,
+                    new Setting(PropertyHandler.VSYS_ID, platformConfiguration
+                            .getVSystemId()));
             platformClient = new RORVServerCommunication()
                     .getLPlatformClient(new PropertyHandler(settings));
             for (LServerConfiguration serverConfiguration : platformClient

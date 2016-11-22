@@ -12,7 +12,7 @@ import static org.junit.Assert.fail;
 
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.oscm.app.v1_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.exceptions.APPlatformException;
 
 /**
  * Unit test for ProvisioningValidator

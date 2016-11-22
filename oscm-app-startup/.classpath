@@ -8,7 +8,7 @@
 	<classpathentry kind="lib" path="/libraries/slf4j/javalib/slf4j-simple-1.7.7.jar"/>
 	<classpathentry kind="lib" path="/libraries/wsdl4j/javalib/wsdl4j.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-app"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/oscm-app-extsvc-1-0"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-app-extsvc-2-0"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc"/>
 	<classpathentry kind="lib" path="/libraries/apache-codec/javalib/commons-codec-1.7.jar"/>
 	<classpathentry kind="lib" path="/libraries/apache-logging/javalib/commons-logging-1.1.3.jar"/>

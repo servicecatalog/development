@@ -61,8 +61,8 @@ import org.oscm.app.ror.data.LPlatformDescriptor;
 import org.oscm.app.ror.data.LPlatformDescriptorConfiguration;
 import org.oscm.app.ror.data.LServerConfiguration;
 import org.oscm.app.ror.exceptions.RORException;
-import org.oscm.app.v1_0.data.ProvisioningSettings;
-import org.oscm.app.v1_0.data.Setting;
+import org.oscm.app.v2_0.data.ProvisioningSettings;
+import org.oscm.app.v2_0.data.Setting;
 
 /**
  * @author zhaohang
@@ -161,8 +161,8 @@ public class RORVSystemCommunicationTest {
         preparePlatforms(vdcClient);
 
         // when
-        boolean result = rorVSystemCommunication
-                .getCombinedVServerState(properties, TARGETSTATE);
+        boolean result = rorVSystemCommunication.getCombinedVServerState(
+                properties, TARGETSTATE);
 
         // then
         assertEquals(Boolean.TRUE, Boolean.valueOf(result));
@@ -176,8 +176,8 @@ public class RORVSystemCommunicationTest {
                 VServerStatus.STOPPED);
 
         // when
-        boolean result = rorVSystemCommunication
-                .getCombinedVServerState(properties, VServerStatus.STOPPED);
+        boolean result = rorVSystemCommunication.getCombinedVServerState(
+                properties, VServerStatus.STOPPED);
 
         // then
         assertEquals(Boolean.TRUE, Boolean.valueOf(result));
@@ -191,8 +191,8 @@ public class RORVSystemCommunicationTest {
                 VServerStatus.STOPPING);
 
         // when
-        boolean result = rorVSystemCommunication
-                .getCombinedVServerState(properties, VServerStatus.STOPPED);
+        boolean result = rorVSystemCommunication.getCombinedVServerState(
+                properties, VServerStatus.STOPPED);
 
         // then
         assertEquals(Boolean.FALSE, Boolean.valueOf(result));
@@ -338,8 +338,8 @@ public class RORVSystemCommunicationTest {
         String serverTemplateId = null;
 
         // when
-        List<String> result = rorVSystemCommunication
-                .getVServersForTemplate(serverTemplateId, properties);
+        List<String> result = rorVSystemCommunication.getVServersForTemplate(
+                serverTemplateId, properties);
 
         // then
         assertEquals(0, result.size());
@@ -352,8 +352,8 @@ public class RORVSystemCommunicationTest {
         String serverTemplateId = "   ";
 
         // when
-        List<String> result = rorVSystemCommunication
-                .getVServersForTemplate(serverTemplateId, properties);
+        List<String> result = rorVSystemCommunication.getVServersForTemplate(
+                serverTemplateId, properties);
 
         // then
         assertEquals(0, result.size());
@@ -371,8 +371,8 @@ public class RORVSystemCommunicationTest {
                 .getLPlatformClient(eq(properties));
 
         // when
-        List<String> result = rorVSystemCommunication
-                .getVServersForTemplate(SERVER_TEMPLATE_ID, properties);
+        List<String> result = rorVSystemCommunication.getVServersForTemplate(
+                SERVER_TEMPLATE_ID, properties);
 
         // then
         assertEquals(0, result.size());
@@ -390,8 +390,8 @@ public class RORVSystemCommunicationTest {
                 .getLPlatformClient(eq(properties));
 
         // when
-        List<String> result = rorVSystemCommunication
-                .getVServersForTemplate(MASTER_TEMPLATE_ID, properties);
+        List<String> result = rorVSystemCommunication.getVServersForTemplate(
+                MASTER_TEMPLATE_ID, properties);
 
         // then
         assertEquals(1, result.size());
@@ -490,8 +490,8 @@ public class RORVSystemCommunicationTest {
 
         List<String> list = new ArrayList<>();
 
-        doReturn(list).when(rorVSystemCommunication)
-                .getVServersForTemplate(eq(SLAVE_TEMPLATE_ID), eq(properties));
+        doReturn(list).when(rorVSystemCommunication).getVServersForTemplate(
+                eq(SLAVE_TEMPLATE_ID), eq(properties));
 
         // when
         List<String> result = rorVSystemCommunication.getPublicIps(properties);
@@ -510,16 +510,16 @@ public class RORVSystemCommunicationTest {
         doReturn(iaasContext).when(properties).getIaasContext();
 
         LPlatformClient platformClient = preparePlatformClient();
-        LServerClient serverClient = spy(
-                new LServerClient(platformClient, "lserver_Id"));
+        LServerClient serverClient = spy(new LServerClient(platformClient,
+                "lserver_Id"));
         doReturn(platformClient).when(rorVSystemCommunication)
                 .getLPlatformClient(properties);
-        doReturn(serverClient).when(rorVSystemCommunication)
-                .getLServerClient(properties);
+        doReturn(serverClient).when(rorVSystemCommunication).getLServerClient(
+                properties);
 
         List<String> list = new ArrayList<>();
-        doReturn(list).when(rorVSystemCommunication)
-                .getVServersForTemplate(SLAVE_TEMPLATE_ID, properties);
+        doReturn(list).when(rorVSystemCommunication).getVServersForTemplate(
+                SLAVE_TEMPLATE_ID, properties);
 
         // when
         List<String> result = rorVSystemCommunication.getPublicIps(properties);
@@ -570,10 +570,10 @@ public class RORVSystemCommunicationTest {
 
     }
 
-    private void preparePlatformClientForStopServersWithException(
-            String message) throws Exception {
-        LPlatformClient platformClient = spy(
-                new LPlatformClient(rorClient, NULLTARGETSTATEMESSAGE));
+    private void preparePlatformClientForStopServersWithException(String message)
+            throws Exception {
+        LPlatformClient platformClient = spy(new LPlatformClient(rorClient,
+                NULLTARGETSTATEMESSAGE));
         doThrow(new RORException(message)).when(platformClient)
                 .stopAllServers();
         doReturn(platformClient).when(rorVSystemCommunication)
@@ -581,8 +581,8 @@ public class RORVSystemCommunicationTest {
     }
 
     private void preparePlatformClientForStartAllServers() throws Exception {
-        LPlatformClient platformClient = spy(
-                new LPlatformClient(rorClient, NULLTARGETSTATEMESSAGE));
+        LPlatformClient platformClient = spy(new LPlatformClient(rorClient,
+                NULLTARGETSTATEMESSAGE));
         doNothing().when(platformClient).startAllServers();
         doReturn(platformClient).when(rorVSystemCommunication)
                 .getLPlatformClient(eq(properties));
@@ -590,14 +590,14 @@ public class RORVSystemCommunicationTest {
 
     private LServerClient prepareServerClientForStartStopServers()
             throws Exception {
-        LPlatformClient platformClient = spy(
-                new LPlatformClient(rorClient, NULLTARGETSTATEMESSAGE));
-        LServerClient serverClient = spy(
-                new LServerClient(platformClient, "serverId"));
+        LPlatformClient platformClient = spy(new LPlatformClient(rorClient,
+                NULLTARGETSTATEMESSAGE));
+        LServerClient serverClient = spy(new LServerClient(platformClient,
+                "serverId"));
         doReturn(platformClient).when(rorVSystemCommunication)
                 .getLPlatformClient(any(PropertyHandler.class));
-        doReturn(serverClient).when(rorVSystemCommunication)
-                .getLServerClient(any(PropertyHandler.class));
+        doReturn(serverClient).when(rorVSystemCommunication).getLServerClient(
+                any(PropertyHandler.class));
         doNothing().when(serverClient).start();
         doNothing().when(serverClient).stop();
         return serverClient;
@@ -605,8 +605,8 @@ public class RORVSystemCommunicationTest {
 
     private void preparePlatformClientForStartServersWithException(
             String message) throws Exception {
-        LPlatformClient platformClient = spy(
-                new LPlatformClient(rorClient, NULLTARGETSTATEMESSAGE));
+        LPlatformClient platformClient = spy(new LPlatformClient(rorClient,
+                NULLTARGETSTATEMESSAGE));
         doThrow(new RORException(message)).when(platformClient)
                 .startAllServers();
         doReturn(platformClient).when(rorVSystemCommunication)
@@ -616,16 +616,16 @@ public class RORVSystemCommunicationTest {
     private RORClient prepareVdcClient() throws Exception {
         when(properties.getVsysId()).thenReturn(VSYSID);
         RORClient vdcClient = mock(RORClient.class);
-        doReturn(vdcClient).when(rorVSystemCommunication)
-                .getVdcClient(eq(properties));
+        doReturn(vdcClient).when(rorVSystemCommunication).getVdcClient(
+                eq(properties));
 
         return vdcClient;
     }
 
     private void prepareVdcClientWithDiskImages() throws Exception {
         RORClient vdcClient = mock(RORClient.class);
-        doReturn(vdcClient).when(rorVSystemCommunication)
-                .getVdcClient(eq(properties));
+        doReturn(vdcClient).when(rorVSystemCommunication).getVdcClient(
+                eq(properties));
 
         List<DiskImage> diskImages = new ArrayList<>();
         diskImages.add(new SimpleDiskImage(MASTER_TEMPLATE_ID, "Master"));
@@ -636,13 +636,12 @@ public class RORVSystemCommunicationTest {
 
     private void prepareVdcClientWithDescriptors() throws Exception {
         RORClient vdcClient = mock(RORClient.class);
-        doReturn(vdcClient).when(rorVSystemCommunication)
-                .getVdcClient(eq(properties));
+        doReturn(vdcClient).when(rorVSystemCommunication).getVdcClient(
+                eq(properties));
 
         List<LPlatformDescriptor> descriptors = new LinkedList<>();
 
-        HierarchicalConfiguration configuration = mock(
-                HierarchicalConfiguration.class);
+        HierarchicalConfiguration configuration = mock(HierarchicalConfiguration.class);
         descriptors.add(new LPlatformDescriptor(configuration));
 
         doReturn(descriptors).when(vdcClient).listLPlatformDescriptors();
@@ -650,16 +649,15 @@ public class RORVSystemCommunicationTest {
 
     private void prepareVdcClientWithTemplateDescriptor() throws Exception {
         RORClient vdcClient = mock(RORClient.class);
-        doReturn(vdcClient).when(rorVSystemCommunication)
-                .getVdcClient(eq(properties));
+        doReturn(vdcClient).when(rorVSystemCommunication).getVdcClient(
+                eq(properties));
 
-        HierarchicalConfiguration configuration = mock(
-                HierarchicalConfiguration.class);
+        HierarchicalConfiguration configuration = mock(HierarchicalConfiguration.class);
         LPlatformDescriptorConfiguration config = new LPlatformDescriptorConfiguration(
                 configuration);
 
-        doReturn(config).when(vdcClient)
-                .getLPlatformDescriptorConfiguration(anyString());
+        doReturn(config).when(vdcClient).getLPlatformDescriptorConfiguration(
+                anyString());
     }
 
     private void prepareVdcClientWithStatus() throws Exception {
@@ -697,10 +695,10 @@ public class RORVSystemCommunicationTest {
 
     @SuppressWarnings("unchecked")
     private LPlatformClient preparePlatformClient() throws Exception {
-        RORClient rorClient = spy(
-                new RORClient("url", "tenantId", "user", "password", "locale"));
-        LPlatformClient platformClient = spy(
-                new LPlatformClient(rorClient, "lplatform_Id"));
+        RORClient rorClient = spy(new RORClient("url", "tenantId", "user",
+                "password", "locale"));
+        LPlatformClient platformClient = spy(new LPlatformClient(rorClient,
+                "lplatform_Id"));
         LPlatformConfiguration config = mock(LPlatformConfiguration.class);
         List<LServerConfiguration> servers = new ArrayList<>();
         LServerConfiguration lsc1 = mock(LServerConfiguration.class);
@@ -764,8 +762,8 @@ public class RORVSystemCommunicationTest {
     public void createVSystem() throws Exception {
         // given
         RORClient vdcClient = prepareVdcClient();
-        when(vdcClient.createLPlatform(anyString(), anyString()))
-                .thenReturn(VSYSID);
+        when(vdcClient.createLPlatform(anyString(), anyString())).thenReturn(
+                VSYSID);
 
         // when
         String result = rorVSystemCommunication.createVSystem(properties);

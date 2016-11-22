@@ -22,8 +22,8 @@ import org.junit.Test;
 import org.oscm.app.iaas.PropertyHandler;
 import org.oscm.app.ror.client.LPlatformClient;
 import org.oscm.app.ror.client.RORClient;
-import org.oscm.app.v1_0.data.ProvisioningSettings;
-import org.oscm.app.v1_0.data.Setting;
+import org.oscm.app.v2_0.data.ProvisioningSettings;
+import org.oscm.app.v2_0.data.Setting;
 
 /**
  * Unit tests for RORCommonInfo

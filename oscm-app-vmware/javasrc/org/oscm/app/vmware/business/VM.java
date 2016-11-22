@@ -11,7 +11,7 @@ package org.oscm.app.vmware.business;
 import java.util.HashMap;
 import java.util.List;
 
-import org.oscm.app.v1_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.exceptions.APPlatformException;
 import org.oscm.app.vmware.business.Script.OS;
 import org.oscm.app.vmware.i18n.Messages;
 import org.oscm.app.vmware.remote.vmware.VMwareClient;

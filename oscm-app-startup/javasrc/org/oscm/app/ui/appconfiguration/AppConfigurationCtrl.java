@@ -23,8 +23,8 @@ import javax.servlet.http.HttpSession;
 
 import org.oscm.app.ui.BaseCtrl;
 import org.oscm.app.ui.SessionConstants;
-import org.oscm.app.v1_0.service.APPConfigurationServiceBean;
-import org.oscm.app.v1_0.service.APPTimerServiceBean;
+import org.oscm.app.v2_0.service.APPConfigurationServiceBean;
+import org.oscm.app.v2_0.service.APPTimerServiceBean;
 
 /**
  * This controller of manage app configuration settings.

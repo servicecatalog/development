@@ -14,7 +14,7 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.oscm.app.v1_0.data.Setting;
+import org.oscm.app.v2_0.data.Setting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -110,9 +110,8 @@ class PropertyReader {
     public void setProperty(String key, String value) {
         // NULL values are not supported by APP!!! (use empty instead)
         if (value == null) {
-            logger.warn(
-                    "PropertyReader.setProperty: NULL value given for property "
-                            + key + "! Using EMPTY value instead.");
+            logger.warn("PropertyReader.setProperty: NULL value given for property "
+                    + key + "! Using EMPTY value instead.");
             value = "";
         }
         props.put(this.prefix + key, new Setting(this.prefix + key, value));

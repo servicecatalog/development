@@ -39,11 +39,11 @@ import org.oscm.app.ror.data.LPlatformStatus;
 import org.oscm.app.ror.data.LServerConfiguration;
 import org.oscm.app.ror.data.LServerStatus;
 import org.oscm.app.ror.exceptions.RORException;
-import org.oscm.app.v1_0.data.ProvisioningSettings;
-import org.oscm.app.v1_0.data.Setting;
-import org.oscm.app.v1_0.exceptions.APPlatformException;
-import org.oscm.app.v1_0.exceptions.InstanceExistsException;
-import org.oscm.app.v1_0.exceptions.SuspendException;
+import org.oscm.app.v2_0.data.ProvisioningSettings;
+import org.oscm.app.v2_0.data.Setting;
+import org.oscm.app.v2_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.exceptions.InstanceExistsException;
+import org.oscm.app.v2_0.exceptions.SuspendException;
 
 /**
  * @author iversen
@@ -76,8 +76,8 @@ public class RORVServerCommunicationTest {
         settings = new ProvisioningSettings(parameters, configSettings, "en");
         paramHandler = spy(new PropertyHandler(settings));
 
-        doReturn(lServerClient).when(rorVServerCommunication)
-                .getLServerClient(paramHandler);
+        doReturn(lServerClient).when(rorVServerCommunication).getLServerClient(
+                paramHandler);
         doReturn(lServerConfiguration).when(lServerClient).getConfiguration();
         doReturn("123.123.123.123").when(lServerConfiguration).getPrivateIP();
 
@@ -134,8 +134,7 @@ public class RORVServerCommunicationTest {
     @Test
     public void resolveValidNetworkId_null_deterministic() throws Exception {
         LPlatformClient lPlatformClient = mock(LPlatformClient.class);
-        LPlatformConfiguration lPlatformConfiguration = mock(
-                LPlatformConfiguration.class);
+        LPlatformConfiguration lPlatformConfiguration = mock(LPlatformConfiguration.class);
         VSystemConfiguration vSystemConfiguration = null;
         paramHandler.getIaasContext().add(vSystemConfiguration);
         List<Network> networks = new ArrayList<>();
@@ -158,11 +157,10 @@ public class RORVServerCommunicationTest {
     @Test
     public void resolveValidNetworkId_empty_deterministic() throws Exception {
         LPlatformClient lPlatformClient = mock(LPlatformClient.class);
-        LPlatformConfiguration lPlatformConfiguration = mock(
-                LPlatformConfiguration.class);
+        LPlatformConfiguration lPlatformConfiguration = mock(LPlatformConfiguration.class);
         paramHandler.getIaasContext().add(lPlatformConfiguration);
-        parameters.put(PropertyHandler.NETWORK_ID,
-                new Setting(PropertyHandler.NETWORK_ID, ""));
+        parameters.put(PropertyHandler.NETWORK_ID, new Setting(
+                PropertyHandler.NETWORK_ID, ""));
         List<Network> networks = new ArrayList<>();
         networks.add(new Network(NETWORKID1, "net", NETWORKID1, 2));
 
@@ -183,8 +181,7 @@ public class RORVServerCommunicationTest {
     @Test(expected = APPlatformException.class)
     public void resolveValidNetworkId_null_nondeterministic() throws Exception {
         LPlatformClient lPlatformClient = mock(LPlatformClient.class);
-        LPlatformConfiguration lPlatformConfiguration = mock(
-                LPlatformConfiguration.class);
+        LPlatformConfiguration lPlatformConfiguration = mock(LPlatformConfiguration.class);
         VSystemConfiguration vSystemConfiguration = null;
         paramHandler.getIaasContext().add(vSystemConfiguration);
         List<Network> networks = new ArrayList<>();
@@ -204,12 +201,11 @@ public class RORVServerCommunicationTest {
     @Test
     public void resolveValidNetworkId_name_deterministic() throws Exception {
         LPlatformClient lPlatformClient = mock(LPlatformClient.class);
-        LPlatformConfiguration lPlatformConfiguration = mock(
-                LPlatformConfiguration.class);
+        LPlatformConfiguration lPlatformConfiguration = mock(LPlatformConfiguration.class);
         VSystemConfiguration vSystemConfiguration = null;
         paramHandler.getIaasContext().add(vSystemConfiguration);
-        parameters.put(PropertyHandler.NETWORK_ID,
-                new Setting(PropertyHandler.NETWORK_ID, NETWORKID1 + "_name"));
+        parameters.put(PropertyHandler.NETWORK_ID, new Setting(
+                PropertyHandler.NETWORK_ID, NETWORKID1 + "_name"));
         List<Network> networks = new ArrayList<>();
         networks.add(new Network(NETWORKID1 + "_name", "net", NETWORKID1, 2));
         networks.add(new Network(NETWORKID2 + "_name", "net", NETWORKID2, 2));
@@ -231,12 +227,11 @@ public class RORVServerCommunicationTest {
     @Test
     public void resolveValidNetworkId_id_deterministic() throws Exception {
         LPlatformClient lPlatformClient = mock(LPlatformClient.class);
-        LPlatformConfiguration lPlatformConfiguration = mock(
-                LPlatformConfiguration.class);
+        LPlatformConfiguration lPlatformConfiguration = mock(LPlatformConfiguration.class);
         VSystemConfiguration vSystemConfiguration = null;
         paramHandler.getIaasContext().add(vSystemConfiguration);
-        parameters.put(PropertyHandler.NETWORK_ID,
-                new Setting(PropertyHandler.NETWORK_ID, NETWORKID1));
+        parameters.put(PropertyHandler.NETWORK_ID, new Setting(
+                PropertyHandler.NETWORK_ID, NETWORKID1));
         List<Network> networks = new ArrayList<>();
         networks.add(new Network(NETWORKID1 + "_name", "net", NETWORKID1, 2));
         networks.add(new Network(NETWORKID2 + "_name", "net", NETWORKID2, 2));
@@ -258,12 +253,11 @@ public class RORVServerCommunicationTest {
     @Test(expected = APPlatformException.class)
     public void resolveValidNetworkId_name_nondeterministic() throws Exception {
         LPlatformClient lPlatformClient = mock(LPlatformClient.class);
-        LPlatformConfiguration lPlatformConfiguration = mock(
-                LPlatformConfiguration.class);
+        LPlatformConfiguration lPlatformConfiguration = mock(LPlatformConfiguration.class);
         VSystemConfiguration vSystemConfiguration = null;
         paramHandler.getIaasContext().add(vSystemConfiguration);
-        parameters.put(PropertyHandler.NETWORK_ID,
-                new Setting(PropertyHandler.NETWORK_ID, NETWORKID1 + "_name"));
+        parameters.put(PropertyHandler.NETWORK_ID, new Setting(
+                PropertyHandler.NETWORK_ID, NETWORKID1 + "_name"));
         List<Network> networks = new ArrayList<>();
         networks.add(new Network(NETWORKID1 + "_name", "net", NETWORKID1, 2));
         networks.add(new Network(NETWORKID1 + "_name", "net", NETWORKID2, 2));
@@ -282,12 +276,11 @@ public class RORVServerCommunicationTest {
     public void isNetworkIdValid_Valid() throws Exception {
         // given
         LPlatformClient lPlatformClient = mock(LPlatformClient.class);
-        LPlatformConfiguration lPlatformConfiguration = mock(
-                LPlatformConfiguration.class);
+        LPlatformConfiguration lPlatformConfiguration = mock(LPlatformConfiguration.class);
         VSystemConfiguration vSystemConfiguration = null;
         paramHandler.getIaasContext().add(vSystemConfiguration);
-        parameters.put(PropertyHandler.NETWORK_ID,
-                new Setting(PropertyHandler.NETWORK_ID, NETWORKID1));
+        parameters.put(PropertyHandler.NETWORK_ID, new Setting(
+                PropertyHandler.NETWORK_ID, NETWORKID1));
         List<Network> networks = new ArrayList<>();
         networks.add(new Network("NETWORKID1", "net", NETWORKID1, 2));
         networks.add(new Network("NETWORKID2", "net", NETWORKID2, 2));
@@ -310,12 +303,11 @@ public class RORVServerCommunicationTest {
     public void isNetworkIdValid_NoNetworkIds() throws Exception {
         // given
         LPlatformClient lPlatformClient = mock(LPlatformClient.class);
-        LPlatformConfiguration lPlatformConfiguration = mock(
-                LPlatformConfiguration.class);
+        LPlatformConfiguration lPlatformConfiguration = mock(LPlatformConfiguration.class);
         VSystemConfiguration vSystemConfiguration = null;
         paramHandler.getIaasContext().add(vSystemConfiguration);
-        parameters.put(PropertyHandler.NETWORK_ID,
-                new Setting(PropertyHandler.NETWORK_ID, NETWORKID1));
+        parameters.put(PropertyHandler.NETWORK_ID, new Setting(
+                PropertyHandler.NETWORK_ID, NETWORKID1));
 
         doReturn(lPlatformClient).when(rorVServerCommunication)
                 .getLPlatformClient(paramHandler);
@@ -337,8 +329,8 @@ public class RORVServerCommunicationTest {
         // given
         Exception e = new Exception();
 
-        doThrow(e).when(rorVServerCommunication)
-                .getLPlatformClient(paramHandler);
+        doThrow(e).when(rorVServerCommunication).getLPlatformClient(
+                paramHandler);
 
         // when
         rorVServerCommunication.isNetworkIdValid(paramHandler);
@@ -349,8 +341,8 @@ public class RORVServerCommunicationTest {
     @Test
     public void isServerTypeValid_invalid_noServerTypes() throws Exception {
         RORClient rorClient = mock(RORClient.class);
-        doReturn(rorClient).when(rorVServerCommunication)
-                .getVdcClient(paramHandler);
+        doReturn(rorClient).when(rorVServerCommunication).getVdcClient(
+                paramHandler);
         doReturn(null).when(rorClient).listServerTypes();
         // when
 
@@ -366,14 +358,14 @@ public class RORVServerCommunicationTest {
             throws Exception {
         // given
         RORClient rorClient = mock(RORClient.class);
-        parameters.put(PropertyHandler.VSERVER_TYPE,
-                new Setting(PropertyHandler.VSERVER_TYPE, SERVERTYPE2));
+        parameters.put(PropertyHandler.VSERVER_TYPE, new Setting(
+                PropertyHandler.VSERVER_TYPE, SERVERTYPE2));
 
         List<String> serverList = new ArrayList<>();
         serverList.add(SERVERTYPE1);
 
-        doReturn(rorClient).when(rorVServerCommunication)
-                .getVdcClient(paramHandler);
+        doReturn(rorClient).when(rorVServerCommunication).getVdcClient(
+                paramHandler);
         doReturn(serverList).when(rorClient).listServerTypes();
         // when
 
@@ -388,15 +380,15 @@ public class RORVServerCommunicationTest {
     public void isServerTypeValid_valid() throws Exception {
         // given
         RORClient rorClient = mock(RORClient.class);
-        parameters.put(PropertyHandler.VSERVER_TYPE,
-                new Setting(PropertyHandler.VSERVER_TYPE, SERVERTYPE1));
+        parameters.put(PropertyHandler.VSERVER_TYPE, new Setting(
+                PropertyHandler.VSERVER_TYPE, SERVERTYPE1));
 
         List<String> serverList = new ArrayList<>();
         serverList.add(SERVERTYPE1);
         serverList.add(SERVERTYPE2);
 
-        doReturn(rorClient).when(rorVServerCommunication)
-                .getVdcClient(paramHandler);
+        doReturn(rorClient).when(rorVServerCommunication).getVdcClient(
+                paramHandler);
         doReturn(serverList).when(rorClient).listServerTypes();
         // when
 
@@ -465,8 +457,8 @@ public class RORVServerCommunicationTest {
     public void modifyVServerAttributes_SuspendException() throws Exception {
         // given
         LServerClient lServerClient = mock(LServerClient.class);
-        doReturn(lServerClient).when(rorVServerCommunication)
-                .getLServerClient(paramHandler);
+        doReturn(lServerClient).when(rorVServerCommunication).getLServerClient(
+                paramHandler);
         doReturn(null).when(lServerClient).getConfiguration();
 
         // when
@@ -480,11 +472,10 @@ public class RORVServerCommunicationTest {
         // given
         paramHandler.setVserverId("serverId");
         LServerClient lServerClient = mock(LServerClient.class);
-        LServerConfiguration lServerConfiguration = mock(
-                LServerConfiguration.class);
+        LServerConfiguration lServerConfiguration = mock(LServerConfiguration.class);
 
-        doReturn(lServerClient).when(rorVServerCommunication)
-                .getLServerClient(paramHandler);
+        doReturn(lServerClient).when(rorVServerCommunication).getLServerClient(
+                paramHandler);
         doReturn(lServerConfiguration).when(lServerClient).getConfiguration();
 
         // when
@@ -502,11 +493,10 @@ public class RORVServerCommunicationTest {
         paramHandler.setCountCPU("4");
 
         LServerClient lServerClient = mock(LServerClient.class);
-        LServerConfiguration lServerConfiguration = mock(
-                LServerConfiguration.class);
+        LServerConfiguration lServerConfiguration = mock(LServerConfiguration.class);
 
-        doReturn(lServerClient).when(rorVServerCommunication)
-                .getLServerClient(paramHandler);
+        doReturn(lServerClient).when(rorVServerCommunication).getLServerClient(
+                paramHandler);
         doReturn(lServerConfiguration).when(lServerClient).getConfiguration();
         doReturn("2").when(lServerConfiguration).getNumOfCPU();
         doReturn(LServerStatus.STARTING).when(lServerClient).getStatus();
@@ -525,11 +515,10 @@ public class RORVServerCommunicationTest {
         paramHandler.setCountCPU("4");
 
         LServerClient lServerClient = mock(LServerClient.class);
-        LServerConfiguration lServerConfiguration = mock(
-                LServerConfiguration.class);
+        LServerConfiguration lServerConfiguration = mock(LServerConfiguration.class);
 
-        doReturn(lServerClient).when(rorVServerCommunication)
-                .getLServerClient(paramHandler);
+        doReturn(lServerClient).when(rorVServerCommunication).getLServerClient(
+                paramHandler);
         doReturn(lServerConfiguration).when(lServerClient).getConfiguration();
         doReturn("2").when(lServerConfiguration).getNumOfCPU();
         doReturn(LServerStatus.RUNNING).when(lServerClient).getStatus();
@@ -549,11 +538,10 @@ public class RORVServerCommunicationTest {
         paramHandler.setCountCPU("4");
 
         LServerClient lServerClient = mock(LServerClient.class);
-        LServerConfiguration lServerConfiguration = mock(
-                LServerConfiguration.class);
+        LServerConfiguration lServerConfiguration = mock(LServerConfiguration.class);
 
-        doReturn(lServerClient).when(rorVServerCommunication)
-                .getLServerClient(paramHandler);
+        doReturn(lServerClient).when(rorVServerCommunication).getLServerClient(
+                paramHandler);
         doReturn(lServerConfiguration).when(lServerClient).getConfiguration();
         doReturn("2").when(lServerConfiguration).getNumOfCPU();
         doReturn(LServerStatus.STOPPING).when(lServerClient).getStatus();
@@ -570,8 +558,8 @@ public class RORVServerCommunicationTest {
     public void startVServer_NotStarting() throws Exception {
         // given
         LServerClient lServerClient = mock(LServerClient.class);
-        doReturn(lServerClient).when(rorVServerCommunication)
-                .getLServerClient(paramHandler);
+        doReturn(lServerClient).when(rorVServerCommunication).getLServerClient(
+                paramHandler);
         doReturn(LServerStatus.RUNNING).when(lServerClient).getStatus();
 
         // when
@@ -586,8 +574,8 @@ public class RORVServerCommunicationTest {
     public void startVServer_Starting() throws Exception {
         // given
         LServerClient lServerClient = mock(LServerClient.class);
-        doReturn(lServerClient).when(rorVServerCommunication)
-                .getLServerClient(paramHandler);
+        doReturn(lServerClient).when(rorVServerCommunication).getLServerClient(
+                paramHandler);
         doReturn(LServerStatus.STOPPED).when(lServerClient).getStatus();
 
         // when
@@ -602,8 +590,8 @@ public class RORVServerCommunicationTest {
     public void stopVServer_Stopping() throws Exception {
         // given
         LServerClient lServerClient = mock(LServerClient.class);
-        doReturn(lServerClient).when(rorVServerCommunication)
-                .getLServerClient(paramHandler);
+        doReturn(lServerClient).when(rorVServerCommunication).getLServerClient(
+                paramHandler);
         doReturn(LServerStatus.RUNNING).when(lServerClient).getStatus();
 
         // when
@@ -617,8 +605,8 @@ public class RORVServerCommunicationTest {
     public void stopVServer_NotStopping() throws Exception {
         // given
         LServerClient lServerClient = mock(LServerClient.class);
-        doReturn(lServerClient).when(rorVServerCommunication)
-                .getLServerClient(paramHandler);
+        doReturn(lServerClient).when(rorVServerCommunication).getLServerClient(
+                paramHandler);
         doReturn(LServerStatus.STOPPED).when(lServerClient).getStatus();
 
         // when
@@ -672,8 +660,7 @@ public class RORVServerCommunicationTest {
         LPlatformClient lPlatformClient = mock(LPlatformClient.class);
         ArrayList<LServerConfiguration> lServerList = new ArrayList<>();
         LServerConfiguration server1 = mock(LServerConfiguration.class);
-        LPlatformConfiguration configuration = mock(
-                LPlatformConfiguration.class);
+        LPlatformConfiguration configuration = mock(LPlatformConfiguration.class);
         lServerList.add(server1);
 
         doReturn(lPlatformClient).when(rorVServerCommunication)
@@ -699,8 +686,7 @@ public class RORVServerCommunicationTest {
         LPlatformClient lPlatformClient = mock(LPlatformClient.class);
         ArrayList<LServerConfiguration> lServerList = new ArrayList<>();
         LServerConfiguration server1 = mock(LServerConfiguration.class);
-        LPlatformConfiguration configuration = mock(
-                LPlatformConfiguration.class);
+        LPlatformConfiguration configuration = mock(LPlatformConfiguration.class);
         lServerList.add(server1);
 
         doReturn(lPlatformClient).when(rorVServerCommunication)
@@ -719,8 +705,8 @@ public class RORVServerCommunicationTest {
 
         doReturn(SERVERID1).when(server1).getServerId();
         doReturn(SERVERID1).when(lPlatformClient).createLServer(anyString(),
-                anyString(), anyString(), anyString(), anyString(), anyString(),
-                anyString());
+                anyString(), anyString(), anyString(), anyString(),
+                anyString(), anyString());
 
         // when
         String resultingServerId = rorVServerCommunication
@@ -759,9 +745,8 @@ public class RORVServerCommunicationTest {
         }
         // then
         catch (SuspendException se) {
-            assertEquals(
-                    Messages.get("en", "error_failed_to_stop_vserver",
-                            new Object[] { SERVER_ID, INSTANCENAME }),
+            assertEquals(Messages.get("en", "error_failed_to_stop_vserver",
+                    new Object[] { SERVER_ID, INSTANCENAME }),
                     se.getLocalizedMessage("en"));
             assertEquals(
                     Messages.getAll("error_failed_to_stop_vserver",
@@ -787,9 +772,8 @@ public class RORVServerCommunicationTest {
         }
         // then
         catch (SuspendException se) {
-            assertEquals(
-                    Messages.get("en", "error_failed_to_start_vserver",
-                            new Object[] { SERVER_ID, INSTANCENAME }),
+            assertEquals(Messages.get("en", "error_failed_to_start_vserver",
+                    new Object[] { SERVER_ID, INSTANCENAME }),
                     se.getLocalizedMessage("en"));
             assertEquals(
                     Messages.getAll("error_failed_to_start_vserver",
@@ -816,8 +800,8 @@ public class RORVServerCommunicationTest {
         // then
         catch (SuspendException se) {
             assertEquals(
-                    Messages.get("en", "error_state_vserver",
-                            new Object[] { SERVER_ID, INSTANCENAME }),
+                    Messages.get("en", "error_state_vserver", new Object[] {
+                            SERVER_ID, INSTANCENAME }),
                     se.getLocalizedMessage("en"));
             assertEquals(
                     Messages.getAll("error_state_vserver",
@@ -843,9 +827,8 @@ public class RORVServerCommunicationTest {
         }
         // then
         catch (SuspendException se) {
-            assertEquals(
-                    Messages.get("en", "error_unexpected_stop_vserver",
-                            new Object[] { SERVER_ID, INSTANCENAME }),
+            assertEquals(Messages.get("en", "error_unexpected_stop_vserver",
+                    new Object[] { SERVER_ID, INSTANCENAME }),
                     se.getLocalizedMessage("en"));
             assertEquals(
                     Messages.getAll("error_unexpected_stop_vserver",

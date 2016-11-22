@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
-import org.oscm.app.v1_0.data.LocalizedText;
+import org.oscm.app.v2_0.data.LocalizedText;
 
 /**
  * This class represents a singleton [GoF] facility for the I18N handling based

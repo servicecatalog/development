@@ -23,13 +23,12 @@ import org.oscm.app.ui.SessionConstants;
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.oscm.app.i18n.Messages;
-import org.oscm.app.v1_0.data.PasswordAuthentication;
-import org.oscm.app.v1_0.exceptions.APPlatformException;
-import org.oscm.app.v1_0.service.APPAuthenticationServiceBean;
-import org.oscm.app.v1_0.service.APPConfigurationServiceBean;
-import org.oscm.app.v1_0.service.APPTimerServiceBean;
+import org.oscm.app.v2_0.data.PasswordAuthentication;
+import org.oscm.app.v2_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.service.APPAuthenticationServiceBean;
+import org.oscm.app.v2_0.service.APPConfigurationServiceBean;
+import org.oscm.app.v2_0.service.APPTimerServiceBean;
 import org.oscm.vo.VOUserDetails;
 
 /**

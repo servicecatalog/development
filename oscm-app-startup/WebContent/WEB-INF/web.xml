@@ -106,16 +106,16 @@
  <ejb-local-ref>
   <ejb-ref-name>ejb/APPConfigurationService</ejb-ref-name>
   <ejb-ref-type>Session</ejb-ref-type>
-  <local>org.oscm.app.v1_0.service.APPConfigurationServiceBean</local>
+  <local>org.oscm.app.v2_0.service.APPConfigurationServiceBean</local>
  </ejb-local-ref>
   <ejb-local-ref>
   <ejb-ref-name>ejb/ServiceInstanceService</ejb-ref-name>
   <ejb-ref-type>Session</ejb-ref-type>
-  <local>org.oscm.app.v1_0.service.ServiceInstanceServiceBean</local>
+  <local>org.oscm.app.v2_0.service.ServiceInstanceServiceBean</local>
  </ejb-local-ref>
  <ejb-local-ref>
   <ejb-ref-name>ejb/APPTimerService</ejb-ref-name>
   <ejb-ref-type>Session</ejb-ref-type>
-  <local>org.oscm.app.v1_0.service.APPTimerServiceBean</local>
+  <local>org.oscm.app.v2_0.service.APPTimerServiceBean</local>
  </ejb-local-ref>
 </web-app>

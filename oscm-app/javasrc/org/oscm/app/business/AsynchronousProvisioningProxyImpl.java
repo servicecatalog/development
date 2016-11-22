@@ -13,25 +13,24 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import org.slf4j.Logger;
-
 import org.oscm.app.business.exceptions.BadResultException;
 import org.oscm.app.business.exceptions.ServiceInstanceNotFoundException;
 import org.oscm.app.dao.ServiceInstanceDAO;
 import org.oscm.app.domain.ProvisioningStatus;
 import org.oscm.app.domain.ServiceInstance;
-import org.oscm.app.v1_0.data.InstanceStatus;
-import org.oscm.app.v1_0.data.ProvisioningSettings;
-import org.oscm.app.v1_0.exceptions.APPlatformException;
-import org.oscm.app.v1_0.intf.APPlatformController;
-import org.oscm.app.v1_0.service.APPConfigurationServiceBean;
-import org.oscm.app.v1_0.service.APPTimerServiceBean;
+import org.oscm.app.v2_0.data.InstanceStatus;
+import org.oscm.app.v2_0.data.ProvisioningSettings;
+import org.oscm.app.v2_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.intf.APPlatformController;
+import org.oscm.app.v2_0.service.APPConfigurationServiceBean;
+import org.oscm.app.v2_0.service.APPTimerServiceBean;
 import org.oscm.provisioning.data.BaseResult;
 import org.oscm.provisioning.data.User;
 import org.oscm.provisioning.intf.ProvisioningService;
 
 /**
  * @author kulle
- *
+ * 
  */
 public class AsynchronousProvisioningProxyImpl {
 

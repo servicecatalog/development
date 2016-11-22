@@ -15,8 +15,8 @@ import java.util.List;
 
 import org.junit.Test;
 
-import org.oscm.app.v1_0.data.LocalizedText;
-import org.oscm.app.v1_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.data.LocalizedText;
+import org.oscm.app.v2_0.exceptions.APPlatformException;
 
 /**
  * @author Dirk Bernsau

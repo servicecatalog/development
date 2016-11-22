@@ -8,7 +8,7 @@
 
 package org.oscm.app.vmware.business.balancer;
 
-import org.oscm.app.v1_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.exceptions.APPlatformException;
 import org.oscm.app.vmware.business.VMPropertyHandler;
 import org.oscm.app.vmware.business.model.VMwareStorage;
 import org.oscm.app.vmware.i18n.Messages;
@@ -18,9 +18,9 @@ import org.slf4j.LoggerFactory;
 /**
  * Storage balancer implementation selecting the least used storage from all
  * available storages to equally distribute the storage usage in the system.
- *
+ * 
  * @author Dirk Bernsau
- *
+ * 
  */
 public class EquipartitionStorageBalancer extends StorageBalancer {
 

@@ -28,10 +28,10 @@ import org.slf4j.LoggerFactory;
 
 import org.oscm.app.common.i18n.Messages;
 import org.oscm.app.common.intf.ControllerAccess;
-import org.oscm.app.v1_0.APPlatformServiceFactory;
-import org.oscm.app.v1_0.data.PasswordAuthentication;
-import org.oscm.app.v1_0.data.User;
-import org.oscm.app.v1_0.intf.APPlatformService;
+import org.oscm.app.v2_0.APPlatformServiceFactory;
+import org.oscm.app.v2_0.data.PasswordAuthentication;
+import org.oscm.app.v2_0.data.User;
+import org.oscm.app.v2_0.intf.APPlatformService;
 
 /**
  * @author Dirk Bernsau

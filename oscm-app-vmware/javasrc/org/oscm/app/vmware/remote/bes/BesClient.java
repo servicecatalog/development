@@ -8,7 +8,7 @@
 
 package org.oscm.app.vmware.remote.bes;
 
-import org.oscm.app.v1_0.BSSWebServiceFactory;
+import org.oscm.app.v2_0.BSSWebServiceFactory;
 import org.oscm.app.vmware.persistence.APPDataAccessService;
 
 public class BesClient {

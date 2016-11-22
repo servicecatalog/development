@@ -27,11 +27,11 @@ import javax.servlet.http.HttpSession;
 
 import org.oscm.app.common.i18n.Messages;
 import org.oscm.app.common.intf.ControllerAccess;
-import org.oscm.app.v1_0.APPlatformServiceFactory;
-import org.oscm.app.v1_0.data.ControllerConfigurationKey;
-import org.oscm.app.v1_0.data.PasswordAuthentication;
-import org.oscm.app.v1_0.data.Setting;
-import org.oscm.app.v1_0.intf.APPlatformService;
+import org.oscm.app.v2_0.APPlatformServiceFactory;
+import org.oscm.app.v2_0.data.ControllerConfigurationKey;
+import org.oscm.app.v2_0.data.PasswordAuthentication;
+import org.oscm.app.v2_0.data.Setting;
+import org.oscm.app.v2_0.intf.APPlatformService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -232,8 +232,8 @@ public class ConfigurationBean implements Serializable {
             for (String key : settings.keySet()) {
                 // Add next item to local cache
                 Setting setting = settings.get(key);
-                addConfigurationItem(key,
-                        setting != null ? setting.getValue() : null);
+                addConfigurationItem(key, setting != null ? setting.getValue()
+                        : null);
             }
 
             // Build groups which are displayed to the user
@@ -318,8 +318,8 @@ public class ConfigurationBean implements Serializable {
      * Apply current locale to given configuration item
      */
     private void applyLocale(ConfigurationItem item) {
-        String tooltip = controllerAccess.getMessage(locale,
-                MSG_TOOLTIP_PREFIX + item.getKey(), new Object[0]);
+        String tooltip = controllerAccess.getMessage(locale, MSG_TOOLTIP_PREFIX
+                + item.getKey(), new Object[0]);
         if (tooltip != null && !tooltip.startsWith("!")) {
             item.setTooltip(tooltip);
         } else {
@@ -450,8 +450,9 @@ public class ConfigurationBean implements Serializable {
      * Sets an error status which will be displayed to the user
      */
     private void setErrorStatus(Throwable e) {
-        status = "*** " + ((e.getMessage() != null) ? e.getMessage()
-                : e.getClass().getName());
+        status = "*** "
+                + ((e.getMessage() != null) ? e.getMessage() : e.getClass()
+                        .getName());
         statusClass = STATUS_CLASS_ERROR;
     }
 

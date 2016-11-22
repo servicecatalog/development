@@ -10,7 +10,7 @@ package org.oscm.app.vmware.business.model;
 
 import java.text.DecimalFormat;
 
-import org.oscm.app.v1_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.exceptions.APPlatformException;
 import org.oscm.app.vmware.business.VMPropertyHandler;
 import org.oscm.app.vmware.business.VMwareDatacenterInventory;
 import org.oscm.app.vmware.business.VMwareValue;
@@ -20,7 +20,7 @@ import org.oscm.app.vmware.business.balancer.VMwareBalancer;
 
 /**
  * Implements one ESX host in the VMware server structure.
- *
+ * 
  * @author soehnges
  */
 public class VMwareHost {
@@ -95,8 +95,7 @@ public class VMwareHost {
 
     public boolean checkMemoryLimit(long requestedMegaBytes) {
         if (requestedMegaBytes < 0) {
-            throw new IllegalArgumentException(
-                    "Cannot request negative memory");
+            throw new IllegalArgumentException("Cannot request negative memory");
         }
         return (allocatedMemory + requestedMegaBytes) <= getMemoryLimit();
     }
@@ -203,9 +202,8 @@ public class VMwareHost {
     public String getAllocationAsString() {
         StringBuffer sb = new StringBuffer("[Mem:");
         VMwareValue memL = VMwareValue.parse(allocatedMemory + "MB");
-        sb.append(allocatedMemory >= 1024
-                ? DF.format(memL.getValue(Unit.GB)) + "GB"
-                : DF.format(memL.getValue(Unit.MB)) + "MB");
+        sb.append(allocatedMemory >= 1024 ? DF.format(memL.getValue(Unit.GB))
+                + "GB" : DF.format(memL.getValue(Unit.MB)) + "MB");
         sb.append("|CPU:").append(allocatedCPUs);
         sb.append("|VM:").append(allocatedVMs);
         sb.append("]");
