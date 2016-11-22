@@ -77,7 +77,8 @@ public class AuthorizationFilter implements Filter {
         }
 
         HttpServletRequest httpRequest = (HttpServletRequest) request;
-        if (!httpRequest.getServletPath().matches(excludeUrlPattern)) {
+        String path = httpRequest.getServletPath();
+        if (path != null && path.matches(excludeUrlPattern)) {
             chain.doFilter(httpRequest, response);
             return;
         }
@@ -89,7 +90,6 @@ public class AuthorizationFilter implements Filter {
         HttpServletResponse httpResponse = (HttpServletResponse) response;
         HttpSession session = httpRequest.getSession();
         Object serverInfoLoggedIn = session.getAttribute("serverInfoLoggedIn");
-        String path = httpRequest.getServletPath();
         if ((path != null && path.matches("/serverInformation.jsf"))
                 || serverInfoLoggedIn != null) {
             if (checkToken(httpRequest) || serverInfoLoggedIn != null) {

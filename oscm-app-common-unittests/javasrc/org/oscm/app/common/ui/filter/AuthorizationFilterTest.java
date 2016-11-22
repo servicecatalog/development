@@ -97,6 +97,8 @@ public class AuthorizationFilterTest extends EJBTestBase {
         Mockito.when(resp.getWriter()).thenReturn(new PrintWriter(responseOut));
         Mockito.when(req.getSession()).thenReturn(session);
         Mockito.when(req.getLocale()).thenReturn(new Locale("en"));
+        Mockito.when(config.getInitParameter("exclude-url-pattern")).thenReturn(
+                "(.*/a4j/.*|.*/img/.*|.*/css/.*|.*/fonts/.*|.*/scripts/.*|.*/faq/.*|.*/org.richfaces.resources|.*/javax.faces.resource/.*|^/public/.*)");
 
         controllerAccess = Mockito.mock(ControllerAccess.class);
         Mockito.when(controllerAccess.getControllerId())
@@ -104,15 +106,13 @@ public class AuthorizationFilterTest extends EJBTestBase {
 
         filter = new AuthorizationFilter();
         filter.setControllerAccess(controllerAccess);
+        filter.init(config);
     }
 
     @Test
     public void testAuthenticateLoggedIn() throws Exception {
         Mockito.when(session.getAttribute(Matchers.eq("loggedInUserId")))
                 .thenReturn("user1");
-
-        // Init
-        filter.init(config);
 
         // And go!
         filter.doFilter(req, resp, chain);
@@ -172,9 +172,6 @@ public class AuthorizationFilterTest extends EJBTestBase {
         Mockito.when(req.getHeader(Matchers.eq("Authorization")))
                 .thenReturn(null);
 
-        // Init
-        filter.init(config);
-
         // And go!
         filter.doFilter(req, resp, chain);
 
@@ -193,8 +190,6 @@ public class AuthorizationFilterTest extends EJBTestBase {
         Mockito.when(req.getHeader(Matchers.eq("Authorization")))
                 .thenReturn(null);
         Mockito.when(req.getLocale()).thenReturn(new Locale("ja"));
-        // given
-        filter.init(config);
 
         // when
         filter.doFilter(req, resp, chain);
