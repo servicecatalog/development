@@ -16,7 +16,10 @@ import javax.servlet.http.HttpSession;
  * @author hoffmann
  */
 public class ConnectionInfo {
-
+    
+    private static final String COMMON_PROPERTIES_PATH = "common.properties";
+    private static final String TENANT_ID = "tenantID";
+    
     private String baseUrl;
 
     private String version;
@@ -28,6 +31,8 @@ public class ConnectionInfo {
     private boolean clientCert;
 
     private String authMode;
+    
+    private String tenantId;
 
     public String getBaseUrl() {
         return baseUrl;
@@ -74,6 +79,12 @@ public class ConnectionInfo {
         info.setPassword("secret");
         info.setVersion("v1.9");
         info.setAuthMode("INTERNAL");
+        
+        String tenantId = PropertyLoader.getInstance()
+                .load(COMMON_PROPERTIES_PATH).getProperty(TENANT_ID);
+        
+        info.setTenantId(tenantId);
+        
         return info;
     }
 
@@ -109,5 +120,13 @@ public class ConnectionInfo {
      */
     public String getAuthMode() {
         return authMode;
+    }
+    
+    public String getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(String tenantId) {
+        this.tenantId = tenantId;
     }
 }

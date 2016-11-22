@@ -47,8 +47,26 @@ public class PortFactory {
             }
         } else {
             s.append("STS?wsdl");
+            String tenantId = connection.getTenantId();
+            
+            if(isTenantIdValid(tenantId)){
+                s.append("&tenantID="+tenantId);
+            }
         }
         return new URL(s.toString());
+    }
+    
+    private static boolean isTenantIdValid(String tenantId) {
+
+        if (tenantId == null) {
+            return false;
+        }
+
+        if (tenantId.length() != 8) {
+            return false;
+        }
+
+        return true;
     }
 
     private static URL getEndpointLocation(final ConnectionInfo connection,
