@@ -70,7 +70,6 @@ public class ExtensionInterfaceBean implements Serializable {
             this.subscriptionId = parameters.get("subId") != null
                     ? URLDecoder.decode(parameters.get("subId"), "UTF-8") : "";
         } catch (UnsupportedEncodingException e) {
-            // TODO Auto-generated catch block
             this.subscriptionId = Messages.get(locale,
                     "ui.extentionInterface.noSubscriptionName");
         }
