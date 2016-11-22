@@ -27,6 +27,9 @@ import org.oscm.app.v1_0.data.User;
 
 public class APPInterfaceDataConverter {
 
+    private final String PWD_SUFFIX = "_PWD";
+    private final String PASS_SUFFIX = "_PASS";
+
     public org.oscm.app.v2_0.data.ControllerConfigurationKey convertToNew(
             ControllerConfigurationKey controllerConfigurationKey) {
         if (controllerConfigurationKey == null) {
@@ -531,7 +534,6 @@ public class APPInterfaceDataConverter {
         return setting.getValue();
     }
 
-    // TODO anaylize key for settings value, encrypted...
     public HashMap<String, org.oscm.app.v2_0.data.Setting> convertToNew(
             HashMap<String, String> map) {
         if (map == null) {
@@ -542,7 +544,13 @@ public class APPInterfaceDataConverter {
         for (String key : map.keySet()) {
             org.oscm.app.v2_0.data.Setting setting = new org.oscm.app.v2_0.data.Setting(
                     key, map.get(key));
+            if (key.endsWith(PASS_SUFFIX) || key.endsWith(PWD_SUFFIX)) {
+                setting.setEncrypted(true);
+            }
             newMap.put(key, setting);
+            if (key.endsWith(PASS_SUFFIX) || key.endsWith(PWD_SUFFIX)) {
+                setting.setEncrypted(true);
+            }
         }
         return newMap;
     }
