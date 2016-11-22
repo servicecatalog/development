@@ -5,7 +5,7 @@
 	<projects>
 		<project>oscm-app</project>
 		<project>oscm-app-ear</project>
-		<project>oscm-app-extsvc-1-0</project>
+		<project>oscm-app-extsvc-2-0</project>
 		<project>oscm-app-iaas</project>
 		<project>oscm-app-install-pack</project>
 		<project>oscm-app-openstack</project>
