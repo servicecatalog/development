@@ -89,7 +89,15 @@
           <f:converter converterId="trimConverter" />
         </h:inputSecret>
         <h:outputText id ="pwdValueRO" label="#{row.label}" value="*****"
-                     rendered="#{row.parameterDefinition.valueTypeString and row.passwordType and readOnly}"/>
+                     rendered="#{row.parameterDefinition.valueTypeString and readOnly}"/>
+        <h:inputSecret id="pwdTypeValue" label="#{row.label}" onchange="setDirty(true)" value="#{row.parameter.value}"
+          maxlength="#{appBean.descriptionLen}" required="#{row.parameterDefinition.mandatory}" dataType="string"
+          disabled="false" rendered="#{row.parameterDefinition.valueTypePWD and not readOnly}" redisplay="true">
+          <f:validator validatorId="ParameterValueValidator" />
+          <f:converter converterId="trimConverter" />
+        </h:inputSecret>
+        <h:outputText id ="pwdTypeValueRO" label="#{row.label}" value="*****"
+                     rendered="#{row.parameterDefinition.valueTypePWD and readOnly}"/>
         <!-- enumeration value-->
         <t:inputHidden id="enumValue" value="#{row.parameter.value}"
           rendered="#{row.parameterDefinition.valueTypeEnumeration and not row.option}" />
