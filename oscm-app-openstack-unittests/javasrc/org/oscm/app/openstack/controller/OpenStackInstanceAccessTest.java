@@ -30,6 +30,7 @@ import org.oscm.app.openstack.MockURLStreamHandler;
 import org.oscm.app.openstack.OpenStackConnection;
 import org.oscm.app.v2_0.data.PasswordAuthentication;
 import org.oscm.app.v2_0.data.ProvisioningSettings;
+import org.oscm.app.v2_0.data.Setting;
 import org.oscm.app.v2_0.exceptions.APPlatformException;
 import org.oscm.app.v2_0.intf.APPlatformService;
 import org.oscm.test.EJBTestBase;
@@ -43,8 +44,8 @@ public class OpenStackInstanceAccessTest extends EJBTestBase {
 
     private APPlatformService platformService;
     private InstanceAccess instanceAccess;
-    private final HashMap<String, String> parameters = new HashMap<String, String>();
-    private final HashMap<String, String> configSettings = new HashMap<String, String>();
+    private final HashMap<String, Setting> parameters = new HashMap<String, Setting>();
+    private final HashMap<String, Setting> configSettings = new HashMap<String, Setting>();
     private final ProvisioningSettings settings = new ProvisioningSettings(
             parameters, configSettings, "en");
     private final PropertyHandler paramHandler = new PropertyHandler(settings);
@@ -168,23 +169,33 @@ public class OpenStackInstanceAccessTest extends EJBTestBase {
 
     private void createBasicParameters(String instanceName,
             String templateName, String httpMethod) {
-        parameters.put(PropertyHandler.STACK_NAME, instanceName);
-        parameters.put(PropertyHandler.TEMPLATE_NAME, templateName);
+        parameters.put(PropertyHandler.STACK_NAME, new Setting(
+                PropertyHandler.STACK_NAME, instanceName));
+        parameters.put(PropertyHandler.TEMPLATE_NAME, new Setting(
+                PropertyHandler.TEMPLATE_NAME, templateName));
         parameters.put(PropertyHandler.TEMPLATE_PARAMETER_PREFIX + "KeyName",
-                "key");
+                new Setting(PropertyHandler.TEMPLATE_PARAMETER_PREFIX
+                        + "KeyName", "key"));
         if (httpMethod == "https") {
-            configSettings.put(PropertyHandler.KEYSTONE_API_URL,
-                    "https://keystone:8080/v3/auth");
+            configSettings.put(PropertyHandler.KEYSTONE_API_URL, new Setting(
+                    PropertyHandler.KEYSTONE_API_URL,
+                    "https://keystone:8080/v3/auth"));
         } else {
 
-            configSettings.put(PropertyHandler.KEYSTONE_API_URL,
-                    "http://keystone:8080/v3/auth");
+            configSettings.put(PropertyHandler.KEYSTONE_API_URL, new Setting(
+                    PropertyHandler.KEYSTONE_API_URL,
+                    "http://keystone:8080/v3/auth"));
         }
-        configSettings.put(PropertyHandler.DOMAIN_NAME, "testDomain");
-        configSettings.put(PropertyHandler.TENANT_ID, "testTenantID");
-        configSettings.put(PropertyHandler.API_USER_NAME, "api_user");
-        configSettings.put(PropertyHandler.API_USER_PWD, "secret");
-        configSettings.put(PropertyHandler.TEMPLATE_BASE_URL,
-                "http://estfarmaki2:8880/templates/");
+        configSettings.put(PropertyHandler.DOMAIN_NAME, new Setting(
+                PropertyHandler.DOMAIN_NAME, "testDomain"));
+        configSettings.put(PropertyHandler.TENANT_ID, new Setting(
+                PropertyHandler.TENANT_ID, "testTenantID"));
+        configSettings.put(PropertyHandler.API_USER_NAME, new Setting(
+                PropertyHandler.API_USER_NAME, "api_user"));
+        configSettings.put(PropertyHandler.API_USER_PWD, new Setting(
+                PropertyHandler.API_USER_PWD, "secret"));
+        configSettings.put(PropertyHandler.TEMPLATE_BASE_URL, new Setting(
+                PropertyHandler.TEMPLATE_BASE_URL,
+                "http://estfarmaki2:8880/templates/"));
     }
 }
