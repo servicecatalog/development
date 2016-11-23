@@ -299,19 +299,13 @@ public class MySubscriptionsCtrl implements Serializable {
         Date date = new Date();
         long timestamp = date.getTime();
 
-        String encodedSubId = encodeParam(subId);
+        String encodedSubId = new String(
+                Base64.encodeBase64(subId.getBytes("UTF-8")), "UTF-8");
 
         return model.getSelectedSubscription().getCustomTabUrl() + "?orgId="
                 + orgId + "&subId=" + encodedSubId + "&instId=" + instId
-                + "&token="
-                + encodeParam(token + "_" + cipher_string + "_" + timestamp);
-    }
-
-    private String encodeParam(String value)
-            throws UnsupportedEncodingException {
-
-        return URLEncoder.encode(value, "UTF-8");
-
+                + "&token=" + URLEncoder.encode(
+                        token + "_" + cipher_string + "_" + timestamp, "UTF-8");
     }
 
 }
