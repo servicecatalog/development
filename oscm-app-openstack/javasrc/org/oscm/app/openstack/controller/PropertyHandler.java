@@ -202,8 +202,8 @@ public class PropertyHandler {
             }
             return new URL(new URL(baseUrl), url).toExternalForm();
         } catch (MalformedURLException e) {
-            throw new HeatException("Cannot generate template URL: "
-                    + e.getMessage());
+            throw new HeatException(
+                    "Cannot generate template URL: " + e.getMessage());
         }
     }
 
@@ -240,9 +240,8 @@ public class PropertyHandler {
                         // below if execute only if technical service parameter
                         // have a
                         // security group parameters
-                        securityGroup = key
-                                .substring(TEMPLATE_PARAMETER_ARRAY_PREFIX
-                                        .length());
+                        securityGroup = key.substring(
+                                TEMPLATE_PARAMETER_ARRAY_PREFIX.length());
                         String securityGroupArray[] = settings.getParameters()
                                 .get(key).getValue().split(",");
                         for (String groupName : securityGroupArray) {
@@ -252,8 +251,10 @@ public class PropertyHandler {
                                 securityGroupSecurityGroup);
 
                     } else {
-                        parameters.put(key.substring(TEMPLATE_PARAMETER_PREFIX
-                                .length()), settings.getParameters().get(key));
+                        parameters.put(
+                                key.substring(
+                                        TEMPLATE_PARAMETER_PREFIX.length()),
+                                settings.getParameters().get(key).getValue());
                     }
                 }
 
@@ -322,7 +323,8 @@ public class PropertyHandler {
      * @return the user name
      */
     public String getUserName() {
-        return getValidatedProperty(settings.getConfigSettings(), API_USER_NAME);
+        return getValidatedProperty(settings.getConfigSettings(),
+                API_USER_NAME);
     }
 
     /**
@@ -436,10 +438,11 @@ public class PropertyHandler {
             return 0;
         }
         try {
-            return Long.parseLong(getValue(READY_TIMEOUT,
-                    settings.getConfigSettings()));
+            return Long.parseLong(
+                    getValue(READY_TIMEOUT, settings.getConfigSettings()));
         } catch (NumberFormatException ex) {
-            LOGGER.warn("Wrong value set for property 'READY_TIMEOUT' and therefore ignored");
+            LOGGER.warn(
+                    "Wrong value set for property 'READY_TIMEOUT' and therefore ignored");
         }
         return 0;
 
@@ -450,7 +453,8 @@ public class PropertyHandler {
         return setting != null ? setting.getValue() : null;
     }
 
-    private void setValue(String key, String value, Map<String, Setting> target) {
+    private void setValue(String key, String value,
+            Map<String, Setting> target) {
         target.put(key, new Setting(key, value));
     }
 

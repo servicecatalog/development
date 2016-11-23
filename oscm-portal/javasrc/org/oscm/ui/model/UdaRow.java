@@ -196,4 +196,12 @@ public class UdaRow implements Serializable {
             this.setPasswordValueToStore("");
         }
     }
+
+    public String getUdaValueToShow() {
+        if (this.isInputEncrypted()) {
+            return HIDDEN_PWD;
+        } else {
+            return this.getUdaValue();
+        }
+    }
 }

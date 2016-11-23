@@ -201,7 +201,7 @@ public class NovaProcessor {
      * @throws APPlatformException
      * @throws NovaException
      */
-    public List<Server> getServersDetails(PropertyHandler ph)
+    public List<Server> getServersDetails(PropertyHandler ph, boolean moreInfo)
             throws HeatException, APPlatformException, NovaException {
         OpenStackConnection connection = getConnection(ph);
 
@@ -219,7 +219,7 @@ public class NovaProcessor {
         for (String id : serverIds) {
             Server server = new Server(id);
             try {
-                server = nc.getServerDetails(ph, id);
+                server = nc.getServerDetails(ph, id, moreInfo);
             } catch (OpenStackConnectionException ex) {
                 if (ex.getResponseCode() == 401) {
                     logger.info(
@@ -232,14 +232,14 @@ public class NovaProcessor {
                     try {
                         connection = getConnection(ph);
                         nc = new NovaClient(connection);
-                        server = nc.getServerDetails(ph, id);
+                        server = nc.getServerDetails(ph, id, moreInfo);
                     } catch (OpenStackConnectionException e) {
                         logger.error(
                                 "NovaClient.getServerDetails() Could not get server status (Server ID:"
                                         + id + ") in stack (Stack ID: "
                                         + ph.getStackId() + ")", e);
                         server.setName("");
-                        server.setStatus(ServerStatus.ERROR.toString());
+                        server.setStatus(ServerStatus.UNKNOWN.toString());
                     }
                 } else {
                     logger.error(
@@ -247,7 +247,7 @@ public class NovaProcessor {
                                     + id + ") in stack (Stack ID: "
                                     + ph.getStackId() + ")", ex);
                     server.setName("");
-                    server.setStatus(ServerStatus.ERROR.toString());
+                    server.setStatus(ServerStatus.UNKNOWN.toString());
                 }
             }
             servers.add(server);

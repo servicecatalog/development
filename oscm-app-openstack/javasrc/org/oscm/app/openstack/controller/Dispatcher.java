@@ -150,15 +150,17 @@ public class Dispatcher {
                 break;
 
             case STARTING:
-                servers = new NovaProcessor().getServersDetails(properties);
+                servers = new NovaProcessor().getServersDetails(properties,
+                        false);
                 errorServers = new ArrayList<Server>();
                 for (Server server : servers) {
                     if (server.getStatus().equals(
                             ServerStatus.ACTIVE.toString())) {
                         successServers.add(server);
                     }
-                    if (server.getStatus()
-                            .equals(ServerStatus.ERROR.toString())) {
+                    if (server.getStatus().equals(ServerStatus.ERROR.toString())
+                            || server.getStatus()
+                                    .equals(ServerStatus.UNKNOWN.toString())) {
                         errorServers.add(server);
                     }
                 }
@@ -166,7 +168,7 @@ public class Dispatcher {
                 logger.debug(Integer.toString(successServers.size()) + " of "
                         + Integer.toString(servers.size()) + " VMs started");
                 logger.debug(Integer.toString(errorServers.size())
-                        + " VMs are ERROR status");
+                        + " VMs are ERROR or UNKNOWN status");
                 if (errorServers.size() == 0) {
                     if (successServers.size() == servers.size()) {
                         stack = new HeatProcessor().getStackDetails(properties);
@@ -206,15 +208,17 @@ public class Dispatcher {
                 break;
 
             case STOPPING:
-                servers = new NovaProcessor().getServersDetails(properties);
+                servers = new NovaProcessor().getServersDetails(properties,
+                        false);
                 errorServers = new ArrayList<Server>();
                 for (Server server : servers) {
                     if (server.getStatus().equals(
                             ServerStatus.SHUTOFF.toString())) {
                         successServers.add(server);
                     }
-                    if (server.getStatus()
-                            .equals(ServerStatus.ERROR.toString())) {
+                    if (server.getStatus().equals(ServerStatus.ERROR.toString())
+                            || server.getStatus()
+                                    .equals(ServerStatus.UNKNOWN.toString())) {
                         errorServers.add(server);
                     }
                 }
@@ -222,7 +226,7 @@ public class Dispatcher {
                 logger.debug(Integer.toString(successServers.size()) + " of "
                         + Integer.toString(servers.size()) + " VMs stopped");
                 logger.debug(Integer.toString(errorServers.size())
-                        + " VMs are ERROR status");
+                        + " VMs are ERROR or UNKNOWN status");
                 if (successServers.size() == servers.size()) {
                     stack = new HeatProcessor().getStackDetails(properties);
                     result.setAccessInfo(getAccessInfo(stack));

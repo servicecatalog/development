@@ -82,8 +82,7 @@ public class EC2Communication {
     /**
      * Constructor
      * 
-     * @param PropertyHandler
-     *            ph
+     * @param ph
      */
     public EC2Communication(PropertyHandler ph) {
         this.ph = ph;
@@ -160,8 +159,7 @@ public class EC2Communication {
     /**
      * Define AWS mockup for unit tests
      * 
-     * @param AmazonEC2Client
-     *            ec2
+     * @param ec2
      */
     public static void useMock(AmazonEC2Client ec2) {
         ec2_stub = ec2;
@@ -170,8 +168,8 @@ public class EC2Communication {
     /**
      * Allow mocking of EC2 client by having it in separate creation method
      * 
-     * @param AWSCredentialsProvider
-     * @param ClientConfiguration
+     * @param credentialsProvider
+     * @param clientConfiguration
      */
     AmazonEC2Client getEC2(AWSCredentialsProvider credentialsProvider,
             ClientConfiguration clientConfiguration) {
@@ -525,6 +523,18 @@ public class EC2Communication {
             }
         }
         return null;
+    }
+
+    public List<Instance> getInstance(String instanceId) {
+        DescribeInstancesResult result = getEC2().describeInstances(
+                new DescribeInstancesRequest().withInstanceIds(instanceId));
+        List<Reservation> reservations = result.getReservations();
+        List<Instance> instances = new ArrayList<>();
+
+        for (Reservation reservation : reservations) {
+            instances.addAll(reservation.getInstances());
+        }
+        return instances;
     }
 
     private String getTextBASE64(String url) throws APPlatformException {
