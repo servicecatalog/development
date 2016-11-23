@@ -22,6 +22,7 @@ import javax.faces.component.UIViewRoot;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 
+import org.apache.commons.codec.binary.Base64;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.oscm.app.common.intf.InstanceAccess;
@@ -53,23 +54,28 @@ public class ExtensionInterfaceBeanTest extends EJBTestBase {
         instanceAccess = Mockito.mock(InstanceAccess.class);
         UIViewRoot viewRoot = Mockito.mock(UIViewRoot.class);
         paramters = new HashMap<String, String>();
+        if (subscriptionId != null) {
+            subscriptionId = new String(
+                    Base64.encodeBase64(subscriptionId.getBytes("UTF-8")),
+                    "UTF-8");
+        }
         paramters.put("subId", subscriptionId);
         paramters.put("instId", instanceId);
 
         serverInfo = getServerInfoMock(3);
 
-        Mockito.when(facesContext.getExternalContext()).thenReturn(
-                externalContext);
+        Mockito.when(facesContext.getExternalContext())
+                .thenReturn(externalContext);
         Mockito.when(facesContext.getApplication()).thenReturn(application);
-        Mockito.when(externalContext.getRequestParameterMap()).thenReturn(
-                paramters);
+        Mockito.when(externalContext.getRequestParameterMap())
+                .thenReturn(paramters);
         Mockito.when(facesContext.getViewRoot()).thenReturn(viewRoot);
         Mockito.when(viewRoot.getLocale()).thenReturn(new Locale("en"));
-        Mockito.when(instanceAccess.getAccessInfo(instanceId)).thenReturn(
-                "Access info from IaaS");
+        Mockito.when(instanceAccess.getAccessInfo(instanceId))
+                .thenReturn("Access info from IaaS");
         Mockito.<List<? extends ServerInformation>> when(
-                instanceAccess.getServerDetails(instanceId)).thenReturn(
-                serverInfo);
+                instanceAccess.getServerDetails(instanceId))
+                .thenReturn(serverInfo);
 
         ExtensionInterfaceBean bean = new ExtensionInterfaceBean() {
             private static final long serialVersionUID = -7419653173313779916L;
@@ -95,21 +101,21 @@ public class ExtensionInterfaceBeanTest extends EJBTestBase {
         for (int i = 0; i < numberOfServer; i++) {
             ServerInformation server = Mockito.mock(ServerInformation.class);
             Mockito.when(server.getId()).thenReturn(String.valueOf(i + 1));
-            Mockito.when(server.getName()).thenReturn(
-                    "instance" + String.valueOf(i + 1));
-            Mockito.when(server.getPrivateIP()).thenReturn(
-                    Arrays.asList("192.168.0." + i,
-                            "192.168.0." + String.valueOf(i + 1), "192.168.0."
-                                    + String.valueOf(i + 2)));
-            Mockito.when(server.getPublicIP()).thenReturn(
-                    Arrays.asList("10.1.0." + i,
-                            "10.1.0." + String.valueOf(i + 1)));
+            Mockito.when(server.getName())
+                    .thenReturn("instance" + String.valueOf(i + 1));
+            Mockito.when(server.getPrivateIP())
+                    .thenReturn(Arrays.asList("192.168.0." + i,
+                            "192.168.0." + String.valueOf(i + 1),
+                            "192.168.0." + String.valueOf(i + 2)));
+            Mockito.when(server.getPublicIP()).thenReturn(Arrays
+                    .asList("10.1.0." + i, "10.1.0." + String.valueOf(i + 1)));
             Mockito.when(server.getStatus())
                     .thenReturn(status.get(3 % (i + 1)));
             Mockito.when(server.getType()).thenReturn(type.get(3 % (i + 1)));
-            Mockito.when(server.getPrivateIPasString()).thenReturn(
-                    "192.168.0." + i + "\n192.168.0." + String.valueOf(i + 1)
-                            + "\n192.168.0." + String.valueOf(i + 2));
+            Mockito.when(server.getPrivateIPasString())
+                    .thenReturn("192.168.0." + i + "\n192.168.0."
+                            + String.valueOf(i + 1) + "\n192.168.0."
+                            + String.valueOf(i + 2));
             Mockito.when(server.getPublicIPasString()).thenReturn(
                     "10.1.0." + i + "\n10.1.0." + String.valueOf(i + 1));
             result.add(server);
@@ -139,8 +145,8 @@ public class ExtensionInterfaceBeanTest extends EJBTestBase {
         assertEquals(3, sv.size());
         assertEquals("1", sv.get(0).getId());
         assertEquals("instance1", sv.get(0).getName());
-        assertEquals("192.168.0.0\n192.168.0.1\n192.168.0.2", sv.get(0)
-                .getPrivateIPasString());
+        assertEquals("192.168.0.0\n192.168.0.1\n192.168.0.2",
+                sv.get(0).getPrivateIPasString());
         assertEquals("10.1.0.0\n10.1.0.1", sv.get(0).getPublicIPasString());
         assertEquals("ACTIVE", sv.get(0).getStatus());
         assertEquals("S-1", sv.get(0).getType());
@@ -152,8 +158,8 @@ public class ExtensionInterfaceBeanTest extends EJBTestBase {
         assertEquals(3, sv2.size());
         assertEquals("1", sv2.get(0).getId());
         assertEquals("instance1", sv2.get(0).getName());
-        assertEquals("192.168.0.0\n192.168.0.1\n192.168.0.2", sv.get(0)
-                .getPrivateIPasString());
+        assertEquals("192.168.0.0\n192.168.0.1\n192.168.0.2",
+                sv.get(0).getPrivateIPasString());
         assertEquals("10.1.0.0\n10.1.0.1", sv2.get(0).getPublicIPasString());
         assertEquals("ACTIVE", sv2.get(0).getStatus());
         assertEquals("S-1", sv2.get(0).getType());
@@ -165,8 +171,8 @@ public class ExtensionInterfaceBeanTest extends EJBTestBase {
         // given
         ExtensionInterfaceBean bean = getTestBean(instanceID, subscriptionID);
         Mockito.<List<? extends ServerInformation>> when(
-                instanceAccess.getServerDetails(instanceID)).thenThrow(
-                new APPlatformException("Error!!"));
+                instanceAccess.getServerDetails(instanceID))
+                .thenThrow(new APPlatformException("Error!!"));
         // when
         List<? extends ServerInformation> sv = bean.getInstanceDetails();
         // then
@@ -178,8 +184,8 @@ public class ExtensionInterfaceBeanTest extends EJBTestBase {
         // given
         ExtensionInterfaceBean bean = getTestBean(null, subscriptionID);
         Mockito.<List<? extends ServerInformation>> when(
-                instanceAccess.getServerDetails(null)).thenReturn(
-                getServerInfoMock(0));
+                instanceAccess.getServerDetails(null))
+                .thenReturn(getServerInfoMock(0));
         // when
         List<? extends ServerInformation> sv = bean.getInstanceDetails();
         // then
@@ -235,8 +241,8 @@ public class ExtensionInterfaceBeanTest extends EJBTestBase {
     public void getAccessInfo_withError() throws Exception {
         // given
         ExtensionInterfaceBean bean = getTestBean(instanceID, subscriptionID);
-        Mockito.when(instanceAccess.getAccessInfo(instanceID)).thenThrow(
-                new APPlatformException("Error!!!"));
+        Mockito.when(instanceAccess.getAccessInfo(instanceID))
+                .thenThrow(new APPlatformException("Error!!!"));
 
         // when
         String result = bean.getAccessInfo();
