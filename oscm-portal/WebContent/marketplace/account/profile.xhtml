@@ -213,7 +213,7 @@
                     sortIconAscending="#{sortIconAscending}" sortIconDescending="#{sortIconDescending}"
                     sortOrder="#{tableState.sortOrders['mpColUdaValue']}"
                     filterType="custom" filterValue="#{tableState.filterValues['colUdaValue']}"
-                    filterExpression="#{adm:matchBegin(item.udaValue, tableState.filterValues['colUdaValue'], false)}" >
+                    filterExpression="#{adm:matchBegin(item.udaValueToShow, tableState.filterValues['colUdaValue'], false)}" >
                     <f:facet name="header">
                       <h:outputText value="#{msg['marketplace.account.profile.attributes.value']}" />
                       <adm:filterInput inputId="filterUdaValue" inputValue="#{tableState.filterValues['colUdaValue']}" 

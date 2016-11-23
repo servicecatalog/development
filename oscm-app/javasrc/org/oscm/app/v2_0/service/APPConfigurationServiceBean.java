@@ -538,5 +538,4 @@ public class APPConfigurationServiceBean {
         return "SAML_SP".equals(settings.get(
                 PlatformConfigurationKey.BSS_AUTH_MODE.name()).getValue());
     }
-
 }

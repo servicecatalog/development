@@ -50,8 +50,8 @@ public class OpenStackControllerTest extends EJBTestBase {
     private APPlatformController controller;
     private APPlatformService platformService;
 
-    private final HashMap<String, Setting> parameters = new HashMap<>();
-    private final HashMap<String, Setting> configSettings = new HashMap<>();
+    private final HashMap<String, Setting> parameters = new HashMap<String, Setting>();
+    private final HashMap<String, Setting> configSettings = new HashMap<String, Setting>();
     private final ProvisioningSettings settings = new ProvisioningSettings(
             parameters, configSettings, "en");
     private InitialContext context;
@@ -204,10 +204,16 @@ public class OpenStackControllerTest extends EJBTestBase {
     @Test
     public void notifyInstance() throws Exception {
 
-        Setting oldStatus = parameters.get(PropertyHandler.STATUS);
+        String oldStatus = parameters.get(PropertyHandler.STATUS) == null ? null
+                : parameters.get(PropertyHandler.STATUS).getValue();
         InstanceStatus status = notifyInstance("123", new Properties());
         assertNull(status);
-        assertEquals(oldStatus, parameters.get(PropertyHandler.STATUS));
+        if (oldStatus == null) {
+            assertNull(parameters.get(PropertyHandler.STATUS));
+        } else {
+            assertEquals(oldStatus, parameters.get(PropertyHandler.STATUS)
+                    .getValue());
+        }
     }
 
     @Test
@@ -324,7 +330,7 @@ public class OpenStackControllerTest extends EJBTestBase {
                                 ServerStatus.SHUTOFF, "testTenantID")));
 
         // when
-        InstanceStatus status = getInstanceStatus("123");
+        getInstanceStatus("123");
     }
 
     @Test(expected = APPlatformException.class)
@@ -422,7 +428,7 @@ public class OpenStackControllerTest extends EJBTestBase {
                                 ServerStatus.ACTIVE, "testTenantID")));
 
         // when
-        InstanceStatus status = getInstanceStatus("123");
+        getInstanceStatus("123");
     }
 
     @Test
@@ -611,7 +617,8 @@ public class OpenStackControllerTest extends EJBTestBase {
         parameters.put(PropertyHandler.TEMPLATE_NAME, new Setting(
                 PropertyHandler.TEMPLATE_NAME, templateName));
         parameters.put(PropertyHandler.TEMPLATE_PARAMETER_PREFIX + "KeyName",
-                new Setting(PropertyHandler.TEMPLATE_PARAMETER_PREFIX, "key"));
+                new Setting(PropertyHandler.TEMPLATE_PARAMETER_PREFIX
+                        + "KeyName", "key"));
         parameters.put(PropertyHandler.ACCESS_INFO_PATTERN, new Setting(
                 PropertyHandler.ACCESS_INFO_PATTERN, "access info"));
         configSettings.put(PropertyHandler.KEYSTONE_API_URL, new Setting(

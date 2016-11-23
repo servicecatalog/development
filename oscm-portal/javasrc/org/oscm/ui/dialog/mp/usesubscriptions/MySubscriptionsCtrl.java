@@ -9,6 +9,11 @@
 package org.oscm.ui.dialog.mp.usesubscriptions;
 
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -20,13 +25,11 @@ import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
+import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
+import javax.servlet.http.HttpSession;
 
-import org.oscm.string.Strings;
-import org.oscm.ui.beans.ApplicationBean;
-import org.oscm.ui.beans.BaseBean;
-import org.oscm.ui.common.JSFUtils;
-import org.oscm.ui.common.UiDelegate;
+import org.apache.commons.codec.binary.Base64;
 import org.oscm.internal.intf.SubscriptionService;
 import org.oscm.internal.subscriptions.OperationModel;
 import org.oscm.internal.subscriptions.OperationParameterModel;
@@ -39,6 +42,13 @@ import org.oscm.internal.vo.VOServiceOperationParameter;
 import org.oscm.internal.vo.VOServiceOperationParameterValues;
 import org.oscm.internal.vo.VOSubscription;
 import org.oscm.internal.vo.VOTechnicalServiceOperation;
+import org.oscm.internal.vo.VOUserDetails;
+import org.oscm.string.Strings;
+import org.oscm.ui.beans.ApplicationBean;
+import org.oscm.ui.beans.BaseBean;
+import org.oscm.ui.common.Constants;
+import org.oscm.ui.common.JSFUtils;
+import org.oscm.ui.common.UiDelegate;
 
 @ManagedBean
 @ViewScoped
@@ -47,7 +57,7 @@ public class MySubscriptionsCtrl implements Serializable {
     private static final long serialVersionUID = -9209968842729517052L;
     @ManagedProperty(value = "#{mySubscriptionsLazyDataModel}")
     private MySubscriptionsLazyDataModel model;
-    
+
     @ManagedProperty(value = "#{appBean}")
     ApplicationBean applicationBean;
 
@@ -80,24 +90,26 @@ public class MySubscriptionsCtrl implements Serializable {
     TriggerProcessesService triggerProcessService;
 
     @PostConstruct
-    public void initialize(){
-    	initializeTriggerSubscriptions();
-    	checkSelectedSubscription();
+    public void initialize() {
+        initializeTriggerSubscriptions();
+        checkSelectedSubscription();
     }
 
     public void initializeTriggerSubscriptions() {
-    	myTriggerProcessesModel.setWaitingForApprovalSubs(triggerProcessService
-                .getMyWaitingForApprovalSubscriptions().getResultList(
-                        POSubscription.class));
+        myTriggerProcessesModel.setWaitingForApprovalSubs(
+                triggerProcessService.getMyWaitingForApprovalSubscriptions()
+                        .getResultList(POSubscription.class));
     }
 
     @EJB
-    public void setSubscriptionsService(SubscriptionsService subscriptionsService) {
+    public void setSubscriptionsService(
+            SubscriptionsService subscriptionsService) {
         this.subscriptionsService = subscriptionsService;
     }
 
     @EJB
-    public void setSubscriptionService(SubscriptionService subscriptionService) {
+    public void setSubscriptionService(
+            SubscriptionService subscriptionService) {
         this.subscriptionService = subscriptionService;
     }
 
@@ -122,13 +134,15 @@ public class MySubscriptionsCtrl implements Serializable {
             return;
         }
         OperationModel selectedOperation = sub.getSelectedOperation();
-        if (selectedOperation == null || selectedOperation.getOperation() == null) {
+        if (selectedOperation == null
+                || selectedOperation.getOperation() == null) {
             return;
         }
-        VOTechnicalServiceOperation operation = selectedOperation.getOperation();
+        VOTechnicalServiceOperation operation = selectedOperation
+                .getOperation();
         try {
-            subscriptionService.executeServiceOperation(
-                    sub.getVOSubscription(), operation);
+            subscriptionService.executeServiceOperation(sub.getVOSubscription(),
+                    operation);
         } catch (ConcurrentModificationException e) {
             ui.handleError(null, ERROR_SUBSCRIPTION_CONCURRENTMODIFY);
             return;
@@ -162,8 +176,8 @@ public class MySubscriptionsCtrl implements Serializable {
             operationModel.setOperation(op);
 
             try {
-                operationModel.setParameters(convert(op,
-                        subscription.getVOSubscription()));
+                operationModel.setParameters(
+                        convert(op, subscription.getVOSubscription()));
             } catch (SaaSApplicationException e) {
                 subscription.setExecuteDisabled(true);
                 ui.handleException(e);
@@ -224,21 +238,21 @@ public class MySubscriptionsCtrl implements Serializable {
         this.selectId = selectId;
     }
 
-	public MyTriggerProcessesModel getMyTriggerProcessesModel() {
-		return myTriggerProcessesModel;
-	}
+    public MyTriggerProcessesModel getMyTriggerProcessesModel() {
+        return myTriggerProcessesModel;
+    }
 
-	public void setMyTriggerProcessesModel(MyTriggerProcessesModel myTriggerProcessesModel) {
-		this.myTriggerProcessesModel = myTriggerProcessesModel;
-	}
+    public void setMyTriggerProcessesModel(
+            MyTriggerProcessesModel myTriggerProcessesModel) {
+        this.myTriggerProcessesModel = myTriggerProcessesModel;
+    }
 
     public void validateSubscriptionStatus() {
         String subKey = model.getSelectedSubscriptionId();
-        POSubscription mySubscriptionDetails = subscriptionsService.getMySubscriptionDetails(Long.parseLong(subKey));
+        POSubscription mySubscriptionDetails = subscriptionsService
+                .getMySubscriptionDetails(Long.parseLong(subKey));
         if (mySubscriptionDetails == null) {
-            JSFUtils.addMessage(
-                    null,
-                    FacesMessage.SEVERITY_ERROR,
+            JSFUtils.addMessage(null, FacesMessage.SEVERITY_ERROR,
                     BaseBean.ERROR_SUBSCRIPTION_MODIFIED_OR_DELETED_CONCURRENTLY,
                     null);
             model.setSelectedSubscription(null);
@@ -247,15 +261,53 @@ public class MySubscriptionsCtrl implements Serializable {
             model.setSelectedSubscription(mySubscriptionDetails);
         }
     }
-    
+
     public void checkSelectedSubscription() {
         String subKey = model.getSelectedSubscriptionId();
-        if(subKey!=null){
-            POSubscription mySubscriptionDetails = subscriptionsService.getMySubscriptionDetails(Long.parseLong(subKey));
+        if (subKey != null) {
+            POSubscription mySubscriptionDetails = subscriptionsService
+                    .getMySubscriptionDetails(Long.parseLong(subKey));
             if (mySubscriptionDetails == null) {
                 model.setSelectedSubscription(null);
                 model.setSelectedSubscriptionId(null);
             }
         }
     }
+
+    public String getCustomTabUrlWithParameters()
+            throws UnsupportedEncodingException, NoSuchAlgorithmException {
+        String orgId = model.getSelectedSubscription().getOrganizationId();
+        String subId = model.getSelectedSubscription().getSubscriptionName();
+        String instId = model.getSelectedSubscription().getServiceInstanceId();
+        HttpSession session = (HttpSession) FacesContext.getCurrentInstance()
+                .getExternalContext().getSession(false);
+        VOUserDetails userDetails = (VOUserDetails) session
+                .getAttribute(Constants.SESS_ATTR_USER);
+        String token = instId + "_" + userDetails.getUserId() + "_" + orgId;
+        byte[] cipher_byte;
+
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        md.update(token.getBytes("UTF-8"));
+        cipher_byte = md.digest();
+        String cipher_string = new String(Base64.encodeBase64(cipher_byte),
+                "UTF-8");
+
+        Date date = new Date();
+        long timestamp = date.getTime();
+
+        String encodedSubId = encodeParam(subId);
+
+        return model.getSelectedSubscription().getCustomTabUrl() + "?orgId="
+                + orgId + "&subId=" + encodedSubId + "&instId=" + instId
+                + "&token="
+                + encodeParam(token + "_" + cipher_string + "_" + timestamp);
+    }
+
+    private String encodeParam(String value)
+            throws UnsupportedEncodingException {
+
+        return URLEncoder.encode(value, "UTF-8");
+
+    }
+
 }
