@@ -91,7 +91,7 @@
           <f:converter converterId="trimConverter" />
         </h:inputText>
         <h:inputSecret id="pwdValue" label="#{rowItem.label}" onchange="setDirty(true)"
-          value="#{rowItem.parameter.value}" maxlength="#{appBean.descriptionLen}"
+          value="#{rowItem.passwordValueToStore}" maxlength="#{appBean.descriptionLen}"
           required="#{rowItem.parameterDefinition.mandatory}" dataType="string" disabled="#{readOnly}"
           rendered="#{rowItem.parameterDefinition.valueTypeString and rowItem.passwordType and not readOnly}" redisplay="true">
           <f:validator validatorId="ParameterValueValidator" />
@@ -100,7 +100,7 @@
         <h:outputText id ="pwdValueRO" label="#{row.label}" value="*****"
                       rendered="#{rowItem.parameterDefinition.valueTypeString and rowItem.passwordType and readOnly}"/>
         <h:inputSecret id="pwdTypeValue" label="#{rowItem.label}" onchange="setDirty(true)"
-          value="#{rowItem.parameter.value}" maxlength="#{appBean.descriptionLen}"
+          value="#{rowItem.passwordValueToStore}" maxlength="#{appBean.descriptionLen}"
           required="#{rowItem.parameterDefinition.mandatory}" dataType="string" disabled="#{readOnly}"
           rendered="#{rowItem.parameterDefinition.valueTypePWD and not readOnly}" redisplay="true">
           <f:validator validatorId="ParameterValueValidator" />
