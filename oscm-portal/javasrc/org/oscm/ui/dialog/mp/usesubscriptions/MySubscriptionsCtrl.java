@@ -283,7 +283,11 @@ public class MySubscriptionsCtrl implements Serializable {
                 .getExternalContext().getSession(false);
         VOUserDetails userDetails = (VOUserDetails) session
                 .getAttribute(Constants.SESS_ATTR_USER);
-        String token = instId + "_" + userDetails.getUserId() + "_" + orgId;
+        String encodedinstId = new String(
+                Base64.encodeBase64(instId.getBytes()), "UTF-8");
+
+        String token = encodedinstId + "_" + userDetails.getUserId() + "_"
+                + orgId;
         byte[] cipher_byte;
 
         MessageDigest md = MessageDigest.getInstance("SHA-256");
