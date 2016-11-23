@@ -25,15 +25,15 @@ import org.oscm.provisioning.intf.ProvisioningService;
  * @author goebel
  * 
  */
-public class ProvisioningServiceAdapterV1_8 implements
-        ProvisioningServiceAdapter {
+public class ProvisioningServiceAdapterV1_8
+        implements ProvisioningServiceAdapter {
 
     private ProvisioningService service;
 
     @Override
     public URL getLocalWSDL() {
-        return this.getClass().getResource(
-                "/wsdl/provisioning/ProvisioningService.wsdl");
+        return this.getClass()
+                .getResource("/wsdl/provisioning/ProvisioningService.wsdl");
     }
 
     @Override
@@ -82,9 +82,8 @@ public class ProvisioningServiceAdapterV1_8 implements
             String subscriptionId, String referenceId,
             List<ServiceParameter> parameterValues,
             List<ServiceAttribute> attributeValues, User requestingUser) {
-        return service.modifySubscription(instanceId, referenceId,
-                subscriptionId, parameterValues, attributeValues,
-                requestingUser);
+        return service.modifySubscription(instanceId, subscriptionId,
+                referenceId, parameterValues, attributeValues, requestingUser);
     }
 
     @Override
@@ -99,7 +98,8 @@ public class ProvisioningServiceAdapterV1_8 implements
     }
 
     @Override
-    public BaseResult deactivateInstance(String instanceId, User requestingUser) {
+    public BaseResult deactivateInstance(String instanceId,
+            User requestingUser) {
         return service.deactivateInstance(instanceId, requestingUser);
     }
 
@@ -108,9 +108,8 @@ public class ProvisioningServiceAdapterV1_8 implements
             String subscriptionId, String referenceId,
             List<ServiceParameter> parameterValues,
             List<ServiceAttribute> attributeValues, User requestingUser) {
-        return service.asyncModifySubscription(instanceId, referenceId,
-                subscriptionId, parameterValues, attributeValues,
-                requestingUser);
+        return service.asyncModifySubscription(instanceId, subscriptionId,
+                referenceId, parameterValues, attributeValues, requestingUser);
     }
 
     @Override
@@ -118,9 +117,8 @@ public class ProvisioningServiceAdapterV1_8 implements
             String subscriptionId, String referenceId,
             List<ServiceParameter> parameterValues,
             List<ServiceAttribute> attributeValues, User requestingUser) {
-        return service.asyncUpgradeSubscription(instanceId, referenceId,
-                subscriptionId, parameterValues, attributeValues,
-                requestingUser);
+        return service.asyncUpgradeSubscription(instanceId, subscriptionId,
+                referenceId, parameterValues, attributeValues, requestingUser);
     }
 
     @Override
@@ -128,9 +126,8 @@ public class ProvisioningServiceAdapterV1_8 implements
             String subscriptionId, String referenceId,
             List<ServiceParameter> parameterValues,
             List<ServiceAttribute> attributeValues, User requestingUser) {
-        return service.upgradeSubscription(instanceId, referenceId,
-                subscriptionId, parameterValues, attributeValues,
-                requestingUser);
+        return service.upgradeSubscription(instanceId, subscriptionId,
+                referenceId, parameterValues, attributeValues, requestingUser);
     }
 
     @Override
