@@ -16,7 +16,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.oscm.internal.types.enumtypes.UdaConfigurationType;
+import org.oscm.internal.vo.VOOrganization;
 import org.oscm.internal.vo.VOUda;
 import org.oscm.internal.vo.VOUdaDefinition;
 
@@ -28,6 +30,7 @@ import org.oscm.internal.vo.VOUdaDefinition;
  */
 public class UdaRow implements Serializable {
     private static final long serialVersionUID = 1L;
+    public static final String HIDDEN_PWD = "*****";
 
     /**
      * Maps the existing {@link VOUda}s to their {@link VOUdaDefinition}s and
@@ -42,7 +45,7 @@ public class UdaRow implements Serializable {
      */
     public static List<UdaRow> getUdaRows(List<VOUdaDefinition> definitons,
             List<VOUda> udas) {
-        List<UdaRow> result = new ArrayList<UdaRow>();
+        List<UdaRow> result = new ArrayList<>();
         if (definitons == null) {
             return result;
         }
@@ -52,7 +55,9 @@ public class UdaRow implements Serializable {
                 uda = new VOUda();
                 uda.setUdaDefinition(def);
             }
-            result.add(new UdaRow(def, uda));
+            UdaRow udaRow = new UdaRow(def, uda);
+            udaRow.initPasswordValueToStore();
+            result.add(udaRow);
         }
         return result;
     }
@@ -84,7 +89,7 @@ public class UdaRow implements Serializable {
      * decide if an input field has to be rendered for the UDA value
      */
     public boolean isInputRendered() {
-        return (udaDefinition.getConfigurationType() == UdaConfigurationType.SUPPLIER);
+        return udaDefinition.getConfigurationType() == UdaConfigurationType.SUPPLIER;
     }
 
     /**
@@ -98,22 +103,44 @@ public class UdaRow implements Serializable {
      * decide if an input field is mandatory
      */
     public boolean isInputMandatory() {
-        return (udaDefinition.getConfigurationType() == UdaConfigurationType.USER_OPTION_MANDATORY);
+        return udaDefinition.getConfigurationType() == UdaConfigurationType.USER_OPTION_MANDATORY;
+    }
+
+    /**
+     * decide if an input field is encrypted
+     */
+    public boolean isInputEncrypted() {
+        return udaDefinition.isEncrypted();
     }
 
     private VOUdaDefinition udaDefinition;
     private VOUda uda;
+    private VOOrganization vendor;
+    private String passwordValueToStore;
 
-    UdaRow(VOUdaDefinition voUdaDefinition, VOUda voUda) {
+    public UdaRow(VOUdaDefinition voUdaDefinition, VOUda voUda,
+            VOOrganization voVendor) {
         udaDefinition = voUdaDefinition;
         uda = voUda;
+        vendor = voVendor;
         // apply the default value only for new UDAs
         if (uda.getUdaValue() == null) {
             uda.setUdaValue(udaDefinition.getDefaultValue());
         }
     }
 
+    public UdaRow(VOUdaDefinition voUdaDefinition, VOUda voUda) {
+        this(voUdaDefinition, voUda, null);
+    }
+
     public String getUdaId() {
+        return udaDefinition.getUdaId();
+    }
+
+    public String getUdaNameToShow() {
+        if (StringUtils.isNoneBlank(udaDefinition.getName())) {
+            return udaDefinition.getName();
+        }
         return udaDefinition.getUdaId();
     }
 
@@ -133,4 +160,48 @@ public class UdaRow implements Serializable {
         return uda;
     }
 
+    public VOOrganization getVendor() {
+        return vendor;
+    }
+
+    public void setVendor(VOOrganization vendor) {
+        this.vendor = vendor;
+    }
+
+    public String getPasswordValueToStore() {
+        return passwordValueToStore;
+    }
+
+    public void setPasswordValueToStore(String passwordValueToStore) {
+        this.passwordValueToStore = passwordValueToStore;
+    }
+
+    public void rewriteEncryptedValues() {
+        if (!this.isInputEncrypted()) {
+            return;
+        }
+        if (this.getPasswordValueToStore() == null
+                || !this.getPasswordValueToStore().trim().equals(HIDDEN_PWD)) {
+            this.setUdaValue(this.getPasswordValueToStore());
+        }
+    }
+
+    public void initPasswordValueToStore() {
+        if (!this.isInputEncrypted()) {
+            return;
+        }
+        if (StringUtils.isNotBlank(this.getUdaValue())) {
+            this.setPasswordValueToStore(HIDDEN_PWD);
+        } else {
+            this.setPasswordValueToStore("");
+        }
+    }
+
+    public String getUdaValueToShow() {
+        if (this.isInputEncrypted()) {
+            return HIDDEN_PWD;
+        } else {
+            return this.getUdaValue();
+        }
+    }
 }

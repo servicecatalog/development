@@ -24,7 +24,7 @@ import java.util.Set;
 import org.apache.commons.codec.binary.Base64;
 import org.oscm.app.aws.controller.PropertyHandler;
 import org.oscm.app.aws.i18n.Messages;
-import org.oscm.app.v1_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.exceptions.APPlatformException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -174,9 +174,8 @@ public class EC2Communication {
     AmazonEC2Client getEC2(AWSCredentialsProvider credentialsProvider,
             ClientConfiguration clientConfiguration) {
         if (ec2 == null) {
-            ec2 = (ec2_stub != null) ? ec2_stub
-                    : new AmazonEC2Client(credentialsProvider,
-                            clientConfiguration);
+            ec2 = (ec2_stub != null) ? ec2_stub : new AmazonEC2Client(
+                    credentialsProvider, clientConfiguration);
         }
         return ec2;
     }
@@ -242,8 +241,8 @@ public class EC2Communication {
                     + "==" + image.getName());
             return image;
         }
-        throw new APPlatformException(
-                Messages.getAll("error_invalid_image") + amiID);
+        throw new APPlatformException(Messages.getAll("error_invalid_image")
+                + amiID);
     }
 
     /**
@@ -253,11 +252,10 @@ public class EC2Communication {
      * @return <code>Subnet </code> if the matches one of the subnetString
      * 
      */
-    public Subnet resolveSubnet(String subnetString)
-            throws APPlatformException {
+    public Subnet resolveSubnet(String subnetString) throws APPlatformException {
         DescribeSubnetsRequest request = new DescribeSubnetsRequest();
-        DescribeSubnetsResult result = getEC2()
-                .describeSubnets(request.withSubnetIds(subnetString));
+        DescribeSubnetsResult result = getEC2().describeSubnets(
+                request.withSubnetIds(subnetString));
         List<Subnet> subnets = result.getSubnets();
         if (!subnets.isEmpty()) {
             LOGGER.debug(" number of subnets found: " + subnets.size());
@@ -351,9 +349,9 @@ public class EC2Communication {
                 .withKeyName(ph.getKeyPairName());
         InstanceNetworkInterfaceSpecification networkInterface = new InstanceNetworkInterfaceSpecification();
         String subnetId = null;
-        LOGGER.debug(
-                "runInstancesRequest : " + " image ID : " + image.getImageId()
-                        + " insatance type : " + ph.getInstanceType());
+        LOGGER.debug("runInstancesRequest : " + " image ID : "
+                + image.getImageId() + " insatance type : "
+                + ph.getInstanceType());
 
         Collection<String> securityGroupNames = ph.getSecurityGroups();
         if (ph.getSubnet() != null && ph.getSubnet().trim().length() > 0) {
@@ -382,8 +380,8 @@ public class EC2Communication {
         // Here we attached network Interface to the instance request as we want
         // to set the public ip or subnet and securityGroups
         if ((ph.getSubnet() != null && ph.getSubnet().trim().length() > 0)
-                || (ph.getPublicIp() != null
-                        && ph.getPublicIp().trim().length() > 0)) {
+                || (ph.getPublicIp() != null && ph.getPublicIp().trim()
+                        .length() > 0)) {
             networkInterface.setDeviceIndex(Integer.valueOf(0));
             networkInterface.setSubnetId(subnetId);
             networkInterface.setDeleteOnTermination(Boolean.TRUE);
@@ -489,23 +487,23 @@ public class EC2Communication {
     public boolean isInstanceReady(String instanceId) {
         LOGGER.debug("isInstanceReady('{}') entered", instanceId);
         DescribeInstanceStatusResult result = getEC2()
-                .describeInstanceStatus(new DescribeInstanceStatusRequest()
-                        .withInstanceIds(instanceId));
+                .describeInstanceStatus(
+                        new DescribeInstanceStatusRequest()
+                                .withInstanceIds(instanceId));
         List<InstanceStatus> statusList = result.getInstanceStatuses();
         boolean instanceStatus = false;
         boolean systemStatus = false;
 
         for (InstanceStatus status : statusList) {
             LOGGER.debug("  InstanceState:    {}", status.getInstanceState());
-            LOGGER.debug("  InstanceStatus:   {}",
-                    status.getInstanceStatus().getStatus());
-            LOGGER.debug("  SystemStatus:     {}",
-                    status.getSystemStatus().getStatus());
-            LOGGER.debug("  AvailabilityZone: {}",
-                    status.getAvailabilityZone());
+            LOGGER.debug("  InstanceStatus:   {}", status.getInstanceStatus()
+                    .getStatus());
+            LOGGER.debug("  SystemStatus:     {}", status.getSystemStatus()
+                    .getStatus());
+            LOGGER.debug("  AvailabilityZone: {}", status.getAvailabilityZone());
 
-            instanceStatus = ("ok"
-                    .equals(status.getInstanceStatus().getStatus()));
+            instanceStatus = ("ok".equals(status.getInstanceStatus()
+                    .getStatus()));
             systemStatus = ("ok".equals(status.getSystemStatus().getStatus()));
         }
         LOGGER.debug("isInstanceReady('{}') left", instanceId);
@@ -556,15 +554,15 @@ public class EC2Communication {
 
             in.close();
             LOGGER.debug(response.toString());
-            return Base64
-                    .encodeBase64String(response.toString().getBytes("UTF-8"));
+            return Base64.encodeBase64String(response.toString().getBytes(
+                    "UTF-8"));
 
         } catch (MalformedURLException e) {
-            throw new APPlatformException(
-                    "Reading userdata failed: " + e.getMessage());
+            throw new APPlatformException("Reading userdata failed: "
+                    + e.getMessage());
         } catch (IOException e) {
-            throw new APPlatformException(
-                    "Reading userdata failed: " + e.getMessage());
+            throw new APPlatformException("Reading userdata failed: "
+                    + e.getMessage());
         } finally {
             if (cin != null) {
                 try {
@@ -580,10 +578,10 @@ public class EC2Communication {
     private void createTags(PropertyHandler ph) throws APPlatformException {
         List<Tag> tags = new ArrayList<Tag>();
         tags.add(new Tag(PropertyHandler.TAG_NAME, ph.getInstanceName()));
-        tags.add(new Tag(PropertyHandler.TAG_SUBSCRIPTION_ID,
-                ph.getSettings().getSubscriptionId()));
-        tags.add(new Tag(PropertyHandler.TAG_ORGANIZATION_ID,
-                ph.getSettings().getOrganizationId()));
+        tags.add(new Tag(PropertyHandler.TAG_SUBSCRIPTION_ID, ph.getSettings()
+                .getSubscriptionId()));
+        tags.add(new Tag(PropertyHandler.TAG_ORGANIZATION_ID, ph.getSettings()
+                .getOrganizationId()));
         CreateTagsRequest ctr = new CreateTagsRequest();
         LOGGER.debug("attach tags to resource " + ph.getAWSInstanceId());
         ctr.withResources(ph.getAWSInstanceId()).setTags(tags);

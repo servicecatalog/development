@@ -12,6 +12,7 @@
 
 package org.oscm.domobjects;
 
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +30,7 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
 import org.oscm.domobjects.annotations.BusinessKey;
+import org.oscm.encrypter.AESEncrypter;
 import org.oscm.internal.types.enumtypes.UdaConfigurationType;
 import org.oscm.types.enumtypes.UdaTargetType;
 
@@ -39,7 +41,8 @@ import org.oscm.types.enumtypes.UdaTargetType;
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "organizationKey",
         "udaId", "targetType" }))
-@NamedQueries({ @NamedQuery(name = "UdaDefinition.findByBusinessKey", query = "SELECT c FROM UdaDefinition c WHERE c.dataContainer.udaId=:udaId AND c.dataContainer.targetType=:targetType AND c.organizationKey=:organizationKey") })
+@NamedQueries({
+        @NamedQuery(name = "UdaDefinition.findByBusinessKey", query = "SELECT c FROM UdaDefinition c WHERE c.dataContainer.udaId=:udaId AND c.dataContainer.targetType=:targetType AND c.organizationKey=:organizationKey") })
 @BusinessKey(attributes = { "organizationKey", "udaId", "targetType" })
 public class UdaDefinition extends DomainObjectWithHistory<UdaDefinitionData> {
 
@@ -54,7 +57,7 @@ public class UdaDefinition extends DomainObjectWithHistory<UdaDefinitionData> {
 
     @OneToMany(mappedBy = "udaDefinition", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @OrderBy
-    private List<Uda> udas = new ArrayList<Uda>();
+    private List<Uda> udas = new ArrayList<>();
 
     public UdaDefinition() {
         setDataContainer(new UdaDefinitionData());
@@ -79,11 +82,28 @@ public class UdaDefinition extends DomainObjectWithHistory<UdaDefinitionData> {
     }
 
     public String getDefaultValue() {
-        return dataContainer.getDefaultValue();
+        if (isEncrypted() && dataContainer.getDefaultValue() != null) {
+            try {
+                return AESEncrypter.decrypt(dataContainer.getDefaultValue());
+            } catch (GeneralSecurityException e) {
+                return null;
+            }
+        } else {
+            return dataContainer.getDefaultValue();
+        }
     }
 
     public void setDefaultValue(String defaultValue) {
-        dataContainer.setDefaultValue(defaultValue);
+        if (isEncrypted() && defaultValue != null) {
+            try {
+                dataContainer
+                        .setDefaultValue(AESEncrypter.encrypt(defaultValue));
+            } catch (GeneralSecurityException e) {
+                // ignore
+            }
+        } else {
+            dataContainer.setDefaultValue(defaultValue);
+        }
     }
 
     public UdaTargetType getTargetType() {
@@ -116,5 +136,22 @@ public class UdaDefinition extends DomainObjectWithHistory<UdaDefinitionData> {
 
     public UdaConfigurationType getConfigurationType() {
         return dataContainer.getConfigurationType();
+    }
+
+    public boolean isEncrypted() {
+        return dataContainer.isEncrypted();
+    }
+
+    public void setEncrypted(boolean encrypted) {
+
+        String value = getDefaultValue();
+
+        dataContainer.setEncrypted(encrypted);
+
+        setDefaultValue(value);
+    }
+
+    public String getControllerId() {
+        return dataContainer.getControllerId();
     }
 }

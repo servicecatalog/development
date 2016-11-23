@@ -10,13 +10,22 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
+import javax.persistence.Query;
+
+import org.oscm.converter.ParameterizedTypes;
 import org.oscm.converter.strategy.ConversionStrategy;
 import org.oscm.converter.strategy.TPPConversionStrategyFactory;
+import org.oscm.dataservice.local.DataService;
+import org.oscm.domobjects.LocalizedResource;
+import org.oscm.domobjects.Uda;
+import org.oscm.domobjects.UdaDefinition;
+import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.internal.types.exception.OperationNotPermittedException;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
 import org.oscm.types.enumtypes.OperationParameterType;
 import org.oscm.types.enumtypes.TriggerProcessParameterType;
+import org.oscm.vo.VOUdaDefinition;
 
 public class VOConverter {
 
@@ -25,11 +34,19 @@ public class VOConverter {
     private static final String VERSION_INTERNAL = "internal";
     private static final Log4jLogger LOGGER = LoggerFactory
             .getLogger(VOConverter.class);
+    private static DataService ds;
 
     @SuppressWarnings("unchecked")
     public static <T, U> T reflectiveConvert(U objectToConvert) {
 
-        String methodName = "";
+        return reflectiveConvert(objectToConvert, null);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T, U> T reflectiveConvert(U objectToConvert,
+            DataService ds) {
+        VOConverter.ds = ds;
+        String methodName;
         if (objectToConvert.getClass().getPackage().getName()
                 .contains(VERSION_INTERNAL)) {
             methodName = METHOD_CONVERT_TO_API;
@@ -45,9 +62,7 @@ public class VOConverter {
         } catch (Exception e) {
             org.oscm.internal.types.exception.SaaSSystemException exc = new org.oscm.internal.types.exception.SaaSSystemException(
                     e);
-            LOGGER.logError(
-                    Log4jLogger.SYSTEM_LOG,
-                    exc,
+            LOGGER.logError(Log4jLogger.SYSTEM_LOG, exc,
                     org.oscm.types.enumtypes.LogMessageIdentifier.ERROR_VO_CONVERSION_1_6);
             throw exc;
         }
@@ -119,7 +134,7 @@ public class VOConverter {
         if (oldVO == null) {
             return null;
         }
-        List<org.oscm.internal.vo.VOCatalogEntry> newVO = new ArrayList<org.oscm.internal.vo.VOCatalogEntry>();
+        List<org.oscm.internal.vo.VOCatalogEntry> newVO = new ArrayList<>();
         for (org.oscm.vo.VOCatalogEntry tmp : oldVO) {
             newVO.add(convertToUp(tmp));
         }
@@ -138,7 +153,7 @@ public class VOConverter {
         if (oldVO == null) {
             return null;
         }
-        List<org.oscm.vo.VOCatalogEntry> newVO = new ArrayList<org.oscm.vo.VOCatalogEntry>();
+        List<org.oscm.vo.VOCatalogEntry> newVO = new ArrayList<>();
         for (org.oscm.internal.vo.VOCatalogEntry tmp : oldVO) {
             newVO.add(convertToApi(tmp));
         }
@@ -231,7 +246,7 @@ public class VOConverter {
         if (oldVO == null) {
             return null;
         }
-        List<org.oscm.vo.VOServiceReview> newVO = new ArrayList<org.oscm.vo.VOServiceReview>();
+        List<org.oscm.vo.VOServiceReview> newVO = new ArrayList<>();
         for (org.oscm.internal.vo.VOServiceReview tmp : oldVO) {
             newVO.add(convertToApi(tmp));
         }
@@ -250,7 +265,7 @@ public class VOConverter {
         if (oldVO == null) {
             return null;
         }
-        List<org.oscm.internal.vo.VOServiceReview> newVO = new ArrayList<org.oscm.internal.vo.VOServiceReview>();
+        List<org.oscm.internal.vo.VOServiceReview> newVO = new ArrayList<>();
         for (org.oscm.vo.VOServiceReview tmp : oldVO) {
             newVO.add(convertToUp(tmp));
         }
@@ -307,7 +322,7 @@ public class VOConverter {
         if (oldVO == null) {
             return null;
         }
-        Set<org.oscm.internal.vo.Setting> newVO = new HashSet<org.oscm.internal.vo.Setting>();
+        Set<org.oscm.internal.vo.Setting> newVO = new HashSet<>();
         for (org.oscm.vo.Setting tmp : oldVO) {
             newVO.add(convertToUp(tmp));
         }
@@ -344,7 +359,7 @@ public class VOConverter {
         if (oldVO == null) {
             return null;
         }
-        Set<org.oscm.vo.Setting> newVO = new HashSet<org.oscm.vo.Setting>();
+        Set<org.oscm.vo.Setting> newVO = new HashSet<>();
         for (org.oscm.internal.vo.Setting tmp : oldVO) {
             newVO.add(convertToApi(tmp));
         }
@@ -382,8 +397,8 @@ public class VOConverter {
             return null;
         }
         org.oscm.internal.vo.VOPriceModelLocalization newVO = new org.oscm.internal.vo.VOPriceModelLocalization();
-        newVO.setDescriptions(convertToUpVOLocalizedText(oldVO
-                .getDescriptions()));
+        newVO.setDescriptions(
+                convertToUpVOLocalizedText(oldVO.getDescriptions()));
         newVO.setLicenses(convertToUpVOLocalizedText(oldVO.getLicenses()));
         return newVO;
     }
@@ -401,7 +416,8 @@ public class VOConverter {
             return null;
         }
         org.oscm.vo.VOPriceModelLocalization newVO = new org.oscm.vo.VOPriceModelLocalization();
-        newVO.setDescriptions(convertToVOLocalizedText(oldVO.getDescriptions()));
+        newVO.setDescriptions(
+                convertToVOLocalizedText(oldVO.getDescriptions()));
         newVO.setLicenses(convertToVOLocalizedText(oldVO.getLicenses()));
         return newVO;
     }
@@ -422,8 +438,8 @@ public class VOConverter {
         newVO.setKey(oldVO.getKey());
         newVO.setVersion(oldVO.getVersion());
         newVO.setUdaDefinition(convertToUp(oldVO.getUdaDefinition()));
-        newVO.setUdaValue(oldVO.getUdaValue());
         newVO.setTargetObjectKey(oldVO.getTargetObjectKey());
+        newVO.setUdaValue(oldVO.getUdaValue());
         return newVO;
     }
 
@@ -474,8 +490,7 @@ public class VOConverter {
                 org.oscm.internal.types.enumtypes.ServiceAccessType.class));
         newVO.setServiceBaseURL(oldVO.getServiceBaseURL());
         newVO.setServiceLoginPath(oldVO.getServiceLoginPath());
-        newVO.setStatus(EnumConverter.convert(
-                oldVO.getStatus(),
+        newVO.setStatus(EnumConverter.convert(oldVO.getStatus(),
                 org.oscm.internal.types.enumtypes.SubscriptionStatus.class));
         newVO.setServiceInstanceId(oldVO.getServiceInstanceId());
         newVO.setTimeoutMailSent(oldVO.isTimeoutMailSent());
@@ -484,8 +499,9 @@ public class VOConverter {
         newVO.setProvisioningProgress(oldVO.getProvisioningProgress());
         newVO.setNumberOfAssignedUsers(oldVO.getNumberOfAssignedUsers());
         newVO.setSellerName(oldVO.getSellerName());
-        newVO.setTechnicalServiceOperations(convertToUpVOTechnicalServiceOperation(oldVO
-                .getTechnicalServiceOperations()));
+        newVO.setTechnicalServiceOperations(
+                convertToUpVOTechnicalServiceOperation(
+                        oldVO.getTechnicalServiceOperations()));
         newVO.setOwnerId(oldVO.getOwnerId());
         newVO.setUnitKey(oldVO.getUnitKey());
         newVO.setUnitName(oldVO.getUnitName());
@@ -513,9 +529,9 @@ public class VOConverter {
         newVO.setCreationDate(oldVO.getCreationDate());
         newVO.setDeactivationDate(oldVO.getDeactivationDate());
         newVO.setServiceAccessInfo(oldVO.getServiceAccessInfo());
-        newVO.setServiceAccessType(EnumConverter.convert(
-                oldVO.getServiceAccessType(),
-                org.oscm.types.enumtypes.ServiceAccessType.class));
+        newVO.setServiceAccessType(
+                EnumConverter.convert(oldVO.getServiceAccessType(),
+                        org.oscm.types.enumtypes.ServiceAccessType.class));
         newVO.setServiceBaseURL(oldVO.getServiceBaseURL());
         newVO.setServiceLoginPath(oldVO.getServiceLoginPath());
         newVO.setStatus(EnumConverter.convert(oldVO.getStatus(),
@@ -527,8 +543,9 @@ public class VOConverter {
         newVO.setProvisioningProgress(oldVO.getProvisioningProgress());
         newVO.setNumberOfAssignedUsers(oldVO.getNumberOfAssignedUsers());
         newVO.setSellerName(oldVO.getSellerName());
-        newVO.setTechnicalServiceOperations(convertToApiVOTechnicalServiceOperation(oldVO
-                .getTechnicalServiceOperations()));
+        newVO.setTechnicalServiceOperations(
+                convertToApiVOTechnicalServiceOperation(
+                        oldVO.getTechnicalServiceOperations()));
         newVO.setOwnerId(oldVO.getOwnerId());
         newVO.setUnitKey(oldVO.getUnitKey());
         newVO.setUnitName(oldVO.getUnitName());
@@ -621,8 +638,7 @@ public class VOConverter {
         newVO.setParameterName(oldVO.getParameterName());
         newVO.setParameterValue(oldVO.getParameterValue());
         newVO.setMandatory(oldVO.isMandatory());
-        newVO.setType(EnumConverter.convert(
-                oldVO.getType(),
+        newVO.setType(EnumConverter.convert(oldVO.getType(),
                 org.oscm.internal.types.enumtypes.OperationParameterType.class));
         return newVO;
     }
@@ -646,8 +662,7 @@ public class VOConverter {
         newVO.setParameterName(oldVO.getParameterName());
         newVO.setParameterValue(oldVO.getParameterValue());
         newVO.setMandatory(oldVO.isMandatory());
-        newVO.setType(EnumConverter.convert(
-                oldVO.getType(),
+        newVO.setType(EnumConverter.convert(oldVO.getType(),
                 org.oscm.internal.types.enumtypes.OperationParameterType.class));
         newVO.setValues(oldVO.getValues());
         return newVO;
@@ -824,8 +839,8 @@ public class VOConverter {
         org.oscm.internal.vo.VOParameterDefinition newVO = new org.oscm.internal.vo.VOParameterDefinition();
         newVO.setKey(oldVO.getKey());
         newVO.setVersion(oldVO.getVersion());
-        newVO.setParameterOptions(convertToUpVOParameterOption(oldVO
-                .getParameterOptions()));
+        newVO.setParameterOptions(
+                convertToUpVOParameterOption(oldVO.getParameterOptions()));
         newVO.setDefaultValue(oldVO.getDefaultValue());
         newVO.setMinValue(oldVO.getMinValue());
         newVO.setMaxValue(oldVO.getMaxValue());
@@ -834,8 +849,7 @@ public class VOConverter {
         newVO.setParameterType(EnumConverter.convert(oldVO.getParameterType(),
                 org.oscm.internal.types.enumtypes.ParameterType.class));
         newVO.setParameterId(oldVO.getParameterId());
-        newVO.setValueType(EnumConverter.convert(
-                oldVO.getValueType(),
+        newVO.setValueType(EnumConverter.convert(oldVO.getValueType(),
                 org.oscm.internal.types.enumtypes.ParameterValueType.class));
         newVO.setModificationType(EnumConverter.convert(
                 oldVO.getModificationType(),
@@ -859,8 +873,8 @@ public class VOConverter {
         org.oscm.vo.VOParameterDefinition newVO = new org.oscm.vo.VOParameterDefinition();
         newVO.setKey(oldVO.getKey());
         newVO.setVersion(oldVO.getVersion());
-        newVO.setParameterOptions(convertToApiVOParameterOption(oldVO
-                .getParameterOptions()));
+        newVO.setParameterOptions(
+                convertToApiVOParameterOption(oldVO.getParameterOptions()));
         newVO.setDefaultValue(oldVO.getDefaultValue());
         newVO.setMinValue(oldVO.getMinValue());
         newVO.setMaxValue(oldVO.getMaxValue());
@@ -895,8 +909,7 @@ public class VOConverter {
         newVO.setVersion(oldVO.getVersion());
         newVO.setActivationDate(oldVO.getActivationDate());
         newVO.setReason(oldVO.getReason());
-        newVO.setStatus(EnumConverter.convert(
-                oldVO.getStatus(),
+        newVO.setStatus(EnumConverter.convert(oldVO.getStatus(),
                 org.oscm.internal.types.enumtypes.TriggerProcessStatus.class));
         newVO.setTriggerDefinition(convertToUp(oldVO.getTriggerDefinition()));
         newVO.setUser(convertToUp(oldVO.getUser()));
@@ -1063,13 +1076,12 @@ public class VOConverter {
                 org.oscm.internal.types.enumtypes.Salutation.class));
         newVO.setRealmUserId(oldVO.getRealmUserId());
         newVO.setRemoteLdapActive(oldVO.isRemoteLdapActive());
-        newVO.setRemoteLdapAttributes(EnumConverter.convertList(
-                oldVO.getRemoteLdapAttributes(),
-                org.oscm.internal.types.enumtypes.SettingType.class));
+        newVO.setRemoteLdapAttributes(
+                EnumConverter.convertList(oldVO.getRemoteLdapAttributes(),
+                        org.oscm.internal.types.enumtypes.SettingType.class));
         newVO.setOrganizationId(oldVO.getOrganizationId());
         newVO.setUserId(oldVO.getUserId());
-        newVO.setStatus(EnumConverter.convert(
-                oldVO.getStatus(),
+        newVO.setStatus(EnumConverter.convert(oldVO.getStatus(),
                 org.oscm.internal.types.enumtypes.UserAccountStatus.class));
         newVO.setOrganizationRoles(EnumConverter.convertSet(
                 oldVO.getOrganizationRoles(),
@@ -1106,16 +1118,16 @@ public class VOConverter {
                 org.oscm.types.enumtypes.Salutation.class));
         newVO.setRealmUserId(oldVO.getRealmUserId());
         newVO.setRemoteLdapActive(oldVO.isRemoteLdapActive());
-        newVO.setRemoteLdapAttributes(EnumConverter.convertList(
-                oldVO.getRemoteLdapAttributes(),
-                org.oscm.types.enumtypes.SettingType.class));
+        newVO.setRemoteLdapAttributes(
+                EnumConverter.convertList(oldVO.getRemoteLdapAttributes(),
+                        org.oscm.types.enumtypes.SettingType.class));
         newVO.setOrganizationId(oldVO.getOrganizationId());
         newVO.setUserId(oldVO.getUserId());
         newVO.setStatus(EnumConverter.convert(oldVO.getStatus(),
                 org.oscm.types.enumtypes.UserAccountStatus.class));
-        newVO.setOrganizationRoles(EnumConverter.convertSet(
-                oldVO.getOrganizationRoles(),
-                org.oscm.types.enumtypes.OrganizationRoleType.class));
+        newVO.setOrganizationRoles(
+                EnumConverter.convertSet(oldVO.getOrganizationRoles(),
+                        org.oscm.types.enumtypes.OrganizationRoleType.class));
         newVO.setUserRoles(EnumConverter.convertSet(oldVO.getUserRoles(),
                 org.oscm.types.enumtypes.UserRoleType.class));
         return newVO;
@@ -1136,28 +1148,28 @@ public class VOConverter {
         org.oscm.internal.vo.VOTechnicalService newVO = new org.oscm.internal.vo.VOTechnicalService();
         newVO.setKey(oldVO.getKey());
         newVO.setVersion(oldVO.getVersion());
-        newVO.setEventDefinitions(convertToUpVOEventDefinition(oldVO
-                .getEventDefinitions()));
+        newVO.setEventDefinitions(
+                convertToUpVOEventDefinition(oldVO.getEventDefinitions()));
         newVO.setTechnicalServiceId(oldVO.getTechnicalServiceId());
         newVO.setTechnicalServiceBuildId(oldVO.getTechnicalServiceBuildId());
-        newVO.setAccessType(EnumConverter.convert(
-                oldVO.getAccessType(),
+        newVO.setAccessType(EnumConverter.convert(oldVO.getAccessType(),
                 org.oscm.internal.types.enumtypes.ServiceAccessType.class));
-        newVO.setTechnicalServiceDescription(oldVO
-                .getTechnicalServiceDescription());
+        newVO.setTechnicalServiceDescription(
+                oldVO.getTechnicalServiceDescription());
         newVO.setBaseUrl(oldVO.getBaseUrl());
         newVO.setProvisioningUrl(oldVO.getProvisioningUrl());
         newVO.setLoginPath(oldVO.getLoginPath());
         newVO.setProvisioningVersion(oldVO.getProvisioningVersion());
-        newVO.setParameterDefinitions(convertToUpVOParameterDefinition(oldVO
-                .getParameterDefinitions()));
-        newVO.setRoleDefinitions(convertToUpVORoleDefinition(oldVO
-                .getRoleDefinitions()));
+        newVO.setParameterDefinitions(convertToUpVOParameterDefinition(
+                oldVO.getParameterDefinitions()));
+        newVO.setRoleDefinitions(
+                convertToUpVORoleDefinition(oldVO.getRoleDefinitions()));
         newVO.setTags(oldVO.getTags());
         newVO.setLicense(oldVO.getLicense());
         newVO.setAccessInfo(oldVO.getAccessInfo());
-        newVO.setTechnicalServiceOperations(convertToUpVOTechnicalServiceOperation(oldVO
-                .getTechnicalServiceOperations()));
+        newVO.setTechnicalServiceOperations(
+                convertToUpVOTechnicalServiceOperation(
+                        oldVO.getTechnicalServiceOperations()));
         newVO.setExternalBilling(oldVO.isExternalBilling());
         return newVO;
     }
@@ -1177,27 +1189,28 @@ public class VOConverter {
         org.oscm.vo.VOTechnicalService newVO = new org.oscm.vo.VOTechnicalService();
         newVO.setKey(oldVO.getKey());
         newVO.setVersion(oldVO.getVersion());
-        newVO.setEventDefinitions(convertToApiVOEventDefinition(oldVO
-                .getEventDefinitions()));
+        newVO.setEventDefinitions(
+                convertToApiVOEventDefinition(oldVO.getEventDefinitions()));
         newVO.setTechnicalServiceId(oldVO.getTechnicalServiceId());
         newVO.setTechnicalServiceBuildId(oldVO.getTechnicalServiceBuildId());
         newVO.setAccessType(EnumConverter.convert(oldVO.getAccessType(),
                 org.oscm.types.enumtypes.ServiceAccessType.class));
-        newVO.setTechnicalServiceDescription(oldVO
-                .getTechnicalServiceDescription());
+        newVO.setTechnicalServiceDescription(
+                oldVO.getTechnicalServiceDescription());
         newVO.setBaseUrl(oldVO.getBaseUrl());
         newVO.setProvisioningUrl(oldVO.getProvisioningUrl());
         newVO.setLoginPath(oldVO.getLoginPath());
         newVO.setProvisioningVersion(oldVO.getProvisioningVersion());
-        newVO.setParameterDefinitions(convertToApiVOParameterDefinition(oldVO
-                .getParameterDefinitions()));
-        newVO.setRoleDefinitions(convertToApiVORoleDefinition(oldVO
-                .getRoleDefinitions()));
+        newVO.setParameterDefinitions(convertToApiVOParameterDefinition(
+                oldVO.getParameterDefinitions()));
+        newVO.setRoleDefinitions(
+                convertToApiVORoleDefinition(oldVO.getRoleDefinitions()));
         newVO.setTags(oldVO.getTags());
         newVO.setLicense(oldVO.getLicense());
         newVO.setAccessInfo(oldVO.getAccessInfo());
-        newVO.setTechnicalServiceOperations(convertToApiVOTechnicalServiceOperation(oldVO
-                .getTechnicalServiceOperations()));
+        newVO.setTechnicalServiceOperations(
+                convertToApiVOTechnicalServiceOperation(
+                        oldVO.getTechnicalServiceOperations()));
         newVO.setExternalBilling(oldVO.isExternalBilling());
         return newVO;
     }
@@ -1228,8 +1241,7 @@ public class VOConverter {
                 org.oscm.internal.types.enumtypes.ServiceAccessType.class));
         newVO.setServiceBaseURL(oldVO.getServiceBaseURL());
         newVO.setServiceLoginPath(oldVO.getServiceLoginPath());
-        newVO.setStatus(EnumConverter.convert(
-                oldVO.getStatus(),
+        newVO.setStatus(EnumConverter.convert(oldVO.getStatus(),
                 org.oscm.internal.types.enumtypes.SubscriptionStatus.class));
         newVO.setServiceInstanceId(oldVO.getServiceInstanceId());
         newVO.setTimeoutMailSent(oldVO.isTimeoutMailSent());
@@ -1238,8 +1250,9 @@ public class VOConverter {
         newVO.setProvisioningProgress(oldVO.getProvisioningProgress());
         newVO.setNumberOfAssignedUsers(oldVO.getNumberOfAssignedUsers());
         newVO.setSellerName(oldVO.getSellerName());
-        newVO.setTechnicalServiceOperations(convertToUpVOTechnicalServiceOperation(oldVO
-                .getTechnicalServiceOperations()));
+        newVO.setTechnicalServiceOperations(
+                convertToUpVOTechnicalServiceOperation(
+                        oldVO.getTechnicalServiceOperations()));
         newVO.setLicense(convertToUp(oldVO.getLicense()));
         newVO.setOwnerId(oldVO.getOwnerId());
         newVO.setUnitKey(oldVO.getUnitKey());
@@ -1268,9 +1281,9 @@ public class VOConverter {
         newVO.setCreationDate(oldVO.getCreationDate());
         newVO.setDeactivationDate(oldVO.getDeactivationDate());
         newVO.setServiceAccessInfo(oldVO.getServiceAccessInfo());
-        newVO.setServiceAccessType(EnumConverter.convert(
-                oldVO.getServiceAccessType(),
-                org.oscm.types.enumtypes.ServiceAccessType.class));
+        newVO.setServiceAccessType(
+                EnumConverter.convert(oldVO.getServiceAccessType(),
+                        org.oscm.types.enumtypes.ServiceAccessType.class));
         newVO.setServiceBaseURL(oldVO.getServiceBaseURL());
         newVO.setServiceLoginPath(oldVO.getServiceLoginPath());
         newVO.setStatus(EnumConverter.convert(oldVO.getStatus(),
@@ -1282,8 +1295,9 @@ public class VOConverter {
         newVO.setProvisioningProgress(oldVO.getProvisioningProgress());
         newVO.setNumberOfAssignedUsers(oldVO.getNumberOfAssignedUsers());
         newVO.setSellerName(oldVO.getSellerName());
-        newVO.setTechnicalServiceOperations(convertToApiVOTechnicalServiceOperation(oldVO
-                .getTechnicalServiceOperations()));
+        newVO.setTechnicalServiceOperations(
+                convertToApiVOTechnicalServiceOperation(
+                        oldVO.getTechnicalServiceOperations()));
         newVO.setLicense(convertToApi(oldVO.getLicense()));
         newVO.setOwnerId(oldVO.getOwnerId());
         newVO.setUnitKey(oldVO.getUnitKey());
@@ -1318,8 +1332,7 @@ public class VOConverter {
         newVO.setPriceModel(convertToUp(oldVO.getPriceModel()));
         newVO.setStatus(EnumConverter.convert(oldVO.getStatus(),
                 org.oscm.internal.types.enumtypes.ServiceStatus.class));
-        newVO.setAccessType(EnumConverter.convert(
-                oldVO.getAccessType(),
+        newVO.setAccessType(EnumConverter.convert(oldVO.getAccessType(),
                 org.oscm.internal.types.enumtypes.ServiceAccessType.class));
         newVO.setSellerId(oldVO.getSellerId());
         newVO.setSellerName(oldVO.getSellerName());
@@ -1448,8 +1461,7 @@ public class VOConverter {
         newVO.setPriceModel(convertToUp(oldVO.getPriceModel()));
         newVO.setStatus(EnumConverter.convert(oldVO.getStatus(),
                 org.oscm.internal.types.enumtypes.ServiceStatus.class));
-        newVO.setAccessType(EnumConverter.convert(
-                oldVO.getAccessType(),
+        newVO.setAccessType(EnumConverter.convert(oldVO.getAccessType(),
                 org.oscm.internal.types.enumtypes.ServiceAccessType.class));
         newVO.setSellerId(oldVO.getSellerId());
         newVO.setSellerName(oldVO.getSellerName());
@@ -1486,12 +1498,12 @@ public class VOConverter {
         newVO.setPricePerUser(oldVO.getPricePerUser());
         newVO.setPricePerSubscription(oldVO.getPricePerSubscription());
         newVO.setParameterKey(oldVO.getParameterKey());
-        newVO.setPricedOptions(convertToUpVOPricedOption(oldVO
-                .getPricedOptions()));
-        newVO.setRoleSpecificUserPrices(convertToUpVOPricedRole(oldVO
-                .getRoleSpecificUserPrices()));
-        newVO.setSteppedPrices(convertToUpVOSteppedPrice(oldVO
-                .getSteppedPrices()));
+        newVO.setPricedOptions(
+                convertToUpVOPricedOption(oldVO.getPricedOptions()));
+        newVO.setRoleSpecificUserPrices(
+                convertToUpVOPricedRole(oldVO.getRoleSpecificUserPrices()));
+        newVO.setSteppedPrices(
+                convertToUpVOSteppedPrice(oldVO.getSteppedPrices()));
         return newVO;
     }
 
@@ -1514,12 +1526,12 @@ public class VOConverter {
         newVO.setPricePerUser(oldVO.getPricePerUser());
         newVO.setPricePerSubscription(oldVO.getPricePerSubscription());
         newVO.setParameterKey(oldVO.getParameterKey());
-        newVO.setPricedOptions(convertToApiVOPricedOption(oldVO
-                .getPricedOptions()));
-        newVO.setRoleSpecificUserPrices(convertToApiVOPricedRole(oldVO
-                .getRoleSpecificUserPrices()));
-        newVO.setSteppedPrices(convertToApiVOSteppedPrice(oldVO
-                .getSteppedPrices()));
+        newVO.setPricedOptions(
+                convertToApiVOPricedOption(oldVO.getPricedOptions()));
+        newVO.setRoleSpecificUserPrices(
+                convertToApiVOPricedRole(oldVO.getRoleSpecificUserPrices()));
+        newVO.setSteppedPrices(
+                convertToApiVOSteppedPrice(oldVO.getSteppedPrices()));
         return newVO;
     }
 
@@ -1544,7 +1556,39 @@ public class VOConverter {
         newVO.setConfigurationType(EnumConverter.convert(
                 oldVO.getConfigurationType(),
                 org.oscm.internal.types.enumtypes.UdaConfigurationType.class));
+        newVO.setEncrypted(false);
+        newVO.setName("");
+
+        UdaDefinition existing = getUdaFromDB(oldVO);
+        if (existing != null) {
+            newVO.setEncrypted(existing.getDataContainer().isEncrypted());
+            newVO.setDefaultValue(oldVO.getDefaultValue());
+            String value = retrieveNameForUdaDefinition(existing);
+            newVO.setName(value);
+        }
         return newVO;
+    }
+
+    protected static String retrieveNameForUdaDefinition(
+            UdaDefinition existing) {
+        String value = "";
+        Query query = ds
+                .createNamedQuery("LocalizedResource.getAllTextsWithLocale");
+        query.setParameter("objectKey", existing.getKey());
+        query.setParameter("objectType",
+                LocalizedObjectTypes.CUSTOM_ATTRIBUTE_NAME);
+        for (LocalizedResource resource : ParameterizedTypes
+                .iterable(query.getResultList(), LocalizedResource.class)) {
+            if (resource.getLocale().equals(ds.getCurrentUser().getLocale())) {
+                value = resource.getValue();
+                break;
+            }
+        }
+        return value;
+    }
+
+    private static UdaDefinition getUdaFromDB(VOUdaDefinition oldVO) {
+        return ds.find(UdaDefinition.class, oldVO.getKey());
     }
 
     /**
@@ -1565,10 +1609,14 @@ public class VOConverter {
         newVO.setUdaId(oldVO.getUdaId());
         newVO.setTargetType(oldVO.getTargetType());
         newVO.setDefaultValue(oldVO.getDefaultValue());
-        newVO.setConfigurationType(EnumConverter.convert(
-                oldVO.getConfigurationType(),
-                org.oscm.types.enumtypes.UdaConfigurationType.class));
+        newVO.setConfigurationType(
+                EnumConverter.convert(oldVO.getConfigurationType(),
+                        org.oscm.types.enumtypes.UdaConfigurationType.class));
         return newVO;
+    }
+
+    private static Uda getUdaFromDB(org.oscm.vo.VOUda oldVO) {
+        return ds.find(Uda.class, oldVO.getKey());
     }
 
     /**
@@ -1597,8 +1645,7 @@ public class VOConverter {
                 org.oscm.internal.types.enumtypes.ServiceAccessType.class));
         newVO.setServiceBaseURL(oldVO.getServiceBaseURL());
         newVO.setServiceLoginPath(oldVO.getServiceLoginPath());
-        newVO.setStatus(EnumConverter.convert(
-                oldVO.getStatus(),
+        newVO.setStatus(EnumConverter.convert(oldVO.getStatus(),
                 org.oscm.internal.types.enumtypes.SubscriptionStatus.class));
         newVO.setServiceInstanceId(oldVO.getServiceInstanceId());
         newVO.setTimeoutMailSent(oldVO.isTimeoutMailSent());
@@ -1607,10 +1654,11 @@ public class VOConverter {
         newVO.setProvisioningProgress(oldVO.getProvisioningProgress());
         newVO.setNumberOfAssignedUsers(oldVO.getNumberOfAssignedUsers());
         newVO.setSellerName(oldVO.getSellerName());
-        newVO.setTechnicalServiceOperations(convertToUpVOTechnicalServiceOperation(oldVO
-                .getTechnicalServiceOperations()));
-        newVO.setUsageLicenses(convertToUpVOUsageLicense(oldVO
-                .getUsageLicenses()));
+        newVO.setTechnicalServiceOperations(
+                convertToUpVOTechnicalServiceOperation(
+                        oldVO.getTechnicalServiceOperations()));
+        newVO.setUsageLicenses(
+                convertToUpVOUsageLicense(oldVO.getUsageLicenses()));
         newVO.setPriceModel(convertToUp(oldVO.getPriceModel()));
         newVO.setSubscribedService(convertToUp(oldVO.getSubscribedService()));
         newVO.setBillingContact(convertToUp(oldVO.getBillingContact()));
@@ -1642,9 +1690,9 @@ public class VOConverter {
         newVO.setCreationDate(oldVO.getCreationDate());
         newVO.setDeactivationDate(oldVO.getDeactivationDate());
         newVO.setServiceAccessInfo(oldVO.getServiceAccessInfo());
-        newVO.setServiceAccessType(EnumConverter.convert(
-                oldVO.getServiceAccessType(),
-                org.oscm.types.enumtypes.ServiceAccessType.class));
+        newVO.setServiceAccessType(
+                EnumConverter.convert(oldVO.getServiceAccessType(),
+                        org.oscm.types.enumtypes.ServiceAccessType.class));
         newVO.setServiceBaseURL(oldVO.getServiceBaseURL());
         newVO.setServiceLoginPath(oldVO.getServiceLoginPath());
         newVO.setStatus(EnumConverter.convert(oldVO.getStatus(),
@@ -1656,9 +1704,11 @@ public class VOConverter {
         newVO.setProvisioningProgress(oldVO.getProvisioningProgress());
         newVO.setNumberOfAssignedUsers(oldVO.getNumberOfAssignedUsers());
         newVO.setSellerName(oldVO.getSellerName());
-        newVO.setTechnicalServiceOperations(convertToApiVOTechnicalServiceOperation(oldVO
-                .getTechnicalServiceOperations()));
-        newVO.setUsageLicenses(convertToVOUsageLicense(oldVO.getUsageLicenses()));
+        newVO.setTechnicalServiceOperations(
+                convertToApiVOTechnicalServiceOperation(
+                        oldVO.getTechnicalServiceOperations()));
+        newVO.setUsageLicenses(
+                convertToVOUsageLicense(oldVO.getUsageLicenses()));
         newVO.setPriceModel(convertToApi(oldVO.getPriceModel()));
         newVO.setSubscribedService(convertToApi(oldVO.getSubscribedService()));
         newVO.setBillingContact(convertToApi(oldVO.getBillingContact()));
@@ -1688,8 +1738,8 @@ public class VOConverter {
         newVO.setPricePerSubscription(oldVO.getPricePerSubscription());
         newVO.setParameterOptionKey(oldVO.getParameterOptionKey());
         newVO.setOptionId(oldVO.getOptionId());
-        newVO.setRoleSpecificUserPrices(convertToUpVOPricedRole(oldVO
-                .getRoleSpecificUserPrices()));
+        newVO.setRoleSpecificUserPrices(
+                convertToUpVOPricedRole(oldVO.getRoleSpecificUserPrices()));
         return newVO;
     }
 
@@ -1712,8 +1762,8 @@ public class VOConverter {
         newVO.setPricePerSubscription(oldVO.getPricePerSubscription());
         newVO.setParameterOptionKey(oldVO.getParameterOptionKey());
         newVO.setOptionId(oldVO.getOptionId());
-        newVO.setRoleSpecificUserPrices(convertToApiVOPricedRole(oldVO
-                .getRoleSpecificUserPrices()));
+        newVO.setRoleSpecificUserPrices(
+                convertToApiVOPricedRole(oldVO.getRoleSpecificUserPrices()));
         return newVO;
     }
 
@@ -1823,8 +1873,7 @@ public class VOConverter {
         newVO.setVersion(oldVO.getVersion());
         newVO.setName(oldVO.getName());
         newVO.setPaymentTypeId(oldVO.getPaymentTypeId());
-        newVO.setCollectionType(EnumConverter.convert(
-                oldVO.getCollectionType(),
+        newVO.setCollectionType(EnumConverter.convert(oldVO.getCollectionType(),
                 org.oscm.internal.types.enumtypes.PaymentCollectionType.class));
         return newVO;
     }
@@ -1846,8 +1895,7 @@ public class VOConverter {
         newVO.setVersion(oldVO.getVersion());
         newVO.setName(oldVO.getName());
         newVO.setPaymentTypeId(oldVO.getPaymentTypeId());
-        newVO.setCollectionType(EnumConverter.convert(
-                oldVO.getCollectionType(),
+        newVO.setCollectionType(EnumConverter.convert(oldVO.getCollectionType(),
                 org.oscm.types.enumtypes.PaymentCollectionType.class));
         return newVO;
     }
@@ -1991,8 +2039,8 @@ public class VOConverter {
         org.oscm.internal.vo.VOPricedEvent newVO = new org.oscm.internal.vo.VOPricedEvent();
         newVO.setKey(oldVO.getKey());
         newVO.setVersion(oldVO.getVersion());
-        newVO.setSteppedPrices(convertToUpVOSteppedPrice(oldVO
-                .getSteppedPrices()));
+        newVO.setSteppedPrices(
+                convertToUpVOSteppedPrice(oldVO.getSteppedPrices()));
         newVO.setEventDefinition(convertToUp(oldVO.getEventDefinition()));
         newVO.setEventPrice(oldVO.getEventPrice());
         return newVO;
@@ -2013,8 +2061,8 @@ public class VOConverter {
         org.oscm.vo.VOPricedEvent newVO = new org.oscm.vo.VOPricedEvent();
         newVO.setKey(oldVO.getKey());
         newVO.setVersion(oldVO.getVersion());
-        newVO.setSteppedPrices(convertToApiVOSteppedPrice(oldVO
-                .getSteppedPrices()));
+        newVO.setSteppedPrices(
+                convertToApiVOSteppedPrice(oldVO.getSteppedPrices()));
         newVO.setEventDefinition(convertToApi(oldVO.getEventDefinition()));
         newVO.setEventPrice(oldVO.getEventPrice());
         return newVO;
@@ -2037,8 +2085,7 @@ public class VOConverter {
         newVO.setVersion(oldVO.getVersion());
         newVO.setType(EnumConverter.convert(oldVO.getType(),
                 org.oscm.internal.types.enumtypes.TriggerType.class));
-        newVO.setTargetType(EnumConverter.convert(
-                oldVO.getTargetType(),
+        newVO.setTargetType(EnumConverter.convert(oldVO.getTargetType(),
                 org.oscm.internal.types.enumtypes.TriggerTargetType.class));
         newVO.setTarget(oldVO.getTarget());
         newVO.setSuspendProcess(oldVO.isSuspendProcess());
@@ -2125,11 +2172,12 @@ public class VOConverter {
         }
         org.oscm.internal.vo.VOServiceLocalization newVO = new org.oscm.internal.vo.VOServiceLocalization();
         newVO.setNames(convertToUpVOLocalizedText(oldVO.getNames()));
-        newVO.setDescriptions(convertToUpVOLocalizedText(oldVO
-                .getDescriptions()));
-        newVO.setShortDescriptions(convertToUpVOLocalizedText(oldVO
-                .getShortDescriptions()));
-        newVO.setCustomTabNames(convertToUpVOLocalizedText(oldVO.getCustomTabNames()));
+        newVO.setDescriptions(
+                convertToUpVOLocalizedText(oldVO.getDescriptions()));
+        newVO.setShortDescriptions(
+                convertToUpVOLocalizedText(oldVO.getShortDescriptions()));
+        newVO.setCustomTabNames(
+                convertToUpVOLocalizedText(oldVO.getCustomTabNames()));
         return newVO;
     }
 
@@ -2147,10 +2195,12 @@ public class VOConverter {
         }
         org.oscm.vo.VOServiceLocalization newVO = new org.oscm.vo.VOServiceLocalization();
         newVO.setNames(convertToVOLocalizedText(oldVO.getNames()));
-        newVO.setDescriptions(convertToVOLocalizedText(oldVO.getDescriptions()));
-        newVO.setShortDescriptions(convertToVOLocalizedText(oldVO
-                .getShortDescriptions()));
-        newVO.setCustomTabNames(convertToVOLocalizedText(oldVO.getCustomTabNames()));
+        newVO.setDescriptions(
+                convertToVOLocalizedText(oldVO.getDescriptions()));
+        newVO.setShortDescriptions(
+                convertToVOLocalizedText(oldVO.getShortDescriptions()));
+        newVO.setCustomTabNames(
+                convertToVOLocalizedText(oldVO.getCustomTabNames()));
         return newVO;
     }
 
@@ -2252,8 +2302,8 @@ public class VOConverter {
         }
         org.oscm.internal.vo.VOOrganizationPaymentConfiguration newVO = new org.oscm.internal.vo.VOOrganizationPaymentConfiguration();
         newVO.setOrganization(convertToUp(oldVO.getOrganization()));
-        newVO.setEnabledPaymentTypes(convertToUpVOPaymentType(oldVO
-                .getEnabledPaymentTypes()));
+        newVO.setEnabledPaymentTypes(
+                convertToUpVOPaymentType(oldVO.getEnabledPaymentTypes()));
         return newVO;
     }
 
@@ -2271,8 +2321,8 @@ public class VOConverter {
         }
         org.oscm.vo.VOOrganizationPaymentConfiguration newVO = new org.oscm.vo.VOOrganizationPaymentConfiguration();
         newVO.setOrganization(convertToApi(oldVO.getOrganization()));
-        newVO.setEnabledPaymentTypes(convertToApiVOPaymentType(oldVO
-                .getEnabledPaymentTypes()));
+        newVO.setEnabledPaymentTypes(
+                convertToApiVOPaymentType(oldVO.getEnabledPaymentTypes()));
         return newVO;
     }
 
@@ -2343,8 +2393,7 @@ public class VOConverter {
         newVO.setPriceModel(convertToUp(oldVO.getPriceModel()));
         newVO.setStatus(EnumConverter.convert(oldVO.getStatus(),
                 org.oscm.internal.types.enumtypes.ServiceStatus.class));
-        newVO.setAccessType(EnumConverter.convert(
-                oldVO.getAccessType(),
+        newVO.setAccessType(EnumConverter.convert(oldVO.getAccessType(),
                 org.oscm.internal.types.enumtypes.ServiceAccessType.class));
         newVO.setSellerId(oldVO.getSellerId());
         newVO.setSellerName(oldVO.getSellerName());
@@ -2512,7 +2561,8 @@ public class VOConverter {
         org.oscm.internal.vo.VOParameter newVO = new org.oscm.internal.vo.VOParameter();
         newVO.setKey(oldVO.getKey());
         newVO.setVersion(oldVO.getVersion());
-        newVO.setParameterDefinition(convertToUp(oldVO.getParameterDefinition()));
+        newVO.setParameterDefinition(
+                convertToUp(oldVO.getParameterDefinition()));
         newVO.setValue(oldVO.getValue());
         newVO.setConfigurable(oldVO.isConfigurable());
         return newVO;
@@ -2533,8 +2583,8 @@ public class VOConverter {
         org.oscm.vo.VOParameter newVO = new org.oscm.vo.VOParameter();
         newVO.setKey(oldVO.getKey());
         newVO.setVersion(oldVO.getVersion());
-        newVO.setParameterDefinition(convertToApi(oldVO
-                .getParameterDefinition()));
+        newVO.setParameterDefinition(
+                convertToApi(oldVO.getParameterDefinition()));
         newVO.setValue(oldVO.getValue());
         newVO.setConfigurable(oldVO.isConfigurable());
         return newVO;
@@ -2556,20 +2606,20 @@ public class VOConverter {
         newVO.setKey(oldVO.getKey());
         newVO.setVersion(oldVO.getVersion());
         newVO.setDescription(oldVO.getDescription());
-        newVO.setConsideredEvents(convertToUpVOPricedEvent(oldVO
-                .getConsideredEvents()));
-        newVO.setSelectedParameters(convertToUpVOPricedParameter(oldVO
-                .getSelectedParameters()));
+        newVO.setConsideredEvents(
+                convertToUpVOPricedEvent(oldVO.getConsideredEvents()));
+        newVO.setSelectedParameters(
+                convertToUpVOPricedParameter(oldVO.getSelectedParameters()));
         newVO.setPeriod(EnumConverter.convert(oldVO.getPeriod(),
                 org.oscm.internal.types.enumtypes.PricingPeriod.class));
         newVO.setPricePerPeriod(oldVO.getPricePerPeriod());
         newVO.setPricePerUserAssignment(oldVO.getPricePerUserAssignment());
         newVO.setCurrencyISOCode(oldVO.getCurrencyISOCode());
         newVO.setOneTimeFee(oldVO.getOneTimeFee());
-        newVO.setRoleSpecificUserPrices(convertToUpVOPricedRole(oldVO
-                .getRoleSpecificUserPrices()));
-        newVO.setSteppedPrices(convertToUpVOSteppedPrice(oldVO
-                .getSteppedPrices()));
+        newVO.setRoleSpecificUserPrices(
+                convertToUpVOPricedRole(oldVO.getRoleSpecificUserPrices()));
+        newVO.setSteppedPrices(
+                convertToUpVOSteppedPrice(oldVO.getSteppedPrices()));
         newVO.setLicense(oldVO.getLicense());
         newVO.setFreePeriod(oldVO.getFreePeriod());
         newVO.setType(EnumConverter.convert(oldVO.getType(),
@@ -2594,20 +2644,20 @@ public class VOConverter {
         newVO.setKey(oldVO.getKey());
         newVO.setVersion(oldVO.getVersion());
         newVO.setDescription(oldVO.getDescription());
-        newVO.setConsideredEvents(convertToApiVOPricedEvent(oldVO
-                .getConsideredEvents()));
-        newVO.setSelectedParameters(convertToApiVOPricedParameter(oldVO
-                .getSelectedParameters()));
+        newVO.setConsideredEvents(
+                convertToApiVOPricedEvent(oldVO.getConsideredEvents()));
+        newVO.setSelectedParameters(
+                convertToApiVOPricedParameter(oldVO.getSelectedParameters()));
         newVO.setPeriod(EnumConverter.convert(oldVO.getPeriod(),
                 org.oscm.types.enumtypes.PricingPeriod.class));
         newVO.setPricePerPeriod(oldVO.getPricePerPeriod());
         newVO.setPricePerUserAssignment(oldVO.getPricePerUserAssignment());
         newVO.setCurrencyISOCode(oldVO.getCurrencyISOCode());
         newVO.setOneTimeFee(oldVO.getOneTimeFee());
-        newVO.setRoleSpecificUserPrices(convertToApiVOPricedRole(oldVO
-                .getRoleSpecificUserPrices()));
-        newVO.setSteppedPrices(convertToApiVOSteppedPrice(oldVO
-                .getSteppedPrices()));
+        newVO.setRoleSpecificUserPrices(
+                convertToApiVOPricedRole(oldVO.getRoleSpecificUserPrices()));
+        newVO.setSteppedPrices(
+                convertToApiVOSteppedPrice(oldVO.getSteppedPrices()));
         newVO.setLicense(oldVO.getLicense());
         newVO.setFreePeriod(oldVO.getFreePeriod());
         newVO.setType(EnumConverter.convert(oldVO.getType(),
@@ -2713,8 +2763,7 @@ public class VOConverter {
         newVO.setVersion(oldVO.getVersion());
         newVO.setOrganizationId(oldVO.getOrganizationId());
         newVO.setUserId(oldVO.getUserId());
-        newVO.setStatus(EnumConverter.convert(
-                oldVO.getStatus(),
+        newVO.setStatus(EnumConverter.convert(oldVO.getStatus(),
                 org.oscm.internal.types.enumtypes.UserAccountStatus.class));
         newVO.setOrganizationRoles(EnumConverter.convertSet(
                 oldVO.getOrganizationRoles(),
@@ -2743,9 +2792,9 @@ public class VOConverter {
         newVO.setUserId(oldVO.getUserId());
         newVO.setStatus(EnumConverter.convert(oldVO.getStatus(),
                 org.oscm.types.enumtypes.UserAccountStatus.class));
-        newVO.setOrganizationRoles(EnumConverter.convertSet(
-                oldVO.getOrganizationRoles(),
-                org.oscm.types.enumtypes.OrganizationRoleType.class));
+        newVO.setOrganizationRoles(
+                EnumConverter.convertSet(oldVO.getOrganizationRoles(),
+                        org.oscm.types.enumtypes.OrganizationRoleType.class));
         newVO.setUserRoles(EnumConverter.convertSet(oldVO.getUserRoles(),
                 org.oscm.types.enumtypes.UserRoleType.class));
         return newVO;
@@ -2776,8 +2825,7 @@ public class VOConverter {
         newVO.setPriceModel(convertToUp(oldVO.getPriceModel()));
         newVO.setStatus(EnumConverter.convert(oldVO.getStatus(),
                 org.oscm.internal.types.enumtypes.ServiceStatus.class));
-        newVO.setAccessType(EnumConverter.convert(
-                oldVO.getAccessType(),
+        newVO.setAccessType(EnumConverter.convert(oldVO.getAccessType(),
                 org.oscm.internal.types.enumtypes.ServiceAccessType.class));
         newVO.setSellerId(oldVO.getSellerId());
         newVO.setSellerName(oldVO.getSellerName());
@@ -2859,8 +2907,8 @@ public class VOConverter {
         }
         org.oscm.internal.vo.VOSubscriptionIdAndOrganizations newVO = new org.oscm.internal.vo.VOSubscriptionIdAndOrganizations();
         newVO.setSubscriptionId(oldVO.getSubscriptionId());
-        newVO.setOrganizations(convertToUpVOOrganization(oldVO
-                .getOrganizations()));
+        newVO.setOrganizations(
+                convertToUpVOOrganization(oldVO.getOrganizations()));
         return newVO;
     }
 
@@ -2878,8 +2926,8 @@ public class VOConverter {
         }
         org.oscm.vo.VOSubscriptionIdAndOrganizations newVO = new org.oscm.vo.VOSubscriptionIdAndOrganizations();
         newVO.setSubscriptionId(oldVO.getSubscriptionId());
-        newVO.setOrganizations(convertToApiVOOrganization(oldVO
-                .getOrganizations()));
+        newVO.setOrganizations(
+                convertToApiVOOrganization(oldVO.getOrganizations()));
         return newVO;
     }
 
@@ -2895,7 +2943,7 @@ public class VOConverter {
         if (oldVO == null) {
             return null;
         }
-        List<org.oscm.internal.vo.VOPricedRole> newVO = new ArrayList<org.oscm.internal.vo.VOPricedRole>();
+        List<org.oscm.internal.vo.VOPricedRole> newVO = new ArrayList<>();
         for (org.oscm.vo.VOPricedRole tmp : oldVO) {
             newVO.add(convertToUp(tmp));
         }
@@ -2914,7 +2962,7 @@ public class VOConverter {
         if (oldVO == null) {
             return null;
         }
-        List<org.oscm.vo.VOPricedRole> newVO = new ArrayList<org.oscm.vo.VOPricedRole>();
+        List<org.oscm.vo.VOPricedRole> newVO = new ArrayList<>();
         for (org.oscm.internal.vo.VOPricedRole tmp : oldVO) {
             newVO.add(convertToApi(tmp));
         }
@@ -2933,7 +2981,7 @@ public class VOConverter {
         if (oldVO == null) {
             return null;
         }
-        List<org.oscm.internal.vo.VOTechnicalServiceOperation> newVO = new ArrayList<org.oscm.internal.vo.VOTechnicalServiceOperation>();
+        List<org.oscm.internal.vo.VOTechnicalServiceOperation> newVO = new ArrayList<>();
         for (org.oscm.vo.VOTechnicalServiceOperation tmp : oldVO) {
             newVO.add(convertToUp(tmp));
         }
@@ -2952,7 +3000,7 @@ public class VOConverter {
         if (oldVO == null) {
             return null;
         }
-        List<org.oscm.vo.VOTechnicalServiceOperation> newVO = new ArrayList<org.oscm.vo.VOTechnicalServiceOperation>();
+        List<org.oscm.vo.VOTechnicalServiceOperation> newVO = new ArrayList<>();
         for (org.oscm.internal.vo.VOTechnicalServiceOperation tmp : oldVO) {
             newVO.add(convertToApi(tmp));
         }
@@ -2971,7 +3019,7 @@ public class VOConverter {
         if (oldVO == null) {
             return null;
         }
-        List<org.oscm.internal.vo.VOParameterDefinition> newVO = new ArrayList<org.oscm.internal.vo.VOParameterDefinition>();
+        List<org.oscm.internal.vo.VOParameterDefinition> newVO = new ArrayList<>();
         for (org.oscm.vo.VOParameterDefinition tmp : oldVO) {
             newVO.add(convertToUp(tmp));
         }
@@ -2990,7 +3038,7 @@ public class VOConverter {
         if (oldVO == null) {
             return null;
         }
-        List<org.oscm.vo.VOParameterDefinition> newVO = new ArrayList<org.oscm.vo.VOParameterDefinition>();
+        List<org.oscm.vo.VOParameterDefinition> newVO = new ArrayList<>();
         for (org.oscm.internal.vo.VOParameterDefinition tmp : oldVO) {
             newVO.add(convertToApi(tmp));
         }
@@ -3009,7 +3057,7 @@ public class VOConverter {
         if (oldVO == null) {
             return null;
         }
-        List<org.oscm.internal.vo.VOOrganization> newVO = new ArrayList<org.oscm.internal.vo.VOOrganization>();
+        List<org.oscm.internal.vo.VOOrganization> newVO = new ArrayList<>();
         for (org.oscm.vo.VOOrganization tmp : oldVO) {
             newVO.add(convertToUp(tmp));
         }
@@ -3028,7 +3076,7 @@ public class VOConverter {
         if (oldVO == null) {
             return null;
         }
-        List<org.oscm.vo.VOOrganization> newVO = new ArrayList<org.oscm.vo.VOOrganization>();
+        List<org.oscm.vo.VOOrganization> newVO = new ArrayList<>();
         for (org.oscm.internal.vo.VOOrganization tmp : oldVO) {
             newVO.add(convertToApi(tmp));
         }
@@ -3047,7 +3095,7 @@ public class VOConverter {
         if (oldVO == null) {
             return null;
         }
-        List<org.oscm.internal.vo.VOParameterOption> newVO = new ArrayList<org.oscm.internal.vo.VOParameterOption>();
+        List<org.oscm.internal.vo.VOParameterOption> newVO = new ArrayList<>();
         for (org.oscm.vo.VOParameterOption tmp : oldVO) {
             newVO.add(convertToUp(tmp));
         }
@@ -3066,7 +3114,7 @@ public class VOConverter {
         if (oldVO == null) {
             return null;
         }
-        List<org.oscm.vo.VOParameterOption> newVO = new ArrayList<org.oscm.vo.VOParameterOption>();
+        List<org.oscm.vo.VOParameterOption> newVO = new ArrayList<>();
         for (org.oscm.internal.vo.VOParameterOption tmp : oldVO) {
             newVO.add(convertToApi(tmp));
         }
@@ -3085,7 +3133,7 @@ public class VOConverter {
         if (oldVO == null) {
             return null;
         }
-        List<org.oscm.internal.vo.VOPricedParameter> newVO = new ArrayList<org.oscm.internal.vo.VOPricedParameter>();
+        List<org.oscm.internal.vo.VOPricedParameter> newVO = new ArrayList<>();
         for (org.oscm.vo.VOPricedParameter tmp : oldVO) {
             newVO.add(convertToUp(tmp));
         }
@@ -3104,7 +3152,7 @@ public class VOConverter {
         if (oldVO == null) {
             return null;
         }
-        List<org.oscm.vo.VOPricedParameter> newVO = new ArrayList<org.oscm.vo.VOPricedParameter>();
+        List<org.oscm.vo.VOPricedParameter> newVO = new ArrayList<>();
         for (org.oscm.internal.vo.VOPricedParameter tmp : oldVO) {
             newVO.add(convertToApi(tmp));
         }
@@ -3123,7 +3171,7 @@ public class VOConverter {
         if (oldVO == null) {
             return null;
         }
-        List<org.oscm.internal.vo.VOPricedOption> newVO = new ArrayList<org.oscm.internal.vo.VOPricedOption>();
+        List<org.oscm.internal.vo.VOPricedOption> newVO = new ArrayList<>();
         for (org.oscm.vo.VOPricedOption tmp : oldVO) {
             newVO.add(convertToUp(tmp));
         }
@@ -3142,7 +3190,7 @@ public class VOConverter {
         if (oldVO == null) {
             return null;
         }
-        List<org.oscm.vo.VOPricedOption> newVO = new ArrayList<org.oscm.vo.VOPricedOption>();
+        List<org.oscm.vo.VOPricedOption> newVO = new ArrayList<>();
         for (org.oscm.internal.vo.VOPricedOption tmp : oldVO) {
             newVO.add(convertToApi(tmp));
         }
@@ -3161,7 +3209,7 @@ public class VOConverter {
         if (oldVO == null) {
             return null;
         }
-        Set<org.oscm.internal.vo.VOPaymentType> newVO = new HashSet<org.oscm.internal.vo.VOPaymentType>();
+        Set<org.oscm.internal.vo.VOPaymentType> newVO = new HashSet<>();
         for (org.oscm.vo.VOPaymentType tmp : oldVO) {
             newVO.add(convertToUp(tmp));
         }
@@ -3180,7 +3228,7 @@ public class VOConverter {
         if (oldVO == null) {
             return null;
         }
-        Set<org.oscm.vo.VOPaymentType> newVO = new HashSet<org.oscm.vo.VOPaymentType>();
+        Set<org.oscm.vo.VOPaymentType> newVO = new HashSet<>();
         for (org.oscm.internal.vo.VOPaymentType tmp : oldVO) {
             newVO.add(convertToApi(tmp));
         }
@@ -3199,7 +3247,7 @@ public class VOConverter {
         if (oldVO == null) {
             return null;
         }
-        List<org.oscm.internal.vo.VOSteppedPrice> newVO = new ArrayList<org.oscm.internal.vo.VOSteppedPrice>();
+        List<org.oscm.internal.vo.VOSteppedPrice> newVO = new ArrayList<>();
         for (org.oscm.vo.VOSteppedPrice tmp : oldVO) {
             newVO.add(convertToUp(tmp));
         }
@@ -3218,7 +3266,7 @@ public class VOConverter {
         if (oldVO == null) {
             return null;
         }
-        List<org.oscm.vo.VOSteppedPrice> newVO = new ArrayList<org.oscm.vo.VOSteppedPrice>();
+        List<org.oscm.vo.VOSteppedPrice> newVO = new ArrayList<>();
         for (org.oscm.internal.vo.VOSteppedPrice tmp : oldVO) {
             newVO.add(convertToApi(tmp));
         }
@@ -3237,7 +3285,7 @@ public class VOConverter {
         if (oldVO == null) {
             return null;
         }
-        List<org.oscm.internal.vo.VOPricedEvent> newVO = new ArrayList<org.oscm.internal.vo.VOPricedEvent>();
+        List<org.oscm.internal.vo.VOPricedEvent> newVO = new ArrayList<>();
         for (org.oscm.vo.VOPricedEvent tmp : oldVO) {
             newVO.add(convertToUp(tmp));
         }
@@ -3256,7 +3304,7 @@ public class VOConverter {
         if (oldVO == null) {
             return null;
         }
-        List<org.oscm.vo.VOPricedEvent> newVO = new ArrayList<org.oscm.vo.VOPricedEvent>();
+        List<org.oscm.vo.VOPricedEvent> newVO = new ArrayList<>();
         for (org.oscm.internal.vo.VOPricedEvent tmp : oldVO) {
             newVO.add(convertToApi(tmp));
         }
@@ -3275,7 +3323,7 @@ public class VOConverter {
         if (oldVO == null) {
             return null;
         }
-        List<org.oscm.internal.vo.VORoleDefinition> newVO = new ArrayList<org.oscm.internal.vo.VORoleDefinition>();
+        List<org.oscm.internal.vo.VORoleDefinition> newVO = new ArrayList<>();
         for (org.oscm.vo.VORoleDefinition tmp : oldVO) {
             newVO.add(convertToUp(tmp));
         }
@@ -3294,7 +3342,7 @@ public class VOConverter {
         if (oldVO == null) {
             return null;
         }
-        List<org.oscm.vo.VORoleDefinition> newVO = new ArrayList<org.oscm.vo.VORoleDefinition>();
+        List<org.oscm.vo.VORoleDefinition> newVO = new ArrayList<>();
         for (org.oscm.internal.vo.VORoleDefinition tmp : oldVO) {
             newVO.add(convertToApi(tmp));
         }
@@ -3313,7 +3361,7 @@ public class VOConverter {
         if (oldVO == null) {
             return null;
         }
-        List<org.oscm.internal.vo.VOEventDefinition> newVO = new ArrayList<org.oscm.internal.vo.VOEventDefinition>();
+        List<org.oscm.internal.vo.VOEventDefinition> newVO = new ArrayList<>();
         for (org.oscm.vo.VOEventDefinition tmp : oldVO) {
             newVO.add(convertToUp(tmp));
         }
@@ -3332,7 +3380,7 @@ public class VOConverter {
         if (oldVO == null) {
             return null;
         }
-        List<org.oscm.vo.VOEventDefinition> newVO = new ArrayList<org.oscm.vo.VOEventDefinition>();
+        List<org.oscm.vo.VOEventDefinition> newVO = new ArrayList<>();
         for (org.oscm.internal.vo.VOEventDefinition tmp : oldVO) {
             newVO.add(convertToApi(tmp));
         }
@@ -3351,7 +3399,7 @@ public class VOConverter {
         if (oldVO == null) {
             return null;
         }
-        List<org.oscm.internal.vo.VOParameter> newVO = new ArrayList<org.oscm.internal.vo.VOParameter>();
+        List<org.oscm.internal.vo.VOParameter> newVO = new ArrayList<>();
         for (org.oscm.vo.VOParameter tmp : oldVO) {
             newVO.add(convertToUp(tmp));
         }
@@ -3370,7 +3418,7 @@ public class VOConverter {
         if (oldVO == null) {
             return null;
         }
-        List<org.oscm.vo.VOParameter> newVO = new ArrayList<org.oscm.vo.VOParameter>();
+        List<org.oscm.vo.VOParameter> newVO = new ArrayList<>();
         for (org.oscm.internal.vo.VOParameter tmp : oldVO) {
             newVO.add(convertToApi(tmp));
         }
@@ -3389,7 +3437,7 @@ public class VOConverter {
         if (oldVO == null) {
             return null;
         }
-        List<org.oscm.internal.vo.VOUsageLicense> newVO = new ArrayList<org.oscm.internal.vo.VOUsageLicense>();
+        List<org.oscm.internal.vo.VOUsageLicense> newVO = new ArrayList<>();
         for (org.oscm.vo.VOUsageLicense tmp : oldVO) {
             newVO.add(convertToUp(tmp));
         }
@@ -3408,7 +3456,7 @@ public class VOConverter {
         if (oldVO == null) {
             return null;
         }
-        List<org.oscm.vo.VOUsageLicense> newVO = new ArrayList<org.oscm.vo.VOUsageLicense>();
+        List<org.oscm.vo.VOUsageLicense> newVO = new ArrayList<>();
         for (org.oscm.internal.vo.VOUsageLicense tmp : oldVO) {
             newVO.add(convertToApi(tmp));
         }
@@ -3427,7 +3475,7 @@ public class VOConverter {
         if (oldVO == null) {
             return null;
         }
-        List<org.oscm.internal.vo.VOLocalizedText> newVO = new ArrayList<org.oscm.internal.vo.VOLocalizedText>();
+        List<org.oscm.internal.vo.VOLocalizedText> newVO = new ArrayList<>();
         for (org.oscm.vo.VOLocalizedText tmp : oldVO) {
             newVO.add(convertToUp(tmp));
         }
@@ -3446,7 +3494,7 @@ public class VOConverter {
         if (oldVO == null) {
             return null;
         }
-        List<org.oscm.vo.VOLocalizedText> newVO = new ArrayList<org.oscm.vo.VOLocalizedText>();
+        List<org.oscm.vo.VOLocalizedText> newVO = new ArrayList<>();
         for (org.oscm.internal.vo.VOLocalizedText tmp : oldVO) {
             newVO.add(convertToApi(tmp));
         }
@@ -3488,7 +3536,7 @@ public class VOConverter {
         if (oldVO == null) {
             return null;
         }
-        List<org.oscm.internal.vo.VOCategory> newVO = new ArrayList<org.oscm.internal.vo.VOCategory>();
+        List<org.oscm.internal.vo.VOCategory> newVO = new ArrayList<>();
         for (org.oscm.vo.VOCategory tmp : oldVO) {
             newVO.add(convertToUp(tmp));
         }
@@ -3530,7 +3578,7 @@ public class VOConverter {
         if (oldVO == null) {
             return null;
         }
-        List<org.oscm.vo.VOCategory> newVO = new ArrayList<org.oscm.vo.VOCategory>();
+        List<org.oscm.vo.VOCategory> newVO = new ArrayList<>();
         for (org.oscm.internal.vo.VOCategory tmp : oldVO) {
             newVO.add(convertToApi(tmp));
         }
@@ -3646,8 +3694,7 @@ public class VOConverter {
         newVO.setPriceModel(convertToUp(oldVO.getPriceModel()));
         newVO.setStatus(EnumConverter.convert(oldVO.getStatus(),
                 org.oscm.internal.types.enumtypes.ServiceStatus.class));
-        newVO.setAccessType(EnumConverter.convert(
-                oldVO.getAccessType(),
+        newVO.setAccessType(EnumConverter.convert(oldVO.getAccessType(),
                 org.oscm.internal.types.enumtypes.ServiceAccessType.class));
         newVO.setSellerId(oldVO.getSellerId());
         newVO.setSellerName(oldVO.getSellerName());
@@ -3802,8 +3849,8 @@ public class VOConverter {
         }
         org.oscm.internal.vo.VOServiceActivation newVO = new org.oscm.internal.vo.VOServiceActivation();
         newVO.setActive(oldVO.isActive());
-        newVO.setCatalogEntries(convertToUpVOCatalogEntry(oldVO
-                .getCatalogEntries()));
+        newVO.setCatalogEntries(
+                convertToUpVOCatalogEntry(oldVO.getCatalogEntries()));
         newVO.setService(convertToUp(oldVO.getService()));
         return newVO;
     }
@@ -3822,8 +3869,8 @@ public class VOConverter {
         }
         org.oscm.vo.VOServiceActivation newVO = new org.oscm.vo.VOServiceActivation();
         newVO.setActive(oldVO.isActive());
-        newVO.setCatalogEntries(convertToApiVOCatalogEntry(oldVO
-                .getCatalogEntries()));
+        newVO.setCatalogEntries(
+                convertToApiVOCatalogEntry(oldVO.getCatalogEntries()));
         newVO.setService(convertToApi(oldVO.getService()));
         return newVO;
     }
@@ -3841,8 +3888,8 @@ public class VOConverter {
             return null;
         }
         org.oscm.internal.vo.VOServicePaymentConfiguration newVO = new org.oscm.internal.vo.VOServicePaymentConfiguration();
-        newVO.setEnabledPaymentTypes(convertToUpVOPaymentType(oldVO
-                .getEnabledPaymentTypes()));
+        newVO.setEnabledPaymentTypes(
+                convertToUpVOPaymentType(oldVO.getEnabledPaymentTypes()));
         newVO.setService(convertToUp(oldVO.getService()));
         return newVO;
     }
@@ -3860,8 +3907,8 @@ public class VOConverter {
             return null;
         }
         org.oscm.vo.VOServicePaymentConfiguration newVO = new org.oscm.vo.VOServicePaymentConfiguration();
-        newVO.setEnabledPaymentTypes(convertToApiVOPaymentType(oldVO
-                .getEnabledPaymentTypes()));
+        newVO.setEnabledPaymentTypes(
+                convertToApiVOPaymentType(oldVO.getEnabledPaymentTypes()));
         newVO.setService(convertToApi(oldVO.getService()));
         return newVO;
     }
@@ -3886,8 +3933,7 @@ public class VOConverter {
                 .getStrategy(oldVO.getType());
 
         org.oscm.internal.vo.VOTriggerProcessParameter newVO = new org.oscm.internal.vo.VOTriggerProcessParameter();
-        newVO.setType(EnumConverter.convert(
-                oldVO.getType(),
+        newVO.setType(EnumConverter.convert(oldVO.getType(),
                 org.oscm.internal.types.enumtypes.TriggerProcessParameterType.class));
         newVO.setValue(strategy.convert(oldVO.getValue()));
         newVO.setTriggerProcessKey(oldVO.getTriggerProcessKey());

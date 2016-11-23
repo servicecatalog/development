@@ -4,8 +4,13 @@
 
 package org.oscm.configurationservice.bean;
 
+import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +25,7 @@ import javax.ejb.LockType;
 import javax.ejb.Remote;
 import javax.ejb.Schedule;
 import javax.ejb.Singleton;
+import javax.ejb.Startup;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.interceptor.Interceptors;
@@ -31,6 +37,7 @@ import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.converter.DateConverter;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.ConfigurationSetting;
+import org.oscm.encrypter.AESEncrypter;
 import org.oscm.interceptor.ExceptionMapper;
 import org.oscm.internal.intf.ConfigurationService;
 import org.oscm.internal.types.enumtypes.AuthenticationMode;
@@ -48,14 +55,17 @@ import org.oscm.types.enumtypes.LogMessageIdentifier;
  * Session Bean implementation class ConfigurationServiceBean
  */
 @Singleton
+@Startup
 @Local(ConfigurationServiceLocal.class)
 @Remote(ConfigurationService.class)
 @Interceptors({ ExceptionMapper.class })
 @ConcurrencyManagement(ConcurrencyManagementType.CONTAINER)
 @Lock(LockType.READ)
-public class ConfigurationServiceBean implements ConfigurationService, ConfigurationServiceLocal {
+public class ConfigurationServiceBean
+        implements ConfigurationService, ConfigurationServiceLocal {
 
-    private static Log4jLogger logger = LoggerFactory.getLogger(ConfigurationServiceBean.class);
+    private static Log4jLogger logger = LoggerFactory
+            .getLogger(ConfigurationServiceBean.class);
 
     private static final String NODENAME_PROPKEY = "bss.nodename";
     private static final String NODENAME_DEFAULT = "SingleNode";
@@ -68,6 +78,38 @@ public class ConfigurationServiceBean implements ConfigurationService, Configura
     @PostConstruct
     public void init() {
         refreshCache();
+
+        String path = getConfigurationSetting(ConfigurationKey.KEY_FILE_PATH,
+                Configuration.GLOBAL_CONTEXT).getValue();
+
+        File keyFile = new File(path);
+
+        if (keyFile.exists()) {
+
+            try {
+                byte[] key = Files.readAllBytes(keyFile.toPath());
+
+                AESEncrypter.setKey(
+                        Arrays.copyOfRange(key, 0, AESEncrypter.KEY_BYTES));
+            } catch (IOException | ArrayIndexOutOfBoundsException e) {
+                throw new SaaSSystemException(
+                        "Keyfile at " + path + " is not readable");
+            }
+        } else {
+
+            try {
+                AESEncrypter.generateKey();
+                byte[] key = AESEncrypter.getKey();
+                Files.write(keyFile.toPath(), key,
+                        StandardOpenOption.CREATE_NEW,
+                        StandardOpenOption.WRITE);
+            } catch (IOException e) {
+                throw new SaaSSystemException(
+                        "Keyfile at " + path + " could not be generated");
+            }
+
+        }
+
     }
 
     @Schedule(minute = "*/10")
@@ -80,7 +122,8 @@ public class ConfigurationServiceBean implements ConfigurationService, Configura
     }
 
     private void addToCache(ConfigurationSetting configSetting) {
-        cache.put(getKey(configSetting.getInformationId(), configSetting.getContextId()), configSetting);
+        cache.put(getKey(configSetting.getInformationId(),
+                configSetting.getContextId()), configSetting);
     }
 
     private String getKey(ConfigurationKey informationId, String contextId) {
@@ -88,23 +131,29 @@ public class ConfigurationServiceBean implements ConfigurationService, Configura
     }
 
     @Override
-    public ConfigurationSetting getConfigurationSetting(ConfigurationKey informationId, String contextId) {
+    public ConfigurationSetting getConfigurationSetting(
+            ConfigurationKey informationId, String contextId) {
         if (contextId == null) {
-            throw new IllegalArgumentException("Context identifier must not be null");
+            throw new IllegalArgumentException(
+                    "Context identifier must not be null");
         }
 
-        ConfigurationSetting result = cache.get(getKey(informationId, contextId));
+        ConfigurationSetting result = cache
+                .get(getKey(informationId, contextId));
         if (result == null) {
-            result = cache.get(getKey(informationId, Configuration.GLOBAL_CONTEXT));
+            result = cache
+                    .get(getKey(informationId, Configuration.GLOBAL_CONTEXT));
         }
 
         if (result == null) {
             if (informationId.isMandatory()) {
-                throw new SaaSSystemException("Mandatory property '" + informationId.getKeyName() + "' not set!");
+                throw new SaaSSystemException("Mandatory property '"
+                        + informationId.getKeyName() + "' not set!");
             }
 
             // get default value
-            result = new ConfigurationSetting(informationId, Configuration.GLOBAL_CONTEXT,
+            result = new ConfigurationSetting(informationId,
+                    Configuration.GLOBAL_CONTEXT,
                     informationId.getFallBackValue());
         }
 
@@ -112,11 +161,13 @@ public class ConfigurationServiceBean implements ConfigurationService, Configura
     }
 
     @Override
-    public long getLongConfigurationSetting(ConfigurationKey informationId, String contextId) {
+    public long getLongConfigurationSetting(ConfigurationKey informationId,
+            String contextId) {
         long configValue = 0;
 
         if (informationId != null) {
-            final ConfigurationSetting setting = getConfigurationSetting(informationId, contextId);
+            final ConfigurationSetting setting = getConfigurationSetting(
+                    informationId, contextId);
             final String value = setting.getValue();
             if (value != null) {
                 configValue = Long.parseLong(value);
@@ -127,8 +178,10 @@ public class ConfigurationServiceBean implements ConfigurationService, Configura
     }
 
     @Override
-    public VOConfigurationSetting getVOConfigurationSetting(ConfigurationKey informationId, String contextId) {
-        ConfigurationSetting setting = getConfigurationSetting(informationId, contextId);
+    public VOConfigurationSetting getVOConfigurationSetting(
+            ConfigurationKey informationId, String contextId) {
+        ConfigurationSetting setting = getConfigurationSetting(informationId,
+                contextId);
         return ConfigurationSettingAssembler.toValueObject(setting);
     }
 
@@ -145,7 +198,8 @@ public class ConfigurationServiceBean implements ConfigurationService, Configura
     @Override
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     public List<ConfigurationSetting> getAllConfigurationSettings() {
-        return dm.createNamedQuery("ConfigurationSetting.getAll", ConfigurationSetting.class).getResultList();
+        return dm.createNamedQuery("ConfigurationSetting.getAll",
+                ConfigurationSetting.class).getResultList();
     }
 
     private static boolean isEmpty(String string) {
@@ -155,30 +209,37 @@ public class ConfigurationServiceBean implements ConfigurationService, Configura
     @Override
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     public boolean isCustomerSelfRegistrationEnabled() {
-        return getConfigurationSetting(ConfigurationKey.CUSTOMER_SELF_REGISTRATION_ENABLED,
-                Configuration.GLOBAL_CONTEXT).getValue().equalsIgnoreCase("true");
+        return getConfigurationSetting(
+                ConfigurationKey.CUSTOMER_SELF_REGISTRATION_ENABLED,
+                Configuration.GLOBAL_CONTEXT).getValue()
+                        .equalsIgnoreCase("true");
     }
 
     @Override
     public boolean isServiceProvider() {
         return AuthenticationMode.SAML_SP.name()
-                .equals(getConfigurationSetting(ConfigurationKey.AUTH_MODE, Configuration.GLOBAL_CONTEXT).getValue());
+                .equals(getConfigurationSetting(ConfigurationKey.AUTH_MODE,
+                        Configuration.GLOBAL_CONTEXT).getValue());
     }
 
     @Override
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     @Lock(LockType.WRITE)
     public void setConfigurationSetting(ConfigurationSetting configSetting) {
-        ConfigurationSetting setting = getConfigurationSettingExactMatch(configSetting.getInformationId(),
-                configSetting.getContextId());
+        ConfigurationSetting setting = getConfigurationSettingExactMatch(
+                configSetting.getInformationId(), configSetting.getContextId());
         if (!isEmpty(configSetting.getValue())) {
             // check the type and trim the string if necessary
             String value = configSetting.getValue();
 
-            if (configSetting.getInformationId().getType() == ConfigurationKey.TYPE_BOOLEAN
-                    || configSetting.getInformationId().getType() == ConfigurationKey.TYPE_LONG
-                    || configSetting.getInformationId().getType() == ConfigurationKey.TYPE_STRING
-                    || configSetting.getInformationId().getType() == ConfigurationKey.TYPE_PASSWORD) {
+            if (configSetting.getInformationId()
+                    .getType() == ConfigurationKey.TYPE_BOOLEAN
+                    || configSetting.getInformationId()
+                            .getType() == ConfigurationKey.TYPE_LONG
+                    || configSetting.getInformationId()
+                            .getType() == ConfigurationKey.TYPE_STRING
+                    || configSetting.getInformationId()
+                            .getType() == ConfigurationKey.TYPE_PASSWORD) {
 
                 value = value.trim();
             }
@@ -210,7 +271,8 @@ public class ConfigurationServiceBean implements ConfigurationService, Configura
     @Override
     @Lock(LockType.WRITE)
     public void setConfigurationSetting(String informationId, String value) {
-        ConfigurationSetting configSetting = new ConfigurationSetting(ConfigurationKey.valueOf(informationId),
+        ConfigurationSetting configSetting = new ConfigurationSetting(
+                ConfigurationKey.valueOf(informationId),
                 Configuration.GLOBAL_CONTEXT, value);
         setConfigurationSetting(configSetting);
     }
@@ -225,8 +287,10 @@ public class ConfigurationServiceBean implements ConfigurationService, Configura
      *            The context information.
      * @return The exact match for the given setting data.
      */
-    private ConfigurationSetting getConfigurationSettingExactMatch(ConfigurationKey informationId, String contextId) {
-        TypedQuery<ConfigurationSetting> query = dm.createNamedQuery("ConfigurationSetting.findByInfoAndContext",
+    private ConfigurationSetting getConfigurationSettingExactMatch(
+            ConfigurationKey informationId, String contextId) {
+        TypedQuery<ConfigurationSetting> query = dm.createNamedQuery(
+                "ConfigurationSetting.findByInfoAndContext",
                 ConfigurationSetting.class);
         query.setParameter("informationId", informationId);
         query.setParameter("contextId", contextId);
@@ -259,14 +323,17 @@ public class ConfigurationServiceBean implements ConfigurationService, Configura
             // offset), the timer must be initialized with offset 0
             configuredDays = new BigDecimal(0);
         } else {
-            BigDecimal oneDay = new BigDecimal(DateConverter.MILLISECONDS_PER_DAY);
-            configuredDays = new BigDecimal(configuredBillingOffset).divide(oneDay, RoundingMode.DOWN);
+            BigDecimal oneDay = new BigDecimal(
+                    DateConverter.MILLISECONDS_PER_DAY);
+            configuredDays = new BigDecimal(configuredBillingOffset)
+                    .divide(oneDay, RoundingMode.DOWN);
         }
         return configuredDays.longValue() * DateConverter.MILLISECONDS_PER_DAY;
     }
 
     long getConfiguredBillingOffsetInMs() {
-        long configuredValue = getLongConfigurationSetting(ConfigurationKey.TIMER_INTERVAL_BILLING_OFFSET,
+        long configuredValue = getLongConfigurationSetting(
+                ConfigurationKey.TIMER_INTERVAL_BILLING_OFFSET,
                 Configuration.GLOBAL_CONTEXT);
 
         long maxAllowedValue = 28 * DateConverter.MILLISECONDS_PER_DAY;
@@ -284,9 +351,11 @@ public class ConfigurationServiceBean implements ConfigurationService, Configura
 
     @Override
     public String getBaseURL() {
-        String baseUrl = getConfigurationSetting(ConfigurationKey.BASE_URL, Configuration.GLOBAL_CONTEXT).getValue();
+        String baseUrl = getConfigurationSetting(ConfigurationKey.BASE_URL,
+                Configuration.GLOBAL_CONTEXT).getValue();
         if (baseUrl == null || baseUrl.length() == 0) {
-            baseUrl = getConfigurationSetting(ConfigurationKey.BASE_URL_HTTPS, Configuration.GLOBAL_CONTEXT).getValue();
+            baseUrl = getConfigurationSetting(ConfigurationKey.BASE_URL_HTTPS,
+                    Configuration.GLOBAL_CONTEXT).getValue();
         }
         return baseUrl;
     }
@@ -294,7 +363,8 @@ public class ConfigurationServiceBean implements ConfigurationService, Configura
     @Override
     public boolean isPaymentInfoAvailable() {
 
-        String setting = getConfigurationSetting(ConfigurationKey.HIDE_PAYMENT_INFORMATION,
+        String setting = getConfigurationSetting(
+                ConfigurationKey.HIDE_PAYMENT_INFORMATION,
                 Configuration.GLOBAL_CONTEXT).getValue();
 
         return !Boolean.parseBoolean(setting);

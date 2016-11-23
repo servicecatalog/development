@@ -383,8 +383,7 @@ public class SubscriptionServiceBean implements SubscriptionService,
     }
 
     private VOBillingContact createBillingContactForOrganization(
-            PlatformUser user) throws ObjectNotFoundException,
-            NonUniqueBusinessKeyException {
+            PlatformUser user) throws NonUniqueBusinessKeyException {
         Organization organization = user.getOrganization();
         BillingContact orgBillingContact = new BillingContact();
         String email = organization.getEmail() == null ? " " : organization
@@ -415,8 +414,7 @@ public class SubscriptionServiceBean implements SubscriptionService,
     }
 
     private VOPaymentInfo createPaymentInfoForOrganization(
-            Organization organization) throws ObjectNotFoundException,
-            NonUniqueBusinessKeyException {
+            Organization organization) throws NonUniqueBusinessKeyException {
         PaymentInfo paInfo = new PaymentInfo(DateFactory.getInstance()
                 .getTransactionTime());
         paInfo.setOrganization_tkey(organization.getKey());
@@ -755,6 +753,15 @@ public class SubscriptionServiceBean implements SubscriptionService,
         // with a subsequent call to the application.
         dataManager.persist(newSub);
 
+        // save subscription attributes before provisioning call, to have them
+        // available at the API
+        saveUdasForSubscription(ParameterizedTypes.list(udas, VOUda.class),
+                newSub);
+        dataManager.flush();
+
+        // send customer udas to corresponding app
+        appManager.saveAttributes(newSub);
+
         theProduct.setOwningSubscription(newSub);
         createAllowOnBehalfActingReference(newSub);
         TenantProvisioningResult provisioningResult = createInstanceAndAddUsersToSubscription(
@@ -762,9 +769,6 @@ public class SubscriptionServiceBean implements SubscriptionService,
         newSub.setSuccessMessage(provisioningResult.getResultMesage());
 
         dataManager.flush();
-
-        saveUdasForSubscription(ParameterizedTypes.list(udas, VOUda.class),
-                newSub);
 
         triggerQS.sendAllNonSuspendingMessages(TriggerMessage.create(
                 TriggerType.SUBSCRIPTION_CREATION,
@@ -851,7 +855,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
                 targetObjectKey, type, supplier, customer);
         List<VOUda> voUdas = new ArrayList<>();
         for (Uda uda : udas) {
-            voUdas.add(UdaAssembler.toVOUda(uda));
+            voUdas.add(UdaAssembler.toVOUda(uda, new LocalizerFacade(localizer,
+                    dataManager.getCurrentUser().getLocale())));
         }
 
         return voUdas;
@@ -1015,7 +1020,10 @@ public class SubscriptionServiceBean implements SubscriptionService,
                 VOUsageLicense lic = VOUsageLicense.class.cast(o);
                 PlatformUser usr = idManager.getPlatformUser(lic.getUser()
                         .getUserId(), dataManager.getCurrentUser()
-                        .getTenantId(), true); // not found? => throws
+                        .getTenantId(), true); // not
+                                               // found?
+                                               // =>
+                                               // throws
                 // ObjectNotFoundException
                 RoleDefinition role = getAndCheckServiceRole(lic,
                         subscription.getProduct());
@@ -2861,14 +2869,32 @@ public class SubscriptionServiceBean implements SubscriptionService,
         subscription.setPaymentInfo(paymentInfo);
         subscription.setBillingContact(bc);
 
-        // product and parameters are copied
-        copyProductAndModifyParametersForUpgrade(subscription, dbTargetProduct,
-                currentUser, voTargetProduct.getParameters());
+        try {
+            appManager.saveAttributes(dbSubscription);
+        } catch (TechnicalServiceOperationException e) {
+            // Log and continue
+            LOG.logWarn(Log4jLogger.SYSTEM_LOG, e,
+                    LogMessageIdentifier.WARN_TECH_SERVICE_WS_ERROR,
+                    subscription.getSubscriptionId(), e.getMessage());
+        }
 
         List<Uda> existingUdas = manageBean.getExistingUdas(subscription);
         List<VOUda> updatedList = getUpdatedSubscriptionAttributes(udas,
                 existingUdas);
         logSubscriptionAttributeForEdit(subscription, updatedList);
+
+        // save subscription attributes before provisioning call, to have them
+        // available at the API
+        if (dbTargetProduct.getTechnicalProduct().getProvisioningType()
+                .equals(ProvisioningType.ASYNCHRONOUS)) {
+            saveUdasForAsyncModifyOrUpgradeSubscription(udas, dbSubscription);
+        } else {
+            saveUdasForSubscription(udas, subscription);
+        }
+
+        // product and parameters are copied
+        copyProductAndModifyParametersForUpgrade(subscription, dbTargetProduct,
+                currentUser, voTargetProduct.getParameters());
 
         if (dbTargetProduct.getTechnicalProduct().getProvisioningType()
                 .equals(ProvisioningType.SYNCHRONOUS)) {
@@ -2882,8 +2908,6 @@ public class SubscriptionServiceBean implements SubscriptionService,
 
             // remove old product
             dataManager.remove(initialProduct);
-
-            saveUdasForSubscription(udas, subscription);
 
             // finally send confirmation mail to the organization admin
             modUpgBean.sendConfirmUpgradationEmail(subscription, oldServiceId,
@@ -2903,7 +2927,6 @@ public class SubscriptionServiceBean implements SubscriptionService,
             }
             subscription.setPaymentInfo(initialPaymentInfo);
             subscription.setBillingContact(initialBillingContact);
-            saveUdasForAsyncModifyOrUpgradeSubscription(udas, dbSubscription);
         }
         dataManager.flush();
 
@@ -3531,6 +3554,11 @@ public class SubscriptionServiceBean implements SubscriptionService,
         String dbSubscriptionId = dbSubscription.getSubscriptionId();
         boolean subIdChanged = !dbSubscriptionId.equals(subscription
                 .getSubscriptionId());
+        String dbReferenceId = dbSubscription.getPurchaseOrderNumber();
+        boolean refIdChanged = dbReferenceId == null
+                && subscription.getPurchaseOrderNumber() != null
+                || dbReferenceId != null
+                && !dbReferenceId.equals(subscription.getPurchaseOrderNumber());
         PlatformUser dbOwner = dbSubscription.getOwner();
         Product dbProduct = dbSubscription.getProduct();
         String dbPurchaseNumber = dbSubscription.getPurchaseOrderNumber();
@@ -3546,9 +3574,28 @@ public class SubscriptionServiceBean implements SubscriptionService,
         manageBean.setSubscriptionOwner(dbSubscription,
                 subscription.getOwnerId(), true);
 
-        boolean backupOldValues = handleParameterModifications(
-                modifiedParameters, dbSubscription, currentUser, subIdChanged,
-                dbProduct);
+        try {
+            appManager.saveAttributes(dbSubscription);
+        } catch (TechnicalServiceOperationException e) {
+            // Log and continue
+            LOG.logWarn(Log4jLogger.SYSTEM_LOG, e,
+                    LogMessageIdentifier.WARN_TECH_SERVICE_WS_ERROR,
+                    subscription.getSubscriptionId(), e.getMessage());
+        }
+
+        boolean changedValues = false;
+        try {
+            changedValues = subIdChanged
+                    || refIdChanged
+                    || checkIfParametersAreModified(dbSubscription,
+                            dbSubscription, dbProduct, dbProduct,
+                            modifiedParameters, false);
+        } catch (ServiceChangedException e) {
+            throw new ConcurrentModificationException(e.getMessage());
+        }
+
+        boolean asynch = dbProduct.getTechnicalProduct().getProvisioningType()
+                .equals(ProvisioningType.ASYNCHRONOUS);
 
         List<Uda> existingUdas = manageBean.getExistingUdas(dbSubscription);
         List<VOUda> updatedUdas = getUpdatedSubscriptionAttributes(udas,
@@ -3557,7 +3604,7 @@ public class SubscriptionServiceBean implements SubscriptionService,
         logSubscriptionAttributeForEdit(dbSubscription, updatedUdas);
         logSubscriptionOwner(dbSubscription, dbOwner);
 
-        if (backupOldValues) {
+        if (changedValues && asynch) {
             long subscriptionKey = dbSubscription.getKey();
             modUpgBean.storeModifiedEntity(subscriptionKey,
                     ModifiedEntityType.SUBSCRIPTION_SUBSCRIPTIONID,
@@ -3582,11 +3629,19 @@ public class SubscriptionServiceBean implements SubscriptionService,
             manageBean.setSubscriptionOwner(dbSubscription, dbOwnerId, true);
             dbSubscription.setUserGroup(dbUnit);
 
+            // save subscription attributes before provisioning call, to have
+            // them
+            // available at the API
             saveUdasForAsyncModifyOrUpgradeSubscription(udas, dbSubscription);
         } else {
             saveUdasForSubscription(udas, dbSubscription);
         }
         dataManager.flush();
+
+        if (changedValues) {
+            copyProductAndModifyParametersForUpdate(dbSubscription, dbProduct,
+                    currentUser, modifiedParameters);
+        }
 
         LocalizerFacade facade = new LocalizerFacade(localizer,
                 currentUser.getLocale());
@@ -3604,30 +3659,6 @@ public class SubscriptionServiceBean implements SubscriptionService,
                         .getProduct().getVendor()));
 
         return result;
-    }
-
-    private boolean handleParameterModifications(
-            List<VOParameter> modifiedParameters, Subscription dbSubscription,
-            final PlatformUser currentUser, boolean subIdChanged,
-            Product dbProduct) throws SubscriptionMigrationException,
-            ConcurrentModificationException, ValidationException,
-            TechnicalServiceNotAliveException {
-        try {
-            if (subIdChanged
-                    || checkIfParametersAreModified(dbSubscription,
-                            dbSubscription, dbProduct, dbProduct,
-                            modifiedParameters, false)) {
-                copyProductAndModifyParametersForUpdate(dbSubscription,
-                        dbProduct, currentUser, modifiedParameters);
-                if (dbProduct.getTechnicalProduct().getProvisioningType()
-                        .equals(ProvisioningType.ASYNCHRONOUS)) {
-                    return true;
-                }
-            }
-        } catch (ServiceChangedException e) {
-            throw new ConcurrentModificationException(e.getMessage());
-        }
-        return false;
     }
 
     /**
@@ -4489,8 +4520,7 @@ public class SubscriptionServiceBean implements SubscriptionService,
         Map<String, VOSubscriptionIdAndOrganizations> mapSubIdsAndOrgs = getSubIdsAndOrgs(
                 lf, queryResultList);
 
-        return new ArrayList<VOSubscriptionIdAndOrganizations>(
-                mapSubIdsAndOrgs.values());
+        return new ArrayList<>(mapSubIdsAndOrgs.values());
     }
 
     /**
@@ -4517,8 +4547,7 @@ public class SubscriptionServiceBean implements SubscriptionService,
         Map<String, VOSubscriptionIdAndOrganizations> mapSubIdsAndOrgs = getSubIdsAndOrgs(
                 lf, queryResultList);
 
-        return new ArrayList<VOSubscriptionIdAndOrganizations>(
-                mapSubIdsAndOrgs.values());
+        return new ArrayList<>(mapSubIdsAndOrgs.values());
     }
 
     private Map<String, VOSubscriptionIdAndOrganizations> getSubIdsAndOrgs(

@@ -45,6 +45,23 @@ public class UdaDefinitionDetails {
     private int version;
 
     /**
+     * Determine the UDA value is encrypted or not.
+     */
+    private boolean encrypted;
+
+    /**
+     * The custom user attribute name.
+     */
+    private String language;
+
+    private String name;
+
+    /**
+     * Determine the controller the UDA is meant for.
+     */
+    private String controllerId;
+
+    /**
      * @return the udaId
      */
     public String getUdaId() {
@@ -133,5 +150,37 @@ public class UdaDefinitionDetails {
      */
     public void setVersion(int version) {
         this.version = version;
+    }
+
+    public boolean isEncrypted() {
+        return encrypted;
+    }
+
+    public void setEncrypted(boolean encrypted) {
+        this.encrypted = encrypted;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
+    }
+
+    public String getControllerId() {
+        return controllerId;
+    }
+
+    public void setControllerId(String controllerId) {
+        this.controllerId = controllerId;
     }
 }

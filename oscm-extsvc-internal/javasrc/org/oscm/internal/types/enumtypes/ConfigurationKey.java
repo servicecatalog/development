@@ -25,14 +25,17 @@ import org.oscm.internal.types.constants.HiddenUIConstants;
  */
 public enum ConfigurationKey {
 
-    @Doc({ "Optional: Special character encoding for emails sent in japanese", "locale. Default is UTF-8." })
+    @Doc({ "Optional: Special character encoding for emails sent in japanese",
+            "locale. Default is UTF-8." })
     MAIL_JA_CHARSET(false, "UTF-8", "string"),
 
     @Doc({ "The maximum number of login attempts. If a user does not log in",
-            "successfully with this number of attempts, his account is locked.", "The default is 3." })
+            "successfully with this number of attempts, his account is locked.",
+            "The default is 3." })
     MAX_NUMBER_LOGIN_ATTEMPTS(false, "3", "long", Long.valueOf(1L), null, false),
 
-    @Doc({ "The maximum number of entries that will be returned by an LDAP", "query. The default is 100." })
+    @Doc({ "The maximum number of entries that will be returned by an LDAP",
+            "query. The default is 100." })
     LDAP_SEARCH_LIMIT(false, "100", "long", Long.valueOf(1L), null, false),
 
     @Doc({ "The base URL to access the platform's landing pages, especially",
@@ -40,17 +43,20 @@ public enum ConfigurationKey {
     @Example("http://<your server>:<your port>/oscm-portal")
     BASE_URL(false, null, "url"),
 
-    @Doc({ "The base URL for HTTPS. Required to create the URL for accessing", " services via HTTPS" })
+    @Doc({ "The base URL for HTTPS. Required to create the URL for accessing",
+            " services via HTTPS" })
     @Example("https://<your server>:<your port>/oscm-portal")
     BASE_URL_HTTPS(true, null, "url"),
 
     @Doc({ "URL to specify a Web page that is to be displayed in case the HTTP",
-            "protocol is used and a customer tries to access a marketplace", "without a valid marketplace ID." })
+            "protocol is used and a customer tries to access a marketplace",
+            "without a valid marketplace ID." })
     @Example("http://<your server>:<your port>/oscm-portal/marketplace?mid=8f78f156")
     MP_ERROR_REDIRECT_HTTP(false, null, "url"),
 
     @Doc({ "URL to specify a Web page that is to be displayed in case the HTTPS",
-            "protocol is used and a customer tries to access a marketplace", "without a valid marketplace ID." })
+            "protocol is used and a customer tries to access a marketplace",
+            "without a valid marketplace ID." })
     @Example("https://<your server>:<your port>/oscm-portal/marketplace?mid=8f78f156")
     MP_ERROR_REDIRECT_HTTPS(false, null, "url"),
 
@@ -64,21 +70,28 @@ public enum ConfigurationKey {
     @Doc({ "The path to the log4j configuration file." })
     LOG_CONFIG_FILE(false, "./log4j.properties", "string"),
 
+    @Doc({ "Path to file which contains key to en/de-crypting values of service/instance parameters." })
+    @Example("<path>/key")
+    KEY_FILE_PATH(false, "./key", "string", false),
+
     @Doc({ "The number of decimal places for prices. Values between 2 and 6 are supported." })
     @Example("4")
     DECIMAL_PLACES(false, "2", "long", Long.valueOf(2L), Long.valueOf(6L), false),
 
-    @Doc({ "Specifies whether the customer self-registration is used for the", "current environment." })
+    @Doc({ "Specifies whether the customer self-registration is used for the",
+            "current environment." })
     @Example("false")
     CUSTOMER_SELF_REGISTRATION_ENABLED(false, "true", "boolean"),
 
     @Doc({ "The maximum time until an organization's initial administrative",
             "account must be confirmed. After this time has passed, the",
-            "account may be removed. The value is in milliseconds, the default", "is seven days." })
+            "account may be removed. The value is in milliseconds, the default",
+            "is seven days." })
     PERMITTED_PERIOD_UNCONFIRMED_ORGANIZATIONS(false, "604800000", "long", Long.valueOf(1L), null, false),
 
     @Doc({ "The time interval at which tasks related to organizations are",
-            "executed. The value is in milliseconds. A value of 0 indicates", "that this timer is disabled." })
+            "executed. The value is in milliseconds. A value of 0 indicates",
+            "that this timer is disabled." })
     TIMER_INTERVAL_ORGANIZATION(false, "0", "long", Long.valueOf(0L), null, false),
 
     @Doc({ "The offset of the timer for organization-related tasks.",
@@ -109,19 +122,22 @@ public enum ConfigurationKey {
     TIMER_INTERVAL_DISCOUNT_END_NOTIFICATION_OFFSET(false, "0", "long", Long.valueOf(0L), null, false),
 
     @Doc({ "The URL template of the report engine. If this value is not",
-            "configured, reporting will not be available.", "It supports http and https to show report.",
+            "configured, reporting will not be available.",
+            "It supports http and https to show report.",
             "But your server name must use fully qualified domain name when using https to show report." })
     @Example("http://<your server>:<your port>/birt/frameset?__report=${reportname}" + ".rptdesign&SessionId=${sessionid}&__locale=${locale}&WSDLURL=${wsdlurl}&SOAPEndPoint=${soapendpoint}&wsname=Report&wsport=ReportPort or https://<your server>:<your " + "port>/birt/frameset?__report=${reportname}.rptdesign&SessionId=${sessionid}&__locale=${locale}&WSDLURL=${wsdlurl}&SOAPEndPoint=${soapendpoint}&wsname=ReportSecure" + "&wsport=ReportSecurePort")
     REPORT_ENGINEURL(false, "", "url"),
 
     @Doc({ "The WSDL link to the reporting Web service. This value",
-            "has to be configured when REPORT_ENGINEURL is set.", "It supports http and https to show report.",
+            "has to be configured when REPORT_ENGINEURL is set.",
+            "It supports http and https to show report.",
             "But your server name must use fully qualified domain name when using https to show report." })
     @Example("http://<your server>:<your port>/Report/ReportingServiceBean?wsdl or https://<your server>:<your port>/ReportSecure/ReportingServiceSecureBean?wsdl")
     REPORT_WSDLURL(false, "", "url"),
 
     @Doc({ "The SOAP end point of the reporting Web service. This value",
-            "has to be configured when REPORT_ENGINEURL is set.", "It supports http and https to show report.",
+            "has to be configured when REPORT_ENGINEURL is set.",
+            "It supports http and https to show report.",
             "But your server name must use fully qualified domain name when using https to show report." })
     @Example("http://<your server>:<your port>/Report/ReportingServiceBean or https://<your server>:<your port>/ReportSecure/ReportingServiceSecureBean")
     REPORT_SOAP_ENDPOINT(false, "", "url"),
@@ -132,11 +148,13 @@ public enum ConfigurationKey {
     @Doc({ "The proxy port to be used for HTTP connections, if any." })
     HTTP_PROXY_PORT(false, "1080", "long", Long.valueOf(1L), Long.valueOf(65535L), false),
 
-    @Doc({ "Specifies whether the PSP integration is used for the", "current environment." })
+    @Doc({ "Specifies whether the PSP integration is used for the",
+            "current environment." })
     @Example("false")
     PSP_USAGE_ENABLED(true, "false", "boolean"),
 
-    @Doc({ "The billing run offset and the timer's expiration time.", "The value is configured in milliseconds.",
+    @Doc({ "The billing run offset and the timer's expiration time.",
+            "The value is configured in milliseconds.",
             "Values greater then 28 days will be set to 28 days with expiration time 00:00:00.0000",
             "The milliseconds are converted into day, hours, minutes, seconds, milliseconds.",
             "To determine the billing-run-offset the day-value will be used.",
@@ -145,52 +163,82 @@ public enum ConfigurationKey {
             "The default billing-run-start-time is 00:00:00.0000" })
     TIMER_INTERVAL_BILLING_OFFSET(false, "345600000", "long", Long.valueOf(0L), null, false),
 
-    @Doc({ "The list of menus and groups of fields in dialogs, which are", "hidden. These values are allowed:",
+    @Doc({ "The list of menus and groups of fields in dialogs, which are",
+            "hidden. These values are allowed:",
             HiddenUIConstants.MARKETPLACE_MENU_ITEM_ACCOUNT_PROFILE,
             HiddenUIConstants.MARKETPLACE_MENU_ITEM_ACCOUNT_PAYMENT,
             HiddenUIConstants.MARKETPLACE_MENU_ITEM_ACCOUNT_SUBSCRIPTIONS,
             HiddenUIConstants.MARKETPLACE_MENU_ITEM_ACCOUNT_USERS,
             HiddenUIConstants.MARKETPLACE_MENU_ITEM_ACCOUNT_REPORTS,
             HiddenUIConstants.MARKETPLACE_MENU_ITEM_ACCOUNT_PROCESSES,
-            HiddenUIConstants.MARKETPLACE_MENU_ITEM_ACCOUNT_OPERATIONS, HiddenUIConstants.MENU_ITEM_MARKETPLACE_LINK,
+            HiddenUIConstants.MARKETPLACE_MENU_ITEM_ACCOUNT_OPERATIONS,
+            HiddenUIConstants.MENU_ITEM_MARKETPLACE_LINK,
             HiddenUIConstants.MENU_ITEM_OPERATOR_CREATE_ORGANIZATION,
             HiddenUIConstants.MENU_ITEM_OPERATOR_MANAGE_ORGANIZATIONS,
             HiddenUIConstants.MENU_ITEM_OPERATOR_MANAGE_OPERATOR_REVENUE_SHARE,
             HiddenUIConstants.MENU_ITEM_OPERATOR_MANAGE_BILLING_ADAPTERS,
             HiddenUIConstants.MENU_ITEM_ORGANIZATION_MANAGE_TRIGGERS,
-            HiddenUIConstants.MENU_ITEM_OPERATOR_MANAGE_TIMERS, HiddenUIConstants.MENU_ITEM_OPERATOR_MANAGE_CURRENCIES,
+            HiddenUIConstants.MENU_ITEM_OPERATOR_MANAGE_TIMERS,
+            HiddenUIConstants.MENU_ITEM_OPERATOR_MANAGE_CURRENCIES,
             HiddenUIConstants.MENU_ITEM_OPERATOR_MANAGE_CONFIGURATION,
-            HiddenUIConstants.MENU_GROUP_NAVIGATION_MYACCOUNT, HiddenUIConstants.MENU_ITEM_ORGANIZATION_EDIT,
-            HiddenUIConstants.MENU_ITEM_USER_PWD, HiddenUIConstants.MENU_ITEM_USER_ADD,
-            HiddenUIConstants.MENU_ITEM_USER_IMPORT, HiddenUIConstants.MENU_ITEM_USER_LIST,
-            HiddenUIConstants.MENU_ITEM_ORGANIZATION_PAYMENT, HiddenUIConstants.MENU_ITEM_ORGANIZATION_REPORT,
-            HiddenUIConstants.MENU_ITEM_TRIGGER_PROCESS_LIST, HiddenUIConstants.MENU_ITEM_ORGANIZATION_MANAGE_SUPPLIERS,
-            HiddenUIConstants.MENU_ITEM_ORGANIZATION_MANAGE_UDAS, HiddenUIConstants.MENU_GROUP_NAVIGATION_MARKETPLACE,
-            HiddenUIConstants.MENU_ITEM_MARKETPLACE_MANAGE_SUPPLIERS, HiddenUIConstants.MENU_ITEM_MARKETPLACE_CREATE,
-            HiddenUIConstants.MENU_ITEM_MARKETPLACE_UPDATE, HiddenUIConstants.MENU_ITEM_MARKETPLACE_DELETE,
+            HiddenUIConstants.MENU_GROUP_NAVIGATION_MYACCOUNT,
+            HiddenUIConstants.MENU_ITEM_ORGANIZATION_EDIT,
+            HiddenUIConstants.MENU_ITEM_USER_PWD,
+            HiddenUIConstants.MENU_ITEM_USER_ADD,
+            HiddenUIConstants.MENU_ITEM_USER_IMPORT,
+            HiddenUIConstants.MENU_ITEM_USER_LIST,
+            HiddenUIConstants.MENU_ITEM_ORGANIZATION_PAYMENT,
+            HiddenUIConstants.MENU_ITEM_ORGANIZATION_REPORT,
+            HiddenUIConstants.MENU_ITEM_TRIGGER_PROCESS_LIST,
+            HiddenUIConstants.MENU_ITEM_ORGANIZATION_MANAGE_SUPPLIERS,
+            HiddenUIConstants.MENU_ITEM_ORGANIZATION_MANAGE_UDAS,
+            HiddenUIConstants.MENU_GROUP_NAVIGATION_MARKETPLACE,
+            HiddenUIConstants.MENU_ITEM_MARKETPLACE_MANAGE_SUPPLIERS,
+            HiddenUIConstants.MENU_ITEM_MARKETPLACE_CREATE,
+            HiddenUIConstants.MENU_ITEM_MARKETPLACE_UPDATE,
+            HiddenUIConstants.MENU_ITEM_MARKETPLACE_DELETE,
             HiddenUIConstants.MENU_ITEM_MARKETPLACE_MANAGE_BROKER_REVENUE_SHARE,
             HiddenUIConstants.MENU_ITEM_MARKETPLACE_MANAGE_RESELLER_REVENUE_SHARE,
-            HiddenUIConstants.MENU_ITEM_MARKETPLACE_EDIT_SKIN, HiddenUIConstants.MENU_ITEM_MARKETPLACE_TRANSLATION,
-            HiddenUIConstants.MENU_ITEM_MARKETPLACE_EDIT_STAGE, HiddenUIConstants.MENU_ITEM_MARKETPLACE_CUSTOMIZE_BRAND,
-            HiddenUIConstants.MENU_GROUP_NAVIGATION_CUSTOMER, HiddenUIConstants.MENU_ITEM_ORGANIZATION_ADD_CUSTOMER,
-            HiddenUIConstants.MENU_ITEM_EDIT_CUSTOMER, HiddenUIConstants.MENU_ITEM_VIEW_CUSTOMER,
-            HiddenUIConstants.MENU_ITEM_MANAGE_COUNTRIES, HiddenUIConstants.MENU_ITEM_MANAGE_VAT,
+            HiddenUIConstants.MENU_ITEM_MARKETPLACE_EDIT_SKIN,
+            HiddenUIConstants.MENU_ITEM_MARKETPLACE_TRANSLATION,
+            HiddenUIConstants.MENU_ITEM_MARKETPLACE_EDIT_STAGE,
+            HiddenUIConstants.MENU_ITEM_MARKETPLACE_CUSTOMIZE_BRAND,
+            HiddenUIConstants.MENU_GROUP_NAVIGATION_CUSTOMER,
+            HiddenUIConstants.MENU_ITEM_ORGANIZATION_ADD_CUSTOMER,
+            HiddenUIConstants.MENU_ITEM_EDIT_CUSTOMER,
+            HiddenUIConstants.MENU_ITEM_VIEW_CUSTOMER,
+            HiddenUIConstants.MENU_ITEM_MANAGE_COUNTRIES,
+            HiddenUIConstants.MENU_ITEM_MANAGE_VAT,
             HiddenUIConstants.MENU_ITEM_ORGANIZATION_MANAGE_PAYMENT_ENABLEMENT,
-            HiddenUIConstants.MENU_ITEM_ORGANIZATION_EXPORT_BILLING_DATA, HiddenUIConstants.MENU_ITEM_SUBSCRIPTION_VIEW,
-            HiddenUIConstants.MENU_ITEM_SUBSCRIPTION_EDIT_UDAS, HiddenUIConstants.MENU_ITEM_SUBSCRIPTION_TERMINATE,
-            HiddenUIConstants.MENU_GROUP_NAVIGATION_TECHSERVICE, HiddenUIConstants.MENU_ITEM_TECHSERVICE_ADD,
-            HiddenUIConstants.MENU_ITEM_TECHSERVICE_IMPORT, HiddenUIConstants.MENU_ITEM_TECHSERVICE_EDIT,
-            HiddenUIConstants.MENU_ITEM_TECHSERVICE_EXPORT, HiddenUIConstants.MENU_ITEM_TECHSERVICE_DELETE,
-            HiddenUIConstants.MENU_ITEM_TECHSERVICE_VIEW_ADAPTERS, HiddenUIConstants.MENU_GROUP_NAVIGATION_SERVICE,
-            HiddenUIConstants.MENU_ITEM_SERVICE_ADD, HiddenUIConstants.MENU_ITEM_SERVICE_EDIT,
-            HiddenUIConstants.MENU_ITEM_SERVICE_COPY, HiddenUIConstants.MENU_ITEM_SERVICE_DELETE,
-            HiddenUIConstants.MENU_ITEM_SERVICE_VIEW, HiddenUIConstants.MENU_ITEM_SERVICE_MANAGE,
-            HiddenUIConstants.MENU_ITEM_SERVICE_UPGRADE_OPTIONS, HiddenUIConstants.MENU_ITEM_SERVICE_ACTIVATION,
-            HiddenUIConstants.MENU_ITEM_SERVICE_PUBLISH, HiddenUIConstants.MENU_GROUP_NAVIGATION_PRICE_MODEL,
-            HiddenUIConstants.MENU_ITEM_PRICE_MODEL_SERVICE, HiddenUIConstants.MENU_ITEM_PRICE_MODEL_CUSTOMER,
-            HiddenUIConstants.MENU_ITEM_PRICE_MODEL_DELETE, HiddenUIConstants.MENU_ITEM_PRICE_MODEL_SUBSCRIPTION,
+            HiddenUIConstants.MENU_ITEM_ORGANIZATION_EXPORT_BILLING_DATA,
+            HiddenUIConstants.MENU_ITEM_SUBSCRIPTION_VIEW,
+            HiddenUIConstants.MENU_ITEM_SUBSCRIPTION_EDIT_UDAS,
+            HiddenUIConstants.MENU_ITEM_SUBSCRIPTION_TERMINATE,
+            HiddenUIConstants.MENU_GROUP_NAVIGATION_TECHSERVICE,
+            HiddenUIConstants.MENU_ITEM_TECHSERVICE_ADD,
+            HiddenUIConstants.MENU_ITEM_TECHSERVICE_IMPORT,
+            HiddenUIConstants.MENU_ITEM_TECHSERVICE_EDIT,
+            HiddenUIConstants.MENU_ITEM_TECHSERVICE_EXPORT,
+            HiddenUIConstants.MENU_ITEM_TECHSERVICE_DELETE,
+            HiddenUIConstants.MENU_ITEM_TECHSERVICE_VIEW_ADAPTERS,
+            HiddenUIConstants.MENU_GROUP_NAVIGATION_SERVICE,
+            HiddenUIConstants.MENU_ITEM_SERVICE_ADD,
+            HiddenUIConstants.MENU_ITEM_SERVICE_EDIT,
+            HiddenUIConstants.MENU_ITEM_SERVICE_COPY,
+            HiddenUIConstants.MENU_ITEM_SERVICE_DELETE,
+            HiddenUIConstants.MENU_ITEM_SERVICE_VIEW,
+            HiddenUIConstants.MENU_ITEM_SERVICE_MANAGE,
+            HiddenUIConstants.MENU_ITEM_SERVICE_UPGRADE_OPTIONS,
+            HiddenUIConstants.MENU_ITEM_SERVICE_ACTIVATION,
+            HiddenUIConstants.MENU_ITEM_SERVICE_PUBLISH,
+            HiddenUIConstants.MENU_GROUP_NAVIGATION_PRICE_MODEL,
+            HiddenUIConstants.MENU_ITEM_PRICE_MODEL_SERVICE,
+            HiddenUIConstants.MENU_ITEM_PRICE_MODEL_CUSTOMER,
+            HiddenUIConstants.MENU_ITEM_PRICE_MODEL_DELETE,
+            HiddenUIConstants.MENU_ITEM_PRICE_MODEL_SUBSCRIPTION,
             HiddenUIConstants.PANEL_ORGANIZATION_EDIT_ORGANIZATIONDATA,
-            HiddenUIConstants.PANEL_ORGANIZATION_EDIT_USERPROFILE, HiddenUIConstants.PANEL_USER_LIST_SUBSCRIPTIONS, })
+            HiddenUIConstants.PANEL_ORGANIZATION_EDIT_USERPROFILE,
+            HiddenUIConstants.PANEL_USER_LIST_SUBSCRIPTIONS, })
 
     @Example("operator.manageBillingAdapters,techService.viewBillingAdapters")
     HIDDEN_UI_ELEMENTS(false),
@@ -230,7 +278,8 @@ public enum ConfigurationKey {
     PERMITTED_PERIOD_INACTIVE_ON_BEHALF_USERS(false, "604800000", "long", Long.valueOf(1L), null, false),
 
     @Doc({ "The time interval at which a check for inactive on-behalf users",
-            "is executed. The value is in milliseconds. A value of 0 indicates", "that this timer is disabled." })
+            "is executed. The value is in milliseconds. A value of 0 indicates",
+            "that this timer is disabled." })
     TIMER_INTERVAL_INACTIVE_ON_BEHALF_USERS(false, "0", "long", Long.valueOf(0L), null, false),
 
     @Doc({ "The offset of the timer for removing inactive on-behalf users.",
@@ -370,7 +419,8 @@ public enum ConfigurationKey {
         this(isMandatory, fallbackValue, type, null, null, false);
     }
 
-    ConfigurationKey(boolean isMandatory, String fallbackValue, String type, boolean isReadonly) {
+    ConfigurationKey(boolean isMandatory, String fallbackValue, String type,
+            boolean isReadonly) {
         this(isMandatory, fallbackValue, type, null, null, isReadonly);
     }
 
@@ -390,11 +440,12 @@ public enum ConfigurationKey {
      *             if the field is not of type 'long' and any of
      *             {@link #minValue} or {@link #maxValue} is set.
      */
-    ConfigurationKey(boolean isMandatory, String fallbackValue, String type, Long minValue, Long maxValue,
-            boolean isReadonly) {
+    ConfigurationKey(boolean isMandatory, String fallbackValue, String type,
+            Long minValue, Long maxValue, boolean isReadonly) {
         if (!TYPE_LONG.equals(type) && (minValue != null || maxValue != null)) {
             throw new IllegalArgumentException(
-                    "minValue and maxValue are only allowed for configuration properties of type " + TYPE_LONG);
+                    "minValue and maxValue are only allowed for configuration properties of type "
+                            + TYPE_LONG);
         }
         this.isMandatory = isMandatory;
         this.fallbackValue = fallbackValue;
@@ -512,15 +563,19 @@ public enum ConfigurationKey {
                     final Example example = f.getAnnotation(Example.class);
                     if (key.isMandatory()) {
                         if (example == null) {
-                            throw new AssertionError("Mandatory field must declare example: " + key);
+                            throw new AssertionError(
+                                    "Mandatory field must declare example: "
+                                            + key);
                         }
-                        out.printf("%s=%s\r\n\r\n", f.getName(), example.value());
+                        out.printf("%s=%s\r\n\r\n", f.getName(),
+                                example.value());
                     } else {
                         String exampleValue = key.getFallBackValue();
                         if (example != null) {
                             exampleValue = example.value();
                         }
-                        out.printf("# %s=%s\r\n\r\n", f.getName(), exampleValue);
+                        out.printf("# %s=%s\r\n\r\n", f.getName(),
+                                exampleValue);
                     }
                 }
             }

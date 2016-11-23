@@ -31,8 +31,8 @@ import org.oscm.app.ror.data.LPlatformStatus;
 import org.oscm.app.ror.data.LServerConfiguration;
 import org.oscm.app.ror.data.LServerStatus;
 import org.oscm.app.ror.exceptions.RORException;
-import org.oscm.app.v1_0.exceptions.InstanceExistsException;
-import org.oscm.app.v1_0.exceptions.SuspendException;
+import org.oscm.app.v2_0.exceptions.InstanceExistsException;
+import org.oscm.app.v2_0.exceptions.SuspendException;
 
 @Stateless
 @Local(VServerCommunication.class)
@@ -436,22 +436,22 @@ public class RORVServerCommunication extends RORCommonInfo implements
         String errorCode = "";
         if (status != null) {
             switch (status) {
-                case VServerStatus.ERROR:
-                    isErrorState = true;
-                    errorCode = "error_state_vserver";
-                    break;
-                case VServerStatus.START_ERROR:
-                    isErrorState = true;
-                    errorCode = "error_failed_to_start_vserver";
-                    break;
-                case VServerStatus.STOP_ERROR:
-                    isErrorState = true;
-                    errorCode = "error_failed_to_stop_vserver";
-                    break;
-                case VServerStatus.UNEXPECTED_STOP:
-                    isErrorState = true;
-                    errorCode = "error_unexpected_stop_vserver";
-                    break;
+            case VServerStatus.ERROR:
+                isErrorState = true;
+                errorCode = "error_state_vserver";
+                break;
+            case VServerStatus.START_ERROR:
+                isErrorState = true;
+                errorCode = "error_failed_to_start_vserver";
+                break;
+            case VServerStatus.STOP_ERROR:
+                isErrorState = true;
+                errorCode = "error_failed_to_stop_vserver";
+                break;
+            case VServerStatus.UNEXPECTED_STOP:
+                isErrorState = true;
+                errorCode = "error_unexpected_stop_vserver";
+                break;
             }
         }
 

@@ -19,8 +19,8 @@ import java.util.HashMap;
  * an application-specific service controller; they can also be evaluated by the
  * application.
  */
-public class ProvisioningSettings extends ControllerSettings
-        implements Serializable {
+public class ProvisioningSettings extends ControllerSettings implements
+        Serializable {
 
     private static final long serialVersionUID = 9161029657174458354L;
 
@@ -31,7 +31,6 @@ public class ProvisioningSettings extends ControllerSettings
     private String subscriptionId;
     private String besLoginURL;
     private ServiceUser requestingUser;
-    private String serviceAccessInfo;
 
     /**
      * Constructs a new provisioning settings instance with the given service
@@ -213,25 +212,6 @@ public class ProvisioningSettings extends ControllerSettings
      */
     public void setRequestingUser(ServiceUser user) {
         this.requestingUser = user;
-    }
-
-    /**
-     * Return service access information for instance
-     * 
-     * @return the service access information or 'null'
-     */
-    public String getServiceAccessInfo() {
-        return serviceAccessInfo;
-    }
-
-    /**
-     * Set access information for instance
-     * 
-     * @param serviceAccessInfo
-     *            the service access info
-     */
-    public void setServiceAccessInfo(String serviceAccessInfo) {
-        this.serviceAccessInfo = serviceAccessInfo;
     }
 
 }

@@ -36,10 +36,11 @@ import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Version;
 
-import org.oscm.string.Strings;
 import org.oscm.app.business.exceptions.BadResultException;
 import org.oscm.app.i18n.Messages;
-import org.oscm.app.v1_0.data.InstanceStatus;
+import org.oscm.app.v2_0.data.InstanceStatus;
+import org.oscm.app.v2_0.data.Setting;
+import org.oscm.string.Strings;
 
 /**
  * Represents a service instance that was requested to be created by BES.
@@ -86,6 +87,11 @@ public class ServiceInstance implements Serializable {
      */
     @Column(nullable = false)
     private String subscriptionId;
+
+    /**
+     * The identifier of the subscription specified by the customer.
+     */
+    private String referenceId;
 
     /**
      * The default locale to use when no different locale is requested in the
@@ -194,10 +200,13 @@ public class ServiceInstance implements Serializable {
      * The instance related parameters.
      */
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "serviceInstance", fetch = FetchType.LAZY)
-    private List<InstanceParameter> instanceParameters = new ArrayList<InstanceParameter>();
+    private List<InstanceParameter> instanceParameters = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "serviceInstance", fetch = FetchType.LAZY)
-    private List<Operation> operations = new ArrayList<Operation>();
+    private List<InstanceAttribute> instanceAttributes = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "serviceInstance", fetch = FetchType.LAZY)
+    private List<Operation> operations = new ArrayList<>();
 
     public long getTkey() {
         return tkey;
@@ -213,6 +222,10 @@ public class ServiceInstance implements Serializable {
 
     public String getSubscriptionId() {
         return subscriptionId;
+    }
+
+    public String getReferenceId() {
+        return referenceId;
     }
 
     public String getDefaultLocale() {
@@ -245,6 +258,10 @@ public class ServiceInstance implements Serializable {
 
     public void setSubscriptionId(String subscriptionId) {
         this.subscriptionId = subscriptionId;
+    }
+
+    public void setReferenceId(String referenceId) {
+        this.referenceId = referenceId;
     }
 
     public void setDefaultLocale(String defaultLocale) {
@@ -284,6 +301,10 @@ public class ServiceInstance implements Serializable {
 
     public List<InstanceParameter> getInstanceParameters() {
         return instanceParameters;
+    }
+
+    public List<InstanceAttribute> getInstanceAttributes() {
+        return instanceAttributes;
     }
 
     public void setInstanceParameters(List<InstanceParameter> instanceParameters) {
@@ -397,10 +418,12 @@ public class ServiceInstance implements Serializable {
      * @return map from parameter keys to their corresponding values.
      * @throws BadResultException
      */
-    public HashMap<String, String> getParameterMap() throws BadResultException {
-        final HashMap<String, String> map = new HashMap<String, String>();
+    public HashMap<String, Setting> getParameterMap() throws BadResultException {
+        final HashMap<String, Setting> map = new HashMap<>();
         for (InstanceParameter param : instanceParameters) {
-            map.put(param.getParameterKey(), param.getDecryptedValue());
+            map.put(param.getParameterKey(),
+                    new Setting(param.getParameterKey(), param
+                            .getDecryptedValue(), param.isEncrypted()));
         }
         return map;
     }
@@ -413,23 +436,25 @@ public class ServiceInstance implements Serializable {
      * 
      * @throws BadResultException
      */
-    public void setInstanceParameters(HashMap<String, String> parameters)
+    public void setInstanceParameters(HashMap<String, Setting> parameters)
             throws BadResultException {
         if (parameters != null) {
             List<InstanceParameter> instanceParamList = new ArrayList<>();
             for (String key : parameters.keySet()) {
                 if (key != null) {
                     InstanceParameter ip = getParameterForKey(key);
-                    String value = parameters.get(key);
+                    Setting param = parameters.get(key);
                     if (ip != null) { // Existing parameter
-                        if (!ip.getDecryptedValue().equals(value)) {
+                        if (!ip.getDecryptedValue().equals(param.getValue())) {
                             // Changed => Update
-                            ip.setDecryptedValue(value);
+                            ip.setEncrypted(param.isEncrypted());
+                            ip.setDecryptedValue(param.getValue());
                         }
                     } else { // Added parameter
                         ip = new InstanceParameter();
                         ip.setParameterKey(key);
-                        ip.setDecryptedValue(value);
+                        ip.setEncrypted(param.isEncrypted());
+                        ip.setDecryptedValue(param.getValue());
                         ip.setServiceInstance(this);
                     }
                     instanceParamList.add(ip);
@@ -439,7 +464,81 @@ public class ServiceInstance implements Serializable {
         }
     }
 
-    public void removeParams(HashMap<String, String> parameters,
+    /**
+     * Returns the instance attributes with the given key, <code>null</code> in
+     * case no attribute with that key could be found.
+     * 
+     * @param attributeKey
+     *            The key of the requested attribute.
+     * @return The instance attribute with the given key.
+     */
+    public InstanceAttribute getAttributeForKey(String attributeKey) {
+        for (InstanceAttribute attr : instanceAttributes) {
+            if (attr.getAttributeKey().equals(attributeKey)) {
+                return attr;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns all attributes as map.
+     * 
+     * @return map from attribute keys to their corresponding values.
+     * @throws BadResultException
+     */
+    public HashMap<String, Setting> getAttributeMap() throws BadResultException {
+        final HashMap<String, Setting> map = new HashMap<>();
+        for (InstanceAttribute attr : instanceAttributes) {
+            map.put(attr.getAttributeKey(),
+                    new Setting(attr.getAttributeKey(), attr
+                            .getDecryptedValue(), attr.isEncrypted(), attr
+                            .getControllerId()));
+        }
+        return map;
+    }
+
+    /**
+     * Persist all modified attributes.
+     * 
+     * @param attributes
+     *            all the service specific settings
+     * 
+     * @throws BadResultException
+     */
+    public void setInstanceAttributes(HashMap<String, Setting> attributes)
+            throws BadResultException {
+        if (attributes != null) {
+            List<InstanceAttribute> instanceAttrList = new ArrayList<>();
+            for (String key : attributes.keySet()) {
+                if (key != null) {
+                    InstanceAttribute ia = getAttributeForKey(key);
+                    Setting attr = attributes.get(key);
+                    if (ia != null) { // Existing parameter
+                        if (!ia.getDecryptedValue().equals(attr.getValue())) {
+                            // Changed => Update
+                            ia.setEncrypted(attr.isEncrypted());
+                            ia.setDecryptedValue(attr.getValue());
+                        }
+                    } else { // Added parameter
+                        ia = new InstanceAttribute();
+                        ia.setAttributeKey(key);
+                        ia.setEncrypted(attr.isEncrypted());
+                        ia.setDecryptedValue(attr.getValue());
+                        ia.setServiceInstance(this);
+                    }
+                    instanceAttrList.add(ia);
+                }
+            }
+            this.setInstanceAttributes(instanceAttrList);
+        }
+    }
+
+    public void setInstanceAttributes(List<InstanceAttribute> instanceAttributes) {
+        this.instanceAttributes = instanceAttributes;
+    }
+
+    public void removeParams(HashMap<String, Setting> parameters,
             EntityManager em) {
 
         List<InstanceParameter> paramsToRemove = new ArrayList<>();
@@ -565,11 +664,11 @@ public class ServiceInstance implements Serializable {
             Properties rollbackInstanceParameters, EntityManager em)
             throws BadResultException {
 
-        HashMap<String, String> rollbackParams = new HashMap<String, String>();
+        HashMap<String, Setting> rollbackParams = new HashMap<>();
 
         for (String name : rollbackInstanceParameters.stringPropertyNames()) {
-            rollbackParams.put(name,
-                    rollbackInstanceParameters.getProperty(name));
+            rollbackParams.put(name, new Setting(name,
+                    rollbackInstanceParameters.getProperty(name)));
         }
         this.removeParams(rollbackParams, em);
         this.setInstanceParameters(rollbackParams);

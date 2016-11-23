@@ -34,8 +34,8 @@ import org.oscm.app.iaas.intf.FWCommunication;
 import org.oscm.app.iaas.intf.VDiskCommunication;
 import org.oscm.app.iaas.intf.VServerCommunication;
 import org.oscm.app.iaas.intf.VSystemCommunication;
-import org.oscm.app.v1_0.APPlatformServiceFactory;
-import org.oscm.app.v1_0.exceptions.SuspendException;
+import org.oscm.app.v2_0.APPlatformServiceFactory;
+import org.oscm.app.v2_0.exceptions.SuspendException;
 
 @Stateless
 @LocalBean
@@ -528,8 +528,7 @@ public class VServerProcessorBean extends BaseProvisioningProcessor {
 
     FlowState manageModificationVDiskCreation(String controllerId,
             String instanceId, PropertyHandler paramHandler,
-            FlowState flowState, FlowState newStateParam)
-            throws Exception {
+            FlowState flowState, FlowState newStateParam) throws Exception {
         FlowState newState = newStateParam;
         boolean vSysInNormalState = VSystemStatus.NORMAL.equals(paramHandler
                 .getIaasContext().getVSystemStatus());
@@ -655,8 +654,7 @@ public class VServerProcessorBean extends BaseProvisioningProcessor {
 
     FlowState manageModificationVDiskDeletion(String controllerId,
             String instanceId, PropertyHandler paramHandler,
-            FlowState flowState, FlowState newStateParam)
-            throws Exception {
+            FlowState flowState, FlowState newStateParam) throws Exception {
         FlowState newState = newStateParam;
         boolean vSysInNormalState = VSystemStatus.NORMAL.equals(paramHandler
                 .getIaasContext().getVSystemStatus());
@@ -941,12 +939,12 @@ public class VServerProcessorBean extends BaseProvisioningProcessor {
                 eventLink.append("&cid=").append(controllerId);
                 eventLink.append("&command=finish");
                 String subject = Messages.get(locale,
-                        "mail_VSERVER_manual_completion.subject", instanceId, subscriptionId);
+                        "mail_VSERVER_manual_completion.subject", instanceId,
+                        subscriptionId);
                 String details = paramHandler.getConfigurationAsString();
                 String text = Messages.get(locale,
-                        "mail_VSERVER_manual_completion.text",
-                        instanceId, subscriptionId, details,
-                        eventLink.toString());
+                        "mail_VSERVER_manual_completion.text", instanceId,
+                        subscriptionId, details, eventLink.toString());
                 platformService.sendMail(Collections.singletonList(mail),
                         subject, text);
                 return FlowState.MANUAL;
@@ -956,11 +954,12 @@ public class VServerProcessorBean extends BaseProvisioningProcessor {
             if (checkNextStatus(controllerId, instanceId, FlowState.FINISHED,
                     paramHandler)) {
                 String subject = Messages.get(locale,
-                        "mail_VSERVER_manual_modification.subject",
-                        instanceId, subscriptionId);
+                        "mail_VSERVER_manual_modification.subject", instanceId,
+                        subscriptionId);
                 String details = paramHandler.getConfigurationAsString();
                 String text = Messages.get(locale,
-                        "mail_VSERVER_manual_modification.text", instanceId, subscriptionId, details);
+                        "mail_VSERVER_manual_modification.text", instanceId,
+                        subscriptionId, details);
                 platformService.sendMail(Collections.singletonList(mail),
                         subject, text);
                 return FlowState.FINISHED;
@@ -1074,10 +1073,8 @@ public class VServerProcessorBean extends BaseProvisioningProcessor {
         if (diskImageIdUnique) {
             logger.info(
                     "No disk image with referenced ID {} defined. Using disk image with same name and ID {}",
-                    new String[] {
-                            imageIdOrName,
-                            diskImageForName
-                                    .getDiskImageId()});
+                    new String[] { imageIdOrName,
+                            diskImageForName.getDiskImageId() });
             return diskImageForName;
         }
         return null;

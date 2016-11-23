@@ -1,3 +1,4 @@
+
 /**
  * UpgradeSubscription.java
  *
@@ -10,14 +11,70 @@ package org.oscm.xsd;
 /**
  * UpgradeSubscription bean class
  */
-@SuppressWarnings({ "rawtypes", "unused", "serial", "null", "unchecked" })
-public class UpgradeSubscription implements
-        org.apache.axis2.databinding.ADBBean {
+
+public class UpgradeSubscription
+        implements org.apache.axis2.databinding.ADBBean {
     /*
      * This type was generated from the piece of schema that had name =
-     * upgradeSubscription Namespace URI = http://oscm.org/xsd Namespace
-     * Prefix = ns1
+     * upgradeSubscription Namespace URI = http://oscm.org/xsd Namespace Prefix
+     * = ns1
      */
+
+    /**
+     * field for InstanceId
+     */
+
+    protected java.lang.String localInstanceId;
+    /*
+     * This tracker boolean wil be used to detect whether the user called the
+     * set method for this attribute. It will be used to determine whether to
+     * include this field in the serialized XML
+     */
+    protected boolean localInstanceIdTracker = false;
+    /**
+     * field for SubscriptionId
+     */
+
+    protected java.lang.String localSubscriptionId;
+    /*
+     * This tracker boolean wil be used to detect whether the user called the
+     * set method for this attribute. It will be used to determine whether to
+     * include this field in the serialized XML
+     */
+    protected boolean localSubscriptionIdTracker = false;
+    /**
+     * field for ParameterValues This was an Array!
+     */
+
+    protected org.oscm.xsd.ServiceParameter[] localParameterValues;
+    /*
+     * This tracker boolean wil be used to detect whether the user called the
+     * set method for this attribute. It will be used to determine whether to
+     * include this field in the serialized XML
+     */
+    protected boolean localParameterValuesTracker = false;
+    /**
+     * field for AttributeValues This was an Array!
+     */
+
+    protected org.oscm.xsd.ServiceAttribute[] localAttributeValues;
+    /*
+     * This tracker boolean wil be used to detect whether the user called the
+     * set method for this attribute. It will be used to determine whether to
+     * include this field in the serialized XML
+     */
+    protected boolean localAttributeValuesTracker = false;
+    /**
+     * field for RequestingUser
+     */
+
+    protected org.oscm.xsd.User localRequestingUser;
+    /*
+     * This tracker boolean wil be used to detect whether the user called the
+     * set method for this attribute. It will be used to determine whether to
+     * include this field in the serialized XML
+     */
+    protected boolean localRequestingUserTracker = false;
 
     private static java.lang.String generatePrefix(java.lang.String namespace) {
         if (namespace.equals("http://oscm.org/xsd")) {
@@ -27,21 +84,27 @@ public class UpgradeSubscription implements
     }
 
     /**
-     * field for InstanceId
+     * isReaderMTOMAware
+     *
+     * @return true if the reader supports MTOM
      */
+    public static boolean isReaderMTOMAware(
+            javax.xml.stream.XMLStreamReader reader) {
+        boolean isReaderMTOMAware = false;
 
-    protected java.lang.String localInstanceId;
-
-    /*
-     * This tracker boolean wil be used to detect whether the user called the
-     * set method for this attribute. It will be used to determine whether to
-     * include this field in the serialized XML
-     */
-    protected boolean localInstanceIdTracker = false;
+        try {
+            isReaderMTOMAware = java.lang.Boolean.TRUE
+                    .equals(reader.getProperty(
+                            org.apache.axiom.om.OMConstants.IS_DATA_HANDLERS_AWARE));
+        } catch (java.lang.IllegalArgumentException e) {
+            isReaderMTOMAware = false;
+        }
+        return isReaderMTOMAware;
+    }
 
     /**
      * Auto generated getter method
-     * 
+     *
      * @return java.lang.String
      */
     public java.lang.String getInstanceId() {
@@ -50,7 +113,7 @@ public class UpgradeSubscription implements
 
     /**
      * Auto generated setter method
-     * 
+     *
      * @param param
      *            InstanceId
      */
@@ -69,21 +132,8 @@ public class UpgradeSubscription implements
     }
 
     /**
-     * field for SubscriptionId
-     */
-
-    protected java.lang.String localSubscriptionId;
-
-    /*
-     * This tracker boolean wil be used to detect whether the user called the
-     * set method for this attribute. It will be used to determine whether to
-     * include this field in the serialized XML
-     */
-    protected boolean localSubscriptionIdTracker = false;
-
-    /**
      * Auto generated getter method
-     * 
+     *
      * @return java.lang.String
      */
     public java.lang.String getSubscriptionId() {
@@ -92,7 +142,7 @@ public class UpgradeSubscription implements
 
     /**
      * Auto generated setter method
-     * 
+     *
      * @param param
      *            SubscriptionId
      */
@@ -111,21 +161,8 @@ public class UpgradeSubscription implements
     }
 
     /**
-     * field for ParameterValues This was an Array!
-     */
-
-    protected org.oscm.xsd.ServiceParameter[] localParameterValues;
-
-    /*
-     * This tracker boolean wil be used to detect whether the user called the
-     * set method for this attribute. It will be used to determine whether to
-     * include this field in the serialized XML
-     */
-    protected boolean localParameterValuesTracker = false;
-
-    /**
      * Auto generated getter method
-     * 
+     *
      * @return org.oscm.xsd.ServiceParameter[]
      */
     public org.oscm.xsd.ServiceParameter[] getParameterValues() {
@@ -133,16 +170,8 @@ public class UpgradeSubscription implements
     }
 
     /**
-     * validate the array for ParameterValues
-     */
-    protected void validateParameterValues(
-            org.oscm.xsd.ServiceParameter[] param) {
-
-    }
-
-    /**
      * Auto generated setter method
-     * 
+     *
      * @param param
      *            ParameterValues
      */
@@ -162,8 +191,16 @@ public class UpgradeSubscription implements
     }
 
     /**
+     * validate the array for ParameterValues
+     */
+    protected void validateParameterValues(
+            org.oscm.xsd.ServiceParameter[] param) {
+
+    }
+
+    /**
      * Auto generated add method for the array for convenience
-     * 
+     *
      * @param param
      *            org.oscm.xsd.ServiceParameter
      */
@@ -184,21 +221,68 @@ public class UpgradeSubscription implements
     }
 
     /**
-     * field for RequestingUser
+     * Auto generated getter method
+     *
+     * @return org.oscm.xsd.ServiceAttribute[]
      */
+    public org.oscm.xsd.ServiceAttribute[] getAttributeValues() {
+        return localAttributeValues;
+    }
 
-    protected org.oscm.xsd.User localRequestingUser;
-
-    /*
-     * This tracker boolean wil be used to detect whether the user called the
-     * set method for this attribute. It will be used to determine whether to
-     * include this field in the serialized XML
+    /**
+     * Auto generated setter method
+     *
+     * @param param
+     *            AttributeValues
      */
-    protected boolean localRequestingUserTracker = false;
+    public void setAttributeValues(org.oscm.xsd.ServiceAttribute[] param) {
+
+        validateAttributeValues(param);
+
+        if (param != null) {
+            // update the setting tracker
+            localAttributeValuesTracker = true;
+        } else {
+            localAttributeValuesTracker = false;
+
+        }
+
+        this.localAttributeValues = param;
+    }
+
+    /**
+     * validate the array for AttributeValues
+     */
+    protected void validateAttributeValues(
+            org.oscm.xsd.ServiceAttribute[] param) {
+
+    }
+
+    /**
+     * Auto generated add method for the array for convenience
+     *
+     * @param param
+     *            org.oscm.xsd.ServiceAttribute
+     */
+    public void addAttributeValues(org.oscm.xsd.ServiceAttribute param) {
+        if (localAttributeValues == null) {
+            localAttributeValues = new org.oscm.xsd.ServiceAttribute[] {};
+        }
+
+        // update the setting tracker
+        localAttributeValuesTracker = true;
+
+        java.util.List list = org.apache.axis2.databinding.utils.ConverterUtil
+                .toList(localAttributeValues);
+        list.add(param);
+        this.localAttributeValues = (org.oscm.xsd.ServiceAttribute[]) list
+                .toArray(new org.oscm.xsd.ServiceAttribute[list.size()]);
+
+    }
 
     /**
      * Auto generated getter method
-     * 
+     *
      * @return org.oscm.xsd.User
      */
     public org.oscm.xsd.User getRequestingUser() {
@@ -207,7 +291,7 @@ public class UpgradeSubscription implements
 
     /**
      * Auto generated setter method
-     * 
+     *
      * @param param
      *            RequestingUser
      */
@@ -226,26 +310,7 @@ public class UpgradeSubscription implements
     }
 
     /**
-     * isReaderMTOMAware
-     * 
-     * @return true if the reader supports MTOM
-     */
-    public static boolean isReaderMTOMAware(
-            javax.xml.stream.XMLStreamReader reader) {
-        boolean isReaderMTOMAware = false;
-
-        try {
-            isReaderMTOMAware = java.lang.Boolean.TRUE
-                    .equals(reader
-                            .getProperty(org.apache.axiom.om.OMConstants.IS_DATA_HANDLERS_AWARE));
-        } catch (java.lang.IllegalArgumentException e) {
-            isReaderMTOMAware = false;
-        }
-        return isReaderMTOMAware;
-    }
-
-    /**
-     * 
+     *
      * @param parentQName
      * @param factory
      * @return org.apache.axiom.om.OMElement
@@ -258,7 +323,6 @@ public class UpgradeSubscription implements
         org.apache.axiom.om.OMDataSource dataSource = new org.apache.axis2.databinding.ADBDataSource(
                 this, parentQName) {
 
-            @Override
             public void serialize(
                     org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter)
                     throws javax.xml.stream.XMLStreamException {
@@ -271,8 +335,7 @@ public class UpgradeSubscription implements
 
     }
 
-    public void serialize(
-            final javax.xml.namespace.QName parentQName,
+    public void serialize(final javax.xml.namespace.QName parentQName,
             final org.apache.axiom.om.OMFactory factory,
             org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter)
             throws javax.xml.stream.XMLStreamException,
@@ -280,8 +343,7 @@ public class UpgradeSubscription implements
         serialize(parentQName, factory, xmlWriter, false);
     }
 
-    public void serialize(
-            final javax.xml.namespace.QName parentQName,
+    public void serialize(final javax.xml.namespace.QName parentQName,
             final org.apache.axiom.om.OMFactory factory,
             org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter,
             boolean serializeType) throws javax.xml.stream.XMLStreamException,
@@ -336,8 +398,8 @@ public class UpgradeSubscription implements
                 if (prefix == null) {
                     prefix = generatePrefix(namespace);
 
-                    xmlWriter
-                            .writeStartElement(prefix, "instanceId", namespace);
+                    xmlWriter.writeStartElement(prefix, "instanceId",
+                            namespace);
                     xmlWriter.writeNamespace(prefix, namespace);
                     xmlWriter.setPrefix(prefix, namespace);
 
@@ -402,9 +464,11 @@ public class UpgradeSubscription implements
             if (localParameterValues != null) {
                 for (int i = 0; i < localParameterValues.length; i++) {
                     if (localParameterValues[i] != null) {
-                        localParameterValues[i].serialize(
-                                new javax.xml.namespace.QName("",
-                                        "parameterValues"), factory, xmlWriter);
+                        localParameterValues[i]
+                                .serialize(
+                                        new javax.xml.namespace.QName("",
+                                                "parameterValues"),
+                                        factory, xmlWriter);
                     } else {
 
                         // we don't have to do any thing since minOccures is
@@ -420,13 +484,38 @@ public class UpgradeSubscription implements
 
             }
         }
+        if (localAttributeValuesTracker) {
+            if (localAttributeValues != null) {
+                for (int i = 0; i < localAttributeValues.length; i++) {
+                    if (localAttributeValues[i] != null) {
+                        localAttributeValues[i]
+                                .serialize(
+                                        new javax.xml.namespace.QName("",
+                                                "attributeValues"),
+                                        factory, xmlWriter);
+                    } else {
+
+                        // we don't have to do any thing since minOccures is
+                        // zero
+
+                    }
+
+                }
+            } else {
+
+                throw new org.apache.axis2.databinding.ADBException(
+                        "attributeValues cannot be null!!");
+
+            }
+        }
         if (localRequestingUserTracker) {
             if (localRequestingUser == null) {
                 throw new org.apache.axis2.databinding.ADBException(
                         "requestingUser cannot be null!!");
             }
-            localRequestingUser.serialize(new javax.xml.namespace.QName("",
-                    "requestingUser"), factory, xmlWriter);
+            localRequestingUser.serialize(
+                    new javax.xml.namespace.QName("", "requestingUser"),
+                    factory, xmlWriter);
         }
         xmlWriter.writeEndElement();
 
@@ -511,20 +600,19 @@ public class UpgradeSubscription implements
             }
 
             if (prefix.trim().length() > 0) {
-                xmlWriter.writeCharacters(prefix
-                        + ":"
+                xmlWriter.writeCharacters(prefix + ":"
                         + org.apache.axis2.databinding.utils.ConverterUtil
                                 .convertToString(qname));
             } else {
                 // i.e this is the default namespace
-                xmlWriter
-                        .writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil
+                xmlWriter.writeCharacters(
+                        org.apache.axis2.databinding.utils.ConverterUtil
                                 .convertToString(qname));
             }
 
         } else {
-            xmlWriter
-                    .writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil
+            xmlWriter.writeCharacters(
+                    org.apache.axis2.databinding.utils.ConverterUtil
                             .convertToString(qname));
         }
     }
@@ -555,9 +643,7 @@ public class UpgradeSubscription implements
                     }
 
                     if (prefix.trim().length() > 0) {
-                        stringToWrite
-                                .append(prefix)
-                                .append(":")
+                        stringToWrite.append(prefix).append(":")
                                 .append(org.apache.axis2.databinding.utils.ConverterUtil
                                         .convertToString(qnames[i]));
                     } else {
@@ -588,7 +674,8 @@ public class UpgradeSubscription implements
         if (prefix == null) {
             prefix = generatePrefix(namespace);
 
-            while (xmlWriter.getNamespaceContext().getNamespaceURI(prefix) != null) {
+            while (xmlWriter.getNamespaceContext()
+                    .getNamespaceURI(prefix) != null) {
                 prefix = org.apache.axis2.databinding.utils.BeanUtil
                         .getUniquePrefix();
             }
@@ -602,7 +689,7 @@ public class UpgradeSubscription implements
 
     /**
      * databinding method to get an XML representation of this object
-     * 
+     *
      */
     public javax.xml.stream.XMLStreamReader getPullParser(
             javax.xml.namespace.QName qName)
@@ -615,9 +702,8 @@ public class UpgradeSubscription implements
             elementList.add(new javax.xml.namespace.QName("", "instanceId"));
 
             if (localInstanceId != null) {
-                elementList
-                        .add(org.apache.axis2.databinding.utils.ConverterUtil
-                                .convertToString(localInstanceId));
+                elementList.add(org.apache.axis2.databinding.utils.ConverterUtil
+                        .convertToString(localInstanceId));
             } else {
                 throw new org.apache.axis2.databinding.ADBException(
                         "instanceId cannot be null!!");
@@ -628,9 +714,8 @@ public class UpgradeSubscription implements
                     .add(new javax.xml.namespace.QName("", "subscriptionId"));
 
             if (localSubscriptionId != null) {
-                elementList
-                        .add(org.apache.axis2.databinding.utils.ConverterUtil
-                                .convertToString(localSubscriptionId));
+                elementList.add(org.apache.axis2.databinding.utils.ConverterUtil
+                        .convertToString(localSubscriptionId));
             } else {
                 throw new org.apache.axis2.databinding.ADBException(
                         "subscriptionId cannot be null!!");
@@ -655,6 +740,29 @@ public class UpgradeSubscription implements
 
                 throw new org.apache.axis2.databinding.ADBException(
                         "parameterValues cannot be null!!");
+
+            }
+
+        }
+        if (localAttributeValuesTracker) {
+            if (localAttributeValues != null) {
+                for (int i = 0; i < localAttributeValues.length; i++) {
+
+                    if (localAttributeValues[i] != null) {
+                        elementList.add(new javax.xml.namespace.QName("",
+                                "attributeValues"));
+                        elementList.add(localAttributeValues[i]);
+                    } else {
+
+                        // nothing to do
+
+                    }
+
+                }
+            } else {
+
+                throw new org.apache.axis2.databinding.ADBException(
+                        "attributeValues cannot be null!!");
 
             }
 
@@ -705,11 +813,11 @@ public class UpgradeSubscription implements
                     reader.next();
 
                 if (reader.getAttributeValue(
-                        "http://www.w3.org/2001/XMLSchema-instance", "type") != null) {
-                    java.lang.String fullTypeName = reader
-                            .getAttributeValue(
-                                    "http://www.w3.org/2001/XMLSchema-instance",
-                                    "type");
+                        "http://www.w3.org/2001/XMLSchema-instance",
+                        "type") != null) {
+                    java.lang.String fullTypeName = reader.getAttributeValue(
+                            "http://www.w3.org/2001/XMLSchema-instance",
+                            "type");
                     if (fullTypeName != null) {
                         java.lang.String nsPrefix = null;
                         if (fullTypeName.indexOf(":") > -1) {
@@ -724,8 +832,8 @@ public class UpgradeSubscription implements
                         if (!"upgradeSubscription".equals(type)) {
                             // find namespace for the prefix
                             java.lang.String nsUri = reader
-                                    .getNamespaceContext().getNamespaceURI(
-                                            nsPrefix);
+                                    .getNamespaceContext()
+                                    .getNamespaceURI(nsPrefix);
                             return (UpgradeSubscription) org.oscm.xsd.ExtensionMapper
                                     .getTypeObject(nsUri, type, reader);
                         }
@@ -743,6 +851,8 @@ public class UpgradeSubscription implements
 
                 java.util.ArrayList list3 = new java.util.ArrayList();
 
+                java.util.ArrayList list4 = new java.util.ArrayList();
+
                 while (!reader.isStartElement() && !reader.isEndElement())
                     reader.next();
 
@@ -752,8 +862,9 @@ public class UpgradeSubscription implements
 
                     java.lang.String content = reader.getElementText();
 
-                    object.setInstanceId(org.apache.axis2.databinding.utils.ConverterUtil
-                            .convertToString(content));
+                    object.setInstanceId(
+                            org.apache.axis2.databinding.utils.ConverterUtil
+                                    .convertToString(content));
 
                     reader.next();
 
@@ -772,8 +883,9 @@ public class UpgradeSubscription implements
 
                     java.lang.String content = reader.getElementText();
 
-                    object.setSubscriptionId(org.apache.axis2.databinding.utils.ConverterUtil
-                            .convertToString(content));
+                    object.setSubscriptionId(
+                            org.apache.axis2.databinding.utils.ConverterUtil
+                                    .convertToString(content));
 
                     reader.next();
 
@@ -813,7 +925,8 @@ public class UpgradeSubscription implements
                             loopDone3 = true;
                         } else {
                             if (new javax.xml.namespace.QName("",
-                                    "parameterValues").equals(reader.getName())) {
+                                    "parameterValues")
+                                            .equals(reader.getName())) {
                                 list3.add(org.oscm.xsd.ServiceParameter.Factory
                                         .parse(reader));
 
@@ -824,10 +937,65 @@ public class UpgradeSubscription implements
                     }
                     // call the converter utility to convert and set the array
 
-                    object.setParameterValues((org.oscm.xsd.ServiceParameter[]) org.apache.axis2.databinding.utils.ConverterUtil
-                            .convertToArray(
-                                    org.oscm.xsd.ServiceParameter.class,
-                                    list3));
+                    object.setParameterValues(
+                            (org.oscm.xsd.ServiceParameter[]) org.apache.axis2.databinding.utils.ConverterUtil
+                                    .convertToArray(
+                                            org.oscm.xsd.ServiceParameter.class,
+                                            list3));
+
+                } // End of if for expected property start element
+
+                else {
+
+                }
+
+                while (!reader.isStartElement() && !reader.isEndElement())
+                    reader.next();
+
+                if (reader.isStartElement()
+                        && new javax.xml.namespace.QName("", "attributeValues")
+                                .equals(reader.getName())) {
+
+                    // Process the array and step past its final element's end.
+                    list4.add(org.oscm.xsd.ServiceAttribute.Factory
+                            .parse(reader));
+
+                    // loop until we find a start element that is not part of
+                    // this array
+                    boolean loopDone4 = false;
+                    while (!loopDone4) {
+                        // We should be at the end element, but make sure
+                        while (!reader.isEndElement())
+                            reader.next();
+                        // Step out of this element
+                        reader.next();
+                        // Step to next element event.
+                        while (!reader.isStartElement()
+                                && !reader.isEndElement())
+                            reader.next();
+                        if (reader.isEndElement()) {
+                            // two continuous end elements means we are exiting
+                            // the xml structure
+                            loopDone4 = true;
+                        } else {
+                            if (new javax.xml.namespace.QName("",
+                                    "attributeValues")
+                                            .equals(reader.getName())) {
+                                list4.add(org.oscm.xsd.ServiceAttribute.Factory
+                                        .parse(reader));
+
+                            } else {
+                                loopDone4 = true;
+                            }
+                        }
+                    }
+                    // call the converter utility to convert and set the array
+
+                    object.setAttributeValues(
+                            (org.oscm.xsd.ServiceAttribute[]) org.apache.axis2.databinding.utils.ConverterUtil
+                                    .convertToArray(
+                                            org.oscm.xsd.ServiceAttribute.class,
+                                            list4));
 
                 } // End of if for expected property start element
 
@@ -842,8 +1010,8 @@ public class UpgradeSubscription implements
                         && new javax.xml.namespace.QName("", "requestingUser")
                                 .equals(reader.getName())) {
 
-                    object.setRequestingUser(org.oscm.xsd.User.Factory
-                            .parse(reader));
+                    object.setRequestingUser(
+                            org.oscm.xsd.User.Factory.parse(reader));
 
                     reader.next();
 

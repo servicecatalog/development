@@ -17,49 +17,17 @@ import java.util.Set;
 import javax.jws.WebService;
 import javax.xml.ws.WebServiceContext;
 
+import org.oscm.converter.api.ExceptionConverter;
+import org.oscm.converter.api.VOCollectionConverter;
+import org.oscm.converter.api.VOConverter;
+import org.oscm.dataservice.local.DataService;
+import org.oscm.intf.AccountService;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
-import org.oscm.dataservice.local.DataService;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
+import org.oscm.types.exceptions.*;
+import org.oscm.vo.*;
 import org.oscm.webservices.logger.WebServiceLogger;
-import org.oscm.converter.api.ExceptionConverter;
-import org.oscm.converter.api.VOConverter;
-import org.oscm.converter.api.VOCollectionConverter;
-import org.oscm.intf.AccountService;
-import org.oscm.types.exceptions.AddMarketingPermissionException;
-import org.oscm.types.exceptions.ConcurrentModificationException;
-import org.oscm.types.exceptions.DeletionConstraintException;
-import org.oscm.types.exceptions.DistinguishedNameException;
-import org.oscm.types.exceptions.ImageException;
-import org.oscm.types.exceptions.MailOperationException;
-import org.oscm.types.exceptions.MandatoryUdaMissingException;
-import org.oscm.types.exceptions.MarketingPermissionNotFoundException;
-import org.oscm.types.exceptions.NonUniqueBusinessKeyException;
-import org.oscm.types.exceptions.ObjectNotFoundException;
-import org.oscm.types.exceptions.OperationNotPermittedException;
-import org.oscm.types.exceptions.OperationPendingException;
-import org.oscm.types.exceptions.OrganizationAuthoritiesException;
-import org.oscm.types.exceptions.PaymentDataException;
-import org.oscm.types.exceptions.PaymentDeregistrationException;
-import org.oscm.types.exceptions.RegistrationException;
-import org.oscm.types.exceptions.SaaSSystemException;
-import org.oscm.types.exceptions.ServiceParameterException;
-import org.oscm.types.exceptions.SubscriptionStateException;
-import org.oscm.types.exceptions.TechnicalServiceNotAliveException;
-import org.oscm.types.exceptions.TechnicalServiceOperationException;
-import org.oscm.types.exceptions.ValidationException;
-import org.oscm.vo.LdapProperties;
-import org.oscm.vo.VOBillingContact;
-import org.oscm.vo.VOImageResource;
-import org.oscm.vo.VOOrganization;
-import org.oscm.vo.VOOrganizationPaymentConfiguration;
-import org.oscm.vo.VOPaymentInfo;
-import org.oscm.vo.VOPaymentType;
-import org.oscm.vo.VOServicePaymentConfiguration;
-import org.oscm.vo.VOTechnicalService;
-import org.oscm.vo.VOUda;
-import org.oscm.vo.VOUdaDefinition;
-import org.oscm.vo.VOUserDetails;
 
 /**
  * End point facade for WS.
@@ -295,10 +263,9 @@ public class AccountServiceWS implements AccountService {
                                     .convertList(
                                             customerConfigurations,
                                             org.oscm.internal.vo.VOOrganizationPaymentConfiguration.class),
-                            VOCollectionConverter
-                                    .convertSet(
-                                            defaultServiceConfiguration,
-                                            org.oscm.internal.vo.VOPaymentType.class),
+                            VOCollectionConverter.convertSet(
+                                    defaultServiceConfiguration,
+                                    org.oscm.internal.vo.VOPaymentType.class),
                             VOCollectionConverter
                                     .convertList(
                                             serviceConfigurations,
@@ -415,7 +382,7 @@ public class AccountServiceWS implements AccountService {
         WS_LOGGER.logAccess(wsContext, ds);
         try {
             return VOCollectionConverter.convertList(
-                    delegate.getUdas(targetType, targetObjectKey),
+                    delegate.getUdas(targetType, targetObjectKey, true),
                     org.oscm.vo.VOUda.class);
         } catch (org.oscm.internal.types.exception.ObjectNotFoundException e) {
             throw ExceptionConverter.convertToApi(e);
@@ -438,9 +405,9 @@ public class AccountServiceWS implements AccountService {
         try {
             delegate.saveUdaDefinitions(VOCollectionConverter.convertList(
                     udaDefinitionsToSave,
-                    org.oscm.internal.vo.VOUdaDefinition.class),
+                    org.oscm.internal.vo.VOUdaDefinition.class, ds),
                     VOCollectionConverter.convertList(udaDefinitionsToDelete,
-                            org.oscm.internal.vo.VOUdaDefinition.class));
+                            org.oscm.internal.vo.VOUdaDefinition.class, ds));
         } catch (org.oscm.internal.types.exception.NonUniqueBusinessKeyException e) {
             throw ExceptionConverter.convertToApi(e);
         } catch (org.oscm.internal.types.exception.ObjectNotFoundException e) {
@@ -464,7 +431,7 @@ public class AccountServiceWS implements AccountService {
         WS_LOGGER.logAccess(wsContext, ds);
         try {
             delegate.saveUdas(VOCollectionConverter.convertList(udas,
-                    org.oscm.internal.vo.VOUda.class));
+                    org.oscm.internal.vo.VOUda.class, ds));
         } catch (org.oscm.internal.types.exception.ObjectNotFoundException e) {
             throw ExceptionConverter.convertToApi(e);
         } catch (org.oscm.internal.types.exception.NonUniqueBusinessKeyException e) {
@@ -505,8 +472,8 @@ public class AccountServiceWS implements AccountService {
             throws ObjectNotFoundException {
         WS_LOGGER.logAccess(wsContext, ds);
         try {
-            return VOConverter.convertToApi(delegate.getSeller(sellerId,
-                    locale));
+            return VOConverter.convertToApi(delegate
+                    .getSeller(sellerId, locale));
         } catch (org.oscm.internal.types.exception.ObjectNotFoundException e) {
             throw ExceptionConverter.convertToApi(e);
         }
@@ -637,9 +604,9 @@ public class AccountServiceWS implements AccountService {
             ObjectNotFoundException, OperationNotPermittedException {
         WS_LOGGER.logAccess(wsContext, ds);
         try {
-            return VOCollectionConverter.convertList(delegate.getUdasForCustomer(
-                    targetType, targetObjectKey, supplierId),
-                    org.oscm.vo.VOUda.class);
+            return VOCollectionConverter.convertList(
+                    delegate.getUdasForCustomer(targetType, targetObjectKey,
+                            supplierId), org.oscm.vo.VOUda.class);
         } catch (org.oscm.internal.types.exception.ObjectNotFoundException e) {
             throw ExceptionConverter.convertToApi(e);
         } catch (org.oscm.internal.types.exception.ValidationException e) {

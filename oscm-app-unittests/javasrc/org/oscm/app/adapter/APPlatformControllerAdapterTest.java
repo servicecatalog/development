@@ -13,8 +13,8 @@ import static org.mockito.Mockito.mock;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.oscm.app.v1_0.exceptions.APPlatformException;
-import org.oscm.app.v1_0.intf.APPlatformController;
+import org.oscm.app.v2_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.intf.APPlatformController;
 
 public class APPlatformControllerAdapterTest {
 
@@ -26,7 +26,8 @@ public class APPlatformControllerAdapterTest {
     @Test
     public void constructorTest() throws APPlatformException {
         APPlatformController controllerInterface = mock(APPlatformController.class);
-        APPlatformControllerAdapter adapter = new APPlatformControllerAdapter(controllerInterface);
+        APPlatformControllerAdapter adapter = new APPlatformControllerAdapter(
+                controllerInterface);
         assertNotNull(adapter.getDelegate());
     }
 

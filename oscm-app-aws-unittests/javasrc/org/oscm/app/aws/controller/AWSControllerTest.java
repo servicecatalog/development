@@ -27,11 +27,12 @@ import org.oscm.app.aws.EC2Communication;
 import org.oscm.app.aws.EC2Mockup;
 import org.oscm.app.aws.data.FlowState;
 import org.oscm.app.aws.data.Operation;
-import org.oscm.app.v1_0.data.InstanceDescription;
-import org.oscm.app.v1_0.data.InstanceStatus;
-import org.oscm.app.v1_0.data.ProvisioningSettings;
-import org.oscm.app.v1_0.exceptions.APPlatformException;
-import org.oscm.app.v1_0.intf.APPlatformService;
+import org.oscm.app.v2_0.data.InstanceDescription;
+import org.oscm.app.v2_0.data.InstanceStatus;
+import org.oscm.app.v2_0.data.ProvisioningSettings;
+import org.oscm.app.v2_0.data.Setting;
+import org.oscm.app.v2_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.intf.APPlatformService;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.ejb.TestContainer;
 
@@ -49,8 +50,8 @@ public class AWSControllerTest extends EJBTestBase {
     public static final String EAI_INSTANCE_PUBLIC_DNS = "instancePublicDns";
     public static final String SNAPSHOT_ID = "snapshotId";
 
-    private HashMap<String, String> parameters;
-    private HashMap<String, String> configSettings;
+    private HashMap<String, Setting> parameters;
+    private HashMap<String, Setting> configSettings;
     private ProvisioningSettings settings;
     private AWSController aws;
     private AmazonEC2Client ec2;
@@ -64,8 +65,8 @@ public class AWSControllerTest extends EJBTestBase {
         InitialContext context = new InitialContext();
         context.bind(APPlatformService.JNDI_NAME, platformService);
 
-        parameters = new HashMap<String, String>();
-        configSettings = new HashMap<String, String>();
+        parameters = new HashMap<>();
+        configSettings = new HashMap<>();
         settings = new ProvisioningSettings(parameters, configSettings, "en");
         aws = Mockito.spy(new AWSController());
 
@@ -83,16 +84,23 @@ public class AWSControllerTest extends EJBTestBase {
     }
 
     private void setValidParameters() {
-        parameters.put(PropertyHandler.INSTANCENAME, "name");
-        parameters.put(PropertyHandler.INSTANCENAME_PATTERN, "[a-z]{2,25}");
-        parameters.put(PropertyHandler.KEY_PAIR_NAME, "mySecret");
-        parameters.put(PropertyHandler.IMAGE_NAME, "ami-12345");
-        parameters.put(PropertyHandler.INSTANCE_TYPE, "m1.small");
+        parameters.put(PropertyHandler.INSTANCENAME, new Setting(
+                PropertyHandler.INSTANCENAME, "name"));
+        parameters.put(PropertyHandler.INSTANCENAME_PATTERN, new Setting(
+                PropertyHandler.INSTANCENAME_PATTERN, "[a-z]{2,25}"));
+        parameters.put(PropertyHandler.KEY_PAIR_NAME, new Setting(
+                PropertyHandler.KEY_PAIR_NAME, "mySecret"));
+        parameters.put(PropertyHandler.IMAGE_NAME, new Setting(
+                PropertyHandler.IMAGE_NAME, "ami-12345"));
+        parameters.put(PropertyHandler.INSTANCE_TYPE, new Setting(
+                PropertyHandler.INSTANCE_TYPE, "m1.small"));
         // new data
-        parameters.put(PropertyHandler.DISK_SIZE, DISK_SIZE);
-        parameters.put(PropertyHandler.SUBNET, SUBNET);
-        parameters.put(PropertyHandler.SECURITY_GROUP_NAMES,
-                SECURITY_GROUP_NAMES);
+        parameters.put(PropertyHandler.DISK_SIZE, new Setting(
+                PropertyHandler.DISK_SIZE, DISK_SIZE));
+        parameters.put(PropertyHandler.SUBNET, new Setting(
+                PropertyHandler.SUBNET, SUBNET));
+        parameters.put(PropertyHandler.SECURITY_GROUP_NAMES, new Setting(
+                PropertyHandler.SECURITY_GROUP_NAMES, SECURITY_GROUP_NAMES));
 
     }
 
@@ -142,15 +150,22 @@ public class AWSControllerTest extends EJBTestBase {
     public void testCreateInstance() throws Exception {
 
         // given
-        parameters.put(PropertyHandler.INSTANCENAME, "myInstance");
-        parameters.put(PropertyHandler.KEY_PAIR_NAME, "myKey");
-        parameters.put(PropertyHandler.IMAGE_NAME, "myImage");
-        parameters.put(PropertyHandler.INSTANCE_TYPE, "m1.tiny");
+        parameters.put(PropertyHandler.INSTANCENAME, new Setting(
+                PropertyHandler.INSTANCENAME, "myInstance"));
+        parameters.put(PropertyHandler.KEY_PAIR_NAME, new Setting(
+                PropertyHandler.KEY_PAIR_NAME, "myKey"));
+        parameters.put(PropertyHandler.IMAGE_NAME, new Setting(
+                PropertyHandler.IMAGE_NAME, "myImage"));
+        parameters.put(PropertyHandler.INSTANCE_TYPE, new Setting(
+                PropertyHandler.INSTANCE_TYPE, "m1.tiny"));
         // new data
-        parameters.put(PropertyHandler.DISK_SIZE, "3");
-        parameters.put(PropertyHandler.SUBNET, "subnet-a77430d0");
-        parameters.put(PropertyHandler.SECURITY_GROUP_NAMES,
-                "security_group1,security_group2");
+        parameters.put(PropertyHandler.DISK_SIZE, new Setting(
+                PropertyHandler.DISK_SIZE, "3"));
+        parameters.put(PropertyHandler.SUBNET, new Setting(
+                PropertyHandler.SUBNET, "subnet-a77430d0"));
+        parameters.put(PropertyHandler.SECURITY_GROUP_NAMES, new Setting(
+                PropertyHandler.SECURITY_GROUP_NAMES,
+                "security_group1,security_group2"));
 
         // when
         InstanceDescription instanceDescription = aws.createInstance(settings);
@@ -159,12 +174,14 @@ public class AWSControllerTest extends EJBTestBase {
         assertNotNull(instanceDescription);
         assertNotNull(instanceDescription.getInstanceId());
         assertTrue(instanceDescription.getRunWithTimer());
-        HashMap<String, String> changedParameters = instanceDescription
+        HashMap<String, Setting> changedParameters = instanceDescription
                 .getChangedParameters();
         assertNotNull(changedParameters);
-        String state = changedParameters.get(PropertyHandler.FLOW_STATE);
+        String state = changedParameters.get(PropertyHandler.FLOW_STATE)
+                .getValue();
         assertEquals(FlowState.CREATION_REQUESTED.name(), state);
-        String operation = changedParameters.get(PropertyHandler.OPERATION);
+        String operation = changedParameters.get(PropertyHandler.OPERATION)
+                .getValue();
         assertEquals(Operation.EC2_CREATION.name(), operation);
 
         // when
@@ -177,8 +194,10 @@ public class AWSControllerTest extends EJBTestBase {
 
         // given
         setValidParameters();
-        parameters.put(PropertyHandler.INSTANCENAME, "NAME");
-        parameters.put(PropertyHandler.INSTANCENAME_PATTERN, "[a-z]{2,25}");
+        parameters.put(PropertyHandler.INSTANCENAME, new Setting(
+                PropertyHandler.INSTANCENAME, "NAME"));
+        parameters.put(PropertyHandler.INSTANCENAME_PATTERN, new Setting(
+                PropertyHandler.INSTANCENAME_PATTERN, "[a-z]{2,25}"));
 
         // when
         try {
@@ -210,13 +229,20 @@ public class AWSControllerTest extends EJBTestBase {
     public void testCreateInstance_validateNameEmptyPattern() throws Exception {
 
         // given
-        parameters.put(PropertyHandler.INSTANCENAME, "NAME");
-        parameters.put(PropertyHandler.INSTANCENAME_PATTERN, "");
-        parameters.put(PropertyHandler.KEY_PAIR_NAME, "myKey");
-        parameters.put(PropertyHandler.IMAGE_NAME, "myImage");
-        parameters.put(PropertyHandler.INSTANCE_TYPE, "m1.tiny");
-        parameters.put(PropertyHandler.DISK_SIZE, "3");
-        parameters.put(PropertyHandler.SUBNET, "subnettest");
+        parameters.put(PropertyHandler.INSTANCENAME, new Setting(
+                PropertyHandler.INSTANCENAME, "NAME"));
+        parameters.put(PropertyHandler.INSTANCENAME_PATTERN, new Setting(
+                PropertyHandler.INSTANCENAME_PATTERN, ""));
+        parameters.put(PropertyHandler.KEY_PAIR_NAME, new Setting(
+                PropertyHandler.KEY_PAIR_NAME, "myKey"));
+        parameters.put(PropertyHandler.IMAGE_NAME, new Setting(
+                PropertyHandler.IMAGE_NAME, "myImage"));
+        parameters.put(PropertyHandler.INSTANCE_TYPE, new Setting(
+                PropertyHandler.INSTANCE_TYPE, "m1.tiny"));
+        parameters.put(PropertyHandler.DISK_SIZE, new Setting(
+                PropertyHandler.DISK_SIZE, "3"));
+        parameters.put(PropertyHandler.SUBNET, new Setting(
+                PropertyHandler.SUBNET, "subnettest"));
 
         // when
         InstanceDescription instanceDescription = aws.createInstance(settings);
@@ -284,8 +310,7 @@ public class AWSControllerTest extends EJBTestBase {
     }
 
     @Test(expected = APPlatformException.class)
-    public void testCreateInstance_validateEmptyInstanceType()
-            throws Exception {
+    public void testCreateInstance_validateEmptyInstanceType() throws Exception {
 
         // given
         setValidParameters();
@@ -313,12 +338,14 @@ public class AWSControllerTest extends EJBTestBase {
         // then
         assertNotNull(status);
         assertTrue(status.getRunWithTimer());
-        HashMap<String, String> changedParameters = status
+        HashMap<String, Setting> changedParameters = status
                 .getChangedParameters();
         assertNotNull(changedParameters);
-        String state = changedParameters.get(PropertyHandler.FLOW_STATE);
+        String state = changedParameters.get(PropertyHandler.FLOW_STATE)
+                .getValue();
         assertEquals(FlowState.MODIFICATION_REQUESTED.name(), state);
-        String operation = changedParameters.get(PropertyHandler.OPERATION);
+        String operation = changedParameters.get(PropertyHandler.OPERATION)
+                .getValue();
         assertEquals(Operation.EC2_MODIFICATION.name(), operation);
     }
 
@@ -349,12 +376,14 @@ public class AWSControllerTest extends EJBTestBase {
         // then
         assertNotNull(status);
         assertTrue(status.getRunWithTimer());
-        HashMap<String, String> changedParameters = status
+        HashMap<String, Setting> changedParameters = status
                 .getChangedParameters();
         assertNotNull(changedParameters);
-        String state = changedParameters.get(PropertyHandler.FLOW_STATE);
+        String state = changedParameters.get(PropertyHandler.FLOW_STATE)
+                .getValue();
         assertEquals(FlowState.DELETION_REQUESTED.name(), state);
-        String operation = changedParameters.get(PropertyHandler.OPERATION);
+        String operation = changedParameters.get(PropertyHandler.OPERATION)
+                .getValue();
         assertEquals(Operation.EC2_DELETION.name(), operation);
     }
 
@@ -385,12 +414,14 @@ public class AWSControllerTest extends EJBTestBase {
         // then
         assertNotNull(status);
         assertTrue(status.getRunWithTimer());
-        HashMap<String, String> changedParameters = status
+        HashMap<String, Setting> changedParameters = status
                 .getChangedParameters();
         assertNotNull(changedParameters);
-        String state = changedParameters.get(PropertyHandler.FLOW_STATE);
+        String state = changedParameters.get(PropertyHandler.FLOW_STATE)
+                .getValue();
         assertEquals(FlowState.ACTIVATION_REQUESTED.name(), state);
-        String operation = changedParameters.get(PropertyHandler.OPERATION);
+        String operation = changedParameters.get(PropertyHandler.OPERATION)
+                .getValue();
         assertEquals(Operation.EC2_ACTIVATION.name(), operation);
     }
 
@@ -421,12 +452,14 @@ public class AWSControllerTest extends EJBTestBase {
         // then
         assertNotNull(status);
         assertTrue(status.getRunWithTimer());
-        HashMap<String, String> changedParameters = status
+        HashMap<String, Setting> changedParameters = status
                 .getChangedParameters();
         assertNotNull(changedParameters);
-        String state = changedParameters.get(PropertyHandler.FLOW_STATE);
+        String state = changedParameters.get(PropertyHandler.FLOW_STATE)
+                .getValue();
         assertEquals(FlowState.DEACTIVATION_REQUESTED.name(), state);
-        String operation = changedParameters.get(PropertyHandler.OPERATION);
+        String operation = changedParameters.get(PropertyHandler.OPERATION)
+                .getValue();
         assertEquals(Operation.EC2_ACTIVATION.name(), operation);
     }
 
@@ -466,12 +499,14 @@ public class AWSControllerTest extends EJBTestBase {
         // then
         assertNotNull(status);
         assertTrue(status.getRunWithTimer());
-        HashMap<String, String> changedParameters = status
+        HashMap<String, Setting> changedParameters = status
                 .getChangedParameters();
         assertNotNull(changedParameters);
-        String state = changedParameters.get(PropertyHandler.FLOW_STATE);
+        String state = changedParameters.get(PropertyHandler.FLOW_STATE)
+                .getValue();
         assertEquals(FlowState.START_REQUESTED.name(), state);
-        String operation = changedParameters.get(PropertyHandler.OPERATION);
+        String operation = changedParameters.get(PropertyHandler.OPERATION)
+                .getValue();
         assertEquals(Operation.EC2_OPERATION.name(), operation);
     }
 
@@ -485,12 +520,14 @@ public class AWSControllerTest extends EJBTestBase {
         // then
         assertNotNull(status);
         assertTrue(status.getRunWithTimer());
-        HashMap<String, String> changedParameters = status
+        HashMap<String, Setting> changedParameters = status
                 .getChangedParameters();
         assertNotNull(changedParameters);
-        String state = changedParameters.get(PropertyHandler.FLOW_STATE);
+        String state = changedParameters.get(PropertyHandler.FLOW_STATE)
+                .getValue();
         assertEquals(FlowState.STOP_REQUESTED.name(), state);
-        String operation = changedParameters.get(PropertyHandler.OPERATION);
+        String operation = changedParameters.get(PropertyHandler.OPERATION)
+                .getValue();
         assertEquals(Operation.EC2_OPERATION.name(), operation);
     }
 
@@ -523,10 +560,14 @@ public class AWSControllerTest extends EJBTestBase {
         // given
         Properties properties = new Properties();
         properties.put("command", "finish");
-        settings.getParameters().put(PropertyHandler.OPERATION,
-                Operation.EC2_CREATION.toString());
-        settings.getParameters().put(PropertyHandler.FLOW_STATE,
-                FlowState.MANUAL.toString());
+        settings.getParameters().put(
+                PropertyHandler.OPERATION,
+                new Setting(PropertyHandler.OPERATION, Operation.EC2_CREATION
+                        .toString()));
+        settings.getParameters().put(
+                PropertyHandler.FLOW_STATE,
+                new Setting(PropertyHandler.FLOW_STATE, FlowState.MANUAL
+                        .toString()));
 
         // when
         InstanceStatus result = aws.notifyInstance(INSTANCE_ID, settings,
@@ -543,10 +584,14 @@ public class AWSControllerTest extends EJBTestBase {
         // given
         Properties properties = new Properties();
         properties.put("command", "finish");
-        settings.getParameters().put(PropertyHandler.OPERATION,
-                Operation.EC2_CREATION.toString());
-        settings.getParameters().put(PropertyHandler.FLOW_STATE,
-                FlowState.CREATING.toString());
+        settings.getParameters().put(
+                PropertyHandler.OPERATION,
+                new Setting(PropertyHandler.OPERATION, Operation.EC2_CREATION
+                        .toString()));
+        settings.getParameters().put(
+                PropertyHandler.FLOW_STATE,
+                new Setting(PropertyHandler.FLOW_STATE, FlowState.CREATING
+                        .toString()));
 
         // when
         aws.notifyInstance(INSTANCE_ID, settings, properties);

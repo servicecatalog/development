@@ -27,16 +27,16 @@ import org.oscm.app.aws.data.Operation;
 import org.oscm.app.aws.i18n.Messages;
 import org.oscm.app.common.controller.LogAndExceptionConverter;
 import org.oscm.app.common.data.Context;
-import org.oscm.app.v1_0.data.ControllerSettings;
-import org.oscm.app.v1_0.data.InstanceDescription;
-import org.oscm.app.v1_0.data.InstanceStatus;
-import org.oscm.app.v1_0.data.InstanceStatusUsers;
-import org.oscm.app.v1_0.data.LocalizedText;
-import org.oscm.app.v1_0.data.OperationParameter;
-import org.oscm.app.v1_0.data.ProvisioningSettings;
-import org.oscm.app.v1_0.data.ServiceUser;
-import org.oscm.app.v1_0.exceptions.APPlatformException;
-import org.oscm.app.v1_0.intf.APPlatformController;
+import org.oscm.app.v2_0.data.ControllerSettings;
+import org.oscm.app.v2_0.data.InstanceDescription;
+import org.oscm.app.v2_0.data.InstanceStatus;
+import org.oscm.app.v2_0.data.InstanceStatusUsers;
+import org.oscm.app.v2_0.data.LocalizedText;
+import org.oscm.app.v2_0.data.OperationParameter;
+import org.oscm.app.v2_0.data.ProvisioningSettings;
+import org.oscm.app.v2_0.data.ServiceUser;
+import org.oscm.app.v2_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.intf.APPlatformController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,6 +83,7 @@ public class AWSController implements APPlatformController {
             InstanceDescription id = new InstanceDescription();
             id.setInstanceId("aws-" + UUID.randomUUID().toString());
             id.setChangedParameters(settings.getParameters());
+            id.setChangedAttributes(settings.getAttributes());
             LOGGER.info("createInstance({})", LogAndExceptionConverter
                     .getLogText(id.getInstanceId(), settings));
             return id;
@@ -122,6 +123,7 @@ public class AWSController implements APPlatformController {
 
             InstanceStatus result = new InstanceStatus();
             result.setChangedParameters(settings.getParameters());
+            result.setChangedAttributes(settings.getAttributes());
             return result;
         } catch (Throwable t) {
             throw LogAndExceptionConverter.createAndLogPlatformException(t,
@@ -154,8 +156,8 @@ public class AWSController implements APPlatformController {
     public InstanceStatus modifyInstance(String instanceId,
             ProvisioningSettings currentSettings,
             ProvisioningSettings newSettings) throws APPlatformException {
-        LOGGER.info("modifyInstance({})", LogAndExceptionConverter
-                .getLogText(instanceId, currentSettings));
+        LOGGER.info("modifyInstance({})", LogAndExceptionConverter.getLogText(
+                instanceId, currentSettings));
         try {
             PropertyHandler ph = PropertyHandler.withSettings(newSettings);
             ph.setOperation(Operation.EC2_MODIFICATION);
@@ -163,6 +165,7 @@ public class AWSController implements APPlatformController {
 
             InstanceStatus result = new InstanceStatus();
             result.setChangedParameters(newSettings.getParameters());
+            result.setChangedAttributes(newSettings.getAttributes());
             return result;
         } catch (Throwable t) {
             throw LogAndExceptionConverter.createAndLogPlatformException(t,
@@ -237,8 +240,7 @@ public class AWSController implements APPlatformController {
             if (FlowState.MANUAL.equals(propertyHandler.getState())) {
                 propertyHandler.setState(FlowState.FINISHED);
                 status = setNotificationStatus(settings, propertyHandler);
-                LOGGER.debug(
-                        "Got finish event => changing instance status to finished");
+                LOGGER.debug("Got finish event => changing instance status to finished");
             } else {
                 APPlatformException pe = new APPlatformException(
                         "Got finish event but instance is in state "
@@ -282,6 +284,7 @@ public class AWSController implements APPlatformController {
 
             InstanceStatus result = new InstanceStatus();
             result.setChangedParameters(settings.getParameters());
+            result.setChangedAttributes(settings.getAttributes());
             return result;
         } catch (Throwable t) {
             throw LogAndExceptionConverter.createAndLogPlatformException(t,
@@ -320,6 +323,7 @@ public class AWSController implements APPlatformController {
 
             InstanceStatus result = new InstanceStatus();
             result.setChangedParameters(settings.getParameters());
+            result.setChangedAttributes(settings.getAttributes());
             return result;
         } catch (Throwable t) {
             throw LogAndExceptionConverter.createAndLogPlatformException(t,
@@ -398,9 +402,11 @@ public class AWSController implements APPlatformController {
             String instanceId, String transactionId, String operationId,
             List<OperationParameter> parameters, ProvisioningSettings settings)
             throws APPlatformException {
-        LOGGER.info("executeServiceOperation("
-                + LogAndExceptionConverter.getLogText(instanceId, settings)
-                + " | OperationIdID: {})", operationId);
+        LOGGER.info(
+                "executeServiceOperation("
+                        + LogAndExceptionConverter.getLogText(instanceId,
+                                settings) + " | OperationIdID: {})",
+                operationId);
         InstanceStatus status = null;
         if (instanceId == null || operationId == null || settings == null) {
             return status;
@@ -425,6 +431,7 @@ public class AWSController implements APPlatformController {
                 status.setRunWithTimer(true);
                 status.setIsReady(false);
                 status.setChangedParameters(settings.getParameters());
+                status.setChangedAttributes(settings.getAttributes());
             }
             return status;
         } catch (Throwable t) {
@@ -441,8 +448,8 @@ public class AWSController implements APPlatformController {
 
     @Override
     public List<OperationParameter> getOperationParameters(String userId,
-            String instanceId, String operationId,
-            ProvisioningSettings settings) throws APPlatformException {
+            String instanceId, String operationId, ProvisioningSettings settings)
+            throws APPlatformException {
         return null; // not applicable
     }
 
@@ -458,8 +465,7 @@ public class AWSController implements APPlatformController {
         if (isNullOrEmpty(instanceName)) {
             LOGGER.error(Messages.get(Messages.DEFAULT_LOCALE,
                     "error_missing_name"));
-            throw new APPlatformException(
-                    Messages.getAll("error_missing_name"));
+            throw new APPlatformException(Messages.getAll("error_missing_name"));
         }
         String regex = ph.getInstanceNamePattern();
         if (!isNullOrEmpty(regex)) {
@@ -508,6 +514,7 @@ public class AWSController implements APPlatformController {
         status.setRunWithTimer(true);
         status.setDescription(getProvisioningStatusText(propertyHandler));
         status.setChangedParameters(settings.getParameters());
+        status.setChangedAttributes(settings.getAttributes());
         return status;
     }
 
@@ -520,11 +527,12 @@ public class AWSController implements APPlatformController {
      */
     private List<LocalizedText> getProvisioningStatusText(
             PropertyHandler paramHandler) {
-        List<LocalizedText> messages = Messages
-                .getAll("status_" + paramHandler.getState());
+        List<LocalizedText> messages = Messages.getAll("status_"
+                + paramHandler.getState());
         for (LocalizedText message : messages) {
-            if (message.getText() == null || (message.getText().startsWith("!")
-                    && message.getText().endsWith("!"))) {
+            if (message.getText() == null
+                    || (message.getText().startsWith("!") && message.getText()
+                            .endsWith("!"))) {
                 message.setText(Messages.get(message.getLocale(),
                         "status_INSTANCE_OVERALL"));
             }

@@ -1,3 +1,4 @@
+
 /**
  * InstanceRequest.java
  *
@@ -10,13 +11,91 @@ package org.oscm.xsd;
 /**
  * InstanceRequest bean class
  */
-@SuppressWarnings({ "rawtypes", "unused", "serial", "null", "unchecked" })
+
 public class InstanceRequest implements org.apache.axis2.databinding.ADBBean {
     /*
      * This type was generated from the piece of schema that had name =
-     * instanceRequest Namespace URI = http://oscm.org/xsd Namespace
-     * Prefix = ns1
+     * instanceRequest Namespace URI = http://oscm.org/xsd Namespace Prefix =
+     * ns1
      */
+
+    /**
+     * field for AttributeValue This was an Array!
+     */
+
+    protected org.oscm.xsd.ServiceAttribute[] localAttributeValue;
+    /*
+     * This tracker boolean wil be used to detect whether the user called the
+     * set method for this attribute. It will be used to determine whether to
+     * include this field in the serialized XML
+     */
+    protected boolean localAttributeValueTracker = false;
+    /**
+     * field for DefaultLocale
+     */
+
+    protected java.lang.String localDefaultLocale;
+    /*
+     * This tracker boolean wil be used to detect whether the user called the
+     * set method for this attribute. It will be used to determine whether to
+     * include this field in the serialized XML
+     */
+    protected boolean localDefaultLocaleTracker = false;
+    /**
+     * field for LoginUrl
+     */
+
+    protected java.lang.String localLoginUrl;
+    /*
+     * This tracker boolean wil be used to detect whether the user called the
+     * set method for this attribute. It will be used to determine whether to
+     * include this field in the serialized XML
+     */
+    protected boolean localLoginUrlTracker = false;
+    /**
+     * field for OrganizationId
+     */
+
+    protected java.lang.String localOrganizationId;
+    /*
+     * This tracker boolean wil be used to detect whether the user called the
+     * set method for this attribute. It will be used to determine whether to
+     * include this field in the serialized XML
+     */
+    protected boolean localOrganizationIdTracker = false;
+    /**
+     * field for OrganizationName
+     */
+
+    protected java.lang.String localOrganizationName;
+    /*
+     * This tracker boolean wil be used to detect whether the user called the
+     * set method for this attribute. It will be used to determine whether to
+     * include this field in the serialized XML
+     */
+    protected boolean localOrganizationNameTracker = false;
+    /**
+     * field for ParameterValue This was an Array!
+     */
+
+    protected org.oscm.xsd.ServiceParameter[] localParameterValue;
+    /*
+     * This tracker boolean wil be used to detect whether the user called the
+     * set method for this attribute. It will be used to determine whether to
+     * include this field in the serialized XML
+     */
+    protected boolean localParameterValueTracker = false;
+    /**
+     * field for SubscriptionId
+     */
+
+    protected java.lang.String localSubscriptionId;
+    /*
+     * This tracker boolean wil be used to detect whether the user called the
+     * set method for this attribute. It will be used to determine whether to
+     * include this field in the serialized XML
+     */
+    protected boolean localSubscriptionIdTracker = false;
 
     private static java.lang.String generatePrefix(java.lang.String namespace) {
         if (namespace.equals("http://oscm.org/xsd")) {
@@ -26,21 +105,87 @@ public class InstanceRequest implements org.apache.axis2.databinding.ADBBean {
     }
 
     /**
-     * field for DefaultLocale
+     * isReaderMTOMAware
+     *
+     * @return true if the reader supports MTOM
      */
+    public static boolean isReaderMTOMAware(
+            javax.xml.stream.XMLStreamReader reader) {
+        boolean isReaderMTOMAware = false;
 
-    protected java.lang.String localDefaultLocale;
-
-    /*
-     * This tracker boolean wil be used to detect whether the user called the
-     * set method for this attribute. It will be used to determine whether to
-     * include this field in the serialized XML
-     */
-    protected boolean localDefaultLocaleTracker = false;
+        try {
+            isReaderMTOMAware = java.lang.Boolean.TRUE
+                    .equals(reader.getProperty(
+                            org.apache.axiom.om.OMConstants.IS_DATA_HANDLERS_AWARE));
+        } catch (java.lang.IllegalArgumentException e) {
+            isReaderMTOMAware = false;
+        }
+        return isReaderMTOMAware;
+    }
 
     /**
      * Auto generated getter method
-     * 
+     *
+     * @return org.oscm.xsd.ServiceAttribute[]
+     */
+    public org.oscm.xsd.ServiceAttribute[] getAttributeValue() {
+        return localAttributeValue;
+    }
+
+    /**
+     * Auto generated setter method
+     *
+     * @param param
+     *            AttributeValue
+     */
+    public void setAttributeValue(org.oscm.xsd.ServiceAttribute[] param) {
+
+        validateAttributeValue(param);
+
+        if (param != null) {
+            // update the setting tracker
+            localAttributeValueTracker = true;
+        } else {
+            localAttributeValueTracker = true;
+
+        }
+
+        this.localAttributeValue = param;
+    }
+
+    /**
+     * validate the array for AttributeValue
+     */
+    protected void validateAttributeValue(
+            org.oscm.xsd.ServiceAttribute[] param) {
+
+    }
+
+    /**
+     * Auto generated add method for the array for convenience
+     *
+     * @param param
+     *            org.oscm.xsd.ServiceAttribute
+     */
+    public void addAttributeValue(org.oscm.xsd.ServiceAttribute param) {
+        if (localAttributeValue == null) {
+            localAttributeValue = new org.oscm.xsd.ServiceAttribute[] {};
+        }
+
+        // update the setting tracker
+        localAttributeValueTracker = true;
+
+        java.util.List list = org.apache.axis2.databinding.utils.ConverterUtil
+                .toList(localAttributeValue);
+        list.add(param);
+        this.localAttributeValue = (org.oscm.xsd.ServiceAttribute[]) list
+                .toArray(new org.oscm.xsd.ServiceAttribute[list.size()]);
+
+    }
+
+    /**
+     * Auto generated getter method
+     *
      * @return java.lang.String
      */
     public java.lang.String getDefaultLocale() {
@@ -49,7 +194,7 @@ public class InstanceRequest implements org.apache.axis2.databinding.ADBBean {
 
     /**
      * Auto generated setter method
-     * 
+     *
      * @param param
      *            DefaultLocale
      */
@@ -68,21 +213,8 @@ public class InstanceRequest implements org.apache.axis2.databinding.ADBBean {
     }
 
     /**
-     * field for LoginUrl
-     */
-
-    protected java.lang.String localLoginUrl;
-
-    /*
-     * This tracker boolean wil be used to detect whether the user called the
-     * set method for this attribute. It will be used to determine whether to
-     * include this field in the serialized XML
-     */
-    protected boolean localLoginUrlTracker = false;
-
-    /**
      * Auto generated getter method
-     * 
+     *
      * @return java.lang.String
      */
     public java.lang.String getLoginUrl() {
@@ -91,7 +223,7 @@ public class InstanceRequest implements org.apache.axis2.databinding.ADBBean {
 
     /**
      * Auto generated setter method
-     * 
+     *
      * @param param
      *            LoginUrl
      */
@@ -110,21 +242,8 @@ public class InstanceRequest implements org.apache.axis2.databinding.ADBBean {
     }
 
     /**
-     * field for OrganizationId
-     */
-
-    protected java.lang.String localOrganizationId;
-
-    /*
-     * This tracker boolean wil be used to detect whether the user called the
-     * set method for this attribute. It will be used to determine whether to
-     * include this field in the serialized XML
-     */
-    protected boolean localOrganizationIdTracker = false;
-
-    /**
      * Auto generated getter method
-     * 
+     *
      * @return java.lang.String
      */
     public java.lang.String getOrganizationId() {
@@ -133,7 +252,7 @@ public class InstanceRequest implements org.apache.axis2.databinding.ADBBean {
 
     /**
      * Auto generated setter method
-     * 
+     *
      * @param param
      *            OrganizationId
      */
@@ -152,21 +271,8 @@ public class InstanceRequest implements org.apache.axis2.databinding.ADBBean {
     }
 
     /**
-     * field for OrganizationName
-     */
-
-    protected java.lang.String localOrganizationName;
-
-    /*
-     * This tracker boolean wil be used to detect whether the user called the
-     * set method for this attribute. It will be used to determine whether to
-     * include this field in the serialized XML
-     */
-    protected boolean localOrganizationNameTracker = false;
-
-    /**
      * Auto generated getter method
-     * 
+     *
      * @return java.lang.String
      */
     public java.lang.String getOrganizationName() {
@@ -175,7 +281,7 @@ public class InstanceRequest implements org.apache.axis2.databinding.ADBBean {
 
     /**
      * Auto generated setter method
-     * 
+     *
      * @param param
      *            OrganizationName
      */
@@ -194,21 +300,8 @@ public class InstanceRequest implements org.apache.axis2.databinding.ADBBean {
     }
 
     /**
-     * field for ParameterValue This was an Array!
-     */
-
-    protected org.oscm.xsd.ServiceParameter[] localParameterValue;
-
-    /*
-     * This tracker boolean wil be used to detect whether the user called the
-     * set method for this attribute. It will be used to determine whether to
-     * include this field in the serialized XML
-     */
-    protected boolean localParameterValueTracker = false;
-
-    /**
      * Auto generated getter method
-     * 
+     *
      * @return org.oscm.xsd.ServiceParameter[]
      */
     public org.oscm.xsd.ServiceParameter[] getParameterValue() {
@@ -216,16 +309,8 @@ public class InstanceRequest implements org.apache.axis2.databinding.ADBBean {
     }
 
     /**
-     * validate the array for ParameterValue
-     */
-    protected void validateParameterValue(
-            org.oscm.xsd.ServiceParameter[] param) {
-
-    }
-
-    /**
      * Auto generated setter method
-     * 
+     *
      * @param param
      *            ParameterValue
      */
@@ -245,8 +330,16 @@ public class InstanceRequest implements org.apache.axis2.databinding.ADBBean {
     }
 
     /**
+     * validate the array for ParameterValue
+     */
+    protected void validateParameterValue(
+            org.oscm.xsd.ServiceParameter[] param) {
+
+    }
+
+    /**
      * Auto generated add method for the array for convenience
-     * 
+     *
      * @param param
      *            org.oscm.xsd.ServiceParameter
      */
@@ -267,21 +360,8 @@ public class InstanceRequest implements org.apache.axis2.databinding.ADBBean {
     }
 
     /**
-     * field for SubscriptionId
-     */
-
-    protected java.lang.String localSubscriptionId;
-
-    /*
-     * This tracker boolean wil be used to detect whether the user called the
-     * set method for this attribute. It will be used to determine whether to
-     * include this field in the serialized XML
-     */
-    protected boolean localSubscriptionIdTracker = false;
-
-    /**
      * Auto generated getter method
-     * 
+     *
      * @return java.lang.String
      */
     public java.lang.String getSubscriptionId() {
@@ -290,7 +370,7 @@ public class InstanceRequest implements org.apache.axis2.databinding.ADBBean {
 
     /**
      * Auto generated setter method
-     * 
+     *
      * @param param
      *            SubscriptionId
      */
@@ -309,26 +389,7 @@ public class InstanceRequest implements org.apache.axis2.databinding.ADBBean {
     }
 
     /**
-     * isReaderMTOMAware
-     * 
-     * @return true if the reader supports MTOM
-     */
-    public static boolean isReaderMTOMAware(
-            javax.xml.stream.XMLStreamReader reader) {
-        boolean isReaderMTOMAware = false;
-
-        try {
-            isReaderMTOMAware = java.lang.Boolean.TRUE
-                    .equals(reader
-                            .getProperty(org.apache.axiom.om.OMConstants.IS_DATA_HANDLERS_AWARE));
-        } catch (java.lang.IllegalArgumentException e) {
-            isReaderMTOMAware = false;
-        }
-        return isReaderMTOMAware;
-    }
-
-    /**
-     * 
+     *
      * @param parentQName
      * @param factory
      * @return org.apache.axiom.om.OMElement
@@ -341,7 +402,6 @@ public class InstanceRequest implements org.apache.axis2.databinding.ADBBean {
         org.apache.axiom.om.OMDataSource dataSource = new org.apache.axis2.databinding.ADBDataSource(
                 this, parentQName) {
 
-            @Override
             public void serialize(
                     org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter)
                     throws javax.xml.stream.XMLStreamException {
@@ -353,8 +413,7 @@ public class InstanceRequest implements org.apache.axis2.databinding.ADBBean {
 
     }
 
-    public void serialize(
-            final javax.xml.namespace.QName parentQName,
+    public void serialize(final javax.xml.namespace.QName parentQName,
             final org.apache.axiom.om.OMFactory factory,
             org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter)
             throws javax.xml.stream.XMLStreamException,
@@ -362,8 +421,7 @@ public class InstanceRequest implements org.apache.axis2.databinding.ADBBean {
         serialize(parentQName, factory, xmlWriter, false);
     }
 
-    public void serialize(
-            final javax.xml.namespace.QName parentQName,
+    public void serialize(final javax.xml.namespace.QName parentQName,
             final org.apache.axiom.om.OMFactory factory,
             org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter,
             boolean serializeType) throws javax.xml.stream.XMLStreamException,
@@ -409,6 +467,82 @@ public class InstanceRequest implements org.apache.axis2.databinding.ADBBean {
                         "instanceRequest", xmlWriter);
             }
 
+        }
+        if (localAttributeValueTracker) {
+            if (localAttributeValue != null) {
+                for (int i = 0; i < localAttributeValue.length; i++) {
+                    if (localAttributeValue[i] != null) {
+                        localAttributeValue[i]
+                                .serialize(
+                                        new javax.xml.namespace.QName(
+                                                "http://oscm.org/xsd",
+                                                "attributeValue"),
+                                        factory, xmlWriter);
+                    } else {
+
+                        // write null attribute
+                        java.lang.String namespace2 = "http://oscm.org/xsd";
+                        if (!namespace2.equals("")) {
+                            java.lang.String prefix2 = xmlWriter
+                                    .getPrefix(namespace2);
+
+                            if (prefix2 == null) {
+                                prefix2 = generatePrefix(namespace2);
+
+                                xmlWriter.writeStartElement(prefix2,
+                                        "attributeValue", namespace2);
+                                xmlWriter.writeNamespace(prefix2, namespace2);
+                                xmlWriter.setPrefix(prefix2, namespace2);
+
+                            } else {
+                                xmlWriter.writeStartElement(namespace2,
+                                        "attributeValue");
+                            }
+
+                        } else {
+                            xmlWriter.writeStartElement("attributeValue");
+                        }
+
+                        // write the nil attribute
+                        writeAttribute("xsi",
+                                "http://www.w3.org/2001/XMLSchema-instance",
+                                "nil", "1", xmlWriter);
+                        xmlWriter.writeEndElement();
+
+                    }
+
+                }
+            } else {
+
+                // write null attribute
+                java.lang.String namespace2 = "http://oscm.org/xsd";
+                if (!namespace2.equals("")) {
+                    java.lang.String prefix2 = xmlWriter.getPrefix(namespace2);
+
+                    if (prefix2 == null) {
+                        prefix2 = generatePrefix(namespace2);
+
+                        xmlWriter.writeStartElement(prefix2, "attributeValue",
+                                namespace2);
+                        xmlWriter.writeNamespace(prefix2, namespace2);
+                        xmlWriter.setPrefix(prefix2, namespace2);
+
+                    } else {
+                        xmlWriter.writeStartElement(namespace2,
+                                "attributeValue");
+                    }
+
+                } else {
+                    xmlWriter.writeStartElement("attributeValue");
+                }
+
+                // write the nil attribute
+                writeAttribute("xsi",
+                        "http://www.w3.org/2001/XMLSchema-instance", "nil", "1",
+                        xmlWriter);
+                xmlWriter.writeEndElement();
+
+            }
         }
         if (localDefaultLocaleTracker) {
             namespace = "http://oscm.org/xsd";
@@ -553,10 +687,12 @@ public class InstanceRequest implements org.apache.axis2.databinding.ADBBean {
             if (localParameterValue != null) {
                 for (int i = 0; i < localParameterValue.length; i++) {
                     if (localParameterValue[i] != null) {
-                        localParameterValue[i].serialize(
-                                new javax.xml.namespace.QName(
-                                        "http://oscm.org/xsd",
-                                        "parameterValue"), factory, xmlWriter);
+                        localParameterValue[i]
+                                .serialize(
+                                        new javax.xml.namespace.QName(
+                                                "http://oscm.org/xsd",
+                                                "parameterValue"),
+                                        factory, xmlWriter);
                     } else {
 
                         // write null attribute
@@ -617,8 +753,8 @@ public class InstanceRequest implements org.apache.axis2.databinding.ADBBean {
 
                 // write the nil attribute
                 writeAttribute("xsi",
-                        "http://www.w3.org/2001/XMLSchema-instance", "nil",
-                        "1", xmlWriter);
+                        "http://www.w3.org/2001/XMLSchema-instance", "nil", "1",
+                        xmlWriter);
                 xmlWriter.writeEndElement();
 
             }
@@ -741,20 +877,19 @@ public class InstanceRequest implements org.apache.axis2.databinding.ADBBean {
             }
 
             if (prefix.trim().length() > 0) {
-                xmlWriter.writeCharacters(prefix
-                        + ":"
+                xmlWriter.writeCharacters(prefix + ":"
                         + org.apache.axis2.databinding.utils.ConverterUtil
                                 .convertToString(qname));
             } else {
                 // i.e this is the default namespace
-                xmlWriter
-                        .writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil
+                xmlWriter.writeCharacters(
+                        org.apache.axis2.databinding.utils.ConverterUtil
                                 .convertToString(qname));
             }
 
         } else {
-            xmlWriter
-                    .writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil
+            xmlWriter.writeCharacters(
+                    org.apache.axis2.databinding.utils.ConverterUtil
                             .convertToString(qname));
         }
     }
@@ -785,9 +920,7 @@ public class InstanceRequest implements org.apache.axis2.databinding.ADBBean {
                     }
 
                     if (prefix.trim().length() > 0) {
-                        stringToWrite
-                                .append(prefix)
-                                .append(":")
+                        stringToWrite.append(prefix).append(":")
                                 .append(org.apache.axis2.databinding.utils.ConverterUtil
                                         .convertToString(qnames[i]));
                     } else {
@@ -818,7 +951,8 @@ public class InstanceRequest implements org.apache.axis2.databinding.ADBBean {
         if (prefix == null) {
             prefix = generatePrefix(namespace);
 
-            while (xmlWriter.getNamespaceContext().getNamespaceURI(prefix) != null) {
+            while (xmlWriter.getNamespaceContext()
+                    .getNamespaceURI(prefix) != null) {
                 prefix = org.apache.axis2.databinding.utils.BeanUtil
                         .getUniquePrefix();
             }
@@ -832,7 +966,7 @@ public class InstanceRequest implements org.apache.axis2.databinding.ADBBean {
 
     /**
      * databinding method to get an XML representation of this object
-     * 
+     *
      */
     public javax.xml.stream.XMLStreamReader getPullParser(
             javax.xml.namespace.QName qName)
@@ -841,53 +975,75 @@ public class InstanceRequest implements org.apache.axis2.databinding.ADBBean {
         java.util.ArrayList elementList = new java.util.ArrayList();
         java.util.ArrayList attribList = new java.util.ArrayList();
 
+        if (localAttributeValueTracker) {
+            if (localAttributeValue != null) {
+                for (int i = 0; i < localAttributeValue.length; i++) {
+
+                    if (localAttributeValue[i] != null) {
+                        elementList.add(new javax.xml.namespace.QName(
+                                "http://oscm.org/xsd", "attributeValue"));
+                        elementList.add(localAttributeValue[i]);
+                    } else {
+
+                        elementList.add(new javax.xml.namespace.QName(
+                                "http://oscm.org/xsd", "attributeValue"));
+                        elementList.add(null);
+
+                    }
+
+                }
+            } else {
+
+                elementList.add(new javax.xml.namespace.QName(
+                        "http://oscm.org/xsd", "attributeValue"));
+                elementList.add(localAttributeValue);
+
+            }
+
+        }
         if (localDefaultLocaleTracker) {
-            elementList.add(new javax.xml.namespace.QName(
-                    "http://oscm.org/xsd", "defaultLocale"));
+            elementList.add(new javax.xml.namespace.QName("http://oscm.org/xsd",
+                    "defaultLocale"));
 
             if (localDefaultLocale != null) {
-                elementList
-                        .add(org.apache.axis2.databinding.utils.ConverterUtil
-                                .convertToString(localDefaultLocale));
+                elementList.add(org.apache.axis2.databinding.utils.ConverterUtil
+                        .convertToString(localDefaultLocale));
             } else {
                 throw new org.apache.axis2.databinding.ADBException(
                         "defaultLocale cannot be null!!");
             }
         }
         if (localLoginUrlTracker) {
-            elementList.add(new javax.xml.namespace.QName(
-                    "http://oscm.org/xsd", "loginUrl"));
+            elementList.add(new javax.xml.namespace.QName("http://oscm.org/xsd",
+                    "loginUrl"));
 
             if (localLoginUrl != null) {
-                elementList
-                        .add(org.apache.axis2.databinding.utils.ConverterUtil
-                                .convertToString(localLoginUrl));
+                elementList.add(org.apache.axis2.databinding.utils.ConverterUtil
+                        .convertToString(localLoginUrl));
             } else {
                 throw new org.apache.axis2.databinding.ADBException(
                         "loginUrl cannot be null!!");
             }
         }
         if (localOrganizationIdTracker) {
-            elementList.add(new javax.xml.namespace.QName(
-                    "http://oscm.org/xsd", "organizationId"));
+            elementList.add(new javax.xml.namespace.QName("http://oscm.org/xsd",
+                    "organizationId"));
 
             if (localOrganizationId != null) {
-                elementList
-                        .add(org.apache.axis2.databinding.utils.ConverterUtil
-                                .convertToString(localOrganizationId));
+                elementList.add(org.apache.axis2.databinding.utils.ConverterUtil
+                        .convertToString(localOrganizationId));
             } else {
                 throw new org.apache.axis2.databinding.ADBException(
                         "organizationId cannot be null!!");
             }
         }
         if (localOrganizationNameTracker) {
-            elementList.add(new javax.xml.namespace.QName(
-                    "http://oscm.org/xsd", "organizationName"));
+            elementList.add(new javax.xml.namespace.QName("http://oscm.org/xsd",
+                    "organizationName"));
 
             if (localOrganizationName != null) {
-                elementList
-                        .add(org.apache.axis2.databinding.utils.ConverterUtil
-                                .convertToString(localOrganizationName));
+                elementList.add(org.apache.axis2.databinding.utils.ConverterUtil
+                        .convertToString(localOrganizationName));
             } else {
                 throw new org.apache.axis2.databinding.ADBException(
                         "organizationName cannot be null!!");
@@ -898,17 +1054,13 @@ public class InstanceRequest implements org.apache.axis2.databinding.ADBBean {
                 for (int i = 0; i < localParameterValue.length; i++) {
 
                     if (localParameterValue[i] != null) {
-                        elementList
-                                .add(new javax.xml.namespace.QName(
-                                        "http://oscm.org/xsd",
-                                        "parameterValue"));
+                        elementList.add(new javax.xml.namespace.QName(
+                                "http://oscm.org/xsd", "parameterValue"));
                         elementList.add(localParameterValue[i]);
                     } else {
 
-                        elementList
-                                .add(new javax.xml.namespace.QName(
-                                        "http://oscm.org/xsd",
-                                        "parameterValue"));
+                        elementList.add(new javax.xml.namespace.QName(
+                                "http://oscm.org/xsd", "parameterValue"));
                         elementList.add(null);
 
                     }
@@ -924,13 +1076,12 @@ public class InstanceRequest implements org.apache.axis2.databinding.ADBBean {
 
         }
         if (localSubscriptionIdTracker) {
-            elementList.add(new javax.xml.namespace.QName(
-                    "http://oscm.org/xsd", "subscriptionId"));
+            elementList.add(new javax.xml.namespace.QName("http://oscm.org/xsd",
+                    "subscriptionId"));
 
             if (localSubscriptionId != null) {
-                elementList
-                        .add(org.apache.axis2.databinding.utils.ConverterUtil
-                                .convertToString(localSubscriptionId));
+                elementList.add(org.apache.axis2.databinding.utils.ConverterUtil
+                        .convertToString(localSubscriptionId));
             } else {
                 throw new org.apache.axis2.databinding.ADBException(
                         "subscriptionId cannot be null!!");
@@ -972,11 +1123,11 @@ public class InstanceRequest implements org.apache.axis2.databinding.ADBBean {
                     reader.next();
 
                 if (reader.getAttributeValue(
-                        "http://www.w3.org/2001/XMLSchema-instance", "type") != null) {
-                    java.lang.String fullTypeName = reader
-                            .getAttributeValue(
-                                    "http://www.w3.org/2001/XMLSchema-instance",
-                                    "type");
+                        "http://www.w3.org/2001/XMLSchema-instance",
+                        "type") != null) {
+                    java.lang.String fullTypeName = reader.getAttributeValue(
+                            "http://www.w3.org/2001/XMLSchema-instance",
+                            "type");
                     if (fullTypeName != null) {
                         java.lang.String nsPrefix = null;
                         if (fullTypeName.indexOf(":") > -1) {
@@ -991,8 +1142,8 @@ public class InstanceRequest implements org.apache.axis2.databinding.ADBBean {
                         if (!"instanceRequest".equals(type)) {
                             // find namespace for the prefix
                             java.lang.String nsUri = reader
-                                    .getNamespaceContext().getNamespaceURI(
-                                            nsPrefix);
+                                    .getNamespaceContext()
+                                    .getNamespaceURI(nsPrefix);
                             return (InstanceRequest) org.oscm.xsd.ExtensionMapper
                                     .getTypeObject(nsUri, type, reader);
                         }
@@ -1008,99 +1159,16 @@ public class InstanceRequest implements org.apache.axis2.databinding.ADBBean {
 
                 reader.next();
 
-                java.util.ArrayList list5 = new java.util.ArrayList();
+                java.util.ArrayList list1 = new java.util.ArrayList();
+
+                java.util.ArrayList list6 = new java.util.ArrayList();
 
                 while (!reader.isStartElement() && !reader.isEndElement())
                     reader.next();
 
                 if (reader.isStartElement()
-                        && new javax.xml.namespace.QName(
-                                "http://oscm.org/xsd", "defaultLocale")
-                                .equals(reader.getName())) {
-
-                    java.lang.String content = reader.getElementText();
-
-                    object.setDefaultLocale(org.apache.axis2.databinding.utils.ConverterUtil
-                            .convertToString(content));
-
-                    reader.next();
-
-                } // End of if for expected property start element
-
-                else {
-
-                }
-
-                while (!reader.isStartElement() && !reader.isEndElement())
-                    reader.next();
-
-                if (reader.isStartElement()
-                        && new javax.xml.namespace.QName(
-                                "http://oscm.org/xsd", "loginUrl")
-                                .equals(reader.getName())) {
-
-                    java.lang.String content = reader.getElementText();
-
-                    object.setLoginUrl(org.apache.axis2.databinding.utils.ConverterUtil
-                            .convertToString(content));
-
-                    reader.next();
-
-                } // End of if for expected property start element
-
-                else {
-
-                }
-
-                while (!reader.isStartElement() && !reader.isEndElement())
-                    reader.next();
-
-                if (reader.isStartElement()
-                        && new javax.xml.namespace.QName(
-                                "http://oscm.org/xsd", "organizationId")
-                                .equals(reader.getName())) {
-
-                    java.lang.String content = reader.getElementText();
-
-                    object.setOrganizationId(org.apache.axis2.databinding.utils.ConverterUtil
-                            .convertToString(content));
-
-                    reader.next();
-
-                } // End of if for expected property start element
-
-                else {
-
-                }
-
-                while (!reader.isStartElement() && !reader.isEndElement())
-                    reader.next();
-
-                if (reader.isStartElement()
-                        && new javax.xml.namespace.QName(
-                                "http://oscm.org/xsd",
-                                "organizationName").equals(reader.getName())) {
-
-                    java.lang.String content = reader.getElementText();
-
-                    object.setOrganizationName(org.apache.axis2.databinding.utils.ConverterUtil
-                            .convertToString(content));
-
-                    reader.next();
-
-                } // End of if for expected property start element
-
-                else {
-
-                }
-
-                while (!reader.isStartElement() && !reader.isEndElement())
-                    reader.next();
-
-                if (reader.isStartElement()
-                        && new javax.xml.namespace.QName(
-                                "http://oscm.org/xsd", "parameterValue")
-                                .equals(reader.getName())) {
+                        && new javax.xml.namespace.QName("http://oscm.org/xsd",
+                                "attributeValue").equals(reader.getName())) {
 
                     // Process the array and step past its final element's end.
 
@@ -1108,16 +1176,16 @@ public class InstanceRequest implements org.apache.axis2.databinding.ADBBean {
                             "http://www.w3.org/2001/XMLSchema-instance", "nil");
                     if ("true".equals(nillableValue)
                             || "1".equals(nillableValue)) {
-                        list5.add(null);
+                        list1.add(null);
                         reader.next();
                     } else {
-                        list5.add(org.oscm.xsd.ServiceParameter.Factory
+                        list1.add(org.oscm.xsd.ServiceAttribute.Factory
                                 .parse(reader));
                     }
                     // loop until we find a start element that is not part of
                     // this array
-                    boolean loopDone5 = false;
-                    while (!loopDone5) {
+                    boolean loopDone1 = false;
+                    while (!loopDone1) {
                         // We should be at the end element, but make sure
                         while (!reader.isEndElement())
                             reader.next();
@@ -1130,35 +1198,36 @@ public class InstanceRequest implements org.apache.axis2.databinding.ADBBean {
                         if (reader.isEndElement()) {
                             // two continuous end elements means we are exiting
                             // the xml structure
-                            loopDone5 = true;
+                            loopDone1 = true;
                         } else {
                             if (new javax.xml.namespace.QName(
-                                    "http://oscm.org/xsd",
-                                    "parameterValue").equals(reader.getName())) {
+                                    "http://oscm.org/xsd", "attributeValue")
+                                            .equals(reader.getName())) {
 
-                                nillableValue = reader
-                                        .getAttributeValue(
-                                                "http://www.w3.org/2001/XMLSchema-instance",
-                                                "nil");
+                                nillableValue = reader.getAttributeValue(
+                                        "http://www.w3.org/2001/XMLSchema-instance",
+                                        "nil");
                                 if ("true".equals(nillableValue)
                                         || "1".equals(nillableValue)) {
-                                    list5.add(null);
+                                    list1.add(null);
                                     reader.next();
                                 } else {
-                                    list5.add(org.oscm.xsd.ServiceParameter.Factory
-                                            .parse(reader));
+                                    list1.add(
+                                            org.oscm.xsd.ServiceAttribute.Factory
+                                                    .parse(reader));
                                 }
                             } else {
-                                loopDone5 = true;
+                                loopDone1 = true;
                             }
                         }
                     }
                     // call the converter utility to convert and set the array
 
-                    object.setParameterValue((org.oscm.xsd.ServiceParameter[]) org.apache.axis2.databinding.utils.ConverterUtil
-                            .convertToArray(
-                                    org.oscm.xsd.ServiceParameter.class,
-                                    list5));
+                    object.setAttributeValue(
+                            (org.oscm.xsd.ServiceAttribute[]) org.apache.axis2.databinding.utils.ConverterUtil
+                                    .convertToArray(
+                                            org.oscm.xsd.ServiceAttribute.class,
+                                            list1));
 
                 } // End of if for expected property start element
 
@@ -1170,14 +1239,170 @@ public class InstanceRequest implements org.apache.axis2.databinding.ADBBean {
                     reader.next();
 
                 if (reader.isStartElement()
-                        && new javax.xml.namespace.QName(
-                                "http://oscm.org/xsd", "subscriptionId")
-                                .equals(reader.getName())) {
+                        && new javax.xml.namespace.QName("http://oscm.org/xsd",
+                                "defaultLocale").equals(reader.getName())) {
 
                     java.lang.String content = reader.getElementText();
 
-                    object.setSubscriptionId(org.apache.axis2.databinding.utils.ConverterUtil
-                            .convertToString(content));
+                    object.setDefaultLocale(
+                            org.apache.axis2.databinding.utils.ConverterUtil
+                                    .convertToString(content));
+
+                    reader.next();
+
+                } // End of if for expected property start element
+
+                else {
+
+                }
+
+                while (!reader.isStartElement() && !reader.isEndElement())
+                    reader.next();
+
+                if (reader.isStartElement()
+                        && new javax.xml.namespace.QName("http://oscm.org/xsd",
+                                "loginUrl").equals(reader.getName())) {
+
+                    java.lang.String content = reader.getElementText();
+
+                    object.setLoginUrl(
+                            org.apache.axis2.databinding.utils.ConverterUtil
+                                    .convertToString(content));
+
+                    reader.next();
+
+                } // End of if for expected property start element
+
+                else {
+
+                }
+
+                while (!reader.isStartElement() && !reader.isEndElement())
+                    reader.next();
+
+                if (reader.isStartElement()
+                        && new javax.xml.namespace.QName("http://oscm.org/xsd",
+                                "organizationId").equals(reader.getName())) {
+
+                    java.lang.String content = reader.getElementText();
+
+                    object.setOrganizationId(
+                            org.apache.axis2.databinding.utils.ConverterUtil
+                                    .convertToString(content));
+
+                    reader.next();
+
+                } // End of if for expected property start element
+
+                else {
+
+                }
+
+                while (!reader.isStartElement() && !reader.isEndElement())
+                    reader.next();
+
+                if (reader.isStartElement()
+                        && new javax.xml.namespace.QName("http://oscm.org/xsd",
+                                "organizationName").equals(reader.getName())) {
+
+                    java.lang.String content = reader.getElementText();
+
+                    object.setOrganizationName(
+                            org.apache.axis2.databinding.utils.ConverterUtil
+                                    .convertToString(content));
+
+                    reader.next();
+
+                } // End of if for expected property start element
+
+                else {
+
+                }
+
+                while (!reader.isStartElement() && !reader.isEndElement())
+                    reader.next();
+
+                if (reader.isStartElement()
+                        && new javax.xml.namespace.QName("http://oscm.org/xsd",
+                                "parameterValue").equals(reader.getName())) {
+
+                    // Process the array and step past its final element's end.
+
+                    nillableValue = reader.getAttributeValue(
+                            "http://www.w3.org/2001/XMLSchema-instance", "nil");
+                    if ("true".equals(nillableValue)
+                            || "1".equals(nillableValue)) {
+                        list6.add(null);
+                        reader.next();
+                    } else {
+                        list6.add(org.oscm.xsd.ServiceParameter.Factory
+                                .parse(reader));
+                    }
+                    // loop until we find a start element that is not part of
+                    // this array
+                    boolean loopDone6 = false;
+                    while (!loopDone6) {
+                        // We should be at the end element, but make sure
+                        while (!reader.isEndElement())
+                            reader.next();
+                        // Step out of this element
+                        reader.next();
+                        // Step to next element event.
+                        while (!reader.isStartElement()
+                                && !reader.isEndElement())
+                            reader.next();
+                        if (reader.isEndElement()) {
+                            // two continuous end elements means we are exiting
+                            // the xml structure
+                            loopDone6 = true;
+                        } else {
+                            if (new javax.xml.namespace.QName(
+                                    "http://oscm.org/xsd", "parameterValue")
+                                            .equals(reader.getName())) {
+
+                                nillableValue = reader.getAttributeValue(
+                                        "http://www.w3.org/2001/XMLSchema-instance",
+                                        "nil");
+                                if ("true".equals(nillableValue)
+                                        || "1".equals(nillableValue)) {
+                                    list6.add(null);
+                                    reader.next();
+                                } else {
+                                    list6.add(
+                                            org.oscm.xsd.ServiceParameter.Factory
+                                                    .parse(reader));
+                                }
+                            } else {
+                                loopDone6 = true;
+                            }
+                        }
+                    }
+                    // call the converter utility to convert and set the array
+
+                    object.setParameterValue(
+                            (org.oscm.xsd.ServiceParameter[]) org.apache.axis2.databinding.utils.ConverterUtil
+                                    .convertToArray(
+                                            org.oscm.xsd.ServiceParameter.class,
+                                            list6));
+
+                } // End of if for expected property start element
+
+                else {
+
+                }
+
+                while (!reader.isStartElement() && !reader.isEndElement())
+                    reader.next();
+
+                if (reader.isStartElement()
+                        && new javax.xml.namespace.QName("http://oscm.org/xsd",
+                                "subscriptionId").equals(reader.getName())) {
+
+                    java.lang.String content = reader.getElementText();
+
+                    object.setSubscriptionId(
+                            org.apache.axis2.databinding.utils.ConverterUtil
+                                    .convertToString(content));
 
                     reader.next();
 

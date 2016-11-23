@@ -14,8 +14,6 @@ import java.util.List;
 import org.oscm.internal.types.enumtypes.ParameterModificationType;
 import org.oscm.internal.types.enumtypes.ParameterType;
 import org.oscm.internal.types.enumtypes.ParameterValueType;
-import org.oscm.internal.vo.BaseVO;
-import org.oscm.internal.vo.VOParameterOption;
 
 /**
  * Represents the definition of a parameter for a technical service.
@@ -24,6 +22,7 @@ import org.oscm.internal.vo.VOParameterOption;
 public class VOParameterDefinition extends BaseVO {
 
     private static final long serialVersionUID = 6447762328727717451L;
+    private static final String CRYPT_KEY_SUFFIX = "_PWD";
 
     /**
      * Default constructor.
@@ -276,6 +275,16 @@ public class VOParameterDefinition extends BaseVO {
     }
 
     /**
+     * Checks if the parameter data type is <code>PWD</code>.
+     *
+     * @return <code>true</code> if the data type of the parameter is
+     *         <code>PWD</code>, <code>false</code> otherwise.
+     */
+    public boolean isValueTypePWD() {
+        return valueType == ParameterValueType.PWD;
+    }
+
+    /**
      * Retrieves the text describing the parameter.
      * 
      * @return the parameter description
@@ -454,6 +463,19 @@ public class VOParameterDefinition extends BaseVO {
      */
     public void setModificationType(ParameterModificationType modificationType) {
         this.modificationType = modificationType;
+    }
+
+    public boolean isValueTypeSecret() {
+        if (isValueTypePWD()) {
+            return true;
+        }
+        if (valueType != ParameterValueType.STRING) {
+            return false;
+        }
+        if (parameterId.endsWith(CRYPT_KEY_SUFFIX)) {
+            return true;
+        }
+        return false;
     }
 
 }

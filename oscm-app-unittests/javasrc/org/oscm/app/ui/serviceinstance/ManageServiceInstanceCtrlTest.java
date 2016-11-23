@@ -43,16 +43,15 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
-
 import org.oscm.app.business.exceptions.BadResultException;
 import org.oscm.app.business.exceptions.ServiceInstanceException;
 import org.oscm.app.domain.InstanceOperation;
 import org.oscm.app.domain.InstanceParameter;
 import org.oscm.app.domain.ServiceInstance;
 import org.oscm.app.ui.SessionConstants;
-import org.oscm.app.v1_0.data.ServiceUser;
-import org.oscm.app.v1_0.service.APPTimerServiceBean;
-import org.oscm.app.v1_0.service.ServiceInstanceServiceBean;
+import org.oscm.app.v2_0.data.ServiceUser;
+import org.oscm.app.v2_0.service.APPTimerServiceBean;
+import org.oscm.app.v2_0.service.ServiceInstanceServiceBean;
 
 /**
  * Unit test for ManageServiceInstanceCtrl
@@ -125,7 +124,8 @@ public class ManageServiceInstanceCtrlTest {
         ctrl.serviceInstanceService = serviceInstanceService;
         ctrl.timerService = timerService;
         doReturn(session).when(request).getSession();
-        doReturn("ess.ror").when(request).getParameter(eq(SessionConstants.SESSION_CTRL_ID));
+        doReturn("ess.ror").when(request).getParameter(
+                eq(SessionConstants.SESSION_CTRL_ID));
     }
 
     @Test
@@ -195,7 +195,8 @@ public class ManageServiceInstanceCtrlTest {
     @Test
     public void getInitialize_ControllerIdEmpty() {
         // given
-        doReturn("").when(request).getParameter(eq(SessionConstants.SESSION_CTRL_ID));
+        doReturn("").when(request).getParameter(
+                eq(SessionConstants.SESSION_CTRL_ID));
         doReturn(session).when(request).getSession();
         doReturn("uid").when(session).getAttribute(
                 SessionConstants.SESSION_USER_ID);
@@ -214,7 +215,8 @@ public class ManageServiceInstanceCtrlTest {
     public void getInitialize_ServiceInstanceException() throws Exception {
         // given
         doReturn(session).when(request).getSession();
-        doReturn("1").when(session).getAttribute(SessionConstants.SESSION_CTRL_ID);
+        doReturn("1").when(session).getAttribute(
+                SessionConstants.SESSION_CTRL_ID);
         doThrow(new ServiceInstanceException(new BadResultException(""))).when(
                 serviceInstanceService).getInstancesForController(anyString());
         // when
@@ -234,7 +236,8 @@ public class ManageServiceInstanceCtrlTest {
         EnumSet<InstanceOperation> operaions = EnumSet.of(
                 InstanceOperation.DELETE, InstanceOperation.RESUME);
         doReturn(session).when(request).getSession();
-        doReturn("1").when(session).getAttribute(SessionConstants.SESSION_CTRL_ID);
+        doReturn("1").when(session).getAttribute(
+                SessionConstants.SESSION_CTRL_ID);
         doReturn(serviceInstances).when(serviceInstanceService)
                 .getInstancesForController(anyString());
         doReturn(operaions).when(serviceInstanceService)
@@ -273,7 +276,8 @@ public class ManageServiceInstanceCtrlTest {
         model.setServiceInstanceRows(givenServiceInstanceRows());
         model.setSelectedInstanceId("instanceId2");
         doReturn(session).when(request).getSession();
-        doReturn("1").when(session).getAttribute(SessionConstants.SESSION_CTRL_ID);
+        doReturn("1").when(session).getAttribute(
+                SessionConstants.SESSION_CTRL_ID);
         doThrow(new ServiceInstanceException(new BadResultException(""))).when(
                 ctrl.serviceInstanceService).executeOperation(
                 any(ServiceInstance.class), any(ServiceUser.class),
@@ -296,7 +300,8 @@ public class ManageServiceInstanceCtrlTest {
         model.setServiceInstanceRows(givenServiceInstanceRows());
         model.setSelectedInstanceId("instanceId2");
         doReturn(session).when(request).getSession();
-        doReturn("1").when(session).getAttribute(SessionConstants.SESSION_CTRL_ID);
+        doReturn("1").when(session).getAttribute(
+                SessionConstants.SESSION_CTRL_ID);
         doReturn("uid").when(session).getAttribute(
                 SessionConstants.SESSION_USER_ID);
         doReturn("en").when(session).getAttribute(
@@ -323,7 +328,8 @@ public class ManageServiceInstanceCtrlTest {
         model.setServiceInstanceRows(givenServiceInstanceRowsWithAbortPending());
         model.setSelectedInstanceId("instanceId1");
         doReturn(session).when(request).getSession();
-        doReturn("1").when(session).getAttribute(SessionConstants.SESSION_CTRL_ID);
+        doReturn("1").when(session).getAttribute(
+                SessionConstants.SESSION_CTRL_ID);
         doNothing().when(ctrl.serviceInstanceService).executeOperation(
                 any(ServiceInstance.class), any(ServiceUser.class),
                 any(InstanceOperation.class));
@@ -408,8 +414,6 @@ public class ManageServiceInstanceCtrlTest {
         assertEquals("instanceId2", row.getServiceInstance().getInstanceId());
         assertEquals("PARAM_A_PWD", model.getServiceInstanceRows().get(1)
                 .getInstanceParameters().get(0).getParameterKey());
-        assertEquals(ENCRYPTED_PWD, model.getServiceInstanceRows().get(1)
-                .getInstanceParameters().get(0).getParameterValue());
         assertEquals("PARAM_B", model.getServiceInstanceRows().get(1)
                 .getInstanceParameters().get(1).getParameterKey());
         assertEquals("123", model.getServiceInstanceRows().get(1)

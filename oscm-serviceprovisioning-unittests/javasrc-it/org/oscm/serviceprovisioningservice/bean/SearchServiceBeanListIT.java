@@ -84,6 +84,8 @@ import org.oscm.internal.types.exception.IllegalArgumentException;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.OperationNotPermittedException;
+import org.oscm.internal.types.exception.TechnicalServiceNotAliveException;
+import org.oscm.internal.types.exception.TechnicalServiceOperationException;
 import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.internal.vo.ListCriteria;
 import org.oscm.internal.vo.VOBillingContact;
@@ -237,7 +239,7 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
     private static Organization platformOperatorOrg;
     private static OrganizationReference orgRef;
 
-    private static final List<VOService> allServices = new ArrayList<VOService>();
+    private static final List<VOService> allServices = new ArrayList<>();
 
     private static List<VOService> localPublicVisible;
     private static List<VOService> localLoggedInVisible;
@@ -254,7 +256,7 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
     private static long suspendedCustServiceKey;
 
     private static List<PaymentType> paymentTypes;
-    private final Map<String, VOPaymentInfo> voPaymentInfos = new HashMap<String, VOPaymentInfo>();
+    private final Map<String, VOPaymentInfo> voPaymentInfos = new HashMap<>();
 
     private static VOServiceDetails voSuspendedProduct;
 
@@ -324,7 +326,7 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
             @Override
             public User[] createUsers(Subscription subscription,
                     List<UsageLicense> usageLicenses) {
-                List<User> users = new ArrayList<User>();
+                List<User> users = new ArrayList<>();
                 for (UsageLicense ul : usageLicenses) {
                     User user = new User();
                     user.setApplicationUserId(ul.getUser().getUserId());
@@ -332,6 +334,12 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
                     users.add(user);
                 }
                 return users.toArray(new User[0]);
+            }
+
+            @Override
+            public void saveAttributes(Subscription subscription)
+                    throws TechnicalServiceNotAliveException,
+                    TechnicalServiceOperationException {
             }
 
         });
@@ -344,7 +352,7 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
             @Override
             public List<TriggerProcessMessageData> sendSuspendingMessages(
                     List<TriggerMessage> messageData) {
-                List<TriggerProcessMessageData> result = new ArrayList<TriggerProcessMessageData>();
+                List<TriggerProcessMessageData> result = new ArrayList<>();
                 for (TriggerMessage m : messageData) {
                     TriggerProcess tp = new TriggerProcess();
                     PlatformUser user = new PlatformUser();
@@ -452,8 +460,8 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
         provider = runTX(new Callable<Organization>() {
             @Override
             public Organization call() throws Exception {
-                Organization organization = Organizations.createOrganization(
-                        ds, OrganizationRoleType.TECHNOLOGY_PROVIDER,
+                Organization organization = Organizations.createOrganization(ds,
+                        OrganizationRoleType.TECHNOLOGY_PROVIDER,
                         OrganizationRoleType.SUPPLIER);
                 PlatformUser user = Organizations.createUserForOrg(ds,
                         organization, true, "admin");
@@ -468,15 +476,15 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
 
             @Override
             public Organization call() throws Exception {
-                Organization organization = Organizations.createOrganization(
-                        ds, OrganizationRoleType.SUPPLIER);
+                Organization organization = Organizations.createOrganization(ds,
+                        OrganizationRoleType.SUPPLIER);
                 Marketplaces.ensureMarketplace(organization,
                         organization.getOrganizationId(), ds);
                 PlatformUser user = Organizations.createUserForOrg(ds,
                         organization, true, "admin");
                 supplierUserKey = user.getKey();
-                PlatformUsers
-                        .grantRoles(ds, user, UserRoleType.SERVICE_MANAGER);
+                PlatformUsers.grantRoles(ds, user,
+                        UserRoleType.SERVICE_MANAGER);
                 Organization provider = Organizations.findOrganization(ds,
                         providerOrgId);
                 orgRef = Organizations
@@ -503,8 +511,8 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
                 PlatformUser user = Organizations.createUserForOrg(ds,
                         organization, true, "admin");
                 customerUserKey = user.getKey();
-                PlatformUser normalUser = PlatformUsers.createUser(ds,
-                        "userId", organization);
+                PlatformUser normalUser = PlatformUsers.createUser(ds, "userId",
+                        organization);
                 endUerKey = normalUser.getKey();
                 return organization;
             }
@@ -515,7 +523,7 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                paymentTypes = new ArrayList<PaymentType>();
+                paymentTypes = new ArrayList<>();
                 paymentTypes.add(findPaymentType(PaymentType.INVOICE, ds));
                 return null;
             }
@@ -566,24 +574,24 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
         System.out.println("------------- TAGS ----------------");
         VOTechnicalService tp1 = addTags(tps, 0,
                 Arrays.asList(new String[] { TAG1, TAG2 }));
-        System.out.println(tp1.getTechnicalServiceId() + " (en) : " + TAG1
-                + " " + TAG2);
+        System.out.println(
+                tp1.getTechnicalServiceId() + " (en) : " + TAG1 + " " + TAG2);
         VOTechnicalService tp2 = addTags(tps, 1,
                 Arrays.asList(new String[] { TAG1, TAG3 }));
-        System.out.println(tp2.getTechnicalServiceId() + " (en) : " + TAG1
-                + " " + TAG3);
+        System.out.println(
+                tp2.getTechnicalServiceId() + " (en) : " + TAG1 + " " + TAG3);
         VOTechnicalService tp3 = addTags(tps, 2,
                 Arrays.asList(new String[] { TAG2 }));
         System.out.println(tp3.getTechnicalServiceId() + " (en) : " + TAG2);
         setLocaleCurrentUser("de", providerUserKey);
         VOTechnicalService tp4 = addTags(tps, 3,
                 Arrays.asList(new String[] { TAG1, TAG3 }));
-        System.out.println(tp4.getTechnicalServiceId() + " (de) : " + TAG1
-                + " " + TAG3);
+        System.out.println(
+                tp4.getTechnicalServiceId() + " (de) : " + TAG1 + " " + TAG3);
         VOTechnicalService tp5 = addTags(tps, 4,
                 Arrays.asList(new String[] { TAG2, TAG4 }));
-        System.out.println(tp5.getTechnicalServiceId() + " (de) : " + TAG2
-                + " " + TAG4);
+        System.out.println(
+                tp5.getTechnicalServiceId() + " (de) : " + TAG2 + " " + TAG4);
         container.logout();
 
         // create some services for all technical services
@@ -607,7 +615,8 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
         voSuspendedProduct = createProduct(tp1,
                 "suspended" + tp1.getTechnicalServiceId(), new BigDecimal(3),
                 "en");
-        voSuspendedProduct = customizeAttributesAndPriceModel(voSuspendedProduct);
+        voSuspendedProduct = customizeAttributesAndPriceModel(
+                voSuspendedProduct);
         publish(voSuspendedProduct, FUJITSU, true);
         suspendedServiceKey = voSuspendedProduct.getKey();
         VOServiceDetails voSuspendedCustProd = customizeAttributesAndPriceModelForCustomer(
@@ -633,8 +642,8 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
                         ROLE_MARKETPLACE_OWNER);
                 cs.saveCategories(Arrays.asList(category1, category2), null,
                         "en");
-                final List<VOCategory> categories = cs
-                        .getCategories(mpId, "de");
+                final List<VOCategory> categories = cs.getCategories(mpId,
+                        "de");
                 categories.get(0).setName(CAT1 + " deutsch");
                 categories.get(1).setName(CAT2 + " deutsch");
                 cs.saveCategories(categories, null, "de");
@@ -708,30 +717,38 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
         final String localMP = supplier.getOrganizationId();
         VOOrganization customer = getOrganizationForOrgId(customerOrgId);
         String tpId = tp.getTechnicalServiceId();
-        VOServiceDetails voProduct1 = createProduct(tp, UUID.randomUUID()
-                .toString().substring(0, 4)
-                + "_product1_" + tpId, new BigDecimal(5), "en", "de");
-        VOServiceDetails voProduct2 = createProduct(tp, UUID.randomUUID()
-                .toString().substring(0, 4)
-                + "_product2_" + tpId, new BigDecimal(3.7), "en", "ja");
-        VOServiceDetails voProduct3 = createProduct(tp, UUID.randomUUID()
-                .toString().substring(0, 4)
-                + "_product3_" + tpId, new BigDecimal(1), "ja", "de");
-        VOServiceDetails voProduct4 = createProduct(tp, UUID.randomUUID()
-                .toString().substring(0, 4)
-                + "_product4_" + tpId, new BigDecimal(4.1), "de");
-        VOServiceDetails voProduct5 = createProduct(tp, UUID.randomUUID()
-                .toString().substring(0, 4)
-                + "_product5_" + tpId, new BigDecimal(4.2), "en");
-        VOServiceDetails voProduct6 = createProduct(tp, UUID.randomUUID()
-                .toString().substring(0, 4)
-                + "_product6_" + tpId, null, "en", "de", "ja");
-        VOServiceDetails voProduct7 = createProduct(tp, UUID.randomUUID()
-                .toString().substring(0, 4)
-                + "_product7_" + tpId, new BigDecimal(2), "de", "en");
-        VOServiceDetails voProduct8 = createProduct(tp, UUID.randomUUID()
-                .toString().substring(0, 4)
-                + "_product8_" + tpId, new BigDecimal(1.5), "de");
+        VOServiceDetails voProduct1 = createProduct(tp,
+                UUID.randomUUID().toString().substring(0, 4) + "_product1_"
+                        + tpId,
+                new BigDecimal(5), "en", "de");
+        VOServiceDetails voProduct2 = createProduct(tp,
+                UUID.randomUUID().toString().substring(0, 4) + "_product2_"
+                        + tpId,
+                new BigDecimal(3.7), "en", "ja");
+        VOServiceDetails voProduct3 = createProduct(tp,
+                UUID.randomUUID().toString().substring(0, 4) + "_product3_"
+                        + tpId,
+                new BigDecimal(1), "ja", "de");
+        VOServiceDetails voProduct4 = createProduct(tp,
+                UUID.randomUUID().toString().substring(0, 4) + "_product4_"
+                        + tpId,
+                new BigDecimal(4.1), "de");
+        VOServiceDetails voProduct5 = createProduct(tp,
+                UUID.randomUUID().toString().substring(0, 4) + "_product5_"
+                        + tpId,
+                new BigDecimal(4.2), "en");
+        VOServiceDetails voProduct6 = createProduct(tp,
+                UUID.randomUUID().toString().substring(0, 4) + "_product6_"
+                        + tpId,
+                null, "en", "de", "ja");
+        VOServiceDetails voProduct7 = createProduct(tp,
+                UUID.randomUUID().toString().substring(0, 4) + "_product7_"
+                        + tpId,
+                new BigDecimal(2), "de", "en");
+        VOServiceDetails voProduct8 = createProduct(tp,
+                UUID.randomUUID().toString().substring(0, 4) + "_product8_"
+                        + tpId,
+                new BigDecimal(1.5), "de");
 
         voProduct1 = customizeAttributesAndPriceModel(voProduct1);
         voProduct2 = customizeAttributesAndPriceModel(voProduct2);
@@ -742,22 +759,24 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
         voProduct7 = customizeAttributesAndPriceModel(voProduct7);
         voProduct8 = customizeAttributesAndPriceModel(voProduct8);
 
-        VOService temp = customizeAttributesAndPriceModelForCustomer(
-                voProduct3, customer);
+        VOService temp = customizeAttributesAndPriceModelForCustomer(voProduct3,
+                customer);
         allServices.add(temp);
 
         VOServiceDetails voProductCust4 = customizeAttributesAndPriceModelForCustomer(
                 voProduct4, customer);
         allServices.add(voProductCust4);
 
-        temp = customizeAttributesAndPriceModelForCustomer(voProduct5, customer);
+        temp = customizeAttributesAndPriceModelForCustomer(voProduct5,
+                customer);
         allServices.add(temp);
 
         VOServiceDetails voProductCust6 = customizeAttributesAndPriceModelForCustomer(
                 voProduct6, customer);
         allServices.add(voProductCust6);
 
-        temp = customizeAttributesAndPriceModelForCustomer(voProduct7, customer);
+        temp = customizeAttributesAndPriceModelForCustomer(voProduct7,
+                customer);
         allServices.add(temp);
 
         VOServiceDetails voProductCust8 = customizeAttributesAndPriceModelForCustomer(
@@ -784,12 +803,13 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
     }
 
     private static void assignCategoryToProduct(VOService service,
-            VOCategory category) throws ObjectNotFoundException,
-            NonUniqueBusinessKeyException {
+            VOCategory category)
+            throws ObjectNotFoundException, NonUniqueBusinessKeyException {
         CategoryToCatalogEntry cc = new CategoryToCatalogEntry();
         final long catalogKey = ((Number) ds.createNativeQuery(
                 "select tkey from catalogentry where product_tkey="
-                        + service.getKey()).getSingleResult()).longValue();
+                        + service.getKey())
+                .getSingleResult()).longValue();
         cc.setCatalogEntry(ds.getReference(CatalogEntry.class, catalogKey));
         cc.setCategory(ds.getReference(Category.class, category.getKey()));
         ds.persist(cc);
@@ -825,7 +845,7 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
         if (voProdTemplate == null) {
             // first get locales (for which a name is defined)
             List<VOLocalizedText> locNames = loc.getNames();
-            List<String> locales = new ArrayList<String>();
+            List<String> locales = new ArrayList<>();
 
             // enhance svc name by 0 or 1 tag, and collect available locales
             phraseIndex = svcCounter % 3 + 1;
@@ -835,7 +855,7 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
                         + svcCounter + ")" + BLANK + PHRASE[phraseIndex]);
             }
 
-            Set<String> usedLocales = new HashSet<String>();
+            Set<String> usedLocales = new HashSet<>();
 
             // set svc short description for all locales
             phraseIndex = svcCounter % 11;
@@ -849,13 +869,13 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
             // in a 2nd step, add missing short desc for remaining locales
             for (String locale : locales) {
                 if (!usedLocales.contains(locale)) {
-                    locShortDescs.add(new VOLocalizedText(locale,
-                            PHRASE[phraseIndex]));
+                    locShortDescs.add(
+                            new VOLocalizedText(locale, PHRASE[phraseIndex]));
                 }
             }
 
             // set svc description for all locales
-            usedLocales = new HashSet<String>();
+            usedLocales = new HashSet<>();
 
             phraseIndex = (svcCounter + 1) % 11;
             List<VOLocalizedText> locDescs = loc.getDescriptions();
@@ -867,8 +887,8 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
             // in a 2nd step, add missing descriptions for remaining locales
             for (String locale : locales) {
                 if (!usedLocales.contains(locale)) {
-                    locDescs.add(new VOLocalizedText(locale,
-                            PHRASE[phraseIndex]));
+                    locDescs.add(
+                            new VOLocalizedText(locale, PHRASE[phraseIndex]));
                 }
             }
 
@@ -881,14 +901,14 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
             System.out.println(((svcCounter % 14 == 6) ? "anonymous (de,en)"
                     : "logged-in (de)")
                     + " | [SVC_NAME] "
-                    + (loc.getNames().size() > 0 ? loc.getNames().get(0)
-                            .getText() : "")
+                    + (loc.getNames().size() > 0
+                            ? loc.getNames().get(0).getText() : "")
                     + " | [SVC_SHORT_DESC] "
-                    + (loc.getShortDescriptions().size() > 0 ? loc
-                            .getShortDescriptions().get(0).getText() : "")
+                    + (loc.getShortDescriptions().size() > 0
+                            ? loc.getShortDescriptions().get(0).getText() : "")
                     + " | [SVC_DESC] "
-                    + (loc.getDescriptions().size() > 0 ? loc.getDescriptions()
-                            .get(0).getText() : "")
+                    + (loc.getDescriptions().size() > 0
+                            ? loc.getDescriptions().get(0).getText() : "")
                     + " | [PM_DESC(en)] "
                     + voProd.getPriceModel().getDescription());
         }
@@ -941,8 +961,8 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
 
             @Override
             public Void call() throws Exception {
-                PlatformUser user = ds
-                        .getReference(PlatformUser.class, userKey);
+                PlatformUser user = ds.getReference(PlatformUser.class,
+                        userKey);
                 user.setLocale(locale);
                 return null;
             }
@@ -955,10 +975,10 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                TechnicalProduct technicalProduct = ds.find(
-                        TechnicalProduct.class, tpKey);
-                OrganizationReference reference = ds.find(
-                        OrganizationReference.class, orgRefKey);
+                TechnicalProduct technicalProduct = ds
+                        .find(TechnicalProduct.class, tpKey);
+                OrganizationReference reference = ds
+                        .find(OrganizationReference.class, orgRefKey);
 
                 MarketingPermission permission = new MarketingPermission();
                 permission.setOrganizationReference(reference);
@@ -983,7 +1003,7 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
 
         service = sps.createService(tp, service, null);
         VOServiceLocalization loc = new VOServiceLocalization();
-        ArrayList<VOLocalizedText> names = new ArrayList<VOLocalizedText>();
+        ArrayList<VOLocalizedText> names = new ArrayList<>();
         for (String locale : locales) {
             names.add(new VOLocalizedText(locale, id + "_" + locale));
         }
@@ -1110,7 +1130,7 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
 
             @Override
             public List<Long> call() {
-                Set<Long> keys = new HashSet<Long>();
+                Set<Long> keys = new HashSet<>();
                 for (VOService voService : list) {
                     keys.add(Long.valueOf(voService.getKey()));
                 }
@@ -1137,7 +1157,7 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
      */
     private static List<Long> getServiceKeysByName(final boolean asc,
             final List<VOService> list) {
-        List<Long> resultList = new ArrayList<Long>();
+        List<Long> resultList = new ArrayList<>();
         Comparator<VOService> comp = asc ? new ServiceNameComparator()
                 : Collections.reverseOrder(new ServiceNameComparator());
         Collections.sort(list, comp);
@@ -1147,8 +1167,8 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
         return resultList;
     }
 
-    private static final class ServiceNameComparator implements
-            Comparator<VOService> {
+    private static final class ServiceNameComparator
+            implements Comparator<VOService> {
 
         @Override
         public int compare(VOService o1, VOService o2) {
@@ -1430,7 +1450,8 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
     }
 
     @Test
-    public void testSearchServices_Anonymous_PhraseInTagOnly() throws Exception {
+    public void testSearchServices_Anonymous_PhraseInTagOnly()
+            throws Exception {
         // search without being logged in
         VOServiceListResult hits = search.searchServices(FUJITSU, "de", TAG3);
         checkResultSet(hits, 6, 20, 48);
@@ -1475,8 +1496,8 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
     public void testSearchServices_Anonymous_PhraseOfMultipleWordsInOneAttribute()
             throws Exception {
         // search without being logged in
-        VOServiceListResult hits = search.searchServices(FUJITSU, "en", TAG4
-                + BLANK + TAG1);
+        VOServiceListResult hits = search.searchServices(FUJITSU, "en",
+                TAG4 + BLANK + TAG1);
         checkResultSet(hits, 6, 20, 62);
     }
 
@@ -1484,8 +1505,8 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
     public void testSearchServices_Anonymous_PhraseOfMultipleWordsInOneAttribute_ThreeByteSpace_en()
             throws Exception {
         // search without being logged in
-        VOServiceListResult hits = search.searchServices(FUJITSU, "en", TAG4
-                + THREE_BYTE_SPACE + TAG1);
+        VOServiceListResult hits = search.searchServices(FUJITSU, "en",
+                TAG4 + THREE_BYTE_SPACE + TAG1);
         checkResultSet(hits, 6, 20, 62);
     }
 
@@ -1536,8 +1557,8 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
         checkResultSet(hits, 20, 34, 62);
 
         // now search in locale where nothing has been defined for
-        hits = search.searchServices(FUJITSU, "ja", TAG1 + BLANK + TAG3 + BLANK
-                + TAG4);
+        hits = search.searchServices(FUJITSU, "ja",
+                TAG1 + BLANK + TAG3 + BLANK + TAG4);
         // svc6 has words in short_desc + desc for default locale (en)
         checkResultSet(hits, 6);
     }
@@ -1562,8 +1583,8 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
     public void testSearchServices_Anonymous_HTMLFiltering() throws Exception {
         // search without being logged in
         // check that HTML tags in search term are not filtered
-        VOServiceListResult hits = search.searchServices(FUJITSU, "en", "<b>"
-                + TAG1 + "<b/>");
+        VOServiceListResult hits = search.searchServices(FUJITSU, "en",
+                "<b>" + TAG1 + "<b/>");
         Assert.assertEquals(0, hits.getResultSize());
     }
 
@@ -1643,12 +1664,12 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
     private List<String> modifySvcDescription(int svcKey, String value,
             boolean append) throws Exception {
         container.login(supplierUserKey, ROLE_SERVICE_MANAGER);
-        VOService svcToBeModified = sps.getServiceDetails(allServices
-                .get(svcKey));
+        VOService svcToBeModified = sps
+                .getServiceDetails(allServices.get(svcKey));
         svcToBeModified = sps.deactivateService(svcToBeModified);
         VOServiceLocalization loc = sps.getServiceLocalization(svcToBeModified);
         List<VOLocalizedText> locDescs = loc.getDescriptions();
-        List<String> oldDescs = new ArrayList<String>();
+        List<String> oldDescs = new ArrayList<>();
         for (VOLocalizedText desc : locDescs) {
             oldDescs.add(desc.getText());
             if (append) {
@@ -1676,7 +1697,8 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testGetServicesByCriteria_EmptyMarketplaceId() throws Throwable {
+    public void testGetServicesByCriteria_EmptyMarketplaceId()
+            throws Throwable {
         container.login(customerUserKey, ROLE_ORGANIZATION_ADMIN);
         setLocaleCurrentUser("en", customerUserKey);
         try {
@@ -1813,7 +1835,7 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
     public void testGetServicesByCriteria_Paging_ScrollThroughResult()
             throws Exception {
         container.login(customerUserKey, ROLE_ORGANIZATION_ADMIN);
-        Set<Long> readServiceKeys = new HashSet<Long>();
+        Set<Long> readServiceKeys = new HashSet<>();
         final int size = localLoggedInVisible.size();
         for (int offset = 0; offset < size; offset++) {
             ListCriteria crit = getCriteria(offset, 1, null, null);
@@ -1951,12 +1973,13 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
         ListCriteria crit = getCriteria(-1, -1, null, null);
         VOServiceListResult servicesByCriteria = search.getServicesByCriteria(
                 supplier.getOrganizationId(), "en", crit);
-        checkResultSet(servicesByCriteria, 1, 9, 11, 15, 23, 25, 29, 37, 39,
-                43, 51, 53, 57, 65, 67);
+        checkResultSet(servicesByCriteria, 1, 9, 11, 15, 23, 25, 29, 37, 39, 43,
+                51, 53, 57, 65, 67);
     }
 
     @Test(expected = ObjectNotFoundException.class)
-    public void testGetServicesByCriteria_Tagging_UnknownTag() throws Exception {
+    public void testGetServicesByCriteria_Tagging_UnknownTag()
+            throws Exception {
         container.login(customerUserKey, ROLE_ORGANIZATION_ADMIN);
         setLocaleCurrentUser("en", customerUserKey);
         ListCriteria crit = getCriteria(-1, -1, "NonExistingTag", null);
@@ -1966,7 +1989,8 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
     }
 
     @Test(expected = ObjectNotFoundException.class)
-    public void testGetServicesByCriteria_Tagging_PartialTag() throws Exception {
+    public void testGetServicesByCriteria_Tagging_PartialTag()
+            throws Exception {
         container.login(customerUserKey, ROLE_ORGANIZATION_ADMIN);
         setLocaleCurrentUser("en", customerUserKey);
         String TAG1_partial = TAG1.substring(0, TAG1.length() - 1);
@@ -2048,10 +2072,12 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
     }
 
     @Test
-    public void testGetServicesByCriteria_Sorting_RatingDesc() throws Exception {
+    public void testGetServicesByCriteria_Sorting_RatingDesc()
+            throws Exception {
         container.login(customerUserKey, ROLE_ORGANIZATION_ADMIN);
         setLocaleCurrentUser("en", customerUserKey);
-        ListCriteria crit = getCriteria(-1, -1, null, Sorting.RATING_DESCENDING);
+        ListCriteria crit = getCriteria(-1, -1, null,
+                Sorting.RATING_DESCENDING);
         VOServiceListResult servicesByCriteria = search.getServicesByCriteria(
                 supplier.getOrganizationId(), "en", crit);
         Assert.assertEquals(localLoggedInVisible.size(),
@@ -2097,7 +2123,8 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
     public void testGetServicesByCriteria_Sorting_RatingDescPublic()
             throws Exception {
         container.logout();
-        ListCriteria crit = getCriteria(-1, -1, null, Sorting.RATING_DESCENDING);
+        ListCriteria crit = getCriteria(-1, -1, null,
+                Sorting.RATING_DESCENDING);
         VOServiceListResult servicesByCriteria = search.getServicesByCriteria(
                 supplier.getOrganizationId(), "en", crit);
         Assert.assertEquals(localPublicVisible.size(),
@@ -2146,7 +2173,8 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
         setLocaleCurrentUser("en", customerUserKey);
         ListCriteria crit = getCriteria(-1, -1, null, null);
         final VOServiceListResult servicesByCriteriaBefore = search
-                .getServicesByCriteria(supplier.getOrganizationId(), "en", crit);
+                .getServicesByCriteria(supplier.getOrganizationId(), "en",
+                        crit);
         Assert.assertFalse(resultContainsService(suspendedServiceKey,
                 servicesByCriteriaBefore));
         Assert.assertFalse(resultContainsService(suspendedCustServiceKey,
@@ -2168,12 +2196,14 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
 
         VOPaymentInfo pi = getPaymentInfo(supplier.getOrganizationId(),
                 getOrganizationForCurrentUser());
-        VOBillingContact bc = createBillingContact(getOrganizationForCurrentUser());
+        VOBillingContact bc = createBillingContact(
+                getOrganizationForCurrentUser());
         ss.subscribeToService(sub, subscribeTo, null, pi, bc,
                 new ArrayList<VOUda>());
 
         VOServiceListResult servicesByCriteriaAfter = search
-                .getServicesByCriteria(supplier.getOrganizationId(), "en", crit);
+                .getServicesByCriteria(supplier.getOrganizationId(), "en",
+                        crit);
         Assert.assertEquals(servicesByCriteriaBefore.getResultSize(),
                 servicesByCriteriaAfter.getResultSize());
     }
@@ -2198,7 +2228,8 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
 
         VOPaymentInfo pi = getPaymentInfo(supplier.getOrganizationId(),
                 getOrganizationForCurrentUser());
-        VOBillingContact bc = createBillingContact(getOrganizationForCurrentUser());
+        VOBillingContact bc = createBillingContact(
+                getOrganizationForCurrentUser());
         ss.subscribeToService(sub, svc, null, pi, bc, new ArrayList<VOUda>());
 
         VOServiceListResult servicesByCriteriaAfter = search
@@ -2240,20 +2271,20 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
         ListCriteria listCriteria = createCategoryCriteria(0,
                 SEARCHLIMIT_UNLIMITED, category.getCategoryId(), null);
 
-        VOServiceListResult result = search.getServicesByCriteria(FUJITSU,
-                "de", listCriteria);
+        VOServiceListResult result = search.getServicesByCriteria(FUJITSU, "de",
+                listCriteria);
 
         // validate if services are found
         Assert.assertEquals(2, result.getResultSize());
-        List<VOService> expectedServices = new LinkedList<VOService>();
+        List<VOService> expectedServices = new LinkedList<>();
         expectedServices.add(servicesForPublicCatalog.get(0));
         expectedServices.add(servicesForPublicCatalog.get(1));
 
         for (VOService resultService : result.getServices()) {
             boolean serviceFound = false;
             for (VOService expectedService : expectedServices) {
-                if (resultService.getServiceId().equals(
-                        expectedService.getServiceId())) {
+                if (resultService.getServiceId()
+                        .equals(expectedService.getServiceId())) {
                     serviceFound = true;
                 }
             }
@@ -2284,7 +2315,8 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
             search.getServicesByCriteria(FUJITSU, "de", listCriteria);
             Assert.fail();
         } catch (ObjectNotFoundException e) {
-            Assert.assertTrue(e.getDomainObjectClassEnum() == ClassEnum.CATEGORY);
+            Assert.assertTrue(
+                    e.getDomainObjectClassEnum() == ClassEnum.CATEGORY);
         }
     }
 
@@ -2294,8 +2326,8 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
         ListCriteria listCriteria = createCategoryCriteria(0,
                 SEARCHLIMIT_ONLYCOUNT, category.getCategoryId(), null);
 
-        VOServiceListResult result = search.getServicesByCriteria(FUJITSU,
-                "de", listCriteria);
+        VOServiceListResult result = search.getServicesByCriteria(FUJITSU, "de",
+                listCriteria);
 
         Assert.assertEquals(1, result.getResultSize());
     }
@@ -2314,15 +2346,15 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
 
         // validate if services are found
         Assert.assertEquals(2, result.getResultSize());
-        List<VOService> expectedServices = new LinkedList<VOService>();
+        List<VOService> expectedServices = new LinkedList<>();
         expectedServices.add(servicesForPublicCatalog.get(0));
         expectedServices.add(servicesForPublicCatalog.get(1));
 
         for (Product resultService : result.getServices()) {
             boolean serviceFound = false;
             for (VOService expectedService : expectedServices) {
-                if (resultService.getCleanProductId().equals(
-                        expectedService.getServiceId())) {
+                if (resultService.getCleanProductId()
+                        .equals(expectedService.getServiceId())) {
                     serviceFound = true;
                 }
             }
@@ -2338,7 +2370,8 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
             searchLocal.getServicesByCategory(FUJITSU, "InvalidCategoryId");
             Assert.fail();
         } catch (ObjectNotFoundException e) {
-            Assert.assertTrue(e.getDomainObjectClassEnum() == ClassEnum.CATEGORY);
+            Assert.assertTrue(
+                    e.getDomainObjectClassEnum() == ClassEnum.CATEGORY);
         }
     }
 
@@ -2346,22 +2379,22 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
     public void testGetServicesByCriteria_AsMPOwnerAdmin() throws Exception {
         container.login(platformOperatorAdminKey, ROLE_ORGANIZATION_ADMIN);
         ListCriteria crit = getCriteria(-1, -1, null, null);
-        final VOServiceListResult result = search.getServicesByCriteria(
-                FUJITSU, "en", crit);
+        final VOServiceListResult result = search.getServicesByCriteria(FUJITSU,
+                "en", crit);
         Assert.assertTrue(resultContainsService(suspendedServiceKey, result));
-        Assert.assertFalse(resultContainsService(suspendedCustServiceKey,
-                result));
+        Assert.assertFalse(
+                resultContainsService(suspendedCustServiceKey, result));
     }
 
     @Test
     public void testGetServicesByCriteria_AsMPOwnerNonAdmin() throws Exception {
         container.login(platformOperatorUserKey);
         ListCriteria crit = getCriteria(-1, -1, null, null);
-        final VOServiceListResult result = search.getServicesByCriteria(
-                FUJITSU, "en", crit);
+        final VOServiceListResult result = search.getServicesByCriteria(FUJITSU,
+                "en", crit);
         Assert.assertFalse(resultContainsService(suspendedServiceKey, result));
-        Assert.assertFalse(resultContainsService(suspendedCustServiceKey,
-                result));
+        Assert.assertFalse(
+                resultContainsService(suspendedCustServiceKey, result));
     }
 
     @Test
@@ -2410,16 +2443,18 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
      */
     private static void checkResultSet(VOServiceListResult result,
             int... indices) {
-        Set<Long> svcKeys = new HashSet<Long>();
+        Set<Long> svcKeys = new HashSet<>();
         // store keys of services contained in result set
         for (VOService svc : result.getServices()) {
             svcKeys.add(new Long(svc.getKey()));
         }
         // now compare with the key of the expected service from allServices
         for (int index : indices) {
-            Assert.assertTrue("Expected service at index " + (index)
-                    + " to be in the result set",
-                    svcKeys.contains(new Long(allServices.get(index).getKey())));
+            Assert.assertTrue(
+                    "Expected service at index " + (index)
+                            + " to be in the result set",
+                    svcKeys.contains(
+                            new Long(allServices.get(index).getKey())));
         }
         System.out.println("Result contains " + resultAsString(result));
         // make sure no additional services are expected to be in the result
@@ -2429,8 +2464,8 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
 
     private static String resultAsString(VOServiceListResult result) {
         StringBuffer sb = new StringBuffer();
-        for (Iterator<VOService> iterator = result.getServices().iterator(); iterator
-                .hasNext();) {
+        for (Iterator<VOService> iterator = result.getServices()
+                .iterator(); iterator.hasNext();) {
             VOService service = iterator.next();
             sb.append(service.getServiceId());
             if (iterator.hasNext()) {
@@ -2459,9 +2494,10 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
             int... indices) {
         int pos = 0;
         for (int index : indices) {
-            assertEquals("Expected service at index " + (index)
-                    + " to be at position " + pos
-                    + " in the result list. Service key ",
+            assertEquals(
+                    "Expected service at index " + (index)
+                            + " to be at position " + pos
+                            + " in the result list. Service key ",
                     allServices.get(index).getKey(),
                     result.getServices().get(pos).getKey());
             pos++;
@@ -2480,7 +2516,7 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
      */
     private static List<VOService> getServices(List<VOService> visibleServices,
             int... indices) {
-        List<VOService> result = new ArrayList<VOService>();
+        List<VOService> result = new ArrayList<>();
         for (int index : indices) {
             // get the service key to the index
             VOService toGet = allServices.get(index);

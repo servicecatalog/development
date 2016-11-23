@@ -290,8 +290,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         container.addBean(new CommunicationServiceStub() {
             @Override
             public void sendMail(PlatformUser recipient, EmailType type,
-                    Object[] params,
-                    org.oscm.domobjects.Marketplace marketplace) {
+                    Object[] params, org.oscm.domobjects.Marketplace marketplace) {
 
                 isCorrectSubscriptionIdForMail = params[0]
                         .equals(SUBSCRIPTION_ID);
@@ -7763,13 +7762,19 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                         product.getKey());
                 List<Parameter> result = currentProduct.getParameterSet()
                         .getParameters();
-                result.size(); // only to avoid lazy initialization problems
+                for (int i = 0; i < result.size(); i++) {
+                    ParameterDefinition paramDef = result.get(i)
+                            .getParameterDefinition();
+                    result.get(i).getParameterDefinition().getValueType();
+                    result.get(i).setParameterDefinition(paramDef);
+                }
+                // result.size(); // only to avoid lazy initialization problems
                 return result;
             }
         });
         final List<VOParameter> modifiedParameters = new ArrayList<VOParameter>();
         // prepare VOParameter list for using as method argument
-        for (Parameter parameter : parameters) {
+        for (final Parameter parameter : parameters) {
             final long parameterDefinitionKey = parameter
                     .getParameterDefinition().getKey();
             // get parameter definition
@@ -7794,7 +7799,6 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                     // set the same value
                     voParam.setValue(parameter.getValue());
                 } else {
-                    // set different value
                     String value = parameter.getValue();
                     StringBuffer str = new StringBuffer();
                     if (value != null) {
@@ -9632,7 +9636,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         assertTrue(((String) receivedSendMailPayload.get(0).getMailObjects()
                 .get(0).getParams()[1]).startsWith(BASE_URL_BES_HTTPS));
     }
-    
+
     @Test
     public void testSubscribeToProductWithExternalBilling() throws Throwable {
         assertNotNull(subMgmt);
@@ -9654,7 +9658,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         });
 
         VOService product = getProductToSubscribe(prod.getKey());
-        
+
         VOUser[] users = new VOUser[2];
         VOUser[] admins = new VOUser[1];
         setUsers(users, admins);
@@ -9665,7 +9669,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         final VOSubscription newSub = subMgmt.subscribeToService(sub, product,
                 getUsersToAdd(admins, users), null, null,
                 new ArrayList<VOUda>());
-        
+
         Subscription createdSub = runTX(new Callable<Subscription>() {
             @Override
             public Subscription call() throws ObjectNotFoundException {
@@ -9673,7 +9677,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
             }
         });
 
-        assertEquals(true, createdSub.isExternal()); 
+        assertEquals(true, createdSub.isExternal());
     }
 
     @Test

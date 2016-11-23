@@ -67,27 +67,15 @@
 
                                 <c:forEach items="#{upgradeWizardConversation.model.subscriptionUdaRows}"
                                            var="subUda" varStatus="v">
-                                    <h:outputText value="#{subUda.udaId}" id="subUda#{v.index}Label"
+                                    <h:outputText value="#{subUda.udaNameToShow}" id="subUda#{v.index}Label"
                                                   styleClass="label"/>
-                                    <h:outputText value="#{subUda.udaValue}" id="subUda#{v.index}Value"/>
+                                    <h:outputText value="#{subUda.udaValue}" id="subUda#{v.index}Value"
+                                                  rendered="#{not subUda.inputEncrypted}" />
+                                    <h:outputText value="*****" id="secretSubUda#{v.index}Value"
+                                                  styleClass="output-password" rendered="#{subUda.inputEncrypted}" />
                                 </c:forEach>
                             </t:panelGrid>
                         </a4j:outputPanel>
-
-                        <ui:fragment rendered="#{not empty upgradeWizardConversation.model.organizationUdaRows}">
-                            <h3 class="box_title">#{msg['organization.details.header']}</h3>
-                            <a4j:outputPanel layout="block" styleClass="infoArea" style="margin-bottom:5px;">
-                                <t:panelGrid columns="2" border="0" cellspacing="0" cellpadding="0"
-                                             columnClasses="labelAndValuePanelCol1,labelAndValuePanelCol2">
-                                    <c:forEach items="#{upgradeWizardConversation.model.organizationUdaRows}"
-                                               var="orgUda" varStatus="v">
-                                        <h:outputText value="#{orgUda.udaId}" id="orgUda#{v.index}Label"
-                                                      styleClass="label"/>
-                                        <h:outputText value="#{orgUda.udaValue}" id="orgUda#{v.index}Value"/>
-                                    </c:forEach>
-                                </t:panelGrid>
-                            </a4j:outputPanel>
-                        </ui:fragment>
 
                         <!-- configuration summary -->
                         <ui:fragment rendered="#{not empty upgradeWizardConversation.model.serviceParameters}">
@@ -206,5 +194,6 @@
                 </a4j:outputPanel>
             </mp:subscriptionProcess>
         </a4j:outputPanel>
+
     </ui:define>
 </ui:composition>

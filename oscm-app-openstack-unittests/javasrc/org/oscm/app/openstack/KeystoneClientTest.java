@@ -13,7 +13,7 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 import org.oscm.app.openstack.exceptions.OpenStackConnectionException;
-import org.oscm.app.v1_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.exceptions.APPlatformException;
 
 public class KeystoneClientTest {
     private final MockURLStreamHandler streamHandler = new MockURLStreamHandler();
@@ -25,8 +25,8 @@ public class KeystoneClientTest {
     }
 
     @Test
-    public void authenticate()
-            throws APPlatformException, OpenStackConnectionException {
+    public void authenticate() throws APPlatformException,
+            OpenStackConnectionException {
         // given
 
         // when
@@ -35,8 +35,8 @@ public class KeystoneClientTest {
     }
 
     @Test
-    public void authenticateWithNoDomain()
-            throws APPlatformException, OpenStackConnectionException {
+    public void authenticateWithNoDomain() throws APPlatformException,
+            OpenStackConnectionException {
         // given
 
         // when
@@ -45,19 +45,18 @@ public class KeystoneClientTest {
     }
 
     @Test
-    public void authenticate_http_666()
-            throws APPlatformException, OpenStackConnectionException {
+    public void authenticate_http_666() throws APPlatformException,
+            OpenStackConnectionException {
         // given
         int status = 666;
-        streamHandler.put("/v3/auth/tokens",
-                new MockHttpsURLConnection(status, ""));
+        streamHandler.put("/v3/auth/tokens", new MockHttpsURLConnection(status,
+                ""));
 
         try {
             // when
             new KeystoneClient(
                     new OpenStackConnection("https://xyz.de/v3/auth"))
-                            .authenticate("user", "password", "domainName",
-                                    "tenantId");
+                    .authenticate("user", "password", "domainName", "tenantId");
             assertTrue("Test must fail at this point", false);
         } catch (RuntimeException ex) {
             // then
@@ -67,8 +66,8 @@ public class KeystoneClientTest {
     }
 
     @Test(expected = OpenStackConnectionException.class)
-    public void authenticate_malFormedURL()
-            throws APPlatformException, OpenStackConnectionException {
+    public void authenticate_malFormedURL() throws APPlatformException,
+            OpenStackConnectionException {
         // given
 
         // when
@@ -77,8 +76,8 @@ public class KeystoneClientTest {
     }
 
     @Test(expected = RuntimeException.class)
-    public void authenticate_noJSONResponse()
-            throws APPlatformException, OpenStackConnectionException {
+    public void authenticate_noJSONResponse() throws APPlatformException,
+            OpenStackConnectionException {
         // given
         streamHandler.put("/v3/auth/tokens",
                 new MockHttpsURLConnection(201, ""));
@@ -90,8 +89,8 @@ public class KeystoneClientTest {
     }
 
     @Test(expected = APPlatformException.class)
-    public void authenticate_noHeatEndpoint()
-            throws APPlatformException, OpenStackConnectionException {
+    public void authenticate_noHeatEndpoint() throws APPlatformException,
+            OpenStackConnectionException {
         // given
         streamHandler.put("/v3/auth/tokens", new MockHttpsURLConnection(201,
                 MockURLStreamHandler.respTokens(false, true, true)));
@@ -102,8 +101,8 @@ public class KeystoneClientTest {
     }
 
     @Test(expected = APPlatformException.class)
-    public void authenticate_noNovaEndpoint()
-            throws APPlatformException, OpenStackConnectionException {
+    public void authenticate_noNovaEndpoint() throws APPlatformException,
+            OpenStackConnectionException {
         // given
         streamHandler.put("/v3/auth/tokens", new MockHttpsURLConnection(201,
                 MockURLStreamHandler.respTokens(true, false, true)));

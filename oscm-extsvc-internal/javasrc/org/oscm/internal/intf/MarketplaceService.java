@@ -119,9 +119,9 @@ public interface MarketplaceService {
      */
 
     VOServiceDetails publishService(VOService service,
-            List<VOCatalogEntry> entries) throws ObjectNotFoundException,
-            ValidationException, NonUniqueBusinessKeyException,
-            OperationNotPermittedException,
+            List<VOCatalogEntry> entries)
+            throws ObjectNotFoundException, ValidationException,
+            NonUniqueBusinessKeyException, OperationNotPermittedException,
             PublishingToMarketplaceNotPermittedException;
 
     /**
@@ -272,8 +272,7 @@ public interface MarketplaceService {
      *             if the marketplace is not found by its ID
      */
 
-    void deleteMarketplace(String marketplaceId)
-            throws ObjectNotFoundException;
+    void deleteMarketplace(String marketplaceId) throws ObjectNotFoundException;
 
     /**
      * Adds one or more organizations to the list of organizations that are
@@ -305,9 +304,9 @@ public interface MarketplaceService {
      */
 
     void addOrganizationsToMarketplace(List<String> organizationIds,
-            String marketplaceId) throws ObjectNotFoundException,
-            OperationNotPermittedException, OrganizationAuthorityException,
-            OrganizationAlreadyExistsException,
+            String marketplaceId)
+            throws ObjectNotFoundException, OperationNotPermittedException,
+            OrganizationAuthorityException, OrganizationAlreadyExistsException,
             MarketplaceAccessTypeUneligibleForOperationException;
 
     /**
@@ -341,9 +340,9 @@ public interface MarketplaceService {
      */
 
     void banOrganizationsFromMarketplace(List<String> organizationIds,
-            String marketplaceId) throws ObjectNotFoundException,
-            OperationNotPermittedException, OrganizationAuthorityException,
-            OrganizationAlreadyBannedException,
+            String marketplaceId)
+            throws ObjectNotFoundException, OperationNotPermittedException,
+            OrganizationAuthorityException, OrganizationAlreadyBannedException,
             MarketplaceAccessTypeUneligibleForOperationException;
 
     /**
@@ -372,8 +371,8 @@ public interface MarketplaceService {
      *             broker, or reseller role
      */
 
-    void removeOrganizationsFromMarketplace(
-            List<String> organizationIds, String marketplaceId)
+    void removeOrganizationsFromMarketplace(List<String> organizationIds,
+            String marketplaceId)
             throws ObjectNotFoundException, OperationNotPermittedException,
             MarketplaceAccessTypeUneligibleForOperationException,
             OrganizationAuthorityException;
@@ -405,8 +404,8 @@ public interface MarketplaceService {
      *             broker, or reseller role
      */
 
-    void liftBanOrganizationsFromMarketplace(
-            List<String> organizationIds, String marketplaceId)
+    void liftBanOrganizationsFromMarketplace(List<String> organizationIds,
+            String marketplaceId)
             throws ObjectNotFoundException, OperationNotPermittedException,
             MarketplaceAccessTypeUneligibleForOperationException,
             OrganizationAuthorityException;
@@ -433,8 +432,8 @@ public interface MarketplaceService {
      */
 
     List<VOOrganization> getBannedOrganizationsForMarketplace(
-            String marketplaceId) throws ObjectNotFoundException,
-            OperationNotPermittedException,
+            String marketplaceId)
+            throws ObjectNotFoundException, OperationNotPermittedException,
             MarketplaceAccessTypeUneligibleForOperationException;
 
     /**
@@ -458,9 +457,8 @@ public interface MarketplaceService {
      *             reseller
      */
 
-    List<VOOrganization> getOrganizationsForMarketplace(
-            String marketplaceId) throws ObjectNotFoundException,
-            OperationNotPermittedException,
+    List<VOOrganization> getOrganizationsForMarketplace(String marketplaceId)
+            throws ObjectNotFoundException, OperationNotPermittedException,
             MarketplaceAccessTypeUneligibleForOperationException;
 
     /**
@@ -496,8 +494,7 @@ public interface MarketplaceService {
      *             if the marketplace is not found
      */
 
-    String getBrandingUrl(String marketplaceId)
-            throws ObjectNotFoundException;
+    String getBrandingUrl(String marketplaceId) throws ObjectNotFoundException;
 
     /**
      * Stores the URL of the style sheet (CSS) that defines the branding for the
@@ -571,8 +568,8 @@ public interface MarketplaceService {
      */
     @RolesAllowed("MARKETPLACE_OWNER")
     void grantAccessToMarketPlaceToOrganization(VOMarketplace voMarketplace,
-            VOOrganization voOrganization) throws ValidationException,
-            NonUniqueBusinessKeyException;
+            VOOrganization voOrganization)
+            throws ValidationException, NonUniqueBusinessKeyException;
 
     /**
      * Method is used to remove restrictions to the given marketplace.
@@ -640,12 +637,27 @@ public interface MarketplaceService {
 
     /**
      *
-     * @param tenantKey - tanant technical key
+     * @param tenantKey
+     *            - tanant technical key
      * @return list of marketplaces assigned to the given tenant
      * @throws ObjectNotFoundException
      */
     @RolesAllowed("PLATFORM_OPERATOR")
     List<VOMarketplace> getAllMarketplacesForTenant(Long tenantKey) throws ObjectNotFoundException;
 
-    String getTenantIdFromMarketplace(String marketplaceId) throws ObjectNotFoundException;
+    String getTenantIdFromMarketplace(String marketplaceId)
+            throws ObjectNotFoundException;
+
+    /**
+     * Gets all organizations with the supplier role that can publish on the
+     * given marketplace.
+     * 
+     * @param marketplaceId
+     *            the id of the marketplace
+     * @return list of suppliers
+     * @throws ObjectNotFoundException
+     * @throws OperationNotPermittedException
+     */
+    public List<VOOrganization> getSuppliersForMarketplace(String marketplaceId)
+            throws ObjectNotFoundException, OperationNotPermittedException;
 }

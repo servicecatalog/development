@@ -15,18 +15,18 @@ import javax.annotation.PostConstruct;
 import org.oscm.app.aws.data.Server;
 import org.oscm.app.common.intf.InstanceAccess;
 import org.oscm.app.common.intf.ServerInformation;
-import org.oscm.app.v1_0.APPlatformServiceFactory;
-import org.oscm.app.v1_0.data.PasswordAuthentication;
-import org.oscm.app.v1_0.data.ProvisioningSettings;
-import org.oscm.app.v1_0.exceptions.APPlatformException;
-import org.oscm.app.v1_0.intf.APPlatformService;
+import org.oscm.app.v2_0.APPlatformServiceFactory;
+import org.oscm.app.v2_0.data.PasswordAuthentication;
+import org.oscm.app.v2_0.data.ProvisioningSettings;
+import org.oscm.app.v2_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.intf.APPlatformService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * @author tateiwamext
- *
+ * 
  */
 public class AWSInstanceAccess implements InstanceAccess {
 
@@ -55,7 +55,8 @@ public class AWSInstanceAccess implements InstanceAccess {
     @Override
     public List<? extends ServerInformation> getServerDetails(String instanceId)
             throws APPlatformException {
-        // TODO Replace the method which don't need authentication after implementation.
+        // TODO Replace the method which don't need authentication after
+        // implementation.
         ProvisioningSettings settings = platformService
                 .getServiceInstanceDetails(AWSController.ID, instanceId,
                         new PasswordAuthentication("supplier", "admin123"));

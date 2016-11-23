@@ -272,7 +272,7 @@ public class ManageSubscriptionCtrl implements Serializable {
         model.setShowSubscriptionPrices(
                 model.getSubscription().getPriceModel() != null && model
                         .getSubscription().getPriceModel().isChargeable()
-                && !model.isDirectAccess());
+                        && !model.isDirectAccess());
         model.setShowServicePrices(model.getSubscription()
                 .getSubscribedService().getPriceModel() != null
                 && model.getSubscription().getSubscribedService()
@@ -322,10 +322,12 @@ public class ManageSubscriptionCtrl implements Serializable {
         subscriptionsHelper.setUdas(subscriptionDetails, subUdaDefinitions,
                 orgUdaDefinitions, model.getSubscription());
 
-        model.setOrganizationUdaRows(UdaRow.getUdaRows(orgUdaDefinitions,
-                subscriptionDetails.getUdasOrganisation()));
         model.setSubscriptionUdaRows(UdaRow.getUdaRows(subUdaDefinitions,
                 subscriptionDetails.getUdasSubscription()));
+
+        for (UdaRow udaRow : model.getSubscriptionUdaRows()) {
+            udaRow.initPasswordValueToStore();
+        }
 
         initializePriceModelForSubscription(model.getSubscription());
 
@@ -366,11 +368,11 @@ public class ManageSubscriptionCtrl implements Serializable {
         return userBean.isLoggedInAndAdmin()
                 || userBean.isLoggedInAndSubscriptionManager();
     }
-    
+
     private boolean isPaymentTabAvailable() {
         return paymentAndBillingVisibleBean.isPaymentTabVisible();
     }
-    
+
     void setStateWarningAndTabDisabled(
             final POSubscriptionDetails subscriptionDetails) {
         SubscriptionStatus status = subscriptionDetails.getStatus();
@@ -899,12 +901,14 @@ public class ManageSubscriptionCtrl implements Serializable {
         model.getSubscription().setOwnerId(model.getSelectedOwner() != null
                 ? model.getSelectedOwner().getUserId() : null);
         updateSelectedUnit();
+        for (UdaRow udaRow : model.getSubscriptionUdaRows()) {
+            udaRow.rewriteEncryptedValues();
+        }
         VOSubscriptionDetails changedSubscription = getSubscriptionService()
                 .modifySubscription(model.getSubscription(),
                         getSubscriptionParameterForModification(),
                         subscriptionsHelper.getVoUdaFromUdaRows(
-                                model.getSubscriptionUdaRows(),
-                                model.getOrganizationUdaRows()));
+                                model.getSubscriptionUdaRows()));
         if (subscriptionNotSuspended(changedSubscription)) {
             SubscriptionStatus status = changedSubscription.getStatus();
             if (status.isPendingUpdOrSuspendedUpd()) {
@@ -1007,8 +1011,6 @@ public class ManageSubscriptionCtrl implements Serializable {
                 orgUdaDefinitions.add(def);
             }
         }
-        model.setOrganizationUdaRows(UdaRow.getUdaRows(orgUdaDefinitions,
-                subscriptionDetails.getUdasOrganisation()));
         model.setSubscriptionUdaRows(UdaRow.getUdaRows(subUdaDefinitions,
                 subscriptionDetails.getUdasSubscription()));
     }

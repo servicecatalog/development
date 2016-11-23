@@ -8,11 +8,11 @@
 
 package org.oscm.app.vmware.business.statemachine.api;
 
-import org.oscm.app.v1_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.exceptions.APPlatformException;
 
 /**
  * @author kulle
- *
+ * 
  */
 public class StateMachineException extends APPlatformException {
 

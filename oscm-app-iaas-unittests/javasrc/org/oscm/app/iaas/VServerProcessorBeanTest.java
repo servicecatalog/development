@@ -35,7 +35,6 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.MockitoAnnotations;
-
 import org.oscm.app.iaas.data.DiskImage;
 import org.oscm.app.iaas.data.FlowState;
 import org.oscm.app.iaas.data.Operation;
@@ -47,11 +46,12 @@ import org.oscm.app.iaas.intf.FWCommunication;
 import org.oscm.app.iaas.intf.VDiskCommunication;
 import org.oscm.app.iaas.intf.VServerCommunication;
 import org.oscm.app.iaas.intf.VSystemCommunication;
-import org.oscm.app.v1_0.data.PasswordAuthentication;
-import org.oscm.app.v1_0.data.ProvisioningSettings;
-import org.oscm.app.v1_0.data.User;
-import org.oscm.app.v1_0.exceptions.SuspendException;
-import org.oscm.app.v1_0.intf.APPlatformService;
+import org.oscm.app.v2_0.data.PasswordAuthentication;
+import org.oscm.app.v2_0.data.ProvisioningSettings;
+import org.oscm.app.v2_0.data.Setting;
+import org.oscm.app.v2_0.data.User;
+import org.oscm.app.v2_0.exceptions.SuspendException;
+import org.oscm.app.v2_0.intf.APPlatformService;
 
 /**
  * @author farmaki
@@ -62,8 +62,8 @@ public class VServerProcessorBeanTest {
     private VServerProcessorBean vServerProcessor;
     private APPlatformService platformService;
 
-    private HashMap<String, String> parameters;
-    HashMap<String, String> configSettings;
+    private HashMap<String, Setting> parameters;
+    HashMap<String, Setting> configSettings;
     private ProvisioningSettings settings;
     private PropertyHandler paramHandler;
     private final String DISKIDORNAME1 = "DISKIDORNAME1";
@@ -98,8 +98,8 @@ public class VServerProcessorBeanTest {
                 any(PasswordAuthentication.class));
         vServerProcessor.setPlatformService(platformService);
 
-        parameters = new HashMap<String, String>();
-        configSettings = new HashMap<String, String>();
+        parameters = new HashMap<>();
+        configSettings = new HashMap<>();
         settings = new ProvisioningSettings(parameters, configSettings, "en");
         settings.setSubscriptionId("subId");
         paramHandler = new PropertyHandler(settings);
@@ -260,7 +260,8 @@ public class VServerProcessorBeanTest {
     public void manageCreationProcess_VSERVER_RETRIEVEGUEST_manualOperation()
             throws Exception {
         // given
-        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, "test@email.com");
+        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, new Setting(
+                PropertyHandler.MAIL_FOR_COMPLETION, "test@email.com"));
 
         // when
         FlowState newState = vServerProcessor.manageCreationProcess(null, null,
@@ -626,7 +627,8 @@ public class VServerProcessorBeanTest {
     public void manageModificationProcess_VSERVER_RETRIEVEGUEST_manualOperation()
             throws Exception {
         // given
-        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, "test@email.com");
+        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, new Setting(
+                PropertyHandler.MAIL_FOR_COMPLETION, "test@email.com"));
 
         // when
         FlowState newState = vServerProcessor.manageModificationProcess(null,
@@ -1071,7 +1073,8 @@ public class VServerProcessorBeanTest {
         FlowState flowState = FlowState.VSERVER_RETRIEVEGUEST;
         FlowState newState = null;
 
-        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, "test@email.com");
+        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, new Setting(
+                PropertyHandler.MAIL_FOR_COMPLETION, "test@email.com"));
 
         // when
         newState = vServerProcessor
@@ -1426,7 +1429,8 @@ public class VServerProcessorBeanTest {
     @Test
     public void manageDeletionProcess_VSERVER_DELETING_Mail() throws Exception {
         // given
-        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, "test@email.com");
+        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, new Setting(
+                PropertyHandler.MAIL_FOR_COMPLETION, "test@email.com"));
         FlowState flowState = FlowState.VSERVER_DELETING;
         FlowState newState = null;
         paramHandler.getIaasContext().setVSystemStatus("NORMAL");
@@ -1974,7 +1978,8 @@ public class VServerProcessorBeanTest {
         // given
         FlowState flowState = FlowState.VSERVER_STARTED;
         FlowState newState = null;
-        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, "test@email.com");
+        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, new Setting(
+                PropertyHandler.MAIL_FOR_COMPLETION, "test@email.com"));
         doReturn(VServerStatus.RUNNING).when(vServerProcessor.vserverComm)
                 .getVServerStatus(paramHandler);
 
@@ -2029,7 +2034,8 @@ public class VServerProcessorBeanTest {
         // given
         FlowState flowState = FlowState.VSERVER_RETRIEVEGUEST;
         FlowState newState = null;
-        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, "test@email.com");
+        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, new Setting(
+                PropertyHandler.MAIL_FOR_COMPLETION, "test@email.com"));
 
         // when
         newState = vServerProcessor
@@ -2443,7 +2449,8 @@ public class VServerProcessorBeanTest {
     @Test(expected = RuntimeException.class)
     public void process_ThrowRuntimeException() throws Exception {
         // given
-        parameters.put(PropertyHandler.SYSTEM_TEMPLATE_ID, "template");
+        parameters.put(PropertyHandler.SYSTEM_TEMPLATE_ID, new Setting(
+                PropertyHandler.SYSTEM_TEMPLATE_ID, "template"));
 
         // when
         vServerProcessor.process("controllerId", "instanceId", paramHandler);
@@ -2658,12 +2665,14 @@ public class VServerProcessorBeanTest {
 
     private void setParameters() {
         paramHandler.setVserverType("VSERVER_TYPE");
-        parameters.put(PropertyHandler.INSTANCENAME_CUSTOM, "instance");
-        parameters.put(PropertyHandler.DISKIMG_ID, "diskimg");
+        parameters.put(PropertyHandler.INSTANCENAME_CUSTOM, new Setting(
+                PropertyHandler.INSTANCENAME_CUSTOM, "instance"));
+        parameters.put(PropertyHandler.DISKIMG_ID, new Setting(
+                PropertyHandler.DISKIMG_ID, "diskimg"));
     }
 
     private List<DiskImage> givenDiskImages() {
-        List<DiskImage> diskImages = new ArrayList<DiskImage>();
+        List<DiskImage> diskImages = new ArrayList<>();
         DiskImage diskImage = mock(DiskImage.class);
 
         doReturn("diskimgid").when(diskImage).getDiskImageId();
@@ -2673,7 +2682,7 @@ public class VServerProcessorBeanTest {
     }
 
     private List<DiskImage> givenDiskImagesNonUniqueDiskname() {
-        List<DiskImage> diskImages = new ArrayList<DiskImage>();
+        List<DiskImage> diskImages = new ArrayList<>();
         DiskImage diskImage1 = mock(DiskImage.class);
         doReturn(DISKIDORNAME1).when(diskImage1).getDiskImageId();
         doReturn(DISKIDORNAME3).when(diskImage1).getDiskImageName();
@@ -2686,7 +2695,7 @@ public class VServerProcessorBeanTest {
     }
 
     private List<DiskImage> givenDiskImagesUniqueDiskname() {
-        List<DiskImage> diskImages = new ArrayList<DiskImage>();
+        List<DiskImage> diskImages = new ArrayList<>();
         DiskImage diskImage1 = mock(DiskImage.class);
         doReturn(DISKIDORNAME1).when(diskImage1).getDiskImageId();
         doReturn(DISKIDORNAME3).when(diskImage1).getDiskImageName();

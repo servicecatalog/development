@@ -30,13 +30,24 @@
             <xs:element form="unqualified" minOccurs="0" name="instanceId" type="xs:string"/>
             <xs:element form="unqualified" minOccurs="0" name="subscriptionId" type="xs:string"/>
             <xs:element form="unqualified" maxOccurs="unbounded" minOccurs="0" name="parameterValues" type="tns:serviceParameter"/>
+            <xs:element form="unqualified" maxOccurs="unbounded" minOccurs="0" name="attributeValues" type="tns:serviceAttribute"/>
             <xs:element form="unqualified" minOccurs="0" name="requestingUser" type="tns:user"/>
         </xs:sequence>
     </xs:complexType>
     <xs:complexType name="serviceParameter">
         <xs:sequence>
+            <xs:element name="encrypted" type="xs:boolean"/>
             <xs:element minOccurs="0" name="parameterId" type="xs:string"/>
             <xs:element minOccurs="0" name="value" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="serviceAttribute">
+        <xs:sequence>
+            <xs:element name="attributeId" type="xs:string" minOccurs="0"/>
+            <xs:element name="controllerId" type="xs:string" minOccurs="0"/>
+            <xs:element name="encrypted" type="xs:boolean"/>
+            <xs:element name="value" type="xs:string" minOccurs="0"/>
         </xs:sequence>
     </xs:complexType>
     <xs:complexType name="user">
@@ -105,6 +116,7 @@
     </xs:complexType>
     <xs:complexType name="instanceRequest">
         <xs:sequence>
+            <xs:element maxOccurs="unbounded" minOccurs="0" name="attributeValue" nillable="true" type="tns:serviceAttribute"/>
             <xs:element minOccurs="0" name="defaultLocale" type="xs:string"/>
             <xs:element minOccurs="0" name="loginUrl" type="xs:string"/>
             <xs:element minOccurs="0" name="organizationId" type="xs:string"/>
@@ -123,6 +135,7 @@
             <xs:element form="unqualified" minOccurs="0" name="instanceId" type="xs:string"/>
             <xs:element form="unqualified" minOccurs="0" name="subscriptionId" type="xs:string"/>
             <xs:element form="unqualified" maxOccurs="unbounded" minOccurs="0" name="parameterValues" type="tns:serviceParameter"/>
+            <xs:element form="unqualified" maxOccurs="unbounded" minOccurs="0" name="attributeValues" type="tns:serviceAttribute"/>
             <xs:element form="unqualified" minOccurs="0" name="requestingUser" type="tns:user"/>
         </xs:sequence>
     </xs:complexType>
@@ -231,6 +244,7 @@
             <xs:element form="unqualified" minOccurs="0" name="instanceId" type="xs:string"/>
             <xs:element form="unqualified" minOccurs="0" name="subscriptionId" type="xs:string"/>
             <xs:element form="unqualified" maxOccurs="unbounded" minOccurs="0" name="parameterValues" type="tns:serviceParameter"/>
+            <xs:element form="unqualified" maxOccurs="unbounded" minOccurs="0" name="attributeValues" type="tns:serviceAttribute"/>
             <xs:element form="unqualified" minOccurs="0" name="requestingUser" type="tns:user"/>
         </xs:sequence>
     </xs:complexType>

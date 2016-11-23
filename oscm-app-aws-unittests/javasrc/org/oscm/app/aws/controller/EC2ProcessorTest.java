@@ -32,11 +32,12 @@ import org.oscm.app.aws.EC2Communication;
 import org.oscm.app.aws.EC2Mockup;
 import org.oscm.app.aws.data.FlowState;
 import org.oscm.app.aws.data.Operation;
-import org.oscm.app.v1_0.data.InstanceStatus;
-import org.oscm.app.v1_0.data.PasswordAuthentication;
-import org.oscm.app.v1_0.data.ProvisioningSettings;
-import org.oscm.app.v1_0.data.User;
-import org.oscm.app.v1_0.intf.APPlatformService;
+import org.oscm.app.v2_0.data.InstanceStatus;
+import org.oscm.app.v2_0.data.PasswordAuthentication;
+import org.oscm.app.v2_0.data.ProvisioningSettings;
+import org.oscm.app.v2_0.data.Setting;
+import org.oscm.app.v2_0.data.User;
+import org.oscm.app.v2_0.intf.APPlatformService;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.ejb.TestContainer;
 
@@ -50,8 +51,8 @@ import com.amazonaws.services.ec2.model.TerminateInstancesRequest;
 public class EC2ProcessorTest extends EJBTestBase {
 
     private EC2Processor ec2proc;
-    private HashMap<String, String> parameters;
-    private HashMap<String, String> configSettings;
+    private HashMap<String, Setting> parameters;
+    private HashMap<String, Setting> configSettings;
     private ProvisioningSettings settings;
     private PropertyHandler ph;
     private AmazonEC2Client ec2;
@@ -73,22 +74,30 @@ public class EC2ProcessorTest extends EJBTestBase {
     protected void setup(TestContainer container) throws Exception {
         MockitoAnnotations.initMocks(this);
         // Define controller settings
-        configSettings = new HashMap<String, String>();
-        configSettings.put(PropertyHandler.SECRET_KEY_PWD, "secret_key");
-        configSettings.put(PropertyHandler.ACCESS_KEY_ID_PWD, "access_key");
+        configSettings = new HashMap<>();
+        configSettings.put(PropertyHandler.SECRET_KEY_PWD, new Setting(
+                PropertyHandler.SECRET_KEY_PWD, "secret_key"));
+        configSettings.put(PropertyHandler.ACCESS_KEY_ID_PWD, new Setting(
+                PropertyHandler.ACCESS_KEY_ID_PWD, "access_key"));
 
         // Define parameters
-        parameters = new HashMap<String, String>();
-        parameters.put(PropertyHandler.REGION, "test");
-        parameters.put(PropertyHandler.KEY_PAIR_NAME, "key_pair");
-        parameters.put(PropertyHandler.INSTANCE_TYPE, "type1");
-        parameters.put(PropertyHandler.INSTANCENAME, "name1");
+        parameters = new HashMap<>();
+        parameters.put(PropertyHandler.REGION, new Setting(
+                PropertyHandler.REGION, "test"));
+        parameters.put(PropertyHandler.KEY_PAIR_NAME, new Setting(
+                PropertyHandler.KEY_PAIR_NAME, "key_pair"));
+        parameters.put(PropertyHandler.INSTANCE_TYPE, new Setting(
+                PropertyHandler.INSTANCE_TYPE, "type1"));
+        parameters.put(PropertyHandler.INSTANCENAME, new Setting(
+                PropertyHandler.INSTANCENAME, "name1"));
 
         // new data
-        parameters.put(PropertyHandler.DISK_SIZE, DISK_SIZE);
-        parameters.put(PropertyHandler.SUBNET, SUBNET);
-        parameters.put(PropertyHandler.SECURITY_GROUP_NAMES,
-                SECURITY_GROUP_NAMES);
+        parameters.put(PropertyHandler.DISK_SIZE, new Setting(
+                PropertyHandler.DISK_SIZE, DISK_SIZE));
+        parameters.put(PropertyHandler.SUBNET, new Setting(
+                PropertyHandler.SUBNET, SUBNET));
+        parameters.put(PropertyHandler.SECURITY_GROUP_NAMES, new Setting(
+                PropertyHandler.SECURITY_GROUP_NAMES, SECURITY_GROUP_NAMES));
 
         settings = new ProvisioningSettings(parameters, configSettings, "en");
         settings.setOrganizationId("orgId");
@@ -143,8 +152,7 @@ public class EC2ProcessorTest extends EJBTestBase {
 
     @Test
     public void process_CREATING() throws Exception {
-        ec2mock.createDescribeInstancesResult("instance1", "running",
-                "1.2.3.4");
+        ec2mock.createDescribeInstancesResult("instance1", "running", "1.2.3.4");
         ec2mock.createDescribeInstanceStatusResult("instance1", "ok", "ok",
                 "ok");
 
@@ -173,8 +181,7 @@ public class EC2ProcessorTest extends EJBTestBase {
 
     @Test
     public void process_CREATING_inprogress2() throws Exception {
-        ec2mock.createDescribeInstancesResult("instance1", "running",
-                "1.2.3.4");
+        ec2mock.createDescribeInstancesResult("instance1", "running", "1.2.3.4");
         ec2mock.createDescribeInstanceStatusResult("instance1", "notok",
                 "notok", "notok");
 
@@ -188,13 +195,13 @@ public class EC2ProcessorTest extends EJBTestBase {
     @Test
     public void process_CREATING_MANUAL() throws Exception {
         // given
-        ec2mock.createDescribeInstancesResult("instance1", "running",
-                "1.2.3.4");
+        ec2mock.createDescribeInstancesResult("instance1", "running", "1.2.3.4");
         ec2mock.createDescribeInstanceStatusResult("instance1", "ok", "ok",
                 "ok");
         ph.setOperation(Operation.EC2_CREATION);
         ph.setState(FlowState.CREATING);
-        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, "mail1");
+        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, new Setting(
+                PropertyHandler.MAIL_FOR_COMPLETION, "mail1"));
         // when
         InstanceStatus result = ec2proc.process();
         // then
@@ -206,8 +213,7 @@ public class EC2ProcessorTest extends EJBTestBase {
     @Test
     public void process_FINISHED() throws Exception {
         // given
-        ec2mock.createDescribeInstancesResult("instance1", "running",
-                "1.2.3.4");
+        ec2mock.createDescribeInstancesResult("instance1", "running", "1.2.3.4");
         ec2mock.createDescribeInstanceStatusResult("instance1", "ok", "ok",
                 "ok");
         ph.setOperation(Operation.EC2_CREATION);
@@ -248,11 +254,11 @@ public class EC2ProcessorTest extends EJBTestBase {
     @Test
     public void process_UPDATING_MANUAL() throws Exception {
         // given
-        ec2mock.createDescribeInstancesResult("instance1", "running",
-                "1.2.3.4");
+        ec2mock.createDescribeInstancesResult("instance1", "running", "1.2.3.4");
         ph.setOperation(Operation.EC2_MODIFICATION);
         ph.setState(FlowState.UPDATING);
-        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, "mail1");
+        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, new Setting(
+                PropertyHandler.MAIL_FOR_COMPLETION, "mail1"));
         // when
         InstanceStatus result = ec2proc.process();
         // then
@@ -309,7 +315,8 @@ public class EC2ProcessorTest extends EJBTestBase {
                 "ok");
         ph.setOperation(Operation.EC2_DELETION);
         ph.setState(FlowState.DELETING);
-        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, "mail1");
+        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, new Setting(
+                PropertyHandler.MAIL_FOR_COMPLETION, "mail1"));
         // when
         InstanceStatus result = ec2proc.process();
         // then
@@ -366,8 +373,7 @@ public class EC2ProcessorTest extends EJBTestBase {
     @Test
     public void process_STARTING() throws Exception {
         // given
-        ec2mock.createDescribeInstancesResult("instance1", "running",
-                "1.2.3.4");
+        ec2mock.createDescribeInstancesResult("instance1", "running", "1.2.3.4");
         ec2mock.createDescribeInstanceStatusResult("instance1", "ok", "ok",
                 "ok");
         ph.setOperation(Operation.EC2_OPERATION);
@@ -401,8 +407,7 @@ public class EC2ProcessorTest extends EJBTestBase {
     @Test
     public void process_STOPING() throws Exception {
         // given
-        ec2mock.createDescribeInstancesResult("instance1", "stopped",
-                "1.2.3.4");
+        ec2mock.createDescribeInstancesResult("instance1", "stopped", "1.2.3.4");
         ec2mock.createDescribeInstanceStatusResult("instance1", "ok", "ok",
                 "ok");
         ph.setOperation(Operation.EC2_OPERATION);
@@ -461,8 +466,8 @@ public class EC2ProcessorTest extends EJBTestBase {
         FlowState newState = null;
 
         // when
-        newState = ec2proc.dispatchManualOperation("controllerId", "instanceId",
-                ph, "mail");
+        newState = ec2proc.dispatchManualOperation("controllerId",
+                "instanceId", ph, "mail");
 
         // then
         assertEquals(FlowState.MANUAL, newState);
@@ -478,8 +483,8 @@ public class EC2ProcessorTest extends EJBTestBase {
         FlowState newState = null;
 
         // when
-        newState = ec2proc.dispatchManualOperation("controllerId", "instanceId",
-                ph, "mail");
+        newState = ec2proc.dispatchManualOperation("controllerId",
+                "instanceId", ph, "mail");
 
         // then
         assertEquals(FlowState.FINISHED, newState);
@@ -492,8 +497,8 @@ public class EC2ProcessorTest extends EJBTestBase {
         FlowState newState = null;
 
         // when
-        newState = ec2proc.dispatchManualOperation("controllerId", "instanceId",
-                ph, "mail");
+        newState = ec2proc.dispatchManualOperation("controllerId",
+                "instanceId", ph, "mail");
 
         // then
         assertEquals(FlowState.DESTROYED, newState);

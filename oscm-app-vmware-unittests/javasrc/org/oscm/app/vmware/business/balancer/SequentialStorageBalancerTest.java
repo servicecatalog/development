@@ -17,7 +17,7 @@ import org.apache.commons.configuration.XMLConfiguration;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.oscm.app.v1_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.exceptions.APPlatformException;
 import org.oscm.app.vmware.business.VMPropertyHandler;
 import org.oscm.app.vmware.business.VMwareDatacenterInventory;
 import org.oscm.app.vmware.business.VMwareDatacenterInventoryTest;
@@ -26,7 +26,7 @@ import org.oscm.app.vmware.business.model.VMwareStorage;
 
 /**
  * @author Oliver Soehnges
- *
+ * 
  */
 public class SequentialStorageBalancerTest {
 

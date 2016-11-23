@@ -307,7 +307,7 @@ public class ServiceProvisioningServiceBean
         LocalizerFacade facade = new LocalizerFacade(localizer,
                 dm.getCurrentUser().getLocale());
         ProductAssembler.prefetchData(productList, facade, performanceHint);
-        List<VOService> voServices = new ArrayList<VOService>();
+        List<VOService> voServices = new ArrayList<>();
         for (Product product : productList) {
             voServices.add(ProductAssembler.toVOProduct(product, facade,
                     performanceHint));
@@ -318,8 +318,8 @@ public class ServiceProvisioningServiceBean
 
     @Override
     public VOServiceEntry getServiceForMarketplace(Long serviceKey,
-            String marketplaceId, String locale) throws ObjectNotFoundException,
-                    OperationNotPermittedException {
+            String marketplaceId, String locale)
+            throws ObjectNotFoundException, OperationNotPermittedException {
 
         ArgumentValidator.notEmptyString("marketplaceId", marketplaceId);
         ArgumentValidator.notNull("serviceKey", serviceKey);
@@ -540,8 +540,8 @@ public class ServiceProvisioningServiceBean
      *            the marketplace identifier
      */
     List<Product> filterProducts(List<Product> products, String marketplaceId) {
-        Set<Long> prodKeysToBeRemoved = new HashSet<Long>();
-        Map<Long, Product> prodKeysToBeReplaced = new HashMap<Long, Product>();
+        Set<Long> prodKeysToBeRemoved = new HashSet<>();
+        Map<Long, Product> prodKeysToBeReplaced = new HashMap<>();
         PlatformUser currentUser = dm.getCurrentUserIfPresent();
 
         boolean currentOrgIsMpOwner = isOrganizationMarketplaceOwner(
@@ -625,12 +625,12 @@ public class ServiceProvisioningServiceBean
     @Override
     public List<VOService> getRelatedServicesForMarketplace(VOService service,
             String marketplaceId, String locale)
-                    throws ObjectNotFoundException {
+            throws ObjectNotFoundException {
 
         ArgumentValidator.notNull("service", service);
         ArgumentValidator.notEmptyString("marketplaceId", marketplaceId);
 
-        List<VOService> voList = new ArrayList<VOService>();
+        List<VOService> voList = new ArrayList<>();
 
         Product prod = dm.getReference(Product.class, service.getKey());
         List<Product> resultList;
@@ -719,7 +719,7 @@ public class ServiceProvisioningServiceBean
         LocalizerFacade facade = new LocalizerFacade(localizer,
                 dm.getCurrentUser().getLocale());
         ProductAssembler.prefetchData(productList, facade, performanceHint);
-        List<VOService> voList = new ArrayList<VOService>();
+        List<VOService> voList = new ArrayList<>();
         for (Product product : productList) {
             voList.add(ProductAssembler.toVOProduct(product, facade,
                     performanceHint));
@@ -1024,7 +1024,7 @@ public class ServiceProvisioningServiceBean
     private void setStatus(Product prod, VOService product,
             ServiceStatus newStatus, ServiceStatus requiredState,
             PlatformUser user) throws ServiceStateException,
-                    OperationNotPermittedException, ServiceOperationException {
+            OperationNotPermittedException, ServiceOperationException {
         validateForProductStatusChange(prod, product, newStatus, requiredState,
                 user);
         if (prod.getStatus() != newStatus) {
@@ -1056,7 +1056,7 @@ public class ServiceProvisioningServiceBean
     private void validateForProductStatusChange(Product prod, VOService product,
             ServiceStatus newStatus, ServiceStatus requiredState,
             PlatformUser user) throws OperationNotPermittedException,
-                    ServiceOperationException, ServiceStateException {
+            ServiceOperationException, ServiceStateException {
         Organization organization = user.getOrganization();
 
         // ensure the product belongs to the supplier
@@ -1081,7 +1081,7 @@ public class ServiceProvisioningServiceBean
     private List<TechnicalProduct> getTechnicalProductsInt(
             Organization organization,
             OrganizationRoleType organizationRoleType) {
-        List<TechnicalProduct> tProds = new ArrayList<TechnicalProduct>();
+        List<TechnicalProduct> tProds = new ArrayList<>();
         if (organizationRoleType == OrganizationRoleType.SUPPLIER) {
             // retrieve the technical products of all referenced technology
             // providers
@@ -1090,8 +1090,7 @@ public class ServiceProvisioningServiceBean
             for (Organization provider : providers) {
                 tProds.addAll(provider.getTechnicalProducts());
             }
-        } else
-            if (organizationRoleType == OrganizationRoleType.TECHNOLOGY_PROVIDER) {
+        } else if (organizationRoleType == OrganizationRoleType.TECHNOLOGY_PROVIDER) {
             // retrieve the technical products of the current user's
             // organization
             tProds.addAll(organization.getTechnicalProducts());
@@ -1112,14 +1111,14 @@ public class ServiceProvisioningServiceBean
 
         ArgumentValidator.notNull("role", role);
 
-        List<VOTechnicalService> result = new ArrayList<VOTechnicalService>();
+        List<VOTechnicalService> result = new ArrayList<>();
         PlatformUser currentUser = dm.getCurrentUser();
 
         Organization currentUsersOrg = currentUser.getOrganization();
 
         boolean excludeNonConfigurableParamDefs = false;
         // retrieve technical products
-        List<TechnicalProduct> tProds = new ArrayList<TechnicalProduct>();
+        List<TechnicalProduct> tProds = new ArrayList<>();
         if (role == OrganizationRoleType.SUPPLIER) {
             // retrieve the technical products of all referenced technology
             // providers
@@ -1159,8 +1158,7 @@ public class ServiceProvisioningServiceBean
     @Override
     public void validateTechnicalServiceCommunication(
             VOTechnicalService technicalService) throws ObjectNotFoundException,
-                    OperationNotPermittedException,
-                    TechnicalServiceNotAliveException {
+            OperationNotPermittedException, TechnicalServiceNotAliveException {
 
         ArgumentValidator.notNull("technicalService", technicalService);
 
@@ -1250,7 +1248,7 @@ public class ServiceProvisioningServiceBean
     void verifyTechnicalServiceIsUpToDate(VOTechnicalService technicalService,
             final TechnicalProduct technicalProduct,
             boolean ignoreNonConfigurableParameters)
-                    throws ConcurrentModificationException {
+            throws ConcurrentModificationException {
         BaseAssembler.verifyVersionAndKey(technicalProduct, technicalService);
 
         List<Event> events = technicalProduct.getEvents();
@@ -1258,7 +1256,7 @@ public class ServiceProvisioningServiceBean
                 .getEventDefinitions();
         verifyListConsistency(eventDefinitions, events);
 
-        List<ParameterDefinition> parameterDefinitions = new ArrayList<ParameterDefinition>(
+        List<ParameterDefinition> parameterDefinitions = new ArrayList<>(
                 technicalProduct.getParameterDefinitions());
         // filter out the non-configurable parameter definitions, if required
         Iterator<ParameterDefinition> iterator = parameterDefinitions
@@ -1303,8 +1301,8 @@ public class ServiceProvisioningServiceBean
      */
     private void verifyListConsistency(List<? extends BaseVO> voList,
             List<? extends DomainObject<?>> doList)
-                    throws ConcurrentModificationException {
-        Map<Long, DomainObject<?>> keyToDomainObject = new HashMap<Long, DomainObject<?>>();
+            throws ConcurrentModificationException {
+        Map<Long, DomainObject<?>> keyToDomainObject = new HashMap<>();
         for (DomainObject<?> domainObject : doList) {
             keyToDomainObject.put(Long.valueOf(domainObject.getKey()),
                     domainObject);
@@ -1335,10 +1333,9 @@ public class ServiceProvisioningServiceBean
     @RolesAllowed("SERVICE_MANAGER")
     public VOServiceDetails createService(VOTechnicalService technicalService,
             VOService service, VOImageResource voImageResource)
-                    throws OrganizationAuthoritiesException,
-                    ObjectNotFoundException, OperationNotPermittedException,
-                    ValidationException, NonUniqueBusinessKeyException,
-                    ConcurrentModificationException {
+            throws OrganizationAuthoritiesException, ObjectNotFoundException,
+            OperationNotPermittedException, ValidationException,
+            NonUniqueBusinessKeyException, ConcurrentModificationException {
 
         ArgumentValidator.notNull("technicalService", technicalService);
         ArgumentValidator.notNull("service", service);
@@ -1379,10 +1376,9 @@ public class ServiceProvisioningServiceBean
     @RolesAllowed("SERVICE_MANAGER")
     public VOServiceDetails updateService(VOServiceDetails service,
             VOImageResource imageResource) throws ObjectNotFoundException,
-                    OrganizationAuthoritiesException,
-                    OperationNotPermittedException, ValidationException,
-                    NonUniqueBusinessKeyException, ServiceStateException,
-                    ConcurrentModificationException {
+            OrganizationAuthoritiesException, OperationNotPermittedException,
+            ValidationException, NonUniqueBusinessKeyException,
+            ServiceStateException, ConcurrentModificationException {
 
         ArgumentValidator.notNull("service", service);
 
@@ -1393,8 +1389,8 @@ public class ServiceProvisioningServiceBean
         validateProductStatus(customerProducts);
 
         Product product = prepareMarketingProduct(
-                    storedService.getTechnicalProduct().getKey(), service, false);
-        
+                storedService.getTechnicalProduct().getKey(), service, false);
+
         processImage(product.getKey(), imageResource);
 
         LocalizerFacade facade = new LocalizerFacade(localizer,
@@ -1404,8 +1400,8 @@ public class ServiceProvisioningServiceBean
         if (service.getVersion() < createdProduct.getVersion()
                 || isLocalizedTextChanged) {
             serviceAudit.updateService(dm, storedService,
-                    isShortDescriptionChanged, isDescriptionChanged, isCustomTabNameChanged,
-                    dm.getCurrentUser().getLocale());
+                    isShortDescriptionChanged, isDescriptionChanged,
+                    isCustomTabNameChanged, dm.getCurrentUser().getLocale());
         }
 
         updateCustomerSpecificService(product, customerProducts,
@@ -1424,7 +1420,7 @@ public class ServiceProvisioningServiceBean
 
     void updateCustomerSpecificService(Product templateProduct,
             List<Product> customerProducts, VOServiceDetails createdProduct)
-                    throws ValidationException {
+            throws ValidationException {
         for (Product prod : customerProducts) {
             Product product = ProductAssembler
                     .updateCustomerTemplateProduct(prod, createdProduct);
@@ -1438,7 +1434,7 @@ public class ServiceProvisioningServiceBean
         ParameterSet customerTemplateParameterSet = customerTemplateProduct
                 .getParameterSet();
         ParameterSet templateParameterSet = templateProduct.getParameterSet();
-        Map<Long, Parameter> obsoleteParameters = new HashMap<Long, Parameter>();
+        Map<Long, Parameter> obsoleteParameters = new HashMap<>();
         if (customerTemplateParameterSet != null) {
             for (final Parameter p : customerTemplateParameterSet
                     .getParameters()) {
@@ -1533,10 +1529,9 @@ public class ServiceProvisioningServiceBean
      */
     private Product prepareMarketingProduct(long technicalProductKey,
             VOService productToModify, boolean isCreation)
-                    throws ObjectNotFoundException,
-                    OperationNotPermittedException, ValidationException,
-                    NonUniqueBusinessKeyException, ServiceStateException,
-                    ConcurrentModificationException {
+            throws ObjectNotFoundException, OperationNotPermittedException,
+            ValidationException, NonUniqueBusinessKeyException,
+            ServiceStateException, ConcurrentModificationException {
 
         // 1. ensure that caller has required authority
         PlatformUser currentUser = dm.getCurrentUser();
@@ -1750,14 +1745,14 @@ public class ServiceProvisioningServiceBean
      *             Thrown in case the parameter values could not match the
      *             specified datatype.
      * @throws ConcurrentModificationException
-     * @throws GeneralSecurityException 
+     * @throws GeneralSecurityException
      * @throws DeletionConstraintException
      */
     private List<Parameter> modifyParameters(VOService productToModify,
             PlatformUser currentUser, TechnicalProduct tProd, Product product,
-            boolean isCreation) throws ObjectNotFoundException,
-                    OperationNotPermittedException, ValidationException,
-                    ConcurrentModificationException{
+            boolean isCreation)
+            throws ObjectNotFoundException, OperationNotPermittedException,
+            ValidationException, ConcurrentModificationException {
         boolean isDirectAccess = tProd
                 .getAccessType() == ServiceAccessType.DIRECT;
         List<VOParameter> parameters = productToModify.getParameters();
@@ -1766,8 +1761,8 @@ public class ServiceProvisioningServiceBean
         // Whenever one is contained in the input, it will be removed from
         // the set. Finally all remaining ones are obsolete and must be
         // removed.
-        Map<Long, Parameter> obsoleteParameters = new HashMap<Long, Parameter>();
-        List<Parameter> parametersToLog = new ArrayList<Parameter>();
+        Map<Long, Parameter> obsoleteParameters = new HashMap<>();
+        List<Parameter> parametersToLog = new ArrayList<>();
         // only determine obsolete parameters if there is a parameterset
         if (currentParameterSet != null) {
             for (final Parameter p : currentParameterSet.getParameters()) {
@@ -1822,6 +1817,9 @@ public class ServiceProvisioningServiceBean
                             Long.toString(currentUser.getKey()));
                     throw onp;
                 }
+                if (paramDef.getValueType() == ParameterValueType.PWD) {
+                    parameter.setValue(parameter.getValue());
+                }
                 // only store the parameter if its value is not null, remove
                 // those that have null values and remove all stored parameters
                 // that are not present in the input
@@ -1831,7 +1829,7 @@ public class ServiceProvisioningServiceBean
                     final Parameter existingParameter = obsoleteParameters
                             .remove(Long.valueOf(parameter.getKey()));
                     if (existingParameter == null) {
-                        final Parameter param = ParameterAssembler 
+                        final Parameter param = ParameterAssembler
                                 .toParameter(parameter);
                         param.setParameterDefinition(paramDef);
                         param.setParameterSet(currentParameterSet);
@@ -1990,8 +1988,8 @@ public class ServiceProvisioningServiceBean
     @Override
     @RolesAllowed("SERVICE_MANAGER")
     public VOServiceDetails getServiceForCustomer(VOOrganization customer,
-            VOService service) throws OperationNotPermittedException,
-                    ObjectNotFoundException {
+            VOService service)
+            throws OperationNotPermittedException, ObjectNotFoundException {
 
         ArgumentValidator.notNull("customer", customer);
         ArgumentValidator.notNull("service", service);
@@ -2037,8 +2035,8 @@ public class ServiceProvisioningServiceBean
     @Override
     @RolesAllowed("SERVICE_MANAGER")
     public VOServiceDetails getServiceForSubscription(VOOrganization customer,
-            String subscriptionId) throws OrganizationAuthoritiesException,
-                    ObjectNotFoundException {
+            String subscriptionId)
+            throws OrganizationAuthoritiesException, ObjectNotFoundException {
 
         ArgumentValidator.notNull("customer", customer);
         ArgumentValidator.notNull("subscriptionId", subscriptionId);
@@ -2109,10 +2107,10 @@ public class ServiceProvisioningServiceBean
     @Override
     @RolesAllowed("SERVICE_MANAGER")
     public VOServiceDetails savePriceModel(VOServiceDetails service,
-            VOPriceModel priceModel) throws ObjectNotFoundException,
-                    OperationNotPermittedException, CurrencyException,
-                    ValidationException, ServiceStateException,
-                    PriceModelException, ConcurrentModificationException {
+            VOPriceModel priceModel)
+            throws ObjectNotFoundException, OperationNotPermittedException,
+            CurrencyException, ValidationException, ServiceStateException,
+            PriceModelException, ConcurrentModificationException {
 
         ArgumentValidator.notNull("service", service);
         ArgumentValidator.notNull("priceModel", priceModel);
@@ -2207,9 +2205,9 @@ public class ServiceProvisioningServiceBean
                                                 .multiply(prevStep.getPrice())
                                                 .add(prevStep
                                                         .getAdditionalPrice())
-                                        .setScale(
-                                                PriceConverter.NORMALIZED_PRICE_SCALING,
-                                                RoundingMode.HALF_UP));
+                                                .setScale(
+                                                        PriceConverter.NORMALIZED_PRICE_SCALING,
+                                                        RoundingMode.HALF_UP));
             }
         }
         if (size > 0) {
@@ -2255,10 +2253,9 @@ public class ServiceProvisioningServiceBean
     Product prepareProductWithPriceModel(VOServiceDetails voProductDetails,
             VOPriceModel voPriceModel, Organization targetCustomer,
             ServiceType productType, Subscription subscription)
-                    throws ObjectNotFoundException,
-                    OperationNotPermittedException, CurrencyException,
-                    ValidationException, ServiceStateException,
-                    ConcurrentModificationException {
+            throws ObjectNotFoundException, OperationNotPermittedException,
+            CurrencyException, ValidationException, ServiceStateException,
+            ConcurrentModificationException {
 
         // ensure the current user is a supplier
         PlatformUser currentUser = dm.getCurrentUser();
@@ -2381,7 +2378,7 @@ public class ServiceProvisioningServiceBean
         priceModelAudit.editPriceModelTypeToFree(dm, priceModel,
                 voPriceModel.getKey(), oldPriceModelType);
     }
-    
+
     void setPriceModelToExternal(VOPriceModel voPriceModel,
             PriceModel priceModel) {
         PriceModelHandler priceModelHandler = new PriceModelHandler(dm,
@@ -2418,8 +2415,8 @@ public class ServiceProvisioningServiceBean
             boolean isCreatePriceModel, ServiceType productType,
             Organization targetCustomer, Subscription subscription,
             boolean isTemplateExistsForCustomer)
-                    throws ValidationException, OperationNotPermittedException,
-                    ConcurrentModificationException, CurrencyException {
+            throws ValidationException, OperationNotPermittedException,
+            ConcurrentModificationException, CurrencyException {
 
         // remember old values, needed for auditlog
         SupportedCurrency oldCurrency = priceModel.getCurrency();
@@ -2446,7 +2443,7 @@ public class ServiceProvisioningServiceBean
         setEvents(voPriceModel, priceModel, product,
                 priceModelCreatedInTransaction);
 
-        List<Parameter> parameters = new ArrayList<Parameter>();
+        List<Parameter> parameters = new ArrayList<>();
         if (product.getParameterSet() != null) {
             parameters = product.getParameterSet().getParameters();
         }
@@ -2504,10 +2501,10 @@ public class ServiceProvisioningServiceBean
 
     void setEvents(VOPriceModel voPriceModel, PriceModel priceModel,
             Product product, boolean priceModelCreatedInTransaction)
-                    throws ValidationException, OperationNotPermittedException,
-                    ConcurrentModificationException {
+            throws ValidationException, OperationNotPermittedException,
+            ConcurrentModificationException {
         TechnicalProduct tp = product.getTechnicalProduct();
-        List<Event> events = new ArrayList<Event>(tp.getEvents());
+        List<Event> events = new ArrayList<>(tp.getEvents());
         events.addAll(getPlatformEvents(tp));
         convertAndValidateEvents(voPriceModel.getKey(),
                 voPriceModel.getConsideredEvents(), events, priceModel,
@@ -2654,12 +2651,12 @@ public class ServiceProvisioningServiceBean
      */
     void validatePricedProductRoles(List<VOPricedRole> roleSpecificUserPrices,
             Product product) throws OperationNotPermittedException {
-        Map<Long, RoleDefinition> keyRoleMap = new HashMap<Long, RoleDefinition>();
+        Map<Long, RoleDefinition> keyRoleMap = new HashMap<>();
         for (RoleDefinition rd : product.getTechnicalProduct()
                 .getRoleDefinitions()) {
             keyRoleMap.put(Long.valueOf(rd.getKey()), rd);
         }
-        Set<Long> roleDefinitionKeys = new HashSet<Long>();
+        Set<Long> roleDefinitionKeys = new HashSet<>();
         for (VOPricedRole voPpr : roleSpecificUserPrices) {
             long roleDefinitionKey = voPpr.getRole().getKey();
             if (!roleDefinitionKeys.add(Long.valueOf(roleDefinitionKey))) {
@@ -2723,11 +2720,11 @@ public class ServiceProvisioningServiceBean
             boolean priceModelCreatedInTransaction, Organization targetCustomer,
             Subscription subscription,
             List<PricedProductRole> oldPricedProductRoles)
-                    throws ValidationException, ConcurrentModificationException,
-                    OperationNotPermittedException {
+            throws ValidationException, ConcurrentModificationException,
+            OperationNotPermittedException {
 
-        List<RoleDefinition> roleDefinitions = new ArrayList<RoleDefinition>();
-        List<PricedProductRole> existingProductRolePrices = new ArrayList<PricedProductRole>();
+        List<RoleDefinition> roleDefinitions = new ArrayList<>();
+        List<PricedProductRole> existingProductRolePrices = new ArrayList<>();
         if (priceModel != null) {
             roleDefinitions = priceModel.getProduct().getTechnicalProduct()
                     .getRoleDefinitions();
@@ -2744,14 +2741,14 @@ public class ServiceProvisioningServiceBean
                     .getRoleSpecificUserPrices();
         }
 
-        Map<Long, RoleDefinition> roleDefinitionMap = new HashMap<Long, RoleDefinition>();
+        Map<Long, RoleDefinition> roleDefinitionMap = new HashMap<>();
         for (RoleDefinition rd : roleDefinitions) {
             roleDefinitionMap.put(Long.valueOf(rd.getKey()), rd);
         }
 
-        List<PricedProductRole> productRolePrices = new ArrayList<PricedProductRole>();
+        List<PricedProductRole> productRolePrices = new ArrayList<>();
 
-        Map<Long, PricedProductRole> pprMap = new HashMap<Long, PricedProductRole>();
+        Map<Long, PricedProductRole> pprMap = new HashMap<>();
         for (PricedProductRole ppr : existingProductRolePrices) {
             pprMap.put(Long.valueOf(ppr.getRoleDefinition().getKey()), ppr);
         }
@@ -2804,8 +2801,7 @@ public class ServiceProvisioningServiceBean
             PriceModel priceModel, RoleDefinition roleDefinition,
             PricedParameter pricedParameter, Organization targetCustomer,
             Subscription subscription, boolean ifNeedLog)
-                    throws ValidationException,
-                    ConcurrentModificationException {
+            throws ValidationException, ConcurrentModificationException {
 
         BigDecimal oldPricePerUser = pprToUpdate.getPricePerUser();
         PricedProductRoleAssembler.updatePricedProductRole(pricedProductRole,
@@ -2831,7 +2827,7 @@ public class ServiceProvisioningServiceBean
             PricedOption pricedOption, Organization targetCustomer,
             Subscription subscription,
             List<PricedProductRole> oldPricedProductRoles)
-                    throws ValidationException {
+            throws ValidationException {
 
         PricedProductRole pprToCreate = PricedProductRoleAssembler
                 .toPricedProductRole(pricedProductRole);
@@ -2911,24 +2907,24 @@ public class ServiceProvisioningServiceBean
     List<PricedEvent> convertAndValidateEvents(long voPriceModelKey,
             List<VOPricedEvent> voPricedEvents, List<Event> eventDefinitions,
             PriceModel priceModel, boolean priceModelCreatedInTransaction)
-                    throws ValidationException, OperationNotPermittedException,
-                    ConcurrentModificationException {
+            throws ValidationException, OperationNotPermittedException,
+            ConcurrentModificationException {
         // helper map to get existing priced events
-        Map<Long, PricedEvent> keyToPricedEvent = new HashMap<Long, PricedEvent>();
-        Map<Event, PricedEvent> eventToPricedEvent = new HashMap<Event, PricedEvent>();
+        Map<Long, PricedEvent> keyToPricedEvent = new HashMap<>();
+        Map<Event, PricedEvent> eventToPricedEvent = new HashMap<>();
         List<PricedEvent> existing = priceModel.getConsideredEvents();
         for (PricedEvent sp : existing) {
             keyToPricedEvent.put(Long.valueOf(sp.getKey()), sp);
             eventToPricedEvent.put(sp.getEvent(), sp);
         }
         // helper map for checking if the event belongs to the product
-        Map<Long, Event> keyToEvent = new LinkedHashMap<Long, Event>();
+        Map<Long, Event> keyToEvent = new LinkedHashMap<>();
         for (Event event : eventDefinitions) {
             keyToEvent.put(Long.valueOf(event.getKey()), event);
         }
 
         String userId = dm.getCurrentUser().getUserId();
-        List<PricedEvent> result = new ArrayList<PricedEvent>();
+        List<PricedEvent> result = new ArrayList<>();
         for (VOPricedEvent voPricedEvent : voPricedEvents) {
             long eventDefKey = voPricedEvent.getEventDefinition().getKey();
             Event event = keyToEvent.remove(Long.valueOf(eventDefKey));
@@ -2976,8 +2972,8 @@ public class ServiceProvisioningServiceBean
     }
 
     void updatePricedEvent(VOPricedEvent voPricedEvent, PricedEvent pricedEvent,
-            Event event, PriceModel priceModel) throws ValidationException,
-                    ConcurrentModificationException {
+            Event event, PriceModel priceModel)
+            throws ValidationException, ConcurrentModificationException {
 
         BigDecimal oldPrice = pricedEvent.getEventPrice();
         pricedEvent = EventAssembler.updatePricedEvent(voPricedEvent,
@@ -3042,7 +3038,7 @@ public class ServiceProvisioningServiceBean
     private void validateDomainObjectKey(BaseVO vo,
             DomainObject<?> domainObject,
             boolean priceModelCreatedInTransaction)
-                    throws OperationNotPermittedException {
+            throws OperationNotPermittedException {
         if (domainObject != null && !priceModelCreatedInTransaction
                 && domainObject.getKey() != vo.getKey()) {
             PlatformUser user = dm.getCurrentUser();
@@ -3091,11 +3087,10 @@ public class ServiceProvisioningServiceBean
     List<SteppedPrice> convertAndValidateSteppedPrices(long voPriceModelKey,
             List<VOSteppedPrice> voSteppedPrices, PriceModel priceModel,
             PricedEvent pricedEvent, PricedParameter pricedParameter,
-            boolean priceModelCreatedInTransaction)
-                    throws ValidationException, ConcurrentModificationException,
-                    OperationNotPermittedException {
+            boolean priceModelCreatedInTransaction) throws ValidationException,
+            ConcurrentModificationException, OperationNotPermittedException {
 
-        List<SteppedPrice> existing = new ArrayList<SteppedPrice>();
+        List<SteppedPrice> existing = new ArrayList<>();
 
         if (pricedEvent == null && pricedParameter == null
                 && priceModel != null) {
@@ -3106,14 +3101,14 @@ public class ServiceProvisioningServiceBean
             existing = pricedParameter.getSteppedPrices();
         }
 
-        Map<Long, SteppedPrice> keyToSteppedPrice = new HashMap<Long, SteppedPrice>();
+        Map<Long, SteppedPrice> keyToSteppedPrice = new HashMap<>();
 
         if (existing != null) {
             for (SteppedPrice sp : existing) {
                 keyToSteppedPrice.put(Long.valueOf(sp.getKey()), sp);
             }
         }
-        List<SteppedPrice> result = new ArrayList<SteppedPrice>();
+        List<SteppedPrice> result = new ArrayList<>();
         if (voSteppedPrices != null) {
             for (VOSteppedPrice voSteppedPrice : voSteppedPrices) {
                 if (pricedParameter != null) {
@@ -3197,8 +3192,7 @@ public class ServiceProvisioningServiceBean
     void updateSteppedPrice(VOSteppedPrice voSteppedPrice,
             SteppedPrice steppedPrice, PriceModel priceModel,
             PricedEvent pricedEvent, PricedParameter pricedParameter)
-                    throws ValidationException,
-                    ConcurrentModificationException {
+            throws ValidationException, ConcurrentModificationException {
 
         Long oldLimit = steppedPrice.getLimit();
         BigDecimal oldPrice = steppedPrice.getPrice();
@@ -3308,11 +3302,10 @@ public class ServiceProvisioningServiceBean
     @RolesAllowed("SERVICE_MANAGER")
     public VOServiceDetails savePriceModelForCustomer(VOServiceDetails service,
             VOPriceModel priceModel, VOOrganization customer)
-                    throws OrganizationAuthoritiesException,
-                    ObjectNotFoundException, OperationNotPermittedException,
-                    CurrencyException, ValidationException,
-                    ServiceStateException, PriceModelException,
-                    ServiceOperationException, ConcurrentModificationException {
+            throws OrganizationAuthoritiesException, ObjectNotFoundException,
+            OperationNotPermittedException, CurrencyException,
+            ValidationException, ServiceStateException, PriceModelException,
+            ServiceOperationException, ConcurrentModificationException {
 
         ArgumentValidator.notNull("service", service);
         ArgumentValidator.notNull("priceModel", priceModel);
@@ -3359,7 +3352,7 @@ public class ServiceProvisioningServiceBean
 
     private void validateIfCustomerServiceExists(VOServiceDetails service,
             Organization targetCustomer) throws ObjectNotFoundException,
-                    ServiceOperationException, ServiceStateException {
+            ServiceOperationException, ServiceStateException {
         // ensure that in case the given product is a not a copy itself, no
         // other copy of it does exist for the current customer. If there
         // already is one, throw an exception. The caller should use the
@@ -3391,11 +3384,11 @@ public class ServiceProvisioningServiceBean
     @RolesAllowed("SERVICE_MANAGER")
     public VOServiceDetails savePriceModelForSubscription(
             VOServiceDetails service, VOPriceModel priceModel)
-                    throws OrganizationAuthoritiesException,
-                    ObjectNotFoundException, OperationNotPermittedException,
-                    CurrencyException, ValidationException,
-                    ConcurrentModificationException, SubscriptionStateException,
-                    PaymentInformationException, PriceModelException {
+            throws OrganizationAuthoritiesException, ObjectNotFoundException,
+            OperationNotPermittedException, CurrencyException,
+            ValidationException, ConcurrentModificationException,
+            SubscriptionStateException, PaymentInformationException,
+            PriceModelException {
 
         ArgumentValidator.notNull("service", service);
         ArgumentValidator.notNull("priceModel", priceModel);
@@ -3478,7 +3471,7 @@ public class ServiceProvisioningServiceBean
 
     private void validatePriceModel(VOPriceModel priceModel, Product product,
             Subscription sub)
-                    throws PaymentInformationException, PriceModelException {
+            throws PaymentInformationException, PriceModelException {
         validatePriceModelType(product.getPriceModel(), priceModel);
         validateCurrency(product.getPriceModel(), priceModel);
         validateTimeUnit(product.getPriceModel(), priceModel);
@@ -3568,6 +3561,7 @@ public class ServiceProvisioningServiceBean
         }
     }
 
+    @Override
     public VOSubscriptionDetails validateSubscription(VOService service)
             throws OperationNotPermittedException, SubscriptionStateException,
             ObjectNotFoundException {
@@ -3582,8 +3576,7 @@ public class ServiceProvisioningServiceBean
 
     private Subscription validateSubscription(VOService service,
             PlatformUser currentUser, Product product)
-                    throws OperationNotPermittedException,
-                    SubscriptionStateException {
+            throws OperationNotPermittedException, SubscriptionStateException {
         Subscription sub = product.getOwningSubscription();
         if (sub == null) {
             OperationNotPermittedException onp = new OperationNotPermittedException(
@@ -3618,7 +3611,7 @@ public class ServiceProvisioningServiceBean
 
         ArgumentValidator.notNull("service", service);
 
-        List<VOService> result = new ArrayList<VOService>();
+        List<VOService> result = new ArrayList<>();
 
         // verify that the caller is a supplier
         Organization org = dm.getCurrentUser().getOrganization();
@@ -3655,10 +3648,9 @@ public class ServiceProvisioningServiceBean
     @RolesAllowed("SERVICE_MANAGER")
     public void setCompatibleServices(VOService service,
             List<VOService> compatibleServices)
-                    throws OrganizationAuthoritiesException,
-                    ObjectNotFoundException, OperationNotPermittedException,
-                    ServiceCompatibilityException, ServiceStateException,
-                    ConcurrentModificationException {
+            throws OrganizationAuthoritiesException, ObjectNotFoundException,
+            OperationNotPermittedException, ServiceCompatibilityException,
+            ServiceStateException, ConcurrentModificationException {
 
         ArgumentValidator.notNull("service", service);
         ArgumentValidator.notNull("compatibleServices", compatibleServices);
@@ -3677,7 +3669,7 @@ public class ServiceProvisioningServiceBean
                 ProductAssembler.getProductId(referenceProduct),
                 referenceProduct.getStatus());
         PermissionCheck.owns(referenceProduct, org, logger, sessionCtx);
-        List<Product> compProducts = new ArrayList<Product>();
+        List<Product> compProducts = new ArrayList<>();
         for (VOService voProd : compatibleServices) {
             Product tempProd = dm.getReference(Product.class, voProd.getKey());
             BaseAssembler.verifyVersionAndKey(tempProd, voProd);
@@ -3715,8 +3707,8 @@ public class ServiceProvisioningServiceBean
         // 4. Create the compatibility information
         // first determine all products which are currently marked as compatible
         // to the reference product
-        Set<Long> currentCompatibleProductKeys = new HashSet<Long>();
-        Set<Long> obsoleteCompatibleProductKeys = new HashSet<Long>();
+        Set<Long> currentCompatibleProductKeys = new HashSet<>();
+        Set<Long> obsoleteCompatibleProductKeys = new HashSet<>();
         for (Product currentlyCompatibleProduct : referenceProduct
                 .getCompatibleProductsList()) {
             currentCompatibleProductKeys
@@ -3727,7 +3719,7 @@ public class ServiceProvisioningServiceBean
 
         // now register references, determine and omit duplicates, add only new
         // entries
-        List<ProductReference> newReferences = new ArrayList<ProductReference>();
+        List<ProductReference> newReferences = new ArrayList<>();
         for (Product prod : compProducts) {
             if (!currentCompatibleProductKeys
                     .contains(Long.valueOf(prod.getKey()))) {
@@ -3741,7 +3733,7 @@ public class ServiceProvisioningServiceBean
 
         // finally clean up those products which are not marked as compatible
         // anymore, persist the new ones
-        List<ProductReference> objToBeRemoved = new ArrayList<ProductReference>();
+        List<ProductReference> objToBeRemoved = new ArrayList<>();
         for (ProductReference currentlyCompatibleProductRef : referenceProduct
                 .getAllCompatibleProducts()) {
             if (obsoleteCompatibleProductKeys
@@ -3795,7 +3787,7 @@ public class ServiceProvisioningServiceBean
      */
     private void validateMarketplaceCompatibility(Product referenceProduct,
             Product compatibleProduct) throws ServiceCompatibilityException {
-        Set<Marketplace> mps = new HashSet<Marketplace>();
+        Set<Marketplace> mps = new HashSet<>();
         Product s = referenceProduct.getTemplateOrSelf();
         Product t = compatibleProduct.getTemplateOrSelf();
         for (CatalogEntry ce : s.getCatalogEntries()) {
@@ -4008,13 +4000,13 @@ public class ServiceProvisioningServiceBean
      */
     List<Event> getPlatformEvents(TechnicalProduct tp) {
 
-        List<Event> result = new ArrayList<Event>();
+        List<Event> result = new ArrayList<>();
         Query query = dm.createNamedQuery("Event.getAllPlatformEvents");
         query.setParameter("eventType", EventType.PLATFORM_EVENT);
         result = ParameterizedTypes.list(query.getResultList(), Event.class);
         if (tp.getAccessType() == ServiceAccessType.DIRECT
                 || tp.getAccessType() == ServiceAccessType.USER) {
-            List<Event> copy = new ArrayList<Event>(result);
+            List<Event> copy = new ArrayList<>(result);
             for (Event ed : copy) {
                 if (EventType.PLATFORM_EVENT == ed.getEventType()) {
                     result.remove(ed);
@@ -4048,8 +4040,7 @@ public class ServiceProvisioningServiceBean
                 .list(query.getResultList(), ParameterDefinition.class);
         if (tp.getAccessType() == ServiceAccessType.DIRECT
                 || tp.getAccessType() == ServiceAccessType.USER) {
-            List<ParameterDefinition> copy = new ArrayList<ParameterDefinition>(
-                    result);
+            List<ParameterDefinition> copy = new ArrayList<>(result);
             for (ParameterDefinition pd : copy) {
                 if (PlatformParameterIdentifiers.CONCURRENT_USER
                         .equals(pd.getParameterId())
@@ -4105,9 +4096,9 @@ public class ServiceProvisioningServiceBean
     @Override
     @RolesAllowed({ "SERVICE_MANAGER", "RESELLER_MANAGER" })
     public void saveServiceLocalization(VOService service,
-            VOServiceLocalization localization) throws ObjectNotFoundException,
-                    OperationNotPermittedException, ValidationException,
-                    ConcurrentModificationException {
+            VOServiceLocalization localization)
+            throws ObjectNotFoundException, OperationNotPermittedException,
+            ValidationException, ConcurrentModificationException {
 
         ArgumentValidator.notNull("service", service);
         ArgumentValidator.notNull("localization", localization);
@@ -4117,8 +4108,8 @@ public class ServiceProvisioningServiceBean
 
     @Override
     public VOPriceModelLocalization getPriceModelLocalization(
-            VOPriceModel priceModel) throws ObjectNotFoundException,
-                    OperationNotPermittedException {
+            VOPriceModel priceModel)
+            throws ObjectNotFoundException, OperationNotPermittedException {
 
         ArgumentValidator.notNull("priceModel", priceModel);
 
@@ -4137,8 +4128,8 @@ public class ServiceProvisioningServiceBean
 
     @Override
     public List<VOLocalizedText> getPriceModelLicenseTemplateLocalization(
-            VOServiceDetails service) throws ObjectNotFoundException,
-                    OperationNotPermittedException {
+            VOServiceDetails service)
+            throws ObjectNotFoundException, OperationNotPermittedException {
 
         ArgumentValidator.notNull("service", service);
 
@@ -4159,9 +4150,8 @@ public class ServiceProvisioningServiceBean
     @RolesAllowed({ "SERVICE_MANAGER" })
     public void savePriceModelLocalization(VOPriceModel priceModel,
             VOPriceModelLocalization localization)
-                    throws ObjectNotFoundException,
-                    OperationNotPermittedException,
-                    ConcurrentModificationException {
+            throws ObjectNotFoundException, OperationNotPermittedException,
+            ConcurrentModificationException {
 
         ArgumentValidator.notNull("priceModel", priceModel);
         ArgumentValidator.notNull("localization", localization);
@@ -4185,7 +4175,7 @@ public class ServiceProvisioningServiceBean
 
         LocalizerFacade facade = new LocalizerFacade(localizer,
                 user.getLocale());
-        List<VOService> voList = new ArrayList<VOService>();
+        List<VOService> voList = new ArrayList<>();
         for (Product product : list) {
             voList.add(ProductAssembler.toVOProduct(product, facade));
         }
@@ -4213,7 +4203,7 @@ public class ServiceProvisioningServiceBean
     public List<String> getSupportedCurrencies() {
 
         Query query = dm.createNamedQuery("SupportedCurrency.getAll");
-        List<String> curlist = new ArrayList<String>();
+        List<String> curlist = new ArrayList<>();
         for (SupportedCurrency curr : ParameterizedTypes
                 .iterable(query.getResultList(), SupportedCurrency.class)) {
             curlist.add(curr.getCurrencyISOCode());
@@ -4344,12 +4334,12 @@ public class ServiceProvisioningServiceBean
     @RolesAllowed("TECHNOLOGY_MANAGER")
     public byte[] exportTechnicalServices(
             List<VOTechnicalService> technicalServices)
-                    throws OrganizationAuthoritiesException,
-                    ObjectNotFoundException, OperationNotPermittedException {
+            throws OrganizationAuthoritiesException, ObjectNotFoundException,
+            OperationNotPermittedException {
 
         ArgumentValidator.notNull("technicalServices", technicalServices);
         Organization provider = dm.getCurrentUser().getOrganization();
-        List<TechnicalProduct> toExport = new ArrayList<TechnicalProduct>();
+        List<TechnicalProduct> toExport = new ArrayList<>();
         for (VOTechnicalService product : technicalServices) {
             TechnicalProduct techProd = findTechnicalProductAndCheckOwner(
                     provider, product);
@@ -4364,8 +4354,8 @@ public class ServiceProvisioningServiceBean
             PriceModel priceModel, List<PricedParameter> parametersToSet,
             List<VOPricedParameter> selectedParameters,
             boolean priceModelCreatedInTransaction, Organization targetCustomer)
-                    throws ValidationException, ConcurrentModificationException,
-                    OperationNotPermittedException {
+            throws ValidationException, ConcurrentModificationException,
+            OperationNotPermittedException {
 
         if (parametersToSet.isEmpty()) {
             // no parameter is specified, so remove all existing one
@@ -4375,8 +4365,8 @@ public class ServiceProvisioningServiceBean
             }
             priceModel.setSelectedParameters(parametersToSet);
         } else {
-            List<PricedParameter> parametersToBeStored = new ArrayList<PricedParameter>();
-            Map<String, PricedParameter> curParameters = new HashMap<String, PricedParameter>();
+            List<PricedParameter> parametersToBeStored = new ArrayList<>();
+            Map<String, PricedParameter> curParameters = new HashMap<>();
             for (PricedParameter pp : priceModel.getSelectedParameters()) {
                 if (pp.getParameter().getParameterDefinition()
                         .getValueType() == ParameterValueType.ENUMERATION
@@ -4496,11 +4486,11 @@ public class ServiceProvisioningServiceBean
             List<Parameter> productParams, PriceModel priceModel,
             boolean priceModelCreatedInTransaction, Organization targetCustomer,
             Subscription subscription, boolean isTemplateExistsForCustomer)
-                    throws OperationNotPermittedException, ValidationException,
-                    ConcurrentModificationException {
+            throws OperationNotPermittedException, ValidationException,
+            ConcurrentModificationException {
 
-        Map<Long, PricedParameter> pricedParameterMap = new HashMap<Long, PricedParameter>();
-        Map<Parameter, PricedParameter> paramToPricedParam = new HashMap<Parameter, PricedParameter>();
+        Map<Long, PricedParameter> pricedParameterMap = new HashMap<>();
+        Map<Parameter, PricedParameter> paramToPricedParam = new HashMap<>();
         for (PricedParameter pricedParameter : priceModel
                 .getSelectedParameters()) {
             pricedParameterMap.put(Long.valueOf(pricedParameter.getKey()),
@@ -4508,13 +4498,13 @@ public class ServiceProvisioningServiceBean
             paramToPricedParam.put(pricedParameter.getParameter(),
                     pricedParameter);
         }
-        Map<Long, Parameter> parameters = new LinkedHashMap<Long, Parameter>();
+        Map<Long, Parameter> parameters = new LinkedHashMap<>();
         for (Parameter parameter : productParams) {
             parameters.put(
                     Long.valueOf(parameter.getParameterDefinition().getKey()),
                     parameter);
         }
-        List<PricedParameter> result = new ArrayList<PricedParameter>();
+        List<PricedParameter> result = new ArrayList<>();
         for (VOPricedParameter voPricedParameter : voPricedParameters) {
             PricedParameterChecks.validateParamDefSet(voPricedParameter);
             long paramDefKey = voPricedParameter.getVoParameterDef().getKey();
@@ -4596,7 +4586,7 @@ public class ServiceProvisioningServiceBean
 
     PricedParameter createPricedParameter(VOPricedParameter voPricedParameter,
             Parameter parameter, PriceModel priceModel)
-                    throws ValidationException {
+            throws ValidationException {
 
         PricedParameter pricedParameter = ParameterAssembler
                 .toPricedParameter(voPricedParameter);
@@ -4649,9 +4639,8 @@ public class ServiceProvisioningServiceBean
      */
     PricedParameter handleParameterUpdate(VOPricedParameter voPricedParameter,
             PricedParameter pricedParameter,
-            boolean priceModelCreatedInTransaction)
-                    throws ValidationException, ConcurrentModificationException,
-                    OperationNotPermittedException {
+            boolean priceModelCreatedInTransaction) throws ValidationException,
+            ConcurrentModificationException, OperationNotPermittedException {
 
         updatePricedParameter(voPricedParameter, pricedParameter);
 
@@ -4664,8 +4653,8 @@ public class ServiceProvisioningServiceBean
                 .getPricedOptions();
         List<PricedOption> pricedOptions = pricedParameter
                 .getPricedOptionList();
-        List<PricedOption> resultList = new ArrayList<PricedOption>();
-        Map<Long, PricedOption> storedOptionsMap = new HashMap<Long, PricedOption>();
+        List<PricedOption> resultList = new ArrayList<>();
+        Map<Long, PricedOption> storedOptionsMap = new HashMap<>();
         for (PricedOption pricedOption : pricedOptions) {
             storedOptionsMap.put(Long.valueOf(pricedOption.getKey()),
                     pricedOption);
@@ -4712,8 +4701,8 @@ public class ServiceProvisioningServiceBean
     }
 
     void updatePricedParameter(VOPricedParameter voPricedParameter,
-            PricedParameter pricedParameter) throws ValidationException,
-                    ConcurrentModificationException {
+            PricedParameter pricedParameter)
+            throws ValidationException, ConcurrentModificationException {
 
         BigDecimal oldSubPrice = pricedParameter.getPricePerSubscription();
         BigDecimal oldUserPrice = pricedParameter.getPricePerUser();
@@ -4739,8 +4728,8 @@ public class ServiceProvisioningServiceBean
     }
 
     void updatePricedOption(VOPricedOption voPricedOption,
-            PricedOption pricedOption) throws ConcurrentModificationException,
-                    ValidationException {
+            PricedOption pricedOption)
+            throws ConcurrentModificationException, ValidationException {
 
         BigDecimal oldPOSubPrice = pricedOption.getPricePerSubscription();
         BigDecimal oldPOUserPrice = pricedOption.getPricePerUser();
@@ -4760,7 +4749,7 @@ public class ServiceProvisioningServiceBean
 
     Map<Long, ParameterOption> createParameterOptionMap(
             PricedParameter pricedParameter) {
-        Map<Long, ParameterOption> keyToParamOption = new HashMap<Long, ParameterOption>();
+        Map<Long, ParameterOption> keyToParamOption = new HashMap<>();
         for (ParameterOption parameterOption : pricedParameter.getParameter()
                 .getParameterDefinition().getOptionList()) {
             keyToParamOption.put(Long.valueOf(parameterOption.getKey()),
@@ -4799,10 +4788,10 @@ public class ServiceProvisioningServiceBean
             PriceModel priceModel, VOPricedParameter voPP, PricedParameter pp,
             boolean priceModelCreatedInTransaction, Organization targetCustomer,
             Subscription subscription, boolean isTemplateExistsForCustomer)
-                    throws ValidationException, OperationNotPermittedException,
-                    ConcurrentModificationException {
+            throws ValidationException, OperationNotPermittedException,
+            ConcurrentModificationException {
 
-        Map<Long, List<PricedProductRole>> oldPricedOptionMap = new HashMap<Long, List<PricedProductRole>>();
+        Map<Long, List<PricedProductRole>> oldPricedOptionMap = new HashMap<>();
         if (isTemplateExistsForCustomer) {
             oldPricedOptionMap = prepareOldPricedOptionMap(priceModel);
         }
@@ -4844,7 +4833,7 @@ public class ServiceProvisioningServiceBean
 
     private Map<Long, List<PricedProductRole>> prepareOldPricedOptionMap(
             PriceModel priceModel) {
-        Map<Long, List<PricedProductRole>> oldPricedOptionMap = new HashMap<Long, List<PricedProductRole>>();
+        Map<Long, List<PricedProductRole>> oldPricedOptionMap = new HashMap<>();
         List<PricedParameter> pricedParameters = priceModel
                 .getSelectedParameters();
         if (pricedParameters != null) {
@@ -4868,8 +4857,8 @@ public class ServiceProvisioningServiceBean
     @RolesAllowed("TECHNOLOGY_MANAGER")
     public VOTechnicalService createTechnicalService(
             VOTechnicalService technicalService)
-                    throws OrganizationAuthoritiesException,
-                    ValidationException, NonUniqueBusinessKeyException {
+            throws OrganizationAuthoritiesException, ValidationException,
+            NonUniqueBusinessKeyException {
 
         ArgumentValidator.notNull("technicalService", technicalService);
 
@@ -4958,9 +4947,9 @@ public class ServiceProvisioningServiceBean
     @Override
     @RolesAllowed("TECHNOLOGY_MANAGER")
     public void saveTechnicalServiceLocalization(
-            VOTechnicalService technicalService) throws ObjectNotFoundException,
-                    OperationNotPermittedException, UpdateConstraintException,
-                    ValidationException {
+            VOTechnicalService technicalService)
+            throws ObjectNotFoundException, OperationNotPermittedException,
+            UpdateConstraintException, ValidationException {
 
         ArgumentValidator.notNull("technicalService", technicalService);
 
@@ -5178,8 +5167,7 @@ public class ServiceProvisioningServiceBean
      */
     private TechnicalProduct findTechnicalProductAndCheckOwner(
             Organization provider, VOTechnicalService voTechnicalProduct)
-                    throws ObjectNotFoundException,
-                    OperationNotPermittedException {
+            throws ObjectNotFoundException, OperationNotPermittedException {
         TechnicalProduct techProd = dm.getReference(TechnicalProduct.class,
                 voTechnicalProduct.getKey());
         PermissionCheck.owns(techProd, provider, logger, sessionCtx);
@@ -5196,7 +5184,7 @@ public class ServiceProvisioningServiceBean
         query.setParameter("vendorKey", Long.valueOf(organization.getKey()));
         List<Product> products = ParameterizedTypes.list(query.getResultList(),
                 Product.class);
-        List<VOCustomerService> result = new ArrayList<VOCustomerService>();
+        List<VOCustomerService> result = new ArrayList<>();
         LocalizerFacade facade = new LocalizerFacade(localizer,
                 dm.getCurrentUser().getLocale());
         Set<ServiceStatus> states = EnumSet.of(ServiceStatus.ACTIVE,
@@ -5259,7 +5247,7 @@ public class ServiceProvisioningServiceBean
         dm.persist(copy);
         // get the marketplace and the categories for the product to copy
         Marketplace mp = null;
-        List<Category> cats = new ArrayList<Category>();
+        List<Category> cats = new ArrayList<>();
         if (!product.getCatalogEntries().isEmpty()) {
             CatalogEntry ce = product.getCatalogEntries().get(0);
             mp = ce.getMarketplace();
@@ -5370,15 +5358,14 @@ public class ServiceProvisioningServiceBean
     @RolesAllowed({ "SERVICE_MANAGER", "RESELLER_MANAGER", "BROKER_MANAGER" })
     public List<VOService> setActivationStates(
             List<VOServiceActivation> activations)
-                    throws ObjectNotFoundException, ServiceStateException,
-                    OrganizationAuthoritiesException,
-                    OperationNotPermittedException, ServiceOperationException,
-                    TechnicalServiceNotAliveException,
-                    ServiceNotPublishedException, OperationPendingException,
-                    ConcurrentModificationException {
+            throws ObjectNotFoundException, ServiceStateException,
+            OrganizationAuthoritiesException, OperationNotPermittedException,
+            ServiceOperationException, TechnicalServiceNotAliveException,
+            ServiceNotPublishedException, OperationPendingException,
+            ConcurrentModificationException {
 
         ArgumentValidator.notNull("activations", activations);
-        List<VOService> resultList = new ArrayList<VOService>();
+        List<VOService> resultList = new ArrayList<>();
 
         ServiceVisibilityCheck visChecker = new ServiceVisibilityCheck(dm);
         for (VOServiceActivation voActivation : activations) {
@@ -5401,11 +5388,10 @@ public class ServiceProvisioningServiceBean
 
     private VOService setActivationState(VOServiceActivation serviceActivation,
             ServiceVisibilityCheck visChecker) throws ObjectNotFoundException,
-                    ServiceStateException, OrganizationAuthoritiesException,
-                    OperationNotPermittedException, ServiceOperationException,
-                    TechnicalServiceNotAliveException,
-                    ServiceNotPublishedException, OperationPendingException,
-                    ConcurrentModificationException {
+            ServiceStateException, OrganizationAuthoritiesException,
+            OperationNotPermittedException, ServiceOperationException,
+            TechnicalServiceNotAliveException, ServiceNotPublishedException,
+            OperationPendingException, ConcurrentModificationException {
         VOService service = serviceActivation.getService();
         boolean active = serviceActivation.isActive();
         List<VOCatalogEntry> catalogEntries = serviceActivation
@@ -5420,12 +5406,11 @@ public class ServiceProvisioningServiceBean
      */
     private VOService setActivationState(VOService service, boolean activate,
             List<VOCatalogEntry> entries, ServiceVisibilityCheck visChecker)
-                    throws ServiceStateException, ObjectNotFoundException,
-                    OrganizationAuthoritiesException,
-                    OperationNotPermittedException, ServiceOperationException,
-                    TechnicalServiceNotAliveException,
-                    ServiceNotPublishedException, OperationPendingException,
-                    ConcurrentModificationException {
+            throws ServiceStateException, ObjectNotFoundException,
+            OrganizationAuthoritiesException, OperationNotPermittedException,
+            ServiceOperationException, TechnicalServiceNotAliveException,
+            ServiceNotPublishedException, OperationPendingException,
+            ConcurrentModificationException {
 
         ArgumentValidator.notNull("service", service);
         PlatformUser currentUser = dm.getCurrentUser();
@@ -5519,7 +5504,7 @@ public class ServiceProvisioningServiceBean
                         .getCatalogEntries();
                 if (!entry.isEmpty()) {
                     final CatalogEntry ce = entry.get(0);
-                    entries = new ArrayList<VOCatalogEntry>();
+                    entries = new ArrayList<>();
                     VOCatalogEntry vo = new VOCatalogEntry();
                     vo.setService(service);
                     vo.setVisibleInCatalog(ce.isVisibleInCatalog());
@@ -5553,7 +5538,7 @@ public class ServiceProvisioningServiceBean
      */
     private void updateCatalogEntryVisibility(Product product,
             List<VOCatalogEntry> entries)
-                    throws ConcurrentModificationException {
+            throws ConcurrentModificationException {
 
         HashMap<String, CatalogEntry> entryMap;
 
@@ -5562,7 +5547,7 @@ public class ServiceProvisioningServiceBean
         query.setParameter("service", product);
         List<CatalogEntry> tempList = ParameterizedTypes
                 .list(query.getResultList(), CatalogEntry.class);
-        entryMap = new HashMap<String, CatalogEntry>();
+        entryMap = new HashMap<>();
         for (CatalogEntry entry : tempList) {
             if (entry.getMarketplace() != null) {
                 entryMap.put(entry.getMarketplace().getMarketplaceId(), entry);
@@ -5638,7 +5623,7 @@ public class ServiceProvisioningServiceBean
 
         ArgumentValidator.notNull("organizationIds", organizationIds);
 
-        List<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<>();
         Organization providerOrg = dm.getCurrentUser().getOrganization();
 
         if (organizationIds.size() > 0) {
@@ -5780,7 +5765,7 @@ public class ServiceProvisioningServiceBean
      */
     private Marketplace validatePermissionForSuspendAndResume(
             PlatformUser currentUser, Product prod)
-                    throws OperationNotPermittedException {
+            throws OperationNotPermittedException {
         if (prod.getOwningSubscription() != null) {
             String message = "Service '%s' is related to a subscription.";
             OperationNotPermittedException e = new OperationNotPermittedException(
@@ -5894,8 +5879,8 @@ public class ServiceProvisioningServiceBean
     @Override
     @RolesAllowed("SERVICE_MANAGER")
     public List<VOCompatibleService> getPotentialCompatibleServices(
-            VOService service) throws ObjectNotFoundException,
-                    OperationNotPermittedException {
+            VOService service)
+            throws ObjectNotFoundException, OperationNotPermittedException {
 
         ArgumentValidator.notNull("service", service);
         Product p = dm.getReference(Product.class, service.getKey());
@@ -5905,14 +5890,14 @@ public class ServiceProvisioningServiceBean
         p = p.getTemplateOrSelf();
 
         // get the marketplaces the service is published on
-        Set<Marketplace> mps = new HashSet<Marketplace>();
+        Set<Marketplace> mps = new HashSet<>();
         for (CatalogEntry ce : p.getCatalogEntries()) {
             Marketplace mp = ce.getMarketplace();
             if (mp != null) {
                 mps.add(mp);
             }
         }
-        List<VOCompatibleService> result = new ArrayList<VOCompatibleService>();
+        List<VOCompatibleService> result = new ArrayList<>();
         if (mps.isEmpty()) {
             // Bug 9850: is no marketplace is set, return an empty list
             return result;
@@ -5931,7 +5916,7 @@ public class ServiceProvisioningServiceBean
         products.remove(p);
 
         // get the currently configured targets
-        Set<Long> targetKeys = new HashSet<Long>();
+        Set<Long> targetKeys = new HashSet<>();
         q = dm.createNamedQuery("ProductReference.getTargetKeysForProduct");
         q.setParameter("product", p);
         targetKeys
@@ -6003,8 +5988,8 @@ public class ServiceProvisioningServiceBean
 
     @Override
     public List<VOCustomerService> getServiceCustomerTemplates(
-            VOService service) throws ObjectNotFoundException,
-                    OperationNotPermittedException {
+            VOService service)
+            throws ObjectNotFoundException, OperationNotPermittedException {
 
         ArgumentValidator.notNull("service", service);
 
@@ -6013,7 +5998,7 @@ public class ServiceProvisioningServiceBean
         List<Product> customerProducts = getCustomerSpecificCopyProducts(
                 storedService);
 
-        List<VOCustomerService> result = new ArrayList<VOCustomerService>();
+        List<VOCustomerService> result = new ArrayList<>();
         LocalizerFacade facade = new LocalizerFacade(localizer,
                 dm.getCurrentUser().getLocale());
         Set<ServiceStatus> states = EnumSet.of(ServiceStatus.ACTIVE,

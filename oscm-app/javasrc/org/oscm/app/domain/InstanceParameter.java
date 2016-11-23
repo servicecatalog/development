@@ -29,7 +29,8 @@ import org.oscm.app.security.AESEncrypter;
  * @author Mike J&auml;ger
  * 
  */
-@NamedQueries({ @NamedQuery(name = "InstanceParameter.getAllForInstanceId", query = "SELECT ip FROM InstanceParameter ip WHERE ip.serviceInstance.instanceId = :sid and ip.serviceInstance.controllerId = :cid") })
+@NamedQueries({
+        @NamedQuery(name = "InstanceParameter.getAllForInstanceId", query = "SELECT ip FROM InstanceParameter ip WHERE ip.serviceInstance.instanceId = :sid and ip.serviceInstance.controllerId = :cid") })
 @Entity
 public class InstanceParameter {
 
@@ -38,12 +39,6 @@ public class InstanceParameter {
      * available for the proxy.
      */
     public static final String APP_PARAM_KEY_PREFIX = "APP_";
-
-    /**
-     * Setting keys ending with this suffix will have their values stored
-     * encrypted.
-     */
-    public static final String CRYPT_KEY_SUFFIX = "_PWD";
 
     /**
      * The parameter key for the user name used to call web services in BES.
@@ -127,6 +122,11 @@ public class InstanceParameter {
      */
     private String parameterKey;
 
+    /**
+     * The indicator if the value is encrypted.
+     */
+    private boolean encrypted;
+
     public long getTkey() {
         return tkey;
     }
@@ -165,8 +165,8 @@ public class InstanceParameter {
     public void setDecryptedValue(String parameterValue)
             throws BadResultException {
         try {
-            this.parameterValue = isEncrypted() ? AESEncrypter
-                    .encrypt(parameterValue) : parameterValue;
+            this.parameterValue = isEncrypted()
+                    ? AESEncrypter.encrypt(parameterValue) : parameterValue;
         } catch (GeneralSecurityException e) {
             throw new BadResultException(String.format(
                     "Parameter for key '%s' could not be encrypted",
@@ -183,6 +183,10 @@ public class InstanceParameter {
     }
 
     public boolean isEncrypted() {
-        return parameterKey != null && parameterKey.endsWith(CRYPT_KEY_SUFFIX);
+        return encrypted;
+    }
+
+    public void setEncrypted(boolean encrypted) {
+        this.encrypted = encrypted;
     }
 }

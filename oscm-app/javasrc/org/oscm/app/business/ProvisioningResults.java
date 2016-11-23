@@ -12,12 +12,12 @@ import org.oscm.app.business.exceptions.ServiceInstanceInProcessingException;
 import org.oscm.app.business.exceptions.ServiceInstanceNotFoundException;
 import org.oscm.app.domain.ServiceInstance;
 import org.oscm.app.i18n.Messages;
-import org.oscm.app.v1_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.exceptions.APPlatformException;
 import org.oscm.provisioning.data.BaseResult;
 
 /**
  * @author kulle
- *
+ * 
  */
 public class ProvisioningResults {
 
@@ -28,11 +28,12 @@ public class ProvisioningResults {
     public BaseResult newOkBaseResult() {
         return getBaseResult(BaseResult.class, 0, "Ok");
     }
-    
-    public <T extends BaseResult> T getSuccesfulResult(Class<T> type, String successMsg) {    
+
+    public <T extends BaseResult> T getSuccesfulResult(Class<T> type,
+            String successMsg) {
         return getBaseResult(type, 0, successMsg);
     }
-    
+
     /**
      * Returns a <code>BaseResult</code> object with the return code and
      * description message for the given exception.

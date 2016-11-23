@@ -43,7 +43,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-
 import org.oscm.app.iaas.PropertyHandler;
 import org.oscm.app.iaas.data.DiskImage;
 import org.oscm.app.iaas.data.IaasContext;
@@ -62,7 +61,8 @@ import org.oscm.app.ror.data.LPlatformDescriptor;
 import org.oscm.app.ror.data.LPlatformDescriptorConfiguration;
 import org.oscm.app.ror.data.LServerConfiguration;
 import org.oscm.app.ror.exceptions.RORException;
-import org.oscm.app.v1_0.data.ProvisioningSettings;
+import org.oscm.app.v2_0.data.ProvisioningSettings;
+import org.oscm.app.v2_0.data.Setting;
 
 /**
  * @author zhaohang
@@ -73,8 +73,8 @@ public class RORVSystemCommunicationTest {
     private RORVSystemCommunication rorVSystemCommunication;
     private PropertyHandler properties;
     private final RORClient rorClient = mock(RORClient.class);
-    private HashMap<String, String> parameters;
-    private HashMap<String, String> configSettings;
+    private HashMap<String, Setting> parameters;
+    private HashMap<String, Setting> configSettings;
     private ProvisioningSettings settings;
     private PropertyHandler ph;
 
@@ -101,8 +101,8 @@ public class RORVSystemCommunicationTest {
         when(properties.getIaasContext()).thenReturn(context);
         rorVSystemCommunication = spy(new RORVSystemCommunication());
 
-        parameters = new HashMap<String, String>();
-        configSettings = new HashMap<String, String>();
+        parameters = new HashMap<>();
+        configSettings = new HashMap<>();
         settings = new ProvisioningSettings(parameters, configSettings, "en");
         ph = new PropertyHandler(settings);
 
@@ -213,7 +213,7 @@ public class RORVSystemCommunicationTest {
         LServerClient serverClient = prepareServerClientForStartStopServers();
         ArgumentCaptor<String> idCaptor = ArgumentCaptor.forClass(String.class);
 
-        Set<String> servers = new HashSet<String>();
+        Set<String> servers = new HashSet<>();
         servers.add("test1");
         doReturn(servers).when(properties).getVserversToBeStarted();
 
@@ -232,7 +232,7 @@ public class RORVSystemCommunicationTest {
         LServerClient serverClient = prepareServerClientForStartStopServers();
         doThrow(new RORException("VSYS10120message")).when(serverClient)
                 .start();
-        Set<String> servers = new HashSet<String>();
+        Set<String> servers = new HashSet<>();
         servers.add("test1");
         doReturn(servers).when(properties).getVserversToBeStarted();
 
@@ -245,7 +245,7 @@ public class RORVSystemCommunicationTest {
         // given
         LServerClient serverClient = prepareServerClientForStartStopServers();
         doThrow(new RORException("message")).when(serverClient).start();
-        Set<String> servers = new HashSet<String>();
+        Set<String> servers = new HashSet<>();
         servers.add("test1");
         doReturn(servers).when(properties).getVserversToBeStarted();
 
@@ -258,7 +258,7 @@ public class RORVSystemCommunicationTest {
         // given
         LServerClient serverClient = prepareServerClientForStartStopServers();
 
-        Set<String> servers = new HashSet<String>();
+        Set<String> servers = new HashSet<>();
         servers.add("");
         doReturn(servers).when(properties).getVserversToBeStarted();
 
@@ -292,7 +292,7 @@ public class RORVSystemCommunicationTest {
         // given
         LServerClient serverClient = prepareServerClientForStartStopServers();
         mockConfigurationWithServers();
-        final Stack<String> stati = new Stack<String>();
+        final Stack<String> stati = new Stack<>();
         stati.push(VServerStatus.RUNNING);
         stati.push(VServerStatus.STARTING);
         stati.push(VServerStatus.STOPPED);
@@ -451,7 +451,7 @@ public class RORVSystemCommunicationTest {
         // given
         LPlatformClient platformClient = mock(LPlatformClient.class);
         LPlatformConfiguration config = mock(LPlatformConfiguration.class);
-        List<LServerConfiguration> servers = new ArrayList<LServerConfiguration>();
+        List<LServerConfiguration> servers = new ArrayList<>();
 
         when(config.getVServers()).thenReturn(servers);
         when(platformClient.getConfiguration()).thenReturn(config);
@@ -488,7 +488,7 @@ public class RORVSystemCommunicationTest {
         when(properties.getSlaveTemplateId()).thenReturn(SLAVE_TEMPLATE_ID);
         when(properties.getMasterTemplateId()).thenReturn(SLAVE_TEMPLATE_ID);
 
-        List<String> list = new ArrayList<String>();
+        List<String> list = new ArrayList<>();
 
         doReturn(list).when(rorVSystemCommunication).getVServersForTemplate(
                 eq(SLAVE_TEMPLATE_ID), eq(properties));
@@ -517,7 +517,7 @@ public class RORVSystemCommunicationTest {
         doReturn(serverClient).when(rorVSystemCommunication).getLServerClient(
                 properties);
 
-        List<String> list = new ArrayList<String>();
+        List<String> list = new ArrayList<>();
         doReturn(list).when(rorVSystemCommunication).getVServersForTemplate(
                 SLAVE_TEMPLATE_ID, properties);
 
@@ -639,7 +639,7 @@ public class RORVSystemCommunicationTest {
         doReturn(vdcClient).when(rorVSystemCommunication).getVdcClient(
                 eq(properties));
 
-        List<LPlatformDescriptor> descriptors = new LinkedList<LPlatformDescriptor>();
+        List<LPlatformDescriptor> descriptors = new LinkedList<>();
 
         HierarchicalConfiguration configuration = mock(HierarchicalConfiguration.class);
         descriptors.add(new LPlatformDescriptor(configuration));
@@ -668,7 +668,7 @@ public class RORVSystemCommunicationTest {
     }
 
     private void preparePlatforms(RORClient vdcClient) throws Exception {
-        List<LPlatformConfiguration> platforms = new ArrayList<LPlatformConfiguration>();
+        List<LPlatformConfiguration> platforms = new ArrayList<>();
         LPlatformConfiguration config = mock(LPlatformConfiguration.class);
         when(config.getVSystemId()).thenReturn(VSYSTEMID);
         platforms.add(config);
@@ -677,14 +677,14 @@ public class RORVSystemCommunicationTest {
 
     private void preparePlatformsWithValue(RORClient vdcClient, String... stati)
             throws Exception {
-        List<LPlatformConfiguration> platforms = new ArrayList<LPlatformConfiguration>();
+        List<LPlatformConfiguration> platforms = new ArrayList<>();
         LPlatformConfiguration config1 = mock(LPlatformConfiguration.class);
         when(config1.getVSystemId()).thenReturn("platform1");
         LPlatformConfiguration config2 = mock(LPlatformConfiguration.class);
         when(config2.getVSystemId()).thenReturn(VSYSID);
         LPlatformConfiguration config3 = mock(LPlatformConfiguration.class);
         when(config3.getVSystemId()).thenReturn("platform3");
-        ArrayList<String> values = new ArrayList<String>();
+        ArrayList<String> values = new ArrayList<>();
         values.addAll(Arrays.asList(stati));
         when(config2.getServerStatus()).thenReturn(values);
         platforms.add(config1);
@@ -700,7 +700,7 @@ public class RORVSystemCommunicationTest {
         LPlatformClient platformClient = spy(new LPlatformClient(rorClient,
                 "lplatform_Id"));
         LPlatformConfiguration config = mock(LPlatformConfiguration.class);
-        List<LServerConfiguration> servers = new ArrayList<LServerConfiguration>();
+        List<LServerConfiguration> servers = new ArrayList<>();
         LServerConfiguration lsc1 = mock(LServerConfiguration.class);
         when(lsc1.getDiskImageId()).thenReturn(SLAVE_TEMPLATE_ID);
         LServerConfiguration lsc2 = mock(LServerConfiguration.class);
@@ -748,7 +748,7 @@ public class RORVSystemCommunicationTest {
             throws Exception {
         RORClient vdcClient = platformClient.getVdcClient();
 
-        HashMap<String, String> request = new HashMap<String, String>();
+        HashMap<String, String> request = new HashMap<>();
         doReturn(request).when(vdcClient).getBasicParameters();
 
         XMLConfiguration xmlConfiguration = mock(XMLConfiguration.class);
@@ -797,7 +797,7 @@ public class RORVSystemCommunicationTest {
         // given
         RORClient vdcClient = prepareVdcClient();
         LPlatformConfiguration config = mock(LPlatformConfiguration.class);
-        ArrayList<LPlatformConfiguration> lPlatforms = new ArrayList<LPlatformConfiguration>();
+        ArrayList<LPlatformConfiguration> lPlatforms = new ArrayList<>();
         lPlatforms.add(config);
         doReturn(lPlatforms).when(vdcClient).listLPlatforms(false);
         when(config.getVSystemName()).thenReturn(INSTANCENAME);
@@ -817,7 +817,7 @@ public class RORVSystemCommunicationTest {
         // given
         RORClient vdcClient = prepareVdcClient();
         LPlatformConfiguration config = mock(LPlatformConfiguration.class);
-        ArrayList<LPlatformConfiguration> lPlatforms = new ArrayList<LPlatformConfiguration>();
+        ArrayList<LPlatformConfiguration> lPlatforms = new ArrayList<>();
         lPlatforms.add(config);
         doReturn(lPlatforms).when(vdcClient).listLPlatforms(false);
         when(config.getVSystemName()).thenReturn(INSTANCENAME);

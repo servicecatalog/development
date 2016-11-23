@@ -39,6 +39,14 @@
     <source>labelAndInputText.xhtml</source>
   </tag>
   <tag>
+    <tag-name>labelAndInputSecret</tag-name>
+    <source>labelAndInputSecret.xhtml</source>
+  </tag>
+  <tag>
+    <tag-name>secretOutputText</tag-name>
+    <source>secretOutputText.xhtml</source>
+  </tag>
+  <tag>
     <tag-name>labelAndInputTextarea</tag-name>
     <source>labelAndInputTextarea.xhtml</source>
   </tag>

@@ -139,6 +139,7 @@ public class VOClassTest {
         methodNames.add("isValueTypeString");
         methodNames.add("isValueTypeDuration");
         methodNames.add("isValueTypeEnumeration");
+        methodNames.add("isValueTypePWD");
         allowedMethodNames.put(VOParameterDefinition.class, methodNames);
 
         methodNames = new HashSet<String>();

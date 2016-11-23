@@ -7,7 +7,7 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-app-common"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-app-common-unittests"/>
 	<classpathentry kind="lib" path="/libraries/junit/javalib/junit-4.5.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/oscm-app-extsvc-1-0"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-app-extsvc-2-0"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-app-unittests"/>
 	<classpathentry kind="lib" path="/libraries/mockito/javalib/mockito-all-1.8.5.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-unittests-base"/>

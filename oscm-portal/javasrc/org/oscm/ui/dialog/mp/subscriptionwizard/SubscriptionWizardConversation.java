@@ -46,6 +46,7 @@ import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
 import org.oscm.internal.intf.AccountService;
 import org.oscm.internal.intf.SubscriptionService;
 import org.oscm.internal.intf.SubscriptionServiceInternal;
@@ -112,13 +113,12 @@ import org.oscm.ui.model.UdaRow;
 public class SubscriptionWizardConversation implements Serializable {
 
     private static final long serialVersionUID = -3000938669923416419L;
-    
+
     private long TIMEOUT = 300000L;
 
     private JsonConverter jsonConverter;
     private JsonParameterValidator jsonValidator;
     private SubscriptionsHelper subscriptionsHelper;
-
 
     private static final Log4jLogger LOGGER = LoggerFactory
             .getLogger(SubscriptionWizardConversation.class);
@@ -169,18 +169,20 @@ public class SubscriptionWizardConversation implements Serializable {
 
     @PostConstruct
     public String startSubscription() {
-        paymentAndBillingVisibleBean = ui.findBean("paymentAndBillingVisibleBean");
+        paymentAndBillingVisibleBean = ui
+                .findBean("paymentAndBillingVisibleBean");
         paymentInfoBean = ui.findBean("paymentInfoBean");
         String result = SubscriptionDetailsCtrlConstants.OUTCOME_SHOW_DETAILS_4_CREATION;
         try {
-            result = initializeService(getServiceDetailsModel()
-                    .getSelectedService());
+            result = initializeService(
+                    getServiceDetailsModel().getSelectedService());
             if (conversation.isTransient()) {
                 conversation.setTimeout(TIMEOUT);
                 conversation.begin();
             }
-            model.setAnyPaymentAvailable(paymentAndBillingVisibleBean.isPaymentVisible(getEnabledPaymentTypes(),
-                getPaymentInfosForSubscription()));
+            model.setAnyPaymentAvailable(paymentAndBillingVisibleBean
+                    .isPaymentVisible(getEnabledPaymentTypes(),
+                            getPaymentInfosForSubscription()));
         } catch (ObjectNotFoundException e) {
             result = redirectToServiceList();
         } catch (ServiceStateException | OperationNotPermittedException
@@ -199,8 +201,8 @@ public class SubscriptionWizardConversation implements Serializable {
             List<VOParameter> voParameters = svc.getVO().getParameters();
             for (VOParameter parameter : voParameters) {
                 if (parameter.getParameterDefinition().isMandatory()
-                        && (parameter.getValue() == null || parameter
-                                .getValue().isEmpty())) {
+                        && (parameter.getValue() == null
+                                || parameter.getValue().isEmpty())) {
                     validationError = true;
                     break;
                 }
@@ -216,7 +218,8 @@ public class SubscriptionWizardConversation implements Serializable {
         VOUserDetails voUserDetails = ui.getUserFromSessionWithoutException();
         if (!canUserSubscribeWithoutUnitSelection(voUserDetails)
                 && subscriptionUnitCtrl.getModel().getSelectedUnitId() == 0L) {
-            addMessage(FacesMessage.SEVERITY_ERROR, ERROR_TO_PROCEED_SELECT_UNIT);
+            addMessage(FacesMessage.SEVERITY_ERROR,
+                    ERROR_TO_PROCEED_SELECT_UNIT);
             return "";
         }
         updateSelectedUnit();
@@ -232,7 +235,8 @@ public class SubscriptionWizardConversation implements Serializable {
 
     private boolean canUserSubscribeWithoutUnitSelection(
             VOUserDetails voUserDetails) {
-        return voUserDetails.hasAdminRole() || voUserDetails.hasSubscriptionManagerRole();
+        return voUserDetails.hasAdminRole()
+                || voUserDetails.hasSubscriptionManagerRole();
     }
 
     public void addMessage(FacesMessage.Severity severityError, String msgKey) {
@@ -253,8 +257,8 @@ public class SubscriptionWizardConversation implements Serializable {
      *         the service list page.
      */
     public String redirectToServiceList() {
-        String errorKey = (String) ui.getRequest().getAttribute(
-                Constants.REQ_ATTR_ERROR_KEY);
+        String errorKey = (String) ui.getRequest()
+                .getAttribute(Constants.REQ_ATTR_ERROR_KEY);
         if (errorKey != null && errorKey.length() > 0) {
             // The only way that the errorKey is not set at this oint is that
             // it was not possible to parse the passed key => add the
@@ -275,8 +279,8 @@ public class SubscriptionWizardConversation implements Serializable {
         if (serviceKey != 0) {
             final POServiceForSubscription service = subscriptionDetailsService
                     .getServiceForSubscription(serviceKey,
-                            ui.getViewLocale().getLanguage()).getResult(
-                            POServiceForSubscription.class);
+                            ui.getViewLocale().getLanguage())
+                    .getResult(POServiceForSubscription.class);
             model.setService(new Service(service.getService()));
 
             if (!isServiceReadyForSubscription(model.getService())) {
@@ -284,17 +288,19 @@ public class SubscriptionWizardConversation implements Serializable {
             } else {
 
                 initializePriceModelForService(service);
-                model.setShowServicePrices(model.getService().getPriceModel() != null
-                        && model.getService().getPriceModel().isChargeable()
-                        && !model.isDirectAccess());
+                model.setShowServicePrices(
+                        model.getService().getPriceModel() != null
+                                && model.getService().getPriceModel()
+                                        .isChargeable()
+                                && !model.isDirectAccess());
 
                 model.setSubscription(new VOSubscriptionDetails());
                 List<VOSubscription> existingSubscriptions = new ArrayList<>();
                 existingSubscriptions.addAll(service.getSubscriptions());
                 existingSubscriptions.addAll(getTriggeredSubscriptionsIds());
                 model.getSubscription().setSubscriptionId(
-                        new IdGenerator("", model.getService(), existingSubscriptions)
-                                .generateNewId());
+                        new IdGenerator("", model.getService(),
+                                existingSubscriptions).generateNewId());
                 List<PricedParameterRow> serviceParameters = PricedParameterRow
                         .createPricedParameterRowListForService(
                                 model.getService().getVO());
@@ -310,31 +316,38 @@ public class SubscriptionWizardConversation implements Serializable {
                 final List<VOUdaDefinition> subUdaDefinitions = new ArrayList<>();
                 final List<VOUdaDefinition> orgUdaDefinitions = new ArrayList<>();
                 for (VOUdaDefinition def : service.getDefinitions()) {
-                    if (def.getTargetType().equals(
-                            UdaBean.CUSTOMER_SUBSCRIPTION)) {
+                    if (def.getTargetType()
+                            .equals(UdaBean.CUSTOMER_SUBSCRIPTION)) {
                         subUdaDefinitions.add(def);
                     } else if (def.getTargetType().equals(UdaBean.CUSTOMER)) {
                         orgUdaDefinitions.add(def);
                     }
                 }
-                model.setOrganizationUdaRows(UdaRow.getUdaRows(
-                        orgUdaDefinitions, service.getOrganizationUdas()));
-                model.setSubscriptionUdaRows(UdaRow.getUdaRows(
-                        subUdaDefinitions, new ArrayList<VOUda>()));
+                model.setSubscriptionUdaRows(UdaRow
+                        .getUdaRows(subUdaDefinitions, new ArrayList<VOUda>()));
+                initPasswordFields(model.getSubscriptionUdaRows());
             }
         }
         getSubscriptionUnitCtrl().initializeUnitListForCreateSubscription();
         return result;
     }
 
+    private void initPasswordFields(List<UdaRow> udas) {
+        for (UdaRow udaRow : udas) {
+            udaRow.initPasswordValueToStore();
+        }
+    }
+
     private List<VOSubscription> getTriggeredSubscriptionsIds() {
         List<VOSubscription> triggeredSubscriptions = new ArrayList<>();
-        List<VOTriggerProcess> triggers = triggerService.getAllActionsForOrganizationRelatedSubscription();
-        for(VOTriggerProcess voTriggerProcess : triggers) {
+        List<VOTriggerProcess> triggers = triggerService
+                .getAllActionsForOrganizationRelatedSubscription();
+        for (VOTriggerProcess voTriggerProcess : triggers) {
             if (voTriggerProcess.getService() == null) {
                 continue;
             }
-            if (voTriggerProcess.getService().getKey() == model.getService().getKey()) {
+            if (voTriggerProcess.getService().getKey() == model.getService()
+                    .getKey()) {
                 triggeredSubscriptions.add(voTriggerProcess.getSubscription());
             }
         }
@@ -356,13 +369,14 @@ public class SubscriptionWizardConversation implements Serializable {
         return ui.findBean("serviceDetailsModel");
     }
 
-    private void initializePriceModelForService(POServiceForSubscription service) {
+    private void initializePriceModelForService(
+            POServiceForSubscription service) {
         VOPriceModel pm = service.getService().getPriceModel();
         PriceModel priceModel = null;
         if (pm != null) {
             priceModel = new PriceModel(pm);
-            model.setRoleSpecificPrices(RolePriceHandler
-                    .determineRolePricesForPriceModel(pm));
+            model.setRoleSpecificPrices(
+                    RolePriceHandler.determineRolePricesForPriceModel(pm));
         }
         model.setPriceModel(priceModel);
     }
@@ -409,15 +423,16 @@ public class SubscriptionWizardConversation implements Serializable {
             return BaseBean.MARKETPLACE_ACCESS_DENY_PAGE;
         }
         try {
+            for (UdaRow udaRow : model.getSubscriptionUdaRows()) {
+                udaRow.rewriteEncryptedValues();
+            }
             VOSubscription rc = getSubscriptionService().subscribeToService(
-                    model.getSubscription(),
-                    model.getService().getVO(),
+                    model.getSubscription(), model.getService().getVO(),
                     new ArrayList<VOUsageLicense>(),
                     model.getSelectedPaymentInfo(),
                     model.getSelectedBillingContact(),
-                    subscriptionsHelper.getVoUdaFromUdaRows(getModel()
-                            .getSubscriptionUdaRows(), model
-                            .getOrganizationUdaRows()));
+                    subscriptionsHelper.getVoUdaFromUdaRows(
+                            getModel().getSubscriptionUdaRows()));
             model.setDirty(false);
             menuBean.resetMenuVisibility();
             if (rc == null) {
@@ -425,13 +440,14 @@ public class SubscriptionWizardConversation implements Serializable {
                 outcome = OUTCOME_PROCESS;
             } else {
                 status = rc.getStatus();
-                getSessionBean().setSelectedSubscriptionId(
-                        rc.getSubscriptionId());
+                getSessionBean()
+                        .setSelectedSubscriptionId(rc.getSubscriptionId());
                 getSessionBean().setSelectedSubscriptionKey(rc.getKey());
 
-                ui.handle(status.isPending() ? INFO_SUBSCRIPTION_ASYNC_CREATED
-                        : INFO_SUBSCRIPTION_CREATED, subscriptionId, rc
-                        .getSuccessInfo());
+                ui.handle(
+                        status.isPending() ? INFO_SUBSCRIPTION_ASYNC_CREATED
+                                : INFO_SUBSCRIPTION_CREATED,
+                        subscriptionId, rc.getSuccessInfo());
 
                 // help the navigation to highlight the correct navigation item
                 menuBean.setCurrentPageLink(MenuBean.LINK_SUBSCRIPTION_USERS);
@@ -450,8 +466,8 @@ public class SubscriptionWizardConversation implements Serializable {
         } catch (ObjectNotFoundException e) {
             // if service has been deleted in the meantime, give the
             // inaccessible error message
-            if (e.getDomainObjectClassEnum().equals(
-                    DomainObjectException.ClassEnum.SERVICE)) {
+            if (e.getDomainObjectClassEnum()
+                    .equals(DomainObjectException.ClassEnum.SERVICE)) {
                 ui.handleError(null, ERROR_SERVICE_INACCESSIBLE);
             } else {
                 ConcurrentModificationException ex = new ConcurrentModificationException();
@@ -478,8 +494,9 @@ public class SubscriptionWizardConversation implements Serializable {
     }
 
     public List<VOPaymentInfo> getPaymentInfosForSubscription() {
-        List<VOPaymentInfo> payments = paymentInfoBean.getPaymentInfosForSubscription(model
-                .getService().getKey(), getAccountingService());
+        List<VOPaymentInfo> payments = paymentInfoBean
+                .getPaymentInfosForSubscription(model.getService().getKey(),
+                        getAccountingService());
         model.setAnyPaymentAvailable(!payments.isEmpty());
         return payments;
     }
@@ -506,8 +523,8 @@ public class SubscriptionWizardConversation implements Serializable {
      * @return a list of payment type VOSs.
      */
     public List<VOPaymentType> getAvailablePaymentTypesForCreation() {
-        return paymentInfoBean.getAvailablePaymentTypesForCreation(model
-                .getService().getKey(), getAccountingService());
+        return paymentInfoBean.getAvailablePaymentTypesForCreation(
+                model.getService().getKey(), getAccountingService());
     }
 
     public String actionLoadIframe() {
@@ -629,20 +646,21 @@ public class SubscriptionWizardConversation implements Serializable {
     }
 
     // TODO: redirection doesn't work. Nicht funktionieren:)
-    private void redirectToAccessDeniedPage() throws IllegalArgumentException,
-            IOException {
+    private void redirectToAccessDeniedPage()
+            throws IllegalArgumentException, IOException {
         HttpServletRequest request = JSFUtils.getRequest();
         HttpServletResponse response = JSFUtils.getResponse();
         String relativePath = BaseBean.MARKETPLACE_ACCESS_DENY_PAGE;
-        JSFUtils.sendRedirect(response, request.getContextPath() + relativePath);
+        JSFUtils.sendRedirect(response,
+                request.getContextPath() + relativePath);
     }
 
     public String previousFromConfirmPage() {
-        
-        if(isPaymentConfigurationHidden()){
+
+        if (isPaymentConfigurationHidden()) {
             return OUTCOME_ENTER_SERVICE_CONFIGURATION;
         }
-        
+
         String resultNav = OUTCOME_PREVIOUS;
         if (model.getService().getPriceModel().isChargeable()) {
             resultNav = selectService();
@@ -664,21 +682,22 @@ public class SubscriptionWizardConversation implements Serializable {
     public String gotoEnterPayment() {
         return OUTCOME_ENTER_PAYMENT;
     }
-    
 
     /**
      * Method updates subscription model with selected unit details.
      */
     public void updateSelectedUnit() {
         if (getSubscriptionUnitCtrl().isUnitSelected()) {
-            model.getSubscription().setUnitKey(getSubscriptionUnitCtrl().getModel().getSelectedUnitId());
-            model.getSubscription().setUnitName(getSubscriptionUnitCtrl().getModel().getSelectedUnitName());
+            model.getSubscription().setUnitKey(
+                    getSubscriptionUnitCtrl().getModel().getSelectedUnitId());
+            model.getSubscription().setUnitName(
+                    getSubscriptionUnitCtrl().getModel().getSelectedUnitName());
             return;
         }
         model.getSubscription().setUnitKey(0);
         model.getSubscription().setUnitName("");
     }
-    
+
     /**
      * Method is used in UI to show external price model details.
      */
@@ -756,7 +775,8 @@ public class SubscriptionWizardConversation implements Serializable {
     }
 
     @EJB
-    public void setSubscriptionService(SubscriptionService subscriptionService) {
+    public void setSubscriptionService(
+            SubscriptionService subscriptionService) {
         this.subscriptionService = subscriptionService;
     }
 
@@ -789,7 +809,8 @@ public class SubscriptionWizardConversation implements Serializable {
         return subscriptionsHelper;
     }
 
-    public void setSubscriptionsHelper(SubscriptionsHelper subscriptionsHelper) {
+    public void setSubscriptionsHelper(
+            SubscriptionsHelper subscriptionsHelper) {
         this.subscriptionsHelper = subscriptionsHelper;
     }
 
@@ -817,18 +838,21 @@ public class SubscriptionWizardConversation implements Serializable {
         return paymentAndBillingVisibleBean;
     }
 
-    public void setPaymentAndBillingVisibleBean(PaymentAndBillingVisibleBean paymentAndBillingVisibleBean) {
+    public void setPaymentAndBillingVisibleBean(
+            PaymentAndBillingVisibleBean paymentAndBillingVisibleBean) {
         this.paymentAndBillingVisibleBean = paymentAndBillingVisibleBean;
     }
 
-    public void setSubscriptionUnitCtrl(SubscriptionUnitCtrl subscriptionUnitCtrl) {
+    public void setSubscriptionUnitCtrl(
+            SubscriptionUnitCtrl subscriptionUnitCtrl) {
         this.subscriptionUnitCtrl = subscriptionUnitCtrl;
     }
-    
+
     public void keepAlive() {
-        LOGGER.logDebug("Keep alive for conversation ID = " + conversation.getId());
+        LOGGER.logDebug(
+                "Keep alive for conversation ID = " + conversation.getId());
     }
-    
+
     public long getTimeout() {
         return TIMEOUT;
     }

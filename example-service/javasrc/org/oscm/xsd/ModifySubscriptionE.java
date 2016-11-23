@@ -1,3 +1,4 @@
+
 /**
  * ModifySubscriptionE.java
  *
@@ -10,12 +11,17 @@ package org.oscm.xsd;
 /**
  * ModifySubscriptionE bean class
  */
-@SuppressWarnings({ "rawtypes", "unused", "serial", "null" })
-public class ModifySubscriptionE implements
-        org.apache.axis2.databinding.ADBBean {
+
+public class ModifySubscriptionE
+        implements org.apache.axis2.databinding.ADBBean {
 
     public static final javax.xml.namespace.QName MY_QNAME = new javax.xml.namespace.QName(
             "http://oscm.org/xsd", "modifySubscription", "ns1");
+    /**
+     * field for ModifySubscription
+     */
+
+    protected org.oscm.xsd.ModifySubscription localModifySubscription;
 
     private static java.lang.String generatePrefix(java.lang.String namespace) {
         if (namespace.equals("http://oscm.org/xsd")) {
@@ -25,36 +31,8 @@ public class ModifySubscriptionE implements
     }
 
     /**
-     * field for ModifySubscription
-     */
-
-    protected org.oscm.xsd.ModifySubscription localModifySubscription;
-
-    /**
-     * Auto generated getter method
-     * 
-     * @return org.oscm.xsd.ModifySubscription
-     */
-    public org.oscm.xsd.ModifySubscription getModifySubscription() {
-        return localModifySubscription;
-    }
-
-    /**
-     * Auto generated setter method
-     * 
-     * @param param
-     *            ModifySubscription
-     */
-    public void setModifySubscription(
-            org.oscm.xsd.ModifySubscription param) {
-
-        this.localModifySubscription = param;
-
-    }
-
-    /**
      * isReaderMTOMAware
-     * 
+     *
      * @return true if the reader supports MTOM
      */
     public static boolean isReaderMTOMAware(
@@ -63,8 +41,8 @@ public class ModifySubscriptionE implements
 
         try {
             isReaderMTOMAware = java.lang.Boolean.TRUE
-                    .equals(reader
-                            .getProperty(org.apache.axiom.om.OMConstants.IS_DATA_HANDLERS_AWARE));
+                    .equals(reader.getProperty(
+                            org.apache.axiom.om.OMConstants.IS_DATA_HANDLERS_AWARE));
         } catch (java.lang.IllegalArgumentException e) {
             isReaderMTOMAware = false;
         }
@@ -72,7 +50,28 @@ public class ModifySubscriptionE implements
     }
 
     /**
-     * 
+     * Auto generated getter method
+     *
+     * @return org.oscm.xsd.ModifySubscription
+     */
+    public org.oscm.xsd.ModifySubscription getModifySubscription() {
+        return localModifySubscription;
+    }
+
+    /**
+     * Auto generated setter method
+     *
+     * @param param
+     *            ModifySubscription
+     */
+    public void setModifySubscription(org.oscm.xsd.ModifySubscription param) {
+
+        this.localModifySubscription = param;
+
+    }
+
+    /**
+     *
      * @param parentQName
      * @param factory
      * @return org.apache.axiom.om.OMElement
@@ -85,12 +84,11 @@ public class ModifySubscriptionE implements
         org.apache.axiom.om.OMDataSource dataSource = new org.apache.axis2.databinding.ADBDataSource(
                 this, MY_QNAME) {
 
-            @Override
             public void serialize(
                     org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter)
                     throws javax.xml.stream.XMLStreamException {
-                ModifySubscriptionE.this
-                        .serialize(MY_QNAME, factory, xmlWriter);
+                ModifySubscriptionE.this.serialize(MY_QNAME, factory,
+                        xmlWriter);
             }
         };
         return new org.apache.axiom.om.impl.llom.OMSourcedElementImpl(MY_QNAME,
@@ -98,8 +96,7 @@ public class ModifySubscriptionE implements
 
     }
 
-    public void serialize(
-            final javax.xml.namespace.QName parentQName,
+    public void serialize(final javax.xml.namespace.QName parentQName,
             final org.apache.axiom.om.OMFactory factory,
             org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter)
             throws javax.xml.stream.XMLStreamException,
@@ -107,8 +104,7 @@ public class ModifySubscriptionE implements
         serialize(parentQName, factory, xmlWriter, false);
     }
 
-    public void serialize(
-            final javax.xml.namespace.QName parentQName,
+    public void serialize(final javax.xml.namespace.QName parentQName,
             final org.apache.axiom.om.OMFactory factory,
             org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter,
             boolean serializeType) throws javax.xml.stream.XMLStreamException,
@@ -203,20 +199,19 @@ public class ModifySubscriptionE implements
             }
 
             if (prefix.trim().length() > 0) {
-                xmlWriter.writeCharacters(prefix
-                        + ":"
+                xmlWriter.writeCharacters(prefix + ":"
                         + org.apache.axis2.databinding.utils.ConverterUtil
                                 .convertToString(qname));
             } else {
                 // i.e this is the default namespace
-                xmlWriter
-                        .writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil
+                xmlWriter.writeCharacters(
+                        org.apache.axis2.databinding.utils.ConverterUtil
                                 .convertToString(qname));
             }
 
         } else {
-            xmlWriter
-                    .writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil
+            xmlWriter.writeCharacters(
+                    org.apache.axis2.databinding.utils.ConverterUtil
                             .convertToString(qname));
         }
     }
@@ -247,9 +242,7 @@ public class ModifySubscriptionE implements
                     }
 
                     if (prefix.trim().length() > 0) {
-                        stringToWrite
-                                .append(prefix)
-                                .append(":")
+                        stringToWrite.append(prefix).append(":")
                                 .append(org.apache.axis2.databinding.utils.ConverterUtil
                                         .convertToString(qnames[i]));
                     } else {
@@ -280,7 +273,8 @@ public class ModifySubscriptionE implements
         if (prefix == null) {
             prefix = generatePrefix(namespace);
 
-            while (xmlWriter.getNamespaceContext().getNamespaceURI(prefix) != null) {
+            while (xmlWriter.getNamespaceContext()
+                    .getNamespaceURI(prefix) != null) {
                 prefix = org.apache.axis2.databinding.utils.BeanUtil
                         .getUniquePrefix();
             }
@@ -294,7 +288,7 @@ public class ModifySubscriptionE implements
 
     /**
      * databinding method to get an XML representation of this object
-     * 
+     *
      */
     public javax.xml.stream.XMLStreamReader getPullParser(
             javax.xml.namespace.QName qName)
@@ -345,11 +339,12 @@ public class ModifySubscriptionE implements
                         if (reader.isStartElement()
                                 && new javax.xml.namespace.QName(
                                         "http://oscm.org/xsd",
-                                        "modifySubscription").equals(reader
-                                        .getName())) {
+                                        "modifySubscription")
+                                                .equals(reader.getName())) {
 
-                            object.setModifySubscription(org.oscm.xsd.ModifySubscription.Factory
-                                    .parse(reader));
+                            object.setModifySubscription(
+                                    org.oscm.xsd.ModifySubscription.Factory
+                                            .parse(reader));
 
                         } // End of if for expected property start element
 

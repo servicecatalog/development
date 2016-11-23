@@ -24,18 +24,18 @@ import org.oscm.app.common.controller.LogAndExceptionConverter;
 import org.oscm.app.common.data.Context;
 import org.oscm.app.openstack.data.FlowState;
 import org.oscm.app.openstack.i18n.Messages;
-import org.oscm.app.v1_0.APPlatformServiceFactory;
-import org.oscm.app.v1_0.data.ControllerSettings;
-import org.oscm.app.v1_0.data.InstanceDescription;
-import org.oscm.app.v1_0.data.InstanceStatus;
-import org.oscm.app.v1_0.data.InstanceStatusUsers;
-import org.oscm.app.v1_0.data.LocalizedText;
-import org.oscm.app.v1_0.data.OperationParameter;
-import org.oscm.app.v1_0.data.ProvisioningSettings;
-import org.oscm.app.v1_0.data.ServiceUser;
-import org.oscm.app.v1_0.exceptions.APPlatformException;
-import org.oscm.app.v1_0.intf.APPlatformController;
-import org.oscm.app.v1_0.intf.APPlatformService;
+import org.oscm.app.v2_0.APPlatformServiceFactory;
+import org.oscm.app.v2_0.data.ControllerSettings;
+import org.oscm.app.v2_0.data.InstanceDescription;
+import org.oscm.app.v2_0.data.InstanceStatus;
+import org.oscm.app.v2_0.data.InstanceStatusUsers;
+import org.oscm.app.v2_0.data.LocalizedText;
+import org.oscm.app.v2_0.data.OperationParameter;
+import org.oscm.app.v2_0.data.ProvisioningSettings;
+import org.oscm.app.v2_0.data.ServiceUser;
+import org.oscm.app.v2_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.intf.APPlatformController;
+import org.oscm.app.v2_0.intf.APPlatformService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,8 +58,8 @@ import org.slf4j.LoggerFactory;
  */
 @Stateless(mappedName = "bss/app/controller/" + OpenStackController.ID)
 @Remote(APPlatformController.class)
-public class OpenStackController extends ProvisioningValidator
-        implements APPlatformController {
+public class OpenStackController extends ProvisioningValidator implements
+        APPlatformController {
 
     public static final String ID = "ess.openstack";
 
@@ -113,6 +113,7 @@ public class OpenStackController extends ProvisioningValidator
             id.setInstanceId("stack-" + UUID.randomUUID().toString());
             id.setBaseUrl("baseurl");
             id.setChangedParameters(settings.getParameters());
+            id.setChangedAttributes(settings.getAttributes());
             LOGGER.info("createInstance({})", LogAndExceptionConverter
                     .getLogText(id.getInstanceId(), settings));
             return id;
@@ -152,6 +153,7 @@ public class OpenStackController extends ProvisioningValidator
 
             InstanceStatus result = new InstanceStatus();
             result.setChangedParameters(settings.getParameters());
+            result.setChangedAttributes(settings.getAttributes());
             return result;
         } catch (Exception t) {
             throw LogAndExceptionConverter.createAndLogPlatformException(t,
@@ -185,17 +187,19 @@ public class OpenStackController extends ProvisioningValidator
     public InstanceStatus modifyInstance(String instanceId,
             ProvisioningSettings currentSettings,
             ProvisioningSettings newSettings) throws APPlatformException {
-        LOGGER.info("modifyInstance({})", LogAndExceptionConverter
-                .getLogText(instanceId, currentSettings));
+        LOGGER.info("modifyInstance({})", LogAndExceptionConverter.getLogText(
+                instanceId, currentSettings));
         try {
-            newSettings.getParameters().put(PropertyHandler.STACK_NAME,
-                    currentSettings.getParameters()
-                            .get(PropertyHandler.STACK_NAME));
+            newSettings.getParameters().put(
+                    PropertyHandler.STACK_NAME,
+                    currentSettings.getParameters().get(
+                            PropertyHandler.STACK_NAME));
             PropertyHandler ph = new PropertyHandler(newSettings);
             ph.setState(FlowState.MODIFICATION_REQUESTED);
 
             InstanceStatus result = new InstanceStatus();
             result.setChangedParameters(newSettings.getParameters());
+            result.setChangedAttributes(newSettings.getAttributes());
             return result;
         } catch (Exception t) {
             throw LogAndExceptionConverter.createAndLogPlatformException(t,
@@ -273,8 +277,7 @@ public class OpenStackController extends ProvisioningValidator
             if (FlowState.MANUAL.equals(propertyHandler.getState())) {
                 propertyHandler.setState(FlowState.FINISHED);
                 status = setNotificationStatus(settings, propertyHandler);
-                LOGGER.debug(
-                        "Got finish event => changing instance status to finished");
+                LOGGER.debug("Got finish event => changing instance status to finished");
             } else {
                 APPlatformException pe = new APPlatformException(
                         "Got finish event but instance is in state "
@@ -317,6 +320,7 @@ public class OpenStackController extends ProvisioningValidator
 
             InstanceStatus result = new InstanceStatus();
             result.setChangedParameters(settings.getParameters());
+            result.setChangedAttributes(settings.getAttributes());
             return result;
         } catch (Exception t) {
             throw LogAndExceptionConverter.createAndLogPlatformException(t,
@@ -355,6 +359,7 @@ public class OpenStackController extends ProvisioningValidator
 
             InstanceStatus result = new InstanceStatus();
             result.setChangedParameters(settings.getParameters());
+            result.setChangedAttributes(settings.getAttributes());
             return result;
         } catch (Exception t) {
             throw LogAndExceptionConverter.createAndLogPlatformException(t,
@@ -439,8 +444,8 @@ public class OpenStackController extends ProvisioningValidator
 
     @Override
     public List<OperationParameter> getOperationParameters(String userId,
-            String instanceId, String operationId,
-            ProvisioningSettings settings) throws APPlatformException {
+            String instanceId, String operationId, ProvisioningSettings settings)
+            throws APPlatformException {
         return null; // not applicable
     }
 
@@ -493,6 +498,7 @@ public class OpenStackController extends ProvisioningValidator
                 status.setRunWithTimer(true);
                 status.setIsReady(false);
                 status.setChangedParameters(settings.getParameters());
+                status.setChangedAttributes(settings.getAttributes());
             }
             return status;
         } catch (Exception t) {
@@ -514,16 +520,18 @@ public class OpenStackController extends ProvisioningValidator
         status.setRunWithTimer(true);
         status.setDescription(getProvisioningStatusText(propertyHandler));
         status.setChangedParameters(settings.getParameters());
+        status.setChangedAttributes(settings.getAttributes());
         return status;
     }
 
     private List<LocalizedText> getProvisioningStatusText(
             PropertyHandler paramHandler) {
-        List<LocalizedText> messages = Messages
-                .getAll("status_" + paramHandler.getState());
+        List<LocalizedText> messages = Messages.getAll("status_"
+                + paramHandler.getState());
         for (LocalizedText message : messages) {
-            if (message.getText() == null || (message.getText().startsWith("!")
-                    && message.getText().endsWith("!"))) {
+            if (message.getText() == null
+                    || (message.getText().startsWith("!") && message.getText()
+                            .endsWith("!"))) {
                 message.setText(Messages.get(message.getLocale(),
                         "status_INSTANCE_OVERALL"));
             }

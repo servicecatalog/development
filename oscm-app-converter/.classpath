@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="javasrc"/>
+	<classpathentry kind="src" path="javares"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/javalib/javaee.jar"/>
+	<classpathentry kind="lib" path="/libraries/slf4j/javalib/slf4j-api-1.7.7.jar"/>
+	<classpathentry kind="lib" path="/libraries/slf4j/javalib/slf4j-simple-1.7.7.jar"/>
+	<classpathentry kind="lib" path="/libraries/wsdl4j/javalib/wsdl4j.jar"/>
+	<classpathentry kind="lib" path="/libraries/apache-log4j/javalib/log4j-1.2.16.jar"/>
+	<classpathentry kind="lib" path="/libraries/redhat-hibernate/javalib/antlr-2.7.7.jar"/>
+	<classpathentry kind="lib" path="/libraries/redhat-hibernate/javalib/dom4j-1.6.1.jar"/>
+	<classpathentry kind="lib" path="/libraries/redhat-hibernate/javalib/hibernate-commons-annotations-4.0.1.Final.jar"/>
+	<classpathentry kind="lib" path="/libraries/redhat-hibernate/javalib/hibernate-core-4.1.8.Final.jar"/>
+	<classpathentry kind="lib" path="/libraries/redhat-hibernate/javalib/hibernate-entitymanager-4.1.8.Final.jar"/>
+	<classpathentry kind="lib" path="/libraries/redhat-hibernate/javalib/hibernate-jpa-2.0-api-1.0.1.Final.jar"/>
+	<classpathentry kind="lib" path="/libraries/redhat-hibernate/javalib/javassist-3.15.0-GA.jar"/>
+	<classpathentry kind="lib" path="/libraries/redhat-hibernate/javalib/jboss-logging-3.1.0.GA.jar"/>
+	<classpathentry kind="lib" path="/libraries/redhat-hibernate/javalib/jboss-transaction-api_1.1_spec-1.0.0.Final.jar"/>
+	<classpathentry kind="lib" path="/libraries/slf4j-log4j/javalib/slf4j-log4j12-1.7.7.jar"/>
+	<classpathentry kind="lib" path="/libraries/apache-codec/javalib/commons-codec-1.7.jar"/>
+	<classpathentry kind="lib" path="/libraries/apache-validator/javalib/commons-validator-1.4.0.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-app-extsvc-1-0"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-app-extsvc-2-0"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

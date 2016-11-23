@@ -28,15 +28,15 @@ import javax.servlet.http.HttpSession;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
-
-import org.oscm.test.EJBTestBase;
-import org.oscm.test.ejb.TestContainer;
 import org.oscm.app.common.APPlatformServiceMockup;
 import org.oscm.app.common.intf.ControllerAccess;
-import org.oscm.app.v1_0.data.ControllerConfigurationKey;
-import org.oscm.app.v1_0.data.PasswordAuthentication;
-import org.oscm.app.v1_0.exceptions.APPlatformException;
-import org.oscm.app.v1_0.intf.APPlatformService;
+import org.oscm.app.v2_0.data.ControllerConfigurationKey;
+import org.oscm.app.v2_0.data.PasswordAuthentication;
+import org.oscm.app.v2_0.data.Setting;
+import org.oscm.app.v2_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.intf.APPlatformService;
+import org.oscm.test.EJBTestBase;
+import org.oscm.test.ejb.TestContainer;
 
 /**
  * Unit test of configuration bean
@@ -198,7 +198,7 @@ public class ConfigurationBeanTest extends EJBTestBase {
         ConfigurationBean bean = getTestBean();
 
         // Remove one default value from controller settings
-        HashMap<String, String> def_settings = platformService
+        HashMap<String, Setting> def_settings = platformService
                 .getControllerSettings("ess.common",
                         new PasswordAuthentication("user", "password"));
         def_settings.remove(ControllerConfigurationKey.BSS_ORGANIZATION_ID

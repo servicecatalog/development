@@ -24,8 +24,10 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc-operation"/>
 	<classpathentry kind="lib" path="/libraries/apache-validator/javalib/commons-validator-1.4.0.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/oscm-app-extsvc-1-0"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-app-extsvc-2-0"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-apiversioning-client-handler"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-webservices-client"/>
+	<classpathentry kind="src" path="/oscm-app-extsvc-1-0"/>
+	<classpathentry kind="src" path="/oscm-app-converter"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

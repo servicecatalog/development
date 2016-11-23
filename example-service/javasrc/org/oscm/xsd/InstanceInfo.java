@@ -1,3 +1,4 @@
+
 /**
  * InstanceInfo.java
  *
@@ -10,13 +11,57 @@ package org.oscm.xsd;
 /**
  * InstanceInfo bean class
  */
-@SuppressWarnings({ "rawtypes", "unused", "serial", "null", "unchecked" })
+
 public class InstanceInfo implements org.apache.axis2.databinding.ADBBean {
     /*
      * This type was generated from the piece of schema that had name =
-     * instanceInfo Namespace URI = http://oscm.org/xsd Namespace Prefix
-     * = ns1
+     * instanceInfo Namespace URI = http://oscm.org/xsd Namespace Prefix = ns1
      */
+
+    /**
+     * field for AccessInfo
+     */
+
+    protected java.lang.String localAccessInfo;
+    /*
+     * This tracker boolean wil be used to detect whether the user called the
+     * set method for this attribute. It will be used to determine whether to
+     * include this field in the serialized XML
+     */
+    protected boolean localAccessInfoTracker = false;
+    /**
+     * field for BaseUrl
+     */
+
+    protected java.lang.String localBaseUrl;
+    /*
+     * This tracker boolean wil be used to detect whether the user called the
+     * set method for this attribute. It will be used to determine whether to
+     * include this field in the serialized XML
+     */
+    protected boolean localBaseUrlTracker = false;
+    /**
+     * field for InstanceId
+     */
+
+    protected java.lang.String localInstanceId;
+    /*
+     * This tracker boolean wil be used to detect whether the user called the
+     * set method for this attribute. It will be used to determine whether to
+     * include this field in the serialized XML
+     */
+    protected boolean localInstanceIdTracker = false;
+    /**
+     * field for LoginPath
+     */
+
+    protected java.lang.String localLoginPath;
+    /*
+     * This tracker boolean wil be used to detect whether the user called the
+     * set method for this attribute. It will be used to determine whether to
+     * include this field in the serialized XML
+     */
+    protected boolean localLoginPathTracker = false;
 
     private static java.lang.String generatePrefix(java.lang.String namespace) {
         if (namespace.equals("http://oscm.org/xsd")) {
@@ -26,21 +71,27 @@ public class InstanceInfo implements org.apache.axis2.databinding.ADBBean {
     }
 
     /**
-     * field for AccessInfo
+     * isReaderMTOMAware
+     *
+     * @return true if the reader supports MTOM
      */
+    public static boolean isReaderMTOMAware(
+            javax.xml.stream.XMLStreamReader reader) {
+        boolean isReaderMTOMAware = false;
 
-    protected java.lang.String localAccessInfo;
-
-    /*
-     * This tracker boolean wil be used to detect whether the user called the
-     * set method for this attribute. It will be used to determine whether to
-     * include this field in the serialized XML
-     */
-    protected boolean localAccessInfoTracker = false;
+        try {
+            isReaderMTOMAware = java.lang.Boolean.TRUE
+                    .equals(reader.getProperty(
+                            org.apache.axiom.om.OMConstants.IS_DATA_HANDLERS_AWARE));
+        } catch (java.lang.IllegalArgumentException e) {
+            isReaderMTOMAware = false;
+        }
+        return isReaderMTOMAware;
+    }
 
     /**
      * Auto generated getter method
-     * 
+     *
      * @return java.lang.String
      */
     public java.lang.String getAccessInfo() {
@@ -49,7 +100,7 @@ public class InstanceInfo implements org.apache.axis2.databinding.ADBBean {
 
     /**
      * Auto generated setter method
-     * 
+     *
      * @param param
      *            AccessInfo
      */
@@ -68,21 +119,8 @@ public class InstanceInfo implements org.apache.axis2.databinding.ADBBean {
     }
 
     /**
-     * field for BaseUrl
-     */
-
-    protected java.lang.String localBaseUrl;
-
-    /*
-     * This tracker boolean wil be used to detect whether the user called the
-     * set method for this attribute. It will be used to determine whether to
-     * include this field in the serialized XML
-     */
-    protected boolean localBaseUrlTracker = false;
-
-    /**
      * Auto generated getter method
-     * 
+     *
      * @return java.lang.String
      */
     public java.lang.String getBaseUrl() {
@@ -91,7 +129,7 @@ public class InstanceInfo implements org.apache.axis2.databinding.ADBBean {
 
     /**
      * Auto generated setter method
-     * 
+     *
      * @param param
      *            BaseUrl
      */
@@ -110,21 +148,8 @@ public class InstanceInfo implements org.apache.axis2.databinding.ADBBean {
     }
 
     /**
-     * field for InstanceId
-     */
-
-    protected java.lang.String localInstanceId;
-
-    /*
-     * This tracker boolean wil be used to detect whether the user called the
-     * set method for this attribute. It will be used to determine whether to
-     * include this field in the serialized XML
-     */
-    protected boolean localInstanceIdTracker = false;
-
-    /**
      * Auto generated getter method
-     * 
+     *
      * @return java.lang.String
      */
     public java.lang.String getInstanceId() {
@@ -133,7 +158,7 @@ public class InstanceInfo implements org.apache.axis2.databinding.ADBBean {
 
     /**
      * Auto generated setter method
-     * 
+     *
      * @param param
      *            InstanceId
      */
@@ -152,21 +177,8 @@ public class InstanceInfo implements org.apache.axis2.databinding.ADBBean {
     }
 
     /**
-     * field for LoginPath
-     */
-
-    protected java.lang.String localLoginPath;
-
-    /*
-     * This tracker boolean wil be used to detect whether the user called the
-     * set method for this attribute. It will be used to determine whether to
-     * include this field in the serialized XML
-     */
-    protected boolean localLoginPathTracker = false;
-
-    /**
      * Auto generated getter method
-     * 
+     *
      * @return java.lang.String
      */
     public java.lang.String getLoginPath() {
@@ -175,7 +187,7 @@ public class InstanceInfo implements org.apache.axis2.databinding.ADBBean {
 
     /**
      * Auto generated setter method
-     * 
+     *
      * @param param
      *            LoginPath
      */
@@ -194,26 +206,7 @@ public class InstanceInfo implements org.apache.axis2.databinding.ADBBean {
     }
 
     /**
-     * isReaderMTOMAware
-     * 
-     * @return true if the reader supports MTOM
-     */
-    public static boolean isReaderMTOMAware(
-            javax.xml.stream.XMLStreamReader reader) {
-        boolean isReaderMTOMAware = false;
-
-        try {
-            isReaderMTOMAware = java.lang.Boolean.TRUE
-                    .equals(reader
-                            .getProperty(org.apache.axiom.om.OMConstants.IS_DATA_HANDLERS_AWARE));
-        } catch (java.lang.IllegalArgumentException e) {
-            isReaderMTOMAware = false;
-        }
-        return isReaderMTOMAware;
-    }
-
-    /**
-     * 
+     *
      * @param parentQName
      * @param factory
      * @return org.apache.axiom.om.OMElement
@@ -226,7 +219,6 @@ public class InstanceInfo implements org.apache.axis2.databinding.ADBBean {
         org.apache.axiom.om.OMDataSource dataSource = new org.apache.axis2.databinding.ADBDataSource(
                 this, parentQName) {
 
-            @Override
             public void serialize(
                     org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter)
                     throws javax.xml.stream.XMLStreamException {
@@ -238,8 +230,7 @@ public class InstanceInfo implements org.apache.axis2.databinding.ADBBean {
 
     }
 
-    public void serialize(
-            final javax.xml.namespace.QName parentQName,
+    public void serialize(final javax.xml.namespace.QName parentQName,
             final org.apache.axiom.om.OMFactory factory,
             org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter)
             throws javax.xml.stream.XMLStreamException,
@@ -247,8 +238,7 @@ public class InstanceInfo implements org.apache.axis2.databinding.ADBBean {
         serialize(parentQName, factory, xmlWriter, false);
     }
 
-    public void serialize(
-            final javax.xml.namespace.QName parentQName,
+    public void serialize(final javax.xml.namespace.QName parentQName,
             final org.apache.axiom.om.OMFactory factory,
             org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter,
             boolean serializeType) throws javax.xml.stream.XMLStreamException,
@@ -303,8 +293,8 @@ public class InstanceInfo implements org.apache.axis2.databinding.ADBBean {
                 if (prefix == null) {
                     prefix = generatePrefix(namespace);
 
-                    xmlWriter
-                            .writeStartElement(prefix, "accessInfo", namespace);
+                    xmlWriter.writeStartElement(prefix, "accessInfo",
+                            namespace);
                     xmlWriter.writeNamespace(prefix, namespace);
                     xmlWriter.setPrefix(prefix, namespace);
 
@@ -372,8 +362,8 @@ public class InstanceInfo implements org.apache.axis2.databinding.ADBBean {
                 if (prefix == null) {
                     prefix = generatePrefix(namespace);
 
-                    xmlWriter
-                            .writeStartElement(prefix, "instanceId", namespace);
+                    xmlWriter.writeStartElement(prefix, "instanceId",
+                            namespace);
                     xmlWriter.writeNamespace(prefix, namespace);
                     xmlWriter.setPrefix(prefix, namespace);
 
@@ -516,20 +506,19 @@ public class InstanceInfo implements org.apache.axis2.databinding.ADBBean {
             }
 
             if (prefix.trim().length() > 0) {
-                xmlWriter.writeCharacters(prefix
-                        + ":"
+                xmlWriter.writeCharacters(prefix + ":"
                         + org.apache.axis2.databinding.utils.ConverterUtil
                                 .convertToString(qname));
             } else {
                 // i.e this is the default namespace
-                xmlWriter
-                        .writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil
+                xmlWriter.writeCharacters(
+                        org.apache.axis2.databinding.utils.ConverterUtil
                                 .convertToString(qname));
             }
 
         } else {
-            xmlWriter
-                    .writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil
+            xmlWriter.writeCharacters(
+                    org.apache.axis2.databinding.utils.ConverterUtil
                             .convertToString(qname));
         }
     }
@@ -560,9 +549,7 @@ public class InstanceInfo implements org.apache.axis2.databinding.ADBBean {
                     }
 
                     if (prefix.trim().length() > 0) {
-                        stringToWrite
-                                .append(prefix)
-                                .append(":")
+                        stringToWrite.append(prefix).append(":")
                                 .append(org.apache.axis2.databinding.utils.ConverterUtil
                                         .convertToString(qnames[i]));
                     } else {
@@ -593,7 +580,8 @@ public class InstanceInfo implements org.apache.axis2.databinding.ADBBean {
         if (prefix == null) {
             prefix = generatePrefix(namespace);
 
-            while (xmlWriter.getNamespaceContext().getNamespaceURI(prefix) != null) {
+            while (xmlWriter.getNamespaceContext()
+                    .getNamespaceURI(prefix) != null) {
                 prefix = org.apache.axis2.databinding.utils.BeanUtil
                         .getUniquePrefix();
             }
@@ -607,7 +595,7 @@ public class InstanceInfo implements org.apache.axis2.databinding.ADBBean {
 
     /**
      * databinding method to get an XML representation of this object
-     * 
+     *
      */
     public javax.xml.stream.XMLStreamReader getPullParser(
             javax.xml.namespace.QName qName)
@@ -617,52 +605,48 @@ public class InstanceInfo implements org.apache.axis2.databinding.ADBBean {
         java.util.ArrayList attribList = new java.util.ArrayList();
 
         if (localAccessInfoTracker) {
-            elementList.add(new javax.xml.namespace.QName(
-                    "http://oscm.org/xsd", "accessInfo"));
+            elementList.add(new javax.xml.namespace.QName("http://oscm.org/xsd",
+                    "accessInfo"));
 
             if (localAccessInfo != null) {
-                elementList
-                        .add(org.apache.axis2.databinding.utils.ConverterUtil
-                                .convertToString(localAccessInfo));
+                elementList.add(org.apache.axis2.databinding.utils.ConverterUtil
+                        .convertToString(localAccessInfo));
             } else {
                 throw new org.apache.axis2.databinding.ADBException(
                         "accessInfo cannot be null!!");
             }
         }
         if (localBaseUrlTracker) {
-            elementList.add(new javax.xml.namespace.QName(
-                    "http://oscm.org/xsd", "baseUrl"));
+            elementList.add(new javax.xml.namespace.QName("http://oscm.org/xsd",
+                    "baseUrl"));
 
             if (localBaseUrl != null) {
-                elementList
-                        .add(org.apache.axis2.databinding.utils.ConverterUtil
-                                .convertToString(localBaseUrl));
+                elementList.add(org.apache.axis2.databinding.utils.ConverterUtil
+                        .convertToString(localBaseUrl));
             } else {
                 throw new org.apache.axis2.databinding.ADBException(
                         "baseUrl cannot be null!!");
             }
         }
         if (localInstanceIdTracker) {
-            elementList.add(new javax.xml.namespace.QName(
-                    "http://oscm.org/xsd", "instanceId"));
+            elementList.add(new javax.xml.namespace.QName("http://oscm.org/xsd",
+                    "instanceId"));
 
             if (localInstanceId != null) {
-                elementList
-                        .add(org.apache.axis2.databinding.utils.ConverterUtil
-                                .convertToString(localInstanceId));
+                elementList.add(org.apache.axis2.databinding.utils.ConverterUtil
+                        .convertToString(localInstanceId));
             } else {
                 throw new org.apache.axis2.databinding.ADBException(
                         "instanceId cannot be null!!");
             }
         }
         if (localLoginPathTracker) {
-            elementList.add(new javax.xml.namespace.QName(
-                    "http://oscm.org/xsd", "loginPath"));
+            elementList.add(new javax.xml.namespace.QName("http://oscm.org/xsd",
+                    "loginPath"));
 
             if (localLoginPath != null) {
-                elementList
-                        .add(org.apache.axis2.databinding.utils.ConverterUtil
-                                .convertToString(localLoginPath));
+                elementList.add(org.apache.axis2.databinding.utils.ConverterUtil
+                        .convertToString(localLoginPath));
             } else {
                 throw new org.apache.axis2.databinding.ADBException(
                         "loginPath cannot be null!!");
@@ -689,7 +673,8 @@ public class InstanceInfo implements org.apache.axis2.databinding.ADBBean {
          * is a complex type, the reader is positioned at the end element of its
          * outer element
          */
-        public static InstanceInfo parse(javax.xml.stream.XMLStreamReader reader)
+        public static InstanceInfo parse(
+                javax.xml.stream.XMLStreamReader reader)
                 throws java.lang.Exception {
             InstanceInfo object = new InstanceInfo();
 
@@ -703,11 +688,11 @@ public class InstanceInfo implements org.apache.axis2.databinding.ADBBean {
                     reader.next();
 
                 if (reader.getAttributeValue(
-                        "http://www.w3.org/2001/XMLSchema-instance", "type") != null) {
-                    java.lang.String fullTypeName = reader
-                            .getAttributeValue(
-                                    "http://www.w3.org/2001/XMLSchema-instance",
-                                    "type");
+                        "http://www.w3.org/2001/XMLSchema-instance",
+                        "type") != null) {
+                    java.lang.String fullTypeName = reader.getAttributeValue(
+                            "http://www.w3.org/2001/XMLSchema-instance",
+                            "type");
                     if (fullTypeName != null) {
                         java.lang.String nsPrefix = null;
                         if (fullTypeName.indexOf(":") > -1) {
@@ -722,8 +707,8 @@ public class InstanceInfo implements org.apache.axis2.databinding.ADBBean {
                         if (!"instanceInfo".equals(type)) {
                             // find namespace for the prefix
                             java.lang.String nsUri = reader
-                                    .getNamespaceContext().getNamespaceURI(
-                                            nsPrefix);
+                                    .getNamespaceContext()
+                                    .getNamespaceURI(nsPrefix);
                             return (InstanceInfo) org.oscm.xsd.ExtensionMapper
                                     .getTypeObject(nsUri, type, reader);
                         }
@@ -743,14 +728,14 @@ public class InstanceInfo implements org.apache.axis2.databinding.ADBBean {
                     reader.next();
 
                 if (reader.isStartElement()
-                        && new javax.xml.namespace.QName(
-                                "http://oscm.org/xsd", "accessInfo")
-                                .equals(reader.getName())) {
+                        && new javax.xml.namespace.QName("http://oscm.org/xsd",
+                                "accessInfo").equals(reader.getName())) {
 
                     java.lang.String content = reader.getElementText();
 
-                    object.setAccessInfo(org.apache.axis2.databinding.utils.ConverterUtil
-                            .convertToString(content));
+                    object.setAccessInfo(
+                            org.apache.axis2.databinding.utils.ConverterUtil
+                                    .convertToString(content));
 
                     reader.next();
 
@@ -764,14 +749,14 @@ public class InstanceInfo implements org.apache.axis2.databinding.ADBBean {
                     reader.next();
 
                 if (reader.isStartElement()
-                        && new javax.xml.namespace.QName(
-                                "http://oscm.org/xsd", "baseUrl")
-                                .equals(reader.getName())) {
+                        && new javax.xml.namespace.QName("http://oscm.org/xsd",
+                                "baseUrl").equals(reader.getName())) {
 
                     java.lang.String content = reader.getElementText();
 
-                    object.setBaseUrl(org.apache.axis2.databinding.utils.ConverterUtil
-                            .convertToString(content));
+                    object.setBaseUrl(
+                            org.apache.axis2.databinding.utils.ConverterUtil
+                                    .convertToString(content));
 
                     reader.next();
 
@@ -785,14 +770,14 @@ public class InstanceInfo implements org.apache.axis2.databinding.ADBBean {
                     reader.next();
 
                 if (reader.isStartElement()
-                        && new javax.xml.namespace.QName(
-                                "http://oscm.org/xsd", "instanceId")
-                                .equals(reader.getName())) {
+                        && new javax.xml.namespace.QName("http://oscm.org/xsd",
+                                "instanceId").equals(reader.getName())) {
 
                     java.lang.String content = reader.getElementText();
 
-                    object.setInstanceId(org.apache.axis2.databinding.utils.ConverterUtil
-                            .convertToString(content));
+                    object.setInstanceId(
+                            org.apache.axis2.databinding.utils.ConverterUtil
+                                    .convertToString(content));
 
                     reader.next();
 
@@ -806,14 +791,14 @@ public class InstanceInfo implements org.apache.axis2.databinding.ADBBean {
                     reader.next();
 
                 if (reader.isStartElement()
-                        && new javax.xml.namespace.QName(
-                                "http://oscm.org/xsd", "loginPath")
-                                .equals(reader.getName())) {
+                        && new javax.xml.namespace.QName("http://oscm.org/xsd",
+                                "loginPath").equals(reader.getName())) {
 
                     java.lang.String content = reader.getElementText();
 
-                    object.setLoginPath(org.apache.axis2.databinding.utils.ConverterUtil
-                            .convertToString(content));
+                    object.setLoginPath(
+                            org.apache.axis2.databinding.utils.ConverterUtil
+                                    .convertToString(content));
 
                     reader.next();
 

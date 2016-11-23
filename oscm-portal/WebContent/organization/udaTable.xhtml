@@ -1,29 +1,42 @@
 <!-- Copyright FUJITSU LIMITED 2016-->
-<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
-                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
-  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
-  xmlns:rich="http://richfaces.org/rich" xmlns:c="http://java.sun.com/jsp/jstl/core"
-  xmlns:a4j="http://richfaces.org/a4j" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
-  xmlns:t="http://myfaces.apache.org/tomahawk">
-  <adm:dataTable tableId="udaTable" value="#{inputList}" emptyText="#{msg['organization.manageUdas.noData']}" 
-    height="#{height}" collapsible="#{collapsible}"
-  	label="#{msg['organization.manageUdas.table.header']}">
+                xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:rich="http://richfaces.org/rich" xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:a4j="http://richfaces.org/a4j"
+                xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+                xmlns:t="http://myfaces.apache.org/tomahawk">
+  <adm:dataTable tableId="udaTable" value="#{inputList}" emptyText="#{msg['organization.manageUdas.noData']}"
+                 height="#{height}" collapsible="#{collapsible}"
+                 label="#{msg['organization.manageUdas.table.header']}">
     <rich:column>
       <f:facet name="header">
-        <h:outputText value="#{msg['udaDefinition.udaId']}" />
+        <h:outputText value="#{msg['udaDefinition.udaId']}"/>
       </f:facet>
-      <h:outputText id="udaId" value="#{rowItem.udaId}" />
+      <h:outputText id="udaId" value="#{rowItem.udaId}"/>
     </rich:column>
     <rich:column>
       <f:facet name="header">
-        <h:outputText value="#{msg['uda.value']}" />
+        <h:outputText value="#{msg['uda.value']}"/>
       </f:facet>
       <h:inputText id="udaValue" label="#{msg['uda.value']}" onchange="setDirty(true)" value="#{rowItem.udaValue}"
-      styleClass="field" maxlength="#{appBean.descriptionLen}" disabled="#{empty disabled or disabled}"
-      rendered="#{rowItem.inputRendered}" />
-    <adm:message id="udaValueErrorMsg" for="udaValue" rendered="#{rowItem.inputRendered}" />
-    <h:outputText value="#{rowItem.udaValue}" rendered="#{rowItem.labelRendered}"/>
+                   styleClass="field" maxlength="#{appBean.descriptionLen}" disabled="#{empty disabled or disabled}"
+                   rendered="#{rowItem.inputRendered and not rowItem.inputEncrypted}"/>
+
+      <adm:labelAndInputSecret id="udaValueSecret"
+                               value="#{rowItem.udaValue}"
+                               converterId="trimToNotNullConverter"
+                               maxlength="#{appBean.descriptionLen}"
+                               rendered="#{rowItem.inputRendered and rowItem.inputEncrypted}"
+                               disabled="#{empty disabled or disabled}"
+                               styleClass="field"
+                               renderedLabel="false"/>
+
+      <adm:message id="udaValueErrorMsg" for="udaValue" rendered="#{rowItem.inputRendered}"/>
+      <h:outputText value="#{rowItem.udaValue}" rendered="#{rowItem.labelRendered and not rowItem.inputEncrypted}"/>
+      <adm:secretOutputText id="secretUdaText"
+                            rendered="#{rowItem.labelRendered and rowItem.inputEncrypted and not empty rowItem.udaValue}"/>
     </rich:column>
   </adm:dataTable>
 </ui:composition>

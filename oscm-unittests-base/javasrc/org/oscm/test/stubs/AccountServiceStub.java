@@ -78,6 +78,11 @@ public class AccountServiceStub implements AccountService, AccountServiceLocal {
     }
 
     @Override
+    public String getLocalizedAttributeName(long key, String locale) {
+        return null;
+    }
+
+    @Override
     public VOOrganization registerKnownCustomer(VOOrganization organization,
             VOUserDetails user, LdapProperties organizationProperties,
             String marketplaceId) throws ValidationException {
@@ -220,9 +225,10 @@ public class AccountServiceStub implements AccountService, AccountServiceLocal {
     }
 
     @Override
-    public List<VOUda> getUdas(String targetType, long targetObjectKey)
-            throws ValidationException, OrganizationAuthoritiesException,
-            ObjectNotFoundException, OperationNotPermittedException {
+    public List<VOUda> getUdas(String targetType, long targetObjectKey,
+            boolean checkSeller) throws ValidationException,
+            OrganizationAuthoritiesException, ObjectNotFoundException,
+            OperationNotPermittedException {
         throw new UnsupportedOperationException();
     }
 
@@ -381,7 +387,7 @@ public class AccountServiceStub implements AccountService, AccountServiceLocal {
     public List<VOPaymentInfo> getPaymentInfosForOrgAdmin() {
         return null;
     }
-    
+
     @Override
     public VOOrganization getMyCustomer(VOOrganization org, String locale)
             throws ObjectNotFoundException {
@@ -392,7 +398,6 @@ public class AccountServiceStub implements AccountService, AccountServiceLocal {
     public List<VOServicePaymentConfiguration> getServicePaymentConfiguration(
             PerformanceHint performanceHint) {
         return null;
-    }   
-
+    }
 
 }

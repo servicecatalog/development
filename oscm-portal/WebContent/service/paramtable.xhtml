@@ -96,14 +96,26 @@
                 <f:validator validatorId="ParameterValueValidator" />
                 <f:converter converterId="trimConverter" />
               </h:inputText>
-              <h:inputSecret id="pwdValue" label="#{rowItem.label}" value="#{rowItem.parameter.value}"
+              <h:inputSecret id="pwdValue" label="#{rowItem.label}" value="#{rowItem.passwordValueToStore}"
                 maxlength="#{appBean.descriptionLen}" required="#{rowItem.required}" dataType="string"
-                rendered="#{rowItem.parameterDefinition.valueTypeString and rowItem.passwordType}"
+                rendered="#{rowItem.parameterDefinition.valueTypeString and rowItem.passwordType and not readOnly}"
                 onchange="setDirty(true);" redisplay="true" disabled="#{editDisabled}">
                 <f:validator validatorId="ParameterValueValidator" />
                 <f:converter converterId="trimConverter" />
               </h:inputSecret>
-              
+
+              <adm:secretOutputText id="pwdValueRO" label="#{row.label}"
+                                    rendered="#{rowItem.parameterDefinition.valueTypeString and rowItem.passwordType and readOnly}"/>
+              <h:inputSecret id="pwdTypeValue" label="#{rowItem.label}" value="#{rowItem.passwordValueToStore}"
+                             maxlength="#{appBean.descriptionLen}" required="#{rowItem.required}" dataType="string"
+                             rendered="#{rowItem.parameterDefinition.valueTypePWD and not readOnly}"
+                             onchange="setDirty(true);" redisplay="true" disabled="#{editDisabled}">
+                <f:validator validatorId="ParameterValueValidator" />
+                <f:converter converterId="trimConverter" />
+              </h:inputSecret>
+
+              <adm:secretOutputText id="pwdTypeValueRO" label="#{row.label}"
+                                    rendered="#{rowItem.parameterDefinition.valueTypePWD and rowItem.passwordType and readOnly}"/>
               <a4j:outputPanel layout="block" styleClass="shortenedText" style="width:450px;"
               rendered="#{rowItem.parameterDefinition.valueTypeString and editDisabled} and not rowItem.passwordType" >
                   <h:outputText value="#{rowItem.parameter.value}" title="#{rowItem.parameter.value}"/>

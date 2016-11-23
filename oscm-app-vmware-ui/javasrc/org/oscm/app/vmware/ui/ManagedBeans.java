@@ -13,19 +13,20 @@ import java.util.HashMap;
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpSession;
 
-import org.oscm.app.v1_0.data.PasswordAuthentication;
-import org.oscm.app.v1_0.data.ProvisioningSettings;
-import org.oscm.app.v1_0.exceptions.APPlatformException;
-import org.oscm.app.v1_0.exceptions.AuthenticationException;
-import org.oscm.app.v1_0.exceptions.ConfigurationException;
-import org.oscm.app.v1_0.intf.APPlatformService;
+import org.oscm.app.v2_0.data.PasswordAuthentication;
+import org.oscm.app.v2_0.data.ProvisioningSettings;
+import org.oscm.app.v2_0.data.Setting;
+import org.oscm.app.v2_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.exceptions.AuthenticationException;
+import org.oscm.app.v2_0.exceptions.ConfigurationException;
+import org.oscm.app.v2_0.intf.APPlatformService;
 import org.oscm.app.vmware.business.Controller;
 import org.oscm.app.vmware.business.VMPropertyHandler;
 import org.oscm.app.vmware.i18n.Messages;
 
 /**
  * @author kulle
- *
+ * 
  */
 public class ManagedBeans {
 
@@ -33,16 +34,15 @@ public class ManagedBeans {
             APPlatformService platformService) throws AuthenticationException,
             ConfigurationException, APPlatformException {
 
-        HashMap<String, String> controllerSettings = getControllerSettings(
-                platformService);
+        HashMap<String, Setting> controllerSettings = getControllerSettings(platformService);
 
         ProvisioningSettings settings = new ProvisioningSettings(
-                new HashMap<String, String>(), controllerSettings,
+                new HashMap<String, Setting>(), controllerSettings,
                 Messages.DEFAULT_LOCALE);
         return new VMPropertyHandler(settings);
     }
 
-    private HashMap<String, String> getControllerSettings(
+    private HashMap<String, Setting> getControllerSettings(
             APPlatformService platformService) throws AuthenticationException,
             ConfigurationException, APPlatformException {
 

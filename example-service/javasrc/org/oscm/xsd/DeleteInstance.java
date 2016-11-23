@@ -1,3 +1,4 @@
+
 /**
  * DeleteInstance.java
  *
@@ -10,13 +11,57 @@ package org.oscm.xsd;
 /**
  * DeleteInstance bean class
  */
-@SuppressWarnings({ "rawtypes", "unused", "serial", "null", "unchecked" })
+
 public class DeleteInstance implements org.apache.axis2.databinding.ADBBean {
     /*
      * This type was generated from the piece of schema that had name =
-     * deleteInstance Namespace URI = http://oscm.org/xsd Namespace
-     * Prefix = ns1
+     * deleteInstance Namespace URI = http://oscm.org/xsd Namespace Prefix = ns1
      */
+
+    /**
+     * field for InstanceId
+     */
+
+    protected java.lang.String localInstanceId;
+    /*
+     * This tracker boolean wil be used to detect whether the user called the
+     * set method for this attribute. It will be used to determine whether to
+     * include this field in the serialized XML
+     */
+    protected boolean localInstanceIdTracker = false;
+    /**
+     * field for OrganizationId
+     */
+
+    protected java.lang.String localOrganizationId;
+    /*
+     * This tracker boolean wil be used to detect whether the user called the
+     * set method for this attribute. It will be used to determine whether to
+     * include this field in the serialized XML
+     */
+    protected boolean localOrganizationIdTracker = false;
+    /**
+     * field for SubscriptionId
+     */
+
+    protected java.lang.String localSubscriptionId;
+    /*
+     * This tracker boolean wil be used to detect whether the user called the
+     * set method for this attribute. It will be used to determine whether to
+     * include this field in the serialized XML
+     */
+    protected boolean localSubscriptionIdTracker = false;
+    /**
+     * field for RequestingUser
+     */
+
+    protected org.oscm.xsd.User localRequestingUser;
+    /*
+     * This tracker boolean wil be used to detect whether the user called the
+     * set method for this attribute. It will be used to determine whether to
+     * include this field in the serialized XML
+     */
+    protected boolean localRequestingUserTracker = false;
 
     private static java.lang.String generatePrefix(java.lang.String namespace) {
         if (namespace.equals("http://oscm.org/xsd")) {
@@ -26,21 +71,27 @@ public class DeleteInstance implements org.apache.axis2.databinding.ADBBean {
     }
 
     /**
-     * field for InstanceId
+     * isReaderMTOMAware
+     *
+     * @return true if the reader supports MTOM
      */
+    public static boolean isReaderMTOMAware(
+            javax.xml.stream.XMLStreamReader reader) {
+        boolean isReaderMTOMAware = false;
 
-    protected java.lang.String localInstanceId;
-
-    /*
-     * This tracker boolean wil be used to detect whether the user called the
-     * set method for this attribute. It will be used to determine whether to
-     * include this field in the serialized XML
-     */
-    protected boolean localInstanceIdTracker = false;
+        try {
+            isReaderMTOMAware = java.lang.Boolean.TRUE
+                    .equals(reader.getProperty(
+                            org.apache.axiom.om.OMConstants.IS_DATA_HANDLERS_AWARE));
+        } catch (java.lang.IllegalArgumentException e) {
+            isReaderMTOMAware = false;
+        }
+        return isReaderMTOMAware;
+    }
 
     /**
      * Auto generated getter method
-     * 
+     *
      * @return java.lang.String
      */
     public java.lang.String getInstanceId() {
@@ -49,7 +100,7 @@ public class DeleteInstance implements org.apache.axis2.databinding.ADBBean {
 
     /**
      * Auto generated setter method
-     * 
+     *
      * @param param
      *            InstanceId
      */
@@ -68,21 +119,8 @@ public class DeleteInstance implements org.apache.axis2.databinding.ADBBean {
     }
 
     /**
-     * field for OrganizationId
-     */
-
-    protected java.lang.String localOrganizationId;
-
-    /*
-     * This tracker boolean wil be used to detect whether the user called the
-     * set method for this attribute. It will be used to determine whether to
-     * include this field in the serialized XML
-     */
-    protected boolean localOrganizationIdTracker = false;
-
-    /**
      * Auto generated getter method
-     * 
+     *
      * @return java.lang.String
      */
     public java.lang.String getOrganizationId() {
@@ -91,7 +129,7 @@ public class DeleteInstance implements org.apache.axis2.databinding.ADBBean {
 
     /**
      * Auto generated setter method
-     * 
+     *
      * @param param
      *            OrganizationId
      */
@@ -110,21 +148,8 @@ public class DeleteInstance implements org.apache.axis2.databinding.ADBBean {
     }
 
     /**
-     * field for SubscriptionId
-     */
-
-    protected java.lang.String localSubscriptionId;
-
-    /*
-     * This tracker boolean wil be used to detect whether the user called the
-     * set method for this attribute. It will be used to determine whether to
-     * include this field in the serialized XML
-     */
-    protected boolean localSubscriptionIdTracker = false;
-
-    /**
      * Auto generated getter method
-     * 
+     *
      * @return java.lang.String
      */
     public java.lang.String getSubscriptionId() {
@@ -133,7 +158,7 @@ public class DeleteInstance implements org.apache.axis2.databinding.ADBBean {
 
     /**
      * Auto generated setter method
-     * 
+     *
      * @param param
      *            SubscriptionId
      */
@@ -152,21 +177,8 @@ public class DeleteInstance implements org.apache.axis2.databinding.ADBBean {
     }
 
     /**
-     * field for RequestingUser
-     */
-
-    protected org.oscm.xsd.User localRequestingUser;
-
-    /*
-     * This tracker boolean wil be used to detect whether the user called the
-     * set method for this attribute. It will be used to determine whether to
-     * include this field in the serialized XML
-     */
-    protected boolean localRequestingUserTracker = false;
-
-    /**
      * Auto generated getter method
-     * 
+     *
      * @return org.oscm.xsd.User
      */
     public org.oscm.xsd.User getRequestingUser() {
@@ -175,7 +187,7 @@ public class DeleteInstance implements org.apache.axis2.databinding.ADBBean {
 
     /**
      * Auto generated setter method
-     * 
+     *
      * @param param
      *            RequestingUser
      */
@@ -194,26 +206,7 @@ public class DeleteInstance implements org.apache.axis2.databinding.ADBBean {
     }
 
     /**
-     * isReaderMTOMAware
-     * 
-     * @return true if the reader supports MTOM
-     */
-    public static boolean isReaderMTOMAware(
-            javax.xml.stream.XMLStreamReader reader) {
-        boolean isReaderMTOMAware = false;
-
-        try {
-            isReaderMTOMAware = java.lang.Boolean.TRUE
-                    .equals(reader
-                            .getProperty(org.apache.axiom.om.OMConstants.IS_DATA_HANDLERS_AWARE));
-        } catch (java.lang.IllegalArgumentException e) {
-            isReaderMTOMAware = false;
-        }
-        return isReaderMTOMAware;
-    }
-
-    /**
-     * 
+     *
      * @param parentQName
      * @param factory
      * @return org.apache.axiom.om.OMElement
@@ -226,7 +219,6 @@ public class DeleteInstance implements org.apache.axis2.databinding.ADBBean {
         org.apache.axiom.om.OMDataSource dataSource = new org.apache.axis2.databinding.ADBDataSource(
                 this, parentQName) {
 
-            @Override
             public void serialize(
                     org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter)
                     throws javax.xml.stream.XMLStreamException {
@@ -238,8 +230,7 @@ public class DeleteInstance implements org.apache.axis2.databinding.ADBBean {
 
     }
 
-    public void serialize(
-            final javax.xml.namespace.QName parentQName,
+    public void serialize(final javax.xml.namespace.QName parentQName,
             final org.apache.axiom.om.OMFactory factory,
             org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter)
             throws javax.xml.stream.XMLStreamException,
@@ -247,8 +238,7 @@ public class DeleteInstance implements org.apache.axis2.databinding.ADBBean {
         serialize(parentQName, factory, xmlWriter, false);
     }
 
-    public void serialize(
-            final javax.xml.namespace.QName parentQName,
+    public void serialize(final javax.xml.namespace.QName parentQName,
             final org.apache.axiom.om.OMFactory factory,
             org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter,
             boolean serializeType) throws javax.xml.stream.XMLStreamException,
@@ -303,8 +293,8 @@ public class DeleteInstance implements org.apache.axis2.databinding.ADBBean {
                 if (prefix == null) {
                     prefix = generatePrefix(namespace);
 
-                    xmlWriter
-                            .writeStartElement(prefix, "instanceId", namespace);
+                    xmlWriter.writeStartElement(prefix, "instanceId",
+                            namespace);
                     xmlWriter.writeNamespace(prefix, namespace);
                     xmlWriter.setPrefix(prefix, namespace);
 
@@ -405,8 +395,9 @@ public class DeleteInstance implements org.apache.axis2.databinding.ADBBean {
                 throw new org.apache.axis2.databinding.ADBException(
                         "requestingUser cannot be null!!");
             }
-            localRequestingUser.serialize(new javax.xml.namespace.QName("",
-                    "requestingUser"), factory, xmlWriter);
+            localRequestingUser.serialize(
+                    new javax.xml.namespace.QName("", "requestingUser"),
+                    factory, xmlWriter);
         }
         xmlWriter.writeEndElement();
 
@@ -491,20 +482,19 @@ public class DeleteInstance implements org.apache.axis2.databinding.ADBBean {
             }
 
             if (prefix.trim().length() > 0) {
-                xmlWriter.writeCharacters(prefix
-                        + ":"
+                xmlWriter.writeCharacters(prefix + ":"
                         + org.apache.axis2.databinding.utils.ConverterUtil
                                 .convertToString(qname));
             } else {
                 // i.e this is the default namespace
-                xmlWriter
-                        .writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil
+                xmlWriter.writeCharacters(
+                        org.apache.axis2.databinding.utils.ConverterUtil
                                 .convertToString(qname));
             }
 
         } else {
-            xmlWriter
-                    .writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil
+            xmlWriter.writeCharacters(
+                    org.apache.axis2.databinding.utils.ConverterUtil
                             .convertToString(qname));
         }
     }
@@ -535,9 +525,7 @@ public class DeleteInstance implements org.apache.axis2.databinding.ADBBean {
                     }
 
                     if (prefix.trim().length() > 0) {
-                        stringToWrite
-                                .append(prefix)
-                                .append(":")
+                        stringToWrite.append(prefix).append(":")
                                 .append(org.apache.axis2.databinding.utils.ConverterUtil
                                         .convertToString(qnames[i]));
                     } else {
@@ -568,7 +556,8 @@ public class DeleteInstance implements org.apache.axis2.databinding.ADBBean {
         if (prefix == null) {
             prefix = generatePrefix(namespace);
 
-            while (xmlWriter.getNamespaceContext().getNamespaceURI(prefix) != null) {
+            while (xmlWriter.getNamespaceContext()
+                    .getNamespaceURI(prefix) != null) {
                 prefix = org.apache.axis2.databinding.utils.BeanUtil
                         .getUniquePrefix();
             }
@@ -582,7 +571,7 @@ public class DeleteInstance implements org.apache.axis2.databinding.ADBBean {
 
     /**
      * databinding method to get an XML representation of this object
-     * 
+     *
      */
     public javax.xml.stream.XMLStreamReader getPullParser(
             javax.xml.namespace.QName qName)
@@ -595,9 +584,8 @@ public class DeleteInstance implements org.apache.axis2.databinding.ADBBean {
             elementList.add(new javax.xml.namespace.QName("", "instanceId"));
 
             if (localInstanceId != null) {
-                elementList
-                        .add(org.apache.axis2.databinding.utils.ConverterUtil
-                                .convertToString(localInstanceId));
+                elementList.add(org.apache.axis2.databinding.utils.ConverterUtil
+                        .convertToString(localInstanceId));
             } else {
                 throw new org.apache.axis2.databinding.ADBException(
                         "instanceId cannot be null!!");
@@ -608,9 +596,8 @@ public class DeleteInstance implements org.apache.axis2.databinding.ADBBean {
                     .add(new javax.xml.namespace.QName("", "organizationId"));
 
             if (localOrganizationId != null) {
-                elementList
-                        .add(org.apache.axis2.databinding.utils.ConverterUtil
-                                .convertToString(localOrganizationId));
+                elementList.add(org.apache.axis2.databinding.utils.ConverterUtil
+                        .convertToString(localOrganizationId));
             } else {
                 throw new org.apache.axis2.databinding.ADBException(
                         "organizationId cannot be null!!");
@@ -621,9 +608,8 @@ public class DeleteInstance implements org.apache.axis2.databinding.ADBBean {
                     .add(new javax.xml.namespace.QName("", "subscriptionId"));
 
             if (localSubscriptionId != null) {
-                elementList
-                        .add(org.apache.axis2.databinding.utils.ConverterUtil
-                                .convertToString(localSubscriptionId));
+                elementList.add(org.apache.axis2.databinding.utils.ConverterUtil
+                        .convertToString(localSubscriptionId));
             } else {
                 throw new org.apache.axis2.databinding.ADBException(
                         "subscriptionId cannot be null!!");
@@ -675,11 +661,11 @@ public class DeleteInstance implements org.apache.axis2.databinding.ADBBean {
                     reader.next();
 
                 if (reader.getAttributeValue(
-                        "http://www.w3.org/2001/XMLSchema-instance", "type") != null) {
-                    java.lang.String fullTypeName = reader
-                            .getAttributeValue(
-                                    "http://www.w3.org/2001/XMLSchema-instance",
-                                    "type");
+                        "http://www.w3.org/2001/XMLSchema-instance",
+                        "type") != null) {
+                    java.lang.String fullTypeName = reader.getAttributeValue(
+                            "http://www.w3.org/2001/XMLSchema-instance",
+                            "type");
                     if (fullTypeName != null) {
                         java.lang.String nsPrefix = null;
                         if (fullTypeName.indexOf(":") > -1) {
@@ -694,8 +680,8 @@ public class DeleteInstance implements org.apache.axis2.databinding.ADBBean {
                         if (!"deleteInstance".equals(type)) {
                             // find namespace for the prefix
                             java.lang.String nsUri = reader
-                                    .getNamespaceContext().getNamespaceURI(
-                                            nsPrefix);
+                                    .getNamespaceContext()
+                                    .getNamespaceURI(nsPrefix);
                             return (DeleteInstance) org.oscm.xsd.ExtensionMapper
                                     .getTypeObject(nsUri, type, reader);
                         }
@@ -720,8 +706,9 @@ public class DeleteInstance implements org.apache.axis2.databinding.ADBBean {
 
                     java.lang.String content = reader.getElementText();
 
-                    object.setInstanceId(org.apache.axis2.databinding.utils.ConverterUtil
-                            .convertToString(content));
+                    object.setInstanceId(
+                            org.apache.axis2.databinding.utils.ConverterUtil
+                                    .convertToString(content));
 
                     reader.next();
 
@@ -740,8 +727,9 @@ public class DeleteInstance implements org.apache.axis2.databinding.ADBBean {
 
                     java.lang.String content = reader.getElementText();
 
-                    object.setOrganizationId(org.apache.axis2.databinding.utils.ConverterUtil
-                            .convertToString(content));
+                    object.setOrganizationId(
+                            org.apache.axis2.databinding.utils.ConverterUtil
+                                    .convertToString(content));
 
                     reader.next();
 
@@ -760,8 +748,9 @@ public class DeleteInstance implements org.apache.axis2.databinding.ADBBean {
 
                     java.lang.String content = reader.getElementText();
 
-                    object.setSubscriptionId(org.apache.axis2.databinding.utils.ConverterUtil
-                            .convertToString(content));
+                    object.setSubscriptionId(
+                            org.apache.axis2.databinding.utils.ConverterUtil
+                                    .convertToString(content));
 
                     reader.next();
 
@@ -778,8 +767,8 @@ public class DeleteInstance implements org.apache.axis2.databinding.ADBBean {
                         && new javax.xml.namespace.QName("", "requestingUser")
                                 .equals(reader.getName())) {
 
-                    object.setRequestingUser(org.oscm.xsd.User.Factory
-                            .parse(reader));
+                    object.setRequestingUser(
+                            org.oscm.xsd.User.Factory.parse(reader));
 
                     reader.next();
 

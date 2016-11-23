@@ -64,13 +64,6 @@
                 <ui:param name="udasReadOnly" value="false" />
               </ui:include>
 
-              <ui:fragment rendered="#{not empty subscriptionWizardConversation.model.organizationUdaRows}">
-                <ui:include src="../../account/organizationUdaDetails.xhtml">
-                  <ui:param name="inputList" value="#{subscriptionWizardConversation.model.organizationUdaRows}" />
-                  <ui:param name="readOnly" value="false" />
-                </ui:include>
-              </ui:fragment>
-
               <ui:fragment rendered="#{subscriptionWizardConversation.model.useExternalConfigurator}">
                 <mp:outputStep value="#{msg['parameter.table.header']}" />
                 <ui:include src="../parameterConfiguration.xhtml">

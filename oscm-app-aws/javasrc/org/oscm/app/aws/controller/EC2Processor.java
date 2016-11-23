@@ -23,16 +23,15 @@ import org.oscm.app.aws.data.FlowState;
 import org.oscm.app.aws.data.Operation;
 import org.oscm.app.aws.data.Server;
 import org.oscm.app.aws.i18n.Messages;
-import org.oscm.app.v1_0.APPlatformServiceFactory;
-import org.oscm.app.v1_0.data.InstanceStatus;
-import org.oscm.app.v1_0.data.LocalizedText;
-import org.oscm.app.v1_0.data.User;
-import org.oscm.app.v1_0.exceptions.APPlatformException;
-import org.oscm.app.v1_0.exceptions.AbortException;
-import org.oscm.app.v1_0.exceptions.InstanceNotAliveException;
-import org.oscm.app.v1_0.exceptions.SuspendException;
-import org.oscm.app.v1_0.intf.APPlatformService;
-
+import org.oscm.app.v2_0.APPlatformServiceFactory;
+import org.oscm.app.v2_0.data.InstanceStatus;
+import org.oscm.app.v2_0.data.LocalizedText;
+import org.oscm.app.v2_0.data.User;
+import org.oscm.app.v2_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.exceptions.AbortException;
+import org.oscm.app.v2_0.exceptions.InstanceNotAliveException;
+import org.oscm.app.v2_0.exceptions.SuspendException;
+import org.oscm.app.v2_0.intf.APPlatformService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -131,13 +130,12 @@ public class EC2Processor {
         } catch (AmazonServiceException e) {
             String ec = e.getErrorCode();
             int statusCode = e.getStatusCode();
-            if ("AuthFailure".equals(ec)
-                    || "UnauthorizedOperation".equals(ec)) {
-                throw new SuspendException(Messages
-                        .getAll("error_suspend_awscode_" + ec, e.getMessage()));
+            if ("AuthFailure".equals(ec) || "UnauthorizedOperation".equals(ec)) {
+                throw new SuspendException(Messages.getAll(
+                        "error_suspend_awscode_" + ec, e.getMessage()));
             }
-            if (("IncorrectInstanceState".equals(ec)
-                    || "Unsupported".equals(ec)) && 400 == statusCode) {
+            if (("IncorrectInstanceState".equals(ec) || "Unsupported"
+                    .equals(ec)) && 400 == statusCode) {
                 throw new InstanceNotAliveException(Messages.getAll(
                         "error_suspend_instance_error", e.getMessage()));
             }
@@ -147,8 +145,8 @@ public class EC2Processor {
             // assuming that client exceptions have local reasons, not logical
             // reasons regarding AWS, the technology manger would be able to
             // fix the issue and continue processing
-            throw new SuspendException(
-                    Messages.getAll("error_aws_general", e.getMessage()));
+            throw new SuspendException(Messages.getAll("error_aws_general",
+                    e.getMessage()));
         }
 
         if (newState != null) {
@@ -242,10 +240,10 @@ public class EC2Processor {
             LOGGER.info("trying to check sataus");
             if (isInstanceRunning(ec2comm)) {
                 accessInfo = Messages.get(ph.getCustomerLocale(),
-                        "accessInfo_DNS", new Object[] {
-                                ec2comm.getPublicDNS(ph.getAWSInstanceId()) });
-                result.setAccessInfo(
-                        accessInfo + KEY_PAIR_NAME + ph.getKeyPairName());
+                        "accessInfo_DNS", new Object[] { ec2comm
+                                .getPublicDNS(ph.getAWSInstanceId()) });
+                result.setAccessInfo(accessInfo + KEY_PAIR_NAME
+                        + ph.getKeyPairName());
                 if (mail != null) {
                     newState = dispatchManualOperation(AWSController.ID,
                             instanceId, ph, mail);
@@ -256,18 +254,19 @@ public class EC2Processor {
             break;
 
         case UPDATING:
-            accessInfo = Messages.get(ph.getCustomerLocale(), "accessInfo_DNS",
-                    new Object[] {
-                            ec2comm.getPublicDNS(ph.getAWSInstanceId()) });
+            accessInfo = Messages
+                    .get(ph.getCustomerLocale(), "accessInfo_DNS",
+                            new Object[] { ec2comm.getPublicDNS(ph
+                                    .getAWSInstanceId()) });
             if (accessInfo == null || accessInfo.trim().length() == 0) {
                 accessInfo = Messages.get(ph.getCustomerLocale(),
                         "accessInfo_STOPPED");
             }
-            result.setAccessInfo(
-                    accessInfo + KEY_PAIR_NAME + ph.getKeyPairName());
+            result.setAccessInfo(accessInfo + KEY_PAIR_NAME
+                    + ph.getKeyPairName());
             if (mail != null) {
-                newState = dispatchManualOperation(AWSController.ID, instanceId,
-                        ph, mail);
+                newState = dispatchManualOperation(AWSController.ID,
+                        instanceId, ph, mail);
             } else {
                 newState = FlowState.FINISHED;
             }
@@ -288,10 +287,10 @@ public class EC2Processor {
         case FINISHED:
             if (isInstanceRunning(ec2comm)) {
                 accessInfo = Messages.get(ph.getCustomerLocale(),
-                        "accessInfo_DNS", new Object[] {
-                                ec2comm.getPublicDNS(ph.getAWSInstanceId()) });
-                result.setAccessInfo(
-                        accessInfo + KEY_PAIR_NAME + ph.getKeyPairName());
+                        "accessInfo_DNS", new Object[] { ec2comm
+                                .getPublicDNS(ph.getAWSInstanceId()) });
+                result.setAccessInfo(accessInfo + KEY_PAIR_NAME
+                        + ph.getKeyPairName());
             }
             break;
 
@@ -325,8 +324,7 @@ public class EC2Processor {
      *            result
      * @return FlowState newState
      */
-    FlowState manageOperationProcess(FlowState flowState,
-            InstanceStatus result) {
+    FlowState manageOperationProcess(FlowState flowState, InstanceStatus result) {
         EC2Communication ec2comm = new EC2Communication(ph);
         FlowState newState = null;
         // Dispatch next step depending on current internal status
@@ -341,10 +339,10 @@ public class EC2Processor {
         case STARTING:
             if (isInstanceRunning(ec2comm)) {
                 String accessInfo = Messages.get(ph.getCustomerLocale(),
-                        "accessInfo_DNS", new Object[] {
-                                ec2comm.getPublicDNS(ph.getAWSInstanceId()) });
-                result.setAccessInfo(
-                        accessInfo + KEY_PAIR_NAME + ph.getKeyPairName());
+                        "accessInfo_DNS", new Object[] { ec2comm
+                                .getPublicDNS(ph.getAWSInstanceId()) });
+                result.setAccessInfo(accessInfo + KEY_PAIR_NAME
+                        + ph.getKeyPairName());
                 newState = FlowState.FINISHED;
             }
             break;
@@ -377,14 +375,13 @@ public class EC2Processor {
      * @return FlowState newState
      * @throws APPlatformException
      */
-    FlowState manageActivationProcess(FlowState flowState,
-            InstanceStatus result) throws APPlatformException {
+    FlowState manageActivationProcess(FlowState flowState, InstanceStatus result)
+            throws APPlatformException {
         FlowState newState = null;
         // Dispatch next step depending on current internal status
         switch (flowState) {
         case ACTIVATION_REQUESTED:
-            newState = manageOperationProcess(FlowState.START_REQUESTED,
-                    result);
+            newState = manageOperationProcess(FlowState.START_REQUESTED, result);
             break;
         case DEACTIVATION_REQUESTED:
             newState = manageOperationProcess(FlowState.STOP_REQUESTED, result);
@@ -407,16 +404,16 @@ public class EC2Processor {
             StringBuffer eventLink = new StringBuffer(
                     platformService.getEventServiceUrl());
             try {
-                eventLink.append("?sid=")
-                        .append(URLEncoder.encode(instanceId, "UTF-8"));
+                eventLink.append("?sid=").append(
+                        URLEncoder.encode(instanceId, "UTF-8"));
             } catch (UnsupportedEncodingException e) {
                 throw new APPlatformException(e.getMessage());
             }
             eventLink.append("&cid=").append(controllerId);
             eventLink.append("&command=finish");
             String subject = Messages.get(locale,
-                    "mail_aws_manual_completion.subject",
-                    new Object[] { instanceId, subscriptionId });
+                    "mail_aws_manual_completion.subject", new Object[] {
+                            instanceId, subscriptionId });
             String details = paramHandler.getAWSConfigurationAsString();
             String text = Messages.get(locale,
                     "mail_aws_manual_completion.text",
@@ -425,23 +422,23 @@ public class EC2Processor {
             platformService.sendMail(Collections.singletonList(mail), subject,
                     text);
             return FlowState.MANUAL;
-        } else if (Operation.EC2_MODIFICATION
-                .equals(paramHandler.getOperation())) {
+        } else if (Operation.EC2_MODIFICATION.equals(paramHandler
+                .getOperation())) {
             String subject = Messages.get(locale,
-                    "mail_aws_manual_modification.subject",
-                    new Object[] { instanceId, subscriptionId });
+                    "mail_aws_manual_modification.subject", new Object[] {
+                            instanceId, subscriptionId });
             String details = paramHandler.getAWSConfigurationAsString();
             String text = Messages.get(locale,
-                    "mail_aws_manual_modification.text",
-                    new Object[] { instanceId, subscriptionId, details });
+                    "mail_aws_manual_modification.text", new Object[] {
+                            instanceId, subscriptionId, details });
             platformService.sendMail(Collections.singletonList(mail), subject,
                     text);
             return FlowState.FINISHED;
 
         } else if (Operation.EC2_DELETION.equals(paramHandler.getOperation())) {
             String subject = Messages.get(locale,
-                    "mail_aws_manual_disposal.subject",
-                    new Object[] { instanceId, subscriptionId });
+                    "mail_aws_manual_disposal.subject", new Object[] {
+                            instanceId, subscriptionId });
             String text = Messages.get(locale, "mail_aws_manual_disposal.text",
                     new Object[] { instanceId, subscriptionId });
             platformService.sendMail(Collections.singletonList(mail), subject,

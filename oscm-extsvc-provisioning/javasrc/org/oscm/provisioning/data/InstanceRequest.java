@@ -31,6 +31,10 @@ public class InstanceRequest {
      */
     private String subscriptionId;
     /**
+     * The id specified by the customer to refer to the subscription.
+     */
+    private String referenceId;
+    /**
      * The language used by default for interacting with the users of the
      * customer organization.
      */
@@ -49,6 +53,12 @@ public class InstanceRequest {
      * in order to activate or deactivate a specific feature.
      */
     private List<ServiceParameter> parameterValue;
+
+    /**
+     * The subscription specific customer attributes, which the application can
+     * use, for example, to overwrite settings.
+     */
+    private List<ServiceAttribute> attributeValue;
 
     /**
      * Retrieves the identifier of the customer organization which created the
@@ -110,6 +120,25 @@ public class InstanceRequest {
      */
     public void setSubscriptionId(String subscriptionId) {
         this.subscriptionId = subscriptionId;
+    }
+
+    /**
+     * Retrieves the id specified by the customer to refer to the subscription.
+     * 
+     * @return the subscription reference
+     */
+    public String getReferenceId() {
+        return referenceId;
+    }
+
+    /**
+     * Sets the id specified by the customer to refer to the subscription.
+     * 
+     * @param referenceId
+     *            the subscription reference
+     */
+    public void setReferenceId(String referenceId) {
+        this.referenceId = referenceId;
     }
 
     /**
@@ -184,6 +213,27 @@ public class InstanceRequest {
      */
     public void setParameterValue(List<ServiceParameter> parameterValue) {
         this.parameterValue = parameterValue;
+    }
+
+    /**
+     * Retrieves the subscription specific customer attributes, which the
+     * application can use, for example, to overwrite settings.
+     * 
+     * @return the list of customer attributes
+     */
+    public List<ServiceAttribute> getAttributeValue() {
+        return attributeValue;
+    }
+
+    /**
+     * Sets the subscription specific customer attributes, which the application
+     * can use, for example, to overwrite settings.
+     * 
+     * @param attributeValue
+     *            the list of customer attributes
+     */
+    public void setAttributeValue(List<ServiceAttribute> attributeValue) {
+        this.attributeValue = attributeValue;
     }
 
 }

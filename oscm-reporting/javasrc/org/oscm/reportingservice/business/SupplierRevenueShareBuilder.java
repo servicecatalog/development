@@ -23,14 +23,10 @@ import java.util.TimeZone;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
-
 import org.oscm.converter.DateConverter;
 import org.oscm.converter.PriceConverter;
 import org.oscm.converter.XMLConverter;
+import org.oscm.internal.types.enumtypes.OfferingType;
 import org.oscm.reportingservice.business.model.RdoIdGenerator;
 import org.oscm.reportingservice.business.model.supplierrevenushare.RDORevenueShareDetail;
 import org.oscm.reportingservice.business.model.supplierrevenushare.RDORevenueShareSummary;
@@ -39,7 +35,10 @@ import org.oscm.reportingservice.business.model.supplierrevenushare.RDOSupplierR
 import org.oscm.reportingservice.business.model.supplierrevenushare.RDOSupplierRevenueShareReports;
 import org.oscm.reportingservice.dao.PartnerRevenueDao.ReportData;
 import org.oscm.types.constants.BillingShareResultXmlTags;
-import org.oscm.internal.types.enumtypes.OfferingType;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 /**
  * @author tokoda
@@ -79,8 +78,8 @@ class SupplierRevenueShareBuilder {
         private String get(String marketplaceId) {
             // Deleted marketplaces do not have the localized name anymore, so
             // return the marketplaceId
-            return marketplaceNameMap.containsKey(marketplaceId) ? marketplaceNameMap
-                    .get(marketplaceId) : marketplaceId;
+            return marketplaceNameMap.containsKey(marketplaceId)
+                    ? marketplaceNameMap.get(marketplaceId) : marketplaceId;
         }
     }
 
@@ -93,21 +92,21 @@ class SupplierRevenueShareBuilder {
         priceConverter = new PriceConverter(locale);
         idGen = new RdoIdGenerator();
 
-        if (null == this.serviceIdMap) {
+        if (null == serviceIdMap) {
             this.serviceIdMap = serviceIdMap;
         } else {
-            this.serviceIdMap = new HashMap<String, String>();
+            this.serviceIdMap = new HashMap<>();
         }
 
         this.marketplaceNameMap = new MarketplaceMap(marketplaceNameMap);
 
-        if (null == this.serviceNameMap) {
+        if (null == serviceNameMap) {
             this.serviceNameMap = serviceNameMap;
         } else {
-            this.serviceNameMap = new HashMap<String, String>();
+            this.serviceNameMap = new HashMap<>();
         }
 
-        organizationNameMap = new HashMap<String, String>();
+        organizationNameMap = new HashMap<>();
     }
 
     public RDOSupplierRevenueShareReports buildReports()
@@ -137,8 +136,8 @@ class SupplierRevenueShareBuilder {
             return new RDOSupplierRevenueShareReport();
         }
 
-        xmlDocument = XMLConverter.convertToDocument(sqlData.get(0)
-                .getResultXml(), false);
+        xmlDocument = XMLConverter
+                .convertToDocument(sqlData.get(0).getResultXml(), false);
         return build(sqlData.get(0), 0);
     }
 
@@ -184,7 +183,7 @@ class SupplierRevenueShareBuilder {
 
     private List<RDOSupplierRevenueShareCurrency> buildCurrencies(
             int parentEntryNr) throws XPathExpressionException, ParseException {
-        List<RDOSupplierRevenueShareCurrency> result = new ArrayList<RDOSupplierRevenueShareCurrency>();
+        List<RDOSupplierRevenueShareCurrency> result = new ArrayList<>();
         for (Node nodeCurrency : currencyNodes()) {
             RDOSupplierRevenueShareCurrency currency = new RDOSupplierRevenueShareCurrency(
                     parentEntryNr, idGen.nextValue());
@@ -192,13 +191,13 @@ class SupplierRevenueShareBuilder {
             String currencyId = XMLConverter.getStringAttValue(nodeCurrency,
                     BillingShareResultXmlTags.ATTRIBUTE_NAME_ID);
             currency.setCurrency(currencyId);
-            currency.setTotalRevenue(computeRevenuePerMarketplaceSum(
-                    currencyId,
+            currency.setTotalRevenue(computeRevenuePerMarketplaceSum(currencyId,
                     BillingShareResultXmlTags.ATTRIBUTE_NAME_SERVICE_REVENUE));
             createSupplierRelatedReportEntries(currency, currencyId);
             createBrokerRelatedReportEntries(currency, currencyId);
             createResellerRelatedReportEntries(currency, currencyId);
-            currency.setTotalRemainingRevenue(computeTotalRemainingRevenue(currency));
+            currency.setTotalRemainingRevenue(
+                    computeTotalRemainingRevenue(currency));
         }
         return result;
     }
@@ -227,8 +226,8 @@ class SupplierRevenueShareBuilder {
         BigDecimal resellerTotalRemaining = priceConverter.parse(
                 currency.getResellerTotalRemainingRevenue(),
                 allowNegativePrices);
-        BigDecimal sum = directTotalRemaining.add(brokerTotalRemaining).add(
-                resellerTotalRemaining);
+        BigDecimal sum = directTotalRemaining.add(brokerTotalRemaining)
+                .add(resellerTotalRemaining);
         return priceConverter.getValueToDisplay(sum, false);
     }
 
@@ -240,19 +239,16 @@ class SupplierRevenueShareBuilder {
                     BillingShareResultXmlTags.ATTRIBUTE_NAME_ID);
             for (Node service : serviceNodes(currencyId, marketplaceId,
                     offerType)) {
-                Node revenueShareDetails = XMLConverter
-                        .getLastChildNode(
-                                service,
-                                BillingShareResultXmlTags.NODE_NAME_REVENUE_SHARE_DETAILS);
+                Node revenueShareDetails = XMLConverter.getLastChildNode(
+                        service,
+                        BillingShareResultXmlTags.NODE_NAME_REVENUE_SHARE_DETAILS);
                 BigDecimal amountForSupplier = XMLConverter
-                        .getBigDecimalAttValue(
-                                revenueShareDetails,
+                        .getBigDecimalAttValue(revenueShareDetails,
                                 BillingShareResultXmlTags.ATTRIBUTE_NAME_AMOUNT_FOR_SUPPLIER);
                 if (amountForSupplier == null) {
-                    amountForSupplier = XMLConverter
-                            .getBigDecimalAttValue(
-                                    revenueShareDetails,
-                                    BillingShareResultXmlTags.ATTRIBUTE_NAME_NETAMOUNT_FOR_SUPPLIER);
+                    amountForSupplier = XMLConverter.getBigDecimalAttValue(
+                            revenueShareDetails,
+                            BillingShareResultXmlTags.ATTRIBUTE_NAME_NETAMOUNT_FOR_SUPPLIER);
                 }
                 if (amountForSupplier != null) {
                     sum = sum.add(amountForSupplier);
@@ -265,57 +261,67 @@ class SupplierRevenueShareBuilder {
     private void createSupplierRelatedReportEntries(
             RDOSupplierRevenueShareCurrency currency, String currencyId)
             throws XPathExpressionException, ParseException {
-        currency.setDirectTotalRevenue(computeServiceRevenueSum(currencyId,
-                OfferingType.DIRECT));
-        currency.setDirectProvisionToMarketplaceOwner(computeTotalRevenueToMarketplace(
-                currencyId, OfferingType.DIRECT,
-                BillingShareResultXmlTags.ATTRIBUTE_NAME_MARKETPLACE_REVENUE));
+        currency.setDirectTotalRevenue(
+                computeServiceRevenueSum(currencyId, OfferingType.DIRECT));
+        currency.setDirectProvisionToMarketplaceOwner(
+                computeTotalRevenueToMarketplace(currencyId,
+                        OfferingType.DIRECT,
+                        BillingShareResultXmlTags.ATTRIBUTE_NAME_MARKETPLACE_REVENUE));
         currency.setDirectRevenueSummaries(buildRevenueSummaries(
                 currency.getEntryNr(), currencyId, OfferingType.DIRECT));
         currency.setDirectRevenueShareDetails(buildRevenueShareDetails(
                 currency.getEntryNr(), currencyId, OfferingType.DIRECT));
-        currency.setDirectProvisionToOperator(readDirectTotalOperatorRevenue(currencyId));
-        currency.setDirectTotalRemainingRevenue(computeDirectTotalRemainingRevenue(currencyId));
+        currency.setDirectProvisionToOperator(
+                readDirectTotalOperatorRevenue(currencyId));
+        currency.setDirectTotalRemainingRevenue(
+                computeDirectTotalRemainingRevenue(currencyId));
     }
 
     private void createBrokerRelatedReportEntries(
             RDOSupplierRevenueShareCurrency currency, String currencyId)
             throws XPathExpressionException, ParseException {
-        currency.setBrokerTotalRevenue(computeServiceRevenueSum(currencyId,
-                OfferingType.BROKER));
+        currency.setBrokerTotalRevenue(
+                computeServiceRevenueSum(currencyId, OfferingType.BROKER));
         currency.setBrokerPercentageRevenue(computePercentage(
                 currency.getTotalRevenue(), currency.getBrokerTotalRevenue()));
-        currency.setBrokerProvisionToMarketplaceOwner(computeTotalRevenueToMarketplace(
-                currencyId, OfferingType.BROKER,
-                BillingShareResultXmlTags.ATTRIBUTE_NAME_MARKETPLACE_REVENUE));
+        currency.setBrokerProvisionToMarketplaceOwner(
+                computeTotalRevenueToMarketplace(currencyId,
+                        OfferingType.BROKER,
+                        BillingShareResultXmlTags.ATTRIBUTE_NAME_MARKETPLACE_REVENUE));
         currency.setBrokerRevenueSummaries(buildRevenueSummariesForPartner(
                 currency.getEntryNr(), currencyId, OfferingType.BROKER));
         currency.setBrokerRevenueShareDetails(buildRevenueShareDetails(
                 currency.getEntryNr(), currencyId, OfferingType.BROKER));
-        currency.setBrokerProvisionToOperator(readBrokerTotalOperatorRevenue(currencyId));
-        currency.setBrokerTotalRemainingRevenue(computeBrokerTotalRemainingRevenue(currencyId));
-        currency.setBrokerTotalShareAmount(priceConverter.getValueToDisplay(
-                totalPartnerProvision, false));
+        currency.setBrokerProvisionToOperator(
+                readBrokerTotalOperatorRevenue(currencyId));
+        currency.setBrokerTotalRemainingRevenue(
+                computeBrokerTotalRemainingRevenue(currencyId));
+        currency.setBrokerTotalShareAmount(
+                priceConverter.getValueToDisplay(totalPartnerProvision, false));
     }
 
     private void createResellerRelatedReportEntries(
             RDOSupplierRevenueShareCurrency currency, String currencyId)
             throws XPathExpressionException, ParseException {
-        currency.setResellerTotalRevenue(computeServiceRevenueSum(currencyId,
-                OfferingType.RESELLER));
-        currency.setResellerPercentageRevenue(computePercentage(
-                currency.getTotalRevenue(), currency.getResellerTotalRevenue()));
-        currency.setResellerProvisionToMarketplaceOwner(computeTotalRevenueToMarketplace(
-                currencyId, OfferingType.RESELLER,
-                BillingShareResultXmlTags.ATTRIBUTE_NAME_MARKETPLACE_REVENUE));
+        currency.setResellerTotalRevenue(
+                computeServiceRevenueSum(currencyId, OfferingType.RESELLER));
+        currency.setResellerPercentageRevenue(
+                computePercentage(currency.getTotalRevenue(),
+                        currency.getResellerTotalRevenue()));
+        currency.setResellerProvisionToMarketplaceOwner(
+                computeTotalRevenueToMarketplace(currencyId,
+                        OfferingType.RESELLER,
+                        BillingShareResultXmlTags.ATTRIBUTE_NAME_MARKETPLACE_REVENUE));
         currency.setResellerRevenueSummaries(buildRevenueSummariesForPartner(
                 currency.getEntryNr(), currencyId, OfferingType.RESELLER));
         currency.setResellerRevenueShareDetails(buildRevenueShareDetails(
                 currency.getEntryNr(), currencyId, OfferingType.RESELLER));
-        currency.setResellerProvisionToOperator(readResellerTotalOperatorRevenue(currencyId));
-        currency.setResellerTotalRemainingRevenue(computeResellerTotalRemainingRevenue(currencyId));
-        currency.setResellerTotalShareAmount(priceConverter.getValueToDisplay(
-                totalPartnerProvision, false));
+        currency.setResellerProvisionToOperator(
+                readResellerTotalOperatorRevenue(currencyId));
+        currency.setResellerTotalRemainingRevenue(
+                computeResellerTotalRemainingRevenue(currencyId));
+        currency.setResellerTotalShareAmount(
+                priceConverter.getValueToDisplay(totalPartnerProvision, false));
     }
 
     private String computeDirectTotalRemainingRevenue(String currencyId)
@@ -328,8 +334,8 @@ class SupplierRevenueShareBuilder {
         if (nodeDirectRevenue == null) {
             // bug 10506, adapt old existing database
             return priceConverter.getValueToDisplay(
-                    computeRemainingRevenue(currencyId,
-                            OfferingType.DIRECT), false);
+                    computeRemainingRevenue(currencyId, OfferingType.DIRECT),
+                    false);
         }
 
         BigDecimal serviceRevenue = XMLConverter.getBigDecimalAttValue(
@@ -341,9 +347,8 @@ class SupplierRevenueShareBuilder {
         BigDecimal operatorRevenue = XMLConverter.getBigDecimalAttValue(
                 nodeDirectRevenue,
                 BillingShareResultXmlTags.ATTRIBUTE_NAME_OPERATOR_REVENUE);
-        return priceConverter.getValueToDisplay(
-                serviceRevenue.subtract(marketplaceRevenue).subtract(
-                        operatorRevenue), false);
+        return priceConverter.getValueToDisplay(serviceRevenue
+                .subtract(marketplaceRevenue).subtract(operatorRevenue), false);
     }
 
     private String readDirectTotalOperatorRevenue(String currencyId)
@@ -364,8 +369,8 @@ class SupplierRevenueShareBuilder {
         if (nodeBrokerRevenue == null) {
             // bug 10506, adapt old existing database
             return priceConverter.getValueToDisplay(
-                    computeRemainingRevenue(currencyId,
-                            OfferingType.BROKER), false);
+                    computeRemainingRevenue(currencyId, OfferingType.BROKER),
+                    false);
         }
 
         BigDecimal serviceRevenue = XMLConverter.getBigDecimalAttValue(
@@ -404,8 +409,8 @@ class SupplierRevenueShareBuilder {
         if (nodeResellerRevenue == null) {
             // bug 10506, adapt old existing database
             return priceConverter.getValueToDisplay(
-                    computeRemainingRevenue(currencyId,
-                            OfferingType.RESELLER), false);
+                    computeRemainingRevenue(currencyId, OfferingType.RESELLER),
+                    false);
         }
 
         BigDecimal serviceRevenue = XMLConverter.getBigDecimalAttValue(
@@ -428,9 +433,8 @@ class SupplierRevenueShareBuilder {
 
     private String readResellerTotalOperatorRevenue(String currencyId)
             throws XPathExpressionException {
-        String revenue = XMLConverter
-                .getNodeTextContentByXPath(xmlDocument, "//Currency[@id='"
-                        + currencyId
+        String revenue = XMLConverter.getNodeTextContentByXPath(xmlDocument,
+                "//Currency[@id='" + currencyId
                         + "']/SupplierRevenue/ResellerRevenue/@operatorRevenue");
         return revenue != null ? revenue : "0.00";
     }
@@ -439,7 +443,7 @@ class SupplierRevenueShareBuilder {
             String currencyId, OfferingType offeringType)
             throws XPathExpressionException, ParseException {
         totalPartnerProvision = BigDecimal.ZERO;
-        List<RDORevenueShareSummary> result = new ArrayList<RDORevenueShareSummary>();
+        List<RDORevenueShareSummary> result = new ArrayList<>();
         for (Node marketplace : marketplaceNodes(currencyId)) {
             String marketplaceId = XMLConverter.getStringAttValue(marketplace,
                     BillingShareResultXmlTags.ATTRIBUTE_NAME_ID);
@@ -477,27 +481,24 @@ class SupplierRevenueShareBuilder {
         rss.setMarketplaceRevenue(XMLConverter.getStringAttValue(
                 nodeRevenueShareDetails,
                 BillingShareResultXmlTags.ATTRIBUTE_NAME_MARKETPLACE_REVENUE));
-        rss.setMarketplaceRevenuePercentage(XMLConverter
-                .getStringAttValue(
-                        nodeRevenueShareDetails,
+        rss.setMarketplaceRevenuePercentage(
+                XMLConverter.getStringAttValue(nodeRevenueShareDetails,
                         BillingShareResultXmlTags.ATTRIBUTE_NAME_MARKETPLACE_REVENUE_SHARE_PERCENTAGE)
-                + PERCENTAGE_SIGN);
+                        + PERCENTAGE_SIGN);
         rss.setOperatorRevenue(XMLConverter.getStringAttValue(
                 nodeRevenueShareDetails,
                 BillingShareResultXmlTags.ATTRIBUTE_NAME_OPERATOR_REVENUE));
-        rss.setOperatorRevenuePercentage(XMLConverter
-                .getStringAttValue(
-                        nodeRevenueShareDetails,
+        rss.setOperatorRevenuePercentage(
+                XMLConverter.getStringAttValue(nodeRevenueShareDetails,
                         BillingShareResultXmlTags.ATTRIBUTE_NAME_OPERATOR_REVENUE_SHARE_PERCENTAGE)
-                + PERCENTAGE_SIGN);
+                        + PERCENTAGE_SIGN);
         String amountForSupplier = XMLConverter.getStringAttValue(
                 nodeRevenueShareDetails,
                 BillingShareResultXmlTags.ATTRIBUTE_NAME_AMOUNT_FOR_SUPPLIER);
         if (amountForSupplier == null) {
-            amountForSupplier = XMLConverter
-                    .getStringAttValue(
-                            nodeRevenueShareDetails,
-                            BillingShareResultXmlTags.ATTRIBUTE_NAME_NETAMOUNT_FOR_SUPPLIER);
+            amountForSupplier = XMLConverter.getStringAttValue(
+                    nodeRevenueShareDetails,
+                    BillingShareResultXmlTags.ATTRIBUTE_NAME_NETAMOUNT_FOR_SUPPLIER);
         }
         if (amountForSupplier != null) {
             rss.setRevenueMinusShares(amountForSupplier);
@@ -510,7 +511,7 @@ class SupplierRevenueShareBuilder {
             throws XPathExpressionException, ParseException {
 
         totalPartnerProvision = BigDecimal.ZERO;
-        List<RDORevenueShareSummary> result = new ArrayList<RDORevenueShareSummary>();
+        List<RDORevenueShareSummary> result = new ArrayList<>();
         for (Node marketplace : marketplaceNodes(currencyId)) {
             addMarketplaceSummary(parentEntryNr, currencyId, offeringType,
                     result, marketplace);
@@ -521,12 +522,14 @@ class SupplierRevenueShareBuilder {
     private void addMarketplaceSummary(int parentEntryNr, String currencyId,
             OfferingType offeringType, List<RDORevenueShareSummary> result,
             Node marketplace) throws XPathExpressionException, ParseException {
-        final String marketplaceId = XMLConverter.getStringAttValue(
-                marketplace, BillingShareResultXmlTags.ATTRIBUTE_NAME_ID);
+        final String marketplaceId = XMLConverter.getStringAttValue(marketplace,
+                BillingShareResultXmlTags.ATTRIBUTE_NAME_ID);
         final String marketplaceName = marketplaceNameMap.get(marketplaceId);
         String partner = null;
 
-        BigDecimal svcRev = BigDecimal.ZERO, mpRev = BigDecimal.ZERO, opRev = BigDecimal.ZERO, partnerProvision = BigDecimal.ZERO, revMinusShares = BigDecimal.ZERO;
+        BigDecimal svcRev = BigDecimal.ZERO, mpRev = BigDecimal.ZERO,
+                opRev = BigDecimal.ZERO, partnerProvision = BigDecimal.ZERO,
+                revMinusShares = BigDecimal.ZERO;
         final List<Node> services = serviceNodes(currencyId, marketplaceId,
                 offeringType);
         Node lastNode = null;
@@ -534,10 +537,8 @@ class SupplierRevenueShareBuilder {
             final Node service = services.get(i);
             String serviceRevenue = getServiceRevenue(service);
             if (isServiceRevenueValid(serviceRevenue)) {
-                final Node n = XMLConverter
-                        .getLastChildNode(
-                                service,
-                                BillingShareResultXmlTags.NODE_NAME_REVENUE_SHARE_DETAILS);
+                final Node n = XMLConverter.getLastChildNode(service,
+                        BillingShareResultXmlTags.NODE_NAME_REVENUE_SHARE_DETAILS);
                 String currentPartner = getOrganizationDataId(service,
                         offeringType);
 
@@ -566,14 +567,11 @@ class SupplierRevenueShareBuilder {
                         BillingShareResultXmlTags.ATTRIBUTE_NAME_OPERATOR_REVENUE,
                         n, opRev);
                 BigDecimal amountForSupplier = XMLConverter
-                        .getBigDecimalAttValue(
-                                n,
+                        .getBigDecimalAttValue(n,
                                 BillingShareResultXmlTags.ATTRIBUTE_NAME_AMOUNT_FOR_SUPPLIER);
                 if (amountForSupplier == null) {
-                    amountForSupplier = XMLConverter
-                            .getBigDecimalAttValue(
-                                    n,
-                                    BillingShareResultXmlTags.ATTRIBUTE_NAME_NETAMOUNT_FOR_SUPPLIER);
+                    amountForSupplier = XMLConverter.getBigDecimalAttValue(n,
+                            BillingShareResultXmlTags.ATTRIBUTE_NAME_NETAMOUNT_FOR_SUPPLIER);
                 }
                 if (amountForSupplier != null) {
                     revMinusShares = revMinusShares.add(amountForSupplier);
@@ -581,11 +579,12 @@ class SupplierRevenueShareBuilder {
                 final BigDecimal d = new BigDecimal(
                         totalPartnerProvision.toString());
                 totalPartnerProvision = addRevenueShare(
-                        OfferingType.BROKER == offeringType ? BillingShareResultXmlTags.ATTRIBUTE_NAME_BROKER_REVENUE
+                        OfferingType.BROKER == offeringType
+                                ? BillingShareResultXmlTags.ATTRIBUTE_NAME_BROKER_REVENUE
                                 : BillingShareResultXmlTags.ATTRIBUTE_NAME_RESELLER_REVENUE,
                         n, totalPartnerProvision);
-                partnerProvision = partnerProvision.add(totalPartnerProvision
-                        .subtract(d));
+                partnerProvision = partnerProvision
+                        .add(totalPartnerProvision.subtract(d));
                 partner = currentPartner;
                 lastNode = n;
                 if (i == services.size() - 1) {
@@ -604,10 +603,10 @@ class SupplierRevenueShareBuilder {
         return partner != null && !partner.equals(currentPartner);
     }
 
-    private BigDecimal addRevenueShare(String tag,
-            Node nodeRevenueShareDetails, BigDecimal sum) {
-        final BigDecimal d = XMLConverter.getBigDecimalAttValue(
-                nodeRevenueShareDetails, tag);
+    private BigDecimal addRevenueShare(String tag, Node nodeRevenueShareDetails,
+            BigDecimal sum) {
+        final BigDecimal d = XMLConverter
+                .getBigDecimalAttValue(nodeRevenueShareDetails, tag);
         if (d != null) {
             return sum.add(d);
         }
@@ -628,41 +627,35 @@ class SupplierRevenueShareBuilder {
         rss.setPartner(partner);
 
         rss.setMarketplaceRevenue(marketplaceRevenue);
-        rss.setMarketplaceRevenuePercentage(XMLConverter
-                .getStringAttValue(
-                        n,
-                        BillingShareResultXmlTags.ATTRIBUTE_NAME_MARKETPLACE_REVENUE_SHARE_PERCENTAGE)
+        rss.setMarketplaceRevenuePercentage(XMLConverter.getStringAttValue(n,
+                BillingShareResultXmlTags.ATTRIBUTE_NAME_MARKETPLACE_REVENUE_SHARE_PERCENTAGE)
                 + PERCENTAGE_SIGN);
         rss.setOperatorRevenue(operatorRevenue);
-        rss.setOperatorRevenuePercentage(XMLConverter
-                .getStringAttValue(
-                        n,
-                        BillingShareResultXmlTags.ATTRIBUTE_NAME_OPERATOR_REVENUE_SHARE_PERCENTAGE)
+        rss.setOperatorRevenuePercentage(XMLConverter.getStringAttValue(n,
+                BillingShareResultXmlTags.ATTRIBUTE_NAME_OPERATOR_REVENUE_SHARE_PERCENTAGE)
                 + PERCENTAGE_SIGN);
         rss.setRevenueMinusShares(revenueMinusShares);
 
         rss.setPartnerProvision(partnerProvision);
-        rss.setPartnerProvisionPercentage(XMLConverter
-                .getStringAttValue(
-                        n,
-                        OfferingType.BROKER == offeringType ? BillingShareResultXmlTags.ATTRIBUTE_NAME_BROKER_REVENUE_SHARE_PERCENTAGE
-                                : BillingShareResultXmlTags.ATTRIBUTE_NAME_RESELLER_REVENUE_SHARE_PERCENTAGE));
+        rss.setPartnerProvisionPercentage(XMLConverter.getStringAttValue(n,
+                OfferingType.BROKER == offeringType
+                        ? BillingShareResultXmlTags.ATTRIBUTE_NAME_BROKER_REVENUE_SHARE_PERCENTAGE
+                        : BillingShareResultXmlTags.ATTRIBUTE_NAME_RESELLER_REVENUE_SHARE_PERCENTAGE));
         result.add(rss);
     }
 
     private List<Node> marketplaceNodes(String currencyId)
             throws XPathExpressionException {
-        NodeList marketplaceNodes = XMLConverter
-                .getNodeListByXPath(xmlDocument, "//Currency[@id='"
-                        + currencyId + "']/Marketplace");
+        NodeList marketplaceNodes = XMLConverter.getNodeListByXPath(xmlDocument,
+                "//Currency[@id='" + currencyId + "']/Marketplace");
         return XMLConverter.getNodeList(marketplaceNodes,
                 BillingShareResultXmlTags.NODE_NAME_MARKETPLACE);
     }
 
     boolean isServiceRevenueValid(String serviceRevenue) throws ParseException {
         NumberFormat nf = NumberFormat.getInstance();
-        BigDecimal nServiceRevenue = new BigDecimal(nf.parse(serviceRevenue)
-                .toString());
+        BigDecimal nServiceRevenue = new BigDecimal(
+                nf.parse(serviceRevenue).toString());
         return nServiceRevenue.doubleValue() > 0;
     }
 
@@ -677,7 +670,7 @@ class SupplierRevenueShareBuilder {
             int parentEntryNr, String currencyId, OfferingType type)
             throws XPathExpressionException, ParseException {
 
-        ArrayList<RDORevenueShareDetail> result = new ArrayList<RDORevenueShareDetail>();
+        ArrayList<RDORevenueShareDetail> result = new ArrayList<>();
         for (Node marketplace : marketplaceNodes(currencyId)) {
             String marketplaceId = XMLConverter.getStringAttValue(marketplace,
                     BillingShareResultXmlTags.ATTRIBUTE_NAME_ID);
@@ -716,7 +709,8 @@ class SupplierRevenueShareBuilder {
             String currencyId, String marketplaceName, String serviceId)
             throws ParseException {
 
-        String serviceRevenue = getServiceRevenueByCustomerDetails(nodeCustDetails);
+        String serviceRevenue = getServiceRevenueByCustomerDetails(
+                nodeCustDetails);
         if (!isServiceRevenueValid(serviceRevenue)) {
             return null;
         }
@@ -741,38 +735,34 @@ class SupplierRevenueShareBuilder {
         rsd.setMarketplaceRevenue(XMLConverter.getStringAttValue(
                 nodeCustDetails,
                 BillingShareResultXmlTags.ATTRIBUTE_NAME_MARKETPLACE_REVENUE));
-        rsd.setMarketplaceSharePercentage(XMLConverter
-                .getStringAttValue(
-                        nodeRevenueShareDetails,
+        rsd.setMarketplaceSharePercentage(
+                XMLConverter.getStringAttValue(nodeRevenueShareDetails,
                         BillingShareResultXmlTags.ATTRIBUTE_NAME_MARKETPLACE_REVENUE_SHARE_PERCENTAGE)
-                + PERCENTAGE_SIGN);
+                        + PERCENTAGE_SIGN);
         rsd.setPartner(getOrganizationDataId(nodeService, offeringType));
         if (offeringType.equals(OfferingType.BROKER)) {
             rsd.setPartnerRevenue(XMLConverter.getStringAttValue(
                     nodeCustDetails,
                     BillingShareResultXmlTags.ATTRIBUTE_NAME_BROKER_REVENUE));
-            rsd.setPartnerSharePercentage(XMLConverter
-                    .getStringAttValue(
-                            nodeRevenueShareDetails,
+            rsd.setPartnerSharePercentage(
+                    XMLConverter.getStringAttValue(nodeRevenueShareDetails,
                             BillingShareResultXmlTags.ATTRIBUTE_NAME_BROKER_REVENUE_SHARE_PERCENTAGE)
-                    + PERCENTAGE_SIGN);
+                            + PERCENTAGE_SIGN);
         } else if (offeringType.equals(OfferingType.RESELLER)) {
             rsd.setPartnerRevenue(XMLConverter.getStringAttValue(
                     nodeCustDetails,
                     BillingShareResultXmlTags.ATTRIBUTE_NAME_RESELLER_REVENUE));
-            rsd.setPartnerSharePercentage(XMLConverter
-                    .getStringAttValue(
-                            nodeRevenueShareDetails,
+            rsd.setPartnerSharePercentage(
+                    XMLConverter.getStringAttValue(nodeRevenueShareDetails,
                             BillingShareResultXmlTags.ATTRIBUTE_NAME_RESELLER_REVENUE_SHARE_PERCENTAGE)
-                    + PERCENTAGE_SIGN);
+                            + PERCENTAGE_SIGN);
         }
         rsd.setOperatorRevenue(XMLConverter.getStringAttValue(nodeCustDetails,
                 BillingShareResultXmlTags.ATTRIBUTE_NAME_OPERATOR_REVENUE));
-        rsd.setOperatorRevenuePercentage(XMLConverter
-                .getStringAttValue(
-                        nodeRevenueShareDetails,
+        rsd.setOperatorRevenuePercentage(
+                XMLConverter.getStringAttValue(nodeRevenueShareDetails,
                         BillingShareResultXmlTags.ATTRIBUTE_NAME_OPERATOR_REVENUE_SHARE_PERCENTAGE)
-                + PERCENTAGE_SIGN);
+                        + PERCENTAGE_SIGN);
         rsd.setRevenueMinusShares(XMLConverter.getStringAttValue(
                 nodeCustDetails,
                 BillingShareResultXmlTags.ATTRIBUTE_NAME_AMOUNT_FOR_SUPPLIER));
@@ -786,8 +776,7 @@ class SupplierRevenueShareBuilder {
 
     private List<Node> serviceNodes(String currencyId, String marketplaceId,
             OfferingType partnerType) throws XPathExpressionException {
-        NodeList serviceNodes = XMLConverter.getNodeListByXPath(
-                xmlDocument,
+        NodeList serviceNodes = XMLConverter.getNodeListByXPath(xmlDocument,
                 "//Currency[@id='" + currencyId + "']/Marketplace[@id='"
                         + marketplaceId + "']/Service[@model='"
                         + partnerType.name() + "']");
@@ -798,26 +787,24 @@ class SupplierRevenueShareBuilder {
     private List<Node> customerRevenueShareDetailNodes(String currencyId,
             String serviceKey, OfferingType partnerType)
             throws XPathExpressionException {
-        NodeList serviceNodes = XMLConverter
-                .getNodeListByXPath(xmlDocument, "//Currency[@id='"
-                        + currencyId + "']/Marketplace/Service[@key='"
-                        + serviceKey + "' and @model='" + partnerType.name()
+        NodeList serviceNodes = XMLConverter.getNodeListByXPath(xmlDocument,
+                "//Currency[@id='" + currencyId
+                        + "']/Marketplace/Service[@key='" + serviceKey
+                        + "' and @model='" + partnerType.name()
                         + "' ]/RevenueShareDetails/CustomerRevenueShareDetails");
-        return XMLConverter
-                .getNodeList(
-                        serviceNodes,
-                        BillingShareResultXmlTags.NODE_NAME_CUSTOMER_REVENUE_SHARE_DETAILS);
+        return XMLConverter.getNodeList(serviceNodes,
+                BillingShareResultXmlTags.NODE_NAME_CUSTOMER_REVENUE_SHARE_DETAILS);
     }
 
     private List<Node> organizationNodes() throws XPathExpressionException {
-        NodeList organizationNodes = XMLConverter.getNodeListByXPath(
-                xmlDocument, "//OrganizationData");
+        NodeList organizationNodes = XMLConverter
+                .getNodeListByXPath(xmlDocument, "//OrganizationData");
         return XMLConverter.getNodeList(organizationNodes,
                 BillingShareResultXmlTags.NODE_NAME_ORGANIZATIONDATA);
     }
 
-    private String computeServiceRevenueSum(String currencyId, OfferingType type)
-            throws XPathExpressionException {
+    private String computeServiceRevenueSum(String currencyId,
+            OfferingType type) throws XPathExpressionException {
         String path = "//Currency[@id='" + currencyId
                 + "']/Marketplace/Service[@model='" + type.name()
                 + "']/RevenueShareDetails/@serviceRevenue";

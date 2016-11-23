@@ -15,8 +15,9 @@ import java.util.HashMap;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.oscm.app.v1_0.data.ProvisioningSettings;
-import org.oscm.app.v1_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.data.ProvisioningSettings;
+import org.oscm.app.v2_0.data.Setting;
+import org.oscm.app.v2_0.exceptions.APPlatformException;
 import org.oscm.app.vmware.business.VMPropertyHandler;
 
 /**
@@ -31,8 +32,8 @@ public class VMControllerTest {
     @Before
     public void before() {
         controller = new VMController();
-        settings = new ProvisioningSettings(new HashMap<String, String>(),
-                new HashMap<String, String>(), "en");
+        settings = new ProvisioningSettings(new HashMap<String, Setting>(),
+                new HashMap<String, Setting>(), "en");
     }
 
     @Test
@@ -51,9 +52,10 @@ public class VMControllerTest {
     public void validateDataDiskMountPoints_emptyMountPoint() throws Exception {
         // given
         VMPropertyHandler newParameters = new VMPropertyHandler(settings);
-        settings.getParameters().put("DATA_DISK_TARGET_1", "");
+        settings.getParameters().put("DATA_DISK_TARGET_1",
+                new Setting("DATA_DISK_TARGET_1", ""));
         settings.getParameters().put("DATA_DISK_TARGET_VALIDATION_1",
-                "/opt/data");
+                new Setting("DATA_DISK_TARGET_VALIDATION_1", "/opt/data"));
 
         // when
         controller.validateDataDiskMountPoints(newParameters);
@@ -66,8 +68,10 @@ public class VMControllerTest {
             throws Exception {
         // given
         VMPropertyHandler newParameters = new VMPropertyHandler(settings);
-        settings.getParameters().put("DATA_DISK_TARGET_1", "/opt/data");
-        settings.getParameters().put("DATA_DISK_TARGET_VALIDATION_1", "");
+        settings.getParameters().put("DATA_DISK_TARGET_1",
+                new Setting("DATA_DISK_TARGET_1", "/opt/data"));
+        settings.getParameters().put("DATA_DISK_TARGET_VALIDATION_1",
+                new Setting("DATA_DISK_TARGET_VALIDATION_1", ""));
 
         // when
         controller.validateDataDiskMountPoints(newParameters);
@@ -80,7 +84,8 @@ public class VMControllerTest {
             throws Exception {
         // given
         VMPropertyHandler newParameters = new VMPropertyHandler(settings);
-        settings.getParameters().put("DATA_DISK_TARGET_1", "/opt/data");
+        settings.getParameters().put("DATA_DISK_TARGET_1",
+                new Setting("DATA_DISK_TARGET_1", "/opt/data"));
 
         // when
         controller.validateDataDiskMountPoints(newParameters);
@@ -92,9 +97,10 @@ public class VMControllerTest {
     public void validateDataDiskMountPoints_matches() throws Exception {
         // given
         VMPropertyHandler newParameters = new VMPropertyHandler(settings);
-        settings.getParameters().put("DATA_DISK_TARGET_1", "/opt/data");
+        settings.getParameters().put("DATA_DISK_TARGET_1",
+                new Setting("DATA_DISK_TARGET_1", "/opt/data"));
         settings.getParameters().put("DATA_DISK_TARGET_VALIDATION_1",
-                "/opt/data");
+                new Setting("DATA_DISK_TARGET_VALIDATION_1", "/opt/data"));
 
         // when
         controller.validateDataDiskMountPoints(newParameters);
@@ -106,9 +112,10 @@ public class VMControllerTest {
     public void validateDataDiskMountPoints_noMatch() throws Exception {
         // given
         VMPropertyHandler newParameters = new VMPropertyHandler(settings);
-        settings.getParameters().put("DATA_DISK_TARGET_1", "/opt/data");
+        settings.getParameters().put("DATA_DISK_TARGET_1",
+                new Setting("DATA_DISK_TARGET_1", "/opt/data"));
         settings.getParameters().put("DATA_DISK_TARGET_VALIDATION_1",
-                "/opt/data2");
+                new Setting("DATA_DISK_TARGET_VALIDATION_1", "/opt/data2"));
 
         // when
         controller.validateDataDiskMountPoints(newParameters);
@@ -122,9 +129,10 @@ public class VMControllerTest {
 
         // given
         VMPropertyHandler newParameters = new VMPropertyHandler(settings);
-        settings.getParameters().put("DATA_DISK_TARGET_1", "");
+        settings.getParameters().put("DATA_DISK_TARGET_1",
+                new Setting("DATA_DISK_TARGET_1", ""));
         settings.getParameters().put("DATA_DISK_TARGET_VALIDATION_1",
-                "/opt/data2");
+                new Setting("DATA_DISK_TARGET_VALIDATION_1", "/opt/data2"));
 
         // when
         controller.validateDataDiskMountPoints(newParameters);
@@ -137,15 +145,18 @@ public class VMControllerTest {
             throws Exception {
         // given
         VMPropertyHandler newParameters = new VMPropertyHandler(settings);
-        settings.getParameters().put("DATA_DISK_TARGET_1", "/opt/data");
+        settings.getParameters().put("DATA_DISK_TARGET_1",
+                new Setting("DATA_DISK_TARGET_1", "/opt/data"));
         settings.getParameters().put("DATA_DISK_TARGET_VALIDATION_1",
-                "/opt/data");
-        settings.getParameters().put("DATA_DISK_TARGET_2", "/opt/data2");
+                new Setting("DATA_DISK_TARGET_VALIDATION_1", "/opt/data"));
+        settings.getParameters().put("DATA_DISK_TARGET_2",
+                new Setting("DATA_DISK_TARGET_2", "/opt/data2"));
         settings.getParameters().put("DATA_DISK_TARGET_VALIDATION_2",
-                "/opt/data2");
-        settings.getParameters().put("DATA_DISK_TARGET_4", "/opt/data4");
+                new Setting("DATA_DISK_TARGET_VALIDATION_2", "/opt/data2"));
+        settings.getParameters().put("DATA_DISK_TARGET_4",
+                new Setting("DATA_DISK_TARGET_4", "/opt/data4"));
         settings.getParameters().put("DATA_DISK_TARGET_VALIDATION_4",
-                "/opt/data4");
+                new Setting("DATA_DISK_TARGET_VALIDATION_4", "/opt/data4"));
 
         // when
         controller.validateDataDiskMountPoints(newParameters);
@@ -158,12 +169,14 @@ public class VMControllerTest {
             throws Exception {
         // given
         VMPropertyHandler newParameters = new VMPropertyHandler(settings);
-        settings.getParameters().put("DATA_DISK_TARGET_1", "/opt/data");
+        settings.getParameters().put("DATA_DISK_TARGET_1",
+                new Setting("DATA_DISK_TARGET_1", "/opt/data"));
         settings.getParameters().put("DATA_DISK_TARGET_VALIDATION_1",
-                "/opt/data");
-        settings.getParameters().put("DATA_DISK_TARGET_2", "/opt/data");
+                new Setting("DATA_DISK_TARGET_VALIDATION_1", "/opt/data"));
+        settings.getParameters().put("DATA_DISK_TARGET_2",
+                new Setting("DATA_DISK_TARGET_2", "/opt/data"));
         settings.getParameters().put("DATA_DISK_TARGET_VALIDATION_2",
-                "/opt/data2");
+                new Setting("DATA_DISK_TARGET_VALIDATION_2", "/opt/data2"));
 
         // when
         try {

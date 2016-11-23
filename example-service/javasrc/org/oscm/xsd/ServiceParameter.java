@@ -1,3 +1,4 @@
+
 /**
  * ServiceParameter.java
  *
@@ -10,13 +11,41 @@ package org.oscm.xsd;
 /**
  * ServiceParameter bean class
  */
-@SuppressWarnings({ "rawtypes", "unused", "serial", "null", "unchecked" })
+
 public class ServiceParameter implements org.apache.axis2.databinding.ADBBean {
     /*
      * This type was generated from the piece of schema that had name =
-     * serviceParameter Namespace URI = http://oscm.org/xsd Namespace
-     * Prefix = ns1
+     * serviceParameter Namespace URI = http://oscm.org/xsd Namespace Prefix =
+     * ns1
      */
+
+    /**
+     * field for Encrypted
+     */
+
+    protected boolean localEncrypted;
+    /**
+     * field for ParameterId
+     */
+
+    protected java.lang.String localParameterId;
+    /*
+     * This tracker boolean wil be used to detect whether the user called the
+     * set method for this attribute. It will be used to determine whether to
+     * include this field in the serialized XML
+     */
+    protected boolean localParameterIdTracker = false;
+    /**
+     * field for Value
+     */
+
+    protected java.lang.String localValue;
+    /*
+     * This tracker boolean wil be used to detect whether the user called the
+     * set method for this attribute. It will be used to determine whether to
+     * include this field in the serialized XML
+     */
+    protected boolean localValueTracker = false;
 
     private static java.lang.String generatePrefix(java.lang.String namespace) {
         if (namespace.equals("http://oscm.org/xsd")) {
@@ -26,21 +55,48 @@ public class ServiceParameter implements org.apache.axis2.databinding.ADBBean {
     }
 
     /**
-     * field for ParameterId
+     * isReaderMTOMAware
+     *
+     * @return true if the reader supports MTOM
      */
+    public static boolean isReaderMTOMAware(
+            javax.xml.stream.XMLStreamReader reader) {
+        boolean isReaderMTOMAware = false;
 
-    protected java.lang.String localParameterId;
-
-    /*
-     * This tracker boolean wil be used to detect whether the user called the
-     * set method for this attribute. It will be used to determine whether to
-     * include this field in the serialized XML
-     */
-    protected boolean localParameterIdTracker = false;
+        try {
+            isReaderMTOMAware = java.lang.Boolean.TRUE
+                    .equals(reader.getProperty(
+                            org.apache.axiom.om.OMConstants.IS_DATA_HANDLERS_AWARE));
+        } catch (java.lang.IllegalArgumentException e) {
+            isReaderMTOMAware = false;
+        }
+        return isReaderMTOMAware;
+    }
 
     /**
      * Auto generated getter method
-     * 
+     *
+     * @return boolean
+     */
+    public boolean getEncrypted() {
+        return localEncrypted;
+    }
+
+    /**
+     * Auto generated setter method
+     *
+     * @param param
+     *            Encrypted
+     */
+    public void setEncrypted(boolean param) {
+
+        this.localEncrypted = param;
+
+    }
+
+    /**
+     * Auto generated getter method
+     *
      * @return java.lang.String
      */
     public java.lang.String getParameterId() {
@@ -49,7 +105,7 @@ public class ServiceParameter implements org.apache.axis2.databinding.ADBBean {
 
     /**
      * Auto generated setter method
-     * 
+     *
      * @param param
      *            ParameterId
      */
@@ -68,21 +124,8 @@ public class ServiceParameter implements org.apache.axis2.databinding.ADBBean {
     }
 
     /**
-     * field for Value
-     */
-
-    protected java.lang.String localValue;
-
-    /*
-     * This tracker boolean wil be used to detect whether the user called the
-     * set method for this attribute. It will be used to determine whether to
-     * include this field in the serialized XML
-     */
-    protected boolean localValueTracker = false;
-
-    /**
      * Auto generated getter method
-     * 
+     *
      * @return java.lang.String
      */
     public java.lang.String getValue() {
@@ -91,7 +134,7 @@ public class ServiceParameter implements org.apache.axis2.databinding.ADBBean {
 
     /**
      * Auto generated setter method
-     * 
+     *
      * @param param
      *            Value
      */
@@ -110,26 +153,7 @@ public class ServiceParameter implements org.apache.axis2.databinding.ADBBean {
     }
 
     /**
-     * isReaderMTOMAware
-     * 
-     * @return true if the reader supports MTOM
-     */
-    public static boolean isReaderMTOMAware(
-            javax.xml.stream.XMLStreamReader reader) {
-        boolean isReaderMTOMAware = false;
-
-        try {
-            isReaderMTOMAware = java.lang.Boolean.TRUE
-                    .equals(reader
-                            .getProperty(org.apache.axiom.om.OMConstants.IS_DATA_HANDLERS_AWARE));
-        } catch (java.lang.IllegalArgumentException e) {
-            isReaderMTOMAware = false;
-        }
-        return isReaderMTOMAware;
-    }
-
-    /**
-     * 
+     *
      * @param parentQName
      * @param factory
      * @return org.apache.axiom.om.OMElement
@@ -142,12 +166,11 @@ public class ServiceParameter implements org.apache.axis2.databinding.ADBBean {
         org.apache.axiom.om.OMDataSource dataSource = new org.apache.axis2.databinding.ADBDataSource(
                 this, parentQName) {
 
-            @Override
             public void serialize(
                     org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter)
                     throws javax.xml.stream.XMLStreamException {
-                ServiceParameter.this
-                        .serialize(parentQName, factory, xmlWriter);
+                ServiceParameter.this.serialize(parentQName, factory,
+                        xmlWriter);
             }
         };
         return new org.apache.axiom.om.impl.llom.OMSourcedElementImpl(
@@ -155,8 +178,7 @@ public class ServiceParameter implements org.apache.axis2.databinding.ADBBean {
 
     }
 
-    public void serialize(
-            final javax.xml.namespace.QName parentQName,
+    public void serialize(final javax.xml.namespace.QName parentQName,
             final org.apache.axiom.om.OMFactory factory,
             org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter)
             throws javax.xml.stream.XMLStreamException,
@@ -164,8 +186,7 @@ public class ServiceParameter implements org.apache.axis2.databinding.ADBBean {
         serialize(parentQName, factory, xmlWriter, false);
     }
 
-    public void serialize(
-            final javax.xml.namespace.QName parentQName,
+    public void serialize(final javax.xml.namespace.QName parentQName,
             final org.apache.axiom.om.OMFactory factory,
             org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter,
             boolean serializeType) throws javax.xml.stream.XMLStreamException,
@@ -212,6 +233,38 @@ public class ServiceParameter implements org.apache.axis2.databinding.ADBBean {
             }
 
         }
+
+        namespace = "http://oscm.org/xsd";
+        if (!namespace.equals("")) {
+            prefix = xmlWriter.getPrefix(namespace);
+
+            if (prefix == null) {
+                prefix = generatePrefix(namespace);
+
+                xmlWriter.writeStartElement(prefix, "encrypted", namespace);
+                xmlWriter.writeNamespace(prefix, namespace);
+                xmlWriter.setPrefix(prefix, namespace);
+
+            } else {
+                xmlWriter.writeStartElement(namespace, "encrypted");
+            }
+
+        } else {
+            xmlWriter.writeStartElement("encrypted");
+        }
+
+        if (false) {
+
+            throw new org.apache.axis2.databinding.ADBException(
+                    "encrypted cannot be null!!");
+
+        } else {
+            xmlWriter.writeCharacters(
+                    org.apache.axis2.databinding.utils.ConverterUtil
+                            .convertToString(localEncrypted));
+        }
+
+        xmlWriter.writeEndElement();
         if (localParameterIdTracker) {
             namespace = "http://oscm.org/xsd";
             if (!namespace.equals("")) {
@@ -364,20 +417,19 @@ public class ServiceParameter implements org.apache.axis2.databinding.ADBBean {
             }
 
             if (prefix.trim().length() > 0) {
-                xmlWriter.writeCharacters(prefix
-                        + ":"
+                xmlWriter.writeCharacters(prefix + ":"
                         + org.apache.axis2.databinding.utils.ConverterUtil
                                 .convertToString(qname));
             } else {
                 // i.e this is the default namespace
-                xmlWriter
-                        .writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil
+                xmlWriter.writeCharacters(
+                        org.apache.axis2.databinding.utils.ConverterUtil
                                 .convertToString(qname));
             }
 
         } else {
-            xmlWriter
-                    .writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil
+            xmlWriter.writeCharacters(
+                    org.apache.axis2.databinding.utils.ConverterUtil
                             .convertToString(qname));
         }
     }
@@ -408,9 +460,7 @@ public class ServiceParameter implements org.apache.axis2.databinding.ADBBean {
                     }
 
                     if (prefix.trim().length() > 0) {
-                        stringToWrite
-                                .append(prefix)
-                                .append(":")
+                        stringToWrite.append(prefix).append(":")
                                 .append(org.apache.axis2.databinding.utils.ConverterUtil
                                         .convertToString(qnames[i]));
                     } else {
@@ -441,7 +491,8 @@ public class ServiceParameter implements org.apache.axis2.databinding.ADBBean {
         if (prefix == null) {
             prefix = generatePrefix(namespace);
 
-            while (xmlWriter.getNamespaceContext().getNamespaceURI(prefix) != null) {
+            while (xmlWriter.getNamespaceContext()
+                    .getNamespaceURI(prefix) != null) {
                 prefix = org.apache.axis2.databinding.utils.BeanUtil
                         .getUniquePrefix();
             }
@@ -455,7 +506,7 @@ public class ServiceParameter implements org.apache.axis2.databinding.ADBBean {
 
     /**
      * databinding method to get an XML representation of this object
-     * 
+     *
      */
     public javax.xml.stream.XMLStreamReader getPullParser(
             javax.xml.namespace.QName qName)
@@ -464,27 +515,30 @@ public class ServiceParameter implements org.apache.axis2.databinding.ADBBean {
         java.util.ArrayList elementList = new java.util.ArrayList();
         java.util.ArrayList attribList = new java.util.ArrayList();
 
+        elementList.add(new javax.xml.namespace.QName("http://oscm.org/xsd",
+                "encrypted"));
+
+        elementList.add(org.apache.axis2.databinding.utils.ConverterUtil
+                .convertToString(localEncrypted));
         if (localParameterIdTracker) {
-            elementList.add(new javax.xml.namespace.QName(
-                    "http://oscm.org/xsd", "parameterId"));
+            elementList.add(new javax.xml.namespace.QName("http://oscm.org/xsd",
+                    "parameterId"));
 
             if (localParameterId != null) {
-                elementList
-                        .add(org.apache.axis2.databinding.utils.ConverterUtil
-                                .convertToString(localParameterId));
+                elementList.add(org.apache.axis2.databinding.utils.ConverterUtil
+                        .convertToString(localParameterId));
             } else {
                 throw new org.apache.axis2.databinding.ADBException(
                         "parameterId cannot be null!!");
             }
         }
         if (localValueTracker) {
-            elementList.add(new javax.xml.namespace.QName(
-                    "http://oscm.org/xsd", "value"));
+            elementList.add(new javax.xml.namespace.QName("http://oscm.org/xsd",
+                    "value"));
 
             if (localValue != null) {
-                elementList
-                        .add(org.apache.axis2.databinding.utils.ConverterUtil
-                                .convertToString(localValue));
+                elementList.add(org.apache.axis2.databinding.utils.ConverterUtil
+                        .convertToString(localValue));
             } else {
                 throw new org.apache.axis2.databinding.ADBException(
                         "value cannot be null!!");
@@ -526,11 +580,11 @@ public class ServiceParameter implements org.apache.axis2.databinding.ADBBean {
                     reader.next();
 
                 if (reader.getAttributeValue(
-                        "http://www.w3.org/2001/XMLSchema-instance", "type") != null) {
-                    java.lang.String fullTypeName = reader
-                            .getAttributeValue(
-                                    "http://www.w3.org/2001/XMLSchema-instance",
-                                    "type");
+                        "http://www.w3.org/2001/XMLSchema-instance",
+                        "type") != null) {
+                    java.lang.String fullTypeName = reader.getAttributeValue(
+                            "http://www.w3.org/2001/XMLSchema-instance",
+                            "type");
                     if (fullTypeName != null) {
                         java.lang.String nsPrefix = null;
                         if (fullTypeName.indexOf(":") > -1) {
@@ -545,8 +599,8 @@ public class ServiceParameter implements org.apache.axis2.databinding.ADBBean {
                         if (!"serviceParameter".equals(type)) {
                             // find namespace for the prefix
                             java.lang.String nsUri = reader
-                                    .getNamespaceContext().getNamespaceURI(
-                                            nsPrefix);
+                                    .getNamespaceContext()
+                                    .getNamespaceURI(nsPrefix);
                             return (ServiceParameter) org.oscm.xsd.ExtensionMapper
                                     .getTypeObject(nsUri, type, reader);
                         }
@@ -566,14 +620,38 @@ public class ServiceParameter implements org.apache.axis2.databinding.ADBBean {
                     reader.next();
 
                 if (reader.isStartElement()
-                        && new javax.xml.namespace.QName(
-                                "http://oscm.org/xsd", "parameterId")
-                                .equals(reader.getName())) {
+                        && new javax.xml.namespace.QName("http://oscm.org/xsd",
+                                "encrypted").equals(reader.getName())) {
 
                     java.lang.String content = reader.getElementText();
 
-                    object.setParameterId(org.apache.axis2.databinding.utils.ConverterUtil
-                            .convertToString(content));
+                    object.setEncrypted(
+                            org.apache.axis2.databinding.utils.ConverterUtil
+                                    .convertToBoolean(content));
+
+                    reader.next();
+
+                } // End of if for expected property start element
+
+                else {
+                    // A start element we are not expecting indicates an invalid
+                    // parameter was passed
+                    throw new org.apache.axis2.databinding.ADBException(
+                            "Unexpected subelement " + reader.getLocalName());
+                }
+
+                while (!reader.isStartElement() && !reader.isEndElement())
+                    reader.next();
+
+                if (reader.isStartElement()
+                        && new javax.xml.namespace.QName("http://oscm.org/xsd",
+                                "parameterId").equals(reader.getName())) {
+
+                    java.lang.String content = reader.getElementText();
+
+                    object.setParameterId(
+                            org.apache.axis2.databinding.utils.ConverterUtil
+                                    .convertToString(content));
 
                     reader.next();
 
@@ -587,14 +665,14 @@ public class ServiceParameter implements org.apache.axis2.databinding.ADBBean {
                     reader.next();
 
                 if (reader.isStartElement()
-                        && new javax.xml.namespace.QName(
-                                "http://oscm.org/xsd", "value")
-                                .equals(reader.getName())) {
+                        && new javax.xml.namespace.QName("http://oscm.org/xsd",
+                                "value").equals(reader.getName())) {
 
                     java.lang.String content = reader.getElementText();
 
-                    object.setValue(org.apache.axis2.databinding.utils.ConverterUtil
-                            .convertToString(content));
+                    object.setValue(
+                            org.apache.axis2.databinding.utils.ConverterUtil
+                                    .convertToString(content));
 
                     reader.next();
 

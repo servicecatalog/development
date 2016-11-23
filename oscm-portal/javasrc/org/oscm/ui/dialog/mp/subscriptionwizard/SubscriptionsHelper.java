@@ -10,19 +10,23 @@
 
 package org.oscm.ui.dialog.mp.subscriptionwizard;
 
-import org.oscm.types.enumtypes.PlatformParameterIdentifiers;
-import org.oscm.ui.beans.UdaBean;
-import org.oscm.ui.model.UdaRow;
-import org.oscm.internal.subscriptiondetails.POSubscriptionDetails;
-import org.oscm.internal.subscriptiondetails.SubscriptionDetailsService;
-import org.oscm.internal.types.enumtypes.SubscriptionStatus;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.vo.*;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import org.oscm.internal.subscriptiondetails.POSubscriptionDetails;
+import org.oscm.internal.subscriptiondetails.SubscriptionDetailsService;
+import org.oscm.internal.types.enumtypes.SubscriptionStatus;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.internal.vo.VOParameter;
+import org.oscm.internal.vo.VOSubscriptionDetails;
+import org.oscm.internal.vo.VOUda;
+import org.oscm.internal.vo.VOUdaDefinition;
+import org.oscm.internal.vo.VOUsageLicense;
+import org.oscm.types.enumtypes.PlatformParameterIdentifiers;
+import org.oscm.ui.beans.UdaBean;
+import org.oscm.ui.model.UdaRow;
 
 public class SubscriptionsHelper implements Serializable {
     private static final long serialVersionUID = 805145414615881714L;
@@ -31,21 +35,15 @@ public class SubscriptionsHelper implements Serializable {
     }
 
     /**
-     * get VOUdas from subscriptionUdaRows and organizationUdaRows
+     * get VOUdas from subscriptionUdaRows
      *
      * @param subscriptionUdaRows
-     * @param organizationUdaRows
      * @return list of all VOUdas
      */
-    public List<VOUda> getVoUdaFromUdaRows(List<UdaRow> subscriptionUdaRows, List<UdaRow> organizationUdaRows) {
-        List<VOUda> voUdas = new ArrayList<VOUda>();
+    public List<VOUda> getVoUdaFromUdaRows(List<UdaRow> subscriptionUdaRows) {
+        List<VOUda> voUdas = new ArrayList<>();
         if (subscriptionUdaRows != null) {
             for (UdaRow row : subscriptionUdaRows) {
-                voUdas.add(row.getUda());
-            }
-        }
-        if (organizationUdaRows != null) {
-            for (UdaRow row : organizationUdaRows) {
                 voUdas.add(row.getUda());
             }
         }
@@ -53,10 +51,13 @@ public class SubscriptionsHelper implements Serializable {
     }
 
     public void setUdas(final POSubscriptionDetails subscriptionDetails,
-                        List<VOUdaDefinition> subUdaDefinitions, List<VOUdaDefinition> orgUdaDefinitions, VOSubscriptionDetails subscription) {
+            List<VOUdaDefinition> subUdaDefinitions,
+            List<VOUdaDefinition> orgUdaDefinitions,
+            VOSubscriptionDetails subscription) {
         if (subscription != null) {
             // get the Udas for current organization and subscription
-            for (VOUdaDefinition def : subscriptionDetails.getUdasDefinitions()) {
+            for (VOUdaDefinition def : subscriptionDetails
+                    .getUdasDefinitions()) {
                 if (def.getTargetType().equals(UdaBean.CUSTOMER_SUBSCRIPTION)) {
                     subUdaDefinitions.add(def);
                 } else if (def.getTargetType().equals(UdaBean.CUSTOMER)) {
@@ -68,8 +69,8 @@ public class SubscriptionsHelper implements Serializable {
 
     public Integer setMaximumNamedUsers(VOSubscriptionDetails subscription) {
         Integer maxNamedUsers = null;
-        final List<VOParameter> parameters = subscription
-                .getSubscribedService().getParameters();
+        final List<VOParameter> parameters = subscription.getSubscribedService()
+                .getParameters();
         if (parameters != null) {
             String paramDef, paramVal;
             for (VOParameter param : parameters) {
@@ -86,7 +87,8 @@ public class SubscriptionsHelper implements Serializable {
         return maxNamedUsers;
     }
 
-    public void setUsageLicenses(VOSubscriptionDetails subscription, Map<String, VOUsageLicense> usageLicenseMap) {
+    public void setUsageLicenses(VOSubscriptionDetails subscription,
+            Map<String, VOUsageLicense> usageLicenseMap) {
         if (subscription == null) {
             return;
         }
@@ -94,14 +96,15 @@ public class SubscriptionsHelper implements Serializable {
             return;
         }
 
-        for (VOUsageLicense voUsageLicense : subscription
-                .getUsageLicenses()) {
-            usageLicenseMap.put(
-                    voUsageLicense.getUser().getUserId(), voUsageLicense);
+        for (VOUsageLicense voUsageLicense : subscription.getUsageLicenses()) {
+            usageLicenseMap.put(voUsageLicense.getUser().getUserId(),
+                    voUsageLicense);
         }
     }
 
-    public boolean validateSubscriptionStatus(VOSubscriptionDetails subscription, SubscriptionDetailsService service) {
+    public boolean validateSubscriptionStatus(
+            VOSubscriptionDetails subscription,
+            SubscriptionDetailsService service) {
         try {
             SubscriptionStatus status = service
                     .loadSubscriptionStatus(subscription.getKey())

@@ -14,11 +14,12 @@ import java.util.HashMap;
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpSession;
 
-import org.oscm.app.v1_0.APPlatformServiceFactory;
-import org.oscm.app.v1_0.data.PasswordAuthentication;
-import org.oscm.app.v1_0.data.ProvisioningSettings;
-import org.oscm.app.v1_0.exceptions.APPlatformException;
-import org.oscm.app.v1_0.intf.APPlatformService;
+import org.oscm.app.v2_0.APPlatformServiceFactory;
+import org.oscm.app.v2_0.data.PasswordAuthentication;
+import org.oscm.app.v2_0.data.ProvisioningSettings;
+import org.oscm.app.v2_0.data.Setting;
+import org.oscm.app.v2_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.intf.APPlatformService;
 import org.oscm.app.vmware.business.Controller;
 import org.oscm.app.vmware.business.VMPropertyHandler;
 import org.oscm.app.vmware.i18n.Messages;
@@ -62,26 +63,26 @@ public abstract class UiBeanBase implements Serializable {
     }
 
     protected VMPropertyHandler readControllerSettings() {
-        HashMap<String, String> controllerSettings = getControllerSettings();
+        HashMap<String, Setting> controllerSettings = getControllerSettings();
         ProvisioningSettings settings = new ProvisioningSettings(
-                new HashMap<String, String>(), controllerSettings,
+                new HashMap<String, Setting>(), controllerSettings,
                 Messages.DEFAULT_LOCALE);
         return new VMPropertyHandler(settings);
     }
 
-    protected HashMap<String, String> getControllerSettings() {
+    protected HashMap<String, Setting> getControllerSettings() {
         FacesContext facesContext = getContext();
         HttpSession session = (HttpSession) facesContext.getExternalContext()
                 .getSession(false);
         Object userId = session.getAttribute("loggedInUserId");
         Object password = session.getAttribute("loggedInUserPassword");
 
-        HashMap<String, String> controllerSettings = new HashMap<String, String>();
+        HashMap<String, Setting> controllerSettings = new HashMap<>();
         try {
             PasswordAuthentication tpUser = new PasswordAuthentication(
                     userId.toString(), password.toString());
-            controllerSettings = platformService
-                    .getControllerSettings(Controller.ID, tpUser);
+            controllerSettings = platformService.getControllerSettings(
+                    Controller.ID, tpUser);
         } catch (APPlatformException e1) {
             getLogger().error("UiBeanBase.getControllerSettings()", e1);
         }

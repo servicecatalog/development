@@ -17,14 +17,14 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
 import org.junit.Test;
-
-import org.oscm.test.EJBTestBase;
-import org.oscm.test.ejb.TestContainer;
 import org.oscm.app.business.exceptions.BadResultException;
 import org.oscm.app.domain.InstanceParameter;
 import org.oscm.app.domain.Operation;
 import org.oscm.app.domain.ProvisioningStatus;
 import org.oscm.app.domain.ServiceInstance;
+import org.oscm.app.v2_0.data.Setting;
+import org.oscm.test.EJBTestBase;
+import org.oscm.test.ejb.TestContainer;
 
 /**
  * Unit tests for {@link ServiceInstance}.
@@ -110,10 +110,12 @@ public class ServiceInstanceIT extends EJBTestBase {
                 instance.setInstanceParameters(Arrays.asList(p1, p2));
                 em.persist(instance);
 
-                final HashMap<String, String> map = instance.getParameterMap();
-                map.put(InstanceParameter.BSS_USER, "username_new");
-                map.put("param3", "value3new");
-                map.put(null, "null"); // should be silently ignored
+                final HashMap<String, Setting> map = instance.getParameterMap();
+                map.put(InstanceParameter.BSS_USER, new Setting(
+                        InstanceParameter.BSS_USER, "username_new"));
+                map.put("param3", new Setting("param3", "value3new"));
+                map.put(null, new Setting(null, "null")); // should be silently
+                                                          // ignored
                 instance.setInstanceParameters(map);
 
                 em.flush();
@@ -122,9 +124,9 @@ public class ServiceInstanceIT extends EJBTestBase {
             }
         });
 
-        final Map<String, String> params = runTX(new Callable<Map<String, String>>() {
+        final Map<String, Setting> params = runTX(new Callable<Map<String, Setting>>() {
             @Override
-            public Map<String, String> call() throws Exception {
+            public Map<String, Setting> call() throws Exception {
                 Query query = em
                         .createQuery("SELECT si FROM ServiceInstance si");
                 List<?> resultList = query.getResultList();
@@ -136,12 +138,15 @@ public class ServiceInstanceIT extends EJBTestBase {
             }
         });
 
-        final Map<String, String> expected = new HashMap<String, String>();
+        final Map<String, String> expected = new HashMap<>();
         expected.put(InstanceParameter.BSS_USER, "username_new");
         expected.put(InstanceParameter.BSS_USER_PWD, "secret");
         expected.put("param3", "value3new");
-        assertEquals(expected, params);
-
+        assertEquals("value3new", params.get("param3").getValue());
+        assertEquals("username_new", params.get(InstanceParameter.BSS_USER)
+                .getValue());
+        assertEquals("secret", params.get(InstanceParameter.BSS_USER_PWD)
+                .getValue());
     }
 
     @Test(expected = BadResultException.class)
@@ -157,6 +162,7 @@ public class ServiceInstanceIT extends EJBTestBase {
                 // will later fail
                 p1.setParameterValue("secret");
                 p1.setServiceInstance(instance);
+                p1.setEncrypted(true);
 
                 instance.setInstanceParameters(Arrays.asList(p1));
                 em.persist(instance);
@@ -166,9 +172,9 @@ public class ServiceInstanceIT extends EJBTestBase {
             }
         });
 
-        runTX(new Callable<Map<String, String>>() {
+        runTX(new Callable<Map<String, Setting>>() {
             @Override
-            public Map<String, String> call() throws Exception {
+            public Map<String, Setting> call() throws Exception {
                 Query query = em
                         .createQuery("SELECT si FROM ServiceInstance si");
                 List<?> resultList = query.getResultList();

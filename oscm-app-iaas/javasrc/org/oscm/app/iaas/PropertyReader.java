@@ -14,6 +14,7 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.oscm.app.v2_0.data.Setting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +30,7 @@ class PropertyReader {
 
     // Local vars
     private String prefix;
-    private Map<String, String> props;
+    private Map<String, Setting> props;
     private Properties configProps = null;
 
     /**
@@ -40,7 +41,7 @@ class PropertyReader {
      * @param index
      *            the index of the underlying entity
      */
-    PropertyReader(Map<String, String> props, String prefix) {
+    PropertyReader(Map<String, Setting> props, String prefix) {
         this.props = props;
         this.prefix = (prefix != null) ? prefix : "";
 
@@ -71,11 +72,12 @@ class PropertyReader {
      * @return the parameter value corresponding to the provided key
      */
     public String getProperty(String key) {
-        String val = props.get(this.prefix + key);
-        if (val == null && configProps != null) {
+        Setting setting = props.get(this.prefix + key);
+        String value = setting != null ? setting.getValue() : null;
+        if (value == null && configProps != null) {
             return configProps.getProperty(key);
         }
-        return val;
+        return value;
     }
 
     /**
@@ -112,7 +114,7 @@ class PropertyReader {
                     + key + "! Using EMPTY value instead.");
             value = "";
         }
-        props.put(this.prefix + key, value);
+        props.put(this.prefix + key, new Setting(this.prefix + key, value));
     }
 
     /**
@@ -135,7 +137,7 @@ class PropertyReader {
     public List<String> getPropertyKeys(String keyprefix) {
         String realprefix = this.prefix
                 + ((keyprefix != null) ? keyprefix : "");
-        List<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<>();
         for (String key : props.keySet()) {
             if (key.startsWith(realprefix)) {
                 result.add(key.substring(this.prefix.length()));

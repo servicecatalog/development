@@ -190,7 +190,12 @@ public enum LocalizedObjectTypes {
     /**
      * Name of the custom tab on my subscriptions page
      */
-    PRODUCT_CUSTOM_TAB_NAME(InformationSource.DATABASE);
+    PRODUCT_CUSTOM_TAB_NAME(InformationSource.DATABASE),
+
+    /**
+     * Name of custom user attribute.
+     */
+    CUSTOM_ATTRIBUTE_NAME(InformationSource.DATABASE);
 
     private InformationSource source;
     private String sourceLocation;

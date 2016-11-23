@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -18,9 +19,6 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.LexerNoViableAltException;
 import org.antlr.v4.runtime.misc.Interval;
 import org.antlr.v4.runtime.tree.ParseTree;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.oscm.app.iaas.data.FWPolicy;
 import org.oscm.app.iaas.data.FlowState;
 import org.oscm.app.iaas.data.IaasContext;
@@ -31,9 +29,12 @@ import org.oscm.app.iaas.fwpolicy.FWPolicyLexer;
 import org.oscm.app.iaas.fwpolicy.FWPolicyParser;
 import org.oscm.app.iaas.fwpolicy.FWPolicyParser.PoliciesContext;
 import org.oscm.app.iaas.i18n.Messages;
-import org.oscm.app.v1_0.data.PasswordAuthentication;
-import org.oscm.app.v1_0.data.ProvisioningSettings;
-import org.oscm.app.v1_0.exceptions.ConfigurationException;
+import org.oscm.app.v2_0.data.PasswordAuthentication;
+import org.oscm.app.v2_0.data.ProvisioningSettings;
+import org.oscm.app.v2_0.data.Setting;
+import org.oscm.app.v2_0.exceptions.ConfigurationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Handling of service parameters and properties.
@@ -368,7 +369,7 @@ public class PropertyHandler {
      * @return the vsys id
      */
     public String getVsysId() {
-        return settings.getParameters().get(VSYS_ID);
+        return getValue(VSYS_ID, settings.getParameters());
     }
 
     /**
@@ -436,7 +437,7 @@ public class PropertyHandler {
      * @throws ConfigurationException
      */
     public SubPropertyHandler[] getVserverList() throws ConfigurationException {
-        List<SubPropertyHandler> vsl = new ArrayList<SubPropertyHandler>();
+        List<SubPropertyHandler> vsl = new ArrayList<>();
         for (int i = 1; i <= 999; i++) {
             String propPrefix = ADD_VSERVER_PREFIX.replace("#",
                     Integer.toString(i));
@@ -839,8 +840,7 @@ public class PropertyHandler {
             parser.setErrorHandler(new FWPolicyErrorStrategy());
             ParseTree tree = parser.policies();
             PoliciesContext context = (PoliciesContext) tree.getPayload();
-            return Collections.unmodifiableSet(new HashSet<FWPolicy>(
-                    context.pList));
+            return Collections.unmodifiableSet(new HashSet<>(context.pList));
         }
         // return unmodifiable to signal the the result is not backed by the
         // handler
@@ -856,7 +856,7 @@ public class PropertyHandler {
     public Set<String> getManagedPublicIPs() {
         String value = props.getProperty(MANAGED_PUBLIC_IPS);
         if (value != null) {
-            return Collections.unmodifiableSet(new HashSet<String>(Arrays
+            return Collections.unmodifiableSet(new HashSet<>(Arrays
                     .asList(value.split(","))));
         }
         return Collections.unmodifiableSet(new HashSet<String>());
@@ -881,7 +881,7 @@ public class PropertyHandler {
     public Set<String> getManagedFirewallPolicies() {
         String value = props.getProperty(MANAGED_FW_POLICIES);
         if (value != null) {
-            return Collections.unmodifiableSet(new HashSet<String>(Arrays
+            return Collections.unmodifiableSet(new HashSet<>(Arrays
                     .asList(value.split(","))));
         }
         return Collections.unmodifiableSet(new HashSet<String>());
@@ -975,7 +975,7 @@ public class PropertyHandler {
      * @return the parameter value corresponding to the provided key
      */
     private String getValidatedConfigurationProperty(String key) {
-        String value = settings.getConfigSettings().get(key);
+        String value = getValue(key, settings.getConfigSettings());
         if (value == null) {
             String message = String.format("No value set for property '%s'",
                     key);
@@ -988,8 +988,7 @@ public class PropertyHandler {
     public Set<String> getVserversToBeStarted() {
         String value = props.getProperty(VSERVERS_TO_BE_STARTED);
         if (value != null) {
-            HashSet<String> set = new HashSet<String>(Arrays.asList(value
-                    .split(",")));
+            HashSet<String> set = new HashSet<>(Arrays.asList(value.split(",")));
             set.remove("");
             return Collections.unmodifiableSet(set);
         }
@@ -999,7 +998,7 @@ public class PropertyHandler {
     public void addVserverToBeStarted(String vServerId) {
         if (vServerId != null) {
             String value = props.getProperty(VSERVERS_TO_BE_STARTED);
-            HashSet<String> result = new HashSet<String>();
+            HashSet<String> result = new HashSet<>();
             if (value != null) {
                 result.addAll((Arrays.asList(value.split(","))));
             }
@@ -1010,7 +1009,7 @@ public class PropertyHandler {
 
     public void setVserverToBeStarted(List<String> vServerIds) {
         if (vServerIds != null) {
-            HashSet<String> result = new HashSet<String>();
+            HashSet<String> result = new HashSet<>();
             for (String id : vServerIds) {
                 result.add(id.trim());
             }
@@ -1021,7 +1020,7 @@ public class PropertyHandler {
     public void removeVserverToBeStarted(String vServerId) {
         if (vServerId != null) {
             String value = props.getProperty(VSERVERS_TO_BE_STARTED);
-            HashSet<String> result = new HashSet<String>();
+            HashSet<String> result = new HashSet<>();
             if (value != null) {
                 result.addAll((Arrays.asList(value.split(","))));
                 result.remove(vServerId.trim());
@@ -1037,7 +1036,7 @@ public class PropertyHandler {
     public Set<String> getVserversTouched() {
         String value = props.getProperty(VSERVERS_TOUCHED);
         if (value != null) {
-            return Collections.unmodifiableSet(new HashSet<String>(Arrays
+            return Collections.unmodifiableSet(new HashSet<>(Arrays
                     .asList(value.split(","))));
         }
         return Collections.unmodifiableSet(new HashSet<String>());
@@ -1050,7 +1049,7 @@ public class PropertyHandler {
     public void addTouchedVserver(String vServerId) {
         if (vServerId != null) {
             String value = props.getProperty(VSERVERS_TOUCHED);
-            HashSet<String> result = new HashSet<String>();
+            HashSet<String> result = new HashSet<>();
             if (value != null) {
                 result.addAll((Arrays.asList(value.split(","))));
             }
@@ -1138,8 +1137,8 @@ public class PropertyHandler {
      *         set
      */
     public boolean isParallelProvisioningEnabled() {
-        String enabled = settings.getConfigSettings().get(
-                ENABLE_PARALLEL_PROVISIONING);
+        String enabled = getValue(ENABLE_PARALLEL_PROVISIONING,
+                settings.getConfigSettings());
         if (enabled == null) {
             return true;
         }
@@ -1154,9 +1153,10 @@ public class PropertyHandler {
     public long getControllerWaitTime() {
         long waitTime = 0;
         try {
-            waitTime = Long.valueOf(
-                    settings.getConfigSettings().get(CONTROLLER_WAIT_TIME))
-                    .longValue();
+            waitTime = Long
+                    .valueOf(
+                            getValue(CONTROLLER_WAIT_TIME,
+                                    settings.getConfigSettings())).longValue();
         } catch (NumberFormatException e) {
         }
         return waitTime;
@@ -1201,5 +1201,10 @@ public class PropertyHandler {
             }
         }
         return result;
+    }
+
+    private String getValue(String key, Map<String, Setting> source) {
+        Setting setting = source.get(key);
+        return setting != null ? setting.getValue() : null;
     }
 }

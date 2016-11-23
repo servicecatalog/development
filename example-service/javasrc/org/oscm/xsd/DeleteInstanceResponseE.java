@@ -1,3 +1,4 @@
+
 /**
  * DeleteInstanceResponseE.java
  *
@@ -10,12 +11,17 @@ package org.oscm.xsd;
 /**
  * DeleteInstanceResponseE bean class
  */
-@SuppressWarnings({ "rawtypes", "unused", "serial", "null" })
-public class DeleteInstanceResponseE implements
-        org.apache.axis2.databinding.ADBBean {
+
+public class DeleteInstanceResponseE
+        implements org.apache.axis2.databinding.ADBBean {
 
     public static final javax.xml.namespace.QName MY_QNAME = new javax.xml.namespace.QName(
             "http://oscm.org/xsd", "deleteInstanceResponse", "ns1");
+    /**
+     * field for DeleteInstanceResponse
+     */
+
+    protected org.oscm.xsd.DeleteInstanceResponse localDeleteInstanceResponse;
 
     private static java.lang.String generatePrefix(java.lang.String namespace) {
         if (namespace.equals("http://oscm.org/xsd")) {
@@ -25,14 +31,27 @@ public class DeleteInstanceResponseE implements
     }
 
     /**
-     * field for DeleteInstanceResponse
+     * isReaderMTOMAware
+     *
+     * @return true if the reader supports MTOM
      */
+    public static boolean isReaderMTOMAware(
+            javax.xml.stream.XMLStreamReader reader) {
+        boolean isReaderMTOMAware = false;
 
-    protected org.oscm.xsd.DeleteInstanceResponse localDeleteInstanceResponse;
+        try {
+            isReaderMTOMAware = java.lang.Boolean.TRUE
+                    .equals(reader.getProperty(
+                            org.apache.axiom.om.OMConstants.IS_DATA_HANDLERS_AWARE));
+        } catch (java.lang.IllegalArgumentException e) {
+            isReaderMTOMAware = false;
+        }
+        return isReaderMTOMAware;
+    }
 
     /**
      * Auto generated getter method
-     * 
+     *
      * @return org.oscm.xsd.DeleteInstanceResponse
      */
     public org.oscm.xsd.DeleteInstanceResponse getDeleteInstanceResponse() {
@@ -41,7 +60,7 @@ public class DeleteInstanceResponseE implements
 
     /**
      * Auto generated setter method
-     * 
+     *
      * @param param
      *            DeleteInstanceResponse
      */
@@ -53,26 +72,7 @@ public class DeleteInstanceResponseE implements
     }
 
     /**
-     * isReaderMTOMAware
-     * 
-     * @return true if the reader supports MTOM
-     */
-    public static boolean isReaderMTOMAware(
-            javax.xml.stream.XMLStreamReader reader) {
-        boolean isReaderMTOMAware = false;
-
-        try {
-            isReaderMTOMAware = java.lang.Boolean.TRUE
-                    .equals(reader
-                            .getProperty(org.apache.axiom.om.OMConstants.IS_DATA_HANDLERS_AWARE));
-        } catch (java.lang.IllegalArgumentException e) {
-            isReaderMTOMAware = false;
-        }
-        return isReaderMTOMAware;
-    }
-
-    /**
-     * 
+     *
      * @param parentQName
      * @param factory
      * @return org.apache.axiom.om.OMElement
@@ -85,7 +85,6 @@ public class DeleteInstanceResponseE implements
         org.apache.axiom.om.OMDataSource dataSource = new org.apache.axis2.databinding.ADBDataSource(
                 this, MY_QNAME) {
 
-            @Override
             public void serialize(
                     org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter)
                     throws javax.xml.stream.XMLStreamException {
@@ -98,8 +97,7 @@ public class DeleteInstanceResponseE implements
 
     }
 
-    public void serialize(
-            final javax.xml.namespace.QName parentQName,
+    public void serialize(final javax.xml.namespace.QName parentQName,
             final org.apache.axiom.om.OMFactory factory,
             org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter)
             throws javax.xml.stream.XMLStreamException,
@@ -107,8 +105,7 @@ public class DeleteInstanceResponseE implements
         serialize(parentQName, factory, xmlWriter, false);
     }
 
-    public void serialize(
-            final javax.xml.namespace.QName parentQName,
+    public void serialize(final javax.xml.namespace.QName parentQName,
             final org.apache.axiom.om.OMFactory factory,
             org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter,
             boolean serializeType) throws javax.xml.stream.XMLStreamException,
@@ -203,20 +200,19 @@ public class DeleteInstanceResponseE implements
             }
 
             if (prefix.trim().length() > 0) {
-                xmlWriter.writeCharacters(prefix
-                        + ":"
+                xmlWriter.writeCharacters(prefix + ":"
                         + org.apache.axis2.databinding.utils.ConverterUtil
                                 .convertToString(qname));
             } else {
                 // i.e this is the default namespace
-                xmlWriter
-                        .writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil
+                xmlWriter.writeCharacters(
+                        org.apache.axis2.databinding.utils.ConverterUtil
                                 .convertToString(qname));
             }
 
         } else {
-            xmlWriter
-                    .writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil
+            xmlWriter.writeCharacters(
+                    org.apache.axis2.databinding.utils.ConverterUtil
                             .convertToString(qname));
         }
     }
@@ -247,9 +243,7 @@ public class DeleteInstanceResponseE implements
                     }
 
                     if (prefix.trim().length() > 0) {
-                        stringToWrite
-                                .append(prefix)
-                                .append(":")
+                        stringToWrite.append(prefix).append(":")
                                 .append(org.apache.axis2.databinding.utils.ConverterUtil
                                         .convertToString(qnames[i]));
                     } else {
@@ -280,7 +274,8 @@ public class DeleteInstanceResponseE implements
         if (prefix == null) {
             prefix = generatePrefix(namespace);
 
-            while (xmlWriter.getNamespaceContext().getNamespaceURI(prefix) != null) {
+            while (xmlWriter.getNamespaceContext()
+                    .getNamespaceURI(prefix) != null) {
                 prefix = org.apache.axis2.databinding.utils.BeanUtil
                         .getUniquePrefix();
             }
@@ -294,7 +289,7 @@ public class DeleteInstanceResponseE implements
 
     /**
      * databinding method to get an XML representation of this object
-     * 
+     *
      */
     public javax.xml.stream.XMLStreamReader getPullParser(
             javax.xml.namespace.QName qName)
@@ -345,11 +340,12 @@ public class DeleteInstanceResponseE implements
                         if (reader.isStartElement()
                                 && new javax.xml.namespace.QName(
                                         "http://oscm.org/xsd",
-                                        "deleteInstanceResponse").equals(reader
-                                        .getName())) {
+                                        "deleteInstanceResponse")
+                                                .equals(reader.getName())) {
 
-                            object.setDeleteInstanceResponse(org.oscm.xsd.DeleteInstanceResponse.Factory
-                                    .parse(reader));
+                            object.setDeleteInstanceResponse(
+                                    org.oscm.xsd.DeleteInstanceResponse.Factory
+                                            .parse(reader));
 
                         } // End of if for expected property start element
 

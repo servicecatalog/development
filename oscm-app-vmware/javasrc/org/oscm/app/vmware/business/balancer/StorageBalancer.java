@@ -12,16 +12,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.oscm.app.v1_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.exceptions.APPlatformException;
 import org.oscm.app.vmware.business.VMPropertyHandler;
 import org.oscm.app.vmware.business.VMwareDatacenterInventory;
 import org.oscm.app.vmware.business.model.VMwareStorage;
 
 /**
  * Common superclass for all storage balancers.
- *
+ * 
  * @author Dirk Bernsau
- *
+ * 
  */
 public abstract class StorageBalancer implements VMwareBalancer<VMwareStorage> {
 
@@ -69,17 +69,17 @@ public abstract class StorageBalancer implements VMwareBalancer<VMwareStorage> {
     /**
      * Checks whether the given storage is capable of hosting the requested
      * configuration.
-     *
+     * 
      * @param storage
      *            the storage instance in question
      * @param properties
      *            the properties defining the requested instance
      * @return <code>true</code> when all conditions and limits are met
      */
-    public boolean isValid(VMwareStorage storage,
-            VMPropertyHandler properties) {
-        return storage != null && storage.isEnabled()
-        // add memory because respective swap space will be required
+    public boolean isValid(VMwareStorage storage, VMPropertyHandler properties) {
+        return storage != null
+                && storage.isEnabled()
+                // add memory because respective swap space will be required
                 && storage.checkLimit(properties.getTemplateDiskSpaceMB()
                         + properties.getConfigMemoryMB());
     }

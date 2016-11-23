@@ -13,7 +13,12 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URLEncoder;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.ResourceBundle;
+import java.util.Set;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIInput;
@@ -25,7 +30,27 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.oscm.internal.accountmgmt.AccountServiceManagement;
-import org.oscm.internal.intf.*;
+import org.oscm.internal.intf.AccountService;
+import org.oscm.internal.intf.BillingService;
+import org.oscm.internal.intf.CategorizationService;
+import org.oscm.internal.intf.ConfigurationService;
+import org.oscm.internal.intf.DiscountService;
+import org.oscm.internal.intf.IdentityService;
+import org.oscm.internal.intf.MarketplaceService;
+import org.oscm.internal.intf.MarketplaceServiceInternal;
+import org.oscm.internal.intf.PaymentService;
+import org.oscm.internal.intf.ReportingService;
+import org.oscm.internal.intf.SamlService;
+import org.oscm.internal.intf.SearchService;
+import org.oscm.internal.intf.SearchServiceInternal;
+import org.oscm.internal.intf.ServiceProvisioningService;
+import org.oscm.internal.intf.ServiceProvisioningServiceInternal;
+import org.oscm.internal.intf.SessionService;
+import org.oscm.internal.intf.SubscriptionService;
+import org.oscm.internal.intf.SubscriptionServiceInternal;
+import org.oscm.internal.intf.TagService;
+import org.oscm.internal.intf.TriggerDefinitionService;
+import org.oscm.internal.intf.TriggerService;
 import org.oscm.internal.landingpageconfiguration.LandingpageConfigurationService;
 import org.oscm.internal.operatorservice.LocalizedDataService;
 import org.oscm.internal.operatorservice.ManageLanguageService;
@@ -302,6 +327,7 @@ public class BaseBean {
     public static final String TRIGGER_PROCESS_CANCELED = "info.triggerProcess.canceled";
     public static final String INFO_UDADEFINITIONS_DELETED = "info.udaDefinitions.deleted";
     public static final String INFO_UDADEFINITIONS_SAVED = "info.udaDefinitions.saved";
+    public static final String INFO_UDA_SAVED = "info.uda.saved";
     public static final String INFO_BRANDING_URL_SET = "info.brandingUrl.set";
     public static final String INFO_CATEGORIES_SAVED = "info.categories.saved";
     public static final String INFO_VAT_SAVED = "info.vat.saved";
@@ -410,6 +436,7 @@ public class BaseBean {
     public static final String OUTCOME_RELOAD = "reloadGroup";
 
     public static final String OUTCOME_STAY_ON_PAGE = null;
+    public static final String HIDDEN_PWD = "*****";
 
     // Without the @EJB annotation we can run the GUI without an EJB container
     IdentityService idService;
@@ -1440,8 +1467,10 @@ public class BaseBean {
         VOUserDetails user = this.getUserFromSessionWithoutException();
         return user != null
                 && (user.getUserRoles().contains(UserRoleType.SERVICE_MANAGER)
-                || user.getUserRoles().contains(UserRoleType.TECHNOLOGY_MANAGER)
-                || user.getUserRoles().contains(UserRoleType.MARKETPLACE_OWNER))
+                        || user.getUserRoles()
+                                .contains(UserRoleType.TECHNOLOGY_MANAGER)
+                        || user.getUserRoles()
+                                .contains(UserRoleType.MARKETPLACE_OWNER))
                 || user.getUserRoles().contains(UserRoleType.BROKER_MANAGER)
                 || user.getUserRoles().contains(UserRoleType.RESELLER_MANAGER)
                 || user.getUserRoles().contains(UserRoleType.PLATFORM_OPERATOR);

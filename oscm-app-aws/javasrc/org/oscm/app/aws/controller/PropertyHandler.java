@@ -12,12 +12,14 @@ package org.oscm.app.aws.controller;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Map;
 
 import org.oscm.app.aws.data.FlowState;
 import org.oscm.app.aws.data.Operation;
-import org.oscm.app.v1_0.BSSWebServiceFactory;
-import org.oscm.app.v1_0.data.PasswordAuthentication;
-import org.oscm.app.v1_0.data.ProvisioningSettings;
+import org.oscm.app.v2_0.BSSWebServiceFactory;
+import org.oscm.app.v2_0.data.PasswordAuthentication;
+import org.oscm.app.v2_0.data.ProvisioningSettings;
+import org.oscm.app.v2_0.data.Setting;
 
 /**
  * Helper class to handle service parameters and controller configuration
@@ -105,8 +107,9 @@ public class PropertyHandler {
      * @return the current state
      */
     public FlowState getState() {
-        String status = settings.getParameters().get(FLOW_STATE);
-        return (status != null) ? FlowState.valueOf(status) : FlowState.FAILED;
+        Setting status = settings.getParameters().get(FLOW_STATE);
+        return (status != null && status.getValue() != null) ? FlowState
+                .valueOf(status.getValue()) : FlowState.FAILED;
     }
 
     /**
@@ -116,7 +119,7 @@ public class PropertyHandler {
      *            the new status to set
      */
     public void setState(FlowState newState) {
-        settings.getParameters().put(FLOW_STATE, newState.toString());
+        setValue(FLOW_STATE, newState.toString(), settings.getParameters());
     }
 
     /**
@@ -134,35 +137,35 @@ public class PropertyHandler {
      * @return the configured AWS secret key
      */
     public String getSecretKey() {
-        return settings.getConfigSettings().get(SECRET_KEY_PWD);
+        return getValue(SECRET_KEY_PWD, settings.getConfigSettings());
     }
 
     /**
      * @return the configured AWS access key ID
      */
     public String getAccessKeyId() {
-        return settings.getConfigSettings().get(ACCESS_KEY_ID_PWD);
+        return getValue(ACCESS_KEY_ID_PWD, settings.getConfigSettings());
     }
 
     /**
      * @return the configured AWS key pair name
      */
     public String getKeyPairName() {
-        return settings.getParameters().get(KEY_PAIR_NAME);
+        return getValue(KEY_PAIR_NAME, settings.getParameters());
     }
 
     /**
      * @return the region the instance is (to be) deployed to
      */
     public String getRegion() {
-        return settings.getParameters().get(REGION);
+        return getValue(REGION, settings.getParameters());
     }
 
     /**
      * @return the AWS generated instance ID
      */
     public String getAWSInstanceId() {
-        return settings.getParameters().get(AWS_INSTANCE_ID);
+        return getValue(AWS_INSTANCE_ID, settings.getParameters());
     }
 
     /**
@@ -172,7 +175,7 @@ public class PropertyHandler {
      *            the instance ID
      */
     public void setAWSInstanceId(String instanceId) {
-        settings.getParameters().put(AWS_INSTANCE_ID, instanceId);
+        setValue(AWS_INSTANCE_ID, instanceId, settings.getParameters());
     }
 
     /**
@@ -182,7 +185,7 @@ public class PropertyHandler {
      * @return the image name
      */
     public String getImageName() {
-        return settings.getParameters().get(IMAGE_NAME);
+        return getValue(IMAGE_NAME, settings.getParameters());
     }
 
     /**
@@ -191,11 +194,11 @@ public class PropertyHandler {
      * @return the instance type
      */
     public String getInstanceType() {
-        return settings.getParameters().get(INSTANCE_TYPE);
+        return getValue(INSTANCE_TYPE, settings.getParameters());
     }
 
     private String getInstanceNamePrefix() {
-        return settings.getParameters().get(INSTANCENAME_PREFIX);
+        return getValue(INSTANCENAME_PREFIX, settings.getParameters());
     }
 
     /**
@@ -204,11 +207,11 @@ public class PropertyHandler {
      * @return the validation pattern
      */
     public String getInstanceNamePattern() {
-        return settings.getParameters().get(INSTANCENAME_PATTERN);
+        return getValue(INSTANCENAME_PATTERN, settings.getParameters());
     }
 
     private String getInstanceNameRaw() {
-        return settings.getParameters().get(INSTANCENAME);
+        return getValue(INSTANCENAME, settings.getParameters());
     }
 
     /**
@@ -233,23 +236,23 @@ public class PropertyHandler {
      * Returns the current operation.
      */
     public Operation getOperation() {
-        String operation = settings.getParameters().get(OPERATION);
-        return (operation != null) ? Operation.valueOf(operation)
-                : Operation.UNKNOWN;
+        Setting operation = settings.getParameters().get(OPERATION);
+        return (operation != null && operation.getValue() != null) ? Operation
+                .valueOf(operation.getValue()) : Operation.UNKNOWN;
     }
 
     /**
      * Updates the current operation.
      */
     public void setOperation(Operation newState) {
-        settings.getParameters().put(OPERATION, newState.toString());
+        setValue(OPERATION, newState.toString(), settings.getParameters());
     }
 
     /**
      *  
      */
     public String getUserData() {
-        return settings.getParameters().get(USERDATA_URL);
+        return getValue(USERDATA_URL, settings.getParameters());
     }
 
     /**
@@ -259,8 +262,8 @@ public class PropertyHandler {
      *         <code>null</code>
      */
     public Collection<String> getSecurityGroups() {
-        Collection<String> result = new HashSet<String>();
-        String value = settings.getParameters().get(SECURITY_GROUP_NAMES);
+        Collection<String> result = new HashSet<>();
+        String value = getValue(SECURITY_GROUP_NAMES, settings.getParameters());
         if (value != null) {
             String[] split = value.split(",");
             for (int i = 0; i < split.length; i++) {
@@ -286,7 +289,7 @@ public class PropertyHandler {
      * @return the mail address or <code>null</code> if no events are required
      */
     public String getMailForCompletion() {
-        String mail = settings.getParameters().get(MAIL_FOR_COMPLETION);
+        String mail = getValue(MAIL_FOR_COMPLETION, settings.getParameters());
         return isNullOrEmpty(mail) ? null : mail;
     }
 
@@ -335,28 +338,27 @@ public class PropertyHandler {
     }
 
     public String getSubnet() {
-        return settings.getParameters().get(SUBNET);
+        return getValue(SUBNET, settings.getParameters());
     }
 
     public String getTagName() {
-        return settings.getParameters().get(TAG_NAME);
+        return getValue(TAG_NAME, settings.getParameters());
     }
 
     public String getPublicIp() {
-        return settings.getParameters().get(PUBLIC_IP);
+        return getValue(PUBLIC_IP, settings.getParameters());
     }
 
     public String getDiskSize() {
-        return settings.getParameters().get(DISK_SIZE);
+        return getValue(DISK_SIZE, settings.getParameters());
     }
 
     public String getAwsInstanceId() {
-        return settings.getParameters().get(AWS_INSTANCE_ID);
+        return getValue(AWS_INSTANCE_ID, settings.getParameters());
     }
 
     public void setAwsInstanceId(String awsInstanceId) {
-        settings.getParameters().put(AWS_INSTANCE_ID, awsInstanceId);
-
+        setValue(AWS_INSTANCE_ID, awsInstanceId, settings.getParameters());
     }
 
     public void setInstancePlatform(String instancePlatform) {
@@ -364,13 +366,20 @@ public class PropertyHandler {
     }
 
     public void setInstancePublicDNS(String publicDNS) {
-        settings.getParameters().put(EAI_INSTANCE_PUBLIC_DNS, publicDNS);
-
+        setValue(EAI_INSTANCE_PUBLIC_DNS, publicDNS, settings.getParameters());
     }
 
     public void setSnapshotId(String snapshotId) {
-        settings.getParameters().put(SNAPSHOT_ID, snapshotId);
+        setValue(SNAPSHOT_ID, snapshotId, settings.getParameters());
+    }
 
+    private String getValue(String key, Map<String, Setting> source) {
+        Setting setting = source.get(key);
+        return setting != null ? setting.getValue() : null;
+    }
+
+    private void setValue(String key, String value, Map<String, Setting> target) {
+        target.put(key, new Setting(key, value));
     }
 
 }

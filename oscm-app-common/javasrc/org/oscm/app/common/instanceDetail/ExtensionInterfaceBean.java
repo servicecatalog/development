@@ -25,7 +25,7 @@ import javax.inject.Named;
 import org.oscm.app.common.i18n.Messages;
 import org.oscm.app.common.intf.InstanceAccess;
 import org.oscm.app.common.intf.ServerInformation;
-import org.oscm.app.v1_0.data.ControllerConfigurationKey;
+import org.oscm.app.v2_0.data.ControllerConfigurationKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,14 +67,14 @@ public class ExtensionInterfaceBean implements Serializable {
                 .getRequestParameterMap();
         this.locale = facesContext.getViewRoot().getLocale().getLanguage();
         try {
-            this.subscriptionId = parameters.get("subId") != null
-                    ? URLDecoder.decode(parameters.get("subId"), "UTF-8") : "";
+            this.subscriptionId = parameters.get("subId") != null ? URLDecoder
+                    .decode(parameters.get("subId"), "UTF-8") : "";
         } catch (UnsupportedEncodingException e) {
             this.subscriptionId = Messages.get(locale,
                     "ui.extentionInterface.noSubscriptionName");
         }
-        this.instanceId = parameters.get("instId") != null
-                ? parameters.get("instId") : "";
+        this.instanceId = parameters.get("instId") != null ? parameters
+                .get("instId") : "";
     }
 
     public void setInstanceAccess(InstanceAccess instanceAccess) {

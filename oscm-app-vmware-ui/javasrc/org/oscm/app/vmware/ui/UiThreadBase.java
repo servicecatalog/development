@@ -13,9 +13,10 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
 
-import org.oscm.app.v1_0.APPlatformServiceFactory;
-import org.oscm.app.v1_0.data.ProvisioningSettings;
-import org.oscm.app.v1_0.intf.APPlatformService;
+import org.oscm.app.v2_0.APPlatformServiceFactory;
+import org.oscm.app.v2_0.data.ProvisioningSettings;
+import org.oscm.app.v2_0.data.Setting;
+import org.oscm.app.v2_0.intf.APPlatformService;
 import org.oscm.app.vmware.business.Controller;
 import org.oscm.app.vmware.business.VMPropertyHandler;
 import org.oscm.app.vmware.i18n.Messages;
@@ -109,12 +110,12 @@ public abstract class UiThreadBase implements Runnable {
         IdentityService idSvc = bes.getWebService(IdentityService.class,
                 iniCredentials);
         if (custCredentials != null) {
-            custCredentials.setUserKey(
-                    getUserKeyById(idSvc, custCredentials.getUserId()));
+            custCredentials.setUserKey(getUserKeyById(idSvc,
+                    custCredentials.getUserId()));
         }
         if (adminCredentials != null) {
-            adminCredentials.setUserKey(
-                    getUserKeyById(idSvc, adminCredentials.getUserId()));
+            adminCredentials.setUserKey(getUserKeyById(idSvc,
+                    adminCredentials.getUserId()));
         }
 
         idSvc = bes.getWebService(IdentityService.class, tpCredentials);
@@ -127,11 +128,11 @@ public abstract class UiThreadBase implements Runnable {
      * Get controller configuration from APP.
      */
     private VMPropertyHandler getVMwareAPPSettings() throws Exception {
-        HashMap<String, String> ctrlSettings = platformService
+        HashMap<String, Setting> ctrlSettings = platformService
                 .getControllerSettings(Controller.ID,
                         tpCredentials.toPasswordAuthentication());
         ProvisioningSettings settings = new ProvisioningSettings(
-                new HashMap<String, String>(), ctrlSettings,
+                new HashMap<String, Setting>(), ctrlSettings,
                 Messages.DEFAULT_LOCALE);
         return new VMPropertyHandler(settings);
     }
@@ -140,8 +141,8 @@ public abstract class UiThreadBase implements Runnable {
      * Send logfile to technical provider after process has been finished
      */
     public void sendResultMail(String recipient) {
-        String subject = Messages.get("en",
-                "mail_VM_import_completion.subject");
+        String subject = Messages
+                .get("en", "mail_VM_import_completion.subject");
         String text = Messages.get("en", "mail_VM_import_completion.text",
                 new Object[] { getProgressStatus() });
         // Convert line breaks
@@ -203,8 +204,8 @@ public abstract class UiThreadBase implements Runnable {
      * Add log error output
      */
     public void addLogError(Throwable t) {
-        String errmsg = (t.getMessage() != null) ? t.getMessage()
-                : t.getClass().getName();
+        String errmsg = (t.getMessage() != null) ? t.getMessage() : t
+                .getClass().getName();
 
         logger.error(errmsg, t);
         addLogln("<b><font color='red'>*** " + errmsg + "</font></b>");

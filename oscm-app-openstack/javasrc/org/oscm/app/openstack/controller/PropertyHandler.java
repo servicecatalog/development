@@ -20,9 +20,10 @@ import org.apache.sling.commons.json.JSONException;
 import org.apache.sling.commons.json.JSONObject;
 import org.oscm.app.openstack.data.FlowState;
 import org.oscm.app.openstack.exceptions.HeatException;
-import org.oscm.app.v1_0.BSSWebServiceFactory;
-import org.oscm.app.v1_0.data.PasswordAuthentication;
-import org.oscm.app.v1_0.data.ProvisioningSettings;
+import org.oscm.app.v2_0.BSSWebServiceFactory;
+import org.oscm.app.v2_0.data.PasswordAuthentication;
+import org.oscm.app.v2_0.data.ProvisioningSettings;
+import org.oscm.app.v2_0.data.Setting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -94,11 +95,11 @@ public class PropertyHandler {
 
     /**
      * Default constructor.
-     *
+     * 
      * @param settings
      *            a <code>ProvisioningSettings</code> object specifying the
      *            service parameters and configuration settings
-     *
+     * 
      */
     public PropertyHandler(ProvisioningSettings settings) {
         this.settings = settings;
@@ -107,28 +108,28 @@ public class PropertyHandler {
     /**
      * Returns the internal state of the current provisioning operation as set
      * by the controller or the dispatcher.
-     *
+     * 
      * @return the current status
      */
     public FlowState getState() {
-        String status = settings.getParameters().get(STATUS);
+        String status = getValue(STATUS, settings.getParameters());
         return (status != null) ? FlowState.valueOf(status) : FlowState.FAILED;
     }
 
     /**
      * Changes the internal state for the current provisioning operation.
-     *
+     * 
      * @param newState
      *            the new state to set
      */
     public void setState(FlowState newState) {
-        settings.getParameters().put(STATUS, newState.toString());
+        setValue(STATUS, newState.toString(), settings.getParameters());
     }
 
     /**
      * Returns the current service parameters and controller configuration
      * settings.
-     *
+     * 
      * @return a <code>ProvisioningSettings</code> object specifying the
      *         parameters and settings
      */
@@ -138,7 +139,7 @@ public class PropertyHandler {
 
     /**
      * Returns the name of the stack (=instance identifier).
-     *
+     * 
      * @return the name of the stack
      */
     public String getStackName() {
@@ -146,7 +147,7 @@ public class PropertyHandler {
     }
 
     public void setStackName(String stackName) {
-        settings.getParameters().put(STACK_NAME, stackName);
+        setValue(STACK_NAME, stackName, settings.getParameters());
     }
 
     /**
@@ -155,26 +156,26 @@ public class PropertyHandler {
      * @return the regular expression
      */
     public String getStackNamePattern() {
-        return settings.getParameters().get(STACK_NAME_PATTERN);
+        return getValue(STACK_NAME_PATTERN, settings.getParameters());
     }
 
     /**
      * Returns the heat specific id of the stack.
-     *
+     * 
      * @return the id of the stack
      */
     public String getStackId() {
-        return settings.getParameters().get(STACK_ID);
+        return getValue(STACK_ID, settings.getParameters());
     }
 
     public void setStackId(String stackId) {
-        settings.getParameters().put(STACK_ID, stackId);
+        setValue(STACK_ID, stackId, settings.getParameters());
     }
 
     /**
      * Returns the access information pattern used to created the instance
      * access information using the output parameters of the created stack.
-     *
+     * 
      * @return the access information pattern
      */
     public String getAccessInfoPattern() {
@@ -184,7 +185,7 @@ public class PropertyHandler {
 
     /**
      * Returns the URL of the template to be used for provisioning.
-     *
+     * 
      * @return the template URL
      */
     public String getTemplateUrl() throws HeatException {
@@ -193,7 +194,8 @@ public class PropertyHandler {
             String url = getValidatedProperty(settings.getParameters(),
                     TEMPLATE_NAME);
 
-            String baseUrl = settings.getParameters().get(TEMPLATE_BASE_URL);
+            String baseUrl = getValue(TEMPLATE_BASE_URL,
+                    settings.getParameters());
             if (baseUrl == null || baseUrl.trim().length() == 0) {
                 baseUrl = getValidatedProperty(settings.getConfigSettings(),
                         TEMPLATE_BASE_URL);
@@ -209,13 +211,13 @@ public class PropertyHandler {
      * Returns the domain name that defines the context for the provisioning. It
      * can either be defined within the controller settings of as instance
      * parameter. When present, the service parameter is preferred.
-     *
+     * 
      * @return the domain name
      */
     public String getDomainName() {
-        String domain = settings.getParameters().get(DOMAIN_NAME);
+        String domain = getValue(DOMAIN_NAME, settings.getParameters());
         if (domain == null || domain.trim().length() == 0) {
-            domain = settings.getConfigSettings().get(DOMAIN_NAME);
+            domain = getValue(DOMAIN_NAME, settings.getConfigSettings());
             if (domain == null || domain.trim().length() == 0) {
                 domain = DEFAULT_DOMAIN;
             }
@@ -238,10 +240,10 @@ public class PropertyHandler {
                         // below if execute only if technical service parameter
                         // have a
                         // security group parameters
-                        securityGroup = key
-                                .substring(TEMPLATE_PARAMETER_ARRAY_PREFIX.length());
+                        securityGroup = key.substring(
+                                TEMPLATE_PARAMETER_ARRAY_PREFIX.length());
                         String securityGroupArray[] = settings.getParameters()
-                                .get(key).split(",");
+                                .get(key).getValue().split(",");
                         for (String groupName : securityGroupArray) {
                             securityGroupSecurityGroup.put(groupName);
                         }
@@ -252,7 +254,7 @@ public class PropertyHandler {
                         parameters.put(
                                 key.substring(
                                         TEMPLATE_PARAMETER_PREFIX.length()),
-                                settings.getParameters().get(key));
+                                settings.getParameters().get(key).getValue());
                     }
                 }
 
@@ -270,16 +272,16 @@ public class PropertyHandler {
     /**
      * Reads the requested property from the available parameters. If no value
      * can be found, a RuntimeException will be thrown.
-     *
+     * 
      * @param sourceProps
      *            The property object to take the settings from
      * @param key
      *            The key to retrieve the setting for
      * @return the parameter value corresponding to the provided key
      */
-    private String getValidatedProperty(Map<String, String> sourceProps,
+    private String getValidatedProperty(Map<String, Setting> sourceProps,
             String key) {
-        String value = sourceProps.get(key);
+        String value = getValue(key, sourceProps);
         if (value == null) {
             String message = String.format("No value set for property '%s'",
                     key);
@@ -292,12 +294,13 @@ public class PropertyHandler {
     /**
      * Return the URL of the Keystone API which acts as entry point to all other
      * API endpoints.
-     *
+     * 
      * @return the Keystone URL
      */
     public String getKeystoneUrl() {
 
-        String keystoneURL = settings.getParameters().get(KEYSTONE_API_URL);
+        String keystoneURL = getValue(KEYSTONE_API_URL,
+                settings.getParameters());
         if (keystoneURL == null || keystoneURL.trim().length() == 0) {
             keystoneURL = getValidatedProperty(settings.getConfigSettings(),
                     KEYSTONE_API_URL);
@@ -307,7 +310,7 @@ public class PropertyHandler {
 
     /**
      * Returns the configured password for API usage.
-     *
+     * 
      * @return the password
      */
     public String getPassword() {
@@ -316,7 +319,7 @@ public class PropertyHandler {
 
     /**
      * Returns the configured user name for API usage.
-     *
+     * 
      * @return the user name
      */
     public String getUserName() {
@@ -327,11 +330,11 @@ public class PropertyHandler {
     /**
      * Returns the mail address to be used for completion events (provisioned,
      * deleted). If not set, no events are required.
-     *
+     * 
      * @return the mail address or <code>null</code> if no events are required
      */
     public String getMailForCompletion() {
-        String value = settings.getParameters().get(MAIL_FOR_COMPLETION);
+        String value = getValue(MAIL_FOR_COMPLETION, settings.getParameters());
         if (value == null || value.trim().length() == 0) {
             value = null;
         }
@@ -378,7 +381,7 @@ public class PropertyHandler {
 
     /**
      * Returns the locale set as default for the customer organization.
-     *
+     * 
      * @return the customer locale
      */
     public String getCustomerLocale() {
@@ -391,11 +394,11 @@ public class PropertyHandler {
 
     /**
      * Returns the tenant id that defines the context for the provisioning.
-     *
+     * 
      * @return the tenant id
      */
     public String getTenantId() {
-        String tenant = settings.getParameters().get(TENANT_ID);
+        String tenant = getValue(TENANT_ID, settings.getParameters());
         if (tenant == null || tenant.trim().length() == 0) {
             tenant = getValidatedProperty(settings.getConfigSettings(),
                     TENANT_ID);
@@ -409,7 +412,7 @@ public class PropertyHandler {
      * @param time
      */
     public void setStartTime(String time) {
-        settings.getParameters().put(START_TIME, time);
+        setValue(START_TIME, time, settings.getParameters());
     }
 
     /**
@@ -418,7 +421,7 @@ public class PropertyHandler {
      * @return the start time of string
      */
     public String getStartTime() {
-        return settings.getParameters().get(START_TIME);
+        return getValue(START_TIME, settings.getParameters());
     }
 
     /**
@@ -428,20 +431,31 @@ public class PropertyHandler {
      * @return timeout value of long
      */
     public long getReadyTimeout() {
-        String readyTimeout = settings.getConfigSettings().get(READY_TIMEOUT);
+        String readyTimeout = getValue(READY_TIMEOUT,
+                settings.getConfigSettings());
         if (readyTimeout == null || readyTimeout.trim().length() == 0) {
             LOGGER.warn("'READY_TIMEOUT' is not set and therefore ignored");
             return 0;
         }
         try {
-            return Long
-                    .parseLong(settings.getConfigSettings().get(READY_TIMEOUT));
+            return Long.parseLong(
+                    getValue(READY_TIMEOUT, settings.getConfigSettings()));
         } catch (NumberFormatException ex) {
             LOGGER.warn(
                     "Wrong value set for property 'READY_TIMEOUT' and therefore ignored");
         }
         return 0;
 
+    }
+
+    private String getValue(String key, Map<String, Setting> source) {
+        Setting setting = source.get(key);
+        return setting != null ? setting.getValue() : null;
+    }
+
+    private void setValue(String key, String value,
+            Map<String, Setting> target) {
+        target.put(key, new Setting(key, value));
     }
 
 }
