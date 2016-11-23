@@ -13,5 +13,5 @@ package org.oscm.app.openstack.controller;
  *
  */
 public enum ServerStatus {
-    ACTIVE, ERROR, SHUTOFF
+    ACTIVE, ERROR, SHUTOFF, UNKNOWN
 }

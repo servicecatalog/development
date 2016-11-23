@@ -37,6 +37,7 @@ public class ProvisioningSettings extends ControllerSettings implements
     private String referenceId;
     private String besLoginURL;
     private ServiceUser requestingUser;
+    private String serviceAccessInfo;
 
     /**
      * Constructs a new provisioning settings instance with the given service
@@ -307,6 +308,24 @@ public class ProvisioningSettings extends ControllerSettings implements
     }
 
     /**
+     * Returns the service access information for instance.
+     * 
+     * @return
+     */
+    public String getServiceAccessInfo() {
+        return serviceAccessInfo;
+    }
+
+    /**
+     * Sets the service access information for instance.
+     * 
+     * @param serviceAccessInfo
+     */
+    public void setServiceAccessInfo(String serviceAccessInfo) {
+        this.serviceAccessInfo = serviceAccessInfo;
+    }
+
+    /**
      * Replaces properties of configuration settings or parameters with values
      * from attributes or parameters. In the case of attributes a prefix is used
      * which is the controller id and an underscore. Properties will only be
@@ -354,4 +373,5 @@ public class ProvisioningSettings extends ControllerSettings implements
         }
 
     }
+
 }
