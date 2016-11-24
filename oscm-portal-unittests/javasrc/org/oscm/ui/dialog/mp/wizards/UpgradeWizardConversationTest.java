@@ -17,13 +17,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.anyListOf;
-import static org.mockito.Mockito.anyLong;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,7 +26,6 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 
 import javax.enterprise.context.Conversation;
 import javax.faces.application.FacesMessage;
@@ -44,6 +37,7 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import org.oscm.internal.types.enumtypes.ParameterValueType;
 import org.oscm.ui.beans.BillingContactBean;
 import org.oscm.ui.beans.MenuBean;
 import org.oscm.ui.beans.PaymentAndBillingVisibleBean;
@@ -153,7 +147,7 @@ public class UpgradeWizardConversationTest {
         // then
         assertEquals("", result);
     }
-    
+
     @Test
     public void selectServiceHIDE_PAYMENT_INFO() {
         // given
@@ -163,7 +157,7 @@ public class UpgradeWizardConversationTest {
         doReturn(true).when(subscriptionService).isPaymentInfoHidden();
         VOSubscriptionDetails subscription = new VOSubscriptionDetails();
         bean.getModel().setSubscription(subscription);
-        
+
         // when
         String result = bean.selectService();
         // then
@@ -205,6 +199,9 @@ public class UpgradeWizardConversationTest {
         voSubscription.setSubscriptionId("test");
         model.setSubscription(this.givenSubscription(true));
         model.setService(new Service(new VOService()));
+
+        PricedParameterRow param = decorateWithPricedParameterRow();
+
         doReturn(voSubscription).when(subscriptionService).upgradeSubscription(
                 any(VOSubscriptionDetails.class), any(VOService.class),
                 any(VOPaymentInfo.class), any(VOBillingContact.class),
@@ -217,6 +214,19 @@ public class UpgradeWizardConversationTest {
         verify(uiDelegate, times(1)).handle(
                 SubscriptionDetailsCtrlConstants.INFO_SUBSCRIPTION_UPGRADED, "test");
         assertEquals(SubscriptionDetailsCtrlConstants.OUTCOME_SUCCESS, result);
+        verify(param).rewriteEncryptedValues();
+    }
+
+    private PricedParameterRow decorateWithPricedParameterRow() {
+        List<PricedParameterRow> paramList = new ArrayList<>();
+        PricedParameterRow param = spy(new PricedParameterRow());
+        VOParameterDefinition paramDef = new VOParameterDefinition();
+        doReturn(paramDef).when(param).getParameterDefinition();
+        paramDef.setParameterId("parameterId");
+        paramDef.setValueType(ParameterValueType.PWD);
+        paramList.add(param);
+        model.setServiceParameters(paramList);
+        return param;
     }
 
     @Test
@@ -228,6 +238,7 @@ public class UpgradeWizardConversationTest {
 
         model.setSubscription(this.givenSubscription(true));
         model.setService(new Service(new VOService()));
+        PricedParameterRow param = decorateWithPricedParameterRow();
 
         doReturn(voSubscription).when(subscriptionService).upgradeSubscription(
                 any(VOSubscriptionDetails.class), any(VOService.class),
@@ -242,6 +253,7 @@ public class UpgradeWizardConversationTest {
                 SubscriptionDetailsCtrlConstants.INFO_SUBSCRIPTION_ASYNC_UPGRADED,
                 "test");
         assertEquals(SubscriptionDetailsCtrlConstants.OUTCOME_SUCCESS, result);
+        verify(param).rewriteEncryptedValues();
     }
 
     /**
@@ -539,7 +551,7 @@ public class UpgradeWizardConversationTest {
         model.getUseExternalConfigurator();
         model.setHideExternalConfigurator(false);
     }
-    
+
     private void initDataForSelectServiceWithoutParams() {
         VOService vo = new VOService();
         vo.setConfiguratorUrl("http://");

@@ -54,10 +54,7 @@ import org.oscm.internal.intf.SubscriptionServiceInternal;
 import org.oscm.internal.subscriptiondetails.POSubscriptionDetails;
 import org.oscm.internal.subscriptiondetails.SubscriptionDetailsService;
 import org.oscm.internal.triggerprocess.TriggerProcessesService;
-import org.oscm.internal.types.enumtypes.ParameterModificationType;
-import org.oscm.internal.types.enumtypes.PriceModelType;
-import org.oscm.internal.types.enumtypes.SubscriptionStatus;
-import org.oscm.internal.types.enumtypes.UserRoleType;
+import org.oscm.internal.types.enumtypes.*;
 import org.oscm.internal.types.exception.ConcurrentModificationException;
 import org.oscm.internal.types.exception.MandatoryUdaMissingException;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
@@ -189,8 +186,8 @@ public class ManageSubscriptionCtrlTest {
         when(triggerProcessService
                 .getAllWaitingForApprovalTriggerProcessesBySubscriptionId(
                         anyString()))
-                                .thenReturn(new Response(
-                                        waitingForApprovalTriggerProcesses));
+                .thenReturn(new Response(
+                        waitingForApprovalTriggerProcesses));
 
         when(session.getSelectedSubscriptionId()).thenReturn("subscriptionId");
         when(ctrl.ui.getRequest()).thenReturn(httpRequest);
@@ -240,10 +237,12 @@ public class ManageSubscriptionCtrlTest {
     }
 
     private VOSubscriptionDetails givenSubscriptionWithParameters(long key,
-            String value) {
+                                                                  String value) {
         // create new service parameter
         List<VOParameter> parameters = new LinkedList<>();
         VOParameterDefinition parameterDef = new VOParameterDefinition();
+        parameterDef.setParameterId("paramId");
+        parameterDef.setValueType(ParameterValueType.PWD);
         parameterDef.setModificationType(ParameterModificationType.STANDARD);
         VOParameter parameter = new VOParameter(parameterDef);
         // STANDARD parameters should be configurable
@@ -264,14 +263,14 @@ public class ManageSubscriptionCtrlTest {
     }
 
     private void preparePaymentInfo(VOSubscriptionDetails subscription,
-            long key) {
+                                    long key) {
         VOPaymentInfo paymentInfo = new VOPaymentInfo();
         paymentInfo.setKey(key);
         subscription.setPaymentInfo(paymentInfo);
     }
 
     private void prepareBillingContact(VOSubscriptionDetails subscription,
-            long key) {
+                                       long key) {
         VOBillingContact billingContact = new VOBillingContact();
         billingContact.setKey(key);
         subscription.setBillingContact(billingContact);
@@ -328,7 +327,7 @@ public class ManageSubscriptionCtrlTest {
     }
 
     private void modifySubscription(SubscriptionStatus status,
-            long parameterKey, String value)
+                                    long parameterKey, String value)
             throws NonUniqueBusinessKeyException, ObjectNotFoundException,
             OperationNotPermittedException, ValidationException,
             SubscriptionMigrationException, ConcurrentModificationException,
@@ -370,7 +369,7 @@ public class ManageSubscriptionCtrlTest {
     }
 
     private VOUserDetails prepareVOUserDetails_SubMgr(String userId,
-            boolean isSubMgr) {
+                                                      boolean isSubMgr) {
         VOUserDetails user = new VOUserDetails();
         user.setUserId(userId);
         if (isSubMgr) {
@@ -387,7 +386,7 @@ public class ManageSubscriptionCtrlTest {
     }
 
     private void setSubscriptionOwners(boolean isOwner1Select,
-            boolean isOwner2Select) {
+                                       boolean isOwner2Select) {
         List<User> subOwners = new ArrayList<>();
         subOwners.add(prepareSubOwner("owner1", isOwner1Select));
         subOwners.add(prepareSubOwner("owner2", isOwner2Select));
@@ -447,6 +446,7 @@ public class ManageSubscriptionCtrlTest {
         when(subscriptionService.modifySubscription(
                 any(VOSubscriptionDetails.class), anyListOf(VOParameter.class),
                 anyListOf(VOUda.class))).thenReturn(null);
+        PricedParameterRow param = decorateWithPricedParameterRow();
 
         // when
         String outcome = ctrl.modify();
@@ -455,6 +455,7 @@ public class ManageSubscriptionCtrlTest {
         assertEquals(SubscriptionDetailsCtrlConstants.OUTCOME_SUCCESS, outcome);
         modify_assertRefreshModel(false);
         modify_assertUISuccessMessage(false);
+        verify(param).rewriteEncryptedValues();
     }
 
     @Test
@@ -462,6 +463,7 @@ public class ManageSubscriptionCtrlTest {
         // given
         modifySubscription(SubscriptionStatus.ACTIVE, ANY_PARAMETER_KEY,
                 "ANYTHING");
+        PricedParameterRow param = decorateWithPricedParameterRow();
 
         // when
         String outcome = ctrl.modify();
@@ -474,6 +476,7 @@ public class ManageSubscriptionCtrlTest {
         assertEquals(Boolean.FALSE, Boolean.valueOf(model.isConfigDirty()));
         modify_assertRefreshModel(true);
         modify_assertUISuccessMessage(true);
+        verify(param).rewriteEncryptedValues();
     }
 
     @Test
@@ -481,6 +484,7 @@ public class ManageSubscriptionCtrlTest {
         // given
         modifySubscription(SubscriptionStatus.PENDING_UPD, ANY_PARAMETER_KEY,
                 "ANYTHING");
+        PricedParameterRow param = decorateWithPricedParameterRow();
 
         // when
         String outcome = ctrl.modify();
@@ -504,6 +508,7 @@ public class ManageSubscriptionCtrlTest {
                         SubscriptionDetailsCtrlConstants.SUBSCRIPTION_STATE_WARNING,
                         new Object[] { "pending update" }),
                 model.getStateWarning());
+        verify(param).rewriteEncryptedValues();
     }
 
     @Test
@@ -512,6 +517,7 @@ public class ManageSubscriptionCtrlTest {
         modifySubscription(SubscriptionStatus.PENDING_UPD, ANY_PARAMETER_KEY,
                 "ANYTHING");
         model.setConfigurationChanged(true);
+        PricedParameterRow param = decorateWithPricedParameterRow();
 
         // when
         ctrl.modify();
@@ -519,6 +525,7 @@ public class ManageSubscriptionCtrlTest {
         // then
         assertEquals(Boolean.TRUE,
                 Boolean.valueOf(model.isConfigurationChanged()));
+        verify(param).rewriteEncryptedValues();
     }
 
     @Test
@@ -529,6 +536,7 @@ public class ManageSubscriptionCtrlTest {
                 "ANYTHING");
         model.setSelectedOwner(null);
         model.setStoredOwner(null);
+        PricedParameterRow param = decorateWithPricedParameterRow();
 
         // when
         String outcome = ctrl.modify();
@@ -539,6 +547,19 @@ public class ManageSubscriptionCtrlTest {
         modify_assertUISuccessMessage(true);
         assertNull(sub.getOwnerId());
         assertNull(model.getStoredOwner());
+        verify(param).rewriteEncryptedValues();
+    }
+
+    private PricedParameterRow decorateWithPricedParameterRow() {
+        List<PricedParameterRow> paramList = new ArrayList<>();
+        PricedParameterRow param = spy(new PricedParameterRow());
+        VOParameterDefinition paramDef = new VOParameterDefinition();
+        doReturn(paramDef).when(param).getParameterDefinition();
+        paramDef.setParameterId("parameterId");
+        paramDef.setValueType(ParameterValueType.PWD);
+        paramList.add(param);
+        model.setServiceParameters(paramList);
+        return param;
     }
 
     @Test
@@ -550,6 +571,7 @@ public class ManageSubscriptionCtrlTest {
         model.setSelectedOwner(null);
         User owner = prepareSubOwner("owner", true);
         model.setStoredOwner(owner);
+        PricedParameterRow param = decorateWithPricedParameterRow();
 
         // when
         String outcome = ctrl.modify();
@@ -563,6 +585,7 @@ public class ManageSubscriptionCtrlTest {
         assertNull(sub.getOwnerId());
         assertNull(model.getStoredOwner());
         assertEquals(Boolean.FALSE, Boolean.valueOf(owner.isOwnerSelected()));
+        verify(param).rewriteEncryptedValues();
     }
 
     @Test
@@ -574,6 +597,7 @@ public class ManageSubscriptionCtrlTest {
         model.setSelectedOwner(prepareSubOwner("owner2", true));
         VOSubscriptionDetails subTemp = new VOSubscriptionDetails();
         model.setSubscription(subTemp);
+        PricedParameterRow param = decorateWithPricedParameterRow();
 
         // when
         String outcome = ctrl.modify();
@@ -586,6 +610,7 @@ public class ManageSubscriptionCtrlTest {
         assertEquals("owner2", model.getStoredOwner().getUserId());
         assertEquals(Boolean.TRUE,
                 Boolean.valueOf(model.getStoredOwner().isOwnerSelected()));
+        verify(param).rewriteEncryptedValues();
     }
 
     @Test
@@ -598,6 +623,7 @@ public class ManageSubscriptionCtrlTest {
         VOSubscriptionDetails subTemp = new VOSubscriptionDetails();
         subTemp.setSubscriptionId("test");
         model.setSubscription(subTemp);
+        PricedParameterRow param = decorateWithPricedParameterRow();
 
         // when
         String outcome = ctrl.modify();
@@ -611,6 +637,7 @@ public class ManageSubscriptionCtrlTest {
         assertEquals("owner1", model.getStoredOwner().getUserId());
         assertEquals(Boolean.FALSE,
                 Boolean.valueOf(model.getStoredOwner().isOwnerSelected()));
+        verify(param).rewriteEncryptedValues();
     }
 
     @Test
@@ -706,7 +733,7 @@ public class ManageSubscriptionCtrlTest {
         String subscriptionId = anyString();
         when(subscriptionDetailService.getSubscriptionDetails(subscriptionId,
                 anyString()))
-                        .thenReturn(new Response(givenPOSubscriptionDetails()));
+                .thenReturn(new Response(givenPOSubscriptionDetails()));
 
         // when
         ctrl.refreshOrgAndSubscriptionUdasInModel(subscriptionId);
@@ -869,7 +896,7 @@ public class ManageSubscriptionCtrlTest {
         subscriptionDetails.setUsersForOrganization(userList);
         when(subscriptionDetailsService
                 .getSubscriptionDetails(eq("subscription_id"), anyString()))
-                        .thenReturn(new Response(subscriptionDetails));
+                .thenReturn(new Response(subscriptionDetails));
         when(ctrl.ui.getViewLocale()).thenReturn(Locale.ENGLISH);
         when(ctrl.getSubscriptionUnitCtrl().getModel())
                 .thenReturn(subscriptionUnitModel);
@@ -900,7 +927,7 @@ public class ManageSubscriptionCtrlTest {
         subscriptionDetails.setUsersForOrganization(userList);
         when(subscriptionDetailsService
                 .getSubscriptionDetails(eq("subscription_id"), anyString()))
-                        .thenReturn(new Response(subscriptionDetails));
+                .thenReturn(new Response(subscriptionDetails));
         when(ctrl.ui.getViewLocale()).thenReturn(Locale.ENGLISH);
         when(ctrl.getSubscriptionUnitCtrl().getModel())
                 .thenReturn(subscriptionUnitModel);
@@ -1222,7 +1249,7 @@ public class ManageSubscriptionCtrlTest {
         model.getSubscription().setSubscriptionId("subscriptionId");
         when(Boolean.valueOf(
                 subscriptionService.unsubscribeFromService(anyString())))
-                        .thenReturn(Boolean.FALSE);
+                .thenReturn(Boolean.FALSE);
 
         SessionService sessionService = mock(SessionService.class);
         ctrl.setSessionService(sessionService);
@@ -1266,7 +1293,7 @@ public class ManageSubscriptionCtrlTest {
         when(subscriptionService.modifySubscriptionPaymentData(
                 any(VOSubscription.class), any(VOBillingContact.class),
                 any(VOPaymentInfo.class)))
-                        .thenReturn(new VOSubscriptionDetails());
+                .thenReturn(new VOSubscriptionDetails());
         // when
         String result = ctrl.savePayment();
 
@@ -1686,6 +1713,7 @@ public class ManageSubscriptionCtrlTest {
     public void changeTwiceParameters_bug10833() throws Exception {
         // given
         modifySubscription(SubscriptionStatus.ACTIVE, 1, "10");
+        PricedParameterRow param = decorateWithPricedParameterRow();
 
         // when
         ctrl.modify();
@@ -1701,6 +1729,7 @@ public class ManageSubscriptionCtrlTest {
 
         // then
         assertParametersModified(2, "20");
+        verify(param).rewriteEncryptedValues();
     }
 
     @SuppressWarnings("boxing")
@@ -1888,7 +1917,7 @@ public class ManageSubscriptionCtrlTest {
         model.setSubscriptionOwners(new ArrayList<User>());
         when(ctrl.getOperatorService()
                 .getSubscriptionOwnersForAssignment(anyLong()))
-                        .thenReturn(voUsers);
+                .thenReturn(voUsers);
         // when
         String result = ctrl.initializeSubscriptionOwners();
         // then
@@ -1965,7 +1994,7 @@ public class ManageSubscriptionCtrlTest {
     }
 
     private User prepareSubOwnerWithRole(String userId, boolean isSelected,
-            UserRoleType userRole) {
+                                         UserRoleType userRole) {
         VOUserDetails userDetails = new VOUserDetails();
         userDetails.setUserId(userId);
         Set<UserRoleType> userRoles = new HashSet<>();

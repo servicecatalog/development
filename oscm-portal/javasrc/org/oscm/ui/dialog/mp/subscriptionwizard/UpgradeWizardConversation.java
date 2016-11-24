@@ -234,12 +234,19 @@ public class UpgradeWizardConversation implements Serializable {
 
         model.setSubscriptionUdaRows(UdaRow.getUdaRows(subUdaDefinitions,
                 subscriptionDetails.getUdasSubscription()));
-        for (UdaRow udaRow : model.getSubscriptionUdaRows()) {
-            udaRow.initPasswordValueToStore();
-        }
+        initParamsAndUdas();
         initializePriceModelForSubscription(model.getSubscription());
 
         setConfirmationData(subscriptionDetails);
+    }
+
+    private void initParamsAndUdas() {
+        for (UdaRow udaRow : model.getSubscriptionUdaRows()) {
+            udaRow.initPasswordValueToStore();
+        }
+        for (PricedParameterRow pricedParameterRow : model.getServiceParameters()) {
+            pricedParameterRow.initPasswordValueToStore();
+        }
     }
 
     /**
@@ -491,9 +498,7 @@ public class UpgradeWizardConversation implements Serializable {
      */
     public String upgrade() throws SaaSApplicationException {
         String result = OUTCOME_SUCCESS;
-        for (UdaRow udaRow : model.getSubscriptionUdaRows()) {
-            udaRow.rewriteEncryptedValues();
-        }
+        rewriteParamsAndUdas();
         VOSubscription rc = getSubscriptionService().upgradeSubscription(
                 model.getSubscription(), model.getService().getVO(),
                 model.getSelectedPaymentInfo(),
@@ -521,6 +526,15 @@ public class UpgradeWizardConversation implements Serializable {
         }
         conversation.end();
         return result;
+    }
+
+    private void rewriteParamsAndUdas() {
+        for (UdaRow udaRow : model.getSubscriptionUdaRows()) {
+            udaRow.rewriteEncryptedValues();
+        }
+        for (PricedParameterRow pricedParameterRow : model.getServiceParameters()) {
+            pricedParameterRow.rewriteEncryptedValues();
+        }
     }
 
     /**

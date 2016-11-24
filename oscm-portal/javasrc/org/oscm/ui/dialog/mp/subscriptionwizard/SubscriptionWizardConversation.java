@@ -325,16 +325,19 @@ public class SubscriptionWizardConversation implements Serializable {
                 }
                 model.setSubscriptionUdaRows(UdaRow
                         .getUdaRows(subUdaDefinitions, new ArrayList<VOUda>()));
-                initPasswordFields(model.getSubscriptionUdaRows());
+                initPasswordFields(model.getSubscriptionUdaRows(), model.getServiceParameters());
             }
         }
         getSubscriptionUnitCtrl().initializeUnitListForCreateSubscription();
         return result;
     }
 
-    private void initPasswordFields(List<UdaRow> udas) {
+    private void initPasswordFields(List<UdaRow> udas, List<PricedParameterRow> serviceParameters) {
         for (UdaRow udaRow : udas) {
             udaRow.initPasswordValueToStore();
+        }
+        for (PricedParameterRow serviceParameter : serviceParameters) {
+            serviceParameter.initPasswordValueToStore();
         }
     }
 
@@ -423,9 +426,7 @@ public class SubscriptionWizardConversation implements Serializable {
             return BaseBean.MARKETPLACE_ACCESS_DENY_PAGE;
         }
         try {
-            for (UdaRow udaRow : model.getSubscriptionUdaRows()) {
-                udaRow.rewriteEncryptedValues();
-            }
+            rewriteParametersAndUdas();
             VOSubscription rc = getSubscriptionService().subscribeToService(
                     model.getSubscription(), model.getService().getVO(),
                     new ArrayList<VOUsageLicense>(),
@@ -477,6 +478,15 @@ public class SubscriptionWizardConversation implements Serializable {
         }
 
         return outcome;
+    }
+
+    private void rewriteParametersAndUdas() {
+        for (UdaRow udaRow : model.getSubscriptionUdaRows()) {
+            udaRow.rewriteEncryptedValues();
+        }
+        for (PricedParameterRow pricedParameterRow : model.getServiceParameters()) {
+            pricedParameterRow.rewriteEncryptedValues();
+        }
     }
 
     private boolean isServiceAccessible(long serviceKey)

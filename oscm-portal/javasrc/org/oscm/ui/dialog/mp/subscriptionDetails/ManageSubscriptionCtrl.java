@@ -325,9 +325,7 @@ public class ManageSubscriptionCtrl implements Serializable {
         model.setSubscriptionUdaRows(UdaRow.getUdaRows(subUdaDefinitions,
                 subscriptionDetails.getUdasSubscription()));
 
-        for (UdaRow udaRow : model.getSubscriptionUdaRows()) {
-            udaRow.initPasswordValueToStore();
-        }
+        initParamsAndUdas();
 
         initializePriceModelForSubscription(model.getSubscription());
 
@@ -341,6 +339,15 @@ public class ManageSubscriptionCtrl implements Serializable {
         setConfirmationData(subscriptionDetails);
         refreshSelectedOwnerName(model.getSelectedOwner());
         initializeUnitAssignment();
+    }
+
+    private void initParamsAndUdas() {
+        for (UdaRow udaRow : model.getSubscriptionUdaRows()) {
+            udaRow.initPasswordValueToStore();
+        }
+        for (PricedParameterRow pricedParameterRow : model.getServiceParameters()) {
+            pricedParameterRow.initPasswordValueToStore();
+        }
     }
 
     private void initializeUnitAssignment() {
@@ -901,9 +908,7 @@ public class ManageSubscriptionCtrl implements Serializable {
         model.getSubscription().setOwnerId(model.getSelectedOwner() != null
                 ? model.getSelectedOwner().getUserId() : null);
         updateSelectedUnit();
-        for (UdaRow udaRow : model.getSubscriptionUdaRows()) {
-            udaRow.rewriteEncryptedValues();
-        }
+        rewriteParamsAndUdas();
         VOSubscriptionDetails changedSubscription = getSubscriptionService()
                 .modifySubscription(model.getSubscription(),
                         getSubscriptionParameterForModification(),
@@ -937,6 +942,15 @@ public class ManageSubscriptionCtrl implements Serializable {
         }
 
         return OUTCOME_SUCCESS;
+    }
+
+    private void rewriteParamsAndUdas() {
+        for (UdaRow udaRow : model.getSubscriptionUdaRows()) {
+            udaRow.rewriteEncryptedValues();
+        }
+        for (PricedParameterRow pricedParameterRow : model.getServiceParameters()) {
+            pricedParameterRow.rewriteEncryptedValues();
+        }
     }
 
     private boolean subscriptionNotSuspended(
