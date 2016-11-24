@@ -18,7 +18,7 @@ import org.oscm.app.v2_0.data.LocalizedText;
  */
 public class ConfigurationException extends APPlatformException {
 
-    private static final long serialVersionUID = 6158530723538303916L;
+    private static final long serialVersionUID = 2804755466599378233L;
 
     private String affectedKey;
 

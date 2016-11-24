@@ -18,11 +18,11 @@ import org.oscm.app.v2_0.data.LocalizedText;
  * the APP database.
  * 
  * @author kulle
- *
+ * 
  */
 public class ObjectNotFoundException extends APPlatformException {
 
-    private static final long serialVersionUID = 2715429622012614863L;
+    private static final long serialVersionUID = -6225450026704508558L;
 
     /**
      * Constructs a new exception with the specified detail message. The cause

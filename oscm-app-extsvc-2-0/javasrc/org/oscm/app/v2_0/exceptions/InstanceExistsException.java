@@ -14,7 +14,7 @@ import org.oscm.app.v2_0.data.LocalizedText;
 
 public class InstanceExistsException extends APPlatformException {
 
-    private static final long serialVersionUID = 2715429622012614863L;
+    private static final long serialVersionUID = 5696569816753547107L;
 
     /**
      * Constructs a new exception with the specified detail message. The cause

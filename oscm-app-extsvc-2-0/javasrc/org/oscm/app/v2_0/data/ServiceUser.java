@@ -15,7 +15,7 @@ import java.io.Serializable;
  */
 public class ServiceUser implements Serializable {
 
-    private static final long serialVersionUID = 6802966385947255001L;
+    private static final long serialVersionUID = -8702261062012232094L;
 
     private String roleIdentifier;
 
