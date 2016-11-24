@@ -88,8 +88,8 @@ public class APPlatformServiceBean implements APPlatformService {
     }
 
     @Override
-    public void sendMail(List<String> mailAddresses, String subject, String text)
-            throws APPlatformException {
+    public void sendMail(List<String> mailAddresses, String subject,
+            String text) throws APPlatformException {
         try {
             mailService.sendMail(mailAddresses, subject, text);
         } catch (Exception e) {
@@ -103,8 +103,8 @@ public class APPlatformServiceBean implements APPlatformService {
 
     @Override
     public String getEventServiceUrl() throws ConfigurationException {
-        String result = configService
-                .getProxyConfigurationSetting(PlatformConfigurationKey.APP_BASE_URL);
+        String result = configService.getProxyConfigurationSetting(
+                PlatformConfigurationKey.APP_BASE_URL);
         if (!result.endsWith("/")) {
             result += "/";
         }
@@ -114,14 +114,13 @@ public class APPlatformServiceBean implements APPlatformService {
 
     @Override
     public String getBSSWebServiceUrl() throws ConfigurationException {
-        if ("SAML_SP"
-                .equals(configService
-                        .getProxyConfigurationSetting(PlatformConfigurationKey.BSS_AUTH_MODE))) {
-            return configService
-                    .getProxyConfigurationSetting(PlatformConfigurationKey.BSS_STS_WEBSERVICE_URL);
+        if ("SAML_SP".equals(configService.getProxyConfigurationSetting(
+                PlatformConfigurationKey.BSS_AUTH_MODE))) {
+            return configService.getProxyConfigurationSetting(
+                    PlatformConfigurationKey.BSS_STS_WEBSERVICE_URL);
         }
-        return configService
-                .getProxyConfigurationSetting(PlatformConfigurationKey.BSS_WEBSERVICE_URL);
+        return configService.getProxyConfigurationSetting(
+                PlatformConfigurationKey.BSS_WEBSERVICE_URL);
     }
 
     @Override
@@ -147,8 +146,8 @@ public class APPlatformServiceBean implements APPlatformService {
     @Override
     public User authenticate(String controllerId,
             PasswordAuthentication authentication) throws APPlatformException {
-        VOUserDetails vo = authService.getAuthenticatedTMForController(
-                controllerId, authentication);
+        VOUserDetails vo = authService
+                .getAuthenticatedTMForController(controllerId, authentication);
         User user = new User();
         user.setUserKey(vo.getKey());
         user.setUserId(vo.getUserId());
@@ -166,10 +165,11 @@ public class APPlatformServiceBean implements APPlatformService {
                 .getControllerConfigurationSettings(controllerId);
         APPlatformController controller = APPlatformControllerFactory
                 .getInstance(controllerId);
-        ControllerSettings controllerSettings = new ControllerSettings(settings);
-        controllerSettings.setAuthentication(configService
-                .getAuthenticationForBESTechnologyManager(controllerId, null,
-                        null));
+        ControllerSettings controllerSettings = new ControllerSettings(
+                settings);
+        controllerSettings.setAuthentication(
+                configService.getAuthenticationForBESTechnologyManager(
+                        controllerId, null, null));
         controller.setControllerSettings(controllerSettings);
     }
 
@@ -203,15 +203,35 @@ public class APPlatformServiceBean implements APPlatformService {
     }
 
     @Override
-    public String getBSSWebServiceWSDLUrl() throws ConfigurationException {
-        if ("SAML_SP"
-                .equals(configService
-                        .getProxyConfigurationSetting(PlatformConfigurationKey.BSS_AUTH_MODE))) {
-            return configService
-                    .getProxyConfigurationSetting(PlatformConfigurationKey.BSS_STS_WEBSERVICE_WSDL_URL);
+    public ProvisioningSettings getServiceInstanceDetails(String controllerId,
+            String instanceId, String subscriptionId, String organizationId)
+            throws APPlatformException {
+        try {
+            ServiceInstance instance = instanceDAO.getInstanceById(instanceId);
+            if (instance.getControllerId().equals(controllerId)
+                    && instance.getSubscriptionId().equals(subscriptionId)
+                    && instance.getOrganizationId().equals(organizationId)) {
+                return configService.getProvisioningSettings(instance, null);
+            } else {
+                throw new ServiceInstanceNotFoundException(
+                        "Service instance with ID '%s' not found.", instanceId);
+            }
+        } catch (ServiceInstanceNotFoundException e) {
+            throw new ObjectNotFoundException(e.getMessage());
+        } catch (BadResultException e) {
+            throw new APPlatformException(e.getMessage());
         }
-        return configService
-                .getProxyConfigurationSetting(PlatformConfigurationKey.BSS_WEBSERVICE_WSDL_URL);
+    }
+
+    @Override
+    public String getBSSWebServiceWSDLUrl() throws ConfigurationException {
+        if ("SAML_SP".equals(configService.getProxyConfigurationSetting(
+                PlatformConfigurationKey.BSS_AUTH_MODE))) {
+            return configService.getProxyConfigurationSetting(
+                    PlatformConfigurationKey.BSS_STS_WEBSERVICE_WSDL_URL);
+        }
+        return configService.getProxyConfigurationSetting(
+                PlatformConfigurationKey.BSS_WEBSERVICE_WSDL_URL);
     }
 
     @Override

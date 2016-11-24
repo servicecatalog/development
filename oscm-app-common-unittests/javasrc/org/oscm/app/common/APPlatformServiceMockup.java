@@ -33,8 +33,8 @@ public class APPlatformServiceMockup implements APPlatformService {
     public APPlatformServiceMockup() {
         // Set default controller settings
         ctrl_settings = new HashMap<>();
-        ctrl_settings.put("BSS_ORGANIZATION_ID", new Setting(
-                "BSS_ORGANIZATION_ID", "orgId"));
+        ctrl_settings.put("BSS_ORGANIZATION_ID",
+                new Setting("BSS_ORGANIZATION_ID", "orgId"));
         ctrl_settings.put("BSS_USER_KEY", new Setting("BSS_USER_KEY", "12345"));
         ctrl_settings.put("BSS_USER_ID", new Setting("BSS_USER_ID", "userId"));
         ctrl_settings.put("BSS_USER_PWD",
@@ -44,8 +44,8 @@ public class APPlatformServiceMockup implements APPlatformService {
     }
 
     @Override
-    public void sendMail(List<String> mailAddresses, String subject, String text)
-            throws APPlatformException {
+    public void sendMail(List<String> mailAddresses, String subject,
+            String text) throws APPlatformException {
     }
 
     @Override
@@ -75,8 +75,8 @@ public class APPlatformServiceMockup implements APPlatformService {
 
     @Override
     public boolean lockServiceInstance(String arg0, String arg1,
-            PasswordAuthentication arg2) throws AuthenticationException,
-            APPlatformException {
+            PasswordAuthentication arg2)
+            throws AuthenticationException, APPlatformException {
         return false;
     }
 
@@ -93,8 +93,8 @@ public class APPlatformServiceMockup implements APPlatformService {
 
     @Override
     public void unlockServiceInstance(String arg0, String arg1,
-            PasswordAuthentication arg2) throws AuthenticationException,
-            APPlatformException {
+            PasswordAuthentication arg2)
+            throws AuthenticationException, APPlatformException {
     }
 
     @Override
@@ -136,5 +136,20 @@ public class APPlatformServiceMockup implements APPlatformService {
             throws AuthenticationException, ConfigurationException,
             APPlatformException {
         // store service settings not supported by mock
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.oscm.app.v2_0.intf.APPlatformService#getServiceInstanceDetails(java.
+     * lang.String, java.lang.String, java.lang.String, java.lang.String)
+     */
+    @Override
+    public ProvisioningSettings getServiceInstanceDetails(String controllerId,
+            String instanceId, String subscriptionId, String organizationId)
+            throws APPlatformException {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

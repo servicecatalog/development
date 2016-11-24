@@ -33,7 +33,8 @@ public interface InstanceAccess extends Serializable {
      * @throws ConfigurationException
      * @throws AuthenticationException
      */
-    public List<? extends ServerInformation> getServerDetails(String instanceId)
+    public List<? extends ServerInformation> getServerDetails(String instanceId,
+            String subscriptionId, String organizationId)
             throws AuthenticationException, ConfigurationException,
             APPlatformException;
 
@@ -45,9 +46,9 @@ public interface InstanceAccess extends Serializable {
      * @throws ConfigurationException
      * @throws AuthenticationException
      */
-    public String getAccessInfo(String instanceId)
-            throws AuthenticationException, ConfigurationException,
-            APPlatformException;
+    public String getAccessInfo(String instanceId, String subscriptionId,
+            String organizationId) throws AuthenticationException,
+            ConfigurationException, APPlatformException;
 
     /**
      * Returns the localized message for the given key, locale and arguments.

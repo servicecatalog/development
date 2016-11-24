@@ -51,6 +51,7 @@ public class ExtensionInterfaceBean implements Serializable {
 
     private List<? extends ServerInformation> servers;
     private String subscriptionId;
+    private String organizationId;
     private String accessInfo;
     private String instanceId;
     private String locale;
@@ -79,6 +80,9 @@ public class ExtensionInterfaceBean implements Serializable {
         }
         this.instanceId = parameters.get("instId") != null
                 ? parameters.get("instId") : "";
+
+        this.organizationId = parameters.get("orgId") != null
+                ? parameters.get("orgId") : "";
     }
 
     public void setInstanceAccess(InstanceAccess instanceAccess) {
@@ -99,7 +103,8 @@ public class ExtensionInterfaceBean implements Serializable {
     private void readServerInfo() {
         List<? extends ServerInformation> serverInfos = new ArrayList<ServerInformation>();
         try {
-            serverInfos = instanceAccess.getServerDetails(instanceId);
+            serverInfos = instanceAccess.getServerDetails(instanceId,
+                    subscriptionId, organizationId);
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
         }
@@ -127,7 +132,8 @@ public class ExtensionInterfaceBean implements Serializable {
     private void setAccessInfo() {
         String accessInfo = "";
         try {
-            accessInfo = instanceAccess.getAccessInfo(instanceId);
+            accessInfo = instanceAccess.getAccessInfo(instanceId,
+                    subscriptionId, organizationId);
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
         }
