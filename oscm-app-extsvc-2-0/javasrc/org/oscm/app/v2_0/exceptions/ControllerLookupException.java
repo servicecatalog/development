@@ -24,7 +24,7 @@ import org.oscm.app.v2_0.data.LocalizedText;
  */
 public class ControllerLookupException extends APPlatformException {
 
-    private static final long serialVersionUID = -1368249558572050129L;
+    private static final long serialVersionUID = 1841813273474547148L;
 
     /**
      * Constructs a new exception with the specified detail message. The cause

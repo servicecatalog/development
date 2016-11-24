@@ -26,7 +26,6 @@ import javax.ejb.SessionContext;
 
 import org.junit.Before;
 import org.junit.Test;
-
 import org.oscm.communicationservice.local.CommunicationServiceLocal;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.BillingContact;
@@ -39,15 +38,17 @@ import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.TechnicalProduct;
 import org.oscm.domobjects.Uda;
+import org.oscm.domobjects.UdaDefinition;
 import org.oscm.domobjects.enums.ModifiedEntityType;
-import org.oscm.subscriptionservice.dao.ModifiedEntityDao;
 import org.oscm.internal.types.enumtypes.ServiceAccessType;
+import org.oscm.subscriptionservice.dao.ModifiedEntityDao;
+import org.oscm.types.enumtypes.UdaTargetType;
 
 /**
  * @author Gao Wenxin
  */
-public class ModifyAndUpgradeSubscriptionBeanTest extends
-        SubscriptionServiceMockBase {
+public class ModifyAndUpgradeSubscriptionBeanTest
+        extends SubscriptionServiceMockBase {
 
     private ModifyAndUpgradeSubscriptionBean bean;
     private ModifiedEntityDao modifiedEntityDao;
@@ -84,10 +85,10 @@ public class ModifyAndUpgradeSubscriptionBeanTest extends
     public void updateSubscriptionAttributesForAsyncUpgrade_WithModifiedEntities()
             throws Exception {
         // given
-        doReturn(paymentInfo).when(bean.dataManager).getReference(
-                eq(PaymentInfo.class), anyLong());
-        doReturn(billingContact).when(bean.dataManager).getReference(
-                eq(BillingContact.class), anyLong());
+        doReturn(paymentInfo).when(bean.dataManager)
+                .getReference(eq(PaymentInfo.class), anyLong());
+        doReturn(billingContact).when(bean.dataManager)
+                .getReference(eq(BillingContact.class), anyLong());
         // when
         Subscription result = bean
                 .updateSubscriptionAttributesForAsyncUpgrade(subscription);
@@ -103,8 +104,8 @@ public class ModifyAndUpgradeSubscriptionBeanTest extends
         // given
         doReturn(new ArrayList<ModifiedEntity>()).when(modifiedEntityDao)
                 .retrieveModifiedEntities(any(Subscription.class));
-        doReturn(new ArrayList<Uda>()).when(bean).getExistingUdas(
-                eq(subscription));
+        doReturn(new ArrayList<Uda>()).when(bean)
+                .getExistingUdas(eq(subscription));
         // when
         Subscription result = bean
                 .updateSubscriptionAttributesForAsyncUpgrade(subscription);
@@ -118,8 +119,8 @@ public class ModifyAndUpgradeSubscriptionBeanTest extends
     public void updateSubscriptionAttributesForAsyncUpgrade_BillingContactNotExist()
             throws Exception {
         // given
-        doReturn(paymentInfo).when(bean.dataManager).getReference(
-                eq(PaymentInfo.class), anyLong());
+        doReturn(paymentInfo).when(bean.dataManager)
+                .getReference(eq(PaymentInfo.class), anyLong());
         // when
         Subscription result = bean
                 .updateSubscriptionAttributesForAsyncUpgrade(subscription);
@@ -133,8 +134,8 @@ public class ModifyAndUpgradeSubscriptionBeanTest extends
     public void updateSubscriptionAttributesForAsyncUpgrade_PaymentInfoNotExist()
             throws Exception {
         // given
-        doReturn(billingContact).when(bean.dataManager).getReference(
-                eq(BillingContact.class), anyLong());
+        doReturn(billingContact).when(bean.dataManager)
+                .getReference(eq(BillingContact.class), anyLong());
         // when
         Subscription result = bean
                 .updateSubscriptionAttributesForAsyncUpgrade(subscription);
@@ -163,8 +164,8 @@ public class ModifyAndUpgradeSubscriptionBeanTest extends
         // given
         doReturn(new ArrayList<ModifiedEntity>()).when(modifiedEntityDao)
                 .retrieveModifiedEntities(any(Subscription.class));
-        doReturn(new ArrayList<Uda>()).when(bean).getExistingUdas(
-                eq(subscription));
+        doReturn(new ArrayList<Uda>()).when(bean)
+                .getExistingUdas(eq(subscription));
         // when
         Subscription result = bean
                 .updateSubscriptionAttributesForAsyncUpdate(subscription);
@@ -185,7 +186,7 @@ public class ModifyAndUpgradeSubscriptionBeanTest extends
     }
 
     private List<Class<?>> givenSpyClasses() {
-        List<Class<?>> spys = new ArrayList<Class<?>>();
+        List<Class<?>> spys = new ArrayList<>();
         spys.add(DataService.class);
         spys.add(CommunicationServiceLocal.class);
         spys.add(SessionContext.class);
@@ -197,7 +198,7 @@ public class ModifyAndUpgradeSubscriptionBeanTest extends
         PlatformUser user = new PlatformUser();
         Organization org = new Organization();
         org.setKey(2L);
-        List<TechnicalProduct> technicalProducts = new ArrayList<TechnicalProduct>();
+        List<TechnicalProduct> technicalProducts = new ArrayList<>();
         technicalProducts.add(givenTechProduct());
         org.setTechnicalProducts(technicalProducts);
         user.setOrganization(org);
@@ -214,26 +215,26 @@ public class ModifyAndUpgradeSubscriptionBeanTest extends
 
     private List<ModifiedEntity> givenModifiedEntities() {
         ModifiedEntity billingContactEntity = new ModifiedEntity();
-        billingContactEntity
-                .setTargetObjectType(ModifiedEntityType.SUBSCRIPTION_BILLINGCONTACT);
+        billingContactEntity.setTargetObjectType(
+                ModifiedEntityType.SUBSCRIPTION_BILLINGCONTACT);
         billingContactEntity.setValue("1000");
         ModifiedEntity paymentInfoEntity = new ModifiedEntity();
-        paymentInfoEntity
-                .setTargetObjectType(ModifiedEntityType.SUBSCRIPTION_PAYMENTINFO);
+        paymentInfoEntity.setTargetObjectType(
+                ModifiedEntityType.SUBSCRIPTION_PAYMENTINFO);
         paymentInfoEntity.setValue("1001");
         ModifiedEntity subscriptionIdEntity = new ModifiedEntity();
-        subscriptionIdEntity
-                .setTargetObjectType(ModifiedEntityType.SUBSCRIPTION_SUBSCRIPTIONID);
+        subscriptionIdEntity.setTargetObjectType(
+                ModifiedEntityType.SUBSCRIPTION_SUBSCRIPTIONID);
         subscriptionIdEntity.setValue("SubscriptionId");
         ModifiedEntity purchaseNumberEntity = new ModifiedEntity();
-        purchaseNumberEntity
-                .setTargetObjectType(ModifiedEntityType.SUBSCRIPTION_PURCHASEORDERNUMBER);
+        purchaseNumberEntity.setTargetObjectType(
+                ModifiedEntityType.SUBSCRIPTION_PURCHASEORDERNUMBER);
         purchaseNumberEntity.setValue("123456");
         ModifiedEntity ownerIdEntity = new ModifiedEntity();
         ownerIdEntity
                 .setTargetObjectType(ModifiedEntityType.SUBSCRIPTION_OWNERID);
         ownerIdEntity.setValue(null);
-        List<ModifiedEntity> modifiedEntities = new ArrayList<ModifiedEntity>();
+        List<ModifiedEntity> modifiedEntities = new ArrayList<>();
         modifiedEntities.add(billingContactEntity);
         modifiedEntities.add(paymentInfoEntity);
         modifiedEntities.add(subscriptionIdEntity);
@@ -243,9 +244,12 @@ public class ModifyAndUpgradeSubscriptionBeanTest extends
     }
 
     private List<Uda> givenUdas() {
-        List<Uda> udas = new ArrayList<Uda>();
+        List<Uda> udas = new ArrayList<>();
+        UdaDefinition udaDef = new UdaDefinition();
+        udaDef.setTargetType(UdaTargetType.CUSTOMER_SUBSCRIPTION);
         Uda uda = new Uda();
         uda.setKey(10000);
+        uda.setUdaDefinition(udaDef);
         udas.add(uda);
         return udas;
     }

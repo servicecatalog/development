@@ -220,7 +220,7 @@
                       render="attributesTable@body pagerPanel"
                       onkeyup="AdmUtils.setFirstPage(#{rich:element('attributePager')});" />
                     </f:facet>
-                    <h:inputText id="udaVsalueClear" onchange="setDirty(true)" value="#{item.udaValue}"
+                    <h:inputText id="udaValueClear" onchange="setDirty(true)" value="#{item.udaValue}"
                       maxlength="#{appBean.descriptionLen}" required="#{item.inputMandatory}" 
                       label="#{item.udaId}" style="width:100%" rendered="#{not item.inputEncrypted}">
                     </h:inputText>

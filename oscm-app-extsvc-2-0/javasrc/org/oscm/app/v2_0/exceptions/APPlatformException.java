@@ -20,7 +20,7 @@ import org.oscm.app.v2_0.data.Setting;
  */
 public class APPlatformException extends Exception {
 
-    private static final long serialVersionUID = -7143967679904982334L;
+    private static final long serialVersionUID = 4919058103515796142L;
 
     private static final String DEFAULT_LOCALE = "en";
 

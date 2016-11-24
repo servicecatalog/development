@@ -15,7 +15,7 @@ import java.io.Serializable;
  */
 public class User implements Serializable {
 
-    private static final long serialVersionUID = 3175003605226761933L;
+    private static final long serialVersionUID = 4593705746979139509L;
 
     /**
      * The key generated and used by the platform to identify the user.

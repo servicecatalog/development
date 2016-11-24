@@ -32,6 +32,7 @@ public class AWSInstanceAccess implements InstanceAccess {
     private APPlatformService platformService;
     private static final Logger LOGGER = LoggerFactory
             .getLogger(AWSInstanceAccess.class);
+    private static final String AWS_INSTANCE_ID_KEY = "AWS_INSTANCE_ID";
 
     /**
      * 
@@ -61,7 +62,7 @@ public class AWSInstanceAccess implements InstanceAccess {
                         subscriptionId, organizationId);
         PropertyHandler ph = new PropertyHandler(settings);
         List<Server> servers;
-        servers = new EC2Processor(ph, instanceId).getServerDetails();
+        servers = new EC2Processor(ph, getAwsInstanceId(settings)).getServerDetails();
         return servers;
     }
 
@@ -78,6 +79,17 @@ public class AWSInstanceAccess implements InstanceAccess {
     public String getMessage(String locale, String key, Object... arguments) {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    /**
+     * Retrieves AWS instance ID corresponding to the instanceId from APP
+     * database.
+     *
+     * @param settings
+     * @return
+     */
+    private String getAwsInstanceId(ProvisioningSettings settings) {
+        return settings.getParameters().get(AWS_INSTANCE_ID_KEY).getValue();
     }
 
 }

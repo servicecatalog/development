@@ -13,7 +13,7 @@ package org.oscm.app.v2_0.exceptions;
  */
 public class AuthenticationException extends APPlatformException {
 
-    private static final long serialVersionUID = -531945432402787865L;
+    private static final long serialVersionUID = -3115855280161947155L;
 
     /**
      * Constructs a new exception with the specified detail message. The cause

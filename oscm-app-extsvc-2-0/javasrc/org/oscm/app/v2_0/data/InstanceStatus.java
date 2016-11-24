@@ -18,7 +18,7 @@ import java.util.List;
  */
 public class InstanceStatus implements Serializable {
 
-    private static final long serialVersionUID = 6978848378003536066L;
+    private static final long serialVersionUID = 8686130971941381037L;
 
     private boolean isReady;
     private boolean runWithTimer = true;
@@ -99,8 +99,7 @@ public class InstanceStatus implements Serializable {
      * <code>APPlatformService</code>.<br>
      * <code><i>instance_id</i></code> is the ID of the relevant application
      * instance.<br>
-     * <code><i>controller_id</i></code> is the ID of the service
-     * controller.<br>
+     * <code><i>controller_id</i></code> is the ID of the service controller.<br>
      * <code><i>options</i></code> are optional commands or parameters to be
      * passed to the controller.<br>
      * Example:<br>
@@ -234,8 +233,7 @@ public class InstanceStatus implements Serializable {
      *            the URL of the application<br>
      *            Be aware that internet domain names must follow the following
      *            rules: <br>
-     *            They must start with a letter and end with a letter or
-     *            number.<br>
+     *            They must start with a letter and end with a letter or number.<br>
      *            They may contain letters, numbers, or hyphens only. Special
      *            characters are not allowed.<br>
      *            They may consist of a maximum of 63 characters.

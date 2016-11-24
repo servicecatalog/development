@@ -17,7 +17,7 @@ import java.io.Serializable;
  */
 public class InstanceDescription extends InstanceStatus implements Serializable {
 
-    private static final long serialVersionUID = 3414984160354911680L;
+    private static final long serialVersionUID = 1250743005647854513L;
 
     private String instanceId;
 
