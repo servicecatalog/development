@@ -811,7 +811,7 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
         List<ServiceParameter> serviceParameterList = ParameterFilter
                 .getServiceParameterList(product, true);
         List<ServiceAttribute> serviceAttributeList = AttributeFilter
-                .getCustomAttributeList(subscription);
+                .getSubscriptionAttributeList(subscription);
         try {
             BaseResult result = getPort(subscription).asyncModifySubscription(
                     subscription.getProductInstanceId(),
@@ -839,7 +839,7 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
         List<ServiceParameter> serviceParameterList = ParameterFilter
                 .getServiceParameterList(product, false);
         List<ServiceAttribute> serviceAttributeList = AttributeFilter
-                .getCustomAttributeList(subscription);
+                .getSubscriptionAttributeList(subscription);
         try {
             BaseResult result = getPort(subscription).asyncUpgradeSubscription(
                     subscription.getProductInstanceId(),
