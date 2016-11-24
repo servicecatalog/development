@@ -90,10 +90,7 @@ public class ExtensionInterfaceBean implements Serializable {
     }
 
     public List<? extends ServerInformation> getInstanceDetails() {
-        // TODO should I update information every get request??
-        if (servers == null) {
-            readServerInfo();
-        }
+        readServerInfo();
         return servers;
     }
 
@@ -120,9 +117,7 @@ public class ExtensionInterfaceBean implements Serializable {
     }
 
     public String getAccessInfo() {
-        if (accessInfo == null) {
-            setAccessInfo();
-        }
+        setAccessInfo();
         return accessInfo;
     }
 
