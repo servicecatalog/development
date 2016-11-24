@@ -354,6 +354,8 @@
       <!-- Switch to edit profile page -->
       <mpl_goto.account.profile />
 
+      <mpl_goto.tab label="${marketplace.account.profile.userTab}" />
+      
       <setInputField name="userForm:lastName" value="Blunt" />
       <setInputField name="userForm:firstName" value="James" />
 
