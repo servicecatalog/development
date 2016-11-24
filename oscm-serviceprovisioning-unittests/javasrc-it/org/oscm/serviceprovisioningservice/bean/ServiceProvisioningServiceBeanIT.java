@@ -3299,8 +3299,6 @@ public class ServiceProvisioningServiceBeanIT extends
     @Test
     public void testCreatePriceModelForExternalProductChargeable()
             throws Exception {
-        // container.login(providerUserKey, ROLE_TECHNOLOGY_MANAGER,
-        // ROLE_SERVICE_MANAGER);
         VOTechnicalService vo = createTechnicalProduct(ServiceAccessType.LOGIN,
                 "", BillingAdapterIdentifier.NATIVE_BILLING.name());
         svcProv.deleteTechnicalService(vo);
