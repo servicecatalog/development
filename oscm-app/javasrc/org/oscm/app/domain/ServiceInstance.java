@@ -734,6 +734,7 @@ public class ServiceInstance implements Serializable {
             throw new BadResultException(Messages.get(getDefaultLocale(),
                     "error_missing_subscriptionId", this.getInstanceId()));
         }
+        setReferenceId(rollbackSubscriptionRef);
     }
 
     String convertPropertiesToXML(Properties properties)
