@@ -18,7 +18,7 @@ import java.io.Serializable;
  */
 public class Setting implements Serializable {
 
-    private static final long serialVersionUID = -2244142463898101402L;
+    private static final long serialVersionUID = 1505614365313731825L;
 
     /**
      * The setting's key, used to identify the setting.

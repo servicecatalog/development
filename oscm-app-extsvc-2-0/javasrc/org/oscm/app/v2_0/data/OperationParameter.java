@@ -16,7 +16,7 @@ import java.io.Serializable;
  */
 public class OperationParameter implements Serializable {
 
-    private static final long serialVersionUID = 8315509111790518497L;
+    private static final long serialVersionUID = 6148283521538526410L;
 
     private String name;
     private String value;

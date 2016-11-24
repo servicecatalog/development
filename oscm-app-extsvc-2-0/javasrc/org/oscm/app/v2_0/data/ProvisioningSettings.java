@@ -25,8 +25,8 @@ import java.util.Map;
 public class ProvisioningSettings extends ControllerSettings implements
         Serializable {
 
-    private static final long serialVersionUID = 9161029657174458354L;
-
+    private static final long serialVersionUID = -1572408823477281540L;
+    
     private String locale;
     private HashMap<String, Setting> parameters;
     private HashMap<String, Setting> attributes;

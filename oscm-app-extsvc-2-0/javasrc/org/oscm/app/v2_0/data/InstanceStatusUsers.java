@@ -18,7 +18,7 @@ import java.util.List;
  */
 public class InstanceStatusUsers extends InstanceStatus implements Serializable {
 
-    private static final long serialVersionUID = 224174303180232503L;
+    private static final long serialVersionUID = 8161129995011025009L;
 
     private List<ServiceUser> users;
 

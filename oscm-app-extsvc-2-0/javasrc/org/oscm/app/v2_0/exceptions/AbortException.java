@@ -26,7 +26,7 @@ import org.oscm.app.v2_0.data.LocalizedText;
  */
 public class AbortException extends APPlatformException {
 
-    private static final long serialVersionUID = -5029385030755859089L;
+    private static final long serialVersionUID = 6704636629758658840L;
 
     private List<LocalizedText> providerMessages;
 

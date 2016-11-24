@@ -25,7 +25,7 @@ import org.oscm.app.v2_0.data.LocalizedText;
  */
 public class SuspendException extends APPlatformException {
 
-    private static final long serialVersionUID = 8144562269006182261L;
+    private static final long serialVersionUID = 7136077126869392797L;
 
     private int responseCode = 0;
 
@@ -53,7 +53,7 @@ public class SuspendException extends APPlatformException {
         super(message);
         this.responseCode = responseCode;
     }
-    
+
     /**
      * Constructs a new exception with the specified detail message and cause.
      * 

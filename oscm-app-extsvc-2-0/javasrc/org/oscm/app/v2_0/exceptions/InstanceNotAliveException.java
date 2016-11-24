@@ -14,7 +14,7 @@ import org.oscm.app.v2_0.data.LocalizedText;
 
 public class InstanceNotAliveException extends APPlatformException {
 
-    private static final long serialVersionUID = 2715429622012614863L;
+    private static final long serialVersionUID = 8272506497979966309L;
 
     /**
      * Constructs a new exception with the specified detail message. The cause
@@ -59,7 +59,8 @@ public class InstanceNotAliveException extends APPlatformException {
      * @param cause
      *            the cause
      */
-    public InstanceNotAliveException(List<LocalizedText> messages, Throwable cause) {
+    public InstanceNotAliveException(List<LocalizedText> messages,
+            Throwable cause) {
         super(messages, cause);
     }
 }

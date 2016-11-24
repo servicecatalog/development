@@ -31,7 +31,7 @@ public class InstanceRequest {
      */
     private String subscriptionId;
     /**
-     * The id specified by the customer to refer to the subscription.
+     * The ID specified by the customer to refer the subscription.
      */
     private String referenceId;
     /**
@@ -55,8 +55,8 @@ public class InstanceRequest {
     private List<ServiceParameter> parameterValue;
 
     /**
-     * The subscription specific customer attributes, which the application can
-     * use, for example, to overwrite settings.
+     * The custom attributes for subscriptions, which the application can
+     * use, for example, to overrule configuration settings.
      */
     private List<ServiceAttribute> attributeValue;
 
@@ -123,7 +123,7 @@ public class InstanceRequest {
     }
 
     /**
-     * Retrieves the id specified by the customer to refer to the subscription.
+     * Retrieves the ID specified by the customer to refer to the subscription.
      * 
      * @return the subscription reference
      */
@@ -132,7 +132,7 @@ public class InstanceRequest {
     }
 
     /**
-     * Sets the id specified by the customer to refer to the subscription.
+     * Sets the ID specified by the customer to refer to the subscription.
      * 
      * @param referenceId
      *            the subscription reference
@@ -216,8 +216,8 @@ public class InstanceRequest {
     }
 
     /**
-     * Retrieves the subscription specific customer attributes, which the
-     * application can use, for example, to overwrite settings.
+     * Retrieves the custom attributes for subscriptions, which the
+     * application can use, for example, to overrule configuration settings.
      * 
      * @return the list of customer attributes
      */
@@ -226,8 +226,8 @@ public class InstanceRequest {
     }
 
     /**
-     * Sets the subscription specific customer attributes, which the application
-     * can use, for example, to overwrite settings.
+     * Sets the custom attributes for subscriptions, which the application
+     * can use, for example, to overrule configuration settings.
      * 
      * @param attributeValue
      *            the list of customer attributes
