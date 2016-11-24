@@ -340,7 +340,8 @@ public class ServiceInstanceTest {
         // given
         ServiceInstance si = Mockito.spy(new ServiceInstance());
         si.setSubscriptionId("subscriptionId");
-        String expectedXML = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><!DOCTYPE properties SYSTEM \"http://java.sun.com/dtd/properties.dtd\"><properties><entry key=\"KEY2\">VALUE2</entry><entry key=\"ROLLBACK_SUBSCRIPTIONID\">subscriptionId</entry><entry key=\"KEY1\">VALUE1</entry></properties>";
+        si.setReferenceId("refId");
+        String expectedXML = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><!DOCTYPE properties SYSTEM \"http://java.sun.com/dtd/properties.dtd\"><properties><entry key=\"ROLLBACK_SUBSCRIPTIONREF\">refId</entry><entry key=\"KEY2\">VALUE2</entry><entry key=\"ROLLBACK_SUBSCRIPTIONID\">subscriptionId</entry><entry key=\"KEY1\">VALUE1</entry></properties>";
 
         HashMap<String, String> params = new HashMap<>();
         params.put("KEY1", "VALUE1");
@@ -391,6 +392,7 @@ public class ServiceInstanceTest {
     public void rollbackInstanceParameters() throws Exception {
         // given
         ServiceInstance si = Mockito.spy(new ServiceInstance());
+        si.setReferenceId("referenceId");
         List<InstanceAttribute> listOfAttrs = new ArrayList<>();
         InstanceAttribute it = new InstanceAttribute();
         it.setAttributeKey("AAA");
@@ -410,9 +412,10 @@ public class ServiceInstanceTest {
         param2.setParameterValue("VALUE2");
         expectedParams.add(param2);
 
-        String rollbackXML = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<!DOCTYPE properties SYSTEM \"http://java.sun.com/dtd/properties.dtd\">\r\n<properties>\r\n<entry key=\"KEY2\">VALUE2</entry>\r\n<entry key=\"ROLLBACK_SUBSCRIPTIONID\">subscriptionId</entry>\r\n<entry key=\"KEY1\">VALUE1</entry>\r\n</properties>\r\n";
+        String rollbackXML = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<!DOCTYPE properties SYSTEM \"http://java.sun.com/dtd/properties.dtd\">\r\n<properties>\r\n<entry key=\"ROLLBACK_SUBSCRIPTIONREF\">refId</entry>\r\n<entry key=\"KEY2\">VALUE2</entry>\r\n<entry key=\"ROLLBACK_SUBSCRIPTIONID\">subscriptionId</entry>\r\n<entry key=\"KEY1\">VALUE1</entry>\r\n</properties>\r\n";
 
         Mockito.doReturn(rollbackXML).when(si).getRollbackParameters();
+        Mockito.doReturn(rollbackXML).when(si).getRollbackInstanceAttributes();
         EntityManager em = mock(EntityManager.class);
 
         // when
@@ -465,6 +468,7 @@ public class ServiceInstanceTest {
         String rollbackXML = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<!DOCTYPE properties SYSTEM \"http://java.sun.com/dtd/properties.dtd\">\r\n<properties>\r\n<entry key=\"KEY2\">VALUE2</entry>\r\n<entry key=\"KEY1\">VALUE1</entry>\r\n</properties>\r\n";
 
         Mockito.doReturn(rollbackXML).when(si).getRollbackParameters();
+        Mockito.doReturn(rollbackXML).when(si).getRollbackInstanceAttributes();
 
         // when
         try {
@@ -472,6 +476,33 @@ public class ServiceInstanceTest {
         } catch (BadResultException be) {
             String message = org.oscm.app.i18n.Messages.get("en",
                     "error_missing_subscriptionId", si.getInstanceId());
+            assertEquals(message, be.getLocalizedMessage());
+
+            throw be;
+        }
+    }
+
+    @Test(expected = BadResultException.class)
+    public void rollbackInstanceParameters_MissingSubscriptionRef()
+            throws Exception {
+        // given
+        ServiceInstance si = Mockito.spy(new ServiceInstance());
+        HashMap<String, String> expectedParams = new HashMap<>();
+        expectedParams.put("KEY1", "VALUE1");
+        expectedParams.put("KEY2", "VALUE2");
+
+        String rollbackXML = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<!DOCTYPE properties SYSTEM \"http://java.sun.com/dtd/properties.dtd\">\r\n<properties>\r\n<entry key=\"KEY2\">VALUE2</entry>\n" +
+                "<entry key=\"ROLLBACK_SUBSCRIPTIONID\">subscriptionId</entry>\r\n<entry key=\"KEY1\">VALUE1</entry>\r\n</properties>\r\n";
+
+        Mockito.doReturn(rollbackXML).when(si).getRollbackParameters();
+        Mockito.doReturn(rollbackXML).when(si).getRollbackInstanceAttributes();
+
+        // when
+        try {
+            si.rollbackServiceInstance(null);
+        } catch (BadResultException be) {
+            String message = org.oscm.app.i18n.Messages.get("en",
+                    "error_missing_subscription_ref", si.getInstanceId());
             assertEquals(message, be.getLocalizedMessage());
 
             throw be;
