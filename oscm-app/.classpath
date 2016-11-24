@@ -30,4 +30,5 @@
 	<classpathentry kind="src" path="/oscm-app-extsvc-1-0"/>
 	<classpathentry kind="src" path="/oscm-app-converter"/>
 	<classpathentry kind="output" path="bin"/>
+	<classpathentry kind="lib" path="/libraries/apache-commons-lang/javalib/commons-lang3-3.3.2.jar"/>
 </classpath>
