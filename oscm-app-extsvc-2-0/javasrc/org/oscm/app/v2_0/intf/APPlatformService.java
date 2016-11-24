@@ -299,6 +299,33 @@ public interface APPlatformService {
             APPlatformException;
 
     /**
+     * Returns the complete provisioning settings of the defined service
+     * instance without authentication
+     * 
+     * @param controllerId
+     *            the ID of the service controller
+     * @param instanceId
+     *            the ID of the service instance
+     * @param subscriptionId
+     *            the ID of the subscription
+     * @param organizationId
+     *            the ID of the organization
+     * @return a <code>ProvisioningSettings</code> object specifying the service
+     *         parameters and configuration settings
+     * @throws AuthenticationException
+     *             if the authentication of the user fails
+     * @throws ConfigurationException
+     *             if the configuration settings cannot be loaded
+     * @throws ObjectNotFoundException
+     *             if no such service instance exists
+     * @throws APPlatformException
+     *             if a general problem occurs in accessing APP
+     */
+    public ProvisioningSettings getServiceInstanceDetails(String controllerId,
+            String instanceId, String subscriptionId, String organizationId)
+            throws APPlatformException;
+
+    /**
      * /** Stores the service instance settings for the given instance.
      * <p>
      * In order to execute this method, you must specify the credentials of a

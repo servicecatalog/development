@@ -44,23 +44,29 @@ public class ExtensionInterfaceBeanTest extends EJBTestBase {
     private List<? extends ServerInformation> serverInfo;
     private String instanceID = "inst1";
     private String subscriptionID = "subscription id";
+    private String organizationID = "12345f";
     private Map<String, String> paramters;
 
     private ExtensionInterfaceBean getTestBean(String instanceId,
-            String subscriptionId) throws Exception {
+            String subscriptionId, String organizationId) throws Exception {
         facesContext = Mockito.mock(FacesContext.class);
         externalContext = Mockito.mock(ExternalContext.class);
         application = Mockito.mock(Application.class);
         instanceAccess = Mockito.mock(InstanceAccess.class);
         UIViewRoot viewRoot = Mockito.mock(UIViewRoot.class);
         paramters = new HashMap<String, String>();
+        String decodeSubscriptionId = null;
         if (subscriptionId != null) {
             subscriptionId = new String(
                     Base64.encodeBase64(subscriptionId.getBytes("UTF-8")),
                     "UTF-8");
+            decodeSubscriptionId = new String(
+                    Base64.decodeBase64(subscriptionId.getBytes("UTF-8")),
+                    "UTF-8");
         }
         paramters.put("subId", subscriptionId);
         paramters.put("instId", instanceId);
+        paramters.put("orgId", organizationId);
 
         serverInfo = getServerInfoMock(3);
 
@@ -71,10 +77,12 @@ public class ExtensionInterfaceBeanTest extends EJBTestBase {
                 .thenReturn(paramters);
         Mockito.when(facesContext.getViewRoot()).thenReturn(viewRoot);
         Mockito.when(viewRoot.getLocale()).thenReturn(new Locale("en"));
-        Mockito.when(instanceAccess.getAccessInfo(instanceId))
+        Mockito.when(instanceAccess.getAccessInfo(instanceId,
+                decodeSubscriptionId, organizationId))
                 .thenReturn("Access info from IaaS");
         Mockito.<List<? extends ServerInformation>> when(
-                instanceAccess.getServerDetails(instanceId))
+                instanceAccess.getServerDetails(instanceId,
+                        decodeSubscriptionId, organizationId))
                 .thenReturn(serverInfo);
 
         ExtensionInterfaceBean bean = new ExtensionInterfaceBean() {
@@ -138,7 +146,8 @@ public class ExtensionInterfaceBeanTest extends EJBTestBase {
     @Test
     public void getInstanceDetails() throws Exception {
         // given
-        ExtensionInterfaceBean bean = getTestBean(instanceID, subscriptionID);
+        ExtensionInterfaceBean bean = getTestBean(instanceID, subscriptionID,
+                organizationID);
         // when
         List<? extends ServerInformation> sv = bean.getInstanceDetails();
         // then
@@ -154,7 +163,8 @@ public class ExtensionInterfaceBeanTest extends EJBTestBase {
         // call second time
         List<? extends ServerInformation> sv2 = bean.getInstanceDetails();
         // then
-        Mockito.verify(instanceAccess).getServerDetails(instanceID);
+        Mockito.verify(instanceAccess).getServerDetails(instanceID,
+                subscriptionID, organizationID);
         assertEquals(3, sv2.size());
         assertEquals("1", sv2.get(0).getId());
         assertEquals("instance1", sv2.get(0).getName());
@@ -169,9 +179,10 @@ public class ExtensionInterfaceBeanTest extends EJBTestBase {
     @Test
     public void getInstanceDetails_withException() throws Exception {
         // given
-        ExtensionInterfaceBean bean = getTestBean(instanceID, subscriptionID);
-        Mockito.<List<? extends ServerInformation>> when(
-                instanceAccess.getServerDetails(instanceID))
+        ExtensionInterfaceBean bean = getTestBean(instanceID, subscriptionID,
+                organizationID);
+        Mockito.<List<? extends ServerInformation>> when(instanceAccess
+                .getServerDetails(instanceID, subscriptionID, organizationID))
                 .thenThrow(new APPlatformException("Error!!"));
         // when
         List<? extends ServerInformation> sv = bean.getInstanceDetails();
@@ -182,9 +193,38 @@ public class ExtensionInterfaceBeanTest extends EJBTestBase {
     @Test
     public void getInstanceDetails_withNoInstanceID() throws Exception {
         // given
-        ExtensionInterfaceBean bean = getTestBean(null, subscriptionID);
-        Mockito.<List<? extends ServerInformation>> when(
-                instanceAccess.getServerDetails(null))
+        ExtensionInterfaceBean bean = getTestBean(null, subscriptionID,
+                organizationID);
+        Mockito.<List<? extends ServerInformation>> when(instanceAccess
+                .getServerDetails(null, subscriptionID, organizationID))
+                .thenReturn(getServerInfoMock(0));
+        // when
+        List<? extends ServerInformation> sv = bean.getInstanceDetails();
+        // then
+        assertEquals(0, sv.size());
+    }
+
+    @Test
+    public void getInstanceDetails_withNoSubscriptionID() throws Exception {
+        // given
+        ExtensionInterfaceBean bean = getTestBean(instanceID, null,
+                organizationID);
+        Mockito.<List<? extends ServerInformation>> when(instanceAccess
+                .getServerDetails(instanceID, null, organizationID))
+                .thenReturn(getServerInfoMock(0));
+        // when
+        List<? extends ServerInformation> sv = bean.getInstanceDetails();
+        // then
+        assertEquals(0, sv.size());
+    }
+
+    @Test
+    public void getInstanceDetails_withNoOrganizationID() throws Exception {
+        // given
+        ExtensionInterfaceBean bean = getTestBean(instanceID, subscriptionID,
+                null);
+        Mockito.<List<? extends ServerInformation>> when(instanceAccess
+                .getServerDetails(instanceID, subscriptionID, null))
                 .thenReturn(getServerInfoMock(0));
         // when
         List<? extends ServerInformation> sv = bean.getInstanceDetails();
@@ -195,7 +235,8 @@ public class ExtensionInterfaceBeanTest extends EJBTestBase {
     @Test
     public void getSubscriptionName() throws Exception {
         // given
-        ExtensionInterfaceBean bean = getTestBean(instanceID, subscriptionID);
+        ExtensionInterfaceBean bean = getTestBean(instanceID, subscriptionID,
+                organizationID);
 
         // when
         String result = bean.getSubscriptionName();
@@ -208,7 +249,8 @@ public class ExtensionInterfaceBeanTest extends EJBTestBase {
     @Test
     public void getSubscriptionName_nothing() throws Exception {
         // given
-        ExtensionInterfaceBean bean = getTestBean(instanceID, null);
+        ExtensionInterfaceBean bean = getTestBean(instanceID, null,
+                organizationID);
 
         // when
         String result = bean.getSubscriptionName();
@@ -221,7 +263,8 @@ public class ExtensionInterfaceBeanTest extends EJBTestBase {
     @Test
     public void getAccessInfo() throws Exception {
         // given
-        ExtensionInterfaceBean bean = getTestBean(instanceID, subscriptionID);
+        ExtensionInterfaceBean bean = getTestBean(instanceID, subscriptionID,
+                organizationID);
 
         // when
         String result = bean.getAccessInfo();
@@ -233,16 +276,18 @@ public class ExtensionInterfaceBeanTest extends EJBTestBase {
         String result2 = bean.getAccessInfo();
 
         // then
-        Mockito.verify(instanceAccess).getAccessInfo(instanceID);
+        Mockito.verify(instanceAccess).getAccessInfo(instanceID, subscriptionID,
+                organizationID);
         assertEquals("Access info from IaaS", result2);
     }
 
     @Test
     public void getAccessInfo_withError() throws Exception {
         // given
-        ExtensionInterfaceBean bean = getTestBean(instanceID, subscriptionID);
-        Mockito.when(instanceAccess.getAccessInfo(instanceID))
-                .thenThrow(new APPlatformException("Error!!!"));
+        ExtensionInterfaceBean bean = getTestBean(instanceID, subscriptionID,
+                organizationID);
+        Mockito.when(instanceAccess.getAccessInfo(instanceID, subscriptionID,
+                organizationID)).thenThrow(new APPlatformException("Error!!!"));
 
         // when
         String result = bean.getAccessInfo();
