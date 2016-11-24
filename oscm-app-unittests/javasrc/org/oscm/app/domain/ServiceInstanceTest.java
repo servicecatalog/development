@@ -482,33 +482,6 @@ public class ServiceInstanceTest {
         }
     }
 
-    @Test(expected = BadResultException.class)
-    public void rollbackInstanceParameters_MissingSubscriptionRef()
-            throws Exception {
-        // given
-        ServiceInstance si = Mockito.spy(new ServiceInstance());
-        HashMap<String, String> expectedParams = new HashMap<>();
-        expectedParams.put("KEY1", "VALUE1");
-        expectedParams.put("KEY2", "VALUE2");
-
-        String rollbackXML = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<!DOCTYPE properties SYSTEM \"http://java.sun.com/dtd/properties.dtd\">\r\n<properties>\r\n<entry key=\"KEY2\">VALUE2</entry>\n" +
-                "<entry key=\"ROLLBACK_SUBSCRIPTIONID\">subscriptionId</entry>\r\n<entry key=\"KEY1\">VALUE1</entry>\r\n</properties>\r\n";
-
-        Mockito.doReturn(rollbackXML).when(si).getRollbackParameters();
-        Mockito.doReturn(rollbackXML).when(si).getRollbackInstanceAttributes();
-
-        // when
-        try {
-            si.rollbackServiceInstance(null);
-        } catch (BadResultException be) {
-            String message = org.oscm.app.i18n.Messages.get("en",
-                    "error_missing_subscription_ref", si.getInstanceId());
-            assertEquals(message, be.getLocalizedMessage());
-
-            throw be;
-        }
-    }
-
     @Test
     public void setInstanceParameters() throws Exception {
         // given

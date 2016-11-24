@@ -32,7 +32,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Version;
 
-import org.apache.commons.lang3.StringUtils;
 import org.oscm.app.business.exceptions.BadResultException;
 import org.oscm.app.i18n.Messages;
 import org.oscm.app.v2_0.data.InstanceStatus;
@@ -657,19 +656,9 @@ public class ServiceInstance implements Serializable {
         this.setRollbackParameters(this
                 .convertPropertiesToXML(actualProperties));
         actualProperties.clear();
-        actualProperties.putAll(getInstanceAttributesMap());
+        actualProperties.putAll(getAttributeMap());
         this.setRollbackInstanceAttributes(this
                 .convertPropertiesToXML(actualProperties));
-    }
-
-    private Map<String, Setting> getInstanceAttributesMap() throws BadResultException {
-        final HashMap<String, Setting> map = new HashMap<>();
-        for (InstanceAttribute param : instanceAttributes) {
-            map.put(param.getAttributeKey(),
-                    new Setting(param.getAttributeKey(), param
-                            .getDecryptedValue(), param.isEncrypted()));
-        }
-        return map;
     }
 
     public void rollbackServiceInstance(EntityManager em)
@@ -678,11 +667,11 @@ public class ServiceInstance implements Serializable {
         Properties rollbackProps;
         String xmlProps = getRollbackParameters();
         String xmlAttrs = getRollbackInstanceAttributes();
-        if (StringUtils.isBlank(xmlProps)) {
+        if (isNotEmpty(xmlProps)) {
             throw new BadResultException(Messages.get(getDefaultLocale(),
                     "error_missing_rollbackparameters", this.getInstanceId()));
         }
-        if (StringUtils.isBlank(xmlAttrs)) {
+        if (isNotEmpty(xmlAttrs)) {
             throw new BadResultException(Messages.get(getDefaultLocale(),
                     "error_missing_rollbackattributes", this.getInstanceId()));
         }
@@ -696,6 +685,10 @@ public class ServiceInstance implements Serializable {
 
         Properties rollbackAttrs = this.convertXMLToProperties(xmlAttrs);
         rollbackInstanceAttributes(rollbackAttrs, em);
+    }
+
+    private boolean isNotEmpty(String xmlProps) {
+        return xmlProps != null && !xmlProps.isEmpty();
     }
 
     private String getStringProperty(Properties rollbackProps, String propertyName) {
@@ -735,17 +728,11 @@ public class ServiceInstance implements Serializable {
 
     private void rollbackSubscription(String subscriptionID, String rollbackSubscriptionRef)
             throws BadResultException {
-        if (StringUtils.isNotBlank(subscriptionID)) {
+        if (isNotEmpty(subscriptionID)) {
             setSubscriptionId(subscriptionID);
         } else {
             throw new BadResultException(Messages.get(getDefaultLocale(),
                     "error_missing_subscriptionId", this.getInstanceId()));
-        }
-        if (StringUtils.isNotBlank(rollbackSubscriptionRef)) {
-            setReferenceId(rollbackSubscriptionRef);
-        } else {
-            throw new BadResultException(Messages.get(getDefaultLocale(),
-                    "error_missing_subscription_ref", this.getInstanceId()));
         }
     }
 
