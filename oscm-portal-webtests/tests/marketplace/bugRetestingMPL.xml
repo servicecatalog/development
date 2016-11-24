@@ -441,16 +441,52 @@
     <webtest name="Bug 8313 country pulldown menu displays the wrong value in dialog register customer ">
       <steps>
         <!-- Check profile page on MPL (preset value of country != null)-->
-        <mpl_login.user mid="${midGlobal}" userId="${supplierUserId}" />
-        <mpl_goto.account.profile />
-        <mpl_goto.tab label="${marketplace.account.profile.organizationTab}" />
-        <_bug8312.checkCountrySelectBox />
+	    <mpl_login.user mid="${midGlobal}" userId="${supplierUserId}" />
+	    <mpl_goto.account.profile />
+	    <mpl_goto.tab label="${marketplace.account.profile.organizationTab}" />
+	    <setSelectField name="orgForm:country" value="AM" />
+	    <setInputField htmlId="orgForm:organizationEmail" value="" />
+	    <clickLink htmlId="orgForm:saveOrgButtonLink" />
+	    <common.verifyFieldError fieldId="orgForm:organizationEmail" label="${javax.faces.component.UIInput.REQUIRED}" regex="false" />
+	    <not>
+	      <common.verifyFieldError fieldId="orgForm:country" label="${javax.faces.component.UIInput.REQUIRED}" regex="false" />
+	    </not>
+	    <verifySelectField htmlId="orgForm:country" value="AM" />
+	
+	    <!-- Let the validation fail for the select field -->
+	    <setSelectField name="orgForm:country" value="" />
+	    <setInputField htmlId="orgForm:organizationEmail" value="${common.email}" />
+	    <clickLink htmlId="orgForm:saveOrgButtonLink" />
+	    <not>
+	      <common.verifyFieldError fieldId="orgForm:organizationEmail" label="${javax.faces.component.UIInput.REQUIRED}" regex="false" />
+	    </not>
+	    <common.verifyFieldError fieldId="orgForm:country" label="${javax.faces.component.UIInput.REQUIRED}" regex="false" />
+	    <!-- The select field must contain the invalid value (not the previously select valid one) -->
+	    <verifySelectField htmlId="orgForm:country" value="" />
         <login.logout />
 
         <!-- Check register customer page (preset value of country == null)-->
         <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}"/>
         <common.clickAndVerfyLink label="${organization.addCustomer.title}" />
-        <_bug8312.checkCountrySelectBox />
+        <setSelectField name="editForm:country" value="AM" />
+        <setInputField htmlId="editForm:email" value="" />
+        <clickLink htmlId="editForm:saveButtonLink" />
+        <common.verifyFieldError fieldId="editForm:email" label="${javax.faces.component.UIInput.REQUIRED}" regex="false" />
+        <not>
+          <common.verifyFieldError fieldId="editForm:country" label="${javax.faces.component.UIInput.REQUIRED}" regex="false" />
+        </not>
+        <verifySelectField htmlId="editForm:country" value="AM" />
+
+        <!-- Let the validation fail for the select field -->
+        <setSelectField name="editForm:country" value="" />
+        <setInputField htmlId="editForm:email" value="${common.email}" />
+        <clickLink htmlId="editForm:saveButtonLink" />
+        <not>
+          <common.verifyFieldError fieldId="editForm:email" label="${javax.faces.component.UIInput.REQUIRED}" regex="false" />
+        </not>
+        <common.verifyFieldError fieldId="editForm:country" label="${javax.faces.component.UIInput.REQUIRED}" regex="false" />
+        <!-- The select field must contain the invalid value (not the previously select valid one) -->
+        <verifySelectField htmlId="editForm:country" value="" />
         <login.logout />
       </steps>
     </webtest>
@@ -1023,31 +1059,6 @@
         </then>
       </ifStep>
 
-    </sequential>
-  </macrodef>
-  
-  <macrodef name="_bug8312.checkCountrySelectBox">
-    <sequential>
-      <!-- Pass validation for select but fail for another field -->
-      <setSelectField name="orgForm:country" value="AM" />
-      <setInputField htmlId="orgForm:organizationEmail" value="" />
-      <clickLink htmlId="orgForm:saveOrgButtonLink" />
-      <common.verifyFieldError fieldId="orgForm:organizationEmail" label="${javax.faces.component.UIInput.REQUIRED}" regex="false" />
-      <not>
-        <common.verifyFieldError fieldId="orgForm:country" label="${javax.faces.component.UIInput.REQUIRED}" regex="false" />
-      </not>
-      <verifySelectField htmlId="orgForm:country" value="AM" />
-
-      <!-- Let the validation fail for the select field -->
-      <setSelectField name="orgForm:country" value="" />
-      <setInputField htmlId="orgForm:organizationEmail" value="${common.email}" />
-      <clickLink htmlId="orgForm:saveButtonLink" />
-      <not>
-        <common.verifyFieldError fieldId="orgForm:organizationEmail" label="${javax.faces.component.UIInput.REQUIRED}" regex="false" />
-      </not>
-      <common.verifyFieldError fieldId="orgForm:country" label="${javax.faces.component.UIInput.REQUIRED}" regex="false" />
-      <!-- The select field must contain the invalid value (not the previously select valid one) -->
-      <verifySelectField htmlId="orgForm:country" value="" />
     </sequential>
   </macrodef>
 

@@ -22,7 +22,7 @@ public class ControllerSettings implements Serializable {
         this.configSettings = configSettings;
     }
 
-    private static final long serialVersionUID = 5979452043430510811L;
+    private static final long serialVersionUID = -812011951662194104L;
 
     private HashMap<String, Setting> configSettings;
 

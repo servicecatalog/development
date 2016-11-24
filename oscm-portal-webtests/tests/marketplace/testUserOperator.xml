@@ -278,17 +278,24 @@
         <clickButton label="${button.save}" />
         <mpl_verify.success label="${info.user.profileSaved}" />
         <mpl_goto.account />
-        <mpl_goto.tab label="${marketplace.account.profile.organizationTab}" />
         <verifyXPath xpath="//*[@id='organizationName']" text="ORG_NAME" />
 
         <!-- Check all editable fields -->
         <dataDriven tableContainer="data/pageFields/marketplace/accountEditProfileFields.xls">
           <!-- Switch to account / profile page -->
           <mpl_goto.account.profile />
+          <mpl_goto.tab label="${marketplace.account.profile.userTab}" />
           <!-- Validate all registered fields -->
           <mpl_verify.checkHintAndFieldValues hintMsgKey="${hintMsgKey}" fieldId="${fieldId}" fieldType="${fieldType}" required="${required}" />
         </dataDriven>
 
+     	<!-- Check all editable organization fields, doesnt work for unknown reasons -->
+        <!--dataDriven tableContainer="data/pageFields/marketplace/accountEditProfileFieldsOrganization.xls">
+           	<mpl_goto.account.profile />
+           	<mpl_goto.tab label="${marketplace.account.profile.organizationTab}" />
+           	<mpl_verify.checkHintAndFieldValues hintMsgKey="${hintMsgKey}" fieldId="${fieldId}" fieldType="${fieldType}" required="${required}" />
+    	</dataDriven-->
+        
         <!-- And logoff -->
         <mpl_login.logout />
       </webtest>

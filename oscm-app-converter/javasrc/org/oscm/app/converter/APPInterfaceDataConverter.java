@@ -22,7 +22,6 @@ import org.oscm.app.v1_0.data.OperationParameter;
 import org.oscm.app.v1_0.data.PasswordAuthentication;
 import org.oscm.app.v1_0.data.ProvisioningSettings;
 import org.oscm.app.v1_0.data.ServiceUser;
-import org.oscm.app.v1_0.data.Setting;
 import org.oscm.app.v1_0.data.User;
 
 public class APPInterfaceDataConverter {
@@ -514,16 +513,6 @@ public class APPInterfaceDataConverter {
 
         }
         return parameters;
-    }
-
-    public org.oscm.app.v2_0.data.Setting convertToNew(Setting setting) {
-        if (setting == null) {
-            return null;
-        }
-
-        return new org.oscm.app.v2_0.data.Setting(setting.getKey(),
-                setting.getValue(), setting.isEncrypted(),
-                setting.getControllerId());
     }
 
     public String convertToOld(org.oscm.app.v2_0.data.Setting setting) {

@@ -16,7 +16,7 @@ import java.io.Serializable;
  */
 public class PasswordAuthentication implements Serializable {
 
-    private static final long serialVersionUID = 6221616288015528977L;
+    private static final long serialVersionUID = 2981435217841741067L;
 
     private String userName;
     private String password;

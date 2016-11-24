@@ -16,7 +16,7 @@ import java.io.Serializable;
  */
 public class LocalizedText implements Serializable {
 
-    private static final long serialVersionUID = 5965393515602890585L;
+    private static final long serialVersionUID = -2167375749373460790L;
 
     private String locale;
     private String text;
