@@ -208,7 +208,7 @@ public class ParameterRow {
     }
     
     public boolean isPasswordType(){
-        return parameterDefinition.getParameterId().contains("_PWD") || parameterDefinition.getValueType().equals(ParameterValueType.PWD);
+        return getParameterDefinition().getParameterId().contains("_PWD") || getParameterDefinition().getValueType().equals(ParameterValueType.PWD);
     }
 
     public String getPasswordValueToStore() {
