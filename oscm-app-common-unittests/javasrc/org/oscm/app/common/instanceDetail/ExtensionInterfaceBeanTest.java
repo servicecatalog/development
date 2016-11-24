@@ -163,8 +163,8 @@ public class ExtensionInterfaceBeanTest extends EJBTestBase {
         // call second time
         List<? extends ServerInformation> sv2 = bean.getInstanceDetails();
         // then
-        Mockito.verify(instanceAccess).getServerDetails(instanceID,
-                subscriptionID, organizationID);
+        Mockito.verify(instanceAccess, Mockito.times(2))
+                .getServerDetails(instanceID, subscriptionID, organizationID);
         assertEquals(3, sv2.size());
         assertEquals("1", sv2.get(0).getId());
         assertEquals("instance1", sv2.get(0).getName());
@@ -276,8 +276,8 @@ public class ExtensionInterfaceBeanTest extends EJBTestBase {
         String result2 = bean.getAccessInfo();
 
         // then
-        Mockito.verify(instanceAccess).getAccessInfo(instanceID, subscriptionID,
-                organizationID);
+        Mockito.verify(instanceAccess, Mockito.times(2))
+                .getAccessInfo(instanceID, subscriptionID, organizationID);
         assertEquals("Access info from IaaS", result2);
     }
 
