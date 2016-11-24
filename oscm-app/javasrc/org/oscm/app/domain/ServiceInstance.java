@@ -667,11 +667,11 @@ public class ServiceInstance implements Serializable {
         Properties rollbackProps;
         String xmlProps = getRollbackParameters();
         String xmlAttrs = getRollbackInstanceAttributes();
-        if (isNotEmpty(xmlProps)) {
+        if (isEmpty(xmlProps)) {
             throw new BadResultException(Messages.get(getDefaultLocale(),
                     "error_missing_rollbackparameters", this.getInstanceId()));
         }
-        if (isNotEmpty(xmlAttrs)) {
+        if (isEmpty(xmlAttrs)) {
             throw new BadResultException(Messages.get(getDefaultLocale(),
                     "error_missing_rollbackattributes", this.getInstanceId()));
         }
@@ -687,8 +687,8 @@ public class ServiceInstance implements Serializable {
         rollbackInstanceAttributes(rollbackAttrs, em);
     }
 
-    private boolean isNotEmpty(String xmlProps) {
-        return xmlProps != null && !xmlProps.isEmpty();
+    private boolean isEmpty(String xmlProps) {
+        return xmlProps == null || xmlProps.isEmpty();
     }
 
     private String getStringProperty(Properties rollbackProps, String propertyName) {
@@ -728,7 +728,7 @@ public class ServiceInstance implements Serializable {
 
     private void rollbackSubscription(String subscriptionID, String rollbackSubscriptionRef)
             throws BadResultException {
-        if (isNotEmpty(subscriptionID)) {
+        if (!isEmpty(subscriptionID)) {
             setSubscriptionId(subscriptionID);
         } else {
             throw new BadResultException(Messages.get(getDefaultLocale(),
