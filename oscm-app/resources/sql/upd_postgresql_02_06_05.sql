@@ -1,0 +1,1 @@
+ALTER TABLE "serviceinstance" add "rollbackinstanceattributes" character varying(255);
