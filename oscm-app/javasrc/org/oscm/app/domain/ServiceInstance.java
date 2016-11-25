@@ -545,8 +545,7 @@ public class ServiceInstance implements Serializable {
         this.instanceAttributes = instanceAttributes;
     }
 
-    void removeParams(HashMap<String, Setting> parameters,
-                      EntityManager em) {
+    void removeParams(HashMap<String, Setting> parameters, EntityManager em) {
 
         List<InstanceParameter> paramsToRemove = new ArrayList<>();
         List<InstanceParameter> params = this.getInstanceParameters();
@@ -562,8 +561,7 @@ public class ServiceInstance implements Serializable {
         params.removeAll(paramsToRemove);
     }
 
-    void removeAttrs(HashMap<String, Setting> attrs,
-                      EntityManager em) {
+    void removeAttrs(HashMap<String, Setting> attrs, EntityManager em) {
 
         List<InstanceAttribute> attrsToRemove = new ArrayList<>();
 
@@ -654,7 +652,7 @@ public class ServiceInstance implements Serializable {
     public void prepareRollback() throws BadResultException {
         Properties actualProperties = new Properties();
         actualProperties.put(ROLLBACK_SUBSCRIPTIONID, this.getSubscriptionId());
-        actualProperties.put(ROLLBACK_SUBSCRIPTIONREF, this.getReferenceId());
+        actualProperties.put(ROLLBACK_SUBSCRIPTIONREF, "");
         actualProperties.putAll(this.getParameterMap());
         this.setRollbackParameters(this
                 .convertPropertiesToXML(actualProperties));
@@ -680,8 +678,10 @@ public class ServiceInstance implements Serializable {
         }
 
         rollbackProps = this.convertXMLToProperties(xmlProps);
-        String rollbackSID = getStringProperty(rollbackProps, ROLLBACK_SUBSCRIPTIONID);
-        String rollbackSubscriptionRef = getStringProperty(rollbackProps, ROLLBACK_SUBSCRIPTIONREF);
+        String rollbackSID = getStringProperty(rollbackProps,
+                ROLLBACK_SUBSCRIPTIONID);
+        String rollbackSubscriptionRef = getStringProperty(rollbackProps,
+                ROLLBACK_SUBSCRIPTIONREF);
 
         rollbackInstanceParameters(rollbackProps, em);
         rollbackSubscription(rollbackSID, rollbackSubscriptionRef);
@@ -694,19 +694,20 @@ public class ServiceInstance implements Serializable {
         return xmlProps == null || xmlProps.isEmpty();
     }
 
-    private String getStringProperty(Properties rollbackProps, String propertyName) {
-        String propertyValue = rollbackProps
-                .getProperty(propertyName);
+    private String getStringProperty(Properties rollbackProps,
+            String propertyName) {
+        String propertyValue = rollbackProps.getProperty(propertyName);
         rollbackProps.remove(propertyName);
         return propertyValue;
     }
 
-    private void rollbackInstanceAttributes(Properties backup, EntityManager em) throws BadResultException {
+    private void rollbackInstanceAttributes(Properties backup, EntityManager em)
+            throws BadResultException {
         HashMap<String, Setting> rollbackParams = new HashMap<>();
 
         for (String name : backup.stringPropertyNames()) {
-            rollbackParams.put(name, new Setting(name,
-                    backup.getProperty(name)));
+            rollbackParams.put(name,
+                    new Setting(name, backup.getProperty(name)));
         }
         this.removeAttrs(rollbackParams, em);
         this.setInstanceAttributes(rollbackParams);
@@ -729,8 +730,8 @@ public class ServiceInstance implements Serializable {
 
     }
 
-    private void rollbackSubscription(String subscriptionID, String rollbackSubscriptionRef)
-            throws BadResultException {
+    private void rollbackSubscription(String subscriptionID,
+            String rollbackSubscriptionRef) throws BadResultException {
         if (!isEmpty(subscriptionID)) {
             setSubscriptionId(subscriptionID);
         } else {
