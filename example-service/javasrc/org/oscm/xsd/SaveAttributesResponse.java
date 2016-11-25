@@ -1,6 +1,6 @@
 
 /**
- * UpdateUsersE.java
+ * SaveAttributesResponse.java
  *
  * This file was auto-generated from WSDL
  * by the Apache Axis2 version: 1.5.1  Built on : Oct 19, 2009 (10:59:34 EDT)
@@ -10,17 +10,16 @@
             
 
             /**
-            *  UpdateUsersE bean class
+            *  SaveAttributesResponse bean class
             */
         
-        public  class UpdateUsersE
+        public  class SaveAttributesResponse
         implements org.apache.axis2.databinding.ADBBean{
-        
-                public static final javax.xml.namespace.QName MY_QNAME = new javax.xml.namespace.QName(
-                "http://oscm.org/xsd",
-                "updateUsers",
-                "ns1");
-
+        /* This type was generated from the piece of schema that had
+                name = saveAttributesResponse
+                Namespace URI = http://oscm.org/xsd
+                Namespace Prefix = ns1
+                */
             
 
         private static java.lang.String generatePrefix(java.lang.String namespace) {
@@ -33,30 +32,44 @@
         
 
                         /**
-                        * field for UpdateUsers
+                        * field for _return
                         */
 
                         
-                                    protected org.oscm.xsd.UpdateUsers localUpdateUsers ;
+                                    protected org.oscm.xsd.BaseResult local_return ;
                                 
+                           /*  This tracker boolean wil be used to detect whether the user called the set method
+                          *   for this attribute. It will be used to determine whether to include this field
+                           *   in the serialized XML
+                           */
+                           protected boolean local_returnTracker = false ;
+                           
 
                            /**
                            * Auto generated getter method
-                           * @return org.oscm.xsd.UpdateUsers
+                           * @return org.oscm.xsd.BaseResult
                            */
-                           public  org.oscm.xsd.UpdateUsers getUpdateUsers(){
-                               return localUpdateUsers;
+                           public  org.oscm.xsd.BaseResult get_return(){
+                               return local_return;
                            }
 
                            
                         
                             /**
                                * Auto generated setter method
-                               * @param param UpdateUsers
+                               * @param param _return
                                */
-                               public void setUpdateUsers(org.oscm.xsd.UpdateUsers param){
+                               public void set_return(org.oscm.xsd.BaseResult param){
                             
-                                            this.localUpdateUsers=param;
+                                       if (param != null){
+                                          //update the setting tracker
+                                          local_returnTracker = true;
+                                       } else {
+                                          local_returnTracker = false;
+                                              
+                                       }
+                                   
+                                            this.local_return=param;
                                     
 
                                }
@@ -90,15 +103,15 @@
 
 
         
-                org.apache.axiom.om.OMDataSource dataSource =
-                       new org.apache.axis2.databinding.ADBDataSource(this,MY_QNAME){
+               org.apache.axiom.om.OMDataSource dataSource =
+                       new org.apache.axis2.databinding.ADBDataSource(this,parentQName){
 
                  public void serialize(org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
-                       UpdateUsersE.this.serialize(MY_QNAME,factory,xmlWriter);
+                       SaveAttributesResponse.this.serialize(parentQName,factory,xmlWriter);
                  }
                };
                return new org.apache.axiom.om.impl.llom.OMSourcedElementImpl(
-               MY_QNAME,factory,dataSource);
+               parentQName,factory,dataSource);
             
        }
 
@@ -116,13 +129,57 @@
             throws javax.xml.stream.XMLStreamException, org.apache.axis2.databinding.ADBException{
             
                 
-                //We can safely assume an element has only one type associated with it
+
+
+                java.lang.String prefix = null;
+                java.lang.String namespace = null;
                 
-                                 if (localUpdateUsers==null){
-                                   throw new org.apache.axis2.databinding.ADBException("Property cannot be null!");
-                                 }
-                                 localUpdateUsers.serialize(MY_QNAME,factory,xmlWriter);
-                            
+
+                    prefix = parentQName.getPrefix();
+                    namespace = parentQName.getNamespaceURI();
+
+                    if ((namespace != null) && (namespace.trim().length() > 0)) {
+                        java.lang.String writerPrefix = xmlWriter.getPrefix(namespace);
+                        if (writerPrefix != null) {
+                            xmlWriter.writeStartElement(namespace, parentQName.getLocalPart());
+                        } else {
+                            if (prefix == null) {
+                                prefix = generatePrefix(namespace);
+                            }
+
+                            xmlWriter.writeStartElement(prefix, parentQName.getLocalPart(), namespace);
+                            xmlWriter.writeNamespace(prefix, namespace);
+                            xmlWriter.setPrefix(prefix, namespace);
+                        }
+                    } else {
+                        xmlWriter.writeStartElement(parentQName.getLocalPart());
+                    }
+                
+                  if (serializeType){
+               
+
+                   java.lang.String namespacePrefix = registerPrefix(xmlWriter,"http://oscm.org/xsd");
+                   if ((namespacePrefix != null) && (namespacePrefix.trim().length() > 0)){
+                       writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","type",
+                           namespacePrefix+":saveAttributesResponse",
+                           xmlWriter);
+                   } else {
+                       writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","type",
+                           "saveAttributesResponse",
+                           xmlWriter);
+                   }
+
+               
+                   }
+                if (local_returnTracker){
+                                            if (local_return==null){
+                                                 throw new org.apache.axis2.databinding.ADBException("return cannot be null!!");
+                                            }
+                                           local_return.serialize(new javax.xml.namespace.QName("","return"),
+                                               factory,xmlWriter);
+                                        }
+                    xmlWriter.writeEndElement();
+               
 
         }
 
@@ -279,9 +336,23 @@
 
 
         
-                
-                //We can safely assume an element has only one type associated with it
-                return localUpdateUsers.getPullParser(MY_QNAME);
+                 java.util.ArrayList elementList = new java.util.ArrayList();
+                 java.util.ArrayList attribList = new java.util.ArrayList();
+
+                 if (local_returnTracker){
+                            elementList.add(new javax.xml.namespace.QName("",
+                                                                      "return"));
+                            
+                            
+                                    if (local_return==null){
+                                         throw new org.apache.axis2.databinding.ADBException("return cannot be null!!");
+                                    }
+                                    elementList.add(local_return);
+                                }
+
+                return new org.apache.axis2.databinding.utils.reader.ADBXMLStreamReaderImpl(qName, elementList.toArray(), attribList.toArray());
+            
+            
 
         }
 
@@ -302,9 +373,9 @@
         * Postcondition: If this object is an element, the reader is positioned at its end element
         *                If this object is a complex type, the reader is positioned at the end element of its outer element
         */
-        public static UpdateUsersE parse(javax.xml.stream.XMLStreamReader reader) throws java.lang.Exception{
-            UpdateUsersE object =
-                new UpdateUsersE();
+        public static SaveAttributesResponse parse(javax.xml.stream.XMLStreamReader reader) throws java.lang.Exception{
+            SaveAttributesResponse object =
+                new SaveAttributesResponse();
 
             int event;
             java.lang.String nillableValue = null;
@@ -316,6 +387,32 @@
                     reader.next();
 
                 
+                if (reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","type")!=null){
+                  java.lang.String fullTypeName = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance",
+                        "type");
+                  if (fullTypeName!=null){
+                    java.lang.String nsPrefix = null;
+                    if (fullTypeName.indexOf(":") > -1){
+                        nsPrefix = fullTypeName.substring(0,fullTypeName.indexOf(":"));
+                    }
+                    nsPrefix = nsPrefix==null?"":nsPrefix;
+
+                    java.lang.String type = fullTypeName.substring(fullTypeName.indexOf(":")+1);
+                    
+                            if (!"saveAttributesResponse".equals(type)){
+                                //find namespace for the prefix
+                                java.lang.String nsUri = reader.getNamespaceContext().getNamespaceURI(nsPrefix);
+                                return (SaveAttributesResponse)org.oscm.xsd.ExtensionMapper.getTypeObject(
+                                     nsUri,type,reader);
+                              }
+                        
+
+                  }
+                
+
+                }
+
+                
 
                 
                 // Note all attributes that were handled. Used to differ normal attributes
@@ -323,26 +420,32 @@
                 java.util.Vector handledAttributes = new java.util.Vector();
                 
 
+                 
                     
-                while(!reader.isEndElement()) {
-                    if (reader.isStartElement() ){
+                    reader.next();
                 
-                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://oscm.org/xsd","updateUsers").equals(reader.getName())){
+                                    
+                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
                                 
-                                                object.setUpdateUsers(org.oscm.xsd.UpdateUsers.Factory.parse(reader));
-                                            
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("","return").equals(reader.getName())){
+                                
+                                                object.set_return(org.oscm.xsd.BaseResult.Factory.parse(reader));
+                                              
+                                        reader.next();
+                                    
                               }  // End of if for expected property start element
                                 
-                             else{
-                                        // A start element we are not expecting indicates an invalid parameter was passed
-                                        throw new org.apache.axis2.databinding.ADBException("Unexpected subelement " + reader.getLocalName());
-                             }
-                          
-                             } else {
+                                    else {
+                                        
+                                    }
+                                  
+                            while (!reader.isStartElement() && !reader.isEndElement())
                                 reader.next();
-                             }  
-                           }  // end of while loop
-                        
+                            
+                                if (reader.isStartElement())
+                                // A start element we are not expecting indicates a trailing invalid property
+                                throw new org.apache.axis2.databinding.ADBException("Unexpected subelement " + reader.getLocalName());
+                            
 
 
 

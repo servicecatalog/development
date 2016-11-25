@@ -1,3 +1,4 @@
+
 /**
  * OperationNotPermittedExceptionException.java
  *
@@ -6,35 +7,35 @@
  */
 
 package org.oscm.example.client;
-@SuppressWarnings({ "serial" })
-public class OperationNotPermittedExceptionException extends
-        java.lang.Exception {
 
+public class OperationNotPermittedExceptionException extends java.lang.Exception{
+    
     private org.oscm.example.client.SessionServiceStub.OperationNotPermittedException faultMessage;
 
-    public OperationNotPermittedExceptionException() {
-        super("OperationNotPermittedExceptionException");
-    }
+    
+        public OperationNotPermittedExceptionException() {
+            super("OperationNotPermittedExceptionException");
+        }
 
-    public OperationNotPermittedExceptionException(java.lang.String s) {
-        super(s);
-    }
+        public OperationNotPermittedExceptionException(java.lang.String s) {
+           super(s);
+        }
 
-    public OperationNotPermittedExceptionException(java.lang.String s,
-            java.lang.Throwable ex) {
-        super(s, ex);
-    }
+        public OperationNotPermittedExceptionException(java.lang.String s, java.lang.Throwable ex) {
+          super(s, ex);
+        }
 
-    public OperationNotPermittedExceptionException(java.lang.Throwable cause) {
-        super(cause);
-    }
+        public OperationNotPermittedExceptionException(java.lang.Throwable cause) {
+            super(cause);
+        }
+    
 
-    public void setFaultMessage(
-            org.oscm.example.client.SessionServiceStub.OperationNotPermittedException msg) {
-        faultMessage = msg;
+    public void setFaultMessage(org.oscm.example.client.SessionServiceStub.OperationNotPermittedException msg){
+       faultMessage = msg;
     }
-
-    public org.oscm.example.client.SessionServiceStub.OperationNotPermittedException getFaultMessage() {
-        return faultMessage;
+    
+    public org.oscm.example.client.SessionServiceStub.OperationNotPermittedException getFaultMessage(){
+       return faultMessage;
     }
 }
+    
