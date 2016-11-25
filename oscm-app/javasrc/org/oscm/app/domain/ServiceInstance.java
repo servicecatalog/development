@@ -652,7 +652,12 @@ public class ServiceInstance implements Serializable {
     public void prepareRollback() throws BadResultException {
         Properties actualProperties = new Properties();
         actualProperties.put(ROLLBACK_SUBSCRIPTIONID, this.getSubscriptionId());
-        actualProperties.put(ROLLBACK_SUBSCRIPTIONREF, "");
+        if (this.getReferenceId() != null) {
+            actualProperties.put(ROLLBACK_SUBSCRIPTIONREF,
+                    this.getReferenceId());
+        } else {
+            actualProperties.put(ROLLBACK_SUBSCRIPTIONREF, "");
+        }
         actualProperties.putAll(this.getParameterMap());
         this.setRollbackParameters(this
                 .convertPropertiesToXML(actualProperties));
