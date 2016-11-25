@@ -329,6 +329,7 @@ public abstract class BaseBesFilter implements Filter {
                 defaultUrl = MenuBean.LINK_TECHSERVICE_IMPORT;
             } else if (!roles.contains(UserRoleType.MARKETPLACE_OWNER)
                     && !roles.contains(UserRoleType.BROKER_MANAGER)
+                    && !roles.contains(UserRoleType.ORGANIZATION_ADMIN)
                     && !roles.contains(UserRoleType.RESELLER_MANAGER)
                     || (userDetails.getOrganizationRoles().size() == 1 && userDetails
                             .getOrganizationRoles().contains(
