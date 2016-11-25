@@ -1,6 +1,6 @@
 
 /**
- * UpdateUsersE.java
+ * SaveAttributesResponseE.java
  *
  * This file was auto-generated from WSDL
  * by the Apache Axis2 version: 1.5.1  Built on : Oct 19, 2009 (10:59:34 EDT)
@@ -10,15 +10,15 @@
             
 
             /**
-            *  UpdateUsersE bean class
+            *  SaveAttributesResponseE bean class
             */
         
-        public  class UpdateUsersE
+        public  class SaveAttributesResponseE
         implements org.apache.axis2.databinding.ADBBean{
         
                 public static final javax.xml.namespace.QName MY_QNAME = new javax.xml.namespace.QName(
                 "http://oscm.org/xsd",
-                "updateUsers",
+                "saveAttributesResponse",
                 "ns1");
 
             
@@ -33,30 +33,30 @@
         
 
                         /**
-                        * field for UpdateUsers
+                        * field for SaveAttributesResponse
                         */
 
                         
-                                    protected org.oscm.xsd.UpdateUsers localUpdateUsers ;
+                                    protected org.oscm.xsd.SaveAttributesResponse localSaveAttributesResponse ;
                                 
 
                            /**
                            * Auto generated getter method
-                           * @return org.oscm.xsd.UpdateUsers
+                           * @return org.oscm.xsd.SaveAttributesResponse
                            */
-                           public  org.oscm.xsd.UpdateUsers getUpdateUsers(){
-                               return localUpdateUsers;
+                           public  org.oscm.xsd.SaveAttributesResponse getSaveAttributesResponse(){
+                               return localSaveAttributesResponse;
                            }
 
                            
                         
                             /**
                                * Auto generated setter method
-                               * @param param UpdateUsers
+                               * @param param SaveAttributesResponse
                                */
-                               public void setUpdateUsers(org.oscm.xsd.UpdateUsers param){
+                               public void setSaveAttributesResponse(org.oscm.xsd.SaveAttributesResponse param){
                             
-                                            this.localUpdateUsers=param;
+                                            this.localSaveAttributesResponse=param;
                                     
 
                                }
@@ -94,7 +94,7 @@
                        new org.apache.axis2.databinding.ADBDataSource(this,MY_QNAME){
 
                  public void serialize(org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
-                       UpdateUsersE.this.serialize(MY_QNAME,factory,xmlWriter);
+                       SaveAttributesResponseE.this.serialize(MY_QNAME,factory,xmlWriter);
                  }
                };
                return new org.apache.axiom.om.impl.llom.OMSourcedElementImpl(
@@ -118,10 +118,10 @@
                 
                 //We can safely assume an element has only one type associated with it
                 
-                                 if (localUpdateUsers==null){
+                                 if (localSaveAttributesResponse==null){
                                    throw new org.apache.axis2.databinding.ADBException("Property cannot be null!");
                                  }
-                                 localUpdateUsers.serialize(MY_QNAME,factory,xmlWriter);
+                                 localSaveAttributesResponse.serialize(MY_QNAME,factory,xmlWriter);
                             
 
         }
@@ -281,7 +281,7 @@
         
                 
                 //We can safely assume an element has only one type associated with it
-                return localUpdateUsers.getPullParser(MY_QNAME);
+                return localSaveAttributesResponse.getPullParser(MY_QNAME);
 
         }
 
@@ -302,9 +302,9 @@
         * Postcondition: If this object is an element, the reader is positioned at its end element
         *                If this object is a complex type, the reader is positioned at the end element of its outer element
         */
-        public static UpdateUsersE parse(javax.xml.stream.XMLStreamReader reader) throws java.lang.Exception{
-            UpdateUsersE object =
-                new UpdateUsersE();
+        public static SaveAttributesResponseE parse(javax.xml.stream.XMLStreamReader reader) throws java.lang.Exception{
+            SaveAttributesResponseE object =
+                new SaveAttributesResponseE();
 
             int event;
             java.lang.String nillableValue = null;
@@ -327,9 +327,9 @@
                 while(!reader.isEndElement()) {
                     if (reader.isStartElement() ){
                 
-                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://oscm.org/xsd","updateUsers").equals(reader.getName())){
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://oscm.org/xsd","saveAttributesResponse").equals(reader.getName())){
                                 
-                                                object.setUpdateUsers(org.oscm.xsd.UpdateUsers.Factory.parse(reader));
+                                                object.setSaveAttributesResponse(org.oscm.xsd.SaveAttributesResponse.Factory.parse(reader));
                                             
                               }  // End of if for expected property start element
                                 

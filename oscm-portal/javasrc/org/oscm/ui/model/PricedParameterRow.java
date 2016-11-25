@@ -269,7 +269,9 @@ public class PricedParameterRow extends ParameterRow implements Serializable {
         if (!this.isPasswordType()) {
             return;
         }
-        if (StringUtils.equals(HIDDEN_PWD, this.getPasswordValueToStore())) {
+        if (this.getPasswordValueToStore() == null
+                || !StringUtils.equals(HIDDEN_PWD,
+                        this.getPasswordValueToStore())) {
             this.getParameter().setValue(this.getPasswordValueToStore());
         }
     }

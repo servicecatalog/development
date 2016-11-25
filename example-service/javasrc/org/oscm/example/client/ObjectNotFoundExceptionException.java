@@ -1,3 +1,4 @@
+
 /**
  * ObjectNotFoundExceptionException.java
  *
@@ -6,34 +7,35 @@
  */
 
 package org.oscm.example.client;
-@SuppressWarnings({ "serial" })
-public class ObjectNotFoundExceptionException extends java.lang.Exception {
 
+public class ObjectNotFoundExceptionException extends java.lang.Exception{
+    
     private org.oscm.example.client.SessionServiceStub.ObjectNotFoundException faultMessage;
 
-    public ObjectNotFoundExceptionException() {
-        super("ObjectNotFoundExceptionException");
-    }
+    
+        public ObjectNotFoundExceptionException() {
+            super("ObjectNotFoundExceptionException");
+        }
 
-    public ObjectNotFoundExceptionException(java.lang.String s) {
-        super(s);
-    }
+        public ObjectNotFoundExceptionException(java.lang.String s) {
+           super(s);
+        }
 
-    public ObjectNotFoundExceptionException(java.lang.String s,
-            java.lang.Throwable ex) {
-        super(s, ex);
-    }
+        public ObjectNotFoundExceptionException(java.lang.String s, java.lang.Throwable ex) {
+          super(s, ex);
+        }
 
-    public ObjectNotFoundExceptionException(java.lang.Throwable cause) {
-        super(cause);
-    }
+        public ObjectNotFoundExceptionException(java.lang.Throwable cause) {
+            super(cause);
+        }
+    
 
-    public void setFaultMessage(
-            org.oscm.example.client.SessionServiceStub.ObjectNotFoundException msg) {
-        faultMessage = msg;
+    public void setFaultMessage(org.oscm.example.client.SessionServiceStub.ObjectNotFoundException msg){
+       faultMessage = msg;
     }
-
-    public org.oscm.example.client.SessionServiceStub.ObjectNotFoundException getFaultMessage() {
-        return faultMessage;
+    
+    public org.oscm.example.client.SessionServiceStub.ObjectNotFoundException getFaultMessage(){
+       return faultMessage;
     }
 }
+    

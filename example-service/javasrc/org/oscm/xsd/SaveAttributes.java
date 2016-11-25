@@ -1,6 +1,6 @@
 
 /**
- * SendPing.java
+ * SaveAttributes.java
  *
  * This file was auto-generated from WSDL
  * by the Apache Axis2 version: 1.5.1  Built on : Oct 19, 2009 (10:59:34 EDT)
@@ -10,13 +10,13 @@
             
 
             /**
-            *  SendPing bean class
+            *  SaveAttributes bean class
             */
         
-        public  class SendPing
+        public  class SaveAttributes
         implements org.apache.axis2.databinding.ADBBean{
         /* This type was generated from the piece of schema that had
-                name = sendPing
+                name = saveAttributes
                 Namespace URI = http://oscm.org/xsd
                 Namespace Prefix = ns1
                 */
@@ -32,44 +32,170 @@
         
 
                         /**
-                        * field for Arg
+                        * field for OrganizationId
                         */
 
                         
-                                    protected java.lang.String localArg ;
+                                    protected java.lang.String localOrganizationId ;
                                 
                            /*  This tracker boolean wil be used to detect whether the user called the set method
                           *   for this attribute. It will be used to determine whether to include this field
                            *   in the serialized XML
                            */
-                           protected boolean localArgTracker = false ;
+                           protected boolean localOrganizationIdTracker = false ;
                            
 
                            /**
                            * Auto generated getter method
                            * @return java.lang.String
                            */
-                           public  java.lang.String getArg(){
-                               return localArg;
+                           public  java.lang.String getOrganizationId(){
+                               return localOrganizationId;
                            }
 
                            
                         
                             /**
                                * Auto generated setter method
-                               * @param param Arg
+                               * @param param OrganizationId
                                */
-                               public void setArg(java.lang.String param){
+                               public void setOrganizationId(java.lang.String param){
                             
                                        if (param != null){
                                           //update the setting tracker
-                                          localArgTracker = true;
+                                          localOrganizationIdTracker = true;
                                        } else {
-                                          localArgTracker = false;
+                                          localOrganizationIdTracker = false;
                                               
                                        }
                                    
-                                            this.localArg=param;
+                                            this.localOrganizationId=param;
+                                    
+
+                               }
+                            
+
+                        /**
+                        * field for AttributeValues
+                        * This was an Array!
+                        */
+
+                        
+                                    protected org.oscm.xsd.ServiceAttribute[] localAttributeValues ;
+                                
+                           /*  This tracker boolean wil be used to detect whether the user called the set method
+                          *   for this attribute. It will be used to determine whether to include this field
+                           *   in the serialized XML
+                           */
+                           protected boolean localAttributeValuesTracker = false ;
+                           
+
+                           /**
+                           * Auto generated getter method
+                           * @return org.oscm.xsd.ServiceAttribute[]
+                           */
+                           public  org.oscm.xsd.ServiceAttribute[] getAttributeValues(){
+                               return localAttributeValues;
+                           }
+
+                           
+                        
+
+
+                               
+                              /**
+                               * validate the array for AttributeValues
+                               */
+                              protected void validateAttributeValues(org.oscm.xsd.ServiceAttribute[] param){
+                             
+                              }
+
+
+                             /**
+                              * Auto generated setter method
+                              * @param param AttributeValues
+                              */
+                              public void setAttributeValues(org.oscm.xsd.ServiceAttribute[] param){
+                              
+                                   validateAttributeValues(param);
+
+                               
+                                          if (param != null){
+                                             //update the setting tracker
+                                             localAttributeValuesTracker = true;
+                                          } else {
+                                             localAttributeValuesTracker = false;
+                                                 
+                                          }
+                                      
+                                      this.localAttributeValues=param;
+                              }
+
+                               
+                             
+                             /**
+                             * Auto generated add method for the array for convenience
+                             * @param param org.oscm.xsd.ServiceAttribute
+                             */
+                             public void addAttributeValues(org.oscm.xsd.ServiceAttribute param){
+                                   if (localAttributeValues == null){
+                                   localAttributeValues = new org.oscm.xsd.ServiceAttribute[]{};
+                                   }
+
+                            
+                                 //update the setting tracker
+                                localAttributeValuesTracker = true;
+                            
+
+                               java.util.List list =
+                            org.apache.axis2.databinding.utils.ConverterUtil.toList(localAttributeValues);
+                               list.add(param);
+                               this.localAttributeValues =
+                             (org.oscm.xsd.ServiceAttribute[])list.toArray(
+                            new org.oscm.xsd.ServiceAttribute[list.size()]);
+
+                             }
+                             
+
+                        /**
+                        * field for RequestingUser
+                        */
+
+                        
+                                    protected org.oscm.xsd.User localRequestingUser ;
+                                
+                           /*  This tracker boolean wil be used to detect whether the user called the set method
+                          *   for this attribute. It will be used to determine whether to include this field
+                           *   in the serialized XML
+                           */
+                           protected boolean localRequestingUserTracker = false ;
+                           
+
+                           /**
+                           * Auto generated getter method
+                           * @return org.oscm.xsd.User
+                           */
+                           public  org.oscm.xsd.User getRequestingUser(){
+                               return localRequestingUser;
+                           }
+
+                           
+                        
+                            /**
+                               * Auto generated setter method
+                               * @param param RequestingUser
+                               */
+                               public void setRequestingUser(org.oscm.xsd.User param){
+                            
+                                       if (param != null){
+                                          //update the setting tracker
+                                          localRequestingUserTracker = true;
+                                       } else {
+                                          localRequestingUserTracker = false;
+                                              
+                                       }
+                                   
+                                            this.localRequestingUser=param;
                                     
 
                                }
@@ -107,7 +233,7 @@
                        new org.apache.axis2.databinding.ADBDataSource(this,parentQName){
 
                  public void serialize(org.apache.axis2.databinding.utils.writer.MTOMAwareXMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
-                       SendPing.this.serialize(parentQName,factory,xmlWriter);
+                       SaveAttributes.this.serialize(parentQName,factory,xmlWriter);
                  }
                };
                return new org.apache.axiom.om.impl.llom.OMSourcedElementImpl(
@@ -161,17 +287,17 @@
                    java.lang.String namespacePrefix = registerPrefix(xmlWriter,"http://oscm.org/xsd");
                    if ((namespacePrefix != null) && (namespacePrefix.trim().length() > 0)){
                        writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","type",
-                           namespacePrefix+":sendPing",
+                           namespacePrefix+":saveAttributes",
                            xmlWriter);
                    } else {
                        writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","type",
-                           "sendPing",
+                           "saveAttributes",
                            xmlWriter);
                    }
 
                
                    }
-                if (localArgTracker){
+                if (localOrganizationIdTracker){
                                     namespace = "";
                                     if (! namespace.equals("")) {
                                         prefix = xmlWriter.getPrefix(namespace);
@@ -179,33 +305,57 @@
                                         if (prefix == null) {
                                             prefix = generatePrefix(namespace);
 
-                                            xmlWriter.writeStartElement(prefix,"arg", namespace);
+                                            xmlWriter.writeStartElement(prefix,"organizationId", namespace);
                                             xmlWriter.writeNamespace(prefix, namespace);
                                             xmlWriter.setPrefix(prefix, namespace);
 
                                         } else {
-                                            xmlWriter.writeStartElement(namespace,"arg");
+                                            xmlWriter.writeStartElement(namespace,"organizationId");
                                         }
 
                                     } else {
-                                        xmlWriter.writeStartElement("arg");
+                                        xmlWriter.writeStartElement("organizationId");
                                     }
                                 
 
-                                          if (localArg==null){
+                                          if (localOrganizationId==null){
                                               // write the nil attribute
                                               
-                                                     throw new org.apache.axis2.databinding.ADBException("arg cannot be null!!");
+                                                     throw new org.apache.axis2.databinding.ADBException("organizationId cannot be null!!");
                                                   
                                           }else{
 
                                         
-                                                   xmlWriter.writeCharacters(localArg);
+                                                   xmlWriter.writeCharacters(localOrganizationId);
                                             
                                           }
                                     
                                    xmlWriter.writeEndElement();
-                             }
+                             } if (localAttributeValuesTracker){
+                                       if (localAttributeValues!=null){
+                                            for (int i = 0;i < localAttributeValues.length;i++){
+                                                if (localAttributeValues[i] != null){
+                                                 localAttributeValues[i].serialize(new javax.xml.namespace.QName("","attributeValues"),
+                                                           factory,xmlWriter);
+                                                } else {
+                                                   
+                                                        // we don't have to do any thing since minOccures is zero
+                                                    
+                                                }
+
+                                            }
+                                     } else {
+                                        
+                                               throw new org.apache.axis2.databinding.ADBException("attributeValues cannot be null!!");
+                                        
+                                    }
+                                 } if (localRequestingUserTracker){
+                                            if (localRequestingUser==null){
+                                                 throw new org.apache.axis2.databinding.ADBException("requestingUser cannot be null!!");
+                                            }
+                                           localRequestingUser.serialize(new javax.xml.namespace.QName("","requestingUser"),
+                                               factory,xmlWriter);
+                                        }
                     xmlWriter.writeEndElement();
                
 
@@ -367,16 +517,46 @@
                  java.util.ArrayList elementList = new java.util.ArrayList();
                  java.util.ArrayList attribList = new java.util.ArrayList();
 
-                 if (localArgTracker){
+                 if (localOrganizationIdTracker){
                                       elementList.add(new javax.xml.namespace.QName("",
-                                                                      "arg"));
+                                                                      "organizationId"));
                                  
-                                        if (localArg != null){
-                                            elementList.add(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localArg));
+                                        if (localOrganizationId != null){
+                                            elementList.add(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localOrganizationId));
                                         } else {
-                                           throw new org.apache.axis2.databinding.ADBException("arg cannot be null!!");
+                                           throw new org.apache.axis2.databinding.ADBException("organizationId cannot be null!!");
                                         }
+                                    } if (localAttributeValuesTracker){
+                             if (localAttributeValues!=null) {
+                                 for (int i = 0;i < localAttributeValues.length;i++){
+
+                                    if (localAttributeValues[i] != null){
+                                         elementList.add(new javax.xml.namespace.QName("",
+                                                                          "attributeValues"));
+                                         elementList.add(localAttributeValues[i]);
+                                    } else {
+                                        
+                                                // nothing to do
+                                            
                                     }
+
+                                 }
+                             } else {
+                                 
+                                        throw new org.apache.axis2.databinding.ADBException("attributeValues cannot be null!!");
+                                    
+                             }
+
+                        } if (localRequestingUserTracker){
+                            elementList.add(new javax.xml.namespace.QName("",
+                                                                      "requestingUser"));
+                            
+                            
+                                    if (localRequestingUser==null){
+                                         throw new org.apache.axis2.databinding.ADBException("requestingUser cannot be null!!");
+                                    }
+                                    elementList.add(localRequestingUser);
+                                }
 
                 return new org.apache.axis2.databinding.utils.reader.ADBXMLStreamReaderImpl(qName, elementList.toArray(), attribList.toArray());
             
@@ -401,9 +581,9 @@
         * Postcondition: If this object is an element, the reader is positioned at its end element
         *                If this object is a complex type, the reader is positioned at the end element of its outer element
         */
-        public static SendPing parse(javax.xml.stream.XMLStreamReader reader) throws java.lang.Exception{
-            SendPing object =
-                new SendPing();
+        public static SaveAttributes parse(javax.xml.stream.XMLStreamReader reader) throws java.lang.Exception{
+            SaveAttributes object =
+                new SaveAttributes();
 
             int event;
             java.lang.String nillableValue = null;
@@ -427,10 +607,10 @@
 
                     java.lang.String type = fullTypeName.substring(fullTypeName.indexOf(":")+1);
                     
-                            if (!"sendPing".equals(type)){
+                            if (!"saveAttributes".equals(type)){
                                 //find namespace for the prefix
                                 java.lang.String nsUri = reader.getNamespaceContext().getNamespaceURI(nsPrefix);
-                                return (SendPing)org.oscm.xsd.ExtensionMapper.getTypeObject(
+                                return (SaveAttributes)org.oscm.xsd.ExtensionMapper.getTypeObject(
                                      nsUri,type,reader);
                               }
                         
@@ -452,15 +632,78 @@
                     
                     reader.next();
                 
+                        java.util.ArrayList list2 = new java.util.ArrayList();
+                    
                                     
                                     while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
                                 
-                                    if (reader.isStartElement() && new javax.xml.namespace.QName("","arg").equals(reader.getName())){
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("","organizationId").equals(reader.getName())){
                                 
                                     java.lang.String content = reader.getElementText();
                                     
-                                              object.setArg(
+                                              object.setOrganizationId(
                                                     org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                                              
+                                        reader.next();
+                                    
+                              }  // End of if for expected property start element
+                                
+                                    else {
+                                        
+                                    }
+                                
+                                    
+                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
+                                
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("","attributeValues").equals(reader.getName())){
+                                
+                                    
+                                    
+                                    // Process the array and step past its final element's end.
+                                    list2.add(org.oscm.xsd.ServiceAttribute.Factory.parse(reader));
+                                                                
+                                                        //loop until we find a start element that is not part of this array
+                                                        boolean loopDone2 = false;
+                                                        while(!loopDone2){
+                                                            // We should be at the end element, but make sure
+                                                            while (!reader.isEndElement())
+                                                                reader.next();
+                                                            // Step out of this element
+                                                            reader.next();
+                                                            // Step to next element event.
+                                                            while (!reader.isStartElement() && !reader.isEndElement())
+                                                                reader.next();
+                                                            if (reader.isEndElement()){
+                                                                //two continuous end elements means we are exiting the xml structure
+                                                                loopDone2 = true;
+                                                            } else {
+                                                                if (new javax.xml.namespace.QName("","attributeValues").equals(reader.getName())){
+                                                                    list2.add(org.oscm.xsd.ServiceAttribute.Factory.parse(reader));
+                                                                        
+                                                                }else{
+                                                                    loopDone2 = true;
+                                                                }
+                                                            }
+                                                        }
+                                                        // call the converter utility  to convert and set the array
+                                                        
+                                                        object.setAttributeValues((org.oscm.xsd.ServiceAttribute[])
+                                                            org.apache.axis2.databinding.utils.ConverterUtil.convertToArray(
+                                                                org.oscm.xsd.ServiceAttribute.class,
+                                                                list2));
+                                                            
+                              }  // End of if for expected property start element
+                                
+                                    else {
+                                        
+                                    }
+                                
+                                    
+                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
+                                
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("","requestingUser").equals(reader.getName())){
+                                
+                                                object.setRequestingUser(org.oscm.xsd.User.Factory.parse(reader));
                                               
                                         reader.next();
                                     
