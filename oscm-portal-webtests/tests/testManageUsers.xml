@@ -154,7 +154,7 @@
 
       <!--not exceed the maxRegisteredUserNumber,show black color-->
       <clickLink href="/operator/manageConfiguration.jsf" />
-      <setInputField htmlId="configurationSettings:settingTable:20:configurationValue" value="#{numberOfUsers}" />
+      <setInputField htmlId="configurationSettings:settingTable:21:configurationValue" value="#{numberOfUsers}" />
       <clickButton htmlid="configurationSettings:saveButton" />
       <clickLink href="/operator/manageUsers.jsf" />
       <verifyXPath xpath="//*[@id='numberOfUsersForm:registeredUsersCountBlack']" />
@@ -166,7 +166,7 @@
 
       <!--clean set-->
       <clickLink href="/operator/manageConfiguration.jsf" />
-      <setInputField htmlId="configurationSettings:settingTable:19:configurationValue" value="10" />
+      <setInputField htmlId="configurationSettings:settingTable:21:configurationValue" value="10" />
       <clickButton htmlid="configurationSettings:saveButton" />
 
       <login.logout />

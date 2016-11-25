@@ -62,6 +62,12 @@
     <part name="parameters" element="tns:upgradeSubscriptionResponse">
     </part>
   </message>
+  <message name="saveAttributes">
+    <part element="tns:saveAttributes" name="parameters"/>
+  </message>
+  <message name="saveAttributesResponse">
+    <part element="tns:saveAttributesResponse" name="parameters"/>
+  </message>
   <message name="updateUsers">
     <part name="parameters" element="tns:updateUsers">
     </part>
@@ -188,6 +194,10 @@
     </input>
       <output message="tns:upgradeSubscriptionResponse" wsam:Action="http://oscm.org/xsd/ProvisioningService/upgradeSubscriptionResponse">
     </output>
+    </operation>
+    <operation name="saveAttributes">
+      <input message="tns:saveAttributes" wsam:Action="urn:saveAttributes"/>
+      <output message="tns:saveAttributesResponse" wsam:Action="http://oscm.org/xsd/ProvisioningService/saveAttributesResponse"/>
     </operation>
   </portType>
   <binding name="ProvisioningServicePortBinding" type="tns:ProvisioningService">

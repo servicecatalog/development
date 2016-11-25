@@ -43,6 +43,8 @@ import org.oscm.app.v2_0.service.ServiceInstanceServiceBean;
 public class ManageServiceInstanceCtrl extends BaseCtrl {
 
     private static final String ENCRYPTED_PWD = "*********";
+    private static final String PWD_SUFFIX = "_PWD";
+    private static final String PASS_SUFFIX = "_PWD";
     protected ServiceInstanceServiceBean serviceInstanceService;
     protected APPTimerServiceBean timerService;
 
@@ -76,8 +78,8 @@ public class ManageServiceInstanceCtrl extends BaseCtrl {
                 return OUTCOME_ERROR;
             }
             ServiceInstance serviceInstance = selectedRow.getServiceInstance();
-            InstanceOperation operation = InstanceOperation.valueOf(selectedRow
-                    .getSelectedOperation());
+            InstanceOperation operation = InstanceOperation
+                    .valueOf(selectedRow.getSelectedOperation());
             if (isOperationAllowed(serviceInstance, operation)) {
                 ServiceUser serviceUser = readUserFromSession();
                 getServiceInstanceService().executeOperation(serviceInstance,
@@ -100,9 +102,10 @@ public class ManageServiceInstanceCtrl extends BaseCtrl {
     private boolean isOperationAllowed(ServiceInstance serviceInstance,
             InstanceOperation operation) throws ServiceInstanceException {
         String locale = readUserLocaleFromSession();
-        ServiceInstance currentInstance = getServiceInstanceService().find(
-                serviceInstance, locale);
-        boolean isOperationAllowed = filterOperation(operation, currentInstance);
+        ServiceInstance currentInstance = getServiceInstanceService()
+                .find(serviceInstance, locale);
+        boolean isOperationAllowed = filterOperation(operation,
+                currentInstance);
         if (!isOperationAllowed) {
             return false;
         }
@@ -121,8 +124,8 @@ public class ManageServiceInstanceCtrl extends BaseCtrl {
                 .getParameter(SessionConstants.SESSION_CTRL_ID);
 
         if (isEmpty(controllerId)) {
-            controllerId = (String) request.getSession().getAttribute(
-                    SessionConstants.SESSION_CTRL_ID);
+            controllerId = (String) request.getSession()
+                    .getAttribute(SessionConstants.SESSION_CTRL_ID);
         }
 
         if (isEmpty(controllerId)) {
@@ -138,7 +141,8 @@ public class ManageServiceInstanceCtrl extends BaseCtrl {
             if (selectedServiceInstanceRow != null) {
                 String locale = readUserLocaleFromSession();
                 List<InstanceParameter> instanceParameters = initInstanceParameters(
-                        selectedServiceInstanceRow.getServiceInstance(), locale);
+                        selectedServiceInstanceRow.getServiceInstance(),
+                        locale);
                 selectedServiceInstanceRow
                         .setInstanceParameters(instanceParameters);
             }
@@ -170,12 +174,13 @@ public class ManageServiceInstanceCtrl extends BaseCtrl {
             throws ServiceInstanceException {
         List<ServiceInstance> serviceInstances = getServiceInstanceService()
                 .getInstancesForController(getControllerId());
-        List<ServiceInstanceRow> result = new ArrayList<ServiceInstanceRow>();
+        List<ServiceInstanceRow> result = new ArrayList<>();
         if (serviceInstances == null) {
             return result;
         }
         for (ServiceInstance serviceInstance : serviceInstances) {
-            List<SelectItem> selectableOperations = initSelectableOperaions(serviceInstance);
+            List<SelectItem> selectableOperations = initSelectableOperaions(
+                    serviceInstance);
             ServiceInstanceRow row = new ServiceInstanceRow(serviceInstance,
                     selectableOperations);
             result.add(row);
@@ -186,7 +191,7 @@ public class ManageServiceInstanceCtrl extends BaseCtrl {
 
     private List<SelectItem> initSelectableOperaions(
             ServiceInstance serviceInstance) {
-        List<SelectItem> selectableOperations = new ArrayList<SelectItem>();
+        List<SelectItem> selectableOperations = new ArrayList<>();
         for (InstanceOperation operation : getServiceInstanceService()
                 .listOperationsForInstance(serviceInstance)) {
             if (filterOperation(operation, serviceInstance)) {
@@ -248,8 +253,8 @@ public class ManageServiceInstanceCtrl extends BaseCtrl {
             @Override
             public int compare(InstanceParameter param1,
                     InstanceParameter param2) {
-                return param1.getParameterKey().compareTo(
-                        param2.getParameterKey());
+                return param1.getParameterKey()
+                        .compareTo(param2.getParameterKey());
             }
         });
         return filterEncryptedParameterValues(parameters);
@@ -261,7 +266,9 @@ public class ManageServiceInstanceCtrl extends BaseCtrl {
         Iterator<InstanceParameter> iterator = filtedParameters.iterator();
         while (iterator.hasNext()) {
             InstanceParameter param = iterator.next();
-            if (param.isEncrypted()) {
+            if (param.isEncrypted()
+                    || param.getParameterKey().endsWith(PWD_SUFFIX)
+                    || param.getParameterKey().endsWith(PASS_SUFFIX)) {
                 param.setParameterValue(ENCRYPTED_PWD);
             }
         }
