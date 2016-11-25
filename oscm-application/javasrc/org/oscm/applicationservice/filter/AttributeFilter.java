@@ -46,7 +46,8 @@ public class AttributeFilter {
                 boolean exists = false;
 
                 for (Uda uda : def.getUdas()) {
-                    if (uda.getTargetObjectKey() == org.getKey()) {
+                    if (uda.getTargetObjectKey() == subscription
+                            .getOrganizationKey()) {
                         ServiceAttribute attr = new ServiceAttribute();
                         attr.setAttributeId(def.getUdaId());
                         attr.setValue(uda.getUdaValue());
