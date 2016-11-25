@@ -229,6 +229,9 @@ public class ServiceInstance implements Serializable {
     }
 
     public String getReferenceId() {
+        if (referenceId == null) {
+            referenceId = "";
+        }
         return referenceId;
     }
 
