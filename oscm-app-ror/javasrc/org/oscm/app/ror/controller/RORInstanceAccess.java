@@ -23,13 +23,15 @@ public class RORInstanceAccess implements InstanceAccess {
     private static final long serialVersionUID = 5685290474829749127L;
 
     @Override
-    public List<? extends ServerInformation> getServerDetails(String instanceId)
+    public List<? extends ServerInformation> getServerDetails(String instanceId,
+            String subscriptionId, String organizationId)
             throws APPlatformException {
         return null;
     }
 
     @Override
-    public String getAccessInfo(String instanceId) throws APPlatformException {
+    public String getAccessInfo(String instanceId, String subscriptionId,
+            String organizationId) throws APPlatformException {
         return null;
     }
 

@@ -18,7 +18,6 @@ import org.oscm.app.common.intf.ServerInformation;
 import org.oscm.app.openstack.NovaProcessor;
 import org.oscm.app.openstack.data.Server;
 import org.oscm.app.v2_0.APPlatformServiceFactory;
-import org.oscm.app.v2_0.data.PasswordAuthentication;
 import org.oscm.app.v2_0.data.ProvisioningSettings;
 import org.oscm.app.v2_0.exceptions.APPlatformException;
 import org.oscm.app.v2_0.exceptions.AuthenticationException;
@@ -57,14 +56,15 @@ public class OpenStackInstanceAccess implements InstanceAccess {
     }
 
     @Override
-    public List<? extends ServerInformation> getServerDetails(String instanceId)
+    public List<? extends ServerInformation> getServerDetails(String instanceId,
+            String subscriptionId, String organizationId)
             throws AuthenticationException, ConfigurationException,
             APPlatformException {
         // TODO Replace the method which don't need authentication after
         // implementation.
         ProvisioningSettings settings = platformService
                 .getServiceInstanceDetails(OpenStackController.ID, instanceId,
-                        new PasswordAuthentication("misako", "misako"));
+                        subscriptionId, organizationId);
         PropertyHandler ph = new PropertyHandler(settings);
         List<Server> servers = new ArrayList<Server>();
         try {
@@ -84,14 +84,14 @@ public class OpenStackInstanceAccess implements InstanceAccess {
     }
 
     @Override
-    public String getAccessInfo(String instanceId)
-            throws AuthenticationException, ConfigurationException,
-            APPlatformException {
+    public String getAccessInfo(String instanceId, String subscriptionId,
+            String organizationId) throws AuthenticationException,
+            ConfigurationException, APPlatformException {
         // TODO Replace the method which don't need authentication after
         // implementation.
         ProvisioningSettings settings = platformService
                 .getServiceInstanceDetails(OpenStackController.ID, instanceId,
-                        new PasswordAuthentication("misako", "misako"));
+                        subscriptionId, organizationId);
         return settings.getServiceAccessInfo();
     }
 

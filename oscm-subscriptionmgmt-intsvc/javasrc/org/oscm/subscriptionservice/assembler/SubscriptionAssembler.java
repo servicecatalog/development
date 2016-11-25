@@ -27,16 +27,16 @@ import org.oscm.domobjects.UsageLicense;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.identityservice.assembler.UserDataAssembler;
-import org.oscm.serviceprovisioningservice.assembler.PriceModelAssembler;
-import org.oscm.serviceprovisioningservice.assembler.ProductAssembler;
-import org.oscm.serviceprovisioningservice.assembler.RoleAssembler;
-import org.oscm.serviceprovisioningservice.assembler.TechnicalProductOperationAssembler;
-import org.oscm.vo.BaseAssembler;
 import org.oscm.internal.types.enumtypes.PerformanceHint;
 import org.oscm.internal.vo.VOSubscription;
 import org.oscm.internal.vo.VOSubscriptionDetails;
 import org.oscm.internal.vo.VOUsageLicense;
 import org.oscm.internal.vo.VOUserSubscription;
+import org.oscm.serviceprovisioningservice.assembler.PriceModelAssembler;
+import org.oscm.serviceprovisioningservice.assembler.ProductAssembler;
+import org.oscm.serviceprovisioningservice.assembler.RoleAssembler;
+import org.oscm.serviceprovisioningservice.assembler.TechnicalProductOperationAssembler;
+import org.oscm.vo.BaseAssembler;
 
 /**
  * @author schmid
@@ -126,7 +126,8 @@ public class SubscriptionAssembler extends BaseAssembler {
      * @return A value object reflecting the values of the given domain object.
      */
     public static VOUserSubscription toVOUserSubscription(
-            Subscription subscription, PlatformUser user, LocalizerFacade facade) {
+            Subscription subscription, PlatformUser user,
+            LocalizerFacade facade) {
         return toVOUserSubscription(subscription, user, facade,
                 PerformanceHint.ALL_FIELDS);
     }
@@ -206,8 +207,8 @@ public class SubscriptionAssembler extends BaseAssembler {
             voSubscription.setOwnerId(subscription.getOwner().getUserId());
         }
 
-        voSubscription.setNumberOfAssignedUsers(subscription.getUsageLicenses()
-                .size());
+        voSubscription.setNumberOfAssignedUsers(
+                subscription.getUsageLicenses().size());
         Product product = subscription.getProduct();
         // use the identifier of the template, if the current product is just a
         // copy
@@ -216,9 +217,9 @@ public class SubscriptionAssembler extends BaseAssembler {
             voSubscription.setServiceKey(product.getKey());
             if (product.getVendor() != null) {
                 String supplierName = product.getVendor().getName() != null
-                        && product.getVendor().getName().trim().length() > 0 ? product
-                        .getVendor().getName() : product.getVendor()
-                        .getOrganizationId();
+                        && product.getVendor().getName().trim().length() > 0
+                                ? product.getVendor().getName()
+                                : product.getVendor().getOrganizationId();
 
                 voSubscription.setSellerName(supplierName);
             }
@@ -229,9 +230,11 @@ public class SubscriptionAssembler extends BaseAssembler {
                 String supplierName = product.getTemplate().getVendor()
                         .getName() != null
                         && product.getTemplate().getVendor().getName().trim()
-                                .length() > 0 ? product.getTemplate()
-                        .getVendor().getName() : product.getTemplate()
-                        .getVendor().getOrganizationId();
+                                .length() > 0
+                                        ? product.getTemplate().getVendor()
+                                                .getName()
+                                        : product.getTemplate().getVendor()
+                                                .getOrganizationId();
 
                 voSubscription.setSellerName(supplierName);
             }
@@ -240,7 +243,8 @@ public class SubscriptionAssembler extends BaseAssembler {
                     LocalizedObjectTypes.PRODUCT_CUSTOM_TAB_NAME));
             voSubscription
                     .setCustomTabUrl(product.getTemplate().getCustomTabUrl());
-            voSubscription.setOrganizationId(product.getTemplate().getVendor().getOrganizationId());
+            voSubscription.setOrganizationId(
+                    subscription.getOrganization().getOrganizationId());
         }
 
         TechnicalProduct techProd = product.getTechnicalProduct();
@@ -265,13 +269,13 @@ public class SubscriptionAssembler extends BaseAssembler {
 
         voSubscription
                 .setServiceInstanceId(subscription.getProductInstanceId());
-        voSubscription.setPurchaseOrderNumber(subscription
-                .getPurchaseOrderNumber());
+        voSubscription
+                .setPurchaseOrderNumber(subscription.getPurchaseOrderNumber());
         voSubscription.setProvisioningProgress(facade.getText(
                 subscription.getKey(),
                 LocalizedObjectTypes.SUBSCRIPTION_PROVISIONING_PROGRESS));
-        voSubscription
-                .setTechnicalServiceOperations(TechnicalProductOperationAssembler
+        voSubscription.setTechnicalServiceOperations(
+                TechnicalProductOperationAssembler
                         .toVOTechnicalServiceOperations(
                                 techProd.getTechnicalProductOperations(),
                                 facade));
@@ -287,22 +291,23 @@ public class SubscriptionAssembler extends BaseAssembler {
             voLicenses.add(toVOUsageLicense(lic, facade));
         }
         voSubDet.setUsageLicenses(voLicenses);
-        voSubDet.setPriceModel(PriceModelAssembler.toVOPriceModel(
-                subscription.getPriceModel(), facade));
+        voSubDet.setPriceModel(PriceModelAssembler
+                .toVOPriceModel(subscription.getPriceModel(), facade));
         if (subscription.getBillingContact() != null) {
             voSubDet.setBillingContact(BillingContactAssembler
                     .toVOBillingContact(subscription.getBillingContact()));
         }
         if (subscription.getPaymentInfo() != null) {
-            voSubDet.setPaymentInfo(PaymentInfoAssembler.toVOPaymentInfo(
-                    subscription.getPaymentInfo(), facade));
+            voSubDet.setPaymentInfo(PaymentInfoAssembler
+                    .toVOPaymentInfo(subscription.getPaymentInfo(), facade));
         }
-        voSubDet.setSubscribedService(ProductAssembler.toVOProduct(
-                subscription.getProduct(), facade));
+        voSubDet.setSubscribedService(ProductAssembler
+                .toVOProduct(subscription.getProduct(), facade));
     }
 
     private static void fillVOUserSubscription(VOUserSubscription voUsrSub,
-            Subscription subscription, PlatformUser usr, LocalizerFacade facade) {
+            Subscription subscription, PlatformUser usr,
+            LocalizerFacade facade) {
         if (usr == null)
             return;
         for (UsageLicense lic : subscription.getUsageLicenses()) {
@@ -331,11 +336,12 @@ public class SubscriptionAssembler extends BaseAssembler {
                 objectKeys.add(Long.valueOf(opperation.getKey()));
             }
         }
-        facade.prefetch(objectKeys, Arrays.asList(new LocalizedObjectTypes[] {
-                LocalizedObjectTypes.TECHNICAL_PRODUCT_OPERATION_NAME,
-                LocalizedObjectTypes.TECHNICAL_PRODUCT_OPERATION_DESCRIPTION,
-                LocalizedObjectTypes.SUBSCRIPTION_PROVISIONING_PROGRESS,
-                LocalizedObjectTypes.TEC_PRODUCT_LOGIN_ACCESS_DESC }));
+        facade.prefetch(objectKeys,
+                Arrays.asList(new LocalizedObjectTypes[] {
+                        LocalizedObjectTypes.TECHNICAL_PRODUCT_OPERATION_NAME,
+                        LocalizedObjectTypes.TECHNICAL_PRODUCT_OPERATION_DESCRIPTION,
+                        LocalizedObjectTypes.SUBSCRIPTION_PROVISIONING_PROGRESS,
+                        LocalizedObjectTypes.TEC_PRODUCT_LOGIN_ACCESS_DESC }));
     }
 
     public static VOUsageLicense toVOUsageLicense(UsageLicense lic,
@@ -345,8 +351,8 @@ public class SubscriptionAssembler extends BaseAssembler {
         voLic.setVersion(lic.getVersion());
         voLic.setUser(UserDataAssembler.toVOUser(lic.getUser()));
         voLic.setApplicationUserId(lic.getApplicationUserId());
-        voLic.setRoleDefinition(RoleAssembler.toVORoleDefinition(
-                lic.getRoleDefinition(), facade));
+        voLic.setRoleDefinition(RoleAssembler
+                .toVORoleDefinition(lic.getRoleDefinition(), facade));
         return voLic;
     }
 

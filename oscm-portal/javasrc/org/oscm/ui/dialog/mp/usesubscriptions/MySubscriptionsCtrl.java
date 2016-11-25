@@ -283,7 +283,11 @@ public class MySubscriptionsCtrl implements Serializable {
                 .getExternalContext().getSession(false);
         VOUserDetails userDetails = (VOUserDetails) session
                 .getAttribute(Constants.SESS_ATTR_USER);
-        String token = instId + "_" + userDetails.getUserId() + "_" + orgId;
+        String encodedinstId = new String(
+                Base64.encodeBase64(instId.getBytes()), "UTF-8");
+
+        String token = encodedinstId + "_" + userDetails.getUserId() + "_"
+                + orgId;
         byte[] cipher_byte;
 
         MessageDigest md = MessageDigest.getInstance("SHA-256");
@@ -295,19 +299,13 @@ public class MySubscriptionsCtrl implements Serializable {
         Date date = new Date();
         long timestamp = date.getTime();
 
-        String encodedSubId = encodeParam(subId);
+        String encodedSubId = new String(
+                Base64.encodeBase64(subId.getBytes("UTF-8")), "UTF-8");
 
         return model.getSelectedSubscription().getCustomTabUrl() + "?orgId="
                 + orgId + "&subId=" + encodedSubId + "&instId=" + instId
-                + "&token="
-                + encodeParam(token + "_" + cipher_string + "_" + timestamp);
-    }
-
-    private String encodeParam(String value)
-            throws UnsupportedEncodingException {
-
-        return URLEncoder.encode(value, "UTF-8");
-
+                + "&token=" + URLEncoder.encode(
+                        token + "_" + cipher_string + "_" + timestamp, "UTF-8");
     }
 
 }

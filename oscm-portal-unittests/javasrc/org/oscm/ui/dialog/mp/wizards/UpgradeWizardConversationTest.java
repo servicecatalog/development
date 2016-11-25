@@ -111,10 +111,12 @@ public class UpgradeWizardConversationTest {
     public void setUp() throws Exception {
         model = new UpgradeWizardModel();
 
-        when(triggerProcessService.getAllWaitingForApprovalTriggerProcessesBySubscriptionId(anyString()))
+        when(
+                triggerProcessService
+                        .getAllWaitingForApprovalTriggerProcessesBySubscriptionId(anyString()))
                 .thenReturn(new Response(Collections.emptyList()));
-        when(subscriptionDetailsService.loadSubscriptionStatus(anyLong())).
-                thenReturn(new Response(SubscriptionStatus.DEACTIVATED));
+        when(subscriptionDetailsService.loadSubscriptionStatus(anyLong()))
+                .thenReturn(new Response(SubscriptionStatus.DEACTIVATED));
 
         when(uiDelegate.getViewLocale()).thenReturn(Locale.ENGLISH);
 
@@ -140,7 +142,8 @@ public class UpgradeWizardConversationTest {
     @Test
     public void selectService() {
         // given
-        doNothing().when(bean).addMessage(any(FacesMessage.Severity.class), anyString());
+        doNothing().when(bean).addMessage(any(FacesMessage.Severity.class),
+                anyString());
         initDataForSelectService();
         // when
         String result = bean.selectService();
@@ -166,25 +169,30 @@ public class UpgradeWizardConversationTest {
 
     @org.junit.Test
     public void testIsPaymentInfoVisible() throws Exception {
-        //given
-        when(Boolean.valueOf(userBean.isLoggedInAndAdmin())).thenReturn(Boolean.FALSE);
-        when(Boolean.valueOf(userBean.isLoggedInAndAllowedToSubscribe())).thenReturn(Boolean.TRUE);
+        // given
+        when(Boolean.valueOf(userBean.isLoggedInAndAdmin())).thenReturn(
+                Boolean.FALSE);
+        when(Boolean.valueOf(userBean.isLoggedInAndAllowedToSubscribe()))
+                .thenReturn(Boolean.TRUE);
         List<VOPaymentInfo> paymentInfosForSubscription = new ArrayList<>();
         paymentInfosForSubscription.add(new VOPaymentInfo());
-        doReturn(paymentInfosForSubscription).when(paymentInfoBean).getPaymentInfosForSubscription(anyLong(), eq(accountingService));
+        doReturn(paymentInfosForSubscription).when(paymentInfoBean)
+                .getPaymentInfosForSubscription(anyLong(),
+                        eq(accountingService));
         Collection<VOPaymentType> paymentTypes = new ArrayList<>();
         paymentTypes.add(new VOPaymentType());
         doReturn(paymentTypes).when(bean).getEnabledPaymentTypes();
         initDataForSelectService();
-        //when
+        // when
 
         boolean paymentInfoVisible = bean.isPaymentInfoVisible();
 
-        //then
+        // then
         assertTrue(paymentInfoVisible);
 
-        //given
-        when(Boolean.valueOf(userBean.isLoggedInAndAdmin())).thenReturn(Boolean.FALSE);
+        // given
+        when(Boolean.valueOf(userBean.isLoggedInAndAdmin())).thenReturn(
+                Boolean.FALSE);
         paymentInfoVisible = bean.isPaymentInfoVisible();
         assertTrue(paymentInfoVisible);
 
@@ -212,7 +220,8 @@ public class UpgradeWizardConversationTest {
 
         // then
         verify(uiDelegate, times(1)).handle(
-                SubscriptionDetailsCtrlConstants.INFO_SUBSCRIPTION_UPGRADED, "test");
+                SubscriptionDetailsCtrlConstants.INFO_SUBSCRIPTION_UPGRADED,
+                "test");
         assertEquals(SubscriptionDetailsCtrlConstants.OUTCOME_SUCCESS, result);
         verify(param).rewriteEncryptedValues();
     }
@@ -220,6 +229,7 @@ public class UpgradeWizardConversationTest {
     private PricedParameterRow decorateWithPricedParameterRow() {
         List<PricedParameterRow> paramList = new ArrayList<>();
         PricedParameterRow param = spy(new PricedParameterRow());
+        doReturn(new VOParameter()).when(param).getParameter();
         VOParameterDefinition paramDef = new VOParameterDefinition();
         doReturn(paramDef).when(param).getParameterDefinition();
         paramDef.setParameterId("parameterId");
@@ -249,9 +259,9 @@ public class UpgradeWizardConversationTest {
         String result = bean.upgrade();
 
         // then
-        verify(uiDelegate, times(1)).handle(
-                SubscriptionDetailsCtrlConstants.INFO_SUBSCRIPTION_ASYNC_UPGRADED,
-                "test");
+        verify(uiDelegate, times(1))
+                .handle(SubscriptionDetailsCtrlConstants.INFO_SUBSCRIPTION_ASYNC_UPGRADED,
+                        "test");
         assertEquals(SubscriptionDetailsCtrlConstants.OUTCOME_SUCCESS, result);
         verify(param).rewriteEncryptedValues();
     }
@@ -266,10 +276,15 @@ public class UpgradeWizardConversationTest {
         VOSubscriptionDetails subscription = givenSubscription(false);
         POSubscriptionDetails subscriptionDetails = givenPOSubscriptionDetails();
         subscriptionDetails.setSubscription(subscription);
-        when(subscriptionDetailsService.getSubscriptionDetails(eq("subscription_id"), anyString()))
-                .thenReturn(new Response(subscriptionDetails));
+        when(
+                subscriptionDetailsService.getSubscriptionDetails(
+                        eq("subscription_id"), anyString())).thenReturn(
+                new Response(subscriptionDetails));
         when(bean.getUi().getViewLocale()).thenReturn(Locale.ENGLISH);
-        when(accountingService.getAvailablePaymentTypesFromOrganization(Long.valueOf(anyLong()))).thenReturn(new HashSet<VOPaymentType>());
+        when(
+                accountingService.getAvailablePaymentTypesFromOrganization(Long
+                        .valueOf(anyLong()))).thenReturn(
+                new HashSet<VOPaymentType>());
         model.setSelectedSubscriptionId("subscription_id");
 
         // when
@@ -288,20 +303,21 @@ public class UpgradeWizardConversationTest {
         VOSubscriptionDetails subscription = givenSubscription(false);
         POSubscriptionDetails subscriptionDetails = givenPOSubscriptionDetails();
         subscriptionDetails.setSubscription(subscription);
-        when(subscriptionDetailsService.getSubscriptionDetails(eq("subscription_id"), anyString()))
-                .thenReturn(new Response(subscriptionDetails));
-        when(Boolean.valueOf(userBean.isLoggedInAndAdmin()))
-                .thenReturn(Boolean.FALSE);
-        when(Boolean.valueOf(userBean.isLoggedInAndSubscriptionManager())).thenReturn(
-                Boolean.TRUE);
+        when(
+                subscriptionDetailsService.getSubscriptionDetails(
+                        eq("subscription_id"), anyString())).thenReturn(
+                new Response(subscriptionDetails));
+        when(Boolean.valueOf(userBean.isLoggedInAndAdmin())).thenReturn(
+                Boolean.FALSE);
+        when(Boolean.valueOf(userBean.isLoggedInAndSubscriptionManager()))
+                .thenReturn(Boolean.TRUE);
         model.setSelectedSubscriptionId("subscription_id");
 
         // when
         bean.upgradeSubscription();
 
         // then
-        assertEquals(Boolean.TRUE.booleanValue(),
-                model.isReportIssueAllowed());
+        assertEquals(Boolean.TRUE.booleanValue(), model.isReportIssueAllowed());
     }
 
     @Test
@@ -318,17 +334,17 @@ public class UpgradeWizardConversationTest {
     public void initializeSubscription_Bug10481_Admin() throws Exception {
         // given
 
-
         VOSubscriptionDetails subscription = givenSubscription(false);
         POSubscriptionDetails subscriptionDetails = givenPOSubscriptionDetails();
         subscriptionDetails.setSubscription(subscription);
-        when(subscriptionDetailsService.getSubscriptionDetails(eq("subscription_id"), anyString()))
-                .thenReturn(new Response(subscriptionDetails));
+        when(
+                subscriptionDetailsService.getSubscriptionDetails(
+                        eq("subscription_id"), anyString())).thenReturn(
+                new Response(subscriptionDetails));
         when(bean.getUi().getViewLocale()).thenReturn(Locale.ENGLISH);
-        when(userBean.isLoggedInAndAdmin())
-                .thenReturn(Boolean.TRUE);
-        when(Boolean.valueOf(userBean.isLoggedInAndSubscriptionManager())).thenReturn(
-                Boolean.FALSE);
+        when(userBean.isLoggedInAndAdmin()).thenReturn(Boolean.TRUE);
+        when(Boolean.valueOf(userBean.isLoggedInAndSubscriptionManager()))
+                .thenReturn(Boolean.FALSE);
         model.setSelectedSubscriptionId("subscription_id");
 
         // when
@@ -351,8 +367,10 @@ public class UpgradeWizardConversationTest {
         userList.add(prepareVOUserDetails_OrgAdmin("admin"));
         userList.add(prepareVOUserDetails_SubMgr("notowner", false));
         subscriptionDetails.setUsersForOrganization(userList);
-        when(subscriptionDetailsService.getSubscriptionDetails(eq("subscription_id"), anyString()))
-                .thenReturn(new Response(subscriptionDetails));
+        when(
+                subscriptionDetailsService.getSubscriptionDetails(
+                        eq("subscription_id"), anyString())).thenReturn(
+                new Response(subscriptionDetails));
         when(bean.getUi().getViewLocale()).thenReturn(Locale.ENGLISH);
         model.setSelectedSubscriptionId("subscription_id");
 
@@ -361,10 +379,8 @@ public class UpgradeWizardConversationTest {
 
         // then
         assertEquals(2, model.getSubscriptionOwners().size());
-        assertEquals("owner", model.getSubscriptionOwners().get(0)
-                .getUserId());
-        assertEquals("admin", model.getSubscriptionOwners().get(1)
-                .getUserId());
+        assertEquals("owner", model.getSubscriptionOwners().get(0).getUserId());
+        assertEquals("admin", model.getSubscriptionOwners().get(1).getUserId());
         assertEquals("owner", model.getSelectedOwner().getUserId());
         assertEquals("owner", model.getStoredOwner().getUserId());
     }
@@ -380,8 +396,10 @@ public class UpgradeWizardConversationTest {
         userList.add(prepareVOUserDetails_SubMgr("owner", true));
         userList.add(prepareVOUserDetails_SubMgr("notowner", false));
         subscriptionDetails.setUsersForOrganization(userList);
-        when(subscriptionDetailsService.getSubscriptionDetails(eq("subscription_id"), anyString()))
-                .thenReturn(new Response(subscriptionDetails));
+        when(
+                subscriptionDetailsService.getSubscriptionDetails(
+                        eq("subscription_id"), anyString())).thenReturn(
+                new Response(subscriptionDetails));
         when(bean.getUi().getViewLocale()).thenReturn(Locale.ENGLISH);
         model.setSelectedSubscriptionId("subscription_id");
 
@@ -390,8 +408,7 @@ public class UpgradeWizardConversationTest {
 
         // then
         assertEquals(1, model.getSubscriptionOwners().size());
-        assertEquals("owner", model.getSubscriptionOwners().get(0)
-                .getUserId());
+        assertEquals("owner", model.getSubscriptionOwners().get(0).getUserId());
         assertNull(model.getSelectedOwner());
         assertNull(model.getStoredOwner());
     }
@@ -401,12 +418,13 @@ public class UpgradeWizardConversationTest {
             throws Exception {
         // given
 
-
         VOSubscriptionDetails subscription = givenSubscription(true);
         POSubscriptionDetails subscriptionDetails = givenPOSubscriptionDetails();
         subscriptionDetails.setSubscription(subscription);
-        when(subscriptionDetailsService.getSubscriptionDetails(eq("subscription_id"), anyString()))
-                .thenReturn(new Response(subscriptionDetails));
+        when(
+                subscriptionDetailsService.getSubscriptionDetails(
+                        eq("subscription_id"), anyString())).thenReturn(
+                new Response(subscriptionDetails));
         when(bean.getUi().getViewLocale()).thenReturn(Locale.ENGLISH);
         model.setSelectedSubscriptionId("subscription_id");
 
@@ -417,7 +435,6 @@ public class UpgradeWizardConversationTest {
         assertNotNull(bean.getPaymentInfosForSubscription());
         assertTrue(bean.getPaymentInfosForSubscription().isEmpty());
     }
-
 
     /**
      * Helper methods.
@@ -447,7 +464,6 @@ public class UpgradeWizardConversationTest {
         return subscription;
     }
 
-
     private void preparePaymentInfo(VOSubscriptionDetails subscription, long key) {
         VOPaymentInfo paymentInfo = new VOPaymentInfo();
         paymentInfo.setKey(key);
@@ -455,7 +471,7 @@ public class UpgradeWizardConversationTest {
     }
 
     private void prepareBillingContact(VOSubscriptionDetails subscription,
-                                       long key) {
+            long key) {
         VOBillingContact billingContact = new VOBillingContact();
         billingContact.setKey(key);
         subscription.setBillingContact(billingContact);
@@ -465,7 +481,9 @@ public class UpgradeWizardConversationTest {
     public void upgradeSubscription_ObjectNotFoundException() throws Exception {
 
         // given
-        when(subscriptionDetailsService.getSubscriptionDetails(anyString(), anyString())).thenThrow(new ObjectNotFoundException());
+        when(
+                subscriptionDetailsService.getSubscriptionDetails(anyString(),
+                        anyString())).thenThrow(new ObjectNotFoundException());
 
         // when
         bean.upgradeSubscription();
@@ -474,10 +492,14 @@ public class UpgradeWizardConversationTest {
     }
 
     @Test(expected = OperationNotPermittedException.class)
-    public void upgradeSubscription_OperationNotPermittedException() throws Exception {
+    public void upgradeSubscription_OperationNotPermittedException()
+            throws Exception {
 
         // given
-        when(subscriptionDetailsService.getSubscriptionDetails(anyString(), anyString())).thenThrow(new OperationNotPermittedException());
+        when(
+                subscriptionDetailsService.getSubscriptionDetails(anyString(),
+                        anyString())).thenThrow(
+                new OperationNotPermittedException());
 
         // when
         bean.upgradeSubscription();
@@ -486,10 +508,14 @@ public class UpgradeWizardConversationTest {
     }
 
     @Test(expected = OrganizationAuthoritiesException.class)
-    public void upgradeSubscription_OrganizationAuthoritiesException() throws Exception {
+    public void upgradeSubscription_OrganizationAuthoritiesException()
+            throws Exception {
 
         // given
-        when(subscriptionDetailsService.getSubscriptionDetails(anyString(), anyString())).thenThrow(new OrganizationAuthoritiesException());
+        when(
+                subscriptionDetailsService.getSubscriptionDetails(anyString(),
+                        anyString())).thenThrow(
+                new OrganizationAuthoritiesException());
 
         // when
         bean.upgradeSubscription();
@@ -514,7 +540,7 @@ public class UpgradeWizardConversationTest {
     }
 
     private VOUserDetails prepareVOUserDetails_SubMgr(String userId,
-                                                      boolean isSubMgr) {
+            boolean isSubMgr) {
         VOUserDetails user = new VOUserDetails();
         user.setUserId(userId);
         if (isSubMgr) {
