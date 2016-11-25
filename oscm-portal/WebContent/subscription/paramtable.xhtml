@@ -107,7 +107,7 @@
           <f:converter converterId="trimConverter" />
         </h:inputSecret>
         <h:outputText id ="pwdTypeValueRO" label="#{row.label}" value="*****"
-                      rendered="#{rowItem.parameterDefinition.valueTypePWD and readOnly}"/>
+                      rendered="#{row.passwordType and readOnly}"/>
         <!-- enumeration value-->
         <t:inputHidden id="enumValue" value="#{rowItem.parameter.value}" 
           rendered="#{rowItem.parameterDefinition.valueTypeEnumeration and not readOnly}" />
