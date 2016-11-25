@@ -399,6 +399,7 @@ public class APPConfigurationServiceBean {
         settings.setRequestingUser(requestingUser);
         settings.setAuthentication(getAuthenticationForBESTechnologyManager(
                 null, instance, null));
+        settings.setServiceAccessInfo(instance.getServiceAccessInfo());
 
         settings.overwriteProperties(instance.getControllerId());
 

@@ -12,7 +12,6 @@ package org.oscm.app.common.instanceDetail;
 
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +21,7 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.apache.commons.codec.binary.Base64;
 import org.oscm.app.common.i18n.Messages;
 import org.oscm.app.common.intf.InstanceAccess;
 import org.oscm.app.common.intf.ServerInformation;
@@ -51,6 +51,7 @@ public class ExtensionInterfaceBean implements Serializable {
 
     private List<? extends ServerInformation> servers;
     private String subscriptionId;
+    private String organizationId;
     private String accessInfo;
     private String instanceId;
     private String locale;
@@ -67,14 +68,21 @@ public class ExtensionInterfaceBean implements Serializable {
                 .getRequestParameterMap();
         this.locale = facesContext.getViewRoot().getLocale().getLanguage();
         try {
-            this.subscriptionId = parameters.get("subId") != null ? URLDecoder
-                    .decode(parameters.get("subId"), "UTF-8") : "";
+            this.subscriptionId = parameters.get("subId") != null
+                    ? new String(
+                            Base64.decodeBase64(
+                                    parameters.get("subId").getBytes("UTF-8")),
+                            "UTF-8")
+                    : "";
         } catch (UnsupportedEncodingException e) {
             this.subscriptionId = Messages.get(locale,
                     "ui.extentionInterface.noSubscriptionName");
         }
-        this.instanceId = parameters.get("instId") != null ? parameters
-                .get("instId") : "";
+        this.instanceId = parameters.get("instId") != null
+                ? parameters.get("instId") : "";
+
+        this.organizationId = parameters.get("orgId") != null
+                ? parameters.get("orgId") : "";
     }
 
     public void setInstanceAccess(InstanceAccess instanceAccess) {
@@ -82,10 +90,7 @@ public class ExtensionInterfaceBean implements Serializable {
     }
 
     public List<? extends ServerInformation> getInstanceDetails() {
-        // TODO should I update information every get request??
-        if (servers == null) {
-            readServerInfo();
-        }
+        readServerInfo();
         return servers;
     }
 
@@ -95,7 +100,8 @@ public class ExtensionInterfaceBean implements Serializable {
     private void readServerInfo() {
         List<? extends ServerInformation> serverInfos = new ArrayList<ServerInformation>();
         try {
-            serverInfos = instanceAccess.getServerDetails(instanceId);
+            serverInfos = instanceAccess.getServerDetails(instanceId,
+                    subscriptionId, organizationId);
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
         }
@@ -111,9 +117,7 @@ public class ExtensionInterfaceBean implements Serializable {
     }
 
     public String getAccessInfo() {
-        if (accessInfo == null) {
-            setAccessInfo();
-        }
+        setAccessInfo();
         return accessInfo;
     }
 
@@ -123,7 +127,8 @@ public class ExtensionInterfaceBean implements Serializable {
     private void setAccessInfo() {
         String accessInfo = "";
         try {
-            accessInfo = instanceAccess.getAccessInfo(instanceId);
+            accessInfo = instanceAccess.getAccessInfo(instanceId,
+                    subscriptionId, organizationId);
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
         }

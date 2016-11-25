@@ -9,7 +9,6 @@
 package org.oscm.app.openstack.controller;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -28,10 +27,10 @@ import org.oscm.app.common.intf.ServerInformation;
 import org.oscm.app.openstack.MockHttpURLConnection;
 import org.oscm.app.openstack.MockURLStreamHandler;
 import org.oscm.app.openstack.OpenStackConnection;
-import org.oscm.app.v2_0.data.PasswordAuthentication;
 import org.oscm.app.v2_0.data.ProvisioningSettings;
 import org.oscm.app.v2_0.data.Setting;
 import org.oscm.app.v2_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.exceptions.ObjectNotFoundException;
 import org.oscm.app.v2_0.intf.APPlatformService;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.ejb.TestContainer;
@@ -74,15 +73,15 @@ public class OpenStackInstanceAccessTest extends EJBTestBase {
     public void getServerDetails() throws Exception {
         // given
         final String instanceName = "Instance4";
+        final String subscriptionId = "subscription id";
+        final String organizationId = "12345";
         createBasicParameters(instanceName, "fosi_v2.json", "http");
-        when(
-                platformService.getServiceInstanceDetails(
-                        eq(OpenStackController.ID), eq("Instance4"),
-                        any(PasswordAuthentication.class)))
-                .thenReturn(settings);
+        when(platformService.getServiceInstanceDetails(
+                eq(OpenStackController.ID), eq(instanceName),
+                eq(subscriptionId), eq(organizationId))).thenReturn(settings);
         // when
         List<? extends ServerInformation> result = instanceAccess
-                .getServerDetails(instanceName);
+                .getServerDetails(instanceName, subscriptionId, organizationId);
 
         // then
         assertEquals(1, result.size());
@@ -90,27 +89,80 @@ public class OpenStackInstanceAccessTest extends EJBTestBase {
         assertEquals("server1", result.get(0).getName());
         assertEquals(ServerStatus.ACTIVE.name(), result.get(0).getStatus());
         assertEquals("S-1", result.get(0).getType());
-        assertEquals(Arrays.asList("133.162.161.216"), result.get(0)
-                .getPublicIP());
-        assertEquals(Arrays.asList("192.168.0.4"), result.get(0).getPrivateIP());
+        assertEquals(Arrays.asList("133.162.161.216"),
+                result.get(0).getPublicIP());
+        assertEquals(Arrays.asList("192.168.0.4"),
+                result.get(0).getPrivateIP());
+    }
+
+    @Test(expected = APPlatformException.class)
+    public void getServerDetails_withNoInstanceId() throws Exception {
+        // given
+        final String instanceId = null;
+        final String subscriptionId = "subscription id";
+        final String organizationId = "12345";
+        createBasicParameters(instanceId, "fosi_v2.json", "http");
+        when(platformService.getServiceInstanceDetails(
+                eq(OpenStackController.ID), eq(instanceId), eq(subscriptionId),
+                eq(organizationId))).thenThrow(
+                        new ObjectNotFoundException("objectNotFound"));
+        // when
+        instanceAccess.getServerDetails(instanceId, subscriptionId,
+                organizationId);
+
+    }
+
+    @Test(expected = APPlatformException.class)
+    public void getServerDetails_withNoSubscriptionId() throws Exception {
+        // given
+        final String instanceId = "Instance4";
+        final String subscriptionId = null;
+        final String organizationId = "12345";
+        createBasicParameters(instanceId, "fosi_v2.json", "http");
+        when(platformService.getServiceInstanceDetails(
+                eq(OpenStackController.ID), eq(instanceId), eq(subscriptionId),
+                eq(organizationId))).thenThrow(
+                        new ObjectNotFoundException("objectNotFound"));
+        // when
+        instanceAccess.getServerDetails(instanceId, subscriptionId,
+                organizationId);
+
+    }
+
+    @Test(expected = APPlatformException.class)
+    public void getServerDetails_withNoOrganizationId() throws Exception {
+        // given
+        final String instanceId = "Instance4";
+        final String subscriptionId = "subscription id";
+        final String organizationId = null;
+        createBasicParameters(instanceId, "fosi_v2.json", "http");
+        when(platformService.getServiceInstanceDetails(
+                eq(OpenStackController.ID), eq(instanceId), eq(subscriptionId),
+                eq(organizationId))).thenThrow(
+                        new ObjectNotFoundException("objectNotFound"));
+        // when
+        instanceAccess.getServerDetails(instanceId, subscriptionId,
+                organizationId);
+
     }
 
     @Test(expected = APPlatformException.class)
     public void getServerDetails_getAPPlatformException() throws Exception {
         // given
         final String instanceName = "Instance4";
+        final String subscriptionId = "subscription id";
+        final String organizationId = "12345";
         createBasicParameters(instanceName, "fosi_v2.json", "http");
-        when(
-                platformService.getServiceInstanceDetails(
-                        eq(OpenStackController.ID), eq("Instance4"),
-                        any(PasswordAuthentication.class)))
-                .thenReturn(settings);
+        when(platformService.getServiceInstanceDetails(
+                eq(OpenStackController.ID), eq(instanceName),
+                eq(subscriptionId), eq(organizationId))).thenReturn(settings);
         MockHttpURLConnection connection = new MockHttpURLConnection(401,
                 MockURLStreamHandler.respTokens(true, true, false));
         connection.setIOException(new IOException());
         streamHandler.put("/v3/auth/tokens", connection);
         // when
-        instanceAccess.getServerDetails(instanceName);
+        instanceAccess.getServerDetails(instanceName, subscriptionId,
+                organizationId);
 
     }
 
@@ -119,22 +171,21 @@ public class OpenStackInstanceAccessTest extends EJBTestBase {
             throws Exception {
         // given
         final String instanceName = "Instance4";
+        final String subscriptionId = "subscription id";
+        final String organizationId = "12345";
         createBasicParameters(instanceName, "fosi_v2.json", "http");
-        when(
-                platformService.getServiceInstanceDetails(
-                        eq(OpenStackController.ID), eq("Instance4"),
-                        any(PasswordAuthentication.class)))
-                .thenReturn(settings);
+        when(platformService.getServiceInstanceDetails(
+                eq(OpenStackController.ID), eq(instanceName),
+                eq(subscriptionId), eq(organizationId))).thenReturn(settings);
         MockHttpURLConnection connection = new MockHttpURLConnection(401,
                 MockURLStreamHandler.respServerActions());
         connection.setIOException(new IOException());
-        streamHandler.put(
-                "/stacks/" + instanceName + "/resources",
+        streamHandler.put("/stacks/" + instanceName + "/resources",
                 new MockHttpURLConnection(200, MockURLStreamHandler
                         .respStacksResources(new ArrayList<String>(), null)));
         // when
         List<? extends ServerInformation> result = instanceAccess
-                .getServerDetails(instanceName);
+                .getServerDetails(instanceName, subscriptionId, organizationId);
 
         // then
         assertEquals(0, result.size());
@@ -153,49 +204,105 @@ public class OpenStackInstanceAccessTest extends EJBTestBase {
     public void getAccessInfo() throws Exception {
         // given
         final String instanceName = "Instance4";
+        final String subscriptionId = "subscription id";
+        final String organizationId = "12345";
         createBasicParameters(instanceName, "fosi_v2.json", "http");
-        when(
-                platformService.getServiceInstanceDetails(
-                        eq(OpenStackController.ID), eq("Instance4"),
-                        any(PasswordAuthentication.class)))
-                .thenReturn(settings);
+        when(platformService.getServiceInstanceDetails(
+                eq(OpenStackController.ID), eq(instanceName),
+                eq(subscriptionId), eq(organizationId))).thenReturn(settings);
         settings.setServiceAccessInfo("Access Information");
 
         // when
-        String result = instanceAccess.getAccessInfo(instanceName);
+        String result = instanceAccess.getAccessInfo(instanceName,
+                subscriptionId, organizationId);
         // then
         assertEquals("Access Information", result);
     }
 
-    private void createBasicParameters(String instanceName,
-            String templateName, String httpMethod) {
-        parameters.put(PropertyHandler.STACK_NAME, new Setting(
-                PropertyHandler.STACK_NAME, instanceName));
-        parameters.put(PropertyHandler.TEMPLATE_NAME, new Setting(
-                PropertyHandler.TEMPLATE_NAME, templateName));
+    @Test(expected = APPlatformException.class)
+    public void getAccessInfo_withNoInstanceId() throws Exception {
+        // given
+        final String instanceName = null;
+        final String subscriptionId = "subscription id";
+        final String organizationId = "12345";
+        createBasicParameters(instanceName, "fosi_v2.json", "http");
+        when(platformService.getServiceInstanceDetails(
+                eq(OpenStackController.ID), eq(instanceName),
+                eq(subscriptionId), eq(organizationId))).thenThrow(
+                        new ObjectNotFoundException("objectNotFound"));
+        settings.setServiceAccessInfo("Access Information");
+
+        // when
+        instanceAccess.getAccessInfo(instanceName, subscriptionId,
+                organizationId);
+    }
+
+    @Test(expected = APPlatformException.class)
+    public void getAccessInfo_withNoSubscriptionId() throws Exception {
+        // given
+        final String instanceName = "Instance4";
+        final String subscriptionId = null;
+        final String organizationId = "12345";
+        createBasicParameters(instanceName, "fosi_v2.json", "http");
+        when(platformService.getServiceInstanceDetails(
+                eq(OpenStackController.ID), eq(instanceName),
+                eq(subscriptionId), eq(organizationId))).thenThrow(
+                        new ObjectNotFoundException("objectNotFound"));
+        settings.setServiceAccessInfo("Access Information");
+
+        // when
+        instanceAccess.getAccessInfo(instanceName, subscriptionId,
+                organizationId);
+    }
+
+    @Test(expected = APPlatformException.class)
+    public void getAccessInfo_withNoOrganizationId() throws Exception {
+        // given
+        final String instanceName = "Instance4";
+        final String subscriptionId = "subscription id";
+        final String organizationId = null;
+        createBasicParameters(instanceName, "fosi_v2.json", "http");
+        when(platformService.getServiceInstanceDetails(
+                eq(OpenStackController.ID), eq(instanceName),
+                eq(subscriptionId), eq(organizationId))).thenThrow(
+                        new ObjectNotFoundException("objectNotFound"));
+        settings.setServiceAccessInfo("Access Information");
+
+        // when
+        instanceAccess.getAccessInfo(instanceName, subscriptionId,
+                organizationId);
+    }
+
+    private void createBasicParameters(String instanceName, String templateName,
+            String httpMethod) {
+        parameters.put(PropertyHandler.STACK_NAME,
+                new Setting(PropertyHandler.STACK_NAME, instanceName));
+        parameters.put(PropertyHandler.TEMPLATE_NAME,
+                new Setting(PropertyHandler.TEMPLATE_NAME, templateName));
         parameters.put(PropertyHandler.TEMPLATE_PARAMETER_PREFIX + "KeyName",
-                new Setting(PropertyHandler.TEMPLATE_PARAMETER_PREFIX
-                        + "KeyName", "key"));
+                new Setting(
+                        PropertyHandler.TEMPLATE_PARAMETER_PREFIX + "KeyName",
+                        "key"));
         if (httpMethod == "https") {
-            configSettings.put(PropertyHandler.KEYSTONE_API_URL, new Setting(
-                    PropertyHandler.KEYSTONE_API_URL,
-                    "https://keystone:8080/v3/auth"));
+            configSettings.put(PropertyHandler.KEYSTONE_API_URL,
+                    new Setting(PropertyHandler.KEYSTONE_API_URL,
+                            "https://keystone:8080/v3/auth"));
         } else {
 
-            configSettings.put(PropertyHandler.KEYSTONE_API_URL, new Setting(
-                    PropertyHandler.KEYSTONE_API_URL,
-                    "http://keystone:8080/v3/auth"));
+            configSettings.put(PropertyHandler.KEYSTONE_API_URL,
+                    new Setting(PropertyHandler.KEYSTONE_API_URL,
+                            "http://keystone:8080/v3/auth"));
         }
-        configSettings.put(PropertyHandler.DOMAIN_NAME, new Setting(
-                PropertyHandler.DOMAIN_NAME, "testDomain"));
-        configSettings.put(PropertyHandler.TENANT_ID, new Setting(
-                PropertyHandler.TENANT_ID, "testTenantID"));
-        configSettings.put(PropertyHandler.API_USER_NAME, new Setting(
-                PropertyHandler.API_USER_NAME, "api_user"));
-        configSettings.put(PropertyHandler.API_USER_PWD, new Setting(
-                PropertyHandler.API_USER_PWD, "secret"));
-        configSettings.put(PropertyHandler.TEMPLATE_BASE_URL, new Setting(
-                PropertyHandler.TEMPLATE_BASE_URL,
-                "http://estfarmaki2:8880/templates/"));
+        configSettings.put(PropertyHandler.DOMAIN_NAME,
+                new Setting(PropertyHandler.DOMAIN_NAME, "testDomain"));
+        configSettings.put(PropertyHandler.TENANT_ID,
+                new Setting(PropertyHandler.TENANT_ID, "testTenantID"));
+        configSettings.put(PropertyHandler.API_USER_NAME,
+                new Setting(PropertyHandler.API_USER_NAME, "api_user"));
+        configSettings.put(PropertyHandler.API_USER_PWD,
+                new Setting(PropertyHandler.API_USER_PWD, "secret"));
+        configSettings.put(PropertyHandler.TEMPLATE_BASE_URL,
+                new Setting(PropertyHandler.TEMPLATE_BASE_URL,
+                        "http://estfarmaki2:8880/templates/"));
     }
 }

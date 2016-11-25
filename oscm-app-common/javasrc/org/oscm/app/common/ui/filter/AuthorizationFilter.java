@@ -186,8 +186,12 @@ public class AuthorizationFilter implements Filter {
                 String tokenHash = new String(
                         Base64.decodeBase64(hashParams[HASH].getBytes("UTF-8")),
                         "UTF-8");
+                String tokenInstId = new String(
+                        Base64.decodeBase64(
+                                hashParams[INSTANCE_ID].getBytes("UTF-8")),
+                        "UTF-8");
 
-                if (hashParams[0].equals(instId)) {
+                if (tokenInstId.equals(instId)) {
                     byte[] cipher_byte;
                     String checkStr = hashParams[INSTANCE_ID] + "_"
                             + hashParams[USER_ID] + "_" + hashParams[ORG_ID];
