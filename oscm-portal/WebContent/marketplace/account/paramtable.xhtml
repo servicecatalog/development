@@ -84,15 +84,15 @@
           <f:converter converterId="trimConverter" />
         </h:inputText>
         <h:inputSecret id="pwdValue" label="#{row.label}" onchange="setDirty(true)" value="#{row.passwordValueToStore}"
-          maxlength="#{appBean.descriptionLen}" required="#{row.parameterDefinition.mandatory}" dataType="string"
+          maxlength="#{appBean.descriptionLen}" required="#{row.parameterDefinition.mandatory}"
           disabled="false" rendered="#{row.parameterDefinition.valueTypeString and row.passwordType and not readOnly}" redisplay="true">
           <f:validator validatorId="ParameterValueValidator" />
           <f:converter converterId="trimConverter" />
         </h:inputSecret>
         <h:outputText id ="pwdValueRO" label="#{row.label}" value="*****"
-                     rendered="#{row.passwordType and readOnly}"/>
+                     rendered="#{row.parameterDefinition.valueTypeString and row.passwordType and readOnly}"/>
         <h:inputSecret id="pwdTypeValue" label="#{row.label}" onchange="setDirty(true)" value="#{row.passwordValueToStore}"
-          maxlength="#{appBean.descriptionLen}" required="#{row.parameterDefinition.mandatory}" dataType="string"
+          maxlength="#{appBean.descriptionLen}" required="#{row.parameterDefinition.mandatory}"
           disabled="false" rendered="#{row.parameterDefinition.valueTypePWD and not readOnly}" redisplay="true">
           <f:validator validatorId="ParameterValueValidator" />
           <f:converter converterId="trimConverter" />

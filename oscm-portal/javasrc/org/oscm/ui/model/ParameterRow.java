@@ -212,7 +212,7 @@ public class ParameterRow {
     }
 
     public String getPasswordValueToStore() {
-        return passwordValueToStore;
+        return this.passwordValueToStore;
     }
 
     public void setPasswordValueToStore(String passwordValueToStore) {
