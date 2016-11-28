@@ -560,7 +560,7 @@ public class ManageSubscriptionCtrlTest {
         paramDef.setParameterId("parameterId");
         paramDef.setValueType(ParameterValueType.PWD);
         paramList.add(param);
-        model.setServiceParameters(paramList);
+        model.setSubscriptionParameters(paramList);
         return param;
     }
 
