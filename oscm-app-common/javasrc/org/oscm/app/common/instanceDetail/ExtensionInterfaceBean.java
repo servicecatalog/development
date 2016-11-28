@@ -66,19 +66,21 @@ public class ExtensionInterfaceBean implements Serializable {
                 .getRequestParameterMap();
         this.locale = facesContext.getViewRoot().getLocale().getLanguage();
         try {
-            this.subscriptionId = parameters.get("subId") != null
-                    ? new String(
-                            Base64.decodeBase64(
-                                    parameters.get("subId").getBytes("UTF-8")),
-                            "UTF-8")
-                    : "";
+            if (parameters.get("subId") != null) {
+                byte[] byteSubId = parameters.get("subId")
+                        .getBytes("ISO_8859_1");
+                this.subscriptionId = new String(Base64.decodeBase64(byteSubId),
+                        "UTF-8");
+            } else {
+                this.subscriptionId = "";
+            }
         } catch (UnsupportedEncodingException e) {
             this.subscriptionId = Messages.get(locale,
                     "ui.extentionInterface.noSubscriptionName");
         }
+
         this.instanceId = parameters.get("instId") != null
                 ? parameters.get("instId") : "";
-
         this.organizationId = parameters.get("orgId") != null
                 ? parameters.get("orgId") : "";
     }
