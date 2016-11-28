@@ -10,6 +10,8 @@ package org.oscm.app.common.instanceDetail;
 
 import static org.junit.Assert.assertEquals;
 
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -55,16 +57,16 @@ public class ExtensionInterfaceBeanTest extends EJBTestBase {
         instanceAccess = Mockito.mock(InstanceAccess.class);
         UIViewRoot viewRoot = Mockito.mock(UIViewRoot.class);
         paramters = new HashMap<String, String>();
-        String decodeSubscriptionId = null;
         if (subscriptionId != null) {
-            subscriptionId = new String(
+            String encode64SubId = new String(
                     Base64.encodeBase64(subscriptionId.getBytes("UTF-8")),
                     "UTF-8");
-            decodeSubscriptionId = new String(
-                    Base64.decodeBase64(subscriptionId.getBytes("UTF-8")),
-                    "UTF-8");
+            String encodeSubId = URLEncoder.encode(encode64SubId, "UTF-8");
+            String decodeSubId = URLDecoder.decode(encodeSubId, "ISO_8859_1");
+            paramters.put("subId", decodeSubId);
+        } else {
+            paramters.put("subId", subscriptionId);
         }
-        paramters.put("subId", subscriptionId);
         paramters.put("instId", instanceId);
         paramters.put("orgId", organizationId);
 
@@ -77,12 +79,10 @@ public class ExtensionInterfaceBeanTest extends EJBTestBase {
                 .thenReturn(paramters);
         Mockito.when(facesContext.getViewRoot()).thenReturn(viewRoot);
         Mockito.when(viewRoot.getLocale()).thenReturn(new Locale("en"));
-        Mockito.when(instanceAccess.getAccessInfo(instanceId,
-                decodeSubscriptionId, organizationId))
-                .thenReturn("Access info from IaaS");
-        Mockito.<List<? extends ServerInformation>> when(
-                instanceAccess.getServerDetails(instanceId,
-                        decodeSubscriptionId, organizationId))
+        Mockito.when(instanceAccess.getAccessInfo(instanceId, subscriptionId,
+                organizationId)).thenReturn("Access info from IaaS");
+        Mockito.<List<? extends ServerInformation>> when(instanceAccess
+                .getServerDetails(instanceId, subscriptionId, organizationId))
                 .thenReturn(serverInfo);
 
         ExtensionInterfaceBean bean = new ExtensionInterfaceBean() {
@@ -257,6 +257,21 @@ public class ExtensionInterfaceBeanTest extends EJBTestBase {
 
         // then
         assertEquals("", result);
+
+    }
+
+    @Test
+    public void getSubscriptionName_withJapanese() throws Exception {
+        // given
+        String japaneseSubId = "abcd あいう 123";
+        ExtensionInterfaceBean bean = getTestBean(instanceID, japaneseSubId,
+                organizationID);
+
+        // when
+        String result = bean.getSubscriptionName();
+
+        // then
+        assertEquals(japaneseSubId, result);
 
     }
 
