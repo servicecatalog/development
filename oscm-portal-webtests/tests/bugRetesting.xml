@@ -2,7 +2,7 @@
 <project default="bugTests" xmlns:setup="antlib:org.oscm.webtest.setup">
   <import file="../macros/marketplace/all.xml" />
 
-  <target name="bugTests" depends="Bug7607" />
+  <target name="bugTests" depends="init" />
 
   <target name="Bug8129">
     <webtest name="Bug 8129: noCurrenciesSupported">
@@ -464,7 +464,8 @@
   </target>
 
   <target name="Bug7607" depends="init">
-    <webtest name="Bug 7607: Change temporary password dialog with wrong current password must give on one error message">
+    
+  	<webtest name="Bug 7607: Change temporary password dialog with wrong current password must give on one error message">
       <mail.cleanInbox />
       <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" password="secret" />
       <user.register userId="wrongPwdUser" admin="true" />
