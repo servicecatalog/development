@@ -3467,3 +3467,12 @@ div.responsive-table-panel {
 #configurationForm .hintAndMessageTable td {
 	min-width: 50px;
 }
+
+#loading {
+  background-color: #3498DD;
+  padding: 8px 16px;
+  border-radius: 5px;
+  color: #FEFEFE;
+  font: 20px 'Helvetica';
+  text-transform: uppercase;
+}
