@@ -297,7 +297,7 @@ public class MySubscriptionsCtrl implements Serializable {
         Date date = new Date();
         long timestamp = date.getTime();
 
-        String encodedSubId = encodeBase64(subId.getBytes("UTF-8"));
+        String encodedSubId = URLEncoder.encode(subId, "UTF-8");
 
         return model.getSelectedSubscription().getCustomTabUrl() + "?orgId="
                 + orgId + "&subId=" + encodedSubId + "&instId=" + instId
