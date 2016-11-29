@@ -17,6 +17,7 @@ import javax.faces.bean.ViewScoped;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 @ViewScoped
 @ManagedBean
@@ -29,10 +30,12 @@ public class ManageTenantsModel extends BaseModel implements Serializable {
     private FieldData<String> tenantIdp;
     private String selectedTenantId;
     private boolean saveDisabled;
+    private boolean importDisabled;
     private boolean deleteDisabled;
     private POTenant selectedTenant;
     private UploadedFile file;
     private boolean clearExportAvailable;
+    private Properties idpProperties;
 
     public List<POTenant> getTenants() {
         return tenants;
@@ -130,5 +133,21 @@ public class ManageTenantsModel extends BaseModel implements Serializable {
 
     public void setTenantName(FieldData<String> tenantName) {
         this.tenantName = tenantName;
+    }
+
+    public Properties getIdpProperties() {
+        return idpProperties;
+    }
+
+    public void setIdpProperties(Properties idpProperties) {
+        this.idpProperties = idpProperties;
+    }
+
+    public boolean isImportDisabled() {
+        return importDisabled;
+    }
+
+    public void setImportDisabled(boolean importDisabled) {
+        this.importDisabled = importDisabled;
     }
 }
