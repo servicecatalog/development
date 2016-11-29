@@ -30,7 +30,6 @@ import org.oscm.app.domain.CustomAttribute;
 import org.oscm.app.domain.InstanceAttribute;
 import org.oscm.app.domain.InstanceParameter;
 import org.oscm.app.v2_0.exceptions.ConfigurationException;
-import org.oscm.encrypter.AESEncrypter;
 
 /**
  * Migrates the old passwords to the new method.
@@ -47,6 +46,20 @@ public class PasswordMigrator {
                     0xF962DCA0907D0398L, 0xF54F221334184933L }).getBytes();
 
     /**
+     * When value is prefixed with this, encryption is applied to the value and
+     * the encryption is written back into the database.
+     */
+    public static final String CRYPT_PREFIX = "_crypt:";
+
+    /**
+     * Setting keys ending with this suffix will have their values stored
+     * encrypted.
+     */
+    public static final String CRYPT_KEY_SUFFIX = "_PWD";
+
+    public static final String CRYPT_KEY_SUFFIX_PASS = "_PASS";
+
+    /**
      * Decrypts all old style passwords in the database and saves them encrypted
      * with the new method.
      * 
@@ -60,14 +73,21 @@ public class PasswordMigrator {
             throws ConfigurationException, GeneralSecurityException,
             BadResultException {
 
-        String csSQL = "SELECT cs FROM ConfigurationSetting cs WHERE cs.settingKey like '%_PWD' OR cs.settingKey like '%_PASS'";
+        String csSQL = "SELECT cs FROM ConfigurationSetting cs WHERE cs.settingKey like '%"
+                + CRYPT_KEY_SUFFIX + "' OR cs.settingKey like '%"
+                + CRYPT_KEY_SUFFIX_PASS + "'";
         TypedQuery<ConfigurationSetting> csQuery = em.createQuery(csSQL,
                 ConfigurationSetting.class);
         List<ConfigurationSetting> csList = csQuery.getResultList();
 
         for (ConfigurationSetting cs : csList) {
             String value = cs.getSettingValue();
-            cs.setSettingValue(AESEncrypter.encrypt(decrypt(value)));
+            if (value != null && value.startsWith(CRYPT_PREFIX)) {
+                value = value.substring(CRYPT_PREFIX.length());
+            } else {
+                value = decrypt(value);
+            }
+            cs.setDecryptedValue(value);
         }
 
         String caSQL = "SELECT ca FROM CustomAttribute ca WHERE ca.encrypted = true";

@@ -67,6 +67,10 @@ public class AESEncrypter {
      */
     public static String encrypt(String text) throws GeneralSecurityException {
 
+        if (text == null) {
+            return null;
+        }
+
         byte[] decrypted;
         try {
             decrypted = text.getBytes("UTF-8");
@@ -96,6 +100,10 @@ public class AESEncrypter {
      */
     public static String decrypt(String encrypted)
             throws GeneralSecurityException {
+
+        if (encrypted == null) {
+            return null;
+        }
 
         byte[] iv;
         byte[] decoded;
