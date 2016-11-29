@@ -474,6 +474,7 @@ public class ServiceInstanceServiceBeanTest {
         // given
         ServiceInstance instance = givenServiceInstance();
         instance.setRollbackParameters("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<!DOCTYPE properties SYSTEM \"http://java.sun.com/dtd/properties.dtd\">\r\n<properties>\r\n<entry key=\"KEY2\">VALUE2</entry>\r\n<entry key=\"ROLLBACK_SUBSCRIPTIONID\">subscriptionId</entry>\r\n<entry key=\"KEY1\">VALUE1</entry>\r\n</properties>\r\n");
+        instance.setRollbackInstanceAttributes("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<!DOCTYPE properties SYSTEM \"http://java.sun.com/dtd/properties.dtd\">\r\n<properties>\r\n<entry key=\"KEY2\">VALUE2</entry>\r\n<entry key=\"ROLLBACK_SUBSCRIPTIONID\">subscriptionId</entry>\r\n<entry key=\"KEY1\">VALUE1</entry>\r\n</properties>\r\n");
         instance.setProvisioningStatus(ProvisioningStatus.WAITING_FOR_SYSTEM_MODIFICATION);
         doReturn(instance).when(bean.dao).abortPendingInstance(
                 any(ServiceInstance.class));
@@ -522,6 +523,7 @@ public class ServiceInstanceServiceBeanTest {
         // given
         ServiceInstance instance = givenServiceInstance();
         instance.setRollbackParameters("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<!DOCTYPE properties SYSTEM \"http://java.sun.com/dtd/properties.dtd\">\r\n<properties>\r\n<entry key=\"KEY2\">VALUE2</entry>\r\n<entry key=\"ROLLBACK_SUBSCRIPTIONID\">subscriptionId</entry>\r\n<entry key=\"KEY1\">VALUE1</entry>\r\n</properties>\r\n");
+        instance.setRollbackInstanceAttributes("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<!DOCTYPE properties SYSTEM \"http://java.sun.com/dtd/properties.dtd\">\r\n<properties>\r\n<entry key=\"KEY2\">VALUE2</entry>\r\n<entry key=\"ROLLBACK_SUBSCRIPTIONID\">subscriptionId</entry>\r\n<entry key=\"KEY1\">VALUE1</entry>\r\n</properties>\r\n");
         instance.setProvisioningStatus(ProvisioningStatus.WAITING_FOR_SYSTEM_UPGRADE);
         doReturn(instance).when(bean.dao).abortPendingInstance(
                 any(ServiceInstance.class));

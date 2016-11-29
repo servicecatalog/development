@@ -325,7 +325,7 @@ public class ManageSubscriptionCtrl implements Serializable {
         model.setSubscriptionUdaRows(UdaRow.getUdaRows(subUdaDefinitions,
                 subscriptionDetails.getUdasSubscription()));
 
-        initParamsAndUdas();
+
 
         initializePriceModelForSubscription(model.getSubscription());
 
@@ -339,13 +339,14 @@ public class ManageSubscriptionCtrl implements Serializable {
         setConfirmationData(subscriptionDetails);
         refreshSelectedOwnerName(model.getSelectedOwner());
         initializeUnitAssignment();
+        initParamsAndUdas();
     }
 
     private void initParamsAndUdas() {
         for (UdaRow udaRow : model.getSubscriptionUdaRows()) {
             udaRow.initPasswordValueToStore();
         }
-        for (PricedParameterRow pricedParameterRow : model.getServiceParameters()) {
+        for (PricedParameterRow pricedParameterRow : model.getSubscriptionParameters()) {
             pricedParameterRow.initPasswordValueToStore();
         }
     }
@@ -948,7 +949,7 @@ public class ManageSubscriptionCtrl implements Serializable {
         for (UdaRow udaRow : model.getSubscriptionUdaRows()) {
             udaRow.rewriteEncryptedValues();
         }
-        for (PricedParameterRow pricedParameterRow : model.getServiceParameters()) {
+        for (PricedParameterRow pricedParameterRow : model.getSubscriptionParameters()) {
             pricedParameterRow.rewriteEncryptedValues();
         }
     }

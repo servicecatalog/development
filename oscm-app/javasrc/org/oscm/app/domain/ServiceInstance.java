@@ -14,11 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Properties;
-import java.util.UUID;
+import java.util.*;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -172,6 +168,9 @@ public class ServiceInstance implements Serializable {
     @Column(nullable = false)
     private int version;
 
+    @Column
+    private String rollbackInstanceAttributes;
+
     public int getVersion() {
         return version;
     }
@@ -194,7 +193,12 @@ public class ServiceInstance implements Serializable {
     /**
      * SubscriptionID key for rollbackParameters
      */
-    public static final String ROLLBACK_SUBSCRIPTIONID = "ROLLBACK_SUBSCRIPTIONID";
+    private static final String ROLLBACK_SUBSCRIPTIONID = "ROLLBACK_SUBSCRIPTIONID";
+
+    /**
+     * Subscription reference number key for rollbackParameters
+     */
+    private static final String ROLLBACK_SUBSCRIPTIONREF = "ROLLBACK_SUBSCRIPTIONREF";
 
     /**
      * The instance related parameters.
@@ -225,6 +229,9 @@ public class ServiceInstance implements Serializable {
     }
 
     public String getReferenceId() {
+        if (referenceId == null) {
+            referenceId = "";
+        }
         return referenceId;
     }
 
@@ -244,7 +251,7 @@ public class ServiceInstance implements Serializable {
         this.rollbackParameters = rollbackParameters;
     }
 
-    public void setTkey(long tkey) {
+    void setTkey(long tkey) {
         this.tkey = tkey;
     }
 
@@ -472,7 +479,7 @@ public class ServiceInstance implements Serializable {
      *            The key of the requested attribute.
      * @return The instance attribute with the given key.
      */
-    public InstanceAttribute getAttributeForKey(String attributeKey) {
+    InstanceAttribute getAttributeForKey(String attributeKey) {
         for (InstanceAttribute attr : instanceAttributes) {
             if (attr.getAttributeKey().equals(attributeKey)) {
                 return attr;
@@ -538,8 +545,7 @@ public class ServiceInstance implements Serializable {
         this.instanceAttributes = instanceAttributes;
     }
 
-    public void removeParams(HashMap<String, Setting> parameters,
-            EntityManager em) {
+    void removeParams(HashMap<String, Setting> parameters, EntityManager em) {
 
         List<InstanceParameter> paramsToRemove = new ArrayList<>();
         List<InstanceParameter> params = this.getInstanceParameters();
@@ -553,6 +559,19 @@ public class ServiceInstance implements Serializable {
             }
         }
         params.removeAll(paramsToRemove);
+    }
+
+    void removeAttrs(HashMap<String, Setting> attrs, EntityManager em) {
+
+        List<InstanceAttribute> attrsToRemove = new ArrayList<>();
+
+        for (InstanceAttribute instanceAttribute : this.getInstanceAttributes()) {
+            if (!attrs.containsKey(instanceAttribute.getAttributeKey())) {
+                attrsToRemove.add(instanceAttribute);
+                em.remove(instanceAttribute);
+            }
+        }
+        getInstanceAttributes().removeAll(attrsToRemove);
     }
 
     /**
@@ -579,7 +598,7 @@ public class ServiceInstance implements Serializable {
             }
             if (getRunWithTimer() != status.getRunWithTimer()) {
                 setRunWithTimer(status.getRunWithTimer());
-                if (getRunWithTimer() == false) {
+                if (!getRunWithTimer()) {
                     setLocked(false);
                 }
 
@@ -593,10 +612,7 @@ public class ServiceInstance implements Serializable {
      * processed by some other operation).
      */
     public boolean isAvailable() {
-        if (ProvisioningStatus.COMPLETED.equals(getProvisioningStatus())) {
-            return true;
-        }
-        return false;
+        return ProvisioningStatus.COMPLETED.equals(getProvisioningStatus());
     }
 
     /**
@@ -636,31 +652,74 @@ public class ServiceInstance implements Serializable {
     public void prepareRollback() throws BadResultException {
         Properties actualProperties = new Properties();
         actualProperties.put(ROLLBACK_SUBSCRIPTIONID, this.getSubscriptionId());
+        if (this.getReferenceId() != null) {
+            actualProperties.put(ROLLBACK_SUBSCRIPTIONREF,
+                    this.getReferenceId());
+        } else {
+            actualProperties.put(ROLLBACK_SUBSCRIPTIONREF, "");
+        }
         actualProperties.putAll(this.getParameterMap());
         this.setRollbackParameters(this
+                .convertPropertiesToXML(actualProperties));
+        actualProperties.clear();
+        actualProperties.putAll(getAttributeMap());
+        this.setRollbackInstanceAttributes(this
                 .convertPropertiesToXML(actualProperties));
     }
 
     public void rollbackServiceInstance(EntityManager em)
             throws BadResultException {
 
-        Properties rollbackProps = new Properties();
+        Properties rollbackProps;
         String xmlProps = getRollbackParameters();
-        if (xmlProps != null && xmlProps.length() != 0) {
-            rollbackProps = this.convertXMLToProperties(xmlProps);
-            String rollbackSID = rollbackProps
-                    .getProperty(ROLLBACK_SUBSCRIPTIONID);
-            rollbackProps.remove(ROLLBACK_SUBSCRIPTIONID);
-
-            rollbackInstanceParameters(rollbackProps, em);
-            rollbackSubscriptionId(rollbackSID);
-        } else {
+        String xmlAttrs = getRollbackInstanceAttributes();
+        if (isEmpty(xmlProps)) {
             throw new BadResultException(Messages.get(getDefaultLocale(),
                     "error_missing_rollbackparameters", this.getInstanceId()));
         }
+        if (isEmpty(xmlAttrs)) {
+            throw new BadResultException(Messages.get(getDefaultLocale(),
+                    "error_missing_rollbackattributes", this.getInstanceId()));
+        }
+
+        rollbackProps = this.convertXMLToProperties(xmlProps);
+        String rollbackSID = getStringProperty(rollbackProps,
+                ROLLBACK_SUBSCRIPTIONID);
+        String rollbackSubscriptionRef = getStringProperty(rollbackProps,
+                ROLLBACK_SUBSCRIPTIONREF);
+
+        rollbackInstanceParameters(rollbackProps, em);
+        rollbackSubscription(rollbackSID, rollbackSubscriptionRef);
+
+        Properties rollbackAttrs = this.convertXMLToProperties(xmlAttrs);
+        rollbackInstanceAttributes(rollbackAttrs, em);
     }
 
-    public void rollbackInstanceParameters(
+    private boolean isEmpty(String xmlProps) {
+        return xmlProps == null || xmlProps.isEmpty();
+    }
+
+    private String getStringProperty(Properties rollbackProps,
+            String propertyName) {
+        String propertyValue = rollbackProps.getProperty(propertyName);
+        rollbackProps.remove(propertyName);
+        return propertyValue;
+    }
+
+    private void rollbackInstanceAttributes(Properties backup, EntityManager em)
+            throws BadResultException {
+        HashMap<String, Setting> rollbackParams = new HashMap<>();
+
+        for (String name : backup.stringPropertyNames()) {
+            rollbackParams.put(name,
+                    new Setting(name, backup.getProperty(name)));
+        }
+        this.removeAttrs(rollbackParams, em);
+        this.setInstanceAttributes(rollbackParams);
+        this.setRollbackInstanceAttributes(null);
+    }
+
+    private void rollbackInstanceParameters(
             Properties rollbackInstanceParameters, EntityManager em)
             throws BadResultException {
 
@@ -676,25 +735,25 @@ public class ServiceInstance implements Serializable {
 
     }
 
-    public void rollbackSubscriptionId(String subscriptionID)
-            throws BadResultException {
-        if (subscriptionID != null && !subscriptionID.equals("")) {
+    private void rollbackSubscription(String subscriptionID,
+            String rollbackSubscriptionRef) throws BadResultException {
+        if (!isEmpty(subscriptionID)) {
             setSubscriptionId(subscriptionID);
         } else {
             throw new BadResultException(Messages.get(getDefaultLocale(),
                     "error_missing_subscriptionId", this.getInstanceId()));
         }
+        setReferenceId(rollbackSubscriptionRef);
     }
 
     String convertPropertiesToXML(Properties properties)
             throws RuntimeException {
-        String xmlString = null;
+        String xmlString;
         try (OutputStream out = new ByteArrayOutputStream()) {
             properties.storeToXML(out, null, "UTF-8");
             xmlString = out.toString();
         } catch (IOException e) {
-            RuntimeException re = new RuntimeException();
-            throw re;
+            throw new RuntimeException();
         }
         return xmlString;
     }
@@ -704,9 +763,16 @@ public class ServiceInstance implements Serializable {
         try (InputStream in = new ByteArrayInputStream(xmlString.getBytes())) {
             properties.loadFromXML(in);
         } catch (IOException e) {
-            RuntimeException re = new RuntimeException();
-            throw re;
+            throw new RuntimeException();
         }
         return properties;
+    }
+
+    public void setRollbackInstanceAttributes(String rollbackInstanceAttributes) {
+        this.rollbackInstanceAttributes = rollbackInstanceAttributes;
+    }
+
+    public String getRollbackInstanceAttributes() {
+        return rollbackInstanceAttributes;
     }
 }

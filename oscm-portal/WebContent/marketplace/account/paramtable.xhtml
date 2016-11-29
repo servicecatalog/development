@@ -78,20 +78,21 @@
         </h:inputText>
         <h:inputText id="stringValue" label="#{row.label}" onchange="setDirty(true)" value="#{row.parameter.value}"
           maxlength="#{appBean.descriptionLen}" required="#{row.parameterDefinition.mandatory}" dataType="string"
-          disabled="#{readOnly}" rendered="#{row.parameterDefinition.valueTypeString and not row.passwordType}">
+          disabled="#{readOnly}"
+                     rendered="#{row.parameterDefinition.valueTypeString and not row.passwordType}">
           <f:validator validatorId="ParameterValueValidator" />
           <f:converter converterId="trimConverter" />
         </h:inputText>
         <h:inputSecret id="pwdValue" label="#{row.label}" onchange="setDirty(true)" value="#{row.passwordValueToStore}"
-          maxlength="#{appBean.descriptionLen}" required="#{row.parameterDefinition.mandatory}" dataType="string"
+          maxlength="#{appBean.descriptionLen}" required="#{row.parameterDefinition.mandatory}"
           disabled="false" rendered="#{row.parameterDefinition.valueTypeString and row.passwordType and not readOnly}" redisplay="true">
           <f:validator validatorId="ParameterValueValidator" />
           <f:converter converterId="trimConverter" />
         </h:inputSecret>
         <h:outputText id ="pwdValueRO" label="#{row.label}" value="*****"
-                     rendered="#{row.parameterDefinition.valueTypeString and readOnly}"/>
+                     rendered="#{row.parameterDefinition.valueTypeString and row.passwordType and readOnly}"/>
         <h:inputSecret id="pwdTypeValue" label="#{row.label}" onchange="setDirty(true)" value="#{row.passwordValueToStore}"
-          maxlength="#{appBean.descriptionLen}" required="#{row.parameterDefinition.mandatory}" dataType="string"
+          maxlength="#{appBean.descriptionLen}" required="#{row.parameterDefinition.mandatory}"
           disabled="false" rendered="#{row.parameterDefinition.valueTypePWD and not readOnly}" redisplay="true">
           <f:validator validatorId="ParameterValueValidator" />
           <f:converter converterId="trimConverter" />

@@ -290,8 +290,10 @@ public class AuthorizationFilterTest extends EJBTestBase {
         exception = false;
         Mockito.when(req.getServletPath()).thenReturn("/serverInformation.jsf");
         byte[] cipher_byte;
-        final String token = "stack-ad8c51f1-d44b-489c-a2f6-40e8e68e0d86_test_9142fd59";
         final String instId = "stack-ad8c51f1-d44b-489c-a2f6-40e8e68e0d86";
+        String encodedInstId = new String(
+                Base64.encodeBase64(instId.getBytes()), "UTF-8");
+        final String token = encodedInstId + "_test_9142fd59";
         MessageDigest md = MessageDigest.getInstance("SHA-256");
         md.update(token.getBytes("UTF-8"));
         cipher_byte = md.digest();
@@ -334,8 +336,11 @@ public class AuthorizationFilterTest extends EJBTestBase {
         exception = false;
         Mockito.when(req.getServletPath()).thenReturn("/serverInformation.jsf");
         byte[] cipher_byte;
-        final String token = "stack-ad8c51f1-d44b-489c-a2f6-40e8e68e0d86_test_9142fd59";
-        final String instId = "strange-instance-id";
+        final String instId = "stack-ad8c51f1-d44b-489c-a2f6-40e8e68e0d86";
+        String encodedInstId = new String(
+                Base64.encodeBase64(instId.getBytes()), "UTF-8");
+        final String token = encodedInstId + "_test_9142fd59";
+        final String wrongInstId = "wrong-instId";
         MessageDigest md = MessageDigest.getInstance("SHA-256");
         md.update(token.getBytes("UTF-8"));
         cipher_byte = md.digest();
@@ -343,7 +348,7 @@ public class AuthorizationFilterTest extends EJBTestBase {
                 "UTF-8");
         doReturn(token + "_" + encodedCipher).when(req)
                 .getParameter(Matchers.eq("token"));
-        doReturn(instId).when(req).getParameter(Matchers.eq("instId"));
+        doReturn(wrongInstId).when(req).getParameter(Matchers.eq("instId"));
 
         // And go!
         filter.doFilter(req, resp, chain);
@@ -381,8 +386,35 @@ public class AuthorizationFilterTest extends EJBTestBase {
     public void testCheckToken() throws Exception {
         // given
         byte[] cipher_byte;
-        final String token = "stack-ad8c51f1-d44b-489c-a2f6-40e8e68e0d86_test_9142fd59";
         final String instId = "stack-ad8c51f1-d44b-489c-a2f6-40e8e68e0d86";
+        String encodedInstId = new String(
+                Base64.encodeBase64(instId.getBytes()), "UTF-8");
+        final String token = encodedInstId + "_test_9142fd59";
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        md.update(token.getBytes("UTF-8"));
+        cipher_byte = md.digest();
+        String encodedCipher = new String(Base64.encodeBase64(cipher_byte),
+                "UTF-8");
+        doReturn(token + "_" + encodedCipher).when(req)
+                .getParameter(Matchers.eq("token"));
+        doReturn(instId).when(req).getParameter(Matchers.eq("instId"));
+
+        // when
+        boolean actual = filter.checkToken(req);
+
+        // then
+        assertTrue(actual);
+
+    }
+
+    @Test
+    public void testCheckToken_include_underscore_in_instId() throws Exception {
+        // given
+        byte[] cipher_byte;
+        final String instId = "stack-ad8c51f1-d44b_489c-a2f6-40e8e68e0d86";
+        String encodedInstId = new String(
+                Base64.encodeBase64(instId.getBytes()), "UTF-8");
+        final String token = encodedInstId + "_test_9142fd59";
         MessageDigest md = MessageDigest.getInstance("SHA-256");
         md.update(token.getBytes("UTF-8"));
         cipher_byte = md.digest();
@@ -404,8 +436,11 @@ public class AuthorizationFilterTest extends EJBTestBase {
     public void testCheckTokenWithWrongInstId() throws Exception {
         // given
         byte[] cipher_byte;
-        final String token = "stack-ad8c51f1-d44b-489c-a2f6-40e8e68e0d86_test_9142fd59";
-        final String instId = "wrong-id";
+        final String instId = "stack-ad8c51f1-d44b-489c-a2f6-40e8e68e0d86";
+        String encodedInstId = new String(
+                Base64.encodeBase64(instId.getBytes()), "UTF-8");
+        final String token = encodedInstId + "_test_9142fd59";
+        final String wrongInstId = "wrong-id";
         MessageDigest md = MessageDigest.getInstance("SHA-256");
         md.update(token.getBytes("UTF-8"));
         cipher_byte = md.digest();
@@ -413,7 +448,7 @@ public class AuthorizationFilterTest extends EJBTestBase {
                 "UTF-8");
         doReturn(token + "_" + encodedCipher).when(req)
                 .getParameter(Matchers.eq("token"));
-        doReturn(instId).when(req).getParameter(Matchers.eq("instId"));
+        doReturn(wrongInstId).when(req).getParameter(Matchers.eq("instId"));
 
         // when
         boolean actual = filter.checkToken(req);
@@ -426,9 +461,11 @@ public class AuthorizationFilterTest extends EJBTestBase {
     public void testCheckTokenWithWrongToken() throws Exception {
         // given
         byte[] cipher_byte;
-        final String token = "stack-ad8c51f1-d44b-489c-a2f6-40e8e68e0d86_test_9142fd59";
-        final String wrongToken = "stack-ad8c51f1-d44b-489c-a2f6-40e8e68e0d86_wrong_token123";
         final String instId = "stack-ad8c51f1-d44b-489c-a2f6-40e8e68e0d86";
+        String encodedInstId = new String(
+                Base64.encodeBase64(instId.getBytes()), "UTF-8");
+        final String token = encodedInstId + "_test_9142fd59";
+        final String wrongToken = "stack-ad8c51f1-d44b-489c-a2f6-40e8e68e0d86_wrong_token123";
         MessageDigest md = MessageDigest.getInstance("SHA-256");
         md.update(token.getBytes("UTF-8"));
         cipher_byte = md.digest();
@@ -449,7 +486,10 @@ public class AuthorizationFilterTest extends EJBTestBase {
     public void testCheckTokenInatIdNull() throws Exception {
         // given
         byte[] cipher_byte;
-        final String token = "stack-ad8c51f1-d44b-489c-a2f6-40e8e68e0d86_test_9142fd59";
+        final String instId = "stack-ad8c51f1-d44b-489c-a2f6-40e8e68e0d86";
+        String encodedInstId = new String(
+                Base64.encodeBase64(instId.getBytes()), "UTF-8");
+        final String token = encodedInstId + "_test_9142fd59";
         MessageDigest md = MessageDigest.getInstance("SHA-256");
         md.update(token.getBytes("UTF-8"));
         cipher_byte = md.digest();

@@ -12,15 +12,14 @@
 
 package org.oscm.subscriptionservice.assembler;
 
-import static org.oscm.test.Numbers.L_TIMESTAMP;
 import static org.junit.Assert.assertNull;
+import static org.oscm.test.Numbers.L_TIMESTAMP;
 
 import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
 import org.oscm.domobjects.BillingContact;
 import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.PaymentInfo;
@@ -34,7 +33,6 @@ import org.oscm.domobjects.UsageLicense;
 import org.oscm.domobjects.UserGroup;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.i18nservice.bean.LocalizerFacade;
-import org.oscm.test.stubs.LocalizerServiceStub;
 import org.oscm.internal.types.enumtypes.PaymentCollectionType;
 import org.oscm.internal.types.enumtypes.PerformanceHint;
 import org.oscm.internal.types.enumtypes.ServiceAccessType;
@@ -50,6 +48,7 @@ import org.oscm.internal.vo.VOTechnicalServiceOperation;
 import org.oscm.internal.vo.VOUsageLicense;
 import org.oscm.internal.vo.VOUser;
 import org.oscm.internal.vo.VOUserSubscription;
+import org.oscm.test.stubs.LocalizerServiceStub;
 
 /**
  * @author weiser
@@ -101,6 +100,9 @@ public class SubscriptionAssemblerTest {
         product.setVendor(supplier);
         product.setAutoAssignUserEnabled(false);
 
+        organization = new Organization();
+        organization.setOrganizationId("org123");
+
         UserGroup unit = new UserGroup();
         unit.setName("UNIT_NAME");
         unit.setKey(10L);
@@ -121,6 +123,7 @@ public class SubscriptionAssemblerTest {
         owner.setUserId("OWNER_USER_ID");
         subscription.setOwner(owner);
         subscription.setUserGroup(unit);
+        subscription.setOrganization(organization);
 
         organization = new Organization();
         organization.setOrganizationId("ORG_ID");
@@ -136,8 +139,8 @@ public class SubscriptionAssemblerTest {
 
     @Test
     public void testToVOSubscription() {
-        VOSubscription sub = SubscriptionAssembler.toVOSubscription(
-                subscription, facade);
+        VOSubscription sub = SubscriptionAssembler
+                .toVOSubscription(subscription, facade);
         validateVOSubscription(sub);
 
     }
@@ -156,8 +159,8 @@ public class SubscriptionAssemblerTest {
         pu.setStatus(UserAccountStatus.ACTIVE);
         subscription.addUser(pu, null);
 
-        VOSubscription sub = SubscriptionAssembler.toVOSubscription(
-                subscription, facade);
+        VOSubscription sub = SubscriptionAssembler
+                .toVOSubscription(subscription, facade);
         validateVOSubscription(sub);
     }
 
@@ -166,8 +169,8 @@ public class SubscriptionAssemblerTest {
         subscription.setAccessInfo(null);
         subscription.setBaseURL(null);
         subscription.setLoginPath(null);
-        VOSubscription sub = SubscriptionAssembler.toVOSubscription(
-                subscription, facade);
+        VOSubscription sub = SubscriptionAssembler
+                .toVOSubscription(subscription, facade);
         Assert.assertEquals(technicalProduct.getBaseURL(),
                 sub.getServiceBaseURL());
         Assert.assertEquals(technicalProduct.getLoginPath(),
@@ -190,8 +193,8 @@ public class SubscriptionAssemblerTest {
 
         product.setTemplate(template);
         product.setType(ServiceType.SUBSCRIPTION);
-        VOSubscription sub = SubscriptionAssembler.toVOSubscription(
-                subscription, facade);
+        VOSubscription sub = SubscriptionAssembler
+                .toVOSubscription(subscription, facade);
         Assert.assertEquals(template.getProductId(), sub.getServiceId());
         Assert.assertEquals(supplier2.getName(), sub.getSellerName());
     }
@@ -202,8 +205,8 @@ public class SubscriptionAssemblerTest {
         subscription.setUserGroup(null);
 
         // when
-        VOSubscription sub = SubscriptionAssembler.toVOSubscription(
-                subscription, facade);
+        VOSubscription sub = SubscriptionAssembler
+                .toVOSubscription(subscription, facade);
 
         // then
         Assert.assertEquals(0, sub.getUnitKey());
@@ -212,8 +215,8 @@ public class SubscriptionAssemblerTest {
 
     @Test
     public void testToVOUserSubscription() {
-        VOUserSubscription sub = SubscriptionAssembler.toVOUserSubscription(
-                subscription, platformUser, facade);
+        VOUserSubscription sub = SubscriptionAssembler
+                .toVOUserSubscription(subscription, platformUser, facade);
         validateVOSubscription(sub);
         VOUsageLicense lic = sub.getLicense();
         validateVOUsageLicense(lic);
@@ -379,13 +382,16 @@ public class SubscriptionAssemblerTest {
             Assert.assertNotNull(operations);
             Assert.assertEquals(1, operations.size());
             VOTechnicalServiceOperation op = operations.get(0);
-            Assert.assertEquals(operation.getOperationId(), op.getOperationId());
+            Assert.assertEquals(operation.getOperationId(),
+                    op.getOperationId());
             Assert.assertEquals(
                     LocalizedObjectTypes.TECHNICAL_PRODUCT_OPERATION_DESCRIPTION
-                            .name(), op.getOperationDescription());
+                            .name(),
+                    op.getOperationDescription());
             Assert.assertEquals(
                     LocalizedObjectTypes.TECHNICAL_PRODUCT_OPERATION_NAME
-                            .name(), op.getOperationName());
+                            .name(),
+                    op.getOperationName());
             break;
         default:
             Assert.fail("The performance hint is NOK!");
