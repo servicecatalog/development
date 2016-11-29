@@ -178,10 +178,12 @@ public class AuthorizationFilter implements Filter {
      * @param httpRequest
      */
     protected boolean checkToken(HttpServletRequest httpRequest) {
-        String token = httpRequest.getParameter("token");
-        String instId = httpRequest.getParameter("instId");
-        if (token != null && instId != null) {
-            try {
+        try {
+            String token = getParameterWithUTF8(
+                    httpRequest.getParameter("token"));
+            String instId = getParameterWithUTF8(
+                    httpRequest.getParameter("instId"));
+            if (token != null && instId != null) {
                 String hashParams[] = token.split("_");
                 String tokenHash = new String(
                         Base64.decodeBase64(hashParams[HASH].getBytes("UTF-8")),
@@ -204,12 +206,19 @@ public class AuthorizationFilter implements Filter {
                     }
 
                 }
-            } catch (NoSuchAlgorithmException
-                    | UnsupportedEncodingException e) {
-                LOGGER.error(e.getMessage());
             }
+        } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
+            LOGGER.error(e.getMessage());
         }
         return false;
+    }
+
+    private String getParameterWithUTF8(String param)
+            throws UnsupportedEncodingException {
+        if (param != null) {
+            return new String(param.getBytes("ISO_8859_1"), "UTF-8");
+        }
+        return null;
     }
 
     @Override

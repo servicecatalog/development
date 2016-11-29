@@ -24,7 +24,6 @@ import javax.faces.component.UIViewRoot;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 
-import org.apache.commons.codec.binary.Base64;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.oscm.app.common.intf.InstanceAccess;
@@ -58,10 +57,7 @@ public class ExtensionInterfaceBeanTest extends EJBTestBase {
         UIViewRoot viewRoot = Mockito.mock(UIViewRoot.class);
         paramters = new HashMap<String, String>();
         if (subscriptionId != null) {
-            String encode64SubId = new String(
-                    Base64.encodeBase64(subscriptionId.getBytes("UTF-8")),
-                    "UTF-8");
-            String encodeSubId = URLEncoder.encode(encode64SubId, "UTF-8");
+            String encodeSubId = URLEncoder.encode(subscriptionId, "UTF-8");
             String decodeSubId = URLDecoder.decode(encodeSubId, "ISO_8859_1");
             paramters.put("subId", decodeSubId);
         } else {
