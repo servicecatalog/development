@@ -68,20 +68,6 @@ public class APPConfigurationServiceBean {
     private static final String APP_SUSPEND = "APP_SUSPEND";
     private static final String KEY_PATH = "APP_KEY_PATH";
 
-    /**
-     * When value is prefixed with this, encryption is applied to the value and
-     * the encryption is written back into the database.
-     */
-    public static final String CRYPT_PREFIX = "_crypt:";
-
-    /**
-     * Setting keys ending with this suffix will have their values stored
-     * encrypted.
-     */
-    public static final String CRYPT_KEY_SUFFIX = "_PWD";
-
-    public static final String CRYPT_KEY_SUFFIX_PASS = "_PASS";
-
     @PostConstruct
     public void init() throws ConfigurationException {
 
@@ -139,7 +125,7 @@ public class APPConfigurationServiceBean {
         try {
             ConfigurationSetting result = (ConfigurationSetting) query
                     .getSingleResult();
-            return handleDecryption(result);
+            return result.getDecryptedValue();
         } catch (NoResultException e) {
             if (key.name().equals(APP_SUSPEND)) {
                 return "";
@@ -207,51 +193,6 @@ public class APPConfigurationServiceBean {
         }
     }
 
-    private String handleDecryption(ConfigurationSetting setting)
-            throws ConfigurationException {
-        try {
-            String value = setting.getSettingValue();
-            if (value != null
-                    && (setting.getSettingKey().endsWith(CRYPT_KEY_SUFFIX)
-                            || setting.getSettingKey()
-                                    .endsWith(CRYPT_KEY_SUFFIX_PASS))) {
-                if (value.startsWith(CRYPT_PREFIX)) {
-                    value = value.substring(CRYPT_PREFIX.length());
-                    setting.setSettingValue(AESEncrypter.encrypt(value));
-                    em.persist(setting);
-                } else {
-                    value = AESEncrypter.decrypt(value);
-                }
-            }
-            return value;
-        } catch (GeneralSecurityException e) {
-            LOGGER.warn("Error while decrypting setting with key {}",
-                    setting.getSettingKey());
-            throw new ConfigurationException(String.format(
-                    "Error while decrypting setting with key  '%s'",
-                    setting.getSettingKey()), setting.getSettingKey());
-        }
-    }
-
-    private void handleEncryption(ConfigurationSetting setting)
-            throws ConfigurationException {
-        try {
-            String value = setting.getSettingValue();
-            if (value != null
-                    && (setting.getSettingKey().endsWith(CRYPT_KEY_SUFFIX)
-                            || setting.getSettingKey()
-                                    .endsWith(CRYPT_KEY_SUFFIX_PASS))) {
-                setting.setSettingValue(AESEncrypter.encrypt(value));
-            }
-        } catch (GeneralSecurityException e) {
-            LOGGER.warn("Error while decrypting setting with key {}",
-                    setting.getSettingKey());
-            throw new ConfigurationException(String.format(
-                    "Error while encrypting setting with key  '%s'",
-                    setting.getSettingKey()), setting.getSettingKey());
-        }
-    }
-
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     public HashMap<String, Setting> getAllProxyConfigurationSettings()
             throws ConfigurationException {
@@ -262,7 +203,7 @@ public class APPConfigurationServiceBean {
         for (Object entry : resultList) {
             ConfigurationSetting currentCs = (ConfigurationSetting) entry;
             result.put(currentCs.getSettingKey(), new Setting(
-                    currentCs.getSettingKey(), handleDecryption(currentCs)));
+                    currentCs.getSettingKey(), currentCs.getDecryptedValue()));
         }
         PlatformConfigurationKey[] keys = PlatformConfigurationKey.values();
         StringBuffer missing = new StringBuffer();
@@ -311,7 +252,7 @@ public class APPConfigurationServiceBean {
                 ConfigurationSetting currentCs = (ConfigurationSetting) entry;
                 result.put(currentCs.getSettingKey(),
                         new Setting(currentCs.getSettingKey(),
-                                handleDecryption(currentCs)));
+                                currentCs.getDecryptedValue()));
             }
         }
         ControllerConfigurationKey[] keys = ControllerConfigurationKey.values();
@@ -410,8 +351,7 @@ public class APPConfigurationServiceBean {
                         || settings.get(key).getValue() == null) {
                     em.remove(setting);
                 } else {
-                    setting.setSettingValue(settings.get(key).getValue());
-                    handleEncryption(setting);
+                    setting.setDecryptedValue(settings.get(key).getValue());
                     em.persist(setting);
                 }
                 settings.remove(key);
@@ -421,9 +361,8 @@ public class APPConfigurationServiceBean {
             ConfigurationSetting newSetting = new ConfigurationSetting();
             newSetting.setControllerId(controllerId);
             newSetting.setSettingKey(newKey);
-            newSetting.setSettingValue(settings.get(newKey) != null
+            newSetting.setDecryptedValue(settings.get(newKey) != null
                     ? settings.get(newKey).getValue() : null);
-            handleEncryption(newSetting);
             em.persist(newSetting);
         }
     }

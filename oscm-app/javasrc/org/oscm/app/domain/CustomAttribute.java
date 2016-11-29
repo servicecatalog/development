@@ -88,7 +88,7 @@ public class CustomAttribute {
                     ? AESEncrypter.encrypt(parameterValue) : parameterValue;
         } catch (GeneralSecurityException e) {
             throw new BadResultException(String.format(
-                    "Parameter for key '%s' could not be encrypted",
+                    "Attribute for key '%s' could not be encrypted",
                     getAttributeKey()));
         }
     }
@@ -99,7 +99,7 @@ public class CustomAttribute {
                     : attributeValue;
         } catch (GeneralSecurityException e) {
             throw new BadResultException(String.format(
-                    "Parameter for key '%s' could not be decrypted",
+                    "Attribute for key '%s' could not be decrypted",
                     getAttributeKey()));
         }
     }
