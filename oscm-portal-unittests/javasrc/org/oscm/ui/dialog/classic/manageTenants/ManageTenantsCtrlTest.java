@@ -60,6 +60,7 @@ public class ManageTenantsCtrlTest {
         //then
         assertFalse(model.isClearExportAvailable());
         assertFalse(model.isSaveDisabled());
+        assertFalse(model.isImportDisabled());
         assertFalse(model.isDeleteDisabled());
         assertEquals(selectedTenant.getTenantId(), model.getTenantId().getValue());
         assertEquals(selectedTenant.getDescription(), model.getTenantDescription().getValue());
@@ -79,6 +80,7 @@ public class ManageTenantsCtrlTest {
         //then
         assertTrue(model.isClearExportAvailable());
         assertFalse(model.isSaveDisabled());
+        assertFalse(model.isImportDisabled());
         assertFalse(model.isDeleteDisabled());
     }
 
@@ -137,6 +139,7 @@ public class ManageTenantsCtrlTest {
         assertEquals(model.getTenantDescription().getValue(), null);
         assertEquals(model.getTenantIdp().getValue(), null);
         assertFalse(model.isSaveDisabled());
+        assertFalse(model.isImportDisabled());
         assertTrue(model.isDeleteDisabled());
     }
 
