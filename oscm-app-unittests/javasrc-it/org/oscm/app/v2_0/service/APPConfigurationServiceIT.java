@@ -13,6 +13,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -42,7 +43,13 @@ public class APPConfigurationServiceIT extends EJBTestBase {
     @Override
     protected void setup(TestContainer container) throws Exception {
         em = container.getPersistenceUnit("oscm-app");
+
         createConfigSetting("APP_KEY_PATH", "./key");
+
+        File file = new File("./key");
+        if (file.exists()) {
+            file.delete();
+        }
 
         container.addBean(new APPConfigurationServiceBean());
 
@@ -109,7 +116,9 @@ public class APPConfigurationServiceIT extends EJBTestBase {
                 "testValue");
         PlatformConfigurationKey[] keys = PlatformConfigurationKey.values();
         for (int i = 0; i < keys.length; i++) {
-            createConfigSetting(keys[i].name(), "testValue");
+            if (keys[i] != PlatformConfigurationKey.APP_KEY_PATH) {
+                createConfigSetting(keys[i].name(), "testValue");
+            }
         }
         Map<String, Setting> result = runTX(
                 new Callable<Map<String, Setting>>() {
@@ -119,7 +128,7 @@ public class APPConfigurationServiceIT extends EJBTestBase {
                     }
                 });
         assertNotNull(result);
-        assertEquals(keys.length + 4, result.keySet().size());
+        assertEquals(keys.length + 3, result.keySet().size());
         assertTrue(result.keySet().contains("setting1"));
         assertTrue(result.keySet().contains("setting2_PWD"));
         assertTrue(result.keySet().contains("setting3_PASS"));
