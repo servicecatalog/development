@@ -9,6 +9,7 @@
 package org.oscm.ui.filter;
 
 import static org.oscm.ui.beans.BaseBean.ERROR_PAGE;
+import static org.oscm.ui.common.Constants.PORTAL_HAS_BEEN_REQUESTED;
 
 import java.io.IOException;
 
@@ -116,7 +117,7 @@ public class ClosedMarketplaceFilter extends BaseBesFilter implements Filter {
     }
 
     private boolean portalHasBeenRequested(HttpServletRequest httpRequest) {
-        Object portalRequest = httpRequest.getSession().getAttribute("PORTAL_HAS_BEEN_REQUESTED");
+        Object portalRequest = httpRequest.getSession().getAttribute(PORTAL_HAS_BEEN_REQUESTED);
         return portalRequest != null ? ((Boolean) portalRequest).booleanValue() : false;
     }
 
@@ -135,10 +136,10 @@ public class ClosedMarketplaceFilter extends BaseBesFilter implements Filter {
     }
 
     private ServiceAccess getServiceAccess() {
-        if (serviceAccess != null) {
-            return serviceAccess;
+        if (serviceAccess == null) {
+            serviceAccess = new EJBServiceAccess();
         }
-        return new EJBServiceAccess();
+        return serviceAccess;
     }
 
     private void forwardToErrorPage(HttpServletRequest httpRequest,
