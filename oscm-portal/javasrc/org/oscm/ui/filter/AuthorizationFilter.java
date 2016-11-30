@@ -711,6 +711,7 @@ public class AuthorizationFilter extends BaseBesFilter {
 
         VOUserDetails userDetails = rdo.getUserDetails();
         if (userDetails != null) {
+            httpRequest.getSession().setAttribute("PORTAL_HAS_BEEN_REQUESTED", !rdo.isMarketplace());
 
             // if the user wants to use another organization he must login
             // again (the service sessions are destroyed as well)
