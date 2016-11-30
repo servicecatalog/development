@@ -41,7 +41,7 @@ public class PasswordMigrator {
     /**
      * Old encryption key
      */
-    private final static byte[] ENCRYPTION_KEY = decode(
+    public final static byte[] ENCRYPTION_KEY = decode(
             new long[] { 0x1BD9AC5E8CE971CDL, 0x98034879ACCC8904L,
                     0xF962DCA0907D0398L, 0xF54F221334184933L }).getBytes();
 
@@ -152,7 +152,7 @@ public class PasswordMigrator {
     }
 
     private static final String decrypt(String text)
-            throws ConfigurationException {
+            throws GeneralSecurityException {
         SecretKeySpec skeySpec = new SecretKeySpec(
                 Base64.decodeBase64(ENCRYPTION_KEY), "AES");
 
@@ -165,7 +165,7 @@ public class PasswordMigrator {
         } catch (InvalidKeyException | NoSuchAlgorithmException
                 | NoSuchPaddingException | IllegalBlockSizeException
                 | BadPaddingException e) {
-            throw new ConfigurationException(
+            throw new GeneralSecurityException(
                     "unable to decrypt old encryption");
         }
 
