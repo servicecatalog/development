@@ -8,7 +8,6 @@
 
 package org.oscm.app.vmware.business;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -20,8 +19,6 @@ import org.oscm.app.vmware.remote.vmware.VMwareClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.vmware.vim25.CustomFieldDef;
-import com.vmware.vim25.CustomFieldStringValue;
 import com.vmware.vim25.GuestInfo;
 import com.vmware.vim25.GuestNicInfo;
 import com.vmware.vim25.ManagedObjectReference;
@@ -579,39 +576,6 @@ public class VM extends Template {
         return (String) vmw.getServiceUtil().getDynamicProperty(hostRef,
                 "summary.hardware.cpuModel");
 
-    }
-
-    public HashMap<String, String> getAnnotationAttributes() throws Exception {
-        HashMap<String, String> attributes = new HashMap<>();
-
-        ManagedObjectReference customFieldsManager = vmw.getConnection()
-                .getServiceContent().getCustomFieldsManager();
-
-        @SuppressWarnings("unchecked")
-        List<CustomFieldDef> customFieldDef = (List<CustomFieldDef>) vmw
-                .getServiceUtil()
-                .getDynamicProperty(customFieldsManager, "field");
-
-        @SuppressWarnings("unchecked")
-        List<CustomFieldStringValue> customValues = (List<CustomFieldStringValue>) vmw
-                .getServiceUtil()
-                .getDynamicProperty(vmInstance, "summary.customValue");
-
-        for (CustomFieldDef field : customFieldDef) {
-            for (CustomFieldStringValue value : customValues) {
-                if (field.getKey() == value.getKey()) {
-                    if (value.getValue() != null
-                            && value.getValue().trim().length() > 0) {
-                        attributes.put(field.getName(), value.getValue());
-                    } else {
-                        LOG.warn("no value set for annotation attribute "
-                                + field.getName());
-                    }
-                }
-            }
-        }
-
-        return attributes;
     }
 
     /**
