@@ -8,8 +8,6 @@
 
 package org.oscm.ui.filter;
 
-import static org.oscm.ui.common.Constants.REQ_PARAM_TENANT_ID;
-
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Map;
@@ -21,13 +19,15 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.xml.datatype.DatatypeConfigurationException;
 
-import org.apache.commons.lang3.StringUtils;
 import org.oscm.internal.intf.*;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.PerformanceHint;
 import org.oscm.internal.types.enumtypes.UserRoleType;
-import org.oscm.internal.types.exception.*;
+import org.oscm.internal.types.exception.NotExistentTenantException;
+import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
+import org.oscm.internal.types.exception.SAML2AuthnRequestException;
+import org.oscm.internal.types.exception.WrongTenantConfigurationException;
 import org.oscm.internal.vo.VOUserDetails;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
@@ -560,7 +560,7 @@ public abstract class BaseBesFilter implements Filter {
         String queryString = httpRequest.getQueryString() == null ? ""
                 : httpRequest.getQueryString();
 
-        String mpRedirect = "";
+        String mpRedirect;
         if (ADMValidator.isHttpsScheme(requestUrl)) {
             mpRedirect = getRedirectMpUrlHttps(cs);
         } else {

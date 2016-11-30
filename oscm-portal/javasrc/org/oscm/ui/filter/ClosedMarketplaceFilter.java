@@ -87,27 +87,41 @@ public class ClosedMarketplaceFilter extends BaseBesFilter implements Filter {
 
             MarketplaceConfiguration config = getConfig(mId);
 
-            if (config != null && config.isRestricted()) {
+            if (isMkpRestricted(config)) {
                 if (voUserDetails != null
                         && voUserDetails.getOrganizationId() != null) {
                     if (!config.getAllowedOrganizations().contains(
                             voUserDetails.getOrganizationId())) {
-                        forwardToErrorPage(httpRequest, httpResponse);
-                        return;
-                    } else {
-                        chain.doFilter(request, response);
-                        return;
+                        if (portalHasBeenRequested(httpRequest)) {
+                            httpResponse.sendRedirect(getRedirectToMkpAddress(httpRequest));
+                        } else {
+                            forwardToErrorPage(httpRequest, httpResponse);
+                        }
                     }
-                }
-
-                if (config.hasLandingPage() && !isSAMLAuthentication()) {
-                    chain.doFilter(request, response);
-                    return;
                 }
             }
 
         }
         chain.doFilter(request, response);
+    }
+
+    private String getRedirectToMkpAddress(HttpServletRequest httpRequest) {
+        String result;
+        if (httpRequest.isSecure()) {
+            result = getRedirectMpUrlHttps(getConfigurationService(httpRequest));
+        } else {
+            result = getRedirectMpUrlHttp(getConfigurationService(httpRequest));
+        }
+        return result;
+    }
+
+    private boolean portalHasBeenRequested(HttpServletRequest httpRequest) {
+        Object portalRequest = httpRequest.getSession().getAttribute("PORTAL_HAS_BEEN_REQUESTED");
+        return portalRequest != null ? ((Boolean) portalRequest).booleanValue() : false;
+    }
+
+    private boolean isMkpRestricted(MarketplaceConfiguration config) {
+        return config != null && config.isRestricted();
     }
 
     boolean isSAMLAuthentication() {
