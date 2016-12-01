@@ -15,12 +15,17 @@ import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Random;
 
+import javax.annotation.PostConstruct;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
+import javax.ejb.EJB;
+import javax.ejb.Singleton;
+import javax.ejb.Startup;
 import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 
 import org.apache.commons.codec.binary.Base64;
@@ -30,13 +35,30 @@ import org.oscm.app.domain.CustomAttribute;
 import org.oscm.app.domain.InstanceAttribute;
 import org.oscm.app.domain.InstanceParameter;
 import org.oscm.app.v2_0.exceptions.ConfigurationException;
+import org.oscm.app.v2_0.service.APPConfigurationServiceBean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Migrates the old passwords to the new method.
  * 
  * @author miethaner
  */
-public class PasswordMigrator {
+@Singleton
+@Startup
+public class PasswordSetup {
+
+    private static final Logger LOGGER = LoggerFactory
+            .getLogger(PasswordSetup.class);
+
+    /**
+     * EntityManager to be used for all persistence operations
+     */
+    @PersistenceContext(name = "persistence/em", unitName = "oscm-app")
+    protected EntityManager em;
+
+    @EJB
+    protected APPConfigurationServiceBean config;
 
     /**
      * Old encryption key
@@ -59,6 +81,20 @@ public class PasswordMigrator {
 
     public static final String CRYPT_KEY_SUFFIX_PASS = "_PASS";
 
+    @PostConstruct
+    public void startUp() {
+
+        try {
+            if (config.initEncryption()) {
+                updatePasswords(em);
+            }
+        } catch (ConfigurationException | GeneralSecurityException
+                | BadResultException e) {
+            LOGGER.error("unable to update old passwords");
+            throw new RuntimeException("unable to update old passwords", e);
+        }
+    }
+
     /**
      * Decrypts all old style passwords in the database and saves them encrypted
      * with the new method.
@@ -69,9 +105,8 @@ public class PasswordMigrator {
      * @throws GeneralSecurityException
      * @throws BadResultException
      */
-    public static void updatePasswords(EntityManager em)
-            throws ConfigurationException, GeneralSecurityException,
-            BadResultException {
+    public void updatePasswords(EntityManager em) throws ConfigurationException,
+            GeneralSecurityException, BadResultException {
 
         String csSQL = "SELECT cs FROM ConfigurationSetting cs WHERE cs.settingKey like '%"
                 + CRYPT_KEY_SUFFIX + "' OR cs.settingKey like '%"
@@ -123,7 +158,7 @@ public class PasswordMigrator {
         em.flush();
     }
 
-    private static final String decode(final long[] obfuscated) {
+    private static String decode(final long[] obfuscated) {
         final int length = obfuscated.length;
         final byte[] encoded = new byte[8 * (length - 1)];
         final long seed = obfuscated[0];
@@ -151,8 +186,7 @@ public class PasswordMigrator {
         return i != -1 ? decoded.substring(0, i) : decoded;
     }
 
-    private static final String decrypt(String text)
-            throws GeneralSecurityException {
+    private String decrypt(String text) throws GeneralSecurityException {
         SecretKeySpec skeySpec = new SecretKeySpec(
                 Base64.decodeBase64(ENCRYPTION_KEY), "AES");
 

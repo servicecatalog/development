@@ -27,7 +27,7 @@ import org.oscm.app.domain.ConfigurationSetting;
 import org.oscm.app.domain.CustomAttribute;
 import org.oscm.app.domain.PlatformConfigurationKey;
 import org.oscm.app.domain.ServiceInstance;
-import org.oscm.app.setup.PasswordMigrator;
+import org.oscm.app.setup.PasswordSetup;
 import org.oscm.app.v2_0.data.ControllerConfigurationKey;
 import org.oscm.app.v2_0.data.ProvisioningSettings;
 import org.oscm.app.v2_0.data.Setting;
@@ -38,6 +38,7 @@ import org.oscm.test.ejb.TestContainer;
 public class APPConfigurationServiceIT extends EJBTestBase {
 
     private APPConfigurationServiceBean cs;
+    private PasswordSetup pwd;
     private EntityManager em;
 
     @Override
@@ -52,8 +53,11 @@ public class APPConfigurationServiceIT extends EJBTestBase {
         }
 
         container.addBean(new APPConfigurationServiceBean());
+        container.addBean(new PasswordSetup());
 
         cs = container.get(APPConfigurationServiceBean.class);
+        pwd = container.get(PasswordSetup.class);
+        pwd.startUp();
 
     }
 
@@ -110,9 +114,9 @@ public class APPConfigurationServiceIT extends EJBTestBase {
     @Test
     public void testGetAllConfigurationSettings_TwoHits() throws Exception {
         createConfigSetting("setting1", "testValue");
-        createConfigSetting("setting2" + PasswordMigrator.CRYPT_KEY_SUFFIX,
+        createConfigSetting("setting2" + PasswordSetup.CRYPT_KEY_SUFFIX,
                 "testValue");
-        createConfigSetting("setting3" + PasswordMigrator.CRYPT_KEY_SUFFIX_PASS,
+        createConfigSetting("setting3" + PasswordSetup.CRYPT_KEY_SUFFIX_PASS,
                 "testValue");
         PlatformConfigurationKey[] keys = PlatformConfigurationKey.values();
         for (int i = 0; i < keys.length; i++) {
@@ -292,7 +296,7 @@ public class APPConfigurationServiceIT extends EJBTestBase {
         createContorllerConfigSetting("controller1", "leave", "alone");
         createContorllerConfigSetting("controller1", "update", "old");
         createContorllerConfigSetting("controller1", "update_PWD",
-                PasswordMigrator.CRYPT_PREFIX + "old_crypt");
+                PasswordSetup.CRYPT_PREFIX + "old_crypt");
         createContorllerConfigSetting("controller1", "delete", "old");
         createContorllerConfigSetting("controller2", "instanceValue",
                 "value1_c2");

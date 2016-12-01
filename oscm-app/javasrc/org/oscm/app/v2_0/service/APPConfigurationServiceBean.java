@@ -12,16 +12,13 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
-import java.security.GeneralSecurityException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
 import javax.ejb.LocalBean;
-import javax.ejb.Singleton;
-import javax.ejb.Startup;
+import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.persistence.EntityManager;
@@ -37,7 +34,6 @@ import org.oscm.app.domain.InstanceParameter;
 import org.oscm.app.domain.PlatformConfigurationKey;
 import org.oscm.app.domain.ServiceInstance;
 import org.oscm.app.i18n.Messages;
-import org.oscm.app.setup.PasswordMigrator;
 import org.oscm.app.v2_0.data.ControllerConfigurationKey;
 import org.oscm.app.v2_0.data.PasswordAuthentication;
 import org.oscm.app.v2_0.data.ProvisioningSettings;
@@ -56,8 +52,7 @@ import org.slf4j.LoggerFactory;
  * @author Mike J&auml;ger
  * 
  */
-@Singleton
-@Startup
+@Stateless
 @LocalBean
 public class APPConfigurationServiceBean {
 
@@ -68,8 +63,15 @@ public class APPConfigurationServiceBean {
     private static final String APP_SUSPEND = "APP_SUSPEND";
     private static final String KEY_PATH = "APP_KEY_PATH";
 
-    @PostConstruct
-    public void init() throws ConfigurationException {
+    /**
+     * Initialized the encryption for the APP. If the key file specified in the
+     * settings is present, it reads the key, otherwise it is generated and
+     * saved in file.
+     * 
+     * @return true if a new key was generated
+     * @throws ConfigurationException
+     */
+    public boolean initEncryption() throws ConfigurationException {
 
         String path = getKeyFilePath();
         File keyFile = new File(path);
@@ -81,6 +83,8 @@ public class APPConfigurationServiceBean {
 
                 AESEncrypter.setKey(
                         Arrays.copyOfRange(key, 0, AESEncrypter.KEY_BYTES));
+
+                return false;
             } catch (IOException | ArrayIndexOutOfBoundsException e) {
                 throw new ConfigurationException(
                         "Keyfile at " + path + " is not readable");
@@ -94,12 +98,7 @@ public class APPConfigurationServiceBean {
                         StandardOpenOption.CREATE_NEW,
                         StandardOpenOption.WRITE);
 
-                try {
-                    PasswordMigrator.updatePasswords(em);
-                } catch (GeneralSecurityException | BadResultException e) {
-                    LOGGER.error("unable to update old passwords");
-                }
-
+                return true;
             } catch (IOException e) {
                 throw new ConfigurationException(
                         "Keyfile at " + path + " could not be generated");
