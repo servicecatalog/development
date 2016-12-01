@@ -35,23 +35,24 @@ import org.oscm.test.EJBTestBase;
 import org.oscm.test.ejb.TestContainer;
 
 /**
+ * Integration test for PasswordSetup
+ * 
  * @author miethaner
- *
  */
-public class PasswordMigratorIT extends EJBTestBase {
+public class PasswordSetupIT extends EJBTestBase {
 
     private EntityManager em;
+    private APPConfigurationServiceBean config;
 
-    private class ConfigService extends APPConfigurationServiceBean {
-
-        public void setEntityManager(EntityManager em) {
-            this.em = em;
-        }
+    private class PwdSetup extends PasswordSetup {
     }
 
     @Override
     protected void setup(TestContainer container) throws Exception {
         em = container.getPersistenceUnit("oscm-app");
+        container.addBean(new APPConfigurationServiceBean());
+        config = container.get(APPConfigurationServiceBean.class);
+
         createConfigSetting("APP_KEY_PATH", "./key");
 
         File file = new File("./key");
@@ -75,9 +76,9 @@ public class PasswordMigratorIT extends EJBTestBase {
         for (int i = 0; i < keys.length; i++) {
             if (keys[i] != PlatformConfigurationKey.APP_KEY_PATH) {
                 String value = "testValue";
-                if (keys[i].name().endsWith(PasswordMigrator.CRYPT_KEY_SUFFIX)
+                if (keys[i].name().endsWith(PasswordSetup.CRYPT_KEY_SUFFIX)
                         || keys[i].name().endsWith(
-                                PasswordMigrator.CRYPT_KEY_SUFFIX_PASS)) {
+                                PasswordSetup.CRYPT_KEY_SUFFIX_PASS)) {
                     value = encrypt(value);
                 }
                 createConfigSetting(keys[i].name(), value);
@@ -98,9 +99,10 @@ public class PasswordMigratorIT extends EJBTestBase {
                 new Callable<ProvisioningSettings>() {
                     @Override
                     public ProvisioningSettings call() throws Exception {
-                        ConfigService config = new ConfigService();
-                        config.setEntityManager(em);
-                        config.init();
+                        PwdSetup setup = new PwdSetup();
+                        setup.em = em;
+                        setup.config = config;
+                        setup.startUp();
 
                         ServiceInstance instance = em
                                 .getReference(ServiceInstance.class, siKey);
@@ -239,7 +241,7 @@ public class PasswordMigratorIT extends EJBTestBase {
     public static String encrypt(String text) throws GeneralSecurityException {
 
         SecretKeySpec skeySpec = new SecretKeySpec(
-                Base64.decodeBase64(PasswordMigrator.ENCRYPTION_KEY), "AES");
+                Base64.decodeBase64(PasswordSetup.ENCRYPTION_KEY), "AES");
 
         Cipher cipher = Cipher.getInstance("AES");
         cipher.init(Cipher.ENCRYPT_MODE, skeySpec);
