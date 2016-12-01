@@ -70,7 +70,7 @@ public class Actions {
                     .borrowObject(vcenter);
             VM vm = new VM(vmClient, ph.getInstanceName());
             TaskInfo tInfo = vm.reconfigureVirtualMachine(ph);
-            ph.setTask(tInfo.getKey());
+            ph.setTask(tInfo);
             return EVENT_CONFIGURING;
         } catch (Exception e) {
             logger.error("Failed to configure VM of instance " + instanceId, e);
@@ -143,7 +143,7 @@ public class Actions {
                     .borrowObject(vcenter);
             VM vm = new VM(vmClient, ph.getInstanceName());
             TaskInfo tInfo = vm.stop(true);
-            ph.setTask(tInfo.getKey());
+            ph.setTask(tInfo);
             return EVENT_STOPPING;
         } catch (Exception e) {
             logger.error("Failed to power off VM of instance " + instanceId, e);
@@ -177,7 +177,7 @@ public class Actions {
                     .borrowObject(vcenter);
             VM vm = new VM(vmClient, ph.getInstanceName());
             TaskInfo tInfo = vm.start();
-            ph.setTask(tInfo.getKey());
+            ph.setTask(tInfo);
             return EVENT_STARTING;
         } catch (Exception e) {
             logger.error("Failed to start VM of instance " + instanceId, e);
