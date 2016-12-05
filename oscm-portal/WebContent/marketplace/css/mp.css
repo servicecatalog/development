@@ -3469,6 +3469,12 @@ div.responsive-table-panel {
 }
 
 #loading {
+  position: absolute;
+  left: 40%;
+  top: 50%;
+  z-index: 1;
+  width: 280px;
+  margin: -75px 0 0 -75px;
   background-color: #3498DD;
   padding: 8px 16px;
   border-radius: 5px;

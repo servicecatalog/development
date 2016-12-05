@@ -142,10 +142,20 @@
       </a4j:outputPanel>
     </rich:tab>
     <rich:tab id="customTab" header="#{subscription.customTabName}" rendered="#{not empty subscription.customTabName}" onheaderclick="customTabSelected();">
-      <h:panelGroup id="loading">Loading</h:panelGroup>
+      <h:panelGroup id="loading">#{msg['info.loadingCustomTab']}<h:panelGroup id="wait" /></h:panelGroup>
       <iframe id="customData" src="#{mySubscriptionsCtrl.customTabUrlWithParameters}" width="100%" height="500"
               style="border: none" onload="AdmUtils.showProgress(false);$('#loading').hide();"/>
     </rich:tab>
+
+    <script>
+      var dots = window.setInterval( function() {
+          var wait = document.getElementById("wait");
+          if ( wait.innerHTML.length > 2 )
+              wait.innerHTML = "";
+          else
+              wait.innerHTML += ".";
+          }, 350);
+    </script>
     <script type="text/javascript">
 
     var oncePerTab = true;
@@ -154,7 +164,7 @@
        var customTabName = '#{subscription.customTabName}';
        var customSelected = $('.rf-tab-hdr-act').text();
        if (customTabName != customSelected &amp;&amp; oncePerTab) {
-          once = false;
+          oncePerTab = false;
           AdmUtils.showProgress(true);
        }
     }
