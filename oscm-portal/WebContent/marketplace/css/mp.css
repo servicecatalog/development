@@ -3475,10 +3475,8 @@ div.responsive-table-panel {
   z-index: 1;
   width: 280px;
   margin: -75px 0 0 -75px;
-  background-color: #3498DD;
   padding: 8px 16px;
   border-radius: 5px;
-  color: #FEFEFE;
   font: 20px 'Helvetica';
   text-transform: uppercase;
 }
