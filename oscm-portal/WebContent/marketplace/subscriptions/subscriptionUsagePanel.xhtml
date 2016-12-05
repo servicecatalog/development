@@ -144,7 +144,7 @@
     <rich:tab id="customTab" header="#{subscription.customTabName}" rendered="#{not empty subscription.customTabName}" onheaderclick="customTabSelected();">
       <h:panelGroup id="loading">#{msg['info.loadingCustomTab']}<h:panelGroup id="wait" /></h:panelGroup>
       <iframe id="customData" src="#{mySubscriptionsCtrl.customTabUrlWithParameters}" width="100%" height="500"
-              style="border: none" onload="AdmUtils.showProgress(false);$('#loading').hide();"/>
+              style="border: none" onload="AdmUtils.showProgress(false);$('#loading').hide();clearInterval(dots);"/>
     </rich:tab>
 
     <script type="text/javascript">
