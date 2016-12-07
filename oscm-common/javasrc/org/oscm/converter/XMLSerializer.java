@@ -144,8 +144,8 @@ public class XMLSerializer {
 
         String result = null;
         try {
-            result = AESEncrypter
-                    .encrypt(new String(out.toByteArray(), "UTF-8"));
+            result = AESEncrypter.encrypt(XmlStringCleaner
+                    .cleanString(new String(out.toByteArray(), "UTF-8")));
         } catch (GeneralSecurityException e) {
             throw new RuntimeException(e);
         } catch (UnsupportedEncodingException e) {

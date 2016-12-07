@@ -60,6 +60,7 @@ import org.oscm.domobjects.UsageLicense;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.domobjects.enums.ModificationType;
 import org.oscm.domobjects.enums.OrganizationReferenceType;
+import org.oscm.encrypter.AESEncrypter;
 import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
@@ -143,6 +144,7 @@ public class SubscriptionServiceBeanDirectLoginIT extends EJBTestBase {
 
     @Override
     public void setup(TestContainer container) throws Exception {
+        AESEncrypter.generateKey();
         container.enableInterfaceMocking(true);
 
         container.login("1");

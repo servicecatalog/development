@@ -107,6 +107,7 @@ import org.oscm.domobjects.UserGroup;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.domobjects.enums.ModificationType;
 import org.oscm.domobjects.enums.OrganizationReferenceType;
+import org.oscm.encrypter.AESEncrypter;
 import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.i18nservice.local.ImageResourceServiceLocal;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
@@ -281,6 +282,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
         instanceActivated = false;
         instanceDeactivated = false;
         setInvoiceAsDefaultPayment = false;
+
+        AESEncrypter.generateKey();
 
         container.login(1L);
         container.enableInterfaceMocking(true);

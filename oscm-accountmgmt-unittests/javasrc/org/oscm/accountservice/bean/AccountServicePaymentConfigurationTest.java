@@ -46,7 +46,6 @@ import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-
 import org.oscm.accountservice.assembler.PaymentTypeAssembler;
 import org.oscm.applicationservice.local.ApplicationServiceLocal;
 import org.oscm.converter.ParameterizedTypes;
@@ -67,12 +66,9 @@ import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.TriggerProcess;
 import org.oscm.domobjects.TriggerProcessParameter;
 import org.oscm.domobjects.enums.OrganizationReferenceType;
+import org.oscm.encrypter.AESEncrypter;
 import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
-import org.oscm.triggerservice.local.TriggerMessage;
-import org.oscm.triggerservice.local.TriggerProcessMessageData;
-import org.oscm.triggerservice.local.TriggerQueueServiceLocal;
-import org.oscm.types.enumtypes.TriggerProcessParameterName;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.PriceModelType;
 import org.oscm.internal.types.enumtypes.ServiceType;
@@ -85,6 +81,10 @@ import org.oscm.internal.vo.VOOrganizationPaymentConfiguration;
 import org.oscm.internal.vo.VOPaymentType;
 import org.oscm.internal.vo.VOService;
 import org.oscm.internal.vo.VOServicePaymentConfiguration;
+import org.oscm.triggerservice.local.TriggerMessage;
+import org.oscm.triggerservice.local.TriggerProcessMessageData;
+import org.oscm.triggerservice.local.TriggerQueueServiceLocal;
+import org.oscm.types.enumtypes.TriggerProcessParameterName;
 
 /**
  * @author weiser
@@ -97,8 +97,8 @@ public class AccountServicePaymentConfigurationTest {
 
     private Organization supplier;
     private PlatformUser user;
-    private final List<Organization> customers = new ArrayList<Organization>();
-    private final List<PaymentType> paymentTypes = new ArrayList<PaymentType>();
+    private final List<Organization> customers = new ArrayList<>();
+    private final List<PaymentType> paymentTypes = new ArrayList<>();
     private OrganizationReference ref;
     private Query query;
     private ApplicationServiceLocal asl;
@@ -109,6 +109,7 @@ public class AccountServicePaymentConfigurationTest {
 
     @Before
     public void setup() throws Exception {
+        AESEncrypter.generateKey();
         Organization po = new Organization();
         po.setOrganizationId(OrganizationRoleType.PLATFORM_OPERATOR.name());
 
@@ -128,9 +129,8 @@ public class AccountServicePaymentConfigurationTest {
         supplier.getSources().add(ref);
 
         // create and enable all payment types for the supplier
-        List<String> pts = Arrays.asList(new String[] {
-                PaymentType.CREDIT_CARD, PaymentType.DIRECT_DEBIT,
-                PaymentType.INVOICE });
+        List<String> pts = Arrays.asList(new String[] { PaymentType.CREDIT_CARD,
+                PaymentType.DIRECT_DEBIT, PaymentType.INVOICE });
         for (int i = 0; i < pts.size(); i++) {
             PaymentType pt = new PaymentType();
             pt.setKey(i);
@@ -142,8 +142,8 @@ public class AccountServicePaymentConfigurationTest {
             ortpt.setPaymentType(pt);
             ortpt.setUsedAsDefault(true);
             ortpt.setUsedAsServiceDefault(true);
-            ortpt.setOrganizationRole(new OrganizationRole(
-                    OrganizationRoleType.SUPPLIER));
+            ortpt.setOrganizationRole(
+                    new OrganizationRole(OrganizationRoleType.SUPPLIER));
             ref.getPaymentTypes().add(ortpt);
         }
 
@@ -178,8 +178,8 @@ public class AccountServicePaymentConfigurationTest {
             doReturn(p).when(ds).getReference(Product.class, i);
         }
 
-        when(ds.getReferenceByBusinessKey(any(DomainObject.class))).thenAnswer(
-                new Answer<DomainObject<?>>() {
+        when(ds.getReferenceByBusinessKey(any(DomainObject.class)))
+                .thenAnswer(new Answer<DomainObject<?>>() {
 
                     @Override
                     public DomainObject<?> answer(InvocationOnMock invocation)
@@ -188,17 +188,17 @@ public class AccountServicePaymentConfigurationTest {
                         if (obj instanceof Organization) {
                             Organization org = (Organization) obj;
                             for (Organization cust : customers) {
-                                if (cust.getOrganizationId().equals(
-                                        org.getOrganizationId())) {
+                                if (cust.getOrganizationId()
+                                        .equals(org.getOrganizationId())) {
                                     return cust;
                                 }
                             }
                             throw new ObjectNotFoundException(
-                                    ClassEnum.ORGANIZATION, org
-                                            .getOrganizationId());
+                                    ClassEnum.ORGANIZATION,
+                                    org.getOrganizationId());
                         }
-                        throw new ObjectNotFoundException(obj.getClass()
-                                .getName());
+                        throw new ObjectNotFoundException(
+                                obj.getClass().getName());
                     }
                 });
 
@@ -209,7 +209,7 @@ public class AccountServicePaymentConfigurationTest {
             public List<TriggerProcessMessageData> answer(
                     InvocationOnMock invocation) throws Throwable {
 
-                List<TriggerProcessMessageData> result = new ArrayList<TriggerProcessMessageData>();
+                List<TriggerProcessMessageData> result = new ArrayList<>();
                 for (TriggerMessage m : ParameterizedTypes.list(
                         (List<?>) invocation.getArguments()[0],
                         TriggerMessage.class)) {
@@ -221,8 +221,8 @@ public class AccountServicePaymentConfigurationTest {
             }
         };
 
-        doAnswer(answerMock).when(tqsl).sendSuspendingMessages(
-                anyListOf(TriggerMessage.class));
+        doAnswer(answerMock).when(tqsl)
+                .sendSuspendingMessages(anyListOf(TriggerMessage.class));
 
         asb = spy(new AccountServiceBean());
         asb.dm = ds;
@@ -239,9 +239,9 @@ public class AccountServicePaymentConfigurationTest {
      */
     @Test
     public void savePaymentConfiguration_OnlyDefaults() throws Exception {
-        Set<VOPaymentType> svcDef = new HashSet<VOPaymentType>();
+        Set<VOPaymentType> svcDef = new HashSet<>();
         ArgumentCaptor<TriggerProcess> c = spySavePaymentConfigurationInt(asb);
-        Set<VOPaymentType> custDef = new HashSet<VOPaymentType>();
+        Set<VOPaymentType> custDef = new HashSet<>();
         asb.savePaymentConfiguration(custDef, null, svcDef, null);
 
         List<TriggerProcess> values = c.getAllValues();
@@ -249,12 +249,13 @@ public class AccountServicePaymentConfigurationTest {
         assertEquals(2, values.size());
 
         TriggerProcess tp = values.get(0);
-        TriggerProcessParameter p = tp
-                .getParamValueForName(TriggerProcessParameterName.DEFAULT_CONFIGURATION);
+        TriggerProcessParameter p = tp.getParamValueForName(
+                TriggerProcessParameterName.DEFAULT_CONFIGURATION);
         assertEquals(custDef, p.getValue(Set.class));
 
         tp = values.get(1);
-        p = tp.getParamValueForName(TriggerProcessParameterName.DEFAULT_SERVICE_PAYMENT_CONFIGURATION);
+        p = tp.getParamValueForName(
+                TriggerProcessParameterName.DEFAULT_SERVICE_PAYMENT_CONFIGURATION);
         assertEquals(svcDef, p.getValue(Set.class));
     }
 
@@ -263,13 +264,12 @@ public class AccountServicePaymentConfigurationTest {
      */
     @Test
     public void savePaymentConfiguration() throws Exception {
-        Mockito.when(
-                tqsl.sendSuspendingMessages(Matchers
-                        .anyListOf(TriggerMessage.class))).thenAnswer(
-                answerMock);
+        Mockito.when(tqsl.sendSuspendingMessages(
+                Matchers.anyListOf(TriggerMessage.class)))
+                .thenAnswer(answerMock);
 
         ArgumentCaptor<TriggerProcess> c = spySavePaymentConfigurationInt(asb);
-        Set<VOPaymentType> def = new HashSet<VOPaymentType>();
+        Set<VOPaymentType> def = new HashSet<>();
         List<VOOrganizationPaymentConfiguration> custConf = getCustomerPaymentConfiguration(
                 customers, def);
         List<VOServicePaymentConfiguration> svcConf = getServicePaymentConfiguration(
@@ -284,14 +284,15 @@ public class AccountServicePaymentConfigurationTest {
         // customer default
         TriggerProcess tp = values.get(0);
         assertEquals(1, tp.getTriggerProcessParameters().size());
-        TriggerProcessParameter p = tp
-                .getParamValueForName(TriggerProcessParameterName.DEFAULT_CONFIGURATION);
+        TriggerProcessParameter p = tp.getParamValueForName(
+                TriggerProcessParameterName.DEFAULT_CONFIGURATION);
         assertEquals(def, p.getValue(Set.class));
 
         // service default
         tp = values.get(1);
         assertEquals(1, tp.getTriggerProcessParameters().size());
-        p = tp.getParamValueForName(TriggerProcessParameterName.DEFAULT_SERVICE_PAYMENT_CONFIGURATION);
+        p = tp.getParamValueForName(
+                TriggerProcessParameterName.DEFAULT_SERVICE_PAYMENT_CONFIGURATION);
         assertEquals(def, p.getValue(Set.class));
     }
 
@@ -300,14 +301,13 @@ public class AccountServicePaymentConfigurationTest {
      */
     @Test
     public void savePaymentConfiguration_ChangeAll() throws Exception {
-        Mockito.when(
-                tqsl.sendSuspendingMessages(Matchers
-                        .anyListOf(TriggerMessage.class))).thenAnswer(
-                answerMock);
+        Mockito.when(tqsl.sendSuspendingMessages(
+                Matchers.anyListOf(TriggerMessage.class)))
+                .thenAnswer(answerMock);
 
         ArgumentCaptor<TriggerProcess> c = spySavePaymentConfigurationInt(asb);
         Set<VOPaymentType> specific = getPaymentTypes(paymentTypes);
-        Set<VOPaymentType> def = new HashSet<VOPaymentType>();
+        Set<VOPaymentType> def = new HashSet<>();
         List<VOOrganizationPaymentConfiguration> custConf = getCustomerPaymentConfiguration(
                 customers, specific);
         List<VOServicePaymentConfiguration> svcConf = getServicePaymentConfiguration(
@@ -321,8 +321,8 @@ public class AccountServicePaymentConfigurationTest {
         // customer default
         TriggerProcess tp = values.get(0);
         assertEquals(1, tp.getTriggerProcessParameters().size());
-        TriggerProcessParameter p = tp
-                .getParamValueForName(TriggerProcessParameterName.DEFAULT_CONFIGURATION);
+        TriggerProcessParameter p = tp.getParamValueForName(
+                TriggerProcessParameterName.DEFAULT_CONFIGURATION);
         assertEquals(def, p.getValue(Set.class));
 
         // customer specific
@@ -330,21 +330,22 @@ public class AccountServicePaymentConfigurationTest {
             tp = values.get(i);
             assertEquals(1, tp.getTriggerProcessParameters().size());
 
-            p = tp.getParamValueForName(TriggerProcessParameterName.CUSTOMER_CONFIGURATION);
+            p = tp.getParamValueForName(
+                    TriggerProcessParameterName.CUSTOMER_CONFIGURATION);
             VOOrganizationPaymentConfiguration actual = p
                     .getValue(VOOrganizationPaymentConfiguration.class);
             VOOrganizationPaymentConfiguration expected = custConf.get(i - 1);
 
-            assertEquals(String.valueOf(i),
-                    expected.getOrganization().getKey(), actual
-                            .getOrganization().getKey());
+            assertEquals(String.valueOf(i), expected.getOrganization().getKey(),
+                    actual.getOrganization().getKey());
             assertEquals(String.valueOf(i), specific,
                     actual.getEnabledPaymentTypes());
         }
         // service default
         tp = values.get(6);
         assertEquals(1, tp.getTriggerProcessParameters().size());
-        p = tp.getParamValueForName(TriggerProcessParameterName.DEFAULT_SERVICE_PAYMENT_CONFIGURATION);
+        p = tp.getParamValueForName(
+                TriggerProcessParameterName.DEFAULT_SERVICE_PAYMENT_CONFIGURATION);
         assertEquals(def, p.getValue(Set.class));
 
         // service specific
@@ -352,7 +353,8 @@ public class AccountServicePaymentConfigurationTest {
             tp = values.get(i);
             assertEquals(1, tp.getTriggerProcessParameters().size());
 
-            p = tp.getParamValueForName(TriggerProcessParameterName.SERVICE_PAYMENT_CONFIGURATION);
+            p = tp.getParamValueForName(
+                    TriggerProcessParameterName.SERVICE_PAYMENT_CONFIGURATION);
             VOServicePaymentConfiguration actual = p
                     .getValue(VOServicePaymentConfiguration.class);
             VOServicePaymentConfiguration expected = svcConf.get(i - 7);
@@ -447,7 +449,8 @@ public class AccountServicePaymentConfigurationTest {
         // try to enable all payment types for the product
         tp.addTriggerProcessParameter(
                 TriggerProcessParameterName.SERVICE_PAYMENT_CONFIGURATION,
-                getServicePaymentConfiguration(getPaymentTypes(paymentTypes), p));
+                getServicePaymentConfiguration(getPaymentTypes(paymentTypes),
+                        p));
         asb.savePaymentConfigurationInt(tp);
     }
 
@@ -461,7 +464,8 @@ public class AccountServicePaymentConfigurationTest {
         // try to enable all payment types for the product
         tp.addTriggerProcessParameter(
                 TriggerProcessParameterName.SERVICE_PAYMENT_CONFIGURATION,
-                getServicePaymentConfiguration(getPaymentTypes(paymentTypes), p));
+                getServicePaymentConfiguration(getPaymentTypes(paymentTypes),
+                        p));
         asb.savePaymentConfigurationInt(tp);
     }
 
@@ -474,7 +478,8 @@ public class AccountServicePaymentConfigurationTest {
         // try to enable all payment types for the product
         tp.addTriggerProcessParameter(
                 TriggerProcessParameterName.SERVICE_PAYMENT_CONFIGURATION,
-                getServicePaymentConfiguration(getPaymentTypes(paymentTypes), p));
+                getServicePaymentConfiguration(getPaymentTypes(paymentTypes),
+                        p));
         asb.savePaymentConfigurationInt(tp);
     }
 
@@ -487,16 +492,17 @@ public class AccountServicePaymentConfigurationTest {
         // try to enable all payment types for the product
         tp.addTriggerProcessParameter(
                 TriggerProcessParameterName.SERVICE_PAYMENT_CONFIGURATION,
-                getServicePaymentConfiguration(getPaymentTypes(paymentTypes), p));
+                getServicePaymentConfiguration(getPaymentTypes(paymentTypes),
+                        p));
         asb.savePaymentConfigurationInt(tp);
 
         List<ProductToPaymentType> types = p.getPaymentTypes();
         assertEquals(paymentTypes.size(), types.size());
         verify(ds, times(3)).persist(any(ProductToPaymentType.class));
 
-        Set<String> ids = new HashSet<String>(Arrays.asList(new String[] {
-                PaymentType.CREDIT_CARD, PaymentType.DIRECT_DEBIT,
-                PaymentType.INVOICE }));
+        Set<String> ids = new HashSet<>(
+                Arrays.asList(new String[] { PaymentType.CREDIT_CARD,
+                        PaymentType.DIRECT_DEBIT, PaymentType.INVOICE }));
         for (ProductToPaymentType ref : types) {
             assertTrue(ids.remove(ref.getPaymentType().getPaymentTypeId()));
         }
@@ -518,7 +524,8 @@ public class AccountServicePaymentConfigurationTest {
         // try to disable all payment types for the product
         tp.addTriggerProcessParameter(
                 TriggerProcessParameterName.SERVICE_PAYMENT_CONFIGURATION,
-                getServicePaymentConfiguration(new HashSet<VOPaymentType>(), p));
+                getServicePaymentConfiguration(new HashSet<VOPaymentType>(),
+                        p));
         asb.savePaymentConfigurationInt(tp);
 
         List<ProductToPaymentType> types = p.getPaymentTypes();
@@ -543,8 +550,8 @@ public class AccountServicePaymentConfigurationTest {
         OrganizationRefToPaymentType refToPt = new OrganizationRefToPaymentType();
         OrganizationReference orgRef = c.getSources().get(0);
         refToPt.setOrganizationReference(orgRef);
-        refToPt.setOrganizationRole(new OrganizationRole(
-                OrganizationRoleType.CUSTOMER));
+        refToPt.setOrganizationRole(
+                new OrganizationRole(OrganizationRoleType.CUSTOMER));
         refToPt.setPaymentType(paymentTypes.get(0));
         orgRef.getPaymentTypes().add(refToPt);
 
@@ -552,16 +559,17 @@ public class AccountServicePaymentConfigurationTest {
         // try to enable all payment types for the product
         tp.addTriggerProcessParameter(
                 TriggerProcessParameterName.SERVICE_PAYMENT_CONFIGURATION,
-                getServicePaymentConfiguration(getPaymentTypes(paymentTypes), p));
+                getServicePaymentConfiguration(getPaymentTypes(paymentTypes),
+                        p));
         asb.savePaymentConfigurationInt(tp);
 
         List<ProductToPaymentType> types = p.getPaymentTypes();
         assertEquals(paymentTypes.size(), types.size());
         verify(ds, times(3)).persist(any(ProductToPaymentType.class));
 
-        Set<String> ids = new HashSet<String>(Arrays.asList(new String[] {
-                PaymentType.CREDIT_CARD, PaymentType.DIRECT_DEBIT,
-                PaymentType.INVOICE }));
+        Set<String> ids = new HashSet<>(
+                Arrays.asList(new String[] { PaymentType.CREDIT_CARD,
+                        PaymentType.DIRECT_DEBIT, PaymentType.INVOICE }));
         for (ProductToPaymentType ref : types) {
             assertTrue(ids.remove(ref.getPaymentType().getPaymentTypeId()));
         }
@@ -586,20 +594,22 @@ public class AccountServicePaymentConfigurationTest {
         turnOffDefaults(ref);
         TriggerProcess tp = new TriggerProcess();
         Product p = supplier.getProducts().get(0);
-        List<Subscription> subs = givenSubscriptions(p, query, customers.get(0));
+        List<Subscription> subs = givenSubscriptions(p, query,
+                customers.get(0));
         // try to enable all payment types for the product
         tp.addTriggerProcessParameter(
                 TriggerProcessParameterName.SERVICE_PAYMENT_CONFIGURATION,
-                getServicePaymentConfiguration(getPaymentTypes(paymentTypes), p));
+                getServicePaymentConfiguration(getPaymentTypes(paymentTypes),
+                        p));
         asb.savePaymentConfigurationInt(tp);
 
         List<ProductToPaymentType> types = p.getPaymentTypes();
         assertEquals(paymentTypes.size(), types.size());
         verify(ds, times(3)).persist(any(ProductToPaymentType.class));
 
-        Set<String> ids = new HashSet<String>(Arrays.asList(new String[] {
-                PaymentType.CREDIT_CARD, PaymentType.DIRECT_DEBIT,
-                PaymentType.INVOICE }));
+        Set<String> ids = new HashSet<>(
+                Arrays.asList(new String[] { PaymentType.CREDIT_CARD,
+                        PaymentType.DIRECT_DEBIT, PaymentType.INVOICE }));
         for (ProductToPaymentType ref : types) {
             assertTrue(ids.remove(ref.getPaymentType().getPaymentTypeId()));
         }
@@ -617,7 +627,8 @@ public class AccountServicePaymentConfigurationTest {
             throws Exception {
         TriggerProcess tp = new TriggerProcess();
         Product p = supplier.getProducts().get(0);
-        List<Subscription> subs = givenSubscriptions(p, query, customers.get(0));
+        List<Subscription> subs = givenSubscriptions(p, query,
+                customers.get(0));
         // enable all payment types
         for (PaymentType pt : paymentTypes) {
             ProductToPaymentType ref = new ProductToPaymentType();
@@ -628,7 +639,8 @@ public class AccountServicePaymentConfigurationTest {
         // try to disable all payment types for the product
         tp.addTriggerProcessParameter(
                 TriggerProcessParameterName.SERVICE_PAYMENT_CONFIGURATION,
-                getServicePaymentConfiguration(new HashSet<VOPaymentType>(), p));
+                getServicePaymentConfiguration(new HashSet<VOPaymentType>(),
+                        p));
         asb.savePaymentConfigurationInt(tp);
 
         List<ProductToPaymentType> types = p.getPaymentTypes();
@@ -647,7 +659,7 @@ public class AccountServicePaymentConfigurationTest {
 
     private List<Subscription> givenSubscriptions(Product p, Query q,
             Organization c) {
-        List<Subscription> result = new ArrayList<Subscription>();
+        List<Subscription> result = new ArrayList<>();
 
         result.add(givenSubscription(p, c, SubscriptionStatus.ACTIVE));
         result.add(givenSubscription(p, c, SubscriptionStatus.SUSPENDED));
@@ -691,7 +703,7 @@ public class AccountServicePaymentConfigurationTest {
 
     private List<VOServicePaymentConfiguration> getServicePaymentConfiguration(
             List<Product> products, Set<VOPaymentType> def) {
-        List<VOServicePaymentConfiguration> result = new ArrayList<VOServicePaymentConfiguration>();
+        List<VOServicePaymentConfiguration> result = new ArrayList<>();
         for (Product p : products) {
             result.add(getServicePaymentConfiguration(def, p));
         }
@@ -710,7 +722,7 @@ public class AccountServicePaymentConfigurationTest {
 
     private List<VOOrganizationPaymentConfiguration> getCustomerPaymentConfiguration(
             List<Organization> customers, Set<VOPaymentType> def) {
-        List<VOOrganizationPaymentConfiguration> result = new ArrayList<VOOrganizationPaymentConfiguration>();
+        List<VOOrganizationPaymentConfiguration> result = new ArrayList<>();
         for (Organization o : customers) {
             VOOrganization vo = new VOOrganization();
             vo.setKey(o.getKey());
@@ -724,7 +736,7 @@ public class AccountServicePaymentConfigurationTest {
     }
 
     private Set<VOPaymentType> getPaymentTypes(List<PaymentType> types) {
-        Set<VOPaymentType> result = new HashSet<VOPaymentType>();
+        Set<VOPaymentType> result = new HashSet<>();
         for (PaymentType pt : types) {
             result.add(PaymentTypeAssembler.toVOPaymentType(pt,
                     new LocalizerFacade(localizer, user.getLocale())));

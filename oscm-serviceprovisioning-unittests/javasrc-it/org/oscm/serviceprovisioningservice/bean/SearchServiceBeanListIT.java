@@ -62,6 +62,7 @@ import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.TechnicalProduct;
 import org.oscm.domobjects.TriggerProcess;
 import org.oscm.domobjects.UsageLicense;
+import org.oscm.encrypter.AESEncrypter;
 import org.oscm.i18nservice.bean.ImageResourceServiceBean;
 import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
@@ -270,6 +271,7 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
 
     @BeforeClass
     public static void setupOnce() throws Exception {
+        AESEncrypter.generateKey();
         TestDateFactory.restoreDefault();
         PERSISTENCE.clearEntityManagerFactoryCache();
         System.setProperty("hibernate.search.worker.jms.connection_factory",

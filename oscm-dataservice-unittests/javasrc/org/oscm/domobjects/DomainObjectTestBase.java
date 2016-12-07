@@ -19,6 +19,7 @@ import org.junit.Assert;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.enums.ModificationType;
+import org.oscm.encrypter.AESEncrypter;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.ReflectiveCompare;
@@ -45,6 +46,7 @@ public class DomainObjectTestBase extends EJBTestBase {
     @Override
     public void setup(final TestContainer container) throws Exception {
 
+        AESEncrypter.generateKey();
         container.login(USER_GUEST);
         container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
