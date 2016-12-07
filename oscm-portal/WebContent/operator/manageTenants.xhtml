@@ -23,7 +23,7 @@
                                           pagerId="tenantsPager"
                                           headers="#{manageTenantsCtrl.dataTableHeaders}"
                                           size="#{manageTenantsCtrl.tenantsNumber}"
-                                          columnClasses="smallCell,smallCell,smallCell,smallCell,smallCell"
+                                          columnClasses="smallCell,smallCell,smallCell moja,smallCell,smallCell"
                                           onRowClick="if(AdmUtils.isNotDirtyOrConfirmed()){AdmUtils.selectRow(this);selectItem('#{rowItem.tenantId}');}"
                                           onRowMouseOver="AdmUtils.mouseOverRow(this);"
                                           onRowMouseOut="AdmUtils.mouseOutRow(this);"
@@ -31,13 +31,6 @@
                                           showAddButton="true">
         </adm:dataTableCustomizedOnColumns>
 
-        <script type="text/javascript">
-		AdmUtils.findRow("manageTenants:tenants:", "tenantId",
-				"#{manageTenantsCtrl.model.selectedTenantId}", "#{size}", function(element) {
-					AdmUtils.selectRow(element);
-				});
-
-        </script>
       </a4j:outputPanel>
       <a4j:jsFunction name="selectItem" render="editForm mainTmplMessagesPanel importForm"
                       action="#{manageTenantsCtrl.setSelectedTenant}"
@@ -110,14 +103,14 @@
             <adm:labelAndInputText id="tenantId" label="#{msg['dataTable.header.tenantId']}"
                                    required="#{manageTenantsCtrl.model.tenantId.required}"
                                    value="#{manageTenantsCtrl.model.tenantId.value}"
-                                   maxlength="#{appBean.tenantFieldLen}"
+                                   maxlength="#{appBean.tenantFieldLen}" styleClass="field"
                                    disabled="#{manageTenantsCtrl.model.tenantId.readOnly}"
                                    converterId="trimConverter"/>
 
             <adm:labelAndInputText id="tenantIdp" label="#{msg['manageTenants.urlOfIdp']}"
                                    required="#{manageTenantsCtrl.model.tenantIdp.required}"
                                    value="#{manageTenantsCtrl.model.tenantIdp.value}"
-                                   maxlength="#{appBean.tenantFieldLen}"
+                                   maxlength="#{appBean.tenantFieldLen}" styleClass="field"
                                    disabled="#{manageTenantsCtrl.model.tenantIdp.readOnly}"
                                    converterId="trimConverter"/>
 
@@ -153,5 +146,13 @@
 
     <adm:confirmPanel text="#{msg['operator.manageIdpSettings.confirmClear']}" panelId="clearConfirmPanel"
                       submitId="clearConfirmButton" formId="clearConfirmationForm"/>
+
+    <script type="text/javascript">
+		AdmUtils.findRow("manageTenants:tenants:", "tenantId",
+				"#{manageTenantsCtrl.model.selectedTenantId}", "#{manageTenantsCtrl.tenantsNumber}", function(element) {
+					AdmUtils.selectRow(element);
+				});
+
+        </script>
   </ui:define>
 </ui:composition>
