@@ -47,12 +47,6 @@ import com.sun.xml.wss.saml.util.SAMLUtil;
 public class LoginHandler implements SOAPHandler<SOAPMessageContext> {
 
     private static final String ORGANIZATION_ID_HEADER_PARAM = "organizationId";
-    
-    private Context context;
-    private DataSource dataSource;
-    private ConfigurationService configService;
-    private AbstractKeyQuery keyQuery;
-    private SAMLResponseExtractor samlExtractor;
 
     @Override
     public boolean handleMessage(SOAPMessageContext context) {
@@ -139,26 +133,31 @@ public class LoginHandler implements SOAPHandler<SOAPMessageContext> {
     
     private String getUserKey(String userId, String orgId, String tenantId)
             throws NamingException, SQLException {
+         
+        Context context = new InitialContext();
+        DataSource ds = (DataSource) context.lookup("BSSDS");
+        
+        AbstractKeyQuery keyQuery = null;
         
         if (StringUtils.isNotEmpty(tenantId)) {
 
-            VOConfigurationSetting setting = getConfigService()
+            VOConfigurationSetting setting = getConfigService(context)
                     .getVOConfigurationSetting(
                             ConfigurationKey.SSO_DEFAULT_TENANT_ID,
                             Configuration.GLOBAL_CONTEXT);
             String defaultTenantId = setting.getValue();
 
             if (tenantId.equals(defaultTenantId)) {
-                keyQuery = new UserKeyQuery(getDataSource(), userId);
+                keyQuery = new UserKeyQuery(ds, userId);
             } else {
-                keyQuery = new UserKeyForTenantQuery(getDataSource(), userId,
+                keyQuery = new UserKeyForTenantQuery(ds, userId,
                         tenantId);
             }
 
         } else if (StringUtils.isNotEmpty(orgId)) {
-            keyQuery = new UserKeyForOrganizationQuery(getDataSource(), userId,
+            keyQuery = new UserKeyForOrganizationQuery(ds, userId,
                     orgId);
-        }
+        } 
 
         keyQuery.execute();
         long userKey = keyQuery.getKey();
@@ -178,8 +177,8 @@ public class LoginHandler implements SOAPHandler<SOAPMessageContext> {
         String userId;
         
         SAMLAssertion samlAssertion = getSamlAssertion(context);
-
-        userId = getSamlExtractor().getUserId(samlAssertion);
+        SAMLResponseExtractor samlResponseExtractor = new SAMLResponseExtractor();
+        userId = samlResponseExtractor.getUserId(samlAssertion);
         return userId;
     }
     
@@ -188,7 +187,8 @@ public class LoginHandler implements SOAPHandler<SOAPMessageContext> {
         String tenantId;
         
         SAMLAssertion samlAssertion = getSamlAssertion(context);
-        tenantId = getSamlExtractor().getTenantId(samlAssertion);
+        SAMLResponseExtractor samlResponseExtractor = new SAMLResponseExtractor();
+        tenantId = samlResponseExtractor.getTenantId(samlAssertion);
         
         if(StringUtils.isEmpty(tenantId)){
             throw new NotExistentTenantException(Reason.MISSING_TEANT_ID_IN_SAML);
@@ -223,46 +223,10 @@ public class LoginHandler implements SOAPHandler<SOAPMessageContext> {
         
         return samlAssertion;
     }
-    
-    protected Context getContext() throws NamingException {
 
-        if (this.context == null) {
-            this.context = new InitialContext();
-        }
-        return this.context;
-    }
-
-    protected DataSource getDataSource() throws NamingException {
-
-        Context context = getContext();
-
-        if (this.dataSource == null) {
-            this.dataSource = (DataSource) context.lookup("BSSDS");
-        }
-        return this.dataSource;
-    }
-
-    protected ConfigurationService getConfigService() throws NamingException {
-
-        Context context = getContext();
-
-        if (this.configService == null) {
-            this.configService = (ConfigurationService) context
+    protected ConfigurationService getConfigService(Context context) throws NamingException {
+        return (ConfigurationService) context
                     .lookup(ConfigurationService.class.getName());
-        }
-        return this.configService;
-    }
-
-    private SAMLResponseExtractor getSamlExtractor() {
-
-        if (this.samlExtractor == null) {
-            this.samlExtractor = new SAMLResponseExtractor();
-        }
-        return this.samlExtractor;
-    }
-    
-    public AbstractKeyQuery getKeyQuery() {
-        return keyQuery;
     }
     
     @Override
