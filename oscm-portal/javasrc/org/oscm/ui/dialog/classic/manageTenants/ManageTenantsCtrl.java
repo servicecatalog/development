@@ -188,6 +188,7 @@ public class ManageTenantsCtrl extends BaseBean implements Serializable {
         model.setSaveDisabled(false);
         model.setDeleteDisabled(true);
         model.setImportDisabled(false);
+        model.setIdpProperties(null);
     }
 
     public String importSettings() throws SaaSApplicationException {
