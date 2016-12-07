@@ -33,6 +33,7 @@ import org.oscm.domobjects.TriggerDefinition;
 import org.oscm.domobjects.TriggerProcess;
 import org.oscm.domobjects.TriggerProcessIdentifier;
 import org.oscm.domobjects.TriggerProcessParameter;
+import org.oscm.encrypter.AESEncrypter;
 import org.oscm.internal.intf.AccountService;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.TriggerType;
@@ -76,6 +77,8 @@ public class AccountServiceBeanTriggerIdIT extends EJBTestBase {
 
     @Override
     protected void setup(TestContainer container) throws Exception {
+        AESEncrypter.generateKey();
+
         container.enableInterfaceMocking(true);
         TriggerQueueServiceLocal triggerQueueServiceLocal = mock(
                 TriggerQueueServiceLocal.class);

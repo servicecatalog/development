@@ -12,9 +12,9 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Before;
 import org.junit.Test;
-
-import org.oscm.types.enumtypes.TriggerProcessParameterName;
+import org.oscm.encrypter.AESEncrypter;
 import org.oscm.internal.vo.VOService;
+import org.oscm.types.enumtypes.TriggerProcessParameterName;
 
 /**
  * @author weiser
@@ -27,6 +27,7 @@ public class TriggerProcessParameterDataTest {
 
     @Before
     public void setup() {
+        AESEncrypter.generateKey();
         tppd = new TriggerProcessParameterData();
         tppd.setName(TriggerProcessParameterName.PRODUCT);
 
@@ -47,8 +48,9 @@ public class TriggerProcessParameterDataTest {
 
     @Test
     public void setValue_JapaneseUnicodeCharsPlusInvalid() {
-        svc.setDescription("\u30C0\u30A4\u30EC\u30AF\u30C8\u30A2\u30AF\u30BB\u30B9"
-                + "\uDBBF\uDFFE");
+        svc.setDescription(
+                "\u30C0\u30A4\u30EC\u30AF\u30C8\u30A2\u30AF\u30BB\u30B9"
+                        + "\uDBBF\uDFFE");
 
         tppd.setValue(svc);
 

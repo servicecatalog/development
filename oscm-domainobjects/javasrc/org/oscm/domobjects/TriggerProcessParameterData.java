@@ -18,7 +18,6 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 
 import org.oscm.converter.XMLSerializer;
-import org.oscm.domobjects.handling.XmlStringCleaner;
 import org.oscm.internal.types.enumtypes.EventType;
 import org.oscm.internal.types.enumtypes.OfferingType;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
@@ -92,7 +91,7 @@ public class TriggerProcessParameterData extends DomainDataContainer {
      * @return the string representing the object.
      */
     public static String getVOSerialization(Object source) {
-        return XmlStringCleaner.cleanString(toXml(source));
+        return toXml(source);
     }
 
     private static String toXml(Object source) {
@@ -162,7 +161,7 @@ public class TriggerProcessParameterData extends DomainDataContainer {
         if (value == null) {
             this.serializedValue = null;
         } else {
-            this.serializedValue = XmlStringCleaner.cleanString(toXml(value));
+            this.serializedValue = toXml(value);
             serialized = true;
         }
     }
