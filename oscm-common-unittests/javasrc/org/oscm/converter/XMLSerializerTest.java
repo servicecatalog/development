@@ -11,18 +11,23 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Test;
+import org.oscm.encrypter.AESEncrypter;
 
 @SuppressWarnings("unchecked")
 public class XMLSerializerTest {
     @Test
-    public void toXml() {
+    public void toXml() throws Exception {
+
+        AESEncrypter.generateKey();
+
         // given
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put("a", "a1");
         map.put("b", "b1");
 
         // when
         String xml = XMLSerializer.toXml(map);
+        xml = AESEncrypter.decrypt(xml);
 
         // then
         assertTrue(xml.contains("a"));
@@ -32,9 +37,12 @@ public class XMLSerializerTest {
     }
 
     @Test
-    public void toObject() {
+    public void toObject() throws Exception {
+
+        AESEncrypter.generateKey();
+
         // given
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put("a", "a1");
         map.put("b", "b1");
         String xml = XMLSerializer.toXml(map);

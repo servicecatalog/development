@@ -46,6 +46,7 @@ import org.oscm.domobjects.RoleAssignment;
 import org.oscm.domobjects.UserGroup;
 import org.oscm.domobjects.enums.ModificationType;
 import org.oscm.domobjects.enums.OrganizationReferenceType;
+import org.oscm.encrypter.AESEncrypter;
 import org.oscm.identityservice.local.IdentityServiceLocal;
 import org.oscm.interceptor.DateFactory;
 import org.oscm.internal.intf.IdentityService;
@@ -106,6 +107,7 @@ public class IdentityServiceBeanUserCreationIT extends EJBTestBase {
 
     @Override
     protected void setup(TestContainer container) throws Exception {
+        AESEncrypter.generateKey();
         container.login("1");
         container.enableInterfaceMocking(true);
         container.addBean(new ConfigurationServiceStub() {

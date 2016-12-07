@@ -26,6 +26,7 @@ import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.TriggerDefinition;
 import org.oscm.domobjects.TriggerProcess;
+import org.oscm.encrypter.AESEncrypter;
 import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
@@ -95,6 +96,7 @@ public class TriggerServiceBeanIT extends EJBTestBase {
 
     @Override
     public void setup(final TestContainer container) throws Exception {
+        AESEncrypter.generateKey();
         container.addBean(new ConfigurationServiceStub());
         container.addBean(new CommunicationServiceStub());
         container.addBean(new AccountServiceStub());

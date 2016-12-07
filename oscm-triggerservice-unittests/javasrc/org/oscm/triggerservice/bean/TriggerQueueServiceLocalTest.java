@@ -36,6 +36,7 @@ import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.TriggerDefinition;
 import org.oscm.domobjects.TriggerProcess;
 import org.oscm.domobjects.TriggerProcessParameter;
+import org.oscm.encrypter.AESEncrypter;
 import org.oscm.internal.types.enumtypes.TriggerProcessStatus;
 import org.oscm.internal.types.enumtypes.TriggerType;
 import org.oscm.internal.types.exception.DomainObjectException.ClassEnum;
@@ -55,14 +56,15 @@ public class TriggerQueueServiceLocalTest {
     private ConnectionFactoryStub connFact;
     private PlatformUser user;
     private Organization organization;
-    private final List<Object> storedObjects = new ArrayList<Object>();
-    private final List<Organization> organizations = new ArrayList<Organization>();
+    private final List<Object> storedObjects = new ArrayList<>();
+    private final List<Organization> organizations = new ArrayList<>();
     private boolean throwsSaasNonUniqueBusinessKeyException;
     private SessionContext sessionMock;
 
     @SuppressWarnings("unchecked")
     @Before
     public void setUp() throws Exception {
+        AESEncrypter.generateKey();
         tqs = new TriggerQueueServiceBean();
 
         sessionMock = mock(SessionContext.class);
@@ -89,7 +91,8 @@ public class TriggerQueueServiceLocalTest {
             public void persist(DomainObject<?> obj)
                     throws NonUniqueBusinessKeyException {
                 if (throwsSaasNonUniqueBusinessKeyException) {
-                    throw new NonUniqueBusinessKeyException(ClassEnum.EVENT, "");
+                    throw new NonUniqueBusinessKeyException(ClassEnum.EVENT,
+                            "");
                 }
                 storedObjects.add(obj);
             }
@@ -102,7 +105,8 @@ public class TriggerQueueServiceLocalTest {
     }
 
     @Test(expected = SaaSSystemException.class)
-    public void testSendSuspendingMessageNoFactoryAndNoQueue() throws Exception {
+    public void testSendSuspendingMessageNoFactoryAndNoQueue()
+            throws Exception {
         tqs.qFactory = null;
         tqs.queue = null;
         tqs.sendSuspendingMessages(null);
@@ -123,8 +127,8 @@ public class TriggerQueueServiceLocalTest {
     @Test
     public void testSendSuspendingMessageForExistingTriggerDefinitionNonSuspending()
             throws Exception {
-        organization.setTriggerDefinitions(Collections
-                .singletonList(new TriggerDefinition()));
+        organization.setTriggerDefinitions(
+                Collections.singletonList(new TriggerDefinition()));
         TriggerMessage messageData = new TriggerMessage(
                 TriggerType.ACTIVATE_SERVICE);
         List<TriggerMessage> listOfMsgs = new ArrayList<>();
@@ -154,8 +158,9 @@ public class TriggerQueueServiceLocalTest {
         Assert.assertNotNull(tp);
         Assert.assertFalse(storedObjects.isEmpty());
         Assert.assertTrue(storedObjects.get(0) instanceof TriggerProcess);
-        Assert.assertEquals(TriggerProcess.class.cast(storedObjects.get(0))
-                .getKey(), tp.getKey());
+        Assert.assertEquals(
+                TriggerProcess.class.cast(storedObjects.get(0)).getKey(),
+                tp.getKey());
     }
 
     @Test(expected = SaaSSystemException.class)
@@ -217,9 +222,10 @@ public class TriggerQueueServiceLocalTest {
     }
 
     @Test
-    public void testSendAllNonSuspendingMessagesNoTriggerDef() throws Exception {
-        tqs.sendAllNonSuspendingMessages(createMessages(
-                TriggerType.ACTIVATE_SERVICE, null));
+    public void testSendAllNonSuspendingMessagesNoTriggerDef()
+            throws Exception {
+        tqs.sendAllNonSuspendingMessages(
+                createMessages(TriggerType.ACTIVATE_SERVICE, null));
         Assert.assertTrue(storedObjects.isEmpty());
     }
 
@@ -230,13 +236,13 @@ public class TriggerQueueServiceLocalTest {
         td.setType(TriggerType.ACTIVATE_SERVICE);
         td.setSuspendProcess(true);
         organization.setTriggerDefinitions(Collections.singletonList(td));
-        List<TriggerProcessParameter> list = new ArrayList<TriggerProcessParameter>();
+        List<TriggerProcessParameter> list = new ArrayList<>();
         TriggerProcessParameter tpp = new TriggerProcessParameter();
         tpp.setName(TriggerProcessParameterName.OBJECT_ID);
         tpp.setValue("test");
         list.add(tpp);
-        tqs.sendAllNonSuspendingMessages(createMessages(
-                TriggerType.ACTIVATE_SERVICE, list));
+        tqs.sendAllNonSuspendingMessages(
+                createMessages(TriggerType.ACTIVATE_SERVICE, list));
         Assert.assertTrue(storedObjects.isEmpty());
     }
 
@@ -246,8 +252,8 @@ public class TriggerQueueServiceLocalTest {
         td.setType(TriggerType.ADD_REVOKE_USER);
         td.setSuspendProcess(false);
         organization.setTriggerDefinitions(Collections.singletonList(td));
-        tqs.sendAllNonSuspendingMessages(createMessages(
-                TriggerType.ADD_REVOKE_USER, null));
+        tqs.sendAllNonSuspendingMessages(
+                createMessages(TriggerType.ADD_REVOKE_USER, null));
         Assert.assertFalse(storedObjects.isEmpty());
     }
 
@@ -257,21 +263,23 @@ public class TriggerQueueServiceLocalTest {
     }
 
     @Test(expected = SaaSSystemException.class)
-    public void testSendAllNonSuspendingMessagesPersistFails() throws Exception {
+    public void testSendAllNonSuspendingMessagesPersistFails()
+            throws Exception {
         throwsSaasNonUniqueBusinessKeyException = true;
         TriggerDefinition td = new TriggerDefinition();
         td.setType(TriggerType.ADD_REVOKE_USER);
         td.setSuspendProcess(false);
         organization.setTriggerDefinitions(Collections.singletonList(td));
-        tqs.sendAllNonSuspendingMessages(createMessages(
-                TriggerType.ADD_REVOKE_USER, null));
+        tqs.sendAllNonSuspendingMessages(
+                createMessages(TriggerType.ADD_REVOKE_USER, null));
     }
 
     @Test(expected = SaaSSystemException.class)
-    public void testSendAllNonSuspendingMessagesJMSException() throws Exception {
+    public void testSendAllNonSuspendingMessagesJMSException()
+            throws Exception {
         connFact.setThrowsJMSException(true);
 
-        List<TriggerDefinition> triggerDefs = new ArrayList<TriggerDefinition>();
+        List<TriggerDefinition> triggerDefs = new ArrayList<>();
 
         TriggerDefinition td = new TriggerDefinition();
         td.setType(TriggerType.ACTIVATE_SERVICE);
@@ -284,26 +292,26 @@ public class TriggerQueueServiceLocalTest {
         triggerDefs.add(td);
 
         organization.setTriggerDefinitions(triggerDefs);
-        tqs.sendAllNonSuspendingMessages(createMessages(
-                TriggerType.ACTIVATE_SERVICE, null));
+        tqs.sendAllNonSuspendingMessages(
+                createMessages(TriggerType.ACTIVATE_SERVICE, null));
     }
 
     @Test
     public void testSendAllNonSuspendingMessagesBillingTypeNullReference()
             throws Exception {
-        List<TriggerDefinition> triggerDefs = new ArrayList<TriggerDefinition>();
+        List<TriggerDefinition> triggerDefs = new ArrayList<>();
         TriggerDefinition td = new TriggerDefinition();
         td.setType(TriggerType.START_BILLING_RUN);
         td.setSuspendProcess(false);
         triggerDefs.add(td);
         organization.setTriggerDefinitions(Collections.singletonList(td));
-        List<TriggerProcessParameter> list = new ArrayList<TriggerProcessParameter>();
+        List<TriggerProcessParameter> list = new ArrayList<>();
         TriggerProcessParameter tpp = new TriggerProcessParameter();
         tpp.setName(TriggerProcessParameterName.XML_BILLING_DATA);
         tpp.setValue("test");
         list.add(tpp);
-        tqs.sendAllNonSuspendingMessages(createMessages(
-                TriggerType.START_BILLING_RUN, list));
+        tqs.sendAllNonSuspendingMessages(
+                createMessages(TriggerType.START_BILLING_RUN, list));
         Assert.assertFalse(storedObjects.isEmpty());
         Assert.assertTrue(storedObjects.get(0) instanceof TriggerProcess);
         TriggerProcess storedProcess = (TriggerProcess) storedObjects.get(0);
@@ -313,14 +321,14 @@ public class TriggerQueueServiceLocalTest {
 
     @Test
     public void testSendAllNonSuspendingMessagesBillingType() throws Exception {
-        List<TriggerDefinition> triggerDefs = new ArrayList<TriggerDefinition>();
+        List<TriggerDefinition> triggerDefs = new ArrayList<>();
         TriggerDefinition td = new TriggerDefinition();
         td.setType(TriggerType.START_BILLING_RUN);
         td.setSuspendProcess(false);
         triggerDefs.add(td);
         organization.setTriggerDefinitions(Collections.singletonList(td));
-        tqs.sendAllNonSuspendingMessages(createMessages(
-                TriggerType.START_BILLING_RUN, null));
+        tqs.sendAllNonSuspendingMessages(
+                createMessages(TriggerType.START_BILLING_RUN, null));
         Assert.assertFalse(storedObjects.isEmpty());
         Assert.assertTrue(storedObjects.get(0) instanceof TriggerProcess);
         TriggerProcess storedProcess = (TriggerProcess) storedObjects.get(0);
@@ -369,7 +377,7 @@ public class TriggerQueueServiceLocalTest {
         td.setType(TriggerType.ACTIVATE_SERVICE);
         td.setSuspendProcess(true);
         organization.setTriggerDefinitions(Collections.singletonList(td));
-        List<TriggerProcessParameter> list = new ArrayList<TriggerProcessParameter>();
+        List<TriggerProcessParameter> list = new ArrayList<>();
         TriggerProcessParameter tpp = new TriggerProcessParameter();
         tpp.setName(TriggerProcessParameterName.OBJECT_ID);
         tpp.setValue("test");
@@ -409,7 +417,7 @@ public class TriggerQueueServiceLocalTest {
     public void testSendAllNonSuspendingMessagesWithOrgsJMSException()
             throws Exception {
         connFact.setThrowsJMSException(true);
-        List<TriggerDefinition> triggerDefs = new ArrayList<TriggerDefinition>();
+        List<TriggerDefinition> triggerDefs = new ArrayList<>();
 
         TriggerDefinition td = new TriggerDefinition();
         td.setType(TriggerType.ACTIVATE_SERVICE);
@@ -429,13 +437,13 @@ public class TriggerQueueServiceLocalTest {
     @Test
     public void testSendAllNonSuspendingMessagesWithOrgsBillingTypeNullReference()
             throws Exception {
-        List<TriggerDefinition> triggerDefs = new ArrayList<TriggerDefinition>();
+        List<TriggerDefinition> triggerDefs = new ArrayList<>();
         TriggerDefinition td = new TriggerDefinition();
         td.setType(TriggerType.START_BILLING_RUN);
         td.setSuspendProcess(false);
         triggerDefs.add(td);
         organization.setTriggerDefinitions(triggerDefs);
-        List<TriggerProcessParameter> list = new ArrayList<TriggerProcessParameter>();
+        List<TriggerProcessParameter> list = new ArrayList<>();
         TriggerProcessParameter tpp = new TriggerProcessParameter();
         tpp.setName(TriggerProcessParameterName.XML_BILLING_DATA);
         tpp.setValue("test");
@@ -453,7 +461,7 @@ public class TriggerQueueServiceLocalTest {
     @Test
     public void testSendAllNonSuspendingMessagesWithOrgsBillingType()
             throws Exception {
-        List<TriggerDefinition> triggerDefs = new ArrayList<TriggerDefinition>();
+        List<TriggerDefinition> triggerDefs = new ArrayList<>();
         TriggerDefinition td = new TriggerDefinition();
         td.setType(TriggerType.START_BILLING_RUN);
         td.setSuspendProcess(false);
@@ -472,7 +480,7 @@ public class TriggerQueueServiceLocalTest {
     @Test
     public void testSendAllNonSuspendingMessagesWithOrgsNoReceivers()
             throws Exception {
-        List<TriggerDefinition> triggerDefs = new ArrayList<TriggerDefinition>();
+        List<TriggerDefinition> triggerDefs = new ArrayList<>();
         TriggerDefinition td = new TriggerDefinition();
         td.setType(TriggerType.START_BILLING_RUN);
         td.setSuspendProcess(false);
@@ -488,7 +496,7 @@ public class TriggerQueueServiceLocalTest {
     @Test
     public void testSendAllNonSuspendingMessagesWithOrgsSeveralReceivers()
             throws Exception {
-        List<TriggerDefinition> triggerDefs = new ArrayList<TriggerDefinition>();
+        List<TriggerDefinition> triggerDefs = new ArrayList<>();
         TriggerDefinition td = new TriggerDefinition();
         td.setType(TriggerType.START_BILLING_RUN);
         td.setSuspendProcess(false);
@@ -497,7 +505,7 @@ public class TriggerQueueServiceLocalTest {
 
         Organization org2 = new Organization();
         org2.setKey(organization.getKey() + 1);
-        List<TriggerDefinition> triggerDefs2 = new ArrayList<TriggerDefinition>();
+        List<TriggerDefinition> triggerDefs2 = new ArrayList<>();
         TriggerDefinition td2 = new TriggerDefinition();
         td2.setKey(td.getKey() + 1);
         td2.setType(TriggerType.START_BILLING_RUN);
@@ -512,10 +520,10 @@ public class TriggerQueueServiceLocalTest {
         assertEquals(2, storedObjects.size());
         List<TriggerProcess> list = ParameterizedTypes.list(storedObjects,
                 TriggerProcess.class);
-        Set<Long> tpKeys = new HashSet<Long>();
+        Set<Long> tpKeys = new HashSet<>();
         for (TriggerProcess triggerProcess : list) {
-            tpKeys.add(Long.valueOf(triggerProcess.getTriggerDefinition()
-                    .getKey()));
+            tpKeys.add(Long
+                    .valueOf(triggerProcess.getTriggerDefinition().getKey()));
         }
         assertTrue(tpKeys.contains(Long.valueOf(td.getKey())));
         assertTrue(tpKeys.contains(Long.valueOf(td2.getKey())));
@@ -537,7 +545,8 @@ public class TriggerQueueServiceLocalTest {
     }
 
     @Test(expected = SaaSSystemException.class)
-    public void testSendAllNonSuspendingMessages_ListNoQueue() throws Exception {
+    public void testSendAllNonSuspendingMessages_ListNoQueue()
+            throws Exception {
         tqs.queue = null;
         tqs.sendAllNonSuspendingMessages(null);
     }
@@ -548,8 +557,8 @@ public class TriggerQueueServiceLocalTest {
         List<Organization> orgs = Collections.emptyList();
         TriggerMessage triggerMessage = new TriggerMessage(
                 TriggerType.ACTIVATE_SERVICE, null, orgs);
-        tqs.sendAllNonSuspendingMessages(Collections
-                .singletonList(triggerMessage));
+        tqs.sendAllNonSuspendingMessages(
+                Collections.singletonList(triggerMessage));
         Assert.assertTrue(storedObjects.isEmpty());
     }
 
@@ -563,8 +572,8 @@ public class TriggerQueueServiceLocalTest {
         List<Organization> orgs = Collections.singletonList(organization);
         TriggerMessage triggerMessage = new TriggerMessage(
                 TriggerType.ADD_REVOKE_USER, null, orgs);
-        tqs.sendAllNonSuspendingMessages(Collections
-                .singletonList(triggerMessage));
+        tqs.sendAllNonSuspendingMessages(
+                Collections.singletonList(triggerMessage));
         Assert.assertTrue(storedObjects.isEmpty());
     }
 
@@ -579,8 +588,8 @@ public class TriggerQueueServiceLocalTest {
         List<Organization> orgs = Collections.singletonList(organization);
         TriggerMessage triggerMessage = new TriggerMessage(
                 TriggerType.ADD_REVOKE_USER, null, orgs);
-        tqs.sendAllNonSuspendingMessages(Collections
-                .singletonList(triggerMessage));
+        tqs.sendAllNonSuspendingMessages(
+                Collections.singletonList(triggerMessage));
         Assert.assertTrue(storedObjects.isEmpty());
     }
 
@@ -594,7 +603,7 @@ public class TriggerQueueServiceLocalTest {
         List<Organization> orgs = Collections.singletonList(organization);
         TriggerMessage triggerMessage = new TriggerMessage(
                 TriggerType.ADD_REVOKE_USER, null, orgs);
-        List<TriggerMessage> messages = new ArrayList<TriggerMessage>();
+        List<TriggerMessage> messages = new ArrayList<>();
         messages.add(triggerMessage);
         messages.add(triggerMessage);
         tqs.sendAllNonSuspendingMessages(messages);
@@ -603,7 +612,7 @@ public class TriggerQueueServiceLocalTest {
 
     @Test
     public void sendAllNonSuspendingMessages_Bug10275() throws Exception {
-        List<TriggerDefinition> triggerDefs = new ArrayList<TriggerDefinition>();
+        List<TriggerDefinition> triggerDefs = new ArrayList<>();
         TriggerDefinition td = new TriggerDefinition();
         td.setType(TriggerType.ADD_REVOKE_USER);
         td.setSuspendProcess(false);

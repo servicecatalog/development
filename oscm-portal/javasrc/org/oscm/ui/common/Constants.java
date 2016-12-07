@@ -120,4 +120,5 @@ public class Constants {
     public static final String REQ_PARAM_TENANT_ID = "tenantID";
     public static final String SESSION_PARAM_SAML_LOGOUT_REQUEST = "LOGOUT_REQUEST";
 
+    public static final String PORTAL_HAS_BEEN_REQUESTED = "PORTAL_HAS_BEEN_REQUESTED";
 }
