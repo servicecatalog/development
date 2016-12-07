@@ -11,6 +11,8 @@ package org.oscm.ui.filter;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
+import static org.oscm.internal.types.enumtypes.ConfigurationKey.MP_ERROR_REDIRECT_HTTP;
+import static org.oscm.types.constants.Configuration.GLOBAL_CONTEXT;
 
 import java.util.Set;
 import java.util.TreeSet;
@@ -27,6 +29,7 @@ import org.junit.Test;
 import org.oscm.internal.cache.MarketplaceConfiguration;
 import org.oscm.internal.intf.ConfigurationService;
 import org.oscm.internal.intf.TenantService;
+import org.oscm.internal.vo.VOConfigurationSetting;
 import org.oscm.internal.vo.VOUserDetails;
 import org.oscm.types.constants.marketplace.Marketplace;
 import org.oscm.ui.common.Constants;
@@ -147,6 +150,19 @@ public class ClosedMarketplaceFilterTest {
         // then
         verify(redirectorMock, times(1)).forward(eq(requestMock),
                 eq(responseMock), eq(INSUFFICIENT_AUTH_URL));
+
+        //when
+        doReturn(true).when(sessionMock).getAttribute(
+                Constants.PORTAL_HAS_BEEN_REQUESTED);
+        ConfigurationService configurationMock = mock(ConfigurationService.class);
+        doReturn(configurationMock).when(closedMplFilter).getConfigurationService(requestMock);
+        VOConfigurationSetting voConfigSet = new VOConfigurationSetting();
+        voConfigSet.setValue("address");
+        doReturn(voConfigSet).when(configurationMock).getVOConfigurationSetting(MP_ERROR_REDIRECT_HTTP, GLOBAL_CONTEXT);
+
+        closedMplFilter.doFilter(requestMock, responseMock, chainMock);
+        verify(responseMock, times(1)).sendRedirect(anyString());
+
     }
 
     @Test
