@@ -171,6 +171,8 @@ public class ManageTenantsCtrl extends BaseBean implements Serializable {
     private void refreshModelAfterDelete() {
         model.setSelectedTenant(null);
         model.setSelectedTenantId(null);
+        model.setTenantIdp(null);
+        model.setIdpProperties(null);
         model.setClearExportAvailable(false);
         initWithoutSelection();
     }
