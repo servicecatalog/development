@@ -48,6 +48,7 @@ import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.TechnicalProduct;
 import org.oscm.domobjects.TriggerProcess;
 import org.oscm.domobjects.Uda;
+import org.oscm.domobjects.UdaDefinition;
 import org.oscm.domobjects.enums.ModifiedEntityType;
 import org.oscm.encrypter.AESEncrypter;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
@@ -356,6 +357,7 @@ public class SubscriptionServiceBeanModifyAndUpgradeTest {
         Uda uda = new Uda();
         uda.setKey(1000L);
         uda.setUdaValue("value1");
+        uda.setUdaDefinition(new UdaDefinition());
         doReturn(uda).when(ds).getReferenceByBusinessKey(any(Uda.class));
 
         // when
@@ -366,7 +368,7 @@ public class SubscriptionServiceBeanModifyAndUpgradeTest {
                 any(Organization.class));
         verify(bean.modUpgBean, times(1)).storeModifiedUda(eq(1000L),
                 eq(ModifiedEntityType.UDA_VALUE), eq("value1"),
-                eq(SUBSCRIPTION_KEY));
+                eq(SUBSCRIPTION_KEY), eq(false));
     }
 
     @Test
