@@ -20,7 +20,6 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.oscm.internal.intf.AccountService;
 import org.oscm.internal.intf.MarketplaceService;
@@ -158,10 +157,6 @@ public class ManageAttributesCtrl {
         for (UdaRow row : model.getAttributes()) {
 
             VOUda uda = row.getUda();
-            if (uda.getUdaValue() != null
-                    && uda.getUdaValue().trim().length() == 0) {
-                uda.setUdaValue(null);
-            }
             row.rewriteEncryptedValues();
             list.add(uda);
         }
