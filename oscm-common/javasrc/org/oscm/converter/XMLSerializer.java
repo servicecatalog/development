@@ -193,9 +193,14 @@ public class XMLSerializer {
         Object result = null;
         XMLDecoder decoder = null;
         try {
-            String decrypted = AESEncrypter.decrypt(xml);
-            decoder = new XMLDecoder(
-                    new ByteArrayInputStream(decrypted.getBytes()));
+            byte[] bytes;
+            if (xml.contains("<")) {
+                bytes = xml.getBytes();
+            } else {
+                String decrypted = AESEncrypter.decrypt(xml);
+                bytes = decrypted.getBytes();
+            }
+            decoder = new XMLDecoder(new ByteArrayInputStream(bytes));
             result = decoder.readObject();
         } catch (Exception e) {
             LOGGER.logError(Log4jLogger.SYSTEM_LOG, e,
