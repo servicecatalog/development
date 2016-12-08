@@ -1200,10 +1200,17 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
 
     @Override
     public List<Organization> getAllOrganizationsWithAccessToMarketplace(
-            long marketplaceKey) {
+            long marketplaceKey) throws ObjectNotFoundException {
+
+        Marketplace marketplace = ds.getReference(Marketplace.class, marketplaceKey);
+
+        long tenantKey = 0;
+        if (marketplace.getTenant() != null) {
+            tenantKey = marketplace.getTenant().getKey();
+        }
 
         return marketplaceAccessDao
-                .getAllOrganizationsWithAccessToMarketplace(marketplaceKey);
+                .getAllOrganizationsWithAccessToMarketplace(marketplaceKey, tenantKey);
     }
 
     @Override

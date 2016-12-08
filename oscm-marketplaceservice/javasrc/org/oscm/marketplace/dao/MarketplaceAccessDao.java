@@ -50,7 +50,6 @@ public class MarketplaceAccessDao {
         String querySelect;
         
         String tenantPartForQuery;
-        String selectPartForQuery;
 
         if (tenantKey == 0) {
             tenantPartForQuery = "FROM organization o, marketplace mkp where o.tenant_tkey is null";
@@ -73,9 +72,22 @@ public class MarketplaceAccessDao {
     }
 
     public List<Organization> getAllOrganizationsWithAccessToMarketplace(
-            long marketplaceKey) {
+            long marketplaceKey, long tenantKey) {
 
-        String queryString = "SELECT o.* FROM organization o INNER JOIN marketplaceaccess ma ON o.tkey = ma.organization_tkey WHERE ma.marketplace_tkey = :marketplaceKey";
+        String tenantPartForQuery;
+
+        if (tenantKey == 0) {
+            tenantPartForQuery = "AND o.tenant_tkey IS NULL ";
+        } else {
+            tenantPartForQuery = "AND mp.tenant_tkey = o.tenant_tkey ";
+        }
+
+        String queryString = "SELECT DISTINCT (o.*) "
+        + "FROM organization o, marketplaceaccess ma, marketplace mp "
+        + "WHERE ma.marketplace_tkey=:marketplaceKey "
+        + "AND o.tkey = ma.organization_tkey "
+        + tenantPartForQuery
+        + "ORDER BY o.tkey";
 
         Query query = dataService.createNativeQuery(queryString,
                 Organization.class);
