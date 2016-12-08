@@ -21,7 +21,7 @@ import javax.persistence.NamedQuery;
 import javax.persistence.SequenceGenerator;
 
 import org.oscm.app.business.exceptions.BadResultException;
-import org.oscm.app.security.AESEncrypter;
+import org.oscm.encrypter.AESEncrypter;
 
 /**
  * Represents a parameter setting for a service instance.
