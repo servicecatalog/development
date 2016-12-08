@@ -7,13 +7,16 @@
  *******************************************************************************/
 package org.oscm.encrypter;
 
+import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.codec.binary.Base64;
@@ -29,6 +32,7 @@ public class AESEncrypter {
     private static final Log4jLogger LOG = LoggerFactory
             .getLogger(AESEncrypter.class);
 
+    public static final int IV_BYTES = 16;
     public static final int KEY_BYTES = 16;
 
     private static SecretKey key;
@@ -57,65 +61,78 @@ public class AESEncrypter {
      *
      * @param text
      *            the text to encrypt
-     * @return the encrypted text as Base64
+     * @return the iv and encrypted text as Base64 separated with ':'.
      * @throws GeneralSecurityException
      *             on any problem during encryption
      */
     public static String encrypt(String text) throws GeneralSecurityException {
-        return new String(encrypt(text.getBytes()));
-    }
 
-    /**
-     * Encrypts a given byte array based on a secret from file given as
-     * parameter
-     *
-     * @param bytes
-     *            the bytes to encrypt
-     * @return the encrypted bytes as Base64
-     * @throws GeneralSecurityException
-     *             on any problem during encryption
-     */
-    private static byte[] encrypt(byte[] bytes)
-            throws GeneralSecurityException {
+        if (text == null) {
+            return null;
+        }
 
-        Cipher cipher = Cipher.getInstance("AES");
-        cipher.init(Cipher.ENCRYPT_MODE, key);
+        byte[] decrypted;
+        try {
+            decrypted = text.getBytes("UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
 
-        byte[] encrypted = cipher.doFinal(bytes);
-        return Base64.encodeBase64(encrypted);
+        byte[] iv = new byte[IV_BYTES];
+        new SecureRandom().nextBytes(iv);
+        IvParameterSpec ivSpec = new IvParameterSpec(iv);
+
+        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+        cipher.init(Cipher.ENCRYPT_MODE, key, ivSpec);
+
+        byte[] encrypted = cipher.doFinal(decrypted);
+        return new String(Base64.encodeBase64(iv)) + ":"
+                + new String(Base64.encodeBase64(encrypted));
     }
 
     /**
      * Decrypts a given text.
      *
      * @param encrypted
-     *            the encrypted text
+     *            the encrypted text. optionally leaded by the iv and separated
+     *            with ':'.
      * @return the string
      */
     public static String decrypt(String encrypted)
             throws GeneralSecurityException {
-        return new String(decrypt(encrypted.getBytes()));
-    }
 
-    /**
-     * Decrypts a given byte array.
-     *
-     * @param encrypted
-     *            the encrypted text
-     * @return the byte array
-     */
-    private static byte[] decrypt(byte[] encrypted)
-            throws GeneralSecurityException {
+        if (encrypted == null) {
+            return null;
+        }
 
-        byte[] decoded = Base64.decodeBase64(encrypted);
-        Cipher cipher = Cipher.getInstance("AES");
-        cipher.init(Cipher.DECRYPT_MODE, key);
+        byte[] iv;
+        byte[] decoded;
+        Cipher cipher;
         try {
-            return cipher.doFinal(decoded);
+            // ensure backward compatibility to encrypted texts without iv
+            if (encrypted.contains(":")) {
+                String[] split = encrypted.split(":");
+
+                iv = Base64.decodeBase64(split[0].getBytes("UTF-8"));
+                decoded = Base64.decodeBase64(split[1].getBytes("UTF-8"));
+
+                IvParameterSpec ivSpec = new IvParameterSpec(iv);
+                cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+                cipher.init(Cipher.DECRYPT_MODE, key, ivSpec);
+            } else {
+
+                decoded = Base64.decodeBase64(encrypted.getBytes("UTF-8"));
+                cipher = Cipher.getInstance("AES");
+                cipher.init(Cipher.DECRYPT_MODE, key);
+            }
+
+            return new String(cipher.doFinal(decoded));
         } catch (BadPaddingException exc) {
             LOG.logError(Log4jLogger.SYSTEM_LOG, exc,
                     LogMessageIdentifier.ERROR_BAD_PASSWORD);
-            return "".getBytes();
+            throw new RuntimeException(exc);
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
         }
     }
 }
