@@ -13,6 +13,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -26,25 +27,38 @@ import org.oscm.app.domain.ConfigurationSetting;
 import org.oscm.app.domain.CustomAttribute;
 import org.oscm.app.domain.PlatformConfigurationKey;
 import org.oscm.app.domain.ServiceInstance;
+import org.oscm.app.setup.PasswordSetup;
 import org.oscm.app.v2_0.data.ControllerConfigurationKey;
 import org.oscm.app.v2_0.data.ProvisioningSettings;
 import org.oscm.app.v2_0.data.Setting;
 import org.oscm.app.v2_0.exceptions.ConfigurationException;
-import org.oscm.app.v2_0.service.APPConfigurationServiceBean;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.ejb.TestContainer;
 
 public class APPConfigurationServiceIT extends EJBTestBase {
 
     private APPConfigurationServiceBean cs;
+    private PasswordSetup pwd;
     private EntityManager em;
 
     @Override
     protected void setup(TestContainer container) throws Exception {
+        em = container.getPersistenceUnit("oscm-app");
+
+        createConfigSetting("APP_KEY_PATH", "./key");
+
+        File file = new File("./key");
+        if (file.exists()) {
+            file.delete();
+        }
+
         container.addBean(new APPConfigurationServiceBean());
+        container.addBean(new PasswordSetup());
 
         cs = container.get(APPConfigurationServiceBean.class);
-        em = container.getPersistenceUnit("oscm-app");
+        pwd = container.get(PasswordSetup.class);
+        pwd.startUp();
+
     }
 
     @Test(expected = ConfigurationException.class)
@@ -52,7 +66,8 @@ public class APPConfigurationServiceIT extends EJBTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                cs.getProxyConfigurationSetting(PlatformConfigurationKey.BSS_WEBSERVICE_URL);
+                cs.getProxyConfigurationSetting(
+                        PlatformConfigurationKey.BSS_WEBSERVICE_URL);
                 return null;
             }
         });
@@ -63,9 +78,8 @@ public class APPConfigurationServiceIT extends EJBTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                assertEquals(
-                        "",
-                        cs.getProxyConfigurationSetting(PlatformConfigurationKey.APP_SUSPEND));
+                assertEquals("", cs.getProxyConfigurationSetting(
+                        PlatformConfigurationKey.APP_SUSPEND));
                 return null;
             }
         });
@@ -79,8 +93,8 @@ public class APPConfigurationServiceIT extends EJBTestBase {
         String result = runTX(new Callable<String>() {
             @Override
             public String call() throws Exception {
-                return cs
-                        .getProxyConfigurationSetting(PlatformConfigurationKey.BSS_WEBSERVICE_URL);
+                return cs.getProxyConfigurationSetting(
+                        PlatformConfigurationKey.BSS_WEBSERVICE_URL);
             }
         });
         Assert.assertNotNull(result);
@@ -100,22 +114,23 @@ public class APPConfigurationServiceIT extends EJBTestBase {
     @Test
     public void testGetAllConfigurationSettings_TwoHits() throws Exception {
         createConfigSetting("setting1", "testValue");
-        createConfigSetting("setting2"
-                + APPConfigurationServiceBean.CRYPT_KEY_SUFFIX,
-                APPConfigurationServiceBean.CRYPT_PREFIX + "testValue");
-        createConfigSetting("setting3"
-                + APPConfigurationServiceBean.CRYPT_KEY_SUFFIX_PASS,
-                APPConfigurationServiceBean.CRYPT_PREFIX + "testValue");
+        createConfigSetting("setting2" + PasswordSetup.CRYPT_KEY_SUFFIX,
+                "testValue");
+        createConfigSetting("setting3" + PasswordSetup.CRYPT_KEY_SUFFIX_PASS,
+                "testValue");
         PlatformConfigurationKey[] keys = PlatformConfigurationKey.values();
         for (int i = 0; i < keys.length; i++) {
-            createConfigSetting(keys[i].name(), "testValue");
-        }
-        Map<String, Setting> result = runTX(new Callable<Map<String, Setting>>() {
-            @Override
-            public Map<String, Setting> call() throws Exception {
-                return cs.getAllProxyConfigurationSettings();
+            if (keys[i] != PlatformConfigurationKey.APP_KEY_PATH) {
+                createConfigSetting(keys[i].name(), "testValue");
             }
-        });
+        }
+        Map<String, Setting> result = runTX(
+                new Callable<Map<String, Setting>>() {
+                    @Override
+                    public Map<String, Setting> call() throws Exception {
+                        return cs.getAllProxyConfigurationSettings();
+                    }
+                });
         assertNotNull(result);
         assertEquals(keys.length + 3, result.keySet().size());
         assertTrue(result.keySet().contains("setting1"));
@@ -155,12 +170,14 @@ public class APPConfigurationServiceIT extends EJBTestBase {
         createContorllerConfigSetting("controller2", "key1", "value");
         createContorllerConfigSetting("controller2", "key2", "value");
         createContorllerConfigSetting("controller3", "key1", "value");
-        Map<String, Setting> result = runTX(new Callable<Map<String, Setting>>() {
-            @Override
-            public Map<String, Setting> call() throws Exception {
-                return cs.getControllerConfigurationSettings("controller1");
-            }
-        });
+        Map<String, Setting> result = runTX(
+                new Callable<Map<String, Setting>>() {
+                    @Override
+                    public Map<String, Setting> call() throws Exception {
+                        return cs.getControllerConfigurationSettings(
+                                "controller1");
+                    }
+                });
         assertNotNull(result);
         assertTrue(result.keySet().size() == 2);
     }
@@ -219,8 +236,8 @@ public class APPConfigurationServiceIT extends EJBTestBase {
             runTX(new Callable<Void>() {
                 @Override
                 public Void call() throws Exception {
-                    controllerOrganizations.putAll(cs
-                            .getControllerOrganizations());
+                    controllerOrganizations
+                            .putAll(cs.getControllerOrganizations());
                     return null;
                 }
             });
@@ -257,8 +274,8 @@ public class APPConfigurationServiceIT extends EJBTestBase {
             runTX(new Callable<Void>() {
                 @Override
                 public Void call() throws Exception {
-                    controllerOrganizations.putAll(cs
-                            .getControllerOrganizations());
+                    controllerOrganizations
+                            .putAll(cs.getControllerOrganizations());
                     return null;
                 }
             });
@@ -279,7 +296,7 @@ public class APPConfigurationServiceIT extends EJBTestBase {
         createContorllerConfigSetting("controller1", "leave", "alone");
         createContorllerConfigSetting("controller1", "update", "old");
         createContorllerConfigSetting("controller1", "update_PWD",
-                APPConfigurationServiceBean.CRYPT_PREFIX + "old_crypt");
+                PasswordSetup.CRYPT_PREFIX + "old_crypt");
         createContorllerConfigSetting("controller1", "delete", "old");
         createContorllerConfigSetting("controller2", "instanceValue",
                 "value1_c2");
@@ -303,8 +320,8 @@ public class APPConfigurationServiceIT extends EJBTestBase {
                     map.put("update_PWD",
                             new Setting("update_PWD", "new_crypt"));
                     map.put("create", new Setting("create", "very_new"));
-                    map.put("create_PWD", new Setting("create_PWD",
-                            "very_new_crypt"));
+                    map.put("create_PWD",
+                            new Setting("create_PWD", "very_new_crypt"));
                     map.put("delete", new Setting("delete", null));
                     cs.storeControllerConfigurationSettings("controller1", map);
                     return null;
@@ -335,15 +352,13 @@ public class APPConfigurationServiceIT extends EJBTestBase {
 
         assertTrue(result2.keySet().size() == 2);
         assertEquals("value1_c2", result2.get("instanceValue").getValue());
-        assertEquals(
-                "value2_c2",
+        assertEquals("value2_c2",
                 result2.get(
                         ControllerConfigurationKey.BSS_ORGANIZATION_ID.name())
                         .getValue());
         assertTrue(result3.keySet().size() == 2);
         assertEquals("value1_c3", result3.get("instanceValue").getValue());
-        assertEquals(
-                "value2_c3",
+        assertEquals("value2_c3",
                 result3.get(
                         ControllerConfigurationKey.BSS_ORGANIZATION_ID.name())
                         .getValue());
@@ -365,7 +380,7 @@ public class APPConfigurationServiceIT extends EJBTestBase {
         createConfigSetting(PlatformConfigurationKey.BSS_USER_KEY.name(),
                 "1000");
         createConfigSetting(PlatformConfigurationKey.BSS_USER_PWD.name(),
-                "KcGjH0UAGDj0MkZga19cBA==");
+                "secret");
         createConfigSetting(
                 PlatformConfigurationKey.APP_ADMIN_MAIL_ADDRESS.name(),
                 "admin@null.de");
@@ -376,8 +391,7 @@ public class APPConfigurationServiceIT extends EJBTestBase {
         createContorllerConfigSetting("controller1",
                 ControllerConfigurationKey.BSS_USER_ID.name(), "name");
         createContorllerConfigSetting("controller1",
-                ControllerConfigurationKey.BSS_USER_PWD.name(),
-                "KcGjH0UAGDj0MkZga19cBA==");
+                ControllerConfigurationKey.BSS_USER_PWD.name(), "secret");
         createContorllerConfigSetting("controller1",
                 ControllerConfigurationKey.BSS_ORGANIZATION_ID.name(), "org1");
 
@@ -387,17 +401,18 @@ public class APPConfigurationServiceIT extends EJBTestBase {
         instance.setOrganizationId("org1");
         instance.setControllerId("controller1");
 
-        ProvisioningSettings result = runTX(new Callable<ProvisioningSettings>() {
-            @Override
-            public ProvisioningSettings call() throws Exception {
-                return cs.getProvisioningSettings(instance, null);
-            }
-        });
+        ProvisioningSettings result = runTX(
+                new Callable<ProvisioningSettings>() {
+                    @Override
+                    public ProvisioningSettings call() throws Exception {
+                        return cs.getProvisioningSettings(instance, null);
+                    }
+                });
 
-        assertEquals("valueS", result.getConfigSettings().get("instanceValue")
-                .getValue());
-        assertEquals("valueA", result.getCustomAttributes().get("attr")
-                .getValue());
+        assertEquals("valueS",
+                result.getConfigSettings().get("instanceValue").getValue());
+        assertEquals("valueA",
+                result.getCustomAttributes().get("attr").getValue());
     }
 
     /**
@@ -416,10 +431,6 @@ public class APPConfigurationServiceIT extends EJBTestBase {
                 CustomAttribute cs = new CustomAttribute();
                 cs.setAttributeKey(key);
                 cs.setOrganizationId(organizationId);
-                if (key.endsWith(APPConfigurationServiceBean.CRYPT_KEY_SUFFIX)
-                        && !val.startsWith(APPConfigurationServiceBean.CRYPT_PREFIX)) {
-                    val = APPConfigurationServiceBean.CRYPT_PREFIX + val;
-                }
                 cs.setAttributeValue(val);
                 em.persist(cs);
                 return null;
@@ -442,11 +453,7 @@ public class APPConfigurationServiceIT extends EJBTestBase {
                 String val = value == null ? "testValue" : value;
                 ConfigurationSetting cs = new ConfigurationSetting();
                 cs.setSettingKey(key);
-                if (key.endsWith(APPConfigurationServiceBean.CRYPT_KEY_SUFFIX)
-                        && !val.startsWith(APPConfigurationServiceBean.CRYPT_PREFIX)) {
-                    val = APPConfigurationServiceBean.CRYPT_PREFIX + val;
-                }
-                cs.setSettingValue(val);
+                cs.setDecryptedValue(val);
                 em.persist(cs);
                 return null;
             }
@@ -469,7 +476,7 @@ public class APPConfigurationServiceIT extends EJBTestBase {
                 ConfigurationSetting cs = new ConfigurationSetting();
                 cs.setControllerId(controllerId);
                 cs.setSettingKey(settingKey);
-                cs.setSettingValue(value);
+                cs.setDecryptedValue(value);
                 em.persist(cs);
                 return null;
             }

@@ -9,6 +9,7 @@
 package org.oscm.app.domain;
 
 import java.io.Serializable;
+import java.security.GeneralSecurityException;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -16,6 +17,9 @@ import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
+
+import org.oscm.app.v2_0.exceptions.ConfigurationException;
+import org.oscm.encrypter.AESEncrypter;
 
 /**
  * A configuration setting for the asynchronous provisioning proxy.
@@ -36,6 +40,14 @@ public class ConfigurationSetting {
      * Reserved word for proxy configuration settings.
      */
     public static final String PROXY_SETTING_ID = "PROXY";
+
+    /**
+     * Setting keys ending with this suffix will have their values stored
+     * encrypted.
+     */
+    public static final String CRYPT_KEY_SUFFIX = "_PWD";
+
+    public static final String CRYPT_KEY_SUFFIX_PASS = "_PASS";
 
     /**
      * The key of the configuration setting.
@@ -66,6 +78,34 @@ public class ConfigurationSetting {
 
     public void setSettingValue(String settingValue) {
         this.settingValue = settingValue;
+    }
+
+    public void setDecryptedValue(String settingValue)
+            throws ConfigurationException {
+        try {
+            this.settingValue = isEncrypted()
+                    ? AESEncrypter.encrypt(settingValue) : settingValue;
+        } catch (GeneralSecurityException e) {
+            throw new ConfigurationException(
+                    String.format("Setting for key '%s' could not be encrypted",
+                            getSettingKey()));
+        }
+    }
+
+    public String getDecryptedValue() throws ConfigurationException {
+        try {
+            return isEncrypted() ? AESEncrypter.decrypt(settingValue)
+                    : settingValue;
+        } catch (GeneralSecurityException e) {
+            throw new ConfigurationException(
+                    String.format("Setting for key '%s' could not be decrypted",
+                            getSettingKey()));
+        }
+    }
+
+    public boolean isEncrypted() {
+        return settingKey != null && (settingKey.endsWith(CRYPT_KEY_SUFFIX)
+                || settingKey.endsWith(CRYPT_KEY_SUFFIX_PASS)) ? true : false;
     }
 
     public String getControllerId() {
@@ -103,18 +143,20 @@ public class ConfigurationSetting {
                 return false;
             }
             ScopedSettingKey other = (ScopedSettingKey) obj;
-            return ((settingKey == null && other.settingKey == null) || (settingKey != null && settingKey
-                    .equals(other.settingKey)))
-                    && ((controllerId == null && other.controllerId == null) || (controllerId != null && controllerId
-                            .equals(other.controllerId)));
+            return ((settingKey == null && other.settingKey == null)
+                    || (settingKey != null
+                            && settingKey.equals(other.settingKey)))
+                    && ((controllerId == null && other.controllerId == null)
+                            || (controllerId != null && controllerId
+                                    .equals(other.controllerId)));
         }
 
         @Override
         public int hashCode() {
-            int result = (settingKey != null ? (53 * settingKey.hashCode()) : 0);
-            result = result
-                    + (controllerId != null ? (13 * controllerId.hashCode())
-                            : 0);
+            int result = (settingKey != null ? (53 * settingKey.hashCode())
+                    : 0);
+            result = result + (controllerId != null
+                    ? (13 * controllerId.hashCode()) : 0);
             return result;
         }
     }
