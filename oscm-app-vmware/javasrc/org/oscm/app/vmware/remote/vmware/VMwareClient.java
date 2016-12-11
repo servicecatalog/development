@@ -222,11 +222,11 @@ public class VMwareClient implements AutoCloseable {
         return null;
     }
 
-    public String retrieveTaskInfoKey(ManagedObjectReference task)
+    public TaskInfo retrieveTaskInfo(ManagedObjectReference task)
             throws Exception {
 
         return ((TaskInfo) getServiceUtil().getDynamicProperty(task,
-                PROPERTY_INFO)).getKey();
+                PROPERTY_INFO));
     }
 
 }
