@@ -5322,7 +5322,8 @@ public class SubscriptionServiceBean
             if (voUda.getKey() > 0) {
                 modUpgBean.storeModifiedUda(voUda.getKey(),
                         ModifiedEntityType.UDA_VALUE, voUda.getUdaValue(),
-                        dbSubscription.getKey());
+                        dbSubscription.getKey(),
+                        voUda.getUdaDefinition().isEncrypted());
             } else {
                 newUdas.add(voUda);
             }
@@ -5332,8 +5333,12 @@ public class SubscriptionServiceBean
             VOUda defaultValueUda = new VOUda();
             defaultValueUda.setTargetObjectKey(voUda.getTargetObjectKey());
             defaultValueUda.setUdaDefinition(voUda.getUdaDefinition());
-            defaultValueUda
-                    .setUdaValue(voUda.getUdaDefinition().getDefaultValue());
+            if (voUda.getUdaDefinition().getDefaultValue() == null) {
+                defaultValueUda.setUdaValue("");
+            } else {
+                defaultValueUda.setUdaValue(
+                        voUda.getUdaDefinition().getDefaultValue());
+            }
             defaultValueUdas.add(defaultValueUda);
         }
         manageBean.getUdaAccess().saveUdas(defaultValueUdas,
@@ -5346,7 +5351,8 @@ public class SubscriptionServiceBean
             uda = (Uda) dataManager.getReferenceByBusinessKey(uda);
             modUpgBean.storeModifiedUda(uda.getKey(),
                     ModifiedEntityType.UDA_VALUE, voUda.getUdaValue(),
-                    dbSubscription.getKey());
+                    dbSubscription.getKey(),
+                    uda.getUdaDefinition().isEncrypted());
         }
     }
 

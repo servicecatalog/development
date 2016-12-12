@@ -46,10 +46,35 @@ public class XMLSerializerTest {
         map.put("a", "a1");
         map.put("b", "b1");
         String xml = XMLSerializer.toXml(map);
-
+        
         // when
         Map<String, String> map2 = (Map<String, String>) XMLSerializer
                 .toObject(xml);
+
+        // then
+        assertEquals(map.size(), map2.size());
+        assertTrue(map2.containsKey("a"));
+        assertTrue(map2.containsKey("b"));
+        assertEquals("a1", map2.get("a"));
+        assertEquals("b1", map2.get("b"));
+    }
+    
+    @Test
+    public void toObjectUnencrypted() throws Exception {
+
+        AESEncrypter.generateKey();
+
+        // given
+        Map<String, String> map = new HashMap<>();
+        map.put("a", "a1");
+        map.put("b", "b1");
+        String xml = XMLSerializer.toXml(map);
+        
+        String decrypted = AESEncrypter.decrypt(xml);
+        
+        // when
+        Map<String, String> map2 = (Map<String, String>) XMLSerializer
+                .toObject(decrypted);
 
         // then
         assertEquals(map.size(), map2.size());

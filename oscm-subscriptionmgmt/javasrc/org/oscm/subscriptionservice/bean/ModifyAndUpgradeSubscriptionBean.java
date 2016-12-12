@@ -249,12 +249,13 @@ public class ModifyAndUpgradeSubscriptionBean extends SubscriptionUtilBean {
     }
 
     void storeModifiedUda(long targetObjectkey, ModifiedEntityType type,
-            String value, long subscriptionKey)
+            String value, long subscriptionKey, boolean encrypted)
             throws NonUniqueBusinessKeyException {
         ModifiedUda modifiedUda = new ModifiedUda();
         modifiedUda.setTargetObjectType(type);
         modifiedUda.setTargetObjectKey(targetObjectkey);
         modifiedUda.setSubscriptionKey(subscriptionKey);
+        modifiedUda.setEncrypted(encrypted);
         modifiedUda.setValue(value);
         dataManager.persist(modifiedUda);
     }
