@@ -280,7 +280,7 @@ public class ProvisioningServiceBean implements ProvisioningService {
     @Override
     public BaseResult saveAttributes(String organizationId,
             List<ServiceAttribute> attributeValues, User requestingUser) {
-        final RequestLogEntry entry = createLogEntry("upgradeSubscription");
+        final RequestLogEntry entry = createLogEntry("saveAttributes");
         entry.addParameter("organizationId", organizationId);
         entry.addParameter("attributeValues", attributeValues);
         entry.addParameter("requestingUser", requestingUser);
