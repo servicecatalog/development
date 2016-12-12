@@ -52,9 +52,9 @@ public class MarketplaceAccessDao {
         String tenantPartForQuery;
 
         if (tenantKey == 0) {
-            tenantPartForQuery = "FROM organization o, marketplace mkp where o.tenant_tkey is null";
+            tenantPartForQuery = "FROM organization o, marketplace mkp WHERE o.tenant_tkey is null";
         } else {
-            tenantPartForQuery = "FROM organization o, marketplace mkp where o.tenant_tkey=" + String.valueOf(tenantKey) +" and mkp.tkey=:marketplaceKey";
+            tenantPartForQuery = "FROM organization o, marketplace mkp WHERE o.tenant_tkey=" + String.valueOf(tenantKey) +" and mkp.tkey=:marketplaceKey";
         }
             
         querySelect = "SELECT DISTINCT (o.tkey) as orgKey, "
