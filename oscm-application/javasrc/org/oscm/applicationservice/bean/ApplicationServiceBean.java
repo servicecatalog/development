@@ -7,6 +7,7 @@ package org.oscm.applicationservice.bean;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -18,6 +19,7 @@ import javax.ejb.Local;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
+import javax.persistence.TypedQuery;
 import javax.wsdl.WSDLException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.ws.WebServiceException;
@@ -30,6 +32,7 @@ import org.oscm.applicationservice.filter.ParameterFilter;
 import org.oscm.applicationservice.local.ApplicationServiceLocal;
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.dataservice.local.DataService;
+import org.oscm.domobjects.ModifiedUda;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.Product;
 import org.oscm.domobjects.RoleDefinition;
@@ -188,7 +191,8 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
         List<ServiceParameter> serviceParameterList = ParameterFilter
                 .getServiceParameterList(subscription, true);
         List<ServiceAttribute> serviceAttributeList = AttributeFilter
-                .getCustomAttributeList(subscription);
+                .getSubscriptionAttributeList(subscription,
+                        getModifiedUdas(subscription));
         try {
             BaseResult result = getPort(subscription).modifySubscription(
                     subscription.getProductInstanceId(),
@@ -540,8 +544,8 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
         request.setOrganizationName(subscription.getOrganization().getName());
         request.setParameterValue(
                 ParameterFilter.getServiceParameterList(subscription, false));
-        request.setAttributeValue(
-                AttributeFilter.getSubscriptionAttributeList(subscription));
+        request.setAttributeValue(AttributeFilter.getSubscriptionAttributeList(
+                subscription, Collections.<ModifiedUda> emptyList()));
         return request;
     }
 
@@ -577,6 +581,15 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
             }
         }
         return users;
+    }
+
+    private List<ModifiedUda> getModifiedUdas(Subscription subscription) {
+
+        TypedQuery<ModifiedUda> query = ds.createNamedQuery(
+                "ModifiedUda.findBySubscription", ModifiedUda.class);
+        query.setParameter("subscriptionKey", new Long(subscription.getKey()));
+
+        return query.getResultList();
     }
 
     @Override
@@ -811,7 +824,8 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
         List<ServiceParameter> serviceParameterList = ParameterFilter
                 .getServiceParameterList(product, true);
         List<ServiceAttribute> serviceAttributeList = AttributeFilter
-                .getSubscriptionAttributeList(subscription);
+                .getSubscriptionAttributeList(subscription,
+                        getModifiedUdas(subscription));
         try {
             BaseResult result = getPort(subscription).asyncModifySubscription(
                     subscription.getProductInstanceId(),
@@ -839,7 +853,8 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
         List<ServiceParameter> serviceParameterList = ParameterFilter
                 .getServiceParameterList(product, false);
         List<ServiceAttribute> serviceAttributeList = AttributeFilter
-                .getSubscriptionAttributeList(subscription);
+                .getSubscriptionAttributeList(subscription,
+                        getModifiedUdas(subscription));
         try {
             BaseResult result = getPort(subscription).asyncUpgradeSubscription(
                     subscription.getProductInstanceId(),
@@ -868,7 +883,8 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
         List<ServiceParameter> serviceParameterList = ParameterFilter
                 .getServiceParameterList(subscription, false);
         List<ServiceAttribute> serviceAttributeList = AttributeFilter
-                .getCustomAttributeList(subscription);
+                .getSubscriptionAttributeList(subscription,
+                        getModifiedUdas(subscription));
         try {
             BaseResult result = getPort(subscription).upgradeSubscription(
                     subscription.getProductInstanceId(),

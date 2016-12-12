@@ -11,9 +11,11 @@ package org.oscm.applicationservice.filter;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.Test;
+import org.oscm.domobjects.ModifiedUda;
 import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.Product;
 import org.oscm.domobjects.Subscription;
@@ -46,16 +48,36 @@ public class AttributeFilterTest {
     }
 
     @Test
-    public void testGetSubscriptionAttributeList() {
+    public void testGetSubscriptionAttributeListWithoutDS() {
 
         Subscription sub = setupSubscription("default", "value", false, "abc");
 
         List<ServiceAttribute> list = AttributeFilter
-                .getSubscriptionAttributeList(sub);
+                .getSubscriptionAttributeList(sub,
+                        Collections.<ModifiedUda> emptyList());
 
         assertEquals(2, list.size());
         assertEquals("default", list.get(0).getValue());
         assertEquals("value", list.get(1).getValue());
+        assertEquals(false, list.get(1).isEncrypted());
+        assertEquals("abc", list.get(0).getControllerId());
+    }
+
+    @Test
+    public void testGetSubscriptionAttributeListWithModUDA() {
+
+        Subscription sub = setupSubscription("default", "value", false, "abc");
+
+        ModifiedUda mod = new ModifiedUda();
+        mod.setTargetObjectKey(2L);
+        mod.setValue("mod");
+
+        List<ServiceAttribute> list = AttributeFilter
+                .getSubscriptionAttributeList(sub, Arrays.asList(mod));
+
+        assertEquals(2, list.size());
+        assertEquals("default", list.get(0).getValue());
+        assertEquals("mod", list.get(1).getValue());
         assertEquals(false, list.get(1).isEncrypted());
         assertEquals("abc", list.get(0).getControllerId());
     }
@@ -112,8 +134,10 @@ public class AttributeFilterTest {
         udaDefS2.setEncrypted(encrypted);
         udaDefS2.getDataContainer().setControllerId(controllerId);
 
+        udaC.setKey(1L);
         udaC.setUdaValue(value);
         udaC.setTargetObjectKey(custKey);
+        udaS.setKey(2);
         udaS.setUdaValue(value);
         udaS.setTargetObjectKey(subKey);
 
