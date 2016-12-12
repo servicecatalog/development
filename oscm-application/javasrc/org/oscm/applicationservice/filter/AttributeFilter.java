@@ -11,6 +11,7 @@ package org.oscm.applicationservice.filter;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.oscm.domobjects.ModifiedUda;
 import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.Uda;
@@ -74,14 +75,17 @@ public class AttributeFilter {
 
     /**
      * Converts the subscription UDA list into a ServiceAttribute list.
+     * Overwrites corresponding UDAs with its modified value if available.
      * 
      * @param subscription
      *            the related subscription
+     * @param modifiedUdas
+     *            the list of modified UDAs
      * 
      * @return the created ServiceAttribute list.
      */
     public static List<ServiceAttribute> getSubscriptionAttributeList(
-            Subscription subscription) {
+            Subscription subscription, List<ModifiedUda> modifiedUdas) {
 
         ArrayList<ServiceAttribute> list = new ArrayList<>();
 
@@ -93,11 +97,20 @@ public class AttributeFilter {
 
                 for (Uda uda : def.getUdas()) {
                     if (uda.getTargetObjectKey() == subscription.getKey()) {
+
                         ServiceAttribute attr = new ServiceAttribute();
                         attr.setAttributeId(def.getUdaId());
                         attr.setValue(uda.getUdaValue());
                         attr.setEncrypted(def.isEncrypted());
                         attr.setControllerId(def.getControllerId());
+
+                        for (ModifiedUda mod : modifiedUdas) {
+                            if (mod.getTargetObjectKey() == uda.getKey()) {
+                                attr.setValue(mod.getValue());
+                                break;
+                            }
+                        }
+
                         list.add(attr);
                         exists = true;
                     }

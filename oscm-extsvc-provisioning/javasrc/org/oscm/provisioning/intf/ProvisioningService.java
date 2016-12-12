@@ -400,8 +400,9 @@ public interface ProvisioningService {
      *            <code>createInstance</code> or
      *            <code>asynchCreateInstance</code> is called.
      * @param attributeValues
-     *            the new values for the service attributes as specified by the
-     *            customer during the creation or update of the subscription.
+     *            the new values for the service attributes as specified for the
+     *            subscription attributes by the customer during the creation or
+     *            update of the subscription.
      * @param requestingUser
      *            a <code>User</code> object specifying the platform user who
      *            requests the instance operation
@@ -461,8 +462,9 @@ public interface ProvisioningService {
      *            <code>createInstance</code> or
      *            <code>asynchCreateInstance</code> is called.
      * @param attributeValues
-     *            the new values for the service attributes as specified by the
-     *            customer during the creation or update of the subscription.
+     *            the new values for the service attributes as specified for the
+     *            subscription attributes by the customer during the creation or
+     *            update of the subscription.
      * @param requestingUser
      *            a <code>User</code> object specifying the platform user who
      *            requests the instance operation
@@ -517,8 +519,9 @@ public interface ProvisioningService {
      *            <code>createInstance</code> or
      *            <code>asynchCreateInstance</code> is called.
      * @param attributeValues
-     *            the new values for the service attributes as specified by the
-     *            customer during the creation or update of the subscription.
+     *            the new values for the service attributes as specified for the
+     *            subscription attributes by the customer during the creation or
+     *            update of the subscription.
      * @param requestingUser
      *            a <code>User</code> object specifying the platform user who
      *            requests the instance operation
@@ -539,14 +542,15 @@ public interface ProvisioningService {
             @WebParam(name = "requestingUser") User requestingUser);
 
     /**
-     * This method is called when a customer sets values for custom attributes of
-     * his subscriptions. The attributes are saved within the APP and used, for
+     * This method is called when a customer sets values for customer
+     * attributes. The attributes are saved within the APP and used, for
      * example, to overwrite the configured controller credentials.
      * 
      * @param organizationId
      *            the id of the organization the customer belongs to.
      * @param attributeValues
-     *            the values for the attributes.
+     *            the new values for the service attributes as specified for the
+     *            customer attributes by the customer through the account.
      * @param requestingUser
      *            a <code>User</code> object specifying the platform user who
      *            requests the instance operation.

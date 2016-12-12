@@ -29,6 +29,7 @@ import org.oscm.encrypter.AESEncrypter;
 @Entity
 @NamedQueries({
         @NamedQuery(name = "ModifiedUda.findByBusinessKey", query = "SELECT m FROM ModifiedUda m WHERE m.dataContainer.targetObjectKey = :targetObjectKey AND m.dataContainer.targetObjectType = :targetObjectType AND m.dataContainer.subscriptionKey = :subscriptionKey"),
+        @NamedQuery(name = "ModifiedUda.findBySubscription", query = "SELECT m FROM ModifiedUda m WHERE m.dataContainer.subscriptionKey = :subscriptionKey"),
         @NamedQuery(name = "ModifiedUda.deleteBySubscription", query = "DELETE FROM ModifiedUda m WHERE m.dataContainer.subscriptionKey = :subscriptionKey") })
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "targetObjectKey",
         "targetObjectType", "subscriptionKey" }))
