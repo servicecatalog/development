@@ -29,18 +29,21 @@ import static org.oscm.types.enumtypes.OperationParameterType.REQUEST_SELECT;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import javax.persistence.TypedQuery;
 import javax.xml.ws.WebServiceException;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.oscm.applicationservice.filter.AttributeFilter;
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
@@ -157,6 +160,19 @@ public class ApplicationServiceBeanTest {
             public PlatformUser getCurrentUserIfPresent() {
                 return getCurrentUser();
             }
+
+            @SuppressWarnings("unchecked")
+            @Override
+            public <T> TypedQuery<T> createNamedQuery(String jpql,
+                    Class<T> resultClass) {
+
+                TypedQuery<T> query = Mockito.mock(TypedQuery.class);
+                Mockito.when(query.getResultList())
+                        .thenReturn(Collections.<T> emptyList());
+
+                return query;
+            }
+
         };
 
         LoggerFactory.activateRollingFileAppender("./logs", null, "DEBUG");
