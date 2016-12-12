@@ -14,6 +14,7 @@ package org.oscm.ui.filter;
 
 import static org.oscm.internal.types.enumtypes.ConfigurationKey.SSO_DEFAULT_TENANT_ID;
 import static org.oscm.types.constants.Configuration.GLOBAL_CONTEXT;
+import static org.oscm.ui.common.Constants.PORTAL_HAS_BEEN_REQUESTED;
 import static org.oscm.ui.common.Constants.REQ_PARAM_TENANT_ID;
 
 import java.io.IOException;
@@ -711,6 +712,7 @@ public class AuthorizationFilter extends BaseBesFilter {
 
         VOUserDetails userDetails = rdo.getUserDetails();
         if (userDetails != null) {
+            httpRequest.getSession().setAttribute(PORTAL_HAS_BEEN_REQUESTED, !rdo.isMarketplace());
 
             // if the user wants to use another organization he must login
             // again (the service sessions are destroyed as well)

@@ -25,16 +25,14 @@ import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.junit.Before;
 import org.junit.Test;
-
 import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.TriggerDefinition;
 import org.oscm.domobjects.TriggerProcess;
 import org.oscm.domobjects.TriggerProcessParameter;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
+import org.oscm.encrypter.AESEncrypter;
 import org.oscm.i18nservice.bean.LocalizerFacade;
-import org.oscm.test.stubs.LocalizerServiceStub;
-import org.oscm.types.enumtypes.TriggerProcessParameterName;
 import org.oscm.internal.types.enumtypes.TriggerProcessStatus;
 import org.oscm.internal.types.enumtypes.TriggerTargetType;
 import org.oscm.internal.types.enumtypes.TriggerType;
@@ -48,6 +46,8 @@ import org.oscm.internal.vo.VOTriggerDefinition;
 import org.oscm.internal.vo.VOTriggerProcess;
 import org.oscm.internal.vo.VOTriggerProcessParameter;
 import org.oscm.internal.vo.VOUser;
+import org.oscm.test.stubs.LocalizerServiceStub;
+import org.oscm.types.enumtypes.TriggerProcessParameterName;
 
 /**
  * Tests for the trigger process assembler.
@@ -64,6 +64,7 @@ public class TriggerProcessAssemblerTest {
 
     @Before
     public void setUp() throws Exception {
+        AESEncrypter.generateKey();
         voService = new VOService();
         voService.setTechnicalId("techId");
         voService.setName("serviceName");
@@ -99,7 +100,7 @@ public class TriggerProcessAssemblerTest {
         param1.setTriggerProcess(triggerProcess);
         param1.setValue(voService);
 
-        List<TriggerProcessParameter> params = new ArrayList<TriggerProcessParameter>();
+        List<TriggerProcessParameter> params = new ArrayList<>();
         params.add(param);
         params.add(param1);
 
@@ -133,35 +134,35 @@ public class TriggerProcessAssemblerTest {
 
     @Test
     public void testToVOTriggerProcess_NullInput() throws Exception {
-        VOTriggerProcess result = TriggerProcessAssembler.toVOTriggerProcess(
-                null, null);
+        VOTriggerProcess result = TriggerProcessAssembler
+                .toVOTriggerProcess(null, null);
         assertNull(result);
     }
 
     @Test
     public void testToVOTriggerProcess() throws Exception {
-        VOTriggerProcess result = TriggerProcessAssembler.toVOTriggerProcess(
-                triggerProcess, localizerFacade);
+        VOTriggerProcess result = TriggerProcessAssembler
+                .toVOTriggerProcess(triggerProcess, localizerFacade);
         validateResult(result, TriggerType.ADD_REVOKE_USER, false);
         assertEquals("param1Value", result.getTargetNames().get(0));
     }
 
     @Test
     public void testToVOTriggerProcess_Subscribe() throws Exception {
-        triggerProcess.getTriggerDefinition().setType(
-                TriggerType.SUBSCRIBE_TO_SERVICE);
-        VOTriggerProcess result = TriggerProcessAssembler.toVOTriggerProcess(
-                triggerProcess, localizerFacade);
+        triggerProcess.getTriggerDefinition()
+                .setType(TriggerType.SUBSCRIBE_TO_SERVICE);
+        VOTriggerProcess result = TriggerProcessAssembler
+                .toVOTriggerProcess(triggerProcess, localizerFacade);
         validateResult(result, TriggerType.SUBSCRIBE_TO_SERVICE, true);
         assertEquals("serviceName", result.getTargetNames().get(1));
     }
 
     @Test
     public void testToVOTriggerProcess_UpgradeSub() throws Exception {
-        triggerProcess.getTriggerDefinition().setType(
-                TriggerType.UPGRADE_SUBSCRIPTION);
-        VOTriggerProcess result = TriggerProcessAssembler.toVOTriggerProcess(
-                triggerProcess, localizerFacade);
+        triggerProcess.getTriggerDefinition()
+                .setType(TriggerType.UPGRADE_SUBSCRIPTION);
+        VOTriggerProcess result = TriggerProcessAssembler
+                .toVOTriggerProcess(triggerProcess, localizerFacade);
         validateResult(result, TriggerType.UPGRADE_SUBSCRIPTION, true);
         assertEquals("serviceName", result.getTargetNames().get(1));
     }
@@ -176,10 +177,10 @@ public class TriggerProcessAssemblerTest {
         param.setValue(paymentConfig);
         triggerProcess.getTriggerProcessParameters().add(param);
 
-        triggerProcess.getTriggerDefinition().setType(
-                TriggerType.SAVE_PAYMENT_CONFIGURATION);
-        VOTriggerProcess result = TriggerProcessAssembler.toVOTriggerProcess(
-                triggerProcess, localizerFacade);
+        triggerProcess.getTriggerDefinition()
+                .setType(TriggerType.SAVE_PAYMENT_CONFIGURATION);
+        VOTriggerProcess result = TriggerProcessAssembler
+                .toVOTriggerProcess(triggerProcess, localizerFacade);
         validateResult(result, TriggerType.SAVE_PAYMENT_CONFIGURATION, true);
         assertEquals(TriggerProcessParameterName.CUSTOMER_CONFIGURATION.name(),
                 result.getParameter());
@@ -196,10 +197,10 @@ public class TriggerProcessAssemblerTest {
         param.setValue(new HashSet<VOPaymentType>());
         triggerProcess.getTriggerProcessParameters().add(param);
 
-        triggerProcess.getTriggerDefinition().setType(
-                TriggerType.SAVE_PAYMENT_CONFIGURATION);
-        VOTriggerProcess result = TriggerProcessAssembler.toVOTriggerProcess(
-                triggerProcess, localizerFacade);
+        triggerProcess.getTriggerDefinition()
+                .setType(TriggerType.SAVE_PAYMENT_CONFIGURATION);
+        VOTriggerProcess result = TriggerProcessAssembler
+                .toVOTriggerProcess(triggerProcess, localizerFacade);
         validateResult(result, TriggerType.SAVE_PAYMENT_CONFIGURATION, false);
         assertEquals(TriggerProcessParameterName.DEFAULT_CONFIGURATION.name(),
                 result.getParameter());
@@ -210,19 +211,21 @@ public class TriggerProcessAssemblerTest {
             throws Exception {
         TriggerProcessParameter param = new TriggerProcessParameter();
         param.setKey(55);
-        param.setName(TriggerProcessParameterName.DEFAULT_SERVICE_PAYMENT_CONFIGURATION);
+        param.setName(
+                TriggerProcessParameterName.DEFAULT_SERVICE_PAYMENT_CONFIGURATION);
         param.setTriggerProcess(triggerProcess);
         param.setValue(new HashSet<VOPaymentType>());
         triggerProcess.getTriggerProcessParameters().add(param);
 
-        triggerProcess.getTriggerDefinition().setType(
-                TriggerType.SAVE_PAYMENT_CONFIGURATION);
-        VOTriggerProcess result = TriggerProcessAssembler.toVOTriggerProcess(
-                triggerProcess, localizerFacade);
+        triggerProcess.getTriggerDefinition()
+                .setType(TriggerType.SAVE_PAYMENT_CONFIGURATION);
+        VOTriggerProcess result = TriggerProcessAssembler
+                .toVOTriggerProcess(triggerProcess, localizerFacade);
         validateResult(result, TriggerType.SAVE_PAYMENT_CONFIGURATION, false);
         assertEquals(
                 TriggerProcessParameterName.DEFAULT_SERVICE_PAYMENT_CONFIGURATION
-                        .name(), result.getParameter());
+                        .name(),
+                result.getParameter());
     }
 
     @Test
@@ -235,20 +238,19 @@ public class TriggerProcessAssemblerTest {
         conf.setEnabledPaymentTypes(new HashSet<VOPaymentType>());
         TriggerProcessParameter param = new TriggerProcessParameter();
         param.setKey(55);
-        param.setName(TriggerProcessParameterName.SERVICE_PAYMENT_CONFIGURATION);
+        param.setName(
+                TriggerProcessParameterName.SERVICE_PAYMENT_CONFIGURATION);
         param.setTriggerProcess(triggerProcess);
         param.setValue(conf);
         triggerProcess.getTriggerProcessParameters().add(param);
 
-        triggerProcess.getTriggerDefinition().setType(
-                TriggerType.SAVE_PAYMENT_CONFIGURATION);
-        VOTriggerProcess result = TriggerProcessAssembler.toVOTriggerProcess(
-                triggerProcess, localizerFacade);
+        triggerProcess.getTriggerDefinition()
+                .setType(TriggerType.SAVE_PAYMENT_CONFIGURATION);
+        VOTriggerProcess result = TriggerProcessAssembler
+                .toVOTriggerProcess(triggerProcess, localizerFacade);
         validateResult(result, TriggerType.SAVE_PAYMENT_CONFIGURATION, true);
-        assertEquals(
-                TriggerProcessParameterName.SERVICE_PAYMENT_CONFIGURATION
-                        .name(),
-                result.getParameter());
+        assertEquals(TriggerProcessParameterName.SERVICE_PAYMENT_CONFIGURATION
+                .name(), result.getParameter());
         assertEquals(svc.getServiceId(), result.getTargetNames().get(1));
     }
 
@@ -288,8 +290,7 @@ public class TriggerProcessAssemblerTest {
                 VOTriggerProcessParameter voParameter = (VOTriggerProcessParameter) o;
 
                 return voParameter.getKey() == key
-                        && voParameter
-                                .getType()
+                        && voParameter.getType()
                                 .equals(org.oscm.internal.types.enumtypes.TriggerProcessParameterType.PRODUCT)
                         && voParameter.getValue() instanceof VOService;
 

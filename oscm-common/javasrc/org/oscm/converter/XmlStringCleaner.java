@@ -6,7 +6,7 @@
  *                                                                              
  *******************************************************************************/
 
-package org.oscm.domobjects.handling;
+package org.oscm.converter;
 
 import java.util.regex.Pattern;
 

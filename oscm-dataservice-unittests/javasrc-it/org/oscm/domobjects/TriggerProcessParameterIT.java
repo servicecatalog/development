@@ -28,11 +28,9 @@ import java.util.concurrent.Callable;
 
 import org.junit.Assert;
 import org.junit.Test;
-
 import org.oscm.converter.ResourceLoader;
 import org.oscm.domobjects.enums.ModificationType;
-import org.oscm.test.ReflectiveClone;
-import org.oscm.types.enumtypes.TriggerProcessParameterName;
+import org.oscm.encrypter.AESEncrypter;
 import org.oscm.internal.types.enumtypes.EventType;
 import org.oscm.internal.types.enumtypes.ParameterType;
 import org.oscm.internal.types.enumtypes.ParameterValueType;
@@ -63,6 +61,8 @@ import org.oscm.internal.vo.VOService;
 import org.oscm.internal.vo.VOSubscriptionDetails;
 import org.oscm.internal.vo.VOUsageLicense;
 import org.oscm.internal.vo.VOUserDetails;
+import org.oscm.test.ReflectiveClone;
+import org.oscm.types.enumtypes.TriggerProcessParameterName;
 
 /**
  * Test of the TriggerProcess domain object.
@@ -72,7 +72,7 @@ import org.oscm.internal.vo.VOUserDetails;
  */
 public class TriggerProcessParameterIT extends DomainObjectTestBase {
 
-    private final List<TriggerProcessParameter> objList = new ArrayList<TriggerProcessParameter>();
+    private final List<TriggerProcessParameter> objList = new ArrayList<>();
 
     private void verify(ModificationType modType) throws Exception {
         verify(modType, objList, TriggerProcessParameter.class);
@@ -84,8 +84,8 @@ public class TriggerProcessParameterIT extends DomainObjectTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                TriggerProcess triggerProcess = mgr.getReference(
-                        TriggerProcess.class, clone.getKey());
+                TriggerProcess triggerProcess = mgr
+                        .getReference(TriggerProcess.class, clone.getKey());
                 TriggerProcessParameter param = triggerProcess
                         .getTriggerProcessParameters().get(0);
                 Assert.assertEquals(TEST_MAIL_ADDRESS,
@@ -102,19 +102,19 @@ public class TriggerProcessParameterIT extends DomainObjectTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                TriggerProcess triggerProcess = mgr.getReference(
-                        TriggerProcess.class, clone.getKey());
+                TriggerProcess triggerProcess = mgr
+                        .getReference(TriggerProcess.class, clone.getKey());
 
                 TriggerProcessParameter param = triggerProcess
                         .getTriggerProcessParameters().get(0);
                 param.setName(TriggerProcessParameterName.OBJECT_ID);
                 param.setValue("test");
                 objList.remove(0);
-                objList.add((TriggerProcessParameter) ReflectiveClone
-                        .clone(param));
+                objList.add(
+                        (TriggerProcessParameter) ReflectiveClone.clone(param));
 
-                Assert.assertEquals(clone.getKey(), param.getTriggerProcess()
-                        .getKey());
+                Assert.assertEquals(clone.getKey(),
+                        param.getTriggerProcess().getKey());
                 return null;
             }
         });
@@ -140,7 +140,8 @@ public class TriggerProcessParameterIT extends DomainObjectTestBase {
         VOParameterOption voIn = new VOParameterOption("optionId",
                 "optionDescription", "paramDefId");
         createTriggerProcessWithParam(voIn);
-        VOParameterOption voOut = getTriggerProcessParameterValue(VOParameterOption.class);
+        VOParameterOption voOut = getTriggerProcessParameterValue(
+                VOParameterOption.class);
 
         String result = doCompare(voIn, voOut);
         Assert.assertTrue(result, result.length() == 0);
@@ -153,7 +154,8 @@ public class TriggerProcessParameterIT extends DomainObjectTestBase {
         voIn.setPricePerUser(BigDecimal.valueOf(10));
 
         createTriggerProcessWithParam(voIn);
-        VOPricedOption voOut = getTriggerProcessParameterValue(VOPricedOption.class);
+        VOPricedOption voOut = getTriggerProcessParameterValue(
+                VOPricedOption.class);
 
         String result = doCompare(voIn, voOut);
         Assert.assertTrue(result, result.length() == 0);
@@ -167,7 +169,8 @@ public class TriggerProcessParameterIT extends DomainObjectTestBase {
                 false, true, null);
 
         createTriggerProcessWithParam(voIn);
-        VOParameterDefinition voOut = getTriggerProcessParameterValue(VOParameterDefinition.class);
+        VOParameterDefinition voOut = getTriggerProcessParameterValue(
+                VOParameterDefinition.class);
 
         String result = doCompare(voIn, voOut);
         Assert.assertTrue(result, result.length() == 0);
@@ -202,7 +205,8 @@ public class TriggerProcessParameterIT extends DomainObjectTestBase {
         voIn.setPricePerUser(BigDecimal.valueOf(10));
 
         createTriggerProcessWithParam(voIn);
-        VOPricedParameter voOut = getTriggerProcessParameterValue(VOPricedParameter.class);
+        VOPricedParameter voOut = getTriggerProcessParameterValue(
+                VOPricedParameter.class);
 
         String result = doCompare(voIn, voOut);
         Assert.assertTrue(result, result.length() == 0);
@@ -210,7 +214,7 @@ public class TriggerProcessParameterIT extends DomainObjectTestBase {
 
     @Test
     public void testSerializeVOPricedParameterWithOption() throws Exception {
-        List<VOParameterOption> options = new ArrayList<VOParameterOption>();
+        List<VOParameterOption> options = new ArrayList<>();
         options.add(new VOParameterOption("optionId", "optionDescription",
                 "paramDefId"));
 
@@ -223,7 +227,7 @@ public class TriggerProcessParameterIT extends DomainObjectTestBase {
         voIn.setPricePerSubscription(BigDecimal.valueOf(100));
         voIn.setPricePerUser(BigDecimal.valueOf(10));
 
-        List<VOPricedOption> pricedOptions = new ArrayList<VOPricedOption>();
+        List<VOPricedOption> pricedOptions = new ArrayList<>();
         VOPricedOption priceOption = new VOPricedOption();
         priceOption.setPricePerSubscription(BigDecimal.valueOf(100));
         priceOption.setPricePerUser(BigDecimal.valueOf(10));
@@ -231,7 +235,8 @@ public class TriggerProcessParameterIT extends DomainObjectTestBase {
         voIn.setPricedOptions(pricedOptions);
 
         createTriggerProcessWithParam(voIn);
-        VOPricedParameter voOut = getTriggerProcessParameterValue(VOPricedParameter.class);
+        VOPricedParameter voOut = getTriggerProcessParameterValue(
+                VOPricedParameter.class);
 
         String result = doCompare(voIn, voOut);
         Assert.assertTrue(result, result.length() == 0);
@@ -245,7 +250,8 @@ public class TriggerProcessParameterIT extends DomainObjectTestBase {
         voIn.setEventType(EventType.PLATFORM_EVENT);
 
         createTriggerProcessWithParam(voIn);
-        VOEventDefinition voOut = getTriggerProcessParameterValue(VOEventDefinition.class);
+        VOEventDefinition voOut = getTriggerProcessParameterValue(
+                VOEventDefinition.class);
 
         String result = doCompare(voIn, voOut);
         Assert.assertTrue(result, result.length() == 0);
@@ -260,7 +266,8 @@ public class TriggerProcessParameterIT extends DomainObjectTestBase {
         voIn.setEventPrice(BigDecimal.valueOf(10));
 
         createTriggerProcessWithParam(voIn);
-        VOPricedEvent voOut = getTriggerProcessParameterValue(VOPricedEvent.class);
+        VOPricedEvent voOut = getTriggerProcessParameterValue(
+                VOPricedEvent.class);
 
         String result = doCompare(voIn, voOut);
         Assert.assertTrue(result, result.length() == 0);
@@ -278,7 +285,8 @@ public class TriggerProcessParameterIT extends DomainObjectTestBase {
         voIn.setPricePerUserAssignment(BigDecimal.valueOf(4l));
 
         createTriggerProcessWithParam(voIn);
-        VOPriceModel voOut = getTriggerProcessParameterValue(VOPriceModel.class);
+        VOPriceModel voOut = getTriggerProcessParameterValue(
+                VOPriceModel.class);
 
         String result = doCompare(voIn, voOut);
         Assert.assertTrue(result, result.length() == 0);
@@ -313,16 +321,17 @@ public class TriggerProcessParameterIT extends DomainObjectTestBase {
         voIn.addUserRole(UserRoleType.ORGANIZATION_ADMIN);
         voIn.setOrganizationId("organizationId");
         voIn.setPhone("phone");
-        voIn.setRemoteLdapAttributes(new ArrayList<SettingType>(Arrays.asList(
-                SettingType.LDAP_ATTR_FIRST_NAME,
-                SettingType.LDAP_ATTR_LAST_NAME)));
+        voIn.setRemoteLdapAttributes(new ArrayList<>(
+                Arrays.asList(SettingType.LDAP_ATTR_FIRST_NAME,
+                        SettingType.LDAP_ATTR_LAST_NAME)));
         voIn.setSalutation(Salutation.MR);
         voIn.setStatus(UserAccountStatus.ACTIVE);
         voIn.setUserId("userId");
         voIn.getUserRoles().add(UserRoleType.SERVICE_MANAGER);
 
         createTriggerProcessWithParam(voIn);
-        VOUserDetails voOut = getTriggerProcessParameterValue(VOUserDetails.class);
+        VOUserDetails voOut = getTriggerProcessParameterValue(
+                VOUserDetails.class);
 
         String result = doCompare(voIn, voOut);
         Assert.assertTrue(result, result.length() == 0);
@@ -334,7 +343,8 @@ public class TriggerProcessParameterIT extends DomainObjectTestBase {
         voIn.setApplicationUserId("applicationUserId");
 
         createTriggerProcessWithParam(voIn);
-        VOUsageLicense voOut = getTriggerProcessParameterValue(VOUsageLicense.class);
+        VOUsageLicense voOut = getTriggerProcessParameterValue(
+                VOUsageLicense.class);
 
         String result = doCompare(voIn, voOut);
         Assert.assertTrue(result, result.length() == 0);
@@ -358,7 +368,8 @@ public class TriggerProcessParameterIT extends DomainObjectTestBase {
         voIn.setTimeoutMailSent(true);
 
         createTriggerProcessWithParam(voIn);
-        VOSubscriptionDetails voOut = getTriggerProcessParameterValue(VOSubscriptionDetails.class);
+        VOSubscriptionDetails voOut = getTriggerProcessParameterValue(
+                VOSubscriptionDetails.class);
 
         String result = doCompare(voIn, voOut);
         Assert.assertTrue(result, result.length() == 0);
@@ -371,7 +382,8 @@ public class TriggerProcessParameterIT extends DomainObjectTestBase {
         voIn.setPaymentTypeId(CREDIT_CARD);
 
         createTriggerProcessWithParam(voIn);
-        VOPaymentType voOut = getTriggerProcessParameterValue(VOPaymentType.class);
+        VOPaymentType voOut = getTriggerProcessParameterValue(
+                VOPaymentType.class);
 
         String result = doCompare(voIn, voOut);
         Assert.assertTrue(result, result.length() == 0);
@@ -385,11 +397,11 @@ public class TriggerProcessParameterIT extends DomainObjectTestBase {
         paymentType.setPaymentTypeId(CREDIT_CARD);
 
         VOOrganizationPaymentConfiguration voIn = new VOOrganizationPaymentConfiguration();
-        voIn.setEnabledPaymentTypes(new HashSet<VOPaymentType>(Arrays
-                .asList(paymentType)));
+        voIn.setEnabledPaymentTypes(
+                new HashSet<>(Arrays.asList(paymentType)));
         voIn.setOrganization(new VOOrganization());
 
-        List<VOOrganizationPaymentConfiguration> listIn = new ArrayList<VOOrganizationPaymentConfiguration>();
+        List<VOOrganizationPaymentConfiguration> listIn = new ArrayList<>();
         listIn.add(voIn);
 
         createTriggerProcessWithParam(listIn);
@@ -402,7 +414,8 @@ public class TriggerProcessParameterIT extends DomainObjectTestBase {
 
     @Test(expected = ClassCastException.class)
     public void testSerializeVOServiceComplex() throws Exception {
-        String serializedData = getSerializedDataFromFile("SerializedVOService.xml");
+        String serializedData = getSerializedDataFromFile(
+                "SerializedVOService.xml");
 
         TriggerProcessParameter param = new TriggerProcessParameter();
         param.getDataContainer().setSerializedValue(serializedData);
@@ -412,10 +425,12 @@ public class TriggerProcessParameterIT extends DomainObjectTestBase {
 
     @Test
     public void testSerializeVOServiceComplex2() throws Exception {
-        String serializedData = getSerializedDataFromFile("SerializedVOService.xml");
+        String serializedData = getSerializedDataFromFile(
+                "SerializedVOService.xml");
 
         TriggerProcessParameter param = new TriggerProcessParameter();
-        param.getDataContainer().setSerializedValue(serializedData);
+        param.getDataContainer()
+                .setSerializedValue(AESEncrypter.encrypt(serializedData));
 
         VOService service = TriggerProcessParameterData.getVOFromSerialization(
                 VOService.class, param.getValue(String.class));
@@ -427,8 +442,7 @@ public class TriggerProcessParameterIT extends DomainObjectTestBase {
             @Override
             public TriggerProcess call() throws Exception {
                 TriggerProcess triggerProcess = TriggerProcessIT
-                        .createTriggerProcess(mgr,
-                                TriggerType.ACTIVATE_SERVICE,
+                        .createTriggerProcess(mgr, TriggerType.ACTIVATE_SERVICE,
                                 "http://localhost", true);
 
                 TriggerProcessParameter param = triggerProcess
@@ -437,8 +451,8 @@ public class TriggerProcessParameterIT extends DomainObjectTestBase {
                                 TEST_MAIL_ADDRESS);
 
                 mgr.flush();
-                objList.add((TriggerProcessParameter) ReflectiveClone
-                        .clone(param));
+                objList.add(
+                        (TriggerProcessParameter) ReflectiveClone.clone(param));
 
                 return (TriggerProcess) ReflectiveClone.clone(triggerProcess);
             }
@@ -451,8 +465,7 @@ public class TriggerProcessParameterIT extends DomainObjectTestBase {
             @Override
             public TriggerProcess call() throws Exception {
                 TriggerProcess triggerProcess = TriggerProcessIT
-                        .createTriggerProcess(mgr,
-                                TriggerType.ACTIVATE_SERVICE,
+                        .createTriggerProcess(mgr, TriggerType.ACTIVATE_SERVICE,
                                 "http://localhost", true);
 
                 TriggerProcessParameter param = triggerProcess
@@ -460,8 +473,8 @@ public class TriggerProcessParameterIT extends DomainObjectTestBase {
                                 TriggerProcessParameterName.OBJECT_ID, obj);
 
                 mgr.flush();
-                objList.add((TriggerProcessParameter) ReflectiveClone
-                        .clone(param));
+                objList.add(
+                        (TriggerProcessParameter) ReflectiveClone.clone(param));
 
                 return (TriggerProcess) ReflectiveClone.clone(triggerProcess);
             }
@@ -481,7 +494,7 @@ public class TriggerProcessParameterIT extends DomainObjectTestBase {
     }
 
     private String doCompare(Object first, Object second) throws Exception {
-        return doCompare(new ArrayList<Object>(), first, second);
+        return doCompare(new ArrayList<>(), first, second);
     }
 
     private String doCompare(List<Object> parents, Object first, Object second)
@@ -489,8 +502,8 @@ public class TriggerProcessParameterIT extends DomainObjectTestBase {
         String result = "";
 
         for (Method m : first.getClass().getMethods()) {
-            if ((!m.getName().startsWith("get") && !m.getName()
-                    .startsWith("is"))
+            if ((!m.getName().startsWith("get")
+                    && !m.getName().startsWith("is"))
                     || "getClass".equals(m.getName())
                     || m.getGenericParameterTypes().length > 0) {
                 continue;
@@ -519,8 +532,8 @@ public class TriggerProcessParameterIT extends DomainObjectTestBase {
                 }
             } else if (firstObj != null || secondObj != null) {
                 if (firstObj == null || !firstObj.equals(secondObj)) {
-                    result = result + m.getName() + ": (" + firstObj
-                            + ") <-> (" + secondObj + ")\n";
+                    result = result + m.getName() + ": (" + firstObj + ") <-> ("
+                            + secondObj + ")\n";
                 }
             }
         }

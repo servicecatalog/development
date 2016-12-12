@@ -8,6 +8,8 @@
 
 package org.oscm.domobjects;
 
+import java.security.GeneralSecurityException;
+
 import javax.persistence.Entity;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
@@ -16,6 +18,7 @@ import javax.persistence.UniqueConstraint;
 
 import org.oscm.domobjects.annotations.BusinessKey;
 import org.oscm.domobjects.enums.ModifiedEntityType;
+import org.oscm.encrypter.AESEncrypter;
 
 /**
  * ModifiedUda stores uda value which has been asynchronous updated but not
@@ -57,11 +60,27 @@ public class ModifiedUda extends DomainObjectWithVersioning<ModifiedUdaData> {
     }
 
     public String getValue() {
-        return dataContainer.getValue();
+        if (isEncrypted() && dataContainer.getValue() != null) {
+            try {
+                return AESEncrypter.decrypt(dataContainer.getValue());
+            } catch (GeneralSecurityException e) {
+                return null;
+            }
+        } else {
+            return dataContainer.getValue();
+        }
     }
 
     public void setValue(String value) {
-        dataContainer.setValue(value);
+        if (value != null && isEncrypted()) {
+            try {
+                dataContainer.setValue(AESEncrypter.encrypt(value));
+            } catch (GeneralSecurityException e) {
+                // ignore
+            }
+        } else {
+            dataContainer.setValue(value);
+        }
     }
 
     public ModifiedEntityType getTargetObjectType() {
@@ -78,6 +97,18 @@ public class ModifiedUda extends DomainObjectWithVersioning<ModifiedUdaData> {
 
     public void setSubscriptionKey(long subscriptionKey) {
         dataContainer.setSubscriptionKey(subscriptionKey);
+    }
+
+    public boolean isEncrypted() {
+        return dataContainer.isEncrypted();
+    }
+
+    public void setEncrypted(boolean encrypted) {
+        String value = getValue();
+
+        dataContainer.setEncrypted(encrypted);
+
+        setValue(value);
     }
 
 }

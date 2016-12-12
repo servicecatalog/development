@@ -39,7 +39,6 @@ import javax.persistence.Query;
 
 import org.junit.Assert;
 import org.junit.Test;
-
 import org.oscm.accountservice.bean.MarketingPermissionServiceBean;
 import org.oscm.applicationservice.bean.ApplicationServiceStub;
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
@@ -90,64 +89,13 @@ import org.oscm.domobjects.enums.BillingAdapterIdentifier;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.domobjects.enums.ModificationType;
 import org.oscm.domobjects.enums.OrganizationReferenceType;
+import org.oscm.encrypter.AESEncrypter;
 import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.i18nservice.bean.LocalizerServiceStub2;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.identityservice.assembler.UserDataAssembler;
 import org.oscm.identityservice.bean.IdManagementStub;
 import org.oscm.interceptor.DateFactory;
-import org.oscm.marketplace.bean.LandingpageServiceBean;
-import org.oscm.marketplace.bean.MarketplaceServiceBean;
-import org.oscm.marketplace.bean.MarketplaceServiceLocalBean;
-import org.oscm.serviceprovisioningservice.assembler.ProductAssembler;
-import org.oscm.serviceprovisioningservice.assembler.RoleAssembler;
-import org.oscm.serviceprovisioningservice.bean.ServiceProvisioningServiceBean;
-import org.oscm.serviceprovisioningservice.bean.ServiceProvisioningServiceLocalizationBean;
-import org.oscm.serviceprovisioningservice.bean.TagServiceBean;
-import org.oscm.sessionservice.bean.SessionManagementStub2;
-import org.oscm.subscriptionservice.assembler.SubscriptionAssembler;
-import org.oscm.subscriptionservice.dao.SubscriptionHistoryDao;
-import org.oscm.subscriptionservice.dao.UsageLicenseDao;
-import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
-import org.oscm.taskhandling.local.TaskMessage;
-import org.oscm.taskhandling.local.TaskQueueServiceLocal;
-import org.oscm.taskhandling.operations.NotifyProvisioningServiceHandler;
-import org.oscm.taskhandling.operations.SendMailHandler;
-import org.oscm.taskhandling.payloads.NotifyProvisioningServicePayload;
-import org.oscm.taskhandling.payloads.SendMailPayload;
-import org.oscm.tenantprovisioningservice.bean.TenantProvisioningServiceBean;
-import org.oscm.test.BaseAdmUmTest;
-import org.oscm.test.EJBTestBase;
-import org.oscm.test.ReflectiveClone;
-import org.oscm.test.data.BillingAdapters;
-import org.oscm.test.data.Marketplaces;
-import org.oscm.test.data.Organizations;
-import org.oscm.test.data.PaymentInfos;
-import org.oscm.test.data.PaymentTypes;
-import org.oscm.test.data.PlatformUsers;
-import org.oscm.test.data.Products;
-import org.oscm.test.data.Scenario;
-import org.oscm.test.data.Subscriptions;
-import org.oscm.test.data.SupportedCountries;
-import org.oscm.test.data.TechnicalProducts;
-import org.oscm.test.ejb.TestContainer;
-import org.oscm.test.stubs.AccountServiceStub;
-import org.oscm.test.stubs.CategorizationServiceStub;
-import org.oscm.test.stubs.CommunicationServiceStub;
-import org.oscm.test.stubs.ConfigurationServiceStub;
-import org.oscm.test.stubs.ImageResourceServiceStub;
-import org.oscm.test.stubs.MarketplaceServiceStub;
-import org.oscm.test.stubs.TaskQueueServiceStub;
-import org.oscm.test.stubs.TriggerQueueServiceStub;
-import org.oscm.triggerservice.local.TriggerMessage;
-import org.oscm.triggerservice.local.TriggerProcessMessageData;
-import org.oscm.types.constants.Configuration;
-import org.oscm.types.enumtypes.EmailType;
-import org.oscm.types.enumtypes.PlatformParameterIdentifiers;
-import org.oscm.types.enumtypes.ProvisioningType;
-import org.oscm.types.enumtypes.TriggerProcessParameterName;
-import org.oscm.types.exceptions.UserAlreadyAssignedException;
-import org.oscm.types.exceptions.UserNotAssignedException;
 import org.oscm.internal.intf.IdentityService;
 import org.oscm.internal.intf.MarketplaceService;
 import org.oscm.internal.intf.ServiceProvisioningService;
@@ -206,6 +154,58 @@ import org.oscm.internal.vo.VOUda;
 import org.oscm.internal.vo.VOUsageLicense;
 import org.oscm.internal.vo.VOUser;
 import org.oscm.internal.vo.VOUserSubscription;
+import org.oscm.marketplace.bean.LandingpageServiceBean;
+import org.oscm.marketplace.bean.MarketplaceServiceBean;
+import org.oscm.marketplace.bean.MarketplaceServiceLocalBean;
+import org.oscm.serviceprovisioningservice.assembler.ProductAssembler;
+import org.oscm.serviceprovisioningservice.assembler.RoleAssembler;
+import org.oscm.serviceprovisioningservice.bean.ServiceProvisioningServiceBean;
+import org.oscm.serviceprovisioningservice.bean.ServiceProvisioningServiceLocalizationBean;
+import org.oscm.serviceprovisioningservice.bean.TagServiceBean;
+import org.oscm.sessionservice.bean.SessionManagementStub2;
+import org.oscm.subscriptionservice.assembler.SubscriptionAssembler;
+import org.oscm.subscriptionservice.dao.SubscriptionHistoryDao;
+import org.oscm.subscriptionservice.dao.UsageLicenseDao;
+import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
+import org.oscm.taskhandling.local.TaskMessage;
+import org.oscm.taskhandling.local.TaskQueueServiceLocal;
+import org.oscm.taskhandling.operations.NotifyProvisioningServiceHandler;
+import org.oscm.taskhandling.operations.SendMailHandler;
+import org.oscm.taskhandling.payloads.NotifyProvisioningServicePayload;
+import org.oscm.taskhandling.payloads.SendMailPayload;
+import org.oscm.tenantprovisioningservice.bean.TenantProvisioningServiceBean;
+import org.oscm.test.BaseAdmUmTest;
+import org.oscm.test.EJBTestBase;
+import org.oscm.test.ReflectiveClone;
+import org.oscm.test.data.BillingAdapters;
+import org.oscm.test.data.Marketplaces;
+import org.oscm.test.data.Organizations;
+import org.oscm.test.data.PaymentInfos;
+import org.oscm.test.data.PaymentTypes;
+import org.oscm.test.data.PlatformUsers;
+import org.oscm.test.data.Products;
+import org.oscm.test.data.Scenario;
+import org.oscm.test.data.Subscriptions;
+import org.oscm.test.data.SupportedCountries;
+import org.oscm.test.data.TechnicalProducts;
+import org.oscm.test.ejb.TestContainer;
+import org.oscm.test.stubs.AccountServiceStub;
+import org.oscm.test.stubs.CategorizationServiceStub;
+import org.oscm.test.stubs.CommunicationServiceStub;
+import org.oscm.test.stubs.ConfigurationServiceStub;
+import org.oscm.test.stubs.ImageResourceServiceStub;
+import org.oscm.test.stubs.MarketplaceServiceStub;
+import org.oscm.test.stubs.TaskQueueServiceStub;
+import org.oscm.test.stubs.TriggerQueueServiceStub;
+import org.oscm.triggerservice.local.TriggerMessage;
+import org.oscm.triggerservice.local.TriggerProcessMessageData;
+import org.oscm.types.constants.Configuration;
+import org.oscm.types.enumtypes.EmailType;
+import org.oscm.types.enumtypes.PlatformParameterIdentifiers;
+import org.oscm.types.enumtypes.ProvisioningType;
+import org.oscm.types.enumtypes.TriggerProcessParameterName;
+import org.oscm.types.exceptions.UserAlreadyAssignedException;
+import org.oscm.types.exceptions.UserNotAssignedException;
 
 public class SubscriptionServiceBeanIT extends EJBTestBase {
 
@@ -268,6 +268,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
     @Override
     public void setup(TestContainer container) throws Exception {
+        AESEncrypter.generateKey();
         container.enableInterfaceMocking(true);
         container.addBean(new DataServiceBean());
         container.addBean(appMgmtStub = new ApplicationServiceStub());
@@ -280,8 +281,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 query.setParameter("subscriptionTKey",
                         Long.valueOf(subscriptionTKey));
                 query.setParameter("sessionType", SessionType.SERVICE_SESSION);
-                List<Session> activeSessions = ParameterizedTypes.list(
-                        query.getResultList(), Session.class);
+                List<Session> activeSessions = ParameterizedTypes
+                        .list(query.getResultList(), Session.class);
                 return activeSessions;
             }
         });
@@ -290,7 +291,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         container.addBean(new CommunicationServiceStub() {
             @Override
             public void sendMail(PlatformUser recipient, EmailType type,
-                    Object[] params, org.oscm.domobjects.Marketplace marketplace) {
+                    Object[] params,
+                    org.oscm.domobjects.Marketplace marketplace) {
 
                 isCorrectSubscriptionIdForMail = params[0]
                         .equals(SUBSCRIPTION_ID);
@@ -301,7 +303,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         });
         container.addBean(new LocalizerServiceStub2() {
 
-            Map<String, List<VOLocalizedText>> map = new HashMap<String, List<VOLocalizedText>>();
+            Map<String, List<VOLocalizedText>> map = new HashMap<>();
 
             @Override
             public void setLocalizedValues(long objectKey,
@@ -321,8 +323,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
             public String getLocalizedTextFromDatabase(String localeString,
                     long objectKey, LocalizedObjectTypes objectType) {
 
-                List<VOLocalizedText> list = map.get(objectType + "_"
-                        + objectKey);
+                List<VOLocalizedText> list = map
+                        .get(objectType + "_" + objectKey);
                 if (list != null) {
                     for (VOLocalizedText localizedText : list) {
                         if (localeString.equals(localizedText.getLocale())) {
@@ -351,7 +353,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 messagesOfTaskQueue.addAll(messages);
 
                 for (TaskMessage message : messages) {
-                    if (message.getHandlerClass() == NotifyProvisioningServiceHandler.class) {
+                    if (message
+                            .getHandlerClass() == NotifyProvisioningServiceHandler.class) {
                         NotifyProvisioningServicePayload payload = (NotifyProvisioningServicePayload) message
                                 .getPayload();
                         try {
@@ -360,7 +363,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                             if (payload.isDeactivate()) {
                                 appMgmtStub.deactivateInstance(sub);
                             }
-                            appMgmtStub.createUsers(sub, sub.getUsageLicenses());
+                            appMgmtStub.createUsers(sub,
+                                    sub.getUsageLicenses());
 
                             SendMailPayload sendMailPayload = new SendMailPayload();
                             for (UsageLicense usageLicense : sub
@@ -371,12 +375,14 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                                         usageLicense.getUser().getKey(),
                                         EmailType.SUBSCRIPTION_USER_ADDED,
                                         new Object[] { sub.getSubscriptionId(),
-                                                accessInfo }, Long.valueOf(1L));
+                                                accessInfo },
+                                        Long.valueOf(1L));
                             }
 
                             TaskMessage sendMailMessage = new TaskMessage(
                                     SendMailHandler.class, sendMailPayload);
-                            this.sendAllMessages(Arrays.asList(sendMailMessage));
+                            this.sendAllMessages(
+                                    Arrays.asList(sendMailMessage));
                             receivedSendMailPayload.add(sendMailPayload);
                             isSendAllMessagesCalled = true;
 
@@ -460,8 +466,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 SupportedCountries.createSomeSupportedCountries(mgr);
                 Organization operator = Organizations.createOrganization(mgr,
                         OrganizationRoleType.PLATFORM_OPERATOR);
-                operator.setOrganizationId(OrganizationRoleType.PLATFORM_OPERATOR
-                        .name());
+                operator.setOrganizationId(
+                        OrganizationRoleType.PLATFORM_OPERATOR.name());
                 Marketplaces.createGlobalMarketplace(operator,
                         GLOBAL_MARKETPLACE_NAME, mgr);
                 BillingAdapters.createBillingAdapter(mgr,
@@ -490,12 +496,12 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         ConfigurationServiceLocal cfg = container
                 .get(ConfigurationServiceLocal.class);
         setUpDirServerStub(cfg);
-        cfg.setConfigurationSetting(new ConfigurationSetting(
-                ConfigurationKey.BASE_URL, Configuration.GLOBAL_CONTEXT,
-                BASE_URL_BES_HTTP));
-        cfg.setConfigurationSetting(new ConfigurationSetting(
-                ConfigurationKey.BASE_URL_HTTPS, Configuration.GLOBAL_CONTEXT,
-                BASE_URL_BES_HTTPS));
+        cfg.setConfigurationSetting(
+                new ConfigurationSetting(ConfigurationKey.BASE_URL,
+                        Configuration.GLOBAL_CONTEXT, BASE_URL_BES_HTTP));
+        cfg.setConfigurationSetting(
+                new ConfigurationSetting(ConfigurationKey.BASE_URL_HTTPS,
+                        Configuration.GLOBAL_CONTEXT, BASE_URL_BES_HTTPS));
 
         appMgmtStub.resetController();
 
@@ -503,7 +509,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         testProducts.get(0).getTechnicalProduct()
                 .setAccessType(ServiceAccessType.LOGIN);
 
-        usedTriggersTypes = new LinkedList<TriggerType>();
+        usedTriggersTypes = new LinkedList<>();
     }
 
     String getAccessInfoMock(Subscription subscription) {
@@ -584,22 +590,25 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // create subscription
         final String subscriptionId = "testSubscribeToProduct";
 
-        final VOSubscription subscription = runTX(new Callable<VOSubscription>() {
-            @Override
-            public VOSubscription call() throws Exception {
-                VOService product = getProductToSubscribe(testProducts.get(0)
-                        .getKey());
-                VOUser[] users = new VOUser[2];
-                VOUser[] admins = new VOUser[1];
-                setUsers(users, admins);
-                VOSubscription createdSubscr = subMgmt.subscribeToService(
-                        Subscriptions.createVOSubscription(subscriptionId),
-                        product, getUsersToAdd(admins, users), null, null,
-                        new ArrayList<VOUda>());
+        final VOSubscription subscription = runTX(
+                new Callable<VOSubscription>() {
+                    @Override
+                    public VOSubscription call() throws Exception {
+                        VOService product = getProductToSubscribe(
+                                testProducts.get(0).getKey());
+                        VOUser[] users = new VOUser[2];
+                        VOUser[] admins = new VOUser[1];
+                        setUsers(users, admins);
+                        VOSubscription createdSubscr = subMgmt
+                                .subscribeToService(
+                                        Subscriptions.createVOSubscription(
+                                                subscriptionId),
+                                        product, getUsersToAdd(admins, users),
+                                        null, null, new ArrayList<VOUda>());
 
-                return createdSubscr;
-            }
-        });
+                        return createdSubscr;
+                    }
+                });
 
         subMgmt.terminateSubscription(subscription, reason);
     }
@@ -614,21 +623,24 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // create subscription
         final String subscriptionId = "testSubscribeToProduct";
 
-        final VOSubscription subscription = runTX(new Callable<VOSubscription>() {
-            @Override
-            public VOSubscription call() throws Exception {
-                VOService product = getProductToSubscribe(testProducts.get(0)
-                        .getKey());
-                VOUser[] users = new VOUser[2];
-                VOUser[] admins = new VOUser[1];
-                setUsers(users, admins);
-                VOSubscription createdSubscr = subMgmt.subscribeToService(
-                        Subscriptions.createVOSubscription(subscriptionId),
-                        product, getUsersToAdd(admins, users), null, null,
-                        new ArrayList<VOUda>());
-                return createdSubscr;
-            }
-        });
+        final VOSubscription subscription = runTX(
+                new Callable<VOSubscription>() {
+                    @Override
+                    public VOSubscription call() throws Exception {
+                        VOService product = getProductToSubscribe(
+                                testProducts.get(0).getKey());
+                        VOUser[] users = new VOUser[2];
+                        VOUser[] admins = new VOUser[1];
+                        setUsers(users, admins);
+                        VOSubscription createdSubscr = subMgmt
+                                .subscribeToService(
+                                        Subscriptions.createVOSubscription(
+                                                subscriptionId),
+                                        product, getUsersToAdd(admins, users),
+                                        null, null, new ArrayList<VOUda>());
+                        return createdSubscr;
+                    }
+                });
 
         container.login(customerUserKey, ROLE_SERVICE_MANAGER);
         subMgmt.terminateSubscription(subscription, reason);
@@ -649,21 +661,23 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 .createVOSubscription(subscriptionId);
         newSub.setUnitKey(unit1.getKey());
 
-        final VOSubscription subscription = runTX(new Callable<VOSubscription>() {
-            @Override
-            public VOSubscription call() throws Exception {
-                VOService product = getProductToSubscribe(testProducts.get(0)
-                        .getKey());
-                VOUser[] users = new VOUser[2];
-                VOUser[] admins = new VOUser[1];
-                setUsers(users, admins);
-                VOSubscription createdSubscr = subMgmt.subscribeToService(
-                        newSub, product, getUsersToAdd(admins, users), null,
-                        null, new ArrayList<VOUda>());
+        final VOSubscription subscription = runTX(
+                new Callable<VOSubscription>() {
+                    @Override
+                    public VOSubscription call() throws Exception {
+                        VOService product = getProductToSubscribe(
+                                testProducts.get(0).getKey());
+                        VOUser[] users = new VOUser[2];
+                        VOUser[] admins = new VOUser[1];
+                        setUsers(users, admins);
+                        VOSubscription createdSubscr = subMgmt
+                                .subscribeToService(newSub, product,
+                                        getUsersToAdd(admins, users), null,
+                                        null, new ArrayList<VOUda>());
 
-                return createdSubscr;
-            }
-        });
+                        return createdSubscr;
+                    }
+                });
 
         runTX(new Callable<Void>() {
             @Override
@@ -675,7 +689,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 session.setPlatformUserKey(testUsers
                         .get(testOrganizations.get(0)).get(1).getKey());
                 session.setSessionType(SessionType.SERVICE_SESSION);
-                session.setSubscriptionTKey(Long.valueOf(subscription.getKey()));
+                session.setSubscriptionTKey(
+                        Long.valueOf(subscription.getKey()));
                 mgr.persist(session);
                 mgr.flush();
 
@@ -716,8 +731,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 // check no active sessions
                 Query query = mgr.createQuery("SELECT s FROM Session s");
                 List<Session> activeSessions = new ArrayList<>();
-                for (Session ses : ParameterizedTypes.iterable(
-                        query.getResultList(), Session.class)) {
+                for (Session ses : ParameterizedTypes
+                        .iterable(query.getResultList(), Session.class)) {
                     activeSessions.add(ses);
                 }
                 assertEquals("Check number of sessions", 0,
@@ -736,22 +751,25 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // create subscription
         final String subscriptionId = "testConcurrent";
 
-        final VOSubscription subscription = runTX(new Callable<VOSubscription>() {
-            @Override
-            public VOSubscription call() throws Exception {
-                VOService product = getProductToSubscribe(testProducts.get(0)
-                        .getKey());
-                VOUser[] users = new VOUser[2];
-                VOUser[] admins = new VOUser[1];
-                setUsers(users, admins);
-                VOSubscription createdSubscr = subMgmt.subscribeToService(
-                        Subscriptions.createVOSubscription(subscriptionId),
-                        product, getUsersToAdd(admins, users), null, null,
-                        new ArrayList<VOUda>());
+        final VOSubscription subscription = runTX(
+                new Callable<VOSubscription>() {
+                    @Override
+                    public VOSubscription call() throws Exception {
+                        VOService product = getProductToSubscribe(
+                                testProducts.get(0).getKey());
+                        VOUser[] users = new VOUser[2];
+                        VOUser[] admins = new VOUser[1];
+                        setUsers(users, admins);
+                        VOSubscription createdSubscr = subMgmt
+                                .subscribeToService(
+                                        Subscriptions.createVOSubscription(
+                                                subscriptionId),
+                                        product, getUsersToAdd(admins, users),
+                                        null, null, new ArrayList<VOUda>());
 
-                return createdSubscr;
-            }
-        });
+                        return createdSubscr;
+                    }
+                });
 
         runTX(new Callable<Void>() {
             @Override
@@ -774,7 +792,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
      * expected. No such subscription.
      */
     @Test(expected = ObjectNotFoundException.class)
-    public void testGetSubscriptionForCustomerObjectNotFound() throws Throwable {
+    public void testGetSubscriptionForCustomerObjectNotFound()
+            throws Throwable {
         container.login(supplierUser.getKey(), ROLE_SERVICE_MANAGER);
         String organizationId = "";
         String subscriptionId = "";
@@ -925,16 +944,16 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
         VOService product = getProductToSubscribe(testProducts.get(0).getKey());
         VOUser[] admins = new VOUser[1];
-        admins[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(1));
+        admins[0] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(1));
         VOSubscription sub = Subscriptions
                 .createVOSubscription("testSubscribeToProduct");
         sub.setPurchaseOrderNumber(TOO_LONG_NAME);
         sub.setUnitKey(unit1.getKey());
 
-        VOSubscription newSub = subMgmt
-                .subscribeToService(sub, product, getUsersToAdd(admins, null),
-                        null, null, new ArrayList<VOUda>());
+        VOSubscription newSub = subMgmt.subscribeToService(sub, product,
+                getUsersToAdd(admins, null), null, null,
+                new ArrayList<VOUda>());
 
         // Now check results
         try {
@@ -973,20 +992,19 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
         VOService product = getProductToSubscribe(testProducts.get(0).getKey());
         VOUser[] admins = new VOUser[1];
-        admins[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(1));
+        admins[0] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(1));
         VOSubscription sub = Subscriptions
                 .createVOSubscription("testSubscribeToProduct");
         sub.setPurchaseOrderNumber(TOO_LONG_NAME);
         sub.setUnitKey(unit1.getKey());
 
-        container.login(
-                testUsers.get(testOrganizations.get(0)).get(2).getKey(),
+        container.login(testUsers.get(testOrganizations.get(0)).get(2).getKey(),
                 ROLE_SUBSCRIPTION_MANAGER);
 
-        VOSubscription newSub = subMgmt
-                .subscribeToService(sub, product, getUsersToAdd(admins, null),
-                        null, null, new ArrayList<VOUda>());
+        VOSubscription newSub = subMgmt.subscribeToService(sub, product,
+                getUsersToAdd(admins, null), null, null,
+                new ArrayList<VOUda>());
 
         // Now check results
         try {
@@ -1015,8 +1033,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         assertNotNull(subMgmt);
         VOService product = getProductToSubscribe(testProducts.get(0).getKey());
         VOUser[] admins = new VOUser[1];
-        admins[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(1));
+        admins[0] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(1));
         VOSubscription sub = Subscriptions
                 .createVOSubscription("testSubscribeToProduct");
         sub.setPurchaseOrderNumber(TOO_LONG_NAME);
@@ -1033,8 +1051,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
         VOService product = getProductToSubscribe(testProducts.get(0).getKey());
         VOUser[] admins = new VOUser[1];
-        admins[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(1));
+        admins[0] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(1));
         VOSubscription sub = Subscriptions
                 .createVOSubscription("testSubscribeToProduct");
         sub.setPurchaseOrderNumber(TOO_LONG_NAME);
@@ -1070,8 +1088,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 }
                 // create reference between operator and supplier
                 Organization po = new Organization();
-                po.setOrganizationId(OrganizationRoleType.PLATFORM_OPERATOR
-                        .name());
+                po.setOrganizationId(
+                        OrganizationRoleType.PLATFORM_OPERATOR.name());
                 po = Organization.class.cast(mgr.getReferenceByBusinessKey(po));
                 OrganizationReference ref = new OrganizationReference(po, sup,
                         OrganizationReferenceType.PLATFORM_OPERATOR_TO_SUPPLIER);
@@ -1083,8 +1101,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 o.setOrganizationReference(ref);
                 OrganizationRole role = new OrganizationRole(
                         OrganizationRoleType.SUPPLIER);
-                role = OrganizationRole.class.cast(mgr
-                        .getReferenceByBusinessKey(role));
+                role = OrganizationRole.class
+                        .cast(mgr.getReferenceByBusinessKey(role));
                 o.setOrganizationRole(role);
                 o.setPaymentType(pt);
                 o.setUsedAsDefault(true);
@@ -1118,8 +1136,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                                     tpAndSupplier.getOrganizationId());
                     assertNotNull(types);
                     assertEquals(1, types.size());
-                    assertEquals(paymentTypes.get(0).getPaymentTypeId(), types
-                            .get(0).getPaymentType().getPaymentTypeId());
+                    assertEquals(paymentTypes.get(0).getPaymentTypeId(),
+                            types.get(0).getPaymentType().getPaymentTypeId());
                     return null;
                 }
             });
@@ -1283,8 +1301,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
         boolean isCompleted = subscription.getPriceModel()
                 .isProvisioningCompleted();
-        assertTrue(
-                "Unexpected provisioning status for subscription pricemodel",
+        assertTrue("Unexpected provisioning status for subscription pricemodel",
                 isCompleted);
 
     }
@@ -1347,9 +1364,10 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 subscription);
         // check subscription attributes
         assertEquals(
-                new SimpleDateFormat("yyyy-MM-dd").format(GregorianCalendar
-                        .getInstance().getTime()), new SimpleDateFormat(
-                        "yyyy-MM-dd").format(subscription.getCreationDate()));
+                new SimpleDateFormat("yyyy-MM-dd")
+                        .format(GregorianCalendar.getInstance().getTime()),
+                new SimpleDateFormat("yyyy-MM-dd")
+                        .format(subscription.getCreationDate()));
         assertEquals(pon, subscription.getPurchaseOrderNumber());
         // check product
         assertNotNull("No product assigned to subscription",
@@ -1363,8 +1381,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // pricemodel should be the same as the one assigned to the product
         assertEquals(
                 "PriceModel of subscription is not the same instance as for the product",
-                product.getPriceModel().getPricePerPeriod(), subscription
-                        .getPriceModel().getPricePerPeriod());
+                product.getPriceModel().getPricePerPeriod(),
+                subscription.getPriceModel().getPricePerPeriod());
         assertEquals(
                 "PriceModel of subscription is not the same instance as for the product",
                 product.getPriceModel().getPricePerUserAssignment(),
@@ -1372,8 +1390,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // Check Users/UsageLicenses
         // should contain 3 entries
 
-        assertEquals("Wrong number of UsageLicenses", usersAdded, subscription
-                .getUsageLicenses().size());
+        assertEquals("Wrong number of UsageLicenses", usersAdded,
+                subscription.getUsageLicenses().size());
         // sort by Key
         Collections.sort(subscription.getUsageLicenses(),
                 new Comparator<UsageLicense>() {
@@ -1393,8 +1411,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         if (status == SubscriptionStatus.INVALID) {
             assertTrue(
                     "Wrong subscription id" + subscription.getSubscriptionId(),
-                    subscription.getSubscriptionId().startsWith(
-                            subscriptionId + "#"));
+                    subscription.getSubscriptionId()
+                            .startsWith(subscriptionId + "#"));
         } else {
             assertEquals(subscriptionId, subscription.getSubscriptionId());
             if (status == SubscriptionStatus.PENDING) {
@@ -1417,20 +1435,20 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                     subscription.getUsageLicenses().size(),
                     appMgmtStub.addedUsers.size());
             for (UsageLicense lic : subscription.getUsageLicenses()) {
-                PlatformUser platformUser = appMgmtStub.addedUsers.get(lic
-                        .getUser().getUserId());
+                PlatformUser platformUser = appMgmtStub.addedUsers
+                        .get(lic.getUser().getUserId());
                 assertNotNull(platformUser);
 
                 assertEquals(
-                        new SimpleDateFormat("yyyy-MM-dd").format(GregorianCalendar
-                                .getInstance().getTime()),
-                        new SimpleDateFormat("yyyy-MM-dd").format(new Long(lic
-                                .getAssignmentDate())));
+                        new SimpleDateFormat("yyyy-MM-dd").format(
+                                GregorianCalendar.getInstance().getTime()),
+                        new SimpleDateFormat("yyyy-MM-dd")
+                                .format(new Long(lic.getAssignmentDate())));
                 assertNotNull("User entry is null for license " + lic.getKey(),
                         lic.getUser());
-                assertEquals("user seems to be wrong (userId)",
-                        testUsers.get(testOrganizations.get(0)).get(idx)
-                                .getUserId(), lic.getUser().getUserId());
+                assertEquals("user seems to be wrong (userId)", testUsers
+                        .get(testOrganizations.get(0)).get(idx).getUserId(),
+                        lic.getUser().getUserId());
 
                 // also check the usage license history entries
                 List<DomainHistoryObject<?>> ulhs = mgr.findHistory(lic);
@@ -1441,10 +1459,10 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 idx++;
             }
             assertEquals(
-                    new SimpleDateFormat("yyyy-MM-dd").format(GregorianCalendar
-                            .getInstance().getTime()), new SimpleDateFormat(
-                            "yyyy-MM-dd").format(subscription
-                            .getActivationDate()));
+                    new SimpleDateFormat("yyyy-MM-dd")
+                            .format(GregorianCalendar.getInstance().getTime()),
+                    new SimpleDateFormat("yyyy-MM-dd")
+                            .format(subscription.getActivationDate()));
 
             assertProvisioningCompleted(subscription);
         }
@@ -1489,10 +1507,10 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     public void testSubscribeToProductIdToLong() throws Throwable {
         assertNotNull(subMgmt);
         VOService product = getProductToSubscribe(testProducts.get(0).getKey());
-        subMgmt.subscribeToService(Subscriptions
-                .createVOSubscription("12345678901234567890"
-                        + "12345678901234567890_tolong"), product, null, null,
-                null, new ArrayList<VOUda>());
+        subMgmt.subscribeToService(
+                Subscriptions.createVOSubscription(
+                        "12345678901234567890" + "12345678901234567890_tolong"),
+                product, null, null, null, new ArrayList<VOUda>());
     }
 
     @Test(expected = ValidationException.class)
@@ -1550,24 +1568,27 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         VOPaymentInfo voPaymentInfo = getPaymentInfo(
                 tpAndSupplier.getOrganizationId(), testOrganizations.get(0));
         VOBillingContact bc = createBillingContact(testOrganizations.get(0));
-        subMgmt.subscribeToService(Subscriptions
-                .createVOSubscription("testGetSubscriptionDetails"), product,
-                getUsersToAdd(admins, users), voPaymentInfo, bc,
+        subMgmt.subscribeToService(
+                Subscriptions
+                        .createVOSubscription("testGetSubscriptionDetails"),
+                product, getUsersToAdd(admins, users), voPaymentInfo, bc,
                 new ArrayList<VOUda>());
         // Now retrieve data and check results
         String voId = "testGetSubscriptionDetails";
         VOSubscriptionDetails voDetails = subMgmt.getSubscriptionDetails(voId);
         assertNotNull(voDetails);
-        assertEquals(voDetails.getServiceId(), testProducts.get(1)
-                .getProductId());
+        assertEquals(voDetails.getServiceId(),
+                testProducts.get(1).getProductId());
         assertEquals(
-                new SimpleDateFormat("yyyy-MM-dd").format(GregorianCalendar
-                        .getInstance().getTime()), new SimpleDateFormat(
-                        "yyyy-MM-dd").format(voDetails.getActivationDate()));
+                new SimpleDateFormat("yyyy-MM-dd")
+                        .format(GregorianCalendar.getInstance().getTime()),
+                new SimpleDateFormat("yyyy-MM-dd")
+                        .format(voDetails.getActivationDate()));
         assertEquals(
-                new SimpleDateFormat("yyyy-MM-dd").format(GregorianCalendar
-                        .getInstance().getTime()), new SimpleDateFormat(
-                        "yyyy-MM-dd").format(voDetails.getCreationDate()));
+                new SimpleDateFormat("yyyy-MM-dd")
+                        .format(GregorianCalendar.getInstance().getTime()),
+                new SimpleDateFormat("yyyy-MM-dd")
+                        .format(voDetails.getCreationDate()));
         assertNull(voDetails.getDeactivationDate());
         assertEquals(SubscriptionStatus.ACTIVE, voDetails.getStatus());
         assertTrue(voDetails.getPriceModel().isChargeable());
@@ -1588,7 +1609,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     @Test
     public void testUpgrade() throws Throwable {
         createAvailablePayment(testOrganizations.get(0));
-        VOService product = getProductToSubscribe(testProducts.get(10).getKey());
+        VOService product = getProductToSubscribe(
+                testProducts.get(10).getKey());
         VOUser[] users = new VOUser[2];
         VOUser[] admins = new VOUser[1];
         setUsers(users, admins);
@@ -1630,7 +1652,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     @Test
     public void testUpgradeSubscriptionOwnerAndUnitIgnored() throws Throwable {
         createAvailablePayment(testOrganizations.get(0));
-        VOService product = getProductToSubscribe(testProducts.get(10).getKey());
+        VOService product = getProductToSubscribe(
+                testProducts.get(10).getKey());
         VOUser[] users = new VOUser[2];
         VOUser[] admins = new VOUser[1];
         setUsers(users, admins);
@@ -1682,12 +1705,12 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     }
 
     private void setUsers(VOUser[] users, VOUser[] admins) {
-        admins[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(1));
-        users[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(2));
-        users[1] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(3));
+        admins[0] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(1));
+        users[0] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(2));
+        users[1] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(3));
     }
 
     /*
@@ -1698,7 +1721,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     @Test
     public void testBE08022_UpgradeExpiredSubscription() throws Throwable {
         createAvailablePayment(testOrganizations.get(0));
-        VOService product = getProductToSubscribe(testProducts.get(10).getKey());
+        VOService product = getProductToSubscribe(
+                testProducts.get(10).getKey());
         VOUser[] users = new VOUser[2];
         VOUser[] admins = new VOUser[1];
         setUsers(users, admins);
@@ -1722,8 +1746,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         Subscription subDomObj = runTX(new Callable<Subscription>() {
             @Override
             public Subscription call() {
-                return getSubscription("testUpgrade", testOrganizations.get(0)
-                        .getKey());
+                return getSubscription("testUpgrade",
+                        testOrganizations.get(0).getKey());
             }
         });
         subMgmtLocal.expireSubscription(subDomObj);
@@ -1758,7 +1782,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     @Test(expected = SubscriptionStateException.class)
     public void testBE08022_ModifyExpiredSubscription() throws Throwable {
         createAvailablePayment(testOrganizations.get(0));
-        VOService product = getProductToSubscribe(testProducts.get(10).getKey());
+        VOService product = getProductToSubscribe(
+                testProducts.get(10).getKey());
         VOUser[] users = new VOUser[2];
         VOUser[] admins = new VOUser[1];
         setUsers(users, admins);
@@ -1791,14 +1816,14 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // Expire the subscription
         subMgmtLocal.expireSubscription(subDomObj);
 
-        VOSubscriptionDetails subDetails = subMgmt.getSubscriptionDetails(sub
-                .getSubscriptionId());
+        VOSubscriptionDetails subDetails = subMgmt
+                .getSubscriptionDetails(sub.getSubscriptionId());
         assertEquals(SubscriptionStatus.EXPIRED, subDetails.getStatus());
 
         List<VOParameter> parameters = subDetails.getSubscribedService()
                 .getParameters();
 
-        List<VOParameter> modifiedParameters = new ArrayList<VOParameter>();
+        List<VOParameter> modifiedParameters = new ArrayList<>();
 
         for (VOParameter parameter : parameters) {
             if (parameter.isConfigurable()) {
@@ -1824,7 +1849,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     @Test(expected = ServiceChangedException.class)
     public void testUpgradeConcurrencyProblemProduct() throws Throwable {
         createAvailablePayment(testOrganizations.get(0));
-        VOService product = getProductToSubscribe(testProducts.get(10).getKey());
+        VOService product = getProductToSubscribe(
+                testProducts.get(10).getKey());
         VOUser[] users = new VOUser[2];
         VOUser[] admins = new VOUser[1];
         setUsers(users, admins);
@@ -1847,7 +1873,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     public void testUpgradeConcurrencyProblemProductParameter()
             throws Throwable {
         createAvailablePayment(testOrganizations.get(0));
-        VOService product = getProductToSubscribe(testProducts.get(10).getKey());
+        VOService product = getProductToSubscribe(
+                testProducts.get(10).getKey());
         VOUser[] users = new VOUser[2];
         VOUser[] admins = new VOUser[1];
         setUsers(users, admins);
@@ -1871,7 +1898,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     @Test(expected = ConcurrentModificationException.class)
     public void testUpgradeConcurrencyProblemSubscription() throws Throwable {
         createAvailablePayment(testOrganizations.get(0));
-        VOService product = getProductToSubscribe(testProducts.get(10).getKey());
+        VOService product = getProductToSubscribe(
+                testProducts.get(10).getKey());
         VOUser[] users = new VOUser[2];
         VOUser[] admins = new VOUser[1];
         setUsers(users, admins);
@@ -1917,10 +1945,10 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         final VOPaymentInfo voPaymentInfo = getPaymentInfo(
                 tpAndSupplier.getOrganizationId(), testOrganizations.get(0));
         final LocalizerFacade facade = new LocalizerFacade(localizer, "en");
-        final VOBillingContact bc = createBillingContact(testOrganizations
-                .get(0));
-        final VOSubscription voSub = SubscriptionAssembler.toVOSubscription(
-                sub, facade);
+        final VOBillingContact bc = createBillingContact(
+                testOrganizations.get(0));
+        final VOSubscription voSub = SubscriptionAssembler.toVOSubscription(sub,
+                facade);
 
         VOService voNewProduct = runTX(new Callable<VOService>() {
 
@@ -1945,8 +1973,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         PlatformUser user = runTX(new Callable<PlatformUser>() {
             @Override
             public PlatformUser call() throws Exception {
-                Organization organization = mgr.getReference(
-                        Organization.class, sub.getOrganization().getKey());
+                Organization organization = mgr.getReference(Organization.class,
+                        sub.getOrganization().getKey());
                 return organization.getPlatformUsers().get(0);
             }
         });
@@ -2001,7 +2029,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     @Test(expected = PaymentInformationException.class)
     public void testUpgradeInvalidPaymentInfo() throws Throwable {
         createAvailablePayment(testOrganizations.get(0));
-        VOService product = getProductToSubscribe(testProducts.get(10).getKey());
+        VOService product = getProductToSubscribe(
+                testProducts.get(10).getKey());
         VOUser[] users = new VOUser[2];
         VOUser[] admins = new VOUser[1];
         setUsers(users, admins);
@@ -2050,7 +2079,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     public void testUpgradeApplicationManagementExceptionWithParamInException()
             throws Throwable {
         createAvailablePayment(testOrganizations.get(0));
-        VOService product = getProductToSubscribe(testProducts.get(10).getKey());
+        VOService product = getProductToSubscribe(
+                testProducts.get(10).getKey());
         VOUser[] users = new VOUser[2];
         VOUser[] admins = new VOUser[1];
         setUsers(users, admins);
@@ -2084,7 +2114,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     public void testUpgradeApplicationManagementExceptionWithoutParamInException()
             throws Throwable {
         createAvailablePayment(testOrganizations.get(0));
-        VOService product = getProductToSubscribe(testProducts.get(10).getKey());
+        VOService product = getProductToSubscribe(
+                testProducts.get(10).getKey());
         VOUser[] users = new VOUser[2];
         VOUser[] admins = new VOUser[1];
         setUsers(users, admins);
@@ -2124,17 +2155,17 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // and one "normal" user
         appMgmtStub.addedUsers.clear();
         appMgmtStub.deletedUsers.clear();
-        List<VOUsageLicense> addUsers = new ArrayList<VOUsageLicense>();
-        final List<VOUser> revokeUsers = new ArrayList<VOUser>();
-        addUsers.add(mapUserToRole(testUsers.get(testOrganizations.get(0)).get(
-                4)));
-        addUsers.add(mapUserToRole(testUsers.get(testOrganizations.get(0)).get(
-                5)));
-        revokeUsers.add((UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(1))));
-        revokeUsers.add((UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(3))));
-        messagesOfTaskQueue = new ArrayList<TaskMessage>();
+        List<VOUsageLicense> addUsers = new ArrayList<>();
+        final List<VOUser> revokeUsers = new ArrayList<>();
+        addUsers.add(
+                mapUserToRole(testUsers.get(testOrganizations.get(0)).get(4)));
+        addUsers.add(
+                mapUserToRole(testUsers.get(testOrganizations.get(0)).get(5)));
+        revokeUsers.add((UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(1))));
+        revokeUsers.add((UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(3))));
+        messagesOfTaskQueue = new ArrayList<>();
         boolean wasExecuted = subMgmt.addRevokeUser(subscriptionId, addUsers,
                 revokeUsers);
         // Now check results, needs TX-context to use DataManager
@@ -2152,8 +2183,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         assertTrue(wasExecuted);
         assertEquals("Product has not been informed about the added users", 2,
                 appMgmtStub.addedUsers.size());
-        assertEquals("Product has not been informed about the removed users",
-                2, appMgmtStub.deletedUsers.size());
+        assertEquals("Product has not been informed about the removed users", 2,
+                appMgmtStub.deletedUsers.size());
         assertTrue(isTriggerQueueService_sendSuspendingMessageCalled);
         assertTrue(isMessageSend(TriggerType.ADD_REVOKE_USER));
         assertEquals(2, messagesOfTaskQueue.size());
@@ -2189,13 +2220,13 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
             SubscriptionStateException, TechnicalServiceNotAliveException,
             TechnicalServiceOperationException, OperationNotPermittedException,
             ConcurrentModificationException, OperationPendingException {
-        List<VOUsageLicense> addUsers = new ArrayList<VOUsageLicense>();
-        List<VOUser> revokeUsers = new ArrayList<VOUser>();
+        List<VOUsageLicense> addUsers = new ArrayList<>();
+        List<VOUser> revokeUsers = new ArrayList<>();
 
-        revokeUsers.add((UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(1))));
-        revokeUsers.add((UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(3))));
+        revokeUsers.add((UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(1))));
+        revokeUsers.add((UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(3))));
         boolean wasExecuted = subMgmt.addRevokeUser(subscriptionId, addUsers,
                 revokeUsers);
         return wasExecuted;
@@ -2209,8 +2240,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
             TechnicalServiceOperationException, OperationNotPermittedException,
             SubscriptionAlreadyExistsException, OperationPendingException,
             MandatoryUdaMissingException, ConcurrentModificationException {
-        VOService asyncProduct = getProductToSubscribe(asyncTestProducts.get(0)
-                .getKey());
+        VOService asyncProduct = getProductToSubscribe(
+                asyncTestProducts.get(0).getKey());
         VOUser[] users = new VOUser[2];
         VOUser[] admins = new VOUser[1];
         setUsers(users, admins);
@@ -2233,8 +2264,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 "Could not load subscription 'testAddRevokeUserPendingSubscription'",
                 subscription);
 
-        assertEquals("Number of UsageLicenses", 1, subscription
-                .getUsageLicenses().size());
+        assertEquals("Number of UsageLicenses", 1,
+                subscription.getUsageLicenses().size());
     }
 
     @Test(expected = ConcurrentModificationException.class)
@@ -2251,10 +2282,10 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // Now: Add a new users
         appMgmtStub.addedUsers.clear();
         appMgmtStub.deletedUsers.clear();
-        List<VOUsageLicense> addUsers = new ArrayList<VOUsageLicense>();
-        final List<VOUser> revokeUsers = new ArrayList<VOUser>();
-        addUsers.add(mapUserToRole(testUsers.get(testOrganizations.get(0)).get(
-                1)));
+        List<VOUsageLicense> addUsers = new ArrayList<>();
+        final List<VOUser> revokeUsers = new ArrayList<>();
+        addUsers.add(
+                mapUserToRole(testUsers.get(testOrganizations.get(0)).get(1)));
         subMgmt.addRevokeUser(subscriptionId, addUsers, revokeUsers);
 
         // Add the same usage (outdated) license again
@@ -2272,8 +2303,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 subscription);
         // only check for usageLicenses
         // we should have 5 usageLicense-Entries
-        assertEquals("Number of UsageLicenses", 3, subscription
-                .getUsageLicenses().size());
+        assertEquals("Number of UsageLicenses", 3,
+                subscription.getUsageLicenses().size());
         // sort by UserId
         Collections.sort(subscription.getUsageLicenses(),
                 new Comparator<UsageLicense>() {
@@ -2304,18 +2335,18 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         assertUsageLicenseHistory(hist);
 
         // check for deleted users, history entries must reflect deletion
-        Query query = mgr
-                .createQuery("SELECT ul FROM UsageLicenseHistory ul WHERE subscriptionObjKey = :subKey ORDER BY USEROBJKEY ASC, MODDATE DESC");
+        Query query = mgr.createQuery(
+                "SELECT ul FROM UsageLicenseHistory ul WHERE subscriptionObjKey = :subKey ORDER BY USEROBJKEY ASC, MODDATE DESC");
         query.setParameter("subKey", Long.valueOf(subscription.getKey()));
-        for (UsageLicenseHistory ulHist : ParameterizedTypes.iterable(
-                query.getResultList(), UsageLicenseHistory.class)) {
+        for (UsageLicenseHistory ulHist : ParameterizedTypes
+                .iterable(query.getResultList(), UsageLicenseHistory.class)) {
             for (VOUser user : revokedUsers) {
                 if (user.getKey() == ulHist.getUserObjKey()
                         && ulHist.getObjVersion() == 2) {
                     // No. 0) "usr1" is revoked, has been admin
                     hist = mgr.findHistory(lic);
-                    assertEquals("Wrong history entry",
-                            ModificationType.DELETE, ulHist.getModtype());
+                    assertEquals("Wrong history entry", ModificationType.DELETE,
+                            ulHist.getModtype());
                 }
             }
         }
@@ -2338,10 +2369,10 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 .createVOSubscription(commonSubscribeToProduct());
 
         List<VOUsageLicense> addUsers = new ArrayList<>();
-        addUsers.add(mapUserToRole(testUsers.get(testOrganizations.get(0)).get(
-                4)));
-        addUsers.add(mapUserToRole(testUsers.get(testOrganizations.get(0)).get(
-                5)));
+        addUsers.add(
+                mapUserToRole(testUsers.get(testOrganizations.get(0)).get(4)));
+        addUsers.add(
+                mapUserToRole(testUsers.get(testOrganizations.get(0)).get(5)));
         subMgmt.addRevokeUser(subscription.getSubscriptionId(), addUsers, null);
     }
 
@@ -2352,16 +2383,16 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 .createVOSubscription(commonSubscribeToProduct());
 
         List<VOUsageLicense> addUsers = new ArrayList<>();
-        addUsers.add(mapUserToRole(testUsers.get(testOrganizations.get(0)).get(
-                4)));
-        addUsers.add(mapUserToRole(testUsers.get(testOrganizations.get(0)).get(
-                5)));
+        addUsers.add(
+                mapUserToRole(testUsers.get(testOrganizations.get(0)).get(4)));
+        addUsers.add(
+                mapUserToRole(testUsers.get(testOrganizations.get(0)).get(5)));
         td = new TriggerDefinition();
         td.setType(TriggerType.ADD_REVOKE_USER);
         isTriggerQueueService_sendAllNonSuspendingMessageCalled = false;
         isTriggerQueueService_sendSuspendingMessageCalled = false;
-        boolean result = subMgmt.addRevokeUser(
-                subscription.getSubscriptionId(), addUsers, null);
+        boolean result = subMgmt.addRevokeUser(subscription.getSubscriptionId(),
+                addUsers, null);
         assertTrue("suspending method was not called",
                 isTriggerQueueService_sendSuspendingMessageCalled);
         assertFalse(
@@ -2383,10 +2414,10 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 new ArrayList<VOUda>());
         // Now: Add 2 new users (one with changed admin privileges)
         List<VOUsageLicense> addUsers = new ArrayList<>();
-        addUsers.add(mapUserToRole(testUsers.get(testOrganizations.get(0)).get(
-                2)));
-        addUsers.add(mapUserToRole(testUsers.get(testOrganizations.get(0)).get(
-                3)));
+        addUsers.add(
+                mapUserToRole(testUsers.get(testOrganizations.get(0)).get(2)));
+        addUsers.add(
+                mapUserToRole(testUsers.get(testOrganizations.get(0)).get(3)));
 
         // Add existing users again:
         addUsers.clear();
@@ -2421,8 +2452,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 subscription);
         // only check for usageLicenses
         // we should have 3 usageLicense-Entries
-        assertEquals("Number of UsageLicenses", 3, subscription
-                .getUsageLicenses().size());
+        assertEquals("Number of UsageLicenses", 3,
+                subscription.getUsageLicenses().size());
         // sort by UserId
         Collections.sort(subscription.getUsageLicenses(),
                 new Comparator<UsageLicense>() {
@@ -2469,8 +2500,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 new ArrayList<VOUda>());
         // Now: Add 2 new users (one with changed admin privileges)
         List<VOUsageLicense> addUsers = new ArrayList<>();
-        addUsers.add(mapUserToRole(testUsers.get(testOrganizations.get(0)).get(
-                5)));
+        addUsers.add(
+                mapUserToRole(testUsers.get(testOrganizations.get(0)).get(5)));
         PlatformUser unexistingUser = (PlatformUser) ReflectiveClone
                 .clone(testUsers.get(testOrganizations.get(0)).get(2));
         unexistingUser.setKey(10999998);
@@ -2508,8 +2539,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 subscription);
         // only check for usageLicenses
         // we should have 3 usageLicense-Entries
-        assertEquals("Number of UsageLicenses", 3, subscription
-                .getUsageLicenses().size());
+        assertEquals("Number of UsageLicenses", 3,
+                subscription.getUsageLicenses().size());
     }
 
     @Test
@@ -2524,13 +2555,13 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 getUsersToAdd(admins, users), null, null,
                 new ArrayList<VOUda>());
         // Now: Add 2 new users
-        List<VOUsageLicense> addUsers = new ArrayList<VOUsageLicense>();
-        addUsers.add(mapUserToRole(testUsers.get(testOrganizations.get(0)).get(
-                4)));
-        addUsers.add(mapUserToRole(testUsers.get(testOrganizations.get(0)).get(
-                5)));
+        List<VOUsageLicense> addUsers = new ArrayList<>();
+        addUsers.add(
+                mapUserToRole(testUsers.get(testOrganizations.get(0)).get(4)));
+        addUsers.add(
+                mapUserToRole(testUsers.get(testOrganizations.get(0)).get(5)));
         // and revoke unexisting user
-        List<VOUser> revokeUsers = new ArrayList<VOUser>();
+        List<VOUser> revokeUsers = new ArrayList<>();
         PlatformUser unexistingUser = (PlatformUser) ReflectiveClone
                 .clone(testUsers.get(testOrganizations.get(0)).get(2));
         unexistingUser.setKey(10999998);
@@ -2568,8 +2599,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 subscription);
         // only check for usageLicenses
         // we should have 3 usageLicense-Entries
-        assertEquals("Number of UsageLicenses", 3, subscription
-                .getUsageLicenses().size());
+        assertEquals("Number of UsageLicenses", 3,
+                subscription.getUsageLicenses().size());
     }
 
     /**
@@ -2589,7 +2620,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 getUsersToAdd(admins, users), null, null,
                 new ArrayList<VOUda>());
         // Revoke all users
-        List<VOUser> revokeUsers = new ArrayList<VOUser>();
+        List<VOUser> revokeUsers = new ArrayList<>();
         revokeUsers.add(admins[0]);
         revokeUsers.add(users[0]);
         revokeUsers.add(users[1]);
@@ -2622,8 +2653,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 subscription);
         // only check for usageLicenses
         // we should have 0 usageLicense-Entries
-        assertEquals("Number of UsageLicenses", 0, subscription
-                .getUsageLicenses().size());
+        assertEquals("Number of UsageLicenses", 0,
+                subscription.getUsageLicenses().size());
     }
 
     @Test
@@ -2638,14 +2669,15 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // current user is organization admin
         VOService product = getProductToSubscribe(testProducts.get(2).getKey());
         VOUser[] admins = new VOUser[2];
-        admins[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(0));
-        admins[1] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(1));
+        admins[0] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(0));
+        admins[1] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(1));
         String subscriptionId1 = "getActiveSubscriptionsForCurrentUser1";
         subMgmt.subscribeToService(
                 Subscriptions.createVOSubscription(subscriptionId1), product,
-                getUsersToAdd(admins, null), null, null, new ArrayList<VOUda>());
+                getUsersToAdd(admins, null), null, null,
+                new ArrayList<VOUda>());
         assertTrue(subMgmt.hasCurrentUserSubscriptions());
     }
 
@@ -2655,23 +2687,22 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // current user is organization admin
         VOService product = getProductToSubscribe(testProducts.get(2).getKey());
         VOUser[] admins = new VOUser[2];
-        admins[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(0));
-        admins[1] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(1));
+        admins[0] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(0));
+        admins[1] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(1));
         String subscriptionId1 = "getActiveSubscriptionsForCurrentUser1";
-        final VOSubscription sub1 = subMgmt
-                .subscribeToService(
-                        Subscriptions.createVOSubscription(subscriptionId1),
-                        product, getUsersToAdd(admins, null), null, null,
-                        new ArrayList<VOUda>());
+        final VOSubscription sub1 = subMgmt.subscribeToService(
+                Subscriptions.createVOSubscription(subscriptionId1), product,
+                getUsersToAdd(admins, null), null, null,
+                new ArrayList<VOUda>());
         // set status to invalid
         runTX(new Callable<Void>() {
 
             @Override
             public Void call() throws Exception {
-                Subscription subscription = mgr.getReference(
-                        Subscription.class, sub1.getKey());
+                Subscription subscription = mgr.getReference(Subscription.class,
+                        sub1.getKey());
                 subscription.setStatus(SubscriptionStatus.EXPIRED);
                 return null;
             }
@@ -2685,23 +2716,22 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // current user is organization admin
         VOService product = getProductToSubscribe(testProducts.get(2).getKey());
         VOUser[] admins = new VOUser[2];
-        admins[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(0));
-        admins[1] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(1));
+        admins[0] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(0));
+        admins[1] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(1));
         String subscriptionId1 = "getActiveSubscriptionsForCurrentUser1";
-        final VOSubscription sub1 = subMgmt
-                .subscribeToService(
-                        Subscriptions.createVOSubscription(subscriptionId1),
-                        product, getUsersToAdd(admins, null), null, null,
-                        new ArrayList<VOUda>());
+        final VOSubscription sub1 = subMgmt.subscribeToService(
+                Subscriptions.createVOSubscription(subscriptionId1), product,
+                getUsersToAdd(admins, null), null, null,
+                new ArrayList<VOUda>());
         // set status to invalid
         runTX(new Callable<Void>() {
 
             @Override
             public Void call() throws Exception {
-                Subscription subscription = mgr.getReference(
-                        Subscription.class, sub1.getKey());
+                Subscription subscription = mgr.getReference(Subscription.class,
+                        sub1.getKey());
                 subscription.setStatus(SubscriptionStatus.PENDING);
                 return null;
             }
@@ -2715,23 +2745,22 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // current user is organization admin
         VOService product = getProductToSubscribe(testProducts.get(2).getKey());
         VOUser[] admins = new VOUser[2];
-        admins[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(0));
-        admins[1] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(1));
+        admins[0] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(0));
+        admins[1] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(1));
         String subscriptionId1 = "getActiveSubscriptionsForCurrentUser1";
-        final VOSubscription sub1 = subMgmt
-                .subscribeToService(
-                        Subscriptions.createVOSubscription(subscriptionId1),
-                        product, getUsersToAdd(admins, null), null, null,
-                        new ArrayList<VOUda>());
+        final VOSubscription sub1 = subMgmt.subscribeToService(
+                Subscriptions.createVOSubscription(subscriptionId1), product,
+                getUsersToAdd(admins, null), null, null,
+                new ArrayList<VOUda>());
         // set status to invalid
         runTX(new Callable<Void>() {
 
             @Override
             public Void call() throws Exception {
-                Subscription subscription = mgr.getReference(
-                        Subscription.class, sub1.getKey());
+                Subscription subscription = mgr.getReference(Subscription.class,
+                        sub1.getKey());
                 subscription.setStatus(SubscriptionStatus.SUSPENDED);
                 return null;
             }
@@ -2745,23 +2774,22 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // current user is organization admin
         VOService product = getProductToSubscribe(testProducts.get(2).getKey());
         VOUser[] admins = new VOUser[2];
-        admins[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(0));
-        admins[1] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(1));
+        admins[0] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(0));
+        admins[1] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(1));
         String subscriptionId1 = "getActiveSubscriptionsForCurrentUser1";
-        final VOSubscription sub1 = subMgmt
-                .subscribeToService(
-                        Subscriptions.createVOSubscription(subscriptionId1),
-                        product, getUsersToAdd(admins, null), null, null,
-                        new ArrayList<VOUda>());
+        final VOSubscription sub1 = subMgmt.subscribeToService(
+                Subscriptions.createVOSubscription(subscriptionId1), product,
+                getUsersToAdd(admins, null), null, null,
+                new ArrayList<VOUda>());
         // set status to invalid
         runTX(new Callable<Void>() {
 
             @Override
             public Void call() throws Exception {
-                Subscription subscription = mgr.getReference(
-                        Subscription.class, sub1.getKey());
+                Subscription subscription = mgr.getReference(Subscription.class,
+                        sub1.getKey());
                 subscription.setStatus(SubscriptionStatus.INVALID);
                 return null;
             }
@@ -2776,14 +2804,15 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // from previous tests !
         VOService product = getProductToSubscribe(testProducts.get(2).getKey());
         VOUser[] admins = new VOUser[2];
-        admins[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(0));
-        admins[1] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(1));
+        admins[0] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(0));
+        admins[1] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(1));
         String subscriptionId1 = "getActiveSubscriptionsForCurrentUser1";
         subMgmt.subscribeToService(
                 Subscriptions.createVOSubscription(subscriptionId1), product,
-                getUsersToAdd(admins, null), null, null, new ArrayList<VOUda>());
+                getUsersToAdd(admins, null), null, null,
+                new ArrayList<VOUda>());
         // set status to deactivated
         subMgmt.unsubscribeFromService(subscriptionId1);
         assertFalse(subMgmt.hasCurrentUserSubscriptions());
@@ -2796,20 +2825,22 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // from previous tests !
         VOService product = getProductToSubscribe(testProducts.get(2).getKey());
         VOUser[] admins = new VOUser[2];
-        admins[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(0));
-        admins[1] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(1));
+        admins[0] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(0));
+        admins[1] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(1));
         String subscriptionId1 = "getActiveSubscriptionsForCurrentUser1";
         subMgmt.subscribeToService(
                 Subscriptions.createVOSubscription(subscriptionId1), product,
-                getUsersToAdd(admins, null), null, null, new ArrayList<VOUda>());
+                getUsersToAdd(admins, null), null, null,
+                new ArrayList<VOUda>());
         // set status to deactivated
         subMgmt.unsubscribeFromService(subscriptionId1);
         String subscriptionId2 = "getActiveSubscriptionsForCurrentUser2";
         subMgmt.subscribeToService(
                 Subscriptions.createVOSubscription(subscriptionId2), product,
-                getUsersToAdd(admins, null), null, null, new ArrayList<VOUda>());
+                getUsersToAdd(admins, null), null, null,
+                new ArrayList<VOUda>());
         assertTrue(subMgmt.hasCurrentUserSubscriptions());
     }
 
@@ -2825,18 +2856,20 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // from previous tests !
         VOService product = getProductToSubscribe(testProducts.get(2).getKey());
         VOUser[] admins = new VOUser[2];
-        admins[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(0));
-        admins[1] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(1));
+        admins[0] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(0));
+        admins[1] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(1));
         String subscriptionId1 = "getActiveSubscriptionsForCurrentUser1";
         subMgmt.subscribeToService(
                 Subscriptions.createVOSubscription(subscriptionId1), product,
-                getUsersToAdd(admins, null), null, null, new ArrayList<VOUda>());
+                getUsersToAdd(admins, null), null, null,
+                new ArrayList<VOUda>());
         String subscriptionId2 = "getActiveSubscriptionsForCurrentUser2";
         subMgmt.subscribeToService(
                 Subscriptions.createVOSubscription(subscriptionId2), product,
-                getUsersToAdd(admins, null), null, null, new ArrayList<VOUda>());
+                getUsersToAdd(admins, null), null, null,
+                new ArrayList<VOUda>());
         List<VOUserSubscription> subList = subMgmt
                 .getSubscriptionsForCurrentUser();
         assertEquals("Number of found subscriptions", 2, subList.size());
@@ -2853,16 +2886,18 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     public void testGetActiveSubscriptionsForUser() throws Throwable {
         VOService product = getProductToSubscribe(testProducts.get(2).getKey());
         VOUser[] admins = new VOUser[1];
-        admins[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(5));
+        admins[0] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(5));
         String subscriptionId1 = "testGetActiveSubscriptionsForUser1";
         subMgmt.subscribeToService(
                 Subscriptions.createVOSubscription(subscriptionId1), product,
-                getUsersToAdd(admins, null), null, null, new ArrayList<VOUda>());
+                getUsersToAdd(admins, null), null, null,
+                new ArrayList<VOUda>());
         String subscriptionId2 = "testGetActiveSubscriptionsForUser2";
         subMgmt.subscribeToService(
                 Subscriptions.createVOSubscription(subscriptionId2), product,
-                getUsersToAdd(admins, null), null, null, new ArrayList<VOUda>());
+                getUsersToAdd(admins, null), null, null,
+                new ArrayList<VOUda>());
         List<VOUserSubscription> subList = subMgmt
                 .getSubscriptionsForUser(admins[0]);
         assertEquals("Number of found subscriptions", 2, subList.size());
@@ -2878,8 +2913,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     @Test(expected = OperationNotPermittedException.class)
     public void testGetActiveSubscriptionsForUserNotPermitted()
             throws Throwable {
-        VOUser otherUser = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(1)).get(5));
+        VOUser otherUser = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(1)).get(5));
         subMgmt.getSubscriptionsForUser(otherUser);
     }
 
@@ -2931,17 +2966,18 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // check results
         assertEquals(SubscriptionStatus.DEACTIVATED, renamedSub.getStatus());
         assertEquals(
-                new SimpleDateFormat("yyyy-MM-dd").format(GregorianCalendar
-                        .getInstance().getTime()), new SimpleDateFormat(
-                        "yyyy-MM-dd").format(renamedSub.getDeactivationDate()));
+                new SimpleDateFormat("yyyy-MM-dd")
+                        .format(GregorianCalendar.getInstance().getTime()),
+                new SimpleDateFormat("yyyy-MM-dd")
+                        .format(renamedSub.getDeactivationDate()));
         assertEquals("Wrong number of users added to the product", 3,
                 appMgmtStub.addedUsers.size());
         assertEquals("No users must be removed from the service instance", 0,
                 appMgmtStub.deletedUsers.size());
         assertTrue("Product has not been deleted after unsubscription",
                 appMgmtStub.isProductDeleted);
-        assertEquals("Licenses were not removed!", 0, renamedSub
-                .getUsageLicenses().size());
+        assertEquals("Licenses were not removed!", 0,
+                renamedSub.getUsageLicenses().size());
         assertTrue(isTriggerQueueService_sendSuspendingMessageCalled);
         assertTrue(isMessageSend(TriggerType.UNSUBSCRIBE_FROM_SERVICE));
         assertTrue(wasExecuted);
@@ -2974,8 +3010,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         PlatformUser user = runTX(new Callable<PlatformUser>() {
             @Override
             public PlatformUser call() throws Exception {
-                Organization organization = mgr.getReference(
-                        Organization.class, sub.getOrganization().getKey());
+                Organization organization = mgr.getReference(Organization.class,
+                        sub.getOrganization().getKey());
                 return organization.getPlatformUsers().get(0);
             }
         });
@@ -3017,18 +3053,21 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         container.login(String.valueOf(userKey), ROLE_ORGANIZATION_ADMIN);
 
         // subscribe two times
-        VOService product = getProductToSubscribe(testProducts.get(12).getKey());
+        VOService product = getProductToSubscribe(
+                testProducts.get(12).getKey());
         VOUser[] admins = new VOUser[1];
-        admins[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(5));
+        admins[0] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(5));
         final String subscriptionId1 = "testGetSubscriptionsForOrganization1";
         subMgmt.subscribeToService(
                 Subscriptions.createVOSubscription(subscriptionId1), product,
-                getUsersToAdd(admins, null), null, null, new ArrayList<VOUda>());
+                getUsersToAdd(admins, null), null, null,
+                new ArrayList<VOUda>());
         String subscriptionId2 = "testGetSubscriptionsForOrganization2";
         subMgmt.subscribeToService(
                 Subscriptions.createVOSubscription(subscriptionId2), product,
-                getUsersToAdd(admins, null), null, null, new ArrayList<VOUda>());
+                getUsersToAdd(admins, null), null, null,
+                new ArrayList<VOUda>());
 
         List<VOSubscription> subList = subMgmt
                 .getSubscriptionsForOrganization();
@@ -3048,9 +3087,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                assertEquals(subscriptionId1,
-                        subMgmtLocal.loadSubscription(subKey1)
-                                .getSubscriptionId());
+                assertEquals(subscriptionId1, subMgmtLocal
+                        .loadSubscription(subKey1).getSubscriptionId());
                 return null;
             }
         });
@@ -3065,20 +3103,21 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 ROLE_SERVICE_MANAGER, ROLE_TECHNOLOGY_MANAGER);
 
         // given two subscriptions
-        VOService product = getProductToSubscribe(testProducts.get(12).getKey());
+        VOService product = getProductToSubscribe(
+                testProducts.get(12).getKey());
         VOUser[] admins = new VOUser[1];
-        admins[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(5));
+        admins[0] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(5));
         final String subscriptionId1 = "testGetSubscriptionsForOrganization1";
         subMgmt.subscribeToService(
                 Subscriptions.createVOSubscription(subscriptionId1), product,
-                getUsersToAdd(admins, null), null, null, new ArrayList<VOUda>());
+                getUsersToAdd(admins, null), null, null,
+                new ArrayList<VOUda>());
         String subscriptionId2 = "testGetSubscriptionsForOrganization2";
-        final VOSubscription sub2 = subMgmt
-                .subscribeToService(
-                        Subscriptions.createVOSubscription(subscriptionId2),
-                        product, getUsersToAdd(admins, null), null, null,
-                        new ArrayList<VOUda>());
+        final VOSubscription sub2 = subMgmt.subscribeToService(
+                Subscriptions.createVOSubscription(subscriptionId2), product,
+                getUsersToAdd(admins, null), null, null,
+                new ArrayList<VOUda>());
 
         // when terminating one
         runTX(new Callable<Void>() {
@@ -3093,8 +3132,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
         // then only one active is found
         List<VOSubscription> subList = subMgmt
-                .getSubscriptionsForOrganizationWithFilter(EnumSet
-                        .of(SubscriptionStatus.ACTIVE));
+                .getSubscriptionsForOrganizationWithFilter(
+                        EnumSet.of(SubscriptionStatus.ACTIVE));
         assertEquals("Number of found subscriptions", 1, subList.size());
         assertEquals(subscriptionId1, subList.get(0).getSubscriptionId());
     }
@@ -3104,10 +3143,10 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         VOService product = getProductToSubscribe(testProducts.get(4).getKey());
         VOUser[] users = new VOUser[1];
         VOUser[] admins = new VOUser[1];
-        admins[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(1));
-        users[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(2));
+        admins[0] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(1));
+        users[0] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(2));
         String subscriptionId = "testAddUserToSubscriptionOK";
         subMgmt.subscribeToService(
                 Subscriptions.createVOSubscription(subscriptionId), product,
@@ -3152,8 +3191,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // Get subscription
         Subscription sub = loadSubscription("testAddUserToSubscriptionOK",
                 testOrganizations.get(0).getKey());
-        assertEquals("Number of assigned users", 3, sub.getUsageLicenses()
-                .size());
+        assertEquals("Number of assigned users", 3,
+                sub.getUsageLicenses().size());
     }
 
     @Test(expected = UserAlreadyAssignedException.class)
@@ -3162,10 +3201,10 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         VOService product = getProductToSubscribe(testProducts.get(1).getKey());
         VOUser[] users = new VOUser[1];
         VOUser[] admins = new VOUser[1];
-        admins[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(1));
-        users[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(2));
+        admins[0] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(1));
+        users[0] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(2));
         String subscriptionId = "testAddUserToSubscriptionAlreadyAssigned";
         VOPaymentInfo voPaymentInfo = getPaymentInfo(
                 tpAndSupplier.getOrganizationId(), testOrganizations.get(0));
@@ -3191,8 +3230,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     private void doTestAddUserToSubscriptionAlreadyAssigned() throws Exception {
         // Get subscription
         Subscription sub = loadSubscription(
-                "testAddUserToSubscriptionAlreadyAssigned", testOrganizations
-                        .get(0).getKey());
+                "testAddUserToSubscriptionAlreadyAssigned",
+                testOrganizations.get(0).getKey());
         PlatformUser usr = testUsers.get(testOrganizations.get(0)).get(2);
         // call method
         subMgmtLocal.addUserToSubscription(sub, usr, null);
@@ -3206,10 +3245,10 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         VOService product = getProductToSubscribe(testProducts.get(1).getKey());
         VOUser[] users = new VOUser[1];
         VOUser[] admins = new VOUser[1];
-        admins[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(1));
-        users[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(2));
+        admins[0] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(1));
+        users[0] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(2));
         String subscriptionId = "testRevokeUserFromSubscriptionOK";
         VOPaymentInfo voPaymentInfo = getPaymentInfo(
                 tpAndSupplier.getOrganizationId(), testOrganizations.get(0));
@@ -3250,7 +3289,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 testOrganizations.get(0).getKey());
         PlatformUser usr = testUsers.get(testOrganizations.get(0)).get(1);
         // call method
-        List<PlatformUser> users = new ArrayList<PlatformUser>();
+        List<PlatformUser> users = new ArrayList<>();
         users.add(usr);
         subMgmtLocal.revokeUserFromSubscription(sub, users);
     }
@@ -3261,8 +3300,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 testOrganizations.get(0).getKey());
         // still all users available
         // but with one of status revoked
-        assertEquals("Number of assigned users", 1, sub.getUsageLicenses()
-                .size());
+        assertEquals("Number of assigned users", 1,
+                sub.getUsageLicenses().size());
     }
 
     @Test
@@ -3271,10 +3310,10 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         VOService product = getProductToSubscribe(testProducts.get(1).getKey());
         VOUser[] users = new VOUser[1];
         VOUser[] admins = new VOUser[1];
-        admins[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(1));
-        users[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(2));
+        admins[0] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(1));
+        users[0] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(2));
         String subscriptionId = "testGrantAdminRoleOK";
         VOPaymentInfo voPaymentInfo = getPaymentInfo(
                 tpAndSupplier.getOrganizationId(), testOrganizations.get(0));
@@ -3322,8 +3361,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // Get subscription
         Subscription sub = loadSubscription("testGrantAdminRoleOK",
                 testOrganizations.get(0).getKey());
-        assertEquals("Number of assigned users", 2, sub.getUsageLicenses()
-                .size());
+        assertEquals("Number of assigned users", 2,
+                sub.getUsageLicenses().size());
     }
 
     @Test(expected = UserNotAssignedException.class)
@@ -3332,10 +3371,10 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         VOService product = getProductToSubscribe(testProducts.get(1).getKey());
         VOUser[] users = new VOUser[1];
         VOUser[] admins = new VOUser[1];
-        admins[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(1));
-        users[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(2));
+        admins[0] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(1));
+        users[0] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(2));
         String subscriptionId = "testGrantAdminRoleNotAssigned";
         VOPaymentInfo voPaymentInfo = getPaymentInfo(
                 tpAndSupplier.getOrganizationId(), testOrganizations.get(0));
@@ -3375,10 +3414,10 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         VOService product = getProductToSubscribe(testProducts.get(1).getKey());
         VOUser[] users = new VOUser[1];
         VOUser[] admins = new VOUser[1];
-        admins[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(1));
-        users[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(2));
+        admins[0] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(1));
+        users[0] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(2));
         String subscriptionId = "testRevokeAdminRoleOK";
         VOPaymentInfo voPaymentInfo = getPaymentInfo(
                 tpAndSupplier.getOrganizationId(), testOrganizations.get(0));
@@ -3426,8 +3465,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // Get subscription
         Subscription sub = loadSubscription("testRevokeAdminRoleOK",
                 testOrganizations.get(0).getKey());
-        assertEquals("Number of assigned users", 2, sub.getUsageLicenses()
-                .size());
+        assertEquals("Number of assigned users", 2,
+                sub.getUsageLicenses().size());
     }
 
     @Test(expected = UserNotAssignedException.class)
@@ -3436,10 +3475,10 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         VOService product = getProductToSubscribe(testProducts.get(1).getKey());
         VOUser[] users = new VOUser[1];
         VOUser[] admins = new VOUser[1];
-        admins[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(1));
-        users[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(2));
+        admins[0] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(1));
+        users[0] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(2));
         String subscriptionId = "testRevokeAdminRoleNotAssigned";
         VOPaymentInfo voPaymentInfo = getPaymentInfo(
                 tpAndSupplier.getOrganizationId(), testOrganizations.get(0));
@@ -3481,8 +3520,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
      * @throws NonUniqueBusinessKeyException
      * @throws ObjectNotFoundException
      */
-    private Long initMasterData() throws NonUniqueBusinessKeyException,
-            ObjectNotFoundException {
+    private Long initMasterData()
+            throws NonUniqueBusinessKeyException, ObjectNotFoundException {
         Long initialCustomerAdminKey = null;
         tpAndSupplier = Organizations.createOrganization(mgr,
                 OrganizationRoleType.SUPPLIER,
@@ -3514,16 +3553,15 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         for (int i = 1; i <= 2; i++) {
             cust = Organizations.createOrganization(mgr,
                     OrganizationRoleType.CUSTOMER);
-            OrganizationReference ref = new OrganizationReference(
-                    tpAndSupplier, cust,
-                    OrganizationReferenceType.SUPPLIER_TO_CUSTOMER);
+            OrganizationReference ref = new OrganizationReference(tpAndSupplier,
+                    cust, OrganizationReferenceType.SUPPLIER_TO_CUSTOMER);
             mgr.persist(ref);
             testOrganizations.add(cust);
-            ArrayList<PlatformUser> userlist = new ArrayList<PlatformUser>();
+            ArrayList<PlatformUser> userlist = new ArrayList<>();
             testUsers.put(cust, userlist);
             // add a organization admin
-            PlatformUser admin = Organizations.createUserForOrg(mgr, cust,
-                    true, "admin");
+            PlatformUser admin = Organizations.createUserForOrg(mgr, cust, true,
+                    "admin");
             if (initialCustomerAdminKey == null) {
                 initialCustomerAdminKey = Long.valueOf(admin.getKey());
             }
@@ -3552,8 +3590,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         supplierUser = Organizations.createUserForOrg(mgr, tpAndSupplier, true,
                 "admin");
         UserGroup unit_supplier = new UserGroup();
-        unit_supplier.setName(UNIT_OTHER_ORG
-                + tpAndSupplier.getOrganizationId());
+        unit_supplier
+                .setName(UNIT_OTHER_ORG + tpAndSupplier.getOrganizationId());
         unit_supplier.setOrganization_tkey(tpAndSupplier.getKey());
         unit_supplier.setOrganization(tpAndSupplier);
         mgr.persist(unit_supplier);
@@ -3577,7 +3615,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         ParameterOption option = new ParameterOption();
         option.setOptionId("OPT");
         option.setParameterDefinition(pd);
-        List<ParameterOption> list = new ArrayList<ParameterOption>();
+        List<ParameterOption> list = new ArrayList<>();
         list.add(option);
         pd.setOptionList(list);
         mgr.persist(option);
@@ -3613,8 +3651,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
             PricedOption option = new PricedOption();
             option.setPricedParameter(pricedParam);
             option.setPricePerUser(new BigDecimal(2));
-            option.setParameterOptionKey(paramDef.getOptionList().get(0)
-                    .getKey());
+            option.setParameterOptionKey(
+                    paramDef.getOptionList().get(0).getKey());
 
             PricedEvent pEvent = new PricedEvent();
             pEvent.setEvent(tProd.getEvents().get(0));
@@ -3661,8 +3699,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
             public Void call() {
                 long initialTransactionTime = DateFactory.getInstance()
                         .getTransactionTime();
-                subMgmtLocal.expireOverdueSubscriptions(System
-                        .currentTimeMillis() + 2000);
+                subMgmtLocal.expireOverdueSubscriptions(
+                        System.currentTimeMillis() + 2000);
                 assertFalse("Transaction time not set",
                         initialTransactionTime == DateFactory.getInstance()
                                 .getTransactionTime());
@@ -3672,8 +3710,9 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() {
-                doCheckSubscriptionStatus("expirationTest1", testOrganizations
-                        .get(0).getKey(), SubscriptionStatus.EXPIRED);
+                doCheckSubscriptionStatus("expirationTest1",
+                        testOrganizations.get(0).getKey(),
+                        SubscriptionStatus.EXPIRED);
                 return null;
             }
 
@@ -3705,8 +3744,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         Subscription sub = runTX(new Callable<Subscription>() {
             @Override
             public Subscription call() {
-                return getSubscription("expirationTest2", testOrganizations
-                        .get(0).getKey());
+                return getSubscription("expirationTest2",
+                        testOrganizations.get(0).getKey());
             }
         });
 
@@ -3716,8 +3755,9 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() {
-                doCheckSubscriptionStatus("expirationTest2", testOrganizations
-                        .get(0).getKey(), SubscriptionStatus.EXPIRED);
+                doCheckSubscriptionStatus("expirationTest2",
+                        testOrganizations.get(0).getKey(),
+                        SubscriptionStatus.EXPIRED);
                 return null;
             }
         });
@@ -3768,18 +3808,20 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() {
-                subMgmtLocal.expireOverdueSubscriptions(System
-                        .currentTimeMillis() + 4000);
+                subMgmtLocal.expireOverdueSubscriptions(
+                        System.currentTimeMillis() + 4000);
                 return null;
             }
         });
         runTX(new Callable<Void>() {
             @Override
             public Void call() {
-                doCheckSubscriptionStatus("expirationTest4", testOrganizations
-                        .get(0).getKey(), SubscriptionStatus.EXPIRED);
-                doCheckSubscriptionStatus("expirationTest3", testOrganizations
-                        .get(0).getKey(), SubscriptionStatus.ACTIVE);
+                doCheckSubscriptionStatus("expirationTest4",
+                        testOrganizations.get(0).getKey(),
+                        SubscriptionStatus.EXPIRED);
+                doCheckSubscriptionStatus("expirationTest3",
+                        testOrganizations.get(0).getKey(),
+                        SubscriptionStatus.ACTIVE);
                 return null;
             }
 
@@ -3812,8 +3854,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         final Subscription sub = runTX(new Callable<Subscription>() {
             @Override
             public Subscription call() {
-                return getSubscription("expirationTest5", testOrganizations
-                        .get(0).getKey());
+                return getSubscription("expirationTest5",
+                        testOrganizations.get(0).getKey());
             }
         });
 
@@ -3831,8 +3873,9 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() {
-                doCheckSubscriptionStatus("expirationTest5", testOrganizations
-                        .get(0).getKey(), SubscriptionStatus.EXPIRED);
+                doCheckSubscriptionStatus("expirationTest5",
+                        testOrganizations.get(0).getKey(),
+                        SubscriptionStatus.EXPIRED);
                 return null;
             }
         });
@@ -3842,8 +3885,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
             long organizationKey) {
         Subscription subscription = getSubscription(subscriptionId,
                 organizationKey);
-        subscription.setActivationDate(Long.valueOf(subscription
-                .getActivationDate().longValue() - 3600000L));
+        subscription.setActivationDate(Long.valueOf(
+                subscription.getActivationDate().longValue() - 3600000L));
     }
 
     private Subscription getSubscription(String subscriptionId,
@@ -3865,9 +3908,9 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         SubscriptionHistory domainHistoryObject = (SubscriptionHistory) history
                 .get(history.size() - 1);
         assertEquals(
-                "Wrong user for expiration",
-                String.valueOf(testUsers.get(testOrganizations.get(0)).get(0)
-                        .getKey()), domainHistoryObject.getModuser());
+                "Wrong user for expiration", String.valueOf(testUsers
+                        .get(testOrganizations.get(0)).get(0).getKey()),
+                domainHistoryObject.getModuser());
         assertEquals("Wrong status after expiration", desiredStatus,
                 domainHistoryObject.getDataContainer().getStatus());
         assertEquals("Wrong type for expiration", ModificationType.MODIFY,
@@ -3884,8 +3927,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         assertNotNull("Required product could not be found.", prod);
 
         // Get/create Parameter definition
-        Query query = mgr
-                .createNamedQuery("ParameterDefinition.getPlatformParameterDefinition");
+        Query query = mgr.createNamedQuery(
+                "ParameterDefinition.getPlatformParameterDefinition");
         query.setParameter("parameterType", ParameterType.PLATFORM_PARAMETER);
         query.setParameter("parameterId", PlatformParameterIdentifiers.PERIOD);
 
@@ -3941,18 +3984,18 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         instanceInfo.setAccessInfo(null);
         ConfigurationServiceLocal cfg = container
                 .get(ConfigurationServiceLocal.class);
-        final String baseUrl = cfg.getConfigurationSetting(
-                ConfigurationKey.BASE_URL, Configuration.GLOBAL_CONTEXT)
+        final String baseUrl = cfg
+                .getConfigurationSetting(ConfigurationKey.BASE_URL,
+                        Configuration.GLOBAL_CONTEXT)
                 .getValue();
 
-        receivedSendMailPayload = new ArrayList<SendMailPayload>();
+        receivedSendMailPayload = new ArrayList<>();
         subMgmt.completeAsyncSubscription(id, orgId, instanceInfo);
         try {
             runTX(new Callable<Void>() {
                 @Override
                 public Void call() {
-                    checkSubscribeToProduct(false, id,
-                            asyncTestProducts.get(0),
+                    checkSubscribeToProduct(false, id, asyncTestProducts.get(0),
                             SubscriptionStatus.ACTIVE, 3, null, 1);
                     String param1 = (String) receivedSendMailPayload.get(0)
                             .getMailObjects().get(0).getParams()[1];
@@ -3994,14 +4037,13 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
         final String accessInfo = "http://www.google.de";
         instanceInfo.setAccessInfo(accessInfo);
-        receivedSendMailPayload = new ArrayList<SendMailPayload>();
+        receivedSendMailPayload = new ArrayList<>();
         subMgmt.completeAsyncSubscription(id, orgId, instanceInfo);
         try {
             runTX(new Callable<Void>() {
                 @Override
                 public Void call() {
-                    checkSubscribeToProduct(false, id,
-                            asyncTestProducts.get(0),
+                    checkSubscribeToProduct(false, id, asyncTestProducts.get(0),
                             SubscriptionStatus.ACTIVE, 3, null, 1);
                     return null;
                 }
@@ -4009,8 +4051,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         } catch (Exception e) {
             throw e.getCause();
         }
-        String param1 = (String) receivedSendMailPayload.get(0)
-                .getMailObjects().get(0).getParams()[1];
+        String param1 = (String) receivedSendMailPayload.get(0).getMailObjects()
+                .get(0).getParams()[1];
         assertEquals(accessUrl, param1);
     }
 
@@ -4091,8 +4133,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
             runTX(new Callable<Void>() {
                 @Override
                 public Void call() {
-                    checkSubscribeToProduct(false, id,
-                            asyncTestProducts.get(1),
+                    checkSubscribeToProduct(false, id, asyncTestProducts.get(1),
                             SubscriptionStatus.SUSPENDED, 3, null, 1);
                     return null;
                 }
@@ -4125,8 +4166,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
             runTX(new Callable<Void>() {
                 @Override
                 public Void call() {
-                    checkSubscribeToProduct(false, id,
-                            asyncTestProducts.get(1),
+                    checkSubscribeToProduct(false, id, asyncTestProducts.get(1),
                             SubscriptionStatus.ACTIVE, 3, null, 1);
                     return null;
                 }
@@ -4139,7 +4179,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     }
 
     @Test
-    public void testCompletionWithWrongPaymentTypeForProduct() throws Throwable {
+    public void testCompletionWithWrongPaymentTypeForProduct()
+            throws Throwable {
         final String id = "testCompletion3";
         createAvailablePayment(testOrganizations.get(0));
 
@@ -4169,8 +4210,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
             runTX(new Callable<Void>() {
                 @Override
                 public Void call() {
-                    checkSubscribeToProduct(false, id,
-                            asyncTestProducts.get(1),
+                    checkSubscribeToProduct(false, id, asyncTestProducts.get(1),
                             SubscriptionStatus.SUSPENDED, 3, null, 1);
                     return null;
                 }
@@ -4186,12 +4226,12 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     public void testCompletionWithAddingUsers() throws Throwable {
         final String id = "testCompletionWithAddingUsers";
         subscribeAsync(id, 0, false);
-        List<VOUsageLicense> addUsers = new ArrayList<VOUsageLicense>();
-        addUsers.add(mapUserToRole(testUsers.get(testOrganizations.get(0)).get(
-                4)));
-        addUsers.add(mapUserToRole(testUsers.get(testOrganizations.get(0)).get(
-                5)));
-        List<VOUser> removedUsers = new ArrayList<VOUser>();
+        List<VOUsageLicense> addUsers = new ArrayList<>();
+        addUsers.add(
+                mapUserToRole(testUsers.get(testOrganizations.get(0)).get(4)));
+        addUsers.add(
+                mapUserToRole(testUsers.get(testOrganizations.get(0)).get(5)));
+        List<VOUser> removedUsers = new ArrayList<>();
         subMgmt.addRevokeUser(id, addUsers, removedUsers);
 
         // login as technology provider
@@ -4205,8 +4245,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
             runTX(new Callable<Void>() {
                 @Override
                 public Void call() {
-                    checkSubscribeToProduct(false, id,
-                            asyncTestProducts.get(0),
+                    checkSubscribeToProduct(false, id, asyncTestProducts.get(0),
                             SubscriptionStatus.ACTIVE, 5, null, 1);
                     return null;
                 }
@@ -4243,11 +4282,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         container.login(String.valueOf(supplierUser.getKey()),
                 ROLE_TECHNOLOGY_MANAGER);
         try {
-            subMgmt.completeAsyncSubscription(
-                    id,
-                    orgId,
-                    createInstanceInfo(null, null,
-                            BaseAdmUmTest.TOO_LONG_DESCRIPTION, null));
+            subMgmt.completeAsyncSubscription(id, orgId, createInstanceInfo(
+                    null, null, BaseAdmUmTest.TOO_LONG_DESCRIPTION, null));
         } catch (TechnicalServiceOperationException e) {
             throw e.getCause();
         }
@@ -4263,11 +4299,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         container.login(String.valueOf(supplierUser.getKey()),
                 ROLE_TECHNOLOGY_MANAGER);
         try {
-            subMgmt.completeAsyncSubscription(
-                    id,
-                    orgId,
-                    createInstanceInfo(null, "some invalid url", "id",
-                            LOGIN_PATH));
+            subMgmt.completeAsyncSubscription(id, orgId, createInstanceInfo(
+                    null, "some invalid url", "id", LOGIN_PATH));
         } catch (TechnicalServiceOperationException e) {
             throw e.getCause();
         }
@@ -4299,11 +4332,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         container.login(String.valueOf(supplierUser.getKey()),
                 ROLE_TECHNOLOGY_MANAGER);
         try {
-            subMgmt.completeAsyncSubscription(
-                    id,
-                    orgId,
-                    createInstanceInfo("access info", BASE_URL_SERVICE_HTTP,
-                            "id", LOGIN_PATH));
+            subMgmt.completeAsyncSubscription(id, orgId, createInstanceInfo(
+                    "access info", BASE_URL_SERVICE_HTTP, "id", LOGIN_PATH));
         } catch (TechnicalServiceOperationException e) {
             throw e.getCause();
         }
@@ -4319,26 +4349,25 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         container.login(String.valueOf(supplierUser.getKey()),
                 ROLE_TECHNOLOGY_MANAGER);
         try {
-            subMgmt.completeAsyncSubscription(
-                    id,
-                    orgId,
-                    createInstanceInfo(BaseAdmUmTest.TOO_LONG_DESCRIPTION
-                            + BaseAdmUmTest.TOO_LONG_DESCRIPTION
-                            + BaseAdmUmTest.TOO_LONG_DESCRIPTION
-                            + BaseAdmUmTest.TOO_LONG_DESCRIPTION
-                            + BaseAdmUmTest.TOO_LONG_DESCRIPTION
-                            + BaseAdmUmTest.TOO_LONG_DESCRIPTION
-                            + BaseAdmUmTest.TOO_LONG_DESCRIPTION
-                            + BaseAdmUmTest.TOO_LONG_DESCRIPTION
-                            + BaseAdmUmTest.TOO_LONG_DESCRIPTION
-                            + BaseAdmUmTest.TOO_LONG_DESCRIPTION
-                            + BaseAdmUmTest.TOO_LONG_DESCRIPTION
-                            + BaseAdmUmTest.TOO_LONG_DESCRIPTION
-                            + BaseAdmUmTest.TOO_LONG_DESCRIPTION
-                            + BaseAdmUmTest.TOO_LONG_DESCRIPTION
-                            + BaseAdmUmTest.TOO_LONG_DESCRIPTION
-                            + BaseAdmUmTest.TOO_LONG_DESCRIPTION + "1", null,
-                            "id", null));
+            subMgmt.completeAsyncSubscription(id, orgId,
+                    createInstanceInfo(
+                            BaseAdmUmTest.TOO_LONG_DESCRIPTION
+                                    + BaseAdmUmTest.TOO_LONG_DESCRIPTION
+                                    + BaseAdmUmTest.TOO_LONG_DESCRIPTION
+                                    + BaseAdmUmTest.TOO_LONG_DESCRIPTION
+                                    + BaseAdmUmTest.TOO_LONG_DESCRIPTION
+                                    + BaseAdmUmTest.TOO_LONG_DESCRIPTION
+                                    + BaseAdmUmTest.TOO_LONG_DESCRIPTION
+                                    + BaseAdmUmTest.TOO_LONG_DESCRIPTION
+                                    + BaseAdmUmTest.TOO_LONG_DESCRIPTION
+                                    + BaseAdmUmTest.TOO_LONG_DESCRIPTION
+                                    + BaseAdmUmTest.TOO_LONG_DESCRIPTION
+                                    + BaseAdmUmTest.TOO_LONG_DESCRIPTION
+                                    + BaseAdmUmTest.TOO_LONG_DESCRIPTION
+                                    + BaseAdmUmTest.TOO_LONG_DESCRIPTION
+                                    + BaseAdmUmTest.TOO_LONG_DESCRIPTION
+                                    + BaseAdmUmTest.TOO_LONG_DESCRIPTION + "1",
+                            null, "id", null));
         } catch (TechnicalServiceOperationException e) {
             throw e.getCause();
         }
@@ -4354,9 +4383,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         container.login(String.valueOf(supplierUser.getKey()),
                 ROLE_TECHNOLOGY_MANAGER);
         try {
-            subMgmt.completeAsyncSubscription(
-                    id,
-                    orgId,
+            subMgmt.completeAsyncSubscription(id, orgId,
                     createInstanceInfo(null, BASE_URL_SERVICE_HTTP, "id",
                             BaseAdmUmTest.TOO_LONG_DESCRIPTION));
         } catch (TechnicalServiceOperationException e) {
@@ -4391,8 +4418,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         container.login(String.valueOf(supplierUser.getKey()),
                 ROLE_TECHNOLOGY_MANAGER);
         try {
-            subMgmt.completeAsyncSubscription(id, orgId,
-                    createInstanceInfo(null, BASE_URL_SERVICE_HTTP, "id", null));
+            subMgmt.completeAsyncSubscription(id, orgId, createInstanceInfo(
+                    null, BASE_URL_SERVICE_HTTP, "id", null));
         } catch (TechnicalServiceOperationException e) {
             throw e.getCause();
         }
@@ -4402,13 +4429,13 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     public void testAbortWithAddingUsers() throws Throwable {
         final String id = "testAbortWithAddingUsers";
         subscribeAsync(id, 0, false);
-        List<VOUsageLicense> addUsers = new ArrayList<VOUsageLicense>();
-        addUsers.add(mapUserToRole(testUsers.get(testOrganizations.get(0)).get(
-                4)));
-        addUsers.add(mapUserToRole(testUsers.get(testOrganizations.get(0)).get(
-                5)));
+        List<VOUsageLicense> addUsers = new ArrayList<>();
+        addUsers.add(
+                mapUserToRole(testUsers.get(testOrganizations.get(0)).get(4)));
+        addUsers.add(
+                mapUserToRole(testUsers.get(testOrganizations.get(0)).get(5)));
         String orgId = testOrganizations.get(0).getOrganizationId();
-        List<VOUser> removedUsers = new ArrayList<VOUser>();
+        List<VOUser> removedUsers = new ArrayList<>();
         subMgmt.addRevokeUser(id, addUsers, removedUsers);
 
         // login as technology provider
@@ -4439,7 +4466,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // login as technology provider
         container.login(String.valueOf(supplierUser.getKey()),
                 ROLE_TECHNOLOGY_MANAGER);
-        List<VOLocalizedText> list = new ArrayList<VOLocalizedText>();
+        List<VOLocalizedText> list = new ArrayList<>();
         VOLocalizedText en = new VOLocalizedText();
         en.setLocale(Locale.ENGLISH.toString());
         en.setText("Text_" + Locale.ENGLISH.toString());
@@ -4454,8 +4481,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         subMgmt.completeAsyncSubscription(id, orgId, instanceInfo);
 
         container.login(customerUserKey, ROLE_ORGANIZATION_ADMIN);
-        assertEquals(en.getText(), subMgmt.getSubscriptionDetails(id)
-                .getProvisioningProgress());
+        assertEquals(en.getText(),
+                subMgmt.getSubscriptionDetails(id).getProvisioningProgress());
     }
 
     @Test
@@ -4473,8 +4500,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         subMgmt.completeAsyncSubscription(id, orgId, instanceInfo);
 
         container.login(customerUserKey, ROLE_ORGANIZATION_ADMIN);
-        assertEquals("LocalizedTextFromDatabase", subMgmt
-                .getSubscriptionDetails(id).getProvisioningProgress());
+        assertEquals("LocalizedTextFromDatabase",
+                subMgmt.getSubscriptionDetails(id).getProvisioningProgress());
     }
 
     @Test(expected = javax.ejb.EJBException.class)
@@ -4512,18 +4539,19 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         assertNotNull(subMgmt);
         appMgmtStub.addedUsers.clear();
         appMgmtStub.deletedUsers.clear();
-        VOService product = getProductToSubscribe(asyncTestProducts.get(
-                indexInList).getKey());
+        VOService product = getProductToSubscribe(
+                asyncTestProducts.get(indexInList).getKey());
         VOUser[] users = new VOUser[2];
         VOUser[] admins = new VOUser[1];
         setUsers(users, admins);
         VOPaymentInfo voPaymentInfo = getPaymentInfo(
                 tpAndSupplier.getOrganizationId(), testOrganizations.get(0));
         VOBillingContact bc = createBillingContact(testOrganizations.get(0));
-        VOSubscription subscription = subMgmt.subscribeToService(Subscriptions
-                .createVOSubscription(id), product,
-                getUsersToAdd(admins, users), noPaymentInfo ? null
-                        : voPaymentInfo, bc, new ArrayList<VOUda>());
+        VOSubscription subscription = subMgmt.subscribeToService(
+                Subscriptions.createVOSubscription(id), product,
+                getUsersToAdd(admins, users),
+                noPaymentInfo ? null : voPaymentInfo, bc,
+                new ArrayList<VOUda>());
 
         assertEquals("Subscription must be PENDING", subscription.getStatus(),
                 SubscriptionStatus.PENDING);
@@ -4623,8 +4651,9 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 public Void call() throws Exception {
                     Subscription loadSubscription = findInvalidSubscription(id,
                             testOrganizations.get(0));
-                    subMgmtLocal.modifyUserRole(loadSubscription, testUsers
-                            .get(testOrganizations.get(0)).get(0), null);
+                    subMgmtLocal.modifyUserRole(loadSubscription,
+                            testUsers.get(testOrganizations.get(0)).get(0),
+                            null);
                     fail("No SubscriptionStateException thrown");
                     return null;
                 }
@@ -4677,8 +4706,9 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 public Void call() throws Exception {
                     Subscription loadSubscription = findInvalidSubscription(id,
                             testOrganizations.get(0));
-                    subMgmtLocal.modifyUserRole(loadSubscription, testUsers
-                            .get(testOrganizations.get(0)).get(0), null);
+                    subMgmtLocal.modifyUserRole(loadSubscription,
+                            testUsers.get(testOrganizations.get(0)).get(0),
+                            null);
                     fail("No SubscriptionStateException thrown");
                     return null;
                 }
@@ -4757,8 +4787,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                         testOrganizations.get(0).getKey());
                 // should contain 3 entries
 
-                assertEquals("Wrong number of UsageLicenses", 3, subscription
-                        .getUsageLicenses().size());
+                assertEquals("Wrong number of UsageLicenses", 3,
+                        subscription.getUsageLicenses().size());
 
                 assertEquals("User added to application", 0,
                         appMgmtStub.addedUsers.size());
@@ -4778,8 +4808,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() {
-                subMgmtLocal.notifyAboutTimedoutSubscriptions(System
-                        .currentTimeMillis());
+                subMgmtLocal.notifyAboutTimedoutSubscriptions(
+                        System.currentTimeMillis());
                 return null;
             }
         });
@@ -4811,29 +4841,30 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         VOService product = findProduct(testProducts.get(0).getKey());
         VOUser[] users = new VOUser[1];
         VOUser[] admins = new VOUser[1];
-        admins[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(1));
-        users[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(2));
+        admins[0] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(1));
+        users[0] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(2));
         subMgmt.subscribeToService(Subscriptions.createVOSubscription(subId),
                 product, getUsersToAdd(admins, users), null, null,
                 new ArrayList<VOUda>());
         String id = runTX(new Callable<String>() {
             @Override
             public String call() throws Exception {
-                Subscription sub = loadSubscription(subId, testOrganizations
-                        .get(0).getKey());
+                Subscription sub = loadSubscription(subId,
+                        testOrganizations.get(0).getKey());
                 return sub.getSubscriptionId();
             }
         });
         List<VOService> upgradeOptions = subMgmt.getUpgradeOptions(id);
         assertEquals(1, upgradeOptions.size());
-        assertEquals(testProducts.get(1).getKey(), upgradeOptions.get(0)
-                .getKey());
+        assertEquals(testProducts.get(1).getKey(),
+                upgradeOptions.get(0).getKey());
     }
 
     @Test
-    public void testGetUpgradeOptionsThroughTemplateToCustom() throws Exception {
+    public void testGetUpgradeOptionsThroughTemplateToCustom()
+            throws Exception {
         final String subId = "UpgradeOptionsThroughTemplateToCustom";
         runTX(new Callable<Void>() {
             @Override
@@ -4862,31 +4893,31 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         VOService product = findProduct(testProducts.get(0).getKey());
         VOUser[] users = new VOUser[1];
         VOUser[] admins = new VOUser[1];
-        admins[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(1));
-        users[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(2));
+        admins[0] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(1));
+        users[0] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(2));
         subMgmt.subscribeToService(Subscriptions.createVOSubscription(subId),
                 product, getUsersToAdd(admins, users), null, null,
                 new ArrayList<VOUda>());
         String id = runTX(new Callable<String>() {
             @Override
             public String call() throws Exception {
-                Subscription sub = loadSubscription(subId, testOrganizations
-                        .get(0).getKey());
+                Subscription sub = loadSubscription(subId,
+                        testOrganizations.get(0).getKey());
                 return sub.getSubscriptionId();
             }
         });
         List<VOService> upgradeOptions = subMgmt.getUpgradeOptions(id);
         assertEquals(1, upgradeOptions.size());
-        assertEquals(testProducts.get(2).getKey(), upgradeOptions.get(0)
-                .getKey());
+        assertEquals(testProducts.get(2).getKey(),
+                upgradeOptions.get(0).getKey());
     }
 
     private VOService findProduct(long key) {
         VOService result = null;
-        List<VOService> products = servProv.getServicesForMarketplace(mp
-                .getMarketplaceId());
+        List<VOService> products = servProv
+                .getServicesForMarketplace(mp.getMarketplaceId());
         for (VOService product : products) {
             if (product.getKey() == key) {
                 result = product;
@@ -4904,18 +4935,18 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() {
-                final Product prod = mgr.find(Product.class, testProducts
-                        .get(0).getKey());
+                final Product prod = mgr.find(Product.class,
+                        testProducts.get(0).getKey());
                 prod.setStatus(ServiceStatus.INACTIVE);
                 return null;
             }
         });
         VOUser[] users = new VOUser[1];
         VOUser[] admins = new VOUser[1];
-        admins[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(1));
-        users[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(2));
+        admins[0] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(1));
+        users[0] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(2));
         subMgmt.subscribeToService(Subscriptions.createVOSubscription(subId),
                 product, getUsersToAdd(admins, users), null, null,
                 new ArrayList<VOUda>());
@@ -4928,18 +4959,18 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() {
-                final Product prod = mgr.find(Product.class, testProducts
-                        .get(0).getKey());
+                final Product prod = mgr.find(Product.class,
+                        testProducts.get(0).getKey());
                 prod.setStatus(ServiceStatus.OBSOLETE);
                 return null;
             }
         });
         VOUser[] users = new VOUser[1];
         VOUser[] admins = new VOUser[1];
-        admins[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(1));
-        users[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(2));
+        admins[0] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(1));
+        users[0] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(2));
         subMgmt.subscribeToService(Subscriptions.createVOSubscription(subId),
                 product, getUsersToAdd(admins, users), null, null,
                 new ArrayList<VOUda>());
@@ -4952,18 +4983,18 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() {
-                final Product prod = mgr.find(Product.class, testProducts
-                        .get(0).getKey());
+                final Product prod = mgr.find(Product.class,
+                        testProducts.get(0).getKey());
                 prod.setStatus(ServiceStatus.SUSPENDED);
                 return null;
             }
         });
         VOUser[] users = new VOUser[1];
         VOUser[] admins = new VOUser[1];
-        admins[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(1));
-        users[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(2));
+        admins[0] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(1));
+        users[0] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(2));
         subMgmt.subscribeToService(Subscriptions.createVOSubscription(subId),
                 product, getUsersToAdd(admins, users), null, null,
                 new ArrayList<VOUda>());
@@ -4974,8 +5005,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         final String subId = "testGetUpgradeOptionsInactive";
         VOSubscription sub = prepareSubForGetUpgradeOptions(subId,
                 ServiceStatus.INACTIVE);
-        List<VOService> upgradeOptions = subMgmt.getUpgradeOptions(sub
-                .getSubscriptionId());
+        List<VOService> upgradeOptions = subMgmt
+                .getUpgradeOptions(sub.getSubscriptionId());
         assertTrue(upgradeOptions.isEmpty());
     }
 
@@ -4984,8 +5015,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         final String subId = "testGetUpgradeOptionsObsolete";
         VOSubscription sub = prepareSubForGetUpgradeOptions(subId,
                 ServiceStatus.OBSOLETE);
-        List<VOService> upgradeOptions = subMgmt.getUpgradeOptions(sub
-                .getSubscriptionId());
+        List<VOService> upgradeOptions = subMgmt
+                .getUpgradeOptions(sub.getSubscriptionId());
         assertTrue(upgradeOptions.isEmpty());
     }
 
@@ -4994,8 +5025,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         final String subId = "testGetUpgradeOptionsSuspended";
         VOSubscription sub = prepareSubForGetUpgradeOptions(subId,
                 ServiceStatus.SUSPENDED);
-        List<VOService> upgradeOptions = subMgmt.getUpgradeOptions(sub
-                .getSubscriptionId());
+        List<VOService> upgradeOptions = subMgmt
+                .getUpgradeOptions(sub.getSubscriptionId());
         assertTrue(upgradeOptions.isEmpty());
     }
 
@@ -5008,10 +5039,10 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         VOService product = findProduct(testProducts.get(1).getKey());
         VOUser[] users = new VOUser[1];
         VOUser[] admins = new VOUser[1];
-        admins[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(1));
-        users[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(2));
+        admins[0] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(1));
+        users[0] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(2));
         VOPaymentInfo voPaymentInfo = getPaymentInfo(
                 tpAndSupplier.getOrganizationId(), testOrganizations.get(0));
         VOBillingContact bc = createBillingContact(testOrganizations.get(0));
@@ -5022,8 +5053,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() {
-                Product prod = mgr.find(Product.class, testProducts.get(1)
-                        .getKey());
+                Product prod = mgr.find(Product.class,
+                        testProducts.get(1).getKey());
                 prod.setStatus(ServiceStatus.INACTIVE);
                 return null;
             }
@@ -5041,10 +5072,10 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         VOService product = findProduct(testProducts.get(1).getKey());
         VOUser[] users = new VOUser[1];
         VOUser[] admins = new VOUser[1];
-        admins[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(1));
-        users[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(2));
+        admins[0] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(1));
+        users[0] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(2));
         VOPaymentInfo voPaymentInfo = getPaymentInfo(
                 tpAndSupplier.getOrganizationId(), testOrganizations.get(0));
         VOBillingContact bc = createBillingContact(testOrganizations.get(0));
@@ -5055,8 +5086,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() {
-                Product prod = mgr.find(Product.class, testProducts.get(1)
-                        .getKey());
+                Product prod = mgr.find(Product.class,
+                        testProducts.get(1).getKey());
                 prod.setStatus(ServiceStatus.OBSOLETE);
                 return null;
             }
@@ -5074,10 +5105,10 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         VOService product = findProduct(testProducts.get(1).getKey());
         VOUser[] users = new VOUser[1];
         VOUser[] admins = new VOUser[1];
-        admins[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(1));
-        users[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(2));
+        admins[0] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(1));
+        users[0] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(2));
         VOPaymentInfo voPaymentInfo = getPaymentInfo(
                 tpAndSupplier.getOrganizationId(), testOrganizations.get(0));
         VOBillingContact bc = createBillingContact(testOrganizations.get(0));
@@ -5088,8 +5119,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() {
-                Product prod = mgr.find(Product.class, testProducts.get(1)
-                        .getKey());
+                Product prod = mgr.find(Product.class,
+                        testProducts.get(1).getKey());
                 prod.setStatus(ServiceStatus.SUSPENDED);
                 return null;
             }
@@ -5105,12 +5136,13 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 .createVOSubscription(TOO_LONG_ID);
         long key = 1;
         subscription.setKey(key);// prevent validateObjectKey error
-        final SubscriptionServiceBean sBean = spy(new SubscriptionServiceBean());
+        final SubscriptionServiceBean sBean = spy(
+                new SubscriptionServiceBean());
         sBean.dataManager = mgr;
         ManageSubscriptionBean manageBean = spy(new ManageSubscriptionBean());
         sBean.manageBean = manageBean;
-        doReturn(null).when(manageBean).checkSubscriptionOwner(
-                subscription.getSubscriptionId(), key);
+        doReturn(null).when(manageBean)
+                .checkSubscriptionOwner(subscription.getSubscriptionId(), key);
 
         // when
         runTX(new Callable<Void>() {
@@ -5131,12 +5163,13 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         long key = 1;
         subscription.setPurchaseOrderNumber(TOO_LONG_DESCRIPTION);
         subscription.setKey(key);// prevent validateObjectKey error
-        final SubscriptionServiceBean sBean = spy(new SubscriptionServiceBean());
+        final SubscriptionServiceBean sBean = spy(
+                new SubscriptionServiceBean());
         ManageSubscriptionBean manageBean = spy(new ManageSubscriptionBean());
         sBean.manageBean = manageBean;
         sBean.dataManager = mgr;
-        doReturn(null).when(manageBean).checkSubscriptionOwner(
-                subscription.getSubscriptionId(), key);
+        doReturn(null).when(manageBean)
+                .checkSubscriptionOwner(subscription.getSubscriptionId(), key);
 
         // when
         runTX(new Callable<Void>() {
@@ -5178,8 +5211,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
             runTX(new Callable<Void>() {
                 @Override
                 public Void call() {
-                    Subscription sub = getSubscription(id, testOrganizations
-                            .get(0).getKey());
+                    Subscription sub = getSubscription(id,
+                            testOrganizations.get(0).getKey());
                     assertEquals(pon, sub.getPurchaseOrderNumber());
                     return null;
                 }
@@ -5209,9 +5242,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         VOBillingContact bc = createBillingContact(testOrganizations.get(0));
         VOSubscription voSub = Subscriptions.createVOSubscription(id);
         voSub.setUnitKey(unitKey);
-        subMgmt.subscribeToService(voSub, product,
-                getUsersToAdd(admins, users), voPaymentInfo, bc,
-                new ArrayList<VOUda>());
+        subMgmt.subscribeToService(voSub, product, getUsersToAdd(admins, users),
+                voPaymentInfo, bc, new ArrayList<VOUda>());
         return id;
     }
 
@@ -5257,8 +5289,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
             public Void call() throws Exception {
                 Product product = (Product) mgr.find(testProducts.get(3));
                 Products.addPlatformParameter(product,
-                        PlatformParameterIdentifiers.NAMED_USER, true,
-                        oldValue, mgr);
+                        PlatformParameterIdentifiers.NAMED_USER, true, oldValue,
+                        mgr);
                 Products.addPlatformParameter(product,
                         PlatformParameterIdentifiers.CONCURRENT_USER, true,
                         oldValue, mgr);
@@ -5286,12 +5318,14 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         assertNotNull("Required param not found", param3);
         param3.setValue(newValuePeriod);
 
-        List<VOParameter> params = new ArrayList<VOParameter>();
+        List<VOParameter> params = new ArrayList<>();
         params.add(param1);
         params.add(param2);
         params.add(param3);
-        subMgmt.modifySubscription(subMgmt.getSubscriptionDetails(subscription
-                .getSubscriptionId()), params, new ArrayList<VOUda>());
+        subMgmt.modifySubscription(
+                subMgmt.getSubscriptionDetails(
+                        subscription.getSubscriptionId()),
+                params, new ArrayList<VOUda>());
 
         List<VOParameter> parameters = subMgmt
                 .getSubscriptionDetails(subscription.getSubscriptionId())
@@ -5326,10 +5360,12 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         VOParameter param = getParameterById(subscription,
                 PlatformParameterIdentifiers.NAMED_USER);
         param.setValue("2");
-        List<VOParameter> params = new ArrayList<VOParameter>();
+        List<VOParameter> params = new ArrayList<>();
         params.add(param);
-        subMgmt.modifySubscription(subMgmt.getSubscriptionDetails(subscription
-                .getSubscriptionId()), params, new ArrayList<VOUda>());
+        subMgmt.modifySubscription(
+                subMgmt.getSubscriptionDetails(
+                        subscription.getSubscriptionId()),
+                params, new ArrayList<VOUda>());
     }
 
     @Test(expected = OperationNotPermittedException.class)
@@ -5408,8 +5444,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // try to set another ID, covering block for testing business key unique
         String subId = String.valueOf(value);
         subToModify.setSubscriptionId(subId);
-        VOSubscriptionDetails modifySubscription = subMgmt.modifySubscription(
-                subToModify, null, new ArrayList<VOUda>());
+        VOSubscriptionDetails modifySubscription = subMgmt
+                .modifySubscription(subToModify, null, new ArrayList<VOUda>());
         assertEquals(subId, modifySubscription.getSubscriptionId());
         assertEquals(subToModify.getVersion() + 1,
                 modifySubscription.getVersion());
@@ -5440,15 +5476,15 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 subscription.getProduct().getParameterSet().getParameters()
                         .get(0).setConfigurable(true);
                 return SubscriptionAssembler.toVOSubscriptionDetails(
-                        subscription, new LocalizerFacade(
-                                new LocalizerServiceStub2(), "en"));
+                        subscription,
+                        new LocalizerFacade(new LocalizerServiceStub2(), "en"));
             }
         });
         // try to set another ID, covering block for testing business key unique
         String subId = String.valueOf(value);
         subToModify.setSubscriptionId(subId);
-        VOSubscriptionDetails modifySubscription = subMgmt.modifySubscription(
-                subToModify, null, new ArrayList<VOUda>());
+        VOSubscriptionDetails modifySubscription = subMgmt
+                .modifySubscription(subToModify, null, new ArrayList<VOUda>());
         assertEquals(subId, modifySubscription.getSubscriptionId());
         assertEquals(subToModify.getVersion() + 1,
                 modifySubscription.getVersion());
@@ -5458,7 +5494,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         VOParameter voParameter = modifySubscription.getSubscribedService()
                 .getParameters().get(0);
         voParameter.setVersion(voParameter.getVersion() - 1);
-        List<VOParameter> params = new ArrayList<VOParameter>();
+        List<VOParameter> params = new ArrayList<>();
         params.add(voParameter);
         subMgmt.modifySubscription(modifySubscription, params,
                 new ArrayList<VOUda>());
@@ -5487,8 +5523,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     public void testModifySubscriptioncheckIfValidParametersAreModifiedTheSameValue()
             throws Throwable {
         createAvailablePayment(testOrganizations.get(0));
-        baseTestModifyWithParameters(true, parameterValueConstant,
-                Boolean.TRUE, true);
+        baseTestModifyWithParameters(true, parameterValueConstant, Boolean.TRUE,
+                true);
     }
 
     /**
@@ -5552,14 +5588,15 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         container.login(Scenario.getCustomerAdminUser().getKey(),
                 ROLE_ORGANIZATION_ADMIN);
 
-        VOSubscriptionDetails vo = subMgmt.getSubscriptionDetails(Scenario
-                .getSubscription().getSubscriptionId());
+        VOSubscriptionDetails vo = subMgmt.getSubscriptionDetails(
+                Scenario.getSubscription().getSubscriptionId());
         vo.getSubscribedService().getParameters().get(0).setValue("2");
 
         try {
             appMgmtStub.throwTechnicalServiceNotAliveExceptionCustomer = true;
-            subMgmt.modifySubscription(vo, vo.getSubscribedService()
-                    .getParameters(), new ArrayList<VOUda>());
+            subMgmt.modifySubscription(vo,
+                    vo.getSubscribedService().getParameters(),
+                    new ArrayList<VOUda>());
             Assert.fail("The modifySubscription call must fail.");
         } catch (TechnicalServiceNotAliveException e) {
             assertEquals("ex.TechnicalServiceNotAliveException.CUSTOMER",
@@ -5572,8 +5609,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         final Subscription sub = createSubscription();
         final TriggerProcess tp = new TriggerProcess();
         VOSubscriptionDetails voSub = SubscriptionAssembler
-                .toVOSubscriptionDetails(sub, new LocalizerFacade(localizer,
-                        "en"));
+                .toVOSubscriptionDetails(sub,
+                        new LocalizerFacade(localizer, "en"));
 
         tp.addTriggerProcessParameter(TriggerProcessParameterName.SUBSCRIPTION,
                 voSub);
@@ -5585,19 +5622,20 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         PlatformUser user = runTX(new Callable<PlatformUser>() {
             @Override
             public PlatformUser call() throws Exception {
-                Organization organization = mgr.getReference(
-                        Organization.class, sub.getOrganization().getKey());
+                Organization organization = mgr.getReference(Organization.class,
+                        sub.getOrganization().getKey());
                 return organization.getPlatformUsers().get(0);
             }
         });
         container.login(user.getKey(), ROLE_ORGANIZATION_ADMIN);
 
-        final VOSubscriptionDetails voSubDetails = runTX(new Callable<VOSubscriptionDetails>() {
-            @Override
-            public VOSubscriptionDetails call() throws Exception {
-                return subMgmtLocal.modifySubscriptionInt(tp);
-            }
-        });
+        final VOSubscriptionDetails voSubDetails = runTX(
+                new Callable<VOSubscriptionDetails>() {
+                    @Override
+                    public VOSubscriptionDetails call() throws Exception {
+                        return subMgmtLocal.modifySubscriptionInt(tp);
+                    }
+                });
         assertTrue(isTriggerQueueService_sendAllNonSuspendingMessageCalled);
         assertTrue(isMessageSend(TriggerType.MODIFY_SUBSCRIPTION));
         assertTrue(isMessageSend(TriggerType.SUBSCRIPTION_MODIFICATION));
@@ -5614,8 +5652,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         Product subCopy = runTX(new Callable<Product>() {
             @Override
             public Product call() throws Exception {
-                Subscription subscription = mgr.getReference(
-                        Subscription.class, voSubDetails.getKey());
+                Subscription subscription = mgr.getReference(Subscription.class,
+                        voSubDetails.getKey());
                 Product subCopy = subscription.getProduct();
                 subCopy.getConfiguratorUrl();
                 return subCopy;
@@ -5649,15 +5687,15 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 subscription.getProduct().getParameterSet().getParameters()
                         .get(0).setConfigurable(true);
                 return SubscriptionAssembler.toVOSubscriptionDetails(
-                        subscription, new LocalizerFacade(
-                                new LocalizerServiceStub2(), "en"));
+                        subscription,
+                        new LocalizerFacade(new LocalizerServiceStub2(), "en"));
             }
         });
 
         final PlatformUser customerAdmin = runTX(new Callable<PlatformUser>() {
             @Override
-            public PlatformUser call() throws ObjectNotFoundException,
-                    NumberFormatException {
+            public PlatformUser call()
+                    throws ObjectNotFoundException, NumberFormatException {
                 return mgr.getReference(PlatformUser.class,
                         Long.valueOf(customerUserKey).longValue());
             }
@@ -5666,8 +5704,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         final long subKey = subToModify.getKey();
         PlatformUser subOwnerBefore = runTX(new Callable<PlatformUser>() {
             @Override
-            public PlatformUser call() throws ObjectNotFoundException,
-                    NumberFormatException {
+            public PlatformUser call()
+                    throws ObjectNotFoundException, NumberFormatException {
                 Subscription sub = mgr.getReference(Subscription.class, subKey);
                 return sub.getOwner();
             }
@@ -5680,8 +5718,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
             public PlatformUser call() throws ObjectNotFoundException,
                     NumberFormatException, NonUniqueBusinessKeyException {
                 final Organization customer = mgr.getReference(
-                        Organization.class, customerAdmin.getOrganization()
-                                .getKey());
+                        Organization.class,
+                        customerAdmin.getOrganization().getKey());
                 PlatformUser user = Organizations.createUserForOrg(mgr,
                         customer, false, "subMgr", "en");
                 PlatformUsers.grantRoles(mgr, user,
@@ -5695,8 +5733,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
         PlatformUser subOwnerAfter = runTX(new Callable<PlatformUser>() {
             @Override
-            public PlatformUser call() throws ObjectNotFoundException,
-                    NumberFormatException {
+            public PlatformUser call()
+                    throws ObjectNotFoundException, NumberFormatException {
                 Subscription sub = mgr.getReference(Subscription.class, subKey);
                 return sub.getOwner();
             }
@@ -5722,15 +5760,15 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 subscription.getProduct().getParameterSet().getParameters()
                         .get(0).setConfigurable(true);
                 return SubscriptionAssembler.toVOSubscriptionDetails(
-                        subscription, new LocalizerFacade(
-                                new LocalizerServiceStub2(), "en"));
+                        subscription,
+                        new LocalizerFacade(new LocalizerServiceStub2(), "en"));
             }
         });
 
         final PlatformUser customerAdmin = runTX(new Callable<PlatformUser>() {
             @Override
-            public PlatformUser call() throws ObjectNotFoundException,
-                    NumberFormatException {
+            public PlatformUser call()
+                    throws ObjectNotFoundException, NumberFormatException {
                 return mgr.getReference(PlatformUser.class,
                         Long.valueOf(customerUserKey).longValue());
             }
@@ -5739,8 +5777,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         final long subKey = subToModify.getKey();
         PlatformUser subOwnerBefore = runTX(new Callable<PlatformUser>() {
             @Override
-            public PlatformUser call() throws ObjectNotFoundException,
-                    NumberFormatException {
+            public PlatformUser call()
+                    throws ObjectNotFoundException, NumberFormatException {
                 Subscription sub = mgr.getReference(Subscription.class, subKey);
                 return sub.getOwner();
             }
@@ -5753,8 +5791,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
             public PlatformUser call() throws ObjectNotFoundException,
                     NumberFormatException, NonUniqueBusinessKeyException {
                 final Organization customer = mgr.getReference(
-                        Organization.class, customerAdmin.getOrganization()
-                                .getKey());
+                        Organization.class,
+                        customerAdmin.getOrganization().getKey());
                 PlatformUser user = Organizations.createUserForOrg(mgr,
                         customer, false, "mpOwner", "en");
                 PlatformUsers.grantRoles(mgr, user,
@@ -5782,20 +5820,21 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
         final String id = prepareSubscriptionForModification(unit1.getKey());
 
-        VOSubscriptionDetails subToModify = runTX(new Callable<VOSubscriptionDetails>() {
-            @Override
-            public VOSubscriptionDetails call() {
-                checkSubscribeToProduct(false, id, testProducts.get(3),
-                        SubscriptionStatus.ACTIVE, 3, null, 1);
-                Subscription subscription = getSubscription(id,
-                        testOrganizations.get(0).getKey());
-                subscription.getProduct().getParameterSet().getParameters()
-                        .get(0).setConfigurable(true);
-                return SubscriptionAssembler.toVOSubscriptionDetails(
-                        subscription, new LocalizerFacade(
-                                new LocalizerServiceStub2(), "en"));
-            }
-        });
+        VOSubscriptionDetails subToModify = runTX(
+                new Callable<VOSubscriptionDetails>() {
+                    @Override
+                    public VOSubscriptionDetails call() {
+                        checkSubscribeToProduct(false, id, testProducts.get(3),
+                                SubscriptionStatus.ACTIVE, 3, null, 1);
+                        Subscription subscription = getSubscription(id,
+                                testOrganizations.get(0).getKey());
+                        subscription.getProduct().getParameterSet()
+                                .getParameters().get(0).setConfigurable(true);
+                        return SubscriptionAssembler.toVOSubscriptionDetails(
+                                subscription, new LocalizerFacade(
+                                        new LocalizerServiceStub2(), "en"));
+                    }
+                });
 
         final long subKey = subToModify.getKey();
         UserGroup subUnitBefore = runTX(new Callable<UserGroup>() {
@@ -5836,20 +5875,21 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
         final String id = prepareSubscriptionForModification(0L);
 
-        VOSubscriptionDetails subToModify = runTX(new Callable<VOSubscriptionDetails>() {
-            @Override
-            public VOSubscriptionDetails call() {
-                checkSubscribeToProduct(false, id, testProducts.get(3),
-                        SubscriptionStatus.ACTIVE, 3, null, 1);
-                Subscription subscription = getSubscription(id,
-                        testOrganizations.get(0).getKey());
-                subscription.getProduct().getParameterSet().getParameters()
-                        .get(0).setConfigurable(true);
-                return SubscriptionAssembler.toVOSubscriptionDetails(
-                        subscription, new LocalizerFacade(
-                                new LocalizerServiceStub2(), "en"));
-            }
-        });
+        VOSubscriptionDetails subToModify = runTX(
+                new Callable<VOSubscriptionDetails>() {
+                    @Override
+                    public VOSubscriptionDetails call() {
+                        checkSubscribeToProduct(false, id, testProducts.get(3),
+                                SubscriptionStatus.ACTIVE, 3, null, 1);
+                        Subscription subscription = getSubscription(id,
+                                testOrganizations.get(0).getKey());
+                        subscription.getProduct().getParameterSet()
+                                .getParameters().get(0).setConfigurable(true);
+                        return SubscriptionAssembler.toVOSubscriptionDetails(
+                                subscription, new LocalizerFacade(
+                                        new LocalizerServiceStub2(), "en"));
+                    }
+                });
 
         final long subKey = subToModify.getKey();
         UserGroup subUnitBefore = runTX(new Callable<UserGroup>() {
@@ -5890,20 +5930,21 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
         final String id = prepareSubscriptionForModification(0L);
 
-        VOSubscriptionDetails subToModify = runTX(new Callable<VOSubscriptionDetails>() {
-            @Override
-            public VOSubscriptionDetails call() {
-                checkSubscribeToProduct(false, id, testProducts.get(3),
-                        SubscriptionStatus.ACTIVE, 3, null, 1);
-                Subscription subscription = getSubscription(id,
-                        testOrganizations.get(0).getKey());
-                subscription.getProduct().getParameterSet().getParameters()
-                        .get(0).setConfigurable(true);
-                return SubscriptionAssembler.toVOSubscriptionDetails(
-                        subscription, new LocalizerFacade(
-                                new LocalizerServiceStub2(), "en"));
-            }
-        });
+        VOSubscriptionDetails subToModify = runTX(
+                new Callable<VOSubscriptionDetails>() {
+                    @Override
+                    public VOSubscriptionDetails call() {
+                        checkSubscribeToProduct(false, id, testProducts.get(3),
+                                SubscriptionStatus.ACTIVE, 3, null, 1);
+                        Subscription subscription = getSubscription(id,
+                                testOrganizations.get(0).getKey());
+                        subscription.getProduct().getParameterSet()
+                                .getParameters().get(0).setConfigurable(true);
+                        return SubscriptionAssembler.toVOSubscriptionDetails(
+                                subscription, new LocalizerFacade(
+                                        new LocalizerServiceStub2(), "en"));
+                    }
+                });
 
         final long subKey = subToModify.getKey();
         UserGroup subUnitBefore = runTX(new Callable<UserGroup>() {
@@ -5946,8 +5987,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 subscription.getProduct().getParameterSet().getParameters()
                         .get(0).setConfigurable(true);
                 return SubscriptionAssembler.toVOSubscriptionDetails(
-                        subscription, new LocalizerFacade(
-                                new LocalizerServiceStub2(), "en"));
+                        subscription,
+                        new LocalizerFacade(new LocalizerServiceStub2(), "en"));
             }
         });
 
@@ -5970,20 +6011,21 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
         final String id = prepareSubscriptionForModification(0L);
 
-        VOSubscriptionDetails subToModify = runTX(new Callable<VOSubscriptionDetails>() {
-            @Override
-            public VOSubscriptionDetails call() {
-                checkSubscribeToProduct(false, id, testProducts.get(3),
-                        SubscriptionStatus.ACTIVE, 3, null, 1);
-                Subscription subscription = getSubscription(id,
-                        testOrganizations.get(0).getKey());
-                subscription.getProduct().getParameterSet().getParameters()
-                        .get(0).setConfigurable(true);
-                return SubscriptionAssembler.toVOSubscriptionDetails(
-                        subscription, new LocalizerFacade(
-                                new LocalizerServiceStub2(), "en"));
-            }
-        });
+        VOSubscriptionDetails subToModify = runTX(
+                new Callable<VOSubscriptionDetails>() {
+                    @Override
+                    public VOSubscriptionDetails call() {
+                        checkSubscribeToProduct(false, id, testProducts.get(3),
+                                SubscriptionStatus.ACTIVE, 3, null, 1);
+                        Subscription subscription = getSubscription(id,
+                                testOrganizations.get(0).getKey());
+                        subscription.getProduct().getParameterSet()
+                                .getParameters().get(0).setConfigurable(true);
+                        return SubscriptionAssembler.toVOSubscriptionDetails(
+                                subscription, new LocalizerFacade(
+                                        new LocalizerServiceStub2(), "en"));
+                    }
+                });
 
         final long subKey = subToModify.getKey();
         UserGroup subUnitBefore = runTX(new Callable<UserGroup>() {
@@ -6007,7 +6049,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
             @Override
             public Long call() throws ObjectNotFoundException {
                 UserGroup unit = new UserGroup();
-                unit.setName(UNIT_OTHER_ORG + tpAndSupplier.getOrganizationId());
+                unit.setName(
+                        UNIT_OTHER_ORG + tpAndSupplier.getOrganizationId());
                 unit.setOrganization_tkey(tpAndSupplier.getKey());
                 unit = (UserGroup) mgr.getReferenceByBusinessKey(unit);
                 return Long.valueOf(unit.getKey());
@@ -6016,20 +6059,21 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
         final String id = prepareSubscriptionForModification(0L);
 
-        VOSubscriptionDetails subToModify = runTX(new Callable<VOSubscriptionDetails>() {
-            @Override
-            public VOSubscriptionDetails call() {
-                checkSubscribeToProduct(false, id, testProducts.get(3),
-                        SubscriptionStatus.ACTIVE, 3, null, 1);
-                Subscription subscription = getSubscription(id,
-                        testOrganizations.get(0).getKey());
-                subscription.getProduct().getParameterSet().getParameters()
-                        .get(0).setConfigurable(true);
-                return SubscriptionAssembler.toVOSubscriptionDetails(
-                        subscription, new LocalizerFacade(
-                                new LocalizerServiceStub2(), "en"));
-            }
-        });
+        VOSubscriptionDetails subToModify = runTX(
+                new Callable<VOSubscriptionDetails>() {
+                    @Override
+                    public VOSubscriptionDetails call() {
+                        checkSubscribeToProduct(false, id, testProducts.get(3),
+                                SubscriptionStatus.ACTIVE, 3, null, 1);
+                        Subscription subscription = getSubscription(id,
+                                testOrganizations.get(0).getKey());
+                        subscription.getProduct().getParameterSet()
+                                .getParameters().get(0).setConfigurable(true);
+                        return SubscriptionAssembler.toVOSubscriptionDetails(
+                                subscription, new LocalizerFacade(
+                                        new LocalizerServiceStub2(), "en"));
+                    }
+                });
 
         final long subKey = subToModify.getKey();
         UserGroup subUnitBefore = runTX(new Callable<UserGroup>() {
@@ -6069,23 +6113,24 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
             }
         });
 
-        final String id = prepareSubscriptionForModification(unit1Key
-                .longValue());
+        final String id = prepareSubscriptionForModification(
+                unit1Key.longValue());
 
-        VOSubscriptionDetails subToModify = runTX(new Callable<VOSubscriptionDetails>() {
-            @Override
-            public VOSubscriptionDetails call() {
-                checkSubscribeToProduct(false, id, testProducts.get(3),
-                        SubscriptionStatus.ACTIVE, 3, null, 1);
-                Subscription subscription = getSubscription(id,
-                        testOrganizations.get(0).getKey());
-                subscription.getProduct().getParameterSet().getParameters()
-                        .get(0).setConfigurable(true);
-                return SubscriptionAssembler.toVOSubscriptionDetails(
-                        subscription, new LocalizerFacade(
-                                new LocalizerServiceStub2(), "en"));
-            }
-        });
+        VOSubscriptionDetails subToModify = runTX(
+                new Callable<VOSubscriptionDetails>() {
+                    @Override
+                    public VOSubscriptionDetails call() {
+                        checkSubscribeToProduct(false, id, testProducts.get(3),
+                                SubscriptionStatus.ACTIVE, 3, null, 1);
+                        Subscription subscription = getSubscription(id,
+                                testOrganizations.get(0).getKey());
+                        subscription.getProduct().getParameterSet()
+                                .getParameters().get(0).setConfigurable(true);
+                        return SubscriptionAssembler.toVOSubscriptionDetails(
+                                subscription, new LocalizerFacade(
+                                        new LocalizerServiceStub2(), "en"));
+                    }
+                });
 
         final long subKey = subToModify.getKey();
         UserGroup subUnitBefore = runTX(new Callable<UserGroup>() {
@@ -6132,21 +6177,23 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         subMgmt.completeAsyncSubscription(subscriptionIdBefore, orgId,
                 instanceInfo);
 
-        VOSubscriptionDetails subToModify = runTX(new Callable<VOSubscriptionDetails>() {
-            @Override
-            public VOSubscriptionDetails call() {
-                checkSubscribeToProduct(false, subscriptionIdBefore,
-                        asyncTestProducts.get(0), SubscriptionStatus.ACTIVE, 3,
-                        null, 1);
-                Subscription subscription = getSubscription(
-                        subscriptionIdBefore, testOrganizations.get(0).getKey());
-                subscription.getProduct().getParameterSet().getParameters()
-                        .get(0).setConfigurable(true);
-                return SubscriptionAssembler.toVOSubscriptionDetails(
-                        subscription, new LocalizerFacade(
-                                new LocalizerServiceStub2(), "en"));
-            }
-        });
+        VOSubscriptionDetails subToModify = runTX(
+                new Callable<VOSubscriptionDetails>() {
+                    @Override
+                    public VOSubscriptionDetails call() {
+                        checkSubscribeToProduct(false, subscriptionIdBefore,
+                                asyncTestProducts.get(0),
+                                SubscriptionStatus.ACTIVE, 3, null, 1);
+                        Subscription subscription = getSubscription(
+                                subscriptionIdBefore,
+                                testOrganizations.get(0).getKey());
+                        subscription.getProduct().getParameterSet()
+                                .getParameters().get(0).setConfigurable(true);
+                        return SubscriptionAssembler.toVOSubscriptionDetails(
+                                subscription, new LocalizerFacade(
+                                        new LocalizerServiceStub2(), "en"));
+                    }
+                });
         assertEquals(unitBefore.getKey(), subToModify.getUnitKey());
 
         subToModify.setUnitKey(unitAfter.getKey());
@@ -6154,11 +6201,10 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         PlatformUser user = runTX(new Callable<PlatformUser>() {
             @Override
             public PlatformUser call() throws Exception {
-                Organization organization = mgr.getReference(
-                        Organization.class,
+                Organization organization = mgr.getReference(Organization.class,
                         getSubscription(subscriptionIdBefore,
                                 testOrganizations.get(0).getKey())
-                                .getOrganization().getKey());
+                                        .getOrganization().getKey());
                 return organization.getPlatformUsers().get(0);
             }
         });
@@ -6181,9 +6227,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 @Override
                 public Void call() {
                     checkSubscribeToProduct(false, subscriptionIdAfter,
-                            asyncTestProducts.get(0),
-                            SubscriptionStatus.ACTIVE, 3, subscriptionIdBefore,
-                            1);
+                            asyncTestProducts.get(0), SubscriptionStatus.ACTIVE,
+                            3, subscriptionIdBefore, 1);
                     return null;
                 }
             });
@@ -6223,21 +6268,23 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         subMgmt.completeAsyncSubscription(subscriptionIdBefore, orgId,
                 instanceInfo);
 
-        VOSubscriptionDetails subToModify = runTX(new Callable<VOSubscriptionDetails>() {
-            @Override
-            public VOSubscriptionDetails call() {
-                checkSubscribeToProduct(false, subscriptionIdBefore,
-                        asyncTestProducts.get(0), SubscriptionStatus.ACTIVE, 3,
-                        null, 1);
-                Subscription subscription = getSubscription(
-                        subscriptionIdBefore, testOrganizations.get(0).getKey());
-                subscription.getProduct().getParameterSet().getParameters()
-                        .get(0).setConfigurable(true);
-                return SubscriptionAssembler.toVOSubscriptionDetails(
-                        subscription, new LocalizerFacade(
-                                new LocalizerServiceStub2(), "en"));
-            }
-        });
+        VOSubscriptionDetails subToModify = runTX(
+                new Callable<VOSubscriptionDetails>() {
+                    @Override
+                    public VOSubscriptionDetails call() {
+                        checkSubscribeToProduct(false, subscriptionIdBefore,
+                                asyncTestProducts.get(0),
+                                SubscriptionStatus.ACTIVE, 3, null, 1);
+                        Subscription subscription = getSubscription(
+                                subscriptionIdBefore,
+                                testOrganizations.get(0).getKey());
+                        subscription.getProduct().getParameterSet()
+                                .getParameters().get(0).setConfigurable(true);
+                        return SubscriptionAssembler.toVOSubscriptionDetails(
+                                subscription, new LocalizerFacade(
+                                        new LocalizerServiceStub2(), "en"));
+                    }
+                });
         assertEquals(unitBefore.getKey(), subToModify.getUnitKey());
 
         subToModify.setUnitKey(unitAfter.getKey());
@@ -6245,11 +6292,10 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         PlatformUser user = runTX(new Callable<PlatformUser>() {
             @Override
             public PlatformUser call() throws Exception {
-                Organization organization = mgr.getReference(
-                        Organization.class,
+                Organization organization = mgr.getReference(Organization.class,
                         getSubscription(subscriptionIdBefore,
                                 testOrganizations.get(0).getKey())
-                                .getOrganization().getKey());
+                                        .getOrganization().getKey());
                 return organization.getPlatformUsers().get(0);
             }
         });
@@ -6271,8 +6317,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 @Override
                 public Void call() {
                     checkSubscribeToProduct(false, subscriptionIdBefore,
-                            asyncTestProducts.get(0),
-                            SubscriptionStatus.ACTIVE, 3, null, 1);
+                            asyncTestProducts.get(0), SubscriptionStatus.ACTIVE,
+                            3, null, 1);
                     return null;
                 }
             });
@@ -6300,8 +6346,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         assertNotNull(subMgmt);
         appMgmtStub.addedUsers.clear();
         appMgmtStub.deletedUsers.clear();
-        VOService product = getProductToSubscribe(asyncTestProducts.get(
-                indexInList).getKey());
+        VOService product = getProductToSubscribe(
+                asyncTestProducts.get(indexInList).getKey());
         VOUser[] users = new VOUser[2];
         VOUser[] admins = new VOUser[1];
         setUsers(users, admins);
@@ -6311,8 +6357,9 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         VOSubscription sub = Subscriptions.createVOSubscription(id);
         sub.setUnitKey(unitKey);
         VOSubscription subscription = subMgmt.subscribeToService(sub, product,
-                getUsersToAdd(admins, users), noPaymentInfo ? null
-                        : voPaymentInfo, bc, new ArrayList<VOUda>());
+                getUsersToAdd(admins, users),
+                noPaymentInfo ? null : voPaymentInfo, bc,
+                new ArrayList<VOUda>());
 
         assertEquals("Subscription must be PENDING", subscription.getStatus(),
                 SubscriptionStatus.PENDING);
@@ -6410,7 +6457,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
             throws Exception {
         VOSubscription subToModify = getSubscription(subscriptionId);
 
-        final TriggerProcess tp = generateModifyParamsTriggerProcess(subToModify);
+        final TriggerProcess tp = generateModifyParamsTriggerProcess(
+                subToModify);
 
         callModifyInt(tp);
 
@@ -6530,8 +6578,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     public void testGetCustomersForSupplier() throws Exception {
         createAvailablePayment(testOrganizations.get(0));
         final String id = commonSubscribeToProduct();
-        container.login(String.valueOf(supplierUser.getKey()), new String[] {
-                ROLE_SERVICE_MANAGER, ROLE_ORGANIZATION_ADMIN });
+        container.login(String.valueOf(supplierUser.getKey()),
+                new String[] { ROLE_SERVICE_MANAGER, ROLE_ORGANIZATION_ADMIN });
         subMgmt.getCustomersForSubscriptionId(id);
     }
 
@@ -6554,8 +6602,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         Product[] templates = prepareTemplates();
         templates[0] = activate(templates[0]);
         VOSubscription sub = prepareSubscription(templates[0]);
-        List<VOService> upgradeOptions = subMgmt.getUpgradeOptions(sub
-                .getSubscriptionId());
+        List<VOService> upgradeOptions = subMgmt
+                .getUpgradeOptions(sub.getSubscriptionId());
         assertTrue(upgradeOptions.isEmpty());
     }
 
@@ -6567,8 +6615,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         templates[1] = activate(templates[1]);
         prepareCustomerProduct(templates[1]);
         VOSubscription sub = prepareSubscription(templates[0]);
-        List<VOService> upgradeOptions = subMgmt.getUpgradeOptions(sub
-                .getSubscriptionId());
+        List<VOService> upgradeOptions = subMgmt
+                .getUpgradeOptions(sub.getSubscriptionId());
         assertEquals(0, upgradeOptions.size());
     }
 
@@ -6581,8 +6629,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         Product custProd = prepareCustomerProduct(templates[1]);
         activate(custProd);
         VOSubscription sub = prepareSubscription(templates[0]);
-        List<VOService> upgradeOptions = subMgmt.getUpgradeOptions(sub
-                .getSubscriptionId());
+        List<VOService> upgradeOptions = subMgmt
+                .getUpgradeOptions(sub.getSubscriptionId());
         assertEquals(1, upgradeOptions.size());
         assertEquals(custProd.getKey(), upgradeOptions.get(0).getKey());
     }
@@ -6595,8 +6643,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         Product custProd = prepareCustomerProduct(templates[1]);
         activate(custProd);
         VOSubscription sub = prepareSubscription(templates[0]);
-        List<VOService> upgradeOptions = subMgmt.getUpgradeOptions(sub
-                .getSubscriptionId());
+        List<VOService> upgradeOptions = subMgmt
+                .getUpgradeOptions(sub.getSubscriptionId());
         assertEquals(1, upgradeOptions.size());
         assertEquals(custProd.getKey(), upgradeOptions.get(0).getKey());
     }
@@ -6608,8 +6656,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         templates[0] = activate(templates[0]);
         prepareCustomerProduct(templates[1]);
         VOSubscription sub = prepareSubscription(templates[0]);
-        List<VOService> upgradeOptions = subMgmt.getUpgradeOptions(sub
-                .getSubscriptionId());
+        List<VOService> upgradeOptions = subMgmt
+                .getUpgradeOptions(sub.getSubscriptionId());
         assertTrue(upgradeOptions.isEmpty());
     }
 
@@ -6669,8 +6717,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     }
 
     /**
-     * Test for subcribeToProduct. Block
-     * "if (organization.getKey() != targetCustomer.getKey())"
+     * Test for subcribeToProduct. Block "if (organization.getKey() !=
+     * targetCustomer.getKey())"
      * 
      * @throws Exception
      */
@@ -6693,11 +6741,11 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     }
 
     private Product initCustomerProduct(int index) {
-        Product product = mgr
-                .find(Product.class, testProducts.get(10).getKey());
+        Product product = mgr.find(Product.class,
+                testProducts.get(10).getKey());
         product.setTargetCustomer(testOrganizations.get(index));
-        product.setTemplate(mgr.find(Product.class, testProducts.get(8)
-                .getKey()));
+        product.setTemplate(
+                mgr.find(Product.class, testProducts.get(8).getKey()));
         return product;
     }
 
@@ -6734,7 +6782,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     public void testUpgradeSubscriptionSubscriptionMigrationFailed()
             throws Throwable {
         List<VOService> products;
-        VOService product = getProductToSubscribe(testProducts.get(10).getKey());
+        VOService product = getProductToSubscribe(
+                testProducts.get(10).getKey());
         VOUser[] users = new VOUser[2];
         VOUser[] admins = new VOUser[1];
         setUsers(users, admins);
@@ -6763,7 +6812,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         Product targetProductTemplate = testProducts.get(11);
         // product 10 can be migrated to product 11
         // so first create a customer specific version of product 10
-        Product sourceProductCustomerSpecific = prepareCustomerProduct(sourceProductTemplate);
+        Product sourceProductCustomerSpecific = prepareCustomerProduct(
+                sourceProductTemplate);
         sourceProductCustomerSpecific = activate(sourceProductCustomerSpecific);
 
         // then subscribe to that specific product
@@ -6782,14 +6832,15 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
             }
         });
         final Product oldSubSpecificProduct = storedSubscription.getProduct();
-        final List<DomainObject<?>> productRelatedObjects = getProductRelatedObjects(oldSubSpecificProduct);
+        final List<DomainObject<?>> productRelatedObjects = getProductRelatedObjects(
+                oldSubSpecificProduct);
 
         container.login(String.valueOf(customerAdmin.getKey()),
                 ROLE_ORGANIZATION_ADMIN);
 
         // finally migrate
-        List<VOService> products = servProv.getServicesForMarketplace(mp
-                .getMarketplaceId());
+        List<VOService> products = servProv
+                .getServicesForMarketplace(mp.getMarketplaceId());
         VOService targetProduct = null;
         for (VOService product : products) {
             if (product.getKey() == targetProductTemplate.getKey()) {
@@ -6816,13 +6867,15 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                         Product.class);
             }
         });
-        List<Product> allCustomerCopies = new ArrayList<Product>();
+        List<Product> allCustomerCopies = new ArrayList<>();
         for (Product prod : allMyProducts) {
-            if (prod.getTemplate() != null && prod.getTargetCustomer() != null) {
+            if (prod.getTemplate() != null
+                    && prod.getTargetCustomer() != null) {
                 allCustomerCopies.add(prod);
             }
             if (prod.getKey() == oldSubSpecificProduct.getKey()) {
-                Assert.fail("The old subscription specific product must not exist anymore");
+                Assert.fail(
+                        "The old subscription specific product must not exist anymore");
             }
         }
         assertEquals("Only one customer specific product must exist", 1,
@@ -6840,8 +6893,9 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                subMgmtLocal
-                        .subscribeToServiceInt(createTriggerProcessForSubscription("testSubscribeToProduct"));
+                subMgmtLocal.subscribeToServiceInt(
+                        createTriggerProcessForSubscription(
+                                "testSubscribeToProduct"));
                 return null;
             }
         });
@@ -6857,8 +6911,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
             @Override
             public Void call() throws Exception {
                 TechnicalProduct techProduct = mgr.getReference(
-                        TechnicalProduct.class, testProducts.get(0)
-                                .getTechnicalProduct().getKey());
+                        TechnicalProduct.class,
+                        testProducts.get(0).getTechnicalProduct().getKey());
                 techProduct.setOnlyOneSubscriptionAllowed(true);
                 return null;
             }
@@ -6868,11 +6922,13 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                subMgmtLocal
-                        .subscribeToServiceInt(createTriggerProcessForSubscription("testSubscribeToProduct1"));
+                subMgmtLocal.subscribeToServiceInt(
+                        createTriggerProcessForSubscription(
+                                "testSubscribeToProduct1"));
                 try {
-                    subMgmtLocal
-                            .subscribeToServiceInt(createTriggerProcessForSubscription("testSubscribeToProduct2"));
+                    subMgmtLocal.subscribeToServiceInt(
+                            createTriggerProcessForSubscription(
+                                    "testSubscribeToProduct2"));
                     fail("SubscriptionAlreadyExistsException expected");
                 } catch (SubscriptionAlreadyExistsException e) {
                     // expected
@@ -6934,8 +6990,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         PlatformUser user = runTX(new Callable<PlatformUser>() {
             @Override
             public PlatformUser call() throws Exception {
-                Organization organization = mgr.getReference(
-                        Organization.class, sub.getOrganization().getKey());
+                Organization organization = mgr.getReference(Organization.class,
+                        sub.getOrganization().getKey());
                 return organization.getPlatformUsers().get(0);
             }
         });
@@ -7019,8 +7075,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
                     long key = testProducts.get(0).getKey();
                     Product product = mgr.getReference(Product.class, key);
-                    assertNotNull("Catalog entry for product expected", product
-                            .getCatalogEntries().get(0));
+                    assertNotNull("Catalog entry for product expected",
+                            product.getCatalogEntries().get(0));
                     assertNotNull("New subscription object expected", newSub);
                     Subscription sub = mgr.getReference(Subscription.class,
                             newSub.getKey());
@@ -7093,8 +7149,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
                     long key = testProducts.get(0).getKey();
                     Product product = mgr.getReference(Product.class, key);
-                    assertNotNull("Catalog entry for product expected", product
-                            .getCatalogEntries().get(0));
+                    assertNotNull("Catalog entry for product expected",
+                            product.getCatalogEntries().get(0));
                     assertNotNull("New subscription object expected", newSub);
                     Subscription sub = mgr.getReference(Subscription.class,
                             newSub.getKey());
@@ -7167,8 +7223,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
                     long key = testProducts.get(0).getKey();
                     Product product = mgr.getReference(Product.class, key);
-                    assertNotNull("Catalog entry for product expected", product
-                            .getCatalogEntries().get(0));
+                    assertNotNull("Catalog entry for product expected",
+                            product.getCatalogEntries().get(0));
                     assertNotNull("New subscription object expected", newSub);
                     Subscription sub = mgr.getReference(Subscription.class,
                             newSub.getKey());
@@ -7245,8 +7301,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
                     long key = testProducts.get(0).getKey();
                     Product product = mgr.getReference(Product.class, key);
-                    assertNotNull("Catalog entry for product expected", product
-                            .getCatalogEntries().get(0));
+                    assertNotNull("Catalog entry for product expected",
+                            product.getCatalogEntries().get(0));
                     assertNotNull("New subscription object expected", newSub);
                     Subscription sub = mgr.getReference(Subscription.class,
                             newSub.getKey());
@@ -7323,8 +7379,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
                     long key = testProducts.get(0).getKey();
                     Product product = mgr.getReference(Product.class, key);
-                    assertNotNull("Catalog entry for product expected", product
-                            .getCatalogEntries().get(0));
+                    assertNotNull("Catalog entry for product expected",
+                            product.getCatalogEntries().get(0));
                     assertNotNull("New subscription object expected", newSub);
                     Subscription sub = mgr.getReference(Subscription.class,
                             newSub.getKey());
@@ -7353,8 +7409,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
         final VOPaymentInfo voPaymentInfo = getPaymentInfo(
                 tpAndSupplier.getOrganizationId(), testOrganizations.get(0));
-        final VOBillingContact bc = createBillingContact(testOrganizations
-                .get(0));
+        final VOBillingContact bc = createBillingContact(
+                testOrganizations.get(0));
 
         final Product product = runTX(new Callable<Product>() {
             @Override
@@ -7407,18 +7463,19 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 return ProductAssembler.toVOProduct(prod, facade);
             }
         });
-        VORoleDefinition roleDef = RoleAssembler.toVORoleDefinition(product
-                .getTechnicalProduct().getRoleDefinitions().get(0), facade);
+        VORoleDefinition roleDef = RoleAssembler.toVORoleDefinition(
+                product.getTechnicalProduct().getRoleDefinitions().get(0),
+                facade);
 
         // now subscribe and obtain subscription specific product details
         VOUser[] users = new VOUser[2];
         VOUser[] admins = new VOUser[1];
-        admins[0] = UserDataAssembler.toVOUser(testUsers.get(testCustomer).get(
-                1));
-        users[0] = UserDataAssembler.toVOUser(testUsers.get(testCustomer)
-                .get(2));
-        users[1] = UserDataAssembler.toVOUser(testUsers.get(testCustomer)
-                .get(3));
+        admins[0] = UserDataAssembler
+                .toVOUser(testUsers.get(testCustomer).get(1));
+        users[0] = UserDataAssembler
+                .toVOUser(testUsers.get(testCustomer).get(2));
+        users[1] = UserDataAssembler
+                .toVOUser(testUsers.get(testCustomer).get(3));
         VOSubscription subscription = Subscriptions
                 .createVOSubscription("smee");
         container.login(
@@ -7473,7 +7530,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
      */
     private List<DomainObject<?>> getProductRelatedObjects(
             final Product oldSubSpecificProduct) throws Exception {
-        final List<DomainObject<?>> productRelatedObjects = new ArrayList<DomainObject<?>>();
+        final List<DomainObject<?>> productRelatedObjects = new ArrayList<>();
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
@@ -7579,15 +7636,15 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 Product find = mgr.find(Product.class, template.getKey());
                 return ProductAssembler.toVOProductDetails(find,
                         new ArrayList<ParameterDefinition>(),
-                        new ArrayList<Event>(), false, new LocalizerFacade(
-                                localizer, "en"));
+                        new ArrayList<Event>(), false,
+                        new LocalizerFacade(localizer, "en"));
             }
         });
         VOUser[] admins = new VOUser[1];
-        admins[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(1));
-        VOSubscription sub = Subscriptions.createVOSubscription(String
-                .valueOf(System.currentTimeMillis()));
+        admins[0] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(1));
+        VOSubscription sub = Subscriptions.createVOSubscription(
+                String.valueOf(System.currentTimeMillis()));
         VOPaymentInfo voPaymentInfo = getPaymentInfo(
                 tpAndSupplier.getOrganizationId(), testOrganizations.get(0));
         VOBillingContact bc = createBillingContact(testOrganizations.get(0));
@@ -7602,8 +7659,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         return runTX(new Callable<Product>() {
             @Override
             public Product call() throws Exception {
-                List<PlatformUser> users = testUsers.get(testOrganizations
-                        .get(0));
+                List<PlatformUser> users = testUsers
+                        .get(testOrganizations.get(0));
                 testOrganizations.set(0, mgr.find(Organization.class,
                         testOrganizations.get(0).getKey()));
                 testUsers.put(testOrganizations.get(0), users);
@@ -7754,7 +7811,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         // get just created parameters for preparation as method argument - but
         // only those for the product
         final Product product = subscription.getProduct();
-        List<Parameter> parameters = new ArrayList<Parameter>();
+        List<Parameter> parameters = new ArrayList<>();
         parameters = runTX(new Callable<List<Parameter>>() {
             @Override
             public List<Parameter> call() throws Exception {
@@ -7772,20 +7829,22 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 return result;
             }
         });
-        final List<VOParameter> modifiedParameters = new ArrayList<VOParameter>();
+        final List<VOParameter> modifiedParameters = new ArrayList<>();
         // prepare VOParameter list for using as method argument
         for (final Parameter parameter : parameters) {
             final long parameterDefinitionKey = parameter
                     .getParameterDefinition().getKey();
             // get parameter definition
-            ParameterDefinition parameterDefinition = runTX(new Callable<ParameterDefinition>() {
-                @Override
-                public ParameterDefinition call() {
-                    ParameterDefinition parameterDefinition = mgr.find(
-                            ParameterDefinition.class, parameterDefinitionKey);
-                    return parameterDefinition;
-                }
-            });
+            ParameterDefinition parameterDefinition = runTX(
+                    new Callable<ParameterDefinition>() {
+                        @Override
+                        public ParameterDefinition call() {
+                            ParameterDefinition parameterDefinition = mgr.find(
+                                    ParameterDefinition.class,
+                                    parameterDefinitionKey);
+                            return parameterDefinition;
+                        }
+                    });
             // prepare arguments for instantiation VOParameterDefinition
             VOParameterDefinition parameterDefinitionVO = getVOParameterDefinition(
                     parameterDefinition, true);
@@ -7847,14 +7906,13 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                         String value = parameter.getValue();
                         // all test input values are the same, can be the first
                         // list member used
-                        if (parameter
-                                .getParameterDefinition()
-                                .getParameterId()
+                        if (parameter.getParameterDefinition().getParameterId()
                                 .equals(modifiedParameters.get(0)
                                         .getParameterDefinition()
                                         .getParameterId())) {
                             assertEquals("Wrong parameter value",
-                                    modifiedParameters.get(0).getValue(), value);
+                                    modifiedParameters.get(0).getValue(),
+                                    value);
                             isValueAsserted = true;
                         }
                     }
@@ -7897,8 +7955,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
      * @throws OperationNotPermittedException
      */
     private VOParameter getParameterById(VOSubscription subscription,
-            String parameterId) throws ObjectNotFoundException,
-            OperationNotPermittedException {
+            String parameterId)
+            throws ObjectNotFoundException, OperationNotPermittedException {
         List<VOParameter> parameters = subMgmt
                 .getSubscriptionDetails(subscription.getSubscriptionId())
                 .getSubscribedService().getParameters();
@@ -7924,10 +7982,10 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
                 for (PaymentType type : paymentTypes) {
                     OrganizationRefToPaymentType apt = new OrganizationRefToPaymentType();
-                    Organization reloadedOrg = mgr.getReference(
-                            Organization.class, org.getKey());
-                    apt.setOrganizationReference(reloadedOrg.getSources()
-                            .get(0));
+                    Organization reloadedOrg = mgr
+                            .getReference(Organization.class, org.getKey());
+                    apt.setOrganizationReference(
+                            reloadedOrg.getSources().get(0));
                     apt.setPaymentType(type);
                     apt.setOrganizationRole(role);
                     apt.setUsedAsDefault(false);
@@ -7957,8 +8015,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 customer.addPlatformUser(Organizations.createUserForOrg(mgr,
                         customer, true, "admin"));
                 Subscription sub = Subscriptions.createSubscription(mgr,
-                        customer.getOrganizationId(), "prodId",
-                        SUBSCRIPTION_ID, org);
+                        customer.getOrganizationId(), "prodId", SUBSCRIPTION_ID,
+                        org);
                 return sub;
             }
         });
@@ -7976,10 +8034,10 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() {
-                TechnicalProduct technicalProduct = mgr.find(
-                        TechnicalProduct.class, tpKey);
-                OrganizationReference reference = mgr.find(
-                        OrganizationReference.class, orgRefKey);
+                TechnicalProduct technicalProduct = mgr
+                        .find(TechnicalProduct.class, tpKey);
+                OrganizationReference reference = mgr
+                        .find(OrganizationReference.class, orgRefKey);
 
                 MarketingPermission permission = new MarketingPermission();
                 permission.setOrganizationReference(reference);
@@ -7999,11 +8057,10 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         return runTX(new Callable<OrganizationReference>() {
             @Override
             public OrganizationReference call() {
-                Organization organization = mgr
-                        .find(Organization.class, orgKey);
+                Organization organization = mgr.find(Organization.class,
+                        orgKey);
                 OrganizationReference orgRef = new OrganizationReference(
-                        organization,
-                        organization,
+                        organization, organization,
                         OrganizationReferenceType.TECHNOLOGY_PROVIDER_TO_SUPPLIER);
                 try {
                     mgr.persist(orgRef);
@@ -8018,11 +8075,11 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
     private VOServiceDetails createProductWithRoles(String tpId)
             throws Exception {
-        OrganizationReference orgRef = createOrgRef(supplierUser
-                .getOrganization().getKey());
+        OrganizationReference orgRef = createOrgRef(
+                supplierUser.getOrganization().getKey());
 
-        servProv.importTechnicalServices(TECHNICAL_SERVICES_XML
-                .getBytes("UTF-8"));
+        servProv.importTechnicalServices(
+                TECHNICAL_SERVICES_XML.getBytes("UTF-8"));
         List<VOTechnicalService> technicalProducts = servProv
                 .getTechnicalServices(OrganizationRoleType.TECHNOLOGY_PROVIDER);
         VOTechnicalService tp = null;
@@ -8059,9 +8116,9 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
     @Test
     public void testSubscribeToProductWithServiceRoles() throws Exception {
-        container.login(String.valueOf(supplierUser.getKey()), new String[] {
-                ROLE_ORGANIZATION_ADMIN, ROLE_TECHNOLOGY_MANAGER,
-                ROLE_SERVICE_MANAGER });
+        container.login(String.valueOf(supplierUser.getKey()),
+                new String[] { ROLE_ORGANIZATION_ADMIN, ROLE_TECHNOLOGY_MANAGER,
+                        ROLE_SERVICE_MANAGER });
         VOServiceDetails prod = createProductWithRoles("example");
         List<VORoleDefinition> roles = prod.getTechnicalService()
                 .getRoleDefinitions();
@@ -8070,8 +8127,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         VORoleDefinition role = roles.get(0);
         subMgmt.subscribeToService(sub, prod, createUsers(role, 2), null, null,
                 new ArrayList<VOUda>());
-        VOSubscriptionDetails subDetails = subMgmt.getSubscriptionDetails(sub
-                .getSubscriptionId());
+        VOSubscriptionDetails subDetails = subMgmt
+                .getSubscriptionDetails(sub.getSubscriptionId());
         List<VOUsageLicense> licenses = subDetails.getUsageLicenses();
         assertEquals(2, licenses.size());
         for (VOUsageLicense lic : licenses) {
@@ -8084,17 +8141,17 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     @Test
     public void testSubscribeToProductWithoutServiceRolesSetServiceRole()
             throws Exception {
-        container.login(String.valueOf(supplierUser.getKey()), new String[] {
-                ROLE_ORGANIZATION_ADMIN, ROLE_TECHNOLOGY_MANAGER,
-                ROLE_SERVICE_MANAGER });
+        container.login(String.valueOf(supplierUser.getKey()),
+                new String[] { ROLE_ORGANIZATION_ADMIN, ROLE_TECHNOLOGY_MANAGER,
+                        ROLE_SERVICE_MANAGER });
         VORoleDefinition role = createOtherRole();
         VOServiceDetails prod = createProductWithRoles("ssh");
         assertTrue(prod.getTechnicalService().getRoleDefinitions().isEmpty());
         VOSubscription sub = Subscriptions.createVOSubscription("sub");
         subMgmt.subscribeToService(sub, prod, createUsers(role, 2), null, null,
                 new ArrayList<VOUda>());
-        VOSubscriptionDetails subDetails = subMgmt.getSubscriptionDetails(sub
-                .getSubscriptionId());
+        VOSubscriptionDetails subDetails = subMgmt
+                .getSubscriptionDetails(sub.getSubscriptionId());
         List<VOUsageLicense> licenses = subDetails.getUsageLicenses();
         assertEquals(2, licenses.size());
         for (VOUsageLicense lic : licenses) {
@@ -8105,9 +8162,9 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     @Test
     public void testSubscribeToProductWithServiceRolesSetAdmin()
             throws Exception {
-        container.login(String.valueOf(supplierUser.getKey()), new String[] {
-                ROLE_ORGANIZATION_ADMIN, ROLE_TECHNOLOGY_MANAGER,
-                ROLE_SERVICE_MANAGER });
+        container.login(String.valueOf(supplierUser.getKey()),
+                new String[] { ROLE_ORGANIZATION_ADMIN, ROLE_TECHNOLOGY_MANAGER,
+                        ROLE_SERVICE_MANAGER });
         VOServiceDetails prod = createProductWithRoles("example");
         List<VORoleDefinition> roles = prod.getTechnicalService()
                 .getRoleDefinitions();
@@ -8116,8 +8173,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         VORoleDefinition role = roles.get(0);
         subMgmt.subscribeToService(sub, prod, createUsers(role, 2), null, null,
                 new ArrayList<VOUda>());
-        VOSubscriptionDetails subDetails = subMgmt.getSubscriptionDetails(sub
-                .getSubscriptionId());
+        VOSubscriptionDetails subDetails = subMgmt
+                .getSubscriptionDetails(sub.getSubscriptionId());
         List<VOUsageLicense> licenses = subDetails.getUsageLicenses();
         assertEquals(2, licenses.size());
         for (VOUsageLicense lic : licenses) {
@@ -8130,9 +8187,9 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     @Test(expected = OperationNotPermittedException.class)
     public void testSubscribeToProductWithServiceRolesNoRolesSet()
             throws Exception {
-        container.login(String.valueOf(supplierUser.getKey()), new String[] {
-                ROLE_ORGANIZATION_ADMIN, ROLE_TECHNOLOGY_MANAGER,
-                ROLE_SERVICE_MANAGER });
+        container.login(String.valueOf(supplierUser.getKey()),
+                new String[] { ROLE_ORGANIZATION_ADMIN, ROLE_TECHNOLOGY_MANAGER,
+                        ROLE_SERVICE_MANAGER });
         VOServiceDetails prod = createProductWithRoles("example");
         VOSubscription sub = Subscriptions.createVOSubscription("sub");
         subMgmt.subscribeToService(sub, prod, createUsers(null, 2), null, null,
@@ -8142,9 +8199,9 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     @Test(expected = ObjectNotFoundException.class)
     public void testSubscribeToProductWithServiceRolesNotExistingRolesSet()
             throws Exception {
-        container.login(String.valueOf(supplierUser.getKey()), new String[] {
-                ROLE_ORGANIZATION_ADMIN, ROLE_TECHNOLOGY_MANAGER,
-                ROLE_SERVICE_MANAGER });
+        container.login(String.valueOf(supplierUser.getKey()),
+                new String[] { ROLE_ORGANIZATION_ADMIN, ROLE_TECHNOLOGY_MANAGER,
+                        ROLE_SERVICE_MANAGER });
         VOServiceDetails prod = createProductWithRoles("example");
         VOSubscription sub = Subscriptions.createVOSubscription("sub");
         subMgmt.subscribeToService(sub, prod,
@@ -8171,36 +8228,37 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         VOSubscription sub = Subscriptions.createVOSubscription("sub");
 
         VOUser[] admins = new VOUser[1];
-        admins[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(1)).get(1)); // wrong organization!
+        admins[0] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(1)).get(1)); // wrong
+                                                                           // organization!
 
-        subMgmt.subscribeToService(sub, prod, getUsersToAdd(admins, null),
-                null, null, new ArrayList<VOUda>());
+        subMgmt.subscribeToService(sub, prod, getUsersToAdd(admins, null), null,
+                null, new ArrayList<VOUda>());
     }
 
     private List<VOUsageLicense> createUsers(VORoleDefinition role,
             int numOfUsers) {
-        List<VOUsageLicense> result = new ArrayList<VOUsageLicense>();
+        List<VOUsageLicense> result = new ArrayList<>();
         for (int i = 0; i < numOfUsers; i++) {
             VOUsageLicense lic = new VOUsageLicense();
             lic.setRoleDefinition(role);
-            lic.setUser(UserDataAssembler.toVOUser(testUsers.get(
-                    testOrganizations.get(0)).get(i)));
+            lic.setUser(UserDataAssembler
+                    .toVOUser(testUsers.get(testOrganizations.get(0)).get(i)));
             result.add(lic);
         }
         return result;
     }
 
     private VORoleDefinition createOtherRole() throws Exception {
-        servProv.importTechnicalServices(TECHNICAL_SERVICES_XML.replaceAll(
-                "example", "example_other").getBytes("UTF-8"));
+        servProv.importTechnicalServices(TECHNICAL_SERVICES_XML
+                .replaceAll("example", "example_other").getBytes("UTF-8"));
 
         List<VOTechnicalService> technicalProducts = servProv
                 .getTechnicalServices(OrganizationRoleType.TECHNOLOGY_PROVIDER);
         VOTechnicalService tp = null;
         for (VOTechnicalService voTechnicalProduct : technicalProducts) {
-            if ("example_other".equals(voTechnicalProduct
-                    .getTechnicalServiceId())) {
+            if ("example_other"
+                    .equals(voTechnicalProduct.getTechnicalServiceId())) {
                 tp = voTechnicalProduct;
             }
         }
@@ -8213,9 +8271,9 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
     @Test
     public void testAddRevokeUsersWithServiceRoles() throws Exception {
-        container.login(String.valueOf(supplierUser.getKey()), new String[] {
-                ROLE_ORGANIZATION_ADMIN, ROLE_TECHNOLOGY_MANAGER,
-                ROLE_SERVICE_MANAGER });
+        container.login(String.valueOf(supplierUser.getKey()),
+                new String[] { ROLE_ORGANIZATION_ADMIN, ROLE_TECHNOLOGY_MANAGER,
+                        ROLE_SERVICE_MANAGER });
         VOServiceDetails prod = createProductWithRoles("example");
         List<VORoleDefinition> roles = prod.getTechnicalService()
                 .getRoleDefinitions();
@@ -8224,13 +8282,13 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         sub = subMgmt.subscribeToService(sub, prod,
                 createUsers(roles.get(0), 1), null, null,
                 new ArrayList<VOUda>());
-        List<VOUsageLicense> users = new ArrayList<VOUsageLicense>();
+        List<VOUsageLicense> users = new ArrayList<>();
         users.add(createUsers(roles.get(1), 2).get(1));
         users.add(createUsers(roles.get(2), 3).get(2));
         subMgmt.addRevokeUser(sub.getSubscriptionId(), users, null);
 
-        VOSubscriptionDetails subDetails = subMgmt.getSubscriptionDetails(sub
-                .getSubscriptionId());
+        VOSubscriptionDetails subDetails = subMgmt
+                .getSubscriptionDetails(sub.getSubscriptionId());
         List<VOUsageLicense> licenses = subDetails.getUsageLicenses();
         assertEquals(3, licenses.size());
         for (int i = 0; i < 3; i++) {
@@ -8242,10 +8300,11 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     }
 
     @Test(expected = OperationNotPermittedException.class)
-    public void testAddRevokeUsersWithServiceRolesNoRolesSet() throws Exception {
-        container.login(String.valueOf(supplierUser.getKey()), new String[] {
-                ROLE_ORGANIZATION_ADMIN, ROLE_TECHNOLOGY_MANAGER,
-                ROLE_SERVICE_MANAGER });
+    public void testAddRevokeUsersWithServiceRolesNoRolesSet()
+            throws Exception {
+        container.login(String.valueOf(supplierUser.getKey()),
+                new String[] { ROLE_ORGANIZATION_ADMIN, ROLE_TECHNOLOGY_MANAGER,
+                        ROLE_SERVICE_MANAGER });
         VOServiceDetails prod = createProductWithRoles("example");
         List<VORoleDefinition> roles = prod.getTechnicalService()
                 .getRoleDefinitions();
@@ -8261,9 +8320,9 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     @Test(expected = OperationNotPermittedException.class)
     public void testAddRevokeUsersWithServiceRolesRoleOfDifferentTPSet()
             throws Exception {
-        container.login(String.valueOf(supplierUser.getKey()), new String[] {
-                ROLE_ORGANIZATION_ADMIN, ROLE_TECHNOLOGY_MANAGER,
-                ROLE_SERVICE_MANAGER });
+        container.login(String.valueOf(supplierUser.getKey()),
+                new String[] { ROLE_ORGANIZATION_ADMIN, ROLE_TECHNOLOGY_MANAGER,
+                        ROLE_SERVICE_MANAGER });
         VORoleDefinition role = createOtherRole();
         VOServiceDetails prod = createProductWithRoles("example");
         List<VORoleDefinition> roles = prod.getTechnicalService()
@@ -8280,9 +8339,9 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     @Test(expected = ObjectNotFoundException.class)
     public void testAddRevokeUsersWithServiceRolesNotExistingRoleSet()
             throws Exception {
-        container.login(String.valueOf(supplierUser.getKey()), new String[] {
-                ROLE_ORGANIZATION_ADMIN, ROLE_TECHNOLOGY_MANAGER,
-                ROLE_SERVICE_MANAGER });
+        container.login(String.valueOf(supplierUser.getKey()),
+                new String[] { ROLE_ORGANIZATION_ADMIN, ROLE_TECHNOLOGY_MANAGER,
+                        ROLE_SERVICE_MANAGER });
         VOServiceDetails prod = createProductWithRoles("example");
         List<VORoleDefinition> roles = prod.getTechnicalService()
                 .getRoleDefinitions();
@@ -8298,9 +8357,9 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     @Test
     public void testAddRevokeUsersWithoutServiceRolesSetServiceRole()
             throws Exception {
-        container.login(String.valueOf(supplierUser.getKey()), new String[] {
-                ROLE_ORGANIZATION_ADMIN, ROLE_TECHNOLOGY_MANAGER,
-                ROLE_SERVICE_MANAGER });
+        container.login(String.valueOf(supplierUser.getKey()),
+                new String[] { ROLE_ORGANIZATION_ADMIN, ROLE_TECHNOLOGY_MANAGER,
+                        ROLE_SERVICE_MANAGER });
         VORoleDefinition role = createOtherRole();
         VOServiceDetails prod = createProductWithRoles("ssh");
 
@@ -8309,12 +8368,12 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         sub = subMgmt.subscribeToService(sub, prod, createUsers(null, 1), null,
                 null, new ArrayList<VOUda>());
 
-        VOSubscriptionDetails details = subMgmt.getSubscriptionDetails(sub
-                .getSubscriptionId());
+        VOSubscriptionDetails details = subMgmt
+                .getSubscriptionDetails(sub.getSubscriptionId());
 
         final VOUsageLicense user = details.getUsageLicenses().get(0);
         user.setRoleDefinition(role);
-        List<VOUsageLicense> usersToBeAdded = new ArrayList<VOUsageLicense>();
+        List<VOUsageLicense> usersToBeAdded = new ArrayList<>();
         usersToBeAdded.add(user);
 
         subMgmt.addRevokeUser(sub.getSubscriptionId(), usersToBeAdded, null);
@@ -8328,9 +8387,9 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
     @Test
     public void testGetServiceRolesForSubscription() throws Exception {
-        container.login(String.valueOf(supplierUser.getKey()), new String[] {
-                ROLE_ORGANIZATION_ADMIN, ROLE_TECHNOLOGY_MANAGER,
-                ROLE_SERVICE_MANAGER });
+        container.login(String.valueOf(supplierUser.getKey()),
+                new String[] { ROLE_ORGANIZATION_ADMIN, ROLE_TECHNOLOGY_MANAGER,
+                        ROLE_SERVICE_MANAGER });
         VOServiceDetails prod = createProductWithRoles("example");
         List<VORoleDefinition> roles = prod.getTechnicalService()
                 .getRoleDefinitions();
@@ -8348,7 +8407,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
      * subscribing. this should trigger a exception.
      */
     @Test(expected = PaymentInformationException.class)
-    public void testSubscribeToProductNonFreePaymentInfoNull() throws Throwable {
+    public void testSubscribeToProductNonFreePaymentInfoNull()
+            throws Throwable {
 
         // make sure the service has a chargeable price model
         runTX(new Callable<Void>() {
@@ -8358,8 +8418,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
                 PriceModel priceModel = new PriceModel();
                 priceModel.setType(PriceModelType.PRO_RATA);
-                Query query = mgr
-                        .createNamedQuery("SupportedCurrency.findByBusinessKey");
+                Query query = mgr.createNamedQuery(
+                        "SupportedCurrency.findByBusinessKey");
                 query.setParameter("currencyISOCode", "EUR");
                 SupportedCurrency currency = (SupportedCurrency) query
                         .getSingleResult();
@@ -8369,7 +8429,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
             }
         });
 
-        VOService product = getProductToSubscribe(testProducts.get(10).getKey());
+        VOService product = getProductToSubscribe(
+                testProducts.get(10).getKey());
         VOUser[] users = new VOUser[2];
         VOUser[] admins = new VOUser[1];
         setUsers(users, admins);
@@ -8397,8 +8458,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 Product product = initCustomerProduct(0);
                 PriceModel priceModel = new PriceModel();
                 priceModel.setType(PriceModelType.PRO_RATA);
-                Query query = mgr
-                        .createNamedQuery("SupportedCurrency.findByBusinessKey");
+                Query query = mgr.createNamedQuery(
+                        "SupportedCurrency.findByBusinessKey");
                 query.setParameter("currencyISOCode", "EUR");
                 SupportedCurrency currency = (SupportedCurrency) query
                         .getSingleResult();
@@ -8408,7 +8469,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
             }
         });
 
-        VOService product = getProductToSubscribe(testProducts.get(10).getKey());
+        VOService product = getProductToSubscribe(
+                testProducts.get(10).getKey());
         VOUser[] users = new VOUser[2];
         VOUser[] admins = new VOUser[1];
         setUsers(users, admins);
@@ -8440,8 +8502,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 Product product = initCustomerProduct(0);
                 PriceModel priceModel = new PriceModel();
                 priceModel.setType(PriceModelType.PRO_RATA);
-                Query query = mgr
-                        .createNamedQuery("SupportedCurrency.findByBusinessKey");
+                Query query = mgr.createNamedQuery(
+                        "SupportedCurrency.findByBusinessKey");
                 query.setParameter("currencyISOCode", "EUR");
                 SupportedCurrency currency = (SupportedCurrency) query
                         .getSingleResult();
@@ -8458,7 +8520,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                         OrganizationRoleType.TECHNOLOGY_PROVIDER);
             }
         });
-        VOService product = getProductToSubscribe(testProducts.get(10).getKey());
+        VOService product = getProductToSubscribe(
+                testProducts.get(10).getKey());
         VOUser[] users = new VOUser[2];
         VOUser[] admins = new VOUser[1];
         setUsers(users, admins);
@@ -8489,8 +8552,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 Product product = initCustomerProduct(0);
                 PriceModel priceModel = new PriceModel();
                 priceModel.setType(PriceModelType.PRO_RATA);
-                Query query = mgr
-                        .createNamedQuery("SupportedCurrency.findByBusinessKey");
+                Query query = mgr.createNamedQuery(
+                        "SupportedCurrency.findByBusinessKey");
                 query.setParameter("currencyISOCode", "EUR");
                 SupportedCurrency currency = (SupportedCurrency) query
                         .getSingleResult();
@@ -8510,7 +8573,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         });
         createAvailablePayment(tpAndSupplier2);
 
-        VOService product = getProductToSubscribe(testProducts.get(10).getKey());
+        VOService product = getProductToSubscribe(
+                testProducts.get(10).getKey());
         VOUser[] users = new VOUser[2];
         VOUser[] admins = new VOUser[1];
         setUsers(users, admins);
@@ -8534,7 +8598,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
      * stored correct
      */
     @Test
-    public void testSubscribeToProductNonFreeWithPaymentInfo() throws Throwable {
+    public void testSubscribeToProductNonFreeWithPaymentInfo()
+            throws Throwable {
 
         // make sure the service has a chargeable price model
         runTX(new Callable<Void>() {
@@ -8543,8 +8608,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 Product product = initCustomerProduct(0);
                 PriceModel priceModel = new PriceModel();
                 priceModel.setType(PriceModelType.PRO_RATA);
-                Query query = mgr
-                        .createNamedQuery("SupportedCurrency.findByBusinessKey");
+                Query query = mgr.createNamedQuery(
+                        "SupportedCurrency.findByBusinessKey");
                 query.setParameter("currencyISOCode", "EUR");
                 SupportedCurrency currency = (SupportedCurrency) query
                         .getSingleResult();
@@ -8556,7 +8621,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
         createAvailablePayment(testOrganizations.get(0));
 
-        VOService product = getProductToSubscribe(testProducts.get(10).getKey());
+        VOService product = getProductToSubscribe(
+                testProducts.get(10).getKey());
         VOUser[] users = new VOUser[2];
         VOUser[] admins = new VOUser[1];
         setUsers(users, admins);
@@ -8576,8 +8642,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
             @Override
             public Void call() throws Exception {
-                Subscription subscription = mgr.getReference(
-                        Subscription.class, voSubscription.getKey());
+                Subscription subscription = mgr.getReference(Subscription.class,
+                        voSubscription.getKey());
                 PaymentInfo paymentInfo = subscription.getPaymentInfo();
                 assertEquals(voPaymentInfo.getKey(), paymentInfo.getKey());
                 PaymentInfo pi = mgr.getReference(PaymentInfo.class,
@@ -8599,11 +8665,11 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() {
-                Product product = mgr.find(Product.class, testProducts.get(10)
-                        .getKey());
+                Product product = mgr.find(Product.class,
+                        testProducts.get(10).getKey());
                 product.setTargetCustomer(testOrganizations.get(0));
-                product.setTemplate(mgr.find(Product.class, testProducts
-                        .get(10).getKey()));
+                product.setTemplate(
+                        mgr.find(Product.class, testProducts.get(10).getKey()));
                 PriceModel priceModel = new PriceModel();
                 priceModel.setType(PriceModelType.FREE_OF_CHARGE);
                 load(product.getPriceModel());
@@ -8611,7 +8677,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
             }
         });
 
-        VOService product = getProductToSubscribe(testProducts.get(10).getKey());
+        VOService product = getProductToSubscribe(
+                testProducts.get(10).getKey());
         VOUser[] users = new VOUser[2];
         VOUser[] admins = new VOUser[1];
         setUsers(users, admins);
@@ -8621,8 +8688,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         assertFalse(product.getPriceModel().isChargeable());
 
         final VOSubscription voSubscription = subMgmt.subscribeToService(
-                subscription, product, getUsersToAdd(admins, users), null,
-                null, new ArrayList<VOUda>());
+                subscription, product, getUsersToAdd(admins, users), null, null,
+                new ArrayList<VOUda>());
 
         assertNotNull(voSubscription);
 
@@ -8651,8 +8718,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 Product product = initCustomerProduct(0);
                 PriceModel priceModel = new PriceModel();
                 priceModel.setType(PriceModelType.PRO_RATA);
-                Query query = mgr
-                        .createNamedQuery("SupportedCurrency.findByBusinessKey");
+                Query query = mgr.createNamedQuery(
+                        "SupportedCurrency.findByBusinessKey");
                 query.setParameter("currencyISOCode", "EUR");
                 SupportedCurrency currency = (SupportedCurrency) query
                         .getSingleResult();
@@ -8662,7 +8729,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
             }
         });
 
-        VOService product = getProductToSubscribe(testProducts.get(10).getKey());
+        VOService product = getProductToSubscribe(
+                testProducts.get(10).getKey());
         VOUser[] users = new VOUser[2];
         VOUser[] admins = new VOUser[1];
         setUsers(users, admins);
@@ -8694,7 +8762,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     @Test
     public void testUpgradeToProductFreeToFreeOk() throws Throwable {
         createAvailablePayment(testOrganizations.get(0));
-        VOService product = getProductToSubscribe(testProducts.get(10).getKey());
+        VOService product = getProductToSubscribe(
+                testProducts.get(10).getKey());
         VOUser[] users = new VOUser[2];
         VOUser[] admins = new VOUser[1];
         setUsers(users, admins);
@@ -8713,9 +8782,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         assertEquals(2, products.size());
         assertFalse(products.get(1).getPriceModel().isChargeable());
 
-        final VOSubscription upgradedSubscription = subMgmt
-                .upgradeSubscription(sub, products.get(1), null, null,
-                        new ArrayList<VOUda>());
+        final VOSubscription upgradedSubscription = subMgmt.upgradeSubscription(
+                sub, products.get(1), null, null, new ArrayList<VOUda>());
 
         runTX(new Callable<Void>() {
             @Override
@@ -8742,7 +8810,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     @Test
     public void testUpgradeToProductFreeToChargeableOk() throws Throwable {
         createAvailablePayment(testOrganizations.get(0));
-        VOService product = getProductToSubscribe(testProducts.get(10).getKey());
+        VOService product = getProductToSubscribe(
+                testProducts.get(10).getKey());
         VOUser[] users = new VOUser[2];
         VOUser[] admins = new VOUser[1];
         setUsers(users, admins);
@@ -8765,17 +8834,16 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 tpAndSupplier.getOrganizationId(), testOrganizations.get(0));
         VOBillingContact bc = createBillingContact(testOrganizations.get(0));
 
-        final VOSubscription upgradedSubscription = subMgmt
-                .upgradeSubscription(sub, products.get(0), paymentInfo, bc,
-                        new ArrayList<VOUda>());
+        final VOSubscription upgradedSubscription = subMgmt.upgradeSubscription(
+                sub, products.get(0), paymentInfo, bc, new ArrayList<VOUda>());
 
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
                 Subscription sub = mgr.getReference(Subscription.class,
                         upgradedSubscription.getKey());
-                assertEquals(paymentInfo.getKey(), sub.getPaymentInfo()
-                        .getKey());
+                assertEquals(paymentInfo.getKey(),
+                        sub.getPaymentInfo().getKey());
                 return null;
             }
         });
@@ -8797,8 +8865,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                Product product = mgr.getReference(Product.class, testProducts
-                        .get(10).getKey());
+                Product product = mgr.getReference(Product.class,
+                        testProducts.get(10).getKey());
                 SupportedCurrency sc = new SupportedCurrency();
                 sc.setCurrency(Currency.getInstance("USD"));
                 mgr.persist(sc);
@@ -8810,7 +8878,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 return null;
             }
         });
-        VOService product = getProductToSubscribe(testProducts.get(10).getKey());
+        VOService product = getProductToSubscribe(
+                testProducts.get(10).getKey());
         VOUser[] users = new VOUser[2];
         VOUser[] admins = new VOUser[1];
         setUsers(users, admins);
@@ -8832,9 +8901,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         assertEquals(2, products.size());
         assertFalse(products.get(1).getPriceModel().isChargeable());
 
-        final VOSubscription upgradedSubscription = subMgmt
-                .upgradeSubscription(sub, products.get(1), null, null,
-                        new ArrayList<VOUda>());
+        final VOSubscription upgradedSubscription = subMgmt.upgradeSubscription(
+                sub, products.get(1), null, null, new ArrayList<VOUda>());
 
         runTX(new Callable<Void>() {
             @Override
@@ -8861,14 +8929,15 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
      * payment info was set for the first service and should be reused.
      */
     @Test
-    public void testUpgradeToProductChargeableToChargeableOk() throws Throwable {
+    public void testUpgradeToProductChargeableToChargeableOk()
+            throws Throwable {
         createAvailablePayment(testOrganizations.get(0));
 
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                Product product = mgr.getReference(Product.class, testProducts
-                        .get(10).getKey());
+                Product product = mgr.getReference(Product.class,
+                        testProducts.get(10).getKey());
                 SupportedCurrency sc = new SupportedCurrency();
                 sc.setCurrency(Currency.getInstance("USD"));
                 mgr.persist(sc);
@@ -8879,7 +8948,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
             }
         });
 
-        VOService product = getProductToSubscribe(testProducts.get(10).getKey());
+        VOService product = getProductToSubscribe(
+                testProducts.get(10).getKey());
         VOUser[] users = new VOUser[2];
         VOUser[] admins = new VOUser[1];
         setUsers(users, admins);
@@ -8901,17 +8971,16 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         assertEquals(2, products.size());
         assertTrue(products.get(0).getPriceModel().isChargeable());
 
-        final VOSubscription upgradedSubscription = subMgmt
-                .upgradeSubscription(sub, products.get(0), paymentInfo, bc,
-                        new ArrayList<VOUda>());
+        final VOSubscription upgradedSubscription = subMgmt.upgradeSubscription(
+                sub, products.get(0), paymentInfo, bc, new ArrayList<VOUda>());
 
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
                 Subscription sub = mgr.getReference(Subscription.class,
                         upgradedSubscription.getKey());
-                assertEquals(paymentInfo.getKey(), sub.getPaymentInfo()
-                        .getKey());
+                assertEquals(paymentInfo.getKey(),
+                        sub.getPaymentInfo().getKey());
                 return null;
             }
         });
@@ -8933,8 +9002,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                Product product = mgr.getReference(Product.class, testProducts
-                        .get(10).getKey());
+                Product product = mgr.getReference(Product.class,
+                        testProducts.get(10).getKey());
                 SupportedCurrency sc = new SupportedCurrency();
                 sc.setCurrency(Currency.getInstance("USD"));
                 mgr.persist(sc);
@@ -8945,13 +9014,14 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
             }
         });
 
-        VOService product = getProductToSubscribe(testProducts.get(10).getKey());
+        VOService product = getProductToSubscribe(
+                testProducts.get(10).getKey());
         VOSubscription sub = Subscriptions.createVOSubscription("testUpgrade");
         assertTrue(product.getPriceModel().isChargeable());
         final VOPaymentInfo paymentInfo = getPaymentInfo(
                 tpAndSupplier.getOrganizationId(), testOrganizations.get(0));
-        final VOBillingContact bc = createBillingContact(testOrganizations
-                .get(0));
+        final VOBillingContact bc = createBillingContact(
+                testOrganizations.get(0));
 
         final VOSubscription created = subMgmt.subscribeToService(sub, product,
                 new ArrayList<VOUsageLicense>(), paymentInfo, bc,
@@ -8975,25 +9045,24 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         sub = subMgmt.getSubscriptionDetails(sub.getSubscriptionId());
         assertEquals(SubscriptionStatus.SUSPENDED, sub.getStatus());
 
-        final VOBillingContact bc2 = createBillingContact(testOrganizations
-                .get(0));
+        final VOBillingContact bc2 = createBillingContact(
+                testOrganizations.get(0));
 
-        List<VOService> products = subMgmt.getUpgradeOptions(sub
-                .getSubscriptionId());
+        List<VOService> products = subMgmt
+                .getUpgradeOptions(sub.getSubscriptionId());
         assertEquals(2, products.size());
         assertTrue(products.get(0).getPriceModel().isChargeable());
 
-        final VOSubscription upgradedSubscription = subMgmt
-                .upgradeSubscription(sub, products.get(0), paymentInfo, bc2,
-                        new ArrayList<VOUda>());
+        final VOSubscription upgradedSubscription = subMgmt.upgradeSubscription(
+                sub, products.get(0), paymentInfo, bc2, new ArrayList<VOUda>());
 
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
                 Subscription sub = mgr.getReference(Subscription.class,
                         upgradedSubscription.getKey());
-                assertEquals(paymentInfo.getKey(), sub.getPaymentInfo()
-                        .getKey());
+                assertEquals(paymentInfo.getKey(),
+                        sub.getPaymentInfo().getKey());
                 assertEquals(bc2.getKey(), sub.getBillingContact().getKey());
                 return null;
             }
@@ -9014,7 +9083,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     @Test(expected = PaymentInformationException.class)
     public void testUpgradeToProductFreeToChargeableNok() throws Throwable {
         createAvailablePayment(testOrganizations.get(0));
-        VOService product = getProductToSubscribe(testProducts.get(10).getKey());
+        VOService product = getProductToSubscribe(
+                testProducts.get(10).getKey());
         VOUser[] users = new VOUser[2];
         VOUser[] admins = new VOUser[1];
         setUsers(users, admins);
@@ -9043,8 +9113,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     public void testUpgradeToProductFreeToChargeableNoProductPayment()
             throws Throwable {
         createAvailablePayment(testOrganizations.get(0));
-        final VOService product = getProductToSubscribe(testProducts.get(10)
-                .getKey());
+        final VOService product = getProductToSubscribe(
+                testProducts.get(10).getKey());
         VOUser[] users = new VOUser[2];
         VOUser[] admins = new VOUser[1];
         setUsers(users, admins);
@@ -9055,8 +9125,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 null, null, new ArrayList<VOUda>());
 
         sub = subMgmt.getSubscriptionDetails(sub.getSubscriptionId());
-        final List<VOService> products = subMgmt.getUpgradeOptions(sub
-                .getSubscriptionId());
+        final List<VOService> products = subMgmt
+                .getUpgradeOptions(sub.getSubscriptionId());
         assertEquals(2, products.size());
         assertTrue(products.get(0).getPriceModel().isChargeable());
 
@@ -9074,8 +9144,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
         final VOPaymentInfo paymentInfo = getPaymentInfo(
                 tpAndSupplier.getOrganizationId(), testOrganizations.get(0));
-        final VOBillingContact bc = createBillingContact(testOrganizations
-                .get(0));
+        final VOBillingContact bc = createBillingContact(
+                testOrganizations.get(0));
 
         subMgmt.upgradeSubscription(sub, products.get(0), paymentInfo, bc,
                 new ArrayList<VOUda>());
@@ -9093,8 +9163,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                Product product = mgr.getReference(Product.class, testProducts
-                        .get(10).getKey());
+                Product product = mgr.getReference(Product.class,
+                        testProducts.get(10).getKey());
                 SupportedCurrency sc = new SupportedCurrency();
                 sc.setCurrency(Currency.getInstance("USD"));
                 mgr.persist(sc);
@@ -9105,7 +9175,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
             }
         });
 
-        VOService product = getProductToSubscribe(testProducts.get(10).getKey());
+        VOService product = getProductToSubscribe(
+                testProducts.get(10).getKey());
         VOUser[] users = new VOUser[2];
         VOUser[] admins = new VOUser[1];
         setUsers(users, admins);
@@ -9141,8 +9212,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 Product product = initCustomerProduct(0);
                 PriceModel priceModel = new PriceModel();
                 priceModel.setType(PriceModelType.PRO_RATA);
-                Query query = mgr
-                        .createNamedQuery("SupportedCurrency.findByBusinessKey");
+                Query query = mgr.createNamedQuery(
+                        "SupportedCurrency.findByBusinessKey");
                 query.setParameter("currencyISOCode", "EUR");
                 SupportedCurrency currency = (SupportedCurrency) query
                         .getSingleResult();
@@ -9161,7 +9232,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         });
         createAvailablePayment(tpAndSupplier2);
 
-        VOService product = getProductToSubscribe(testProducts.get(10).getKey());
+        VOService product = getProductToSubscribe(
+                testProducts.get(10).getKey());
         VOUser[] users = new VOUser[2];
         VOUser[] admins = new VOUser[1];
         setUsers(users, admins);
@@ -9177,8 +9249,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         List<VOService> products = servProv
                 .getServicesForMarketplace(supplierOrgId);
 
-        subscription = subMgmt.getSubscriptionDetails(subscription
-                .getSubscriptionId());
+        subscription = subMgmt
+                .getSubscriptionDetails(subscription.getSubscriptionId());
         products = subMgmt.getUpgradeOptions(subscription.getSubscriptionId());
         assertEquals(2, products.size());
         assertTrue(products.get(0).getPriceModel().isChargeable());
@@ -9204,8 +9276,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 Product product = initCustomerProduct(0);
                 PriceModel priceModel = new PriceModel();
                 priceModel.setType(PriceModelType.PRO_RATA);
-                Query query = mgr
-                        .createNamedQuery("SupportedCurrency.findByBusinessKey");
+                Query query = mgr.createNamedQuery(
+                        "SupportedCurrency.findByBusinessKey");
                 query.setParameter("currencyISOCode", "EUR");
                 SupportedCurrency currency = (SupportedCurrency) query
                         .getSingleResult();
@@ -9225,7 +9297,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         });
         createAvailablePayment(tpAndSupplier2);
 
-        VOService product = getProductToSubscribe(testProducts.get(10).getKey());
+        VOService product = getProductToSubscribe(
+                testProducts.get(10).getKey());
         VOUser[] users = new VOUser[2];
         VOUser[] admins = new VOUser[1];
         setUsers(users, admins);
@@ -9240,8 +9313,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         List<VOService> products = servProv
                 .getServicesForMarketplace(supplierOrgId);
 
-        subscription = subMgmt.getSubscriptionDetails(subscription
-                .getSubscriptionId());
+        subscription = subMgmt
+                .getSubscriptionDetails(subscription.getSubscriptionId());
         products = subMgmt.getUpgradeOptions(subscription.getSubscriptionId());
         assertEquals(2, products.size());
         assertTrue(products.get(0).getPriceModel().isChargeable());
@@ -9260,7 +9333,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     public void testUpgradeProductPaymentInfoNullBillingContact()
             throws Throwable {
         createAvailablePayment(testOrganizations.get(0));
-        VOService product = getProductToSubscribe(testProducts.get(10).getKey());
+        VOService product = getProductToSubscribe(
+                testProducts.get(10).getKey());
         VOUser[] users = new VOUser[2];
         VOUser[] admins = new VOUser[1];
         setUsers(users, admins);
@@ -9297,9 +9371,9 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
     @Test
     public void testGetServiceRolesForProduct() throws Exception {
-        container.login(String.valueOf(supplierUser.getKey()), new String[] {
-                ROLE_ORGANIZATION_ADMIN, ROLE_TECHNOLOGY_MANAGER,
-                ROLE_SERVICE_MANAGER });
+        container.login(String.valueOf(supplierUser.getKey()),
+                new String[] { ROLE_ORGANIZATION_ADMIN, ROLE_TECHNOLOGY_MANAGER,
+                        ROLE_SERVICE_MANAGER });
         VOServiceDetails prod = createProductWithRoles("example");
         List<VORoleDefinition> roles = prod.getTechnicalService()
                 .getRoleDefinitions();
@@ -9356,8 +9430,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
             @Override
             public Void call() {
                 // the template used for the subscription
-                Product prod = mgr.find(Product.class, testProducts.get(0)
-                        .getKey());
+                Product prod = mgr.find(Product.class,
+                        testProducts.get(0).getKey());
                 prod.setStatus(ServiceStatus.ACTIVE);
                 // the inactive template and customer specific product
                 prod = mgr.find(Product.class, testProducts.get(1).getKey());
@@ -9370,10 +9444,10 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         VOService product = findProduct(testProducts.get(0).getKey());
         VOUser[] users = new VOUser[1];
         VOUser[] admins = new VOUser[1];
-        admins[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(1));
-        users[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(2));
+        admins[0] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(1));
+        users[0] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(2));
         VOSubscription sub = subMgmt.subscribeToService(
                 Subscriptions.createVOSubscription(subId), product,
                 getUsersToAdd(admins, users), null, null,
@@ -9389,18 +9463,16 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         VOService voService = runTX(new Callable<VOService>() {
             @Override
             public VOService call() throws Exception {
-                Subscription subscriptionToModify = mgr.getReference(
-                        Subscription.class, sub.getKey());
+                Subscription subscriptionToModify = mgr
+                        .getReference(Subscription.class, sub.getKey());
                 Product subProduct = subscriptionToModify.getProduct();
 
                 VOService voProduct1 = ProductAssembler.toVOProduct(subProduct,
                         new LocalizerFacade(localizer, "en"));
 
-                Parameter p = subProduct
-                        .getParameterSet()
-                        .getParameters()
-                        .get(subProduct.getParameterSet().getParameters()
-                                .size() - 1);
+                Parameter p = subProduct.getParameterSet().getParameters()
+                        .get(subProduct.getParameterSet().getParameters().size()
+                                - 1);
                 p.setValue("5435897");
                 return voProduct1;
             }
@@ -9423,8 +9495,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
             public VOService call() throws Exception {
                 // DataService dm = container.get(DataService.class);
 
-                Subscription subscriptionToModify = mgr.getReference(
-                        Subscription.class, sub.getKey());
+                Subscription subscriptionToModify = mgr
+                        .getReference(Subscription.class, sub.getKey());
                 Product subProduct = subscriptionToModify.getProduct();
 
                 VOService voProduct1 = ProductAssembler.toVOProduct(subProduct,
@@ -9457,10 +9529,10 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         List<VOService> targetProducts = servProv
                 .getServicesForMarketplace(supplierOrgId);
 
-        VOSubscriptionDetails subDetails = subMgmt.getSubscriptionDetails(sub
-                .getSubscriptionId());
-        targetProducts = subMgmt.getUpgradeOptions(subDetails
-                .getSubscriptionId());
+        VOSubscriptionDetails subDetails = subMgmt
+                .getSubscriptionDetails(sub.getSubscriptionId());
+        targetProducts = subMgmt
+                .getUpgradeOptions(subDetails.getSubscriptionId());
         final VOService voTargetProduct = targetProducts.get(1);
 
         runTX(new Callable<Void>() {
@@ -9470,9 +9542,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 Product dbTargetProduct = mgr.getReference(Product.class,
                         voTargetProduct.getKey());
 
-                Parameter p = dbTargetProduct
-                        .getParameterSet()
-                        .getParameters()
+                Parameter p = dbTargetProduct.getParameterSet().getParameters()
                         .get(dbTargetProduct.getParameterSet().getParameters()
                                 .size() - 1);
                 p.setValue("12321");
@@ -9494,10 +9564,10 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         List<VOService> targetProducts = servProv
                 .getServicesForMarketplace(supplierOrgId);
 
-        VOSubscriptionDetails subDetails = subMgmt.getSubscriptionDetails(sub
-                .getSubscriptionId());
-        targetProducts = subMgmt.getUpgradeOptions(subDetails
-                .getSubscriptionId());
+        VOSubscriptionDetails subDetails = subMgmt
+                .getSubscriptionDetails(sub.getSubscriptionId());
+        targetProducts = subMgmt
+                .getUpgradeOptions(subDetails.getSubscriptionId());
 
         final VOService voTargetProduct = targetProducts.get(1);
 
@@ -9531,10 +9601,10 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         List<VOService> targetProducts = servProv
                 .getServicesForMarketplace(supplierOrgId);
 
-        VOSubscriptionDetails subDetails = subMgmt.getSubscriptionDetails(sub
-                .getSubscriptionId());
-        targetProducts = subMgmt.getUpgradeOptions(subDetails
-                .getSubscriptionId());
+        VOSubscriptionDetails subDetails = subMgmt
+                .getSubscriptionDetails(sub.getSubscriptionId());
+        targetProducts = subMgmt
+                .getUpgradeOptions(subDetails.getSubscriptionId());
 
         // final VOService voTargetProduct = targetProducts.get(1);
         final long targetProductKey = targetProducts.get(1).getKey();
@@ -9606,8 +9676,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                                 ServiceAccessType.LOGIN);
                 tProd.setBaseURL(BASE_URL_SERVICE_HTTPS);
 
-                Product p1 = Products.createProduct(tpAndSupplier, tProd,
-                        false, "mprodtc", null, mgr);
+                Product p1 = Products.createProduct(tpAndSupplier, tProd, false,
+                        "mprodtc", null, mgr);
                 p1.setStatus(ServiceStatus.ACTIVE);
                 return p1;
             }
@@ -9621,7 +9691,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         VOSubscription sub = Subscriptions
                 .createVOSubscription("testSubscribeToProductHttps");
         sub.setPurchaseOrderNumber("PON");
-        messagesOfTaskQueue = new ArrayList<TaskMessage>();
+        messagesOfTaskQueue = new ArrayList<>();
         VOSubscription newSub = subMgmt.subscribeToService(sub, product,
                 getUsersToAdd(admins, users), null, null,
                 new ArrayList<VOUda>());
@@ -9650,8 +9720,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                                 ServiceAccessType.LOGIN, false, true);
                 tProd.setBaseURL(BASE_URL_SERVICE_HTTPS);
 
-                Product p1 = Products.createProduct(tpAndSupplier, tProd,
-                        false, "extBillProd", null, mgr);
+                Product p1 = Products.createProduct(tpAndSupplier, tProd, false,
+                        "extBillProd", null, mgr);
                 p1.setStatus(ServiceStatus.ACTIVE);
                 return p1;
             }
@@ -9665,7 +9735,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         VOSubscription sub = Subscriptions
                 .createVOSubscription("testSubscribeToProductWithExtlBilling");
         sub.setPurchaseOrderNumber("3434-54545");
-        messagesOfTaskQueue = new ArrayList<TaskMessage>();
+        messagesOfTaskQueue = new ArrayList<>();
         final VOSubscription newSub = subMgmt.subscribeToService(sub, product,
                 getUsersToAdd(admins, users), null, null,
                 new ArrayList<VOUda>());
@@ -9684,7 +9754,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     public void checkIPAddressChangedAndSendMailToUsers_sendMail()
             throws Throwable {
         // given
-        final SubscriptionServiceBean sBean = spy(new SubscriptionServiceBean());
+        final SubscriptionServiceBean sBean = spy(
+                new SubscriptionServiceBean());
         doReturn(new UsageLicenseDao(mgr)).when(sBean).getUsageLicenseDao();
         doReturn(new SubscriptionHistoryDao(mgr)).when(sBean)
                 .getSubscriptionHistoryDao();
@@ -9699,9 +9770,9 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 ROLE_TECHNOLOGY_MANAGER);
         final VOInstanceInfo instanceInfo = new VOInstanceInfo();
         instanceInfo.setInstanceId("completionProductInstanceId");
-        instanceInfo
-                .setAccessInfo("Public DNS for EC2 instance: ec2-66-66-66-66.compute-1.amazonaws.com  Key pair name: us-east-1");
-        receivedSendMailPayload = new ArrayList<SendMailPayload>();
+        instanceInfo.setAccessInfo(
+                "Public DNS for EC2 instance: ec2-66-66-66-66.compute-1.amazonaws.com  Key pair name: us-east-1");
+        receivedSendMailPayload = new ArrayList<>();
         subMgmt.completeAsyncSubscription(id, orgId, instanceInfo);
         instanceInfo.setAccessInfo(getAccessInfo());
 
@@ -9727,7 +9798,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     public void checkIPAddressChangedAndSendMailToUsers_noSendMail()
             throws Throwable {
         // given
-        final SubscriptionServiceBean sBean = spy(new SubscriptionServiceBean());
+        final SubscriptionServiceBean sBean = spy(
+                new SubscriptionServiceBean());
         doReturn(new UsageLicenseDao(mgr)).when(sBean).getUsageLicenseDao();
         doReturn(new SubscriptionHistoryDao(mgr)).when(sBean)
                 .getSubscriptionHistoryDao();
@@ -9741,8 +9813,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 ROLE_TECHNOLOGY_MANAGER);
         final VOInstanceInfo instanceInfo = new VOInstanceInfo();
         instanceInfo.setInstanceId("instanceId");
-        instanceInfo
-                .setAccessInfo("Public DNS for EC2 instance: ec2-54-165-81-61.compute-1.amazonaws.com");
+        instanceInfo.setAccessInfo(
+                "Public DNS for EC2 instance: ec2-54-165-81-61.compute-1.amazonaws.com");
 
         // when
         runTX(new Callable<Void>() {
@@ -9983,8 +10055,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
                 Product targetProduct = mgr.getReference(Product.class,
                         voTargetProduct.getKey());
 
-                for (Parameter targetParameter : targetProduct
-                        .getParameterSet().getParameters()) {
+                for (Parameter targetParameter : targetProduct.getParameterSet()
+                        .getParameters()) {
                     targetParameter.setConfigurable(targetDbConfig);
                     targetParameter.setValue(targetDbValue);
                 }
@@ -10008,8 +10080,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
             result = subMgmt.upgradeSubscription(sub, voTargetProduct2, null,
                     null, new ArrayList<VOUda>());
         } catch (SubscriptionMigrationException e) {
-            if (upgradeErrorExpected
-                    && e.getReason() == SubscriptionMigrationException.Reason.INCOMPATIBLE_PARAMETER) {
+            if (upgradeErrorExpected && e
+                    .getReason() == SubscriptionMigrationException.Reason.INCOMPATIBLE_PARAMETER) {
                 error = e;
             } else {
                 throw e;
@@ -10049,8 +10121,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
     private void assertInvalidStateException(SubscriptionStateException e,
             SubscriptionStatus s) {
-        assertEquals(
-                "ex.SubscriptionStateException.SUBSCRIPTION_INVALID_STATE",
+        assertEquals("ex.SubscriptionStateException.SUBSCRIPTION_INVALID_STATE",
                 e.getMessageKey());
         assertEquals("enum.SubscriptionStatus." + s.name(),
                 e.getMessageParams()[0]);

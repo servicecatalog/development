@@ -356,6 +356,7 @@ public class UpdateUserCtrl {
 
         uas.setSubscriptions(getAllSubscriptions(allSubs));
         uas.setGroupsToBeAssigned(getSelectedUserGroups(model.getUserGroups()));
+        uas.setTenantId(model.getTenantId());
         return uas;
     }
 

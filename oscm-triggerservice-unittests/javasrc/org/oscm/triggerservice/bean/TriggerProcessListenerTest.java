@@ -32,8 +32,8 @@ import javax.jms.JMSException;
 
 import org.junit.Before;
 import org.junit.Test;
-
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
+import org.oscm.converter.api.VOConverter;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.BillingResult;
 import org.oscm.domobjects.DomainObject;
@@ -43,12 +43,7 @@ import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.TriggerDefinition;
 import org.oscm.domobjects.TriggerProcess;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
-import org.oscm.test.stubs.DataServiceStub;
-import org.oscm.test.stubs.LocalizerServiceStub;
-import org.oscm.test.stubs.ObjectMessageStub;
-import org.oscm.triggerservice.adapter.INotificationServiceAdapter;
-import org.oscm.types.enumtypes.TriggerProcessParameterName;
-import org.oscm.converter.api.VOConverter;
+import org.oscm.encrypter.AESEncrypter;
 import org.oscm.internal.types.enumtypes.PriceModelType;
 import org.oscm.internal.types.enumtypes.TriggerProcessStatus;
 import org.oscm.internal.types.enumtypes.TriggerType;
@@ -70,6 +65,11 @@ import org.oscm.internal.vo.VOUser;
 import org.oscm.internal.vo.VOUserDetails;
 import org.oscm.notification.vo.VONotification;
 import org.oscm.notification.vo.VOProperty;
+import org.oscm.test.stubs.DataServiceStub;
+import org.oscm.test.stubs.LocalizerServiceStub;
+import org.oscm.test.stubs.ObjectMessageStub;
+import org.oscm.triggerservice.adapter.INotificationServiceAdapter;
+import org.oscm.types.enumtypes.TriggerProcessParameterName;
 
 public class TriggerProcessListenerTest {
 
@@ -84,10 +84,11 @@ public class TriggerProcessListenerTest {
     private final VOPaymentType pt = new VOPaymentType();
 
     /** Parameters of the web service call */
-    private final Map<String, Object> wsParams = new HashMap<String, Object>();
+    private final Map<String, Object> wsParams = new HashMap<>();
 
     @Before
     public void setUp() {
+        AESEncrypter.generateKey();
         pt.setKey(5);
         pt.setPaymentTypeId(PaymentType.CREDIT_CARD);
 
@@ -269,8 +270,7 @@ public class TriggerProcessListenerTest {
                             org.oscm.vo.VOService service,
                             List<org.oscm.vo.VOUsageLicense> users,
                             VONotification notification) {
-                        wsParams.put(
-                                TriggerProcessParameterName.PRODUCT.name(),
+                        wsParams.put(TriggerProcessParameterName.PRODUCT.name(),
                                 service);
                         wsParams.put(TriggerProcessParameterName.USERS.name(),
                                 users);
@@ -311,8 +311,8 @@ public class TriggerProcessListenerTest {
         };
         dm = new DataServiceStub() {
             @Override
-            public <T extends DomainObject<?>> T getReference(
-                    Class<T> objclass, long key) throws ObjectNotFoundException {
+            public <T extends DomainObject<?>> T getReference(Class<T> objclass,
+                    long key) throws ObjectNotFoundException {
                 if (storedTriggerProcess == null) {
                     throw new ObjectNotFoundException(ClassEnum.EVENT, "bk");
                 }
@@ -390,8 +390,7 @@ public class TriggerProcessListenerTest {
         tp.getUser().getOrganization().setLocale(null);
         storedTriggerProcess = tp;
         listener.onMessage(message);
-        assertEquals(
-                TriggerProcessStatus.NOTIFIED,
+        assertEquals(TriggerProcessStatus.NOTIFIED,
                 dm.getReference(TriggerProcess.class,
                         storedTriggerProcess.getKey()).getStatus());
         assertEquals("en", locale);
@@ -410,8 +409,7 @@ public class TriggerProcessListenerTest {
         listener.onMessage(message);
 
         // then
-        assertEquals(
-                TriggerProcessStatus.CANCELLED,
+        assertEquals(TriggerProcessStatus.CANCELLED,
                 dm.getReference(TriggerProcess.class,
                         storedTriggerProcess.getKey()).getStatus());
         assertNull(wsParams.get("actionKey"));
@@ -422,8 +420,8 @@ public class TriggerProcessListenerTest {
             throws Exception {
         // given
         ObjectMessageStub message = initObjectMessage();
-        TriggerProcess tp = initTriggerProcess(
-                TriggerType.SUBSCRIBE_TO_SERVICE, true);
+        TriggerProcess tp = initTriggerProcess(TriggerType.SUBSCRIBE_TO_SERVICE,
+                true);
 
         tp.setState(TriggerProcessStatus.CANCELLED);
         storedTriggerProcess = tp;
@@ -432,8 +430,7 @@ public class TriggerProcessListenerTest {
         listener.onMessage(message);
 
         // then
-        assertEquals(
-                TriggerProcessStatus.CANCELLED,
+        assertEquals(TriggerProcessStatus.CANCELLED,
                 dm.getReference(TriggerProcess.class,
                         storedTriggerProcess.getKey()).getStatus());
         assertEquals(Long.valueOf(storedTriggerProcess.getKey()),
@@ -470,7 +467,8 @@ public class TriggerProcessListenerTest {
      *            <code>true</code> if the trigger shall be a suspending one
      * @return The initialized trigger process.
      */
-    private TriggerProcess initTriggerProcess(TriggerType type, boolean suspend) {
+    private TriggerProcess initTriggerProcess(TriggerType type,
+            boolean suspend) {
         TriggerProcess tp = new TriggerProcess();
         tp.setState(TriggerProcessStatus.INITIAL);
 
@@ -523,8 +521,8 @@ public class TriggerProcessListenerTest {
     public void testOnMessageObjectMessageMatchingTriggerProcessUsingWSSuspending()
             throws Exception {
         ObjectMessageStub message = initObjectMessage();
-        TriggerProcess tp = initTriggerProcess(
-                TriggerType.SUBSCRIBE_TO_SERVICE, true);
+        TriggerProcess tp = initTriggerProcess(TriggerType.SUBSCRIBE_TO_SERVICE,
+                true);
         storedTriggerProcess = tp;
         listener.onMessage(message);
         assertEquals(TriggerProcessStatus.WAITING_FOR_APPROVAL,
@@ -534,8 +532,8 @@ public class TriggerProcessListenerTest {
     @Test
     public void testOnMessageNoTriggerDef() throws Exception {
         ObjectMessageStub message = initObjectMessage();
-        TriggerProcess tp = initTriggerProcess(
-                TriggerType.SUBSCRIBE_TO_SERVICE, true);
+        TriggerProcess tp = initTriggerProcess(TriggerType.SUBSCRIBE_TO_SERVICE,
+                true);
         tp.setTriggerDefinition(null);
         storedTriggerProcess = tp;
         listener.onMessage(message);
@@ -626,11 +624,8 @@ public class TriggerProcessListenerTest {
         listener.onMessage(om);
         assertEquals(TriggerProcessStatus.WAITING_FOR_APPROVAL,
                 storedTriggerProcess.getStatus());
-        assertEquals(
-                globalUser.getUserId(),
-                org.oscm.vo.VOTriggerProcess.class
-                        .cast(wsParams.get("triggerProcess")).getUser()
-                        .getUserId());
+        assertEquals(globalUser.getUserId(), org.oscm.vo.VOTriggerProcess.class
+                .cast(wsParams.get("triggerProcess")).getUser().getUserId());
     }
 
     @Test
@@ -656,17 +651,12 @@ public class TriggerProcessListenerTest {
         listener.onMessage(om);
         assertEquals(TriggerProcessStatus.WAITING_FOR_APPROVAL,
                 storedTriggerProcess.getStatus());
-        assertEquals(
-                globalUser.getUserId(),
-                org.oscm.vo.VOTriggerProcess.class
-                        .cast(wsParams.get("triggerProcess")).getUser()
-                        .getUserId());
+        assertEquals(globalUser.getUserId(), org.oscm.vo.VOTriggerProcess.class
+                .cast(wsParams.get("triggerProcess")).getUser().getUserId());
         assertEquals(user.getUserId(), org.oscm.vo.VOUserDetails.class
                 .cast(wsParams.get("user")).getUserId());
-        assertEquals(
-                org.getOrganizationId(),
-                org.oscm.vo.VOOrganization.class.cast(
-                        wsParams.get("organization")).getOrganizationId());
+        assertEquals(org.getOrganizationId(), org.oscm.vo.VOOrganization.class
+                .cast(wsParams.get("organization")).getOrganizationId());
         assertEquals(props.getProperty("key"),
                 Properties.class.cast(wsParams.get("organizationProperties"))
                         .getProperty("key"));
@@ -688,11 +678,12 @@ public class TriggerProcessListenerTest {
     }
 
     @Test
-    public void testSavePaymentConfiguration_CustomerDefault() throws Exception {
+    public void testSavePaymentConfiguration_CustomerDefault()
+            throws Exception {
         ObjectMessageStub om = initObjectMessage();
         TriggerProcess tp = initTriggerProcess(
                 TriggerType.SAVE_PAYMENT_CONFIGURATION, true);
-        Set<VOPaymentType> pts = new HashSet<VOPaymentType>(Arrays.asList(pt));
+        Set<VOPaymentType> pts = new HashSet<>(Arrays.asList(pt));
         tp.addTriggerProcessParameter(
                 TriggerProcessParameterName.DEFAULT_CONFIGURATION, pts);
 
@@ -701,11 +692,8 @@ public class TriggerProcessListenerTest {
         listener.onMessage(om);
         assertEquals(TriggerProcessStatus.WAITING_FOR_APPROVAL,
                 storedTriggerProcess.getStatus());
-        assertEquals(
-                globalUser.getUserId(),
-                org.oscm.vo.VOTriggerProcess.class
-                        .cast(wsParams.get("triggerProcess")).getUser()
-                        .getUserId());
+        assertEquals(globalUser.getUserId(), org.oscm.vo.VOTriggerProcess.class
+                .cast(wsParams.get("triggerProcess")).getUser().getUserId());
 
         @SuppressWarnings("unchecked")
         Set<org.oscm.vo.VOPaymentType> paymentTypes = (Set<org.oscm.vo.VOPaymentType>) wsParams
@@ -720,7 +708,7 @@ public class TriggerProcessListenerTest {
         ObjectMessageStub om = initObjectMessage();
         TriggerProcess tp = initTriggerProcess(
                 TriggerType.SAVE_PAYMENT_CONFIGURATION, true);
-        Set<VOPaymentType> pts = new HashSet<VOPaymentType>(Arrays.asList(pt));
+        Set<VOPaymentType> pts = new HashSet<>(Arrays.asList(pt));
         tp.addTriggerProcessParameter(
                 TriggerProcessParameterName.DEFAULT_SERVICE_PAYMENT_CONFIGURATION,
                 pts);
@@ -730,11 +718,8 @@ public class TriggerProcessListenerTest {
         listener.onMessage(om);
         assertEquals(TriggerProcessStatus.WAITING_FOR_APPROVAL,
                 storedTriggerProcess.getStatus());
-        assertEquals(
-                globalUser.getUserId(),
-                org.oscm.vo.VOTriggerProcess.class
-                        .cast(wsParams.get("triggerProcess")).getUser()
-                        .getUserId());
+        assertEquals(globalUser.getUserId(), org.oscm.vo.VOTriggerProcess.class
+                .cast(wsParams.get("triggerProcess")).getUser().getUserId());
         @SuppressWarnings("unchecked")
         Set<org.oscm.vo.VOPaymentType> paymentTypes = (Set<org.oscm.vo.VOPaymentType>) wsParams
                 .get("defaultServiceConfiguration");
@@ -751,7 +736,8 @@ public class TriggerProcessListenerTest {
                 TriggerType.SAVE_PAYMENT_CONFIGURATION, true);
 
         VOOrganizationPaymentConfiguration config = new VOOrganizationPaymentConfiguration();
-        Set<VOPaymentType> types = new HashSet<VOPaymentType>(Arrays.asList(pt));
+        Set<VOPaymentType> types = new HashSet<>(
+                Arrays.asList(pt));
         config.setEnabledPaymentTypes(types);
         VOOrganization org = new VOOrganization();
         org.setKey(1234);
@@ -765,28 +751,26 @@ public class TriggerProcessListenerTest {
         listener.onMessage(om);
         assertEquals(TriggerProcessStatus.WAITING_FOR_APPROVAL,
                 storedTriggerProcess.getStatus());
-        assertEquals(
-                globalUser.getUserId(),
-                org.oscm.vo.VOTriggerProcess.class
-                        .cast(wsParams.get("triggerProcess")).getUser()
-                        .getUserId());
+        assertEquals(globalUser.getUserId(), org.oscm.vo.VOTriggerProcess.class
+                .cast(wsParams.get("triggerProcess")).getUser().getUserId());
         org.oscm.vo.VOOrganizationPaymentConfiguration conf = (org.oscm.vo.VOOrganizationPaymentConfiguration) wsParams
                 .get("customerConfiguration");
-        for (org.oscm.vo.VOPaymentType pt : conf
-                .getEnabledPaymentTypes()) {
+        for (org.oscm.vo.VOPaymentType pt : conf.getEnabledPaymentTypes()) {
             assertTrue(types.contains(VOConverter.convertToUp(pt)));
         }
         assertEquals(org.getKey(), conf.getOrganization().getKey());
     }
 
     @Test
-    public void testSavePaymentConfiguration_ServiceSpecific() throws Exception {
+    public void testSavePaymentConfiguration_ServiceSpecific()
+            throws Exception {
         ObjectMessageStub om = initObjectMessage();
         TriggerProcess tp = initTriggerProcess(
                 TriggerType.SAVE_PAYMENT_CONFIGURATION, true);
 
         VOServicePaymentConfiguration config = new VOServicePaymentConfiguration();
-        Set<VOPaymentType> types = new HashSet<VOPaymentType>(Arrays.asList(pt));
+        Set<VOPaymentType> types = new HashSet<>(
+                Arrays.asList(pt));
         config.setEnabledPaymentTypes(types);
         VOService svc = new VOService();
         svc.setKey(1234);
@@ -801,15 +785,11 @@ public class TriggerProcessListenerTest {
         listener.onMessage(om);
         assertEquals(TriggerProcessStatus.WAITING_FOR_APPROVAL,
                 storedTriggerProcess.getStatus());
-        assertEquals(
-                globalUser.getUserId(),
-                org.oscm.vo.VOTriggerProcess.class
-                        .cast(wsParams.get("triggerProcess")).getUser()
-                        .getUserId());
+        assertEquals(globalUser.getUserId(), org.oscm.vo.VOTriggerProcess.class
+                .cast(wsParams.get("triggerProcess")).getUser().getUserId());
         org.oscm.vo.VOServicePaymentConfiguration conf = (org.oscm.vo.VOServicePaymentConfiguration) wsParams
                 .get("serviceConfiguration");
-        for (org.oscm.vo.VOPaymentType pt : conf
-                .getEnabledPaymentTypes()) {
+        for (org.oscm.vo.VOPaymentType pt : conf.getEnabledPaymentTypes()) {
             assertTrue(types.contains(VOConverter.convertToUp(pt)));
         }
         assertEquals(svc.getKey(), conf.getService().getKey());
@@ -826,11 +806,8 @@ public class TriggerProcessListenerTest {
         listener.onMessage(om);
         assertEquals(TriggerProcessStatus.WAITING_FOR_APPROVAL,
                 storedTriggerProcess.getStatus());
-        assertEquals(
-                globalUser.getUserId(),
-                org.oscm.vo.VOTriggerProcess.class
-                        .cast(wsParams.get("triggerProcess")).getUser()
-                        .getUserId());
+        assertEquals(globalUser.getUserId(), org.oscm.vo.VOTriggerProcess.class
+                .cast(wsParams.get("triggerProcess")).getUser().getUserId());
     }
 
     @Test
@@ -840,18 +817,16 @@ public class TriggerProcessListenerTest {
                 true);
         VOService prod = new VOService();
         prod.setServiceId("productId");
-        tp.addTriggerProcessParameter(TriggerProcessParameterName.PRODUCT, prod);
+        tp.addTriggerProcessParameter(TriggerProcessParameterName.PRODUCT,
+                prod);
 
         storedTriggerProcess = tp;
 
         listener.onMessage(om);
         assertEquals(TriggerProcessStatus.WAITING_FOR_APPROVAL,
                 storedTriggerProcess.getStatus());
-        assertEquals(
-                globalUser.getUserId(),
-                org.oscm.vo.VOTriggerProcess.class
-                        .cast(wsParams.get("triggerProcess")).getUser()
-                        .getUserId());
+        assertEquals(globalUser.getUserId(), org.oscm.vo.VOTriggerProcess.class
+                .cast(wsParams.get("triggerProcess")).getUser().getUserId());
         assertEquals(prod.getServiceId(), org.oscm.vo.VOService.class
                 .cast(wsParams.get("product")).getServiceId());
     }
@@ -867,11 +842,8 @@ public class TriggerProcessListenerTest {
         listener.onMessage(om);
         assertEquals(TriggerProcessStatus.WAITING_FOR_APPROVAL,
                 storedTriggerProcess.getStatus());
-        assertEquals(
-                globalUser.getUserId(),
-                org.oscm.vo.VOTriggerProcess.class
-                        .cast(wsParams.get("triggerProcess")).getUser()
-                        .getUserId());
+        assertEquals(globalUser.getUserId(), org.oscm.vo.VOTriggerProcess.class
+                .cast(wsParams.get("triggerProcess")).getUser().getUserId());
     }
 
     @Test
@@ -881,18 +853,16 @@ public class TriggerProcessListenerTest {
                 true);
         VOService prod = new VOService();
         prod.setServiceId("productId");
-        tp.addTriggerProcessParameter(TriggerProcessParameterName.PRODUCT, prod);
+        tp.addTriggerProcessParameter(TriggerProcessParameterName.PRODUCT,
+                prod);
 
         storedTriggerProcess = tp;
 
         listener.onMessage(om);
         assertEquals(TriggerProcessStatus.WAITING_FOR_APPROVAL,
                 storedTriggerProcess.getStatus());
-        assertEquals(
-                globalUser.getUserId(),
-                org.oscm.vo.VOTriggerProcess.class
-                        .cast(wsParams.get("triggerProcess")).getUser()
-                        .getUserId());
+        assertEquals(globalUser.getUserId(), org.oscm.vo.VOTriggerProcess.class
+                .cast(wsParams.get("triggerProcess")).getUser().getUserId());
         assertEquals(prod.getServiceId(), org.oscm.vo.VOService.class
                 .cast(wsParams.get("product")).getServiceId());
     }
@@ -900,36 +870,34 @@ public class TriggerProcessListenerTest {
     @Test
     public void testSubscribeNullParams() throws Exception {
         ObjectMessageStub om = initObjectMessage();
-        TriggerProcess tp = initTriggerProcess(
-                TriggerType.SUBSCRIBE_TO_SERVICE, true);
+        TriggerProcess tp = initTriggerProcess(TriggerType.SUBSCRIBE_TO_SERVICE,
+                true);
 
         storedTriggerProcess = tp;
 
         listener.onMessage(om);
         assertEquals(TriggerProcessStatus.WAITING_FOR_APPROVAL,
                 storedTriggerProcess.getStatus());
-        assertEquals(
-                globalUser.getUserId(),
-                org.oscm.vo.VOTriggerProcess.class
-                        .cast(wsParams.get("triggerProcess")).getUser()
-                        .getUserId());
+        assertEquals(globalUser.getUserId(), org.oscm.vo.VOTriggerProcess.class
+                .cast(wsParams.get("triggerProcess")).getUser().getUserId());
     }
 
     @Test
     public void testSubscribe() throws Exception {
         ObjectMessageStub om = initObjectMessage();
-        TriggerProcess tp = initTriggerProcess(
-                TriggerType.SUBSCRIBE_TO_SERVICE, true);
+        TriggerProcess tp = initTriggerProcess(TriggerType.SUBSCRIBE_TO_SERVICE,
+                true);
 
         VOSubscription sub = new VOSubscription();
         sub.setSubscriptionId("sub");
         VOService prod = new VOService();
         prod.setServiceId("prod");
-        List<VOUsageLicense> users = new ArrayList<VOUsageLicense>();
+        List<VOUsageLicense> users = new ArrayList<>();
 
         tp.addTriggerProcessParameter(TriggerProcessParameterName.SUBSCRIPTION,
                 sub);
-        tp.addTriggerProcessParameter(TriggerProcessParameterName.PRODUCT, prod);
+        tp.addTriggerProcessParameter(TriggerProcessParameterName.PRODUCT,
+                prod);
         tp.addTriggerProcessParameter(TriggerProcessParameterName.USERS, users);
 
         storedTriggerProcess = tp;
@@ -937,18 +905,12 @@ public class TriggerProcessListenerTest {
         listener.onMessage(om);
         assertEquals(TriggerProcessStatus.WAITING_FOR_APPROVAL,
                 storedTriggerProcess.getStatus());
-        assertEquals(
-                globalUser.getUserId(),
-                org.oscm.vo.VOTriggerProcess.class
-                        .cast(wsParams.get("triggerProcess")).getUser()
-                        .getUserId());
-        assertEquals(
-                "sub",
-                org.oscm.vo.VOSubscription.class.cast(
-                        wsParams.get("subscription")).getSubscriptionId());
-        assertEquals("prod",
-                org.oscm.vo.VOService.class
-                        .cast(wsParams.get("product")).getServiceId());
+        assertEquals(globalUser.getUserId(), org.oscm.vo.VOTriggerProcess.class
+                .cast(wsParams.get("triggerProcess")).getUser().getUserId());
+        assertEquals("sub", org.oscm.vo.VOSubscription.class
+                .cast(wsParams.get("subscription")).getSubscriptionId());
+        assertEquals("prod", org.oscm.vo.VOService.class
+                .cast(wsParams.get("product")).getServiceId());
     }
 
     @Test
@@ -962,11 +924,8 @@ public class TriggerProcessListenerTest {
         listener.onMessage(om);
         assertEquals(TriggerProcessStatus.WAITING_FOR_APPROVAL,
                 storedTriggerProcess.getStatus());
-        assertEquals(
-                globalUser.getUserId(),
-                org.oscm.vo.VOTriggerProcess.class
-                        .cast(wsParams.get("triggerProcess")).getUser()
-                        .getUserId());
+        assertEquals(globalUser.getUserId(), org.oscm.vo.VOTriggerProcess.class
+                .cast(wsParams.get("triggerProcess")).getUser().getUserId());
     }
 
     @Test
@@ -982,11 +941,8 @@ public class TriggerProcessListenerTest {
         listener.onMessage(om);
         assertEquals(TriggerProcessStatus.WAITING_FOR_APPROVAL,
                 storedTriggerProcess.getStatus());
-        assertEquals(
-                globalUser.getUserId(),
-                org.oscm.vo.VOTriggerProcess.class
-                        .cast(wsParams.get("triggerProcess")).getUser()
-                        .getUserId());
+        assertEquals(globalUser.getUserId(), org.oscm.vo.VOTriggerProcess.class
+                .cast(wsParams.get("triggerProcess")).getUser().getUserId());
         assertEquals("subId", wsParams.get("subId"));
     }
 
@@ -1001,11 +957,8 @@ public class TriggerProcessListenerTest {
         listener.onMessage(om);
         assertEquals(TriggerProcessStatus.WAITING_FOR_APPROVAL,
                 storedTriggerProcess.getStatus());
-        assertEquals(
-                globalUser.getUserId(),
-                org.oscm.vo.VOTriggerProcess.class
-                        .cast(wsParams.get("triggerProcess")).getUser()
-                        .getUserId());
+        assertEquals(globalUser.getUserId(), org.oscm.vo.VOTriggerProcess.class
+                .cast(wsParams.get("triggerProcess")).getUser().getUserId());
     }
 
     @Test
@@ -1015,7 +968,7 @@ public class TriggerProcessListenerTest {
                 true);
         VOSubscription sub = new VOSubscription();
         sub.setSubscriptionId("someId");
-        List<VOParameter> params = new ArrayList<VOParameter>();
+        List<VOParameter> params = new ArrayList<>();
 
         tp.addTriggerProcessParameter(TriggerProcessParameterName.SUBSCRIPTION,
                 sub);
@@ -1027,42 +980,34 @@ public class TriggerProcessListenerTest {
         listener.onMessage(om);
         assertEquals(TriggerProcessStatus.WAITING_FOR_APPROVAL,
                 storedTriggerProcess.getStatus());
-        assertEquals(
-                globalUser.getUserId(),
-                org.oscm.vo.VOTriggerProcess.class
-                        .cast(wsParams.get("triggerProcess")).getUser()
-                        .getUserId());
-        assertEquals(
-                "someId",
-                org.oscm.vo.VOSubscription.class.cast(
-                        wsParams.get("subscription")).getSubscriptionId());
-        assertEquals(0, List.class.cast(wsParams.get("modifiedParameters"))
-                .size());
+        assertEquals(globalUser.getUserId(), org.oscm.vo.VOTriggerProcess.class
+                .cast(wsParams.get("triggerProcess")).getUser().getUserId());
+        assertEquals("someId", org.oscm.vo.VOSubscription.class
+                .cast(wsParams.get("subscription")).getSubscriptionId());
+        assertEquals(0,
+                List.class.cast(wsParams.get("modifiedParameters")).size());
     }
 
     @Test
     public void testUpgradeSubscriptionNullParams() throws Exception {
         ObjectMessageStub om = initObjectMessage();
-        TriggerProcess tp = initTriggerProcess(
-                TriggerType.UPGRADE_SUBSCRIPTION, true);
+        TriggerProcess tp = initTriggerProcess(TriggerType.UPGRADE_SUBSCRIPTION,
+                true);
 
         storedTriggerProcess = tp;
 
         listener.onMessage(om);
         assertEquals(TriggerProcessStatus.WAITING_FOR_APPROVAL,
                 storedTriggerProcess.getStatus());
-        assertEquals(
-                globalUser.getUserId(),
-                org.oscm.vo.VOTriggerProcess.class
-                        .cast(wsParams.get("triggerProcess")).getUser()
-                        .getUserId());
+        assertEquals(globalUser.getUserId(), org.oscm.vo.VOTriggerProcess.class
+                .cast(wsParams.get("triggerProcess")).getUser().getUserId());
     }
 
     @Test
     public void testUpgradeSubscription() throws Exception {
         ObjectMessageStub om = initObjectMessage();
-        TriggerProcess tp = initTriggerProcess(
-                TriggerType.UPGRADE_SUBSCRIPTION, true);
+        TriggerProcess tp = initTriggerProcess(TriggerType.UPGRADE_SUBSCRIPTION,
+                true);
 
         VOSubscription current = new VOSubscription();
         current.setSubscriptionId("anotherSubId");
@@ -1079,11 +1024,8 @@ public class TriggerProcessListenerTest {
         listener.onMessage(om);
         assertEquals(TriggerProcessStatus.WAITING_FOR_APPROVAL,
                 storedTriggerProcess.getStatus());
-        assertEquals(
-                globalUser.getUserId(),
-                org.oscm.vo.VOTriggerProcess.class
-                        .cast(wsParams.get("triggerProcess")).getUser()
-                        .getUserId());
+        assertEquals(globalUser.getUserId(), org.oscm.vo.VOTriggerProcess.class
+                .cast(wsParams.get("triggerProcess")).getUser().getUserId());
         assertEquals("anotherSubId", org.oscm.vo.VOSubscription.class
                 .cast(wsParams.get("current")).getSubscriptionId());
         assertEquals("product Identifier", org.oscm.vo.VOService.class
@@ -1101,11 +1043,8 @@ public class TriggerProcessListenerTest {
         listener.onMessage(om);
         assertEquals(TriggerProcessStatus.WAITING_FOR_APPROVAL,
                 storedTriggerProcess.getStatus());
-        assertEquals(
-                globalUser.getUserId(),
-                org.oscm.vo.VOTriggerProcess.class
-                        .cast(wsParams.get("triggerProcess")).getUser()
-                        .getUserId());
+        assertEquals(globalUser.getUserId(), org.oscm.vo.VOTriggerProcess.class
+                .cast(wsParams.get("triggerProcess")).getUser().getUserId());
     }
 
     @Test
@@ -1115,7 +1054,7 @@ public class TriggerProcessListenerTest {
                 true);
 
         String subId = "subscription identifier";
-        List<VOUser> users = new ArrayList<VOUser>();
+        List<VOUser> users = new ArrayList<>();
 
         tp.addTriggerProcessParameter(TriggerProcessParameterName.SUBSCRIPTION,
                 subId);
@@ -1127,14 +1066,11 @@ public class TriggerProcessListenerTest {
         listener.onMessage(om);
         assertEquals(TriggerProcessStatus.WAITING_FOR_APPROVAL,
                 storedTriggerProcess.getStatus());
-        assertEquals(
-                globalUser.getUserId(),
-                org.oscm.vo.VOTriggerProcess.class
-                        .cast(wsParams.get("triggerProcess")).getUser()
-                        .getUserId());
+        assertEquals(globalUser.getUserId(), org.oscm.vo.VOTriggerProcess.class
+                .cast(wsParams.get("triggerProcess")).getUser().getUserId());
         assertEquals("subscription identifier", wsParams.get("subscriptionId"));
-        assertEquals(0, List.class.cast(wsParams.get("usersToBeRevoked"))
-                .size());
+        assertEquals(0,
+                List.class.cast(wsParams.get("usersToBeRevoked")).size());
     }
 
     @SuppressWarnings("unchecked")
@@ -1143,8 +1079,8 @@ public class TriggerProcessListenerTest {
         ObjectMessageStub om = initObjectMessage();
 
         // given trigger with parameters
-        storedTriggerProcess = initTriggerProcess(
-                TriggerType.REGISTER_OWN_USER, true);
+        storedTriggerProcess = initTriggerProcess(TriggerType.REGISTER_OWN_USER,
+                true);
         addUserDetailsToTriggerProcess("stored user id");
         List<UserRoleType> roles = Collections
                 .singletonList(UserRoleType.BROKER_MANAGER);
@@ -1160,11 +1096,8 @@ public class TriggerProcessListenerTest {
         // then process is updated and parameters are passed to external system
         assertEquals(TriggerProcessStatus.WAITING_FOR_APPROVAL,
                 storedTriggerProcess.getStatus());
-        assertEquals(
-                globalUser.getUserId(),
-                org.oscm.vo.VOTriggerProcess.class
-                        .cast(wsParams.get("triggerProcess")).getUser()
-                        .getUserId());
+        assertEquals(globalUser.getUserId(), org.oscm.vo.VOTriggerProcess.class
+                .cast(wsParams.get("triggerProcess")).getUser().getUserId());
         org.oscm.vo.VOUserDetails sentUserDetais = (org.oscm.vo.VOUserDetails) wsParams
                 .get("user");
         assertEquals("stored user id", sentUserDetais.getUserId());
@@ -1181,8 +1114,8 @@ public class TriggerProcessListenerTest {
         ObjectMessageStub om = initObjectMessage();
 
         // given trigger with parameters
-        storedTriggerProcess = initTriggerProcess(
-                TriggerType.REGISTER_OWN_USER, true);
+        storedTriggerProcess = initTriggerProcess(TriggerType.REGISTER_OWN_USER,
+                true);
 
         // when processed
         listener.onMessage(om);
@@ -1232,7 +1165,7 @@ public class TriggerProcessListenerTest {
         assertEquals(serviceId,
                 ((org.oscm.vo.VOService) wsParams
                         .get(TriggerProcessParameterName.PRODUCT.name()))
-                        .getServiceId());
+                                .getServiceId());
 
         @SuppressWarnings("unchecked")
         List<org.oscm.vo.VOUsageLicense> usageLicenses = (List<org.oscm.vo.VOUsageLicense>) wsParams
@@ -1240,32 +1173,23 @@ public class TriggerProcessListenerTest {
         assertNotNull(usageLicenses);
         assertEquals(1, usageLicenses.size());
         assertEquals(userId, usageLicenses.get(0).getUser().getUserId());
-        assertEquals(roleDefinitionId, usageLicenses.get(0).getRoleDefinition()
-                .getRoleId());
+        assertEquals(roleDefinitionId,
+                usageLicenses.get(0).getRoleDefinition().getRoleId());
 
         VONotification notification = (VONotification) wsParams
                 .get(TriggerProcessParameterName.NOTIFICATION.name());
         assertNotNull(notification);
         assertEquals(5, notification.getProperties().size());
-        assertEquals(
-                subscriptionId,
-                getPropertyValue(notification,
-                        VOProperty.SUBSCRIPTION_SUBSCRIPTION_ID));
-        assertEquals(
-                serviceInstanceId,
-                getPropertyValue(notification,
-                        VOProperty.SUBSCRIPTION_SERVICE_INSTANCE_ID));
-        assertEquals(
-                email,
-                getPropertyValue(notification, VOProperty.BILLING_CONTACT_EMAIL));
-        assertEquals(
-                address,
-                getPropertyValue(notification,
-                        VOProperty.BILLING_CONTACT_ADDRESS));
-        assertEquals(
-                companyName,
-                getPropertyValue(notification,
-                        VOProperty.BILLING_CONTACT_COMPANYNAME));
+        assertEquals(subscriptionId, getPropertyValue(notification,
+                VOProperty.SUBSCRIPTION_SUBSCRIPTION_ID));
+        assertEquals(serviceInstanceId, getPropertyValue(notification,
+                VOProperty.SUBSCRIPTION_SERVICE_INSTANCE_ID));
+        assertEquals(email, getPropertyValue(notification,
+                VOProperty.BILLING_CONTACT_EMAIL));
+        assertEquals(address, getPropertyValue(notification,
+                VOProperty.BILLING_CONTACT_ADDRESS));
+        assertEquals(companyName, getPropertyValue(notification,
+                VOProperty.BILLING_CONTACT_COMPANYNAME));
     }
 
     @Test
@@ -1301,7 +1225,7 @@ public class TriggerProcessListenerTest {
         assertEquals(serviceId,
                 ((org.oscm.vo.VOService) wsParams
                         .get(TriggerProcessParameterName.PRODUCT.name()))
-                        .getServiceId());
+                                .getServiceId());
 
         @SuppressWarnings("unchecked")
         List<org.oscm.vo.VOUsageLicense> usageLicenses = (List<org.oscm.vo.VOUsageLicense>) wsParams
@@ -1309,21 +1233,17 @@ public class TriggerProcessListenerTest {
         assertNotNull(usageLicenses);
         assertEquals(1, usageLicenses.size());
         assertEquals(userId, usageLicenses.get(0).getUser().getUserId());
-        assertEquals(roleDefinitionId, usageLicenses.get(0).getRoleDefinition()
-                .getRoleId());
+        assertEquals(roleDefinitionId,
+                usageLicenses.get(0).getRoleDefinition().getRoleId());
 
         VONotification notification = (VONotification) wsParams
                 .get(TriggerProcessParameterName.NOTIFICATION.name());
         assertNotNull(notification);
         assertEquals(2, notification.getProperties().size());
-        assertEquals(
-                subscriptionId,
-                getPropertyValue(notification,
-                        VOProperty.SUBSCRIPTION_SUBSCRIPTION_ID));
-        assertEquals(
-                serviceInstanceId,
-                getPropertyValue(notification,
-                        VOProperty.SUBSCRIPTION_SERVICE_INSTANCE_ID));
+        assertEquals(subscriptionId, getPropertyValue(notification,
+                VOProperty.SUBSCRIPTION_SUBSCRIPTION_ID));
+        assertEquals(serviceInstanceId, getPropertyValue(notification,
+                VOProperty.SUBSCRIPTION_SERVICE_INSTANCE_ID));
     }
 
     @Test
@@ -1363,10 +1283,8 @@ public class TriggerProcessListenerTest {
                 .get(TriggerProcessParameterName.NOTIFICATION.name());
         assertNotNull(notification);
         assertEquals(1, notification.getProperties().size());
-        assertEquals(
-                subId,
-                getPropertyValue(notification,
-                        VOProperty.SUBSCRIPTION_SUBSCRIPTION_ID));
+        assertEquals(subId, getPropertyValue(notification,
+                VOProperty.SUBSCRIPTION_SUBSCRIPTION_ID));
     }
 
     @Test
@@ -1415,7 +1333,7 @@ public class TriggerProcessListenerTest {
         roleDefinition.setRoleId(roleDefinitionId);
         license.setRoleDefinition(roleDefinition);
 
-        List<VOUsageLicense> users = new ArrayList<VOUsageLicense>();
+        List<VOUsageLicense> users = new ArrayList<>();
         users.add(license);
         tp.addTriggerProcessParameter(TriggerProcessParameterName.USERS, users);
     }
@@ -1466,22 +1384,14 @@ public class TriggerProcessListenerTest {
         assertEquals("param value", sentParameter.getValue());
         VONotification sentNotification = (VONotification) wsParams
                 .get("notification");
-        assertEquals(
-                "stored subId",
-                getPropertyValue(sentNotification,
-                        VOProperty.SUBSCRIPTION_SUBSCRIPTION_ID));
-        assertEquals(
-                "stored serv-instance-id",
-                getPropertyValue(sentNotification,
-                        VOProperty.SUBSCRIPTION_SERVICE_INSTANCE_ID));
-        assertEquals(
-                "stored service-Id",
-                getPropertyValue(sentNotification,
-                        VOProperty.SUBSCRIPTION_SERVICE_ID));
-        assertEquals(
-                "1",
-                getPropertyValue(sentNotification,
-                        VOProperty.SUBSCRIPTION_SERVICE_KEY));
+        assertEquals("stored subId", getPropertyValue(sentNotification,
+                VOProperty.SUBSCRIPTION_SUBSCRIPTION_ID));
+        assertEquals("stored serv-instance-id", getPropertyValue(
+                sentNotification, VOProperty.SUBSCRIPTION_SERVICE_INSTANCE_ID));
+        assertEquals("stored service-Id", getPropertyValue(sentNotification,
+                VOProperty.SUBSCRIPTION_SERVICE_ID));
+        assertEquals("1", getPropertyValue(sentNotification,
+                VOProperty.SUBSCRIPTION_SERVICE_KEY));
 
     }
 
