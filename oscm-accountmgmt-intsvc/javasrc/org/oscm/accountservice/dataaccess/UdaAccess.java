@@ -26,6 +26,7 @@ import org.oscm.domobjects.UdaDefinition;
 import org.oscm.internal.types.enumtypes.UdaConfigurationType;
 import org.oscm.internal.types.exception.ConcurrentModificationException;
 import org.oscm.internal.types.exception.DomainObjectException.ClassEnum;
+import org.oscm.internal.types.exception.MandatoryCustomerUdaMissingException;
 import org.oscm.internal.types.exception.MandatoryUdaMissingException;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
@@ -74,7 +75,7 @@ public class UdaAccess {
      *            the calling {@link Organization}
      * @throws ValidationException
      *             in case of an invalid {@link VOUda}
-     * @throws MandatoryUdaMissingException
+     * @throws MandatorytionUdaMissingException
      *             if a mandatory UDA is tried to be deleted
      * @throws OperationNotPermittedException
      *             if the access to the {@link UdaDefinition} or the target
@@ -133,9 +134,9 @@ public class UdaAccess {
             throw onfe;
         } catch (ValidationException e) {
             logger.logWarn(Log4jLogger.SYSTEM_LOG, e,
-                    LogMessageIdentifier.WARN_INVALID_UDA, ((voUda
-                            .getUdaDefinition() == null) ? null : voUda
-                            .getUdaDefinition().getUdaId()));
+                    LogMessageIdentifier.WARN_INVALID_UDA,
+                    ((voUda.getUdaDefinition() == null) ? null
+                            : voUda.getUdaDefinition().getUdaId()));
             ctx.setRollbackOnly();
             throw e;
         }
@@ -243,8 +244,8 @@ public class UdaAccess {
      *             in case the {@link Uda} has been concurrently changed
      */
     void deleteUda(VOUda voUda, Organization caller)
-            throws MandatoryUdaMissingException,
-            OperationNotPermittedException, ConcurrentModificationException {
+            throws MandatoryUdaMissingException, OperationNotPermittedException,
+            ConcurrentModificationException {
         Uda existing = ds.find(Uda.class, voUda.getKey());
         if (existing != null) {
             udaAccessValidator.canDeleteUda(existing, caller);
@@ -282,9 +283,9 @@ public class UdaAccess {
      * @throws ConcurrentModificationException
      *             in case a UDA to update has been changed concurrently
      */
-    public void saveUdasForSubscription(List<VOUda> udas,
-            Organization supplier, Subscription sub)
-            throws MandatoryUdaMissingException, ObjectNotFoundException,
+    public void saveUdasForSubscription(List<VOUda> udas, Organization supplier,
+            Subscription sub) throws MandatoryUdaMissingException,
+            MandatoryCustomerUdaMissingException, ObjectNotFoundException,
             NonUniqueBusinessKeyException, ValidationException,
             OperationNotPermittedException, ConcurrentModificationException {
         validateUdaAndAdaptTargetKey(udas, supplier, sub);
@@ -304,14 +305,18 @@ public class UdaAccess {
      *            the supplier of the {@link Subscription}s product
      * @param sub
      *            the context {@link Subscription}
-     * @throws MandatoryUdaMissingException
-     *             if a mandatory UDA is neither passed nor existing
+     * @throws MandatoryCustomerUdaMissingException
+     *             if a mandatory customer UDA is neither passed nor existing
+     * @throws MandatorySubscriptionUdaMissingException
+     *             if a mandatory subscription UDA is neither passed nor
+     *             existing
      * @throws ValidationException
      *             in case of an invalid {@link VOUda}
      */
     public void validateUdaAndAdaptTargetKey(List<VOUda> udas,
             Organization supplier, Subscription sub)
-            throws MandatoryUdaMissingException, ValidationException {
+            throws MandatoryCustomerUdaMissingException,
+            MandatoryUdaMissingException, ValidationException {
         // validate udas and adapt target keys
         for (VOUda voUda : udas) {
             // temporarily set the target key to a valid value (if 0 is passed
@@ -319,8 +324,8 @@ public class UdaAccess {
             voUda.setTargetObjectKey(1);
 
             UdaAssembler.validate(voUda);
-            UdaTargetType type = UdaAssembler.toUdaTargetType(voUda
-                    .getUdaDefinition().getTargetType());
+            UdaTargetType type = UdaAssembler
+                    .toUdaTargetType(voUda.getUdaDefinition().getTargetType());
 
             // now depending on the target type adapt the target keys
             switch (type) {
@@ -335,7 +340,8 @@ public class UdaAccess {
         mandatoryUdaValidator.checkAllRequiredUdasPassed(
                 supplier.getMandatoryUdaDefinitions(),
                 getExistingUdas(sub.getOrganization().getKey(), sub.getKey(),
-                        supplier), udas);
+                        supplier),
+                udas);
     }
 
     /**
@@ -359,9 +365,9 @@ public class UdaAccess {
         q.setParameter("subType", UdaTargetType.CUSTOMER_SUBSCRIPTION);
         q.setParameter("custKey", Long.valueOf(customerKey));
         q.setParameter("custType", UdaTargetType.CUSTOMER);
-        q.setParameter("configTypes", EnumSet.of(
-                UdaConfigurationType.USER_OPTION_MANDATORY,
-                UdaConfigurationType.USER_OPTION_OPTIONAL));
+        q.setParameter("configTypes",
+                EnumSet.of(UdaConfigurationType.USER_OPTION_MANDATORY,
+                        UdaConfigurationType.USER_OPTION_OPTIONAL));
         q.setParameter("supplierKey", Long.valueOf(supplier.getKey()));
         return ParameterizedTypes.list(q.getResultList(), Uda.class);
     }

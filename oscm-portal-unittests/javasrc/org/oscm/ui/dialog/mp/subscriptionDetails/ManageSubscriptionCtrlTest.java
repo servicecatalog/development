@@ -54,8 +54,13 @@ import org.oscm.internal.intf.SubscriptionServiceInternal;
 import org.oscm.internal.subscriptiondetails.POSubscriptionDetails;
 import org.oscm.internal.subscriptiondetails.SubscriptionDetailsService;
 import org.oscm.internal.triggerprocess.TriggerProcessesService;
-import org.oscm.internal.types.enumtypes.*;
+import org.oscm.internal.types.enumtypes.ParameterModificationType;
+import org.oscm.internal.types.enumtypes.ParameterValueType;
+import org.oscm.internal.types.enumtypes.PriceModelType;
+import org.oscm.internal.types.enumtypes.SubscriptionStatus;
+import org.oscm.internal.types.enumtypes.UserRoleType;
 import org.oscm.internal.types.exception.ConcurrentModificationException;
+import org.oscm.internal.types.exception.MandatoryCustomerUdaMissingException;
 import org.oscm.internal.types.exception.MandatoryUdaMissingException;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
@@ -183,10 +188,11 @@ public class ManageSubscriptionCtrlTest {
         ctrl.setPaymentAndBillingVisibleBean(paymentAndBillingVisibleBean);
 
         waitingForApprovalTriggerProcesses = new ArrayList<>();
-        when(
-                triggerProcessService
-                        .getAllWaitingForApprovalTriggerProcessesBySubscriptionId(anyString()))
-                .thenReturn(new Response(waitingForApprovalTriggerProcesses));
+        when(triggerProcessService
+                .getAllWaitingForApprovalTriggerProcessesBySubscriptionId(
+                        anyString()))
+                                .thenReturn(new Response(
+                                        waitingForApprovalTriggerProcesses));
 
         when(session.getSelectedSubscriptionId()).thenReturn("subscriptionId");
         when(ctrl.ui.getRequest()).thenReturn(httpRequest);
@@ -195,15 +201,14 @@ public class ManageSubscriptionCtrlTest {
         model.setService(new Service(new VOService()));
         model.getSubscription().setSubscriptionId("test");
 
-        VOSubscriptionDetails subscription = givenSubscription(SUBSCRIPTION_FREE);
+        VOSubscriptionDetails subscription = givenSubscription(
+                SUBSCRIPTION_FREE);
         subscription.setStatus(SubscriptionStatus.ACTIVE);
 
         POSubscriptionDetails subscriptionDetails = givenPOSubscriptionDetails();
         subscriptionDetails.setSubscription(subscription);
-        when(
-                subscriptionDetailsService.getSubscriptionDetails(anyString(),
-                        anyString())).thenReturn(
-                new Response(subscriptionDetails));
+        when(subscriptionDetailsService.getSubscriptionDetails(anyString(),
+                anyString())).thenReturn(new Response(subscriptionDetails));
         when(subscriptionDetailsService.loadSubscriptionStatus(anyLong()))
                 .thenReturn(new Response(SubscriptionStatus.ACTIVE));
         when(ctrl.ui.getViewLocale()).thenReturn(Locale.GERMAN);
@@ -262,7 +267,8 @@ public class ManageSubscriptionCtrlTest {
         return subscription;
     }
 
-    private void preparePaymentInfo(VOSubscriptionDetails subscription, long key) {
+    private void preparePaymentInfo(VOSubscriptionDetails subscription,
+            long key) {
         VOPaymentInfo paymentInfo = new VOPaymentInfo();
         paymentInfo.setKey(key);
         subscription.setPaymentInfo(paymentInfo);
@@ -314,8 +320,8 @@ public class ManageSubscriptionCtrlTest {
     private void modify_assertRefreshModel(boolean refreshModellExpected)
             throws Exception {
         int numberExpectedRefreshMethodCall = refreshModellExpected ? 1 : 0;
-        verify(ctrl, times(numberExpectedRefreshMethodCall)).refreshModel(
-                any(VOSubscriptionDetails.class));
+        verify(ctrl, times(numberExpectedRefreshMethodCall))
+                .refreshModel(any(VOSubscriptionDetails.class));
     }
 
     private void modify_assertUISuccessMessage(boolean successMsgExpected) {
@@ -332,16 +338,15 @@ public class ManageSubscriptionCtrlTest {
             SubscriptionMigrationException, ConcurrentModificationException,
             TechnicalServiceNotAliveException, OperationPendingException,
             MandatoryUdaMissingException, SubscriptionStateException,
-            OrganizationAuthoritiesException {
+            OrganizationAuthoritiesException,
+            MandatoryCustomerUdaMissingException {
         sub = givenSubscriptionWithParameters(parameterKey, value);
         sub.setSubscriptionId("test");
         sub.setStatus(status);
 
-        when(
-                subscriptionService.modifySubscription(
-                        any(VOSubscriptionDetails.class),
-                        anyListOf(VOParameter.class), anyListOf(VOUda.class)))
-                .thenReturn(sub);
+        when(subscriptionService.modifySubscription(
+                any(VOSubscriptionDetails.class), anyListOf(VOParameter.class),
+                anyListOf(VOUda.class))).thenReturn(sub);
         doAnswer(new Answer<Object>() {
 
             @Override
@@ -365,9 +370,8 @@ public class ManageSubscriptionCtrlTest {
         List<UdaRow> refreshedSubscriptionUdaRows = model
                 .getSubscriptionUdaRows();
         assertEquals(1, refreshedSubscriptionUdaRows.size());
-        assertEquals(UdaBean.CUSTOMER_SUBSCRIPTION,
-                refreshedSubscriptionUdaRows.get(0).getUdaDefinition()
-                        .getTargetType());
+        assertEquals(UdaBean.CUSTOMER_SUBSCRIPTION, refreshedSubscriptionUdaRows
+                .get(0).getUdaDefinition().getTargetType());
     }
 
     private VOUserDetails prepareVOUserDetails_SubMgr(String userId,
@@ -399,10 +403,8 @@ public class ManageSubscriptionCtrlTest {
         if (ownerUserId != null)
             for (User user : model.getSubscriptionOwners()) {
                 if (user.isOwnerSelected()) {
-                    assertEquals(
-                            Boolean.TRUE,
-                            Boolean.valueOf(user.getUserId().equalsIgnoreCase(
-                                    ownerUserId)));
+                    assertEquals(Boolean.TRUE, Boolean.valueOf(
+                            user.getUserId().equalsIgnoreCase(ownerUserId)));
                 }
             }
     }
@@ -423,32 +425,33 @@ public class ManageSubscriptionCtrlTest {
     }
 
     private void assertParametersModified(long key, String value) {
-        assertEquals(model.getServiceParameters().get(0).getParameter()
-                .getKey(), model.getSubscriptionParameters().get(0)
-                .getParameter().getKey());
-        assertEquals(model.getServiceParameters().get(0).getParameter()
-                .getValue(), model.getSubscriptionParameters().get(0)
-                .getParameter().getValue());
-        assertEquals(model.getServiceParameters().get(0).getParameter()
-                .getKey(), key);
-        assertEquals(model.getServiceParameters().get(0).getParameter()
-                .getValue(), value);
         assertEquals(
-                model.getService().getVO().getParameters().get(0).getKey(),
+                model.getServiceParameters().get(0).getParameter().getKey(),
+                model.getSubscriptionParameters().get(0).getParameter()
+                        .getKey());
+        assertEquals(
+                model.getServiceParameters().get(0).getParameter().getValue(),
+                model.getSubscriptionParameters().get(0).getParameter()
+                        .getValue());
+        assertEquals(
+                model.getServiceParameters().get(0).getParameter().getKey(),
+                key);
+        assertEquals(
+                model.getServiceParameters().get(0).getParameter().getValue(),
+                value);
+        assertEquals(model.getService().getVO().getParameters().get(0).getKey(),
                 model.getServiceParameters().get(0).getParameter().getKey());
-        assertEquals(model.getService().getVO().getParameters().get(0)
-                .getValue(), model.getServiceParameters().get(0).getParameter()
-                .getValue());
+        assertEquals(
+                model.getService().getVO().getParameters().get(0).getValue(),
+                model.getServiceParameters().get(0).getParameter().getValue());
     }
 
     @Test
     public void modify_subscriptionSuspended() throws Exception {
         // given
-        when(
-                subscriptionService.modifySubscription(
-                        any(VOSubscriptionDetails.class),
-                        anyListOf(VOParameter.class), anyListOf(VOUda.class)))
-                .thenReturn(null);
+        when(subscriptionService.modifySubscription(
+                any(VOSubscriptionDetails.class), anyListOf(VOParameter.class),
+                anyListOf(VOUda.class))).thenReturn(null);
         PricedParameterRow param = decorateWithPricedParameterRow();
 
         // when
@@ -506,9 +509,11 @@ public class ManageSubscriptionCtrlTest {
         assertEquals(Boolean.TRUE, Boolean.valueOf(model.isReadOnlyParams()));
         assertEquals(Boolean.TRUE, Boolean.valueOf(model.isAsyncModified()));
         assertEquals(SubscriptionDetailsCtrlConstants.OUTCOME_SUCCESS, outcome);
-        assertEquals(JSFUtils.getText(
-                SubscriptionDetailsCtrlConstants.SUBSCRIPTION_STATE_WARNING,
-                new Object[] { "pending update" }), model.getStateWarning());
+        assertEquals(
+                JSFUtils.getText(
+                        SubscriptionDetailsCtrlConstants.SUBSCRIPTION_STATE_WARNING,
+                        new Object[] { "pending update" }),
+                model.getStateWarning());
         verify(param).rewriteEncryptedValues();
     }
 
@@ -650,11 +655,9 @@ public class ManageSubscriptionCtrlTest {
         VOServiceEntry voService = mock(VOServiceEntry.class);
         doReturn(voService).when(subscription).getSubscribedService();
 
-        when(
-                subscriptionService.modifySubscription(
-                        any(VOSubscriptionDetails.class),
-                        anyListOf(VOParameter.class), anyListOf(VOUda.class)))
-                .thenReturn(subscription);
+        when(subscriptionService.modifySubscription(
+                any(VOSubscriptionDetails.class), anyListOf(VOParameter.class),
+                anyListOf(VOUda.class))).thenReturn(subscription);
 
         doAnswer(new Answer<Object>() {
             @Override
@@ -667,8 +670,8 @@ public class ManageSubscriptionCtrlTest {
         ctrl.refreshModel(subscription);
 
         // then
-        verify(ctrl, times(1)).refreshSubscriptionParametersInModel(
-                subscription);
+        verify(ctrl, times(1))
+                .refreshSubscriptionParametersInModel(subscription);
         verify(ctrl, times(1))
                 .refreshOrgAndSubscriptionUdasInModel(anyString());
         assertEquals(Boolean.FALSE,
@@ -704,7 +707,8 @@ public class ManageSubscriptionCtrlTest {
     }
 
     @Test
-    public void updateRoles_userNotAssignedToTheSubscription() throws Exception {
+    public void updateRoles_userNotAssignedToTheSubscription()
+            throws Exception {
         // given
         final String OUTCOME_MODIFICATION_ERROR = "concurrentModificationError";
         ManageSubscriptionModel model = new ManageSubscriptionModel();
@@ -730,13 +734,13 @@ public class ManageSubscriptionCtrlTest {
     public void refreshOrgAndSubscriptionUdasInModel() throws Exception {
         // given
         when(ctrl.ui.getViewLocale()).thenReturn(Locale.ENGLISH);
-        SubscriptionDetailsService subscriptionDetailService = mock(SubscriptionDetailsService.class);
+        SubscriptionDetailsService subscriptionDetailService = mock(
+                SubscriptionDetailsService.class);
 
         String subscriptionId = anyString();
-        when(
-                subscriptionDetailService.getSubscriptionDetails(
-                        subscriptionId, anyString())).thenReturn(
-                new Response(givenPOSubscriptionDetails()));
+        when(subscriptionDetailService.getSubscriptionDetails(subscriptionId,
+                anyString()))
+                        .thenReturn(new Response(givenPOSubscriptionDetails()));
 
         // when
         ctrl.refreshOrgAndSubscriptionUdasInModel(subscriptionId);
@@ -754,8 +758,8 @@ public class ManageSubscriptionCtrlTest {
         ctrl.initialize();
 
         // then
-        verify(ctrl.ui, never()).handleException(
-                any(SaaSApplicationException.class));
+        verify(ctrl.ui, never())
+                .handleException(any(SaaSApplicationException.class));
 
         assertTrue(model.isSubscriptionExisting());
         assertFalse(model.isReadOnlyParams());
@@ -771,8 +775,8 @@ public class ManageSubscriptionCtrlTest {
         ctrl.initialize();
 
         // then
-        verify(ctrl.ui, times(1)).handleException(
-                any(ObjectNotFoundException.class));
+        verify(ctrl.ui, times(1))
+                .handleException(any(ObjectNotFoundException.class));
     }
 
     /**
@@ -782,14 +786,15 @@ public class ManageSubscriptionCtrlTest {
     public void initializeSubscription() throws Exception {
         // given
         SubscriptionDetailsService ss = mock(SubscriptionDetailsService.class);
-        VOSubscriptionDetails subscription = givenSubscription(!SUBSCRIPTION_FREE);
+        VOSubscriptionDetails subscription = givenSubscription(
+                !SUBSCRIPTION_FREE);
         POSubscriptionDetails subscriptionDetails = givenPOSubscriptionDetails();
         subscriptionDetails.setSubscription(subscription);
         when(ss.getSubscriptionDetails(eq("subscription_id"), anyString()))
                 .thenReturn(new Response(subscriptionDetails));
         when(ctrl.ui.getViewLocale()).thenReturn(Locale.ENGLISH);
-        when(ctrl.getSubscriptionUnitCtrl().getModel()).thenReturn(
-                subscriptionUnitModel);
+        when(ctrl.getSubscriptionUnitCtrl().getModel())
+                .thenReturn(subscriptionUnitModel);
         // when
         ctrl.initializeSubscription("subscription_id");
 
@@ -804,18 +809,19 @@ public class ManageSubscriptionCtrlTest {
         // given
         SubscriptionDetailsService ss = mock(SubscriptionDetailsService.class);
 
-        VOSubscriptionDetails subscription = givenSubscription(!SUBSCRIPTION_FREE);
+        VOSubscriptionDetails subscription = givenSubscription(
+                !SUBSCRIPTION_FREE);
         POSubscriptionDetails subscriptionDetails = givenPOSubscriptionDetails();
         subscriptionDetails.setSubscription(subscription);
         when(ss.getSubscriptionDetails(eq("subscription_id"), anyString()))
                 .thenReturn(new Response(subscriptionDetails));
         when(ctrl.ui.getViewLocale()).thenReturn(Locale.ENGLISH);
-        when(Boolean.valueOf(userBean.isLoggedInAndAdmin())).thenReturn(
-                Boolean.FALSE);
+        when(Boolean.valueOf(userBean.isLoggedInAndAdmin()))
+                .thenReturn(Boolean.FALSE);
         when(Boolean.valueOf(userBean.isLoggedInAndSubscriptionManager()))
                 .thenReturn(Boolean.TRUE);
-        when(ctrl.getSubscriptionUnitCtrl().getModel()).thenReturn(
-                subscriptionUnitModel);
+        when(ctrl.getSubscriptionUnitCtrl().getModel())
+                .thenReturn(subscriptionUnitModel);
         // when
         ctrl.initializeSubscription("subscription_id");
 
@@ -829,18 +835,19 @@ public class ManageSubscriptionCtrlTest {
         // given
         SubscriptionDetailsService ss = mock(SubscriptionDetailsService.class);
 
-        VOSubscriptionDetails subscription = givenSubscription(!SUBSCRIPTION_FREE);
+        VOSubscriptionDetails subscription = givenSubscription(
+                !SUBSCRIPTION_FREE);
         POSubscriptionDetails subscriptionDetails = givenPOSubscriptionDetails();
         subscriptionDetails.setSubscription(subscription);
         when(ss.getSubscriptionDetails(eq("subscription_id"), anyString()))
                 .thenReturn(new Response(subscriptionDetails));
         when(ctrl.ui.getViewLocale()).thenReturn(Locale.ENGLISH);
-        when(Boolean.valueOf(userBean.isLoggedInAndAdmin())).thenReturn(
-                Boolean.TRUE);
+        when(Boolean.valueOf(userBean.isLoggedInAndAdmin()))
+                .thenReturn(Boolean.TRUE);
         when(Boolean.valueOf(userBean.isLoggedInAndSubscriptionManager()))
                 .thenReturn(Boolean.FALSE);
-        when(ctrl.getSubscriptionUnitCtrl().getModel()).thenReturn(
-                subscriptionUnitModel);
+        when(ctrl.getSubscriptionUnitCtrl().getModel())
+                .thenReturn(subscriptionUnitModel);
         // when
         ctrl.initializeSubscription("subscription_id");
 
@@ -854,7 +861,8 @@ public class ManageSubscriptionCtrlTest {
         // given
         SubscriptionDetailsService ss = mock(SubscriptionDetailsService.class);
         //
-        VOSubscriptionDetails subscription = givenSubscription(!SUBSCRIPTION_FREE);
+        VOSubscriptionDetails subscription = givenSubscription(
+                !SUBSCRIPTION_FREE);
         POSubscriptionDetails subscriptionDetails = givenPOSubscriptionDetails();
         subscriptionDetails.setSubscription(subscription);
         when(ss.getSubscriptionDetails(eq("subscription_id"), anyString()))
@@ -863,14 +871,13 @@ public class ManageSubscriptionCtrlTest {
         VOTriggerProcess triggerProcess = new VOTriggerProcess();
         triggerProcessList.add(triggerProcess);
         Response response = mock(Response.class);
-        when(
-                triggerProcessService
-                        .getAllWaitingForApprovalTriggerProcessesBySubscriptionId(any(String.class)))
-                .thenReturn(response);
-        when(response.getResultList(VOTriggerProcess.class)).thenReturn(
-                triggerProcessList);
-        when(ctrl.getSubscriptionUnitCtrl().getModel()).thenReturn(
-                subscriptionUnitModel);
+        when(triggerProcessService
+                .getAllWaitingForApprovalTriggerProcessesBySubscriptionId(
+                        any(String.class))).thenReturn(response);
+        when(response.getResultList(VOTriggerProcess.class))
+                .thenReturn(triggerProcessList);
+        when(ctrl.getSubscriptionUnitCtrl().getModel())
+                .thenReturn(subscriptionUnitModel);
         // when
         ctrl.initializeSubscription("subscription_id");
 
@@ -884,7 +891,8 @@ public class ManageSubscriptionCtrlTest {
     public void initializeSubscription_addSubscriptionOwners_withStoredOwner()
             throws Exception {
         // given
-        VOSubscriptionDetails subscription = givenSubscription(!SUBSCRIPTION_FREE);
+        VOSubscriptionDetails subscription = givenSubscription(
+                !SUBSCRIPTION_FREE);
         subscription.setOwnerId("owner");
         POSubscriptionDetails subscriptionDetails = givenPOSubscriptionDetails();
         subscriptionDetails.setSubscription(subscription);
@@ -893,13 +901,12 @@ public class ManageSubscriptionCtrlTest {
         userList.add(prepareVOUserDetails_OrgAdmin("admin"));
         userList.add(prepareVOUserDetails_SubMgr("notowner", false));
         subscriptionDetails.setUsersForOrganization(userList);
-        when(
-                subscriptionDetailsService.getSubscriptionDetails(
-                        eq("subscription_id"), anyString())).thenReturn(
-                new Response(subscriptionDetails));
+        when(subscriptionDetailsService
+                .getSubscriptionDetails(eq("subscription_id"), anyString()))
+                        .thenReturn(new Response(subscriptionDetails));
         when(ctrl.ui.getViewLocale()).thenReturn(Locale.ENGLISH);
-        when(ctrl.getSubscriptionUnitCtrl().getModel()).thenReturn(
-                subscriptionUnitModel);
+        when(ctrl.getSubscriptionUnitCtrl().getModel())
+                .thenReturn(subscriptionUnitModel);
         // when
         ctrl.initializeSubscription("subscription_id");
 
@@ -917,20 +924,20 @@ public class ManageSubscriptionCtrlTest {
     public void initializeSubscription_addSubscriptionOwners_withoutStoredOwner()
             throws Exception {
         // given
-        VOSubscriptionDetails subscription = givenSubscription(!SUBSCRIPTION_FREE);
+        VOSubscriptionDetails subscription = givenSubscription(
+                !SUBSCRIPTION_FREE);
         POSubscriptionDetails subscriptionDetails = givenPOSubscriptionDetails();
         subscriptionDetails.setSubscription(subscription);
         List<VOUserDetails> userList = new ArrayList<>();
         userList.add(prepareVOUserDetails_SubMgr("owner", true));
         userList.add(prepareVOUserDetails_SubMgr("notowner", false));
         subscriptionDetails.setUsersForOrganization(userList);
-        when(
-                subscriptionDetailsService.getSubscriptionDetails(
-                        eq("subscription_id"), anyString())).thenReturn(
-                new Response(subscriptionDetails));
+        when(subscriptionDetailsService
+                .getSubscriptionDetails(eq("subscription_id"), anyString()))
+                        .thenReturn(new Response(subscriptionDetails));
         when(ctrl.ui.getViewLocale()).thenReturn(Locale.ENGLISH);
-        when(ctrl.getSubscriptionUnitCtrl().getModel()).thenReturn(
-                subscriptionUnitModel);
+        when(ctrl.getSubscriptionUnitCtrl().getModel())
+                .thenReturn(subscriptionUnitModel);
         // when
         ctrl.initializeSubscription("subscription_id");
 
@@ -949,14 +956,15 @@ public class ManageSubscriptionCtrlTest {
         // given
         SubscriptionDetailsService ss = mock(SubscriptionDetailsService.class);
 
-        VOSubscriptionDetails subscription = givenSubscription(SUBSCRIPTION_FREE);
+        VOSubscriptionDetails subscription = givenSubscription(
+                SUBSCRIPTION_FREE);
         POSubscriptionDetails subscriptionDetails = givenPOSubscriptionDetails();
         subscriptionDetails.setSubscription(subscription);
         when(ss.getSubscriptionDetails(eq("subscription_id"), anyString()))
                 .thenReturn(new Response(subscriptionDetails));
         when(ctrl.ui.getViewLocale()).thenReturn(Locale.ENGLISH);
-        when(ctrl.getSubscriptionUnitCtrl().getModel()).thenReturn(
-                subscriptionUnitModel);
+        when(ctrl.getSubscriptionUnitCtrl().getModel())
+                .thenReturn(subscriptionUnitModel);
         // when
         ctrl.initializeSubscription("subscription_id");
 
@@ -967,7 +975,8 @@ public class ManageSubscriptionCtrlTest {
     @Test
     public void initPaymentInfo() {
         // given
-        VOSubscriptionDetails subscription = givenSubscription(!SUBSCRIPTION_FREE);
+        VOSubscriptionDetails subscription = givenSubscription(
+                !SUBSCRIPTION_FREE);
         model.setSubscription(subscription);
         // when
         ctrl.initPaymentInfo();
@@ -975,20 +984,20 @@ public class ManageSubscriptionCtrlTest {
         // then
         verify(billingContactBean).getBillingContacts();
         verify(paymentInfoBean).getPaymentInfosForSubscription();
-        verify(billingContactBean, times(1)).setSelectedBillingContactKey(
-                eq(Long.valueOf(model.getSubscription().getBillingContact()
-                        .getKey())));
+        verify(billingContactBean, times(1))
+                .setSelectedBillingContactKey(eq(Long.valueOf(
+                        model.getSubscription().getBillingContact().getKey())));
         verify(paymentInfoBean, times(1))
-                .setSelectedPaymentInfoForSubscriptionKey(
-                        eq(Long.valueOf(model.getSubscription()
-                                .getPaymentInfo().getKey())));
+                .setSelectedPaymentInfoForSubscriptionKey(eq(Long.valueOf(
+                        model.getSubscription().getPaymentInfo().getKey())));
 
     }
 
     @Test
     public void initPaymentInfo_NoPaymentInfoNoBillingContact() {
         // given
-        VOSubscriptionDetails subscription = givenSubscription(SUBSCRIPTION_FREE);
+        VOSubscriptionDetails subscription = givenSubscription(
+                SUBSCRIPTION_FREE);
         model.setSubscription(subscription);
 
         // when
@@ -1003,14 +1012,15 @@ public class ManageSubscriptionCtrlTest {
     @Test
     public void leavePaymentTab_ok() {
         // given
-        VOSubscriptionDetails subscription = givenSubscription(!SUBSCRIPTION_FREE);
+        VOSubscriptionDetails subscription = givenSubscription(
+                !SUBSCRIPTION_FREE);
         model.setSubscription(subscription);
         // when
         String result = ctrl.leavePaymentTab();
         // then
-        verify(billingContactBean, times(1)).setSelectedBillingContactKey(
-                eq(Long.valueOf(model.getSubscription().getBillingContact()
-                        .getKey())));
+        verify(billingContactBean, times(1))
+                .setSelectedBillingContactKey(eq(Long.valueOf(
+                        model.getSubscription().getBillingContact().getKey())));
         boolean isDirty = model.isDirty();
         assertFalse(isDirty);
         assertNull(result);
@@ -1116,7 +1126,8 @@ public class ManageSubscriptionCtrlTest {
         ctrl.refreshSelectedOwnerName(prepareSubOwner("owner1", true));
 
         // then
-        assertEquals("FirstName LastName(owner1)", model.getSelectedOwnerName());
+        assertEquals("FirstName LastName(owner1)",
+                model.getSelectedOwnerName());
     }
 
     @Test
@@ -1128,7 +1139,8 @@ public class ManageSubscriptionCtrlTest {
         ctrl.refreshSelectedOwnerName(prepareSubOwner("owner1", true));
 
         // then
-        assertEquals("LastName FirstName(owner1)", model.getSelectedOwnerName());
+        assertEquals("LastName FirstName(owner1)",
+                model.getSelectedOwnerName());
     }
 
     @Test
@@ -1141,10 +1153,8 @@ public class ManageSubscriptionCtrlTest {
         ctrl.updateSelectedOwner();
 
         // then
-        assertEquals(
-                Boolean.TRUE,
-                Boolean.valueOf(model.getSelectedOwner().getUserId()
-                        .equalsIgnoreCase("owner2")));
+        assertEquals(Boolean.TRUE, Boolean.valueOf(model.getSelectedOwner()
+                .getUserId().equalsIgnoreCase("owner2")));
     }
 
     @Test
@@ -1170,7 +1180,8 @@ public class ManageSubscriptionCtrlTest {
 
         // then
         for (User user : model.getSubscriptionOwners()) {
-            assertEquals(Boolean.FALSE, Boolean.valueOf(user.isOwnerSelected()));
+            assertEquals(Boolean.FALSE,
+                    Boolean.valueOf(user.isOwnerSelected()));
         }
         assertEquals(Boolean.FALSE, Boolean.valueOf(ctrl.isOwnerSelected()));
     }
@@ -1179,8 +1190,8 @@ public class ManageSubscriptionCtrlTest {
     public void validateSubscriptionAccessible_subscriptionInvalid()
             throws Exception {
         // given
-        when(ctrl.getSubscriptionsHelper()).thenReturn(
-                new SubscriptionsHelper());
+        when(ctrl.getSubscriptionsHelper())
+                .thenReturn(new SubscriptionsHelper());
         when(subscriptionDetailsService.loadSubscriptionStatus(anyLong()))
                 .thenReturn(new Response(SubscriptionStatus.INVALID));
 
@@ -1197,8 +1208,8 @@ public class ManageSubscriptionCtrlTest {
     public void validateSubscriptionAccessible_subscriptionDeactivated()
             throws Exception {
         // given
-        when(ctrl.getSubscriptionsHelper()).thenReturn(
-                new SubscriptionsHelper());
+        when(ctrl.getSubscriptionsHelper())
+                .thenReturn(new SubscriptionsHelper());
         when(subscriptionDetailsService.loadSubscriptionStatus(anyLong()))
                 .thenReturn(new Response(SubscriptionStatus.DEACTIVATED));
 
@@ -1243,10 +1254,9 @@ public class ManageSubscriptionCtrlTest {
             throws Exception {
         // given
         model.getSubscription().setSubscriptionId("subscriptionId");
-        when(
-                Boolean.valueOf(subscriptionService
-                        .unsubscribeFromService(anyString()))).thenReturn(
-                Boolean.FALSE);
+        when(Boolean.valueOf(
+                subscriptionService.unsubscribeFromService(anyString())))
+                        .thenReturn(Boolean.FALSE);
 
         SessionService sessionService = mock(SessionService.class);
         ctrl.setSessionService(sessionService);
@@ -1287,11 +1297,10 @@ public class ManageSubscriptionCtrlTest {
     @Test
     public void savePayment_subscriptionAccessible() throws Exception {
         // given
-        when(
-                subscriptionService.modifySubscriptionPaymentData(
-                        any(VOSubscription.class), any(VOBillingContact.class),
-                        any(VOPaymentInfo.class))).thenReturn(
-                new VOSubscriptionDetails());
+        when(subscriptionService.modifySubscriptionPaymentData(
+                any(VOSubscription.class), any(VOBillingContact.class),
+                any(VOPaymentInfo.class)))
+                        .thenReturn(new VOSubscriptionDetails());
         // when
         String result = ctrl.savePayment();
 
@@ -1320,7 +1329,8 @@ public class ManageSubscriptionCtrlTest {
     }
 
     @Test
-    public void actionLoadIframe_setShowExternalConfigurator() throws Exception {
+    public void actionLoadIframe_setShowExternalConfigurator()
+            throws Exception {
         // given
         List<User> users = new ArrayList<>();
         model.setAssignedUsers(users);
@@ -1376,10 +1386,9 @@ public class ManageSubscriptionCtrlTest {
         // given
         List<User> users = new ArrayList<>();
         model.setAssignedUsers(users);
-        doReturn(null).when(jsonConverter)
-                .getServiceParametersAsJsonString(
-                        anyListOf(PricedParameterRow.class), anyBoolean(),
-                        anyBoolean());
+        doReturn(null).when(jsonConverter).getServiceParametersAsJsonString(
+                anyListOf(PricedParameterRow.class), anyBoolean(),
+                anyBoolean());
 
         // when
         String result = ctrl.actionLoadIframe();
@@ -1473,9 +1482,11 @@ public class ManageSubscriptionCtrlTest {
         assertTrue(model.isUpgTabDisabled());
         assertEquals(Boolean.FALSE,
                 Boolean.valueOf(model.isUnsubscribeButtonDisabled()));
-        assertEquals(JSFUtils.getText(
-                SubscriptionDetailsCtrlConstants.SUBSCRIPTION_STATE_WARNING,
-                new Object[] { "pending update" }), model.getStateWarning());
+        assertEquals(
+                JSFUtils.getText(
+                        SubscriptionDetailsCtrlConstants.SUBSCRIPTION_STATE_WARNING,
+                        new Object[] { "pending update" }),
+                model.getStateWarning());
     }
 
     @Test
@@ -1517,9 +1528,11 @@ public class ManageSubscriptionCtrlTest {
         assertTrue(model.isUpgTabDisabled());
         assertEquals(Boolean.FALSE,
                 Boolean.valueOf(model.isUnsubscribeButtonDisabled()));
-        assertEquals(JSFUtils.getText(
-                SubscriptionDetailsCtrlConstants.SUBSCRIPTION_STATE_WARNING,
-                new Object[] { "suspended update" }), model.getStateWarning());
+        assertEquals(
+                JSFUtils.getText(
+                        SubscriptionDetailsCtrlConstants.SUBSCRIPTION_STATE_WARNING,
+                        new Object[] { "suspended update" }),
+                model.getStateWarning());
     }
 
     @Test
@@ -1604,9 +1617,11 @@ public class ManageSubscriptionCtrlTest {
         assertEquals(Boolean.TRUE, Boolean.valueOf(model.isUpgTabDisabled()));
         assertEquals(Boolean.TRUE,
                 Boolean.valueOf(model.isUnsubscribeButtonDisabled()));
-        assertEquals(JSFUtils.getText(
-                SubscriptionDetailsCtrlConstants.SUBSCRIPTION_STATE_WARNING,
-                new Object[] { "pending update" }), model.getStateWarning());
+        assertEquals(
+                JSFUtils.getText(
+                        SubscriptionDetailsCtrlConstants.SUBSCRIPTION_STATE_WARNING,
+                        new Object[] { "pending update" }),
+                model.getStateWarning());
     }
 
     @Test
@@ -1648,9 +1663,11 @@ public class ManageSubscriptionCtrlTest {
         assertEquals(Boolean.TRUE, Boolean.valueOf(model.isUpgTabDisabled()));
         assertEquals(Boolean.TRUE,
                 Boolean.valueOf(model.isUnsubscribeButtonDisabled()));
-        assertEquals(JSFUtils.getText(
-                SubscriptionDetailsCtrlConstants.SUBSCRIPTION_STATE_WARNING,
-                new Object[] { "suspended update" }), model.getStateWarning());
+        assertEquals(
+                JSFUtils.getText(
+                        SubscriptionDetailsCtrlConstants.SUBSCRIPTION_STATE_WARNING,
+                        new Object[] { "suspended update" }),
+                model.getStateWarning());
     }
 
     @Test
@@ -1673,7 +1690,8 @@ public class ManageSubscriptionCtrlTest {
     public void reload_bug10504() throws Exception {
         // given
 
-        VOSubscriptionDetails subscription = givenSubscription(!SUBSCRIPTION_FREE);
+        VOSubscriptionDetails subscription = givenSubscription(
+                !SUBSCRIPTION_FREE);
         subscription.setOwnerId("owner1");
         subscription.setSubscriptionId("subscription_id");
         subscription.setKey(10L);
@@ -1682,16 +1700,14 @@ public class ManageSubscriptionCtrlTest {
         List<VOUserDetails> userList = new ArrayList<>();
         userList.add(prepareVOUserDetails_SubMgr("owner1", true));
         subscriptionDetails.setUsersForOrganization(userList);
-        when(
-                subscriptionDetailsService.getSubscriptionDetails(eq(10L),
-                        anyString())).thenReturn(
-                new Response(subscriptionDetails));
+        when(subscriptionDetailsService.getSubscriptionDetails(eq(10L),
+                anyString())).thenReturn(new Response(subscriptionDetails));
         when(ctrl.ui.getViewLocale()).thenReturn(Locale.ENGLISH);
         setSubscriptionOwners(true, false);
         model.setSubscription(subscription);
         model.setNoSubscriptionOwner(true);
-        when(ctrl.getSubscriptionUnitCtrl().getModel()).thenReturn(
-                subscriptionUnitModel);
+        when(ctrl.getSubscriptionUnitCtrl().getModel())
+                .thenReturn(subscriptionUnitModel);
         // when
         ctrl.reload();
         // then
@@ -1736,8 +1752,7 @@ public class ManageSubscriptionCtrlTest {
         String result = ctrl.getNoPaymentTypeAvailableMSG();
 
         // then
-        assertEquals(
-                result,
+        assertEquals(result,
                 SubscriptionDetailsCtrlConstants.MESSAGE_NO_PAYMENT_TYPE_ENABLED);
     }
 
@@ -1754,8 +1769,7 @@ public class ManageSubscriptionCtrlTest {
         String result = ctrl.getNoPaymentTypeAvailableMSG();
 
         // then
-        assertEquals(
-                result,
+        assertEquals(result,
                 SubscriptionDetailsCtrlConstants.MESSAGE_NO_PAYMENT_TYPE_AVAILABLE);
     }
 
@@ -1781,7 +1795,8 @@ public class ManageSubscriptionCtrlTest {
     @Test
     public void initializePriceModel_Subscription() {
         // given
-        VOSubscriptionDetails voSubscription = mock(VOSubscriptionDetails.class);
+        VOSubscriptionDetails voSubscription = mock(
+                VOSubscriptionDetails.class);
         mockPriceModelWithRolePrices(voSubscription);
 
         // when
@@ -1847,9 +1862,8 @@ public class ManageSubscriptionCtrlTest {
         model.getSubscription().setUnitKey(1L);
         List<POUserGroup> usergroups = new ArrayList<>();
         usergroups.add(prepareUserGroup(1L, "unit1"));
-        when(
-                userGroupService.getUserGroupsForUserWithRole(anyLong(),
-                        anyLong())).thenReturn(usergroups);
+        when(userGroupService.getUserGroupsForUserWithRole(anyLong(),
+                anyLong())).thenReturn(usergroups);
 
         // when
         boolean showOwnerWarning = ctrl.shouldOwnerWarningBeShown();
@@ -1868,9 +1882,8 @@ public class ManageSubscriptionCtrlTest {
         model.getSubscription().setUnitKey(2L);
         List<POUserGroup> usergroups = new ArrayList<>();
         usergroups.add(prepareUserGroup(1L, "unit1"));
-        when(
-                userGroupService.getUserGroupsForUserWithRole(anyLong(),
-                        anyLong())).thenReturn(usergroups);
+        when(userGroupService.getUserGroupsForUserWithRole(anyLong(),
+                anyLong())).thenReturn(usergroups);
 
         // when
         boolean showOwnerWarning = ctrl.shouldOwnerWarningBeShown();
@@ -1900,8 +1913,8 @@ public class ManageSubscriptionCtrlTest {
         List<User> users = new ArrayList<>();
         List<VOUserDetails> voUsers = new ArrayList<>();
         VOUserDetails voUserDetails = new VOUserDetails();
-        voUserDetails.setUserRoles(Sets
-                .newHashSet(UserRoleType.SUBSCRIPTION_MANAGER));
+        voUserDetails.setUserRoles(
+                Sets.newHashSet(UserRoleType.SUBSCRIPTION_MANAGER));
         voUsers.add(voUserDetails);
         User user = new User(voUserDetails);
 
@@ -1909,9 +1922,9 @@ public class ManageSubscriptionCtrlTest {
         model = spy(model);
         ctrl.setModel(model);
         model.setSubscriptionOwners(new ArrayList<User>());
-        when(
-                ctrl.getOperatorService().getSubscriptionOwnersForAssignment(
-                        anyLong())).thenReturn(voUsers);
+        when(ctrl.getOperatorService()
+                .getSubscriptionOwnersForAssignment(anyLong()))
+                        .thenReturn(voUsers);
         // when
         String result = ctrl.initializeSubscriptionOwners();
         // then
