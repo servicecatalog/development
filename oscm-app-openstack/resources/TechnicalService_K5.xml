@@ -53,8 +53,8 @@
         <Option id="https://identity.jp-west-2.cloud.global.fujitsu.com/v3/auth">
           <LocalizedOption locale="en">jp-west-2</LocalizedOption>
         </Option>
-        <Option id="https://identity.jp-uk-1.cloud.global.fujitsu.com/v3/auth">
-          <LocalizedOption locale="en">jp-uk-1</LocalizedOption>
+        <Option id="https://identity.uk-1.cloud.global.fujitsu.com/v3/auth">
+          <LocalizedOption locale="en">uk-1</LocalizedOption>
         </Option>
       </Options>
       <LocalizedDescription locale="en">Region</LocalizedDescription>
