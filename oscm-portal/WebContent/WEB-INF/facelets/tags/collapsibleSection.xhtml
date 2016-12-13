@@ -7,7 +7,7 @@
   xmlns:a4j="http://richfaces.org/a4j">
   
   <rich:collapsiblePanel switchType="client" id="#{sectionId}" expanded="#{openStateBean.states[sectionId]}" onswitch="updateSectionState('#{sectionId}');" 
-    rendered="#{empty rendered or rendered}" leftCollapsedIcon="../img/collapsibleSection_right.gif" leftExpandedIcon="../img/collapsibleSection_down.gif">
+    rendered="#{empty rendered or rendered}" leftCollapsedIcon="/oscm-portal/img/collapsibleSection_right.gif" leftExpandedIcon="/oscm-portal/img/collapsibleSection_down.gif">
     <f:facet name="headerExpanded">
       <h:panelGroup>
         <h:outputText value="#{label}" />
