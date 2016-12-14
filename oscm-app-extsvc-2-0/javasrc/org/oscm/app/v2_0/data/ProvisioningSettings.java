@@ -22,11 +22,13 @@ import java.util.Map;
  * an application-specific service controller; they can also be evaluated by the
  * application.
  */
-public class ProvisioningSettings extends ControllerSettings implements
-        Serializable {
+public class ProvisioningSettings extends ControllerSettings
+        implements Serializable {
 
     private static final long serialVersionUID = -1572408823477281540L;
-    
+
+    private static final String BSS_PREFIX = "BSS_";
+
     private String locale;
     private HashMap<String, Setting> parameters;
     private HashMap<String, Setting> attributes;
@@ -336,8 +338,8 @@ public class ProvisioningSettings extends ControllerSettings implements
      */
     public void overwriteProperties(String controllerId) {
 
-        overwriteProperties(getParameters(),
-                Arrays.asList(getConfigSettings()), null);
+        overwriteProperties(getParameters(), Arrays.asList(getConfigSettings()),
+                null);
         overwriteProperties(getCustomAttributes(),
                 Arrays.asList(getParameters(), getConfigSettings()),
                 controllerId);
@@ -359,6 +361,7 @@ public class ProvisioningSettings extends ControllerSettings implements
                     if (sourceSetting != null
                             && sourceSetting.getValue() != null
                             && sourceSetting.getValue().trim().length() > 0
+                            && !sourceSetting.getValue().startsWith(BSS_PREFIX)
                             && (controllerId == null || controllerId
                                     .equals(sourceSetting.getControllerId()))) {
 
