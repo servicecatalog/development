@@ -11,6 +11,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.annotation.PostConstruct;
@@ -202,6 +203,9 @@ public class ManageTenantsCtrl extends BaseBean implements Serializable {
             Properties propsToStore = PropertiesLoader.loadProperties(file
                 .getInputStream());
             model.setIdpProperties(propsToStore);
+            for (Map.Entry<Object, Object> e : propsToStore.entrySet()) {
+                e.setValue(e.getValue().toString().trim());
+            }
             model.getTenantIdp().setValue(propsToStore.getProperty(IdpSettingType.SSO_IDP_URL.name()));
         } catch (IOException e) {
             addMessage(null, FacesMessage.SEVERITY_ERROR, ERROR_UPLOAD);
