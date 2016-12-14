@@ -83,6 +83,7 @@
         <adm:buttonPanel>
           <adm:button id="importConfirmButton" value="#{msg['button.import']}" bean="#{manageTenantsCtrl}"
                       action="importSettings" buttonType="confirm" style="display:none;"/>
+
           <adm:buttonCustomizedOnClick id="importButton" value="#{msg['button.import']}"
                                        onclick="setDirty(false);document.getElementById('editForm:importConfirmButton').click();"
                                        buttonType="confirm"
@@ -153,6 +154,9 @@
 					AdmUtils.selectRow(element);
 				});
 
+				jQuery().ready(function(){
+          setDirty(#{manageTenantsCtrl.model.dirty});
+        });
         </script>
   </ui:define>
 </ui:composition>
