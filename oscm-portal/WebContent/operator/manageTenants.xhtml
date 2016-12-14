@@ -40,7 +40,7 @@
 
       <a4j:jsFunction name="addItem" render="editForm mainTmplMessagesPanel importForm"
                       action="#{manageTenantsCtrl.addTenant}"
-                      oncomplete="AdmUtils.setFocus(document.getElementById('editForm:tenantName'), true);">
+                      oncomplete="AdmUtils.setFocus(document.getElementById('editForm:tenantName'), true); AdmUtils.selectRow(null);">
       </a4j:jsFunction>
     </h:form>
   </ui:define>
