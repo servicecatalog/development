@@ -89,6 +89,21 @@ public class MandatoryUdaValidatorTest {
                 new ArrayList<Uda>(), new ArrayList<VOUda>());
     }
 
+    @Test(expected = MandatoryCustomerUdaMissingException.class)
+    public void checkAllRequiredUdasPassed_EmptyDefaultValue()
+            throws Exception {
+        defCustMandatory.setDefaultValue("");
+        muv.checkAllRequiredUdasPassed(Arrays.asList(defCustMandatory),
+                new ArrayList<Uda>(), new ArrayList<VOUda>());
+    }
+
+    @Test
+    public void checkAllRequiredUdasPassed_DefaultValue() throws Exception {
+        defCustMandatory.setDefaultValue("test");
+        muv.checkAllRequiredUdasPassed(Arrays.asList(defCustMandatory),
+                new ArrayList<Uda>(), new ArrayList<VOUda>());
+    }
+
     @Test
     public void checkAllRequiredUdasPassed_Passed() throws Exception {
         muv.checkAllRequiredUdasPassed(Arrays.asList(defCustMandatory),
