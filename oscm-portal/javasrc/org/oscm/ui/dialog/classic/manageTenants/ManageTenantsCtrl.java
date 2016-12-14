@@ -20,6 +20,7 @@ import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
+import javax.faces.view.facelets.FaceletContext;
 
 import org.apache.myfaces.custom.fileupload.UploadedFile;
 import org.oscm.converter.PropertiesLoader;
@@ -31,6 +32,7 @@ import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.internal.types.exception.SaaSSystemException;
 import org.oscm.ui.beans.BaseBean;
 import org.oscm.ui.common.DataTableHandler;
+import org.oscm.ui.common.JSFUtils;
 import org.oscm.ui.profile.FieldData;
 
 @ManagedBean
@@ -134,6 +136,9 @@ public class ManageTenantsCtrl extends BaseBean implements Serializable {
                 handleSuccessMessage(BaseBean.INFO_TENANT_ADDED, generatedTenantId);
             }
             model.setDirty(false);
+            if (model.getIdpProperties() == null || model.getIdpProperties().isEmpty()) {
+                JSFUtils.addMessage(null, FacesMessage.SEVERITY_WARN, BaseBean.WARNING_TENANT_DEF_NOT_COMPLETE, null);
+            }
         }  catch (SaaSApplicationException e) {
             ui.handleException(e);
         }
