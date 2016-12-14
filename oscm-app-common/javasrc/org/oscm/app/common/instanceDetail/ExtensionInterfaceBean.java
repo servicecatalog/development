@@ -13,6 +13,7 @@ package org.oscm.app.common.instanceDetail;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,8 +21,6 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.apache.commons.codec.binary.Base64;
-import org.oscm.app.common.i18n.Messages;
 import org.oscm.app.common.intf.InstanceAccess;
 import org.oscm.app.common.intf.ServerInformation;
 import org.oscm.app.v2_0.data.ControllerConfigurationKey;
@@ -60,27 +59,37 @@ public class ExtensionInterfaceBean implements Serializable {
     /**
      * Constructor.
      */
-    public ExtensionInterfaceBean() {
+    public ExtensionInterfaceBean() throws UnsupportedEncodingException {
         FacesContext facesContext = getContext();
-        Map<String, String> parameters = facesContext.getExternalContext()
-                .getRequestParameterMap();
+        Map<String, String> parameters = getParameterWithUTF8(
+                facesContext.getExternalContext().getRequestParameterMap());
         this.locale = facesContext.getViewRoot().getLocale().getLanguage();
-        try {
-            this.subscriptionId = parameters.get("subId") != null
-                    ? new String(
-                            Base64.decodeBase64(
-                                    parameters.get("subId").getBytes("UTF-8")),
-                            "UTF-8")
-                    : "";
-        } catch (UnsupportedEncodingException e) {
-            this.subscriptionId = Messages.get(locale,
-                    "ui.extentionInterface.noSubscriptionName");
-        }
+
+        this.subscriptionId = parameters.get("subId") != null
+                ? parameters.get("subId") : "";
         this.instanceId = parameters.get("instId") != null
                 ? parameters.get("instId") : "";
-
         this.organizationId = parameters.get("orgId") != null
                 ? parameters.get("orgId") : "";
+    }
+
+    /**
+     * @param parameters
+     * @throws UnsupportedEncodingException
+     */
+    private Map<String, String> getParameterWithUTF8(
+            Map<String, String> parameters)
+            throws UnsupportedEncodingException {
+        Map<String, String> result = new HashMap<String, String>();
+        for (Map.Entry<String, String> entry : parameters.entrySet()) {
+            String value = null;
+            if (entry.getValue() != null) {
+                value = new String(entry.getValue().getBytes("ISO_8859_1"),
+                        "UTF-8");
+            }
+            result.put(entry.getKey(), value);
+        }
+        return result;
     }
 
     public void setInstanceAccess(InstanceAccess instanceAccess) {
