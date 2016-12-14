@@ -94,7 +94,10 @@ public class MandatoryUdaValidator {
             VOUda voUda = getPassedUdaForDefinition(def, passed);
             if (uda == null && voUda == null) {
                 if (def.getTargetType() == UdaTargetType.CUSTOMER) {
-                    throw mandatoryCustomerUdaMissingException(def);
+                    if (def.getDefaultValue() == null
+                            || def.getDefaultValue().trim().length() == 0) {
+                        throw mandatoryCustomerUdaMissingException(def);
+                    }
                 } else {
                     throw mandatoryUdaMissingException(def);
                 }
