@@ -36,6 +36,7 @@ public class ManageTenantsModel extends BaseModel implements Serializable {
     private UploadedFile file;
     private boolean clearExportAvailable;
     private Properties idpProperties;
+    private boolean dirty;
 
     public List<POTenant> getTenants() {
         return tenants;
@@ -149,5 +150,13 @@ public class ManageTenantsModel extends BaseModel implements Serializable {
 
     public void setImportDisabled(boolean importDisabled) {
         this.importDisabled = importDisabled;
+    }
+
+    public boolean isDirty() {
+        return dirty;
+    }
+
+    public void setDirty(boolean dirty) {
+        this.dirty = dirty;
     }
 }

@@ -133,6 +133,7 @@ public class ManageTenantsCtrl extends BaseBean implements Serializable {
                 manageTenantService.setTenantSettings(model.getIdpProperties(), model.getSelectedTenantId());
                 handleSuccessMessage(BaseBean.INFO_TENANT_ADDED, generatedTenantId);
             }
+            model.setDirty(false);
         }  catch (SaaSApplicationException e) {
             ui.handleException(e);
         }
@@ -149,6 +150,7 @@ public class ManageTenantsCtrl extends BaseBean implements Serializable {
             manageTenantService.removeTenant(model.getSelectedTenant());
             handleSuccessMessage(BaseBean.INFO_TENANT_DELETED, model.getSelectedTenantId());
             refreshModelAfterDelete();
+            model.setDirty(false);
         } catch (SaaSApplicationException e) {
             ui.handleException(e);
         }
@@ -207,6 +209,7 @@ public class ManageTenantsCtrl extends BaseBean implements Serializable {
                 e.setValue(e.getValue().toString().trim());
             }
             model.getTenantIdp().setValue(propsToStore.getProperty(IdpSettingType.SSO_IDP_URL.name()));
+            this.model.setDirty(true);
         } catch (IOException e) {
             addMessage(null, FacesMessage.SEVERITY_ERROR, ERROR_UPLOAD);
             return OUTCOME_ERROR;
@@ -251,4 +254,5 @@ public class ManageTenantsCtrl extends BaseBean implements Serializable {
     public ManageTenantService getManageTenantService() {
         return this.manageTenantService;
     }
+
 }
