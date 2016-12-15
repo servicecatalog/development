@@ -23,7 +23,7 @@
                                           pagerId="tenantsPager"
                                           headers="#{manageTenantsCtrl.dataTableHeaders}"
                                           size="#{manageTenantsCtrl.tenantsNumber}"
-                                          columnClasses="smallCell,smallCell,smallCell,smallCell,smallCell"
+                                          columnClasses="smallCell,smallCell,smallCell moja,smallCell,smallCell"
                                           onRowClick="if(AdmUtils.isNotDirtyOrConfirmed()){AdmUtils.selectRow(this);selectItem('#{rowItem.tenantId}');}"
                                           onRowMouseOver="AdmUtils.mouseOverRow(this);"
                                           onRowMouseOut="AdmUtils.mouseOutRow(this);"
@@ -31,22 +31,16 @@
                                           showAddButton="true">
         </adm:dataTableCustomizedOnColumns>
 
-        <script type="text/javascript">
-		AdmUtils.findRow("manageTenants:tenants:", "tenantId",
-				"#{manageTenantsCtrl.model.selectedTenantId}", "#{size}", function(element) {
-					AdmUtils.selectRow(element);
-				});
-	</script>
       </a4j:outputPanel>
       <a4j:jsFunction name="selectItem" render="editForm mainTmplMessagesPanel importForm"
                       action="#{manageTenantsCtrl.setSelectedTenant}"
                       oncomplete="AdmUtils.showProgress(false);AdmUtils.initFocus();AdmUtils.setUIElements();">
-        <a4j:param name="param1" assignTo="#{manageTenantsCtrl.selectedTenantId}" />
+        <a4j:param name="param1" assignTo="#{manageTenantsCtrl.selectedTenantId}"/>
       </a4j:jsFunction>
 
       <a4j:jsFunction name="addItem" render="editForm mainTmplMessagesPanel importForm"
                       action="#{manageTenantsCtrl.addTenant}"
-                      oncomplete="AdmUtils.setFocus(document.getElementById('editForm:tenantName'), true);">
+                      oncomplete="AdmUtils.setFocus(document.getElementById('editForm:tenantName'), true); AdmUtils.selectRow(null);">
       </a4j:jsFunction>
     </h:form>
   </ui:define>
@@ -54,8 +48,9 @@
   <ui:define name="body_sub">
     <adm:outputStep value="#{msg['operator.manageTenants.step2']}"/>
 
-    <h:form id="editForm">
-      <h:panelGrid id="details" border="0" cellspacing="0" cellpadding="0" columns="2" columnClasses="valignTop,valignTop">
+    <h:form id="editForm" enctype="multipart/form-data">
+      <h:panelGrid id="details" border="0" cellspacing="0" cellpadding="0" columns="2"
+                   columnClasses="valignTop,valignTop">
         <h:panelGroup>
           <adm:panelGrid minColWidth="false">
 
@@ -64,82 +59,104 @@
                                    value="#{manageTenantsCtrl.model.tenantName.value}"
                                    maxlength="#{appBean.tenantFieldLen}"
                                    disabled="#{manageTenantsCtrl.model.tenantName.readOnly}"
-                                   converterId="trimConverter" />
+                                   converterId="trimConverter"/>
 
-            <adm:labelAndInputText id="tenantDescription" label="#{msg['dataTable.header.description']}"
+            <adm:labelAndInputText id="tenantDescription" label="#{msg['manageTenants.shortDescription']}"
                                    required="#{manageTenantsCtrl.model.tenantDescription.required}"
                                    value="#{manageTenantsCtrl.model.tenantDescription.value}"
                                    maxlength="#{appBean.tenantFieldLen}"
                                    disabled="#{manageTenantsCtrl.model.tenantDescription.readOnly}"
-                                   converterId="trimConverter" />
+                                   converterId="trimConverter"/>
 
-            <adm:labelAndInputText id="tenantId" label="#{msg['dataTable.header.tenantId']}"
-                                   required="#{manageTenantsCtrl.model.tenantId.required}" value="#{manageTenantsCtrl.model.tenantId.value}"
-                                   maxlength="#{appBean.tenantFieldLen}"
-                                   disabled="#{manageTenantsCtrl.model.tenantId.readOnly}"
-                                   converterId="trimConverter" />
-
-            <adm:labelAndInputText id="tenantIdp" label="#{msg['dataTable.header.idp']}"
-                                   required="#{manageTenantsCtrl.model.tenantIdp.required}"
-                                   value="#{manageTenantsCtrl.model.tenantIdp.value}"
-                                   maxlength="#{appBean.tenantFieldLen}"
-                                   disabled="#{manageTenantsCtrl.model.tenantIdp.readOnly}"
-                                   converterId="trimConverter" />
           </adm:panelGrid>
         </h:panelGroup>
       </h:panelGrid>
 
-      <h:commandButton style="display:none;" id="confirmedButton" onclick="setDirty(false);"
-                       value="#{msg['button.delete']}" action="#{manageTenantsCtrl.delete}" />
-      <adm:buttonPanel>
-        <h:commandButton id="saveButton" value="#{msg['button.save']}" action="#{manageTenantsCtrl.save}"
-                         style="display:none;" />
+      <adm:outputStep value="#{msg['operator.manageTenants.step3']}"/>
 
-        <adm:buttonCustomizedOnClick id="saveButtonLink" value="#{msg['button.save']}" buttonType="save"
-                                     onclick="setDirty(false);#{rich:element('saveButton')}.click();return false;"
-                                     disabled="#{manageTenantsCtrl.model.saveDisabled}" />
-        <adm:buttonCustomizedOnClick id="deleteButton" value="#{msg['button.delete']}" buttonType="delete"
-                                     onclick="#{rich:component('deleteConfirmPl')}.show();return false;"
-                                     disabled="#{manageTenantsCtrl.model.deleteDisabled}" />
-      </adm:buttonPanel>
-
-    </h:form>
-
-    <adm:confirmPanel panelId="deleteConfirmPl" formId="deleteConfirmForm" text="#{msg['confirm.tenant.delete']}" submitId="confirmedButton"/>
-
-    <adm:outputStep value="#{msg['operator.manageTenants.step3']}"/>
-    <h:form id="importForm" enctype="multipart/form-data">
       <a4j:outputPanel id="idpFile" layout="block">
         <adm:panelGrid>
           <adm:fileUpload value="#{manageTenantsCtrl.model.file}" required="false"
-                          disabled="#{empty manageTenantsCtrl.model.selectedTenant}"/>
+                          disabled="#{manageTenantsCtrl.model.importDisabled}"/>
         </adm:panelGrid>
 
         <adm:buttonPanel>
           <adm:button id="importConfirmButton" value="#{msg['button.import']}" bean="#{manageTenantsCtrl}"
-                      action="importSettings" buttonType="confirm" style="display:none;" />
-          <adm:buttonCustomizedOnClick id="importButton" value="#{msg['button.import']}" disabled="#{empty manageTenantsCtrl.model.selectedTenant}"
-                                       onclick="#{rich:component('importConfirmPanel')}.show()" buttonType="confirm" />
+                      action="importSettings" buttonType="confirm" style="display:none;"/>
+
+          <adm:buttonCustomizedOnClick id="importButton" value="#{msg['button.import']}"
+                                       onclick="setDirty(false);document.getElementById('editForm:importConfirmButton').click();"
+                                       buttonType="confirm"
+                                       disabled="#{manageTenantsCtrl.model.importDisabled}"/>
 
           <adm:button id="exportButton" value="#{msg['button.export']}" bean="#{manageTenantsCtrl}"
                       action="exportSettings" progress="false" buttonType="export"
                       rendered="#{manageTenantsCtrl.model.clearExportAvailable}"/>
 
-          <adm:button id="clearConfirmButton"
-                      value="#{msg['button.clear']}" bean="#{manageTenantsCtrl}" action="clear" buttonType="reset"
-                      style="display:none;" />
-          <adm:buttonCustomizedOnClick id="clearButton"
-                                       rendered="#{manageTenantsCtrl.model.clearExportAvailable}"
-                                       value="#{msg['button.clear']}"
-                                       onclick="#{rich:component('clearConfirmPanel')}.show()" buttonType="reset" />
         </adm:buttonPanel>
       </a4j:outputPanel>
+
+
+      <h:panelGrid id="detailsIdp" border="0" cellspacing="0" cellpadding="0" columns="2"
+                   columnClasses="valignTop,valignTop">
+        <h:panelGroup>
+          <adm:panelGrid minColWidth="false">
+            <adm:labelAndInputText id="tenantId" label="#{msg['dataTable.header.tenantId']}"
+                                   required="#{manageTenantsCtrl.model.tenantId.required}"
+                                   value="#{manageTenantsCtrl.model.tenantId.value}"
+                                   maxlength="#{appBean.tenantFieldLen}" styleClass="field"
+                                   disabled="#{manageTenantsCtrl.model.tenantId.readOnly}"
+                                   converterId="trimConverter"/>
+
+            <adm:labelAndInputText id="tenantIdp" label="#{msg['manageTenants.urlOfIdp']}"
+                                   required="#{manageTenantsCtrl.model.tenantIdp.required}"
+                                   value="#{manageTenantsCtrl.model.tenantIdp.value}"
+                                   maxlength="#{appBean.tenantFieldLen}" styleClass="field"
+                                   disabled="#{manageTenantsCtrl.model.tenantIdp.readOnly}"
+                                   converterId="trimConverter"/>
+
+          </adm:panelGrid>
+        </h:panelGroup>
+      </h:panelGrid>
+      <h:commandButton style="display:none;" id="confirmedButton" onclick="setDirty(false);"
+                       value="#{msg['button.delete']}" action="#{manageTenantsCtrl.delete}"/>
+      <adm:buttonPanel>
+        <h:commandButton id="saveButton" value="#{msg['button.save']}" action="#{manageTenantsCtrl.save}"
+                         style="display:none;"/>
+
+        <adm:buttonCustomizedOnClick id="saveButtonLink" value="#{msg['button.save']}" buttonType="save"
+                                     onclick="setDirty(false);#{rich:element('saveButton')}.click();return false;"
+                                     disabled="#{manageTenantsCtrl.model.saveDisabled}"/>
+        <adm:buttonCustomizedOnClick id="deleteButton" value="#{msg['button.delete']}" buttonType="delete"
+                                     onclick="#{rich:component('deleteConfirmPl')}.show();return false;"
+                                     disabled="#{manageTenantsCtrl.model.deleteDisabled}"/>
+
+        <adm:button id="clearConfirmButton"
+                    value="#{msg['button.clear']}" bean="#{manageTenantsCtrl}" action="clear" buttonType="reset"
+                    style="display:none;"/>
+        <adm:buttonCustomizedOnClick id="clearButton"
+                                     rendered="#{manageTenantsCtrl.model.clearExportAvailable}"
+                                     value="#{msg['button.clear']}"
+                                     onclick="#{rich:component('clearConfirmPanel')}.show()" buttonType="reset"/>
+      </adm:buttonPanel>
+
     </h:form>
 
-    <adm:confirmPanel text="#{msg['organization.manageTenants.confirmImport']}" panelId="importConfirmPanel"
-                      submitId="importConfirmButton" formId="importConfirmationForm" />
+    <adm:confirmPanel panelId="deleteConfirmPl" formId="deleteConfirmForm" text="#{msg['confirm.tenant.delete']}"
+                      submitId="confirmedButton"/>
 
     <adm:confirmPanel text="#{msg['operator.manageIdpSettings.confirmClear']}" panelId="clearConfirmPanel"
-                      submitId="clearConfirmButton" formId="clearConfirmationForm" />
+                      submitId="clearConfirmButton" formId="clearConfirmationForm"/>
+
+    <script type="text/javascript">
+		AdmUtils.findRow("manageTenants:tenants:", "tenantId",
+				"#{manageTenantsCtrl.model.selectedTenantId}", "#{manageTenantsCtrl.tenantsNumber}", function(element) {
+					AdmUtils.selectRow(element);
+				});
+
+				jQuery().ready(function(){
+          setDirty(#{manageTenantsCtrl.model.dirty});
+        });
+        </script>
   </ui:define>
 </ui:composition>

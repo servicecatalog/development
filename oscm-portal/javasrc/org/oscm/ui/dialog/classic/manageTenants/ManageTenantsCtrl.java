@@ -11,6 +11,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.annotation.PostConstruct;
@@ -19,16 +20,19 @@ import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
+import javax.faces.view.facelets.FaceletContext;
 
 import org.apache.myfaces.custom.fileupload.UploadedFile;
 import org.oscm.converter.PropertiesLoader;
 import org.oscm.internal.components.response.Response;
 import org.oscm.internal.tenant.ManageTenantService;
 import org.oscm.internal.tenant.POTenant;
+import org.oscm.internal.types.enumtypes.IdpSettingType;
 import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.internal.types.exception.SaaSSystemException;
 import org.oscm.ui.beans.BaseBean;
 import org.oscm.ui.common.DataTableHandler;
+import org.oscm.ui.common.JSFUtils;
 import org.oscm.ui.profile.FieldData;
 
 @ManagedBean
@@ -82,6 +86,7 @@ public class ManageTenantsCtrl extends BaseBean implements Serializable {
         model.setTenantIdp(new FieldData<String>(null, true, false));
         model.setSaveDisabled(true);
         model.setDeleteDisabled(true);
+        model.setImportDisabled(true);
     }
 
     public void setSelectedTenantId(String tenantId) {
@@ -98,6 +103,7 @@ public class ManageTenantsCtrl extends BaseBean implements Serializable {
         model.setTenantIdp(new FieldData<>(poTenant.getIdp(), true, false));
         model.setSaveDisabled(false);
         model.setDeleteDisabled(false);
+        model.setImportDisabled(false);
     }
 
     private POTenant getSelectedTenant() {
@@ -118,6 +124,7 @@ public class ManageTenantsCtrl extends BaseBean implements Serializable {
                 model.getSelectedTenant().setDescription(model.getTenantDescription().getValue());
                 manageTenantService.updateTenant(model.getSelectedTenant());
                 model.setSelectedTenantId(model.getSelectedTenant().getTenantId());
+                manageTenantService.setTenantSettings(model.getIdpProperties(), model.getSelectedTenantId());
                 handleSuccessMessage(BaseBean.INFO_TENANT_SAVED, model.getTenantId().getValue());
             } else {
                 POTenant poTenant = new POTenant();
@@ -125,7 +132,12 @@ public class ManageTenantsCtrl extends BaseBean implements Serializable {
                 poTenant.setDescription(model.getTenantDescription().getValue());
                 String generatedTenantId = manageTenantService.addTenant(poTenant);
                 model.setSelectedTenantId(generatedTenantId);
+                manageTenantService.setTenantSettings(model.getIdpProperties(), model.getSelectedTenantId());
                 handleSuccessMessage(BaseBean.INFO_TENANT_ADDED, generatedTenantId);
+            }
+            model.setDirty(false);
+            if (model.getIdpProperties() == null || model.getIdpProperties().isEmpty()) {
+                JSFUtils.addMessage(null, FacesMessage.SEVERITY_WARN, BaseBean.WARNING_TENANT_DEF_NOT_COMPLETE, null);
             }
         }  catch (SaaSApplicationException e) {
             ui.handleException(e);
@@ -143,6 +155,7 @@ public class ManageTenantsCtrl extends BaseBean implements Serializable {
             manageTenantService.removeTenant(model.getSelectedTenant());
             handleSuccessMessage(BaseBean.INFO_TENANT_DELETED, model.getSelectedTenantId());
             refreshModelAfterDelete();
+            model.setDirty(false);
         } catch (SaaSApplicationException e) {
             ui.handleException(e);
         }
@@ -166,6 +179,8 @@ public class ManageTenantsCtrl extends BaseBean implements Serializable {
     private void refreshModelAfterDelete() {
         model.setSelectedTenant(null);
         model.setSelectedTenantId(null);
+        model.setTenantIdp(null);
+        model.setIdpProperties(null);
         model.setClearExportAvailable(false);
         initWithoutSelection();
     }
@@ -180,6 +195,8 @@ public class ManageTenantsCtrl extends BaseBean implements Serializable {
         model.setTenantIdp(new FieldData<String>(null, true, false));
         model.setSaveDisabled(false);
         model.setDeleteDisabled(true);
+        model.setImportDisabled(false);
+        model.setIdpProperties(null);
     }
 
     public String importSettings() throws SaaSApplicationException {
@@ -192,15 +209,17 @@ public class ManageTenantsCtrl extends BaseBean implements Serializable {
         try {
             Properties propsToStore = PropertiesLoader.loadProperties(file
                 .getInputStream());
-            manageTenantService.setTenantSettings(propsToStore, model.getSelectedTenantId());
-            refreshModel();
+            model.setIdpProperties(propsToStore);
+            for (Map.Entry<Object, Object> e : propsToStore.entrySet()) {
+                e.setValue(e.getValue().toString().trim());
+            }
+            model.getTenantIdp().setValue(propsToStore.getProperty(IdpSettingType.SSO_IDP_URL.name()));
+            this.model.setDirty(true);
         } catch (IOException e) {
             addMessage(null, FacesMessage.SEVERITY_ERROR, ERROR_UPLOAD);
             return OUTCOME_ERROR;
         }
-        addMessage(null, FacesMessage.SEVERITY_INFO, INFO_IDP_SETTINGS_IMPORTED);
-
-        return OUTCOME_SUCCESS;
+        return null;
     }
 
     public String exportSettings() throws IOException {
@@ -240,4 +259,5 @@ public class ManageTenantsCtrl extends BaseBean implements Serializable {
     public ManageTenantService getManageTenantService() {
         return this.manageTenantService;
     }
+
 }
