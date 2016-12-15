@@ -11,6 +11,8 @@ package org.oscm.app.setup;
 import static org.junit.Assert.assertEquals;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.security.GeneralSecurityException;
 import java.util.Arrays;
 import java.util.concurrent.Callable;
@@ -31,6 +33,7 @@ import org.oscm.app.domain.ServiceInstance;
 import org.oscm.app.v2_0.data.ControllerConfigurationKey;
 import org.oscm.app.v2_0.data.ProvisioningSettings;
 import org.oscm.app.v2_0.service.APPConfigurationServiceBean;
+import org.oscm.encrypter.AESEncrypter;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.ejb.TestContainer;
 
@@ -47,6 +50,8 @@ public class PasswordSetupIT extends EJBTestBase {
     private class PwdSetup extends PasswordSetup {
     }
 
+    private static File file;
+
     @Override
     protected void setup(TestContainer container) throws Exception {
         em = container.getPersistenceUnit("oscm-app");
@@ -55,7 +60,7 @@ public class PasswordSetupIT extends EJBTestBase {
 
         createConfigSetting("APP_KEY_PATH", "./key");
 
-        File file = new File("./key");
+        file = new File("./key");
         if (file.exists()) {
             file.delete();
         }
@@ -117,6 +122,66 @@ public class PasswordSetupIT extends EJBTestBase {
 
         assertEquals("secret",
                 settings.getCustomAttributes().get("key").getValue());
+
+        assertEquals("secret", settings.getAttributes().get("key").getValue());
+        assertEquals("secret", settings.getParameters().get("key").getValue());
+
+    }
+
+    @Test
+    public void testEncryptSettingsWithPrefix() throws Exception {
+
+        AESEncrypter.generateKey();
+        byte[] key = AESEncrypter.getKey();
+        Files.write(file.toPath(), key, StandardOpenOption.CREATE_NEW,
+                StandardOpenOption.WRITE);
+
+        createContorllerConfigSetting("ctrlId", "key_crypt_PWD",
+                "_crypt:secret");
+        final Long siKey = createServiceInstanceWithAttributesAndParameters(
+                "orgId", "subId", "ctrlId", "key",
+                AESEncrypter.encrypt("secret"), true);
+
+        PlatformConfigurationKey[] keys = PlatformConfigurationKey.values();
+        for (int i = 0; i < keys.length; i++) {
+            if (keys[i] != PlatformConfigurationKey.APP_KEY_PATH) {
+                String value = "testValue";
+                if (keys[i].name().endsWith(PasswordSetup.CRYPT_KEY_SUFFIX)
+                        || keys[i].name().endsWith(
+                                PasswordSetup.CRYPT_KEY_SUFFIX_PASS)) {
+                    value = AESEncrypter.encrypt(value);
+                }
+                createConfigSetting(keys[i].name(), value);
+            }
+        }
+
+        createContorllerConfigSetting("ctrlId",
+                ControllerConfigurationKey.BSS_USER_KEY.name(), "key");
+        createContorllerConfigSetting("ctrlId",
+                ControllerConfigurationKey.BSS_USER_ID.name(), "name");
+        createContorllerConfigSetting("ctrlId",
+                ControllerConfigurationKey.BSS_USER_PWD.name(),
+                AESEncrypter.encrypt("secret"));
+        createContorllerConfigSetting("ctrlId",
+                ControllerConfigurationKey.BSS_ORGANIZATION_ID.name(), "orgId");
+
+        ProvisioningSettings settings = runTX(
+                new Callable<ProvisioningSettings>() {
+                    @Override
+                    public ProvisioningSettings call() throws Exception {
+                        PwdSetup setup = new PwdSetup();
+                        setup.em = em;
+                        setup.config = config;
+                        setup.startUp();
+
+                        ServiceInstance instance = em
+                                .getReference(ServiceInstance.class, siKey);
+                        return config.getProvisioningSettings(instance, null);
+                    }
+                });
+
+        assertEquals("secret",
+                settings.getConfigSettings().get("key_crypt_PWD").getValue());
 
         assertEquals("secret", settings.getAttributes().get("key").getValue());
         assertEquals("secret", settings.getParameters().get("key").getValue());
