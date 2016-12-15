@@ -5,7 +5,6 @@
 package org.oscm.subscriptionservice.local;
 
 import java.util.List;
-import java.util.Set;
 
 import javax.ejb.Local;
 import javax.ejb.TransactionAttributeType;
@@ -15,13 +14,10 @@ import org.oscm.domobjects.RoleDefinition;
 import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.TriggerProcess;
 import org.oscm.domobjects.UsageLicense;
-import org.oscm.paginator.Pagination;
-import org.oscm.paginator.PaginationFullTextFilter;
-import org.oscm.types.exceptions.UserAlreadyAssignedException;
-import org.oscm.types.exceptions.UserNotAssignedException;
 import org.oscm.internal.intf.SubscriptionService;
 import org.oscm.internal.types.enumtypes.SubscriptionStatus;
 import org.oscm.internal.types.exception.ConcurrentModificationException;
+import org.oscm.internal.types.exception.MandatoryCustomerUdaMissingException;
 import org.oscm.internal.types.exception.MandatoryUdaMissingException;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
@@ -44,6 +40,10 @@ import org.oscm.internal.vo.VOSubscription;
 import org.oscm.internal.vo.VOSubscriptionDetails;
 import org.oscm.internal.vo.VOUsageLicense;
 import org.oscm.internal.vo.VOUser;
+import org.oscm.paginator.Pagination;
+import org.oscm.paginator.PaginationFullTextFilter;
+import org.oscm.types.exceptions.UserAlreadyAssignedException;
+import org.oscm.types.exceptions.UserNotAssignedException;
 
 /**
  * Local Interface of Subscription Management Service.
@@ -54,8 +54,8 @@ public interface SubscriptionServiceLocal {
     /**
      * Continues the ADD_REVOKE_USER TriggerProcess
      * 
-     * @see org.oscm.intf.SubscriptionService#addRevokeUser(String,
-     *      Map<VOUser, Boolean>, List<VOUser>)
+     * @see org.oscm.intf.SubscriptionService#addRevokeUser(String, Map<VOUser,
+     *      Boolean>, List<VOUser>)
      * 
      * @param triggerProcess
      *            The trigger process which is continued.
@@ -271,6 +271,7 @@ public interface SubscriptionServiceLocal {
      * @throws SubscriptionStateException
      *             Thrown in case that the modification is not allowed for
      *             current subscription state
+     * @throws MandatoryCustomerUdaMissingException
      * 
      */
     public VOSubscriptionDetails modifySubscriptionInt(TriggerProcess tp)
@@ -278,7 +279,7 @@ public interface SubscriptionServiceLocal {
             ValidationException, OperationNotPermittedException,
             SubscriptionMigrationException, ConcurrentModificationException,
             TechnicalServiceNotAliveException, MandatoryUdaMissingException,
-            SubscriptionStateException;
+            SubscriptionStateException, MandatoryCustomerUdaMissingException;
 
     /**
      * Performs the concrete operations to upgrade a subscription, after a
@@ -322,6 +323,7 @@ public interface SubscriptionServiceLocal {
      * @throws MandatoryUdaMissingException
      * @throws ValidationException
      * @throws NonUniqueBusinessKeyException
+     * @throws MandatoryCustomerUdaMissingException
      */
     public Subscription upgradeSubscriptionInt(TriggerProcess tp)
             throws ObjectNotFoundException, SubscriptionStateException,
@@ -329,7 +331,8 @@ public interface SubscriptionServiceLocal {
             PriceModelException, PaymentInformationException,
             SubscriptionMigrationException, ConcurrentModificationException,
             TechnicalServiceNotAliveException, NonUniqueBusinessKeyException,
-            ValidationException, MandatoryUdaMissingException;
+            ValidationException, MandatoryUdaMissingException,
+            MandatoryCustomerUdaMissingException;
 
     /**
      * Performs the concrete operations to unsubscribe from a subscription,
@@ -356,8 +359,7 @@ public interface SubscriptionServiceLocal {
      */
     public void unsubscribeFromServiceInt(TriggerProcess tp)
             throws ObjectNotFoundException, SubscriptionStateException,
-            SubscriptionStillActiveException,
-            TechnicalServiceNotAliveException,
+            SubscriptionStillActiveException, TechnicalServiceNotAliveException,
             TechnicalServiceOperationException;
 
     /**
@@ -407,6 +409,7 @@ public interface SubscriptionServiceLocal {
      *             subscription per organization.
      * @throws MandatoryUdaMissingException
      * @throws ConcurrentModificationException
+     * @throws MandatoryCustomerUdaMissingException
      * 
      */
     public Subscription subscribeToServiceInt(TriggerProcess tp)
@@ -415,9 +418,9 @@ public interface SubscriptionServiceLocal {
             PriceModelException, PaymentInformationException,
             NonUniqueBusinessKeyException, TechnicalServiceNotAliveException,
             TechnicalServiceOperationException, ServiceParameterException,
-            SubscriptionAlreadyExistsException,
-            ConcurrentModificationException, MandatoryUdaMissingException,
-            SubscriptionStateException;
+            SubscriptionAlreadyExistsException, ConcurrentModificationException,
+            MandatoryUdaMissingException, SubscriptionStateException,
+            MandatoryCustomerUdaMissingException;
 
     /**
      * Modifies the role/authority of an user in the context of the provided
@@ -504,8 +507,8 @@ public interface SubscriptionServiceLocal {
      * includes subscriptions whose status is <code>ACTIVE</code>,
      * <code>PENDING</code>, <code>SUSPENDED</code>, or <code>EXPIRED</code>.
      * <p>
-     * Required role: any user role in an organization
-     * Results are filtered by the value given as parameter.
+     * Required role: any user role in an organization Results are filtered by
+     * the value given as parameter.
      *
      * @param pagination
      *            the parameters which describe the range of result data and the
@@ -517,12 +520,12 @@ public interface SubscriptionServiceLocal {
             PaginationFullTextFilter pagination);
 
     /**
-     * Retrieves the size of subscriptions the calling user is assigned to. The list
-     * includes subscriptions whose status is <code>ACTIVE</code>,
+     * Retrieves the size of subscriptions the calling user is assigned to. The
+     * list includes subscriptions whose status is <code>ACTIVE</code>,
      * <code>PENDING</code>, <code>SUSPENDED</code>, or <code>EXPIRED</code>.
      * <p>
-     * Required role: any user role in an organization
-     * Results are filtered by the value given as parameter.
+     * Required role: any user role in an organization Results are filtered by
+     * the value given as parameter.
      *
      * @param pagination
      *            the parameters which describe the range of result data and the
@@ -538,26 +541,32 @@ public interface SubscriptionServiceLocal {
      * 
      * @param user
      *            the {@link PlatformUser} to find the usage license for
-     *            
-     * @param subKey
-     *            key referencing the subscription to find the usage license for            
      * 
-     * @return the usage license 
+     * @param subKey
+     *            key referencing the subscription to find the usage license for
+     * 
+     * @return the usage license
      * 
      */
-    public UsageLicense getSubscriptionUsageLicense(PlatformUser user, Long subKey);
+    public UsageLicense getSubscriptionUsageLicense(PlatformUser user,
+            Long subKey);
 
     /**
      * Removes information about owner from the subscription.
      *
-     * @param sub - subscription which should be modified
+     * @param sub
+     *            - subscription which should be modified
      */
     public void removeSubscriptionOwner(Subscription sub);
 
     /**
-     * Method which returns subscription with details, but only assigned to currently logged in user. Null otherwise.
-     * @param key Subscription tkey
-     * @return subscription with details, but only assigned to currently logged in user. Null otherwise.
+     * Method which returns subscription with details, but only assigned to
+     * currently logged in user. Null otherwise.
+     * 
+     * @param key
+     *            Subscription tkey
+     * @return subscription with details, but only assigned to currently logged
+     *         in user. Null otherwise.
      */
     public Subscription getMySubscriptionDetails(long key);
 }

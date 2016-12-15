@@ -10,14 +10,16 @@ package org.oscm.accountservice.dataaccess.validator;
 
 import java.util.List;
 
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
 import org.oscm.domobjects.Uda;
 import org.oscm.domobjects.UdaDefinition;
-import org.oscm.types.enumtypes.LogMessageIdentifier;
 import org.oscm.internal.types.enumtypes.UdaConfigurationType;
+import org.oscm.internal.types.exception.MandatoryCustomerUdaMissingException;
 import org.oscm.internal.types.exception.MandatoryUdaMissingException;
 import org.oscm.internal.vo.VOUda;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
+import org.oscm.types.enumtypes.LogMessageIdentifier;
+import org.oscm.types.enumtypes.UdaTargetType;
 
 /**
  * @author weiser
@@ -51,7 +53,20 @@ public class MandatoryUdaValidator {
                 String.format(message, def.getUdaId()),
                 new Object[] { def.getUdaId() });
         logger.logWarn(Log4jLogger.SYSTEM_LOG, e,
-                LogMessageIdentifier.WARN_MISSING_MANDATORY_UDA, def.getUdaId());
+                LogMessageIdentifier.WARN_MISSING_MANDATORY_UDA,
+                def.getUdaId());
+        return e;
+    }
+
+    private MandatoryCustomerUdaMissingException mandatoryCustomerUdaMissingException(
+            UdaDefinition def) {
+        String message = "Missing mandatory customer uda %s.";
+        MandatoryCustomerUdaMissingException e = new MandatoryCustomerUdaMissingException(
+                String.format(message, def.getUdaId()),
+                new Object[] { def.getUdaId() });
+        logger.logWarn(Log4jLogger.SYSTEM_LOG, e,
+                LogMessageIdentifier.WARN_MISSING_MANDATORY_UDA,
+                def.getUdaId());
         return e;
     }
 
@@ -72,12 +87,20 @@ public class MandatoryUdaValidator {
      */
     public void checkAllRequiredUdasPassed(List<UdaDefinition> required,
             List<Uda> existing, List<VOUda> passed)
-            throws MandatoryUdaMissingException {
+            throws MandatoryCustomerUdaMissingException,
+            MandatoryUdaMissingException {
         for (UdaDefinition def : required) {
             Uda uda = getExistingUdaForDefinition(def, existing);
             VOUda voUda = getPassedUdaForDefinition(def, passed);
             if (uda == null && voUda == null) {
-                throw mandatoryUdaMissingException(def);
+                if (def.getTargetType() == UdaTargetType.CUSTOMER) {
+                    if (def.getDefaultValue() == null
+                            || def.getDefaultValue().trim().length() == 0) {
+                        throw mandatoryCustomerUdaMissingException(def);
+                    }
+                } else {
+                    throw mandatoryUdaMissingException(def);
+                }
             }
         }
     }

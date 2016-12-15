@@ -107,6 +107,7 @@ import org.oscm.internal.types.exception.DomainObjectException;
 import org.oscm.internal.types.exception.IllegalArgumentException;
 import org.oscm.internal.types.exception.InvalidPhraseException;
 import org.oscm.internal.types.exception.MailOperationException;
+import org.oscm.internal.types.exception.MandatoryCustomerUdaMissingException;
 import org.oscm.internal.types.exception.MandatoryUdaMissingException;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
@@ -308,8 +309,8 @@ public class SubscriptionServiceBean
             PriceModelException, TechnicalServiceNotAliveException,
             TechnicalServiceOperationException, OperationNotPermittedException,
             SubscriptionAlreadyExistsException, OperationPendingException,
-            MandatoryUdaMissingException, ConcurrentModificationException,
-            SubscriptionStateException {
+            MandatoryUdaMissingException, MandatoryCustomerUdaMissingException,
+            ConcurrentModificationException, SubscriptionStateException {
 
         ArgumentValidator.notNull("subscription", subscription);
         ArgumentValidator.notNull("service", service);
@@ -363,8 +364,8 @@ public class SubscriptionServiceBean
                     | TechnicalServiceOperationException
                     | ServiceParameterException
                     | ConcurrentModificationException
-                    | MandatoryUdaMissingException
-                    | SubscriptionStateException e) {
+                    | MandatoryUdaMissingException | SubscriptionStateException
+                    | MandatoryCustomerUdaMissingException e) {
                 sessionCtx.setRollbackOnly();
                 throw e;
             }
@@ -552,7 +553,8 @@ public class SubscriptionServiceBean
     void saveUdasForSubscription(List<VOUda> udas, Subscription subscription)
             throws ObjectNotFoundException, NonUniqueBusinessKeyException,
             ValidationException, OperationNotPermittedException,
-            ConcurrentModificationException, MandatoryUdaMissingException {
+            ConcurrentModificationException, MandatoryUdaMissingException,
+            MandatoryCustomerUdaMissingException {
         Organization supplier = subscription.getProduct()
                 .getSupplierOrResellerTemplate().getVendor();
         UdaAccess udaAccess = new UdaAccess(dataManager, sessionCtx);
@@ -597,7 +599,8 @@ public class SubscriptionServiceBean
             NonUniqueBusinessKeyException, TechnicalServiceNotAliveException,
             TechnicalServiceOperationException, ServiceParameterException,
             SubscriptionAlreadyExistsException, ConcurrentModificationException,
-            MandatoryUdaMissingException, SubscriptionStateException {
+            MandatoryUdaMissingException, MandatoryCustomerUdaMissingException,
+            SubscriptionStateException {
 
         PlatformUser currentUser = dataManager.getCurrentUser();
         Organization organization = currentUser.getOrganization();
@@ -2674,8 +2677,8 @@ public class SubscriptionServiceBean
             SubscriptionStateException, ServiceChangedException,
             PriceModelException, ConcurrentModificationException,
             TechnicalServiceNotAliveException, OperationPendingException,
-            MandatoryUdaMissingException, NonUniqueBusinessKeyException,
-            ValidationException {
+            MandatoryUdaMissingException, MandatoryCustomerUdaMissingException,
+            NonUniqueBusinessKeyException, ValidationException {
 
         ArgumentValidator.notNull("subscription", subscription);
         ArgumentValidator.notNull("service", service);
@@ -2713,7 +2716,8 @@ public class SubscriptionServiceBean
                     | ConcurrentModificationException
                     | TechnicalServiceNotAliveException
                     | MandatoryUdaMissingException
-                    | NonUniqueBusinessKeyException | ValidationException e) {
+                    | NonUniqueBusinessKeyException | ValidationException
+                    | MandatoryCustomerUdaMissingException e) {
                 sessionCtx.setRollbackOnly();
                 throw e;
             }
@@ -2800,7 +2804,8 @@ public class SubscriptionServiceBean
             PriceModelException, PaymentInformationException,
             SubscriptionMigrationException, ConcurrentModificationException,
             TechnicalServiceNotAliveException, NonUniqueBusinessKeyException,
-            ValidationException, MandatoryUdaMissingException {
+            ValidationException, MandatoryUdaMissingException,
+            MandatoryCustomerUdaMissingException {
 
         VOSubscription current = tp
                 .getParamValueForName(TriggerProcessParameterName.SUBSCRIPTION)
@@ -3381,7 +3386,8 @@ public class SubscriptionServiceBean
             OperationNotPermittedException, ValidationException,
             SubscriptionMigrationException, ConcurrentModificationException,
             TechnicalServiceNotAliveException, OperationPendingException,
-            MandatoryUdaMissingException, SubscriptionStateException {
+            MandatoryUdaMissingException, SubscriptionStateException,
+            MandatoryCustomerUdaMissingException {
 
         ArgumentValidator.notNull("subscription", subscription);
 
@@ -3420,7 +3426,7 @@ public class SubscriptionServiceBean
             ValidationException, OperationNotPermittedException,
             SubscriptionMigrationException, ConcurrentModificationException,
             TechnicalServiceNotAliveException, MandatoryUdaMissingException,
-            SubscriptionStateException {
+            MandatoryCustomerUdaMissingException, SubscriptionStateException {
         VOSubscriptionDetails result = null;
         TriggerDefinition triggerDefinition = triggerProcess
                 .getTriggerDefinition();
@@ -3432,8 +3438,8 @@ public class SubscriptionServiceBean
                     | SubscriptionMigrationException
                     | ConcurrentModificationException
                     | TechnicalServiceNotAliveException | ValidationException
-                    | MandatoryUdaMissingException
-                    | SubscriptionStateException e) {
+                    | MandatoryUdaMissingException | SubscriptionStateException
+                    | MandatoryCustomerUdaMissingException e) {
                 sessionCtx.setRollbackOnly();
                 throw e;
             }
@@ -3516,7 +3522,7 @@ public class SubscriptionServiceBean
             ValidationException, OperationNotPermittedException,
             SubscriptionMigrationException, ConcurrentModificationException,
             TechnicalServiceNotAliveException, MandatoryUdaMissingException,
-            SubscriptionStateException {
+            SubscriptionStateException, MandatoryCustomerUdaMissingException {
 
         VOSubscription subscription = tp
                 .getParamValueForName(TriggerProcessParameterName.SUBSCRIPTION)
@@ -5308,8 +5314,8 @@ public class SubscriptionServiceBean
      *            The subscription to be modified or upgraded.
      */
     void saveUdasForAsyncModifyOrUpgradeSubscription(List<VOUda> udas,
-            Subscription dbSubscription)
-            throws MandatoryUdaMissingException, ValidationException,
+            Subscription dbSubscription) throws MandatoryUdaMissingException,
+            MandatoryCustomerUdaMissingException, ValidationException,
             NonUniqueBusinessKeyException, ObjectNotFoundException,
             OperationNotPermittedException, ConcurrentModificationException {
         Organization supplier = dbSubscription.getProduct()
