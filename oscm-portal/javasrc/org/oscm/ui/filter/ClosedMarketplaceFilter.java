@@ -21,7 +21,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.oscm.internal.cache.MarketplaceConfiguration;
 import org.oscm.internal.intf.ConfigurationService;
 import org.oscm.internal.intf.MarketplaceService;
+import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.vo.VOUserDetails;
+import org.oscm.types.constants.Configuration;
 import org.oscm.types.constants.marketplace.Marketplace;
 import org.oscm.ui.beans.BaseBean;
 import org.oscm.ui.common.Constants;
@@ -88,17 +90,10 @@ public class ClosedMarketplaceFilter extends BaseBesFilter implements Filter {
 
             MarketplaceConfiguration config = getConfig(mId);
 
-            if (config != null) {
-                final String tenantIDFromSession = (String) httpRequest
-                        .getSession().getAttribute("tenantID");
-                final String tenantIdFromMarketplace = config != null
-                        ? config.getTenantId() : null;
-
-                if (tenantIDFromSession != tenantIdFromMarketplace) {
-                    forwardToErrorPage(httpRequest, httpResponse);
-                }
+            if (!isSameTenant(config, httpRequest, httpResponse)) {
+                forwardToErrorPage(httpRequest, httpResponse);
+                return;
             }
-
 
             if (isMkpRestricted(config)) {
                 if (voUserDetails != null
@@ -116,6 +111,43 @@ public class ClosedMarketplaceFilter extends BaseBesFilter implements Filter {
 
         }
         chain.doFilter(request, response);
+    }
+
+    private boolean isDefaultTenant(String tenantId) {
+        if (tenantId == null || tenantId.isEmpty()) {
+            return false;
+        }
+
+        final String defaultTenantId;
+
+        ConfigurationService cfgService = getServiceAccess()
+                .getService(ConfigurationService.class);
+        defaultTenantId = cfgService.getVOConfigurationSetting(
+                ConfigurationKey.SSO_DEFAULT_TENANT_ID,
+                Configuration.GLOBAL_CONTEXT).getValue();
+        if (tenantId.equals(defaultTenantId)) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean isSameTenant(MarketplaceConfiguration config,
+                              HttpServletRequest httpRequest, HttpServletResponse httpResponse)
+            throws ServletException, IOException {
+        if (config != null) {
+            String tenantIDFromSession = (String) httpRequest.getSession()
+                    .getAttribute(Constants.REQ_PARAM_TENANT_ID);
+            if (isDefaultTenant(tenantIDFromSession)) {
+                tenantIDFromSession = null;
+            }
+            final String tenantIdFromMarketplace = config != null
+                    ? config.getTenantId() : null;
+
+            if (tenantIDFromSession == tenantIdFromMarketplace) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private String getRedirectToMkpAddress(HttpServletRequest httpRequest) {
