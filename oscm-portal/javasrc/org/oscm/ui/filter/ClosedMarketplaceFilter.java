@@ -88,6 +88,18 @@ public class ClosedMarketplaceFilter extends BaseBesFilter implements Filter {
 
             MarketplaceConfiguration config = getConfig(mId);
 
+            if (config != null) {
+                final String tenantIDFromSession = (String) httpRequest
+                        .getSession().getAttribute("tenantID");
+                final String tenantIdFromMarketplace = config != null
+                        ? config.getTenantId() : null;
+
+                if (tenantIDFromSession != tenantIdFromMarketplace) {
+                    forwardToErrorPage(httpRequest, httpResponse);
+                }
+            }
+
+
             if (isMkpRestricted(config)) {
                 if (voUserDetails != null
                         && voUserDetails.getOrganizationId() != null) {

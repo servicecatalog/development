@@ -38,32 +38,32 @@ public class MarketplaceAssembler extends BaseAssembler {
      * Creates a value object representing the current settings for the
      * marketplace.
      * 
-     * @param domObj
+     * @param marketplace
      *            The technical marketplace to be represented as value object.
      * @param facade
      *            The localizer facade object.
      * @return A value object representation of the given marketplace.
      */
-    public static VOMarketplace toVOMarketplace(Marketplace domObj,
+    public static VOMarketplace toVOMarketplace(Marketplace marketplace,
             LocalizerFacade facade) {
-        if (domObj == null) {
+        if (marketplace == null) {
             return null;
         }
         VOMarketplace voResult = new VOMarketplace();
-        updateValueObject(voResult, domObj);
-        voResult.setMarketplaceId(domObj.getMarketplaceId());
-        voResult.setName(facade.getText(domObj.getKey(),
+        updateValueObject(voResult, marketplace);
+        voResult.setMarketplaceId(marketplace.getMarketplaceId());
+        voResult.setName(facade.getText(marketplace.getKey(),
                 LocalizedObjectTypes.MARKETPLACE_NAME));
-        voResult.setOpen(domObj.isOpen());
+        voResult.setOpen(marketplace.isOpen());
 
-        voResult.setTaggingEnabled(domObj.isTaggingEnabled());
-        voResult.setReviewEnabled(domObj.isReviewEnabled());
-        voResult.setSocialBookmarkEnabled(domObj.isSocialBookmarkEnabled());
-        voResult.setCategoriesEnabled(domObj.isCategoriesEnabled());
-        voResult.setRestricted(domObj.isRestricted());
-        voResult.setHasPublicLandingPage(domObj.getPublicLandingpage() != null);
+        voResult.setTaggingEnabled(marketplace.isTaggingEnabled());
+        voResult.setReviewEnabled(marketplace.isReviewEnabled());
+        voResult.setSocialBookmarkEnabled(marketplace.isSocialBookmarkEnabled());
+        voResult.setCategoriesEnabled(marketplace.isCategoriesEnabled());
+        voResult.setRestricted(marketplace.isRestricted());
+        voResult.setHasPublicLandingPage(marketplace.getPublicLandingpage() != null);
 
-        Organization owner = domObj.getOrganization();
+        Organization owner = marketplace.getOrganization();
         if (owner != null) {
             voResult.setOwningOrganizationId(owner.getOrganizationId());
             String name = owner.getName();
@@ -71,7 +71,7 @@ public class MarketplaceAssembler extends BaseAssembler {
             voResult.setOwningOrganizationName(name != null ? name : "<empty>");
         }
         
-        Tenant tenant = domObj.getTenant();
+        Tenant tenant = marketplace.getTenant();
         if (tenant != null) {
             voResult.setTenantId(tenant.getTenantId());
         }
