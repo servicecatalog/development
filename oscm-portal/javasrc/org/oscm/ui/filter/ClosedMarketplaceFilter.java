@@ -90,11 +90,6 @@ public class ClosedMarketplaceFilter extends BaseBesFilter implements Filter {
 
             MarketplaceConfiguration config = getConfig(mId);
 
-            if (!isSameTenant(config, httpRequest, httpResponse)) {
-                forwardToErrorPage(httpRequest, httpResponse);
-                return;
-            }
-
             if (isMkpRestricted(config)) {
                 if (voUserDetails != null
                         && voUserDetails.getOrganizationId() != null) {
@@ -109,10 +104,18 @@ public class ClosedMarketplaceFilter extends BaseBesFilter implements Filter {
                 }
             }
 
+            if (!isSameTenant(config, httpRequest, httpResponse)) {
+                if (portalHasBeenRequested(httpRequest)) {
+                    httpResponse.sendRedirect(getRedirectToMkpAddress(httpRequest));
+                } else {
+                    forwardToErrorPage(httpRequest, httpResponse);
+                }
+            }
+
         }
         chain.doFilter(request, response);
     }
-
+// // TODO: 2016-12-15 change to getdefaulttenantid and dont assign nulls
     private boolean isDefaultTenant(String tenantId) {
         if (tenantId == null || tenantId.isEmpty()) {
             return false;
@@ -130,13 +133,14 @@ public class ClosedMarketplaceFilter extends BaseBesFilter implements Filter {
         }
         return false;
     }
-
+// // TODO: 2016-12-15 compare marketplace tenant with users organization tenant instead of session
     private boolean isSameTenant(MarketplaceConfiguration config,
                               HttpServletRequest httpRequest, HttpServletResponse httpResponse)
             throws ServletException, IOException {
         if (config != null) {
             String tenantIDFromSession = (String) httpRequest.getSession()
                     .getAttribute(Constants.REQ_PARAM_TENANT_ID);
+            // // TODO: 2016-12-15 dont assign nulls
             if (isDefaultTenant(tenantIDFromSession)) {
                 tenantIDFromSession = null;
             }
