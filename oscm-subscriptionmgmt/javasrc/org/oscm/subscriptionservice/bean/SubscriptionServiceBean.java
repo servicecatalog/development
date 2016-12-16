@@ -3579,22 +3579,23 @@ public class SubscriptionServiceBean
                     subscription.getSubscriptionId(), e.getMessage());
         }
 
+        List<Uda> existingUdas = manageBean.getExistingUdas(dbSubscription);
+        List<VOUda> updatedUdas = getUpdatedSubscriptionAttributes(udas,
+                existingUdas);
+
         boolean changedValues = false;
         try {
             changedValues = subIdChanged || refIdChanged
                     || checkIfParametersAreModified(dbSubscription,
                             dbSubscription, dbProduct, dbProduct,
-                            modifiedParameters, false);
+                            modifiedParameters, false)
+                    || updatedUdas.size() > 0;
         } catch (ServiceChangedException e) {
             throw new ConcurrentModificationException(e.getMessage());
         }
 
         boolean asynch = dbProduct.getTechnicalProduct().getProvisioningType()
                 .equals(ProvisioningType.ASYNCHRONOUS);
-
-        List<Uda> existingUdas = manageBean.getExistingUdas(dbSubscription);
-        List<VOUda> updatedUdas = getUpdatedSubscriptionAttributes(udas,
-                existingUdas);
 
         logSubscriptionAttributeForEdit(dbSubscription, updatedUdas);
         logSubscriptionOwner(dbSubscription, dbOwner);
