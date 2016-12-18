@@ -90,6 +90,10 @@ public class ClosedMarketplaceFilter extends BaseBesFilter implements Filter {
 
             MarketplaceConfiguration config = getConfig(mId);
 
+            if (voUserDetails != null && !isSameTenant(config, voUserDetails)) {
+                forwardToErrorPage(httpRequest, httpResponse);
+            }
+
             if (isMkpRestricted(config)) {
                 if (voUserDetails != null
                         && voUserDetails.getOrganizationId() != null) {
@@ -103,51 +107,21 @@ public class ClosedMarketplaceFilter extends BaseBesFilter implements Filter {
                     }
                 }
             }
-
-            if (!isSameTenant(config, httpRequest, httpResponse)) {
-                if (portalHasBeenRequested(httpRequest)) {
-                    httpResponse.sendRedirect(getRedirectToMkpAddress(httpRequest));
-                } else {
-                    forwardToErrorPage(httpRequest, httpResponse);
-                }
-            }
-
         }
         chain.doFilter(request, response);
     }
-// // TODO: 2016-12-15 change to getdefaulttenantid and dont assign nulls
-    private boolean isDefaultTenant(String tenantId) {
-        if (tenantId == null || tenantId.isEmpty()) {
-            return false;
-        }
 
-        final String defaultTenantId;
-
-        ConfigurationService cfgService = getServiceAccess()
-                .getService(ConfigurationService.class);
-        defaultTenantId = cfgService.getVOConfigurationSetting(
-                ConfigurationKey.SSO_DEFAULT_TENANT_ID,
-                Configuration.GLOBAL_CONTEXT).getValue();
-        if (tenantId.equals(defaultTenantId)) {
-            return true;
-        }
-        return false;
-    }
-// // TODO: 2016-12-15 compare marketplace tenant with users organization tenant instead of session
-    private boolean isSameTenant(MarketplaceConfiguration config,
-                              HttpServletRequest httpRequest, HttpServletResponse httpResponse)
+    private boolean isSameTenant(MarketplaceConfiguration config, VOUserDetails voUserDetails)
             throws ServletException, IOException {
         if (config != null) {
-            String tenantIDFromSession = (String) httpRequest.getSession()
-                    .getAttribute(Constants.REQ_PARAM_TENANT_ID);
-            // // TODO: 2016-12-15 dont assign nulls
-            if (isDefaultTenant(tenantIDFromSession)) {
-                tenantIDFromSession = null;
-            }
-            final String tenantIdFromMarketplace = config != null
-                    ? config.getTenantId() : null;
+            final String tenantIdFromMarketplace = config.getTenantId();
 
-            if (tenantIDFromSession == tenantIdFromMarketplace) {
+            String userOrgTenant = voUserDetails.getTenantId();
+
+            if (userOrgTenant == null && tenantIdFromMarketplace == null) {
+                return true;
+            } else if (userOrgTenant != null
+                    && userOrgTenant.equals(tenantIdFromMarketplace)) {
                 return true;
             }
         }
