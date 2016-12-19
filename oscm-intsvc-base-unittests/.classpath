@@ -31,8 +31,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-configservice"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-configservice-intsvc"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-configservice-unittests"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/oscm-credentialservice"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/oscm-credentialservice-unittests"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-database-unittests"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-dataservice"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-dataservice-intsvc"/>
@@ -56,7 +54,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-integrationhelper"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-integrationhelper-unittests"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-integrationtests-mockproduct"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/oscm-integrationtests-saml-sp"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-loadtests"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-marketplaceservice"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-marketplaceservice-intsvc"/>

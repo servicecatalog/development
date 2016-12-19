@@ -75,9 +75,6 @@
     <ejb>oscm-operatorsvc.jar</ejb>
   </module>
   <module>
-    <ejb>oscm-credentialservice.jar</ejb>
-  </module>
-  <module>
     <ejb>oscm-triggerservice.jar</ejb>
   </module>
   <module>

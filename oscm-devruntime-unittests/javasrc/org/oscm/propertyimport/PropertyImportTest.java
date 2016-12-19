@@ -176,7 +176,8 @@ public class PropertyImportTest {
                 "SELECT ", "INSERT ", "SELECT ", "INSERT ", "SELECT ",
                 "INSERT ", "SELECT ", "INSERT ", "SELECT ", "INSERT ",
                 "SELECT ", "INSERT ", "SELECT ", "INSERT ", "SELECT ",
-                "INSERT ", "SELECT ", "INSERT ", "SELECT ", "INSERT ", "SELECT ", "INSERT " };
+                "INSERT ", "SELECT ", "INSERT ", "SELECT ", "INSERT ",
+                "SELECT ", "INSERT " };
         int cnt = 0;
         assertEquals(expected.length, sqlStatementes.size());
         for (String sql : sqlStatementes) {
@@ -326,7 +327,7 @@ public class PropertyImportTest {
                 "SELECT", "INSERT", "SELECT", "INSERT", "SELECT", "INSERT",
                 "SELECT", "INSERT", "SELECT", "INSERT", "SELECT", "INSERT",
                 "SELECT", "INSERT", "SELECT", "INSERT", "SELECT ", "INSERT ",
-                "SELECT", "INSERT", "SELECT", "INSERT", "SELECT", "INSERT"};
+                "SELECT", "INSERT", "SELECT", "INSERT", "SELECT", "INSERT" };
         int cnt = 0;
         assertEquals(expected.length, sqlStatementes.size());
         for (String sql : sqlStatementes) {
@@ -421,16 +422,9 @@ public class PropertyImportTest {
         p.put(ConfigurationKey.TAGGING_MIN_SCORE.name(), "1");
 
         p.put(ConfigurationKey.WS_TIMEOUT.name(), "180000");
-        p.put(ConfigurationKey.IDP_ASSERTION_EXPIRATION.name(), "1800000");
-        p.put(ConfigurationKey.IDP_ASSERTION_VALIDITY_TOLERANCE.name(),
-                "600000");
         p.put(ConfigurationKey.SSO_DEFAULT_TENANT_ID.name(), "8f96dede");
         p.put(ConfigurationKey.SSO_IDP_SAML_ASSERTION_ISSUER_ID.name(),
                 "default");
-        p.put(ConfigurationKey.IDP_PRIVATE_KEY_FILE_PATH.name(),
-                "D:/BES_CODE_152/");
-        p.put(ConfigurationKey.IDP_PUBLIC_CERTIFICATE_FILE_PATH.name(),
-                "D:/BES_CODE_152/");
         p.put(ConfigurationKey.HIDDEN_UI_ELEMENTS.name(),
                 "operator.manageBillingAdapters,techService.viewBillingAdapters");
         return p;

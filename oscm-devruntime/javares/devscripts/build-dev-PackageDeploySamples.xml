@@ -224,7 +224,7 @@
     description="Builds all the sample applications, the build result can be found in oscm-build/result/package/">
     <ant dir="${adm.ue.buildscript.dir}" antfile="${adm.ue.buildscript.file}" target="package">
       <property name="projects"
-        value="example-service,oscm-integrationtests-mockproduct,mock-psp-service,oscm-portal,oscm-integrationtests-saml-sp,oscm-integrationtests-saml2-sts,oscm-psp-heidelpay" />
+        value="example-service,oscm-integrationtests-mockproduct,mock-psp-service,oscm-portal,oscm-integrationtests-saml2-sts,oscm-psp-heidelpay" />
     </ant>
   </target>
 
@@ -237,10 +237,6 @@
       appl="${build.result.package.dir}/oscm-integrationtests-mockproduct/oscm-integrationtests-mockproduct.war" />
     <delete file="${example.domain.apps}/mock-psp-service/.glassfishStaleFiles" failonerror="false" />
     <deployOnExampleDomain appl="${build.result.package.dir}/mock-psp-service/mock-psp-service.war" />
-    <delete file="${example.domain.apps}/oscm-integrationtests-saml-sp/.glassfishStaleFiles"
-      failonerror="false" />
-    <deployOnExampleDomain
-      appl="${build.result.package.dir}/oscm-integrationtests-saml-sp/oscm-integrationtests-saml-sp.war" />
     <delete file="${example.domain.apps}/oscm-integrationtests-saml2-sts/.glassfishStaleFiles"
       failonerror="false" />
     <deployOnExampleDomain target="server"
@@ -253,7 +249,6 @@
     <undeployFromExampleDomain appl="example-service" failonerror="false" />
     <undeployFromExampleDomain appl="oscm-integrationtests-mockproduct" failonerror="false" />
     <undeployFromExampleDomain appl="mock-psp-service" failonerror="false" />
-    <undeployFromExampleDomain appl="oscm-integrationtests-saml-sp" failonerror="false" />
     <undeployFromExampleDomain appl="oscm-integrationtests-saml2-sts" failonerror="false" />
     <undeployFromExampleDomain appl="oscm-psp-heidelpay" failonerror="false" />
   </target>

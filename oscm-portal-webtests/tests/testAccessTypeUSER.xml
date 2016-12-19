@@ -4,7 +4,6 @@
   <import file="../macros/marketplace/all.xml" />
 
   <!-- This test covers only the creation of a technical service with USER access type. -->
-  <!-- The access to services using the BES SAML IDP for SSO is covered by the webtest 'saml.xml' -->
   <target name="all" depends="setup, allTest" />
 
   <target name="setup">
