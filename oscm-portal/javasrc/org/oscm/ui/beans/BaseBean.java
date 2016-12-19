@@ -40,7 +40,6 @@ import org.oscm.internal.intf.MarketplaceService;
 import org.oscm.internal.intf.MarketplaceServiceInternal;
 import org.oscm.internal.intf.PaymentService;
 import org.oscm.internal.intf.ReportingService;
-import org.oscm.internal.intf.SamlService;
 import org.oscm.internal.intf.SearchService;
 import org.oscm.internal.intf.SearchServiceInternal;
 import org.oscm.internal.intf.ServiceProvisioningService;
