@@ -14,16 +14,20 @@ import static org.oscm.ui.common.Constants.PORTAL_HAS_BEEN_REQUESTED;
 import java.io.IOException;
 
 import javax.ejb.EJB;
-import javax.servlet.*;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.oscm.internal.cache.MarketplaceConfiguration;
 import org.oscm.internal.intf.ConfigurationService;
 import org.oscm.internal.intf.MarketplaceService;
-import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.vo.VOUserDetails;
-import org.oscm.types.constants.Configuration;
 import org.oscm.types.constants.marketplace.Marketplace;
 import org.oscm.ui.beans.BaseBean;
 import org.oscm.ui.common.Constants;
@@ -90,8 +94,9 @@ public class ClosedMarketplaceFilter extends BaseBesFilter implements Filter {
 
             MarketplaceConfiguration config = getConfig(mId);
 
-            if (voUserDetails != null && !isSameTenant(config, voUserDetails)) {
+            if (config != null && voUserDetails != null && !isSameTenant(config, voUserDetails)) {
                 forwardToErrorPage(httpRequest, httpResponse);
+                return;
             }
 
             if (isMkpRestricted(config)) {
@@ -111,19 +116,17 @@ public class ClosedMarketplaceFilter extends BaseBesFilter implements Filter {
         chain.doFilter(request, response);
     }
 
-    private boolean isSameTenant(MarketplaceConfiguration config, VOUserDetails voUserDetails)
-            throws ServletException, IOException {
-        if (config != null) {
-            final String tenantIdFromMarketplace = config.getTenantId();
+    private boolean isSameTenant(MarketplaceConfiguration config,
+            VOUserDetails voUserDetails) throws ServletException, IOException {
+        final String tenantIdFromMarketplace = config.getTenantId();
 
-            String userOrgTenant = voUserDetails.getTenantId();
+        String userOrgTenant = voUserDetails.getTenantId();
 
-            if (userOrgTenant == null && tenantIdFromMarketplace == null) {
-                return true;
-            } else if (userOrgTenant != null
-                    && userOrgTenant.equals(tenantIdFromMarketplace)) {
-                return true;
-            }
+        if (userOrgTenant == null && tenantIdFromMarketplace == null) {
+            return true;
+        } else if (userOrgTenant != null
+                && userOrgTenant.equals(tenantIdFromMarketplace)) {
+            return true;
         }
         return false;
     }
