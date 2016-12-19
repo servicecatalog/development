@@ -10,7 +10,12 @@ package org.oscm.ui.filter;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.oscm.internal.types.enumtypes.ConfigurationKey.MP_ERROR_REDIRECT_HTTP;
 import static org.oscm.types.constants.Configuration.GLOBAL_CONTEXT;
 
@@ -28,13 +33,12 @@ import javax.servlet.http.HttpSession;
 
 import org.junit.Before;
 import org.junit.Test;
+
 import org.oscm.internal.cache.MarketplaceConfiguration;
 import org.oscm.internal.intf.ConfigurationService;
 import org.oscm.internal.intf.TenantService;
-import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.vo.VOConfigurationSetting;
 import org.oscm.internal.vo.VOUserDetails;
-import org.oscm.types.constants.Configuration;
 import org.oscm.types.constants.marketplace.Marketplace;
 import org.oscm.ui.common.Constants;
 import org.oscm.ui.common.ServiceAccess;
@@ -235,13 +239,12 @@ public class ClosedMarketplaceFilterTest {
             throws IOException, ServletException {
         // given
 
-        final String tenant1 = "a1234567";
-        final String tenant2 = "b1234567";
-        final String tenantDefault = "default1";
+        final String mpTenantId = "a1234567";
+        final String orgTenantId = "b1234567";
 
         // when
 
-        testDoFilterWithTenants(tenant1, tenant2, tenantDefault);
+        testDoFilterWithTenants(mpTenantId, orgTenantId);
 
         // then
         verify(redirectorMock, times(1)).forward(eq(requestMock),
@@ -253,12 +256,11 @@ public class ClosedMarketplaceFilterTest {
             throws IOException, ServletException {
         // given
 
-        final String tenant1 = "a1234567";
-        final String tenantDefault = "default1";
+        final String tenantId = "a1234567";
 
         // when
 
-        testDoFilterWithTenants(tenant1, tenant1, tenantDefault);
+        testDoFilterWithTenants(tenantId, tenantId);
 
         // then
         verify(redirectorMock, times(0)).forward(eq(requestMock),
@@ -270,13 +272,12 @@ public class ClosedMarketplaceFilterTest {
             throws IOException, ServletException {
         // given
 
-        final String tenant1 = null;
-        final String tenant2 = "a1234567";
-        final String tenantDefault = "default1";
+        final String mpTenantId = null;
+        final String orgTenantId = "a1234567";
 
         // when
 
-        testDoFilterWithTenants(tenant1, tenant2, tenantDefault);
+        testDoFilterWithTenants(mpTenantId, orgTenantId);
 
         // then
         verify(redirectorMock, times(1)).forward(eq(requestMock),
@@ -284,17 +285,16 @@ public class ClosedMarketplaceFilterTest {
     }
 
     @Test
-    public void testInvalidTenants_SessionTenantIdNull()
+    public void testInvalidTenants_OrgTenantIdNull()
             throws IOException, ServletException {
         // given
 
-        final String tenant1 = null;
-        final String tenant2 = "a1234567";
-        final String tenantDefault = "default1";
+        final String orgTenantId = null;
+        final String mpTenantId = "a1234567";
 
         // when
 
-        testDoFilterWithTenants(tenant2, tenant1, tenantDefault);
+        testDoFilterWithTenants(mpTenantId, orgTenantId);
 
         // then
         verify(redirectorMock, times(1)).forward(eq(requestMock),
@@ -306,126 +306,33 @@ public class ClosedMarketplaceFilterTest {
             throws IOException, ServletException {
         // given
 
-        final String tenant1 = null;
-        final String tenantDefault = "default1";
+        final String tenantId = null;
 
         // when
 
-        testDoFilterWithTenants(tenant1, tenant1, tenantDefault);
+        testDoFilterWithTenants(tenantId, tenantId);
 
         // then
         verify(redirectorMock, times(0)).forward(eq(requestMock),
                 eq(responseMock), eq(INSUFFICIENT_AUTH_URL));
     }
 
-    @Test
-    public void testInvalidTenants_AllDefaultTenants()
-            throws IOException, ServletException {
-        // given
-
-        final String tenantDefault = null;
-
-        // when
-
-        testDoFilterWithTenants(tenantDefault, tenantDefault, tenantDefault);
-
-        // then
-        verify(redirectorMock, times(0)).forward(eq(requestMock),
-                eq(responseMock), eq(INSUFFICIENT_AUTH_URL));
-    }
-
-    @Test
-    public void testInvalidTenants_SessionDefaultTenant()
-            throws IOException, ServletException {
-        // given
-
-        final String tenantDefault = null;
-        final String tenantMP = "a1234567";
-
-        // when
-
-        testDoFilterWithTenants(tenantMP, tenantDefault, tenantDefault);
-
-        // then
-        verify(redirectorMock, times(1)).forward(eq(requestMock),
-                eq(responseMock), eq(INSUFFICIENT_AUTH_URL));
-    }
-
-    @Test
-    public void testInvalidTenants_MPDefaultTenant()
-            throws IOException, ServletException {
-        // given
-
-        final String tenantDefault = null;
-        final String tenantSession = "a1234567";
-
-        // when
-
-        testDoFilterWithTenants(tenantDefault, tenantSession, tenantDefault);
-
-        // then
-        verify(redirectorMock, times(1)).forward(eq(requestMock),
-                eq(responseMock), eq(INSUFFICIENT_AUTH_URL));
-    }
-
-    @Test
-    public void testInvalidTenants_NullDefaultTenant_SameTenants()
-            throws IOException, ServletException {
-        // given
-
-        final String tenant1 = "a1234567";
-        final String tenantDefault = null;
-
-        // when
-
-        testDoFilterWithTenants(tenant1, tenant1, tenantDefault);
-
-        // then
-        verify(redirectorMock, times(0)).forward(eq(requestMock),
-                eq(responseMock), eq(INSUFFICIENT_AUTH_URL));
-    }
-
-    @Test
-    public void testInvalidTenants_NullDefaultTenant_DifferentTenants()
-            throws IOException, ServletException {
-        // given
-
-        final String tenant1 = "a1234567";
-        final String tenant2 = "b1234567";
-        final String tenantDefault = null;
-
-        // when
-
-        testDoFilterWithTenants(tenant1, tenant2, tenantDefault);
-
-        // then
-        verify(redirectorMock, times(1)).forward(eq(requestMock),
-                eq(responseMock), eq(INSUFFICIENT_AUTH_URL));
-    }
-
-
-    private void testDoFilterWithTenants(String tenantFromMp, String tenantFromSession, String defaultTenant) throws IOException, ServletException {
+    private void testDoFilterWithTenants(String tenantFromMp, String tenantFromUserOrg) throws IOException, ServletException {
+        doReturn(false).when(closedMplFilter).isSAMLAuthentication();
         doReturn("/portal/*").when(requestMock).getServletPath();
         doReturn("mpid").when(sessionMock)
                 .getAttribute(Constants.REQ_PARAM_MARKETPLACE_ID);
-        doReturn(tenantFromSession).when(sessionMock).getAttribute(Constants.REQ_PARAM_TENANT_ID);
-        ServiceAccess mockServiceAccess = mock(ServiceAccess.class);
-        ConfigurationService mockConfServ = mock(ConfigurationService.class);
+        doReturn(tenantFromUserOrg).when(sessionMock).getAttribute(Constants.REQ_PARAM_TENANT_ID);
 
-        VOConfigurationSetting voSetting = new VOConfigurationSetting();
-        voSetting.setInformationId(ConfigurationKey.SSO_DEFAULT_TENANT_ID);
-        voSetting.setValue(defaultTenant);
-
-        doReturn(voSetting).when(mockConfServ).getVOConfigurationSetting(ConfigurationKey.SSO_DEFAULT_TENANT_ID,
-                Configuration.GLOBAL_CONTEXT);
-
-        closedMplFilter.serviceAccess = mockServiceAccess;
-        doReturn(mockConfServ).when(mockServiceAccess).getService(ConfigurationService.class);
         MarketplaceConfiguration config = getConfiguration(false, true,
                 "someOrgId");
         config.setTenantId(tenantFromMp);
-
         doReturn(config).when(closedMplFilter).getConfig("mpid");
+
+        VOUserDetails userDetails = getUserDetails("someOrgId");
+        userDetails.setTenantId(tenantFromUserOrg);
+        doReturn(userDetails).when(sessionMock).getAttribute(
+                Constants.SESS_ATTR_USER);
 
         closedMplFilter.doFilter(requestMock, responseMock, chainMock);
     }
