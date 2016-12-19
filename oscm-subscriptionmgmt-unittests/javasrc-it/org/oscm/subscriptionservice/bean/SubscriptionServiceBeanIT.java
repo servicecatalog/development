@@ -5452,7 +5452,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
         // now decrease the version and ensure that the similar call fails,
         // simulating concurrent access for lost update scenarios
-        subId = subId + "enhanced";
+        subId = subId + "enh";
         subToModify.setVersion(subToModify.getVersion() - 1);
         subToModify.setSubscriptionId(subId);
         subMgmt.modifySubscription(subToModify, null, new ArrayList<VOUda>());
