@@ -175,9 +175,7 @@ public class PropertyImportTest {
                 "INSERT ", "SELECT ", "INSERT ", "SELECT ", "INSERT ",
                 "SELECT ", "INSERT ", "SELECT ", "INSERT ", "SELECT ",
                 "INSERT ", "SELECT ", "INSERT ", "SELECT ", "INSERT ",
-                "SELECT ", "INSERT ", "SELECT ", "INSERT ", "SELECT ",
-                "INSERT ", "SELECT ", "INSERT ", "SELECT ", "INSERT ",
-                "SELECT ", "INSERT " };
+                "SELECT ", "INSERT ", "SELECT ", "INSERT " };
         int cnt = 0;
         assertEquals(expected.length, sqlStatementes.size());
         for (String sql : sqlStatementes) {
@@ -326,8 +324,7 @@ public class PropertyImportTest {
                 "SELECT", "INSERT", "SELECT", "INSERT", "SELECT", "INSERT",
                 "SELECT", "INSERT", "SELECT", "INSERT", "SELECT", "INSERT",
                 "SELECT", "INSERT", "SELECT", "INSERT", "SELECT", "INSERT",
-                "SELECT", "INSERT", "SELECT", "INSERT", "SELECT ", "INSERT ",
-                "SELECT", "INSERT", "SELECT", "INSERT", "SELECT", "INSERT" };
+                "SELECT", "INSERT", "SELECT", "INSERT" };
         int cnt = 0;
         assertEquals(expected.length, sqlStatementes.size());
         for (String sql : sqlStatementes) {
