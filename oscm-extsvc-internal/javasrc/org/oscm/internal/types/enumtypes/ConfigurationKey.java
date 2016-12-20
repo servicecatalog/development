@@ -303,14 +303,6 @@ public enum ConfigurationKey {
     @Example("30000")
     WS_TIMEOUT(true, "30000", "long", Long.valueOf(1L), null, false),
 
-    @Doc({ "The JNDI name of the connection factory used to send messages to the search master." })
-    @Example("jms/bss/masterIndexerQueueFactory")
-    SEARCH_INDEX_MASTER_FACTORY_NAME(true),
-
-    @Doc({ "The JNDI name of the message queue storing the messages for the search master." })
-    @Example("jms/bss/masterIndexerQueue")
-    SEARCH_INDEX_MASTER_QUEUE_NAME(true),
-
     @Doc({
             "The authentication mode defines whether the bes internal authentication is used",
             "or an external authentication service, such as OpenAM.",

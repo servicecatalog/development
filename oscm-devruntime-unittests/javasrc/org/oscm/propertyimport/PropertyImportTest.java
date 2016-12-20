@@ -174,8 +174,7 @@ public class PropertyImportTest {
                 "SELECT ", "INSERT ", "SELECT ", "INSERT ", "SELECT ",
                 "INSERT ", "SELECT ", "INSERT ", "SELECT ", "INSERT ",
                 "SELECT ", "INSERT ", "SELECT ", "INSERT ", "SELECT ",
-                "INSERT ", "SELECT ", "INSERT ", "SELECT ", "INSERT ",
-                "SELECT ", "INSERT ", "SELECT ", "INSERT " };
+                "INSERT ", "SELECT ", "INSERT ", "SELECT ", "INSERT " };
         int cnt = 0;
         assertEquals(expected.length, sqlStatementes.size());
         for (String sql : sqlStatementes) {
@@ -323,8 +322,7 @@ public class PropertyImportTest {
                 "SELECT", "INSERT", "SELECT", "INSERT", "SELECT", "INSERT",
                 "SELECT", "INSERT", "SELECT", "INSERT", "SELECT", "INSERT",
                 "SELECT", "INSERT", "SELECT", "INSERT", "SELECT", "INSERT",
-                "SELECT", "INSERT", "SELECT", "INSERT", "SELECT", "INSERT",
-                "SELECT", "INSERT", "SELECT", "INSERT" };
+                "SELECT", "INSERT", "SELECT", "INSERT", "SELECT", "INSERT" };
         int cnt = 0;
         assertEquals(expected.length, sqlStatementes.size());
         for (String sql : sqlStatementes) {
@@ -411,10 +409,6 @@ public class PropertyImportTest {
         p.put(ConfigurationKey.BASE_URL_HTTPS.name(), "http://localhost:8180");
         p.put(ConfigurationKey.LOG_FILE_PATH.name(), "../logs");
         p.put(ConfigurationKey.PSP_USAGE_ENABLED.name(), "false");
-        p.put(ConfigurationKey.SEARCH_INDEX_MASTER_FACTORY_NAME.name(),
-                "jms/bss/masterIndexerQueueFactory");
-        p.put(ConfigurationKey.SEARCH_INDEX_MASTER_QUEUE_NAME.name(),
-                "jms/bss/masterIndexerQueue");
         p.put(ConfigurationKey.TAGGING_MAX_TAGS.name(), "20");
         p.put(ConfigurationKey.TAGGING_MIN_SCORE.name(), "1");
 
