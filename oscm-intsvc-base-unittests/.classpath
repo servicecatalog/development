@@ -74,7 +74,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-reporting-unittests"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-review"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-review-unittests"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/oscm-saml-api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-security"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-security-unittests"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-server-common"/>
