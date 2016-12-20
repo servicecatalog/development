@@ -86,7 +86,9 @@ public class PasswordSetup {
 
         try {
             if (config.initEncryption()) {
-                updatePasswords(em);
+                updatePasswords();
+            } else {
+                encryptedSettingsWithPrefix();
             }
         } catch (ConfigurationException | GeneralSecurityException
                 | BadResultException e) {
@@ -96,16 +98,39 @@ public class PasswordSetup {
     }
 
     /**
+     * Encrypts all configuration settings with the _crypt: prefix with the new
+     * method.
+     * 
+     * @throws ConfigurationException
+     */
+    private void encryptedSettingsWithPrefix() throws ConfigurationException {
+        String csSQL = "SELECT cs FROM ConfigurationSetting cs WHERE cs.settingKey like '%"
+                + CRYPT_KEY_SUFFIX + "' OR cs.settingKey like '%"
+                + CRYPT_KEY_SUFFIX_PASS + "'";
+        TypedQuery<ConfigurationSetting> csQuery = em.createQuery(csSQL,
+                ConfigurationSetting.class);
+        List<ConfigurationSetting> csList = csQuery.getResultList();
+
+        for (ConfigurationSetting cs : csList) {
+            String value = cs.getSettingValue();
+            if (value != null && value.startsWith(CRYPT_PREFIX)) {
+                value = value.substring(CRYPT_PREFIX.length());
+                cs.setDecryptedValue(value);
+            }
+        }
+
+        em.flush();
+    }
+
+    /**
      * Decrypts all old style passwords in the database and saves them encrypted
      * with the new method.
      * 
-     * @param em
-     *            the entity manager
      * @throws ConfigurationException
      * @throws GeneralSecurityException
      * @throws BadResultException
      */
-    public void updatePasswords(EntityManager em) throws ConfigurationException,
+    private void updatePasswords() throws ConfigurationException,
             GeneralSecurityException, BadResultException {
 
         String csSQL = "SELECT cs FROM ConfigurationSetting cs WHERE cs.settingKey like '%"

@@ -31,6 +31,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 
 import javax.ejb.EJBException;
@@ -5417,8 +5418,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
             throw e.getCause();
         }
         // try to set another ID, covering block for testing business key unique
-        subToModify
-                .setSubscriptionId(String.valueOf(System.currentTimeMillis()));
+        subToModify.setSubscriptionId(UUID.randomUUID().toString());
         subMgmt.modifySubscription(subToModify, null, new ArrayList<VOUda>());
 
     }
@@ -5426,7 +5426,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     @Test(expected = ConcurrentModificationException.class)
     public void testModifySubscriptionDifferentIDConcurrent() throws Throwable {
         final String id = prepareSubscriptionForModification(0L);
-        long value = System.currentTimeMillis();
+        String value = UUID.randomUUID().toString();
 
         // Now check results
         VOSubscription subToModify;
@@ -5442,7 +5442,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
             }
         });
         // try to set another ID, covering block for testing business key unique
-        String subId = String.valueOf(value);
+        String subId = value;
         subToModify.setSubscriptionId(subId);
         VOSubscriptionDetails modifySubscription = subMgmt
                 .modifySubscription(subToModify, null, new ArrayList<VOUda>());
@@ -5452,7 +5452,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
         // now decrease the version and ensure that the similar call fails,
         // simulating concurrent access for lost update scenarios
-        subId = subId + "enhanced";
+        subId = subId + "enh";
         subToModify.setVersion(subToModify.getVersion() - 1);
         subToModify.setSubscriptionId(subId);
         subMgmt.modifySubscription(subToModify, null, new ArrayList<VOUda>());
@@ -5462,7 +5462,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
     public void testModifySubscriptionDifferentConcurrentModifiedParam()
             throws Throwable {
         final String id = prepareSubscriptionForModification(0L);
-        long value = System.currentTimeMillis();
+        String value = UUID.randomUUID().toString();
 
         // Now check results
         VOSubscriptionDetails subToModify;
@@ -5481,7 +5481,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
             }
         });
         // try to set another ID, covering block for testing business key unique
-        String subId = String.valueOf(value);
+        String subId = value;
         subToModify.setSubscriptionId(subId);
         VOSubscriptionDetails modifySubscription = subMgmt
                 .modifySubscription(subToModify, null, new ArrayList<VOUda>());
@@ -6406,8 +6406,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
     private TriggerProcess generateModifyIDTriggerProcess(
             VOSubscription subToModify) {
-        subToModify
-                .setSubscriptionId(String.valueOf(System.currentTimeMillis()));
+        subToModify.setSubscriptionId(UUID.randomUUID().toString());
 
         final TriggerProcess tp = new TriggerProcess();
         tp.addTriggerProcessParameter(TriggerProcessParameterName.SUBSCRIPTION,
@@ -6550,8 +6549,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
             throws Throwable {
         VOSubscription subToModify = getSubscription(subscriptionId);
 
-        subToModify
-                .setSubscriptionId(String.valueOf(System.currentTimeMillis()));
+        subToModify.setSubscriptionId(UUID.randomUUID().toString());
         subMgmt.modifySubscription(subToModify, null, new ArrayList<VOUda>());
     }
 
@@ -7643,8 +7641,8 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         VOUser[] admins = new VOUser[1];
         admins[0] = UserDataAssembler
                 .toVOUser(testUsers.get(testOrganizations.get(0)).get(1));
-        VOSubscription sub = Subscriptions.createVOSubscription(
-                String.valueOf(System.currentTimeMillis()));
+        VOSubscription sub = Subscriptions
+                .createVOSubscription(UUID.randomUUID().toString());
         VOPaymentInfo voPaymentInfo = getPaymentInfo(
                 tpAndSupplier.getOrganizationId(), testOrganizations.get(0));
         VOBillingContact bc = createBillingContact(testOrganizations.get(0));
@@ -10007,7 +10005,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
 
                 // subscribe service
                 final VOSubscription newSub = Subscriptions
-                        .createVOSubscription("" + System.currentTimeMillis());
+                        .createVOSubscription("" + UUID.randomUUID());
                 VOSubscription sub = subMgmt.subscribeToService(newSub,
                         voProduct, null, null, null, new ArrayList<VOUda>());
                 return sub;
