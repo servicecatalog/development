@@ -237,7 +237,7 @@ public class ConfigurationServiceBean
                     || configSetting.getInformationId()
                             .getType() == ConfigurationKey.TYPE_LONG
                     || configSetting.getInformationId()
-                            .getType() == ConfigurationKey.TYPE_STRING
+                            .getType() == ConfigurationKey.TYPE_URL
                     || configSetting.getInformationId()
                             .getType() == ConfigurationKey.TYPE_PASSWORD) {
 
