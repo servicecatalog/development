@@ -13,6 +13,7 @@ import java.util.Set;
 
 import javax.ejb.SessionContext;
 
+import org.apache.commons.lang3.StringUtils;
 import org.oscm.accountservice.assembler.UdaAssembler;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Organization;
@@ -172,11 +173,16 @@ public class UdaDefinitionAccess {
 
     private void storeLocalizedAttributeName(long key, String attributeName,
             String language) {
-        if (attributeName == null || language == null) {
+        if (language == null) {
             return;
         }
-        localizer.storeLocalizedResource(language, key,
-                LocalizedObjectTypes.CUSTOM_ATTRIBUTE_NAME, attributeName);
+        if (StringUtils.isBlank(attributeName)) {
+            localizer.removeLocalizedValue(key,
+                    LocalizedObjectTypes.CUSTOM_ATTRIBUTE_NAME, language);
+        } else {
+            localizer.storeLocalizedResource(language, key,
+                    LocalizedObjectTypes.CUSTOM_ATTRIBUTE_NAME, attributeName);
+        }
     }
 
     /**
