@@ -14,16 +14,22 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Properties;
+import java.util.Map;
 
 import org.oscm.app.domain.PlatformConfigurationKey;
 
 /**
+ * Migrator class for added new and deleting unneeded config settings.
+ * 
  * @author miethaner
- *
  */
 public class PropertyMigrator {
+
+    private static final String SUFFIX_PWD = "_PWD";
+    private static final String SUFFIX_PASS = "_PASS";
+    private static final String PREFIX_CRYPT = "_crypt:";
 
     private static final String TABLE_NAME = "ConfigurationSetting";
     private static final String FIELD_KEY = "settingkey";
@@ -78,7 +84,7 @@ public class PropertyMigrator {
             throw new RuntimeException("Could not connect to the database");
         }
 
-        Properties p = loadConfigurationSettings(conn);
+        Map<String, String> settings = loadConfigurationSettings(conn);
         List<PlatformConfigurationKey> missing = new ArrayList<>();
 
         try {
@@ -87,14 +93,14 @@ public class PropertyMigrator {
 
             for (PlatformConfigurationKey key : allKeys) {
 
-                if (p.contains(key.name())) {
-                    p.remove(key.name());
+                if (settings.containsKey(key.name())) {
+                    settings.remove(key.name());
                 } else {
                     missing.add(key);
                 }
             }
 
-            deleteUnusedEntries(conn, p);
+            deleteUnusedEntries(conn, settings);
             addMissingEntries(conn, missing);
         } finally {
             try {
@@ -111,9 +117,9 @@ public class PropertyMigrator {
         return DriverManager.getConnection(driverURL, userName, userPwd);
     }
 
-    private Properties loadConfigurationSettings(Connection conn) {
+    private Map<String, String> loadConfigurationSettings(Connection conn) {
 
-        Properties props = new Properties();
+        Map<String, String> settings = new HashMap<>();
         try {
             String query = "SELECT " + FIELD_KEY + ", " + FIELD_VALUE + " FROM "
                     + TABLE_NAME + " WHERE " + FIELD_CONTROLLER + " = ?";
@@ -122,7 +128,7 @@ public class PropertyMigrator {
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
-                props.put(rs.getString(1), rs.getString(2));
+                settings.put(rs.getString(1), rs.getString(2));
             }
 
             rs.close();
@@ -132,16 +138,17 @@ public class PropertyMigrator {
             throw new RuntimeException("Unable to load configuration settings",
                     e);
         }
-        return props;
+        return settings;
     }
 
-    private void deleteUnusedEntries(Connection conn, Properties p) {
+    private void deleteUnusedEntries(Connection conn,
+            Map<String, String> settings) {
         try {
             String query = "DELETE FROM " + TABLE_NAME + " WHERE " + FIELD_KEY
                     + " = ? AND " + FIELD_CONTROLLER + " = ?";
             PreparedStatement stmt = conn.prepareStatement(query);
 
-            for (String key : p.stringPropertyNames()) {
+            for (String key : settings.keySet()) {
 
                 stmt.setString(1, key);
                 stmt.setString(2, controllerId);
@@ -161,12 +168,18 @@ public class PropertyMigrator {
 
         try {
             String query = "INSERT INTO " + TABLE_NAME + "(" + FIELD_VALUE
-                    + ", " + FIELD_KEY + ", " + FIELD_CONTROLLER + ", "
+                    + ", " + FIELD_KEY + ", " + FIELD_CONTROLLER
                     + ") VALUES(?, ?, ?)";
             PreparedStatement stmt = conn.prepareStatement(query);
 
             for (PlatformConfigurationKey key : missing) {
-                stmt.setString(1, "change");
+
+                String value = "changeit";
+                if (key.name().endsWith(SUFFIX_PWD)
+                        || key.name().endsWith(SUFFIX_PASS)) {
+                    value = PREFIX_CRYPT + value;
+                }
+                stmt.setString(1, value);
                 stmt.setString(2, key.name());
                 stmt.setString(3, controllerId);
 
