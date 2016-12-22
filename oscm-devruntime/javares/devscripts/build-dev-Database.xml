@@ -239,6 +239,13 @@
       <property name="work.dir" value="${work.dir}/.." />
       <reference refid="client.path" torefid="client.path" />
     </ant>
+    <java classname="org.oscm.propertyimport.PropertyMigrator" failonerror="true">
+      <arg value="${db.driver.class}" />
+      <arg value="${db.url}" />
+      <arg value="${db.user}" />
+      <arg value="${db.pwd}" />
+      <classpath refid="client.path" />
+    </java>
   </target>
 
   <target name="bes.Create" description="">
@@ -312,6 +319,13 @@
       <property name="dbproperties.file" value="${work.dir}/../../../oscm-devruntime-unittests/javares/db.properties" />
       <reference refid="client.path" torefid="client.path" />
     </ant>
+    <java classname="org.oscm.propertyimport.PropertyMigrator" failonerror="true">
+      <arg value="${db.driver.class}" />
+      <arg value="${db.url.unit}" />
+      <arg value="${db.unit.user}" />
+      <arg value="${db.unit.pwd}" />
+      <classpath refid="client.path" />
+    </java>
   </target>
 
   <target name="unit.STANDALONE.InsertConfigSettings" description="">
@@ -358,6 +372,13 @@
       <property name="dbproperties.file" value="${local.dir}/db-appunit.properties" />
       <reference refid="client.path" torefid="client.path" />
     </ant>
+    <java classname="org.oscm.app.setup.PropertyMigrator" failonerror="true">
+      <arg value="${db.driver.class}" />
+      <arg value="${db.url.appunit}" />
+      <arg value="${db.appunit.user}" />
+      <arg value="${db.appunit.pwd}" />
+      <classpath refid="client.path" />
+    </java>
   </target>
 
   <target name="appunit.InsertConfigSettings" description="">
@@ -443,6 +464,13 @@
       <property name="dbproperties.file" value="${local.dir}/db-app.properties" />
       <reference refid="client.path" torefid="client.path" />
     </ant>
+    <java classname="org.oscm.app.setup.PropertyMigrator" failonerror="true">
+      <arg value="${db.driver.class}" />
+      <arg value="${db.url.app}" />
+      <arg value="${db.app.user}" />
+      <arg value="${db.app.pwd}" />
+      <classpath refid="client.path" />
+    </java>
   </target>
 
   <target name="app.InsertConfigSettings" description="Inserts the configuration settings in the asynchronous provisioning proxy datatbase">

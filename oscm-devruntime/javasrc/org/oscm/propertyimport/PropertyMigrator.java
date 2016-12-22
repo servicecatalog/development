@@ -15,14 +15,16 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Properties;
+import java.util.Map;
 
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 
 /**
+ * Migrator class for added new and deleting unneeded config settings.
+ * 
  * @author miethaner
- *
  */
 public class PropertyMigrator {
 
@@ -43,8 +45,8 @@ public class PropertyMigrator {
                     "Usage: java PropertMigration <driverClass> <driverURL> <userName> <userPwd> [<contextId>]");
         }
 
-        PropertyMigrator propertyImport = new PropertyMigrator(args[0],
-                args[1], args[2], args[3], args.length >= 5 ? args[4] : null);
+        PropertyMigrator propertyImport = new PropertyMigrator(args[0], args[1],
+                args[2], args[3], args.length >= 5 ? args[4] : null);
         propertyImport.execute();
     }
 
@@ -83,7 +85,7 @@ public class PropertyMigrator {
             throw new RuntimeException("Could not connect to the database");
         }
 
-        Properties p = loadConfigurationSettings(conn);
+        Map<String, String> settings = loadConfigurationSettings(conn);
         List<ConfigurationKey> missing = new ArrayList<>();
 
         try {
@@ -92,14 +94,14 @@ public class PropertyMigrator {
 
             for (ConfigurationKey key : allKeys) {
 
-                if (p.contains(key.getKeyName())) {
-                    p.remove(key.getKeyName());
+                if (settings.containsKey(key.getKeyName())) {
+                    settings.remove(key.getKeyName());
                 } else {
                     missing.add(key);
                 }
             }
 
-            deleteUnusedEntries(conn, p);
+            deleteUnusedEntries(conn, settings);
             addMissingEntries(conn, missing);
         } finally {
             try {
@@ -116,9 +118,9 @@ public class PropertyMigrator {
         return DriverManager.getConnection(driverURL, userName, userPwd);
     }
 
-    private Properties loadConfigurationSettings(Connection conn) {
+    private Map<String, String> loadConfigurationSettings(Connection conn) {
 
-        Properties props = new Properties();
+        Map<String, String> settings = new HashMap<>();
         try {
             String query = "SELECT " + FIELD_KEY + ", " + FIELD_VALUE + " FROM "
                     + TABLE_NAME + " WHERE " + FIELD_CONTEXT + " = ?";
@@ -127,7 +129,7 @@ public class PropertyMigrator {
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
-                props.put(rs.getString(1), rs.getString(2));
+                settings.put(rs.getString(1), rs.getString(2));
             }
 
             rs.close();
@@ -137,14 +139,14 @@ public class PropertyMigrator {
             throw new RuntimeException("Unable to load configuration settings",
                     e);
         }
-        return props;
+        return settings;
     }
 
     private void initStartCount(Connection conn) {
         try {
             Statement stmt = conn.createStatement();
-            ResultSet rs = stmt
-                    .executeQuery("SELECT MAX(TKEY) FROM " + TABLE_NAME);
+            ResultSet rs = stmt.executeQuery(
+                    "SELECT MAX(" + FIELD_TKEY + ") FROM " + TABLE_NAME);
             while (rs.next()) {
                 count = rs.getInt(1);
             }
@@ -157,13 +159,14 @@ public class PropertyMigrator {
         }
     }
 
-    private void deleteUnusedEntries(Connection conn, Properties p) {
+    private void deleteUnusedEntries(Connection conn,
+            Map<String, String> settings) {
         try {
             String query = "DELETE FROM " + TABLE_NAME + " WHERE " + FIELD_KEY
                     + " = ? AND " + FIELD_CONTEXT + " = ?";
             PreparedStatement stmt = conn.prepareStatement(query);
 
-            for (String key : p.stringPropertyNames()) {
+            for (String key : settings.keySet()) {
 
                 stmt.setString(1, key);
                 stmt.setString(2, contextId);
