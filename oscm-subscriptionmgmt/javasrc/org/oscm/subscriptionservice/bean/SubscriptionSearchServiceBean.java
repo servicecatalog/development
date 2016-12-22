@@ -9,6 +9,7 @@
 package org.oscm.subscriptionservice.bean;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -17,13 +18,12 @@ import javax.ejb.Local;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 
-import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.queryParser.MultiFieldQueryParser;
-import org.apache.lucene.queryParser.ParseException;
-import org.apache.lucene.queryParser.QueryParser;
-import org.apache.lucene.queryParser.QueryParser.Operator;
-import org.apache.lucene.util.Version;
+import org.apache.lucene.index.Term;
+import org.apache.lucene.search.BooleanClause.Occur;
+import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.WildcardQuery;
 import org.hibernate.search.jpa.FullTextEntityManager;
+
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.bridge.SubscriptionClassBridge;
@@ -32,8 +32,6 @@ import org.oscm.internal.types.exception.InvalidPhraseException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
-import org.oscm.subscriptionservice.dao.SubscriptionDao;
-import org.oscm.types.enumtypes.LogMessageIdentifier;
 import org.oscm.validation.ArgumentValidator;
 
 /**
@@ -57,27 +55,14 @@ public class SubscriptionSearchServiceBean implements SubscriptionSearchService 
 
         FullTextEntityManager ftem = getFtem();
 
-        Analyzer analyzer = ftem.getSearchFactory().getAnalyzer(
-                "customanalyzer");
-        MultiFieldQueryParser parser = getParser(analyzer);
-
         List<Subscription> list;
-        try {
-            org.apache.lucene.search.Query luceneQuery = parser
-                    .parse(QueryParser.escape(searchPhrase));
 
-            javax.persistence.Query jpaQuery = ftem.createFullTextQuery(
-                    luceneQuery, Subscription.class);
+        BooleanQuery booleanQuery = constructWildcardQuery(searchPhrase);
 
-            list = jpaQuery.getResultList();
-        } catch (ParseException e) {
-            logger.logError(
-                    Log4jLogger.SYSTEM_LOG,
-                    e,
-                    LogMessageIdentifier.ERROR_SUBSCRIPTION_SEARCH_QUERY_PARSER_FAILED,
-                    searchPhrase);
-            throw new InvalidPhraseException(e, searchPhrase);
-        }
+        javax.persistence.Query jpaQuery = ftem.createFullTextQuery(
+                booleanQuery, Subscription.class);
+
+        list = jpaQuery.getResultList();
 
         List<Long> result = new ArrayList<Long>();
 
@@ -98,19 +83,22 @@ public class SubscriptionSearchServiceBean implements SubscriptionSearchService 
         return org.hibernate.search.jpa.Search.getFullTextEntityManager(em);
     }
 
-    public MultiFieldQueryParser getParser(Analyzer analyzer) {
-        MultiFieldQueryParser parser = new MultiFieldQueryParser(
-                Version.LUCENE_36, new String[] {
-                        SubscriptionClassBridge.NAME_SUBSCRIPTION_ID,
-                        SubscriptionClassBridge.NAME_REFERENCE,
-                        SubscriptionClassBridge.NAME_PARAMETER_VALUE,
-                        SubscriptionClassBridge.NAME_UDA_VALUE }, analyzer);
-        parser.setDefaultOperator(Operator.AND);
+    private BooleanQuery constructWildcardQuery(String searchPhrase) {
 
-        return parser;
-    }
+        BooleanQuery booleanQuery = new BooleanQuery();
 
-    public SubscriptionDao getSubscriptionDao() {
-        return new SubscriptionDao(dm);
+        final List<String> fieldNames = Arrays.asList(
+                SubscriptionClassBridge.NAME_SUBSCRIPTION_ID,
+                SubscriptionClassBridge.NAME_REFERENCE,
+                SubscriptionClassBridge.NAME_PARAMETER_VALUE,
+                SubscriptionClassBridge.NAME_UDA_VALUE);
+
+        for (String fieldName : fieldNames) {
+            WildcardQuery queryPart = new WildcardQuery(
+                    new Term(fieldName, "*" + searchPhrase.toLowerCase() + "*"));
+            booleanQuery.add(queryPart, Occur.SHOULD);
+        }
+
+        return booleanQuery;
     }
 }
