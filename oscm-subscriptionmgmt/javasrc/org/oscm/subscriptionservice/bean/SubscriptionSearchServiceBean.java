@@ -30,8 +30,6 @@ import org.oscm.domobjects.bridge.SubscriptionClassBridge;
 import org.oscm.internal.intf.SubscriptionSearchService;
 import org.oscm.internal.types.exception.InvalidPhraseException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
 import org.oscm.validation.ArgumentValidator;
 
 /**
@@ -40,9 +38,6 @@ import org.oscm.validation.ArgumentValidator;
 @Stateless
 @Local(SubscriptionSearchService.class)
 public class SubscriptionSearchServiceBean implements SubscriptionSearchService {
-
-    private static final Log4jLogger logger = LoggerFactory
-            .getLogger(SubscriptionSearchServiceBean.class);
 
     @EJB
     private DataService dm;
@@ -64,7 +59,7 @@ public class SubscriptionSearchServiceBean implements SubscriptionSearchService 
 
         list = jpaQuery.getResultList();
 
-        List<Long> result = new ArrayList<Long>();
+        List<Long> result = new ArrayList<>();
 
         for (Subscription sub : list) {
             result.add(new Long(sub.getKey()));
