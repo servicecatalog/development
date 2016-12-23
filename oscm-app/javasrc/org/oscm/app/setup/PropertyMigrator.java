@@ -185,7 +185,7 @@ public class PropertyMigrator {
 
                 stmt.executeUpdate();
                 System.out.println("Create Configuration " + key.name()
-                        + " with value '" + "change" + "'");
+                        + " with value '" + value + "'");
             }
         } catch (SQLException e) {
             e.printStackTrace();
