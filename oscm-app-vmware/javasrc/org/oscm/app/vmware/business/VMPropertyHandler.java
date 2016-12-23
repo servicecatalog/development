@@ -15,6 +15,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.datatype.XMLGregorianCalendar;
+
 import org.oscm.app.v2_0.data.PasswordAuthentication;
 import org.oscm.app.v2_0.data.ProvisioningSettings;
 import org.oscm.app.v2_0.data.ServiceUser;
@@ -31,6 +33,10 @@ import org.oscm.app.vmware.persistence.VMwareNetwork;
 import org.oscm.app.vmware.remote.bes.Credentials;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.vmware.vim25.LocalizableMessage;
+import com.vmware.vim25.TaskInfo;
+import com.vmware.vim25.TaskInfoState;
 
 /**
  * Class to read and return the VMware specific properties.
@@ -157,7 +163,10 @@ public class VMPropertyHandler {
      * several stages until it is automatically deleted
      */
     public enum SubscriptionEndStatus {
-        UNDEFINED, SCHEDULED_FOR_NOTIFICATION, SCHEDULED_FOR_DEACTIVATION, SCHEDULED_FOR_DELETION
+        UNDEFINED,
+        SCHEDULED_FOR_NOTIFICATION,
+        SCHEDULED_FOR_DEACTIVATION,
+        SCHEDULED_FOR_DELETION
     };
 
     public static final String SUBSCRIPTION_END_STATUS = "SUBSCRIPTION_END_STATUS";
@@ -462,8 +471,8 @@ public class VMPropertyHandler {
     }
 
     public int getNumberOfNetworkAdapter() {
-        return Integer
-                .parseInt(getServiceSetting(VMPropertyHandler.TS_NUMBER_OF_NICS));
+        return Integer.parseInt(
+                getServiceSetting(VMPropertyHandler.TS_NUMBER_OF_NICS));
     }
 
     /**
@@ -472,8 +481,8 @@ public class VMPropertyHandler {
      */
     public void releaseManuallyDefinedIPAddresses() throws Exception {
         logger.debug("");
-        int numNIC = Integer
-                .parseInt(getServiceSetting(VMPropertyHandler.TS_NUMBER_OF_NICS));
+        int numNIC = Integer.parseInt(
+                getServiceSetting(VMPropertyHandler.TS_NUMBER_OF_NICS));
         for (int i = 1; i <= numNIC; i++) {
             if (isAdapterConfiguredByDatabase(i)) {
                 String ipAddress = getIpAddress(i);
@@ -485,11 +494,11 @@ public class VMPropertyHandler {
                     String vlan = getVLAN(i);
                     try {
                         DataAccessService das = getDataAccessService();
-                        das.releaseIPAddress(vcenter, datacenter, cluster,
-                                vlan, ipAddress);
+                        das.releaseIPAddress(vcenter, datacenter, cluster, vlan,
+                                ipAddress);
                     } catch (Exception e) {
-                        logger.error("Failed to release IP address "
-                                + ipAddress, e);
+                        logger.error(
+                                "Failed to release IP address " + ipAddress, e);
                     }
                 }
             }
@@ -512,19 +521,18 @@ public class VMPropertyHandler {
         logger.debug("vcenter: " + vcenter + " datacenter: " + datacenter
                 + " cluster: " + cluster);
 
-        int numberOfNICs = Integer
-                .parseInt(getServiceSetting(VMPropertyHandler.TS_NUMBER_OF_NICS));
+        int numberOfNICs = Integer.parseInt(
+                getServiceSetting(VMPropertyHandler.TS_NUMBER_OF_NICS));
         for (int i = 1; i <= numberOfNICs; i++) {
 
             if (isAdapterConfiguredByDatabase(i)) {
                 String vlan = das.getVLANwithMostIPs(vcenter, datacenter,
                         cluster);
                 if (vlan == null) {
-                    throw new APPlatformException(
-                            Messages.getAll(
-                                    "error_read_vlans",
-                                    new Object[] { vcenter, datacenter, cluster })
-                                    .get(0).getText());
+                    throw new APPlatformException(Messages.getAll(
+                            "error_read_vlans",
+                            new Object[] { vcenter, datacenter, cluster })
+                            .get(0).getText());
                 }
 
                 settings.getParameters().put("NIC" + i + "_NETWORK_ADAPTER",
@@ -538,10 +546,10 @@ public class VMPropertyHandler {
                     nw = das.getNetworkSettings(vcenter, datacenter, cluster,
                             vlan);
                 } catch (Exception e) {
-                    throw new APPlatformException(Messages
-                            .getAll("error_read_static_network_config",
-                                    new Object[] { Integer.valueOf(i),
-                                            e.getMessage() }).get(0).getText());
+                    throw new APPlatformException(Messages.getAll(
+                            "error_read_static_network_config",
+                            new Object[] { Integer.valueOf(i), e.getMessage() })
+                            .get(0).getText());
                 }
 
                 logger.debug("NIC" + i + " VLAN: " + vlan + " IP address: "
@@ -553,10 +561,9 @@ public class VMPropertyHandler {
                 if (i == 1) {
                     settings.getParameters().put(TS_NIC1_IP_ADDRESS,
                             new Setting(TS_NIC1_IP_ADDRESS, ipAddress));
-                    settings.getParameters()
-                            .put(TS_NIC1_SUBNET_MASK,
-                                    new Setting(TS_NIC1_SUBNET_MASK, nw
-                                            .getSubnetMask()));
+                    settings.getParameters().put(TS_NIC1_SUBNET_MASK,
+                            new Setting(TS_NIC1_SUBNET_MASK,
+                                    nw.getSubnetMask()));
                     settings.getParameters().put(TS_NIC1_GATEWAY,
                             new Setting(TS_NIC1_GATEWAY, nw.getGateway()));
                     settings.getParameters().put(TS_NIC1_DNS_SERVER,
@@ -566,10 +573,9 @@ public class VMPropertyHandler {
                 } else if (i == 2) {
                     settings.getParameters().put(TS_NIC2_IP_ADDRESS,
                             new Setting(TS_NIC1_IP_ADDRESS, ipAddress));
-                    settings.getParameters()
-                            .put(TS_NIC2_SUBNET_MASK,
-                                    new Setting(TS_NIC1_SUBNET_MASK, nw
-                                            .getSubnetMask()));
+                    settings.getParameters().put(TS_NIC2_SUBNET_MASK,
+                            new Setting(TS_NIC1_SUBNET_MASK,
+                                    nw.getSubnetMask()));
                     settings.getParameters().put(TS_NIC2_GATEWAY,
                             new Setting(TS_NIC1_GATEWAY, nw.getGateway()));
                     settings.getParameters().put(TS_NIC2_DNS_SERVER,
@@ -579,10 +585,9 @@ public class VMPropertyHandler {
                 } else if (i == 3) {
                     settings.getParameters().put(TS_NIC3_IP_ADDRESS,
                             new Setting(TS_NIC1_IP_ADDRESS, ipAddress));
-                    settings.getParameters()
-                            .put(TS_NIC3_SUBNET_MASK,
-                                    new Setting(TS_NIC1_SUBNET_MASK, nw
-                                            .getSubnetMask()));
+                    settings.getParameters().put(TS_NIC3_SUBNET_MASK,
+                            new Setting(TS_NIC1_SUBNET_MASK,
+                                    nw.getSubnetMask()));
                     settings.getParameters().put(TS_NIC3_GATEWAY,
                             new Setting(TS_NIC1_GATEWAY, nw.getGateway()));
                     settings.getParameters().put(TS_NIC3_DNS_SERVER,
@@ -592,10 +597,9 @@ public class VMPropertyHandler {
                 } else if (i == 4) {
                     settings.getParameters().put(TS_NIC4_IP_ADDRESS,
                             new Setting(TS_NIC1_IP_ADDRESS, ipAddress));
-                    settings.getParameters()
-                            .put(TS_NIC4_SUBNET_MASK,
-                                    new Setting(TS_NIC1_SUBNET_MASK, nw
-                                            .getSubnetMask()));
+                    settings.getParameters().put(TS_NIC4_SUBNET_MASK,
+                            new Setting(TS_NIC1_SUBNET_MASK,
+                                    nw.getSubnetMask()));
                     settings.getParameters().put(TS_NIC4_GATEWAY,
                             new Setting(TS_NIC1_GATEWAY, nw.getGateway()));
                     settings.getParameters().put(TS_NIC4_DNS_SERVER,
@@ -692,8 +696,8 @@ public class VMPropertyHandler {
      * VMware device key.
      */
     public void setDataDiskKey(int index, int key) {
-        setValue(DATA_DISK_KEY + Integer.toString(index),
-                Integer.toString(key), settings.getParameters());
+        setValue(DATA_DISK_KEY + Integer.toString(index), Integer.toString(key),
+                settings.getParameters());
     }
 
     public List<VLAN> getVLANs(Cluster cluster) {
@@ -793,7 +797,8 @@ public class VMPropertyHandler {
      */
     public String getInstanceName() throws APPlatformException {
         StringBuffer b = new StringBuffer();
-        String prefix = getServiceSetting(VMPropertyHandler.TS_INSTANCENAME_PREFIX);
+        String prefix = getServiceSetting(
+                VMPropertyHandler.TS_INSTANCENAME_PREFIX);
         String name = getServiceSettingValidated(TS_INSTANCENAME);
         if (prefix != null && !name.startsWith(prefix)
                 && !isImportOfExistingVM()) {
@@ -823,7 +828,8 @@ public class VMPropertyHandler {
             throws APPlatformException {
 
         boolean contains_vcenter = (name.indexOf(PLACEHOLDER_VCENTER) >= 0);
-        boolean contains_datacenter = (name.indexOf(PLACEHOLDER_DATACENTER) >= 0);
+        boolean contains_datacenter = (name
+                .indexOf(PLACEHOLDER_DATACENTER) >= 0);
         boolean contains_id3 = (name.indexOf(PLACEHOLDER_ID3) >= 0);
         boolean contains_id4 = (name.indexOf(PLACEHOLDER_ID4) >= 0);
         boolean contains_id5 = (name.indexOf(PLACEHOLDER_ID5) >= 0);
@@ -951,10 +957,56 @@ public class VMPropertyHandler {
     /**
      * Updates the key of the last created task.
      */
-    public void setTask(String key) {
-        setValue(TASK_KEY, key, settings.getParameters());
-        setValue(TASK_STARTTIME, Long.toString(System.currentTimeMillis()),
-                settings.getParameters());
+    public void setTask(TaskInfo info) {
+        if (info != null) {
+            Setting s = new Setting(TASK_KEY, info.getKey());
+            settings.getParameters().put(TASK_KEY, s);
+        } else {
+            Setting s = new Setting(TASK_KEY, "");
+            settings.getParameters().put(TASK_KEY, s);
+        }
+        Setting s = new Setting(TASK_STARTTIME,
+                Long.toString(System.currentTimeMillis()));
+        settings.getParameters().put(TASK_STARTTIME, s);
+        logTaskInfo(info);
+    }
+
+    private void logTaskInfo(TaskInfo info) {
+        if (info == null) {
+            logger.debug("Deleted task info key");
+            return;
+        }
+
+        TaskInfoState state = info.getState();
+
+        Integer progress = info.getProgress();
+        if (state == TaskInfoState.SUCCESS) {
+            progress = Integer.valueOf(100);
+        } else if (progress == null) {
+            progress = Integer.valueOf(0);
+        }
+
+        LocalizableMessage desc = info.getDescription();
+        String description = desc != null ? desc.getMessage() : "";
+
+        XMLGregorianCalendar queueT = info.getQueueTime();
+        String queueTime = queueT != null
+                ? queueT.toGregorianCalendar().getTime().toString() : "";
+
+        XMLGregorianCalendar startT = info.getStartTime();
+        String startTime = startT != null
+                ? startT.toGregorianCalendar().getTime().toString() : "";
+
+        XMLGregorianCalendar completeT = info.getCompleteTime();
+        String completeTime = completeT != null
+                ? completeT.toGregorianCalendar().getTime().toString() : "";
+
+        logger.debug("Save task info key: " + info.getKey() + " name: "
+                + info.getName() + " target: " + info.getEntityName()
+                + " state: " + state.name() + " progress: " + progress
+                + "% description: " + description + " queue-time: " + queueTime
+                + " start-time: " + startTime + " complete-time: "
+                + completeTime);
     }
 
     /**
@@ -987,8 +1039,9 @@ public class VMPropertyHandler {
         }
 
         if ("".equals(xml)) {
-            logger.error("VMwarePropertyHandler.getHostLoadBalancerConfig() The retrieved host load balancing configuration for cluster "
-                    + cluster + " is empty");
+            logger.error(
+                    "VMwarePropertyHandler.getHostLoadBalancerConfig() The retrieved host load balancing configuration for cluster "
+                            + cluster + " is empty");
             throw new RuntimeException(
                     "The retrieved host load balancing configuration for cluster "
                             + cluster + " is empty");
@@ -1025,9 +1078,7 @@ public class VMPropertyHandler {
      */
     public String getConfigurationAsString(String locale)
             throws APPlatformException {
-        String config = Messages.get(
-                locale,
-                "mail_VM_configuration.text",
+        String config = Messages.get(locale, "mail_VM_configuration.text",
                 new Object[] { getInstanceName(), getTemplateName(),
                         settings.getSubscriptionId(),
                         Integer.toString(getConfigCPUs()),
@@ -1069,8 +1120,8 @@ public class VMPropertyHandler {
 
     public String formatMBasGB(double valueMB) {
         DecimalFormat format = new DecimalFormat("#0.# GB");
-        return format.format(VMwareValue.fromMegaBytes(valueMB).getValue(
-                Unit.GB));
+        return format
+                .format(VMwareValue.fromMegaBytes(valueMB).getValue(Unit.GB));
     }
 
     /**
@@ -1422,21 +1473,17 @@ public class VMPropertyHandler {
 
     public SubscriptionEndStatus getSubscriptionEndStatus() {
         SubscriptionEndStatus state = SubscriptionEndStatus.UNDEFINED;
-        String status = getServiceSetting(VMPropertyHandler.SUBSCRIPTION_END_STATUS);
+        String status = getServiceSetting(
+                VMPropertyHandler.SUBSCRIPTION_END_STATUS);
         logger.debug("status: " + status);
-        if (status != null
-                && status
-                        .equals(SubscriptionEndStatus.SCHEDULED_FOR_DEACTIVATION
-                                .name())) {
+        if (status != null && status.equals(
+                SubscriptionEndStatus.SCHEDULED_FOR_DEACTIVATION.name())) {
             state = SubscriptionEndStatus.SCHEDULED_FOR_DEACTIVATION;
-        } else if (status != null
-                && status.equals(SubscriptionEndStatus.SCHEDULED_FOR_DELETION
-                        .name())) {
+        } else if (status != null && status
+                .equals(SubscriptionEndStatus.SCHEDULED_FOR_DELETION.name())) {
             state = SubscriptionEndStatus.SCHEDULED_FOR_DELETION;
-        } else if (status != null
-                && status
-                        .equals(SubscriptionEndStatus.SCHEDULED_FOR_NOTIFICATION
-                                .name())) {
+        } else if (status != null && status.equals(
+                SubscriptionEndStatus.SCHEDULED_FOR_NOTIFICATION.name())) {
             state = SubscriptionEndStatus.SCHEDULED_FOR_NOTIFICATION;
         }
 
@@ -1468,8 +1515,8 @@ public class VMPropertyHandler {
      * @exception if
      *                previous state does not exist
      */
-    public String getPreviousStateFromHistory(VMPropertyHandler ph, String state)
-            throws APPlatformException {
+    public String getPreviousStateFromHistory(VMPropertyHandler ph,
+            String state) throws APPlatformException {
         logger.debug("state: " + state);
         String previousState = null;
         String stateHistory = getServiceSetting(SM_STATE_HISTORY);
@@ -1539,7 +1586,8 @@ public class VMPropertyHandler {
         return setting != null ? setting.getValue() : null;
     }
 
-    private void setValue(String key, String value, Map<String, Setting> target) {
+    private void setValue(String key, String value,
+            Map<String, Setting> target) {
         target.put(key, new Setting(key, value));
     }
 }
