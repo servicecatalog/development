@@ -73,7 +73,7 @@ public class SubscriptionSearchServiceBean implements SubscriptionSearchService 
 
             String orgKey = dm.getCurrentUser().getOrganization().getOrganizationId();
 
-            TermQuery orgIdQuery = new TermQuery(new Term(SubscriptionClassBridge.NAME_ORGANIZATION_KEY,
+            TermQuery orgIdQuery = new TermQuery(new Term(SubscriptionClassBridge.NAME_ORGANIZATION_ID,
                 QueryParser.escape(orgKey).toLowerCase()));
 
             // now construct final query

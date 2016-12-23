@@ -35,7 +35,7 @@ public class SubscriptionClassBridge implements FieldBridge {
     public static final String NAME_REFERENCE = "subscription.reference";
     public static final String NAME_PARAMETER_VALUE = "parameter.value";
     public static final String NAME_UDA_VALUE = "uda.value";
-    public static final String NAME_ORGANIZATION_KEY = "subscription.organizationid";
+    public static final String NAME_ORGANIZATION_ID = "subscription.organizationid";
 
     private static final String SEPARATOR = " ";
 
@@ -52,7 +52,7 @@ public class SubscriptionClassBridge implements FieldBridge {
             subId = sub.getSubscriptionId();
         }
 
-        Field field = new Field(NAME_ORGANIZATION_KEY, sub.getOrganization().getOrganizationId(),
+        Field field = new Field(NAME_ORGANIZATION_ID, sub.getOrganization().getOrganizationId(),
                 options.getStore(), options.getIndex(), options.getTermVector());
         field.setBoost(options.getBoost());
         doc.add(field);
