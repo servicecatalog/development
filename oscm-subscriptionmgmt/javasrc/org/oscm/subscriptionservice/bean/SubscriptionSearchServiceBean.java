@@ -80,6 +80,8 @@ public class SubscriptionSearchServiceBean implements SubscriptionSearchService 
 
     private BooleanQuery constructWildcardQuery(String searchPhrase) {
 
+        String[] splitStr = searchPhrase.split("\\s+");
+
         BooleanQuery booleanQuery = new BooleanQuery();
 
         final List<String> fieldNames = Arrays.asList(
@@ -88,12 +90,22 @@ public class SubscriptionSearchServiceBean implements SubscriptionSearchService 
                 SubscriptionClassBridge.NAME_PARAMETER_VALUE,
                 SubscriptionClassBridge.NAME_UDA_VALUE);
 
-        for (String fieldName : fieldNames) {
-            WildcardQuery queryPart = new WildcardQuery(
-                    new Term(fieldName, "*" + searchPhrase.toLowerCase() + "*"));
-            booleanQuery.add(queryPart, Occur.SHOULD);
+        for (String token : splitStr) {
+            booleanQuery.add(
+                    prepareWildcardQueryForSingleToken(token, fieldNames),
+                    Occur.MUST);
         }
 
         return booleanQuery;
+    }
+
+    private BooleanQuery prepareWildcardQueryForSingleToken(String token, List<String> fieldNames) {
+        BooleanQuery queryPart = new BooleanQuery();
+        for (String fieldName : fieldNames) {
+            WildcardQuery wildcardQuery = new WildcardQuery(
+                    new Term(fieldName, "*" + token.toLowerCase() + "*"));
+            queryPart.add(wildcardQuery, Occur.SHOULD);
+        }
+        return queryPart;
     }
 }
