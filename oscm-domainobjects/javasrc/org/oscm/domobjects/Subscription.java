@@ -36,6 +36,7 @@ import javax.persistence.UniqueConstraint;
 
 import org.apache.solr.analysis.LowerCaseFilterFactory;
 import org.apache.solr.analysis.SnowballPorterFilterFactory;
+import org.apache.solr.analysis.StandardFilterFactory;
 import org.apache.solr.analysis.WhitespaceTokenizerFactory;
 import org.apache.solr.analysis.WordDelimiterFilterFactory;
 import org.hibernate.search.annotations.Analyzer;
@@ -68,8 +69,7 @@ import org.oscm.types.exceptions.UserNotAssignedException;
         @TokenFilterDef(factory = WordDelimiterFilterFactory.class, params = {
                 @org.hibernate.search.annotations.Parameter(name = "preserveOriginal", value = "1"),
                 @org.hibernate.search.annotations.Parameter(name = "catenateAll", value = "1") }),
-        @TokenFilterDef(factory = LowerCaseFilterFactory.class),
-        @TokenFilterDef(factory = SnowballPorterFilterFactory.class, params = { @org.hibernate.search.annotations.Parameter(name = "language", value = "English") }) })
+        @TokenFilterDef(factory = LowerCaseFilterFactory.class)})
 @Analyzer(definition = "customanalyzer")
 @Indexed
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "subscriptionId",
