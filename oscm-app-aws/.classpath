@@ -23,9 +23,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc-internal"/>
 	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/javaee.jar"/>
 	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/gf-client.jar"/>
-	<classpathentry kind="lib" path="/libraries/jackson/javalib/jackson-databind-2.2.3.jar"/>
-	<classpathentry kind="lib" path="/libraries/jackson/javalib/jackson-core-2.2.3.jar"/>
-	<classpathentry kind="lib" path="/libraries/jackson/javalib/jackson-annotations-2.2.3.jar"/>
 	<classpathentry kind="lib" path="/libraries/opensaml/javalib/joda-time-2.2.jar"/>
 	<classpathentry kind="lib" path="/libraries/aws/javalib/aws-java-sdk-core-1.11.37.jar"/>
 	<classpathentry kind="lib" path="/libraries/aws/javalib/aws-java-sdk-ec2-1.11.37.jar"/>
