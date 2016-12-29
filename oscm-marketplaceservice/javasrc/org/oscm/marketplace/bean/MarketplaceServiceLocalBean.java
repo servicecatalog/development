@@ -25,6 +25,7 @@ import javax.ejb.TransactionAttributeType;
 import javax.interceptor.Interceptors;
 import javax.persistence.Query;
 
+import org.apache.commons.lang3.StringUtils;
 import org.oscm.accountservice.local.AccountServiceLocal;
 import org.oscm.categorizationService.local.CategorizationServiceLocal;
 import org.oscm.communicationservice.local.CommunicationServiceLocal;
@@ -44,6 +45,7 @@ import org.oscm.domobjects.ProductReference;
 import org.oscm.domobjects.PublicLandingpage;
 import org.oscm.domobjects.RevenueShareModel;
 import org.oscm.domobjects.RoleAssignment;
+import org.oscm.domobjects.Tenant;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.domobjects.enums.PublishingAccess;
 import org.oscm.domobjects.enums.RevenueShareModelType;
@@ -53,6 +55,7 @@ import org.oscm.identityservice.local.IdentityServiceLocal;
 import org.oscm.interceptor.AuditLogDataInterceptor;
 import org.oscm.interceptor.ExceptionMapper;
 import org.oscm.interceptor.InvocationDateContainer;
+import org.oscm.internal.intf.MarketplaceCacheService;
 import org.oscm.internal.resalepermissions.POResalePermissionDetails;
 import org.oscm.internal.types.enumtypes.OfferingType;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
@@ -135,6 +138,9 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
     @EJB
     MarketplaceAccessDao marketplaceAccessDao;
 
+    @EJB
+    MarketplaceCacheService marketplaceCache;
+
     @Override
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     public List<Marketplace> getAllMarketplaces() {
@@ -175,6 +181,27 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
 
         List<Marketplace> marketplaceList = ParameterizedTypes.list(
                 query.getResultList(), Marketplace.class);
+
+        return marketplaceList;
+    }
+
+    @Override
+    @TransactionAttribute(TransactionAttributeType.MANDATORY)
+    public List<Marketplace> getMarketplacesForSupplierWithTenant() {
+
+        Organization supplier = ds.getCurrentUser().getOrganization();
+
+        Query query = ds
+            .createNamedQuery("Marketplace.findMarketplacesForPublishingForOrgAndTenant");
+        query.setParameter("organization_tkey", Long.valueOf(supplier.getKey()));
+        query.setParameter("publishingAccessGranted",
+            PublishingAccess.PUBLISHING_ACCESS_GRANTED);
+        query.setParameter("publishingAccessDenied",
+            PublishingAccess.PUBLISHING_ACCESS_DENIED);
+        query.setParameter("tenant", supplier.getTenant());
+
+        List<Marketplace> marketplaceList = ParameterizedTypes.list(
+            query.getResultList(), Marketplace.class);
 
         return marketplaceList;
     }
@@ -588,6 +615,7 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
             }
         }
         updateMarketplaceName(mp, newMarketplaceName);
+        marketplaceCache.resetConfiguration(mp.getMarketplaceId());
         return ownerAssignmentUpdated;
     }
 
@@ -673,7 +701,9 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
                 updateRevenueShare(newMarketplace.getBrokerPriceModel(),
                         brokerRevenueShareVersion);
             }
+            marketplaceCache.resetConfiguration(marketplace.getMarketplaceId());
             return ownerAssignmentUpdated;
+
         } catch (ValidationException | UserRoleAssignmentException
                 | ObjectNotFoundException e) {
             sessionCtx.setRollbackOnly();
@@ -702,7 +732,7 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
 
     /**
      * Grants several resale permissions
-     *
+     * 
      * @param permissionsToGrant
      *            A list of resale permissions, which should be granted. Each
      *            resale permission contains the related service template, the
@@ -759,7 +789,7 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
 
     /**
      * Revokes several resale permissions
-     *
+     * 
      * @param permissionsToRevoke
      *            A list of resale permissions, which should be revoked. Each
      *            resale permission contains the related service template, the
@@ -1066,6 +1096,7 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
         }
         marketplace.setRestricted(isRestricted);
         ds.persist(marketplace);
+        marketplaceCache.resetConfiguration(marketplace.getMarketplaceId());
         return marketplace;
     }
 
@@ -1083,6 +1114,8 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
         } catch (ObjectNotFoundException e) {
             ds.persist(marketplaceAccess);
         }
+
+        marketplaceCache.resetConfiguration(marketplace.getMarketplaceId());
     }
 
     @Override
@@ -1156,15 +1189,67 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
         Marketplace marketplace = (Marketplace) ds
                 .getReferenceByBusinessKey(new Marketplace(marketplaceId));
 
+        long tenantKey = 0;
+        if (marketplace.getTenant() != null) {
+            tenantKey = marketplace.getTenant().getKey();
+        }
+
         return marketplaceAccessDao
-                .getOrganizationsWithMplAndSubscriptions(marketplace.getKey());
+                .getOrganizationsWithMplAndSubscriptions(marketplace.getKey(), tenantKey);
     }
 
     @Override
     public List<Organization> getAllOrganizationsWithAccessToMarketplace(
-            long marketplaceKey) {
+            long marketplaceKey) throws ObjectNotFoundException {
+
+        Marketplace marketplace = ds.getReference(Marketplace.class, marketplaceKey);
+
+        long tenantKey = 0;
+        if (marketplace.getTenant() != null) {
+            tenantKey = marketplace.getTenant().getKey();
+        }
 
         return marketplaceAccessDao
-                .getAllOrganizationsWithAccessToMarketplace(marketplaceKey);
+                .getAllOrganizationsWithAccessToMarketplace(marketplaceKey, tenantKey);
+    }
+
+    @Override
+    public void updateTenant(Marketplace marketplace, String tenantId)
+            throws ObjectNotFoundException {
+        
+        if(StringUtils.isBlank(tenantId)){
+            marketplace.setTenant(null);
+            return;
+        }
+        
+        String currentTenantId = (marketplace.getTenant() != null)
+                ? marketplace.getTenant().getTenantId() : null;
+
+        if (currentTenantId == null || !currentTenantId.equals(tenantId)) {
+            Tenant tenant = new Tenant();
+            tenant.setTenantId(tenantId);
+            tenant = (Tenant) ds.getReferenceByBusinessKey(tenant);
+            marketplace.setTenant(tenant);
+        }
+
+    }
+
+    @Override
+    @TransactionAttribute(TransactionAttributeType.MANDATORY)
+    public List<Marketplace> getAllMarketplacesForTenant(
+            Long tenantKey) throws ObjectNotFoundException {
+
+        Query query;
+        if (tenantKey != null && tenantKey.intValue() != 0) {
+            Tenant tenant = ds.getReference(Tenant.class, tenantKey);
+            query = ds.createNamedQuery("Marketplace.getAllForTenant");
+            query.setParameter("tenant", tenant);
+        } else {
+            query = ds.createNamedQuery("Marketplace.getAllForDefaultTenant");
+        }
+        List<Marketplace> marketplaceList = ParameterizedTypes.list(
+            query.getResultList(), Marketplace.class);
+
+        return marketplaceList;
     }
 }

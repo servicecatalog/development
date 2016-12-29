@@ -16,7 +16,6 @@ import static org.oscm.ui.dialog.mp.subscriptionDetails.SubscriptionDetailsCtrlC
 import static org.oscm.ui.dialog.mp.subscriptionDetails.SubscriptionDetailsCtrlConstants.INFO_SUBSCRIPTION_ASYNC_UPGRADED;
 import static org.oscm.ui.dialog.mp.subscriptionDetails.SubscriptionDetailsCtrlConstants.INFO_SUBSCRIPTION_UPGRADED;
 import static org.oscm.ui.dialog.mp.subscriptionDetails.SubscriptionDetailsCtrlConstants.OUTCOME_ENTER_PAYMENT;
-import static org.oscm.ui.dialog.mp.subscriptionDetails.SubscriptionDetailsCtrlConstants.OUTCOME_ENTER_SERVICE_CONFIGURATION;
 import static org.oscm.ui.dialog.mp.subscriptionDetails.SubscriptionDetailsCtrlConstants.OUTCOME_ERROR;
 import static org.oscm.ui.dialog.mp.subscriptionDetails.SubscriptionDetailsCtrlConstants.OUTCOME_PREVIOUS;
 import static org.oscm.ui.dialog.mp.subscriptionDetails.SubscriptionDetailsCtrlConstants.OUTCOME_PROCESS;
@@ -152,65 +151,68 @@ public class UpgradeWizardConversation implements Serializable {
 
     @PostConstruct
     public void postConstruct() {
-        paymentAndBillingVisibleBean = ui.findBean("paymentAndBillingVisibleBean");
+        paymentAndBillingVisibleBean = ui
+                .findBean("paymentAndBillingVisibleBean");
         paymentInfoBean = ui.findBean("paymentInfoBean");
     }
 
-    private void initializeSubscription() throws ObjectNotFoundException,
-            OperationNotPermittedException, ValidationException,
-            OrganizationAuthoritiesException {
-    	
-    	model.setSubscriptionExisting(true);
+    private void initializeSubscription()
+            throws ObjectNotFoundException, OperationNotPermittedException,
+            ValidationException, OrganizationAuthoritiesException {
+
+        model.setSubscriptionExisting(true);
         model.setIsReportIssueAllowed(userBean.isLoggedInAndAdmin()
                 || userBean.isLoggedInAndSubscriptionManager());
 
         POSubscriptionDetails subscriptionDetails = getSubscriptionDetailsService()
-                    .getSubscriptionDetails(model.getSelectedSubscriptionId(),
-                            ui.getViewLocale().getLanguage())
-                    .getResult(POSubscriptionDetails.class);
+                .getSubscriptionDetails(model.getSelectedSubscriptionId(),
+                        ui.getViewLocale().getLanguage())
+                .getResult(POSubscriptionDetails.class);
 
         // get the subscription details
         model.setSubscription(subscriptionDetails.getSubscription());
-        model.setService(new Service(model.getSubscription()
-                .getSubscribedService()));
-        model.setServiceSupplier(new Organization(subscriptionDetails
-                .getSeller()));
-        model.setServicePartner(new Organization(subscriptionDetails
-                .getPartner()));
+        model.setService(
+                new Service(model.getSubscription().getSubscribedService()));
+        model.setServiceSupplier(
+                new Organization(subscriptionDetails.getSeller()));
+        model.setServicePartner(
+                new Organization(subscriptionDetails.getPartner()));
         model.setCompatibleServices(SERVICE_LISTING_VOSERVICE_MAPPER
                 .map(subscriptionDetails.getUpgradeOptions()));
         model.setDiscount(subscriptionDetails.getDiscount() == null ? null
                 : new Discount(subscriptionDetails.getDiscount()));
         model.setServiceRoles(subscriptionDetails.getServiceRoles());
-        model.setServiceEvents(SteppedPriceHandler.buildPricedEvents(model
-                .getSubscription().getPriceModel().getConsideredEvents()));
-        model.setWaitingforApproval(checkTriggerProcessForSubscription(subscriptionDetails
-                .getSubscription()));
+        model.setServiceEvents(SteppedPriceHandler.buildPricedEvents(
+                model.getSubscription().getPriceModel().getConsideredEvents()));
+        model.setWaitingforApproval(checkTriggerProcessForSubscription(
+                subscriptionDetails.getSubscription()));
         model.setReadOnlyParams(model.isCfgTabDisabled());
-        boolean showSubscriptionPrices = model.getSubscription().getPriceModel() != null
+        boolean showSubscriptionPrices = model.getSubscription()
+                .getPriceModel() != null
                 && model.getSubscription().getPriceModel().isChargeable()
                 && !model.isDirectAccess();
         model.setShowSubscriptionPrices(showSubscriptionPrices);
         boolean showServicePrices = model.getSubscription()
                 .getSubscribedService().getPriceModel() != null
                 && model.getSubscription().getSubscribedService()
-                .getPriceModel().isChargeable()
+                        .getPriceModel().isChargeable()
                 && !model.isDirectAccess();
         model.setShowServicePrices(showServicePrices);
 
-
         // set the initial value of payment info,for bug#9921
         List<PricedParameterRow> serviceParameters = PricedParameterRow
-                .createPricedParameterRowListForSubscription(model.getService()
-                        .getVO());
+                .createPricedParameterRowListForSubscription(
+                        model.getService().getVO());
         model.setServiceParameters(serviceParameters);
         model.setSubscriptionParameters(model.getServiceParameters());
 
-        Collections.sort(model.getSubscription().getPriceModel()
-                .getSteppedPrices(), new SteppedPriceComparator());
+        Collections.sort(
+                model.getSubscription().getPriceModel().getSteppedPrices(),
+                new SteppedPriceComparator());
 
         // store the usage licenses in an internal map
-        subscriptionsHelper.setUsageLicenses(model.getSubscription(), model.getUsageLicenseMap());
+        subscriptionsHelper.setUsageLicenses(model.getSubscription(),
+                model.getUsageLicenseMap());
 
         // get the users from the organization and select users
         // which already use the subscription
@@ -220,22 +222,31 @@ public class UpgradeWizardConversation implements Serializable {
         // showing detailed price model
         // selectedSubscriptionForShowingPriceModel =
         // initSubscriptionDetails(selectedSubscription);
-        Integer maxNamedUsers = subscriptionsHelper.setMaximumNamedUsers(model.getSubscription());
+        Integer maxNamedUsers = subscriptionsHelper
+                .setMaximumNamedUsers(model.getSubscription());
         model.setMaximumNamedUsers(maxNamedUsers);
 
         ArrayList<VOUdaDefinition> subUdaDefinitions = new ArrayList<>();
         ArrayList<VOUdaDefinition> orgUdaDefinitions = new ArrayList<>();
 
-        subscriptionsHelper.setUdas(subscriptionDetails, subUdaDefinitions, orgUdaDefinitions, model.getSubscription());
+        subscriptionsHelper.setUdas(subscriptionDetails, subUdaDefinitions,
+                orgUdaDefinitions, model.getSubscription());
 
-        model.setOrganizationUdaRows(UdaRow.getUdaRows(orgUdaDefinitions,
-                subscriptionDetails.getUdasOrganisation()));
         model.setSubscriptionUdaRows(UdaRow.getUdaRows(subUdaDefinitions,
                 subscriptionDetails.getUdasSubscription()));
-
+        initParamsAndUdas();
         initializePriceModelForSubscription(model.getSubscription());
 
         setConfirmationData(subscriptionDetails);
+    }
+
+    private void initParamsAndUdas() {
+        for (UdaRow udaRow : model.getSubscriptionUdaRows()) {
+            udaRow.initPasswordValueToStore();
+        }
+        for (PricedParameterRow pricedParameterRow : model.getServiceParameters()) {
+            pricedParameterRow.initPasswordValueToStore();
+        }
     }
 
     /**
@@ -259,8 +270,9 @@ public class UpgradeWizardConversation implements Serializable {
 
         model.setService(selectedService);
 
-        Collections.sort(selectedService.getPriceModel().getVo()
-                .getSteppedPrices(), new SteppedPriceComparator());
+        Collections.sort(
+                selectedService.getPriceModel().getVo().getSteppedPrices(),
+                new SteppedPriceComparator());
         updateServiceEvents(selectedService.getPriceModel().getVo());
 
         List<PricedParameterRow> serviceParameters = PricedParameterRow
@@ -278,8 +290,9 @@ public class UpgradeWizardConversation implements Serializable {
     private Service getServiceFromServer(Long key) {
         Service result = null;
         try {
-            VOServiceEntry svc = getPartnerService().getServiceForMarketplace(
-                    key.longValue(), ui.getViewLocale().getLanguage())
+            VOServiceEntry svc = getPartnerService()
+                    .getServiceForMarketplace(key.longValue(),
+                            ui.getViewLocale().getLanguage())
                     .getResult(VOServiceEntry.class);
             if (svc == null) {
                 // Note: The error handling is based on setErrorAttribute to be
@@ -326,8 +339,8 @@ public class UpgradeWizardConversation implements Serializable {
                     continue;
                 if (newParam.getParameterDefinition().getKey() == current
                         .getParameterDefinition().getKey()) {
-                    newParam.getParameter().setValue(
-                            current.getParameter().getValue());
+                    newParam.getParameter()
+                            .setValue(current.getParameter().getValue());
                 }
             }
         }
@@ -341,7 +354,7 @@ public class UpgradeWizardConversation implements Serializable {
      *            the price model with the considered events.
      */
     private void updateServiceEvents(VOPriceModel priceModel) {
-        List<PricedEventRow> serviceEvents = new ArrayList<PricedEventRow>();
+        List<PricedEventRow> serviceEvents = new ArrayList<>();
         for (VOPricedEvent pricedEvent : priceModel.getConsideredEvents()) {
             PricedEventRow row;
             if (pricedEvent.getSteppedPrices().isEmpty()) {
@@ -363,10 +376,12 @@ public class UpgradeWizardConversation implements Serializable {
     }
 
     public List<VOPaymentInfo> getPaymentInfosForSubscription() {
-        return paymentInfoBean.getPaymentInfosForSubscription(model.getService().getKey(), getAccountingService());
+        return paymentInfoBean.getPaymentInfosForSubscription(
+                model.getService().getKey(), getAccountingService());
     }
 
-    private void initializePriceModelForSubscription(VOSubscriptionDetails subDetails) {
+    private void initializePriceModelForSubscription(
+            VOSubscriptionDetails subDetails) {
         VOPriceModel pm = subDetails.getPriceModel();
         if (pm != null) {
             model.setPriceModel(new PriceModel(pm));
@@ -379,16 +394,17 @@ public class UpgradeWizardConversation implements Serializable {
             VOSubscriptionDetails voSubscription) {
         List<VOTriggerProcess> waitingForApprovalTriggerProcesses = getTriggerProcessService()
                 .getAllWaitingForApprovalTriggerProcessesBySubscriptionId(
-                        voSubscription.getSubscriptionId()).getResultList(
-                        VOTriggerProcess.class);
+                        voSubscription.getSubscriptionId())
+                .getResultList(VOTriggerProcess.class);
 
         return !waitingForApprovalTriggerProcesses.isEmpty();
     }
 
-    private void setConfirmationData(final POSubscriptionDetails subscriptionDetails) {
+    private void setConfirmationData(
+            final POSubscriptionDetails subscriptionDetails) {
         if (subscriptionDetails.getNumberOfSessions() > 0) {
-            model.setConfirmMessage(ui
-                    .getText("warning.subscription.delete.stillInUse"));
+            model.setConfirmMessage(
+                    ui.getText("warning.subscription.delete.stillInUse"));
         } else if (model.getUsageLicenseMap().size() > 0) {
             model.setConfirmMessage(ui.getText("warning.subscription.delete"));
         } else {
@@ -401,7 +417,8 @@ public class UpgradeWizardConversation implements Serializable {
         }
     }
 
-    private void setUnassignedAndAssignedUsersAsWellSubsOwners(final POSubscriptionDetails subscriptionDetails) {
+    private void setUnassignedAndAssignedUsersAsWellSubsOwners(
+            final POSubscriptionDetails subscriptionDetails) {
         model.setUnassignedUsers(new ArrayList<User>());
         model.setAssignedUsers(new ArrayList<User>());
         model.setSubscriptionOwners(new ArrayList<User>());
@@ -411,8 +428,8 @@ public class UpgradeWizardConversation implements Serializable {
         for (VOUserDetails voUserDetails : subscriptionDetails
                 .getUsersForOrganization()) {
             User user = new User(voUserDetails);
-            VOUsageLicense voUsageLicense = model.getUsageLicenseMap().get(
-                    voUserDetails.getUserId());
+            VOUsageLicense voUsageLicense = model.getUsageLicenseMap()
+                    .get(voUserDetails.getUserId());
             if (voUsageLicense == null) {
                 model.getUnassignedUsers().add(user);
             } else {
@@ -425,7 +442,8 @@ public class UpgradeWizardConversation implements Serializable {
                 model.getAssignedUsers().add(user);
             }
             if (user.isSubscriptionManager() || user.isOrganizationAdmin()) {
-                if (user.getUserId().equals(model.getSubscription().getOwnerId())) {
+                if (user.getUserId()
+                        .equals(model.getSubscription().getOwnerId())) {
                     model.setSelectedOwner(user);
                     model.setStoredOwner(user);
                 }
@@ -441,14 +459,15 @@ public class UpgradeWizardConversation implements Serializable {
             List<VOParameter> voParameters = svc.getVO().getParameters();
             for (VOParameter parameter : voParameters) {
                 if (parameter.getParameterDefinition().isMandatory()
-                        && (parameter.getValue() == null || parameter
-                        .getValue().isEmpty())) {
+                        && (parameter.getValue() == null
+                                || parameter.getValue().isEmpty())) {
                     validationError = true;
                     break;
                 }
             }
             if (validationError) {
-                addMessage(FacesMessage.SEVERITY_ERROR, ERROR_INVALID_CONFIGURED_PARAMETERS);
+                addMessage(FacesMessage.SEVERITY_ERROR,
+                        ERROR_INVALID_CONFIGURED_PARAMETERS);
                 return "";
             }
         }
@@ -463,8 +482,7 @@ public class UpgradeWizardConversation implements Serializable {
     }
 
     public void addMessage(FacesMessage.Severity severityError, String msgKey) {
-        JSFUtils.addMessage(null, severityError,
-                msgKey, null);
+        JSFUtils.addMessage(null, severityError, msgKey, null);
     }
 
     public boolean isPaymentConfigurationHidden() {
@@ -480,14 +498,12 @@ public class UpgradeWizardConversation implements Serializable {
      */
     public String upgrade() throws SaaSApplicationException {
         String result = OUTCOME_SUCCESS;
-        VOSubscription rc = getSubscriptionService()
-                .upgradeSubscription(
-                        model.getSubscription(),
-                        model.getService().getVO(),
-                        model.getSelectedPaymentInfo(),
-                        model.getSelectedBillingContact(),
-                        new SubscriptionsHelper().
-                                getVoUdaFromUdaRows(model.getSubscriptionUdaRows(), model.getOrganizationUdaRows()));
+        rewriteParamsAndUdas();
+        VOSubscription rc = getSubscriptionService().upgradeSubscription(
+                model.getSubscription(), model.getService().getVO(),
+                model.getSelectedPaymentInfo(),
+                model.getSelectedBillingContact(), new SubscriptionsHelper()
+                        .getVoUdaFromUdaRows(model.getSubscriptionUdaRows()));
         model.setDirty(false);
         menuBean.resetMenuVisibility();
         if (rc == null) {
@@ -496,20 +512,29 @@ public class UpgradeWizardConversation implements Serializable {
         } else {
             // reload the subscription
             ui.handle(
-                    rc.getStatus().isPendingUpdOrSuspendedUpd() ? INFO_SUBSCRIPTION_ASYNC_UPGRADED
-                            : INFO_SUBSCRIPTION_UPGRADED, model.getSubscription()
-                            .getSubscriptionId());
+                    rc.getStatus().isPendingUpdOrSuspendedUpd()
+                            ? INFO_SUBSCRIPTION_ASYNC_UPGRADED
+                            : INFO_SUBSCRIPTION_UPGRADED,
+                    model.getSubscription().getSubscriptionId());
 
             // help the navigation to highlight the correct navigation item
             menuBean.setCurrentPageLink(MenuBean.LINK_SUBSCRIPTION_USERS);
 
-            //TODO: fix that piece of code. Without it subs details won't work.
-            sessionBean.setSelectedSubscriptionId(
-                    rc.getSubscriptionId());
+            // TODO: fix that piece of code. Without it subs details won't work.
+            sessionBean.setSelectedSubscriptionId(rc.getSubscriptionId());
             sessionBean.setSelectedSubscriptionKey(rc.getKey());
         }
         conversation.end();
         return result;
+    }
+
+    private void rewriteParamsAndUdas() {
+        for (UdaRow udaRow : model.getSubscriptionUdaRows()) {
+            udaRow.rewriteEncryptedValues();
+        }
+        for (PricedParameterRow pricedParameterRow : model.getServiceParameters()) {
+            pricedParameterRow.rewriteEncryptedValues();
+        }
     }
 
     /**
@@ -520,12 +545,14 @@ public class UpgradeWizardConversation implements Serializable {
      * @return the list of enabled payment types
      */
     public Collection<VOPaymentType> getEnabledPaymentTypes() {
-        return paymentInfoBean.getEnabledPaymentTypes(Long.valueOf(model.getService().getKey()), getAccountingService());
+        return paymentInfoBean.getEnabledPaymentTypes(
+                Long.valueOf(model.getService().getKey()),
+                getAccountingService());
     }
 
     public boolean isPaymentInfoVisible() {
-        return paymentAndBillingVisibleBean.isPaymentVisible(getEnabledPaymentTypes(),
-                getPaymentInfosForSubscription());
+        return paymentAndBillingVisibleBean.isPaymentVisible(
+                getEnabledPaymentTypes(), getPaymentInfosForSubscription());
     }
 
     public boolean isBillingContactVisible() {
@@ -555,12 +582,12 @@ public class UpgradeWizardConversation implements Serializable {
                 model.getService().getKey(), getAccountingService());
     }
 
-
     public String upgradeSubscription() throws SaaSApplicationException {
         initializeSubscription();
-        if (subscriptionsHelper.validateSubscriptionStatus(model.getSubscription(), getSubscriptionDetailsService())) {
-            ui.handleError(null, ERROR_SUBSCRIPTION_NOT_ACCESSIBLE, model
-                    .getSubscription().getSubscriptionId());
+        if (subscriptionsHelper.validateSubscriptionStatus(
+                model.getSubscription(), getSubscriptionDetailsService())) {
+            ui.handleError(null, ERROR_SUBSCRIPTION_NOT_ACCESSIBLE,
+                    model.getSubscription().getSubscriptionId());
             return OUTCOME_SUBSCRIPTION_NOT_AVAILABLE;
         }
 
@@ -573,10 +600,9 @@ public class UpgradeWizardConversation implements Serializable {
         return OUTCOME_SERVICE_UPGRADE;
     }
 
-
     public String actionLoadIframe() {
-        String jsonParameters = jsonConverter.getServiceParametersAsJsonString(model
-                .getServiceParameters(), model.isReadOnlyParams(), true);
+        String jsonParameters = jsonConverter.getServiceParametersAsJsonString(
+                model.getServiceParameters(), model.isReadOnlyParams(), true);
         if (jsonParameters != null && jsonParameters.length() > 0) {
             model.setServiceParametersAsJSONString(jsonParameters);
             model.setLoadIframe(true);
@@ -592,24 +618,26 @@ public class UpgradeWizardConversation implements Serializable {
     }
 
     public String validateConfiguredParameters() {
-        String validationResult = jsonValidator.validateConfiguredParameters(
-                model);
-        switch(validationResult) {
-            case OUTCOME_ERROR:
-                addMessage(FacesMessage.SEVERITY_ERROR, ERROR_EXTERNAL_TOOL_COMMUNICATION);
-                return OUTCOME_ERROR;
-            case VALIDATION_ERROR:
-                addMessage(FacesMessage.SEVERITY_ERROR, ERROR_INVALID_CONFIGURED_PARAMETERS);
-            default:
-                return null;
+        String validationResult = jsonValidator
+                .validateConfiguredParameters(model);
+        switch (validationResult) {
+        case OUTCOME_ERROR:
+            addMessage(FacesMessage.SEVERITY_ERROR,
+                    ERROR_EXTERNAL_TOOL_COMMUNICATION);
+            return OUTCOME_ERROR;
+        case VALIDATION_ERROR:
+            addMessage(FacesMessage.SEVERITY_ERROR,
+                    ERROR_INVALID_CONFIGURED_PARAMETERS);
+        default:
+            return null;
         }
     }
 
-    public void actionFallback() { 
-    	model.setUseFallback(true);
-    	model.setShowTitle(true);	 
+    public void actionFallback() {
+        model.setUseFallback(true);
+        model.setShowTitle(true);
     }
-    
+
     /**
      * Navigation section
      */
@@ -624,13 +652,13 @@ public class UpgradeWizardConversation implements Serializable {
     }
 
     public String previousFromConfirmPage() {
-        
-        if(isPaymentConfigurationHidden()){
+
+        if (isPaymentConfigurationHidden()) {
             return OUTCOME_PREVIOUS;
         }
-        
+
         String resultNav = OUTCOME_PREVIOUS;
-        if(model.getService().getPriceModel().isChargeable()) {
+        if (model.getService().getPriceModel().isChargeable()) {
             resultNav = selectService();
         }
         if (OUTCOME_SUCCESS.equals(resultNav)) {
@@ -650,11 +678,6 @@ public class UpgradeWizardConversation implements Serializable {
         return OUTCOME_ENTER_PAYMENT;
     }
 
-
-
-
-
-
     /**
      * Getters and setters section
      */
@@ -663,7 +686,8 @@ public class UpgradeWizardConversation implements Serializable {
     }
 
     @EJB
-    public void setSubscriptionDetailsService(SubscriptionDetailsService subscriptionDetailsService) {
+    public void setSubscriptionDetailsService(
+            SubscriptionDetailsService subscriptionDetailsService) {
         this.subscriptionDetailsService = subscriptionDetailsService;
     }
 
@@ -672,7 +696,8 @@ public class UpgradeWizardConversation implements Serializable {
     }
 
     @EJB
-    public void setTriggerProcessService(TriggerProcessesService triggerProcessService) {
+    public void setTriggerProcessService(
+            TriggerProcessesService triggerProcessService) {
         this.triggerProcessService = triggerProcessService;
     }
 
@@ -734,7 +759,8 @@ public class UpgradeWizardConversation implements Serializable {
     }
 
     @EJB
-    public void setSubscriptionService(SubscriptionService subscriptionService) {
+    public void setSubscriptionService(
+            SubscriptionService subscriptionService) {
         this.subscriptionService = subscriptionService;
     }
 
@@ -756,8 +782,9 @@ public class UpgradeWizardConversation implements Serializable {
         VOPaymentInfo selectedPaymentInfo;
         PaymentInfoBean paymentInfoBean = ui.findBean("paymentInfoBean");
 
-        //Should not be null after creating new one
-        selectedPaymentInfo = paymentInfoBean.getSelectedPaymentInfoForSubscription();
+        // Should not be null after creating new one
+        selectedPaymentInfo = paymentInfoBean
+                .getSelectedPaymentInfoForSubscription();
         if (selectedPaymentInfo == null) {
             selectedPaymentInfo = model.getSelectedPaymentInfo();
         } else {
@@ -772,7 +799,8 @@ public class UpgradeWizardConversation implements Serializable {
 
     public VOBillingContact getSelectedBillingContact() {
         VOBillingContact selectedBillingContact;
-        BillingContactBean billingContactBean = ui.findBean("billingContactBean");
+        BillingContactBean billingContactBean = ui
+                .findBean("billingContactBean");
         selectedBillingContact = billingContactBean.getBillingContact();
         if (selectedBillingContact.getId() == null) {
             selectedBillingContact = model.getSelectedBillingContact();
@@ -803,15 +831,16 @@ public class UpgradeWizardConversation implements Serializable {
         return paymentAndBillingVisibleBean;
     }
 
-    public void setPaymentAndBillingVisibleBean(PaymentAndBillingVisibleBean paymentAndBillingVisibleBean) {
+    public void setPaymentAndBillingVisibleBean(
+            PaymentAndBillingVisibleBean paymentAndBillingVisibleBean) {
         this.paymentAndBillingVisibleBean = paymentAndBillingVisibleBean;
     }
-    
+
     public void keepAlive() {
         // to reset conversation timeout any conversation bean method has to be
         // called
     }
-    
+
     public long getTimeout() {
         return TIMEOUT;
     }

@@ -8,7 +8,7 @@
 
 package org.oscm.app.vmware.business;
 
-import org.oscm.app.v1_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.exceptions.APPlatformException;
 
 import com.vmware.vim25.GuestInfo;
 import com.vmware.vim25.GuestNicInfo;
@@ -75,10 +75,11 @@ public class VMwareAccessInfo {
     private String getIpAddress(GuestInfo guestInfo) {
         StringBuilder sb = new StringBuilder();
         for (int i = 1; i <= paramHandler.getNumberOfNetworkAdapter(); i++) {
-            GuestNicInfo info = getNicInfo(guestInfo, i);
+            GuestNicInfo info = getNicInfo(guestInfo,
+                    paramHandler.getNetworkAdapter(i));
             if (info != null) {
-                if (paramHandler.getNetworkAdapter(i) != null
-                        && !paramHandler.getNetworkAdapter(i).trim().isEmpty()) {
+                if (paramHandler.getNetworkAdapter(i) != null && !paramHandler
+                        .getNetworkAdapter(i).trim().isEmpty()) {
                     sb.append(paramHandler.getNetworkAdapter(i) + ": ");
                 }
                 sb.append(info.getIpAddress());
@@ -90,23 +91,18 @@ public class VMwareAccessInfo {
         return sb.toString();
     }
 
-    GuestNicInfo getNicInfo(GuestInfo guestInfo, int i) {
+    GuestNicInfo getNicInfo(GuestInfo guestInfo, String adapter) {
         for (GuestNicInfo info : guestInfo.getNet()) {
-            if (info != null) {
-                if (paramHandler.isAdapterConfiguredByDhcp(i)) {
-                    return info;
-                } else if (paramHandler.getNetworkAdapter(i).equals(
-                        info.getNetwork())) {
-                    return info;
-                }
+            if (info != null && adapter.equals(info.getNetwork())) {
+                return info;
             }
         }
         return null;
     }
 
     private String getResponsibleUser() {
-        String respuser = paramHandler.getResponsibleUserAsString(paramHandler
-                .getLocale());
+        String respuser = paramHandler
+                .getResponsibleUserAsString(paramHandler.getLocale());
         if (respuser == null) {
             respuser = "";
         }

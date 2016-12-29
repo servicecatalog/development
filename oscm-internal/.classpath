@@ -27,6 +27,8 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-sessionmgmt-intsvc"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-configservice-intsvc"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-operatorsvc"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-tenantmgmt"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-tenantmgmt-intsvc"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-review"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-usergroupmgmt"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-triggerservice-intsvc"/>

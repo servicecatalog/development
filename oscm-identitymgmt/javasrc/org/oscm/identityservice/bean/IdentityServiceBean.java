@@ -48,6 +48,7 @@ import javax.persistence.NoResultException;
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.Query;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.GenericValidator;
 import org.oscm.authorization.PasswordHash;
 import org.oscm.communicationservice.data.SendMailStatus;
@@ -65,6 +66,7 @@ import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.RoleAssignment;
 import org.oscm.domobjects.Session;
 import org.oscm.domobjects.Subscription;
+import org.oscm.domobjects.Tenant;
 import org.oscm.domobjects.TriggerDefinition;
 import org.oscm.domobjects.TriggerProcess;
 import org.oscm.domobjects.UnitUserRole;
@@ -169,7 +171,7 @@ public class IdentityServiceBean implements IdentityService,
     private static final Random random = new SecureRandom();
 
     @EJB(beanInterface = DataService.class)
-    DataService dm;
+    protected DataService dm;
 
     @EJB(beanInterface = SubscriptionServiceLocal.class)
     SubscriptionServiceLocal sm;
@@ -338,9 +340,9 @@ public class IdentityServiceBean implements IdentityService,
     /**
      * Bug 9324 Trigger should not be fired if user exists
      */
-    private void checkIfUserExists(String userId)
+    private void checkIfUserExists(String userId, Tenant tenant)
             throws NonUniqueBusinessKeyException {
-        PlatformUser dbUser = loadUser(userId);
+        PlatformUser dbUser = loadUser(userId, tenant);
         if (dbUser != null) {
             throw new NonUniqueBusinessKeyException(ClassEnum.USER, userId);
         }
@@ -353,12 +355,22 @@ public class IdentityServiceBean implements IdentityService,
      *            user id
      * @return the user otherwise null if the user does not exist.
      */
-    PlatformUser loadUser(String userId) {
+    PlatformUser loadUser(String userId, Tenant tenant) {
         try {
+            // if (tenant == null) {
             PlatformUser user = new PlatformUser();
             user.setUserId(userId);
+            if (tenant != null) {
+                user.setTenantId(tenant.getTenantId());
+            }
             return (PlatformUser) dm.getReferenceByBusinessKey(user);
-        } catch (ObjectNotFoundException e) {
+            // }
+            // Query q =
+            // dm.createNamedQuery("PlatformUser.findByUserIdAndTenant");
+            // q.setParameter("userId", userId);
+            // q.setParameter("tenantId", tenant.getTenantId());
+            // return (PlatformUser) q.getSingleResult();
+        } catch (ObjectNotFoundException | NoResultException e) {
             return null;
         }
     }
@@ -558,7 +570,8 @@ public class IdentityServiceBean implements IdentityService,
 
         ArgumentValidator.notNull("user", user);
         ArgumentValidator.notNull("roles", roles);
-        PlatformUser pUser = getPlatformUser(user.getUserId(), true);
+        PlatformUser pUser = getPlatformUser(user.getUserId(), dm
+                .getCurrentUser().getTenantId(), true);
         grantUserRoles(pUser, roles);
 
     }
@@ -570,7 +583,8 @@ public class IdentityServiceBean implements IdentityService,
 
         ArgumentValidator.notNull("user", user);
         ArgumentValidator.notNull("role", role);
-        PlatformUser pUser = getPlatformUser(user.getUserId(), true);
+        PlatformUser pUser = getPlatformUser(user.getUserId(), dm
+                .getCurrentUser().getTenantId(), true);
         grantUnitRole(pUser, role);
     }
 
@@ -581,7 +595,8 @@ public class IdentityServiceBean implements IdentityService,
 
         ArgumentValidator.notNull("user", user);
         ArgumentValidator.notNull("role", role);
-        PlatformUser pUser = getPlatformUser(user.getUserId(), true);
+        PlatformUser pUser = getPlatformUser(user.getUserId(), dm
+                .getCurrentUser().getTenantId(), true);
         revokeUnitRole(pUser, role);
     }
 
@@ -642,7 +657,8 @@ public class IdentityServiceBean implements IdentityService,
             ConcurrentModificationException {
 
         ArgumentValidator.notNull("user", user);
-        PlatformUser platformUser = getPlatformUser(user.getUserId(), true);
+        PlatformUser platformUser = getPlatformUser(user.getUserId(),
+                user.getTenantId(), true);
         BaseAssembler.verifyVersionAndKey(platformUser, user);
 
         resetUserPassword(platformUser, marketplaceId);
@@ -756,7 +772,8 @@ public class IdentityServiceBean implements IdentityService,
             throws ObjectNotFoundException, OperationNotPermittedException {
 
         ArgumentValidator.notNull("user", user);
-        PlatformUser pUser = getPlatformUser(user.getUserId(), true);
+        PlatformUser pUser = getPlatformUser(user.getUserId(), dm
+                .getCurrentUser().getTenantId(), true);
 
         return UserDataAssembler.toVOUserDetails(pUser);
     }
@@ -1128,9 +1145,18 @@ public class IdentityServiceBean implements IdentityService,
             OperationNotPermittedException, OrganizationRemovedException {
 
         ArgumentValidator.notNull("user", user);
-        PlatformUser pUser = null;
+        PlatformUser pUser;
         try {
-            pUser = getPlatformUser(user.getUserId(), false);
+            String userId = user.getUserId();
+            String orgId = user.getOrganizationId();
+            String tenantId = user.getTenantId();
+            
+            if(StringUtils.isNotBlank(orgId)){
+                pUser = getPlatformUserByOrganization(userId, orgId);
+            } else {
+                pUser = getPlatformUser(userId, tenantId, false);
+            }
+           
             if (pUser.getOrganization().getDeregistrationDate() != null) {
                 OperationNotPermittedException onp = new OperationNotPermittedException(
                         "The user doesn't belong to a active organization.");
@@ -1587,16 +1613,41 @@ public class IdentityServiceBean implements IdentityService,
         deletePlatformUser(user, true, true, marketplace);
     }
 
+    /**
+     * Method has been deprecated. Use #{@getPlatformUser}
+     * with tenant parmeter.
+     * 
+     * @param userId
+     *            The user identifying attributes' representation.
+     * @param validateOrganization
+     *            <code>true</code> if the calling user must be part of the same
+     *            organization as the requested user.
+     * @return
+     * @throws ObjectNotFoundException
+     * @throws OperationNotPermittedException
+     */
+    @Deprecated
     @Override
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     public PlatformUser getPlatformUser(String userId,
             boolean validateOrganization) throws ObjectNotFoundException,
             OperationNotPermittedException {
 
-        PlatformUser pUser = new PlatformUser();
-        pUser.setUserId(userId);
-        pUser = (PlatformUser) dm.find(pUser);
-        if (pUser == null) {
+        return getPlatformUser(userId, null, validateOrganization);
+    }
+
+    @Override
+    @TransactionAttribute(TransactionAttributeType.MANDATORY)
+    public PlatformUser getPlatformUser(String userId, String tenantId,
+            boolean validateOrganization) throws ObjectNotFoundException,
+            OperationNotPermittedException {
+
+        PlatformUser platformUser = new PlatformUser();
+        platformUser.setUserId(userId);
+        platformUser.setTenantId(tenantId);
+        platformUser = dm.find(platformUser);
+        
+        if (platformUser == null) {
             ObjectNotFoundException onf = new ObjectNotFoundException(
                     ObjectNotFoundException.ClassEnum.USER, userId);
             logger.logWarn(Log4jLogger.SYSTEM_LOG, onf,
@@ -1608,10 +1659,10 @@ public class IdentityServiceBean implements IdentityService,
             // Validate whether the calling user belongs to the same
             // organization as the requested user. Otherwise an exception will
             // be thrown.
-            PermissionCheck.sameOrg(dm.getCurrentUser(), pUser, logger);
+            PermissionCheck.sameOrg(dm.getCurrentUser(), platformUser, logger);
         }
 
-        return pUser;
+        return platformUser;
     }
 
     @Override
@@ -1737,6 +1788,7 @@ public class IdentityServiceBean implements IdentityService,
                 sendMail, userLocalLdap, marketplace, performRoleCheck, false);
     }
 
+    // TODO: platform user persisting
     private PlatformUser addPlatformUser(VOUserDetails userDetails,
             Organization organization, String password,
             UserAccountStatus lockLevel, boolean sendMail,
@@ -1773,13 +1825,6 @@ public class IdentityServiceBean implements IdentityService,
         PlatformUser pu = UserDataAssembler.toPlatformUser(userDetails);
 
         pu.setOrganization(organization);
-        // Set the user account status to active if CT-MG is a SAML SP
-        if (cs.isServiceProvider()
-                && UserAccountStatus.PASSWORD_MUST_BE_CHANGED.equals(lockLevel)) {
-            pu.setStatus(UserAccountStatus.ACTIVE);
-        } else {
-            pu.setStatus(lockLevel);
-        }
         if (userLocalLdap) {
             // Do not set the user password if CT-MG is a SAML SP
             if (!cs.isServiceProvider()) {
@@ -1795,6 +1840,13 @@ public class IdentityServiceBean implements IdentityService,
             pu.setRealmUserId(userDetails.getUserId());
         }
 
+        // Set the user account status to active if CT-MG is a SAML SP
+        if (cs.isServiceProvider()
+                && UserAccountStatus.PASSWORD_MUST_BE_CHANGED.equals(lockLevel)) {
+            pu.setStatus(UserAccountStatus.ACTIVE);
+        } else {
+            pu.setStatus(lockLevel);
+        }
         dm.persist(pu);
 
         for (UserRoleType role : userDetails.getUserRoles()) {
@@ -1840,6 +1892,7 @@ public class IdentityServiceBean implements IdentityService,
     public void sendMailToCreatedUser(String password, boolean userLocalLdap,
             Marketplace marketplace, PlatformUser pu)
             throws MailOperationException {
+        String tenantId = getTenantIdForEmail(pu);
         if (!SendMailControl.isSendMail()) {
             // keep password for later sending
             SendMailControl.setMailData(password, marketplace);
@@ -1861,7 +1914,8 @@ public class IdentityServiceBean implements IdentityService,
                         cm.sendMail(
                                 pu,
                                 EmailType.USER_CREATED_WITH_MARKETPLACE_SAML_SP,
-                                new Object[] { pu.getUserId(), cm.getBaseUrl(),
+                                new Object[] { pu.getUserId(),
+                                        cm.getBaseUrlWithTenant(tenantId),
                                         cm.getMarketplaceUrl(marketplaceId) },
                                 marketplace);
 
@@ -1881,7 +1935,8 @@ public class IdentityServiceBean implements IdentityService,
                         cm.sendMail(
                                 pu,
                                 EmailType.USER_CREATED_SAML_SP,
-                                new Object[] { pu.getUserId(), cm.getBaseUrl() },
+                                new Object[] { pu.getUserId(),
+                                        cm.getBaseUrlWithTenant(tenantId) },
                                 marketplace);
                     } else {
                         cm.sendMail(pu, EmailType.USER_CREATED, new Object[] {
@@ -1899,7 +1954,6 @@ public class IdentityServiceBean implements IdentityService,
                             new Object[] { pu.getUserId(),
                                     cm.getMarketplaceUrl(marketplaceId) },
                             marketplace);
-
                 } else {
                     cm.sendMail(
                             pu,
@@ -1911,7 +1965,6 @@ public class IdentityServiceBean implements IdentityService,
 
             }
         } else {
-
             if (pu.hasManagerRole()) {
                 if (marketplaceId != null) {
                     cm.sendMail(
@@ -1936,6 +1989,15 @@ public class IdentityServiceBean implements IdentityService,
                                 String.valueOf(pu.getKey()) }, marketplace);
             }
         }
+    }
+
+    private String getTenantIdForEmail(PlatformUser user) {
+        final Tenant tenant = user.getOrganization().getTenant();
+        String tenantId = null;
+        if (tenant != null) {
+            tenantId = tenant.getTenantId();
+        }
+        return tenantId;
     }
 
     /**
@@ -2676,7 +2738,27 @@ public class IdentityServiceBean implements IdentityService,
         ArgumentValidator.notNull("user", user);
         ArgumentValidator.notNull("roles", roles);
 
-        checkIfUserExists(user.getUserId());
+        // TODO DEL
+        Tenant tenant = null;
+        try {
+            if (user.getTenantId() == null || user.getTenantId().equals("")) {
+                Marketplace m = new Marketplace();
+                m.setMarketplaceId(marketplaceId);
+                Marketplace mp = (Marketplace) dm.getReferenceByBusinessKey(m);
+                if (mp != null) {
+                    tenant = mp.getTenant();
+                }
+            } else {
+                Tenant t = new Tenant();
+                t.setTenantId(user.getTenantId());
+                tenant = (Tenant) dm.getReferenceByBusinessKey(t);
+            }
+        } catch (ObjectNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        checkIfUserExists(user.getUserId(), tenant);
+        // TODO DEL
 
         TriggerProcessValidator validator = new TriggerProcessValidator(dm);
         if (validator.isRegisterOwnUserPending(user.getUserId())) {
@@ -2754,17 +2836,27 @@ public class IdentityServiceBean implements IdentityService,
                 onBehalfUserKeys.add(Long.valueOf(user.getKey()));
             }
         }
-
+        
+        String currentUserTenant = dm.getCurrentUser().getTenantId();
+        
         for (VOUser user : usersToBeAdded) {
             validateForOnBehalfUserGroupAssignment(user, onBehalfUserKeys);
+            if(StringUtils.isBlank(user.getTenantId())){
+                user.setTenantId(currentUserTenant);
+            }
             PlatformUser platformUser = new PlatformUser();
             platformUser.setUserId(user.getUserId());
+            platformUser.setTenantId(user.getTenantId());
             added.add(platformUser);
         }
         for (VOUser user : usersToBeRevoked) {
-            validateForOnBehalfUserGroupAssignment(user, onBehalfUserKeys);
+            validateForOnBehalfUserGroupAssignment(user, onBehalfUserKeys);  
+            if(StringUtils.isBlank(user.getTenantId())){
+                user.setTenantId(currentUserTenant);
+            }
             PlatformUser platformUser = new PlatformUser();
             platformUser.setUserId(user.getUserId());
+            platformUser.setTenantId(user.getTenantId());
             revoked.add(platformUser);
         }
 
@@ -2819,4 +2911,36 @@ public class IdentityServiceBean implements IdentityService,
         return allExpired;
     }
 
+    @Override
+    public PlatformUser getPlatformUserByOrganization(String userId,
+            String orgId) throws ObjectNotFoundException {
+
+        Query query = dm.createNamedQuery("PlatformUser.findByUserIdAndOrgId");
+
+        query.setParameter("userId", userId);
+        query.setParameter("organizationId", orgId);
+
+        PlatformUser platformUser = null;
+
+        try {
+            platformUser = (PlatformUser) query.getSingleResult();
+        } catch (NoResultException e) {
+            throwONFExcp(userId);
+        }
+
+        if (platformUser == null) {
+            throwONFExcp(userId);
+        }
+
+        return platformUser;
+    }
+
+    private void throwONFExcp(String userId) throws ObjectNotFoundException {
+        
+        ObjectNotFoundException onf = new ObjectNotFoundException(
+                ObjectNotFoundException.ClassEnum.USER, userId);
+        logger.logWarn(Log4jLogger.SYSTEM_LOG, onf,
+                LogMessageIdentifier.WARN_USER_NOT_FOUND);
+        throw onf;
+    }
 }

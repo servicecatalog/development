@@ -13,15 +13,13 @@ import java.util.Set;
 
 import javax.ejb.SessionContext;
 
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.oscm.accountservice.assembler.UdaAssembler;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.UdaDefinition;
-import org.oscm.permission.PermissionCheck;
-import org.oscm.types.enumtypes.LogMessageIdentifier;
-import org.oscm.types.enumtypes.UdaTargetType;
+import org.oscm.domobjects.enums.LocalizedObjectTypes;
+import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.UdaConfigurationType;
 import org.oscm.internal.types.exception.ConcurrentModificationException;
@@ -31,6 +29,11 @@ import org.oscm.internal.types.exception.OperationNotPermittedException;
 import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
 import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.internal.vo.VOUdaDefinition;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
+import org.oscm.permission.PermissionCheck;
+import org.oscm.types.enumtypes.LogMessageIdentifier;
+import org.oscm.types.enumtypes.UdaTargetType;
 
 /**
  * @author weiser
@@ -43,10 +46,18 @@ public class UdaDefinitionAccess {
 
     DataService ds;
     SessionContext ctx;
+    LocalizerServiceLocal localizer;
 
     public UdaDefinitionAccess(DataService ds, SessionContext sc) {
         this.ds = ds;
         this.ctx = sc;
+    }
+
+    public UdaDefinitionAccess(DataService ds, SessionContext sc,
+            LocalizerServiceLocal localizer) {
+        this.ds = ds;
+        this.ctx = sc;
+        this.localizer = localizer;
     }
 
     /**
@@ -58,9 +69,9 @@ public class UdaDefinitionAccess {
      * @return the list of {@link UdaDefinition}s
      */
     public List<UdaDefinition> getOwnUdaDefinitions(Organization owner) {
-        
+
         List<UdaDefinition> list = owner.getUdaDefinitions();
-        
+
         return list;
     }
 
@@ -78,10 +89,10 @@ public class UdaDefinitionAccess {
      */
     public List<UdaDefinition> getReadableUdaDefinitionsFromSupplier(
             Organization supplier, OrganizationRoleType role) {
-        
+
         List<UdaDefinition> udaDefinitions = supplier
                 .getReadableUdaDefinitions(role);
-        
+
         return udaDefinitions;
     }
 
@@ -113,11 +124,11 @@ public class UdaDefinitionAccess {
      *             found
      */
     public void saveUdaDefinitions(List<VOUdaDefinition> defs,
-            Organization caller) throws ValidationException,
-            OrganizationAuthoritiesException, NonUniqueBusinessKeyException,
-            OperationNotPermittedException, ConcurrentModificationException,
-            ObjectNotFoundException {
-        
+            Organization caller)
+            throws ValidationException, OrganizationAuthoritiesException,
+            NonUniqueBusinessKeyException, OperationNotPermittedException,
+            ConcurrentModificationException, ObjectNotFoundException {
+
         for (VOUdaDefinition voDef : defs) {
             // convert and validate
             UdaDefinition def;
@@ -136,11 +147,11 @@ public class UdaDefinitionAccess {
             if (!type.canSaveDefinition(caller.getGrantedRoleTypes())) {
                 String roles = rolesToString(type.getRoles());
                 OrganizationAuthoritiesException e = new OrganizationAuthoritiesException(
-                        "Insufficient authorization. Required role(s) '"
-                                + roles + "'.", new Object[] { roles });
+                        "Insufficient authorization. Required role(s) '" + roles
+                                + "'.",
+                        new Object[] { roles });
                 logger.logWarn(Log4jLogger.SYSTEM_LOG | Log4jLogger.AUDIT_LOG,
-                        e,
-                        LogMessageIdentifier.WARN_ORGANIZATION_ROLE_REQUIRED,
+                        e, LogMessageIdentifier.WARN_ORGANIZATION_ROLE_REQUIRED,
                         Long.toString(caller.getKey()), roles);
                 ctx.setRollbackOnly();
                 throw e;
@@ -150,8 +161,28 @@ public class UdaDefinitionAccess {
             } else {
                 createDefinition(def);
             }
+            UdaDefinition storedUda = (UdaDefinition) ds.find(def);
+            if (storedUda == null) {
+                return;
+            }
+            storeLocalizedAttributeName(storedUda.getKey(), voDef.getName(),
+                    voDef.getLanguage());
         }
-        
+
+    }
+
+    private void storeLocalizedAttributeName(long key, String attributeName,
+            String language) {
+        if (language == null) {
+            return;
+        }
+        if (StringUtils.isBlank(attributeName)) {
+            localizer.removeLocalizedValue(key,
+                    LocalizedObjectTypes.CUSTOM_ATTRIBUTE_NAME, language);
+        } else {
+            localizer.storeLocalizedResource(language, key,
+                    LocalizedObjectTypes.CUSTOM_ATTRIBUTE_NAME, attributeName);
+        }
     }
 
     /**
@@ -166,18 +197,16 @@ public class UdaDefinitionAccess {
      */
     void createDefinition(UdaDefinition def)
             throws NonUniqueBusinessKeyException {
-        
+
         try {
             ds.persist(def);
         } catch (NonUniqueBusinessKeyException e) {
-            logger.logWarn(
-                    Log4jLogger.SYSTEM_LOG,
-                    e,
+            logger.logWarn(Log4jLogger.SYSTEM_LOG, e,
                     LogMessageIdentifier.WARN_NON_UNIQUE_BUSINESS_KEY_UDA_DEFINITION);
             ctx.setRollbackOnly();
             throw e;
         }
-        
+
     }
 
     /**
@@ -206,30 +235,32 @@ public class UdaDefinitionAccess {
             throws OperationNotPermittedException, ValidationException,
             ConcurrentModificationException, NonUniqueBusinessKeyException,
             ObjectNotFoundException {
-        
+
         UdaDefinition existing = ds.getReference(UdaDefinition.class,
                 voDef.getKey());
         PermissionCheck.owns(existing, owner, logger, ctx);
-        // TODO: target type must not be changed as it will cause
+        // target type and encryption flag must not be changed as it will cause
         // inconsistencies for all depending UDAs
 
+        voDef.setTargetType(existing.getTargetType().name());
+        voDef.setEncrypted(existing.isEncrypted());
+
         // verify business key uniqueness
-        UdaDefinition tempForUniquenessCheck = UdaAssembler
-                .toUdaDefinition(voDef);
+        UdaDefinition tempForUniquenessCheck = null;
+        tempForUniquenessCheck = UdaAssembler.toUdaDefinition(voDef);
+
         tempForUniquenessCheck.setOrganization(owner);
         tempForUniquenessCheck.setKey(existing.getKey());
         try {
             ds.validateBusinessKeyUniqueness(tempForUniquenessCheck);
+            UdaAssembler.updateUdaDefinition(existing, voDef);
         } catch (NonUniqueBusinessKeyException e) {
-            logger.logWarn(
-                    Log4jLogger.SYSTEM_LOG,
-                    e,
+            logger.logWarn(Log4jLogger.SYSTEM_LOG, e,
                     LogMessageIdentifier.WARN_NON_UNIQUE_BUSINESS_KEY_UDA_DEFINITION);
             ctx.setRollbackOnly();
             throw e;
         }
-        UdaAssembler.updateUdaDefinition(existing, voDef);
-        
+
     }
 
     /**
@@ -247,7 +278,7 @@ public class UdaDefinitionAccess {
     public void deleteUdaDefinitions(List<VOUdaDefinition> defs,
             Organization caller) throws OperationNotPermittedException,
             ConcurrentModificationException {
-        
+
         for (VOUdaDefinition voDef : defs) {
             UdaDefinition existing = ds.find(UdaDefinition.class,
                     voDef.getKey());
@@ -260,7 +291,7 @@ public class UdaDefinitionAccess {
             // cascade rule will cause deletion of udas as well
             ds.remove(existing);
         }
-        
+
     }
 
     /**

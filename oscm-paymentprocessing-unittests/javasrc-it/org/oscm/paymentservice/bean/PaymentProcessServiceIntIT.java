@@ -124,8 +124,8 @@ public class PaymentProcessServiceIntIT extends EJBTestBase {
             + "<PriceModelCosts amount=\"9000\"/></PriceModel></PriceModels>"
             + "<SubscriptionCosts amount=\"9000\"/>"
             + "</Subscription></Subscriptions>"
-            + "<OverallCosts currency=\"EUR\" grossAmount='"
-            + COSTS_PLACEHOLDER + "'/></BillingDetails>";
+            + "<OverallCosts currency=\"EUR\" grossAmount='" + COSTS_PLACEHOLDER
+            + "'/></BillingDetails>";
 
     private ConfigurationServiceStub cs;
 
@@ -138,6 +138,7 @@ public class PaymentProcessServiceIntIT extends EJBTestBase {
 
         DataServiceBean ds = new DataServiceBean();
         DataServiceBean dsSpy = spy(ds);
+        container.addBean(new org.oscm.test.stubs.ConfigurationServiceStub());
         container.addBean(dsSpy);
         doReturn(user).when(dsSpy).getCurrentUser();
 
@@ -201,15 +202,17 @@ public class PaymentProcessServiceIntIT extends EJBTestBase {
     }
 
     @Test
-    public void testChargeCustomerNoHitForPaymentInfoHistory() throws Exception {
+    public void testChargeCustomerNoHitForPaymentInfoHistory()
+            throws Exception {
         runTX(new Callable<Organization>() {
             @Override
             public Organization call() throws Exception {
                 Organization cust = new Organization();
                 cust.setOrganizationId("testOrg");
-                cust.setName("Name of organization " + cust.getOrganizationId());
-                cust.setAddress("Address of organization "
-                        + cust.getOrganizationId());
+                cust.setName(
+                        "Name of organization " + cust.getOrganizationId());
+                cust.setAddress(
+                        "Address of organization " + cust.getOrganizationId());
                 cust.setEmail(cust.getOrganizationId() + "@organization.com");
                 cust.setPhone("012345/678" + cust.getOrganizationId());
                 cust.setCutOffDay(1);
@@ -377,7 +380,8 @@ public class PaymentProcessServiceIntIT extends EJBTestBase {
     }
 
     @Test
-    public void testReinvokePaymentProcessingExternalFailure() throws Exception {
+    public void testReinvokePaymentProcessingExternalFailure()
+            throws Exception {
         BillingResult br = initBillingResultAndCreateOrg(12345);
         PaymentResult pr = initPaymentResult(br, PaymentProcessingStatus.RETRY);
 
@@ -391,7 +395,8 @@ public class PaymentProcessServiceIntIT extends EJBTestBase {
             }
         });
 
-        Assert.assertFalse("Processing must have failed", result.booleanValue());
+        Assert.assertFalse("Processing must have failed",
+                result.booleanValue());
 
         pr = findDO(PaymentResult.class, pr);
         assertNotNull(
@@ -402,7 +407,8 @@ public class PaymentProcessServiceIntIT extends EJBTestBase {
     }
 
     @Test
-    public void testChargeForOutstandingBillsExternalFailure() throws Exception {
+    public void testChargeForOutstandingBillsExternalFailure()
+            throws Exception {
         final BillingResult br = initBillingResultAndCreateOrg(12345);
         when(pspMock.charge(any(RequestData.class), any(ChargingData.class)))
                 .thenThrow(new RuntimeException("Exception for testing"));
@@ -571,8 +577,8 @@ public class PaymentProcessServiceIntIT extends EJBTestBase {
                         oldPR.getProcessingStatus());
 
                 // Furthermore, a new payment result must exist
-                BillingResult billingResult = mgr.getReference(
-                        BillingResult.class, br2.getKey());
+                BillingResult billingResult = mgr
+                        .getReference(BillingResult.class, br2.getKey());
                 PaymentResult secondPR = billingResult.getPaymentResult();
 
                 Assert.assertEquals(PaymentProcessingStatus.SUCCESS,
@@ -693,7 +699,7 @@ public class PaymentProcessServiceIntIT extends EJBTestBase {
                 role.setRoleName(OrganizationRoleType.SUPPLIER);
                 supplierRelation.setOrganization(supplier);
                 supplierRelation.setOrganizationRole(role);
-                Set<OrganizationToRole> roles = new HashSet<OrganizationToRole>();
+                Set<OrganizationToRole> roles = new HashSet<>();
                 roles.add(supplierRelation);
                 supplier.setGrantedRoles(roles);
                 supplier.setCutOffDay(1);
@@ -746,9 +752,8 @@ public class PaymentProcessServiceIntIT extends EJBTestBase {
                 mgr.persist(pi);
 
                 TechnicalProduct tp = TechnicalProducts.createTechnicalProduct(
-                        mgr, supplier,
-                        "techProd_" + System.currentTimeMillis(), false,
-                        ServiceAccessType.LOGIN);
+                        mgr, supplier, "techProd_" + System.currentTimeMillis(),
+                        false, ServiceAccessType.LOGIN);
                 Product product = Products.createProductWithoutPriceModel(
                         supplier, tp, "MyProduct");
                 product.setStatus(ServiceStatus.ACTIVE);
@@ -775,8 +780,8 @@ public class PaymentProcessServiceIntIT extends EJBTestBase {
                 PSPAccount pspa = new PSPAccount();
                 pspa.setOrganization(supplier);
                 pspa.setPsp(apt.getPaymentType().getPsp());
-                pspa.setPspIdentifier(apt.getPaymentType().getPsp()
-                        .getIdentifier());
+                pspa.setPspIdentifier(
+                        apt.getPaymentType().getPsp().getIdentifier());
 
                 // PSP ACCOUNT HISTORY
                 PSPAccountHistory pspah = new PSPAccountHistory();

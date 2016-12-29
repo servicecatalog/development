@@ -59,6 +59,7 @@ public class ProductAssembler extends BaseAssembler {
 
     public static final String FIELD_NAME_SERVICE_ID = "serviceId";
     public static final String FIELD_NAME_CONFIGURATOR_URL = "configuratorUrl";
+    public static final String FIELD_NAME_CUSTOM_TAB_URL = "customTabUrl";
 
     /**
      * Sets the key and identifier in the transfer object
@@ -226,6 +227,7 @@ public class ProductAssembler extends BaseAssembler {
 
         voProduct.setConfiguratorUrl(product.getProductTemplate()
                 .getConfiguratorUrl());
+        voProduct.setCustomTabUrl(product.getProductTemplate().getCustomTabUrl());
 
         long key = product.getKey();
 
@@ -239,6 +241,10 @@ public class ProductAssembler extends BaseAssembler {
         String marketingDescription = facade.getText(key,
                 LocalizedObjectTypes.PRODUCT_MARKETING_DESC);
         voProduct.setDescription(marketingDescription);
+
+        String customTabName = facade.getText(key,
+                LocalizedObjectTypes.PRODUCT_CUSTOM_TAB_NAME);
+        voProduct.setCustomTabName(customTabName);
 
         final ParameterSet parameterSet;
         if (product.getType() == ServiceType.PARTNER_TEMPLATE) {
@@ -483,6 +489,7 @@ public class ProductAssembler extends BaseAssembler {
                         product.getProductId().indexOf("#")));
         product.setAutoAssignUserEnabled(template.isAutoAssignUserEnabled());
         product.setConfiguratorUrl(template.getConfiguratorUrl());
+        product.setCustomTabUrl(template.getCustomTabUrl());
     }
 
     static void copyAttributes(Product product, final VOService template)
@@ -496,13 +503,19 @@ public class ProductAssembler extends BaseAssembler {
                     template.getConfiguratorUrl(), false);
 
             product.setConfiguratorUrl(template.getConfiguratorUrl());
+
+            BLValidator.isUrl(FIELD_NAME_CUSTOM_TAB_URL,
+                    template.getCustomTabUrl(), false);
+            product.setCustomTabUrl(template.getCustomTabUrl());
+
         } else {
             product.setConfiguratorUrl(null);
+            product.setCustomTabUrl(null);
         }
     }
 
     /**
-     * @param products
+     * @param product
      *            the potential compatible products
      * @param targetKeys
      *            the keys of the products already defined as target

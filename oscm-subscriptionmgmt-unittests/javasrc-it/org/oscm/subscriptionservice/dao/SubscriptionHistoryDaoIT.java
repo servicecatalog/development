@@ -2,7 +2,6 @@
  *  Copyright FUJITSU LIMITED 2016 
  *******************************************************************************/
 
-
 package org.oscm.subscriptionservice.dao;
 
 import static org.junit.Assert.assertEquals;
@@ -14,7 +13,6 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import org.junit.Test;
-
 import org.oscm.applicationservice.bean.ApplicationServiceStub;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
@@ -25,13 +23,25 @@ import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.TechnicalProduct;
 import org.oscm.domobjects.TriggerDefinition;
 import org.oscm.domobjects.TriggerProcess;
+import org.oscm.encrypter.AESEncrypter;
 import org.oscm.i18nservice.bean.LocalizerFacade;
-import org.oscm.i18nservice.bean.LocalizerServiceStub;
+import org.oscm.i18nservice.bean.LocalizerServiceStub2;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.identityservice.assembler.UserDataAssembler;
 import org.oscm.identityservice.bean.IdManagementStub;
+import org.oscm.internal.intf.IdentityService;
+import org.oscm.internal.intf.ServiceProvisioningService;
+import org.oscm.internal.intf.SubscriptionService;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.ServiceAccessType;
+import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.internal.vo.VOInstanceInfo;
+import org.oscm.internal.vo.VOService;
+import org.oscm.internal.vo.VOUda;
+import org.oscm.internal.vo.VOUser;
 import org.oscm.serviceprovisioningservice.assembler.ProductAssembler;
-import org.oscm.sessionservice.bean.SessionManagementStub;
+import org.oscm.sessionservice.bean.SessionManagementStub2;
 import org.oscm.subscriptionservice.bean.ManageSubscriptionBean;
 import org.oscm.subscriptionservice.bean.ModifyAndUpgradeSubscriptionBean;
 import org.oscm.subscriptionservice.bean.SubscriptionServiceBean;
@@ -45,22 +55,12 @@ import org.oscm.test.data.Products;
 import org.oscm.test.data.Subscriptions;
 import org.oscm.test.data.TechnicalProducts;
 import org.oscm.test.ejb.TestContainer;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.test.stubs.TaskQueueServiceStub;
 import org.oscm.test.stubs.TriggerQueueServiceStub;
 import org.oscm.triggerservice.local.TriggerMessage;
 import org.oscm.triggerservice.local.TriggerProcessMessageData;
 import org.oscm.types.enumtypes.ProvisioningType;
-import org.oscm.internal.intf.IdentityService;
-import org.oscm.internal.intf.ServiceProvisioningService;
-import org.oscm.internal.intf.SubscriptionService;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
-import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.vo.VOInstanceInfo;
-import org.oscm.internal.vo.VOService;
-import org.oscm.internal.vo.VOUda;
-import org.oscm.internal.vo.VOUser;
 
 public class SubscriptionHistoryDaoIT extends EJBTestBase {
     protected DataService mgr;
@@ -82,14 +82,15 @@ public class SubscriptionHistoryDaoIT extends EJBTestBase {
 
     @Override
     public void setup(TestContainer container) throws Exception {
-
+        AESEncrypter.generateKey();
         container.enableInterfaceMocking(true);
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         container.addBean(appMgmtStub = new ApplicationServiceStub());
-        container.addBean(new SessionManagementStub());
+        container.addBean(new SessionManagementStub2());
         container.addBean(new IdManagementStub());
         container.addBean(new TenantProvisioningServiceBean());
-        container.addBean(new LocalizerServiceStub());
+        container.addBean(new LocalizerServiceStub2());
         container.addBean(new SubscriptionServiceBean());
         container.addBean(new ManageSubscriptionBean());
         container.addBean(new ModifyAndUpgradeSubscriptionBean());
@@ -128,8 +129,8 @@ public class SubscriptionHistoryDaoIT extends EJBTestBase {
 
     }
 
-    private Long initMasterData() throws NonUniqueBusinessKeyException,
-            ObjectNotFoundException {
+    private Long initMasterData()
+            throws NonUniqueBusinessKeyException, ObjectNotFoundException {
         tpAndSupplier = Organizations.createOrganization(mgr,
                 OrganizationRoleType.SUPPLIER,
                 OrganizationRoleType.TECHNOLOGY_PROVIDER);
@@ -189,8 +190,8 @@ public class SubscriptionHistoryDaoIT extends EJBTestBase {
                 ROLE_TECHNOLOGY_MANAGER);
         final VOInstanceInfo instanceInfo = new VOInstanceInfo();
         instanceInfo.setInstanceId("completionProductInstanceId");
-        instanceInfo
-                .setAccessInfo("Public DNS for EC2 instance: ec2-66-66-66-66.compute-1.amazonaws.com");
+        instanceInfo.setAccessInfo(
+                "Public DNS for EC2 instance: ec2-66-66-66-66.compute-1.amazonaws.com");
 
         subMgmt.completeAsyncSubscription(id, orgId, instanceInfo);
 

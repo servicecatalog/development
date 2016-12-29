@@ -13,14 +13,15 @@ import java.io.InputStream;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
 
-import org.oscm.app.v1_0.APPlatformServiceFactory;
-import org.oscm.app.v1_0.data.InstanceStatus;
-import org.oscm.app.v1_0.data.PasswordAuthentication;
-import org.oscm.app.v1_0.data.ProvisioningSettings;
-import org.oscm.app.v1_0.exceptions.APPlatformException;
-import org.oscm.app.v1_0.exceptions.AuthenticationException;
-import org.oscm.app.v1_0.exceptions.ConfigurationException;
-import org.oscm.app.v1_0.exceptions.SuspendException;
+import org.oscm.app.v2_0.APPlatformServiceFactory;
+import org.oscm.app.v2_0.data.InstanceStatus;
+import org.oscm.app.v2_0.data.PasswordAuthentication;
+import org.oscm.app.v2_0.data.ProvisioningSettings;
+import org.oscm.app.v2_0.data.Setting;
+import org.oscm.app.v2_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.exceptions.AuthenticationException;
+import org.oscm.app.v2_0.exceptions.ConfigurationException;
+import org.oscm.app.v2_0.exceptions.SuspendException;
 import org.oscm.app.vmware.business.Controller;
 import org.oscm.app.vmware.business.VMPropertyHandler;
 import org.oscm.app.vmware.business.statemachine.api.StateMachineException;
@@ -43,12 +44,13 @@ public class StateMachine {
 
     public StateMachine(ProvisioningSettings settings)
             throws StateMachineException {
-        machine = settings.getParameters().get(
-                StateMachineProperties.SM_STATE_MACHINE);
+        machine = settings.getParameters()
+                .get(StateMachineProperties.SM_STATE_MACHINE).getValue();
         states = loadStateMachine(machine);
-        history = settings.getParameters().get(
-                StateMachineProperties.SM_STATE_HISTORY);
-        stateId = settings.getParameters().get(StateMachineProperties.SM_STATE);
+        history = settings.getParameters()
+                .get(StateMachineProperties.SM_STATE_HISTORY).getValue();
+        stateId = settings.getParameters().get(StateMachineProperties.SM_STATE)
+                .getValue();
     }
 
     private States loadStateMachine(String filename)
@@ -78,10 +80,13 @@ public class StateMachine {
     public static void initializeProvisioningSettings(
             ProvisioningSettings settings, String stateMachine) {
         settings.getParameters().put(StateMachineProperties.SM_STATE_HISTORY,
-                "");
-        settings.getParameters().put(StateMachineProperties.SM_STATE_MACHINE,
-                stateMachine);
-        settings.getParameters().put(StateMachineProperties.SM_STATE, "BEGIN");
+                new Setting(StateMachineProperties.SM_STATE_HISTORY, ""));
+        settings.getParameters().put(
+                StateMachineProperties.SM_STATE_MACHINE,
+                new Setting(StateMachineProperties.SM_STATE_MACHINE,
+                        stateMachine));
+        settings.getParameters().put(StateMachineProperties.SM_STATE,
+                new Setting(StateMachineProperties.SM_STATE, "BEGIN"));
     }
 
     public String executeAction(ProvisioningSettings settings,
@@ -221,10 +226,10 @@ public class StateMachine {
     public String loadPreviousStateFromHistory(ProvisioningSettings settings)
             throws StateMachineException {
 
-        String currentState = settings.getParameters().get(
-                StateMachineProperties.SM_STATE);
-        String stateHistory = settings.getParameters().get(
-                StateMachineProperties.SM_STATE_HISTORY);
+        String currentState = settings.getParameters()
+                .get(StateMachineProperties.SM_STATE).getValue();
+        String stateHistory = settings.getParameters()
+                .get(StateMachineProperties.SM_STATE_HISTORY).getValue();
         String[] states = stateHistory.split(",");
         for (int i = states.length - 1; i >= 0; i--) {
             if (!states[i].equals(currentState)) {

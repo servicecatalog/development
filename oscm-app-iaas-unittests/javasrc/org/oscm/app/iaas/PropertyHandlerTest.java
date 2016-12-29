@@ -15,35 +15,37 @@ import java.util.HashMap;
 
 import org.junit.Before;
 import org.junit.Test;
-
 import org.oscm.app.iaas.data.FlowState;
 import org.oscm.app.iaas.data.Operation;
 import org.oscm.app.iaas.i18n.Messages;
-import org.oscm.app.v1_0.data.ProvisioningSettings;
-import org.oscm.app.v1_0.exceptions.ConfigurationException;
+import org.oscm.app.v2_0.data.ProvisioningSettings;
+import org.oscm.app.v2_0.data.Setting;
+import org.oscm.app.v2_0.exceptions.ConfigurationException;
 
 /**
  * Tests for the property handling.
  */
 public class PropertyHandlerTest {
 
-    private HashMap<String, String> parameters;
-    private HashMap<String, String> configSettings;
+    private HashMap<String, Setting> parameters;
+    private HashMap<String, Setting> configSettings;
     private ProvisioningSettings settings;
     private PropertyHandler propertyHandler;
 
     @Before
     public void setUp() throws Exception {
-        parameters = new HashMap<String, String>();
-        configSettings = new HashMap<String, String>();
+        parameters = new HashMap<>();
+        configSettings = new HashMap<>();
         settings = new ProvisioningSettings(parameters, configSettings, "en");
         propertyHandler = new PropertyHandler(settings);
     }
 
     @Test()
     public void testGetInstanceName() throws Exception {
-        parameters.put(PropertyHandler.INSTANCENAME_PREFIX, "ess");
-        parameters.put(PropertyHandler.INSTANCENAME_CUSTOM, "tstdemo");
+        parameters.put(PropertyHandler.INSTANCENAME_PREFIX, new Setting(
+                PropertyHandler.INSTANCENAME_PREFIX, "ess"));
+        parameters.put(PropertyHandler.INSTANCENAME_CUSTOM, new Setting(
+                PropertyHandler.INSTANCENAME_CUSTOM, "tstdemo"));
         propertyHandler = new PropertyHandler(settings);
         String instanceName = propertyHandler.getInstanceName();
         assertEquals("esststdemo", instanceName);
@@ -57,7 +59,8 @@ public class PropertyHandlerTest {
 
     @Test()
     public void testGetState() throws Exception {
-        parameters.put(PropertyHandler.API_STATUS, "VSERVER_CREATING");
+        parameters.put(PropertyHandler.API_STATUS, new Setting(
+                PropertyHandler.API_STATUS, "VSERVER_CREATING"));
         propertyHandler = new PropertyHandler(settings);
         FlowState status = propertyHandler.getState();
         assertEquals(FlowState.VSERVER_CREATING, status);
@@ -71,7 +74,8 @@ public class PropertyHandlerTest {
 
     @Test()
     public void testGetOperation() throws Exception {
-        parameters.put(PropertyHandler.OPERATION, "VSERVER_MODIFICATION");
+        parameters.put(PropertyHandler.OPERATION, new Setting(
+                PropertyHandler.OPERATION, "VSERVER_MODIFICATION"));
         propertyHandler = new PropertyHandler(settings);
         Operation operation = propertyHandler.getOperation();
         assertEquals(Operation.VSERVER_MODIFICATION, operation);
@@ -83,7 +87,8 @@ public class PropertyHandlerTest {
      */
     @Test()
     public void testGetLocale() throws Exception {
-        configSettings.put(PropertyHandler.IAAS_API_LOCALE, "EN");
+        configSettings.put(PropertyHandler.IAAS_API_LOCALE, new Setting(
+                PropertyHandler.IAAS_API_LOCALE, "EN"));
         propertyHandler = new PropertyHandler(settings);
         String locale = propertyHandler.getAPILocale();
         assertEquals("EN", locale);
@@ -91,7 +96,8 @@ public class PropertyHandlerTest {
 
     @Test()
     public void testGetURL() throws Exception {
-        configSettings.put(PropertyHandler.IAAS_API_URI, "https://...");
+        configSettings.put(PropertyHandler.IAAS_API_URI, new Setting(
+                PropertyHandler.IAAS_API_URI, "https://..."));
         propertyHandler = new PropertyHandler(settings);
         String url = propertyHandler.getURL();
         assertEquals("https://...", url);
@@ -114,7 +120,8 @@ public class PropertyHandlerTest {
 
     @Test()
     public void testGetVDiskSize() throws Exception {
-        parameters.put(PropertyHandler.VDISK_SIZE, "10");
+        parameters.put(PropertyHandler.VDISK_SIZE, new Setting(
+                PropertyHandler.VDISK_SIZE, "10"));
         propertyHandler = new PropertyHandler(settings);
         String size = propertyHandler.getVDiskSize();
         assertEquals("10", size);
@@ -122,9 +129,12 @@ public class PropertyHandlerTest {
 
     @Test()
     public void testGetVDiskName() throws Exception {
-        parameters.put(PropertyHandler.VDISK_NAME, "vdisk");
-        parameters.put(PropertyHandler.INSTANCENAME_PREFIX, "ess");
-        parameters.put(PropertyHandler.INSTANCENAME_CUSTOM, "tstdemo");
+        parameters.put(PropertyHandler.VDISK_NAME, new Setting(
+                PropertyHandler.VDISK_SIZE, "vdisk"));
+        parameters.put(PropertyHandler.INSTANCENAME_PREFIX, new Setting(
+                PropertyHandler.INSTANCENAME_PREFIX, "ess"));
+        parameters.put(PropertyHandler.INSTANCENAME_CUSTOM, new Setting(
+                PropertyHandler.INSTANCENAME_CUSTOM, "tstdemo"));
         propertyHandler = new PropertyHandler(settings);
         String name = propertyHandler.getVDiskName();
         assertEquals("esststdemovdisk", name);
@@ -132,7 +142,8 @@ public class PropertyHandlerTest {
 
     @Test()
     public void testGetVDiskId() throws Exception {
-        parameters.put(PropertyHandler.VDISK_ID, "vdiskid");
+        parameters.put(PropertyHandler.VDISK_ID, new Setting(
+                PropertyHandler.VDISK_ID, "vdiskid"));
         propertyHandler = new PropertyHandler(settings);
         String id = propertyHandler.getVDiskId();
         assertEquals("vdiskid", id);
@@ -140,7 +151,8 @@ public class PropertyHandlerTest {
 
     @Test()
     public void testGetVsysId() throws Exception {
-        parameters.put(PropertyHandler.VSYS_ID, "vsyid");
+        parameters.put(PropertyHandler.VSYS_ID, new Setting(
+                PropertyHandler.VSYS_ID, "vsyid"));
         propertyHandler = new PropertyHandler(settings);
         String id = propertyHandler.getVsysId();
         assertEquals("vsyid", id);
@@ -148,7 +160,8 @@ public class PropertyHandlerTest {
 
     @Test()
     public void testGetVserverId() throws Exception {
-        parameters.put(PropertyHandler.VSERVER_ID, "vserverid");
+        parameters.put(PropertyHandler.VSERVER_ID, new Setting(
+                PropertyHandler.VSERVER_ID, "vserverid"));
         propertyHandler = new PropertyHandler(settings);
         String id = propertyHandler.getVserverId();
         assertEquals("vserverid", id);
@@ -156,7 +169,8 @@ public class PropertyHandlerTest {
 
     @Test()
     public void testGetDiskImageId() throws Exception {
-        parameters.put(PropertyHandler.DISKIMG_ID, "diskimgid");
+        parameters.put(PropertyHandler.DISKIMG_ID, new Setting(
+                PropertyHandler.DISKIMG_ID, "diskimgid"));
         propertyHandler = new PropertyHandler(settings);
         String id = propertyHandler.getDiskImageId();
         assertEquals("diskimgid", id);
@@ -164,7 +178,8 @@ public class PropertyHandlerTest {
 
     @Test()
     public void testGetVserverType() throws Exception {
-        parameters.put(PropertyHandler.VSERVER_TYPE, "type");
+        parameters.put(PropertyHandler.VSERVER_TYPE, new Setting(
+                PropertyHandler.VSERVER_TYPE, "type"));
         propertyHandler = new PropertyHandler(settings);
         String type = propertyHandler.getVserverType();
         assertEquals("type", type);
@@ -172,7 +187,8 @@ public class PropertyHandlerTest {
 
     @Test()
     public void testGetNetworkId() throws Exception {
-        parameters.put(PropertyHandler.NETWORK_ID, "networkid");
+        parameters.put(PropertyHandler.NETWORK_ID, new Setting(
+                PropertyHandler.NETWORK_ID, "networkid"));
         propertyHandler = new PropertyHandler(settings);
         String id = propertyHandler.getNetworkId();
         assertEquals("networkid", id);
@@ -180,8 +196,8 @@ public class PropertyHandlerTest {
 
     @Test()
     public void testGetInstanceNamePattern() throws Exception {
-        parameters.put(PropertyHandler.INSTANCENAME_PATTERN,
-                "estess([a-z0-9]){6,8}");
+        parameters.put(PropertyHandler.INSTANCENAME_PATTERN, new Setting(
+                PropertyHandler.INSTANCENAME_PATTERN, "estess([a-z0-9]){6,8}"));
         propertyHandler = new PropertyHandler(settings);
         String id = propertyHandler.getInstanceNamePattern();
         assertEquals("estess([a-z0-9]){6,8}", id);
@@ -190,8 +206,10 @@ public class PropertyHandlerTest {
     @Test()
     public void testSetVDiskName() throws Exception {
 
-        parameters.put(PropertyHandler.INSTANCENAME_PREFIX, "ess");
-        parameters.put(PropertyHandler.INSTANCENAME_CUSTOM, "tstdemo");
+        parameters.put(PropertyHandler.INSTANCENAME_PREFIX, new Setting(
+                PropertyHandler.INSTANCENAME_PREFIX, "ess"));
+        parameters.put(PropertyHandler.INSTANCENAME_CUSTOM, new Setting(
+                PropertyHandler.INSTANCENAME_CUSTOM, "tstdemo"));
         propertyHandler = new PropertyHandler(settings);
         propertyHandler.setVDiskName("vdiskname");
         String vdiskname = propertyHandler.getVDiskName();
@@ -208,7 +226,8 @@ public class PropertyHandlerTest {
 
     @Test()
     public void testGetUser() throws Exception {
-        configSettings.put(PropertyHandler.IAAS_API_USER, "user");
+        configSettings.put(PropertyHandler.IAAS_API_USER, new Setting(
+                PropertyHandler.IAAS_API_USER, "user"));
         propertyHandler = new PropertyHandler(settings);
         String id = propertyHandler.getUser();
         assertEquals("user", id);
@@ -216,7 +235,8 @@ public class PropertyHandlerTest {
 
     @Test()
     public void testGetPassword() throws Exception {
-        configSettings.put(PropertyHandler.IAAS_API_PWD, "pwd");
+        configSettings.put(PropertyHandler.IAAS_API_PWD, new Setting(
+                PropertyHandler.IAAS_API_PWD, "pwd"));
         propertyHandler = new PropertyHandler(settings);
         String id = propertyHandler.getPassword();
         assertEquals("pwd", id);
@@ -224,7 +244,8 @@ public class PropertyHandlerTest {
 
     @Test()
     public void testGetTenantId() throws Exception {
-        configSettings.put(PropertyHandler.IAAS_API_TENANT, "tenantid");
+        configSettings.put(PropertyHandler.IAAS_API_TENANT, new Setting(
+                PropertyHandler.IAAS_API_TENANT, "tenantid"));
         propertyHandler = new PropertyHandler(settings);
         String id = propertyHandler.getTenantId();
         assertEquals("tenantid", id);
@@ -235,20 +256,28 @@ public class PropertyHandlerTest {
         String prefixVServer1 = "VSERVER_1";
         String prefixVServer2 = "VSERVER_2";
 
-        parameters.put(PropertyHandler.INSTANCENAME_CUSTOM, "tstdemo");
-        parameters.put(PropertyHandler.VDISK_NAME, "vdisk");
+        parameters.put(PropertyHandler.INSTANCENAME_CUSTOM, new Setting(
+                PropertyHandler.INSTANCENAME_CUSTOM, "tstdemo"));
+        parameters.put(PropertyHandler.VDISK_NAME, new Setting(
+                PropertyHandler.VDISK_NAME, "vdisk"));
 
-        parameters.put(prefixVServer1, "true");
+        parameters.put(prefixVServer1, new Setting(prefixVServer1, "true"));
         parameters.put(prefixVServer1 + "_"
-                + PropertyHandler.INSTANCENAME_CUSTOM, "tstdemo1");
+                + PropertyHandler.INSTANCENAME_CUSTOM, new Setting(
+                prefixVServer1 + "_" + PropertyHandler.INSTANCENAME_CUSTOM,
+                "tstdemo1"));
         parameters.put(prefixVServer1 + "_" + PropertyHandler.VDISK_NAME,
-                "vdisk1");
+                new Setting(prefixVServer1 + "_" + PropertyHandler.VDISK_NAME,
+                        "vdisk1"));
 
-        parameters.put(prefixVServer2, "true");
+        parameters.put(prefixVServer2, new Setting(prefixVServer2, "true"));
         parameters.put(prefixVServer2 + "_"
-                + PropertyHandler.INSTANCENAME_CUSTOM, "tstdemo2");
+                + PropertyHandler.INSTANCENAME_CUSTOM, new Setting(
+                prefixVServer2 + "_" + PropertyHandler.INSTANCENAME_CUSTOM,
+                "tstdemo2"));
         parameters.put(prefixVServer2 + "_" + PropertyHandler.VDISK_NAME,
-                "vdisk2");
+                new Setting(prefixVServer2 + "_"
+                        + PropertyHandler.INSTANCENAME_CUSTOM, "vdisk2"));
 
         propertyHandler = new PropertyHandler(settings);
         PropertyHandler[] list = propertyHandler.getVserverList();
@@ -270,13 +299,16 @@ public class PropertyHandlerTest {
         String prefixVServer1 = "VSERVER_1";
         String prefixVServer2 = "VSERVER_2";
 
-        parameters.put(PropertyHandler.VDISK_NAME, "vdisk");
-        parameters.put(prefixVServer1, "true");
+        parameters.put(PropertyHandler.VDISK_NAME, new Setting(
+                PropertyHandler.VDISK_NAME, "vdisk"));
+        parameters.put(prefixVServer1, new Setting(prefixVServer1, "true"));
         parameters.put(prefixVServer1 + "_" + PropertyHandler.VDISK_NAME,
-                "vdisk1");
-        parameters.put(prefixVServer2, "true");
+                new Setting(prefixVServer1 + "_" + PropertyHandler.VDISK_NAME,
+                        "vdisk1"));
+        parameters.put(prefixVServer2, new Setting(prefixVServer2, "true"));
         parameters.put(prefixVServer2 + "_" + PropertyHandler.VDISK_NAME,
-                "vdisk2");
+                new Setting(prefixVServer2 + "_" + PropertyHandler.VDISK_NAME,
+                        "vdisk2"));
 
         propertyHandler = new PropertyHandler(settings);
         PropertyHandler[] list = propertyHandler.getVserverList();
@@ -302,19 +334,23 @@ public class PropertyHandlerTest {
         String prefixVServer1 = "VSERVER_1";
         String prefixVServer2 = "VSERVER_2";
 
-        parameters.put(PropertyHandler.INSTANCENAME_CUSTOM, "tstdemo");
-        parameters.put(PropertyHandler.VDISK_NAME, "vdisk");
+        parameters.put(PropertyHandler.INSTANCENAME_CUSTOM, new Setting(
+                PropertyHandler.INSTANCENAME_CUSTOM, "tstdemo"));
+        parameters.put(PropertyHandler.VDISK_NAME, new Setting(
+                PropertyHandler.VDISK_NAME, "vdisk"));
 
-        parameters.put(prefixVServer1, "true");
+        parameters.put(prefixVServer1, new Setting(prefixVServer1, "true"));
         parameters.put(prefixVServer1 + "_"
-                + PropertyHandler.INSTANCENAME_CUSTOM, "tstdemo1");
-        parameters.put(prefixVServer1 + "_CONFIG", PropertyHandler.VDISK_NAME
-                + "=vdisk1");
+                + PropertyHandler.INSTANCENAME_CUSTOM, new Setting(
+                prefixVServer1 + "_" + PropertyHandler.INSTANCENAME_CUSTOM,
+                "tstdemo1"));
+        parameters.put(prefixVServer1 + "_CONFIG", new Setting(prefixVServer1
+                + "_CONFIG", PropertyHandler.VDISK_NAME + "=vdisk1"));
 
-        parameters.put(prefixVServer2, "true");
-        parameters.put(prefixVServer2 + "_CONFIG", PropertyHandler.VDISK_NAME
-                + "=vdisk2;" + PropertyHandler.INSTANCENAME_CUSTOM
-                + "=tstdemo2");
+        parameters.put(prefixVServer2, new Setting(prefixVServer2, "true"));
+        parameters.put(prefixVServer2 + "_CONFIG", new Setting(prefixVServer2
+                + "_CONFIG", PropertyHandler.VDISK_NAME + "=vdisk2;"
+                + PropertyHandler.INSTANCENAME_CUSTOM + "=tstdemo2"));
 
         propertyHandler = new PropertyHandler(settings);
         PropertyHandler[] list = propertyHandler.getVserverList();
@@ -336,13 +372,16 @@ public class PropertyHandlerTest {
         String prefixVServer1 = "VSERVER_1";
         String prefixVServer2 = "VSERVER_2";
 
-        parameters.put(PropertyHandler.VDISK_NAME, "vdisk");
-        parameters.put(prefixVServer1, "false");
+        parameters.put(PropertyHandler.VDISK_NAME, new Setting(
+                PropertyHandler.VDISK_NAME, "vdisk"));
+        parameters.put(prefixVServer1, new Setting(prefixVServer1, "false"));
         parameters.put(prefixVServer1 + "_" + PropertyHandler.VDISK_NAME,
-                "vdisk1");
-        parameters.put(prefixVServer2, "true");
+                new Setting(prefixVServer1 + "_" + PropertyHandler.VDISK_NAME,
+                        "vdisk1"));
+        parameters.put(prefixVServer2, new Setting(prefixVServer2, "true"));
         parameters.put(prefixVServer2 + "_" + PropertyHandler.VDISK_NAME,
-                "vdisk2");
+                new Setting(prefixVServer2 + "_" + PropertyHandler.VDISK_NAME,
+                        "vdisk2"));
 
         propertyHandler = new PropertyHandler(settings);
         SubPropertyHandler[] list = propertyHandler.getVserverList();
@@ -358,7 +397,8 @@ public class PropertyHandlerTest {
 
     @Test()
     public void testSetInvalidNULLValue() throws Exception {
-        parameters.put(PropertyHandler.VDISK_NAME, "abc");
+        parameters.put(PropertyHandler.VDISK_NAME, new Setting(
+                PropertyHandler.VDISK_NAME, "abc"));
         propertyHandler = new PropertyHandler(settings);
         assertEquals("abc", propertyHandler.getVDiskNameCustom());
 
@@ -369,13 +409,14 @@ public class PropertyHandlerTest {
     @Test(expected = RuntimeException.class)
     public void testInvalidKey() throws Exception {
         PropertyReader reader = new PropertyReader(
-                new HashMap<String, String>(), "prefix");
+                new HashMap<String, Setting>(), "prefix");
         reader.getValidatedProperty("nonExisiting");
     }
 
     @Test
     public void testGetControllerWaitTime() throws Exception {
-        configSettings.put(PropertyHandler.CONTROLLER_WAIT_TIME, "60000");
+        configSettings.put(PropertyHandler.CONTROLLER_WAIT_TIME, new Setting(
+                PropertyHandler.CONTROLLER_WAIT_TIME, "60000"));
         propertyHandler = new PropertyHandler(settings);
         long waitTime = propertyHandler.getControllerWaitTime();
         assertEquals(60000, waitTime);
@@ -383,7 +424,8 @@ public class PropertyHandlerTest {
 
     @Test
     public void testGetControllerWaitTime_invalid() throws Exception {
-        configSettings.put(PropertyHandler.CONTROLLER_WAIT_TIME, "abs");
+        configSettings.put(PropertyHandler.CONTROLLER_WAIT_TIME, new Setting(
+                PropertyHandler.CONTROLLER_WAIT_TIME, "abs"));
         propertyHandler = new PropertyHandler(settings);
         long waitTime = propertyHandler.getControllerWaitTime();
         assertEquals(0, waitTime);
@@ -398,8 +440,9 @@ public class PropertyHandlerTest {
     @Test
     public void isParallelProvisioning_True() throws ConfigurationException {
         // given
-        configSettings
-                .put(PropertyHandler.ENABLE_PARALLEL_PROVISIONING, "true");
+        configSettings.put(PropertyHandler.ENABLE_PARALLEL_PROVISIONING,
+                new Setting(PropertyHandler.ENABLE_PARALLEL_PROVISIONING,
+                        "true"));
         propertyHandler = new PropertyHandler(settings);
 
         // then
@@ -410,7 +453,8 @@ public class PropertyHandlerTest {
     public void isParallelProvisioning_False() throws ConfigurationException {
         // given
         configSettings.put(PropertyHandler.ENABLE_PARALLEL_PROVISIONING,
-                "false");
+                new Setting(PropertyHandler.ENABLE_PARALLEL_PROVISIONING,
+                        "false"));
         propertyHandler = new PropertyHandler(settings);
 
         // then
@@ -418,20 +462,22 @@ public class PropertyHandlerTest {
     }
 
     @Test
-    public void isParallelProvisioning_WrongValue() throws ConfigurationException {
+    public void isParallelProvisioning_WrongValue()
+            throws ConfigurationException {
         // given
         configSettings.put(PropertyHandler.ENABLE_PARALLEL_PROVISIONING,
-                "wrong");
+                new Setting(PropertyHandler.ENABLE_PARALLEL_PROVISIONING,
+                        "wrong"));
         propertyHandler = new PropertyHandler(settings);
 
         // then
         assertFalse(propertyHandler.isParallelProvisioningEnabled());
     }
-    
+
     @Test
     public void isParallelProvisioning_NotSet() throws ConfigurationException {
         // given
-        configSettings = new HashMap<String, String>();
+        configSettings = new HashMap<>();
         propertyHandler = new PropertyHandler(settings);
 
         // then

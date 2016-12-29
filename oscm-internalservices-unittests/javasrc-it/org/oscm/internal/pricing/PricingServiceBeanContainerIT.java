@@ -20,22 +20,22 @@ import javax.ejb.EJBAccessException;
 import javax.ejb.EJBException;
 
 import org.junit.Test;
-
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Marketplace;
 import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.PlatformUser;
+import org.oscm.internal.components.response.Response;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.UserRoleType;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.marketplace.bean.MarketplaceServiceLocalBean;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.Marketplaces;
 import org.oscm.test.data.Organizations;
 import org.oscm.test.data.PlatformUsers;
 import org.oscm.test.ejb.TestContainer;
-import org.oscm.internal.components.response.Response;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.UserRoleType;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 
 public class PricingServiceBeanContainerIT extends EJBTestBase {
 
@@ -51,6 +51,7 @@ public class PricingServiceBeanContainerIT extends EJBTestBase {
 
     @Override
     protected void setup(TestContainer container) throws Exception {
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         container.enableInterfaceMocking(true);
         container.addBean(new MarketplaceServiceLocalBean());
@@ -66,9 +67,10 @@ public class PricingServiceBeanContainerIT extends EJBTestBase {
 
     private void createMarketplace() throws Exception {
         runTX(new Callable<Marketplace>() {
+            @Override
             public Marketplace call() throws Exception {
-                Marketplace marketplace = Marketplaces.createMarketplace(
-                        mpOwner, MARKETPLACEID, true, ds);
+                Marketplace marketplace = Marketplaces
+                        .createMarketplace(mpOwner, MARKETPLACEID, true, ds);
                 return marketplace;
             }
         });
@@ -76,6 +78,7 @@ public class PricingServiceBeanContainerIT extends EJBTestBase {
 
     private void createMarketplaceOwnerOrg() throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 mpOwner = Organizations.createOrganization(ds,
                         OrganizationRoleType.MARKETPLACE_OWNER,
@@ -84,8 +87,8 @@ public class PricingServiceBeanContainerIT extends EJBTestBase {
                         OrganizationRoleType.BROKER,
                         OrganizationRoleType.RESELLER);
 
-                PlatformUser createUserForOrg = Organizations.createUserForOrg(
-                        ds, mpOwner, true, "admin");
+                PlatformUser createUserForOrg = Organizations
+                        .createUserForOrg(ds, mpOwner, true, "admin");
 
                 PlatformUsers.grantRoles(ds, createUserForOrg,
                         UserRoleType.MARKETPLACE_OWNER);
@@ -107,6 +110,7 @@ public class PricingServiceBeanContainerIT extends EJBTestBase {
 
     private PlatformUser givenNotOwnerUser() throws Exception {
         return runTX(new Callable<PlatformUser>() {
+            @Override
             public PlatformUser call() throws Exception {
                 Organization org = Organizations.createOrganization(ds,
                         OrganizationRoleType.MARKETPLACE_OWNER);

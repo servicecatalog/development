@@ -13,13 +13,14 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
-import org.oscm.app.v1_0.data.PasswordAuthentication;
-import org.oscm.app.v1_0.data.ProvisioningSettings;
-import org.oscm.app.v1_0.data.User;
-import org.oscm.app.v1_0.exceptions.APPlatformException;
-import org.oscm.app.v1_0.exceptions.AuthenticationException;
-import org.oscm.app.v1_0.exceptions.ConfigurationException;
-import org.oscm.app.v1_0.intf.APPlatformService;
+import org.oscm.app.v2_0.data.PasswordAuthentication;
+import org.oscm.app.v2_0.data.ProvisioningSettings;
+import org.oscm.app.v2_0.data.Setting;
+import org.oscm.app.v2_0.data.User;
+import org.oscm.app.v2_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.exceptions.AuthenticationException;
+import org.oscm.app.v2_0.exceptions.ConfigurationException;
+import org.oscm.app.v2_0.intf.APPlatformService;
 
 /**
  * Mockup for the APP platform service
@@ -27,17 +28,19 @@ import org.oscm.app.v1_0.intf.APPlatformService;
 public class APPlatformServiceMockup implements APPlatformService {
     public APPlatformException exceptionOnGetControllerSettings;
     public APPlatformException exceptionOnStoreControllerSettings;
-    private HashMap<String, String> ctrl_settings;
+    private HashMap<String, Setting> ctrl_settings;
 
     public APPlatformServiceMockup() {
         // Set default controller settings
-        ctrl_settings = new HashMap<String, String>();
-        ctrl_settings.put("BSS_ORGANIZATION_ID", "orgId");
-        ctrl_settings.put("BSS_USER_KEY", "12345");
-        ctrl_settings.put("BSS_USER_ID", "userId");
-        ctrl_settings.put("BSS_USER_PWD", "secret1");
-        ctrl_settings.put("TEST1", "secret2");
-        ctrl_settings.put("TEST2", "secret3");
+        ctrl_settings = new HashMap<>();
+        ctrl_settings.put("BSS_ORGANIZATION_ID",
+                new Setting("BSS_ORGANIZATION_ID", "orgId"));
+        ctrl_settings.put("BSS_USER_KEY", new Setting("BSS_USER_KEY", "12345"));
+        ctrl_settings.put("BSS_USER_ID", new Setting("BSS_USER_ID", "userId"));
+        ctrl_settings.put("BSS_USER_PWD",
+                new Setting("BSS_USER_PWD", "secret1"));
+        ctrl_settings.put("TEST1", new Setting("TEST1", "secret2"));
+        ctrl_settings.put("TEST2", new Setting("TEST2", "secret3"));
     }
 
     @Override
@@ -61,7 +64,7 @@ public class APPlatformServiceMockup implements APPlatformService {
     }
 
     @Override
-    public HashMap<String, String> getControllerSettings(String arg0,
+    public HashMap<String, Setting> getControllerSettings(String arg0,
             PasswordAuthentication arg1) throws AuthenticationException,
             ConfigurationException, APPlatformException {
         if (exceptionOnGetControllerSettings != null) {
@@ -79,7 +82,7 @@ public class APPlatformServiceMockup implements APPlatformService {
 
     @Override
     public void storeControllerSettings(String arg0,
-            HashMap<String, String> controllerSettings,
+            HashMap<String, Setting> controllerSettings,
             PasswordAuthentication arg2) throws AuthenticationException,
             ConfigurationException, APPlatformException {
         if (exceptionOnStoreControllerSettings != null) {
@@ -111,7 +114,7 @@ public class APPlatformServiceMockup implements APPlatformService {
     public Collection<String> listServiceInstances(String controllerId,
             PasswordAuthentication authentication)
             throws AuthenticationException, APPlatformException {
-        return new ArrayList<String>();
+        return new ArrayList<>();
     }
 
     @Override
@@ -133,5 +136,20 @@ public class APPlatformServiceMockup implements APPlatformService {
             throws AuthenticationException, ConfigurationException,
             APPlatformException {
         // store service settings not supported by mock
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.oscm.app.v2_0.intf.APPlatformService#getServiceInstanceDetails(java.
+     * lang.String, java.lang.String, java.lang.String, java.lang.String)
+     */
+    @Override
+    public ProvisioningSettings getServiceInstanceDetails(String controllerId,
+            String instanceId, String subscriptionId, String organizationId)
+            throws APPlatformException {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

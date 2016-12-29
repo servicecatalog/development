@@ -27,8 +27,9 @@ import org.w3c.dom.NodeList;
  */
 public class SamlAssertionBreakHandler implements
         SOAPHandler<SOAPMessageContext> {
+    
     private final Map<String, String> userAndTagMap = new HashMap<String, String>();
-
+       
     public SamlAssertionBreakHandler() {
         userAndTagMap.put("MockSTSTest_Issuer", "saml2:Issuer");
         userAndTagMap.put("MockSTSTest_DigestValue", "ds:DigestValue");
@@ -66,10 +67,12 @@ public class SamlAssertionBreakHandler implements
     }
 
     private void modifyAssertion(SOAPMessageContext context) throws Exception {
+        
         if (isOutboundMessage(context).booleanValue()) {
             Document messageDoc = context.getMessage().getSOAPBody()
                     .getOwnerDocument();
             String tagName = getModifyTagName(messageDoc);
+
             if (tagName != null && tagName.length() != 0) {
                 NodeList nodes = messageDoc.getElementsByTagName(tagName);
                 if (nodes.getLength() == 0) {
@@ -78,6 +81,7 @@ public class SamlAssertionBreakHandler implements
                 Node node = nodes.item(0);
                 removeLastCharacter(node);
             }
+            
         }
     }
 
@@ -101,7 +105,7 @@ public class SamlAssertionBreakHandler implements
             node.setTextContent(textContent);
         }
     }
-
+    
     protected Boolean isOutboundMessage(SOAPMessageContext context) {
         Boolean outBoundProperty = (Boolean) context
                 .get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);

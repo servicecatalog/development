@@ -11,12 +11,11 @@ package org.oscm.app.openstack;
 import org.apache.sling.commons.json.JSONArray;
 import org.apache.sling.commons.json.JSONException;
 import org.apache.sling.commons.json.JSONObject;
+import org.oscm.app.common.i18n.Messages;
+import org.oscm.app.openstack.exceptions.OpenStackConnectionException;
+import org.oscm.app.v2_0.exceptions.APPlatformException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.oscm.app.common.i18n.Messages;
-import org.oscm.app.openstack.exceptions.HeatException;
-import org.oscm.app.v1_0.exceptions.APPlatformException;
 
 /**
  * Keystone is the identity service used by OpenStack for authentication and
@@ -28,10 +27,8 @@ public class KeystoneClient {
             .getLogger(KeystoneClient.class);
 
     final static String TYPE_HEAT = "orchestration";
-    final static String NAME_HEAT = "heat";
 
     final static String TYPE_NOVA = "compute";
-    final static String NAME_NOVA = "nova";
 
     private final OpenStackConnection connection;
 
@@ -45,68 +42,88 @@ public class KeystoneClient {
     }
 
     /**
-     * Authenticate the connection that was given in the constructor.
+     * Authenticate the connection that was given in the constructor for V3 API.
      * 
      * @param user
      * @param password
-     * @param tenantName
+     * @param domainName
+     * @param tenantId
      * 
-     * @throws HeatException
+     * @throws OpenStackConnectionException
      */
-    public void authenticate(String user, String password, String tenantName)
-            throws HeatException, APPlatformException {
+    public void authenticate(String user, String password, String domainName,
+            String tenantId) throws APPlatformException,
+            OpenStackConnectionException {
         LOGGER.debug("KeystoneClient.authenticate() user: " + user
-                + "  tenant:" + tenantName + "  endpoint: "
-                + connection.getKeystoneEndpoint());
+                + "  domain:" + domainName + " tenant ID:" + tenantId
+                + "  endpoint: " + connection.getKeystoneEndpoint());
         String uri = connection.getKeystoneEndpoint() + "/tokens";
+
         JSONObject request = new JSONObject();
         JSONObject auth = new JSONObject();
-        JSONObject passwordCredentials = new JSONObject();
+        JSONObject identity = new JSONObject();
+        JSONObject domain = new JSONObject();
+        JSONObject userName = new JSONObject();
+        JSONObject passwordInfo = new JSONObject();
+        JSONObject projectId = new JSONObject();
+        JSONObject project = new JSONObject();
+        JSONArray methodArray = new JSONArray();
         try {
-            passwordCredentials.put("username", user);
-            passwordCredentials.put("password", password);
-            auth.put("passwordCredentials", passwordCredentials);
-            auth.put("tenantName", tenantName);
+            domain.put("name", domainName);
+            userName.put("domain", domain);
+            userName.put("name", user);
+            userName.put("password", password);
+            methodArray.put("password");
+            passwordInfo.put("user", userName);
+            identity.put("password", passwordInfo);
+            identity.put("methods", methodArray);
+            auth.put("identity", identity);
+            projectId.put("id", tenantId);
+            project.put("project", projectId);
+            auth.put("scope", project);
             request.put("auth", auth);
         } catch (JSONException e) {
             // this can basically not happen with string parameters
             throw new RuntimeException(e);
         }
+        LOGGER.debug("URL is "
+                + uri
+                + " request is "
+                + request.toString().replaceFirst(
+                        "\"password\":\"" + password + "\"",
+                        "\"password\":\"******\""));
         RESTResponse response = connection.processRequest(uri, "POST",
                 request.toString());
 
-        if (response.getResponseCode() != 200) {
+        if (response.getResponseCode() != 201) {
             throw new RuntimeException(
                     "Failed to retrieve token for authentication, response code "
                             + response.getResponseCode());
         }
 
         String body = response.getResponseBody();
+        String authToken = response.getToken();
         try {
             String heatEndpoint = null;
             String novaEndpoint = null;
             JSONObject jsonObj = new JSONObject(body);
-            JSONObject access = jsonObj.getJSONObject("access");
-            JSONObject token = access.getJSONObject("token");
-            String authToken = token.getString("id");
-            JSONArray catalog = access.getJSONArray("serviceCatalog");
+            JSONObject token = jsonObj.getJSONObject("token");
+            JSONArray catalog = token.getJSONArray("catalog");
             int catalogSize = catalog.length();
             for (int i = 0; i < catalogSize; i++) {
                 JSONObject entry = catalog.getJSONObject(i);
                 if (entry != null) {
                     String type = entry.getString("type");
-                    String name = entry.getString("name");
                     if (TYPE_HEAT.equals(type)) {
                         JSONArray endpoints = entry.getJSONArray("endpoints");
                         int endpointSize = endpoints.length();
                         for (int j = 0; j < endpointSize; j++) {
                             JSONObject endpoint = endpoints.getJSONObject(j);
                             if (endpoint != null) {
-                                String publicURL = endpoint
-                                        .getString("publicURL");
-                                if (publicURL != null
-                                        && publicURL.trim().length() > 0) {
-                                    heatEndpoint = publicURL;
+                                String endpointUrl = endpoint.getString("url");
+                                if (endpointUrl != null
+                                        && endpointUrl.trim().length() > 0) {
+                                    heatEndpoint = endpointUrl;
                                 }
                             }
                         }
@@ -116,11 +133,10 @@ public class KeystoneClient {
                         for (int j = 0; j < endpointSize; j++) {
                             JSONObject endpoint = endpoints.getJSONObject(j);
                             if (endpoint != null) {
-                                String publicURL = endpoint
-                                        .getString("publicURL");
-                                if (publicURL != null
-                                        && publicURL.trim().length() > 0) {
-                                    novaEndpoint = publicURL;
+                                String endpointUrl = endpoint.getString("url");
+                                if (endpointUrl != null
+                                        && endpointUrl.trim().length() > 0) {
+                                    novaEndpoint = endpointUrl;
                                 }
                             }
                         }

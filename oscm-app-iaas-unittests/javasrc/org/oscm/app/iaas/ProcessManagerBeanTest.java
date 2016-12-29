@@ -29,7 +29,6 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-
 import org.oscm.app.iaas.data.AccessInformation;
 import org.oscm.app.iaas.data.FlowState;
 import org.oscm.app.iaas.data.Operation;
@@ -37,11 +36,12 @@ import org.oscm.app.iaas.exceptions.CommunicationException;
 import org.oscm.app.iaas.exceptions.IaasException;
 import org.oscm.app.iaas.intf.VServerCommunication;
 import org.oscm.app.iaas.intf.VSystemCommunication;
-import org.oscm.app.v1_0.data.InstanceStatus;
-import org.oscm.app.v1_0.data.ProvisioningSettings;
-import org.oscm.app.v1_0.exceptions.APPlatformException;
-import org.oscm.app.v1_0.exceptions.SuspendException;
-import org.oscm.app.v1_0.intf.APPlatformService;
+import org.oscm.app.v2_0.data.InstanceStatus;
+import org.oscm.app.v2_0.data.ProvisioningSettings;
+import org.oscm.app.v2_0.data.Setting;
+import org.oscm.app.v2_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.exceptions.SuspendException;
+import org.oscm.app.v2_0.intf.APPlatformService;
 
 /**
  * @author iversen
@@ -49,7 +49,7 @@ import org.oscm.app.v1_0.intf.APPlatformService;
  */
 public class ProcessManagerBeanTest {
     private ProcessManagerBean processManagerBean;
-    private HashMap<String, String> parameters;
+    private HashMap<String, Setting> parameters;
     private PropertyHandler paramHandler;
     private final String INSTANCEID = "INSTANCEID";
     private final String PRIVATEIP = "123.123.123.123";
@@ -69,8 +69,8 @@ public class ProcessManagerBeanTest {
         doNothing().when(processManagerBean.platformService).sendMail(
                 anyListOf(String.class), anyString(), anyString());
 
-        parameters = new HashMap<String, String>();
-        HashMap<String, String> configSettings = new HashMap<String, String>();
+        parameters = new HashMap<>();
+        HashMap<String, Setting> configSettings = new HashMap<>();
         ProvisioningSettings settings = new ProvisioningSettings(parameters,
                 configSettings, "en");
         paramHandler = new PropertyHandler(settings);
@@ -79,7 +79,8 @@ public class ProcessManagerBeanTest {
     @Test
     public void getConnectionData_NoPublicIP() throws Exception {
         // given
-        parameters.put(PropertyHandler.SYSTEM_TEMPLATE_ID, "template");
+        parameters.put(PropertyHandler.SYSTEM_TEMPLATE_ID, new Setting(
+                PropertyHandler.SYSTEM_TEMPLATE_ID, "template"));
 
         // when
         String result = processManagerBean.getConnectionData(INSTANCEID,
@@ -93,7 +94,8 @@ public class ProcessManagerBeanTest {
     @Test
     public void getConnectionDatais_PublicIP() throws Exception {
         // given
-        parameters.put(PropertyHandler.SYSTEM_TEMPLATE_ID, "template");
+        parameters.put(PropertyHandler.SYSTEM_TEMPLATE_ID, new Setting(
+                PropertyHandler.SYSTEM_TEMPLATE_ID, "template"));
         List<AccessInformation> publicIps = new ArrayList<>();
         publicIps.add(new AccessInformation("1.2.3.4", "password"));
         publicIps.add(new AccessInformation("1.2.3.5", "secret"));
@@ -158,7 +160,8 @@ public class ProcessManagerBeanTest {
     public void getControllerInstanceStatus_SuspendedInstance_invalidSuspendTime()
             throws Exception {
         // given an invalid suspend time
-        parameters.put(PropertyHandler.SUSPEND_UNTIL, "invalidSuspendUntil");
+        parameters.put(PropertyHandler.SUSPEND_UNTIL, new Setting(
+                PropertyHandler.SUSPEND_UNTIL, "invalidSuspendUntil"));
         paramHandler.setState(FlowState.FINISHED);
 
         // when
@@ -176,8 +179,8 @@ public class ProcessManagerBeanTest {
             throws Exception {
 
         long suspendTime = System.currentTimeMillis() + 1000;
-        parameters.put(PropertyHandler.SUSPEND_UNTIL,
-                String.valueOf(suspendTime));
+        parameters.put(PropertyHandler.SUSPEND_UNTIL, new Setting(
+                PropertyHandler.SUSPEND_UNTIL, String.valueOf(suspendTime)));
         paramHandler.setState(FlowState.FINISHED);
 
         // when
@@ -229,7 +232,8 @@ public class ProcessManagerBeanTest {
     public void getControllerInstanceStatus_VServerProvisioning()
             throws Exception {
         // given a VServer provisioning
-        parameters.put(PropertyHandler.SYSTEM_TEMPLATE_ID, "");
+        parameters.put(PropertyHandler.SYSTEM_TEMPLATE_ID, new Setting(
+                PropertyHandler.SYSTEM_TEMPLATE_ID, ""));
         paramHandler.setState(FlowState.VSERVER_CREATED);
 
         // when
@@ -244,7 +248,8 @@ public class ProcessManagerBeanTest {
     public void getControllerInstanceStatus_VSystemProvisioning()
             throws Exception {
         // given a VSystem provisioning
-        parameters.put(PropertyHandler.SYSTEM_TEMPLATE_ID, "template");
+        parameters.put(PropertyHandler.SYSTEM_TEMPLATE_ID, new Setting(
+                PropertyHandler.SYSTEM_TEMPLATE_ID, "template"));
         paramHandler.setState(FlowState.VSERVER_CREATED);
 
         // when
@@ -303,7 +308,8 @@ public class ProcessManagerBeanTest {
     public void getControllerInstanceStatus_NoConnection_SysProcessor()
             throws Exception {
         // given no ROR connection
-        parameters.put(PropertyHandler.SYSTEM_TEMPLATE_ID, "template");
+        parameters.put(PropertyHandler.SYSTEM_TEMPLATE_ID, new Setting(
+                PropertyHandler.SYSTEM_TEMPLATE_ID, "template"));
         paramHandler.setState(FlowState.VSERVER_CREATION_REQUESTED);
         doThrow(new CommunicationException("Connection failed", "hostname"))
                 .when(processManagerBean.vSysProcessor).process("controllerId",
@@ -352,7 +358,8 @@ public class ProcessManagerBeanTest {
     public void getControllerInstanceStatus_Modification_Mail()
             throws Exception {
 
-        parameters.put(PropertyHandler.MAIL_FOR_NOTIFICATION, "test@email.com");
+        parameters.put(PropertyHandler.MAIL_FOR_NOTIFICATION, new Setting(
+                PropertyHandler.MAIL_FOR_NOTIFICATION, "test@email.com"));
         paramHandler.setOperation(Operation.VSERVER_MODIFICATION);
         paramHandler.setState(FlowState.FINISHED);
         // when
@@ -373,7 +380,8 @@ public class ProcessManagerBeanTest {
             throws Exception {
         // given an operation which is not a modification and a mail for
         // notification set
-        parameters.put(PropertyHandler.MAIL_FOR_NOTIFICATION, "test@email.com");
+        parameters.put(PropertyHandler.MAIL_FOR_NOTIFICATION, new Setting(
+                PropertyHandler.MAIL_FOR_NOTIFICATION, "test@email.com"));
         paramHandler.setOperation(Operation.VSERVER_CREATION);
         paramHandler.setState(FlowState.FINISHED);
         // when

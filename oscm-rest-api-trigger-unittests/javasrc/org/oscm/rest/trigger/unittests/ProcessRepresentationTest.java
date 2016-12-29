@@ -52,5 +52,15 @@ public class ProcessRepresentationTest {
             assertEquals(Status.BAD_REQUEST.getStatusCode(), e.getResponse()
                     .getStatus());
         }
+
+        process = new ProcessRepresentation();
+
+        try {
+            process.validateContent();
+            fail();
+        } catch (WebApplicationException e) {
+            assertEquals(Status.BAD_REQUEST.getStatusCode(), e.getResponse()
+                    .getStatus());
+        }
     }
 }

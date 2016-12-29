@@ -39,6 +39,7 @@ import org.oscm.test.data.Products;
 import org.oscm.test.data.Subscriptions;
 import org.oscm.test.data.UserGroups;
 import org.oscm.test.ejb.TestContainer;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 
 /**
  * @author zhaoh.fnst
@@ -68,6 +69,7 @@ public class UserGroupDaoIT extends EJBTestBase {
 
     @Override
     protected void setup(TestContainer container) throws Exception {
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         ds = container.get(DataService.class);
         dao = new UserGroupDao();
@@ -91,7 +93,8 @@ public class UserGroupDaoIT extends EJBTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                insertUnitRole(Long.valueOf(1L), Long.valueOf(0L), "ADMINISTRATOR");
+                insertUnitRole(Long.valueOf(1L), Long.valueOf(0L),
+                        "ADMINISTRATOR");
                 insertUnitRole(Long.valueOf(2L), Long.valueOf(0L), "USER");
                 return null;
             }
@@ -167,7 +170,7 @@ public class UserGroupDaoIT extends EJBTestBase {
         List<UserGroup> result = runTX(new Callable<List<UserGroup>>() {
             @Override
             public List<UserGroup> call() throws Exception {
-                return dao.getUserGroupsForUserWithoutDefault(user.getUserId());
+                return dao.getUserGroupsForUserWithoutDefault(user.getKey());
             }
         });
 
@@ -203,14 +206,12 @@ public class UserGroupDaoIT extends EJBTestBase {
         container.login(user.getKey(), ROLE_TECHNOLOGY_MANAGER);
         prepareInvisibleProducts();
 
-        List<UserGroupToInvisibleProduct> result = runTX(
-                new Callable<List<UserGroupToInvisibleProduct>>() {
-                    @Override
-                    public List<UserGroupToInvisibleProduct> call()
-                            throws Exception {
-                        return dao.getInvisibleProducts(group1.getKey());
-                    }
-                });
+        List<UserGroupToInvisibleProduct> result = runTX(new Callable<List<UserGroupToInvisibleProduct>>() {
+            @Override
+            public List<UserGroupToInvisibleProduct> call() throws Exception {
+                return dao.getInvisibleProducts(group1.getKey());
+            }
+        });
 
         // then
         assertEquals(3, result.size());
@@ -289,7 +290,8 @@ public class UserGroupDaoIT extends EJBTestBase {
         });
     }
 
-    private void setUnitAdmin(final PlatformUser user, final UserGroup unit) throws Exception {
+    private void setUnitAdmin(final PlatformUser user, final UserGroup unit)
+            throws Exception {
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
@@ -531,8 +533,9 @@ public class UserGroupDaoIT extends EJBTestBase {
         Boolean result = runTX(new Callable<Boolean>() {
             @Override
             public Boolean call() throws Exception {
-                return Boolean.valueOf(dao.isNotTerminatedSubscriptionAssignedToUnit(group1
-                        .getKey()));
+                return Boolean.valueOf(dao
+                        .isNotTerminatedSubscriptionAssignedToUnit(group1
+                                .getKey()));
             }
         });
         // then
@@ -569,8 +572,9 @@ public class UserGroupDaoIT extends EJBTestBase {
         Boolean result = runTX(new Callable<Boolean>() {
             @Override
             public Boolean call() throws Exception {
-                return Boolean.valueOf(dao.isNotTerminatedSubscriptionAssignedToUnit(group1
-                        .getKey()));
+                return Boolean.valueOf(dao
+                        .isNotTerminatedSubscriptionAssignedToUnit(group1
+                                .getKey()));
             }
         });
         // then
@@ -605,14 +609,15 @@ public class UserGroupDaoIT extends EJBTestBase {
         Boolean result = runTX(new Callable<Boolean>() {
             @Override
             public Boolean call() throws Exception {
-                return Boolean.valueOf(dao.isNotTerminatedSubscriptionAssignedToUnit(group1
-                        .getKey()));
+                return Boolean.valueOf(dao
+                        .isNotTerminatedSubscriptionAssignedToUnit(group1
+                                .getKey()));
             }
         });
         // then
         assertEquals(Boolean.FALSE, result);
     }
-    
+
     @Test
     public void getUserGroupAssignment() throws Exception {
         // given

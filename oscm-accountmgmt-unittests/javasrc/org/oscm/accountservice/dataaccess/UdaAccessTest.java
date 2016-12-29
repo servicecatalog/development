@@ -36,7 +36,6 @@ import javax.persistence.Query;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-
 import org.oscm.accountservice.dataaccess.validator.MandatoryUdaValidator;
 import org.oscm.accountservice.dataaccess.validator.UdaAccessValidator;
 import org.oscm.dataservice.local.DataService;
@@ -44,7 +43,6 @@ import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.Uda;
 import org.oscm.domobjects.UdaDefinition;
-import org.oscm.types.enumtypes.UdaTargetType;
 import org.oscm.internal.types.enumtypes.UdaConfigurationType;
 import org.oscm.internal.types.exception.ConcurrentModificationException;
 import org.oscm.internal.types.exception.DomainObjectException.ClassEnum;
@@ -55,6 +53,7 @@ import org.oscm.internal.types.exception.OperationNotPermittedException;
 import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.internal.vo.VOUda;
 import org.oscm.internal.vo.VOUdaDefinition;
+import org.oscm.types.enumtypes.UdaTargetType;
 
 /**
  * @author weiser
@@ -94,8 +93,7 @@ public class UdaAccessTest {
         uda.setUdaValue("some value");
         uda.setKey(5678);
 
-        supplier.setUdaDefinitions(new ArrayList<UdaDefinition>(Arrays
-                .asList(defSupplier)));
+        supplier.setUdaDefinitions(new ArrayList<>(Arrays.asList(defSupplier)));
 
         sub = new Subscription();
         sub.setKey(9876);
@@ -156,30 +154,12 @@ public class UdaAccessTest {
 
     @Test(expected = ValidationException.class)
     public void saveUdas_ValidationError_NoDefinition() throws Exception {
-        // given: no definition set will cause validation error
-        voUda.setUdaDefinition(null);
-
-        try {
-            // when
-            ua.saveUdas(Arrays.asList(voUda), supplier);
-        } finally {
-            // then
-            verify(ctx, times(1)).setRollbackOnly();
+        String udaValue="";
+        for (int i = 0; i < 30; i++) {
+            udaValue += "1234567890";
         }
-    }
-
-    @Test(expected = ValidationException.class)
-    public void saveUdas_ValidationError_NoTarget() throws Exception {
-        // given: no definition set will cause validation error
-        voUda.setTargetObjectKey(0);
-
-        try {
-            // when
-            ua.saveUdas(Arrays.asList(voUda), supplier);
-        } finally {
-            // then
-            verify(ctx, times(1)).setRollbackOnly();
-        }
+        voUda.setUdaValue(udaValue);
+        ua.saveUdas(Arrays.asList(voUda), supplier);
     }
 
     @Test(expected = ConcurrentModificationException.class)
@@ -371,10 +351,8 @@ public class UdaAccessTest {
     @Test
     public void getUdasForTypeAndTarget() throws Exception {
         List<Uda> list = ua.getUdasForTypeAndTarget(123L,
-                UdaTargetType.CUSTOMER, supplier);
+                UdaTargetType.CUSTOMER, supplier, false);
 
-        verify(ua.udaAccessValidator, times(1)).checkSellerReadPermission(
-                eq(supplier), eq(UdaTargetType.CUSTOMER), eq(123L));
         assertEquals(1, list.size());
         assertSame(uda, list.get(0));
     }

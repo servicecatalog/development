@@ -21,6 +21,7 @@ import org.oscm.internal.vo.VOMarketplace;
 public class Marketplace extends NewMarketplace {
 
     private boolean organizationSelectVisible = false;
+    private boolean tenantSelectVisible = false;
     private boolean editDisabled = true;
     private boolean propertiesDisabled = true;
     private boolean open;
@@ -219,6 +220,14 @@ public class Marketplace extends NewMarketplace {
 
     public boolean isBrokerRevenueShareVisible() {
         return isRevenueSharesReadOnly() && brokerRevenueShare != null;
+    }
+
+    public boolean isTenantSelectVisible() {
+        return tenantSelectVisible;
+    }
+
+    public void setTenantSelectVisible(boolean tenantSelectVisible) {
+        this.tenantSelectVisible = tenantSelectVisible;
     }
 
 }

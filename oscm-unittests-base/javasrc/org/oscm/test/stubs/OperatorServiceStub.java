@@ -139,18 +139,13 @@ public class OperatorServiceStub implements OperatorService {
     }
 
     @Override
-    public List<VOUserDetails> getUsers(String userIdPattern)
+    public List<VOUserDetails> getUsers()
             throws OrganizationAuthoritiesException {
         throw new UnsupportedOperationException();
     }
 
     @Override
     public List<VOUserDetails> getSubscriptionOwnersForAssignment(Long organizationKey) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public List<VOUserDetails> getUsersWithLimit(String userIdPattern, Integer queryLimit) throws OrganizationAuthoritiesException {
         throw new UnsupportedOperationException();
     }
 
@@ -172,11 +167,6 @@ public class OperatorServiceStub implements OperatorService {
 
     @Override
     public boolean startPaymentProcessing() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void initIndexForFulltextSearch(boolean force) {
         throw new UnsupportedOperationException();
     }
 

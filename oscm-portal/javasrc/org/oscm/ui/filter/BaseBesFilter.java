@@ -13,39 +13,31 @@ import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Set;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.xml.datatype.DatatypeConfigurationException;
 
+import org.oscm.internal.intf.*;
+import org.oscm.internal.types.enumtypes.ConfigurationKey;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.PerformanceHint;
+import org.oscm.internal.types.enumtypes.UserRoleType;
+import org.oscm.internal.types.exception.NotExistentTenantException;
+import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
+import org.oscm.internal.types.exception.SAML2AuthnRequestException;
+import org.oscm.internal.types.exception.WrongTenantConfigurationException;
+import org.oscm.internal.vo.VOUserDetails;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.types.constants.Configuration;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
 import org.oscm.ui.beans.BaseBean;
 import org.oscm.ui.beans.MenuBean;
-import org.oscm.ui.common.ADMStringUtils;
-import org.oscm.ui.common.Constants;
-import org.oscm.ui.common.EJBServiceAccess;
-import org.oscm.ui.common.JSFUtils;
-import org.oscm.ui.common.ServiceAccess;
+import org.oscm.ui.common.*;
 import org.oscm.ui.dialog.common.saml2.AuthenticationHandler;
 import org.oscm.validator.ADMValidator;
-import org.oscm.internal.intf.ConfigurationService;
-import org.oscm.internal.intf.ServiceProvisioningServiceInternal;
-import org.oscm.internal.types.enumtypes.ConfigurationKey;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.PerformanceHint;
-import org.oscm.internal.types.enumtypes.UserRoleType;
-import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
-import org.oscm.internal.types.exception.SAML2AuthnRequestException;
-import org.oscm.internal.vo.VOUserDetails;
 
 /**
  * @author groch
@@ -76,6 +68,8 @@ public abstract class BaseBesFilter implements Filter {
 
     private static final Log4jLogger logger = LoggerFactory
             .getLogger(BaseBesFilter.class);
+    private MarketplaceService mkpService;
+    private MarketplaceCacheService mkpServiceCache;
 
     /**
      * Read the parameter from filter configuration. Called by the web container
@@ -88,7 +82,7 @@ public abstract class BaseBesFilter implements Filter {
     public void init(FilterConfig filterConfig) throws ServletException {
         this.filterConfig = filterConfig;
 
-        String value = filterConfig.getInitParameter(PARAM_CONFIRM_PAGE);
+        String value;
         String loginClassName = filterConfig
                 .getInitParameter(PARAM_LOGIN_CLASS);
         if (ADMStringUtils.isBlank(loginClassName)) {
@@ -139,7 +133,17 @@ public abstract class BaseBesFilter implements Filter {
         ServiceAccess serviceAccess = new EJBServiceAccess();
         ConfigurationService cfgService = serviceAccess
                 .getService(ConfigurationService.class);
-        authSettings = new AuthenticationSettings(cfgService);
+        TenantService tenantService = serviceAccess
+                .getService(TenantService.class);
+        authSettings = new AuthenticationSettings(tenantService, cfgService);
+        try {
+            authSettings.init(null);
+        } catch (NotExistentTenantException e) {
+            //ait gonna happen. Configsettins will be used.
+        } catch (WrongTenantConfigurationException e) {
+            logger.logError(Log4jLogger.SYSTEM_LOG, e,
+                    LogMessageIdentifier.ERROR_TENANT_MISCONFIGURED);
+        }
     }
 
     /**
@@ -191,7 +195,6 @@ public abstract class BaseBesFilter implements Filter {
                 .getAttribute(Constants.SESS_ATTR_USER));
 
         ard.setLandingPage(BesServletRequestReader.isLandingPage(httpRequest));
-
         return ard;
     }
 
@@ -326,6 +329,7 @@ public abstract class BaseBesFilter implements Filter {
                 defaultUrl = MenuBean.LINK_TECHSERVICE_IMPORT;
             } else if (!roles.contains(UserRoleType.MARKETPLACE_OWNER)
                     && !roles.contains(UserRoleType.BROKER_MANAGER)
+                    && !roles.contains(UserRoleType.ORGANIZATION_ADMIN)
                     && !roles.contains(UserRoleType.RESELLER_MANAGER)
                     || (userDetails.getOrganizationRoles().size() == 1 && userDetails
                             .getOrganizationRoles().contains(
@@ -367,8 +371,8 @@ public abstract class BaseBesFilter implements Filter {
      * @throws Exception
      */
     protected void forwardToLoginPage(String relativePath, boolean save,
-            HttpServletRequest request, HttpServletResponse response,
-            FilterChain chain) throws IOException, ServletException {
+                                      HttpServletRequest request, HttpServletResponse response,
+                                      FilterChain chain) throws IOException, ServletException {
 
         String actualLoginPage = getActualLoginPage(request, loginPage,
                 authSettings);
@@ -381,7 +385,6 @@ public abstract class BaseBesFilter implements Filter {
             }
 
             storeRelayStateInSession(relativePath, request);
-
             try {
                 AuthenticationHandler ah = new AuthenticationHandler(request,
                         response, authSettings);
@@ -419,6 +422,26 @@ public abstract class BaseBesFilter implements Filter {
         ConfigurationService cfgService = serviceAccess
                 .getService(ConfigurationService.class);
         return cfgService;
+    }
+
+    MarketplaceService getMarketplaceService(HttpServletRequest request) {
+        ServiceAccess serviceAccess = ServiceAccess
+                .getServiceAcccessFor(request.getSession());
+        if (mkpService == null) {
+            mkpService = serviceAccess
+                    .getService(MarketplaceService.class);
+        }
+        return mkpService;
+    }
+
+    MarketplaceCacheService getMarketplaceServiceCache(HttpServletRequest request) {
+        ServiceAccess serviceAccess = ServiceAccess
+                .getServiceAcccessFor(request.getSession());
+        if (mkpServiceCache == null) {
+            mkpServiceCache = serviceAccess
+                    .getService(MarketplaceCacheService.class);
+        }
+        return mkpServiceCache;
     }
 
     private boolean isLoginPage(String relativePath, String actualLoginPage) {
@@ -527,19 +550,17 @@ public abstract class BaseBesFilter implements Filter {
     /**
      * redirectToMp Url
      */
-    protected boolean redirectToMpUrl(ServiceAccess serviceAccess,
-            HttpServletRequest httpRequest, HttpServletResponse httpResponse)
+    protected boolean redirectToMpUrl(HttpServletRequest httpRequest, HttpServletResponse httpResponse)
             throws IOException {
         String uri = httpRequest.getRequestURI();
-        ConfigurationService cs = serviceAccess
-                .getService(ConfigurationService.class);
+        ConfigurationService cs = getConfigurationService(httpRequest);
         if (httpRequest.getRequestURL() == null)
             return false;
         String requestUrl = httpRequest.getRequestURL().toString();
         String queryString = httpRequest.getQueryString() == null ? ""
                 : httpRequest.getQueryString();
 
-        String mpRedirect = "";
+        String mpRedirect;
         if (ADMValidator.isHttpsScheme(requestUrl)) {
             mpRedirect = getRedirectMpUrlHttps(cs);
         } else {

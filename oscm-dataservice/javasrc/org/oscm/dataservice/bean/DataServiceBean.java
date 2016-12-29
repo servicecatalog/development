@@ -17,88 +17,33 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import javax.annotation.Resource;
 import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
-import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
-import javax.persistence.NonUniqueResultException;
-import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
-import javax.persistence.TypedQuery;
+import javax.persistence.*;
 import javax.sql.DataSource;
 import javax.xml.ws.WebServiceContext;
 
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.dataservice.local.DataSet;
 import org.oscm.dataservice.local.SqlQuery;
-import org.oscm.domobjects.BillingAdapter;
-import org.oscm.domobjects.BillingContact;
-import org.oscm.domobjects.Category;
-import org.oscm.domobjects.DomainHistoryObject;
-import org.oscm.domobjects.DomainObject;
-import org.oscm.domobjects.Event;
-import org.oscm.domobjects.LocalizedResource;
-import org.oscm.domobjects.MarketingPermission;
-import org.oscm.domobjects.Marketplace;
-import org.oscm.domobjects.MarketplaceAccess;
-import org.oscm.domobjects.MarketplaceToOrganization;
-import org.oscm.domobjects.OnBehalfUserReference;
-import org.oscm.domobjects.OperationParameter;
-import org.oscm.domobjects.OperationRecord;
-import org.oscm.domobjects.Organization;
-import org.oscm.domobjects.OrganizationReference;
-import org.oscm.domobjects.OrganizationRole;
-import org.oscm.domobjects.OrganizationSetting;
-import org.oscm.domobjects.OrganizationToCountry;
-import org.oscm.domobjects.PSP;
+import org.oscm.domobjects.*;
 import org.oscm.domobjects.Parameter;
-import org.oscm.domobjects.ParameterDefinition;
-import org.oscm.domobjects.ParameterOption;
-import org.oscm.domobjects.PaymentInfo;
-import org.oscm.domobjects.PaymentType;
-import org.oscm.domobjects.PersistenceReflection;
-import org.oscm.domobjects.PlatformSetting;
-import org.oscm.domobjects.PlatformUser;
-import org.oscm.domobjects.PricedParameter;
-import org.oscm.domobjects.Product;
-import org.oscm.domobjects.ProductReview;
-import org.oscm.domobjects.ProductToPaymentType;
-import org.oscm.domobjects.Report;
-import org.oscm.domobjects.ReportResultCache;
-import org.oscm.domobjects.RoleDefinition;
-import org.oscm.domobjects.Subscription;
-import org.oscm.domobjects.SupportedCountry;
-import org.oscm.domobjects.SupportedCurrency;
-import org.oscm.domobjects.SupportedLanguage;
-import org.oscm.domobjects.Tag;
-import org.oscm.domobjects.TechnicalProduct;
-import org.oscm.domobjects.TechnicalProductOperation;
-import org.oscm.domobjects.TechnicalProductTag;
-import org.oscm.domobjects.TriggerDefinition;
-import org.oscm.domobjects.Uda;
-import org.oscm.domobjects.UdaDefinition;
-import org.oscm.domobjects.UnitRoleAssignment;
-import org.oscm.domobjects.UserGroup;
-import org.oscm.domobjects.UserGroupToInvisibleProduct;
-import org.oscm.domobjects.UserGroupToUser;
-import org.oscm.domobjects.UserRole;
 import org.oscm.domobjects.bridge.BridgeDataManager;
+import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.types.exception.DomainObjectException;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.SaaSSystemException;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
+import org.oscm.types.constants.Configuration;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
 import org.oscm.types.exceptions.InvalidUserSession;
 
@@ -281,9 +226,12 @@ public class DataServiceBean implements DataService {
             classEnum = DomainObjectException.ClassEnum.UNIT_ROLE_ASSIGNMENT;
         } else if (objclass == MarketplaceAccess.class) {
             classEnum = DomainObjectException.ClassEnum.MARKETPLACE_ACCESS;
+        } else if (objclass == Tenant.class) {
+            classEnum = DomainObjectException.ClassEnum.TENANT;
+        } else if (objclass == TenantSetting.class) {
+            classEnum = DomainObjectException.ClassEnum.TENANT_SETTING;
         }
-        ;
-
+        
         return classEnum;
     }
 
@@ -334,11 +282,73 @@ public class DataServiceBean implements DataService {
 
     @Override
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
+    public PlatformUser find(PlatformUser pu) {
+        Query qry;
+        if (isNotDefaultTenant(pu.getTenantId())) {
+            qry = em.createNamedQuery("PlatformUser.findByBusinessKey",
+                    PlatformUser.class);
+            qry.setParameter("tenantId", pu.getTenantId());
+        } else {
+            qry = em.createNamedQuery("PlatformUser.findByUserId",
+                    PlatformUser.class);
+        }
+        qry.setParameter("userId", pu.getUserId());
+        try {
+            PlatformUser singleResult = (PlatformUser) qry.getSingleResult();
+            assignTenantId(singleResult, singleResult.getOrganization());
+            return singleResult;
+        } catch (NoResultException e) {
+            return null;
+        } catch (NonUniqueResultException e) {
+            String qrykey = "(" + "tenantId='" + pu.getTenantId() + "',"
+                    + "userId='" + pu.getUserId() + ")";
+            String msgText = "Non-Unique Business Key Search for PlatformUser and BusinessKey "
+                    + qrykey;
+            throw new SaaSSystemException(msgText, e);
+        } catch (Exception e) {
+            throw new SaaSSystemException(e);
+        }
+    }
+
+    protected void assignTenantId(PlatformUser singleResult,
+            Organization organization) {
+        Tenant tenant = organization.getTenant();
+        if (tenant != null) {
+            singleResult.setTenantId(tenant.getTenantId());
+        }
+    }
+
+    private boolean isNotDefaultTenant(String tenantId) {
+        String defaultTenant = getDefaultTenant();
+        return StringUtils.isNotBlank(tenantId)
+                && !StringUtils.equals(tenantId, defaultTenant);
+    }
+
+    private String getDefaultTenant() {
+        TypedQuery<ConfigurationSetting> query = em.createNamedQuery(
+                "ConfigurationSetting.findByInfoAndContext",
+                ConfigurationSetting.class);
+        query.setParameter("informationId",
+                ConfigurationKey.SSO_DEFAULT_TENANT_ID);
+        query.setParameter("contextId", Configuration.GLOBAL_CONTEXT);
+        try {
+            return query.getSingleResult().getValue();
+        } catch (Exception exc) {
+            return null;
+        }
+    }
+
+    @Override
+    @TransactionAttribute(TransactionAttributeType.MANDATORY)
     public DomainObject<?> getReferenceByBusinessKey(
             DomainObject<?> findTemplate) throws ObjectNotFoundException {
         setThreadLocals();
-        DomainObject<?> result = null;
-        result = find(findTemplate);
+        DomainObject<?> result;
+        if (findTemplate instanceof PlatformUser) {
+            result = find((PlatformUser) findTemplate);
+        } else {
+            result = find(findTemplate);
+        }
         if (result == null) {
             DomainObjectException.ClassEnum classEnum = class2Enum(findTemplate
                     .getClass());
@@ -515,6 +525,9 @@ public class DataServiceBean implements DataService {
         if (result == null) {
             throw new ObjectNotFoundException(class2Enum(objclass),
                     String.valueOf(id));
+        } else if (result instanceof PlatformUser) {
+            PlatformUser user = (PlatformUser) result;
+            assignTenantId(user, user.getOrganization());
         }
         return result;
     }
@@ -567,7 +580,12 @@ public class DataServiceBean implements DataService {
         Map<String, String> businessKeyMap = PersistenceReflection
                 .getBusinessKeys(obj);
         if (businessKeyMap != null) {
-            DomainObject<?> search = find(obj);
+            DomainObject<?> search;
+            if (obj instanceof PlatformUser) {
+                search = find((PlatformUser) obj);
+            } else {
+                search = find(obj);
+            }
             if (search != null && obj.getKey() != search.getKey()) {
                 DomainObjectException.ClassEnum classEnum = class2Enum(obj
                         .getClass());
@@ -674,6 +692,10 @@ public class DataServiceBean implements DataService {
         Organization org = user.getOrganization();
         if (checkOrgDeregistration(org, lookupOnly)) {
             // org still valid => return user
+            Tenant tenant = org.getTenant();
+            if (tenant != null) {
+                assignTenantId(user, org);
+            }
             return user;
         }
         // lookup case => org not valid => no user
@@ -871,6 +893,25 @@ public class DataServiceBean implements DataService {
     @Override
     public EntityManager getEntityManager() {
         return em;
+    }
+
+    @Override
+    public void persistPlatformUserWithTenant(PlatformUser pu, String tenantId)
+            throws NonUniqueBusinessKeyException {
+        setThreadLocals();
+        // Query namedQuery =
+        // createNamedQuery("PlatformUser.findByUserIdAndTenant");
+        // namedQuery.setParameter("userId", pu.getUserId());
+        // namedQuery.setParameter("tenantId", tenantId);
+        // List users = namedQuery.getResultList();
+        PlatformUser user = find(pu);
+        if (user != null) {
+            DomainObjectException.ClassEnum classEnum = class2Enum(pu
+                    .getClass());
+            throw new NonUniqueBusinessKeyException(classEnum, pu.getUserId()
+                    + " " + tenantId);
+        }
+        em.persist(pu);
     }
 
 }

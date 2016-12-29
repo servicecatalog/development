@@ -19,30 +19,30 @@ import javax.ejb.EJBException;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.oscm.app.iaas.ProcessManagerBean;
 import org.oscm.app.iaas.PropertyHandler;
 import org.oscm.app.iaas.data.FlowState;
 import org.oscm.app.iaas.data.Operation;
 import org.oscm.app.iaas.i18n.Messages;
-import org.oscm.app.v1_0.APPlatformServiceFactory;
-import org.oscm.app.v1_0.data.ControllerSettings;
-import org.oscm.app.v1_0.data.InstanceDescription;
-import org.oscm.app.v1_0.data.InstanceStatus;
-import org.oscm.app.v1_0.data.InstanceStatusUsers;
-import org.oscm.app.v1_0.data.LocalizedText;
-import org.oscm.app.v1_0.data.OperationParameter;
-import org.oscm.app.v1_0.data.ProvisioningSettings;
-import org.oscm.app.v1_0.data.ServiceUser;
-import org.oscm.app.v1_0.exceptions.APPlatformException;
-import org.oscm.app.v1_0.exceptions.AbortException;
-import org.oscm.app.v1_0.exceptions.InstanceExistsException;
-import org.oscm.app.v1_0.exceptions.InstanceNotAliveException;
-import org.oscm.app.v1_0.exceptions.SuspendException;
-import org.oscm.app.v1_0.intf.APPlatformController;
-import org.oscm.app.v1_0.intf.APPlatformService;
+import org.oscm.app.v2_0.APPlatformServiceFactory;
+import org.oscm.app.v2_0.data.ControllerSettings;
+import org.oscm.app.v2_0.data.InstanceDescription;
+import org.oscm.app.v2_0.data.InstanceStatus;
+import org.oscm.app.v2_0.data.InstanceStatusUsers;
+import org.oscm.app.v2_0.data.LocalizedText;
+import org.oscm.app.v2_0.data.OperationParameter;
+import org.oscm.app.v2_0.data.ProvisioningSettings;
+import org.oscm.app.v2_0.data.ServiceUser;
+import org.oscm.app.v2_0.data.Setting;
+import org.oscm.app.v2_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.exceptions.AbortException;
+import org.oscm.app.v2_0.exceptions.InstanceExistsException;
+import org.oscm.app.v2_0.exceptions.InstanceNotAliveException;
+import org.oscm.app.v2_0.exceptions.SuspendException;
+import org.oscm.app.v2_0.intf.APPlatformController;
+import org.oscm.app.v2_0.intf.APPlatformService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class IaasController extends ProvisioningValidator implements
         APPlatformController {
@@ -97,6 +97,7 @@ public abstract class IaasController extends ProvisioningValidator implements
             InstanceDescription id = new InstanceDescription();
             id.setInstanceId(getInstancePrefix() + UUID.randomUUID().toString());
             id.setChangedParameters(settings.getParameters());
+            id.setChangedAttributes(settings.getAttributes());
             return id;
         } catch (APPlatformException e) {
             // pass on
@@ -133,6 +134,7 @@ public abstract class IaasController extends ProvisioningValidator implements
             }
             InstanceStatus result = new InstanceStatus();
             result.setChangedParameters(settings.getParameters());
+            result.setChangedAttributes(settings.getAttributes());
             return result;
         } catch (Exception e) {
             logger.error("Error while scheduling VSERVER instance deletion", e);
@@ -164,6 +166,7 @@ public abstract class IaasController extends ProvisioningValidator implements
             }
             InstanceStatus result = new InstanceStatus();
             result.setChangedParameters(newSettings.getParameters());
+            result.setChangedAttributes(newSettings.getAttributes());
             return result;
         } catch (APPlatformException e) {
             throw e;
@@ -192,6 +195,7 @@ public abstract class IaasController extends ProvisioningValidator implements
             // Update provisioning status description
             status.setDescription(getProvisioningStatusText(paramHandler));
             status.setChangedParameters(settings.getParameters());
+            status.setChangedAttributes(settings.getAttributes());
             return status;
         } catch (SuspendException | AbortException | InstanceNotAliveException
                 | InstanceExistsException e) {
@@ -214,7 +218,7 @@ public abstract class IaasController extends ProvisioningValidator implements
     private void filterStackTrace(Exception e) {
         if (e != null) {
             StackTraceElement[] stackTrace = e.getStackTrace();
-            List<StackTraceElement> result = new LinkedList<StackTraceElement>();
+            List<StackTraceElement> result = new LinkedList<>();
             if (stackTrace != null) {
                 boolean startFiltering = false;
                 for (StackTraceElement ste : stackTrace) {
@@ -238,15 +242,16 @@ public abstract class IaasController extends ProvisioningValidator implements
         return ste != null && ste.getClassName().startsWith("org.oscm");
     }
 
-    private void debugHashMap(String name, HashMap<String, String> map) {
+    private void debugHashMap(String name, HashMap<String, Setting> map) {
         if (map == null) {
             logger.debug("Map is null: " + name);
             return;
         }
         logger.debug("Contents of map " + name);
         for (String key : map.keySet()) {
-            String value = "" + map.get(key);
-            if (key.toLowerCase().endsWith("_pwd")) {
+            Setting setting = map.get(key);
+            String value = setting != null ? setting.getValue() : "";
+            if (setting != null && setting.isEncrypted()) {
                 logger.debug(key + " => " + value.replaceAll(".", "*"));
             } else {
                 logger.debug(key + " => " + value);
@@ -367,6 +372,7 @@ public abstract class IaasController extends ProvisioningValidator implements
             }
             InstanceStatus result = new InstanceStatus();
             result.setChangedParameters(settings.getParameters());
+            result.setChangedAttributes(settings.getAttributes());
             return result;
         } catch (Exception e) {
             logger.error("Error while scheduling instance activation", e);
@@ -390,6 +396,7 @@ public abstract class IaasController extends ProvisioningValidator implements
             }
             InstanceStatus result = new InstanceStatus();
             result.setChangedParameters(settings.getParameters());
+            result.setChangedAttributes(settings.getAttributes());
             return result;
         } catch (Exception e) {
             logger.error("Error while scheduling instance deactivation", e);
@@ -483,6 +490,7 @@ public abstract class IaasController extends ProvisioningValidator implements
             status.setIsReady(false);
             // settings changed in propertyHandler
             status.setChangedParameters(settings.getParameters());
+            status.setChangedAttributes(settings.getAttributes());
         }
         return status;
     }
@@ -585,11 +593,12 @@ public abstract class IaasController extends ProvisioningValidator implements
         status.setRunWithTimer(true);
         status.setDescription(getProvisioningStatusText(propertyHandler));
         status.setChangedParameters(settings.getParameters());
+        status.setChangedAttributes(settings.getAttributes());
         return status;
     }
 
-    private void handleServiceParameters(HashMap<String, String> allParams,
-            HashMap<String, String> serviceParams) {
+    private void handleServiceParameters(HashMap<String, Setting> allParams,
+            HashMap<String, Setting> serviceParams) {
         for (String paraKey : allParams.keySet()) {
             if (!serviceParams.containsKey(paraKey)) {
                 serviceParams.put(paraKey, allParams.get(paraKey));

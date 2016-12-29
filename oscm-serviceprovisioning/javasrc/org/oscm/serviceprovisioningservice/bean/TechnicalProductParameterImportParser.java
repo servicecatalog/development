@@ -10,17 +10,16 @@ package org.oscm.serviceprovisioningservice.bean;
 
 import java.math.BigDecimal;
 
-import org.xml.sax.Attributes;
-
 import org.oscm.domobjects.ParameterDefinition;
 import org.oscm.domobjects.TechnicalProduct;
-import org.oscm.serviceprovisioningservice.verification.UpdateParameterCheck;
 import org.oscm.internal.types.enumtypes.ParameterModificationType;
 import org.oscm.internal.types.enumtypes.ParameterType;
 import org.oscm.internal.types.enumtypes.ParameterValueType;
+import org.oscm.internal.types.exception.DomainObjectException.ClassEnum;
 import org.oscm.internal.types.exception.ImportException;
 import org.oscm.internal.types.exception.UpdateConstraintException;
-import org.oscm.internal.types.exception.DomainObjectException.ClassEnum;
+import org.oscm.serviceprovisioningservice.verification.UpdateParameterCheck;
+import org.xml.sax.Attributes;
 
 /**
  * @author yuyin
@@ -144,17 +143,16 @@ class TechnicalProductParameterImportParser {
                 break;
             }
         } catch (IllegalArgumentException ex) {
-            throw new ImportException(
-                    String.format(
-                            "The value '%s' for the attribute '%s' does not match with the required type %s.",
-                            value, attribute, type.name()));
+            throw new ImportException(String.format(
+                    "The value '%s' for the attribute '%s' does not match with the required type %s.",
+                    value, attribute, type.name()));
         }
 
     }
 
     private boolean isBoolValue(String value) {
-        return (Boolean.TRUE.toString().equals(value) || Boolean.FALSE
-                .toString().equals(value));
+        return (Boolean.TRUE.toString().equals(value)
+                || Boolean.FALSE.toString().equals(value));
     }
 
     /**
@@ -226,8 +224,8 @@ class TechnicalProductParameterImportParser {
             paramDef.setConfigurable(true);
         }
         if (!isBlank(modificationType)) {
-            paramDef.setModificationType(ParameterModificationType
-                    .valueOf(modificationType));
+            paramDef.setModificationType(
+                    ParameterModificationType.valueOf(modificationType));
         } else {
             paramDef.setModificationType(ParameterModificationType.STANDARD);
         }
@@ -311,9 +309,10 @@ class TechnicalProductParameterImportParser {
         }
         UpdateParameterCheck.updateParameterDefinition(paramDef, techProduct,
                 modificationType);
-        if (isNewValue(paramDef.getModificationType().name(), modificationType)) {
-            paramDef.setModificationType(ParameterModificationType
-                    .valueOf(modificationType));
+        if (isNewValue(paramDef.getModificationType().name(),
+                modificationType)) {
+            paramDef.setModificationType(
+                    ParameterModificationType.valueOf(modificationType));
             isDirty = true;
         }
 
@@ -377,9 +376,9 @@ class TechnicalProductParameterImportParser {
      * @throws ImportException
      */
     ParameterDefinition createOrUpdateProductParameterDefinition(String id,
-            ParameterValueType valueType, String mandatory,
-            String defaultValue, String minValue, String maxValue,
-            String configurable, String modificationType)
+            ParameterValueType valueType, String mandatory, String defaultValue,
+            String minValue, String maxValue, String configurable,
+            String modificationType)
             throws UpdateConstraintException, ImportException {
         if (paramDef == null) {
             createParameterDefinition(id, valueType, mandatory, defaultValue,
@@ -413,6 +412,7 @@ class TechnicalProductParameterImportParser {
 
         if (valueType == ParameterValueType.BOOLEAN
                 || valueType == ParameterValueType.STRING
+                || valueType == ParameterValueType.PWD
                 || valueType == ParameterValueType.DURATION
                 || valueType == ParameterValueType.ENUMERATION) {
             setDefaultValueForNonDigitalTpye(defaultValue, valueType);
@@ -459,8 +459,8 @@ class TechnicalProductParameterImportParser {
                 tempDefaultValueForEnumeration = defaultValue;
             }
         } else {
-            paramDef.setDefaultValue(isBlank(defaultValue) ? null
-                    : defaultValue);
+            paramDef.setDefaultValue(
+                    isBlank(defaultValue) ? null : defaultValue);
         }
     }
 
@@ -506,8 +506,8 @@ class TechnicalProductParameterImportParser {
      * @return true if the given oldVal is not equals with newVal
      */
     boolean isNewValue(Object oldVal, Long newVal) {
-        return oldVal == null && newVal != null || oldVal != null
-                && !oldVal.equals(newVal);
+        return oldVal == null && newVal != null
+                || oldVal != null && !oldVal.equals(newVal);
     }
 
     /**
@@ -516,8 +516,8 @@ class TechnicalProductParameterImportParser {
      * @return true if the given oldVal is not equals with newVal
      */
     boolean isNewValue(Object oldVal, String newVal) {
-        return oldVal == null && !isBlank(newVal) || oldVal != null
-                && !oldVal.equals(newVal);
+        return oldVal == null && !isBlank(newVal)
+                || oldVal != null && !oldVal.equals(newVal);
     }
 
     /**

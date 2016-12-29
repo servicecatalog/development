@@ -8,6 +8,8 @@
 
 package org.oscm.saml2.api;
 
+import static org.oscm.internal.types.exception.NotExistentTenantException.Reason.MISSING_TEANT_ID_IN_SAML;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -20,11 +22,10 @@ import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.codec.binary.Base64;
-
 import org.oscm.converter.XMLConverter;
+import org.oscm.internal.types.exception.NotExistentTenantException;
 import org.oscm.internal.types.exception.SessionIndexNotFoundException;
 import org.oscm.internal.types.exception.UserIdNotFoundException;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -46,6 +47,13 @@ public class SAMLResponseExtractor {
             + "//*[local-name()='Attribute'][@Name='userid']" //
             + "/*[local-name()='AttributeValue']";
 
+    private static final String USER_SAML2_ATTRIBUTE_TENANTID_XPATH_EXPR = "//*[local-name()='Assertion']" //
+            + "//*[local-name()='AttributeStatement']" //
+            + "//*[local-name()='Attribute'][@Name='tenantID']" //
+            + "/*[local-name()='AttributeValue']";
+
+    private static final String USER_SAML2_ATTRIBUTE_ISSUER_ID_XPATH_EXPR = "//*[local-name()='Issuer']";
+
     private static final String USER_SAML2_ATTRIBUTE_NAME_XPATH_EXPR = "//*[local-name()='Assertion']" //
             + "//*[local-name()='AttributeStatement']" //
             + "//*[local-name()='Attribute'][@Name='name']" //
@@ -56,6 +64,11 @@ public class SAMLResponseExtractor {
             + "//*[local-name()='Attribute'][@AttributeName='userid']" //
             + "/*[local-name()='AttributeValue']";
 
+    private static final String USER_SAML1_ATTRIBUTE_TENANTID_XPATH_EXPR = "//*[local-name()='Assertion']" //
+            + "//*[local-name()='AttributeStatement']" //
+            + "//*[local-name()='Attribute'][@AttributeName='tenantID']" //
+            + "/*[local-name()='AttributeValue']";
+
     private static final String USER_SAML1_ATTRIBUTE_NAME_XPATH_EXPR = "//*[local-name()='Assertion']" //
             + "//*[local-name()='AttributeStatement']" //
             + "//*[local-name()='Attribute'][@AttributeName='name']" //
@@ -64,9 +77,6 @@ public class SAMLResponseExtractor {
     private static final String SESSION_INDEX_SAML2_ATTRIBUTE_NAME_XPATH_EXPR = "//*[local-name()='Assertion']//*[local-name()='AuthnStatement']//@*[local-name()='SessionIndex']";
 
     private static final String STATUS_LOGOUT_RESPONSE_SAML2_XPATH_EXPR = "//*[local-name()='Status']//*[local-name()='StatusCode']//@*[local-name()='Value']";
-
-
-
 
     /**
      * Retrieves the userid from an encoded saml:Response String.
@@ -93,6 +103,27 @@ public class SAMLResponseExtractor {
         }
 
         return userId;
+    }
+
+    /**
+     * Retrieves the userid from an encoded saml:Response String.
+     *
+     * @param encodedSamlResponse
+     *            the encoded saml response
+     * @return the userid as a String
+     * @throws UnsupportedEncodingException
+     */
+    public String getTenantID(String encodedSamlResponse) {
+
+        String tenantID = null;
+
+        try {
+            tenantID = getTenantIdDecoded(new String(decode(encodedSamlResponse)));
+        } catch (UnsupportedEncodingException exception) {
+            // do nothing. Default tenatn will be used.
+        }
+
+        return tenantID;
     }
 
     /**
@@ -184,6 +215,35 @@ public class SAMLResponseExtractor {
         return userid;
     }
 
+    private String getTenantIdDecoded(String samlResponse) {
+        String tenantID = null;
+
+        try {
+            Document document = XMLConverter.convertToDocument(samlResponse,
+                    true);
+
+            tenantID = extractTenantId(document);
+        } catch (XPathExpressionException | ParserConfigurationException
+                | SAXException | IOException exception) {
+            //do nothing. Default tenant will be used.
+        }
+        return tenantID;
+    }
+
+    private String getIssuerIdDecoded(String samlResponse) throws NotExistentTenantException {
+        String issuerID;
+
+        try {
+            Document document = XMLConverter.convertToDocument(samlResponse,
+                    true);
+            issuerID = extractIssuerId(document);
+        } catch (XPathExpressionException | ParserConfigurationException
+                | SAXException | IOException exception) {
+            throw new NotExistentTenantException(MISSING_TEANT_ID_IN_SAML);
+        }
+        return issuerID;
+    }
+
     String extractUserId(Document samlResponse) throws XPathExpressionException {
         String userId = XMLConverter.getNodeTextContentByXPath(samlResponse,
                 USER_SAML2_ATTRIBUTE_USERID_XPATH_EXPR);
@@ -205,6 +265,26 @@ public class SAMLResponseExtractor {
 
         userId = XMLConverter.getNodeTextContentByXPath(samlResponse,
                 USER_SAML1_ATTRIBUTE_NAME_XPATH_EXPR);
+        return userId;
+    }
+
+    String extractTenantId(Document samlResponse)
+            throws XPathExpressionException {
+
+        String tenantId = XMLConverter.getNodeTextContentByXPath(samlResponse,
+                USER_SAML2_ATTRIBUTE_TENANTID_XPATH_EXPR);
+        if (tenantId != null) {
+            return tenantId;
+        }
+
+        tenantId = XMLConverter.getNodeTextContentByXPath(samlResponse,
+                USER_SAML1_ATTRIBUTE_TENANTID_XPATH_EXPR);
+        return tenantId;
+    }
+
+    String extractIssuerId(Document samlResponse) throws XPathExpressionException {
+        String userId = XMLConverter.getNodeTextContentByXPath(samlResponse,
+                USER_SAML2_ATTRIBUTE_ISSUER_ID_XPATH_EXPR);
         return userId;
     }
 
@@ -232,6 +312,21 @@ public class SAMLResponseExtractor {
         }
         return getUserIdDecoded(samlAssertionString);
     }
+    
+    public String getTenantId(SAMLAssertion samlResponse)
+            throws NotExistentTenantException {
+        String samlAssertionString;
+        try {
+            Element samlAssertion = SAMLUtil.createSAMLAssertion(samlResponse
+                    .getSamlReader());
+            samlAssertionString = XMLConverter.convertToString(samlAssertion,
+                    false);
+        } catch (XWSSecurityException | XMLStreamException
+                | TransformerException exception) {
+            throw new NotExistentTenantException(MISSING_TEANT_ID_IN_SAML);
+        }
+        return getTenantIdDecoded(samlAssertionString);
+    }
 
     public byte[] decode(String encodedString)
             throws UnsupportedEncodingException {
@@ -245,13 +340,13 @@ public class SAMLResponseExtractor {
             decodedSamlResponse = decode(encodedSamlResponse);
             pureSamlResponse = new String(decodedSamlResponse);
         } catch (UnsupportedEncodingException e) {
-            //TODO: log exception and create specific one
+            // TODO: log exception and create specific one
             throw new RuntimeException(e);
         }
         try {
             pureSamlResponse = inflate(decodedSamlResponse);
         } catch (IOException e) {
-            //TODO: log exception as info
+            // TODO: log exception as info
         }
         return pureSamlResponse.contains("LogoutResponse");
     }
@@ -285,7 +380,6 @@ public class SAMLResponseExtractor {
         return result;
     }
 
-
     public boolean isFromLogin(String samlResponse) {
         byte[] decodedSamlResponse;
         String pureSamlResponse;
@@ -293,15 +387,27 @@ public class SAMLResponseExtractor {
             decodedSamlResponse = decode(samlResponse);
             pureSamlResponse = new String(decodedSamlResponse);
         } catch (UnsupportedEncodingException e) {
-            //TODO: log exception and create specific one
+            // TODO: log exception and create specific one
             throw new RuntimeException(e);
         }
         try {
             pureSamlResponse = inflate(decodedSamlResponse);
         } catch (IOException e) {
-            //TODO: log exception as info
+            // TODO: log exception as info
         }
         return pureSamlResponse.contains("samlp:Response") && pureSamlResponse.contains("SessionIndex");
 
+    }
+
+    public String getIssuer(String samlResponse)
+            throws NotExistentTenantException {
+        String issuer;
+        try {
+            issuer = getIssuerIdDecoded(new String(decode(samlResponse)));
+        } catch (UnsupportedEncodingException exception) {
+            throw new NotExistentTenantException(MISSING_TEANT_ID_IN_SAML);
+        }
+
+        return issuer;
     }
 }

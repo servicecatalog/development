@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import org.junit.Test;
-
 import org.oscm.applicationservice.bean.ApplicationServiceStub;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
@@ -31,21 +30,10 @@ import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.TechnicalProduct;
 import org.oscm.domobjects.TriggerDefinition;
 import org.oscm.domobjects.TriggerProcess;
+import org.oscm.encrypter.AESEncrypter;
 import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.identityservice.assembler.UserDataAssembler;
-import org.oscm.serviceprovisioningservice.assembler.ProductAssembler;
-import org.oscm.tenantprovisioningservice.bean.TenantProvisioningServiceBean;
-import org.oscm.test.EJBTestBase;
-import org.oscm.test.data.Organizations;
-import org.oscm.test.data.Products;
-import org.oscm.test.data.Subscriptions;
-import org.oscm.test.data.TechnicalProducts;
-import org.oscm.test.ejb.TestContainer;
-import org.oscm.test.stubs.IdentityServiceStub;
-import org.oscm.test.stubs.TriggerQueueServiceStub;
-import org.oscm.triggerservice.local.TriggerMessage;
-import org.oscm.triggerservice.local.TriggerProcessMessageData;
 import org.oscm.internal.intf.SubscriptionService;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.ServiceAccessType;
@@ -59,6 +47,19 @@ import org.oscm.internal.vo.VOSubscription;
 import org.oscm.internal.vo.VOUda;
 import org.oscm.internal.vo.VOUsageLicense;
 import org.oscm.internal.vo.VOUser;
+import org.oscm.serviceprovisioningservice.assembler.ProductAssembler;
+import org.oscm.tenantprovisioningservice.bean.TenantProvisioningServiceBean;
+import org.oscm.test.EJBTestBase;
+import org.oscm.test.data.Organizations;
+import org.oscm.test.data.Products;
+import org.oscm.test.data.Subscriptions;
+import org.oscm.test.data.TechnicalProducts;
+import org.oscm.test.ejb.TestContainer;
+import org.oscm.test.stubs.ConfigurationServiceStub;
+import org.oscm.test.stubs.IdentityServiceStub;
+import org.oscm.test.stubs.TriggerQueueServiceStub;
+import org.oscm.triggerservice.local.TriggerMessage;
+import org.oscm.triggerservice.local.TriggerProcessMessageData;
 
 public class SubscriptionServiceBeanCutOffIT extends EJBTestBase {
     DataService mgr;
@@ -67,7 +68,7 @@ public class SubscriptionServiceBeanCutOffIT extends EJBTestBase {
 
     boolean isTriggerQueueService_sendSuspendingMessageCalled = false;
     boolean isTriggerQueueService_sendAllNonSuspendingMessageCalled = false;
-    List<TriggerType> usedTriggersTypes = new LinkedList<TriggerType>();
+    List<TriggerType> usedTriggersTypes = new LinkedList<>();
     TriggerDefinition td;
 
     // supplier
@@ -101,6 +102,7 @@ public class SubscriptionServiceBeanCutOffIT extends EJBTestBase {
 
     private void addBeansToContainer(TestContainer container) throws Exception {
         container.enableInterfaceMocking(true);
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         container.addBean(new SubscriptionServiceBean());
         container.addBean(new ModifyAndUpgradeSubscriptionBean());
@@ -144,6 +146,7 @@ public class SubscriptionServiceBeanCutOffIT extends EJBTestBase {
 
     private void createOrganizations() throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 techProv = Organizations.createOrganization(mgr, techProvId,
                         OrganizationRoleType.TECHNOLOGY_PROVIDER,
@@ -179,16 +182,17 @@ public class SubscriptionServiceBeanCutOffIT extends EJBTestBase {
 
     private void createTechnicalProducts() throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 technicalProductAsync = TechnicalProducts
                         .createTechnicalProduct(mgr, supplier,
                                 "technicalProductAsyncId", /* asyncProvisioning */
                                 true, ServiceAccessType.LOGIN);
 
-                technicalProductSync = TechnicalProducts
-                        .createTechnicalProduct(mgr, supplier,
-                                "technicalProductSyncId", /* asyncProvisioning */
-                                false, ServiceAccessType.LOGIN);
+                technicalProductSync = TechnicalProducts.createTechnicalProduct(
+                        mgr, supplier,
+                        "technicalProductSyncId", /* asyncProvisioning */
+                        false, ServiceAccessType.LOGIN);
                 return null;
             }
         });
@@ -196,6 +200,7 @@ public class SubscriptionServiceBeanCutOffIT extends EJBTestBase {
 
     private void createProducts() throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 productSync = Products.createProduct(supplier,
                         technicalProductSync, /* chargeable */false,
@@ -209,13 +214,13 @@ public class SubscriptionServiceBeanCutOffIT extends EJBTestBase {
                 productAsync = Products.setStatusForProduct(mgr, productAsync,
                         ServiceStatus.ACTIVE);
 
-                productBrokerCopy = Products.createProductResaleCopy(
-                        productSync, broker, mgr);
+                productBrokerCopy = Products
+                        .createProductResaleCopy(productSync, broker, mgr);
                 productBrokerCopy = Products.setStatusForProduct(mgr,
                         productBrokerCopy, ServiceStatus.ACTIVE);
 
-                productResellerCopy = Products.createProductResaleCopy(
-                        productSync, reseller, mgr);
+                productResellerCopy = Products
+                        .createProductResaleCopy(productSync, reseller, mgr);
                 productResellerCopy = Products.setStatusForProduct(mgr,
                         productResellerCopy, ServiceStatus.ACTIVE);
                 return null;
@@ -226,9 +231,10 @@ public class SubscriptionServiceBeanCutOffIT extends EJBTestBase {
     private Organization setCutOffDayForOrganization(final long orgKey,
             final int cutOffDay) throws Exception {
         return runTX(new Callable<Organization>() {
+            @Override
             public Organization call() throws Exception {
-                Organization organization = mgr
-                        .find(Organization.class, orgKey);
+                Organization organization = mgr.find(Organization.class,
+                        orgKey);
                 organization.setCutOffDay(cutOffDay);
                 mgr.persist(organization);
                 return organization;
@@ -239,6 +245,7 @@ public class SubscriptionServiceBeanCutOffIT extends EJBTestBase {
     private int getCutOffDayFromSubscription(final long subscriptionKey)
             throws Exception {
         Integer result = runTX(new Callable<Integer>() {
+            @Override
             public Integer call() throws Exception {
                 Subscription subscription = mgr.find(Subscription.class,
                         subscriptionKey);
@@ -251,6 +258,7 @@ public class SubscriptionServiceBeanCutOffIT extends EJBTestBase {
     private VOService getProductAndAssemble(final long productKey)
             throws Exception {
         return runTX(new Callable<VOService>() {
+            @Override
             public VOService call() throws Exception {
                 Product product = mgr.getReference(Product.class, productKey);
                 return ProductAssembler.toVOProduct(product,
@@ -263,7 +271,7 @@ public class SubscriptionServiceBeanCutOffIT extends EJBTestBase {
         VOUser admin = UserDataAssembler.toVOUser(user);
         VOUsageLicense voUsageLicense = new VOUsageLicense();
         voUsageLicense.setUser(admin);
-        List<VOUsageLicense> users = new ArrayList<VOUsageLicense>();
+        List<VOUsageLicense> users = new ArrayList<>();
         users = Arrays.asList(voUsageLicense);
         return users;
     }
@@ -277,6 +285,7 @@ public class SubscriptionServiceBeanCutOffIT extends EJBTestBase {
 
     @Override
     protected void setup(TestContainer container) throws Exception {
+        AESEncrypter.generateKey();
         addBeansToContainer(container);
 
         mgr = container.get(DataService.class);

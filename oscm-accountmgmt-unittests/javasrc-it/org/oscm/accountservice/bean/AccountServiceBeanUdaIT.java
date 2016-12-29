@@ -244,7 +244,7 @@ public class AccountServiceBeanUdaIT extends EJBTestBase {
         prepareUdaOnSubscription("UDA1", "UDA2", "UDA3");
         List<Uda> udas = prepareUdaOnCustomer("UDA1", "UDA2");
         List<VOUda> list = accountMgmt.getUdas(UdaTargetType.CUSTOMER.name(),
-                customer.getKey());
+                customer.getKey(), false);
         assertNotNull(list);
         assertEquals(2, list.size());
         verify(udas.get(0), list.get(0));
@@ -258,7 +258,7 @@ public class AccountServiceBeanUdaIT extends EJBTestBase {
         List<Uda> udas = prepareUdaOnSubscription("UDA1", "UDA2", "UDA3");
         List<VOUda> list = accountMgmt.getUdas(
                 UdaTargetType.CUSTOMER_SUBSCRIPTION.name(), udas.get(0)
-                        .getTargetObjectKey());
+                        .getTargetObjectKey(), false);
         assertNotNull(list);
         assertEquals(udas.size(), list.size());
         verify(udas.get(0), list.get(0));
@@ -291,7 +291,7 @@ public class AccountServiceBeanUdaIT extends EJBTestBase {
             List<VOUda> udaList, boolean checkKeys) throws Exception {
         accountMgmt.saveUdas(udaList);
         List<VOUda> udas = accountMgmt.getUdas(UdaTargetType.CUSTOMER.name(),
-                customer.getKey());
+                customer.getKey(), false);
         assertNotNull(udas);
         assertEquals(2, udas.size());
         verify(uda1, udas.get(0), checkKeys);

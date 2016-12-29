@@ -96,9 +96,9 @@ public class OneTimeFeeAsyncIT extends StaticEJBTestBase {
                 dateFactorySetTime("2013-01-01 08:00:00");
                 DataService ds = container.get(DataService.class);
                 BillingAdapters.createBillingAdapter(ds,
-                                BillingAdapterIdentifier.NATIVE_BILLING.toString(),
-                                true);
-                
+                        BillingAdapterIdentifier.NATIVE_BILLING.toString(),
+                        true);
+
                 SubscriptionUpgradeSetup.baseSetup(container);
 
                 operatorUserKey = SubscriptionUpgradeSetup
@@ -1263,8 +1263,10 @@ public class OneTimeFeeAsyncIT extends StaticEJBTestBase {
         long priceModelKey3 = getSubscriptionDetails(subscription)
                 .getPriceModel().getKey();
 
-        subscription = modifySubscription(subscription.getSubscriptionId(),
-                "new pon");
+        // the purchase order number triggers provisioning now - avoid this
+        // command, has nothing to do with the test
+        // subscription = modifySubscription(subscription.getSubscriptionId(),
+        // "new pon");
 
         // upgrade 3
         dateFactorySetTime("2013-07-27 13:00:00");

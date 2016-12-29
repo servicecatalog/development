@@ -27,7 +27,6 @@ import javax.xml.ws.handler.MessageContext;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.internal.intf.MarketplaceService;
@@ -92,9 +91,11 @@ public class MarketplaceServiceWSTest {
         serviceWS.getOrganizationsForMarketplace(null);
         serviceWS.getBrandingUrl(null);
         serviceWS.saveBrandingUrl(null, null);
+        serviceWS.getAccessibleMarketplaces();
 
-        verify(requestMock, times(17)).getRemoteAddr();
+        verify(requestMock, times(18)).getRemoteAddr();
 
+        verify(serviceMock, times(1)).getAccessibleMarketplaces();
         verify(serviceMock, times(1)).getMarketplacesForOrganization();
         verify(serviceMock, times(1)).getMarketplacesForService(null);
         verify(serviceMock, times(1)).publishService(null, null);
@@ -105,9 +106,10 @@ public class MarketplaceServiceWSTest {
         verify(serviceMock, times(1)).createMarketplace(null);
         verify(serviceMock, times(1)).deleteMarketplace(null);
         verify(serviceMock, times(1)).addOrganizationsToMarketplace(null, null);
-        verify(serviceMock, times(1)).banOrganizationsFromMarketplace(null, null);
-        verify(serviceMock, times(1))
-                .removeOrganizationsFromMarketplace(null, null);
+        verify(serviceMock, times(1)).banOrganizationsFromMarketplace(null,
+                null);
+        verify(serviceMock, times(1)).removeOrganizationsFromMarketplace(null,
+                null);
         verify(serviceMock, times(1)).liftBanOrganizationsFromMarketplace(null,
                 null);
         verify(serviceMock, times(1)).getMarketplaceById(null);

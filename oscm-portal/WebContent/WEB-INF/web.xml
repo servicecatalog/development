@@ -47,17 +47,16 @@
     <param-name>javax.faces.FACELETS_SKIP_COMMENTS</param-name>
     <param-value>true</param-value>
   </context-param>
-  <!-- The following parameters are set to reduce memory consumption. These parameters might affect browser navigation. This 
-    was accepted, because at the current point it is not working anyway. -->
+  <!-- The following two parameters are set to reduce memory consumption. -->
   <context-param>
     <description></description>
     <param-name>com.sun.faces.numberOfViewsInSession</param-name>
-    <param-value>1</param-value>
+    <param-value>4</param-value>
   </context-param>
   <context-param>
     <description></description>
     <param-name>com.sun.faces.numberOfLogicalViews</param-name>
-    <param-value>1</param-value>
+    <param-value>4</param-value>
   </context-param>
   <!-- Set following parameter to -1 for disabling refresh of web content in order to avoid potential JSF component flushing. -->
   <context-param>

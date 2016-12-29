@@ -26,6 +26,7 @@ public class AssertionConsumerServiceTest {
     private final String FILE_KEYSTORE_OPENAM = "javares/openam.jks";
     private final String acsUrl = "http://estkulle:8680/test/jsp/showPostResponse.jsp";
     private final String acsUrlHttps = "https://estkulle:8681/test/jsp/showPostResponse.jsp";
+    public static final String tenantID = "8f96dede";
 
     @Before
     public void setup() {
@@ -42,7 +43,7 @@ public class AssertionConsumerServiceTest {
         response = response.replace("@RECIPIENT", acsUrl);
 
         // when
-        acs.validateResponse(response, "4040406c-1530-11e0-e869-0110283f4jj6");
+        acs.validateResponse(response, "4040406c-1530-11e0-e869-0110283f4jj6", tenantID);
 
         // then no exception expected
     }
@@ -58,7 +59,7 @@ public class AssertionConsumerServiceTest {
         response = response.replace("@RECIPIENT", acsUrlHttps);
 
         // when
-        acs.validateResponse(response, "4040406c-1530-11e0-e869-0110283f4jj6");
+        acs.validateResponse(response, "4040406c-1530-11e0-e869-0110283f4jj6", tenantID);
 
         // then no exception expected
     }
@@ -74,7 +75,7 @@ public class AssertionConsumerServiceTest {
         response = response.replace("@RECIPIENT", "https://something.else.de");
 
         // when
-        acs.validateResponse(response, "4040406c-1530-11e0-e869-0110283f4jj6");
+        acs.validateResponse(response, "4040406c-1530-11e0-e869-0110283f4jj6", tenantID);
 
         // then exception
     }

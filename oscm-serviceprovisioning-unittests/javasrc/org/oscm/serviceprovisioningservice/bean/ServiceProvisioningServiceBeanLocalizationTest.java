@@ -335,6 +335,7 @@ public class ServiceProvisioningServiceBeanLocalizationTest {
         sl.setNames(Arrays.asList(givenLocalizedText("name")));
         sl.setShortDescriptions(Arrays
                 .asList(givenLocalizedText("shortDescription")));
+        sl.setCustomTabNames(Arrays.asList(givenLocalizedText("customTabName")));
         return sl;
     }
 
@@ -477,6 +478,9 @@ public class ServiceProvisioningServiceBeanLocalizationTest {
         verify(localizer, times(1)).setLocalizedValues(1L,
                 LocalizedObjectTypes.PRODUCT_SHORT_DESCRIPTION,
                 Arrays.asList(sl.getShortDescriptions().get(0)));
+        verify(localizer, times(1)).setLocalizedValues(1L,
+                LocalizedObjectTypes.PRODUCT_CUSTOM_TAB_NAME,
+                Arrays.asList(sl.getCustomTabNames().get(0)));
     }
 
     @Test

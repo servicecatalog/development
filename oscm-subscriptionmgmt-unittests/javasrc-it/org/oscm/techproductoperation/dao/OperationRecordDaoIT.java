@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import org.junit.Test;
-
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.OperationRecord;
@@ -25,6 +24,10 @@ import org.oscm.domobjects.Product;
 import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.TechnicalProduct;
 import org.oscm.domobjects.TechnicalProductOperation;
+import org.oscm.internal.types.enumtypes.OperationStatus;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.ServiceAccessType;
+import org.oscm.internal.types.enumtypes.UserRoleType;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.Organizations;
 import org.oscm.test.data.PlatformUsers;
@@ -32,10 +35,7 @@ import org.oscm.test.data.Products;
 import org.oscm.test.data.Subscriptions;
 import org.oscm.test.data.TechnicalProducts;
 import org.oscm.test.ejb.TestContainer;
-import org.oscm.internal.types.enumtypes.OperationStatus;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
-import org.oscm.internal.types.enumtypes.UserRoleType;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 
 /**
  * @author zhaoh.fnst
@@ -59,6 +59,7 @@ public class OperationRecordDaoIT extends EJBTestBase {
 
     @Override
     protected void setup(TestContainer container) throws Exception {
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         ds = container.get(DataService.class);
         dao = new OperationRecordDao();
@@ -75,12 +76,12 @@ public class OperationRecordDaoIT extends EJBTestBase {
         op = createOperation(tp);
         pro1 = createProduct(org1, tp.getTechnicalProductId(), false,
                 "productId1", "priceModelId1");
-        sub1 = createSubscription(org1.getOrganizationId(),
-                pro1.getProductId(), "subscriptionId1", org1, null);
-        sub2 = createSubscription(org1.getOrganizationId(),
-                pro1.getProductId(), "subscriptionId2", org1, user2);
-        sub3 = createSubscription(org1.getOrganizationId(),
-                pro1.getProductId(), "subscriptionId3", org1, user2);
+        sub1 = createSubscription(org1.getOrganizationId(), pro1.getProductId(),
+                "subscriptionId1", org1, null);
+        sub2 = createSubscription(org1.getOrganizationId(), pro1.getProductId(),
+                "subscriptionId2", org1, user2);
+        sub3 = createSubscription(org1.getOrganizationId(), pro1.getProductId(),
+                "subscriptionId3", org1, user2);
         createOperationRecord(user1, sub1, op, "transactionId11");
         createOperationRecord(user2, sub1, op, "transactionId12");
         createOperationRecord(user3, sub1, op, "transactionId13");
@@ -96,12 +97,13 @@ public class OperationRecordDaoIT extends EJBTestBase {
     public void getOperationsForOrgAdmin() throws Exception {
         // when
         container.login(user1.getKey(), ROLE_ORGANIZATION_ADMIN);
-        List<OperationRecord> result = runTX(new Callable<List<OperationRecord>>() {
-            @Override
-            public List<OperationRecord> call() throws Exception {
-                return dao.getOperationsForOrgAdmin(org1.getKey());
-            }
-        });
+        List<OperationRecord> result = runTX(
+                new Callable<List<OperationRecord>>() {
+                    @Override
+                    public List<OperationRecord> call() throws Exception {
+                        return dao.getOperationsForOrgAdmin(org1.getKey());
+                    }
+                });
 
         // then
         assertEquals(9, result.size());
@@ -110,12 +112,13 @@ public class OperationRecordDaoIT extends EJBTestBase {
     @Test
     public void getOperationsForSubManager1() throws Exception {
         // when
-        List<OperationRecord> result = runTX(new Callable<List<OperationRecord>>() {
-            @Override
-            public List<OperationRecord> call() throws Exception {
-                return dao.getOperationsForSubManager(user1.getKey());
-            }
-        });
+        List<OperationRecord> result = runTX(
+                new Callable<List<OperationRecord>>() {
+                    @Override
+                    public List<OperationRecord> call() throws Exception {
+                        return dao.getOperationsForSubManager(user1.getKey());
+                    }
+                });
 
         // then
         assertEquals(3, result.size());
@@ -124,12 +127,13 @@ public class OperationRecordDaoIT extends EJBTestBase {
     @Test
     public void getOperationsForSubManager2() throws Exception {
         // when
-        List<OperationRecord> result = runTX(new Callable<List<OperationRecord>>() {
-            @Override
-            public List<OperationRecord> call() throws Exception {
-                return dao.getOperationsForSubManager(user2.getKey());
-            }
-        });
+        List<OperationRecord> result = runTX(
+                new Callable<List<OperationRecord>>() {
+                    @Override
+                    public List<OperationRecord> call() throws Exception {
+                        return dao.getOperationsForSubManager(user2.getKey());
+                    }
+                });
 
         // then
         assertEquals(7, result.size());
@@ -138,12 +142,13 @@ public class OperationRecordDaoIT extends EJBTestBase {
     @Test
     public void getOperationsForUser1() throws Exception {
         // when
-        List<OperationRecord> result = runTX(new Callable<List<OperationRecord>>() {
-            @Override
-            public List<OperationRecord> call() throws Exception {
-                return dao.getOperationsForUser(user1.getKey());
-            }
-        });
+        List<OperationRecord> result = runTX(
+                new Callable<List<OperationRecord>>() {
+                    @Override
+                    public List<OperationRecord> call() throws Exception {
+                        return dao.getOperationsForUser(user1.getKey());
+                    }
+                });
 
         // then
         assertEquals(3, result.size());
@@ -152,12 +157,13 @@ public class OperationRecordDaoIT extends EJBTestBase {
     @Test
     public void getOperationsForUser2() throws Exception {
         // when
-        List<OperationRecord> result = runTX(new Callable<List<OperationRecord>>() {
-            @Override
-            public List<OperationRecord> call() throws Exception {
-                return dao.getOperationsForUser(user2.getKey());
-            }
-        });
+        List<OperationRecord> result = runTX(
+                new Callable<List<OperationRecord>>() {
+                    @Override
+                    public List<OperationRecord> call() throws Exception {
+                        return dao.getOperationsForUser(user2.getKey());
+                    }
+                });
 
         // then
         assertEquals(3, result.size());
@@ -166,12 +172,13 @@ public class OperationRecordDaoIT extends EJBTestBase {
     @Test
     public void getOperationsForUser3() throws Exception {
         // when
-        List<OperationRecord> result = runTX(new Callable<List<OperationRecord>>() {
-            @Override
-            public List<OperationRecord> call() throws Exception {
-                return dao.getOperationsForUser(user3.getKey());
-            }
-        });
+        List<OperationRecord> result = runTX(
+                new Callable<List<OperationRecord>>() {
+                    @Override
+                    public List<OperationRecord> call() throws Exception {
+                        return dao.getOperationsForUser(user3.getKey());
+                    }
+                });
 
         // then
         assertEquals(3, result.size());
@@ -257,7 +264,8 @@ public class OperationRecordDaoIT extends EJBTestBase {
 
     private Product createProduct(final Organization supplier,
             final String techProdId, final boolean chargeable,
-            final String productId, final String priceModelId) throws Exception {
+            final String productId, final String priceModelId)
+            throws Exception {
         return runTX(new Callable<Product>() {
             @Override
             public Product call() throws Exception {
@@ -274,9 +282,9 @@ public class OperationRecordDaoIT extends EJBTestBase {
         return runTX(new Callable<Subscription>() {
             @Override
             public Subscription call() throws Exception {
-                return Subscriptions.createSubscriptionWithOwner(ds,
-                        customerId, productId, subscriptionId, null, TIMESTAMP,
-                        TIMESTAMP, supplier, null, 1, owner);
+                return Subscriptions.createSubscriptionWithOwner(ds, customerId,
+                        productId, subscriptionId, null, TIMESTAMP, TIMESTAMP,
+                        supplier, null, 1, owner);
             }
         });
     }

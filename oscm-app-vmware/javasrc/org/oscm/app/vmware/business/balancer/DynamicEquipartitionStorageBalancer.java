@@ -8,7 +8,7 @@
 
 package org.oscm.app.vmware.business.balancer;
 
-import org.oscm.app.v1_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.exceptions.APPlatformException;
 import org.oscm.app.vmware.business.VMPropertyHandler;
 import org.oscm.app.vmware.business.model.VMwareStorage;
 import org.oscm.app.vmware.i18n.Messages;
@@ -16,9 +16,9 @@ import org.oscm.app.vmware.i18n.Messages;
 /**
  * Storage balancer implementation dynamically selecting the least used storage
  * from vSphere.
- *
+ * 
  * @author Oliver Petrovski
- *
+ * 
  */
 public class DynamicEquipartitionStorageBalancer extends StorageBalancer {
 
@@ -36,9 +36,9 @@ public class DynamicEquipartitionStorageBalancer extends StorageBalancer {
 
         double maxFreeSpace = 0.0;
         for (VMwareStorage storage : inventory.getStorageByHost(targetHost)) {
-            if (storage.getCapacity() > maxFreeSpace) {
+            if (storage.getFree() > maxFreeSpace) {
                 selectedStorage = storage;
-                maxFreeSpace = storage.getCapacity();
+                maxFreeSpace = storage.getFree();
             }
         }
 

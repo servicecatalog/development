@@ -12,10 +12,14 @@
 
 package org.oscm.reportingservice.business;
 
-import static org.oscm.test.Numbers.L123;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.oscm.test.Numbers.L123;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -38,10 +42,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.junit.Test;
-
-import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
-import org.w3c.dom.Document;
-
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.oscm.accountservice.assembler.BillingContactAssembler;
 import org.oscm.billingservice.dao.BillingDataRetrievalServiceBean;
 import org.oscm.billingservice.service.BillingServiceBean;
@@ -79,11 +81,34 @@ import org.oscm.domobjects.TechnicalProduct;
 import org.oscm.domobjects.TriggerProcess;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.domobjects.enums.OrganizationReferenceType;
+import org.oscm.encrypter.AESEncrypter;
 import org.oscm.eventservice.bean.EventServiceBean;
 import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.identityservice.assembler.UserDataAssembler;
+import org.oscm.identityservice.local.IdentityServiceLocal;
+import org.oscm.internal.intf.IdentityService;
+import org.oscm.internal.intf.ReportingService;
+import org.oscm.internal.intf.SubscriptionService;
+import org.oscm.internal.types.enumtypes.ConfigurationKey;
+import org.oscm.internal.types.enumtypes.EventType;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.ParameterType;
+import org.oscm.internal.types.enumtypes.ParameterValueType;
+import org.oscm.internal.types.enumtypes.PriceModelType;
+import org.oscm.internal.types.enumtypes.ReportType;
+import org.oscm.internal.types.enumtypes.ServiceAccessType;
+import org.oscm.internal.types.enumtypes.UserRoleType;
+import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.internal.vo.VOBillingContact;
+import org.oscm.internal.vo.VOPaymentInfo;
+import org.oscm.internal.vo.VOReport;
+import org.oscm.internal.vo.VOService;
+import org.oscm.internal.vo.VOSubscription;
+import org.oscm.internal.vo.VOUda;
+import org.oscm.internal.vo.VOUser;
 import org.oscm.reportingservice.bean.ReportingServiceBean;
 import org.oscm.reportingservice.business.model.billing.RDOSummary;
 import org.oscm.reportingservice.dao.BillingDao;
@@ -92,7 +117,6 @@ import org.oscm.reportingservice.dao.PlatformRevenueDao;
 import org.oscm.reportingservice.dao.PlatformRevenueDao.RowData;
 import org.oscm.reportingservice.dao.UnitDao;
 import org.oscm.reportingservice.service.stubs.ApplicationServiceStub;
-import org.oscm.reportingservice.service.stubs.IdManagementStub;
 import org.oscm.serviceprovisioningservice.assembler.ProductAssembler;
 import org.oscm.subscriptionservice.assembler.SubscriptionAssembler;
 import org.oscm.subscriptionservice.bean.ManageSubscriptionBean;
@@ -121,27 +145,8 @@ import org.oscm.triggerservice.local.TriggerMessage;
 import org.oscm.triggerservice.local.TriggerProcessMessageData;
 import org.oscm.types.enumtypes.PaymentProcessingStatus;
 import org.oscm.types.enumtypes.PlatformEventIdentifier;
-import org.oscm.internal.intf.IdentityService;
-import org.oscm.internal.intf.ReportingService;
-import org.oscm.internal.intf.SubscriptionService;
-import org.oscm.internal.types.enumtypes.ConfigurationKey;
-import org.oscm.internal.types.enumtypes.EventType;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ParameterType;
-import org.oscm.internal.types.enumtypes.ParameterValueType;
-import org.oscm.internal.types.enumtypes.PriceModelType;
-import org.oscm.internal.types.enumtypes.ReportType;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
-import org.oscm.internal.types.enumtypes.UserRoleType;
-import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.vo.VOBillingContact;
-import org.oscm.internal.vo.VOPaymentInfo;
-import org.oscm.internal.vo.VOReport;
-import org.oscm.internal.vo.VOService;
-import org.oscm.internal.vo.VOSubscription;
-import org.oscm.internal.vo.VOUda;
-import org.oscm.internal.vo.VOUser;
+import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
+import org.w3c.dom.Document;
 
 /**
  * The tests for reporting queries
@@ -202,16 +207,14 @@ public class ReportingQueryIT extends EJBTestBase {
 
     @Override
     protected void setup(TestContainer container) throws Exception {
-
+        AESEncrypter.generateKey();
         roleToReports = new HashMap<>();
         roleToReports.put(OrganizationRoleType.CUSTOMER,
                 getReportList("Event", "Subscription"));
-        roleToReports.put(
-                OrganizationRoleType.SUPPLIER,
+        roleToReports.put(OrganizationRoleType.SUPPLIER,
                 getReportList("Supplier_Product", "Supplier_Customer",
                         "Supplier_Billing", "Supplier_PaymentResultStatus"));
-        roleToReports.put(
-                OrganizationRoleType.TECHNOLOGY_PROVIDER,
+        roleToReports.put(OrganizationRoleType.TECHNOLOGY_PROVIDER,
                 getReportList("Provider_Event", "Provider_Supplier",
                         "Provider_Subscription", "Provider_Instance"));
 
@@ -233,9 +236,8 @@ public class ReportingQueryIT extends EJBTestBase {
 
                 platformOperator = Organizations.createOrganization(mgr,
                         OrganizationRoleType.PLATFORM_OPERATOR);
-                platformOperator
-                        .setOrganizationId(OrganizationRoleType.PLATFORM_OPERATOR
-                                .name());
+                platformOperator.setOrganizationId(
+                        OrganizationRoleType.PLATFORM_OPERATOR.name());
                 Marketplaces.createGlobalMarketplace(platformOperator,
                         GLOBAL_MARKETPLACE_NAME, mgr);
                 mgr.persist(platformOperator);
@@ -246,8 +248,7 @@ public class ReportingQueryIT extends EJBTestBase {
                 Organization organization = mgr.find(Organization.class,
                         product.getVendorKey());
                 OrganizationReference orgRef = new OrganizationReference(
-                        organization,
-                        organization,
+                        organization, organization,
                         OrganizationReferenceType.TECHNOLOGY_PROVIDER_TO_SUPPLIER);
                 mgr.persist(orgRef);
                 organization.getTargets().add(orgRef);
@@ -300,8 +301,9 @@ public class ReportingQueryIT extends EJBTestBase {
             sessions.clear();
             sessions.add(session);
 
-            enablePaymentTypes(mgr, testOrganizations.get("A").get(i)
-                    .getOrganizationId(), OrganizationRoleType.CUSTOMER);
+            enablePaymentTypes(mgr,
+                    testOrganizations.get("A").get(i).getOrganizationId(),
+                    OrganizationRoleType.CUSTOMER);
             subscriptionsA.add(subscribeToProductAndUse("A", 0, i));
 
             runBillingForCustomer("A", i);
@@ -315,8 +317,9 @@ public class ReportingQueryIT extends EJBTestBase {
             sessions.clear();
             sessions.add(session);
 
-            enablePaymentTypes(mgr, testOrganizations.get("B").get(i)
-                    .getOrganizationId(), OrganizationRoleType.CUSTOMER);
+            enablePaymentTypes(mgr,
+                    testOrganizations.get("B").get(i).getOrganizationId(),
+                    OrganizationRoleType.CUSTOMER);
             subscribeToProductAndUse("B", 0, i);
             runBillingForCustomer("B", i);
         }
@@ -372,7 +375,17 @@ public class ReportingQueryIT extends EJBTestBase {
         });
         container.addBean(new BillingDataRetrievalServiceBean());
         container.addBean(new BillingServiceBean());
-        container.addBean(new IdManagementStub());
+        IdentityServiceLocal mock = mock(IdentityServiceLocal.class);
+        doAnswer(new Answer() {
+            @Override
+            public PlatformUser answer(InvocationOnMock invocation)
+                    throws Throwable {
+                PlatformUser user = new PlatformUser();
+                user.setUserId((String) invocation.getArguments()[0]);
+                return (PlatformUser) mgr.getReferenceByBusinessKey(user);
+            }
+        }).when(mock).getPlatformUser(anyString(), anyBoolean());
+        container.addBean(mock);
         container.addBean(new TenantProvisioningServiceBean());
         container.addBean(new CommunicationServiceStub());
 
@@ -410,9 +423,8 @@ public class ReportingQueryIT extends EJBTestBase {
      * @param roleType
      * @throws Exception
      */
-    protected void enablePaymentTypes(final DataService mgr,
-            final String orgId, final OrganizationRoleType roleType)
-            throws Exception {
+    protected void enablePaymentTypes(final DataService mgr, final String orgId,
+            final OrganizationRoleType roleType) throws Exception {
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
@@ -461,8 +473,8 @@ public class ReportingQueryIT extends EJBTestBase {
 
         // create EVENTS
         long tpKey = tProd.getKey();
-        TechnicalProduct technicalProduct = mgr.getReference(
-                TechnicalProduct.class, tpKey);
+        TechnicalProduct technicalProduct = mgr
+                .getReference(TechnicalProduct.class, tpKey);
         Event event = new Event();
         event.setTechnicalProduct(technicalProduct);
         event.setEventIdentifier(PlatformEventIdentifier.USER_LOGIN_TO_SERVICE);
@@ -523,8 +535,8 @@ public class ReportingQueryIT extends EJBTestBase {
             ArrayList<PlatformUser> userlist = new ArrayList<>();
             testUsers.put(cust, userlist);
             // add a organization admin
-            PlatformUser admin = Organizations.createUserForOrg(mgr, cust,
-                    true, "admin");
+            PlatformUser admin = Organizations.createUserForOrg(mgr, cust, true,
+                    "admin");
             if (custAbr.equalsIgnoreCase("A")) {
                 customerAdminsA[i - 1] = admin;
             } else {
@@ -542,8 +554,8 @@ public class ReportingQueryIT extends EJBTestBase {
         mgr.flush();
     }
 
-    private void initReports() throws ObjectNotFoundException,
-            NonUniqueBusinessKeyException {
+    private void initReports()
+            throws ObjectNotFoundException, NonUniqueBusinessKeyException {
 
         for (OrganizationRoleType orgType : roleToReports.keySet()) {
             List<Report> custReports = roleToReports.get(orgType);
@@ -677,8 +689,8 @@ public class ReportingQueryIT extends EJBTestBase {
             PricedOption option = new PricedOption();
             option.setPricedParameter(pricedParam);
             option.setPricePerUser(new BigDecimal(2));
-            option.setParameterOptionKey(paramDef.getOptionList().get(0)
-                    .getKey());
+            option.setParameterOptionKey(
+                    paramDef.getOptionList().get(0).getKey());
 
             PricedEvent pEvent = new PricedEvent();
             pEvent.setEvent(tProd.getEvents().get(0));
@@ -698,25 +710,26 @@ public class ReportingQueryIT extends EJBTestBase {
 
     private VOSubscription subscribeToProductAndUse(final String custAbrv,
             int ProductIdx, final int custIdx) throws Exception {
-        VOService product = getProductByKey(testProducts.get(custAbrv)
-                .get(ProductIdx).getKey());
+        VOService product = getProductByKey(
+                testProducts.get(custAbrv).get(ProductIdx).getKey());
         VOUser[] users = new VOUser[2];
         VOUser[] admins = new VOUser[1];
-        admins[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(custAbrv).get(custIdx)).get(1));
-        users[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(custAbrv).get(custIdx)).get(2));
-        users[1] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(custAbrv).get(custIdx)).get(3));
+        admins[0] = UserDataAssembler.toVOUser(testUsers
+                .get(testOrganizations.get(custAbrv).get(custIdx)).get(1));
+        users[0] = UserDataAssembler.toVOUser(testUsers
+                .get(testOrganizations.get(custAbrv).get(custIdx)).get(2));
+        users[1] = UserDataAssembler.toVOUser(testUsers
+                .get(testOrganizations.get(custAbrv).get(custIdx)).get(3));
 
-        final VOPaymentInfo voPaymentInfo = runTX(new Callable<VOPaymentInfo>() {
-            @Override
-            public VOPaymentInfo call() throws Exception {
-                return PaymentInfos.createVOPaymentInfo(
-                        testOrganizations.get(custAbrv).get(custIdx), mgr,
-                        paymentTypes.get(0));
-            }
-        });
+        final VOPaymentInfo voPaymentInfo = runTX(
+                new Callable<VOPaymentInfo>() {
+                    @Override
+                    public VOPaymentInfo call() throws Exception {
+                        return PaymentInfos.createVOPaymentInfo(
+                                testOrganizations.get(custAbrv).get(custIdx),
+                                mgr, paymentTypes.get(0));
+                    }
+                });
         final VOBillingContact bc = runTX(new Callable<VOBillingContact>() {
 
             @Override
@@ -726,10 +739,11 @@ public class ReportingQueryIT extends EJBTestBase {
             }
         });
         VOSubscription newSub = subMgmt.subscribeToService(
-                Subscriptions.createVOSubscription("subscribeToProductIDX_"
-                        + ProductIdx + "_SUP_" + custAbrv + "_CUSIDX_"
-                        + custIdx), product, getUsersToAdd(admins, users),
-                voPaymentInfo, bc, new ArrayList<VOUda>());
+                Subscriptions.createVOSubscription(
+                        "subscribeToProductIDX_" + ProductIdx + "_SUP_"
+                                + custAbrv + "_CUSIDX_" + custIdx),
+                product, getUsersToAdd(admins, users), voPaymentInfo, bc,
+                new ArrayList<VOUda>());
         eventForCustomers(newSub.getKey(), admins[0].getUserId());
         eventForCustomers(newSub.getKey(), users[0].getUserId());
         eventForCustomers(newSub.getKey(), users[1].getUserId());
@@ -737,8 +751,8 @@ public class ReportingQueryIT extends EJBTestBase {
         return newSub;
     }
 
-    private void eventForCustomers(final long subscriptionId, final String actor)
-            throws Exception {
+    private void eventForCustomers(final long subscriptionId,
+            final String actor) throws Exception {
         runTX(new Callable<Void>() {
 
             @Override
@@ -748,8 +762,8 @@ public class ReportingQueryIT extends EJBTestBase {
                 gatheredEvent.setActor(actor);
                 gatheredEvent.setOccurrenceTime(TIMESTAMP);
                 gatheredEvent.setType(EventType.SERVICE_EVENT);
-                gatheredEvent
-                        .setEventId(PlatformEventIdentifier.USER_LOGIN_TO_SERVICE);
+                gatheredEvent.setEventId(
+                        PlatformEventIdentifier.USER_LOGIN_TO_SERVICE);
                 gatheredEvent.setMultiplier(MULTIPLIER);
                 gatheredEvent.setSubscriptionTKey(subscriptionId);
                 mgr.persist(gatheredEvent);
@@ -841,9 +855,11 @@ public class ReportingQueryIT extends EJBTestBase {
             @Override
             public Subscription call() throws Exception {
                 Product p = testProducts.get("A").get(0);
-                return Subscriptions.createSubscription(mgr, String
-                        .valueOf(customerAdminsA[0].getOrganization()
-                                .getOrganizationId()), p);
+                return Subscriptions
+                        .createSubscription(mgr,
+                                String.valueOf(customerAdminsA[0]
+                                        .getOrganization().getOrganizationId()),
+                                p);
             }
         });
 
@@ -852,10 +868,11 @@ public class ReportingQueryIT extends EJBTestBase {
             public Void call() throws Exception {
                 BillingResultParser parser = new BillingResultParser(
                         new BillingDao(mgr));
-                String serviceName = parser.getServiceName(String
-                        .valueOf(subscription.getPriceModel().getKey()));
-                assertEquals(subscription.getProduct().getProductId()
-                        .split("#")[0], serviceName);
+                String serviceName = parser.getServiceName(
+                        String.valueOf(subscription.getPriceModel().getKey()));
+                assertEquals(
+                        subscription.getProduct().getProductId().split("#")[0],
+                        serviceName);
                 return null;
             }
         });
@@ -868,12 +885,14 @@ public class ReportingQueryIT extends EJBTestBase {
             public Subscription call() throws Exception {
                 Product p = testProducts.get("A").get(0);
                 p = (Product) mgr.find(p);
-                Subscription s = Subscriptions.createSubscription(mgr, String
-                        .valueOf(customerAdminsA[0].getOrganization()
-                                .getOrganizationId()), p);
+                Subscription s = Subscriptions
+                        .createSubscription(mgr,
+                                String.valueOf(customerAdminsA[0]
+                                        .getOrganization().getOrganizationId()),
+                                p);
 
-                ProductReference pr = new ProductReference(p, testProducts.get(
-                        "A").get(1));
+                ProductReference pr = new ProductReference(p,
+                        testProducts.get("A").get(1));
                 mgr.persist(pr);
                 p.getCompatibleProducts().addAll(Collections.singletonList(pr));
                 mgr.flush();
@@ -902,9 +921,8 @@ public class ReportingQueryIT extends EJBTestBase {
                         new LocalizerFacade(localizer, "en"));
                 VOSubscription upgradeSubscription = subMgmt
                         .upgradeSubscription(vosub, voProduct, voPaymentInfo,
-                                BillingContactAssembler
-                                        .toVOBillingContact(subscription
-                                                .getBillingContact()),
+                                BillingContactAssembler.toVOBillingContact(
+                                        subscription.getBillingContact()),
                                 new ArrayList<VOUda>());
                 return String.valueOf(upgradeSubscription.getServiceKey());
             }
@@ -916,8 +934,8 @@ public class ReportingQueryIT extends EJBTestBase {
                 BillingResultParser parser = new BillingResultParser(
                         new BillingDao(mgr));
                 Subscription temp = (Subscription) mgr.find(subscription);
-                String newServiceName = parser.getServiceName(String
-                        .valueOf(temp.getPriceModel().getKey()));
+                String newServiceName = parser.getServiceName(
+                        String.valueOf(temp.getPriceModel().getKey()));
                 assertEquals(temp.getProduct().getProductId().split("#")[0],
                         newServiceName);
                 return null;
@@ -929,23 +947,24 @@ public class ReportingQueryIT extends EJBTestBase {
     public void detailedBillingReport_Query_SubscriptionTerminated()
             throws Exception {
         container.login(supplierUserA.getKey(), ROLE_SERVICE_MANAGER);
-        Map<RDOSummary, Document> result = runTX(new Callable<Map<RDOSummary, Document>>() {
-            @Override
-            public Map<RDOSummary, Document> call() throws Exception {
-                for (VOSubscription s : subscriptionsA) {
-                    subMgmt.terminateSubscription(s, "");
-                }
-                BillingDao billingDao = new BillingDao(mgr);
-                BillingDetailsReport billingReport = new BillingDetailsReport(
-                        billingDao, new UnitDao(mgr), userGroupService);
-                List<ReportBillingData> billingData = billingDao
-                        .retrieveBillingDetails(
-                                billingResultsKeys.get(
-                                        testOrganizations.get("A").get(0))
-                                        .longValue(), tpAndSupplierA.getKey());
-                return billingReport.getBillingData(billingData);
-            }
-        });
+        Map<RDOSummary, Document> result = runTX(
+                new Callable<Map<RDOSummary, Document>>() {
+                    @Override
+                    public Map<RDOSummary, Document> call() throws Exception {
+                        for (VOSubscription s : subscriptionsA) {
+                            subMgmt.terminateSubscription(s, "");
+                        }
+                        BillingDao billingDao = new BillingDao(mgr);
+                        BillingDetailsReport billingReport = new BillingDetailsReport(
+                                billingDao, new UnitDao(mgr), userGroupService);
+                        List<ReportBillingData> billingData = billingDao
+                                .retrieveBillingDetails(
+                                        billingResultsKeys.get(testOrganizations
+                                                .get("A").get(0)).longValue(),
+                                        tpAndSupplierA.getKey());
+                        return billingReport.getBillingData(billingData);
+                    }
+                });
 
         assertFalse(result.values().isEmpty());
     }
@@ -1021,7 +1040,8 @@ public class ReportingQueryIT extends EJBTestBase {
     }
 
     @Test(expected = EJBAccessException.class)
-    public void getAvailableReportsForOrgAdmin_NotAuthorized() throws Exception {
+    public void getAvailableReportsForOrgAdmin_NotAuthorized()
+            throws Exception {
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {

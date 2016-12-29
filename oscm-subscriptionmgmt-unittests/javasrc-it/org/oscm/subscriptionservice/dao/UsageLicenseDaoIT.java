@@ -20,7 +20,6 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 
 import org.junit.Test;
-
 import org.oscm.applicationservice.bean.ApplicationServiceStub;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
@@ -36,13 +35,24 @@ import org.oscm.domobjects.TriggerProcess;
 import org.oscm.domobjects.UsageLicense;
 import org.oscm.domobjects.UserRole;
 import org.oscm.domobjects.enums.OrganizationReferenceType;
+import org.oscm.encrypter.AESEncrypter;
 import org.oscm.i18nservice.bean.LocalizerFacade;
-import org.oscm.i18nservice.bean.LocalizerServiceStub;
+import org.oscm.i18nservice.bean.LocalizerServiceStub2;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.identityservice.assembler.UserDataAssembler;
 import org.oscm.identityservice.bean.IdManagementStub;
+import org.oscm.internal.intf.SubscriptionService;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.ServiceAccessType;
+import org.oscm.internal.types.enumtypes.SubscriptionStatus;
+import org.oscm.internal.types.enumtypes.UserRoleType;
+import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.internal.vo.VOService;
+import org.oscm.internal.vo.VOUda;
+import org.oscm.internal.vo.VOUser;
 import org.oscm.serviceprovisioningservice.assembler.ProductAssembler;
-import org.oscm.sessionservice.bean.SessionManagementStub;
+import org.oscm.sessionservice.bean.SessionManagementStub2;
 import org.oscm.subscriptionservice.bean.SubscriptionServiceBean;
 import org.oscm.taskhandling.local.TaskMessage;
 import org.oscm.tenantprovisioningservice.bean.TenantProvisioningServiceBean;
@@ -55,20 +65,11 @@ import org.oscm.test.data.Subscriptions;
 import org.oscm.test.data.TechnicalProducts;
 import org.oscm.test.ejb.TestContainer;
 import org.oscm.test.stubs.AccountServiceStub;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.test.stubs.TaskQueueServiceStub;
 import org.oscm.test.stubs.TriggerQueueServiceStub;
 import org.oscm.triggerservice.local.TriggerMessage;
 import org.oscm.triggerservice.local.TriggerProcessMessageData;
-import org.oscm.internal.intf.SubscriptionService;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
-import org.oscm.internal.types.enumtypes.SubscriptionStatus;
-import org.oscm.internal.types.enumtypes.UserRoleType;
-import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.vo.VOService;
-import org.oscm.internal.vo.VOUda;
-import org.oscm.internal.vo.VOUser;
 
 /**
  * Unit tests for {@link UsageLicenseDao} using the test EJB container.
@@ -76,12 +77,12 @@ import org.oscm.internal.vo.VOUser;
  * @author Mao
  */
 public class UsageLicenseDaoIT extends EJBTestBase {
-    
+
     protected SubscriptionService subMgmt;
     protected LocalizerServiceLocal localizer;
     private Product testProduct = new Product();
     private Organization testOrganization = new Organization();
-    private final Map<Organization, ArrayList<PlatformUser>> testUsers = new HashMap<Organization, ArrayList<PlatformUser>>();
+    private final Map<Organization, ArrayList<PlatformUser>> testUsers = new HashMap<>();
     private TriggerDefinition td;
     private Organization tpAndSupplier;
     private String customerUserKey;
@@ -89,12 +90,13 @@ public class UsageLicenseDaoIT extends EJBTestBase {
 
     private DataService ds;
     private UsageLicenseDao dao;
-    Set<SubscriptionStatus> states = Collections.unmodifiableSet(EnumSet.of(
-            SubscriptionStatus.ACTIVE, SubscriptionStatus.PENDING,
-            SubscriptionStatus.SUSPENDED));
+    Set<SubscriptionStatus> states = Collections
+            .unmodifiableSet(EnumSet.of(SubscriptionStatus.ACTIVE,
+                    SubscriptionStatus.PENDING, SubscriptionStatus.SUSPENDED));
 
     @Override
     protected void setup(TestContainer container) throws Exception {
+        AESEncrypter.generateKey();
         final Organization org = new Organization();
         org.setKey(0);
         ds = new DataServiceBean() {
@@ -103,15 +105,16 @@ public class UsageLicenseDaoIT extends EJBTestBase {
                 return givenUserAdmin(1, "userId", org);
             }
         };
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(ds);
         dao = new UsageLicenseDao(ds);
         container.enableInterfaceMocking(true);
         container.addBean(new DataServiceBean());
         container.addBean(new ApplicationServiceStub());
-        container.addBean(new SessionManagementStub());
+        container.addBean(new SessionManagementStub2());
         container.addBean(new IdManagementStub());
         container.addBean(new TenantProvisioningServiceBean());
-        container.addBean(new LocalizerServiceStub());
+        container.addBean(new LocalizerServiceStub2());
         container.addBean(new SubscriptionServiceBean());
         container.addBean(new TaskQueueServiceStub() {
             @Override
@@ -175,8 +178,8 @@ public class UsageLicenseDaoIT extends EJBTestBase {
         List<UsageLicense> result = runTX(new Callable<List<UsageLicense>>() {
             @Override
             public List<UsageLicense> call() throws Exception {
-                return dao
-                        .getUsersforSubscription(getSubscription(subscriptionId));
+                return dao.getUsersforSubscription(
+                        getSubscription(subscriptionId));
             }
         });
 
@@ -193,12 +196,12 @@ public class UsageLicenseDaoIT extends EJBTestBase {
                 VOService product = getProductToSubscribe(testProduct.getKey());
                 VOUser[] users = new VOUser[2];
                 VOUser[] admins = new VOUser[1];
-                admins[0] = UserDataAssembler.toVOUser(testUsers.get(
-                        testOrganization).get(0));
-                users[0] = UserDataAssembler.toVOUser(testUsers.get(
-                        testOrganization).get(1));
-                users[1] = UserDataAssembler.toVOUser(testUsers.get(
-                        testOrganization).get(2));
+                admins[0] = UserDataAssembler
+                        .toVOUser(testUsers.get(testOrganization).get(0));
+                users[0] = UserDataAssembler
+                        .toVOUser(testUsers.get(testOrganization).get(1));
+                users[1] = UserDataAssembler
+                        .toVOUser(testUsers.get(testOrganization).get(2));
                 subMgmt.subscribeToService(
                         Subscriptions.createVOSubscription(subscriptionId),
                         product, getUsersToAdd(admins, users), null, null,
@@ -242,8 +245,8 @@ public class UsageLicenseDaoIT extends EJBTestBase {
         return user;
     }
 
-    private Long initMasterData() throws NonUniqueBusinessKeyException,
-            ObjectNotFoundException {
+    private Long initMasterData()
+            throws NonUniqueBusinessKeyException, ObjectNotFoundException {
 
         tpAndSupplier = Organizations.createOrganization(ds,
                 OrganizationRoleType.SUPPLIER,
@@ -265,8 +268,8 @@ public class UsageLicenseDaoIT extends EJBTestBase {
 
     }
 
-    private void createTestOrganization() throws NonUniqueBusinessKeyException,
-            ObjectNotFoundException {
+    private void createTestOrganization()
+            throws NonUniqueBusinessKeyException, ObjectNotFoundException {
 
         testOrganization = Organizations.createOrganization(ds,
                 OrganizationRoleType.CUSTOMER);
@@ -280,7 +283,7 @@ public class UsageLicenseDaoIT extends EJBTestBase {
     private Long addUsersforTestOrganization()
             throws NonUniqueBusinessKeyException {
 
-        ArrayList<PlatformUser> userlist = new ArrayList<PlatformUser>();
+        ArrayList<PlatformUser> userlist = new ArrayList<>();
         testUsers.put(testOrganization, userlist);
         PlatformUser admin = Organizations.createUserForOrg(ds,
                 testOrganization, true, "admin");

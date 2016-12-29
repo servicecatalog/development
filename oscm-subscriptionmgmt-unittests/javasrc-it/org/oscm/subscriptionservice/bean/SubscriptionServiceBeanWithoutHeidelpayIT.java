@@ -31,7 +31,6 @@ import javax.persistence.NoResultException;
 import javax.persistence.Query;
 
 import org.junit.Test;
-
 import org.oscm.accountservice.bean.MarketingPermissionServiceBean;
 import org.oscm.applicationservice.bean.ApplicationServiceStub;
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
@@ -74,11 +73,44 @@ import org.oscm.domobjects.UsageLicense;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.domobjects.enums.ModificationType;
 import org.oscm.domobjects.enums.OrganizationReferenceType;
+import org.oscm.encrypter.AESEncrypter;
 import org.oscm.i18nservice.bean.LocalizerFacade;
-import org.oscm.i18nservice.bean.LocalizerServiceStub;
+import org.oscm.i18nservice.bean.LocalizerServiceStub2;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.identityservice.assembler.UserDataAssembler;
 import org.oscm.identityservice.bean.IdManagementStub;
+import org.oscm.internal.intf.IdentityService;
+import org.oscm.internal.intf.ServiceProvisioningService;
+import org.oscm.internal.intf.SubscriptionService;
+import org.oscm.internal.types.enumtypes.ConfigurationKey;
+import org.oscm.internal.types.enumtypes.EventType;
+import org.oscm.internal.types.enumtypes.ImageType;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.ParameterType;
+import org.oscm.internal.types.enumtypes.ParameterValueType;
+import org.oscm.internal.types.enumtypes.PaymentCollectionType;
+import org.oscm.internal.types.enumtypes.PriceModelType;
+import org.oscm.internal.types.enumtypes.ServiceAccessType;
+import org.oscm.internal.types.enumtypes.ServiceStatus;
+import org.oscm.internal.types.enumtypes.SessionType;
+import org.oscm.internal.types.enumtypes.SubscriptionStatus;
+import org.oscm.internal.types.enumtypes.TriggerType;
+import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.internal.types.exception.PaymentInformationException;
+import org.oscm.internal.types.exception.TechnicalServiceNotAliveException;
+import org.oscm.internal.types.exception.TechnicalServiceOperationException;
+import org.oscm.internal.vo.VOBillingContact;
+import org.oscm.internal.vo.VOCategory;
+import org.oscm.internal.vo.VOInstanceInfo;
+import org.oscm.internal.vo.VOLocalizedText;
+import org.oscm.internal.vo.VOPaymentInfo;
+import org.oscm.internal.vo.VOService;
+import org.oscm.internal.vo.VOSubscription;
+import org.oscm.internal.vo.VOSubscriptionDetails;
+import org.oscm.internal.vo.VOUda;
+import org.oscm.internal.vo.VOUsageLicense;
+import org.oscm.internal.vo.VOUser;
 import org.oscm.marketplace.bean.LandingpageServiceBean;
 import org.oscm.marketplace.bean.MarketplaceServiceBean;
 import org.oscm.marketplace.bean.MarketplaceServiceLocalBean;
@@ -86,7 +118,7 @@ import org.oscm.serviceprovisioningservice.assembler.ProductAssembler;
 import org.oscm.serviceprovisioningservice.bean.ServiceProvisioningServiceBean;
 import org.oscm.serviceprovisioningservice.bean.ServiceProvisioningServiceLocalizationBean;
 import org.oscm.serviceprovisioningservice.bean.TagServiceBean;
-import org.oscm.sessionservice.bean.SessionManagementStub;
+import org.oscm.sessionservice.bean.SessionManagementStub2;
 import org.oscm.subscriptionservice.assembler.SubscriptionAssembler;
 import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
 import org.oscm.taskhandling.local.TaskMessage;
@@ -121,38 +153,6 @@ import org.oscm.types.enumtypes.EmailType;
 import org.oscm.types.enumtypes.PlatformParameterIdentifiers;
 import org.oscm.types.enumtypes.ProvisioningType;
 import org.oscm.types.enumtypes.TriggerProcessParameterName;
-import org.oscm.internal.intf.IdentityService;
-import org.oscm.internal.intf.ServiceProvisioningService;
-import org.oscm.internal.intf.SubscriptionService;
-import org.oscm.internal.types.enumtypes.ConfigurationKey;
-import org.oscm.internal.types.enumtypes.EventType;
-import org.oscm.internal.types.enumtypes.ImageType;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ParameterType;
-import org.oscm.internal.types.enumtypes.ParameterValueType;
-import org.oscm.internal.types.enumtypes.PaymentCollectionType;
-import org.oscm.internal.types.enumtypes.PriceModelType;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
-import org.oscm.internal.types.enumtypes.ServiceStatus;
-import org.oscm.internal.types.enumtypes.SessionType;
-import org.oscm.internal.types.enumtypes.SubscriptionStatus;
-import org.oscm.internal.types.enumtypes.TriggerType;
-import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.types.exception.PaymentInformationException;
-import org.oscm.internal.types.exception.TechnicalServiceNotAliveException;
-import org.oscm.internal.types.exception.TechnicalServiceOperationException;
-import org.oscm.internal.vo.VOBillingContact;
-import org.oscm.internal.vo.VOCategory;
-import org.oscm.internal.vo.VOInstanceInfo;
-import org.oscm.internal.vo.VOLocalizedText;
-import org.oscm.internal.vo.VOPaymentInfo;
-import org.oscm.internal.vo.VOService;
-import org.oscm.internal.vo.VOSubscription;
-import org.oscm.internal.vo.VOSubscriptionDetails;
-import org.oscm.internal.vo.VOUda;
-import org.oscm.internal.vo.VOUsageLicense;
-import org.oscm.internal.vo.VOUser;
 
 /**
  * @author qiu
@@ -174,16 +174,16 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
     protected ServiceProvisioningService servProv;
     protected LocalizerServiceLocal localizer;
     private List<PaymentType> paymentTypes;
-    private final Map<String, VOPaymentInfo> voPaymentInfos = new HashMap<String, VOPaymentInfo>();
+    private final Map<String, VOPaymentInfo> voPaymentInfos = new HashMap<>();
 
-    private final List<Product> testProducts = new ArrayList<Product>();
-    private final List<Product> asyncTestProducts = new ArrayList<Product>();
-    private final List<Organization> testOrganizations = new ArrayList<Organization>();
-    private final Map<Organization, ArrayList<PlatformUser>> testUsers = new HashMap<Organization, ArrayList<PlatformUser>>();
+    private final List<Product> testProducts = new ArrayList<>();
+    private final List<Product> asyncTestProducts = new ArrayList<>();
+    private final List<Organization> testOrganizations = new ArrayList<>();
+    private final Map<Organization, ArrayList<PlatformUser>> testUsers = new HashMap<>();
 
     private PlatformUser supplierUser;
 
-    private List<TaskMessage> messagesOfTaskQueue = new ArrayList<TaskMessage>();
+    private List<TaskMessage> messagesOfTaskQueue = new ArrayList<>();
 
     private boolean isTriggerQueueService_sendSuspendingMessageCalled = false;
     private boolean isTriggerQueueService_sendAllNonSuspendingMessageCalled = false;
@@ -201,15 +201,16 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
     private EmailType mailType = null;
     private Object[] receivedParams = null;
 
-    private final List<SendMailPayload> receivedSendMailPayload = new ArrayList<SendMailPayload>();
+    private final List<SendMailPayload> receivedSendMailPayload = new ArrayList<>();
     private org.oscm.domobjects.Marketplace mp;
 
     @Override
     public void setup(TestContainer container) throws Exception {
+        AESEncrypter.generateKey();
         container.enableInterfaceMocking(true);
         container.addBean(new DataServiceBean());
         container.addBean(appMgmtStub = new ApplicationServiceStub());
-        container.addBean(new SessionManagementStub() {
+        container.addBean(new SessionManagementStub2() {
             @Override
             public List<Session> getProductSessionsForSubscriptionTKey(
                     long subscriptionTKey) {
@@ -218,8 +219,8 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
                 query.setParameter("subscriptionTKey",
                         Long.valueOf(subscriptionTKey));
                 query.setParameter("sessionType", SessionType.SERVICE_SESSION);
-                List<Session> activeSessions = ParameterizedTypes.list(
-                        query.getResultList(), Session.class);
+                List<Session> activeSessions = ParameterizedTypes
+                        .list(query.getResultList(), Session.class);
                 return activeSessions;
             }
         });
@@ -238,9 +239,9 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
                 receivedParams = params;
             }
         });
-        container.addBean(new LocalizerServiceStub() {
+        container.addBean(new LocalizerServiceStub2() {
 
-            Map<String, List<VOLocalizedText>> map = new HashMap<String, List<VOLocalizedText>>();
+            Map<String, List<VOLocalizedText>> map = new HashMap<>();
 
             @Override
             public void setLocalizedValues(long objectKey,
@@ -260,8 +261,8 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
             public String getLocalizedTextFromDatabase(String localeString,
                     long objectKey, LocalizedObjectTypes objectType) {
 
-                List<VOLocalizedText> list = map.get(objectType + "_"
-                        + objectKey);
+                List<VOLocalizedText> list = map
+                        .get(objectType + "_" + objectKey);
                 if (list != null) {
                     for (VOLocalizedText localizedText : list) {
                         if (localeString.equals(localizedText.getLocale())) {
@@ -294,7 +295,8 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
                         receivedSendMailPayload.add(payload);
                     }
 
-                    if (message.getHandlerClass() == NotifyProvisioningServiceHandler.class) {
+                    if (message
+                            .getHandlerClass() == NotifyProvisioningServiceHandler.class) {
                         NotifyProvisioningServicePayload payload = (NotifyProvisioningServicePayload) message
                                 .getPayload();
 
@@ -304,7 +306,8 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
                             if (payload.isDeactivate()) {
                                 appMgmtStub.deactivateInstance(sub);
                             }
-                            appMgmtStub.createUsers(sub, sub.getUsageLicenses());
+                            appMgmtStub.createUsers(sub,
+                                    sub.getUsageLicenses());
 
                         } catch (ObjectNotFoundException e) {
                             e.printStackTrace();
@@ -328,8 +331,8 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
                 isTriggerQueueService_sendSuspendingMessageCalled = true;
                 TriggerProcess tp = new TriggerProcess();
                 try {
-                    tp.setUser(mgr.getReference(PlatformUser.class, Long
-                            .valueOf(customerUserKey).longValue()));
+                    tp.setUser(mgr.getReference(PlatformUser.class,
+                            Long.valueOf(customerUserKey).longValue()));
                 } catch (ObjectNotFoundException | NumberFormatException e) {
                     e.printStackTrace();
                 }
@@ -388,8 +391,8 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
                 SupportedCountries.createSomeSupportedCountries(mgr);
                 Organization operator = Organizations.createOrganization(mgr,
                         OrganizationRoleType.PLATFORM_OPERATOR);
-                operator.setOrganizationId(OrganizationRoleType.PLATFORM_OPERATOR
-                        .name());
+                operator.setOrganizationId(
+                        OrganizationRoleType.PLATFORM_OPERATOR.name());
                 Marketplaces.createGlobalMarketplace(operator,
                         GLOBAL_MARKETPLACE_NAME, mgr);
                 return null;
@@ -413,19 +416,19 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
         ConfigurationServiceLocal cfg = container
                 .get(ConfigurationServiceLocal.class);
         setUpDirServerStub(cfg);
-        cfg.setConfigurationSetting(new ConfigurationSetting(
-                ConfigurationKey.BASE_URL, Configuration.GLOBAL_CONTEXT,
-                BASE_URL_BES_HTTP));
-        cfg.setConfigurationSetting(new ConfigurationSetting(
-                ConfigurationKey.BASE_URL_HTTPS, Configuration.GLOBAL_CONTEXT,
-                BASE_URL_BES_HTTPS));
+        cfg.setConfigurationSetting(
+                new ConfigurationSetting(ConfigurationKey.BASE_URL,
+                        Configuration.GLOBAL_CONTEXT, BASE_URL_BES_HTTP));
+        cfg.setConfigurationSetting(
+                new ConfigurationSetting(ConfigurationKey.BASE_URL_HTTPS,
+                        Configuration.GLOBAL_CONTEXT, BASE_URL_BES_HTTPS));
 
         appMgmtStub.resetController();
 
         testProducts.get(0).getTechnicalProduct()
                 .setAccessType(ServiceAccessType.LOGIN);
 
-        usedTriggersTypes = new LinkedList<TriggerType>();
+        usedTriggersTypes = new LinkedList<>();
     }
 
     private static List<PaymentType> createPaymentTypesWithoutHeidelpay(
@@ -434,7 +437,7 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
         psp.setIdentifier("Invoice");
         psp.setWsdlUrl("");
         mgr.persist(psp);
-        List<PaymentType> result = new ArrayList<PaymentType>();
+        List<PaymentType> result = new ArrayList<>();
         PaymentType pt = new PaymentType();
         pt.setCollectionType(PaymentCollectionType.ORGANIZATION);
         pt.setPaymentTypeId(INVOICE);
@@ -448,21 +451,24 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
     public void terminateSubscription() throws Throwable {
         final String reason = "";
         final String subscriptionId = "testSubscribeToProduct";
-        final VOSubscription subscription = runTX(new Callable<VOSubscription>() {
-            @Override
-            public VOSubscription call() throws Exception {
-                VOService product = getProductToSubscribe(testProducts.get(0)
-                        .getKey());
-                VOUser[] admins = getAdminUser();
-                VOUser[] users = getUsers();
-                VOSubscription createdSubscr = subMgmt.subscribeToService(
-                        Subscriptions.createVOSubscription(subscriptionId),
-                        product, getUsersToAdd(admins, users), null, null,
-                        new ArrayList<VOUda>());
+        final VOSubscription subscription = runTX(
+                new Callable<VOSubscription>() {
+                    @Override
+                    public VOSubscription call() throws Exception {
+                        VOService product = getProductToSubscribe(
+                                testProducts.get(0).getKey());
+                        VOUser[] admins = getAdminUser();
+                        VOUser[] users = getUsers();
+                        VOSubscription createdSubscr = subMgmt
+                                .subscribeToService(
+                                        Subscriptions.createVOSubscription(
+                                                subscriptionId),
+                                        product, getUsersToAdd(admins, users),
+                                        null, null, new ArrayList<VOUda>());
 
-                return createdSubscr;
-            }
-        });
+                        return createdSubscr;
+                    }
+                });
 
         runTX(new Callable<Void>() {
             @Override
@@ -474,7 +480,8 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
                 session.setPlatformUserKey(testUsers
                         .get(testOrganizations.get(0)).get(1).getKey());
                 session.setSessionType(SessionType.SERVICE_SESSION);
-                session.setSubscriptionTKey(Long.valueOf(subscription.getKey()));
+                session.setSubscriptionTKey(
+                        Long.valueOf(subscription.getKey()));
                 mgr.persist(session);
                 mgr.flush();
 
@@ -508,8 +515,7 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
 
                 Query query = mgr.createQuery("SELECT s FROM Session s");
                 List<Session> resultList = query.getResultList();
-                assertEquals("Check number of sessions", 0,
-                        resultList.size());
+                assertEquals("Check number of sessions", 0, resultList.size());
 
                 return null;
             }
@@ -525,7 +531,7 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
         VOSubscription sub = Subscriptions
                 .createVOSubscription("testSubscribeToProduct");
         sub.setPurchaseOrderNumber(TOO_LONG_NAME);
-        messagesOfTaskQueue = new ArrayList<TaskMessage>();
+        messagesOfTaskQueue = new ArrayList<>();
         VOSubscription newSub = subMgmt.subscribeToService(sub, product,
                 getUsersToAdd(admins, users), null, null,
                 new ArrayList<VOUda>());
@@ -583,8 +589,8 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
                     }
                 }
                 Organization po = new Organization();
-                po.setOrganizationId(OrganizationRoleType.PLATFORM_OPERATOR
-                        .name());
+                po.setOrganizationId(
+                        OrganizationRoleType.PLATFORM_OPERATOR.name());
                 po = Organization.class.cast(mgr.getReferenceByBusinessKey(po));
                 OrganizationReference ref = new OrganizationReference(po, sup,
                         OrganizationReferenceType.PLATFORM_OPERATOR_TO_SUPPLIER);
@@ -595,8 +601,8 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
                 o.setOrganizationReference(ref);
                 OrganizationRole role = new OrganizationRole(
                         OrganizationRoleType.SUPPLIER);
-                role = OrganizationRole.class.cast(mgr
-                        .getReferenceByBusinessKey(role));
+                role = OrganizationRole.class
+                        .cast(mgr.getReferenceByBusinessKey(role));
                 o.setOrganizationRole(role);
                 o.setPaymentType(pt);
                 o.setUsedAsDefault(true);
@@ -627,8 +633,8 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
                                     tpAndSupplier.getOrganizationId());
                     assertNotNull(types);
                     assertEquals(1, types.size());
-                    assertEquals(paymentTypes.get(0).getPaymentTypeId(), types
-                            .get(0).getPaymentType().getPaymentTypeId());
+                    assertEquals(paymentTypes.get(0).getPaymentTypeId(),
+                            types.get(0).getPaymentType().getPaymentTypeId());
                     return null;
                 }
             });
@@ -726,9 +732,10 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
         assertNotNull("Could not load subscription 'testSubscribeToProduct'",
                 subscription);
         assertEquals(
-                new SimpleDateFormat("yyyy-MM-dd").format(GregorianCalendar
-                        .getInstance().getTime()), new SimpleDateFormat(
-                        "yyyy-MM-dd").format(subscription.getCreationDate()));
+                new SimpleDateFormat("yyyy-MM-dd")
+                        .format(GregorianCalendar.getInstance().getTime()),
+                new SimpleDateFormat("yyyy-MM-dd")
+                        .format(subscription.getCreationDate()));
         assertEquals(pon, subscription.getPurchaseOrderNumber());
         assertNotNull("No product assigned to subscription",
                 subscription.getProduct());
@@ -738,14 +745,14 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
                 subscription.getPriceModel());
         assertEquals(
                 "PriceModel of subscription is not the same instance as for the product",
-                product.getPriceModel().getPricePerPeriod(), subscription
-                        .getPriceModel().getPricePerPeriod());
+                product.getPriceModel().getPricePerPeriod(),
+                subscription.getPriceModel().getPricePerPeriod());
         assertEquals(
                 "PriceModel of subscription is not the same instance as for the product",
                 product.getPriceModel().getPricePerUserAssignment(),
                 subscription.getPriceModel().getPricePerUserAssignment());
-        assertEquals("Wrong number of UsageLicenses", usersAdded, subscription
-                .getUsageLicenses().size());
+        assertEquals("Wrong number of UsageLicenses", usersAdded,
+                subscription.getUsageLicenses().size());
         Collections.sort(subscription.getUsageLicenses(),
                 new Comparator<UsageLicense>() {
                     @Override
@@ -762,8 +769,8 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
         if (status == SubscriptionStatus.INVALID) {
             assertTrue(
                     "Wrong subscription id" + subscription.getSubscriptionId(),
-                    subscription.getSubscriptionId().startsWith(
-                            subscriptionId + "#"));
+                    subscription.getSubscriptionId()
+                            .startsWith(subscriptionId + "#"));
 
         } else {
             assertEquals(subscriptionId, subscription.getSubscriptionId());
@@ -782,21 +789,21 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
                     subscription.getUsageLicenses().size(),
                     appMgmtStub.addedUsers.size());
             for (UsageLicense lic : subscription.getUsageLicenses()) {
-                PlatformUser platformUser = appMgmtStub.addedUsers.get(lic
-                        .getUser().getUserId());
+                PlatformUser platformUser = appMgmtStub.addedUsers
+                        .get(lic.getUser().getUserId());
                 assertNotNull(platformUser);
-                assertEquals("Wrong user assigned to product", lic.getUser()
-                        .getUserId(), platformUser.getUserId());
+                assertEquals("Wrong user assigned to product",
+                        lic.getUser().getUserId(), platformUser.getUserId());
                 assertEquals(
-                        new SimpleDateFormat("yyyy-MM-dd").format(GregorianCalendar
-                                .getInstance().getTime()),
-                        new SimpleDateFormat("yyyy-MM-dd").format(new Long(lic
-                                .getAssignmentDate())));
+                        new SimpleDateFormat("yyyy-MM-dd").format(
+                                GregorianCalendar.getInstance().getTime()),
+                        new SimpleDateFormat("yyyy-MM-dd")
+                                .format(new Long(lic.getAssignmentDate())));
                 assertNotNull("User entry is null for license " + lic.getKey(),
                         lic.getUser());
-                assertEquals("user seems to be wrong (userId)",
-                        testUsers.get(testOrganizations.get(0)).get(idx)
-                                .getUserId(), lic.getUser().getUserId());
+                assertEquals("user seems to be wrong (userId)", testUsers
+                        .get(testOrganizations.get(0)).get(idx).getUserId(),
+                        lic.getUser().getUserId());
 
                 // also check the usage license history entries
                 List<DomainHistoryObject<?>> ulhs = mgr.findHistory(lic);
@@ -807,10 +814,10 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
                 idx++;
             }
             assertEquals(
-                    new SimpleDateFormat("yyyy-MM-dd").format(GregorianCalendar
-                            .getInstance().getTime()), new SimpleDateFormat(
-                            "yyyy-MM-dd").format(subscription
-                            .getActivationDate()));
+                    new SimpleDateFormat("yyyy-MM-dd")
+                            .format(GregorianCalendar.getInstance().getTime()),
+                    new SimpleDateFormat("yyyy-MM-dd")
+                            .format(subscription.getActivationDate()));
         }
     }
 
@@ -829,7 +836,8 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
     @Test
     public void upgradeSubscription() throws Throwable {
         createAvailablePayment(testOrganizations.get(0));
-        VOService product = getProductToSubscribe(testProducts.get(10).getKey());
+        VOService product = getProductToSubscribe(
+                testProducts.get(10).getKey());
         VOUser[] admins = getAdminUser();
         VOUser[] users = getUsers();
         VOSubscription sub = Subscriptions.createVOSubscription("testUpgrade");
@@ -889,10 +897,10 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
         final VOPaymentInfo voPaymentInfo = getPaymentInfo(
                 tpAndSupplier.getOrganizationId(), testOrganizations.get(0));
         final LocalizerFacade facade = new LocalizerFacade(localizer, "en");
-        final VOBillingContact bc = createBillingContact(testOrganizations
-                .get(0));
-        final VOSubscription voSub = SubscriptionAssembler.toVOSubscription(
-                sub, facade);
+        final VOBillingContact bc = createBillingContact(
+                testOrganizations.get(0));
+        final VOSubscription voSub = SubscriptionAssembler.toVOSubscription(sub,
+                facade);
 
         VOService voNewProduct = runTX(new Callable<VOService>() {
 
@@ -917,8 +925,8 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
         PlatformUser user = runTX(new Callable<PlatformUser>() {
             @Override
             public PlatformUser call() throws Exception {
-                Organization organization = mgr.getReference(
-                        Organization.class, sub.getOrganization().getKey());
+                Organization organization = mgr.getReference(Organization.class,
+                        sub.getOrganization().getKey());
                 return organization.getPlatformUsers().get(0);
             }
         });
@@ -944,7 +952,8 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
     @Test(expected = PaymentInformationException.class)
     public void upgradeSubscription_InvalidPaymentInfo() throws Throwable {
         createAvailablePayment(testOrganizations.get(0));
-        VOService product = getProductToSubscribe(testProducts.get(10).getKey());
+        VOService product = getProductToSubscribe(
+                testProducts.get(10).getKey());
         VOUser[] admins = getAdminUser();
         VOUser[] users = getUsers();
         VOSubscription sub = Subscriptions.createVOSubscription("testUpgrade");
@@ -1024,17 +1033,18 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
         assertNotNull(renamedSub);
         assertEquals(SubscriptionStatus.DEACTIVATED, renamedSub.getStatus());
         assertEquals(
-                new SimpleDateFormat("yyyy-MM-dd").format(GregorianCalendar
-                        .getInstance().getTime()), new SimpleDateFormat(
-                        "yyyy-MM-dd").format(renamedSub.getDeactivationDate()));
+                new SimpleDateFormat("yyyy-MM-dd")
+                        .format(GregorianCalendar.getInstance().getTime()),
+                new SimpleDateFormat("yyyy-MM-dd")
+                        .format(renamedSub.getDeactivationDate()));
         assertEquals("Wrong number of users added to the product", 3,
                 appMgmtStub.addedUsers.size());
         assertEquals("No users must be removed from the service instance", 0,
                 appMgmtStub.deletedUsers.size());
         assertTrue("Product has not been deleted after unsubscription",
                 appMgmtStub.isProductDeleted);
-        assertEquals("Licenses were not removed!", 0, renamedSub
-                .getUsageLicenses().size());
+        assertEquals("Licenses were not removed!", 0,
+                renamedSub.getUsageLicenses().size());
         assertTrue(isTriggerQueueService_sendSuspendingMessageCalled);
         assertTrue(isMessageSend(TriggerType.UNSUBSCRIBE_FROM_SERVICE));
         assertTrue(wasExecuted);
@@ -1051,8 +1061,8 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
         PlatformUser user = runTX(new Callable<PlatformUser>() {
             @Override
             public PlatformUser call() throws Exception {
-                Organization organization = mgr.getReference(
-                        Organization.class, sub.getOrganization().getKey());
+                Organization organization = mgr.getReference(Organization.class,
+                        sub.getOrganization().getKey());
                 return organization.getPlatformUsers().get(0);
             }
         });
@@ -1070,8 +1080,8 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
         assertTrue(isCorrectSubscriptionIdForMail);
     }
 
-    private Long initMasterData() throws NonUniqueBusinessKeyException,
-            ObjectNotFoundException {
+    private Long initMasterData()
+            throws NonUniqueBusinessKeyException, ObjectNotFoundException {
         Long initialCustomerAdminKey = null;
         tpAndSupplier = Organizations.createOrganization(mgr,
                 OrganizationRoleType.SUPPLIER,
@@ -1101,15 +1111,14 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
         for (int i = 1; i <= 2; i++) {
             cust = Organizations.createOrganization(mgr,
                     OrganizationRoleType.CUSTOMER);
-            OrganizationReference ref = new OrganizationReference(
-                    tpAndSupplier, cust,
-                    OrganizationReferenceType.SUPPLIER_TO_CUSTOMER);
+            OrganizationReference ref = new OrganizationReference(tpAndSupplier,
+                    cust, OrganizationReferenceType.SUPPLIER_TO_CUSTOMER);
             mgr.persist(ref);
             testOrganizations.add(cust);
-            ArrayList<PlatformUser> userlist = new ArrayList<PlatformUser>();
+            ArrayList<PlatformUser> userlist = new ArrayList<>();
             testUsers.put(cust, userlist);
-            PlatformUser admin = Organizations.createUserForOrg(mgr, cust,
-                    true, "admin");
+            PlatformUser admin = Organizations.createUserForOrg(mgr, cust, true,
+                    "admin");
             if (initialCustomerAdminKey == null) {
                 initialCustomerAdminKey = Long.valueOf(admin.getKey());
             }
@@ -1133,7 +1142,7 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
         ParameterOption option = new ParameterOption();
         option.setOptionId("OPT");
         option.setParameterDefinition(pd);
-        List<ParameterOption> list = new ArrayList<ParameterOption>();
+        List<ParameterOption> list = new ArrayList<>();
         list.add(option);
         pd.setOptionList(list);
         mgr.persist(option);
@@ -1168,8 +1177,8 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
             PricedOption option = new PricedOption();
             option.setPricedParameter(pricedParam);
             option.setPricePerUser(new BigDecimal(2));
-            option.setParameterOptionKey(paramDef.getOptionList().get(0)
-                    .getKey());
+            option.setParameterOptionKey(
+                    paramDef.getOptionList().get(0).getKey());
 
             PricedEvent pEvent = new PricedEvent();
             pEvent.setEvent(tProd.getEvents().get(0));
@@ -1216,8 +1225,8 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
         Subscription sub = runTX(new Callable<Subscription>() {
             @Override
             public Subscription call() {
-                return getSubscription("expirationTest2", testOrganizations
-                        .get(0).getKey());
+                return getSubscription("expirationTest2",
+                        testOrganizations.get(0).getKey());
             }
         });
 
@@ -1227,8 +1236,9 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() {
-                doCheckSubscriptionStatus("expirationTest2", testOrganizations
-                        .get(0).getKey(), SubscriptionStatus.EXPIRED);
+                doCheckSubscriptionStatus("expirationTest2",
+                        testOrganizations.get(0).getKey(),
+                        SubscriptionStatus.EXPIRED);
                 return null;
             }
         });
@@ -1256,9 +1266,9 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
         SubscriptionHistory domainHistoryObject = (SubscriptionHistory) history
                 .get(history.size() - 1);
         assertEquals(
-                "Wrong user for expiration",
-                String.valueOf(testUsers.get(testOrganizations.get(0)).get(0)
-                        .getKey()), domainHistoryObject.getModuser());
+                "Wrong user for expiration", String.valueOf(testUsers
+                        .get(testOrganizations.get(0)).get(0).getKey()),
+                domainHistoryObject.getModuser());
         assertEquals("Wrong status after expiration", desiredStatus,
                 domainHistoryObject.getDataContainer().getStatus());
         assertEquals("Wrong type for expiration", ModificationType.MODIFY,
@@ -1274,8 +1284,8 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
         prod = (Product) mgr.find(prod);
         assertNotNull("Required product could not be found.", prod);
 
-        Query query = mgr
-                .createNamedQuery("ParameterDefinition.getPlatformParameterDefinition");
+        Query query = mgr.createNamedQuery(
+                "ParameterDefinition.getPlatformParameterDefinition");
         query.setParameter("parameterType", ParameterType.PLATFORM_PARAMETER);
         query.setParameter("parameterId", PlatformParameterIdentifiers.PERIOD);
 
@@ -1359,8 +1369,7 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
             runTX(new Callable<Void>() {
                 @Override
                 public Void call() {
-                    checkSubscribeToProduct(false, id,
-                            asyncTestProducts.get(1),
+                    checkSubscribeToProduct(false, id, asyncTestProducts.get(1),
                             SubscriptionStatus.SUSPENDED, 3, null);
                     return null;
                 }
@@ -1391,8 +1400,7 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
             runTX(new Callable<Void>() {
                 @Override
                 public Void call() {
-                    checkSubscribeToProduct(false, id,
-                            asyncTestProducts.get(1),
+                    checkSubscribeToProduct(false, id, asyncTestProducts.get(1),
                             SubscriptionStatus.ACTIVE, 3, null);
                     return null;
                 }
@@ -1433,8 +1441,7 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
             runTX(new Callable<Void>() {
                 @Override
                 public Void call() {
-                    checkSubscribeToProduct(false, id,
-                            asyncTestProducts.get(1),
+                    checkSubscribeToProduct(false, id, asyncTestProducts.get(1),
                             SubscriptionStatus.SUSPENDED, 3, null);
                     return null;
                 }
@@ -1451,18 +1458,19 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
         assertNotNull(subMgmt);
         appMgmtStub.addedUsers.clear();
         appMgmtStub.deletedUsers.clear();
-        VOService product = getProductToSubscribe(asyncTestProducts.get(
-                indexInList).getKey());
+        VOService product = getProductToSubscribe(
+                asyncTestProducts.get(indexInList).getKey());
         VOUser[] admins = getAdminUser();
         VOUser[] users = getUsers();
         VOPaymentInfo voPaymentInfo = getPaymentInfo(
                 tpAndSupplier.getOrganizationId(), testOrganizations.get(0));
         VOBillingContact bc = createBillingContact(testOrganizations.get(0));
-        boolean async = subMgmt.subscribeToService(
-                Subscriptions.createVOSubscription(id), product,
-                getUsersToAdd(admins, users),
-                noPaymentInfo ? null : voPaymentInfo, bc,
-                new ArrayList<VOUda>()).getStatus() == SubscriptionStatus.PENDING;
+        boolean async = subMgmt
+                .subscribeToService(Subscriptions.createVOSubscription(id),
+                        product, getUsersToAdd(admins, users),
+                        noPaymentInfo ? null : voPaymentInfo, bc,
+                        new ArrayList<VOUda>())
+                .getStatus() == SubscriptionStatus.PENDING;
         assertTrue(async);
         try {
             runTX(new Callable<Void>() {
@@ -1481,8 +1489,8 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
 
     private VOService findProduct(long key) {
         VOService result = null;
-        List<VOService> products = servProv.getServicesForMarketplace(mp
-                .getMarketplaceId());
+        List<VOService> products = servProv
+                .getServicesForMarketplace(mp.getMarketplaceId());
         for (VOService product : products) {
             if (product.getKey() == key) {
                 result = product;
@@ -1494,11 +1502,11 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
     }
 
     private Product initCustomerProduct(int index) {
-        Product product = mgr
-                .find(Product.class, testProducts.get(10).getKey());
+        Product product = mgr.find(Product.class,
+                testProducts.get(10).getKey());
         product.setTargetCustomer(testOrganizations.get(index));
-        product.setTemplate(mgr.find(Product.class, testProducts.get(8)
-                .getKey()));
+        product.setTemplate(
+                mgr.find(Product.class, testProducts.get(8).getKey()));
         return product;
     }
 
@@ -1545,8 +1553,8 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
 
                     long key = testProducts.get(0).getKey();
                     Product product = mgr.getReference(Product.class, key);
-                    assertNotNull("Catalog entry for product expected", product
-                            .getCatalogEntries().get(0));
+                    assertNotNull("Catalog entry for product expected",
+                            product.getCatalogEntries().get(0));
                     assertNotNull("New subscription object expected", newSub);
                     Subscription sub = mgr.getReference(Subscription.class,
                             newSub.getKey());
@@ -1593,10 +1601,10 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
 
                 for (PaymentType type : paymentTypes) {
                     OrganizationRefToPaymentType apt = new OrganizationRefToPaymentType();
-                    Organization reloadedOrg = mgr.getReference(
-                            Organization.class, org.getKey());
-                    apt.setOrganizationReference(reloadedOrg.getSources()
-                            .get(0));
+                    Organization reloadedOrg = mgr
+                            .getReference(Organization.class, org.getKey());
+                    apt.setOrganizationReference(
+                            reloadedOrg.getSources().get(0));
                     apt.setPaymentType(type);
                     apt.setOrganizationRole(role);
                     apt.setUsedAsDefault(false);
@@ -1626,8 +1634,8 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
                 customer.addPlatformUser(Organizations.createUserForOrg(mgr,
                         customer, true, "admin"));
                 Subscription sub = Subscriptions.createSubscription(mgr,
-                        customer.getOrganizationId(), "prodId",
-                        SUBSCRIPTION_ID, org);
+                        customer.getOrganizationId(), "prodId", SUBSCRIPTION_ID,
+                        org);
                 return sub;
             }
         });
@@ -1643,8 +1651,8 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
                 Product product = initCustomerProduct(0);
                 PriceModel priceModel = new PriceModel();
                 priceModel.setType(PriceModelType.PRO_RATA);
-                Query query = mgr
-                        .createNamedQuery("SupportedCurrency.findByBusinessKey");
+                Query query = mgr.createNamedQuery(
+                        "SupportedCurrency.findByBusinessKey");
                 query.setParameter("currencyISOCode", "EUR");
                 SupportedCurrency currency = (SupportedCurrency) query
                         .getSingleResult();
@@ -1656,7 +1664,8 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
 
         createAvailablePayment(testOrganizations.get(0));
 
-        VOService product = getProductToSubscribe(testProducts.get(10).getKey());
+        VOService product = getProductToSubscribe(
+                testProducts.get(10).getKey());
         VOUser[] admins = getAdminUser();
         VOUser[] users = getUsers();
         VOSubscription subscription = Subscriptions
@@ -1675,8 +1684,8 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
 
             @Override
             public Void call() throws Exception {
-                Subscription subscription = mgr.getReference(
-                        Subscription.class, voSubscription.getKey());
+                Subscription subscription = mgr.getReference(Subscription.class,
+                        voSubscription.getKey());
                 PaymentInfo paymentInfo = subscription.getPaymentInfo();
                 assertEquals(voPaymentInfo.getKey(), paymentInfo.getKey());
                 PaymentInfo pi = mgr.getReference(PaymentInfo.class,
@@ -1691,7 +1700,8 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
     @Test
     public void upgradeSubscription_FreeToChargeableOk() throws Throwable {
         createAvailablePayment(testOrganizations.get(0));
-        VOService product = getProductToSubscribe(testProducts.get(10).getKey());
+        VOService product = getProductToSubscribe(
+                testProducts.get(10).getKey());
         VOUser[] admins = getAdminUser();
         VOUser[] users = getUsers();
         VOSubscription sub = Subscriptions.createVOSubscription("testUpgrade");
@@ -1712,17 +1722,16 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
                 tpAndSupplier.getOrganizationId(), testOrganizations.get(0));
         VOBillingContact bc = createBillingContact(testOrganizations.get(0));
 
-        final VOSubscription upgradedSubscription = subMgmt
-                .upgradeSubscription(sub, products.get(0), paymentInfo, bc,
-                        new ArrayList<VOUda>());
+        final VOSubscription upgradedSubscription = subMgmt.upgradeSubscription(
+                sub, products.get(0), paymentInfo, bc, new ArrayList<VOUda>());
 
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
                 Subscription sub = mgr.getReference(Subscription.class,
                         upgradedSubscription.getKey());
-                assertEquals(paymentInfo.getKey(), sub.getPaymentInfo()
-                        .getKey());
+                assertEquals(paymentInfo.getKey(),
+                        sub.getPaymentInfo().getKey());
                 return null;
             }
         });
@@ -1741,8 +1750,8 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                Product product = mgr.getReference(Product.class, testProducts
-                        .get(10).getKey());
+                Product product = mgr.getReference(Product.class,
+                        testProducts.get(10).getKey());
                 SupportedCurrency sc = new SupportedCurrency();
                 sc.setCurrency(Currency.getInstance("USD"));
                 mgr.persist(sc);
@@ -1754,7 +1763,8 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
                 return null;
             }
         });
-        VOService product = getProductToSubscribe(testProducts.get(10).getKey());
+        VOService product = getProductToSubscribe(
+                testProducts.get(10).getKey());
         VOUser[] admins = getAdminUser();
         VOUser[] users = getUsers();
         VOSubscription sub = Subscriptions.createVOSubscription("testUpgrade");
@@ -1775,9 +1785,8 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
         assertEquals(2, products.size());
         assertFalse(products.get(1).getPriceModel().isChargeable());
 
-        final VOSubscription upgradedSubscription = subMgmt
-                .upgradeSubscription(sub, products.get(1), null, null,
-                        new ArrayList<VOUda>());
+        final VOSubscription upgradedSubscription = subMgmt.upgradeSubscription(
+                sub, products.get(1), null, null, new ArrayList<VOUda>());
 
         runTX(new Callable<Void>() {
             @Override
@@ -1800,14 +1809,15 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
     }
 
     @Test
-    public void upgradeSubscription_ChargeableToChargeableOk() throws Throwable {
+    public void upgradeSubscription_ChargeableToChargeableOk()
+            throws Throwable {
         createAvailablePayment(testOrganizations.get(0));
 
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                Product product = mgr.getReference(Product.class, testProducts
-                        .get(10).getKey());
+                Product product = mgr.getReference(Product.class,
+                        testProducts.get(10).getKey());
                 SupportedCurrency sc = new SupportedCurrency();
                 sc.setCurrency(Currency.getInstance("USD"));
                 mgr.persist(sc);
@@ -1817,7 +1827,8 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
             }
         });
 
-        VOService product = getProductToSubscribe(testProducts.get(10).getKey());
+        VOService product = getProductToSubscribe(
+                testProducts.get(10).getKey());
         VOUser[] admins = getAdminUser();
         VOUser[] users = getUsers();
         VOSubscription sub = Subscriptions.createVOSubscription("testUpgrade");
@@ -1838,17 +1849,16 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
         assertEquals(2, products.size());
         assertTrue(products.get(0).getPriceModel().isChargeable());
 
-        final VOSubscription upgradedSubscription = subMgmt
-                .upgradeSubscription(sub, products.get(0), paymentInfo, bc,
-                        new ArrayList<VOUda>());
+        final VOSubscription upgradedSubscription = subMgmt.upgradeSubscription(
+                sub, products.get(0), paymentInfo, bc, new ArrayList<VOUda>());
 
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
                 Subscription sub = mgr.getReference(Subscription.class,
                         upgradedSubscription.getKey());
-                assertEquals(paymentInfo.getKey(), sub.getPaymentInfo()
-                        .getKey());
+                assertEquals(paymentInfo.getKey(),
+                        sub.getPaymentInfo().getKey());
                 return null;
             }
         });
@@ -1870,8 +1880,8 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                Product product = mgr.getReference(Product.class, testProducts
-                        .get(10).getKey());
+                Product product = mgr.getReference(Product.class,
+                        testProducts.get(10).getKey());
                 SupportedCurrency sc = new SupportedCurrency();
                 sc.setCurrency(Currency.getInstance("USD"));
                 mgr.persist(sc);
@@ -1881,13 +1891,14 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
             }
         });
 
-        VOService product = getProductToSubscribe(testProducts.get(10).getKey());
+        VOService product = getProductToSubscribe(
+                testProducts.get(10).getKey());
         VOSubscription sub = Subscriptions.createVOSubscription("testUpgrade");
         assertTrue(product.getPriceModel().isChargeable());
         final VOPaymentInfo paymentInfo = getPaymentInfo(
                 tpAndSupplier.getOrganizationId(), testOrganizations.get(0));
-        final VOBillingContact bc = createBillingContact(testOrganizations
-                .get(0));
+        final VOBillingContact bc = createBillingContact(
+                testOrganizations.get(0));
 
         final VOSubscription created = subMgmt.subscribeToService(sub, product,
                 new ArrayList<VOUsageLicense>(), paymentInfo, bc,
@@ -1911,25 +1922,24 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
         sub = subMgmt.getSubscriptionDetails(sub.getSubscriptionId());
         assertEquals(SubscriptionStatus.SUSPENDED, sub.getStatus());
 
-        final VOBillingContact bc2 = createBillingContact(testOrganizations
-                .get(0));
+        final VOBillingContact bc2 = createBillingContact(
+                testOrganizations.get(0));
 
-        List<VOService> products = subMgmt.getUpgradeOptions(sub
-                .getSubscriptionId());
+        List<VOService> products = subMgmt
+                .getUpgradeOptions(sub.getSubscriptionId());
         assertEquals(2, products.size());
         assertTrue(products.get(0).getPriceModel().isChargeable());
 
-        final VOSubscription upgradedSubscription = subMgmt
-                .upgradeSubscription(sub, products.get(0), paymentInfo, bc2,
-                        new ArrayList<VOUda>());
+        final VOSubscription upgradedSubscription = subMgmt.upgradeSubscription(
+                sub, products.get(0), paymentInfo, bc2, new ArrayList<VOUda>());
 
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
                 Subscription sub = mgr.getReference(Subscription.class,
                         upgradedSubscription.getKey());
-                assertEquals(paymentInfo.getKey(), sub.getPaymentInfo()
-                        .getKey());
+                assertEquals(paymentInfo.getKey(),
+                        sub.getPaymentInfo().getKey());
                 assertEquals(bc2.getKey(), sub.getBillingContact().getKey());
                 return null;
             }
@@ -1946,17 +1956,17 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
 
     private VOUser[] getUsers() {
         VOUser[] users = new VOUser[2];
-        users[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(2));
-        users[1] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(3));
+        users[0] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(2));
+        users[1] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(3));
         return users;
     }
 
     private VOUser[] getAdminUser() {
         VOUser[] admins = new VOUser[1];
-        admins[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(1));
+        admins[0] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(1));
         return admins;
     }
 

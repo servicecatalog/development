@@ -27,7 +27,6 @@ import javax.ejb.EJBAccessException;
 import javax.ejb.EJBException;
 
 import org.junit.Test;
-
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Marketplace;
@@ -38,6 +37,15 @@ import org.oscm.domobjects.ProductReference;
 import org.oscm.domobjects.SupportedCurrency;
 import org.oscm.domobjects.TechnicalProduct;
 import org.oscm.i18nservice.bean.LocalizerFacade;
+import org.oscm.internal.intf.ServiceProvisioningService;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.ServiceAccessType;
+import org.oscm.internal.types.enumtypes.ServiceStatus;
+import org.oscm.internal.types.enumtypes.UserRoleType;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.internal.types.exception.OperationNotPermittedException;
+import org.oscm.internal.vo.VOCompatibleService;
+import org.oscm.internal.vo.VOService;
 import org.oscm.serviceprovisioningservice.assembler.ProductAssembler;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.Marketplaces;
@@ -48,23 +56,15 @@ import org.oscm.test.data.SupportedCountries;
 import org.oscm.test.data.SupportedCurrencies;
 import org.oscm.test.data.TechnicalProducts;
 import org.oscm.test.ejb.TestContainer;
-import org.oscm.internal.intf.ServiceProvisioningService;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
-import org.oscm.internal.types.enumtypes.ServiceStatus;
-import org.oscm.internal.types.enumtypes.UserRoleType;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.types.exception.OperationNotPermittedException;
-import org.oscm.internal.vo.VOCompatibleService;
-import org.oscm.internal.vo.VOService;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 
 /**
  * @author weiser
  * 
  */
 @SuppressWarnings("boxing")
-public class ServiceProvisioningPotentialCompatibleServicesIT extends
-        EJBTestBase {
+public class ServiceProvisioningPotentialCompatibleServicesIT
+        extends EJBTestBase {
 
     private DataService ds;
     private ServiceProvisioningService sps;
@@ -81,6 +81,7 @@ public class ServiceProvisioningPotentialCompatibleServicesIT extends
     @Override
     protected void setup(TestContainer container) throws Exception {
         container.enableInterfaceMocking(true);
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         container.addBean(new ServiceProvisioningServiceBean());
 
@@ -88,6 +89,7 @@ public class ServiceProvisioningPotentialCompatibleServicesIT extends
         sps = container.get(ServiceProvisioningService.class);
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 createPaymentTypes(ds);
                 createOrganizationRoles(ds);
@@ -98,6 +100,7 @@ public class ServiceProvisioningPotentialCompatibleServicesIT extends
         });
 
         PlatformUser user = runTX(new Callable<PlatformUser>() {
+            @Override
             public PlatformUser call() throws Exception {
                 Organization s = Organizations.createOrganization(ds,
                         OrganizationRoleType.SUPPLIER,
@@ -109,9 +112,8 @@ public class ServiceProvisioningPotentialCompatibleServicesIT extends
 
                 Marketplace mp = Marketplaces.ensureMarketplace(s, "local", ds);
 
-                TechnicalProduct tp1 = TechnicalProducts
-                        .createTechnicalProduct(ds, s, "tp1", false,
-                                ServiceAccessType.LOGIN);
+                TechnicalProduct tp1 = TechnicalProducts.createTechnicalProduct(
+                        ds, s, "tp1", false, ServiceAccessType.LOGIN);
 
                 products = new Product[4];
                 products[0] = Products.createProduct(s, tp1, true, "p1", "pm1",
@@ -126,12 +128,11 @@ public class ServiceProvisioningPotentialCompatibleServicesIT extends
                 products[2] = Products.createProduct(s, tp1, true, "p3", "pm1",
                         ds);
                 prodNoMPVO = ProductAssembler.toVOProduct(products[2], facade);
-                products[3] = Products.createProduct(s, tp1, false, "p4",
-                        "pm1", mp, ds);
+                products[3] = Products.createProduct(s, tp1, false, "p4", "pm1",
+                        mp, ds);
 
-                TechnicalProduct tp2 = TechnicalProducts
-                        .createTechnicalProduct(ds, s, "tp2", false,
-                                ServiceAccessType.LOGIN);
+                TechnicalProduct tp2 = TechnicalProducts.createTechnicalProduct(
+                        ds, s, "tp2", false, ServiceAccessType.LOGIN);
                 Products.createProduct(s, tp2, false, "notVisible",
                         "notVisible", ds);
                 return u;
@@ -195,6 +196,7 @@ public class ServiceProvisioningPotentialCompatibleServicesIT extends
     public void getPotentialCompatibleServices_NotOwned() throws Exception {
         PlatformUser user = runTX(new Callable<PlatformUser>() {
 
+            @Override
             public PlatformUser call() throws Exception {
                 Organization s = Organizations.createOrganization(ds,
                         OrganizationRoleType.SUPPLIER);
@@ -240,11 +242,12 @@ public class ServiceProvisioningPotentialCompatibleServicesIT extends
             throws Exception {
         runTX(new Callable<Void>() {
 
+            @Override
             public Void call() throws Exception {
                 SupportedCurrency sc = SupportedCurrencies.findOrCreate(ds,
                         "USD");
-                Product p = ds
-                        .getReference(Product.class, products[1].getKey());
+                Product p = ds.getReference(Product.class,
+                        products[1].getKey());
                 p.getPriceModel().setCurrency(sc);
                 return null;
             }
@@ -257,11 +260,12 @@ public class ServiceProvisioningPotentialCompatibleServicesIT extends
             throws Exception {
         runTX(new Callable<Void>() {
 
+            @Override
             public Void call() throws Exception {
-                Product p = ds
-                        .getReference(Product.class, products[1].getKey());
-                Marketplace mp = Marketplaces.createGlobalMarketplace(
-                        p.getVendor(), "global", ds);
+                Product p = ds.getReference(Product.class,
+                        products[1].getKey());
+                Marketplace mp = Marketplaces
+                        .createGlobalMarketplace(p.getVendor(), "global", ds);
                 p.getCatalogEntries().get(0).setMarketplace(mp);
                 return null;
             }
@@ -270,12 +274,14 @@ public class ServiceProvisioningPotentialCompatibleServicesIT extends
     }
 
     @Test
-    public void getPotentialCompatibleServices_TargetDeleted() throws Exception {
+    public void getPotentialCompatibleServices_TargetDeleted()
+            throws Exception {
         runTX(new Callable<Void>() {
 
+            @Override
             public Void call() throws Exception {
-                Product p = ds
-                        .getReference(Product.class, products[1].getKey());
+                Product p = ds.getReference(Product.class,
+                        products[1].getKey());
                 p.setStatus(ServiceStatus.DELETED);
                 return null;
             }
@@ -288,9 +294,10 @@ public class ServiceProvisioningPotentialCompatibleServicesIT extends
             throws Exception {
         runTX(new Callable<Void>() {
 
+            @Override
             public Void call() throws Exception {
-                Product p = ds
-                        .getReference(Product.class, products[1].getKey());
+                Product p = ds.getReference(Product.class,
+                        products[1].getKey());
                 p.setStatus(ServiceStatus.OBSOLETE);
                 return null;
             }
@@ -299,7 +306,8 @@ public class ServiceProvisioningPotentialCompatibleServicesIT extends
     }
 
     @Test
-    public void getPotentialCompatibleServices_CompatibleSet() throws Exception {
+    public void getPotentialCompatibleServices_CompatibleSet()
+            throws Exception {
         setCompatible();
         container.login(userKey, UserRoleType.SERVICE_MANAGER.name());
         List<VOCompatibleService> list = sps
@@ -320,7 +328,7 @@ public class ServiceProvisioningPotentialCompatibleServicesIT extends
     protected void validateResult(List<VOCompatibleService> list,
             boolean compatible) {
         assertNotNull(list);
-        Set<Long> keys = new HashSet<Long>();
+        Set<Long> keys = new HashSet<>();
         // 0 is the passed one and must not be returned; 2 has no marketplace
         // assigned
         keys.add(Long.valueOf(products[1].getKey()));
@@ -335,9 +343,10 @@ public class ServiceProvisioningPotentialCompatibleServicesIT extends
     protected void setCompatible() throws Exception {
         runTX(new Callable<Void>() {
 
+            @Override
             public Void call() throws Exception {
-                Product s = ds
-                        .getReference(Product.class, products[0].getKey());
+                Product s = ds.getReference(Product.class,
+                        products[0].getKey());
                 for (int i = 1; i < products.length; i++) {
                     Product p = ds.getReference(Product.class,
                             products[i].getKey());
@@ -349,8 +358,8 @@ public class ServiceProvisioningPotentialCompatibleServicesIT extends
         });
     }
 
-    protected void validateSingleResult() throws ObjectNotFoundException,
-            OperationNotPermittedException {
+    protected void validateSingleResult()
+            throws ObjectNotFoundException, OperationNotPermittedException {
         container.login(userKey, UserRoleType.SERVICE_MANAGER.name());
         List<VOCompatibleService> list = sps
                 .getPotentialCompatibleServices(custSpecVO);

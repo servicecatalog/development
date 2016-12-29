@@ -13,41 +13,33 @@ import java.util.Map;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 
-import org.oscm.ui.common.Constants;
-import org.oscm.ui.common.JSFUtils;
-import org.oscm.ui.common.SteppedPriceHandler;
-import org.oscm.ui.dialog.mp.interfaces.ConfigParamValidateable;
-import org.oscm.ui.model.Discount;
-import org.oscm.ui.model.Organization;
-import org.oscm.ui.model.ParameterValidationResult;
-import org.oscm.ui.model.PriceModel;
-import org.oscm.ui.model.PricedEventRow;
-import org.oscm.ui.model.PricedParameterRow;
-import org.oscm.ui.model.RoleSpecificPrice;
-import org.oscm.ui.model.Service;
-import org.oscm.ui.model.UdaRow;
-import org.oscm.ui.model.User;
-import org.oscm.internal.vo.VOParameter;
+import org.apache.commons.lang3.StringUtils;
 import org.oscm.internal.vo.VORoleDefinition;
 import org.oscm.internal.vo.VOSubscriptionDetails;
 import org.oscm.internal.vo.VOUsageLicense;
 import org.oscm.internal.vo.VOUserDetails;
+import org.oscm.ui.common.Constants;
+import org.oscm.ui.common.JSFUtils;
+import org.oscm.ui.common.SteppedPriceHandler;
+import org.oscm.ui.dialog.mp.interfaces.ConfigParamValidateable;
+import org.oscm.ui.model.*;
 
 @ManagedBean
 @ViewScoped
-public class ManageSubscriptionModel implements Serializable, ConfigParamValidateable {
-	
-	/**
-	 * 
-	 */
+public class ManageSubscriptionModel
+        implements Serializable, ConfigParamValidateable {
+
+    /**
+     * 
+     */
     private static final long serialVersionUID = 206265795857573137L;
     private boolean initialized;
     private boolean subscriptionExisting;
     private VOSubscriptionDetails subscription;
     private String currentSubscriptionID;
     private boolean isReportIssueAllowed;
-    private List<PricedParameterRow> subscriptionParameters = new ArrayList<PricedParameterRow>();
-    private final Map<String, VOUsageLicense> userId2UsageLicenseMap = new HashMap<String, VOUsageLicense>();
+    private List<PricedParameterRow> subscriptionParameters = new ArrayList<>();
+    private final Map<String, VOUsageLicense> userId2UsageLicenseMap = new HashMap<>();
     private Service service;
     private Organization serviceSupplier;
     private Organization servicePartner;
@@ -76,7 +68,6 @@ public class ManageSubscriptionModel implements Serializable, ConfigParamValidat
     private boolean noSubscriptionOwner;
     private String selectedOwnerName;
     private Integer maximumNamedUsers;
-    private List<UdaRow> organizationUdaRows;
     private List<UdaRow> subscriptionUdaRows;
     private PriceModel priceModel;
     private List<RoleSpecificPrice> roleSpecificPrices;
@@ -121,32 +112,34 @@ public class ManageSubscriptionModel implements Serializable, ConfigParamValidat
     public void setShowExternalConfigurator(boolean showExternalConfigurator) {
         this.showExternalConfigurator = showExternalConfigurator;
     }
-    
-	public boolean isSubscriptionExisting() {
-		return subscriptionExisting;
-	}
 
-	public void setSubscriptionExisting(boolean subscriptionExisting) {
-		this.subscriptionExisting = subscriptionExisting;
-	}
-	
-	public VOSubscriptionDetails getSubscription() {
+    @Override
+    public boolean isSubscriptionExisting() {
+        return subscriptionExisting;
+    }
+
+    @Override
+    public void setSubscriptionExisting(boolean subscriptionExisting) {
+        this.subscriptionExisting = subscriptionExisting;
+    }
+
+    public VOSubscriptionDetails getSubscription() {
         return subscription;
     }
 
     public void setSubscription(VOSubscriptionDetails subscription) {
         if (subscription != null && subscription.getSubscriptionId() != null) {
             this.currentSubscriptionID = subscription.getSubscriptionId();
-						this.currentSubscriptionKey = subscription.getKey();
+            this.currentSubscriptionKey = subscription.getKey();
         }
         this.subscription = subscription;
     }
-		
-		public long getCurrentSubscriptionKey() {
-				return currentSubscriptionKey;
-		}
-		
-		/**
+
+    public long getCurrentSubscriptionKey() {
+        return currentSubscriptionKey;
+    }
+
+    /**
      * @return the current Subscription ID
      */
     public String getCurrentSubscriptionID() {
@@ -159,7 +152,7 @@ public class ManageSubscriptionModel implements Serializable, ConfigParamValidat
     public void setCurrentSubscriptionID() {
         // do nothing
     }
-    
+
     public void setIsReportIssueAllowed(boolean permission) {
         isReportIssueAllowed = permission;
     }
@@ -167,7 +160,7 @@ public class ManageSubscriptionModel implements Serializable, ConfigParamValidat
     public boolean getIsReportIssueAllowed() {
         return isReportIssueAllowed;
     }
-    
+
     public List<PricedParameterRow> getSubscriptionParameters() {
         return subscriptionParameters;
     }
@@ -176,327 +169,328 @@ public class ManageSubscriptionModel implements Serializable, ConfigParamValidat
             List<PricedParameterRow> subscriptionParameters) {
         this.subscriptionParameters = subscriptionParameters;
     }
-    
+
     void resetUsageLicenseMap() {
         userId2UsageLicenseMap.clear();
     }
 
-	public Service getService() {
-		return service;
-	}
+    @Override
+    public Service getService() {
+        return service;
+    }
 
-	public void setService(Service service) {
-		this.service = service;
-	}
+    @Override
+    public void setService(Service service) {
+        this.service = service;
+    }
 
-	public Organization getServiceSupplier() {
-		return serviceSupplier;
-	}
+    public Organization getServiceSupplier() {
+        return serviceSupplier;
+    }
 
-	public void setServiceSupplier(Organization serviceSupplier) {
-		this.serviceSupplier = serviceSupplier;
-	}
+    public void setServiceSupplier(Organization serviceSupplier) {
+        this.serviceSupplier = serviceSupplier;
+    }
 
-	public Organization getServicePartner() {
-		return servicePartner;
-	}
+    public Organization getServicePartner() {
+        return servicePartner;
+    }
 
-	public void setServicePartner(Organization servicePartner) {
-		this.servicePartner = servicePartner;
-	}
+    public void setServicePartner(Organization servicePartner) {
+        this.servicePartner = servicePartner;
+    }
 
-	public List<Service> getCompatibleServices() {
-		return compatibleServices;
-	}
+    public List<Service> getCompatibleServices() {
+        return compatibleServices;
+    }
 
-	public void setCompatibleServices(List<Service> compatibleServices) {
-		this.compatibleServices = compatibleServices;
-	}
+    public void setCompatibleServices(List<Service> compatibleServices) {
+        this.compatibleServices = compatibleServices;
+    }
 
-	public Discount getDiscount() {
-		return discount;
-	}
+    public Discount getDiscount() {
+        return discount;
+    }
 
-	public void setDiscount(Discount discount) {
-		this.discount = discount;
-	}
+    public void setDiscount(Discount discount) {
+        this.discount = discount;
+    }
 
-	public List<VORoleDefinition> getServiceRoles() {
-		return serviceRoles;
-	}
+    public List<VORoleDefinition> getServiceRoles() {
+        return serviceRoles;
+    }
 
-	public void setServiceRoles(List<VORoleDefinition> serviceRoles) {
-		this.serviceRoles = serviceRoles;
-	}
+    public void setServiceRoles(List<VORoleDefinition> serviceRoles) {
+        this.serviceRoles = serviceRoles;
+    }
 
-	public List<PricedEventRow> getServiceEvents() {
-		return serviceEvents;
-	}
+    public List<PricedEventRow> getServiceEvents() {
+        return serviceEvents;
+    }
 
-	public void setServiceEvents(List<PricedEventRow> serviceEvents) {
-		this.serviceEvents = serviceEvents;
-	}
+    public void setServiceEvents(List<PricedEventRow> serviceEvents) {
+        this.serviceEvents = serviceEvents;
+    }
 
-	public boolean isInitialized() {
-		return initialized;
-	}
+    public boolean isInitialized() {
+        return initialized;
+    }
 
-	public void setInitialized(boolean initialized) {
-		this.initialized = initialized;
-	}
+    public void setInitialized(boolean initialized) {
+        this.initialized = initialized;
+    }
 
-	public boolean isShowStateWarning() {
-		return showStateWarning;
-	}
+    public boolean isShowStateWarning() {
+        return showStateWarning;
+    }
 
-	public void setShowStateWarning(boolean showStateWarning) {
-		this.showStateWarning = showStateWarning;
-	}
+    public void setShowStateWarning(boolean showStateWarning) {
+        this.showStateWarning = showStateWarning;
+    }
 
-	public String getStateWarning() {
-		return stateWarning;
-	}
+    public String getStateWarning() {
+        return stateWarning;
+    }
 
-	public void setStateWarning(String stateWarning) {
-		this.stateWarning = stateWarning;
-	}
+    public void setStateWarning(String stateWarning) {
+        this.stateWarning = stateWarning;
+    }
 
-	public boolean isUsersTabDisabled() {
-		return usersTabDisabled;
-	}
+    public boolean isUsersTabDisabled() {
+        return usersTabDisabled;
+    }
 
-	public void setUsersTabDisabled(boolean usersTabDisabled) {
-		this.usersTabDisabled = usersTabDisabled;
-	}
+    public void setUsersTabDisabled(boolean usersTabDisabled) {
+        this.usersTabDisabled = usersTabDisabled;
+    }
 
-	public boolean isCfgTabDisabled() {
-		return cfgTabDisabled;
-	}
+    public boolean isCfgTabDisabled() {
+        return cfgTabDisabled;
+    }
 
-	public void setCfgTabDisabled(boolean cfgTabDisabled) {
-		this.cfgTabDisabled = cfgTabDisabled;
-	}
+    public void setCfgTabDisabled(boolean cfgTabDisabled) {
+        this.cfgTabDisabled = cfgTabDisabled;
+    }
 
-	public boolean isPayTabDisabled() {
-		return payTabDisabled;
-	}
+    public boolean isPayTabDisabled() {
+        return payTabDisabled;
+    }
 
-	public void setPayTabDisabled(boolean payTabDisabled) {
-		this.payTabDisabled = payTabDisabled;
-	}
+    public void setPayTabDisabled(boolean payTabDisabled) {
+        this.payTabDisabled = payTabDisabled;
+    }
 
-	public boolean isUpgTabDisabled() {
-		return upgTabDisabled;
-	}
+    public boolean isUpgTabDisabled() {
+        return upgTabDisabled;
+    }
 
-	public void setUpgTabDisabled(boolean upgTabDisabled) {
-		this.upgTabDisabled = upgTabDisabled;
-	}
+    public void setUpgTabDisabled(boolean upgTabDisabled) {
+        this.upgTabDisabled = upgTabDisabled;
+    }
 
-	public boolean isWaitingforApproval() {
-		return isWaitingforApproval;
-	}
+    public boolean isWaitingforApproval() {
+        return isWaitingforApproval;
+    }
 
-	public void setWaitingforApproval(boolean isWaitingforApproval) {
-		this.isWaitingforApproval = isWaitingforApproval;
-	}
+    public void setWaitingforApproval(boolean isWaitingforApproval) {
+        this.isWaitingforApproval = isWaitingforApproval;
+    }
 
-	public boolean isUnsubscribeButtonDisabled() {
-		return unsubscribeButtonDisabled;
-	}
+    public boolean isUnsubscribeButtonDisabled() {
+        return unsubscribeButtonDisabled;
+    }
 
-	public void setUnsubscribeButtonDisabled(boolean unsubscribeButtonDisabled) {
-		this.unsubscribeButtonDisabled = unsubscribeButtonDisabled;
-	}
+    public void setUnsubscribeButtonDisabled(
+            boolean unsubscribeButtonDisabled) {
+        this.unsubscribeButtonDisabled = unsubscribeButtonDisabled;
+    }
 
-	public boolean isReadOnlyParams() {
-		return readOnlyParams;
-	}
+    @Override
+    public boolean isReadOnlyParams() {
+        return readOnlyParams;
+    }
 
-	public void setReadOnlyParams(boolean readOnlyParams) {
-		this.readOnlyParams = readOnlyParams;
-	}
+    @Override
+    public void setReadOnlyParams(boolean readOnlyParams) {
+        this.readOnlyParams = readOnlyParams;
+    }
 
-	public boolean isDirectAccess() {
-		return directAccess;
-	}
+    public boolean isDirectAccess() {
+        return directAccess;
+    }
 
-	public void setDirectAccess(boolean directAccess) {
-		this.directAccess = directAccess;
-	}
+    public void setDirectAccess(boolean directAccess) {
+        this.directAccess = directAccess;
+    }
 
-	public boolean isShowServicePrices() {
-		return showServicePrices;
-	}
+    public boolean isShowServicePrices() {
+        return showServicePrices;
+    }
 
-	public void setShowServicePrices(boolean showServicePrices) {
-		this.showServicePrices = showServicePrices;
-	}
+    public void setShowServicePrices(boolean showServicePrices) {
+        this.showServicePrices = showServicePrices;
+    }
 
-	public boolean isShowSubscriptionPrices() {
-		return showSubscriptionPrices;
-	}
+    public boolean isShowSubscriptionPrices() {
+        return showSubscriptionPrices;
+    }
 
-	public void setShowSubscriptionPrices(boolean showSubscriptionPrices) {
-		this.showSubscriptionPrices = showSubscriptionPrices;
-	}
+    public void setShowSubscriptionPrices(boolean showSubscriptionPrices) {
+        this.showSubscriptionPrices = showSubscriptionPrices;
+    }
 
-	public List<PricedParameterRow> getServiceParameters() {
-		return serviceParameters;
-	}
+    @Override
+    public List<PricedParameterRow> getServiceParameters() {
+        return serviceParameters;
+    }
 
-	public void setServiceParameters(List<PricedParameterRow> serviceParameters) {
-		this.serviceParameters = serviceParameters;
-	}
+    @Override
+    public void setServiceParameters(
+            List<PricedParameterRow> serviceParameters) {
+        this.serviceParameters = serviceParameters;
+    }
 
     public Map<String, VOUsageLicense> getUsageLicenseMap() {
         return userId2UsageLicenseMap;
     }
 
-	public List<User> getUnassignedUsers() {
-		return unassignedUsers;
-	}
+    public List<User> getUnassignedUsers() {
+        return unassignedUsers;
+    }
 
-	public void setUnassignedUsers(List<User> unassignedUsers) {
-		this.unassignedUsers = unassignedUsers;
-	}
+    public void setUnassignedUsers(List<User> unassignedUsers) {
+        this.unassignedUsers = unassignedUsers;
+    }
 
-	public List<User> getAssignedUsers() {
-		return assignedUsers;
-	}
+    public List<User> getAssignedUsers() {
+        return assignedUsers;
+    }
 
-	public void setAssignedUsers(List<User> assignedUsers) {
-		this.assignedUsers = assignedUsers;
-	}
+    public void setAssignedUsers(List<User> assignedUsers) {
+        this.assignedUsers = assignedUsers;
+    }
 
-	public List<User> getSubscriptionOwners() {
-		return subscriptionOwners;
-	}
+    public List<User> getSubscriptionOwners() {
+        return subscriptionOwners;
+    }
 
-	public void setSubscriptionOwners(List<User> subscriptionOwners) {
-		this.subscriptionOwners = subscriptionOwners;
-	}
+    public void setSubscriptionOwners(List<User> subscriptionOwners) {
+        this.subscriptionOwners = subscriptionOwners;
+    }
 
-	public User getSelectedOwner() {
-		return selectedOwner;
-	}
+    public User getSelectedOwner() {
+        return selectedOwner;
+    }
 
-	public void setSelectedOwner(User selectedOwner) {
-		this.selectedOwner = selectedOwner;
-	}
+    public void setSelectedOwner(User selectedOwner) {
+        this.selectedOwner = selectedOwner;
+    }
 
-	public User getStoredOwner() {
-		return storedOwner;
-	}
+    public User getStoredOwner() {
+        return storedOwner;
+    }
 
-	public void setStoredOwner(User storedOwner) {
-		this.storedOwner = storedOwner;
-	}
+    public void setStoredOwner(User storedOwner) {
+        this.storedOwner = storedOwner;
+    }
 
-	public boolean isNoSubscriptionOwner() {
-		return noSubscriptionOwner;
-	}
+    public boolean isNoSubscriptionOwner() {
+        return noSubscriptionOwner;
+    }
 
-	public void setNoSubscriptionOwner(boolean noSubscriptionOwner) {
-		this.noSubscriptionOwner = noSubscriptionOwner;
-	}
+    public void setNoSubscriptionOwner(boolean noSubscriptionOwner) {
+        this.noSubscriptionOwner = noSubscriptionOwner;
+    }
 
-	public String getSelectedOwnerName() {
-		return selectedOwnerName;
-	}
+    public String getSelectedOwnerName() {
+        return selectedOwnerName;
+    }
 
-	public void setSelectedOwnerName(String selectedOwnerName) {
-		this.selectedOwnerName = selectedOwnerName;
-	}
+    public void setSelectedOwnerName(String selectedOwnerName) {
+        this.selectedOwnerName = selectedOwnerName;
+    }
 
-	public Integer getMaximumNamedUsers() {
-		return maximumNamedUsers;
-	}
+    public Integer getMaximumNamedUsers() {
+        return maximumNamedUsers;
+    }
 
-	public void setMaximumNamedUsers(Integer maximumNamedUsers) {
-		this.maximumNamedUsers = maximumNamedUsers;
-	}
+    public void setMaximumNamedUsers(Integer maximumNamedUsers) {
+        this.maximumNamedUsers = maximumNamedUsers;
+    }
 
-	public List<UdaRow> getOrganizationUdaRows() {
-		return organizationUdaRows;
-	}
+    public List<UdaRow> getSubscriptionUdaRows() {
+        return subscriptionUdaRows;
+    }
 
-	public void setOrganizationUdaRows(List<UdaRow> organizationUdaRows) {
-		this.organizationUdaRows = organizationUdaRows;
-	}
+    public void setSubscriptionUdaRows(List<UdaRow> subscriptionUdaRows) {
+        this.subscriptionUdaRows = subscriptionUdaRows;
+    }
 
-	public List<UdaRow> getSubscriptionUdaRows() {
-		return subscriptionUdaRows;
-	}
+    public PriceModel getPriceModel() {
+        return priceModel;
+    }
 
-	public void setSubscriptionUdaRows(List<UdaRow> subscriptionUdaRows) {
-		this.subscriptionUdaRows = subscriptionUdaRows;
-	}
+    public void setPriceModel(PriceModel priceModel) {
+        this.priceModel = priceModel;
+    }
 
-	public PriceModel getPriceModel() {
-		return priceModel;
-	}
+    public List<RoleSpecificPrice> getRoleSpecificPrices() {
+        return roleSpecificPrices;
+    }
 
-	public void setPriceModel(PriceModel priceModel) {
-		this.priceModel = priceModel;
-	}
+    public void setRoleSpecificPrices(
+            List<RoleSpecificPrice> roleSpecificPrices) {
+        this.roleSpecificPrices = roleSpecificPrices;
+    }
 
-	public List<RoleSpecificPrice> getRoleSpecificPrices() {
-		return roleSpecificPrices;
-	}
+    public String getConfirmTitle() {
+        return confirmTitle;
+    }
 
-	public void setRoleSpecificPrices(List<RoleSpecificPrice> roleSpecificPrices) {
-		this.roleSpecificPrices = roleSpecificPrices;
-	}
+    public void setConfirmTitle(String confirmTitle) {
+        this.confirmTitle = confirmTitle;
+    }
 
-	public String getConfirmTitle() {
-		return confirmTitle;
-	}
+    public String getConfirmMessage() {
+        return confirmMessage;
+    }
 
-	public void setConfirmTitle(String confirmTitle) {
-		this.confirmTitle = confirmTitle;
-	}
+    public void setConfirmMessage(String confirmMessage) {
+        this.confirmMessage = confirmMessage;
+    }
 
-	public String getConfirmMessage() {
-		return confirmMessage;
-	}
+    public String getModalTitle() {
+        return modalTitle;
+    }
 
-	public void setConfirmMessage(String confirmMessage) {
-		this.confirmMessage = confirmMessage;
-	}
+    public void setModalTitle(String modalTitle) {
+        this.modalTitle = modalTitle;
+    }
 
-	public String getModalTitle() {
-		return modalTitle;
-	}
+    public String getDeassignMessage() {
+        return deassignMessage;
+    }
 
-	public void setModalTitle(String modalTitle) {
-		this.modalTitle = modalTitle;
-	}
+    public void setDeassignMessage(String deassignMessage) {
+        this.deassignMessage = deassignMessage;
+    }
 
-	public String getDeassignMessage() {
-		return deassignMessage;
-	}
+    public VOUserDetails getUserToDeassign() {
+        return userToDeassign;
+    }
 
-	public void setDeassignMessage(String deassignMessage) {
-		this.deassignMessage = deassignMessage;
-	}
+    public void setUserToDeassign(VOUserDetails userToDeassign) {
+        this.userToDeassign = userToDeassign;
+    }
 
-	public VOUserDetails getUserToDeassign() {
-		return userToDeassign;
-	}
+    public boolean isOwnerSelected() {
+        return isOwnerSelected;
+    }
 
-	public void setUserToDeassign(VOUserDetails userToDeassign) {
-		this.userToDeassign = userToDeassign;
-	}
+    public void setOwnerSelected(boolean isOwnerSelected) {
+        this.isOwnerSelected = isOwnerSelected;
+    }
 
-	public boolean isOwnerSelected() {
-		return isOwnerSelected;
-	}
-
-	public void setOwnerSelected(boolean isOwnerSelected) {
-		this.isOwnerSelected = isOwnerSelected;
-	}
-	
     /**
      * Indicates if the default parameter table or the external parameter
      * configuration tool should be shown within the subscription process,
@@ -510,140 +504,128 @@ public class ManageSubscriptionModel implements Serializable, ConfigParamValidat
                 && service.useExternalConfigurator()
                 && !hideExternalConfigurator;
     }
-    
+
     public boolean getHideExternalConfigurator() {
         return hideExternalConfigurator;
     }
 
+    @Override
     public void setHideExternalConfigurator(boolean hideExternalConfigurator) {
         this.hideExternalConfigurator = hideExternalConfigurator;
     }
 
-	public boolean isUseFallback() {
-		return useFallback;
-	}
-
-	public void setUseFallback(boolean useFallback) {
-		this.useFallback = useFallback;
-	}
-
-	public boolean isLoadIframe() {
-		return loadIframe;
-	}
-
-	public void setLoadIframe(boolean loadIframe) {
-		this.loadIframe = loadIframe;
-	}
-
-	public String getParameterConfigResponse() {
-		return parameterConfigResponse;
-	}
-
-	public void setParameterConfigResponse(String parameterConfigResponse) {
-		this.parameterConfigResponse = parameterConfigResponse;
-	}
-
-	public ParameterValidationResult getParameterValidationResult() {
-		return parameterValidationResult;
-	}
-
-	public void setParameterValidationResult(ParameterValidationResult parameterValidationResult) {
-		this.parameterValidationResult = parameterValidationResult;
-	}
-	
-    VOParameter findParameterById(String id) {
-        for (VOParameter p : service.getVO().getParameters()) {
-            if (p.getParameterDefinition().getParameterId().equals(id)) {
-                return p;
-            }
-        }
-        return null;
-    }
-    
-    PricedParameterRow findPricedParameterRowById(String id) {
-        for (PricedParameterRow servicePar : serviceParameters) {
-            if (servicePar.getParameterDefinition().getParameterId().equals(id)) {
-                return servicePar;
-            }
-        }
-        return null;
+    public boolean isUseFallback() {
+        return useFallback;
     }
 
-	public boolean isConfigurationChanged() {
-		return configurationChanged;
-	}
+    public void setUseFallback(boolean useFallback) {
+        this.useFallback = useFallback;
+    }
 
-  public void setConfigurationChanged(boolean configurationChanged) {
+    public boolean isLoadIframe() {
+        return loadIframe;
+    }
+
+    public void setLoadIframe(boolean loadIframe) {
+        this.loadIframe = loadIframe;
+    }
+
+    @Override
+    public String getParameterConfigResponse() {
+        return parameterConfigResponse;
+    }
+
+    @Override
+    public void setParameterConfigResponse(String parameterConfigResponse) {
+        this.parameterConfigResponse = parameterConfigResponse;
+    }
+
+    @Override
+    public ParameterValidationResult getParameterValidationResult() {
+        return parameterValidationResult;
+    }
+
+    @Override
+    public void setParameterValidationResult(
+            ParameterValidationResult parameterValidationResult) {
+        this.parameterValidationResult = parameterValidationResult;
+    }
+
+    public boolean isConfigurationChanged() {
+        return configurationChanged;
+    }
+
+    public void setConfigurationChanged(boolean configurationChanged) {
         /**
          * Logic was changed because there was a bug with configuration warning
          * display. Once parameters were changed and dialog opened again
          * clicking configure button resulted in warning message being hidden.
-         * As the model is ViewScoped then this parameter should not be
-         * changed once it is set to true. After reload new object will be
-         * created with default value of false.
+         * As the model is ViewScoped then this parameter should not be changed
+         * once it is set to true. After reload new object will be created with
+         * default value of false.
          */
         this.configurationChanged = this.configurationChanged
                 || configurationChanged;
-	}
-
-	public String getServiceParametersAsJSONString() {
-		return serviceParametersAsJSONString;
-	}
-
-	public void setServiceParametersAsJSONString(
-			String serviceParametersAsJSONString) {
-		this.serviceParametersAsJSONString = serviceParametersAsJSONString;
-	}
-
-    public boolean getUseInternalConfigurator() {
-        return (serviceParameters != null && serviceParameters.size() > 0 && !service
-                .useExternalConfigurator()) || hideExternalConfigurator;
     }
 
-	public boolean isConfigDirty() {
-		return configDirty;
-	}
+    public String getServiceParametersAsJSONString() {
+        return serviceParametersAsJSONString;
+    }
 
-	public void setConfigDirty(boolean configDirty) {
-		this.configDirty = configDirty;
-	}
+    public void setServiceParametersAsJSONString(
+            String serviceParametersAsJSONString) {
+        this.serviceParametersAsJSONString = serviceParametersAsJSONString;
+    }
 
-	public boolean isAsyncModified() {
-		return isAsyncModified;
-	}
+    public boolean getUseInternalConfigurator() {
+        return (serviceParameters != null && serviceParameters.size() > 0
+                && !service.useExternalConfigurator())
+                || hideExternalConfigurator;
+    }
 
-	public void setAsyncModified(boolean isAsyncModified) {
-		this.isAsyncModified = isAsyncModified;
-	}
+    public boolean isConfigDirty() {
+        return configDirty;
+    }
 
-	public boolean isDirty() {
-		return dirty;
-	}
+    public void setConfigDirty(boolean configDirty) {
+        this.configDirty = configDirty;
+    }
 
-	public void setDirty(boolean dirty) {
-		this.dirty = dirty;
-	}
+    public boolean isAsyncModified() {
+        return isAsyncModified;
+    }
 
-	public Long getSelectedServiceKeyForUpgrade() {
-		return selectedServiceKeyForUpgrade;
-	}
+    public void setAsyncModified(boolean isAsyncModified) {
+        this.isAsyncModified = isAsyncModified;
+    }
 
-	public void setSelectedServiceKeyForUpgrade(
-			Long selectedServiceKeyForUpgrade) {
-		this.selectedServiceKeyForUpgrade = selectedServiceKeyForUpgrade;
-	}
-	
+    public boolean isDirty() {
+        return dirty;
+    }
+
+    public void setDirty(boolean dirty) {
+        this.dirty = dirty;
+    }
+
+    public Long getSelectedServiceKeyForUpgrade() {
+        return selectedServiceKeyForUpgrade;
+    }
+
+    public void setSelectedServiceKeyForUpgrade(
+            Long selectedServiceKeyForUpgrade) {
+        this.selectedServiceKeyForUpgrade = selectedServiceKeyForUpgrade;
+    }
+
     /*
      * assignment only possible if there are more unassigned users and if the
      * maximum number of assignable users of the service is not yet reached.
      */
     public boolean isAssignAllowed() {
-        return getUnassignedUsers() != null
-                && getUnassignedUsers().size() > 0
-                && (maximumNamedUsers == null || maximumNamedUsers.intValue() > getUsageLicenseMap()
-                        .size());
+        return getUnassignedUsers() != null && getUnassignedUsers().size() > 0
+                && (maximumNamedUsers == null || maximumNamedUsers
+                        .intValue() > getUsageLicenseMap().size());
     }
-    
+
     /**
      * @return true if any priced event row of the price model contains any
      *         stepped price.
@@ -659,7 +641,7 @@ public class ManageSubscriptionModel implements Serializable, ConfigParamValidat
         }
         return false;
     }
-    
+
     /**
      * @return true if any priced parameter row of the price model contains any
      *         stepped price.
@@ -669,14 +651,14 @@ public class ManageSubscriptionModel implements Serializable, ConfigParamValidat
                 .isParametersWithSteppedPrices(serviceParameters);
     }
 
-	public String getSelectedTab() {
-		return selectedTab;
-	}
+    public String getSelectedTab() {
+        return selectedTab;
+    }
 
-	public void setSelectedTab(String selectedTab) {
-		this.selectedTab = selectedTab;
-	}
-	
+    public void setSelectedTab(String selectedTab) {
+        this.selectedTab = selectedTab;
+    }
+
     public boolean getShowTitle() {
         return showTitle;
     }
@@ -685,13 +667,13 @@ public class ManageSubscriptionModel implements Serializable, ConfigParamValidat
         this.showTitle = showTitle;
     }
 
-	public boolean isNotTerminable() {
-		return notTerminable;
-	}
+    public boolean isNotTerminable() {
+        return notTerminable;
+    }
 
-	public void setNotTerminable(boolean notTerminable) {
-		this.notTerminable = notTerminable;
-	}
+    public void setNotTerminable(boolean notTerminable) {
+        this.notTerminable = notTerminable;
+    }
 
     public String getAssignNoOwner() {
         if (this.selectedOwner == null) {
@@ -719,12 +701,13 @@ public class ManageSubscriptionModel implements Serializable, ConfigParamValidat
     public void setOwnerWarningText(String ownerWarningText) {
         this.ownerWarningText = ownerWarningText;
     }
-    
+
     public String getUnitNameToDisplay() {
-        if (subscription.getUnitName() == null || subscription.getUnitName().isEmpty()) {
-            return JSFUtils.getText("unit.notAssigned", new Object[]{""});
+        String unitName = subscription.getUnitName();
+        if (StringUtils.isEmpty(unitName)) {
+            return JSFUtils.getText("unit.notAssigned", new Object[] { "" });
         }
-        return subscription.getUnitName();
+        return unitName;
     }
 
     public boolean isPaymentTabAvailable() {

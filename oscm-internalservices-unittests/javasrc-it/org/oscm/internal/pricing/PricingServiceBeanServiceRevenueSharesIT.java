@@ -16,7 +16,6 @@ import javax.ejb.EJBAccessException;
 import javax.ejb.EJBException;
 
 import org.junit.Test;
-
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Marketplace;
@@ -24,6 +23,13 @@ import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.Product;
 import org.oscm.domobjects.TechnicalProduct;
+import org.oscm.internal.components.response.Response;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.ServiceAccessType;
+import org.oscm.internal.types.enumtypes.UserRoleType;
+import org.oscm.internal.types.exception.IllegalArgumentException;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.internal.types.exception.OperationNotPermittedException;
 import org.oscm.serviceprovisioningservice.bean.ServiceProvisioningPartnerServiceLocalBean;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.Marketplaces;
@@ -32,13 +38,7 @@ import org.oscm.test.data.PlatformUsers;
 import org.oscm.test.data.Products;
 import org.oscm.test.data.TechnicalProducts;
 import org.oscm.test.ejb.TestContainer;
-import org.oscm.internal.components.response.Response;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
-import org.oscm.internal.types.enumtypes.UserRoleType;
-import org.oscm.internal.types.exception.IllegalArgumentException;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.types.exception.OperationNotPermittedException;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 
 public class PricingServiceBeanServiceRevenueSharesIT extends EJBTestBase {
 
@@ -59,6 +59,7 @@ public class PricingServiceBeanServiceRevenueSharesIT extends EJBTestBase {
     }
 
     private void setupWithContainer() throws Exception {
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         container.enableInterfaceMocking(true);
         container.addBean(new PricingServiceBean());
@@ -73,7 +74,8 @@ public class PricingServiceBeanServiceRevenueSharesIT extends EJBTestBase {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void getPartnerRevenueShareForService_NullService() throws Exception {
+    public void getPartnerRevenueShareForService_NullService()
+            throws Exception {
         // given
         PricingServiceBean pricingServiceBean = new PricingServiceBean();
 
@@ -115,7 +117,8 @@ public class PricingServiceBeanServiceRevenueSharesIT extends EJBTestBase {
     }
 
     @Test(expected = OperationNotPermittedException.class)
-    public void getMarketplaceRevenueShares_AsNotOwnerBroker() throws Exception {
+    public void getMarketplaceRevenueShares_AsNotOwnerBroker()
+            throws Exception {
         setupWithContainer();
         // given a broker
         // who is not the owner of THIS product
@@ -170,15 +173,16 @@ public class PricingServiceBeanServiceRevenueSharesIT extends EJBTestBase {
     }
 
     @Test
-    public void getPartnerRevenueShareForService_invalidRole() throws Exception {
+    public void getPartnerRevenueShareForService_invalidRole()
+            throws Exception {
         setupWithContainer();
         // given
         container.login(mpOwnerUserKey, UserRoleType.TECHNOLOGY_MANAGER.name());
 
         // when
         try {
-            pricingService
-                    .getPartnerRevenueShareForService(new POServiceForPricing());
+            pricingService.getPartnerRevenueShareForService(
+                    new POServiceForPricing());
             fail();
         } catch (EJBException e) {
 
@@ -283,9 +287,10 @@ public class PricingServiceBeanServiceRevenueSharesIT extends EJBTestBase {
 
     private void createMarketplace() throws Exception {
         runTX(new Callable<Marketplace>() {
+            @Override
             public Marketplace call() throws Exception {
-                marketplace = Marketplaces.createMarketplace(mpOwner,
-                        "1234567", true, ds);
+                marketplace = Marketplaces.createMarketplace(mpOwner, "1234567",
+                        true, ds);
 
                 return marketplace;
             }
@@ -294,6 +299,7 @@ public class PricingServiceBeanServiceRevenueSharesIT extends EJBTestBase {
 
     private void createProducts() throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 TechnicalProduct techProd = TechnicalProducts
                         .createTechnicalProduct(ds, mpOwner, "tp1", false,
@@ -314,6 +320,7 @@ public class PricingServiceBeanServiceRevenueSharesIT extends EJBTestBase {
 
     private void createMarketplaceOwnerOrg() throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 mpOwner = Organizations.createOrganization(ds,
                         OrganizationRoleType.MARKETPLACE_OWNER,
@@ -322,8 +329,8 @@ public class PricingServiceBeanServiceRevenueSharesIT extends EJBTestBase {
                         OrganizationRoleType.BROKER,
                         OrganizationRoleType.RESELLER);
 
-                PlatformUser createUserForOrg = Organizations.createUserForOrg(
-                        ds, mpOwner, true, "admin");
+                PlatformUser createUserForOrg = Organizations
+                        .createUserForOrg(ds, mpOwner, true, "admin");
 
                 PlatformUsers.grantRoles(ds, createUserForOrg,
                         UserRoleType.MARKETPLACE_OWNER);
@@ -345,13 +352,14 @@ public class PricingServiceBeanServiceRevenueSharesIT extends EJBTestBase {
 
     private PlatformUser givenNotOwnerSupplier() throws Exception {
         return runTX(new Callable<PlatformUser>() {
+            @Override
             public PlatformUser call() throws Exception {
                 Organization org = Organizations.createOrganization(ds,
                         OrganizationRoleType.SUPPLIER);
                 PlatformUser user = Organizations.createUserForOrg(ds, org,
                         true, "admin");
-                PlatformUsers
-                        .grantRoles(ds, user, UserRoleType.SERVICE_MANAGER);
+                PlatformUsers.grantRoles(ds, user,
+                        UserRoleType.SERVICE_MANAGER);
                 return user;
             }
         });
@@ -359,6 +367,7 @@ public class PricingServiceBeanServiceRevenueSharesIT extends EJBTestBase {
 
     private PlatformUser givenNotOwnerBroker() throws Exception {
         return runTX(new Callable<PlatformUser>() {
+            @Override
             public PlatformUser call() throws Exception {
                 Organization org = Organizations.createOrganization(ds,
                         OrganizationRoleType.BROKER);
@@ -372,6 +381,7 @@ public class PricingServiceBeanServiceRevenueSharesIT extends EJBTestBase {
 
     private PlatformUser givenNotOwnerReseller() throws Exception {
         return runTX(new Callable<PlatformUser>() {
+            @Override
             public PlatformUser call() throws Exception {
                 Organization org = Organizations.createOrganization(ds,
                         OrganizationRoleType.RESELLER);
@@ -386,6 +396,7 @@ public class PricingServiceBeanServiceRevenueSharesIT extends EJBTestBase {
 
     private PlatformUser givenNotOwnerPlatformOperator() throws Exception {
         return runTX(new Callable<PlatformUser>() {
+            @Override
             public PlatformUser call() throws Exception {
                 Organization org = Organizations.createOrganization(ds,
                         OrganizationRoleType.PLATFORM_OPERATOR);

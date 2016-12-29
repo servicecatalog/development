@@ -26,7 +26,8 @@
                 <h:outputText value="#{msg['button.edit']}" />
               </f:facet>
               <a4j:commandLink id="editCustomerUdaLink" 
-                oncomplete="#{rich:component('updateCustomUda')}.show()" render="updateUdaIdInput,updateUdaDefaultValueInput,updateUdaUserOptionCheckBox,updateUdaMandatoryCheckBox">
+                oncomplete="#{rich:component('updateCustomUda')}.show(); AdmUtils.setUIElements();"
+                               render="updateContentPanel, updateForm">
                 <h:graphicImage value="../img/transparentPixel.png" styleClass="editPen" />
                 <f:setPropertyActionListener value="CUSTOMER" target="#{manageUdaDefinitionBean.udaType}" />
                 <f:setPropertyActionListener value="#{rowKey}" target="#{manageUdaDefinitionBean.currentUdaIndex}" />
@@ -44,11 +45,26 @@
 
             <rich:column>
               <f:facet name="header">
+                <h:outputText value="#{msg['udaDefinition.attributeName']}" />
+              </f:facet>
+              <h:outputText id="udaName" value="#{rowItem.name}" styleClass="fieldS" maxlength="#{appBean.idLen}" />
+            </rich:column>
+
+            <rich:column>
+              <f:facet name="header">
+                <h:outputText value="#{msg['udaDefinition.controllerId']}" />
+              </f:facet>
+              <h:outputText id="udaControllerId" value="#{rowItem.controllerId}" styleClass="fieldS" maxlength="#{appBean.idLen}" />
+            </rich:column>
+
+            <rich:column>
+              <f:facet name="header">
                 <h:outputText value="#{msg['udaDefinition.defaultValue']}" />
               </f:facet>
               <h:outputText id="defaultValue" value="#{rowItem.defaultValue}" styleClass="field"
                 required="#{!empty param['udaDefinitionsCustomerForm:confirmedButton'] and empty param[checkboxId]}"
-                maxlength="#{appBean.descriptionLen}" />
+                maxlength="#{appBean.descriptionLen}" rendered="#{not rowItem.encrypted}" />
+              <adm:secretOutputText id="secretDefaultValue" rendered="#{rowItem.encrypted and not empty rowItem.defaultValue}"/>
               <adm:message id="defaultValueErrorMsg" for="defaultValue" />
             </rich:column>
 
@@ -69,6 +85,15 @@
               </f:facet>
               <h:graphicImage id="isMandatory" value="../img/transparentPixel.png" styleClass="yes" rendered="#{rowItem.mandatory}" />
               <adm:message id="mandatoryMsg" for="isMandatory" />
+            </rich:column>
+
+            <!-- Encrypted -->
+            <rich:column style="text-align:center">
+              <f:facet name="header">
+                <h:outputText value="#{msg['udaDefinition.encrypted']}" />
+              </f:facet>
+              <h:graphicImage id="isEncrypted" value="../img/transparentPixel.png" styleClass="yes"
+                              rendered="#{rowItem.encrypted}" />
             </rich:column>
           </adm:dataTable>
         </a4j:outputPanel>
@@ -96,7 +121,7 @@
                 <h:outputText value="#{msg['button.edit']}" />
               </f:facet>
               <a4j:commandLink id="editSubscriptionUdaLink"
-                oncomplete="#{rich:component('updateCustomUda')}.show()" render="updateUdaIdInput,updateUdaDefaultValueInput,updateUdaUserOptionCheckBox,updateUdaMandatoryCheckBox">
+                oncomplete="#{rich:component('updateCustomUda')}.show();AdmUtils.setUIElements();" render="updateContentPanel, updateForm">
                 <h:graphicImage value="../img/transparentPixel.png" styleClass="editPen" />
                 <f:setPropertyActionListener value="CUSTOMER_SUBSCRIPTION" target="#{manageUdaDefinitionBean.udaType}" />
                 <f:setPropertyActionListener value="#{rowKey}" target="#{manageUdaDefinitionBean.currentUdaIndex}" />
@@ -114,11 +139,26 @@
 
             <rich:column>
               <f:facet name="header">
+                <h:outputText value="#{msg['udaDefinition.attributeName']}" />
+              </f:facet>
+              <h:outputText id="udaName" value="#{rowItem.name}" styleClass="fieldS" maxlength="#{appBean.idLen}" />
+            </rich:column>
+            
+            <rich:column>
+              <f:facet name="header">
+                <h:outputText value="#{msg['udaDefinition.controllerId']}" />
+              </f:facet>
+              <h:outputText id="udaControllerId" value="#{rowItem.controllerId}" styleClass="fieldS" maxlength="#{appBean.idLen}" />
+            </rich:column>
+
+            <rich:column>
+              <f:facet name="header">
                 <h:outputText value="#{msg['udaDefinition.defaultValue']}" />
               </f:facet>
               <h:outputText id="defaultValue" value="#{rowItem.defaultValue}" styleClass="field"
                 required="#{!empty param['udaDefinitionsSubscriptionForm:confirmedButton'] and empty param[checkboxId]}"
-                maxlength="#{appBean.descriptionLen}" />
+                maxlength="#{appBean.descriptionLen}" rendered="#{not rowItem.encrypted}" />
+              <adm:secretOutputText id="secretDefaultValue" rendered="#{rowItem.encrypted and not empty rowItem.defaultValue}"/>
               <adm:message id="defaultValueErrorMsg" for="defaultValue" />
             </rich:column>
 
@@ -139,6 +179,15 @@
               </f:facet>
               <h:graphicImage id="isMandatory" value="../img/transparentPixel.png" styleClass="yes" rendered="#{rowItem.mandatory}" />
               <adm:message id="mandatoryMsg" for="isMandatory" />
+            </rich:column>
+
+            <!-- Encrypted -->
+            <rich:column style="text-align:center">
+              <f:facet name="header">
+                <h:outputText value="#{msg['udaDefinition.encrypted']}" />
+              </f:facet>
+              <h:graphicImage id="isEncrypted" value="../img/transparentPixel.png" styleClass="yes"
+                              rendered="#{rowItem.encrypted}" />
             </rich:column>
           </adm:dataTable>
         </a4j:outputPanel>

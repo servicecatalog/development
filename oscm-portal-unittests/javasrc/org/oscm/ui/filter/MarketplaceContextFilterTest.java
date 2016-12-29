@@ -676,11 +676,6 @@ public class MarketplaceContextFilterTest {
     }
 
     @Test
-    public void doFilter_GetServiceAccess() throws Exception {
-        new MarketplaceContextFilter().getMarketplaceService(sessionMock);
-    }
-
-    @Test
     public void doFilter_MPLogin() throws Exception {
         final String redirect = "abc";
 

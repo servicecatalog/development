@@ -17,7 +17,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.transport.http.HTTPConstants;
-
+import org.oscm.example.common.ServiceParameterDAO;
+import org.oscm.example.servlets.ExampleServlet;
 import org.oscm.xsd.ActivateInstanceResponse;
 import org.oscm.xsd.ActivateInstanceResponseE;
 import org.oscm.xsd.AsyncCreateInstanceResponse;
@@ -37,6 +38,7 @@ import org.oscm.xsd.InstanceInfo;
 import org.oscm.xsd.InstanceResult;
 import org.oscm.xsd.ModifySubscriptionResponse;
 import org.oscm.xsd.ModifySubscriptionResponseE;
+import org.oscm.xsd.SaveAttributesResponseE;
 import org.oscm.xsd.SendPingResponse;
 import org.oscm.xsd.SendPingResponseE;
 import org.oscm.xsd.ServiceParameter;
@@ -46,8 +48,6 @@ import org.oscm.xsd.UpgradeSubscriptionResponse;
 import org.oscm.xsd.UpgradeSubscriptionResponseE;
 import org.oscm.xsd.User;
 import org.oscm.xsd.UserResult;
-import org.oscm.example.common.ServiceParameterDAO;
-import org.oscm.example.servlets.ExampleServlet;
 
 /**
  * ProvisioningServiceSkeleton java skeleton for the axisService
@@ -136,10 +136,7 @@ public class ProvisioningServiceSkeleton {
         }
         String protocol = req.getProtocol();
         String baseUrl = protocol.substring(0, protocol.indexOf("/"))
-                .toLowerCase()
-                + "://"
-                + req.getLocalAddr()
-                + ":"
+                .toLowerCase() + "://" + req.getLocalAddr() + ":"
                 + req.getLocalPort() + req.getContextPath();
         InstanceInfo instance = new InstanceInfo();
         instance.setInstanceId(instanceId);
@@ -195,8 +192,8 @@ public class ProvisioningServiceSkeleton {
         User[] users = createUsers.getCreateUsers().getUsers();
         UserResult userResult = new UserResult();
         for (User user : users) {
-            user.setApplicationUserId(String.valueOf(user.getUserId()
-                    .hashCode()));
+            user.setApplicationUserId(
+                    String.valueOf(user.getUserId().hashCode()));
         }
 
         // This was introduced in order to tests the timeout
@@ -335,7 +332,8 @@ public class ProvisioningServiceSkeleton {
                         if (checkParameter.getRc() != RETURN_CODE_OK) {
                             return checkParameter;
                         }
-                    } else if (PARAM_MAX_FOLDER_NUM.equals(sp.getParameterId())) {
+                    } else if (PARAM_MAX_FOLDER_NUM
+                            .equals(sp.getParameterId())) {
                         BaseResult checkParameter = checkParameter(instanceId,
                                 sp);
                         if (checkParameter.getRc() != RETURN_CODE_OK) {
@@ -395,8 +393,8 @@ public class ProvisioningServiceSkeleton {
     private void create(File location) throws IOException {
         boolean folderCreated = location.mkdirs();
         if (!folderCreated)
-            throw new IOException("Failed to create directory at "
-                    + location.getPath());
+            throw new IOException(
+                    "Failed to create directory at " + location.getPath());
     }
 
     public org.oscm.xsd.UpgradeSubscriptionResponseE upgradeSubscription(
@@ -442,4 +440,8 @@ public class ProvisioningServiceSkeleton {
                 + this.getClass().getName() + "#asyncUpgradeSubscription");
     }
 
+    public org.oscm.xsd.SaveAttributesResponseE saveAttributes(
+            org.oscm.xsd.SaveAttributesE saveAttributes) {
+        return new SaveAttributesResponseE();
+    }
 }

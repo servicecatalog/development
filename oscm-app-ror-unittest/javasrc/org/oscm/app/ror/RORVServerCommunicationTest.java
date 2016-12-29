@@ -25,7 +25,6 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-
 import org.oscm.app.iaas.PropertyHandler;
 import org.oscm.app.iaas.data.FlowState;
 import org.oscm.app.iaas.data.Network;
@@ -40,10 +39,11 @@ import org.oscm.app.ror.data.LPlatformStatus;
 import org.oscm.app.ror.data.LServerConfiguration;
 import org.oscm.app.ror.data.LServerStatus;
 import org.oscm.app.ror.exceptions.RORException;
-import org.oscm.app.v1_0.data.ProvisioningSettings;
-import org.oscm.app.v1_0.exceptions.APPlatformException;
-import org.oscm.app.v1_0.exceptions.InstanceExistsException;
-import org.oscm.app.v1_0.exceptions.SuspendException;
+import org.oscm.app.v2_0.data.ProvisioningSettings;
+import org.oscm.app.v2_0.data.Setting;
+import org.oscm.app.v2_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.exceptions.InstanceExistsException;
+import org.oscm.app.v2_0.exceptions.SuspendException;
 
 /**
  * @author iversen
@@ -55,8 +55,8 @@ public class RORVServerCommunicationTest {
     private LServerClient lServerClient;
     private LServerConfiguration lServerConfiguration;
     private PropertyHandler paramHandler;
-    private HashMap<String, String> parameters;
-    HashMap<String, String> configSettings;
+    private HashMap<String, Setting> parameters;
+    HashMap<String, Setting> configSettings;
     private ProvisioningSettings settings;
 
     private final String SERVERTYPE1 = "SERVERTYPE1";
@@ -71,8 +71,8 @@ public class RORVServerCommunicationTest {
         rorVServerCommunication = spy(new RORVServerCommunication());
         lServerClient = mock(LServerClient.class);
         lServerConfiguration = mock(LServerConfiguration.class);
-        parameters = new HashMap<String, String>();
-        configSettings = new HashMap<String, String>();
+        parameters = new HashMap<>();
+        configSettings = new HashMap<>();
         settings = new ProvisioningSettings(parameters, configSettings, "en");
         paramHandler = spy(new PropertyHandler(settings));
 
@@ -159,7 +159,8 @@ public class RORVServerCommunicationTest {
         LPlatformClient lPlatformClient = mock(LPlatformClient.class);
         LPlatformConfiguration lPlatformConfiguration = mock(LPlatformConfiguration.class);
         paramHandler.getIaasContext().add(lPlatformConfiguration);
-        parameters.put(PropertyHandler.NETWORK_ID, "");
+        parameters.put(PropertyHandler.NETWORK_ID, new Setting(
+                PropertyHandler.NETWORK_ID, ""));
         List<Network> networks = new ArrayList<>();
         networks.add(new Network(NETWORKID1, "net", NETWORKID1, 2));
 
@@ -203,7 +204,8 @@ public class RORVServerCommunicationTest {
         LPlatformConfiguration lPlatformConfiguration = mock(LPlatformConfiguration.class);
         VSystemConfiguration vSystemConfiguration = null;
         paramHandler.getIaasContext().add(vSystemConfiguration);
-        parameters.put(PropertyHandler.NETWORK_ID, NETWORKID1 + "_name");
+        parameters.put(PropertyHandler.NETWORK_ID, new Setting(
+                PropertyHandler.NETWORK_ID, NETWORKID1 + "_name"));
         List<Network> networks = new ArrayList<>();
         networks.add(new Network(NETWORKID1 + "_name", "net", NETWORKID1, 2));
         networks.add(new Network(NETWORKID2 + "_name", "net", NETWORKID2, 2));
@@ -228,7 +230,8 @@ public class RORVServerCommunicationTest {
         LPlatformConfiguration lPlatformConfiguration = mock(LPlatformConfiguration.class);
         VSystemConfiguration vSystemConfiguration = null;
         paramHandler.getIaasContext().add(vSystemConfiguration);
-        parameters.put(PropertyHandler.NETWORK_ID, NETWORKID1);
+        parameters.put(PropertyHandler.NETWORK_ID, new Setting(
+                PropertyHandler.NETWORK_ID, NETWORKID1));
         List<Network> networks = new ArrayList<>();
         networks.add(new Network(NETWORKID1 + "_name", "net", NETWORKID1, 2));
         networks.add(new Network(NETWORKID2 + "_name", "net", NETWORKID2, 2));
@@ -253,7 +256,8 @@ public class RORVServerCommunicationTest {
         LPlatformConfiguration lPlatformConfiguration = mock(LPlatformConfiguration.class);
         VSystemConfiguration vSystemConfiguration = null;
         paramHandler.getIaasContext().add(vSystemConfiguration);
-        parameters.put(PropertyHandler.NETWORK_ID, NETWORKID1 + "_name");
+        parameters.put(PropertyHandler.NETWORK_ID, new Setting(
+                PropertyHandler.NETWORK_ID, NETWORKID1 + "_name"));
         List<Network> networks = new ArrayList<>();
         networks.add(new Network(NETWORKID1 + "_name", "net", NETWORKID1, 2));
         networks.add(new Network(NETWORKID1 + "_name", "net", NETWORKID2, 2));
@@ -275,7 +279,8 @@ public class RORVServerCommunicationTest {
         LPlatformConfiguration lPlatformConfiguration = mock(LPlatformConfiguration.class);
         VSystemConfiguration vSystemConfiguration = null;
         paramHandler.getIaasContext().add(vSystemConfiguration);
-        parameters.put(PropertyHandler.NETWORK_ID, NETWORKID1);
+        parameters.put(PropertyHandler.NETWORK_ID, new Setting(
+                PropertyHandler.NETWORK_ID, NETWORKID1));
         List<Network> networks = new ArrayList<>();
         networks.add(new Network("NETWORKID1", "net", NETWORKID1, 2));
         networks.add(new Network("NETWORKID2", "net", NETWORKID2, 2));
@@ -301,7 +306,8 @@ public class RORVServerCommunicationTest {
         LPlatformConfiguration lPlatformConfiguration = mock(LPlatformConfiguration.class);
         VSystemConfiguration vSystemConfiguration = null;
         paramHandler.getIaasContext().add(vSystemConfiguration);
-        parameters.put(PropertyHandler.NETWORK_ID, NETWORKID1);
+        parameters.put(PropertyHandler.NETWORK_ID, new Setting(
+                PropertyHandler.NETWORK_ID, NETWORKID1));
 
         doReturn(lPlatformClient).when(rorVServerCommunication)
                 .getLPlatformClient(paramHandler);
@@ -352,9 +358,10 @@ public class RORVServerCommunicationTest {
             throws Exception {
         // given
         RORClient rorClient = mock(RORClient.class);
-        parameters.put(PropertyHandler.VSERVER_TYPE, SERVERTYPE2);
+        parameters.put(PropertyHandler.VSERVER_TYPE, new Setting(
+                PropertyHandler.VSERVER_TYPE, SERVERTYPE2));
 
-        List<String> serverList = new ArrayList<String>();
+        List<String> serverList = new ArrayList<>();
         serverList.add(SERVERTYPE1);
 
         doReturn(rorClient).when(rorVServerCommunication).getVdcClient(
@@ -373,9 +380,10 @@ public class RORVServerCommunicationTest {
     public void isServerTypeValid_valid() throws Exception {
         // given
         RORClient rorClient = mock(RORClient.class);
-        parameters.put(PropertyHandler.VSERVER_TYPE, SERVERTYPE1);
+        parameters.put(PropertyHandler.VSERVER_TYPE, new Setting(
+                PropertyHandler.VSERVER_TYPE, SERVERTYPE1));
 
-        List<String> serverList = new ArrayList<String>();
+        List<String> serverList = new ArrayList<>();
         serverList.add(SERVERTYPE1);
         serverList.add(SERVERTYPE2);
 

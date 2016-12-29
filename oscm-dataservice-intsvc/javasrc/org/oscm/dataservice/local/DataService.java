@@ -15,6 +15,8 @@ package org.oscm.dataservice.local;
 import java.util.List;
 
 import javax.ejb.Local;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
@@ -65,6 +67,17 @@ public interface DataService {
      * @return the found DomainObject
      */
     public DomainObject<?> find(DomainObject<?> idobj);
+
+    /**
+     * Works similarly as the #{find} method but is dedicated for PlatformUsers only.
+     * It uses findByBusinessKey method if tenantIs set on user and findByUserId if
+     * tenant is null or equals to default tenant in the system.
+     *
+     * @param pu
+     *            PlatformUser object holding the search criteria
+     * @return the found DomainObject
+     */
+    PlatformUser find(PlatformUser pu);
 
     /**
      * Persists a domain object and automatically creates a corresponding
@@ -310,4 +323,19 @@ public interface DataService {
      * @return the entity manager
      */
     public EntityManager getEntityManager();
+
+    /**
+     * Note: This method is intended for internal usage only.
+     *
+     * Persists a PlatformUser object in the database. It should be only used while persisting with tenant.
+     * If you are not 100% sure that you need to use that, go with the {@link #persist(DomainObject)} instead.
+     *
+     * @param pu
+     *            platform user object
+     * @param tenantId tenant id to which user will belong
+     * @throws NonUniqueBusinessKeyException
+     *             Thrown if an object with the same business key already exists
+     *             in the database
+     */
+    void persistPlatformUserWithTenant(PlatformUser pu, String tenantId) throws NonUniqueBusinessKeyException;
 }

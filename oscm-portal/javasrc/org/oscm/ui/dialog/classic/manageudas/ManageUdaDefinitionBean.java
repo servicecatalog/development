@@ -9,23 +9,25 @@
 package org.oscm.ui.dialog.classic.manageudas;
 
 import java.io.Serializable;
+import java.security.GeneralSecurityException;
 import java.util.List;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
+import javax.faces.event.ValueChangeEvent;
 
-import org.oscm.ui.beans.BaseBean;
 import org.oscm.internal.intf.AccountService;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.SaaSApplicationException;
+import org.oscm.ui.beans.BaseBean;
 
 /**
  * @author yuyin
  * 
  */
 @ViewScoped
-@ManagedBean(name="manageUdaDefinitionBean")
+@ManagedBean(name = "manageUdaDefinitionBean")
 public class ManageUdaDefinitionBean extends BaseBean implements Serializable {
 
     private static final long serialVersionUID = -2833012635378419493L;
@@ -75,7 +77,8 @@ public class ManageUdaDefinitionBean extends BaseBean implements Serializable {
      *         OUTCOME_ERROR if encounter some error when updating
      * @throws SaaSApplicationException
      */
-    public String update() throws SaaSApplicationException {
+    public String update()
+            throws SaaSApplicationException, GeneralSecurityException {
         // delegate to controller
         try {
             controller.updateUdaDefinition();
@@ -145,11 +148,8 @@ public class ManageUdaDefinitionBean extends BaseBean implements Serializable {
      * @param currentUda
      */
     public void setCurrentUda(UdaDefinitionRowModel currentUda) {
-        controller
-                .getModel()
-                .setCurrentUda(
-                        UdaModelConverter
-                                .convertUdaDefinitionRowModelToUdaDefDetails(currentUda));
+        controller.getModel().setCurrentUda(UdaModelConverter
+                .convertUdaDefinitionRowModelToUdaDefDetails(currentUda));
     }
 
     /**
@@ -218,6 +218,13 @@ public class ManageUdaDefinitionBean extends BaseBean implements Serializable {
         controller.setModel(null);
 
         return OUTCOME_SUCCESS;
+    }
+
+    public void changeLanguage(final ValueChangeEvent event) {
+        String attrName = controller.getLocalizedAttributeName(
+                controller.getModel().getCurrentUdaDefinition().getKey(),
+                event.getNewValue().toString());
+        controller.getModel().getCurrentUdaDefinition().setName(attrName);
     }
 
 }

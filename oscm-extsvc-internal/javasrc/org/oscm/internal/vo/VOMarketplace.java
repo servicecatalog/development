@@ -28,6 +28,8 @@ public class VOMarketplace extends BaseVO implements Serializable {
     private String owningOrganizationName;
 
     private String owningOrganizationId;
+    
+    private String tenantId;
 
     private boolean taggingEnabled = true;
     private boolean reviewEnabled = true;
@@ -45,7 +47,7 @@ public class VOMarketplace extends BaseVO implements Serializable {
 
     /**
      * Sets the unique identifier of the marketplace.
-     * 
+     *
      * @param marketplaceId
      *            the marketplace ID
      */
@@ -55,7 +57,7 @@ public class VOMarketplace extends BaseVO implements Serializable {
 
     /**
      * Retrieves the unique identifier of the marketplace.
-     * 
+     *
      * @return the marketplace ID
      */
     public String getMarketplaceId() {
@@ -64,7 +66,7 @@ public class VOMarketplace extends BaseVO implements Serializable {
 
     /**
      * Sets the name of the marketplace.
-     * 
+     *
      * @param name
      *            the marketplace name
      */
@@ -74,7 +76,7 @@ public class VOMarketplace extends BaseVO implements Serializable {
 
     /**
      * Retrieves the name of the marketplace.
-     * 
+     *
      * @return the marketplace name
      */
     public String getName() {
@@ -86,7 +88,7 @@ public class VOMarketplace extends BaseVO implements Serializable {
      * supplier, broker, and reseller organization to publish services, or
      * whether it is restricted to specific suppliers, brokers, and resellers
      * admitted by the marketplace owner.
-     * 
+     *
      * @return <code>true</code> for an open marketplace, <code>false</code>
      *         otherwise
      */
@@ -99,7 +101,7 @@ public class VOMarketplace extends BaseVO implements Serializable {
      * reseller organization to publish services, or whether it is restricted to
      * specific suppliers, brokers, and resellers admitted by the marketplace
      * owner.
-     * 
+     *
      * @param open
      *            <code>true</code> for an open marketplace, <code>false</code>
      *            otherwise
@@ -110,7 +112,7 @@ public class VOMarketplace extends BaseVO implements Serializable {
 
     /**
      * Retrieves the ID of the marketplace owner organization.
-     * 
+     *
      * @return the organization ID
      */
     public String getOwningOrganizationId() {
@@ -120,7 +122,7 @@ public class VOMarketplace extends BaseVO implements Serializable {
     /**
      * Returns whether the tags of the tag cloud are displayed on the
      * marketplace.
-     * 
+     *
      * @return <code>true</code> if the tag cloud is enabled, <code>false</code>
      *         otherwise
      */
@@ -131,7 +133,7 @@ public class VOMarketplace extends BaseVO implements Serializable {
     /**
      * Specifies whether the tags of the tag cloud are displayed on the
      * marketplace.
-     * 
+     *
      * @param taggingEnabled
      *            <code>true</code> if the tag cloud is to be enabled,
      *            <code>false</code> otherwise
@@ -143,7 +145,7 @@ public class VOMarketplace extends BaseVO implements Serializable {
     /**
      * Returns whether reviews and ratings can be made and are shown on the
      * marketplace.
-     * 
+     *
      * @return <code>true</code> if reviews are enabled, <code>false</code>
      *         otherwise
      */
@@ -154,7 +156,7 @@ public class VOMarketplace extends BaseVO implements Serializable {
     /**
      * Specifies whether reviews and ratings can be made and are shown on the
      * marketplace.
-     * 
+     *
      * @param reviewEnabled
      *            <code>true</code> if reviews are to be enabled,
      *            <code>false</code> otherwise
@@ -165,7 +167,7 @@ public class VOMarketplace extends BaseVO implements Serializable {
 
     /**
      * Returns whether social bookmarks are shown on the marketplace.
-     * 
+     *
      * @return <code>true</code> if social bookmarks are enabled,
      *         <code>false</code> otherwise
      */
@@ -175,7 +177,7 @@ public class VOMarketplace extends BaseVO implements Serializable {
 
     /**
      * Specifies whether social bookmarks are shown on the marketplace.
-     * 
+     *
      * @param socialBookmarkEnabled
      *            <code>true</code> if social bookmarks are to be enabled,
      *            <code>false</code> otherwise
@@ -186,7 +188,7 @@ public class VOMarketplace extends BaseVO implements Serializable {
 
     /**
      * Sets the ID of the marketplace owner organization.
-     * 
+     *
      * @param id
      *            the organization ID
      */
@@ -196,7 +198,7 @@ public class VOMarketplace extends BaseVO implements Serializable {
 
     /**
      * Retrieves the name of the marketplace owner organization.
-     * 
+     *
      * @return the organization name
      */
     public String getOwningOrganizationName() {
@@ -205,7 +207,7 @@ public class VOMarketplace extends BaseVO implements Serializable {
 
     /**
      * Sets the name of the marketplace owner organization.
-     * 
+     *
      * @param name
      *            the organization name
      */
@@ -216,7 +218,7 @@ public class VOMarketplace extends BaseVO implements Serializable {
     /**
      * Specifies whether categories are available for searching and browsing on
      * the marketplace.
-     * 
+     *
      * @param categoriesEnabled
      *            <code>true</code> if categories are to be enabled,
      *            <code>false</code> otherwise
@@ -228,7 +230,7 @@ public class VOMarketplace extends BaseVO implements Serializable {
     /**
      * Returns whether categories are available for searching and browsing on
      * the marketplace.
-     * 
+     *
      * @return <code>true</code> if categories are enabled, <code>false</code>
      *         otherwise
      */
@@ -238,7 +240,7 @@ public class VOMarketplace extends BaseVO implements Serializable {
 
     /**
      * Returns a hash code value for the object.
-     * 
+     *
      * @return the hash code
      */
     @Override
@@ -248,7 +250,7 @@ public class VOMarketplace extends BaseVO implements Serializable {
 
     /**
      * Indicates whether the given object is equal to this one.
-     * 
+     *
      * @param obj
      *            the reference object with which to compare
      * @return <code>true</code> if this object is the same as the
@@ -289,4 +291,13 @@ public class VOMarketplace extends BaseVO implements Serializable {
     public void setHasPublicLandingPage(boolean hasPublicLandingPage) {
         this.hasPublicLandingPage = hasPublicLandingPage;
     }
+
+    public String getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(String tenantId) {
+        this.tenantId = tenantId;
+    }
+
 }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Copyright FUJITSU LIMITED 2016-->
 
-<project name="Build all ADM UM Projects" basedir="." xmlns:if="ant:if">
+<project name="Build all ADM UM Projects" basedir="." xmlns:if="ant:if"  xmlns:jacoco="antlib:org.jacoco.ant">
 
   <description>
     Main build file for all ADM UM projects. It triggers the build of a given
@@ -240,6 +240,14 @@
     </sequential>
   </macrodef>
 
+  <target name="merge">
+    <!-- Invoke the ant task and provide the name of the merged result file -->
+    <jacoco:merge destfile="${result.dir}/reports/merged_jacoco.exec">
+      <!-- specify the folder which contains all exec files which have to be merged -->
+      <fileset dir="${result.dir}/work" includes="**/*.exec"/>
+    </jacoco:merge>
+  </target>
+
   <macrodef name="createittestreport">
     <sequential>
       <mkdir dir="${result.reports.test.it.dir}" />
@@ -370,6 +378,7 @@
   <target name="unittests" depends="_log, _dependencies" description="Resolves dependencies, runs unittests">
     <buildproject target="unittests" />
     <createtestreport />
+    <antcall target="merge"/>
     <antcall target="checkUnitResult">
       <param name="unit.result.dir" location="${result.reports.test.dir}" />
     </antcall>

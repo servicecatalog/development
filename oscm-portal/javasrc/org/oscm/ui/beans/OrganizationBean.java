@@ -24,7 +24,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
 
 import org.apache.myfaces.custom.fileupload.UploadedFile;
-
+import org.oscm.internal.vo.*;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.converter.PropertiesLoader;
@@ -42,6 +42,7 @@ import org.oscm.internal.types.exception.DeletionConstraintException;
 import org.oscm.internal.types.exception.ImageException;
 import org.oscm.internal.types.exception.MailOperationException;
 import org.oscm.internal.types.exception.MarketingPermissionNotFoundException;
+import org.oscm.internal.types.exception.MarketplaceRemovedException;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.OperationNotPermittedException;
@@ -52,13 +53,6 @@ import org.oscm.internal.types.exception.TechnicalServiceNotAliveException;
 import org.oscm.internal.types.exception.TechnicalServiceOperationException;
 import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.internal.usergroupmgmt.POUserGroup;
-import org.oscm.internal.vo.LdapProperties;
-import org.oscm.internal.vo.VODiscount;
-import org.oscm.internal.vo.VOOrganization;
-import org.oscm.internal.vo.VOTechnicalService;
-import org.oscm.internal.vo.VOUda;
-import org.oscm.internal.vo.VOUdaDefinition;
-import org.oscm.internal.vo.VOUserDetails;
 
 /**
  * Backing bean for organization related actions
@@ -521,7 +515,9 @@ public class OrganizationBean extends BaseBean implements Serializable {
     public VOOrganization getCustomerToAdd() {
         if (customerToAdd == null) {
             customerToAdd = new VOOrganization();
-            customerToAdd.setLocale(getUserFromSession().getLocale());
+            User user = getUserFromSession();
+            customerToAdd.setLocale(user.getLocale());
+            customerToAdd.setTenantKey(user.getTenantKey());
         }
         return customerToAdd;
     }
@@ -530,9 +526,11 @@ public class OrganizationBean extends BaseBean implements Serializable {
         customerToAdd = customer;
     }
 
-    public User getCustomerUserToAdd() {
+    public User getCustomerUserToAdd() throws MarketplaceRemovedException {
         if (customerUserToAdd == null) {
             customerUserToAdd = new User(new VOUserDetails());
+            customerUserToAdd.getVOUserDetails().setTenantId(
+                    sessionBean.getTenantID());
         }
         return customerUserToAdd;
     }
@@ -640,7 +638,7 @@ public class OrganizationBean extends BaseBean implements Serializable {
     void initializeGroups() {
         StringBuilder groupsToDisplay = new StringBuilder();
         List<POUserGroup> groups = getUserGroupService()
-                .getUserGroupsForUserWithoutDefault(currentUser.getUserId());
+                .getUserGroupsForUserWithoutDefault(currentUser.getKey());
         for (POUserGroup group : groups) {
             groupsToDisplay.append(group.getGroupName());
             groupsToDisplay.append(", ");

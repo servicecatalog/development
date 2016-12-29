@@ -182,7 +182,23 @@
         </a4j:outputPanel>
       </a4j:outputPanel>
 
+      <a4j:outputPanel id="administration" layout="block" styleClass="col2span marginCenter marginBottomDefault"
+                       rendered="#{userBean.administrationAccess and empty appBean.hiddenUIElements['marketplace.navigation.Administration']}">
+        <a4j:outputPanel layout="block" styleClass="box serviceBox2span">
+          <mp:outputStep value="#{msg['marketplace.account.administration.title']}" />
+          <a4j:outputPanel layout="block" styleClass="accountBox">
+            <h:outputText value="#{msg['marketplace.account.administration.description']}" />
+          </a4j:outputPanel>
+          <mp:pixelline marginTop="11" />
+          <a4j:outputPanel layout="block" styleClass="clearfix">
+            <mp:button id="showAdministrationButton"
+                       onclick="AdmUtils.showProgress(true);location.href='#{userBean.adminPortalAddress}';return false;"
+                       value="#{msg['marketplace.account.button.show']}" />
+          </a4j:outputPanel>
+        </a4j:outputPanel>
+      </a4j:outputPanel>
     </a4j:outputPanel>
+
 
   </ui:define>
 </ui:composition>

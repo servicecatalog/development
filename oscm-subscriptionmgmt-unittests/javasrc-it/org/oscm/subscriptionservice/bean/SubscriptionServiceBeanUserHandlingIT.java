@@ -36,6 +36,7 @@ import org.oscm.domobjects.TriggerProcess;
 import org.oscm.domobjects.UsageLicense;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.domobjects.enums.OrganizationReferenceType;
+import org.oscm.encrypter.AESEncrypter;
 import org.oscm.identityservice.assembler.UserDataAssembler;
 import org.oscm.identityservice.bean.IdManagementStub;
 import org.oscm.interceptor.AuditLogDataInterceptor;
@@ -50,7 +51,7 @@ import org.oscm.internal.types.exception.TechnicalServiceOperationException;
 import org.oscm.internal.vo.VOUsageLicense;
 import org.oscm.internal.vo.VOUser;
 import org.oscm.provisioning.data.User;
-import org.oscm.sessionservice.bean.SessionManagementStub;
+import org.oscm.sessionservice.bean.SessionManagementStub2;
 import org.oscm.taskhandling.local.TaskMessage;
 import org.oscm.taskhandling.operations.SendMailHandler;
 import org.oscm.taskhandling.payloads.SendMailPayload;
@@ -97,6 +98,7 @@ public class SubscriptionServiceBeanUserHandlingIT extends EJBTestBase {
 
     @Override
     public void setup(TestContainer container) throws Exception {
+        AESEncrypter.generateKey();
         container.enableInterfaceMocking(true);
         container.addBean(new AuditLogDao());
         container.addBean(new AuditLogServiceBean());
@@ -129,7 +131,7 @@ public class SubscriptionServiceBeanUserHandlingIT extends EJBTestBase {
                     List<UsageLicense> licenses) {
             }
         });
-        container.addBean(new SessionManagementStub());
+        container.addBean(new SessionManagementStub2());
         container.addBean(new IdManagementStub());
         container.addBean(mock(TenantProvisioningServiceBean.class));
         container.addBean(new CommunicationServiceStub() {
@@ -214,7 +216,7 @@ public class SubscriptionServiceBeanUserHandlingIT extends EJBTestBase {
 
         // revoke both of the users
         mailCounter = 0;
-        List<VOUser> usersToRemove = new ArrayList<VOUser>();
+        List<VOUser> usersToRemove = new ArrayList<>();
         for (PlatformUser user : users) {
             usersToRemove.add(UserDataAssembler.toVOUser(user));
         }
@@ -226,7 +228,8 @@ public class SubscriptionServiceBeanUserHandlingIT extends EJBTestBase {
 
         try {
             subMgmt.addRevokeUser(subId, null, usersToRemove);
-            Assert.fail("Removal of a non existing user from a subscription must not work");
+            Assert.fail(
+                    "Removal of a non existing user from a subscription must not work");
         } catch (ObjectNotFoundException ignore) {
             // expected
         }
@@ -255,7 +258,8 @@ public class SubscriptionServiceBeanUserHandlingIT extends EJBTestBase {
         throwTechnicalProductOperationFailed = true;
         try {
             subMgmt.addRevokeUser(subId, usersToBeAdded, null);
-            Assert.fail("Call to service must not succeed, as it should be pretended that it is not available");
+            Assert.fail(
+                    "Call to service must not succeed, as it should be pretended that it is not available");
         } catch (TechnicalServiceOperationException e) {
             // expected
         }
@@ -276,7 +280,8 @@ public class SubscriptionServiceBeanUserHandlingIT extends EJBTestBase {
         throwTechnicalProductNotAliveException = true;
         try {
             subMgmt.addRevokeUser(subId, usersToBeAdded, null);
-            Assert.fail("Call to service must not succeed, as it should be pretended that it is not available");
+            Assert.fail(
+                    "Call to service must not succeed, as it should be pretended that it is not available");
         } catch (TechnicalServiceNotAliveException e) {
             verifyUserChangesAndMails(0, 0);
         }
@@ -289,7 +294,7 @@ public class SubscriptionServiceBeanUserHandlingIT extends EJBTestBase {
      * @return The currently assigned users for the subscription.
      */
     private List<VOUsageLicense> addUsersToSubscription() {
-        List<VOUsageLicense> list = new ArrayList<VOUsageLicense>();
+        List<VOUsageLicense> list = new ArrayList<>();
 
         for (PlatformUser user : users) {
             VOUsageLicense lic = new VOUsageLicense();
@@ -362,9 +367,9 @@ public class SubscriptionServiceBeanUserHandlingIT extends EJBTestBase {
         final TechnicalProduct tp = runTX(new Callable<TechnicalProduct>() {
             @Override
             public TechnicalProduct call() throws Exception {
-                TechnicalProduct tp = TechnicalProducts
-                        .createTechnicalProduct(mgr, supplier, "testTP", false,
-                                ServiceAccessType.LOGIN);
+                TechnicalProduct tp = TechnicalProducts.createTechnicalProduct(
+                        mgr, supplier, "testTP", false,
+                        ServiceAccessType.LOGIN);
                 return tp;
             }
         });
@@ -392,7 +397,7 @@ public class SubscriptionServiceBeanUserHandlingIT extends EJBTestBase {
         users = runTX(new Callable<List<PlatformUser>>() {
             @Override
             public List<PlatformUser> call() throws Exception {
-                List<PlatformUser> users = new ArrayList<PlatformUser>();
+                List<PlatformUser> users = new ArrayList<>();
                 users.add(Organizations.createUserForOrg(mgr, customer, true,
                         "user1"));
                 users.add(Organizations.createUserForOrg(mgr, customer, true,
@@ -402,9 +407,8 @@ public class SubscriptionServiceBeanUserHandlingIT extends EJBTestBase {
             }
         });
 
-        users.get(0).setAssignedRoles(
-                UserRoles.createRoleAssignments(users.get(0),
-                        UserRoleType.ORGANIZATION_ADMIN));
+        users.get(0).setAssignedRoles(UserRoles.createRoleAssignments(
+                users.get(0), UserRoleType.ORGANIZATION_ADMIN));
         currentUser = users.get(0);
     }
 

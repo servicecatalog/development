@@ -8,6 +8,8 @@
 
 package org.oscm.ui.beans;
 
+import static org.oscm.ui.common.Constants.REQ_PARAM_TENANT_ID;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
@@ -16,6 +18,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.ejb.EJB;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
@@ -29,27 +32,13 @@ import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.myfaces.custom.fileupload.UploadedFile;
-
-import org.oscm.internal.intf.ConfigurationService;
-import org.oscm.internal.intf.IdentityService;
-import org.oscm.internal.intf.MarketplaceService;
+import org.oscm.internal.intf.*;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.types.enumtypes.UserAccountStatus;
 import org.oscm.internal.types.enumtypes.UserRoleType;
-import org.oscm.internal.types.exception.LoginToClosedMarketplaceException;
-import org.oscm.internal.types.exception.MailOperationException;
-import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.types.exception.OperationNotPermittedException;
-import org.oscm.internal.types.exception.OperationPendingException;
-import org.oscm.internal.types.exception.OrganizationRemovedException;
-import org.oscm.internal.types.exception.SAML2AuthnRequestException;
-import org.oscm.internal.types.exception.SaaSApplicationException;
-import org.oscm.internal.types.exception.SaaSSystemException;
-import org.oscm.internal.types.exception.SecurityCheckException;
-import org.oscm.internal.types.exception.UserRoleAssignmentException;
-import org.oscm.internal.types.exception.ValidationException;
+import org.oscm.internal.types.exception.*;
 import org.oscm.internal.vo.VOConfigurationSetting;
 import org.oscm.internal.vo.VOUser;
 import org.oscm.internal.vo.VOUserDetails;
@@ -59,14 +48,11 @@ import org.oscm.resolver.IPResolver;
 import org.oscm.types.constants.Configuration;
 import org.oscm.types.constants.marketplace.Marketplace;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
-import org.oscm.ui.common.ADMStringUtils;
-import org.oscm.ui.common.Constants;
-import org.oscm.ui.common.JSFUtils;
-import org.oscm.ui.common.ServiceAccess;
-import org.oscm.ui.common.SessionListener;
+import org.oscm.ui.common.*;
 import org.oscm.ui.dialog.common.saml2.AuthenticationHandler;
 import org.oscm.ui.dialog.state.TableState;
 import org.oscm.ui.filter.AuthenticationSettings;
+import org.oscm.ui.filter.AuthorizationRequestData;
 import org.oscm.ui.model.User;
 import org.oscm.ui.model.UserRole;
 
@@ -103,6 +89,7 @@ public class UserBean extends BaseBean implements Serializable {
     private List<User> users;
     private String requestedRedirect;
     private String confirmedRedirect;
+    private String tenantID;
     private String serviceLoginType = Constants.REQ_ATTR_LOGIN_TYPE_NO_MPL;
     private AuthenticationSettings authenticationSettings;
 
@@ -114,6 +101,9 @@ public class UserBean extends BaseBean implements Serializable {
 
     @ManagedProperty(value = "#{organizationBean}")
     private OrganizationBean organizationBean;
+
+    @EJB
+    private TenantService tenantService;
 
     private UploadedFile userImport;
     transient ApplicationBean appBean;
@@ -407,7 +397,7 @@ public class UserBean extends BaseBean implements Serializable {
 
     public String showDetails(String userId) {
         try {
-            getUserService().getUserAndSubscriptionDetails(userId);
+            getUserService().getUserAndSubscriptionDetails(userId, sessionBean.getTenantID());
             return BaseBean.OUTCOME_SHOW_DETAILS;
         } catch (ObjectNotFoundException e) {
             JSFUtils.addMessage(null, FacesMessage.SEVERITY_ERROR,
@@ -474,6 +464,7 @@ public class UserBean extends BaseBean implements Serializable {
             voUser.setOrganizationId(oId);
             voUser.setUserId(uId);
             try {
+                voUser.setTenantId(getMarketplaceService().getTenantIdFromMarketplace(getMarketplaceId()));
                 voUser = service.getUser(voUser);
             } catch (ObjectNotFoundException e) {
                 if (isServiceProvider() && !ADMStringUtils.isBlank(uId)) {
@@ -559,7 +550,7 @@ public class UserBean extends BaseBean implements Serializable {
             logger.logInfo(Log4jLogger.ACCESS_LOG,
                     LogMessageIdentifier.INFO_USER_LOGIN_SUCCESS,
                     voUser.getUserId(),
-                    IPResolver.resolveIpAddress(httpRequest));
+                    IPResolver.resolveIpAddress(httpRequest), voUser.getTenantId());
 
             // read the user details value object and store it in the session
             session.setAttribute(Constants.SESS_ATTR_USER,
@@ -820,7 +811,7 @@ public class UserBean extends BaseBean implements Serializable {
      * @throws OperationPendingException
      */
     public String createClassic() throws NonUniqueBusinessKeyException,
-            UserRoleAssignmentException, OperationPendingException {
+            UserRoleAssignmentException, OperationPendingException, MarketplaceRemovedException {
         if (isTokenValid()) {
             String newUserId = this.newUser.getUserId();
             String outcome = createInt(null);
@@ -851,7 +842,7 @@ public class UserBean extends BaseBean implements Serializable {
      * @throws OperationPendingException
      */
     String createInt(String mId) throws NonUniqueBusinessKeyException,
-            UserRoleAssignmentException, OperationPendingException {
+            UserRoleAssignmentException, OperationPendingException, MarketplaceRemovedException {
         try {
             List<UserRoleType> selectedRoles = new ArrayList<>();
             for (UserRole userRole : userRolesForNewUser) {
@@ -859,6 +850,7 @@ public class UserBean extends BaseBean implements Serializable {
                     selectedRoles.add(userRole.getUserRoleType());
                 }
             }
+            newUser.getVOUserDetails().setTenantId(sessionBean.getTenantID());
             VOUserDetails createdUser = getIdService().createUser(
                     newUser.getVOUserDetails(), selectedRoles, mId);
             newUser = null;
@@ -1084,21 +1076,27 @@ public class UserBean extends BaseBean implements Serializable {
                     session);
         } catch (SAML2AuthnRequestException e) {
             ui.handleError(null, BaseBean.ERROR_GENERATE_AUTHNREQUEST);
-            return OUTCOME_MARKETPLACE_ERROR_PAGE;
+        } catch (NotExistentTenantException | ObjectNotFoundException | MarketplaceRemovedException e) {
+            ui.handleError(null, BaseBean.ERROR_MISSING_TENANTID);
+        } catch (WrongTenantConfigurationException e) {
+            ui.handleError(null, BaseBean.ERROR_TENANT_SETTINGS_MISSING);
         }
+        return OUTCOME_MARKETPLACE_ERROR_PAGE;
     }
 
     protected AuthenticationSettings getAuthenticationSettings() {
         if (authenticationSettings == null) {
             authenticationSettings = new AuthenticationSettings(
-                    getConfigurationService());
+                    tenantService, getConfigurationService());
         }
         return authenticationSettings;
     }
 
-    protected AuthenticationHandler getAuthenticationHandler() {
+    protected AuthenticationHandler getAuthenticationHandler() throws ObjectNotFoundException, NotExistentTenantException, WrongTenantConfigurationException, MarketplaceRemovedException {
+        AuthenticationSettings authenticationSettings = getAuthenticationSettings();
+        authenticationSettings.init(sessionBean.getTenantID());
         return new AuthenticationHandler(getRequest(), getResponse(),
-                getAuthenticationSettings());
+                authenticationSettings);
     }
 
     public UploadedFile getUserImport() {
@@ -1133,6 +1131,10 @@ public class UserBean extends BaseBean implements Serializable {
         } catch (IOException ex) {
             throw new SaaSSystemException(ex);
         }
+    }
+
+    public String getAdminPortalAddress() {
+        return appBean.getServerBaseUrl();
     }
 
 }

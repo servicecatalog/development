@@ -8,8 +8,8 @@
 package org.oscm.app.iaas;
 
 import org.oscm.app.iaas.data.IaasContext;
-import org.oscm.app.v1_0.data.ProvisioningSettings;
-import org.oscm.app.v1_0.exceptions.ConfigurationException;
+import org.oscm.app.v2_0.data.ProvisioningSettings;
+import org.oscm.app.v2_0.exceptions.ConfigurationException;
 
 /**
  * Handles access to multi-dimensional service parameters.

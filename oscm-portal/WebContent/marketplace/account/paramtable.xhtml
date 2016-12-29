@@ -78,16 +78,27 @@
         </h:inputText>
         <h:inputText id="stringValue" label="#{row.label}" onchange="setDirty(true)" value="#{row.parameter.value}"
           maxlength="#{appBean.descriptionLen}" required="#{row.parameterDefinition.mandatory}" dataType="string"
-          disabled="#{readOnly}" rendered="#{row.parameterDefinition.valueTypeString and not row.passwordType}">
+          disabled="#{readOnly}"
+                     rendered="#{row.parameterDefinition.valueTypeString and not row.passwordType}">
           <f:validator validatorId="ParameterValueValidator" />
           <f:converter converterId="trimConverter" />
         </h:inputText>
-        <h:inputSecret id="pwdValue" label="#{row.label}" onchange="setDirty(true)" value="#{row.parameter.value}"
-          maxlength="#{appBean.descriptionLen}" required="#{row.parameterDefinition.mandatory}" dataType="string"
-          disabled="#{readOnly}" rendered="#{row.parameterDefinition.valueTypeString and row.passwordType}" redisplay="true">
+        <h:inputSecret id="pwdValue" label="#{row.label}" onchange="setDirty(true)" value="#{row.passwordValueToStore}"
+          maxlength="#{appBean.descriptionLen}" required="#{row.parameterDefinition.mandatory}"
+          disabled="false" rendered="#{row.parameterDefinition.valueTypeString and row.passwordType and not readOnly}" redisplay="true">
           <f:validator validatorId="ParameterValueValidator" />
           <f:converter converterId="trimConverter" />
         </h:inputSecret>
+        <h:outputText id ="pwdValueRO" label="#{row.label}" value="*****"
+                     rendered="#{row.parameterDefinition.valueTypeString and row.passwordType and readOnly}"/>
+        <h:inputSecret id="pwdTypeValue" label="#{row.label}" onchange="setDirty(true)" value="#{row.passwordValueToStore}"
+          maxlength="#{appBean.descriptionLen}" required="#{row.parameterDefinition.mandatory}"
+          disabled="false" rendered="#{row.parameterDefinition.valueTypePWD and not readOnly}" redisplay="true">
+          <f:validator validatorId="ParameterValueValidator" />
+          <f:converter converterId="trimConverter" />
+        </h:inputSecret>
+        <h:outputText id ="pwdTypeValueRO" label="#{row.label}" value="*****"
+                     rendered="#{row.parameterDefinition.valueTypePWD and readOnly}"/>
         <!-- enumeration value-->
         <t:inputHidden id="enumValue" value="#{row.parameter.value}"
           rendered="#{row.parameterDefinition.valueTypeEnumeration and not row.option}" />

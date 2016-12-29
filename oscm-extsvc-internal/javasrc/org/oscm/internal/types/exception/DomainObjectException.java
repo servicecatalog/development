@@ -372,7 +372,17 @@ public abstract class DomainObjectException extends SaaSApplicationException {
         /**
          * Marketplace access
          */
-        MARKETPLACE_ACCESS("marketplace_tkey, organization_tkey");
+        MARKETPLACE_ACCESS("marketplace_tkey, organization_tkey"),
+
+        /**
+         * Tenant
+         */
+        TENANT("tenantId"),
+        
+        /**
+         * 
+         */
+        TENANT_SETTING("name, tenant_tkey");
 
         /**
          * Stores the name of the fields containing the attribute name that

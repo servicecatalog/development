@@ -28,6 +28,18 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.MockitoAnnotations;
+import org.oscm.app.aws.EC2Communication;
+import org.oscm.app.aws.EC2Mockup;
+import org.oscm.app.aws.data.FlowState;
+import org.oscm.app.aws.data.Operation;
+import org.oscm.app.v2_0.data.InstanceStatus;
+import org.oscm.app.v2_0.data.PasswordAuthentication;
+import org.oscm.app.v2_0.data.ProvisioningSettings;
+import org.oscm.app.v2_0.data.Setting;
+import org.oscm.app.v2_0.data.User;
+import org.oscm.app.v2_0.intf.APPlatformService;
+import org.oscm.test.EJBTestBase;
+import org.oscm.test.ejb.TestContainer;
 
 import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.DescribeInstancesRequest;
@@ -35,23 +47,12 @@ import com.amazonaws.services.ec2.model.RunInstancesRequest;
 import com.amazonaws.services.ec2.model.StartInstancesRequest;
 import com.amazonaws.services.ec2.model.StopInstancesRequest;
 import com.amazonaws.services.ec2.model.TerminateInstancesRequest;
-import org.oscm.test.EJBTestBase;
-import org.oscm.test.ejb.TestContainer;
-import org.oscm.app.aws.EC2Communication;
-import org.oscm.app.aws.EC2Mockup;
-import org.oscm.app.aws.data.FlowState;
-import org.oscm.app.aws.data.Operation;
-import org.oscm.app.v1_0.data.InstanceStatus;
-import org.oscm.app.v1_0.data.PasswordAuthentication;
-import org.oscm.app.v1_0.data.ProvisioningSettings;
-import org.oscm.app.v1_0.data.User;
-import org.oscm.app.v1_0.intf.APPlatformService;
 
 public class EC2ProcessorTest extends EJBTestBase {
 
     private EC2Processor ec2proc;
-    private HashMap<String, String> parameters;
-    private HashMap<String, String> configSettings;
+    private HashMap<String, Setting> parameters;
+    private HashMap<String, Setting> configSettings;
     private ProvisioningSettings settings;
     private PropertyHandler ph;
     private AmazonEC2Client ec2;
@@ -61,23 +62,42 @@ public class EC2ProcessorTest extends EJBTestBase {
     private ArgumentCaptor<String> subject;
     @Captor
     private ArgumentCaptor<String> text;
-    
-    private final String KEY_PAIR_NAME=" Key pair name: ";
+
+    private final String KEY_PAIR_NAME = " Key pair name: ";
+
+    public static final String SUBNET = "subnet";
+    public static final String SECURITY_GROUP_NAMES = "security_group1,security_group2";
+    public static final String DISK_SIZE = "3";
+    private static final String INSTANCE_ID = "INSTANCE_1";
 
     @Override
     protected void setup(TestContainer container) throws Exception {
         MockitoAnnotations.initMocks(this);
         // Define controller settings
-        configSettings = new HashMap<String, String>();
-        configSettings.put(PropertyHandler.SECRET_KEY_PWD, "secret_key");
-        configSettings.put(PropertyHandler.ACCESS_KEY_ID_PWD, "access_key");
+        configSettings = new HashMap<>();
+        configSettings.put(PropertyHandler.SECRET_KEY_PWD, new Setting(
+                PropertyHandler.SECRET_KEY_PWD, "secret_key"));
+        configSettings.put(PropertyHandler.ACCESS_KEY_ID_PWD, new Setting(
+                PropertyHandler.ACCESS_KEY_ID_PWD, "access_key"));
 
         // Define parameters
-        parameters = new HashMap<String, String>();
-        parameters.put(PropertyHandler.REGION, "test");
-        parameters.put(PropertyHandler.KEY_PAIR_NAME, "key_pair");
-        parameters.put(PropertyHandler.INSTANCE_TYPE, "type1");
-        parameters.put(PropertyHandler.INSTANCENAME, "name1");
+        parameters = new HashMap<>();
+        parameters.put(PropertyHandler.REGION, new Setting(
+                PropertyHandler.REGION, "test"));
+        parameters.put(PropertyHandler.KEY_PAIR_NAME, new Setting(
+                PropertyHandler.KEY_PAIR_NAME, "key_pair"));
+        parameters.put(PropertyHandler.INSTANCE_TYPE, new Setting(
+                PropertyHandler.INSTANCE_TYPE, "type1"));
+        parameters.put(PropertyHandler.INSTANCENAME, new Setting(
+                PropertyHandler.INSTANCENAME, "name1"));
+
+        // new data
+        parameters.put(PropertyHandler.DISK_SIZE, new Setting(
+                PropertyHandler.DISK_SIZE, DISK_SIZE));
+        parameters.put(PropertyHandler.SUBNET, new Setting(
+                PropertyHandler.SUBNET, SUBNET));
+        parameters.put(PropertyHandler.SECURITY_GROUP_NAMES, new Setting(
+                PropertyHandler.SECURITY_GROUP_NAMES, SECURITY_GROUP_NAMES));
 
         settings = new ProvisioningSettings(parameters, configSettings, "en");
         settings.setOrganizationId("orgId");
@@ -98,6 +118,10 @@ public class EC2ProcessorTest extends EJBTestBase {
 
         ec2mock.createDescribeImagesResult("image1");
         ec2mock.createRunInstancesResult("instance1");
+        // new mock
+        ec2mock.createDescribeSubnetsResult(SUBNET);
+        ec2mock.createDescribeSecurityGroupResult(SUBNET, SECURITY_GROUP_NAMES);
+        ec2mock.createDescribeInstancesResult(INSTANCE_ID, "ok", "1.2.3.4");
 
         platformService = mock(APPlatformService.class);
         enableJndiMock();
@@ -176,7 +200,8 @@ public class EC2ProcessorTest extends EJBTestBase {
                 "ok");
         ph.setOperation(Operation.EC2_CREATION);
         ph.setState(FlowState.CREATING);
-        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, "mail1");
+        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, new Setting(
+                PropertyHandler.MAIL_FOR_COMPLETION, "mail1"));
         // when
         InstanceStatus result = ec2proc.process();
         // then
@@ -232,7 +257,8 @@ public class EC2ProcessorTest extends EJBTestBase {
         ec2mock.createDescribeInstancesResult("instance1", "running", "1.2.3.4");
         ph.setOperation(Operation.EC2_MODIFICATION);
         ph.setState(FlowState.UPDATING);
-        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, "mail1");
+        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, new Setting(
+                PropertyHandler.MAIL_FOR_COMPLETION, "mail1"));
         // when
         InstanceStatus result = ec2proc.process();
         // then
@@ -289,7 +315,8 @@ public class EC2ProcessorTest extends EJBTestBase {
                 "ok");
         ph.setOperation(Operation.EC2_DELETION);
         ph.setState(FlowState.DELETING);
-        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, "mail1");
+        parameters.put(PropertyHandler.MAIL_FOR_COMPLETION, new Setting(
+                PropertyHandler.MAIL_FOR_COMPLETION, "mail1"));
         // when
         InstanceStatus result = ec2proc.process();
         // then

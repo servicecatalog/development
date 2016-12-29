@@ -32,7 +32,7 @@ import org.oscm.test.ReflectiveCompare;
  */
 public class ModifiedUdaIT extends DomainObjectTestBase {
 
-    private List<DomainObjectWithVersioning<?>> domObjects = new ArrayList<DomainObjectWithVersioning<?>>();
+    private List<DomainObjectWithVersioning<?>> domObjects = new ArrayList<>();
     private static final long TARGET_OBJECT_KEY = 10001L;
     private static final long SUBSCRIPTION_KEY = 1001L;
     private static final String VALUE1 = "value1";
@@ -176,8 +176,9 @@ public class ModifiedUdaIT extends DomainObjectTestBase {
             qry.setTargetObjectType(modUda.getTargetObjectType());
             qry.setSubscriptionKey(modUda.getSubscriptionKey());
             saved = (ModifiedUda) mgr.find(qry);
-            assertNotNull("Cannot find '" + modUda.getTargetObjectKey()
-                    + "' in DB", saved);
+            assertNotNull(
+                    "Cannot find '" + modUda.getTargetObjectKey() + "' in DB",
+                    saved);
             assertTrue(ReflectiveCompare.showDiffs(saved, modUda),
                     ReflectiveCompare.compare(saved, modUda));
             assertEquals(modUda.getTargetObjectKey(),
@@ -193,7 +194,7 @@ public class ModifiedUdaIT extends DomainObjectTestBase {
             throws NonUniqueBusinessKeyException {
         domObjects.clear();
         ModifiedUda modifiedUda = givenModifiedUda(TARGET_OBJECT_KEY,
-                SUBSCRIPTION_KEY, VALUE1);
+                SUBSCRIPTION_KEY, VALUE1, false);
         mgr.persist(modifiedUda);
     }
 
@@ -210,7 +211,8 @@ public class ModifiedUdaIT extends DomainObjectTestBase {
         ModifiedUda saved = findModifiedUda(modifiedUda.getTargetObjectKey(),
                 modifiedUda.getSubscriptionKey());
         // Check ModifiedUda data
-        assertNotNull("Cannot find '" + modifiedUda.getKey() + "' in DB", saved);
+        assertNotNull("Cannot find '" + modifiedUda.getKey() + "' in DB",
+                saved);
         assertTrue(ReflectiveCompare.showDiffs(saved, modifiedUda),
                 ReflectiveCompare.compare(saved, modifiedUda));
     }
@@ -219,7 +221,7 @@ public class ModifiedUdaIT extends DomainObjectTestBase {
             throws NonUniqueBusinessKeyException {
         domObjects.clear();
         ModifiedUda modifiedUda = givenModifiedUda(TARGET_OBJECT_KEY,
-                SUBSCRIPTION_KEY, VALUE1);
+                SUBSCRIPTION_KEY, VALUE1, true);
         mgr.persist(modifiedUda);
     }
 
@@ -236,16 +238,19 @@ public class ModifiedUdaIT extends DomainObjectTestBase {
         ModifiedUda saved = findModifiedUda(modifiedUda.getTargetObjectKey(),
                 modifiedUda.getSubscriptionKey());
         // Check ModifiedUda data
-        assertNull("Deleted ModifiedUda '" + modifiedUda.getKey()
-                + "' can still be accessed via DataManager.find", saved);
+        assertNull(
+                "Deleted ModifiedUda '" + modifiedUda.getKey()
+                        + "' can still be accessed via DataManager.find",
+                saved);
     }
 
     private ModifiedUda givenModifiedUda(long targetObjectKey,
-            long subscriptionKey, String value) {
+            long subscriptionKey, String value, boolean encrypted) {
         ModifiedUda modifiedUda = new ModifiedUda();
         modifiedUda.setTargetObjectKey(targetObjectKey);
         modifiedUda.setTargetObjectType(ModifiedEntityType.UDA_VALUE);
         modifiedUda.setSubscriptionKey(subscriptionKey);
+        modifiedUda.setEncrypted(encrypted);
         modifiedUda.setValue(value);
         return modifiedUda;
     }

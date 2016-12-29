@@ -29,8 +29,7 @@ public enum ConfigurationKey {
             "locale. Default is UTF-8." })
     MAIL_JA_CHARSET(false, "UTF-8", "string"),
 
-    @Doc({
-            "The maximum number of login attempts. If a user does not log in",
+    @Doc({ "The maximum number of login attempts. If a user does not log in",
             "successfully with this number of attempts, his account is locked.",
             "The default is 3." })
     MAX_NUMBER_LOGIN_ATTEMPTS(false, "3", "long", Long.valueOf(1L), null, false),
@@ -49,15 +48,13 @@ public enum ConfigurationKey {
     @Example("https://<your server>:<your port>/oscm-portal")
     BASE_URL_HTTPS(true, null, "url"),
 
-    @Doc({
-            "URL to specify a Web page that is to be displayed in case the HTTP",
+    @Doc({ "URL to specify a Web page that is to be displayed in case the HTTP",
             "protocol is used and a customer tries to access a marketplace",
             "without a valid marketplace ID." })
     @Example("http://<your server>:<your port>/oscm-portal/marketplace?mid=8f78f156")
     MP_ERROR_REDIRECT_HTTP(false, null, "url"),
 
-    @Doc({
-            "URL to specify a Web page that is to be displayed in case the HTTPS",
+    @Doc({ "URL to specify a Web page that is to be displayed in case the HTTPS",
             "protocol is used and a customer tries to access a marketplace",
             "without a valid marketplace ID." })
     @Example("https://<your server>:<your port>/oscm-portal/marketplace?mid=8f78f156")
@@ -73,85 +70,72 @@ public enum ConfigurationKey {
     @Doc({ "The path to the log4j configuration file." })
     LOG_CONFIG_FILE(false, "./log4j.properties", "string"),
 
+    @Doc({ "Path to file which contains key to en/de-crypting values of service/instance parameters." })
+    @Example("<path>/key")
+    KEY_FILE_PATH(false, "./key", "string", false),
+
     @Doc({ "The number of decimal places for prices. Values between 2 and 6 are supported." })
     @Example("4")
-    DECIMAL_PLACES(false, "2", "long", Long.valueOf(2L), Long.valueOf(6L),
-            false),
+    DECIMAL_PLACES(false, "2", "long", Long.valueOf(2L), Long.valueOf(6L), false),
 
     @Doc({ "Specifies whether the customer self-registration is used for the",
             "current environment." })
     @Example("false")
     CUSTOMER_SELF_REGISTRATION_ENABLED(false, "true", "boolean"),
 
-    @Doc({
-            "The maximum time until an organization's initial administrative",
+    @Doc({ "The maximum time until an organization's initial administrative",
             "account must be confirmed. After this time has passed, the",
             "account may be removed. The value is in milliseconds, the default",
             "is seven days." })
-    PERMITTED_PERIOD_UNCONFIRMED_ORGANIZATIONS(false, "604800000", "long", Long
-            .valueOf(1L), null, false),
+    PERMITTED_PERIOD_UNCONFIRMED_ORGANIZATIONS(false, "604800000", "long", Long.valueOf(1L), null, false),
 
     @Doc({ "The time interval at which tasks related to organizations are",
             "executed. The value is in milliseconds. A value of 0 indicates",
             "that this timer is disabled." })
-    TIMER_INTERVAL_ORGANIZATION(false, "0", "long", Long.valueOf(0L), null,
-            false),
+    TIMER_INTERVAL_ORGANIZATION(false, "0", "long", Long.valueOf(0L), null, false),
 
     @Doc({ "The offset of the timer for organization-related tasks.",
             "The value is in milliseconds, based on January 1, 00:00." })
-    TIMER_INTERVAL_ORGANIZATION_OFFSET(false, "0", "long", Long.valueOf(0L),
-            null, false),
+    TIMER_INTERVAL_ORGANIZATION_OFFSET(false, "0", "long", Long.valueOf(0L), null, false),
 
-    @Doc({
-            "The time interval at which a check for expired subscriptions",
+    @Doc({ "The time interval at which a check for expired subscriptions",
             "is executed. The value is in milliseconds, the default is 24 hours.",
             "The value must be greater than 0." })
-    TIMER_INTERVAL_SUBSCRIPTION_EXPIRATION(false, "86400000", "long", Long
-            .valueOf(1L), null, false),
+    TIMER_INTERVAL_SUBSCRIPTION_EXPIRATION(false, "86400000", "long", Long.valueOf(1L), null, false),
 
     @Doc({ "The offset of the timer for subscription expiration checks.",
             "The value is in milliseconds, based on January 1, 00:00." })
-    TIMER_INTERVAL_SUBSCRIPTION_EXPIRATION_OFFSET(false, "0", "long", Long
-            .valueOf(0L), null, false),
+    TIMER_INTERVAL_SUBSCRIPTION_EXPIRATION_OFFSET(false, "0", "long", Long.valueOf(0L), null, false),
 
     @Doc({ "The time interval at which a check for timed-out pending",
             "subscriptions is executed. The value is in milliseconds.",
             "A value of 0 indicates that this timer is disabled." })
-    TIMER_INTERVAL_TENANT_PROVISIONING_TIMEOUT(false, "0", "long", Long
-            .valueOf(0L), null, false),
+    TIMER_INTERVAL_TENANT_PROVISIONING_TIMEOUT(false, "0", "long", Long.valueOf(0L), null, false),
 
     @Doc({ "The offset of the timer for pending subscription checks.",
             "The value is in milliseconds, based on January 1, 00:00." })
-    TIMER_INTERVAL_TENANT_PROVISIONING_TIMEOUT_OFFSET(false, "0", "long", Long
-            .valueOf(0L), null, false),
+    TIMER_INTERVAL_TENANT_PROVISIONING_TIMEOUT_OFFSET(false, "0", "long", Long.valueOf(0L), null, false),
 
     @Doc({ "The offset of the timer for terminating the discounts",
             "for all organizations. The timer interval is one day.",
             "The offset is in milliseconds, based on January 1, 00:00." })
-    TIMER_INTERVAL_DISCOUNT_END_NOTIFICATION_OFFSET(false, "0", "long", Long
-            .valueOf(0L), null, false),
+    TIMER_INTERVAL_DISCOUNT_END_NOTIFICATION_OFFSET(false, "0", "long", Long.valueOf(0L), null, false),
 
-    @Doc({
-            "The URL template of the report engine. If this value is not",
+    @Doc({ "The URL template of the report engine. If this value is not",
             "configured, reporting will not be available.",
             "It supports http and https to show report.",
             "But your server name must use fully qualified domain name when using https to show report." })
-    @Example("http://<your server>:<your port>/birt/frameset?__report=${reportname}" +
-            ".rptdesign&SessionId=${sessionid}&__locale=${locale}&WSDLURL=${wsdlurl}&SOAPEndPoint=${soapendpoint}&wsname=Report&wsport=ReportPort or https://<your server>:<your " +
-            "port>/birt/frameset?__report=${reportname}.rptdesign&SessionId=${sessionid}&__locale=${locale}&WSDLURL=${wsdlurl}&SOAPEndPoint=${soapendpoint}&wsname=ReportSecure" +
-            "&wsport=ReportSecurePort")
+    @Example("http://<your server>:<your port>/birt/frameset?__report=${reportname}" + ".rptdesign&SessionId=${sessionid}&__locale=${locale}&WSDLURL=${wsdlurl}&SOAPEndPoint=${soapendpoint}&wsname=Report&wsport=ReportPort or https://<your server>:<your " + "port>/birt/frameset?__report=${reportname}.rptdesign&SessionId=${sessionid}&__locale=${locale}&WSDLURL=${wsdlurl}&SOAPEndPoint=${soapendpoint}&wsname=ReportSecure" + "&wsport=ReportSecurePort")
     REPORT_ENGINEURL(false, "", "url"),
 
-    @Doc({
-            "The WSDL link to the reporting Web service. This value",
+    @Doc({ "The WSDL link to the reporting Web service. This value",
             "has to be configured when REPORT_ENGINEURL is set.",
             "It supports http and https to show report.",
             "But your server name must use fully qualified domain name when using https to show report." })
     @Example("http://<your server>:<your port>/Report/ReportingServiceBean?wsdl or https://<your server>:<your port>/ReportSecure/ReportingServiceSecureBean?wsdl")
     REPORT_WSDLURL(false, "", "url"),
 
-    @Doc({
-            "The SOAP end point of the reporting Web service. This value",
+    @Doc({ "The SOAP end point of the reporting Web service. This value",
             "has to be configured when REPORT_ENGINEURL is set.",
             "It supports http and https to show report.",
             "But your server name must use fully qualified domain name when using https to show report." })
@@ -162,16 +146,14 @@ public enum ConfigurationKey {
     HTTP_PROXY(false, "", "string"),
 
     @Doc({ "The proxy port to be used for HTTP connections, if any." })
-    HTTP_PROXY_PORT(false, "1080", "long", Long.valueOf(1L), Long
-            .valueOf(65535L), false),
+    HTTP_PROXY_PORT(false, "1080", "long", Long.valueOf(1L), Long.valueOf(65535L), false),
 
     @Doc({ "Specifies whether the PSP integration is used for the",
             "current environment." })
     @Example("false")
     PSP_USAGE_ENABLED(true, "false", "boolean"),
 
-    @Doc({
-            "The billing run offset and the timer's expiration time.",
+    @Doc({ "The billing run offset and the timer's expiration time.",
             "The value is configured in milliseconds.",
             "Values greater then 28 days will be set to 28 days with expiration time 00:00:00.0000",
             "The milliseconds are converted into day, hours, minutes, seconds, milliseconds.",
@@ -179,11 +161,9 @@ public enum ConfigurationKey {
             "To determine the billing-run-start-time the hour-, minute-, second-, millisecond-values will be used.",
             "The default billing-run-offset is 4 days, i.e. billing starts 4 days after period end.",
             "The default billing-run-start-time is 00:00:00.0000" })
-    TIMER_INTERVAL_BILLING_OFFSET(false, "345600000", "long", Long.valueOf(0L),
-            null, false),
+    TIMER_INTERVAL_BILLING_OFFSET(false, "345600000", "long", Long.valueOf(0L), null, false),
 
-    @Doc({
-            "The list of menus and groups of fields in dialogs, which are",
+    @Doc({ "The list of menus and groups of fields in dialogs, which are",
             "hidden. These values are allowed:",
             HiddenUIConstants.MARKETPLACE_MENU_ITEM_ACCOUNT_PROFILE,
             HiddenUIConstants.MARKETPLACE_MENU_ITEM_ACCOUNT_PAYMENT,
@@ -279,40 +259,32 @@ public enum ConfigurationKey {
 
     @Doc({ "The number of milliseconds an assertion generated by the BES SAML Identitiy Provider is valid. It is the difference between the 'NotAfterOrOn' and 'IssueInstant' attributes of the assertion. Must be greater than 0." })
     @Example("1800000")
-    IDP_ASSERTION_EXPIRATION(true, "1800000", "long", Long.valueOf(1L), null,
-            false),
+    IDP_ASSERTION_EXPIRATION(true, "1800000", "long", Long.valueOf(1L), null, false),
 
     @Doc({ "The number of milliseconds an assertion generated by the BES SAML Identitiy Provider is valid in the past, to avoid synchronization problems between servers. It is the difference between the 'IssueInstant' and 'NotBefore' attributes of the assertion. Must be greater than 0." })
     @Example("600000")
-    IDP_ASSERTION_VALIDITY_TOLERANCE(true, "600000", "long", Long.valueOf(1L),
-            null, false),
+    IDP_ASSERTION_VALIDITY_TOLERANCE(true, "600000", "long", Long.valueOf(1L), null, false),
 
     @Doc({ "The maximum number of tags composing the tag cloud." })
     @Example("20")
-    TAGGING_MAX_TAGS(true, null, "long", Long.valueOf(0L), Long
-            .valueOf(Integer.MAX_VALUE), false),
+    TAGGING_MAX_TAGS(true, null, "long", Long.valueOf(0L), Long.valueOf(Integer.MAX_VALUE), false),
 
     @Doc({ "A threshold can be set so that tags that don't reach a certain score will not be shown in the tag cloud." })
     @Example("1")
-    TAGGING_MIN_SCORE(true, null, "long", Long.valueOf(1L), Long
-            .valueOf(Integer.MAX_VALUE), false),
+    TAGGING_MIN_SCORE(true, null, "long", Long.valueOf(1L), Long.valueOf(Integer.MAX_VALUE), false),
 
     @Doc({ "The maximum time until an inactive on-behalf  user will be removed from the system."
             + "The value is in milliseconds, the default is seven days." })
-    PERMITTED_PERIOD_INACTIVE_ON_BEHALF_USERS(false, "604800000", "long", Long
-            .valueOf(1L), null, false),
+    PERMITTED_PERIOD_INACTIVE_ON_BEHALF_USERS(false, "604800000", "long", Long.valueOf(1L), null, false),
 
-    @Doc({
-            "The time interval at which a check for inactive on-behalf users",
+    @Doc({ "The time interval at which a check for inactive on-behalf users",
             "is executed. The value is in milliseconds. A value of 0 indicates",
             "that this timer is disabled." })
-    TIMER_INTERVAL_INACTIVE_ON_BEHALF_USERS(false, "0", "long", Long
-            .valueOf(0L), null, false),
+    TIMER_INTERVAL_INACTIVE_ON_BEHALF_USERS(false, "0", "long", Long.valueOf(0L), null, false),
 
     @Doc({ "The offset of the timer for removing inactive on-behalf users.",
             "The offset is in milliseconds, based on January 1, 00:00." })
-    TIMER_INTERVAL_INACTIVE_ON_BEHALF_USERS_OFFSET(false, "0", "long", Long
-            .valueOf(0L), null, false),
+    TIMER_INTERVAL_INACTIVE_ON_BEHALF_USERS_OFFSET(false, "0", "long", Long.valueOf(0L), null, false),
 
     @Doc({ "Defines the timeout for outgoing JAX-WS calls. After the time intervall is passed a timeout exception is thrown by the JAX-WS framework." })
     @Example("30000")
@@ -326,15 +298,13 @@ public enum ConfigurationKey {
     @Example("jms/bss/masterIndexerQueue")
     SEARCH_INDEX_MASTER_QUEUE_NAME(true),
 
-    @Doc({
-            "The authentication mode defines whether the bes internal authentication is used",
+    @Doc({ "The authentication mode defines whether the bes internal authentication is used",
             "or an external authentication service, such as OpenAM.",
             "Default value is INTERNAL. Allowed values are: INTERNAL, SAML_SP" })
     @Example("INTERNAL")
     AUTH_MODE(true, "INTERNAL", "string", true),
 
-    @Doc({
-            "URL to the SAML Identity Provider (IdP) used by CT-MG. To be considered only if the configuration setting AUTH_MODE is set ",
+    @Doc({ "URL to the SAML Identity Provider (IdP) used by CT-MG. To be considered only if the configuration setting AUTH_MODE is set ",
             "to any other option than INTERNAL." })
     @Example("https://<host>:<port>/<RedirectServiceEndpoint>")
     SSO_IDP_URL(false, null, "url"),
@@ -349,7 +319,7 @@ public enum ConfigurationKey {
 
     @Doc({ "Password of the IdP truststore." })
     @Example("changeit")
-    SSO_IDP_TRUSTSTORE_PASSWORD(false, null, "string"),
+    SSO_IDP_TRUSTSTORE_PASSWORD(false, null, "password"),
 
     @Doc({ "Unique identifier of the requesting service provider for the SAML Identity Provider (IdP)." })
     @Example("CT_MG")
@@ -358,7 +328,7 @@ public enum ConfigurationKey {
     @Doc({ "Encryption key length for STS." })
     @Example("128")
     SSO_STS_ENCKEY_LEN(false, null, "long", Long.valueOf(1L), Long
-            .valueOf(Integer.MAX_VALUE), true),
+            .valueOf(Integer.MAX_VALUE), false),
 
     @Doc({ "Specifies whether the audit logging is enabled" })
     @Example("false")
@@ -366,16 +336,15 @@ public enum ConfigurationKey {
 
     @Doc({ "Specifies the batch size for audit logging" })
     @Example("100")
-    AUDIT_LOG_MAX_ENTRIES_RETRIEVED(true, "1000", "long", Long.valueOf(1), Long
-            .valueOf(1000), false),
+    AUDIT_LOG_MAX_ENTRIES_RETRIEVED(true, "1000", "long", Long.valueOf(1), Long.valueOf(1000), false),
 
     @Doc({ "URL of STS service" })
     @Example("https://<host>:<port>/<ServiceEndpoint>")
-    SSO_STS_URL(false, null, "url", true),
+    SSO_STS_URL(false, null, "url"),
 
     @Doc({ "MetadataReference URL of STS service" })
     @Example("https://<host>:<port>/<MEXAddress>")
-    SSO_STS_METADATA_URL(false, null, "url", true),
+    SSO_STS_METADATA_URL(false, null, "url"),
 
     @Doc({ "URL of the Identity Provider's single logout service" })
     @Example("https://<host>:<port>/<LogoutServiceEndpoint>")
@@ -383,17 +352,15 @@ public enum ConfigurationKey {
 
     @Doc({ "the max number of users that can be registered on the platform" })
     @Example("10")
-    MAX_NUMBER_ALLOWED_USERS(true, "10", "long", Long.valueOf(1L), Long
-            .valueOf(9223372036854775807L), false),
+    MAX_NUMBER_ALLOWED_USERS(true, "10", "long", Long.valueOf(1L), Long.valueOf(9223372036854775807L), false),
 
     @Doc({ "The time interval in milliseconds at which the amount of user registered on the platform is checked" })
     @Example("43200000")
-    TIMER_INTERVAL_USER_COUNT(true, "43200000", "long", Long.valueOf(1L), Long
-            .valueOf(9223372036854775807L), false),
+    TIMER_INTERVAL_USER_COUNT(true, "43200000", "long", Long.valueOf(1L), Long.valueOf(9223372036854775807L), false),
 
     @Doc({ "Specifies whether payment information is required for subscribing to services ",
-    	   "that use the native billing system and are not free of charge. ",
-    	   "Once set, the value cannot be changed."})
+            "that use the native billing system and are not free of charge. ",
+            "Once set, the value cannot be changed." })
     @Example("false")
     HIDE_PAYMENT_INFORMATION(false, null, "boolean", true),
 
@@ -403,13 +370,21 @@ public enum ConfigurationKey {
 
     @Doc({ "Password to the keystore containing the private key used for signing SAML messages" })
     @Example("changeit")
-    SSO_SIGNING_KEYSTORE_PASS(false),
+    SSO_SIGNING_KEYSTORE_PASS(false, "changeit", "password"),
 
     @Doc({ "Path to the truststore holding the private key used for signing SAML messages." })
     @Example("<path>/keystore.jks")
-    SSO_SIGNING_KEYSTORE(false, null, "string");
+    SSO_SIGNING_KEYSTORE(false, null, "string"),
 
-    // //////////////////////////////////////////////////////////////////////////////////
+    @Doc({ "Default tenant ID used for proper identification default tenant. String has to have length of 8 characters." })
+    @Example("8f96dede")
+    SSO_DEFAULT_TENANT_ID(false, "8f96dede", "string", false, 8L),
+
+    @Doc({ "IDP issuer ID. Value used for validating if the response is being sent from proper IDP." })
+    @Example("IDP_ID")
+    SSO_IDP_SAML_ASSERTION_ISSUER_ID(false, "default", "string", false);
+
+    /////////////////////////////////////////////////////////////////////////////////////
 
     private final boolean isMandatory;
     private final boolean isReadonly;
@@ -423,6 +398,8 @@ public enum ConfigurationKey {
     public final static String TYPE_URL = "url";
     public final static String TYPE_MAIL = "mail";
     public final static String TYPE_BOOLEAN = "boolean";
+    private Long length;
+    public final static String TYPE_PASSWORD = "password";
 
     /**
      * The minimum value allowed for a long field.
@@ -445,6 +422,17 @@ public enum ConfigurationKey {
     ConfigurationKey(boolean isMandatory, String fallbackValue, String type,
             boolean isReadonly) {
         this(isMandatory, fallbackValue, type, null, null, isReadonly);
+    }
+
+    ConfigurationKey(boolean isMandatory, String fallbackValue, String type,
+            boolean isReadonly, Long length) {
+        this(isMandatory, fallbackValue, type, null, null, isReadonly);
+        if (!TYPE_STRING.equals(type) && (length != null)) {
+            throw new IllegalArgumentException(
+                    "length is only allowed for configuration properties of type "
+                            + TYPE_STRING);
+        }
+        this.length = length;
     }
 
     /**
@@ -547,6 +535,16 @@ public enum ConfigurationKey {
     }
 
     /**
+     * Retrieves the length value allowed for a string field.
+     *
+     * @return The length value if set, <code>null</code> if not set or if the
+     *         field is not of type long.
+     */
+    public Long getLength() {
+        return length;
+    }
+
+    /**
      * Prints a documented configuration file populated with all config keys and
      * their default values.
      * 
@@ -576,7 +574,8 @@ public enum ConfigurationKey {
                         if (example != null) {
                             exampleValue = example.value();
                         }
-                        out.printf("# %s=%s\r\n\r\n", f.getName(), exampleValue);
+                        out.printf("# %s=%s\r\n\r\n", f.getName(),
+                                exampleValue);
                     }
                 }
             }

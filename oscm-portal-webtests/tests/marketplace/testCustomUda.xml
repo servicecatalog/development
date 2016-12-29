@@ -16,15 +16,6 @@
 
 
       <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
-      <!-- create 3 cumstomer UDA definitions with different configuration types-->
-      <udas.create numOfUdas="3" forCustomer="true" udaName="customerUda" defaultValue="defCSub" userOption="false" mandatory="false" />
-      <udas.create numOfUdas="1" forCustomer="true" udaName="customerUda_Empty" defaultValue="" userOption="true" mandatory="false" />
-      <udas.update rowNr="0" udaId="customerUda First" defaultValue="def c value 1st" userOption="false" mandatory="false" />
-      <udas.verify rowNr="0" udaId="customerUda First" defaultValue="def c value 1st" userOption="false" mandatory="false" />
-      <udas.update rowNr="1" udaId="customerUda Second" defaultValue="def c value 2nd" userOption="true" mandatory="false" />
-      <udas.verify rowNr="1" udaId="customerUda Second" defaultValue="def c value 2nd" userOption="true" mandatory="false" />
-      <udas.update rowNr="2" udaId="customerUda Third" defaultValue="def c value 3rd" userOption="true" mandatory="true" />
-      <udas.verify rowNr="2" udaId="customerUda Third" defaultValue="def c value 3rd" userOption="true" mandatory="true" />
 
       <!-- create 3 subscription UDA definitions with different configuration types-->
       <udas.create numOfUdas="3" forCustomer="false" udaName="subscriptionUda" defaultValue="defSSub" userOption="false" mandatory="false" />
@@ -66,8 +57,6 @@
       <changeUdaValue index="0" isMandatory="false" oldValue="def s value 2nd" newValue="optional sub uda trial" />
       <changeUdaValue index="1" isMandatory="true" oldValue="def s value 3rd" newValue="mandatory sub uda trial" />
 
-      <changeUdaValue index="0" isMandatory="false" isSubscription="false" oldValue="def c value 2nd" newValue="optional org uda trial" />
-      <changeUdaValue index="1" isMandatory="true" isSubscription="false" oldValue="def c value 3rd" newValue="mandatory org uda trial" />
       <clickElement htmlId="configurationForm:nextLink" />
 
       <!-- (4) Agree the terms to complete the subscription -->
@@ -86,8 +75,6 @@
       <changeUdaValue index="0" isMandatory="false" newValue="new optional sub uda starter" oldValue="optional sub uda trial" />
       <changeUdaValue index="1" isMandatory="true" newValue="new mandatory sub uda starter" oldValue="mandatory sub uda trial" />
 
-      <changeUdaValue index="0" isMandatory="false" isSubscription="false" oldValue="optional org uda trial" newValue="new optional org uda trial" />
-      <changeUdaValue index="1" isMandatory="true" isSubscription="false" oldValue="mandatory org uda trial" newValue="new mandatory org uda trial" />
       <clickElement htmlId="configurationForm:saveConfigurationButtonLink" />
       <common.handleMessageParameters property="infoMsg" att0="Mega Office Trial" value="${info.subscription.saved}" />
       <verifyXPath xpath="//*[contains(text(),'The subscription Mega Office Trial has been successfully saved.')]" />
@@ -95,8 +82,6 @@
       <!-- update udas without any change  -->
       <changeUdaValue index="0" isMandatory="false" newValue="new optional sub uda starter" oldValue="new optional sub uda starter" />
       <changeUdaValue index="1" isMandatory="true" newValue="new mandatory sub uda starter" oldValue="new mandatory sub uda starter" />
-  	  <changeUdaValue index="0" isMandatory="false" isSubscription="false" oldValue="new optional org uda trial" newValue="new optional org uda trial" />
-  	  <changeUdaValue index="1" isMandatory="true" isSubscription="false" oldValue="new mandatory org uda trial" newValue="new mandatory org uda trial" />
       <clickElement htmlId="configurationForm:saveConfigurationButtonLink" />
       <common.handleMessageParameters property="infoMsg" att0="Mega Office Trial" value="${info.subscription.saved}" />
       <verifyXPath xpath="//*[contains(text(),'The subscription Mega Office Trial has been successfully saved.')]" />
@@ -104,8 +89,6 @@
       <changeUdaValue index="0" isMandatory="false" oldValue="new optional sub uda starter" newValue="optional sub uda trial" />
       <changeUdaValue index="1" isMandatory="true" oldValue="new mandatory sub uda starter" newValue="mandatory sub uda trial" />
 
-      <changeUdaValue index="0" isMandatory="false" isSubscription="false" newValue="optional org uda trial" oldValue="new optional org uda trial" />
-      <changeUdaValue index="1" isMandatory="true" isSubscription="false" newValue="mandatory org uda trial" oldValue="new mandatory org uda trial" />
       <clickElement htmlId="configurationForm:saveConfigurationButtonLink" />
       <common.handleMessageParameters property="infoMsg" att0="Mega Office Trial" value="${info.subscription.saved}" />
       <verifyXPath xpath="//*[contains(text(),'The subscription Mega Office Trial has been successfully saved.')]" />
@@ -147,9 +130,6 @@
       <changeUdaValue index="0" isMandatory="false" oldValue="optional sub uda trial" newValue="optional sub uda changed" />
       <changeUdaValue index="1" isMandatory="true" oldValue="" newValue="mandatory sub uda changed" />
 
-      <changeUdaValue index="0" isMandatory="false" isSubscription="false" oldValue="optional org uda trial" newValue="optional org uda changed" />
-      <changeUdaValue index="1" isMandatory="true" isSubscription="false" oldValue="mandatory org uda trial" newValue="mandatory org uda changed" />
-
       <!--(4) Save the changed Udas -->
       <clickElement htmlId="configurationForm:saveConfigurationButtonLink" />
 
@@ -177,9 +157,6 @@
       <changeUdaValue index="0" isMandatory="false" newValue="optional sub uda starter" oldValue="optional sub uda changed" />
       <changeUdaValue index="1" isMandatory="true" newValue="mandatory sub uda starter" oldValue="mandatory sub uda changed" />
 
-      <changeUdaValue index="0" isMandatory="false" isSubscription="false" oldValue="optional org uda changed" newValue="optional org uda starter" />
-      <changeUdaValue index="1" isMandatory="true" isSubscription="false" oldValue="mandatory org uda changed" newValue="mandatory org uda starter" />
-
       <!-- (3) Setting up advanced options (payments/billing address) -->
       <common.ignorePageScriptError />
       <clickLink htmlId="configurationForm:nextLink" />
@@ -192,6 +169,41 @@
       <common.reSetPageScriptError />
     </webtest>
 
+  	<webtest name="testMPL_customUda_setCustomUda" description="
+  	  	(1) Create 3 customer UDA definitions with different configuration types;
+		(2) Goto Marketplace and custom attribute on profile page;
+		(3)	Goto 'Custom Attributes' tab and save the Uda values;">
+  	  
+      	<login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+  	  
+  		<!-- (1) create 3 cumstomer UDA definitions with different configuration types-->
+      	<udas.create numOfUdas="3" forCustomer="true" udaName="customerUda" defaultValue="defCSub" userOption="false" mandatory="false" />
+      	<udas.create numOfUdas="1" forCustomer="true" udaName="customerUda_Empty" defaultValue="" userOption="true" mandatory="false" />
+      	<udas.update rowNr="0" udaId="customerUda First" defaultValue="def c value 1st" userOption="false" mandatory="false" />
+      	<udas.verify rowNr="0" udaId="customerUda First" defaultValue="def c value 1st" userOption="false" mandatory="false" />
+      	<udas.update rowNr="1" udaId="customerUda Second" defaultValue="def c value 2nd" userOption="true" mandatory="false" />
+      	<udas.verify rowNr="1" udaId="customerUda Second" defaultValue="def c value 2nd" userOption="true" mandatory="false" />
+      	<udas.update rowNr="2" udaId="customerUda Third" defaultValue="def c value 3rd" userOption="true" mandatory="true" />
+      	<udas.verify rowNr="2" udaId="customerUda Third" defaultValue="def c value 3rd" userOption="true" mandatory="true" />
+  		<login.logout />
+  	  
+		<!-- (2) Goto Marketplace and to the profile page -->
+		<mpl_login.user mid="${marketplaceId}" userId="${supplierUserId}" />
+		<mpl_goto.account.profile />
+		
+		<!-- (3) Goto 'Custom Attributes' tab, set and save the Uda values -->
+		<mpl_goto.tab label="${marketplace.account.profile.attributeTab}" />
+		<setInputField htmlId="attrForm:attributesTable:0:udaValueClear" value="new Value" />
+  	  
+		<clickLink label="${button.save}" />
+  	  	
+		<!-- (4) Check saved uda values -->
+  	  
+  		<verifyInputField htmlId="attrForm:attributesTable:0:udaValueClear" value="new Value" description="check the new value is correctly displayed" />
+		
+  	  
+  	</webtest>
+    
     <webtest name="cleanUp" description="Delete the 2 services">
       <scenario.deleteSimpleServices />
     </webtest>

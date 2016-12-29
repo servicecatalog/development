@@ -235,5 +235,6 @@
   	<copy file="${ivy.lib.dir}/javax.servlet.jsp.jstl-1.2.4.jar" tofile="${root.dir}/libraries/glassfish4/modules/javax.servlet.jsp.jstl.jar" overwrite="true"/>
   	<copy file="${ivy.lib.dir}/glassfish-naming-4.1.1.jar" tofile="${root.dir}/libraries/glassfish4/modules/glassfish-naming.jar" overwrite="true"/>
   	<copy file="${ivy.lib.dir}/webservices-api-osgi-2.0.1.jar" tofile="${root.dir}/libraries/glassfish4/modules/endorsed/webservices-api-osgi.jar" overwrite="true"/>
+
   </target>
 </project>

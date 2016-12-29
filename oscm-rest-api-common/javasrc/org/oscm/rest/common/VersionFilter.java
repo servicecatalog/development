@@ -106,14 +106,8 @@ public class VersionFilter implements ContainerRequestFilter {
                     .message(CommonParams.ERROR_INVALID_VERSION).build();
         }
 
-        int vnr = 0;
-        try {
-            vnr = Integer.parseInt(version
-                    .substring(CommonParams.PATTERN_VERSION_OFFSET));
-        } catch (NumberFormatException e) {
-            throw WebException.notFound()
-                    .message(CommonParams.ERROR_INVALID_VERSION).build();
-        }
+        int vnr = Integer.parseInt(version
+                .substring(CommonParams.PATTERN_VERSION_OFFSET));
 
         boolean exists = false;
         for (int i : CommonParams.VERSIONS) {

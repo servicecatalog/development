@@ -91,15 +91,26 @@
           <f:converter converterId="trimConverter" />
         </h:inputText>
         <h:inputSecret id="pwdValue" label="#{rowItem.label}" onchange="setDirty(true)"
-          value="#{rowItem.parameter.value}" maxlength="#{appBean.descriptionLen}"
+          value="#{rowItem.passwordValueToStore}" maxlength="#{appBean.descriptionLen}"
           required="#{rowItem.parameterDefinition.mandatory}" dataType="string" disabled="#{readOnly}"
-          rendered="#{rowItem.parameterDefinition.valueTypeString and rowItem.passwordType}" redisplay="true">
+          rendered="#{rowItem.parameterDefinition.valueTypeString and rowItem.passwordType and not readOnly}" redisplay="true">
           <f:validator validatorId="ParameterValueValidator" />
           <f:converter converterId="trimConverter" />
         </h:inputSecret>
+        <h:outputText id ="pwdValueRO" label="#{row.label}" value="*****"
+                      rendered="#{rowItem.parameterDefinition.valueTypeString and rowItem.passwordType and readOnly}"/>
+        <h:inputSecret id="pwdTypeValue" label="#{rowItem.label}" onchange="setDirty(true)"
+          value="#{rowItem.passwordValueToStore}" maxlength="#{appBean.descriptionLen}"
+          required="#{rowItem.parameterDefinition.mandatory}" dataType="string" disabled="#{readOnly}"
+          rendered="#{rowItem.parameterDefinition.valueTypePWD and not readOnly}" redisplay="true">
+          <f:validator validatorId="ParameterValueValidator" />
+          <f:converter converterId="trimConverter" />
+        </h:inputSecret>
+        <h:outputText id ="pwdTypeValueRO" label="#{row.label}" value="*****"
+                      rendered="#{rowItem.parameterDefinition.valueTypePWD and readOnly}"/>
         <!-- enumeration value-->
         <t:inputHidden id="enumValue" value="#{rowItem.parameter.value}" 
-          rendered="#{rowItem.parameterDefinition.valueTypeEnumeration and not rowItem.option and not readOnly}" />
+          rendered="#{rowItem.parameterDefinition.valueTypeEnumeration and not readOnly}" />
         <!-- enumeration option-->
         <ui:fragment rendered="#{rowItem.option}">
           <c:set var="onclick"

@@ -60,7 +60,8 @@
       <property name="passwdA" value="#{userPwd}" />
       <mpl_login.loginWithChangePassword userId="${usernameM}" oldPassword="#{userPwd}" checkHint="true" mid="${mId}" />
       <mpl_goto.account.profile />
-      <verifyElementText htmlId="editForm:userGroups" text="${groupIdA}, ${groupIdB}" />
+      <mpl_goto.tab label="${marketplace.account.profile.userTab}" />
+      <verifyElementText htmlId="userForm:userGroups" text="${groupIdA}, ${groupIdB}" />
       <mpl_login.logout />
 
       <!--create userN and belonging to group groupIdA-->
@@ -384,6 +385,7 @@
       <dataDriven tableContainer="data/pageFields/marketplace/accountEditProfileFields.xls">
         <!-- Switch to account / profile page -->
         <mpl_goto.account.profile />
+        <mpl_goto.tab label="${marketplace.account.profile.userTab}" />
         <!-- Validate all registered fields -->
         <mpl_verify.invalidFieldValue fieldId="${fieldId}" fieldType="${fieldType}" required="${supplier.required}" topErrorMessage="false" />
       </dataDriven>

@@ -27,10 +27,6 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.interceptor.Interceptors;
 
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
-import org.oscm.paginator.Pagination;
-import org.oscm.paginator.PaginationInt;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.RoleDefinition;
@@ -47,13 +43,6 @@ import org.oscm.identityservice.local.IdentityServiceLocal;
 import org.oscm.identityservice.local.LdapSettingsManagementServiceLocal;
 import org.oscm.interceptor.ExceptionMapper;
 import org.oscm.interceptor.InvocationDateContainer;
-import org.oscm.permission.PermissionCheck;
-import org.oscm.subscriptionservice.local.SubscriptionListServiceLocal;
-import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
-import org.oscm.subscriptionservice.local.SubscriptionWithRoles;
-import org.oscm.types.enumtypes.LogMessageIdentifier;
-import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
-import org.oscm.validation.VersionAndKeyValidator;
 import org.oscm.internal.components.response.Response;
 import org.oscm.internal.components.response.ReturnCode;
 import org.oscm.internal.components.response.ReturnType;
@@ -72,6 +61,17 @@ import org.oscm.internal.vo.VORoleDefinition;
 import org.oscm.internal.vo.VOUsageLicense;
 import org.oscm.internal.vo.VOUser;
 import org.oscm.internal.vo.VOUserDetails;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
+import org.oscm.paginator.Pagination;
+import org.oscm.paginator.PaginationInt;
+import org.oscm.permission.PermissionCheck;
+import org.oscm.subscriptionservice.local.SubscriptionListServiceLocal;
+import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
+import org.oscm.subscriptionservice.local.SubscriptionWithRoles;
+import org.oscm.types.enumtypes.LogMessageIdentifier;
+import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
+import org.oscm.validation.VersionAndKeyValidator;
 
 /**
  * @author weiser
@@ -129,10 +129,10 @@ public class UserServiceBean implements UserService {
 
     @Override
     @RolesAllowed("ORGANIZATION_ADMIN")
-    public POUserDetails getUserDetails(String userId)
+    public POUserDetails getUserDetails(String userId, String tenantId)
             throws SaaSApplicationException {
 
-        PlatformUser u = isl.getPlatformUser(userId, true);
+        PlatformUser u = isl.getPlatformUser(userId, tenantId, true);
         Set<UserRoleType> availableRoles = isl.getAvailableUserRolesForUser(u);
         POUserDetails result = dc.toPOUserDetails(u, availableRoles);
         result.setMappedAttributes(lsmsl.getMappedAttributes());
@@ -151,8 +151,8 @@ public class UserServiceBean implements UserService {
                     user.getKey());
 
             // keep a reference (not managed) with the old email
-            PlatformUser old = existing.getEmail() != null
-                    ? UserDataAssembler.copyPlatformUser(existing) : null;
+            PlatformUser old = existing.getEmail() != null ? UserDataAssembler
+                    .copyPlatformUser(existing) : null;
 
             updateUserAndRoles(user, existing);
 
@@ -163,12 +163,11 @@ public class UserServiceBean implements UserService {
             isl.sendUserUpdatedMail(existing, old);
 
             if (user.getAssignedRoles().isEmpty()) {
-                PlatformUser administrator = ds.getReference(PlatformUser.class,
-                        1000);
+                PlatformUser administrator = ds.getReference(
+                        PlatformUser.class, 1000);
 
                 // send mail to administrator if no role selected
-                isl.sendAdministratorNotifyMail(administrator,
-                        user.getUserId());
+                isl.sendAdministratorNotifyMail(administrator, user.getUserId());
             }
         } catch (SaaSApplicationException e) {
             sc.setRollbackOnly();
@@ -188,8 +187,8 @@ public class UserServiceBean implements UserService {
 
     @Override
     @RolesAllowed("PLATFORM_OPERATOR")
-    public Response importUsers(byte[] users, String orgID,
-            String marketplaceId) throws SaaSApplicationException {
+    public Response importUsers(byte[] users, String orgID, String marketplaceId)
+            throws SaaSApplicationException {
         isr.importUsers(users, orgID, marketplaceId);
         return new Response();
     }
@@ -213,11 +212,13 @@ public class UserServiceBean implements UserService {
 
     @Override
     @RolesAllowed("ORGANIZATION_ADMIN")
-    public Response deleteUser(POUser user, String marketplaceId)
-            throws SaaSApplicationException {
+    public Response deleteUser(POUser user, String marketplaceId,
+            String tenantId) throws SaaSApplicationException {
 
         try {
-            PlatformUser u = isl.getPlatformUser(user.getUserId(), true);
+
+            PlatformUser u = isl.getPlatformUser(user.getUserId(), tenantId,
+                    true);
             VersionAndKeyValidator.verify(u, user.getKey(), user.getVersion());
             userGroupService.addLogEntryWhenDeleteUser(u);
             isl.deleteUser(u, marketplaceId);
@@ -258,8 +259,8 @@ public class UserServiceBean implements UserService {
             String marketplaceId) throws SaaSApplicationException {
 
         VOUserDetails ud = convertToUser(user);
-        ud.setOrganizationId(
-                ds.getCurrentUser().getOrganization().getOrganizationId());
+        ud.setOrganizationId(ds.getCurrentUser().getOrganization()
+                .getOrganizationId());
         Response response = new Response();
         try {
 
@@ -290,10 +291,10 @@ public class UserServiceBean implements UserService {
 
     @Override
     @RolesAllowed("ORGANIZATION_ADMIN")
-    public POUserAndSubscriptions getUserAndSubscriptionDetails(String userId)
-            throws SaaSApplicationException {
+    public POUserAndSubscriptions getUserAndSubscriptionDetails(String userId,
+            String tenantId) throws SaaSApplicationException {
 
-        PlatformUser u = isl.getPlatformUser(userId, true);
+        PlatformUser u = isl.getPlatformUser(userId, tenantId, true);
         PlatformUser user = ds.getCurrentUser();
 
         List<SubscriptionWithRoles> list = Collections.emptyList();
@@ -313,7 +314,7 @@ public class UserServiceBean implements UserService {
     @RolesAllowed("ORGANIZATION_ADMIN")
     public Response saveUserAndSubscriptionAssignment(
             POUserAndSubscriptions user, List<POUserGroup> allGroups)
-                    throws SaaSApplicationException {
+            throws SaaSApplicationException {
 
         Response response = new Response();
         try {
@@ -326,8 +327,8 @@ public class UserServiceBean implements UserService {
             PlatformUser existing = ds.getReference(PlatformUser.class,
                     user.getKey());
             // keep a reference (not managed) with the old email
-            PlatformUser old = existing.getEmail() != null
-                    ? UserDataAssembler.copyPlatformUser(existing) : null;
+            PlatformUser old = existing.getEmail() != null ? UserDataAssembler
+                    .copyPlatformUser(existing) : null;
 
             // update user data and roles
             updateUserAndRoles(user, existing);
@@ -345,8 +346,8 @@ public class UserServiceBean implements UserService {
             ds.flush();
             PlatformUser userInDB = ds.getReference(PlatformUser.class,
                     user.getKey());
-            if (dc.isUserInformationUpdated(user, userInDB) || dc
-                    .isUserRoleUpdated(user.getAssignedRoles(), existing)) {
+            if (dc.isUserInformationUpdated(user, userInDB)
+                    || dc.isUserRoleUpdated(user.getAssignedRoles(), existing)) {
                 isl.notifySubscriptionsAboutUserUpdate(existing);
             }
             if (!canUserBeSubscriptionOwner(user)) {
@@ -402,8 +403,9 @@ public class UserServiceBean implements UserService {
     boolean sameRole(UsageLicense lic, POSubscription sub) {
         return lic.getRoleDefinition() == null
                 && sub.getUsageLicense().getPoServieRole() == null
-                || lic.getRoleDefinition().getRoleId().equals(
-                        sub.getUsageLicense().getPoServieRole().getId());
+                || lic.getRoleDefinition()
+                        .getRoleId()
+                        .equals(sub.getUsageLicense().getPoServieRole().getId());
     }
 
     Set<String> getUnassignments(List<UsageLicense> assignments,
@@ -426,7 +428,7 @@ public class UserServiceBean implements UserService {
         return result;
     }
 
-    UsageLicense getLicense(String subId, List<UsageLicense> assignments) {
+    private UsageLicense getLicense(String subId, List<UsageLicense> assignments) {
 
         UsageLicense result = null;
         for (UsageLicense lic : assignments) {
@@ -439,7 +441,7 @@ public class UserServiceBean implements UserService {
         return result;
     }
 
-    VOUsageLicense convertToLicense(POSubscription s, VOUser u) {
+    private VOUsageLicense convertToLicense(POSubscription s, VOUser u) {
 
         VOUsageLicense lic = new VOUsageLicense();
         lic.setUser(u);
@@ -470,6 +472,7 @@ public class UserServiceBean implements UserService {
         ud.setUserId(u.getUserId());
         ud.setKey(u.getKey());
         ud.setVersion(u.getVersion());
+        ud.setTenantId(u.getTenantId());
 
         return ud;
     }
@@ -518,12 +521,12 @@ public class UserServiceBean implements UserService {
         isl.setUserRolesInt(user.getAssignedRoles(), existing);
     }
 
-    void updateUserGroups(Map<UserGroup, UnitUserRole> userGroupsToBeAssigned,
+    private void updateUserGroups(
+            Map<UserGroup, UnitUserRole> userGroupsToBeAssigned,
             POUserAndSubscriptions user, PlatformUser existing)
-                    throws NonUniqueBusinessKeyException,
-                    OperationNotPermittedException, ObjectNotFoundException,
-                    MailOperationException,
-                    UserModificationConstraintException {
+            throws NonUniqueBusinessKeyException,
+            OperationNotPermittedException, ObjectNotFoundException,
+            MailOperationException, UserModificationConstraintException {
 
         Map<Long, Entry<UserGroup, UnitUserRole>> groupsToBeAssignedMap = new HashMap<>();
 
@@ -534,7 +537,7 @@ public class UserServiceBean implements UserService {
                     groupsWithRoles);
         }
         List<UserGroup> groupsAssigned = userGroupService
-                .getUserGroupsForUserWithoutDefault(existing.getUserId());
+                .getUserGroupsForUserWithoutDefault(existing.getKey());
         Map<UserGroup, UnitUserRole> groupsToAdd = new HashMap<>();
         List<UserGroup> groupsToRemove = new ArrayList<>();
         for (UserGroup g : groupsAssigned) {
@@ -547,8 +550,8 @@ public class UserServiceBean implements UserService {
         }
         for (Entry<Long, Entry<UserGroup, UnitUserRole>> entry : groupsToBeAssignedMap
                 .entrySet()) {
-            groupsToAdd.put(entry.getValue().getKey(),
-                    entry.getValue().getValue());
+            groupsToAdd.put(entry.getValue().getKey(), entry.getValue()
+                    .getValue());
         }
         if (!groupsToAdd.isEmpty()) {
             userGroupService.assignUserToGroups(existing, groupsToAdd);
@@ -562,19 +565,17 @@ public class UserServiceBean implements UserService {
     private void handleUnitRoleAssignments(POUserAndSubscriptions user,
             PlatformUser existing,
             Map<UserGroup, UnitUserRole> userGroupsToBeAssigned)
-                    throws ObjectNotFoundException,
-                    OperationNotPermittedException,
-                    UserModificationConstraintException {
+            throws ObjectNotFoundException, OperationNotPermittedException,
+            UserModificationConstraintException {
         List<UnitRoleType> allAvailableUnitRoleTypes;
-        allAvailableUnitRoleTypes = new ArrayList<>(
-                Arrays.asList(UnitRoleType.values()));
+        allAvailableUnitRoleTypes = new ArrayList<>(Arrays.asList(UnitRoleType
+                .values()));
         for (Entry<UserGroup, UnitUserRole> groupWithRoles : userGroupsToBeAssigned
                 .entrySet()) {
             userGroupService.revokeUserRoles(existing,
                     allAvailableUnitRoleTypes, groupWithRoles.getKey());
-            userGroupService.grantUserRoles(existing,
-                    Collections.singletonList(
-                            groupWithRoles.getValue().getRoleName()),
+            userGroupService.grantUserRoles(existing, Collections
+                    .singletonList(groupWithRoles.getValue().getRoleName()),
                     groupWithRoles.getKey());
         }
 
@@ -582,14 +583,14 @@ public class UserServiceBean implements UserService {
                 .getUserGroupsForUserWithRoles(user.getUserId());
         if (allUserAssignments.values().contains(UnitRoleType.ADMINISTRATOR)) {
             isl.grantUnitRole(existing, UserRoleType.UNIT_ADMINISTRATOR);
-            if (!user.getAssignedRoles()
-                    .contains(UserRoleType.UNIT_ADMINISTRATOR)) {
+            if (!user.getAssignedRoles().contains(
+                    UserRoleType.UNIT_ADMINISTRATOR)) {
                 user.getAssignedRoles().add(UserRoleType.UNIT_ADMINISTRATOR);
             }
         } else {
             isl.revokeUnitRole(existing, UserRoleType.UNIT_ADMINISTRATOR);
-            if (user.getAssignedRoles()
-                    .contains(UserRoleType.UNIT_ADMINISTRATOR)) {
+            if (user.getAssignedRoles().contains(
+                    UserRoleType.UNIT_ADMINISTRATOR)) {
                 user.getAssignedRoles().remove(UserRoleType.UNIT_ADMINISTRATOR);
             }
         }
@@ -597,7 +598,7 @@ public class UserServiceBean implements UserService {
 
     private Map<UserGroup, UnitUserRole> validateGroupsExist(
             List<POUserGroup> allGroups, List<POUserGroup> groups)
-                    throws ObjectNotFoundException {
+            throws ObjectNotFoundException {
         Map<UserGroup, UnitUserRole> groupsToBeAssigned = new HashMap<>();
         Map<Long, UserGroup> groupsToBeAssignedMap = new HashMap<>();
         for (POUserGroup group : allGroups) {
@@ -618,8 +619,8 @@ public class UserServiceBean implements UserService {
             for (POUserGroup group : groups) {
                 UnitUserRole unitUserRole = userGroupService
                         .getUnitRoleByName(group.getSelectedRole());
-                groupsToBeAssigned.put(groupsToBeAssignedMap
-                        .remove(Long.valueOf(group.getKey())), unitUserRole);
+                groupsToBeAssigned.put(groupsToBeAssignedMap.remove(Long
+                        .valueOf(group.getKey())), unitUserRole);
             }
         }
         return groupsToBeAssigned;
@@ -637,13 +638,15 @@ public class UserServiceBean implements UserService {
         boolean done = true;
 
         for (String subId : subsToRemove) {
-            done = done && ssl.addRevokeUser(subId, null,
-                    Collections.singletonList(u));
+            done = done
+                    && ssl.addRevokeUser(subId, null,
+                            Collections.singletonList(u));
         }
         for (String subId : subsToAdd.keySet()) {
             VOUsageLicense lic = subsToAdd.get(subId);
-            done = done && ssl.addRevokeUser(subId,
-                    Collections.singletonList(lic), null);
+            done = done
+                    && ssl.addRevokeUser(subId, Collections.singletonList(lic),
+                            null);
         }
 
         return done;
@@ -652,9 +655,11 @@ public class UserServiceBean implements UserService {
     @Override
     public List<POSubscription> getUserAssignableSubscriptions(
             Pagination pagination, String userId)
-                    throws SaaSApplicationException {
+            throws SaaSApplicationException {
 
-        PlatformUser user = isl.getPlatformUser(userId, true);
+        // TODO MULTITENANT
+        PlatformUser user = isl.getPlatformUser(userId, ds.getCurrentUser()
+                .getTenantId(), true);
 
         List<POSubscription> subscriptions = slsl
                 .getUserAssignableSubscriptions(pagination, user,
@@ -665,9 +670,10 @@ public class UserServiceBean implements UserService {
 
     @Override
     public Long getUserAssignableSubscriptionsNumber(PaginationInt pagination,
-            String userId) throws SaaSApplicationException {
+            String userId, String tenantId) throws SaaSApplicationException {
 
-        PlatformUser user = isl.getPlatformUser(userId, true);
+        PlatformUser user;
+        user = isl.getPlatformUser(userId, tenantId, true);
 
         Long number = slsl.getUserAssignableSubscriptionsNumber(pagination,
                 user, Subscription.ASSIGNABLE_SUBSCRIPTION_STATUS);

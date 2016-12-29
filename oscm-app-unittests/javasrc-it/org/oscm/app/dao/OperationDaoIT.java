@@ -23,7 +23,7 @@ import org.oscm.test.ejb.TestContainer;
 import org.oscm.app.domain.Operation;
 import org.oscm.app.domain.ProvisioningStatus;
 import org.oscm.app.domain.ServiceInstance;
-import org.oscm.app.v1_0.intf.APPlatformController;
+import org.oscm.app.v2_0.intf.APPlatformController;
 
 public class OperationDaoIT extends EJBTestBase {
 

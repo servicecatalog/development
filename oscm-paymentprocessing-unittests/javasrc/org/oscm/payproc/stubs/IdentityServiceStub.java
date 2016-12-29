@@ -71,6 +71,12 @@ public class IdentityServiceStub implements IdentityServiceLocal {
     }
 
     @Override
+    public PlatformUser getPlatformUser(String userId, String tenantKey, boolean validateOrganization)
+        throws ObjectNotFoundException, OperationNotPermittedException {
+        return null;
+    }
+
+    @Override
     public void deletePlatformUser(PlatformUser user, Marketplace marketplace)
             throws UserDeletionConstraintException, ObjectNotFoundException {
     }
@@ -301,5 +307,11 @@ public class IdentityServiceStub implements IdentityServiceLocal {
     @Override
     public void revokeUnitRole(PlatformUser user, UserRoleType role)
             throws UserModificationConstraintException {
+    }
+
+    @Override
+    public PlatformUser getPlatformUserByOrganization(String userId,
+            String orgId) throws ObjectNotFoundException {
+        return null;
     }
 }

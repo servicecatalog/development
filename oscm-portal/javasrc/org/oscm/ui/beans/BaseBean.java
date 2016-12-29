@@ -234,6 +234,11 @@ public class BaseBean {
     public static final String ERROR_TO_PROCEED_SELECT_UNIT = "error.subscription.unitHasToBeSelected";
     public static final String ERROR_EXTERNAL_PRICEMODEL_NOT_AVAILABLE = "error.externalPricemodel.notavailable";
     public static final String ERROR_BILLING_ID_ALREADY_EXISTS = "ex.NonUniqueBusinessKeyException.BILLING_ADAPTER";
+    public static final String ERROR_NO_FILE_WITH_IDP_SETTINGS = "error.tenant.idpsettings.nofile";
+    public static final String ERROR_MISSING_TENANTID = "error.missingtenant";
+    public static final String ERROR_TENANT_SETTINGS_MISSING = "error.missingtenantsettings";
+    public static final String ERROR_TENANT_NO_LONGER_EXISTS = "error.tenant.noLongerExists";
+    public static final String ERROR_MARKETPLACE_REMOVED = "error.tenant.marketplaceRemoved";
 
     public static final String WARNING_SUBSCRIBE_ONLY_ONCE = "warning.subscription.onlyOne";
     public static final String WARNING_SUBSCRIBE_ONLY_BY_ADMIN = "warning.subscription.onlyByAdmin";
@@ -244,7 +249,7 @@ public class BaseBean {
     public static final String WARNING_UNIT_NOT_SELECTED_UNIT_ADMIN = "warning.editSubscription.subscriptionUnitNotSelected";
     public static final String WARNING_PAYMENT_TYPES_NOT_USED = "warning.paymentTypesAreNotUsed";
     public static final String WARNING_NO_CUSTOMER_ACCESS_TO_RESTRICTED_MPL = "warning.noCustomerAccessToRestrictedMpl";
-
+    public static final String WARNING_TENANT_DEF_NOT_COMPLETE = "warning.tenantDefinitionNotComplete";
 
     public static final String INFO_BILLING_CONTACT_DELETED = "info.billingContact.deleted";
     public static final String INFO_BILLING_CONTACT_DELETED_CONCURRENTLY = "info.billingContact.deletedConcurrently";
@@ -323,6 +328,7 @@ public class BaseBean {
     public static final String TRIGGER_PROCESS_CANCELED = "info.triggerProcess.canceled";
     public static final String INFO_UDADEFINITIONS_DELETED = "info.udaDefinitions.deleted";
     public static final String INFO_UDADEFINITIONS_SAVED = "info.udaDefinitions.saved";
+    public static final String INFO_UDA_SAVED = "info.uda.saved";
     public static final String INFO_BRANDING_URL_SET = "info.brandingUrl.set";
     public static final String INFO_CATEGORIES_SAVED = "info.categories.saved";
     public static final String INFO_VAT_SAVED = "info.vat.saved";
@@ -337,6 +343,11 @@ public class BaseBean {
     public static final String INFO_SUPPORTEDLANGUAGE_ADDED = "info.supportedlanguage.added";
     public static final String INFO_NO_MORE_USERS = "info.subscriptions.noMoreUsersForAssignment";
     public static final String INFO_EXTERNAL_PRICE_UPLOADED = "info.externalPriceModel.upload";
+    public static final String INFO_TENANT_SAVED = "info.tenant.saved";
+    public static final String INFO_TENANT_ADDED = "info.tenant.added";
+    public static final String INFO_TENANT_DELETED = "info.tenant.deleted";
+    public static final String INFO_IDP_SETTINGS_IMPORTED = "info.tenant.idpsettings.imported";
+    public static final String INFO_IDP_SETTINGS_CLEAR = "info.tenant.idpsettings.clear";
 
     public static final String LABEL_USERINTERFACE_TRANSLARIONS = "label.userinterface.title";
     public static final String LABEL_MAIL_TRANSLARIONS = "label.mail.title";
@@ -426,6 +437,7 @@ public class BaseBean {
     public static final String OUTCOME_RELOAD = "reloadGroup";
 
     public static final String OUTCOME_STAY_ON_PAGE = null;
+    public static final String HIDDEN_PWD = "*****";
 
     // Without the @EJB annotation we can run the GUI without an EJB container
     IdentityService idService;
@@ -1444,6 +1456,25 @@ public class BaseBean {
                 || user.getUserRoles().contains(UserRoleType.ORGANIZATION_ADMIN)
                 || user.getUserRoles()
                         .contains(UserRoleType.UNIT_ADMINISTRATOR));
+    }
+
+    /**
+     * Checks if current user has access to admin portal
+     *
+     * @return true if user is organization admin or subscription manager or
+     *         technology manager, otherwise false.
+     */
+    public boolean isAdministrationAccess() {
+        VOUserDetails user = this.getUserFromSessionWithoutException();
+        return user != null
+                && (user.getUserRoles().contains(UserRoleType.SERVICE_MANAGER)
+                        || user.getUserRoles()
+                                .contains(UserRoleType.TECHNOLOGY_MANAGER)
+                        || user.getUserRoles()
+                                .contains(UserRoleType.MARKETPLACE_OWNER))
+                || user.getUserRoles().contains(UserRoleType.BROKER_MANAGER)
+                || user.getUserRoles().contains(UserRoleType.RESELLER_MANAGER)
+                || user.getUserRoles().contains(UserRoleType.PLATFORM_OPERATOR);
     }
 
     /**

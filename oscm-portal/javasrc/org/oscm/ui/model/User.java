@@ -109,6 +109,9 @@ public class User implements Serializable {
     public String getOrganizationId() {
         return voUserDetails.getOrganizationId();
     }
+    public String getOrganizationName() {
+        return voUserDetails.getOrganizationName();
+    }
 
     public String getPhone() {
         return voUserDetails.getPhone();
@@ -388,4 +391,12 @@ public class User implements Serializable {
         this.groupsToDisplay = groupsToDisplay;
     }
 
+    public long getTenantKey() {
+        try {
+            return Long.parseLong(voUserDetails.getTenantKey());
+        } catch(Exception exc) {
+            //Do nothing. Current user is in default tenant.
+            return 0;
+        }
+    }
 }

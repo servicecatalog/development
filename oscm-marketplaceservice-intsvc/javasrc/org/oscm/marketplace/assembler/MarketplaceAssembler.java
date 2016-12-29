@@ -8,19 +8,20 @@
 
 package org.oscm.marketplace.assembler;
 
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
 import org.oscm.domobjects.Marketplace;
 import org.oscm.domobjects.Organization;
+import org.oscm.domobjects.Tenant;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.i18nservice.bean.LocalizerFacade;
-import org.oscm.types.enumtypes.LogMessageIdentifier;
-import org.oscm.validator.BLValidator;
-import org.oscm.vo.BaseAssembler;
 import org.oscm.internal.types.exception.ConcurrentModificationException;
 import org.oscm.internal.types.exception.IllegalArgumentException;
 import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.internal.vo.VOMarketplace;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
+import org.oscm.types.enumtypes.LogMessageIdentifier;
+import org.oscm.validator.BLValidator;
+import org.oscm.vo.BaseAssembler;
 
 /**
  * Assembler to handle VOMarketplace <=> Marketplace conversions.
@@ -37,38 +38,44 @@ public class MarketplaceAssembler extends BaseAssembler {
      * Creates a value object representing the current settings for the
      * marketplace.
      * 
-     * @param domObj
+     * @param marketplace
      *            The technical marketplace to be represented as value object.
      * @param facade
      *            The localizer facade object.
      * @return A value object representation of the given marketplace.
      */
-    public static VOMarketplace toVOMarketplace(Marketplace domObj,
+    public static VOMarketplace toVOMarketplace(Marketplace marketplace,
             LocalizerFacade facade) {
-        if (domObj == null) {
+        if (marketplace == null) {
             return null;
         }
         VOMarketplace voResult = new VOMarketplace();
-        updateValueObject(voResult, domObj);
-        voResult.setMarketplaceId(domObj.getMarketplaceId());
-        voResult.setName(facade.getText(domObj.getKey(),
+        updateValueObject(voResult, marketplace);
+        voResult.setMarketplaceId(marketplace.getMarketplaceId());
+        voResult.setName(facade.getText(marketplace.getKey(),
                 LocalizedObjectTypes.MARKETPLACE_NAME));
-        voResult.setOpen(domObj.isOpen());
+        voResult.setOpen(marketplace.isOpen());
 
-        voResult.setTaggingEnabled(domObj.isTaggingEnabled());
-        voResult.setReviewEnabled(domObj.isReviewEnabled());
-        voResult.setSocialBookmarkEnabled(domObj.isSocialBookmarkEnabled());
-        voResult.setCategoriesEnabled(domObj.isCategoriesEnabled());
-        voResult.setRestricted(domObj.isRestricted());
-        voResult.setHasPublicLandingPage(domObj.getPublicLandingpage() != null);
+        voResult.setTaggingEnabled(marketplace.isTaggingEnabled());
+        voResult.setReviewEnabled(marketplace.isReviewEnabled());
+        voResult.setSocialBookmarkEnabled(marketplace.isSocialBookmarkEnabled());
+        voResult.setCategoriesEnabled(marketplace.isCategoriesEnabled());
+        voResult.setRestricted(marketplace.isRestricted());
+        voResult.setHasPublicLandingPage(marketplace.getPublicLandingpage() != null);
 
-        Organization owner = domObj.getOrganization();
+        Organization owner = marketplace.getOrganization();
         if (owner != null) {
             voResult.setOwningOrganizationId(owner.getOrganizationId());
             String name = owner.getName();
             // FIXME what is "<empty>" good for?
             voResult.setOwningOrganizationName(name != null ? name : "<empty>");
         }
+        
+        Tenant tenant = marketplace.getTenant();
+        if (tenant != null) {
+            voResult.setTenantId(tenant.getTenantId());
+        }
+        
         return voResult;
     }
 

@@ -21,7 +21,7 @@ Newest releases can be found [here](https://github.com/servicecatalog/developmen
 Please follow the guide from top to bottom, this is the easiest way to avoid errors later on.
 
 #### Prerequisites
-* Installed [Java 7u3](http://www.oracle.com/technetwork/java/javase/downloads/java-archive-downloads-javase7-521261.html#jdk-7u3-oth-JPR) or higher.
+* Installed [JDK 7u45](http://www.oracle.com/technetwork/java/javase/downloads/java-archive-downloads-javase7-521261.html#jdk-7u45-oth-JPR) or higher.
 * [PostgreSQL 9.3](http://www.enterprisedb.com/products-services-training/pgdownload) database installer.
 * [GlassFish 3.1.2.2](http://glassfish.java.net/downloads/3.1.2.2-final.html) server installer.
 * [Eclipse ECJ 4.2.1](http://mvnrepository.com/artifact/org.eclipse.jdt.core.compiler/ecj/4.2.1) library.
@@ -32,6 +32,10 @@ Please follow the guide from top to bottom, this is the easiest way to avoid err
 2. Import the project into your IDE. You should adjust some of the preferences:
   * Set the compiler level to the installed version of Java 1.7.
   * Set UTF-8 file encoding and Unix line endings.
+3. Import and configure the code formatting rules and code templates.
+  * Download the files from the [codestyle folder](https://github.com/servicecatalog/development/tree/master/oscm-devruntime/javares/codestyle).
+  * Import them into your Eclipse IDE ([Help](https://github.com/servicecatalog/development/tree/master/oscm-devruntime/javares/codestyle/README.md))
+  * Configure the formatting for non-java files ([Rules and Help](https://github.com/servicecatalog/development/tree/master/oscm-devruntime/javares/codestyle/README.md))
 
 #### Setting up the database
 1. Install the database using a path without any whitespaces for installation directory. During installation a system-startup service and a database specific user should be created.

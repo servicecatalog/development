@@ -8,25 +8,12 @@
 
 package org.oscm.ui.beans;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.matches;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -41,25 +28,21 @@ import javax.faces.model.SelectItem;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-
-import org.oscm.ui.model.Marketplace;
-import org.oscm.ui.model.User;
-import org.oscm.ui.stubs.FacesContextStub;
-import org.oscm.ui.stubs.UiDelegateStub;
 import org.oscm.internal.components.response.Response;
 import org.oscm.internal.intf.MarketplaceService;
 import org.oscm.internal.marketplace.MarketplaceServiceManagePartner;
-import org.oscm.internal.pricing.POMarketplacePriceModel;
-import org.oscm.internal.pricing.POMarketplacePricing;
-import org.oscm.internal.pricing.POPartnerPriceModel;
-import org.oscm.internal.pricing.PORevenueShare;
-import org.oscm.internal.pricing.PricingService;
+import org.oscm.internal.pricing.*;
+import org.oscm.internal.tenant.ManageTenantService;
 import org.oscm.internal.types.exception.DomainObjectException.ClassEnum;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.OperationNotPermittedException;
 import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.internal.vo.VOMarketplace;
 import org.oscm.internal.vo.VOUserDetails;
+import org.oscm.ui.model.Marketplace;
+import org.oscm.ui.model.User;
+import org.oscm.ui.stubs.FacesContextStub;
+import org.oscm.ui.stubs.UiDelegateStub;
 
 /**
  * @author tang
@@ -69,11 +52,11 @@ import org.oscm.internal.vo.VOUserDetails;
 public class UpdateMarketplaceBeanTest {
 
     private UpdateMarketplaceBean umpb;
+    private ApplicationBean appBean;
     private MarketplaceService msmock;
     private VOMarketplace vMp1, vMp2;
     private Marketplace mp;
     private MenuBean mbMock;
-    private MarketplaceConfigurationBean mcbMock;
     private User usrmock;
     private FacesContextStub fc;
     private PricingService ps;
@@ -82,6 +65,7 @@ public class UpdateMarketplaceBeanTest {
     private Response updateMarketplaceResponse;
     private SelectOrganizationIncludeBean selectOrganizationIncludeBean;
     UiDelegateStub ui;
+    private ManageTenantService mts;
 
     @Before
     public void setup() throws Exception {
@@ -112,22 +96,27 @@ public class UpdateMarketplaceBeanTest {
         mp.setClosed(true);
 
         msmock = mock(MarketplaceService.class);
-
+        
         when(msmock.getMarketplacesOwned()).thenReturn(
                 Arrays.asList(vMp1, vMp2));
         when(msmock.getMarketplacesForOperator()).thenReturn(
                 Arrays.asList(vMp1, vMp2));
         when(msmock.getMarketplaceById(matches(vMp1.getMarketplaceId())))
-        .thenReturn(vMp1);
+                .thenReturn(vMp1);
         when(msmock.getMarketplaceById(matches(vMp2.getMarketplaceId())))
-        .thenReturn(vMp2);
-
+                .thenReturn(vMp2);
+        
+        
+        
         mbMock = mock(MenuBean.class);
-        mcbMock = mock(MarketplaceConfigurationBean.class);
-
+        appBean = mock(ApplicationBean.class);
+        //mbMock.setApplicationBean(appBean);
+        when(mbMock.getApplicationBean()).thenReturn(appBean);
+        when(mbMock.getApplicationBean().isInternalAuthMode()).thenReturn(true);
         umpb = spy(new UpdateMarketplaceBean());
         ui = spy(new UiDelegateStub());
         umpb.ui = ui;
+        mts = mock(ManageTenantService.class);
 
         doReturn(Boolean.FALSE).when(umpb).isLoggedInAndPlatformOperator();
         doReturn(msmock).when(umpb).getMarketplaceService();
@@ -145,7 +134,6 @@ public class UpdateMarketplaceBeanTest {
         doReturn(usrmock).when(umpb).getUserFromSession();
 
         umpb.setMenuBean(mbMock);
-        umpb.setMarketplaceConfigurationBean(mcbMock);
 
         fc = spy(new FacesContextStub(Locale.ENGLISH));
         doNothing().when(fc).addMessage(anyString(), any(FacesMessage.class));
@@ -179,7 +167,7 @@ public class UpdateMarketplaceBeanTest {
                 eq(MarketplaceServiceManagePartner.class), any());
         updateMarketplaceResponse = new Response(umpb.convertToValueObject(umpb
                 .getModel()), umpb.convertToMarketplacePriceModel(umpb
-                        .getModel()), umpb.convertToPartnerPriceModel(umpb.getModel()));
+                .getModel()), umpb.convertToPartnerPriceModel(umpb.getModel()));
         doReturn(updateMarketplaceResponse).when(mmps).updateMarketplace(
                 any(VOMarketplace.class), any(POMarketplacePriceModel.class),
                 any(POPartnerPriceModel.class));
@@ -463,8 +451,6 @@ public class UpdateMarketplaceBeanTest {
         // then:
         verify(mmps, times(1)).updateMarketplace(captor.capture(),
                 mpmCaptor.capture(), ppmCaptor.capture());
-        verify(mcbMock, times(1)).resetConfiguration(
-                eq(model.getMarketplaceId()));
 
         // the values passed to the service are the ones from the model
         VOMarketplace value = captor.getValue();
@@ -481,7 +467,7 @@ public class UpdateMarketplaceBeanTest {
                 updateMarketplaceResponse.getResult(VOMarketplace.class));
         verify(umpb, times(1)).addToModel(
                 updateMarketplaceResponse
-                .getResult(POMarketplacePriceModel.class));
+                        .getResult(POMarketplacePriceModel.class));
         verify(umpb, times(1)).addToModel(
                 updateMarketplaceResponse.getResult(POPartnerPriceModel.class));
 
@@ -503,12 +489,9 @@ public class UpdateMarketplaceBeanTest {
 
         umpb.updateMarketplace();
 
-        verifyNoMoreInteractions(mbMock);
         verify(mmps, times(1)).updateMarketplace(captor.capture(),
                 any(POMarketplacePriceModel.class),
                 any(POPartnerPriceModel.class));
-        verify(mcbMock, times(1)).resetConfiguration(
-                eq(model.getMarketplaceId()));
         VOMarketplace value = captor.getValue();
         verifyValueObject(model, value);
 
@@ -521,16 +504,15 @@ public class UpdateMarketplaceBeanTest {
     public void updateMarketplace_NotPermitted() throws Exception {
         // given
         doThrow(new OperationNotPermittedException()).when(mmps)
-        .updateMarketplace(any(VOMarketplace.class),
-                any(POMarketplacePriceModel.class),
-                any(POPartnerPriceModel.class));
+                .updateMarketplace(any(VOMarketplace.class),
+                        any(POMarketplacePriceModel.class),
+                        any(POPartnerPriceModel.class));
 
         // when
         umpb.updateMarketplace();
 
         // then
         verify(mbMock, times(1)).resetMenuVisibility();
-        verifyNoMoreInteractions(mcbMock);
         assertTrue(ui.hasErrors());
     }
 
@@ -541,16 +523,15 @@ public class UpdateMarketplaceBeanTest {
     public void updateMarketplace_MarketplaceNotFound() throws Exception {
         // given
         doThrow(new ObjectNotFoundException(ClassEnum.MARKETPLACE, "mId"))
-        .when(mmps).updateMarketplace(any(VOMarketplace.class),
-                any(POMarketplacePriceModel.class),
-                any(POPartnerPriceModel.class));
+                .when(mmps).updateMarketplace(any(VOMarketplace.class),
+                        any(POMarketplacePriceModel.class),
+                        any(POPartnerPriceModel.class));
 
         // when
         umpb.updateMarketplace();
 
         // then
         verify(mbMock, times(1)).resetMenuVisibility();
-        verifyNoMoreInteractions(mcbMock);
         assertTrue(ui.hasErrors());
     }
 
@@ -569,7 +550,6 @@ public class UpdateMarketplaceBeanTest {
 
         // then do not reset in UI
         verify(mbMock, times(0)).resetMenuVisibility();
-        verifyNoMoreInteractions(mcbMock);
         assertTrue(ui.hasErrors());
     }
 
@@ -585,7 +565,6 @@ public class UpdateMarketplaceBeanTest {
 
         // then do not reset in UI
         verify(mbMock, times(0)).resetMenuVisibility();
-        verifyNoMoreInteractions(mcbMock);
         assertTrue(ui.hasErrors());
     }
 
@@ -608,11 +587,11 @@ public class UpdateMarketplaceBeanTest {
         // given
         String mp2Id = vMp2.getMarketplaceId();
         mpPricing.getMarketplacePriceModel().getRevenueShare()
-        .setRevenueShare(BigDecimal.TEN);
+                .setRevenueShare(BigDecimal.TEN);
         mpPricing.getPartnerPriceModel().getRevenueShareResellerModel()
-        .setRevenueShare(BigDecimal.ONE);
+                .setRevenueShare(BigDecimal.ONE);
         mpPricing.getPartnerPriceModel().getRevenueShareBrokerModel()
-        .setRevenueShare(BigDecimal.TEN);
+                .setRevenueShare(BigDecimal.TEN);
 
         // when
         umpb.applyOrgChange(mp2Id);
@@ -638,7 +617,7 @@ public class UpdateMarketplaceBeanTest {
         // given
         String mp2Id = vMp2.getMarketplaceId();
         doThrow(new ObjectNotFoundException()).when(ps)
-        .getPricingForMarketplace(anyString());
+                .getPricingForMarketplace(anyString());
 
         // when
         umpb.applyOrgChange(mp2Id);
@@ -700,6 +679,7 @@ public class UpdateMarketplaceBeanTest {
         verify(umpb, times(1)).getService(
                 eq(MarketplaceServiceManagePartner.class), any());
     }
+    
 
     private static void verifyValueObject(Marketplace mp, VOMarketplace vMp) {
         assertEquals(mp.getMarketplaceId(), vMp.getMarketplaceId());

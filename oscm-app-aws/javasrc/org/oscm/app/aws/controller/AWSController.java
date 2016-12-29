@@ -22,24 +22,23 @@ import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.oscm.app.aws.data.FlowState;
 import org.oscm.app.aws.data.Operation;
 import org.oscm.app.aws.i18n.Messages;
 import org.oscm.app.common.controller.LogAndExceptionConverter;
 import org.oscm.app.common.data.Context;
-import org.oscm.app.v1_0.data.ControllerSettings;
-import org.oscm.app.v1_0.data.InstanceDescription;
-import org.oscm.app.v1_0.data.InstanceStatus;
-import org.oscm.app.v1_0.data.InstanceStatusUsers;
-import org.oscm.app.v1_0.data.LocalizedText;
-import org.oscm.app.v1_0.data.OperationParameter;
-import org.oscm.app.v1_0.data.ProvisioningSettings;
-import org.oscm.app.v1_0.data.ServiceUser;
-import org.oscm.app.v1_0.exceptions.APPlatformException;
-import org.oscm.app.v1_0.intf.APPlatformController;
+import org.oscm.app.v2_0.data.ControllerSettings;
+import org.oscm.app.v2_0.data.InstanceDescription;
+import org.oscm.app.v2_0.data.InstanceStatus;
+import org.oscm.app.v2_0.data.InstanceStatusUsers;
+import org.oscm.app.v2_0.data.LocalizedText;
+import org.oscm.app.v2_0.data.OperationParameter;
+import org.oscm.app.v2_0.data.ProvisioningSettings;
+import org.oscm.app.v2_0.data.ServiceUser;
+import org.oscm.app.v2_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.intf.APPlatformController;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * AWS implementation of a service controller based on the Asynchronous
@@ -84,6 +83,7 @@ public class AWSController implements APPlatformController {
             InstanceDescription id = new InstanceDescription();
             id.setInstanceId("aws-" + UUID.randomUUID().toString());
             id.setChangedParameters(settings.getParameters());
+            id.setChangedAttributes(settings.getAttributes());
             LOGGER.info("createInstance({})", LogAndExceptionConverter
                     .getLogText(id.getInstanceId(), settings));
             return id;
@@ -123,6 +123,7 @@ public class AWSController implements APPlatformController {
 
             InstanceStatus result = new InstanceStatus();
             result.setChangedParameters(settings.getParameters());
+            result.setChangedAttributes(settings.getAttributes());
             return result;
         } catch (Throwable t) {
             throw LogAndExceptionConverter.createAndLogPlatformException(t,
@@ -164,6 +165,7 @@ public class AWSController implements APPlatformController {
 
             InstanceStatus result = new InstanceStatus();
             result.setChangedParameters(newSettings.getParameters());
+            result.setChangedAttributes(newSettings.getAttributes());
             return result;
         } catch (Throwable t) {
             throw LogAndExceptionConverter.createAndLogPlatformException(t,
@@ -199,6 +201,7 @@ public class AWSController implements APPlatformController {
             PropertyHandler ph = PropertyHandler.withSettings(settings);
             EC2Processor ec2processor = new EC2Processor(ph, instanceId);
             InstanceStatus status = ec2processor.process();
+
             return status;
         } catch (Throwable t) {
             throw LogAndExceptionConverter.createAndLogPlatformException(t,
@@ -281,6 +284,7 @@ public class AWSController implements APPlatformController {
 
             InstanceStatus result = new InstanceStatus();
             result.setChangedParameters(settings.getParameters());
+            result.setChangedAttributes(settings.getAttributes());
             return result;
         } catch (Throwable t) {
             throw LogAndExceptionConverter.createAndLogPlatformException(t,
@@ -319,6 +323,7 @@ public class AWSController implements APPlatformController {
 
             InstanceStatus result = new InstanceStatus();
             result.setChangedParameters(settings.getParameters());
+            result.setChangedAttributes(settings.getAttributes());
             return result;
         } catch (Throwable t) {
             throw LogAndExceptionConverter.createAndLogPlatformException(t,
@@ -426,6 +431,7 @@ public class AWSController implements APPlatformController {
                 status.setRunWithTimer(true);
                 status.setIsReady(false);
                 status.setChangedParameters(settings.getParameters());
+                status.setChangedAttributes(settings.getAttributes());
             }
             return status;
         } catch (Throwable t) {
@@ -508,6 +514,7 @@ public class AWSController implements APPlatformController {
         status.setRunWithTimer(true);
         status.setDescription(getProvisioningStatusText(propertyHandler));
         status.setChangedParameters(settings.getParameters());
+        status.setChangedAttributes(settings.getAttributes());
         return status;
     }
 

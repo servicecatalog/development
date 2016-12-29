@@ -16,7 +16,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
-
 import org.oscm.app.iaas.PropertyHandler;
 import org.oscm.app.ror.client.LPlatformClient;
 import org.oscm.app.ror.client.RORClient;
@@ -24,7 +23,8 @@ import org.oscm.app.ror.data.LPlatformConfiguration;
 import org.oscm.app.ror.data.LPlatformDescriptor;
 import org.oscm.app.ror.data.LPlatformDescriptorConfiguration;
 import org.oscm.app.ror.data.LServerConfiguration;
-import org.oscm.app.v1_0.data.ProvisioningSettings;
+import org.oscm.app.v2_0.data.ProvisioningSettings;
+import org.oscm.app.v2_0.data.Setting;
 
 /**
  * Intention: Use this class manually to retrieve information from a running ROR
@@ -61,23 +61,26 @@ public class RorClientIT {
 
     private ProvisioningSettings newProvisioningSettings() {
         ProvisioningSettings settings = new ProvisioningSettings(
-                new HashMap<String, String>(), new HashMap<String, String>(),
+                new HashMap<String, Setting>(), new HashMap<String, Setting>(),
                 "en");
 
         settings.getParameters().put(PropertyHandler.VSYS_ID,
-                "SampleTe-IZ3MDGZSB");
-        settings.getParameters().put(PropertyHandler.VSERVER_ID,
-                "SampleTe-IZ3MDGZSB-S-0001");
+                new Setting(PropertyHandler.VSYS_ID, "SampleTe-IZ3MDGZSB"));
+        settings.getParameters().put(
+                PropertyHandler.VSERVER_ID,
+                new Setting(PropertyHandler.VSERVER_ID,
+                        "SampleTe-IZ3MDGZSB-S-0001"));
 
-        settings.getConfigSettings().put(PropertyHandler.IAAS_API_LOCALE, "en");
+        settings.getConfigSettings().put(PropertyHandler.IAAS_API_LOCALE,
+                new Setting(PropertyHandler.IAAS_API_LOCALE, "en"));
         settings.getConfigSettings().put(PropertyHandler.IAAS_API_URI,
-                IAAS_API_URI);
+                new Setting(PropertyHandler.IAAS_API_URI, IAAS_API_URI));
         settings.getConfigSettings().put(PropertyHandler.IAAS_API_TENANT,
-                "SampleTenant");
+                new Setting(PropertyHandler.IAAS_API_TENANT, "SampleTenant"));
         settings.getConfigSettings().put(PropertyHandler.IAAS_API_USER,
-                "tenant_admin");
+                new Setting(PropertyHandler.IAAS_API_USER, "tenant_admin"));
         settings.getConfigSettings().put(PropertyHandler.IAAS_API_PWD,
-                "tenantadmin");
+                new Setting(PropertyHandler.IAAS_API_PWD, "tenantadmin"));
 
         return settings;
     }
@@ -114,8 +117,10 @@ public class RorClientIT {
                     + platformConfiguration.getNetworks());
             System.out.println("");
 
-            settings.getParameters().put(PropertyHandler.VSYS_ID,
-                    platformConfiguration.getVSystemId());
+            settings.getParameters().put(
+                    PropertyHandler.VSYS_ID,
+                    new Setting(PropertyHandler.VSYS_ID, platformConfiguration
+                            .getVSystemId()));
             platformClient = new RORVServerCommunication()
                     .getLPlatformClient(new PropertyHandler(settings));
             for (LServerConfiguration serverConfiguration : platformClient

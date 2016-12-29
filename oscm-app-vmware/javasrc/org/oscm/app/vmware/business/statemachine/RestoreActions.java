@@ -8,8 +8,8 @@
 
 package org.oscm.app.vmware.business.statemachine;
 
-import org.oscm.app.v1_0.data.InstanceStatus;
-import org.oscm.app.v1_0.data.ProvisioningSettings;
+import org.oscm.app.v2_0.data.InstanceStatus;
+import org.oscm.app.v2_0.data.ProvisioningSettings;
 import org.oscm.app.vmware.business.VMPropertyHandler;
 import org.oscm.app.vmware.business.statemachine.api.StateMachineAction;
 import org.oscm.app.vmware.remote.vmware.VMClientPool;
@@ -56,11 +56,11 @@ public class RestoreActions extends Actions {
 
             ManagedObjectReference targetHost = null;
             boolean suppressPowerOn = false;
-            ManagedObjectReference task = client
-                    .getService()
-                    .revertToSnapshotTask(snapshot, targetHost, suppressPowerOn);
+            ManagedObjectReference task = client.getService()
+                    .revertToSnapshotTask(snapshot, targetHost,
+                            suppressPowerOn);
 
-            ph.setTask(client.retrieveTaskInfoKey(task));
+            ph.setTask(client.retrieveTaskInfo(task));
             return EVENT_RUN;
         } catch (Exception e) {
             String message = "Failed to restore snapshot for instance "
@@ -71,8 +71,8 @@ public class RestoreActions extends Actions {
         } finally {
             if (client != null) {
                 try {
-                    VMClientPool.getInstance().getPool()
-                            .returnObject(vcenter, client);
+                    VMClientPool.getInstance().getPool().returnObject(vcenter,
+                            client);
                 } catch (Exception e) {
                     logger.error("Failed to return VMware client into pool", e);
                 }

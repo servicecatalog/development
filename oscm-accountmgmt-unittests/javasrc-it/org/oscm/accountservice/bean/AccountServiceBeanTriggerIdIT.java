@@ -25,7 +25,6 @@ import java.util.concurrent.Callable;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Organization;
@@ -34,17 +33,7 @@ import org.oscm.domobjects.TriggerDefinition;
 import org.oscm.domobjects.TriggerProcess;
 import org.oscm.domobjects.TriggerProcessIdentifier;
 import org.oscm.domobjects.TriggerProcessParameter;
-import org.oscm.test.EJBTestBase;
-import org.oscm.test.data.Organizations;
-import org.oscm.test.data.SupportedCountries;
-import org.oscm.test.data.TriggerDefinitions;
-import org.oscm.test.data.TriggerProcesses;
-import org.oscm.test.ejb.TestContainer;
-import org.oscm.triggerservice.local.TriggerMessage;
-import org.oscm.triggerservice.local.TriggerProcessMessageData;
-import org.oscm.triggerservice.local.TriggerQueueServiceLocal;
-import org.oscm.types.enumtypes.TriggerProcessIdentifierName;
-import org.oscm.types.enumtypes.TriggerProcessParameterName;
+import org.oscm.encrypter.AESEncrypter;
 import org.oscm.internal.intf.AccountService;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.TriggerType;
@@ -54,6 +43,18 @@ import org.oscm.internal.vo.VOOrganizationPaymentConfiguration;
 import org.oscm.internal.vo.VOPaymentType;
 import org.oscm.internal.vo.VOServicePaymentConfiguration;
 import org.oscm.internal.vo.VOUserDetails;
+import org.oscm.test.EJBTestBase;
+import org.oscm.test.data.Organizations;
+import org.oscm.test.data.SupportedCountries;
+import org.oscm.test.data.TriggerDefinitions;
+import org.oscm.test.data.TriggerProcesses;
+import org.oscm.test.ejb.TestContainer;
+import org.oscm.test.stubs.ConfigurationServiceStub;
+import org.oscm.triggerservice.local.TriggerMessage;
+import org.oscm.triggerservice.local.TriggerProcessMessageData;
+import org.oscm.triggerservice.local.TriggerQueueServiceLocal;
+import org.oscm.types.enumtypes.TriggerProcessIdentifierName;
+import org.oscm.types.enumtypes.TriggerProcessParameterName;
 
 public class AccountServiceBeanTriggerIdIT extends EJBTestBase {
 
@@ -76,9 +77,13 @@ public class AccountServiceBeanTriggerIdIT extends EJBTestBase {
 
     @Override
     protected void setup(TestContainer container) throws Exception {
+        AESEncrypter.generateKey();
+
         container.enableInterfaceMocking(true);
-        TriggerQueueServiceLocal triggerQueueServiceLocal = mock(TriggerQueueServiceLocal.class);
+        TriggerQueueServiceLocal triggerQueueServiceLocal = mock(
+                TriggerQueueServiceLocal.class);
         container.addBean(triggerQueueServiceLocal);
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         AccountServiceBean accountServiceBean = spy(new AccountServiceBean());
         container.addBean(accountServiceBean);
@@ -86,16 +91,17 @@ public class AccountServiceBeanTriggerIdIT extends EJBTestBase {
         accountService = container.get(AccountService.class);
         ds = container.get(DataService.class);
         doAnswer(new Answer<List<TriggerProcessMessageData>>() {
+            @Override
             public List<TriggerProcessMessageData> answer(
                     InvocationOnMock invocation) throws Throwable {
                 return Collections.singletonList(triggerProcessData);
             }
-        }).when(triggerQueueServiceLocal).sendSuspendingMessages(
-                anyListOf(TriggerMessage.class));
-        doReturn(null).when(accountServiceBean).registerKnownCustomerInt(
-                any(TriggerProcess.class));
-        doNothing().when(accountServiceBean).savePaymentConfigurationInt(
-                any(TriggerProcess.class));
+        }).when(triggerQueueServiceLocal)
+                .sendSuspendingMessages(anyListOf(TriggerMessage.class));
+        doReturn(null).when(accountServiceBean)
+                .registerKnownCustomerInt(any(TriggerProcess.class));
+        doNothing().when(accountServiceBean)
+                .savePaymentConfigurationInt(any(TriggerProcess.class));
     }
 
     @Test
@@ -103,8 +109,7 @@ public class AccountServiceBeanTriggerIdIT extends EJBTestBase {
         initData(false, false, TriggerType.REGISTER_CUSTOMER_FOR_SUPPLIER);
         tp.setTriggerDefinition(null);
         container.login(supplierUser.getKey(), ROLE_SERVICE_MANAGER);
-        accountService.registerKnownCustomer(org, user, null,
-                marketplaceId);
+        accountService.registerKnownCustomer(org, user, null, marketplaceId);
         List<TriggerProcessIdentifier> processIdentifiers = getProcessIdentifiers();
         assertNotNull(processIdentifiers);
         assertTrue(processIdentifiers.isEmpty());
@@ -115,8 +120,7 @@ public class AccountServiceBeanTriggerIdIT extends EJBTestBase {
             throws Exception {
         initData(false, false, TriggerType.REGISTER_CUSTOMER_FOR_SUPPLIER);
         container.login(supplierUser.getKey(), ROLE_SERVICE_MANAGER);
-        accountService.registerKnownCustomer(org, user, null,
-                marketplaceId);
+        accountService.registerKnownCustomer(org, user, null, marketplaceId);
         // assert existence of identifiers
         List<TriggerProcessIdentifier> processIdentifiers = getProcessIdentifiers();
         assertNotNull(processIdentifiers);
@@ -207,6 +211,7 @@ public class AccountServiceBeanTriggerIdIT extends EJBTestBase {
         user.setUserId("testUser");
         user.setEMail("user@server.com");
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 createOrganizationRoles(ds);
                 SupportedCountries.createSomeSupportedCountries(ds);
@@ -292,6 +297,7 @@ public class AccountServiceBeanTriggerIdIT extends EJBTestBase {
     private List<TriggerProcessIdentifier> getProcessIdentifiers(
             final Long... tpKeys) throws Exception {
         return runTX(new Callable<List<TriggerProcessIdentifier>>() {
+            @Override
             public List<TriggerProcessIdentifier> call() throws Exception {
                 return TriggerProcesses.getProcessIdentifiers(ds, tpKeys);
             }

@@ -20,25 +20,24 @@ import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.oscm.app.common.controller.LogAndExceptionConverter;
 import org.oscm.app.common.data.Context;
 import org.oscm.app.openstack.data.FlowState;
 import org.oscm.app.openstack.i18n.Messages;
-import org.oscm.app.v1_0.APPlatformServiceFactory;
-import org.oscm.app.v1_0.data.ControllerSettings;
-import org.oscm.app.v1_0.data.InstanceDescription;
-import org.oscm.app.v1_0.data.InstanceStatus;
-import org.oscm.app.v1_0.data.InstanceStatusUsers;
-import org.oscm.app.v1_0.data.LocalizedText;
-import org.oscm.app.v1_0.data.OperationParameter;
-import org.oscm.app.v1_0.data.ProvisioningSettings;
-import org.oscm.app.v1_0.data.ServiceUser;
-import org.oscm.app.v1_0.exceptions.APPlatformException;
-import org.oscm.app.v1_0.intf.APPlatformController;
-import org.oscm.app.v1_0.intf.APPlatformService;
+import org.oscm.app.v2_0.APPlatformServiceFactory;
+import org.oscm.app.v2_0.data.ControllerSettings;
+import org.oscm.app.v2_0.data.InstanceDescription;
+import org.oscm.app.v2_0.data.InstanceStatus;
+import org.oscm.app.v2_0.data.InstanceStatusUsers;
+import org.oscm.app.v2_0.data.LocalizedText;
+import org.oscm.app.v2_0.data.OperationParameter;
+import org.oscm.app.v2_0.data.ProvisioningSettings;
+import org.oscm.app.v2_0.data.ServiceUser;
+import org.oscm.app.v2_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.intf.APPlatformController;
+import org.oscm.app.v2_0.intf.APPlatformService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of an OpenStack service controller based on the Asynchronous
@@ -114,6 +113,7 @@ public class OpenStackController extends ProvisioningValidator implements
             id.setInstanceId("stack-" + UUID.randomUUID().toString());
             id.setBaseUrl("baseurl");
             id.setChangedParameters(settings.getParameters());
+            id.setChangedAttributes(settings.getAttributes());
             LOGGER.info("createInstance({})", LogAndExceptionConverter
                     .getLogText(id.getInstanceId(), settings));
             return id;
@@ -153,6 +153,7 @@ public class OpenStackController extends ProvisioningValidator implements
 
             InstanceStatus result = new InstanceStatus();
             result.setChangedParameters(settings.getParameters());
+            result.setChangedAttributes(settings.getAttributes());
             return result;
         } catch (Exception t) {
             throw LogAndExceptionConverter.createAndLogPlatformException(t,
@@ -198,6 +199,7 @@ public class OpenStackController extends ProvisioningValidator implements
 
             InstanceStatus result = new InstanceStatus();
             result.setChangedParameters(newSettings.getParameters());
+            result.setChangedAttributes(newSettings.getAttributes());
             return result;
         } catch (Exception t) {
             throw LogAndExceptionConverter.createAndLogPlatformException(t,
@@ -232,6 +234,8 @@ public class OpenStackController extends ProvisioningValidator implements
                 LogAndExceptionConverter.getLogText(instanceId, settings));
         try {
             PropertyHandler ph = new PropertyHandler(settings);
+            ProvisioningValidator.validateTimeout(instanceId, ph,
+                    platformService);
             Dispatcher dp = new Dispatcher(platformService, instanceId, ph);
             InstanceStatus status = dp.dispatch();
             return status;
@@ -316,6 +320,7 @@ public class OpenStackController extends ProvisioningValidator implements
 
             InstanceStatus result = new InstanceStatus();
             result.setChangedParameters(settings.getParameters());
+            result.setChangedAttributes(settings.getAttributes());
             return result;
         } catch (Exception t) {
             throw LogAndExceptionConverter.createAndLogPlatformException(t,
@@ -354,6 +359,7 @@ public class OpenStackController extends ProvisioningValidator implements
 
             InstanceStatus result = new InstanceStatus();
             result.setChangedParameters(settings.getParameters());
+            result.setChangedAttributes(settings.getAttributes());
             return result;
         } catch (Exception t) {
             throw LogAndExceptionConverter.createAndLogPlatformException(t,
@@ -459,14 +465,31 @@ public class OpenStackController extends ProvisioningValidator implements
         try {
             PropertyHandler ph = new PropertyHandler(settings);
             boolean operationAccepted = false;
-            if ("START_VIRTUAL_SYSTEM".equals(operationId)) {
+            switch (operationId) {
+            case "START_VIRTUAL_SYSTEM":
+                ph.setState(FlowState.START_REQUESTED);
+                ph.setStartTime(String.valueOf(System.currentTimeMillis()));
+                operationAccepted = true;
+                break;
+
+            case "STOP_VIRTUAL_SYSTEM":
+                ph.setState(FlowState.STOP_REQUESTED);
+                ph.setStartTime(String.valueOf(System.currentTimeMillis()));
+                operationAccepted = true;
+                break;
+
+            case "RESUME_VIRTUAL_SYSTEM":
                 // FIXME decide whether activation process is sufficient or
                 // dedicated start/stop need to be used
                 ph.setState(FlowState.ACTIVATION_REQUESTED);
                 operationAccepted = true;
-            } else if ("STOP_VIRTUAL_SYSTEM".equals(operationId)) {
+                break;
+
+            case "SUSPEND_VIRTUAL_SYSTEM":
                 ph.setState(FlowState.DEACTIVATION_REQUESTED);
                 operationAccepted = true;
+                break;
+
             }
             if (operationAccepted) {
                 // when a valid operation has been requested, let the timer
@@ -475,6 +498,7 @@ public class OpenStackController extends ProvisioningValidator implements
                 status.setRunWithTimer(true);
                 status.setIsReady(false);
                 status.setChangedParameters(settings.getParameters());
+                status.setChangedAttributes(settings.getAttributes());
             }
             return status;
         } catch (Exception t) {
@@ -496,6 +520,7 @@ public class OpenStackController extends ProvisioningValidator implements
         status.setRunWithTimer(true);
         status.setDescription(getProvisioningStatusText(propertyHandler));
         status.setChangedParameters(settings.getParameters());
+        status.setChangedAttributes(settings.getAttributes());
         return status;
     }
 

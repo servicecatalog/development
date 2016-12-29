@@ -4,21 +4,10 @@
 
 package org.oscm.ui.beans;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.*;
 
 import javax.faces.application.FacesMessage.Severity;
 
@@ -27,24 +16,29 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-
-import org.oscm.ui.model.NewMarketplace;
 import org.oscm.internal.intf.MarketplaceService;
+import org.oscm.internal.tenant.ManageTenantService;
 import org.oscm.internal.vo.VOMarketplace;
+import org.oscm.ui.model.NewMarketplace;
 
 @SuppressWarnings("boxing")
 public class NewMarketplaceBeanTest {
 
     NewMarketplaceBean nmpb;
+    TenantsUtilBean tub;
     private MenuBean mb;
     private MarketplaceService mps;
+    private ManageTenantService mts;
 
     @Before
     public void setup() throws Exception {
         nmpb = spy(new NewMarketplaceBean());
         mb = mock(MenuBean.class);
         mps = mock(MarketplaceService.class);
+        mts = mock(ManageTenantService.class);
 
+        tub = new TenantsUtilBean();
+        tub.setManageTenantService(mts);
         doReturn(mps).when(nmpb).getMarketplaceService();
         doNothing().when(nmpb).addMessage(anyString(), any(Severity.class),
                 anyString(), anyString());
@@ -85,6 +79,7 @@ public class NewMarketplaceBeanTest {
         nmp.setReviewEnabled(false);
         nmp.setSocialBookmarkEnabled(true);
         nmp.setCategoriesEnabled(false);
+        nmp.setTenantId("tenant123");
 
         VOMarketplace vmp = nmpb.toVOMarketplace(nmp);
 
@@ -98,6 +93,7 @@ public class NewMarketplaceBeanTest {
         assertEquals(nmp.isSocialBookmarkEnabled(),
                 vmp.isSocialBookmarkEnabled());
         assertEquals(nmp.isCategoriesEnabled(), vmp.isCategoriesEnabled());
+        assertEquals(nmp.getTenantId(), vmp.getTenantId());
 
     }
 
@@ -132,5 +128,18 @@ public class NewMarketplaceBeanTest {
 
         nmpb.createMarketplace();
         verifyNoMoreInteractions(mps, mb);
+    }
+
+    @Test
+    public void getSuggestionsForTenant() throws Exception {
+
+        // given
+        String tenantId = "testId";
+
+        // when
+        tub.getSuggestionsForTenants(tenantId);
+
+        // then
+        verify(mts, times(1)).getTenantsByIdPattern(tenantId+"%");
     }
 }

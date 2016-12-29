@@ -1299,30 +1299,31 @@ public class MarketplaceServiceBeanIT extends MarketplaceServiceTestBase {
     @Ignore
     public void test_getAllOrganizations() throws Exception {
         container.login(platformOperatorUserKey, ROLE_MARKETPLACE_OWNER);
-        
+
         Marketplace marketplaceFromDB = runTX(new Callable<Marketplace>() {
             @Override
             public Marketplace call() throws Exception {
-                Marketplace marketRestricted = Marketplaces.createMarketplace(platformOperatorOrg, "TEST_MARKETPLACE",
-                    false, mgr);
+                Marketplace marketRestricted = Marketplaces.createMarketplace(
+                        platformOperatorOrg, "TEST_MARKETPLACE", false, mgr);
                 return marketRestricted;
             }
         });
-        List<VOOrganization> results = marketplaceService.getAllOrganizations(marketplaceFromDB.getMarketplaceId());
+        List<VOOrganization> results = marketplaceService
+                .getAllOrganizations(marketplaceFromDB.getMarketplaceId());
         assertFalse(results.isEmpty());
     }
 
-
     @Test
     public void testCloseMarketplace() throws Exception {
-        container.login(platformOperatorUserKey, ROLE_PLATFORM_OPERATOR, ROLE_MARKETPLACE_OWNER);
+        container.login(platformOperatorUserKey, ROLE_PLATFORM_OPERATOR,
+                ROLE_MARKETPLACE_OWNER);
         final Organization marketplaceOwner = runTX(new Callable<Organization>() {
             @Override
             public Organization call() throws Exception {
                 Organization newOrg = Organizations.createOrganization(mgr,
-                    OrganizationRoleType.PLATFORM_OPERATOR,
-                    OrganizationRoleType.TECHNOLOGY_PROVIDER,
-                    OrganizationRoleType.MARKETPLACE_OWNER);
+                        OrganizationRoleType.PLATFORM_OPERATOR,
+                        OrganizationRoleType.TECHNOLOGY_PROVIDER,
+                        OrganizationRoleType.MARKETPLACE_OWNER);
                 return newOrg;
             }
         });
@@ -1330,17 +1331,19 @@ public class MarketplaceServiceBeanIT extends MarketplaceServiceTestBase {
         Marketplace marketplaceFromDB = runTX(new Callable<Marketplace>() {
             @Override
             public Marketplace call() throws Exception {
-                Marketplace marketRestricted = Marketplaces.createMarketplace(marketplaceOwner,
-                    "RESTRICTED_MARKETPLACE",
-                    false, mgr);
-                VOOrganization voOrganization = OrganizationAssembler.toVOOrganization(marketplaceOwner);
+                Marketplace marketRestricted = Marketplaces.createMarketplace(
+                        marketplaceOwner, "RESTRICTED_MARKETPLACE", false, mgr);
+                VOOrganization voOrganization = OrganizationAssembler
+                        .toVOOrganization(marketplaceOwner);
                 Set<Long> authorizedOrganizations = new HashSet<>();
                 authorizedOrganizations.add(voOrganization.getKey());
 
-                marketplaceService.closeMarketplace(marketRestricted.getMarketplaceId(), authorizedOrganizations, new HashSet<Long>());
+                marketplaceService.closeMarketplace(
+                        marketRestricted.getMarketplaceId(),
+                        authorizedOrganizations, new HashSet<Long>());
 
                 Marketplace mp = mgr.getReference(Marketplace.class,
-                    marketRestricted.getKey());
+                        marketRestricted.getKey());
 
                 MarketplaceAccess ma = new MarketplaceAccess();
                 ma.setOrganization_tkey(marketplaceOwner.getKey());
@@ -1359,17 +1362,16 @@ public class MarketplaceServiceBeanIT extends MarketplaceServiceTestBase {
     public void testOpenMarketplace() throws Exception {
         container.login(platformOperatorUserKey, ROLE_PLATFORM_OPERATOR,
                 ROLE_MARKETPLACE_OWNER);
-        final Organization marketplaceOwner = runTX(
-                new Callable<Organization>() {
-                    @Override
-                    public Organization call() throws Exception {
-                        Organization newOrg = Organizations.createOrganization(
-                                mgr, OrganizationRoleType.PLATFORM_OPERATOR,
-                                OrganizationRoleType.TECHNOLOGY_PROVIDER,
-                                OrganizationRoleType.MARKETPLACE_OWNER);
-                        return newOrg;
-                    }
-                });
+        final Organization marketplaceOwner = runTX(new Callable<Organization>() {
+            @Override
+            public Organization call() throws Exception {
+                Organization newOrg = Organizations.createOrganization(mgr,
+                        OrganizationRoleType.PLATFORM_OPERATOR,
+                        OrganizationRoleType.TECHNOLOGY_PROVIDER,
+                        OrganizationRoleType.MARKETPLACE_OWNER);
+                return newOrg;
+            }
+        });
 
         Marketplace marketplaceFromDB = runTX(new Callable<Marketplace>() {
             @Override
@@ -1384,16 +1386,15 @@ public class MarketplaceServiceBeanIT extends MarketplaceServiceTestBase {
 
                 marketplaceService.closeMarketplace(
                         marketRestricted.getMarketplaceId(),
-                        authorizedOrganizations,
-                        new HashSet<Long>());
+                        authorizedOrganizations, new HashSet<Long>());
 
                 Marketplace mp = mgr.getReference(Marketplace.class,
                         marketRestricted.getKey());
 
                 assertTrue(mp.isRestricted());
 
-                marketplaceService
-                        .openMarketplace(marketRestricted.getMarketplaceId());
+                marketplaceService.openMarketplace(marketRestricted
+                        .getMarketplaceId());
 
                 Marketplace mpOpened = mgr.getReference(Marketplace.class,
                         marketRestricted.getKey());
@@ -1409,43 +1410,47 @@ public class MarketplaceServiceBeanIT extends MarketplaceServiceTestBase {
     @Test
     public void testGetAllAccessibleMarketplacesForOrg() throws Exception {
         container.login(platformOperatorUserKey, ROLE_PLATFORM_OPERATOR,
-            ROLE_MARKETPLACE_OWNER);
+                ROLE_MARKETPLACE_OWNER);
 
         Marketplace marketplaceFromDB = runTX(new Callable<Marketplace>() {
             @Override
             public Marketplace call() throws Exception {
-                Marketplace marketClosed = Marketplaces.createMarketplace(platformOperatorOrg,
-                    "CLOSED",
-                    false, mgr);
+                Marketplace marketClosed = Marketplaces.createMarketplace(
+                        platformOperatorOrg, "CLOSED", false, mgr);
 
-                Marketplace marketOpen = Marketplaces.createMarketplace(platformOperatorOrg,
-                    "OPEN",
-                    false, mgr);
-                VOOrganization voOrganization = OrganizationAssembler.toVOOrganization(platformOperatorOrg);
+                Marketplace marketOpen = Marketplaces.createMarketplace(
+                        platformOperatorOrg, "OPEN", false, mgr);
+                VOOrganization voOrganization = OrganizationAssembler
+                        .toVOOrganization(platformOperatorOrg);
                 Set<Long> authorizedOrganizations = new HashSet<>();
                 authorizedOrganizations.add(voOrganization.getKey());
 
-                marketplaceService.closeMarketplace(marketClosed.getMarketplaceId(), authorizedOrganizations, new HashSet<Long>());
+                marketplaceService.closeMarketplace(
+                        marketClosed.getMarketplaceId(),
+                        authorizedOrganizations, new HashSet<Long>());
 
                 Marketplace mpClosed = mgr.getReference(Marketplace.class,
-                    marketClosed.getKey());
+                        marketClosed.getKey());
 
                 Marketplace mpOpen = mgr.getReference(Marketplace.class,
-                    marketOpen.getKey());
+                        marketOpen.getKey());
 
                 assertTrue(mpClosed.isRestricted());
                 assertFalse(mpOpen.isRestricted());
 
-                List<VOMarketplace> accessibleMarketplaces = marketplaceService.getAccessibleMarketplacesForOperator();
+                List<VOMarketplace> accessibleMarketplaces = marketplaceService
+                        .getAccessibleMarketplaces();
 
                 boolean closedFound = false;
                 boolean openFound = false;
                 for (VOMarketplace voMarketplace : accessibleMarketplaces) {
-                    if (voMarketplace.getMarketplaceId().equals(marketClosed.getMarketplaceId())) {
+                    if (voMarketplace.getMarketplaceId().equals(
+                            marketClosed.getMarketplaceId())) {
                         closedFound = true;
                         continue;
                     }
-                    if (voMarketplace.getMarketplaceId().equals(marketOpen.getMarketplaceId())) {
+                    if (voMarketplace.getMarketplaceId().equals(
+                            marketOpen.getMarketplaceId())) {
                         openFound = true;
                     }
                 }
@@ -1453,10 +1458,14 @@ public class MarketplaceServiceBeanIT extends MarketplaceServiceTestBase {
                 assertTrue(closedFound);
                 assertTrue(openFound);
 
-                boolean resultClosed = marketplaceService.doesOrganizationHaveAccessMarketplace(marketClosed
-                    .getMarketplaceId(), platformOperatorOrg.getOrganizationId());
-                boolean resultOpen = marketplaceService.doesOrganizationHaveAccessMarketplace(marketOpen
-                    .getMarketplaceId(), platformOperatorOrg.getOrganizationId());
+                boolean resultClosed = marketplaceService
+                        .doesOrganizationHaveAccessMarketplace(
+                                marketClosed.getMarketplaceId(),
+                                platformOperatorOrg.getOrganizationId());
+                boolean resultOpen = marketplaceService
+                        .doesOrganizationHaveAccessMarketplace(
+                                marketOpen.getMarketplaceId(),
+                                platformOperatorOrg.getOrganizationId());
                 assertTrue(resultClosed);
                 assertTrue(resultOpen);
                 return mpClosed;
@@ -1465,42 +1474,46 @@ public class MarketplaceServiceBeanIT extends MarketplaceServiceTestBase {
     }
 
     @Test
-    public void testGetAllAccessibleMarketplacesForOrg_onlyOpen() throws Exception {
+    public void testGetAllAccessibleMarketplacesForOrg_onlyOpen()
+            throws Exception {
         container.login(platformOperatorUserKey, ROLE_PLATFORM_OPERATOR,
-            ROLE_MARKETPLACE_OWNER);
+                ROLE_MARKETPLACE_OWNER);
 
         Marketplace marketplaceFromDB = runTX(new Callable<Marketplace>() {
             @Override
             public Marketplace call() throws Exception {
-                Marketplace marketClosed = Marketplaces.createMarketplace(platformOperatorOrg,
-                    "CLOSED1",
-                    false, mgr);
+                Marketplace marketClosed = Marketplaces.createMarketplace(
+                        platformOperatorOrg, "CLOSED1", false, mgr);
 
-                Marketplace marketOpen = Marketplaces.createMarketplace(platformOperatorOrg,
-                    "OPEN1",
-                    false, mgr);
+                Marketplace marketOpen = Marketplaces.createMarketplace(
+                        platformOperatorOrg, "OPEN1", false, mgr);
 
-                marketplaceService.closeMarketplace(marketClosed.getMarketplaceId(), new HashSet<Long>(),new HashSet<Long>());
+                marketplaceService.closeMarketplace(
+                        marketClosed.getMarketplaceId(), new HashSet<Long>(),
+                        new HashSet<Long>());
 
                 Marketplace mpClosed = mgr.getReference(Marketplace.class,
-                    marketClosed.getKey());
+                        marketClosed.getKey());
 
                 Marketplace mpOpen = mgr.getReference(Marketplace.class,
-                    marketOpen.getKey());
+                        marketOpen.getKey());
 
                 assertTrue(mpClosed.isRestricted());
                 assertFalse(mpOpen.isRestricted());
 
-                List<VOMarketplace> accessibleMarketplaces = marketplaceService.getAccessibleMarketplacesForOperator();
+                List<VOMarketplace> accessibleMarketplaces = marketplaceService
+                        .getAccessibleMarketplaces();
 
                 boolean closedFound = false;
                 boolean openFound = false;
                 for (VOMarketplace voMarketplace : accessibleMarketplaces) {
-                    if (voMarketplace.getMarketplaceId().equals(marketClosed.getMarketplaceId())) {
+                    if (voMarketplace.getMarketplaceId().equals(
+                            marketClosed.getMarketplaceId())) {
                         closedFound = true;
                         continue;
                     }
-                    if (voMarketplace.getMarketplaceId().equals(marketOpen.getMarketplaceId())) {
+                    if (voMarketplace.getMarketplaceId().equals(
+                            marketOpen.getMarketplaceId())) {
                         openFound = true;
                     }
                 }

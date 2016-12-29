@@ -15,15 +15,15 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import org.junit.Test;
-
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.OrganizationRefToPaymentType;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.Organizations;
 import org.oscm.test.ejb.TestContainer;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 
 /**
  * @author gaowenxin
@@ -38,6 +38,7 @@ public class PaymentTypeDaoIT extends EJBTestBase {
 
     @Override
     protected void setup(TestContainer container) throws Exception {
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         container.addBean(new PaymentTypeDao());
 

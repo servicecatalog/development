@@ -8,9 +8,9 @@
 
 package org.oscm.billingservice.dao;
 
-import static org.oscm.test.matchers.BesMatchers.haveVersions;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.oscm.test.matchers.BesMatchers.haveVersions;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -19,19 +19,19 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import org.junit.Test;
-
 import org.oscm.billingservice.service.model.CustomerData;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.PriceModelHistory;
 import org.oscm.domobjects.SubscriptionHistory;
 import org.oscm.domobjects.enums.ModificationType;
+import org.oscm.internal.types.enumtypes.PriceModelType;
+import org.oscm.internal.types.enumtypes.SubscriptionStatus;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.PriceModels;
 import org.oscm.test.data.Products;
 import org.oscm.test.ejb.TestContainer;
-import org.oscm.internal.types.enumtypes.PriceModelType;
-import org.oscm.internal.types.enumtypes.SubscriptionStatus;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 
 /**
  * @author kulle
@@ -47,6 +47,7 @@ public class BillingDataRetrievalServiceBeanSubscriptionIT extends EJBTestBase {
 
     @Override
     protected void setup(TestContainer container) throws Exception {
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         container.addBean(new BillingDataRetrievalServiceBean());
         ds = container.get(DataService.class);
@@ -89,8 +90,8 @@ public class BillingDataRetrievalServiceBeanSubscriptionIT extends EJBTestBase {
                 subHist.getDataContainer().setActivationDate(
                         Long.valueOf(System.currentTimeMillis()));
                 subHist.getDataContainer().setStatus(subscriptionStatus);
-                subHist.getDataContainer().setSubscriptionId(
-                        SUBPRX + subscriptionObjKey);
+                subHist.getDataContainer()
+                        .setSubscriptionId(SUBPRX + subscriptionObjKey);
                 subHist.getDataContainer().setTimeoutMailSent(false);
                 subHist.setOrganizationObjKey(customerOrganizationKey);
                 subHist.setCutOffDay(1);
@@ -117,10 +118,12 @@ public class BillingDataRetrievalServiceBeanSubscriptionIT extends EJBTestBase {
             @Override
             public CustomerData call() throws Exception {
                 return new CustomerData(bdr.loadSubscriptionsForCustomer(
-                        CUSTOMER_ORGANIZTION_KEY, new SimpleDateFormat(
-                                DATE_PATTERN).parse("2012-10-01 00:00:00")
-                                .getTime(), new SimpleDateFormat(DATE_PATTERN)
-                                .parse("2012-11-01 00:00:00").getTime(), -1));
+                        CUSTOMER_ORGANIZTION_KEY,
+                        new SimpleDateFormat(DATE_PATTERN)
+                                .parse("2012-10-01 00:00:00").getTime(),
+                        new SimpleDateFormat(DATE_PATTERN)
+                                .parse("2012-11-01 00:00:00").getTime(),
+                        -1));
             }
         });
 
@@ -128,9 +131,8 @@ public class BillingDataRetrievalServiceBeanSubscriptionIT extends EJBTestBase {
         assertEquals(1, billingInput.getSubscriptionKeys().size());
         long subscriptionKey = billingInput.getSubscriptionKeys().get(0)
                 .longValue();
-        assertEquals(1,
-                billingInput.getSubscriptionHistoryEntries(subscriptionKey)
-                        .size());
+        assertEquals(1, billingInput
+                .getSubscriptionHistoryEntries(subscriptionKey).size());
         assertEquals(SUBPRX + "10",
                 billingInput.getSubscriptionHistoryEntries(subscriptionKey)
                         .get(0).getDataContainer().getSubscriptionId());
@@ -155,10 +157,12 @@ public class BillingDataRetrievalServiceBeanSubscriptionIT extends EJBTestBase {
             @Override
             public CustomerData call() throws Exception {
                 return new CustomerData(bdr.loadSubscriptionsForCustomer(
-                        CUSTOMER_ORGANIZTION_KEY, new SimpleDateFormat(
-                                DATE_PATTERN).parse("2012-10-01 00:00:00")
-                                .getTime(), new SimpleDateFormat(DATE_PATTERN)
-                                .parse("2012-11-01 00:00:00").getTime(), -1));
+                        CUSTOMER_ORGANIZTION_KEY,
+                        new SimpleDateFormat(DATE_PATTERN)
+                                .parse("2012-10-01 00:00:00").getTime(),
+                        new SimpleDateFormat(DATE_PATTERN)
+                                .parse("2012-11-01 00:00:00").getTime(),
+                        -1));
             }
         });
 
@@ -166,9 +170,8 @@ public class BillingDataRetrievalServiceBeanSubscriptionIT extends EJBTestBase {
         assertEquals(1, billingInput.getSubscriptionKeys().size());
         long subscriptionKey = billingInput.getSubscriptionKeys().get(0)
                 .longValue();
-        assertEquals(2,
-                billingInput.getSubscriptionHistoryEntries(subscriptionKey)
-                        .size());
+        assertEquals(2, billingInput
+                .getSubscriptionHistoryEntries(subscriptionKey).size());
         assertEquals(1,
                 billingInput.getSubscriptionHistoryEntries(subscriptionKey)
                         .get(0).getObjVersion());
@@ -178,72 +181,88 @@ public class BillingDataRetrievalServiceBeanSubscriptionIT extends EJBTestBase {
     }
 
     @Test
-    public void testGetHistoriesForSubscriptionsAndBillingPeriodHistoryDelivered() throws Exception {
-        //given
-        //when
+    public void testGetHistoriesForSubscriptionsAndBillingPeriodHistoryDelivered()
+            throws Exception {
+        // given
+        // when
         final List<Long> list = new ArrayList<>();
         list.add(Long.valueOf(0));
         final List<SubscriptionHistory> subscriptionHistories = new ArrayList<>();
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                subscriptionHistories.addAll(bdr.loadSubscriptionHistoriesForBillingPeriod(list, new SimpleDateFormat(DATE_PATTERN)
-                        .parse("2012-08-01 08:00:00").getTime(), new SimpleDateFormat(DATE_PATTERN)
-                        .parse("2012-10-01 08:00:00").getTime()));
+                subscriptionHistories.addAll(
+                        bdr.loadSubscriptionHistoriesForBillingPeriod(list,
+                                new SimpleDateFormat(DATE_PATTERN)
+                                        .parse("2012-08-01 08:00:00").getTime(),
+                                new SimpleDateFormat(DATE_PATTERN)
+                                        .parse("2012-10-01 08:00:00")
+                                        .getTime()));
                 return null;
             }
         });
 
-        //then
+        // then
         assertEquals(1, subscriptionHistories.size());
     }
 
     @Test
-    public void testGetHistoriesForSubscriptionsAndBillingPeriodNoHistoryDelivered() throws Exception {
-        //given
-        //when
+    public void testGetHistoriesForSubscriptionsAndBillingPeriodNoHistoryDelivered()
+            throws Exception {
+        // given
+        // when
         final List<Long> list = new ArrayList<>();
         list.add(Long.valueOf(13061984L));
         createSubscriptionHistory(13061984L, 1001L, "2011-12-02 08:00:00", 0,
                 ModificationType.ADD, SubscriptionStatus.ACTIVE, 0, false);
         createSubscriptionHistory(13061984L, 1001L, "2011-12-02 09:00:00", 0,
-                ModificationType.MODIFY, SubscriptionStatus.DEACTIVATED, 0, false);
+                ModificationType.MODIFY, SubscriptionStatus.DEACTIVATED, 0,
+                false);
 
         final List<SubscriptionHistory> subscriptionHistories = new ArrayList<>();
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                subscriptionHistories.addAll(bdr.loadSubscriptionHistoriesForBillingPeriod(list, new SimpleDateFormat(DATE_PATTERN)
-                        .parse("2011-10-01 08:00:00").getTime(), new SimpleDateFormat(DATE_PATTERN)
-                        .parse("2011-12-01 08:00:00").getTime()));
+                subscriptionHistories.addAll(
+                        bdr.loadSubscriptionHistoriesForBillingPeriod(list,
+                                new SimpleDateFormat(DATE_PATTERN)
+                                        .parse("2011-10-01 08:00:00").getTime(),
+                                new SimpleDateFormat(DATE_PATTERN)
+                                        .parse("2011-12-01 08:00:00")
+                                        .getTime()));
                 return null;
             }
         });
 
-        //then
+        // then
         assertEquals(0, subscriptionHistories.size());
     }
 
     @Test
-    public void testGetHistoriesForSubscriptionsAndBillingPeriodOlTerminatedHistory() throws Exception {
-        //given
+    public void testGetHistoriesForSubscriptionsAndBillingPeriodOlTerminatedHistory()
+            throws Exception {
+        // given
         createSubscriptionHistory(0L, "2012-09-10 08:00:00", 1,
                 ModificationType.MODIFY, SubscriptionStatus.DEACTIVATED);
-        //when
+        // when
         final List<Long> list = new ArrayList<>();
         list.add(Long.valueOf(0));
         final List<SubscriptionHistory> subscriptionHistories = new ArrayList<>();
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                subscriptionHistories.addAll(bdr.loadSubscriptionHistoriesForBillingPeriod(list, new SimpleDateFormat(DATE_PATTERN)
-                        .parse("2013-10-01 08:00:00").getTime(), new SimpleDateFormat(DATE_PATTERN)
-                        .parse("2013-11-01 08:00:00").getTime()));
+                subscriptionHistories.addAll(
+                        bdr.loadSubscriptionHistoriesForBillingPeriod(list,
+                                new SimpleDateFormat(DATE_PATTERN)
+                                        .parse("2013-10-01 08:00:00").getTime(),
+                                new SimpleDateFormat(DATE_PATTERN)
+                                        .parse("2013-11-01 08:00:00")
+                                        .getTime()));
                 return null;
             }
         });
 
-        //then
+        // then
         assertEquals(1, subscriptionHistories.size());
     }
 
@@ -263,10 +282,12 @@ public class BillingDataRetrievalServiceBeanSubscriptionIT extends EJBTestBase {
             @Override
             public CustomerData call() throws Exception {
                 return new CustomerData(bdr.loadSubscriptionsForCustomer(
-                        CUSTOMER_ORGANIZTION_KEY, new SimpleDateFormat(
-                                DATE_PATTERN).parse("2012-10-01 00:00:00")
-                                .getTime(), new SimpleDateFormat(DATE_PATTERN)
-                                .parse("2012-11-01 00:00:00").getTime(), -1));
+                        CUSTOMER_ORGANIZTION_KEY,
+                        new SimpleDateFormat(DATE_PATTERN)
+                                .parse("2012-10-01 00:00:00").getTime(),
+                        new SimpleDateFormat(DATE_PATTERN)
+                                .parse("2012-11-01 00:00:00").getTime(),
+                        -1));
             }
         });
 
@@ -274,9 +295,8 @@ public class BillingDataRetrievalServiceBeanSubscriptionIT extends EJBTestBase {
         assertEquals(1, billingInput.getSubscriptionKeys().size());
         long subscriptionKey = billingInput.getSubscriptionKeys().get(0)
                 .longValue();
-        assertEquals(1,
-                billingInput.getSubscriptionHistoryEntries(subscriptionKey)
-                        .size());
+        assertEquals(1, billingInput
+                .getSubscriptionHistoryEntries(subscriptionKey).size());
         assertEquals(SUBPRX + "10",
                 billingInput.getSubscriptionHistoryEntries(subscriptionKey)
                         .get(0).getDataContainer().getSubscriptionId());
@@ -305,10 +325,12 @@ public class BillingDataRetrievalServiceBeanSubscriptionIT extends EJBTestBase {
             @Override
             public CustomerData call() throws Exception {
                 return new CustomerData(bdr.loadSubscriptionsForCustomer(
-                        CUSTOMER_ORGANIZTION_KEY, new SimpleDateFormat(
-                                DATE_PATTERN).parse("2012-10-01 00:00:00")
-                                .getTime(), new SimpleDateFormat(DATE_PATTERN)
-                                .parse("2012-11-01 00:00:00").getTime(), -1));
+                        CUSTOMER_ORGANIZTION_KEY,
+                        new SimpleDateFormat(DATE_PATTERN)
+                                .parse("2012-10-01 00:00:00").getTime(),
+                        new SimpleDateFormat(DATE_PATTERN)
+                                .parse("2012-11-01 00:00:00").getTime(),
+                        -1));
             }
         });
 
@@ -316,9 +338,8 @@ public class BillingDataRetrievalServiceBeanSubscriptionIT extends EJBTestBase {
         assertEquals(1, billingInput.getSubscriptionKeys().size());
         long subscriptionKey = billingInput.getSubscriptionKeys().get(0)
                 .longValue();
-        assertEquals(4,
-                billingInput.getSubscriptionHistoryEntries(subscriptionKey)
-                        .size());
+        assertEquals(4, billingInput
+                .getSubscriptionHistoryEntries(subscriptionKey).size());
         assertEquals(SUBPRX + "11",
                 billingInput.getSubscriptionHistoryEntries(subscriptionKey)
                         .get(0).getDataContainer().getSubscriptionId());
@@ -355,10 +376,12 @@ public class BillingDataRetrievalServiceBeanSubscriptionIT extends EJBTestBase {
             @Override
             public CustomerData call() throws Exception {
                 return new CustomerData(bdr.loadSubscriptionsForCustomer(
-                        CUSTOMER_ORGANIZTION_KEY, new SimpleDateFormat(
-                                DATE_PATTERN).parse("2012-10-01 00:00:00")
-                                .getTime(), new SimpleDateFormat(DATE_PATTERN)
-                                .parse("2012-11-01 00:00:00").getTime(), -1));
+                        CUSTOMER_ORGANIZTION_KEY,
+                        new SimpleDateFormat(DATE_PATTERN)
+                                .parse("2012-10-01 00:00:00").getTime(),
+                        new SimpleDateFormat(DATE_PATTERN)
+                                .parse("2012-11-01 00:00:00").getTime(),
+                        -1));
             }
         });
 
@@ -376,9 +399,8 @@ public class BillingDataRetrievalServiceBeanSubscriptionIT extends EJBTestBase {
         // givenSubscriptionModifiedInLastPeriod
         long subscriptionKey1 = billingInput.getSubscriptionKeys().get(1)
                 .longValue();
-        assertEquals(3,
-                billingInput.getSubscriptionHistoryEntries(subscriptionKey1)
-                        .size());
+        assertEquals(3, billingInput
+                .getSubscriptionHistoryEntries(subscriptionKey1).size());
         assertEquals(SUBPRX + "12",
                 billingInput.getSubscriptionHistoryEntries(subscriptionKey1)
                         .get(0).getDataContainer().getSubscriptionId());
@@ -389,9 +411,8 @@ public class BillingDataRetrievalServiceBeanSubscriptionIT extends EJBTestBase {
         // givenModifiedSubscriptionFromLastPeriod
         long subscriptionKey2 = billingInput.getSubscriptionKeys().get(2)
                 .longValue();
-        assertEquals(3,
-                billingInput.getSubscriptionHistoryEntries(subscriptionKey2)
-                        .size());
+        assertEquals(3, billingInput
+                .getSubscriptionHistoryEntries(subscriptionKey2).size());
         assertEquals(SUBPRX + "13",
                 billingInput.getSubscriptionHistoryEntries(subscriptionKey2)
                         .get(0).getDataContainer().getSubscriptionId());
@@ -405,9 +426,8 @@ public class BillingDataRetrievalServiceBeanSubscriptionIT extends EJBTestBase {
         // givenModifiedSubscriptionFromCurrentPeriod
         long subscriptionKey3 = billingInput.getSubscriptionKeys().get(3)
                 .longValue();
-        assertEquals(2,
-                billingInput.getSubscriptionHistoryEntries(subscriptionKey3)
-                        .size());
+        assertEquals(2, billingInput
+                .getSubscriptionHistoryEntries(subscriptionKey3).size());
         assertEquals(SUBPRX + "14",
                 billingInput.getSubscriptionHistoryEntries(subscriptionKey3)
                         .get(0).getDataContainer().getSubscriptionId());
@@ -419,7 +439,7 @@ public class BillingDataRetrievalServiceBeanSubscriptionIT extends EJBTestBase {
                         .get(1).getObjVersion());
 
     }
-    
+
     /**
      * Two subscriptions, one of them with external billing system
      */
@@ -429,23 +449,25 @@ public class BillingDataRetrievalServiceBeanSubscriptionIT extends EJBTestBase {
         // given
         createSubscriptionHistory(10L, "2012-09-01 15:10:42", 0,
                 ModificationType.ADD, SubscriptionStatus.ACTIVE);
-        
+
         createSubscriptionHistory(11L, 1001L, "2012-09-02 12:00:00", 0,
                 ModificationType.ADD, SubscriptionStatus.ACTIVE, 0, true);
-        
+
         createSubscriptionHistory(12L, 1001L, "2012-09-03 12:00:00", 0,
                 ModificationType.ADD, SubscriptionStatus.ACTIVE, 0, true);
-        
+
         // when
         CustomerData billingInput = runTX(new Callable<CustomerData>() {
 
             @Override
             public CustomerData call() throws Exception {
                 return new CustomerData(bdr.loadSubscriptionsForCustomer(
-                        CUSTOMER_ORGANIZTION_KEY, new SimpleDateFormat(
-                                DATE_PATTERN).parse("2012-10-01 00:00:00")
-                                .getTime(), new SimpleDateFormat(DATE_PATTERN)
-                                .parse("2012-11-01 00:00:00").getTime(), -1));
+                        CUSTOMER_ORGANIZTION_KEY,
+                        new SimpleDateFormat(DATE_PATTERN)
+                                .parse("2012-10-01 00:00:00").getTime(),
+                        new SimpleDateFormat(DATE_PATTERN)
+                                .parse("2012-11-01 00:00:00").getTime(),
+                        -1));
             }
         });
 
@@ -453,9 +475,8 @@ public class BillingDataRetrievalServiceBeanSubscriptionIT extends EJBTestBase {
         assertEquals(1, billingInput.getSubscriptionKeys().size());
         long subscriptionKey = billingInput.getSubscriptionKeys().get(0)
                 .longValue();
-        assertEquals(1,
-                billingInput.getSubscriptionHistoryEntries(subscriptionKey)
-                        .size());
+        assertEquals(1, billingInput
+                .getSubscriptionHistoryEntries(subscriptionKey).size());
         assertEquals(SUBPRX + "10",
                 billingInput.getSubscriptionHistoryEntries(subscriptionKey)
                         .get(0).getDataContainer().getSubscriptionId());
@@ -495,10 +516,12 @@ public class BillingDataRetrievalServiceBeanSubscriptionIT extends EJBTestBase {
     }
 
     @Test
-    public void getPricemodelHistoriesForSubscriptionHistory() throws Exception {
+    public void getPricemodelHistoriesForSubscriptionHistory()
+            throws Exception {
         // given
         long endPeriod = 1325372400000L;
-        SubscriptionHistory subscriptionHistory = setupForGetPricemodelForSubscriptionHistory(endPeriod);
+        SubscriptionHistory subscriptionHistory = setupForGetPricemodelForSubscriptionHistory(
+                endPeriod);
 
         // when
         List<PriceModelHistory> priceModelHistories = getPricemodelHistoriesForSubscriptionHistory(
@@ -513,10 +536,12 @@ public class BillingDataRetrievalServiceBeanSubscriptionIT extends EJBTestBase {
             throws Exception {
         // given
         long baseTime = 1325372400000L;
-        SubscriptionHistory subscriptionHistory = setupForGetPricemodelForSubscriptionHistory(baseTime);
+        SubscriptionHistory subscriptionHistory = setupForGetPricemodelForSubscriptionHistory(
+                baseTime);
 
         // when
-        PriceModelHistory priceModelHistory = getLastPriceModelHistoryForSubscriptionHistory(subscriptionHistory);
+        PriceModelHistory priceModelHistory = getLastPriceModelHistoryForSubscriptionHistory(
+                subscriptionHistory);
 
         // then
         assertEquals(3, priceModelHistory.getObjVersion());
@@ -527,10 +552,12 @@ public class BillingDataRetrievalServiceBeanSubscriptionIT extends EJBTestBase {
             throws Exception {
         // given
         long baseTime = 1325372400000L;
-        SubscriptionHistory subscriptionHistory = setupForPricemodelsWithDifferentTimeForSubscriptionHistory(baseTime);
+        SubscriptionHistory subscriptionHistory = setupForPricemodelsWithDifferentTimeForSubscriptionHistory(
+                baseTime);
 
         // when
-        PriceModelHistory priceModelHistory = getLastPriceModelHistoryForSubscriptionHistory(subscriptionHistory);
+        PriceModelHistory priceModelHistory = getLastPriceModelHistoryForSubscriptionHistory(
+                subscriptionHistory);
 
         // then
         assertEquals(1, priceModelHistory.getObjVersion());
@@ -563,9 +590,8 @@ public class BillingDataRetrievalServiceBeanSubscriptionIT extends EJBTestBase {
                         PriceModelType.PRO_RATA, productObjKey);
 
                 SubscriptionHistory subscriptionHistory = createSubscriptionHistory(
-                        subscriptionObjKey, 4, endDate, 0,
-                        ModificationType.ADD, SubscriptionStatus.ACTIVE,
-                        productObjKey, false);
+                        subscriptionObjKey, 4, endDate, 0, ModificationType.ADD,
+                        SubscriptionStatus.ACTIVE, productObjKey, false);
                 ds.flush();
 
                 return subscriptionHistory;
@@ -583,33 +609,35 @@ public class BillingDataRetrievalServiceBeanSubscriptionIT extends EJBTestBase {
                 long subscriptionObjKey = 3;
 
                 Products.createProductHistory(ds, 0, productObjKey,
-                        priceModelObjKey, 0, new SimpleDateFormat(
-                                PriceModels.DATE_PATTERN).format(new Date(
-                                baseTime - 1000)), 0, ModificationType.ADD);
+                        priceModelObjKey, 0,
+                        new SimpleDateFormat(PriceModels.DATE_PATTERN)
+                                .format(new Date(baseTime - 1000)),
+                        0, ModificationType.ADD);
 
                 PriceModels.createPriceModelHistory(ds, priceModelObjKey,
                         new SimpleDateFormat(PriceModels.DATE_PATTERN)
-                                .format(new Date(baseTime - 1000)), 0,
-                        ModificationType.ADD, PriceModelType.FREE_OF_CHARGE,
+                                .format(new Date(baseTime - 1000)),
+                        0, ModificationType.ADD, PriceModelType.FREE_OF_CHARGE,
+                        productObjKey);
+
+                PriceModels.createPriceModelHistory(ds, priceModelObjKey,
+                        new SimpleDateFormat(PriceModels.DATE_PATTERN).format(
+                                new Date(baseTime)),
+                        1, ModificationType.MODIFY, PriceModelType.PER_UNIT,
                         productObjKey);
 
                 PriceModels.createPriceModelHistory(ds, priceModelObjKey,
                         new SimpleDateFormat(PriceModels.DATE_PATTERN)
-                                .format(new Date(baseTime)), 1,
-                        ModificationType.MODIFY, PriceModelType.PER_UNIT,
-                        productObjKey);
-
-                PriceModels.createPriceModelHistory(ds, priceModelObjKey,
-                        new SimpleDateFormat(PriceModels.DATE_PATTERN)
-                                .format(new Date(baseTime + 1000)), 2,
-                        ModificationType.MODIFY, PriceModelType.PRO_RATA,
+                                .format(new Date(baseTime + 1000)),
+                        2, ModificationType.MODIFY, PriceModelType.PRO_RATA,
                         productObjKey);
 
                 SubscriptionHistory subscriptionHistory = createSubscriptionHistory(
-                        subscriptionObjKey, 4, new SimpleDateFormat(
-                                PriceModels.DATE_PATTERN).format(new Date(
-                                baseTime)), 0, ModificationType.MODIFY,
-                        SubscriptionStatus.ACTIVE, productObjKey, false);
+                        subscriptionObjKey, 4,
+                        new SimpleDateFormat(PriceModels.DATE_PATTERN).format(
+                                new Date(baseTime)),
+                        0, ModificationType.MODIFY, SubscriptionStatus.ACTIVE,
+                        productObjKey, false);
                 ds.flush();
 
                 return subscriptionHistory;

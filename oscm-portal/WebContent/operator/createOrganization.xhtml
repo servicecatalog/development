@@ -147,8 +147,18 @@
             value="#{operatorOrgBean.newOrganization.description}" styleClass="field"
             maxlength="#{appBean.descriptionLen}" />
 
+          <adm:labelAndSelect id="tenant" label="#{msg['organization.tenant']}"
+                              value="#{operatorOrgBean.selectedTenant}"
+                              rendered="#{operatorOrgBean.tenantSelectionAvailable}"
+                              listenerBean="#{operatorOrgBean}" render="marketplace"
+                              oncomplete="AdmUtils.setUIElements();">
+            <adm:selectItemPleaseSelect itemValue="0" />
+            <f:selectItems value="#{operatorOrgBean.selectableTenants}" />
+            <f:validator validatorId="TenantValidator" />
+          </adm:labelAndSelect>
+
           <adm:labelAndSelect id="marketplace" label="#{msg['service.marketplace']}"
-            value="#{operatorOrgBean.selectedMarketplace}" required="#{isCustomerOrg}">
+                              value="#{operatorOrgBean.selectedMarketplace}" required="#{isCustomerOrg}">
             <adm:selectItemPleaseSelect itemValue="" />
             <f:selectItems value="#{operatorOrgBean.selectableMarketplaces}" />
           </adm:labelAndSelect>

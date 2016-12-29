@@ -85,8 +85,13 @@ public class DefinitionRepresentation extends Representation {
     }
 
     public DefinitionRepresentation(VOTriggerDefinition definition) {
-        super(new Long(definition.getKey()));
-        setTag(Integer.toString(definition.getVersion()));
+        super(definition);
+
+        if (definition == null) {
+            return;
+        }
+
+        setETag(new Long(definition.getVersion()));
         this.description = definition.getName();
 
         if (definition.getTargetType() != null) {
@@ -107,19 +112,6 @@ public class DefinitionRepresentation extends Representation {
             this.links = new Links(new Long(definition.getOrganization()
                     .getKey()));
         }
-    }
-
-    public DefinitionRepresentation(Long id, String description,
-            Boolean suspend, String target_type, String target_url,
-            String action, Owner owner, Links links) {
-        super(id);
-        this.description = description;
-        this.suspend = suspend;
-        this.target_type = target_type;
-        this.target_url = target_url;
-        this.owner = owner;
-        this.action = action;
-        this.links = links;
     }
 
     public Long getOwnerId() {
@@ -189,14 +181,27 @@ public class DefinitionRepresentation extends Representation {
     @Override
     public void validateContent() throws WebApplicationException {
 
-        if (description != null
-                && !description.matches(CommonParams.PATTERN_STRING)) {
+        if (description == null) {
+            throw WebException.badRequest()
+                    .property(TriggerCommonParams.PROPERTY_DESCRIPTION)
+                    .message(CommonParams.ERROR_MANDATORY_PROPERTIES).build();
+        } else if (!description.matches(CommonParams.PATTERN_STRING)) {
             throw WebException.badRequest()
                     .property(TriggerCommonParams.PROPERTY_DESCRIPTION)
                     .message(CommonParams.ERROR_BAD_PROPERTY).build();
         }
 
-        if (target_type != null) {
+        if (suspend == null) {
+            throw WebException.badRequest()
+                    .property(TriggerCommonParams.PROPERTY_SUSPEND)
+                    .message(CommonParams.ERROR_MANDATORY_PROPERTIES).build();
+        }
+
+        if (target_type == null) {
+            throw WebException.badRequest()
+                    .property(TriggerCommonParams.PROPERTY_TARGET_TYPE)
+                    .message(CommonParams.ERROR_MANDATORY_PROPERTIES).build();
+        } else {
             try {
                 TriggerTargetType.valueOf(target_type);
             } catch (IllegalArgumentException e) {
@@ -206,13 +211,21 @@ public class DefinitionRepresentation extends Representation {
             }
         }
 
-        if (target_url != null && !ADMValidator.isUrl(target_url)) {
+        if (target_url == null) {
+            throw WebException.badRequest()
+                    .property(TriggerCommonParams.PROPERTY_TARGET_URL)
+                    .message(CommonParams.ERROR_MANDATORY_PROPERTIES).build();
+        } else if (!ADMValidator.isUrl(target_url)) {
             throw WebException.badRequest()
                     .property(TriggerCommonParams.PROPERTY_TARGET_URL)
                     .message(CommonParams.ERROR_BAD_PROPERTY).build();
         }
 
-        if (action != null) {
+        if (action == null) {
+            throw WebException.badRequest()
+                    .property(TriggerCommonParams.PROPERTY_ACTION)
+                    .message(CommonParams.ERROR_MANDATORY_PROPERTIES).build();
+        } else {
             try {
                 ActionRepresentation.Action.valueOf(action);
             } catch (IllegalArgumentException e) {

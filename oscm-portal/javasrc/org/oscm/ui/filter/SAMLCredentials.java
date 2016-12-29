@@ -73,10 +73,22 @@ public class SAMLCredentials {
      * It will be used in the custom realm implementation for authenticating the
      * user in case OSCM acts as a service provider.
      * 
-     * @param request
      * @return
      */
     protected String generatePassword() {
+
+        return generatePassword(getTenantId());
+    }
+
+    /**
+     * Generate password which consist of the request id and the SAML response.
+     * It will be used in the custom realm implementation for authenticating the
+     * user in case OSCM acts as a service provider.
+     *
+     * @param tenantId generates password using thenant
+     * @return
+     */
+    protected String generatePassword(String tenantId) {
 
         String response = httpRequest.getParameter("SAMLResponse");
         String requestId = getRequestId();
@@ -88,7 +100,7 @@ public class SAMLCredentials {
         String password = "";
         try {
             String decodedSamlResponse = new String(getSAMLResponse().decode(response));
-            password = "UI" + requestId + decodedSamlResponse;
+            password = "UI" + requestId + tenantId + decodedSamlResponse;
         } catch (UnsupportedEncodingException e) {
             getLogger().logError(
                     LogMessageIdentifier.ERROR_DECODE_SAML_RESPONSE_FAILED,
@@ -100,6 +112,11 @@ public class SAMLCredentials {
     protected String getRequestId() {
         return (String) httpRequest.getSession().getAttribute(
                 Constants.SESS_ATTR_IDP_REQUEST_ID);
+    }
+
+    protected String getTenantId() {
+        return (String) httpRequest.getSession().getAttribute(
+                Constants.REQ_PARAM_TENANT_ID);
     }
 
     protected Log4jLogger getLogger() {

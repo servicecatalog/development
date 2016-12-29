@@ -4,95 +4,36 @@
 
 package org.oscm.operatorservice.bean;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.Stack;
+import java.util.*;
+
 import javax.ejb.EJBException;
 import javax.persistence.Query;
 
-import org.oscm.auditlog.bean.AuditLogServiceBean;
-import org.oscm.domobjects.BillingResult;
-import org.oscm.domobjects.ConfigurationSetting;
-import org.oscm.domobjects.DomainObject;
-import org.oscm.domobjects.ImageResource;
-import org.oscm.domobjects.Marketplace;
-import org.oscm.domobjects.Organization;
-import org.oscm.domobjects.OrganizationRefToPaymentType;
-import org.oscm.domobjects.OrganizationReference;
-import org.oscm.domobjects.OrganizationRole;
-import org.oscm.domobjects.OrganizationToRole;
-import org.oscm.domobjects.PSP;
-import org.oscm.domobjects.PSPAccount;
-import org.oscm.domobjects.PaymentType;
-import org.oscm.domobjects.PlatformUser;
-import org.oscm.domobjects.SupportedCurrency;
-import org.oscm.domobjects.TriggerDefinition;
-import org.oscm.domobjects.enums.LocalizedObjectTypes;
-import org.oscm.domobjects.enums.OrganizationReferenceType;
-import org.oscm.test.BaseAdmUmTest;
-import org.oscm.test.EJBTestBase;
-import org.oscm.test.ejb.TestContainer;
-import org.oscm.test.stubs.AccountServiceStub;
-import org.oscm.test.stubs.BillingServiceStub;
-import org.oscm.test.stubs.ConfigurationServiceStub;
-import org.oscm.test.stubs.DataServiceStub;
-import org.oscm.test.stubs.IdentityServiceStub;
-import org.oscm.test.stubs.ImageResourceServiceStub;
-import org.oscm.test.stubs.LocalizerServiceStub;
-import org.oscm.test.stubs.PaymentServiceStub;
-import org.oscm.test.stubs.QueryStub;
-import org.oscm.test.stubs.SearchServiceStub;
-import org.oscm.timerservice.bean.TimerServiceBean;
-import org.oscm.internal.intf.OperatorService;
-import org.oscm.internal.types.enumtypes.ConfigurationKey;
-import org.oscm.internal.types.enumtypes.ImageType;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.PaymentCollectionType;
-import org.oscm.internal.types.enumtypes.SettingType;
-import org.oscm.internal.types.enumtypes.UserAccountStatus;
-import org.oscm.internal.types.exception.AuditLogTooManyRowsException;
-import org.oscm.internal.types.exception.DistinguishedNameException;
-import org.oscm.internal.types.exception.DomainObjectException.ClassEnum;
-import org.oscm.internal.types.exception.ImageException;
-import org.oscm.internal.types.exception.IncompatibleRolesException;
-import org.oscm.internal.types.exception.MailOperationException;
-import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
-import org.oscm.internal.types.exception.OrganizationAuthorityException;
-import org.oscm.internal.types.exception.PSPIdentifierForSellerException;
-import org.oscm.internal.types.exception.PaymentDataException;
-import org.oscm.internal.types.exception.PaymentDataException.Reason;
-import org.oscm.internal.types.exception.ValidationException;
-import org.oscm.internal.vo.LdapProperties;
-import org.oscm.internal.vo.VOConfigurationSetting;
-import org.oscm.internal.vo.VOImageResource;
-import org.oscm.internal.vo.VOOperatorOrganization;
-import org.oscm.internal.vo.VOOrganization;
-import org.oscm.internal.vo.VOTimerInfo;
-import org.oscm.internal.vo.VOUser;
-import org.oscm.internal.vo.VOUserDetails;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+import org.oscm.auditlog.bean.AuditLogServiceBean;
+import org.oscm.domobjects.*;
+import org.oscm.domobjects.enums.LocalizedObjectTypes;
+import org.oscm.domobjects.enums.OrganizationReferenceType;
+import org.oscm.identityservice.local.IdentityServiceLocal;
+import org.oscm.internal.intf.OperatorService;
+import org.oscm.internal.types.enumtypes.*;
+import org.oscm.internal.types.exception.*;
+import org.oscm.internal.types.exception.DomainObjectException.ClassEnum;
+import org.oscm.internal.types.exception.PaymentDataException.Reason;
+import org.oscm.internal.vo.*;
+import org.oscm.test.BaseAdmUmTest;
+import org.oscm.test.EJBTestBase;
+import org.oscm.test.ejb.TestContainer;
+import org.oscm.test.stubs.*;
+import org.oscm.timerservice.bean.TimerServiceBean;
 
 public class OperatorServiceBeanIT extends EJBTestBase {
 
@@ -157,6 +98,12 @@ public class OperatorServiceBeanIT extends EJBTestBase {
         });
 
         dataServiceStub = new DataServiceStub() {
+            @Override
+            public Query createQuery(String jpql) {
+                Query userLimitQuery = mock(Query.class);
+                doReturn(query_getResultList).when(userLimitQuery).getResultList();
+                return userLimitQuery;
+            }
 
             @Override
             public void flush() {
@@ -265,21 +212,26 @@ public class OperatorServiceBeanIT extends EJBTestBase {
                 dataManager_removed_objects.add(obj);
             }
         };
+        dataServiceStub = spy(dataServiceStub);
         container.addBean(dataServiceStub);
-        container.addBean(new IdentityServiceStub() {
-
+        IdentityServiceLocal mock = mock(IdentityServiceLocal.class);
+        container.addBean(mock);
+        doAnswer(new Answer<Void>() {
             @Override
-            public void setUserAccountStatus(PlatformUser user,
-                    UserAccountStatus newStatus) {
+            public Void answer(InvocationOnMock invocation) throws Throwable {
                 userStatusChanged = true;
+                return null;
             }
+        }).when(mock).setUserAccountStatus(any(PlatformUser.class), any(UserAccountStatus.class));
 
+        doAnswer(new Answer<Void>() {
             @Override
-            public void resetPasswordForUser(PlatformUser user,
-                    Marketplace marketplace) {
+            public Void answer(InvocationOnMock invocation) throws Throwable {
                 passwordReset = true;
+                return null;
             }
-        });
+        }).when(mock).resetPasswordForUser(any(PlatformUser.class), any(Marketplace.class));
+
         container.addBean(new AccountServiceStub() {
 
             @Override
@@ -391,6 +343,15 @@ public class OperatorServiceBeanIT extends EJBTestBase {
      */
     @Test
     public void testRegisterOrganization() throws Exception {
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                if (invocation.getArguments()[0].getClass().equals(PlatformUser.class)) {
+                    throw new ObjectNotFoundException();
+                }
+                return invocation.callRealMethod();
+            }
+        }).when(dataServiceStub).getReferenceByBusinessKey(any(DomainObject.class));
         container.login("me", ROLE_PLATFORM_OPERATOR);
         callerRolles.add(OrganizationRoleType.PLATFORM_OPERATOR);
         final VOOrganization org = newVOOrganization();
@@ -451,6 +412,15 @@ public class OperatorServiceBeanIT extends EJBTestBase {
     @Test
     public void testRegisterOrganizationSupplier_VerifyInvoice()
             throws Exception {
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                if (invocation.getArguments()[0].getClass().equals(PlatformUser.class)) {
+                    throw new ObjectNotFoundException();
+                }
+                return invocation.callRealMethod();
+            }
+        }).when(dataServiceStub).getReferenceByBusinessKey(any(DomainObject.class));
         OrganizationRefToPaymentType cpt = verifyInvoice();
         assertFalse(cpt.isUsedAsDefault());
         assertFalse(cpt.isUsedAsServiceDefault());
@@ -459,6 +429,15 @@ public class OperatorServiceBeanIT extends EJBTestBase {
     @Test
     public void testRegisterOrganizationSupplier_VerifyInvoiceDefault()
             throws Exception {
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                if (invocation.getArguments()[0].getClass().equals(PlatformUser.class)) {
+                    throw new ObjectNotFoundException();
+                }
+                return invocation.callRealMethod();
+            }
+        }).when(dataServiceStub).getReferenceByBusinessKey(any(DomainObject.class));
         cs.setConfigurationSetting(
                 ConfigurationKey.SUPPLIER_SETS_INVOICE_AS_DEFAULT, "true");
         OrganizationRefToPaymentType cpt = verifyInvoice();
@@ -499,6 +478,15 @@ public class OperatorServiceBeanIT extends EJBTestBase {
     @Test
     public void testRegisterOrganizationTechnologyProvider_VerifyInvoice()
             throws Exception {
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                if (invocation.getArguments()[0].getClass().equals(PlatformUser.class)) {
+                    throw new ObjectNotFoundException();
+                }
+                return invocation.callRealMethod();
+            }
+        }).when(dataServiceStub).getReferenceByBusinessKey(any(DomainObject.class));
         container.login("me", ROLE_PLATFORM_OPERATOR);
         callerRolles.add(OrganizationRoleType.PLATFORM_OPERATOR);
         final VOOrganization org = newVOOrganization();
@@ -601,6 +589,15 @@ public class OperatorServiceBeanIT extends EJBTestBase {
      */
     @Test
     public void registerOrganization_Broker() throws Exception {
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                if (invocation.getArguments()[0].getClass().equals(PlatformUser.class)) {
+                    throw new ObjectNotFoundException();
+                }
+                return invocation.callRealMethod();
+            }
+        }).when(dataServiceStub).getReferenceByBusinessKey(any(DomainObject.class));
         container.login("me", ROLE_PLATFORM_OPERATOR);
         callerRolles.add(OrganizationRoleType.PLATFORM_OPERATOR);
         final VOOrganization org = newVOOrganization();
@@ -635,6 +632,15 @@ public class OperatorServiceBeanIT extends EJBTestBase {
      */
     @Test
     public void registerOrganization_Reseller() throws Exception {
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                if (invocation.getArguments()[0].getClass().equals(PlatformUser.class)) {
+                    throw new ObjectNotFoundException();
+                }
+                return invocation.callRealMethod();
+            }
+        }).when(dataServiceStub).getReferenceByBusinessKey(any(DomainObject.class));
         container.login("me", ROLE_PLATFORM_OPERATOR);
         callerRolles.add(OrganizationRoleType.PLATFORM_OPERATOR);
         final VOOrganization org = newVOOrganization();
@@ -964,9 +970,10 @@ public class OperatorServiceBeanIT extends EJBTestBase {
     public void testSetUserAccountStatus() throws Exception {
         container.login("1", ROLE_PLATFORM_OPERATOR);
         callerRolles.add(OrganizationRoleType.PLATFORM_OPERATOR);
-        dataManager_getReferenceByBusinessKey_return.push(platformUser);
+        dataManager_getReference_return.push(platformUser);
         VOUser user = new VOUser();
         user.setUserId("userId");
+        user.setKey(123L);
         operatorService.setUserAccountStatus(user, UserAccountStatus.ACTIVE);
         assertTrue("User status was not changed", userStatusChanged);
     }
@@ -1388,26 +1395,21 @@ public class OperatorServiceBeanIT extends EJBTestBase {
 
     @Test
     public void testGetUsersWithLimit() throws Exception {
-        List<PlatformUser> list = new ArrayList<>();
-        PlatformUser user1 = new PlatformUser();
-        user1.setUserId("user1");
-        user1.setOrganization(organization);
-        list.add(user1);
-        PlatformUser user2 = new PlatformUser();
-        user2.setUserId("user2");
-        user2.setOrganization(organization);
-        list.add(user2);
-        query_getResultList = list;
+        List<Object[]> listOb = new ArrayList<>();
+        Object[] user1Ob = new Object[]{"user1", "user1", "user1", "user1", UserAccountStatus.LOCKED, 123L};
+        listOb.add(user1Ob);
+        user1Ob = new Object[]{"user2", "user2", "user2", "user2", UserAccountStatus.LOCKED, 234L};
+        listOb.add(user1Ob);
+        query_getResultList = listOb;
 
         container.login("1", ROLE_PLATFORM_OPERATOR);
         callerRolles.add(OrganizationRoleType.PLATFORM_OPERATOR);
 
-        List<VOUserDetails> result = operatorService.getUsersWithLimit("", 1);
+        List<VOUserDetails> result = operatorService.getUsers();
 
-        assertTrue(queryLimit);
-        assertEquals(list.size(), result.size());
-        assertEquals(list.get(0).getUserId(), result.get(0).getUserId());
-        assertEquals(list.get(1).getUserId(), result.get(1).getUserId());
+        assertEquals(listOb.size(), result.size());
+        assertEquals(listOb.get(0)[0], result.get(0).getUserId());
+        assertEquals(listOb.get(1)[0], result.get(1).getUserId());
     }
 
     @Test(expected = EJBException.class)

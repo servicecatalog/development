@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="ASCII"?>
+<!-- Copyright FUJITSU LIMITED 2016-->
+ 
+<ejb-jar xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee"
+  xmlns:ejb="http://java.sun.com/xml/ns/javaee/ejb-jar_3_0.xsd" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/ejb-jar_3_0.xsd"
+  version="3.0">
+  <display-name>oscm-tenantmgmt-intsvc</display-name>
+
+  <!--
+    glassfish cannot evaluate the @ApplicationException(rollback=true) annotation, in case the exceptions are contained
+    in another .jar file than the bean implementation (see https://glassfish.dev.java.net/issues/show_bug.cgi?id=5183).
+    Thus we have to annotate the rollback behavior explicitly here in the ejb-jar.xml file.
+  -->
+  <assembly-descriptor>
+    <application-exception>
+      <exception-class>org.oscm.internal.types.exception.OperationNotPermittedException</exception-class>
+      <rollback>true</rollback>
+    </application-exception>
+    <application-exception>
+      <exception-class>org.oscm.internal.types.exception.DeletionConstraintException</exception-class>
+      <rollback>true</rollback>
+    </application-exception>
+    <application-exception>
+      <exception-class>org.oscm.internal.types.exception.ConcurrentModificationException</exception-class>
+      <rollback>true</rollback>
+    </application-exception>
+    <application-exception>
+      <exception-class>org.oscm.internal.types.exception.NonUniqueBusinessKeyException</exception-class>
+      <rollback>true</rollback>
+    </application-exception>
+  </assembly-descriptor>
+
+</ejb-jar>

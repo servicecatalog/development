@@ -54,6 +54,10 @@ public class UdaDefinitionData extends DomainDataContainer {
     @Convert(converter = UCTConverter.class)
     private UdaConfigurationType configurationType;
 
+    private boolean encrypted;
+
+    private String controllerId;
+
     public String getUdaId() {
         return udaId;
     }
@@ -85,4 +89,21 @@ public class UdaDefinitionData extends DomainDataContainer {
     public UdaConfigurationType getConfigurationType() {
         return configurationType;
     }
+
+    public boolean isEncrypted() {
+        return encrypted;
+    }
+
+    public void setEncrypted(boolean encrypted) {
+        this.encrypted = encrypted;
+    }
+
+    public String getControllerId() {
+        return controllerId;
+    }
+
+    public void setControllerId(String controllerId) {
+        this.controllerId = controllerId;
+    }
+
 }

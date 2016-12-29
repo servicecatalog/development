@@ -25,6 +25,7 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
 
+import org.oscm.internal.cache.MarketplaceConfiguration;
 import org.oscm.internal.intf.IdentityService;
 import org.oscm.internal.intf.MarketplaceService;
 import org.oscm.internal.types.enumtypes.Sorting;
@@ -32,7 +33,6 @@ import org.oscm.internal.vo.ListCriteria;
 import org.oscm.internal.vo.VOUserDetails;
 import org.oscm.ui.beans.ApplicationBean;
 import org.oscm.ui.beans.BaseBean;
-import org.oscm.ui.beans.MarketplaceConfigurationBean;
 import org.oscm.ui.common.Constants;
 
 /**
@@ -77,23 +77,16 @@ public class ServicePagingBean extends BaseBean implements Serializable {
     @ManagedProperty(value = "#{appBean}")
     private ApplicationBean applicationBean;
 
+    public MarketplaceConfiguration getConfig() {
+        return marketplaceService.getCachedMarketplaceConfiguration(BaseBean
+                .getMarketplaceIdStatic());
+    }
+
     /**
      * Defines the criteria which is used to determine the services which are
      * listed on the landing page.
      */
     private static ListCriteria landingPageCriteria = null;
-
-    @ManagedProperty(value = "#{marketplaceConfigurationBean}")
-    private MarketplaceConfigurationBean marketplaceConfigurationBean;
-
-    public void setMarketplaceConfigurationBean(
-            MarketplaceConfigurationBean marketplaceConfigurationBean) {
-        this.marketplaceConfigurationBean = marketplaceConfigurationBean;
-    }
-
-    public MarketplaceConfigurationBean getMarketplaceConfigurationBean() {
-        return marketplaceConfigurationBean;
-    }
 
     /**
      * @return the selectedPage
@@ -121,8 +114,8 @@ public class ServicePagingBean extends BaseBean implements Serializable {
                     Math.max(nOfPages, 1));
         } else {
             // case if (selectedPage >= getNumberOfPages() - 3)
-            firstVisiblePage = (nOfPages
-                    - Math.min(PAGE_DIRECT_SELECTION_SIZE, nOfPages)) + 1;
+            firstVisiblePage = (nOfPages - Math.min(PAGE_DIRECT_SELECTION_SIZE,
+                    nOfPages)) + 1;
             lastVisiblePage = nOfPages;
         }
         if (selectedPage > nOfPages) {
@@ -365,8 +358,7 @@ public class ServicePagingBean extends BaseBean implements Serializable {
             sortingCriteriaList.add(Sorting.ACTIVATION_DESCENDING.name());
             sortingCriteriaList.add(Sorting.NAME_ASCENDING.name());
             sortingCriteriaList.add(Sorting.NAME_DESCENDING.name());
-            if (getMarketplaceConfigurationBean().getCurrentConfiguration()
-                    .isReviewEnabled()) {
+            if (getConfig().isReviewEnabled()) {
                 sortingCriteriaList.add(Sorting.RATING_ASCENDING.name());
                 sortingCriteriaList.add(Sorting.RATING_DESCENDING.name());
             }
@@ -482,8 +474,7 @@ public class ServicePagingBean extends BaseBean implements Serializable {
      * Returns whether the current request should return a search result.
      */
     public boolean isSearchRequested() {
-        return getRequest()
-                .getAttribute(Constants.REQ_ATTR_SEARCH_REQUEST) != null;
+        return getRequest().getAttribute(Constants.REQ_ATTR_SEARCH_REQUEST) != null;
     }
 
     /**
@@ -519,8 +510,8 @@ public class ServicePagingBean extends BaseBean implements Serializable {
     public String getHeaderPrefixForSelectedFilter() {
         String filterTagForDisplay = getFilterTagForDisplay();
         String filterCategoryForDisplay = getFilterCategoryForDisplay();
-        if (!(filterTagForDisplay.isEmpty()
-                && filterCategoryForDisplay.isEmpty())) {
+        if (!(filterTagForDisplay.isEmpty() && filterCategoryForDisplay
+                .isEmpty())) {
             return (filterTagForDisplay + filterCategoryForDisplay + " : ");
         } else {
             return "";
@@ -546,8 +537,7 @@ public class ServicePagingBean extends BaseBean implements Serializable {
     }
 
     public boolean isSearchAvailable() {
-        boolean isRestricted = marketplaceConfigurationBean
-                .getCurrentConfiguration().isRestricted();
+        boolean isRestricted = getConfig().isRestricted();
 
         if (!isRestricted) {
             return true;
@@ -556,8 +546,7 @@ public class ServicePagingBean extends BaseBean implements Serializable {
         if (user != null) {
             String org = user.getOrganizationId();
             if (org != null) {
-                return (marketplaceConfigurationBean.getCurrentConfiguration()
-                        .getAllowedOrganizations().contains(org));
+                return (getConfig().getAllowedOrganizations().contains(org));
             }
         }
         return true;

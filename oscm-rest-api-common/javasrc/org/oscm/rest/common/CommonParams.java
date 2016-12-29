@@ -35,6 +35,7 @@ public class CommonParams {
     public static final String PARAM_ID = "id";
     public static final String PARAM_MATCH = "If-Match";
     public static final String PARAM_NONE_MATCH = "If-None-Match";
+    public static final String ETAG_WILDCARD = "*";
 
     // path params
     public static final String PATH_VERSION = "/{" + PARAM_VERSION + "}";
@@ -62,9 +63,11 @@ public class CommonParams {
     public static final String ERROR_METHOD_VERSION = "Method not available for used version";
     public static final String ERROR_BAD_PROPERTY = "Property does not match allowed pattern";
     public static final String ERROR_LOGIN_FAILED = "Authentication failed";
+    public static final String ERROR_NOT_INTERNAL_MODE = "Basic Auth only in Internal Mode possible";
     public static final String ERROR_TAG_MISSING = "'etag' property in body or 'If-Match' header parameter is missing";
     public static final String ERROR_NOT_AUTHORIZED = "User is not authorized for the operation";
     public static final String ERROR_MISSING_CONTENT = "No Content in request while expected";
+    public static final String ERROR_MANDATORY_PROPERTIES = "One or more mandatory properties are missing";
 
     private CommonParams() {
     }

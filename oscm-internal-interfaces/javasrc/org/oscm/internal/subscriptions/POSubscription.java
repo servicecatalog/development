@@ -53,7 +53,9 @@ public class POSubscription implements Serializable {
     private String target = "";
     
     private String serviceName;
-    
+
+    private String subscriptionName;
+
     public POSubscription(VOSubscription voSubscription) {
         this.voSubscription = voSubscription;
     }
@@ -415,6 +417,30 @@ public class POSubscription implements Serializable {
 		this.serviceName = serviceName;
 	}
 
+    public String getCustomTabUrl() {
+        return voSubscription.getCustomTabUrl();
+    }
+
+    public void setCustomTabUrl(String customTabUrl) {
+        voSubscription.setCustomTabUrl(customTabUrl);
+    }
+
+    public String getCustomTabName() {
+        return voSubscription.getCustomTabName();
+    }
+
+    public void setCustomTabName(String customTabName) {
+        voSubscription.setCustomTabName(customTabName);
+    }
+
+    public String getOrganizationId() {
+        return voSubscription.getOrganizationId();
+    }
+
+    public void setOrganizationId(String orgId) {
+        voSubscription.setOrganizationId(orgId);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -426,5 +452,13 @@ public class POSubscription implements Serializable {
     @Override
     public int hashCode() {
         return voSubscription.hashCode();
+    }
+
+    public void setSubscriptionName(String subscriptionId) {
+        this.subscriptionName = subscriptionId;
+    }
+
+    public String getSubscriptionName() {
+        return subscriptionName;
     }
 }

@@ -107,6 +107,7 @@ import org.oscm.internal.types.exception.DomainObjectException;
 import org.oscm.internal.types.exception.IllegalArgumentException;
 import org.oscm.internal.types.exception.InvalidPhraseException;
 import org.oscm.internal.types.exception.MailOperationException;
+import org.oscm.internal.types.exception.MandatoryCustomerUdaMissingException;
 import org.oscm.internal.types.exception.MandatoryUdaMissingException;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
@@ -216,8 +217,8 @@ import org.oscm.vo.BaseAssembler;
 @Local(SubscriptionServiceLocal.class)
 @Interceptors({ InvocationDateContainer.class, ExceptionMapper.class,
         AuditLogDataInterceptor.class })
-public class SubscriptionServiceBean implements SubscriptionService,
-        SubscriptionServiceLocal {
+public class SubscriptionServiceBean
+        implements SubscriptionService, SubscriptionServiceLocal {
 
     public static final String KEY_PAIR_NAME = "Key pair name";
     public static final String AMAZONAWS_COM = "amazonaws.com";
@@ -301,22 +302,22 @@ public class SubscriptionServiceBean implements SubscriptionService,
     public VOSubscription subscribeToService(VOSubscription subscription,
             VOService service, List<VOUsageLicense> users,
             VOPaymentInfo paymentInfo, VOBillingContact billingContact,
-            List<VOUda> udas) throws ObjectNotFoundException,
-            NonUniqueBusinessKeyException, ValidationException,
-            PaymentInformationException, ServiceParameterException,
-            ServiceChangedException, PriceModelException,
-            TechnicalServiceNotAliveException,
+            List<VOUda> udas)
+            throws ObjectNotFoundException, NonUniqueBusinessKeyException,
+            ValidationException, PaymentInformationException,
+            ServiceParameterException, ServiceChangedException,
+            PriceModelException, TechnicalServiceNotAliveException,
             TechnicalServiceOperationException, OperationNotPermittedException,
             SubscriptionAlreadyExistsException, OperationPendingException,
-            MandatoryUdaMissingException, ConcurrentModificationException,
-            SubscriptionStateException {
+            MandatoryUdaMissingException, MandatoryCustomerUdaMissingException,
+            ConcurrentModificationException, SubscriptionStateException {
 
         ArgumentValidator.notNull("subscription", subscription);
         ArgumentValidator.notNull("service", service);
-        
+
         Subscription sub;
         PlatformUser currentUser = dataManager.getCurrentUser();
-        
+
         checkIfServiceAvailable(service.getKey(), service.getServiceId(),
                 currentUser);
         checkIfSubscriptionAlreadyExists(service);
@@ -324,7 +325,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
 
         if (isPaymentInfoHidden() && service.getPriceModel().isChargeable()) {
             if (billingContact == null) {
-                billingContact = createBillingContactForOrganization(currentUser);
+                billingContact = createBillingContactForOrganization(
+                        currentUser);
             }
             if (paymentInfo == null) {
                 Organization organization = currentUser.getOrganization();
@@ -338,7 +340,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
         validateTriggerProcessForCreateSubscription(subscription);
 
         TriggerProcess triggerProcess = createTriggerProcessForCreateSubscription(
-                subscription, service, users, paymentInfo, billingContact, udas);
+                subscription, service, users, paymentInfo, billingContact,
+                udas);
 
         VOSubscription voSub = null;
         TriggerDefinition triggerDefinition = triggerProcess
@@ -349,8 +352,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
                 sub = subscribeToServiceInt(triggerProcess);
 
                 voSub = SubscriptionAssembler.toVOSubscription(sub,
-                        new LocalizerFacade(localizer, dataManager
-                                .getCurrentUser().getLocale()));
+                        new LocalizerFacade(localizer,
+                                dataManager.getCurrentUser().getLocale()));
 
                 autoAssignUser(service, sub);
             } catch (ObjectNotFoundException | ValidationException
@@ -361,29 +364,29 @@ public class SubscriptionServiceBean implements SubscriptionService,
                     | TechnicalServiceOperationException
                     | ServiceParameterException
                     | ConcurrentModificationException
-                    | MandatoryUdaMissingException | SubscriptionStateException e) {
+                    | MandatoryUdaMissingException | SubscriptionStateException
+                    | MandatoryCustomerUdaMissingException e) {
                 sessionCtx.setRollbackOnly();
                 throw e;
             }
         } else if (triggerDefinition.isSuspendProcess()) {
-            triggerProcess
-                    .setTriggerProcessIdentifiers(TriggerProcessIdentifiers
-                            .createUnsubscribeFromService(dataManager,
-                                    TriggerType.SUBSCRIBE_TO_SERVICE,
-                                    subscription.getSubscriptionId()));
+            triggerProcess.setTriggerProcessIdentifiers(
+                    TriggerProcessIdentifiers.createUnsubscribeFromService(
+                            dataManager, TriggerType.SUBSCRIBE_TO_SERVICE,
+                            subscription.getSubscriptionId()));
             dataManager.merge(triggerProcess);
         }
 
         return voSub;
     }
-    
+
+    @Override
     public boolean isPaymentInfoHidden() {
         return !cfgService.isPaymentInfoAvailable();
     }
 
     private VOBillingContact createBillingContactForOrganization(
-            PlatformUser user) throws ObjectNotFoundException,
-                    NonUniqueBusinessKeyException {
+            PlatformUser user) throws NonUniqueBusinessKeyException {
         Organization organization = user.getOrganization();
         BillingContact orgBillingContact = new BillingContact();
         String email = organization.getEmail() == null ? " "
@@ -414,8 +417,7 @@ public class SubscriptionServiceBean implements SubscriptionService,
     }
 
     private VOPaymentInfo createPaymentInfoForOrganization(
-            Organization organization) throws ObjectNotFoundException,
-                    NonUniqueBusinessKeyException {
+            Organization organization) throws NonUniqueBusinessKeyException {
         PaymentInfo paInfo = new PaymentInfo(
                 DateFactory.getInstance().getTransactionTime());
         paInfo.setOrganization_tkey(organization.getKey());
@@ -424,9 +426,9 @@ public class SubscriptionServiceBean implements SubscriptionService,
         paymentType = (PaymentType) dataManager.find(paymentType);
         paInfo.setOrganization(organization);
         paInfo.setPaymentType(paymentType);
-        LocalizerFacade localizerFacade = new LocalizerFacade(
-                localizer, dataManager.getCurrentUser().getLocale());
-        
+        LocalizerFacade localizerFacade = new LocalizerFacade(localizer,
+                dataManager.getCurrentUser().getLocale());
+
         paInfo.setPaymentInfoId(localizerFacade.getText(PAYMENTTYPE_INVOICE,
                 LocalizedObjectTypes.PAYMENT_TYPE_NAME));
         try {
@@ -445,8 +447,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
             TechnicalServiceOperationException, OperationNotPermittedException,
             ConcurrentModificationException {
 
-        Product prod = dataManager
-                .getReference(Product.class, service.getKey());
+        Product prod = dataManager.getReference(Product.class,
+                service.getKey());
         TechnicalProduct techProd = prod.getTechnicalProduct();
 
         if (ProvisioningType.SYNCHRONOUS.equals(techProd.getProvisioningType())
@@ -470,16 +472,18 @@ public class SubscriptionServiceBean implements SubscriptionService,
             PlatformUser userToAssign) throws ObjectNotFoundException,
             OperationNotPermittedException, ServiceParameterException,
             SubscriptionStateException, TechnicalServiceNotAliveException,
-            TechnicalServiceOperationException, ConcurrentModificationException {
-        List<VORoleDefinition> serviceRoles = getServiceRolesForService(service);
+            TechnicalServiceOperationException,
+            ConcurrentModificationException {
+        List<VORoleDefinition> serviceRoles = getServiceRolesForService(
+                service);
         // If the service roles are defined for technical service,
         // assign the first role to user to avoid assignment failure.
         // If service roles are not defined, set default role to null.
         List<VOUsageLicense> usersToBeAdded = new ArrayList<>();
         VOUsageLicense lic = new VOUsageLicense();
         lic.setUser(UserDataAssembler.toVOUserDetails(userToAssign));
-        lic.setRoleDefinition((serviceRoles == null || serviceRoles.isEmpty()) ? null
-                : serviceRoles.get(0));
+        lic.setRoleDefinition((serviceRoles == null || serviceRoles.isEmpty())
+                ? null : serviceRoles.get(0));
         usersToBeAdded.add(lic);
 
         TriggerProcess proc = new TriggerProcess();
@@ -509,11 +513,10 @@ public class SubscriptionServiceBean implements SubscriptionService,
             OperationPendingException ope = new OperationPendingException(
                     String.format(
                             "Operation cannot be performed. There is already another pending request to create a subscription or unsubscribe from the subscription with identifier '%s'",
-                            subscriptionId), ReasonEnum.SUBSCRIBE_TO_SERVICE,
+                            subscriptionId),
+                    ReasonEnum.SUBSCRIBE_TO_SERVICE,
                     new Object[] { subscriptionId });
-            LOG.logWarn(
-                    Log4jLogger.SYSTEM_LOG,
-                    ope,
+            LOG.logWarn(Log4jLogger.SYSTEM_LOG, ope,
                     LogMessageIdentifier.WARN_SUBSCRIBE_TO_SERVICE_FAILED_DUE_TO_TRIGGER_CONFLICT,
                     subscriptionId);
             throw ope;
@@ -550,7 +553,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
     void saveUdasForSubscription(List<VOUda> udas, Subscription subscription)
             throws ObjectNotFoundException, NonUniqueBusinessKeyException,
             ValidationException, OperationNotPermittedException,
-            ConcurrentModificationException, MandatoryUdaMissingException {
+            ConcurrentModificationException, MandatoryUdaMissingException,
+            MandatoryCustomerUdaMissingException {
         Organization supplier = subscription.getProduct()
                 .getSupplierOrResellerTemplate().getVendor();
         UdaAccess udaAccess = new UdaAccess(dataManager, sessionCtx);
@@ -574,10 +578,10 @@ public class SubscriptionServiceBean implements SubscriptionService,
      *             roles.
      */
     private void validateUserAssignmentForSubscribing(VOService product,
-            List<VOUsageLicense> users) throws ObjectNotFoundException,
-            OperationNotPermittedException {
-        Product prod = dataManager
-                .getReference(Product.class, product.getKey());
+            List<VOUsageLicense> users)
+            throws ObjectNotFoundException, OperationNotPermittedException {
+        Product prod = dataManager.getReference(Product.class,
+                product.getKey());
         if (users == null) {
             return;
         }
@@ -594,30 +598,31 @@ public class SubscriptionServiceBean implements SubscriptionService,
             PriceModelException, PaymentInformationException,
             NonUniqueBusinessKeyException, TechnicalServiceNotAliveException,
             TechnicalServiceOperationException, ServiceParameterException,
-            SubscriptionAlreadyExistsException,
-            ConcurrentModificationException, MandatoryUdaMissingException,
+            SubscriptionAlreadyExistsException, ConcurrentModificationException,
+            MandatoryUdaMissingException, MandatoryCustomerUdaMissingException,
             SubscriptionStateException {
 
         PlatformUser currentUser = dataManager.getCurrentUser();
         Organization organization = currentUser.getOrganization();
 
         // read parameters from trigger process
-        VOSubscription subscription = tp.getParamValueForName(
-                TriggerProcessParameterName.SUBSCRIPTION).getValue(
-                VOSubscription.class);
-        VOService product = tp.getParamValueForName(
-                TriggerProcessParameterName.PRODUCT).getValue(VOService.class);
-        VOPaymentInfo voPaymentInfo = tp.getParamValueForName(
-                TriggerProcessParameterName.PAYMENTINFO).getValue(
-                VOPaymentInfo.class);
-        VOBillingContact voBillingContact = tp.getParamValueForName(
-                TriggerProcessParameterName.BILLING_CONTACT).getValue(
-                VOBillingContact.class);
-        List<?> udas = tp
-                .getParamValueForName(TriggerProcessParameterName.UDAS)
+        VOSubscription subscription = tp
+                .getParamValueForName(TriggerProcessParameterName.SUBSCRIPTION)
+                .getValue(VOSubscription.class);
+        VOService product = tp
+                .getParamValueForName(TriggerProcessParameterName.PRODUCT)
+                .getValue(VOService.class);
+        VOPaymentInfo voPaymentInfo = tp
+                .getParamValueForName(TriggerProcessParameterName.PAYMENTINFO)
+                .getValue(VOPaymentInfo.class);
+        VOBillingContact voBillingContact = tp
+                .getParamValueForName(
+                        TriggerProcessParameterName.BILLING_CONTACT)
+                .getValue(VOBillingContact.class);
+        List<?> udas = tp.getParamValueForName(TriggerProcessParameterName.UDAS)
                 .getValue(List.class);
-        PlatformUser owner = dataManager.getReference(PlatformUser.class, tp
-                .getUser().getKey());
+        PlatformUser owner = dataManager.getReference(PlatformUser.class,
+                tp.getUser().getKey());
 
         checkIfSubscriptionAlreadyExists(product);
 
@@ -642,16 +647,15 @@ public class SubscriptionServiceBean implements SubscriptionService,
         OrganizationReference refVendorCust = null;
         if (!organization.getVendorsOfCustomer().contains(vendor)) {
             refVendorCust = new OrganizationReference(vendor, organization,
-                    OrganizationReferenceType
-                            .getOrgRefTypeForSourceRoles(vendor
-                                    .getGrantedRoleTypes()));
+                    OrganizationReferenceType.getOrgRefTypeForSourceRoles(
+                            vendor.getGrantedRoleTypes()));
             dataManager.persist(refVendorCust);
         }
         if (vendor.getGrantedRoleTypes().contains(OrganizationRoleType.BROKER)
-                && !organization.getVendorsOfCustomer().contains(
-                        productTemplate.getTemplate().getVendor())) {
-            refVendorCust = new OrganizationReference(productTemplate
-                    .getTemplate().getVendor(), organization,
+                && !organization.getVendorsOfCustomer()
+                        .contains(productTemplate.getTemplate().getVendor())) {
+            refVendorCust = new OrganizationReference(
+                    productTemplate.getTemplate().getVendor(), organization,
                     OrganizationReferenceType.SUPPLIER_TO_CUSTOMER);
             dataManager.persist(refVendorCust);
         }
@@ -661,10 +665,11 @@ public class SubscriptionServiceBean implements SubscriptionService,
 
         // Look for the marketplace where the service is published
         Marketplace mp = null;
-        Product publishedService = productTemplate.getType() == ServiceType.CUSTOMER_TEMPLATE ? productTemplate
-                .getTemplate() : productTemplate;
-        List<Marketplace> mps = getMarketplaceDao().getMarketplaceByService(
-                publishedService);
+        Product publishedService = productTemplate
+                .getType() == ServiceType.CUSTOMER_TEMPLATE
+                        ? productTemplate.getTemplate() : productTemplate;
+        List<Marketplace> mps = getMarketplaceDao()
+                .getMarketplaceByService(publishedService);
         for (Marketplace m : mps) {
             mp = m; // current assumption is that there's only one marketplace
             break;
@@ -673,8 +678,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
         // Create a new subscription object
         Subscription newSub = new Subscription();
 
-        Long creationTime = Long.valueOf(DateFactory.getInstance()
-                .getTransactionTime());
+        Long creationTime = Long
+                .valueOf(DateFactory.getInstance().getTransactionTime());
         newSub.setCreationDate(creationTime);
         newSub.setStatus(SubscriptionStatus.PENDING);
         // set default cut-off day (db unique constrain)
@@ -696,15 +701,15 @@ public class SubscriptionServiceBean implements SubscriptionService,
             // is still in PENDING, but must be fitered for billing. Set the
             // indicating flag before persisting.
             theProduct.getPriceModel().setProvisioningCompleted(false);
-            if(theProduct.getPriceModel().isExternal()){
+            if (theProduct.getPriceModel().isExternal()) {
                 newSub.setExternal(true);
             }
         }
 
         // to avoid id conflicts in high load scenarios add customer
         // organization hash
-        theProduct.setProductId(theProduct.getProductId()
-                + organization.hashCode());
+        theProduct.setProductId(
+                theProduct.getProductId() + organization.hashCode());
         theProduct.setOwningSubscription(null);
         // subscription copies do not have/need a CatalogEntry
         theProduct.setCatalogEntries(new ArrayList<CatalogEntry>());
@@ -713,13 +718,10 @@ public class SubscriptionServiceBean implements SubscriptionService,
             dataManager.persist(theProduct);
         } catch (NonUniqueBusinessKeyException e) {
             SaaSSystemException sse = new SaaSSystemException(
-                    "The product copy for product '"
-                            + product.getKey()
+                    "The product copy for product '" + product.getKey()
                             + "' cannot be stored, as the business key already exists.",
                     e);
-            LOG.logError(
-                    Log4jLogger.SYSTEM_LOG,
-                    sse,
+            LOG.logError(Log4jLogger.SYSTEM_LOG, sse,
                     LogMessageIdentifier.ERROR_CREATE_CUSTOMER_FOR_SPECIFIC_PRICEMODEL_FAILED,
                     Long.toString(dataManager.getCurrentUser().getKey()));
             throw sse;
@@ -739,8 +741,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
 
         // Link the passed payment information to this subscription
         if (voPaymentInfo != null) {
-            PaymentInfo paymentInfo = dataManager.getReference(
-                    PaymentInfo.class, voPaymentInfo.getKey());
+            PaymentInfo paymentInfo = dataManager
+                    .getReference(PaymentInfo.class, voPaymentInfo.getKey());
             newSub.setPaymentInfo(paymentInfo);
         }
         if (voBillingContact != null) {
@@ -754,6 +756,15 @@ public class SubscriptionServiceBean implements SubscriptionService,
         // with a subsequent call to the application.
         dataManager.persist(newSub);
 
+        // save subscription attributes before provisioning call, to have them
+        // available at the API
+        saveUdasForSubscription(ParameterizedTypes.list(udas, VOUda.class),
+                newSub);
+        dataManager.flush();
+
+        // send customer udas to corresponding app
+        appManager.saveAttributes(newSub);
+
         theProduct.setOwningSubscription(newSub);
         createAllowOnBehalfActingReference(newSub);
         TenantProvisioningResult provisioningResult = createInstanceAndAddUsersToSubscription(
@@ -762,17 +773,14 @@ public class SubscriptionServiceBean implements SubscriptionService,
 
         dataManager.flush();
 
-        saveUdasForSubscription(ParameterizedTypes.list(udas, VOUda.class),
-                newSub);
+        triggerQS.sendAllNonSuspendingMessages(
+                TriggerMessage.create(TriggerType.SUBSCRIPTION_CREATION,
+                        tp.getTriggerProcessParameters(), vendor));
 
-        triggerQS.sendAllNonSuspendingMessages(TriggerMessage.create(
-                TriggerType.SUBSCRIPTION_CREATION,
-                tp.getTriggerProcessParameters(), vendor));
-
-        triggerQS.sendAllNonSuspendingMessages(TriggerMessage.create(
-                TriggerType.SUBSCRIBE_TO_SERVICE, tp
-                        .getTriggerProcessParameters(), dataManager
-                        .getCurrentUser().getOrganization()));
+        triggerQS.sendAllNonSuspendingMessages(
+                TriggerMessage.create(TriggerType.SUBSCRIBE_TO_SERVICE,
+                        tp.getTriggerProcessParameters(), dataManager
+                                .getCurrentUser().getOrganization()));
 
         sendSubscriptionCreatedMailToAdministrators(newSub, newSub.getProduct()
                 .getTechnicalProduct().isAllowingOnBehalfActing());
@@ -792,8 +800,9 @@ public class SubscriptionServiceBean implements SubscriptionService,
         return newSub;
     }
 
-    private void verifyUnitAndRoles(PlatformUser currentUser, UserGroup unit, Subscription newSub) throws OperationNotPermittedException {
-        if(!currentUser.isOrganizationAdmin()){
+    private void verifyUnitAndRoles(PlatformUser currentUser, UserGroup unit,
+            Subscription newSub) throws OperationNotPermittedException {
+        if (!currentUser.isOrganizationAdmin()) {
             boolean isUnitAdmin = currentUser.isUnitAdmin();
             boolean isSubMgr = currentUser.isSubscriptionManager();
             boolean isUnitToBeAssigned = unit != null;
@@ -803,7 +812,7 @@ public class SubscriptionServiceBean implements SubscriptionService,
             if (isUnitToBeAssigned && unitIsForbidden) {
                 throw new OperationNotPermittedException();
             } else if (unitIsMandatory && !isUnitToBeAssigned) {
-                    throw new OperationNotPermittedException();
+                throw new OperationNotPermittedException();
             }
         }
         if (currentUser.isOrganizationAdmin() || currentUser.isUnitAdmin()) {
@@ -816,9 +825,10 @@ public class SubscriptionServiceBean implements SubscriptionService,
             throws ObjectNotFoundException, OperationNotPermittedException,
             ServiceParameterException, SubscriptionStateException,
             TechnicalServiceNotAliveException,
-            TechnicalServiceOperationException, ConcurrentModificationException {
-        Product prod = dataManager
-                .getReference(Product.class, product.getKey());
+            TechnicalServiceOperationException,
+            ConcurrentModificationException {
+        Product prod = dataManager.getReference(Product.class,
+                product.getKey());
         TechnicalProduct techProd = prod.getTechnicalProduct();
 
         if (ProvisioningType.SYNCHRONOUS.equals(techProd.getProvisioningType())
@@ -849,19 +859,21 @@ public class SubscriptionServiceBean implements SubscriptionService,
                 targetObjectKey, type, supplier, customer);
         List<VOUda> voUdas = new ArrayList<>();
         for (Uda uda : udas) {
-            voUdas.add(UdaAssembler.toVOUda(uda));
+            voUdas.add(UdaAssembler.toVOUda(uda, new LocalizerFacade(localizer,
+                    dataManager.getCurrentUser().getLocale())));
         }
 
         return voUdas;
     }
 
-    void logSubscriptionAttributeForEdit(Subscription sub, List<VOUda> udaList) {
+    void logSubscriptionAttributeForEdit(Subscription sub,
+            List<VOUda> udaList) {
         Organization customer = dataManager.getCurrentUser().getOrganization();
         for (VOUda voUda : udaList) {
             audit.editSubscriptionAndCustomerAttributeByCustomer(dataManager,
-                    customer, sub, voUda.getUdaDefinition().getUdaId(), voUda
-                            .getUdaValue(), voUda.getUdaDefinition()
-                            .getTargetType());
+                    customer, sub, voUda.getUdaDefinition().getUdaId(),
+                    voUda.getUdaValue(),
+                    voUda.getUdaDefinition().getTargetType());
         }
     }
 
@@ -885,21 +897,21 @@ public class SubscriptionServiceBean implements SubscriptionService,
                 if (!parameterValue.equals(defaultValue)) {
                     audit.editSubscriptionAndCustomerAttributeByCustomer(
                             dataManager, null, sub, parameterName,
-                            parameterValue, voUda.getUdaDefinition()
-                                    .getTargetType());
+                            parameterValue,
+                            voUda.getUdaDefinition().getTargetType());
                 }
             } else {
-                String existingValue = customerAttributesMap.get(voUda
-                        .getUdaDefinition().getUdaId());
+                String existingValue = customerAttributesMap
+                        .get(voUda.getUdaDefinition().getUdaId());
                 existingValue = existingValue == null ? "" : existingValue;
                 Organization customer = dataManager.getCurrentUser()
                         .getOrganization();
-                if (!(parameterValue.equals(existingValue) || parameterValue
-                        .equals(defaultValue))) {
+                if (!(parameterValue.equals(existingValue)
+                        || parameterValue.equals(defaultValue))) {
                     audit.editSubscriptionAndCustomerAttributeByCustomer(
                             dataManager, customer, null, parameterName,
-                            parameterValue, voUda.getUdaDefinition()
-                                    .getTargetType());
+                            parameterValue,
+                            voUda.getUdaDefinition().getTargetType());
                 }
             }
         }
@@ -921,12 +933,13 @@ public class SubscriptionServiceBean implements SubscriptionService,
                     uda.getUdaValue());
         }
         for (VOUda input : inputUdaList) {
-            String existingValue = existingAttributesMap.get(input
-                    .getUdaDefinition().getUdaId());
-            String defaultValue = input.getUdaDefinition().getDefaultValue() == null ? ""
-                    : input.getUdaDefinition().getDefaultValue();
-            String inputValue = input.getUdaValue() == null ? "" : input
-                    .getUdaValue();
+            String existingValue = existingAttributesMap
+                    .get(input.getUdaDefinition().getUdaId());
+            String defaultValue = input.getUdaDefinition()
+                    .getDefaultValue() == null ? ""
+                            : input.getUdaDefinition().getDefaultValue();
+            String inputValue = input.getUdaValue() == null ? ""
+                    : input.getUdaValue();
             if (existingValue == null && !inputValue.equals(defaultValue)) {
                 updatedList.add(input);
             }
@@ -958,12 +971,12 @@ public class SubscriptionServiceBean implements SubscriptionService,
             }
         }
         // the suppliers default configuration
-        List<OrganizationRefToPaymentType> refs = supplier
-                .getPaymentTypes(
-                        true,
-                        refSuplCust.getReferenceType() == OrganizationReferenceType.RESELLER_TO_CUSTOMER ? OrganizationRoleType.RESELLER
+        List<OrganizationRefToPaymentType> refs = supplier.getPaymentTypes(true,
+                refSuplCust
+                        .getReferenceType() == OrganizationReferenceType.RESELLER_TO_CUSTOMER
+                                ? OrganizationRoleType.RESELLER
                                 : OrganizationRoleType.SUPPLIER,
-                        OrganizationRoleType.PLATFORM_OPERATOR.name());
+                OrganizationRoleType.PLATFORM_OPERATOR.name());
         for (OrganizationRefToPaymentType ref : refs) {
             OrganizationRefToPaymentType newRef = new OrganizationRefToPaymentType();
             newRef.setOrganizationReference(refSuplCust);
@@ -1005,15 +1018,20 @@ public class SubscriptionServiceBean implements SubscriptionService,
 
         List<PlatformUser> addedUsers = new ArrayList<>();
         List<UsageLicense> addedUserLicenses = new ArrayList<>();
-        List<?> users = tp.getParamValueForName(
-                TriggerProcessParameterName.USERS).getValue(List.class);
+        List<?> users = tp
+                .getParamValueForName(TriggerProcessParameterName.USERS)
+                .getValue(List.class);
 
         if (users != null) {
             for (Object o : users) {
                 VOUsageLicense lic = VOUsageLicense.class.cast(o);
-                PlatformUser usr = idManager.getPlatformUser(lic.getUser()
-                        .getUserId(), true); // not found? => throws
-                                             // ObjectNotFoundException
+                PlatformUser usr = idManager.getPlatformUser(
+                        lic.getUser().getUserId(),
+                        dataManager.getCurrentUser().getTenantId(), true); // not
+                                                                           // found?
+                                                                           // =>
+                                                                           // throws
+                // ObjectNotFoundException
                 RoleDefinition role = getAndCheckServiceRole(lic,
                         subscription.getProduct());
                 try {
@@ -1031,8 +1049,7 @@ public class SubscriptionServiceBean implements SubscriptionService,
                     // list (or he/she is in the list twice)
                     // Let's ignore it!
                     // But log this event !
-                    LOG.logWarn(
-                            Log4jLogger.SYSTEM_LOG,
+                    LOG.logWarn(Log4jLogger.SYSTEM_LOG,
                             LogMessageIdentifier.WARN_USER_APPEAR_MORE_THAN_ONCE,
                             Long.toString(usr.getKey()),
                             Long.toString(subscription.getKey()));
@@ -1070,9 +1087,7 @@ public class SubscriptionServiceBean implements SubscriptionService,
         } catch (SubscriptionStateException e) {
             // should never be reached because state is set to
             // active
-            LOG.logWarn(
-                    Log4jLogger.SYSTEM_LOG,
-                    e,
+            LOG.logWarn(Log4jLogger.SYSTEM_LOG, e,
                     LogMessageIdentifier.WARN_INFORM_PRODUCT_ABOUT_NEW_USER_FAILED);
         }
 
@@ -1100,13 +1115,14 @@ public class SubscriptionServiceBean implements SubscriptionService,
         if (subscription.getStatus() != SubscriptionStatus.ACTIVE) {
             return;
         }
-        EmailType emailType = useAccessInfo(subscription) ? EmailType.SUBSCRIPTION_USER_ADDED_ACCESSTYPE_DIRECT
+        EmailType emailType = useAccessInfo(subscription)
+                ? EmailType.SUBSCRIPTION_USER_ADDED_ACCESSTYPE_DIRECT
                 : EmailType.SUBSCRIPTION_USER_ADDED;
 
         Long marketplaceKey = null;
         if (subscription.getMarketplace() != null) {
-            marketplaceKey = Long.valueOf(subscription.getMarketplace()
-                    .getKey());
+            marketplaceKey = Long
+                    .valueOf(subscription.getMarketplace().getKey());
         }
 
         SendMailPayload payload = new SendMailPayload();
@@ -1120,12 +1136,13 @@ public class SubscriptionServiceBean implements SubscriptionService,
                         new Object[] { subscription.getSubscriptionId(),
                                 getPublicDNS(accessInfo),
                                 getIPAddress(accessInfo),
-                                getKeyPairName(accessInfo) }, marketplaceKey);
+                                getKeyPairName(accessInfo) },
+                        marketplaceKey);
             } else {
                 payload.addMailObjectForUser(usageLicense.getUser().getKey(),
-                        emailType,
-                        new Object[] { subscription.getSubscriptionId(),
-                                accessInfo }, marketplaceKey);
+                        emailType, new Object[] {
+                                subscription.getSubscriptionId(), accessInfo },
+                        marketplaceKey);
             }
         }
         TaskMessage message = new TaskMessage(SendMailHandler.class, payload);
@@ -1145,8 +1162,9 @@ public class SubscriptionServiceBean implements SubscriptionService,
             accessInfo = subscription.getAccessInfo();
             if (accessInfo == null) {
                 accessInfo = localizer.getLocalizedTextFromDatabase(
-                        user.getLocale(), subscription.getProduct()
-                                .getTechnicalProduct().getKey(),
+                        user.getLocale(),
+                        subscription.getProduct().getTechnicalProduct()
+                                .getKey(),
                         LocalizedObjectTypes.TEC_PRODUCT_LOGIN_ACCESS_DESC);
                 if (accessInfo != null) {
                     accessInfo = accessInfo.replaceAll("<p>", "\n");
@@ -1176,9 +1194,10 @@ public class SubscriptionServiceBean implements SubscriptionService,
                 .getTechnicalProduct().getBaseURL();
 
         if (ADMValidator.isHttpsScheme(technicalProductBaseUrl)) {
-            baseUrl = cfgService.getConfigurationSetting(
-                    ConfigurationKey.BASE_URL_HTTPS,
-                    Configuration.GLOBAL_CONTEXT).getValue();
+            baseUrl = cfgService
+                    .getConfigurationSetting(ConfigurationKey.BASE_URL_HTTPS,
+                            Configuration.GLOBAL_CONTEXT)
+                    .getValue();
         }
 
         url.append(baseUrl);
@@ -1223,17 +1242,20 @@ public class SubscriptionServiceBean implements SubscriptionService,
         }
     }
 
-    private boolean isOnBehalfReferenceExisting(
-            Organization sourceOrganization, Organization targetOrganization) {
-        return getOrganizationReference(sourceOrganization, targetOrganization) != null;
+    private boolean isOnBehalfReferenceExisting(Organization sourceOrganization,
+            Organization targetOrganization) {
+        return getOrganizationReference(sourceOrganization,
+                targetOrganization) != null;
     }
 
     private OrganizationReference getOrganizationReference(
             Organization sourceOrganization, Organization targetOrganization) {
         for (OrganizationReference reference : targetOrganization
-                .getSourcesForType(OrganizationReferenceType.ON_BEHALF_ACTING)) {
+                .getSourcesForType(
+                        OrganizationReferenceType.ON_BEHALF_ACTING)) {
             if (reference.getSource().getKey() == sourceOrganization.getKey()
-                    && reference.getTargetKey() == targetOrganization.getKey()) {
+                    && reference.getTargetKey() == targetOrganization
+                            .getKey()) {
                 return reference;
             }
         }
@@ -1243,13 +1265,14 @@ public class SubscriptionServiceBean implements SubscriptionService,
     private void sendSubscriptionCreatedMailToAdministrators(
             Subscription subscription, boolean actingOnBehalf) {
 
-        EmailType emailType = actingOnBehalf ? EmailType.SUBSCRIPTION_CREATED_ON_BEHALF_ACTING
+        EmailType emailType = actingOnBehalf
+                ? EmailType.SUBSCRIPTION_CREATED_ON_BEHALF_ACTING
                 : EmailType.SUBSCRIPTION_CREATED;
 
         Long marketplaceKey = null;
         if (subscription.getMarketplace() != null) {
-            marketplaceKey = Long.valueOf(subscription.getMarketplace()
-                    .getKey());
+            marketplaceKey = Long
+                    .valueOf(subscription.getMarketplace().getKey());
         }
 
         SendMailPayload payload = new SendMailPayload();
@@ -1289,14 +1312,15 @@ public class SubscriptionServiceBean implements SubscriptionService,
      *             Thrown in case the product is chargeable but the customer
      *             does not have a payment information stored.
      * @throws ConcurrentModificationException
-     * @throws NonUniqueBusinessKeyException 
+     * @throws NonUniqueBusinessKeyException
      */
     private void validateSettingsForSubscribing(VOSubscription subscription,
             VOService product, VOPaymentInfo paymentInfo,
-            VOBillingContact voBillingContact) throws ValidationException,
-            ObjectNotFoundException, OperationNotPermittedException,
-            ServiceChangedException, PriceModelException,
-            PaymentInformationException, ConcurrentModificationException, NonUniqueBusinessKeyException {
+            VOBillingContact voBillingContact)
+            throws ValidationException, ObjectNotFoundException,
+            OperationNotPermittedException, ServiceChangedException,
+            PriceModelException, PaymentInformationException,
+            ConcurrentModificationException, NonUniqueBusinessKeyException {
         String subscriptionId = subscription.getSubscriptionId();
         BLValidator.isId("subscriptionId", subscriptionId, true);
         String pon = subscription.getPurchaseOrderNumber();
@@ -1312,31 +1336,27 @@ public class SubscriptionServiceBean implements SubscriptionService,
         if (targetCustomer == null) {
             // if it is no customer specific product, check if we have one
             // for the subscriber
-            List<Product> resultList = getProductDao().getCopyForCustomer(
-                    productTemplate, organization);
+            List<Product> resultList = getProductDao()
+                    .getCopyForCustomer(productTemplate, organization);
             if (resultList.size() > 0) {
                 ServiceChangedException sce = new ServiceChangedException(
                         ServiceChangedException.Reason.SERVICE_MODIFIED);
-                LOG.logWarn(
-                        Log4jLogger.SYSTEM_LOG | Log4jLogger.AUDIT_LOG,
-                        sce,
+                LOG.logWarn(Log4jLogger.SYSTEM_LOG | Log4jLogger.AUDIT_LOG, sce,
                         LogMessageIdentifier.WARN_CUSTOMER_MUST_SUBSCRIBE_SPECIFIC_PRODUCT,
-                        organization.getOrganizationId(), productTemplate
-                                .getProductId(), resultList.get(0)
-                                .getProductId());
+                        organization.getOrganizationId(),
+                        productTemplate.getProductId(),
+                        resultList.get(0).getProductId());
                 throw sce;
             }
         } else if (organization.getKey() != targetCustomer.getKey()) {
             // if it is a specific one but not specified for the subscriber
-            String message = String
-                    .format("Customer specific product '%s' is not specified for customer '%s'.",
-                            productTemplate.getProductId(),
-                            organization.getOrganizationId());
+            String message = String.format(
+                    "Customer specific product '%s' is not specified for customer '%s'.",
+                    productTemplate.getProductId(),
+                    organization.getOrganizationId());
             OperationNotPermittedException onp = new OperationNotPermittedException(
                     message);
-            LOG.logWarn(
-                    Log4jLogger.SYSTEM_LOG | Log4jLogger.AUDIT_LOG,
-                    onp,
+            LOG.logWarn(Log4jLogger.SYSTEM_LOG | Log4jLogger.AUDIT_LOG, onp,
                     LogMessageIdentifier.WARN_CUSTOMER_SPECIFIC_PRODUCT_NOT_FOR_THE_CUSTOMER,
                     productTemplate.getProductId(),
                     organization.getOrganizationId());
@@ -1408,8 +1428,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
     }
 
     private void checkIfServiceAvailable(long productKey, String productId,
-            PlatformUser currentUser) throws OperationNotPermittedException,
-            ObjectNotFoundException {
+            PlatformUser currentUser)
+            throws OperationNotPermittedException, ObjectNotFoundException {
         if (currentUser.isOrganizationAdmin()) {
             return;
         }
@@ -1438,8 +1458,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
             throws SubscriptionAlreadyExistsException, ObjectNotFoundException {
 
         // Fetch the technical product to which the defined product belongs to.
-        Product prod = dataManager
-                .getReference(Product.class, product.getKey());
+        Product prod = dataManager.getReference(Product.class,
+                product.getKey());
         TechnicalProduct technicalProduct = prod.getTechnicalProduct();
 
         // Only in case one subscription is allowed check the number of already
@@ -1459,8 +1479,7 @@ public class SubscriptionServiceBean implements SubscriptionService,
 
                 SubscriptionAlreadyExistsException subAlreadyExistsException = new SubscriptionAlreadyExistsException(
                         params);
-                LOG.logWarn(
-                        Log4jLogger.SYSTEM_LOG | Log4jLogger.AUDIT_LOG,
+                LOG.logWarn(Log4jLogger.SYSTEM_LOG | Log4jLogger.AUDIT_LOG,
                         subAlreadyExistsException,
                         LogMessageIdentifier.WARN_USER_SUBSCRIBE_SERVICE_FAILED_ONLY_ONE_ALLOWED,
                         Long.toString(dataManager.getCurrentUser().getKey()),
@@ -1482,10 +1501,11 @@ public class SubscriptionServiceBean implements SubscriptionService,
      * @throws NonUniqueBusinessKeyException
      */
     private void verifyIdAndKeyUniqueness(PlatformUser currentUser,
-            VOSubscription voSubscription) throws NonUniqueBusinessKeyException {
+            VOSubscription voSubscription)
+            throws NonUniqueBusinessKeyException {
         Subscription newSubscription = new Subscription();
-        newSubscription.setOrganizationKey(currentUser.getOrganization()
-                .getKey());
+        newSubscription
+                .setOrganizationKey(currentUser.getOrganization().getKey());
         newSubscription.setSubscriptionId(voSubscription.getSubscriptionId());
         dataManager.validateBusinessKeyUniqueness(newSubscription);
     }
@@ -1507,8 +1527,9 @@ public class SubscriptionServiceBean implements SubscriptionService,
         if (product.getParameterSet() != null) {
             for (Parameter parameter : product.getParameterSet()
                     .getParameters()) {
-                paramMap.put(parameter.getParameterDefinition()
-                        .getParameterId(), parameter);
+                paramMap.put(
+                        parameter.getParameterDefinition().getParameterId(),
+                        parameter);
             }
         }
 
@@ -1538,12 +1559,12 @@ public class SubscriptionServiceBean implements SubscriptionService,
             if (param != null) {
                 String oldValue = param.getValue();
                 param.setValue(voParameter.getValue());
-                
+
                 String defaultValue = param.getParameterDefinition()
                         .getDefaultValue();
                 if ((oldValue != null && !oldValue.equals(param.getValue()))
-                        || (oldValue == null && param.getValue() != null && !param
-                                .getValue().equals(defaultValue))) {
+                        || (oldValue == null && param.getValue() != null
+                                && !param.getValue().equals(defaultValue))) {
                     modifiedParametesForLog.add(param);
                 }
             }
@@ -1565,8 +1586,10 @@ public class SubscriptionServiceBean implements SubscriptionService,
             Product sourceProduct) {
         List<VOLocalizedText> localizedValues;
         final PriceModel priceModelTarget = targetProduct.getPriceModel();
-        final PriceModel priceModelSource = sourceProduct.getType() == ServiceType.PARTNER_TEMPLATE ? sourceProduct
-                .getTemplate().getPriceModel() : sourceProduct.getPriceModel();
+        final PriceModel priceModelSource = sourceProduct
+                .getType() == ServiceType.PARTNER_TEMPLATE
+                        ? sourceProduct.getTemplate().getPriceModel()
+                        : sourceProduct.getPriceModel();
         if ((priceModelTarget != null) && (priceModelSource != null)) {
             long targetKey = targetProduct.getPriceModel().getKey();
             long sourceKey = priceModelSource.getKey();
@@ -1630,8 +1653,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
         if (usersToBeRevoked != null) {
             for (VOUser entry : usersToBeRevoked) {
                 try {
-                    PlatformUser user = dataManager.getReference(
-                            PlatformUser.class, entry.getKey());
+                    PlatformUser user = dataManager
+                            .getReference(PlatformUser.class, entry.getKey());
                     // fill user ID for trigger process
                     entry.setUserId(user.getUserId());
                 } catch (ObjectNotFoundException e) {
@@ -1653,11 +1676,9 @@ public class SubscriptionServiceBean implements SubscriptionService,
                     String.format(
                             "Operation cannot be performed. There is already another pending request for subscription '%s' to add or revoke the users: %s",
                             subscriptionId, userIds),
-                    ReasonEnum.ADD_REVOKE_USER, new Object[] { subscriptionId,
-                            userIds });
-            LOG.logWarn(
-                    Log4jLogger.SYSTEM_LOG,
-                    ope,
+                    ReasonEnum.ADD_REVOKE_USER,
+                    new Object[] { subscriptionId, userIds });
+            LOG.logWarn(Log4jLogger.SYSTEM_LOG, ope,
                     LogMessageIdentifier.WARN_ADD_REVOKE_USER_FAILED_DUE_TO_TRIGGER_CONFLICT,
                     subscriptionId);
             throw ope;
@@ -1666,7 +1687,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
         validateTriggerProcessForSubscription(sub);
 
         // now send a suspending message for the processing
-        TriggerMessage message = new TriggerMessage(TriggerType.ADD_REVOKE_USER);
+        TriggerMessage message = new TriggerMessage(
+                TriggerType.ADD_REVOKE_USER);
         List<TriggerProcessMessageData> list = triggerQS
                 .sendSuspendingMessages(Collections.singletonList(message));
         TriggerProcess proc = list.get(0).getTrigger();
@@ -1704,8 +1726,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
 
     void validateTriggerProcessForSubscription(Subscription subscription)
             throws OperationPendingException {
-        validateTriggerProcessForUnsubscribeFromService(subscription
-                .getSubscriptionId());
+        validateTriggerProcessForUnsubscribeFromService(
+                subscription.getSubscriptionId());
         validateTriggerProcessForUpgradeSubscriptionBySubscriptionKey(
                 subscription.getKey(), subscription.getSubscriptionId());
         validateTriggerProcessForModifySubscriptionBySubscriptionKey(
@@ -1728,8 +1750,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
                 userIds.append(", ");
             }
             if (TriggerProcessIdentifierName.USER_TO_ADD.equals(id.getName())
-                    || TriggerProcessIdentifierName.USER_TO_REVOKE.equals(id
-                            .getName())) {
+                    || TriggerProcessIdentifierName.USER_TO_REVOKE
+                            .equals(id.getName())) {
                 userIds.append(id.getValue());
             }
         }
@@ -1757,8 +1779,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
      *             have to be used on the technical product
      */
     private RoleDefinition getAndCheckServiceRole(VOUsageLicense lic,
-            Product prod) throws ObjectNotFoundException,
-            OperationNotPermittedException {
+            Product prod)
+            throws ObjectNotFoundException, OperationNotPermittedException {
         TechnicalProduct tp = prod.getTechnicalProduct();
         List<RoleDefinition> roles = tp.getRoleDefinitions();
         if (roles == null || roles.isEmpty()) {
@@ -1769,9 +1791,7 @@ public class SubscriptionServiceBean implements SubscriptionService,
             String message = "User assignment to technical service '%s' without service role not possible.";
             OperationNotPermittedException onp = new OperationNotPermittedException(
                     String.format(message, Long.valueOf(tp.getKey())));
-            LOG.logError(
-                    Log4jLogger.SYSTEM_LOG,
-                    onp,
+            LOG.logError(Log4jLogger.SYSTEM_LOG, onp,
                     LogMessageIdentifier.ERROR_USER_ASSIGNMENT_TO_TECHNICAL_SERVICE_FAILED_NO_SERVICE_ROLE,
                     Long.toString(tp.getKey()));
             throw onp;
@@ -1809,7 +1829,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
         mod = tp.getParamValueForName(TriggerProcessParameterName.USERS_TO_ADD);
         List<?> usersToBeAdded = mod.getValue(List.class);
 
-        mod = tp.getParamValueForName(TriggerProcessParameterName.USERS_TO_REVOKE);
+        mod = tp.getParamValueForName(
+                TriggerProcessParameterName.USERS_TO_REVOKE);
         List<?> usersToBeRevoked = mod.getValue(List.class);
 
         // Try to find the subscription
@@ -1907,19 +1928,17 @@ public class SubscriptionServiceBean implements SubscriptionService,
                     roleDef);
         }
         try {
-            String accessInfo = targetLicense == null ? "" : getAccessInfo(
-                    subscription, targetLicense.getUser());
+            String accessInfo = targetLicense == null ? ""
+                    : getAccessInfo(subscription, targetLicense.getUser());
 
-            commService
-                    .sendMail(usr, EmailType.SUBSCRIPTION_ACCESS_GRANTED,
-                            new Object[] { subscription.getSubscriptionId(),
-                                    accessInfo }, subscription.getMarketplace());
+            commService.sendMail(usr,
+                    EmailType.SUBSCRIPTION_ACCESS_GRANTED, new Object[] {
+                            subscription.getSubscriptionId(), accessInfo },
+                    subscription.getMarketplace());
 
         } catch (MailOperationException e) {
             // only log the exception and proceed
-            LOG.logWarn(
-                    Log4jLogger.SYSTEM_LOG,
-                    e,
+            LOG.logWarn(Log4jLogger.SYSTEM_LOG, e,
                     LogMessageIdentifier.WARN_GRANT_ROLE_IN_SUBSCRIPTION_CONFIRMING_FAILED);
         }
 
@@ -2010,8 +2029,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
             // sent.
             Long marketplaceKey = null;
             if (subscription.getMarketplace() != null) {
-                marketplaceKey = Long.valueOf(subscription.getMarketplace()
-                        .getKey());
+                marketplaceKey = Long
+                        .valueOf(subscription.getMarketplace().getKey());
             }
 
             SendMailPayload payload = new SendMailPayload();
@@ -2047,12 +2066,12 @@ public class SubscriptionServiceBean implements SubscriptionService,
 
     @RolesAllowed("ORGANIZATION_ADMIN")
     public List<VOUserSubscription> getSubscriptionsForUser(VOUser user,
-            PerformanceHint performanceHint) throws ObjectNotFoundException,
-            OperationNotPermittedException {
+            PerformanceHint performanceHint)
+            throws ObjectNotFoundException, OperationNotPermittedException {
         ArgumentValidator.notNull("user", user);
 
         PlatformUser platformUser = idManager.getPlatformUser(user.getUserId(),
-                true);
+                dataManager.getCurrentUser().getTenantId(), true);
         LocalizerFacade facade = new LocalizerFacade(localizer,
                 platformUser.getLocale());
         List<Subscription> subs = getSubscriptionsForUserInt(platformUser);
@@ -2094,14 +2113,15 @@ public class SubscriptionServiceBean implements SubscriptionService,
         return getSubscriptionsForOrganizationWithFilter(null, performanceHint);
     }
 
-    @RolesAllowed({ "ORGANIZATION_ADMIN", "SUBSCRIPTION_MANAGER", "UNIT_ADMINISTRATOR" })
+    @RolesAllowed({ "ORGANIZATION_ADMIN", "SUBSCRIPTION_MANAGER",
+            "UNIT_ADMINISTRATOR" })
     public List<VOSubscription> getAllSubscriptionsForOrganization(
             PerformanceHint performanceHint) {
         ArrayList<VOSubscription> result = new ArrayList<>();
         List<Subscription> subscriptions = subscriptionListService
                 .getAllSubscriptionsForOrganization();
-        LocalizerFacade facade = new LocalizerFacade(localizer, dataManager
-                .getCurrentUser().getLocale());
+        LocalizerFacade facade = new LocalizerFacade(localizer,
+                dataManager.getCurrentUser().getLocale());
         for (Subscription sub : subscriptions) {
             VOSubscription voSub = SubscriptionAssembler.toVOSubscription(sub,
                     facade, performanceHint);
@@ -2129,8 +2149,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
                 .getSubscriptionsForOrganization(requiredStatus);
 
         // create transfer objects
-        LocalizerFacade facade = new LocalizerFacade(localizer, dataManager
-                .getCurrentUser().getLocale());
+        LocalizerFacade facade = new LocalizerFacade(localizer,
+                dataManager.getCurrentUser().getLocale());
         for (Subscription sub : subs) {
             VOSubscription voSub = SubscriptionAssembler.toVOSubscription(sub,
                     facade, performanceHint);
@@ -2142,7 +2162,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
 
     @Override
     @RolesAllowed({ "ORGANIZATION_ADMIN", "SUBSCRIPTION_MANAGER" })
-    public boolean validateSubscriptionIdForOrganization(String subscriptionId) {
+    public boolean validateSubscriptionIdForOrganization(
+            String subscriptionId) {
         // load all subscriptions
         List<Subscription> subs = subscriptionListService
                 .getSubscriptionsForOrganization(null);
@@ -2165,8 +2186,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
 
         ArgumentValidator.notNull("subscriptionId", subscriptionId);
 
-        Subscription subscription = manageBean.checkSubscriptionOwner(
-                subscriptionId, 0);
+        Subscription subscription = manageBean
+                .checkSubscriptionOwner(subscriptionId, 0);
 
         return getSubscriptionDetails(subscription);
     }
@@ -2186,15 +2207,17 @@ public class SubscriptionServiceBean implements SubscriptionService,
     @Override
     @RolesAllowed({ "ORGANIZATION_ADMIN", "SUBSCRIPTION_MANAGER",
             "UNIT_ADMINISTRATOR" })
-    public VOSubscriptionDetails getSubscriptionDetailsWithoutOwnerCheck(long subscriptionKey) throws ObjectNotFoundException {
-        Subscription subscription = manageBean.loadSubscription(null, subscriptionKey);
+    public VOSubscriptionDetails getSubscriptionDetailsWithoutOwnerCheck(
+            long subscriptionKey) throws ObjectNotFoundException {
+        Subscription subscription = manageBean.loadSubscription(null,
+                subscriptionKey);
         return getSubscriptionDetails(subscription);
     }
 
     private VOSubscriptionDetails getSubscriptionDetails(
             Subscription subscription) {
-        LocalizerFacade facade = new LocalizerFacade(localizer, dataManager
-                .getCurrentUser().getLocale());
+        LocalizerFacade facade = new LocalizerFacade(localizer,
+                dataManager.getCurrentUser().getLocale());
 
         return SubscriptionAssembler.toVOSubscriptionDetails(subscription,
                 facade);
@@ -2218,7 +2241,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
 
         validateTriggerProcessForUnsubscribeFromService(subscriptionId);
 
-        TriggerProcess triggerProcess = createTriggerProcessForUnsubscribeFromService(subscriptionId);
+        TriggerProcess triggerProcess = createTriggerProcessForUnsubscribeFromService(
+                subscriptionId);
 
         TriggerDefinition triggerDefinition = triggerProcess
                 .getTriggerDefinition();
@@ -2234,11 +2258,10 @@ public class SubscriptionServiceBean implements SubscriptionService,
                 throw e;
             }
         } else if (triggerDefinition.isSuspendProcess()) {
-            triggerProcess
-                    .setTriggerProcessIdentifiers(TriggerProcessIdentifiers
-                            .createUnsubscribeFromService(dataManager,
-                                    TriggerType.UNSUBSCRIBE_FROM_SERVICE,
-                                    subscriptionId));
+            triggerProcess.setTriggerProcessIdentifiers(
+                    TriggerProcessIdentifiers.createUnsubscribeFromService(
+                            dataManager, TriggerType.UNSUBSCRIBE_FROM_SERVICE,
+                            subscriptionId));
             dataManager.merge(triggerProcess);
         }
 
@@ -2274,9 +2297,7 @@ public class SubscriptionServiceBean implements SubscriptionService,
                             subscriptionId),
                     ReasonEnum.UNSUBSCRIBE_FROM_SERVICE,
                     new Object[] { subscriptionId });
-            LOG.logWarn(
-                    Log4jLogger.SYSTEM_LOG,
-                    ope,
+            LOG.logWarn(Log4jLogger.SYSTEM_LOG, ope,
                     LogMessageIdentifier.WARN_UNSUBSCRIBE_FROM_SERVICE_FAILED_DUE_TO_TRIGGER_CONFLICT,
                     subscriptionId);
             throw ope;
@@ -2287,12 +2308,11 @@ public class SubscriptionServiceBean implements SubscriptionService,
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     public void unsubscribeFromServiceInt(TriggerProcess tp)
             throws ObjectNotFoundException, SubscriptionStateException,
-            SubscriptionStillActiveException,
-            TechnicalServiceNotAliveException,
+            SubscriptionStillActiveException, TechnicalServiceNotAliveException,
             TechnicalServiceOperationException {
 
-        String subId = tp.getParamValueForName(
-                TriggerProcessParameterName.SUBSCRIPTION)
+        String subId = tp
+                .getParamValueForName(TriggerProcessParameterName.SUBSCRIPTION)
                 .getValue(String.class);
         Subscription subscription = validateSubsciptionForUnsubscribe(subId);
 
@@ -2301,29 +2321,29 @@ public class SubscriptionServiceBean implements SubscriptionService,
 
         manageBean.removeUsageLicenses(subscription);
 
-        operationRecordBean.removeOperationsForSubscription(subscription
-                .getKey());
+        operationRecordBean
+                .removeOperationsForSubscription(subscription.getKey());
 
         // rename the subscription as last step because id is still used for
         // exceptions and mails rename to allow the reuse of the id
         final String oldSubscriptionId = subscription.getSubscriptionId();
-        subscription.setSubscriptionId(String.valueOf(System
-                .currentTimeMillis()));
+        subscription
+                .setSubscriptionId(String.valueOf(System.currentTimeMillis()));
 
         boolean removed = removeOnBehalfActingReference(subscription);
 
-        triggerQS.sendAllNonSuspendingMessages(TriggerMessage.create(
-                TriggerType.UNSUBSCRIBE_FROM_SERVICE, tp
-                        .getTriggerProcessParameters(), dataManager
-                        .getCurrentUser().getOrganization()));
+        triggerQS.sendAllNonSuspendingMessages(
+                TriggerMessage.create(TriggerType.UNSUBSCRIBE_FROM_SERVICE,
+                        tp.getTriggerProcessParameters(), dataManager
+                                .getCurrentUser().getOrganization()));
 
         tp.addTriggerProcessParameter(TriggerProcessParameterName.SUBSCRIPTION,
                 buildNotification(oldSubscriptionId));
 
-        triggerQS.sendAllNonSuspendingMessages(TriggerMessage.create(
-                TriggerType.SUBSCRIPTION_TERMINATION, tp
-                        .getTriggerProcessParameters(), subscription
-                        .getProduct().getVendor()));
+        triggerQS.sendAllNonSuspendingMessages(
+                TriggerMessage.create(TriggerType.SUBSCRIPTION_TERMINATION,
+                        tp.getTriggerProcessParameters(),
+                        subscription.getProduct().getVendor()));
 
         sendConfirmDeactivationEmail(removed, oldSubscriptionId, subscription);
 
@@ -2353,14 +2373,13 @@ public class SubscriptionServiceBean implements SubscriptionService,
      * @param subscription
      */
     private void stopInstance(Subscription subscription) {
-        boolean stopInstance = subscription.getStatus() != SubscriptionStatus.INVALID;
+        boolean stopInstance = subscription
+                .getStatus() != SubscriptionStatus.INVALID;
         if (stopInstance) {
             try {
                 appManager.deleteInstance(subscription);
             } catch (SaaSApplicationException e) {
-                LOG.logError(
-                        Log4jLogger.SYSTEM_LOG,
-                        e,
+                LOG.logError(Log4jLogger.SYSTEM_LOG, e,
                         LogMessageIdentifier.ERROR_UNSUBSCRIBE_SUBSCRIPTION_FAILED,
                         Long.toString(subscription.getKey()));
                 manageBean.sendTechnicalServiceErrorMail(subscription);
@@ -2411,9 +2430,10 @@ public class SubscriptionServiceBean implements SubscriptionService,
         }
     }
 
-    private void removeActiveSessionsForOnbehalfUser(PlatformUser onbehalfUser) {
-        List<Session> sessions = getSessionDao().getActiveSessionsForUser(
-                onbehalfUser);
+    private void removeActiveSessionsForOnbehalfUser(
+            PlatformUser onbehalfUser) {
+        List<Session> sessions = getSessionDao()
+                .getActiveSessionsForUser(onbehalfUser);
         for (Session s : sessions) {
             dataManager.remove(s);
         }
@@ -2423,7 +2443,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
     private void sendConfirmDeactivationEmail(boolean removed,
             final String oldSubscriptionId, final Subscription subscription) {
 
-        EmailType emailType = removed ? EmailType.SUBSCRIPTION_DELETED_ON_BEHALF_ACTING
+        EmailType emailType = removed
+                ? EmailType.SUBSCRIPTION_DELETED_ON_BEHALF_ACTING
                 : EmailType.SUBSCRIPTION_DELETED;
         Marketplace marketplace = subscription.getMarketplace();
         List<PlatformUser> users = manageBean
@@ -2434,9 +2455,7 @@ public class SubscriptionServiceBean implements SubscriptionService,
                         new Object[] { oldSubscriptionId }, marketplace);
             } catch (MailOperationException e) {
                 // only log the exception and proceed
-                LOG.logWarn(
-                        Log4jLogger.SYSTEM_LOG,
-                        e,
+                LOG.logWarn(Log4jLogger.SYSTEM_LOG, e,
                         LogMessageIdentifier.WARN_DELETION_OF_SUBSCRIPTION_CONFIRMING_FAILED);
             }
         }
@@ -2458,8 +2477,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
      *             Thrown in case the subscription cannot be found.
      */
     private Subscription validateSubsciptionForUnsubscribe(String subId)
-            throws SubscriptionStateException,
-            SubscriptionStillActiveException, ObjectNotFoundException {
+            throws SubscriptionStateException, SubscriptionStillActiveException,
+            ObjectNotFoundException {
         Subscription subscription = manageBean.loadSubscription(subId, 0);
         stateValidator.checkUnsubscribingAllowed(subscription);
 
@@ -2471,8 +2490,7 @@ public class SubscriptionServiceBean implements SubscriptionService,
             // fail: throw exception
             sessionCtx.setRollbackOnly();
             SubscriptionStillActiveException ssa = new SubscriptionStillActiveException(
-                    "There are still "
-                            + activeSessions.size()
+                    "There are still " + activeSessions.size()
                             + " sessions active for the subscription with key '"
                             + subscription.getKey() + "'",
                     SubscriptionStillActiveException.Reason.ACTIVE_SESSIONS);
@@ -2513,31 +2531,29 @@ public class SubscriptionServiceBean implements SubscriptionService,
             if (def.getParameterType() == ParameterType.PLATFORM_PARAMETER
                     && param.getValue() != null) {
                 String subscriptionId = subscription.getSubscriptionId();
-                if (PlatformParameterIdentifiers.NAMED_USER.equals(def
-                        .getParameterId())) {
+                if (PlatformParameterIdentifiers.NAMED_USER
+                        .equals(def.getParameterId())) {
                     int current = subscription.getUsageLicenses().size();
                     long max = param.getLongValue();
                     if (current > max) {
                         sessionCtx.setRollbackOnly();
                         SubscriptionMigrationException e = new SubscriptionMigrationException(
                                 "Parameter check failed",
-                                Reason.PARAMETER_USERS, new Object[] {
-                                        subscriptionId,
+                                Reason.PARAMETER_USERS,
+                                new Object[] { subscriptionId,
                                         String.valueOf(current),
                                         String.valueOf(max) });
-                        LOG.logError(
-                                Log4jLogger.SYSTEM_LOG,
-                                e,
+                        LOG.logError(Log4jLogger.SYSTEM_LOG, e,
                                 LogMessageIdentifier.ERROR_MIGRATE_SUBSCRIPTION_AS_CHECK_PARAMETER,
-                                Long.toString(currentUser.getKey()), Long
-                                        .toString(subscription.getKey()), Long
-                                        .toString(subscription
-                                                .getOrganizationKey()), def
-                                        .getParameterId());
+                                Long.toString(currentUser.getKey()),
+                                Long.toString(subscription.getKey()),
+                                Long.toString(
+                                        subscription.getOrganizationKey()),
+                                def.getParameterId());
                         throw e;
                     }
-                } else if (PlatformParameterIdentifiers.PERIOD.equals(def
-                        .getParameterId())) {
+                } else if (PlatformParameterIdentifiers.PERIOD
+                        .equals(def.getParameterId())) {
                     long usedTime = DateFactory.getInstance()
                             .getTransactionTime()
                             - subscription.getActivationDate().longValue();
@@ -2547,15 +2563,13 @@ public class SubscriptionServiceBean implements SubscriptionService,
                                 "Parameter check failed",
                                 Reason.PARAMETER_PERIOD,
                                 new Object[] { subscriptionId });
-                        LOG.logError(
-                                Log4jLogger.SYSTEM_LOG,
-                                e,
+                        LOG.logError(Log4jLogger.SYSTEM_LOG, e,
                                 LogMessageIdentifier.ERROR_MIGRATE_SUBSCRIPTION_AS_CHECK_PARAMETER,
-                                Long.toString(currentUser.getKey()), Long
-                                        .toString(subscription.getKey()), Long
-                                        .toString(subscription
-                                                .getOrganizationKey()), def
-                                        .getParameterId());
+                                Long.toString(currentUser.getKey()),
+                                Long.toString(subscription.getKey()),
+                                Long.toString(
+                                        subscription.getOrganizationKey()),
+                                def.getParameterId());
                         throw e;
                     }
                 }
@@ -2570,8 +2584,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
             throws ObjectNotFoundException, OperationNotPermittedException {
         ArgumentValidator.notNull("subscriptionId", subscriptionId);
 
-        Subscription subscription = manageBean.checkSubscriptionOwner(
-                subscriptionId, 0);
+        Subscription subscription = manageBean
+                .checkSubscriptionOwner(subscriptionId, 0);
 
         return getUpgradeOptions(subscription);
     }
@@ -2603,8 +2617,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
                 compatibleProducts, supplierKey, organization);
 
         List<VOService> result = new ArrayList<>(compatibleProducts.size());
-        LocalizerFacade facade = new LocalizerFacade(localizer, dataManager
-                .getCurrentUser().getLocale());
+        LocalizerFacade facade = new LocalizerFacade(localizer,
+                dataManager.getCurrentUser().getLocale());
         for (Product prod : compatibleProducts) {
             result.add(ProductAssembler.toVOProduct(prod, facade));
         }
@@ -2663,12 +2677,12 @@ public class SubscriptionServiceBean implements SubscriptionService,
             SubscriptionStateException, ServiceChangedException,
             PriceModelException, ConcurrentModificationException,
             TechnicalServiceNotAliveException, OperationPendingException,
-            MandatoryUdaMissingException, NonUniqueBusinessKeyException,
-            ValidationException {
+            MandatoryUdaMissingException, MandatoryCustomerUdaMissingException,
+            NonUniqueBusinessKeyException, ValidationException {
 
         ArgumentValidator.notNull("subscription", subscription);
         ArgumentValidator.notNull("service", service);
-        
+
         PlatformUser currentUser = dataManager.getCurrentUser();
 
         if (isPaymentInfoHidden() && service.getPriceModel().isChargeable()) {
@@ -2702,22 +2716,22 @@ public class SubscriptionServiceBean implements SubscriptionService,
                     | ConcurrentModificationException
                     | TechnicalServiceNotAliveException
                     | MandatoryUdaMissingException
-                    | NonUniqueBusinessKeyException | ValidationException e) {
+                    | NonUniqueBusinessKeyException | ValidationException
+                    | MandatoryCustomerUdaMissingException e) {
                 sessionCtx.setRollbackOnly();
                 throw e;
             }
         } else if (triggerDefinition.isSuspendProcess()) {
-            triggerProcess
-                    .setTriggerProcessIdentifiers(TriggerProcessIdentifiers
-                            .createUpgradeSubscription(dataManager,
-                                    TriggerType.UPGRADE_SUBSCRIPTION,
-                                    subscription));
+            triggerProcess.setTriggerProcessIdentifiers(
+                    TriggerProcessIdentifiers.createUpgradeSubscription(
+                            dataManager, TriggerType.UPGRADE_SUBSCRIPTION,
+                            subscription));
             dataManager.merge(triggerProcess);
         }
 
         return SubscriptionAssembler.toVOSubscription(upgradedSub,
-                new LocalizerFacade(localizer, dataManager.getCurrentUser()
-                        .getLocale()));
+                new LocalizerFacade(localizer,
+                        dataManager.getCurrentUser().getLocale()));
     }
 
     private TriggerProcess createTriggerProcessForUpgradeSubscription(
@@ -2754,11 +2768,9 @@ public class SubscriptionServiceBean implements SubscriptionService,
             OperationPendingException ope = new OperationPendingException(
                     String.format(
                             "Operation cannot be performed. There is already another pending request to upgrade or modify the subscription with ID '%s'",
-                            subID), ReasonEnum.UPGRADE_SUBSCRIPTION,
-                    new Object[] { subID });
-            LOG.logWarn(
-                    Log4jLogger.SYSTEM_LOG,
-                    ope,
+                            subID),
+                    ReasonEnum.UPGRADE_SUBSCRIPTION, new Object[] { subID });
+            LOG.logWarn(Log4jLogger.SYSTEM_LOG, ope,
                     LogMessageIdentifier.WARN_UPGRADE_SUBSCRIPTION_FAILED_DUE_TO_TRIGGER_CONFLICT,
                     subID);
             throw ope;
@@ -2774,11 +2786,10 @@ public class SubscriptionServiceBean implements SubscriptionService,
             OperationPendingException ope = new OperationPendingException(
                     String.format(
                             "Operation cannot be performed. There is already another pending request to upgrade or modify the subscription with ID '%s'",
-                            subscriptionID), ReasonEnum.UPGRADE_SUBSCRIPTION,
+                            subscriptionID),
+                    ReasonEnum.UPGRADE_SUBSCRIPTION,
                     new Object[] { subscriptionID });
-            LOG.logWarn(
-                    Log4jLogger.SYSTEM_LOG,
-                    ope,
+            LOG.logWarn(Log4jLogger.SYSTEM_LOG, ope,
                     LogMessageIdentifier.WARN_ADD_REVOKE_USER_FAILED_DUE_TO_TRIGGER_CONFLICT,
                     subscriptionID);
             throw ope;
@@ -2793,31 +2804,34 @@ public class SubscriptionServiceBean implements SubscriptionService,
             PriceModelException, PaymentInformationException,
             SubscriptionMigrationException, ConcurrentModificationException,
             TechnicalServiceNotAliveException, NonUniqueBusinessKeyException,
-            ValidationException, MandatoryUdaMissingException {
+            ValidationException, MandatoryUdaMissingException,
+            MandatoryCustomerUdaMissingException {
 
-        VOSubscription current = tp.getParamValueForName(
-                TriggerProcessParameterName.SUBSCRIPTION).getValue(
-                VOSubscription.class);
-        VOService voTargetProduct = tp.getParamValueForName(
-                TriggerProcessParameterName.PRODUCT).getValue(VOService.class);
-        VOPaymentInfo voPaymentInfo = tp.getParamValueForName(
-                TriggerProcessParameterName.PAYMENTINFO).getValue(
-                VOPaymentInfo.class);
-        VOBillingContact voBillingContact = tp.getParamValueForName(
-                TriggerProcessParameterName.BILLING_CONTACT).getValue(
-                VOBillingContact.class);
-        List<VOUda> udas = ParameterizedTypes.list(
-                tp.getParamValueForName(TriggerProcessParameterName.UDAS)
+        VOSubscription current = tp
+                .getParamValueForName(TriggerProcessParameterName.SUBSCRIPTION)
+                .getValue(VOSubscription.class);
+        VOService voTargetProduct = tp
+                .getParamValueForName(TriggerProcessParameterName.PRODUCT)
+                .getValue(VOService.class);
+        VOPaymentInfo voPaymentInfo = tp
+                .getParamValueForName(TriggerProcessParameterName.PAYMENTINFO)
+                .getValue(VOPaymentInfo.class);
+        VOBillingContact voBillingContact = tp
+                .getParamValueForName(
+                        TriggerProcessParameterName.BILLING_CONTACT)
+                .getValue(VOBillingContact.class);
+        List<VOUda> udas = ParameterizedTypes
+                .list(tp.getParamValueForName(TriggerProcessParameterName.UDAS)
                         .getValue(List.class), VOUda.class);
 
         Product dbTargetProduct = dataManager.getReference(Product.class,
                 voTargetProduct.getKey());
-        Subscription dbSubscription = dataManager.getReference(
-                Subscription.class, current.getKey());
+        Subscription dbSubscription = dataManager
+                .getReference(Subscription.class, current.getKey());
 
         PlatformUser currentUser = dataManager.getCurrentUser();
-        Subscription subscription = manageBean.loadSubscription(
-                current.getSubscriptionId(), 0);
+        Subscription subscription = manageBean
+                .loadSubscription(current.getSubscriptionId(), 0);
         BaseAssembler.verifyVersionAndKey(subscription, current);
         Product initialProduct = subscription.getProduct();
         PaymentInfo initialPaymentInfo = subscription.getPaymentInfo();
@@ -2854,29 +2868,45 @@ public class SubscriptionServiceBean implements SubscriptionService,
         subscription.setPaymentInfo(paymentInfo);
         subscription.setBillingContact(bc);
 
-        // product and parameters are copied
-        copyProductAndModifyParametersForUpgrade(subscription, dbTargetProduct,
-                currentUser, voTargetProduct.getParameters());
+        try {
+            appManager.saveAttributes(dbSubscription);
+        } catch (TechnicalServiceOperationException e) {
+            // Log and continue
+            LOG.logWarn(Log4jLogger.SYSTEM_LOG, e,
+                    LogMessageIdentifier.WARN_TECH_SERVICE_WS_ERROR,
+                    subscription.getSubscriptionId(), e.getMessage());
+        }
 
         List<Uda> existingUdas = manageBean.getExistingUdas(subscription);
         List<VOUda> updatedList = getUpdatedSubscriptionAttributes(udas,
                 existingUdas);
         logSubscriptionAttributeForEdit(subscription, updatedList);
 
+        // save subscription attributes before provisioning call, to have them
+        // available at the API
+        if (dbTargetProduct.getTechnicalProduct().getProvisioningType()
+                .equals(ProvisioningType.ASYNCHRONOUS)) {
+            saveUdasForAsyncModifyOrUpgradeSubscription(udas, dbSubscription);
+        } else {
+            saveUdasForSubscription(udas, subscription);
+        }
+
+        // product and parameters are copied
+        copyProductAndModifyParametersForUpgrade(subscription, dbTargetProduct,
+                currentUser, voTargetProduct.getParameters());
+
         if (dbTargetProduct.getTechnicalProduct().getProvisioningType()
                 .equals(ProvisioningType.SYNCHRONOUS)) {
             // bugfix 8068
-            String oldServiceId = initialProduct.getTemplate() != null ? initialProduct
-                    .getTemplate().getProductId() : initialProduct
-                    .getProductId();
-            String newServiceId = dbTargetProduct.getTemplate() != null ? dbTargetProduct
-                    .getTemplate().getProductId() : dbTargetProduct
-                    .getProductId();
+            String oldServiceId = initialProduct.getTemplate() != null
+                    ? initialProduct.getTemplate().getProductId()
+                    : initialProduct.getProductId();
+            String newServiceId = dbTargetProduct.getTemplate() != null
+                    ? dbTargetProduct.getTemplate().getProductId()
+                    : dbTargetProduct.getProductId();
 
             // remove old product
             dataManager.remove(initialProduct);
-
-            saveUdasForSubscription(udas, subscription);
 
             // finally send confirmation mail to the organization admin
             modUpgBean.sendConfirmUpgradationEmail(subscription, oldServiceId,
@@ -2896,18 +2926,17 @@ public class SubscriptionServiceBean implements SubscriptionService,
             }
             subscription.setPaymentInfo(initialPaymentInfo);
             subscription.setBillingContact(initialBillingContact);
-            saveUdasForAsyncModifyOrUpgradeSubscription(udas, dbSubscription);
         }
         dataManager.flush();
 
-        triggerQS.sendAllNonSuspendingMessages(TriggerMessage.create(
-                TriggerType.UPGRADE_SUBSCRIPTION, tp
-                        .getTriggerProcessParameters(), dataManager
-                        .getCurrentUser().getOrganization()));
+        triggerQS.sendAllNonSuspendingMessages(
+                TriggerMessage.create(TriggerType.UPGRADE_SUBSCRIPTION,
+                        tp.getTriggerProcessParameters(), dataManager
+                                .getCurrentUser().getOrganization()));
 
         // log upDowngrade subscription
-        audit.upDowngradeSubscription(dataManager, subscription,
-                initialProduct, dbTargetProduct);
+        audit.upDowngradeSubscription(dataManager, subscription, initialProduct,
+                dbTargetProduct);
 
         return subscription;
     }
@@ -2949,8 +2978,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
             ServiceChangedException, PriceModelException,
             PaymentInformationException, SubscriptionMigrationException {
         // 1. retrieve the subscription details and the target product
-        Subscription subscription = manageBean.loadSubscription(
-                current.getSubscriptionId(), 0);
+        Subscription subscription = manageBean
+                .loadSubscription(current.getSubscriptionId(), 0);
 
         stateValidator.checkModifyAllowedForUpgrading(subscription);
 
@@ -2995,7 +3024,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
                 .getCompatibleProductsList();
         // we won't find products in this list that are not active
         compatibleProducts = replaceByCustomerSpecificProducts(
-                compatibleProducts, currentProduct.getVendorKey(), organization);
+                compatibleProducts, currentProduct.getVendorKey(),
+                organization);
 
         boolean isCompatibleProduct = false;
         for (Product compatibleProduct : compatibleProducts) {
@@ -3007,12 +3037,10 @@ public class SubscriptionServiceBean implements SubscriptionService,
             sessionCtx.setRollbackOnly();
             SubscriptionMigrationException smf = new SubscriptionMigrationException(
                     "Migration of subscription failed",
-                    Reason.INCOMPATIBLE_SERVICES, new Object[] {
-                            subscription.getSubscriptionId(),
+                    Reason.INCOMPATIBLE_SERVICES,
+                    new Object[] { subscription.getSubscriptionId(),
                             targetProduct.getCleanProductId() });
-            LOG.logWarn(
-                    Log4jLogger.SYSTEM_LOG,
-                    smf,
+            LOG.logWarn(Log4jLogger.SYSTEM_LOG, smf,
                     LogMessageIdentifier.WARN_MIGRATE_PRODUCT_FAILED_NOT_COMPATIBLE,
                     Long.toString(currentUser.getKey()),
                     Long.toString(subscription.getKey()),
@@ -3056,7 +3084,7 @@ public class SubscriptionServiceBean implements SubscriptionService,
         }
 
         List<Parameter> modifiedParametersForLog = updateConfiguredParameterValues(
-                    targetProductCopy, voTargetParameters, subscription);
+                targetProductCopy, voTargetParameters, subscription);
 
         // verify the platform parameter and send the new parameter to the
         // technical product
@@ -3125,7 +3153,7 @@ public class SubscriptionServiceBean implements SubscriptionService,
         Product targetProductCopy = copyProductForSubscription(targetProduct,
                 subscription, false);
         List<Parameter> modifiedParametersForLog = updateConfiguredParameterValues(
-                    targetProductCopy, voTargetParameters, subscription);
+                targetProductCopy, voTargetParameters, subscription);
 
         // verify the platform parameter
         checkPlatformParameterConstraints(subscription, targetProductCopy,
@@ -3185,8 +3213,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
             // For asynchronous upgrade the first target pricemodel version is
             // created when subscription is still in PENDING_UPD, but must be
             // fitered for billing. Set the indicating flag before persisting.
-            targetProductCopy.getPriceModel().setProvisioningCompleted(
-                    provisiongCompleted);
+            targetProductCopy.getPriceModel()
+                    .setProvisioningCompleted(provisiongCompleted);
         }
 
         try {
@@ -3197,9 +3225,7 @@ public class SubscriptionServiceBean implements SubscriptionService,
             SaaSSystemException se = new SaaSSystemException(
                     "The product copy method didn't create a unique productId.",
                     ex);
-            LOG.logError(
-                    Log4jLogger.SYSTEM_LOG,
-                    se,
+            LOG.logError(Log4jLogger.SYSTEM_LOG, se,
                     LogMessageIdentifier.ERROR_CREATE_UNIQUE_PRODUCT_ID_FAILED_IN_PRODUCT_COPY);
             throw se;
         }
@@ -3273,7 +3299,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
     }
 
     boolean isActivationAllowed(Subscription subscription,
-            boolean activateExpiredSubscription) throws ObjectNotFoundException {
+            boolean activateExpiredSubscription)
+            throws ObjectNotFoundException {
         if (subscription == null) {
             return false;
         }
@@ -3353,14 +3380,14 @@ public class SubscriptionServiceBean implements SubscriptionService,
     @Override
     @RolesAllowed({ "ORGANIZATION_ADMIN", "SUBSCRIPTION_MANAGER",
             "UNIT_ADMINISTRATOR" })
-    public VOSubscriptionDetails modifySubscription(
-            VOSubscription subscription, List<VOParameter> parameters,
-            List<VOUda> udas) throws NonUniqueBusinessKeyException,
-            ObjectNotFoundException, OperationNotPermittedException,
-            ValidationException, SubscriptionMigrationException,
-            ConcurrentModificationException, TechnicalServiceNotAliveException,
-            OperationPendingException, MandatoryUdaMissingException,
-            SubscriptionStateException {
+    public VOSubscriptionDetails modifySubscription(VOSubscription subscription,
+            List<VOParameter> parameters, List<VOUda> udas)
+            throws NonUniqueBusinessKeyException, ObjectNotFoundException,
+            OperationNotPermittedException, ValidationException,
+            SubscriptionMigrationException, ConcurrentModificationException,
+            TechnicalServiceNotAliveException, OperationPendingException,
+            MandatoryUdaMissingException, SubscriptionStateException,
+            MandatoryCustomerUdaMissingException {
 
         ArgumentValidator.notNull("subscription", subscription);
 
@@ -3399,7 +3426,7 @@ public class SubscriptionServiceBean implements SubscriptionService,
             ValidationException, OperationNotPermittedException,
             SubscriptionMigrationException, ConcurrentModificationException,
             TechnicalServiceNotAliveException, MandatoryUdaMissingException,
-            SubscriptionStateException {
+            MandatoryCustomerUdaMissingException, SubscriptionStateException {
         VOSubscriptionDetails result = null;
         TriggerDefinition triggerDefinition = triggerProcess
                 .getTriggerDefinition();
@@ -3411,16 +3438,16 @@ public class SubscriptionServiceBean implements SubscriptionService,
                     | SubscriptionMigrationException
                     | ConcurrentModificationException
                     | TechnicalServiceNotAliveException | ValidationException
-                    | MandatoryUdaMissingException | SubscriptionStateException e) {
+                    | MandatoryUdaMissingException | SubscriptionStateException
+                    | MandatoryCustomerUdaMissingException e) {
                 sessionCtx.setRollbackOnly();
                 throw e;
             }
         } else if (triggerDefinition.isSuspendProcess()) {
-            triggerProcess
-                    .setTriggerProcessIdentifiers(TriggerProcessIdentifiers
-                            .createUpgradeSubscription(dataManager,
-                                    TriggerType.MODIFY_SUBSCRIPTION,
-                                    subscription));
+            triggerProcess.setTriggerProcessIdentifiers(
+                    TriggerProcessIdentifiers.createUpgradeSubscription(
+                            dataManager, TriggerType.MODIFY_SUBSCRIPTION,
+                            subscription));
             dataManager.merge(triggerProcess);
         }
         return result;
@@ -3460,11 +3487,9 @@ public class SubscriptionServiceBean implements SubscriptionService,
             OperationPendingException ope = new OperationPendingException(
                     String.format(
                             "Operation cannot be performed. There is already another pending request to modify or upgrade the subscription with key '%s'",
-                            subID), ReasonEnum.MODIFY_SUBSCRIPTION,
-                    new Object[] { subID });
-            LOG.logWarn(
-                    Log4jLogger.SYSTEM_LOG,
-                    ope,
+                            subID),
+                    ReasonEnum.MODIFY_SUBSCRIPTION, new Object[] { subID });
+            LOG.logWarn(Log4jLogger.SYSTEM_LOG, ope,
                     LogMessageIdentifier.WARN_MODIFY_SUBSCRIPTION_FAILED_DUE_TO_TRIGGER_CONFLICT,
                     subID);
             throw ope;
@@ -3480,11 +3505,10 @@ public class SubscriptionServiceBean implements SubscriptionService,
             OperationPendingException ope = new OperationPendingException(
                     String.format(
                             "Operation cannot be performed. There is already another pending request to modify or upgrade the subscription with key '%s'",
-                            subscriptionID), ReasonEnum.MODIFY_SUBSCRIPTION,
+                            subscriptionID),
+                    ReasonEnum.MODIFY_SUBSCRIPTION,
                     new Object[] { subscriptionID });
-            LOG.logWarn(
-                    Log4jLogger.SYSTEM_LOG,
-                    ope,
+            LOG.logWarn(Log4jLogger.SYSTEM_LOG, ope,
                     LogMessageIdentifier.WARN_ADD_REVOKE_USER_FAILED_DUE_TO_TRIGGER_CONFLICT,
                     subscriptionID);
             throw ope;
@@ -3498,19 +3522,21 @@ public class SubscriptionServiceBean implements SubscriptionService,
             ValidationException, OperationNotPermittedException,
             SubscriptionMigrationException, ConcurrentModificationException,
             TechnicalServiceNotAliveException, MandatoryUdaMissingException,
-            SubscriptionStateException {
+            SubscriptionStateException, MandatoryCustomerUdaMissingException {
 
-        VOSubscription subscription = tp.getParamValueForName(
-                TriggerProcessParameterName.SUBSCRIPTION).getValue(
-                VOSubscription.class);
-        List<VOParameter> modifiedParameters = ParameterizedTypes.list(tp
-                .getParamValueForName(TriggerProcessParameterName.PARAMETERS)
-                .getValue(List.class), VOParameter.class);
-        List<VOUda> udas = ParameterizedTypes.list(
-                tp.getParamValueForName(TriggerProcessParameterName.UDAS)
+        VOSubscription subscription = tp
+                .getParamValueForName(TriggerProcessParameterName.SUBSCRIPTION)
+                .getValue(VOSubscription.class);
+        List<VOParameter> modifiedParameters = ParameterizedTypes.list(
+                tp.getParamValueForName(TriggerProcessParameterName.PARAMETERS)
+                        .getValue(List.class),
+                VOParameter.class);
+        List<VOUda> udas = ParameterizedTypes
+                .list(tp.getParamValueForName(TriggerProcessParameterName.UDAS)
                         .getValue(List.class), VOUda.class);
 
-        Subscription dbSubscription = validateSubscriptionSettings(subscription);
+        Subscription dbSubscription = validateSubscriptionSettings(
+                subscription);
 
         final PlatformUser currentUser = dataManager.getCurrentUser();
         Organization organization = currentUser.getOrganization();
@@ -3522,8 +3548,13 @@ public class SubscriptionServiceBean implements SubscriptionService,
 
         // get initial values of subscription
         String dbSubscriptionId = dbSubscription.getSubscriptionId();
-        boolean subIdChanged = !dbSubscriptionId.equals(subscription
-                .getSubscriptionId());
+        boolean subIdChanged = !dbSubscriptionId
+                .equals(subscription.getSubscriptionId());
+        String dbReferenceId = dbSubscription.getPurchaseOrderNumber();
+        boolean refIdChanged = dbReferenceId == null
+                && subscription.getPurchaseOrderNumber() != null
+                || dbReferenceId != null && !dbReferenceId
+                        .equals(subscription.getPurchaseOrderNumber());
         PlatformUser dbOwner = dbSubscription.getOwner();
         Product dbProduct = dbSubscription.getProduct();
         String dbPurchaseNumber = dbSubscription.getPurchaseOrderNumber();
@@ -3531,26 +3562,45 @@ public class SubscriptionServiceBean implements SubscriptionService,
 
         // set new values for subscription
         dbSubscription.setSubscriptionId(subscription.getSubscriptionId());
-        dbSubscription.setPurchaseOrderNumber(subscription
-                .getPurchaseOrderNumber());
+        dbSubscription
+                .setPurchaseOrderNumber(subscription.getPurchaseOrderNumber());
         if (currentUser.isOrganizationAdmin() || currentUser.isUnitAdmin()) {
             dbSubscription.setUserGroup(unit);
         }
         manageBean.setSubscriptionOwner(dbSubscription,
                 subscription.getOwnerId(), true);
 
-        boolean backupOldValues = handleParameterModifications(
-                modifiedParameters, dbSubscription, currentUser, subIdChanged,
-                dbProduct);
+        try {
+            appManager.saveAttributes(dbSubscription);
+        } catch (TechnicalServiceOperationException e) {
+            // Log and continue
+            LOG.logWarn(Log4jLogger.SYSTEM_LOG, e,
+                    LogMessageIdentifier.WARN_TECH_SERVICE_WS_ERROR,
+                    subscription.getSubscriptionId(), e.getMessage());
+        }
 
         List<Uda> existingUdas = manageBean.getExistingUdas(dbSubscription);
         List<VOUda> updatedUdas = getUpdatedSubscriptionAttributes(udas,
                 existingUdas);
 
+        boolean changedValues = false;
+        try {
+            changedValues = subIdChanged || refIdChanged
+                    || checkIfParametersAreModified(dbSubscription,
+                            dbSubscription, dbProduct, dbProduct,
+                            modifiedParameters, false)
+                    || updatedUdas.size() > 0;
+        } catch (ServiceChangedException e) {
+            throw new ConcurrentModificationException(e.getMessage());
+        }
+
+        boolean asynch = dbProduct.getTechnicalProduct().getProvisioningType()
+                .equals(ProvisioningType.ASYNCHRONOUS);
+
         logSubscriptionAttributeForEdit(dbSubscription, updatedUdas);
         logSubscriptionOwner(dbSubscription, dbOwner);
 
-        if (backupOldValues) {
+        if (changedValues && asynch) {
             long subscriptionKey = dbSubscription.getKey();
             modUpgBean.storeModifiedEntity(subscriptionKey,
                     ModifiedEntityType.SUBSCRIPTION_SUBSCRIPTIONID,
@@ -3568,59 +3618,45 @@ public class SubscriptionServiceBean implements SubscriptionService,
                     ModifiedEntityType.SUBSCRIPTION_UNIT,
                     String.valueOf(subscription.getUnitKey()));
 
-            // set initial values again
-            dbSubscription.setSubscriptionId(dbSubscriptionId);
-            dbSubscription.setPurchaseOrderNumber(dbPurchaseNumber);
-            String dbOwnerId = dbOwner == null ? null : dbOwner.getUserId();
-            manageBean.setSubscriptionOwner(dbSubscription, dbOwnerId, true);
-            dbSubscription.setUserGroup(dbUnit);
-
+            // save subscription attributes before provisioning call, to have
+            // them
+            // available at the API
             saveUdasForAsyncModifyOrUpgradeSubscription(udas, dbSubscription);
         } else {
             saveUdasForSubscription(udas, dbSubscription);
         }
         dataManager.flush();
 
+        if (changedValues) {
+            copyProductAndModifyParametersForUpdate(dbSubscription, dbProduct,
+                    currentUser, modifiedParameters);
+        }
+
+        if (changedValues && asynch) {
+            // set initial values again
+            dbSubscription.setSubscriptionId(dbSubscriptionId);
+            dbSubscription.setPurchaseOrderNumber(dbPurchaseNumber);
+            String dbOwnerId = dbOwner == null ? null : dbOwner.getUserId();
+            manageBean.setSubscriptionOwner(dbSubscription, dbOwnerId, true);
+            dbSubscription.setUserGroup(dbUnit);
+        }
+
         LocalizerFacade facade = new LocalizerFacade(localizer,
                 currentUser.getLocale());
         VOSubscriptionDetails result = SubscriptionAssembler
                 .toVOSubscriptionDetails(dbSubscription, facade);
 
-        triggerQS.sendAllNonSuspendingMessages(TriggerMessage.create(
-                TriggerType.MODIFY_SUBSCRIPTION, tp
-                        .getTriggerProcessParameters(), dataManager
-                        .getCurrentUser().getOrganization()));
+        triggerQS.sendAllNonSuspendingMessages(
+                TriggerMessage.create(TriggerType.MODIFY_SUBSCRIPTION,
+                        tp.getTriggerProcessParameters(), dataManager
+                                .getCurrentUser().getOrganization()));
 
-        triggerQS.sendAllNonSuspendingMessages(TriggerMessage.create(
-                TriggerType.SUBSCRIPTION_MODIFICATION, tp
-                        .getTriggerProcessParameters(), dbSubscription
-                        .getProduct().getVendor()));
+        triggerQS.sendAllNonSuspendingMessages(
+                TriggerMessage.create(TriggerType.SUBSCRIPTION_MODIFICATION,
+                        tp.getTriggerProcessParameters(),
+                        dbSubscription.getProduct().getVendor()));
 
         return result;
-    }
-
-    private boolean handleParameterModifications(
-            List<VOParameter> modifiedParameters, Subscription dbSubscription,
-            final PlatformUser currentUser, boolean subIdChanged,
-            Product dbProduct) throws SubscriptionMigrationException,
-            ConcurrentModificationException, ValidationException,
-            TechnicalServiceNotAliveException {
-        try {
-            if (subIdChanged
-                    || checkIfParametersAreModified(dbSubscription,
-                            dbSubscription, dbProduct, dbProduct,
-                            modifiedParameters, false)) {
-                copyProductAndModifyParametersForUpdate(dbSubscription,
-                        dbProduct, currentUser, modifiedParameters);
-                if (dbProduct.getTechnicalProduct().getProvisioningType()
-                        .equals(ProvisioningType.ASYNCHRONOUS)) {
-                    return true;
-                }
-            }
-        } catch (ServiceChangedException e) {
-            throw new ConcurrentModificationException(e.getMessage());
-        }
-        return false;
     }
 
     /**
@@ -3648,22 +3684,23 @@ public class SubscriptionServiceBean implements SubscriptionService,
             ObjectNotFoundException, OperationNotPermittedException,
             NonUniqueBusinessKeyException, ConcurrentModificationException {
 
-        subscription.setSubscriptionId(BaseAssembler.trim(subscription
-                .getSubscriptionId()));
+        subscription.setSubscriptionId(
+                BaseAssembler.trim(subscription.getSubscriptionId()));
 
         String subscriptionId = subscription.getSubscriptionId();
         BLValidator.isId("subscriptionId", subscriptionId, true);
         BLValidator.isDescription("purchaseOrderNumber",
                 subscription.getPurchaseOrderNumber(), false);
-        Subscription subscriptionToModify = dataManager.getReference(
-                Subscription.class, subscription.getKey());
-        PermissionCheck.owns(subscriptionToModify, dataManager.getCurrentUser()
-                .getOrganization(), LOG);
+        Subscription subscriptionToModify = dataManager
+                .getReference(Subscription.class, subscription.getKey());
+        PermissionCheck.owns(subscriptionToModify,
+                dataManager.getCurrentUser().getOrganization(), LOG);
         BaseAssembler.verifyVersionAndKey(subscriptionToModify, subscription);
 
         String ownerId = subscription.getOwnerId();
         if (ownerId != null && ownerId.length() != 0) {
-            checkRolesForSubscriptionOwner(ownerId);
+            checkRolesForSubscriptionOwner(ownerId,
+                    dataManager.getCurrentUser().getTenantId());
         }
         if (!subscriptionToModify.getSubscriptionId().equals(subscriptionId)) {
             Subscription sub = new Subscription();
@@ -3678,9 +3715,7 @@ public class SubscriptionServiceBean implements SubscriptionService,
                             subscriptionToModify, subscriptionId);
             if (result.longValue() > 0) {
                 NonUniqueBusinessKeyException ex = new NonUniqueBusinessKeyException();
-                LOG.logError(
-                        Log4jLogger.SYSTEM_LOG,
-                        ex,
+                LOG.logError(Log4jLogger.SYSTEM_LOG, ex,
                         LogMessageIdentifier.ERROR_SUBSCRIPTIONID_ALREADY_EXIST_IN_MODIFIEDENTITY,
                         subscriptionId, subscriptionToModify.getOrganization()
                                 .getOrganizationId());
@@ -3690,9 +3725,9 @@ public class SubscriptionServiceBean implements SubscriptionService,
         return subscriptionToModify;
     }
 
-    void checkRolesForSubscriptionOwner(String ownerId)
+    void checkRolesForSubscriptionOwner(String ownerId, String tenantId)
             throws ObjectNotFoundException, OperationNotPermittedException {
-        PlatformUser owner = idManager.getPlatformUser(ownerId, true);
+        PlatformUser owner = idManager.getPlatformUser(ownerId, tenantId, true);
         if (!owner.hasSubscriptionOwnerRole()) {
             String rolesString = UserRoleType.ORGANIZATION_ADMIN + ", "
                     + UserRoleType.SUBSCRIPTION_MANAGER;
@@ -3721,9 +3756,9 @@ public class SubscriptionServiceBean implements SubscriptionService,
     boolean checkIfParametersAreModified(Subscription subscription,
             Subscription dbSubscription, Product dbSourceProduct,
             Product dbTargetProduct, List<VOParameter> voTargetParameters,
-            boolean upgrade) throws SubscriptionMigrationException,
-            ServiceChangedException, ConcurrentModificationException,
-            ValidationException {
+            boolean upgrade)
+            throws SubscriptionMigrationException, ServiceChangedException,
+            ConcurrentModificationException, ValidationException {
 
         boolean result = false;
 
@@ -3734,8 +3769,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
         // performance in a map
         Map<String, Parameter> dbTargetParameterMap = new HashMap<>();
         if (dbTargetProduct.getParameterSet() != null) {
-            for (Parameter dbTargetParameter : dbTargetProduct
-                    .getParameterSet().getParameters()) {
+            for (Parameter dbTargetParameter : dbTargetProduct.getParameterSet()
+                    .getParameters()) {
                 dbTargetParameterMap.put(dbTargetParameter
                         .getParameterDefinition().getParameterId(),
                         dbTargetParameter);
@@ -3761,40 +3796,37 @@ public class SubscriptionServiceBean implements SubscriptionService,
                 Parameter dbSubscriptionParameter = dbSubscriptionParameterMap
                         .get(dbParameterId);
 
-                if (!upgrade
-                        && voTargetParameter.getParameterDefinition()
-                                .getModificationType()
-                                .equals(ParameterModificationType.ONE_TIME)) {
+                if (!upgrade && voTargetParameter.getParameterDefinition()
+                        .getModificationType()
+                        .equals(ParameterModificationType.ONE_TIME)) {
                     if (!compareParameterValue(dbTargetParameter,
                             dbSubscriptionParameter)) {
                         throw new ValidationException(
                                 ValidationException.ReasonEnum.ONE_TIME_PARAMETER_NOT_ALLOWED,
-                                null, new Object[] { dbTargetParameter
+                                null,
+                                new Object[] { dbTargetParameter
                                         .getParameterDefinition()
                                         .getParameterId() });
 
                     }
                 }
 
-                if (upgrade
-                        && !isParameterUpOrDowngradeValid(dbTargetParameter,
-                                voTargetParameter)) {
-                    String sourceProductId = dbSourceProduct
-                            .getTemplateOrSelf().getProductId();
-                    String targetProductId = dbTargetProduct
-                            .getTemplateOrSelf().getProductId();
+                if (upgrade && !isParameterUpOrDowngradeValid(dbTargetParameter,
+                        voTargetParameter)) {
+                    String sourceProductId = dbSourceProduct.getTemplateOrSelf()
+                            .getProductId();
+                    String targetProductId = dbTargetProduct.getTemplateOrSelf()
+                            .getProductId();
 
                     SubscriptionMigrationException e = new SubscriptionMigrationException(
                             "Incompatible parameter found",
-                            Reason.INCOMPATIBLE_PARAMETER, new Object[] {
-                                    subscription.getSubscriptionId(),
-                                    sourceProductId,
-                                    targetProductId,
+                            Reason.INCOMPATIBLE_PARAMETER,
+                            new Object[] { subscription.getSubscriptionId(),
+                                    sourceProductId, targetProductId,
                                     voTargetParameter.getParameterDefinition()
                                             .getParameterId() });
 
-                    LOG.logWarn(
-                            Log4jLogger.SYSTEM_LOG | Log4jLogger.AUDIT_LOG,
+                    LOG.logWarn(Log4jLogger.SYSTEM_LOG | Log4jLogger.AUDIT_LOG,
                             e,
                             LogMessageIdentifier.WARN_NOT_CONFIGURABLE_PARAMETER_OF_SUBSCRIPTION_MODIFIED,
                             dataManager.getCurrentUser().getUserId(),
@@ -3806,15 +3838,16 @@ public class SubscriptionServiceBean implements SubscriptionService,
                 if (dbTargetParameter.isValueSet()) {
                     // if currently no value is set, even null or empty as new
                     // value mean a change
-                    if (!dbTargetParameter.getValue().equals(
-                            voTargetParameter.getValue())) {
+                    if (!dbTargetParameter.getValue()
+                            .equals(voTargetParameter.getValue())) {
                         result = true;
                     }
                 } else {
                     // if no value is currently set, the new value only needs to
                     // be set if not null and not empty
                     if (voTargetParameter.getValue() != null
-                            && voTargetParameter.getValue().trim().length() > 0) {
+                            && voTargetParameter.getValue().trim()
+                                    .length() > 0) {
                         result = true;
                     }
                 }
@@ -3857,18 +3890,18 @@ public class SubscriptionServiceBean implements SubscriptionService,
 
         Map<String, Parameter> dbParameterMap = new HashMap<>();
         for (Parameter parameter : dbTargetParameterList) {
-            dbParameterMap.put(parameter.getParameterDefinition()
-                    .getParameterId(), parameter);
+            dbParameterMap.put(
+                    parameter.getParameterDefinition().getParameterId(),
+                    parameter);
         }
 
         for (VOParameter voParameter : voTargetParameters) {
-            Parameter dbParameter = dbParameterMap.get(voParameter
-                    .getParameterDefinition().getParameterId());
+            Parameter dbParameter = dbParameterMap
+                    .get(voParameter.getParameterDefinition().getParameterId());
 
             if (dbParameter == null) {
-                String message = String.format(
-                        "Parameter '%s' does not exist.", voParameter
-                                .getParameterDefinition().getParameterId());
+                String message = String.format("Parameter '%s' does not exist.",
+                        voParameter.getParameterDefinition().getParameterId());
 
                 throw new ServiceChangedException(message);
             }
@@ -3893,16 +3926,14 @@ public class SubscriptionServiceBean implements SubscriptionService,
     boolean isParameterUpOrDowngradeValid(Parameter dbParameter,
             VOParameter targetParameter) {
 
-        if (!dbParameter
-                .getParameterDefinition()
-                .getParameterId()
-                .equals(targetParameter.getParameterDefinition()
-                        .getParameterId())) {
+        if (!dbParameter.getParameterDefinition().getParameterId().equals(
+                targetParameter.getParameterDefinition().getParameterId())) {
             return false;
         }
 
-        if (dbParameter.getParameterDefinition().getModificationType() != targetParameter
-                .getParameterDefinition().getModificationType()) {
+        if (dbParameter.getParameterDefinition()
+                .getModificationType() != targetParameter
+                        .getParameterDefinition().getModificationType()) {
             return false;
         }
 
@@ -4041,8 +4072,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
         List<Organization> customers = getOrganizationDao()
                 .getCustomersForSubscriptionId(offerer, subscriptionId, states);
 
-        LocalizerFacade lf = new LocalizerFacade(localizer, dataManager
-                .getCurrentUser().getLocale());
+        LocalizerFacade lf = new LocalizerFacade(localizer,
+                dataManager.getCurrentUser().getLocale());
         for (Organization customer : customers) {
             result.add(OrganizationAssembler.toVOOrganization(customer, false,
                     lf, PerformanceHint.ONLY_IDENTIFYING_FIELDS));
@@ -4085,7 +4116,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
             return;
         }
         for (Parameter parameter : parameterSet.getParameters()) {
-            if (parameter.getParameterDefinition().getParameterType() == ParameterType.PLATFORM_PARAMETER
+            if (parameter.getParameterDefinition()
+                    .getParameterType() == ParameterType.PLATFORM_PARAMETER
                     && PlatformParameterIdentifiers.NAMED_USER.equals(parameter
                             .getParameterDefinition().getParameterId())) {
                 // if it is not defined to be mandatory, it can be empty
@@ -4109,21 +4141,17 @@ public class SubscriptionServiceBean implements SubscriptionService,
                                 PlatformParameterIdentifiers.NAMED_USER,
                                 new Object[] { parameter.getValue(),
                                         subscription.getSubscriptionId() });
-                        LOG.logWarn(
-                                Log4jLogger.SYSTEM_LOG,
-                                e,
+                        LOG.logWarn(Log4jLogger.SYSTEM_LOG, e,
                                 LogMessageIdentifier.WARN_TOO_MANY_NAMED_USER_FOR_SUBSCRIPTION,
-                                subscription.getSubscriptionId(), subscription
-                                        .getProduct().getProductId());
+                                subscription.getSubscriptionId(),
+                                subscription.getProduct().getProductId());
                         throw e;
                     }
                 } catch (NumberFormatException e) {
-                    LOG.logWarn(
-                            Log4jLogger.SYSTEM_LOG,
-                            e,
+                    LOG.logWarn(Log4jLogger.SYSTEM_LOG, e,
                             LogMessageIdentifier.WARN_PROCESS_NAMED_USER_FAILED_AS_NUMBER_FORMAT,
-                            parameter.getValue(), subscription.getProduct()
-                                    .getProductId());
+                            parameter.getValue(),
+                            subscription.getProduct().getProductId());
                 }
             }
         }
@@ -4163,8 +4191,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
         for (UsageLicense license : licenses) {
             for (User createdUser : createdUsers) {
                 applicationUserId = createdUser.getApplicationUserId();
-                if (createdUser.getUserId().equals(
-                        license.getUser().getUserId())
+                if (createdUser.getUserId()
+                        .equals(license.getUser().getUserId())
                         && applicationUserId != null) {
                     license.setApplicationUserId(applicationUserId);
                     break;
@@ -4219,9 +4247,10 @@ public class SubscriptionServiceBean implements SubscriptionService,
         abortSubscription(subscriptionId, subscription);
         removeLocalizedResources(reason, subscription);
         deleteProduct(subscription);
-        List<PlatformUser> receivers = loadReceiversForAbortAsyncSubscription(subscription);
-        sendSubscriptionAbortEmail(subscriptionId, organizationId,
-                subscription, receivers);
+        List<PlatformUser> receivers = loadReceiversForAbortAsyncSubscription(
+                subscription);
+        sendSubscriptionAbortEmail(subscriptionId, organizationId, subscription,
+                receivers);
     }
 
     private void deleteProduct(Subscription subscription) {
@@ -4241,11 +4270,9 @@ public class SubscriptionServiceBean implements SubscriptionService,
         long key = subscription.getKey();
         localizer.removeLocalizedValues(key,
                 LocalizedObjectTypes.SUBSCRIPTION_PROVISIONING_PROGRESS);
-        localizer
-                .storeLocalizedResources(
-                        key,
-                        LocalizedObjectTypes.SUBSCRIPTION_PROVISIONING_PROGRESS,
-                        reason);
+        localizer.storeLocalizedResources(key,
+                LocalizedObjectTypes.SUBSCRIPTION_PROVISIONING_PROGRESS,
+                reason);
     }
 
     void sendSubscriptionAbortEmail(String subscriptionId,
@@ -4260,14 +4287,12 @@ public class SubscriptionServiceBean implements SubscriptionService,
 
             try {
                 commService.sendMail(platformUser,
-                        EmailType.SUBSCRIPTION_INVALIDATED, new Object[] {
-                                subscriptionId, organizationId, text },
+                        EmailType.SUBSCRIPTION_INVALIDATED,
+                        new Object[] { subscriptionId, organizationId, text },
                         subscription.getMarketplace());
             } catch (MailOperationException e) {
                 // only log the exception and proceed
-                LOG.logWarn(
-                        Log4jLogger.SYSTEM_LOG,
-                        e,
+                LOG.logWarn(Log4jLogger.SYSTEM_LOG, e,
                         LogMessageIdentifier.WARN_INVALIDATION_SUBSCRIPTION_CONFIRMING_FAILED);
             }
         }
@@ -4283,8 +4308,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
     List<PlatformUser> loadReceiversForAbortAsyncSubscription(
             Subscription subscription) {
 
-        return manageBean
-                .getCustomerAndTechnicalProductAdminForSubscription(subscription);
+        return manageBean.getCustomerAndTechnicalProductAdminForSubscription(
+                subscription);
     }
 
     @Override
@@ -4311,9 +4336,7 @@ public class SubscriptionServiceBean implements SubscriptionService,
                 productInstanceId, techProduct)) {
             ValidationException ex = new ValidationException(
                     "The product instance ID already exist");
-            LOG.logError(
-                    Log4jLogger.SYSTEM_LOG,
-                    ex,
+            LOG.logError(Log4jLogger.SYSTEM_LOG, ex,
                     LogMessageIdentifier.ERROR_PRODUCT_INSTANCE_ID_ALREADY_EXIST);
             throw ex;
         }
@@ -4328,8 +4351,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
                     SubscriptionStateException.Reason.ONLY_PENDING);
         }
 
-        subscription.setActivationDate(Long.valueOf(DateFactory.getInstance()
-                .getTransactionTime()));
+        subscription.setActivationDate(
+                Long.valueOf(DateFactory.getInstance().getTransactionTime()));
 
         boolean deactivateInstance = !modUpgBean
                 .isPaymentValidOrFree(subscription);
@@ -4415,8 +4438,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
      * @return <code>true</code> if at leas one mail was sent otherwise
      *         <code>false</code>
      */
-    private boolean notifyTechnicalAdminsAboutTimeout(
-            Subscription subscription, List<PlatformUser> users) {
+    private boolean notifyTechnicalAdminsAboutTimeout(Subscription subscription,
+            List<PlatformUser> users) {
         boolean result = false;
         String organizationId = subscription.getOrganization()
                 .getOrganizationId();
@@ -4433,9 +4456,7 @@ public class SubscriptionServiceBean implements SubscriptionService,
                 result = true;
             } catch (MailOperationException e) {
                 // only log the exception and proceed
-                LOG.logWarn(
-                        Log4jLogger.SYSTEM_LOG,
-                        e,
+                LOG.logWarn(Log4jLogger.SYSTEM_LOG, e,
                         LogMessageIdentifier.WARN_TIMEOUT_OF_SUBSCRIPTION_NOTIFYING_FAILED);
             }
         }
@@ -4453,8 +4474,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
      *         <code>false</code>
      */
     private boolean canModifyApplicationUsers(Subscription subscription) {
-        return !(subscription.getStatus() == SubscriptionStatus.PENDING || subscription
-                .getStatus() == SubscriptionStatus.INVALID);
+        return !(subscription.getStatus() == SubscriptionStatus.PENDING
+                || subscription.getStatus() == SubscriptionStatus.INVALID);
     }
 
     /**
@@ -4474,15 +4495,15 @@ public class SubscriptionServiceBean implements SubscriptionService,
             throws OrganizationAuthoritiesException {
         Set<SubscriptionStatus> states = EnumSet.of(SubscriptionStatus.ACTIVE,
                 SubscriptionStatus.PENDING);
-        LocalizerFacade lf = new LocalizerFacade(localizer, dataManager
-                .getCurrentUser().getLocale());
+        LocalizerFacade lf = new LocalizerFacade(localizer,
+                dataManager.getCurrentUser().getLocale());
 
-        List<Subscription> queryResultList = getQueryResultListSubIdsAndOrgs(states);
+        List<Subscription> queryResultList = getQueryResultListSubIdsAndOrgs(
+                states);
         Map<String, VOSubscriptionIdAndOrganizations> mapSubIdsAndOrgs = getSubIdsAndOrgs(
                 lf, queryResultList);
 
-        return new ArrayList<VOSubscriptionIdAndOrganizations>(
-                mapSubIdsAndOrgs.values());
+        return new ArrayList<>(mapSubIdsAndOrgs.values());
     }
 
     /**
@@ -4502,15 +4523,15 @@ public class SubscriptionServiceBean implements SubscriptionService,
             throws OrganizationAuthoritiesException {
         Set<SubscriptionStatus> states = EnumSet.of(SubscriptionStatus.ACTIVE,
                 SubscriptionStatus.PENDING, SubscriptionStatus.EXPIRED);
-        LocalizerFacade lf = new LocalizerFacade(localizer, dataManager
-                .getCurrentUser().getLocale());
+        LocalizerFacade lf = new LocalizerFacade(localizer,
+                dataManager.getCurrentUser().getLocale());
 
-        List<Subscription> queryResultList = getQueryResultListSubIdsAndOrgs(states);
+        List<Subscription> queryResultList = getQueryResultListSubIdsAndOrgs(
+                states);
         Map<String, VOSubscriptionIdAndOrganizations> mapSubIdsAndOrgs = getSubIdsAndOrgs(
                 lf, queryResultList);
 
-        return new ArrayList<VOSubscriptionIdAndOrganizations>(
-                mapSubIdsAndOrgs.values());
+        return new ArrayList<>(mapSubIdsAndOrgs.values());
     }
 
     private Map<String, VOSubscriptionIdAndOrganizations> getSubIdsAndOrgs(
@@ -4526,9 +4547,9 @@ public class SubscriptionServiceBean implements SubscriptionService,
                         .get(subId);
                 List<VOOrganization> customersForSubId = subAndOrgs
                         .getOrganizations();
-                customersForSubId.add(OrganizationAssembler.toVOOrganization(
-                        customer, false, lf,
-                        PerformanceHint.ONLY_IDENTIFYING_FIELDS));
+                customersForSubId.add(
+                        OrganizationAssembler.toVOOrganization(customer, false,
+                                lf, PerformanceHint.ONLY_IDENTIFYING_FIELDS));
                 subAndOrgs.setOrganizations(customersForSubId);
                 mapSubIdsAndOrgs.put(subId, subAndOrgs);
 
@@ -4589,8 +4610,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
     @RolesAllowed({ "ORGANIZATION_ADMIN", "SUBSCRIPTION_MANAGER",
             "UNIT_ADMINISTRATOR" })
     public List<VORoleDefinition> getServiceRolesForSubscription(
-            String subscriptionId) throws ObjectNotFoundException,
-            OperationNotPermittedException {
+            String subscriptionId)
+            throws ObjectNotFoundException, OperationNotPermittedException {
 
         ArgumentValidator.notNull("subscriptionId", subscriptionId);
 
@@ -4601,8 +4622,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
 
     @Override
     public List<VORoleDefinition> getServiceRolesForSubscription(
-            long subscriptionKey) throws ObjectNotFoundException,
-            OperationNotPermittedException {
+            long subscriptionKey)
+            throws ObjectNotFoundException, OperationNotPermittedException {
 
         Subscription sub = manageBean.checkSubscriptionOwner(null,
                 subscriptionKey);
@@ -4612,8 +4633,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
 
     private List<VORoleDefinition> getServiceRolesForSubscription(
             Subscription subscription) {
-        LocalizerFacade facade = new LocalizerFacade(localizer, dataManager
-                .getCurrentUser().getLocale());
+        LocalizerFacade facade = new LocalizerFacade(localizer,
+                dataManager.getCurrentUser().getLocale());
         List<RoleDefinition> roleDefinitions = subscription.getProduct()
                 .getTechnicalProduct().getRoleDefinitions();
 
@@ -4627,10 +4648,10 @@ public class SubscriptionServiceBean implements SubscriptionService,
 
         ArgumentValidator.notNull("service", service);
 
-        Product prod = dataManager
-                .getReference(Product.class, service.getKey());
-        LocalizerFacade facade = new LocalizerFacade(localizer, dataManager
-                .getCurrentUser().getLocale());
+        Product prod = dataManager.getReference(Product.class,
+                service.getKey());
+        LocalizerFacade facade = new LocalizerFacade(localizer,
+                dataManager.getCurrentUser().getLocale());
         List<RoleDefinition> roleDefinitions = prod.getTechnicalProduct()
                 .getRoleDefinitions();
 
@@ -4649,8 +4670,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
         ArgumentValidator.notNull("subscription", subscription);
         ArgumentValidator.notNull("operation", operation);
 
-        Subscription sub = manageBean.loadSubscription(
-                subscription.getSubscriptionId(), 0);
+        Subscription sub = manageBean
+                .loadSubscription(subscription.getSubscriptionId(), 0);
 
         stateValidator.checkExecuteServiceOperationAllowed(sub);
 
@@ -4675,7 +4696,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
         OperationResult result = manageBean.executeServiceOperation(sub, op,
                 params, transactionid);
 
-        createOperationRecord(sub, op, transactionid, result.isAsyncExecution());
+        createOperationRecord(sub, op, transactionid,
+                result.isAsyncExecution());
     }
 
     private void createOperationRecord(Subscription subscription,
@@ -4718,8 +4740,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
             throw new ConcurrentModificationException();
         }
         for (VOServiceOperationParameter parameter : list) {
-            OperationParameter param = opParamsMap.get(Long.valueOf(parameter
-                    .getKey()));
+            OperationParameter param = opParamsMap
+                    .get(Long.valueOf(parameter.getKey()));
             if (param == null) {
                 ConcurrentModificationException cme = new ConcurrentModificationException(
                         parameter);
@@ -4739,16 +4761,16 @@ public class SubscriptionServiceBean implements SubscriptionService,
     public void terminateSubscription(VOSubscription subscrVO, String reason)
             throws ObjectNotFoundException, OrganizationAuthoritiesException,
             TechnicalServiceNotAliveException,
-            TechnicalServiceOperationException,
-            ConcurrentModificationException, SubscriptionStateException {
+            TechnicalServiceOperationException, ConcurrentModificationException,
+            SubscriptionStateException {
 
         ArgumentValidator.notNull("subscription", subscrVO);
         Subscription subscription = loadSubscription(subscrVO.getKey());
         BaseAssembler.verifyVersionAndKey(subscription, subscrVO);
 
         // Remove corresponding operation record of the subscription
-        operationRecordBean.removeOperationsForSubscription(subscription
-                .getKey());
+        operationRecordBean
+                .removeOperationsForSubscription(subscription.getKey());
 
         terminateBean.terminateSubscription(subscription, reason);
     }
@@ -4761,7 +4783,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
         try {
             userKeyLong = Long.valueOf(userKey);
         } catch (NumberFormatException e) {
-            SaaSSystemException saaSSystemException = new SaaSSystemException(e);
+            SaaSSystemException saaSSystemException = new SaaSSystemException(
+                    e);
             LOG.logError(Log4jLogger.SYSTEM_LOG, saaSSystemException,
                     LogMessageIdentifier.ERROR_WRONG_USER_KEY_IN_SESSION,
                     userKey);
@@ -4801,8 +4824,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
                     SubscriptionStateException.Reason.SUBSCRIPTION_INVALID_STATE,
                     null, params);
             LOG.logWarn(Log4jLogger.SYSTEM_LOG, sse,
-                    LogMessageIdentifier.WARN_SUBSCRIPTION_STATE_INVALID, sub
-                            .getStatus().name());
+                    LogMessageIdentifier.WARN_SUBSCRIPTION_STATE_INVALID,
+                    sub.getStatus().name());
             throw sse;
         }
 
@@ -4933,9 +4956,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
         ArgumentValidator.notNull("organizationId", organizationId);
         ArgumentValidator.notNull("instance", instance);
 
-        Subscription subscription = modUpgBean
-                .findSubscriptionForAsyncCallBack(subscriptionId,
-                        organizationId);
+        Subscription subscription = modUpgBean.findSubscriptionForAsyncCallBack(
+                subscriptionId, organizationId);
 
         stateValidator.checkCompleteModifyAllowed(subscription);
 
@@ -4949,8 +4971,9 @@ public class SubscriptionServiceBean implements SubscriptionService,
         if (subscription.getParameterSet() != null) {
             for (Parameter parameter : subscription.getParameterSet()
                     .getParameters()) {
-                paramMap.put(parameter.getParameterDefinition()
-                        .getParameterId(), parameter);
+                paramMap.put(
+                        parameter.getParameterDefinition().getParameterId(),
+                        parameter);
             }
         }
 
@@ -4982,9 +5005,7 @@ public class SubscriptionServiceBean implements SubscriptionService,
                         subscription.getMarketplace());
             } catch (MailOperationException e) {
                 // only log the exception and proceed
-                LOG.logWarn(
-                        Log4jLogger.SYSTEM_LOG,
-                        e,
+                LOG.logWarn(Log4jLogger.SYSTEM_LOG, e,
                         LogMessageIdentifier.WARN_MODIFY_PARAMETER_OF_SUBSCRIPTION_CONFIRMING_FAILED);
             }
         }
@@ -4999,9 +5020,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
         ArgumentValidator.notNull("subscriptionId", subscriptionId);
         ArgumentValidator.notNull("organizationId", organizationId);
 
-        Subscription subscription = modUpgBean
-                .findSubscriptionForAsyncCallBack(subscriptionId,
-                        organizationId);
+        Subscription subscription = modUpgBean.findSubscriptionForAsyncCallBack(
+                subscriptionId, organizationId);
 
         stateValidator.checkAbortAllowedForModifying(subscription);
 
@@ -5035,10 +5055,12 @@ public class SubscriptionServiceBean implements SubscriptionService,
         modUpgBean.updateSubscriptionAttributesForAsyncUpgrade(subscription);
         modUpgBean.setStatusForUpgradeComplete(subscription);
 
-        String oldServiceId = initialProduct.getTemplate() != null ? initialProduct
-                .getTemplate().getProductId() : initialProduct.getProductId();
-        String newServiceId = asyncTempProduct.getTemplate() != null ? asyncTempProduct
-                .getTemplate().getProductId() : asyncTempProduct.getProductId();
+        String oldServiceId = initialProduct.getTemplate() != null
+                ? initialProduct.getTemplate().getProductId()
+                : initialProduct.getProductId();
+        String newServiceId = asyncTempProduct.getTemplate() != null
+                ? asyncTempProduct.getTemplate().getProductId()
+                : asyncTempProduct.getProductId();
         dataManager.remove(initialProduct);
 
         dataManager.flush();
@@ -5101,7 +5123,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
         dataManager.flush();
 
         List<PlatformUser> receivers = manageBean
-                .getCustomerAndTechnicalProductAdminForSubscription(subscription);
+                .getCustomerAndTechnicalProductAdminForSubscription(
+                        subscription);
         for (PlatformUser platformUser : receivers) {
             LocalizerFacade facade = new LocalizerFacade(localizer,
                     platformUser.getLocale());
@@ -5114,9 +5137,7 @@ public class SubscriptionServiceBean implements SubscriptionService,
                                 organizationId, text },
                         subscription.getMarketplace());
             } catch (MailOperationException e) {
-                LOG.logWarn(
-                        Log4jLogger.SYSTEM_LOG,
-                        e,
+                LOG.logWarn(Log4jLogger.SYSTEM_LOG, e,
                         LogMessageIdentifier.WARN_MODIFY_PARAMETER_OF_SUBSCRIPTION_ABORT_CONFIRMING_FAILED);
             }
         }
@@ -5131,8 +5152,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
         ArgumentValidator.notNull("subscription", subscription);
         ArgumentValidator.notNull("operation", operation);
 
-        Subscription sub = manageBean.loadSubscription(
-                subscription.getSubscriptionId(), 0);
+        Subscription sub = manageBean
+                .loadSubscription(subscription.getSubscriptionId(), 0);
         TechnicalProductOperation op = dataManager.getReference(
                 TechnicalProductOperation.class, operation.getKey());
 
@@ -5142,8 +5163,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
         Map<String, List<String>> operationParameterValues = manageBean
                 .getOperationParameterValues(sub, op);
         List<VOServiceOperationParameterValues> result = new LinkedList<>();
-        LocalizerFacade facade = new LocalizerFacade(localizer, dataManager
-                .getCurrentUser().getLocale());
+        LocalizerFacade facade = new LocalizerFacade(localizer,
+                dataManager.getCurrentUser().getLocale());
         for (Entry<String, List<String>> e : operationParameterValues
                 .entrySet()) {
             OperationParameter param = op.findParameter(e.getKey());
@@ -5201,8 +5222,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
 
     boolean checkIPAddressChanged(String lastAccessInfo,
             String currentAccessInfo) {
-        return (lastAccessInfo != null && !lastAccessInfo.isEmpty() && !lastAccessInfo
-                .equals(currentAccessInfo));
+        return (lastAccessInfo != null && !lastAccessInfo.isEmpty()
+                && !lastAccessInfo.equals(currentAccessInfo));
     }
 
     private void sendMailForIPAddressChanged(Subscription subscription,
@@ -5212,16 +5233,18 @@ public class SubscriptionServiceBean implements SubscriptionService,
         EmailType emailType = EmailType.SUBSCRIPTION_ACCESSINFO_CHANGED;
         Long marketplaceKey = null;
         if (subscription.getMarketplace() != null) {
-            marketplaceKey = Long.valueOf(subscription.getMarketplace()
-                    .getKey());
+            marketplaceKey = Long
+                    .valueOf(subscription.getMarketplace().getKey());
         }
         SendMailPayload payload = new SendMailPayload();
         for (UsageLicense usageLicense : userLicenses) {
             payload.addMailObjectForUser(usageLicense.getUser().getKey(),
-                    emailType, new Object[] { subscription.getSubscriptionId(),
+                    emailType,
+                    new Object[] { subscription.getSubscriptionId(),
                             getPublicDNS(currentAccessInfo),
                             getIPAddress(currentAccessInfo),
-                            getKeyPairName(currentAccessInfo) }, marketplaceKey);
+                            getKeyPairName(currentAccessInfo) },
+                    marketplaceKey);
         }
         TaskMessage message = new TaskMessage(SendMailHandler.class, payload);
         tqs.sendAllMessages(Collections.singletonList(message));
@@ -5229,8 +5252,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
 
     boolean isAWSAccessInfo(String accessInfo) {
         try {
-            String subAccessInfo = accessInfo.substring(
-                    accessInfo.indexOf(":"), accessInfo.indexOf(KEY_PAIR_NAME));
+            String subAccessInfo = accessInfo.substring(accessInfo.indexOf(":"),
+                    accessInfo.indexOf(KEY_PAIR_NAME));
             return subAccessInfo.contains(AMAZONAWS_COM);
         } catch (StringIndexOutOfBoundsException e) {
             return false;
@@ -5293,9 +5316,9 @@ public class SubscriptionServiceBean implements SubscriptionService,
      */
     void saveUdasForAsyncModifyOrUpgradeSubscription(List<VOUda> udas,
             Subscription dbSubscription) throws MandatoryUdaMissingException,
-            ValidationException, NonUniqueBusinessKeyException,
-            ObjectNotFoundException, OperationNotPermittedException,
-            ConcurrentModificationException {
+            MandatoryCustomerUdaMissingException, ValidationException,
+            NonUniqueBusinessKeyException, ObjectNotFoundException,
+            OperationNotPermittedException, ConcurrentModificationException {
         Organization supplier = dbSubscription.getProduct()
                 .getSupplierOrResellerTemplate().getVendor();
         manageBean.getUdaAccess().validateUdaAndAdaptTargetKey(udas, supplier,
@@ -5306,7 +5329,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
             if (voUda.getKey() > 0) {
                 modUpgBean.storeModifiedUda(voUda.getKey(),
                         ModifiedEntityType.UDA_VALUE, voUda.getUdaValue(),
-                        dbSubscription.getKey());
+                        dbSubscription.getKey(),
+                        voUda.getUdaDefinition().isEncrypted());
             } else {
                 newUdas.add(voUda);
             }
@@ -5316,8 +5340,12 @@ public class SubscriptionServiceBean implements SubscriptionService,
             VOUda defaultValueUda = new VOUda();
             defaultValueUda.setTargetObjectKey(voUda.getTargetObjectKey());
             defaultValueUda.setUdaDefinition(voUda.getUdaDefinition());
-            defaultValueUda.setUdaValue(voUda.getUdaDefinition()
-                    .getDefaultValue());
+            if (voUda.getUdaDefinition().getDefaultValue() == null) {
+                defaultValueUda.setUdaValue("");
+            } else {
+                defaultValueUda.setUdaValue(
+                        voUda.getUdaDefinition().getDefaultValue());
+            }
             defaultValueUdas.add(defaultValueUda);
         }
         manageBean.getUdaAccess().saveUdas(defaultValueUdas,
@@ -5330,7 +5358,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
             uda = (Uda) dataManager.getReferenceByBusinessKey(uda);
             modUpgBean.storeModifiedUda(uda.getKey(),
                     ModifiedEntityType.UDA_VALUE, voUda.getUdaValue(),
-                    dbSubscription.getKey());
+                    dbSubscription.getKey(),
+                    uda.getUdaDefinition().isEncrypted());
         }
     }
 
@@ -5366,7 +5395,7 @@ public class SubscriptionServiceBean implements SubscriptionService,
     public SessionDao getSessionDao() {
         return new SessionDao(dataManager);
     }
-    
+
     public BillingContactDao getBillingContactDao() {
         return new BillingContactDao(dataManager);
     }
@@ -5400,17 +5429,14 @@ public class SubscriptionServiceBean implements SubscriptionService,
 
         for (PlatformUser platformUser : receivers) {
             try {
-                commService.sendMail(
-                        platformUser,
+                commService.sendMail(platformUser,
                         EmailType.SUBSCRIPTION_INSTANCE_NOT_FOUND,
                         new Object[] { subscriptionId,
                                 instanceInfo.getInstanceId() },
                         subscription.getMarketplace());
             } catch (MailOperationException e) {
                 // only log the exception and proceed
-                LOG.logWarn(
-                        Log4jLogger.SYSTEM_LOG,
-                        e,
+                LOG.logWarn(Log4jLogger.SYSTEM_LOG, e,
                         LogMessageIdentifier.WARN_MODIFY_PARAMETER_OF_SUBSCRIPTION_CONFIRMING_FAILED);
             }
         }
@@ -5419,34 +5445,43 @@ public class SubscriptionServiceBean implements SubscriptionService,
 
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     private List<Subscription> getSubscriptionsForUserInt(PlatformUser user,
-                                                          PaginationFullTextFilter pagination) {
+            PaginationFullTextFilter pagination) {
         String fullTextFilterValue = pagination.getFullTextFilterValue();
         List<Subscription> subscriptions = Collections.emptyList();
         if (StringUtils.isNotEmpty(fullTextFilterValue)) {
             Collection<Long> subscriptionKeys = Collections.emptySet();
             try {
-                subscriptionKeys = getFilteredOutSubscriptionKeys(fullTextFilterValue);
+                subscriptionKeys = getFilteredOutSubscriptionKeys(
+                        fullTextFilterValue);
             } catch (InvalidPhraseException e) {
-                LOG.logError(Log4jLogger.SYSTEM_LOG, e, LogMessageIdentifier.ERROR);
+                LOG.logError(Log4jLogger.SYSTEM_LOG, e,
+                        LogMessageIdentifier.ERROR);
             } catch (ObjectNotFoundException e) {
                 LOG.logDebug("No subscription keys found");
             }
-            if(!subscriptionKeys.isEmpty()) {
-                subscriptions = getSubscriptionDao().getSubscriptionsForUserWithSubscriptionKeys(user, pagination, subscriptionKeys);
+            if (!subscriptionKeys.isEmpty()) {
+                subscriptions = getSubscriptionDao()
+                        .getSubscriptionsForUserWithSubscriptionKeys(user,
+                                pagination, subscriptionKeys);
             }
         } else {
-            subscriptions = getSubscriptionDao().getSubscriptionsForUser(user, pagination);
+            subscriptions = getSubscriptionDao().getSubscriptionsForUser(user,
+                    pagination);
         }
         return subscriptions;
     }
 
     /**
-     * Implementation of method which should return set of Long object, which represents subscriptions retunred
-     * in full text search process
-     * @param filterValue Text enetered by user to filter subscriptions by
-     * @return Set of primary keys of subscriptions which are valid against the filter value or empty (not null!) set.
+     * Implementation of method which should return set of Long object, which
+     * represents subscriptions retunred in full text search process
+     * 
+     * @param filterValue
+     *            Text enetered by user to filter subscriptions by
+     * @return Set of primary keys of subscriptions which are valid against the
+     *         filter value or empty (not null!) set.
      */
-    private Collection<Long> getFilteredOutSubscriptionKeys(String filterValue) throws InvalidPhraseException, ObjectNotFoundException {
+    private Collection<Long> getFilteredOutSubscriptionKeys(String filterValue)
+            throws InvalidPhraseException, ObjectNotFoundException {
         return subscriptionSearchService.searchSubscriptions(filterValue);
     }
 

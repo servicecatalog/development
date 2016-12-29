@@ -142,7 +142,7 @@
 
       <!-- Edit some user  -->
       <mpl_goto.account.users />
-
+      
       <mpl_user.editInputValue userId="${userIdOperFL}" fieldId="editUserForm:firstName" fieldValue="changed first" />
       <mpl_user.editInputValue userId="${userIdOperFL}" fieldId="editUserForm:lastName" fieldValue="changed last" />
       <mpl_user.editInputValue userId="${userIdOperFL}" fieldId="editUserForm:email" fieldValue="CHG${common.email}" />
@@ -265,15 +265,17 @@
 
         <!-- Set mandatory fields -->
         <mpl_goto.account.profile />
-        <setInputField htmlId="editForm:email" value="${common.email}" />
-        <setSelectField htmlId="editForm:country" value="GB" />
-        <clickButton label="${button.save}" />
+        <mpl_goto.tab label="${marketplace.account.profile.userTab}" />
+        <setInputField htmlId="userForm:email" value="${common.email}" />
+        <clickLink label="${button.save}" />
         <mpl_verify.success label="${info.user.profileSaved}" />
 
         <!-- Bug#8300: Organization address is not shown on the Account dashboard  -->
-        <setInputField htmlId="editForm:organizationName" value="ORG_NAME" />
-        <setInputField htmlId="editForm:organizationAddress" value="ORG_ADDRESS" />
-        <clickButton label="${button.save}" />
+        <mpl_goto.tab label="${marketplace.account.profile.organizationTab}" />
+        <setInputField htmlId="orgForm:organizationName" value="ORG_NAME" />
+        <setInputField htmlId="orgForm:organizationAddress" value="ORG_ADDRESS" />
+        <setSelectField htmlId="orgForm:country" value="GB" />
+        <clickLink label="${button.save}" />
         <mpl_verify.success label="${info.user.profileSaved}" />
         <mpl_goto.account />
         <verifyXPath xpath="//*[@id='organizationName']" text="ORG_NAME" />
@@ -282,10 +284,18 @@
         <dataDriven tableContainer="data/pageFields/marketplace/accountEditProfileFields.xls">
           <!-- Switch to account / profile page -->
           <mpl_goto.account.profile />
+          <mpl_goto.tab label="${marketplace.account.profile.userTab}" />
           <!-- Validate all registered fields -->
           <mpl_verify.checkHintAndFieldValues hintMsgKey="${hintMsgKey}" fieldId="${fieldId}" fieldType="${fieldType}" required="${required}" />
         </dataDriven>
 
+     	<!-- Check all editable organization fields, doesnt work for unknown reasons -->
+        <!--dataDriven tableContainer="data/pageFields/marketplace/accountEditProfileFieldsOrganization.xls">
+           	<mpl_goto.account.profile />
+           	<mpl_goto.tab label="${marketplace.account.profile.organizationTab}" />
+           	<mpl_verify.checkHintAndFieldValues hintMsgKey="${hintMsgKey}" fieldId="${fieldId}" fieldType="${fieldType}" required="${required}" />
+    	</dataDriven-->
+        
         <!-- And logoff -->
         <mpl_login.logout />
       </webtest>

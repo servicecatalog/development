@@ -26,11 +26,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-
 import org.oscm.applicationservice.provisioning.adapter.ProvisioningServiceAdapterV1_0;
 import org.oscm.provisioning.data.BaseResult;
 import org.oscm.provisioning.data.InstanceRequest;
 import org.oscm.provisioning.data.InstanceResult;
+import org.oscm.provisioning.data.ServiceAttribute;
 import org.oscm.provisioning.data.ServiceParameter;
 import org.oscm.provisioning.data.User;
 import org.oscm.provisioning.data.UserResult;
@@ -47,6 +47,7 @@ public class ProvisioningServiceAdapterV1_0Test {
     private static final String ASYNC = "async";
     private static final String PING = "ping";
     private static final String SUBSCRIPTIONID = "subscriptionId";
+    private static final String REFERENCEID = "referenceId";
     private static final String INSTANCEID = "instance";
     private static final String ORGANIZATIONID = "organization";
     private final String resourceUrl = "/wsdl/provisioning/ProvisioningService.wsdl";
@@ -58,6 +59,9 @@ public class ProvisioningServiceAdapterV1_0Test {
 
     @Mock
     List<ServiceParameter> params;
+
+    @Mock
+    List<ServiceAttribute> attr;
 
     @Before
     public void setup() {
@@ -87,9 +91,8 @@ public class ProvisioningServiceAdapterV1_0Test {
     public void createInstance() {
         // given
         InstanceRequest request = new InstanceRequest();
-        when(
-                service.createInstance(any(InstanceRequest.class),
-                        any(User.class))).thenReturn(instance);
+        when(service.createInstance(any(InstanceRequest.class),
+                any(User.class))).thenReturn(instance);
         // when
         InstanceResult result = adapter.createInstance(request, null);
         // then
@@ -101,9 +104,8 @@ public class ProvisioningServiceAdapterV1_0Test {
     public void asyncCreateInstance() {
         // given
         InstanceRequest request = new InstanceRequest();
-        when(
-                service.asyncCreateInstance(any(InstanceRequest.class),
-                        any(User.class))).thenReturn(baseResult);
+        when(service.asyncCreateInstance(any(InstanceRequest.class),
+                any(User.class))).thenReturn(baseResult);
         // when
         BaseResult result = adapter.asyncCreateInstance(request, null);
         // then
@@ -114,13 +116,12 @@ public class ProvisioningServiceAdapterV1_0Test {
     @Test
     public void createUsers() {
         // given
-        List<User> users = new ArrayList<User>();
+        List<User> users = new ArrayList<>();
         users.add(new User());
         UserResult userResult = new UserResult();
         userResult.setUsers(users);
-        when(
-                service.createUsers(anyString(), anyListOf(User.class),
-                        any(User.class))).thenReturn(userResult);
+        when(service.createUsers(anyString(), anyListOf(User.class),
+                any(User.class))).thenReturn(userResult);
         // when
         UserResult result = adapter.createUsers(USER1, users, null);
         // then
@@ -131,9 +132,8 @@ public class ProvisioningServiceAdapterV1_0Test {
     @Test
     public void deleteInstance() {
         // given
-        when(
-                service.deleteInstance(anyString(), anyString(), anyString(),
-                        any(User.class))).thenReturn(baseResult);
+        when(service.deleteInstance(anyString(), anyString(), anyString(),
+                any(User.class))).thenReturn(baseResult);
         // when
         BaseResult result = adapter.deleteInstance(INSTANCEID, ORGANIZATIONID,
                 SUBSCRIPTIONID, null);
@@ -146,11 +146,10 @@ public class ProvisioningServiceAdapterV1_0Test {
     @Test
     public void deleteUsers() {
         // given
-        List<User> users = new ArrayList<User>();
+        List<User> users = new ArrayList<>();
         users.add(new User());
-        when(
-                service.deleteUsers(anyString(), anyListOf(User.class),
-                        any(User.class))).thenReturn(baseResult);
+        when(service.deleteUsers(anyString(), anyListOf(User.class),
+                any(User.class))).thenReturn(baseResult);
         // when
         BaseResult result = adapter.deleteUsers(USER1, users, null);
         // then
@@ -172,28 +171,27 @@ public class ProvisioningServiceAdapterV1_0Test {
     @Test
     public void modifySubscription() {
         // given
-        when(
-                service.modifySubscription(anyString(), anyString(),
-                        anyListOf(ServiceParameter.class), any(User.class)))
-                .thenReturn(baseResult);
+        when(service.modifySubscription(anyString(), anyString(), anyString(),
+                anyListOf(ServiceParameter.class),
+                anyListOf(ServiceAttribute.class), any(User.class)))
+                        .thenReturn(baseResult);
         // when
         BaseResult result = adapter.modifySubscription(ASYNC, SUBSCRIPTIONID,
-                params, null);
+                REFERENCEID, params, attr, null);
         // then
         assertEquals(ASYNC, result.getDesc());
         verify(service).modifySubscription(same(ASYNC), same(SUBSCRIPTIONID),
-                same(params), any(User.class));
+                same(REFERENCEID), same(params), same(attr), any(User.class));
         verifyZeroInteractions(params);
     }
 
     @Test
     public void updateUsers() {
         // given
-        List<User> users = new ArrayList<User>();
+        List<User> users = new ArrayList<>();
         users.add(new User());
-        when(
-                service.updateUsers(anyString(), anyListOf(User.class),
-                        any(User.class))).thenReturn(baseResult);
+        when(service.updateUsers(anyString(), anyListOf(User.class),
+                any(User.class))).thenReturn(baseResult);
         // when
         BaseResult result = adapter.updateUsers(ASYNC, users, null);
         // then
@@ -228,51 +226,53 @@ public class ProvisioningServiceAdapterV1_0Test {
     @Test
     public void asyncModifySubscription() {
         // given
-        when(
-                service.asyncModifySubscription(anyString(), anyString(),
-                        anyListOf(ServiceParameter.class), any(User.class)))
-                .thenReturn(baseResult);
+        when(service.asyncModifySubscription(anyString(), anyString(),
+                anyString(), anyListOf(ServiceParameter.class),
+                anyListOf(ServiceAttribute.class), any(User.class)))
+                        .thenReturn(baseResult);
         // when
         BaseResult result = adapter.asyncModifySubscription(ASYNC,
-                SUBSCRIPTIONID, params, null);
+                SUBSCRIPTIONID, REFERENCEID, params, attr, null);
         // then
         assertEquals(ASYNC, result.getDesc());
         verify(service).asyncModifySubscription(same(ASYNC),
-                same(SUBSCRIPTIONID), same(params), any(User.class));
+                same(SUBSCRIPTIONID), same(REFERENCEID), same(params),
+                same(attr), any(User.class));
         verifyZeroInteractions(params);
     }
 
     @Test
     public void asyncUpgradeSubscription() {
         // given
-        when(
-                service.asyncUpgradeSubscription(anyString(), anyString(),
-                        anyListOf(ServiceParameter.class), any(User.class)))
-                .thenReturn(baseResult);
+        when(service.asyncUpgradeSubscription(anyString(), anyString(),
+                anyString(), anyListOf(ServiceParameter.class),
+                anyListOf(ServiceAttribute.class), any(User.class)))
+                        .thenReturn(baseResult);
         // when
         BaseResult result = adapter.asyncUpgradeSubscription(ASYNC,
-                SUBSCRIPTIONID, params, null);
+                SUBSCRIPTIONID, REFERENCEID, params, attr, null);
         // then
         assertEquals(ASYNC, result.getDesc());
         verify(service).asyncUpgradeSubscription(same(ASYNC),
-                same(SUBSCRIPTIONID), same(params), any(User.class));
+                same(SUBSCRIPTIONID), same(REFERENCEID), same(params),
+                same(attr), any(User.class));
         verifyZeroInteractions(params);
     }
 
     @Test
     public void upgradeSubscription() {
         // given
-        when(
-                service.upgradeSubscription(anyString(), anyString(),
-                        anyListOf(ServiceParameter.class), any(User.class)))
-                .thenReturn(baseResult);
+        when(service.upgradeSubscription(anyString(), anyString(), anyString(),
+                anyListOf(ServiceParameter.class),
+                anyListOf(ServiceAttribute.class), any(User.class)))
+                        .thenReturn(baseResult);
         // when
         BaseResult result = adapter.upgradeSubscription(ASYNC, SUBSCRIPTIONID,
-                params, null);
+                REFERENCEID, params, attr, null);
         // then
         assertEquals(ASYNC, result.getDesc());
         verify(service).upgradeSubscription(same(ASYNC), same(SUBSCRIPTIONID),
-                same(params), any(User.class));
+                same(REFERENCEID), same(params), same(attr), any(User.class));
         verifyZeroInteractions(params);
     }
 }

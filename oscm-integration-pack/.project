@@ -4,6 +4,7 @@
 	<comment></comment>
 	<projects>
 		<project>oscm-apiversioning-client-handler</project>
+		<project>oscm-app-extsvc-2-0</project>
 		<project>oscm-billing</project>
 		<project>oscm-billing-external-interfaces</project>
 		<project>oscm-extsvc</project>

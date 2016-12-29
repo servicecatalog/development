@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.oscm.ui.common.SteppedPriceComparator;
 import org.oscm.ui.common.VOFinder;
 import org.oscm.internal.types.enumtypes.ParameterModificationType;
@@ -25,6 +26,8 @@ import org.oscm.internal.vo.VOPricedOption;
 import org.oscm.internal.vo.VOPricedParameter;
 import org.oscm.internal.vo.VOService;
 import org.oscm.internal.vo.VOSteppedPrice;
+
+import static org.oscm.ui.model.UdaRow.HIDDEN_PWD;
 
 /**
  * ParameterRow with prices
@@ -260,6 +263,28 @@ public class PricedParameterRow extends ParameterRow implements Serializable {
 
     public void setSelected(boolean selected) {
         this.selected = selected;
+    }
+
+    public void rewriteEncryptedValues() {
+        if (!this.isPasswordType()) {
+            return;
+        }
+        if (this.getPasswordValueToStore() == null
+                || !StringUtils.equals(HIDDEN_PWD,
+                        this.getPasswordValueToStore())) {
+            this.getParameter().setValue(this.getPasswordValueToStore());
+        }
+    }
+
+    public void initPasswordValueToStore() {
+        if (!this.isPasswordType()) {
+            return;
+        }
+        if (StringUtils.isNotBlank(this.getParameter().getValue())) {
+            this.setPasswordValueToStore(HIDDEN_PWD);
+        } else {
+            this.setPasswordValueToStore("");
+        }
     }
 
 }

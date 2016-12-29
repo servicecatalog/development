@@ -133,6 +133,7 @@
 					<xsd:enumeration value="LONG" />
 					<xsd:enumeration value="STRING" />
 					<xsd:enumeration value="ENUMERATION" />
+					<xsd:enumeration value="PWD" />
 				</xsd:restriction>
 			</xsd:simpleType>
 		</xsd:attribute>
@@ -159,7 +160,7 @@
 			<xsd:element name="LocalizedOption" type="tns:LocalizedDescriptionType"
 				maxOccurs="unbounded" minOccurs="1" />
 		</xsd:sequence>
-		<xsd:attribute name="id" type="tns:StrId" use="required" />
+		<xsd:attribute name="id" type="tns:Str255" use="required" />
 	</xsd:complexType>
 
 	<xsd:complexType name="OperationType">

@@ -128,8 +128,8 @@ public class SubscriptionUtilBean {
             String ownerId, boolean validateOrganization)
             throws ObjectNotFoundException, OperationNotPermittedException {
         if (ownerId != null && ownerId.length() != 0) {
-            PlatformUser owner = idManager.getPlatformUser(ownerId,
-                    validateOrganization);
+            PlatformUser owner = idManager.getPlatformUser(ownerId, dataManager
+                    .getCurrentUser().getTenantId(), validateOrganization);
             subscriptionToModify.setOwner(owner);
         } else {
             // delete the owner of subscription

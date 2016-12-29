@@ -10,9 +10,9 @@ package org.oscm.app.vmware.business.statemachine;
 
 import java.util.Collections;
 
-import org.oscm.app.v1_0.data.InstanceStatus;
-import org.oscm.app.v1_0.data.ProvisioningSettings;
-import org.oscm.app.v1_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.data.InstanceStatus;
+import org.oscm.app.v2_0.data.ProvisioningSettings;
+import org.oscm.app.v2_0.exceptions.APPlatformException;
 import org.oscm.app.vmware.business.VM;
 import org.oscm.app.vmware.business.VMPropertyHandler;
 import org.oscm.app.vmware.business.statemachine.api.StateMachineAction;
@@ -59,8 +59,8 @@ public class DeleteActions extends Actions {
         } finally {
             if (vmClient != null) {
                 try {
-                    VMClientPool.getInstance().getPool()
-                            .returnObject(vcenter, vmClient);
+                    VMClientPool.getInstance().getPool().returnObject(vcenter,
+                            vmClient);
                 } catch (Exception e) {
                     logger.error("Failed to return VMware client into pool", e);
                 }
@@ -85,7 +85,7 @@ public class DeleteActions extends Actions {
                     .borrowObject(vcenter);
             VM vm = new VM(vmClient, ph.getInstanceName());
             TaskInfo taskInfo = vm.delete();
-            ph.setTask(taskInfo.getKey());
+            ph.setTask(taskInfo);
             return EVENT_DELETING;
         } catch (Exception e) {
             logger.error("Failed to delete VM for instance " + instanceId, e);
@@ -96,8 +96,8 @@ public class DeleteActions extends Actions {
         } finally {
             if (vmClient != null) {
                 try {
-                    VMClientPool.getInstance().getPool()
-                            .returnObject(vcenter, vmClient);
+                    VMClientPool.getInstance().getPool().returnObject(vcenter,
+                            vmClient);
                 } catch (Exception e) {
                     logger.error("Failed to return VMware client into pool", e);
                 }
@@ -142,18 +142,15 @@ public class DeleteActions extends Actions {
         String subject = Messages.get(paramHandler.getSettings().getLocale(),
                 "mail_delete_vm.subject",
                 new Object[] { paramHandler.getInstanceName() });
-        String details = paramHandler.getConfigurationAsString(paramHandler
-                .getSettings().getLocale());
-        details += paramHandler.getResponsibleUserAsString(paramHandler
-                .getSettings().getLocale());
-        String text = Messages
-                .get(paramHandler.getSettings().getLocale(),
-                        "mail_delete_vm.text",
-                        new Object[] {
-                                paramHandler.getInstanceName(),
-                                paramHandler
-                                        .getServiceSetting(VMPropertyHandler.REQUESTING_USER),
-                                details });
+        String details = paramHandler.getConfigurationAsString(
+                paramHandler.getSettings().getLocale());
+        details += paramHandler.getResponsibleUserAsString(
+                paramHandler.getSettings().getLocale());
+        String text = Messages.get(paramHandler.getSettings().getLocale(),
+                "mail_delete_vm.text",
+                new Object[] { paramHandler.getInstanceName(), paramHandler
+                        .getServiceSetting(VMPropertyHandler.REQUESTING_USER),
+                        details });
 
         platformService.sendMail(Collections.singletonList(mailRecipient),
                 subject, text);

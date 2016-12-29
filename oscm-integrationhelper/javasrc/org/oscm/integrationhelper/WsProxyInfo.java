@@ -10,13 +10,11 @@ package org.oscm.integrationhelper;
 
 import java.util.Properties;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import org.oscm.wsproxy.WsInfo;
 import org.oscm.wsproxy.ServicePort;
 import org.oscm.wsproxy.UserCredentials;
+import org.oscm.wsproxy.WsInfo;
 
 /**
  * This class is a model for holding the properties to access the target web
@@ -149,7 +147,10 @@ public class WsProxyInfo {
         String serviceVersion = getAndLogServiceClientProperty(Constants.CM_SERVICE_VERSION);
         this.setServiceVersion(serviceVersion);
         wsInfo.setServiceVersion(serviceVersion);
-
+        
+        String tenantId = getAndLogServiceClientProperty(Constants.CM_SERVICE_TENANT_ID);
+        wsInfo.setTenantId(tenantId);
+        
         forward = getAndLogTokenHandlerProperty(Constants.FORWARD);
     }
 
@@ -177,8 +178,13 @@ public class WsProxyInfo {
      * @return
      */
     String getAndLogTokenHandlerProperty(String property) {
-        String value = StringUtils.trim(tokenHandlerProp.getProperty(property));
-        return value;
+        if (property == null) {
+            return null;
+        }
+        if (tokenHandlerProp.getProperty(property) == null) {
+            return null;
+        }
+        return tokenHandlerProp.getProperty(property).trim();
     }
 
 }

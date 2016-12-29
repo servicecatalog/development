@@ -15,8 +15,8 @@ import org.oscm.app.adapter.APPlatformControllerAdapter;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.ejb.TestContainer;
 import org.oscm.app.business.APPlatformControllerFactory;
-import org.oscm.app.v1_0.exceptions.ControllerLookupException;
-import org.oscm.app.v1_0.intf.APPlatformController;
+import org.oscm.app.v2_0.exceptions.ControllerLookupException;
+import org.oscm.app.v2_0.intf.APPlatformController;
 
 /**
  * Unit tests for {@link APPlatformControllerFactory};
@@ -46,7 +46,8 @@ public class APPlatformControllerFactoryIT extends EJBTestBase {
         new APPlatformControllerFactory(); // coverage
         context.bind(APPlatformController.JNDI_PREFIX + "test.controller",
                 Mockito.mock(APPlatformController.class));
-        APPlatformController instance = APPlatformControllerFactory.getInstance("test.controller");
+        APPlatformController instance = APPlatformControllerFactory
+                .getInstance("test.controller");
         Assert.assertTrue(instance instanceof APPlatformControllerAdapter);
     }
 

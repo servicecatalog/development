@@ -133,6 +133,8 @@ public interface AccountService {
             throws ObjectNotFoundException, ServiceParameterException,
             OperationNotPermittedException, SubscriptionStateException;
 
+    String getLocalizedAttributeName(long key, String locale);
+
     /**
      * Registers a new customer organization for the calling user who is not yet
      * known to the platform. The registration establishes the contractual
@@ -718,6 +720,10 @@ public interface AccountService {
      * @param targetObjectKey
      *            the numeric key of the entity (e.g. customer or subscription)
      *            for which the custom attribute is to be retrieved
+     * @param checkSeller
+     *            boolean flag which determines if the calling organization
+     *            should be checked if it is a seller for the specified customer
+     *            with the targetObjectKey
      * @return the list of custom attributes
      * @throws ValidationException
      *             if the given target type is not valid
@@ -733,9 +739,10 @@ public interface AccountService {
      *             if the target object is not found
      */
 
-    public List<VOUda> getUdas(String targetType, long targetObjectKey)
-            throws ValidationException, OrganizationAuthoritiesException,
-            ObjectNotFoundException, OperationNotPermittedException;
+    public List<VOUda> getUdas(String targetType, long targetObjectKey,
+            boolean checkSeller) throws ValidationException,
+            OrganizationAuthoritiesException, ObjectNotFoundException,
+            OperationNotPermittedException;
 
     /**
      * Saves the specified list of custom attributes. For each attribute in the

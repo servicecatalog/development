@@ -17,16 +17,15 @@ import java.util.Set;
 import javax.jws.WebService;
 import javax.xml.ws.WebServiceContext;
 
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
-import org.oscm.dataservice.local.DataService;
-import org.oscm.types.enumtypes.LogMessageIdentifier;
-import org.oscm.webservices.logger.WebServiceLogger;
 import org.oscm.converter.api.EnumConverter;
 import org.oscm.converter.api.ExceptionConverter;
 import org.oscm.converter.api.VOCollectionConverter;
 import org.oscm.converter.api.VOConverter;
+import org.oscm.dataservice.local.DataService;
 import org.oscm.intf.SubscriptionService;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
+import org.oscm.types.enumtypes.LogMessageIdentifier;
 import org.oscm.types.enumtypes.OperationStatus;
 import org.oscm.types.enumtypes.SubscriptionStatus;
 import org.oscm.types.exceptions.ConcurrentModificationException;
@@ -67,6 +66,7 @@ import org.oscm.vo.VOUda;
 import org.oscm.vo.VOUsageLicense;
 import org.oscm.vo.VOUser;
 import org.oscm.vo.VOUserSubscription;
+import org.oscm.webservices.logger.WebServiceLogger;
 
 /**
  * End point facade for WS.
@@ -157,8 +157,8 @@ public class SubscriptionServiceWS implements SubscriptionService {
             ConcurrentModificationException, OperationPendingException {
         WS_LOGGER.logAccess(wsContext, ds);
         try {
-            return delegate.addRevokeUser(subscriptionId, VOCollectionConverter
-                    .convertList(usersToBeAdded,
+            return delegate.addRevokeUser(subscriptionId,
+                    VOCollectionConverter.convertList(usersToBeAdded,
                             org.oscm.internal.vo.VOUsageLicense.class),
                     VOCollectionConverter.convertList(usersToBeRevoked,
                             org.oscm.internal.vo.VOUser.class));
@@ -205,9 +205,7 @@ public class SubscriptionServiceWS implements SubscriptionService {
         } catch (org.oscm.internal.types.exception.OperationNotPermittedException e) {
             throw ExceptionConverter.convertToApi(e);
         } catch (org.oscm.internal.types.exception.ValidationException e) {
-            LOGGER.logError(
-                    Log4jLogger.SYSTEM_LOG,
-                    e,
+            LOGGER.logError(Log4jLogger.SYSTEM_LOG, e,
                     LogMessageIdentifier.ERROR_CONVERT_TO_RUNTIME_EXCEPTION_FOR_COMPATIBILITY,
                     ValidationException.class.getName());
             throw new org.oscm.types.exceptions.SaaSSystemException(
@@ -280,8 +278,9 @@ public class SubscriptionServiceWS implements SubscriptionService {
             throws ObjectNotFoundException, OperationNotPermittedException {
         WS_LOGGER.logAccess(wsContext, ds);
         try {
-            return VOCollectionConverter.convertList(delegate
-                    .getSubscriptionsForUser(VOConverter.convertToUp(user)),
+            return VOCollectionConverter.convertList(
+                    delegate.getSubscriptionsForUser(
+                            VOConverter.convertToUp(user)),
                     org.oscm.vo.VOUserSubscription.class);
         } catch (org.oscm.internal.types.exception.ObjectNotFoundException e) {
             throw ExceptionConverter.convertToApi(e);
@@ -296,8 +295,9 @@ public class SubscriptionServiceWS implements SubscriptionService {
             throws OrganizationAuthoritiesException {
         WS_LOGGER.logAccess(wsContext, ds);
         try {
-            return VOCollectionConverter.convertList(delegate
-                    .getCustomersForSubscriptionId(subscriptionIdentifier),
+            return VOCollectionConverter.convertList(
+                    delegate.getCustomersForSubscriptionId(
+                            subscriptionIdentifier),
                     org.oscm.vo.VOOrganization.class);
         } catch (org.oscm.internal.types.exception.OrganizationAuthoritiesException e) {
             throw ExceptionConverter.convertToApi(e);
@@ -319,8 +319,8 @@ public class SubscriptionServiceWS implements SubscriptionService {
 
     @Override
     public List<VORoleDefinition> getServiceRolesForSubscription(
-            String subscription) throws ObjectNotFoundException,
-            OperationNotPermittedException {
+            String subscription)
+            throws ObjectNotFoundException, OperationNotPermittedException {
         WS_LOGGER.logAccess(wsContext, ds);
         try {
             return VOCollectionConverter.convertList(
@@ -338,8 +338,8 @@ public class SubscriptionServiceWS implements SubscriptionService {
             throws ObjectNotFoundException, OperationNotPermittedException {
         WS_LOGGER.logAccess(wsContext, ds);
         try {
-            return VOConverter.convertToApi(delegate
-                    .getSubscriptionDetails(subId));
+            return VOConverter
+                    .convertToApi(delegate.getSubscriptionDetails(subId));
         } catch (org.oscm.internal.types.exception.ObjectNotFoundException e) {
             throw ExceptionConverter.convertToApi(e);
         } catch (org.oscm.internal.types.exception.OperationNotPermittedException e) {
@@ -353,9 +353,8 @@ public class SubscriptionServiceWS implements SubscriptionService {
             throws ObjectNotFoundException, OperationNotPermittedException {
         WS_LOGGER.logAccess(wsContext, ds);
         try {
-            return VOConverter
-                    .convertToApi(delegate.getSubscriptionForCustomer(
-                            organizationId, subscriptionId));
+            return VOConverter.convertToApi(delegate.getSubscriptionForCustomer(
+                    organizationId, subscriptionId));
         } catch (org.oscm.internal.types.exception.ObjectNotFoundException e) {
             throw ExceptionConverter.convertToApi(e);
         } catch (org.oscm.internal.types.exception.OperationNotPermittedException e) {
@@ -398,13 +397,13 @@ public class SubscriptionServiceWS implements SubscriptionService {
     }
 
     @Override
-    public VOSubscriptionDetails modifySubscription(
-            VOSubscription subscription, List<VOParameter> modifiedParameters,
-            List<VOUda> udas) throws NonUniqueBusinessKeyException,
-            ObjectNotFoundException, OperationNotPermittedException,
-            ValidationException, SubscriptionMigrationException,
-            ConcurrentModificationException, TechnicalServiceNotAliveException,
-            OperationPendingException, MandatoryUdaMissingException {
+    public VOSubscriptionDetails modifySubscription(VOSubscription subscription,
+            List<VOParameter> modifiedParameters, List<VOUda> udas)
+            throws NonUniqueBusinessKeyException, ObjectNotFoundException,
+            OperationNotPermittedException, ValidationException,
+            SubscriptionMigrationException, ConcurrentModificationException,
+            TechnicalServiceNotAliveException, OperationPendingException,
+            MandatoryUdaMissingException {
         WS_LOGGER.logAccess(wsContext, ds);
         try {
             return VOConverter.convertToApi(delegate.modifySubscription(
@@ -412,7 +411,7 @@ public class SubscriptionServiceWS implements SubscriptionService {
                     VOCollectionConverter.convertList(modifiedParameters,
                             org.oscm.internal.vo.VOParameter.class),
                     VOCollectionConverter.convertList(udas,
-                            org.oscm.internal.vo.VOUda.class)));
+                            org.oscm.internal.vo.VOUda.class, ds)));
         } catch (org.oscm.internal.types.exception.NonUniqueBusinessKeyException e) {
             throw ExceptionConverter.convertToApi(e);
         } catch (org.oscm.internal.types.exception.ObjectNotFoundException e) {
@@ -431,10 +430,10 @@ public class SubscriptionServiceWS implements SubscriptionService {
             throw ExceptionConverter.convertToApi(e);
         } catch (org.oscm.internal.types.exception.MandatoryUdaMissingException e) {
             throw ExceptionConverter.convertToApi(e);
+        } catch (org.oscm.internal.types.exception.MandatoryCustomerUdaMissingException e) {
+            throw ExceptionConverter.convertToApi(e);
         } catch (org.oscm.internal.types.exception.SubscriptionStateException e) {
-            LOGGER.logError(
-                    Log4jLogger.SYSTEM_LOG,
-                    e,
+            LOGGER.logError(Log4jLogger.SYSTEM_LOG, e,
                     LogMessageIdentifier.ERROR_CONVERT_TO_RUNTIME_EXCEPTION_FOR_COMPATIBILITY,
                     SubscriptionStateException.class.getName());
             throw new org.oscm.types.exceptions.SaaSSystemException(
@@ -446,11 +445,11 @@ public class SubscriptionServiceWS implements SubscriptionService {
     public VOSubscription subscribeToService(VOSubscription subscription,
             VOService product, List<VOUsageLicense> users,
             VOPaymentInfo paymentInfo, VOBillingContact billingContact,
-            List<VOUda> udas) throws ObjectNotFoundException,
-            NonUniqueBusinessKeyException, ValidationException,
-            PaymentInformationException, ServiceParameterException,
-            ServiceChangedException, PriceModelException,
-            TechnicalServiceNotAliveException,
+            List<VOUda> udas)
+            throws ObjectNotFoundException, NonUniqueBusinessKeyException,
+            ValidationException, PaymentInformationException,
+            ServiceParameterException, ServiceChangedException,
+            PriceModelException, TechnicalServiceNotAliveException,
             TechnicalServiceOperationException, OperationNotPermittedException,
             SubscriptionAlreadyExistsException, OperationPendingException,
             MandatoryUdaMissingException, ConcurrentModificationException,
@@ -458,14 +457,14 @@ public class SubscriptionServiceWS implements SubscriptionService {
         WS_LOGGER.logAccess(wsContext, ds);
         try {
             return VOConverter.convertToApi(delegate.subscribeToService(
-                    VOConverter.convertToUp(subscription), VOConverter
-                            .convertToUp(product),
+                    VOConverter.convertToUp(subscription),
+                    VOConverter.convertToUp(product),
                     VOCollectionConverter.convertList(users,
                             org.oscm.internal.vo.VOUsageLicense.class),
-                    VOConverter.convertToUp(paymentInfo), VOConverter
-                            .convertToUp(billingContact), VOCollectionConverter
-                            .convertList(udas,
-                                    org.oscm.internal.vo.VOUda.class)));
+                    VOConverter.convertToUp(paymentInfo),
+                    VOConverter.convertToUp(billingContact),
+                    VOCollectionConverter.convertList(udas,
+                            org.oscm.internal.vo.VOUda.class, ds)));
         } catch (org.oscm.internal.types.exception.ObjectNotFoundException e) {
             throw ExceptionConverter.convertToApi(e);
         } catch (org.oscm.internal.types.exception.NonUniqueBusinessKeyException e) {
@@ -491,6 +490,8 @@ public class SubscriptionServiceWS implements SubscriptionService {
         } catch (org.oscm.internal.types.exception.OperationPendingException e) {
             throw ExceptionConverter.convertToApi(e);
         } catch (org.oscm.internal.types.exception.MandatoryUdaMissingException e) {
+            throw ExceptionConverter.convertToApi(e);
+        } catch (org.oscm.internal.types.exception.MandatoryCustomerUdaMissingException e) {
             throw ExceptionConverter.convertToApi(e);
         } catch (org.oscm.internal.types.exception.ConcurrentModificationException e) {
             throw ExceptionConverter.convertToApi(e);
@@ -539,12 +540,12 @@ public class SubscriptionServiceWS implements SubscriptionService {
         WS_LOGGER.logAccess(wsContext, ds);
         try {
             return VOConverter.convertToApi(delegate.upgradeSubscription(
-                    VOConverter.convertToUp(current), VOConverter
-                            .convertToUp(newProduct), VOConverter
-                            .convertToUp(paymentInfo), VOConverter
-                            .convertToUp(billingContact), VOCollectionConverter
-                            .convertList(udas,
-                                    org.oscm.internal.vo.VOUda.class)));
+                    VOConverter.convertToUp(current),
+                    VOConverter.convertToUp(newProduct),
+                    VOConverter.convertToUp(paymentInfo),
+                    VOConverter.convertToUp(billingContact),
+                    VOCollectionConverter.convertList(udas,
+                            org.oscm.internal.vo.VOUda.class, ds)));
         } catch (org.oscm.internal.types.exception.ObjectNotFoundException e) {
             throw ExceptionConverter.convertToApi(e);
         } catch (org.oscm.internal.types.exception.NonUniqueBusinessKeyException e) {
@@ -569,6 +570,8 @@ public class SubscriptionServiceWS implements SubscriptionService {
             throw ExceptionConverter.convertToApi(e);
         } catch (org.oscm.internal.types.exception.MandatoryUdaMissingException e) {
             throw ExceptionConverter.convertToApi(e);
+        } catch (org.oscm.internal.types.exception.MandatoryCustomerUdaMissingException e) {
+            throw ExceptionConverter.convertToApi(e);
         } catch (org.oscm.internal.types.exception.ValidationException e) {
             throw ExceptionConverter.convertToApi(e);
         }
@@ -580,8 +583,8 @@ public class SubscriptionServiceWS implements SubscriptionService {
         WS_LOGGER.logAccess(wsContext, ds);
         try {
             return VOCollectionConverter.convertList(
-                    delegate.getServiceRolesForService(VOConverter
-                            .convertToUp(service)),
+                    delegate.getServiceRolesForService(
+                            VOConverter.convertToUp(service)),
                     org.oscm.vo.VORoleDefinition.class);
         } catch (org.oscm.internal.types.exception.ObjectNotFoundException e) {
             throw ExceptionConverter.convertToApi(e);
@@ -598,8 +601,8 @@ public class SubscriptionServiceWS implements SubscriptionService {
         WS_LOGGER.logAccess(wsContext, ds);
         try {
             delegate.updateAsyncSubscriptionProgress(subscriptionId,
-                    organizationId, VOCollectionConverter.convertList(
-                            localizedProgress,
+                    organizationId,
+                    VOCollectionConverter.convertList(localizedProgress,
                             org.oscm.internal.vo.VOLocalizedText.class));
         } catch (org.oscm.internal.types.exception.ObjectNotFoundException e) {
             throw ExceptionConverter.convertToApi(e);
@@ -648,7 +651,8 @@ public class SubscriptionServiceWS implements SubscriptionService {
     }
 
     @Override
-    public void terminateSubscription(VOSubscription subscription, String reason)
+    public void terminateSubscription(VOSubscription subscription,
+            String reason)
             throws ObjectNotFoundException, TechnicalServiceNotAliveException,
             TechnicalServiceOperationException,
             OrganizationAuthoritiesException, ConcurrentModificationException,
@@ -688,8 +692,8 @@ public class SubscriptionServiceWS implements SubscriptionService {
             TechnicalServiceOperationException {
         WS_LOGGER.logAccess(wsContext, ds);
         try {
-            return VOConverter.convertToApi(delegate
-                    .modifySubscriptionPaymentData(
+            return VOConverter
+                    .convertToApi(delegate.modifySubscriptionPaymentData(
                             VOConverter.convertToUp(subscription),
                             VOConverter.convertToUp(billingContact),
                             VOConverter.convertToUp(paymentInfo)));
@@ -735,13 +739,11 @@ public class SubscriptionServiceWS implements SubscriptionService {
     public List<VOSubscription> getSubscriptionsForOrganizationWithFilter(
             Set<SubscriptionStatus> requiredStatus) {
         WS_LOGGER.logAccess(wsContext, ds);
-        return VOCollectionConverter
-                .convertList(
-                        delegate.getSubscriptionsForOrganizationWithFilter(EnumConverter
-                                .convertSet(
-                                        requiredStatus,
-                                        org.oscm.internal.types.enumtypes.SubscriptionStatus.class)),
-                        org.oscm.vo.VOSubscription.class);
+        return VOCollectionConverter.convertList(
+                delegate.getSubscriptionsForOrganizationWithFilter(
+                        EnumConverter.convertSet(requiredStatus,
+                                org.oscm.internal.types.enumtypes.SubscriptionStatus.class)),
+                org.oscm.vo.VOSubscription.class);
     }
 
     @Override
@@ -796,12 +798,9 @@ public class SubscriptionServiceWS implements SubscriptionService {
             throws OperationNotPermittedException, OperationStateException {
         WS_LOGGER.logAccess(wsContext, ds);
         try {
-            delegate.updateAsyncOperationProgress(
-                    transactionId,
-                    EnumConverter
-                            .convert(
-                                    status,
-                                    org.oscm.internal.types.enumtypes.OperationStatus.class),
+            delegate.updateAsyncOperationProgress(transactionId,
+                    EnumConverter.convert(status,
+                            org.oscm.internal.types.enumtypes.OperationStatus.class),
                     VOConverter.convertToUpVOLocalizedText(progress));
         } catch (org.oscm.internal.types.exception.OperationNotPermittedException e) {
             throw ExceptionConverter.convertToApi(e);

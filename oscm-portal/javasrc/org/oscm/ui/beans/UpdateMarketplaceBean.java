@@ -17,9 +17,6 @@ import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.model.SelectItem;
 
-import org.oscm.string.Strings;
-import org.oscm.ui.model.Marketplace;
-import org.oscm.ui.model.User;
 import org.oscm.internal.components.response.Response;
 import org.oscm.internal.marketplace.MarketplaceServiceManagePartner;
 import org.oscm.internal.pricing.POMarketplacePriceModel;
@@ -31,46 +28,32 @@ import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.OperationNotPermittedException;
 import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.internal.vo.VOMarketplace;
+import org.oscm.string.Strings;
+import org.oscm.ui.model.Marketplace;
+import org.oscm.ui.model.User;
 
 /**
  * @author tang
  *
  */
 @ViewScoped
-@ManagedBean(name="updateMarketplaceBean")
+@ManagedBean(name = "updateMarketplaceBean")
 public class UpdateMarketplaceBean extends BaseBean {
 
     List<SelectItem> selectableMarketplaces;
     Marketplace model;
 
-    @ManagedProperty(value="#{marketplaceConfigurationBean}")
-    private MarketplaceConfigurationBean marketplaceConfigurationBean;
-
-    @ManagedProperty(value="#{menuBean}")
+    @ManagedProperty(value = "#{menuBean}")
     private MenuBean menuBean;
 
-    //TODO: think more about that. It breaks architecture in view layer. Maybe model should be a bean and we should not get access to model through this bean but directly.
-    @ManagedProperty(value="#{selectOrganizationIncludeBean}")
+    // TODO: think more about that. It breaks architecture in view layer. Maybe
+    // model should be a bean and we should not get access to model through this
+    // bean but directly.
+    @ManagedProperty(value = "#{selectOrganizationIncludeBean}")
     private SelectOrganizationIncludeBean selectOrganizationIncludeBean;
 
     PricingService pricingService;
     MarketplaceServiceManagePartner marketplaceManagePartnerService;
-
-    /**
-     * @return the marketplaceConfigurationBean
-     */
-    public MarketplaceConfigurationBean getMarketplaceConfigurationBean() {
-        return marketplaceConfigurationBean;
-    }
-
-    /**
-     * @param marketplaceConfigurationBean
-     *            the marketplaceConfigurationBean to set
-     */
-    public void setMarketplaceConfigurationBean(
-            MarketplaceConfigurationBean marketplaceConfigurationBean) {
-        this.marketplaceConfigurationBean = marketplaceConfigurationBean;
-    }
 
     public MenuBean getMenuBean() {
         return menuBean;
@@ -104,6 +87,7 @@ public class UpdateMarketplaceBean extends BaseBean {
         vmp.setReviewEnabled(mp.isReviewEnabled());
         vmp.setSocialBookmarkEnabled(mp.isSocialBookmarkEnabled());
         vmp.setCategoriesEnabled(mp.isCategoriesEnabled());
+        vmp.setTenantId(mp.getTenantId());
         return vmp;
     }
 
@@ -137,7 +121,8 @@ public class UpdateMarketplaceBean extends BaseBean {
         final boolean assignedOrgChanged = model.assignedOrgChanged();
         final String mId = model.getMarketplaceId();
         // see todo above
-        model.setOwningOrganizationId(getSelectOrganizationIncludeBean().getOrganizationId());
+        model.setOwningOrganizationId(getSelectOrganizationIncludeBean()
+                .getOrganizationId());
         try {
             Response response = getMarketplaceManagePartnerService()
                     .updateMarketplace(convertToValueObject(model),
@@ -167,7 +152,6 @@ public class UpdateMarketplaceBean extends BaseBean {
         if (assignedOrgChanged) {
             applyOrgChange(mId);
         }
-        getMarketplaceConfigurationBean().resetConfiguration(mId);
         addMessage(null, FacesMessage.SEVERITY_INFO, INFO_MARKETPLACE_SAVED,
                 mId);
         return OUTCOME_SUCCESS;
@@ -220,7 +204,8 @@ public class UpdateMarketplaceBean extends BaseBean {
         addToModel(pricing.getPartnerPriceModel());
 
         if (null != mp) {
-            this.selectOrganizationIncludeBean.setOrganizationId(mp.getOwningOrganizationId());
+            this.selectOrganizationIncludeBean.setOrganizationId(mp
+                    .getOwningOrganizationId());
         }
 
         return OUTCOME_SUCCESS;
@@ -283,8 +268,11 @@ public class UpdateMarketplaceBean extends BaseBean {
         mp.setVersion(vmp.getVersion());
         mp.setEditDisabled(false);
         mp.setOrganizationSelectVisible(isLoggedInAndPlatformOperator());
+        mp.setTenantSelectVisible(isLoggedInAndPlatformOperator()
+                && !menuBean.getApplicationBean().isInternalAuthMode());
         mp.setPropertiesDisabled(!isMpOwner(vmp));
         mp.setRevenueSharesReadOnly(!isLoggedInAndPlatformOperator());
+        mp.setTenantId(vmp.getTenantId());
         return mp;
     }
 
@@ -325,7 +313,8 @@ public class UpdateMarketplaceBean extends BaseBean {
         return marketplaceManagePartnerService;
     }
 
-    public void setSelectOrganizationIncludeBean(SelectOrganizationIncludeBean selectOrganizationIncludeBean) {
+    public void setSelectOrganizationIncludeBean(
+            SelectOrganizationIncludeBean selectOrganizationIncludeBean) {
         this.selectOrganizationIncludeBean = selectOrganizationIncludeBean;
     }
 

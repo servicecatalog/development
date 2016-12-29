@@ -60,6 +60,7 @@ import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.*;
 import org.oscm.test.ejb.FifoJMSQueue;
 import org.oscm.test.ejb.TestContainer;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.triggerservice.bean.TriggerQueueServiceBean;
 import org.oscm.triggerservice.local.TriggerMessage;
 import org.oscm.types.exceptions.InvalidUserSession;
@@ -72,7 +73,8 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
             .asList(LocalizedObjectTypes.PRODUCT_MARKETING_NAME,
                     LocalizedObjectTypes.PRODUCT_MARKETING_DESC,
                     LocalizedObjectTypes.PRODUCT_SHORT_DESCRIPTION,
-                    LocalizedObjectTypes.PRICEMODEL_DESCRIPTION);
+                    LocalizedObjectTypes.PRICEMODEL_DESCRIPTION,
+                    LocalizedObjectTypes.PRODUCT_CUSTOM_TAB_NAME);
     private static final List<String> expectedIndexedAttributesProduct = Arrays
             .asList(ProductClassBridge.SERVICE_NAME + locale,
                     ProductClassBridge.SERVICE_DESCRIPTION + locale,
@@ -161,6 +163,7 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
         enableHibernateSearchListeners(true);
         indexerQueue.clear();
         container.enableInterfaceMocking(true);
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean() {
             @Override
             public PlatformUser getCurrentUser() {
@@ -475,7 +478,7 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
     public void testDeleteCatalogEntry() throws Exception {
 
         final List<String> ids = addProductsToDatabase(1);
-        final List<Long> keys = new ArrayList<Long>();
+        final List<Long> keys = new ArrayList<>();
 
         assertNotNull(ids);
         assertEquals(1, ids.size());
@@ -753,7 +756,7 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
     public void testDeleteTag() throws Exception {
 
         assertNotNull("No technical product present", techProd);
-        final List<Long> keys = new ArrayList<Long>();
+        final List<Long> keys = new ArrayList<>();
 
         runTX(new Callable<Void>() {
 
@@ -892,7 +895,7 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
 
     private List<String> addProductsToDatabase(final int num) throws Exception {
 
-        final List<String> createdProductIds = new ArrayList<String>();
+        final List<String> createdProductIds = new ArrayList<>();
 
         runTX(new Callable<Void>() {
 

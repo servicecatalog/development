@@ -38,7 +38,7 @@ import org.oscm.internal.vo.VOUdaDefinition;
  * 
  */
 @ViewScoped
-@ManagedBean(name="udaBean")
+@ManagedBean(name = "udaBean")
 public class UdaBean extends BaseBean implements Serializable {
 
     private static final long serialVersionUID = 5737133057966931570L;
@@ -226,8 +226,8 @@ public class UdaBean extends BaseBean implements Serializable {
     List<UdaRow> getCustomerUdas(long key) throws ValidationException,
             OrganizationAuthoritiesException, ObjectNotFoundException,
             OperationNotPermittedException {
-        List<VOUda> udas = getAccountingService()
-                .getUdas(UdaBean.CUSTOMER, key);
+        List<VOUda> udas = getAccountingService().getUdas(UdaBean.CUSTOMER,
+                key, false);
         return UdaRow.getUdaRows(getForType(UdaBean.CUSTOMER), udas);
     }
 
@@ -248,7 +248,7 @@ public class UdaBean extends BaseBean implements Serializable {
             OrganizationAuthoritiesException, ObjectNotFoundException,
             OperationNotPermittedException {
         List<VOUda> udas = getAccountingService().getUdas(
-                UdaBean.CUSTOMER_SUBSCRIPTION, key);
+                UdaBean.CUSTOMER_SUBSCRIPTION, key, false);
         return UdaRow.getUdaRows(getForType(UdaBean.CUSTOMER_SUBSCRIPTION),
                 udas);
     }

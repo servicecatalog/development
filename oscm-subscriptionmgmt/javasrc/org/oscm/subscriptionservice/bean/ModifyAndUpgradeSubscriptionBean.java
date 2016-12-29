@@ -16,8 +16,6 @@ import javax.interceptor.Interceptors;
 import javax.persistence.NoResultException;
 import javax.persistence.NonUniqueResultException;
 
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
 import org.oscm.domobjects.BillingContact;
 import org.oscm.domobjects.ModifiedEntity;
 import org.oscm.domobjects.ModifiedUda;
@@ -29,15 +27,18 @@ import org.oscm.domobjects.Uda;
 import org.oscm.domobjects.enums.ModifiedEntityType;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.interceptor.ExceptionMapper;
-import org.oscm.types.enumtypes.EmailType;
-import org.oscm.types.enumtypes.LogMessageIdentifier;
-import org.oscm.validation.PaymentDataValidator;
 import org.oscm.internal.types.enumtypes.SubscriptionStatus;
 import org.oscm.internal.types.exception.MailOperationException;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.OperationNotPermittedException;
 import org.oscm.internal.types.exception.PaymentInformationException;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
+import org.oscm.types.enumtypes.EmailType;
+import org.oscm.types.enumtypes.LogMessageIdentifier;
+import org.oscm.types.enumtypes.UdaTargetType;
+import org.oscm.validation.PaymentDataValidator;
 
 /**
  * No interface view bean implementation for asynchronously modify subscription
@@ -55,17 +56,18 @@ public class ModifyAndUpgradeSubscriptionBean extends SubscriptionUtilBean {
     protected LocalizerServiceLocal localizer;
 
     Subscription updateSubscriptionAttributesForAsyncUpgrade(
-            Subscription subscription) throws ObjectNotFoundException,
-            NumberFormatException {
-        List<ModifiedEntity> modifiedEntities = retrieveModifiedEntities(subscription);
+            Subscription subscription)
+            throws ObjectNotFoundException, NumberFormatException {
+        List<ModifiedEntity> modifiedEntities = retrieveModifiedEntities(
+                subscription);
 
         String paymentInfoKey = getModifiedEntityValueByType(modifiedEntities,
                 ModifiedEntityType.SUBSCRIPTION_PAYMENTINFO);
         if (paymentInfoKey != null) {
             try {
                 PaymentInfo paymentInfo = dataManager.getReference(
-                        PaymentInfo.class, Long.valueOf(paymentInfoKey)
-                                .longValue());
+                        PaymentInfo.class,
+                        Long.valueOf(paymentInfoKey).longValue());
                 subscription.setPaymentInfo(paymentInfo);
             } catch (ObjectNotFoundException e) {
                 LOG.logWarn(Log4jLogger.SYSTEM_LOG, e,
@@ -94,7 +96,8 @@ public class ModifyAndUpgradeSubscriptionBean extends SubscriptionUtilBean {
     Subscription updateSubscriptionAttributesForAsyncUpdate(
             Subscription subscription) throws ObjectNotFoundException,
             NumberFormatException, OperationNotPermittedException {
-        List<ModifiedEntity> modifiedEntities = retrieveModifiedEntities(subscription);
+        List<ModifiedEntity> modifiedEntities = retrieveModifiedEntities(
+                subscription);
 
         String subscriptionId = getModifiedEntityValueByType(modifiedEntities,
                 ModifiedEntityType.SUBSCRIPTION_SUBSCRIPTIONID);
@@ -139,10 +142,12 @@ public class ModifyAndUpgradeSubscriptionBean extends SubscriptionUtilBean {
             PaymentInfo paymentInfo = subscription.getPaymentInfo();
             BillingContact billingContact = subscription.getBillingContact();
             if (paymentInfo == null) {
-                LOG.logError(LogMessageIdentifier.ERROR_ACTIVATE_SUBSCRIPTION_FAILED_NO_PAYMENT_INFORMATION);
+                LOG.logError(
+                        LogMessageIdentifier.ERROR_ACTIVATE_SUBSCRIPTION_FAILED_NO_PAYMENT_INFORMATION);
                 validPaymentDataOrFree = false;
             } else if (billingContact == null) {
-                LOG.logError(LogMessageIdentifier.ERROR_ACTIVATE_SUBSCRIPTION_FAILED_NO_BILLING_CONTACT);
+                LOG.logError(
+                        LogMessageIdentifier.ERROR_ACTIVATE_SUBSCRIPTION_FAILED_NO_BILLING_CONTACT);
                 validPaymentDataOrFree = false;
             } else {
                 // get the parameters for the payment validation
@@ -150,9 +155,7 @@ public class ModifyAndUpgradeSubscriptionBean extends SubscriptionUtilBean {
                 try {
                     validatePaymentInfo(subscription, paymentInfo, customer);
                 } catch (PaymentInformationException e) {
-                    LOG.logError(
-                            Log4jLogger.SYSTEM_LOG,
-                            e,
+                    LOG.logError(Log4jLogger.SYSTEM_LOG, e,
                             LogMessageIdentifier.ERROR_ACTIVATE_SUBSCRIPTION_FAILED_AS_NO_VALID_PAYMENT_ASSIGNED);
                     validPaymentDataOrFree = false;
                 }
@@ -161,9 +164,8 @@ public class ModifyAndUpgradeSubscriptionBean extends SubscriptionUtilBean {
         return validPaymentDataOrFree;
     }
 
-    void validatePaymentInfo(Subscription subscription,
-            PaymentInfo paymentInfo, Organization customer)
-            throws PaymentInformationException {
+    void validatePaymentInfo(Subscription subscription, PaymentInfo paymentInfo,
+            Organization customer) throws PaymentInformationException {
         PaymentDataValidator.validatePaymentTypeSupportedBySupplier(customer,
                 subscription.getProduct(), paymentInfo.getPaymentType());
         PaymentDataValidator.validatePaymentInfoDataForUsage(paymentInfo);
@@ -178,7 +180,8 @@ public class ModifyAndUpgradeSubscriptionBean extends SubscriptionUtilBean {
     protected void sendConfirmUpgradationEmail(Subscription subscription,
             String oldServiceId, String newServiceId, String accessInfo) {
 
-        List<PlatformUser> users = getCustomerAdminsAndSubscriptionOwner(subscription);
+        List<PlatformUser> users = getCustomerAdminsAndSubscriptionOwner(
+                subscription);
         try {
             for (PlatformUser user : users) {
                 commService.sendMail(user, EmailType.SUBSCRIPTION_MIGRATED,
@@ -187,9 +190,7 @@ public class ModifyAndUpgradeSubscriptionBean extends SubscriptionUtilBean {
                         subscription.getMarketplace());
             }
         } catch (MailOperationException e) {
-            LOG.logWarn(
-                    Log4jLogger.SYSTEM_LOG,
-                    e,
+            LOG.logWarn(Log4jLogger.SYSTEM_LOG, e,
                     LogMessageIdentifier.WARN_SUBSCRIPTION_MIGRATION_CONFIRMING_FAILED);
         }
     }
@@ -221,16 +222,12 @@ public class ModifyAndUpgradeSubscriptionBean extends SubscriptionUtilBean {
                 result = getSubscriptionDao().findSubscriptionForAsyncCallBack(
                         subscriptionId, organizationId);
             } catch (NoResultException ex) {
-                LOG.logError(
-                        Log4jLogger.SYSTEM_LOG,
-                        ex,
+                LOG.logError(Log4jLogger.SYSTEM_LOG, ex,
                         LogMessageIdentifier.ERROR_SUBSCRIPTIONID_NOT_EXIST_IN_MODIFIEDENTITY,
                         subscriptionId, organizationId);
                 throw e;
             } catch (NonUniqueResultException se) {
-                LOG.logError(
-                        Log4jLogger.SYSTEM_LOG,
-                        se,
+                LOG.logError(Log4jLogger.SYSTEM_LOG, se,
                         LogMessageIdentifier.ERROR_SUBSCRIPTIONID_NOT_UNIQUE_IN_MODIFIEDENTITY,
                         subscriptionId, organizationId);
                 throw e;
@@ -252,12 +249,13 @@ public class ModifyAndUpgradeSubscriptionBean extends SubscriptionUtilBean {
     }
 
     void storeModifiedUda(long targetObjectkey, ModifiedEntityType type,
-            String value, long subscriptionKey)
+            String value, long subscriptionKey, boolean encrypted)
             throws NonUniqueBusinessKeyException {
         ModifiedUda modifiedUda = new ModifiedUda();
         modifiedUda.setTargetObjectType(type);
         modifiedUda.setTargetObjectKey(targetObjectkey);
         modifiedUda.setSubscriptionKey(subscriptionKey);
+        modifiedUda.setEncrypted(encrypted);
         modifiedUda.setValue(value);
         dataManager.persist(modifiedUda);
     }
@@ -287,14 +285,17 @@ public class ModifyAndUpgradeSubscriptionBean extends SubscriptionUtilBean {
             throws ObjectNotFoundException {
         List<Uda> existingUdas = getExistingUdas(subscription);
         for (Uda uda : existingUdas) {
-            ModifiedUda modifiedUda = new ModifiedUda();
-            modifiedUda.setTargetObjectKey(uda.getKey());
-            modifiedUda.setTargetObjectType(ModifiedEntityType.UDA_VALUE);
-            modifiedUda.setSubscriptionKey(subscription.getKey());
-            modifiedUda = (ModifiedUda) dataManager
-                    .getReferenceByBusinessKey(modifiedUda);
-            uda.setUdaValue(modifiedUda.getValue());
-            dataManager.remove(modifiedUda);
+            if (uda.getUdaDefinition()
+                    .getTargetType() == UdaTargetType.CUSTOMER_SUBSCRIPTION) {
+                ModifiedUda modifiedUda = new ModifiedUda();
+                modifiedUda.setTargetObjectKey(uda.getKey());
+                modifiedUda.setTargetObjectType(ModifiedEntityType.UDA_VALUE);
+                modifiedUda.setSubscriptionKey(subscription.getKey());
+                modifiedUda = (ModifiedUda) dataManager
+                        .getReferenceByBusinessKey(modifiedUda);
+                uda.setUdaValue(modifiedUda.getValue());
+                dataManager.remove(modifiedUda);
+            }
         }
     }
 }

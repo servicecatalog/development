@@ -22,7 +22,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
-import org.oscm.app.v1_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.exceptions.APPlatformException;
 import org.oscm.app.vmware.business.VMPropertyHandler;
 import org.oscm.app.vmware.business.VMwareDatacenterInventory;
 import org.oscm.app.vmware.business.VMwareDatacenterInventoryTest;
@@ -32,7 +32,7 @@ import org.oscm.app.vmware.business.model.VMwareStorage;
 
 /**
  * @author Dirk Bernsau
- *
+ * 
  */
 public class EquipartitionStorageBalancerTest {
 
@@ -66,8 +66,8 @@ public class EquipartitionStorageBalancerTest {
         HierarchicalConfiguration configuration = Mockito
                 .mock(HierarchicalConfiguration.class);
         // the mock shall not return a list on getList call
-        Mockito.when(configuration.getList(Matchers.anyString()))
-                .thenReturn(null);
+        Mockito.when(configuration.getList(Matchers.anyString())).thenReturn(
+                null);
         new EquipartitionStorageBalancer().setConfiguration(configuration);
     }
 
@@ -113,8 +113,7 @@ public class EquipartitionStorageBalancerTest {
         store6.setFreeStorage(null);
         assertTrue(store6.getLevel() == 1); // 100% full
 
-        EquipartitionStorageBalancer balancer = getBalancer(
-                "store1,store2,store3,store5,store6");
+        EquipartitionStorageBalancer balancer = getBalancer("store1,store2,store3,store5,store6");
         balancer.setInventory(inventory);
 
         VMwareStorage storage = balancer.next(properties);
@@ -177,9 +176,8 @@ public class EquipartitionStorageBalancerTest {
         VMwareStorage storage = inventory.addStorage(null,
                 (VMwareDatacenterInventoryTest.createDataStoreProperties(name,
                         DF.format(VMwareValue.fromGigaBytes(capacityGB)
-                                .getValue(Unit.BY)),
-                        DF.format(VMwareValue.fromGigaBytes(freeGB)
-                                .getValue(Unit.BY)))));
+                                .getValue(Unit.BY)), DF.format(VMwareValue
+                                .fromGigaBytes(freeGB).getValue(Unit.BY)))));
         storage.setEnabled(enabled);
         if (limit != null) {
             storage.setLimit(VMwareValue.parse(limit));

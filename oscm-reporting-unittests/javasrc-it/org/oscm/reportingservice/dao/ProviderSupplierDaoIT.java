@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import org.junit.Test;
-
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Organization;
@@ -23,16 +22,17 @@ import org.oscm.domobjects.ParameterDefinition;
 import org.oscm.domobjects.Product;
 import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.TechnicalProduct;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.ParameterType;
+import org.oscm.internal.types.enumtypes.ParameterValueType;
+import org.oscm.internal.types.enumtypes.ServiceAccessType;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.Organizations;
 import org.oscm.test.data.Products;
 import org.oscm.test.data.Subscriptions;
 import org.oscm.test.data.TechnicalProducts;
 import org.oscm.test.ejb.TestContainer;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ParameterType;
-import org.oscm.internal.types.enumtypes.ParameterValueType;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 
 /**
  * Unit tests for {@link ProviderSupplierDao} using the test EJB container.
@@ -47,6 +47,7 @@ public class ProviderSupplierDaoIT extends EJBTestBase {
 
     @Override
     protected void setup(TestContainer container) throws Exception {
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         ds = container.get(DataService.class);
         dao = new ProviderSupplierDao(ds);
@@ -72,22 +73,23 @@ public class ProviderSupplierDaoIT extends EJBTestBase {
                 product.getProductId(), "sub", supplier);
 
         // when
-        List<ReportResultData> result = runTX(new Callable<List<ReportResultData>>() {
-            @Override
-            public List<ReportResultData> call() throws Exception {
-                return dao.retrieveProviderInstanceReportData(supplier
-                        .getOrganizationId());
-            }
-        });
+        List<ReportResultData> result = runTX(
+                new Callable<List<ReportResultData>>() {
+                    @Override
+                    public List<ReportResultData> call() throws Exception {
+                        return dao.retrieveProviderInstanceReportData(
+                                supplier.getOrganizationId());
+                    }
+                });
 
         // then
         assertEquals(1, result.size());
-        assertEquals("techServiceWithParams", result.get(0).getColumnValue()
-                .get(0));
-        assertEquals("productWithParams", ((String) result.get(0)
-                .getColumnValue().get(1)).split("#")[0]);
-        assertEquals("productWithParams", ((String) result.get(0)
-                .getColumnValue().get(2)).split("#")[0]);
+        assertEquals("techServiceWithParams",
+                result.get(0).getColumnValue().get(0));
+        assertEquals("productWithParams",
+                ((String) result.get(0).getColumnValue().get(1)).split("#")[0]);
+        assertEquals("productWithParams",
+                ((String) result.get(0).getColumnValue().get(2)).split("#")[0]);
         assertEquals("stringParam", result.get(0).getColumnValue().get(3));
         assertEquals("123", result.get(0).getColumnValue().get(4));
     }
@@ -100,7 +102,8 @@ public class ProviderSupplierDaoIT extends EJBTestBase {
                 "supplierCustomer", supplier);
 
         TechnicalProduct techProdWithoutParams = createTechProduct(
-                "techServiceNoParams", supplier, ServiceAccessType.LOGIN, false);
+                "techServiceNoParams", supplier, ServiceAccessType.LOGIN,
+                false);
 
         Product product = createProduct("productWithoutParams",
                 techProdWithoutParams, supplier);
@@ -109,22 +112,23 @@ public class ProviderSupplierDaoIT extends EJBTestBase {
                 product.getProductId(), "subNoParams", supplier);
 
         // when
-        List<ReportResultData> result = runTX(new Callable<List<ReportResultData>>() {
-            @Override
-            public List<ReportResultData> call() throws Exception {
-                return dao.retrieveProviderInstanceReportData(supplier
-                        .getOrganizationId());
-            }
-        });
+        List<ReportResultData> result = runTX(
+                new Callable<List<ReportResultData>>() {
+                    @Override
+                    public List<ReportResultData> call() throws Exception {
+                        return dao.retrieveProviderInstanceReportData(
+                                supplier.getOrganizationId());
+                    }
+                });
 
         // then
         assertEquals(1, result.size());
         assertEquals("techServiceNoParams",
                 result.get(0).getColumnValue().get(0));
-        assertEquals("productWithoutParams", ((String) result.get(0)
-                .getColumnValue().get(1)).split("#")[0]);
-        assertEquals("productWithoutParams", ((String) result.get(0)
-                .getColumnValue().get(2)).split("#")[0]);
+        assertEquals("productWithoutParams",
+                ((String) result.get(0).getColumnValue().get(1)).split("#")[0]);
+        assertEquals("productWithoutParams",
+                ((String) result.get(0).getColumnValue().get(2)).split("#")[0]);
         assertNull(result.get(0).getColumnValue().get(3));
         assertNull(result.get(0).getColumnValue().get(4));
     }
@@ -136,8 +140,8 @@ public class ProviderSupplierDaoIT extends EJBTestBase {
             @Override
             public TechnicalProduct call() throws Exception {
                 TechnicalProduct result = TechnicalProducts
-                        .createTechnicalProduct(ds, organization,
-                                techProductId, false, type);
+                        .createTechnicalProduct(ds, organization, techProductId,
+                                false, type);
 
                 if (withParams) {
                     TechnicalProducts.addParameterDefinition(

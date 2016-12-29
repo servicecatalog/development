@@ -35,6 +35,26 @@ public class UdaDefinitionRowModel {
     private boolean mandatory;
 
     /**
+     * Determine the UDA value is encrypted or not.
+     */
+    private boolean encrypted;
+
+    /**
+     * Determine the controller the UDA is meant for.
+     */
+    private String controllerId;
+
+    /**
+     * The localized name for the custom attribute
+     */
+    private String name;
+
+    /**
+     * The language of attribute name.
+     */
+    private String language;
+
+    /**
      * the numeric key for the UDA
      */
     private long key;
@@ -139,4 +159,35 @@ public class UdaDefinitionRowModel {
         return !userOption;
     }
 
+    public boolean isEncrypted() {
+        return encrypted;
+    }
+
+    public void setEncrypted(boolean encrypted) {
+        this.encrypted = encrypted;
+    }
+
+    public String getControllerId() {
+        return controllerId;
+    }
+
+    public void setControllerId(String controllerId) {
+        this.controllerId = controllerId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
+    }
 }

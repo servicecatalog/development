@@ -15,6 +15,7 @@ import org.oscm.applicationservice.adapter.ProvisioningServiceAdapter;
 import org.oscm.provisioning.data.BaseResult;
 import org.oscm.provisioning.data.InstanceRequest;
 import org.oscm.provisioning.data.InstanceResult;
+import org.oscm.provisioning.data.ServiceAttribute;
 import org.oscm.provisioning.data.ServiceParameter;
 import org.oscm.provisioning.data.User;
 import org.oscm.provisioning.data.UserResult;
@@ -24,15 +25,15 @@ import org.oscm.provisioning.intf.ProvisioningService;
  * @author goebel
  * 
  */
-public class ProvisioningServiceAdapterV1_0 implements
-        ProvisioningServiceAdapter {
+public class ProvisioningServiceAdapterV1_0
+        implements ProvisioningServiceAdapter {
 
     private ProvisioningService service;
 
     @Override
     public URL getLocalWSDL() {
-        return this.getClass().getResource(
-                "/wsdl/provisioning/ProvisioningService.wsdl");
+        return this.getClass()
+                .getResource("/wsdl/provisioning/ProvisioningService.wsdl");
     }
 
     @Override
@@ -78,10 +79,11 @@ public class ProvisioningServiceAdapterV1_0 implements
 
     @Override
     public BaseResult modifySubscription(String instanceId,
-            String subscriptionId, List<ServiceParameter> parameterValues,
-            User requestingUser) {
+            String subscriptionId, String referenceId,
+            List<ServiceParameter> parameterValues,
+            List<ServiceAttribute> attributeValues, User requestingUser) {
         return service.modifySubscription(instanceId, subscriptionId,
-                parameterValues, requestingUser);
+                referenceId, parameterValues, attributeValues, requestingUser);
     }
 
     @Override
@@ -96,32 +98,45 @@ public class ProvisioningServiceAdapterV1_0 implements
     }
 
     @Override
-    public BaseResult deactivateInstance(String instanceId, User requestingUser) {
+    public BaseResult deactivateInstance(String instanceId,
+            User requestingUser) {
         return service.deactivateInstance(instanceId, requestingUser);
     }
 
     @Override
     public BaseResult asyncModifySubscription(String instanceId,
-            String subscriptionId, List<ServiceParameter> parameterValues,
-            User requestingUser) {
+            String subscriptionId, String referenceId,
+            List<ServiceParameter> parameterValues,
+            List<ServiceAttribute> attributeValues, User requestingUser) {
         return service.asyncModifySubscription(instanceId, subscriptionId,
-                parameterValues, requestingUser);
+                referenceId, parameterValues, attributeValues, requestingUser);
     }
 
     @Override
     public BaseResult asyncUpgradeSubscription(String instanceId,
-            String subscriptionId, List<ServiceParameter> parameterValues,
-            User requestingUser) {
+            String subscriptionId, String referenceId,
+            List<ServiceParameter> parameterValues,
+            List<ServiceAttribute> attributeValues, User requestingUser) {
         return service.asyncUpgradeSubscription(instanceId, subscriptionId,
-                parameterValues, requestingUser);
+                referenceId, parameterValues, attributeValues, requestingUser);
     }
 
     @Override
     public BaseResult upgradeSubscription(String instanceId,
-            String subscriptionId, List<ServiceParameter> parameterValues,
-            User requestingUser) {
+            String subscriptionId, String referenceId,
+            List<ServiceParameter> parameterValues,
+            List<ServiceAttribute> attributeValues, User requestingUser) {
         return service.upgradeSubscription(instanceId, subscriptionId,
-                parameterValues, requestingUser);
+                referenceId, parameterValues, attributeValues, requestingUser);
+    }
+
+    @Override
+    public BaseResult saveAttributes(String organizationId,
+            List<ServiceAttribute> attributeValues, User requestingUser) {
+        BaseResult br = new BaseResult();
+        br.setRc(0);
+        br.setDesc("saveAttributes");
+        return br;
     }
 
 }

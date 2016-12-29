@@ -15,6 +15,7 @@ import org.oscm.internal.types.enumtypes.SubscriptionStatus;
 import org.oscm.provisioning.data.BaseResult;
 import org.oscm.provisioning.data.InstanceRequest;
 import org.oscm.provisioning.data.InstanceResult;
+import org.oscm.provisioning.data.ServiceAttribute;
 import org.oscm.provisioning.data.ServiceParameter;
 import org.oscm.provisioning.data.User;
 import org.oscm.provisioning.data.UserResult;
@@ -147,8 +148,9 @@ public interface ProvisioningServiceAdapter {
      *         0 indicates an error.
      */
     public BaseResult modifySubscription(String instanceId,
-            String subscriptionId, List<ServiceParameter> parameterValues,
-            User requestingUser);
+            String subscriptionId, String referenceId,
+            List<ServiceParameter> parameterValues,
+            List<ServiceAttribute> attributeValues, User requestingUser);
 
     /**
      * Retrieves the status message and the return code of an update operation.
@@ -169,8 +171,14 @@ public interface ProvisioningServiceAdapter {
      *            subscription.
      * @param subscriptionId
      *            the subscription's id, can be changed by a user
+     * @param referenceId
+     *            the subscription's reference, can be changed by a user
      * @param parameterValues
      *            New values for parameters. The parameters are passed to your
+     *            application when <code>createInstance</code> or
+     *            <code>asynchCreateInstance</code> is called.
+     * @param attributesValues
+     *            New values for attributes. The attributes are passed to your
      *            application when <code>createInstance</code> or
      *            <code>asynchCreateInstance</code> is called.
      * @return Object of type <code>BaseResult</code> containing a status
@@ -179,8 +187,9 @@ public interface ProvisioningServiceAdapter {
      *         0 indicates an error.
      */
     public BaseResult asyncModifySubscription(String instanceId,
-            String subscriptionId, List<ServiceParameter> parameterValues,
-            User requestingUser);
+            String subscriptionId, String referenceId,
+            List<ServiceParameter> parameterValues,
+            List<ServiceAttribute> attributeValues, User requestingUser);
 
     /**
      * Retrieves the status message and the return code of an upgrade or
@@ -202,8 +211,14 @@ public interface ProvisioningServiceAdapter {
      *            subscription.
      * @param subscriptionId
      *            the subscription's id, can be changed by a user
+     * @param referenceId
+     *            the subscription's reference, can be changed by a user
      * @param parameterValues
      *            New values for parameters. The parameters are passed to your
+     *            application when <code>createInstance</code> or
+     *            <code>asynchCreateInstance</code> is called.
+     * @param attributesValues
+     *            New values for attributes. The attributes are passed to your
      *            application when <code>createInstance</code> or
      *            <code>asynchCreateInstance</code> is called.
      * @return Object of type <code>BaseResult</code> containing a status
@@ -212,8 +227,9 @@ public interface ProvisioningServiceAdapter {
      *         0 indicates an error.
      */
     public BaseResult asyncUpgradeSubscription(String instanceId,
-            String subscriptionId, List<ServiceParameter> parameterValues,
-            User requestingUser);
+            String subscriptionId, String referenceId,
+            List<ServiceParameter> parameterValues,
+            List<ServiceAttribute> attributeValues, User requestingUser);
 
     /**
      * Retrieves the status message and the return code of an upgrade or
@@ -234,8 +250,14 @@ public interface ProvisioningServiceAdapter {
      *            subscription.
      * @param subscriptionId
      *            the subscription's id, can be changed by a user
+     * @param referenceId
+     *            the subscription's reference, can be changed by a user
      * @param parameterValues
      *            New values for parameters. The parameters are passed to your
+     *            application when <code>createInstance</code> or
+     *            <code>asynchCreateInstance</code> is called.
+     * @param attributesValues
+     *            New values for attributes. The attributes are passed to your
      *            application when <code>createInstance</code> or
      *            <code>asynchCreateInstance</code> is called.
      * @return Object of type <code>BaseResult</code> containing a status
@@ -244,8 +266,9 @@ public interface ProvisioningServiceAdapter {
      *         0 indicates an error.
      */
     public BaseResult upgradeSubscription(String instanceId,
-            String subscriptionId, List<ServiceParameter> parameterValues,
-            User requestingUser);
+            String subscriptionId, String referenceId,
+            List<ServiceParameter> parameterValues,
+            List<ServiceAttribute> attributeValues, User requestingUser);
 
     /**
      * Assigns new users to the subscription of a service. The operation is only
@@ -355,6 +378,22 @@ public interface ProvisioningServiceAdapter {
      *         indicates that the operation was successful. A value greater than
      *         0 indicates an error.
      */
-    public BaseResult deactivateInstance(String instanceId, User requestingUser);
+    public BaseResult deactivateInstance(String instanceId,
+            User requestingUser);
+
+    /**
+     * This method will be called after customer UDAs have been saved.
+     * 
+     * @param organizationId
+     *            ID of the organization that set the attributes
+     * @param attributeValues
+     *            New values for the attributes.
+     * @return Object of type <code>BaseResult</code> containing a status
+     *         message and the return code of the operation. A value of 0
+     *         indicates that the operation was successful. A value greater than
+     *         0 indicates an error.
+     */
+    public BaseResult saveAttributes(String organizationId,
+            List<ServiceAttribute> attributeValues, User requestingUser);
 
 }

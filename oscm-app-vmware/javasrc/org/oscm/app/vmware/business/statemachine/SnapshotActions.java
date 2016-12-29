@@ -10,8 +10,8 @@ package org.oscm.app.vmware.business.statemachine;
 
 import java.util.Date;
 
-import org.oscm.app.v1_0.data.InstanceStatus;
-import org.oscm.app.v1_0.data.ProvisioningSettings;
+import org.oscm.app.v2_0.data.InstanceStatus;
+import org.oscm.app.v2_0.data.ProvisioningSettings;
 import org.oscm.app.vmware.business.VMPropertyHandler;
 import org.oscm.app.vmware.business.statemachine.api.StateMachineAction;
 import org.oscm.app.vmware.remote.vmware.VMClientPool;
@@ -61,7 +61,7 @@ public class SnapshotActions extends Actions {
             ManagedObjectReference removeTask = client.getService()
                     .removeSnapshotTask(snapshot, removeChildren, consolidate);
 
-            ph.setTask(client.retrieveTaskInfoKey(removeTask));
+            ph.setTask(client.retrieveTaskInfo(removeTask));
             return EVENT_RUN;
         } catch (Exception e) {
             String message = "Failed to delete old snapshot for instance "
@@ -85,8 +85,8 @@ public class SnapshotActions extends Actions {
         try {
             client = VMClientPool.getInstance().getPool().borrowObject(vcenter);
 
-            ManagedObjectReference vm = client.getVirtualMachine(ph
-                    .getInstanceName());
+            ManagedObjectReference vm = client
+                    .getVirtualMachine(ph.getInstanceName());
             String description = "Instance ID: " + instanceId
                     + ", Snapshot date: " + (new Date());
             boolean dumpMemory = false;
@@ -95,7 +95,7 @@ public class SnapshotActions extends Actions {
                     .createSnapshotTask(vm, SNAPSHOT_NAME, description,
                             dumpMemory, quiesceFileSystem);
 
-            ph.setTask(client.retrieveTaskInfoKey(task));
+            ph.setTask(client.retrieveTaskInfo(task));
             return EVENT_RUN;
         } catch (Exception e) {
             String message = "Failed to create snapshot for instance "
@@ -106,8 +106,8 @@ public class SnapshotActions extends Actions {
         } finally {
             if (client != null) {
                 try {
-                    VMClientPool.getInstance().getPool()
-                            .returnObject(vcenter, client);
+                    VMClientPool.getInstance().getPool().returnObject(vcenter,
+                            client);
                 } catch (Exception e) {
                     logger.error("Failed to return VMware client into pool", e);
                 }

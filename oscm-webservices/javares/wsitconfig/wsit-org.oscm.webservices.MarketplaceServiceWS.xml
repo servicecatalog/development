@@ -11,6 +11,8 @@
   xmlns:wsaw="http://www.w3.org/2005/08/addressing" xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex">
   <message name="publishService" />
   <message name="publishServiceResponse" />
+  <message name="getAccessibleMarketplaces" />
+  <message name="getAccessibleMarketplacesResponse" />
   <message name="getMarketplacesForService" />
   <message name="getMarketplacesForServiceResponse" />
   <message name="getMarketplacesOwned" />
@@ -49,6 +51,10 @@
     <operation name="publishService">
       <input message="tns:publishService" />
       <output message="tns:publishServiceResponse" />
+    </operation>
+    <operation name="getAccessibleMarketplaces">
+      <input message="tns:getAccessibleMarketplaces" />
+      <output message="tns:getAccessibleMarketplacesResponse" />
     </operation>
     <operation name="getMarketplacesForService">
       <input message="tns:getMarketplacesForService" />
@@ -265,6 +271,14 @@
         <wsp:PolicyReference URI="#MarketplaceServicePortSTSBinding_Output_Policy" />
       </output>
     </operation>
+    <operation name="getAccessibleMarketplaces">
+      <input>
+        <wsp:PolicyReference URI="#MarketplaceServicePortSTSBinding_Input_Policy" />
+      </input>
+      <output>
+        <wsp:PolicyReference URI="#MarketplaceServicePortSTSBinding_Output_Policy" />
+      </output>
+    </operation>    
   </binding>
   <service name="MarketplaceService">
     <port name="MarketplaceServicePortSTS" binding="tns:MarketplaceServicePortSTSBinding" />

@@ -1,1 +1,2 @@
-alter table "hibernate_sequences" alter column "sequence_next_hi_value" type BIGINT;
+ALTER TABLE product ADD COLUMN customtaburl character varying(255) DEFAULT NULL;
+ALTER TABLE producthistory ADD COLUMN customtaburl character varying(255) DEFAULT NULL;

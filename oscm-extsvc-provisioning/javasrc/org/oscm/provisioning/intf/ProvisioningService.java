@@ -21,6 +21,7 @@ import javax.jws.soap.SOAPBinding;
 import org.oscm.provisioning.data.BaseResult;
 import org.oscm.provisioning.data.InstanceRequest;
 import org.oscm.provisioning.data.InstanceResult;
+import org.oscm.provisioning.data.ServiceAttribute;
 import org.oscm.provisioning.data.ServiceParameter;
 import org.oscm.provisioning.data.User;
 import org.oscm.provisioning.data.UserResult;
@@ -187,7 +188,9 @@ public interface ProvisioningService {
     public BaseResult modifySubscription(
             @WebParam(name = "instanceId") String instanceId,
             @WebParam(name = "subscriptionId") String subscriptionId,
+            @WebParam(name = "referenceId") String referenceId,
             @WebParam(name = "parameterValues") List<ServiceParameter> parameterValues,
+            @WebParam(name = "attributeValues") List<ServiceAttribute> attributeValues,
             @WebParam(name = "requestingUser") User requestingUser);
 
     /**
@@ -388,11 +391,18 @@ public interface ProvisioningService {
      *            the identifier of the subscription as specified when the
      *            subscription was created or as changed by the customer for the
      *            current operation
+     * @param referenceId
+     *            the ID specified when the subscription was created or changed
+     *            by the customer to refer to it.
      * @param parameterValues
      *            the new values for the service parameters. The parameters with
      *            their original values are passed to the application when
      *            <code>createInstance</code> or
      *            <code>asynchCreateInstance</code> is called.
+     * @param attributeValues
+     *            the new values for the service attributes as specified for the
+     *            subscription attributes by the customer during the creation or
+     *            update of the subscription.
      * @param requestingUser
      *            a <code>User</code> object specifying the platform user who
      *            requests the instance operation
@@ -407,7 +417,9 @@ public interface ProvisioningService {
     public BaseResult asyncModifySubscription(
             @WebParam(name = "instanceId") String instanceId,
             @WebParam(name = "subscriptionId") String subscriptionId,
+            @WebParam(name = "referenceId") String referenceId,
             @WebParam(name = "parameterValues") List<ServiceParameter> parameterValues,
+            @WebParam(name = "attributeValues") List<ServiceAttribute> attributeValues,
             @WebParam(name = "requestingUser") User requestingUser);
 
     /**
@@ -441,11 +453,18 @@ public interface ProvisioningService {
      *            the identifier of the subscription as specified when the
      *            subscription was created or as changed by the customer for the
      *            current operation
+     * @param referenceId
+     *            the ID specified when the subscription was created or updated
+     *            by the customer to refer to it.
      * @param parameterValues
      *            the new values for the service parameters. The parameters with
      *            their original values are passed to the application when
      *            <code>createInstance</code> or
      *            <code>asynchCreateInstance</code> is called.
+     * @param attributeValues
+     *            the new values for the service attributes as specified for the
+     *            subscription attributes by the customer during the creation or
+     *            update of the subscription.
      * @param requestingUser
      *            a <code>User</code> object specifying the platform user who
      *            requests the instance operation
@@ -460,7 +479,9 @@ public interface ProvisioningService {
     public BaseResult asyncUpgradeSubscription(
             @WebParam(name = "instanceId") String instanceId,
             @WebParam(name = "subscriptionId") String subscriptionId,
+            @WebParam(name = "referenceId") String referenceId,
             @WebParam(name = "parameterValues") List<ServiceParameter> parameterValues,
+            @WebParam(name = "attributeValues") List<ServiceAttribute> attributeValues,
             @WebParam(name = "requestingUser") User requestingUser);
 
     /**
@@ -489,11 +510,18 @@ public interface ProvisioningService {
      *            the identifier of the subscription as specified when the
      *            subscription was created or as changed by the customer for the
      *            current operation
+     * @param referenceId
+     *            the id specified when the subscription was created or changed
+     *            by the customer to refer to it.
      * @param parameterValues
      *            the new values for the service parameters. The parameters with
      *            their original values are passed to the application when
      *            <code>createInstance</code> or
      *            <code>asynchCreateInstance</code> is called.
+     * @param attributeValues
+     *            the new values for the service attributes as specified for the
+     *            subscription attributes by the customer during the creation or
+     *            update of the subscription.
      * @param requestingUser
      *            a <code>User</code> object specifying the platform user who
      *            requests the instance operation
@@ -508,7 +536,32 @@ public interface ProvisioningService {
     public BaseResult upgradeSubscription(
             @WebParam(name = "instanceId") String instanceId,
             @WebParam(name = "subscriptionId") String subscriptionId,
+            @WebParam(name = "referenceId") String referenceId,
             @WebParam(name = "parameterValues") List<ServiceParameter> parameterValues,
+            @WebParam(name = "attributeValues") List<ServiceAttribute> attributeValues,
+            @WebParam(name = "requestingUser") User requestingUser);
+
+    /**
+     * This method is called when a customer sets values for customer
+     * attributes. The attributes are saved within the APP and used, for
+     * example, to overwrite the configured controller credentials.
+     * 
+     * @param organizationId
+     *            the id of the organization the customer belongs to.
+     * @param attributeValues
+     *            the new values for the service attributes as specified for the
+     *            customer attributes by the customer through the account.
+     * @param requestingUser
+     *            a <code>User</code> object specifying the platform user who
+     *            requests the instance operation.
+     * @return
+     */
+    @WebMethod(action = "urn:saveAttributes")
+    @WebResult(name = "return")
+    @SOAPBinding(parameterStyle = WRAPPED)
+    public BaseResult saveAttributes(
+            @WebParam(name = "organizationId") String organizationId,
+            @WebParam(name = "attributeValues") List<ServiceAttribute> attributeValues,
             @WebParam(name = "requestingUser") User requestingUser);
 
 }

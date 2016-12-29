@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2016-->
+
+<dataset>
+  <Organization tkey="10111" organizationid="org1" version="0" registrationdate="1468312355787" cutoffday="1" />
+  <TechnicalProduct tkey="123" version="0" provisioningurl="http://www.someUrl.example" technicalproductid="techprod1"
+    organizationkey="10111" allowingonbehalfacting="true" billingidentifier="billingID"/>
+  <Product tkey="12345" version="0" productid="prod1" provisioningdate="121312312" status="ACTIVE"
+    technicalproduct_tkey="123" type="TEMPLATE" vendorkey="10111"/>
+</dataset>

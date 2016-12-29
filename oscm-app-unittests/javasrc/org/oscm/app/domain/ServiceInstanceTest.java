@@ -4,28 +4,26 @@
 
 package org.oscm.app.domain;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.spy;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
 import javax.persistence.EntityManager;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
-
 import org.oscm.app.business.exceptions.BadResultException;
-import org.oscm.app.v1_0.data.InstanceStatus;
+import org.oscm.app.v2_0.data.InstanceStatus;
+import org.oscm.app.v2_0.data.Setting;
 
 /**
  * Unit tests for {@link ServiceInstance}.
@@ -35,7 +33,7 @@ import org.oscm.app.v1_0.data.InstanceStatus;
 public class ServiceInstanceTest {
 
     private ServiceInstance instance;
-    private final EntityManager em = Mockito.mock(EntityManager.class);
+    private final EntityManager em = mock(EntityManager.class);
 
     @Before
     public void setup() throws Exception {
@@ -59,6 +57,16 @@ public class ServiceInstanceTest {
         instance.setInstanceParameters(Arrays.asList(p));
         assertEquals("value1", instance.getParameterForKey("param1")
                 .getParameterValue());
+    }
+
+    @Test
+    public void testGetAttributeForKey() {
+        final InstanceAttribute a = new InstanceAttribute();
+        a.setAttributeKey("param1");
+        a.setAttributeValue("value1");
+        instance.setInstanceAttributes(Arrays.asList(a));
+        assertEquals("value1", instance.getAttributeForKey("param1")
+                .getAttributeValue());
     }
 
     @Test
@@ -112,6 +120,15 @@ public class ServiceInstanceTest {
     }
 
     @Test
+    public void testGetAttributeForKeyNegative() {
+        final InstanceAttribute a = new InstanceAttribute();
+        a.setAttributeKey("param1");
+        a.setAttributeValue("value1");
+        instance.setInstanceAttributes(Arrays.asList(a));
+        assertNull(instance.getAttributeForKey("param2"));
+    }
+
+    @Test
     public void testGetParameterMap() throws Exception {
         final InstanceParameter p1 = new InstanceParameter();
         p1.setParameterKey("param1");
@@ -121,10 +138,32 @@ public class ServiceInstanceTest {
         p2.setParameterValue("value2");
         instance.setInstanceParameters(Arrays.asList(p1, p2));
 
-        final Map<String, String> expected = new HashMap<String, String>();
+        final Map<String, Setting> expected = new HashMap<>();
+        expected.put("param1", new Setting("param1", "value1"));
+        expected.put("param2", new Setting("param2", "value2"));
+        assertEquals("value1", instance.getParameterMap().get("param1")
+                .getValue());
+        assertEquals("value2", instance.getParameterMap().get("param2")
+                .getValue());
+    }
+
+    @Test
+    public void testGetAttributeMap() throws Exception {
+        final InstanceAttribute a1 = new InstanceAttribute();
+        a1.setAttributeKey("param1");
+        a1.setAttributeValue("value1");
+        final InstanceAttribute a2 = new InstanceAttribute();
+        a2.setAttributeKey("param2");
+        a2.setAttributeValue("value2");
+        instance.setInstanceAttributes(Arrays.asList(a1, a2));
+
+        final Map<String, String> expected = new HashMap<>();
         expected.put("param1", "value1");
         expected.put("param2", "value2");
-        assertEquals(expected, instance.getParameterMap());
+        assertEquals("value1", instance.getAttributeMap().get("param1")
+                .getValue());
+        assertEquals("value2", instance.getAttributeMap().get("param2")
+                .getValue());
     }
 
     @Test
@@ -236,7 +275,7 @@ public class ServiceInstanceTest {
         si.updateStatus(em, new InstanceStatus());
 
         // then
-        Mockito.verify(em, Mockito.times(0)).persist(si);
+        verify(em, Mockito.times(0)).persist(si);
     }
 
     @Test
@@ -255,7 +294,7 @@ public class ServiceInstanceTest {
         si.updateStatus(em, status);
 
         // then
-        Mockito.verify(em, Mockito.times(1)).persist(si);
+        verify(em, Mockito.times(1)).persist(si);
     }
 
     @Test
@@ -274,7 +313,7 @@ public class ServiceInstanceTest {
         si.updateStatus(em, status);
 
         // then
-        Mockito.verify(em, Mockito.times(1)).persist(si);
+        verify(em, Mockito.times(1)).persist(si);
     }
 
     @Test
@@ -293,7 +332,7 @@ public class ServiceInstanceTest {
         si.updateStatus(em, status);
 
         // then
-        Mockito.verify(em, Mockito.times(1)).persist(si);
+        verify(em, Mockito.times(1)).persist(si);
     }
 
     @Test
@@ -301,9 +340,10 @@ public class ServiceInstanceTest {
         // given
         ServiceInstance si = Mockito.spy(new ServiceInstance());
         si.setSubscriptionId("subscriptionId");
-        String expectedXML = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><!DOCTYPE properties SYSTEM \"http://java.sun.com/dtd/properties.dtd\"><properties><entry key=\"KEY2\">VALUE2</entry><entry key=\"KEY1\">VALUE1</entry><entry key=\"ROLLBACK_SUBSCRIPTIONID\">subscriptionId</entry></properties>";
+        si.setReferenceId("refId");
+        String expectedXML = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><!DOCTYPE properties SYSTEM \"http://java.sun.com/dtd/properties.dtd\"><properties><entry key=\"ROLLBACK_SUBSCRIPTIONREF\">refId</entry><entry key=\"KEY2\">VALUE2</entry><entry key=\"ROLLBACK_SUBSCRIPTIONID\">subscriptionId</entry><entry key=\"KEY1\">VALUE1</entry></properties>";
 
-        HashMap<String, String> params = new HashMap<String, String>();
+        HashMap<String, String> params = new HashMap<>();
         params.put("KEY1", "VALUE1");
         params.put("KEY2", "VALUE2");
 
@@ -352,21 +392,48 @@ public class ServiceInstanceTest {
     public void rollbackInstanceParameters() throws Exception {
         // given
         ServiceInstance si = Mockito.spy(new ServiceInstance());
-        HashMap<String, String> expectedParams = new HashMap<String, String>();
-        expectedParams.put("KEY1", "VALUE1");
-        expectedParams.put("KEY2", "VALUE2");
+        si.setReferenceId("referenceId");
+        List<InstanceAttribute> listOfAttrs = new ArrayList<>();
+        InstanceAttribute it = new InstanceAttribute();
+        it.setAttributeKey("AAA");
+        listOfAttrs.add(it);
+        InstanceAttribute it2 = new InstanceAttribute();
+        it2.setAttributeKey("BBB");
+        listOfAttrs.add(it2);
+        doReturn(listOfAttrs).when(si).getInstanceAttributes();
 
-        String rollbackXML = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<!DOCTYPE properties SYSTEM \"http://java.sun.com/dtd/properties.dtd\">\r\n<properties>\r\n<entry key=\"KEY2\">VALUE2</entry>\r\n<entry key=\"ROLLBACK_SUBSCRIPTIONID\">subscriptionId</entry>\r\n<entry key=\"KEY1\">VALUE1</entry>\r\n</properties>\r\n";
+        List<InstanceParameter> expectedParams = new ArrayList<InstanceParameter>();
+        InstanceParameter param = new InstanceParameter();
+        param.setParameterKey("KEY1");
+        param.setParameterValue("VALUE1");
+        expectedParams.add(param);
+        InstanceParameter param2 = new InstanceParameter();
+        param2.setParameterKey("KEY2");
+        param2.setParameterValue("VALUE2");
+        expectedParams.add(param2);
+
+        String rollbackXML = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<!DOCTYPE properties SYSTEM \"http://java.sun.com/dtd/properties.dtd\">\r\n<properties>\r\n<entry key=\"ROLLBACK_SUBSCRIPTIONREF\">refId</entry>\r\n<entry key=\"KEY2\">VALUE2</entry>\r\n<entry key=\"ROLLBACK_SUBSCRIPTIONID\">subscriptionId</entry>\r\n<entry key=\"KEY1\">VALUE1</entry>\r\n</properties>\r\n";
 
         Mockito.doReturn(rollbackXML).when(si).getRollbackParameters();
+        Mockito.doReturn(rollbackXML).when(si).getRollbackInstanceAttributes();
+        EntityManager em = mock(EntityManager.class);
 
         // when
-        si.rollbackServiceInstance(null);
+        si.rollbackServiceInstance(em);
 
         // then
-        Mockito.verify(si, Mockito.times(1)).setInstanceParameters(
-                expectedParams);
-
+        List<InstanceParameter> stored = si.getInstanceParameters();
+        for (InstanceParameter instanceParameter : stored) {
+            if (instanceParameter.getParameterKey().equals(param.getParameterKey())) {
+                continue;
+            }
+            if (instanceParameter.getParameterKey().equals(param2.getParameterKey())) {
+                continue;
+            }
+            fail();
+        }
+        verify(em, times(1)).remove(it);
+        verify(em, times(1)).remove(it2);
     }
 
     @Test(expected = BadResultException.class)
@@ -394,13 +461,14 @@ public class ServiceInstanceTest {
             throws Exception {
         // given
         ServiceInstance si = Mockito.spy(new ServiceInstance());
-        HashMap<String, String> expectedParams = new HashMap<String, String>();
+        HashMap<String, String> expectedParams = new HashMap<>();
         expectedParams.put("KEY1", "VALUE1");
         expectedParams.put("KEY2", "VALUE2");
 
         String rollbackXML = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n<!DOCTYPE properties SYSTEM \"http://java.sun.com/dtd/properties.dtd\">\r\n<properties>\r\n<entry key=\"KEY2\">VALUE2</entry>\r\n<entry key=\"KEY1\">VALUE1</entry>\r\n</properties>\r\n";
 
         Mockito.doReturn(rollbackXML).when(si).getRollbackParameters();
+        Mockito.doReturn(rollbackXML).when(si).getRollbackInstanceAttributes();
 
         // when
         try {
@@ -417,9 +485,9 @@ public class ServiceInstanceTest {
     @Test
     public void setInstanceParameters() throws Exception {
         // given
-        HashMap<String, String> newParameters = new HashMap<>();
-        newParameters.put("KEY1", "NEWVALUE1");
-        newParameters.put("KEY2", "NEWVALUE2");
+        HashMap<String, Setting> newParameters = new HashMap<>();
+        newParameters.put("KEY1", new Setting("KEY1", "NEWVALUE1"));
+        newParameters.put("KEY2", new Setting("KEY2", "NEWVALUE2"));
         InstanceParameter ip = new InstanceParameter();
         ip.setParameterKey("KEY1");
         ip.setParameterValue("OLDVALUE1");
@@ -430,15 +498,35 @@ public class ServiceInstanceTest {
         si.setInstanceParameters(newParameters);
 
         // then
-        assertEquals(newParameters, si.getParameterMap());
+        assertEquals("NEWVALUE1", si.getParameterMap().get("KEY1").getValue());
+        assertEquals("NEWVALUE2", si.getParameterMap().get("KEY2").getValue());
+    }
 
+    @Test
+    public void setInstanceAttributes() throws Exception {
+        // given
+        HashMap<String, Setting> newAttributes = new HashMap<>();
+        newAttributes.put("KEY1", new Setting("KEY1", "NEWVALUE1"));
+        newAttributes.put("KEY2", new Setting("KEY2", "NEWVALUE2"));
+        InstanceAttribute ip = new InstanceAttribute();
+        ip.setAttributeKey("KEY1");
+        ip.setAttributeValue("OLDVALUE1");
+        ServiceInstance si = spy(new ServiceInstance());
+        doReturn(ip).when(si).getAttributeForKey("KEY1");
+
+        // when
+        si.setInstanceAttributes(newAttributes);
+
+        // then
+        assertEquals("NEWVALUE1", si.getAttributeMap().get("KEY1").getValue());
+        assertEquals("NEWVALUE2", si.getAttributeMap().get("KEY2").getValue());
     }
 
     @Test
     public void removeParams() {
         // given
         ServiceInstance si = new ServiceInstance();
-        ArrayList<InstanceParameter> currentIpList = new ArrayList<InstanceParameter>();
+        ArrayList<InstanceParameter> currentIpList = new ArrayList<>();
         InstanceParameter ip1 = new InstanceParameter();
         ip1.setParameterKey("KEY1");
         ip1.setParameterValue("VALUE1");
@@ -449,8 +537,8 @@ public class ServiceInstanceTest {
         currentIpList.add(ip2);
         si.setInstanceParameters(currentIpList);
 
-        HashMap<String, String> newParameters = new HashMap<>();
-        newParameters.put("KEY1", "NEWVALUE1");
+        HashMap<String, Setting> newParameters = new HashMap<>();
+        newParameters.put("KEY1", new Setting("KEY1", "NEWVALUE1"));
 
         // when
         si.removeParams(newParameters, em);
@@ -463,7 +551,7 @@ public class ServiceInstanceTest {
     public void removeParams_NothingToRemove() {
         // given
         ServiceInstance si = new ServiceInstance();
-        ArrayList<InstanceParameter> currentIpList = new ArrayList<InstanceParameter>();
+        ArrayList<InstanceParameter> currentIpList = new ArrayList<>();
         InstanceParameter ip1 = new InstanceParameter();
         ip1.setParameterKey("KEY1");
         ip1.setParameterValue("VALUE1");

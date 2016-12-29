@@ -12,6 +12,8 @@
 
 package org.oscm.domobjects;
 
+import java.security.GeneralSecurityException;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -23,6 +25,7 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
 import org.oscm.domobjects.annotations.BusinessKey;
+import org.oscm.encrypter.AESEncrypter;
 
 /**
  * The uda domain object with its data container and a reference to its parent
@@ -32,8 +35,8 @@ import org.oscm.domobjects.annotations.BusinessKey;
  * 
  */
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {
-        "udaDefinitionKey", "targetObjectKey" }))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "udaDefinitionKey",
+        "targetObjectKey" }))
 @NamedQueries({
         @NamedQuery(name = "Uda.findByBusinessKey", query = "SELECT c FROM Uda c WHERE c.dataContainer.targetObjectKey=:targetObjectKey AND c.udaDefinitionKey=:udaDefinitionKey"),
         @NamedQuery(name = "Uda.getByTargetTypeAndKey", query = "SELECT c FROM Uda c WHERE c.dataContainer.targetObjectKey=:targetKey AND c.udaDefinition.dataContainer.targetType=:targetType"),
@@ -62,7 +65,12 @@ public class Uda extends DomainObjectWithHistory<UdaData> {
     public void setUdaDefinition(UdaDefinition udaDefinition) {
         this.udaDefinition = udaDefinition;
         if (udaDefinition != null) {
+
+            String value = getUdaValue();
+
             setUdaDefinitionKey(udaDefinition.getKey());
+
+            setUdaValue(value);
         }
     }
 
@@ -80,11 +88,29 @@ public class Uda extends DomainObjectWithHistory<UdaData> {
     }
 
     public String getUdaValue() {
-        return dataContainer.getUdaValue();
+        if (udaDefinition != null && udaDefinition.isEncrypted()
+                && dataContainer.getUdaValue() != null) {
+            try {
+                return AESEncrypter.decrypt(dataContainer.getUdaValue());
+            } catch (GeneralSecurityException e) {
+                return null;
+            }
+        } else {
+            return dataContainer.getUdaValue();
+        }
     }
 
     public void setUdaValue(String udaValue) {
-        dataContainer.setUdaValue(udaValue);
+        if (udaDefinition != null && udaDefinition.isEncrypted()
+                && udaValue != null) {
+            try {
+                dataContainer.setUdaValue(AESEncrypter.encrypt(udaValue));
+            } catch (GeneralSecurityException e) {
+                // ignore
+            }
+        } else {
+            dataContainer.setUdaValue(udaValue);
+        }
     }
 
     public long getUdaDefinitionKey() {

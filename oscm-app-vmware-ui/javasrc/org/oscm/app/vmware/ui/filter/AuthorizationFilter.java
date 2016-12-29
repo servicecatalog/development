@@ -22,9 +22,9 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.codec.binary.Base64;
-import org.oscm.app.v1_0.APPlatformServiceFactory;
-import org.oscm.app.v1_0.data.PasswordAuthentication;
-import org.oscm.app.v1_0.intf.APPlatformService;
+import org.oscm.app.v2_0.APPlatformServiceFactory;
+import org.oscm.app.v2_0.data.PasswordAuthentication;
+import org.oscm.app.v2_0.intf.APPlatformService;
 import org.oscm.app.vmware.business.Controller;
 import org.oscm.app.vmware.i18n.Messages;
 import org.slf4j.Logger;
@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author Dirk Bernsau
- *
+ * 
  */
 public class AuthorizationFilter implements Filter {
 
@@ -108,9 +108,11 @@ public class AuthorizationFilter implements Filter {
         }
 
         String clientLocale = httpRequest.getLocale().getLanguage();
-        httpResponse.setHeader("WWW-Authenticate",
+        httpResponse.setHeader(
+                "WWW-Authenticate",
                 "Basic realm=\""
-                        + Messages.get(clientLocale, "ui.config.authentication")
+                        + Messages
+                                .get(clientLocale, "ui.config.authentication")
                         + "\"");
         httpResponse.setStatus(401);
     }

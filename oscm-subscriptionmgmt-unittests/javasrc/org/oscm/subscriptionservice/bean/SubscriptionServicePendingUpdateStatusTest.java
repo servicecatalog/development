@@ -30,7 +30,6 @@ import javax.persistence.Query;
 
 import org.junit.Before;
 import org.junit.Test;
-
 import org.oscm.communicationservice.local.CommunicationServiceLocal;
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.dataservice.local.DataService;
@@ -44,10 +43,7 @@ import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.TechnicalProduct;
 import org.oscm.domobjects.TriggerProcess;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
-import org.oscm.triggerservice.local.TriggerMessage;
-import org.oscm.triggerservice.local.TriggerProcessMessageData;
-import org.oscm.types.enumtypes.ProvisioningType;
-import org.oscm.types.enumtypes.TriggerProcessParameterName;
+import org.oscm.encrypter.AESEncrypter;
 import org.oscm.internal.types.enumtypes.ServiceStatus;
 import org.oscm.internal.types.enumtypes.SubscriptionStatus;
 import org.oscm.internal.types.enumtypes.TriggerType;
@@ -62,13 +58,17 @@ import org.oscm.internal.vo.VOTechnicalServiceOperation;
 import org.oscm.internal.vo.VOUda;
 import org.oscm.internal.vo.VOUsageLicense;
 import org.oscm.internal.vo.VOUser;
+import org.oscm.triggerservice.local.TriggerMessage;
+import org.oscm.triggerservice.local.TriggerProcessMessageData;
+import org.oscm.types.enumtypes.ProvisioningType;
+import org.oscm.types.enumtypes.TriggerProcessParameterName;
 
 /**
  * @author Qiu
  * 
  */
-public class SubscriptionServicePendingUpdateStatusTest extends
-        SubscriptionServiceMockBase {
+public class SubscriptionServicePendingUpdateStatusTest
+        extends SubscriptionServiceMockBase {
 
     private SubscriptionServiceBean bean;
 
@@ -78,22 +78,22 @@ public class SubscriptionServicePendingUpdateStatusTest extends
     private VOSubscription voSubscription;
     private List<VOParameter> voParameters;
     private List<VOUda> voUdas;
-    private final List<VOUsageLicense> usersToBeAdded = new ArrayList<VOUsageLicense>();
-    private final List<VOUser> usersToBeRevoked = new ArrayList<VOUser>();
+    private final List<VOUsageLicense> usersToBeAdded = new ArrayList<>();
+    private final List<VOUser> usersToBeRevoked = new ArrayList<>();
 
     private static final long SUBSCRIPTION_KEY = 1000L;
     private static final String SUBSCRIPTION_ID = "subId";
     private DataService ds;
     private ConfigurationServiceLocal cfgService;
-    
+
     @Before
     public void setup() throws Exception {
-
+        AESEncrypter.generateKey();
         bean = createMocksAndSpys();
-        
+
         cfgService = mock(ConfigurationServiceLocal.class);
         bean.cfgService = cfgService;
-        
+
         PlatformUser user = new PlatformUser();
         Organization org = new Organization();
         user.setOrganization(org);
@@ -103,7 +103,7 @@ public class SubscriptionServicePendingUpdateStatusTest extends
         sub = givenSubscription(user, SUBSCRIPTION_ID);
         voSubscription = givenVOSubscription(SUBSCRIPTION_ID);
         voParameters = givenVOParameters();
-        voUdas = new ArrayList<VOUda>();
+        voUdas = new ArrayList<>();
         tp = givenTriggerProcess();
 
         ds = mock(DataService.class);
@@ -123,12 +123,11 @@ public class SubscriptionServicePendingUpdateStatusTest extends
         when(bean.dataManager.getCurrentUser()).thenReturn(user);
         when(bean.dataManager.getReference(eq(Subscription.class), anyLong()))
                 .thenReturn(sub);
-        doReturn(sub).when(bean.dataManager).getReferenceByBusinessKey(
-                any(Subscription.class));
-        when(
-                bean.prodSessionMgmt
-                        .getProductSessionsForSubscriptionTKey(anyLong()))
-                .thenReturn(new ArrayList<Session>());
+        doReturn(sub).when(bean.dataManager)
+                .getReferenceByBusinessKey(any(Subscription.class));
+        when(bean.prodSessionMgmt
+                .getProductSessionsForSubscriptionTKey(anyLong()))
+                        .thenReturn(new ArrayList<Session>());
         doReturn(true).when(cfgService).isPaymentInfoAvailable();
     }
 
@@ -142,11 +141,11 @@ public class SubscriptionServicePendingUpdateStatusTest extends
     }
 
     private List<Class<?>> givenSpyClasses() {
-        return new ArrayList<Class<?>>();
+        return new ArrayList<>();
     }
 
     private List<Object> givenMocks() {
-        List<Object> mocks = new ArrayList<Object>();
+        List<Object> mocks = new ArrayList<>();
         mocks.add(bean.dataManager);
         mocks.add(bean.appManager);
         return mocks;
@@ -332,7 +331,8 @@ public class SubscriptionServicePendingUpdateStatusTest extends
     public void executeServiceOperation_Pending_B10754() throws Exception {
         // given
         sub.setStatus(SubscriptionStatus.PENDING);
-        VOTechnicalServiceOperation techOp = mock(VOTechnicalServiceOperation.class);
+        VOTechnicalServiceOperation techOp = mock(
+                VOTechnicalServiceOperation.class);
         // when
         try {
             bean.executeServiceOperation(voSubscription, techOp);
@@ -347,7 +347,8 @@ public class SubscriptionServicePendingUpdateStatusTest extends
     public void executeServiceOperation_Invalid_B10754() throws Exception {
         // given
         sub.setStatus(SubscriptionStatus.INVALID);
-        VOTechnicalServiceOperation techOp = mock(VOTechnicalServiceOperation.class);
+        VOTechnicalServiceOperation techOp = mock(
+                VOTechnicalServiceOperation.class);
         // when
         try {
             bean.executeServiceOperation(voSubscription, techOp);
@@ -362,7 +363,8 @@ public class SubscriptionServicePendingUpdateStatusTest extends
     public void executeServiceOperation_Deactive_B10754() throws Exception {
         // given
         sub.setStatus(SubscriptionStatus.DEACTIVATED);
-        VOTechnicalServiceOperation techOp = mock(VOTechnicalServiceOperation.class);
+        VOTechnicalServiceOperation techOp = mock(
+                VOTechnicalServiceOperation.class);
         // when
         try {
             bean.executeServiceOperation(voSubscription, techOp);
@@ -374,7 +376,7 @@ public class SubscriptionServicePendingUpdateStatusTest extends
     }
 
     private List<VOParameter> givenVOParameters() {
-        List<VOParameter> voParameters = new ArrayList<VOParameter>();
+        List<VOParameter> voParameters = new ArrayList<>();
         VOParameter voParameter = new VOParameter();
         VOParameterDefinition vodefinition = new VOParameterDefinition();
         vodefinition.setParameterId("PARAMETER_ID");
@@ -425,22 +427,22 @@ public class SubscriptionServicePendingUpdateStatusTest extends
     }
 
     private void mockTriggerMessageForAddRevokeUser() throws Exception {
-        TriggerMessage message = new TriggerMessage(TriggerType.ADD_REVOKE_USER);
-        List<TriggerProcessMessageData> list = new ArrayList<TriggerProcessMessageData>();
+        TriggerMessage message = new TriggerMessage(
+                TriggerType.ADD_REVOKE_USER);
+        List<TriggerProcessMessageData> list = new ArrayList<>();
         TriggerProcess proc = new TriggerProcess();
         TriggerProcessMessageData ProcMessage = new TriggerProcessMessageData(
                 proc, message);
         list.add(ProcMessage);
-        doReturn(list).when(bean.triggerQS).sendSuspendingMessages(
-                anyListOf(TriggerMessage.class));
+        doReturn(list).when(bean.triggerQS)
+                .sendSuspendingMessages(anyListOf(TriggerMessage.class));
 
         doNothing().when(bean).validateTriggerProcessForSubscription(sub);
     }
 
     private void assertInvalidStateException(SubscriptionStateException e,
             SubscriptionStatus s) {
-        assertEquals(
-                "ex.SubscriptionStateException.SUBSCRIPTION_INVALID_STATE",
+        assertEquals("ex.SubscriptionStateException.SUBSCRIPTION_INVALID_STATE",
                 e.getMessageKey());
         assertEquals("enum.SubscriptionStatus." + s.name(),
                 e.getMessageParams()[0]);

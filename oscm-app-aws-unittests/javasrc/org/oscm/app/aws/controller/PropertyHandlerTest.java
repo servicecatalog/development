@@ -18,26 +18,26 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-
 import org.oscm.app.aws.data.FlowState;
 import org.oscm.app.aws.data.Operation;
 import org.oscm.app.aws.i18n.Messages;
-import org.oscm.app.v1_0.data.LocalizedText;
-import org.oscm.app.v1_0.data.ProvisioningSettings;
+import org.oscm.app.v2_0.data.LocalizedText;
+import org.oscm.app.v2_0.data.ProvisioningSettings;
+import org.oscm.app.v2_0.data.Setting;
 
 /**
  * Unit test of property handler
  */
 public class PropertyHandlerTest {
-    private HashMap<String, String> parameters;
-    private HashMap<String, String> configSettings;
+    private HashMap<String, Setting> parameters;
+    private HashMap<String, Setting> configSettings;
     private ProvisioningSettings settings;
     private PropertyHandler propertyHandler;
 
     @Before
     public void setUp() throws Exception {
-        parameters = new HashMap<String, String>();
-        configSettings = new HashMap<String, String>();
+        parameters = new HashMap<>();
+        configSettings = new HashMap<>();
         settings = new ProvisioningSettings(parameters, configSettings, "en");
         propertyHandler = new PropertyHandler(settings);
     }
@@ -49,7 +49,8 @@ public class PropertyHandlerTest {
 
     @Test()
     public void testGetInstanceName() throws Exception {
-        parameters.put(PropertyHandler.INSTANCENAME, "tstdemo");
+        parameters.put(PropertyHandler.INSTANCENAME, new Setting(
+                PropertyHandler.INSTANCENAME, "tstdemo"));
         propertyHandler = new PropertyHandler(settings);
         String instanceName = propertyHandler.getInstanceName();
         assertEquals("tstdemo", instanceName);
@@ -57,8 +58,10 @@ public class PropertyHandlerTest {
 
     @Test()
     public void testGetInstanceNameWithPrefix() throws Exception {
-        parameters.put(PropertyHandler.INSTANCENAME_PREFIX, "ess");
-        parameters.put(PropertyHandler.INSTANCENAME, "tstdemo");
+        parameters.put(PropertyHandler.INSTANCENAME_PREFIX, new Setting(
+                PropertyHandler.INSTANCENAME_PREFIX, "ess"));
+        parameters.put(PropertyHandler.INSTANCENAME, new Setting(
+                PropertyHandler.INSTANCENAME, "tstdemo"));
         propertyHandler = new PropertyHandler(settings);
         String instanceName = propertyHandler.getInstanceName();
         assertEquals("esststdemo", instanceName);
@@ -73,7 +76,8 @@ public class PropertyHandlerTest {
     @Test()
     public void testGetState() throws Exception {
         parameters.put(PropertyHandler.FLOW_STATE,
-                FlowState.ACTIVATION_REQUESTED.name());
+                new Setting(PropertyHandler.FLOW_STATE,
+                        FlowState.ACTIVATION_REQUESTED.name()));
         propertyHandler = new PropertyHandler(settings);
         FlowState state = propertyHandler.getState();
         assertEquals(FlowState.ACTIVATION_REQUESTED, state);
@@ -87,8 +91,8 @@ public class PropertyHandlerTest {
 
     @Test()
     public void testGetOperation() throws Exception {
-        parameters.put(PropertyHandler.OPERATION,
-                Operation.EC2_ACTIVATION.name());
+        parameters.put(PropertyHandler.OPERATION, new Setting(
+                PropertyHandler.OPERATION, Operation.EC2_ACTIVATION.name()));
         propertyHandler = new PropertyHandler(settings);
         Operation operation = propertyHandler.getOperation();
         assertEquals(Operation.EC2_ACTIVATION, operation);
@@ -96,35 +100,40 @@ public class PropertyHandlerTest {
 
     @Test()
     public void testGetSecretKey() throws Exception {
-        configSettings.put(PropertyHandler.SECRET_KEY_PWD, "key");
+        configSettings.put(PropertyHandler.SECRET_KEY_PWD, new Setting(
+                PropertyHandler.SECRET_KEY_PWD, "key"));
         propertyHandler = new PropertyHandler(settings);
         assertEquals("key", propertyHandler.getSecretKey());
     }
 
     @Test()
     public void testGetAccessKeyId() throws Exception {
-        configSettings.put(PropertyHandler.ACCESS_KEY_ID_PWD, "akid");
+        configSettings.put(PropertyHandler.ACCESS_KEY_ID_PWD, new Setting(
+                PropertyHandler.ACCESS_KEY_ID_PWD, "akid"));
         propertyHandler = new PropertyHandler(settings);
         assertEquals("akid", propertyHandler.getAccessKeyId());
     }
 
     @Test()
     public void testGetRegion() throws Exception {
-        parameters.put(PropertyHandler.REGION, "east-1");
+        parameters.put(PropertyHandler.REGION, new Setting(
+                PropertyHandler.REGION, "east-1"));
         propertyHandler = new PropertyHandler(settings);
         assertEquals("east-1", propertyHandler.getRegion());
     }
 
     @Test()
     public void testGetKeyPairName() throws Exception {
-        parameters.put(PropertyHandler.KEY_PAIR_NAME, "kpn1");
+        parameters.put(PropertyHandler.KEY_PAIR_NAME, new Setting(
+                PropertyHandler.KEY_PAIR_NAME, "kpn1"));
         propertyHandler = new PropertyHandler(settings);
         assertEquals("kpn1", propertyHandler.getKeyPairName());
     }
 
     @Test()
     public void testGetInstanceType() throws Exception {
-        parameters.put(PropertyHandler.INSTANCE_TYPE, "type");
+        parameters.put(PropertyHandler.INSTANCE_TYPE, new Setting(
+                PropertyHandler.INSTANCE_TYPE, "type"));
         propertyHandler = new PropertyHandler(settings);
         assertEquals("type", propertyHandler.getInstanceType());
     }
@@ -138,7 +147,8 @@ public class PropertyHandlerTest {
 
     @Test()
     public void testGetImageName() throws Exception {
-        parameters.put(PropertyHandler.IMAGE_NAME, "Image1");
+        parameters.put(PropertyHandler.IMAGE_NAME, new Setting(
+                PropertyHandler.IMAGE_NAME, "Image1"));
         propertyHandler = new PropertyHandler(settings);
         assertEquals("Image1", propertyHandler.getImageName());
     }

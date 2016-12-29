@@ -45,14 +45,14 @@
             <fileset dir="${workspace.dir}/oscm-accountmgmt/javasrc" />
           </sourcefiles>
         </group>
-        <group name="oscm-app-vmware">
-          <classfiles>
-            <fileset dir="${result.dir}/work/oscm-app-vmware/classes" />
-          </classfiles>
-          <sourcefiles encoding="utf-8">
-            <fileset dir="${workspace.dir}/oscm-app-vmware/javasrc" />
-          </sourcefiles>
-        </group>
+        <!--<group name="oscm-app-vmware">-->
+        <!--  <classfiles>-->
+        <!--    <fileset dir="${result.dir}/work/oscm-app-vmware/classes" />-->
+        <!--  </classfiles>-->
+        <!--  <sourcefiles encoding="utf-8">-->
+        <!--    <fileset dir="${workspace.dir}/oscm-app-vmware/javasrc" />-->
+        <!--  </sourcefiles>-->
+        <!--</group>-->
         <group name="oscm-accountmgmt-intsvc">
           <classfiles>
             <fileset dir="${result.dir}/work/oscm-accountmgmt-intsvc/classes" />
@@ -595,6 +595,22 @@
           </classfiles>
           <sourcefiles encoding="utf-8">
             <fileset dir="${workspace.dir}/oscm-rest-api-trigger/javasrc" />
+          </sourcefiles>
+        </group>
+        <group name="oscm-tenantmgmt">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-tenantmgmt/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-tenantmgmt/javasrc" />
+          </sourcefiles>
+        </group>
+        <group name="oscm-tenantmgmt-intsvc">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-tenantmgmt-intsvc/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-tenantmgmt-intsvc/javasrc" />
           </sourcefiles>
         </group>
 

@@ -8,7 +8,6 @@
 
 package org.oscm.identityservice.bean;
 
-import static org.oscm.test.matchers.BesMatchers.isPersisted;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -18,20 +17,17 @@ import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.oscm.test.matchers.BesMatchers.isPersisted;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 
@@ -57,14 +53,36 @@ import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.RoleAssignment;
 import org.oscm.domobjects.Session;
 import org.oscm.domobjects.Subscription;
-import org.oscm.domobjects.UnitUserRole;
 import org.oscm.domobjects.UsageLicense;
 import org.oscm.domobjects.UserGroup;
 import org.oscm.domobjects.UserGroupToUser;
+import org.oscm.encrypter.AESEncrypter;
 import org.oscm.identityservice.assembler.UserDataAssembler;
 import org.oscm.identityservice.ldap.LdapAccessStub;
 import org.oscm.identityservice.local.IdentityServiceLocal;
 import org.oscm.identityservice.local.LdapSettingsManagementServiceLocal;
+import org.oscm.internal.intf.IdentityService;
+import org.oscm.internal.types.enumtypes.ConfigurationKey;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.SettingType;
+import org.oscm.internal.types.enumtypes.SubscriptionStatus;
+import org.oscm.internal.types.enumtypes.UserAccountStatus;
+import org.oscm.internal.types.enumtypes.UserRoleType;
+import org.oscm.internal.types.exception.ConcurrentModificationException;
+import org.oscm.internal.types.exception.MailOperationException;
+import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.internal.types.exception.OperationNotPermittedException;
+import org.oscm.internal.types.exception.OperationPendingException;
+import org.oscm.internal.types.exception.OrganizationRemovedException;
+import org.oscm.internal.types.exception.SecurityCheckException;
+import org.oscm.internal.types.exception.UserActiveException;
+import org.oscm.internal.types.exception.UserDeletionConstraintException;
+import org.oscm.internal.types.exception.UserRoleAssignmentException;
+import org.oscm.internal.types.exception.ValidationException;
+import org.oscm.internal.types.exception.ValidationException.ReasonEnum;
+import org.oscm.internal.vo.VOUser;
+import org.oscm.internal.vo.VOUserDetails;
 import org.oscm.reviewservice.bean.ReviewServiceLocalBean;
 import org.oscm.sessionservice.bean.SessionManagementStub;
 import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
@@ -86,29 +104,6 @@ import org.oscm.types.enumtypes.EmailType;
 import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
 import org.oscm.usergroupservice.dao.UserGroupDao;
 import org.oscm.usergroupservice.dao.UserGroupUsersDao;
-import org.oscm.internal.intf.IdentityService;
-import org.oscm.internal.types.enumtypes.ConfigurationKey;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.SettingType;
-import org.oscm.internal.types.enumtypes.SubscriptionStatus;
-import org.oscm.internal.types.enumtypes.UnitRoleType;
-import org.oscm.internal.types.enumtypes.UserAccountStatus;
-import org.oscm.internal.types.enumtypes.UserRoleType;
-import org.oscm.internal.types.exception.ConcurrentModificationException;
-import org.oscm.internal.types.exception.MailOperationException;
-import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.types.exception.OperationNotPermittedException;
-import org.oscm.internal.types.exception.OperationPendingException;
-import org.oscm.internal.types.exception.OrganizationRemovedException;
-import org.oscm.internal.types.exception.SecurityCheckException;
-import org.oscm.internal.types.exception.UserActiveException;
-import org.oscm.internal.types.exception.UserDeletionConstraintException;
-import org.oscm.internal.types.exception.UserRoleAssignmentException;
-import org.oscm.internal.types.exception.ValidationException;
-import org.oscm.internal.types.exception.ValidationException.ReasonEnum;
-import org.oscm.internal.vo.VOUser;
-import org.oscm.internal.vo.VOUserDetails;
 
 @SuppressWarnings("boxing")
 public class IdentityServiceBeanIT extends EJBTestBase {
@@ -163,6 +158,7 @@ public class IdentityServiceBeanIT extends EJBTestBase {
 
     @Override
     public void setup(TestContainer container) throws Exception {
+        AESEncrypter.generateKey();
         container.enableInterfaceMocking(true);
         container.login(USER_KEY_EXISTING);
         container.addBean(new DataServiceBean());
@@ -178,8 +174,8 @@ public class IdentityServiceBeanIT extends EJBTestBase {
         container.addBean(new CommunicationServiceStub() {
             @Override
             public SendMailStatus<PlatformUser> sendMail(EmailType type,
-                                                         Object[] params, Marketplace marketplace,
-                                                         PlatformUser... recipients) {
+                    Object[] params, Marketplace marketplace,
+                    PlatformUser... recipients) {
 
                 SendMailStatus<PlatformUser> mailStatus = new SendMailStatus<>();
                 for (PlatformUser recipient : recipients) {
@@ -195,7 +191,7 @@ public class IdentityServiceBeanIT extends EJBTestBase {
 
             @Override
             public void sendMail(PlatformUser recipient, EmailType type,
-                                 Object[] params, Marketplace marketplace)
+                    Object[] params, Marketplace marketplace)
                     throws MailOperationException {
                 mailCounter++;
                 mailType = type;
@@ -208,10 +204,10 @@ public class IdentityServiceBeanIT extends EJBTestBase {
                 }
                 if (params != null && params.length == 1) {
                     String param = String.valueOf(params[0]);
-                    if (param.contains("/confirm.jsf?")
-                            && param.indexOf("/confirm.jsf?") < param
-                            .indexOf("enc=")) {
-                        encodedParam = param.substring(param.indexOf("enc=") + 4);
+                    if (param.contains("/confirm.jsf?") && param
+                            .indexOf("/confirm.jsf?") < param.indexOf("enc=")) {
+                        encodedParam = param
+                                .substring(param.indexOf("enc=") + 4);
                     }
                 }
                 if (throwMailOperationFailed) {
@@ -221,8 +217,7 @@ public class IdentityServiceBeanIT extends EJBTestBase {
                     throw new MailOperationException("Test");
                 }
 
-                sendedMails.add(new MailDetails<>(recipient, type,
-                        params));
+                sendedMails.add(new MailDetails<>(recipient, type, params));
             }
 
             @Override
@@ -308,7 +303,8 @@ public class IdentityServiceBeanIT extends EJBTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                insertUnitRole(Long.valueOf(1L), Long.valueOf(0L), "ADMINISTRATOR");
+                insertUnitRole(Long.valueOf(1L), Long.valueOf(0L),
+                        "ADMINISTRATOR");
                 insertUnitRole(Long.valueOf(2L), Long.valueOf(0L), "USER");
                 return null;
             }
@@ -323,14 +319,6 @@ public class IdentityServiceBeanIT extends EJBTestBase {
         query.executeUpdate();
     }
 
-    private PlatformUser givenUser(long key, String id, Organization org) {
-        PlatformUser user = new PlatformUser();
-        user.setKey(key);
-        user.setUserId(id);
-        user.setOrganization(org);
-        return user;
-    }
-
     public String setupUsers() throws Exception {
         return runTX(new Callable<String>() {
             @Override
@@ -338,7 +326,8 @@ public class IdentityServiceBeanIT extends EJBTestBase {
                 Organization cust = new Organization();
                 cust.setOrganizationId(ORGANIZATION_ID);
                 cust.setName("The organization");
-                cust.setAddress("my address is a very long string, which is stored in the database \n with line delimiters\n.");
+                cust.setAddress(
+                        "my address is a very long string, which is stored in the database \n with line delimiters\n.");
                 cust.setEmail("organization@organization.com");
                 cust.setPhone("012345/678");
                 cust.setLocale(Locale.ENGLISH.toString());
@@ -367,7 +356,8 @@ public class IdentityServiceBeanIT extends EJBTestBase {
                 cust = new Organization();
                 cust.setOrganizationId(ORGANIZATION_ID_2);
                 cust.setName("The organization");
-                cust.setAddress("my address is a very long string, which is stored in the database \n with line delimiters\n.");
+                cust.setAddress(
+                        "my address is a very long string, which is stored in the database \n with line delimiters\n.");
                 cust.setEmail("organization@organization.com");
                 cust.setPhone("012345/678");
                 cust.setLocale(Locale.ENGLISH.toString());
@@ -448,11 +438,11 @@ public class IdentityServiceBeanIT extends EJBTestBase {
     }
 
     private void checkEmail(int index, String expectedEmail) {
-        assertEquals(expectedEmail, sendedMails.get(index).getInstance()
-                .getEmail());
+        assertEquals(expectedEmail,
+                sendedMails.get(index).getInstance().getEmail());
 
-        assertEquals(EmailType.USER_UPDATED, sendedMails.get(index)
-                .getEmailType());
+        assertEquals(EmailType.USER_UPDATED,
+                sendedMails.get(index).getEmailType());
 
         assertNull(sendedMails.get(index).getParams());
     }
@@ -555,63 +545,52 @@ public class IdentityServiceBeanIT extends EJBTestBase {
     }
 
     /*
-    public void createUserWithGroups() throws Exception {
-        // given
-        VOUserDetails userToCreate = createTestUser();
-        UserGroup userGroup = runTX(new Callable<UserGroup>() {
-            @Override
-            public UserGroup call() throws Exception {
-                UserGroup group = new UserGroup();
-                group.setOrganization(organization);
-                group.setIsDefault(false);
-                group.setName("group");
-                mgr.persist(group);
-                return group;
-            }
-        });
-
-        // mock DataService
-        mgr = spy(container.get(DataServiceBean.class));
-        doReturn(givenUser(123L, "userId", organization)).when(mgr).getCurrentUser();
-        container.addBean(mgr);
-        UnitUserRole unitUserRole = new UnitUserRole();
-        unitUserRole.setKey(1);
-        unitUserRole.setRoleName(UnitRoleType.ADMINISTRATOR);
-        UserGroup group = new UserGroup();
-        group.setKey(userGroup.getKey());
-        group.setName(userGroup.getName());
-
-        Map<Long, UnitUserRole> groupsWithRoles = new HashMap<>();
-        groupsWithRoles.put(group.getKey(), unitUserRole);
-
-        idMgmtLocal.createUserWithGroups(userToCreate,
-                new ArrayList<UserRoleType>(), MP_ID, groupsWithRoles);
-        final VOUserDetails savedUser = retrieveUser(userToCreate);
-
-        runTX(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-
-                PlatformUser user = mgr.getReference(PlatformUser.class,
-                        savedUser.getKey());
-                UserGroupToUser userGroupToUser = user.getUserGroupToUsers()
-                        .get(0);
-                assertEquals(1, user.getUserGroupToUsers().size());
-
-                UserGroup userGroup = userGroupToUser.getUserGroup();
-
-                Organization org = mgr.getReference(Organization.class,
-                        userGroup.getOrganization_tkey());
-                assertEquals(organization.getKey(), org.getKey());
-
-                assertEquals(userGroupToUser.getUnitRoleAssignments().get(0).getUnitUserRole().getRoleName(), UnitRoleType.ADMINISTRATOR);
-                return null;
-            }
-        });
-
-        // restore original DataService
-        container.addBean(new DataServiceBean());
-    }*/
+     * public void createUserWithGroups() throws Exception { // given
+     * VOUserDetails userToCreate = createTestUser(); UserGroup userGroup =
+     * runTX(new Callable<UserGroup>() {
+     * 
+     * @Override public UserGroup call() throws Exception { UserGroup group =
+     * new UserGroup(); group.setOrganization(organization);
+     * group.setIsDefault(false); group.setName("group"); mgr.persist(group);
+     * return group; } });
+     * 
+     * // mock DataService mgr = spy(container.get(DataServiceBean.class));
+     * doReturn(givenUser(123L, "userId",
+     * organization)).when(mgr).getCurrentUser(); container.addBean(mgr);
+     * UnitUserRole unitUserRole = new UnitUserRole(); unitUserRole.setKey(1);
+     * unitUserRole.setRoleName(UnitRoleType.ADMINISTRATOR); UserGroup group =
+     * new UserGroup(); group.setKey(userGroup.getKey());
+     * group.setName(userGroup.getName());
+     * 
+     * Map<Long, UnitUserRole> groupsWithRoles = new HashMap<>();
+     * groupsWithRoles.put(group.getKey(), unitUserRole);
+     * 
+     * idMgmtLocal.createUserWithGroups(userToCreate, new
+     * ArrayList<UserRoleType>(), MP_ID, groupsWithRoles); final VOUserDetails
+     * savedUser = retrieveUser(userToCreate);
+     * 
+     * runTX(new Callable<Void>() {
+     * 
+     * @Override public Void call() throws Exception {
+     * 
+     * PlatformUser user = mgr.getReference(PlatformUser.class,
+     * savedUser.getKey()); UserGroupToUser userGroupToUser =
+     * user.getUserGroupToUsers() .get(0); assertEquals(1,
+     * user.getUserGroupToUsers().size());
+     * 
+     * UserGroup userGroup = userGroupToUser.getUserGroup();
+     * 
+     * Organization org = mgr.getReference(Organization.class,
+     * userGroup.getOrganization_tkey()); assertEquals(organization.getKey(),
+     * org.getKey());
+     * 
+     * assertEquals(userGroupToUser.getUnitRoleAssignments().get(0).
+     * getUnitUserRole().getRoleName(), UnitRoleType.ADMINISTRATOR); return
+     * null; } });
+     * 
+     * // restore original DataService container.addBean(new DataServiceBean());
+     * }
+     */
 
     @Test(expected = OperationNotPermittedException.class)
     public void addRevokeUserUnitAssignment_revokeFromDefaultGroup()
@@ -646,11 +625,13 @@ public class IdentityServiceBeanIT extends EJBTestBase {
         voAssignUser.setUserId(assignUser.getUserId());
 
         idMgmt.addRevokeUserUnitAssignment("default",
-                Collections.singletonList(voAssignUser), new ArrayList<VOUser>());
+                Collections.singletonList(voAssignUser),
+                new ArrayList<VOUser>());
     }
 
     @Test(expected = OperationNotPermittedException.class)
-    public void addRevokeUserUnitAssignment_assignBehalfUser() throws Exception {
+    public void addRevokeUserUnitAssignment_assignBehalfUser()
+            throws Exception {
         // given
         PlatformUser assignUser = runTX(new Callable<PlatformUser>() {
             @Override
@@ -666,31 +647,34 @@ public class IdentityServiceBeanIT extends EJBTestBase {
         voAssignUser.setUserId(assignUser.getUserId());
 
         idMgmt.addRevokeUserUnitAssignment("default",
-                Collections.singletonList(voAssignUser), new ArrayList<VOUser>());
+                Collections.singletonList(voAssignUser),
+                new ArrayList<VOUser>());
     }
 
     @Test
     public void addRevokeUserUnitAssignment() throws Exception {
         // given
-        final List<PlatformUser> users = runTX(new Callable<List<PlatformUser>>() {
-            @Override
-            public List<PlatformUser> call() throws Exception {
-                List<PlatformUser> users = new ArrayList<>();
-                PlatformUser user1 = mgr.getReference(PlatformUser.class,
-                        Long.valueOf(userKey).longValue());
-                PlatformUser user2 = new PlatformUser();
-                user2.setUserId("user2");
-                user2.setEmail("someMail@somehost.de");
-                user2.setOrganization(organization);
-                user2.setStatus(UserAccountStatus.ACTIVE);
-                user2.setLocale(Locale.ENGLISH.toString());
-                organization.addPlatformUser(user2);
-                mgr.persist(user2);
-                users.add(user1);
-                users.add(user2);
-                return users;
-            }
-        });
+        final List<PlatformUser> users = runTX(
+                new Callable<List<PlatformUser>>() {
+                    @Override
+                    public List<PlatformUser> call() throws Exception {
+                        List<PlatformUser> users = new ArrayList<>();
+                        PlatformUser user1 = mgr.getReference(
+                                PlatformUser.class,
+                                Long.valueOf(userKey).longValue());
+                        PlatformUser user2 = new PlatformUser();
+                        user2.setUserId("user2");
+                        user2.setEmail("someMail@somehost.de");
+                        user2.setOrganization(organization);
+                        user2.setStatus(UserAccountStatus.ACTIVE);
+                        user2.setLocale(Locale.ENGLISH.toString());
+                        organization.addPlatformUser(user2);
+                        mgr.persist(user2);
+                        users.add(user1);
+                        users.add(user2);
+                        return users;
+                    }
+                });
 
         final UserGroup userGroup = runTX(new Callable<UserGroup>() {
             @Override
@@ -721,8 +705,8 @@ public class IdentityServiceBeanIT extends EJBTestBase {
         voRevokeUser.setUserId(users.get(1).getUserId());
 
         // when
-        boolean result = idMgmt.addRevokeUserUnitAssignment(
-                userGroup.getName(), Collections.singletonList(voAssignUser),
+        boolean result = idMgmt.addRevokeUserUnitAssignment(userGroup.getName(),
+                Collections.singletonList(voAssignUser),
                 Collections.singletonList(voRevokeUser));
 
         // then
@@ -744,8 +728,8 @@ public class IdentityServiceBeanIT extends EJBTestBase {
     public void testAddPlatformUser_WithMarketplace() throws Exception {
         VOUserDetails user = createTestUser();
         idMgmt.createUser(user, Collections.<UserRoleType> emptyList(), MP_ID);
-        Assert.assertTrue(Arrays.toString(receivedParams).contains(
-                "?mId=" + MP_ID));
+        Assert.assertTrue(
+                Arrays.toString(receivedParams).contains("?mId=" + MP_ID));
 
         assertTrue(isUserPartOfOrganization(user.getUserId()));
         VOUser updatedUser = retrieveUser(user);
@@ -819,7 +803,6 @@ public class IdentityServiceBeanIT extends EJBTestBase {
         });
     }
 
-    @SuppressWarnings("null")
     @Test
     public void testDeletePlatformUserWithExistingRoles() throws Exception {
         final VOUserDetails user = createTestUser();
@@ -850,8 +833,8 @@ public class IdentityServiceBeanIT extends EJBTestBase {
                         .getReferenceByBusinessKey(pUser);
                 assertEquals(user.getUserId(), dbUser.getUserId());
 
-                List<RoleAssignment> userRoles = getRoleAssignmentByUserKey(dbUser
-                        .getKey());
+                List<RoleAssignment> userRoles = getRoleAssignmentByUserKey(
+                        dbUser.getKey());
                 assertEquals(1, userRoles.size());
 
                 idMgmtLocal.deletePlatformUser(dbUser, null);
@@ -1062,7 +1045,8 @@ public class IdentityServiceBeanIT extends EJBTestBase {
      * Checks the behavior in case the mail could not be sent.
      */
     @Test(expected = MailOperationException.class)
-    public void testCreateOrganizationAdmin_mailSendingFails() throws Exception {
+    public void testCreateOrganizationAdmin_mailSendingFails()
+            throws Exception {
         final VOUserDetails user = createTestUser();
         exceptionCausingEmailType = EmailType.USER_CONFIRM;
 
@@ -1249,10 +1233,10 @@ public class IdentityServiceBeanIT extends EJBTestBase {
         });
 
         VOUserDetails savedUser = retrieveUser(user);
-        assertTrue(savedUser.getUserRoles().contains(
-                UserRoleType.ORGANIZATION_ADMIN));
-        assertTrue(savedUser.getUserRoles().contains(
-                UserRoleType.SERVICE_MANAGER));
+        assertTrue(savedUser.getUserRoles()
+                .contains(UserRoleType.ORGANIZATION_ADMIN));
+        assertTrue(savedUser.getUserRoles()
+                .contains(UserRoleType.SERVICE_MANAGER));
 
     }
 
@@ -1277,10 +1261,10 @@ public class IdentityServiceBeanIT extends EJBTestBase {
         });
 
         VOUserDetails savedUser = retrieveUser(user);
-        assertTrue(savedUser.getUserRoles().contains(
-                UserRoleType.ORGANIZATION_ADMIN));
-        assertTrue(savedUser.getUserRoles().contains(
-                UserRoleType.SERVICE_MANAGER));
+        assertTrue(savedUser.getUserRoles()
+                .contains(UserRoleType.ORGANIZATION_ADMIN));
+        assertTrue(savedUser.getUserRoles()
+                .contains(UserRoleType.SERVICE_MANAGER));
 
     }
 
@@ -1306,10 +1290,10 @@ public class IdentityServiceBeanIT extends EJBTestBase {
         });
 
         VOUserDetails savedUser = retrieveUser(user);
-        assertTrue(savedUser.getUserRoles().contains(
-                UserRoleType.ORGANIZATION_ADMIN));
-        assertTrue(savedUser.getUserRoles().contains(
-                UserRoleType.SERVICE_MANAGER));
+        assertTrue(savedUser.getUserRoles()
+                .contains(UserRoleType.ORGANIZATION_ADMIN));
+        assertTrue(savedUser.getUserRoles()
+                .contains(UserRoleType.SERVICE_MANAGER));
 
     }
 
@@ -1332,8 +1316,8 @@ public class IdentityServiceBeanIT extends EJBTestBase {
 
         VOUserDetails savedUser = retrieveUser(user);
         idMgmt.confirmAccount(savedUser, MP_ID);
-        Assert.assertTrue(Arrays.toString(receivedParams).contains(
-                "?mId=" + MP_ID));
+        Assert.assertTrue(
+                Arrays.toString(receivedParams).contains("?mId=" + MP_ID));
 
         VOUserDetails resultUser = retrieveUser(savedUser);
 
@@ -1468,9 +1452,8 @@ public class IdentityServiceBeanIT extends EJBTestBase {
                 Collections.singletonList(UserRoleType.SERVICE_MANAGER));
 
         List<UserRoleType> avRoles = idMgmt.getAvailableUserRoles(voUser);
-        Assert.assertEquals(
-                "only roles service manager and admin are possible", 3,
-                avRoles.size());
+        Assert.assertEquals("only roles service manager and admin are possible",
+                3, avRoles.size());
         Assert.assertTrue(avRoles.contains(UserRoleType.SERVICE_MANAGER));
         Assert.assertTrue(avRoles.contains(UserRoleType.ORGANIZATION_ADMIN));
         Assert.assertTrue(avRoles.contains(UserRoleType.SUBSCRIPTION_MANAGER));
@@ -1514,8 +1497,8 @@ public class IdentityServiceBeanIT extends EJBTestBase {
                 Collections.singletonList(UserRoleType.TECHNOLOGY_MANAGER));
 
         List<UserRoleType> avRoles = idMgmt.getAvailableUserRoles(voUser);
-        Assert.assertEquals("only roles tech manager and admin are possible",
-                3, avRoles.size());
+        Assert.assertEquals("only roles tech manager and admin are possible", 3,
+                avRoles.size());
         Assert.assertTrue(avRoles.contains(UserRoleType.TECHNOLOGY_MANAGER));
         Assert.assertTrue(avRoles.contains(UserRoleType.ORGANIZATION_ADMIN));
         Assert.assertTrue(avRoles.contains(UserRoleType.SUBSCRIPTION_MANAGER));
@@ -2273,8 +2256,8 @@ public class IdentityServiceBeanIT extends EJBTestBase {
 
                 PlatformUser user = mgr.find(PlatformUser.class,
                         operator_user_key);
-                idMgmtLocal
-                        .setUserAccountStatus(user, UserAccountStatus.ACTIVE);
+                idMgmtLocal.setUserAccountStatus(user,
+                        UserAccountStatus.ACTIVE);
 
                 user = mgr.find(PlatformUser.class, operator_user_key);
                 Assert.assertEquals(UserAccountStatus.ACTIVE, user.getStatus());
@@ -2296,8 +2279,8 @@ public class IdentityServiceBeanIT extends EJBTestBase {
     }
 
     @Test(expected = ObjectNotFoundException.class)
-    public void testGetPlatformUserNoMatch() throws ObjectNotFoundException,
-            OperationNotPermittedException {
+    public void testGetPlatformUserNoMatch()
+            throws ObjectNotFoundException, OperationNotPermittedException {
         VOUser user = createTestUser();
         idMgmt.getUserDetails(user);
     }
@@ -2323,8 +2306,8 @@ public class IdentityServiceBeanIT extends EJBTestBase {
         });
 
         Assert.assertEquals(user.getUserId(), userDetails.getUserId());
-        Assert.assertEquals(user.getOrganizationId(), userDetails
-                .getOrganization().getOrganizationId());
+        Assert.assertEquals(user.getOrganizationId(),
+                userDetails.getOrganization().getOrganizationId());
         Assert.assertEquals(user.getFirstName(), userDetails.getFirstName());
         Assert.assertEquals(user.getLastName(), userDetails.getLastName());
         Assert.assertEquals(user.getAdditionalName(),
@@ -2359,16 +2342,16 @@ public class IdentityServiceBeanIT extends EJBTestBase {
         PlatformUser userDetails = runTX(new Callable<PlatformUser>() {
             @Override
             public PlatformUser call() throws Exception {
-                PlatformUser userDetails = idMgmtLocal.getPlatformUser(
-                        user.getUserId(), false);
+                PlatformUser userDetails = idMgmtLocal
+                        .getPlatformUser(user.getUserId(), false);
                 load(userDetails.getOrganization());
                 return userDetails;
             }
         });
 
         Assert.assertEquals(USER_ID_EXISTING_2, userDetails.getUserId());
-        Assert.assertEquals(ORGANIZATION_ID_2, userDetails.getOrganization()
-                .getOrganizationId());
+        Assert.assertEquals(ORGANIZATION_ID_2,
+                userDetails.getOrganization().getOrganizationId());
         Assert.assertEquals("someMail@somehost.de", userDetails.getEmail());
         Assert.assertEquals(Locale.ENGLISH.toString(), userDetails.getLocale());
     }
@@ -2565,8 +2548,8 @@ public class IdentityServiceBeanIT extends EJBTestBase {
             @Override
             public Void call() {
                 List<PlatformUser> overdueOrganizationAdmins = idMgmtLocal
-                        .getOverdueOrganizationAdmins(System
-                                .currentTimeMillis());
+                        .getOverdueOrganizationAdmins(
+                                System.currentTimeMillis());
                 Assert.assertEquals(
                         "No overdue admin exists, so none may be found", 0,
                         overdueOrganizationAdmins.size());
@@ -2592,8 +2575,8 @@ public class IdentityServiceBeanIT extends EJBTestBase {
                         (Marketplace) mgr.getReferenceByBusinessKey(mp));
 
                 List<PlatformUser> overdueOrganizationAdmins = idMgmtLocal
-                        .getOverdueOrganizationAdmins(System
-                                .currentTimeMillis() + 2000L);
+                        .getOverdueOrganizationAdmins(
+                                System.currentTimeMillis() + 2000L);
                 Assert.assertEquals("Overdue organization admin not found", 1,
                         overdueOrganizationAdmins.size());
                 return null;
@@ -2623,8 +2606,8 @@ public class IdentityServiceBeanIT extends EJBTestBase {
                         Long.valueOf(12345), mp);
 
                 List<PlatformUser> overdueOrganizationAdmins = idMgmtLocal
-                        .getOverdueOrganizationAdmins(System
-                                .currentTimeMillis() + 3000L);
+                        .getOverdueOrganizationAdmins(
+                                System.currentTimeMillis() + 3000L);
                 Assert.assertEquals("Overdue organization admin not found", 2,
                         overdueOrganizationAdmins.size());
                 return null;
@@ -2774,8 +2757,8 @@ public class IdentityServiceBeanIT extends EJBTestBase {
         Assert.assertEquals("pock", list.get(0).getRealmUserId());
 
         idMgmt.importLdapUsers(list, MP_ID);
-        Assert.assertTrue(Arrays.toString(receivedParams).contains(
-                "?mId=" + MP_ID));
+        Assert.assertTrue(
+                Arrays.toString(receivedParams).contains("?mId=" + MP_ID));
 
         VOUserDetails user;
         user = idMgmt.getUserDetails(list.get(0));
@@ -2839,9 +2822,9 @@ public class IdentityServiceBeanIT extends EJBTestBase {
     @Test
     public void searchLdapUsersOverLimit() throws Exception {
         addLdapOrganizationSetting();
-        cfg.setConfigurationSetting(new ConfigurationSetting(
-                ConfigurationKey.LDAP_SEARCH_LIMIT,
-                Configuration.GLOBAL_CONTEXT, "1"));
+        cfg.setConfigurationSetting(
+                new ConfigurationSetting(ConfigurationKey.LDAP_SEARCH_LIMIT,
+                        Configuration.GLOBAL_CONTEXT, "1"));
 
         boolean flag = idMgmt.searchLdapUsersOverLimit("poc*");
         Assert.assertFalse(flag);
@@ -2855,28 +2838,28 @@ public class IdentityServiceBeanIT extends EJBTestBase {
     }
 
     @Test
-    public void testSendAccounts() throws ValidationException,
-            MailOperationException {
+    public void testSendAccounts()
+            throws ValidationException, MailOperationException {
         idMgmt.sendAccounts("someMail@somehost.de", null);
         Assert.assertEquals(1, mailCounter);
         Assert.assertFalse(receivedParams[0].toString().contains("&mId="));
     }
 
     @Test
-    public void testSendAccounts_WithMarketplace() throws ValidationException,
-            MailOperationException {
+    public void testSendAccounts_WithMarketplace()
+            throws ValidationException, MailOperationException {
         idMgmt.sendAccounts("someMail@somehost.de", "MP_ID");
         Assert.assertEquals(1, mailCounter);
         Assert.assertTrue(receivedParams[0].toString().contains("&mId=MP_ID"));
     }
 
     @Test
-    public void testSendAccounts_BaseUrl() throws ValidationException,
-            MailOperationException {
+    public void testSendAccounts_BaseUrl()
+            throws ValidationException, MailOperationException {
         // given a base url without a slash
-        cfg.setConfigurationSetting(new ConfigurationSetting(
-                ConfigurationKey.BASE_URL, Configuration.GLOBAL_CONTEXT,
-                BASE_URL_WITH_SLASH));
+        cfg.setConfigurationSetting(
+                new ConfigurationSetting(ConfigurationKey.BASE_URL,
+                        Configuration.GLOBAL_CONTEXT, BASE_URL_WITH_SLASH));
 
         // when
         idMgmt.sendAccounts("someMail@somehost.de", "MP_ID");
@@ -2884,17 +2867,17 @@ public class IdentityServiceBeanIT extends EJBTestBase {
         // verify that the e-mail contains the base url appended with ?oId
         // without a slash
         Assert.assertEquals(1, mailCounter);
-        Assert.assertTrue(receivedParams[0].toString().contains(
-                BASE_URL + "?oId"));
+        Assert.assertTrue(
+                receivedParams[0].toString().contains(BASE_URL + "?oId"));
     }
 
     @Test
-    public void testSendAccounts_BaseUrlWithSlash() throws ValidationException,
-            MailOperationException {
+    public void testSendAccounts_BaseUrlWithSlash()
+            throws ValidationException, MailOperationException {
         // given a base url with a slash
-        cfg.setConfigurationSetting(new ConfigurationSetting(
-                ConfigurationKey.BASE_URL, Configuration.GLOBAL_CONTEXT,
-                BASE_URL_WITH_SLASH));
+        cfg.setConfigurationSetting(
+                new ConfigurationSetting(ConfigurationKey.BASE_URL,
+                        Configuration.GLOBAL_CONTEXT, BASE_URL_WITH_SLASH));
 
         // when
         idMgmt.sendAccounts("someMail@somehost.de", "MP_ID");
@@ -2902,8 +2885,8 @@ public class IdentityServiceBeanIT extends EJBTestBase {
         // verify that the e-mail contains the base url appended with ?oId
         // without a slash
         Assert.assertEquals(1, mailCounter);
-        Assert.assertTrue(receivedParams[0].toString().contains(
-                BASE_URL + "?oId"));
+        Assert.assertTrue(
+                receivedParams[0].toString().contains(BASE_URL + "?oId"));
     }
 
     @Test
@@ -2920,8 +2903,8 @@ public class IdentityServiceBeanIT extends EJBTestBase {
         // verify that the e-mail contains the base url appended with ?oId
         // without a slash
         Assert.assertEquals(1, mailCounter);
-        Assert.assertTrue(receivedParams[0].toString().contains(
-                BASE_URL + "?oId"));
+        Assert.assertTrue(
+                receivedParams[0].toString().contains(BASE_URL + "?oId"));
     }
 
     @Test
@@ -3002,7 +2985,7 @@ public class IdentityServiceBeanIT extends EJBTestBase {
     }
 
     private void testModifyAdmin(final boolean modifyOwnUser,
-                                 final VOUserDetails user, final VOUserDetails toModify)
+            final VOUserDetails user, final VOUserDetails toModify)
             throws Exception {
         final String mail = "new_" + user.getEMail();
         runTX(new Callable<Void>() {
@@ -3042,12 +3025,13 @@ public class IdentityServiceBeanIT extends EJBTestBase {
      * the end, the history entries will be there for further testing.
      */
     private void doSetupOrganizationUserRemovedScenario(String userId,
-                                                        String organizationId, boolean removeOrganizationAndUser)
+            String organizationId, boolean removeOrganizationAndUser)
             throws NonUniqueBusinessKeyException {
         Organization cust = new Organization();
         cust.setOrganizationId(organizationId);
         cust.setName("The organization");
-        cust.setAddress("my address is a very long string, which is stored in the database \n with line delimiters\n.");
+        cust.setAddress(
+                "my address is a very long string, which is stored in the database \n with line delimiters\n.");
         cust.setEmail("organization@organization.com");
         cust.setPhone("012345/678");
         cust.setCutOffDay(1);
@@ -3069,7 +3053,7 @@ public class IdentityServiceBeanIT extends EJBTestBase {
     }
 
     private String createUserForOrganizationRole(final String supplierOrgId,
-                                                 final OrganizationRoleType... orgs) throws Exception {
+            final OrganizationRoleType... orgs) throws Exception {
         return runTX(new Callable<String>() {
             @Override
             public String call() throws Exception {
@@ -3147,8 +3131,8 @@ public class IdentityServiceBeanIT extends EJBTestBase {
         VOUserDetails resultUser = null;
         List<VOUserDetails> users = idMgmt.getUsersForOrganization();
         for (VOUserDetails ud : users) {
-            if (ud.getUserId().equals(user.getUserId())
-                    && ud.getOrganizationId().equals(user.getOrganizationId())) {
+            if (ud.getUserId().equals(user.getUserId()) && ud
+                    .getOrganizationId().equals(user.getOrganizationId())) {
                 resultUser = ud;
             }
         }
@@ -3180,8 +3164,8 @@ public class IdentityServiceBeanIT extends EJBTestBase {
                 SettingType.LDAP_ATTR_FIRST_NAME.name(), "givenName");
         ldapOrgSettingsResolved.setProperty(
                 SettingType.LDAP_ATTR_ADDITIONAL_NAME.name(), "addName");
-        ldapOrgSettingsResolved.setProperty(
-                SettingType.LDAP_ATTR_LAST_NAME.name(), "sn");
+        ldapOrgSettingsResolved
+                .setProperty(SettingType.LDAP_ATTR_LAST_NAME.name(), "sn");
     }
 
     private void removeOrganizationSettings() throws Exception {
@@ -3199,12 +3183,11 @@ public class IdentityServiceBeanIT extends EJBTestBase {
     }
 
     private List<RoleAssignment> getRoleAssignmentByUserKey(long key) {
-        return ParameterizedTypes
-                .list(mgr
-                        .createQuery(
-                                "SELECT o FROM RoleAssignment o WHERE o.user.key = :userKey")
-                        .setParameter("userKey", Long.valueOf(key))
-                        .getResultList(), RoleAssignment.class);
+        return ParameterizedTypes.list(mgr
+                .createQuery(
+                        "SELECT o FROM RoleAssignment o WHERE o.user.key = :userKey")
+                .setParameter("userKey", Long.valueOf(key)).getResultList(),
+                RoleAssignment.class);
     }
 
     private void setupSubscriptionServiceToReturnUsageLicense() {
@@ -3212,18 +3195,19 @@ public class IdentityServiceBeanIT extends EJBTestBase {
                 .thenAnswer(new Answer<List<Subscription>>() {
 
                     @Override
-                    public List<Subscription> answer(InvocationOnMock invocation)
-                            throws Throwable {
+                    public List<Subscription> answer(
+                            InvocationOnMock invocation) throws Throwable {
                         UsageLicense usageLicense = new UsageLicense();
                         usageLicense.setKey(22222);
-                        usageLicense.setUser((PlatformUser) invocation
-                                .getArguments()[0]);
+                        usageLicense.setUser(
+                                (PlatformUser) invocation.getArguments()[0]);
 
                         Subscription subscription = new Subscription();
                         subscription.setKey(11111);
                         subscription.setSubscriptionId("s1");
                         subscription.setStatus(SubscriptionStatus.ACTIVE);
-                        subscription.setUsageLicenses(Collections.singletonList(usageLicense));
+                        subscription.setUsageLicenses(
+                                Collections.singletonList(usageLicense));
                         return Collections.singletonList(subscription);
                     }
                 });

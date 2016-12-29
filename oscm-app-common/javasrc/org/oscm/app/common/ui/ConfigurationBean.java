@@ -25,15 +25,15 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.http.HttpSession;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.oscm.app.common.i18n.Messages;
 import org.oscm.app.common.intf.ControllerAccess;
-import org.oscm.app.v1_0.APPlatformServiceFactory;
-import org.oscm.app.v1_0.data.ControllerConfigurationKey;
-import org.oscm.app.v1_0.data.PasswordAuthentication;
-import org.oscm.app.v1_0.intf.APPlatformService;
+import org.oscm.app.v2_0.APPlatformServiceFactory;
+import org.oscm.app.v2_0.data.ControllerConfigurationKey;
+import org.oscm.app.v2_0.data.PasswordAuthentication;
+import org.oscm.app.v2_0.data.Setting;
+import org.oscm.app.v2_0.intf.APPlatformService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Bean for reading and writing controller configuration settings.
@@ -225,17 +225,19 @@ public class ConfigurationBean implements Serializable {
             this.locale = currentLocale.getLanguage();
 
             // Get all settings and map them to configuration items
-            HashMap<String, String> settings = platformService
+            HashMap<String, Setting> settings = platformService
                     .getControllerSettings(controllerAccess.getControllerId(),
                             new PasswordAuthentication(username, password));
-            items = new HashMap<String, ConfigurationItem>();
+            items = new HashMap<>();
             for (String key : settings.keySet()) {
                 // Add next item to local cache
-                addConfigurationItem(key, settings.get(key));
+                Setting setting = settings.get(key);
+                addConfigurationItem(key, setting != null ? setting.getValue()
+                        : null);
             }
 
             // Build groups which are displayed to the user
-            accessItems = new LinkedList<ConfigurationItem>();
+            accessItems = new LinkedList<>();
             List<String> core_ps = Arrays.asList(ACCESS_PARAMETERS);
             for (String key : core_ps) {
                 ConfigurationItem item = getConfigurationItem(key);
@@ -247,7 +249,7 @@ public class ConfigurationBean implements Serializable {
             }
 
             // Read controller settings
-            ctrlItems = new LinkedList<ConfigurationItem>();
+            ctrlItems = new LinkedList<>();
             for (String key : controllerAccess.getControllerParameterKeys()) {
                 ConfigurationItem item = getConfigurationItem(key);
                 ctrlItems.add(item);
@@ -366,15 +368,16 @@ public class ConfigurationBean implements Serializable {
 
         try {
             // Collect all modified values
-            HashMap<String, String> map = new HashMap<String, String>();
+            HashMap<String, Setting> map = new HashMap<>();
             if (items != null) {
                 for (ConfigurationItem item : items.values()) {
                     if (item.isDirty()) {
-                        String value=item.getValue();
-                        if(value!=null){
-                            value=value.trim(); 
+                        String value = item.getValue();
+                        if (value != null) {
+                            value = value.trim();
                         }
-                        map.put(item.getKey(), value);
+                        map.put(item.getKey(),
+                                new Setting(item.getKey(), value));
                     }
                 }
             }

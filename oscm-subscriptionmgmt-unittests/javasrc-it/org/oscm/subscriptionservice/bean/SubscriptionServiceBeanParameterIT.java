@@ -30,6 +30,7 @@ import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.TechnicalProduct;
 import org.oscm.domobjects.TriggerProcess;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
+import org.oscm.encrypter.AESEncrypter;
 import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.internal.intf.SubscriptionService;
@@ -82,6 +83,7 @@ public class SubscriptionServiceBeanParameterIT extends EJBTestBase {
 
     @Override
     protected void setup(TestContainer container) throws Exception {
+        AESEncrypter.generateKey();
         container.enableInterfaceMocking(true);
         container.addBean(mock(TaskQueueServiceLocal.class));
         container.addBean(new ConfigurationServiceStub());
@@ -209,7 +211,7 @@ public class SubscriptionServiceBeanParameterIT extends EJBTestBase {
         VOUsageLicense usageLicense = new VOUsageLicense();
         usageLicense.setUser(adminUser);
         container.login(String.valueOf(user.getKey()), ROLE_ORGANIZATION_ADMIN);
-        List<VOUsageLicense> usageLicenses = new ArrayList<VOUsageLicense>();
+        List<VOUsageLicense> usageLicenses = new ArrayList<>();
         usageLicenses.add(usageLicense);
         final VOSubscription subscription1 = subSvc.subscribeToService(
                 subscription, template, usageLicenses, null, null,

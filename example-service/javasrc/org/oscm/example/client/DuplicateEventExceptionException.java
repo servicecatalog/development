@@ -1,3 +1,4 @@
+
 /**
  * DuplicateEventExceptionException.java
  *
@@ -6,34 +7,35 @@
  */
 
 package org.oscm.example.client;
-@SuppressWarnings("serial")
-public class DuplicateEventExceptionException extends java.lang.Exception {
 
+public class DuplicateEventExceptionException extends java.lang.Exception{
+    
     private org.oscm.example.client.EventServiceStub.DuplicateEventException faultMessage;
 
-    public DuplicateEventExceptionException() {
-        super("DuplicateEventExceptionException");
-    }
+    
+        public DuplicateEventExceptionException() {
+            super("DuplicateEventExceptionException");
+        }
 
-    public DuplicateEventExceptionException(java.lang.String s) {
-        super(s);
-    }
+        public DuplicateEventExceptionException(java.lang.String s) {
+           super(s);
+        }
 
-    public DuplicateEventExceptionException(java.lang.String s,
-            java.lang.Throwable ex) {
-        super(s, ex);
-    }
+        public DuplicateEventExceptionException(java.lang.String s, java.lang.Throwable ex) {
+          super(s, ex);
+        }
 
-    public DuplicateEventExceptionException(java.lang.Throwable cause) {
-        super(cause);
-    }
+        public DuplicateEventExceptionException(java.lang.Throwable cause) {
+            super(cause);
+        }
+    
 
-    public void setFaultMessage(
-            org.oscm.example.client.EventServiceStub.DuplicateEventException msg) {
-        faultMessage = msg;
+    public void setFaultMessage(org.oscm.example.client.EventServiceStub.DuplicateEventException msg){
+       faultMessage = msg;
     }
-
-    public org.oscm.example.client.EventServiceStub.DuplicateEventException getFaultMessage() {
-        return faultMessage;
+    
+    public org.oscm.example.client.EventServiceStub.DuplicateEventException getFaultMessage(){
+       return faultMessage;
     }
 }
+    

@@ -53,8 +53,10 @@ import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.OrganizationSetting;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.RoleAssignment;
+import org.oscm.domobjects.Tenant;
 import org.oscm.domobjects.TriggerProcess;
 import org.oscm.domobjects.UserRole;
+import org.oscm.encrypter.AESEncrypter;
 import org.oscm.identityservice.control.SendMailControl;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.types.enumtypes.SettingType;
@@ -85,7 +87,7 @@ public class IdentityServiceBeanMailSendingTest {
     private UserGroupServiceLocalBean userGroupServiceLocalBean;
 
     private PlatformUser pUser;
-    private final List<RoleAssignment> persistedRoleAssignments = new ArrayList<RoleAssignment>();
+    private final List<RoleAssignment> persistedRoleAssignments = new ArrayList<>();
 
     private static final String BASE_URL = "BASE_URL";
     private static final String BASE_URL_WITH_SLASH = "BASE_URL/";
@@ -93,6 +95,7 @@ public class IdentityServiceBeanMailSendingTest {
 
     @Before
     public void setup() throws Exception {
+        AESEncrypter.generateKey();
         persistedRoleAssignments.clear();
         SendMailControl.clear();
         idSrv = spy(new IdentityServiceBean());
@@ -105,12 +108,12 @@ public class IdentityServiceBeanMailSendingTest {
         pUser.setOrganization(org);
         pUser.setKey(1234);
         pUser.setUserId("userid");
-        doReturn(pUser).when(dm)
-                .getReference(eq(PlatformUser.class), anyLong());
+        doReturn(pUser).when(dm).getReference(eq(PlatformUser.class),
+                anyLong());
         doReturn(pUser).when(idSrv.dm).getCurrentUser();
 
-        when(dm.find(any(DomainObject.class))).thenAnswer(
-                new Answer<DomainObject<?>>() {
+        when(dm.find(any(DomainObject.class)))
+                .thenAnswer(new Answer<DomainObject<?>>() {
 
                     @Override
                     public DomainObject<?> answer(InvocationOnMock invocation)
@@ -125,7 +128,7 @@ public class IdentityServiceBeanMailSendingTest {
                     }
                 });
 
-        doReturn(null).when(idSrv).loadUser(anyString());
+        doReturn(null).when(idSrv).loadUser(anyString(), any(Tenant.class));
         Query triggerQuery = mock(Query.class);
         when(triggerQuery.getSingleResult()).thenReturn(Long.valueOf(0));
         when(dm.createNamedQuery(contains("TriggerProcessIdentifier")))
@@ -144,14 +147,15 @@ public class IdentityServiceBeanMailSendingTest {
                 any(ConfigurationKey.class), anyString());
         doReturn(BASE_URL).when(cs).getBaseURL();
         doReturn("baseUrl").when(cm).getBaseUrl();
+        doReturn("baseUrl").when(cm).getBaseUrlWithTenant(anyString());
         doReturn("marketplaceUrl").when(cm).getMarketplaceUrl(anyString());
-        TriggerQueueServiceLocal triggerQS = mock(TriggerQueueServiceLocal.class);
+        TriggerQueueServiceLocal triggerQS = mock(
+                TriggerQueueServiceLocal.class);
         idSrv.triggerQS = triggerQS;
-        doReturn(
-                Collections.singletonList(new TriggerProcessMessageData(
-                        new TriggerProcess(), new TriggerMessage()))).when(
-                triggerQS).sendSuspendingMessages(
-                ParameterizedTypes.list(anyList(), TriggerMessage.class));
+        doReturn(Collections.singletonList(new TriggerProcessMessageData(
+                new TriggerProcess(), new TriggerMessage()))).when(triggerQS)
+                        .sendSuspendingMessages(ParameterizedTypes
+                                .list(anyList(), TriggerMessage.class));
 
         userGroupServiceLocalBean = mock(UserGroupServiceLocalBean.class);
         idSrv.userGroupService = userGroupServiceLocalBean;
@@ -210,6 +214,7 @@ public class IdentityServiceBeanMailSendingTest {
         // then
         assertEquals(UserAccountStatus.ACTIVE, pUser.getStatus());
     }
+
     @Test
     public void createOrganizationAdmin_PublicMP() throws Exception {
         setupDsForRefreshingUserRoles();
@@ -221,12 +226,10 @@ public class IdentityServiceBeanMailSendingTest {
 
         // verify '/marketplace' is contained by pwd confirmation mail URL
         verify(cm, times(0)).getMarketplaceUrl(anyString());
-        verify(cm, times(1))
-                .sendMail(
-                        any(PlatformUser.class),
-                        eq(EmailType.USER_CONFIRM),
-                        argThat(getArrayContainsStringMatcher(MARKETPLACE_ROOT)),
-                        any(Marketplace.class));
+        verify(cm, times(1)).sendMail(any(PlatformUser.class),
+                eq(EmailType.USER_CONFIRM),
+                argThat(getArrayContainsStringMatcher(MARKETPLACE_ROOT)),
+                any(Marketplace.class));
     }
 
     /**
@@ -240,18 +243,18 @@ public class IdentityServiceBeanMailSendingTest {
         Organization org = Organizations.createOrganization("fdaskj");
 
         // pwd not auto generated -> test pwd confirmation mail
-        idSrv.createOrganizationAdmin(getVOUserDetails(org, "富士次郎"), org,
-                "abc", Long.valueOf(123L), new Marketplace());
+        idSrv.createOrganizationAdmin(getVOUserDetails(org, "富士次郎"), org, "abc",
+                Long.valueOf(123L), new Marketplace());
 
         // verify '/marketplace' is contained by pwd confirmation mail URL
         verify(cm, times(0)).getMarketplaceUrl(anyString());
-        verify(cm, times(1))
-                .sendMail(
-                        any(PlatformUser.class),
-                        eq(EmailType.USER_CONFIRM),
-                        argThat(getArrayContainsStringMatcher("ZmRhc2tqJuWvjOWjq%2BasoemDjiYxMjMm")),
-                        any(Marketplace.class));
+        verify(cm, times(1)).sendMail(any(PlatformUser.class),
+                eq(EmailType.USER_CONFIRM),
+                argThat(getArrayContainsStringMatcher(
+                        "ZmRhc2tqJuWvjOWjq%2BasoemDjiYxMjMm")),
+                any(Marketplace.class));
     }
+
     @Test
     public void createOrganizationAdmin_AdminPortal() throws Exception {
         setupDsForRefreshingUserRoles();
@@ -265,12 +268,10 @@ public class IdentityServiceBeanMailSendingTest {
 
         // verify no '/marketplace' in pwd confirmation mail URL
         verify(cm, times(0)).getMarketplaceUrl(anyString());
-        verify(cm, times(1))
-                .sendMail(
-                        any(PlatformUser.class),
-                        eq(EmailType.USER_CONFIRM),
-                        argThat(getArrayNotContainsStringMatcher(MARKETPLACE_ROOT)),
-                        any(Marketplace.class));
+        verify(cm, times(1)).sendMail(any(PlatformUser.class),
+                eq(EmailType.USER_CONFIRM),
+                argThat(getArrayNotContainsStringMatcher(MARKETPLACE_ROOT)),
+                any(Marketplace.class));
     }
 
     @Test
@@ -287,12 +288,11 @@ public class IdentityServiceBeanMailSendingTest {
 
         // verify that the trailing slash of the base url is cut in the
         // confirmation mail
-        verify(cm, times(1))
-                .sendMail(
-                        any(PlatformUser.class),
-                        eq(EmailType.USER_CONFIRM),
-                        argThat(getArrayContainsStringMatcher("BASE_URL/public/confirm.jsf")),
-                        any(Marketplace.class));
+        verify(cm, times(1)).sendMail(any(PlatformUser.class),
+                eq(EmailType.USER_CONFIRM),
+                argThat(getArrayContainsStringMatcher(
+                        "BASE_URL/public/confirm.jsf")),
+                any(Marketplace.class));
     }
 
     @Test
@@ -316,12 +316,11 @@ public class IdentityServiceBeanMailSendingTest {
 
         // verify that the trailing slash of the base url is cut in the
         // confirmation mail
-        verify(cm, times(1))
-                .sendMail(
-                        any(PlatformUser.class),
-                        eq(EmailType.USER_CONFIRM),
-                        argThat(getArrayContainsStringMatcher("BASE_URL/public/confirm.jsf")),
-                        any(Marketplace.class));
+        verify(cm, times(1)).sendMail(any(PlatformUser.class),
+                eq(EmailType.USER_CONFIRM),
+                argThat(getArrayContainsStringMatcher(
+                        "BASE_URL/public/confirm.jsf")),
+                any(Marketplace.class));
     }
 
     @Test
@@ -346,12 +345,11 @@ public class IdentityServiceBeanMailSendingTest {
 
         // verify that the trailing slash of the base url is cut in the
         // confirmation mail
-        verify(cm, times(1))
-                .sendMail(
-                        any(PlatformUser.class),
-                        eq(EmailType.USER_CONFIRM),
-                        argThat(getArrayContainsStringMatcher("BASE_URL/public/confirm.jsf")),
-                        any(Marketplace.class));
+        verify(cm, times(1)).sendMail(any(PlatformUser.class),
+                eq(EmailType.USER_CONFIRM),
+                argThat(getArrayContainsStringMatcher(
+                        "BASE_URL/public/confirm.jsf")),
+                any(Marketplace.class));
     }
 
     @Test
@@ -360,8 +358,8 @@ public class IdentityServiceBeanMailSendingTest {
         Organization org = Organizations.createOrganization("fdaskj");
 
         // null password -> auto-generated -> skips pwd confirmation mail
-        idSrv.createOrganizationAdmin(getVOUserDetails(org, "user1"), org,
-                null, Long.valueOf(123L), new Marketplace());
+        idSrv.createOrganizationAdmin(getVOUserDetails(org, "user1"), org, null,
+                Long.valueOf(123L), new Marketplace());
 
         // verify no '/marketplace' in user add mail URL
         verify(cm, times(1)).getMarketplaceUrl(anyString());
@@ -395,8 +393,8 @@ public class IdentityServiceBeanMailSendingTest {
         org.setOrganizationSettings(Collections.singletonList(orgSetting));
 
         // null password -> auto-generated -> skips pwd confirmation mail
-        idSrv.createOrganizationAdmin(getVOUserDetails(org, "user1"), org,
-                null, Long.valueOf(123L), new Marketplace());
+        idSrv.createOrganizationAdmin(getVOUserDetails(org, "user1"), org, null,
+                Long.valueOf(123L), new Marketplace());
 
         // verify no '/marketplace' in user add mail URL
         verify(cm, times(1)).getMarketplaceUrl(anyString());
@@ -429,7 +427,8 @@ public class IdentityServiceBeanMailSendingTest {
 
         idSrv.createUser(
                 getVOUserDetails(Organizations.createOrganization("orgId"),
-                        "userId"), new ArrayList<UserRoleType>(), "abc");
+                        "userId"),
+                new ArrayList<UserRoleType>(), "abc");
 
         // since NO manager, mail should NOT contain administration portal URL
         verify(idSrv.cm, times(1)).getMarketplaceUrl(anyString());
@@ -441,8 +440,9 @@ public class IdentityServiceBeanMailSendingTest {
 
         idSrv.createUser(
                 getVOUserDetails(Organizations.createOrganization("orgId"),
-                        "userId"), Collections
-                        .singletonList(UserRoleType.ORGANIZATION_ADMIN), "abc");
+                        "userId"),
+                Collections.singletonList(UserRoleType.ORGANIZATION_ADMIN),
+                "abc");
 
         // since NO manager, mail should NOT contain administration portal URL
         verify(idSrv.cm, times(1)).getMarketplaceUrl(anyString());
@@ -454,8 +454,9 @@ public class IdentityServiceBeanMailSendingTest {
 
         idSrv.createUser(
                 getVOUserDetails(Organizations.createOrganization("orgId"),
-                        "userId"), Collections
-                        .singletonList(UserRoleType.MARKETPLACE_OWNER), "abc");
+                        "userId"),
+                Collections.singletonList(UserRoleType.MARKETPLACE_OWNER),
+                "abc");
 
         // since manager, mail should contain administration portal URL
         verify(idSrv.cm, times(1)).getBaseUrl();
@@ -467,8 +468,9 @@ public class IdentityServiceBeanMailSendingTest {
 
         idSrv.createUser(
                 getVOUserDetails(Organizations.createOrganization("orgId"),
-                        "userId"), Collections
-                        .singletonList(UserRoleType.TECHNOLOGY_MANAGER), "abc");
+                        "userId"),
+                Collections.singletonList(UserRoleType.TECHNOLOGY_MANAGER),
+                "abc");
 
         // since manager, mail should contain administration portal URL
         verify(idSrv.cm, times(1)).getBaseUrl();
@@ -480,8 +482,8 @@ public class IdentityServiceBeanMailSendingTest {
 
         idSrv.createUser(
                 getVOUserDetails(Organizations.createOrganization("orgId"),
-                        "userId"), Collections
-                        .singletonList(UserRoleType.SERVICE_MANAGER), "abc");
+                        "userId"),
+                Collections.singletonList(UserRoleType.SERVICE_MANAGER), "abc");
 
         // since manager, mail should contain administration portal URL
         verify(idSrv.cm, times(1)).getBaseUrl();
@@ -493,8 +495,9 @@ public class IdentityServiceBeanMailSendingTest {
 
         idSrv.createUser(
                 getVOUserDetails(Organizations.createOrganization("orgId"),
-                        "userId"), Collections
-                        .singletonList(UserRoleType.PLATFORM_OPERATOR), "abc");
+                        "userId"),
+                Collections.singletonList(UserRoleType.PLATFORM_OPERATOR),
+                "abc");
 
         // since manager, mail should contain administration portal URL
         verify(idSrv.cm, times(1)).getBaseUrl();
@@ -683,7 +686,7 @@ public class IdentityServiceBeanMailSendingTest {
         idSrv.sendMailToCreatedUser("secret", true, new Marketplace(), pUser);
 
         // then verify that mail parameters are correct
-        verify(idSrv.cm, times(1)).getBaseUrl();
+        verify(idSrv.cm, times(1)).getBaseUrlWithTenant(anyString());
         verify(idSrv.cm, times(0)).getMarketplaceUrl(anyString());
 
         ArgumentCaptor<Object[]> ac = ArgumentCaptor.forClass(Object[].class);
@@ -692,7 +695,6 @@ public class IdentityServiceBeanMailSendingTest {
                 any(Marketplace.class));
         Object[] value = ac.getValue();
         assertEquals(pUser.getUserId(), value[0]);
-        assertEquals("baseUrl", value[1]);
     }
 
     @Test
@@ -712,7 +714,7 @@ public class IdentityServiceBeanMailSendingTest {
         idSrv.sendMailToCreatedUser("secret", true, marketplace, pUser);
 
         // then verify that mail parameters are correct
-        verify(idSrv.cm, times(1)).getBaseUrl();
+        verify(idSrv.cm, times(1)).getBaseUrlWithTenant(anyString());
         verify(idSrv.cm, times(1)).getMarketplaceUrl(anyString());
 
         ArgumentCaptor<Object[]> ac = ArgumentCaptor.forClass(Object[].class);
@@ -799,8 +801,8 @@ public class IdentityServiceBeanMailSendingTest {
             public Void answer(InvocationOnMock invocation) throws Throwable {
                 Object object = invocation.getArguments()[0];
                 if (object instanceof PlatformUser) {
-                    ((PlatformUser) object).getAssignedRoles().addAll(
-                            persistedRoleAssignments);
+                    ((PlatformUser) object).getAssignedRoles()
+                            .addAll(persistedRoleAssignments);
                 }
                 return null;
             }

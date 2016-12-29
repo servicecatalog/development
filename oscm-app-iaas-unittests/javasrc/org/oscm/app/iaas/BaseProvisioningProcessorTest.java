@@ -22,11 +22,11 @@ import java.util.HashMap;
 
 import org.junit.Before;
 import org.junit.Test;
-
 import org.oscm.app.iaas.data.FlowState;
-import org.oscm.app.v1_0.data.PasswordAuthentication;
-import org.oscm.app.v1_0.data.ProvisioningSettings;
-import org.oscm.app.v1_0.intf.APPlatformService;
+import org.oscm.app.v2_0.data.PasswordAuthentication;
+import org.oscm.app.v2_0.data.ProvisioningSettings;
+import org.oscm.app.v2_0.data.Setting;
+import org.oscm.app.v2_0.intf.APPlatformService;
 
 /**
  * @author farmaki
@@ -60,10 +60,12 @@ public class BaseProvisioningProcessorTest {
         baseProvisioningProcessor.setPlatformService(platformService);
 
         ProvisioningSettings settings = new ProvisioningSettings(
-                new HashMap<String, String>(), new HashMap<String, String>(),
+                new HashMap<String, Setting>(), new HashMap<String, Setting>(),
                 "en");
         settings.getConfigSettings().put(
-                PropertyHandler.ENABLE_PARALLEL_PROVISIONING, "false");
+                PropertyHandler.ENABLE_PARALLEL_PROVISIONING,
+                new Setting(PropertyHandler.ENABLE_PARALLEL_PROVISIONING,
+                        "false"));
         paramHandler = new PropertyHandler(settings);
     }
 

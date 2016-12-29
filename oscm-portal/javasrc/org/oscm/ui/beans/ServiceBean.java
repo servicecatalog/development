@@ -27,19 +27,7 @@ import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.event.ValueChangeEvent;
 
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
-import org.oscm.ui.common.ExceptionHandler;
-import org.oscm.ui.common.ImageUploader;
-import org.oscm.ui.common.JSFUtils;
-import org.oscm.ui.common.LocaleUtils;
-import org.oscm.ui.generator.IdGenerator;
-import org.oscm.ui.model.Category;
-import org.oscm.ui.model.CategoryRow;
-import org.oscm.ui.model.CustomerService;
-import org.oscm.ui.model.ParameterRow;
-import org.oscm.ui.model.Service;
-import org.oscm.ui.model.ServiceDetails;
+import org.apache.commons.lang3.StringUtils;
 import org.oscm.internal.types.enumtypes.ImageType;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.ParameterType;
@@ -69,6 +57,19 @@ import org.oscm.internal.vo.VOServiceActivation;
 import org.oscm.internal.vo.VOServiceDetails;
 import org.oscm.internal.vo.VOServiceLocalization;
 import org.oscm.internal.vo.VOTechnicalService;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
+import org.oscm.ui.common.ExceptionHandler;
+import org.oscm.ui.common.ImageUploader;
+import org.oscm.ui.common.JSFUtils;
+import org.oscm.ui.common.LocaleUtils;
+import org.oscm.ui.generator.IdGenerator;
+import org.oscm.ui.model.Category;
+import org.oscm.ui.model.CategoryRow;
+import org.oscm.ui.model.CustomerService;
+import org.oscm.ui.model.ParameterRow;
+import org.oscm.ui.model.Service;
+import org.oscm.ui.model.ServiceDetails;
 
 /**
  * Backing bean for service related actions
@@ -140,13 +141,12 @@ public class ServiceBean extends BaseBean implements Serializable {
         if (serviceForCreation == null || selectedTechService == null) {
             return OUTCOME_ERROR;
         }
-        if (logger.isDebugLoggingEnabled()) {
-
-        }
 
         // read public flag from service beforehand since create method will
         // always return false
         boolean isPublicService = serviceForCreation.isPublicService();
+
+        rewritePasswordsValues();
         serviceForCreation = new ServiceDetails(
                 cleanupParameter(serviceForCreation.getVoServiceDetails()));
 
@@ -202,6 +202,18 @@ public class ServiceBean extends BaseBean implements Serializable {
 
         }
         return OUTCOME_SUCCESS;
+    }
+
+    private void rewritePasswordsValues() {
+        for (ParameterRow parameterRow : parameterRows) {
+            if (!parameterRow.getParameterDefinition().isValueTypePWD() & !parameterRow.isPasswordType()) {
+                continue;
+            }
+            if (parameterRow.getPasswordValueToStore() == null || !parameterRow
+                .getPasswordValueToStore().trim().equals(HIDDEN_PWD)) {
+                parameterRow.getParameter().setValue(parameterRow.getPasswordValueToStore());
+            }
+        }
     }
 
     /**
@@ -323,6 +335,9 @@ public class ServiceBean extends BaseBean implements Serializable {
             localization.setShortDescriptions(LocaleUtils.trim(
                     localization.getShortDescriptions(),
                     supportedLocales.iterator()));
+            localization.setCustomTabNames(
+                    LocaleUtils.trim(localization.getCustomTabNames(),
+                            supportedLocales.iterator()));
         }
         return localization;
     }
@@ -467,7 +482,7 @@ public class ServiceBean extends BaseBean implements Serializable {
     /**
      * Initialize the paramtersRows array.
      * 
-     * @param the
+     * @param parameters
      *            parameters for the array.
      */
     private void initParameterRows(List<VOParameter> parameters,
@@ -477,6 +492,14 @@ public class ServiceBean extends BaseBean implements Serializable {
             VOParameterDefinition parameterDefinition = voParameter
                     .getParameterDefinition();
             ParameterRow row = new ParameterRow(voParameter, null, initDefault);
+
+            if (row.getParameterDefinition().isValueTypeSecret()) {
+                if (StringUtils.isNotBlank(row.getParameter().getValue())) {
+                    row.setPasswordValueToStore(HIDDEN_PWD);
+                } else {
+                    row.setPasswordValueToStore("");
+                }
+            }
             parameterRows.add(row);
             if (parameterDefinition.getValueType() == ParameterValueType.ENUMERATION) {
                 int optionIndex = 0;
@@ -513,6 +536,8 @@ public class ServiceBean extends BaseBean implements Serializable {
                     localization.getShortDescriptions(), locale));
             selectedService.setDescription(LocaleUtils.get(
                     localization.getDescriptions(), locale));
+            selectedService.setCustomTabName(LocaleUtils.get(
+                    localization.getCustomTabNames(), locale));
         }
         dirty = true;
         menuBean.setCurrentPageLink(MenuBean.LINK_SERVICE_EDIT);
@@ -562,6 +587,8 @@ public class ServiceBean extends BaseBean implements Serializable {
                     selectedService.getDescription());
             LocaleUtils.set(getLocalization().getShortDescriptions(), locale,
                     selectedService.getShortDescription());
+            LocaleUtils.set(getLocalization().getCustomTabNames(), locale,
+                    selectedService.getCustomTabName());
         }
     }
 
@@ -759,6 +786,7 @@ public class ServiceBean extends BaseBean implements Serializable {
         // read public flag from service beforehand since create method will
         // always return false
         boolean isPublicService = selectedService.isPublicService();
+        rewritePasswordsValues();
         selectedService = new ServiceDetails(
                 cleanupParameter(selectedService.getVoServiceDetails()));
 

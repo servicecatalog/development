@@ -28,6 +28,7 @@ public class WsInfo {
     private String serviceName;
     private String serviceVersion;
     private ServicePort servicePort;
+    private String tenantId;
 
     public WsInfo(String host, String port, String serviceName,
             ServicePort servicePort, String serviceVersion) {
@@ -74,7 +75,15 @@ public class WsInfo {
     public void setServicePort(ServicePort servicePort) {
         this.servicePort = servicePort;
     }
+    
+    public String getTenantId() {
+        return tenantId;
+    }
 
+    public void setTenantId(String tenantId) {
+        this.tenantId = tenantId;
+    }
+    
     /**
      * Returns a URL of the local wsdl file from the resource directory for a
      * service.
@@ -102,7 +111,14 @@ public class WsInfo {
             servletAddress += serviceVersion + "/";
         }
         servletAddress += serviceName + "/" + servicePort.name();
+        
         String url = servletAddress + "?wsdl";
+        
+        if(ServicePort.STS.equals(servicePort)){
+            String tenantParam = "&tenantID=" + tenantId;
+            url+=tenantParam;
+        }
+      
         logger.debug(url);
         verifyAttributes(url);
         return url;

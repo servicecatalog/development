@@ -8,5 +8,8 @@
 	<classpathentry kind="lib" path="/libraries/mockito/javalib/mockito-all-1.8.5.jar"/>
 	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/javaee.jar"/>
 	<classpathentry kind="lib" path="/libraries/glassfish4/modules/websecurity.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc-internal"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-common"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-dataservice-intsvc"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

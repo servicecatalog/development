@@ -38,6 +38,7 @@ import org.oscm.domobjects.TechnicalProduct;
 import org.oscm.domobjects.TriggerProcess;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.domobjects.enums.ModificationType;
+import org.oscm.encrypter.AESEncrypter;
 import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.internal.intf.SubscriptionService;
@@ -94,6 +95,7 @@ public class SubscriptionServiceBeanParameterOptionIT extends EJBTestBase {
 
     @Override
     protected void setup(TestContainer container) throws Exception {
+        AESEncrypter.generateKey();
         container.enableInterfaceMocking(true);
         container.addBean(mock(TaskQueueServiceLocal.class));
         container.addBean(new ConfigurationServiceStub());
@@ -130,6 +132,18 @@ public class SubscriptionServiceBeanParameterOptionIT extends EJBTestBase {
             @Override
             public PlatformUser getPlatformUser(String userId,
                     boolean validateOrganization) {
+                try {
+                    user = (PlatformUser) mgr.getReferenceByBusinessKey(user);
+                } catch (ObjectNotFoundException e) {
+                    // do nothing if user does not exist in DB.
+                }
+                return user;
+            }
+
+            @Override
+            public PlatformUser getPlatformUser(String userId, String tenantId,
+                    boolean validateOrganization) {
+                user.setTenantId(tenantId);
                 try {
                     user = (PlatformUser) mgr.getReferenceByBusinessKey(user);
                 } catch (ObjectNotFoundException e) {
@@ -195,17 +209,18 @@ public class SubscriptionServiceBeanParameterOptionIT extends EJBTestBase {
         // ************ END SETUP DATABASE ***********//
 
         // get history before modification of subscription1
-        List<PriceModelHistory> beforeOptionHistoryList = runTX(new Callable<List<PriceModelHistory>>() {
-            @Override
-            public List<PriceModelHistory> call() {
-                Subscription sub = mgr.find(Subscription.class,
-                        subscription1.getKey());
-                List<PriceModelHistory> list = ParameterizedTypes.list(
-                        mgr.findHistory(sub.getPriceModel()),
-                        PriceModelHistory.class);
-                return list;
-            }
-        });
+        List<PriceModelHistory> beforeOptionHistoryList = runTX(
+                new Callable<List<PriceModelHistory>>() {
+                    @Override
+                    public List<PriceModelHistory> call() {
+                        Subscription sub = mgr.find(Subscription.class,
+                                subscription1.getKey());
+                        List<PriceModelHistory> list = ParameterizedTypes.list(
+                                mgr.findHistory(sub.getPriceModel()),
+                                PriceModelHistory.class);
+                        return list;
+                    }
+                });
 
         // modify subscription1 via API
         final VOSubscriptionDetails subscriptionDetails = subSvc
@@ -220,17 +235,18 @@ public class SubscriptionServiceBeanParameterOptionIT extends EJBTestBase {
                 new ArrayList<VOUda>());
 
         // get history after modification of subscription1
-        List<PriceModelHistory> modifiedOptionHistoryList = runTX(new Callable<List<PriceModelHistory>>() {
-            @Override
-            public List<PriceModelHistory> call() {
-                Subscription sub = mgr.find(Subscription.class,
-                        subscription1.getKey());
-                List<PriceModelHistory> list = ParameterizedTypes.list(
-                        mgr.findHistory(sub.getPriceModel()),
-                        PriceModelHistory.class);
-                return list;
-            }
-        });
+        List<PriceModelHistory> modifiedOptionHistoryList = runTX(
+                new Callable<List<PriceModelHistory>>() {
+                    @Override
+                    public List<PriceModelHistory> call() {
+                        Subscription sub = mgr.find(Subscription.class,
+                                subscription1.getKey());
+                        List<PriceModelHistory> list = ParameterizedTypes.list(
+                                mgr.findHistory(sub.getPriceModel()),
+                                PriceModelHistory.class);
+                        return list;
+                    }
+                });
 
         // compare history before and after parameter option modification
         runTX(new Callable<Void>() {
@@ -243,12 +259,14 @@ public class SubscriptionServiceBeanParameterOptionIT extends EJBTestBase {
                 // compare param option
                 Assert.assertEquals(optionId2, subParam.getValue());
                 // compare product
-                Assert.assertEquals(subscriptionDetails.getSubscribedService()
-                        .getKey(), sub.getProduct().getKey());
+                Assert.assertEquals(
+                        subscriptionDetails.getSubscribedService().getKey(),
+                        sub.getProduct().getKey());
                 // compare price model
-                Assert.assertEquals(subscriptionDetails.getSubscribedService()
-                        .getPriceModel().getKey(), sub.getProduct()
-                        .getPriceModel().getKey());
+                Assert.assertEquals(
+                        subscriptionDetails.getSubscribedService()
+                                .getPriceModel().getKey(),
+                        sub.getProduct().getPriceModel().getKey());
                 return null;
             }
         });
@@ -338,7 +356,7 @@ public class SubscriptionServiceBeanParameterOptionIT extends EJBTestBase {
         VOUsageLicense usageLicense = new VOUsageLicense();
         usageLicense.setUser(adminUser);
         container.login(String.valueOf(user.getKey()), ROLE_ORGANIZATION_ADMIN);
-        List<VOUsageLicense> usageLicenses = new ArrayList<VOUsageLicense>();
+        List<VOUsageLicense> usageLicenses = new ArrayList<>();
         usageLicenses.add(usageLicense);
         final VOSubscription subscription1 = subSvc.subscribeToService(
                 subscription, template, usageLicenses, null, null,

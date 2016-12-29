@@ -16,11 +16,11 @@ import java.util.HashMap;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-
 import org.oscm.app.iaas.PropertyHandler;
-import org.oscm.app.v1_0.data.ProvisioningSettings;
-import org.oscm.app.v1_0.exceptions.APPlatformException;
-import org.oscm.app.v1_0.intf.APPlatformService;
+import org.oscm.app.v2_0.data.ProvisioningSettings;
+import org.oscm.app.v2_0.data.Setting;
+import org.oscm.app.v2_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.intf.APPlatformService;
 
 /**
  * @author iversen
@@ -34,8 +34,8 @@ public class ProvisioningValidatorTest {
     private PropertyHandler oldParams;
     private PropertyHandler newParamsMock;
     private PropertyHandler newParams;
-    private HashMap<String, String> parameters;
-    private HashMap<String, String> newParameters;
+    private HashMap<String, Setting> parameters;
+    private HashMap<String, Setting> newParameters;
     private APPlatformService platformService;
     private final String CONTROLLERID = "CONTROLLERID";
     private final String INSTANCENAME_PREFIX = "ess";
@@ -47,9 +47,9 @@ public class ProvisioningValidatorTest {
     public void setUp() throws Exception {
         provisioningValidator = mock(ProvisioningValidator.class,
                 Mockito.CALLS_REAL_METHODS);
-        parameters = new HashMap<String, String>();
-        newParameters = new HashMap<String, String>();
-        HashMap<String, String> configSettings = new HashMap<String, String>();
+        parameters = new HashMap<>();
+        newParameters = new HashMap<>();
+        HashMap<String, Setting> configSettings = new HashMap<>();
         ProvisioningSettings settings = new ProvisioningSettings(parameters,
                 configSettings, "en");
         ProvisioningSettings newSettings = new ProvisioningSettings(
@@ -66,10 +66,10 @@ public class ProvisioningValidatorTest {
     @Test(expected = APPlatformException.class)
     public void validateExistingInstance_InstanceExists() throws Exception {
         // given
-        parameters
-                .put(PropertyHandler.INSTANCENAME_PREFIX, INSTANCENAME_PREFIX);
-        parameters
-                .put(PropertyHandler.INSTANCENAME_CUSTOM, INSTANCENAME_CUSTOM);
+        parameters.put(PropertyHandler.INSTANCENAME_PREFIX, new Setting(
+                PropertyHandler.INSTANCENAME_PREFIX, INSTANCENAME_PREFIX));
+        parameters.put(PropertyHandler.INSTANCENAME_CUSTOM, new Setting(
+                PropertyHandler.INSTANCENAME_CUSTOM, INSTANCENAME_CUSTOM));
         doReturn(Boolean.TRUE).when(platformService).exists(CONTROLLERID,
                 INSTANCENAME_PREFIX + INSTANCENAME_CUSTOM);
 
@@ -83,10 +83,10 @@ public class ProvisioningValidatorTest {
     @Test
     public void validateExistingInstance() throws Exception {
         // given
-        parameters
-                .put(PropertyHandler.INSTANCENAME_PREFIX, INSTANCENAME_PREFIX);
-        parameters
-                .put(PropertyHandler.INSTANCENAME_CUSTOM, INSTANCENAME_CUSTOM);
+        parameters.put(PropertyHandler.INSTANCENAME_PREFIX, new Setting(
+                PropertyHandler.INSTANCENAME_PREFIX, INSTANCENAME_PREFIX));
+        parameters.put(PropertyHandler.INSTANCENAME_CUSTOM, new Setting(
+                PropertyHandler.INSTANCENAME_CUSTOM, INSTANCENAME_CUSTOM));
         doReturn(Boolean.FALSE).when(platformService).exists(CONTROLLERID,
                 INSTANCENAME_PREFIX + INSTANCENAME_CUSTOM);
 
@@ -100,10 +100,12 @@ public class ProvisioningValidatorTest {
     @Test(expected = APPlatformException.class)
     public void validateInstanceName_EmptyInstanceName() throws Exception {
         // given
-        parameters.put(PropertyHandler.INSTANCENAME_PREFIX, "");
-        parameters.put(PropertyHandler.INSTANCENAME_CUSTOM, "");
-        parameters.put(PropertyHandler.INSTANCENAME_PATTERN,
-                INSTANCENAME_PATTERN);
+        parameters.put(PropertyHandler.INSTANCENAME_PREFIX, new Setting(
+                PropertyHandler.INSTANCENAME_PREFIX, ""));
+        parameters.put(PropertyHandler.INSTANCENAME_CUSTOM, new Setting(
+                PropertyHandler.INSTANCENAME_CUSTOM, ""));
+        parameters.put(PropertyHandler.INSTANCENAME_PATTERN, new Setting(
+                PropertyHandler.INSTANCENAME_PATTERN, INSTANCENAME_PATTERN));
         // when
         provisioningValidator.validateInstanceName(paramHandler);
 
@@ -113,12 +115,12 @@ public class ProvisioningValidatorTest {
     @Test(expected = APPlatformException.class)
     public void validateInstanceName_PrefixNotMatching() throws Exception {
         // given
-        parameters
-                .put(PropertyHandler.INSTANCENAME_PREFIX, "nonMatchingPrefix");
-        parameters
-                .put(PropertyHandler.INSTANCENAME_CUSTOM, INSTANCENAME_CUSTOM);
-        parameters.put(PropertyHandler.INSTANCENAME_PATTERN,
-                INSTANCENAME_PATTERN);
+        parameters.put(PropertyHandler.INSTANCENAME_PREFIX, new Setting(
+                PropertyHandler.INSTANCENAME_PREFIX, "nonMatchingPrefix"));
+        parameters.put(PropertyHandler.INSTANCENAME_CUSTOM, new Setting(
+                PropertyHandler.INSTANCENAME_CUSTOM, INSTANCENAME_CUSTOM));
+        parameters.put(PropertyHandler.INSTANCENAME_PATTERN, new Setting(
+                PropertyHandler.INSTANCENAME_PATTERN, INSTANCENAME_PATTERN));
         // when
         provisioningValidator.validateInstanceName(paramHandler);
 
@@ -128,11 +130,12 @@ public class ProvisioningValidatorTest {
     @Test(expected = APPlatformException.class)
     public void validateInstanceName_NameNotMatching() throws Exception {
         // given
-        parameters
-                .put(PropertyHandler.INSTANCENAME_PREFIX, INSTANCENAME_PREFIX);
-        parameters.put(PropertyHandler.INSTANCENAME_CUSTOM, "nonMatchingName");
-        parameters.put(PropertyHandler.INSTANCENAME_PATTERN,
-                INSTANCENAME_PATTERN);
+        parameters.put(PropertyHandler.INSTANCENAME_PREFIX, new Setting(
+                PropertyHandler.INSTANCENAME_PREFIX, INSTANCENAME_PREFIX));
+        parameters.put(PropertyHandler.INSTANCENAME_CUSTOM, new Setting(
+                PropertyHandler.INSTANCENAME_CUSTOM, "nonMatchingName"));
+        parameters.put(PropertyHandler.INSTANCENAME_PATTERN, new Setting(
+                PropertyHandler.INSTANCENAME_PATTERN, INSTANCENAME_PATTERN));
         // when
         provisioningValidator.validateInstanceName(paramHandler);
 
@@ -142,12 +145,12 @@ public class ProvisioningValidatorTest {
     @Test
     public void validateInstanceName() throws Exception {
         // given
-        parameters
-                .put(PropertyHandler.INSTANCENAME_PREFIX, INSTANCENAME_PREFIX);
-        parameters
-                .put(PropertyHandler.INSTANCENAME_CUSTOM, INSTANCENAME_CUSTOM);
-        parameters.put(PropertyHandler.INSTANCENAME_PATTERN,
-                INSTANCENAME_PATTERN);
+        parameters.put(PropertyHandler.INSTANCENAME_PREFIX, new Setting(
+                PropertyHandler.INSTANCENAME_PREFIX, INSTANCENAME_PREFIX));
+        parameters.put(PropertyHandler.INSTANCENAME_CUSTOM, new Setting(
+                PropertyHandler.INSTANCENAME_CUSTOM, INSTANCENAME_CUSTOM));
+        parameters.put(PropertyHandler.INSTANCENAME_PATTERN, new Setting(
+                PropertyHandler.INSTANCENAME_PATTERN, INSTANCENAME_PATTERN));
 
         // when
         provisioningValidator.validateInstanceName(paramHandler);
@@ -497,13 +500,14 @@ public class ProvisioningValidatorTest {
     public void validateParametersForVsysProvisiong_ClusterDefined_NonNumericClusterSize()
             throws Exception {
         // given
-        newParameters.put(PropertyHandler.SYSTEM_TEMPLATE_ID,
-                "SYSTEM_TEMPLATE_ID");
-        newParameters.put(PropertyHandler.CLUSTER_SIZE, "CLUSTER_SIZE");
-        newParameters.put(PropertyHandler.MASTER_TEMPLATE_ID,
-                "MASTER_TEMPLATE_ID");
-        newParameters.put(PropertyHandler.SLAVE_TEMPLATE_ID,
-                "SLAVE_TEMPLATE_ID");
+        newParameters.put(PropertyHandler.SYSTEM_TEMPLATE_ID, new Setting(
+                PropertyHandler.SYSTEM_TEMPLATE_ID, "SYSTEM_TEMPLATE_ID"));
+        newParameters.put(PropertyHandler.CLUSTER_SIZE, new Setting(
+                PropertyHandler.CLUSTER_SIZE, "CLUSTER_SIZE"));
+        newParameters.put(PropertyHandler.MASTER_TEMPLATE_ID, new Setting(
+                PropertyHandler.MASTER_TEMPLATE_ID, "MASTER_TEMPLATE_ID"));
+        newParameters.put(PropertyHandler.SLAVE_TEMPLATE_ID, new Setting(
+                PropertyHandler.SLAVE_TEMPLATE_ID, "SLAVE_TEMPLATE_ID"));
 
         // when
         provisioningValidator.validateParametersForVsysProvisioning(oldParams,
@@ -514,15 +518,18 @@ public class ProvisioningValidatorTest {
     public void validateParametersForVsysProvisiong_UnsupportedNameModification()
             throws Exception {
         // given
-        newParameters.put(PropertyHandler.SYSTEM_TEMPLATE_ID,
-                "SYSTEM_TEMPLATE_ID");
-        newParameters.put(PropertyHandler.CLUSTER_SIZE, "15");
-        newParameters.put(PropertyHandler.MASTER_TEMPLATE_ID,
-                "MASTER_TEMPLATE_ID");
-        newParameters.put(PropertyHandler.SLAVE_TEMPLATE_ID,
-                "SLAVE_TEMPLATE_ID");
-        newParameters.put(PropertyHandler.INSTANCENAME_CUSTOM, "newInstance");
-        parameters.put(PropertyHandler.INSTANCENAME_CUSTOM, "instance");
+        newParameters.put(PropertyHandler.SYSTEM_TEMPLATE_ID, new Setting(
+                PropertyHandler.SYSTEM_TEMPLATE_ID, "SYSTEM_TEMPLATE_ID"));
+        newParameters.put(PropertyHandler.CLUSTER_SIZE, new Setting(
+                PropertyHandler.CLUSTER_SIZE, "15"));
+        newParameters.put(PropertyHandler.MASTER_TEMPLATE_ID, new Setting(
+                PropertyHandler.MASTER_TEMPLATE_ID, "MASTER_TEMPLATE_ID"));
+        newParameters.put(PropertyHandler.SLAVE_TEMPLATE_ID, new Setting(
+                PropertyHandler.SLAVE_TEMPLATE_ID, "SLAVE_TEMPLATE_ID"));
+        newParameters.put(PropertyHandler.INSTANCENAME_CUSTOM, new Setting(
+                PropertyHandler.INSTANCENAME_CUSTOM, "newInstance"));
+        parameters.put(PropertyHandler.INSTANCENAME_CUSTOM, new Setting(
+                PropertyHandler.INSTANCENAME_CUSTOM, "instance"));
 
         // when
         provisioningValidator.validateParametersForVsysProvisioning(oldParams,
@@ -533,17 +540,21 @@ public class ProvisioningValidatorTest {
     public void validateParametersForVsysProvisiong_InvalidClusterchange()
             throws Exception {
         // given
-        newParameters.put(PropertyHandler.SYSTEM_TEMPLATE_ID,
-                "SYSTEM_TEMPLATE_ID");
-        newParameters.put(PropertyHandler.INSTANCENAME_CUSTOM, "instance");
+        newParameters.put(PropertyHandler.SYSTEM_TEMPLATE_ID, new Setting(
+                PropertyHandler.SYSTEM_TEMPLATE_ID, "SYSTEM_TEMPLATE_ID"));
+        newParameters.put(PropertyHandler.INSTANCENAME_CUSTOM, new Setting(
+                PropertyHandler.INSTANCENAME_CUSTOM, "instance"));
 
-        parameters
-                .put(PropertyHandler.SYSTEM_TEMPLATE_ID, "SYSTEM_TEMPLATE_ID");
-        parameters.put(PropertyHandler.CLUSTER_SIZE, "15");
-        parameters
-                .put(PropertyHandler.MASTER_TEMPLATE_ID, "MASTER_TEMPLATE_ID");
-        parameters.put(PropertyHandler.SLAVE_TEMPLATE_ID, "SLAVE_TEMPLATE_ID");
-        parameters.put(PropertyHandler.INSTANCENAME_CUSTOM, "instance");
+        parameters.put(PropertyHandler.SYSTEM_TEMPLATE_ID, new Setting(
+                PropertyHandler.SYSTEM_TEMPLATE_ID, "SYSTEM_TEMPLATE_ID"));
+        parameters.put(PropertyHandler.CLUSTER_SIZE, new Setting(
+                PropertyHandler.CLUSTER_SIZE, "15"));
+        parameters.put(PropertyHandler.MASTER_TEMPLATE_ID, new Setting(
+                PropertyHandler.MASTER_TEMPLATE_ID, "MASTER_TEMPLATE_ID"));
+        parameters.put(PropertyHandler.SLAVE_TEMPLATE_ID, new Setting(
+                PropertyHandler.SLAVE_TEMPLATE_ID, "SLAVE_TEMPLATE_ID"));
+        parameters.put(PropertyHandler.INSTANCENAME_CUSTOM, new Setting(
+                PropertyHandler.INSTANCENAME_CUSTOM, "instance"));
 
         // when
         provisioningValidator.validateParametersForVsysProvisioning(oldParams,
@@ -554,23 +565,28 @@ public class ProvisioningValidatorTest {
     public void validateParametersForVsysProvisiong_InvalidMasterDiskImageRename()
             throws Exception {
         // given
-        newParameters.put(PropertyHandler.SYSTEM_TEMPLATE_ID,
-                "SYSTEM_TEMPLATE_ID");
-        newParameters.put(PropertyHandler.CLUSTER_SIZE, "15");
-        newParameters.put(PropertyHandler.MASTER_TEMPLATE_ID,
-                "MASTER_TEMPLATE_ID_1");
-        newParameters.put(PropertyHandler.SLAVE_TEMPLATE_ID,
-                "SLAVE_TEMPLATE_ID");
+        newParameters.put(PropertyHandler.SYSTEM_TEMPLATE_ID, new Setting(
+                PropertyHandler.SYSTEM_TEMPLATE_ID, "SYSTEM_TEMPLATE_ID"));
+        newParameters.put(PropertyHandler.CLUSTER_SIZE, new Setting(
+                PropertyHandler.CLUSTER_SIZE, "15"));
+        newParameters.put(PropertyHandler.MASTER_TEMPLATE_ID, new Setting(
+                PropertyHandler.MASTER_TEMPLATE_ID, "MASTER_TEMPLATE_ID_1"));
+        newParameters.put(PropertyHandler.SLAVE_TEMPLATE_ID, new Setting(
+                PropertyHandler.SLAVE_TEMPLATE_ID, "SLAVE_TEMPLATE_ID"));
 
-        newParameters.put(PropertyHandler.INSTANCENAME_CUSTOM, "instance");
+        newParameters.put(PropertyHandler.INSTANCENAME_CUSTOM, new Setting(
+                PropertyHandler.INSTANCENAME_CUSTOM, "instance"));
 
-        parameters
-                .put(PropertyHandler.SYSTEM_TEMPLATE_ID, "SYSTEM_TEMPLATE_ID");
-        parameters.put(PropertyHandler.CLUSTER_SIZE, "15");
-        parameters.put(PropertyHandler.MASTER_TEMPLATE_ID,
-                "MASTER_TEMPLATE_ID_2");
-        parameters.put(PropertyHandler.SLAVE_TEMPLATE_ID, "SLAVE_TEMPLATE_ID");
-        parameters.put(PropertyHandler.INSTANCENAME_CUSTOM, "instance");
+        parameters.put(PropertyHandler.SYSTEM_TEMPLATE_ID, new Setting(
+                PropertyHandler.SYSTEM_TEMPLATE_ID, "SYSTEM_TEMPLATE_ID"));
+        parameters.put(PropertyHandler.CLUSTER_SIZE, new Setting(
+                PropertyHandler.CLUSTER_SIZE, "15"));
+        parameters.put(PropertyHandler.MASTER_TEMPLATE_ID, new Setting(
+                PropertyHandler.MASTER_TEMPLATE_ID, "MASTER_TEMPLATE_ID_2"));
+        parameters.put(PropertyHandler.SLAVE_TEMPLATE_ID, new Setting(
+                PropertyHandler.SLAVE_TEMPLATE_ID, "SLAVE_TEMPLATE_ID"));
+        parameters.put(PropertyHandler.INSTANCENAME_CUSTOM, new Setting(
+                PropertyHandler.INSTANCENAME_CUSTOM, "instance"));
 
         // when
         provisioningValidator.validateParametersForVsysProvisioning(oldParams,
@@ -581,24 +597,28 @@ public class ProvisioningValidatorTest {
     public void validateParametersForVsysProvisiong_InvalidSlaveDiskImageRename()
             throws Exception {
         // given
-        newParameters.put(PropertyHandler.SYSTEM_TEMPLATE_ID,
-                "SYSTEM_TEMPLATE_ID");
-        newParameters.put(PropertyHandler.CLUSTER_SIZE, "15");
-        newParameters.put(PropertyHandler.MASTER_TEMPLATE_ID,
-                "MASTER_TEMPLATE_ID");
-        newParameters.put(PropertyHandler.SLAVE_TEMPLATE_ID,
-                "SLAVE_TEMPLATE_ID_1");
+        newParameters.put(PropertyHandler.SYSTEM_TEMPLATE_ID, new Setting(
+                PropertyHandler.SYSTEM_TEMPLATE_ID, "SYSTEM_TEMPLATE_ID"));
+        newParameters.put(PropertyHandler.CLUSTER_SIZE, new Setting(
+                PropertyHandler.CLUSTER_SIZE, "15"));
+        newParameters.put(PropertyHandler.MASTER_TEMPLATE_ID, new Setting(
+                PropertyHandler.MASTER_TEMPLATE_ID, "MASTER_TEMPLATE_ID"));
+        newParameters.put(PropertyHandler.SLAVE_TEMPLATE_ID, new Setting(
+                PropertyHandler.SLAVE_TEMPLATE_ID, "SLAVE_TEMPLATE_ID_1"));
 
-        newParameters.put(PropertyHandler.INSTANCENAME_CUSTOM, "instance");
+        newParameters.put(PropertyHandler.INSTANCENAME_CUSTOM, new Setting(
+                PropertyHandler.INSTANCENAME_CUSTOM, "instance"));
 
-        parameters
-                .put(PropertyHandler.SYSTEM_TEMPLATE_ID, "SYSTEM_TEMPLATE_ID");
-        parameters.put(PropertyHandler.CLUSTER_SIZE, "15");
-        parameters
-                .put(PropertyHandler.MASTER_TEMPLATE_ID, "MASTER_TEMPLATE_ID");
-        parameters
-                .put(PropertyHandler.SLAVE_TEMPLATE_ID, "SLAVE_TEMPLATE_ID_2");
-        parameters.put(PropertyHandler.INSTANCENAME_CUSTOM, "instance");
+        parameters.put(PropertyHandler.SYSTEM_TEMPLATE_ID, new Setting(
+                PropertyHandler.SYSTEM_TEMPLATE_ID, "SYSTEM_TEMPLATE_ID"));
+        parameters.put(PropertyHandler.CLUSTER_SIZE, new Setting(
+                PropertyHandler.CLUSTER_SIZE, "15"));
+        parameters.put(PropertyHandler.MASTER_TEMPLATE_ID, new Setting(
+                PropertyHandler.MASTER_TEMPLATE_ID, "MASTER_TEMPLATE_ID"));
+        parameters.put(PropertyHandler.SLAVE_TEMPLATE_ID, new Setting(
+                PropertyHandler.SLAVE_TEMPLATE_ID, "SLAVE_TEMPLATE_ID_2"));
+        parameters.put(PropertyHandler.INSTANCENAME_CUSTOM, new Setting(
+                PropertyHandler.INSTANCENAME_CUSTOM, "instance"));
 
         // when
         provisioningValidator.validateParametersForVsysProvisioning(oldParams,
@@ -609,24 +629,28 @@ public class ProvisioningValidatorTest {
     public void validateParametersForVsysProvisiong_EqualSlaveTemplates()
             throws Exception {
         // given
-        newParameters.put(PropertyHandler.SYSTEM_TEMPLATE_ID,
-                "SYSTEM_TEMPLATE_ID");
-        newParameters.put(PropertyHandler.CLUSTER_SIZE, "15");
-        newParameters.put(PropertyHandler.MASTER_TEMPLATE_ID,
-                "MASTER_TEMPLATE_ID");
-        newParameters.put(PropertyHandler.SLAVE_TEMPLATE_ID,
-                "SLAVE_TEMPLATE_ID_1");
+        newParameters.put(PropertyHandler.SYSTEM_TEMPLATE_ID, new Setting(
+                PropertyHandler.SYSTEM_TEMPLATE_ID, "SYSTEM_TEMPLATE_ID"));
+        newParameters.put(PropertyHandler.CLUSTER_SIZE, new Setting(
+                PropertyHandler.CLUSTER_SIZE, "15"));
+        newParameters.put(PropertyHandler.MASTER_TEMPLATE_ID, new Setting(
+                PropertyHandler.MASTER_TEMPLATE_ID, "MASTER_TEMPLATE_ID"));
+        newParameters.put(PropertyHandler.SLAVE_TEMPLATE_ID, new Setting(
+                PropertyHandler.SLAVE_TEMPLATE_ID, "SLAVE_TEMPLATE_ID_1"));
 
-        newParameters.put(PropertyHandler.INSTANCENAME_CUSTOM, "instance");
+        newParameters.put(PropertyHandler.INSTANCENAME_CUSTOM, new Setting(
+                PropertyHandler.INSTANCENAME_CUSTOM, "instance"));
 
-        parameters
-                .put(PropertyHandler.SYSTEM_TEMPLATE_ID, "SYSTEM_TEMPLATE_ID");
-        parameters.put(PropertyHandler.CLUSTER_SIZE, "15");
-        parameters
-                .put(PropertyHandler.MASTER_TEMPLATE_ID, "MASTER_TEMPLATE_ID");
-        parameters
-                .put(PropertyHandler.SLAVE_TEMPLATE_ID, "SLAVE_TEMPLATE_ID_1");
-        parameters.put(PropertyHandler.INSTANCENAME_CUSTOM, "instance");
+        parameters.put(PropertyHandler.SYSTEM_TEMPLATE_ID, new Setting(
+                PropertyHandler.SYSTEM_TEMPLATE_ID, "SYSTEM_TEMPLATE_ID"));
+        parameters.put(PropertyHandler.CLUSTER_SIZE, new Setting(
+                PropertyHandler.CLUSTER_SIZE, "15"));
+        parameters.put(PropertyHandler.MASTER_TEMPLATE_ID, new Setting(
+                PropertyHandler.MASTER_TEMPLATE_ID, "MASTER_TEMPLATE_ID"));
+        parameters.put(PropertyHandler.SLAVE_TEMPLATE_ID, new Setting(
+                PropertyHandler.SLAVE_TEMPLATE_ID, "SLAVE_TEMPLATE_ID_1"));
+        parameters.put(PropertyHandler.INSTANCENAME_CUSTOM, new Setting(
+                PropertyHandler.INSTANCENAME_CUSTOM, "instance"));
 
         // when
         provisioningValidator.validateParametersForVsysProvisioning(oldParams,
@@ -637,15 +661,17 @@ public class ProvisioningValidatorTest {
     public void validateParametersForVsysProvisiong_NoOldParams()
             throws Exception {
         // given
-        newParameters.put(PropertyHandler.SYSTEM_TEMPLATE_ID,
-                "SYSTEM_TEMPLATE_ID");
-        newParameters.put(PropertyHandler.CLUSTER_SIZE, "15");
-        newParameters.put(PropertyHandler.MASTER_TEMPLATE_ID,
-                "MASTER_TEMPLATE_ID");
-        newParameters.put(PropertyHandler.SLAVE_TEMPLATE_ID,
-                "SLAVE_TEMPLATE_ID_1");
+        newParameters.put(PropertyHandler.SYSTEM_TEMPLATE_ID, new Setting(
+                PropertyHandler.SYSTEM_TEMPLATE_ID, "SYSTEM_TEMPLATE_ID"));
+        newParameters.put(PropertyHandler.CLUSTER_SIZE, new Setting(
+                PropertyHandler.CLUSTER_SIZE, "15"));
+        newParameters.put(PropertyHandler.MASTER_TEMPLATE_ID, new Setting(
+                PropertyHandler.MASTER_TEMPLATE_ID, "MASTER_TEMPLATE_ID"));
+        newParameters.put(PropertyHandler.SLAVE_TEMPLATE_ID, new Setting(
+                PropertyHandler.SLAVE_TEMPLATE_ID, "SLAVE_TEMPLATE_ID_1"));
 
-        newParameters.put(PropertyHandler.INSTANCENAME_CUSTOM, "instance");
+        newParameters.put(PropertyHandler.INSTANCENAME_CUSTOM, new Setting(
+                PropertyHandler.INSTANCENAME_CUSTOM, "instance"));
 
         // when
         provisioningValidator.validateParametersForVsysProvisioning(null,
@@ -656,15 +682,17 @@ public class ProvisioningValidatorTest {
     public void validateParametersForVsysProvisiong_NoClusterDefined()
             throws Exception {
         // given
-        newParameters.put(PropertyHandler.SYSTEM_TEMPLATE_ID,
-                "SYSTEM_TEMPLATE_ID");
+        newParameters.put(PropertyHandler.SYSTEM_TEMPLATE_ID, new Setting(
+                PropertyHandler.SYSTEM_TEMPLATE_ID, "SYSTEM_TEMPLATE_ID"));
 
-        newParameters.put(PropertyHandler.INSTANCENAME_CUSTOM, "instance");
+        newParameters.put(PropertyHandler.INSTANCENAME_CUSTOM, new Setting(
+                PropertyHandler.INSTANCENAME_CUSTOM, "instance"));
 
-        parameters
-                .put(PropertyHandler.SYSTEM_TEMPLATE_ID, "SYSTEM_TEMPLATE_ID");
+        parameters.put(PropertyHandler.SYSTEM_TEMPLATE_ID, new Setting(
+                PropertyHandler.SYSTEM_TEMPLATE_ID, "SYSTEM_TEMPLATE_ID"));
 
-        parameters.put(PropertyHandler.INSTANCENAME_CUSTOM, "instance");
+        parameters.put(PropertyHandler.INSTANCENAME_CUSTOM, new Setting(
+                PropertyHandler.INSTANCENAME_CUSTOM, "instance"));
 
         // when
         provisioningValidator.validateParametersForVsysProvisioning(oldParams,

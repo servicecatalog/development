@@ -14,9 +14,7 @@ package org.oscm.ui.beans.marketplace;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -26,10 +24,9 @@ import java.util.Set;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.oscm.internal.cache.MarketplaceConfiguration;
 import org.oscm.internal.types.enumtypes.Sorting;
 import org.oscm.internal.vo.VOUserDetails;
-import org.oscm.ui.beans.MarketplaceConfigurationBean;
-import org.oscm.ui.model.MarketplaceConfiguration;
 
 /**
  * @author Dirk Bernsau
@@ -52,11 +49,7 @@ public class ServicePagingBeanTest {
 
         bean = spy(new ServicePagingBean());
 
-        MarketplaceConfigurationBean mcb = mock(
-                MarketplaceConfigurationBean.class);
-        when(mcb.getCurrentConfiguration()).thenReturn(config);
-        bean.setMarketplaceConfigurationBean(mcb);
-
+        doReturn(config).when(bean).getConfig();
     }
 
     @Test
@@ -100,16 +93,12 @@ public class ServicePagingBeanTest {
         List<String> sorting = bean.getSortingCriteria();
 
         // then
-        Assert.assertTrue(
-                sorting.indexOf(Sorting.ACTIVATION_ASCENDING.name()) == 0);
-        Assert.assertTrue(
-                sorting.indexOf(Sorting.ACTIVATION_DESCENDING.name()) == 1);
+        Assert.assertTrue(sorting.indexOf(Sorting.ACTIVATION_ASCENDING.name()) == 0);
+        Assert.assertTrue(sorting.indexOf(Sorting.ACTIVATION_DESCENDING.name()) == 1);
         Assert.assertTrue(sorting.indexOf(Sorting.NAME_ASCENDING.name()) == 2);
         Assert.assertTrue(sorting.indexOf(Sorting.NAME_DESCENDING.name()) == 3);
-        Assert.assertTrue(
-                sorting.indexOf(Sorting.RATING_ASCENDING.name()) == 4);
-        Assert.assertTrue(
-                sorting.indexOf(Sorting.RATING_DESCENDING.name()) == 5);
+        Assert.assertTrue(sorting.indexOf(Sorting.RATING_ASCENDING.name()) == 4);
+        Assert.assertTrue(sorting.indexOf(Sorting.RATING_DESCENDING.name()) == 5);
     }
 
     /**

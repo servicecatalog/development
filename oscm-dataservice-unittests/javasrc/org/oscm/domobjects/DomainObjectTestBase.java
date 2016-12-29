@@ -16,14 +16,15 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import org.junit.Assert;
-
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.enums.ModificationType;
+import org.oscm.encrypter.AESEncrypter;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.ReflectiveCompare;
 import org.oscm.test.ejb.TestContainer;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 
 /**
  * Base class for all Domain Object Tests
@@ -45,7 +46,9 @@ public class DomainObjectTestBase extends EJBTestBase {
     @Override
     public void setup(final TestContainer container) throws Exception {
 
+        AESEncrypter.generateKey();
         container.login(USER_GUEST);
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
 
         mgr = container.get(DataService.class);
@@ -104,8 +107,8 @@ public class DomainObjectTestBase extends EJBTestBase {
 
                     // the last entry in the history table must reflect the
                     // current object
-                    DomainHistoryObject<?> historyObj = history.get(history
-                            .size() - 1);
+                    DomainHistoryObject<?> historyObj = history
+                            .get(history.size() - 1);
                     Assert.assertEquals("modtype", modType,
                             historyObj.getModtype());
                     Assert.assertEquals("moduser", "guest",

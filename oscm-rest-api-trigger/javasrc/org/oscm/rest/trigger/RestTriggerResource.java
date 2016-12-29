@@ -29,8 +29,16 @@ public class RestTriggerResource extends RestResource {
     @EJB
     private DefinitionBackend triggerBackend;
 
+    public void setDefinitionBackend(DefinitionBackend triggerBackend) {
+        this.triggerBackend = triggerBackend;
+    }
+
     @EJB
     private ProcessBackend processBackend;
+
+    public void setProcessBackend(ProcessBackend processBackend) {
+        this.processBackend = processBackend;
+    }
 
     /**
      * Endpoint class for trigger definition
@@ -115,7 +123,7 @@ public class RestTriggerResource extends RestResource {
 //
 //    /**
 //     * Redirects to trigger definition endpoints
-//     *
+//     * 
 //     * @return the trigger definition endpoints
 //     */
 //    @Path(TriggerCommonParams.PATH_DEFINITIONS)
@@ -125,7 +133,7 @@ public class RestTriggerResource extends RestResource {
 //
 //    /**
 //     * Endpoint class for trigger action
-//     *
+//     * 
 //     * @author miethaner
 //     */
 //    public class Action implements RestFrontend.Get<TriggerParameters> {
@@ -176,7 +184,7 @@ public class RestTriggerResource extends RestResource {
 //
 //    /**
 //     * Redirects to trigger action endpoints
-//     *
+//     * 
 //     * @return the trigger action endpoints
 //     */
 //    @Path(TriggerCommonParams.PATH_ACTIONS)
@@ -186,7 +194,7 @@ public class RestTriggerResource extends RestResource {
 //
 //    /**
 //     * Endpoint class for trigger process
-//     *
+//     * 
 //     * @author miethaner
 //     */
 //    public class Process {
@@ -194,7 +202,7 @@ public class RestTriggerResource extends RestResource {
 //        /**
 //         * Approves the process with the given id and forwards the given
 //         * comment.
-//         *
+//         * 
 //         * @param request
 //         *            the request context
 //         * @param params
@@ -208,13 +216,14 @@ public class RestTriggerResource extends RestResource {
 //        public Response putApprove(@Context Request request,
 //                @InjectParam TriggerParameters params)
 //                throws WebApplicationException {
-//            return put(request, processBackend.putApprove(),
-//                    new ProcessRepresentation(), params);
+//            ProcessRepresentation process = new ProcessRepresentation();
+//            process.setComment("");
+//            return put(request, processBackend.putApprove(), process, params);
 //        }
 //
 //        /**
 //         * Rejects the process with the given id and forwards the given comment.
-//         *
+//         * 
 //         * @param request
 //         *            the request context
 //         * @param content
@@ -239,7 +248,7 @@ public class RestTriggerResource extends RestResource {
 //
 //    /**
 //     * Redirects to trigger process endpoints
-//     *
+//     * 
 //     * @return the trigger process endpoints
 //     */
 //    @Path(TriggerCommonParams.PATH_PROCESSES)

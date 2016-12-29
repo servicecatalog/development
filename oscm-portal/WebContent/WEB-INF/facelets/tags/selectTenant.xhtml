@@ -1,0 +1,56 @@
+<!-- Copyright FUJITSU LIMITED 2016-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:rich="http://richfaces.org/rich"
+                xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+                xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+  <c:if test="#{empty disabled}">
+    <c:set var="disabled" value="false" />
+  </c:if>
+  
+  <adm:outputLabel value="#{msg['tenant.tenantID']}"/>
+  
+  <h:panelGroup>
+    <rich:autocomplete
+            mode="ajax"
+            id="tenantId"
+            styleClass="fieldOrganization ct-autocomplete"
+            inputClass="ct-autocomplete-input"
+            label="#{msg['tenant.tenantID']}"
+            value="#{context}"
+            onfocus="this.select();"
+            maxlength="#{appBean.idLen}"
+            minChars="3"
+            disabled="#{disabled}"
+            fetchValue="#{tenant.tenantId}"
+            var="tenant"
+            autofill="false"
+            autocompleteMethod="#{tenantsUtilBean.getSuggestionsForTenants}"
+            popupClass="tenant-popup"
+            onclick="AdmUtils.removeNonPrintedChars(#{rich:component('tenantId')});"
+            oncomplete="AdmUtils.addNothingLabel(#{rich:component('tenantId')}, 'tenant-popup', '#{msg['tenant.noMatch']}');">
+        <h:column>
+            <h:outputText value="#{tenant.tenantId} (#{tenant.name})" />
+        </h:column>
+    </rich:autocomplete>
+
+    <script type="text/javascript">
+      function searchTenant() {
+        if(#{not disabled}){
+          AdmUtils.autocompleteSearch(#{rich:component('tenantId')});
+        }
+        AdmUtils.addNothingLabel(#{rich:component('tenantId')}, 'tenant-popup', "#{msg['tenant.noMatch']}");
+      }
+    </script>
+
+    <h:graphicImage id="tenantSuggestionImage" value="/img/transparentPixel.png" styleClass="suggestion-box-marker"
+      onclick="searchTenant();" alt=""/>
+
+  </h:panelGroup>
+
+  <adm:message id="tenantIdErrorMsg" for="tenantId" />
+</ui:composition>

@@ -25,10 +25,10 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-
-import org.oscm.utils.PreparedStatementBuilder;
+import org.oscm.encrypter.AESEncrypter;
 import org.oscm.internal.vo.VOParameter;
 import org.oscm.internal.vo.VOService;
+import org.oscm.utils.PreparedStatementBuilder;
 
 public class MigrateTriggerProcessParametersTest {
 
@@ -45,6 +45,7 @@ public class MigrateTriggerProcessParametersTest {
 
     @Before
     public void setup() throws Exception {
+        AESEncrypter.generateKey();
         SUT = stubSUT();
         connection = mock(Connection.class);
         tppStatement = mock(PreparedStatement.class);
@@ -58,10 +59,8 @@ public class MigrateTriggerProcessParametersTest {
 
         doReturn(tppStatement).when(connection).prepareStatement(
                 MigrateTriggerProcessParameters.QUERY_ALL_PRODUCT_PARAMETERS);
-        doReturn(paramStatement)
-                .when(connection)
-                .prepareStatement(
-                        MigrateTriggerProcessParameters.QUERY_IS_CONFIGURABLE_PARAMETER);
+        doReturn(paramStatement).when(connection).prepareStatement(
+                MigrateTriggerProcessParameters.QUERY_IS_CONFIGURABLE_PARAMETER);
         doReturn(updateStatement).when(connection).prepareStatement(
                 MigrateTriggerProcessParameters.UPDATE_PRODUCT_PARAMETER);
         doReturn(Integer.valueOf(0)).when(updateStatement).executeUpdate();

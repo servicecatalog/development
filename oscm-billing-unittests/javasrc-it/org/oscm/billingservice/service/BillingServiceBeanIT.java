@@ -12,6 +12,14 @@
 
 package org.oscm.billingservice.service;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.oscm.test.BigDecimalAsserts.checkEquals;
 import static org.oscm.test.Numbers.BD10;
 import static org.oscm.test.Numbers.BD100;
@@ -40,14 +48,6 @@ import static org.oscm.test.Numbers.BIGDECIMAL_SCALE;
 import static org.oscm.test.Numbers.L_MAX;
 import static org.oscm.test.Numbers.L_MIN;
 import static org.oscm.test.Numbers.TIMESTAMP;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -69,11 +69,6 @@ import javax.persistence.Query;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
 import org.oscm.accountservice.bean.MarketingPermissionServiceBean;
 import org.oscm.app.control.ApplicationServiceBaseStub;
 import org.oscm.billingservice.business.calculation.revenue.RevenueCalculatorBean;
@@ -113,6 +108,14 @@ import org.oscm.domobjects.enums.BillingAdapterIdentifier;
 import org.oscm.domobjects.enums.OrganizationReferenceType;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
 import org.oscm.interceptor.DateFactory;
+import org.oscm.internal.intf.BillingService;
+import org.oscm.internal.intf.ServiceProvisioningService;
+import org.oscm.internal.types.enumtypes.EventType;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.PriceModelType;
+import org.oscm.internal.types.enumtypes.PricingPeriod;
+import org.oscm.internal.types.enumtypes.SubscriptionStatus;
+import org.oscm.internal.types.enumtypes.UserAccountStatus;
 import org.oscm.paymentservice.bean.PaymentServiceStub;
 import org.oscm.serviceprovisioningservice.bean.ServiceProvisioningServiceBean;
 import org.oscm.serviceprovisioningservice.bean.TagServiceBean;
@@ -138,14 +141,10 @@ import org.oscm.test.stubs.SessionServiceStub;
 import org.oscm.test.stubs.TriggerQueueServiceStub;
 import org.oscm.triggerservice.local.TriggerMessage;
 import org.oscm.types.enumtypes.PlatformEventIdentifier;
-import org.oscm.internal.intf.BillingService;
-import org.oscm.internal.intf.ServiceProvisioningService;
-import org.oscm.internal.types.enumtypes.EventType;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.PriceModelType;
-import org.oscm.internal.types.enumtypes.PricingPeriod;
-import org.oscm.internal.types.enumtypes.SubscriptionStatus;
-import org.oscm.internal.types.enumtypes.UserAccountStatus;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 @SuppressWarnings({ "boxing", "deprecation" })
 public class BillingServiceBeanIT extends EJBTestBase {
@@ -259,6 +258,7 @@ public class BillingServiceBeanIT extends EJBTestBase {
         container.enableInterfaceMocking(true);
         container.login("1");
         container.addBean(mock(TenantProvisioningServiceBean.class));
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         container.addBean(new ConfigurationServiceStub());
         container.addBean(new PaymentServiceStub());
@@ -270,25 +270,21 @@ public class BillingServiceBeanIT extends EJBTestBase {
         container.addBean(new LocalizerServiceBean());
         container.addBean(new ImageResourceServiceStub());
         sharesCalculator = mock(SharesCalculatorLocal.class);
-        when(
-                sharesCalculator.performBrokerSharesCalculationRun(anyLong(),
-                        anyLong())).thenReturn(Boolean.TRUE);
-        when(
-                sharesCalculator.performMarketplacesSharesCalculationRun(
-                        anyLong(), anyLong())).thenReturn(Boolean.TRUE);
-        when(
-                sharesCalculator.performResellerSharesCalculationRun(anyLong(),
-                        anyLong())).thenReturn(Boolean.TRUE);
-        when(
-                sharesCalculator.performSupplierSharesCalculationRun(anyLong(),
-                        anyLong())).thenReturn(Boolean.TRUE);
+        when(sharesCalculator.performBrokerSharesCalculationRun(anyLong(),
+                anyLong())).thenReturn(Boolean.TRUE);
+        when(sharesCalculator.performMarketplacesSharesCalculationRun(anyLong(),
+                anyLong())).thenReturn(Boolean.TRUE);
+        when(sharesCalculator.performResellerSharesCalculationRun(anyLong(),
+                anyLong())).thenReturn(Boolean.TRUE);
+        when(sharesCalculator.performSupplierSharesCalculationRun(anyLong(),
+                anyLong())).thenReturn(Boolean.TRUE);
         container.addBean(sharesCalculator);
         container.addBean(new TriggerQueueServiceStub() {
             @Override
             public void sendAllNonSuspendingMessages(
                     List<TriggerMessage> messages, PlatformUser currentUser) {
                 for (TriggerMessage triggerMessage : messages) {
-                    ntfxReceivingOrgs = new ArrayList<Organization>(
+                    ntfxReceivingOrgs = new ArrayList<>(
                             triggerMessage.getReceiverOrgs());
                 }
             }
@@ -366,37 +362,31 @@ public class BillingServiceBeanIT extends EJBTestBase {
 
         createSupportedCurrencies(mgr);
         container.login(platformUserKey, ROLE_TECHNOLOGY_MANAGER);
-        serviceProv.importTechnicalServices(TECHNICAL_SERVICES_XML
-                .getBytes("UTF-8"));
+        serviceProv.importTechnicalServices(
+                TECHNICAL_SERVICES_XML.getBytes("UTF-8"));
 
         final String productXml = "<?xml version='1.0' encoding='UTF-8'?>"
-                + "<TechnicalProduct orgId=\""
-                + supplierId
+                + "<TechnicalProduct orgId=\"" + supplierId
                 + "\" id=\"example\" version=\"1.00\">"
 
-                + String.format(Locale.ENGLISH,
-                        PRODUCT_CHARGEABLE_XML_TEMPLATE, P_1_ID, M,
-                        P_1_PRICE_PER_PERIOD, P_1_PRICE_PER_USER,
+                + String.format(Locale.ENGLISH, PRODUCT_CHARGEABLE_XML_TEMPLATE,
+                        P_1_ID, M, P_1_PRICE_PER_PERIOD, P_1_PRICE_PER_USER,
                         P_1_ONE_TIME_FEE, P_1_PRICE_LOGIN, P_1_PRICE_LOGOUT,
                         P_1_PRICE_UPLOAD)
-                + String.format(Locale.ENGLISH,
-                        PRODUCT_CHARGEABLE_XML_TEMPLATE, P_2_ID, M,
-                        P_2_PRICE_PER_PERIOD, P_2_PRICE_PER_USER,
+                + String.format(Locale.ENGLISH, PRODUCT_CHARGEABLE_XML_TEMPLATE,
+                        P_2_ID, M, P_2_PRICE_PER_PERIOD, P_2_PRICE_PER_USER,
                         P_2_ONE_TIME_FEE, P_2_PRICE_LOGIN, P_2_PRICE_LOGOUT,
                         P_2_PRICE_UPLOAD)
-                + String.format(Locale.ENGLISH,
-                        PRODUCT_CHARGEABLE_XML_TEMPLATE, P_3_ID, W,
-                        P_3_PRICE_PER_PERIOD, P_3_PRICE_PER_USER,
+                + String.format(Locale.ENGLISH, PRODUCT_CHARGEABLE_XML_TEMPLATE,
+                        P_3_ID, W, P_3_PRICE_PER_PERIOD, P_3_PRICE_PER_USER,
                         P_3_ONE_TIME_FEE, P_3_PRICE_LOGIN, P_3_PRICE_LOGOUT,
                         P_3_PRICE_UPLOAD)
-                + String.format(Locale.ENGLISH,
-                        PRODUCT_CHARGEABLE_XML_TEMPLATE, P_4_ID, D,
-                        P_4_PRICE_PER_PERIOD, P_4_PRICE_PER_USER,
+                + String.format(Locale.ENGLISH, PRODUCT_CHARGEABLE_XML_TEMPLATE,
+                        P_4_ID, D, P_4_PRICE_PER_PERIOD, P_4_PRICE_PER_USER,
                         P_4_ONE_TIME_FEE, P_4_PRICE_LOGIN, P_4_PRICE_LOGOUT,
                         P_4_PRICE_UPLOAD)
-                + String.format(Locale.ENGLISH,
-                        PRODUCT_CHARGEABLE_XML_TEMPLATE, P_5_ID,
-                        PricingPeriod.HOUR, P_5_PRICE_PER_PERIOD,
+                + String.format(Locale.ENGLISH, PRODUCT_CHARGEABLE_XML_TEMPLATE,
+                        P_5_ID, PricingPeriod.HOUR, P_5_PRICE_PER_PERIOD,
                         P_5_PRICE_PER_USER, P_5_ONE_TIME_FEE, P_5_PRICE_LOGIN,
                         P_5_PRICE_LOGOUT, P_5_PRICE_UPLOAD)
 
@@ -433,8 +423,8 @@ public class BillingServiceBeanIT extends EJBTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() {
-                Query query = mgr
-                        .createQuery("update SubscriptionHistory h set h.modDate = :modDate");
+                Query query = mgr.createQuery(
+                        "update SubscriptionHistory h set h.modDate = :modDate");
                 query.setParameter("modDate", date);
                 query.executeUpdate();
                 return null;
@@ -498,7 +488,8 @@ public class BillingServiceBeanIT extends EJBTestBase {
      * @throws Exception
      */
     protected void testSubscriptionFromPreviousMonthWithDiscountBase(
-            final BigDecimal percent, final BigDecimal amount) throws Exception {
+            final BigDecimal percent, final BigDecimal amount)
+            throws Exception {
 
         final int testMonth = Calendar.APRIL;
         final int testDay = 1;
@@ -517,16 +508,16 @@ public class BillingServiceBeanIT extends EJBTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                Query query = mgr
-                        .createQuery("update SubscriptionHistory h set h.modDate = :modDate");
+                Query query = mgr.createQuery(
+                        "update SubscriptionHistory h set h.modDate = :modDate");
                 query.setParameter("modDate", date);
                 query.executeUpdate();
 
                 Subscription subscription = getSubscription(SUBSCRIPTION_ID);
                 Organization organization = subscription.getOrganization();
                 Discount discount = new Discount();
-                discount.setOrganizationReference(organization.getSources()
-                        .get(0));
+                discount.setOrganizationReference(
+                        organization.getSources().get(0));
                 discount.setValue(percent);
                 Long startTime = L_MIN;
                 Long endTime = L_MAX;
@@ -571,12 +562,11 @@ public class BillingServiceBeanIT extends EJBTestBase {
                 BigDecimal.ONE);
 
         // with all factors and multipliers no error situation
-        testSimplePeriod1BeginOfJanuaryBase(
-                testMonth,
-                testDay,
+        testSimplePeriod1BeginOfJanuaryBase(testMonth, testDay,
                 parametersAndOptionsCosts.add(durationParamCosts).setScale(
                         PriceConverter.NORMALIZED_PRICE_SCALING,
-                        RoundingMode.HALF_UP), "");
+                        RoundingMode.HALF_UP),
+                "");
         xmlValidator.validateBillingResultXML();
     }
 
@@ -655,8 +645,8 @@ public class BillingServiceBeanIT extends EJBTestBase {
                 getDate(testYear, testMonth, -2, 8, 0));
         prepareParametersAndOptionsBase(testMonth, subscription, "");
 
-        BigDecimal periodFactor = BigDecimal.valueOf(28).divide(
-                BigDecimal.valueOf(7));
+        BigDecimal periodFactor = BigDecimal.valueOf(28)
+                .divide(BigDecimal.valueOf(7));
         BigDecimal durationParamCosts = getDurationParamCosts(1300, 1,
                 periodFactor);
         parametersAndOptionsCosts = parametersAndOptionsCosts
@@ -688,8 +678,8 @@ public class BillingServiceBeanIT extends EJBTestBase {
         double faktor = getFraction(D, getStartDate(testYear, testMonth),
                 getEndDate(testYear, testMonth), testYear, testMonth);
 
-        BigDecimal price = P_4_PRICE_PER_PERIOD.multiply(BigDecimal
-                .valueOf(faktor));
+        BigDecimal price = P_4_PRICE_PER_PERIOD
+                .multiply(BigDecimal.valueOf(faktor));
 
         verify(new Date[][] { { getStartDate(testYear, testMonth),
                 getEndDate(testYear, testMonth) } }, price, testMonth);
@@ -743,8 +733,8 @@ public class BillingServiceBeanIT extends EJBTestBase {
                 getDate(testYear, testMonth, 16, 16, 59), testYear, testMonth);
         fraction += getFraction(M, getDate(testYear, testMonth, 18, 8, 0),
                 getDate(testYear, testMonth, 20, 16, 59), testYear, testMonth);
-        BigDecimal value = P_1_PRICE_PER_PERIOD.add(new BigDecimal(fraction)
-                .multiply(P_1_PRICE_PER_USER));
+        BigDecimal value = P_1_PRICE_PER_PERIOD
+                .add(new BigDecimal(fraction).multiply(P_1_PRICE_PER_USER));
         verify(new Date[][] { { getStartDate(testYear, testMonth),
                 getEndDate(testYear, testMonth) } }, value, testMonth);
         xmlValidator.validateBillingResultXML();
@@ -823,8 +813,8 @@ public class BillingServiceBeanIT extends EJBTestBase {
         delSub(getDate(testYear, testMonth, 32, 0, 0));
 
         startBillingRun(billingTime);
-        BigDecimal value = P_1_PRICE_PER_PERIOD.add(P_1_PRICE_LOGIN
-                .multiply(BD20));
+        BigDecimal value = P_1_PRICE_PER_PERIOD
+                .add(P_1_PRICE_LOGIN.multiply(BD20));
         value = value.add(P_1_PRICE_UPLOAD.multiply(BD30));
         verify(new Date[][] { { getStartDate(testYear, testMonth),
                 getEndDate(testYear, testMonth) } }, value, testMonth);
@@ -872,7 +862,8 @@ public class BillingServiceBeanIT extends EJBTestBase {
     }
 
     @Test
-    public void testInterruptedPeriodWithUser1BeginOfJanuary() throws Exception {
+    public void testInterruptedPeriodWithUser1BeginOfJanuary()
+            throws Exception {
         final int testMonth = Calendar.JANUARY;
         final int testDay = 1;
         final BigDecimal etalonPrice = new BigDecimal("746.37");
@@ -911,7 +902,8 @@ public class BillingServiceBeanIT extends EJBTestBase {
     }
 
     @Test
-    public void testInterruptedPeriodWithUser2BeginOfJanuary() throws Exception {
+    public void testInterruptedPeriodWithUser2BeginOfJanuary()
+            throws Exception {
         final int testMonth = Calendar.JANUARY;
         final int testDay = 1;
         final BigDecimal etalonPrice = new BigDecimal("1336.9777777778");
@@ -931,7 +923,8 @@ public class BillingServiceBeanIT extends EJBTestBase {
     }
 
     @Test
-    public void testInterruptedPeriodWithUser3BeginOfJanuary() throws Exception {
+    public void testInterruptedPeriodWithUser3BeginOfJanuary()
+            throws Exception {
         final int testMonth = Calendar.JANUARY;
         final int testDay = 1;
         final BigDecimal etalonPrice = new BigDecimal("9166.6666666667");
@@ -957,7 +950,8 @@ public class BillingServiceBeanIT extends EJBTestBase {
         final int testDay = 1;
         final BigDecimal etalonPrice = new BigDecimal("2094.6012544803");
 
-        testInterruptedPeriodWithManyEventsBase(testMonth, testDay, etalonPrice);
+        testInterruptedPeriodWithManyEventsBase(testMonth, testDay,
+                etalonPrice);
         xmlValidator.validateBillingResultXML();
     }
 
@@ -968,7 +962,8 @@ public class BillingServiceBeanIT extends EJBTestBase {
         final int testDay = 1;
         final BigDecimal etalonPrice = new BigDecimal("2147.5942460317");
 
-        testInterruptedPeriodWithManyEventsBase(testMonth, testDay, etalonPrice);
+        testInterruptedPeriodWithManyEventsBase(testMonth, testDay,
+                etalonPrice);
         xmlValidator.validateBillingResultXML();
     }
 
@@ -1331,8 +1326,8 @@ public class BillingServiceBeanIT extends EJBTestBase {
         runTX(new Callable<Organization>() {
             @Override
             public Organization call() throws Exception {
-                Organization organization = mgr.getReference(
-                        Organization.class, customerTkey);
+                Organization organization = mgr.getReference(Organization.class,
+                        customerTkey);
                 organization.setName("new Name of Org 1000");
                 organization.setAddress("completely new address");
                 return organization;
@@ -1341,9 +1336,11 @@ public class BillingServiceBeanIT extends EJBTestBase {
 
         creSub(P_1_ID, getDate(testYear, testMonth, 24, 0, 0));
 
-        BillingResult res = serviceBill.generateBillingForAnyPeriod(
-                getStartDate(testYear, testMonth).getTime(),
-                getEndDate(testYear, testMonth).getTime(), customerTkey).get(0);
+        BillingResult res = serviceBill
+                .generateBillingForAnyPeriod(
+                        getStartDate(testYear, testMonth).getTime(),
+                        getEndDate(testYear, testMonth).getTime(), customerTkey)
+                .get(0);
 
         String resultXML = res.getResultXML();
         Document resultDoc = XMLConverter.convertToDocument(resultXML, true);
@@ -1458,9 +1455,8 @@ public class BillingServiceBeanIT extends EJBTestBase {
     public void testStartBillingRun_returnCode() throws Exception {
 
         // given an error in shares calculation
-        given(
-                sharesCalculator.performBrokerSharesCalculationRun(anyLong(),
-                        anyLong())).willReturn(Boolean.FALSE);
+        given(sharesCalculator.performBrokerSharesCalculationRun(anyLong(),
+                anyLong())).willReturn(Boolean.FALSE);
 
         // when executing billing
         Boolean result = runTX(new Callable<Boolean>() {
@@ -1495,7 +1491,7 @@ public class BillingServiceBeanIT extends EJBTestBase {
         assertNotNull(ntfxReceivingOrgs);
         assertFalse(ntfxReceivingOrgs.isEmpty());
         assertEquals(2, ntfxReceivingOrgs.size());
-        Set<Long> orgKeys = new HashSet<Long>();
+        Set<Long> orgKeys = new HashSet<>();
         for (Organization org : ntfxReceivingOrgs) {
             orgKeys.add(Long.valueOf(org.getKey()));
         }
@@ -1513,23 +1509,23 @@ public class BillingServiceBeanIT extends EJBTestBase {
         creSub(P_5_ID, SUBSCRIPTION_ID, date, null);
 
         startBillingRun(billingTime);
-        BigDecimal value = P_5_PRICE_PER_PERIOD.multiply(BD30).multiply(
-                new BigDecimal(24));
+        BigDecimal value = P_5_PRICE_PER_PERIOD.multiply(BD30)
+                .multiply(new BigDecimal(24));
         verify(new Date[][] { { getStartDate(testYear, testMonth),
                 getEndDate(testYear, testMonth) } }, value, testMonth);
         xmlValidator.validateBillingResultXML();
     }
 
-    protected String getExpectedCustomerBillingData(
-            List<String> customerIdList, String... months) throws Exception {
+    protected String getExpectedCustomerBillingData(List<String> customerIdList,
+            String... months) throws Exception {
         if (customerIdList == null || customerIdList.isEmpty()) {
             customerIdList = runTX(new Callable<List<String>>() {
                 @Override
                 public List<String> call() {
-                    Query query = mgr
-                            .createQuery("SELECT customer FROM Organization customer, OrganizationReference ref WHERE customer.key = ref.targetKey AND ref.dataContainer.referenceType = 'SUPPLIER_TO_CUSTOMER' AND ref.source = :supplier ORDER BY customer.key ASC");
+                    Query query = mgr.createQuery(
+                            "SELECT customer FROM Organization customer, OrganizationReference ref WHERE customer.key = ref.targetKey AND ref.dataContainer.referenceType = 'SUPPLIER_TO_CUSTOMER' AND ref.source = :supplier ORDER BY customer.key ASC");
                     query.setParameter("supplier", getOrganization());
-                    List<String> customerIdList = new ArrayList<String>();
+                    List<String> customerIdList = new ArrayList<>();
                     for (Organization org : ParameterizedTypes.iterable(
                             query.getResultList(), Organization.class)) {
                         customerIdList.add(org.getOrganizationId());
@@ -1538,8 +1534,8 @@ public class BillingServiceBeanIT extends EJBTestBase {
                 }
             });
         }
-        StringBuffer xml = new StringBuffer(
-                String.format("<?xml version=\"1.0\" encoding=\"UTF-8\"?>%n<Billingdata>%n"));
+        StringBuffer xml = new StringBuffer(String.format(
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>%n<Billingdata>%n"));
         for (String customerId : customerIdList) {
             for (int i = 0; i < months.length; i++) {
                 xml.append("<result>").append(months[i]).append(" ")
@@ -1569,7 +1565,8 @@ public class BillingServiceBeanIT extends EJBTestBase {
         calTo.set(2010, 0, 1, 0, 0, 0);
         String result = new String(serviceBillExt.getCustomerBillingData(
                 Long.valueOf(calFrom.getTimeInMillis()),
-                Long.valueOf(calTo.getTimeInMillis()), customerIdList), "UTF-8");
+                Long.valueOf(calTo.getTimeInMillis()), customerIdList),
+                "UTF-8");
         Assert.assertEquals(getExpectedCustomerBillingData(customerIdList),
                 result);
 
@@ -1609,8 +1606,10 @@ public class BillingServiceBeanIT extends EJBTestBase {
         // T-
         calTo.clear();
         calTo.set(2010, 3, 1, 0, 0, 0);
-        result = new String(serviceBillExt.getCustomerBillingData(null,
-                Long.valueOf(calTo.getTimeInMillis()), customerIdList), "UTF-8");
+        result = new String(
+                serviceBillExt.getCustomerBillingData(null,
+                        Long.valueOf(calTo.getTimeInMillis()), customerIdList),
+                "UTF-8");
         Assert.assertEquals(
                 getExpectedCustomerBillingData(customerIdList, jan, feb, march),
                 result);
@@ -1620,8 +1619,10 @@ public class BillingServiceBeanIT extends EJBTestBase {
         // T-
         calTo.clear();
         calTo.set(2010, 2, 1, 0, 0, 0);
-        result = new String(serviceBillExt.getCustomerBillingData(null,
-                Long.valueOf(calTo.getTimeInMillis()), customerIdList), "UTF-8");
+        result = new String(
+                serviceBillExt.getCustomerBillingData(null,
+                        Long.valueOf(calTo.getTimeInMillis()), customerIdList),
+                "UTF-8");
         Assert.assertEquals(
                 getExpectedCustomerBillingData(customerIdList, jan, feb),
                 result);
@@ -1635,7 +1636,8 @@ public class BillingServiceBeanIT extends EJBTestBase {
         calTo.set(2010, 3, 1, 0, 0, 0);
         result = new String(serviceBillExt.getCustomerBillingData(
                 Long.valueOf(calFrom.getTimeInMillis()),
-                Long.valueOf(calTo.getTimeInMillis()), customerIdList), "UTF-8");
+                Long.valueOf(calTo.getTimeInMillis()), customerIdList),
+                "UTF-8");
         Assert.assertEquals(
                 getExpectedCustomerBillingData(customerIdList, jan, feb, march),
                 result);
@@ -1649,9 +1651,10 @@ public class BillingServiceBeanIT extends EJBTestBase {
         calTo.set(2010, 1, 2, 0, 0, 0);
         result = new String(serviceBillExt.getCustomerBillingData(
                 Long.valueOf(calFrom.getTimeInMillis()),
-                Long.valueOf(calTo.getTimeInMillis()), customerIdList), "UTF-8");
-        Assert.assertEquals(
-                getExpectedCustomerBillingData(customerIdList, jan), result);
+                Long.valueOf(calTo.getTimeInMillis()), customerIdList),
+                "UTF-8");
+        Assert.assertEquals(getExpectedCustomerBillingData(customerIdList, jan),
+                result);
 
         // test with time frame (exactly one result)
         // -----B1-------B2-------B3-----------
@@ -1662,9 +1665,10 @@ public class BillingServiceBeanIT extends EJBTestBase {
         calTo.set(2010, 2, 1, 0, 0, 0);
         result = new String(serviceBillExt.getCustomerBillingData(
                 Long.valueOf(calFrom.getTimeInMillis()),
-                Long.valueOf(calTo.getTimeInMillis()), customerIdList), "UTF-8");
-        Assert.assertEquals(
-                getExpectedCustomerBillingData(customerIdList, feb), result);
+                Long.valueOf(calTo.getTimeInMillis()), customerIdList),
+                "UTF-8");
+        Assert.assertEquals(getExpectedCustomerBillingData(customerIdList, feb),
+                result);
 
         // test with time frame (exactly one result)
         // -----B1-------B2-------B3-----------
@@ -1675,9 +1679,10 @@ public class BillingServiceBeanIT extends EJBTestBase {
         calTo.set(2010, 2, 31, 0, 0, 0);
         result = new String(serviceBillExt.getCustomerBillingData(
                 Long.valueOf(calFrom.getTimeInMillis()),
-                Long.valueOf(calTo.getTimeInMillis()), customerIdList), "UTF-8");
-        Assert.assertEquals(
-                getExpectedCustomerBillingData(customerIdList, feb), result);
+                Long.valueOf(calTo.getTimeInMillis()), customerIdList),
+                "UTF-8");
+        Assert.assertEquals(getExpectedCustomerBillingData(customerIdList, feb),
+                result);
 
         // test with 'from' border only - all results
         // -----B1-------B2-------B3-----------
@@ -1708,8 +1713,10 @@ public class BillingServiceBeanIT extends EJBTestBase {
         // T-
         calTo.clear();
         calTo.set(2010, 3, 12, 0, 0, 0);
-        result = new String(serviceBillExt.getCustomerBillingData(null,
-                Long.valueOf(calTo.getTimeInMillis()), customerIdList), "UTF-8");
+        result = new String(
+                serviceBillExt.getCustomerBillingData(null,
+                        Long.valueOf(calTo.getTimeInMillis()), customerIdList),
+                "UTF-8");
         Assert.assertEquals(
                 getExpectedCustomerBillingData(customerIdList, jan, feb, march),
                 result);
@@ -1719,8 +1726,10 @@ public class BillingServiceBeanIT extends EJBTestBase {
         // T-
         calTo.clear();
         calTo.set(2010, 2, 27, 0, 0, 0);
-        result = new String(serviceBillExt.getCustomerBillingData(null,
-                Long.valueOf(calTo.getTimeInMillis()), customerIdList), "UTF-8");
+        result = new String(
+                serviceBillExt.getCustomerBillingData(null,
+                        Long.valueOf(calTo.getTimeInMillis()), customerIdList),
+                "UTF-8");
         Assert.assertEquals(
                 getExpectedCustomerBillingData(customerIdList, jan, feb),
                 result);
@@ -1734,7 +1743,8 @@ public class BillingServiceBeanIT extends EJBTestBase {
         calTo.set(2010, 3, 1, 0, 0, 0);
         result = new String(serviceBillExt.getCustomerBillingData(
                 Long.valueOf(calFrom.getTimeInMillis()),
-                Long.valueOf(calTo.getTimeInMillis()), customerIdList), "UTF-8");
+                Long.valueOf(calTo.getTimeInMillis()), customerIdList),
+                "UTF-8");
         Assert.assertEquals(
                 getExpectedCustomerBillingData(customerIdList, jan, feb, march),
                 result);
@@ -1748,7 +1758,8 @@ public class BillingServiceBeanIT extends EJBTestBase {
         calTo.set(2010, 3, 1, 0, 0, 0);
         result = new String(serviceBillExt.getCustomerBillingData(
                 Long.valueOf(calFrom.getTimeInMillis()),
-                Long.valueOf(calTo.getTimeInMillis()), customerIdList), "UTF-8");
+                Long.valueOf(calTo.getTimeInMillis()), customerIdList),
+                "UTF-8");
         Assert.assertEquals(
                 getExpectedCustomerBillingData(customerIdList, jan, feb, march),
                 result);
@@ -1762,7 +1773,8 @@ public class BillingServiceBeanIT extends EJBTestBase {
         calTo.set(2010, 3, 2, 0, 0, 0);
         result = new String(serviceBillExt.getCustomerBillingData(
                 Long.valueOf(calFrom.getTimeInMillis()),
-                Long.valueOf(calTo.getTimeInMillis()), customerIdList), "UTF-8");
+                Long.valueOf(calTo.getTimeInMillis()), customerIdList),
+                "UTF-8");
         Assert.assertEquals(
                 getExpectedCustomerBillingData(customerIdList, feb, march),
                 result);
@@ -1776,7 +1788,8 @@ public class BillingServiceBeanIT extends EJBTestBase {
         calTo.set(2010, 3, 3, 0, 0, 0);
         result = new String(serviceBillExt.getCustomerBillingData(
                 Long.valueOf(calFrom.getTimeInMillis()),
-                Long.valueOf(calTo.getTimeInMillis()), customerIdList), "UTF-8");
+                Long.valueOf(calTo.getTimeInMillis()), customerIdList),
+                "UTF-8");
         Assert.assertEquals(
                 getExpectedCustomerBillingData(customerIdList, feb, march),
                 result);
@@ -1790,7 +1803,8 @@ public class BillingServiceBeanIT extends EJBTestBase {
         calTo.set(2010, 3, 1, 0, 0, 0);
         result = new String(serviceBillExt.getCustomerBillingData(
                 Long.valueOf(calFrom.getTimeInMillis()),
-                Long.valueOf(calTo.getTimeInMillis()), customerIdList), "UTF-8");
+                Long.valueOf(calTo.getTimeInMillis()), customerIdList),
+                "UTF-8");
         Assert.assertEquals(
                 getExpectedCustomerBillingData(customerIdList, feb, march),
                 result);
@@ -1806,13 +1820,15 @@ public class BillingServiceBeanIT extends EJBTestBase {
 
         Calendar calFrom = new GregorianCalendar();
         Calendar calTo = new GregorianCalendar();
-        List<String> list = new ArrayList<String>();
+        List<String> list = new ArrayList<>();
         list.add(supplierId);
 
         // supplier get own empty billing result
-        String result = new String(serviceBillExt.getCustomerBillingData(
-                Long.valueOf(calFrom.getTimeInMillis()),
-                Long.valueOf(calTo.getTimeInMillis()), list), "UTF-8");
+        String result = new String(
+                serviceBillExt.getCustomerBillingData(
+                        Long.valueOf(calFrom.getTimeInMillis()),
+                        Long.valueOf(calTo.getTimeInMillis()), list),
+                "UTF-8");
         xmlValidator.validateBillingResultXML(result);
         Assert.assertFalse("Not empty result", result.contains("<result>"));
     }
@@ -1827,13 +1843,15 @@ public class BillingServiceBeanIT extends EJBTestBase {
 
         Calendar calFrom = new GregorianCalendar();
         Calendar calTo = new GregorianCalendar();
-        List<String> list = new ArrayList<String>();
+        List<String> list = new ArrayList<>();
         list.add(supplierId);
 
         // reseller get own empty billing result
-        String result = new String(serviceBillExt.getCustomerBillingData(
-                Long.valueOf(calFrom.getTimeInMillis()),
-                Long.valueOf(calTo.getTimeInMillis()), list), "UTF-8");
+        String result = new String(
+                serviceBillExt.getCustomerBillingData(
+                        Long.valueOf(calFrom.getTimeInMillis()),
+                        Long.valueOf(calTo.getTimeInMillis()), list),
+                "UTF-8");
         xmlValidator.validateBillingResultXML(result);
         Assert.assertFalse("Not empty result", result.contains("<result>"));
     }
@@ -1849,9 +1867,11 @@ public class BillingServiceBeanIT extends EJBTestBase {
         long endTime = getBillingTime(testYear, Calendar.DECEMBER, 1);
         container.login(platformUserKey, ROLE_SERVICE_MANAGER);
 
-        String result = new String(serviceBillExt.getCustomerBillingData(
-                Long.valueOf(startTime), Long.valueOf(endTime),
-                Collections.singletonList(customerId)), "UTF-8");
+        String result = new String(
+                serviceBillExt.getCustomerBillingData(Long.valueOf(startTime),
+                        Long.valueOf(endTime),
+                        Collections.singletonList(customerId)),
+                "UTF-8");
 
         xmlValidator.validateBillingResultXML(result);
     }
@@ -1886,9 +1906,11 @@ public class BillingServiceBeanIT extends EJBTestBase {
         verify(subId2, periods, new BigDecimal("1000.00"), testMonth);
 
         // Get the customer billing data.
-        String result = new String(serviceBillExt.getCustomerBillingData(
-                Long.valueOf(startTime), Long.valueOf(endTime),
-                Collections.singletonList(customerId)), "UTF-8");
+        String result = new String(
+                serviceBillExt.getCustomerBillingData(Long.valueOf(startTime),
+                        Long.valueOf(endTime),
+                        Collections.singletonList(customerId)),
+                "UTF-8");
 
         // Validate XML document!!
         xmlValidator.validateBillingResultXML(result);
@@ -1908,13 +1930,11 @@ public class BillingServiceBeanIT extends EJBTestBase {
                 customerName, orgName2);
 
         // Check if stored subscription ids in result XML are correct.
-        String subNodeId1 = XMLConverter
-                .getNodeTextContentByXPath(resultDoc,
-                        "//Billingdata/BillingDetails[1]/Subscriptions/Subscription/@id");
+        String subNodeId1 = XMLConverter.getNodeTextContentByXPath(resultDoc,
+                "//Billingdata/BillingDetails[1]/Subscriptions/Subscription/@id");
 
-        String subNodeId2 = XMLConverter
-                .getNodeTextContentByXPath(resultDoc,
-                        "//Billingdata/BillingDetails[2]/Subscriptions/Subscription/@id");
+        String subNodeId2 = XMLConverter.getNodeTextContentByXPath(resultDoc,
+                "//Billingdata/BillingDetails[2]/Subscriptions/Subscription/@id");
 
         Assert.assertEquals("Wrong subcription id found in result XML",
                 subNodeId1, subId1);
@@ -1953,7 +1973,7 @@ public class BillingServiceBeanIT extends EJBTestBase {
         // login
         container.login(platformUserKey, ROLE_SERVICE_MANAGER);
 
-        List<String> customerIdList = new ArrayList<String>();
+        List<String> customerIdList = new ArrayList<>();
 
         customerIdList.add(customerId1);
         doTestGetCustomerBillingData(customerIdList);
@@ -2034,13 +2054,13 @@ public class BillingServiceBeanIT extends EJBTestBase {
         // The subscription keys must match those stored in the billing results.
         BillingResult result = resultsList.get(0);
         assertNotNull(result.getSubscriptionKey());
-        assertEquals(subscription1.getKey(), result.getSubscriptionKey()
-                .longValue());
+        assertEquals(subscription1.getKey(),
+                result.getSubscriptionKey().longValue());
 
         result = resultsList.get(1);
         assertNotNull(result.getSubscriptionKey());
-        assertEquals(subscription2.getKey(), result.getSubscriptionKey()
-                .longValue());
+        assertEquals(subscription2.getKey(),
+                result.getSubscriptionKey().longValue());
 
         // Verify the billing XML document for subscription1 and if the price
         // stored matches
@@ -2048,14 +2068,14 @@ public class BillingServiceBeanIT extends EJBTestBase {
         Date periods[][];
         periods = new Date[][] { { startDate, new Date(endTime) } };
 
-        verify(XMLConverter.convertToDocument(
-                resultsList.get(0).getResultXML(), true), SUBSCRIPTION_ID,
-                periods, new BigDecimal("183.67"), BigDecimal.ZERO);
+        verify(XMLConverter.convertToDocument(resultsList.get(0).getResultXML(),
+                true), SUBSCRIPTION_ID, periods, new BigDecimal("183.67"),
+                BigDecimal.ZERO);
 
         // Verify the billing XML document for subscription2.
-        verify(XMLConverter.convertToDocument(
-                resultsList.get(1).getResultXML(), true), "sub2", periods,
-                new BigDecimal("183.67"), BigDecimal.ZERO);
+        verify(XMLConverter.convertToDocument(resultsList.get(1).getResultXML(),
+                true), "sub2", periods, new BigDecimal("183.67"),
+                BigDecimal.ZERO);
 
         // Validate the XML structure.
         xmlValidator.validateBillingResultXML();
@@ -2072,8 +2092,8 @@ public class BillingServiceBeanIT extends EJBTestBase {
         long startTime = 1272664800000L;
         long endTime = 1273156744630L;
 
-        List<BillingResult> result = serviceBill.generateBillingForAnyPeriod(
-                startTime, endTime, customerTkey);
+        List<BillingResult> result = serviceBill
+                .generateBillingForAnyPeriod(startTime, endTime, customerTkey);
 
         Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(startTime);
@@ -2081,8 +2101,7 @@ public class BillingServiceBeanIT extends EJBTestBase {
         Date startDate = cal.getTime();
 
         verify(XMLConverter.convertToDocument(result.get(0).getResultXML(),
-                true),
-                SUBSCRIPTION_ID,
+                true), SUBSCRIPTION_ID,
                 new Date[][] { { startDate, new Date(endTime) } },
                 new BigDecimal("2846.9017939814815").setScale(BIGDECIMAL_SCALE),
                 BigDecimal.ZERO);
@@ -2105,14 +2124,14 @@ public class BillingServiceBeanIT extends EJBTestBase {
         Subscription subscription = creSub(P_1_ID, subscriptionStartDate);
 
         // execute
-        List<BillingResult> bills = serviceBill.generateBillingForAnyPeriod(
-                startTime, endTime, customerTkey);
+        List<BillingResult> bills = serviceBill
+                .generateBillingForAnyPeriod(startTime, endTime, customerTkey);
 
         // assert
         BillingResult result = bills.get(0);
         assertNotNull(result.getSubscriptionKey());
-        assertEquals(subscription.getKey(), result.getSubscriptionKey()
-                .longValue());
+        assertEquals(subscription.getKey(),
+                result.getSubscriptionKey().longValue());
     }
 
     @Test
@@ -2125,24 +2144,22 @@ public class BillingServiceBeanIT extends EJBTestBase {
         long startTime = getBillingTime(testYear, Calendar.MAY, 1);
         long endTime = getBillingTime(testYear, Calendar.JUNE, 1);
 
-        BillingResult res = serviceBill.generateBillingForAnyPeriod(startTime,
-                endTime, customerTkey).get(0);
+        BillingResult res = serviceBill
+                .generateBillingForAnyPeriod(startTime, endTime, customerTkey)
+                .get(0);
 
         Assert.assertNotNull("Result must not be null", res);
-        Assert.assertTrue("Costs must not be zero", res.getGrossAmount()
-                .compareTo(BigDecimal.ZERO) == 1);
+        Assert.assertTrue("Costs must not be zero",
+                res.getGrossAmount().compareTo(BigDecimal.ZERO) == 1);
 
         String resultXML = res.getResultXML();
         Document resultDoc = XMLConverter.convertToDocument(resultXML, true);
-        String endDate = XMLConverter
-                .getNodeTextContentByXPath(
-                        resultDoc,
-                        "/BillingDetails/Subscriptions/Subscription/PriceModels/PriceModel/UsagePeriod/@endDate");
+        String endDate = XMLConverter.getNodeTextContentByXPath(resultDoc,
+                "/BillingDetails/Subscriptions/Subscription/PriceModels/PriceModel/UsagePeriod/@endDate");
         Assert.assertEquals(String.valueOf(deactivatedDate.getTime()), endDate);
-        String priceModelFactor = XMLConverter
-                .getNodeTextContentByXPath(
-                        resultDoc,
-                        "/BillingDetails/Subscriptions/Subscription/PriceModels/PriceModel/PeriodFee/@factor");
+        String priceModelFactor = XMLConverter.getNodeTextContentByXPath(
+                resultDoc,
+                "/BillingDetails/Subscriptions/Subscription/PriceModels/PriceModel/PeriodFee/@factor");
         Assert.assertTrue(Float.parseFloat(priceModelFactor) < 1.0);
     }
 
@@ -2155,24 +2172,22 @@ public class BillingServiceBeanIT extends EJBTestBase {
         long startTime = getBillingTime(testYear, Calendar.MAY, 1);
         long endTime = getBillingTime(testYear, Calendar.JUNE, 1);
 
-        BillingResult res = serviceBill.generateBillingForAnyPeriod(startTime,
-                endTime, customerTkey).get(0);
+        BillingResult res = serviceBill
+                .generateBillingForAnyPeriod(startTime, endTime, customerTkey)
+                .get(0);
 
         Assert.assertNotNull("Result must not be null", res);
-        Assert.assertTrue("Costs must not be zero", res.getGrossAmount()
-                .compareTo(BigDecimal.ZERO) == 1);
+        Assert.assertTrue("Costs must not be zero",
+                res.getGrossAmount().compareTo(BigDecimal.ZERO) == 1);
 
         String resultXML = res.getResultXML();
         Document resultDoc = XMLConverter.convertToDocument(resultXML, true);
-        String endDate = XMLConverter
-                .getNodeTextContentByXPath(
-                        resultDoc,
-                        "/BillingDetails/Subscriptions/Subscription/PriceModels/PriceModel/UsagePeriod/@endDate");
+        String endDate = XMLConverter.getNodeTextContentByXPath(resultDoc,
+                "/BillingDetails/Subscriptions/Subscription/PriceModels/PriceModel/UsagePeriod/@endDate");
         Assert.assertEquals(String.valueOf(endTime), endDate);
-        String priceModelFactor = XMLConverter
-                .getNodeTextContentByXPath(
-                        resultDoc,
-                        "/BillingDetails/Subscriptions/Subscription/PriceModels/PriceModel/PeriodFee/@factor");
+        String priceModelFactor = XMLConverter.getNodeTextContentByXPath(
+                resultDoc,
+                "/BillingDetails/Subscriptions/Subscription/PriceModels/PriceModel/PeriodFee/@factor");
         Assert.assertTrue(Float.parseFloat(priceModelFactor) == 1.0);
     }
 
@@ -2350,7 +2365,8 @@ public class BillingServiceBeanIT extends EJBTestBase {
         obj.setHistoryModificationTime(Long.valueOf(date.getTime()));
     }
 
-    protected Subscription creSub(String productId, Date date) throws Exception {
+    protected Subscription creSub(String productId, Date date)
+            throws Exception {
         return creSub(productId, SUBSCRIPTION_ID, date, null);
     }
 
@@ -2359,12 +2375,12 @@ public class BillingServiceBeanIT extends EJBTestBase {
         final Subscription result = runTX(new Callable<Subscription>() {
             @Override
             public Subscription call() throws Exception {
-                Query query = mgr
-                        .createQuery("UPDATE ParameterDefinitionHistory pdh SET pdh.modDate = :modDate");
+                Query query = mgr.createQuery(
+                        "UPDATE ParameterDefinitionHistory pdh SET pdh.modDate = :modDate");
                 query.setParameter("modDate", date);
                 query.executeUpdate();
-                query = mgr
-                        .createQuery("UPDATE ParameterOptionHistory poh SET poh.modDate = :modDate");
+                query = mgr.createQuery(
+                        "UPDATE ParameterOptionHistory poh SET poh.modDate = :modDate");
                 query.setParameter("modDate", date);
                 query.executeUpdate();
 
@@ -2402,8 +2418,8 @@ public class BillingServiceBeanIT extends EJBTestBase {
                 pt.setPaymentTypeId("DIRECT_DEBIT");
                 pt = (PaymentType) mgr.getReferenceByBusinessKey(pt);
 
-                PaymentInfo paymentInfo = PaymentInfos.createPaymentInfo(
-                        customer, mgr, pt);
+                PaymentInfo paymentInfo = PaymentInfos
+                        .createPaymentInfo(customer, mgr, pt);
                 sub.setPaymentInfo(paymentInfo);
                 BillingContact bc = PaymentInfos.createBillingContact(mgr,
                         customer);
@@ -2493,8 +2509,8 @@ public class BillingServiceBeanIT extends EJBTestBase {
                 cal.clear();
                 cal.set(2010, 1, 1, 0, 0, 0);
                 br1.setPeriodEndTime(cal.getTime().getTime());
-                br1.setResultXML("<result>JAN " + org.getOrganizationId()
-                        + "</result>");
+                br1.setResultXML(
+                        "<result>JAN " + org.getOrganizationId() + "</result>");
                 br1.setChargingOrgKey(supplierTkey);
                 br1.setCurrency(currency_EUR);
                 br1.setGrossAmount(GROSS_REVENUE);
@@ -2510,8 +2526,8 @@ public class BillingServiceBeanIT extends EJBTestBase {
                 cal.clear();
                 cal.set(2010, 2, 1, 0, 0, 0);
                 br2.setPeriodEndTime(cal.getTime().getTime());
-                br2.setResultXML("<result>FEB " + org.getOrganizationId()
-                        + "</result>");
+                br2.setResultXML(
+                        "<result>FEB " + org.getOrganizationId() + "</result>");
                 br2.setChargingOrgKey(supplierTkey);
                 br2.setCurrency(currency_EUR);
                 br2.setGrossAmount(GROSS_REVENUE);
@@ -2555,13 +2571,12 @@ public class BillingServiceBeanIT extends EJBTestBase {
      *         multiplier and factors have to be considered.
      * @throws Exception
      */
-    protected BigDecimal[][] prepareParametersAndOptionsBase(
-            int paramTestMonth, final Subscription subscription, String value)
-            throws Exception {
+    protected BigDecimal[][] prepareParametersAndOptionsBase(int paramTestMonth,
+            final Subscription subscription, String value) throws Exception {
         final BigDecimal[] pricePerUserArray = { BD100, BD200, BD300, BD400,
                 BD500, BD600, BD700 };
-        final BigDecimal[] pricePerSubscriptionArray = { BD1100, BD1200,
-                BD1300, BD1400, BD1500, BD1600, BD1700 };
+        final BigDecimal[] pricePerSubscriptionArray = { BD1100, BD1200, BD1300,
+                BD1400, BD1500, BD1600, BD1700 };
         final BigDecimal costs[][] = {
                 { BD100, BD200, BD300, BD400, BD500, BD600 },
                 { BD1100, BD1200, BD1300, BD1400, BD1500, BD1600 } };
@@ -2581,8 +2596,8 @@ public class BillingServiceBeanIT extends EJBTestBase {
 
         for (int i = 0; i < 6; i++) {
             // will be 3 different parameter, for price model
-            Parameter parameter = createParameter(
-                    parametersIdentifiersArray[i], PARAMETER_VALUE, 0, date);
+            Parameter parameter = createParameter(parametersIdentifiersArray[i],
+                    PARAMETER_VALUE, 0, date);
 
             // will be 3 different priced parameter, for every
             // parameter (price model)
@@ -2670,9 +2685,12 @@ public class BillingServiceBeanIT extends EJBTestBase {
      * @return Inserted object of parameter.
      * @throws Exception
      */
-    protected Parameter createParameter( /* final ParameterType parameterType, */
-    final String platformParameterIdentifier, final String parameterValue,
-            final int parameterSetVersion, final Date date) throws Exception {
+    protected Parameter createParameter( /*
+                                          * final ParameterType parameterType,
+                                          */
+            final String platformParameterIdentifier,
+            final String parameterValue, final int parameterSetVersion,
+            final Date date) throws Exception {
         final Parameter result = runTX(new Callable<Parameter>() {
             @Override
             public Parameter call() throws Exception {
@@ -2691,12 +2709,12 @@ public class BillingServiceBeanIT extends EJBTestBase {
                     tmpParameterValue = "false";
                 }
 
-                Query query = mgr
-                        .createQuery("select c from ParameterDefinition c where c.dataContainer.parameterId=:parameterId");
+                Query query = mgr.createQuery(
+                        "select c from ParameterDefinition c where c.dataContainer.parameterId=:parameterId");
                 query.setParameter("parameterId",
                         tmpPlatformParameterIdentifier);
                 // -- get parameter definition --
-                final List<ParameterDefinition> parameterDefinitions = new ArrayList<ParameterDefinition>();
+                final List<ParameterDefinition> parameterDefinitions = new ArrayList<>();
 
                 Iterator<ParameterDefinition> parameterDefinitionIterator = ParameterizedTypes
                         .iterator(query.getResultList(),
@@ -2712,12 +2730,12 @@ public class BillingServiceBeanIT extends EJBTestBase {
                 parameter.setParameterDefinition(parameterDefinitions.get(0));
                 parameter.setValue(tmpParameterValue);
                 // -- get parameter set --
-                query = mgr
-                        .createQuery("select c from ParameterSet c where c.version=:version");
+                query = mgr.createQuery(
+                        "select c from ParameterSet c where c.version=:version");
                 query.setParameter("version",
                         Integer.valueOf(parameterSetVersion));
 
-                final List<ParameterSet> parameterSetArray = new ArrayList<ParameterSet>();
+                final List<ParameterSet> parameterSetArray = new ArrayList<>();
                 Iterator<ParameterSet> parameterSetIterator = ParameterizedTypes
                         .iterator(query.getResultList(), ParameterSet.class);
                 while (parameterSetIterator.hasNext()) {
@@ -2761,11 +2779,11 @@ public class BillingServiceBeanIT extends EJBTestBase {
 
                 pricedOption.setPricedParameter(pricedParameter);
 
-                Query query = mgr
-                        .createQuery("select c from ParameterOption c where c.version=:version");
+                Query query = mgr.createQuery(
+                        "select c from ParameterOption c where c.version=:version");
                 query.setParameter("version", Integer.valueOf(0));
 
-                final List<ParameterOption> parameterOptionArray = new ArrayList<ParameterOption>();
+                final List<ParameterOption> parameterOptionArray = new ArrayList<>();
                 Iterator<ParameterOption> parameterOptionIterator = ParameterizedTypes
                         .iterator(query.getResultList(), ParameterOption.class);
                 while (parameterOptionIterator.hasNext()) {
@@ -3015,8 +3033,8 @@ public class BillingServiceBeanIT extends EJBTestBase {
         return runTX(new Callable<Document>() {
             @Override
             public Document call() throws Exception {
-                Query query = mgr
-                        .createQuery("SELECT br FROM BillingResult br, SubscriptionHistory sub WHERE br.dataContainer.organizationTKey = :organizationTKey AND sub.dataContainer.subscriptionId = :subscriptionId AND br.dataContainer.subscriptionKey = sub.objKey ORDER BY br.dataContainer.periodEndTime DESC");
+                Query query = mgr.createQuery(
+                        "SELECT br FROM BillingResult br, SubscriptionHistory sub WHERE br.dataContainer.organizationTKey = :organizationTKey AND sub.dataContainer.subscriptionId = :subscriptionId AND br.dataContainer.subscriptionKey = sub.objKey ORDER BY br.dataContainer.periodEndTime DESC");
                 query.setParameter("organizationTKey",
                         Long.valueOf(customerTkey));
                 query.setParameter("subscriptionId", subId);
@@ -3043,11 +3061,11 @@ public class BillingServiceBeanIT extends EJBTestBase {
 
                 Assert.assertEquals("wrong start value for period",
                         periodStartTime, billingResult.getPeriodStartTime());
-                Assert.assertEquals("Wrong end value for period",
-                        periodEndTime, billingResult.getPeriodEndTime());
+                Assert.assertEquals("Wrong end value for period", periodEndTime,
+                        billingResult.getPeriodEndTime());
 
-                Document doc = XMLConverter.convertToDocument(
-                        billingResult.getResultXML(), true);
+                Document doc = XMLConverter
+                        .convertToDocument(billingResult.getResultXML(), true);
                 Assert.assertNotNull("The billing document must not be null",
                         doc);
 
@@ -3152,21 +3170,23 @@ public class BillingServiceBeanIT extends EJBTestBase {
                                 periodsIdx >= 0);
 
                         Element period = (Element) node;
-                        Long startDate = Long.valueOf(period
-                                .getAttribute("startDate"));
-                        Long endDate = Long.valueOf(period
-                                .getAttribute("endDate"));
+                        Long startDate = Long
+                                .valueOf(period.getAttribute("startDate"));
+                        Long endDate = Long
+                                .valueOf(period.getAttribute("endDate"));
                         String start = sdf.format(startDate);
                         String end = sdf.format(endDate);
-                        Assert.assertEquals("Period " + (periodsIdx + 1)
-                                + " wrong startDate:",
+                        Assert.assertEquals(
+                                "Period " + (periodsIdx + 1)
+                                        + " wrong startDate:",
                                 sdf.format(periods[periodsIdx][0]), start);
-                        Assert.assertEquals("Period " + (periodsIdx + 1)
-                                + " wrong endDate;",
+                        Assert.assertEquals(
+                                "Period " + (periodsIdx + 1)
+                                        + " wrong endDate;",
                                 sdf.format(periods[periodsIdx][1]), end);
                     } else if (node.getNodeName().equals("PriceModelCosts")) {
-                        price = price.add(new BigDecimal(((Element) node)
-                                .getAttribute("amount")));
+                        price = price.add(new BigDecimal(
+                                ((Element) node).getAttribute("amount")));
                     }
                 }
             }
@@ -3183,9 +3203,10 @@ public class BillingServiceBeanIT extends EJBTestBase {
         // verify overall cost section in the result xml. If there are more
         // subscriptions, skip the check, as it will be called for every
         // subscription
-        BigDecimal expectedPriceWithDiscount = expectedPrice.subtract(
-                discountAmount).setScale(
-                PriceConverter.NORMALIZED_PRICE_SCALING, RoundingMode.HALF_UP);
+        BigDecimal expectedPriceWithDiscount = expectedPrice
+                .subtract(discountAmount)
+                .setScale(PriceConverter.NORMALIZED_PRICE_SCALING,
+                        RoundingMode.HALF_UP);
         NodeList subs = XMLConverter.getNodeListByXPath(doc,
                 "/BillingDetails/Subscriptions/Subscription");
         if (subs != null && subs.getLength() < 2) {
@@ -3241,7 +3262,7 @@ public class BillingServiceBeanIT extends EJBTestBase {
 
                 PlatformUser user = new PlatformUser();
                 user.setUserId(userId);
-                user = (PlatformUser) mgr.find(user);
+                user = mgr.find(user);
 
                 for (UsageLicense license : sub.getUsageLicenses()) {
                     if (license.getUser().getUserId().equals(userId)) {
@@ -3293,26 +3314,22 @@ public class BillingServiceBeanIT extends EJBTestBase {
             public Void call() {
                 // find the subscription
                 Subscription sub = new Subscription();
-                sub.setOrganizationKey(Organizations.findOrganization(mgr,
-                        customerId).getKey());
+                sub.setOrganizationKey(Organizations
+                        .findOrganization(mgr, customerId).getKey());
                 sub.setSubscriptionId(SUBSCRIPTION_ID);
                 sub = (Subscription) mgr.find(sub);
 
                 List<PricedEvent> consideredEvents = sub.getProduct()
                         .getPriceModel().getConsideredEvents();
-                List<PricedEvent> eventCopy = new ArrayList<PricedEvent>();
+                List<PricedEvent> eventCopy = new ArrayList<>();
                 eventCopy.addAll(consideredEvents);
                 for (PricedEvent pEvent : eventCopy) {
-                    if (pEvent
-                            .getEvent()
-                            .getEventIdentifier()
-                            .equals(PlatformEventIdentifier.USER_LOGIN_TO_SERVICE)) {
+                    if (pEvent.getEvent().getEventIdentifier().equals(
+                            PlatformEventIdentifier.USER_LOGIN_TO_SERVICE)) {
                         pEvent.setEventPrice(priceForLogin);
                     }
-                    if (pEvent
-                            .getEvent()
-                            .getEventIdentifier()
-                            .equals(PlatformEventIdentifier.USER_LOGOUT_FROM_SERVICE)) {
+                    if (pEvent.getEvent().getEventIdentifier().equals(
+                            PlatformEventIdentifier.USER_LOGOUT_FROM_SERVICE)) {
                         pEvent.setEventPrice(priceForLogout);
                     }
                     if (pEvent.getEvent().getEventIdentifier()
@@ -3341,8 +3358,8 @@ public class BillingServiceBeanIT extends EJBTestBase {
                     }
                     if (priceForUserAssignment != null
                             && priceForUserAssignment.longValue() != 0) {
-                        priceModel
-                                .setPricePerUserAssignment(priceForUserAssignment);
+                        priceModel.setPricePerUserAssignment(
+                                priceForUserAssignment);
                     }
                     updateHistoryModDate(priceModel, dateToSet);
                     mgr.flush();
@@ -3430,7 +3447,8 @@ public class BillingServiceBeanIT extends EJBTestBase {
         delSub(SUBSCRIPTION_ID, date);
     }
 
-    protected void delSub(final String subId, final Date date) throws Exception {
+    protected void delSub(final String subId, final Date date)
+            throws Exception {
         runTX(new Callable<Void>() {
             @Override
             public Void call() {
@@ -3458,11 +3476,12 @@ public class BillingServiceBeanIT extends EJBTestBase {
                 PlatformUser user = new PlatformUser();
                 user.setUserId(userId);
                 user.setOrganization(getOrganization());
-                user = (PlatformUser) mgr.find(user);
+                user = mgr.find(user);
 
                 UsageLicense license = new UsageLicense();
                 license.setAssignmentDate(date.getTime());
-                license.setHistoryModificationTime(Long.valueOf(date.getTime()));
+                license.setHistoryModificationTime(
+                        Long.valueOf(date.getTime()));
                 license.setSubscription(sub);
                 license.setUser(user);
                 updateHistoryModDate(license, date);
@@ -3540,20 +3559,16 @@ public class BillingServiceBeanIT extends EJBTestBase {
             public Void call() throws Exception {
                 GatheredEvent e;
                 for (int i = 0; i < 1000; i++) {
-                    e = createGatheredEventObject(
-                            EventType.PLATFORM_EVENT,
+                    e = createGatheredEventObject(EventType.PLATFORM_EVENT,
                             PlatformEventIdentifier.USER_LOGIN_TO_SERVICE,
-                            getDate(paramTestYear, paramTestMonth, 9, 20,
-                                    i * 2, 0));
+                            getDate(paramTestYear, paramTestMonth, 9, 20, i * 2,
+                                    0));
                     mgr.persist(e);
-                    e = createGatheredEventObject(
-                            EventType.SERVICE_EVENT,
-                            SERVICE_EVENT_FILE_UPLOAD,
-                            getDate(paramTestYear, paramTestMonth, 9, 20,
-                                    i * 2, 0));
+                    e = createGatheredEventObject(EventType.SERVICE_EVENT,
+                            SERVICE_EVENT_FILE_UPLOAD, getDate(paramTestYear,
+                                    paramTestMonth, 9, 20, i * 2, 0));
                     mgr.persist(e);
-                    e = createGatheredEventObject(
-                            EventType.PLATFORM_EVENT,
+                    e = createGatheredEventObject(EventType.PLATFORM_EVENT,
                             PlatformEventIdentifier.USER_LOGOUT_FROM_SERVICE,
                             getDate(paramTestYear, paramTestMonth, 9, 20,
                                     i * 2 + 1, 0));
@@ -3790,7 +3805,8 @@ public class BillingServiceBeanIT extends EJBTestBase {
         Subscription subscription = creSub(P_1_ID,
                 getDate(testYear, testMonth, -2, 8, 0));
 
-        prepareParametersAndOptionsBase(testMonth, subscription, errorSituation);
+        prepareParametersAndOptionsBase(testMonth, subscription,
+                errorSituation);
         startBillingRun(billingTime);
 
         verify(new Date[][] { { getStartDate(testYear, testMonth),
@@ -3802,8 +3818,8 @@ public class BillingServiceBeanIT extends EJBTestBase {
 
     protected void importProduct(final String xml, final DataService mgr)
             throws Exception {
-        ProductImportParser parser = new ProductImportParser(mgr, mgr
-                .getCurrentUser().getOrganization());
+        ProductImportParser parser = new ProductImportParser(mgr,
+                mgr.getCurrentUser().getOrganization());
         parser.parse(xml.getBytes("UTF-8"));
 
     }
@@ -3812,11 +3828,10 @@ public class BillingServiceBeanIT extends EJBTestBase {
             BigDecimal periodFactor) {
         // add duration param costs
         BigDecimal paramPrice = BigDecimal.valueOf(price);
-        BigDecimal durationParamCosts = BigDecimal
-                .valueOf(value)
+        BigDecimal durationParamCosts = BigDecimal.valueOf(value)
                 .divide(BigDecimal.valueOf(86400000L), BIGDECIMAL_SCALE,
-                        RoundingMode.HALF_UP).multiply(paramPrice)
-                .multiply(periodFactor);
+                        RoundingMode.HALF_UP)
+                .multiply(paramPrice).multiply(periodFactor);
         return durationParamCosts;
     }
 
@@ -3856,8 +3871,8 @@ public class BillingServiceBeanIT extends EJBTestBase {
                 Subscription subscription = getSubscription(subscriptionId);
                 Organization organization = subscription.getOrganization();
                 Discount discount = new Discount();
-                discount.setOrganizationReference(organization.getSources()
-                        .get(0));
+                discount.setOrganizationReference(
+                        organization.getSources().get(0));
                 discount.setValue(discnt);
                 discount.setStartTime(L_MIN);
                 discount.setEndTime(L_MAX);

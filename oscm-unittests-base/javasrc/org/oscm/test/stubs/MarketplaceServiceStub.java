@@ -9,6 +9,7 @@ import java.util.Set;
 
 import javax.security.auth.login.LoginException;
 
+import org.oscm.internal.cache.MarketplaceConfiguration;
 import org.oscm.internal.intf.MarketplaceService;
 import org.oscm.internal.types.exception.ConcurrentModificationException;
 import org.oscm.internal.types.exception.MarketplaceAccessTypeUneligibleForOperationException;
@@ -18,7 +19,6 @@ import org.oscm.internal.types.exception.OperationNotPermittedException;
 import org.oscm.internal.types.exception.OrganizationAlreadyBannedException;
 import org.oscm.internal.types.exception.OrganizationAlreadyExistsException;
 import org.oscm.internal.types.exception.OrganizationAuthorityException;
-import org.oscm.internal.types.exception.PublishingToMarketplaceNotPermittedException;
 import org.oscm.internal.types.exception.TechnicalServiceNotAliveException;
 import org.oscm.internal.types.exception.TechnicalServiceOperationException;
 import org.oscm.internal.types.exception.ValidationException;
@@ -43,10 +43,9 @@ public class MarketplaceServiceStub implements MarketplaceService {
 
     @Override
     public VOServiceDetails publishService(VOService service,
-            List<VOCatalogEntry> entries) throws ObjectNotFoundException,
-            ValidationException, NonUniqueBusinessKeyException,
-            OperationNotPermittedException,
-            PublishingToMarketplaceNotPermittedException {
+            List<VOCatalogEntry> entries)
+            throws ObjectNotFoundException, ValidationException,
+            NonUniqueBusinessKeyException, OperationNotPermittedException {
         throw new UnsupportedOperationException();
 
     }
@@ -68,7 +67,7 @@ public class MarketplaceServiceStub implements MarketplaceService {
     }
 
     @Override
-    public List<VOMarketplace> getAccessibleMarketplacesForOperator() {
+    public List<VOMarketplace> getAccessibleMarketplaces() {
         throw new UnsupportedOperationException();
     }
 
@@ -95,24 +94,23 @@ public class MarketplaceServiceStub implements MarketplaceService {
 
     @Override
     public void addOrganizationsToMarketplace(List<String> organizationIds,
-            String marketplaceId) throws ObjectNotFoundException,
-            OperationNotPermittedException, OrganizationAuthorityException,
-            OrganizationAlreadyExistsException {
+            String marketplaceId)
+            throws ObjectNotFoundException, OperationNotPermittedException,
+            OrganizationAuthorityException, OrganizationAlreadyExistsException {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void removeOrganizationsFromMarketplace(
-            List<String> organizationIds, String marketplaceId)
-            throws ObjectNotFoundException, OperationNotPermittedException,
-            OrganizationAuthorityException {
+    public void removeOrganizationsFromMarketplace(List<String> organizationIds,
+            String marketplaceId) throws ObjectNotFoundException,
+            OperationNotPermittedException, OrganizationAuthorityException {
         throw new UnsupportedOperationException();
     }
 
     @Override
     public List<VOOrganization> getOrganizationsForMarketplace(
-            String marketplaceId) throws ObjectNotFoundException,
-            OperationNotPermittedException,
+            String marketplaceId)
+            throws ObjectNotFoundException, OperationNotPermittedException,
             MarketplaceAccessTypeUneligibleForOperationException {
         throw new UnsupportedOperationException();
     }
@@ -143,8 +141,8 @@ public class MarketplaceServiceStub implements MarketplaceService {
 
     @Override
     public List<VOOrganization> getBannedOrganizationsForMarketplace(
-            String marketplaceId) throws ObjectNotFoundException,
-            OperationNotPermittedException,
+            String marketplaceId)
+            throws ObjectNotFoundException, OperationNotPermittedException,
             MarketplaceAccessTypeUneligibleForOperationException {
         throw new UnsupportedOperationException();
     }
@@ -205,6 +203,35 @@ public class MarketplaceServiceStub implements MarketplaceService {
     @Override
     public List<VOOrganization> getAllOrganizationsWithAccessToMarketplace(
             String marketplaceId) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public MarketplaceConfiguration getCachedMarketplaceConfiguration(
+            String marketplaceId) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void clearCachedMarketplaceConfiguration(String marketplaceId) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public List<VOMarketplace> getAllMarketplacesForTenant(Long tenantKey)
+            throws ObjectNotFoundException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public String getTenantIdFromMarketplace(String marketplaceId)
+            throws ObjectNotFoundException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public List<VOOrganization> getSuppliersForMarketplace(String marketplaceId)
+            throws ObjectNotFoundException, OperationNotPermittedException {
         throw new UnsupportedOperationException();
     }
 

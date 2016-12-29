@@ -13,6 +13,10 @@
 package org.oscm.reportingservice.bean;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
 import static org.oscm.test.Numbers.L123;
 
 import java.io.File;
@@ -32,6 +36,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.oscm.billingservice.dao.BillingDataRetrievalServiceBean;
 import org.oscm.billingservice.service.BillingServiceBean;
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
@@ -68,11 +74,13 @@ import org.oscm.domobjects.TechnicalProduct;
 import org.oscm.domobjects.TriggerProcess;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.domobjects.enums.OrganizationReferenceType;
+import org.oscm.encrypter.AESEncrypter;
 import org.oscm.eventservice.bean.EventServiceBean;
 import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.identityservice.assembler.UserDataAssembler;
+import org.oscm.identityservice.local.IdentityServiceLocal;
 import org.oscm.internal.intf.IdentityService;
 import org.oscm.internal.intf.ReportingService;
 import org.oscm.internal.intf.SubscriptionService;
@@ -94,7 +102,6 @@ import org.oscm.internal.vo.VOUser;
 import org.oscm.reportingservice.business.model.billing.RDODetailedBilling;
 import org.oscm.reportingservice.business.model.billing.VOReportResult;
 import org.oscm.reportingservice.service.stubs.ApplicationServiceStub;
-import org.oscm.reportingservice.service.stubs.IdManagementStub;
 import org.oscm.serviceprovisioningservice.assembler.ProductAssembler;
 import org.oscm.stream.Streams;
 import org.oscm.subscriptionservice.bean.SubscriptionServiceBean;
@@ -153,11 +160,11 @@ public class ReportingServiceBeanQueryIT extends EJBTestBase {
 
     private ConfigurationServiceStub configurationStub;
 
-    private final Map<Organization, ArrayList<PlatformUser>> testUsers = new HashMap<Organization, ArrayList<PlatformUser>>();
-    private final Map<Organization, Long> billingResultsKeys = new HashMap<Organization, Long>();
-    private final Map<String, List<Organization>> testOrganizations = new HashMap<String, List<Organization>>();
-    private final Map<String, List<Product>> testProducts = new HashMap<String, List<Product>>();
-    private List<Session> sessions = new ArrayList<Session>();
+    private final Map<Organization, ArrayList<PlatformUser>> testUsers = new HashMap<>();
+    private final Map<Organization, Long> billingResultsKeys = new HashMap<>();
+    private final Map<String, List<Organization>> testOrganizations = new HashMap<>();
+    private final Map<String, List<Product>> testProducts = new HashMap<>();
+    private List<Session> sessions = new ArrayList<>();
     private List<PaymentType> paymentTypes;
 
     protected LocalizerServiceLocal localizer;
@@ -178,24 +185,21 @@ public class ReportingServiceBeanQueryIT extends EJBTestBase {
     private Organization platformOperator;
     private Map<OrganizationRoleType, List<Report>> roleToReports;
     private Product product;
-    private List<VOSubscription> subscriptionsA = new ArrayList<VOSubscription>();
+    private List<VOSubscription> subscriptionsA = new ArrayList<>();
 
     @Override
     protected void setup(TestContainer container) throws Exception {
-
-        roleToReports = new HashMap<OrganizationRoleType, List<Report>>();
+        AESEncrypter.generateKey();
+        roleToReports = new HashMap<>();
         roleToReports.put(OrganizationRoleType.CUSTOMER,
                 getReportList("Event", "Subscription"));
-        roleToReports.put(
-                OrganizationRoleType.SUPPLIER,
+        roleToReports.put(OrganizationRoleType.SUPPLIER,
                 getReportList("Supplier_Product", "Supplier_Customer",
                         "Supplier_Billing", "Supplier_PaymentResultStatus"));
-        roleToReports.put(
-                OrganizationRoleType.TECHNOLOGY_PROVIDER,
+        roleToReports.put(OrganizationRoleType.TECHNOLOGY_PROVIDER,
                 getReportList("Provider_Event", "Provider_Supplier",
                         "Provider_Subscription", "Provider_Instance"));
-        roleToReports.put(
-                OrganizationRoleType.PLATFORM_OPERATOR,
+        roleToReports.put(OrganizationRoleType.PLATFORM_OPERATOR,
                 getReportList("Supplier_ProductOfASupplier",
                         "Supplier_CustomerOfASupplier",
                         "Supplier_BillingOfASupplier"));
@@ -218,9 +222,8 @@ public class ReportingServiceBeanQueryIT extends EJBTestBase {
 
                 platformOperator = Organizations.createOrganization(mgr,
                         OrganizationRoleType.PLATFORM_OPERATOR);
-                platformOperator
-                        .setOrganizationId(OrganizationRoleType.PLATFORM_OPERATOR
-                                .name());
+                platformOperator.setOrganizationId(
+                        OrganizationRoleType.PLATFORM_OPERATOR.name());
                 Marketplaces.createGlobalMarketplace(platformOperator,
                         GLOBAL_MARKETPLACE_NAME, mgr);
                 mgr.persist(platformOperator);
@@ -235,8 +238,7 @@ public class ReportingServiceBeanQueryIT extends EJBTestBase {
                 Organization organization = mgr.find(Organization.class,
                         product.getVendorKey());
                 OrganizationReference orgRef = new OrganizationReference(
-                        organization,
-                        organization,
+                        organization, organization,
                         OrganizationReferenceType.TECHNOLOGY_PROVIDER_TO_SUPPLIER);
                 mgr.persist(orgRef);
                 organization.getTargets().add(orgRef);
@@ -289,8 +291,9 @@ public class ReportingServiceBeanQueryIT extends EJBTestBase {
             sessions.clear();
             sessions.add(session);
 
-            enablePaymentTypes(mgr, testOrganizations.get("A").get(i)
-                    .getOrganizationId(), OrganizationRoleType.CUSTOMER);
+            enablePaymentTypes(mgr,
+                    testOrganizations.get("A").get(i).getOrganizationId(),
+                    OrganizationRoleType.CUSTOMER);
             subscriptionsA.add(subscribeToProductAndUse("A", 0, i));
 
             runBillingForCustomer("A", i);
@@ -304,8 +307,9 @@ public class ReportingServiceBeanQueryIT extends EJBTestBase {
             sessions.clear();
             sessions.add(session);
 
-            enablePaymentTypes(mgr, testOrganizations.get("B").get(i)
-                    .getOrganizationId(), OrganizationRoleType.CUSTOMER);
+            enablePaymentTypes(mgr,
+                    testOrganizations.get("B").get(i).getOrganizationId(),
+                    OrganizationRoleType.CUSTOMER);
             subscribeToProductAndUse("B", 0, i);
             runBillingForCustomer("B", i);
         }
@@ -346,7 +350,7 @@ public class ReportingServiceBeanQueryIT extends EJBTestBase {
             @Override
             public List<TriggerProcessMessageData> sendSuspendingMessages(
                     List<TriggerMessage> messageData) {
-                List<TriggerProcessMessageData> result = new ArrayList<TriggerProcessMessageData>();
+                List<TriggerProcessMessageData> result = new ArrayList<>();
                 for (TriggerMessage m : messageData) {
                     TriggerProcess tp = new TriggerProcess();
                     tp.setUser(supplierUserA);
@@ -361,7 +365,19 @@ public class ReportingServiceBeanQueryIT extends EJBTestBase {
         });
         container.addBean(new BillingDataRetrievalServiceBean());
         container.addBean(new BillingServiceBean());
-        container.addBean(new IdManagementStub());
+        IdentityServiceLocal mock = mock(IdentityServiceLocal.class);
+
+        doAnswer(new Answer() {
+            @Override
+            public PlatformUser answer(InvocationOnMock invocation)
+                    throws Throwable {
+                PlatformUser user = new PlatformUser();
+                user.setUserId((String) invocation.getArguments()[0]);
+                return mgr.find(user);
+            }
+        }).when(mock).getPlatformUser(anyString(), anyString(), anyBoolean());
+
+        container.addBean(mock);
         container.addBean(new TenantProvisioningServiceBean());
         container.addBean(new CommunicationServiceStub());
 
@@ -399,9 +415,8 @@ public class ReportingServiceBeanQueryIT extends EJBTestBase {
      * @param roleType
      * @throws Exception
      */
-    protected void enablePaymentTypes(final DataService mgr,
-            final String orgId, final OrganizationRoleType roleType)
-            throws Exception {
+    protected void enablePaymentTypes(final DataService mgr, final String orgId,
+            final OrganizationRoleType roleType) throws Exception {
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
@@ -450,8 +465,8 @@ public class ReportingServiceBeanQueryIT extends EJBTestBase {
 
         // create EVENTS
         long tpKey = tProd.getKey();
-        TechnicalProduct technicalProduct = mgr.getReference(
-                TechnicalProduct.class, tpKey);
+        TechnicalProduct technicalProduct = mgr
+                .getReference(TechnicalProduct.class, tpKey);
         Event event = new Event();
         event.setTechnicalProduct(technicalProduct);
         event.setEventIdentifier(PlatformEventIdentifier.USER_LOGIN_TO_SERVICE);
@@ -509,11 +524,11 @@ public class ReportingServiceBeanQueryIT extends EJBTestBase {
             mgr.flush();
 
             testOrganizations.get(custAbr).add(cust);
-            ArrayList<PlatformUser> userlist = new ArrayList<PlatformUser>();
+            ArrayList<PlatformUser> userlist = new ArrayList<>();
             testUsers.put(cust, userlist);
             // add a organization admin
-            PlatformUser admin = Organizations.createUserForOrg(mgr, cust,
-                    true, "admin");
+            PlatformUser admin = Organizations.createUserForOrg(mgr, cust, true,
+                    "admin");
             if (custAbr.equalsIgnoreCase("A")) {
                 customerAdminsA[i - 1] = admin;
             } else {
@@ -531,8 +546,8 @@ public class ReportingServiceBeanQueryIT extends EJBTestBase {
         mgr.flush();
     }
 
-    private void initReports() throws ObjectNotFoundException,
-            NonUniqueBusinessKeyException {
+    private void initReports()
+            throws ObjectNotFoundException, NonUniqueBusinessKeyException {
 
         for (OrganizationRoleType orgType : roleToReports.keySet()) {
             List<Report> custReports = roleToReports.get(orgType);
@@ -568,7 +583,7 @@ public class ReportingServiceBeanQueryIT extends EJBTestBase {
     }
 
     private List<Report> getReportList(String... reportNames) {
-        List<Report> result = new ArrayList<Report>();
+        List<Report> result = new ArrayList<>();
         for (String string : reportNames) {
             Report report = new Report();
             report.setReportName(string);
@@ -594,7 +609,7 @@ public class ReportingServiceBeanQueryIT extends EJBTestBase {
         ParameterOption option = new ParameterOption();
         option.setOptionId("OPT");
         option.setParameterDefinition(pd);
-        List<ParameterOption> list = new ArrayList<ParameterOption>();
+        List<ParameterOption> list = new ArrayList<>();
         list.add(option);
         pd.setOptionList(list);
         mgr.persist(option);
@@ -660,8 +675,8 @@ public class ReportingServiceBeanQueryIT extends EJBTestBase {
             PricedOption option = new PricedOption();
             option.setPricedParameter(pricedParam);
             option.setPricePerUser(new BigDecimal(2));
-            option.setParameterOptionKey(paramDef.getOptionList().get(0)
-                    .getKey());
+            option.setParameterOptionKey(
+                    paramDef.getOptionList().get(0).getKey());
 
             PricedEvent pEvent = new PricedEvent();
             pEvent.setEvent(tProd.getEvents().get(0));
@@ -681,25 +696,26 @@ public class ReportingServiceBeanQueryIT extends EJBTestBase {
 
     private VOSubscription subscribeToProductAndUse(final String custAbrv,
             int ProductIdx, final int custIdx) throws Exception {
-        VOService product = getProductByKey(testProducts.get(custAbrv)
-                .get(ProductIdx).getKey());
+        VOService product = getProductByKey(
+                testProducts.get(custAbrv).get(ProductIdx).getKey());
         VOUser[] users = new VOUser[2];
         VOUser[] admins = new VOUser[1];
-        admins[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(custAbrv).get(custIdx)).get(1));
-        users[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(custAbrv).get(custIdx)).get(2));
-        users[1] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(custAbrv).get(custIdx)).get(3));
+        admins[0] = UserDataAssembler.toVOUser(testUsers
+                .get(testOrganizations.get(custAbrv).get(custIdx)).get(1));
+        users[0] = UserDataAssembler.toVOUser(testUsers
+                .get(testOrganizations.get(custAbrv).get(custIdx)).get(2));
+        users[1] = UserDataAssembler.toVOUser(testUsers
+                .get(testOrganizations.get(custAbrv).get(custIdx)).get(3));
 
-        final VOPaymentInfo voPaymentInfo = runTX(new Callable<VOPaymentInfo>() {
-            @Override
-            public VOPaymentInfo call() throws Exception {
-                return PaymentInfos.createVOPaymentInfo(
-                        testOrganizations.get(custAbrv).get(custIdx), mgr,
-                        paymentTypes.get(0));
-            }
-        });
+        final VOPaymentInfo voPaymentInfo = runTX(
+                new Callable<VOPaymentInfo>() {
+                    @Override
+                    public VOPaymentInfo call() throws Exception {
+                        return PaymentInfos.createVOPaymentInfo(
+                                testOrganizations.get(custAbrv).get(custIdx),
+                                mgr, paymentTypes.get(0));
+                    }
+                });
         final VOBillingContact bc = runTX(new Callable<VOBillingContact>() {
 
             @Override
@@ -709,10 +725,11 @@ public class ReportingServiceBeanQueryIT extends EJBTestBase {
             }
         });
         VOSubscription newSub = subMgmt.subscribeToService(
-                Subscriptions.createVOSubscription("subscribeToProductIDX_"
-                        + ProductIdx + "_SUP_" + custAbrv + "_CUSIDX_"
-                        + custIdx), product, getUsersToAdd(admins, users),
-                voPaymentInfo, bc, new ArrayList<VOUda>());
+                Subscriptions.createVOSubscription(
+                        "subscribeToProductIDX_" + ProductIdx + "_SUP_"
+                                + custAbrv + "_CUSIDX_" + custIdx),
+                product, getUsersToAdd(admins, users), voPaymentInfo, bc,
+                new ArrayList<VOUda>());
         eventForCustomers(newSub.getKey(), admins[0].getUserId());
         eventForCustomers(newSub.getKey(), users[0].getUserId());
         eventForCustomers(newSub.getKey(), users[1].getUserId());
@@ -720,8 +737,8 @@ public class ReportingServiceBeanQueryIT extends EJBTestBase {
         return newSub;
     }
 
-    private void eventForCustomers(final long subscriptionId, final String actor)
-            throws Exception {
+    private void eventForCustomers(final long subscriptionId,
+            final String actor) throws Exception {
         runTX(new Callable<Void>() {
 
             @Override
@@ -731,8 +748,8 @@ public class ReportingServiceBeanQueryIT extends EJBTestBase {
                 gatheredEvent.setActor(actor);
                 gatheredEvent.setOccurrenceTime(TIMESTAMP);
                 gatheredEvent.setType(EventType.SERVICE_EVENT);
-                gatheredEvent
-                        .setEventId(PlatformEventIdentifier.USER_LOGIN_TO_SERVICE);
+                gatheredEvent.setEventId(
+                        PlatformEventIdentifier.USER_LOGIN_TO_SERVICE);
                 gatheredEvent.setMultiplier(MULTIPLIER);
                 gatheredEvent.setSubscriptionTKey(subscriptionId);
                 mgr.persist(gatheredEvent);
@@ -809,25 +826,24 @@ public class ReportingServiceBeanQueryIT extends EJBTestBase {
         Assert.assertNotNull("Result must not be null", result);
         Assert.assertNotNull("Result must contain entries",
                 result.getSummaries());
-        Assert.assertTrue("Result must contain data entries", result
-                .getSummaries().size() > 0);
+        Assert.assertTrue("Result must contain data entries",
+                result.getSummaries().size() > 0);
     }
 
     private void testForEmptyBillingResult(RDODetailedBilling result) {
         Assert.assertNotNull("Result must not be null", result);
         Assert.assertNotNull("Result must contain entries",
                 result.getSummaries());
-        Assert.assertTrue("Result must not contain data entries", result
-                .getSummaries().isEmpty());
+        Assert.assertTrue("Result must not contain data entries",
+                result.getSummaries().isEmpty());
     }
 
     private void verifyReportResult(VOReportResult result, int expectedCount) {
         Assert.assertNotNull("Result must not be null", result);
         Assert.assertNotNull("Result must contain data", result.getData());
-        Assert.assertTrue("Result must contain data entries", result.getData()
-                .size() > 0);
-        Assert.assertEquals(
-                "Result must contain " + expectedCount + " entries",
+        Assert.assertTrue("Result must contain data entries",
+                result.getData().size() > 0);
+        Assert.assertEquals("Result must contain " + expectedCount + " entries",
                 expectedCount, result.getData().size());
     }
 
@@ -1035,8 +1051,8 @@ public class ReportingServiceBeanQueryIT extends EJBTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                PlatformUser uAdmin = (PlatformUser) mgr.find(testUsers.get(
-                        testOrganizations.get("A").get(0)).get(1));
+                PlatformUser uAdmin = mgr.find(testUsers
+                        .get(testOrganizations.get("A").get(0)).get(1));
                 uAdmin.setLocale("de");
                 mgr.persist(uAdmin);
 
@@ -1050,8 +1066,8 @@ public class ReportingServiceBeanQueryIT extends EJBTestBase {
                 assertEquals(3, result.getData().size());
                 for (Object obj : result.getData()) {
                     Element e = (Element) obj;
-                    assertEquals("de", e.getLastChild().getFirstChild()
-                            .getNodeValue());
+                    assertEquals("de",
+                            e.getLastChild().getFirstChild().getNodeValue());
                 }
 
                 return null;
@@ -1066,8 +1082,8 @@ public class ReportingServiceBeanQueryIT extends EJBTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                PlatformUser uAdmin = (PlatformUser) mgr.find(testUsers.get(
-                        testOrganizations.get("A").get(0)).get(1));
+                PlatformUser uAdmin = mgr.find(testUsers
+                        .get(testOrganizations.get("A").get(0)).get(1));
                 uAdmin.setLocale("ja");
                 mgr.persist(uAdmin);
 
@@ -1081,8 +1097,8 @@ public class ReportingServiceBeanQueryIT extends EJBTestBase {
                 assertEquals(3, result.getData().size());
                 for (Object obj : result.getData()) {
                     Element e = (Element) obj;
-                    assertEquals("en", e.getLastChild().getFirstChild()
-                            .getNodeValue());
+                    assertEquals("en",
+                            e.getLastChild().getFirstChild().getNodeValue());
                 }
 
                 return null;
@@ -1155,17 +1171,17 @@ public class ReportingServiceBeanQueryIT extends EJBTestBase {
             @Override
             public Void call() {
                 sessions.clear();
-                PlatformUser uAdmin = testUsers.get(
-                        testOrganizations.get(supAbrv).get(custIndx)).get(1);
+                PlatformUser uAdmin = testUsers
+                        .get(testOrganizations.get(supAbrv).get(custIndx))
+                        .get(1);
 
                 Session session = new Session();
                 session.setPlatformUserKey(uAdmin.getKey());
                 sessions.add(session);
 
                 RDODetailedBilling result = reporting.getBillingDetailsReport(
-                        VALID_SESSION_ID, billingResultsKeys
-                                .get(testOrganizations.get(supAbrv).get(
-                                        custIndx)));
+                        VALID_SESSION_ID, billingResultsKeys.get(
+                                testOrganizations.get(supAbrv).get(custIndx)));
                 verifyBillingResult(result);
                 return null;
             }
@@ -1220,8 +1236,8 @@ public class ReportingServiceBeanQueryIT extends EJBTestBase {
             @Override
             public Void call() {
                 BillingResult br = mgr.find(BillingResult.class,
-                        billingResultsKeys.get(testOrganizations.get("A")
-                                .get(0)));
+                        billingResultsKeys
+                                .get(testOrganizations.get("A").get(0)));
 
                 br.setChargingOrgKey(br.getOrganizationTKey());
 
@@ -1248,8 +1264,8 @@ public class ReportingServiceBeanQueryIT extends EJBTestBase {
             @Override
             public Void call() {
                 BillingResult br = mgr.find(BillingResult.class,
-                        billingResultsKeys.get(testOrganizations.get("A")
-                                .get(0)));
+                        billingResultsKeys
+                                .get(testOrganizations.get("A").get(0)));
 
                 br.setChargingOrgKey(br.getOrganizationTKey());
 
@@ -1268,15 +1284,16 @@ public class ReportingServiceBeanQueryIT extends EJBTestBase {
             @Override
             public Void call() {
                 sessions.clear();
-                PlatformUser uAdmin = testUsers.get(
-                        testOrganizations.get(supAbrv).get(custIndx)).get(1);
+                PlatformUser uAdmin = testUsers
+                        .get(testOrganizations.get(supAbrv).get(custIndx))
+                        .get(1);
 
                 Session session = new Session();
                 session.setPlatformUserKey(uAdmin.getKey());
                 sessions.add(session);
 
-                RDODetailedBilling result = reporting.getBillingDetailsReport(
-                        VALID_SESSION_ID, billingKey);
+                RDODetailedBilling result = reporting
+                        .getBillingDetailsReport(VALID_SESSION_ID, billingKey);
 
                 testForEmptyBillingResult(result);
                 return null;
@@ -1294,8 +1311,8 @@ public class ReportingServiceBeanQueryIT extends EJBTestBase {
                 session.setPlatformUserKey(platformOperatorUser.getKey());
                 sessions.add(session);
 
-                RDODetailedBilling result = reporting.getBillingDetailsReport(
-                        VALID_SESSION_ID, billingKey);
+                RDODetailedBilling result = reporting
+                        .getBillingDetailsReport(VALID_SESSION_ID, billingKey);
 
                 testForEmptyBillingResult(result);
                 return null;

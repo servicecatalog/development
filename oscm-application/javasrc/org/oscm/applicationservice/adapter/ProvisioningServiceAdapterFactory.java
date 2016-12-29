@@ -13,15 +13,16 @@ import java.net.URL;
 import javax.wsdl.WSDLException;
 import javax.xml.ws.WebServiceException;
 
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
 import org.oscm.applicationservice.data.SupportedProvisioningVersions;
 import org.oscm.applicationservice.provisioning.adapter.ProvisioningServiceAdapterV1_0;
+import org.oscm.applicationservice.provisioning.adapter.ProvisioningServiceAdapterV1_8;
 import org.oscm.domobjects.TechnicalProduct;
+import org.oscm.internal.types.exception.TechnicalServiceNotAliveException;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
 import org.oscm.ws.WSPortConnector;
 import org.oscm.ws.WSPortDescription;
-import org.oscm.internal.types.exception.TechnicalServiceNotAliveException;
 
 /**
  * Retrieves the provisioning service adapter according to the concrete
@@ -119,8 +120,11 @@ public class ProvisioningServiceAdapterFactory {
         switch (supportedVersion) {
         case VERSION_1_0:
             return new ProvisioningServiceAdapterV1_0();
+        case VERSION_1_8:
+            return new ProvisioningServiceAdapterV1_8();
+
         default:
-            return new ProvisioningServiceAdapterV1_0();
+            return new ProvisioningServiceAdapterV1_8();
         }
     }
 

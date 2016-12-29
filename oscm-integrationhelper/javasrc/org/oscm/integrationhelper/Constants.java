@@ -46,6 +46,7 @@ public class Constants {
     public static final String CM_SERVICE_USER_ID = "cm.service.user.id";
     public static final String CM_SERVICE_USER_KEY = "cm.service.user.key";
     public static final String CM_SERVICE_USER_PWD = "cm.service.user.password";
+    public static final String CM_SERVICE_TENANT_ID = "cm.service.user.tenantID";
     public static final String FORWARD = "FORWARD";
 
 }

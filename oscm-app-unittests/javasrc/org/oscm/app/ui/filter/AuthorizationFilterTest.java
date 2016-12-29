@@ -32,9 +32,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
-
-import org.oscm.app.v1_0.data.PasswordAuthentication;
-import org.oscm.app.v1_0.service.APPAuthenticationServiceBean;
+import org.oscm.app.v2_0.data.PasswordAuthentication;
+import org.oscm.app.v2_0.service.APPAuthenticationServiceBean;
 import org.oscm.vo.VOUserDetails;
 
 /**

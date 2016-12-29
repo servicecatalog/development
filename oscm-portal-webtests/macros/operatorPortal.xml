@@ -231,9 +231,8 @@
       <invoke url="${bes.http.url}/oscm-portal" />
       <clickLink href="/operator/manageUsers.jsf" />
       <verifyElementText htmlId="pagelabel" text="${operator.manageUsers.title}" />
-      <setInputField htmlId="manageUsers:userIdInput" value="@{userId}" />
-      <clickElement htmlId="manageUsers:userSuggestionImage" />
-      <clickElement xpath="//*[@id='manageUsers:userIdItems']//*[contains(.//text(), '@{userId}')]" />
+      <setInputField htmlId="manageUsers:manageUsersListTable:userIdInput" value="@{userId}" />
+      <clickElement xpath="//*[@id='manageUsers:manageUsersListTable:0']" />
       <common.ignorePageScriptError/>
       <clickElement htmlId="manageUsers:lockUser" />
       <common.verifySuccess label="${operator.task.successful}" />
@@ -249,7 +248,8 @@
       <invoke url="${bes.http.url}/oscm-portal" />
       <clickLink href="/operator/manageUsers.jsf" />
       <verifyElementText htmlId="pagelabel" text="${operator.manageUsers.title}" />
-      <setInputField htmlId="manageUsers:userIdInput" value="@{userId}" />
+      <setInputField htmlId="manageUsers:manageUsersListTable:userIdInput" value="@{userId}" />
+      <clickElement xpath="//*[@id='manageUsers:manageUsersListTable:0']" />
       <common.ignorePageScriptError/>
       <clickElement htmlId="manageUsers:unlockUser" />
       <common.verifySuccess label="${operator.task.successful}" />
@@ -265,7 +265,8 @@
       <invoke url="${bes.http.url}/oscm-portal" />
       <clickLink href="/operator/manageUsers.jsf" />
       <verifyElementText htmlId="pagelabel" text="${operator.manageUsers.title}" />
-      <setInputField htmlId="manageUsers:userIdInput" value="@{userId}" />
+      <setInputField htmlId="manageUsers:manageUsersListTable:userIdInput" value="@{userId}" />
+      <clickElement xpath="//*[@id='manageUsers:manageUsersListTable:0']" />
       <clickElement htmlId="manageUsers:resetPassword" />
       <common.verifySuccess label="${operator.task.successful}" />
       <login.logout />

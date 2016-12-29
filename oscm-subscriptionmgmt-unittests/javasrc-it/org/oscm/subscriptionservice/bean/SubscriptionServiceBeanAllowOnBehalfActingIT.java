@@ -21,7 +21,6 @@ import java.util.concurrent.Callable;
 import javax.persistence.Query;
 
 import org.junit.Test;
-
 import org.oscm.accountservice.bean.MarketingPermissionServiceBean;
 import org.oscm.applicationservice.bean.ApplicationServiceStub;
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
@@ -48,14 +47,30 @@ import org.oscm.domobjects.TriggerDefinition;
 import org.oscm.domobjects.TriggerProcess;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.domobjects.enums.OrganizationReferenceType;
+import org.oscm.encrypter.AESEncrypter;
 import org.oscm.i18nservice.bean.LocalizerFacade;
-import org.oscm.i18nservice.bean.LocalizerServiceStub;
+import org.oscm.i18nservice.bean.LocalizerServiceStub2;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.identityservice.bean.IdManagementStub;
+import org.oscm.internal.intf.IdentityService;
+import org.oscm.internal.intf.ServiceProvisioningService;
+import org.oscm.internal.intf.SubscriptionService;
+import org.oscm.internal.types.enumtypes.EventType;
+import org.oscm.internal.types.enumtypes.ImageType;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.ParameterType;
+import org.oscm.internal.types.enumtypes.ParameterValueType;
+import org.oscm.internal.types.enumtypes.ServiceAccessType;
+import org.oscm.internal.types.enumtypes.SessionType;
+import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.internal.vo.VOLocalizedText;
+import org.oscm.internal.vo.VOSubscription;
+import org.oscm.internal.vo.VOUda;
 import org.oscm.serviceprovisioningservice.assembler.ProductAssembler;
 import org.oscm.serviceprovisioningservice.bean.ServiceProvisioningServiceBean;
 import org.oscm.serviceprovisioningservice.bean.TagServiceBean;
-import org.oscm.sessionservice.bean.SessionManagementStub;
+import org.oscm.sessionservice.bean.SessionManagementStub2;
 import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
 import org.oscm.taskhandling.local.TaskQueueServiceLocal;
 import org.oscm.tenantprovisioningservice.bean.TenantProvisioningServiceBean;
@@ -76,21 +91,6 @@ import org.oscm.test.stubs.TriggerQueueServiceStub;
 import org.oscm.triggerservice.local.TriggerMessage;
 import org.oscm.triggerservice.local.TriggerProcessMessageData;
 import org.oscm.types.enumtypes.ProvisioningType;
-import org.oscm.internal.intf.IdentityService;
-import org.oscm.internal.intf.ServiceProvisioningService;
-import org.oscm.internal.intf.SubscriptionService;
-import org.oscm.internal.types.enumtypes.EventType;
-import org.oscm.internal.types.enumtypes.ImageType;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ParameterType;
-import org.oscm.internal.types.enumtypes.ParameterValueType;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
-import org.oscm.internal.types.enumtypes.SessionType;
-import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.vo.VOLocalizedText;
-import org.oscm.internal.vo.VOSubscription;
-import org.oscm.internal.vo.VOUda;
 
 public class SubscriptionServiceBeanAllowOnBehalfActingIT extends EJBTestBase {
 
@@ -112,11 +112,13 @@ public class SubscriptionServiceBeanAllowOnBehalfActingIT extends EJBTestBase {
 
     @Override
     protected void setup(TestContainer container) throws Exception {
+        AESEncrypter.generateKey();
         addBeansToTestContainer();
 
         mgr = container.get(DataService.class);
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 createPaymentTypes(mgr);
                 createOrganizationRoles(mgr);
@@ -130,6 +132,7 @@ public class SubscriptionServiceBeanAllowOnBehalfActingIT extends EJBTestBase {
         });
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 initMasterData();
                 return null;
@@ -155,7 +158,8 @@ public class SubscriptionServiceBeanAllowOnBehalfActingIT extends EJBTestBase {
 
         container.addBean(new DataServiceBean());
         container.addBean(appMgmtStub = new ApplicationServiceStub());
-        container.addBean(new SessionManagementStub() {
+        container.addBean(new SessionManagementStub2() {
+            @Override
             public List<Session> getProductSessionsForSubscriptionTKey(
                     long subscriptionTKey) {
                 Query query = mgr
@@ -163,17 +167,17 @@ public class SubscriptionServiceBeanAllowOnBehalfActingIT extends EJBTestBase {
                 query.setParameter("subscriptionTKey",
                         Long.valueOf(subscriptionTKey));
                 query.setParameter("sessionType", SessionType.SERVICE_SESSION);
-                List<Session> activeSessions = ParameterizedTypes.list(
-                        query.getResultList(), Session.class);
+                List<Session> activeSessions = ParameterizedTypes
+                        .list(query.getResultList(), Session.class);
                 return activeSessions;
             }
         });
         container.addBean(new IdManagementStub());
         container.addBean(new TenantProvisioningServiceBean());
         container.addBean(new CommunicationServiceStub());
-        container.addBean(new LocalizerServiceStub() {
+        container.addBean(new LocalizerServiceStub2() {
 
-            Map<String, List<VOLocalizedText>> map = new HashMap<String, List<VOLocalizedText>>();
+            Map<String, List<VOLocalizedText>> map = new HashMap<>();
 
             @Override
             public void setLocalizedValues(long objectKey,
@@ -193,8 +197,8 @@ public class SubscriptionServiceBeanAllowOnBehalfActingIT extends EJBTestBase {
             public String getLocalizedTextFromDatabase(String localeString,
                     long objectKey, LocalizedObjectTypes objectType) {
 
-                List<VOLocalizedText> list = map.get(objectType + "_"
-                        + objectKey);
+                List<VOLocalizedText> list = map
+                        .get(objectType + "_" + objectKey);
                 if (list != null) {
                     for (VOLocalizedText localizedText : list) {
                         if (localeString.equals(localizedText.getLocale())) {
@@ -250,8 +254,8 @@ public class SubscriptionServiceBeanAllowOnBehalfActingIT extends EJBTestBase {
      * @throws NonUniqueBusinessKeyException
      * @throws ObjectNotFoundException
      */
-    private void initMasterData() throws NonUniqueBusinessKeyException,
-            ObjectNotFoundException {
+    private void initMasterData()
+            throws NonUniqueBusinessKeyException, ObjectNotFoundException {
         // add currency
         SupportedCurrency sc = new SupportedCurrency();
         sc.setCurrency(Currency.getInstance("EUR"));
@@ -314,7 +318,7 @@ public class SubscriptionServiceBeanAllowOnBehalfActingIT extends EJBTestBase {
         ParameterOption option = new ParameterOption();
         option.setOptionId("OPT");
         option.setParameterDefinition(pd);
-        List<ParameterOption> list = new ArrayList<ParameterOption>();
+        List<ParameterOption> list = new ArrayList<>();
         list.add(option);
         pd.setOptionList(list);
         mgr.persist(option);
@@ -326,7 +330,7 @@ public class SubscriptionServiceBeanAllowOnBehalfActingIT extends EJBTestBase {
             TechnicalProduct tProd, int count)
             throws NonUniqueBusinessKeyException {
 
-        List<Product> products = new ArrayList<Product>();
+        List<Product> products = new ArrayList<>();
         Product prod;
         ParameterDefinition paramDef = tProd.getParameterDefinitions().get(0);
         for (int i = 1; i <= count; i++) {
@@ -348,8 +352,8 @@ public class SubscriptionServiceBeanAllowOnBehalfActingIT extends EJBTestBase {
             PricedOption option = new PricedOption();
             option.setPricedParameter(pricedParam);
             option.setPricePerUser(new BigDecimal(2));
-            option.setParameterOptionKey(paramDef.getOptionList().get(0)
-                    .getKey());
+            option.setParameterOptionKey(
+                    paramDef.getOptionList().get(0).getKey());
 
             PricedEvent pEvent = new PricedEvent();
             pEvent.setEvent(tProd.getEvents().get(0));
@@ -376,9 +380,11 @@ public class SubscriptionServiceBeanAllowOnBehalfActingIT extends EJBTestBase {
     private OrganizationReference getOrganizationReference(
             Organization sourceOrganization, Organization targetOrganization) {
         for (OrganizationReference reference : targetOrganization
-                .getSourcesForType(OrganizationReferenceType.ON_BEHALF_ACTING)) {
+                .getSourcesForType(
+                        OrganizationReferenceType.ON_BEHALF_ACTING)) {
             if (reference.getSource().getKey() == sourceOrganization.getKey()
-                    && reference.getTargetKey() == targetOrganization.getKey()) {
+                    && reference.getTargetKey() == targetOrganization
+                            .getKey()) {
                 return reference;
             }
         }
@@ -389,13 +395,15 @@ public class SubscriptionServiceBeanAllowOnBehalfActingIT extends EJBTestBase {
     public void testCreateOneSubscription_AllowingOnbehalf() throws Exception {
         // subscribe
         String subId = Long.toString(System.currentTimeMillis());
-        final VOSubscription sub = subMgmt.subscribeToService(Subscriptions
-                .createVOSubscription(subId), ProductAssembler.toVOProduct(
-                testPrdOnbehalf, new LocalizerFacade(localizer, "en")), null,
-                null, null, new ArrayList<VOUda>());
+        final VOSubscription sub = subMgmt.subscribeToService(
+                Subscriptions.createVOSubscription(subId),
+                ProductAssembler.toVOProduct(testPrdOnbehalf,
+                        new LocalizerFacade(localizer, "en")),
+                null, null, null, new ArrayList<VOUda>());
 
         // assert
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Subscription subscription = mgr.find(Subscription.class,
                         sub.getKey());
@@ -417,22 +425,25 @@ public class SubscriptionServiceBeanAllowOnBehalfActingIT extends EJBTestBase {
                 .toString(System.currentTimeMillis());
         final String subscriptionId2 = Long
                 .toString(System.currentTimeMillis() + 1);
-        final VOSubscription sub = subMgmt.subscribeToService(Subscriptions
-                .createVOSubscription(subscriptionId1), ProductAssembler
-                .toVOProduct(testPrdOnbehalf, new LocalizerFacade(localizer,
-                        "en")), null, null, null, new ArrayList<VOUda>());
-        subMgmt.subscribeToService(Subscriptions
-                .createVOSubscription(subscriptionId2), ProductAssembler
-                .toVOProduct(testPrdOnbehalf, new LocalizerFacade(localizer,
-                        "en")), null, null, null, new ArrayList<VOUda>());
+        final VOSubscription sub = subMgmt.subscribeToService(
+                Subscriptions.createVOSubscription(subscriptionId1),
+                ProductAssembler.toVOProduct(testPrdOnbehalf,
+                        new LocalizerFacade(localizer, "en")),
+                null, null, null, new ArrayList<VOUda>());
+        subMgmt.subscribeToService(
+                Subscriptions.createVOSubscription(subscriptionId2),
+                ProductAssembler.toVOProduct(testPrdOnbehalf,
+                        new LocalizerFacade(localizer, "en")),
+                null, null, null, new ArrayList<VOUda>());
 
         // assert
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
-                assertTrue(subMgmt.getSubscriptionIdentifiers().contains(
-                        subscriptionId1));
-                assertTrue(subMgmt.getSubscriptionIdentifiers().contains(
-                        subscriptionId2));
+                assertTrue(subMgmt.getSubscriptionIdentifiers()
+                        .contains(subscriptionId1));
+                assertTrue(subMgmt.getSubscriptionIdentifiers()
+                        .contains(subscriptionId2));
 
                 Subscription subscription = mgr.find(Subscription.class,
                         sub.getKey());
@@ -451,13 +462,15 @@ public class SubscriptionServiceBeanAllowOnBehalfActingIT extends EJBTestBase {
     public void testCreateOneSubscription() throws Exception {
         // subscribe
         String subId = Long.toString(System.currentTimeMillis());
-        final VOSubscription sub = subMgmt.subscribeToService(Subscriptions
-                .createVOSubscription(subId), ProductAssembler.toVOProduct(
-                testPrd, new LocalizerFacade(localizer, "en")), null, null,
-                null, new ArrayList<VOUda>());
+        final VOSubscription sub = subMgmt.subscribeToService(
+                Subscriptions.createVOSubscription(subId),
+                ProductAssembler.toVOProduct(testPrd,
+                        new LocalizerFacade(localizer, "en")),
+                null, null, null, new ArrayList<VOUda>());
 
         // assert
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Subscription subscription = mgr.find(Subscription.class,
                         sub.getKey());
@@ -476,14 +489,16 @@ public class SubscriptionServiceBeanAllowOnBehalfActingIT extends EJBTestBase {
     public void testRemoveLastSubscription_AllowingOnbehalf() throws Exception {
         // subscribe and then remove subscription
         String subId = Long.toString(System.currentTimeMillis());
-        final VOSubscription sub = subMgmt.subscribeToService(Subscriptions
-                .createVOSubscription(subId), ProductAssembler.toVOProduct(
-                testPrdOnbehalf, new LocalizerFacade(localizer, "en")), null,
-                null, null, new ArrayList<VOUda>());
+        final VOSubscription sub = subMgmt.subscribeToService(
+                Subscriptions.createVOSubscription(subId),
+                ProductAssembler.toVOProduct(testPrdOnbehalf,
+                        new LocalizerFacade(localizer, "en")),
+                null, null, null, new ArrayList<VOUda>());
         subMgmt.unsubscribeFromService(subId);
 
         // assert: on behalf reference must not be present
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Subscription subscription = mgr.find(Subscription.class,
                         sub.getKey());
@@ -503,18 +518,20 @@ public class SubscriptionServiceBeanAllowOnBehalfActingIT extends EJBTestBase {
         // create 2 subscriptions, then remove one subscription
         String subId = Long.toString(System.currentTimeMillis());
         String subId2 = Long.toString(System.currentTimeMillis() + 1);
-        final VOSubscription sub = subMgmt.subscribeToService(Subscriptions
-                .createVOSubscription(subId), ProductAssembler.toVOProduct(
-                testPrdOnbehalf, new LocalizerFacade(localizer, "en")), null,
-                null, null, new ArrayList<VOUda>());
+        final VOSubscription sub = subMgmt.subscribeToService(
+                Subscriptions.createVOSubscription(subId),
+                ProductAssembler.toVOProduct(testPrdOnbehalf,
+                        new LocalizerFacade(localizer, "en")),
+                null, null, null, new ArrayList<VOUda>());
         subMgmt.subscribeToService(Subscriptions.createVOSubscription(subId2),
                 ProductAssembler.toVOProduct(testPrdOnbehalf,
-                        new LocalizerFacade(localizer, "en")), null, null,
-                null, new ArrayList<VOUda>());
+                        new LocalizerFacade(localizer, "en")),
+                null, null, null, new ArrayList<VOUda>());
         subMgmt.unsubscribeFromService(subId2);
 
         // assert: on behalf reference must not be present
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Subscription subscription = mgr.find(Subscription.class,
                         sub.getKey());
@@ -533,14 +550,16 @@ public class SubscriptionServiceBeanAllowOnBehalfActingIT extends EJBTestBase {
     public void testRemoveSubscription() throws Exception {
         // subscribe and then remove subscription
         String subId = Long.toString(System.currentTimeMillis());
-        final VOSubscription sub = subMgmt.subscribeToService(Subscriptions
-                .createVOSubscription(subId), ProductAssembler.toVOProduct(
-                testPrd, new LocalizerFacade(localizer, "en")), null, null,
-                null, new ArrayList<VOUda>());
+        final VOSubscription sub = subMgmt.subscribeToService(
+                Subscriptions.createVOSubscription(subId),
+                ProductAssembler.toVOProduct(testPrd,
+                        new LocalizerFacade(localizer, "en")),
+                null, null, null, new ArrayList<VOUda>());
         subMgmt.unsubscribeFromService(subId);
 
         // assert: on behalf reference must not be present
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Subscription subscription = mgr.find(Subscription.class,
                         sub.getKey());
@@ -562,19 +581,21 @@ public class SubscriptionServiceBeanAllowOnBehalfActingIT extends EJBTestBase {
         // create 2 subscriptions for two tech. prod.
         String subId1 = Long.toString(System.currentTimeMillis());
         String subId2 = Long.toString(System.currentTimeMillis() + 1);
-        VOSubscription sub1 = subMgmt.subscribeToService(Subscriptions
-                .createVOSubscription(subId1), ProductAssembler.toVOProduct(
-                testPrdOnbehalf, new LocalizerFacade(localizer, "en")), null,
-                null, null, new ArrayList<VOUda>());
+        VOSubscription sub1 = subMgmt.subscribeToService(
+                Subscriptions.createVOSubscription(subId1),
+                ProductAssembler.toVOProduct(testPrdOnbehalf,
+                        new LocalizerFacade(localizer, "en")),
+                null, null, null, new ArrayList<VOUda>());
         final long sub1Key = sub1.getKey();
 
         subMgmt.subscribeToService(Subscriptions.createVOSubscription(subId2),
                 ProductAssembler.toVOProduct(testPrd2Onbehalf,
-                        new LocalizerFacade(localizer, "en")), null, null,
-                null, new ArrayList<VOUda>());
+                        new LocalizerFacade(localizer, "en")),
+                null, null, null, new ArrayList<VOUda>());
 
         // assert: on behalf reference must be present
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Subscription subscription = mgr.find(Subscription.class,
                         sub1Key);
@@ -598,16 +619,18 @@ public class SubscriptionServiceBeanAllowOnBehalfActingIT extends EJBTestBase {
         String subId2 = Long.toString(System.currentTimeMillis() + 1);
         subMgmt.subscribeToService(Subscriptions.createVOSubscription(subId1),
                 ProductAssembler.toVOProduct(testPrdOnbehalf,
-                        new LocalizerFacade(localizer, "en")), null, null,
-                null, new ArrayList<VOUda>());
-        final VOSubscription sub2 = subMgmt.subscribeToService(Subscriptions
-                .createVOSubscription(subId2), ProductAssembler.toVOProduct(
-                testPrd2Onbehalf, new LocalizerFacade(localizer, "en")), null,
-                null, null, new ArrayList<VOUda>());
+                        new LocalizerFacade(localizer, "en")),
+                null, null, null, new ArrayList<VOUda>());
+        final VOSubscription sub2 = subMgmt.subscribeToService(
+                Subscriptions.createVOSubscription(subId2),
+                ProductAssembler.toVOProduct(testPrd2Onbehalf,
+                        new LocalizerFacade(localizer, "en")),
+                null, null, null, new ArrayList<VOUda>());
         subMgmt.unsubscribeFromService(subId1);
 
         // assert: on behalf reference must be present
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Subscription subscription = mgr.find(Subscription.class,
                         sub2.getKey());
@@ -637,16 +660,18 @@ public class SubscriptionServiceBeanAllowOnBehalfActingIT extends EJBTestBase {
         String subId2 = Long.toString(System.currentTimeMillis() + 1);
         subMgmt.subscribeToService(Subscriptions.createVOSubscription(subId1),
                 ProductAssembler.toVOProduct(testPrdOnbehalf,
-                        new LocalizerFacade(localizer, "en")), null, null,
-                null, new ArrayList<VOUda>());
-        final VOSubscription sub2 = subMgmt.subscribeToService(Subscriptions
-                .createVOSubscription(subId2), ProductAssembler.toVOProduct(
-                testPrd, new LocalizerFacade(localizer, "en")), null, null,
-                null, new ArrayList<VOUda>());
+                        new LocalizerFacade(localizer, "en")),
+                null, null, null, new ArrayList<VOUda>());
+        final VOSubscription sub2 = subMgmt.subscribeToService(
+                Subscriptions.createVOSubscription(subId2),
+                ProductAssembler.toVOProduct(testPrd,
+                        new LocalizerFacade(localizer, "en")),
+                null, null, null, new ArrayList<VOUda>());
         subMgmt.unsubscribeFromService(subId1);
 
         // assert: on behalf reference must be present
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Subscription subscription = mgr.find(Subscription.class,
                         sub2.getKey());

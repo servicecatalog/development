@@ -34,7 +34,6 @@ import java.util.concurrent.Callable;
 
 import org.junit.Assert;
 import org.junit.Test;
-
 import org.oscm.accountservice.bean.MarketingPermissionServiceBean;
 import org.oscm.applicationservice.bean.ApplicationServiceStub;
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
@@ -61,35 +60,12 @@ import org.oscm.domobjects.UsageLicense;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.domobjects.enums.ModificationType;
 import org.oscm.domobjects.enums.OrganizationReferenceType;
+import org.oscm.encrypter.AESEncrypter;
 import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.identityservice.assembler.UserDataAssembler;
 import org.oscm.identityservice.bean.IdManagementStub;
-import org.oscm.serviceprovisioningservice.assembler.ProductAssembler;
-import org.oscm.serviceprovisioningservice.bean.ServiceProvisioningServiceBean;
-import org.oscm.serviceprovisioningservice.bean.TagServiceBean;
-import org.oscm.sessionservice.bean.SessionManagementStub;
-import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
-import org.oscm.taskhandling.local.TaskQueueServiceLocal;
-import org.oscm.tenantprovisioningservice.bean.TenantProvisioningServiceBean;
-import org.oscm.test.EJBTestBase;
-import org.oscm.test.ReflectiveClone;
-import org.oscm.test.data.Organizations;
-import org.oscm.test.data.PaymentInfos;
-import org.oscm.test.data.PaymentTypes;
-import org.oscm.test.data.PlatformUsers;
-import org.oscm.test.data.Subscriptions;
-import org.oscm.test.data.SupportedCountries;
-import org.oscm.test.data.TechnicalProducts;
-import org.oscm.test.ejb.TestContainer;
-import org.oscm.test.stubs.CommunicationServiceStub;
-import org.oscm.test.stubs.ConfigurationServiceStub;
-import org.oscm.test.stubs.ImageResourceServiceStub;
-import org.oscm.test.stubs.MarketplaceServiceStub;
-import org.oscm.test.stubs.TriggerQueueServiceStub;
-import org.oscm.triggerservice.local.TriggerMessage;
-import org.oscm.triggerservice.local.TriggerProcessMessageData;
 import org.oscm.internal.intf.IdentityService;
 import org.oscm.internal.intf.ServiceProvisioningService;
 import org.oscm.internal.intf.SubscriptionService;
@@ -115,6 +91,30 @@ import org.oscm.internal.vo.VOUda;
 import org.oscm.internal.vo.VOUser;
 import org.oscm.internal.vo.VOUserSubscription;
 import org.oscm.provisioning.data.User;
+import org.oscm.serviceprovisioningservice.assembler.ProductAssembler;
+import org.oscm.serviceprovisioningservice.bean.ServiceProvisioningServiceBean;
+import org.oscm.serviceprovisioningservice.bean.TagServiceBean;
+import org.oscm.sessionservice.bean.SessionManagementStub2;
+import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
+import org.oscm.taskhandling.local.TaskQueueServiceLocal;
+import org.oscm.tenantprovisioningservice.bean.TenantProvisioningServiceBean;
+import org.oscm.test.EJBTestBase;
+import org.oscm.test.ReflectiveClone;
+import org.oscm.test.data.Organizations;
+import org.oscm.test.data.PaymentInfos;
+import org.oscm.test.data.PaymentTypes;
+import org.oscm.test.data.PlatformUsers;
+import org.oscm.test.data.Subscriptions;
+import org.oscm.test.data.SupportedCountries;
+import org.oscm.test.data.TechnicalProducts;
+import org.oscm.test.ejb.TestContainer;
+import org.oscm.test.stubs.CommunicationServiceStub;
+import org.oscm.test.stubs.ConfigurationServiceStub;
+import org.oscm.test.stubs.ImageResourceServiceStub;
+import org.oscm.test.stubs.MarketplaceServiceStub;
+import org.oscm.test.stubs.TriggerQueueServiceStub;
+import org.oscm.triggerservice.local.TriggerMessage;
+import org.oscm.triggerservice.local.TriggerProcessMessageData;
 
 /**
  * @author pravi
@@ -134,19 +134,21 @@ public class SubscriptionServiceBeanDirectLoginIT extends EJBTestBase {
     protected ServiceProvisioningService servProv;
     private LocalizerServiceLocal localizer;
 
-    private final List<Product> testProducts = new ArrayList<Product>();
-    private final List<Organization> testOrganizations = new ArrayList<Organization>();
-    private Map<String, VOPaymentInfo> voPaymentInfos = new HashMap<String, VOPaymentInfo>();
+    private final List<Product> testProducts = new ArrayList<>();
+    private final List<Organization> testOrganizations = new ArrayList<>();
+    private Map<String, VOPaymentInfo> voPaymentInfos = new HashMap<>();
     private Organization supplier;
-    private final Map<Organization, ArrayList<PlatformUser>> testUsers = new HashMap<Organization, ArrayList<PlatformUser>>();
+    private final Map<Organization, ArrayList<PlatformUser>> testUsers = new HashMap<>();
     private String currentLocale = "en";
     private List<PaymentType> paymentTypes;
 
     @Override
     public void setup(TestContainer container) throws Exception {
+        AESEncrypter.generateKey();
         container.enableInterfaceMocking(true);
 
         container.login("1");
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         container.addBean(appMgmtDirectLogin = new ApplicationServiceStub() {
 
@@ -177,7 +179,7 @@ public class SubscriptionServiceBeanDirectLoginIT extends EJBTestBase {
             }
 
         });
-        container.addBean(new SessionManagementStub());
+        container.addBean(new SessionManagementStub2());
         container.addBean(new IdManagementStub());
         container.addBean(new TenantProvisioningServiceBean());
         container.addBean(new CommunicationServiceStub());
@@ -265,7 +267,7 @@ public class SubscriptionServiceBeanDirectLoginIT extends EJBTestBase {
 
             List<OrganizationReference> sources = cust.getSources();
             if (sources == null) {
-                sources = new LinkedList<OrganizationReference>();
+                sources = new LinkedList<>();
             }
             sources.add(supplierToCustomer);
             cust.setSources(sources);
@@ -273,7 +275,7 @@ public class SubscriptionServiceBeanDirectLoginIT extends EJBTestBase {
 
             Organization addCust = (Organization) ReflectiveClone.clone(cust);
             testOrganizations.add(addCust);
-            ArrayList<PlatformUser> userlist = new ArrayList<PlatformUser>();
+            ArrayList<PlatformUser> userlist = new ArrayList<>();
             testUsers.put(addCust, userlist);
 
             PlatformUser admin = createAdmin(cust);
@@ -419,8 +421,8 @@ public class SubscriptionServiceBeanDirectLoginIT extends EJBTestBase {
     public void testProductAccessType() throws Throwable {
         assertNotNull(subMgmt);
         for (int ii = 0; ii < testProducts.size(); ii++) {
-            assertEquals(ServiceAccessType.DIRECT, testProducts.get(ii)
-                    .getTechnicalProduct().getAccessType());
+            assertEquals(ServiceAccessType.DIRECT,
+                    testProducts.get(ii).getTechnicalProduct().getAccessType());
         }
     }
 
@@ -430,18 +432,19 @@ public class SubscriptionServiceBeanDirectLoginIT extends EJBTestBase {
         VOService product = getProductToSubscribe(testProducts.get(0).getKey());
 
         VOUser[] admins = new VOUser[1];
-        admins[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(1));
+        admins[0] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(1));
         final String subscriptionID = "testSubscriptionForDirectLogin";
         subMgmt.subscribeToService(
                 Subscriptions.createVOSubscription(subscriptionID), product,
-                getUsersToAdd(admins, null), null, null, new ArrayList<VOUda>());
+                getUsersToAdd(admins, null), null, null,
+                new ArrayList<VOUda>());
         try {
             runTX(new Callable<Void>() {
                 @Override
                 public Void call() throws Exception {
-                    checkSubscribeToProduct(subscriptionID,
-                            testProducts.get(0), SubscriptionStatus.ACTIVE);
+                    checkSubscribeToProduct(subscriptionID, testProducts.get(0),
+                            SubscriptionStatus.ACTIVE);
                     return null;
                 }
             });
@@ -450,8 +453,8 @@ public class SubscriptionServiceBeanDirectLoginIT extends EJBTestBase {
         }
     }
 
-    private void checkSubscribeToProduct(String subscriptionId,
-            Product product, SubscriptionStatus status) {
+    private void checkSubscribeToProduct(String subscriptionId, Product product,
+            SubscriptionStatus status) {
         // load generated subscription object
         Organization theOrganization = testOrganizations.get(0);
         Subscription qryObj = new Subscription();
@@ -463,9 +466,10 @@ public class SubscriptionServiceBeanDirectLoginIT extends EJBTestBase {
                 subscription);
         // check subscription attributes
         assertEquals(
-                new SimpleDateFormat("yyyy-MM-dd").format(GregorianCalendar
-                        .getInstance().getTime()), new SimpleDateFormat(
-                        "yyyy-MM-dd").format(subscription.getCreationDate()));
+                new SimpleDateFormat("yyyy-MM-dd")
+                        .format(GregorianCalendar.getInstance().getTime()),
+                new SimpleDateFormat("yyyy-MM-dd")
+                        .format(subscription.getCreationDate()));
         // check product
         assertNotNull("No product assigned to subscription",
                 subscription.getProduct());
@@ -479,15 +483,16 @@ public class SubscriptionServiceBeanDirectLoginIT extends EJBTestBase {
         int idx = 1;
         for (UsageLicense lic : subscription.getUsageLicenses()) {
             assertEquals(
-                    new SimpleDateFormat("yyyy-MM-dd").format(GregorianCalendar
-                            .getInstance().getTime()), new SimpleDateFormat(
-                            "yyyy-MM-dd").format(new Date(lic
-                            .getAssignmentDate())));
+                    new SimpleDateFormat("yyyy-MM-dd")
+                            .format(GregorianCalendar.getInstance().getTime()),
+                    new SimpleDateFormat("yyyy-MM-dd")
+                            .format(new Date(lic.getAssignmentDate())));
             assertNotNull("User entry is null for license " + lic.getKey(),
                     lic.getUser());
-            assertEquals("user seems to be wrong (userId)",
-                    testUsers.get(testOrganizations.get(0)).get(idx)
-                            .getUserId(), lic.getUser().getUserId());
+            assertEquals(
+                    "user seems to be wrong (userId)", testUsers
+                            .get(testOrganizations.get(0)).get(idx).getUserId(),
+                    lic.getUser().getUserId());
 
             // also check the usage license history entries
             List<DomainHistoryObject<?>> ulhs = mgr.findHistory(lic);
@@ -501,9 +506,10 @@ public class SubscriptionServiceBeanDirectLoginIT extends EJBTestBase {
             idx++;
         }
         assertEquals(
-                new SimpleDateFormat("yyyy-MM-dd").format(GregorianCalendar
-                        .getInstance().getTime()), new SimpleDateFormat(
-                        "yyyy-MM-dd").format(subscription.getActivationDate()));
+                new SimpleDateFormat("yyyy-MM-dd")
+                        .format(GregorianCalendar.getInstance().getTime()),
+                new SimpleDateFormat("yyyy-MM-dd")
+                        .format(subscription.getActivationDate()));
     }
 
     @Test
@@ -512,8 +518,8 @@ public class SubscriptionServiceBeanDirectLoginIT extends EJBTestBase {
 
         VOUser[] admins = new VOUser[1];
         Organization OrganizationID = testOrganizations.get(0);
-        admins[0] = UserDataAssembler.toVOUser(testUsers.get(OrganizationID)
-                .get(1));
+        admins[0] = UserDataAssembler
+                .toVOUser(testUsers.get(OrganizationID).get(1));
 
         final String subscriptionId = "testAccessInfoForDirectLogin";
         VOSubscription voSubscription = Subscriptions
@@ -543,8 +549,8 @@ public class SubscriptionServiceBeanDirectLoginIT extends EJBTestBase {
                 testOrganizations.get(0).getKey());
         assertNull(subscription.getAccessInfo());
         String alternativeAccessInfo = localizer.getLocalizedTextFromDatabase(
-                currentLocale, subscription.getProduct().getTechnicalProduct()
-                        .getKey(),
+                currentLocale,
+                subscription.getProduct().getTechnicalProduct().getKey(),
                 LocalizedObjectTypes.TEC_PRODUCT_LOGIN_ACCESS_DESC);
         assertNotNull(alternativeAccessInfo);
     }
@@ -555,8 +561,8 @@ public class SubscriptionServiceBeanDirectLoginIT extends EJBTestBase {
 
         VOUser[] admins = new VOUser[1];
         Organization OrganizationID = testOrganizations.get(0);
-        admins[0] = UserDataAssembler.toVOUser(testUsers.get(OrganizationID)
-                .get(1));
+        admins[0] = UserDataAssembler
+                .toVOUser(testUsers.get(OrganizationID).get(1));
 
         final String subscriptionId = "testEmptyAccessInfoForDirectLogin";
         VOSubscription voSubscription = Subscriptions
@@ -580,14 +586,14 @@ public class SubscriptionServiceBeanDirectLoginIT extends EJBTestBase {
         }
     }
 
-    private void doTestEmptyAccessInfoForDirectLogin(final String subscriptionId)
-            throws Exception {
+    private void doTestEmptyAccessInfoForDirectLogin(
+            final String subscriptionId) throws Exception {
         Subscription subscription = loadSubscription(subscriptionId,
                 testOrganizations.get(0).getKey());
         assertNull(subscription.getAccessInfo());
         String alternativeAccessInfo = localizer.getLocalizedTextFromDatabase(
-                currentLocale, subscription.getProduct().getTechnicalProduct()
-                        .getKey(),
+                currentLocale,
+                subscription.getProduct().getTechnicalProduct().getKey(),
                 LocalizedObjectTypes.TEC_PRODUCT_LOGIN_ACCESS_DESC);
         assertNotNull(alternativeAccessInfo);
     }
@@ -598,10 +604,10 @@ public class SubscriptionServiceBeanDirectLoginIT extends EJBTestBase {
         VOService product = getProductToSubscribe(testProducts.get(1).getKey());
         VOUser[] users = new VOUser[1];
         VOUser[] admins = new VOUser[1];
-        admins[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(1));
-        users[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(2));
+        admins[0] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(1));
+        users[0] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(2));
         VOSubscription voSubscription = Subscriptions
                 .createVOSubscription("testSubscriptionForDirectLogin");
         VOPaymentInfo voPaymentInfo = getPaymentInfo(
@@ -623,8 +629,8 @@ public class SubscriptionServiceBeanDirectLoginIT extends EJBTestBase {
         VOPriceModel actPM = voDetails.getPriceModel();
         assertEquals(orgPM.getPeriod(), actPM.getPeriod());
         assertEquals(orgPM.getPricePerPeriod(), actPM.getPricePerPeriod());
-        Assert.assertTrue(BigDecimalComparator.isZero(actPM
-                .getPricePerUserAssignment()));
+        Assert.assertTrue(
+                BigDecimalComparator.isZero(actPM.getPricePerUserAssignment()));
     }
 
     @Test
@@ -633,8 +639,8 @@ public class SubscriptionServiceBeanDirectLoginIT extends EJBTestBase {
 
         VOUser[] admins = new VOUser[1];
         Organization OrganizationID = testOrganizations.get(0);
-        admins[0] = UserDataAssembler.toVOUser(testUsers.get(OrganizationID)
-                .get(1));
+        admins[0] = UserDataAssembler
+                .toVOUser(testUsers.get(OrganizationID).get(1));
 
         final String subscriptionId = "testUMForDirectLogin";
         VOSubscription voSubscription = Subscriptions
@@ -686,10 +692,10 @@ public class SubscriptionServiceBeanDirectLoginIT extends EJBTestBase {
     public void testGetActiveSubscriptionsForCurrentUser() throws Throwable {
         VOService product = getProductToSubscribe(testProducts.get(1).getKey());
         VOUser[] admins = new VOUser[2];
-        admins[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(0));
-        admins[1] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(1));
+        admins[0] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(0));
+        admins[1] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(1));
         String subscriptionId1 = "getActiveSubscriptionsForCurrentUser1";
         VOPaymentInfo voPaymentInfo1 = getPaymentInfo(
                 supplier.getOrganizationId(), testOrganizations.get(0));
@@ -706,6 +712,7 @@ public class SubscriptionServiceBeanDirectLoginIT extends EJBTestBase {
                 Subscriptions.createVOSubscription(subscriptionId2), product,
                 getUsersToAdd(admins, null), voPaymentInfo2, bc,
                 new ArrayList<VOUda>());
+        container.login(admins[0].getKey(), ROLE_ORGANIZATION_ADMIN);
         List<VOUserSubscription> subList = subMgmt
                 .getSubscriptionsForCurrentUser();
         assertEquals("Number of found subscriptions", 2, subList.size());
@@ -715,8 +722,8 @@ public class SubscriptionServiceBeanDirectLoginIT extends EJBTestBase {
     public void testUnsubscribeFromProductOK() throws Throwable {
         VOService product = getProductToSubscribe(testProducts.get(1).getKey());
         VOUser[] admins = new VOUser[1];
-        admins[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(1));
+        admins[0] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(1));
         String subscriptionId = "testUnsubscribeFromProductOK";
         VOPaymentInfo voPaymentInfo = getPaymentInfo(
                 supplier.getOrganizationId(), testOrganizations.get(0));
@@ -750,11 +757,12 @@ public class SubscriptionServiceBeanDirectLoginIT extends EJBTestBase {
         assertNotNull(renamedSub);
         assertEquals(SubscriptionStatus.DEACTIVATED, renamedSub.getStatus());
         assertEquals(
-                new SimpleDateFormat("yyyy-MM-dd").format(GregorianCalendar
-                        .getInstance().getTime()), new SimpleDateFormat(
-                        "yyyy-MM-dd").format(renamedSub.getDeactivationDate()));
-        Assert.assertEquals("Licenses were not removed!", 0, renamedSub
-                .getUsageLicenses().size());
+                new SimpleDateFormat("yyyy-MM-dd")
+                        .format(GregorianCalendar.getInstance().getTime()),
+                new SimpleDateFormat("yyyy-MM-dd")
+                        .format(renamedSub.getDeactivationDate()));
+        Assert.assertEquals("Licenses were not removed!", 0,
+                renamedSub.getUsageLicenses().size());
         assertEquals("Wrong number of users added to the product", 0,
                 appMgmtDirectLogin.addedUsers.size());
         assertEquals("Wrong number of users removed from the product", 0,
@@ -769,8 +777,8 @@ public class SubscriptionServiceBeanDirectLoginIT extends EJBTestBase {
 
         VOService product = getProductToSubscribe(testProducts.get(1).getKey());
         VOUser[] admins = new VOUser[1];
-        admins[0] = UserDataAssembler.toVOUser(testUsers.get(
-                testOrganizations.get(0)).get(2));
+        admins[0] = UserDataAssembler
+                .toVOUser(testUsers.get(testOrganizations.get(0)).get(2));
 
         final String subscriptionId1 = "testGetSubscriptionsForOrganization1";
         VOPaymentInfo voPaymentInfo1 = getPaymentInfo(
@@ -806,9 +814,8 @@ public class SubscriptionServiceBeanDirectLoginIT extends EJBTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                assertEquals(subscriptionId1,
-                        subMgmtLocal.loadSubscription(subKey1)
-                                .getSubscriptionId());
+                assertEquals(subscriptionId1, subMgmtLocal
+                        .loadSubscription(subKey1).getSubscriptionId());
                 return null;
             }
         });

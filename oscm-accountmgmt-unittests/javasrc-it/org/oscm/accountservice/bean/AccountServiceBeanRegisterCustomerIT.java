@@ -24,7 +24,6 @@ import java.util.concurrent.Callable;
 
 import org.junit.Assert;
 import org.junit.Test;
-
 import org.oscm.accountservice.local.MarketingPermissionServiceLocal;
 import org.oscm.communicationservice.local.CommunicationServiceLocal;
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
@@ -41,9 +40,23 @@ import org.oscm.domobjects.ProductToPaymentType;
 import org.oscm.domobjects.TechnicalProduct;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.domobjects.enums.OrganizationReferenceType;
+import org.oscm.encrypter.AESEncrypter;
 import org.oscm.i18nservice.bean.ImageResourceServiceBean;
 import org.oscm.identityservice.bean.IdentityServiceBean;
 import org.oscm.identityservice.bean.LdapAccessStub;
+import org.oscm.internal.intf.AccountService;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.ServiceAccessType;
+import org.oscm.internal.types.enumtypes.ServiceStatus;
+import org.oscm.internal.types.exception.MailOperationException;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.internal.types.exception.RegistrationException;
+import org.oscm.internal.types.exception.ValidationException;
+import org.oscm.internal.vo.VOLocalizedText;
+import org.oscm.internal.vo.VOOrganization;
+import org.oscm.internal.vo.VOOrganizationPaymentConfiguration;
+import org.oscm.internal.vo.VOPaymentType;
+import org.oscm.internal.vo.VOUserDetails;
 import org.oscm.reviewservice.bean.ReviewServiceLocalBean;
 import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
 import org.oscm.test.EJBTestBase;
@@ -62,19 +75,6 @@ import org.oscm.test.stubs.SessionServiceStub;
 import org.oscm.test.stubs.TaskQueueServiceStub;
 import org.oscm.test.stubs.TriggerQueueServiceStub;
 import org.oscm.types.enumtypes.EmailType;
-import org.oscm.internal.intf.AccountService;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
-import org.oscm.internal.types.enumtypes.ServiceStatus;
-import org.oscm.internal.types.exception.MailOperationException;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.types.exception.RegistrationException;
-import org.oscm.internal.types.exception.ValidationException;
-import org.oscm.internal.vo.VOLocalizedText;
-import org.oscm.internal.vo.VOOrganization;
-import org.oscm.internal.vo.VOOrganizationPaymentConfiguration;
-import org.oscm.internal.vo.VOPaymentType;
-import org.oscm.internal.vo.VOUserDetails;
 
 /**
  * @author pock
@@ -93,6 +93,8 @@ public class AccountServiceBeanRegisterCustomerIT extends EJBTestBase {
 
     @Override
     protected void setup(TestContainer container) throws Exception {
+        AESEncrypter.generateKey();
+
         container.enableInterfaceMocking(true);
         container.addBean(new DataServiceBean());
         container.addBean(new LocalizerServiceStub() {
@@ -109,7 +111,7 @@ public class AccountServiceBeanRegisterCustomerIT extends EJBTestBase {
             public List<VOLocalizedText> getLocalizedValues(long objectKey,
                     LocalizedObjectTypes objectType) {
 
-                List<VOLocalizedText> texts = new ArrayList<VOLocalizedText>();
+                List<VOLocalizedText> texts = new ArrayList<>();
                 if (objectType == LocalizedObjectTypes.PAYMENT_TYPE_NAME) {
                     texts.add(new VOLocalizedText("en", PAYMENT_INFO_NAME));
                     texts.add(new VOLocalizedText("de", PAYMENT_INFO_NAME));
@@ -166,19 +168,19 @@ public class AccountServiceBeanRegisterCustomerIT extends EJBTestBase {
         PlatformUser tmp = runTX(new Callable<PlatformUser>() {
             @Override
             public PlatformUser call() throws Exception {
-                Organization organization = Organizations.createOrganization(
-                        mgr, OrganizationRoleType.SUPPLIER);
+                Organization organization = Organizations
+                        .createOrganization(mgr, OrganizationRoleType.SUPPLIER);
                 supplierId = organization.getOrganizationId();
                 Organization brokerOrg = Organizations.createOrganization(mgr,
                         OrganizationRoleType.BROKER);
                 brokerId = brokerOrg.getOrganizationId();
-                Organization resellerOrg = Organizations.createOrganization(
-                        mgr, OrganizationRoleType.RESELLER);
+                Organization resellerOrg = Organizations.createOrganization(mgr,
+                        OrganizationRoleType.RESELLER);
                 resellerId = resellerOrg.getOrganizationId();
                 Marketplaces.createMarketplace(organization, marketplaceId,
                         false, mgr);
-                Organizations
-                        .createUserForOrg(mgr, organization, true, "admin");
+                Organizations.createUserForOrg(mgr, organization, true,
+                        "admin");
                 Organizations.supportAllCountries(mgr, organization);
 
                 return Organizations.createUserForOrg(mgr, organization, true,
@@ -212,7 +214,8 @@ public class AccountServiceBeanRegisterCustomerIT extends EJBTestBase {
         try {
             accountMgmt.registerCustomer(voOrganization, admin, "secret", null,
                     null, org.getOrganizationId());
-            Assert.fail("Call must not pass, as the target organization is not a supplier");
+            Assert.fail(
+                    "Call must not pass, as the target organization is not a supplier");
         } catch (RegistrationException e) {
             Assert.assertEquals("Wrong reason in exception for operation",
                     RegistrationException.Reason.TARGET_ORG_INVALID,
@@ -227,7 +230,8 @@ public class AccountServiceBeanRegisterCustomerIT extends EJBTestBase {
      * @throws Exception
      */
     @Test
-    public void testRegisterCustomerForNullSupplierReference() throws Exception {
+    public void testRegisterCustomerForNullSupplierReference()
+            throws Exception {
         VOUserDetails admin = new VOUserDetails();
         admin.setLocale("de");
         admin.setEMail("testuser@test.de");
@@ -262,10 +266,10 @@ public class AccountServiceBeanRegisterCustomerIT extends EJBTestBase {
                 List<PaymentInfo> infos = org.getPaymentInfos();
                 Assert.assertNotNull(infos);
                 Assert.assertEquals(1, infos.size());
-                Assert.assertEquals(PaymentType.INVOICE, infos.get(0)
-                        .getPaymentType().getPaymentTypeId());
-                Assert.assertEquals(PAYMENT_INFO_NAME, infos.get(0)
-                        .getPaymentInfoId());
+                Assert.assertEquals(PaymentType.INVOICE,
+                        infos.get(0).getPaymentType().getPaymentTypeId());
+                Assert.assertEquals(PAYMENT_INFO_NAME,
+                        infos.get(0).getPaymentInfoId());
                 return null;
             }
         });
@@ -326,7 +330,8 @@ public class AccountServiceBeanRegisterCustomerIT extends EJBTestBase {
     }
 
     @Test
-    public void testRegisterCustomerWithEmptyDefaultPayments() throws Exception {
+    public void testRegisterCustomerWithEmptyDefaultPayments()
+            throws Exception {
         final Organization supplier = runTX(new Callable<Organization>() {
             @Override
             public Organization call() throws Exception {
@@ -378,7 +383,7 @@ public class AccountServiceBeanRegisterCustomerIT extends EJBTestBase {
 
         addPaymentTypesToOrganizationRef(supplierId,
                 OrganizationRoleType.SUPPLIER);
-        Set<VOPaymentType> orgPt = new HashSet<VOPaymentType>();
+        Set<VOPaymentType> orgPt = new HashSet<>();
         VOPaymentType pt;
         pt = new VOPaymentType();
         pt.setPaymentTypeId(INVOICE);
@@ -387,12 +392,12 @@ public class AccountServiceBeanRegisterCustomerIT extends EJBTestBase {
         pt.setPaymentTypeId(CREDIT_CARD);
         orgPt.add(pt);
 
-        Set<VOPaymentType> expected = new HashSet<VOPaymentType>();
+        Set<VOPaymentType> expected = new HashSet<>();
         pt = new VOPaymentType();
         pt.setPaymentTypeId(CREDIT_CARD);
         expected.add(pt);
 
-        List<VOOrganizationPaymentConfiguration> empty = new ArrayList<VOOrganizationPaymentConfiguration>();
+        List<VOOrganizationPaymentConfiguration> empty = new ArrayList<>();
 
         container.login(getUserKeyForOrg(supplierId), ROLE_SERVICE_MANAGER);
         accountMgmt.savePaymentConfiguration(orgPt, empty, orgPt, null);
@@ -530,8 +535,8 @@ public class AccountServiceBeanRegisterCustomerIT extends EJBTestBase {
             public String call() throws Exception {
                 Organization organization = Organizations.findOrganization(mgr,
                         organizationId);
-                return String.valueOf(organization.getPlatformUsers().get(0)
-                        .getKey());
+                return String.valueOf(
+                        organization.getPlatformUsers().get(0).getKey());
             }
         });
     }

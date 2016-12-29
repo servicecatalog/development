@@ -110,7 +110,7 @@ public class ManageUsersCtrlTest {
         givenUsers();
 
         when(us.getUsers()).thenReturn(ul);
-        when(us.getUserDetails(eq(ud.getUserId()))).thenReturn(ud);
+        when(us.getUserDetails(eq(ud.getUserId()), anyString())).thenReturn(ud);
 
         session = mock(HttpSession.class);
         when(ctrl.ui.getSession(anyBoolean())).thenReturn(session);
@@ -137,11 +137,13 @@ public class ManageUsersCtrlTest {
         sessionBean = new SessionBean() {
             private static final long serialVersionUID = -3460694623349548600L;
 
+            @Override
             public boolean getNameSequenceReversed() {
                 return isNameSequenceReversed;
             }
         };
         sessionBean.setSelectedUserId(ud.getUserId());
+        sessionBean.setTenantID("1");
         ctrl.setSessionBean(sessionBean);
         ctrl.setServiceLocator(sl);
     }
@@ -257,7 +259,7 @@ public class ManageUsersCtrlTest {
 
     @Test
     public void getInitialize_SelectionNotFound() throws Exception {
-        when(us.getUserDetails(eq(ud.getUserId()))).thenThrow(
+        when(us.getUserDetails(eq(ud.getUserId()), anyString())).thenThrow(
                 new ObjectNotFoundException());
         model.setSelectedUserId(ud.getUserId());
 
@@ -310,7 +312,7 @@ public class ManageUsersCtrlTest {
 
     @Test
     public void setSelectedUserId_SelectionNotFound() throws Exception {
-        when(us.getUserDetails(eq(ud.getUserId()))).thenThrow(
+        when(us.getUserDetails(eq(ud.getUserId()), anyString())).thenThrow(
                 new ObjectNotFoundException());
         // given
         sessionBean.setSelectedUserId(null);
@@ -469,7 +471,8 @@ public class ManageUsersCtrlTest {
 
         ctrl.delete();
 
-        verify(us, times(1)).deleteUser(any(POUser.class), eq(MP_ID));
+        verify(us, times(1)).deleteUser(any(POUser.class), eq(MP_ID),
+                anyString());
         assertEquals(Boolean.FALSE, Boolean.valueOf(model.isInitialized()));
         assertNull(model.getSelectedUserId());
         verify(ctrl.ui, times(1)).handle(any(Response.class),
@@ -496,14 +499,14 @@ public class ManageUsersCtrlTest {
         doReturn(Boolean.TRUE).when(ctrl.model).isTokenValid();
         doThrow(new TechnicalServiceNotAliveException()).when(us).deleteUser(
                 any(org.oscm.internal.usermanagement.POUser.class),
-                anyString());
+                anyString(), anyString());
         // when
         String result = ctrl.delete();
         // then
 
         assertEquals(BaseBean.ERROR_DELETE_USER_FROM_EXPIRED_SUBSCRIPTION,
                 messageKey);
-        assertEquals("",result);
+        assertEquals("", result);
     }
 
     @Test
@@ -514,20 +517,20 @@ public class ManageUsersCtrlTest {
         doReturn(Boolean.TRUE).when(ctrl.model).isTokenValid();
         doThrow(new TechnicalServiceOperationException()).when(us).deleteUser(
                 any(org.oscm.internal.usermanagement.POUser.class),
-                anyString());
+                anyString(), anyString());
         // when
         String result = ctrl.delete();
         // then
 
         assertEquals(BaseBean.ERROR_DELETE_USER_FROM_EXPIRED_SUBSCRIPTION,
                 messageKey);
-        assertEquals("",result);
+        assertEquals("", result);
     }
 
     @Test(expected = OperationNotPermittedException.class)
     public void delete_Negative() throws Exception {
-        when(us.deleteUser(any(POUser.class), anyString())).thenThrow(
-                new OperationNotPermittedException());
+        when(us.deleteUser(any(POUser.class), anyString(), anyString()))
+                .thenThrow(new OperationNotPermittedException());
         // initialize page and select user
         ctrl.getInitialize();
         ctrl.setSelectedUserId(ud.getUserId());
@@ -805,7 +808,7 @@ public class ManageUsersCtrlTest {
         List<String> headers = ctrl.getDataTableHeaders();
 
         // then
-        assertEquals(4, headers.size());
+        assertEquals(5, headers.size());
         assertEquals("userId", headers.get(0));
     }
 
@@ -816,7 +819,7 @@ public class ManageUsersCtrlTest {
         List<String> headers = ctrl.getDataTableHeaders();
 
         // then
-        assertEquals(4, headers.size());
+        assertEquals(5, headers.size());
         assertEquals("userId", headers.get(0));
         assertEquals(LASTNAME, headers.get(1));
         assertEquals(FIRSTNAME, headers.get(2));
@@ -827,7 +830,7 @@ public class ManageUsersCtrlTest {
             throws Exception {
         // given
         String selectedUserId = "selectedUserId";
-        when(us.getUserDetails(eq(selectedUserId))).thenThrow(
+        when(us.getUserDetails(eq(selectedUserId), anyString())).thenThrow(
                 new SaaSApplicationException());
 
         // when
@@ -843,7 +846,8 @@ public class ManageUsersCtrlTest {
             throws Exception {
         // given
         String selectedUserId = "selectedUserId";
-        when(us.getUserDetails(eq(selectedUserId))).thenReturn(null);
+        when(us.getUserDetails(eq(selectedUserId), anyString())).thenReturn(
+                null);
 
         // when
         ctrl.getUserDetailsAndValidateLocale(selectedUserId);
@@ -859,7 +863,8 @@ public class ManageUsersCtrlTest {
         String selectedUserId = "selectedUserId";
         POUserDetails result = new POUserDetails();
         result.setLocale(null);
-        when(us.getUserDetails(eq(selectedUserId))).thenReturn(result);
+        when(us.getUserDetails(eq(selectedUserId), anyString())).thenReturn(
+                result);
 
         // when
         ctrl.getUserDetailsAndValidateLocale(selectedUserId);
@@ -875,7 +880,8 @@ public class ManageUsersCtrlTest {
         String locale = "en";
         POUserDetails result = new POUserDetails();
         result.setLocale(locale);
-        when(us.getUserDetails(eq(selectedUserId))).thenReturn(result);
+        when(us.getUserDetails(eq(selectedUserId), anyString())).thenReturn(
+                result);
 
         // when
         ctrl.getUserDetailsAndValidateLocale(selectedUserId);

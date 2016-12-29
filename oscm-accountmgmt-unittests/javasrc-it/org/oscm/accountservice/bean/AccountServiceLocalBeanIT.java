@@ -15,6 +15,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
@@ -27,7 +28,6 @@ import org.mockito.Captor;
 import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-
 import org.oscm.accountservice.local.AccountServiceLocal;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.DomainObject;
@@ -41,16 +41,16 @@ import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.identityservice.local.ILdapResultMapper;
 import org.oscm.identityservice.local.LdapAccessServiceLocal;
 import org.oscm.identityservice.local.LdapSettingsManagementServiceLocal;
-import org.oscm.test.EJBTestBase;
-import org.oscm.test.ejb.TestContainer;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.SettingType;
 import org.oscm.internal.vo.VOUserDetails;
 import org.oscm.marketplaceservice.local.MarketplaceServiceLocal;
+import org.oscm.test.EJBTestBase;
+import org.oscm.test.ejb.TestContainer;
 
 public class AccountServiceLocalBeanIT extends EJBTestBase {
 
-    private AccountServiceLocal asl;
+    private AccountServiceBean asl;
     private VOUserDetails user;
     private Organization orgToRegister;
 
@@ -60,11 +60,13 @@ public class AccountServiceLocalBeanIT extends EJBTestBase {
     @Override
     protected void setup(TestContainer container) throws Exception {
         container.enableInterfaceMocking(true);
-        container.addBean(new AccountServiceBean());
+        container.addBean(spy(new AccountServiceBean()));
 
         addMocks();
 
-        asl = container.get(AccountServiceLocal.class);
+        asl = container.get(AccountServiceBean.class);
+        doReturn(Boolean.FALSE).when(asl)
+                .checkIfPlatformUserInGivenTenantExists(anyLong(), anyString());
 
         user = new VOUserDetails();
         user.setUserId("user1");
@@ -75,6 +77,7 @@ public class AccountServiceLocalBeanIT extends EJBTestBase {
     @Test
     public void registerOrganization_NoLdapUsed() throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 asl.registerOrganization(orgToRegister, null, user, null, "DE",
                         "mId", null, OrganizationRoleType.CUSTOMER);
@@ -88,6 +91,7 @@ public class AccountServiceLocalBeanIT extends EJBTestBase {
     @Test
     public void registerOrganization_LdapUsed() throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 asl.registerOrganization(orgToRegister, null, user,
                         new Properties(), "DE", "mId", null,
@@ -120,6 +124,7 @@ public class AccountServiceLocalBeanIT extends EJBTestBase {
 
         DataService ds = mock(DataService.class);
         doAnswer(new Answer<DomainObject<?>>() {
+            @Override
             public DomainObject<?> answer(InvocationOnMock invocation)
                     throws Throwable {
                 DomainObject<?> arg = (DomainObject<?>) invocation
@@ -133,6 +138,7 @@ public class AccountServiceLocalBeanIT extends EJBTestBase {
             }
         }).when(ds).getReferenceByBusinessKey(any(DomainObject.class));
         doAnswer(new Answer<DomainObject<?>>() {
+            @Override
             public DomainObject<?> answer(InvocationOnMock invocation)
                     throws Throwable {
                 DomainObject<?> arg = (DomainObject<?>) invocation
@@ -148,22 +154,19 @@ public class AccountServiceLocalBeanIT extends EJBTestBase {
         doNothing().when(ds).persist(storedValues.capture());
 
         LdapAccessServiceLocal ldapAccess = mock(LdapAccessServiceLocal.class);
-        doReturn(Collections.singletonList(new VOUserDetails()))
-                .when(ldapAccess).search(any(Properties.class), anyString(),
-                        anyString(), any(ILdapResultMapper.class),
-                        anyBoolean());
+        doReturn(Collections.singletonList(new VOUserDetails())).when(
+                ldapAccess).search(any(Properties.class), anyString(),
+                anyString(), any(ILdapResultMapper.class), anyBoolean());
         doReturn("user1").when(ldapAccess).dnSearch(any(Properties.class),
                 anyString(), anyString());
 
-        LdapSettingsManagementServiceLocal ldapSettingsMgmt = mock(
-                LdapSettingsManagementServiceLocal.class);
+        LdapSettingsManagementServiceLocal ldapSettingsMgmt = mock(LdapSettingsManagementServiceLocal.class);
         doReturn(getLdapProperties()).when(ldapSettingsMgmt)
                 .getOrganizationSettingsResolved(anyString());
         when(ldapSettingsMgmt.getDefaultValueForSetting(any(SettingType.class)))
                 .thenReturn("someDefault");
 
-        MarketplaceServiceLocal mplService = mock(
-                MarketplaceServiceLocal.class);
+        MarketplaceServiceLocal mplService = mock(MarketplaceServiceLocal.class);
         doReturn(getMarketplace("TestMpl")).when(mplService)
                 .getMarketplaceForId(anyString());
 

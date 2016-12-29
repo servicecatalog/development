@@ -20,28 +20,16 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.TriggerDefinition;
 import org.oscm.domobjects.TriggerProcess;
+import org.oscm.encrypter.AESEncrypter;
 import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
-import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
-import org.oscm.test.BaseAdmUmTest;
-import org.oscm.test.EJBTestBase;
-import org.oscm.test.data.Organizations;
-import org.oscm.test.ejb.TestContainer;
-import org.oscm.test.stubs.AccountServiceStub;
-import org.oscm.test.stubs.CommunicationServiceStub;
-import org.oscm.test.stubs.IdentityServiceStub;
-import org.oscm.test.stubs.ServiceProvisioningServiceStub;
-import org.oscm.test.stubs.TriggerQueueServiceStub;
-import org.oscm.triggerservice.assembler.TriggerProcessAssembler;
-import org.oscm.triggerservice.local.TriggerServiceLocal;
 import org.oscm.internal.intf.TriggerService;
 import org.oscm.internal.types.enumtypes.ParameterValueType;
 import org.oscm.internal.types.enumtypes.TriggerProcessParameterType;
@@ -60,6 +48,20 @@ import org.oscm.internal.vo.VOService;
 import org.oscm.internal.vo.VOSubscriptionDetails;
 import org.oscm.internal.vo.VOTriggerProcess;
 import org.oscm.internal.vo.VOTriggerProcessParameter;
+import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
+import org.oscm.test.BaseAdmUmTest;
+import org.oscm.test.EJBTestBase;
+import org.oscm.test.data.Organizations;
+import org.oscm.test.ejb.TestContainer;
+import org.oscm.test.stubs.AccountServiceStub;
+import org.oscm.test.stubs.CommunicationServiceStub;
+import org.oscm.test.stubs.ConfigurationServiceStub;
+import org.oscm.test.stubs.IdentityServiceStub;
+import org.oscm.test.stubs.ServiceProvisioningServiceStub;
+import org.oscm.test.stubs.TriggerQueueServiceStub;
+import org.oscm.triggerservice.assembler.TriggerProcessAssembler;
+import org.oscm.triggerservice.local.TriggerServiceLocal;
+
 import com.google.common.collect.Lists;
 
 public class TriggerServiceBeanIT extends EJBTestBase {
@@ -87,14 +89,15 @@ public class TriggerServiceBeanIT extends EJBTestBase {
     private List<Long> triggerPrcKeyRollbackCheck;
     private TriggerProcess triggerProcessSubToService;
     private VOService serviceForTriggerProcess;
-    
+
     private long longParamKey = 0;
     private long stringParamKey = 1;
     private long durationParamKey = 2;
 
     @Override
     public void setup(final TestContainer container) throws Exception {
-
+        AESEncrypter.generateKey();
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new CommunicationServiceStub());
         container.addBean(new AccountServiceStub());
         container.addBean(new TriggerQueueServiceStub());
@@ -197,8 +200,8 @@ public class TriggerServiceBeanIT extends EJBTestBase {
                 triggerProcessSubToService
                         .setState(TriggerProcessStatus.WAITING_FOR_APPROVAL);
                 triggerProcessSubToService.setUser(mgr.getCurrentUser());
-                triggerProcessSubToService.setActivationDate(System
-                        .currentTimeMillis());
+                triggerProcessSubToService
+                        .setActivationDate(System.currentTimeMillis());
                 mgr.persist(triggerProcessSubToService);
                 mgr.flush();
 
@@ -221,32 +224,30 @@ public class TriggerServiceBeanIT extends EJBTestBase {
                 serviceForTriggerProcess = new VOService();
                 List<VOParameter> paramList = TriggerServiceBeanTestHelper
                         .getVOParameters(ParameterValueType.LONG, "",
-                                Long.valueOf(0L),
-                                Long.valueOf(100L));
+                                Long.valueOf(0L), Long.valueOf(100L));
                 paramList.get(0).getParameterDefinition().setKey(longParamKey);
-                paramList.addAll(TriggerServiceBeanTestHelper.getVOParameters(
-                        ParameterValueType.DURATION, ""));
-                paramList.get(1).getParameterDefinition().setKey(
-                        durationParamKey);
-                paramList.addAll(TriggerServiceBeanTestHelper.getVOParameters(
-                        ParameterValueType.STRING, ""));
-                paramList.get(2).getParameterDefinition().setKey(stringParamKey);
+                paramList.addAll(TriggerServiceBeanTestHelper
+                        .getVOParameters(ParameterValueType.DURATION, ""));
+                paramList.get(1).getParameterDefinition()
+                        .setKey(durationParamKey);
+                paramList.addAll(TriggerServiceBeanTestHelper
+                        .getVOParameters(ParameterValueType.STRING, ""));
+                paramList.get(2).getParameterDefinition()
+                        .setKey(stringParamKey);
                 serviceForTriggerProcess.setParameters(paramList);
-                
+
                 TriggerProcess triggerProcess = new TriggerProcess();
                 triggerProcess.setTriggerDefinition(def);
                 triggerProcess
                         .setState(TriggerProcessStatus.WAITING_FOR_APPROVAL);
                 triggerProcess.setUser(mgr.getCurrentUser());
                 triggerProcess.setActivationDate(System.currentTimeMillis());
-                triggerProcess
-                        .addTriggerProcessParameter(
-                                org.oscm.types.enumtypes.TriggerProcessParameterName.SUBSCRIPTION,
-                                new VOSubscriptionDetails());
-                triggerProcess
-                        .addTriggerProcessParameter(
-                                org.oscm.types.enumtypes.TriggerProcessParameterName.PRODUCT,
-                                serviceForTriggerProcess);
+                triggerProcess.addTriggerProcessParameter(
+                        org.oscm.types.enumtypes.TriggerProcessParameterName.SUBSCRIPTION,
+                        new VOSubscriptionDetails());
+                triggerProcess.addTriggerProcessParameter(
+                        org.oscm.types.enumtypes.TriggerProcessParameterName.PRODUCT,
+                        serviceForTriggerProcess);
                 mgr.persist(triggerProcess);
                 mgr.flush();
 
@@ -259,8 +260,8 @@ public class TriggerServiceBeanIT extends EJBTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                TriggerProcess triggerProcess = mgr.getReference(
-                        TriggerProcess.class, triggerProcessKey);
+                TriggerProcess triggerProcess = mgr
+                        .getReference(TriggerProcess.class, triggerProcessKey);
                 TriggerDefinition def = triggerProcess.getTriggerDefinition();
 
                 triggerProcess = new TriggerProcess();
@@ -422,8 +423,8 @@ public class TriggerServiceBeanIT extends EJBTestBase {
                 mgr.flush();
 
                 triggerPrcKeyRollbackCheck = new ArrayList<>();
-                triggerPrcKeyRollbackCheck.add(Long.valueOf(prcApproved
-                        .getKey()));
+                triggerPrcKeyRollbackCheck
+                        .add(Long.valueOf(prcApproved.getKey()));
                 triggerPrcKeyRollbackCheck
                         .add(Long.valueOf(prcWaiting.getKey()));
 
@@ -536,8 +537,8 @@ public class TriggerServiceBeanIT extends EJBTestBase {
                 TriggerProcess tp = mgr.getReference(TriggerProcess.class,
                         triggerProcessKey);
                 VOTriggerProcess voTp = TriggerProcessAssembler
-                        .toVOTriggerProcess(tp, new LocalizerFacade(localizer,
-                                "en"));
+                        .toVOTriggerProcess(tp,
+                                new LocalizerFacade(localizer, "en"));
                 Assert.assertEquals(
                         "Internal server error. Please see log file for details.",
                         voTp.getReason());
@@ -556,7 +557,8 @@ public class TriggerServiceBeanIT extends EJBTestBase {
         container.login(adminKey, ROLE_ORGANIZATION_ADMIN);
 
         triggerService.cancelActions(
-                Collections.singletonList(Long.valueOf(triggerProcessKey)), null);
+                Collections.singletonList(Long.valueOf(triggerProcessKey)),
+                null);
         triggerService.approveAction(triggerProcessKey);
     }
 
@@ -576,10 +578,11 @@ public class TriggerServiceBeanIT extends EJBTestBase {
         } catch (EJBException e) {
             Assert.assertNotNull(
                     "TriggerServiceBean.execute(TriggerProcess) implement case "
-                            + type + ":", e.getCausedByException().getCause());
+                            + type + ":",
+                    e.getCausedByException().getCause());
             Assert.assertEquals(type.toString(),
-                    UnsupportedOperationException.class, e
-                            .getCausedByException().getCause().getClass());
+                    UnsupportedOperationException.class,
+                    e.getCausedByException().getCause().getClass());
         }
         return key;
     }
@@ -598,8 +601,8 @@ public class TriggerServiceBeanIT extends EJBTestBase {
         triggerService.deleteActions(keys);
 
         // the two trigger processes from the setup
-        Assert.assertEquals(3, triggerService.getAllActionsForOrganization()
-                .size());
+        Assert.assertEquals(3,
+                triggerService.getAllActionsForOrganization().size());
     }
 
     @Test(expected = SaaSSystemException.class)
@@ -642,8 +645,8 @@ public class TriggerServiceBeanIT extends EJBTestBase {
                 Collections.singletonList(Long.valueOf(triggerProcessKey)),
                 null);
         validateTriggerProcessStatus(TriggerProcessStatus.CANCELLED);
-        triggerService.deleteActions(Collections.singletonList(Long
-                .valueOf(triggerProcessKey)));
+        triggerService.deleteActions(
+                Collections.singletonList(Long.valueOf(triggerProcessKey)));
 
         runTX(new Callable<Void>() {
             @Override
@@ -663,11 +666,11 @@ public class TriggerServiceBeanIT extends EJBTestBase {
 
         String orgId = list.get(1).getUser().getOrganizationId();
         Assert.assertEquals("user_" + orgId, list.get(1).getUser().getUserId());
-        Assert.assertEquals(TriggerType.ADD_REVOKE_USER, list.get(1)
-                .getTriggerDefinition().getType());
+        Assert.assertEquals(TriggerType.ADD_REVOKE_USER,
+                list.get(1).getTriggerDefinition().getType());
         Assert.assertEquals("", list.get(1).getReason());
-        Assert.assertEquals(TriggerProcessStatus.WAITING_FOR_APPROVAL, list
-                .get(1).getStatus());
+        Assert.assertEquals(TriggerProcessStatus.WAITING_FOR_APPROVAL,
+                list.get(1).getStatus());
     }
 
     @Test
@@ -680,7 +683,8 @@ public class TriggerServiceBeanIT extends EJBTestBase {
 
         String orgId = list.get(1).getUser().getOrganizationId();
         Assert.assertEquals("user_" + orgId, list.get(0).getUser().getUserId());
-        Assert.assertEquals("admin_" + orgId, list.get(2).getUser().getUserId());
+        Assert.assertEquals("admin_" + orgId,
+                list.get(2).getUser().getUserId());
     }
 
     @Test
@@ -691,9 +695,10 @@ public class TriggerServiceBeanIT extends EJBTestBase {
                 .getAllActionsForOrganization();
         Assert.assertEquals(3, list.size());
     }
-    
+
     @Test
-    public void testGetAllActionsForOrganizationRelatedSubscription() throws Exception {
+    public void testGetAllActionsForOrganizationRelatedSubscription()
+            throws Exception {
         container.login(adminKey, ROLE_ORGANIZATION_ADMIN);
 
         List<VOTriggerProcess> list = triggerService
@@ -719,7 +724,7 @@ public class TriggerServiceBeanIT extends EJBTestBase {
         // when
         triggerService.updateActionParameters(
                 triggerProcessKeySubScribeToService,
-                Lists.<VOTriggerProcessParameter>newArrayList());
+                Lists.<VOTriggerProcessParameter> newArrayList());
     }
 
     @Test
@@ -729,7 +734,8 @@ public class TriggerServiceBeanIT extends EJBTestBase {
 
         VOTriggerProcessParameter triggerProcessParameter = new VOTriggerProcessParameter();
 
-        VOTriggerProcess voTriggerProcess = getTriggerProcess(triggerProcessKeySubScribeToService);
+        VOTriggerProcess voTriggerProcess = getTriggerProcess(
+                triggerProcessKeySubScribeToService);
 
         final String PARAM_VALUE = "123";
         List<VOParameter> parameterList = TriggerServiceBeanTestHelper
@@ -738,8 +744,8 @@ public class TriggerServiceBeanIT extends EJBTestBase {
         voTriggerProcess.getService().setParameters(parameterList);
 
         triggerProcessParameter.setValue(voTriggerProcess.getService());
-        triggerProcessParameter.setTriggerProcessKey(Long
-                .valueOf(triggerProcessKeySubScribeToService));
+        triggerProcessParameter.setTriggerProcessKey(
+                Long.valueOf(triggerProcessKeySubScribeToService));
         triggerProcessParameter.setType(TriggerProcessParameterType.PRODUCT);
 
         List<VOTriggerProcessParameter> parameters = Lists
@@ -766,8 +772,8 @@ public class TriggerServiceBeanIT extends EJBTestBase {
 
         // then
         Assert.assertEquals(3, updatedPI.size());
-        Assert.assertEquals(parameterList.get(0).getValue(), updatedPI.get(0)
-                .getValue());
+        Assert.assertEquals(parameterList.get(0).getValue(),
+                updatedPI.get(0).getValue());
     }
 
     @Test(expected = ValidationException.class)
@@ -775,7 +781,8 @@ public class TriggerServiceBeanIT extends EJBTestBase {
         // given
         container.login(userKey, ROLE_ORGANIZATION_ADMIN);
 
-        VOTriggerProcess voTriggerProcess = getTriggerProcess(triggerProcessKeySubScribeToService);
+        VOTriggerProcess voTriggerProcess = getTriggerProcess(
+                triggerProcessKeySubScribeToService);
 
         VOTriggerProcessParameter triggerProcessParameter = new VOTriggerProcessParameter();
 
@@ -787,13 +794,11 @@ public class TriggerServiceBeanIT extends EJBTestBase {
         voTriggerProcess.getService().setParameters(parameterList);
 
         triggerProcessParameter.setValue(voTriggerProcess.getService());
-        triggerProcessParameter.setTriggerProcessKey(Long
-                .valueOf(voTriggerProcess.getKey()));
         triggerProcessParameter
-                .setType(TriggerProcessParameterType
-                        .valueOf(
-                                org.oscm.types.enumtypes.TriggerProcessParameterName.PRODUCT
-                                        .name()));
+                .setTriggerProcessKey(Long.valueOf(voTriggerProcess.getKey()));
+        triggerProcessParameter.setType(TriggerProcessParameterType.valueOf(
+                org.oscm.types.enumtypes.TriggerProcessParameterName.PRODUCT
+                        .name()));
 
         List<VOTriggerProcessParameter> parameters = Lists
                 .newArrayList(triggerProcessParameter);
@@ -805,6 +810,7 @@ public class TriggerServiceBeanIT extends EJBTestBase {
 
     /**
      * Test will check bugfix for 11739 and also 11731
+     * 
      * @throws Exception
      */
     @Test
@@ -812,7 +818,8 @@ public class TriggerServiceBeanIT extends EJBTestBase {
         // given
         container.login(userKey, ROLE_ORGANIZATION_ADMIN);
 
-        VOTriggerProcess updatedProcess = getTriggerProcess(triggerProcessKeySubScribeToService);
+        VOTriggerProcess updatedProcess = getTriggerProcess(
+                triggerProcessKeySubScribeToService);
         VOTriggerProcessParameter triggerProcessParameter = new VOTriggerProcessParameter();
 
         final String PARAM_VALUE = "123";
@@ -822,13 +829,11 @@ public class TriggerServiceBeanIT extends EJBTestBase {
         updatedProcess.getService().setParameters(parameterList);
 
         triggerProcessParameter.setValue(updatedProcess.getService());
-        triggerProcessParameter.setTriggerProcessKey(Long
-                .valueOf(updatedProcess.getKey()));
         triggerProcessParameter
-                .setType(TriggerProcessParameterType
-                        .valueOf(
-                                org.oscm.types.enumtypes.TriggerProcessParameterName.PRODUCT
-                                        .name()));
+                .setTriggerProcessKey(Long.valueOf(updatedProcess.getKey()));
+        triggerProcessParameter.setType(TriggerProcessParameterType.valueOf(
+                org.oscm.types.enumtypes.TriggerProcessParameterName.PRODUCT
+                        .name()));
 
         List<VOTriggerProcessParameter> parameters = Lists
                 .newArrayList(triggerProcessParameter);
@@ -838,28 +843,28 @@ public class TriggerServiceBeanIT extends EJBTestBase {
                 parameters);
     }
 
-
     @Test
     public void testUpdateActionDurationParamBugfix11779() throws Exception {
         // given
         container.login(userKey, ROLE_ORGANIZATION_ADMIN);
 
-        VOTriggerProcess updatedProcess = getTriggerProcess(triggerProcessKeySubScribeToService);
+        VOTriggerProcess updatedProcess = getTriggerProcess(
+                triggerProcessKeySubScribeToService);
         VOTriggerProcessParameter triggerProcessParameter = new VOTriggerProcessParameter();
 
         final String PARAM_VALUE = "518400000";
         List<VOParameter> parameterList = TriggerServiceBeanTestHelper
-                .getVOParameters(ParameterValueType.DURATION, PARAM_VALUE, true);
+                .getVOParameters(ParameterValueType.DURATION, PARAM_VALUE,
+                        true);
         parameterList.get(0).getParameterDefinition().setKey(durationParamKey);
         updatedProcess.getService().setParameters(parameterList);
 
         triggerProcessParameter.setValue(updatedProcess.getService());
-        triggerProcessParameter.setTriggerProcessKey(Long
-                .valueOf(updatedProcess.getKey()));
         triggerProcessParameter
-                .setType(TriggerProcessParameterType
-                        .valueOf(org.oscm.types.enumtypes.TriggerProcessParameterName.PRODUCT
-                                .name()));
+                .setTriggerProcessKey(Long.valueOf(updatedProcess.getKey()));
+        triggerProcessParameter.setType(TriggerProcessParameterType.valueOf(
+                org.oscm.types.enumtypes.TriggerProcessParameterName.PRODUCT
+                        .name()));
 
         List<VOTriggerProcessParameter> parameters = Lists
                 .newArrayList(triggerProcessParameter);
@@ -875,23 +880,23 @@ public class TriggerServiceBeanIT extends EJBTestBase {
         // given
         container.login(userKey, ROLE_ORGANIZATION_ADMIN);
 
-        VOTriggerProcess updatedProcess = getTriggerProcess(triggerProcessKeySubScribeToService);
+        VOTriggerProcess updatedProcess = getTriggerProcess(
+                triggerProcessKeySubScribeToService);
         VOTriggerProcessParameter triggerProcessParameter = new VOTriggerProcessParameter();
 
         final String PARAM_VALUE = "518400000.0";
         List<VOParameter> parameterList = TriggerServiceBeanTestHelper
-                .getVOParameters(ParameterValueType.DURATION, PARAM_VALUE, true);
+                .getVOParameters(ParameterValueType.DURATION, PARAM_VALUE,
+                        true);
         parameterList.get(0).getParameterDefinition().setKey(durationParamKey);
         updatedProcess.getService().setParameters(parameterList);
 
         triggerProcessParameter.setValue(updatedProcess.getService());
-        triggerProcessParameter.setTriggerProcessKey(Long
-                .valueOf(updatedProcess.getKey()));
         triggerProcessParameter
-                .setType(TriggerProcessParameterType
-                        .valueOf(
-                                org.oscm.types.enumtypes.TriggerProcessParameterName.PRODUCT
-                                        .name()));
+                .setTriggerProcessKey(Long.valueOf(updatedProcess.getKey()));
+        triggerProcessParameter.setType(TriggerProcessParameterType.valueOf(
+                org.oscm.types.enumtypes.TriggerProcessParameterName.PRODUCT
+                        .name()));
 
         List<VOTriggerProcessParameter> parameters = Lists
                 .newArrayList(triggerProcessParameter);
@@ -902,10 +907,10 @@ public class TriggerServiceBeanIT extends EJBTestBase {
     }
 
     /**
-     * Default long range is set to 0-100 so this should
-     * result in exception even so parameter definition for updated
-     * param is set to range 200-600. Current definition should be
-     * retrieved from DB anyway.
+     * Default long range is set to 0-100 so this should result in exception
+     * even so parameter definition for updated param is set to range 200-600.
+     * Current definition should be retrieved from DB anyway.
+     * 
      * @throws Exception
      */
     @Test(expected = ValidationException.class)
@@ -913,25 +918,23 @@ public class TriggerServiceBeanIT extends EJBTestBase {
         // given
         container.login(userKey, ROLE_ORGANIZATION_ADMIN);
 
-        VOTriggerProcess updatedProcess = getTriggerProcess(triggerProcessKeySubScribeToService);
+        VOTriggerProcess updatedProcess = getTriggerProcess(
+                triggerProcessKeySubScribeToService);
         VOTriggerProcessParameter triggerProcessParameter = new VOTriggerProcessParameter();
 
         final String PARAM_VALUE = "515";
         List<VOParameter> parameterList = TriggerServiceBeanTestHelper
                 .getVOParameters(ParameterValueType.LONG, PARAM_VALUE,
-                        Long.valueOf(200L),
-                        Long.valueOf(600L));
+                        Long.valueOf(200L), Long.valueOf(600L));
         parameterList.get(0).getParameterDefinition().setKey(longParamKey);
         updatedProcess.getService().setParameters(parameterList);
 
         triggerProcessParameter.setValue(updatedProcess.getService());
-        triggerProcessParameter.setTriggerProcessKey(Long
-                .valueOf(updatedProcess.getKey()));
         triggerProcessParameter
-                .setType(TriggerProcessParameterType
-                        .valueOf(
-                                org.oscm.types.enumtypes.TriggerProcessParameterName.PRODUCT
-                                        .name()));
+                .setTriggerProcessKey(Long.valueOf(updatedProcess.getKey()));
+        triggerProcessParameter.setType(TriggerProcessParameterType.valueOf(
+                org.oscm.types.enumtypes.TriggerProcessParameterName.PRODUCT
+                        .name()));
 
         List<VOTriggerProcessParameter> parameters = Lists
                 .newArrayList(triggerProcessParameter);
@@ -946,25 +949,23 @@ public class TriggerServiceBeanIT extends EJBTestBase {
         // given
         container.login(userKey, ROLE_ORGANIZATION_ADMIN);
 
-        VOTriggerProcess updatedProcess = getTriggerProcess(triggerProcessKeySubScribeToService);
+        VOTriggerProcess updatedProcess = getTriggerProcess(
+                triggerProcessKeySubScribeToService);
         VOTriggerProcessParameter triggerProcessParameter = new VOTriggerProcessParameter();
 
         final String PARAM_VALUE = "50";
         List<VOParameter> parameterList = TriggerServiceBeanTestHelper
                 .getVOParameters(ParameterValueType.LONG, PARAM_VALUE,
-                        Long.valueOf(200L),
-                        Long.valueOf(600L));
+                        Long.valueOf(200L), Long.valueOf(600L));
         parameterList.get(0).getParameterDefinition().setKey(longParamKey);
         updatedProcess.getService().setParameters(parameterList);
 
         triggerProcessParameter.setValue(updatedProcess.getService());
-        triggerProcessParameter.setTriggerProcessKey(Long
-                .valueOf(updatedProcess.getKey()));
         triggerProcessParameter
-                .setType(TriggerProcessParameterType
-                        .valueOf(
-                                org.oscm.types.enumtypes.TriggerProcessParameterName.PRODUCT
-                                        .name()));
+                .setTriggerProcessKey(Long.valueOf(updatedProcess.getKey()));
+        triggerProcessParameter.setType(TriggerProcessParameterType.valueOf(
+                org.oscm.types.enumtypes.TriggerProcessParameterName.PRODUCT
+                        .name()));
 
         List<VOTriggerProcessParameter> parameters = Lists
                 .newArrayList(triggerProcessParameter);
@@ -1051,8 +1052,8 @@ public class TriggerServiceBeanIT extends EJBTestBase {
                 TriggerProcess tp = mgr.getReference(TriggerProcess.class,
                         triggerProcessKey);
                 VOTriggerProcess voTp = TriggerProcessAssembler
-                        .toVOTriggerProcess(tp, new LocalizerFacade(localizer,
-                                "en"));
+                        .toVOTriggerProcess(tp,
+                                new LocalizerFacade(localizer, "en"));
                 Assert.assertEquals("enReason", voTp.getReason());
                 voTp = TriggerProcessAssembler.toVOTriggerProcess(tp,
                         new LocalizerFacade(localizer, "de"));
@@ -1089,14 +1090,14 @@ public class TriggerServiceBeanIT extends EJBTestBase {
         }).longValue();
     }
 
-    private VOTriggerProcess getTriggerProcess(final long key) throws Exception {
+    private VOTriggerProcess getTriggerProcess(final long key)
+            throws Exception {
         return runTX(new Callable<VOTriggerProcess>() {
             @Override
             public VOTriggerProcess call() throws ObjectNotFoundException {
                 TriggerProcess tp = mgr.getReference(TriggerProcess.class, key);
-                return TriggerProcessAssembler
-                        .toVOTriggerProcess(tp, new LocalizerFacade(localizer,
-                                "en"));
+                return TriggerProcessAssembler.toVOTriggerProcess(tp,
+                        new LocalizerFacade(localizer, "en"));
             }
         });
     }
@@ -1111,8 +1112,8 @@ public class TriggerServiceBeanIT extends EJBTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                TriggerProcess triggerProcess = mgr.getReference(
-                        TriggerProcess.class, key);
+                TriggerProcess triggerProcess = mgr
+                        .getReference(TriggerProcess.class, key);
                 Assert.assertEquals(status, triggerProcess.getStatus());
                 return null;
             }

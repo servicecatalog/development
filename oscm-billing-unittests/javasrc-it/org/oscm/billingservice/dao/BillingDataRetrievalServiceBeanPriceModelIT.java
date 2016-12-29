@@ -15,14 +15,14 @@ import java.util.Date;
 import java.util.concurrent.Callable;
 
 import org.junit.Test;
-
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.enums.ModificationType;
+import org.oscm.internal.types.enumtypes.PriceModelType;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.PriceModels;
 import org.oscm.test.ejb.TestContainer;
-import org.oscm.internal.types.enumtypes.PriceModelType;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 
 /**
  * @author kulle
@@ -42,6 +42,7 @@ public class BillingDataRetrievalServiceBeanPriceModelIT extends EJBTestBase {
 
     @Override
     protected void setup(TestContainer container) throws Exception {
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         container.addBean(new BillingDataRetrievalServiceBean());
         ds = container.get(DataService.class);
@@ -131,20 +132,24 @@ public class BillingDataRetrievalServiceBeanPriceModelIT extends EJBTestBase {
         });
 
         // then
-        assertEquals("Wrong start date", new SimpleDateFormat(
-                PriceModels.DATE_PATTERN).parse("2013-03-01 00:00:00,000"),
+        assertEquals("Wrong start date",
+                new SimpleDateFormat(PriceModels.DATE_PATTERN).parse(
+                        "2013-03-01 00:00:00,000"),
                 priceModel1StartDate);
 
-        assertEquals("Wrong start date", new SimpleDateFormat(
-                PriceModels.DATE_PATTERN).parse("2013-03-11 18:00:00,000"),
+        assertEquals("Wrong start date",
+                new SimpleDateFormat(PriceModels.DATE_PATTERN).parse(
+                        "2013-03-11 18:00:00,000"),
                 priceModel3StartDate);
 
-        assertEquals("Wrong start date", new SimpleDateFormat(
-                PriceModels.DATE_PATTERN).parse("2013-03-31 10:00:00,000"),
+        assertEquals("Wrong start date",
+                new SimpleDateFormat(PriceModels.DATE_PATTERN).parse(
+                        "2013-03-31 10:00:00,000"),
                 priceModel5StartDate);
 
-        assertEquals("Wrong start date", new SimpleDateFormat(
-                PriceModels.DATE_PATTERN).parse("2013-03-11 18:02:00,000"),
+        assertEquals("Wrong start date",
+                new SimpleDateFormat(PriceModels.DATE_PATTERN).parse(
+                        "2013-03-11 18:02:00,000"),
                 priceModel6StartDate);
     }
 

@@ -4,8 +4,13 @@
 
 package org.oscm.configurationservice.bean;
 
+import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,22 +25,20 @@ import javax.ejb.LockType;
 import javax.ejb.Remote;
 import javax.ejb.Schedule;
 import javax.ejb.Singleton;
+import javax.ejb.Startup;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.interceptor.Interceptors;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
 import org.oscm.configurationservice.assembler.ConfigurationSettingAssembler;
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.converter.DateConverter;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.ConfigurationSetting;
+import org.oscm.encrypter.AESEncrypter;
 import org.oscm.interceptor.ExceptionMapper;
-import org.oscm.types.constants.Configuration;
-import org.oscm.types.enumtypes.LogMessageIdentifier;
 import org.oscm.internal.intf.ConfigurationService;
 import org.oscm.internal.types.enumtypes.AuthenticationMode;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
@@ -43,11 +46,16 @@ import org.oscm.internal.types.exception.IllegalArgumentException;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.SaaSSystemException;
 import org.oscm.internal.vo.VOConfigurationSetting;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
+import org.oscm.types.constants.Configuration;
+import org.oscm.types.enumtypes.LogMessageIdentifier;
 
 /**
  * Session Bean implementation class ConfigurationServiceBean
  */
 @Singleton
+@Startup
 @Local(ConfigurationServiceLocal.class)
 @Remote(ConfigurationService.class)
 @Interceptors({ ExceptionMapper.class })
@@ -70,12 +78,44 @@ public class ConfigurationServiceBean
     @PostConstruct
     public void init() {
         refreshCache();
+
+        String path = getConfigurationSetting(ConfigurationKey.KEY_FILE_PATH,
+                Configuration.GLOBAL_CONTEXT).getValue();
+
+        File keyFile = new File(path);
+
+        if (keyFile.exists()) {
+
+            try {
+                byte[] key = Files.readAllBytes(keyFile.toPath());
+
+                AESEncrypter.setKey(
+                        Arrays.copyOfRange(key, 0, AESEncrypter.KEY_BYTES));
+            } catch (IOException | ArrayIndexOutOfBoundsException e) {
+                throw new SaaSSystemException(
+                        "Keyfile at " + path + " is not readable");
+            }
+        } else {
+
+            try {
+                AESEncrypter.generateKey();
+                byte[] key = AESEncrypter.getKey();
+                Files.write(keyFile.toPath(), key,
+                        StandardOpenOption.CREATE_NEW,
+                        StandardOpenOption.WRITE);
+            } catch (IOException e) {
+                throw new SaaSSystemException(
+                        "Keyfile at " + path + " could not be generated");
+            }
+
+        }
+
     }
 
     @Schedule(minute = "*/10")
     @Lock(LockType.WRITE)
     public void refreshCache() {
-        cache = new HashMap<String, ConfigurationSetting>();
+        cache = new HashMap<>();
         for (ConfigurationSetting configurationSetting : getAllConfigurationSettings()) {
             addToCache(configurationSetting);
         }
@@ -189,13 +229,31 @@ public class ConfigurationServiceBean
         ConfigurationSetting setting = getConfigurationSettingExactMatch(
                 configSetting.getInformationId(), configSetting.getContextId());
         if (!isEmpty(configSetting.getValue())) {
+            // check the type and trim the string if necessary
+            String value = configSetting.getValue();
+
+            if (configSetting.getInformationId()
+                    .getType() == ConfigurationKey.TYPE_BOOLEAN
+                    || configSetting.getInformationId()
+                            .getType() == ConfigurationKey.TYPE_LONG
+                    || configSetting.getInformationId()
+                            .getType() == ConfigurationKey.TYPE_URL
+                    || configSetting.getInformationId()
+                            .getType() == ConfigurationKey.TYPE_STRING
+                    || configSetting.getInformationId()
+                            .getType() == ConfigurationKey.TYPE_PASSWORD) {
+
+                value = value.trim();
+            }
+
             // if the value is not empty, update or create the setting
             if (setting != null) {
                 // if entry is already present, update it
-                setting.setValue(configSetting.getValue());
+                setting.setValue(value);
             } else {
                 // if not, create a new one
                 try {
+                    configSetting.setValue(value);
                     dm.persist(configSetting);
                 } catch (NonUniqueBusinessKeyException e) {
                     logger.logError(Log4jLogger.SYSTEM_LOG, e,

@@ -14,8 +14,6 @@ import java.util.List;
 import javax.ejb.SessionContext;
 import javax.persistence.Query;
 
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
 import org.oscm.accountservice.assembler.UdaAssembler;
 import org.oscm.accountservice.dataaccess.validator.MandatoryUdaValidator;
 import org.oscm.accountservice.dataaccess.validator.UdaAccessValidator;
@@ -25,13 +23,10 @@ import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.Uda;
 import org.oscm.domobjects.UdaDefinition;
-import org.oscm.permission.PermissionCheck;
-import org.oscm.types.enumtypes.LogMessageIdentifier;
-import org.oscm.types.enumtypes.UdaTargetType;
-import org.oscm.vo.BaseAssembler;
 import org.oscm.internal.types.enumtypes.UdaConfigurationType;
 import org.oscm.internal.types.exception.ConcurrentModificationException;
 import org.oscm.internal.types.exception.DomainObjectException.ClassEnum;
+import org.oscm.internal.types.exception.MandatoryCustomerUdaMissingException;
 import org.oscm.internal.types.exception.MandatoryUdaMissingException;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
@@ -39,6 +34,12 @@ import org.oscm.internal.types.exception.OperationNotPermittedException;
 import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.internal.vo.VOUda;
 import org.oscm.internal.vo.VOUdaDefinition;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
+import org.oscm.permission.PermissionCheck;
+import org.oscm.types.enumtypes.LogMessageIdentifier;
+import org.oscm.types.enumtypes.UdaTargetType;
+import org.oscm.vo.BaseAssembler;
 
 /**
  * @author weiser
@@ -65,8 +66,8 @@ public class UdaAccess {
     /**
      * Saves the passed list of {@link VOUda}s - the ones with
      * <code>{@link VOUda#getUdaValue()} == null</code> will be deleted; the
-     * ones with
-     * <code>{@link VOUda#getKey()} &lt;= 0<code> will be created. Other ones will be read and updated if possible.
+     * ones with <code>{@link VOUda#getKey()} &lt;= 0<code> will be created.
+     * Other ones will be read and updated if possible.
      * 
      * @param udas
      *            the {@link VOUda}s to save
@@ -74,7 +75,7 @@ public class UdaAccess {
      *            the calling {@link Organization}
      * @throws ValidationException
      *             in case of an invalid {@link VOUda}
-     * @throws MandatoryUdaMissingException
+     * @throws MandatorytionUdaMissingException
      *             if a mandatory UDA is tried to be deleted
      * @throws OperationNotPermittedException
      *             if the access to the {@link UdaDefinition} or the target
@@ -96,28 +97,15 @@ public class UdaAccess {
             NonUniqueBusinessKeyException, ConcurrentModificationException {
 
         for (VOUda voUda : udas) {
-            Uda uda = null;
-            try {
-                uda = UdaAssembler.toUda(voUda);
-            } catch (ValidationException e) {
-                logger.logWarn(
-                        Log4jLogger.SYSTEM_LOG,
-                        e,
-                        LogMessageIdentifier.WARN_INVALID_UDA,
-                        ((voUda == null || voUda.getUdaDefinition() == null) ? null
-                                : voUda.getUdaDefinition().getUdaId()));
-                ctx.setRollbackOnly();
-                throw e;
-            }
             if (voUda.getUdaValue() == null) {
                 deleteUda(voUda, caller);
                 continue;
             }
-            updateOrCreate(caller, voUda, uda);
+            updateOrCreate(caller, voUda);
         }
     }
 
-    private void updateOrCreate(Organization caller, VOUda voUda, Uda uda)
+    private void updateOrCreate(Organization caller, VOUda voUda)
             throws ConcurrentModificationException,
             OperationNotPermittedException, ValidationException,
             NonUniqueBusinessKeyException, ObjectNotFoundException {
@@ -131,6 +119,7 @@ public class UdaAccess {
             if (voUda.getKey() > 0) {
                 updateUda(voUda, def, caller);
             } else {
+                Uda uda = UdaAssembler.toUdaWithDefinition(voUda, def);
                 createUda(def, uda);
             }
         } catch (ObjectNotFoundException onfe) {
@@ -143,6 +132,13 @@ public class UdaAccess {
                 throw cme;
             }
             throw onfe;
+        } catch (ValidationException e) {
+            logger.logWarn(Log4jLogger.SYSTEM_LOG, e,
+                    LogMessageIdentifier.WARN_INVALID_UDA,
+                    ((voUda.getUdaDefinition() == null) ? null
+                            : voUda.getUdaDefinition().getUdaId()));
+            ctx.setRollbackOnly();
+            throw e;
         }
     }
 
@@ -248,8 +244,8 @@ public class UdaAccess {
      *             in case the {@link Uda} has been concurrently changed
      */
     void deleteUda(VOUda voUda, Organization caller)
-            throws MandatoryUdaMissingException,
-            OperationNotPermittedException, ConcurrentModificationException {
+            throws MandatoryUdaMissingException, OperationNotPermittedException,
+            ConcurrentModificationException {
         Uda existing = ds.find(Uda.class, voUda.getKey());
         if (existing != null) {
             udaAccessValidator.canDeleteUda(existing, caller);
@@ -287,9 +283,9 @@ public class UdaAccess {
      * @throws ConcurrentModificationException
      *             in case a UDA to update has been changed concurrently
      */
-    public void saveUdasForSubscription(List<VOUda> udas,
-            Organization supplier, Subscription sub)
-            throws MandatoryUdaMissingException, ObjectNotFoundException,
+    public void saveUdasForSubscription(List<VOUda> udas, Organization supplier,
+            Subscription sub) throws MandatoryUdaMissingException,
+            MandatoryCustomerUdaMissingException, ObjectNotFoundException,
             NonUniqueBusinessKeyException, ValidationException,
             OperationNotPermittedException, ConcurrentModificationException {
         validateUdaAndAdaptTargetKey(udas, supplier, sub);
@@ -309,14 +305,18 @@ public class UdaAccess {
      *            the supplier of the {@link Subscription}s product
      * @param sub
      *            the context {@link Subscription}
-     * @throws MandatoryUdaMissingException
-     *             if a mandatory UDA is neither passed nor existing
+     * @throws MandatoryCustomerUdaMissingException
+     *             if a mandatory customer UDA is neither passed nor existing
+     * @throws MandatorySubscriptionUdaMissingException
+     *             if a mandatory subscription UDA is neither passed nor
+     *             existing
      * @throws ValidationException
      *             in case of an invalid {@link VOUda}
      */
     public void validateUdaAndAdaptTargetKey(List<VOUda> udas,
             Organization supplier, Subscription sub)
-            throws MandatoryUdaMissingException, ValidationException {
+            throws MandatoryCustomerUdaMissingException,
+            MandatoryUdaMissingException, ValidationException {
         // validate udas and adapt target keys
         for (VOUda voUda : udas) {
             // temporarily set the target key to a valid value (if 0 is passed
@@ -324,8 +324,8 @@ public class UdaAccess {
             voUda.setTargetObjectKey(1);
 
             UdaAssembler.validate(voUda);
-            UdaTargetType type = UdaAssembler.toUdaTargetType(voUda
-                    .getUdaDefinition().getTargetType());
+            UdaTargetType type = UdaAssembler
+                    .toUdaTargetType(voUda.getUdaDefinition().getTargetType());
 
             // now depending on the target type adapt the target keys
             switch (type) {
@@ -340,7 +340,8 @@ public class UdaAccess {
         mandatoryUdaValidator.checkAllRequiredUdasPassed(
                 supplier.getMandatoryUdaDefinitions(),
                 getExistingUdas(sub.getOrganization().getKey(), sub.getKey(),
-                        supplier), udas);
+                        supplier),
+                udas);
     }
 
     /**
@@ -364,9 +365,9 @@ public class UdaAccess {
         q.setParameter("subType", UdaTargetType.CUSTOMER_SUBSCRIPTION);
         q.setParameter("custKey", Long.valueOf(customerKey));
         q.setParameter("custType", UdaTargetType.CUSTOMER);
-        q.setParameter("configTypes", EnumSet.of(
-                UdaConfigurationType.USER_OPTION_MANDATORY,
-                UdaConfigurationType.USER_OPTION_OPTIONAL));
+        q.setParameter("configTypes",
+                EnumSet.of(UdaConfigurationType.USER_OPTION_MANDATORY,
+                        UdaConfigurationType.USER_OPTION_OPTIONAL));
         q.setParameter("supplierKey", Long.valueOf(supplier.getKey()));
         return ParameterizedTypes.list(q.getResultList(), Uda.class);
     }
@@ -383,6 +384,9 @@ public class UdaAccess {
      *            the {@link UdaTargetType}
      * @param seller
      *            the seller {@link Organization}
+     * @param checkSeller
+     *            boolean flag if the organization specified with the
+     *            targetObjectKey is a customer of the seller organization.
      * @return the list of existing {@link Uda}s
      * @throws OperationNotPermittedException
      *             in case the supplier is not a supplier of the referenced
@@ -392,10 +396,12 @@ public class UdaAccess {
      *             {@link Subscription} wasn't found
      */
     public List<Uda> getUdasForTypeAndTarget(long targetObjectKey,
-            UdaTargetType type, Organization seller)
+            UdaTargetType type, Organization seller, boolean checkSeller)
             throws OperationNotPermittedException, ObjectNotFoundException {
-        udaAccessValidator.checkSellerReadPermission(seller, type,
-                targetObjectKey);
+        if (checkSeller) {
+            udaAccessValidator.checkSellerReadPermission(seller, type,
+                    targetObjectKey);
+        }
         return getUdas(targetObjectKey, type, seller);
     }
 

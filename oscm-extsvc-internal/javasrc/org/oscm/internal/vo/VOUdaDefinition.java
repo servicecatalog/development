@@ -9,7 +9,6 @@
 package org.oscm.internal.vo;
 
 import org.oscm.internal.types.enumtypes.UdaConfigurationType;
-import org.oscm.internal.vo.BaseVO;
 
 /**
  * Represents the definition of a custom attribute.
@@ -39,6 +38,26 @@ public class VOUdaDefinition extends BaseVO {
      * The configuration type of the custom attribute.
      */
     private UdaConfigurationType configurationType;
+
+    /**
+     * The indicator if the attribute value is encrypted
+     */
+    private boolean encrypted;
+
+    /**
+     * The language of the attribute name
+     */
+    private String language;
+
+    /**
+     * The name of the custom attribute.
+     */
+    private String name;
+
+    /**
+     * The controller the attribute refers to.
+     */
+    private String controllerId;
 
     /**
      * Retrieves the identifier of the custom attribute.
@@ -120,4 +139,35 @@ public class VOUdaDefinition extends BaseVO {
         return configurationType;
     }
 
+    public boolean isEncrypted() {
+        return encrypted;
+    }
+
+    public void setEncrypted(boolean encrypted) {
+        this.encrypted = encrypted;
+    }
+
+    public String getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getControllerId() {
+        return controllerId;
+    }
+
+    public void setControllerId(String controllerId) {
+        this.controllerId = controllerId;
+    }
 }

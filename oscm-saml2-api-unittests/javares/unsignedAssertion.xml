@@ -28,6 +28,9 @@
   </saml2:AuthnStatement>
 
   <saml2:AttributeStatement>
+    <saml2:Attribute Name="tenantID"  AttributeName="dummy_id1" AttributeNamespace="" NameFormat="">
+      <saml2:AttributeValue>8f96dede</saml2:AttributeValue>
+    </saml2:Attribute>
     <saml2:Attribute AttributeName="dummy_id1" AttributeNamespace="" Name="dummy_id1" NameFormat="">
       <saml2:AttributeValue>test_dummy_attribute1</saml2:AttributeValue>
     </saml2:Attribute>

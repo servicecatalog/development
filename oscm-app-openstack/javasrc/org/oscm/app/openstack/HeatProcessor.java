@@ -18,22 +18,27 @@ import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.URL;
 import java.net.URLStreamHandler;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
 
-import org.oscm.app.openstack.controller.OpenStackStatus;
 import org.oscm.app.openstack.controller.PropertyHandler;
+import org.oscm.app.openstack.controller.StackStatus;
 import org.oscm.app.openstack.data.CreateStackRequest;
 import org.oscm.app.openstack.data.Stack;
 import org.oscm.app.openstack.data.UpdateStackRequest;
 import org.oscm.app.openstack.exceptions.HeatException;
+import org.oscm.app.openstack.exceptions.OpenStackConnectionException;
 import org.oscm.app.openstack.i18n.Messages;
 import org.oscm.app.openstack.proxy.ProxyAuthenticator;
 import org.oscm.app.openstack.proxy.ProxySettings;
-import org.oscm.app.v1_0.exceptions.APPlatformException;
-import org.oscm.app.v1_0.exceptions.AbortException;
-import org.oscm.app.v1_0.exceptions.InstanceNotAliveException;
+import org.oscm.app.v2_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.exceptions.AbortException;
+import org.oscm.app.v2_0.exceptions.InstanceNotAliveException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Make Heat API calls to create, update and delete stacks.
@@ -95,8 +100,13 @@ public class HeatProcessor {
         OpenStackConnection connection = new OpenStackConnection(
                 ph.getKeystoneUrl());
         KeystoneClient client = new KeystoneClient(connection);
-        client.authenticate(ph.getUserName(), ph.getPassword(),
-                ph.getTenantName());
+        try {
+            client.authenticate(ph.getUserName(), ph.getPassword(),
+                    ph.getDomainName(), ph.getTenantId());
+        } catch (OpenStackConnectionException ex) {
+            throw new HeatException("Failed to connect to Heat: "
+                    + ex.getMessage(), ex.getResponseCode());
+        }
         return new HeatClient(connection);
     }
 
@@ -128,8 +138,7 @@ public class HeatProcessor {
                     + "_failed_customer"), Messages.getAll(
                     "error_provider_template_read_exception", type,
                     url == null ? "-" : url,
-                    e.getClass().getName() + " - " + e.getMessage(),
-                    "-"));
+                    e.getClass().getName() + " - " + e.getMessage(), "-"));
         }
     }
 
@@ -150,14 +159,14 @@ public class HeatProcessor {
         return response.toString();
     }
 
-    private static HttpURLConnection connectUsingProxy(String restUri) throws MalformedURLException,
-            IOException, HeatException {
+    private static HttpURLConnection connectUsingProxy(String restUri)
+            throws MalformedURLException, IOException, HeatException {
 
         URL url = new URL(null, restUri, streamHandler);
         HttpURLConnection connection;
         try {
 
-            if (ProxySettings.useProxyByPass(restUri)) {
+            if (ProxySettings.useProxyByPass(url)) {
                 connection = (HttpURLConnection) url
                         .openConnection(Proxy.NO_PROXY);
             } else {
@@ -197,6 +206,15 @@ public class HeatProcessor {
                     connection = (HttpURLConnection) url
                             .openConnection(Proxy.NO_PROXY);
                 }
+                if (url.getProtocol().equals("https")) {
+                    // TODO
+                    // This setting is only needed for K5.
+                    // We have to support multi protocols.
+                    SSLContext sslcontext = SSLContext.getInstance("TLSv1.2");
+                    sslcontext.init(null, null, null);
+                    ((HttpsURLConnection) connection)
+                            .setSSLSocketFactory(sslcontext.getSocketFactory());
+                }
 
             }
 
@@ -204,6 +222,12 @@ public class HeatProcessor {
             throw new HeatException(
                     "Connection to Heat could not be created. Expected http(s) connection for URL: "
                             + restUri);
+        } catch (NoSuchAlgorithmException e) {
+            throw new HeatException(
+                    "NoSuchAlgorithmException occurred in SSLContext HeatProcessor");
+        } catch (KeyManagementException e) {
+            throw new HeatException(
+                    "KeyManagementException occurred in SSLContext HeatProcessor");
         }
         return connection;
     }
@@ -233,7 +257,7 @@ public class HeatProcessor {
                     Messages.getAll("error_activating_failed_instance_not_found"));
         }
 
-        if (OpenStackStatus.SUSPEND_COMPLETE.name().equals(
+        if (StackStatus.SUSPEND_COMPLETE.name().equals(
                 createHeatClient(ph).getStackDetails(ph.getStackName())
                         .getStatus())) {
             createHeatClient(ph)
@@ -250,7 +274,7 @@ public class HeatProcessor {
                     Messages.getAll("error_deactivating_failed_instance_not_found"));
         }
 
-        if (!OpenStackStatus.SUSPEND_COMPLETE.name().equals(
+        if (!StackStatus.SUSPEND_COMPLETE.name().equals(
                 createHeatClient(ph).getStackDetails(ph.getStackName())
                         .getStatus())) {
             createHeatClient(ph).suspendStack(ph.getStackName(),

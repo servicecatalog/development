@@ -36,7 +36,7 @@
 	<classpathentry kind="lib" path="/libraries/apache-axis2-lib/javalib/axis2-transport-local-1.5.1.jar"/>
 	<classpathentry kind="lib" path="/libraries/apache-axis2-lib/javalib/axis2-xmlbeans-1.5.1.jar"/>
 	<classpathentry kind="lib" path="/libraries/apache-axis2-lib/javalib/geronimo-stax-api_1.0_spec-1.0.1.jar"/>
-	<classpathentry kind="lib" path="/libraries/apache-axis2-lib/javalib/httpcore-4.3.jar"/>
+	<classpathentry kind="lib" path="/libraries/apache-axis2-lib/javalib/httpcore-4.4.1.jar"/>
 	<classpathentry kind="lib" path="/libraries/apache-axis2-lib/javalib/neethi-2.0.4.jar"/>
 	<classpathentry kind="lib" path="/libraries/apache-axis2-lib/javalib/woden-api-1.0M8.jar"/>
 	<classpathentry kind="lib" path="/libraries/apache-axis2-lib/javalib/woden-impl-dom-1.0M8.jar"/>

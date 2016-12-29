@@ -5,20 +5,24 @@
   xsi:schemaLocation="oscm.serviceprovisioning/1.9/TechnicalService.xsd ../../oscm-serviceprovisioning/javares/TechnicalServices.xsd"
   xmlns:tns="oscm.serviceprovisioning/1.9/TechnicalService.xsd">
   <tns:TechnicalService accessType="DIRECT" allowingOnBehalfActing="false" baseUrl=""
-    build="20140708" id="OPENSTACK_V2" loginPath=""
+    build="20140708" id="OPENSTACK_V3" loginPath=""
     onlyOneSubscriptionPerUser="false" provisioningType="ASYNCHRONOUS"
     provisioningUrl="https://<host>:<port>/ProvisioningService/AsynchronousProvisioningProxy?wsdl"
     provisioningVersion="1.0">
-    <AccessInfo locale="en" >OpenStack Access Info.</AccessInfo>
-    <LocalizedDescription locale="en">OpenStack IaaS implementation.</LocalizedDescription>
+    <AccessInfo locale="en" >OpenStack Access Info</AccessInfo>
+    <LocalizedDescription locale="en">OpenStack IaaS implementation</LocalizedDescription>
     <LocalizedLicense locale="en" />
     <LocalizedTag locale="en">OpenStack</LocalizedTag>
     <ParameterDefinition configurable="false" default="ess.openstack" id="APP_CONTROLLER_ID" mandatory="true"
       valueType="STRING">
-      <LocalizedDescription locale="en">The ID of the BSS APP based controller implementation.</LocalizedDescription>
+      <LocalizedDescription locale="en">ID of the controller implementation</LocalizedDescription>
     </ParameterDefinition>
     <ParameterDefinition configurable="true" id="STACK_NAME" default="" mandatory="true" valueType="STRING" modificationType="ONE_TIME">
-      <LocalizedDescription locale="en">OpenStack identifier</LocalizedDescription>
+      <LocalizedDescription locale="en">OpenStack instance name</LocalizedDescription>
+    </ParameterDefinition>
+    <ParameterDefinition configurable="true" default="([A-Za-z][A-Za-z0-9_-]*){1,30}" id="STACK_NAME_PATTERN"
+      modificationType="ONE_TIME" mandatory="true" valueType="STRING">
+      <LocalizedDescription locale="en">Validation pattern for the stack name (regex)</LocalizedDescription>
     </ParameterDefinition>
     <ParameterDefinition configurable="true" id="TEMPLATE_NAME" default="template.json" mandatory="true"
       valueType="ENUMERATION" modificationType="ONE_TIME">
@@ -30,13 +34,16 @@
           <LocalizedOption locale="en">template.yaml</LocalizedOption>
         </Option>
       </Options>
-      <LocalizedDescription locale="en">URL of the template schema</LocalizedDescription>
+      <LocalizedDescription locale="en">Template files for resource orchestration</LocalizedDescription>
     </ParameterDefinition>
-    <ParameterDefinition configurable="true" id="ACCESS_INFO_PATTERN" default="Key pair name: {KP_Out}; Ip: {IP_Out}" mandatory="true" valueType="STRING" modificationType="ONE_TIME">
+    <ParameterDefinition configurable="true" id="TENANT_ID" default="<your.tenant.id>" mandatory="true" valueType="STRING" modificationType="ONE_TIME">
+      <LocalizedDescription locale="en">Tenant ID (project ID)</LocalizedDescription>
+    </ParameterDefinition>
+    <ParameterDefinition configurable="true" id="ACCESS_INFO_PATTERN" default="Key pair name: {KP_Out}; IP: {IP_Out}" mandatory="true" valueType="STRING" modificationType="ONE_TIME">
       <LocalizedDescription locale="en">Pattern for access information</LocalizedDescription>
     </ParameterDefinition>
     <ParameterDefinition configurable="true" id="TP_ImageId" default="cedarish" mandatory="true" valueType="STRING" modificationType="ONE_TIME">
-      <LocalizedDescription locale="en">Image Id</LocalizedDescription>
+      <LocalizedDescription locale="en">Image ID</LocalizedDescription>
     </ParameterDefinition>
     <ParameterDefinition configurable="true" id="TP_InstanceType" default="m1.small" mandatory="true" valueType="STRING" modificationType="ONE_TIME">
       <LocalizedDescription locale="en">Instance type</LocalizedDescription>
@@ -53,17 +60,33 @@
       <LocalizedName locale="de">Start</LocalizedName>
       <LocalizedName locale="en">Start</LocalizedName>
       <LocalizedName locale="ja">起動</LocalizedName>
-      <LocalizedDescription locale="de">Startet die Instanz</LocalizedDescription>
-      <LocalizedDescription locale="en">Start the instance</LocalizedDescription>
+      <LocalizedDescription locale="de">Startet alle Server</LocalizedDescription>
+      <LocalizedDescription locale="en">Start all servers</LocalizedDescription>
       <LocalizedDescription locale="ja">システムを起動します</LocalizedDescription>
     </Operation>
     <Operation actionURL="https://<host>:<port>/OperationService/AsynchronousOperationProxy?wsdl" id="STOP_VIRTUAL_SYSTEM">
       <LocalizedName locale="de">Stop</LocalizedName>
       <LocalizedName locale="en">Stop</LocalizedName>
       <LocalizedName locale="ja">停止</LocalizedName>
-      <LocalizedDescription locale="de">Stoppt die Instanz</LocalizedDescription>
-      <LocalizedDescription locale="en">Stop the instance</LocalizedDescription>
+      <LocalizedDescription locale="de">Stoppt alle Server</LocalizedDescription>
+      <LocalizedDescription locale="en">Stop all servers</LocalizedDescription>
       <LocalizedDescription locale="ja">システムを停止します</LocalizedDescription>
+    </Operation>
+    <Operation actionURL="https://estitnb5.intern.est.fujitsu.com:8881/OperationService/AsynchronousOperationProxy?wsdl" id="RESUME_VIRTUAL_SYSTEM">
+      <LocalizedName locale="de">Fortsetzen</LocalizedName>
+      <LocalizedName locale="en">Resume</LocalizedName>
+      <LocalizedName locale="ja">レジューム</LocalizedName>
+      <LocalizedDescription locale="de">Setzt den Betrieb der Instanz fort</LocalizedDescription>
+      <LocalizedDescription locale="en">Resume the instance</LocalizedDescription>
+      <LocalizedDescription locale="ja">システムをレジュームします</LocalizedDescription>
+    </Operation>
+    <Operation actionURL="https://estitnb5.intern.est.fujitsu.com:8881/OperationService/AsynchronousOperationProxy?wsdl" id="SUSPEND_VIRTUAL_SYSTEM">
+      <LocalizedName locale="de">Aussetzen</LocalizedName>
+      <LocalizedName locale="en">Suspend</LocalizedName>
+      <LocalizedName locale="ja">サスペンド</LocalizedName>
+      <LocalizedDescription locale="de">Setzt die Instanz aus</LocalizedDescription>
+      <LocalizedDescription locale="en">Suspend the instance</LocalizedDescription>
+      <LocalizedDescription locale="ja">システムをサスペンドします</LocalizedDescription>
     </Operation>
   </tns:TechnicalService>
 </tns:TechnicalServices>

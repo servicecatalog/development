@@ -16,6 +16,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -27,6 +28,7 @@ import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 import javax.security.auth.login.LoginException;
 
 import org.oscm.accountservice.assembler.OrganizationAssembler;
@@ -52,6 +54,8 @@ import org.oscm.identityservice.local.IdentityServiceLocal;
 import org.oscm.interceptor.DateFactory;
 import org.oscm.interceptor.ExceptionMapper;
 import org.oscm.interceptor.InvocationDateContainer;
+import org.oscm.internal.cache.MarketplaceConfiguration;
+import org.oscm.internal.intf.MarketplaceCacheService;
 import org.oscm.internal.intf.MarketplaceService;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.PerformanceHint;
@@ -126,17 +130,27 @@ public class MarketplaceServiceBean implements MarketplaceService {
     @EJB
     ApplicationServiceLocal appServiceLocal;
 
+    @EJB
+    MarketplaceCacheService marketplaceCache;
+
     @Override
     @RolesAllowed({ "SERVICE_MANAGER", "RESELLER_MANAGER", "BROKER_MANAGER" })
     public List<VOMarketplace> getMarketplacesForOrganization() {
 
-        List<Marketplace> marketplacesList = marketplaceServiceLocal
-                .getMarketplacesForSupplier();
+        PlatformUser currentUser = dm.getCurrentUser();
+        List<Marketplace> marketplacesList;
+        if (currentUser.getOrganization().getTenant() != null) {
+            marketplacesList = marketplaceServiceLocal
+                    .getMarketplacesForSupplierWithTenant();
+        } else {
+            marketplacesList = marketplaceServiceLocal
+                    .getMarketplacesForSupplier();
+        }
 
         // finally convert all domain objects to VO representation and return
         List<VOMarketplace> result = new ArrayList<>();
-        LocalizerFacade facade = new LocalizerFacade(localizer, dm
-                .getCurrentUser().getLocale());
+        LocalizerFacade facade = new LocalizerFacade(localizer,
+                dm.getCurrentUser().getLocale());
 
         for (Marketplace mp : marketplacesList) {
             result.add(MarketplaceAssembler.toVOMarketplace(mp, facade));
@@ -158,8 +172,8 @@ public class MarketplaceServiceBean implements MarketplaceService {
 
     @RolesAllowed("SERVICE_MANAGER")
     public List<VOCatalogEntry> getMarketplacesForService(VOService service,
-            PerformanceHint scope) throws ObjectNotFoundException,
-            OperationNotPermittedException {
+            PerformanceHint scope)
+            throws ObjectNotFoundException, OperationNotPermittedException {
 
         // validate input
         ArgumentValidator.notNull("service", service);
@@ -174,17 +188,17 @@ public class MarketplaceServiceBean implements MarketplaceService {
         // second retrieve relevant marketplaces by query
         Query query = dm.createNamedQuery("CatalogEntry.findByService");
         query.setParameter("service", prod);
-        List<CatalogEntry> tempList = ParameterizedTypes.list(
-                query.getResultList(), CatalogEntry.class);
+        List<CatalogEntry> tempList = ParameterizedTypes
+                .list(query.getResultList(), CatalogEntry.class);
 
         // finally convert all domain objects to VO representation and return
-        List<VOCatalogEntry> result = new ArrayList<VOCatalogEntry>();
-        LocalizerFacade facade = new LocalizerFacade(localizer, dm
-                .getCurrentUser().getLocale());
+        List<VOCatalogEntry> result = new ArrayList<>();
+        LocalizerFacade facade = new LocalizerFacade(localizer,
+                dm.getCurrentUser().getLocale());
 
         for (CatalogEntry ce : tempList) {
-            result.add(CatalogEntryAssembler
-                    .toVOCatalogEntry(ce, facade, scope));
+            result.add(
+                    CatalogEntryAssembler.toVOCatalogEntry(ce, facade, scope));
         }
 
         return result;
@@ -193,9 +207,9 @@ public class MarketplaceServiceBean implements MarketplaceService {
     @Override
     @RolesAllowed({ "SERVICE_MANAGER", "RESELLER_MANAGER", "BROKER_MANAGER" })
     public VOServiceDetails publishService(VOService service,
-            List<VOCatalogEntry> entries) throws ObjectNotFoundException,
-            ValidationException, NonUniqueBusinessKeyException,
-            OperationNotPermittedException {
+            List<VOCatalogEntry> entries)
+            throws ObjectNotFoundException, ValidationException,
+            NonUniqueBusinessKeyException, OperationNotPermittedException {
 
         // validate input
         ArgumentValidator.notNull("service", service);
@@ -208,21 +222,19 @@ public class MarketplaceServiceBean implements MarketplaceService {
             ValidationException e = new ValidationException(
                     ReasonEnum.INVALID_NUMBER_TARGET_CATALOG_ENTRIES, null,
                     new Object[] { Integer.valueOf(entries.size()) });
-            logger.logError(
-                    Log4jLogger.SYSTEM_LOG,
-                    e,
+            logger.logError(Log4jLogger.SYSTEM_LOG, e,
                     LogMessageIdentifier.ERROR_SERVICE_PUBLISHED_ONLY_LOCAL_XOR_GLOBAL_MARKETPLACE);
             throw e;
         }
 
-        CatalogEntry ceNew = CatalogEntryAssembler.toCatalogEntry(entries
-                .get(0));
+        CatalogEntry ceNew = CatalogEntryAssembler
+                .toCatalogEntry(entries.get(0));
 
         Product product = marketplaceServiceLocal.publishService(
                 service.getKey(), ceNew, entries.get(0).getCategories());
 
-        LocalizerFacade facade = new LocalizerFacade(localizer, dm
-                .getCurrentUser().getLocale());
+        LocalizerFacade facade = new LocalizerFacade(localizer,
+                dm.getCurrentUser().getLocale());
         VOServiceDetails modifiedService = provisioningService
                 .getServiceDetails(product, facade);
 
@@ -239,18 +251,18 @@ public class MarketplaceServiceBean implements MarketplaceService {
 
         if (subscription.getMarketplace() != null) {
             LocalizerFacade facade = new LocalizerFacade(localizer,
-                    (dm.getCurrentUserIfPresent() == null) ? "en" : dm
-                            .getCurrentUserIfPresent().getLocale());
-            vo_mpl = MarketplaceAssembler.toVOMarketplace(
-                    subscription.getMarketplace(), facade);
+                    (dm.getCurrentUserIfPresent() == null) ? "en"
+                            : dm.getCurrentUserIfPresent().getLocale());
+            vo_mpl = MarketplaceAssembler
+                    .toVOMarketplace(subscription.getMarketplace(), facade);
         }
 
         return vo_mpl;
     }
 
     private Product loadProductAndVerifyOwner(long serviceKey,
-            Organization supplier) throws ObjectNotFoundException,
-            OperationNotPermittedException {
+            Organization supplier)
+            throws ObjectNotFoundException, OperationNotPermittedException {
         Product prod = dm.getReference(Product.class, serviceKey);
 
         // make sure the calling supplier actually owns the service
@@ -270,6 +282,9 @@ public class MarketplaceServiceBean implements MarketplaceService {
         marketplaceServiceLocal.updateOwningOrganization(mpNew,
                 marketplace.getOwningOrganizationId(), true);
 
+        // Update related tenant
+        marketplaceServiceLocal.updateTenant(mpNew, marketplace.getTenantId());
+
         PublicLandingpage landingpage = PublicLandingpage.newDefault();
         landingpage.setMarketplace(mpNew);
         mpNew.setPublicLandingpage(landingpage);
@@ -286,20 +301,22 @@ public class MarketplaceServiceBean implements MarketplaceService {
         Query marketplaceQuery = dm
                 .createNamedQuery("Marketplace.findByBusinessKey");
         marketplaceQuery.setParameter("marketplaceId", marketplaceId);
-        List<Marketplace> marketplacelist = ParameterizedTypes.list(
-                marketplaceQuery.getResultList(), Marketplace.class);
+        List<Marketplace> marketplacelist = ParameterizedTypes
+                .list(marketplaceQuery.getResultList(), Marketplace.class);
 
-        if (marketplacelist != null && marketplacelist.size() > 0)
+        if (marketplacelist != null && marketplacelist.size() > 0) {
             return true;
-        else
+        } else {
             return false;
+        }
     }
 
     Marketplace persistMarketplace(Marketplace mpNew, String suggestedId) {
         // Use owner organization ID if possible, otherwise generate one
         if (suggestedId == null || suggestedId.equals("")
-                || "PLATFORM_OPERATOR".equals(suggestedId))
+                || "PLATFORM_OPERATOR".equals(suggestedId)) {
             suggestedId = IdGenerator.generateArtificialIdentifier();
+        }
 
         int i = 0;
         while (true) {
@@ -339,8 +356,8 @@ public class MarketplaceServiceBean implements MarketplaceService {
         List<Marketplace> marketplaces = org.getMarketplaces();
         List<VOMarketplace> result = new ArrayList<>();
         LocalizerFacade facade = new LocalizerFacade(localizer,
-                (dm.getCurrentUserIfPresent() == null) ? "en" : dm
-                        .getCurrentUserIfPresent().getLocale());
+                (dm.getCurrentUserIfPresent() == null) ? "en"
+                        : dm.getCurrentUserIfPresent().getLocale());
         for (Marketplace mp : marketplaces) {
             result.add(MarketplaceAssembler.toVOMarketplace(mp, facade));
         }
@@ -355,8 +372,8 @@ public class MarketplaceServiceBean implements MarketplaceService {
         List<Marketplace> tempList = marketplaceServiceLocal
                 .getAllMarketplaces();
         List<VOMarketplace> result = new ArrayList<>();
-        LocalizerFacade facade = new LocalizerFacade(localizer, dm
-                .getCurrentUser().getLocale());
+        LocalizerFacade facade = new LocalizerFacade(localizer,
+                dm.getCurrentUser().getLocale());
         for (Marketplace mp : tempList) {
             result.add(MarketplaceAssembler.toVOMarketplace(mp, facade));
         }
@@ -365,15 +382,14 @@ public class MarketplaceServiceBean implements MarketplaceService {
     }
 
     @Override
-    @RolesAllowed("PLATFORM_OPERATOR")
-    public List<VOMarketplace> getAccessibleMarketplacesForOperator() {
+    public List<VOMarketplace> getAccessibleMarketplaces() {
 
         List<Marketplace> tempList = marketplaceServiceLocal
-                .getAllAccessibleMarketplacesForOrganization(dm
-                        .getCurrentUser().getOrganization().getKey());
+                .getAllAccessibleMarketplacesForOrganization(
+                        dm.getCurrentUser().getOrganization().getKey());
         List<VOMarketplace> result = new ArrayList<>();
-        LocalizerFacade facade = new LocalizerFacade(localizer, dm
-                .getCurrentUser().getLocale());
+        LocalizerFacade facade = new LocalizerFacade(localizer,
+                dm.getCurrentUser().getLocale());
         for (Marketplace mp : tempList) {
             result.add(MarketplaceAssembler.toVOMarketplace(mp, facade));
         }
@@ -389,24 +405,26 @@ public class MarketplaceServiceBean implements MarketplaceService {
 
         ArgumentValidator.notNull("marketplace", marketplace);
 
-        Marketplace mp = marketplaceServiceLocal.getMarketplace(marketplace
-                .getMarketplaceId());
+        Marketplace mp = marketplaceServiceLocal
+                .getMarketplace(marketplace.getMarketplaceId());
         MarketplaceAssembler.updateMarketplace(mp, marketplace);
 
         boolean ownerAssignmentUpdated = marketplaceServiceLocal
                 .updateMarketplace(mp, marketplace.getName(),
                         marketplace.getOwningOrganizationId());
 
-        LocalizerFacade facade = new LocalizerFacade(localizer, dm
-                .getCurrentUser().getLocale());
+        LocalizerFacade facade = new LocalizerFacade(localizer,
+                dm.getCurrentUser().getLocale());
         VOMarketplace result = MarketplaceAssembler.toVOMarketplace(mp, facade);
 
         // Send email to all admins of the organization about new assignment
         if (ownerAssignmentUpdated) {
             marketplaceServiceLocal.sendNotification(
-                    EmailType.MARKETPLACE_OWNER_ASSIGNED, mp, mp
-                            .getOrganization().getKey());
+                    EmailType.MARKETPLACE_OWNER_ASSIGNED, mp,
+                    mp.getOrganization().getKey());
         }
+
+        marketplaceCache.resetConfiguration(marketplace.getMarketplaceId());
 
         return result;
     }
@@ -429,19 +447,19 @@ public class MarketplaceServiceBean implements MarketplaceService {
             marketplace.setOwningOrganizationId(ownID);
         }
 
-        VOMarketplace result = null;
-        Marketplace mpNew = null;
+        VOMarketplace result;
+        Marketplace mpNew;
         // Create new MP domain object (and Landingpage) copy from passed VO
         mpNew = createMarketplaceIntern(marketplace);
-        List<VOLocalizedText> list = Arrays.asList(new VOLocalizedText(dm
-                .getCurrentUser().getLocale(), marketplace.getName()));
+        List<VOLocalizedText> list = Arrays.asList(new VOLocalizedText(
+                dm.getCurrentUser().getLocale(), marketplace.getName()));
         localizer.storeLocalizedResources(mpNew.getKey(),
                 LocalizedObjectTypes.MARKETPLACE_NAME, list);
-        LocalizerFacade facade = new LocalizerFacade(localizer, dm
-                .getCurrentUser().getLocale());
+        LocalizerFacade facade = new LocalizerFacade(localizer,
+                dm.getCurrentUser().getLocale());
         result = MarketplaceAssembler.toVOMarketplace(mpNew, facade);
-        List<PlatformUser> admins = accountService.getOrganizationAdmins(mpNew
-                .getOrganization().getKey());
+        List<PlatformUser> admins = accountService
+                .getOrganizationAdmins(mpNew.getOrganization().getKey());
 
         // Add MARKETPLACE_OWNER role to all administrators
         for (PlatformUser admin : admins) {
@@ -482,6 +500,8 @@ public class MarketplaceServiceBean implements MarketplaceService {
         Organization owningOrganization = mp.getOrganization();
         owningOrganization.getMarketplaces().remove(mp);
 
+        marketplaceCache.resetConfiguration(marketplaceId);
+
         dm.remove(mp);
 
         // if owningOrganization has no marketplaces left revoke marketplace
@@ -492,15 +512,14 @@ public class MarketplaceServiceBean implements MarketplaceService {
         } catch (NonUniqueBusinessKeyException e) {
             // cannot be thrown in this case
         }
-
     }
 
     private void deleteCategory(String marketplaceId) {
         Query queryCategories = dm
                 .createNamedQuery("Category.findByMarketplaceId");
         queryCategories.setParameter("marketplaceId", marketplaceId);
-        List<Category> categories = ParameterizedTypes.list(
-                queryCategories.getResultList(), Category.class);
+        List<Category> categories = ParameterizedTypes
+                .list(queryCategories.getResultList(), Category.class);
         if (categories != null) {
             for (Category category : categories) {
                 dm.remove(category);
@@ -514,13 +533,13 @@ public class MarketplaceServiceBean implements MarketplaceService {
         Query query = dm.createNamedQuery("Marketplace.getByOwner");
         query.setParameter("organizationId",
                 owningOrganization.getOrganizationId());
-        List<Marketplace> result = ParameterizedTypes.list(
-                query.getResultList(), Marketplace.class);
+        List<Marketplace> result = ParameterizedTypes
+                .list(query.getResultList(), Marketplace.class);
         // if result is empty removeOwnerRole
         if (result == null || result.isEmpty()) {
             marketplaceServiceLocal.removeOwnerRole(owningOrganization);
-            marketplaceServiceLocal.removeUserRoles(owningOrganization
-                    .getOrganizationId());
+            marketplaceServiceLocal
+                    .removeUserRoles(owningOrganization.getOrganizationId());
         }
     }
 
@@ -540,8 +559,8 @@ public class MarketplaceServiceBean implements MarketplaceService {
         String mId = mp.getMarketplaceId();
         Query query = dm.createNamedQuery("Product.getTemplatesForMarketplace");
         query.setParameter("marketplaceId", mId);
-        List<Product> productList = ParameterizedTypes.list(
-                query.getResultList(), Product.class);
+        List<Product> productList = ParameterizedTypes
+                .list(query.getResultList(), Product.class);
         if (productList != null) {
             for (Product product : productList) {
                 if (product.getStatus() == ServiceStatus.ACTIVE) {
@@ -573,8 +592,8 @@ public class MarketplaceServiceBean implements MarketplaceService {
                 .createNamedQuery("Product.getProductsForVendorOnMarketplace");
         query.setParameter("marketplaceId", mId);
         query.setParameter("vendorKey", Long.valueOf(supplier.getKey()));
-        List<Product> productList = ParameterizedTypes.list(
-                query.getResultList(), Product.class);
+        List<Product> productList = ParameterizedTypes
+                .list(query.getResultList(), Product.class);
         if (productList != null) {
             for (Product product : productList) {
                 if (product.getStatus() == ServiceStatus.ACTIVE) {
@@ -602,8 +621,8 @@ public class MarketplaceServiceBean implements MarketplaceService {
     private void deactivateCustomerServices(Product template) {
         Query query = dm.createNamedQuery("Product.getCustomerCopies");
         query.setParameter("template", template);
-        List<Product> productList = ParameterizedTypes.list(
-                query.getResultList(), Product.class);
+        List<Product> productList = ParameterizedTypes
+                .list(query.getResultList(), Product.class);
         if (productList != null) {
             for (Product product : productList) {
                 if (product.getStatus() == ServiceStatus.ACTIVE) {
@@ -616,8 +635,10 @@ public class MarketplaceServiceBean implements MarketplaceService {
     /*
      * references to marketplace are removed /nulled in the catalog entries
      */
-    private void setMarketplaceReferencesOfCatalogEntriesToNull(Marketplace mp) {
-        if (mp.getCatalogEntries() != null && mp.getCatalogEntries().size() > 0) {
+    private void setMarketplaceReferencesOfCatalogEntriesToNull(
+            Marketplace mp) {
+        if (mp.getCatalogEntries() != null
+                && mp.getCatalogEntries().size() > 0) {
             for (CatalogEntry catalogEntry : mp.getCatalogEntries()) {
                 catalogEntry.setMarketplace(null);
             }
@@ -631,8 +652,8 @@ public class MarketplaceServiceBean implements MarketplaceService {
     private void setMarketplaceReferencesOfSubscriptionsToNull(Marketplace mp) {
         Query query = dm.createNamedQuery("Subscription.getForMarketplace");
         query.setParameter("marketplace", mp);
-        List<Subscription> subscriptions = ParameterizedTypes.list(
-                query.getResultList(), Subscription.class);
+        List<Subscription> subscriptions = ParameterizedTypes
+                .list(query.getResultList(), Subscription.class);
         if (subscriptions != null && !subscriptions.isEmpty()) {
             for (Subscription subscription : subscriptions) {
                 subscription.setMarketplace(null);
@@ -643,9 +664,9 @@ public class MarketplaceServiceBean implements MarketplaceService {
     @Override
     @RolesAllowed("MARKETPLACE_OWNER")
     public void addOrganizationsToMarketplace(List<String> organizationIds,
-            String marketplaceId) throws ObjectNotFoundException,
-            OperationNotPermittedException, OrganizationAuthorityException,
-            OrganizationAlreadyExistsException,
+            String marketplaceId)
+            throws ObjectNotFoundException, OperationNotPermittedException,
+            OrganizationAuthorityException, OrganizationAlreadyExistsException,
             MarketplaceAccessTypeUneligibleForOperationException {
         ArgumentValidator.notNull("organizationIds", organizationIds);
         String supplierId = "";
@@ -678,9 +699,10 @@ public class MarketplaceServiceBean implements MarketplaceService {
                     dm.persist(mto);
                     dm.flush();
                 } else {
-                    if (!PublishingAccess.PUBLISHING_ACCESS_GRANTED.equals(mto
-                            .getPublishingAccess())) {
-                        mto.setPublishingAccess(PublishingAccess.PUBLISHING_ACCESS_GRANTED);
+                    if (!PublishingAccess.PUBLISHING_ACCESS_GRANTED
+                            .equals(mto.getPublishingAccess())) {
+                        mto.setPublishingAccess(
+                                PublishingAccess.PUBLISHING_ACCESS_GRANTED);
                     } else {
                         throw new NonUniqueBusinessKeyException();
                     }
@@ -698,9 +720,7 @@ public class MarketplaceServiceBean implements MarketplaceService {
                     "Supplier " + supplierId
                             + " has already been added to the marketplace "
                             + marketplaceId);
-            logger.logError(
-                    Log4jLogger.SYSTEM_LOG,
-                    ex,
+            logger.logError(Log4jLogger.SYSTEM_LOG, ex,
                     LogMessageIdentifier.ERROR_SUPPLIER_ALREADY_ADDED_TO_MARKETPLACE,
                     supplierId, marketplaceId);
             throw ex;
@@ -709,8 +729,8 @@ public class MarketplaceServiceBean implements MarketplaceService {
 
     @Override
     @RolesAllowed("MARKETPLACE_OWNER")
-    public void removeOrganizationsFromMarketplace(
-            List<String> organizationIds, String marketplaceId)
+    public void removeOrganizationsFromMarketplace(List<String> organizationIds,
+            String marketplaceId)
             throws ObjectNotFoundException, OperationNotPermittedException,
             MarketplaceAccessTypeUneligibleForOperationException,
             OrganizationAuthorityException {
@@ -739,8 +759,8 @@ public class MarketplaceServiceBean implements MarketplaceService {
                 try {
                     mto = (MarketplaceToOrganization) dm
                             .getReferenceByBusinessKey(mto);
-                    if (PublishingAccess.PUBLISHING_ACCESS_GRANTED.equals(mto
-                            .getPublishingAccess())) {
+                    if (PublishingAccess.PUBLISHING_ACCESS_GRANTED
+                            .equals(mto.getPublishingAccess())) {
                         unlinkServices(mp, supplier, dm);
                         dm.remove(mto);
                         dm.flush();
@@ -762,8 +782,8 @@ public class MarketplaceServiceBean implements MarketplaceService {
     @Override
     @RolesAllowed("MARKETPLACE_OWNER")
     public List<VOOrganization> getOrganizationsForMarketplace(
-            String marketplaceId) throws ObjectNotFoundException,
-            OperationNotPermittedException,
+            String marketplaceId)
+            throws ObjectNotFoundException, OperationNotPermittedException,
             MarketplaceAccessTypeUneligibleForOperationException {
 
         Marketplace mp = getAndValidateMarketplace(marketplaceId);
@@ -781,6 +801,64 @@ public class MarketplaceServiceBean implements MarketplaceService {
                 PublishingAccess.PUBLISHING_ACCESS_GRANTED);
     }
 
+    @Override
+    public List<VOOrganization> getSuppliersForMarketplace(String marketplaceId)
+            throws ObjectNotFoundException, OperationNotPermittedException {
+
+        List<VOOrganization> result = new ArrayList<>();
+        LocalizerFacade facade = new LocalizerFacade(localizer,
+                dm.getCurrentUser().getLocale());
+
+        VOMarketplace mp = getMarketplaceById(marketplaceId);
+        if (mp.isOpen()) {
+
+            TypedQuery<MarketplaceToOrganization> mtoQuery = dm
+                    .createNamedQuery(
+                            "MarketplaceToOrganization.findSuppliersForMpByPublishingAccess",
+                            MarketplaceToOrganization.class);
+            mtoQuery.setParameter("marketplace_tkey",
+                    Long.valueOf(mp.getKey()));
+            mtoQuery.setParameter("publishingAccess",
+                    PublishingAccess.PUBLISHING_ACCESS_DENIED);
+
+            List<MarketplaceToOrganization> mtoList = mtoQuery.getResultList();
+            HashSet<Long> set = new HashSet<>();
+
+            for (MarketplaceToOrganization mto : mtoList) {
+                set.add(new Long(mto.getOrganization_tkey()));
+            }
+
+            TypedQuery<Organization> orgQuery = dm.createNamedQuery(
+                    "Organization.getAllSuppliers", Organization.class);
+            List<Organization> orgList = orgQuery.getResultList();
+
+            for (Organization org : orgList) {
+                if (!set.contains(new Long(org.getKey()))) {
+                    result.add(OrganizationAssembler.toVOOrganization(org,
+                            false, facade));
+                }
+            }
+        } else {
+
+            TypedQuery<MarketplaceToOrganization> query = dm.createNamedQuery(
+                    "MarketplaceToOrganization.findSuppliersForMpByPublishingAccess",
+                    MarketplaceToOrganization.class);
+            query.setParameter("marketplace_tkey", Long.valueOf(mp.getKey()));
+            query.setParameter("publishingAccess",
+                    PublishingAccess.PUBLISHING_ACCESS_GRANTED);
+
+            List<MarketplaceToOrganization> list = query.getResultList();
+
+            for (MarketplaceToOrganization mto : list) {
+                result.add(OrganizationAssembler.toVOOrganization(
+                        mto.getOrganization(), false, facade));
+            }
+
+        }
+
+        return result;
+    }
+
     private Marketplace getAndValidateMarketplace(String marketplaceId)
             throws ObjectNotFoundException, OperationNotPermittedException {
         ArgumentValidator.notNull("marketplaceId", marketplaceId);
@@ -795,8 +873,8 @@ public class MarketplaceServiceBean implements MarketplaceService {
     @Override
     @RolesAllowed("MARKETPLACE_OWNER")
     public List<VOOrganization> getBannedOrganizationsForMarketplace(
-            String marketplaceId) throws ObjectNotFoundException,
-            OperationNotPermittedException,
+            String marketplaceId)
+            throws ObjectNotFoundException, OperationNotPermittedException,
             MarketplaceAccessTypeUneligibleForOperationException {
 
         Marketplace mp = getAndValidateMarketplace(marketplaceId);
@@ -818,9 +896,7 @@ public class MarketplaceServiceBean implements MarketplaceService {
             throws MarketplaceAccessTypeUneligibleForOperationException {
         MarketplaceAccessTypeUneligibleForOperationException e = new MarketplaceAccessTypeUneligibleForOperationException(
                 msg + params[2], params[2]);
-        logger.logWarn(
-                Log4jLogger.SYSTEM_LOG,
-                e,
+        logger.logWarn(Log4jLogger.SYSTEM_LOG, e,
                 LogMessageIdentifier.WARN_OPERATION_NOT_ALLOWED_FOR_MARKETPLACE,
                 params);
         throw e;
@@ -830,15 +906,15 @@ public class MarketplaceServiceBean implements MarketplaceService {
             Marketplace mp, PublishingAccess publishingAccess) {
         ArrayList<VOOrganization> result = new ArrayList<>();
 
-        Query query = dm
-                .createNamedQuery("MarketplaceToOrganization.findSuppliersForMpByPublishingAccess");
+        Query query = dm.createNamedQuery(
+                "MarketplaceToOrganization.findSuppliersForMpByPublishingAccess");
         query.setParameter("marketplace_tkey", Long.valueOf(mp.getKey()));
         query.setParameter("publishingAccess", publishingAccess);
 
         // finally convert all domain objects to VO representation and
         // return
-        LocalizerFacade facade = new LocalizerFacade(localizer, dm
-                .getCurrentUser().getLocale());
+        LocalizerFacade facade = new LocalizerFacade(localizer,
+                dm.getCurrentUser().getLocale());
 
         List resultList = query.getResultList();
         for (Object object : ParameterizedTypes.iterable(resultList,
@@ -886,8 +962,8 @@ public class MarketplaceServiceBean implements MarketplaceService {
         Marketplace mp = new Marketplace(marketplaceId);
         mp = (Marketplace) dm.getReferenceByBusinessKey(mp);
         LocalizerFacade facade = new LocalizerFacade(localizer,
-                (dm.getCurrentUserIfPresent() == null) ? "en" : dm
-                        .getCurrentUserIfPresent().getLocale());
+                (dm.getCurrentUserIfPresent() == null) ? "en"
+                        : dm.getCurrentUserIfPresent().getLocale());
 
         return MarketplaceAssembler.toVOMarketplace(mp, facade);
     }
@@ -930,7 +1006,8 @@ public class MarketplaceServiceBean implements MarketplaceService {
                 checkSellerRole(supplier);
 
                 MarketplaceToOrganization mtoNew = new MarketplaceToOrganization(
-                        mp, supplier, PublishingAccess.PUBLISHING_ACCESS_DENIED);
+                        mp, supplier,
+                        PublishingAccess.PUBLISHING_ACCESS_DENIED);
 
                 MarketplaceToOrganization mto = (MarketplaceToOrganization) dm
                         .find(mtoNew);
@@ -939,9 +1016,10 @@ public class MarketplaceServiceBean implements MarketplaceService {
                     dm.persist(mto);
                     dm.flush();
                 } else {
-                    if (PublishingAccess.PUBLISHING_ACCESS_GRANTED.equals(mto
-                            .getPublishingAccess())) {
-                        mto.setPublishingAccess(PublishingAccess.PUBLISHING_ACCESS_DENIED);
+                    if (PublishingAccess.PUBLISHING_ACCESS_GRANTED
+                            .equals(mto.getPublishingAccess())) {
+                        mto.setPublishingAccess(
+                                PublishingAccess.PUBLISHING_ACCESS_DENIED);
                         unlinkServices(mp, supplier, dm);
                     } else if (PublishingAccess.PUBLISHING_ACCESS_DENIED
                             .equals(mto.getPublishingAccess())) {
@@ -958,13 +1036,10 @@ public class MarketplaceServiceBean implements MarketplaceService {
         } catch (NonUniqueBusinessKeyException e) {
             sessionCtx.setRollbackOnly();
             OrganizationAlreadyBannedException ex = new OrganizationAlreadyBannedException(
-                    "Supplier "
-                            + supplierId
+                    "Supplier " + supplierId
                             + " has already been banned from publishing on the marketplace "
                             + marketplaceId);
-            logger.logError(
-                    Log4jLogger.SYSTEM_LOG,
-                    ex,
+            logger.logError(Log4jLogger.SYSTEM_LOG, ex,
                     LogMessageIdentifier.ERROR_SUPPLIER_ALREADY_BANNED_FROM_MARKETPLACE,
                     supplierId, marketplaceId);
             throw ex;
@@ -1002,8 +1077,8 @@ public class MarketplaceServiceBean implements MarketplaceService {
                 try {
                     mto = (MarketplaceToOrganization) dm
                             .getReferenceByBusinessKey(mto);
-                    if (PublishingAccess.PUBLISHING_ACCESS_DENIED.equals(mto
-                            .getPublishingAccess())) {
+                    if (PublishingAccess.PUBLISHING_ACCESS_DENIED
+                            .equals(mto.getPublishingAccess())) {
                         // we know that no active services of this supplier can
                         // exist in this mp because he was banned till now,
                         // thus simply remove mto relation
@@ -1107,8 +1182,8 @@ public class MarketplaceServiceBean implements MarketplaceService {
                 .getMarketplacesForOrganizationWithRestrictedAccess(orgKey);
 
         List<VOMarketplace> result = new ArrayList<>();
-        LocalizerFacade facade = new LocalizerFacade(localizer, dm
-                .getCurrentUser().getLocale());
+        LocalizerFacade facade = new LocalizerFacade(localizer,
+                dm.getCurrentUser().getLocale());
 
         for (Marketplace mp : marketplaces) {
             result.add(MarketplaceAssembler.toVOMarketplace(mp, facade));
@@ -1130,21 +1205,23 @@ public class MarketplaceServiceBean implements MarketplaceService {
                 .getMarketplaceForId(marketplaceId);
 
         if (!marketplace.isRestricted()) {
-            marketplace = marketplaceServiceLocal.updateMarketplaceAccessType(
-                    marketplaceId, true);
+            marketplace = marketplaceServiceLocal
+                    .updateMarketplaceAccessType(marketplaceId, true);
         }
 
         for (Long orgKey : authorizedOrganizations) {
             Organization organization = new Organization();
-            organization.setKey(orgKey);
+            organization.setKey(orgKey.longValue());
             marketplaceServiceLocal.grantAccessToMarketPlaceToOrganization(
                     marketplace, organization);
         }
 
         for (Long orgKey : unauthorizedOrganizations) {
             marketplaceServiceLocal.removeMarketplaceAccess(
-                    marketplace.getKey(), orgKey);
+                    marketplace.getKey(), orgKey.longValue());
         }
+
+        marketplaceCache.resetConfiguration(marketplaceId);
     }
 
     @Override
@@ -1158,6 +1235,8 @@ public class MarketplaceServiceBean implements MarketplaceService {
                 .toMarketplaceWithKey(voMarketplace);
         marketplaceServiceLocal.grantAccessToMarketPlaceToOrganization(
                 marketplace, organization);
+
+        marketplaceCache.resetConfiguration(voMarketplace.getMarketplaceId());
     }
 
     @Override
@@ -1170,9 +1249,11 @@ public class MarketplaceServiceBean implements MarketplaceService {
         if (!marketplace.isRestricted()) {
             return;
         }
-        marketplace = marketplaceServiceLocal.updateMarketplaceAccessType(
-                marketplaceId, false);
+        marketplace = marketplaceServiceLocal
+                .updateMarketplaceAccessType(marketplaceId, false);
         marketplaceServiceLocal.removeMarketplaceAccesses(marketplace.getKey());
+
+        marketplaceCache.resetConfiguration(marketplaceId);
     }
 
     @Override
@@ -1208,14 +1289,14 @@ public class MarketplaceServiceBean implements MarketplaceService {
             voMarketplace = getMarketplaceById(marketplaceId);
 
             if (!voMarketplace.isRestricted()) {
-                return new ArrayList<VOOrganization>();
+                return new ArrayList<>();
             }
 
             List<Organization> orgList = marketplaceServiceLocal
-                    .getAllOrganizationsWithAccessToMarketplace(voMarketplace
-                            .getKey());
+                    .getAllOrganizationsWithAccessToMarketplace(
+                            voMarketplace.getKey());
 
-            List<VOOrganization> result = new ArrayList<VOOrganization>();
+            List<VOOrganization> result = new ArrayList<>();
 
             for (Organization org : orgList) {
                 result.add(OrganizationAssembler.toVOOrganization(org));
@@ -1224,7 +1305,41 @@ public class MarketplaceServiceBean implements MarketplaceService {
             return result;
 
         } catch (ObjectNotFoundException e) {
-            return new ArrayList<VOOrganization>();
+            return new ArrayList<>();
         }
+    }
+
+    @Override
+    public MarketplaceConfiguration getCachedMarketplaceConfiguration(
+            String marketplaceId) {
+
+        return marketplaceCache.getConfiguration(marketplaceId);
+    }
+
+    @Override
+    public void clearCachedMarketplaceConfiguration(String marketplaceId) {
+        marketplaceCache.resetConfiguration(marketplaceId);
+    }
+
+    @Override
+    @RolesAllowed("PLATFORM_OPERATOR")
+    public List<VOMarketplace> getAllMarketplacesForTenant(Long tenantKey)
+            throws ObjectNotFoundException {
+        List<Marketplace> marketplaces = marketplaceServiceLocal
+                .getAllMarketplacesForTenant(tenantKey);
+        List<VOMarketplace> result = new ArrayList<>();
+        LocalizerFacade facade = new LocalizerFacade(localizer,
+                dm.getCurrentUser().getLocale());
+        for (Marketplace mp : marketplaces) {
+            result.add(MarketplaceAssembler.toVOMarketplace(mp, facade));
+        }
+        return result;
+    }
+
+    @Override
+    public String getTenantIdFromMarketplace(String marketplaceId)
+            throws ObjectNotFoundException {
+        VOMarketplace marketplace = getMarketplaceById(marketplaceId);
+        return marketplace.getTenantId();
     }
 }

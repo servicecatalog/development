@@ -39,5 +39,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-billing-external-interfaces"/>
 	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/gf-client.jar"/>
 	<classpathentry kind="lib" path="/libraries/glassfish4/modules/web-core.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-tenantmgmt"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

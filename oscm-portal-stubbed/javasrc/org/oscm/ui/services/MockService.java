@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.oscm.converter.XMLConverter;
+import org.oscm.internal.cache.MarketplaceConfiguration;
 import org.oscm.internal.intf.AccountService;
 import org.oscm.internal.intf.BrandService;
 import org.oscm.internal.intf.ConfigurationService;
@@ -1274,6 +1275,11 @@ public class MockService implements IdentityService, SubscriptionService,
         return "";
     }
 
+    @Override
+    public String getLocalizedAttributeName(long key, String locale) {
+        return null;
+    }
+
     /*
      * IConfigurationServiceRemote
      */
@@ -1900,9 +1906,10 @@ public class MockService implements IdentityService, SubscriptionService,
     }
 
     @Override
-    public List<VOUda> getUdas(String targetType, long targetObjectKey)
-            throws ValidationException, OrganizationAuthoritiesException,
-            ObjectNotFoundException, OperationNotPermittedException {
+    public List<VOUda> getUdas(String targetType, long targetObjectKey,
+            boolean checkSeller) throws ValidationException,
+            OrganizationAuthoritiesException, ObjectNotFoundException,
+            OperationNotPermittedException {
         return null;
     }
 
@@ -2292,7 +2299,7 @@ public class MockService implements IdentityService, SubscriptionService,
     }
 
     @Override
-    public List<VOMarketplace> getAccessibleMarketplacesForOperator() {
+    public List<VOMarketplace> getAccessibleMarketplaces() {
         return null;
     }
 
@@ -2754,7 +2761,36 @@ public class MockService implements IdentityService, SubscriptionService,
     @Override
     public List<VOOrganization> getAllOrganizationsWithAccessToMarketplace(
             String marketplaceId) {
-        return new ArrayList<VOOrganization>();
+        return new ArrayList<>();
+    }
+
+    @Override
+    public MarketplaceConfiguration getCachedMarketplaceConfiguration(
+            String marketplaceId) {
+        return null;
+    }
+
+    @Override
+    public void clearCachedMarketplaceConfiguration(String marketplaceId) {
+
+    }
+
+    @Override
+    public List<VOMarketplace> getAllMarketplacesForTenant(Long tenantKey)
+            throws ObjectNotFoundException {
+        return null;
+    }
+
+    @Override
+    public String getTenantIdFromMarketplace(String marketplaceId)
+            throws ObjectNotFoundException {
+        return null;
+    }
+
+    @Override
+    public List<VOOrganization> getSuppliersForMarketplace(String marketplaceId)
+            throws ObjectNotFoundException, OperationNotPermittedException {
+        return null;
     }
 
 }

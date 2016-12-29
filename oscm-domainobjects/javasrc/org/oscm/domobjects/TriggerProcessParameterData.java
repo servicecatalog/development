@@ -12,9 +12,6 @@
 
 package org.oscm.domobjects;
 
-import java.beans.XMLDecoder;
-import java.io.ByteArrayInputStream;
-
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Embeddable;
@@ -66,23 +63,7 @@ public class TriggerProcessParameterData extends DomainDataContainer {
      * @return the created object.
      */
     private static Object fromXml(String str) {
-        XMLDecoder decoder = null;
-        try {
-            ByteArrayInputStream in = new ByteArrayInputStream(
-                    str.getBytes("UTF-8"));
-            decoder = new XMLDecoder(in);
-            Object obj = decoder.readObject();
-            return obj;
-        } catch (Exception e) {
-            SaaSSystemException se = new SaaSSystemException(
-                    "Object encoding failed", e);
-            logger.logError(Log4jLogger.SYSTEM_LOG, se,
-                    LogMessageIdentifier.ERROR_OBJECT_ENCODING_FAILED);
-            throw se;
-        } finally {
-            if (decoder != null)
-                decoder.close();
-        }
+        return XMLSerializer.toObject(str);
     }
 
     /**
@@ -93,7 +74,7 @@ public class TriggerProcessParameterData extends DomainDataContainer {
      * @return the string representing the object.
      */
     public static String getVOSerialization(Object source) {
-        return XmlStringCleaner.cleanString(toXml(source));
+        return toXml(source);
     }
 
     private static String toXml(Object source) {
@@ -163,7 +144,7 @@ public class TriggerProcessParameterData extends DomainDataContainer {
         if (value == null) {
             this.serializedValue = null;
         } else {
-            this.serializedValue = XmlStringCleaner.cleanString(toXml(value));
+            this.serializedValue = toXml(value);
             serialized = true;
         }
     }

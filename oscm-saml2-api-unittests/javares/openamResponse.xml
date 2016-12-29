@@ -61,5 +61,10 @@ cGy/F2Zuj8XJJpuQRSE6PtQqBuDEHjjmOQJ0rV/r8mO1ZCtHRhpZ5zYRjhRC9eCbjx9VrFax0JDC
 <saml:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport</saml:AuthnContextClassRef>
 </saml:AuthnContext>
 </saml:AuthnStatement>
+<saml:AttributeStatement>
+<saml:Attribute Name="tenantID">
+<saml:AttributeValue xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">8f96dede</saml:AttributeValue>
+</saml:Attribute>
+</saml:AttributeStatement>
 </saml:Assertion>
 </samlp:Response>

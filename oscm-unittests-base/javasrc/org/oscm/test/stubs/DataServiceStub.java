@@ -68,6 +68,11 @@ public class DataServiceStub implements DataService {
     }
 
     @Override
+    public PlatformUser find(PlatformUser pu) {
+        return null;
+    }
+
+    @Override
     public List<DomainHistoryObject<?>> findHistory(DomainObject<?> obj) {
         throw new UnsupportedOperationException();
     }
@@ -161,5 +166,10 @@ public class DataServiceStub implements DataService {
     @Override
     public EntityManager getEntityManager() {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void persistPlatformUserWithTenant(PlatformUser pu, String tenantId) throws NonUniqueBusinessKeyException {
+
     }
 }

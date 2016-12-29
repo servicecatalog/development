@@ -31,7 +31,6 @@ import javax.ejb.SessionContext;
 
 import org.junit.Before;
 import org.junit.Test;
-
 import org.oscm.accountservice.dataaccess.UdaAccess;
 import org.oscm.applicationservice.local.ApplicationServiceLocal;
 import org.oscm.communicationservice.local.CommunicationServiceLocal;
@@ -49,14 +48,10 @@ import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.TechnicalProduct;
 import org.oscm.domobjects.TriggerProcess;
 import org.oscm.domobjects.Uda;
+import org.oscm.domobjects.UdaDefinition;
 import org.oscm.domobjects.enums.ModifiedEntityType;
+import org.oscm.encrypter.AESEncrypter;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
-import org.oscm.subscriptionservice.auditlog.SubscriptionAuditLogCollector;
-import org.oscm.subscriptionservice.dao.ModifiedEntityDao;
-import org.oscm.subscriptionservice.dao.OrganizationDao;
-import org.oscm.triggerservice.local.TriggerQueueServiceLocal;
-import org.oscm.types.enumtypes.ProvisioningType;
-import org.oscm.types.enumtypes.TriggerProcessParameterName;
 import org.oscm.internal.types.enumtypes.PriceModelType;
 import org.oscm.internal.types.enumtypes.ServiceType;
 import org.oscm.internal.types.enumtypes.SubscriptionStatus;
@@ -73,6 +68,12 @@ import org.oscm.internal.vo.VOService;
 import org.oscm.internal.vo.VOSubscription;
 import org.oscm.internal.vo.VOUda;
 import org.oscm.internal.vo.VOUdaDefinition;
+import org.oscm.subscriptionservice.auditlog.SubscriptionAuditLogCollector;
+import org.oscm.subscriptionservice.dao.ModifiedEntityDao;
+import org.oscm.subscriptionservice.dao.OrganizationDao;
+import org.oscm.triggerservice.local.TriggerQueueServiceLocal;
+import org.oscm.types.enumtypes.ProvisioningType;
+import org.oscm.types.enumtypes.TriggerProcessParameterName;
 
 /**
  * @author Zhou
@@ -113,10 +114,11 @@ public class SubscriptionServiceBeanModifyAndUpgradeTest {
     private static final String NEW_SUBSCRIPTION_ID = "newSubId";
     private static final String ORGANIZATION_ID = "orgId";
     private OrganizationDao orgDao = mock(OrganizationDao.class);
-    private List<PlatformUser> givenUsers = new ArrayList<PlatformUser>();
+    private List<PlatformUser> givenUsers = new ArrayList<>();
 
     @Before
     public void setup() throws Exception {
+        AESEncrypter.generateKey();
         bean = spy(new SubscriptionServiceBean());
         ds = mock(DataService.class);
         as = mock(ApplicationServiceLocal.class);
@@ -152,7 +154,7 @@ public class SubscriptionServiceBeanModifyAndUpgradeTest {
         billingContact = mock(BillingContact.class);
 
         voParameters = givenVOParameters();
-        voUdas = new ArrayList<VOUda>();
+        voUdas = new ArrayList<>();
         voPaymentInfo = new VOPaymentInfo();
         voBillingContact = new VOBillingContact();
         voService = new VOService();
@@ -164,12 +166,12 @@ public class SubscriptionServiceBeanModifyAndUpgradeTest {
                 any(Product.class), any(Product.class),
                 anyListOf(VOParameter.class), anyBoolean());
         doReturn(udaAccess).when(manageBean).getUdaAccess();
-        doReturn(new ArrayList<Uda>()).when(udaAccess).getExistingUdas(
-                anyLong(), anyLong(), any(Organization.class));
+        doReturn(new ArrayList<Uda>()).when(udaAccess)
+                .getExistingUdas(anyLong(), anyLong(), any(Organization.class));
         doReturn(paymentInfo).when(ds).getReference(eq(PaymentInfo.class),
                 anyLong());
-        doReturn(billingContact).when(ds).getReference(
-                eq(BillingContact.class), anyLong());
+        doReturn(billingContact).when(ds).getReference(eq(BillingContact.class),
+                anyLong());
         doNothing().when(bean).saveUdasForSubscription(anyListOf(VOUda.class),
                 any(Subscription.class));
         doNothing().when(bean).validateSettingsForUpgrading(
@@ -355,6 +357,7 @@ public class SubscriptionServiceBeanModifyAndUpgradeTest {
         Uda uda = new Uda();
         uda.setKey(1000L);
         uda.setUdaValue("value1");
+        uda.setUdaDefinition(new UdaDefinition());
         doReturn(uda).when(ds).getReferenceByBusinessKey(any(Uda.class));
 
         // when
@@ -365,21 +368,21 @@ public class SubscriptionServiceBeanModifyAndUpgradeTest {
                 any(Organization.class));
         verify(bean.modUpgBean, times(1)).storeModifiedUda(eq(1000L),
                 eq(ModifiedEntityType.UDA_VALUE), eq("value1"),
-                eq(SUBSCRIPTION_KEY));
+                eq(SUBSCRIPTION_KEY), eq(false));
     }
 
     @Test
     public void removeSubscriptionOwner() throws ObjectNotFoundException {
-        //given
+        // given
         prepareSubscription(SUBSCRIPTION_ID);
-        //when
+        // when
         bean.removeSubscriptionOwner(subscription);
-        //then
+        // then
         assertEquals(subscription.getOwner(), null);
     }
 
     private List<VOUda> givenVoUdas() {
-        List<VOUda> udas = new ArrayList<VOUda>();
+        List<VOUda> udas = new ArrayList<>();
         VOUda uda1 = new VOUda();
         uda1.setTargetObjectKey(1L);
         uda1.setUdaDefinition(new VOUdaDefinition());
@@ -405,7 +408,7 @@ public class SubscriptionServiceBeanModifyAndUpgradeTest {
     }
 
     private List<Parameter> givenParameters() {
-        List<Parameter> parameters = new ArrayList<Parameter>();
+        List<Parameter> parameters = new ArrayList<>();
         for (int i = 1; i <= PARAMETER_NUM; i++) {
             Parameter parameter = new Parameter();
             ParameterDefinition definition = new ParameterDefinition();
@@ -426,7 +429,7 @@ public class SubscriptionServiceBeanModifyAndUpgradeTest {
     }
 
     private List<VOParameter> givenVOParameters() {
-        List<VOParameter> voParameters = new ArrayList<VOParameter>();
+        List<VOParameter> voParameters = new ArrayList<>();
         for (int i = 1; i <= PARAMETER_NUM; i++) {
             VOParameter voParameter = new VOParameter();
             VOParameterDefinition vodefinition = new VOParameterDefinition();
@@ -449,7 +452,7 @@ public class SubscriptionServiceBeanModifyAndUpgradeTest {
         product.setParameterSet(givenParameterSet(givenParameters()));
         product.setAutoAssignUserEnabled(Boolean.FALSE);
         product.setType(ServiceType.TEMPLATE);
-        List<TechnicalProduct> tps = new ArrayList<TechnicalProduct>();
+        List<TechnicalProduct> tps = new ArrayList<>();
         tps.add(techProduct);
         technologyProvider.setTechnicalProducts(tps);
         PriceModel pm = new PriceModel();
@@ -551,7 +554,8 @@ public class SubscriptionServiceBeanModifyAndUpgradeTest {
         triggerProcessModify = givenTriggerProcessForModifySubscription();
     }
 
-    private void prepareSubscriptionForUpgrade() throws ObjectNotFoundException {
+    private void prepareSubscriptionForUpgrade()
+            throws ObjectNotFoundException {
         prepareSubscription(SUBSCRIPTION_ID);
         triggerProcessUpgrade = givenTriggerProcessForUpgradeSubscription();
     }

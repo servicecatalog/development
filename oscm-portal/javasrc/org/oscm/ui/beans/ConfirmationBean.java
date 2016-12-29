@@ -262,7 +262,7 @@ public class ConfirmationBean extends BaseBean implements Serializable {
         logger.logInfo(Log4jLogger.ACCESS_LOG,
                 LogMessageIdentifier.INFO_USER_LOGIN_SUCCESS,
                 voUser.getUserId(),
-                IPResolver.resolveIpAddress(httpRequest));
+                IPResolver.resolveIpAddress(httpRequest), voUser.getTenantId());
 
         // read the user details value object and store it in the session
         session.setAttribute(Constants.SESS_ATTR_USER,

@@ -27,7 +27,6 @@ import javax.imageio.ImageIO;
 
 import org.junit.Assert;
 import org.junit.Test;
-
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.CatalogEntry;
@@ -39,12 +38,6 @@ import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.i18nservice.bean.ImageResourceServiceBean;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
-import org.oscm.test.EJBTestBase;
-import org.oscm.test.data.Marketplaces;
-import org.oscm.test.data.Organizations;
-import org.oscm.test.data.PlatformUsers;
-import org.oscm.test.data.SupportedCountries;
-import org.oscm.test.ejb.TestContainer;
 import org.oscm.internal.intf.BrandService;
 import org.oscm.internal.types.enumtypes.ImageType;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
@@ -53,6 +46,13 @@ import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.OperationNotPermittedException;
 import org.oscm.internal.vo.VOImageResource;
 import org.oscm.internal.vo.VOLocalizedText;
+import org.oscm.test.EJBTestBase;
+import org.oscm.test.data.Marketplaces;
+import org.oscm.test.data.Organizations;
+import org.oscm.test.data.PlatformUsers;
+import org.oscm.test.data.SupportedCountries;
+import org.oscm.test.ejb.TestContainer;
+import org.oscm.test.stubs.ConfigurationServiceStub;
 
 /**
  * @author pock
@@ -89,7 +89,7 @@ public class BrandServiceBeanIT extends EJBTestBase {
 
     @Override
     public void setup(TestContainer container) throws Exception {
-
+        container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
         container.addBean(new ImageResourceServiceBean());
         container.addBean(new LocalizerServiceBean());
@@ -107,8 +107,8 @@ public class BrandServiceBeanIT extends EJBTestBase {
                 createOrganizationRoles(mgr);
                 SupportedCountries.createSomeSupportedCountries(mgr);
 
-                Organization supplierNoMP = Organizations.createOrganization(
-                        mgr, OrganizationRoleType.SUPPLIER);
+                Organization supplierNoMP = Organizations
+                        .createOrganization(mgr, OrganizationRoleType.SUPPLIER);
 
                 PlatformUser createUserForOrgNoMP = Organizations
                         .createUserForOrg(mgr, supplierNoMP, true, "admin");
@@ -128,8 +128,8 @@ public class BrandServiceBeanIT extends EJBTestBase {
                 mId = Marketplaces.ensureMarketplace(supplier, null, mgr)
                         .getMarketplaceId();
 
-                PlatformUser createUserForOrg = Organizations.createUserForOrg(
-                        mgr, supplier, true, "admin");
+                PlatformUser createUserForOrg = Organizations
+                        .createUserForOrg(mgr, supplier, true, "admin");
                 PlatformUsers.grantRoles(mgr, createUserForOrg,
                         UserRoleType.SERVICE_MANAGER);
                 supplierUserKey = createUserForOrg.getKey();
@@ -139,14 +139,14 @@ public class BrandServiceBeanIT extends EJBTestBase {
                 Organization customer = Organizations.createCustomer(mgr,
                         supplier);
 
-                createUserForOrg = Organizations.createUserForOrg(mgr,
-                        customer, true, "admin");
+                createUserForOrg = Organizations.createUserForOrg(mgr, customer,
+                        true, "admin");
                 customerUserKey = createUserForOrg.getKey();
 
                 Organization provider = Organizations.createOrganization(mgr,
                         OrganizationRoleType.PLATFORM_OPERATOR);
-                createUserForOrg = Organizations.createUserForOrg(mgr,
-                        provider, true, "admin");
+                createUserForOrg = Organizations.createUserForOrg(mgr, provider,
+                        true, "admin");
                 PlatformUsers.grantRoles(mgr, createUserForOrg,
                         UserRoleType.PLATFORM_OPERATOR);
                 operatorUserKey = createUserForOrg.getKey();
@@ -185,9 +185,8 @@ public class BrandServiceBeanIT extends EJBTestBase {
             }
         });
 
-        container.login(supplierUserKey, new String[] {
-                ROLE_ORGANIZATION_ADMIN, ROLE_SERVICE_MANAGER,
-                ROLE_MARKETPLACE_OWNER });
+        container.login(supplierUserKey, new String[] { ROLE_ORGANIZATION_ADMIN,
+                ROLE_SERVICE_MANAGER, ROLE_MARKETPLACE_OWNER });
 
     }
 
@@ -207,8 +206,8 @@ public class BrandServiceBeanIT extends EJBTestBase {
                 "The message properties consist of the mail proeprties.",
                 properties.size() > 0);
 
-        VOImageResource img = brandMgmt
-                .loadImage(mId, ImageType.SHOP_LOGO_LEFT);
+        VOImageResource img = brandMgmt.loadImage(mId,
+                ImageType.SHOP_LOGO_LEFT);
         Assert.assertNull("Initially there is no image", img);
     }
 
@@ -219,8 +218,8 @@ public class BrandServiceBeanIT extends EJBTestBase {
 
     @Test
     public void testLoadImageWrongOrganizationId() throws Exception {
-        Assert.assertNull(brandMgmt
-                .loadImage("wrong", ImageType.SHOP_LOGO_LEFT));
+        Assert.assertNull(
+                brandMgmt.loadImage("wrong", ImageType.SHOP_LOGO_LEFT));
     }
 
     @Test
@@ -230,7 +229,8 @@ public class BrandServiceBeanIT extends EJBTestBase {
         final String de = "de";
         final String de_DE = "de_DE";
 
-        Map<String, Properties> propertiesMap = prepareProps(key, en, de, de_DE);
+        Map<String, Properties> propertiesMap = prepareProps(key, en, de,
+                de_DE);
         brandMgmt.saveMessageProperties(propertiesMap, mId);
         verifySavedProps(mId, key, en, de, de_DE);
     }
@@ -243,7 +243,8 @@ public class BrandServiceBeanIT extends EJBTestBase {
         final String de = "de";
         final String de_DE = "de_DE";
 
-        Map<String, Properties> propertiesMap = prepareProps(key, en, de, de_DE);
+        Map<String, Properties> propertiesMap = prepareProps(key, en, de,
+                de_DE);
         brandMgmt.saveMessageProperties(propertiesMap, globalMplId);
         verifySavedProps(globalMplId, key, en, de, de_DE);
     }
@@ -256,7 +257,8 @@ public class BrandServiceBeanIT extends EJBTestBase {
         final String de = "de";
         final String de_DE = "de_DE";
 
-        Map<String, Properties> propertiesMap = prepareProps(key, en, de, de_DE);
+        Map<String, Properties> propertiesMap = prepareProps(key, en, de,
+                de_DE);
         brandMgmt.saveMessageProperties(propertiesMap, "INVALID_ID");
     }
 
@@ -267,7 +269,8 @@ public class BrandServiceBeanIT extends EJBTestBase {
         final String de = "de";
         final String de_DE = "de_DE";
 
-        Map<String, Properties> propertiesMap = prepareProps(key, en, de, de_DE);
+        Map<String, Properties> propertiesMap = prepareProps(key, en, de,
+                de_DE);
         brandMgmt.saveMessageProperties(propertiesMap, globalMpl2Id);
     }
 
@@ -291,7 +294,7 @@ public class BrandServiceBeanIT extends EJBTestBase {
         bos.close();
         byte[] left = bos.toByteArray();
 
-        List<VOImageResource> list = new ArrayList<VOImageResource>();
+        List<VOImageResource> list = new ArrayList<>();
         VOImageResource vo;
 
         vo = new VOImageResource();
@@ -334,7 +337,7 @@ public class BrandServiceBeanIT extends EJBTestBase {
 
     @Test
     public void testSaveImageWrongType() throws Exception {
-        List<VOImageResource> list = new ArrayList<VOImageResource>();
+        List<VOImageResource> list = new ArrayList<>();
         VOImageResource vo;
 
         vo = new VOImageResource();
@@ -358,13 +361,13 @@ public class BrandServiceBeanIT extends EJBTestBase {
                 properties.size() > 0);
 
         // delete images
-        List<ImageType> list = new ArrayList<ImageType>();
+        List<ImageType> list = new ArrayList<>();
         list.add(ImageType.SHOP_LOGO_LEFT);
         list.add(ImageType.SHOP_LOGO_RIGHT);
         brandMgmt.deleteImages(list);
 
-        VOImageResource img = brandMgmt
-                .loadImage(mId, ImageType.SHOP_LOGO_LEFT);
+        VOImageResource img = brandMgmt.loadImage(mId,
+                ImageType.SHOP_LOGO_LEFT);
         Assert.assertNull("The image must have been deleted", img);
     }
 
@@ -374,24 +377,24 @@ public class BrandServiceBeanIT extends EJBTestBase {
                 ROLE_MARKETPLACE_OWNER });
 
         // delete images
-        List<ImageType> list = new ArrayList<ImageType>();
+        List<ImageType> list = new ArrayList<>();
         list.add(ImageType.SHOP_LOGO_LEFT);
         list.add(ImageType.SHOP_LOGO_RIGHT);
         brandMgmt.deleteImages(list);
 
-        VOImageResource img = brandMgmt
-                .loadImage(mId, ImageType.SHOP_LOGO_LEFT);
+        VOImageResource img = brandMgmt.loadImage(mId,
+                ImageType.SHOP_LOGO_LEFT);
         Assert.assertNull("The image must have been deleted", img);
     }
 
     @Test
     public void testDeleteImagesWithoutMarketplace() throws Exception {
-        container.login(supplierUserKeyNoMP, new String[] {
-                ROLE_ORGANIZATION_ADMIN, ROLE_SERVICE_MANAGER,
-                ROLE_MARKETPLACE_OWNER });
+        container.login(supplierUserKeyNoMP,
+                new String[] { ROLE_ORGANIZATION_ADMIN, ROLE_SERVICE_MANAGER,
+                        ROLE_MARKETPLACE_OWNER });
 
         // delete images
-        List<ImageType> list = new ArrayList<ImageType>();
+        List<ImageType> list = new ArrayList<>();
         list.add(ImageType.SHOP_LOGO_LEFT);
         list.add(ImageType.SHOP_LOGO_RIGHT);
         brandMgmt.deleteImages(list);
@@ -404,7 +407,7 @@ public class BrandServiceBeanIT extends EJBTestBase {
 
     @Test
     public void testDeleteImagesWithoutShop() throws Exception {
-        List<ImageType> list = new ArrayList<ImageType>();
+        List<ImageType> list = new ArrayList<>();
         list.add(ImageType.SHOP_LOGO_LEFT);
         list.add(ImageType.SHOP_LOGO_RIGHT);
         brandMgmt.deleteImages(list);
@@ -412,7 +415,7 @@ public class BrandServiceBeanIT extends EJBTestBase {
 
     @Test
     public void testDeleteImageWrongType() throws Exception {
-        List<VOImageResource> voList = new ArrayList<VOImageResource>();
+        List<VOImageResource> voList = new ArrayList<>();
         VOImageResource vo = new VOImageResource();
         vo.setImageType(ImageType.SHOP_LOGO_LEFT);
         vo.setBuffer(TRANSPARENT_PIXEL);
@@ -420,13 +423,13 @@ public class BrandServiceBeanIT extends EJBTestBase {
 
         brandMgmt.saveImages(voList, mId);
 
-        List<ImageType> list = new ArrayList<ImageType>();
+        List<ImageType> list = new ArrayList<>();
         list.add(ImageType.SERVICE_IMAGE);
 
         brandMgmt.deleteImages(list);
 
-        VOImageResource img = brandMgmt
-                .loadImage(mId, ImageType.SHOP_LOGO_LEFT);
+        VOImageResource img = brandMgmt.loadImage(mId,
+                ImageType.SHOP_LOGO_LEFT);
         Assert.assertNotNull("The image must still exist", img);
     }
 
@@ -638,9 +641,8 @@ public class BrandServiceBeanIT extends EJBTestBase {
      */
     @Test(expected = OperationNotPermittedException.class)
     public void testSetMarketplaceStage_callerNotOwner() throws Exception {
-        container.login(supplierUserKey, new String[] {
-                ROLE_ORGANIZATION_ADMIN, ROLE_SERVICE_MANAGER,
-                ROLE_MARKETPLACE_OWNER });
+        container.login(supplierUserKey, new String[] { ROLE_ORGANIZATION_ADMIN,
+                ROLE_SERVICE_MANAGER, ROLE_MARKETPLACE_OWNER });
         brandMgmt.setMarketplaceStage(customStageContent, globalMplId, "EN");
     }
 
@@ -691,7 +693,8 @@ public class BrandServiceBeanIT extends EJBTestBase {
     }
 
     @Test(expected = ObjectNotFoundException.class)
-    public void testGetMarketplaceStageLocalization_NotFound() throws Exception {
+    public void testGetMarketplaceStageLocalization_NotFound()
+            throws Exception {
         container.login(operatorUserKey, ROLE_MARKETPLACE_OWNER);
         brandMgmt.getMarketplaceStageLocalization("invalid");
     }
@@ -757,8 +760,8 @@ public class BrandServiceBeanIT extends EJBTestBase {
                     Assert.assertEquals(de, text);
 
                     text = localizer.getLocalizedTextFromBundle(
-                            LocalizedObjectTypes.MAIL_CONTENT, mp,
-                            "de__123456", key);
+                            LocalizedObjectTypes.MAIL_CONTENT, mp, "de__123456",
+                            key);
                     Assert.assertEquals(de, text);
 
                     text = localizer.getLocalizedTextFromBundle(
@@ -781,7 +784,7 @@ public class BrandServiceBeanIT extends EJBTestBase {
 
     private static Map<String, Properties> prepareProps(final String key,
             final String en, final String de, final String de_DE) {
-        Map<String, Properties> propertiesMap = new HashMap<String, Properties>();
+        Map<String, Properties> propertiesMap = new HashMap<>();
 
         Properties properties;
 
@@ -800,7 +803,7 @@ public class BrandServiceBeanIT extends EJBTestBase {
     }
 
     private static Map<String, String> map(List<VOLocalizedText> localization) {
-        HashMap<String, String> map = new HashMap<String, String>();
+        HashMap<String, String> map = new HashMap<>();
         for (VOLocalizedText text : localization) {
             map.put(text.getLocale(), text.getText());
         }

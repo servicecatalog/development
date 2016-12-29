@@ -7,6 +7,7 @@ package org.oscm.applicationservice.bean;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -18,19 +19,20 @@ import javax.ejb.Local;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
+import javax.persistence.TypedQuery;
 import javax.wsdl.WSDLException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.ws.WebServiceException;
 
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
 import org.oscm.applicationservice.adapter.OperationServiceAdapterFactory;
 import org.oscm.applicationservice.adapter.ProvisioningServiceAdapter;
 import org.oscm.applicationservice.adapter.ProvisioningServiceAdapterFactory;
+import org.oscm.applicationservice.filter.AttributeFilter;
 import org.oscm.applicationservice.filter.ParameterFilter;
 import org.oscm.applicationservice.local.ApplicationServiceLocal;
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.dataservice.local.DataService;
+import org.oscm.domobjects.ModifiedUda;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.Product;
 import org.oscm.domobjects.RoleDefinition;
@@ -40,15 +42,14 @@ import org.oscm.domobjects.TechnicalProductOperation;
 import org.oscm.domobjects.UsageLicense;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
-import org.oscm.types.constants.Configuration;
-import org.oscm.types.enumtypes.LogMessageIdentifier;
-import org.oscm.validator.BLValidator;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.types.enumtypes.ServiceAccessType;
 import org.oscm.internal.types.exception.TechnicalServiceNotAliveException;
 import org.oscm.internal.types.exception.TechnicalServiceOperationException;
 import org.oscm.internal.types.exception.UnsupportedOperationException;
 import org.oscm.internal.types.exception.ValidationException;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
 import org.oscm.operation.data.OperationParameter;
 import org.oscm.operation.data.OperationResult;
 import org.oscm.operation.intf.OperationService;
@@ -56,9 +57,13 @@ import org.oscm.provisioning.data.BaseResult;
 import org.oscm.provisioning.data.InstanceInfo;
 import org.oscm.provisioning.data.InstanceRequest;
 import org.oscm.provisioning.data.InstanceResult;
+import org.oscm.provisioning.data.ServiceAttribute;
 import org.oscm.provisioning.data.ServiceParameter;
 import org.oscm.provisioning.data.User;
 import org.oscm.provisioning.data.UserResult;
+import org.oscm.types.constants.Configuration;
+import org.oscm.types.enumtypes.LogMessageIdentifier;
+import org.oscm.validator.BLValidator;
 
 /**
  * Session Bean implementation class ApplicationManagement
@@ -124,8 +129,8 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
             InstanceInfo info = result.getInstance();
             if (info == null) {
                 TechnicalServiceOperationException ex = new TechnicalServiceOperationException(
-                        ERROR_WS_CALL, new Object[] {
-                                subscription.getSubscriptionId(),
+                        ERROR_WS_CALL,
+                        new Object[] { subscription.getSubscriptionId(),
                                 "The webservice call returned no instance" });
                 logger.logWarn(Log4jLogger.SYSTEM_LOG, ex,
                         LogMessageIdentifier.WARN_TECH_SERVICE_WS_NO_INSTANCE,
@@ -159,9 +164,8 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
                 .getOrganizationId();
         String subscriptionId = subscription.getSubscriptionId();
         try {
-            BaseResult result = getPort(subscription).deleteInstance(
-                    instanceId, organizationId, subscriptionId,
-                    getCurrentUser());
+            BaseResult result = getPort(subscription).deleteInstance(instanceId,
+                    organizationId, subscriptionId, getCurrentUser());
             verifyResult(subscription, result);
         } catch (TechnicalServiceOperationException e) {
             throw e;
@@ -186,11 +190,15 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
 
         List<ServiceParameter> serviceParameterList = ParameterFilter
                 .getServiceParameterList(subscription, true);
+        List<ServiceAttribute> serviceAttributeList = AttributeFilter
+                .getSubscriptionAttributeList(subscription,
+                        getModifiedUdas(subscription));
         try {
             BaseResult result = getPort(subscription).modifySubscription(
                     subscription.getProductInstanceId(),
-                    subscription.getSubscriptionId(), serviceParameterList,
-                    getCurrentUser());
+                    subscription.getSubscriptionId(),
+                    subscription.getPurchaseOrderNumber(), serviceParameterList,
+                    serviceAttributeList, getCurrentUser());
             verifyResult(subscription, result);
         } catch (TechnicalServiceOperationException
                 | TechnicalServiceNotAliveException e) {
@@ -355,7 +363,8 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
      *         requests from the BES, other wise <code>false
      */
     private boolean isProductUserManagementActive(Subscription subscription) {
-        return subscription.getProduct().getTechnicalProduct().getAccessType() != ServiceAccessType.DIRECT;
+        return subscription.getProduct().getTechnicalProduct()
+                .getAccessType() != ServiceAccessType.DIRECT;
     }
 
     /**
@@ -399,11 +408,11 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
             throws TechnicalServiceNotAliveException {
         // Get the timeout value for the outgoing WS call from the configuration
         // settings
-        Integer wsTimeout = Integer.valueOf(cs.getConfigurationSetting(
-                ConfigurationKey.WS_TIMEOUT, Configuration.GLOBAL_CONTEXT)
-                .getValue());
-        return ProvisioningServiceAdapterFactory.getProvisioningServiceAdapter(
-                techProduct, wsTimeout);
+        Integer wsTimeout = Integer
+                .valueOf(cs.getConfigurationSetting(ConfigurationKey.WS_TIMEOUT,
+                        Configuration.GLOBAL_CONTEXT).getValue());
+        return ProvisioningServiceAdapterFactory
+                .getProvisioningServiceAdapter(techProduct, wsTimeout);
     }
 
     /**
@@ -421,8 +430,8 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
         String msg = "";
         if (result == null) {
             msg = "The webservice call returned null";
-            e = new TechnicalServiceOperationException(msg, new Object[] {
-                    subscription.getSubscriptionId(), "null" });
+            e = new TechnicalServiceOperationException(msg,
+                    new Object[] { subscription.getSubscriptionId(), "null" });
             logger.logWarn(Log4jLogger.SYSTEM_LOG, e,
                     LogMessageIdentifier.WARN_TECH_SERVICE_WS_NULL,
                     subscription.getSubscriptionId());
@@ -458,8 +467,8 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
                         e.getMessage() });
         logger.logWarn(Log4jLogger.SYSTEM_LOG, ex,
                 LogMessageIdentifier.WARN_TECH_SERVICE_WS_EXCEPTION,
-                subscription.getSubscriptionId(), e.getClass().getName() + ": "
-                        + e.getMessage());
+                subscription.getSubscriptionId(),
+                e.getClass().getName() + ": " + e.getMessage());
         return ex;
     }
 
@@ -504,9 +513,7 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
     private TechnicalServiceNotAliveException convertThrowable(Throwable e) {
         TechnicalServiceNotAliveException ex = new TechnicalServiceNotAliveException(
                 TechnicalServiceNotAliveException.Reason.CONNECTION_REFUSED, e);
-        logger.logWarn(
-                Log4jLogger.SYSTEM_LOG,
-                ex,
+        logger.logWarn(Log4jLogger.SYSTEM_LOG, ex,
                 LogMessageIdentifier.WARN_TECH_SERVICE_NOT_ALIVE_CONNECTION_REFUSED);
         return ex;
     }
@@ -523,9 +530,11 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
         InstanceRequest request = new InstanceRequest();
         request.setSubscriptionId(subscription.getSubscriptionId());
         request.setDefaultLocale(subscription.getOrganization().getLocale());
-        request.setOrganizationId(subscription.getOrganization()
-                .getOrganizationId());
-        if (subscription.getProduct().getTechnicalProduct().getAccessType() != ServiceAccessType.DIRECT
+        request.setOrganizationId(
+                subscription.getOrganization().getOrganizationId());
+        request.setReferenceId(subscription.getPurchaseOrderNumber());
+        if (subscription.getProduct().getTechnicalProduct()
+                .getAccessType() != ServiceAccessType.DIRECT
                 && subscription.getProduct().getTechnicalProduct()
                         .getAccessType() != ServiceAccessType.USER) {
             String url = cs.getBaseURL();
@@ -533,8 +542,10 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
             request.setLoginUrl(url);
         }
         request.setOrganizationName(subscription.getOrganization().getName());
-        request.setParameterValue(ParameterFilter.getServiceParameterList(
-                subscription, false));
+        request.setParameterValue(
+                ParameterFilter.getServiceParameterList(subscription, false));
+        request.setAttributeValue(AttributeFilter.getSubscriptionAttributeList(
+                subscription, Collections.<ModifiedUda> emptyList()));
         return request;
     }
 
@@ -548,12 +559,12 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
      * @return a list of User instances
      */
     private List<User> toUserList(List<UsageLicense> usageLicenses) {
-        List<User> users = new ArrayList<User>();
+        List<User> users = new ArrayList<>();
         if (usageLicenses != null) {
             for (UsageLicense usageLicense : usageLicenses) {
                 User userWithRole = new User();
-                userWithRole.setApplicationUserId(usageLicense
-                        .getApplicationUserId());
+                userWithRole.setApplicationUserId(
+                        usageLicense.getApplicationUserId());
                 PlatformUser platformUser = usageLicense.getUser();
                 userWithRole.setUserId(platformUser.getUserId());
                 userWithRole.setUserFirstName(platformUser.getFirstName());
@@ -563,13 +574,22 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
                 RoleDefinition userRoleDefinition = usageLicense
                         .getRoleDefinition();
                 if (userRoleDefinition != null) {
-                    userWithRole.setRoleIdentifier(userRoleDefinition
-                            .getRoleId());
+                    userWithRole
+                            .setRoleIdentifier(userRoleDefinition.getRoleId());
                 }
                 users.add(userWithRole);
             }
         }
         return users;
+    }
+
+    private List<ModifiedUda> getModifiedUdas(Subscription subscription) {
+
+        TypedQuery<ModifiedUda> query = ds.createNamedQuery(
+                "ModifiedUda.findBySubscription", ModifiedUda.class);
+        query.setParameter("subscriptionKey", new Long(subscription.getKey()));
+
+        return query.getResultList();
     }
 
     @Override
@@ -597,8 +617,8 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
             String error = result.getErrorMessage();
             if (error != null && error.trim().length() > 0) {
                 TechnicalServiceOperationException tsof = new TechnicalServiceOperationException(
-                        error, new Object[] {
-                                subscription.getSubscriptionId(), error });
+                        error, new Object[] { subscription.getSubscriptionId(),
+                                error });
                 logger.logWarn(Log4jLogger.SYSTEM_LOG, tsof,
                         LogMessageIdentifier.WARN_TECH_SERVICE_WS_ERROR,
                         subscription.getSubscriptionId(), error);
@@ -640,9 +660,9 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
 
         // Get the timeout value for the outgoing WS call from the configuration
         // settings
-        Integer wsTimeout = Integer.valueOf(cs.getConfigurationSetting(
-                ConfigurationKey.WS_TIMEOUT, Configuration.GLOBAL_CONTEXT)
-                .getValue());
+        Integer wsTimeout = Integer
+                .valueOf(cs.getConfigurationSetting(ConfigurationKey.WS_TIMEOUT,
+                        Configuration.GLOBAL_CONTEXT).getValue());
 
         return OperationServiceAdapterFactory.getOperationServiceAdapter(op,
                 wsTimeout, username, password);
@@ -736,9 +756,10 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
     private boolean isAccessInfoMandatory(InstanceInfo info, Subscription sub) {
         ServiceAccessType accessType = sub.getProduct().getTechnicalProduct()
                 .getAccessType();
-        if ((accessType == ServiceAccessType.DIRECT || accessType == ServiceAccessType.USER)
-                && (info.getAccessInfo() == null || info.getAccessInfo().trim()
-                        .length() <= 0)) {
+        if ((accessType == ServiceAccessType.DIRECT
+                || accessType == ServiceAccessType.USER)
+                && (info.getAccessInfo() == null
+                        || info.getAccessInfo().trim().length() <= 0)) {
             // mandatory if no AccessInfo available on technical service at
             // least for the fall-back locale 'en'
             String accessInfo = localizer.getLocalizedTextFromDatabase("en",
@@ -788,9 +809,7 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
             TechnicalServiceOperationException ex = new TechnicalServiceOperationException(
                     "Service createUsers() returned invalid data.",
                     new Object[] { sub.getSubscriptionId(), message }, e);
-            logger.logWarn(
-                    Log4jLogger.SYSTEM_LOG,
-                    ex,
+            logger.logWarn(Log4jLogger.SYSTEM_LOG, ex,
                     LogMessageIdentifier.WARN_TECH_SERVICE_VALIDATION_FAILED_USERID_MAXLENGTH,
                     sub.getSubscriptionId());
             throw ex;
@@ -804,11 +823,15 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
 
         List<ServiceParameter> serviceParameterList = ParameterFilter
                 .getServiceParameterList(product, true);
+        List<ServiceAttribute> serviceAttributeList = AttributeFilter
+                .getSubscriptionAttributeList(subscription,
+                        getModifiedUdas(subscription));
         try {
             BaseResult result = getPort(subscription).asyncModifySubscription(
                     subscription.getProductInstanceId(),
-                    subscription.getSubscriptionId(), serviceParameterList,
-                    getCurrentUser());
+                    subscription.getSubscriptionId(),
+                    subscription.getPurchaseOrderNumber(), serviceParameterList,
+                    serviceAttributeList, getCurrentUser());
             verifyResult(subscription, result);
         } catch (TechnicalServiceOperationException
                 | TechnicalServiceNotAliveException e) {
@@ -829,11 +852,15 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
             TechnicalServiceOperationException {
         List<ServiceParameter> serviceParameterList = ParameterFilter
                 .getServiceParameterList(product, false);
+        List<ServiceAttribute> serviceAttributeList = AttributeFilter
+                .getSubscriptionAttributeList(subscription,
+                        getModifiedUdas(subscription));
         try {
             BaseResult result = getPort(subscription).asyncUpgradeSubscription(
                     subscription.getProductInstanceId(),
-                    subscription.getSubscriptionId(), serviceParameterList,
-                    getCurrentUser());
+                    subscription.getSubscriptionId(),
+                    subscription.getPurchaseOrderNumber(), serviceParameterList,
+                    serviceAttributeList, getCurrentUser());
             verifyResult(subscription, result);
         } catch (TechnicalServiceOperationException
                 | TechnicalServiceNotAliveException e) {
@@ -855,11 +882,15 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
             TechnicalServiceOperationException {
         List<ServiceParameter> serviceParameterList = ParameterFilter
                 .getServiceParameterList(subscription, false);
+        List<ServiceAttribute> serviceAttributeList = AttributeFilter
+                .getSubscriptionAttributeList(subscription,
+                        getModifiedUdas(subscription));
         try {
             BaseResult result = getPort(subscription).upgradeSubscription(
                     subscription.getProductInstanceId(),
-                    subscription.getSubscriptionId(), serviceParameterList,
-                    getCurrentUser());
+                    subscription.getSubscriptionId(),
+                    subscription.getPurchaseOrderNumber(), serviceParameterList,
+                    serviceAttributeList, getCurrentUser());
             verifyResult(subscription, result);
         } catch (TechnicalServiceOperationException
                 | TechnicalServiceNotAliveException e) {
@@ -904,11 +935,12 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
             TechnicalServiceOperationException ex = new TechnicalServiceOperationException(
                     "Requesting parameter values is unsupported.",
                     new Object[] { subscription.getSubscriptionId(),
-                            e.getMessage() }, e);
-            String msg = String
-                    .format("OperationService.getParameterValues() for subscription %s and operation %s",
-                            subscription.getSubscriptionId(),
-                            operation.getOperationId());
+                            e.getMessage() },
+                    e);
+            String msg = String.format(
+                    "OperationService.getParameterValues() for subscription %s and operation %s",
+                    subscription.getSubscriptionId(),
+                    operation.getOperationId());
             logger.logWarn(Log4jLogger.SYSTEM_LOG, ex,
                     LogMessageIdentifier.ERROR_UNSUPPORTED_OPERATION, msg);
             throw ex;
@@ -934,5 +966,30 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
         user.setUserLastName(pUser.getLastName());
         user.setUserId(pUser.getUserId());
         return user;
+    }
+
+    @Override
+    public void saveAttributes(Subscription subscription)
+            throws TechnicalServiceNotAliveException,
+            TechnicalServiceOperationException {
+
+        String organizationId = subscription.getOrganization()
+                .getOrganizationId();
+
+        try {
+            getPort(subscription).saveAttributes(organizationId,
+                    AttributeFilter.getCustomAttributeList(subscription),
+                    getCurrentUser());
+
+        } catch (TechnicalServiceNotAliveException e) {
+            throw e;
+        } catch (WebServiceException e) {
+            if (isTimeoutOccured(e)) {
+                throw convertThrowableTimeout(subscription, e);
+            }
+            throw convertWebServiceException(subscription, e);
+        } catch (Throwable e) {
+            throw convertThrowable(e);
+        }
     }
 }

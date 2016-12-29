@@ -8,8 +8,6 @@
 
 package org.oscm.serviceprovisioningservice.bean;
 
-import static org.oscm.test.Numbers.BD100;
-import static org.oscm.test.Numbers.TIMESTAMP;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -18,6 +16,8 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.oscm.test.Numbers.BD100;
+import static org.oscm.test.Numbers.TIMESTAMP;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 
 import javax.persistence.Query;
@@ -39,9 +40,6 @@ import javax.persistence.Query;
 import org.mockito.Matchers;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
 import org.oscm.accountservice.assembler.OrganizationAssembler;
 import org.oscm.accountservice.bean.AccountServiceBean;
 import org.oscm.accountservice.local.MarketingPermissionServiceLocal;
@@ -78,37 +76,11 @@ import org.oscm.domobjects.TriggerProcess;
 import org.oscm.domobjects.enums.BillingAdapterIdentifier;
 import org.oscm.domobjects.enums.ModificationType;
 import org.oscm.domobjects.enums.OrganizationReferenceType;
+import org.oscm.encrypter.AESEncrypter;
 import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.identityservice.bean.IdentityServiceBean;
-import org.oscm.marketplace.bean.CategorizationServiceBean;
-import org.oscm.marketplace.bean.LandingpageServiceBean;
-import org.oscm.marketplace.bean.MarketplaceServiceBean;
-import org.oscm.marketplace.bean.MarketplaceServiceLocalBean;
-import org.oscm.serviceprovisioningservice.assembler.PriceModelAssembler;
-import org.oscm.serviceprovisioningservice.local.ServiceProvisioningServiceLocal;
-import org.oscm.test.EJBTestBase;
-import org.oscm.test.ReflectiveClone;
-import org.oscm.test.data.BillingAdapters;
-import org.oscm.test.data.Marketplaces;
-import org.oscm.test.data.Organizations;
-import org.oscm.test.data.PaymentInfos;
-import org.oscm.test.data.PaymentTypes;
-import org.oscm.test.data.Products;
-import org.oscm.test.data.Subscriptions;
-import org.oscm.test.data.SupportedCountries;
-import org.oscm.test.data.TSXML;
-import org.oscm.test.data.TechnicalProducts;
-import org.oscm.test.ejb.TestContainer;
-import org.oscm.test.setup.ProductImportParser;
-import org.oscm.test.stubs.ApplicationServiceStub;
-import org.oscm.test.stubs.CommunicationServiceStub;
-import org.oscm.test.stubs.ConfigurationServiceStub;
-import org.oscm.test.stubs.ImageResourceServiceStub;
-import org.oscm.test.stubs.TriggerQueueServiceStub;
-import org.oscm.triggerservice.local.TriggerMessage;
-import org.oscm.triggerservice.local.TriggerProcessMessageData;
 import org.oscm.internal.intf.AccountService;
 import org.oscm.internal.intf.CategorizationService;
 import org.oscm.internal.intf.IdentityService;
@@ -153,6 +125,35 @@ import org.oscm.internal.vo.VOService;
 import org.oscm.internal.vo.VOServiceDetails;
 import org.oscm.internal.vo.VOServiceLocalization;
 import org.oscm.internal.vo.VOTechnicalService;
+import org.oscm.marketplace.bean.CategorizationServiceBean;
+import org.oscm.marketplace.bean.LandingpageServiceBean;
+import org.oscm.marketplace.bean.MarketplaceServiceBean;
+import org.oscm.marketplace.bean.MarketplaceServiceLocalBean;
+import org.oscm.serviceprovisioningservice.assembler.PriceModelAssembler;
+import org.oscm.serviceprovisioningservice.local.ServiceProvisioningServiceLocal;
+import org.oscm.test.EJBTestBase;
+import org.oscm.test.ReflectiveClone;
+import org.oscm.test.data.BillingAdapters;
+import org.oscm.test.data.Marketplaces;
+import org.oscm.test.data.Organizations;
+import org.oscm.test.data.PaymentInfos;
+import org.oscm.test.data.PaymentTypes;
+import org.oscm.test.data.Products;
+import org.oscm.test.data.Subscriptions;
+import org.oscm.test.data.SupportedCountries;
+import org.oscm.test.data.TSXML;
+import org.oscm.test.data.TechnicalProducts;
+import org.oscm.test.ejb.TestContainer;
+import org.oscm.test.setup.ProductImportParser;
+import org.oscm.test.stubs.ApplicationServiceStub;
+import org.oscm.test.stubs.CommunicationServiceStub;
+import org.oscm.test.stubs.ConfigurationServiceStub;
+import org.oscm.test.stubs.ImageResourceServiceStub;
+import org.oscm.test.stubs.TriggerQueueServiceStub;
+import org.oscm.triggerservice.local.TriggerMessage;
+import org.oscm.triggerservice.local.TriggerProcessMessageData;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 @SuppressWarnings("deprecation")
 public class ServiceProvisioningServiceTestBase extends EJBTestBase {
@@ -174,7 +175,7 @@ public class ServiceProvisioningServiceTestBase extends EJBTestBase {
     protected MarketplaceService mpSvc;
     protected CategorizationService categorizationService;
 
-    protected Map<String, VOService> COMPARE_VALUES = new HashMap<String, VOService>();
+    protected Map<String, VOService> COMPARE_VALUES = new HashMap<>();
 
     protected String providerOrgId;
     protected String supplierOrgId;
@@ -184,7 +185,7 @@ public class ServiceProvisioningServiceTestBase extends EJBTestBase {
     protected long supplierUserKey;
     protected long customerUserKey;
 
-    protected List<DomainObject<?>> domObjects = new ArrayList<DomainObject<?>>();
+    protected List<DomainObject<?>> domObjects = new ArrayList<>();
 
     protected final String PRODUCT_ID1 = "PRODUCT_ID1";
     protected final String PRODUCT_ID2 = "PRODUCT_ID2";
@@ -197,7 +198,7 @@ public class ServiceProvisioningServiceTestBase extends EJBTestBase {
     protected VOOrganization secondCustomer;
     protected VOTechnicalService techProduct;
     protected OrganizationReference orgRef;
-    protected List<TechnicalProduct> marketingPermServ_getTechnicalProducts = new ArrayList<TechnicalProduct>();
+    protected List<TechnicalProduct> marketingPermServ_getTechnicalProducts = new ArrayList<>();
     private MarketingPermissionServiceLocal marketingPermissionSvcMock;
     protected Marketplace mpSupplier;
     protected Marketplace mpProvider;
@@ -214,6 +215,7 @@ public class ServiceProvisioningServiceTestBase extends EJBTestBase {
     }
 
     private void setupTestContainer() throws Exception {
+        AESEncrypter.generateKey();
         container.enableInterfaceMocking(true);
         container.addBean(new DataServiceBean());
         container.addBean(new ConfigurationServiceStub());
@@ -270,7 +272,8 @@ public class ServiceProvisioningServiceTestBase extends EJBTestBase {
             }
 
         });
-        marketingPermissionSvcMock = mock(MarketingPermissionServiceLocal.class);
+        marketingPermissionSvcMock = mock(
+                MarketingPermissionServiceLocal.class);
         container.addBean(marketingPermissionSvcMock);
         container.addBean(new AccountServiceBean());
         container.addBean(new TagServiceBean());
@@ -358,8 +361,8 @@ public class ServiceProvisioningServiceTestBase extends EJBTestBase {
         supplier = runTX(new Callable<Organization>() {
             @Override
             public Organization call() throws Exception {
-                Organization organization = Organizations.createOrganization(
-                        mgr, OrganizationRoleType.SUPPLIER);
+                Organization organization = Organizations
+                        .createOrganization(mgr, OrganizationRoleType.SUPPLIER);
                 PlatformUser user = Organizations.createUserForOrg(mgr,
                         organization, true, "admin");
                 supplierUserKey = user.getKey();
@@ -414,8 +417,8 @@ public class ServiceProvisioningServiceTestBase extends EJBTestBase {
 
                     @Override
                     public Void call() throws Exception {
-                        Query query = mgr
-                                .createQuery("DELETE FROM MarketingPermission mp WHERE mp.technicalProduct = :tpKey");
+                        Query query = mgr.createQuery(
+                                "DELETE FROM MarketingPermission mp WHERE mp.technicalProduct = :tpKey");
                         query.setParameter("tpKey",
                                 invocation.getArguments()[0]);
                         query.executeUpdate();
@@ -523,7 +526,7 @@ public class ServiceProvisioningServiceTestBase extends EJBTestBase {
                     technicalSProductId, false, ServiceAccessType.LOGIN);
         }
         ParameterDefinition paramDef = new ParameterDefinition();
-        paramDef.setParameterId("param" + System.currentTimeMillis());
+        paramDef.setParameterId("param" + UUID.randomUUID());
         paramDef.setParameterType(ParameterType.SERVICE_PARAMETER);
         paramDef.setValueType(ParameterValueType.STRING);
         paramDef.setTechnicalProduct(tProd);
@@ -576,8 +579,8 @@ public class ServiceProvisioningServiceTestBase extends EJBTestBase {
             throws ObjectNotFoundException, NonUniqueBusinessKeyException {
         Product prod1 = mgr.getReference(Product.class, referenceProductKey);
         for (int i = 1; i < numberOfProducts; i++) {
-            Product prod2 = mgr.getReference(Product.class, domObjects.get(i)
-                    .getKey());
+            Product prod2 = mgr.getReference(Product.class,
+                    domObjects.get(i).getKey());
             prod2.setStatus(ServiceStatus.INACTIVE);
             ProductReference reference = new ProductReference(prod1, prod2);
             mgr.persist(reference);
@@ -631,8 +634,8 @@ public class ServiceProvisioningServiceTestBase extends EJBTestBase {
         });
     }
 
-    protected VOOrganization getOrganizationForOrgId(final String organizationId)
-            throws Exception {
+    protected VOOrganization getOrganizationForOrgId(
+            final String organizationId) throws Exception {
         return runTX(new Callable<VOOrganization>() {
             @Override
             public VOOrganization call() throws Exception {
@@ -649,8 +652,8 @@ public class ServiceProvisioningServiceTestBase extends EJBTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                Product p = Products.findProduct(mgr, mgr.getCurrentUser()
-                        .getOrganization(), productId);
+                Product p = Products.findProduct(mgr,
+                        mgr.getCurrentUser().getOrganization(), productId);
 
                 Marketplace mp = new Marketplace();
                 mp.setMarketplaceId(mgr.getCurrentUser().getOrganization()
@@ -674,13 +677,15 @@ public class ServiceProvisioningServiceTestBase extends EJBTestBase {
             ConcurrentModificationException, ServiceOperationException,
             TechnicalServiceNotAliveException {
 
-        VOTechnicalService techProduct1 = runTX(new Callable<VOTechnicalService>() {
-            @Override
-            public VOTechnicalService call() throws Exception {
-                return createTechnicalProduct(svcProv,
-                        TSXML.createTSXMLWithSubscriptionRestriction("true"));
-            }
-        });
+        VOTechnicalService techProduct1 = runTX(
+                new Callable<VOTechnicalService>() {
+                    @Override
+                    public VOTechnicalService call() throws Exception {
+                        return createTechnicalProduct(svcProv,
+                                TSXML.createTSXMLWithSubscriptionRestriction(
+                                        "true"));
+                    }
+                });
 
         container.login(supplierUserKey, ROLE_SERVICE_MANAGER);
         VOServiceDetails voProduct1 = createProduct(techProduct1, "product1",
@@ -734,8 +739,8 @@ public class ServiceProvisioningServiceTestBase extends EJBTestBase {
 
             @Override
             public String call() throws Exception {
-                ProductImportParser parser = new ProductImportParser(mgr, mgr
-                        .getCurrentUser().getOrganization());
+                ProductImportParser parser = new ProductImportParser(mgr,
+                        mgr.getCurrentUser().getOrganization());
                 parser.parse(xml.getBytes("UTF-8"));
                 return null;
             }
@@ -812,7 +817,7 @@ public class ServiceProvisioningServiceTestBase extends EJBTestBase {
                 // create technical product with parameters
                 TechnicalProduct tp = TechnicalProducts.createTechnicalProduct(
                         mgr, provider, "tp", false, ServiceAccessType.LOGIN);
-                List<ParameterDefinition> paramDefs = new ArrayList<ParameterDefinition>();
+                List<ParameterDefinition> paramDefs = new ArrayList<>();
                 ParameterDefinition paramDef = new ParameterDefinition();
                 paramDef.setConfigurable(true);
                 paramDef.setParameterId("Test_Param");
@@ -824,17 +829,14 @@ public class ServiceProvisioningServiceTestBase extends EJBTestBase {
                 tp.setParameterDefinitions(paramDefs);
 
                 MarketingPermission mp = new MarketingPermission();
-                OrganizationReference reference = mgr.find(
-                        OrganizationReference.class, orgRef.getKey());
+                OrganizationReference reference = mgr
+                        .find(OrganizationReference.class, orgRef.getKey());
                 mp.setOrganizationReference(reference);
                 mp.setTechnicalProduct(tp);
                 mgr.persist(mp);
 
-                Organization cust = Organizations
-                        .createCustomer(
-                                mgr,
-                                mgr.getReference(Organization.class,
-                                        supplier.getKey()));
+                Organization cust = Organizations.createCustomer(mgr, mgr
+                        .getReference(Organization.class, supplier.getKey()));
                 marketingPermServ_getTechnicalProducts.add(tp);
 
                 return OrganizationAssembler.toVOOrganization(cust, false,
@@ -853,7 +855,7 @@ public class ServiceProvisioningServiceTestBase extends EJBTestBase {
                 .getParameterDefinitions();
         VOParameterDefinition parameterDefinition = parameterDefinitions.get(0);
 
-        List<VOParameter> parameters = new ArrayList<VOParameter>();
+        List<VOParameter> parameters = new ArrayList<>();
         VOParameter parameter = new VOParameter(parameterDefinition);
         parameter.setConfigurable(true);
         parameter.setValue("1");
@@ -862,7 +864,7 @@ public class ServiceProvisioningServiceTestBase extends EJBTestBase {
 
         // define price model
         VOPriceModel priceModel = new VOPriceModel();
-        List<VOPricedParameter> selectedParameters = new ArrayList<VOPricedParameter>();
+        List<VOPricedParameter> selectedParameters = new ArrayList<>();
         VOPricedParameter pricedParam = new VOPricedParameter(
                 parameterDefinition);
         selectedParameters.add(pricedParam);
@@ -878,7 +880,7 @@ public class ServiceProvisioningServiceTestBase extends EJBTestBase {
     }
 
     public static final <T> List<T> emptyList() {
-        return new ArrayList<T>();
+        return new ArrayList<>();
     }
 
     protected static byte[] getTSWithRoles(boolean withRoles) throws Exception {
@@ -888,8 +890,7 @@ public class ServiceProvisioningServiceTestBase extends EJBTestBase {
                 + " baseUrl=\"http://estadmue:8089/example-dev/\"\n"
                 + " provisioningType=\"SYNCHRONOUS\"\n"
                 + " provisioningUrl=\"http://estadmue:8089/example-dev/services/ProvisioningService?wsdl\"\n"
-                + " provisioningVersion=\"1.0\"\n"
-                + " loginPath=\"\\login/\"\n"
+                + " provisioningVersion=\"1.0\"\n" + " loginPath=\"\\login/\"\n"
                 + " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
                 + "<LocalizedDescription locale=\"en\">LocalizedDescription</LocalizedDescription>"
                 + "<LocalizedLicense locale=\"en\">LocalizedLicense</LocalizedLicense>";
@@ -946,9 +947,9 @@ public class ServiceProvisioningServiceTestBase extends EJBTestBase {
                         .createNamedQuery("Tag.getAllOfLocaleFiltered");
                 query.setParameter("locale", locale);
                 query.setParameter("value", pattern);
-                List<Tag> tagList = ParameterizedTypes.list(
-                        query.getResultList(), Tag.class);
-                List<String> result = new ArrayList<String>();
+                List<Tag> tagList = ParameterizedTypes
+                        .list(query.getResultList(), Tag.class);
+                List<String> result = new ArrayList<>();
                 for (Tag def : tagList) {
                     result.add(def.getValue());
                 }
@@ -967,10 +968,11 @@ public class ServiceProvisioningServiceTestBase extends EJBTestBase {
      * @param historyList
      *            List of history records.
      */
-    protected void checkHistory(final List<DomainHistoryObject<?>> historyList) {
+    protected void checkHistory(
+            final List<DomainHistoryObject<?>> historyList) {
         // get last record from history list
-        final DomainHistoryObject<?> history = historyList.get(historyList
-                .size() - 1);
+        final DomainHistoryObject<?> history = historyList
+                .get(historyList.size() - 1);
         ModificationType modificationType = history.getModtype();
         if (!modificationType.equals(ModificationType.DELETE)) {
             fail("The last version of history object is not DELETED type. Object was not correctly deleted.");
@@ -1048,7 +1050,7 @@ public class ServiceProvisioningServiceTestBase extends EJBTestBase {
     }
 
     protected List<VOParameter> createParameters(VOTechnicalService tp) {
-        List<VOParameter> parameters = new ArrayList<VOParameter>();
+        List<VOParameter> parameters = new ArrayList<>();
 
         VOParameter param = new VOParameter(getParamDefinition(
                 "MAX_FOLDER_NUMBER", tp.getParameterDefinitions()));
@@ -1079,13 +1081,13 @@ public class ServiceProvisioningServiceTestBase extends EJBTestBase {
         return parameters;
     }
 
-    protected VOServiceDetails createProduct(String prodId) throws Exception,
-            OrganizationAuthoritiesException, ObjectNotFoundException,
-            OperationNotPermittedException, ValidationException,
-            NonUniqueBusinessKeyException {
+    protected VOServiceDetails createProduct(String prodId)
+            throws Exception, OrganizationAuthoritiesException,
+            ObjectNotFoundException, OperationNotPermittedException,
+            ValidationException, NonUniqueBusinessKeyException {
 
         VOTechnicalService tp = createTechnicalProduct(svcProv);
-        List<VOParameter> params = new ArrayList<VOParameter>();
+        List<VOParameter> params = new ArrayList<>();
         VOParameter param = new VOParameter(getParamDefinition(
                 "MAX_FOLDER_NUMBER", tp.getParameterDefinitions()));
         param.setValue("");
@@ -1156,9 +1158,8 @@ public class ServiceProvisioningServiceTestBase extends EJBTestBase {
             final ServiceProvisioningService serviceProvisioning,
             boolean substrictionRestriction) throws Exception {
 
-        final String tsxml = TSXML
-                .createTSXMLWithSubscriptionRestriction(String
-                        .valueOf(substrictionRestriction));
+        final String tsxml = TSXML.createTSXMLWithSubscriptionRestriction(
+                String.valueOf(substrictionRestriction));
         return runTX(new Callable<VOTechnicalService>() {
             @Override
             public VOTechnicalService call() throws Exception {
@@ -1170,15 +1171,15 @@ public class ServiceProvisioningServiceTestBase extends EJBTestBase {
     protected VOTechnicalService createTechnicalProduct(
             ServiceProvisioningService serviceProvisioning, String xml)
             throws Exception {
-        String rc = serviceProvisioning.importTechnicalServices(xml
-                .getBytes("UTF-8"));
+        String rc = serviceProvisioning
+                .importTechnicalServices(xml.getBytes("UTF-8"));
         assertEquals("", rc);
         List<VOTechnicalService> technicalServices = serviceProvisioning
                 .getTechnicalServices(OrganizationRoleType.TECHNOLOGY_PROVIDER);
         final VOTechnicalService result = technicalServices.get(0);
         for (VOTechnicalService service : technicalServices) {
-            marketingPermServ_getTechnicalProducts.add(mgr.getReference(
-                    TechnicalProduct.class, service.getKey()));
+            marketingPermServ_getTechnicalProducts.add(
+                    mgr.getReference(TechnicalProduct.class, service.getKey()));
         }
         return result;
     }
@@ -1186,9 +1187,8 @@ public class ServiceProvisioningServiceTestBase extends EJBTestBase {
     protected List<VOTechnicalService> createTechnicalProducts(
             ServiceProvisioningService serviceProvisioning) throws Exception {
 
-        String rc = serviceProvisioning
-                .importTechnicalServices(TECHNICAL_SERVICES_XML
-                        .getBytes("UTF-8"));
+        String rc = serviceProvisioning.importTechnicalServices(
+                TECHNICAL_SERVICES_XML.getBytes("UTF-8"));
         assertEquals("", rc);
 
         final List<VOTechnicalService> after = serviceProvisioning
@@ -1196,14 +1196,14 @@ public class ServiceProvisioningServiceTestBase extends EJBTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                OrganizationReference reference = mgr.find(
-                        OrganizationReference.class, orgRef.getKey());
+                OrganizationReference reference = mgr
+                        .find(OrganizationReference.class, orgRef.getKey());
                 for (VOTechnicalService s : after) {
                     try {
                         MarketingPermission mp = new MarketingPermission();
                         mp.setOrganizationReference(reference);
-                        mp.setTechnicalProduct(mgr.find(TechnicalProduct.class,
-                                s.getKey()));
+                        mp.setTechnicalProduct(
+                                mgr.find(TechnicalProduct.class, s.getKey()));
                         mgr.persist(mp);
                     } catch (NonUniqueBusinessKeyException e) {
                         // ignore
@@ -1234,8 +1234,8 @@ public class ServiceProvisioningServiceTestBase extends EJBTestBase {
         assertEquals(expected.length, result.size());
         for (int i = 0; i < expected.length; i++) {
             if (!result.contains(expected[i])) {
-                fail(String
-                        .format("No tag with value '%s' found!", expected[i]));
+                fail(String.format("No tag with value '%s' found!",
+                        expected[i]));
             }
         }
     }
@@ -1267,9 +1267,8 @@ public class ServiceProvisioningServiceTestBase extends EJBTestBase {
                         false);
                 ParameterDefinition pd3 = TechnicalProducts
                         .addParameterDefinition(ParameterValueType.LONG,
-                                "serviceCount",
-                                ParameterType.SERVICE_PARAMETER, tp, mgr, null,
-                                null, true);
+                                "serviceCount", ParameterType.SERVICE_PARAMETER,
+                                tp, mgr, null, null, true);
                 TechnicalProducts.addParameterDefinition(
                         ParameterValueType.LONG, "serviceCountNC",
                         ParameterType.SERVICE_PARAMETER, tp, mgr, null, null,
@@ -1281,8 +1280,8 @@ public class ServiceProvisioningServiceTestBase extends EJBTestBase {
                 Products.createParameter(pd1, prod, mgr);
                 Products.createParameter(pd3, prod, mgr);
 
-                OrganizationReference reference = mgr.find(
-                        OrganizationReference.class, orgRef.getKey());
+                OrganizationReference reference = mgr
+                        .find(OrganizationReference.class, orgRef.getKey());
                 MarketingPermission mp = new MarketingPermission();
                 mp.setOrganizationReference(reference);
                 mp.setTechnicalProduct(tp);
@@ -1298,8 +1297,7 @@ public class ServiceProvisioningServiceTestBase extends EJBTestBase {
         createTechnicalProduct(svcProv);
         container.login(supplierUserKey, ROLE_SERVICE_MANAGER);
         String productXml = "<?xml version='1.0' encoding='UTF-8'?>"
-                + "<TechnicalProduct orgId=\""
-                + providerOrgId
+                + "<TechnicalProduct orgId=\"" + providerOrgId
                 + "\" id=\"example\" version=\"1.00\">"
 
                 + String.format(PRODUCT_FREE_XML_TEMPLATE, EXAMPLE_TRIAL)
@@ -1332,9 +1330,10 @@ public class ServiceProvisioningServiceTestBase extends EJBTestBase {
     protected void compareSubscriptionRestriction(Node tpNode,
             boolean subscriptionRestriction) {
         assertNotNull(tpNode);
-        assertEquals(String.valueOf(subscriptionRestriction), tpNode
-                .getAttributes().getNamedItem("onlyOneSubscriptionPerUser")
-                .getNodeValue());
+        assertEquals(String.valueOf(subscriptionRestriction),
+                tpNode.getAttributes()
+                        .getNamedItem("onlyOneSubscriptionPerUser")
+                        .getNodeValue());
     }
 
     protected void compareTP(VOTechnicalService tp, Node tpNode) {
@@ -1343,10 +1342,10 @@ public class ServiceProvisioningServiceTestBase extends EJBTestBase {
                 .getNamedItem("provisioningUrl").getNodeValue());
         assertEquals(tp.getProvisioningVersion(), tpNode.getAttributes()
                 .getNamedItem("provisioningVersion").getNodeValue());
-        assertEquals("", tpNode.getAttributes().getNamedItem("build")
-                .getNodeValue());
-        assertEquals(tp.getTechnicalServiceId(), tpNode.getAttributes()
-                .getNamedItem("id").getNodeValue());
+        assertEquals("",
+                tpNode.getAttributes().getNamedItem("build").getNodeValue());
+        assertEquals(tp.getTechnicalServiceId(),
+                tpNode.getAttributes().getNamedItem("id").getNodeValue());
         List<VOParameterDefinition> paramDefs = getOnlyProductParamters(tp);
         List<Node> parameterNodes = getNodes(tpNode.getChildNodes(),
                 "ParameterDefinition");
@@ -1383,8 +1382,9 @@ public class ServiceProvisioningServiceTestBase extends EJBTestBase {
                 "LocalizedName");
     }
 
-    protected List<VOEventDefinition> getOnlyProductEvents(VOTechnicalService tp) {
-        List<VOEventDefinition> result = new ArrayList<VOEventDefinition>();
+    protected List<VOEventDefinition> getOnlyProductEvents(
+            VOTechnicalService tp) {
+        List<VOEventDefinition> result = new ArrayList<>();
         for (VOEventDefinition e : tp.getEventDefinitions()) {
             if (e.getEventType() != EventType.PLATFORM_EVENT) {
                 result.add(e);
@@ -1402,8 +1402,8 @@ public class ServiceProvisioningServiceTestBase extends EJBTestBase {
     protected void compareParam(VOParameterDefinition def, Node paramNode) {
         assertNotNull(paramNode);
         String defaultValue = def.getDefaultValue();
-        Node defaultValueAttribute = paramNode.getAttributes().getNamedItem(
-                "default");
+        Node defaultValueAttribute = paramNode.getAttributes()
+                .getNamedItem("default");
         if (defaultValue == null) {
             assertNull(defaultValueAttribute);
         } else {
@@ -1434,13 +1434,14 @@ public class ServiceProvisioningServiceTestBase extends EJBTestBase {
         checkLocalizedValues(def.getDescription(), paramNode.getChildNodes(),
                 "LocalizedDescription");
         List<VOParameterOption> options = def.getParameterOptions();
-        List<Node> optionsNodes = getNodes(paramNode.getChildNodes(), "Options");
+        List<Node> optionsNodes = getNodes(paramNode.getChildNodes(),
+                "Options");
         if (options.isEmpty()) {
             assertTrue(optionsNodes.isEmpty());
         } else {
             assertEquals(1, optionsNodes.size());
-            List<Node> optionNodes = getNodes(optionsNodes.get(0)
-                    .getChildNodes(), "Option");
+            List<Node> optionNodes = getNodes(
+                    optionsNodes.get(0).getChildNodes(), "Option");
             assertEquals(options.size(), optionNodes.size());
             for (VOParameterOption option : options) {
                 Node optionNode = getNodeWithId(optionNodes,
@@ -1466,7 +1467,7 @@ public class ServiceProvisioningServiceTestBase extends EJBTestBase {
     }
 
     protected List<Node> getNodes(NodeList childNodes, String nodeName) {
-        List<Node> result = new ArrayList<Node>();
+        List<Node> result = new ArrayList<>();
         for (int index = 0; index < childNodes.getLength(); index++) {
             if (childNodes.item(index).getNodeName().equals(nodeName)) {
                 result.add(childNodes.item(index));
@@ -1489,8 +1490,8 @@ public class ServiceProvisioningServiceTestBase extends EJBTestBase {
         for (Node node : list) {
             if (node.getAttributes().getNamedItem("locale").getNodeValue()
                     .equals(locale)
-                    && node.getAttributes().getNamedItem("value")
-                            .getNodeValue().equals(tag)) {
+                    && node.getAttributes().getNamedItem("value").getNodeValue()
+                            .equals(tag)) {
                 return node;
             }
         }
@@ -1499,7 +1500,7 @@ public class ServiceProvisioningServiceTestBase extends EJBTestBase {
 
     protected List<VOParameterDefinition> getOnlyProductParamters(
             VOTechnicalService tp) {
-        List<VOParameterDefinition> result = new ArrayList<VOParameterDefinition>();
+        List<VOParameterDefinition> result = new ArrayList<>();
         for (VOParameterDefinition p : tp.getParameterDefinitions()) {
             if (p.getParameterType() != ParameterType.PLATFORM_PARAMETER) {
                 result.add(p);
@@ -1524,10 +1525,10 @@ public class ServiceProvisioningServiceTestBase extends EJBTestBase {
 
         List<VOTechnicalService> list = svcProv
                 .getTechnicalServices(OrganizationRoleType.TECHNOLOGY_PROVIDER);
-        assertEquals(vo.getTechnicalServiceId(), list.get(list.size() - 1)
-                .getTechnicalServiceId());
-        assertEquals(vo.getAccessType(), list.get(list.size() - 1)
-                .getAccessType());
+        assertEquals(vo.getTechnicalServiceId(),
+                list.get(list.size() - 1).getTechnicalServiceId());
+        assertEquals(vo.getAccessType(),
+                list.get(list.size() - 1).getAccessType());
         return voNew;
     }
 
@@ -1537,11 +1538,11 @@ public class ServiceProvisioningServiceTestBase extends EJBTestBase {
 
     protected List<VOLocalizedText> createLocalizedTexts(String text,
             List<VOLocalizedText> existing) {
-        Map<String, String> temp = new HashMap<String, String>();
+        Map<String, String> temp = new HashMap<>();
         temp.put("de", text + "-de");
         temp.put("en", text + "-en");
         temp.put("jp", text + "-jp");
-        final List<VOLocalizedText> list = new ArrayList<VOLocalizedText>();
+        final List<VOLocalizedText> list = new ArrayList<>();
         for (VOLocalizedText txt : existing) {
             String remove = temp.remove(txt.getLocale());
             if (remove != null) {
@@ -1562,7 +1563,7 @@ public class ServiceProvisioningServiceTestBase extends EJBTestBase {
     }
 
     protected Map<String, String> toMap(List<VOLocalizedText> texts) {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         for (VOLocalizedText t : texts) {
             assertNull("duplicate locale " + t.getLocale(),
                     map.put(t.getLocale(), t.getText()));
@@ -1640,7 +1641,8 @@ public class ServiceProvisioningServiceTestBase extends EJBTestBase {
             Set<String> validParams, Set<String> invalidParams,
             Set<String> validEvents, Set<String> invalidEvents)
             throws Exception {
-        List<VOTechnicalService> technicalProducts = createTechnicalProducts(svcProv);
+        List<VOTechnicalService> technicalProducts = createTechnicalProducts(
+                svcProv);
         VOTechnicalService voTP = null;
         for (VOTechnicalService tp : technicalProducts) {
             if (technicalServiceId.equals(tp.getTechnicalServiceId())) {
@@ -1652,7 +1654,7 @@ public class ServiceProvisioningServiceTestBase extends EJBTestBase {
         } else {
             // check params
             List<VOParameterDefinition> pDefs = voTP.getParameterDefinitions();
-            Set<String> ids = new HashSet<String>();
+            Set<String> ids = new HashSet<>();
             for (VOParameterDefinition pDef : pDefs) {
                 ids.add(pDef.getParameterId());
                 if (invalidParams != null) {
@@ -1664,7 +1666,7 @@ public class ServiceProvisioningServiceTestBase extends EJBTestBase {
             }
             // check events
             List<VOEventDefinition> eDefs = voTP.getEventDefinitions();
-            ids = new HashSet<String>();
+            ids = new HashSet<>();
             for (VOEventDefinition eDef : eDefs) {
                 ids.add(eDef.getEventId());
                 if (invalidEvents != null) {
@@ -1683,9 +1685,9 @@ public class ServiceProvisioningServiceTestBase extends EJBTestBase {
         domObjects.clear();
         Organization organization = Organizations.findOrganization(mgr,
                 providerOrgId);
-        TechnicalProduct tProd = TechnicalProducts
-                .createTechnicalProduct(mgr, organization, "TP_WITH_ENUM_ID",
-                        false, ServiceAccessType.LOGIN);
+        TechnicalProduct tProd = TechnicalProducts.createTechnicalProduct(mgr,
+                organization, "TP_WITH_ENUM_ID", false,
+                ServiceAccessType.LOGIN);
         Product prod;
         for (int i = 1; i < numOfProducts; i++) {
             prod = new Product();
@@ -1724,7 +1726,7 @@ public class ServiceProvisioningServiceTestBase extends EJBTestBase {
 
     protected void addParameterOptions(int optionNumber,
             ParameterDefinition paramDef) {
-        List<ParameterOption> optionLists = new ArrayList<ParameterOption>();
+        List<ParameterOption> optionLists = new ArrayList<>();
         for (int ii = 0; ii < optionNumber; ii++) {
             ParameterOption po = new ParameterOption();
             po.setOptionId("" + ii);
@@ -1744,7 +1746,7 @@ public class ServiceProvisioningServiceTestBase extends EJBTestBase {
      */
     protected static void compareDescriptions(List<VOLocalizedText> expected,
             VOServiceLocalization localization, String localeToIgnore) {
-        Map<String, String> localeToDesc = new HashMap<String, String>();
+        Map<String, String> localeToDesc = new HashMap<>();
         for (VOLocalizedText txt : localization.getDescriptions()) {
             localeToDesc.put(txt.getLocale(), txt.getText());
         }
@@ -1759,10 +1761,10 @@ public class ServiceProvisioningServiceTestBase extends EJBTestBase {
     }
 
     protected void makeCompatible(Collection<VOService> sources,
-            List<VOService> targets) throws ObjectNotFoundException,
-            OrganizationAuthoritiesException, OperationNotPermittedException,
-            ServiceCompatibilityException, ServiceStateException,
-            ConcurrentModificationException {
+            List<VOService> targets)
+            throws ObjectNotFoundException, OrganizationAuthoritiesException,
+            OperationNotPermittedException, ServiceCompatibilityException,
+            ServiceStateException, ConcurrentModificationException {
         if (sources != null && targets != null) {
             for (VOService src : sources) {
                 svcProv.setCompatibleServices(src, targets);
@@ -1775,11 +1777,10 @@ public class ServiceProvisioningServiceTestBase extends EJBTestBase {
         return runTX(new Callable<OrganizationReference>() {
             @Override
             public OrganizationReference call() throws Exception {
-                Organization organization = mgr
-                        .find(Organization.class, orgKey);
+                Organization organization = mgr.find(Organization.class,
+                        orgKey);
                 OrganizationReference orgRef = new OrganizationReference(
-                        organization,
-                        organization,
+                        organization, organization,
                         OrganizationReferenceType.TECHNOLOGY_PROVIDER_TO_SUPPLIER);
                 mgr.persist(orgRef);
                 return orgRef;
@@ -1800,8 +1801,8 @@ public class ServiceProvisioningServiceTestBase extends EJBTestBase {
             public Void call() throws Exception {
                 OrganizationReference ref;
                 if (supplierOrg == null) {
-                    ref = createOrgRef(mgr.getCurrentUser().getOrganization()
-                            .getKey());
+                    ref = createOrgRef(
+                            mgr.getCurrentUser().getOrganization().getKey());
                 } else
                     ref = createOrgRef(supplierOrg.getKey());
                 final long orgRefKey = ref.getKey();
@@ -1810,12 +1811,12 @@ public class ServiceProvisioningServiceTestBase extends EJBTestBase {
                                 .createNamedQuery(
                                         "TechnicalProduct.getTechnicalProductsById")
                                 .setParameter("technicalProductId",
-                                        technicalServiceId).getResultList(),
-                                TechnicalProduct.class);
+                                        technicalServiceId)
+                                .getResultList(), TechnicalProduct.class);
 
                 for (TechnicalProduct technicalProduct : technicalProducts) {
-                    OrganizationReference reference = mgr.find(
-                            OrganizationReference.class, orgRefKey);
+                    OrganizationReference reference = mgr
+                            .find(OrganizationReference.class, orgRefKey);
 
                     MarketingPermission permission = new MarketingPermission();
                     permission.setOrganizationReference(reference);
@@ -1833,10 +1834,10 @@ public class ServiceProvisioningServiceTestBase extends EJBTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                TechnicalProduct technicalProduct = mgr.find(
-                        TechnicalProduct.class, tpKey);
-                OrganizationReference reference = mgr.find(
-                        OrganizationReference.class, orgRefKey);
+                TechnicalProduct technicalProduct = mgr
+                        .find(TechnicalProduct.class, tpKey);
+                OrganizationReference reference = mgr
+                        .find(OrganizationReference.class, orgRefKey);
 
                 MarketingPermission permission = new MarketingPermission();
                 permission.setOrganizationReference(reference);
@@ -1859,7 +1860,7 @@ public class ServiceProvisioningServiceTestBase extends EJBTestBase {
             String locale) throws Exception {
 
         // create categories
-        List<VOCategory> categories = new ArrayList<VOCategory>();
+        List<VOCategory> categories = new ArrayList<>();
         for (int i = 0; i < number; i++) {
             VOCategory category = new VOCategory();
             category.setCategoryId("categoryId_" + i + "_" + locale);
@@ -1881,8 +1882,8 @@ public class ServiceProvisioningServiceTestBase extends EJBTestBase {
     protected void deleteEmptyTp_keyRecord(VOTechnicalService techProd)
             throws Exception {
         List<VOEventDefinition> events = techProd.getEventDefinitions();
-        for (Iterator<VOEventDefinition> eventIterator = events.iterator(); eventIterator
-                .hasNext();) {
+        for (Iterator<VOEventDefinition> eventIterator = events
+                .iterator(); eventIterator.hasNext();) {
             final VOEventDefinition voEventDef = eventIterator.next();
 
             Event e = runTX(new Callable<Event>() {
@@ -1901,13 +1902,14 @@ public class ServiceProvisioningServiceTestBase extends EJBTestBase {
                 .iterator(); paramDefIterator.hasNext();) {
             final VOParameterDefinition voParamDef = paramDefIterator.next();
 
-            ParameterDefinition pdf = runTX(new Callable<ParameterDefinition>() {
-                @Override
-                public ParameterDefinition call() throws Exception {
-                    return mgr.find(ParameterDefinition.class,
-                            voParamDef.getKey());
-                }
-            });
+            ParameterDefinition pdf = runTX(
+                    new Callable<ParameterDefinition>() {
+                        @Override
+                        public ParameterDefinition call() throws Exception {
+                            return mgr.find(ParameterDefinition.class,
+                                    voParamDef.getKey());
+                        }
+                    });
             if (null == pdf.getTechnicalProduct_tkey()) {
                 paramDefIterator.remove();
             }

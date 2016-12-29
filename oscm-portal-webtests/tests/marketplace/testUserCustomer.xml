@@ -267,6 +267,7 @@
         <!-- Switch to account / profile page -->
         <mpl_goto.account.profile />
         <!-- Validate all registered fields -->
+        <mpl_goto.tab label="${marketplace.account.profile.userTab}" />
         <mpl_verify.invalidFieldValue fieldId="${fieldId}" fieldType="${fieldType}" required="${required}" topErrorMessage="false" />
       </dataDriven>
 
@@ -353,11 +354,13 @@
       <!-- Switch to edit profile page -->
       <mpl_goto.account.profile />
 
-      <setInputField name="editForm:lastName" value="Blunt" />
-      <setInputField name="editForm:firstName" value="James" />
+      <mpl_goto.tab label="${marketplace.account.profile.userTab}" />
+      
+      <setInputField name="userForm:lastName" value="Blunt" />
+      <setInputField name="userForm:firstName" value="James" />
 
       <!-- And change -->
-      <clickLink htmlId="editForm:saveButtonLink" />
+      <clickLink htmlId="userForm:saveUserButtonLink" />
 
       <mpl_verify.success label="${info.user.profileSaved}" />
 

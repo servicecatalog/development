@@ -13,11 +13,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import org.oscm.domobjects.Discount;
-import org.oscm.domobjects.Organization;
-import org.oscm.domobjects.OrganizationRefToPaymentType;
-import org.oscm.domobjects.OrganizationToRole;
-import org.oscm.domobjects.RevenueShareModel;
+import org.oscm.domobjects.*;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.validator.BLValidator;
@@ -258,6 +254,10 @@ public class OrganizationAssembler extends BaseAssembler {
             voOrganization.setOperatorRevenueShare(organization
                     .getOperatorPriceModel().getRevenueShare());
         }
+        
+        if(organization.getTenant()!=null){
+            voOrganization.setTenantKey(organization.getTenant().getKey());
+        }
     }
 
     /**
@@ -360,6 +360,12 @@ public class OrganizationAssembler extends BaseAssembler {
                 .setDistinguishedName(voOrganization.getDistinguishedName());
         organization.setUrl(voOrganization.getUrl());
         organization.setSupportEmail(voOrganization.getSupportEmail());
+        long tenantKey = voOrganization.getTenantKey();
+        if (tenantKey != 0) {
+            Tenant t = new Tenant();
+            t.setKey(tenantKey);
+            organization.setTenant(t);
+        }
     }
 
     /**

@@ -28,9 +28,26 @@
           <adm:labelAndInputText id="createUdaIdInput" label="#{msg['udaDefinition.udaId']}" required="true"
             value="#{manageUdaDefinitionBean.newUda.udaId}" maxlength="#{appBean.idLen}" styleClass="fieldXS"
             rendered="#{not empty manageUdaDefinitionBean.newUda}" validatorId="idChar" converterId="trimConverter" />
+
+          <adm:labelAndSelect id="language" required="false" styleClass="select"
+                              value="#{manageUdaDefinitionBean.newUda.language}"
+                              label="#{msg['udaDefinition.language']}" listenerBean="#{manageUdaDefinitionBean}">
+            <adm:localeItems />
+          </adm:labelAndSelect>
+
+          <adm:labelAndInputText id="createUdaNameInput" label="#{msg['udaDefinition.attributeName']}"
+                                 value="#{manageUdaDefinitionBean.newUda.name}" maxlength="#{appBean.descriptionLen}"
+                                 converterId="trimConverter" styleClass="fieldXS"
+                                 rendered="#{not empty manageUdaDefinitionBean.newUda}" />
+
           <adm:labelAndInputText id="createUdaDefaultValueInput" label="#{msg['udaDefinition.defaultValue']}"
-            value="#{manageUdaDefinitionBean.newUda.defaultValue}" maxlength="#{appBean.descriptionLen}"
-            converterId="trimConverter" styleClass="fieldXS" rendered="#{not empty manageUdaDefinitionBean.newUda}" />
+                                 value="#{manageUdaDefinitionBean.newUda.defaultValue}" maxlength="#{appBean.descriptionLen}"
+                                 converterId="trimConverter" styleClass="fieldXS" rendered="#{not empty manageUdaDefinitionBean.newUda}" />
+                                 
+          <adm:labelAndInputText id="createUdaControllerIdInput" label="#{msg['udaDefinition.controllerId']}"
+                                 value="#{manageUdaDefinitionBean.newUda.controllerId}" maxlength="#{appBean.descriptionLen}"
+                                 converterId="trimConverter" styleClass="fieldXS" rendered="#{not empty manageUdaDefinitionBean.newUda}" />
+
           <adm:outputLabel value="#{msg['udaDefinition.userOption']}" required="false" />
           <a4j:outputPanel layout="block">
             <h:selectBooleanCheckbox id="createUdaUserOptionCheckBox"
@@ -44,8 +61,14 @@
             <h:selectBooleanCheckbox id="createUdaMandatoryCheckBox" value="#{manageUdaDefinitionBean.newUda.mandatory}"
               disabled="#{not manageUdaDefinitionBean.newUda.userOption}" />
           </a4j:outputPanel>
-
           <adm:message for="createUdaMandatoryCheckBox" />
+
+          <adm:outputLabel value="#{msg['udaDefinition.encrypted']}" required="false" />
+          <a4j:outputPanel id="createUdaEncryptedCheckBoxDiv" layout="block" >
+            <h:selectBooleanCheckbox id="createUdaEncryptedCheckBox"
+                                     value="#{manageUdaDefinitionBean.newUda.encrypted}" />
+          </a4j:outputPanel>
+          <adm:message for="createUdaEncryptedCheckBox" />
         </adm:panelGrid>
         <adm:spacer height="20" />
 
@@ -69,8 +92,8 @@
             <h:outputText style="white-space: nowrap;" value="#{msg['button.cancel']}" />
           </h:outputLink>
 
-
         </adm:buttonPanel>
+
       </h:form>
 
       <h:form>
