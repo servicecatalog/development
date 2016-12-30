@@ -18,6 +18,7 @@ import java.util.List;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.WildcardQuery;
 
 import org.oscm.converter.WhiteSpaceConverter;
@@ -84,11 +85,28 @@ public class LuceneQueryBuilder {
     private static BooleanQuery prepareWildcardQueryForSingleToken(String token,
             List<String> fieldNames, String locale, String defaultLocale,
             boolean isDefaultLocaleHandling) {
+
         BooleanQuery queryPart = new BooleanQuery();
+
         for (String fieldName : fieldNames) {
+
             WildcardQuery wildcardQuery = new WildcardQuery(new Term(
                     fieldName + locale, "*" + token.toLowerCase() + "*"));
-            queryPart.add(wildcardQuery, Occur.SHOULD);
+
+            if (isDefaultLocaleHandling) {
+                if (locale.equals(defaultLocale)) {
+                    throw new IllegalArgumentException(
+                            "For default locale handling, locale and default locale must be different");
+                }
+                TermQuery localeQuery = new TermQuery(new Term(
+                        fieldName + ProductClassBridge.DEFINED_LOCALES_SUFFIX,
+                        "(+" + defaultLocale + "-" + locale + ")" + " AND"));
+                queryPart.add(localeQuery, Occur.SHOULD);
+                queryPart.add(wildcardQuery, Occur.SHOULD);
+            } else {
+                queryPart.add(wildcardQuery, Occur.SHOULD);
+            }
+
         }
         return queryPart;
     }
