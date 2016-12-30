@@ -81,14 +81,12 @@ import org.oscm.internal.types.enumtypes.ServiceType;
                 @TokenFilterDef(factory = WordDelimiterFilterFactory.class, params = {
                         @Parameter(name = "preserveOriginal", value = "1"),
                         @Parameter(name = "catenateAll", value = "1") }),
-                @TokenFilterDef(factory = LowerCaseFilterFactory.class),
-                @TokenFilterDef(factory = SnowballPorterFilterFactory.class) }),
+                @TokenFilterDef(factory = LowerCaseFilterFactory.class)}),
         @AnalyzerDef(name = "de", tokenizer = @TokenizerDef(factory = WhitespaceTokenizerFactory.class), filters = {
                 @TokenFilterDef(factory = WordDelimiterFilterFactory.class, params = {
                         @Parameter(name = "preserveOriginal", value = "1"),
                         @Parameter(name = "catenateAll", value = "1") }),
-                @TokenFilterDef(factory = LowerCaseFilterFactory.class),
-                @TokenFilterDef(factory = GermanStemFilterFactory.class) }), })
+                @TokenFilterDef(factory = LowerCaseFilterFactory.class)}), })
 @AnalyzerDiscriminator(impl = ProductClassBridge.class)
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "productId",
         "vendorKey" }))
