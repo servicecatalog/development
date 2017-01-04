@@ -227,8 +227,8 @@
   <target name="copyCertToMasterDomain">
     <signcertificate keystore="${glassfish.master.domain.dir}/config/keystore.jks" />
     <importrootca keystore="${glassfish.master.domain.dir}/config/cacerts.jks" />
-    <copy file="${build.src.dir}/oscm-integrationtests-setup/resources/cert/cakey.der" todir="${glassfish.master.domain.dir}/config" />
-    <copy file="${build.src.dir}/oscm-integrationtests-setup/resources/cert/cacert.der" todir="${glassfish.master.domain.dir}/config" />
+    <!-- <copy file="${build.src.dir}/oscm-integrationtests-setup/resources/cert/cakey.der" todir="${glassfish.master.domain.dir}/config" />
+    <copy file="${build.src.dir}/oscm-integrationtests-setup/resources/cert/cacert.der" todir="${glassfish.master.domain.dir}/config" /> -->
   </target>
 
   <target name="_configureBesStandalone">
@@ -246,8 +246,8 @@
   <target name="copyCertToBesDomain">
     <signcertificate keystore="${glassfish.bes.domain.dir}/config/keystore.jks" />
     <importrootca keystore="${glassfish.bes.domain.dir}/config/cacerts.jks" />
-    <copy file="${build.src.dir}/oscm-integrationtests-setup/resources/cert/cakey.der" todir="${glassfish.bes.domain.dir}/config" />
-    <copy file="${build.src.dir}/oscm-integrationtests-setup/resources/cert/cacert.der" todir="${glassfish.bes.domain.dir}/config" />
+    <!-- <copy file="${build.src.dir}/oscm-integrationtests-setup/resources/cert/cakey.der" todir="${glassfish.bes.domain.dir}/config" />
+    <copy file="${build.src.dir}/oscm-integrationtests-setup/resources/cert/cacert.der" todir="${glassfish.bes.domain.dir}/config" /> -->
   </target>
 
   <target name="enableCoverage">
@@ -280,8 +280,8 @@
   <target name="copyCertToExampleDomain">
     <signcertificate keystore="${glassfish.example.domain.dir}/config/keystore.jks" />
     <importrootca keystore="${glassfish.example.domain.dir}/config/cacerts.jks" />
-    <copy file="${build.src.dir}/oscm-integrationtests-setup/resources/cert/cakey.der" todir="${glassfish.example.domain.dir}/config" />
-    <copy file="${build.src.dir}/oscm-integrationtests-setup/resources/cert/cacert.der" todir="${glassfish.example.domain.dir}/config" />
+    <!-- <copy file="${build.src.dir}/oscm-integrationtests-setup/resources/cert/cakey.der" todir="${glassfish.example.domain.dir}/config" />
+    <copy file="${build.src.dir}/oscm-integrationtests-setup/resources/cert/cacert.der" todir="${glassfish.example.domain.dir}/config" /> -->
     <importcertificate srckeystore="${glassfish.bes.domain.dir}/config/keystore.jks" srcalias="s1as" destkeystore="${glassfish.example.domain.dir}/config/cacerts.jks" destalias="integration-bes-s1as" />
   </target>
 
