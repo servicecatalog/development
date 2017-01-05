@@ -21,7 +21,6 @@
 		<project>oscm-configservice</project>
 		<project>oscm-configservice-intsvc</project>
 		<project>oscm-converter</project>
-		<project>oscm-credentialservice</project>
 		<project>oscm-dataservice</project>
 		<project>oscm-dataservice-intsvc</project>
 		<project>oscm-domainobjects</project>
@@ -51,7 +50,6 @@
 		<project>oscm-rest-api-common</project>
 		<project>oscm-rest-api-trigger</project>
 		<project>oscm-review</project>
-		<project>oscm-saml-api</project>
 		<project>oscm-server-common</project>
 		<project>oscm-server-util</project>
 		<project>oscm-serviceprovisioning</project>
@@ -63,6 +61,8 @@
 		<project>oscm-subscriptionmgmt-intsvc</project>
 		<project>oscm-taskhandling</project>
 		<project>oscm-taskhandling-intsvc</project>
+		<project>oscm-tenantmgmt</project>
+		<project>oscm-tenantmgmt-intsvc</project>
 		<project>oscm-tenantprovisioning</project>
 		<project>oscm-timermgmt</project>
 		<project>oscm-triggerservice</project>
@@ -72,8 +72,6 @@
 		<project>oscm-webservices</project>
 		<project>oscm-webservices-client</project>
 		<project>oscm-wsdldeliver</project>
-		<project>oscm-tenantmgmt</project>
-		<project>oscm-tenantmgmt-intsvc</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

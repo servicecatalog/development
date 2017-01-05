@@ -178,7 +178,7 @@
     <ant antfile="ivy-build.xml" />
     <ant dir="${adm.ue.buildscript.dir}" antfile="${adm.ue.buildscript.file}" target="package">
       <property name="projects"
-        value="oscm-ear,oscm-security,oscm-portal,oscm-search,oscm-reports,example-service,oscm-integrationtests-mockproduct,mock-psp-service,oscm-portal,oscm-integrationtests-saml-sp,oscm-psp-heidelpay,oscm-devruntime,oscm-portal-webtests,oscm-extsvc,oscm-extsvc-internal,oscm-common,oscm-devruntime,oscm-psp-extsvc,oscm-operatorsvc-client,oscm-jmx-internal" />
+        value="oscm-ear,oscm-security,oscm-portal,oscm-search,oscm-reports,example-service,oscm-integrationtests-mockproduct,mock-psp-service,oscm-portal,oscm-psp-heidelpay,oscm-devruntime,oscm-portal-webtests,oscm-extsvc,oscm-extsvc-internal,oscm-common,oscm-devruntime,oscm-psp-extsvc,oscm-operatorsvc-client,oscm-jmx-internal" />
     </ant>
   </target>
 
