@@ -46,7 +46,6 @@ import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang3.StringUtils;
 import org.oscm.internal.intf.AccountService;
 import org.oscm.internal.intf.SubscriptionService;
 import org.oscm.internal.intf.SubscriptionServiceInternal;
@@ -168,26 +167,25 @@ public class SubscriptionWizardConversation implements Serializable {
     }
 
     @PostConstruct
-    public String startSubscription() {
+    public void startSubscription() {
+        
         paymentAndBillingVisibleBean = ui
                 .findBean("paymentAndBillingVisibleBean");
         paymentInfoBean = ui.findBean("paymentInfoBean");
+        
         try {
-            result = initializeService(
-                    getServiceDetailsModel().getSelectedService());
+            initializeService(getServiceDetailsModel().getSelectedService());
 
             if (conversation.isTransient()) {
                 conversation.setTimeout(TIMEOUT);
                 conversation.begin();
             }
-
             model.setAnyPaymentAvailable(paymentAndBillingVisibleBean
                     .isPaymentVisible(getEnabledPaymentTypes(),
                             getPaymentInfosForSubscription()));
-        } catch (ObjectNotFoundException e) {
-            result = redirectToServiceList();
         } catch (ServiceStateException | OperationNotPermittedException
-                | OrganizationAuthoritiesException | ValidationException ex) {
+                | OrganizationAuthoritiesException | ValidationException
+                | ObjectNotFoundException ex) {
             ui.handleException(ex);
         }
         model.setReadOnlyParams(false);

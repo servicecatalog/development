@@ -10,7 +10,7 @@
   <property file="${dbproperties.file}" />
 
   <path id="postgresql-jdbc.path">
-    <pathelement location="${basedir}/lib/postgresql-9.4.1209.jar" />
+    <pathelement location="${basedir}/lib/postgresql-9.4-1206-jdbc42.jar" />
   </path>
 
   <target name="listUserIdConflicts">
