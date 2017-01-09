@@ -11,12 +11,12 @@
  *******************************************************************************/
 package org.oscm.domobjects;
 
+import org.oscm.domobjects.converters.IdpSettingTypeConverter;
 import org.oscm.internal.types.enumtypes.IdpSettingType;
 
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Embeddable;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 
 
 @Embeddable
@@ -27,7 +27,7 @@ public class TenantSettingData extends DomainDataContainer {
      */
     private static final long serialVersionUID = 6900999015801280393L;
 
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = IdpSettingTypeConverter.class)
     @Column(nullable = false)
     private IdpSettingType name;
 

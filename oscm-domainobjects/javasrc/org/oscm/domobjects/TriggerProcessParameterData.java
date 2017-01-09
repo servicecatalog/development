@@ -18,7 +18,6 @@ import javax.persistence.Embeddable;
 
 import org.oscm.converter.XMLSerializer;
 import org.oscm.domobjects.converters.TPPNConverter;
-import org.oscm.domobjects.handling.XmlStringCleaner;
 import org.oscm.internal.types.enumtypes.*;
 import org.oscm.internal.types.exception.SaaSSystemException;
 import org.oscm.logging.Log4jLogger;

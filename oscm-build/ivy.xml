@@ -487,6 +487,9 @@
     <dependency org="org.apache.httpcomponents" name="httpcore" rev="4.4.1"  transitive="false"/>
     <dependency org="org.apache.httpcomponents" name="httpclient" rev="4.5.2"  transitive="false"/> 
     
+    <!-- JDBC Driver-->
+    <dependency org="org.postgresql" name="postgresql" rev="9.4-1206-jdbc42" transitive="false"/>
+    
     <exclude org="org.netbeans.api"/>
     <exclude org="*" ext="*" type="source"/>
     <exclude org="*" ext="*" type="javadoc"/>
