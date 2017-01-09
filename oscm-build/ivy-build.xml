@@ -52,6 +52,7 @@
     <copy file="${ivy.lib.dir}/axis2-transport-local-1.5.1.jar" todir="${root.dir}/libraries/apache-axis2-lib/javalib/" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/axis2-xmlbeans-1.5.1.jar" todir="${root.dir}/libraries/apache-axis2-lib/javalib/" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/geronimo-stax-api_1.0_spec-1.0.1.jar" todir="${root.dir}/libraries/apache-axis2-lib/javalib/" overwrite="true"></copy>
+    <copy file="${ivy.lib.dir}/httpcore-4.4.1.jar" todir="${root.dir}/libraries/apache-axis2-lib/javalib" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/neethi-2.0.4.jar" todir="${root.dir}/libraries/apache-axis2-lib/javalib/" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/woden-api-1.0M8.jar" todir="${root.dir}/libraries/apache-axis2-lib/javalib/" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/woden-impl-dom-1.0M8.jar" todir="${root.dir}/libraries/apache-axis2-lib/javalib/" overwrite="true"></copy>
