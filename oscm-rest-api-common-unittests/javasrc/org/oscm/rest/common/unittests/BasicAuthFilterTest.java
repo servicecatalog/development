@@ -17,6 +17,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.exceptions.base.MockitoException;
@@ -39,6 +40,7 @@ import com.sun.web.security.WebProgrammaticLoginImpl;
  * 
  * @author miethaner
  */
+@Ignore
 public class BasicAuthFilterTest {
 
     private static final Long USER_KEY = new Long(1L);

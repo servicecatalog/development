@@ -23,6 +23,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.oscm.rest.common.GsonMessageProvider;
 import org.oscm.rest.common.Representation;
@@ -35,6 +36,7 @@ import com.google.gson.annotations.Until;
  * 
  * @author miethaner
  */
+@Ignore
 public class GsonMessageProviderTest {
 
     private static final long ID = 1L;
