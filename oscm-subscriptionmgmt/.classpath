@@ -31,11 +31,6 @@
 	<classpathentry kind="lib" path="/libraries/redhat-hibernate/javalib/hibernate-core-5.0.9.Final.jar"/>
 	<classpathentry kind="lib" path="/libraries/jboss-hibernate-search/javalib/hibernate-search-engine-5.5.4.Final.jar"/>
 	<classpathentry kind="lib" path="/libraries/jboss-hibernate-search/javalib/hibernate-search-orm-5.5.4.Final.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8">
-		<attributes>
-			<attribute name="owner.project.facets" value="java"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-auditlog"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-tenantprovisioning"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-triggerservice"/>
@@ -45,5 +40,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-internal-interfaces"/>
 	<classpathentry kind="lib" path="/libraries/apache-commons-lang/javalib/commons-lang3-3.3.2.jar"/>
 	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/gf-client.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

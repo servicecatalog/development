@@ -2,7 +2,6 @@
 <classpath>
 	<classpathentry kind="src" path="javasrc"/>
 	<classpathentry kind="src" path="javares"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc-internal"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-dataservice-intsvc"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-review"/>
@@ -13,5 +12,6 @@
 	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/javaee.jar"/>
 	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/gf-client.jar"/>
 	<classpathentry kind="lib" path="/libraries/glassfish4/modules/web-core.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

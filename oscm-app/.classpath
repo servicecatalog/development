@@ -2,7 +2,6 @@
 <classpath>
 	<classpathentry kind="src" path="javasrc"/>
 	<classpathentry kind="src" path="javares"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc-provisioning"/>
 	<classpathentry kind="lib" path="/libraries/slf4j/javalib/slf4j-api-1.7.7.jar"/>
 	<classpathentry kind="lib" path="/libraries/slf4j/javalib/slf4j-simple-1.7.7.jar"/>
@@ -33,5 +32,6 @@
 	<classpathentry kind="src" path="/oscm-app-extsvc-1-0"/>
 	<classpathentry kind="src" path="/oscm-app-converter"/>
 	<classpathentry kind="lib" path="/libraries/apache-commons-lang/javalib/commons-lang3-3.3.2.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
