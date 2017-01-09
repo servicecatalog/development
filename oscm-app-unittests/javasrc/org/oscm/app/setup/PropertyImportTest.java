@@ -214,11 +214,8 @@ public class PropertyImportTest {
         }
         PropertyImport importer = createImport();
         importer.execute();
-        String[] expected = new String[] { "SELECT", "SELECT ", "INSERT ",
-                "SELECT ", "UPDATE ", "SELECT ", "INSERT ", "SELECT ",
-                "INSERT ", "SELECT ", "INSERT ", "SELECT ", "INSERT ",
-                "SELECT ", "INSERT ", "SELECT ", "INSERT ", "SELECT ",
-                "INSERT ", "SELECT ", "INSERT " };
+        String[] expected = new String[] { "SELECT", "INSERT ", "UPDATE ",
+                "DELETE " };
         int cnt = 0;
         assertEquals(expected.length, sqlStatementes.size());
         for (String sql : sqlStatementes) {
@@ -286,11 +283,7 @@ public class PropertyImportTest {
         }
         PropertyImport importer = createImport();
         importer.execute();
-        String[] expected = new String[] { "SELECT ", "SELECT ", "INSERT ",
-                "SELECT", "SELECT ", "INSERT ", "SELECT ", "INSERT ", "SELECT ",
-                "INSERT ", "SELECT ", "INSERT ", "SELECT ", "INSERT ",
-                "SELECT ", "INSERT ", "SELECT ", "INSERT ", "SELECT ",
-                "INSERT " };
+        String[] expected = new String[] { "SELECT ", "INSERT ", "DELETE " };
         int cnt = 0;
         assertEquals(expected.length, sqlStatementes.size());
         for (String sql : sqlStatementes) {
@@ -337,7 +330,7 @@ public class PropertyImportTest {
             fail("Runtime exception expected.");
         } catch (Exception e) {
             assertTrue(e instanceof RuntimeException);
-            assertEquals(PropertyImport.ERR_DB_CONNECTION, e.getMessage());
+            assertEquals(PropertyImport.ERR_DB_CLOSE, e.getMessage());
         }
     }
 
@@ -392,40 +385,7 @@ public class PropertyImportTest {
             fail("Runtime exception expected.");
         } catch (Exception e) {
             assertTrue(e instanceof RuntimeException);
-            assertEquals(PropertyImport.ERR_DB_ENTRY_COUNT, e.getMessage());
-        }
-    }
-
-    @Test
-    public void test_secondPrepareException() throws Exception {
-        PreparedStatement selectConfigSettingsStatement = Mockito
-                .mock(PreparedStatement.class);
-        ResultSet thirdResult = Mockito.mock(ResultSet.class);
-        prepStatements.push(selectConfigSettingsStatement);
-        Mockito.when(selectConfigSettingsStatement.executeQuery())
-                .thenReturn(thirdResult);
-        Mockito.doReturn("mm").when(thirdResult).getString(Matchers.anyInt());
-        Mockito.when(sqlConn.prepareStatement(Matchers.startsWith("INSERT")))
-                .thenReturn(statement).thenThrow(new SQLException());
-        Mockito.when(sqlConn.prepareStatement(Matchers.startsWith("UPDATE")))
-                .thenReturn(statement).thenThrow(new SQLException());
-        Properties p = getProperties();
-        FileOutputStream fos = null;
-        try {
-            fos = new FileOutputStream(tempFile);
-            p.store(fos, "No comment");
-        } finally {
-            if (fos != null) {
-                fos.close();
-            }
-        }
-        PropertyImport importer = createImport();
-        try {
-            importer.execute();
-            fail("Runtime exception expected.");
-        } catch (Exception e) {
-            assertTrue(e instanceof RuntimeException);
-            assertEquals(PropertyImport.ERR_DB_WRITE, e.getMessage());
+            assertEquals(PropertyImport.ERR_DB_LOAD_SETTINGS, e.getMessage());
         }
     }
 

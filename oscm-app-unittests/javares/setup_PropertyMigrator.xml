@@ -6,4 +6,6 @@
   <ConfigurationSetting settingkey="BSS_USER_ID" settingvalue="id" controllerid="PROXY"/>
   <ConfigurationSetting settingkey="TEST1" settingvalue="test1" controllerid="PROXY"/>
   <ConfigurationSetting settingkey="TEST2" settingvalue="test1" controllerid="PROXY"/>
+  <ConfigurationSetting settingkey="TEST1" settingvalue="test1" controllerid="ess.sample"/>
+  <ConfigurationSetting settingkey="TEST2" settingvalue="test1" controllerid="ess.sample"/>
 </dataset>

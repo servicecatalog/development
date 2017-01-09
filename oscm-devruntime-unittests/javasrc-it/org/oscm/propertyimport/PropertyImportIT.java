@@ -10,14 +10,16 @@ package org.oscm.propertyimport;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -32,20 +34,22 @@ import org.oscm.internal.types.enumtypes.ConfigurationKey;
  * 
  * @author miethaner
  */
-public class PropertyMigratorIT {
+public class PropertyImportIT {
 
     private static TestDatabase testDatabase;
+    private static String path;
 
-    private class TestMigrator extends PropertyMigrator {
+    private class TestImport extends PropertyImport {
 
-        public TestMigrator(String driverClass, String driverURL,
-                String userName, String userPwd, String contextId) {
-            super(driverClass, driverURL, userName, userPwd, contextId);
+        public TestImport(String driverClass, String driverURL, String userName,
+                String userPwd, String file, boolean overwrite,
+                String contextId) {
+            super(driverClass, driverURL, userName, userPwd, file, overwrite,
+                    contextId);
         }
 
         @Override
         protected Connection getConnetion() throws SQLException {
-            System.out.println("test");
             return testDatabase.getDBconnection();
         }
     }
@@ -54,6 +58,19 @@ public class PropertyMigratorIT {
     public static void initDb() throws Exception {
         testDatabase = new TestDatabase();
         testDatabase.initDatabase();
+        File tempFile = File.createTempFile("temp", ".properties");
+        tempFile.deleteOnExit();
+        path = tempFile.getAbsolutePath();
+        FileOutputStream fos = null;
+        Properties p = getProperties();
+        try {
+            fos = new FileOutputStream(tempFile);
+            p.store(fos, "No comment");
+        } finally {
+            if (fos != null) {
+                fos.close();
+            }
+        }
     }
 
     @Before
@@ -70,30 +87,13 @@ public class PropertyMigratorIT {
     @AfterClass
     public static void cleanupDB() throws Exception {
         testDatabase.updateDBSchemaToLatestVersion();
-    }
-
-    @Test
-    public void testParameters() {
-
-        try {
-            TestMigrator
-                    .main(new String[] { "java.lang.String", "url", "user" });
-            fail();
-        } catch (Exception e) {
-        }
-
-        try {
-            TestMigrator.main(new String[] { "java.lang.String", "url", "user",
-                    "password", "context", "test" });
-            fail();
-        } catch (Exception e) {
-        }
+        testDatabase.close();
     }
 
     @Test
     public void testMigration() throws Exception {
-        TestMigrator migrator = new TestMigrator("java.lang.String", "url",
-                "user", "password", "global");
+        TestImport migrator = new TestImport("java.lang.String", "url", "user",
+                "password", path, true, "global");
         migrator.execute();
 
         Connection conn = testDatabase.getDBconnection();
@@ -111,5 +111,26 @@ public class PropertyMigratorIT {
         for (ConfigurationKey ck : ConfigurationKey.values()) {
             assertTrue(keys.contains(ck.getKeyName()));
         }
+    }
+
+    private static Properties getProperties() {
+        Properties p = new Properties();
+        p.put(ConfigurationKey.AUTH_MODE.name(), "INTERNAL");
+        p.put(ConfigurationKey.BASE_URL.name(), "http://localhost:8180");
+        p.put(ConfigurationKey.SSO_STS_URL.name(), "http://localhost:8680");
+
+        p.put(ConfigurationKey.BASE_URL_HTTPS.name(), "http://localhost:8180");
+        p.put(ConfigurationKey.LOG_FILE_PATH.name(), "../logs");
+        p.put(ConfigurationKey.PSP_USAGE_ENABLED.name(), "false");
+        p.put(ConfigurationKey.TAGGING_MAX_TAGS.name(), "20");
+        p.put(ConfigurationKey.TAGGING_MIN_SCORE.name(), "1");
+
+        p.put(ConfigurationKey.WS_TIMEOUT.name(), "180000");
+        p.put(ConfigurationKey.SSO_DEFAULT_TENANT_ID.name(), "8f96dede");
+        p.put(ConfigurationKey.SSO_IDP_SAML_ASSERTION_ISSUER_ID.name(),
+                "default");
+        p.put(ConfigurationKey.HIDDEN_UI_ELEMENTS.name(),
+                "operator.manageBillingAdapters,techService.viewBillingAdapters");
+        return p;
     }
 }

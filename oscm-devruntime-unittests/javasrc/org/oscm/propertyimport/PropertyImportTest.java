@@ -169,12 +169,8 @@ public class PropertyImportTest {
                 fos.close();
             }
         }
-        String[] expected = new String[] { "SELECT ", "INSERT ", "SELECT ",
-                "UPDATE ", "SELECT ", "INSERT ", "SELECT ", "INSERT ",
-                "SELECT ", "INSERT ", "SELECT ", "INSERT ", "SELECT ",
-                "INSERT ", "SELECT ", "INSERT ", "SELECT ", "INSERT ",
-                "SELECT ", "INSERT ", "SELECT ", "INSERT ", "SELECT ",
-                "INSERT ", "SELECT ", "INSERT ", "SELECT ", "INSERT " };
+        String[] expected = new String[] { "SELECT ", "INSERT ", "UPDATE ",
+                "DELETE " };
         int cnt = 0;
         assertEquals(expected.length, sqlStatementes.size());
         for (String sql : sqlStatementes) {
@@ -318,11 +314,7 @@ public class PropertyImportTest {
 
         PropertyImport importer = createImport();
         importer.execute();
-        String[] expected = new String[] { "SELECT ", "INSERT ", "SELECT",
-                "SELECT", "INSERT", "SELECT", "INSERT", "SELECT", "INSERT",
-                "SELECT", "INSERT", "SELECT", "INSERT", "SELECT", "INSERT",
-                "SELECT", "INSERT", "SELECT", "INSERT", "SELECT", "INSERT",
-                "SELECT", "INSERT", "SELECT", "INSERT", "SELECT", "INSERT" };
+        String[] expected = new String[] { "SELECT ", "INSERT ", "DELETE " };
         int cnt = 0;
         assertEquals(expected.length, sqlStatementes.size());
         for (String sql : sqlStatementes) {

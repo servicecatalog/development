@@ -39,6 +39,11 @@ public class TestDatabase {
         TESTDATABASE.clearBusinessData();
     }
 
+    public void close() throws Exception {
+        System.out.println("Close database connection");
+        TESTDATABASE.getDataSource().getConnection().close();
+    }
+
     public Connection getDBconnection() throws SQLException {
         return TESTDATABASE.getDataSource().getConnection();
     }
