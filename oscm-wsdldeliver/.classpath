@@ -11,14 +11,10 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-domainobjects"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc-internal"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-serviceprovisioning-intsvc"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8">
-		<attributes>
-			<attribute name="owner.project.facets" value="java"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-timermgmt"/>
 	<classpathentry kind="lib" path="/libraries/apache-httpclient/javalib/commons-httpclient-3.1.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-tenantmgmt-intsvc"/>
 	<classpathentry kind="lib" path="/libraries/apache-commons-lang/javalib/commons-lang3-3.3.2.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
