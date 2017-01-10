@@ -1,5 +1,0 @@
-e9bb1a26,admin,secret
-e9bb1a26,tpuser1,secret
-e9bb1a26,tpuser2,secret
-e9bb1a26,tpuser3,secret
-e9bb1a26,tpuser4,secret
