@@ -200,25 +200,6 @@ public class PropertyImportControllerTest {
     }
 
     @Test
-    public void execute_ControllerSettings_NoControllerId() {
-        // given
-        Properties p = givenAppProperties(ControllerId.NOT_PRESENT);
-        doReturn(p).when(propImportController)
-                .loadProperties(any(InputStream.class));
-
-        // when
-        try {
-            propImportController.execute();
-            fail("Runtime exception expected.");
-        } catch (Exception e) {
-            assertTrue(e instanceof RuntimeException);
-            assertEquals(PropertyImport.ERR_CONTROLLER_ID_EMPTY,
-                    e.getMessage());
-        }
-
-    }
-
-    @Test
     public void execute_ControllerSettings_ReservedAppControllerId() {
         // given
         Properties p = givenAppProperties(ControllerId.RESERVED_APP_VALUE);

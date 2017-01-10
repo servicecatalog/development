@@ -150,11 +150,6 @@ public class PropertyImport {
         Set<Object> keys = p.keySet();
         boolean controllerIdSet = false;
 
-        Map<String, String> currentControllerProps = loadConfigurationSettings(
-                conn);
-        Map<String, String> toCreate = new HashMap<>();
-        Map<String, String> toUpdate = new HashMap<>();
-
         for (Object key : keys) {
             if (CONTROLLER_ID_KEY.equals(key)) {
                 String controllerIdValue = (String) p.get(key);
@@ -170,9 +165,13 @@ public class PropertyImport {
         if (controllerIdSet && Strings.isEmpty(controllerId)) {
             throw new RuntimeException(ERR_CONTROLLER_ID_EMPTY);
         }
-        for (
 
-        Object key : keys) {
+        Map<String, String> currentControllerProps = loadConfigurationSettings(
+                conn);
+        Map<String, String> toCreate = new HashMap<>();
+        Map<String, String> toUpdate = new HashMap<>();
+
+        for (Object key : keys) {
             if (!CONTROLLER_ID_KEY.equals(key)) {
                 if (currentControllerProps.containsKey(key)) {
                     toUpdate.put(key.toString(),
@@ -185,7 +184,14 @@ public class PropertyImport {
         }
 
         createEntries(conn, toCreate);
-        updateEntries(conn, toUpdate);
+        if (overwriteFlag) {
+            updateEntries(conn, toUpdate);
+        } else {
+            for (String key : toUpdate.keySet()) {
+                System.out
+                        .println("Existing Configuration " + key + " skipped");
+            }
+        }
     }
 
     void importProxySettings(Connection conn, Properties p) {
@@ -210,16 +216,21 @@ public class PropertyImport {
                     continue;
                 } else {
                     value = "changeIt";
+                    if (key.name().endsWith(SUFFIX_PWD)
+                            || key.name().endsWith(SUFFIX_PASS)) {
+                        value = PREFIX_CRYPT + value;
+                    }
                 }
             } else {
                 verifyConfigurationValue(key, value);
             }
 
-            if (currentProxyProps.remove(key.name()) != null) {
+            if (currentProxyProps.containsKey(key.name())) {
                 toUpdate.put(key.name(), value);
             } else {
                 toCreate.put(key.name(), value);
             }
+            currentProxyProps.remove(key.name());
         }
 
         createEntries(conn, toCreate);
@@ -282,9 +293,6 @@ public class PropertyImport {
             for (String key : toCreate.keySet()) {
 
                 String value = toCreate.get(key);
-                if (key.endsWith(SUFFIX_PWD) || key.endsWith(SUFFIX_PASS)) {
-                    value = PREFIX_CRYPT + value;
-                }
                 stmt.setString(1, value);
                 stmt.setString(2, key);
                 stmt.setString(3, controllerId);
@@ -311,9 +319,6 @@ public class PropertyImport {
             for (String key : toUpdate.keySet()) {
 
                 String value = toUpdate.get(key);
-                if (key.endsWith(SUFFIX_PWD) || key.endsWith(SUFFIX_PASS)) {
-                    value = PREFIX_CRYPT + value;
-                }
                 stmt.setString(1, value);
                 stmt.setString(2, key);
                 stmt.setString(3, controllerId);

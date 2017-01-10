@@ -133,12 +133,14 @@ public class PropertyImport {
                 verifyAuthMode(keyName, value);
                 verifyConfigurationValue(key, value);
 
-                if (settings.remove(keyName) != null) {
+                if (settings.containsKey(keyName)) {
                     toUpdate.put(keyName, value);
                 } else {
                     toCreate.put(keyName, value);
                 }
+                settings.remove(keyName);
             }
+
             createEntries(conn, toCreate);
             if (overwriteFlag) {
                 updateEntries(conn, toUpdate);
