@@ -1,1 +1,0 @@
-The credential management service implementation.

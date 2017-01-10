@@ -12,7 +12,6 @@
   </target>
   
   <target name="copyLibraries" depends="resolve">
-
     <copy file="${ivy.lib.dir}/commons-pool2-2.4.2.jar" todir="${root.dir}/libraries/apache-commons-pool/javalib" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/opencsv-3.7.jar" todir="${root.dir}/libraries/opencsv/javalib" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/antlr4-runtime-4.1.jar" todir="${root.dir}/libraries/antlr/javalib" overwrite="true"></copy>

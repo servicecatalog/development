@@ -109,9 +109,9 @@ public class IndexRequestListener {
         try {
             Context ctx = getContext();
             ConnectionFactory qFactory = (ConnectionFactory) ctx
-                    .lookup(getConfigurationSetting(ConfigurationKey.SEARCH_INDEX_MASTER_FACTORY_NAME));
+                    .lookup("jms/bss/masterIndexerQueueFactory");
             Queue targetQueue = (Queue) ctx
-                    .lookup(getConfigurationSetting(ConfigurationKey.SEARCH_INDEX_MASTER_QUEUE_NAME));
+                    .lookup("jms/bss/masterIndexerQueue");
             conn = qFactory.createConnection();
             session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
             MessageProducer producer = session.createProducer(targetQueue);

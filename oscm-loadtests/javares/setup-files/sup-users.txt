@@ -1,5 +1,0 @@
-dfaa49fb,admin,secret
-dfaa49fb,suppUser1,secret
-dfaa49fb,suppUser2,secret
-dfaa49fb,suppUser3,secret
-dfaa49fb,suppUser4,secret

@@ -30,26 +30,6 @@ public class ConfigurationSettingsValidatorTest {
     private static final String MAX_LENGTH_URL = "http://01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567";
 
     @Test
-    public void testValidate_String() {
-        ConfigurationSettingsValidator.validate(
-                ConfigurationKey.IDP_PUBLIC_CERTIFICATE_FILE_PATH, "abc");
-    }
-
-    @Test
-    public void testValidate_String_Length() {
-        ConfigurationSettingsValidator.validate(
-                ConfigurationKey.IDP_PUBLIC_CERTIFICATE_FILE_PATH,
-                MAX_LENGTH_URL);
-    }
-
-    @Test(expected = RuntimeException.class)
-    public void testValidate_String_Length_BadCase() {
-        ConfigurationSettingsValidator.validate(
-                ConfigurationKey.IDP_PUBLIC_CERTIFICATE_FILE_PATH,
-                MAX_LENGTH_URL + "a");
-    }
-
-    @Test
     public void testValidate_Long() {
         ConfigurationSettingsValidator.validate(
                 ConfigurationKey.AUDIT_LOG_MAX_ENTRIES_RETRIEVED, "123");

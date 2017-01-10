@@ -883,56 +883,6 @@
       <per-request-load-balancing>false</per-request-load-balancing>
     </ejb>
 
-    <ejb>
-      <ejb-name>SamlServiceWS1</ejb-name>
-      <jndi-name>SamlServiceWS1</jndi-name>
-      <pass-by-reference>false</pass-by-reference>
-      <is-read-only-bean>false</is-read-only-bean>
-      <refresh-period-in-seconds>-1</refresh-period-in-seconds>
-      <cmt-timeout-in-seconds>0</cmt-timeout-in-seconds>
-      <gen-classes />
-      <webservice-endpoint>
-        <port-component-name>SamlServicePortBASIC</port-component-name>
-        <endpoint-address-uri>SamlService/BASIC</endpoint-address-uri>
-        <login-config>
-          <auth-method>BASIC</auth-method>
-          <realm>bss-realm</realm>
-        </login-config>
-        <transport-guarantee>CONFIDENTIAL</transport-guarantee>
-        <service-qname>
-          <namespaceURI>http://oscm.org/xsd</namespaceURI>
-          <localpart>SamlService</localpart>
-        </service-qname>
-        <debugging-enabled>true</debugging-enabled>
-      </webservice-endpoint>
-      <per-request-load-balancing>false</per-request-load-balancing>
-    </ejb>
-
-    <ejb>
-      <ejb-name>SamlServiceWS2</ejb-name>
-      <jndi-name>SamlServiceWS2</jndi-name>
-      <pass-by-reference>false</pass-by-reference>
-      <is-read-only-bean>false</is-read-only-bean>
-      <refresh-period-in-seconds>-1</refresh-period-in-seconds>
-      <cmt-timeout-in-seconds>0</cmt-timeout-in-seconds>
-      <gen-classes />
-      <webservice-endpoint>
-        <port-component-name>SamlServicePortCLIENTCERT</port-component-name>
-        <endpoint-address-uri>SamlService/CLIENTCERT</endpoint-address-uri>
-        <login-config>
-          <auth-method>CLIENT-CERT</auth-method>
-          <realm>bss-realm</realm>
-        </login-config>
-        <transport-guarantee>CONFIDENTIAL</transport-guarantee>
-        <service-qname>
-          <namespaceURI>http://oscm.org/xsd</namespaceURI>
-          <localpart>SamlService</localpart>
-        </service-qname>
-        <debugging-enabled>true</debugging-enabled>
-      </webservice-endpoint>
-      <per-request-load-balancing>false</per-request-load-balancing>
-    </ejb>
-    
     <!-- Organizational Unit EJB -->
     <ejb>
       <ejb-name>OrganizationalUnitServiceWS1</ejb-name>

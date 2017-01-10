@@ -46,6 +46,7 @@ import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
 import org.oscm.internal.intf.AccountService;
 import org.oscm.internal.intf.SubscriptionService;
 import org.oscm.internal.intf.SubscriptionServiceInternal;
@@ -183,6 +184,7 @@ public class SubscriptionWizardConversation implements Serializable {
             model.setAnyPaymentAvailable(paymentAndBillingVisibleBean
                     .isPaymentVisible(getEnabledPaymentTypes(),
                             getPaymentInfosForSubscription()));
+
         } catch (ServiceStateException | OperationNotPermittedException
                 | OrganizationAuthoritiesException | ValidationException
                 | ObjectNotFoundException ex) {

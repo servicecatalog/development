@@ -19,6 +19,7 @@ import java.util.*;
 import javax.persistence.*;
 
 import org.oscm.app.converters.PSConverter;
+
 import org.oscm.app.business.exceptions.BadResultException;
 import org.oscm.app.i18n.Messages;
 import org.oscm.app.v2_0.data.InstanceStatus;
@@ -197,6 +198,7 @@ public class ServiceInstance implements Serializable {
     private List<InstanceAttribute> instanceAttributes = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "serviceInstance", fetch = FetchType.LAZY)
+
     private List<Operation> operations = new ArrayList<>();
 
     public long getTkey() {

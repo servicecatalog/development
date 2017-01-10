@@ -34,10 +34,10 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-triggerservice"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-triggerservice-intsvc"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-i18n"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/oscm-marketplaceservice"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc-internal"/>
 	<classpathentry kind="lib" path="/libraries/redhat-hibernate/javalib/geronimo-jta_1.1_spec-1.1.1.jar"/>
 	<classpathentry kind="lib" path="/libraries/redhat-hibernate/javalib/classmate-1.3.0.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-marketplaceservice"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

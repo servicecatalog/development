@@ -42,7 +42,9 @@ public class RestTriggerResourceTest {
 
     @Test
     public void testDefinition() {
+
         /*RestTriggerResource resource = new RestTriggerResource();
+
         RestTriggerResource.Definition definition = resource
                 .redirectToTrigger();
 

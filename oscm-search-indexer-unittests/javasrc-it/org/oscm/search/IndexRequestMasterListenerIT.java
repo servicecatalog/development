@@ -75,6 +75,7 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
                     LocalizedObjectTypes.PRODUCT_SHORT_DESCRIPTION,
                     LocalizedObjectTypes.PRICEMODEL_DESCRIPTION,
                     LocalizedObjectTypes.PRODUCT_CUSTOM_TAB_NAME);
+
     private static final List<String> expectedIndexedAttributesProduct = Arrays
             .asList(ProductClassBridge.SERVICE_NAME + locale,
                     ProductClassBridge.SERVICE_DESCRIPTION + locale,

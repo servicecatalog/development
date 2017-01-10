@@ -20,7 +20,6 @@ import org.oscm.intf.MarketplaceService;
 import org.oscm.intf.OrganizationalUnitService;
 import org.oscm.intf.ReportingService;
 import org.oscm.intf.ReviewService;
-import org.oscm.intf.SamlService;
 import org.oscm.intf.SearchService;
 import org.oscm.intf.ServiceProvisioningService;
 import org.oscm.intf.SessionService;
@@ -98,12 +97,6 @@ public class SupportedVersionsWSTest {
     public void ReviewServiceTest() throws Exception {
         ReviewService wsProxy = getService(ReviewService.class);
         wsProxy.writeReview(null);
-    }
-
-    @Test(expected = ServerSOAPFaultException.class)
-    public void SamlServiceTest() throws Exception {
-        SamlService wsProxy = getService(SamlService.class);
-        wsProxy.createSamlResponse(null);
     }
 
     @Test(expected = ServerSOAPFaultException.class)
