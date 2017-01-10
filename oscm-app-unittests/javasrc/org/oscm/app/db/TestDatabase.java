@@ -2,7 +2,7 @@
  *  Copyright FUJITSU LIMITED 2016 
  *******************************************************************************/
 
-package org.oscm.db;
+package org.oscm.app.db;
 
 import java.net.URL;
 import java.sql.Connection;
@@ -13,28 +13,16 @@ import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.ReplacementDataSet;
 import org.dbunit.dataset.xml.FlatXmlDataSetBuilder;
 import org.dbunit.operation.DatabaseOperation;
-import org.oscm.setup.DatabaseVersionInfo;
 import org.oscm.test.db.ITestDB;
 import org.oscm.test.ejb.TestDataSources;
 
 public class TestDatabase {
-    private static final ITestDB TESTDATABASE = TestDataSources
-            .get("oscm-domainobjects");
-
-    private final DatabaseVersionInfo fromVersion = new DatabaseVersionInfo(1,
-            0, 16);
-    private final DatabaseVersionInfo toVersion = new DatabaseVersionInfo(2, 0,
-            22);
-
-    private static final DatabaseVersionInfo MAX_VERSION = new DatabaseVersionInfo(
-            Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE);
+    private static final ITestDB TESTDATABASE = TestDataSources.get("oscm-app");
 
     public void initDatabase() throws Exception {
         System.out.println("Start database initialization...");
         TESTDATABASE.purgeSchema();
-        TESTDATABASE.loadSchema(fromVersion);
-        TESTDATABASE.clearBusinessData();
-        TESTDATABASE.loadSchema(toVersion);
+        TESTDATABASE.loadSchema();
         System.out.println("Database initialization finished");
     }
 
@@ -67,15 +55,7 @@ public class TestDatabase {
         return set;
     }
 
-    /**
-     * The schema must be changed to the latest version for follow up test
-     * cases.
-     * 
-     * @throws Exception
-     */
     public void updateDBSchemaToLatestVersion() throws Exception {
-        TESTDATABASE.purgeSchema();
-        TESTDATABASE.loadSchema(MAX_VERSION);
+        TESTDATABASE.loadSchema();
     }
-
 }
