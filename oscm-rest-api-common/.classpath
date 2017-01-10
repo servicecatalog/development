@@ -8,5 +8,8 @@
 	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/hk2-api-2.4.0-b31.jar"/>
 	<classpathentry kind="lib" path="/libraries/glassfish4/modules/websecurity.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="/libraries/apache-codec/javalib/commons-codec-1.7.jar"/>
+	<classpathentry kind="lib" path="/libraries/jersey/javalib/jersey-server.jar"/>
+	<classpathentry kind="lib" path="/libraries/jersey/javalib/jersey-common.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

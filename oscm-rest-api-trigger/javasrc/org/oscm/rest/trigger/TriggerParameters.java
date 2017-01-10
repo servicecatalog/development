@@ -13,7 +13,7 @@ import javax.ws.rs.WebApplicationException;
 import org.oscm.rest.common.RequestParameters;
 
 /**
- * InjectParam class for trigger endpoints
+ * BeanParam class for trigger endpoints
  * 
  * @author miethaner
  */

@@ -9,5 +9,7 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-common"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc-internal"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="/libraries/jersey/javalib/jersey-common.jar"/>
+	<classpathentry kind="lib" path="/libraries/jersey/javalib/jersey-server.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

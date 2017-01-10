@@ -428,6 +428,7 @@
     <dependency org="org.glassfish.jersey.ext.cdi" name="jersey-cdi1x-transaction" rev="2.21" transitive="false"/>
     <dependency org="org.glassfish.jersey.core" name="jersey-client" rev="2.21" transitive="false"/>
     <dependency org="org.glassfish.jersey.core" name="jersey-common" rev="2.21" transitive="false"/>
+    <dependency org="org.glassfish.jersey.core" name="jersey-server" rev="2.21" transitive="false"/>
     <dependency org="org.glassfish.jersey.containers" name="jersey-container-grizzly2-http" rev="2.21"
                 transitive="false"/>
     <dependency org="org.glassfish.jersey.containers" name="jersey-container-servlet" rev="2.21" transitive="false"/>
