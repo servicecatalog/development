@@ -23,7 +23,6 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.oscm.rest.common.GsonMessageProvider;
 import org.oscm.rest.common.Representation;
@@ -36,7 +35,6 @@ import com.google.gson.annotations.Until;
  * 
  * @author miethaner
  */
-@Ignore
 public class GsonMessageProviderTest {
 
     private static final long ID = 1L;
@@ -116,8 +114,8 @@ public class GsonMessageProviderTest {
                     MediaType.APPLICATION_JSON_TYPE, null, stream);
             fail();
         } catch (WebApplicationException e) {
-            assertEquals(Status.BAD_REQUEST.getStatusCode(), e.getResponse()
-                    .getStatus());
+            assertEquals(Status.BAD_REQUEST.getStatusCode(),
+                    e.getResponse().getStatus());
         } catch (IOException e) {
             fail();
         }
@@ -135,8 +133,8 @@ public class GsonMessageProviderTest {
         OutputStream stream = new ByteArrayOutputStream();
 
         try {
-            provider.writeTo(rep, Representation.class, rep.getClass(), rep
-                    .getClass().getAnnotations(),
+            provider.writeTo(rep, Representation.class, rep.getClass(),
+                    rep.getClass().getAnnotations(),
                     MediaType.APPLICATION_JSON_TYPE, null, stream);
         } catch (WebApplicationException | IOException e) {
             fail();
@@ -152,8 +150,8 @@ public class GsonMessageProviderTest {
         stream = new ByteArrayOutputStream();
 
         try {
-            provider.writeTo(rep, Representation.class, rep.getClass(), rep
-                    .getClass().getAnnotations(),
+            provider.writeTo(rep, Representation.class, rep.getClass(),
+                    rep.getClass().getAnnotations(),
                     MediaType.APPLICATION_JSON_TYPE, null, stream);
         } catch (WebApplicationException | IOException e) {
             fail();
