@@ -12,7 +12,6 @@ import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
 import org.oscm.internal.types.enumtypes.ParameterModificationType;
-import org.oscm.internal.types.enumtypes.PriceModelType;
 
 /**
  * Authored by dawidch
@@ -31,6 +30,9 @@ public class PMTConverter
 
     @Override
     public String convertToDatabaseColumn(ParameterModificationType enumik) {
+        if (enumik == null) {
+            return null;
+        }
         return enumik.name();
     }
 }

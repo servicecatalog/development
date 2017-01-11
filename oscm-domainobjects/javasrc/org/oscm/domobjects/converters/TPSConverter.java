@@ -30,6 +30,9 @@ public class TPSConverter
 
     @Override
     public String convertToDatabaseColumn(TriggerProcessStatus enumik) {
+        if (enumik == null) {
+            return null;
+        }
         return enumik.name();
     }
 }

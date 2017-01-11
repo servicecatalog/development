@@ -30,6 +30,9 @@ public class DHOConverter
 
     @Override
     public String convertToDatabaseColumn(ModificationType enumik) {
+        if (enumik == null) {
+            return null;
+        }
         return enumik.name();
     }
 }

@@ -30,6 +30,9 @@ public class ProvTConverter
 
     @Override
     public String convertToDatabaseColumn(ProvisioningType enumik) {
+        if (enumik == null) {
+            return null;
+        }
         return enumik.name();
     }
 }

@@ -30,6 +30,9 @@ public class PVTConverter
 
     @Override
     public String convertToDatabaseColumn(ParameterValueType enumik) {
+        if (enumik == null) {
+            return null;
+        }
         return enumik.name();
     }
 }

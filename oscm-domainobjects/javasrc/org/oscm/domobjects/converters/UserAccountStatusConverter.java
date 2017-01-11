@@ -30,6 +30,9 @@ public class UserAccountStatusConverter
 
     @Override
     public String convertToDatabaseColumn(UserAccountStatus enumik) {
+        if (enumik == null) {
+            return null;
+        }
         return enumik.name();
     }
 }

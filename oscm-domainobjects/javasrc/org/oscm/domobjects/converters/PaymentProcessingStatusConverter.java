@@ -30,6 +30,9 @@ public class PaymentProcessingStatusConverter
 
     @Override
     public String convertToDatabaseColumn(PaymentProcessingStatus enumik) {
+        if (enumik == null) {
+            return null;
+        }
         return enumik.name();
     }
 }

@@ -29,6 +29,9 @@ public class UTTConverter implements AttributeConverter<UdaTargetType, String> {
 
     @Override
     public String convertToDatabaseColumn(UdaTargetType enumik) {
+        if (enumik == null) {
+            return null;
+        }
         return enumik.name();
     }
 }

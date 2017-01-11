@@ -28,10 +28,18 @@ import javax.naming.spi.InitialContextFactoryBuilder;
 public class TestNamingContextFactoryBuilder implements
         InitialContextFactoryBuilder {
 
+    private final TestPersistence PERSISTENCE;
     private Context ctx;
+
+    public TestNamingContextFactoryBuilder(TestPersistence persistence) {
+        PERSISTENCE = persistence;
+    }
 
     public InitialContextFactory createInitialContextFactory(
             Hashtable<?, ?> environment) throws NamingException {
+        Hashtable persistence = new Hashtable<>();
+        persistence.put("java:appserver/TransactionManager", PERSISTENCE.getTransactionManager());
+        environment.putAll(persistence);
         return new InitialContextFactory() {
             public Context getInitialContext(Hashtable<?, ?> environment)
                     throws NamingException {

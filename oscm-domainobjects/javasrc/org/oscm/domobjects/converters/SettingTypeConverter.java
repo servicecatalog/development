@@ -30,6 +30,9 @@ public class SettingTypeConverter
 
     @Override
     public String convertToDatabaseColumn(SettingType enumik) {
+        if (enumik == null) {
+            return null;
+        }
         return enumik.name();
     }
 }

@@ -29,6 +29,9 @@ public class ETConverter implements AttributeConverter<EventType, String> {
 
     @Override
     public String convertToDatabaseColumn(EventType enumik) {
+        if (enumik == null) {
+            return null;
+        }
         return enumik.name();
     }
 }

@@ -30,6 +30,9 @@ public class LOTConverter
 
     @Override
     public String convertToDatabaseColumn(LocalizedObjectTypes enumik) {
+        if (enumik == null) {
+            return null;
+        }
         return enumik.name();
     }
 }

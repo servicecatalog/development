@@ -30,6 +30,9 @@ public class CKConverter
 
     @Override
     public String convertToDatabaseColumn(ConfigurationKey configurationKey) {
+        if (configurationKey == null) {
+            return null;
+        }
         return configurationKey.getKeyName();
     }
 }

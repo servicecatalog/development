@@ -30,6 +30,9 @@ public class TPINConverter
 
     @Override
     public String convertToDatabaseColumn(TriggerProcessIdentifierName enumik) {
+        if (enumik == null) {
+            return null;
+        }
         return enumik.name();
     }
 }

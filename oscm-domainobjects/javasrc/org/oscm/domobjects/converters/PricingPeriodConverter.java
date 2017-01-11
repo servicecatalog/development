@@ -30,6 +30,9 @@ public class PricingPeriodConverter
 
     @Override
     public String convertToDatabaseColumn(PricingPeriod enumik) {
+        if (enumik == null) {
+            return null;
+        }
         return enumik.name();
     }
 }

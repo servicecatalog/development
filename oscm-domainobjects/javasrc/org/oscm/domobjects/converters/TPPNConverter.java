@@ -30,6 +30,9 @@ public class TPPNConverter
 
     @Override
     public String convertToDatabaseColumn(TriggerProcessParameterName enumik) {
+        if (enumik == null) {
+            return null;
+        }
         return enumik.name();
     }
 }

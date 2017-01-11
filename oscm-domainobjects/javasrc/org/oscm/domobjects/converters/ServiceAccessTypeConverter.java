@@ -30,6 +30,9 @@ public class ServiceAccessTypeConverter
 
     @Override
     public String convertToDatabaseColumn(ServiceAccessType enumik) {
+        if (enumik == null) {
+            return null;
+        }
         return enumik.name();
     }
 }

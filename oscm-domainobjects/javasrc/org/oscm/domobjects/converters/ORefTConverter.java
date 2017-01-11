@@ -28,6 +28,9 @@ public class ORefTConverter
 
     @Override
     public String convertToDatabaseColumn(OrganizationReferenceType enumik) {
+        if (enumik == null) {
+            return null;
+        }
         return enumik.name();
     }
 }

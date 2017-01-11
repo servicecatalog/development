@@ -30,6 +30,9 @@ public class ServiceSConverter
 
     @Override
     public String convertToDatabaseColumn(ServiceStatus enumik) {
+        if (enumik == null) {
+            return null;
+        }
         return enumik.name();
     }
 }

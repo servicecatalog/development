@@ -29,6 +29,9 @@ public class PTConverter implements AttributeConverter<ParameterType, String> {
 
     @Override
     public String convertToDatabaseColumn(ParameterType enumik) {
+        if (enumik == null) {
+            return null;
+        }
         return enumik.name();
     }
 }

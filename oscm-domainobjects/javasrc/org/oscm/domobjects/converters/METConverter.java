@@ -30,6 +30,9 @@ public class METConverter
 
     @Override
     public String convertToDatabaseColumn(ModifiedEntityType enumik) {
+        if (enumik == null) {
+            return null;
+        }
         return enumik.name();
     }
 }

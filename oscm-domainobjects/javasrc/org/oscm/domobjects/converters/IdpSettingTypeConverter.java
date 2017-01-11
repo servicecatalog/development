@@ -12,10 +12,14 @@ import javax.persistence.AttributeConverter;
 
 import org.oscm.internal.types.enumtypes.IdpSettingType;
 
-public class IdpSettingTypeConverter implements AttributeConverter<IdpSettingType, String>{
+public class IdpSettingTypeConverter
+        implements AttributeConverter<IdpSettingType, String> {
 
     @Override
     public String convertToDatabaseColumn(IdpSettingType idpSettingType) {
+        if (idpSettingType == null) {
+            return null;
+        }
         return idpSettingType.name();
     }
 

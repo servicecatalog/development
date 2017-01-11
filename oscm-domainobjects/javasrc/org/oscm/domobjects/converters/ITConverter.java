@@ -29,6 +29,9 @@ public class ITConverter implements AttributeConverter<ImageType, String> {
 
     @Override
     public String convertToDatabaseColumn(ImageType enumik) {
+        if (enumik == null) {
+            return null;
+        }
         return enumik.name();
     }
 }

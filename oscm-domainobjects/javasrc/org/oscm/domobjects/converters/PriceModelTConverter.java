@@ -30,6 +30,9 @@ public class PriceModelTConverter
 
     @Override
     public String convertToDatabaseColumn(PriceModelType enumik) {
+        if (enumik == null) {
+            return null;
+        }
         return enumik.name();
     }
 }
