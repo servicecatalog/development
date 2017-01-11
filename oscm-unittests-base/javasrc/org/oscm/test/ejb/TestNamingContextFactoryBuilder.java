@@ -31,6 +31,10 @@ public class TestNamingContextFactoryBuilder implements
     private final TestPersistence PERSISTENCE;
     private Context ctx;
 
+    public TestNamingContextFactoryBuilder() {
+        PERSISTENCE = new TestPersistence();
+    }
+
     public TestNamingContextFactoryBuilder(TestPersistence persistence) {
         PERSISTENCE = persistence;
     }
