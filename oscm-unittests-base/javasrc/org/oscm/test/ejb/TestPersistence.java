@@ -36,7 +36,7 @@ import org.oscm.test.db.ITestDB;
  * @author hoffmann
  */
 @SuppressWarnings("deprecation")
-//TODO glassfish upgrade
+
 public class TestPersistence {
 
     private final TransactionManager transactionManager;
