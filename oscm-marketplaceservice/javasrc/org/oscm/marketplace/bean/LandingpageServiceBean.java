@@ -257,8 +257,9 @@ public class LandingpageServiceBean implements LandingpageServiceLocal {
 
         // save new landing page
         EnterpriseLandingpage newLandingpage = new EnterpriseLandingpage();
-        marketplace.setEnterpiseLandingpage(newLandingpage);
+        newLandingpage.setMarketplace(marketplace);
         dm.persist(newLandingpage);
+        marketplace.setEnterpiseLandingpage(newLandingpage);
 
         marketplaceCache.resetConfiguration(marketplace.getMarketplaceId());
     }
