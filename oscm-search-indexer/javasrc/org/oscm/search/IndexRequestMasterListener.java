@@ -107,8 +107,8 @@ public class IndexRequestMasterListener extends
             if (messageObject instanceof IndexRequestMessage) {
                 IndexRequestMessage msg = (IndexRequestMessage) messageObject;
                 try {
-                    DomainObject<?> object = dm.getReference(
-                            msg.getObjectClass(), msg.getKey());
+                    DomainObject<?> object = dm
+                            .getReference(msg.getObjectClass(), msg.getKey());
                     handleIndexing(object, msg.getType());
                 } catch (ObjectNotFoundException e) {
                     logger.logDebug(
@@ -140,18 +140,18 @@ public class IndexRequestMasterListener extends
      * as well.
      */
     List<Product> getProductAndCopiesForIndexUpdate(Product product) {
-        List<Product> productsToUpdate = new ArrayList<Product>();
+        List<Product> productsToUpdate = new ArrayList<>();
         if (!product.isCopy()) {
-            Query query = dm
-                    .createNamedQuery("Product.getProductsForTemplateIndexUpdate");
+            Query query = dm.createNamedQuery(
+                    "Product.getProductsForTemplateIndexUpdate");
             query.setParameter("template", product);
-            query.setParameter("state", EnumSet.of(ServiceStatus.ACTIVE,
-                    ServiceStatus.INACTIVE, ServiceStatus.SUSPENDED,
-                    ServiceStatus.OBSOLETE));
+            query.setParameter("state",
+                    EnumSet.of(ServiceStatus.ACTIVE, ServiceStatus.INACTIVE,
+                            ServiceStatus.SUSPENDED, ServiceStatus.OBSOLETE));
             query.setParameter("type", EnumSet.of(ServiceType.PARTNER_TEMPLATE,
                     ServiceType.CUSTOMER_TEMPLATE));
-            productsToUpdate.addAll(ParameterizedTypes.list(
-                    query.getResultList(), Product.class));
+            productsToUpdate.addAll(ParameterizedTypes
+                    .list(query.getResultList(), Product.class));
         }
         productsToUpdate.add(product);
         return productsToUpdate;
@@ -163,7 +163,8 @@ public class IndexRequestMasterListener extends
             // Bug 9670: In case if a template of a partner or customer product
             // is modified we must also write the copies to the index
             if (modType == ModificationType.MODIFY) {
-                List<Product> productsToUpdate = getProductAndCopiesForIndexUpdate(product);
+                List<Product> productsToUpdate = getProductAndCopiesForIndexUpdate(
+                        product);
                 handleListIndexing(ParameterizedTypes.list(productsToUpdate,
                         Product.class));
                 return;
@@ -196,8 +197,8 @@ public class IndexRequestMasterListener extends
                     .createNamedQuery("Category.findServices");
             servicesQuery.setParameter("categoryKey",
                     Long.valueOf(((Category) object).getKey()));
-            handleListIndexing(ParameterizedTypes.list(
-                    servicesQuery.getResultList(), Product.class));
+            handleListIndexing(ParameterizedTypes
+                    .list(servicesQuery.getResultList(), Product.class));
             return;
         }
         if (object instanceof Subscription) {
@@ -209,12 +210,14 @@ public class IndexRequestMasterListener extends
         }
         if (object instanceof Parameter) {
             Parameter parameter = (Parameter) object;
-            if (parameter.getParameterDefinition().getValueType() == ParameterValueType.STRING) {
+            if (parameter.getParameterDefinition()
+                    .getValueType() == ParameterValueType.STRING) {
                 Product product = parameter.getParameterSet().getProduct();
                 if (product != null) {
                     Subscription subscription = product.getOwningSubscription();
                     if (subscription != null
-                            && isSubscriptionNotDeactivatedOrInvalid(subscription)) {
+                            && isSubscriptionNotDeactivatedOrInvalid(
+                                    subscription)) {
                         handleObjectIndexing(subscription);
                     }
                 }
@@ -226,7 +229,8 @@ public class IndexRequestMasterListener extends
             UdaDefinition udaDef = uda.getUdaDefinition();
 
             if (udaDef.getTargetType() == UdaTargetType.CUSTOMER_SUBSCRIPTION
-                    && udaDef.getConfigurationType() != UdaConfigurationType.SUPPLIER) {
+                    && udaDef
+                            .getConfigurationType() != UdaConfigurationType.SUPPLIER) {
                 try {
                     Subscription sub = dm.getReference(Subscription.class,
                             uda.getTargetObjectKey());
@@ -242,7 +246,7 @@ public class IndexRequestMasterListener extends
             UdaDefinition udaDef = (UdaDefinition) object;
 
             List<Product> prodList = udaDef.getOrganization().getProducts();
-            List<Subscription> subList = new ArrayList<Subscription>();
+            List<Subscription> subList = new ArrayList<>();
             for (Product prod : prodList) {
                 subList.add(prod.getOwningSubscription());
             }
@@ -257,7 +261,8 @@ public class IndexRequestMasterListener extends
                 && subscription.getStatus() != SubscriptionStatus.INVALID;
     }
 
-    private void handleListIndexing(Collection<? extends DomainObject<?>> list) {
+    private void handleListIndexing(
+            Collection<? extends DomainObject<?>> list) {
         Session session = getSession();
         if (list == null || session == null) {
             return;
@@ -308,8 +313,8 @@ public class IndexRequestMasterListener extends
         // check if index is already present (via query)
         boolean isIndexEmpty = true;
         SearchFactory searchFactory = fullTextSession.getSearchFactory();
-        IndexReader reader = searchFactory.getIndexReaderAccessor().open(
-                Product.class, Subscription.class);
+        IndexReader reader = searchFactory.getIndexReaderAccessor()
+                .open(Product.class, Subscription.class);
 
         Transaction tx = fullTextSession.beginTransaction();
 
@@ -327,6 +332,7 @@ public class IndexRequestMasterListener extends
             } else {
                 // otherwise delete previous index
                 fullTextSession.purgeAll(Product.class);
+                fullTextSession.purgeAll(Subscription.class);
             }
         }
 
@@ -336,8 +342,8 @@ public class IndexRequestMasterListener extends
         // by definition)
 
         Query query = dm.createNamedQuery("Marketplace.getAll");
-        List<Marketplace> globalMps = ParameterizedTypes.list(
-                query.getResultList(), Marketplace.class);
+        List<Marketplace> globalMps = ParameterizedTypes
+                .list(query.getResultList(), Marketplace.class);
 
         fullTextSession.setFlushMode(FlushMode.MANUAL);
         fullTextSession.setCacheMode(CacheMode.IGNORE);
@@ -373,10 +379,9 @@ public class IndexRequestMasterListener extends
         }
 
         // index all active subscriptions
-        org.hibernate.Query objectQuery = fullTextSession
-                .createQuery("SELECT s FROM Subscription s WHERE s.dataContainer.status NOT IN ('"
-                        + SubscriptionStatus.DEACTIVATED.name()
-                        + "','"
+        org.hibernate.Query objectQuery = fullTextSession.createQuery(
+                "SELECT s FROM Subscription s WHERE s.dataContainer.status NOT IN ('"
+                        + SubscriptionStatus.DEACTIVATED.name() + "','"
                         + SubscriptionStatus.INVALID.name() + "')");
         ScrollableResults results = objectQuery.scroll(ScrollMode.FORWARD_ONLY);
 
