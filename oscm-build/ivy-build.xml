@@ -186,11 +186,9 @@
   	<!-- Glassfish 4.1.1 necesarry libraries -->
   	<copy file="${ivy.lib.dir}/javaee-4.1.1.jar" tofile="${root.dir}/libraries/glassfish4/javalib/javaee.jar" overwrite="true"/>
   	<copy file="${ivy.lib.dir}/gf-client-4.1.1.jar" tofile="${root.dir}/libraries/glassfish4/javalib/gf-client.jar" overwrite="true"/>
-    <copy file="${ivy.lib.dir}/hk2-api-2.4.0-b31.jar" todir="${root.dir}/libraries/glassfish4/javalib" overwrite="true"></copy>
-    <copy file="${ivy.lib.dir}/hk2-utils-2.4.0-b31.jar" todir="${root.dir}/libraries/glassfish4/javalib" overwrite="true"></copy>
+    
     <copy file="${ivy.lib.dir}/javax.inject-1.jar" todir="${root.dir}/libraries/glassfish4/javalib" overwrite="true"></copy>
-    <copy file="${ivy.lib.dir}/hk2-core-2.4.0-b31.jar" todir="${root.dir}/libraries/glassfish4/javalib" overwrite="true"></copy>
-    <copy file="${ivy.lib.dir}/hk2-locator-2.4.0-b31.jar" todir="${root.dir}/libraries/glassfish4/javalib" overwrite="true"></copy>
+    
 
   	<!-- from Class-Path of javaee.jar -->
   	<copy file="${ivy.lib.dir}/javax.annotation-api-1.2.jar" tofile="${root.dir}/libraries/glassfish4/modules/endorsed/javax.annotation-api.jar" overwrite="true"/>
@@ -214,7 +212,7 @@
   	<copy file="${ivy.lib.dir}/javax.interceptor-api-1.2.jar" tofile="${root.dir}/libraries/glassfish4/modules/javax.interceptor-api.jar" overwrite="true"/>
   	<copy file="${ivy.lib.dir}/weld-osgi-bundle-2.2.13.Final.jar" tofile="${root.dir}/libraries/glassfish4/modules/weld-osgi-bundle.jar" overwrite="true"/>
   	<copy file="${ivy.lib.dir}/web-core-4.1.1.jar" tofile="${root.dir}/libraries/glassfish4/modules/web-core.jar" overwrite="true"/>
-  	<copy file="${ivy.lib.dir}/internal-api-4.1.1.jar" todir="${root.dir}/libraries/glassfish4/javalib/" overwrite="true"/>
+  	<copy file="${ivy.lib.dir}/internal-api-4.1.1.jar" tofile="${root.dir}/libraries/glassfish4/modules/internal-api.jar" overwrite="true"/>
   	<copy file="${ivy.lib.dir}/jackson-core-2.5.1.jar" tofile="${root.dir}/libraries/glassfish4/modules/jackson-core.jar" overwrite="true"/>
   	<copy file="${ivy.lib.dir}/jackson-databind-2.5.1.jar" tofile="${root.dir}/libraries/glassfish4/modules/jackson-databind.jar" overwrite="true"/>
   	<copy file="${ivy.lib.dir}/jackson-annotations-2.5.1.jar" tofile="${root.dir}/libraries/glassfish4/modules/jackson-annotations.jar" overwrite="true"/>
@@ -227,7 +225,11 @@
   	<copy file="${ivy.lib.dir}/ejb-internal-api-4.1.1.jar" tofile="${root.dir}/libraries/glassfish4/modules/ejb-internal-api.jar" overwrite="true"/>
   	<copy file="${ivy.lib.dir}/common-util-4.1.1.jar" tofile="${root.dir}/libraries/glassfish4/modules/common-util.jar" overwrite="true"/>
   	<copy file="${ivy.lib.dir}/transaction-internal-api-4.1.1.jar" tofile="${root.dir}/libraries/glassfish4/modules/transaction-internal-api.jar" overwrite="true"/>
-
+  	<copy file="${ivy.lib.dir}/hk2-api-2.4.0-b31.jar" tofile="${root.dir}/libraries/glassfish4/modules/hk2-api.jar" overwrite="true"/>
+  	<copy file="${ivy.lib.dir}/hk2-utils-2.4.0-b31.jar" tofile="${root.dir}/libraries/glassfish4/modules/hk2-utils.jar" overwrite="true"/>
+  	<copy file="${ivy.lib.dir}/hk2-core-2.4.0-b31.jar" tofile="${root.dir}/libraries/glassfish4/modules/hk2-core.jar" overwrite="true"/>
+  	<copy file="${ivy.lib.dir}/hk2-locator-2.4.0-b31.jar" tofile="${root.dir}/libraries/glassfish4/modules/hk2-locator.jar" overwrite="true"/>
+  	
   	<!-- others from GF4 -->
   	<copy file="${ivy.lib.dir}/javax.servlet.jsp.jstl-1.2.4.jar" tofile="${root.dir}/libraries/glassfish4/modules/javax.servlet.jsp.jstl.jar" overwrite="true"/>
   	<copy file="${ivy.lib.dir}/glassfish-naming-4.1.1.jar" tofile="${root.dir}/libraries/glassfish4/modules/glassfish-naming.jar" overwrite="true"/>
