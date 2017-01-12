@@ -12,15 +12,7 @@
 package org.oscm.marketplace.bean;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.EJB;
@@ -30,26 +22,26 @@ import javax.interceptor.Interceptors;
 import javax.jws.WebParam;
 import javax.persistence.Query;
 
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
 import org.oscm.dataservice.local.DataService;
-import org.oscm.domobjects.CatalogEntry;
-import org.oscm.domobjects.EnterpriseLandingpage;
-import org.oscm.domobjects.LandingpageProduct;
-import org.oscm.domobjects.Marketplace;
-import org.oscm.domobjects.PlatformUser;
-import org.oscm.domobjects.Product;
-import org.oscm.domobjects.ProductFeedback;
-import org.oscm.domobjects.PublicLandingpage;
+import org.oscm.domobjects.*;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.interceptor.ExceptionMapper;
 import org.oscm.interceptor.InvocationDateContainer;
+import org.oscm.internal.intf.MarketplaceCacheService;
+import org.oscm.internal.types.enumtypes.PerformanceHint;
+import org.oscm.internal.types.enumtypes.ServiceStatus;
+import org.oscm.internal.types.exception.*;
+import org.oscm.internal.types.exception.ConcurrentModificationException;
+import org.oscm.internal.types.exceptions.FillinOptionNotSupportedException;
+import org.oscm.internal.vo.VOService;
 import org.oscm.landingpageService.local.LandingpageServiceLocal;
 import org.oscm.landingpageService.local.LandingpageType;
 import org.oscm.landingpageService.local.VOLandingpageService;
 import org.oscm.landingpageService.local.VOPublicLandingpage;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
 import org.oscm.marketplace.assembler.LandingpageAssembler;
 import org.oscm.marketplace.assembler.LandingpageProductAssembler;
 import org.oscm.permission.PermissionCheck;
@@ -57,16 +49,6 @@ import org.oscm.serviceprovisioningservice.assembler.ProductAssembler;
 import org.oscm.types.enumtypes.FillinCriterion;
 import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
 import org.oscm.validation.ArgumentValidator;
-import org.oscm.internal.intf.MarketplaceCacheService;
-import org.oscm.internal.types.enumtypes.PerformanceHint;
-import org.oscm.internal.types.enumtypes.ServiceStatus;
-import org.oscm.internal.types.exception.ConcurrentModificationException;
-import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.types.exception.OperationNotPermittedException;
-import org.oscm.internal.types.exception.ValidationException;
-import org.oscm.internal.types.exceptions.FillinOptionNotSupportedException;
-import org.oscm.internal.vo.VOService;
 
 @Stateless
 @Interceptors({ InvocationDateContainer.class, ExceptionMapper.class })
@@ -275,8 +257,8 @@ public class LandingpageServiceBean implements LandingpageServiceLocal {
 
         // save new landing page
         EnterpriseLandingpage newLandingpage = new EnterpriseLandingpage();
-        dm.persist(newLandingpage);
         marketplace.setEnterpiseLandingpage(newLandingpage);
+        dm.persist(newLandingpage);
 
         marketplaceCache.resetConfiguration(marketplace.getMarketplaceId());
     }
@@ -298,9 +280,9 @@ public class LandingpageServiceBean implements LandingpageServiceLocal {
             dm.remove(marketplace.getEnterpriseLandingpage());
             marketplace.setEnterpiseLandingpage(null);
             PublicLandingpage defaultPage = PublicLandingpage.newDefault();
-            dm.persist(defaultPage);
             marketplace.setPublicLandingpage(defaultPage);
             defaultPage.setMarketplace(marketplace);
+            dm.persist(defaultPage);
             dm.flush();
         }
 
