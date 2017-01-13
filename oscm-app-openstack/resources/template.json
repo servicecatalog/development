@@ -1,51 +1,154 @@
 {
-    "AWSTemplateFormatVersion": "2010-09-09", 
-    "Description" : "The AWS Cloud Formation template used for the creation and provisioning of a stack, using a single Amazon EC2 Instance.",
-    "Parameters": {
-        "InstanceType" : {
-            "Description" : "The type of the instance to provision.",
-            "Type" : "String",
-            "Default" : "m1.small"
-        },
-        "ImageId" : {
-            "Description" : "The id of the image to provision.",
-            "Type" : "String",
-            "Default" : "cedarish"
-        },
-        "KeyName" : {
-            "Description" : "The name of an already defined key pair in OpenStack, used for enabling SSH access to the web server.",
-            "Type" : "String",
-            "Default" : "openstackkeypair"
-        }
+  "heat_template_version": "2013-05-23",
+  "description": "This is a Heat Orchestration template used for the creation and provisioning of a stack.",
+  "parameters": {
+    "ImageId": {
+      "description": "The id of an image to be provisioned.",
+      "type": "string",
+      "default": "<image id>"
     },
-    "Resources": {
-        "Server": {
-            "Type" : "AWS::EC2::Instance",
-            "Properties" : {
-                "InstanceType" : { "Ref" : "InstanceType" },
-                "KeyName" : { "Ref" : "KeyName" },
-                "ImageId" : { "Ref" : "ImageId" }
-            }
-        },
-        "IP": {
-            "Type": "AWS::EC2::EIP"
-        },
-        "IP_Assoc": {
-            "Type": "AWS::EC2::EIPAssociation",
-            "Properties": {
-                "EIP": { "Ref": "IP" },
-                "InstanceId": { "Ref": "Server" }
-            }
-        }
+    "flavor": {
+      "type": "string",
+      "description": "flavor",
+      "default": "m1.small"
     },
-    "Outputs" : {
-        "KP_Out" : {
-            "Description" : "Key pair name",
-            "Value" :  { "Ref" : "KeyName" }
-        },
-        "IP_Out" : {
-            "Description" : "IP Address of the access host",
-            "Value" :  { "Ref" : "IP" }
-        }
+    "KeyName": {
+      "description": "The name of an already defined key pair in OpenStack, used for enabling SSH access to the web server.",
+      "type": "string",
+      "default": "<keypair name>"
+    },
+    "az": {
+      "type": "string",
+      "description": "availability zone",
+      "default": "<availability zone>"
+    },
+    "VmName": {
+      "type": "string",
+      "description": "the display name of a virtual machine which will be provisioned.",
+      "default": "<virtual machine name>"
+    },
+    "AdminPassword": {
+      "type": "string",
+      "default": "<password>"
+    },
+    "PrivateNetworkId": {
+      "type": "string",
+      "description": "internal network uuid",
+      "default": "<private network id>"
+    },
+    "SubnetId": {
+      "type": "string",
+      "description": "subnet on which the load balancer will be located",
+      "default": "<subnet id>"
+    },
+    "PublicNetworkId": {
+      "type": "string",
+      "description": "UUID of a Neutron external network",
+      "default": "<public network id>"
+    },
+    "SecurityGroupName": {
+      "type": "string",
+      "description": "security group",
+      "default": "<security group>"
     }
+  },
+  "resources": {
+    "sys-vol": {
+      "type": "OS::Cinder::Volume",
+      "properties": {
+        "name": "sys-vol",
+        "size": 3,
+        "volume_type": "lvmdriver-1",
+        "image": {
+          "get_param": "ImageId"
+        }
+      }
+    },
+    "server": {
+      "type": "OS::Nova::Server",
+      "properties": {
+        "key_name": {
+          "get_param": "KeyName"
+        },
+        "image": {
+          "get_param": "ImageId"
+        },
+        "flavor": {
+          "get_param": "flavor"
+        },
+        "networks": [
+          {
+            "port": {
+              "get_resource": "instanceport"
+            }
+          }
+        ],
+        "name": {
+          "get_param": "VmName"
+        },
+        "metadata": {
+          "admin_pass": {
+            "get_param": "AdminPassword"
+          }
+        },
+        "availability_zone": {
+          "get_param": "az"
+        },
+        "block_device_mapping": [
+          {
+            "device_name": "/dev/vda",
+            "volume_size": "3",
+            "delete_on_termination": true,
+            "volume_id": {
+              "get_resource": "sys-vol"
+            }
+          }
+        ]
+      }
+    },
+    "instanceport": {
+      "type": "OS::Neutron::Port",
+      "properties": {
+        "network_id": {
+          "get_param": "PrivateNetworkId"
+        },
+        "fixed_ips": [
+          {
+            "subnet_id": {
+              "get_param": "SubnetId"
+            }
+          }
+        ]
+      }
+    },
+    "instancepublic": {
+      "type": "OS::Neutron::FloatingIP",
+      "properties": {
+        "floating_network_id": {
+          "get_param": "PublicNetworkId"
+        },
+        "port_id": {
+          "get_resource": "instanceport"
+        }
+      }
+    }
+  },
+  "outputs": {
+    "KP_Out": {
+      "description": "Key pair name",
+      "value": {
+        "get_param": "KeyName"
+      }
+    },
+    "NW_Out": {
+      "description": "Assigned network addresses",
+      "value": {
+        "get_attr": [
+          "server",
+          "networks",
+          {"get_param" : "PrivateNetworkId"}
+        ]
+      }
+    }
+  }
 }
