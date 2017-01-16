@@ -22,7 +22,9 @@ import org.apache.commons.dbcp.managed.ManagedDataSource;
 import org.apache.commons.dbcp.managed.XAConnectionFactory;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
+import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Environment;
+import org.hibernate.jpa.internal.EntityManagerFactoryImpl;
 import org.oscm.test.db.ITestDB;
 
 /**
@@ -46,6 +48,7 @@ public class TestPersistence {
     private Set<ITestDB> initializedDBs = new HashSet<ITestDB>();
 
     private boolean runOnProductiveDB = false;
+    private SessionFactory sf;
 
     public TestPersistence() {
         try {
@@ -92,9 +95,17 @@ public class TestPersistence {
         properties.put(Environment.HBM2DDL_AUTO, "");
         properties.put(Environment.DATASOURCE, createManagedDataSource(testDb
                 .getDataSource()));
-        properties.put(
-                            "hibernate.search.autoregister_listeners", System.getProperty("hibernate.search.autoregister_listeners"));
-        return Persistence.createEntityManagerFactory(unitName, properties);
+        properties.put("hibernate.search.autoregister_listeners", System.getProperty("hibernate.search.autoregister_listeners"));
+        properties.put("hibernate.transaction.jta.platform", "org.hibernate.service.jta.platform.internal.SunOneJtaPlatform");
+        properties.put("hibernate.id.new_generator_mappings", "true");
+        properties.put("org.hibernate.SQL", "false");
+        EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory(unitName, properties);
+        sf = ((EntityManagerFactoryImpl) entityManagerFactory).getSessionFactory();
+        return entityManagerFactory;
+    }
+
+    public SessionFactory getSf() {
+        return sf;
     }
 
     private DataSource createManagedDataSource(DataSource ds) {

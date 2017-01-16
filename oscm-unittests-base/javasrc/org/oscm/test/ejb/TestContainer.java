@@ -6,19 +6,8 @@ package org.oscm.test.ejb;
 
 import static org.mockito.Mockito.mock;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Proxy;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
+import java.lang.reflect.*;
+import java.util.*;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -35,6 +24,8 @@ import javax.transaction.Synchronization;
 import javax.transaction.Transaction;
 import javax.xml.ws.WebServiceContext;
 
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.oscm.test.cdi.ContextManager;
 import org.oscm.test.cdi.TestEvent;
 
@@ -225,6 +216,8 @@ public class TestContainer {
             @Override
             public Object invoke(Object proxy, Method method, Object[] args)
                     throws Throwable {
+                SessionFactory sessionFactory = persistence.getSf();
+                final Session session = sessionFactory.openSession();
                 final Transaction tx = persistence.getTransactionManager()
                         .getTransaction();
                 if (tx == null) {
@@ -243,6 +236,7 @@ public class TestContainer {
                         @Override
                         public void afterCompletion(int status) {
                             delegates.remove(tx).close();
+                            session.close();
                         }
                     });
                 }
