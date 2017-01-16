@@ -18,10 +18,14 @@ import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.index.Term;
 import org.apache.lucene.queryParser.MultiFieldQueryParser;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.queryParser.QueryParser.Operator;
+import org.apache.lucene.search.BooleanClause;
+import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.util.Version;
 import org.hibernate.search.jpa.FullTextEntityManager;
 import org.oscm.dataservice.local.DataService;
@@ -66,9 +70,19 @@ public class SubscriptionSearchServiceBean implements SubscriptionSearchService 
             org.apache.lucene.search.Query luceneQuery = parser
                     .parse(QueryParser.escape(searchPhrase));
 
-            javax.persistence.Query jpaQuery = ftem.createFullTextQuery(
-                    luceneQuery, Subscription.class);
 
+            String orgKey = dm.getCurrentUser().getOrganization().getOrganizationId();
+
+            TermQuery orgIdQuery = new TermQuery(new Term(SubscriptionClassBridge.NAME_ORGANIZATION_ID,
+                QueryParser.escape(orgKey).toLowerCase()));
+
+            // now construct final query
+            BooleanQuery query = new BooleanQuery();
+            query.add(luceneQuery, BooleanClause.Occur.MUST);
+            query.add(orgIdQuery, BooleanClause.Occur.MUST);
+
+            javax.persistence.Query jpaQuery = ftem.createFullTextQuery(
+                query, Subscription.class);
             list = jpaQuery.getResultList();
         } catch (ParseException e) {
             logger.logError(
