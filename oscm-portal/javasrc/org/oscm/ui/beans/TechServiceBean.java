@@ -14,17 +14,14 @@ package org.oscm.ui.beans;
 import java.io.IOException;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.event.ValueChangeEvent;
+import javax.servlet.http.Part;
 
 import org.apache.myfaces.custom.fileupload.UploadedFile;
 
@@ -75,7 +72,8 @@ public class TechServiceBean extends BaseBean implements Serializable {
 
     private boolean selectedTechnicalServiceActive;
 
-    private UploadedFile uploadedFile;
+    private Part uploadedFile;
+    private String fileContent;
 
     List<TechnicalService> selectableTechnicalServices;
 
@@ -240,11 +238,11 @@ public class TechServiceBean extends BaseBean implements Serializable {
         return newTechnicalService;
     }
 
-    public UploadedFile getUploadedFile() {
+    public Part getUploadedFile() {
         return uploadedFile;
     }
 
-    public void setUploadedFile(UploadedFile uploadedFile) {
+    public void setUploadedFile(Part uploadedFile) {
         this.uploadedFile = uploadedFile;
     }
 
@@ -306,8 +304,10 @@ public class TechServiceBean extends BaseBean implements Serializable {
     public String xmlImport() throws SaaSApplicationException {
 
         try {
+            fileContent = new Scanner(uploadedFile.getInputStream())
+                .useDelimiter("\\A").next();
             getProvisioningService().importTechnicalServices(
-                    uploadedFile.getBytes());
+                fileContent.getBytes());
 
             selectedTechnicalService = null;
             technicalServices = null;

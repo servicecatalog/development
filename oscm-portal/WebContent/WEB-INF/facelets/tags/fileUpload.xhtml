@@ -22,9 +22,9 @@
         <a4j:outputPanel styleClass="output" />
       </a4j:outputPanel>
     </a4j:outputPanel>
-    <t:inputFileUpload id="file" label="#{msg['common.filename']}" onchange="jQuery('.jqUpload .output').text(this.value);setDirty(true)" disabled="#{disabled}"
-      value="#{value}" size="48" styleClass="fileChooser" required="#{(empty required or required) and (empty rendered or rendered)}"
-      rendered="#{empty rendered or rendered}" requiredMessage="#{msg['error.upload.fileNotNullNorEmpty']}" />
+    <h:inputFile id="file" label="#{msg['common.filename']}" onchange="jQuery('.jqUpload .output').text(this.value);setDirty(true)" disabled="#{disabled}"
+                 value="#{value}" size="48" styleClass="fileChooser" required="#{(empty required or required) and (empty rendered or rendered)}"
+                 rendered="#{empty rendered or rendered}" requiredMessage="#{msg['error.upload.fileNotNullNorEmpty']}" />
   </t:div>
   <adm:message for="file" rendered="#{(empty rendered or rendered) and (empty labels)}" />
 
