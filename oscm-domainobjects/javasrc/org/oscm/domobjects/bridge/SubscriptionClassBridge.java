@@ -11,6 +11,7 @@ package org.oscm.domobjects.bridge;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.hibernate.search.bridge.FieldBridge;
@@ -113,7 +114,8 @@ public class SubscriptionClassBridge implements FieldBridge {
                 udaList = udaDef.getUdas();
                 exists = false;
                 for (Uda uda : udaList) {
-                    if (uda.getTargetObjectKey() == sub.getKey()) {
+                    final String udaValue = uda.getUdaValue();
+                    if (uda.getTargetObjectKey() == sub.getKey() && StringUtils.isNotBlank(udaValue)) {
                         sb.append(uda.getUdaValue());
                         sb.append(SEPARATOR);
 
@@ -122,7 +124,8 @@ public class SubscriptionClassBridge implements FieldBridge {
                     }
                 }
 
-                if (!exists) {
+                final String udaDefDefaultValue = udaDef.getDefaultValue();
+                if (!exists && StringUtils.isNotBlank(udaDefDefaultValue)) {
                     sb.append(udaDef.getDefaultValue());
                     sb.append(SEPARATOR);
                 }
