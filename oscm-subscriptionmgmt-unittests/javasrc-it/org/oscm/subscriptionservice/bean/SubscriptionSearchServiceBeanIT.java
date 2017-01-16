@@ -5,6 +5,7 @@
 package org.oscm.subscriptionservice.bean;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.Arrays;
@@ -211,6 +212,44 @@ public class SubscriptionSearchServiceBeanIT extends EJBTestBase {
             }
         });
 
+    }
+
+    @Test
+    public void searchSubWithPartialWords() throws Exception {
+        runTX(new Callable<Void>() {
+            @Override
+            public Void call() {
+                try {
+                    Collection<Long> col = sssb
+                            .searchSubscriptions("two default normal");
+                    final Collection<Long> col2 = sssb.searchSubscriptions("tw fault orm");
+                    assertTrue(col.size() == col2.size());
+                } catch (InvalidPhraseException | ObjectNotFoundException e) {
+                    fail();
+                }
+
+                return null;
+            }
+        });
+    }
+
+    @Test
+    public void searchSubWithPartialWords_SpecialCharacters() throws Exception {
+        runTX(new Callable<Void>() {
+            @Override
+            public Void call() {
+                try {
+                    Collection<Long> col = sssb
+                            .searchSubscriptions("two default+-&&||!(){}[]^\"~*?:\\ normal");
+                    final Collection<Long> col2 = sssb.searchSubscriptions("tw fault orm+-&&||!(){}[]^\"~*?:\\");
+                    assertTrue(col.size() == col2.size());
+                } catch (InvalidPhraseException | ObjectNotFoundException e) {
+                    fail();
+                }
+
+                return null;
+            }
+        });
     }
 
 }
