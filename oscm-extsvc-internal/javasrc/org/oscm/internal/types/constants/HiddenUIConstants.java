@@ -35,6 +35,7 @@ public interface HiddenUIConstants {
     String MENU_ITEM_OPERATOR_EXPORT_BILLING_DATA = "operator.exportBillingData";
     String MENU_ITEM_OPERATOR_EXECUTE_BILLING_TASKS = "operator.executeBillingTasks";
     String MENU_ITEM_OPERATOR_EXPORT_AUDIT_LOG_DATA = "operator.exportAuditLogData";
+    String MENU_ITEM_OPERATOR_MANAGE_INDEXES = "operator.manageIndexes";
     String MENU_ITEM_MARKETPLACE_LINK = "marketplace.link";
     String MENU_GROUP_NAVIGATION_MYACCOUNT = "navigation.myAccount";
     String MENU_ITEM_ORGANIZATION_EDIT = "organization.edit";

@@ -87,6 +87,17 @@ public interface SearchService {
      */
 
     public VOServiceListResult searchServices(String marketplaceId,
-            String locale, String searchPhrase) throws InvalidPhraseException,
-            ObjectNotFoundException;
+            String locale, String searchPhrase)
+            throws InvalidPhraseException, ObjectNotFoundException;
+
+    /**
+     * (Re)Creates the initial index from scratch for the objects already being
+     * in the database. The indexing operation is performed only if either the
+     * index is empty (which will be the case when the server is started for the
+     * very first time), and skipped otherwise, or if <code>force</code> is set
+     * to <code>true</code> (in this case, a possibly existing index is
+     * overridden).
+     */
+
+    public void initIndexForFulltextSearch(boolean force);
 }

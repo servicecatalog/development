@@ -323,6 +323,7 @@ public class BaseBean {
     public static final String INFO_SUPPLIER_BANNED = "info.supplier.banned";
     public static final String INFO_SUPPLIER_BANLIFTED = "info.supplier.banlifted";
     public static final String INFO_PAYMENT_ENABLEMENT_SAVED = "info.paymentEnablment.saved";
+    public static final String INFO_RECREATE_INDEXES = "info.operator.indexes";
     public static final String TRIGGER_PROCESS_DELETED = "info.triggerProcess.deleted";
     public static final String TRIGGER_PROCESS_CANCELED = "info.triggerProcess.canceled";
     public static final String INFO_UDADEFINITIONS_DELETED = "info.udaDefinitions.deleted";
@@ -860,8 +861,8 @@ public class BaseBean {
     }
 
     protected HttpSession getSession() {
-        return (HttpSession) getFacesContext().getExternalContext().getSession(
-                false);
+        return (HttpSession) getFacesContext().getExternalContext()
+                .getSession(false);
     }
 
     /**
@@ -919,15 +920,15 @@ public class BaseBean {
      * @return the user details
      */
     public static User getUserFromSession(FacesContext facesContext) {
-        VOUserDetails voUserDetails = getUserFromSessionWithoutException(facesContext);
+        VOUserDetails voUserDetails = getUserFromSessionWithoutException(
+                facesContext);
         if (voUserDetails == null) {
             HttpServletRequest request = (HttpServletRequest) facesContext
                     .getExternalContext().getRequest();
             request.getSession().invalidate();
-            SaaSSystemException se = new SaaSSystemException("Invalid session!");
-            logger.logError(
-                    Log4jLogger.SYSTEM_LOG,
-                    se,
+            SaaSSystemException se = new SaaSSystemException(
+                    "Invalid session!");
+            logger.logError(Log4jLogger.SYSTEM_LOG, se,
                     LogMessageIdentifier.ERROR_USER_VALUE_OBJECT_MISSING_IN_SESSION);
             throw se;
         }
@@ -942,16 +943,16 @@ public class BaseBean {
      *         user is found in the session.
      */
     public VOUserDetails getUserFromSessionWithoutException() {
-        return getUserFromSessionWithoutException(FacesContext
-                .getCurrentInstance());
+        return getUserFromSessionWithoutException(
+                FacesContext.getCurrentInstance());
     }
 
     public static VOUserDetails getUserFromSessionWithoutException(
             FacesContext facesContext) {
         HttpServletRequest request = (HttpServletRequest) facesContext
                 .getExternalContext().getRequest();
-        return (VOUserDetails) request.getSession().getAttribute(
-                Constants.SESS_ATTR_USER);
+        return (VOUserDetails) request.getSession()
+                .getAttribute(Constants.SESS_ATTR_USER);
     }
 
     /**
@@ -1187,30 +1188,30 @@ public class BaseBean {
     }
 
     protected boolean isMarketplaceSet(HttpServletRequest httpRequest) {
-        return httpRequest.getServletPath().startsWith(
-                Marketplace.MARKETPLACE_ROOT);
+        return httpRequest.getServletPath()
+                .startsWith(Marketplace.MARKETPLACE_ROOT);
     }
 
     public boolean isLoggedInAndAdmin() {
-        VOUserDetails user = getUserFromSessionWithoutException(FacesContext
-                .getCurrentInstance());
+        VOUserDetails user = getUserFromSessionWithoutException(
+                FacesContext.getCurrentInstance());
         return user != null && user.hasAdminRole();
     }
 
     protected boolean isLoggedInAndMarketplaceOwner() {
-        VOUserDetails user = getUserFromSessionWithoutException(FacesContext
-                .getCurrentInstance());
+        VOUserDetails user = getUserFromSessionWithoutException(
+                FacesContext.getCurrentInstance());
         return user != null
                 && user.getUserRoles().contains(UserRoleType.MARKETPLACE_OWNER);
     }
 
     protected boolean isLoggedInAndVendorManager() {
-        VOUserDetails user = getUserFromSessionWithoutException(getFacesContext());
-        return user != null
-                && (user.getUserRoles().contains(UserRoleType.SERVICE_MANAGER)
-                        || user.getUserRoles().contains(
-                                UserRoleType.BROKER_MANAGER) || user
-                        .getUserRoles().contains(UserRoleType.RESELLER_MANAGER));
+        VOUserDetails user = getUserFromSessionWithoutException(
+                getFacesContext());
+        return user != null && (user.getUserRoles()
+                .contains(UserRoleType.SERVICE_MANAGER)
+                || user.getUserRoles().contains(UserRoleType.BROKER_MANAGER)
+                || user.getUserRoles().contains(UserRoleType.RESELLER_MANAGER));
     }
 
     protected boolean isLoggedInAndPlatformOperator() {
@@ -1229,15 +1230,14 @@ public class BaseBean {
     public boolean isLoggedInAndUnitAdmin() {
         VOUserDetails user = getUserFromSessionWithoutException();
         return user != null
-                && user.getUserRoles()
-                        .contains(UserRoleType.UNIT_ADMINISTRATOR)
-                && !user.getUserRoles().contains(
-                        UserRoleType.ORGANIZATION_ADMIN);
+                && user.getUserRoles().contains(UserRoleType.UNIT_ADMINISTRATOR)
+                && !user.getUserRoles()
+                        .contains(UserRoleType.ORGANIZATION_ADMIN);
     }
 
     protected boolean isLoggedIn() {
-        return getUserFromSessionWithoutException(FacesContext
-                .getCurrentInstance()) != null;
+        return getUserFromSessionWithoutException(
+                FacesContext.getCurrentInstance()) != null;
     }
 
     /**
@@ -1274,12 +1274,14 @@ public class BaseBean {
 
         try {
             String name = URLEncoder.encode("selectedServiceKey", charEncoding);
-            String value = URLEncoder.encode(String.valueOf(sessionBean
-                    .getSelectedServiceKeyForCustomer()), charEncoding);
+            String value = URLEncoder.encode(
+                    String.valueOf(
+                            sessionBean.getSelectedServiceKeyForCustomer()),
+                    charEncoding);
             selectedService = '?' + name + '=' + value;
         } catch (UnsupportedEncodingException e) {
-            extContext.log(getClass().getName()
-                    + ".getSelectedServiceQueryPart()", e);
+            extContext.log(
+                    getClass().getName() + ".getSelectedServiceQueryPart()", e);
 
         }
         return selectedService;
@@ -1426,9 +1428,8 @@ public class BaseBean {
      */
     public boolean isLoggedInAndSubscriptionManager() {
         VOUserDetails user = this.getUserFromSessionWithoutException();
-        return user != null
-                && user.getUserRoles().contains(
-                        UserRoleType.SUBSCRIPTION_MANAGER);
+        return user != null && user.getUserRoles()
+                .contains(UserRoleType.SUBSCRIPTION_MANAGER);
     }
 
     /**
@@ -1439,13 +1440,11 @@ public class BaseBean {
      */
     public boolean isLoggedInAndAllowedToSubscribe() {
         VOUserDetails user = this.getUserFromSessionWithoutException();
-        return user != null
-                && (user.getUserRoles().contains(
-                        UserRoleType.SUBSCRIPTION_MANAGER)
-                        || user.getUserRoles().contains(
-                                UserRoleType.ORGANIZATION_ADMIN) || user
-                        .getUserRoles().contains(
-                                UserRoleType.UNIT_ADMINISTRATOR));
+        return user != null && (user.getUserRoles()
+                .contains(UserRoleType.SUBSCRIPTION_MANAGER)
+                || user.getUserRoles().contains(UserRoleType.ORGANIZATION_ADMIN)
+                || user.getUserRoles()
+                        .contains(UserRoleType.UNIT_ADMINISTRATOR));
     }
 
     /**
@@ -1458,10 +1457,10 @@ public class BaseBean {
         VOUserDetails user = this.getUserFromSessionWithoutException();
         return user != null
                 && (user.getUserRoles().contains(UserRoleType.SERVICE_MANAGER)
-                        || user.getUserRoles().contains(
-                                UserRoleType.TECHNOLOGY_MANAGER) || user
-                        .getUserRoles()
-                        .contains(UserRoleType.MARKETPLACE_OWNER))
+                        || user.getUserRoles()
+                                .contains(UserRoleType.TECHNOLOGY_MANAGER)
+                        || user.getUserRoles()
+                                .contains(UserRoleType.MARKETPLACE_OWNER))
                 || user.getUserRoles().contains(UserRoleType.BROKER_MANAGER)
                 || user.getUserRoles().contains(UserRoleType.RESELLER_MANAGER)
                 || user.getUserRoles().contains(UserRoleType.PLATFORM_OPERATOR);
