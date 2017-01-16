@@ -23,17 +23,17 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
+import org.oscm.internal.types.enumtypes.ConfigurationKey;
+import org.oscm.internal.types.exception.ValidationException;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
 import org.oscm.serviceprovisioningservice.local.SearchServiceLocal;
 import org.oscm.sessionservice.local.SessionServiceLocal;
 import org.oscm.timerservice.bean.TimerServiceBean;
 import org.oscm.types.constants.Configuration;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
-import org.oscm.internal.types.enumtypes.ConfigurationKey;
-import org.oscm.internal.types.exception.ValidationException;
 
 /**
  * Checks for existence of the mandatory configuration settings of the ADM UM
@@ -80,7 +80,7 @@ public class ADMUMStartup extends HttpServlet {
      * for full text search.
      */
     private void initIndexing() {
-        searchService.initIndexForFulltextSearch(false);
+        searchService.initIndexForFulltextSearch(true);
     }
 
     /**
@@ -91,8 +91,10 @@ public class ADMUMStartup extends HttpServlet {
         try {
             timerMgmt.initTimers();
         } catch (ValidationException e) {
-            // Timer interval and offset value are too large and leads to next expiration
-            // date negative. Exception info has been logged into system log.No handler is needed here.
+            // Timer interval and offset value are too large and leads to next
+            // expiration
+            // date negative. Exception info has been logged into system log.No
+            // handler is needed here.
         }
     }
 
@@ -119,12 +121,12 @@ public class ADMUMStartup extends HttpServlet {
      * Initializes the logger for the application.
      */
     private void initializeLogger() {
-        String filePath = cs.getConfigurationSetting(
-                ConfigurationKey.LOG_FILE_PATH, Configuration.GLOBAL_CONTEXT)
+        String filePath = cs
+                .getConfigurationSetting(ConfigurationKey.LOG_FILE_PATH,
+                        Configuration.GLOBAL_CONTEXT)
                 .getValue();
-        String logLevel = cs.getConfigurationSetting(
-                ConfigurationKey.LOG_LEVEL, Configuration.GLOBAL_CONTEXT)
-                .getValue();
+        String logLevel = cs.getConfigurationSetting(ConfigurationKey.LOG_LEVEL,
+                Configuration.GLOBAL_CONTEXT).getValue();
         String logConfigFile = cs.getConfigurationSetting(
                 ConfigurationKey.LOG_CONFIG_FILE, cs.getNodeName()).getValue();
         LoggerFactory.activateRollingFileAppender(filePath, logConfigFile,
@@ -145,9 +147,7 @@ public class ADMUMStartup extends HttpServlet {
                             Configuration.GLOBAL_CONTEXT);
                 } catch (EJBException e) {
                     // will always log to the application server log file
-                    logger.logError(
-                            Log4jLogger.SYSTEM_LOG,
-                            e,
+                    logger.logError(Log4jLogger.SYSTEM_LOG, e,
                             LogMessageIdentifier.ERROR_MANDATORY_PROPERTY_NOT_SET,
                             key.getKeyName());
                 }
@@ -157,7 +157,8 @@ public class ADMUMStartup extends HttpServlet {
         // check if the node name is configured
         String nodeName = cs.getNodeName();
         if (nodeName == null) {
-            logger.logError(LogMessageIdentifier.ERROR_MANDATORY_SETTING_OF_NODE_NOT_SET);
+            logger.logError(
+                    LogMessageIdentifier.ERROR_MANDATORY_SETTING_OF_NODE_NOT_SET);
         }
     }
 
