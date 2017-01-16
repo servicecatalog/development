@@ -8,19 +8,13 @@
 
 package org.oscm.app.domain;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Serializable;
+import java.io.*;
 import java.util.*;
 
 import javax.persistence.*;
 
-import org.oscm.app.converters.PSConverter;
-
 import org.oscm.app.business.exceptions.BadResultException;
+import org.oscm.app.converters.PSConverter;
 import org.oscm.app.i18n.Messages;
 import org.oscm.app.v2_0.data.InstanceStatus;
 import org.oscm.app.v2_0.data.Setting;
@@ -51,7 +45,7 @@ public class ServiceInstance implements Serializable {
     @Column(nullable = false)
     @Id
     @GeneratedValue(strategy = GenerationType.TABLE, generator = "do_seq")
-    @TableGenerator(table = "hibernate_sequences", name = "do_seq", allocationSize = 1000)
+    @TableGenerator(table = "hibernate_sequences", name = "do_seq", allocationSize = 1000, valueColumnName = "sequence_next_hi_value")
     private long tkey;
 
     /**

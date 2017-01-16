@@ -18,7 +18,6 @@ import java.util.Date;
 import javax.persistence.*;
 
 import org.oscm.domobjects.converters.DHOConverter;
-import org.oscm.domobjects.converters.LOTConverter;
 import org.oscm.domobjects.enums.ModificationType;
 
 /**
@@ -88,7 +87,7 @@ public abstract class DomainHistoryObject<D extends DomainDataContainer>
      */
     @Id
     @GeneratedValue(strategy = GenerationType.TABLE, generator = "doh_seq")
-    @TableGenerator(table = "hibernate_sequences", name = "doh_seq", allocationSize = 1000)
+    @TableGenerator(table = "hibernate_sequences", name = "doh_seq", allocationSize = 1000, valueColumnName = "sequence_next_hi_value")
     @Column(name = "TKEY")
     private long key;
 
