@@ -94,11 +94,13 @@ public class HibernateEventListener implements PostUpdateEventListener,
                 long key = obj.getKey();
                 final StatelessSession session = persister.getFactory()
                         .openStatelessSession();
+                Transaction tx = session.beginTransaction();
                 org.hibernate.Query query = session
                         .createQuery("DELETE FROM LocalizedResource WHERE objectKey = :objectKey AND objectType IN (:objectType)");
                 query.setParameter("objectKey", Long.valueOf(key));
                 query.setParameterList("objectType", objType);
                 query.executeUpdate();
+                tx.commit();
                 session.close();
             }
         }
