@@ -30,6 +30,9 @@ public class BSRDConverter
 
     @Override
     public String convertToDatabaseColumn(BillingSharesResultType enumik) {
+        if (enumik == null) {
+            return null;
+        }
         return enumik.name();
     }
 }

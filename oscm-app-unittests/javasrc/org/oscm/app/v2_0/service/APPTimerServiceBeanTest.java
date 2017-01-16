@@ -14,13 +14,7 @@ import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,8 +29,6 @@ import javax.persistence.EntityManager;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.slf4j.Logger;
-import org.oscm.test.ejb.TestNamingContextFactoryBuilder;
 import org.oscm.app.business.ProductProvisioningServiceFactoryBean;
 import org.oscm.app.business.exceptions.BESNotificationException;
 import org.oscm.app.dao.BesDAO;
@@ -49,10 +41,9 @@ import org.oscm.app.v2_0.data.LocalizedText;
 import org.oscm.app.v2_0.data.ProvisioningSettings;
 import org.oscm.app.v2_0.exceptions.ConfigurationException;
 import org.oscm.app.v2_0.intf.APPlatformController;
-import org.oscm.app.v2_0.service.APPCommunicationServiceBean;
-import org.oscm.app.v2_0.service.APPConfigurationServiceBean;
-import org.oscm.app.v2_0.service.APPTimerServiceBean;
+import org.oscm.test.ejb.TestNamingContextFactoryBuilder;
 import org.oscm.vo.VOUserDetails;
+import org.slf4j.Logger;
 
 public class APPTimerServiceBeanTest {
     private static final String CONTROLLER_ID = "ess.aws";

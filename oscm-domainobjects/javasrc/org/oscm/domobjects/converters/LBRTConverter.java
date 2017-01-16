@@ -30,6 +30,9 @@ public class LBRTConverter
 
     @Override
     public String convertToDatabaseColumn(LocalizedBillingResourceType enumik) {
+        if (enumik == null) {
+            return null;
+        }
         return enumik.name();
     }
 }

@@ -29,6 +29,9 @@ public class URTConverter implements AttributeConverter<UserRoleType, String> {
 
     @Override
     public String convertToDatabaseColumn(UserRoleType enumik) {
+        if (enumik == null) {
+            return null;
+        }
         return enumik.name();
     }
 }

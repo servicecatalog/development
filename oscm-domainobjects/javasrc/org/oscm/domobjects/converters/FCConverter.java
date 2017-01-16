@@ -30,6 +30,9 @@ public class FCConverter
 
     @Override
     public String convertToDatabaseColumn(FillinCriterion enumik) {
+        if (enumik == null) {
+            return null;
+        }
         return enumik.name();
     }
 }

@@ -11,7 +11,7 @@ package org.oscm.domobjects.converters;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
-import org.oscm.internal.types.enumtypes.OperationParameterType;
+import org.oscm.types.enumtypes.OperationParameterType;
 
 /**
  * Authored by dawidch
@@ -30,6 +30,9 @@ public class OPConverter
 
     @Override
     public String convertToDatabaseColumn(OperationParameterType enumik) {
+        if (enumik == null) {
+            return null;
+        }
         return enumik.name();
     }
 }

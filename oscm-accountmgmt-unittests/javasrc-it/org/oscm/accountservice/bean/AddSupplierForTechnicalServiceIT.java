@@ -12,9 +12,7 @@
 
 package org.oscm.accountservice.bean;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 
 import java.util.ArrayList;
@@ -26,35 +24,12 @@ import javax.ejb.EJBException;
 import javax.persistence.Query;
 
 import org.junit.Test;
-
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
-import org.oscm.domobjects.MarketingPermission;
-import org.oscm.domobjects.Organization;
-import org.oscm.domobjects.OrganizationReference;
-import org.oscm.domobjects.PlatformUser;
-import org.oscm.domobjects.Product;
-import org.oscm.domobjects.TechnicalProduct;
+import org.oscm.domobjects.*;
 import org.oscm.domobjects.enums.OrganizationReferenceType;
 import org.oscm.identityservice.bean.IdentityServiceBean;
 import org.oscm.identityservice.bean.LdapAccessStub;
-import org.oscm.reviewservice.bean.ReviewServiceLocalBean;
-import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
-import org.oscm.test.EJBTestBase;
-import org.oscm.test.data.Organizations;
-import org.oscm.test.data.Products;
-import org.oscm.test.data.TechnicalProducts;
-import org.oscm.test.ejb.TestContainer;
-import org.oscm.test.stubs.ApplicationServiceStub;
-import org.oscm.test.stubs.CommunicationServiceStub;
-import org.oscm.test.stubs.ConfigurationServiceStub;
-import org.oscm.test.stubs.ImageResourceServiceStub;
-import org.oscm.test.stubs.LocalizerServiceStub;
-import org.oscm.test.stubs.PaymentServiceStub;
-import org.oscm.test.stubs.SessionServiceStub;
-import org.oscm.test.stubs.TaskQueueServiceStub;
-import org.oscm.test.stubs.TriggerQueueServiceStub;
-import org.oscm.triggerservice.local.TriggerQueueServiceLocal;
 import org.oscm.internal.intf.AccountService;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.ServiceAccessType;
@@ -62,6 +37,15 @@ import org.oscm.internal.types.enumtypes.ServiceStatus;
 import org.oscm.internal.types.exception.AddMarketingPermissionException;
 import org.oscm.internal.types.exception.OperationNotPermittedException;
 import org.oscm.internal.vo.VOTechnicalService;
+import org.oscm.reviewservice.bean.ReviewServiceLocalBean;
+import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
+import org.oscm.test.EJBTestBase;
+import org.oscm.test.data.Organizations;
+import org.oscm.test.data.Products;
+import org.oscm.test.data.TechnicalProducts;
+import org.oscm.test.ejb.TestContainer;
+import org.oscm.test.stubs.*;
+import org.oscm.triggerservice.local.TriggerQueueServiceLocal;
 
 /**
  * @author kulle
@@ -458,9 +442,8 @@ public class AddSupplierForTechnicalServiceIT extends EJBTestBase {
             @SuppressWarnings("unchecked")
             public List<OrganizationReference> call() throws Exception {
                 Query query = dataMgr
-                        .createQuery("SELECT ref FROM OrganizationReference ref WHERE ref.dataContainer.referenceType='"
-                                + OrganizationReferenceType.TECHNOLOGY_PROVIDER_TO_SUPPLIER
-                                        .name() + "'");
+                        .createQuery("SELECT ref FROM OrganizationReference ref WHERE ref.dataContainer.referenceType=:param1");
+                query.setParameter("param1", OrganizationReferenceType.TECHNOLOGY_PROVIDER_TO_SUPPLIER);
                 return query.getResultList();
             }
         });

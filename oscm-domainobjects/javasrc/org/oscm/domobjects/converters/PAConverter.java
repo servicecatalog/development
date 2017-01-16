@@ -30,6 +30,9 @@ public class PAConverter
 
     @Override
     public String convertToDatabaseColumn(PublishingAccess enumik) {
+        if (enumik == null) {
+            return null;
+        }
         return enumik.name();
     }
 }

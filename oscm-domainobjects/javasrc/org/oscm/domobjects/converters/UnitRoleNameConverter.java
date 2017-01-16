@@ -30,6 +30,9 @@ public class UnitRoleNameConverter
 
     @Override
     public String convertToDatabaseColumn(UnitRoleType enumik) {
+        if (enumik == null) {
+            return null;
+        }
         return enumik.name();
     }
 }

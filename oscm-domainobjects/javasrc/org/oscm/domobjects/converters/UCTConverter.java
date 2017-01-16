@@ -30,6 +30,9 @@ public class UCTConverter
 
     @Override
     public String convertToDatabaseColumn(UdaConfigurationType enumik) {
+        if (enumik == null) {
+            return null;
+        }
         return enumik.name();
     }
 }

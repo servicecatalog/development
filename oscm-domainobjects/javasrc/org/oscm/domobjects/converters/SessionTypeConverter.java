@@ -30,6 +30,9 @@ public class SessionTypeConverter
 
     @Override
     public String convertToDatabaseColumn(SessionType enumik) {
+        if (enumik == null) {
+            return null;
+        }
         return enumik.name();
     }
 }

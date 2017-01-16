@@ -30,6 +30,9 @@ public class SSConverter
 
     @Override
     public String convertToDatabaseColumn(SubscriptionStatus enumik) {
+        if (enumik == null) {
+            return null;
+        }
         return enumik.name();
     }
 }

@@ -29,6 +29,9 @@ public class TTConverter implements AttributeConverter<TriggerType, String> {
 
     @Override
     public String convertToDatabaseColumn(TriggerType enumik) {
+        if (enumik == null) {
+            return null;
+        }
         return enumik.name();
     }
 }

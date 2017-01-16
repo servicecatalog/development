@@ -30,6 +30,9 @@ public class RSMDConverter
 
     @Override
     public String convertToDatabaseColumn(RevenueShareModelType enumik) {
+        if (enumik == null) {
+            return null;
+        }
         return enumik.name();
     }
 }

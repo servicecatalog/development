@@ -30,6 +30,9 @@ public class OSConverter
 
     @Override
     public String convertToDatabaseColumn(OperationStatus enumik) {
+        if (enumik == null) {
+            return null;
+        }
         return enumik.name();
     }
 }

@@ -33,6 +33,12 @@ public class SalutaionConverter
 
     @Override
     public String convertToDatabaseColumn(Salutation enumik) {
+        if (enumik == null) {
+            return null;
+        }
+        if (enumik == null) {
+            return null;
+        }
         return enumik.name();
     }
 }

@@ -30,6 +30,9 @@ public class PaymentCollectionTypeConverter
 
     @Override
     public String convertToDatabaseColumn(PaymentCollectionType enumik) {
+        if (enumik == null) {
+            return null;
+        }
         return enumik.name();
     }
 }

@@ -29,6 +29,9 @@ public class STConverter implements AttributeConverter<ServiceType, String> {
 
     @Override
     public String convertToDatabaseColumn(ServiceType enumik) {
+        if (enumik == null) {
+            return null;
+        }
         return enumik.name();
     }
 }

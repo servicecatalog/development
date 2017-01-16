@@ -30,6 +30,9 @@ public class TTTConverter
 
     @Override
     public String convertToDatabaseColumn(TriggerTargetType enumik) {
+        if (enumik == null) {
+            return null;
+        }
         return enumik.name();
     }
 }

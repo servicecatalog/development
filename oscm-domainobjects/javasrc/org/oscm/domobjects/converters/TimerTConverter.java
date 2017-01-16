@@ -29,6 +29,9 @@ public class TimerTConverter implements AttributeConverter<TimerType, String> {
 
     @Override
     public String convertToDatabaseColumn(TimerType enumik) {
+        if (enumik == null) {
+            return null;
+        }
         return enumik.name();
     }
 }

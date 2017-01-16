@@ -28,6 +28,9 @@ public class ORTConverter
 
     @Override
     public String convertToDatabaseColumn(OrganizationRoleType enumik) {
+        if (enumik == null) {
+            return null;
+        }
         return enumik.name();
     }
 }

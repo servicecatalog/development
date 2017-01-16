@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 import javax.sql.DataSource;
 import javax.transaction.TransactionManager;
 import javax.transaction.xa.XAException;
@@ -21,7 +22,7 @@ import org.apache.commons.dbcp.managed.ManagedDataSource;
 import org.apache.commons.dbcp.managed.XAConnectionFactory;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
-
+import org.hibernate.cfg.Environment;
 import org.oscm.test.db.ITestDB;
 
 /**
@@ -35,7 +36,7 @@ import org.oscm.test.db.ITestDB;
  * @author hoffmann
  */
 @SuppressWarnings("deprecation")
-//TODO glassfish upgrade
+
 public class TestPersistence {
 
     private final TransactionManager transactionManager;
@@ -78,42 +79,23 @@ public class TestPersistence {
         }
 
         EntityManagerFactory f = factoryCache.get(unitName);
-        /*
         if (f == null) {
             f = buildEntityManagerFactory(testDb, unitName);
             factoryCache.put(unitName, f);
-        }*/
+        }
         return f;
     }
 
-    /*private EntityManagerFactory buildEntityManagerFactory(ITestDB testDb,
+    private EntityManagerFactory buildEntityManagerFactory(ITestDB testDb,
             String unitName) throws Exception {
-        Ejb3Configuration configuration = new Ejb3Configuration();
         Map<Object, Object> properties = new HashMap<Object, Object>();
-        properties.put(Environment.TRANSACTION_MANAGER_STRATEGY,
-                TMLookup.class.getName());
         properties.put(Environment.HBM2DDL_AUTO, "");
         properties.put(Environment.DATASOURCE, createManagedDataSource(testDb
                 .getDataSource()));
-        Ejb3Configuration configured = configuration.configure(unitName,
-                properties);
-        try {
-            TMLookup.TM.set(transactionManager);
-            if (configured == null) {
-                throw new RuntimeException(
-                        String.format(
-                                "No bean in the setup uses persistence unit '%s', but it is refered to nevertheless! Correct the setup!",
-                                unitName));
-            }
-            configured
-                    .setProperty(
-                            "hibernate.search.autoregister_listeners",
-                            System.getProperty("hibernate.search.autoregister_listeners"));
-            return configured.buildEntityManagerFactory();
-        } finally {
-            TMLookup.TM.remove();
-        }
-    }*/
+        properties.put(
+                            "hibernate.search.autoregister_listeners", System.getProperty("hibernate.search.autoregister_listeners"));
+        return Persistence.createEntityManagerFactory(unitName, properties);
+    }
 
     private DataSource createManagedDataSource(DataSource ds) {
 
@@ -142,26 +124,6 @@ public class TestPersistence {
         }
         return null;
     }
-
-
-    /*public static class TMLookup implements TransactionManagerLookup {
-
-        static final ThreadLocal<TransactionManager> TM = new ThreadLocal<TransactionManager>();
-
-        public TransactionManager getTransactionManager(Properties props)
-                throws HibernateException {
-            return TM.get();
-        }
-
-        public String getUserTransactionName() {
-            throw new UnsupportedOperationException();
-        }
-
-        public Object getTransactionIdentifier(Transaction transaction) {
-            return transaction;
-        }
-
-    }*/
 
     /**
      * Clear cached EntityManagerFactory objects in order to enable

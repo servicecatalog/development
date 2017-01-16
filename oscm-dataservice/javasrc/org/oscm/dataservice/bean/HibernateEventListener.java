@@ -7,6 +7,7 @@ package org.oscm.dataservice.bean;
 import java.util.List;
 
 import org.hibernate.StatelessSession;
+import org.hibernate.Transaction;
 import org.hibernate.event.spi.*;
 import org.hibernate.persister.entity.EntityPersister;
 import org.oscm.domobjects.DomainHistoryObject;
@@ -103,6 +104,7 @@ public class HibernateEventListener implements PostUpdateEventListener,
         }
     }
 
+    //Glassfish4 upgarde, added transaction to session
     private void createHistory(EntityPersister persister, Object entity,
             ModificationType type) {
         if (entity instanceof DomainObject<?>) {
@@ -114,7 +116,9 @@ public class HibernateEventListener implements PostUpdateEventListener,
 
                 final StatelessSession session = persister.getFactory()
                         .openStatelessSession();
+                Transaction tx = session.beginTransaction();
                 session.insert(hist);
+                tx.commit();
                 session.close();
 
                 if (logger.isDebugLoggingEnabled()) {
