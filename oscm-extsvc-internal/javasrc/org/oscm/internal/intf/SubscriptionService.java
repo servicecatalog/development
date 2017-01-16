@@ -617,9 +617,9 @@ public interface SubscriptionService {
      */
 
     void abortAsyncSubscription(String subscriptionId, String organizationId,
-            List<VOLocalizedText> reason)
-            throws ObjectNotFoundException, SubscriptionStateException,
-            OrganizationAuthoritiesException, OperationNotPermittedException;
+            List<VOLocalizedText> reason) throws ObjectNotFoundException,
+            SubscriptionStateException, OrganizationAuthoritiesException,
+            OperationNotPermittedException;
 
     /**
      * Updates the progress information for a subscription to a service with
@@ -900,8 +900,8 @@ public interface SubscriptionService {
      */
 
     VOSubscriptionDetails getSubscriptionForCustomer(String organizationId,
-            String subscriptionId)
-            throws ObjectNotFoundException, OperationNotPermittedException;
+            String subscriptionId) throws ObjectNotFoundException,
+            OperationNotPermittedException;
 
     /**
      * Retrieves the service roles defined for the technical service on which
@@ -1226,9 +1226,9 @@ public interface SubscriptionService {
      *             in case provided access information is syntactically invalid
      */
     void updateAccessInformation(String subscriptionId, String organizationId,
-            VOInstanceInfo instanceInfo)
-            throws ObjectNotFoundException, SubscriptionStateException,
-            OperationNotPermittedException, ValidationException;
+            VOInstanceInfo instanceInfo) throws ObjectNotFoundException,
+            SubscriptionStateException, OperationNotPermittedException,
+            ValidationException;
 
     /**
      * Updates the progress information for asynchronous operation record.

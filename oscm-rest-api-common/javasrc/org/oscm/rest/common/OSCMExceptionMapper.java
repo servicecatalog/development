@@ -41,4 +41,5 @@ public class OSCMExceptionMapper implements
                     .build().getResponse();
         }
     }
+
 }

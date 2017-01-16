@@ -448,7 +448,6 @@ public class SubscriptionServiceBean
             SubscriptionStateException, TechnicalServiceNotAliveException,
             TechnicalServiceOperationException, OperationNotPermittedException,
             ConcurrentModificationException {
-
         TechnicalProduct techProd = prod.getTechnicalProduct();
 
         if (ProvisioningType.SYNCHRONOUS.equals(techProd.getProvisioningType())
