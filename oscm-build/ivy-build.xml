@@ -219,6 +219,8 @@
   	<copy file="${ivy.lib.dir}/security-ee-4.1.1.jar" tofile="${root.dir}/libraries/glassfish4/modules/security-ee.jar" overwrite="true"/>
   	<copy file="${ivy.lib.dir}/security-4.1.1.jar" tofile="${root.dir}/libraries/glassfish4/modules/security.jar" overwrite="true"/>
   	<copy file="${ivy.lib.dir}/websecurity-4.1.1.jar" tofile="${root.dir}/libraries/glassfish4/modules/websecurity.jar" overwrite="true"/>
+  	<copy file="${ivy.lib.dir}/appclient.security-4.1.1.jar" tofile="${root.dir}/libraries/glassfish4/modules/appclient.security.jar" overwrite="true"/>
+  	<copy file="${ivy.lib.dir}/ejb.security-4.1.1.jar" tofile="${root.dir}/libraries/glassfish4/modules/ejb.security.jar" overwrite="true"/>
   	<copy file="${ivy.lib.dir}/glassfish-ee-api-4.1.1.jar" tofile="${root.dir}/libraries/glassfish4/modules/glassfish-ee-api.jar" overwrite="true"/>
   	<copy file="${ivy.lib.dir}/glassfish-api-4.1.1.jar" tofile="${root.dir}/libraries/glassfish4/modules/glassfish-api.jar" overwrite="true"/>
   	<copy file="${ivy.lib.dir}/ejb-container-4.1.1.jar" tofile="${root.dir}/libraries/glassfish4/modules/ejb-container.jar" overwrite="true"/>
@@ -229,6 +231,33 @@
   	<copy file="${ivy.lib.dir}/hk2-utils-2.4.0-b31.jar" tofile="${root.dir}/libraries/glassfish4/modules/hk2-utils.jar" overwrite="true"/>
   	<copy file="${ivy.lib.dir}/hk2-core-2.4.0-b31.jar" tofile="${root.dir}/libraries/glassfish4/modules/hk2-core.jar" overwrite="true"/>
   	<copy file="${ivy.lib.dir}/hk2-locator-2.4.0-b31.jar" tofile="${root.dir}/libraries/glassfish4/modules/hk2-locator.jar" overwrite="true"/>
+  	<copy file="${ivy.lib.dir}/hk2-config-2.4.0-b31.jar" tofile="${root.dir}/libraries/glassfish4/modules/hk2-config.jar" overwrite="true"/>
+  	<copy file="${ivy.lib.dir}/hk2-runlevel-2.4.0-b31.jar" tofile="${root.dir}/libraries/glassfish4/modules/hk2-runlevel.jar" overwrite="true"/>
+  	<copy file="${ivy.lib.dir}/config-types-2.4.0-b31.jar" tofile="${root.dir}/libraries/glassfish4/modules/config-types.jar" overwrite="true"/>
+  	<copy file="${ivy.lib.dir}/class-model-2.4.0-b31.jar" tofile="${root.dir}/libraries/glassfish4/modules/class-model.jar" overwrite="true"/>		
+  	<copy file="${ivy.lib.dir}/orb-iiop-4.1.1.jar" tofile="${root.dir}/libraries/glassfish4/modules/orb-iiop.jar" overwrite="true"/>
+  	<copy file="${ivy.lib.dir}/orb-connector-4.1.1.jar" tofile="${root.dir}/libraries/glassfish4/modules/orb-connector.jar" overwrite="true"/>
+  	<copy file="${ivy.lib.dir}/orb-enabler-4.1.1.jar" tofile="${root.dir}/libraries/glassfish4/modules/orb-enabler.jar" overwrite="true"/>
+  	<copy file="${ivy.lib.dir}/glassfish-corba-orb-4.0.1.jar" tofile="${root.dir}/libraries/glassfish4/modules/glassfish-corba-orb.jar" overwrite="true"/>
+  	<copy file="${ivy.lib.dir}/glassfish-corba-csiv2-idl-4.0.1.jar" tofile="${root.dir}/libraries/glassfish4/modules/glassfish-corba-csiv2-idl.jar" overwrite="true"/>
+  	<copy file="${ivy.lib.dir}/glassfish-corba-omgapi-4.0.1.jar" tofile="${root.dir}/libraries/glassfish4/modules/glassfish-corba-omgapi.jar" overwrite="true"/>
+    <copy file="${ivy.lib.dir}/glassfish-corba-internal-api-4.0.1.jar" tofile="${root.dir}/libraries/glassfish4/modules/glassfish-corba-internal-api.jar" overwrite="true"/>
+  	<copy file="${ivy.lib.dir}/dol-4.1.1.jar" tofile="${root.dir}/libraries/glassfish4/modules/dol.jar" overwrite="true"/>
+  	<copy file="${ivy.lib.dir}/gms-bootstrap-4.1.1.jar" tofile="${root.dir}/libraries/glassfish4/modules/gms-bootstrap.jar" overwrite="true"/>
+  	<copy file="${ivy.lib.dir}/kernel-4.1.1.jar" tofile="${root.dir}/libraries/glassfish4/modules/kernel.jar" overwrite="true"/> 	
+  	<copy file="${ivy.lib.dir}/config-api-4.1.1.jar" tofile="${root.dir}/libraries/glassfish4/modules/config-api.jar" overwrite="true"/>
+  	<copy file="${ivy.lib.dir}/internal-api-4.1.1.jar" tofile="${root.dir}/libraries/glassfish4/modules/internal-api.jar" overwrite="true"/>
+  	<copy file="${ivy.lib.dir}/ha-api-3.1.8.jar" tofile="${root.dir}/libraries/glassfish4/modules/ha-api.jar" overwrite="true"/>
+  	<copy file="${ivy.lib.dir}/gmbal-4.0.0-b001.jar" tofile="${root.dir}/libraries/glassfish4/modules/gmbal.jar" overwrite="true"/>
+  	<copy file="${ivy.lib.dir}/management-api-3.2.1-b002.jar" tofile="${root.dir}/libraries/glassfish4/modules/management-api.jar" overwrite="true"/>
+  	<copy file="${ivy.lib.dir}/ssl-impl-4.1.1.jar" tofile="${root.dir}/libraries/glassfish4/modules/ssl-impl.jar" overwrite="true"/>
+  	<copy file="${ivy.lib.dir}/glassfish-4.1.1.jar" tofile="${root.dir}/libraries/glassfish4/modules/glassfish.jar" overwrite="true"/>
+  	<copy file="${ivy.lib.dir}/deployment-common-4.1.1.jar" tofile="${root.dir}/libraries/glassfish4/modules/deployment-common.jar" overwrite="true"/>
+  	<copy file="${ivy.lib.dir}/bean-validator-2.4.0-b31.jar" tofile="${root.dir}/libraries/glassfish4/modules/bean-validator.jar" overwrite="true"/>
+  	<copy file="${ivy.lib.dir}/pfl-basic-4.0.0-b004.jar" tofile="${root.dir}/libraries/glassfish4/modules/pfl-basic.jar" overwrite="true"/>
+  	<copy file="${ivy.lib.dir}/pfl-asm-4.0.0-b004.jar" tofile="${root.dir}/libraries/glassfish4/modules/pfl-asm.jar" overwrite="true"/>
+  	<copy file="${ivy.lib.dir}/pfl-dynamic-4.0.0-b004.jar" tofile="${root.dir}/libraries/glassfish4/modules/pfl-dynamic.jar" overwrite="true"/>
+  	<copy file="${ivy.lib.dir}/pfl-tf-4.0.0-b004.jar" tofile="${root.dir}/libraries/glassfish4/modules/pfl-tf.jar" overwrite="true"/>
   	
   	<!-- others from GF4 -->
   	<copy file="${ivy.lib.dir}/javax.servlet.jsp.jstl-1.2.4.jar" tofile="${root.dir}/libraries/glassfish4/modules/javax.servlet.jsp.jstl.jar" overwrite="true"/>
