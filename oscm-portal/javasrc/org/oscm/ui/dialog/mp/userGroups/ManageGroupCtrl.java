@@ -84,7 +84,15 @@ public class ManageGroupCtrl extends UserGroupBaseCtrl {
         manageGroupModel.setSelectedGroupId(getSelectedGroupId());
 
         if (!Strings.isEmpty(manageGroupModel.getSelectedGroupId())) {
-            initSelectedGroup();
+            try {
+                initSelectedGroup();
+            } catch (ObjectNotFoundException e) {
+            manageGroupModel.setSelectedGroup(null);
+            manageGroupModel.setSelectedGroupId(null);
+            JSFUtils.addMessage(null, FacesMessage.SEVERITY_ERROR,
+                    BaseBean.ERROR_UNIT_MODIFIED_OR_DELETED_CONCURRENTLY, null);
+            return;
+            }
         } else {
             redirectToGroupListPage();
         }
@@ -292,20 +300,15 @@ public class ManageGroupCtrl extends UserGroupBaseCtrl {
         request.getSession().setAttribute(Constants.SESS_ATTR_USER, user);
     }
 
-    void initSelectedGroup() {
-        try {
+    void initSelectedGroup() throws ObjectNotFoundException {
+
             POUserGroup userGroup = getUserGroupService()
                     .getUserGroupDetailsForList(
                             Long.valueOf(manageGroupModel.getSelectedGroupId())
                                     .longValue());
             manageGroupModel.setSelectedGroup(userGroup);
             manageGroupModel.setServiceRows(initServiceRows());
-        } catch (ObjectNotFoundException e) {
-            manageGroupModel.setSelectedGroup(null);
-            manageGroupModel.setSelectedGroupId(null);
-            JSFUtils.addMessage(null, FacesMessage.SEVERITY_ERROR,
-                    BaseBean.ERROR_UNIT_MODIFIED_OR_DELETED_CONCURRENTLY, null);
-        }
+
     }
 
     public String selectGroup() {
