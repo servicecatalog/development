@@ -27,7 +27,6 @@ import javax.xml.ws.handler.MessageContext;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.internal.intf.SubscriptionService;
@@ -123,7 +122,7 @@ public class SubscriptionServiceWSTest {
         verify(serviceMock, times(1)).modifySubscription(null, null, null);
         verify(serviceMock, times(1)).subscribeToService(null, null, null,
                 null, null, null);
-        verify(serviceMock, times(1)).unsubscribeFromService(null);
+        verify(serviceMock, times(1)).unsubscribeFromService((String) null);
         verify(serviceMock, times(1)).upgradeSubscription(null, null, null,
                 null, null);
         verify(serviceMock, times(1)).getServiceRolesForService(null);
@@ -139,8 +138,8 @@ public class SubscriptionServiceWSTest {
         verify(serviceMock, times(1)).reportIssue(null, null, null);
         verify(serviceMock, times(1)).getServiceOperationParameterValues(null,
                 null);
-        verify(serviceMock, times(1)).updateAsyncOperationProgress(null,
-                null, null);
+        verify(serviceMock, times(1)).updateAsyncOperationProgress(null, null,
+                null);
     }
 
 }
