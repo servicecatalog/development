@@ -348,10 +348,11 @@ public class SubscriptionServiceBeanTriggerIdTest
     public void subscribeToService_NonConflicting() throws Exception {
         // given
         initMessageData(TriggerType.SUBSCRIBE_TO_SERVICE, callingOrg);
-        doReturn(sub).when(subscriptionServiceBean)
-                .subscribeToServiceInt(any(TriggerProcess.class));
+        doReturn(sub).when(subscriptionServiceBean).subscribeToServiceInt(
+                any(TriggerProcess.class));
+        prod.setAutoAssignUserEnabled(Boolean.TRUE);
+
         // when
-        service.setAutoAssignUserEnabled(Boolean.TRUE);
         subscriptionServiceBean.subscribeToService(subscription, service, null,
                 null, null, new ArrayList<VOUda>());
 
@@ -604,6 +605,7 @@ public class SubscriptionServiceBeanTriggerIdTest
 
     private void defineMockBehavior() throws Exception {
         doAnswer(new Answer<Query>() {
+
             @Override
             public Query answer(InvocationOnMock invocation) throws Throwable {
                 queryName = (String) invocation.getArguments()[0];
@@ -612,6 +614,7 @@ public class SubscriptionServiceBeanTriggerIdTest
         }).when(dsMock).createNamedQuery(anyString());
 
         doAnswer(new Answer<List<?>>() {
+
             @Override
             public List<?> answer(InvocationOnMock invocation)
                     throws Throwable {
@@ -624,6 +627,7 @@ public class SubscriptionServiceBeanTriggerIdTest
         }).when(queryMock).getResultList();
 
         doAnswer(new Answer<Object>() {
+
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 if ("TriggerProcessIdentifier.isSubscribeOrUnsubscribeServicePending"
@@ -646,6 +650,7 @@ public class SubscriptionServiceBeanTriggerIdTest
                 anyLong());
 
         doAnswer(new Answer<PlatformUser>() {
+
             @Override
             public PlatformUser answer(InvocationOnMock invocation)
                     throws Throwable {
@@ -658,6 +663,7 @@ public class SubscriptionServiceBeanTriggerIdTest
         // getReferenceByBusinessKey for type subscription must return a
         // subscription
         doAnswer(new Answer<Subscription>() {
+
             @Override
             public Subscription answer(InvocationOnMock invocation)
                     throws Throwable {
@@ -666,6 +672,7 @@ public class SubscriptionServiceBeanTriggerIdTest
         }).when(dsMock).getReferenceByBusinessKey(any(Subscription.class));
 
         doAnswer(new Answer<List<TriggerProcessMessageData>>() {
+
             @Override
             public List<TriggerProcessMessageData> answer(
                     InvocationOnMock invocation) throws Throwable {
@@ -695,6 +702,7 @@ public class SubscriptionServiceBeanTriggerIdTest
     private void prepareForModifyAndUpgradeSubscriptionConflict()
             throws Exception {
         doAnswer(new Answer<List<?>>() {
+
             @Override
             public List<?> answer(InvocationOnMock invocation)
                     throws Throwable {
@@ -703,6 +711,7 @@ public class SubscriptionServiceBeanTriggerIdTest
         }).when(queryMock).getResultList();
 
         doAnswer(new Answer<Object>() {
+
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 if ("TriggerProcessIdentifier.isModifyOrUpgradeSubscriptionPending"
@@ -718,6 +727,7 @@ public class SubscriptionServiceBeanTriggerIdTest
 
     private void prepareForTerminateSubscriptionConflict() throws Exception {
         doAnswer(new Answer<List<?>>() {
+
             @Override
             public List<?> answer(InvocationOnMock invocation)
                     throws Throwable {
@@ -726,6 +736,7 @@ public class SubscriptionServiceBeanTriggerIdTest
         }).when(queryMock).getResultList();
 
         doAnswer(new Answer<Object>() {
+
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 if ("TriggerProcessIdentifier.isSubscribeOrUnsubscribeServicePending"

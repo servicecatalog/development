@@ -10,7 +10,6 @@ import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.Product;
 import org.oscm.domobjects.TriggerProcess;
 import org.oscm.i18nservice.bean.LocalizerFacade;
-import org.oscm.serviceprovisioningservice.local.ServiceProvisioningServiceLocal;
 import org.oscm.internal.intf.ServiceProvisioningService;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.exception.ConcurrentModificationException;
@@ -45,6 +44,7 @@ import org.oscm.internal.vo.VOServiceEntry;
 import org.oscm.internal.vo.VOServiceLocalization;
 import org.oscm.internal.vo.VOSubscriptionDetails;
 import org.oscm.internal.vo.VOTechnicalService;
+import org.oscm.serviceprovisioningservice.local.ServiceProvisioningServiceLocal;
 
 public class ServiceProvisioningServiceStub implements
         ServiceProvisioningService, ServiceProvisioningServiceLocal {
@@ -424,9 +424,18 @@ public class ServiceProvisioningServiceStub implements
     }
 
     @Override
-    public List<VOCustomerService> getServiceCustomerTemplates(
-            VOService service) throws ObjectNotFoundException,
-                    OperationNotPermittedException {
+    public List<VOCustomerService> getServiceCustomerTemplates(VOService service)
+            throws ObjectNotFoundException, OperationNotPermittedException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void deleteService(Long key) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void deleteTechnicalService(Long key) {
         throw new UnsupportedOperationException();
     }
 }

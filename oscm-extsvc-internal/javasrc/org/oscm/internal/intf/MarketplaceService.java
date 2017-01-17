@@ -643,7 +643,8 @@ public interface MarketplaceService {
      * @throws ObjectNotFoundException
      */
     @RolesAllowed("PLATFORM_OPERATOR")
-    List<VOMarketplace> getAllMarketplacesForTenant(Long tenantKey) throws ObjectNotFoundException;
+    List<VOMarketplace> getAllMarketplacesForTenant(Long tenantKey)
+            throws ObjectNotFoundException;
 
     String getTenantIdFromMarketplace(String marketplaceId)
             throws ObjectNotFoundException;
@@ -660,4 +661,6 @@ public interface MarketplaceService {
      */
     public List<VOOrganization> getSuppliersForMarketplace(String marketplaceId)
             throws ObjectNotFoundException, OperationNotPermittedException;
+
+    String getMarketplaceIdForKey(Long key) throws ObjectNotFoundException;
 }

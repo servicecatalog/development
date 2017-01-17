@@ -28,10 +28,11 @@ import javax.xml.ws.handler.MessageContext;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.internal.intf.ServiceProvisioningService;
+import org.oscm.internal.vo.VOService;
+import org.oscm.internal.vo.VOTechnicalService;
 
 /**
  * @author tokoda
@@ -126,8 +127,9 @@ public class ServiceProvisioningServiceWSTest {
         verify(serviceMock, times(1)).createService(null, null, null);
         verify(serviceMock, times(1)).createTechnicalService(null);
         verify(serviceMock, times(1)).deactivateService(null);
-        verify(serviceMock, times(1)).deleteService(null);
-        verify(serviceMock, times(1)).deleteTechnicalService(null);
+        verify(serviceMock, times(1)).deleteService((VOService) null);
+        verify(serviceMock, times(1)).deleteTechnicalService(
+                (VOTechnicalService) null);
         verify(serviceMock, times(1)).exportTechnicalServices(null);
         verify(serviceMock, times(1)).getAllCustomerSpecificServices();
         verify(serviceMock, times(1)).getCompatibleServices(null);

@@ -80,6 +80,7 @@ import org.oscm.internal.types.exception.MarketplaceAccessTypeUneligibleForOpera
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.OperationNotPermittedException;
+import org.oscm.internal.types.exception.OperationPendingException;
 import org.oscm.internal.types.exception.OperationStateException;
 import org.oscm.internal.types.exception.OrganizationAlreadyBannedException;
 import org.oscm.internal.types.exception.OrganizationAlreadyExistsException;
@@ -93,6 +94,7 @@ import org.oscm.internal.types.exception.ServiceOperationException;
 import org.oscm.internal.types.exception.ServiceParameterException;
 import org.oscm.internal.types.exception.ServiceStateException;
 import org.oscm.internal.types.exception.SubscriptionStateException;
+import org.oscm.internal.types.exception.SubscriptionStillActiveException;
 import org.oscm.internal.types.exception.TechnicalServiceActiveException;
 import org.oscm.internal.types.exception.TechnicalServiceNotAliveException;
 import org.oscm.internal.types.exception.TechnicalServiceOperationException;
@@ -289,6 +291,7 @@ public class MockService implements IdentityService, SubscriptionService,
     VOVatRate defaultVat;
 
     VOFinder<VOSubscription> subscriptionFinder = new VOFinder<VOSubscription>() {
+
         @Override
         public String getId(VOSubscription element) {
             return element.getSubscriptionId();
@@ -296,6 +299,7 @@ public class MockService implements IdentityService, SubscriptionService,
     };
 
     VOFinder<VOUserDetails> userFinder = new VOFinder<VOUserDetails>() {
+
         @Override
         public String getId(VOUserDetails element) {
             return element.getUserId();
@@ -713,6 +717,7 @@ public class MockService implements IdentityService, SubscriptionService,
 
     private VOOrganization getOrganizationById(String organizationId) {
         VOFinder<VOOrganization> organizationFinder = new VOFinder<VOOrganization>() {
+
             @Override
             public String getId(VOOrganization element) {
                 return element.getOrganizationId();
@@ -2790,6 +2795,31 @@ public class MockService implements IdentityService, SubscriptionService,
     @Override
     public List<VOOrganization> getSuppliersForMarketplace(String marketplaceId)
             throws ObjectNotFoundException, OperationNotPermittedException {
+        return null;
+    }
+
+    @Override
+    public void deleteService(Long key) {
+
+    }
+
+    @Override
+    public void deleteTechnicalService(Long key) {
+
+    }
+
+    @Override
+    public boolean unsubscribeFromService(Long key)
+            throws ObjectNotFoundException, SubscriptionStillActiveException,
+            SubscriptionStateException, TechnicalServiceNotAliveException,
+            TechnicalServiceOperationException, OperationPendingException,
+            OperationNotPermittedException {
+        return false;
+    }
+
+    @Override
+    public String getMarketplaceIdForKey(Long key)
+            throws ObjectNotFoundException {
         return null;
     }
 

@@ -617,9 +617,9 @@ public interface SubscriptionService {
      */
 
     void abortAsyncSubscription(String subscriptionId, String organizationId,
-            List<VOLocalizedText> reason)
-            throws ObjectNotFoundException, SubscriptionStateException,
-            OrganizationAuthoritiesException, OperationNotPermittedException;
+            List<VOLocalizedText> reason) throws ObjectNotFoundException,
+            SubscriptionStateException, OrganizationAuthoritiesException,
+            OperationNotPermittedException;
 
     /**
      * Updates the progress information for a subscription to a service with
@@ -900,8 +900,8 @@ public interface SubscriptionService {
      */
 
     VOSubscriptionDetails getSubscriptionForCustomer(String organizationId,
-            String subscriptionId)
-            throws ObjectNotFoundException, OperationNotPermittedException;
+            String subscriptionId) throws ObjectNotFoundException,
+            OperationNotPermittedException;
 
     /**
      * Retrieves the service roles defined for the technical service on which
@@ -1226,9 +1226,9 @@ public interface SubscriptionService {
      *             in case provided access information is syntactically invalid
      */
     void updateAccessInformation(String subscriptionId, String organizationId,
-            VOInstanceInfo instanceInfo)
-            throws ObjectNotFoundException, SubscriptionStateException,
-            OperationNotPermittedException, ValidationException;
+            VOInstanceInfo instanceInfo) throws ObjectNotFoundException,
+            SubscriptionStateException, OperationNotPermittedException,
+            ValidationException;
 
     /**
      * Updates the progress information for asynchronous operation record.
@@ -1289,4 +1289,26 @@ public interface SubscriptionService {
      *         payment information in subscription process. false - otherwise
      */
     boolean isPaymentInfoHidden();
+
+    /**
+     * Delegate to unsubscribe from a service by the subscriptions technical
+     * key.
+     * 
+     * @param key
+     *            the subscriptions technical key
+     * @return <code>true</code> if unsubscribe was executed, <code>false</code>
+     *         in case of an existing suspending trigger
+     * @throws ObjectNotFoundException
+     * @throws SubscriptionStillActiveException
+     * @throws SubscriptionStateException
+     * @throws TechnicalServiceNotAliveException
+     * @throws TechnicalServiceOperationException
+     * @throws OperationPendingException
+     * @throws OperationNotPermittedException
+     */
+    boolean unsubscribeFromService(Long key) throws ObjectNotFoundException,
+            SubscriptionStillActiveException, SubscriptionStateException,
+            TechnicalServiceNotAliveException,
+            TechnicalServiceOperationException, OperationPendingException,
+            OperationNotPermittedException;
 }

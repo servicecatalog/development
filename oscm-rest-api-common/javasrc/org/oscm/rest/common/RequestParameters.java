@@ -68,6 +68,13 @@ public abstract class RequestParameters {
         return etag;
     }
 
+    public int eTagToVersion() {
+        if (etag == null) {
+            return 0;
+        }
+        return etag.intValue();
+    }
+
     public void setETag(Long etag) {
         this.etag = etag;
     }

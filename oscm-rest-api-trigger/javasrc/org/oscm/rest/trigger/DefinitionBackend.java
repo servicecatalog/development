@@ -84,6 +84,7 @@ public class DefinitionBackend {
             throws WebApplicationException {
 
         return new RestBackend.Get<RepresentationCollection<DefinitionRepresentation>, TriggerParameters>() {
+
             @Override
             public RepresentationCollection<DefinitionRepresentation> get(
                     TriggerParameters params) throws WebApplicationException {
@@ -150,7 +151,7 @@ public class DefinitionBackend {
         return new RestBackend.Put<DefinitionRepresentation, TriggerParameters>() {
 
             @Override
-            public void put(DefinitionRepresentation content,
+            public boolean put(DefinitionRepresentation content,
                     TriggerParameters params) throws WebApplicationException {
 
                 try {
@@ -187,7 +188,7 @@ public class DefinitionBackend {
                         throw e;
                     }
                 }
-
+                return true;
             }
         };
     }
@@ -198,7 +199,7 @@ public class DefinitionBackend {
         return new RestBackend.Delete<TriggerParameters>() {
 
             @Override
-            public void delete(TriggerParameters params)
+            public boolean delete(TriggerParameters params)
                     throws WebApplicationException {
 
                 try {
@@ -221,7 +222,7 @@ public class DefinitionBackend {
                         throw e;
                     }
                 }
-
+                return true;
             }
         };
     }

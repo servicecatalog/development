@@ -2261,10 +2261,10 @@ public class ServiceProvisioningServiceBean
         PlatformUser currentUser = dm.getCurrentUser();
         Organization org = currentUser.getOrganization();
 
-        validateExternalServiceMustBeFree(voPriceModel, voProductDetails);
-
         Product product = dm.getReference(Product.class,
                 voProductDetails.getKey());
+        validateExternalServiceMustBeFree(voPriceModel, product
+                .getTechnicalProduct().getAccessType());
 
         boolean isCreatePriceModel = product.getPriceModel() == null;
         boolean priceModelCreatedInTransaction = false;
@@ -2349,7 +2349,7 @@ public class ServiceProvisioningServiceBean
         boolean licenseChanged = false;
         if (!ServiceType.isSubscription(productType)) {
             licenseChanged = saveLicenseInformationForPriceModel(
-                    voProductDetails.getTechnicalService().getKey(),
+                    product.getTechnicalProduct().getKey(),
                     priceModel.getKey(), voPriceModel, currentUser,
                     newPriceModelCreated);
         }
@@ -3395,9 +3395,9 @@ public class ServiceProvisioningServiceBean
 
         PlatformUser currentUser = dm.getCurrentUser();
 
-        validateExternalServiceMustBeFree(priceModel, service);
-
         Product product = dm.getReference(Product.class, service.getKey());
+        validateExternalServiceMustBeFree(priceModel, product
+                .getTechnicalProduct().getAccessType());
 
         // ensure the subscription belongs to the given product
         Subscription sub = validateSubscription(service, currentUser, product);
@@ -3550,10 +3550,9 @@ public class ServiceProvisioningServiceBean
     }
 
     private void validateExternalServiceMustBeFree(VOPriceModel priceModel,
-            VOServiceDetails serviceDetails) throws ValidationException {
+            ServiceAccessType sat) throws ValidationException {
 
-        if (priceModel.isChargeable() && serviceDetails
-                .getAccessType() == ServiceAccessType.EXTERNAL) {
+        if (priceModel.isChargeable() && sat == ServiceAccessType.EXTERNAL) {
             throw new ValidationException(
                     ReasonEnum.EXTERNAL_SERVICE_MUST_BE_FREE_OF_CHARGE, null,
                     null);
@@ -6012,5 +6011,36 @@ public class ServiceProvisioningServiceBean
         }
 
         return result;
+    }
+
+    @Override
+    @RolesAllowed("SERVICE_MANAGER")
+    public void deleteService(Long key) throws ObjectNotFoundException,
+            OrganizationAuthoritiesException, OperationNotPermittedException,
+            ServiceOperationException, ServiceStateException,
+            ConcurrentModificationException {
+        VOService vo = new VOService();
+        vo.setKey(key.longValue());
+        vo = getServiceDetails(vo);
+        deleteService(vo);
+    }
+
+    @Override
+    @RolesAllowed("TECHNOLOGY_MANAGER")
+    public void deleteTechnicalService(Long key)
+            throws ObjectNotFoundException, OperationNotPermittedException,
+            DeletionConstraintException, OrganizationAuthoritiesException,
+            ConcurrentModificationException {
+        Organization provider = dm.getCurrentUser().getOrganization();
+        VOTechnicalService vo = new VOTechnicalService();
+        vo.setKey(key.longValue());
+        TechnicalProduct tProd = findTechnicalProductAndCheckOwner(provider, vo);
+        LocalizerFacade facade = new LocalizerFacade(localizer, dm
+                .getCurrentUser().getLocale());
+        List<ParameterDefinition> paramDefs = getPlatformParameterDefinitions(tProd);
+        List<Event> platformEvents = getPlatformEvents(tProd);
+        vo = TechnicalProductAssembler.toVOTechnicalProduct(tProd, paramDefs,
+                platformEvents, facade, false);
+        deleteTechnicalService(vo);
     }
 }

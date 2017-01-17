@@ -43,6 +43,7 @@ import com.sun.jersey.spi.container.ContainerRequest;
 public class RestResourceTest extends RestResource {
 
     private class MockRepresentation extends Representation {
+
         @Override
         public void validateContent() throws WebApplicationException {
         }
@@ -94,36 +95,41 @@ public class RestResourceTest extends RestResource {
     private RestBackend.Put<MockRepresentation, MockRequestParameters> backendPut = new RestBackend.Put<MockRepresentation, MockRequestParameters>() {
 
         @Override
-        public void put(MockRepresentation content, MockRequestParameters params) {
+        public boolean put(MockRepresentation content,
+                MockRequestParameters params) {
 
             assertNotNull(content);
             assertNull(content.getETag());
             assertNotNull(params);
+            return true;
         }
     };
 
     private RestBackend.Put<MockRepresentation, MockRequestParameters> backendPutETag = new RestBackend.Put<MockRepresentation, MockRequestParameters>() {
 
         @Override
-        public void put(MockRepresentation content, MockRequestParameters params) {
+        public boolean put(MockRepresentation content,
+                MockRequestParameters params) {
 
             assertNotNull(content);
             assertNotNull(content.getETag());
             assertNotNull(params);
+            return true;
         }
     };
 
     private RestBackend.Delete<MockRequestParameters> backendDelete = new RestBackend.Delete<MockRequestParameters>() {
 
         @Override
-        public void delete(MockRequestParameters params) {
+        public boolean delete(MockRequestParameters params) {
 
             assertNotNull(params);
+            return true;
         }
     };
 
     @Test
-    public void testGet() {
+    public void testGet() throws Exception {
 
         MockRequestParameters params = new MockRequestParameters();
         params.setId(new Long(1L));
@@ -142,7 +148,7 @@ public class RestResourceTest extends RestResource {
     }
 
     @Test
-    public void testPost() {
+    public void testPost() throws Exception {
 
         MockRepresentation content = new MockRepresentation();
         content.setId(new Long(1L));
@@ -165,7 +171,7 @@ public class RestResourceTest extends RestResource {
     }
 
     @Test
-    public void testPut() {
+    public void testPut() throws Exception {
 
         MockRepresentation content = new MockRepresentation();
         content.setId(new Long(1L));
@@ -186,7 +192,7 @@ public class RestResourceTest extends RestResource {
     }
 
     @Test
-    public void testPutWithETag() {
+    public void testPutWithETag() throws Exception {
 
         MockRepresentation content = new MockRepresentation();
         content.setId(new Long(1L));
@@ -208,7 +214,7 @@ public class RestResourceTest extends RestResource {
     }
 
     @Test
-    public void testDelete() {
+    public void testDelete() throws Exception {
 
         MockRequestParameters params = new MockRequestParameters();
         params.setId(new Long(1L));
@@ -225,7 +231,7 @@ public class RestResourceTest extends RestResource {
     }
 
     @Test
-    public void testVersionAndID() {
+    public void testVersionAndID() throws Exception {
 
         Map<String, Object> map = new HashMap<String, Object>();
         map.put(CommonParams.PARAM_VERSION, new Integer(CommonParams.VERSION_1));
