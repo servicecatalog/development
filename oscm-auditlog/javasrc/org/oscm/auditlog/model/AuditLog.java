@@ -4,14 +4,7 @@
 
 package org.oscm.auditlog.model;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.TableGenerator;
+import javax.persistence.*;
 
 @NamedQueries({
         @NamedQuery(name = "AuditLog.findByDateRange", query = "SELECT o FROM AuditLog o  WHERE creationTime >= :startTime AND creationTime < :endTime ORDER BY creationTime"),
@@ -23,7 +16,7 @@ public class AuditLog implements AuditLogEntry {
     @Id
     @Column(name = "tkey")
     @GeneratedValue(strategy = GenerationType.TABLE, generator = "auditlog_seq")
-    @TableGenerator(table = "hibernate_sequences", name = "auditlog_seq", allocationSize = 100)
+    @TableGenerator(table = "hibernate_sequences", name = "auditlog_seq", allocationSize = 100, valueColumnName = "sequence_next_hi_value")
     private long key;
 
     @Column(nullable = false)
