@@ -87,11 +87,11 @@ public class ManageGroupCtrl extends UserGroupBaseCtrl {
             try {
                 initSelectedGroup();
             } catch (ObjectNotFoundException e) {
-            manageGroupModel.setSelectedGroup(null);
-            manageGroupModel.setSelectedGroupId(null);
-            JSFUtils.addMessage(null, FacesMessage.SEVERITY_ERROR,
-                    BaseBean.ERROR_UNIT_MODIFIED_OR_DELETED_CONCURRENTLY, null);
-            return;
+                manageGroupModel.setSelectedGroup(null);
+                manageGroupModel.setSelectedGroupId(null);
+                JSFUtils.addMessage(null, FacesMessage.SEVERITY_ERROR,
+                        BaseBean.ERROR_UNIT_MODIFIED_OR_DELETED_CONCURRENTLY, null);
+                return;
             }
         } else {
             redirectToGroupListPage();
