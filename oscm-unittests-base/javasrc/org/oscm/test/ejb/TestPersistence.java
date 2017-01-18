@@ -97,7 +97,7 @@ public class TestPersistence {
                 .getDataSource()));
         properties.put("hibernate.search.autoregister_listeners", System.getProperty("hibernate.search.autoregister_listeners"));
         properties.put("hibernate.transaction.jta.platform", "org.hibernate.service.jta.platform.internal.SunOneJtaPlatform");
-        properties.put("hibernate.id.new_generator_mappings", "true");
+        properties.put("hibernate.id.new_generator_mappings", "false");
         properties.put("org.hibernate.SQL", "false");
         EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory(unitName, properties);
         sf = ((EntityManagerFactoryImpl) entityManagerFactory).getSessionFactory();

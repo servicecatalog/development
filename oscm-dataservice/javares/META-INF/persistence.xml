@@ -217,7 +217,7 @@
       <property name="hibernate.search.lucene_version" value="LUCENE_5_3_1" />
       <property name="javax.persistence.sharedCache.mode" value="ALL"/>
       <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQL94Dialect"/>
-      <property name="hibernate.id.new_generator_mappings" value="true"/>
+      <property name="hibernate.id.new_generator_mappings" value="false"/>
       <property name="hibernate.transaction.jta.platform" value="org.hibernate.service.jta.platform.internal.SunOneJtaPlatform"/>
     </properties>
 
