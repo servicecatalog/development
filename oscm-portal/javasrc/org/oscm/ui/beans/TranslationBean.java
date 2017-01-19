@@ -40,8 +40,8 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.validator.ValidatorException;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.Part;
 
-import org.apache.myfaces.custom.fileupload.UploadedFile;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Workbook;
 
@@ -82,7 +82,7 @@ public class TranslationBean extends BaseBean implements Serializable {
     private static final String KEY_IMPRINT_DESCRIPTION = "public.imprint.url.description";
     private BrandService brandManagement;
 
-    private UploadedFile excel;
+    private Part excel;
 
     private String locale;
 
@@ -156,11 +156,11 @@ public class TranslationBean extends BaseBean implements Serializable {
         return appBean;
     }
 
-    public UploadedFile getExcel() {
+    public Part getExcel() {
         return excel;
     }
 
-    public void setExcel(UploadedFile excel) {
+    public void setExcel(Part excel) {
         this.excel = excel;
     }
 
