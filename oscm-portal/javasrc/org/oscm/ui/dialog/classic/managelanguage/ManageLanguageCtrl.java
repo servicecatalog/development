@@ -32,8 +32,8 @@ import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.Part;
 
-import org.apache.myfaces.custom.fileupload.UploadedFile;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Workbook;
 
@@ -78,13 +78,13 @@ public class ManageLanguageCtrl extends BaseBean implements Serializable {
     /**
      * store the import/export zip file
      */
-    private UploadedFile excel;
+    private Part excel;
 
-    public UploadedFile getExcel() {
+    public Part getExcel() {
         return excel;
     }
 
-    public void setExcel(UploadedFile excel) {
+    public void setExcel(Part excel) {
         this.excel = excel;
     }
 

@@ -15,8 +15,7 @@ import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
-
-import org.apache.myfaces.custom.fileupload.UploadedFile;
+import javax.servlet.http.Part;
 
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
@@ -186,7 +185,7 @@ public class LdapConfigurationCtrl extends BaseBean {
     public String importSettings() throws SaaSApplicationException {
 
         Properties propsToStore = new Properties();
-        UploadedFile file = model.getFile();
+        Part file = model.getFile();
         // TODO temporary fix for bug 9815 - for a proper fix, file upload
         // should have required="true" and a <mp:message /> added. But message
         // positioning is is hard for this case due to used layout and styles

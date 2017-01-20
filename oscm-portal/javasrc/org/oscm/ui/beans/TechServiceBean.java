@@ -23,8 +23,6 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.event.ValueChangeEvent;
 import javax.servlet.http.Part;
 
-import org.apache.myfaces.custom.fileupload.UploadedFile;
-
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.types.enumtypes.LogMessageIdentifier;

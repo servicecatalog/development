@@ -11,8 +11,7 @@ import java.util.List;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.model.SelectItem;
-
-import org.apache.myfaces.custom.fileupload.UploadedFile;
+import javax.servlet.http.Part;
 
 /**
  * Model class to contain the LDAP configuration settings to be displayed.
@@ -28,7 +27,7 @@ public class LdapConfigurationModel implements Serializable {
 
     private List<LdapSetting> settings = new ArrayList<LdapSetting>();
     private List<SelectItem> organizations = new ArrayList<SelectItem>();
-    private UploadedFile file;
+    private Part file;
 
     private boolean organizationSelectionSupported;
     private String organizationIdentifier;
@@ -43,11 +42,11 @@ public class LdapConfigurationModel implements Serializable {
         this.settings = settings;
     }
 
-    public UploadedFile getFile() {
+    public Part getFile() {
         return file;
     }
 
-    public void setFile(UploadedFile file) {
+    public void setFile(Part file) {
         this.file = file;
     }
 

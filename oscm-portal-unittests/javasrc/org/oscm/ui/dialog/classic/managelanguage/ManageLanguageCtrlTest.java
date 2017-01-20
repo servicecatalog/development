@@ -42,9 +42,8 @@ import java.util.Set;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
+import javax.servlet.http.Part;
 
-import org.apache.myfaces.custom.fileupload.StorageStrategy;
-import org.apache.myfaces.custom.fileupload.UploadedFile;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.junit.Before;
 import org.junit.Test;
@@ -92,47 +91,11 @@ public class ManageLanguageCtrlTest {
     LocalizedDataService localizedDataService;
     UiDelegate ui = new UiDelegate();
     private String message;
-    private UploadedFile uploadedFile;
+    private Part uploadedFile;
     @Captor
     ArgumentCaptor<SaaSApplicationException> exceptionToStore;
-    private final UploadedFile excelFile = new UploadedFile() {
-        private static final long serialVersionUID = 1L;
-
-        @Override
-        public StorageStrategy getStorageStrategy() {
-            return null;
-        }
-
-        @Override
-        public long getSize() {
-            return 0;
-        }
-
-        @Override
-        public String getName() {
-            return null;
-        }
-
-        @Override
-        public InputStream getInputStream() throws IOException {
-            return new InputStream() {
-                @Override
-                public int read() throws IOException {
-                    return 0;
-                }
-            };
-        }
-
-        @Override
-        public String getContentType() {
-            return null;
-        }
-
-        @Override
-        public byte[] getBytes() throws IOException {
-            return null;
-        }
-    };
+    
+    private Part excelFile = mock(Part.class);
 
     @Before
     public void setup() throws Exception {
@@ -195,7 +158,7 @@ public class ManageLanguageCtrlTest {
         locales.add(Locale.ENGLISH);
         ((ApplicationStub) context.getApplication())
                 .setSupportedLocales(locales);
-        uploadedFile = mock(UploadedFile.class);
+        uploadedFile = mock(Part.class);
         doReturn("name").when(uploadedFile).getName();
     }
 
