@@ -23,6 +23,5 @@
 	<classpathentry kind="lib" path="/libraries/apache-codec/javalib/commons-codec-1.7.jar"/>
 	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/javaee.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="/libraries/redhat-hibernate/javalib/jboss-logging-3.3.0.Final.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
