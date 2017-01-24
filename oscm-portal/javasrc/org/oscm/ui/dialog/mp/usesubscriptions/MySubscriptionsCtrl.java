@@ -8,18 +8,28 @@
 
 package org.oscm.ui.dialog.mp.usesubscriptions;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.Key;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Date;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import javax.ejb.EJB;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
@@ -28,22 +38,28 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpSession;
+import javax.ws.rs.core.UriBuilder;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.log4j.Logger;
+import org.oscm.internal.intf.ConfigurationService;
 import org.oscm.internal.intf.SubscriptionService;
 import org.oscm.internal.subscriptions.OperationModel;
 import org.oscm.internal.subscriptions.OperationParameterModel;
 import org.oscm.internal.subscriptions.POSubscription;
 import org.oscm.internal.subscriptions.SubscriptionsService;
 import org.oscm.internal.triggerprocess.TriggerProcessesService;
+import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.types.exception.ConcurrentModificationException;
 import org.oscm.internal.types.exception.SaaSApplicationException;
+import org.oscm.internal.vo.VOConfigurationSetting;
 import org.oscm.internal.vo.VOServiceOperationParameter;
 import org.oscm.internal.vo.VOServiceOperationParameterValues;
 import org.oscm.internal.vo.VOSubscription;
 import org.oscm.internal.vo.VOTechnicalServiceOperation;
 import org.oscm.internal.vo.VOUserDetails;
 import org.oscm.string.Strings;
+import org.oscm.types.constants.Configuration;
 import org.oscm.ui.beans.ApplicationBean;
 import org.oscm.ui.beans.BaseBean;
 import org.oscm.ui.common.Constants;
@@ -55,6 +71,10 @@ import org.oscm.ui.common.UiDelegate;
 public class MySubscriptionsCtrl implements Serializable {
 
     private static final long serialVersionUID = -9209968842729517052L;
+
+    private static final Logger LOGGER = Logger
+            .getLogger(MySubscriptionsCtrl.class);
+
     @ManagedProperty(value = "#{mySubscriptionsLazyDataModel}")
     private MySubscriptionsLazyDataModel model;
 
@@ -88,6 +108,9 @@ public class MySubscriptionsCtrl implements Serializable {
 
     @EJB
     TriggerProcessesService triggerProcessService;
+
+    @EJB
+    ConfigurationService config;
 
     @PostConstruct
     public void initialize() {
@@ -274,45 +297,80 @@ public class MySubscriptionsCtrl implements Serializable {
         }
     }
 
-    public String getCustomTabUrlWithParameters()
-            throws UnsupportedEncodingException, NoSuchAlgorithmException {
-        String orgId = model.getSelectedSubscription().getOrganizationId();
-        String subId = model.getSelectedSubscription().getSubscriptionName();
-        String instId = model.getSelectedSubscription().getServiceInstanceId();
+    public String getCustomTabUrlWithParameters() {
+        String orgId = encodeBase64(
+                model.getSelectedSubscription().getOrganizationId());
+        String subId = encodeBase64(
+                model.getSelectedSubscription().getSubscriptionId());
+        String instId = encodeBase64(
+                model.getSelectedSubscription().getServiceInstanceId());
         HttpSession session = (HttpSession) FacesContext.getCurrentInstance()
                 .getExternalContext().getSession(false);
         VOUserDetails userDetails = (VOUserDetails) session
                 .getAttribute(Constants.SESS_ATTR_USER);
-        String encodedinstId = encodeBase64(instId.getBytes("UTF-8"));
+        String userId = encodeBase64(userDetails.getUserId());
+        String timestamp = Long.toString(System.currentTimeMillis());
 
-        String token = encodedinstId + "_" + userDetails.getUserId() + "_"
-                + orgId;
-        byte[] cipher_byte;
+        String token = instId + subId + userId + orgId + timestamp;
 
-        MessageDigest md = MessageDigest.getInstance("SHA-256");
-        md.update(token.getBytes("UTF-8"));
-        cipher_byte = md.digest();
-        String cipher_string = encodeBase64(cipher_byte);
+        VOConfigurationSetting setting = config.getVOConfigurationSetting(
+                ConfigurationKey.SSO_SIGNING_KEYSTORE,
+                Configuration.GLOBAL_CONTEXT);
+        String loc = setting.getValue();
 
-        Date date = new Date();
-        long timestamp = date.getTime();
+        setting = config.getVOConfigurationSetting(
+                ConfigurationKey.SSO_SIGNING_KEYSTORE_PASS,
+                Configuration.GLOBAL_CONTEXT);
+        String pwd = setting.getValue();
 
-        String encodedSubId = URLEncoder.encode(subId, "UTF-8");
+        setting = config.getVOConfigurationSetting(
+                ConfigurationKey.SSO_SIGNING_KEY_ALIAS,
+                Configuration.GLOBAL_CONTEXT);
+        String alias = setting.getValue();
 
-        return model.getSelectedSubscription().getCustomTabUrl() + "?orgId="
-                + orgId + "&subId=" + encodedSubId + "&instId=" + instId
-                + "&token=" + URLEncoder.encode(
-                        token + "_" + cipher_string + "_" + timestamp, "UTF-8");
+        try {
+
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            md.update(token.getBytes(StandardCharsets.UTF_8));
+            byte[] tokenHash = md.digest();
+
+            KeyStore keystore = KeyStore.getInstance(KeyStore.getDefaultType());
+            keystore.load(new FileInputStream(loc), pwd.toCharArray());
+
+            Key key = keystore.getKey(alias, pwd.toCharArray());
+            Cipher c = Cipher.getInstance(key.getAlgorithm());
+            c.init(Cipher.ENCRYPT_MODE, key);
+
+            String tokenSignature = encodeBase64(c.doFinal(tokenHash));
+
+            UriBuilder builder = UriBuilder.fromPath(
+                    model.getSelectedSubscription().getCustomTabUrl());
+            builder.queryParam("instId", instId);
+            builder.queryParam("orgId", orgId);
+            builder.queryParam("userId", userId);
+            builder.queryParam("subId", subId);
+            builder.queryParam("timestamp", timestamp);
+            builder.queryParam("signature", tokenSignature);
+
+            return builder.build().toString();
+
+        } catch (KeyStoreException | CertificateException | IOException
+                | UnrecoverableKeyException | NoSuchPaddingException
+                | InvalidKeyException | IllegalBlockSizeException
+                | BadPaddingException | NoSuchAlgorithmException e) {
+
+            LOGGER.error("Unable to build custom tab URI", e);
+            return "";
+        }
+
     }
 
-    /**
-     * @param byteStr
-     * @return
-     * @throws UnsupportedEncodingException
-     */
-    private String encodeBase64(byte[] byteStr)
-            throws UnsupportedEncodingException {
-        return new String(Base64.encodeBase64(byteStr), "UTF-8");
+    private String encodeBase64(String str) {
+        return Base64.encodeBase64URLSafeString(
+                str.getBytes(StandardCharsets.UTF_8));
     }
 
+    private String encodeBase64(byte[] b) {
+        return Base64.encodeBase64URLSafeString(b);
+    }
 }

@@ -10,8 +10,6 @@ package org.oscm.app.common.ui.filter;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.StringTokenizer;
 
 import javax.inject.Inject;
@@ -49,6 +47,7 @@ public class AuthorizationFilter implements Filter {
 
     private String controllerId;
     private ControllerAccess controllerAccess;
+    private APPlatformService appService;
     private String excludeUrlPattern;
 
     final int INSTANCE_ID = 0;
@@ -59,6 +58,11 @@ public class AuthorizationFilter implements Filter {
     @Inject
     public void setControllerAccess(final ControllerAccess controllerAccess) {
         this.controllerAccess = controllerAccess;
+    }
+
+    @Inject
+    public void setAppService(final APPlatformService appService) {
+        this.appService = appService;
     }
 
     @Override
@@ -90,8 +94,7 @@ public class AuthorizationFilter implements Filter {
         HttpServletResponse httpResponse = (HttpServletResponse) response;
         HttpSession session = httpRequest.getSession();
         Object serverInfoLoggedIn = session.getAttribute("serverInfoLoggedIn");
-        if ((path != null && path.matches("/serverInformation.jsf"))
-                || serverInfoLoggedIn != null) {
+        if (path != null || serverInfoLoggedIn != null) {
             if (checkToken(httpRequest) || serverInfoLoggedIn != null) {
                 session.setAttribute("serverInfoLoggedIn",
                         httpRequest.getParameter("instId"));
@@ -177,40 +180,21 @@ public class AuthorizationFilter implements Filter {
     /**
      * @param httpRequest
      */
-    protected boolean checkToken(HttpServletRequest httpRequest) {
-        try {
-            String token = getParameterWithUTF8(
-                    httpRequest.getParameter("token"));
-            String instId = getParameterWithUTF8(
-                    httpRequest.getParameter("instId"));
-            if (token != null && instId != null) {
-                String hashParams[] = token.split("_");
-                String tokenHash = new String(
-                        Base64.decodeBase64(hashParams[HASH].getBytes("UTF-8")),
-                        "UTF-8");
-                String tokenInstId = new String(
-                        Base64.decodeBase64(
-                                hashParams[INSTANCE_ID].getBytes("UTF-8")),
-                        "UTF-8");
+    protected boolean checkToken(HttpServletRequest httpRequest)
+            throws UnsupportedEncodingException {
+        String signature = getParameterWithUTF8(
+                httpRequest.getParameter("signature"));
+        String instId = getParameterWithUTF8(
+                httpRequest.getParameter("instId"));
+        String orgId = getParameterWithUTF8("orgId");
+        String userId = getParameterWithUTF8("userId");
+        String subId = getParameterWithUTF8("subId");
+        String timestamp = getParameterWithUTF8("timestamp");
 
-                if (tokenInstId.equals(instId)) {
-                    byte[] cipher_byte;
-                    String checkStr = hashParams[INSTANCE_ID] + "_"
-                            + hashParams[USER_ID] + "_" + hashParams[ORG_ID];
+        String token = instId + subId + userId + orgId + timestamp;
 
-                    MessageDigest md = MessageDigest.getInstance("SHA-256");
-                    md.update(checkStr.getBytes("UTF-8"));
-                    cipher_byte = md.digest();
-                    if (new String(cipher_byte, "UTF-8").equals(tokenHash)) {
-                        return true;
-                    }
+        return appService.checkToken(token, signature);
 
-                }
-            }
-        } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
-            LOGGER.error(e.getMessage());
-        }
-        return false;
     }
 
     private String getParameterWithUTF8(String param)

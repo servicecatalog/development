@@ -8,11 +8,26 @@
 
 package org.oscm.app.v2_0.service;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.Key;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import javax.ejb.EJB;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
@@ -250,5 +265,42 @@ public class APPlatformServiceBean implements APPlatformService {
         } catch (BadResultException e) {
             throw new APPlatformException(e.getMessage());
         }
+    }
+
+    @Override
+    public boolean checkToken(String token, String signature) {
+        try {
+            String loc = configService.getProxyConfigurationSetting(
+                    PlatformConfigurationKey.APP_TRUSTSTORE);
+            String pwd = configService.getProxyConfigurationSetting(
+                    PlatformConfigurationKey.APP_TRUSTSTORE_PASSWORD);
+            String alias = configService.getProxyConfigurationSetting(
+                    PlatformConfigurationKey.APP_TRUSTSTORE_BSS_ALIAS);
+
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            md.update(token.getBytes(StandardCharsets.UTF_8));
+            byte[] tokenHash = md.digest();
+
+            KeyStore keystore = KeyStore.getInstance(KeyStore.getDefaultType());
+            keystore.load(new FileInputStream(loc), pwd.toCharArray());
+
+            Key key = keystore.getKey(alias, pwd.toCharArray());
+            Cipher c = Cipher.getInstance(key.getAlgorithm());
+            c.init(Cipher.DECRYPT_MODE, key);
+
+            byte[] decryptedHash = c
+                    .doFinal(signature.getBytes(StandardCharsets.UTF_8));
+
+            if (tokenHash.equals(decryptedHash)) {
+                return true;
+            }
+        } catch (NoSuchAlgorithmException | KeyStoreException
+                | CertificateException | IOException | UnrecoverableKeyException
+                | NoSuchPaddingException | InvalidKeyException
+                | IllegalBlockSizeException | BadPaddingException
+                | ConfigurationException e) {
+            logger.error(e.getMessage());
+        }
+        return false;
     }
 }
