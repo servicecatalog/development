@@ -16,6 +16,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Scanner;
 import java.util.Set;
 
 import javax.ejb.EJB;
@@ -31,6 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.servlet.http.Part;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.myfaces.custom.fileupload.UploadedFile;
@@ -105,7 +107,7 @@ public class UserBean extends BaseBean implements Serializable {
     @EJB
     private TenantService tenantService;
 
-    private UploadedFile userImport;
+    private Part userImport;
     transient ApplicationBean appBean;
 
     public MenuBean getMenuBean() {
@@ -1099,11 +1101,11 @@ public class UserBean extends BaseBean implements Serializable {
                 authenticationSettings);
     }
 
-    public UploadedFile getUserImport() {
+    public Part getUserImport() {
         return userImport;
     }
 
-    public void setUserImport(UploadedFile userImport) {
+    public void setUserImport(Part userImport) {
         this.userImport = userImport;
     }
 
@@ -1122,9 +1124,12 @@ public class UserBean extends BaseBean implements Serializable {
             ui.handleException(ex);
             return;
         }
-        try {
+        try {           
+            String fileContent = new Scanner(userImport.getInputStream())
+                    .useDelimiter("\\A").next();
+            
             getUserService().importUsersInOwnOrganization(
-                    userImport.getBytes(), marketplaceId);
+                    fileContent.getBytes(), marketplaceId);
             ui.handle("info.user.importStarted", userImport.getName());
         } catch (SaaSApplicationException ex) {
             ui.handleException(ex);

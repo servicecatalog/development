@@ -9,6 +9,9 @@
 package org.oscm.ui.common;
 
 import java.io.IOException;
+import java.util.Scanner;
+
+import javax.servlet.http.Part;
 
 import org.apache.myfaces.custom.fileupload.UploadedFile;
 
@@ -26,7 +29,7 @@ public class ImageUploader {
 
     private ImageType imageType;
     private boolean deleteImage;
-    private UploadedFile image;
+    private Part image;
 
     public ImageUploader(ImageType imageType) {
         this.imageType = imageType;
@@ -44,7 +47,10 @@ public class ImageUploader {
                 voImageResource = new VOImageResource();
                 voImageResource.setImageType(imageType);
                 voImageResource.setContentType(image.getContentType());
-                voImageResource.setBuffer(image.getBytes());
+
+                String fileContent = new Scanner(image.getInputStream())
+                        .useDelimiter("\\A").next();
+                voImageResource.setBuffer(fileContent.getBytes());
             }
             return voImageResource;
         } catch (IOException e) {
@@ -71,11 +77,11 @@ public class ImageUploader {
         this.deleteImage = deleteImage;
     }
 
-    public UploadedFile getImage() {
+    public Part getImage() {
         return image;
     }
 
-    public void setImage(UploadedFile image) {
+    public void setImage(Part image) {
         this.image = image;
     }
 

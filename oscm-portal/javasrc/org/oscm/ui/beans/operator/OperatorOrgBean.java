@@ -22,9 +22,9 @@ import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
+import javax.servlet.http.Part;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.myfaces.custom.fileupload.UploadedFile;
 import org.oscm.converter.PropertiesLoader;
 import org.oscm.internal.intf.MarketplaceService;
 import org.oscm.internal.intf.OperatorService;
@@ -100,7 +100,7 @@ public class OperatorOrgBean extends BaseOperatorBean implements Serializable {
             ImageType.ORGANIZATION_IMAGE);
 
     private final List<PSPSettingRow> pspSettingRowList = new ArrayList<PSPSettingRow>();
-    private UploadedFile organizationProperties;
+    private Part organizationProperties;
     private boolean ldapManaged;
     private boolean ldapSettingVisible;
 
@@ -1205,11 +1205,11 @@ public class OperatorOrgBean extends BaseOperatorBean implements Serializable {
         return selectedMarketplace;
     }
 
-    public UploadedFile getOrganizationProperties() {
+    public Part getOrganizationProperties() {
         return organizationProperties;
     }
 
-    public void setOrganizationProperties(UploadedFile organizationProperties) {
+    public void setOrganizationProperties(Part organizationProperties) {
         this.organizationProperties = organizationProperties;
     }
 

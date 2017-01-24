@@ -172,7 +172,7 @@
         rendered="#{previousRendered}" keepDirty="#{keepDirtyBack}" clearDirty="#{clearDirtyBack}" />
       <mp:button id="next" value="#{buttonLabel}" bean="#{bean}" action="#{action}"
         style="float: #{previousRendered ? 'right' : 'left'};"
-        disabled="#{(isDisabled) or (emptyEnabledPaymentTypes)}" keepDirty="#{keepDirtyForward}"
+        disabled="#{isDisabled or emptyEnabledPaymentTypes}" keepDirty="#{keepDirtyForward}"
         clearDirty="#{clearDirtyForward}" />
     </a4j:outputPanel>
   </h:form>

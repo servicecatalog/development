@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Scanner;
 
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
@@ -256,8 +257,10 @@ public class OperatorManageUsersCtrl extends BaseOperatorBean implements
 
         ArgumentValidator.notNull("userImport", model.getUserImport());
         try {
-            getUserService().importUsers(
-                    model.getUserImport().getBytes(),
+            String fileContent = new Scanner(
+                    model.getUserImport().getInputStream()).useDelimiter("\\A")
+                            .next();
+            getUserService().importUsers(fileContent.getBytes(),
                     getSelectedOrganization(), getSelectedMarketplace());
             model.resetToken();
             ui.handle("info.user.importStarted.updateHint", model.getUserImport()

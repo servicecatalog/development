@@ -127,7 +127,7 @@
   </c:if>
   
   <c:choose>
-    <c:when test="#{(showHint)}">
+    <c:when test="#{(not empty showHint and showHint)}">
       <mp:messageAndHint id="#{id}ErrorMsg" for="#{id}"/>
     </c:when>
     <c:otherwise>
