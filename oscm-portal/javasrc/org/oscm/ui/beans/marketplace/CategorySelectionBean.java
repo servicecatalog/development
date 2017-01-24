@@ -7,7 +7,7 @@ package org.oscm.ui.beans.marketplace;
 import java.io.Serializable;
 import java.util.*;
 
-import javax.annotation.ManagedBean;
+import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 import javax.faces.event.PhaseEvent;
@@ -19,8 +19,8 @@ import org.oscm.ui.model.Category;
 import org.oscm.internal.intf.CategorizationService;
 import org.oscm.internal.vo.VOCategory;
 
-@SessionScoped
-@ManagedBean(value="categorySelectionBean")
+@SessionScoped      
+@ManagedBean(name="categorySelectionBean")
 public class CategorySelectionBean extends BaseBean implements Serializable {
 
     private static final int SAME = 0;
@@ -30,7 +30,7 @@ public class CategorySelectionBean extends BaseBean implements Serializable {
     String lastUsedLanguage;
     String lastUsedMarketplaceId;
     String selectedCategoryId;
-
+    
     List<VOCategory> categoriesForMarketplace = null;
 
     public String getSelectedCategoryId() {
