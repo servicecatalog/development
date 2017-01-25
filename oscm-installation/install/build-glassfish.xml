@@ -163,14 +163,12 @@
     <antcall target="copyFiles" inheritall="true">
       <param name="src.file" value="${domains.dir}/${domain.dir}/installer/lib.properties" />
     </antcall>
-    <echo message="tutaj lib"/>
     <echo>
       ${domains.dir}/${domain.dir}/installer/lib.properties
     </echo>
   </target>
 
   <target name="copyFiles">
-    <echo message="tutaj bez 'to' "/>
     <echo>
       ${src.file}
     </echo>
@@ -190,7 +188,6 @@
     <propertyregex property="copytype" input="${copyinfo}" regexp="(.*):from:(.*)" select="\1" />
     <propertyregex property="from" input="${copyinfo}" regexp="(.*):from:(.*):to(.*)" select="\2" />
     <propertyregex property="to" input="${copyinfo}" regexp="(.*):to:(.*)" select="\2" />
-    <echo message="tutaj"/>
     <echo>
       ${domains.dir}/${domain.dir}/${from}
       ${to}

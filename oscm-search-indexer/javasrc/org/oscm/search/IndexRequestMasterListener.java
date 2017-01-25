@@ -64,8 +64,8 @@ import org.oscm.types.enumtypes.UdaTargetType;
  * logic.
  */
 @MessageDriven(activationConfig = {
-        @ActivationConfigProperty(propertyName = "UserName", propertyValue = "jmsuser"),
-        @ActivationConfigProperty(propertyName = "Password", propertyValue = "jmsuser") }, name = "jmsQueue", mappedName = "jms/bss/masterIndexerQueue")
+        @ActivationConfigProperty(propertyName = "UserName", propertyValue = "admin"),
+        @ActivationConfigProperty(propertyName = "Password", propertyValue = "admin") }, name = "jmsQueue", mappedName = "jms/bss/masterIndexerQueue")
 public class IndexRequestMasterListener implements MessageListener {
 
     private final static Log4jLogger logger = LoggerFactory
