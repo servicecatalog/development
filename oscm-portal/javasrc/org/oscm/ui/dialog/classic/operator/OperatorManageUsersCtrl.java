@@ -264,7 +264,7 @@ public class OperatorManageUsersCtrl extends BaseOperatorBean implements
                     getSelectedOrganization(), getSelectedMarketplace());
             model.resetToken();
             ui.handle("info.user.importStarted.updateHint", model.getUserImport()
-                    .getName());
+                    .getSubmittedFileName());
         } catch (SaaSApplicationException ex) {
             ui.handleException(ex);
         } catch (IOException ex) {

@@ -58,18 +58,14 @@
 
         </a4j:outputPanel>
       </a4j:outputPanel>
-
-
-      <!-- check if adding on change changes sth
-      onchange="setDirty(true);if (#{rich:element('deleteImage')}) #{rich:element('deleteImage')}.disabled=false;"
-      -->
-      <t:inputFileUpload id="image"
-                         label="#{msg[key]}"
-                         size="37"
-                         onchange="setDirty(true);if (#{rich:element('deleteImage')}) #{rich:element('deleteImage')}.disabled=false;"
-                         value="#{uploader.image}"
-                         disabled="#{editDisabled}"
-                         styleClass="fileChooser" />
+                         
+      <h:inputFile id="image" 
+                   label="#{msg[key]}" 
+                   size="37"
+                   onchange="setDirty(true);if (#{rich:element('deleteImage')}) #{rich:element('deleteImage')}.disabled=false;" 
+                   disabled="#{editDisabled}"
+                   value="#{uploader.image}"  
+                   styleClass="fileChooser" />    
 
     </a4j:outputPanel>
   </h:panelGroup>
