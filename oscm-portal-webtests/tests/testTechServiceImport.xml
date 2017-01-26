@@ -135,7 +135,7 @@
       <common.clickAndVerfyLink label="${techService.delete.title}" />
       <setSelectField htmlId="selectForm:techServiceKey" text="Example 1.00" />
   	  <storeXPath property="token" xpath="//input[@id='deleteForm:token']/@value" />
-  	  <storeXPath property="jsfViewState" xpath="//input[@id='javax.faces.ViewState']/@value" />
+  	  <storeXPath property="jsfViewState" xpath="//input[@name='javax.faces.ViewState']/@value" />
       <clickButton htmlId="deleteForm:confirmedButton" />
       <common.verifySuccess label="." />
   	  <!-- Resend the request, mock "Press F5 to refresh the page" action -->
