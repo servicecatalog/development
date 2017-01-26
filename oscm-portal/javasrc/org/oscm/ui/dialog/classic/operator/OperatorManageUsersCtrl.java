@@ -15,8 +15,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Scanner;
-
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
@@ -38,6 +36,7 @@ import org.oscm.ui.beans.BaseBean;
 import org.oscm.ui.beans.operator.BaseOperatorBean;
 import org.oscm.ui.beans.operator.OperatorSelectOrgBean;
 import org.oscm.ui.common.ExceptionHandler;
+import org.oscm.ui.common.PartHandler;
 import org.oscm.ui.model.Marketplace;
 import org.oscm.validation.ArgumentValidator;
 
@@ -257,11 +256,9 @@ public class OperatorManageUsersCtrl extends BaseOperatorBean implements
 
         ArgumentValidator.notNull("userImport", model.getUserImport());
         try {
-            String fileContent = new Scanner(
-                    model.getUserImport().getInputStream()).useDelimiter("\\A")
-                            .next();
-            getUserService().importUsers(fileContent.getBytes(),
-                    getSelectedOrganization(), getSelectedMarketplace());
+            byte[] buffer = PartHandler.getBuffer(model.getUserImport());
+            getUserService().importUsers(buffer, getSelectedOrganization(),
+                    getSelectedMarketplace());
             model.resetToken();
             ui.handle("info.user.importStarted.updateHint", model.getUserImport()
                     .getSubmittedFileName());

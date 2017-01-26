@@ -8,15 +8,12 @@
 
 package org.oscm.ui.beans;
 
-import static org.oscm.ui.common.Constants.REQ_PARAM_TENANT_ID;
-
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Scanner;
 import java.util.Set;
 
 import javax.ejb.EJB;
@@ -34,8 +31,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.Part;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.myfaces.custom.fileupload.UploadedFile;
 import org.oscm.internal.intf.*;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.types.enumtypes.UserAccountStatus;
@@ -54,7 +49,6 @@ import org.oscm.ui.common.*;
 import org.oscm.ui.dialog.common.saml2.AuthenticationHandler;
 import org.oscm.ui.dialog.state.TableState;
 import org.oscm.ui.filter.AuthenticationSettings;
-import org.oscm.ui.filter.AuthorizationRequestData;
 import org.oscm.ui.model.User;
 import org.oscm.ui.model.UserRole;
 
@@ -91,7 +85,6 @@ public class UserBean extends BaseBean implements Serializable {
     private List<User> users;
     private String requestedRedirect;
     private String confirmedRedirect;
-    private String tenantID;
     private String serviceLoginType = Constants.REQ_ATTR_LOGIN_TYPE_NO_MPL;
     private AuthenticationSettings authenticationSettings;
 
@@ -1125,12 +1118,11 @@ public class UserBean extends BaseBean implements Serializable {
             return;
         }
         try {           
-            String fileContent = new Scanner(userImport.getInputStream())
-                    .useDelimiter("\\A").next();
-            
-            getUserService().importUsersInOwnOrganization(
-                    fileContent.getBytes(), marketplaceId);
-            ui.handle("info.user.importStarted", userImport.getName());
+            byte[] buffer = PartHandler.getBuffer(userImport);
+            getUserService().importUsersInOwnOrganization(buffer,
+                    marketplaceId);
+            ui.handle("info.user.importStarted",
+                    userImport.getSubmittedFileName());
         } catch (SaaSApplicationException ex) {
             ui.handleException(ex);
         } catch (IOException ex) {

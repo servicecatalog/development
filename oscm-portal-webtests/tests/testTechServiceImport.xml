@@ -10,7 +10,7 @@
       <operator.createorganization />
       <mail.readPasswordAndUrlFromMail />
       <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
-      <techservice.import.fail file="data/TechnicalServiceImportEmptyFile.xml" errorLabel="${error.upload.fileNotNullNorEmpty}" verifyFieldError="true" />
+      <techservice.import.fail file="data/TechnicalServiceImportEmptyFile.xml" errorLabel="${error.upload.fileNotNullNorEmpty}"/>
     </webtest>
 
     <webtest name="Bug12684_emptyLocales">
