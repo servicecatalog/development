@@ -647,9 +647,9 @@ public class OperatorServiceLocalBean {
 
     String getQueryStringForFile(LocalizedObjectTypes objectType) {
         if (LocalizedObjectTypes.EVENT_DESC.equals(objectType)) {
-            return "select e.key, e.dataContainer.eventIdentifier from Event e where e.dataContainer.eventType = 'PLATFORM_EVENT' order by e.key";
+            return "select e.key, e.dataContainer.eventIdentifier from Event e where e.dataContainer.eventType = org.oscm.internal.types.enumtypes.EventType.PLATFORM_EVENT order by e.key";
         } else if (LocalizedObjectTypes.PARAMETER_DEF_DESC.equals(objectType)) {
-            return "select pd.key, pd.dataContainer.parameterId  from ParameterDefinition pd where pd.dataContainer.parameterType = 'PLATFORM_PARAMETER'";
+            return "select pd.key, pd.dataContainer.parameterId  from ParameterDefinition pd where pd.dataContainer.parameterType = org.oscm.internal.types.enumtypes.ParameterType.PLATFORM_PARAMETER";
         } else if (LocalizedObjectTypes.PAYMENT_TYPE_NAME.equals(objectType)) {
             return "select pt.key, pt.dataContainer.paymentTypeId from PaymentType pt where pt.key<4";
         } else if (LocalizedObjectTypes.REPORT_DESC.equals(objectType)) {
@@ -660,13 +660,13 @@ public class OperatorServiceLocalBean {
 
     String getQueryStringForDB(LocalizedObjectTypes objectType) {
         if (LocalizedObjectTypes.EVENT_DESC.equals(objectType)) {
-            return "select e.dataContainer.eventIdentifier,lr.value from Event e,LocalizedResource lr where lr.objectKey=e.key and e.dataContainer.eventType = 'PLATFORM_EVENT' and lr.objectType='EVENT_DESC' and lr.locale = :locale";
+            return "select e.dataContainer.eventIdentifier,lr.value from Event e,LocalizedResource lr where lr.objectKey=e.key and e.dataContainer.eventType = org.oscm.internal.types.enumtypes.EventType.PLATFORM_EVENT and lr.objectType=org.oscm.domobjects.enums.LocalizedObjectTypes.EVENT_DESC and lr.locale = :locale";
         } else if (LocalizedObjectTypes.PARAMETER_DEF_DESC.equals(objectType)) {
-            return "select pd.dataContainer.parameterId ,lr.value from ParameterDefinition pd,LocalizedResource lr where lr.objectKey=pd.key and pd.dataContainer.parameterType = 'PLATFORM_PARAMETER' and lr.objectType='PARAMETER_DEF_DESC' and lr.locale = :locale";
+            return "select pd.dataContainer.parameterId ,lr.value from ParameterDefinition pd,LocalizedResource lr where lr.objectKey=pd.key and pd.dataContainer.parameterType = org.oscm.internal.types.enumtypes.ParameterType.PLATFORM_PARAMETER and lr.objectType=org.oscm.domobjects.enums.LocalizedObjectTypes.PARAMETER_DEF_DESC and lr.locale = :locale";
         } else if (LocalizedObjectTypes.PAYMENT_TYPE_NAME.equals(objectType)) {
-            return "select pt.dataContainer.paymentTypeId ,lr.value from PaymentType pt,LocalizedResource lr where lr.objectKey=pt.key and pt.key<4 and lr.objectType='PAYMENT_TYPE_NAME' and lr.locale = :locale";
+            return "select pt.dataContainer.paymentTypeId ,lr.value from PaymentType pt,LocalizedResource lr where lr.objectKey=pt.key and pt.key<4 and lr.objectType=org.oscm.domobjects.enums.LocalizedObjectTypes.PAYMENT_TYPE_NAME and lr.locale = :locale";
         } else if (LocalizedObjectTypes.REPORT_DESC.equals(objectType)) {
-            return "select r.dataContainer.reportName,lr.value from Report r, LocalizedResource lr where lr.objectKey=r.key and lr.objectType='REPORT_DESC' and lr.locale = :locale";
+            return "select r.dataContainer.reportName,lr.value from Report r, LocalizedResource lr where lr.objectKey=r.key and lr.objectType=org.oscm.domobjects.enums.LocalizedObjectTypes.REPORT_DESC and lr.locale = :locale";
         }
         return null;
     }
