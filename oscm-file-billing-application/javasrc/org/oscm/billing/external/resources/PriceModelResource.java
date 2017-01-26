@@ -12,6 +12,8 @@ import java.beans.XMLEncoder;
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.ws.rs.GET;
@@ -55,8 +57,12 @@ public class PriceModelResource {
     public Response getPriceModel() {
 
         FileBilling fb = new FileBilling();
+        splitParametersToList(contextKeys);
+        splitParametersToList(contextValues);
+
         List<String> priceModelContent = fb.getPriceModel(contextKeys,
                 contextValues, locales);
+
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try (XMLEncoder xmlEncoder = new XMLEncoder(bos)) {
@@ -71,4 +77,15 @@ public class PriceModelResource {
         return Response.ok(serializedList).build();
     }
 
+    private void splitParametersToList(List<String> contextList) {
+        if (contextList != null && !contextList.isEmpty()) {
+            String contextKeysTab[] = contextList.get(0).split(",");
+            contextList.clear();
+            for (int i = 0; i < contextKeysTab.length; i++) {
+                String key = contextKeysTab[i].replaceAll("]", "");
+                key = key.replaceAll("\\[", "");
+                contextList.add(key.trim());
+            }
+        }
+    }
 }
