@@ -8,9 +8,7 @@
 
 package org.oscm.ui.common;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import javax.servlet.http.Part;
 
 import org.oscm.internal.profile.POImageResource;
@@ -42,7 +40,7 @@ public class ImageUploader {
                 voImageResource.setBuffer(null);
                 deleteImage = false;
             } else if (image != null) {
-                byte[] buffer = getBuffer(image);
+                byte[] buffer = PartHandler.getBuffer(image);
                 voImageResource = new VOImageResource();
                 voImageResource.setImageType(imageType);
                 voImageResource.setContentType(image.getContentType());
@@ -55,21 +53,6 @@ public class ImageUploader {
                     "The upload of the image file " + fileName + " failed.",
                     ImageException.Reason.UPLOAD, e);
         }
-    }
-    
-    public byte[] getBuffer(Part image) throws IOException{
-
-        InputStream imageInStream = image.getInputStream();
-
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream(1024);
-        byte[] bytes = new byte[512];
-
-        int readBytes;
-        while ((readBytes = imageInStream.read(bytes)) > 0) {
-            outputStream.write(bytes, 0, readBytes);
-        }
-
-        return outputStream.toByteArray();
     }
     
     public POImageResource getPOImageResource() throws ImageException {

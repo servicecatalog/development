@@ -238,6 +238,7 @@ public class BaseBean {
     public static final String ERROR_TENANT_SETTINGS_MISSING = "error.missingtenantsettings";
     public static final String ERROR_TENANT_NO_LONGER_EXISTS = "error.tenant.noLongerExists";
     public static final String ERROR_MARKETPLACE_REMOVED = "error.tenant.marketplaceRemoved";
+    public static final String ERROR_EMPTY_FILE = "error.upload.fileNotNullNorEmpty";
 
     public static final String WARNING_SUBSCRIBE_ONLY_ONCE = "warning.subscription.onlyOne";
     public static final String WARNING_SUBSCRIBE_ONLY_BY_ADMIN = "warning.subscription.onlyByAdmin";

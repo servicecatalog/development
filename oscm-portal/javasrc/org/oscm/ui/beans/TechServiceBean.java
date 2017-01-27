@@ -27,6 +27,7 @@ import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
 import org.oscm.ui.common.ExceptionHandler;
+import org.oscm.ui.common.PartHandler;
 import org.oscm.ui.model.OperationParameterRow;
 import org.oscm.ui.model.OperationRow;
 import org.oscm.ui.model.ParameterRow;
@@ -71,7 +72,6 @@ public class TechServiceBean extends BaseBean implements Serializable {
     private boolean selectedTechnicalServiceActive;
 
     private Part uploadedFile;
-    private String fileContent;
 
     List<TechnicalService> selectableTechnicalServices;
 
@@ -120,7 +120,7 @@ public class TechServiceBean extends BaseBean implements Serializable {
     }
 
     public void setSelectedTechnicalServiceKeyReadonly(
-            @SuppressWarnings("unused") long selectedTechnicalServiceKey) {
+            long selectedTechnicalServiceKey) {
         // will do nothing to avoid the reload of the whole service list on
         // submit like with the not readonly method
     }
@@ -300,12 +300,15 @@ public class TechServiceBean extends BaseBean implements Serializable {
      *             Thrown from the business logic.
      */
     public String xmlImport() throws SaaSApplicationException {
-
-        try {
-            fileContent = new Scanner(uploadedFile.getInputStream())
-                .useDelimiter("\\A").next();
-            getProvisioningService().importTechnicalServices(
-                fileContent.getBytes());
+        
+        if (PartHandler.isEmpty(uploadedFile)) {
+            addMessage(null, FacesMessage.SEVERITY_ERROR, ERROR_EMPTY_FILE);
+            return OUTCOME_ERROR;
+        }
+        
+        try {          
+            byte[] buffer = PartHandler.getBuffer(uploadedFile);
+            getProvisioningService().importTechnicalServices(buffer);
 
             selectedTechnicalService = null;
             technicalServices = null;
