@@ -11,6 +11,7 @@ package org.oscm.app.aws.controller;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
+import javax.ejb.Stateless;
 
 import org.oscm.app.aws.data.Server;
 import org.oscm.app.common.intf.InstanceAccess;
@@ -26,6 +27,7 @@ import org.slf4j.LoggerFactory;
  * @author tateiwamext
  * 
  */
+@Stateless
 public class AWSInstanceAccess implements InstanceAccess {
 
     // Reference to an APPlatformService instance
@@ -62,7 +64,8 @@ public class AWSInstanceAccess implements InstanceAccess {
                         subscriptionId, organizationId);
         PropertyHandler ph = new PropertyHandler(settings);
         List<Server> servers;
-        servers = new EC2Processor(ph, getAwsInstanceId(settings)).getServerDetails();
+        servers = new EC2Processor(ph, getAwsInstanceId(settings))
+                .getServerDetails();
         return servers;
     }
 

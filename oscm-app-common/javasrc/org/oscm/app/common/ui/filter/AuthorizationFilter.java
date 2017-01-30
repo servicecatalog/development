@@ -9,7 +9,6 @@
 package org.oscm.app.common.ui.filter;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.StringTokenizer;
 
 import javax.inject.Inject;
@@ -45,9 +44,11 @@ public class AuthorizationFilter implements Filter {
     public static final String LOCALE_DEFAULT = "en";
     public static final String LOCALE_JA = "ja";
 
+    private static final long TOKEN_EXPIRE = 600000; // ms
+
     private String controllerId;
+    @Inject
     private ControllerAccess controllerAccess;
-    private APPlatformService appService;
     private String excludeUrlPattern;
 
     final int INSTANCE_ID = 0;
@@ -55,14 +56,8 @@ public class AuthorizationFilter implements Filter {
     final int ORG_ID = 2;
     final int HASH = 3;
 
-    @Inject
     public void setControllerAccess(final ControllerAccess controllerAccess) {
         this.controllerAccess = controllerAccess;
-    }
-
-    @Inject
-    public void setAppService(final APPlatformService appService) {
-        this.appService = appService;
     }
 
     @Override
@@ -93,11 +88,8 @@ public class AuthorizationFilter implements Filter {
 
         HttpServletResponse httpResponse = (HttpServletResponse) response;
         HttpSession session = httpRequest.getSession();
-        Object serverInfoLoggedIn = session.getAttribute("serverInfoLoggedIn");
-        if (path != null || serverInfoLoggedIn != null) {
-            if (checkToken(httpRequest) || serverInfoLoggedIn != null) {
-                session.setAttribute("serverInfoLoggedIn",
-                        httpRequest.getParameter("instId"));
+        if ((path != null && path.matches("/serverInformation.jsf"))) {
+            if (checkToken(httpRequest)) {
                 chain.doFilter(httpRequest, response);
                 return;
             } else {
@@ -180,29 +172,37 @@ public class AuthorizationFilter implements Filter {
     /**
      * @param httpRequest
      */
-    protected boolean checkToken(HttpServletRequest httpRequest)
-            throws UnsupportedEncodingException {
-        String signature = getParameterWithUTF8(
-                httpRequest.getParameter("signature"));
-        String instId = getParameterWithUTF8(
-                httpRequest.getParameter("instId"));
-        String orgId = getParameterWithUTF8("orgId");
-        String userId = getParameterWithUTF8("userId");
-        String subId = getParameterWithUTF8("subId");
-        String timestamp = getParameterWithUTF8("timestamp");
+    protected boolean checkToken(HttpServletRequest httpRequest) {
+        String signature = httpRequest.getParameter("signature");
+        String instId = httpRequest.getParameter("instId");
+        String orgId = httpRequest.getParameter("orgId");
+        String userId = httpRequest.getParameter("userId");
+        String subId = httpRequest.getParameter("subId");
+        String timestampStr = httpRequest.getParameter("timestamp");
+
+        if (signature == null || instId == null || orgId == null
+                || userId == null || subId == null || timestampStr == null) {
+            return false;
+        }
+
+        long timestamp = 0;
+        try {
+            timestamp = Long.parseLong(timestampStr);
+        } catch (NumberFormatException e) {
+            return false;
+        }
 
         String token = instId + subId + userId + orgId + timestamp;
 
-        return appService.checkToken(token, signature);
+        APPlatformService service = APPlatformServiceFactory.getInstance();
 
-    }
+        boolean check = service.checkToken(token, signature);
 
-    private String getParameterWithUTF8(String param)
-            throws UnsupportedEncodingException {
-        if (param != null) {
-            return new String(param.getBytes("ISO_8859_1"), "UTF-8");
+        if (check && timestamp + TOKEN_EXPIRE > System.currentTimeMillis()) {
+            return true;
+        } else {
+            return false;
         }
-        return null;
     }
 
     @Override

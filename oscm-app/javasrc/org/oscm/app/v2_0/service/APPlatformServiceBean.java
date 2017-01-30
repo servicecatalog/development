@@ -17,7 +17,7 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
+import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,6 +32,7 @@ import javax.ejb.EJB;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 
+import org.apache.commons.codec.binary.Base64;
 import org.oscm.app.business.APPlatformControllerFactory;
 import org.oscm.app.business.exceptions.BadResultException;
 import org.oscm.app.business.exceptions.ServiceInstanceNotFoundException;
@@ -277,28 +278,32 @@ public class APPlatformServiceBean implements APPlatformService {
             String alias = configService.getProxyConfigurationSetting(
                     PlatformConfigurationKey.APP_TRUSTSTORE_BSS_ALIAS);
 
+            if (loc == null || pwd == null || alias == null) {
+                return false;
+            }
+
             MessageDigest md = MessageDigest.getInstance("SHA-256");
             md.update(token.getBytes(StandardCharsets.UTF_8));
-            byte[] tokenHash = md.digest();
+            String tokenHash = new String(md.digest());
 
             KeyStore keystore = KeyStore.getInstance(KeyStore.getDefaultType());
             keystore.load(new FileInputStream(loc), pwd.toCharArray());
 
-            Key key = keystore.getKey(alias, pwd.toCharArray());
+            Certificate cert = keystore.getCertificate(alias);
+            Key key = cert.getPublicKey();
             Cipher c = Cipher.getInstance(key.getAlgorithm());
             c.init(Cipher.DECRYPT_MODE, key);
 
-            byte[] decryptedHash = c
-                    .doFinal(signature.getBytes(StandardCharsets.UTF_8));
+            byte[] decodedSignature = Base64.decodeBase64(signature);
+            String decryptedHash = new String(c.doFinal(decodedSignature));
 
             if (tokenHash.equals(decryptedHash)) {
                 return true;
             }
         } catch (NoSuchAlgorithmException | KeyStoreException
-                | CertificateException | IOException | UnrecoverableKeyException
-                | NoSuchPaddingException | InvalidKeyException
-                | IllegalBlockSizeException | BadPaddingException
-                | ConfigurationException e) {
+                | CertificateException | IOException | NoSuchPaddingException
+                | InvalidKeyException | IllegalBlockSizeException
+                | BadPaddingException | ConfigurationException e) {
             logger.error(e.getMessage());
         }
         return false;

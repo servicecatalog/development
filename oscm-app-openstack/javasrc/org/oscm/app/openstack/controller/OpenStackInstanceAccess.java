@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
+import javax.ejb.Stateless;
 
 import org.oscm.app.common.intf.InstanceAccess;
 import org.oscm.app.common.intf.ServerInformation;
@@ -31,6 +32,7 @@ import org.slf4j.LoggerFactory;
  * @author tateiwamext
  * 
  */
+@Stateless
 public class OpenStackInstanceAccess implements InstanceAccess {
 
     // Reference to an APPlatformService instance
@@ -66,7 +68,7 @@ public class OpenStackInstanceAccess implements InstanceAccess {
                 .getServiceInstanceDetails(OpenStackController.ID, instanceId,
                         subscriptionId, organizationId);
         PropertyHandler ph = new PropertyHandler(settings);
-        List<Server> servers = new ArrayList<Server>();
+        List<Server> servers = new ArrayList<>();
         try {
             servers = new NovaProcessor().getServersDetails(ph, true);
         } catch (InstanceNotAliveException ex) {

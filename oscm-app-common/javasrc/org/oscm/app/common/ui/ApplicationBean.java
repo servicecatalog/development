@@ -14,17 +14,20 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Properties;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 
+import org.oscm.converter.PropertiesLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.oscm.converter.PropertiesLoader;
 
 /**
  * Managed bean which provides some field settings to the view elements
  * 
  */
+@ManagedBean(name = "appBean")
+@SessionScoped
 public class ApplicationBean implements Serializable {
 
     private static final Logger logger = LoggerFactory

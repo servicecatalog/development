@@ -11,17 +11,19 @@ package org.oscm.app.common.intf;
 import java.io.Serializable;
 import java.util.List;
 
+import javax.ejb.Local;
+
 import org.oscm.app.v2_0.exceptions.APPlatformException;
 import org.oscm.app.v2_0.exceptions.AuthenticationException;
 import org.oscm.app.v2_0.exceptions.ConfigurationException;
 
 /**
- * @author tateiwamext
+ * Interface of instance to the specific controller implementation used by
+ * common controller code (to avoid dependencies on specific implementations).
  * 
- *         Interface of instance to the specific controller implementation used
- *         by common controller code (to avoid dependencies on specific
- *         implementations).
+ * @author tateiwamext
  */
+@Local
 public interface InstanceAccess extends Serializable {
 
     /**
