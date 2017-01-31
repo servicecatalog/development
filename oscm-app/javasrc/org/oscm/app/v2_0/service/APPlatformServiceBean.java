@@ -10,6 +10,7 @@ package org.oscm.app.v2_0.service;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.Key;
@@ -270,7 +271,11 @@ public class APPlatformServiceBean implements APPlatformService {
 
     @Override
     public boolean checkToken(String token, String signature) {
+
+        InputStream is = null;
         try {
+
+            // load configuration settings for truststore
             String loc = configService.getProxyConfigurationSetting(
                     PlatformConfigurationKey.APP_TRUSTSTORE);
             String pwd = configService.getProxyConfigurationSetting(
@@ -279,24 +284,43 @@ public class APPlatformServiceBean implements APPlatformService {
                     PlatformConfigurationKey.APP_TRUSTSTORE_BSS_ALIAS);
 
             if (loc == null || pwd == null || alias == null) {
+                logger.error("Missing configuration settings for token check");
                 return false;
             }
 
+            // create hash from given token
             MessageDigest md = MessageDigest.getInstance("SHA-256");
             md.update(token.getBytes(StandardCharsets.UTF_8));
             String tokenHash = new String(md.digest());
 
+            // load truststore
+            is = new FileInputStream(loc);
             KeyStore keystore = KeyStore.getInstance(KeyStore.getDefaultType());
-            keystore.load(new FileInputStream(loc), pwd.toCharArray());
+            keystore.load(is, pwd.toCharArray());
 
+            // get certificate for alias
             Certificate cert = keystore.getCertificate(alias);
+
+            if (cert == null) {
+                logger.error("Unable to find certificate with alias " + alias);
+                return false;
+            }
+
+            // get public key and decrypt signature
             Key key = cert.getPublicKey();
+
+            if (key == null) {
+                logger.error("Certificate returned null key");
+                return false;
+            }
+
             Cipher c = Cipher.getInstance(key.getAlgorithm());
             c.init(Cipher.DECRYPT_MODE, key);
 
             byte[] decodedSignature = Base64.decodeBase64(signature);
             String decryptedHash = new String(c.doFinal(decodedSignature));
 
+            // compare token hash with decrypted hash
             if (tokenHash.equals(decryptedHash)) {
                 return true;
             }
@@ -305,7 +329,16 @@ public class APPlatformServiceBean implements APPlatformService {
                 | InvalidKeyException | IllegalBlockSizeException
                 | BadPaddingException | ConfigurationException e) {
             logger.error(e.getMessage());
+        } finally {
+            try {
+                if (is != null) {
+                    is.close();
+                }
+            } catch (IOException e) {
+                // ignore
+            }
         }
+
         return false;
     }
 }

@@ -304,11 +304,6 @@ public class AuthorizationFilterTest extends EJBTestBase {
                 "UTF-8");
         doReturn(encodedOrgId).when(req).getParameter(Matchers.eq("orgId"));
 
-        final String userId = "user1";
-        String encodedUserId = new String(
-                Base64.encodeBase64(userId.getBytes()), "UTF-8");
-        doReturn(encodedUserId).when(req).getParameter(Matchers.eq("userId"));
-
         final String subId = "sub1";
         String encodedSubId = new String(Base64.encodeBase64(subId.getBytes()),
                 "UTF-8");
@@ -350,11 +345,6 @@ public class AuthorizationFilterTest extends EJBTestBase {
         String encodedOrgId = new String(Base64.encodeBase64(orgId.getBytes()),
                 "UTF-8");
         doReturn(encodedOrgId).when(req).getParameter(Matchers.eq("orgId"));
-
-        final String userId = "user1";
-        String encodedUserId = new String(
-                Base64.encodeBase64(userId.getBytes()), "UTF-8");
-        doReturn(encodedUserId).when(req).getParameter(Matchers.eq("userId"));
 
         final String subId = "sub1";
         String encodedSubId = new String(Base64.encodeBase64(subId.getBytes()),

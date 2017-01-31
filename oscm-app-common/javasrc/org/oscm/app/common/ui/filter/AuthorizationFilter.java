@@ -170,18 +170,23 @@ public class AuthorizationFilter implements Filter {
     }
 
     /**
+     * Checks the request for all required parameters and builds a token. The
+     * token is compared with the signature of the request.
+     * 
      * @param httpRequest
+     *            the request
      */
     protected boolean checkToken(HttpServletRequest httpRequest) {
+
+        // retrieve all request parameters
         String signature = httpRequest.getParameter("signature");
         String instId = httpRequest.getParameter("instId");
         String orgId = httpRequest.getParameter("orgId");
-        String userId = httpRequest.getParameter("userId");
         String subId = httpRequest.getParameter("subId");
         String timestampStr = httpRequest.getParameter("timestamp");
 
         if (signature == null || instId == null || orgId == null
-                || userId == null || subId == null || timestampStr == null) {
+                || subId == null || timestampStr == null) {
             return false;
         }
 
@@ -192,12 +197,15 @@ public class AuthorizationFilter implements Filter {
             return false;
         }
 
-        String token = instId + subId + userId + orgId + timestamp;
+        // build token string
+        String token = instId + subId + orgId + timestamp;
 
+        // check token validity
         APPlatformService service = APPlatformServiceFactory.getInstance();
 
         boolean check = service.checkToken(token, signature);
 
+        // check if token is expired
         if (check && timestamp + TOKEN_EXPIRE > System.currentTimeMillis()) {
             return true;
         } else {

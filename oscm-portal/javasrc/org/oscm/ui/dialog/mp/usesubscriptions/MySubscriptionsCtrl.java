@@ -10,6 +10,7 @@ package org.oscm.ui.dialog.mp.usesubscriptions;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
@@ -35,9 +36,7 @@ import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
-import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
-import javax.servlet.http.HttpSession;
 import javax.ws.rs.core.UriBuilder;
 
 import org.apache.commons.codec.binary.Base64;
@@ -57,12 +56,10 @@ import org.oscm.internal.vo.VOServiceOperationParameter;
 import org.oscm.internal.vo.VOServiceOperationParameterValues;
 import org.oscm.internal.vo.VOSubscription;
 import org.oscm.internal.vo.VOTechnicalServiceOperation;
-import org.oscm.internal.vo.VOUserDetails;
 import org.oscm.string.Strings;
 import org.oscm.types.constants.Configuration;
 import org.oscm.ui.beans.ApplicationBean;
 import org.oscm.ui.beans.BaseBean;
-import org.oscm.ui.common.Constants;
 import org.oscm.ui.common.JSFUtils;
 import org.oscm.ui.common.UiDelegate;
 
@@ -298,56 +295,73 @@ public class MySubscriptionsCtrl implements Serializable {
     }
 
     public String getCustomTabUrlWithParameters() {
+
+        // load and encode parameters
         String orgId = encodeBase64(
                 model.getSelectedSubscription().getOrganizationId());
         String subId = encodeBase64(
                 model.getSelectedSubscription().getSubscriptionId());
         String instId = encodeBase64(
                 model.getSelectedSubscription().getServiceInstanceId());
-        HttpSession session = (HttpSession) FacesContext.getCurrentInstance()
-                .getExternalContext().getSession(false);
-        VOUserDetails userDetails = (VOUserDetails) session
-                .getAttribute(Constants.SESS_ATTR_USER);
-        String userId = encodeBase64(userDetails.getUserId());
         String timestamp = Long.toString(System.currentTimeMillis());
 
-        String token = instId + subId + userId + orgId + timestamp;
+        // build token string
+        String token = instId + subId + orgId + timestamp;
 
-        VOConfigurationSetting setting = config.getVOConfigurationSetting(
+        // load config settings for keystore
+        VOConfigurationSetting settingLoc = config.getVOConfigurationSetting(
                 ConfigurationKey.SSO_SIGNING_KEYSTORE,
                 Configuration.GLOBAL_CONTEXT);
-        String loc = setting.getValue();
 
-        setting = config.getVOConfigurationSetting(
+        VOConfigurationSetting settingPwd = config.getVOConfigurationSetting(
                 ConfigurationKey.SSO_SIGNING_KEYSTORE_PASS,
                 Configuration.GLOBAL_CONTEXT);
-        String pwd = setting.getValue();
 
-        setting = config.getVOConfigurationSetting(
+        VOConfigurationSetting settingAlias = config.getVOConfigurationSetting(
                 ConfigurationKey.SSO_SIGNING_KEY_ALIAS,
                 Configuration.GLOBAL_CONTEXT);
-        String alias = setting.getValue();
 
+        if (settingLoc == null || settingPwd == null || settingAlias == null) {
+            LOGGER.error("Missing configuration settings for token creation");
+            return "";
+        }
+
+        String loc = settingLoc.getValue();
+        String pwd = settingPwd.getValue();
+        String alias = settingAlias.getValue();
+
+        InputStream is = null;
         try {
 
+            // create token hash
             MessageDigest md = MessageDigest.getInstance("SHA-256");
             md.update(token.getBytes(StandardCharsets.UTF_8));
             byte[] tokenHash = md.digest();
 
+            // load keystore from file
+            is = new FileInputStream(loc);
             KeyStore keystore = KeyStore.getInstance(KeyStore.getDefaultType());
-            keystore.load(new FileInputStream(loc), pwd.toCharArray());
+            keystore.load(is, pwd.toCharArray());
 
+            // get private key for alias
             Key key = keystore.getKey(alias, pwd.toCharArray());
+
+            if (key == null) {
+                LOGGER.error("Unable to retrieve private key from keystore");
+                return "";
+            }
+
+            // encrypt and encode token hash
             Cipher c = Cipher.getInstance(key.getAlgorithm());
             c.init(Cipher.ENCRYPT_MODE, key);
 
             String tokenSignature = encodeBase64(c.doFinal(tokenHash));
 
+            // build URI
             UriBuilder builder = UriBuilder.fromPath(
                     model.getSelectedSubscription().getCustomTabUrl());
             builder.queryParam("instId", instId);
             builder.queryParam("orgId", orgId);
-            builder.queryParam("userId", userId);
             builder.queryParam("subId", subId);
             builder.queryParam("timestamp", timestamp);
             builder.queryParam("signature", tokenSignature);
@@ -361,6 +375,14 @@ public class MySubscriptionsCtrl implements Serializable {
 
             LOGGER.error("Unable to build custom tab URI", e);
             return "";
+        } finally {
+            try {
+                if (is != null) {
+                    is.close();
+                }
+            } catch (IOException e) {
+                // ignore
+            }
         }
 
     }
