@@ -80,7 +80,7 @@ public class RestResourceTest extends RestResource {
         }
     };
 
-    private RestBackend.Put<MockRepresentation, MockRequestParameters> backendPut = new RestBackend.Put<MockRepresentation, MockRequestParameters>() {
+    /*private RestBackend.Put<MockRepresentation, MockRequestParameters> backendPut = new RestBackend.Put<MockRepresentation, MockRequestParameters>() {
 
         @Override
         public void put(MockRepresentation content, MockRequestParameters params) {
@@ -109,7 +109,7 @@ public class RestResourceTest extends RestResource {
 
             assertNotNull(params);
         }
-    };
+    };*/
 
     //TODO glassfish upgrade
     @Test
