@@ -14,7 +14,6 @@ import static org.junit.Assert.fail;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response.Status;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.oscm.rest.common.RequestParameters;
 
@@ -23,7 +22,6 @@ import org.oscm.rest.common.RequestParameters;
  * 
  * @author miethaner
  */
-@Ignore
 public class RequestParametersTest {
 
     private class TestParameters extends RequestParameters {

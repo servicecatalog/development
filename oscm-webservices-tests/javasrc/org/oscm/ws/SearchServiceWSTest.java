@@ -179,15 +179,6 @@ public class SearchServiceWSTest {
     }
 
     @Test
-    public void testSearchServicesWithInvalidPattern() throws Exception {
-        VOServiceListResult result = searchService_Supplier.searchServices(
-                getMarketplace("1").getMarketplaceId(), "de", "*");
-
-        assertEquals(0, result.getServices().size());
-        assertEquals(0, result.getResultSize());
-    }
-
-    @Test
     public void testSearchServicesWithTagOnMarketplace1() throws Exception {
         VOServiceListResult result = searchService_Supplier.searchServices(
                 getMarketplace("1").getMarketplaceId(), "de", "enterprise_de");

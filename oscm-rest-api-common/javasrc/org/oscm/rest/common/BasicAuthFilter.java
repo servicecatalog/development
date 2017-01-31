@@ -98,10 +98,12 @@ public class BasicAuthFilter implements Filter {
                 VOUser user = new VOUser();
                 user.setUserId(split[0]);
 
+
                 user = identityService.getUser(user);
 
                 programmaticLogin.login(Long.toString(user.getKey()),
                         pwd.toCharArray(), CommonParams.REALM, rq, rs);
+
 
             } catch (ObjectNotFoundException | LoginException
                     | OperationNotPermittedException

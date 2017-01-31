@@ -21,9 +21,7 @@ import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 
-import com.sun.enterprise.security.ee.auth.login.ProgrammaticLogin;
 import org.apache.commons.lang3.StringUtils;
-
 import org.glassfish.security.common.PrincipalImpl;
 import org.oscm.converter.XMLConverter;
 import org.oscm.internal.intf.ConfigurationService;
@@ -38,9 +36,9 @@ import org.oscm.saml2.api.SAMLResponseExtractor;
 import org.oscm.types.constants.Configuration;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
 import org.oscm.types.exceptions.SecurityCheckException;
-
 import org.w3c.dom.Element;
 
+import com.sun.enterprise.security.ee.auth.login.ProgrammaticLogin;
 import com.sun.xml.ws.security.opt.impl.incoming.SAMLAssertion;
 import com.sun.xml.wss.XWSSecurityException;
 import com.sun.xml.wss.impl.MessageConstants;

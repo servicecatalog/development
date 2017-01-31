@@ -50,6 +50,7 @@ import org.oscm.types.enumtypes.FillinCriterion;
 import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
 import org.oscm.validation.ArgumentValidator;
 
+
 @Stateless
 @Interceptors({ InvocationDateContainer.class, ExceptionMapper.class })
 public class LandingpageServiceBean implements LandingpageServiceLocal {

@@ -201,6 +201,7 @@ public class ManageTenantsCtrl extends BaseBean implements Serializable {
     public String importSettings() throws SaaSApplicationException {
 
         Part file = model.getFile();
+
         if (file == null) {
             ui.handleError(null, ERROR_NO_FILE_WITH_IDP_SETTINGS);
             return OUTCOME_ERROR;

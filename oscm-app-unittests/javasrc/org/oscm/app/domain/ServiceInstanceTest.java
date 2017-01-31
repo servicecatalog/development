@@ -335,7 +335,7 @@ public class ServiceInstanceTest {
         verify(em, Mockito.times(1)).persist(si);
     }
 
-    @Ignore
+    @Test
     public void prepareRollback() throws Exception {
         // given
         ServiceInstance si = Mockito.spy(new ServiceInstance());

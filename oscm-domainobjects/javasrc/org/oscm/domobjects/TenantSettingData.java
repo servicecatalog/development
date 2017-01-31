@@ -14,10 +14,7 @@ package org.oscm.domobjects;
 import org.oscm.domobjects.converters.IdpSettingTypeConverter;
 import org.oscm.internal.types.enumtypes.IdpSettingType;
 
-import javax.persistence.Column;
-import javax.persistence.Convert;
-import javax.persistence.Embeddable;
-
+import javax.persistence.*;
 
 @Embeddable
 public class TenantSettingData extends DomainDataContainer {

@@ -318,12 +318,14 @@ public class SubscriptionServiceBean
         Subscription sub;
         PlatformUser currentUser = dataManager.getCurrentUser();
 
+        Product prod = dataManager
+                .getReference(Product.class, service.getKey());
         checkIfServiceAvailable(service.getKey(), service.getServiceId(),
                 currentUser);
-        checkIfSubscriptionAlreadyExists(service);
+        checkIfSubscriptionAlreadyExists(prod);
         verifyIdAndKeyUniqueness(currentUser, subscription);
 
-        if (isPaymentInfoHidden() && service.getPriceModel().isChargeable()) {
+        if (isPaymentInfoHidden() && prod.getPriceModel().isChargeable()) {
             if (billingContact == null) {
                 billingContact = createBillingContactForOrganization(
                         currentUser);
@@ -355,7 +357,7 @@ public class SubscriptionServiceBean
                         new LocalizerFacade(localizer,
                                 dataManager.getCurrentUser().getLocale()));
 
-                autoAssignUser(service, sub);
+                autoAssignUser(prod, sub);
             } catch (ObjectNotFoundException | ValidationException
                     | ServiceChangedException | PriceModelException
                     | PaymentInformationException
@@ -441,19 +443,20 @@ public class SubscriptionServiceBean
         return PaymentInfoAssembler.toVOPaymentInfo(paInfo, localizerFacade);
     }
 
-    private void autoAssignUser(VOService service, Subscription sub)
+    private void autoAssignUser(Product prod, Subscription sub)
             throws ObjectNotFoundException, ServiceParameterException,
             SubscriptionStateException, TechnicalServiceNotAliveException,
             TechnicalServiceOperationException, OperationNotPermittedException,
             ConcurrentModificationException {
 
-        Product prod = dataManager.getReference(Product.class,
-                service.getKey());
         TechnicalProduct techProd = prod.getTechnicalProduct();
 
         if (ProvisioningType.SYNCHRONOUS.equals(techProd.getProvisioningType())
-                && service.isAutoAssignUserEnabled().booleanValue()) {
-            assignUsersForSubscription(sub.getSubscriptionId(), service);
+                && prod.isAutoAssignUserEnabled() != null
+                && prod.isAutoAssignUserEnabled().booleanValue()) {
+            VOService svc = new VOService();
+            svc.setKey(prod.getKey());
+            assignUsersForSubscription(sub.getSubscriptionId(), svc);
         }
     }
 
@@ -624,7 +627,9 @@ public class SubscriptionServiceBean
         PlatformUser owner = dataManager.getReference(PlatformUser.class,
                 tp.getUser().getKey());
 
-        checkIfSubscriptionAlreadyExists(product);
+        Product productTemplate = dataManager.getReference(Product.class,
+                product.getKey());
+        checkIfSubscriptionAlreadyExists(productTemplate);
 
         UserGroup unit = getUnit(subscription.getUnitKey(),
                 subscription.getUnitName(), organization.getKey());
@@ -632,8 +637,6 @@ public class SubscriptionServiceBean
         validateSettingsForSubscribing(subscription, product, voPaymentInfo,
                 voBillingContact);
 
-        Product productTemplate = dataManager.getReference(Product.class,
-                product.getKey());
         Organization vendor = productTemplate.getVendor();
 
         Organization supplier = dataManager
@@ -833,7 +836,8 @@ public class SubscriptionServiceBean
 
         if (ProvisioningType.SYNCHRONOUS.equals(techProd.getProvisioningType())
                 && tp.getTriggerDefinition() != null
-                && product.isAutoAssignUserEnabled().booleanValue()
+                && (prod.isAutoAssignUserEnabled() != null && prod
+                        .isAutoAssignUserEnabled().booleanValue())
                 && newSub.getUsageLicenseForUser(owner) == null) {
             // TODO 1. assign users only for SYNCHRONOUS case.
             // 2. extract code to another method (more readability).
@@ -1454,13 +1458,11 @@ public class SubscriptionServiceBean
      *            the VOService for which to check if already has active
      *            subscriptions.
      */
-    private void checkIfSubscriptionAlreadyExists(VOService product)
+    private void checkIfSubscriptionAlreadyExists(Product product)
             throws SubscriptionAlreadyExistsException, ObjectNotFoundException {
 
         // Fetch the technical product to which the defined product belongs to.
-        Product prod = dataManager.getReference(Product.class,
-                product.getKey());
-        TechnicalProduct technicalProduct = prod.getTechnicalProduct();
+        TechnicalProduct technicalProduct = product.getTechnicalProduct();
 
         // Only in case one subscription is allowed check the number of already
         // existing subscriptions.
@@ -1475,7 +1477,7 @@ public class SubscriptionServiceBean
             // based on the product, throw an exception.
             if (numberOfSubscriptions.longValue() > 0) {
 
-                Object[] params = new Object[] { prod.getProductId() };
+                Object[] params = new Object[] { product.getProductId() };
 
                 SubscriptionAlreadyExistsException subAlreadyExistsException = new SubscriptionAlreadyExistsException(
                         params);
@@ -1483,7 +1485,7 @@ public class SubscriptionServiceBean
                         subAlreadyExistsException,
                         LogMessageIdentifier.WARN_USER_SUBSCRIBE_SERVICE_FAILED_ONLY_ONE_ALLOWED,
                         Long.toString(dataManager.getCurrentUser().getKey()),
-                        Long.toString(prod.getKey()),
+                        Long.toString(product.getKey()),
                         Long.toString(organization.getKey()));
                 throw subAlreadyExistsException;
             }
@@ -5516,5 +5518,18 @@ public class SubscriptionServiceBean
     @Override
     public Subscription getMySubscriptionDetails(long key) {
         return getSubscriptionDao().getMySubscriptionDetails(key);
+    }
+
+    @Override
+    @RolesAllowed({ "ORGANIZATION_ADMIN", "SUBSCRIPTION_MANAGER",
+            "UNIT_ADMINISTRATOR" })
+    public boolean unsubscribeFromService(Long key)
+            throws ObjectNotFoundException, SubscriptionStillActiveException,
+            SubscriptionStateException, TechnicalServiceNotAliveException,
+            TechnicalServiceOperationException, OperationPendingException,
+            OperationNotPermittedException {
+        Subscription mySubscriptionDetails = getMySubscriptionDetails(key
+                .longValue());
+        return unsubscribeFromService(mySubscriptionDetails.getSubscriptionId());
     }
 }

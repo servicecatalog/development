@@ -40,6 +40,8 @@
         </else>
       </if>
       <!-- jms user for bssjms-->
+      <property name="glassfish.bes.domain.portbase" value="${glassfish.bes.domain.portbase}" />
+      <property name="glassfish.master.domain.portbase" value="${glassfish.master.domain.portbase}" />
       <property name="jms.user.name" value="admin" />
       <property name="jms.user.pwd" value="admin" />
     </sequential>

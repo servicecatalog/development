@@ -28,20 +28,17 @@ import javax.jms.JMSException;
 
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.flexible.core.QueryNodeException;
-import org.apache.lucene.queryparser.flexible.standard.StandardQueryParser;
+import org.apache.solr.parser.QueryParser;
+import org.apache.solr.search.SyntaxError;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.TermQuery;
-import org.apache.solr.parser.QueryParser;
-import org.apache.solr.search.SyntaxError;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.search.FullTextQuery;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.Search;
 
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
 import org.oscm.dataservice.bean.IndexMQSender;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Marketplace;
@@ -53,12 +50,6 @@ import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.interceptor.ExceptionMapper;
 import org.oscm.interceptor.InvocationDateContainer;
-import org.oscm.serviceprovisioningservice.assembler.ProductAssembler;
-import org.oscm.serviceprovisioningservice.local.ProductSearchResult;
-import org.oscm.serviceprovisioningservice.local.SearchServiceLocal;
-import org.oscm.types.enumtypes.LogMessageIdentifier;
-import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
-import org.oscm.validation.ArgumentValidator;
 import org.oscm.internal.intf.SearchService;
 import org.oscm.internal.types.enumtypes.PerformanceHint;
 import org.oscm.internal.types.enumtypes.Sorting;
@@ -67,6 +58,14 @@ import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.vo.ListCriteria;
 import org.oscm.internal.vo.VOService;
 import org.oscm.internal.vo.VOServiceListResult;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
+import org.oscm.serviceprovisioningservice.assembler.ProductAssembler;
+import org.oscm.serviceprovisioningservice.local.ProductSearchResult;
+import org.oscm.serviceprovisioningservice.local.SearchServiceLocal;
+import org.oscm.types.enumtypes.LogMessageIdentifier;
+import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
+import org.oscm.validation.ArgumentValidator;
 
 /**
  * 
@@ -130,7 +129,7 @@ public class SearchServiceBean implements SearchService, SearchServiceLocal {
         // Load marketplace
         loadMarketplace(marketplaceId);
 
-        List<VOService> voList = new ArrayList<VOService>();
+        List<VOService> voList = new ArrayList<>();
         VOServiceListResult listResult = new VOServiceListResult();
         listResult.setResultSize(voList.size());
         listResult.setServices(voList);
@@ -138,25 +137,20 @@ public class SearchServiceBean implements SearchService, SearchServiceLocal {
         try {
             Session session = getDm().getSession();
             if (session != null) {
-                LinkedHashMap<Long, VOService> map = new LinkedHashMap<Long, VOService>();
+                LinkedHashMap<Long, VOService> map = new LinkedHashMap<>();
                 FullTextSession fts = Search.getFullTextSession(session);
 
                 // (1) search in actual locale
-                org.apache.lucene.search.Query query = getLuceneQuery(
-                        LuceneQueryBuilder.getServiceQuery(searchPhrase,
-                                locale, DEFAULT_LOCALE, false), marketplaceId,
-                        locale);
+                org.apache.lucene.search.Query query = getLuceneQuery(searchPhrase, marketplaceId, locale, false);
                 searchViaLucene(query, fts, map);
 
                 if (!DEFAULT_LOCALE.equals(locale)) {
                     // (2) search in default locale
-                    query = getLuceneQuery(LuceneQueryBuilder.getServiceQuery(
-                            searchPhrase, locale, DEFAULT_LOCALE, true),
-                            marketplaceId, DEFAULT_LOCALE);
+                    query = getLuceneQuery(searchPhrase, marketplaceId, locale, true);
                     searchViaLucene(query, fts, map);
                 }
 
-                Set<Long> keySet = new HashSet<Long>(map.keySet());
+                Set<Long> keySet = new HashSet<>(map.keySet());
 
                 if (keySet.size() > 0) {
                     KeyRestrictedListCriteria listCriteria = new KeyRestrictedListCriteria(
@@ -198,7 +192,7 @@ public class SearchServiceBean implements SearchService, SearchServiceLocal {
         }
         List<Long> invisibleKeys = userGroupService
                 .getInvisibleProductKeysForUser(user.getKey());
-        return new HashSet<Long>(invisibleKeys);
+        return new HashSet<>(invisibleKeys);
     }
 
     /**
@@ -206,28 +200,33 @@ public class SearchServiceBean implements SearchService, SearchServiceLocal {
      * 
      * @param searchString
      *            the text query for the Lucene query parser
-     * @param locale
-     *            the locale for the analyzer to use
      * @param mId
      *            the marketplace id
+     * @param locale
+     *            the locale for the analyzer to use
+     * @param isDefaultLocaleHandling
      * @return the Lucene query for the given locale and query text
+     * @throws ParseException
+     *             in case the query cannot be parsed
      */
     private org.apache.lucene.search.Query getLuceneQuery(String searchString,
-        String mId, String locale) throws SyntaxError, QueryNodeException {
+            String mId, String locale,
+            boolean isDefaultLocaleHandling) throws SyntaxError, QueryNodeException {
 
-        // use analyzer for actual text part of query
-        StandardQueryParser  parser = new StandardQueryParser();
-        org.apache.lucene.search.Query textQuery = parser.parse(searchString, ProductClassBridge.TAGS + locale);
+        // construct wildcard query for the actual search part
+        org.apache.lucene.search.Query textQuery = LuceneQueryBuilder
+                .getServiceQuery(searchString, locale, DEFAULT_LOCALE,
+                        isDefaultLocaleHandling);
 
-        // build mId part (use no analyzer!)
+        // build mId part
         TermQuery mIdQuery = new TermQuery(new Term(ProductClassBridge.MP_ID,
                 QueryParser.escape(mId).toLowerCase()));
 
         // now construct final query
-        BooleanQuery.Builder query = new BooleanQuery.Builder();
+        BooleanQuery query = new BooleanQuery();
         query.add(mIdQuery, Occur.MUST);
         query.add(textQuery, Occur.MUST);
-        return query.build();
+        return query;
     }
 
     /**

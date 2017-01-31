@@ -22,8 +22,8 @@ import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
-import javax.servlet.http.Part;
 
+import org.apache.myfaces.custom.fileupload.UploadedFile;
 import org.oscm.internal.vo.*;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
@@ -74,7 +74,7 @@ public class OrganizationBean extends BaseBean implements Serializable {
     private User customerUserToAdd = null;
     private List<Organization> suppliersForTechnicalService;
     private List<Organization> customers;
-    private Part organizationProperties;
+    private UploadedFile organizationProperties;
     VOOrganization organization;
     private String supplierIdToAdd;
     User currentUser;
@@ -574,11 +574,11 @@ public class OrganizationBean extends BaseBean implements Serializable {
         return OUTCOME_SUCCESS;
     }
 
-    public Part getOrganizationProperties() {
+    public UploadedFile getOrganizationProperties() {
         return organizationProperties;
     }
 
-    public void setOrganizationProperties(Part organizationProperties) {
+    public void setOrganizationProperties(UploadedFile organizationProperties) {
         this.organizationProperties = organizationProperties;
     }
 

@@ -165,6 +165,7 @@ public class UserGroupDaoIT extends EJBTestBase {
                 List<UserGroup> userGroupsForUserWithoutDefault = dao.getUserGroupsForUserWithoutDefault(user.getKey());
                 assertEquals(admin, userGroupsForUserWithoutDefault.get(0).getOrganization());
                 return userGroupsForUserWithoutDefault;
+
             }
         });
 

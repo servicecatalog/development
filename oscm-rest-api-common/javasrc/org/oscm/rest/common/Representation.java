@@ -61,6 +61,20 @@ public abstract class Representation {
         this.id = id;
     }
 
+    protected long convertIdToKey() {
+        if (getId() == null) {
+            return 0L;
+        }
+        return getId().longValue();
+    }
+
+    protected int convertETagToVersion() {
+        if (getETag() == null) {
+            return 0;
+        }
+        return getETag().intValue();
+    }
+
     /**
      * Validates the content and format of the fields to be legitimate. Throws
      * BadRequestException if not valid.

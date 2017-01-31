@@ -9,19 +9,14 @@
 package org.oscm.ui.dialog.mp.userGroups;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -99,23 +94,15 @@ public class ManageGroupCtrlTest {
         identityService = mock(IdentityService.class);
         searchServiceInternal = mock(SearchServiceInternal.class);
         userBean = mock(UserBean.class);
-        ctrl = new ManageGroupCtrl() {
-            @Override
-            protected void redirectToGroupListPage() {
-                return;
-            }
-
-            @Override
-            public String getSelectedGroupId() {
-                return "1000";
-            }
-        };
+        ctrl = spy(new ManageGroupCtrl());
+        doNothing().when(ctrl).redirectToGroupListPage();
+        doReturn("1000").when(ctrl).getSelectedGroupId();
         ctrl.setUserGroupService(userGroupService);
         ctrl.setSearchServiceInternal(searchServiceInternal);
         ctrl.setIdService(identityService);
         model = new ManageGroupModel();
         ctrl.setManageGroupModel(model);
-        ctrl.setUi(spy(new UiDelegate() {
+        UiDelegate uiDel = spy(new UiDelegate() {
             @Override
             public void handleException(SaaSApplicationException ex) {
 
@@ -123,7 +110,7 @@ public class ManageGroupCtrlTest {
 
             @Override
             public void handleError(String clientId, String messageKey,
-                    Object... params) {
+                                    Object... params) {
 
             }
 
@@ -141,7 +128,8 @@ public class ManageGroupCtrlTest {
             public ExternalContext getExternalContext() {
                 return exContext;
             }
-        }));
+        });
+        ctrl.setUi(uiDel);
         doReturn(new ArrayList<POUserGroup>()).when(userGroupService)
                 .getGroupsForOrganization();
         doReturn(voServiceListResult).when(searchServiceInternal)
@@ -150,12 +138,31 @@ public class ManageGroupCtrlTest {
         doReturn(voServiceListResult).when(searchServiceInternal)
                 .getAccesibleServices(anyString(), anyString(),
                         any(ListCriteria.class), any(PerformanceHint.class));
-        doReturn(tableStatus).when(ctrl.getUi())
+        doReturn(tableStatus).when(uiDel)
                 .findBean(eq(TableState.BEAN_NAME));
         when(userBean.getUserFromSessionWithoutException())
                 .thenReturn(initOrgAdmin());
-        doReturn(userBean).when(ctrl.getUi()).findUserBean();
+        doReturn(userBean).when(uiDel).findUserBean();
         initModelData();
+    }
+
+    @Test
+    public void getInitialize_test() throws ObjectNotFoundException {
+        //given
+        POUserGroup userGroup = new POUserGroup();
+        userGroup.setUsersAssignedToUnit(new ArrayList<POUserInUnit>());
+        ctrl.getManageGroupModel().setSelectedGroup(userGroup);
+        ctrl.getManageGroupModel().setSelectedGroupId("10000");
+        doReturn(userGroup).when(userGroupService).getUserGroupDetailsWithUsers(anyLong());
+        ObjectNotFoundException e = new ObjectNotFoundException();
+        doThrow(e).when(userGroupService).getUserGroupDetailsForList(anyLong());
+
+        //when
+        ctrl.getInitialize();
+
+        //then
+        assertNull(ctrl.getManageGroupModel().getSelectedGroup());
+        assertNull(ctrl.getManageGroupModel().getSelectedGroupId());
     }
 
     @Test
@@ -511,16 +518,6 @@ public class ManageGroupCtrlTest {
 
         // then
         assertEquals(group, model.getSelectedGroup());
-    }
-
-    @Test
-    public void initSelectedGroup_ObjectNotFoundException() throws Exception {
-        doThrow(new ObjectNotFoundException()).when(userGroupService)
-                .getUserGroupDetailsForList(anyLong());
-        ctrl.initSelectedGroup();
-
-        assertEquals(null, model.getSelectedGroup());
-        assertEquals(null, model.getSelectedGroupId());
     }
 
     private void initModelData() {

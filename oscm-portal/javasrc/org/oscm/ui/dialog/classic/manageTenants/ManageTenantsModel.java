@@ -7,18 +7,18 @@
  *******************************************************************************/
 package org.oscm.ui.dialog.classic.manageTenants;
 
-import org.oscm.internal.tenant.POTenant;
-import org.oscm.ui.beans.BaseModel;
-import org.oscm.ui.profile.FieldData;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.servlet.http.Part;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import org.oscm.internal.tenant.POTenant;
+import org.oscm.ui.beans.BaseModel;
+import org.oscm.ui.profile.FieldData;
 
 @ViewScoped
 @ManagedBean
@@ -35,6 +35,7 @@ public class ManageTenantsModel extends BaseModel implements Serializable {
     private boolean deleteDisabled;
     private POTenant selectedTenant;
     private Part file;
+
     private boolean clearExportAvailable;
     private Properties idpProperties;
     private boolean dirty;

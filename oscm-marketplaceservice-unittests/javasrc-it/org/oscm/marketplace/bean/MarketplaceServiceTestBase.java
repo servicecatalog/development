@@ -16,6 +16,20 @@ import static org.junit.Assert.*;
 import static org.oscm.internal.types.enumtypes.OrganizationRoleType.SUPPLIER;
 
 import java.util.*;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.oscm.internal.types.enumtypes.OrganizationRoleType.SUPPLIER;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Callable;
 
 import org.oscm.accountservice.bean.AccountServiceBean;
@@ -44,7 +58,13 @@ import org.oscm.serviceprovisioningservice.assembler.ProductAssembler;
 import org.oscm.serviceprovisioningservice.bean.ServiceProvisioningServiceBean;
 import org.oscm.test.BaseAdmUmTest;
 import org.oscm.test.EJBTestBase;
-import org.oscm.test.data.*;
+import org.oscm.test.data.Marketplaces;
+import org.oscm.test.data.Organizations;
+import org.oscm.test.data.PlatformUsers;
+import org.oscm.test.data.Products;
+import org.oscm.test.data.Subscriptions;
+import org.oscm.test.data.SupportedCountries;
+import org.oscm.test.data.TechnicalProducts;
 import org.oscm.test.ejb.TestContainer;
 import org.oscm.test.stubs.CommunicationServiceStub;
 import org.oscm.test.stubs.ConfigurationServiceStub;

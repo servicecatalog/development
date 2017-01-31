@@ -37,7 +37,6 @@ import javax.persistence.UniqueConstraint;
 import org.apache.lucene.analysis.core.LowerCaseFilterFactory;
 import org.apache.lucene.analysis.core.WhitespaceTokenizerFactory;
 import org.apache.lucene.analysis.miscellaneous.WordDelimiterFilterFactory;
-import org.apache.lucene.analysis.snowball.SnowballPorterFilterFactory;
 import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.AnalyzerDef;
 import org.hibernate.search.annotations.ClassBridge;
@@ -68,8 +67,7 @@ import org.oscm.types.exceptions.UserNotAssignedException;
         @TokenFilterDef(factory = WordDelimiterFilterFactory.class, params = {
                 @org.hibernate.search.annotations.Parameter(name = "preserveOriginal", value = "1"),
                 @org.hibernate.search.annotations.Parameter(name = "catenateAll", value = "1") }),
-        @TokenFilterDef(factory = LowerCaseFilterFactory.class),
-        @TokenFilterDef(factory = SnowballPorterFilterFactory.class, params = { @org.hibernate.search.annotations.Parameter(name = "language", value = "English") }) })
+        @TokenFilterDef(factory = LowerCaseFilterFactory.class)})
 @Analyzer(definition = "customanalyzer")
 @Indexed
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "subscriptionId",

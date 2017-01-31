@@ -324,6 +324,7 @@ public class BaseBean {
     public static final String INFO_SUPPLIER_BANNED = "info.supplier.banned";
     public static final String INFO_SUPPLIER_BANLIFTED = "info.supplier.banlifted";
     public static final String INFO_PAYMENT_ENABLEMENT_SAVED = "info.paymentEnablment.saved";
+    public static final String INFO_RECREATE_INDEXES = "info.operator.indexes";
     public static final String TRIGGER_PROCESS_DELETED = "info.triggerProcess.deleted";
     public static final String TRIGGER_PROCESS_CANCELED = "info.triggerProcess.canceled";
     public static final String INFO_UDADEFINITIONS_DELETED = "info.udaDefinitions.deleted";

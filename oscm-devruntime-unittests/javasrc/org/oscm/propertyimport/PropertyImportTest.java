@@ -169,12 +169,8 @@ public class PropertyImportTest {
                 fos.close();
             }
         }
-        String[] expected = new String[] { "SELECT ", "INSERT ", "SELECT ",
-                "UPDATE ", "SELECT ", "INSERT ", "SELECT ", "INSERT ",
-                "SELECT ", "INSERT ", "SELECT ", "INSERT ", "SELECT ",
-                "INSERT ", "SELECT ", "INSERT ", "SELECT ", "INSERT ",
-                "SELECT ", "INSERT ", "SELECT ", "INSERT ", "SELECT ",
-                "INSERT ", "SELECT ", "INSERT ", "SELECT ", "INSERT " };
+        String[] expected = new String[] { "SELECT ", "INSERT ", "UPDATE ",
+                "DELETE " };
         int cnt = 0;
         assertEquals(expected.length, sqlStatementes.size());
         for (String sql : sqlStatementes) {
@@ -318,11 +314,7 @@ public class PropertyImportTest {
 
         PropertyImport importer = createImport();
         importer.execute();
-        String[] expected = new String[] { "SELECT ", "INSERT ", "SELECT",
-                "SELECT", "INSERT", "SELECT", "INSERT", "SELECT", "INSERT",
-                "SELECT", "INSERT", "SELECT", "INSERT", "SELECT", "INSERT",
-                "SELECT", "INSERT", "SELECT", "INSERT", "SELECT", "INSERT",
-                "SELECT", "INSERT", "SELECT", "INSERT", "SELECT", "INSERT" };
+        String[] expected = new String[] { "SELECT ", "INSERT ", "DELETE " };
         int cnt = 0;
         assertEquals(expected.length, sqlStatementes.size());
         for (String sql : sqlStatementes) {
@@ -413,7 +405,6 @@ public class PropertyImportTest {
         p.put(ConfigurationKey.TAGGING_MIN_SCORE.name(), "1");
 
         p.put(ConfigurationKey.WS_TIMEOUT.name(), "180000");
-
         p.put(ConfigurationKey.SSO_DEFAULT_TENANT_ID.name(), "8f96dede");
         p.put(ConfigurationKey.SSO_IDP_SAML_ASSERTION_ISSUER_ID.name(),
                 "default");

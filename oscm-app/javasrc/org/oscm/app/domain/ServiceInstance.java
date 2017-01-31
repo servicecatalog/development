@@ -8,13 +8,31 @@
 
 package org.oscm.app.domain;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Serializable;
 import java.util.*;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EntityManager;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Version;
 
 import org.oscm.app.business.exceptions.BadResultException;
-import org.oscm.app.converters.PSConverter;
 import org.oscm.app.i18n.Messages;
 import org.oscm.app.v2_0.data.InstanceStatus;
 import org.oscm.app.v2_0.data.Setting;
@@ -45,7 +63,7 @@ public class ServiceInstance implements Serializable {
     @Column(nullable = false)
     @Id
     @GeneratedValue(strategy = GenerationType.TABLE, generator = "do_seq")
-    @TableGenerator(table = "hibernate_sequences", name = "do_seq", allocationSize = 1000, valueColumnName = "sequence_next_hi_value")
+    @SequenceGenerator(name = "do_seq", allocationSize = 1000)
     private long tkey;
 
     /**
@@ -88,7 +106,7 @@ public class ServiceInstance implements Serializable {
      * instance.
      */
     @Column(nullable = false)
-    @Convert(converter = PSConverter.class)
+    @Enumerated(EnumType.STRING)
     private ProvisioningStatus provisioningStatus;
 
     /**
@@ -192,7 +210,6 @@ public class ServiceInstance implements Serializable {
     private List<InstanceAttribute> instanceAttributes = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "serviceInstance", fetch = FetchType.LAZY)
-
     private List<Operation> operations = new ArrayList<>();
 
     public long getTkey() {

@@ -58,9 +58,13 @@ public class OperatorOrgBeanTest {
                 facesMessages.add(arg1);
             }
         };
-        UIViewRootStub vrStub = mock(UIViewRootStub.class);
-        when(vrStub.getLocale()).thenReturn(Locale.ENGLISH);
 
+        UIViewRootStub vrStub = new UIViewRootStub() {
+            @Override
+            public Locale getLocale() {
+                return Locale.ENGLISH;
+            };
+        };
         contextStub.setViewRoot(vrStub);
 
         oob = spy(new OperatorOrgBean());

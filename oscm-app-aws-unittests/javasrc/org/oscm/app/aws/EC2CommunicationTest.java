@@ -672,4 +672,5 @@ public class EC2CommunicationTest {
         assertNotNull(groupId);
 
     }
+
 }

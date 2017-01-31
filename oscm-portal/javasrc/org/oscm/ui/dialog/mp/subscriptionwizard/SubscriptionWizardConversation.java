@@ -168,15 +168,14 @@ public class SubscriptionWizardConversation implements Serializable {
     }
 
     @PostConstruct
-    public void startSubscription() {
-        
+    public String startSubscription() {
         paymentAndBillingVisibleBean = ui
                 .findBean("paymentAndBillingVisibleBean");
         paymentInfoBean = ui.findBean("paymentInfoBean");
-        
+        String result = SubscriptionDetailsCtrlConstants.OUTCOME_SHOW_DETAILS_4_CREATION;
         try {
-            initializeService(getServiceDetailsModel().getSelectedService());
-
+            result = initializeService(
+                    getServiceDetailsModel().getSelectedService());
             if (conversation.isTransient()) {
                 conversation.setTimeout(TIMEOUT);
                 conversation.begin();
@@ -184,13 +183,15 @@ public class SubscriptionWizardConversation implements Serializable {
             model.setAnyPaymentAvailable(paymentAndBillingVisibleBean
                     .isPaymentVisible(getEnabledPaymentTypes(),
                             getPaymentInfosForSubscription()));
-
+        } catch (ObjectNotFoundException e) {
+            result = redirectToServiceList();
         } catch (ServiceStateException | OperationNotPermittedException
-                | OrganizationAuthoritiesException | ValidationException
-                | ObjectNotFoundException ex) {
+                | OrganizationAuthoritiesException | ValidationException ex) {
             ui.handleException(ex);
         }
         model.setReadOnlyParams(false);
+
+        return result;
     }
 
     public String selectService() {

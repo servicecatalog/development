@@ -65,7 +65,7 @@ public enum ConfigurationKey {
 
     @Doc({ "The path to the log files." })
     @Example("../logs")
-    LOG_FILE_PATH(true),
+    LOG_FILE_PATH(true, "../logs", "string"),
 
     @Doc({ "The path to the log4j configuration file." })
     LOG_CONFIG_FILE(false, "./log4j.properties", "string"),
@@ -125,10 +125,7 @@ public enum ConfigurationKey {
             "configured, reporting will not be available.",
             "It supports http and https to show report.",
             "But your server name must use fully qualified domain name when using https to show report." })
-    @Example("http://<your server>:<your port>/birt/frameset?__report=${reportname}"
-            + ".rptdesign&SessionId=${sessionid}&__locale=${locale}&WSDLURL=${wsdlurl}&SOAPEndPoint=${soapendpoint}&wsname=Report&wsport=ReportPort or https://<your server>:<your "
-            + "port>/birt/frameset?__report=${reportname}.rptdesign&SessionId=${sessionid}&__locale=${locale}&WSDLURL=${wsdlurl}&SOAPEndPoint=${soapendpoint}&wsname=ReportSecure"
-            + "&wsport=ReportSecurePort")
+    @Example("http://<your server>:<your port>/birt/frameset?__report=${reportname}" + ".rptdesign&SessionId=${sessionid}&__locale=${locale}&WSDLURL=${wsdlurl}&SOAPEndPoint=${soapendpoint}&wsname=Report&wsport=ReportPort or https://<your server>:<your " + "port>/birt/frameset?__report=${reportname}.rptdesign&SessionId=${sessionid}&__locale=${locale}&WSDLURL=${wsdlurl}&SOAPEndPoint=${soapendpoint}&wsname=ReportSecure" + "&wsport=ReportSecurePort")
     REPORT_ENGINEURL(false, "", "url"),
 
     @Doc({ "The WSDL link to the reporting Web service. This value",
@@ -184,6 +181,7 @@ public enum ConfigurationKey {
             HiddenUIConstants.MENU_ITEM_OPERATOR_MANAGE_TIMERS,
             HiddenUIConstants.MENU_ITEM_OPERATOR_MANAGE_CURRENCIES,
             HiddenUIConstants.MENU_ITEM_OPERATOR_MANAGE_CONFIGURATION,
+            HiddenUIConstants.MENU_ITEM_OPERATOR_MANAGE_INDEXES,
             HiddenUIConstants.MENU_GROUP_NAVIGATION_MYACCOUNT,
             HiddenUIConstants.MENU_ITEM_ORGANIZATION_EDIT,
             HiddenUIConstants.MENU_ITEM_USER_PWD,
@@ -243,13 +241,13 @@ public enum ConfigurationKey {
             HiddenUIConstants.PANEL_ORGANIZATION_EDIT_USERPROFILE,
             HiddenUIConstants.PANEL_USER_LIST_SUBSCRIPTIONS, })
     @Example("operator.manageBillingAdapters,techService.viewBillingAdapters")
-    HIDDEN_UI_ELEMENTS(false),
+    HIDDEN_UI_ELEMENTS(false, "", "string"),
 
     @Doc({ "Specifies whether the supplier sets the payment type invoice as default payment info for his customers." })
     SUPPLIER_SETS_INVOICE_AS_DEFAULT(false, "false", "boolean"),
 
     @Doc({ "If a time zone different to 'GMT' should be used for displaying purposes, use this setting to specify the wanted time zone id." })
-    TIME_ZONE_ID(false),
+    TIME_ZONE_ID(false, "", "string"),
 
     @Doc({ "The maximum number of tags composing the tag cloud." })
     @Example("20")
@@ -276,8 +274,7 @@ public enum ConfigurationKey {
     @Example("30000")
     WS_TIMEOUT(true, "30000", "long", Long.valueOf(1L), null, false),
 
-    @Doc({
-            "The authentication mode defines whether the bes internal authentication is used",
+    @Doc({ "The authentication mode defines whether the bes internal authentication is used",
             "or an external authentication service, such as OpenAM.",
             "Default value is INTERNAL. Allowed values are: INTERNAL, SAML_SP" })
     @Example("INTERNAL")
@@ -306,8 +303,7 @@ public enum ConfigurationKey {
 
     @Doc({ "Encryption key length for STS." })
     @Example("128")
-    SSO_STS_ENCKEY_LEN(false, null, "long", Long.valueOf(1L), Long
-            .valueOf(Integer.MAX_VALUE), false),
+    SSO_STS_ENCKEY_LEN(false, null, "long", Long.valueOf(1L), Long.valueOf(Integer.MAX_VALUE), false),
 
     @Doc({ "Specifies whether the audit logging is enabled" })
     @Example("false")
@@ -337,8 +333,7 @@ public enum ConfigurationKey {
     @Example("43200000")
     TIMER_INTERVAL_USER_COUNT(true, "43200000", "long", Long.valueOf(1L), Long.valueOf(9223372036854775807L), false),
 
-    @Doc({
-            "Specifies whether payment information is required for subscribing to services ",
+    @Doc({ "Specifies whether payment information is required for subscribing to services ",
             "that use the native billing system and are not free of charge. ",
             "Once set, the value cannot be changed." })
     @Example("false")
@@ -346,7 +341,7 @@ public enum ConfigurationKey {
 
     @Doc({ "Name of the keypair stored in the keystore used for signing SAML messages" })
     @Example("s1as")
-    SSO_SIGNING_KEY_ALIAS(false),
+    SSO_SIGNING_KEY_ALIAS(false, "s1as", "string"),
 
     @Doc({ "Password to the keystore containing the private key used for signing SAML messages" })
     @Example("changeit")
@@ -364,7 +359,7 @@ public enum ConfigurationKey {
     @Example("IDP_ID")
     SSO_IDP_SAML_ASSERTION_ISSUER_ID(false, "default", "string", false);
 
-    /////////////////////////////////////////////////////////////////////////////////////
+    // ///////////////////////////////////////////////////////////////////////////////////
 
     private final boolean isMandatory;
     private final boolean isReadonly;
@@ -390,10 +385,6 @@ public enum ConfigurationKey {
      * The maximum value allowed for a long field.
      */
     private Long maxValue;
-
-    ConfigurationKey(boolean isMandatory) {
-        this(isMandatory, null, TYPE_STRING);
-    }
 
     ConfigurationKey(boolean isMandatory, String fallbackValue, String type) {
         this(isMandatory, fallbackValue, type, null, null, false);
@@ -516,11 +507,7 @@ public enum ConfigurationKey {
 
     /**
      * Retrieves the length value allowed for a string field.
-<<<<<<< HEAD
-     *
-=======
      * 
->>>>>>> master
      * @return The length value if set, <code>null</code> if not set or if the
      *         field is not of type long.
      */

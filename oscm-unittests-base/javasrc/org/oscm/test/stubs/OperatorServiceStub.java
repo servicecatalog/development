@@ -134,7 +134,10 @@ public class OperatorServiceStub implements OperatorService {
     }
 
     @Override
-    public List<VOOrganization> getOrganizationsWithLimit(String organizationIdPattern, List<OrganizationRoleType> organizationRoleTypes, Integer queryLimit) throws OrganizationAuthoritiesException {
+    public List<VOOrganization> getOrganizationsWithLimit(
+            String organizationIdPattern,
+            List<OrganizationRoleType> organizationRoleTypes, Integer queryLimit)
+            throws OrganizationAuthoritiesException {
         throw new UnsupportedOperationException();
     }
 
@@ -145,7 +148,8 @@ public class OperatorServiceStub implements OperatorService {
     }
 
     @Override
-    public List<VOUserDetails> getSubscriptionOwnersForAssignment(Long organizationKey) {
+    public List<VOUserDetails> getSubscriptionOwnersForAssignment(
+            Long organizationKey) {
         throw new UnsupportedOperationException();
     }
 
@@ -226,6 +230,20 @@ public class OperatorServiceStub implements OperatorService {
     public List<VOUserDetails> getUnassignedUsersByOrg(Long subscriptionKey,
             Long organizationKey) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void deleteConfigurationSetting(Long key)
+            throws ObjectNotFoundException {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public VOConfigurationSetting getConfigurationSetting(Long key)
+            throws ObjectNotFoundException {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }

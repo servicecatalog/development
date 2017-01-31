@@ -13,7 +13,6 @@ import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.ReplacementDataSet;
 import org.dbunit.dataset.xml.FlatXmlDataSetBuilder;
 import org.dbunit.operation.DatabaseOperation;
-
 import org.oscm.setup.DatabaseVersionInfo;
 import org.oscm.test.db.ITestDB;
 import org.oscm.test.ejb.TestDataSources;
@@ -50,6 +49,11 @@ public class TestDatabase {
     public void clean() throws Exception {
         System.out.println("Clearn test data");
         TESTDATABASE.clearBusinessData();
+    }
+
+    public void close() throws Exception {
+        System.out.println("Close database connection");
+        TESTDATABASE.getDataSource().getConnection().close();
     }
 
     public Connection getDBconnection() throws SQLException {
