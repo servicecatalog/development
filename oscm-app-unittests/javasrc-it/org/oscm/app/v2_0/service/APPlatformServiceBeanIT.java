@@ -49,7 +49,7 @@ import org.oscm.test.EJBTestBase;
 import org.oscm.test.ejb.TestContainer;
 import org.oscm.vo.VOUser;
 
-import sun.security.tools.keytool.CertAndKeyGen;
+import sun.security.x509.CertAndKeyGen;
 import sun.security.x509.X500Name;
 
 /**
