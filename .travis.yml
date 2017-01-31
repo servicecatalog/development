@@ -4,10 +4,6 @@ language: java
 sudo: required
 jdk:
   - oraclejdk8
-addons:
-  apt:
-    packages:
-      - oracle-java8-installer
 cache:
   directories:
     - $TRAVIS_BUILD_DIR/libraries
