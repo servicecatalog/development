@@ -12,19 +12,10 @@
 
 package org.oscm.identityservice.bean;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.Callable;
 
 import javax.ejb.EJBException;
@@ -33,17 +24,7 @@ import org.junit.Test;
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
-import org.oscm.domobjects.ConfigurationSetting;
-import org.oscm.domobjects.DomainObject;
-import org.oscm.domobjects.OnBehalfUserReference;
-import org.oscm.domobjects.Organization;
-import org.oscm.domobjects.OrganizationReference;
-import org.oscm.domobjects.OrganizationRole;
-import org.oscm.domobjects.OrganizationToRole;
-import org.oscm.domobjects.PlatformUser;
-import org.oscm.domobjects.PlatformUserHistory;
-import org.oscm.domobjects.RoleAssignment;
-import org.oscm.domobjects.UserGroup;
+import org.oscm.domobjects.*;
 import org.oscm.domobjects.enums.ModificationType;
 import org.oscm.domobjects.enums.OrganizationReferenceType;
 import org.oscm.encrypter.AESEncrypter;
@@ -54,13 +35,7 @@ import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.UserAccountStatus;
 import org.oscm.internal.types.enumtypes.UserRoleType;
-import org.oscm.internal.types.exception.MailOperationException;
-import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.types.exception.OperationNotPermittedException;
-import org.oscm.internal.types.exception.OperationPendingException;
-import org.oscm.internal.types.exception.UserRoleAssignmentException;
-import org.oscm.internal.types.exception.ValidationException;
+import org.oscm.internal.types.exception.*;
 import org.oscm.internal.vo.VOUser;
 import org.oscm.internal.vo.VOUserDetails;
 import org.oscm.reviewservice.bean.ReviewServiceLocalBean;
@@ -68,13 +43,7 @@ import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.Organizations;
 import org.oscm.test.ejb.TestContainer;
-import org.oscm.test.stubs.ApplicationServiceStub;
-import org.oscm.test.stubs.CommunicationServiceStub;
-import org.oscm.test.stubs.ConfigurationServiceStub;
-import org.oscm.test.stubs.LdapAccessServiceStub;
-import org.oscm.test.stubs.SessionServiceStub;
-import org.oscm.test.stubs.TaskQueueServiceStub;
-import org.oscm.test.stubs.TriggerQueueServiceStub;
+import org.oscm.test.stubs.*;
 import org.oscm.types.constants.Configuration;
 import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
 import org.oscm.usergroupservice.dao.UserGroupDao;
@@ -630,8 +599,22 @@ public class IdentityServiceBeanUserCreationIT extends EJBTestBase {
         setSlaveUserAccessTime(custUser1, lastAccessTime);
         setSlaveUserAccessTime(custUser2, lastAccessTime);
 
-        List<OnBehalfUserReference> utobus = getAllPersistedObjectsOfType(
+        final List<OnBehalfUserReference> utobus = getAllPersistedObjectsOfType(
                 OnBehalfUserReference.class);
+        final List<PlatformUser> slaveUsers = new ArrayList<>();
+        final List<PlatformUser> masterUsers = new ArrayList<>();
+        runTX(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                for (int i = 0; i < utobus.size(); i++) {
+                    OnBehalfUserReference currentUserRelation = utobus.get(i);
+                    currentUserRelation = container.get(DataService.class).find(OnBehalfUserReference.class, currentUserRelation.getKey());
+                    slaveUsers.add(unproxyEntity(currentUserRelation.getSlaveUser()));
+                    masterUsers.add(unproxyEntity(currentUserRelation.getMasterUser()));
+                }
+                return null;
+            }
+        });
         assertEquals(2, utobus.size());
 
         runTX(new Callable<Void>() {
@@ -642,7 +625,7 @@ public class IdentityServiceBeanUserCreationIT extends EJBTestBase {
             }
         });
 
-        // assert deletion of users
+        // assert deletion of slaveUsers
         assertTrue(getAllPersistedObjectsOfType(OnBehalfUserReference.class)
                 .isEmpty());
         List<PlatformUser> allUsers = getAllPersistedObjectsOfType(
@@ -651,18 +634,19 @@ public class IdentityServiceBeanUserCreationIT extends EJBTestBase {
         assertFalse(allUsers.contains(custPU2));
 
         // assert History changes
-        for (OnBehalfUserReference currentUserRelation : utobus) {
+        for (int i = 0; i < utobus.size(); i++) {
+            OnBehalfUserReference currentUserRelation = utobus.get(i);
             // relations must be deleted
 
-            // slave users must be deleted
+            // slave slaveUsers must be deleted
             List<PlatformUserHistory> slaveHist = getHistory(
-                    currentUserRelation.getSlaveUser(),
+                    slaveUsers.get(i),
                     PlatformUserHistory.class);
             assertEquals(ModificationType.DELETE,
                     slaveHist.get(slaveHist.size() - 1).getModtype());
-            // master users must remain unchanged
+            // master slaveUsers must remain unchanged
             List<PlatformUserHistory> masterHist = getHistory(
-                    currentUserRelation.getMasterUser(),
+                    masterUsers.get(i),
                     PlatformUserHistory.class);
             assertEquals(ModificationType.ADD,
                     masterHist.get(masterHist.size() - 1).getModtype());
@@ -698,11 +682,19 @@ public class IdentityServiceBeanUserCreationIT extends EJBTestBase {
         });
         assertEquals(Boolean.FALSE, Boolean.valueOf(
                 millis == DateFactory.getInstance().getTransactionTime()));
-        List<OnBehalfUserReference> onBehalfUsers = getAllPersistedObjectsOfType(
+        final List<OnBehalfUserReference> onBehalfUsers = getAllPersistedObjectsOfType(
                 OnBehalfUserReference.class);
         assertEquals(1, onBehalfUsers.size());
-        assertEquals(custUser2.getKey(),
-                onBehalfUsers.get(0).getSlaveUser().getKey());
+        runTX(new Callable<Object>() {
+            @Override
+            public Object call() throws Exception {
+                OnBehalfUserReference onBehalfUserReference = onBehalfUsers.get(0);
+                onBehalfUserReference = container.get(DataService.class).find(OnBehalfUserReference.class, onBehalfUserReference.getKey());
+                assertEquals(custUser2.getKey(),
+                    onBehalfUserReference.getSlaveUser().getKey());
+                return null;
+            }
+        });
     }
 
     /**

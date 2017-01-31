@@ -12,36 +12,25 @@
 
 package org.oscm.serviceprovisioningservice.bean;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.Callable;
 
 import javax.ejb.EJBException;
+import javax.persistence.Query;
 
 import org.junit.Assert;
 import org.junit.Test;
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
-import org.oscm.domobjects.CatalogEntry;
-import org.oscm.domobjects.ConfigurationSetting;
-import org.oscm.domobjects.Marketplace;
-import org.oscm.domobjects.Organization;
-import org.oscm.domobjects.Product;
-import org.oscm.domobjects.Tag;
-import org.oscm.domobjects.TechnicalProduct;
-import org.oscm.domobjects.TechnicalProductTag;
+import org.oscm.domobjects.*;
 import org.oscm.internal.intf.TagService;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.ServiceAccessType;
+import org.oscm.internal.types.enumtypes.ServiceStatus;
 import org.oscm.internal.types.exception.IllegalArgumentException;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
@@ -193,8 +182,10 @@ public class TagServiceBeanIT extends EJBTestBase {
                 }
 
                 dm.flush();
-                dm.createQuery(
-                        "UPDATE Product p SET p.dataContainer.status = 'ACTIVE'")
+                Query query = dm.createQuery(
+                        "UPDATE Product p SET p.dataContainer.status = :status");
+                query.setParameter("status", ServiceStatus.ACTIVE);
+                query
                         .executeUpdate();
 
                 return null;

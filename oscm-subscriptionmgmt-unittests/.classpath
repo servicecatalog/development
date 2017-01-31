@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry kind="lib" path="/libraries/redhat-hibernate/javalib/jboss-logging-3.3.0.Final.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-unittests-base"/>
 	<classpathentry kind="src" path="javasrc"/>
 	<classpathentry kind="src" path="javasrc-it"/>

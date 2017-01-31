@@ -13,13 +13,7 @@
 package org.oscm.billingservice.dao;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.Callable;
 
 import javax.persistence.Query;
@@ -31,29 +25,13 @@ import org.oscm.billingservice.dao.model.RolePricingData;
 import org.oscm.billingservice.dao.model.RolePricingDetails;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
-import org.oscm.domobjects.Organization;
-import org.oscm.domobjects.Parameter;
-import org.oscm.domobjects.ParameterDefinition;
-import org.oscm.domobjects.ParameterOption;
-import org.oscm.domobjects.PriceModel;
-import org.oscm.domobjects.PricedOption;
-import org.oscm.domobjects.PricedParameter;
-import org.oscm.domobjects.PricedProductRole;
-import org.oscm.domobjects.Product;
-import org.oscm.domobjects.RoleDefinition;
-import org.oscm.domobjects.RoleDefinitionHistory;
-import org.oscm.domobjects.Subscription;
-import org.oscm.domobjects.TechnicalProduct;
+import org.oscm.domobjects.*;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.ParameterType;
 import org.oscm.internal.types.enumtypes.ParameterValueType;
 import org.oscm.internal.types.enumtypes.ServiceAccessType;
 import org.oscm.test.EJBTestBase;
-import org.oscm.test.data.Organizations;
-import org.oscm.test.data.Products;
-import org.oscm.test.data.Subscriptions;
-import org.oscm.test.data.SupportedCountries;
-import org.oscm.test.data.TechnicalProducts;
+import org.oscm.test.data.*;
 import org.oscm.test.ejb.TestContainer;
 import org.oscm.test.stubs.ConfigurationServiceStub;
 
@@ -616,7 +594,7 @@ public class BillingDataRetrievalServiceBeanRolePricesIT extends EJBTestBase {
             public Void call() throws Exception {
                 subscription = mgr.find(Subscription.class,
                         subscription.getKey());
-                priceModel = subscription.getPriceModel();
+                priceModel = unproxyEntity(subscription.getPriceModel());
 
                 pricedOption = mgr.find(PricedOption.class,
                         pricedOption.getKey());
@@ -666,7 +644,7 @@ public class BillingDataRetrievalServiceBeanRolePricesIT extends EJBTestBase {
             public Void call() throws Exception {
                 subscription = mgr.find(Subscription.class,
                         subscription.getKey());
-                priceModel = subscription.getPriceModel();
+                priceModel = unproxyEntity(subscription.getPriceModel());
 
                 pricedOption = mgr.find(PricedOption.class,
                         pricedOption.getKey());

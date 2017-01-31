@@ -4,6 +4,7 @@
 	<classpathentry kind="src" path="javasrc-it"/>
 	<classpathentry kind="src" path="javares"/>
 	<classpathentry kind="src" path="doc"/>
+	<classpathentry kind="lib" path="/libraries/redhat-hibernate/javalib/jboss-logging-3.3.0.Final.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-communicationservices-intsvc"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-unittests-base"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-common"/>

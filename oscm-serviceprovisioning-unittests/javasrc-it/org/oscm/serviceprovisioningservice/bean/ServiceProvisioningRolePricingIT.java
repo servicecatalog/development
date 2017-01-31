@@ -25,64 +25,21 @@ import org.oscm.accountservice.local.MarketingPermissionServiceLocal;
 import org.oscm.converter.ParameterizedTypes;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
-import org.oscm.domobjects.BillingContact;
-import org.oscm.domobjects.DomainHistoryObject;
-import org.oscm.domobjects.ImageResource;
-import org.oscm.domobjects.Organization;
-import org.oscm.domobjects.Parameter;
-import org.oscm.domobjects.ParameterDefinition;
-import org.oscm.domobjects.ParameterOption;
-import org.oscm.domobjects.PaymentInfo;
-import org.oscm.domobjects.PaymentType;
-import org.oscm.domobjects.PlatformUser;
-import org.oscm.domobjects.PricedProductRole;
-import org.oscm.domobjects.PricedProductRoleHistory;
-import org.oscm.domobjects.Product;
-import org.oscm.domobjects.RoleDefinition;
-import org.oscm.domobjects.Subscription;
-import org.oscm.domobjects.TechnicalProduct;
+import org.oscm.domobjects.*;
 import org.oscm.domobjects.enums.ModificationType;
 import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.internal.intf.ServiceProvisioningService;
-import org.oscm.internal.types.enumtypes.ImageType;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ParameterType;
-import org.oscm.internal.types.enumtypes.ParameterValueType;
-import org.oscm.internal.types.enumtypes.PriceModelType;
-import org.oscm.internal.types.enumtypes.PricingPeriod;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
-import org.oscm.internal.types.enumtypes.ServiceStatus;
+import org.oscm.internal.types.enumtypes.*;
 import org.oscm.internal.types.exception.OperationNotPermittedException;
 import org.oscm.internal.types.exception.ValidationException;
-import org.oscm.internal.vo.VOOrganization;
-import org.oscm.internal.vo.VOParameter;
-import org.oscm.internal.vo.VOPriceModel;
-import org.oscm.internal.vo.VOPricedEvent;
-import org.oscm.internal.vo.VOPricedOption;
-import org.oscm.internal.vo.VOPricedParameter;
-import org.oscm.internal.vo.VOPricedRole;
-import org.oscm.internal.vo.VORoleDefinition;
-import org.oscm.internal.vo.VOService;
-import org.oscm.internal.vo.VOServiceDetails;
+import org.oscm.internal.vo.*;
 import org.oscm.tenantprovisioningservice.bean.TenantProvisioningServiceBean;
 import org.oscm.test.EJBTestBase;
-import org.oscm.test.data.Organizations;
-import org.oscm.test.data.PaymentInfos;
-import org.oscm.test.data.Products;
-import org.oscm.test.data.Scenario;
-import org.oscm.test.data.Subscriptions;
-import org.oscm.test.data.SupportedCountries;
-import org.oscm.test.data.TechnicalProducts;
+import org.oscm.test.data.*;
 import org.oscm.test.ejb.TestContainer;
-import org.oscm.test.stubs.ApplicationServiceStub;
-import org.oscm.test.stubs.CommunicationServiceStub;
-import org.oscm.test.stubs.ConfigurationServiceStub;
-import org.oscm.test.stubs.ImageResourceServiceStub;
-import org.oscm.test.stubs.MarketplaceServiceStub;
-import org.oscm.test.stubs.SessionServiceStub;
-import org.oscm.test.stubs.TriggerQueueServiceStub;
+import org.oscm.test.stubs.*;
 
 /**
  * Tests for the service provisiong that test the handling of role related
@@ -419,7 +376,13 @@ public class ServiceProvisioningRolePricingIT extends EJBTestBase {
             @Override
             public Product call() throws Exception {
                 Product doProduct = dm.find(Product.class, prod.getKey());
-                doProduct.getPriceModel().getRoleSpecificUserPrices().size();
+                List<PricedProductRole> roleSpecificUserPrices = doProduct.getPriceModel().getRoleSpecificUserPrices();
+                List<PricedProductRole> ppr = new ArrayList<>();
+                for (PricedProductRole roleSpecificUserPrice : roleSpecificUserPrices) {
+                    roleSpecificUserPrice.setRoleDefinition(unproxyEntity(roleSpecificUserPrice.getRoleDefinition()));
+                    ppr.add(unproxyEntity(roleSpecificUserPrice));
+                }
+                doProduct.getPriceModel().setRoleSpecificUserPrices(ppr);
                 return doProduct;
             }
         });

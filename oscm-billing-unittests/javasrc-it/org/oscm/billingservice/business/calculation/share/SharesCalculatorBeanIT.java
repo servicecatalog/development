@@ -10,9 +10,7 @@
 
 package org.oscm.billingservice.business.calculation.share;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 import static org.oscm.test.matchers.JavaMatchers.hasNoItems;
 import static org.oscm.test.matchers.JavaMatchers.hasOneItem;
 
@@ -32,21 +30,11 @@ import org.oscm.billingservice.dao.SharesDataRetrievalServiceBean;
 import org.oscm.converter.XMLConverter;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
-import org.oscm.domobjects.BillingSharesResult;
-import org.oscm.domobjects.CatalogEntry;
-import org.oscm.domobjects.Marketplace;
-import org.oscm.domobjects.Organization;
-import org.oscm.domobjects.Product;
-import org.oscm.domobjects.Subscription;
+import org.oscm.domobjects.*;
 import org.oscm.internal.types.enumtypes.BillingSharesResultType;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.test.EJBTestBase;
-import org.oscm.test.data.BillingResults;
-import org.oscm.test.data.CatalogEntries;
-import org.oscm.test.data.Marketplaces;
-import org.oscm.test.data.Organizations;
-import org.oscm.test.data.Products;
-import org.oscm.test.data.Subscriptions;
+import org.oscm.test.data.*;
 import org.oscm.test.ejb.TestContainer;
 import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.w3c.dom.Document;
@@ -1168,7 +1156,10 @@ public class SharesCalculatorBeanIT extends EJBTestBase {
         return runTX(new Callable<Product>() {
             @Override
             public Product call() {
-                return Products.findProduct(ds, org, prodId);
+                Product product = Products.findProduct(ds, org, prodId);
+                Product template = unproxyEntity(product.getTemplate());
+                product.setTemplate(template);
+                return product;
             }
         });
     }
