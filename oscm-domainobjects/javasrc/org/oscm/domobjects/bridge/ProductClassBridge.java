@@ -21,6 +21,7 @@ import javax.persistence.Query;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FieldType;
+import org.apache.lucene.index.IndexOptions;
 import org.hibernate.search.analyzer.Discriminator;
 import org.hibernate.search.bridge.FieldBridge;
 import org.hibernate.search.bridge.LuceneOptions;
@@ -74,11 +75,12 @@ public class ProductClassBridge implements FieldBridge, Discriminator {
                             if (entry.isVisibleInCatalog()
                                     && entry.getMarketplace() != null) {
                                 FieldType fieldType = new FieldType();
+                                fieldType.setIndexOptions(IndexOptions.DOCS);
                                 fieldType.setStored(false);
                                 fieldType.setOmitNorms(true);
-                                Field f_mid = new Field(MP_ID, entry
+                                Field f_mid = new Field(MP_ID, new String(entry
                                         .getMarketplace().getMarketplaceId()
-                                        .toLowerCase().getBytes(), fieldType);
+                                        .toLowerCase().getBytes()), fieldType);
                                 document.add(f_mid);
                                 mp_added = true;
                             }
@@ -123,6 +125,7 @@ public class ProductClassBridge implements FieldBridge, Discriminator {
                 for (String locale : tagMapping.keySet()) {
                     FieldType fieldType = new FieldType();
                     fieldType.setStored(false);
+                    fieldType.setIndexOptions(IndexOptions.DOCS);
                     fieldType.setOmitNorms(false);
                     Field field = new Field(TAGS + locale,
                             tagMapping.get(locale), fieldType);
@@ -180,6 +183,7 @@ public class ProductClassBridge implements FieldBridge, Discriminator {
             FieldType fieldType = new FieldType();
             fieldType.setStored(false);
             fieldType.setOmitNorms(false);
+            fieldType.setIndexOptions(IndexOptions.DOCS);
 
             Field field = new Field(fieldPrefix + resource.getLocale(),
                     resource.getValue(), fieldType);
@@ -196,6 +200,7 @@ public class ProductClassBridge implements FieldBridge, Discriminator {
 
         // index defined locales
         FieldType fieldType = new FieldType();
+        fieldType.setIndexOptions(IndexOptions.DOCS);
         fieldType.setStored(false);
         fieldType.setOmitNorms(false);
         Field field = new Field(fieldPrefix + DEFINED_LOCALES_SUFFIX,

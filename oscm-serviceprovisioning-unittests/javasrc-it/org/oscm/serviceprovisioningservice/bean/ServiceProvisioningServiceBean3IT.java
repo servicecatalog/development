@@ -12,39 +12,16 @@
 
 package org.oscm.serviceprovisioningservice.bean;
 
-import static org.oscm.test.Numbers.BD100;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
+import static org.oscm.test.Numbers.BD100;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Currency;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.Callable;
 
 import javax.ejb.EJBException;
@@ -55,7 +32,6 @@ import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-
 import org.oscm.accountservice.assembler.OrganizationAssembler;
 import org.oscm.accountservice.bean.AccountServiceBean;
 import org.oscm.accountservice.local.MarketingPermissionServiceLocal;
@@ -63,23 +39,7 @@ import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.converter.BigDecimalComparator;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
-import org.oscm.domobjects.DomainObject;
-import org.oscm.domobjects.ImageResource;
-import org.oscm.domobjects.MarketingPermission;
-import org.oscm.domobjects.Organization;
-import org.oscm.domobjects.OrganizationReference;
-import org.oscm.domobjects.ParameterDefinition;
-import org.oscm.domobjects.ParameterOption;
-import org.oscm.domobjects.ParameterSet;
-import org.oscm.domobjects.PaymentType;
-import org.oscm.domobjects.PlatformUser;
-import org.oscm.domobjects.PriceModel;
-import org.oscm.domobjects.Product;
-import org.oscm.domobjects.ProductToPaymentType;
-import org.oscm.domobjects.Subscription;
-import org.oscm.domobjects.SupportedCurrency;
-import org.oscm.domobjects.TechnicalProduct;
-import org.oscm.domobjects.TriggerProcess;
+import org.oscm.domobjects.*;
 import org.oscm.domobjects.enums.BillingAdapterIdentifier;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.domobjects.enums.OrganizationReferenceType;
@@ -87,57 +47,23 @@ import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.identityservice.bean.IdentityServiceBean;
-import org.oscm.marketplace.bean.MarketplaceServiceBean;
-import org.oscm.serviceprovisioningservice.auditlog.ServiceAuditLogCollector;
-import org.oscm.test.EJBTestBase;
-import org.oscm.test.data.BillingAdapters;
-import org.oscm.test.data.Marketplaces;
-import org.oscm.test.data.Organizations;
-import org.oscm.test.data.PaymentTypes;
-import org.oscm.test.data.Products;
-import org.oscm.test.data.Subscriptions;
-import org.oscm.test.data.SupportedCountries;
-import org.oscm.test.data.TechnicalProducts;
-import org.oscm.test.ejb.TestContainer;
-import org.oscm.test.setup.ProductImportParser;
-import org.oscm.test.stubs.ApplicationServiceStub;
-import org.oscm.test.stubs.CommunicationServiceStub;
-import org.oscm.test.stubs.ConfigurationServiceStub;
-import org.oscm.test.stubs.ImageResourceServiceStub;
-import org.oscm.test.stubs.MarketplaceServiceStub;
-import org.oscm.test.stubs.TriggerQueueServiceStub;
-import org.oscm.triggerservice.local.TriggerMessage;
-import org.oscm.triggerservice.local.TriggerProcessMessageData;
 import org.oscm.internal.intf.IdentityService;
 import org.oscm.internal.intf.ServiceProvisioningService;
-import org.oscm.internal.types.enumtypes.ImageType;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ParameterType;
-import org.oscm.internal.types.enumtypes.ParameterValueType;
-import org.oscm.internal.types.enumtypes.PriceModelType;
-import org.oscm.internal.types.enumtypes.PricingPeriod;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
-import org.oscm.internal.types.enumtypes.ServiceStatus;
-import org.oscm.internal.types.enumtypes.ServiceType;
-import org.oscm.internal.types.enumtypes.SubscriptionStatus;
+import org.oscm.internal.types.enumtypes.*;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.TechnicalServiceNotAliveException;
 import org.oscm.internal.types.exception.TechnicalServiceNotAliveException.Reason;
 import org.oscm.internal.types.exception.ValidationException;
-import org.oscm.internal.vo.VOEventDefinition;
-import org.oscm.internal.vo.VOLocalizedText;
-import org.oscm.internal.vo.VOOrganization;
-import org.oscm.internal.vo.VOParameter;
-import org.oscm.internal.vo.VOParameterDefinition;
-import org.oscm.internal.vo.VOParameterOption;
-import org.oscm.internal.vo.VOPriceModel;
-import org.oscm.internal.vo.VOPricedEvent;
-import org.oscm.internal.vo.VOPricedOption;
-import org.oscm.internal.vo.VOPricedParameter;
-import org.oscm.internal.vo.VOService;
-import org.oscm.internal.vo.VOServiceDetails;
-import org.oscm.internal.vo.VOServiceLocalization;
-import org.oscm.internal.vo.VOTechnicalService;
+import org.oscm.internal.vo.*;
+import org.oscm.marketplace.bean.MarketplaceServiceBean;
+import org.oscm.serviceprovisioningservice.auditlog.ServiceAuditLogCollector;
+import org.oscm.test.EJBTestBase;
+import org.oscm.test.data.*;
+import org.oscm.test.ejb.TestContainer;
+import org.oscm.test.setup.ProductImportParser;
+import org.oscm.test.stubs.*;
+import org.oscm.triggerservice.local.TriggerMessage;
+import org.oscm.triggerservice.local.TriggerProcessMessageData;
 
 /**
  * @author kulle
@@ -995,9 +921,9 @@ public class ServiceProvisioningServiceBean3IT extends EJBTestBase {
                 .savePriceModelForCustomer(productDetails, voPM, customer);
         voPM = productForCustomer.getPriceModel();
 
-        Product storedProduct = getDOFromServer(Product.class,
+        Product storedProduct = getProductFromServer(
                 productForCustomer.getKey());
-        PriceModel pm = storedProduct.getPriceModel();
+        PriceModel pm;
         ParameterSet ps = storedProduct.getParameterSet();
 
         svcProv.getServiceForCustomer(customer, productForCustomer);
@@ -1022,6 +948,18 @@ public class ServiceProvisioningServiceBean3IT extends EJBTestBase {
         } catch (ObjectNotFoundException e) {
 
         }
+    }
+
+    private Product getProductFromServer(
+            final long key) throws Exception {
+        return runTX(new Callable<Product>() {
+            @Override
+            public Product call() {
+                Product product = mgr.find(Product.class, key);
+                product.setParameterSet(unproxyEntity(product.getParameterSet()));
+                return product;
+            }
+        });
     }
 
     @Test

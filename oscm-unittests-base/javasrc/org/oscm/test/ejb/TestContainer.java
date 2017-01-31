@@ -37,7 +37,7 @@ import org.oscm.test.cdi.TestEvent;
  */
 public class TestContainer {
 
-    private final TestPersistence persistence;
+    public final TestPersistence persistence;
 
     private final InterfaceMap<DeployedSessionBean> sessionBeans = new InterfaceMap<DeployedSessionBean>();
 
@@ -216,8 +216,6 @@ public class TestContainer {
             @Override
             public Object invoke(Object proxy, Method method, Object[] args)
                     throws Throwable {
-                SessionFactory sessionFactory = persistence.getSf();
-                final Session session = sessionFactory.openSession();
                 final Transaction tx = persistence.getTransactionManager()
                         .getTransaction();
                 if (tx == null) {
@@ -226,6 +224,8 @@ public class TestContainer {
                 EntityManager delegate = delegates.get(tx);
                 if (delegate == null) {
                     delegate = factory.createEntityManager();
+                    SessionFactory sessionFactory = persistence.getSf();
+                    final Session session = sessionFactory.openSession();
                     delegates.put(tx, delegate);
                     tx.registerSynchronization(new Synchronization() {
 

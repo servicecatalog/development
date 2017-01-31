@@ -3,6 +3,7 @@
 	<classpathentry kind="src" path="javasrc"/>
 	<classpathentry kind="src" path="javares"/>
 	<classpathentry kind="src" path="javasrc-it"/>
+	<classpathentry kind="lib" path="/libraries/redhat-hibernate/javalib/jboss-logging-3.3.0.Final.jar"/>
 	<classpathentry kind="lib" path="/libraries/junit/javalib/junit-4.5.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-unittests-base"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-serviceprovisioning"/>
@@ -35,6 +36,7 @@
 	<classpathentry kind="lib" path="/libraries/apache-lucene/javalib/lucene-core-5.3.1.jar"/>
 	<classpathentry kind="lib" path="/libraries/apache-lucene/javalib/solr-core-5.3.1.jar"/>
 	<classpathentry kind="lib" path="/libraries/apache-lucene/javalib/solr-solrj-5.3.1.jar"/>
+	<classpathentry kind="lib" path="/libraries/apache-lucene/javalib/lucene-facet-5.3.1.jar"/>
 	<classpathentry kind="lib" path="/libraries/jboss-hibernate-search/javalib/hibernate-search-engine-5.5.4.Final.jar"/>
 	<classpathentry kind="lib" path="/libraries/jboss-hibernate-search/javalib/hibernate-search-orm-5.5.4.Final.jar"/>
 	<classpathentry kind="lib" path="/libraries/redhat-hibernate/javalib/antlr-2.7.7.jar"/>
