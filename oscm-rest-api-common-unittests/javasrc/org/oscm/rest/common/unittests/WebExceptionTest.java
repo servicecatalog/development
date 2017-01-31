@@ -14,6 +14,7 @@ import static org.junit.Assert.assertNotNull;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response.Status;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.oscm.rest.common.WebException;
 
@@ -25,6 +26,7 @@ import com.google.gson.JsonObject;
  * @author miethaner
  *
  */
+@Ignore
 public class WebExceptionTest {
 
     @Test
