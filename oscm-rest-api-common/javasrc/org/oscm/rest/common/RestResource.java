@@ -39,13 +39,46 @@ public abstract class RestResource {
      */
     protected <R extends Representation, P extends RequestParameters> Response get(
             Request request, RestBackend.Get<R, P> backend, P params,
-            boolean id) {
+            boolean id) throws Exception {
 
         int version = getVersion(request);
 
         prepareData(version, params, id, null, false);
 
         Representation item = backend.get(params);
+
+        reviseData(version, item);
+
+        String tag = "";
+        if (item.getETag() != null) {
+            tag = item.getETag().toString();
+        }
+
+        return Response.ok(item).tag(tag).build();
+    }
+
+    /**
+     * Wrapper for backend GET commands for getting collections. Prepares,
+     * validates and revises data for commands and assembles responses.
+     * 
+     * @param request
+     *            the request context
+     * @param backend
+     *            the backend command
+     * @param params
+     *            the request parameters
+     * @return the response with representation collection
+     * @throws Exception
+     */
+    protected <R extends Representation, P extends RequestParameters> Response getCollection(
+            Request request, RestBackend.GetCollection<R, P> backend, P params)
+            throws Exception {
+
+        int version = getVersion(request);
+
+        prepareData(version, params, false, null, false);
+
+        Representation item = backend.getCollection(params);
 
         reviseData(version, item);
 
@@ -73,7 +106,7 @@ public abstract class RestResource {
      */
     protected <R extends Representation, P extends RequestParameters> Response post(
             Request request, RestBackend.Post<R, P> backend, R content,
-            P params) {
+            P params) throws Exception {
 
         int version = getVersion(request);
 
@@ -104,8 +137,8 @@ public abstract class RestResource {
      * @return the response without content
      */
     protected <R extends Representation, P extends RequestParameters> Response put(
-            Request request, RestBackend.Put<R, P> backend, R content,
-            P params) {
+            Request request, RestBackend.Put<R, P> backend, R content, P params)
+            throws Exception {
 
         int version = getVersion(request);
 
@@ -134,7 +167,7 @@ public abstract class RestResource {
      * @return the response without content
      */
     protected <P extends RequestParameters> Response delete(Request request,
-            RestBackend.Delete<P> backend, P params) {
+            RestBackend.Delete<P> backend, P params) throws Exception {
 
         int version = getVersion(request);
 

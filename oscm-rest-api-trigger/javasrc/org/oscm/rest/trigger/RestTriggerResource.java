@@ -78,8 +78,7 @@ public class RestTriggerResource extends RestResource {
         @Produces(MediaType.APPLICATION_JSON)
         @Override
         public Response getItem(@Context Request request,
-                @BeanParam TriggerParameters params)
-                throws WebApplicationException {
+                @BeanParam TriggerParameters params) throws Exception {
             return get(request, triggerBackend.getItem(), params, true);
         }
 
@@ -91,8 +90,7 @@ public class RestTriggerResource extends RestResource {
         @Produces(MediaType.APPLICATION_JSON)
         @Override
         public Response getCollection(@Context Request request,
-                @BeanParam TriggerParameters params)
-                throws WebApplicationException {
+                @BeanParam TriggerParameters params) throws Exception {
             return get(request, triggerBackend.getCollection(), params, false);
         }
 
@@ -106,8 +104,7 @@ public class RestTriggerResource extends RestResource {
         @Override
         public Response postCollection(@Context Request request,
                 DefinitionRepresentation content,
-                @BeanParam TriggerParameters params)
-                throws WebApplicationException {
+                @BeanParam TriggerParameters params) throws Exception {
             return post(request, triggerBackend.postCollection(), content,
                     params);
         }
@@ -122,8 +119,7 @@ public class RestTriggerResource extends RestResource {
         @Override
         public Response putItem(@Context Request request,
                 DefinitionRepresentation content,
-                @BeanParam TriggerParameters params)
-                throws WebApplicationException {
+                @BeanParam TriggerParameters params) throws Exception {
             return put(request, triggerBackend.putItem(), content, params);
         }
 
@@ -135,8 +131,7 @@ public class RestTriggerResource extends RestResource {
         @Path(CommonParams.PATH_ID)
         @Override
         public Response deleteItem(@Context Request request,
-                @BeanParam TriggerParameters params)
-                throws WebApplicationException {
+                @BeanParam TriggerParameters params) throws Exception {
             return delete(request, triggerBackend.deleteItem(), params);
         }
 
@@ -174,8 +169,7 @@ public class RestTriggerResource extends RestResource {
         @Produces(MediaType.APPLICATION_JSON)
         @Override
         public Response getCollection(@Context Request request,
-                @BeanParam TriggerParameters params)
-                throws WebApplicationException {
+                @BeanParam TriggerParameters params) throws Exception {
 
             RestBackend.Get<RepresentationCollection<ActionRepresentation>, TriggerParameters> backend;
             backend = new RestBackend.Get<RepresentationCollection<ActionRepresentation>, TriggerParameters>() {
@@ -193,8 +187,7 @@ public class RestTriggerResource extends RestResource {
                     col.add(new ActionRepresentation(null,
                             ActionRepresentation.Action.MODIFY_SUBSCRIPTION));
 
-                    return new RepresentationCollection<>(
-                            col);
+                    return new RepresentationCollection<>(col);
                 }
             };
 
@@ -234,8 +227,7 @@ public class RestTriggerResource extends RestResource {
         @PUT
         @Path(CommonParams.PATH_ID + TriggerCommonParams.PATH_TRIGGER_APPROVE)
         public Response putApprove(@Context Request request,
-                @BeanParam TriggerParameters params)
-                throws WebApplicationException {
+                @BeanParam TriggerParameters params) throws Exception {
             ProcessRepresentation process = new ProcessRepresentation();
             process.setComment("");
             return put(request, processBackend.putApprove(), process, params);
@@ -259,8 +251,7 @@ public class RestTriggerResource extends RestResource {
         @Consumes(MediaType.APPLICATION_JSON)
         public Response putReject(@Context Request request,
                 ProcessRepresentation content,
-                @BeanParam TriggerParameters params)
-                throws WebApplicationException {
+                @BeanParam TriggerParameters params) throws Exception {
             return put(request, processBackend.putReject(), content, params);
         }
 

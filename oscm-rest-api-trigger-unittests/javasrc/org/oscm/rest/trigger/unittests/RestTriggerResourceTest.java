@@ -39,7 +39,7 @@ import org.oscm.rest.trigger.data.ProcessRepresentation;
 public class RestTriggerResourceTest {
 
     @Test
-    public void testAction() {
+    public void testAction() throws Exception {
         RestTriggerResource.Action action = new RestTriggerResource()
                 .redirectToAction();
 
@@ -58,8 +58,7 @@ public class RestTriggerResourceTest {
     }
 
     @Test
-    public void testDefinition() {
-
+    public void testDefinition() throws Exception {
 
         RestTriggerResource resource = new RestTriggerResource();
 
@@ -111,7 +110,7 @@ public class RestTriggerResourceTest {
     }
 
     @Test
-    public void testProcess() {
+    public void testProcess() throws Exception {
         RestTriggerResource resource = new RestTriggerResource();
         RestTriggerResource.Process process = resource.redirectToProcess();
 
