@@ -241,7 +241,7 @@
             <mp:button id="deleteButton" value="#{msg['button.delete']}"
               onclick="#{rich:component('confirmPanel')}.show();return false;"
               disabled="#{updateUserCtrl.deleteDisabled}" style="margin-right: 10px;" />
-            <mp:button id="cancelButton" onclick="#{rich:component('leaveConfirmPl')}.show();return false;"
+            <mp:button id="cancelButton" onclick="if(getDirty()){#{rich:component('leaveConfirmPl')}.show();return false;}else{#{rich:element('confirmedBackBt')}.click(); return false;};"
               value="#{msg['button.cancel']}" style="margin-right: 10px;" />
           </a4j:outputPanel>
           <h:inputHidden value="#{updateUserModel.token}" />
