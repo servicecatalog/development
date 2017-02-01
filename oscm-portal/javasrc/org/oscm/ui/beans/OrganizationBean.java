@@ -10,11 +10,7 @@ package org.oscm.ui.beans;
 import java.io.IOException;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
@@ -22,12 +18,16 @@ import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
+import javax.servlet.http.Part;
 
-import org.apache.myfaces.custom.fileupload.UploadedFile;
+import org.oscm.converter.PropertiesLoader;
+import org.oscm.internal.types.enumtypes.ImageType;
+import org.oscm.internal.types.enumtypes.UdaConfigurationType;
+import org.oscm.internal.types.exception.*;
+import org.oscm.internal.usergroupmgmt.POUserGroup;
 import org.oscm.internal.vo.*;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
-import org.oscm.converter.PropertiesLoader;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
 import org.oscm.ui.common.ExceptionHandler;
 import org.oscm.ui.common.ImageUploader;
@@ -35,24 +35,6 @@ import org.oscm.ui.model.Organization;
 import org.oscm.ui.model.TechnicalService;
 import org.oscm.ui.model.UdaRow;
 import org.oscm.ui.model.User;
-import org.oscm.internal.types.enumtypes.ImageType;
-import org.oscm.internal.types.enumtypes.UdaConfigurationType;
-import org.oscm.internal.types.exception.AddMarketingPermissionException;
-import org.oscm.internal.types.exception.DeletionConstraintException;
-import org.oscm.internal.types.exception.ImageException;
-import org.oscm.internal.types.exception.MailOperationException;
-import org.oscm.internal.types.exception.MarketingPermissionNotFoundException;
-import org.oscm.internal.types.exception.MarketplaceRemovedException;
-import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.types.exception.OperationNotPermittedException;
-import org.oscm.internal.types.exception.OperationPendingException;
-import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
-import org.oscm.internal.types.exception.SaaSApplicationException;
-import org.oscm.internal.types.exception.TechnicalServiceNotAliveException;
-import org.oscm.internal.types.exception.TechnicalServiceOperationException;
-import org.oscm.internal.types.exception.ValidationException;
-import org.oscm.internal.usergroupmgmt.POUserGroup;
 
 /**
  * Backing bean for organization related actions
@@ -74,7 +56,7 @@ public class OrganizationBean extends BaseBean implements Serializable {
     private User customerUserToAdd = null;
     private List<Organization> suppliersForTechnicalService;
     private List<Organization> customers;
-    private UploadedFile organizationProperties;
+    private Part organizationProperties;
     VOOrganization organization;
     private String supplierIdToAdd;
     User currentUser;
@@ -574,11 +556,11 @@ public class OrganizationBean extends BaseBean implements Serializable {
         return OUTCOME_SUCCESS;
     }
 
-    public UploadedFile getOrganizationProperties() {
+    public Part getOrganizationProperties() {
         return organizationProperties;
     }
 
-    public void setOrganizationProperties(UploadedFile organizationProperties) {
+    public void setOrganizationProperties(Part organizationProperties) {
         this.organizationProperties = organizationProperties;
     }
 
