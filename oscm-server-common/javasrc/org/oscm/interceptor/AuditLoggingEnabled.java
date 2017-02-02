@@ -14,12 +14,13 @@ import org.oscm.types.constants.Configuration;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 
 public class AuditLoggingEnabled {
-    @EJB
-    ConfigurationServiceLocal configurationService;
+    
+    /*@EJB
+    ConfigurationServiceLocal configurationService;*/
 
     @AroundInvoke
     public Object isLoggingEnabled(InvocationContext context) throws Exception {
-        Object result = null;
+        /*Object result = null;
         ConfigurationSetting setting = configurationService
                 .getConfigurationSetting(
                         ConfigurationKey.AUDIT_LOG_ENABLED,
@@ -27,6 +28,7 @@ public class AuditLoggingEnabled {
         if (Boolean.parseBoolean(setting.getValue())) {
             result = context.proceed();
         }
-        return result;
+        return result;*/
+        return false;
     }
 }
