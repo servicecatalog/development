@@ -87,6 +87,7 @@
 
   <target name="compile" if="javasrc.dir.exists" depends="_init, _copyjavares, _checkjre">
     <mkdir dir="${result.work.classes.dir}" />
+    <echo message="Path to java: ${bss.java.home.dir}"/>
     <path id="path_bootclasspath">
       <fileset dir="${bss.java.home.dir}/lib">
         <include name="**/*.jar" />
