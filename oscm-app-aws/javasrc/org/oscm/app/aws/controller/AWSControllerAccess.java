@@ -11,12 +11,9 @@ package org.oscm.app.aws.controller;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.ejb.Stateless;
-
 import org.oscm.app.aws.i18n.Messages;
 import org.oscm.app.common.intf.ControllerAccess;
 
-@Stateless
 public class AWSControllerAccess implements ControllerAccess {
 
     private static final long serialVersionUID = -5454221403279778113L;

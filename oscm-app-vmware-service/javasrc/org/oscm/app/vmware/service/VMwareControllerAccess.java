@@ -11,8 +11,6 @@ package org.oscm.app.vmware.service;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.inject.Singleton;
-
 import org.oscm.app.common.intf.ControllerAccess;
 import org.oscm.app.v2_0.APPlatformServiceFactory;
 import org.oscm.app.v2_0.data.ControllerSettings;
@@ -25,7 +23,6 @@ import org.slf4j.LoggerFactory;
 /**
  * Implements the controller access for VMware controller.
  */
-@Singleton
 public class VMwareControllerAccess implements ControllerAccess {
 
     private static final long serialVersionUID = -7227238594317311419L;
@@ -46,7 +43,7 @@ public class VMwareControllerAccess implements ControllerAccess {
     @Override
     public List<String> getControllerParameterKeys() {
         // not needed here because common configuration UI is not used
-        return new ArrayList<String>();
+        return new ArrayList<>();
     }
 
     public ControllerSettings getSettings() {

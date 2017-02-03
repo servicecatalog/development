@@ -11,7 +11,6 @@ package org.oscm.app.aws.controller;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
-import javax.ejb.Stateless;
 
 import org.oscm.app.aws.data.Server;
 import org.oscm.app.common.intf.InstanceAccess;
@@ -27,7 +26,6 @@ import org.slf4j.LoggerFactory;
  * @author tateiwamext
  * 
  */
-@Stateless
 public class AWSInstanceAccess implements InstanceAccess {
 
     // Reference to an APPlatformService instance

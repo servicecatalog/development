@@ -20,12 +20,12 @@ import java.util.Collection;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
-import javax.ejb.EJB;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.ejb.Timeout;
 import javax.ejb.Timer;
 import javax.ejb.TimerService;
+import javax.inject.Inject;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -54,7 +54,7 @@ public class Initializer {
     private long logFileLastModified = 0;
     private boolean logFileWarning = false;
 
-    @EJB
+    @Inject
     private ControllerAccess controllerAccess;
 
     public void setControllerAccess(final ControllerAccess controllerAccess) {

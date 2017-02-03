@@ -11,12 +11,9 @@ package org.oscm.app.openstack.controller;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.ejb.Stateless;
-
 import org.oscm.app.common.intf.ControllerAccess;
 import org.oscm.app.openstack.i18n.Messages;
 
-@Stateless
 public class OpenStackControllerAccess implements ControllerAccess {
 
     private static final long serialVersionUID = 8912611326487987648L;

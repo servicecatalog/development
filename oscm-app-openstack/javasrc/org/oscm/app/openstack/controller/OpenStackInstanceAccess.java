@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
-import javax.ejb.Stateless;
 
 import org.oscm.app.common.intf.InstanceAccess;
 import org.oscm.app.common.intf.ServerInformation;
@@ -32,7 +31,6 @@ import org.slf4j.LoggerFactory;
  * @author tateiwamext
  * 
  */
-@Stateless
 public class OpenStackInstanceAccess implements InstanceAccess {
 
     // Reference to an APPlatformService instance

@@ -19,10 +19,10 @@ import java.util.Locale;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
-import javax.ejb.EJB;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
+import javax.inject.Inject;
 import javax.servlet.http.HttpSession;
 
 import org.oscm.app.common.i18n.Messages;
@@ -66,7 +66,7 @@ public class ConfigurationBean implements Serializable {
     // Reference to an APPlatformService instance
     private APPlatformService platformService;
 
-    @EJB
+    @Inject
     private ControllerAccess controllerAccess;
 
     // The map with all configuration settings

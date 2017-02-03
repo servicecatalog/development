@@ -12,11 +12,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.ejb.EJB;
-import javax.ejb.Stateless;
+import javax.annotation.PostConstruct;
 
 import org.oscm.app.common.intf.InstanceAccess;
 import org.oscm.app.common.intf.ServerInformation;
+import org.oscm.app.v2_0.APPlatformServiceFactory;
 import org.oscm.app.v2_0.data.ProvisioningSettings;
 import org.oscm.app.v2_0.exceptions.APPlatformException;
 import org.oscm.app.v2_0.exceptions.AuthenticationException;
@@ -28,13 +28,16 @@ import org.oscm.app.v2_0.intf.APPlatformService;
  * 
  * @author miethaner
  */
-@Stateless
 public class SampleInstanceAccess implements InstanceAccess {
 
     private static final long serialVersionUID = 4849529207608842289L;
 
-    @EJB
     private APPlatformService platformService;
+
+    @PostConstruct
+    public void initialize() {
+        platformService = APPlatformServiceFactory.getInstance();
+    }
 
     @Override
     public List<? extends ServerInformation> getServerDetails(String instanceId,
