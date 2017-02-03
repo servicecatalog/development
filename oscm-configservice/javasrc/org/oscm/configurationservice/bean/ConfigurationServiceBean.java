@@ -131,6 +131,7 @@ public class ConfigurationServiceBean
     }
 
     @Override
+    @Lock(LockType.WRITE)
     public ConfigurationSetting getConfigurationSetting(
             ConfigurationKey informationId, String contextId) {
         if (contextId == null) {
