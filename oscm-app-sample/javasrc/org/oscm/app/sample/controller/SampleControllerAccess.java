@@ -1,26 +1,26 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                        
- *                                                                              
- *  Creation Date: 30.05.2014                                                      
+ *  Copyright FUJITSU LIMITED 2016                                           
+ *                                                                                                                                 
+ *  Creation Date: Jan 25, 2017                                                      
  *                                                                              
  *******************************************************************************/
 
-package org.oscm.app.aws.controller;
+package org.oscm.app.sample.controller;
 
 import java.util.LinkedList;
 import java.util.List;
 
-import org.oscm.app.aws.i18n.Messages;
+import org.oscm.app.common.i18n.Messages;
 import org.oscm.app.common.intf.ControllerAccess;
 
-public class AWSControllerAccess implements ControllerAccess {
+public class SampleControllerAccess implements ControllerAccess {
 
-    private static final long serialVersionUID = -5454221403279778113L;
+    private static final long serialVersionUID = -4783887274347693642L;
 
     @Override
     public String getControllerId() {
-        return AWSController.ID;
+        return SampleController.ID;
     }
 
     @Override
@@ -31,9 +31,6 @@ public class AWSControllerAccess implements ControllerAccess {
     @Override
     public List<String> getControllerParameterKeys() {
         LinkedList<String> result = new LinkedList<>();
-        result.add(PropertyHandler.ACCESS_KEY_ID_PWD);
-        result.add(PropertyHandler.SECRET_KEY_PWD);
         return result;
     }
-
 }

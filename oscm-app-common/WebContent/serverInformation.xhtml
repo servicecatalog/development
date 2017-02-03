@@ -21,12 +21,18 @@
   <script type="text/javascript" src="js/heading_data_4.js"></script>
 </h:head>
 
+<f:metadata>
+    <f:viewParam name="subId" value="#{extensionInterfaceBean.subscriptionId}" maxlength="100"/>
+    <f:viewParam name="orgId" value="#{extensionInterfaceBean.organizationId}" maxlength="100"/>
+    <f:viewParam name="instId" value="#{extensionInterfaceBean.instanceId}" maxlength="100"/>
+</f:metadata>
+
 <h:body>
   <h:outputStylesheet name="override_richfaces.css" />
   <h:outputStylesheet name="server_info_view.css" />
 
   <h2>
-      <h:outputText value="#{extensionInterfaceBean.subscriptionName}" />
+      <h:outputText value="#{extensionInterfaceBean.subscriptionId}" />
   </h2>
   <dl class="clearfix">
       <dt><h:outputText value="#{msg['ui.extensionInterface.accessInfoTitle']}" /></dt>

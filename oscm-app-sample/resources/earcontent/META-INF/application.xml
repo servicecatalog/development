@@ -12,4 +12,10 @@
       <context-root>oscm-app-sample</context-root>
     </web>
   </module>
+  <module>
+    <web>
+      <web-uri>oscm-app-common.war</web-uri>
+      <context-root>oscm-app-sample-common</context-root>
+    </web>
+  </module>
 </application>

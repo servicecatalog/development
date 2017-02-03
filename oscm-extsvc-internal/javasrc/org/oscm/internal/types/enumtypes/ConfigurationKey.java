@@ -339,17 +339,17 @@ public enum ConfigurationKey {
     @Example("false")
     HIDE_PAYMENT_INFORMATION(false, null, "boolean", true),
 
-    @Doc({ "Name of the keypair stored in the keystore used for signing SAML messages" })
+    @Doc({ "Name of the keypair stored in the keystore used for signing SAML and Customtab messages" })
     @Example("s1as")
-    SSO_SIGNING_KEY_ALIAS(false, "s1as", "string"),
+    SSO_SIGNING_KEY_ALIAS(true, "s1as", "string"),
 
-    @Doc({ "Password to the keystore containing the private key used for signing SAML messages" })
+    @Doc({ "Password to the keystore containing the private key used for signing SAML and Customtab messages" })
     @Example("changeit")
-    SSO_SIGNING_KEYSTORE_PASS(false, "changeit", "password"),
+    SSO_SIGNING_KEYSTORE_PASS(true, "changeit", "password"),
 
-    @Doc({ "Path to the truststore holding the private key used for signing SAML messages." })
+    @Doc({ "Path to the truststore holding the private key used for signing SAML and Customtab messages." })
     @Example("<path>/keystore.jks")
-    SSO_SIGNING_KEYSTORE(false, null, "string"),
+    SSO_SIGNING_KEYSTORE(true, "./keystore.jks", "string"),
 
     @Doc({ "Default tenant ID used for proper identification default tenant. String has to have length of 8 characters." })
     @Example("8f96dede")

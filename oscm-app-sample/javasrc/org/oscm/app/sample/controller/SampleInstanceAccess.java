@@ -2,50 +2,38 @@
  *                                                                              
  *  Copyright FUJITSU LIMITED 2016                                           
  *                                                                                                                                 
- *  Creation Date: 2016/11/11                                                      
+ *  Creation Date: Jan 25, 2017                                                      
  *                                                                              
  *******************************************************************************/
 
-package org.oscm.app.aws.controller;
+package org.oscm.app.sample.controller;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
 
-import org.oscm.app.aws.data.Server;
 import org.oscm.app.common.intf.InstanceAccess;
 import org.oscm.app.common.intf.ServerInformation;
 import org.oscm.app.v2_0.APPlatformServiceFactory;
 import org.oscm.app.v2_0.data.ProvisioningSettings;
 import org.oscm.app.v2_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.exceptions.AuthenticationException;
+import org.oscm.app.v2_0.exceptions.ConfigurationException;
 import org.oscm.app.v2_0.intf.APPlatformService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
- * @author tateiwamext
+ * Data provider for custom tab.
  * 
+ * @author miethaner
  */
-public class AWSInstanceAccess implements InstanceAccess {
+public class SampleInstanceAccess implements InstanceAccess {
 
-    // Reference to an APPlatformService instance
+    private static final long serialVersionUID = 4849529207608842289L;
+
     private APPlatformService platformService;
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(AWSInstanceAccess.class);
-    private static final String AWS_INSTANCE_ID_KEY = "AWS_INSTANCE_ID";
 
-    /**
-     * 
-     */
-    private static final long serialVersionUID = -4847055337273230537L;
-
-    /**
-     * Retrieves an <code>APPlatformService</code> instance.
-     * <p>
-     * The <code>APPlatformService</code> provides helper methods by which the
-     * service controller can access common APP utilities, for example, send
-     * emails or lock application instances.
-     */
     @PostConstruct
     public void initialize() {
         platformService = APPlatformServiceFactory.getInstance();
@@ -54,43 +42,42 @@ public class AWSInstanceAccess implements InstanceAccess {
     @Override
     public List<? extends ServerInformation> getServerDetails(String instanceId,
             String subscriptionId, String organizationId)
-            throws APPlatformException {
-        // TODO Replace the method which don't need authentication after
-        // implementation.
+            throws AuthenticationException, ConfigurationException,
+            APPlatformException {
+
         ProvisioningSettings settings = platformService
-                .getServiceInstanceDetails(AWSController.ID, instanceId,
+                .getServiceInstanceDetails(SampleController.ID, instanceId,
                         subscriptionId, organizationId);
         PropertyHandler ph = new PropertyHandler(settings);
-        List<Server> servers;
-        servers = new EC2Processor(ph, getAwsInstanceId(settings))
-                .getServerDetails();
+
+        List<Server> servers = new ArrayList<>();
+        Server s = new Server();
+        s.setId(instanceId);
+        s.setName(ph.getMessage());
+        s.setPrivateIP(Arrays.asList("127.0.0.1"));
+        s.setPublicIP(Arrays.asList("127.0.0.1"));
+        s.setStatus(ph.getState().name());
+        s.setType(ph.getEMail());
+        servers.add(s);
+
         return servers;
     }
 
     @Override
     public String getAccessInfo(String instanceId, String subscriptionId,
-            String organizationId) throws APPlatformException {
+            String organizationId) throws AuthenticationException,
+            ConfigurationException, APPlatformException {
+
         ProvisioningSettings settings = platformService
-                .getServiceInstanceDetails(AWSController.ID, instanceId,
+                .getServiceInstanceDetails(SampleController.ID, instanceId,
                         subscriptionId, organizationId);
+
         return settings.getServiceAccessInfo();
     }
 
     @Override
     public String getMessage(String locale, String key, Object... arguments) {
-        // TODO Auto-generated method stub
         return null;
-    }
-
-    /**
-     * Retrieves AWS instance ID corresponding to the instanceId from APP
-     * database.
-     *
-     * @param settings
-     * @return
-     */
-    private String getAwsInstanceId(ProvisioningSettings settings) {
-        return settings.getParameters().get(AWS_INSTANCE_ID_KEY).getValue();
     }
 
 }

@@ -10,8 +10,8 @@ package org.oscm.ui.dialog.mp.usesubscriptions;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
@@ -19,37 +19,53 @@ import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.same;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.doReturn;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.nio.file.Files;
+import java.security.KeyStore;
+import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import javax.faces.context.ExternalContext;
 import javax.faces.model.SelectItem;
 
+import org.apache.commons.codec.binary.Base64;
 import org.junit.Before;
 import org.junit.Test;
-import org.oscm.ui.beans.ApplicationBean;
-import org.oscm.ui.common.UiDelegate;
+import org.mockito.Mockito;
+import org.oscm.internal.intf.ConfigurationService;
 import org.oscm.internal.intf.SubscriptionService;
 import org.oscm.internal.subscriptions.OperationModel;
 import org.oscm.internal.subscriptions.OperationParameterModel;
 import org.oscm.internal.subscriptions.POSubscription;
 import org.oscm.internal.subscriptions.SubscriptionsService;
+import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.types.enumtypes.OperationParameterType;
 import org.oscm.internal.types.enumtypes.SubscriptionStatus;
 import org.oscm.internal.types.exception.ConcurrentModificationException;
+import org.oscm.internal.vo.VOConfigurationSetting;
 import org.oscm.internal.vo.VOServiceOperationParameter;
 import org.oscm.internal.vo.VOServiceOperationParameterValues;
 import org.oscm.internal.vo.VOSubscription;
 import org.oscm.internal.vo.VOTechnicalServiceOperation;
+import org.oscm.types.constants.Configuration;
+import org.oscm.ui.beans.ApplicationBean;
+import org.oscm.ui.common.UiDelegate;
+
+import sun.security.x509.CertAndKeyGen;
+import sun.security.x509.X500Name;
 
 public class MySubscriptionsCtrlTest {
 
@@ -62,6 +78,7 @@ public class MySubscriptionsCtrlTest {
 
     private SubscriptionService subSvc;
     private SubscriptionsService subsSvc;
+    private ConfigurationService configSvc;
 
     UiDelegate ui;
 
@@ -90,6 +107,9 @@ public class MySubscriptionsCtrlTest {
 
         subSvc = mock(SubscriptionService.class);
         ctrl.setSubscriptionService(subSvc);
+
+        configSvc = mock(ConfigurationService.class);
+        ctrl.config = configSvc;
     }
 
     @Test
@@ -211,20 +231,86 @@ public class MySubscriptionsCtrlTest {
         // then
         verify(subsSvc, times(1)).getMySubscriptionDetails(anyLong());
     }
-    
+
     @Test
     public void checkSubscription_concurrentlyRemoved() {
 
         // given
         initSubscription(model);
-        assertNotNull("Selected subscription was not selected yet", model.getSelectedSubscription());
-        
+        assertNotNull("Selected subscription was not selected yet",
+                model.getSelectedSubscription());
+
         // when
         ctrl.checkSelectedSubscription();
         doReturn(null).when(subsSvc).getMySubscriptionDetails(anyLong());
 
         // then
         assertNull(model.getSelectedSubscription());
+    }
+
+    @Test
+    public void testCustomerTabURL() throws Exception {
+        CertAndKeyGen gen = new CertAndKeyGen("RSA", "SHA1WithRSA", null);
+        gen.generate(1024);
+        X509Certificate cert = gen.getSelfCertificate(new X500Name("CN=ROOT"),
+                new Date(), 10000000);
+
+        KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
+
+        String alias = "temp123";
+        String loc = "./temp.jks";
+        String password = "changeit";
+        ks.load(null, password.toCharArray());
+
+        ks.setKeyEntry(alias, gen.getPrivateKey(), password.toCharArray(),
+                new Certificate[] { cert });
+
+        FileOutputStream fos = new FileOutputStream(loc);
+        ks.store(fos, password.toCharArray());
+        fos.close();
+
+        VOConfigurationSetting settingLoc = new VOConfigurationSetting();
+        settingLoc.setValue(loc);
+        Mockito.when(configSvc.getVOConfigurationSetting(
+                ConfigurationKey.SSO_SIGNING_KEYSTORE,
+                Configuration.GLOBAL_CONTEXT)).thenReturn(settingLoc);
+
+        VOConfigurationSetting settingPwd = new VOConfigurationSetting();
+        settingPwd.setValue(password);
+        Mockito.when(configSvc.getVOConfigurationSetting(
+                ConfigurationKey.SSO_SIGNING_KEYSTORE_PASS,
+                Configuration.GLOBAL_CONTEXT)).thenReturn(settingPwd);
+
+        VOConfigurationSetting settingAlias = new VOConfigurationSetting();
+        settingAlias.setValue(alias);
+        Mockito.when(configSvc.getVOConfigurationSetting(
+                ConfigurationKey.SSO_SIGNING_KEY_ALIAS,
+                Configuration.GLOBAL_CONTEXT)).thenReturn(settingAlias);
+
+        String instId = "instance";
+        String orgId = "organization";
+        String subId = "subscription";
+        String path = "http://abc.de/context";
+
+        VOSubscription sub = new VOSubscription();
+        sub.setServiceInstanceId(instId);
+        sub.setOrganizationId(orgId);
+        sub.setSubscriptionId(subId);
+        sub.setCustomTabUrl(path);
+
+        model.setSelectedSubscription(new POSubscription(sub));
+
+        String urlStr = ctrl.getCustomTabUrlWithParameters();
+
+        assertTrue(urlStr.length() > 0);
+        assertTrue(urlStr
+                .contains(Base64.encodeBase64URLSafeString(instId.getBytes())));
+        assertTrue(urlStr
+                .contains(Base64.encodeBase64URLSafeString(orgId.getBytes())));
+        assertTrue(urlStr
+                .contains(Base64.encodeBase64URLSafeString(subId.getBytes())));
+
+        Files.delete(new File(loc).toPath());
     }
 
     private static final List<String> initValues(SubscriptionService subSvc,
