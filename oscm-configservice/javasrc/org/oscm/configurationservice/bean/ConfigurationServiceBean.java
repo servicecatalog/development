@@ -60,7 +60,6 @@ import org.oscm.types.enumtypes.LogMessageIdentifier;
 @Remote(ConfigurationService.class)
 @Interceptors({ ExceptionMapper.class })
 @ConcurrencyManagement(ConcurrencyManagementType.CONTAINER)
-@Lock(LockType.READ)
 public class ConfigurationServiceBean
         implements ConfigurationService, ConfigurationServiceLocal {
 
@@ -131,7 +130,6 @@ public class ConfigurationServiceBean
     }
 
     @Override
-    @Lock(LockType.WRITE)
     public ConfigurationSetting getConfigurationSetting(
             ConfigurationKey informationId, String contextId) {
         if (contextId == null) {
