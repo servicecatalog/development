@@ -136,15 +136,6 @@ public class VMPropertyHandler {
      */
     public static final String CTL_CMDB_FOLDER = "CMDB_FOLDER";
 
-    /**
-     * NOW-IT Nagios integration
-     */
-    public static final String CTL_NAGIOS_SERVER = "NAGIOS_SERVER";
-
-    /**
-     * NOW-IT Nagios integration
-     */
-    public static final String CTL_NAGIOS_SITE = "NAGIOS_SITE";
 
     /**
      * The key of the last invoked vSphere task. This vSphere identifier
@@ -245,6 +236,11 @@ public class VMPropertyHandler {
      * Size of custom data disk (GB).
      */
     public static final String TS_DATA_DISK_SIZE = "DATA_DISK_SIZE_#";
+
+    /**
+     * Datastore of custom data disk (optional).
+     */
+    public static final String TS_DATA_DISK_STORAGE = "DATA_DISK_STORAGE_#";;
 
     /**
      * Target location for the data disk, e.g. /home/user/data for Linux VM or
@@ -665,6 +661,19 @@ public class VMPropertyHandler {
         }
 
         return ddlist.toArray(new Double[ddlist.size()]);
+    }
+
+    /**
+     * Returns the list of storage names for additionally defined data disks .
+     *
+     * @return a list of String values for all defined data disks
+     */
+    public String getDataDisksStorageName(int index) {
+        String diskPrefix = TS_DATA_DISK_STORAGE.replace("#",
+                Integer.toString(index));
+        String result = getServiceSetting(diskPrefix);
+        logger.debug("retrieve name for disk " + index + " value: " + result);
+        return result;
     }
 
     /**

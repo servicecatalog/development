@@ -94,7 +94,7 @@ public class DiskManager {
                 ++maxDeviceKey;
                 ++maxUnitNumber;
                 VirtualDeviceConfigSpec vmDeviceSpec = createNewDataDisk(
-                        vdSystemDisk, newDiskSpace, maxDeviceKey, maxUnitNumber);
+                        vdSystemDisk, paramHandler.getDataDisksStorageName(vdIndex), newDiskSpace, maxDeviceKey, maxUnitNumber);
                 vmConfigSpec.getDeviceChange().add(vmDeviceSpec);
                 paramHandler.setDataDiskKey(vdIndex, maxDeviceKey);
             } else {
@@ -139,15 +139,20 @@ public class DiskManager {
     }
 
     private VirtualDeviceConfigSpec createNewDataDisk(VirtualDisk vdSystemDisk,
-            long newDiskSpace, int deviceKey, int unitNumber) throws Exception {
+            String storageName, long newDiskSpace, int deviceKey, int unitNumber) throws Exception {
+        String vmDatastoreName = null;
+        if (storageName == null || storageName.equals("")) {
+            ManagedObjectReference vmDatastore = ((VirtualDeviceFileBackingInfo) vdSystemDisk
+                    .getBacking()).getDatastore();
+
+            vmDatastoreName = (String) vmw.getServiceUtil()
+                    .getDynamicProperty(vmDatastore, "summary.name");
+        } else {
+            vmDatastoreName = storageName;
+        }
 
         logger.info("reconfigureDisks() create data disk space with "
-                + newDiskSpace + " KB");
-
-        ManagedObjectReference vmDatastore = ((VirtualDeviceFileBackingInfo) vdSystemDisk
-                .getBacking()).getDatastore();
-        String vmDatastoreName = (String) vmw.getServiceUtil()
-                .getDynamicProperty(vmDatastore, "summary.name");
+                + newDiskSpace + " KB on " + vmDatastoreName);
 
         VirtualDisk vdDataDisk = new VirtualDisk();
         VirtualDiskFlatVer2BackingInfo diskfileBacking = new VirtualDiskFlatVer2BackingInfo();
