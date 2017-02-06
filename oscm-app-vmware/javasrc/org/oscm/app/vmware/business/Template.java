@@ -30,10 +30,14 @@ import com.vmware.vim25.CustomizationGuiRunOnce;
 import com.vmware.vim25.CustomizationGuiUnattended;
 import com.vmware.vim25.CustomizationIPSettings;
 import com.vmware.vim25.CustomizationIdentification;
+import com.vmware.vim25.CustomizationLicenseDataMode;
+import com.vmware.vim25.CustomizationLicenseFilePrintData;
 import com.vmware.vim25.CustomizationLinuxOptions;
 import com.vmware.vim25.CustomizationLinuxPrep;
 import com.vmware.vim25.CustomizationPassword;
 import com.vmware.vim25.CustomizationSpec;
+import com.vmware.vim25.CustomizationSpecInfo;
+import com.vmware.vim25.CustomizationSpecItem;
 import com.vmware.vim25.CustomizationSysprep;
 import com.vmware.vim25.CustomizationUserData;
 import com.vmware.vim25.CustomizationVirtualMachineName;
@@ -41,6 +45,7 @@ import com.vmware.vim25.CustomizationWinOptions;
 import com.vmware.vim25.DatastoreHostMount;
 import com.vmware.vim25.DynamicProperty;
 import com.vmware.vim25.ManagedObjectReference;
+import com.vmware.vim25.RuntimeFaultFaultMsg;
 import com.vmware.vim25.TaskInfo;
 import com.vmware.vim25.VimPortType;
 import com.vmware.vim25.VirtualDevice;
@@ -55,17 +60,27 @@ public class Template {
             .getLogger(Template.class);
     private static final int DEFAULT_TIMEZONE = 110;
     protected VMwareClient vmw;
+    protected VMPropertyHandler paramHandler;
 
     /**
-     * Creates a new VMware instance based on a given template.
-     * 
+     * Constructor
+     *
      * @param vmw
      *            connected VMware client entity
      * @param paramHandler
      *            entity which holds all properties of the instance.
+     */
+    public Template(VMwareClient vmw, VMPropertyHandler paramHandler) {
+        this.vmw = vmw;
+        this.paramHandler = paramHandler;
+    }
+
+    /**
+     * Creates a new VMware instance based on a given template.
+     * 
      * @return name of the created instance
      */
-    public TaskInfo cloneVM(VMPropertyHandler paramHandler) throws Exception {
+    public TaskInfo cloneVM() throws Exception {
         logger.info("cloneVMFromTemplate() template: "
                 + paramHandler.getTemplateName());
 
@@ -134,14 +149,13 @@ public class Template {
         }
 
         VirtualMachineCloneSpec cloneSpec = new VirtualMachineCloneSpec();
-        VirtualMachineRelocateSpec relocSpec = setHostAndStorage(vmw,
-                paramHandler, vmDataCenter, datacenter, cluster);
+        VirtualMachineRelocateSpec relocSpec = setHostAndStorage(vmDataCenter,
+                datacenter, cluster);
         cloneSpec.setLocation(relocSpec);
         cloneSpec.setPowerOn(false);
         cloneSpec.setTemplate(false);
 
-        CustomizationSpec custSpec = getCustomizationSpec(configSpec,
-                paramHandler);
+        CustomizationSpec custSpec = getCustomizationSpec(configSpec);
         cloneSpec.setCustomization(custSpec);
 
         VirtualMachineConfigSpec vmConfSpec = new VirtualMachineConfigSpec();
@@ -199,8 +213,7 @@ public class Template {
      * @return filled VMware customization block
      */
     private CustomizationSpec getCustomizationSpec(
-            VirtualMachineConfigInfo configSpec, VMPropertyHandler paramHandler)
-            throws APPlatformException {
+            VirtualMachineConfigInfo configSpec) throws APPlatformException {
 
         String guestid = configSpec.getGuestId();
         if (guestid == null) {
@@ -235,6 +248,13 @@ public class Template {
         CustomizationGlobalIPSettings gIP = new CustomizationGlobalIPSettings();
         cspec.setGlobalIPSettings(gIP);
 
+        String[] dnssuffix = paramHandler.getDNSSuffix(1).split(",");
+        for (String suffix : dnssuffix) {
+            logger.debug(
+                    "Linux -> CustomizationGlobalIPSettings -> DNS suffix: "
+                            + suffix);
+            gIP.getDnsSuffixList().add(suffix.trim());
+        }
         if (isLinux) {
             String[] dnsserver = paramHandler.getDNSServer(1).split(",");
             for (String server : dnsserver) {
@@ -242,14 +262,6 @@ public class Template {
                         "Linux -> CustomizationGlobalIPSettings -> DNS server: "
                                 + server);
                 gIP.getDnsServerList().add(server.trim());
-            }
-
-            String[] dnssuffix = paramHandler.getDNSSuffix(1).split(",");
-            for (String suffix : dnssuffix) {
-                logger.debug(
-                        "Linux -> CustomizationGlobalIPSettings -> DNS suffix: "
-                                + suffix);
-                gIP.getDnsSuffixList().add(suffix.trim());
             }
 
             CustomizationLinuxPrep sprep = new CustomizationLinuxPrep();
@@ -336,6 +348,10 @@ public class Template {
                 sprep.setGuiRunOnce(guiRunOnce);
             }
 
+            CustomizationLicenseFilePrintData lic = new CustomizationLicenseFilePrintData();
+            lic.setAutoMode(CustomizationLicenseDataMode.PER_SERVER);
+            lic.setAutoUsers(5);
+            sprep.setLicenseFilePrintData(lic);
             CustomizationUserData userData = new CustomizationUserData();
             userData.setComputerName(new CustomizationVirtualMachineName());
 
@@ -406,6 +422,24 @@ public class Template {
             cspec.getNicSettingMap().add(networkAdapter);
         }
 
+        ManagedObjectReference customSpecManager = vmw.getConnection()
+                .getServiceContent().getCustomizationSpecManager();
+        CustomizationSpecItem item = new CustomizationSpecItem();
+        item.setSpec(cspec);
+        CustomizationSpecInfo info = new CustomizationSpecInfo();
+        info.setChangeVersion("");
+        info.setDescription("CTMG-Provisioning");
+        info.setName("CTMG-Provisioning");
+        info.setType(isWindows ? "Windows" : "Linux");
+        item.setInfo(info);
+        try {
+            String xml = vmw.getService()
+                    .customizationSpecItemToXml(customSpecManager, item);
+            logger.debug(xml);
+        } catch (RuntimeFaultFaultMsg e) {
+            logger.error("Failed to generate customization spec xml.", e);
+        }
+
         return cspec;
     }
 
@@ -413,9 +447,9 @@ public class Template {
      * If host and storage are not defined as technical service parameter then
      * the load balancing mechanism is used to determine host and storage
      */
-    private VirtualMachineRelocateSpec setHostAndStorage(VMwareClient vmw,
-            VMPropertyHandler paramHandler, ManagedObjectReference vmDataCenter,
-            String datacenter, String cluster) throws Exception {
+    private VirtualMachineRelocateSpec setHostAndStorage(
+            ManagedObjectReference vmDataCenter, String datacenter,
+            String cluster) throws Exception {
         logger.debug("datacenter: " + datacenter + " cluster: " + cluster);
         String xmlData = paramHandler.getHostLoadBalancerConfig();
         VirtualMachineRelocateSpec relocSpec = new VirtualMachineRelocateSpec();
@@ -427,7 +461,7 @@ public class Template {
         if (hostName == null || hostName.trim().length() == 0) {
             logger.debug(
                     "target host not set. get host and storage from loadbalancer");
-            VMwareDatacenterInventory inventory = readDatacenterInventory(vmw,
+            VMwareDatacenterInventory inventory = readDatacenterInventory(
                     datacenter, cluster);
             LoadBalancerConfiguration balancerConfig = new LoadBalancerConfiguration(
                     xmlData, inventory);
@@ -441,7 +475,7 @@ public class Template {
                 logger.debug(
                         "target storage not set. get host and storage from loadbalancer");
                 VMwareDatacenterInventory inventory = readDatacenterInventory(
-                        vmw, datacenter, cluster);
+                        datacenter, cluster);
                 VMwareHost host = inventory.getHost(hostName);
                 VMwareStorage storage = host.getNextStorage(paramHandler);
                 storageName = storage.getName();
@@ -505,12 +539,11 @@ public class Template {
     }
 
     @SuppressWarnings("unchecked")
-    private VMwareDatacenterInventory readDatacenterInventory(
-            VMwareClient appUtil, String datacenter, String cluster)
-            throws Exception {
+    private VMwareDatacenterInventory readDatacenterInventory(String datacenter,
+            String cluster) throws Exception {
         logger.debug("datacenter: " + datacenter + " cluster: " + cluster);
 
-        ManagedObjectAccessor serviceUtil = appUtil.getServiceUtil();
+        ManagedObjectAccessor serviceUtil = vmw.getServiceUtil();
 
         ManagedObjectReference dcMoRef = serviceUtil.getDecendentMoRef(null,
                 "Datacenter", datacenter);

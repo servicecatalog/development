@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import com.vmware.vim25.GuestInfo;
 import com.vmware.vim25.GuestNicInfo;
+import com.vmware.vim25.GuestStackInfo;
 import com.vmware.vim25.ManagedObjectReference;
 import com.vmware.vim25.TaskInfo;
 import com.vmware.vim25.VimPortType;
@@ -31,7 +32,7 @@ import com.vmware.vim25.VirtualMachineConfigSpec;
 import com.vmware.vim25.VirtualMachinePowerState;
 import com.vmware.vim25.VirtualMachineRuntimeInfo;
 
-public class VM extends Template {
+public class VM {
 
     private static final Logger LOG = LoggerFactory.getLogger(VM.class);
 
@@ -43,9 +44,13 @@ public class VM extends Template {
     private ManagedObjectReference folder;
     private GuestInfo guestInfo;
     private String instanceName;
+    private VMPropertyHandler paramHandler;
+    private VMwareClient vmw;
 
-    public VM(VMwareClient vmw, String instanceName) throws Exception {
+    public VM(VMwareClient vmw, VMPropertyHandler paramHandler,
+            String instanceName) throws Exception {
         this.vmw = vmw;
+        this.paramHandler = paramHandler;
         this.instanceName = instanceName;
 
         vmInstance = vmw.getServiceUtil().getDecendentMoRef(null,
@@ -63,6 +68,11 @@ public class VM extends Template {
             throw new Exception(
                     "Failed to retrieve information of VM " + instanceName);
         }
+    }
+
+    public VM(VMwareClient vmw, VMPropertyHandler paramHandler)
+            throws Exception {
+        this(vmw, paramHandler, paramHandler.getInstanceName());
     }
 
     public String getGuestFullName() {
@@ -217,7 +227,7 @@ public class VM extends Template {
         return folder;
     }
 
-    public void runScript(VMPropertyHandler paramHandler) throws Exception {
+    public void runScript() throws Exception {
         LOG.debug("instanceName: " + instanceName);
 
         String scriptURL = paramHandler
@@ -553,6 +563,10 @@ public class VM extends Template {
         return configSpec.getHardware().getNumCoresPerSocket();
     }
 
+    public String getMemoryMB() {
+        return Integer.toString(configSpec.getHardware().getMemoryMB());
+    }
+
     public String getCPUModel(VMPropertyHandler paramHandler) throws Exception {
         String datacenter = paramHandler.getTargetDatacenter();
         ManagedObjectReference dataCenterRef = vmw.getServiceUtil()
@@ -582,7 +596,14 @@ public class VM extends Template {
      * @return fully qualified domain name
      */
     public String getFQDN() {
-        // TODO do not remove method. Please implement, return FQDN
-        return "";
+        String domain = "";
+        for (GuestStackInfo stackInfo : guestInfo.getIpStack()) {
+            domain = stackInfo.getDnsConfig().getDomainName();
+            if (domain != null && domain.length() > 0) {
+                break;
+            }
+        }
+
+        return domain;
     }
 }

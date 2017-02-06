@@ -68,7 +68,7 @@ public class Actions {
         try {
             vmClient = VMClientPool.getInstance().getPool()
                     .borrowObject(vcenter);
-            VM vm = new VM(vmClient, ph.getInstanceName());
+            VM vm = new VM(vmClient, ph);
             TaskInfo tInfo = vm.reconfigureVirtualMachine(ph);
             ph.setTask(tInfo);
             return EVENT_CONFIGURING;
@@ -105,7 +105,7 @@ public class Actions {
         try {
             vmClient = VMClientPool.getInstance().getPool()
                     .borrowObject(vcenter);
-            VM vm = new VM(vmClient, ph.getInstanceName());
+            VM vm = new VM(vmClient, ph);
             vm.stop(false);
             return EVENT_STOPPED;
         } catch (Exception e) {
@@ -141,7 +141,7 @@ public class Actions {
         try {
             vmClient = VMClientPool.getInstance().getPool()
                     .borrowObject(vcenter);
-            VM vm = new VM(vmClient, ph.getInstanceName());
+            VM vm = new VM(vmClient, ph);
             TaskInfo tInfo = vm.stop(true);
             ph.setTask(tInfo);
             return EVENT_STOPPING;
@@ -175,7 +175,7 @@ public class Actions {
         try {
             vmClient = VMClientPool.getInstance().getPool()
                     .borrowObject(vcenter);
-            VM vm = new VM(vmClient, ph.getInstanceName());
+            VM vm = new VM(vmClient, ph);
             TaskInfo tInfo = vm.start();
             ph.setTask(tInfo);
             return EVENT_STARTING;
@@ -210,8 +210,7 @@ public class Actions {
         try {
             vmClient = VMClientPool.getInstance().getPool()
                     .borrowObject(vcenter);
-            instanceName = ph.getInstanceName();
-            VM vm = new VM(vmClient, instanceName);
+            VM vm = new VM(vmClient, ph);
             VMwareGuestSystemStatus guestStatus = vm.getState(ph);
 
             return guestStatus == VMwareGuestSystemStatus.GUEST_READY
@@ -249,8 +248,7 @@ public class Actions {
         try {
             vmClient = VMClientPool.getInstance().getPool()
                     .borrowObject(vcenter);
-            instanceName = ph.getInstanceName();
-            VM vm = new VM(vmClient, instanceName);
+            VM vm = new VM(vmClient, ph);
 
             return vm.isStopped() ? EVENT_STOPPED : EVENT_RUNNING;
         } catch (Exception e) {
@@ -284,7 +282,7 @@ public class Actions {
         try {
             vmClient = VMClientPool.getInstance().getPool()
                     .borrowObject(vcenter);
-            VM vm = new VM(vmClient, ph.getInstanceName());
+            VM vm = new VM(vmClient, ph);
             String accessInfo = vm.generateAccessInfo(ph);
             ph.setAccessInfo(accessInfo);
             result.setAccessInfo(accessInfo);

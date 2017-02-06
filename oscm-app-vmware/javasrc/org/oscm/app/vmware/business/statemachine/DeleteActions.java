@@ -51,7 +51,7 @@ public class DeleteActions extends Actions {
         try {
             vmClient = VMClientPool.getInstance().getPool()
                     .borrowObject(vcenter);
-            VM vm = new VM(vmClient, instanceName);
+            VM vm = new VM(vmClient, ph, instanceName);
             vm.isRunning();
             eventId = "exists";
         } catch (Exception e) {
@@ -83,7 +83,7 @@ public class DeleteActions extends Actions {
         try {
             vmClient = VMClientPool.getInstance().getPool()
                     .borrowObject(vcenter);
-            VM vm = new VM(vmClient, ph.getInstanceName());
+            VM vm = new VM(vmClient, ph);
             TaskInfo taskInfo = vm.delete();
             ph.setTask(taskInfo);
             return EVENT_DELETING;
