@@ -8,10 +8,20 @@
 
 package org.oscm.operatorservice.bean;
 
-import java.lang.IllegalArgumentException;
+import static org.oscm.internal.types.exception.DuplicateTenantIdException.Reason.TENANT_ALREADY_EXISTS;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Currency;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.annotation.security.RolesAllowed;
@@ -20,7 +30,6 @@ import javax.ejb.Remote;
 import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
-import javax.persistence.NoResultException;
 import javax.persistence.Query;
 
 import org.oscm.accountservice.assembler.OrganizationAssembler;
@@ -31,9 +40,30 @@ import org.oscm.auditlog.bean.AuditLogServiceBean;
 import org.oscm.billingservice.service.BillingServiceLocal;
 import org.oscm.configurationservice.assembler.ConfigurationSettingAssembler;
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
-import org.oscm.converter.*;
+import org.oscm.converter.CsvCreator;
+import org.oscm.converter.LocaleHandler;
+import org.oscm.converter.ParameterizedTypes;
+import org.oscm.converter.PriceConverter;
+import org.oscm.converter.XMLConverter;
 import org.oscm.dataservice.local.DataService;
-import org.oscm.domobjects.*;
+import org.oscm.domobjects.BillingResult;
+import org.oscm.domobjects.ConfigurationSetting;
+import org.oscm.domobjects.ImageResource;
+import org.oscm.domobjects.Marketplace;
+import org.oscm.domobjects.Organization;
+import org.oscm.domobjects.OrganizationRefToPaymentType;
+import org.oscm.domobjects.OrganizationReference;
+import org.oscm.domobjects.OrganizationRole;
+import org.oscm.domobjects.OrganizationToRole;
+import org.oscm.domobjects.PSP;
+import org.oscm.domobjects.PSPAccount;
+import org.oscm.domobjects.PSPSetting;
+import org.oscm.domobjects.PaymentType;
+import org.oscm.domobjects.PlatformUser;
+import org.oscm.domobjects.RevenueShareModel;
+import org.oscm.domobjects.SupportedCountry;
+import org.oscm.domobjects.SupportedCurrency;
+import org.oscm.domobjects.Tenant;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.domobjects.enums.OrganizationReferenceType;
 import org.oscm.domobjects.enums.RevenueShareModelType;
@@ -46,12 +76,42 @@ import org.oscm.interceptor.ExceptionMapper;
 import org.oscm.interceptor.InvocationDateContainer;
 import org.oscm.interceptor.ServiceProviderInterceptor;
 import org.oscm.internal.intf.OperatorService;
-import org.oscm.internal.types.enumtypes.*;
-import org.oscm.internal.types.exception.*;
+import org.oscm.internal.types.enumtypes.ConfigurationKey;
+import org.oscm.internal.types.enumtypes.ImageType;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.PaymentCollectionType;
+import org.oscm.internal.types.enumtypes.UserAccountStatus;
+import org.oscm.internal.types.exception.AddMarketingPermissionException;
+import org.oscm.internal.types.exception.AuditLogTooManyRowsException;
 import org.oscm.internal.types.exception.ConcurrentModificationException;
+import org.oscm.internal.types.exception.DistinguishedNameException;
+import org.oscm.internal.types.exception.DuplicateTenantIdException;
+import org.oscm.internal.types.exception.ImageException;
+import org.oscm.internal.types.exception.IncompatibleRolesException;
+import org.oscm.internal.types.exception.MailOperationException;
+import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.internal.types.exception.OperationNotPermittedException;
+import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
+import org.oscm.internal.types.exception.OrganizationAuthorityException;
+import org.oscm.internal.types.exception.PSPIdentifierForSellerException;
+import org.oscm.internal.types.exception.PaymentDataException;
 import org.oscm.internal.types.exception.PaymentDataException.Reason;
+import org.oscm.internal.types.exception.SaaSSystemException;
+import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.internal.types.exception.ValidationException.ReasonEnum;
-import org.oscm.internal.vo.*;
+import org.oscm.internal.vo.LdapProperties;
+import org.oscm.internal.vo.VOConfigurationSetting;
+import org.oscm.internal.vo.VOImageResource;
+import org.oscm.internal.vo.VOOperatorOrganization;
+import org.oscm.internal.vo.VOOrganization;
+import org.oscm.internal.vo.VOPSP;
+import org.oscm.internal.vo.VOPSPAccount;
+import org.oscm.internal.vo.VOPSPSetting;
+import org.oscm.internal.vo.VOPaymentType;
+import org.oscm.internal.vo.VOTimerInfo;
+import org.oscm.internal.vo.VOUser;
+import org.oscm.internal.vo.VOUserDetails;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.marketplaceservice.local.MarketplaceServiceLocal;
@@ -67,8 +127,6 @@ import org.oscm.types.exceptions.BillingRunFailed;
 import org.oscm.validation.ArgumentValidator;
 import org.oscm.validator.BLValidator;
 import org.oscm.validator.OrganizationRoleValidator;
-
-import static org.oscm.internal.types.exception.DuplicateTenantIdException.Reason.TENANT_ALREADY_EXISTS;
 
 /**
  * Bean implementation of the operator related functionality.
@@ -139,21 +197,22 @@ public class OperatorServiceBean implements OperatorService {
     @Override
     @RolesAllowed("PLATFORM_OPERATOR")
     public VOOrganization registerOrganization(VOOrganization organization,
-        VOImageResource voImageResource, VOUserDetails orgInitialUser,
-        LdapProperties organizationProperties, String marketplaceID,
-        OrganizationRoleType... rolesToGrant)
-                    throws NonUniqueBusinessKeyException, ValidationException,
-                    OrganizationAuthorityException, IncompatibleRolesException,
-                    MailOperationException, OrganizationAuthoritiesException,
-                    ObjectNotFoundException, ImageException {
+            VOImageResource voImageResource, VOUserDetails orgInitialUser,
+            LdapProperties organizationProperties, String marketplaceID,
+            OrganizationRoleType... rolesToGrant)
+            throws NonUniqueBusinessKeyException, ValidationException,
+            OrganizationAuthorityException, IncompatibleRolesException,
+            MailOperationException, OrganizationAuthoritiesException,
+            ObjectNotFoundException, ImageException {
         try {
 
             if (rolesToGrant == null) {
                 rolesToGrant = new OrganizationRoleType[0];
             }
-            
-            checkMarketplaceIDForCreateOrganization(marketplaceID, rolesToGrant);
-            
+
+            checkMarketplaceIDForCreateOrganization(marketplaceID,
+                    rolesToGrant);
+
             if (rolesAreInvalid(rolesToGrant)) {
                 OrganizationAuthorityException iao = new OrganizationAuthorityException(
                         "Creation of organization failed, invalid role to be granted",
@@ -240,7 +299,7 @@ public class OperatorServiceBean implements OperatorService {
             throw e;
         }
     }
-    
+
     /**
      * when creating a customer, the roles should be null or empty, then the
      * marketplaceID is mandatory.
@@ -250,8 +309,8 @@ public class OperatorServiceBean implements OperatorService {
      * @throws ValidationException
      * @throws ObjectNotFoundException
      */
-    private void checkMarketplaceIDForCreateOrganization(
-            String marketplaceID, OrganizationRoleType... roles)
+    private void checkMarketplaceIDForCreateOrganization(String marketplaceID,
+            OrganizationRoleType... roles)
             throws ValidationException, ObjectNotFoundException {
         if (roles.length == 0) {
             if (marketplaceID == null || marketplaceID.trim().length() == 0) {
@@ -261,7 +320,7 @@ public class OperatorServiceBean implements OperatorService {
             } else {
                 validateMarketplaceID(marketplaceID);
             }
-        } 
+        }
     }
 
     /**
@@ -282,7 +341,7 @@ public class OperatorServiceBean implements OperatorService {
             throw e;
         }
     }
-    
+
     private boolean rolesAreInvalid(OrganizationRoleType... roles) {
         for (OrganizationRoleType role : roles) {
             if ((role == null) || (role != OrganizationRoleType.SUPPLIER
@@ -329,7 +388,7 @@ public class OperatorServiceBean implements OperatorService {
      */
     private void createOperatorPriceModel(Organization org,
             BigDecimal operatorRevenueShare)
-                    throws NonUniqueBusinessKeyException {
+            throws NonUniqueBusinessKeyException {
         RevenueShareModel operatorPriceModel = new RevenueShareModel();
         operatorPriceModel.setRevenueShare(operatorRevenueShare);
         operatorPriceModel.setRevenueShareModelType(
@@ -352,7 +411,7 @@ public class OperatorServiceBean implements OperatorService {
      */
     private void updateOperatorRevenueShare(Organization org,
             BigDecimal operatorRevenueShare)
-                    throws NonUniqueBusinessKeyException, ValidationException {
+            throws NonUniqueBusinessKeyException, ValidationException {
         if (operatorRevenueShareIsInvalid(operatorRevenueShare,
                 org.getGrantedRoleTypes())) {
             ValidationException validationException = new ValidationException(
@@ -451,9 +510,9 @@ public class OperatorServiceBean implements OperatorService {
     }
 
     private void addOrganizationToRoleIntern(String organizationId,
-            OrganizationRoleType role) throws OrganizationAuthorityException,
-                    IncompatibleRolesException, ObjectNotFoundException,
-                    AddMarketingPermissionException {
+            OrganizationRoleType role)
+            throws OrganizationAuthorityException, IncompatibleRolesException,
+            ObjectNotFoundException, AddMarketingPermissionException {
 
         if (role == null || role != OrganizationRoleType.SUPPLIER
                 && role != OrganizationRoleType.TECHNOLOGY_PROVIDER
@@ -486,9 +545,8 @@ public class OperatorServiceBean implements OperatorService {
     @RolesAllowed("PLATFORM_OPERATOR")
     public void addOrganizationToRole(String organizationId,
             OrganizationRoleType role) throws OrganizationAuthorityException,
-                    IncompatibleRolesException, ObjectNotFoundException,
-                    OrganizationAuthoritiesException,
-                    AddMarketingPermissionException {
+            IncompatibleRolesException, ObjectNotFoundException,
+            OrganizationAuthoritiesException, AddMarketingPermissionException {
         try {
             addOrganizationToRoleIntern(organizationId, role);
         } catch (OrganizationAuthorityException e) {
@@ -507,9 +565,9 @@ public class OperatorServiceBean implements OperatorService {
     }
 
     private void addAvailablePaymentTypesIntern(VOOrganization supplier,
-            Set<String> types) throws ObjectNotFoundException,
-                    OrganizationAuthorityException,
-                    PSPIdentifierForSellerException, PaymentDataException {
+            Set<String> types)
+            throws ObjectNotFoundException, OrganizationAuthorityException,
+            PSPIdentifierForSellerException, PaymentDataException {
 
         Organization operator = dm.getCurrentUser().getOrganization();
 
@@ -612,9 +670,9 @@ public class OperatorServiceBean implements OperatorService {
     @Override
     @RolesAllowed("PLATFORM_OPERATOR")
     public void addAvailablePaymentTypes(VOOrganization supplier,
-            Set<String> types) throws ObjectNotFoundException,
-                    OrganizationAuthorityException,
-                    PSPIdentifierForSellerException, PaymentDataException {
+            Set<String> types)
+            throws ObjectNotFoundException, OrganizationAuthorityException,
+            PSPIdentifierForSellerException, PaymentDataException {
 
         // Delegate the call to the internal method.
         // Add transaction management here if needed.
@@ -692,8 +750,8 @@ public class OperatorServiceBean implements OperatorService {
     @RolesAllowed("PLATFORM_OPERATOR")
     public void setDistinguishedName(String organizationId,
             String distinguishedName)
-                    throws ObjectNotFoundException, DistinguishedNameException,
-                    OrganizationAuthoritiesException, ValidationException {
+            throws ObjectNotFoundException, DistinguishedNameException,
+            OrganizationAuthoritiesException, ValidationException {
         Organization organization = getOrganizationInt(organizationId);
 
         BLValidator.isDN("distinguishedName", distinguishedName, false);
@@ -709,12 +767,12 @@ public class OperatorServiceBean implements OperatorService {
     @Override
     @RolesAllowed("PLATFORM_OPERATOR")
     public byte[] getOrganizationBillingData(long from, long to,
-            String organizationId) throws ObjectNotFoundException,
-                    OrganizationAuthoritiesException {
+            String organizationId)
+            throws ObjectNotFoundException, OrganizationAuthoritiesException {
 
         Organization organization = getOrganizationInt(organizationId);
 
-        final List<String> fragments = new ArrayList<String>();
+        final List<String> fragments = new ArrayList<>();
         try {
             List<BillingResult> resultList = billing
                     .generateBillingForAnyPeriod(from, to,
@@ -827,15 +885,18 @@ public class OperatorServiceBean implements OperatorService {
 
     }
 
-    private void validateDefaultTenantIdUniqueness(VOConfigurationSetting setting) throws ValidationException, DuplicateTenantIdException {
-        if (setting.getInformationId().equals(ConfigurationKey.SSO_DEFAULT_TENANT_ID)) {
+    private void validateDefaultTenantIdUniqueness(
+            VOConfigurationSetting setting)
+            throws ValidationException, DuplicateTenantIdException {
+        if (setting.getInformationId()
+                .equals(ConfigurationKey.SSO_DEFAULT_TENANT_ID)) {
             final String id = setting.getValue();
-            Query query = dm
-                    .createNamedQuery("Tenant.findByBusinessKey");
+            Query query = dm.createNamedQuery("Tenant.findByBusinessKey");
             query.setParameter("tenantId", id);
             List<Object[]> resultList = query.getResultList();
             if (!resultList.isEmpty()) {
-                throw new DuplicateTenantIdException("Default tenant ID not unique", TENANT_ALREADY_EXISTS);
+                throw new DuplicateTenantIdException(
+                        "Default tenant ID not unique", TENANT_ALREADY_EXISTS);
             }
         }
     }
@@ -872,13 +933,12 @@ public class OperatorServiceBean implements OperatorService {
     public VOOperatorOrganization updateOrganization(
             VOOperatorOrganization voOrganization,
             VOImageResource voImageResource)
-                    throws OrganizationAuthoritiesException,
-                    ObjectNotFoundException, ValidationException,
-                    ConcurrentModificationException, DistinguishedNameException,
-                    OrganizationAuthorityException, IncompatibleRolesException,
-                    PSPIdentifierForSellerException, PaymentDataException,
-                    ImageException, AddMarketingPermissionException,
-                    NonUniqueBusinessKeyException {
+            throws OrganizationAuthoritiesException, ObjectNotFoundException,
+            ValidationException, ConcurrentModificationException,
+            DistinguishedNameException, OrganizationAuthorityException,
+            IncompatibleRolesException, PSPIdentifierForSellerException,
+            PaymentDataException, ImageException,
+            AddMarketingPermissionException, NonUniqueBusinessKeyException {
         try {
             return updateOrganizationIntern(voOrganization, voImageResource);
         } catch (ObjectNotFoundException | OrganizationAuthorityException
@@ -893,13 +953,12 @@ public class OperatorServiceBean implements OperatorService {
 
     VOOperatorOrganization updateOrganizationIntern(
             VOOperatorOrganization voOrganization,
-            VOImageResource voImageResource)
-                    throws ObjectNotFoundException, ValidationException,
-                    ConcurrentModificationException, DistinguishedNameException,
-                    OrganizationAuthorityException, IncompatibleRolesException,
-                    PSPIdentifierForSellerException, PaymentDataException,
-                    ImageException, AddMarketingPermissionException,
-                    NonUniqueBusinessKeyException {
+            VOImageResource voImageResource) throws ObjectNotFoundException,
+            ValidationException, ConcurrentModificationException,
+            DistinguishedNameException, OrganizationAuthorityException,
+            IncompatibleRolesException, PSPIdentifierForSellerException,
+            PaymentDataException, ImageException,
+            AddMarketingPermissionException, NonUniqueBusinessKeyException {
 
         // Get the corresponding organization object
         Organization tmpOrganization = new Organization();
@@ -937,8 +996,6 @@ public class OperatorServiceBean implements OperatorService {
 
         updateOrganizationDescription(organizationObj.getKey(),
                 voOrganization.getDescription());
-        
-        
 
         // check if image is set, WS 1.1 will send null at this point
         if (voImageResource != null) {
@@ -963,7 +1020,7 @@ public class OperatorServiceBean implements OperatorService {
         List<VOPaymentType> desiredPaymentypes = voOrganization
                 .getPaymentTypes();
         if (desiredPaymentypes != null && desiredPaymentypes.size() > 0) {
-            HashSet<String> voTypes = new HashSet<String>();
+            HashSet<String> voTypes = new HashSet<>();
             for (VOPaymentType type : desiredPaymentypes) {
                 voTypes.add(type.getPaymentTypeId());
             }
@@ -972,9 +1029,9 @@ public class OperatorServiceBean implements OperatorService {
     }
 
     private void updateOrganizationRoles(VOOperatorOrganization voOrganization,
-            Organization organizationObj) throws OrganizationAuthorityException,
-                    IncompatibleRolesException, ObjectNotFoundException,
-                    AddMarketingPermissionException {
+            Organization organizationObj)
+            throws OrganizationAuthorityException, IncompatibleRolesException,
+            ObjectNotFoundException, AddMarketingPermissionException {
 
         List<OrganizationRoleType> desiredRoles = voOrganization
                 .getOrganizationRoles();
@@ -997,14 +1054,16 @@ public class OperatorServiceBean implements OperatorService {
         sc = (SupportedCountry) dm.getReferenceByBusinessKey(sc);
         organizationObj.setDomicileCountry(sc);
     }
-    
-    private void updateTenant(Organization organization, VOOperatorOrganization voOrganization) throws ObjectNotFoundException {
-        
+
+    private void updateTenant(Organization organization,
+            VOOperatorOrganization voOrganization)
+            throws ObjectNotFoundException {
+
         long tenantKey = voOrganization.getTenantKey();
-        
-        if(voOrganization.getTenantKey()==0){
+
+        if (voOrganization.getTenantKey() == 0) {
             organization.setTenant(null);
-        } else{
+        } else {
             Tenant tenant = dm.getReference(Tenant.class, tenantKey);
             organization.setTenant(tenant);
         }
@@ -1043,7 +1102,7 @@ public class OperatorServiceBean implements OperatorService {
     @RolesAllowed("PLATFORM_OPERATOR")
     public List<VOOrganization> getOrganizations(String organizationIdPattern,
             List<OrganizationRoleType> organizationRoleTypes)
-                    throws OrganizationAuthoritiesException {
+            throws OrganizationAuthoritiesException {
         return getOrganizationsWithLimit(organizationIdPattern,
                 organizationRoleTypes, DB_SEARCH_LIMIT);
     }
@@ -1080,7 +1139,8 @@ public class OperatorServiceBean implements OperatorService {
     @RolesAllowed("PLATFORM_OPERATOR")
     public List<VOUserDetails> getUsers()
             throws OrganizationAuthoritiesException {
-        Query query = dm.createQuery("select pu.dataContainer.userId, pu.dataContainer.email,o.dataContainer.name, o.dataContainer.organizationId, pu.dataContainer.status, pu.key from PlatformUser pu left join pu.organization o");
+        Query query = dm.createQuery(
+                "select pu.dataContainer.userId, pu.dataContainer.email,o.dataContainer.name, o.dataContainer.organizationId, pu.dataContainer.status, pu.key from PlatformUser pu left join pu.organization o");
 
         List<VOUserDetails> result = new ArrayList<>();
         final List resultList = query.getResultList();
@@ -1092,7 +1152,7 @@ public class OperatorServiceBean implements OperatorService {
             userDetails.setOrganizationName((String) row[ORGN_NAME_INDEX]);
             userDetails.setOrganizationId((String) row[ORG_ID_INDEX]);
             userDetails.setStatus((UserAccountStatus) row[STATUS_INDEX]);
-            userDetails.setKey((Long)row[TKEY_INDEX_5]);
+            userDetails.setKey((Long) row[TKEY_INDEX_5]);
             result.add(userDetails);
         }
         return result;
@@ -1182,7 +1242,7 @@ public class OperatorServiceBean implements OperatorService {
     @RolesAllowed("PLATFORM_OPERATOR")
     public byte[] getUserOperationLog(List<String> operationIds, long fromDate,
             long toDate)
-                    throws ValidationException, AuditLogTooManyRowsException {
+            throws ValidationException, AuditLogTooManyRowsException {
 
         BLValidator.isValidDateRange(new Date(fromDate), new Date(toDate));
         byte[] resultCsv = auditLogService.loadAuditLogs(operationIds, fromDate,
@@ -1202,7 +1262,7 @@ public class OperatorServiceBean implements OperatorService {
     @RolesAllowed("PLATFORM_OPERATOR")
     public List<VOPSP> getPSPs() {
 
-        List<VOPSP> result = new ArrayList<VOPSP>();
+        List<VOPSP> result = new ArrayList<>();
         Query query = dm.createNamedQuery("PSP.getAll");
         List<PSP> psps = ParameterizedTypes.list(query.getResultList(),
                 PSP.class);
@@ -1269,7 +1329,7 @@ public class OperatorServiceBean implements OperatorService {
             ObjectNotFoundException {
         List<VOPSPSetting> pspSettings = psp.getPspSettings();
         PSPSettingAssembler.validateVOSettings(pspSettings);
-        Map<Long, PSPSetting> existingSettings = new HashMap<Long, PSPSetting>();
+        Map<Long, PSPSetting> existingSettings = new HashMap<>();
         for (PSPSetting setting : pspToStore.getSettings()) {
             existingSettings.put(Long.valueOf(setting.getKey()), setting);
         }
@@ -1304,7 +1364,7 @@ public class OperatorServiceBean implements OperatorService {
             throws ObjectNotFoundException {
 
         ArgumentValidator.notNull("organization", organization);
-        List<VOPSPAccount> accounts = new ArrayList<VOPSPAccount>();
+        List<VOPSPAccount> accounts = new ArrayList<>();
 
         Organization org = dm.getReference(Organization.class,
                 organization.getKey());
@@ -1318,9 +1378,9 @@ public class OperatorServiceBean implements OperatorService {
     @Override
     @RolesAllowed("PLATFORM_OPERATOR")
     public VOPSPAccount savePSPAccount(VOOrganization organization,
-            VOPSPAccount account) throws ObjectNotFoundException,
-                    OrganizationAuthorityException,
-                    ConcurrentModificationException, ValidationException {
+            VOPSPAccount account)
+            throws ObjectNotFoundException, OrganizationAuthorityException,
+            ConcurrentModificationException, ValidationException {
 
         ArgumentValidator.notNull("organization", organization);
         ArgumentValidator.notNull("account", account);
@@ -1402,7 +1462,7 @@ public class OperatorServiceBean implements OperatorService {
 
         PSP currentPsp = dm.getReference(PSP.class, psp.getKey());
         List<PaymentType> paymentTypes = currentPsp.getPaymentTypes();
-        List<VOPaymentType> result = new ArrayList<VOPaymentType>();
+        List<VOPaymentType> result = new ArrayList<>();
         result.addAll(PaymentTypeAssembler.toVOPaymentTypes(paymentTypes,
                 new LocalizerFacade(localizer,
                         dm.getCurrentUser().getLocale())));
@@ -1487,6 +1547,25 @@ public class OperatorServiceBean implements OperatorService {
         byte[] resultCsv = XMLConverter.toUTF8(csvResult.toString());
 
         return resultCsv;
+    }
+
+    @Override
+    @RolesAllowed("PLATFORM_OPERATOR")
+    public void deleteConfigurationSetting(Long key)
+            throws ObjectNotFoundException {
+        ConfigurationSetting cs = dm.getReference(ConfigurationSetting.class,
+                key);
+        cs.setValue(cs.getInformationId().getFallBackValue());
+        configService.setConfigurationSetting(cs);
+    }
+
+    @Override
+    @RolesAllowed("PLATFORM_OPERATOR")
+    public VOConfigurationSetting getConfigurationSetting(Long key)
+            throws ObjectNotFoundException {
+        ConfigurationSetting cs = dm.getReference(ConfigurationSetting.class,
+                key);
+        return ConfigurationSettingAssembler.toValueObject(cs);
     }
 
 }

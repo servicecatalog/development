@@ -169,14 +169,8 @@ public class PropertyImportTest {
                 fos.close();
             }
         }
-        String[] expected = new String[] { "SELECT ", "INSERT ", "SELECT ",
-                "UPDATE ", "SELECT ", "INSERT ", "SELECT ", "INSERT ",
-                "SELECT ", "INSERT ", "SELECT ", "INSERT ", "SELECT ",
-                "INSERT ", "SELECT ", "INSERT ", "SELECT ", "INSERT ",
-                "SELECT ", "INSERT ", "SELECT ", "INSERT ", "SELECT ",
-                "INSERT ", "SELECT ", "INSERT ", "SELECT ", "INSERT ",
-                "SELECT ", "INSERT ", "SELECT ", "INSERT ", "SELECT ",
-                "INSERT ", "SELECT ", "INSERT ", "SELECT ", "INSERT ", "SELECT ", "INSERT " };
+        String[] expected = new String[] { "SELECT ", "INSERT ", "UPDATE ",
+                "DELETE " };
         int cnt = 0;
         assertEquals(expected.length, sqlStatementes.size());
         for (String sql : sqlStatementes) {
@@ -233,7 +227,8 @@ public class PropertyImportTest {
         } catch (RuntimeException e) {
             assertEquals(
                     "Mandatory attribute " + ConfigurationKey.AUTH_MODE.name()
-                            + " can not be set a null value", e.getMessage());
+                            + " can not be set a null value",
+                    e.getMessage());
             throw e;
         }
 
@@ -259,9 +254,9 @@ public class PropertyImportTest {
             importer.execute();
         } catch (RuntimeException e) {
             assertEquals(
-                    "Mandatory attribute "
-                            + ConfigurationKey.SSO_IDP_URL.name()
-                            + " can not be set a null value", e.getMessage());
+                    "Mandatory attribute " + ConfigurationKey.SSO_IDP_URL.name()
+                            + " can not be set a null value",
+                    e.getMessage());
             throw e;
         }
 
@@ -320,13 +315,7 @@ public class PropertyImportTest {
 
         PropertyImport importer = createImport();
         importer.execute();
-        String[] expected = new String[] { "SELECT ", "INSERT ", "SELECT",
-                "SELECT", "INSERT", "SELECT", "INSERT", "SELECT", "INSERT",
-                "SELECT", "INSERT", "SELECT", "INSERT", "SELECT", "INSERT",
-                "SELECT", "INSERT", "SELECT", "INSERT", "SELECT", "INSERT",
-                "SELECT", "INSERT", "SELECT", "INSERT", "SELECT", "INSERT",
-                "SELECT", "INSERT", "SELECT", "INSERT", "SELECT ", "INSERT ",
-                "SELECT", "INSERT", "SELECT", "INSERT", "SELECT", "INSERT"};
+        String[] expected = new String[] { "SELECT ", "INSERT ", "DELETE " };
         int cnt = 0;
         assertEquals(expected.length, sqlStatementes.size());
         for (String sql : sqlStatementes) {
@@ -353,8 +342,8 @@ public class PropertyImportTest {
 
     @Test(expected = RuntimeException.class)
     public void execute_prepareException() throws Exception {
-        Mockito.when(sqlConn.prepareStatement(Matchers.anyString())).thenThrow(
-                new SQLException());
+        Mockito.when(sqlConn.prepareStatement(Matchers.anyString()))
+                .thenThrow(new SQLException());
         Properties p = getProperties();
         FileOutputStream fos = null;
         try {
@@ -413,26 +402,18 @@ public class PropertyImportTest {
         p.put(ConfigurationKey.BASE_URL_HTTPS.name(), "http://localhost:8180");
         p.put(ConfigurationKey.LOG_FILE_PATH.name(), "../logs");
         p.put(ConfigurationKey.PSP_USAGE_ENABLED.name(), "false");
-        p.put(ConfigurationKey.SEARCH_INDEX_MASTER_FACTORY_NAME.name(),
-                "jms/bss/masterIndexerQueueFactory");
-        p.put(ConfigurationKey.SEARCH_INDEX_MASTER_QUEUE_NAME.name(),
-                "jms/bss/masterIndexerQueue");
         p.put(ConfigurationKey.TAGGING_MAX_TAGS.name(), "20");
         p.put(ConfigurationKey.TAGGING_MIN_SCORE.name(), "1");
 
         p.put(ConfigurationKey.WS_TIMEOUT.name(), "180000");
-        p.put(ConfigurationKey.IDP_ASSERTION_EXPIRATION.name(), "1800000");
-        p.put(ConfigurationKey.IDP_ASSERTION_VALIDITY_TOLERANCE.name(),
-                "600000");
         p.put(ConfigurationKey.SSO_DEFAULT_TENANT_ID.name(), "8f96dede");
         p.put(ConfigurationKey.SSO_IDP_SAML_ASSERTION_ISSUER_ID.name(),
                 "default");
-        p.put(ConfigurationKey.IDP_PRIVATE_KEY_FILE_PATH.name(),
-                "D:/BES_CODE_152/");
-        p.put(ConfigurationKey.IDP_PUBLIC_CERTIFICATE_FILE_PATH.name(),
-                "D:/BES_CODE_152/");
         p.put(ConfigurationKey.HIDDEN_UI_ELEMENTS.name(),
                 "operator.manageBillingAdapters,techService.viewBillingAdapters");
+        p.put(ConfigurationKey.SSO_SIGNING_KEYSTORE.name(), "./cacerts.jks");
+        p.put(ConfigurationKey.SSO_SIGNING_KEYSTORE_PASS.name(), "changeit");
+        p.put(ConfigurationKey.SSO_SIGNING_KEY_ALIAS.name(), "s1as");
         return p;
     }
 }

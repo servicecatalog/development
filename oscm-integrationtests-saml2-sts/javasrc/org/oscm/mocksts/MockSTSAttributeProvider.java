@@ -19,8 +19,6 @@ import java.util.Set;
 import javax.security.auth.Subject;
 import javax.xml.namespace.QName;
 
-import org.oscm.mocksts.handler.SamlAssertionBreakHandler;
-
 import com.sun.xml.ws.api.security.trust.Claims;
 import com.sun.xml.ws.api.security.trust.STSAttributeProvider;
 
@@ -63,12 +61,8 @@ public class MockSTSAttributeProvider implements STSAttributeProvider {
         addAttribute(attributes, "userid", name);
         addAttribute(attributes, "dummy_id2", "test_dummy_attribute2");
         
-        String tenantId = SamlAssertionBreakHandler.getTenantIdFromContext();
-
-        if (tenantId == null) {
-            tenantId = PropertyLoader.getInstance().load(COMMON_PROPERTIES_PATH)
-                    .getProperty(TENANT_ID);
-        }
+        String tenantId = PropertyLoader.getInstance()
+                .load(COMMON_PROPERTIES_PATH).getProperty(TENANT_ID);
 
         addAttribute(attributes, TENANT_ID, tenantId);
         // claims not considered here

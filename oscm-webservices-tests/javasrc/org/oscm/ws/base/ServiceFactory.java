@@ -26,7 +26,6 @@ import org.oscm.intf.MarketplaceService;
 import org.oscm.intf.OrganizationalUnitService;
 import org.oscm.intf.ReportingService;
 import org.oscm.intf.ReviewService;
-import org.oscm.intf.SamlService;
 import org.oscm.intf.SearchService;
 import org.oscm.intf.ServiceProvisioningService;
 import org.oscm.intf.SessionService;
@@ -95,10 +94,10 @@ public class ServiceFactory {
         defaultFactory.setOrgId(null);
         return defaultFactory;
     }
-    
-    public static synchronized ServiceFactory getSTSServiceFactory(String tenantId, String orgId)
-            throws Exception {
-        
+
+    public static synchronized ServiceFactory getSTSServiceFactory(
+            String tenantId, String orgId) throws Exception {
+
         defaultFactory = getSTSServiceFactory();
         defaultFactory.setOrgId(orgId);
         defaultFactory.setTenantId(tenantId);
@@ -258,7 +257,8 @@ public class ServiceFactory {
     private <T> T connectToWebService(Class<T> remoteInterface,
             String userName, String password) throws Exception {
         return WebServiceProxy.get(getWebServiceBaseUrl(), "v1.9", getAuth(),
-                "http://oscm.org/xsd", remoteInterface, userName, password, getTenantId(), getOrgId());
+                "http://oscm.org/xsd", remoteInterface, userName, password,
+                getTenantId(), getOrgId());
     }
 
     public <T> T connectToWebService(Class<T> remoteInterface, String userName,
@@ -315,15 +315,6 @@ public class ServiceFactory {
         return connectToWebService(BillingService.class, userName, password);
     }
 
-    public SamlService getSamlService() throws Exception {
-        return getSamlService(getDefaultUserName(), getDefaultPassword());
-    }
-
-    public SamlService getSamlService(String userName, String password)
-            throws Exception {
-        return connectToWebService(SamlService.class, userName, password);
-    }
-    
     public TenantService getTenantService() throws Exception {
         return getTenantService(getDefaultUserName(), getDefaultPassword());
     }
@@ -332,13 +323,14 @@ public class ServiceFactory {
             throws Exception {
         return connectToEJB(TenantService.class, userName, password);
     }
-    
+
     public ConfigurationService getConfigurationService() throws Exception {
-        return getConfigurationService(getDefaultUserName(), getDefaultPassword());
+        return getConfigurationService(getDefaultUserName(),
+                getDefaultPassword());
     }
 
-    public ConfigurationService getConfigurationService(String userName, String password)
-            throws Exception {
+    public ConfigurationService getConfigurationService(String userName,
+            String password) throws Exception {
         return connectToEJB(ConfigurationService.class, userName, password);
     }
 

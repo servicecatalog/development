@@ -866,6 +866,14 @@
     </navigation-case>
   </navigation-rule>
   <navigation-rule>
+    <from-view-id>/operator/manageIndexes.xhtml</from-view-id>
+    <navigation-case>
+      <from-outcome>success</from-outcome>
+      <to-view-id>/operator/manageIndexes.xhtml</to-view-id>
+      <redirect />
+    </navigation-case>
+  </navigation-rule>
+  <navigation-rule>
     <from-view-id>/user/list.xhtml</from-view-id>
     <navigation-case>
       <from-outcome>showUsers</from-outcome>

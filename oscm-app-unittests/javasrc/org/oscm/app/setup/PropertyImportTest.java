@@ -33,7 +33,6 @@ import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-
 import org.oscm.app.domain.PlatformConfigurationKey;
 
 /**
@@ -63,8 +62,8 @@ public class PropertyImportTest {
         sqlConn = Mockito.mock(Connection.class);
         statement = Mockito.mock(PreparedStatement.class);
         resultSet = Mockito.mock(ResultSet.class);
-        sqlStatementes = new ArrayList<String>();
-        prepStatements = new Stack<PreparedStatement>();
+        sqlStatementes = new ArrayList<>();
+        prepStatements = new Stack<>();
         Mockito.when(sqlConn.prepareStatement(Matchers.anyString()))
                 .thenReturn(statement);
         Mockito.when(statement.executeQuery()).thenReturn(resultSet);
@@ -189,8 +188,8 @@ public class PropertyImportTest {
         Mockito.doAnswer(answerStatement).when(sqlConn)
                 .prepareStatement(Matchers.anyString());
         Mockito.when(secondStatement.executeQuery()).thenReturn(secondResult);
-        Mockito.when(selectConfigSettingsStatement.executeQuery()).thenReturn(
-                thirdResult);
+        Mockito.when(selectConfigSettingsStatement.executeQuery())
+                .thenReturn(thirdResult);
 
         // finding one entry
         Mockito.when(new Boolean(resultSet.next())).thenReturn(Boolean.TRUE)
@@ -215,11 +214,8 @@ public class PropertyImportTest {
         }
         PropertyImport importer = createImport();
         importer.execute();
-        String[] expected = new String[] { "SELECT", "SELECT ", "INSERT ",
-                "SELECT ", "UPDATE ", "SELECT ", "INSERT ", "SELECT ",
-                "INSERT ", "SELECT ", "INSERT ", "SELECT ", "INSERT ",
-                "SELECT ", "INSERT ", "SELECT ", "INSERT ", "SELECT ",
-                "INSERT " };
+        String[] expected = new String[] { "SELECT", "INSERT ", "UPDATE ",
+                "DELETE " };
         int cnt = 0;
         assertEquals(expected.length, sqlStatementes.size());
         for (String sql : sqlStatementes) {
@@ -263,8 +259,8 @@ public class PropertyImportTest {
         Mockito.doAnswer(answerStatement).when(sqlConn)
                 .prepareStatement(Matchers.anyString());
         Mockito.when(secondStatement.executeQuery()).thenReturn(secondResult);
-        Mockito.when(selectConfigSettingsStatement.executeQuery()).thenReturn(
-                thirdResult);
+        Mockito.when(selectConfigSettingsStatement.executeQuery())
+                .thenReturn(thirdResult);
         // finding one entry
         Mockito.when(new Boolean(resultSet.next())).thenReturn(Boolean.TRUE)
                 .thenReturn(Boolean.FALSE);
@@ -287,10 +283,7 @@ public class PropertyImportTest {
         }
         PropertyImport importer = createImport();
         importer.execute();
-        String[] expected = new String[] { "SELECT ", "SELECT ", "INSERT ",
-                "SELECT", "SELECT ", "INSERT ", "SELECT ", "INSERT ",
-                "SELECT ", "INSERT ", "SELECT ", "INSERT ", "SELECT ",
-                "INSERT ", "SELECT ", "INSERT ", "SELECT ", "INSERT " };
+        String[] expected = new String[] { "SELECT ", "INSERT ", "DELETE " };
         int cnt = 0;
         assertEquals(expected.length, sqlStatementes.size());
         for (String sql : sqlStatementes) {
@@ -309,8 +302,9 @@ public class PropertyImportTest {
             fail("Runtime exception expected.");
         } catch (Exception e) {
             assertTrue(e instanceof RuntimeException);
-            assertEquals(PropertyImport.ERR_FILE_NOT_FOUND.replaceFirst(
-                    PropertyImport.ERR_PARAM_ESC, p_propertyFile),
+            assertEquals(
+                    PropertyImport.ERR_FILE_NOT_FOUND.replaceFirst(
+                            PropertyImport.ERR_PARAM_ESC, p_propertyFile),
                     e.getMessage());
         }
     }
@@ -336,7 +330,7 @@ public class PropertyImportTest {
             fail("Runtime exception expected.");
         } catch (Exception e) {
             assertTrue(e instanceof RuntimeException);
-            assertEquals(PropertyImport.ERR_DB_CONNECTION, e.getMessage());
+            assertEquals(PropertyImport.ERR_DB_CLOSE, e.getMessage());
         }
     }
 
@@ -363,16 +357,17 @@ public class PropertyImportTest {
             fail("Runtime exception expected.");
         } catch (Exception e) {
             assertTrue(e instanceof RuntimeException);
-            assertEquals(String.format(PropertyImport.ERR_MANDATORY_ATTRIBUTE,
-                    PlatformConfigurationKey.BSS_AUTH_MODE.name()),
+            assertEquals(
+                    String.format(PropertyImport.ERR_MANDATORY_ATTRIBUTE,
+                            PlatformConfigurationKey.BSS_AUTH_MODE.name()),
                     e.getMessage());
         }
     }
 
     @Test
     public void test_prepareException() throws Exception {
-        Mockito.when(sqlConn.prepareStatement(Matchers.anyString())).thenThrow(
-                new SQLException());
+        Mockito.when(sqlConn.prepareStatement(Matchers.anyString()))
+                .thenThrow(new SQLException());
         Properties p = getProperties();
         FileOutputStream fos = null;
         try {
@@ -390,40 +385,7 @@ public class PropertyImportTest {
             fail("Runtime exception expected.");
         } catch (Exception e) {
             assertTrue(e instanceof RuntimeException);
-            assertEquals(PropertyImport.ERR_DB_ENTRY_COUNT, e.getMessage());
-        }
-    }
-
-    @Test
-    public void test_secondPrepareException() throws Exception {
-        PreparedStatement selectConfigSettingsStatement = Mockito
-                .mock(PreparedStatement.class);
-        ResultSet thirdResult = Mockito.mock(ResultSet.class);
-        prepStatements.push(selectConfigSettingsStatement);
-        Mockito.when(selectConfigSettingsStatement.executeQuery()).thenReturn(
-                thirdResult);
-        Mockito.doReturn("mm").when(thirdResult).getString(Matchers.anyInt());
-        Mockito.when(sqlConn.prepareStatement(Matchers.startsWith("INSERT")))
-                .thenReturn(statement).thenThrow(new SQLException());
-        Mockito.when(sqlConn.prepareStatement(Matchers.startsWith("UPDATE")))
-                .thenReturn(statement).thenThrow(new SQLException());
-        Properties p = getProperties();
-        FileOutputStream fos = null;
-        try {
-            fos = new FileOutputStream(tempFile);
-            p.store(fos, "No comment");
-        } finally {
-            if (fos != null) {
-                fos.close();
-            }
-        }
-        PropertyImport importer = createImport();
-        try {
-            importer.execute();
-            fail("Runtime exception expected.");
-        } catch (Exception e) {
-            assertTrue(e instanceof RuntimeException);
-            assertEquals(PropertyImport.ERR_DB_WRITE, e.getMessage());
+            assertEquals(PropertyImport.ERR_DB_LOAD_SETTINGS, e.getMessage());
         }
     }
 
@@ -513,6 +475,12 @@ public class PropertyImportTest {
                 "http://www.fujitsu.com/{service}/oscm/BASIC?wsdl");
         p.put(PlatformConfigurationKey.BSS_STS_WEBSERVICE_WSDL_URL.name(),
                 "http://www.fujitsu.com/{service}/oscm/STS?wsdl");
+        p.put(PlatformConfigurationKey.APP_KEY_PATH.name(), "./key");
+        p.put(PlatformConfigurationKey.APP_TRUSTSTORE.name(), "./cacert.jsk");
+        p.put(PlatformConfigurationKey.APP_TRUSTSTORE_PASSWORD.name(),
+                "changeit");
+        p.put(PlatformConfigurationKey.APP_TRUSTSTORE_BSS_ALIAS.name(),
+                "bes-s1as");
         return p;
     }
 }

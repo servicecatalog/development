@@ -13,6 +13,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import org.oscm.converter.PropertiesLoader;
@@ -23,8 +25,11 @@ import org.oscm.internal.types.enumtypes.MandatoryAttributesInSamlSP;
 public class PropertyImport {
 
     private static final String TABLE_NAME = "ConfigurationSetting";
-    private static final String MAX_NUMBER_ALLOWED_USERS = "10";
-    private static final String TIMER_INTERVAL_USER_COUNT = "43200000";
+    private static final String FIELD_TKEY = "tkey";
+    private static final String FIELD_KEY = "information_id";
+    private static final String FIELD_VALUE = "env_value";
+    private static final String FIELD_CONTEXT = "context_id";
+    private static final String FIELD_VERSION = "version";
 
     /**
      * parameters: driverClass driverURL userName userPwd propertyFile
@@ -37,8 +42,10 @@ public class PropertyImport {
                     "Usage: java PropertyImport <driverClass> <driverURL> <userName> <userPwd> <propertyFile> [<overwriteFlag>] [<contextId>]");
         }
 
-        PropertyImport propertyImport = new PropertyImport(args[0], args[1], args[2], args[3], args[4],
-                args.length >= 6 ? Boolean.parseBoolean(args[5]) : false, args.length >= 7 ? args[6] : null);
+        PropertyImport propertyImport = new PropertyImport(args[0], args[1],
+                args[2], args[3], args[4],
+                args.length >= 6 ? Boolean.parseBoolean(args[5]) : false,
+                args.length >= 7 ? args[6] : null);
         propertyImport.execute();
     }
 
@@ -51,16 +58,15 @@ public class PropertyImport {
     private boolean overwriteFlag;
     private String contextId = "global";
 
-    public PropertyImport() {
-    }
-
-    public PropertyImport(String driverClass, String driverURL, String userName, String userPwd, String propertyFile,
-            boolean overwriteFlag, String contextId) {
+    public PropertyImport(String driverClass, String driverURL, String userName,
+            String userPwd, String propertyFile, boolean overwriteFlag,
+            String contextId) {
         try {
             Class.forName(driverClass);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
-            throw new RuntimeException("DriverClass '" + driverClass + "' could not be found");
+            throw new RuntimeException(
+                    "DriverClass '" + driverClass + "' could not be found");
         }
 
         this.driverURL = driverURL;
@@ -87,42 +93,64 @@ public class PropertyImport {
             in = new FileInputStream(propertyFile);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-            throw new RuntimeException("Could not find resource file '" + propertyFile + "'.");
+            throw new RuntimeException(
+                    "Could not find resource file '" + propertyFile + "'.");
         }
         final Properties p = PropertiesLoader.loadProperties(in);
 
         try {
+            Map<String, String> settings = loadConfigurationSettings(conn);
+            Map<String, String> toCreate = new HashMap<>();
+            Map<String, String> toUpdate = new HashMap<>();
+
             initStartCount(conn);
             ConfigurationKey[] allKeys = ConfigurationKey.values();
             boolean isSamlSP = isSamlSPMode(p);
+
             for (ConfigurationKey key : allKeys) {
                 String keyName = key.getKeyName();
                 String value = (String) p.get(keyName);
-                if (value == null || value.isEmpty()) {
-                    if (keyName.equals(ConfigurationKey.MAX_NUMBER_ALLOWED_USERS.name())) {
-                        value = MAX_NUMBER_ALLOWED_USERS;
-                    }
-                    if (keyName.equals(ConfigurationKey.TIMER_INTERVAL_USER_COUNT.name())) {
-                        value = TIMER_INTERVAL_USER_COUNT;
-                    }
-                }
-
-                if (value != null) {
-                    if (key.getType() == ConfigurationKey.TYPE_BOOLEAN || key.getType() == ConfigurationKey.TYPE_LONG
-                            || key.getType() == ConfigurationKey.TYPE_STRING
-                            || key.getType() == ConfigurationKey.TYPE_PASSWORD) {
-
-                        value = value.trim();
-                    }
-                }
 
                 verifyValueValid(key, value, isSamlSP);
-                if (value != null) {
-                    verifyAuthMode(keyName, value);
-                    verifyConfigurationValue(key, value);
-                    writePropertyToDb(conn, key.getKeyName(), value);
+
+                if (value == null || value.isEmpty()) {
+                    if (key.getFallBackValue() != null) {
+                        value = key.getFallBackValue();
+                    } else {
+                        value = "";
+                    }
+                }
+
+                if (key.getType() == ConfigurationKey.TYPE_BOOLEAN
+                        || key.getType() == ConfigurationKey.TYPE_LONG
+                        || key.getType() == ConfigurationKey.TYPE_URL
+                        || key.getType() == ConfigurationKey.TYPE_STRING
+                        || key.getType() == ConfigurationKey.TYPE_PASSWORD) {
+
+                    value = value.trim();
+                }
+
+                verifyAuthMode(keyName, value);
+                verifyConfigurationValue(key, value);
+
+                if (settings.containsKey(keyName)) {
+                    toUpdate.put(keyName, value);
+                } else {
+                    toCreate.put(keyName, value);
+                }
+                settings.remove(keyName);
+            }
+
+            createEntries(conn, toCreate);
+            if (overwriteFlag) {
+                updateEntries(conn, toUpdate);
+            } else {
+                for (String key : toUpdate.keySet()) {
+                    System.out.println(
+                            "Existing Configuration " + key + " skipped");
                 }
             }
+            deleteEntries(conn, settings);
         } finally {
             try {
                 conn.close();
@@ -133,22 +161,25 @@ public class PropertyImport {
         }
     }
 
-    private void verifyValueValid(ConfigurationKey key, String value, boolean isSamlSP) {
-        if (isNullValue(value) && (key.isMandatory() || isMandatoryAttributeInSamlSPMode(isSamlSP, key.getKeyName()))) {
-            if (isMandatoryFallBack(key.getKeyName())) {
+    private void verifyValueValid(ConfigurationKey key, String value,
+            boolean isSamlSP) {
+        if (isNullValue(value)
+                && (key.isMandatory() || isMandatoryAttributeInSamlSPMode(
+                        isSamlSP, key.getKeyName()))) {
+            if (key == ConfigurationKey.AUDIT_LOG_ENABLED
+                    || key == ConfigurationKey.AUDIT_LOG_MAX_ENTRIES_RETRIEVED
+                    || key == ConfigurationKey.MAX_NUMBER_ALLOWED_USERS
+                    || key == ConfigurationKey.TIMER_INTERVAL_USER_COUNT) {
                 value = key.getFallBackValue();
             } else {
-                throw new RuntimeException("Mandatory attribute " + key.getKeyName() + " can not be set a null value");
+                throw new RuntimeException("Mandatory attribute "
+                        + key.getKeyName() + " can not be set a null value");
             }
         }
     }
 
-    private boolean isMandatoryFallBack(String keyName) {
-        return (keyName.equals(ConfigurationKey.AUDIT_LOG_ENABLED.name())
-                || keyName.equals(ConfigurationKey.AUDIT_LOG_MAX_ENTRIES_RETRIEVED.name()));
-    }
-
-    private boolean isMandatoryAttributeInSamlSPMode(boolean isSamlSP, String keyName) {
+    private boolean isMandatoryAttributeInSamlSPMode(boolean isSamlSP,
+            String keyName) {
         return isSamlSP && verifyMandatoryInSamlSP(keyName);
     }
 
@@ -157,23 +188,21 @@ public class PropertyImport {
     }
 
     private boolean isSamlSPMode(Properties p) {
-        ConfigurationKey[] allKeys = ConfigurationKey.values();
-        boolean isSamlSPMode = false;
-        for (ConfigurationKey key : allKeys) {
-            String keyNameInConfig = key.getKeyName();
-            String valueInConfig = (String) p.get(keyNameInConfig);
+        String authMode = (String) p
+                .get(ConfigurationKey.AUTH_MODE.getKeyName());
 
-            if (!isNullValue(valueInConfig) && valueInConfig.equals(AuthenticationMode.SAML_SP.name())) {
-                isSamlSPMode = true;
-                break;
-            }
+        if (!isNullValue(authMode)
+                && authMode.equals(AuthenticationMode.SAML_SP.name())) {
+            return true;
+        } else {
+            return false;
         }
-        return isSamlSPMode;
     }
 
     private boolean verifyMandatoryInSamlSP(String keyName) {
         boolean isMandatory = false;
-        MandatoryAttributesInSamlSP[] attrs = MandatoryAttributesInSamlSP.values();
+        MandatoryAttributesInSamlSP[] attrs = MandatoryAttributesInSamlSP
+                .values();
         for (MandatoryAttributesInSamlSP attr : attrs) {
             if (attr.name().equals(keyName)) {
                 isMandatory = true;
@@ -207,7 +236,8 @@ public class PropertyImport {
     private void initStartCount(Connection conn) {
         try {
             Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT MAX(TKEY) FROM " + TABLE_NAME);
+            ResultSet rs = stmt
+                    .executeQuery("SELECT MAX(TKEY) FROM " + TABLE_NAME);
             while (rs.next()) {
                 count = rs.getInt(1);
             }
@@ -215,58 +245,111 @@ public class PropertyImport {
             stmt.close();
         } catch (SQLException e) {
             e.printStackTrace();
-            throw new RuntimeException("Could not determine max id value in use.");
+            throw new RuntimeException(
+                    "Could not determine max id value in use.");
         }
 
     }
 
-    private void writePropertyToDb(Connection con, String key, String property) {
-        String query = null;
-        if (getEntryCount(con, key) == 0) {
-            count++;
-            query = "INSERT INTO " + TABLE_NAME
-                    + "(ENV_VALUE, INFORMATION_ID, CONTEXT_ID, TKEY, VERSION) VALUES(?, ?, ?," + count + ", 0)";
-            System.out.println("Create Configuration " + key + " with value '" + property + "'");
-        } else if (overwriteFlag) {
-            query = "UPDATE " + TABLE_NAME + " SET ENV_VALUE = ? WHERE INFORMATION_ID = ? AND CONTEXT_ID = ?";
-            System.out.println("Update Configuration " + key + " to value '" + property + "'");
-        } else {
-            System.out.println("Existing Configuration " + key + " skipped");
-            return;
-        }
-        PreparedStatement stmt;
-        try {
-            stmt = con.prepareStatement(query);
-            stmt.setString(1, property);
-            stmt.setString(2, key);
-            stmt.setString(3, contextId);
-            stmt.execute();
-            stmt.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Could not write the properties to the database", e);
-        }
-    }
+    private Map<String, String> loadConfigurationSettings(Connection conn) {
 
-    private int getEntryCount(Connection con, String key) {
-        int count = 0;
-        String query = "SELECT COUNT(*) FROM " + TABLE_NAME + " WHERE INFORMATION_ID = ? AND CONTEXT_ID = ?";
-        PreparedStatement stmt;
+        Map<String, String> settings = new HashMap<>();
         try {
-            stmt = con.prepareStatement(query);
-            stmt.setString(1, key);
-            stmt.setString(2, contextId);
+            String query = "SELECT " + FIELD_KEY + ", " + FIELD_VALUE + " FROM "
+                    + TABLE_NAME + " WHERE " + FIELD_CONTEXT + " = ?";
+            PreparedStatement stmt = conn.prepareStatement(query);
+            stmt.setString(1, contextId);
             ResultSet rs = stmt.executeQuery();
+
             while (rs.next()) {
-                count = rs.getInt(1);
+                settings.put(rs.getString(1), rs.getString(2));
             }
+
             rs.close();
             stmt.close();
         } catch (SQLException e) {
             e.printStackTrace();
-            throw new RuntimeException("Could not determine entry count of the table", e);
+            throw new RuntimeException("Unable to load configuration settings",
+                    e);
         }
-        return count;
+        return settings;
+    }
+
+    private void createEntries(Connection conn, Map<String, String> toCreate) {
+
+        try {
+            String query = "INSERT INTO " + TABLE_NAME + " (" + FIELD_VALUE
+                    + ", " + FIELD_KEY + ", " + FIELD_CONTEXT + ", "
+                    + FIELD_TKEY + ", " + FIELD_VERSION
+                    + ") VALUES(?, ?, ?, ?, 0)";
+            PreparedStatement stmt = conn.prepareStatement(query);
+
+            for (String key : toCreate.keySet()) {
+                count++;
+
+                String value = toCreate.get(key);
+                stmt.setString(1, value);
+                stmt.setString(2, key);
+                stmt.setString(3, contextId);
+                stmt.setLong(4, count);
+
+                stmt.executeUpdate();
+                System.out.println("Create Configuration " + key
+                        + " with value '" + value + "'");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException(
+                    "Unable to insert new configuration key");
+        }
+    }
+
+    private void updateEntries(Connection conn, Map<String, String> toUpdate) {
+
+        try {
+            String query = "UPDATE " + TABLE_NAME + " SET " + FIELD_VALUE
+                    + " = ? WHERE " + FIELD_KEY + " = ? AND " + FIELD_CONTEXT
+                    + " = ?";
+            PreparedStatement stmt = conn.prepareStatement(query);
+
+            for (String key : toUpdate.keySet()) {
+                count++;
+
+                String value = toUpdate.get(key);
+                stmt.setString(1, value);
+                stmt.setString(2, key);
+                stmt.setString(3, contextId);
+
+                stmt.executeUpdate();
+                System.out.println("Update Configuration " + key
+                        + " with value '" + value + "'");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException(
+                    "Unable to update new configuration key");
+        }
+    }
+
+    private void deleteEntries(Connection conn, Map<String, String> settings) {
+        try {
+            String query = "DELETE FROM " + TABLE_NAME + " WHERE " + FIELD_KEY
+                    + " = ? AND " + FIELD_CONTEXT + " = ?";
+            PreparedStatement stmt = conn.prepareStatement(query);
+
+            for (String key : settings.keySet()) {
+
+                stmt.setString(1, key);
+                stmt.setString(2, contextId);
+
+                stmt.executeUpdate();
+                System.out.println("Delete Configuration " + key);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException(
+                    "Unable to delete new configuration key");
+        }
     }
 
     // protected to enable mocking in unit tests

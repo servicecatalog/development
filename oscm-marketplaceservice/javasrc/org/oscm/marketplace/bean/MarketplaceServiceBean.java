@@ -1342,4 +1342,11 @@ public class MarketplaceServiceBean implements MarketplaceService {
         VOMarketplace marketplace = getMarketplaceById(marketplaceId);
         return marketplace.getTenantId();
     }
+
+    @Override
+    public String getMarketplaceIdForKey(Long key)
+            throws ObjectNotFoundException {
+        Marketplace mp = dm.getReference(Marketplace.class, key);
+        return mp.getMarketplaceId();
+    }
 }

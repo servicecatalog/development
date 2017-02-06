@@ -76,6 +76,7 @@ import org.oscm.domobjects.TriggerProcess;
 import org.oscm.domobjects.enums.BillingAdapterIdentifier;
 import org.oscm.domobjects.enums.ModificationType;
 import org.oscm.domobjects.enums.OrganizationReferenceType;
+import org.oscm.encrypter.AESEncrypter;
 import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
@@ -214,6 +215,7 @@ public class ServiceProvisioningServiceTestBase extends EJBTestBase {
     }
 
     private void setupTestContainer() throws Exception {
+        AESEncrypter.generateKey();
         container.enableInterfaceMocking(true);
         container.addBean(new DataServiceBean());
         container.addBean(new ConfigurationServiceStub());

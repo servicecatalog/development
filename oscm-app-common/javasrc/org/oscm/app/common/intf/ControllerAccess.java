@@ -11,13 +11,10 @@ package org.oscm.app.common.intf;
 import java.io.Serializable;
 import java.util.List;
 
-import javax.ejb.Local;
-
 /**
  * Interface to the specific controller implementation used by common controller
  * code (to avoid dependencies on specific implementations).
  */
-@Local
 public interface ControllerAccess extends Serializable {
 
     /**

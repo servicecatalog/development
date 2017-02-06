@@ -35,7 +35,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-
 import org.oscm.communicationservice.local.CommunicationServiceLocal;
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.dataservice.local.DataService;
@@ -51,12 +50,7 @@ import org.oscm.domobjects.TriggerDefinition;
 import org.oscm.domobjects.TriggerProcess;
 import org.oscm.domobjects.TriggerProcessIdentifier;
 import org.oscm.domobjects.UserRole;
-import org.oscm.subscriptionservice.dao.ProductDao;
-import org.oscm.triggerservice.local.TriggerMessage;
-import org.oscm.triggerservice.local.TriggerProcessMessageData;
-import org.oscm.triggerservice.local.TriggerQueueServiceLocal;
-import org.oscm.types.enumtypes.TriggerProcessIdentifierName;
-import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
+import org.oscm.encrypter.AESEncrypter;
 import org.oscm.internal.types.enumtypes.ServiceStatus;
 import org.oscm.internal.types.enumtypes.ServiceType;
 import org.oscm.internal.types.enumtypes.SubscriptionStatus;
@@ -69,15 +63,21 @@ import org.oscm.internal.vo.VOSubscription;
 import org.oscm.internal.vo.VOUda;
 import org.oscm.internal.vo.VOUsageLicense;
 import org.oscm.internal.vo.VOUser;
+import org.oscm.subscriptionservice.dao.ProductDao;
+import org.oscm.triggerservice.local.TriggerMessage;
+import org.oscm.triggerservice.local.TriggerProcessMessageData;
+import org.oscm.triggerservice.local.TriggerQueueServiceLocal;
+import org.oscm.types.enumtypes.TriggerProcessIdentifierName;
+import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
 
-public class SubscriptionServiceBeanTriggerIdTest extends
-        SubscriptionServiceMockBase {
+public class SubscriptionServiceBeanTriggerIdTest
+        extends SubscriptionServiceMockBase {
 
     private SubscriptionServiceBean subscriptionServiceBean;
-    private final List<VOUsageLicense> usersToAdd = new ArrayList<VOUsageLicense>();
-    private final List<VOUser> usersToRevoke = new ArrayList<VOUser>();
-    private final List<TriggerProcessMessageData> triggerMessageData = new ArrayList<TriggerProcessMessageData>();
-    private final List<VOSubscription> subscriptions = new ArrayList<VOSubscription>();
+    private final List<VOUsageLicense> usersToAdd = new ArrayList<>();
+    private final List<VOUser> usersToRevoke = new ArrayList<>();
+    private final List<TriggerProcessMessageData> triggerMessageData = new ArrayList<>();
+    private final List<VOSubscription> subscriptions = new ArrayList<>();
     private Organization callingOrg;
     private TriggerProcess storedTriggerProcess;
     private VOSubscription subscription;
@@ -103,6 +103,7 @@ public class SubscriptionServiceBeanTriggerIdTest extends
     @SuppressWarnings("boxing")
     @Before
     public void setup() throws Exception {
+        AESEncrypter.generateKey();
         subscriptionServiceBean = initMocksAndSpys();
         productDao = mock(ProductDao.class);
         commService = mock(CommunicationServiceLocal.class);
@@ -131,8 +132,8 @@ public class SubscriptionServiceBeanTriggerIdTest extends
         subscriptions.add(subscription);
 
         doReturn(productDao).when(subscriptionServiceBean).getProductDao();
-        doReturn(false).when(subscriptionServiceBean).isActivationAllowed(
-                any(Subscription.class), eq(true));
+        doReturn(false).when(subscriptionServiceBean)
+                .isActivationAllowed(any(Subscription.class), eq(true));
 
         callingOrg = new Organization();
         callingOrg.setKey(15L);
@@ -149,8 +150,8 @@ public class SubscriptionServiceBeanTriggerIdTest extends
         targetProduct.setKey(compatibleService.getKey());
         targetProduct.setTechnicalProduct(technicalProduct);
         targetProduct.setStatus(ServiceStatus.ACTIVE);
-        prod.getCompatibleProducts().add(
-                new ProductReference(prod, targetProduct));
+        prod.getCompatibleProducts()
+                .add(new ProductReference(prod, targetProduct));
         sub = new Subscription();
         sub.setSubscriptionId("subId");
         sub.bindToProduct(prod);
@@ -176,11 +177,11 @@ public class SubscriptionServiceBeanTriggerIdTest extends
                 .thenReturn(platformUserForUser2);
 
         orgAdmin = new PlatformUser();
-        orgAdmin.setAssignedRoles(newRoleAssignment(orgAdmin,
-                UserRoleType.ORGANIZATION_ADMIN));
+        orgAdmin.setAssignedRoles(
+                newRoleAssignment(orgAdmin, UserRoleType.ORGANIZATION_ADMIN));
         orgAdmin.setOrganization(callingOrg);
-        orgAdmin.setAssignedRoles(newRoleAssignment(orgAdmin,
-                UserRoleType.ORGANIZATION_ADMIN));
+        orgAdmin.setAssignedRoles(
+                newRoleAssignment(orgAdmin, UserRoleType.ORGANIZATION_ADMIN));
         callingOrg.getPlatformUsers().add(orgAdmin);
         subscriptionServiceBean.manageBean.dataManager = dsMock;
         subscriptionServiceBean.modUpgBean.dataManager = dsMock;
@@ -195,7 +196,7 @@ public class SubscriptionServiceBeanTriggerIdTest extends
     }
 
     private void prepareInvisibleProducts() throws Exception {
-        List<Long> invisibleProductKeys = new ArrayList<Long>();
+        List<Long> invisibleProductKeys = new ArrayList<>();
         invisibleProductKeys.add(Long.valueOf(1l));
         doReturn(invisibleProductKeys).when(userGroupService)
                 .getInvisibleProductKeysForUser(1l);
@@ -210,7 +211,7 @@ public class SubscriptionServiceBeanTriggerIdTest extends
     }
 
     private List<Class<?>> givenSpyClasses() {
-        List<Class<?>> spys = new ArrayList<Class<?>>();
+        List<Class<?>> spys = new ArrayList<>();
         spys.add(TerminateSubscriptionBean.class);
         spys.add(ManageSubscriptionBean.class);
         spys.add(ModifyAndUpgradeSubscriptionBean.class);
@@ -223,32 +224,33 @@ public class SubscriptionServiceBeanTriggerIdTest extends
         initMessageData(TriggerType.ADD_REVOKE_USER, callingOrg);
         subscriptionServiceBean.addRevokeUser("subId", usersToAdd,
                 usersToRevoke);
-        assertTrue(storedTriggerProcess.getTriggerProcessIdentifiers()
-                .isEmpty());
+        assertTrue(
+                storedTriggerProcess.getTriggerProcessIdentifiers().isEmpty());
     }
 
     @Test
     public void addRevokeUser_NonConflictingValidateIdentifierGeneration()
             throws Exception {
         initMessageData(TriggerType.ADD_REVOKE_USER, callingOrg);
-        storedTriggerProcess
-                .setTriggerDefinition(createTriggerDefinition(TriggerType.ADD_REVOKE_USER));
+        storedTriggerProcess.setTriggerDefinition(
+                createTriggerDefinition(TriggerType.ADD_REVOKE_USER));
         subscriptionServiceBean.addRevokeUser("subId", usersToAdd,
                 usersToRevoke);
         List<TriggerProcessIdentifier> ids = storedTriggerProcess
                 .getTriggerProcessIdentifiers();
         assertEquals(4, ids.size());
-        assertEquals(TriggerProcessIdentifierName.ORGANIZATION_KEY, ids.get(0)
-                .getName());
-        assertEquals(String.valueOf(callingOrg.getKey()), ids.get(0).getValue());
-        assertEquals(TriggerProcessIdentifierName.SUBSCRIPTION_ID, ids.get(1)
-                .getName());
+        assertEquals(TriggerProcessIdentifierName.ORGANIZATION_KEY,
+                ids.get(0).getName());
+        assertEquals(String.valueOf(callingOrg.getKey()),
+                ids.get(0).getValue());
+        assertEquals(TriggerProcessIdentifierName.SUBSCRIPTION_ID,
+                ids.get(1).getName());
         assertEquals("subId", ids.get(1).getValue());
-        assertEquals(TriggerProcessIdentifierName.USER_TO_ADD, ids.get(2)
-                .getName());
+        assertEquals(TriggerProcessIdentifierName.USER_TO_ADD,
+                ids.get(2).getName());
         assertEquals("user1", ids.get(2).getValue());
-        assertEquals(TriggerProcessIdentifierName.USER_TO_REVOKE, ids.get(3)
-                .getName());
+        assertEquals(TriggerProcessIdentifierName.USER_TO_REVOKE,
+                ids.get(3).getName());
         assertEquals("user2", ids.get(3).getValue());
         verify(dsMock, times(1)).merge(any());
     }
@@ -299,7 +301,8 @@ public class SubscriptionServiceBeanTriggerIdTest extends
     }
 
     @Test
-    public void addRevokeUser_upgradeSubscriptionConflicting() throws Exception {
+    public void addRevokeUser_upgradeSubscriptionConflicting()
+            throws Exception {
         initMessageData(TriggerType.UPGRADE_SUBSCRIPTION, callingOrg);
         storedTriggerProcess.addTriggerProcessIdentifier(
                 TriggerProcessIdentifierName.ORGANIZATION_KEY,
@@ -345,24 +348,25 @@ public class SubscriptionServiceBeanTriggerIdTest extends
     public void subscribeToService_NonConflicting() throws Exception {
         // given
         initMessageData(TriggerType.SUBSCRIBE_TO_SERVICE, callingOrg);
-        doReturn(sub).when(subscriptionServiceBean).subscribeToServiceInt(
-                any(TriggerProcess.class));
+        doReturn(sub).when(subscriptionServiceBean)
+                .subscribeToServiceInt(any(TriggerProcess.class));
+        prod.setAutoAssignUserEnabled(Boolean.TRUE);
+
         // when
-        service.setAutoAssignUserEnabled(Boolean.TRUE);
         subscriptionServiceBean.subscribeToService(subscription, service, null,
                 null, null, new ArrayList<VOUda>());
 
         // then
-        verify(subscriptionServiceBean, times(1)).addRevokeUserInt(
-                any(TriggerProcess.class));
+        verify(subscriptionServiceBean, times(1))
+                .addRevokeUserInt(any(TriggerProcess.class));
     }
 
     @Test(expected = NonUniqueBusinessKeyException.class)
     public void subscribeToService_WithDuplicateSubName() throws Exception {
         // given
         initMessageData(TriggerType.SUBSCRIBE_TO_SERVICE, callingOrg);
-        doReturn(sub).when(subscriptionServiceBean).subscribeToServiceInt(
-                any(TriggerProcess.class));
+        doReturn(sub).when(subscriptionServiceBean)
+                .subscribeToServiceInt(any(TriggerProcess.class));
         doThrow(new NonUniqueBusinessKeyException()).when(dsMock)
                 .validateBusinessKeyUniqueness(any(Subscription.class));
         // when
@@ -374,18 +378,19 @@ public class SubscriptionServiceBeanTriggerIdTest extends
     public void subscribeToService_NonConflictingValidateIdentifierGeneration()
             throws Exception {
         initMessageData(TriggerType.SUBSCRIBE_TO_SERVICE, callingOrg);
-        storedTriggerProcess
-                .setTriggerDefinition(createTriggerDefinition(TriggerType.SUBSCRIBE_TO_SERVICE));
+        storedTriggerProcess.setTriggerDefinition(
+                createTriggerDefinition(TriggerType.SUBSCRIBE_TO_SERVICE));
         subscriptionServiceBean.subscribeToService(subscription, service, null,
                 null, null, new ArrayList<VOUda>());
         List<TriggerProcessIdentifier> ids = storedTriggerProcess
                 .getTriggerProcessIdentifiers();
         assertEquals(2, ids.size());
-        assertEquals(TriggerProcessIdentifierName.ORGANIZATION_KEY, ids.get(0)
-                .getName());
-        assertEquals(String.valueOf(callingOrg.getKey()), ids.get(0).getValue());
-        assertEquals(TriggerProcessIdentifierName.SUBSCRIPTION_ID, ids.get(1)
-                .getName());
+        assertEquals(TriggerProcessIdentifierName.ORGANIZATION_KEY,
+                ids.get(0).getName());
+        assertEquals(String.valueOf(callingOrg.getKey()),
+                ids.get(0).getValue());
+        assertEquals(TriggerProcessIdentifierName.SUBSCRIPTION_ID,
+                ids.get(1).getName());
         assertEquals("subId", ids.get(1).getValue());
         verify(dsMock, times(1)).merge(any());
     }
@@ -409,35 +414,36 @@ public class SubscriptionServiceBeanTriggerIdTest extends
             assertEquals(1, messageParams.length);
             assertEquals("subId", messageParams[0]);
         }
-        verify(subscriptionServiceBean, never()).addRevokeUserInt(
-                any(TriggerProcess.class));
+        verify(subscriptionServiceBean, never())
+                .addRevokeUserInt(any(TriggerProcess.class));
     }
 
     @Test
     public void unsubscribeFromService_NonConflicting() throws Exception {
         initMessageData(TriggerType.UNSUBSCRIBE_FROM_SERVICE, callingOrg);
-        subscriptionServiceBean.unsubscribeFromService(subscription
-                .getSubscriptionId());
-        assertTrue(storedTriggerProcess.getTriggerProcessIdentifiers()
-                .isEmpty());
+        subscriptionServiceBean
+                .unsubscribeFromService(subscription.getSubscriptionId());
+        assertTrue(
+                storedTriggerProcess.getTriggerProcessIdentifiers().isEmpty());
     }
 
     @Test
     public void unsubscribeFromService_NonConflictingValidateIdentifierGeneration()
             throws Exception {
         initMessageData(TriggerType.UNSUBSCRIBE_FROM_SERVICE, callingOrg);
-        storedTriggerProcess
-                .setTriggerDefinition(createTriggerDefinition(TriggerType.UNSUBSCRIBE_FROM_SERVICE));
-        subscriptionServiceBean.unsubscribeFromService(subscription
-                .getSubscriptionId());
+        storedTriggerProcess.setTriggerDefinition(
+                createTriggerDefinition(TriggerType.UNSUBSCRIBE_FROM_SERVICE));
+        subscriptionServiceBean
+                .unsubscribeFromService(subscription.getSubscriptionId());
         List<TriggerProcessIdentifier> ids = storedTriggerProcess
                 .getTriggerProcessIdentifiers();
         assertEquals(2, ids.size());
-        assertEquals(TriggerProcessIdentifierName.ORGANIZATION_KEY, ids.get(0)
-                .getName());
-        assertEquals(String.valueOf(callingOrg.getKey()), ids.get(0).getValue());
-        assertEquals(TriggerProcessIdentifierName.SUBSCRIPTION_ID, ids.get(1)
-                .getName());
+        assertEquals(TriggerProcessIdentifierName.ORGANIZATION_KEY,
+                ids.get(0).getName());
+        assertEquals(String.valueOf(callingOrg.getKey()),
+                ids.get(0).getValue());
+        assertEquals(TriggerProcessIdentifierName.SUBSCRIPTION_ID,
+                ids.get(1).getName());
         assertEquals("subId", ids.get(1).getValue());
         verify(dsMock, times(1)).merge(any());
     }
@@ -451,8 +457,8 @@ public class SubscriptionServiceBeanTriggerIdTest extends
         storedTriggerProcess.addTriggerProcessIdentifier(
                 TriggerProcessIdentifierName.SUBSCRIPTION_ID, "subId");
         try {
-            subscriptionServiceBean.unsubscribeFromService(subscription
-                    .getSubscriptionId());
+            subscriptionServiceBean
+                    .unsubscribeFromService(subscription.getSubscriptionId());
             fail("call must cause an exception");
         } catch (OperationPendingException e) {
             assertEquals(
@@ -469,26 +475,27 @@ public class SubscriptionServiceBeanTriggerIdTest extends
         initMessageData(TriggerType.MODIFY_SUBSCRIPTION, callingOrg);
         subscriptionServiceBean.modifySubscription(subscription, null,
                 new ArrayList<VOUda>());
-        assertTrue(storedTriggerProcess.getTriggerProcessIdentifiers()
-                .isEmpty());
+        assertTrue(
+                storedTriggerProcess.getTriggerProcessIdentifiers().isEmpty());
     }
 
     @Test
     public void modifySubscription_NonConflictingValidateIdentifierGeneration()
             throws Exception {
         initMessageData(TriggerType.MODIFY_SUBSCRIPTION, callingOrg);
-        storedTriggerProcess
-                .setTriggerDefinition(createTriggerDefinition(TriggerType.MODIFY_SUBSCRIPTION));
+        storedTriggerProcess.setTriggerDefinition(
+                createTriggerDefinition(TriggerType.MODIFY_SUBSCRIPTION));
         subscriptionServiceBean.modifySubscription(subscription, null,
                 new ArrayList<VOUda>());
         List<TriggerProcessIdentifier> ids = storedTriggerProcess
                 .getTriggerProcessIdentifiers();
         assertEquals(2, ids.size());
-        assertEquals(TriggerProcessIdentifierName.ORGANIZATION_KEY, ids.get(0)
-                .getName());
-        assertEquals(String.valueOf(callingOrg.getKey()), ids.get(0).getValue());
-        assertEquals(TriggerProcessIdentifierName.SUBSCRIPTION_KEY, ids.get(1)
-                .getName());
+        assertEquals(TriggerProcessIdentifierName.ORGANIZATION_KEY,
+                ids.get(0).getName());
+        assertEquals(String.valueOf(callingOrg.getKey()),
+                ids.get(0).getValue());
+        assertEquals(TriggerProcessIdentifierName.SUBSCRIPTION_KEY,
+                ids.get(1).getName());
         assertEquals("23", ids.get(1).getValue());
         verify(dsMock, times(1)).merge(any());
     }
@@ -517,28 +524,29 @@ public class SubscriptionServiceBeanTriggerIdTest extends
     @Test
     public void upgradeSubscription_NonConflicting() throws Exception {
         initMessageData(TriggerType.UPGRADE_SUBSCRIPTION, callingOrg);
-        subscriptionServiceBean.upgradeSubscription(subscription, service,
-                null, null, new ArrayList<VOUda>());
-        assertTrue(storedTriggerProcess.getTriggerProcessIdentifiers()
-                .isEmpty());
+        subscriptionServiceBean.upgradeSubscription(subscription, service, null,
+                null, new ArrayList<VOUda>());
+        assertTrue(
+                storedTriggerProcess.getTriggerProcessIdentifiers().isEmpty());
     }
 
     @Test
     public void upgradeSubscription_NonConflictingValidateIdentifierGeneration()
             throws Exception {
         initMessageData(TriggerType.UPGRADE_SUBSCRIPTION, callingOrg);
-        storedTriggerProcess
-                .setTriggerDefinition(createTriggerDefinition(TriggerType.UPGRADE_SUBSCRIPTION));
-        subscriptionServiceBean.upgradeSubscription(subscription, service,
-                null, null, new ArrayList<VOUda>());
+        storedTriggerProcess.setTriggerDefinition(
+                createTriggerDefinition(TriggerType.UPGRADE_SUBSCRIPTION));
+        subscriptionServiceBean.upgradeSubscription(subscription, service, null,
+                null, new ArrayList<VOUda>());
         List<TriggerProcessIdentifier> ids = storedTriggerProcess
                 .getTriggerProcessIdentifiers();
         assertEquals(2, ids.size());
-        assertEquals(TriggerProcessIdentifierName.ORGANIZATION_KEY, ids.get(0)
-                .getName());
-        assertEquals(String.valueOf(callingOrg.getKey()), ids.get(0).getValue());
-        assertEquals(TriggerProcessIdentifierName.SUBSCRIPTION_KEY, ids.get(1)
-                .getName());
+        assertEquals(TriggerProcessIdentifierName.ORGANIZATION_KEY,
+                ids.get(0).getName());
+        assertEquals(String.valueOf(callingOrg.getKey()),
+                ids.get(0).getValue());
+        assertEquals(TriggerProcessIdentifierName.SUBSCRIPTION_KEY,
+                ids.get(1).getName());
         assertEquals("23", ids.get(1).getValue());
         verify(dsMock, times(1)).merge(any());
     }
@@ -606,7 +614,8 @@ public class SubscriptionServiceBeanTriggerIdTest extends
 
         doAnswer(new Answer<List<?>>() {
             @Override
-            public List<?> answer(InvocationOnMock invocation) throws Throwable {
+            public List<?> answer(InvocationOnMock invocation)
+                    throws Throwable {
                 if ("Product.getCopyForCustomer".equals(queryName)
                         || "Product.getForCustomerOnly".equals(queryName)) {
                     return new ArrayList<Product>();
@@ -663,19 +672,19 @@ public class SubscriptionServiceBeanTriggerIdTest extends
                     InvocationOnMock invocation) throws Throwable {
                 return triggerMessageData;
             }
-        }).when(triggerQueueServiceMock).sendSuspendingMessages(
-                anyListOf(TriggerMessage.class));
+        }).when(triggerQueueServiceMock)
+                .sendSuspendingMessages(anyListOf(TriggerMessage.class));
 
         // ignore internal trigger related methods
-        doNothing().when(subscriptionServiceBean).addRevokeUserInt(
-                any(TriggerProcess.class));
-        doReturn(null).when(subscriptionServiceBean).subscribeToServiceInt(
-                any(TriggerProcess.class));
+        doNothing().when(subscriptionServiceBean)
+                .addRevokeUserInt(any(TriggerProcess.class));
+        doReturn(null).when(subscriptionServiceBean)
+                .subscribeToServiceInt(any(TriggerProcess.class));
     }
 
     private Set<RoleAssignment> newRoleAssignment(PlatformUser user,
             UserRoleType roleType) {
-        Set<RoleAssignment> roles = new HashSet<RoleAssignment>();
+        Set<RoleAssignment> roles = new HashSet<>();
         RoleAssignment ra = new RoleAssignment();
         ra.setKey(1L);
         ra.setUser(user);
@@ -688,7 +697,8 @@ public class SubscriptionServiceBeanTriggerIdTest extends
             throws Exception {
         doAnswer(new Answer<List<?>>() {
             @Override
-            public List<?> answer(InvocationOnMock invocation) throws Throwable {
+            public List<?> answer(InvocationOnMock invocation)
+                    throws Throwable {
                 return new ArrayList<TriggerProcessIdentifier>();
             }
         }).when(queryMock).getResultList();
@@ -710,7 +720,8 @@ public class SubscriptionServiceBeanTriggerIdTest extends
     private void prepareForTerminateSubscriptionConflict() throws Exception {
         doAnswer(new Answer<List<?>>() {
             @Override
-            public List<?> answer(InvocationOnMock invocation) throws Throwable {
+            public List<?> answer(InvocationOnMock invocation)
+                    throws Throwable {
                 return new ArrayList<TriggerProcessIdentifier>();
             }
         }).when(queryMock).getResultList();

@@ -12,11 +12,17 @@
 
 package org.oscm.serviceprovisioningservice.bean;
 
-import org.apache.lucene.queryParser.QueryParser;
+import java.util.Arrays;
+import java.util.List;
+
+import org.apache.lucene.index.Term;
+import org.apache.lucene.search.BooleanClause.Occur;
+import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.WildcardQuery;
 
 import org.oscm.converter.WhiteSpaceConverter;
 import org.oscm.domobjects.bridge.ProductClassBridge;
-import org.oscm.internal.types.exception.IllegalArgumentException;
 
 /**
  * @author Dirk Bernsau
@@ -28,96 +34,100 @@ public class LuceneQueryBuilder {
      * Builds the search query for searching the given search phrase on a
      * certain marketplace.
      * 
-     * @param marketplaceId
-     *            the id of the marketplace
-     * @param locale
-     *            the user locale
      * @param searchPhrase
      *            the search phrase
+     * @param locale
+     *            the user locale
      * @param defaultLocale
      *            if <code>false</code>, check if search term is found in fields
      *            for current locale, otherwise check if fields in current
      *            locale are not specified but in default locale instead
      * @return a Lucene search query
      */
-    public static String getServiceQuery(String searchPhrase, String locale,
-            String defaultLocale, boolean isDefaultLocaleHandling) {
-        StringBuffer b = new StringBuffer();
+    public static BooleanQuery getServiceQuery(String searchPhrase,
+            String locale, String defaultLocale,
+            boolean isDefaultLocaleHandling) {
 
         String phrase = WhiteSpaceConverter.replace(searchPhrase);
         phrase = phrase.trim();
 
-        String[] terms = phrase.split(" ");
-        for (int i = 0; i < terms.length; i++) {
-            // make sure " " is not set up as mandatory search term, bug 8444
-            if (terms[i].trim().length() > 0) {
-                if (i > 0) {
-                    b.append(" AND ");
-                }
-                b.append("(");
-                b.append(buildClauseForField(ProductClassBridge.SERVICE_NAME,
-                        terms[i], locale, defaultLocale,
-                        isDefaultLocaleHandling));
-                b.append(" ");
-                b.append(buildClauseForField(
-                        ProductClassBridge.SERVICE_DESCRIPTION, terms[i],
-                        locale, defaultLocale, isDefaultLocaleHandling));
-                b.append(" ");
-                b.append(buildClauseForField(
-                        ProductClassBridge.SERVICE_SHORT_DESC, terms[i],
-                        locale, defaultLocale, isDefaultLocaleHandling));
-                b.append(" ");
-                b.append(buildClauseForField(ProductClassBridge.TAGS, terms[i],
-                        locale, defaultLocale, isDefaultLocaleHandling));
-                b.append(" ");
-                b.append(buildClauseForField(
-                        ProductClassBridge.PRICEMODEL_DESCRIPTION, terms[i],
-                        locale, defaultLocale, isDefaultLocaleHandling));
-                b.append(" ");
-                b.append(buildClauseForField(ProductClassBridge.CATEGORY_NAME,
-                        terms[i], locale, defaultLocale,
-                        isDefaultLocaleHandling));
+        final List<String> fieldNames = Arrays.asList(
+                ProductClassBridge.SERVICE_NAME,
+                ProductClassBridge.SERVICE_DESCRIPTION,
+                ProductClassBridge.SERVICE_SHORT_DESC, ProductClassBridge.TAGS,
+                ProductClassBridge.PRICEMODEL_DESCRIPTION,
+                ProductClassBridge.CATEGORY_NAME);
 
-                b.append(")");
-            }
-        }
-        return b.toString();
+        BooleanQuery booleanQuery = constructWildcardQuery(phrase, fieldNames,
+                locale, defaultLocale, isDefaultLocaleHandling);
+
+        return booleanQuery;
     }
 
-    /**
-     * @param locale
-     *            the locale
-     * @param field
-     *            the field to search in
-     * @param searchPhrase
-     *            the search term
-     * @param defaultLocaleMode
-     *            if <code>false</code>, check if search term is found in field
-     *            for current locale, otherwise check if field in current locale
-     *            is not specified but in default locale instead
-     */
-    private static StringBuffer buildClauseForField(String field,
-            String searchPhrase, String locale, String defaultLocale,
+    private static BooleanQuery constructWildcardQuery(String searchPhrase,
+            List<String> fieldNames, String locale, String defaultLocale,
             boolean isDefaultLocaleHandling) {
-        StringBuffer b = new StringBuffer();
-        if (isDefaultLocaleHandling) {
-            if (locale.equals(defaultLocale)) {
-                throw new IllegalArgumentException(
-                        "For default locale handling, locale and default locale must be different");
-            }
-            b.append("(").append(field)
-                    .append(ProductClassBridge.DEFINED_LOCALES_SUFFIX);
-            b.append(":(+").append(defaultLocale).append(" -").append(locale);
-            b.append(") AND ");
-            b.append(field).append(defaultLocale).append(":\"")
-                    .append(QueryParser.escape(searchPhrase));
-            b.append("\")");
-        } else {
-            b.append(field);
-            b.append(QueryParser.escape(locale)).append(":\"")
-                    .append(QueryParser.escape(searchPhrase)).append("\"");
+
+        String[] splitStr = searchPhrase.split("\\s+");
+
+        BooleanQuery booleanQuery = new BooleanQuery();
+
+        for (String token : splitStr) {
+            booleanQuery.add(
+                    prepareWildcardQueryForSingleToken(token, fieldNames,
+                            locale, defaultLocale, isDefaultLocaleHandling),
+                    Occur.MUST);
         }
-        return b;
+
+        return booleanQuery;
+    }
+
+    private static BooleanQuery prepareWildcardQueryForSingleToken(String token,
+            List<String> fieldNames, String locale, String defaultLocale,
+            boolean isDefaultLocaleHandling) {
+
+        BooleanQuery queryPart = new BooleanQuery();
+
+        for (String fieldName : fieldNames) {
+            if (isDefaultLocaleHandling) {
+                if (locale.equals(defaultLocale)) {
+                    throw new IllegalArgumentException(
+                            "For default locale handling, locale and default locale must be different");
+                }
+                BooleanQuery localeHandlingQuery = constructDefaultLocaleHandlingQuery(
+                        fieldName, locale, defaultLocale, token);
+                queryPart.add(localeHandlingQuery, Occur.SHOULD);
+            } else {
+                WildcardQuery wildcardQuery = new WildcardQuery(new Term(
+                        fieldName + locale, "*" + token.toLowerCase() + "*"));
+                queryPart.add(wildcardQuery, Occur.SHOULD);
+            }
+
+        }
+        return queryPart;
+    }
+
+    private static BooleanQuery constructDefaultLocaleHandlingQuery(
+            String fieldName, String locale, String defaultLocale,
+            String searchPhrase) {
+        BooleanQuery bq1 = new BooleanQuery();
+        TermQuery tq1 = new TermQuery(
+                new Term(fieldName + ProductClassBridge.DEFINED_LOCALES_SUFFIX,
+                        defaultLocale));
+        TermQuery tq2 = new TermQuery(new Term(
+                fieldName + ProductClassBridge.DEFINED_LOCALES_SUFFIX, locale));
+        bq1.add(tq1, Occur.MUST);
+        bq1.add(tq2, Occur.MUST_NOT);
+        BooleanQuery bq2 = new BooleanQuery();
+        WildcardQuery wq1 = new WildcardQuery(
+                new Term(fieldName + defaultLocale,
+                        "*" + searchPhrase.toLowerCase() + "*"));
+        bq2.add(wq1, Occur.SHOULD);
+        BooleanQuery finalQuery = new BooleanQuery();
+        finalQuery.add(bq1, Occur.MUST);
+        finalQuery.add(bq2, Occur.MUST);
+
+        return finalQuery;
     }
 
 }

@@ -5,14 +5,21 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-app"/>
 	<classpathentry kind="lib" path="/libraries/slf4j-log4j/javalib/slf4j-log4j12-1.7.7.jar"/>
-	<classpathentry kind="lib" path="/libraries/slf4j/javalib/slf4j-api-1.7.7.jar"/><classpathentry kind="lib" path="/libraries/slf4j/javalib/slf4j-simple-1.7.7.jar"/>
+	<classpathentry kind="lib" path="/libraries/slf4j/javalib/slf4j-api-1.7.7.jar"/>
+	<classpathentry kind="lib" path="/libraries/slf4j/javalib/slf4j-simple-1.7.7.jar"/>
 	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/javalib/javaee.jar"/>
 	<classpathentry kind="lib" path="/libraries/apache-beanutils/javalib/commons-beanutils-1.8.3.jar"/>
 	<classpathentry kind="lib" path="/libraries/apache-digester/javalib/commons-digester-1.8.1.jar"/>
-	<classpathentry kind="lib" path="/libraries/jboss-richfaces/javalib/cssparser-0.9.14.jar"/><classpathentry kind="lib" path="/libraries/jboss-richfaces/javalib/guava-18.0.jar"/><classpathentry kind="lib" path="/libraries/jboss-richfaces/javalib/richfaces-components-a4j-4.5.0.Final.jar"/><classpathentry kind="lib" path="/libraries/jboss-richfaces/javalib/richfaces-components-rich-4.5.0.Final.jar"/><classpathentry kind="lib" path="/libraries/jboss-richfaces/javalib/richfaces-core-4.5.0.Final.jar"/><classpathentry kind="lib" path="/libraries/jboss-richfaces/javalib/sac-1.3.jar"/>
+	<classpathentry kind="lib" path="/libraries/jboss-richfaces/javalib/cssparser-0.9.14.jar"/>
+	<classpathentry kind="lib" path="/libraries/jboss-richfaces/javalib/guava-18.0.jar"/>
+	<classpathentry kind="lib" path="/libraries/jboss-richfaces/javalib/richfaces-components-a4j-4.5.0.Final.jar"/>
+	<classpathentry kind="lib" path="/libraries/jboss-richfaces/javalib/richfaces-components-rich-4.5.0.Final.jar"/>
+	<classpathentry kind="lib" path="/libraries/jboss-richfaces/javalib/richfaces-core-4.5.0.Final.jar"/>
+	<classpathentry kind="lib" path="/libraries/jboss-richfaces/javalib/sac-1.3.jar"/>
 	<classpathentry kind="lib" path="/libraries/apache-logging/javalib/commons-logging-1.1.3.jar"/>
 	<classpathentry kind="lib" path="/libraries/apache-log4j/javalib/log4j-1.2.16.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-app-extsvc-2-0"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-app-common"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

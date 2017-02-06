@@ -18,7 +18,7 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 
 import org.oscm.app.business.exceptions.BadResultException;
-import org.oscm.app.security.AESEncrypter;
+import org.oscm.encrypter.AESEncrypter;
 
 /**
  * A custom attribute for the asynchronous provisioning proxy.
@@ -88,7 +88,7 @@ public class CustomAttribute {
                     ? AESEncrypter.encrypt(parameterValue) : parameterValue;
         } catch (GeneralSecurityException e) {
             throw new BadResultException(String.format(
-                    "Parameter for key '%s' could not be encrypted",
+                    "Attribute for key '%s' could not be encrypted",
                     getAttributeKey()));
         }
     }
@@ -99,7 +99,7 @@ public class CustomAttribute {
                     : attributeValue;
         } catch (GeneralSecurityException e) {
             throw new BadResultException(String.format(
-                    "Parameter for key '%s' could not be decrypted",
+                    "Attribute for key '%s' could not be decrypted",
                     getAttributeKey()));
         }
     }

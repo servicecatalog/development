@@ -167,15 +167,6 @@
           </sourcefiles>
         </group>
 
-        <group name="oscm-credentialservice">
-          <classfiles>
-            <fileset dir="${result.dir}/work/oscm-credentialservice/classes" />
-          </classfiles>
-          <sourcefiles encoding="utf-8">
-            <fileset dir="${workspace.dir}/oscm-credentialservice/javasrc" />
-          </sourcefiles>
-        </group>
-
         <group name="oscm-dataservice">
           <classfiles>
             <fileset dir="${result.dir}/work/oscm-dataservice/classes" />
@@ -407,15 +398,6 @@
           </classfiles>
           <sourcefiles encoding="utf-8">
             <fileset dir="${workspace.dir}/oscm-review/javasrc" />
-          </sourcefiles>
-        </group>
-
-        <group name="oscm-saml-api">
-          <classfiles>
-            <fileset dir="${result.dir}/work/oscm-saml-api/classes" />
-          </classfiles>
-          <sourcefiles encoding="utf-8">
-            <fileset dir="${workspace.dir}/oscm-saml-api/javasrc" />
           </sourcefiles>
         </group>
 

@@ -117,8 +117,7 @@ public class ExceptionConverter {
      */
     public static org.oscm.internal.types.exception.PaymentDataException convertToUp(
             org.oscm.types.exceptions.PaymentDataException oldEx) {
-        return convertExceptionToUp(
-                oldEx,
+        return convertExceptionToUp(oldEx,
                 org.oscm.internal.types.exception.PaymentDataException.class);
     }
 
@@ -131,8 +130,7 @@ public class ExceptionConverter {
      */
     public static org.oscm.internal.types.exception.OperationNotPermittedException convertToUp(
             org.oscm.types.exceptions.OperationNotPermittedException oldEx) {
-        return convertExceptionToUp(
-                oldEx,
+        return convertExceptionToUp(oldEx,
                 org.oscm.internal.types.exception.OperationNotPermittedException.class);
     }
 
@@ -192,6 +190,18 @@ public class ExceptionConverter {
      *            Exception to convert.
      * @return Exception of target version.
      */
+    public static MandatoryUdaMissingException convertToApi(
+            org.oscm.internal.types.exception.MandatoryCustomerUdaMissingException oldEx) {
+        return convertExceptionToApi(oldEx, MandatoryUdaMissingException.class);
+    }
+
+    /**
+     * Convert source version Exception to target version Exception
+     * 
+     * @param oldEx
+     *            Exception to convert.
+     * @return Exception of target version.
+     */
     public static ConcurrentModificationException convertToApi(
             org.oscm.internal.types.exception.ConcurrentModificationException oldEx) {
         return convertExceptionToApi(oldEx,
@@ -220,7 +230,8 @@ public class ExceptionConverter {
     public static DeletionConstraintException convertToApi(
             org.oscm.internal.types.exception.DeletionConstraintException oldEx) {
 
-        org.oscm.internal.types.exception.beans.DeletionConstraintExceptionBean bean = (org.oscm.internal.types.exception.beans.DeletionConstraintExceptionBean) getFaultInfo(oldEx);
+        org.oscm.internal.types.exception.beans.DeletionConstraintExceptionBean bean = (org.oscm.internal.types.exception.beans.DeletionConstraintExceptionBean) getFaultInfo(
+                oldEx);
         DeletionConstraintExceptionBean v13Bean = convertBeanToApi(bean,
                 DeletionConstraintExceptionBean.class);
 
@@ -286,7 +297,8 @@ public class ExceptionConverter {
     public static ImportException convertToApi(
             org.oscm.internal.types.exception.ImportException oldEx) {
 
-        org.oscm.internal.types.exception.beans.ImportExceptionBean bean = (org.oscm.internal.types.exception.beans.ImportExceptionBean) getFaultInfo(oldEx);
+        org.oscm.internal.types.exception.beans.ImportExceptionBean bean = (org.oscm.internal.types.exception.beans.ImportExceptionBean) getFaultInfo(
+                oldEx);
         ImportExceptionBean v13Bean = convertBeanToApi(bean,
                 ImportExceptionBean.class);
 
@@ -320,7 +332,8 @@ public class ExceptionConverter {
     public static NonUniqueBusinessKeyException convertToApi(
             org.oscm.internal.types.exception.NonUniqueBusinessKeyException oldEx) {
 
-        org.oscm.internal.types.exception.beans.DomainObjectExceptionBean bean = (org.oscm.internal.types.exception.beans.DomainObjectExceptionBean) getFaultInfo(oldEx);
+        org.oscm.internal.types.exception.beans.DomainObjectExceptionBean bean = (org.oscm.internal.types.exception.beans.DomainObjectExceptionBean) getFaultInfo(
+                oldEx);
         DomainObjectExceptionBean v13Bean = convertBeanToApi(bean,
                 DomainObjectExceptionBean.class);
 
@@ -345,7 +358,8 @@ public class ExceptionConverter {
     public static ObjectNotFoundException convertToApi(
             org.oscm.internal.types.exception.ObjectNotFoundException oldEx) {
 
-        org.oscm.internal.types.exception.beans.DomainObjectExceptionBean bean = (org.oscm.internal.types.exception.beans.DomainObjectExceptionBean) getFaultInfo(oldEx);
+        org.oscm.internal.types.exception.beans.DomainObjectExceptionBean bean = (org.oscm.internal.types.exception.beans.DomainObjectExceptionBean) getFaultInfo(
+                oldEx);
         DomainObjectExceptionBean v13Bean = convertBeanToApi(bean,
                 DomainObjectExceptionBean.class);
 
@@ -495,7 +509,8 @@ public class ExceptionConverter {
     public static RegistrationException convertToApi(
             org.oscm.internal.types.exception.RegistrationException oldEx) {
 
-        org.oscm.internal.types.exception.beans.RegistrationExceptionBean bean = (org.oscm.internal.types.exception.beans.RegistrationExceptionBean) getFaultInfo(oldEx);
+        org.oscm.internal.types.exception.beans.RegistrationExceptionBean bean = (org.oscm.internal.types.exception.beans.RegistrationExceptionBean) getFaultInfo(
+                oldEx);
         RegistrationExceptionBean v13Bean = convertBeanToApi(bean,
                 RegistrationExceptionBean.class);
 
@@ -543,7 +558,8 @@ public class ExceptionConverter {
     public static ServiceCompatibilityException convertToApi(
             org.oscm.internal.types.exception.ServiceCompatibilityException oldEx) {
 
-        org.oscm.internal.types.exception.beans.ApplicationExceptionBean bean = getFaultInfo(oldEx);
+        org.oscm.internal.types.exception.beans.ApplicationExceptionBean bean = getFaultInfo(
+                oldEx);
         ApplicationExceptionBean v13Bean = convertBeanToApi(bean,
                 ApplicationExceptionBean.class);
 
@@ -620,7 +636,8 @@ public class ExceptionConverter {
     public static SubscriptionMigrationException convertToApi(
             org.oscm.internal.types.exception.SubscriptionMigrationException oldEx) {
 
-        org.oscm.internal.types.exception.beans.SubscriptionMigrationExceptionBean bean = (org.oscm.internal.types.exception.beans.SubscriptionMigrationExceptionBean) getFaultInfo(oldEx);
+        org.oscm.internal.types.exception.beans.SubscriptionMigrationExceptionBean bean = (org.oscm.internal.types.exception.beans.SubscriptionMigrationExceptionBean) getFaultInfo(
+                oldEx);
         SubscriptionMigrationExceptionBean v13Bean = convertBeanToApi(bean,
                 SubscriptionMigrationExceptionBean.class);
 
@@ -645,14 +662,14 @@ public class ExceptionConverter {
     public static SubscriptionStateException convertToApi(
             org.oscm.internal.types.exception.SubscriptionStateException oldEx) {
 
-        org.oscm.internal.types.exception.beans.SubscriptionStateExceptionBean bean = (org.oscm.internal.types.exception.beans.SubscriptionStateExceptionBean) getFaultInfo(oldEx);
+        org.oscm.internal.types.exception.beans.SubscriptionStateExceptionBean bean = (org.oscm.internal.types.exception.beans.SubscriptionStateExceptionBean) getFaultInfo(
+                oldEx);
         SubscriptionStateExceptionBean v13Bean = convertBeanToApi(bean,
                 SubscriptionStateExceptionBean.class);
 
         if (bean != null) {
-            SubscriptionStateException.Reason v13Reason = EnumConverter
-                    .convert(bean.getReason(),
-                            SubscriptionStateException.Reason.class);
+            SubscriptionStateException.Reason v13Reason = EnumConverter.convert(
+                    bean.getReason(), SubscriptionStateException.Reason.class);
             v13Bean.setReason(v13Reason);
             v13Bean.setMember(bean.getMember());
         }
@@ -696,7 +713,8 @@ public class ExceptionConverter {
      */
     public static TriggerProcessStatusException convertToApi(
             org.oscm.internal.types.exception.TriggerProcessStatusException oldEx) {
-        return convertExceptionToApi(oldEx, TriggerProcessStatusException.class);
+        return convertExceptionToApi(oldEx,
+                TriggerProcessStatusException.class);
     }
 
     /**
@@ -735,7 +753,8 @@ public class ExceptionConverter {
     public static UpdateConstraintException convertToApi(
             org.oscm.internal.types.exception.UpdateConstraintException oldEx) {
 
-        org.oscm.internal.types.exception.beans.DomainObjectExceptionBean bean = (org.oscm.internal.types.exception.beans.DomainObjectExceptionBean) getFaultInfo(oldEx);
+        org.oscm.internal.types.exception.beans.DomainObjectExceptionBean bean = (org.oscm.internal.types.exception.beans.DomainObjectExceptionBean) getFaultInfo(
+                oldEx);
         DomainObjectExceptionBean v13Bean = convertBeanToApi(bean,
                 DomainObjectExceptionBean.class);
 
@@ -785,9 +804,10 @@ public class ExceptionConverter {
     public static UserModificationConstraintException convertToApi(
             org.oscm.internal.types.exception.UserModificationConstraintException oldEx) {
 
-        org.oscm.internal.types.exception.beans.UserModificationConstraintExceptionBean bean = (org.oscm.internal.types.exception.beans.UserModificationConstraintExceptionBean) getFaultInfo(oldEx);
-        UserModificationConstraintExceptionBean v13Bean = convertBeanToApi(
-                bean, UserModificationConstraintExceptionBean.class);
+        org.oscm.internal.types.exception.beans.UserModificationConstraintExceptionBean bean = (org.oscm.internal.types.exception.beans.UserModificationConstraintExceptionBean) getFaultInfo(
+                oldEx);
+        UserModificationConstraintExceptionBean v13Bean = convertBeanToApi(bean,
+                UserModificationConstraintExceptionBean.class);
 
         if (bean != null) {
             UserModificationConstraintException.Reason v13Reason = EnumConverter
@@ -810,7 +830,8 @@ public class ExceptionConverter {
     public static ValidationException convertToApi(
             org.oscm.internal.types.exception.ValidationException oldEx) {
 
-        org.oscm.internal.types.exception.beans.ValidationExceptionBean bean = (org.oscm.internal.types.exception.beans.ValidationExceptionBean) getFaultInfo(oldEx);
+        org.oscm.internal.types.exception.beans.ValidationExceptionBean bean = (org.oscm.internal.types.exception.beans.ValidationExceptionBean) getFaultInfo(
+                oldEx);
         ValidationExceptionBean v13Bean = convertBeanToApi(bean,
                 ValidationExceptionBean.class);
 
@@ -936,7 +957,7 @@ public class ExceptionConverter {
         return convertExceptionToApi(oldEx,
                 SubscriptionAlreadyExistsException.class);
     }
-    
+
     /**
      * Convert source version Exception to target version
      * BillingAdapterNotFoundException
@@ -961,7 +982,8 @@ public class ExceptionConverter {
     public static OperationPendingException convertToApi(
             org.oscm.internal.types.exception.OperationPendingException oldEx) {
 
-        org.oscm.internal.types.exception.beans.OperationPendingExceptionBean bean = (org.oscm.internal.types.exception.beans.OperationPendingExceptionBean) getFaultInfo(oldEx);
+        org.oscm.internal.types.exception.beans.OperationPendingExceptionBean bean = (org.oscm.internal.types.exception.beans.OperationPendingExceptionBean) getFaultInfo(
+                oldEx);
         OperationPendingExceptionBean v13Bean = convertBeanToApi(bean,
                 OperationPendingExceptionBean.class);
 
@@ -986,18 +1008,19 @@ public class ExceptionConverter {
     public static ImageException convertToApi(
             org.oscm.internal.types.exception.ImageException oldEx) {
 
-        org.oscm.internal.types.exception.beans.ImageExceptionBean bean = (org.oscm.internal.types.exception.beans.ImageExceptionBean) getFaultInfo(oldEx);
+        org.oscm.internal.types.exception.beans.ImageExceptionBean bean = (org.oscm.internal.types.exception.beans.ImageExceptionBean) getFaultInfo(
+                oldEx);
         ImageExceptionBean v13Bean = convertBeanToApi(bean,
                 ImageExceptionBean.class);
 
         if (bean != null) {
-            ImageException.Reason v13Reason = EnumConverter.convert(
-                    bean.getReason(), ImageException.Reason.class);
+            ImageException.Reason v13Reason = EnumConverter
+                    .convert(bean.getReason(), ImageException.Reason.class);
             v13Bean.setReason(v13Reason);
         }
 
-        return newApiException(ImageException.class,
-                getExceptionMessage(oldEx), v13Bean, oldEx.getStackTrace());
+        return newApiException(ImageException.class, getExceptionMessage(oldEx),
+                v13Bean, oldEx.getStackTrace());
     }
 
     /**
@@ -1073,8 +1096,7 @@ public class ExceptionConverter {
      */
     public static org.oscm.internal.types.exception.PSPCommunicationException convertToUp(
             PSPCommunicationException e) {
-        return convertExceptionToUp(
-                e,
+        return convertExceptionToUp(e,
                 org.oscm.internal.types.exception.PSPCommunicationException.class);
     }
 
@@ -1087,8 +1109,7 @@ public class ExceptionConverter {
      */
     public static org.oscm.internal.types.exception.PaymentDeregistrationException convertToUp(
             PaymentDeregistrationException e) {
-        return convertExceptionToUp(
-                e,
+        return convertExceptionToUp(e,
                 org.oscm.internal.types.exception.PaymentDeregistrationException.class);
     }
 
@@ -1101,8 +1122,7 @@ public class ExceptionConverter {
      */
     public static org.oscm.internal.types.exception.PSPProcessingException convertToUp(
             PSPProcessingException e) {
-        return convertExceptionToUp(
-                e,
+        return convertExceptionToUp(e,
                 org.oscm.internal.types.exception.PSPProcessingException.class);
     }
 
@@ -1136,8 +1156,8 @@ public class ExceptionConverter {
             Class<E> exceptionClazz, String message, B bean,
             StackTraceElement[] stackTrace) {
         try {
-            Constructor<E> constructor = exceptionClazz.getConstructor(
-                    String.class, bean.getClass());
+            Constructor<E> constructor = exceptionClazz
+                    .getConstructor(String.class, bean.getClass());
             E ex = constructor.newInstance(message, bean);
             ex.setStackTrace(stackTrace);
             return ex;
@@ -1149,8 +1169,8 @@ public class ExceptionConverter {
     private static <E extends SaaSApplicationException> E convertExceptionToApi(
             org.oscm.internal.types.exception.SaaSApplicationException sourceEx,
             Class<E> destinationClazz) {
-        ApplicationExceptionBean bean = convertBeanToApi(
-                getFaultInfo(sourceEx), ApplicationExceptionBean.class);
+        ApplicationExceptionBean bean = convertBeanToApi(getFaultInfo(sourceEx),
+                ApplicationExceptionBean.class);
 
         return newApiException(destinationClazz, getExceptionMessage(sourceEx),
                 bean, sourceEx.getStackTrace());
@@ -1177,8 +1197,8 @@ public class ExceptionConverter {
             Class<E> exceptionClazz, String message, B bean,
             StackTraceElement[] stackTrace) {
         try {
-            Constructor<E> constructor = exceptionClazz.getConstructor(
-                    String.class, bean.getClass());
+            Constructor<E> constructor = exceptionClazz
+                    .getConstructor(String.class, bean.getClass());
             E ex = constructor.newInstance(message, bean);
             ex.setStackTrace(stackTrace);
             return ex;
@@ -1253,13 +1273,15 @@ public class ExceptionConverter {
     public static BulkUserImportException convertToApi(
             org.oscm.internal.types.exception.BulkUserImportException e) {
 
-        org.oscm.internal.types.exception.beans.BulkUserImportExceptionBean bean = (org.oscm.internal.types.exception.beans.BulkUserImportExceptionBean) getFaultInfo(e);
+        org.oscm.internal.types.exception.beans.BulkUserImportExceptionBean bean = (org.oscm.internal.types.exception.beans.BulkUserImportExceptionBean) getFaultInfo(
+                e);
         BulkUserImportExceptionBean apiBean = convertBeanToApi(bean,
                 BulkUserImportExceptionBean.class);
 
         if (bean != null) {
-            BulkUserImportException.Reason apiExceptionReason = EnumConverter.convert(
-                    bean.getReason(), BulkUserImportException.Reason.class);
+            BulkUserImportException.Reason apiExceptionReason = EnumConverter
+                    .convert(bean.getReason(),
+                            BulkUserImportException.Reason.class);
             apiBean.setReason(apiExceptionReason);
         }
 

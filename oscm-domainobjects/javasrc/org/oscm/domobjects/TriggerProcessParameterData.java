@@ -12,20 +12,12 @@
 
 package org.oscm.domobjects;
 
-import java.beans.XMLDecoder;
-import java.io.ByteArrayInputStream;
-
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
 import org.oscm.converter.XMLSerializer;
-import org.oscm.domobjects.handling.XmlStringCleaner;
-import org.oscm.types.enumtypes.LogMessageIdentifier;
-import org.oscm.types.enumtypes.TriggerProcessParameterName;
 import org.oscm.internal.types.enumtypes.EventType;
 import org.oscm.internal.types.enumtypes.OfferingType;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
@@ -46,6 +38,10 @@ import org.oscm.internal.types.enumtypes.UdaConfigurationType;
 import org.oscm.internal.types.enumtypes.UserAccountStatus;
 import org.oscm.internal.types.enumtypes.UserRoleType;
 import org.oscm.internal.types.exception.SaaSSystemException;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
+import org.oscm.types.enumtypes.LogMessageIdentifier;
+import org.oscm.types.enumtypes.TriggerProcessParameterName;
 
 /**
  * JPA managed entity representing the trigger process parameter data.
@@ -84,23 +80,7 @@ public class TriggerProcessParameterData extends DomainDataContainer {
      * @return the created object.
      */
     private static Object fromXml(String str) {
-        XMLDecoder decoder = null;
-        try {
-            ByteArrayInputStream in = new ByteArrayInputStream(
-                    str.getBytes("UTF-8"));
-            decoder = new XMLDecoder(in);
-            Object obj = decoder.readObject();
-            return obj;
-        } catch (Exception e) {
-            SaaSSystemException se = new SaaSSystemException(
-                    "Object encoding failed", e);
-            logger.logError(Log4jLogger.SYSTEM_LOG, se,
-                    LogMessageIdentifier.ERROR_OBJECT_ENCODING_FAILED);
-            throw se;
-        } finally {
-            if (decoder != null)
-                decoder.close();
-        }
+        return XMLSerializer.toObject(str);
     }
 
     /**
@@ -111,7 +91,7 @@ public class TriggerProcessParameterData extends DomainDataContainer {
      * @return the string representing the object.
      */
     public static String getVOSerialization(Object source) {
-        return XmlStringCleaner.cleanString(toXml(source));
+        return toXml(source);
     }
 
     private static String toXml(Object source) {
@@ -181,7 +161,7 @@ public class TriggerProcessParameterData extends DomainDataContainer {
         if (value == null) {
             this.serializedValue = null;
         } else {
-            this.serializedValue = XmlStringCleaner.cleanString(toXml(value));
+            this.serializedValue = toXml(value);
             serialized = true;
         }
     }

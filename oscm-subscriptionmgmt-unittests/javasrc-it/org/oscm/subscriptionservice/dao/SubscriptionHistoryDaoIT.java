@@ -23,6 +23,7 @@ import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.TechnicalProduct;
 import org.oscm.domobjects.TriggerDefinition;
 import org.oscm.domobjects.TriggerProcess;
+import org.oscm.encrypter.AESEncrypter;
 import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.i18nservice.bean.LocalizerServiceStub2;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
@@ -81,7 +82,7 @@ public class SubscriptionHistoryDaoIT extends EJBTestBase {
 
     @Override
     public void setup(TestContainer container) throws Exception {
-
+        AESEncrypter.generateKey();
         container.enableInterfaceMocking(true);
         container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());

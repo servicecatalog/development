@@ -10,17 +10,10 @@ package org.oscm.app.common.instanceDetail;
 
 import static org.junit.Assert.assertEquals;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-
-import javax.faces.application.Application;
-import javax.faces.component.UIViewRoot;
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
 
 import org.apache.commons.codec.binary.Base64;
 import org.junit.Test;
@@ -37,63 +30,35 @@ import org.oscm.test.ejb.TestContainer;
  */
 public class ExtensionInterfaceBeanTest extends EJBTestBase {
 
-    private FacesContext facesContext;
-    private ExternalContext externalContext;
-    private Application application;
     private InstanceAccess instanceAccess;
     private List<? extends ServerInformation> serverInfo;
     private String instanceID = "inst1";
     private String subscriptionID = "subscription id";
     private String organizationID = "12345f";
-    private Map<String, String> paramters;
 
     private ExtensionInterfaceBean getTestBean(String instanceId,
             String subscriptionId, String organizationId) throws Exception {
-        facesContext = Mockito.mock(FacesContext.class);
-        externalContext = Mockito.mock(ExternalContext.class);
-        application = Mockito.mock(Application.class);
         instanceAccess = Mockito.mock(InstanceAccess.class);
-        UIViewRoot viewRoot = Mockito.mock(UIViewRoot.class);
-        paramters = new HashMap<String, String>();
-        String decodeSubscriptionId = null;
-        if (subscriptionId != null) {
-            subscriptionId = new String(
-                    Base64.encodeBase64(subscriptionId.getBytes("UTF-8")),
-                    "UTF-8");
-            decodeSubscriptionId = new String(
-                    Base64.decodeBase64(subscriptionId.getBytes("UTF-8")),
-                    "UTF-8");
-        }
-        paramters.put("subId", subscriptionId);
-        paramters.put("instId", instanceId);
-        paramters.put("orgId", organizationId);
 
         serverInfo = getServerInfoMock(3);
 
-        Mockito.when(facesContext.getExternalContext())
-                .thenReturn(externalContext);
-        Mockito.when(facesContext.getApplication()).thenReturn(application);
-        Mockito.when(externalContext.getRequestParameterMap())
-                .thenReturn(paramters);
-        Mockito.when(facesContext.getViewRoot()).thenReturn(viewRoot);
-        Mockito.when(viewRoot.getLocale()).thenReturn(new Locale("en"));
-        Mockito.when(instanceAccess.getAccessInfo(instanceId,
-                decodeSubscriptionId, organizationId))
-                .thenReturn("Access info from IaaS");
-        Mockito.<List<? extends ServerInformation>> when(
-                instanceAccess.getServerDetails(instanceId,
-                        decodeSubscriptionId, organizationId))
+        String encodedInstId = Base64.encodeBase64URLSafeString(
+                instanceId.getBytes(StandardCharsets.UTF_8));
+        String encodedSubId = Base64.encodeBase64URLSafeString(
+                subscriptionId.getBytes(StandardCharsets.UTF_8));
+        String encodedOrgId = Base64.encodeBase64URLSafeString(
+                organizationId.getBytes(StandardCharsets.UTF_8));
+
+        Mockito.when(instanceAccess.getAccessInfo(instanceID, subscriptionID,
+                organizationID)).thenReturn("Access info from IaaS");
+        Mockito.<List<? extends ServerInformation>> when(instanceAccess
+                .getServerDetails(instanceID, subscriptionID, organizationID))
                 .thenReturn(serverInfo);
 
-        ExtensionInterfaceBean bean = new ExtensionInterfaceBean() {
-            private static final long serialVersionUID = -7419653173313779916L;
-
-            @Override
-            protected FacesContext getContext() {
-                return facesContext;
-            }
-        };
-
+        ExtensionInterfaceBean bean = new ExtensionInterfaceBean();
+        bean.setInstanceId(encodedInstId);
+        bean.setSubscriptionId(encodedSubId);
+        bean.setOrganizationId(encodedOrgId);
         bean.setInstanceAccess(instanceAccess);
 
         return bean;
@@ -103,7 +68,7 @@ public class ExtensionInterfaceBeanTest extends EJBTestBase {
      * @return
      */
     private List<ServerInformation> getServerInfoMock(int numberOfServer) {
-        List<ServerInformation> result = new ArrayList<ServerInformation>();
+        List<ServerInformation> result = new ArrayList<>();
         List<String> status = Arrays.asList("ACTIVE", "STOPPED", "ERROR");
         List<String> type = Arrays.asList("S-1", "P-1", "S-2");
         for (int i = 0; i < numberOfServer; i++) {
@@ -193,7 +158,7 @@ public class ExtensionInterfaceBeanTest extends EJBTestBase {
     @Test
     public void getInstanceDetails_withNoInstanceID() throws Exception {
         // given
-        ExtensionInterfaceBean bean = getTestBean(null, subscriptionID,
+        ExtensionInterfaceBean bean = getTestBean("", subscriptionID,
                 organizationID);
         Mockito.<List<? extends ServerInformation>> when(instanceAccess
                 .getServerDetails(null, subscriptionID, organizationID))
@@ -207,7 +172,7 @@ public class ExtensionInterfaceBeanTest extends EJBTestBase {
     @Test
     public void getInstanceDetails_withNoSubscriptionID() throws Exception {
         // given
-        ExtensionInterfaceBean bean = getTestBean(instanceID, null,
+        ExtensionInterfaceBean bean = getTestBean(instanceID, "",
                 organizationID);
         Mockito.<List<? extends ServerInformation>> when(instanceAccess
                 .getServerDetails(instanceID, null, organizationID))
@@ -222,7 +187,7 @@ public class ExtensionInterfaceBeanTest extends EJBTestBase {
     public void getInstanceDetails_withNoOrganizationID() throws Exception {
         // given
         ExtensionInterfaceBean bean = getTestBean(instanceID, subscriptionID,
-                null);
+                "");
         Mockito.<List<? extends ServerInformation>> when(instanceAccess
                 .getServerDetails(instanceID, subscriptionID, null))
                 .thenReturn(getServerInfoMock(0));
@@ -239,7 +204,7 @@ public class ExtensionInterfaceBeanTest extends EJBTestBase {
                 organizationID);
 
         // when
-        String result = bean.getSubscriptionName();
+        String result = bean.getSubscriptionId();
 
         // then
         assertEquals("subscription id", result);
@@ -249,14 +214,29 @@ public class ExtensionInterfaceBeanTest extends EJBTestBase {
     @Test
     public void getSubscriptionName_nothing() throws Exception {
         // given
-        ExtensionInterfaceBean bean = getTestBean(instanceID, null,
+        ExtensionInterfaceBean bean = getTestBean(instanceID, "",
                 organizationID);
 
         // when
-        String result = bean.getSubscriptionName();
+        String result = bean.getSubscriptionId();
 
         // then
         assertEquals("", result);
+
+    }
+
+    @Test
+    public void getSubscriptionName_withJapanese() throws Exception {
+        // given
+        String japaneseSubId = "abcd あいう 123";
+        ExtensionInterfaceBean bean = getTestBean(instanceID, japaneseSubId,
+                organizationID);
+
+        // when
+        String result = bean.getSubscriptionId();
+
+        // then
+        assertEquals(japaneseSubId, result);
 
     }
 

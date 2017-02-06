@@ -15,8 +15,46 @@ import javax.ejb.Remote;
 
 import org.oscm.internal.types.enumtypes.OperationStatus;
 import org.oscm.internal.types.enumtypes.SubscriptionStatus;
-import org.oscm.internal.types.exception.*;
-import org.oscm.internal.vo.*;
+import org.oscm.internal.types.exception.ConcurrentModificationException;
+import org.oscm.internal.types.exception.MailOperationException;
+import org.oscm.internal.types.exception.MandatoryCustomerUdaMissingException;
+import org.oscm.internal.types.exception.MandatoryUdaMissingException;
+import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.internal.types.exception.OperationNotPermittedException;
+import org.oscm.internal.types.exception.OperationPendingException;
+import org.oscm.internal.types.exception.OperationStateException;
+import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
+import org.oscm.internal.types.exception.PaymentDataException;
+import org.oscm.internal.types.exception.PaymentInformationException;
+import org.oscm.internal.types.exception.PriceModelException;
+import org.oscm.internal.types.exception.ServiceChangedException;
+import org.oscm.internal.types.exception.ServiceParameterException;
+import org.oscm.internal.types.exception.SubscriptionAlreadyExistsException;
+import org.oscm.internal.types.exception.SubscriptionMigrationException;
+import org.oscm.internal.types.exception.SubscriptionStateException;
+import org.oscm.internal.types.exception.SubscriptionStillActiveException;
+import org.oscm.internal.types.exception.TechnicalServiceNotAliveException;
+import org.oscm.internal.types.exception.TechnicalServiceOperationException;
+import org.oscm.internal.types.exception.ValidationException;
+import org.oscm.internal.vo.VOBillingContact;
+import org.oscm.internal.vo.VOInstanceInfo;
+import org.oscm.internal.vo.VOLocalizedText;
+import org.oscm.internal.vo.VOOrganization;
+import org.oscm.internal.vo.VOParameter;
+import org.oscm.internal.vo.VOPaymentInfo;
+import org.oscm.internal.vo.VORoleDefinition;
+import org.oscm.internal.vo.VOService;
+import org.oscm.internal.vo.VOServiceOperationParameter;
+import org.oscm.internal.vo.VOServiceOperationParameterValues;
+import org.oscm.internal.vo.VOSubscription;
+import org.oscm.internal.vo.VOSubscriptionDetails;
+import org.oscm.internal.vo.VOSubscriptionIdAndOrganizations;
+import org.oscm.internal.vo.VOTechnicalServiceOperation;
+import org.oscm.internal.vo.VOUda;
+import org.oscm.internal.vo.VOUsageLicense;
+import org.oscm.internal.vo.VOUser;
+import org.oscm.internal.vo.VOUserSubscription;
 
 /**
  * Remote interface of the subscription management service.
@@ -100,27 +138,29 @@ public interface SubscriptionService {
      *             if another request to create a subscription with the same
      *             identifier is pending
      * @throws MandatoryUdaMissingException
-     *             if a mandatory custom attribute is missing
+     *             if a mandatory subscription attribute is missing
      * @throws ConcurrentModificationException
      *             if an existing custom attribute is changed by another user in
      *             the time between reading and writing it
      * @throws SubscriptionStateException
      *             if the subscription status does not allow for the execution
      *             of this method
+     * @throws MandatoryCustomerUdaMissingException
+     *             if a mandatory customer attribute is missing
      */
 
     VOSubscription subscribeToService(VOSubscription subscription,
             VOService service, List<VOUsageLicense> users,
             VOPaymentInfo paymentInfo, VOBillingContact billingContact,
-            List<VOUda> udas) throws ObjectNotFoundException,
-            NonUniqueBusinessKeyException, ValidationException,
-            PaymentInformationException, ServiceParameterException,
-            ServiceChangedException, PriceModelException,
-            TechnicalServiceNotAliveException,
+            List<VOUda> udas)
+            throws ObjectNotFoundException, NonUniqueBusinessKeyException,
+            ValidationException, PaymentInformationException,
+            ServiceParameterException, ServiceChangedException,
+            PriceModelException, TechnicalServiceNotAliveException,
             TechnicalServiceOperationException, OperationNotPermittedException,
             SubscriptionAlreadyExistsException, OperationPendingException,
             MandatoryUdaMissingException, ConcurrentModificationException,
-            SubscriptionStateException;
+            SubscriptionStateException, MandatoryCustomerUdaMissingException;
 
     /**
      * Assigns and/or removes users to/from a subscription.
@@ -290,7 +330,7 @@ public interface SubscriptionService {
 
     VOSubscriptionDetails getSubscriptionDetails(String subscriptionId)
             throws ObjectNotFoundException, OperationNotPermittedException;
-    
+
     /**
      * Returns detailed information on the given subscription of the calling
      * user's organization, including user and price model details.
@@ -328,7 +368,7 @@ public interface SubscriptionService {
 
     List<VOService> getUpgradeOptions(String subscriptionId)
             throws ObjectNotFoundException, OperationNotPermittedException;
-    
+
     /**
      * Returns the marketable services the given subscription can be upgraded or
      * downgraded to.
@@ -374,9 +414,9 @@ public interface SubscriptionService {
      *            free of charge to a chargeable one. When passing
      *            <code>null</code>, the existing payment information of the
      *            subscription remains unchanged and will again be used after
-     *            the upgrade or downgrade. In the case when HIDE_PAYMENT_INFORMATION
-     *            setting equals TRUE and the service is not free of charge,
-     *            Invoice is used as default payment type
+     *            the upgrade or downgrade. In the case when
+     *            HIDE_PAYMENT_INFORMATION setting equals TRUE and the service
+     *            is not free of charge, Invoice is used as default payment type
      * @param billingContact
      *            the billing contact to be assigned to the subscription, if the
      *            service is not free of charge. In the case when
@@ -417,12 +457,14 @@ public interface SubscriptionService {
      *             if another request to upgrade or downgrade the subscription
      *             is pending
      * @throws MandatoryUdaMissingException
-     *             if a mandatory custom attribute is missing
+     *             if a mandatory subscription attribute is missing
      * @throws NonUniqueBusinessKeyException
      *             if a custom attribute with the same definition and target
      *             entity already exists
      * @throws ValidationException
      *             if a custom attribute is invalid
+     * @throws MandatoryCustomerUdaMissingException
+     *             if a mandatory customer attribute is missing
      */
 
     VOSubscription upgradeSubscription(VOSubscription subscription,
@@ -434,7 +476,7 @@ public interface SubscriptionService {
             PriceModelException, ConcurrentModificationException,
             TechnicalServiceNotAliveException, OperationPendingException,
             MandatoryUdaMissingException, NonUniqueBusinessKeyException,
-            ValidationException;
+            ValidationException, MandatoryCustomerUdaMissingException;
 
     /**
      * Modifies the given subscription. In order to rename the subscription, set
@@ -478,19 +520,21 @@ public interface SubscriptionService {
      * @throws OperationPendingException
      *             if another request to modify the subscription is pending
      * @throws MandatoryUdaMissingException
-     *             if a mandatory custom attribute is missing
+     *             if a mandatory subscription attribute is missing
      * @throws SubscriptionStateException
      *             if modification not allowed on current subscription state
+     * @throws MandatoryCustomerUdaMissingException
+     *             if a mandatory customer attribute is missing
      */
 
-    VOSubscriptionDetails modifySubscription(
-            VOSubscription subscription, List<VOParameter> parameters,
-            List<VOUda> udas) throws NonUniqueBusinessKeyException,
-            ObjectNotFoundException, OperationNotPermittedException,
-            ValidationException, SubscriptionMigrationException,
-            ConcurrentModificationException, TechnicalServiceNotAliveException,
-            OperationPendingException, MandatoryUdaMissingException,
-            SubscriptionStateException;
+    VOSubscriptionDetails modifySubscription(VOSubscription subscription,
+            List<VOParameter> parameters, List<VOUda> udas)
+            throws NonUniqueBusinessKeyException, ObjectNotFoundException,
+            OperationNotPermittedException, ValidationException,
+            SubscriptionMigrationException, ConcurrentModificationException,
+            TechnicalServiceNotAliveException, OperationPendingException,
+            MandatoryUdaMissingException, SubscriptionStateException,
+            MandatoryCustomerUdaMissingException;
 
     /**
      * Completes the subscription process for a subscription to a service with
@@ -533,10 +577,9 @@ public interface SubscriptionService {
      *             subscription process
      */
 
-    void completeAsyncSubscription(String subscriptionId,
-            String organizationId, VOInstanceInfo instance)
-            throws ObjectNotFoundException, SubscriptionStateException,
-            TechnicalServiceNotAliveException,
+    void completeAsyncSubscription(String subscriptionId, String organizationId,
+            VOInstanceInfo instance) throws ObjectNotFoundException,
+            SubscriptionStateException, TechnicalServiceNotAliveException,
             TechnicalServiceOperationException,
             OrganizationAuthoritiesException, OperationNotPermittedException,
             ValidationException;
@@ -573,8 +616,8 @@ public interface SubscriptionService {
      *             application and technical service
      */
 
-    void abortAsyncSubscription(String subscriptionId,
-            String organizationId, List<VOLocalizedText> reason)
+    void abortAsyncSubscription(String subscriptionId, String organizationId,
+            List<VOLocalizedText> reason)
             throws ObjectNotFoundException, SubscriptionStateException,
             OrganizationAuthoritiesException, OperationNotPermittedException;
 
@@ -816,8 +859,8 @@ public interface SubscriptionService {
      *             supplier, broker, or reseller role
      */
 
-    List<VOOrganization> getCustomersForSubscriptionId(
-            String subscriptionId) throws OrganizationAuthoritiesException;
+    List<VOOrganization> getCustomersForSubscriptionId(String subscriptionId)
+            throws OrganizationAuthoritiesException;
 
     /**
      * Returns a list of subscription/customer mappings for the services
@@ -856,8 +899,8 @@ public interface SubscriptionService {
      *             user's organization
      */
 
-    VOSubscriptionDetails getSubscriptionForCustomer(
-            String organizationId, String subscriptionId)
+    VOSubscriptionDetails getSubscriptionForCustomer(String organizationId,
+            String subscriptionId)
             throws ObjectNotFoundException, OperationNotPermittedException;
 
     /**
@@ -881,7 +924,7 @@ public interface SubscriptionService {
 
     List<VORoleDefinition> getServiceRolesForSubscription(String subscriptionId)
             throws ObjectNotFoundException, OperationNotPermittedException;
-    
+
     /**
      * Retrieves the service roles defined for the technical service on which
      * the given subscription is based. The service roles can be set for the
@@ -1042,8 +1085,8 @@ public interface SubscriptionService {
     void terminateSubscription(VOSubscription subscription, String reason)
             throws ObjectNotFoundException, OrganizationAuthoritiesException,
             TechnicalServiceNotAliveException,
-            TechnicalServiceOperationException,
-            ConcurrentModificationException, SubscriptionStateException;
+            TechnicalServiceOperationException, ConcurrentModificationException,
+            SubscriptionStateException;
 
     /**
      * Checks if the calling user has any subscriptions, regardless of their
@@ -1141,10 +1184,9 @@ public interface SubscriptionService {
      *             if the subject or text of the email is too long
      */
 
-    void reportIssue(String subscriptionId, String subject,
-            String issueText) throws ObjectNotFoundException,
-            OperationNotPermittedException, MailOperationException,
-            ValidationException;
+    void reportIssue(String subscriptionId, String subject, String issueText)
+            throws ObjectNotFoundException, OperationNotPermittedException,
+            MailOperationException, ValidationException;
 
     /**
      * Returns a list of subscription/customer mappings for the services
@@ -1183,8 +1225,8 @@ public interface SubscriptionService {
      * @throws ValidationException
      *             in case provided access information is syntactically invalid
      */
-    void updateAccessInformation(String subscriptionId,
-            String organizationId, VOInstanceInfo instanceInfo)
+    void updateAccessInformation(String subscriptionId, String organizationId,
+            VOInstanceInfo instanceInfo)
             throws ObjectNotFoundException, SubscriptionStateException,
             OperationNotPermittedException, ValidationException;
 
@@ -1234,7 +1276,8 @@ public interface SubscriptionService {
             throws ObjectNotFoundException;
 
     /**
-     * @param subscriptionKey - the subscription key
+     * @param subscriptionKey
+     *            - the subscription key
      * @return Subscription details
      * @throws ObjectNotFoundException
      */
@@ -1242,8 +1285,30 @@ public interface SubscriptionService {
             long subscriptionKey) throws ObjectNotFoundException;
 
     /**
-     * @return true - if user doesn't need to provide billing contact and payment information in subscription process.
-     *         false - otherwise
+     * @return true - if user doesn't need to provide billing contact and
+     *         payment information in subscription process. false - otherwise
      */
     boolean isPaymentInfoHidden();
+
+    /**
+     * Delegate to unsubscribe from a service by the subscriptions technical
+     * key.
+     * 
+     * @param key
+     *            the subscriptions technical key
+     * @return <code>true</code> if unsubscribe was executed, <code>false</code>
+     *         in case of an existing suspending trigger
+     * @throws ObjectNotFoundException
+     * @throws SubscriptionStillActiveException
+     * @throws SubscriptionStateException
+     * @throws TechnicalServiceNotAliveException
+     * @throws TechnicalServiceOperationException
+     * @throws OperationPendingException
+     * @throws OperationNotPermittedException
+     */
+    boolean unsubscribeFromService(Long key) throws ObjectNotFoundException,
+            SubscriptionStillActiveException, SubscriptionStateException,
+            TechnicalServiceNotAliveException,
+            TechnicalServiceOperationException, OperationPendingException,
+            OperationNotPermittedException;
 }

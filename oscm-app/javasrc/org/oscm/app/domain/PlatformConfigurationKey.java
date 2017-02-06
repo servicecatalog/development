@@ -66,8 +66,8 @@ public enum PlatformConfigurationKey {
     BSS_AUTH_MODE("string"),
 
     /**
-     * The URL base to the BSS service endpoint locations for SAML_SP authentication
-     * mode.
+     * The URL base to the BSS service endpoint locations for SAML_SP
+     * authentication mode.
      */
     BSS_STS_WEBSERVICE_URL(false, "url"),
 
@@ -83,14 +83,29 @@ public enum PlatformConfigurationKey {
     APP_KEYSTORE_PASSWORD(false, "string"),
 
     /**
+     * The location of the app truststore
+     */
+    APP_TRUSTSTORE("string"),
+
+    /**
+     * The alias of the public bss certificate
+     */
+    APP_TRUSTSTORE_BSS_ALIAS("string"),
+
+    /**
      * The truststore password.
      */
-    APP_TRUSTSTORE_PASSWORD(false, "string"),
+    APP_TRUSTSTORE_PASSWORD("string"),
 
     /**
      * The suspend flag of APP.
      */
-    APP_SUSPEND(false, "boolean");
+    APP_SUSPEND(false, "boolean"),
+
+    /**
+     * The path to the file with the encryption key
+     */
+    APP_KEY_PATH("string");
 
     private boolean isMandatory;
 

@@ -40,7 +40,6 @@ import org.oscm.internal.intf.MarketplaceService;
 import org.oscm.internal.intf.MarketplaceServiceInternal;
 import org.oscm.internal.intf.PaymentService;
 import org.oscm.internal.intf.ReportingService;
-import org.oscm.internal.intf.SamlService;
 import org.oscm.internal.intf.SearchService;
 import org.oscm.internal.intf.SearchServiceInternal;
 import org.oscm.internal.intf.ServiceProvisioningService;
@@ -249,6 +248,7 @@ public class BaseBean {
     public static final String WARNING_UNIT_NOT_SELECTED_UNIT_ADMIN = "warning.editSubscription.subscriptionUnitNotSelected";
     public static final String WARNING_PAYMENT_TYPES_NOT_USED = "warning.paymentTypesAreNotUsed";
     public static final String WARNING_NO_CUSTOMER_ACCESS_TO_RESTRICTED_MPL = "warning.noCustomerAccessToRestrictedMpl";
+    public static final String WARNING_TENANT_DEF_NOT_COMPLETE = "warning.tenantDefinitionNotComplete";
 
     public static final String INFO_BILLING_CONTACT_DELETED = "info.billingContact.deleted";
     public static final String INFO_BILLING_CONTACT_DELETED_CONCURRENTLY = "info.billingContact.deletedConcurrently";
@@ -323,6 +323,7 @@ public class BaseBean {
     public static final String INFO_SUPPLIER_BANNED = "info.supplier.banned";
     public static final String INFO_SUPPLIER_BANLIFTED = "info.supplier.banlifted";
     public static final String INFO_PAYMENT_ENABLEMENT_SAVED = "info.paymentEnablment.saved";
+    public static final String INFO_RECREATE_INDEXES = "info.operator.indexes";
     public static final String TRIGGER_PROCESS_DELETED = "info.triggerProcess.deleted";
     public static final String TRIGGER_PROCESS_CANCELED = "info.triggerProcess.canceled";
     public static final String INFO_UDADEFINITIONS_DELETED = "info.udaDefinitions.deleted";
@@ -456,7 +457,6 @@ public class BaseBean {
     ReportingService reportingService;
     PaymentService paymentProcessingService;
     BillingService billingService;
-    SamlService samlService;
     MarketplaceService marketplaceService;
     MarketplaceServiceInternal marketplaceServiceInternal;
     ReviewInternalService reviewInternalService;
@@ -760,16 +760,6 @@ public class BaseBean {
     protected SessionService getSessionService() {
         sessionService = getService(SessionService.class, sessionService);
         return sessionService;
-    }
-
-    /**
-     * Returns the service to handle SAML based single sign on.
-     * 
-     * @return SamlService
-     */
-    protected SamlService getSamlService() {
-        samlService = getService(SamlService.class, samlService);
-        return samlService;
     }
 
     /**
@@ -1459,7 +1449,7 @@ public class BaseBean {
 
     /**
      * Checks if current user has access to admin portal
-     *
+     * 
      * @return true if user is organization admin or subscription manager or
      *         technology manager, otherwise false.
      */

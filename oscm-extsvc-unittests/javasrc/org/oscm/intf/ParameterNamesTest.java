@@ -285,11 +285,6 @@ public class ParameterNamesTest {
     }
 
     @Test
-    public void testSamlService() throws Exception {
-        assertParameterNames(SamlService.class);
-    }
-
-    @Test
     public void testReviewService() throws Exception {
         assertParameterNames(ReviewService.class);
     }

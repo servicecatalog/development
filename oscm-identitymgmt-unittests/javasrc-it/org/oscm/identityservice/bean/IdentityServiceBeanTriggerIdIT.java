@@ -42,6 +42,7 @@ import org.oscm.domobjects.TriggerDefinition;
 import org.oscm.domobjects.TriggerProcess;
 import org.oscm.domobjects.TriggerProcessIdentifier;
 import org.oscm.domobjects.TriggerProcessParameter;
+import org.oscm.encrypter.AESEncrypter;
 import org.oscm.identityservice.local.IdentityServiceLocal;
 import org.oscm.internal.intf.IdentityService;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
@@ -80,6 +81,7 @@ public class IdentityServiceBeanTriggerIdIT extends EJBTestBase {
 
     @Override
     protected void setup(TestContainer container) throws Exception {
+        AESEncrypter.generateKey();
         container.enableInterfaceMocking(true);
         triggerQueueServiceLocal = mock(TriggerQueueServiceLocal.class);
         cs = Mockito.spy(new ConfigurationServiceStub());

@@ -77,7 +77,7 @@ public class MenuBeanTest {
             @Override
             public Set<UserRoleType> getUserRoles() {
                 if (roles == null) {
-                    roles = new HashSet<UserRoleType>();
+                    roles = new HashSet<>();
                     roles.add(UserRoleType.PLATFORM_OPERATOR);
                     roles.add(UserRoleType.ORGANIZATION_ADMIN);
                 }
@@ -96,7 +96,7 @@ public class MenuBeanTest {
             @Override
             public Set<UserRoleType> getUserRoles() {
                 if (roles == null) {
-                    roles = new HashSet<UserRoleType>();
+                    roles = new HashSet<>();
                     roles.add(UserRoleType.SERVICE_MANAGER);
                 }
                 return roles;
@@ -109,7 +109,7 @@ public class MenuBeanTest {
             @Override
             public Set<UserRoleType> getUserRoles() {
                 if (roles == null) {
-                    roles = new HashSet<UserRoleType>();
+                    roles = new HashSet<>();
                     roles.add(UserRoleType.TECHNOLOGY_MANAGER);
                 }
                 return roles;
@@ -122,7 +122,7 @@ public class MenuBeanTest {
             @Override
             public Set<UserRoleType> getUserRoles() {
                 if (roles == null) {
-                    roles = new HashSet<UserRoleType>();
+                    roles = new HashSet<>();
                     roles.add(UserRoleType.RESELLER_MANAGER);
                 }
                 return roles;
@@ -135,7 +135,7 @@ public class MenuBeanTest {
             @Override
             public Set<UserRoleType> getUserRoles() {
                 if (roles == null) {
-                    roles = new HashSet<UserRoleType>();
+                    roles = new HashSet<>();
                     roles.add(UserRoleType.BROKER_MANAGER);
                 }
                 return roles;
@@ -148,7 +148,7 @@ public class MenuBeanTest {
             @Override
             public Set<UserRoleType> getUserRoles() {
                 if (roles == null) {
-                    roles = new HashSet<UserRoleType>();
+                    roles = new HashSet<>();
                     roles.add(UserRoleType.PLATFORM_OPERATOR);
                     roles.add(UserRoleType.ORGANIZATION_ADMIN);
                 }
@@ -159,7 +159,7 @@ public class MenuBeanTest {
         NO_ROLES_USER = new User(new VOUserDetails() {
             @Override
             public Set<UserRoleType> getUserRoles() {
-                return new HashSet<UserRoleType>();
+                return new HashSet<>();
             };
         });
 
@@ -169,7 +169,7 @@ public class MenuBeanTest {
             @Override
             public Set<UserRoleType> getUserRoles() {
                 if (roles == null) {
-                    roles = new HashSet<UserRoleType>();
+                    roles = new HashSet<>();
                     roles.add(UserRoleType.PLATFORM_OPERATOR);
                 }
                 return roles;
@@ -182,7 +182,7 @@ public class MenuBeanTest {
             @Override
             public Set<UserRoleType> getUserRoles() {
                 if (roles == null) {
-                    roles = new HashSet<UserRoleType>();
+                    roles = new HashSet<>();
                     roles.add(UserRoleType.MARKETPLACE_OWNER);
                 }
                 return roles;
@@ -494,7 +494,7 @@ public class MenuBeanTest {
         assertTrue(manageMpGroup.isVisible());
 
         List<MenuItem> visibleMenuItems = getVisibleMenuItems(manageMpGroup);
-        assertEquals(15, visibleMenuItems.size());
+        assertEquals(16, visibleMenuItems.size());
 
         assertEquals(HiddenUIConstants.MENU_ITEM_OPERATOR_MANAGE_USERS,
                 visibleMenuItems.get(0).getId());
@@ -527,21 +527,24 @@ public class MenuBeanTest {
         assertEquals(HiddenUIConstants.MENU_ITEM_OPERATOR_MANAGE_CONFIGURATION,
                 visibleMenuItems.get(9).getId());
 
-        assertEquals(HiddenUIConstants.MENU_ITEM_OPERATOR_EXPORT_BILLING_DATA,
+        assertEquals(HiddenUIConstants.MENU_ITEM_OPERATOR_MANAGE_INDEXES,
                 visibleMenuItems.get(10).getId());
 
-        assertEquals(HiddenUIConstants.MENU_ITEM_OPERATOR_EXECUTE_BILLING_TASKS,
+        assertEquals(HiddenUIConstants.MENU_ITEM_OPERATOR_EXPORT_BILLING_DATA,
                 visibleMenuItems.get(11).getId());
 
-        assertEquals(HiddenUIConstants.MENU_ITEM_OPERATOR_EXPORT_AUDIT_LOG_DATA,
+        assertEquals(HiddenUIConstants.MENU_ITEM_OPERATOR_EXECUTE_BILLING_TASKS,
                 visibleMenuItems.get(12).getId());
 
-        assertEquals(HiddenUIConstants.MENU_ITEM_OPERATOR_MANAGE_LANGUAGES,
+        assertEquals(HiddenUIConstants.MENU_ITEM_OPERATOR_EXPORT_AUDIT_LOG_DATA,
                 visibleMenuItems.get(13).getId());
+
+        assertEquals(HiddenUIConstants.MENU_ITEM_OPERATOR_MANAGE_LANGUAGES,
+                visibleMenuItems.get(14).getId());
 
         assertEquals(
                 HiddenUIConstants.MENU_ITEM_OPERATOR_MANAGE_BILLING_ADAPTERS,
-                visibleMenuItems.get(14).getId());
+                visibleMenuItems.get(15).getId());
     }
 
     @Test
@@ -559,7 +562,7 @@ public class MenuBeanTest {
         assertTrue(operatorGroup.isVisible());
 
         List<MenuItem> visibleMenuItems = getVisibleMenuItems(operatorGroup);
-        assertEquals(15, visibleMenuItems.size());
+        assertEquals(16, visibleMenuItems.size());
 
         assertEquals(HiddenUIConstants.MENU_ITEM_OPERATOR_MANAGE_USERS,
                 visibleMenuItems.get(0).getId());
@@ -589,21 +592,24 @@ public class MenuBeanTest {
         assertEquals(HiddenUIConstants.MENU_ITEM_OPERATOR_MANAGE_CONFIGURATION,
                 visibleMenuItems.get(8).getId());
 
-        assertEquals(HiddenUIConstants.MENU_ITEM_OPERATOR_EXPORT_BILLING_DATA,
+        assertEquals(HiddenUIConstants.MENU_ITEM_OPERATOR_MANAGE_INDEXES,
                 visibleMenuItems.get(9).getId());
 
-        assertEquals(HiddenUIConstants.MENU_ITEM_OPERATOR_EXECUTE_BILLING_TASKS,
+        assertEquals(HiddenUIConstants.MENU_ITEM_OPERATOR_EXPORT_BILLING_DATA,
                 visibleMenuItems.get(10).getId());
 
-        assertEquals(HiddenUIConstants.MENU_ITEM_OPERATOR_EXPORT_AUDIT_LOG_DATA,
+        assertEquals(HiddenUIConstants.MENU_ITEM_OPERATOR_EXECUTE_BILLING_TASKS,
                 visibleMenuItems.get(11).getId());
 
-        assertEquals(HiddenUIConstants.MENU_ITEM_OPERATOR_MANAGE_LANGUAGES,
+        assertEquals(HiddenUIConstants.MENU_ITEM_OPERATOR_EXPORT_AUDIT_LOG_DATA,
                 visibleMenuItems.get(12).getId());
+
+        assertEquals(HiddenUIConstants.MENU_ITEM_OPERATOR_MANAGE_LANGUAGES,
+                visibleMenuItems.get(13).getId());
 
         assertEquals(
                 HiddenUIConstants.MENU_ITEM_OPERATOR_MANAGE_BILLING_ADAPTERS,
-                visibleMenuItems.get(13).getId());
+                visibleMenuItems.get(14).getId());
     }
 
     /**
@@ -654,7 +660,7 @@ public class MenuBeanTest {
                 visibleMenuItems.get(0).getId());
 
         assertEquals(HiddenUIConstants.MENU_ITEM_MARKETPLACE_MANAGE_ACCESS,
-            visibleMenuItems.get(1).getId());
+                visibleMenuItems.get(1).getId());
 
         assertEquals(HiddenUIConstants.MENU_ITEM_MARKETPLACE_MANAGE_SUPPLIERS,
                 visibleMenuItems.get(2).getId());
@@ -837,7 +843,7 @@ public class MenuBeanTest {
     }
 
     private List<MenuItem> getVisibleMenuItems(MenuGroup menuGroup) {
-        List<MenuItem> result = new LinkedList<MenuItem>();
+        List<MenuItem> result = new LinkedList<>();
         for (MenuItem mi : menuGroup.getItems()) {
             if (mi.isVisible()) {
                 result.add(mi);

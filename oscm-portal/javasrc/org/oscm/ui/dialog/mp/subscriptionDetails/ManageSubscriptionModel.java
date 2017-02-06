@@ -13,7 +13,7 @@ import java.util.Map;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 
-import org.oscm.internal.vo.VOParameter;
+import org.apache.commons.lang3.StringUtils;
 import org.oscm.internal.vo.VORoleDefinition;
 import org.oscm.internal.vo.VOSubscriptionDetails;
 import org.oscm.internal.vo.VOUsageLicense;
@@ -22,16 +22,7 @@ import org.oscm.ui.common.Constants;
 import org.oscm.ui.common.JSFUtils;
 import org.oscm.ui.common.SteppedPriceHandler;
 import org.oscm.ui.dialog.mp.interfaces.ConfigParamValidateable;
-import org.oscm.ui.model.Discount;
-import org.oscm.ui.model.Organization;
-import org.oscm.ui.model.ParameterValidationResult;
-import org.oscm.ui.model.PriceModel;
-import org.oscm.ui.model.PricedEventRow;
-import org.oscm.ui.model.PricedParameterRow;
-import org.oscm.ui.model.RoleSpecificPrice;
-import org.oscm.ui.model.Service;
-import org.oscm.ui.model.UdaRow;
-import org.oscm.ui.model.User;
+import org.oscm.ui.model.*;
 
 @ManagedBean
 @ViewScoped
@@ -560,25 +551,6 @@ public class ManageSubscriptionModel
         this.parameterValidationResult = parameterValidationResult;
     }
 
-    VOParameter findParameterById(String id) {
-        for (VOParameter p : service.getVO().getParameters()) {
-            if (p.getParameterDefinition().getParameterId().equals(id)) {
-                return p;
-            }
-        }
-        return null;
-    }
-
-    PricedParameterRow findPricedParameterRowById(String id) {
-        for (PricedParameterRow servicePar : serviceParameters) {
-            if (servicePar.getParameterDefinition().getParameterId()
-                    .equals(id)) {
-                return servicePar;
-            }
-        }
-        return null;
-    }
-
     public boolean isConfigurationChanged() {
         return configurationChanged;
     }
@@ -731,11 +703,11 @@ public class ManageSubscriptionModel
     }
 
     public String getUnitNameToDisplay() {
-        if (subscription.getUnitName() == null
-                || subscription.getUnitName().isEmpty()) {
+        String unitName = subscription.getUnitName();
+        if (StringUtils.isEmpty(unitName)) {
             return JSFUtils.getText("unit.notAssigned", new Object[] { "" });
         }
-        return subscription.getUnitName();
+        return unitName;
     }
 
     public boolean isPaymentTabAvailable() {

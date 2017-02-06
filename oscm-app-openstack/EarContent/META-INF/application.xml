@@ -7,9 +7,6 @@
     <ejb>oscm-app-openstack.jar</ejb>
   </module>
   <module>
-    <ejb>oscm-app-common.jar</ejb>
-  </module>
-  <module>
     <web>
       <web-uri>oscm-app-common.war</web-uri>
       <context-root>oscm-app-openstack</context-root>

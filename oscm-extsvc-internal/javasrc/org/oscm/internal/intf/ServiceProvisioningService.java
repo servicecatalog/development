@@ -1377,7 +1377,7 @@ public interface ServiceProvisioningService {
     VOSubscriptionDetails validateSubscription(VOService service)
             throws OperationNotPermittedException, SubscriptionStateException,
             ObjectNotFoundException;
-    
+
     /**
      * Returns a list of all customer-specific services provided by the calling
      * user's organization. Customer-specific services are copies of defined
@@ -1389,6 +1389,40 @@ public interface ServiceProvisioningService {
      * @throws OperationNotPermittedException
      */
 
-    public List<VOCustomerService> getServiceCustomerTemplates(VOService service) throws ObjectNotFoundException, OperationNotPermittedException;
+    public List<VOCustomerService> getServiceCustomerTemplates(VOService service)
+            throws ObjectNotFoundException, OperationNotPermittedException;
+
+    /**
+     * Delegate to delete a service by its key.
+     * 
+     * @param key
+     *            the technical key
+     * @throws ConcurrentModificationException
+     * @throws ServiceStateException
+     * @throws ServiceOperationException
+     * @throws OperationNotPermittedException
+     * @throws OrganizationAuthoritiesException
+     * @throws ObjectNotFoundException
+     */
+    public void deleteService(Long key) throws ObjectNotFoundException,
+            OrganizationAuthoritiesException, OperationNotPermittedException,
+            ServiceOperationException, ServiceStateException,
+            ConcurrentModificationException;
+
+    /**
+     * Delegate to delete a technical service by its key.
+     * 
+     * @param key
+     *            the technical key
+     * @throws OperationNotPermittedException
+     * @throws ObjectNotFoundException
+     * @throws ConcurrentModificationException
+     * @throws OrganizationAuthoritiesException
+     * @throws DeletionConstraintException
+     */
+    public void deleteTechnicalService(Long key)
+            throws ObjectNotFoundException, OperationNotPermittedException,
+            DeletionConstraintException, OrganizationAuthoritiesException,
+            ConcurrentModificationException;
 
 }

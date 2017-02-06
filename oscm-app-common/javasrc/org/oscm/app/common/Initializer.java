@@ -54,9 +54,9 @@ public class Initializer {
     private long logFileLastModified = 0;
     private boolean logFileWarning = false;
 
+    @Inject
     private ControllerAccess controllerAccess;
 
-    @Inject
     public void setControllerAccess(final ControllerAccess controllerAccess) {
         this.controllerAccess = controllerAccess;
     }
@@ -88,17 +88,20 @@ public class Initializer {
                     handleOnChange(logFile);
 
                     // And init timer based service
-                    LOGGER.debug("Enable timer service for monitoring modification of "
-                            + logFile.getPath());
+                    LOGGER.debug(
+                            "Enable timer service for monitoring modification of "
+                                    + logFile.getPath());
                     initTimer();
 
                 } else {
-                    LOGGER.error("Failed to initialize log file: invalid instanceRoot "
-                            + instanceRoot);
+                    LOGGER.error(
+                            "Failed to initialize log file: invalid instanceRoot "
+                                    + instanceRoot);
                     logFile = null;
                 }
             } else {
-                LOGGER.error("Failed to initialize log file: missing system property 'com.sun.aas.instanceRoot'");
+                LOGGER.error(
+                        "Failed to initialize log file: missing system property 'com.sun.aas.instanceRoot'");
             }
         } catch (Exception e) {
             LOGGER.error("Failed to initialize log file", e);
@@ -128,8 +131,8 @@ public class Initializer {
             if (is == null) {
                 LOGGER.warn("Template file not found: " + LOG4J_TEMPLATE);
             } else if (logFile.getParentFile().exists()) {
-                FileUtils
-                        .writeByteArrayToFile(logFile, IOUtils.toByteArray(is));
+                FileUtils.writeByteArrayToFile(logFile,
+                        IOUtils.toByteArray(is));
             }
         } catch (Exception e) {
             // ignore

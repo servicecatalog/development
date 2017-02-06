@@ -5,6 +5,7 @@
 package org.oscm.serviceprovisioningservice.bean;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -62,6 +63,7 @@ import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.TechnicalProduct;
 import org.oscm.domobjects.TriggerProcess;
 import org.oscm.domobjects.UsageLicense;
+import org.oscm.encrypter.AESEncrypter;
 import org.oscm.i18nservice.bean.ImageResourceServiceBean;
 import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
@@ -81,6 +83,7 @@ import org.oscm.internal.types.enumtypes.Sorting;
 import org.oscm.internal.types.enumtypes.UserRoleType;
 import org.oscm.internal.types.exception.DomainObjectException.ClassEnum;
 import org.oscm.internal.types.exception.IllegalArgumentException;
+import org.oscm.internal.types.exception.InvalidPhraseException;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.OperationNotPermittedException;
@@ -270,6 +273,7 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
 
     @BeforeClass
     public static void setupOnce() throws Exception {
+        AESEncrypter.generateKey();
         TestDateFactory.restoreDefault();
         PERSISTENCE.clearEntityManagerFactoryCache();
         System.setProperty("hibernate.search.worker.jms.connection_factory",
@@ -1420,16 +1424,6 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
     }
 
     @Test
-    public void testSearchServices_Anonymous_WildcardAfterThirdLetter()
-            throws Exception {
-        // search without being logged in
-        VOServiceListResult hits = search.searchServices(FUJITSU, "de",
-                TAG4.substring(0, 3) + "*");
-        // will be escaped, thus no exception (but no hits either of coz)
-        Assert.assertEquals(0, hits.getResultSize());
-    }
-
-    @Test
     public void testSearchServices_Anonymous_CompoundWords() throws Exception {
         // search without being logged in
         // make sure a service containing compound word separated by delimiter
@@ -1493,6 +1487,45 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
     }
 
     @Test
+    public void testSearchServices_Wildcard_SvcName() throws InvalidPhraseException, ObjectNotFoundException {
+        final VOServiceListResult hits = search.searchServices(FUJITSU, "de", "wic");
+        final VOServiceListResult hits2 = search.searchServices(FUJITSU, "de", "wicked");
+        assertTrue(hits.getResultSize() == hits2.getResultSize());
+    }
+
+    @Test
+    public void testSearchServices_Wildcard_PriceModelDesc() throws InvalidPhraseException, ObjectNotFoundException {
+        final VOServiceListResult hits = search.searchServices(FUJITSU, "de", "exi");
+        final VOServiceListResult hits2 = search.searchServices(FUJITSU, "de", "flexible");
+        assertTrue(hits.getResultSize() == hits2.getResultSize());
+    }
+
+    @Test
+    public void testSearchServices_Wildcard_Description() throws InvalidPhraseException, ObjectNotFoundException {
+        final VOServiceListResult hits = search.searchServices(FUJITSU, "de", "hing");
+        final VOServiceListResult hits2 = search.searchServices(FUJITSU, "de", "fishing");
+        assertTrue(hits.getResultSize() == hits2.getResultSize());
+    }
+
+    @Test
+    public void testSearchServices_Wildcard_ShortDescription() throws InvalidPhraseException, ObjectNotFoundException {
+        final VOServiceListResult hits = search.searchServices(FUJITSU, "de", "fis");
+        final VOServiceListResult hits2 = search.searchServices(FUJITSU, "de", "fishing");
+        assertTrue(hits.getResultSize() == hits2.getResultSize());
+    }
+
+    @Test
+    public void testSearchServices_Wildcard_MultiplePhrases() throws InvalidPhraseException, ObjectNotFoundException {
+        final VOServiceListResult hits = search.searchServices(FUJITSU, "de", "wic fis");
+        final VOServiceListResult hits2 = search.searchServices(FUJITSU, "de", "wicked fishing");
+        assertTrue(hits.getResultSize() == hits2.getResultSize());
+
+        final VOServiceListResult hits3 = search.searchServices(FUJITSU, "de", "wic fis fis wic fis fis");
+        final VOServiceListResult hits4 = search.searchServices(FUJITSU, "de", "wicked fishing fishing wicked fishing fishing");
+        assertTrue(hits3.getResultSize() == hits4.getResultSize());
+    }
+
+    @Test
     public void testSearchServices_Anonymous_PhraseOfMultipleWordsInOneAttribute()
             throws Exception {
         // search without being logged in
@@ -1529,24 +1562,6 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
     }
 
     @Test
-    public void testSearchServices_LoggedIn_RankingOfSearchResults()
-            throws Exception {
-        // search while being logged in
-        container.login(customerUserKey, ROLE_ORGANIZATION_ADMIN);
-        // results should be ordered according to where the search phrase was
-        // found, i.e. in which (highest-ranked) attribute it was contained
-        // order: svc_name > tag > svc_short_desc > svc_desc > price_model_desc
-        VOServiceListResult hits = search.searchServices(FUJITSU, "de", TAG2);
-        // expected order:
-        // 55: has TAG1 in SVC_NAME --- --- and SVC_SHORT_DESC
-        // 13: has TAG1 in SVC_NAME --- --- --- -------------- and SVC_DESC
-        // 69: has TAG1 in -------- --- TAG and SVC_SHORT_DESC
-        // 41: has TAG1 in -------- --- --- --- -------------- --- SVC_DESC
-        // 27: has TAG1 not at all
-        checkResultListOrdered(hits, 55, 13, 69, 41);
-    }
-
-    @Test
     public void testSearchServices_Anonymous_DefaultLocaleMechanism()
             throws Exception {
         VOServiceListResult hits = search.searchServices(FUJITSU, "de",
@@ -1561,22 +1576,6 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
                 TAG1 + BLANK + TAG3 + BLANK + TAG4);
         // svc6 has words in short_desc + desc for default locale (en)
         checkResultSet(hits, 6);
-    }
-
-    @Test
-    public void testSearchServices_Anonymous_Stemming() throws Exception {
-        // search without being logged in
-        // originally, "fishing" was passed to the indexer
-        // now check that "fishing" as well as its stem "fish" as well as the
-        // plural "fishes" are found
-        VOServiceListResult hits = search.searchServices(FUJITSU, "en",
-                "fishing");
-        checkResultSet(hits, 6, 20, 62);
-        hits = search.searchServices(FUJITSU, "en", "fishes");
-        checkResultSet(hits, 6, 20, 62);
-        hits = search.searchServices(FUJITSU, "en", "fish");
-        checkResultSet(hits, 6, 20, 62);
-        // remark: the stemmer is pretty basic, since e.g. "fisher" is not found
     }
 
     @Test
@@ -2236,26 +2235,6 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
                 .getServicesByCriteria(FUJITSU, "en", crit);
         Assert.assertEquals(servicesByCriteriaBefore.getResultSize(),
                 servicesByCriteriaAfter.getResultSize());
-    }
-
-    @Test
-    public void testSearchServicesByCriteria_Categories() throws Exception {
-        container.login(platformOperatorAdminKey, ROLE_ORGANIZATION_ADMIN);
-        VOServiceListResult result = search.searchServices(FUJITSU, "de", CAT1);
-        Assert.assertEquals(2, result.getResultSize());
-        Assert.assertTrue(result.getServices().get(0).getName().endsWith(TAG1));
-        Assert.assertTrue(result.getServices().get(1).getName().endsWith(TAG2));
-
-        result = search.searchServices(FUJITSU, "de", CAT1 + " deutsch");
-
-        Assert.assertEquals(result.getResultSize(), 2);
-        Assert.assertTrue(result.getServices().get(0).getName().endsWith(TAG1));
-        Assert.assertTrue(result.getServices().get(1).getName().endsWith(TAG2));
-        result = search.searchServices(FUJITSU, "en", CAT1 + " deutsch");
-        Assert.assertEquals(result.getResultSize(), 0);
-        result = search.searchServices(FUJITSU, "de", CAT2 + " deutsch");
-        Assert.assertEquals(result.getResultSize(), 1);
-        Assert.assertTrue(result.getServices().get(0).getName().endsWith(TAG1));
     }
 
     @Test

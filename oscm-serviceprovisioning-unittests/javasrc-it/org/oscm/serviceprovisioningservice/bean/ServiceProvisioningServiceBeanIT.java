@@ -109,8 +109,8 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 @SuppressWarnings("boxing")
-public class ServiceProvisioningServiceBeanIT
-        extends ServiceProvisioningServiceTestBase {
+public class ServiceProvisioningServiceBeanIT extends
+        ServiceProvisioningServiceTestBase {
 
     /*
      * Test of saveProductLocalization method. Case is: input value is
@@ -178,6 +178,7 @@ public class ServiceProvisioningServiceBeanIT
         VOPriceModel priceModel = prepareVOPriceModel(productVO, EUR);
         container.login(providerUserKey, ROLE_SERVICE_MANAGER);
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
                 PlatformUsers.grantRoles(mgr, mgr.getCurrentUser(),
@@ -246,6 +247,7 @@ public class ServiceProvisioningServiceBeanIT
         final VOServiceLocalization tmp = svcProv
                 .getServiceLocalization(productVO);
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
                 localizer.setLocalizedValues(productVO.getKey(),
@@ -286,6 +288,7 @@ public class ServiceProvisioningServiceBeanIT
         final VOServiceLocalization temp = svcProv
                 .getServiceLocalization(productVO);
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
                 localizer.setLocalizedValues(productVO.getKey(),
@@ -318,8 +321,7 @@ public class ServiceProvisioningServiceBeanIT
      * Simple test of deleting technical product.
      */
     public void testDeleteTechnicalProduct() throws Exception {
-        List<VOTechnicalService> technicalProducts = createTechnicalProducts(
-                svcProv);
+        List<VOTechnicalService> technicalProducts = createTechnicalProducts(svcProv);
         for (VOTechnicalService techProduct : technicalProducts) {
 
             verifyLocalizationTechnicalProduct(techProduct, false);
@@ -349,6 +351,7 @@ public class ServiceProvisioningServiceBeanIT
         final long key = techProduct.getKey();
 
         final String locale = runTX(new Callable<String>() {
+
             @Override
             public String call() throws Exception {
                 return mgr.getCurrentUser().getLocale();
@@ -356,6 +359,7 @@ public class ServiceProvisioningServiceBeanIT
         });
 
         localText = runTX(new Callable<String>() {
+
             @Override
             public String call() throws Exception {
                 return localizer.getLocalizedTextFromDatabase(locale, key,
@@ -365,6 +369,7 @@ public class ServiceProvisioningServiceBeanIT
         assertEquals(techDescr, localText);
 
         localText = runTX(new Callable<String>() {
+
             @Override
             public String call() throws Exception {
                 return localizer.getLocalizedTextFromDatabase(locale, key,
@@ -374,6 +379,7 @@ public class ServiceProvisioningServiceBeanIT
         assertEquals(loginAccessDesc, localText);
 
         localText = runTX(new Callable<String>() {
+
             @Override
             public String call() throws Exception {
                 return localizer.getLocalizedTextFromDatabase(locale, key,
@@ -390,22 +396,22 @@ public class ServiceProvisioningServiceBeanIT
      */
     public void testDeleteTechnicalProductAndAllReferencedObjects()
             throws Exception {
-        final List<VOTechnicalService> voTechnicalProducts = createTechnicalProducts(
-                svcProv);
+        final List<VOTechnicalService> voTechnicalProducts = createTechnicalProducts(svcProv);
         for (final VOTechnicalService voTechnicalProduct : voTechnicalProducts) {
             final List<ParameterDefinition> parameterDefinitionsResult = new ArrayList<ParameterDefinition>();
             final List<List<ParameterOption>> parameterOptionsResult = new ArrayList<List<ParameterOption>>();
             final List<Event> eventsResult = new ArrayList<Event>();
             // reading has to be done in transaction. start transaction
             runTX(new Callable<Void>() {
+
                 @Override
                 public Void call() throws Exception {
-                    final TechnicalProduct technicalProduct = mgr.find(
-                            TechnicalProduct.class,
-                            voTechnicalProduct.getKey());
+                    final TechnicalProduct technicalProduct = mgr
+                            .find(TechnicalProduct.class,
+                                    voTechnicalProduct.getKey());
                     // get list of ParameterDefinition objects
-                    parameterDefinitionsResult
-                            .addAll(technicalProduct.getParameterDefinitions());
+                    parameterDefinitionsResult.addAll(technicalProduct
+                            .getParameterDefinitions());
                     // get list of ParameterOptions
                     for (ParameterDefinition parameterDefinition : parameterDefinitionsResult) {
                         final List<ParameterOption> parameterOptions = parameterDefinition
@@ -420,6 +426,7 @@ public class ServiceProvisioningServiceBeanIT
                 }
             });
             runTX(new Callable<Void>() {
+
                 @Override
                 public Void call() throws Exception {
                     // test correct inserting to history tables after referenced
@@ -427,8 +434,8 @@ public class ServiceProvisioningServiceBeanIT
                     // test deleting of ParameterDefinition
                     for (ParameterDefinition parameterDefinition : parameterDefinitionsResult) {
                         final ParameterDefinition parameterDefinitionTemplate = new ParameterDefinition();
-                        parameterDefinitionTemplate
-                                .setKey(parameterDefinition.getKey());
+                        parameterDefinitionTemplate.setKey(parameterDefinition
+                                .getKey());
                         final List<DomainHistoryObject<?>> histParDef = mgr
                                 .findHistory(parameterDefinitionTemplate);
                         checkHistory(histParDef);
@@ -470,8 +477,7 @@ public class ServiceProvisioningServiceBeanIT
      */
     public void testDeleteTechnicalProductWithReferencedProducts()
             throws Exception {
-        List<VOTechnicalService> technicalProducts = createTechnicalProducts(
-                svcProv);
+        List<VOTechnicalService> technicalProducts = createTechnicalProducts(svcProv);
         for (VOTechnicalService techProduct : technicalProducts) {
             // create product for the technical product
             container.login(supplierUserKey, ROLE_SERVICE_MANAGER);
@@ -480,6 +486,7 @@ public class ServiceProvisioningServiceBeanIT
             final VOService voProductTarget = createProduct(techProduct,
                     PRODUCT_ID2, svcProv);
             runTX(new Callable<Void>() {
+
                 @Override
                 public Void call() throws Exception {
                     final Product sourceProduct = mgr.getReference(
@@ -556,10 +563,8 @@ public class ServiceProvisioningServiceBeanIT
      * Test of deleting technical product with deleted market product. Deleting
      * is OK.
      */
-    public void testDeleteTechnicalProductWithDeletedProduct()
-            throws Exception {
-        List<VOTechnicalService> technicalProducts = createTechnicalProducts(
-                svcProv);
+    public void testDeleteTechnicalProductWithDeletedProduct() throws Exception {
+        List<VOTechnicalService> technicalProducts = createTechnicalProducts(svcProv);
         for (VOTechnicalService techProduct : technicalProducts) {
 
             container.login(supplierUserKey, ROLE_SERVICE_MANAGER);
@@ -568,6 +573,7 @@ public class ServiceProvisioningServiceBeanIT
 
             // update status of market product
             runTX(new Callable<Void>() {
+
                 @Override
                 public Void call() throws Exception {
                     final Product product = mgr.getReference(Product.class,
@@ -591,8 +597,7 @@ public class ServiceProvisioningServiceBeanIT
     @Test(expected = ObjectNotFoundException.class)
     public void testDeleteTechnicalProductWithDeletedProduct_Localization()
             throws Exception {
-        List<VOTechnicalService> technicalProducts = createTechnicalProducts(
-                svcProv);
+        List<VOTechnicalService> technicalProducts = createTechnicalProducts(svcProv);
         VOTechnicalService techProduct = technicalProducts.get(0);
 
         container.login(supplierUserKey, ROLE_SERVICE_MANAGER);
@@ -601,6 +606,7 @@ public class ServiceProvisioningServiceBeanIT
 
         // update status of market product
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
                 final Product product = mgr.getReference(Product.class,
@@ -631,6 +637,7 @@ public class ServiceProvisioningServiceBeanIT
                 svcProv);
         // create subscription for the market product
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
                 Subscription subscription = Subscriptions.createSubscription(
@@ -657,8 +664,7 @@ public class ServiceProvisioningServiceBeanIT
      */
     public void testDeleteTechnicalProductWithDeletedProductAndDeletedSubscription()
             throws Exception {
-        List<VOTechnicalService> technicalProducts = createTechnicalProducts(
-                svcProv);
+        List<VOTechnicalService> technicalProducts = createTechnicalProducts(svcProv);
         for (VOTechnicalService techProduct : technicalProducts) {
             // create product for the technical product
             container.login(supplierUserKey, ROLE_SERVICE_MANAGER);
@@ -666,11 +672,12 @@ public class ServiceProvisioningServiceBeanIT
                     svcProv);
             // create subscription for the market product
             runTX(new Callable<Void>() {
+
                 @Override
                 public Void call() throws Exception {
                     Subscription subscription = Subscriptions
-                            .createSubscription(mgr, customerOrgId, PRODUCT_ID1,
-                                    SUBSCRIPTION_ID, supplier);
+                            .createSubscription(mgr, customerOrgId,
+                                    PRODUCT_ID1, SUBSCRIPTION_ID, supplier);
                     subscription.setStatus(SubscriptionStatus.DEACTIVATED);
                     // update product copy
                     final Product product = subscription.getProduct();
@@ -696,10 +703,11 @@ public class ServiceProvisioningServiceBeanIT
         createTechnicalProduct(svcProv);
         container.login(supplierUserKey, ROLE_SERVICE_MANAGER);
         String productXml = "<?xml version='1.0' encoding='UTF-8'?>"
-                + "<TechnicalProduct orgId=\"" + providerOrgId
+                + "<TechnicalProduct orgId=\""
+                + providerOrgId
                 + "\" id=\"example\" version=\"1.00\">"
 
-        + String.format(PRODUCT_FREE_XML_TEMPLATE, EXAMPLE_TRIAL)
+                + String.format(PRODUCT_FREE_XML_TEMPLATE, EXAMPLE_TRIAL)
                 + String.format(PRODUCT_FREE_XML_TEMPLATE, EXAMPLE_STARTER)
                 + String.format(Locale.US, PRODUCT_CHARGEABLE_XML_TEMPLATE,
                         EXAMPLE_PROFESSIONAL, PricingPeriod.MONTH,
@@ -709,14 +717,15 @@ public class ServiceProvisioningServiceBeanIT
                         BigDecimal.ZERO, BD100, BigDecimal.ZERO,
                         BigDecimal.ZERO, BigDecimal.ZERO)
 
-        + "</TechnicalProduct>";
+                + "</TechnicalProduct>";
 
         String importProduct = importProduct(productXml, mgr);
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
-                Query query = mgr.createQuery(
-                        "update Product p set p.dataContainer.status = :status");
+                Query query = mgr
+                        .createQuery("update Product p set p.dataContainer.status = :status");
                 query.setParameter("status", ServiceStatus.ACTIVE);
                 query.executeUpdate();
 
@@ -772,8 +781,8 @@ public class ServiceProvisioningServiceBeanIT
                     global = (Marketplace) mgr
                             .getReferenceByBusinessKey(global);
                 } catch (ObjectNotFoundException e) {
-                    global = Marketplaces.createGlobalMarketplace(
-                            mgr.getCurrentUser().getOrganization(),
+                    global = Marketplaces.createGlobalMarketplace(mgr
+                            .getCurrentUser().getOrganization(),
                             GLOBAL_MARKETPLACE_NAME, mgr);
                 }
 
@@ -810,16 +819,16 @@ public class ServiceProvisioningServiceBeanIT
             Assert.assertEquals("", product.getName());
             Assert.assertEquals("", product.getDescription());
             VOPriceModel priceModel = expected.getPriceModel();
-            Assert.assertEquals(priceModel.getClass(),
-                    product.getPriceModel().getClass());
+            Assert.assertEquals(priceModel.getClass(), product.getPriceModel()
+                    .getClass());
             Assert.assertEquals("", product.getPriceModel().getDescription());
-            Assert.assertEquals(priceModel.isChargeable(),
-                    product.getPriceModel().isChargeable());
+            Assert.assertEquals(priceModel.isChargeable(), product
+                    .getPriceModel().isChargeable());
             if (priceModel.isChargeable()) {
                 compareChargeablePriceModels(priceModel,
                         product.getPriceModel());
-                Assert.assertEquals("Wrong currency stored", EUR,
-                        product.getPriceModel().getCurrencyISOCode());
+                Assert.assertEquals("Wrong currency stored", EUR, product
+                        .getPriceModel().getCurrencyISOCode());
             }
         }
     }
@@ -841,16 +850,16 @@ public class ServiceProvisioningServiceBeanIT
             Assert.assertEquals("", product.getDescription());
             Assert.assertEquals(ServiceStatus.INACTIVE, product.getStatus());
             VOPriceModel priceModel = expected.getPriceModel();
-            Assert.assertEquals(priceModel.getClass(),
-                    product.getPriceModel().getClass());
+            Assert.assertEquals(priceModel.getClass(), product.getPriceModel()
+                    .getClass());
             Assert.assertEquals("", product.getPriceModel().getDescription());
-            Assert.assertEquals(priceModel.isChargeable(),
-                    product.getPriceModel().isChargeable());
+            Assert.assertEquals(priceModel.isChargeable(), product
+                    .getPriceModel().isChargeable());
             if (priceModel.isChargeable()) {
                 compareChargeablePriceModels(priceModel,
                         product.getPriceModel());
-                Assert.assertEquals("Wrong currency stored", EUR,
-                        product.getPriceModel().getCurrencyISOCode());
+                Assert.assertEquals("Wrong currency stored", EUR, product
+                        .getPriceModel().getCurrencyISOCode());
             }
         }
     }
@@ -983,10 +992,12 @@ public class ServiceProvisioningServiceBeanIT
     @Test
     public void testGetTechnicalProductsCheckDirectAccessParamsAndEvents()
             throws Exception {
-        checkParamsAndEvents("ssh", null,
-                new HashSet<String>(Arrays.asList(
-                        new String[] { PlatformParameterIdentifiers.NAMED_USER,
-                                PlatformParameterIdentifiers.CONCURRENT_USER })),
+        checkParamsAndEvents(
+                "ssh",
+                null,
+                new HashSet<String>(Arrays.asList(new String[] {
+                        PlatformParameterIdentifiers.NAMED_USER,
+                        PlatformParameterIdentifiers.CONCURRENT_USER })),
                 null,
                 new HashSet<String>(Arrays.asList(new String[] {
                         PlatformEventIdentifier.USER_LOGIN_TO_SERVICE,
@@ -996,11 +1007,12 @@ public class ServiceProvisioningServiceBeanIT
     @Test
     public void testGetTechnicalProductsCheckSamlAccessParamsAndEvents()
             throws Exception {
-        checkParamsAndEvents("saml",
-                new HashSet<String>(Arrays.asList(new String[] {
-                        PlatformParameterIdentifiers.NAMED_USER })),
-                new HashSet<String>(Arrays.asList(new String[] {
-                        PlatformParameterIdentifiers.CONCURRENT_USER })),
+        checkParamsAndEvents(
+                "saml",
+                new HashSet<String>(
+                        Arrays.asList(new String[] { PlatformParameterIdentifiers.NAMED_USER })),
+                new HashSet<String>(
+                        Arrays.asList(new String[] { PlatformParameterIdentifiers.CONCURRENT_USER })),
                 null,
                 new HashSet<String>(Arrays.asList(new String[] {
                         PlatformEventIdentifier.USER_LOGIN_TO_SERVICE,
@@ -1018,8 +1030,7 @@ public class ServiceProvisioningServiceBeanIT
     }
 
     @Test(expected = ObjectNotFoundException.class)
-    public void testUpdateMarketingProductNonExistingProduct()
-            throws Exception {
+    public void testUpdateMarketingProductNonExistingProduct() throws Exception {
         VOServiceDetails product = new VOServiceDetails();
         product.setTechnicalService(new VOTechnicalService());
         svcProv.updateService(product, null);
@@ -1028,13 +1039,14 @@ public class ServiceProvisioningServiceBeanIT
     @Test
     public void testUpdateMarketingProductChangeId() throws Exception {
         final String customerOrgId = runTX(new Callable<String>() {
+
             @Override
             public String call() throws Exception {
                 Organization org = Organizations.createOrganization(mgr,
                         OrganizationRoleType.CUSTOMER);
                 OrganizationReference ref = new OrganizationReference(
-                        Organizations.findOrganization(mgr, supplierOrgId), org,
-                        OrganizationReferenceType.SUPPLIER_TO_CUSTOMER);
+                        Organizations.findOrganization(mgr, supplierOrgId),
+                        org, OrganizationReferenceType.SUPPLIER_TO_CUSTOMER);
                 mgr.persist(ref);
                 return org.getOrganizationId();
             }
@@ -1060,8 +1072,8 @@ public class ServiceProvisioningServiceBeanIT
         VOServiceDetails productDetails = svcProv
                 .getServiceDetails(createdProduct);
         productDetails.setServiceId("modifiedProductId");
-        VOServiceDetails updateMarketingProduct = svcProv
-                .updateService(productDetails, null);
+        VOServiceDetails updateMarketingProduct = svcProv.updateService(
+                productDetails, null);
 
         createdCustomerProductDetails = svcProv
                 .getServiceDetails(createdCustomerProductDetails);
@@ -1088,8 +1100,8 @@ public class ServiceProvisioningServiceBeanIT
                 .getServiceDetails(createdProduct);
         productDetails.setServiceId("modifiedProductIdIdentical");
         productDetails.setDescription("new marketing description");
-        VOServiceDetails updateMarketingProduct = svcProv
-                .updateService(productDetails, null);
+        VOServiceDetails updateMarketingProduct = svcProv.updateService(
+                productDetails, null);
 
         Assert.assertEquals("Wrong product id", "modifiedProductIdIdentical",
                 updateMarketingProduct.getServiceId());
@@ -1121,12 +1133,12 @@ public class ServiceProvisioningServiceBeanIT
         product.setParameters(parameters);
         product = svcProv.updateService(product, null);
 
-        Assert.assertEquals("Parameter has not been persisted", 1,
-                product.getParameters().size());
-        Assert.assertEquals("Wrong parameter value", "1223",
-                product.getParameters().get(0).getValue());
-        Assert.assertEquals("Wrong configuration value for the parameter", true,
-                product.getParameters().get(0).isConfigurable());
+        Assert.assertEquals("Parameter has not been persisted", 1, product
+                .getParameters().size());
+        Assert.assertEquals("Wrong parameter value", "1223", product
+                .getParameters().get(0).getValue());
+        Assert.assertEquals("Wrong configuration value for the parameter",
+                true, product.getParameters().get(0).isConfigurable());
     }
 
     @Test
@@ -1172,24 +1184,24 @@ public class ServiceProvisioningServiceBeanIT
 
         createdProduct = svcProv.updateService(createdProduct, null);
 
-        assertEquals("Parameter has not been persisted", 3,
-                createdProduct.getParameters().size());
-        assertEquals("Wrong parameter value", "1233",
-                createdProduct.getParameters().get(0).getValue());
-        assertEquals("Wrong parameter value", true,
-                createdProduct.getParameters().get(0).isConfigurable());
-        assertEquals("Wrong key", originalParameter.getKey(),
-                createdProduct.getParameters().get(0).getKey());
+        assertEquals("Parameter has not been persisted", 3, createdProduct
+                .getParameters().size());
+        assertEquals("Wrong parameter value", "1233", createdProduct
+                .getParameters().get(0).getValue());
+        assertEquals("Wrong parameter value", true, createdProduct
+                .getParameters().get(0).isConfigurable());
+        assertEquals("Wrong key", originalParameter.getKey(), createdProduct
+                .getParameters().get(0).getKey());
 
-        assertEquals("Wrong parameter value", "4321",
-                createdProduct.getParameters().get(1).getValue());
-        assertEquals("Wrong parameter value", false,
-                createdProduct.getParameters().get(1).isConfigurable());
+        assertEquals("Wrong parameter value", "4321", createdProduct
+                .getParameters().get(1).getValue());
+        assertEquals("Wrong parameter value", false, createdProduct
+                .getParameters().get(1).isConfigurable());
 
-        assertEquals("Wrong parameter value", "86400000",
-                createdProduct.getParameters().get(2).getValue());
-        assertEquals("Wrong parameter value", false,
-                createdProduct.getParameters().get(2).isConfigurable());
+        assertEquals("Wrong parameter value", "86400000", createdProduct
+                .getParameters().get(2).getValue());
+        assertEquals("Wrong parameter value", false, createdProduct
+                .getParameters().get(2).isConfigurable());
 
     }
 
@@ -1271,8 +1283,8 @@ public class ServiceProvisioningServiceBeanIT
         VOParameter parameter = productDetails.getParameters().get(0);
         parameter.setValue(null);
         parameter.setConfigurable(false);
-        productDetails
-                .setParameters(Arrays.asList(new VOParameter[] { parameter }));
+        productDetails.setParameters(Arrays
+                .asList(new VOParameter[] { parameter }));
 
         productDetails = svcProv.updateService(productDetails, null);
 
@@ -1280,8 +1292,8 @@ public class ServiceProvisioningServiceBeanIT
                 0, productDetails.getParameters().size());
         assertEquals(
                 "PricedParameter for removed parameters have not been removed",
-                0,
-                productDetails.getPriceModel().getSelectedParameters().size());
+                0, productDetails.getPriceModel().getSelectedParameters()
+                        .size());
     }
 
     @Test
@@ -1319,8 +1331,8 @@ public class ServiceProvisioningServiceBeanIT
                 0, serviceDetails.getParameters().size());
         assertEquals(
                 "PricedParameter for removed parameters have not been removed",
-                0,
-                serviceDetails.getPriceModel().getSelectedParameters().size());
+                0, serviceDetails.getPriceModel().getSelectedParameters()
+                        .size());
     }
 
     @Test
@@ -1358,12 +1370,12 @@ public class ServiceProvisioningServiceBeanIT
         serviceDetails.setParameters(Arrays.asList(new VOParameter[] { p1 }));
         serviceDetails = svcProv.updateService(serviceDetails, null);
 
-        assertEquals("Parameter must still exist", 1,
-                serviceDetails.getParameters().size());
+        assertEquals("Parameter must still exist", 1, serviceDetails
+                .getParameters().size());
         assertEquals(
                 "PricedParameter for non-configurable parameter has not been removed",
-                0,
-                serviceDetails.getPriceModel().getSelectedParameters().size());
+                0, serviceDetails.getPriceModel().getSelectedParameters()
+                        .size());
     }
 
     @Test
@@ -1391,36 +1403,34 @@ public class ServiceProvisioningServiceBeanIT
         // use the product from the previous test case
         VOServiceDetails productDetails = svcProv.getServiceDetails(voProduct1);
 
-        VOParameterDefinition foreignParamDef = runTX(
-                new Callable<VOParameterDefinition>() {
-                    @Override
-                    public VOParameterDefinition call() throws Exception {
-                        Organization org = Organizations.findOrganization(mgr,
-                                providerOrgId);
+        VOParameterDefinition foreignParamDef = runTX(new Callable<VOParameterDefinition>() {
 
-                        TechnicalProduct otherProduct = new TechnicalProduct();
-                        otherProduct.setTechnicalProductId("otherId");
-                        otherProduct.setOrganization(org);
-                        otherProduct.setProvisioningURL("http://fujitsu.com/");
-                        otherProduct.setProvisioningVersion("1.0");
-                        otherProduct.setBillingIdentifier(
-                                BillingAdapterIdentifier.NATIVE_BILLING
-                                        .toString());
-                        mgr.persist(otherProduct);
+            @Override
+            public VOParameterDefinition call() throws Exception {
+                Organization org = Organizations.findOrganization(mgr,
+                        providerOrgId);
 
-                        ParameterDefinition paramDef = new ParameterDefinition();
-                        paramDef.setParameterId("bla");
-                        paramDef.setParameterType(
-                                ParameterType.SERVICE_PARAMETER);
-                        paramDef.setValueType(ParameterValueType.STRING);
-                        paramDef.setTechnicalProduct(otherProduct);
-                        mgr.persist(paramDef);
-                        LocalizerFacade facade = new LocalizerFacade(localizer,
-                                "en");
-                        return ParameterDefinitionAssembler
-                                .toVOParameterDefinition(paramDef, facade);
-                    }
-                });
+                TechnicalProduct otherProduct = new TechnicalProduct();
+                otherProduct.setTechnicalProductId("otherId");
+                otherProduct.setOrganization(org);
+                otherProduct.setProvisioningURL("http://fujitsu.com/");
+                otherProduct.setProvisioningVersion("1.0");
+                otherProduct
+                        .setBillingIdentifier(BillingAdapterIdentifier.NATIVE_BILLING
+                                .toString());
+                mgr.persist(otherProduct);
+
+                ParameterDefinition paramDef = new ParameterDefinition();
+                paramDef.setParameterId("bla");
+                paramDef.setParameterType(ParameterType.SERVICE_PARAMETER);
+                paramDef.setValueType(ParameterValueType.STRING);
+                paramDef.setTechnicalProduct(otherProduct);
+                mgr.persist(paramDef);
+                LocalizerFacade facade = new LocalizerFacade(localizer, "en");
+                return ParameterDefinitionAssembler.toVOParameterDefinition(
+                        paramDef, facade);
+            }
+        });
 
         VOParameter param = new VOParameter(foreignParamDef);
         param.setValue("13");
@@ -1431,8 +1441,7 @@ public class ServiceProvisioningServiceBeanIT
 
         try {
             svcProv.updateService(productDetails, null);
-            Assert.fail(
-                    "Operation must fail, as the specified parameter is not compatible to the current product.");
+            Assert.fail("Operation must fail, as the specified parameter is not compatible to the current product.");
         } catch (OperationNotPermittedException e) {
         }
     }
@@ -1450,6 +1459,7 @@ public class ServiceProvisioningServiceBeanIT
                 svcProv);
 
         Organization org = runTX(new Callable<Organization>() {
+
             @Override
             public Organization call() throws Exception {
                 Organization createdOrganization = Organizations
@@ -1470,6 +1480,7 @@ public class ServiceProvisioningServiceBeanIT
                 svcProv);
 
         Organization org = runTX(new Callable<Organization>() {
+
             @Override
             public Organization call() throws Exception {
                 Organization createdOrganization = Organizations
@@ -1542,8 +1553,8 @@ public class ServiceProvisioningServiceBeanIT
         VOPricedParameter pricedParameter = selectedParameters.get(0);
         pricedParameter.setPricePerUser(BigDecimal.valueOf(7777L));
         priceModel.setSelectedParameters(selectedParameters);
-        VOServiceDetails customerProduct = svcProv
-                .savePriceModelForCustomer(service, priceModel, secondCustomer);
+        VOServiceDetails customerProduct = svcProv.savePriceModelForCustomer(
+                service, priceModel, secondCustomer);
 
         service = svcProv.getServiceDetails(service);
         VOPriceModel copyPriceModel = customerProduct.getPriceModel();
@@ -1579,8 +1590,8 @@ public class ServiceProvisioningServiceBeanIT
         container.login(customerUserKey, ROLE_SERVICE_MANAGER);
         List<VOService> products = getServicesForLocalMarketplace(supplier);
         Assert.assertEquals(1, products.size());
-        Assert.assertEquals(voProduct1.getServiceId(),
-                products.get(0).getServiceId());
+        Assert.assertEquals(voProduct1.getServiceId(), products.get(0)
+                .getServiceId());
         Assert.assertEquals(ServiceStatus.ACTIVE, products.get(0).getStatus());
     }
 
@@ -1610,8 +1621,8 @@ public class ServiceProvisioningServiceBeanIT
         container.login(customerUserKey, ROLE_SERVICE_MANAGER);
         List<VOService> products = getServicesForLocalMarketplace(supplier);
         Assert.assertEquals(1, products.size());
-        Assert.assertEquals(voProduct2.getServiceId(),
-                products.get(0).getServiceId());
+        Assert.assertEquals(voProduct2.getServiceId(), products.get(0)
+                .getServiceId());
         Assert.assertEquals(ServiceStatus.ACTIVE, products.get(0).getStatus());
     }
 
@@ -1669,8 +1680,8 @@ public class ServiceProvisioningServiceBeanIT
 
         VOOrganization org = getOrganizationForOrgId(customerOrgId);
         VOPriceModel pm = createPriceModel();
-        VOServiceDetails voProductCust = svcProv
-                .savePriceModelForCustomer(voProduct1, pm, org);
+        VOServiceDetails voProductCust = svcProv.savePriceModelForCustomer(
+                voProduct1, pm, org);
         svcProv.activateService(voProductCust);
 
         container.login(customerUserKey, ROLE_SERVICE_MANAGER);
@@ -1703,6 +1714,7 @@ public class ServiceProvisioningServiceBeanIT
         final LocalizerFacade facade = new LocalizerFacade(localizer, "en");
         final VOTechnicalService techProduct = createTechnicalProduct(svcProv);
         runTX(new Callable<DomainObject<?>>() {
+
             @Override
             public DomainObject<?> call() throws Exception {
                 TechnicalProduct find = mgr.find(TechnicalProduct.class,
@@ -1714,8 +1726,7 @@ public class ServiceProvisioningServiceBeanIT
                         parameterDefinitions.size());
 
                 ParameterDefinition pramDef = parameterDefinitions.get(0);
-                Assert.assertEquals("MAX_FILE_NUMBER",
-                        pramDef.getParameterId());
+                Assert.assertEquals("MAX_FILE_NUMBER", pramDef.getParameterId());
                 Assert.assertEquals(ParameterValueType.INTEGER,
                         pramDef.getValueType());
                 Assert.assertEquals(1l, pramDef.getMinimumValue().longValue());
@@ -1803,9 +1814,8 @@ public class ServiceProvisioningServiceBeanIT
 
         deleteEmptyTp_keyRecord(techProd);
         svcProv.saveTechnicalServiceLocalization(techProd);
-        techProd = svcProv
-                .getTechnicalServices(OrganizationRoleType.TECHNOLOGY_PROVIDER)
-                .get(0);
+        techProd = svcProv.getTechnicalServices(
+                OrganizationRoleType.TECHNOLOGY_PROVIDER).get(0);
         Assert.assertEquals(valueToSet, techProd.getAccessInfo());
         Assert.assertEquals(valueToSet,
                 techProd.getTechnicalServiceDescription());
@@ -1818,8 +1828,7 @@ public class ServiceProvisioningServiceBeanIT
         }
         parameterDefinitions = techProd.getParameterDefinitions();
         for (VOParameterDefinition parameter : parameterDefinitions) {
-            if (parameter
-                    .getParameterType() != ParameterType.PLATFORM_PARAMETER) {
+            if (parameter.getParameterType() != ParameterType.PLATFORM_PARAMETER) {
                 Assert.assertEquals(valueToSet, parameter.getDescription());
                 List<VOParameterOption> parameterOptions = parameter
                         .getParameterOptions();
@@ -1850,8 +1859,7 @@ public class ServiceProvisioningServiceBeanIT
         assertTrue(tags.contains("tag1"));
         assertTrue(tags.contains("tag2"));
     }
-    
-    
+
     @Test
     public void testSaveTechnicalProductWithEmptyDesc() throws Exception {
         VOTechnicalService techProd = createTechnicalProduct(svcProv);
@@ -1981,10 +1989,11 @@ public class ServiceProvisioningServiceBeanIT
         container.login(supplierUserKey, ROLE_SERVICE_MANAGER);
         createProduct(techProd, "product1", svcProv);
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
-                Subscriptions.createSubscription(mgr, customerOrgId, "product1",
-                        "sub", supplier);
+                Subscriptions.createSubscription(mgr, customerOrgId,
+                        "product1", "sub", supplier);
                 return null;
             }
         });
@@ -2002,9 +2011,8 @@ public class ServiceProvisioningServiceBeanIT
         techProd.setLicense(null);
         deleteEmptyTp_keyRecord(techProd);
         svcProv.saveTechnicalServiceLocalization(techProd);
-        techProd = svcProv
-                .getTechnicalServices(OrganizationRoleType.TECHNOLOGY_PROVIDER)
-                .get(0);
+        techProd = svcProv.getTechnicalServices(
+                OrganizationRoleType.TECHNOLOGY_PROVIDER).get(0);
         Assert.assertEquals(license, techProd.getLicense());
     }
 
@@ -2023,9 +2031,8 @@ public class ServiceProvisioningServiceBeanIT
         // new formatted license have to be saved
         deleteEmptyTp_keyRecord(techProd);
         svcProv.saveTechnicalServiceLocalization(techProd);
-        techProd = svcProv
-                .getTechnicalServices(OrganizationRoleType.TECHNOLOGY_PROVIDER)
-                .get(0);
+        techProd = svcProv.getTechnicalServices(
+                OrganizationRoleType.TECHNOLOGY_PROVIDER).get(0);
         String newLicense = techProd.getLicense();
         Assert.assertNotSame("New license has to be changed.", oldLicense,
                 newLicense);
@@ -2037,6 +2044,7 @@ public class ServiceProvisioningServiceBeanIT
     @Test
     public void testGetProductsWithEnumDataTypes() throws Exception {
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
                 addProductsHavingEnumerationDataType(2);
@@ -2072,8 +2080,8 @@ public class ServiceProvisioningServiceBeanIT
             product.setParameters(parameters);
             container.login(supplierUserKey, ROLE_SERVICE_MANAGER,
                     ROLE_TECHNOLOGY_MANAGER);
-            VOServiceDetails createdProduct = svcProv.createService(tp, product,
-                    null);
+            VOServiceDetails createdProduct = svcProv.createService(tp,
+                    product, null);
             parameters = createdProduct.getParameters();
 
             VOParameter newParam = new VOParameter(parameterDefinitions.get(1));
@@ -2096,27 +2104,26 @@ public class ServiceProvisioningServiceBeanIT
 
             Assert.assertEquals("Parameter has not been persisted", 3,
                     createdProduct.getParameters().size());
-            Assert.assertEquals("Wrong parameter value", "3",
-                    createdProduct.getParameters().get(0).getValue());
-            Assert.assertEquals("Wrong parameter value", false,
-                    createdProduct.getParameters().get(0).isConfigurable());
+            Assert.assertEquals("Wrong parameter value", "3", createdProduct
+                    .getParameters().get(0).getValue());
+            Assert.assertEquals("Wrong parameter value", false, createdProduct
+                    .getParameters().get(0).isConfigurable());
 
-            Assert.assertEquals("Wrong parameter value", "5555",
-                    createdProduct.getParameters().get(1).getValue());
-            Assert.assertEquals("Wrong parameter value", false,
-                    createdProduct.getParameters().get(1).isConfigurable());
+            Assert.assertEquals("Wrong parameter value", "5555", createdProduct
+                    .getParameters().get(1).getValue());
+            Assert.assertEquals("Wrong parameter value", false, createdProduct
+                    .getParameters().get(1).isConfigurable());
 
             Assert.assertEquals("Wrong parameter value", "86400000",
                     createdProduct.getParameters().get(2).getValue());
-            Assert.assertEquals("Wrong parameter value", false,
-                    createdProduct.getParameters().get(2).isConfigurable());
+            Assert.assertEquals("Wrong parameter value", false, createdProduct
+                    .getParameters().get(2).isConfigurable());
 
         }
     }
 
     @Test
-    public void testUpdateMarketingProductWithEmptyDesc()
-            throws Exception {
+    public void testUpdateMarketingProductWithEmptyDesc() throws Exception {
         VOTechnicalService tp = createTechnicalProduct(svcProv);
         VOService product = new VOService();
         product.setDescription("");
@@ -2191,8 +2198,8 @@ public class ServiceProvisioningServiceBeanIT
         Assert.assertEquals(1, document.getChildNodes().getLength());
         Element root = document.getDocumentElement();
         Assert.assertEquals("tns:TechnicalServices", root.getNodeName());
-        List<Node> productNodes = XMLConverter.getNodeList(root.getChildNodes(),
-                "tns:TechnicalService");
+        List<Node> productNodes = XMLConverter.getNodeList(
+                root.getChildNodes(), "tns:TechnicalService");
         Assert.assertEquals(1, productNodes.size());
         return productNodes;
     }
@@ -2265,25 +2272,24 @@ public class ServiceProvisioningServiceBeanIT
 
         VOServiceDetails voDetails = svcProv.getServiceDetails(voProduct1);
         VOOrganization org = getOrganizationForOrgId(customerOrgId);
-        VOServiceDetails forCustomer = svcProv
-                .savePriceModelForCustomer(voDetails, priceModel, org);
+        VOServiceDetails forCustomer = svcProv.savePriceModelForCustomer(
+                voDetails, priceModel, org);
 
         List<VOCustomerService> products = svcProv
                 .getAllCustomerSpecificServices();
         Assert.assertEquals(1, products.size());
         Assert.assertEquals(forCustomer.getKey(), products.get(0).getKey());
-        Assert.assertEquals(forCustomer.getServiceId(),
-                products.get(0).getServiceId());
-        Assert.assertEquals(ServiceStatus.INACTIVE,
-                products.get(0).getStatus());
+        Assert.assertEquals(forCustomer.getServiceId(), products.get(0)
+                .getServiceId());
+        Assert.assertEquals(ServiceStatus.INACTIVE, products.get(0).getStatus());
         Assert.assertEquals(forCustomer.getPriceModel().getKey(),
                 products.get(0).getPriceModel().getKey());
-        Assert.assertEquals(org.getKey(),
-                products.get(0).getOrganizationKey().longValue());
-        Assert.assertEquals(org.getName(),
-                products.get(0).getOrganizationName());
-        Assert.assertEquals(org.getOrganizationId(),
-                products.get(0).getOrganizationId());
+        Assert.assertEquals(org.getKey(), products.get(0).getOrganizationKey()
+                .longValue());
+        Assert.assertEquals(org.getName(), products.get(0)
+                .getOrganizationName());
+        Assert.assertEquals(org.getOrganizationId(), products.get(0)
+                .getOrganizationId());
     }
 
     @Test
@@ -2304,8 +2310,8 @@ public class ServiceProvisioningServiceBeanIT
 
         VOServiceDetails voDetails = svcProv.getServiceDetails(voProduct1);
         VOOrganization org = getOrganizationForOrgId(customerOrgId);
-        final VOServiceDetails forCustomer = svcProv
-                .savePriceModelForCustomer(voDetails, priceModel, org);
+        final VOServiceDetails forCustomer = svcProv.savePriceModelForCustomer(
+                voDetails, priceModel, org);
         runTX(new Callable<Void>() {
 
             @Override
@@ -2322,18 +2328,18 @@ public class ServiceProvisioningServiceBeanIT
                 .getAllCustomerSpecificServices();
         Assert.assertEquals(1, products.size());
         Assert.assertEquals(forCustomer.getKey(), products.get(0).getKey());
-        Assert.assertEquals(forCustomer.getServiceId(),
-                products.get(0).getServiceId());
-        Assert.assertEquals(ServiceStatus.SUSPENDED,
-                products.get(0).getStatus());
+        Assert.assertEquals(forCustomer.getServiceId(), products.get(0)
+                .getServiceId());
+        Assert.assertEquals(ServiceStatus.SUSPENDED, products.get(0)
+                .getStatus());
         Assert.assertEquals(forCustomer.getPriceModel().getKey(),
                 products.get(0).getPriceModel().getKey());
-        Assert.assertEquals(org.getKey(),
-                products.get(0).getOrganizationKey().longValue());
-        Assert.assertEquals(org.getName(),
-                products.get(0).getOrganizationName());
-        Assert.assertEquals(org.getOrganizationId(),
-                products.get(0).getOrganizationId());
+        Assert.assertEquals(org.getKey(), products.get(0).getOrganizationKey()
+                .longValue());
+        Assert.assertEquals(org.getName(), products.get(0)
+                .getOrganizationName());
+        Assert.assertEquals(org.getOrganizationId(), products.get(0)
+                .getOrganizationId());
     }
 
     @Test
@@ -2356,10 +2362,10 @@ public class ServiceProvisioningServiceBeanIT
         voProduct1 = svcProv.getServiceDetails(voProduct1);
         voProduct2 = svcProv.getServiceDetails(voProduct2);
         VOOrganization org = getOrganizationForOrgId(customerOrgId);
-        VOServiceDetails forCustomer1 = svcProv
-                .savePriceModelForCustomer(voProduct1, priceModel, org);
-        VOServiceDetails forCustomer2 = svcProv
-                .savePriceModelForCustomer(voProduct2, priceModel, org);
+        VOServiceDetails forCustomer1 = svcProv.savePriceModelForCustomer(
+                voProduct1, priceModel, org);
+        VOServiceDetails forCustomer2 = svcProv.savePriceModelForCustomer(
+                voProduct2, priceModel, org);
         publishToLocalMarketplaceSupplier(forCustomer2, mpSupplier);
         svcProv.activateService(forCustomer2);
 
@@ -2367,19 +2373,18 @@ public class ServiceProvisioningServiceBeanIT
                 .getAllCustomerSpecificServices();
         Assert.assertEquals(2, products.size());
         Assert.assertEquals(forCustomer1.getKey(), products.get(0).getKey());
-        Assert.assertEquals(forCustomer1.getServiceId(),
-                products.get(0).getServiceId());
-        Assert.assertEquals(ServiceStatus.INACTIVE,
-                products.get(0).getStatus());
-        Assert.assertEquals(forCustomer1.getPriceModel().getKey(),
-                products.get(0).getPriceModel().getKey());
+        Assert.assertEquals(forCustomer1.getServiceId(), products.get(0)
+                .getServiceId());
+        Assert.assertEquals(ServiceStatus.INACTIVE, products.get(0).getStatus());
+        Assert.assertEquals(forCustomer1.getPriceModel().getKey(), products
+                .get(0).getPriceModel().getKey());
 
         Assert.assertEquals(forCustomer2.getKey(), products.get(1).getKey());
-        Assert.assertEquals(forCustomer2.getServiceId(),
-                products.get(1).getServiceId());
+        Assert.assertEquals(forCustomer2.getServiceId(), products.get(1)
+                .getServiceId());
         Assert.assertEquals(ServiceStatus.ACTIVE, products.get(1).getStatus());
-        Assert.assertEquals(forCustomer2.getPriceModel().getKey(),
-                products.get(1).getPriceModel().getKey());
+        Assert.assertEquals(forCustomer2.getPriceModel().getKey(), products
+                .get(1).getPriceModel().getKey());
     }
 
     @Test
@@ -2402,10 +2407,10 @@ public class ServiceProvisioningServiceBeanIT
         voProduct1 = svcProv.getServiceDetails(voProduct1);
         voProduct2 = svcProv.getServiceDetails(voProduct2);
         VOOrganization org = getOrganizationForOrgId(customerOrgId);
-        VOServiceDetails forCustomer1 = svcProv
-                .savePriceModelForCustomer(voProduct1, priceModel, org);
-        VOServiceDetails forCustomer2 = svcProv
-                .savePriceModelForCustomer(voProduct2, priceModel, org);
+        VOServiceDetails forCustomer1 = svcProv.savePriceModelForCustomer(
+                voProduct1, priceModel, org);
+        VOServiceDetails forCustomer2 = svcProv.savePriceModelForCustomer(
+                voProduct2, priceModel, org);
         publishToLocalMarketplaceSupplier(forCustomer1, mpSupplier);
         svcProv.activateService(forCustomer1);
         svcProv.deleteService(forCustomer2);
@@ -2414,11 +2419,11 @@ public class ServiceProvisioningServiceBeanIT
                 .getAllCustomerSpecificServices();
         Assert.assertEquals(1, products.size());
         Assert.assertEquals(forCustomer1.getKey(), products.get(0).getKey());
-        Assert.assertEquals(forCustomer1.getServiceId(),
-                products.get(0).getServiceId());
+        Assert.assertEquals(forCustomer1.getServiceId(), products.get(0)
+                .getServiceId());
         Assert.assertEquals(ServiceStatus.ACTIVE, products.get(0).getStatus());
-        Assert.assertEquals(forCustomer1.getPriceModel().getKey(),
-                products.get(0).getPriceModel().getKey());
+        Assert.assertEquals(forCustomer1.getPriceModel().getKey(), products
+                .get(0).getPriceModel().getKey());
     }
 
     @Test
@@ -2467,8 +2472,8 @@ public class ServiceProvisioningServiceBeanIT
 
             @Override
             public String call() throws Exception {
-                Organization organization = Organizations
-                        .createOrganization(mgr, OrganizationRoleType.SUPPLIER);
+                Organization organization = Organizations.createOrganization(
+                        mgr, OrganizationRoleType.SUPPLIER);
                 PlatformUser user = Organizations.createUserForOrg(mgr,
                         organization, true, "admin");
                 return String.valueOf(user.getKey());
@@ -2511,8 +2516,8 @@ public class ServiceProvisioningServiceBeanIT
 
             @Override
             public String call() throws Exception {
-                Organization organization = Organizations
-                        .createOrganization(mgr, OrganizationRoleType.SUPPLIER);
+                Organization organization = Organizations.createOrganization(
+                        mgr, OrganizationRoleType.SUPPLIER);
                 PlatformUser user = Organizations.createUserForOrg(mgr,
                         organization, true, "admin");
                 return String.valueOf(user.getKey());
@@ -2535,8 +2540,8 @@ public class ServiceProvisioningServiceBeanIT
 
             @Override
             public String call() throws Exception {
-                Organization organization = Organizations
-                        .createOrganization(mgr, OrganizationRoleType.SUPPLIER);
+                Organization organization = Organizations.createOrganization(
+                        mgr, OrganizationRoleType.SUPPLIER);
                 PlatformUser user = Organizations.createUserForOrg(mgr,
                         organization, true, "admin");
                 return String.valueOf(user.getKey());
@@ -2626,8 +2631,7 @@ public class ServiceProvisioningServiceBeanIT
         List<VOParameterOption> empty = emptyList();
         VOParameterDefinition def = new VOParameterDefinition(
                 ParameterType.SERVICE_PARAMETER, "Test", "test",
-                ParameterValueType.STRING, null, null, null, false, true,
-                empty);
+                ParameterValueType.STRING, null, null, null, false, true, empty);
         VOParameter param = new VOParameter(def);
         param.setValue("");
         param.setConfigurable(false);
@@ -2746,13 +2750,14 @@ public class ServiceProvisioningServiceBeanIT
         VOOrganization customer = getOrganizationForOrgId(customerOrgId);
         VOPriceModel priceModel = createPriceModel();
         svcProv.savePriceModelForCustomer(product, priceModel, customer);
-        final VOServiceDetails customerProduct = svcProv
-                .getServiceForCustomer(customer, product);
+        final VOServiceDetails customerProduct = svcProv.getServiceForCustomer(
+                customer, product);
         Assert.assertNotNull(customerProduct);
         Assert.assertEquals("test", customerProduct.getServiceId());
         Assert.assertEquals("example", customerProduct.getTechnicalId());
 
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
                 // assert that both the template and the customer specific copy
@@ -2790,8 +2795,8 @@ public class ServiceProvisioningServiceBeanIT
         String subId = createSubscription(customer, SubscriptionStatus.ACTIVE,
                 product, "testSub", null);
         Assert.assertNotNull(subId);
-        VOServiceDetails forCustomer = svcProv
-                .getServiceForSubscription(customer, subId);
+        VOServiceDetails forCustomer = svcProv.getServiceForSubscription(
+                customer, subId);
         Assert.assertNotNull(forCustomer);
     }
 
@@ -2838,6 +2843,7 @@ public class ServiceProvisioningServiceBeanIT
     public void testGetProductDetailsVerifyRoleDefinitions() throws Exception {
         container.login(supplierUserKey, ROLE_SERVICE_MANAGER);
         runTX(new Callable<Product>() {
+
             @Override
             public Product call() throws Exception {
 
@@ -2865,8 +2871,8 @@ public class ServiceProvisioningServiceBeanIT
         List<VOService> products = svcProv.getSuppliedServices();
         Assert.assertNotNull(products);
         Assert.assertEquals(1, products.size());
-        VOServiceDetails productDetails = svcProv
-                .getServiceDetails(products.get(0));
+        VOServiceDetails productDetails = svcProv.getServiceDetails(products
+                .get(0));
         Assert.assertNotNull(productDetails);
         Assert.assertTrue(productDetails.getKey() > 0);
         VOTechnicalService technicalProduct = productDetails
@@ -2897,8 +2903,7 @@ public class ServiceProvisioningServiceBeanIT
     }
 
     @Test
-    public void testSavePriceModelForSubscriptionWithLicense()
-            throws Exception {
+    public void testSavePriceModelForSubscriptionWithLicense() throws Exception {
         VOTechnicalService tp = createTechnicalProduct(svcProv);
         container.login(supplierUserKey, ROLE_SERVICE_MANAGER);
         final VOServiceDetails product = createProduct(tp, "test", svcProv);
@@ -2908,8 +2913,8 @@ public class ServiceProvisioningServiceBeanIT
         String subId = createSubscription(customer, SubscriptionStatus.ACTIVE,
                 product, "testSub", null);
         Assert.assertNotNull(subId);
-        VOServiceDetails forSubscription = svcProv
-                .getServiceForSubscription(customer, subId);
+        VOServiceDetails forSubscription = svcProv.getServiceForSubscription(
+                customer, subId);
         Assert.assertNotNull(forSubscription);
         final VOPriceModel priceModel = forSubscription.getPriceModel();
 
@@ -2919,6 +2924,7 @@ public class ServiceProvisioningServiceBeanIT
         priceModel.setLicense(priceModelLicenseEnNEW);
 
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
                 localizer.storeLocalizedResource("en", priceModel.getKey(),
@@ -2927,10 +2933,11 @@ public class ServiceProvisioningServiceBeanIT
                 return null;
             }
         });
-        forSubscription = svcProv.savePriceModelForSubscription(forSubscription,
-                priceModel);
+        forSubscription = svcProv.savePriceModelForSubscription(
+                forSubscription, priceModel);
 
         String priceModelLicenseActualEn = runTX(new Callable<String>() {
+
             @Override
             public String call() throws Exception {
                 return localizer.getLocalizedTextFromDatabase("en",
@@ -2946,8 +2953,8 @@ public class ServiceProvisioningServiceBeanIT
 
     @Test
     public void testValidateSubscriptionWithoutException() throws Exception {
-        //given
-        
+        // given
+
         VOTechnicalService tp = createTechnicalProduct(svcProv);
         container.login(supplierUserKey, ROLE_SERVICE_MANAGER);
         final VOServiceDetails product = createProduct(tp, "testProd", svcProv);
@@ -2956,70 +2963,73 @@ public class ServiceProvisioningServiceBeanIT
         VOOrganization customer = getOrganizationForOrgId(supplierOrgId);
         String subId = createSubscription(customer, SubscriptionStatus.ACTIVE,
                 product, "testSubscriptionToValidate", null);
-        
-        VOServiceDetails forSubscription = svcProv
-                .getServiceForSubscription(customer, subId);
-        //when
+
+        VOServiceDetails forSubscription = svcProv.getServiceForSubscription(
+                customer, subId);
+        // when
         svcProv.validateSubscription(forSubscription);
-        
-        //then
+
+        // then
         Assert.assertNotNull(subId);
     }
-    
+
     @Test(expected = SubscriptionStateException.class)
     public void testValidateSubscriptionInvalidState() throws Exception {
-        //given
-        
+        // given
+
         VOTechnicalService tp = createTechnicalProduct(svcProv);
         container.login(supplierUserKey, ROLE_SERVICE_MANAGER);
-        final VOServiceDetails product = createProduct(tp, "testProdInvalid", svcProv);
+        final VOServiceDetails product = createProduct(tp, "testProdInvalid",
+                svcProv);
         final VOPriceModel priceModel_init = createPriceModel();
         svcProv.savePriceModel(product, priceModel_init);
         VOOrganization customer = getOrganizationForOrgId(supplierOrgId);
         String subId = createSubscription(customer, SubscriptionStatus.INVALID,
                 product, "testSubscriptionInvalid", null);
-        
-        VOServiceDetails forSubscription = svcProv
-                .getServiceForSubscription(customer, subId);
-        //when
+
+        VOServiceDetails forSubscription = svcProv.getServiceForSubscription(
+                customer, subId);
+        // when
         svcProv.validateSubscription(forSubscription);
     }
-    
+
     @Test(expected = SubscriptionStateException.class)
     public void testValidateSubscriptionExpiredState() throws Exception {
-        //given
-        
+        // given
+
         VOTechnicalService tp = createTechnicalProduct(svcProv);
         container.login(supplierUserKey, ROLE_SERVICE_MANAGER);
-        final VOServiceDetails product = createProduct(tp, "testProdExpired", svcProv);
+        final VOServiceDetails product = createProduct(tp, "testProdExpired",
+                svcProv);
         final VOPriceModel priceModel_init = createPriceModel();
         svcProv.savePriceModel(product, priceModel_init);
         VOOrganization customer = getOrganizationForOrgId(supplierOrgId);
         String subId = createSubscription(customer, SubscriptionStatus.EXPIRED,
                 product, "testSubscriptionExpired", null);
-        
-        VOServiceDetails forSubscription = svcProv
-                .getServiceForSubscription(customer, subId);
-        //when
+
+        VOServiceDetails forSubscription = svcProv.getServiceForSubscription(
+                customer, subId);
+        // when
         svcProv.validateSubscription(forSubscription);
     }
-    
+
     @Test(expected = SubscriptionStateException.class)
     public void testValidateSubscriptionDeactivatedState() throws Exception {
-        //given
-        
+        // given
+
         VOTechnicalService tp = createTechnicalProduct(svcProv);
         container.login(supplierUserKey, ROLE_SERVICE_MANAGER);
-        final VOServiceDetails product = createProduct(tp, "testProdDeactivated", svcProv);
+        final VOServiceDetails product = createProduct(tp,
+                "testProdDeactivated", svcProv);
         final VOPriceModel priceModel_init = createPriceModel();
         svcProv.savePriceModel(product, priceModel_init);
         VOOrganization customer = getOrganizationForOrgId(supplierOrgId);
         String subId = createSubscription(customer, SubscriptionStatus.EXPIRED,
                 product, "testSubscriptionDeactivated", null);
-        
-        VOServiceDetails forSubscription = svcProv
-                .getServiceForSubscription(customer, subId);
-        //when
+
+        VOServiceDetails forSubscription = svcProv.getServiceForSubscription(
+                customer, subId);
+        // when
         svcProv.validateSubscription(forSubscription);
     }
 
@@ -3067,10 +3077,10 @@ public class ServiceProvisioningServiceBeanIT
         List<VOService> products = svcProv.getServicesForCustomer(customer);
         Assert.assertNotNull(products);
         Assert.assertEquals(2, products.size());
-        Assert.assertEquals(product1.getServiceId(),
-                products.get(0).getServiceId());
-        Assert.assertEquals(product2.getServiceId(),
-                products.get(1).getServiceId());
+        Assert.assertEquals(product1.getServiceId(), products.get(0)
+                .getServiceId());
+        Assert.assertEquals(product2.getServiceId(), products.get(1)
+                .getServiceId());
     }
 
     @Test(expected = EJBException.class)
@@ -3114,8 +3124,8 @@ public class ServiceProvisioningServiceBeanIT
         imageResource.setImageType(ImageType.SERVICE_IMAGE);
         container.login(supplierUserKey, ROLE_SERVICE_MANAGER);
         product = svcProv.createService(tp, product, imageResource);
-        VOImageResource loadImage = svcProv
-                .loadImage(Long.valueOf(product.getKey()));
+        VOImageResource loadImage = svcProv.loadImage(Long.valueOf(product
+                .getKey()));
         Assert.assertNotNull(loadImage);
         Assert.assertEquals(imageResource.getContentType(),
                 loadImage.getContentType());
@@ -3147,8 +3157,8 @@ public class ServiceProvisioningServiceBeanIT
         product = svcProv.createService(tp, product, imageResource);
 
         // execute
-        VOImageResource loadImage = svcProv
-                .loadImageForSupplier(product.getServiceId(), supplierOrgId);
+        VOImageResource loadImage = svcProv.loadImageForSupplier(
+                product.getServiceId(), supplierOrgId);
 
         // assert
         Assert.assertNotNull(loadImage);
@@ -3199,13 +3209,13 @@ public class ServiceProvisioningServiceBeanIT
         imageResource.setImageType(ImageType.SERVICE_IMAGE);
         product = svcProv.createService(tp, product, imageResource);
         container.login(customerUserKey);
-        VOImageResource loadImage = svcProv
-                .loadImage(Long.valueOf(product.getKey()));
+        VOImageResource loadImage = svcProv.loadImage(Long.valueOf(product
+                .getKey()));
         Assert.assertNotNull("Image resource expected", loadImage);
         Assert.assertEquals("Wrong content type - ",
                 imageResource.getContentType(), loadImage.getContentType());
-        Assert.assertEquals("Wrong image type - ", imageResource.getImageType(),
-                loadImage.getImageType());
+        Assert.assertEquals("Wrong image type - ",
+                imageResource.getImageType(), loadImage.getImageType());
         Assert.assertEquals("Wrong content - ", content, loadImage.getBuffer());
     }
 
@@ -3231,8 +3241,8 @@ public class ServiceProvisioningServiceBeanIT
 
         VOService service = svcProv.activateService(serviceDetails);
         serviceDetails = svcProv.getServiceDetails(service);
-        VOImageResource loadImage = svcProv
-                .loadImage(Long.valueOf(service.getKey()));
+        VOImageResource loadImage = svcProv.loadImage(Long.valueOf(service
+                .getKey()));
         Assert.assertNotNull(loadImage);
 
         service = svcProv.deactivateService(serviceDetails);
@@ -3294,9 +3304,9 @@ public class ServiceProvisioningServiceBeanIT
         svcProv.deleteTechnicalService(vo);
         vo = createTechnicalProduct(ServiceAccessType.EXTERNAL, "",
                 BillingAdapterIdentifier.NATIVE_BILLING.name());
-        VOServiceDetails sd = new VOServiceDetails();
-        sd.setKey(vo.getKey());
-        sd.setAccessType(vo.getAccessType());
+        createMarketingPermission(vo.getTechnicalServiceId());
+        VOServiceDetails sd = createProduct(vo, "ExternalProductChargeable",
+                svcProv);
         VOPriceModel pm = new VOPriceModel();
         pm.setType(PriceModelType.PRO_RATA);
         try {
@@ -3339,8 +3349,8 @@ public class ServiceProvisioningServiceBeanIT
         imageResource.setImageType(ImageType.SERVICE_IMAGE);
         container.login(supplierUserKey, ROLE_SERVICE_MANAGER);
         product = svcProv.createService(tp, product, imageResource);
-        VOImageResource loadImage = svcProv
-                .loadImage(Long.valueOf(product.getKey()));
+        VOImageResource loadImage = svcProv.loadImage(Long.valueOf(product
+                .getKey()));
         Assert.assertNotNull(loadImage);
         loadImage.setBuffer(null);
         product = svcProv.updateService(product, loadImage);
@@ -3362,8 +3372,8 @@ public class ServiceProvisioningServiceBeanIT
         imageResource.setImageType(ImageType.SERVICE_IMAGE);
         container.login(supplierUserKey, ROLE_SERVICE_MANAGER);
         product = svcProv.createService(tp, product, imageResource);
-        VOImageResource loadImage = svcProv
-                .loadImage(Long.valueOf(product.getKey()));
+        VOImageResource loadImage = svcProv.loadImage(Long.valueOf(product
+                .getKey()));
         Assert.assertNotNull(loadImage);
         setProductStatus(ServiceStatus.SUSPENDED, product.getKey());
         product.setVersion(product.getVersion() + 1);
@@ -3412,8 +3422,8 @@ public class ServiceProvisioningServiceBeanIT
         pricedParams.clear();
         priceModel.setSelectedParameters(pricedParams);
         product = svcProv.savePriceModel(product, priceModel);
-        Assert.assertEquals(0,
-                product.getPriceModel().getSelectedParameters().size());
+        Assert.assertEquals(0, product.getPriceModel().getSelectedParameters()
+                .size());
     }
 
     @Test
@@ -3444,8 +3454,8 @@ public class ServiceProvisioningServiceBeanIT
         Assert.assertEquals(pricedParams.get(0).getPricePerSubscription(),
                 priceModel.getSelectedParameters().get(0)
                         .getPricePerSubscription());
-        Assert.assertEquals(pricedParams.get(0).getParameterKey(),
-                priceModel.getSelectedParameters().get(0).getParameterKey());
+        Assert.assertEquals(pricedParams.get(0).getParameterKey(), priceModel
+                .getSelectedParameters().get(0).getParameterKey());
     }
 
     @Test
@@ -3454,14 +3464,15 @@ public class ServiceProvisioningServiceBeanIT
         VOPriceModel priceModel = createChargeablePriceModel();
         List<VOParameter> parameters = product.getParameters();
         List<VOPricedParameter> pricedParams = new ArrayList<VOPricedParameter>();
-        VOPricedParameter pricedParam = new VOPricedParameter(
-                parameters.get(0).getParameterDefinition());
+        VOPricedParameter pricedParam = new VOPricedParameter(parameters.get(0)
+                .getParameterDefinition());
         pricedParam.setParameterKey(parameters.get(0).getKey());
         pricedParam.setPricePerSubscription(BigDecimal.valueOf(50));
         VOPricedOption pricedOption = new VOPricedOption();
-        pricedOption.setParameterOptionKey(
-                parameters.get(0).getParameterDefinition().getParameterOptions()
-                        .get(0).getKey());
+        pricedOption
+                .setParameterOptionKey(parameters.get(0)
+                        .getParameterDefinition().getParameterOptions().get(0)
+                        .getKey());
         pricedOption.setPricePerSubscription(BigDecimal.valueOf(50));
         pricedParam.getPricedOptions().add(pricedOption);
         pricedParams.add(pricedParam);
@@ -3471,8 +3482,8 @@ public class ServiceProvisioningServiceBeanIT
         priceModel = product.getPriceModel();
         Assert.assertEquals(1, priceModel.getSelectedParameters().size());
         pricedParams = priceModel.getSelectedParameters();
-        pricedParam = new VOPricedParameter(
-                parameters.get(1).getParameterDefinition());
+        pricedParam = new VOPricedParameter(parameters.get(1)
+                .getParameterDefinition());
         pricedParam.setParameterKey(parameters.get(1).getKey());
         pricedParam.setPricePerSubscription(BigDecimal.valueOf(45));
         pricedParams.add(pricedParam);
@@ -3507,6 +3518,7 @@ public class ServiceProvisioningServiceBeanIT
             throws Exception {
         // create technology provider and user, both with german locale
         final Organization tp = runTX(new Callable<Organization>() {
+
             @Override
             public Organization call() throws Exception {
                 Organization tp = Organizations.createOrganization(mgr,
@@ -3519,23 +3531,24 @@ public class ServiceProvisioningServiceBeanIT
         });
 
         // create technical product and add license in english locale
-        TechnicalProduct technicalProduct = runTX(
-                new Callable<TechnicalProduct>() {
-                    @Override
-                    public TechnicalProduct call() throws Exception {
-                        TechnicalProduct technicalProduct = TechnicalProducts
-                                .createTechnicalProduct(mgr, tp, "tpId", false,
-                                        ServiceAccessType.DIRECT);
-                        localizer.storeLocalizedResource("en",
-                                technicalProduct.getKey(),
-                                LocalizedObjectTypes.PRODUCT_LICENSE_DESC,
-                                "the license text in english language");
-                        return technicalProduct;
-                    }
-                });
+        TechnicalProduct technicalProduct = runTX(new Callable<TechnicalProduct>() {
+
+            @Override
+            public TechnicalProduct call() throws Exception {
+                TechnicalProduct technicalProduct = TechnicalProducts
+                        .createTechnicalProduct(mgr, tp, "tpId", false,
+                                ServiceAccessType.DIRECT);
+                localizer.storeLocalizedResource("en",
+                        technicalProduct.getKey(),
+                        LocalizedObjectTypes.PRODUCT_LICENSE_DESC,
+                        "the license text in english language");
+                return technicalProduct;
+            }
+        });
 
         // read the technical product
         Organization storedTP = runTX(new Callable<Organization>() {
+
             @Override
             public Organization call() throws Exception {
                 Organization result = mgr.getReference(Organization.class,
@@ -3571,9 +3584,9 @@ public class ServiceProvisioningServiceBeanIT
 
     @Test(expected = ImportException.class)
     public void testImportTechnicalProduct_DirectAndRoles() throws Exception {
-        String toImport = TECHNICAL_SERVICES_XML.replaceAll(
-                ServiceAccessType.LOGIN.name(),
-                ServiceAccessType.DIRECT.name());
+        String toImport = TECHNICAL_SERVICES_XML
+                .replaceAll(ServiceAccessType.LOGIN.name(),
+                        ServiceAccessType.DIRECT.name());
         svcProv.importTechnicalServices(toImport.getBytes("UTF-8"));
     }
 
@@ -3601,8 +3614,7 @@ public class ServiceProvisioningServiceBeanIT
     public void testImportTechnicalProduct_WrongRole() throws Exception {
         container.login(supplierUserKey, ROLE_SERVICE_MANAGER);
         try {
-            svcProv.importTechnicalServices(
-                    readBytesFromFile("TechnicalServices.xml"));
+            svcProv.importTechnicalServices(readBytesFromFile("TechnicalServices.xml"));
         } catch (EJBException e) {
             throw e.getCausedByException();
         }
@@ -3630,10 +3642,11 @@ public class ServiceProvisioningServiceBeanIT
         Assert.assertNotNull(result);
         Assert.assertEquals(1, result.size());
         String subscriptionId = runTX(new Callable<String>() {
+
             @Override
             public String call() throws Exception {
-                Product product = mgr.getReference(Product.class,
-                        prod.getKey());
+                Product product = mgr
+                        .getReference(Product.class, prod.getKey());
                 product.setTemplate(product);
                 Subscription sub = Subscriptions.createSubscription(mgr,
                         customerOrgId, prod.getProductId(), "subId", supplier);
@@ -3643,8 +3656,8 @@ public class ServiceProvisioningServiceBeanIT
 
         VOOrganization customer = new VOOrganization();
         customer.setKey(this.customer.getKey());
-        VOServiceDetails serviceDetails = svcProv
-                .getServiceForSubscription(customer, subscriptionId);
+        VOServiceDetails serviceDetails = svcProv.getServiceForSubscription(
+                customer, subscriptionId);
         Assert.assertNotNull(serviceDetails);
         List<VOParameterDefinition> parameterDefinitions = serviceDetails
                 .getTechnicalService().getParameterDefinitions();
@@ -3677,9 +3690,9 @@ public class ServiceProvisioningServiceBeanIT
     }
 
     @Test(expected = ValidationException.class)
-    public void testSavePriceModelWithStringBasedPricedParam()
-            throws Exception {
+    public void testSavePriceModelWithStringBasedPricedParam() throws Exception {
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
                 Scenario.setup(container, false);
@@ -3699,8 +3712,7 @@ public class ServiceProvisioningServiceBeanIT
         if (currentService != null) {
             List<VOParameter> parameters = currentService.getParameters();
             for (VOParameter voParameter : parameters) {
-                if (voParameter.getParameterDefinition()
-                        .getValueType() == ParameterValueType.STRING) {
+                if (voParameter.getParameterDefinition().getValueType() == ParameterValueType.STRING) {
                     VOPricedParameter pp = new VOPricedParameter(
                             voParameter.getParameterDefinition());
                     pp.setParameterKey(voParameter.getKey());
@@ -3718,6 +3730,7 @@ public class ServiceProvisioningServiceBeanIT
     public void testSavePriceModelWithPricedParamWithoutParamDef()
             throws Exception {
         runTX(new Callable<Void>() {
+
             @Override
             public Void call() throws Exception {
                 Scenario.setup(container, false);
@@ -3738,8 +3751,7 @@ public class ServiceProvisioningServiceBeanIT
         if (currentService != null) {
             List<VOParameter> parameters = currentService.getParameters();
             for (VOParameter voParameter : parameters) {
-                if (voParameter.getParameterDefinition()
-                        .getValueType() == ParameterValueType.STRING) {
+                if (voParameter.getParameterDefinition().getValueType() == ParameterValueType.STRING) {
                     VOPricedParameter pp = new VOPricedParameter();
                     pp.setParameterKey(voParameter.getKey());
                     pp.setPricePerUser(BigDecimal.valueOf(12L));
@@ -3933,6 +3945,7 @@ public class ServiceProvisioningServiceBeanIT
         VOServiceDetails template = createProduct(techProduct, "product",
                 svcProv);
         VOOrganization customer = runTX(new Callable<VOOrganization>() {
+
             @Override
             public VOOrganization call() throws Exception {
                 Organization result = Organizations.createOrganization(mgr,
@@ -3961,13 +3974,14 @@ public class ServiceProvisioningServiceBeanIT
     public void updateMarketingAndCustomerSpecificProduct_IdAndParametersDeleteAndAdd()
             throws Exception {
         final String customerOrgId = runTX(new Callable<String>() {
+
             @Override
             public String call() throws Exception {
                 Organization org = Organizations.createOrganization(mgr,
                         OrganizationRoleType.CUSTOMER);
                 OrganizationReference ref = new OrganizationReference(
-                        Organizations.findOrganization(mgr, supplierOrgId), org,
-                        OrganizationReferenceType.SUPPLIER_TO_CUSTOMER);
+                        Organizations.findOrganization(mgr, supplierOrgId),
+                        org, OrganizationReferenceType.SUPPLIER_TO_CUSTOMER);
                 mgr.persist(ref);
                 return org.getOrganizationId();
             }
@@ -4010,16 +4024,16 @@ public class ServiceProvisioningServiceBeanIT
         List<VOParameter> parameters = new ArrayList<VOParameter>();
         parameters.add(parameter1);
         product.setParameters(parameters);
-        VOServiceDetails updateMarketingProduct = svcProv.updateService(product,
-                null);
+        VOServiceDetails updateMarketingProduct = svcProv.updateService(
+                product, null);
 
         // remove a parameter and set the others value to null and make it
         // non-configurable, then update. Both entries must disappear
         parameter1 = updateMarketingProduct.getParameters().get(0);
         parameter1.setValue(null);
         parameter1.setConfigurable(false);
-        updateMarketingProduct.setParameters(
-                Arrays.asList(new VOParameter[] { parameter1, parameter2 }));
+        updateMarketingProduct.setParameters(Arrays.asList(new VOParameter[] {
+                parameter1, parameter2 }));
 
         updateMarketingProduct = svcProv.updateService(updateMarketingProduct,
                 null);
@@ -4027,19 +4041,17 @@ public class ServiceProvisioningServiceBeanIT
         createdCustomerProductDetails = svcProv
                 .getServiceDetails(createdCustomerProductDetails);
 
-        Assert.assertEquals("Parameters size",
-                updateMarketingProduct.getParameters().size(),
-                createdCustomerProductDetails.getParameters().size());
-        Assert.assertEquals("Parameters add",
-                updateMarketingProduct.getParameters().get(0)
-                        .getParameterDefinition().getKey(),
+        Assert.assertEquals("Parameters size", updateMarketingProduct
+                .getParameters().size(), createdCustomerProductDetails
+                .getParameters().size());
+        Assert.assertEquals("Parameters add", updateMarketingProduct
+                .getParameters().get(0).getParameterDefinition().getKey(),
                 createdCustomerProductDetails.getParameters().get(0)
                         .getParameterDefinition().getKey());
     }
 
     private VOParameterDefinition findConfigurableParam(
-            List<VOParameterDefinition> parameterDefinitions,
-            boolean mandatory) {
+            List<VOParameterDefinition> parameterDefinitions, boolean mandatory) {
         VOParameterDefinition parameterDefinition = null;
         for (VOParameterDefinition voParamDef : parameterDefinitions) {
             if ((voParamDef.isMandatory() == mandatory)
@@ -4051,13 +4063,12 @@ public class ServiceProvisioningServiceBeanIT
 
     private void createMarketingProductWithParameter(String value,
             boolean configurable, boolean mandatory) throws Exception {
-        VOTechnicalService tp = createTechnicalProductWithMandatoryParameter(
-                svcProv);
+        VOTechnicalService tp = createTechnicalProductWithMandatoryParameter(svcProv);
         List<VOParameter> params = new ArrayList<VOParameter>();
         List<VOParameterDefinition> paramDefinitions = tp
                 .getParameterDefinitions();
-        VOParameterDefinition paramDef = findConfigurableParam(paramDefinitions,
-                mandatory);
+        VOParameterDefinition paramDef = findConfigurableParam(
+                paramDefinitions, mandatory);
         assertNotNull(paramDef);
         VOParameter param = new VOParameter(paramDef);
         param.setValue(value);
@@ -4073,8 +4084,7 @@ public class ServiceProvisioningServiceBeanIT
 
     private void updateMarketingProductWithParameter(String value,
             boolean configurable, boolean mandatory) throws Exception {
-        VOTechnicalService tp = createTechnicalProductWithMandatoryParameter(
-                svcProv);
+        VOTechnicalService tp = createTechnicalProductWithMandatoryParameter(svcProv);
         List<VOParameterDefinition> parameterDefinitions = tp
                 .getParameterDefinitions();
         container.login(supplierUserKey, ROLE_SERVICE_MANAGER);

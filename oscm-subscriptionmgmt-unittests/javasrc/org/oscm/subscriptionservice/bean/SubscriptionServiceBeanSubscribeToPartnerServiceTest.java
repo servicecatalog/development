@@ -40,6 +40,7 @@ import org.oscm.domobjects.Product;
 import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.TechnicalProduct;
 import org.oscm.domobjects.TriggerProcess;
+import org.oscm.encrypter.AESEncrypter;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.identityservice.local.IdentityServiceLocal;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
@@ -98,11 +99,12 @@ public class SubscriptionServiceBeanSubscribeToPartnerServiceTest {
     private String queryName;
     private UserGroupServiceLocalBean userGroupService;
     private final OrganizationDao orgDao = mock(OrganizationDao.class);
-    private final List<PlatformUser> givenUsers = new ArrayList<PlatformUser>();
+    private final List<PlatformUser> givenUsers = new ArrayList<>();
     private ConfigurationServiceLocal cfgService;
-    
+
     @Before
     public void setup() throws Exception {
+        AESEncrypter.generateKey();
         createDomainObjects();
 
         subscriptionServiceBean = spy(new SubscriptionServiceBean() {
@@ -111,18 +113,23 @@ public class SubscriptionServiceBeanSubscribeToPartnerServiceTest {
                     long targetObjectKey, Organization supplier)
                     throws ValidationException, ObjectNotFoundException,
                     OperationNotPermittedException {
-                return new ArrayList<VOUda>();
+                return new ArrayList<>();
             }
         });
-        subscriptionServiceBean.prodSessionMgmt = mock(SessionServiceLocal.class);
-        subscriptionServiceBean.appManager = mock(ApplicationServiceLocal.class);
+        subscriptionServiceBean.prodSessionMgmt = mock(
+                SessionServiceLocal.class);
+        subscriptionServiceBean.appManager = mock(
+                ApplicationServiceLocal.class);
         subscriptionServiceBean.localizer = mock(LocalizerServiceLocal.class);
-        subscriptionServiceBean.commService = mock(CommunicationServiceLocal.class);
+        subscriptionServiceBean.commService = mock(
+                CommunicationServiceLocal.class);
         subscriptionServiceBean.idManager = mock(IdentityServiceLocal.class);
         subscriptionServiceBean.tqs = mock(TaskQueueServiceLocal.class);
-        subscriptionServiceBean.audit = mock(SubscriptionAuditLogCollector.class);
-        subscriptionServiceBean.audit = mock(SubscriptionAuditLogCollector.class);
-        
+        subscriptionServiceBean.audit = mock(
+                SubscriptionAuditLogCollector.class);
+        subscriptionServiceBean.audit = mock(
+                SubscriptionAuditLogCollector.class);
+
         productDao = mock(ProductDao.class);
         doReturn(productDao).when(subscriptionServiceBean).getProductDao();
         terminateBean = spy(new TerminateSubscriptionBean());
@@ -181,11 +188,11 @@ public class SubscriptionServiceBeanSubscribeToPartnerServiceTest {
         partnerTemplate = productTemplate.copyForResale(resellerOrg);
         partnerTemplate.setKey(PARTNER_TEMPLATE_KEY);
         partnerTemplate.setPriceModel(templatePriceModel);
-        
+
         service = new VOService();
         service.setKey(PARTNER_TEMPLATE_KEY);
         service.setServiceId("serviceId");
-        
+
         subscription = new VOSubscription();
         subscription.setSubscriptionId(SUBSCRIPTION_ID);
         subscription.setKey(SUBSCRIPTION_KEY);
@@ -210,7 +217,8 @@ public class SubscriptionServiceBeanSubscribeToPartnerServiceTest {
 
         doAnswer(new Answer<List<?>>() {
             @Override
-            public List<?> answer(InvocationOnMock invocation) throws Throwable {
+            public List<?> answer(InvocationOnMock invocation)
+                    throws Throwable {
                 if ("Product.getCopyForCustomer".equals(queryName)
                         || "Product.getForCustomerOnly".equals(queryName)) {
                     return new ArrayList<Product>();
@@ -257,8 +265,8 @@ public class SubscriptionServiceBeanSubscribeToPartnerServiceTest {
                         tp,
                         new TriggerMessage(TriggerType.SUBSCRIBE_TO_SERVICE)));
             }
-        }).when(triggerQueueServiceMock).sendSuspendingMessages(
-                anyListOf(TriggerMessage.class));
+        }).when(triggerQueueServiceMock)
+                .sendSuspendingMessages(anyListOf(TriggerMessage.class));
 
         doReturn(partnerTemplate).when(dsMock).getReference(Product.class,
                 PARTNER_TEMPLATE_KEY);
@@ -280,24 +288,25 @@ public class SubscriptionServiceBeanSubscribeToPartnerServiceTest {
                 .getOrganizationDao();
         doReturn(givenUsers).when(orgDao).getOrganizationAdmins(anyLong());
         doReturn(true).when(cfgService).isPaymentInfoAvailable();
-        
+
         // when
-        VOSubscription voSub = subscriptionServiceBean
-                .subscribeToService(subscription, service, null, null, null,
-                        new ArrayList<VOUda>());
+        VOSubscription voSub = subscriptionServiceBean.subscribeToService(
+                subscription, service, null, null, null,
+                new ArrayList<VOUda>());
 
         // then
         assertEquals("Wrong service key in subscription", PARTNER_TEMPLATE_KEY,
                 voSub.getServiceKey());
 
-        assertEquals("Wrong service id in subscription", partnerTemplate
-                .getTemplate().getProductId(), voSub.getServiceId());
+        assertEquals("Wrong service id in subscription",
+                partnerTemplate.getTemplate().getProductId(),
+                voSub.getServiceId());
 
         assertEquals("Wrong vendor name in subscription", RESELLER_NAME,
                 voSub.getSellerName());
 
-        assertEquals("Wrong service base url in subscription",
-                SERVICE_BASE_URL, voSub.getServiceBaseURL());
+        assertEquals("Wrong service base url in subscription", SERVICE_BASE_URL,
+                voSub.getServiceBaseURL());
 
     }
 
@@ -305,7 +314,7 @@ public class SubscriptionServiceBeanSubscribeToPartnerServiceTest {
     public void subscribeToService_serviceNotAvalible() throws Exception {
         // given
         defineMockBehavior();
-        List<Long> invisibleProductKeys = new ArrayList<Long>();
+        List<Long> invisibleProductKeys = new ArrayList<>();
         invisibleProductKeys.add(Long.valueOf(PARTNER_TEMPLATE_KEY));
         doReturn(invisibleProductKeys).when(userGroupService)
                 .getInvisibleProductKeysForUser(1l);

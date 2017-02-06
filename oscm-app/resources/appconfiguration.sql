@@ -6,3 +6,4 @@ INSERT INTO configurationsetting (controllerid, settingkey, settingvalue) VALUES
 INSERT INTO configurationsetting (controllerid, settingkey, settingvalue) VALUES ('PROXY', 'BSS_USER_KEY', '<userKey>');
 INSERT INTO configurationsetting (controllerid, settingkey, settingvalue) VALUES ('PROXY', 'BSS_USER_PWD', '<password>');
 INSERT INTO configurationsetting (controllerid, settingkey, settingvalue) VALUES ('PROXY', 'APP_ADMIN_MAIL_ADDRESS', 'admin@est.fujtsu.com');
+INSERT INTO configurationsetting (controllerid, settingkey, settingvalue) VALUES ('PROXY', 'APP_KEY_PATH', './key');

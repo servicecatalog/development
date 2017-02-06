@@ -35,6 +35,7 @@ import org.oscm.domobjects.TriggerProcess;
 import org.oscm.domobjects.UsageLicense;
 import org.oscm.domobjects.UserRole;
 import org.oscm.domobjects.enums.OrganizationReferenceType;
+import org.oscm.encrypter.AESEncrypter;
 import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.i18nservice.bean.LocalizerServiceStub2;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
@@ -95,6 +96,7 @@ public class UsageLicenseDaoIT extends EJBTestBase {
 
     @Override
     protected void setup(TestContainer container) throws Exception {
+        AESEncrypter.generateKey();
         final Organization org = new Organization();
         org.setKey(0);
         ds = new DataServiceBean() {

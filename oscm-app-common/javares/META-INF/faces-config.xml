@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2016-->
+ 
+<faces-config xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-facesconfig_2_0.xsd"
+  version="2.0">
+  <application>
+    <locale-config>
+      <default-locale>en</default-locale>
+      <supported-locale>en</supported-locale>
+      <supported-locale>de</supported-locale>
+      <supported-locale>ja</supported-locale>
+    </locale-config>
+    <resource-bundle>
+      <base-name>org.oscm.app.common.i18n.messages</base-name>
+      <var>msg</var>
+    </resource-bundle>
+  </application>
+  <lifecycle>
+    <phase-listener>org.oscm.app.common.LocaleListener</phase-listener>
+  </lifecycle>  
+</faces-config>

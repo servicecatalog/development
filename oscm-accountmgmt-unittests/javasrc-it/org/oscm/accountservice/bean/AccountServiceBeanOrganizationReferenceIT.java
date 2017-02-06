@@ -41,6 +41,7 @@ import org.oscm.domobjects.OrganizationToRole;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.TriggerProcess;
 import org.oscm.domobjects.enums.OrganizationReferenceType;
+import org.oscm.encrypter.AESEncrypter;
 import org.oscm.internal.intf.AccountService;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
@@ -80,6 +81,8 @@ public class AccountServiceBeanOrganizationReferenceIT extends EJBTestBase {
 
     @Override
     protected void setup(TestContainer container) throws Exception {
+        AESEncrypter.generateKey();
+
         asb = new AccountServiceBean();
         container.addBean(new ConfigurationServiceStub());
         asb.dm = mock(DataService.class);

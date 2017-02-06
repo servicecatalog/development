@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Copyright FUJITSU LIMITED 2016-->
- 
+
 <tns:TechnicalServices xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="oscm.serviceprovisioning/1.9/TechnicalService.xsd ../../oscm-serviceprovisioning/javares/TechnicalServices.xsd"
   xmlns:tns="oscm.serviceprovisioning/1.9/TechnicalService.xsd">
   <tns:TechnicalService accessType="DIRECT" allowingOnBehalfActing="false" baseUrl=""
-    build="20140708" id="OPENSTACK_V3" loginPath=""
+    build="20140708" id="OPENSTACK_V4" loginPath=""
     onlyOneSubscriptionPerUser="false" provisioningType="ASYNCHRONOUS"
     provisioningUrl="https://<host>:<port>/ProvisioningService/AsynchronousProvisioningProxy?wsdl"
     provisioningVersion="1.0">
@@ -39,19 +39,54 @@
     <ParameterDefinition configurable="true" id="TENANT_ID" default="<your.tenant.id>" mandatory="true" valueType="STRING" modificationType="ONE_TIME">
       <LocalizedDescription locale="en">Tenant ID (project ID)</LocalizedDescription>
     </ParameterDefinition>
-    <ParameterDefinition configurable="true" id="ACCESS_INFO_PATTERN" default="Key pair name: {KP_Out}; IP: {IP_Out}" mandatory="true" valueType="STRING" modificationType="ONE_TIME">
+    <ParameterDefinition configurable="true" id="ACCESS_INFO_PATTERN" default="Key pair name: {KP_Out}; Assigned network addresses: {NW_Out};" mandatory="true" valueType="STRING" modificationType="ONE_TIME">
       <LocalizedDescription locale="en">Pattern for access information</LocalizedDescription>
     </ParameterDefinition>
     <ParameterDefinition configurable="true" id="TP_ImageId" default="cedarish" mandatory="true" valueType="STRING" modificationType="ONE_TIME">
       <LocalizedDescription locale="en">Image ID</LocalizedDescription>
     </ParameterDefinition>
-    <ParameterDefinition configurable="true" id="TP_InstanceType" default="m1.small" mandatory="true" valueType="STRING" modificationType="ONE_TIME">
-      <LocalizedDescription locale="en">Instance type</LocalizedDescription>
+    <ParameterDefinition configurable="true" id="TP_flavor" default="m1.small" mandatory="true"
+      valueType="STRING" modificationType="ONE_TIME">
+      <LocalizedDescription locale="en">Instance type (flavor)</LocalizedDescription>
     </ParameterDefinition>
     <ParameterDefinition configurable="true" id="TP_KeyName" default="openstackkeypair" mandatory="true" valueType="STRING" modificationType="ONE_TIME">
       <LocalizedDescription locale="en">Key name</LocalizedDescription>
     </ParameterDefinition>
-    <ParameterDefinition configurable="false" id="MAIL_FOR_COMPLETION" default="<your.mail>"
+    <ParameterDefinition configurable="true" id="TP_az" default="nova" mandatory="true"
+      valueType="STRING" modificationType="ONE_TIME">
+      <LocalizedDescription locale="en">Availability zone</LocalizedDescription>
+    </ParameterDefinition>
+	<ParameterDefinition configurable="true" id="TP_VmName" mandatory="true" modificationType="ONE_TIME" valueType="STRING">
+      <LocalizedDescription locale="en">VmName</LocalizedDescription>
+      <LocalizedDescription locale="de"/>
+      <LocalizedDescription locale="ja"/>
+    </ParameterDefinition>
+	<ParameterDefinition configurable="true" id="TP_AdminPassword" mandatory="true" modificationType="ONE_TIME" valueType="STRING">
+      <LocalizedDescription locale="en">AdminPassword</LocalizedDescription>
+      <LocalizedDescription locale="de"/>
+      <LocalizedDescription locale="ja"/>
+    </ParameterDefinition>
+	 <ParameterDefinition configurable="true" id="TP_PrivateNetworkId" mandatory="true" modificationType="ONE_TIME" valueType="STRING">
+      <LocalizedDescription locale="en">PrivateNetworkId</LocalizedDescription>
+      <LocalizedDescription locale="de"/>
+      <LocalizedDescription locale="ja"/>
+    </ParameterDefinition>
+    <ParameterDefinition configurable="true" id="TP_SubnetId" mandatory="true" modificationType="ONE_TIME" valueType="STRING">
+      <LocalizedDescription locale="en">SubnetId</LocalizedDescription>
+      <LocalizedDescription locale="de"/>
+      <LocalizedDescription locale="ja"/>
+    </ParameterDefinition>
+    <ParameterDefinition configurable="true" id="TP_PublicNetworkId" mandatory="true" modificationType="ONE_TIME" valueType="STRING">
+      <LocalizedDescription locale="en">PublicNetworkId</LocalizedDescription>
+      <LocalizedDescription locale="de"/>
+      <LocalizedDescription locale="ja"/>
+    </ParameterDefinition>
+    <ParameterDefinition configurable="true" id="TP_ARRAY_SecurityGroupName" mandatory="true" modificationType="ONE_TIME" valueType="STRING">
+      <LocalizedDescription locale="en">SecurityGroupName</LocalizedDescription>
+      <LocalizedDescription locale="de"/>
+      <LocalizedDescription locale="ja"/>
+    </ParameterDefinition>
+    <ParameterDefinition configurable="true" id="MAIL_FOR_COMPLETION" default=""
       mandatory="false" valueType="STRING" modificationType="ONE_TIME">
       <LocalizedDescription locale="en">The address to which emails are to be sent that describe manual steps required to complete an operation. If you specify this parameter, the service controller interrupts the processing of each operation before its completion and waits for a notification about the execution of a manual action. Omit this parameter if you do not want to interrupt the processing.</LocalizedDescription>
       <LocalizedDescription locale="ja">操作を完了するために手動の手順が必要であることを知らせるemailの送信先メールアドレス。このパラメーターを指定すると、サービスコントロールは各操作の完了前に処理を中断して、手動の操作が終わったことを知らせる通知が届くまで待ちます。処理を中断したくない場合は、このパラメーターを省略してください。</LocalizedDescription>
@@ -72,7 +107,7 @@
       <LocalizedDescription locale="en">Stop all servers</LocalizedDescription>
       <LocalizedDescription locale="ja">システムを停止します</LocalizedDescription>
     </Operation>
-    <Operation actionURL="https://estitnb5.intern.est.fujitsu.com:8881/OperationService/AsynchronousOperationProxy?wsdl" id="RESUME_VIRTUAL_SYSTEM">
+    <Operation actionURL="https://<host>:<port>/OperationService/AsynchronousOperationProxy?wsdl" id="RESUME_VIRTUAL_SYSTEM">
       <LocalizedName locale="de">Fortsetzen</LocalizedName>
       <LocalizedName locale="en">Resume</LocalizedName>
       <LocalizedName locale="ja">レジューム</LocalizedName>
@@ -80,7 +115,7 @@
       <LocalizedDescription locale="en">Resume the instance</LocalizedDescription>
       <LocalizedDescription locale="ja">システムをレジュームします</LocalizedDescription>
     </Operation>
-    <Operation actionURL="https://estitnb5.intern.est.fujitsu.com:8881/OperationService/AsynchronousOperationProxy?wsdl" id="SUSPEND_VIRTUAL_SYSTEM">
+    <Operation actionURL="https://<host>:<port>/OperationService/AsynchronousOperationProxy?wsdl" id="SUSPEND_VIRTUAL_SYSTEM">
       <LocalizedName locale="de">Aussetzen</LocalizedName>
       <LocalizedName locale="en">Suspend</LocalizedName>
       <LocalizedName locale="ja">サスペンド</LocalizedName>

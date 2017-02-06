@@ -66,7 +66,7 @@ public class OpenStackInstanceAccess implements InstanceAccess {
                 .getServiceInstanceDetails(OpenStackController.ID, instanceId,
                         subscriptionId, organizationId);
         PropertyHandler ph = new PropertyHandler(settings);
-        List<Server> servers = new ArrayList<Server>();
+        List<Server> servers = new ArrayList<>();
         try {
             servers = new NovaProcessor().getServersDetails(ph, true);
         } catch (InstanceNotAliveException ex) {

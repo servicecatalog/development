@@ -40,7 +40,6 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.MockitoAnnotations;
-
 import org.oscm.applicationservice.local.ApplicationServiceLocal;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.DomainObject;
@@ -56,21 +55,9 @@ import org.oscm.domobjects.TechnicalProduct;
 import org.oscm.domobjects.TriggerDefinition;
 import org.oscm.domobjects.TriggerProcess;
 import org.oscm.domobjects.TriggerProcessParameter;
+import org.oscm.encrypter.AESEncrypter;
 import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
-import org.oscm.serviceprovisioningservice.assembler.ParameterAssembler;
-import org.oscm.subscriptionservice.auditlog.SubscriptionAuditLogCollector;
-import org.oscm.subscriptionservice.dao.ModifiedEntityDao;
-import org.oscm.subscriptionservice.dao.OrganizationDao;
-import org.oscm.subscriptionservice.dao.ProductDao;
-import org.oscm.subscriptionservice.dao.SessionDao;
-import org.oscm.taskhandling.local.TaskMessage;
-import org.oscm.taskhandling.local.TaskQueueServiceLocal;
-import org.oscm.tenantprovisioningservice.bean.TenantProvisioningServiceBean;
-import org.oscm.tenantprovisioningservice.vo.TenantProvisioningResult;
-import org.oscm.triggerservice.local.TriggerMessage;
-import org.oscm.triggerservice.local.TriggerQueueServiceLocal;
-import org.oscm.types.enumtypes.TriggerProcessParameterName;
 import org.oscm.internal.types.enumtypes.ParameterModificationType;
 import org.oscm.internal.types.enumtypes.ServiceStatus;
 import org.oscm.internal.types.enumtypes.ServiceType;
@@ -85,6 +72,19 @@ import org.oscm.internal.vo.VOPaymentInfo;
 import org.oscm.internal.vo.VOService;
 import org.oscm.internal.vo.VOSubscription;
 import org.oscm.internal.vo.VOUda;
+import org.oscm.serviceprovisioningservice.assembler.ParameterAssembler;
+import org.oscm.subscriptionservice.auditlog.SubscriptionAuditLogCollector;
+import org.oscm.subscriptionservice.dao.ModifiedEntityDao;
+import org.oscm.subscriptionservice.dao.OrganizationDao;
+import org.oscm.subscriptionservice.dao.ProductDao;
+import org.oscm.subscriptionservice.dao.SessionDao;
+import org.oscm.taskhandling.local.TaskMessage;
+import org.oscm.taskhandling.local.TaskQueueServiceLocal;
+import org.oscm.tenantprovisioningservice.bean.TenantProvisioningServiceBean;
+import org.oscm.tenantprovisioningservice.vo.TenantProvisioningResult;
+import org.oscm.triggerservice.local.TriggerMessage;
+import org.oscm.triggerservice.local.TriggerQueueServiceLocal;
+import org.oscm.types.enumtypes.TriggerProcessParameterName;
 
 /**
  * Unit test testing the updating of service parameter in context of
@@ -104,13 +104,14 @@ public class SubscriptionServiceBeanUpdateParameterTest {
     private ProductDao productDao;
     private SessionDao sessionDao;
     private OrganizationDao orgDao = mock(OrganizationDao.class);
-    private List<PlatformUser> givenUsers = new ArrayList<PlatformUser>();
+    private List<PlatformUser> givenUsers = new ArrayList<>();
 
     @Captor
     ArgumentCaptor<List<Parameter>> voOrgCaptor;
 
     @Before
     public void setup() throws Exception {
+        AESEncrypter.generateKey();
         MockitoAnnotations.initMocks(this);
         bean = spy(new SubscriptionServiceBean() {
             @Override
@@ -118,7 +119,7 @@ public class SubscriptionServiceBeanUpdateParameterTest {
                     long targetObjectKey, Organization supplier)
                     throws ValidationException, ObjectNotFoundException,
                     OperationNotPermittedException {
-                return new ArrayList<VOUda>();
+                return new ArrayList<>();
             }
         });
         DataService dsMock = mock(DataService.class);
@@ -166,15 +167,14 @@ public class SubscriptionServiceBeanUpdateParameterTest {
         Organization organization = new Organization();
         user.setOrganization(organization);
         doReturn(user).when(bean.dataManager).getCurrentUser();
-        doReturn(givenPlatformUser(USER_KEY, USER_LOCAL))
-                .when(bean.dataManager).getReference(eq(PlatformUser.class),
-                        eq(USER_KEY));
+        doReturn(givenPlatformUser(USER_KEY, USER_LOCAL)).when(bean.dataManager)
+                .getReference(eq(PlatformUser.class), eq(USER_KEY));
         setupProductTemplate();
 
         TenantProvisioningResult result = new TenantProvisioningResult();
         result.setAsyncProvisioning(true);
-        doReturn(result).when(bean.tenantProvisioning).createProductInstance(
-                any(Subscription.class));
+        doReturn(result).when(bean.tenantProvisioning)
+                .createProductInstance(any(Subscription.class));
     }
 
     private void setupProductTemplate() throws Exception {
@@ -187,8 +187,8 @@ public class SubscriptionServiceBeanUpdateParameterTest {
         productTemplate.setType(ServiceType.TEMPLATE);
         PriceModel pricemodel = new PriceModel();
         productTemplate.setPriceModel(pricemodel);
-        doReturn(productTemplate).when(bean.dataManager).getReference(
-                eq(Product.class), anyLong());
+        doReturn(productTemplate).when(bean.dataManager)
+                .getReference(eq(Product.class), anyLong());
     }
 
     @Test
@@ -196,8 +196,8 @@ public class SubscriptionServiceBeanUpdateParameterTest {
         // given
         TriggerProcess trigger = givenTriggerProcess(Boolean.FALSE);
 
-        doNothing().when(bean.triggerQS).sendAllNonSuspendingMessages(
-                anyListOf(TriggerMessage.class));
+        doNothing().when(bean.triggerQS)
+                .sendAllNonSuspendingMessages(anyListOf(TriggerMessage.class));
         doNothing().when(bean.tqs)
                 .sendAllMessages(anyListOf(TaskMessage.class));
         // when
@@ -211,13 +211,12 @@ public class SubscriptionServiceBeanUpdateParameterTest {
         // given
         TriggerProcess trigger = givenTriggerProcess(Boolean.FALSE);
 
-        doNothing().when(bean.triggerQS).sendAllNonSuspendingMessages(
-                anyListOf(TriggerMessage.class));
+        doNothing().when(bean.triggerQS)
+                .sendAllNonSuspendingMessages(anyListOf(TriggerMessage.class));
         doNothing().when(bean.tqs)
                 .sendAllMessages(anyListOf(TaskMessage.class));
-        doReturn(givenPlatformUser(USER_KEY, USER_LOCAL))
-                .when(bean.dataManager).getReferenceByBusinessKey(
-                        any(PlatformUser.class));
+        doReturn(givenPlatformUser(USER_KEY, USER_LOCAL)).when(bean.dataManager)
+                .getReferenceByBusinessKey(any(PlatformUser.class));
         // when
         Subscription result = bean.subscribeToServiceInt(trigger);
         // then
@@ -231,15 +230,14 @@ public class SubscriptionServiceBeanUpdateParameterTest {
         // given
         TriggerProcess trigger = givenTriggerProcess(Boolean.TRUE);
 
-        doNothing().when(bean.triggerQS).sendAllNonSuspendingMessages(
-                anyListOf(TriggerMessage.class));
+        doNothing().when(bean.triggerQS)
+                .sendAllNonSuspendingMessages(anyListOf(TriggerMessage.class));
         doNothing().when(bean.tqs)
                 .sendAllMessages(anyListOf(TaskMessage.class));
-        doReturn(givenPlatformUser(USER_KEY, USER_LOCAL))
-                .when(bean.dataManager).getReferenceByBusinessKey(
-                        any(PlatformUser.class));
-        doReturn(new Subscription()).when(bean.manageBean).loadSubscription(
-                anyString(), anyLong());
+        doReturn(givenPlatformUser(USER_KEY, USER_LOCAL)).when(bean.dataManager)
+                .getReferenceByBusinessKey(any(PlatformUser.class));
+        doReturn(new Subscription()).when(bean.manageBean)
+                .loadSubscription(anyString(), anyLong());
         doNothing().when(bean).addRevokeUserInt(any(TriggerProcess.class));
 
         // when
@@ -268,7 +266,6 @@ public class SubscriptionServiceBeanUpdateParameterTest {
 
         doReturn(mock(ModifiedEntityDao.class)).when(bean)
                 .getModifiedEntityDao();
-
 
         // when
         bean.modifySubscriptionInt(trigger);
@@ -320,8 +317,8 @@ public class SubscriptionServiceBeanUpdateParameterTest {
         Product targetProduct = createProduct("targetProduct");
         Subscription subscription = givenSubscription(organization);
 
-        doReturn(targetProduct).when(bean.dataManager).getReference(
-                eq(Product.class), anyLong());
+        doReturn(targetProduct).when(bean.dataManager)
+                .getReference(eq(Product.class), anyLong());
         doReturn(givenUser(organization)).when(bean.dataManager)
                 .getCurrentUser();
         doReturn(givenProducts(organization)).when(bean)
@@ -342,20 +339,20 @@ public class SubscriptionServiceBeanUpdateParameterTest {
         verify(bean.audit).upDowngradeSubscription(captorDataService.capture(),
                 captorSubscription.capture(), captorInitialProduct.capture(),
                 captorTargetProduct.capture());
-        assertEquals(initialProduct.getProductId(), captorInitialProduct
-                .getValue().getProductId());
-        assertEquals(targetProduct.getProductId(), captorTargetProduct
-                .getValue().getProductId());
-        assertEquals(subscription.getSubscriptionId(), captorSubscription
-                .getValue().getSubscriptionId());
+        assertEquals(initialProduct.getProductId(),
+                captorInitialProduct.getValue().getProductId());
+        assertEquals(targetProduct.getProductId(),
+                captorTargetProduct.getValue().getProductId());
+        assertEquals(subscription.getSubscriptionId(),
+                captorSubscription.getValue().getSubscriptionId());
 
     }
 
     @Test
     public void updateConfiguredParameterValues_ConfigurableParameter() {
         // given
-        Product product = givenProductWithParamsHavingDefaultValues(
-                "Param_ID1", "Param_ID2");
+        Product product = givenProductWithParamsHavingDefaultValues("Param_ID1",
+                "Param_ID2");
         Subscription subscription = givenSubscriptionWithParamsHavingOtherVaues(
                 "Param_ID1", "Param_ID2");
         List<VOParameter> parameters = givenConfigurableStandardParametersToUpdate(
@@ -371,8 +368,8 @@ public class SubscriptionServiceBeanUpdateParameterTest {
     @Test
     public void updateConfiguredParameterValues_NonConfigurableParameter() {
         // given product, target subscription and non configurable parameters
-        Product product = givenProductWithParamsHavingDefaultValues(
-                "Param_ID1", "Param_ID2");
+        Product product = givenProductWithParamsHavingDefaultValues("Param_ID1",
+                "Param_ID2");
         Subscription subscription = givenSubscriptionWithParamsHavingOtherVaues(
                 "Param_ID1", "Param_ID2");
 
@@ -390,10 +387,13 @@ public class SubscriptionServiceBeanUpdateParameterTest {
     @Test
     public void updateConfiguredParameterValues_NonConfigurableOneTimeParameter() {
         // given product, target subscription and non configurable parameters
-        Product product = givenProductWithParamsHavingDefaultValues("Param_ID1");
-        Subscription subscription = givenSubscriptionWithParamsHavingOtherVaues("Param_ID1");
+        Product product = givenProductWithParamsHavingDefaultValues(
+                "Param_ID1");
+        Subscription subscription = givenSubscriptionWithParamsHavingOtherVaues(
+                "Param_ID1");
 
-        List<VOParameter> parameters = givenNonConfigurableOneTimeParametersToUpdate("Param_ID1");
+        List<VOParameter> parameters = givenNonConfigurableOneTimeParametersToUpdate(
+                "Param_ID1");
         // when
         List<Parameter> result = bean.updateConfiguredParameterValues(product,
                 parameters, subscription);
@@ -410,8 +410,8 @@ public class SubscriptionServiceBeanUpdateParameterTest {
     @Test
     public void updateConfiguredParameterValues_AdditionalParam_B9422_1() {
         // given product, parameters and a subscription having a new parameter
-        Product product = givenProductWithParamsHavingDefaultValues(
-                "Param_ID1", "Param_ID2");
+        Product product = givenProductWithParamsHavingDefaultValues("Param_ID1",
+                "Param_ID2");
         Subscription subscription = givenSubscriptionWithParamsHavingOtherVaues(
                 "Param_ID1", "Param_ID2");
 
@@ -434,8 +434,8 @@ public class SubscriptionServiceBeanUpdateParameterTest {
     @Test
     public void updateConfiguredParameterValues_AdditionalParam_B9422_2() {
         // given product, parameters and a subscription having a new parameter
-        Product product = givenProductWithParamsHavingDefaultValues(
-                "Param_ID1", "Param_ID2");
+        Product product = givenProductWithParamsHavingDefaultValues("Param_ID1",
+                "Param_ID2");
         Subscription subscription = givenSubscriptionWithParamsHavingOtherVaues(
                 "Param_ID1", "Param_ID2");
 
@@ -454,9 +454,12 @@ public class SubscriptionServiceBeanUpdateParameterTest {
     public void checkIfParametersAreModified_UpOrDowngradeNotValid()
             throws Exception {
         // given product, parameters and a subscription having a new parameter
-        Product product = givenProductWithParamsHavingDefaultValues("Param_ID1");
-        Subscription subscription = givenSubscriptionWithParamsHavingOtherVaues("Param_ID1");
-        List<VOParameter> parameters = givenNonConfigurableStandardParametersToUpdate("Param_ID1");
+        Product product = givenProductWithParamsHavingDefaultValues(
+                "Param_ID1");
+        Subscription subscription = givenSubscriptionWithParamsHavingOtherVaues(
+                "Param_ID1");
+        List<VOParameter> parameters = givenNonConfigurableStandardParametersToUpdate(
+                "Param_ID1");
 
         doNothing().when(bean).verifyIfParameterConcurrentlyChanged(
                 any(Product.class), anyListOf(VOParameter.class), anyBoolean());
@@ -474,10 +477,13 @@ public class SubscriptionServiceBeanUpdateParameterTest {
     public void checkIfParametersAreModified_UpOrDowngradeValid()
             throws Exception {
         // given product, parameters and a subscription having a new parameter
-        Product product = givenProductWithParamsHavingDefaultValues("Param_ID1");
-        Subscription subscription = givenSubscriptionWithParamsHavingOtherVaues("Param_ID1");
+        Product product = givenProductWithParamsHavingDefaultValues(
+                "Param_ID1");
+        Subscription subscription = givenSubscriptionWithParamsHavingOtherVaues(
+                "Param_ID1");
 
-        List<VOParameter> parameters = givenNonConfigurableStandardParametersToUpdate("Param_ID1");
+        List<VOParameter> parameters = givenNonConfigurableStandardParametersToUpdate(
+                "Param_ID1");
         doNothing().when(bean).verifyIfParameterConcurrentlyChanged(
                 any(Product.class), anyListOf(VOParameter.class), anyBoolean());
 
@@ -501,7 +507,8 @@ public class SubscriptionServiceBeanUpdateParameterTest {
         VOParameter targetParam = toVO(createParameter("Parm1", "23",
                 ParameterModificationType.STANDARD, true));
 
-        assertTrue(bean.isParameterUpOrDowngradeValid(dbParameter, targetParam));
+        assertTrue(
+                bean.isParameterUpOrDowngradeValid(dbParameter, targetParam));
     }
 
     @Test
@@ -513,8 +520,8 @@ public class SubscriptionServiceBeanUpdateParameterTest {
         VOParameter targetParam = toVO(createParameter("Parm1", "24",
                 ParameterModificationType.STANDARD, true));
 
-        assertFalse(bean
-                .isParameterUpOrDowngradeValid(dbParameter, targetParam));
+        assertFalse(
+                bean.isParameterUpOrDowngradeValid(dbParameter, targetParam));
     }
 
     @Test
@@ -526,7 +533,8 @@ public class SubscriptionServiceBeanUpdateParameterTest {
         VOParameter targetParam = toVO(createParameter("Parm1", "23",
                 ParameterModificationType.ONE_TIME, true));
 
-        assertTrue(bean.isParameterUpOrDowngradeValid(dbParameter, targetParam));
+        assertTrue(
+                bean.isParameterUpOrDowngradeValid(dbParameter, targetParam));
     }
 
     @Test
@@ -538,7 +546,8 @@ public class SubscriptionServiceBeanUpdateParameterTest {
         VOParameter targetParam = toVO(createParameter("Parm1", "24",
                 ParameterModificationType.ONE_TIME, true));
 
-        assertTrue(bean.isParameterUpOrDowngradeValid(dbParameter, targetParam));
+        assertTrue(
+                bean.isParameterUpOrDowngradeValid(dbParameter, targetParam));
     }
 
     @Test
@@ -577,9 +586,12 @@ public class SubscriptionServiceBeanUpdateParameterTest {
     public void checkIfParametersAreModified_ValidationException()
             throws Exception {
         // given product with one time parameter
-        Product product = givenProductWithOneTimeParamsHavingDefaultValues("Param_ID1");
-        Subscription subscription = givenSubscriptionWithParamsHavingOtherVaues("Param_ID1");
-        List<VOParameter> parameters = givenConfigurableOneTimeParametersToUpdate("Param_ID1");
+        Product product = givenProductWithOneTimeParamsHavingDefaultValues(
+                "Param_ID1");
+        Subscription subscription = givenSubscriptionWithParamsHavingOtherVaues(
+                "Param_ID1");
+        List<VOParameter> parameters = givenConfigurableOneTimeParametersToUpdate(
+                "Param_ID1");
         doNothing().when(bean).verifyIfParameterConcurrentlyChanged(
                 any(Product.class), anyListOf(VOParameter.class), anyBoolean());
         try {
@@ -597,7 +609,7 @@ public class SubscriptionServiceBeanUpdateParameterTest {
 
     private VOParameter toVO(Parameter parameter) {
         ParameterSet paramSet = new ParameterSet();
-        List<Parameter> params = new ArrayList<Parameter>();
+        List<Parameter> params = new ArrayList<>();
         params.add(parameter);
         paramSet.setParameters(params);
         return ParameterAssembler.toVOParameters(paramSet,
@@ -621,12 +633,11 @@ public class SubscriptionServiceBeanUpdateParameterTest {
                 defaultValue, ids);
     }
 
-    private Product givenProductWithParameter(
-            ParameterModificationType modType, String defaultValue,
-            String... ids) {
+    private Product givenProductWithParameter(ParameterModificationType modType,
+            String defaultValue, String... ids) {
         Product product = new Product();
         ParameterSet productParams = new ParameterSet();
-        List<Parameter> paramList = new ArrayList<Parameter>();
+        List<Parameter> paramList = new ArrayList<>();
         for (String id : ids) {
             paramList.add(createParameter(id, defaultValue, modType, true));
         }
@@ -650,10 +661,10 @@ public class SubscriptionServiceBeanUpdateParameterTest {
     private List<VOParameter> givenParametersToUpdate(String newValue,
             boolean configurable, ParameterModificationType modType,
             String... ids) {
-        List<VOParameter> paramList = new ArrayList<VOParameter>();
+        List<VOParameter> paramList = new ArrayList<>();
         for (String id : ids) {
-            paramList.add(toVO(createParameter(id, newValue, modType,
-                    configurable)));
+            paramList.add(
+                    toVO(createParameter(id, newValue, modType, configurable)));
         }
         return paramList;
     }
@@ -701,17 +712,17 @@ public class SubscriptionServiceBeanUpdateParameterTest {
 
     private void assertSubscriptionParameterConfigurationUpdated(
             int changedNumber) {
-        verify(bean.audit, times(1))
-                .editSubscriptionParameterConfiguration(eq(bean.dataManager),
-                        any(Product.class), voOrgCaptor.capture());
+        verify(bean.audit, times(1)).editSubscriptionParameterConfiguration(
+                eq(bean.dataManager), any(Product.class),
+                voOrgCaptor.capture());
         assertEquals(changedNumber, voOrgCaptor.getValue().size());
     }
 
     private boolean checkUpdated(List<VOParameter> parameterList,
             Product product) {
         for (Parameter parameter : product.getParameterSet().getParameters()) {
-            VOParameter voparameter = findParameter(parameterList, parameter
-                    .getParameterDefinition().getParameterId());
+            VOParameter voparameter = findParameter(parameterList,
+                    parameter.getParameterDefinition().getParameterId());
             if (voparameter != null) {
                 String value = parameter.getValue();
                 if (!value.equals(voparameter.getValue())) {
@@ -746,7 +757,7 @@ public class SubscriptionServiceBeanUpdateParameterTest {
         VOService product = new VOService();
         product.setAutoAssignUserEnabled(autoAssign);
 
-        List<TriggerProcessParameter> paraList = new ArrayList<TriggerProcessParameter>();
+        List<TriggerProcessParameter> paraList = new ArrayList<>();
         paraList.add(initTriggerParameter(
                 TriggerProcessParameterName.SUBSCRIPTION, sub));
         paraList.add(initTriggerParameter(TriggerProcessParameterName.PRODUCT,
@@ -819,7 +830,7 @@ public class SubscriptionServiceBeanUpdateParameterTest {
         currentProduct.setType(ServiceType.TEMPLATE);
         result.setProduct(currentProduct);
 
-        List<Product> pros = new ArrayList<Product>();
+        List<Product> pros = new ArrayList<>();
         pros.add(new Product());
         return pros;
     }

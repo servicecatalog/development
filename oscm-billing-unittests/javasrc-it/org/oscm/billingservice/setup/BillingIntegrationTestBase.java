@@ -56,6 +56,7 @@ import org.oscm.domobjects.Marketplace;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.TriggerProcess;
+import org.oscm.encrypter.AESEncrypter;
 import org.oscm.eventservice.bean.EventServiceBean;
 import org.oscm.i18nservice.bean.ImageResourceServiceBean;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
@@ -234,6 +235,8 @@ public class BillingIntegrationTestBase extends StaticEJBTestBase {
     // injecting the dependent beans
     private static void containerSetup(final TestContainer container)
             throws Exception {
+
+        AESEncrypter.generateKey();
         container.addBean(mock(LocalizerServiceLocal.class));
         addConfigurationServiceStub(container);
         container.addBean(mock(AuditLogDao.class));

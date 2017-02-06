@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Copyright FUJITSU LIMITED 2016-->
+ 
+<dataset>
+  <ConfigurationSetting tkey="1" version="0" information_id="LOG_LEVEL" env_value="INFO" context_id="global"/>
+  <ConfigurationSetting tkey="2" version="0" information_id="LOG_FILE_PATH" env_value="../logs" context_id="global"/>
+  <ConfigurationSetting tkey="3" version="0" information_id="TEST1" env_value="test1" context_id="global"/>
+  <ConfigurationSetting tkey="4" version="0" information_id="TEST2" env_value="test2" context_id="global"/>
+</dataset>

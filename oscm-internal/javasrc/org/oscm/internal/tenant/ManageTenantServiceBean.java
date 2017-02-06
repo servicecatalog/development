@@ -79,6 +79,9 @@ public class ManageTenantServiceBean implements ManageTenantService {
         throws ObjectNotFoundException, NonUniqueBusinessKeyException {
         VOTenant voTenant = tenantService.getTenantByTenantId(tenantId);
         List<VOTenantSetting> tenantSettings = new ArrayList<>();
+        if (properties == null) {
+            return;
+        }
         for (Object propertyKey : properties.keySet()) {
             String key = (String) propertyKey;
             if (!IdpSettingType.contains(key)) {

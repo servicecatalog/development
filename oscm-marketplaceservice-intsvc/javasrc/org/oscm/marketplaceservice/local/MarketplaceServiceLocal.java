@@ -549,7 +549,7 @@ public interface MarketplaceServiceLocal {
      * @return list of organizations or empty list if not restricted
      */
     List<Organization> getAllOrganizationsWithAccessToMarketplace(
-            long marketplaceKey);
+            long marketplaceKey) throws ObjectNotFoundException;
     
     /**
      * Updates the tenant for marketplace.
