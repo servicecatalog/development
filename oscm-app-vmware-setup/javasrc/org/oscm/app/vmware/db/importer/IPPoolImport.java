@@ -44,7 +44,9 @@ public class IPPoolImport extends GenericImport {
                 InputStream in = getFileInputStream();) {
             csv = new IPPoolCSV(in);
             Map<String, String> line = csv.readNext();
+            int lineCount = 0;
             while (line != null) {
+                lineCount++;
                 String vcenter = line.get(IPPoolCSV.COL_VCENTER);
                 String datacenter = line.get(IPPoolCSV.COL_DATACENTER);
                 String cluster = line.get(IPPoolCSV.COL_CLUSTER);
@@ -53,7 +55,17 @@ public class IPPoolImport extends GenericImport {
                 try {
                     int vlanTkey = getVlanTkey(vcenter, datacenter, cluster,
                             vlan);
-                    addTableRow(conn, ipaddress, vlanTkey);
+
+                    String condition = "vlan_tkey=" + vlanTkey
+                            + " AND ip_address='" + ipaddress + "'";
+                    if (entryExists(conn, "ippool", condition)) {
+                        logger.debug("ippool.csv  Skipping line " + lineCount
+                                + " because IP address already exists. "
+                                + vcenter + ", " + datacenter + ", " + cluster
+                                + ", " + vlan + ", " + ipaddress);
+                    } else {
+                        addTableRow(conn, ipaddress, vlanTkey);
+                    }
                 } catch (Exception e) {
                     logger.error("Failed to add row: " + vcenter + " "
                             + datacenter + " " + cluster + " " + vlan + " "

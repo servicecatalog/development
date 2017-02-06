@@ -81,7 +81,7 @@ public class LoadBalancerConfiguration {
                 hostList.add(vmHost);
 
                 VMwareBalancer<VMwareStorage> stb = parseBalancer(host,
-                        StorageBalancer.class, SequentialStorageBalancer.class,
+                        StorageBalancer.class, EquipartitionStorageBalancer.class,
                         inventory);
                 vmHost.setBalancer(stb);
             }

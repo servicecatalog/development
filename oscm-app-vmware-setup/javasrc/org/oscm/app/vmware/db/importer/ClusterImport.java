@@ -49,13 +49,26 @@ public class ClusterImport extends GenericImport {
                 InputStream in = getFileInputStream();) {
             csv = new ClusterCSV(in);
             Map<String, String> line = csv.readNext();
+            int lineCount = 0;
             while (line != null) {
+                lineCount++;
                 String clusterName = line.get(ClusterCSV.COL_CLUSTER_NAME);
                 String vcenter = line.get(ClusterCSV.COL_VCENTER);
                 String datacenter = line.get(ClusterCSV.COL_DATACENTER);
-
+                String hosts = line.get(ClusterCSV.COL_BLACKLIST_HOSTS);
+                String storages = line.get(ClusterCSV.COL_BLACKLIST_STORAGES);
                 try {
-                    addTableRow(conn, vcenter, clusterName, datacenter);
+                    int dcKey = getDatacenterKey(conn, vcenter, datacenter);
+                    String condition = "datacenter_tkey=" + dcKey
+                            + " AND name='" + clusterName + "'";
+                    if (entryExists(conn, "cluster", condition)) {
+                        logger.debug("cluster.csv  Skipping line " + lineCount
+                                + " because cluster already exists. " + vcenter
+                                + ", " + datacenter + ", " + clusterName);
+                    } else {
+                        addTableRow(conn, vcenter, clusterName, dcKey, hosts,
+                                storages);
+                    }
                 } catch (Exception e) {
                     logger.error("failed to add row:  " + vcenter + " "
                             + datacenter + " " + clusterName);
@@ -90,13 +103,33 @@ public class ClusterImport extends GenericImport {
     }
 
     private void addTableRow(Connection con, String vcenter, String clusterName,
-            String datacenter) throws Exception {
-        int dcKey = getDatacenterKey(con, vcenter, datacenter);
-        String loadbalancer = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><essvcenter><balancer class=\"org.oscm.app.vmware.business.balancer.DynamicEquipartitionHostBalancer\" cpuWeight=\"\" memoryWeight=\"\" vmWeight=\"\"/></essvcenter>";
+            int dcKey, String hosts, String storages) throws Exception {
+
+        StringBuilder loadbalancer = new StringBuilder(
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><essvcenter><balancer class=\"org.oscm.app.vmware.business.balancer.DynamicEquipartitionHostBalancer\" cpuWeight=\"\" memoryWeight=\"\" vmWeight=\"\" >");
+        if (hosts != null && !"".equals(hosts)) {
+            String[] hosta = hosts.split("#");
+            for (String host : hosta) {
+                loadbalancer
+                        .append("<blacklisthost>" + host + "</blacklisthost>");
+            }
+
+        }
+        if (storages != null && !"".equals(storages)) {
+            String[] storagea = storages.split("#");
+            for (String storage : storagea) {
+                loadbalancer.append(
+                        "<blackliststorage>" + storage + "</blackliststorage>");
+            }
+
+        }
+
+        loadbalancer.append("</balancer></essvcenter>");
+
         String query = "insert into cluster (TKEY, NAME, LOAD_BALANCER, DATACENTER_TKEY) values (DEFAULT, ?, ?, ?)";
         try (PreparedStatement stmt = con.prepareStatement(query);) {
             stmt.setString(1, clusterName);
-            stmt.setString(2, loadbalancer);
+            stmt.setString(2, loadbalancer.toString());
             stmt.setInt(3, dcKey);
             stmt.execute();
         }

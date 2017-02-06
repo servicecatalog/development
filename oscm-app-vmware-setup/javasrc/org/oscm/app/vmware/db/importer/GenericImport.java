@@ -126,4 +126,23 @@ public class GenericImport {
         return tkey;
     }
 
+    protected boolean entryExists(Connection con, String table,
+            String condition) throws Exception {
+        String query = "select count(*) as count FROM " + table + " WHERE "
+                + condition;
+
+        try (PreparedStatement stmt = con.prepareStatement(query);) {
+            ResultSet resultSet = stmt.executeQuery();
+
+            if (resultSet.next()) {
+                int count = resultSet.getInt("count");
+                if (count > 0) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+            return false;
+        }
+    }
 }

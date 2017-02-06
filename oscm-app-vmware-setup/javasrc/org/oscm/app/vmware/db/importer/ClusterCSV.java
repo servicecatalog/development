@@ -15,6 +15,8 @@ public class ClusterCSV extends CSVFileParser {
     public final static String COL_VCENTER = "VCenter";
     public final static String COL_CLUSTER_NAME = "Clustername";
     public final static String COL_DATACENTER = "Datacenter";
+    public final static String COL_BLACKLIST_HOSTS = "Blacklist-Hosts";
+    public final static String COL_BLACKLIST_STORAGES = "Blacklist-Storages";
 
     public final static String DEFAULT_ENCODING = "UTF-8";
     public final static char DEFAULT_DELIMITER = ',';

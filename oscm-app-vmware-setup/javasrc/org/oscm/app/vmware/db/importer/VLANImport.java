@@ -43,7 +43,9 @@ public class VLANImport extends GenericImport {
                 InputStream in = getFileInputStream();) {
             csv = new VLANCSV(in);
             Map<String, String> line = csv.readNext();
+            int lineCount = 0;
             while (line != null) {
+                lineCount++;
                 String vcenter = line.get(VLANCSV.COL_VCENTER);
                 String datacenter = line.get(VLANCSV.COL_DATACENTER);
                 String cluster = line.get(VLANCSV.COL_CLUSTER);
@@ -58,8 +60,17 @@ public class VLANImport extends GenericImport {
                 try {
                     int clusterTkey = getClusterTkey(vcenter, datacenter,
                             cluster);
-                    addTableRow(conn, vlan, gateway, subnetMask, dnsServer,
-                            dnsSuffix, enabled, clusterTkey);
+                    String condition = "cluster_tkey=" + clusterTkey
+                            + " AND name='" + vlan + "'";
+                    if (entryExists(conn, "vlan", condition)) {
+                        logger.debug("vlan.csv  Skipping line " + lineCount
+                                + " because vlan already exists. " + vcenter
+                                + ", " + datacenter + ", " + cluster + ", "
+                                + vlan);
+                    } else {
+                        addTableRow(conn, vlan, gateway, subnetMask, dnsServer,
+                                dnsSuffix, enabled, clusterTkey);
+                    }
                 } catch (Exception e) {
                     logger.error("failed to add row: " + vcenter + " "
                             + datacenter + " " + cluster + " " + vlan + " "

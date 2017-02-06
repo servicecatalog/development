@@ -49,13 +49,25 @@ public class DatacenterImport extends GenericImport {
                 InputStream in = getFileInputStream();) {
             csv = new DatacenterCSV(in);
             Map<String, String> line = csv.readNext();
+            int lineCount = 0;
             while (line != null) {
+                lineCount++;
                 String vcenter = line.get(DatacenterCSV.COL_VCENTER);
                 String datacenter = line.get(DatacenterCSV.COL_DATACENTER);
                 String dcId = line.get(DatacenterCSV.COL_DATACENTER_ID);
+                int vcenterKey = getVCenterKey(conn, vcenter);
 
                 try {
-                    addTableRow(conn, vcenter, datacenter, dcId);
+                    String condition = "vcenter_tkey=" + vcenterKey
+                            + " AND name='" + datacenter + "'";
+                    if (entryExists(conn, "datacenter", condition)) {
+                        logger.debug(
+                                "datacenter.csv  Skipping line " + lineCount
+                                        + " because datacenter already exists. "
+                                        + vcenter + ", " + datacenter);
+                    } else {
+                        addTableRow(conn, vcenterKey, datacenter, dcId);
+                    }
                 } catch (Exception e) {
                     logger.error("Failed to add row: " + vcenter + " "
                             + datacenter + " " + dcId);
@@ -89,9 +101,8 @@ public class DatacenterImport extends GenericImport {
         }
     }
 
-    private void addTableRow(Connection con, String vcenter, String datacenter,
+    private void addTableRow(Connection con, int vcenterKey, String datacenter,
             String dcId) throws Exception {
-        int vcenterKey = getVCenterKey(con, vcenter);
         String query = "insert into datacenter (TKEY, NAME, IDENTIFIER, VCENTER_TKEY) values (DEFAULT, ?, ?, ?)";
         try (PreparedStatement stmt = con.prepareStatement(query);) {
             stmt.setString(1, datacenter);

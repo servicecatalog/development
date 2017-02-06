@@ -68,12 +68,6 @@ public class ServiceParamRetrieval {
         logger.debug("parameter: " + parameterId);
         String value = ph.getServiceSetting(parameterId);
         if (value != null) {
-            String logValue = value;
-            if (parameterId.endsWith("_PWD")) {
-                logValue = "*****";
-            }
-            logger.debug("found parameter in parameter list. " + parameterId
-                    + ": " + logValue);
             return value;
         }
 
@@ -81,11 +75,6 @@ public class ServiceParamRetrieval {
         for (VOParameter p : serviceParams) {
             if (p.getParameterDefinition().getParameterId().equals(parameterId)) {
                 String logValue = p.getValue();
-                if (parameterId.endsWith("_PWD")) {
-                    logValue = "*****";
-                }
-                logger.debug("found parameter in marketable service. "
-                        + parameterId + ": " + logValue);
                 return p.getValue();
             }
         }
@@ -95,11 +84,6 @@ public class ServiceParamRetrieval {
         for (VOParameterDefinition p : techServiceParams) {
             if (p.getParameterId().equals(parameterId)) {
                 String logValue = p.getDefaultValue();
-                if (parameterId.endsWith("_PWD")) {
-                    logValue = "*****";
-                }
-                logger.debug("found parameter in technical service. "
-                        + parameterId + ": " + logValue);
                 return p.getDefaultValue();
             }
         }
