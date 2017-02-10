@@ -1,4 +1,4 @@
-<!-- Copyright FUJITSU LIMITED 2016-->
+<!-- Copyright FUJITSU LIMITED 2017-->
 <project>
   <!-- navigate to home of marketplace -->
   <macrodef name="mpl_goto.marketplace">

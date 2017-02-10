@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                        
+ *  Copyright FUJITSU LIMITED 2017
  *       
  *  AWS controller implementation supporting EC2 provisioning for the 
  *  Asynchronous Provisioning Platform (APP)
