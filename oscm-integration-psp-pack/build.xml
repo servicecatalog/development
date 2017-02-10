@@ -1,4 +1,4 @@
-<!-- Copyright FUJITSU LIMITED 2016-->
+<!-- Copyright FUJITSU LIMITED 2017-->
 <project name="ADM UI Test" default="build_heidelpay">
 	<!-- Creates a heidelpay.war file which can be deployed within a JEE application server. -->
 

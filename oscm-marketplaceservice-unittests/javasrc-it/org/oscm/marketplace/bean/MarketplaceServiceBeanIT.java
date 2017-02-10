@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
-7*  Copyright FUJITSU LIMITED 2016                                              
+7*  Copyright FUJITSU LIMITED 2017
  *                                                                              
  *  Author: groch                                                 
  *                                                                              

@@ -1,5 +1,5 @@
 /* 
- *  Copyright FUJITSU LIMITED 2016 
+ *  Copyright FUJITSU LIMITED 2017
  */ 
 function extend(base, sub) {
     if (Object.create) {
