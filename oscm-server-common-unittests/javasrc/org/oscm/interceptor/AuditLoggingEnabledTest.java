@@ -37,12 +37,12 @@ public class AuditLoggingEnabledTest {
 
     private AuditLoggingEnabled mockAuditLoggingIsEnabled(boolean isEnabled) {
         auditLoggingEnabled = spy(new AuditLoggingEnabled());
-        //auditLoggingEnabled.configurationService = mock(ConfigurationServiceLocal.class);
-        /*doReturn(auditLogIsEnabled(isEnabled)).when(
+        auditLoggingEnabled.configurationService = mock(ConfigurationServiceLocal.class);
+        doReturn(auditLogIsEnabled(isEnabled)).when(
                 auditLoggingEnabled.configurationService)
                 .getConfigurationSetting(
                         ConfigurationKey.AUDIT_LOG_ENABLED,
-                        Configuration.GLOBAL_CONTEXT);*/
+                        Configuration.GLOBAL_CONTEXT);
         return auditLoggingEnabled;
     }
 
