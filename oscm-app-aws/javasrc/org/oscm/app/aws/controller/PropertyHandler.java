@@ -66,12 +66,12 @@ public class PropertyHandler {
     public static final String MAIL_FOR_COMPLETION = "MAIL_FOR_COMPLETION";
 
     // new
-    public static String SUBNET = "SUBNET";
-    public static String PUBLIC_IP = "PUBLIC_IP";
-    public static String DISK_SIZE = "DISK_SIZE";
-    public static String INSTANCE_PLATFORM = "INSTANCE_PLATFORM";
-    public static String EAI_INSTANCE_PUBLIC_DNS = "EAI_INSTANCE_PUBLIC_DNS";
-    public static String SNAPSHOT_ID = "SNAPSHOT_ID";
+    public static final String SUBNET = "SUBNET";
+    public static final String PUBLIC_IP = "PUBLIC_IP";
+    public static final String DISK_SIZE = "DISK_SIZE";
+    public static final String INSTANCE_PLATFORM = "INSTANCE_PLATFORM";
+    public static final String EAI_INSTANCE_PUBLIC_DNS = "EAI_INSTANCE_PUBLIC_DNS";
+    public static final String SNAPSHOT_ID = "SNAPSHOT_ID";
 
     /**
      * Default factory method.
@@ -362,7 +362,7 @@ public class PropertyHandler {
     }
 
     public void setInstancePlatform(String instancePlatform) {
-        INSTANCE_PLATFORM = instancePlatform;
+        setValue(INSTANCE_PLATFORM, instancePlatform, settings.getParameters());
     }
 
     public void setInstancePublicDNS(String publicDNS) {
