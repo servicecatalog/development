@@ -45,15 +45,15 @@ public class ServiceParamRetrieval {
         try {
             BesClient bes = new BesClient();
             Credentials credentials = ph.getTPUser();
-            SubscriptionService subSvc = bes.getWebService(
-                    SubscriptionService.class, credentials);
+            SubscriptionService subSvc = bes
+                    .getWebService(SubscriptionService.class, credentials);
 
             VOSubscriptionDetails subscr = subSvc.getSubscriptionForCustomer(
                     customerOrgId, ph.getSettings().getSubscriptionId());
 
             APPDataAccessService das = new APPDataAccessService();
-            credentials = das.getCredentials(subscr.getSubscribedService()
-                    .getSellerId());
+            credentials = das.getCredentials(
+                    subscr.getSubscribedService().getSellerId());
             ServiceProvisioningService provSvc = bes.getWebService(
                     ServiceProvisioningService.class, credentials);
             VOService svc = subscr.getSubscribedService();
@@ -68,13 +68,25 @@ public class ServiceParamRetrieval {
         logger.debug("parameter: " + parameterId);
         String value = ph.getServiceSetting(parameterId);
         if (value != null) {
+            String logValue = value;
+            if (parameterId.endsWith("_PWD")) {
+                logValue = "*****";
+            }
+            logger.debug("found parameter in parameter list. " + parameterId
+                    + ": " + logValue);
             return value;
         }
 
         List<VOParameter> serviceParams = service.getParameters();
         for (VOParameter p : serviceParams) {
-            if (p.getParameterDefinition().getParameterId().equals(parameterId)) {
+            if (p.getParameterDefinition().getParameterId()
+                    .equals(parameterId)) {
                 String logValue = p.getValue();
+                if (parameterId.endsWith("_PWD")) {
+                    logValue = "*****";
+                }
+                logger.debug("found parameter in marketable service. "
+                        + parameterId + ": " + logValue);
                 return p.getValue();
             }
         }
@@ -84,6 +96,11 @@ public class ServiceParamRetrieval {
         for (VOParameterDefinition p : techServiceParams) {
             if (p.getParameterId().equals(parameterId)) {
                 String logValue = p.getDefaultValue();
+                if (parameterId.endsWith("_PWD")) {
+                    logValue = "*****";
+                }
+                logger.debug("found parameter in technical service. "
+                        + parameterId + ": " + logValue);
                 return p.getDefaultValue();
             }
         }
@@ -91,7 +108,7 @@ public class ServiceParamRetrieval {
         BesClient bes = new BesClient();
         ServiceProvisioningService sps = bes.getWebService(
                 ServiceProvisioningService.class, ph.getTPUser());
-        List<VOTechnicalService> technicalServices = new ArrayList<VOTechnicalService>();
+        List<VOTechnicalService> technicalServices = new ArrayList<>();
         technicalServices.add(service.getTechnicalService());
         byte[] tsvc = sps.exportTechnicalServices(technicalServices);
         InputStream in = new ByteArrayInputStream(tsvc);
@@ -100,15 +117,15 @@ public class ServiceParamRetrieval {
         xml.setExpressionEngine(new XPathExpressionEngine());
         xml.load(in);
 
-        List<HierarchicalConfiguration> params = xml
-                .configurationsAt("//ParameterDefinition[@configurable=\"false\"]");
+        List<HierarchicalConfiguration> params = xml.configurationsAt(
+                "//ParameterDefinition[@configurable=\"false\"]");
         for (HierarchicalConfiguration param : params) {
             if (param.getString("@id").equals(parameterId)) {
                 return param.getString("@default");
             }
         }
 
-        throw new Exception("Failed to retrieve service parameter "
-                + parameterId);
+        throw new Exception(
+                "Failed to retrieve service parameter " + parameterId);
     }
 }
