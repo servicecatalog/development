@@ -107,16 +107,16 @@
     <copy file="${ivy.lib.dir}/ecj-4.5.1.jar" todir="${root.dir}/libraries/eclipse-ecj/javalib" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/junit-4.5.jar" todir="${root.dir}/oscm-integrationtests-apiversioning-test-client/javalib" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/log4j-1.2.16.jar" todir="${root.dir}/j2ep/WebContent/WEB-INF/lib" overwrite="true"></copy>
-    <copy file="${ivy.lib.dir}/org.jacoco.agent-0.7.7.201606060606.jar" todir="${root.dir}/libraries/jacoco/javalib/" overwrite="true"></copy>
-    <unjar src="${ivy.lib.dir}/org.jacoco.agent-0.7.7.201606060606.jar" dest="${root.dir}/libraries/jacoco/resources" overwrite="true">
+    <copy file="${ivy.lib.dir}/org.jacoco.agent-0.7.8.jar" todir="${root.dir}/libraries/jacoco/javalib/" overwrite="true"></copy>
+    <unjar src="${ivy.lib.dir}/org.jacoco.agent-0.7.8.jar" dest="${root.dir}/libraries/jacoco/resources" overwrite="true">
       <patternset>
         <include name="jacocoagent.jar"/>
       </patternset>
     </unjar>
-    <copy file="${ivy.lib.dir}/org.jacoco.ant-0.7.7.201606060606.jar" tofile="${root.dir}/libraries/jacoco/javalib/org.jacoco.ant-0.7.7.201606060606.jar" overwrite="true"></copy>
-    <copy file="${ivy.lib.dir}/org.jacoco.core-0.7.7.201606060606.jar" todir="${root.dir}/libraries/jacoco/javalib/" overwrite="true"></copy>
+    <copy file="${ivy.lib.dir}/org.jacoco.ant-0.7.8.jar" tofile="${root.dir}/libraries/jacoco/javalib/org.jacoco.ant-0.7.8.jar" overwrite="true"></copy>
+    <copy file="${ivy.lib.dir}/org.jacoco.core-0.7.8.jar" todir="${root.dir}/libraries/jacoco/javalib/" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/asm-debug-all-5.1.jar" todir="${root.dir}/libraries/jacoco/javalib/" overwrite="true"></copy>
-    <copy file="${ivy.lib.dir}/org.jacoco.report-0.7.7.201606060606.jar" todir="${root.dir}/libraries/jacoco/javalib/" overwrite="true"></copy>
+    <copy file="${ivy.lib.dir}/org.jacoco.report-0.7.8.jar" todir="${root.dir}/libraries/jacoco/javalib/" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/oro-2.0.8.jar" tofile="${root.dir}/libraries/jakarta-oro/javalib/jakarta-oro-2.0.8.jar" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/hibernate-search-engine-5.5.4.Final.jar" todir="${root.dir}/libraries/jboss-hibernate-search/javalib/" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/hibernate-search-orm-5.5.4.Final.jar" todir="${root.dir}/libraries/jboss-hibernate-search/javalib/" overwrite="true"></copy>
