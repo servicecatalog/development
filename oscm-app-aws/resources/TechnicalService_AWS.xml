@@ -88,21 +88,21 @@
 		</ParameterDefinition>
 
 		<ParameterDefinition configurable="true"
-			default="subnet-a77430d0" id="subnet" mandatory="false" valueType="STRING"
+			default="subnet-a77430d0" id="SUBNET" mandatory="false" valueType="STRING"
 			modificationType="ONE_TIME">
 			<LocalizedDescription locale="en">Subnet Definition</LocalizedDescription>
 			<LocalizedDescription locale="de" />
 			<LocalizedDescription locale="ja" />
 		</ParameterDefinition>
 		<ParameterDefinition configurable="true" default="3"
-			id="diskSize" mandatory="false" minValue="1" maxValue="3" valueType="INTEGER"
+			id="DISK_SIZE" mandatory="false" minValue="1" maxValue="3" valueType="INTEGER"
 			modificationType="ONE_TIME">
 			<LocalizedDescription locale="en">Max Disk Size (GB)</LocalizedDescription>
 			<LocalizedDescription locale="de" />
 			<LocalizedDescription locale="ja" />
 		</ParameterDefinition>
 		<ParameterDefinition configurable="true" default="true"
-			id="publicIp" mandatory="false" modificationType="ONE_TIME"
+			id="PUBLIC_IP" mandatory="false" modificationType="ONE_TIME"
 			valueType="BOOLEAN">
 			<LocalizedDescription locale="en">Public Ip</LocalizedDescription>
 			<LocalizedDescription locale="de" />
