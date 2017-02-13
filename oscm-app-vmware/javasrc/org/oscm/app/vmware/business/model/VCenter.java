@@ -78,26 +78,4 @@ public class VCenter implements Serializable {
     public void setTkey(int tkey) {
         this.tkey = tkey;
     }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-
-        if (!(obj instanceof VCenter)) {
-            return false;
-        }
-
-        VCenter other = (VCenter) obj;
-        return other.getTkey() == tkey;
-    }
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        return prime * result + tkey;
-    }
-
 }
