@@ -455,6 +455,7 @@
       <mpl_user.display userId="${usernameA}" />
       <verifyCheckbox htmlId="editUserForm:subscriptionTable:subscribeUserService1:assignCheckbox" checked="true" />
       <verifyCheckbox htmlId="editUserForm:subscriptionTable:subscribeUserService2:assignCheckbox" checked="true" />
+      <setInputField htmlId="editUserForm:lastName" value="a" />
       <clickLink htmlId="editUserForm:cancelButton" />
       <verifyText description="${marketplace.account.leavePage.title}" text="${marketplace.account.leavePage.title}" />
       <clickLink label="${button.yes}" />
