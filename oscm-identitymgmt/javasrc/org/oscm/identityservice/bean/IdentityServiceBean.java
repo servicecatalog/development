@@ -1847,6 +1847,9 @@ public class IdentityServiceBean implements IdentityService,
         } else {
             pu.setStatus(lockLevel);
         }
+        if (organization.getTenant() != null) {
+            pu.setTenantId(organization.getTenant().getTenantId());
+        }
         dm.persist(pu);
 
         for (UserRoleType role : userDetails.getUserRoles()) {
