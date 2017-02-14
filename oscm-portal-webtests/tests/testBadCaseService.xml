@@ -29,14 +29,31 @@
         <storeProperty name="fieldId" value="${fieldId}" propertyType="dynamic" />
         <storeProperty name="fieldType" value="${fieldType}" propertyType="dynamic" />
         <storeProperty name="required" value="${required}" propertyType="dynamic" />
+      	<storeProperty name="idVerification" value="${idVerification}" propertyType="dynamic" />
+        	
         <ifStep description="Test if required" test="#{required}">
           <this.testFieldValidation fieldId="#{fieldId}" fieldValue="" error="${javax.faces.component.UIInput.REQUIRED}" />
-        </ifStep>
-        <dataDriven tableContainer="data/invalidInput/#{fieldType}.xls">
-          <common.initializeDataDrivenErrorMessage errormsg="${errormsg}" att0="${att0}" />
-          <this.testFieldValidation fieldId="#{fieldId}" fieldValue="${value}" error="${expectedMessage}" />
-        </dataDriven>
+        </ifStep>      	
+      	
+      	<ifStep description="Test if id field is processed" test="#{idVerification}">
+	      <then>
+	      	<!-- ID verification-->	
+	      	<dataDriven tableContainer="data/invalidInput/#{fieldType}.xls">
+	      	  <setInputField htmlId="#{fieldId}" value="${value}" />
+	      	  <clickButton label="${button.save}" />
+	      	  <verifyXPath xpath="//*[@id='#{fieldId}ErrorMsg:#{fieldId}']//*[contains(text(),'Invalid character(s)')]" />
+  	        </dataDriven>
+	      </then>
+	      <else>
+	      	<dataDriven tableContainer="data/invalidInput/#{fieldType}.xls">	
+  	          <common.initializeDataDrivenErrorMessage errormsg="${errormsg}" att0="${att0}"/>
+  	          <this.testFieldValidation fieldId="#{fieldId}" fieldValue="${value}" error="${expectedMessage}" regex="true"/>
+  	        </dataDriven>
+	      </else>	
+		</ifStep>
       </dataDriven>
+    	
+    	
       <login.logout />
     </webtest>
 
@@ -64,13 +81,29 @@
         <storeProperty name="fieldId" value="${fieldId}" propertyType="dynamic" />
         <storeProperty name="fieldType" value="${fieldType}" propertyType="dynamic" />
         <storeProperty name="required" value="${required}" propertyType="dynamic" />
+      	<storeProperty name="idVerification" value="${idVerification}" propertyType="dynamic" />
+      	
         <ifStep description="Test if required" test="#{required}">
           <common.testFieldValidation fieldId="#{fieldId}" fieldValue="" error="${javax.faces.component.UIInput.REQUIRED}" />
         </ifStep>
-        <dataDriven tableContainer="data/invalidInput/#{fieldType}.xls">
-          <common.initializeDataDrivenErrorMessage errormsg="${errormsg}" att0="${att0}"/>
-          <this.testFieldValidation fieldId="#{fieldId}" fieldValue="${value}" error="${expectedMessage}" />
-        </dataDriven>
+      	
+      	<ifStep description="Test if id field is processed" test="#{idVerification}">
+	      <then>
+	      	<!-- ID verification-->	
+	      	<dataDriven tableContainer="data/invalidInput/#{fieldType}.xls">
+	      	  <setInputField htmlId="#{fieldId}" value="${value}" />
+	      	  <clickButton label="${button.save}" />
+	      	  <verifyXPath xpath="//*[@id='#{fieldId}ErrorMsg:#{fieldId}']//*[contains(text(),'Invalid character(s)')]" />
+  	        </dataDriven>
+	      </then>
+	      <else>
+	      	<dataDriven tableContainer="data/invalidInput/#{fieldType}.xls">	
+  	          <common.initializeDataDrivenErrorMessage errormsg="${errormsg}" att0="${att0}"/>
+  	          <this.testFieldValidation fieldId="#{fieldId}" fieldValue="${value}" error="${expectedMessage}" regex="true"/>
+  	        </dataDriven>
+	      </else>	
+		</ifStep>
+
       </dataDriven>
       <login.logout />
     </webtest>

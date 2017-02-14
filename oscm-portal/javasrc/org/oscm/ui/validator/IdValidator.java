@@ -79,7 +79,7 @@ public abstract class IdValidator implements Validator {
         if (!ADMValidator.containsOnlyValidIdChars(id)) {
             String label = JSFUtils.getLabel(component);
             Set<Character> badCharsSet = new HashSet<>();
-            for (int i=0; i<id.length()-1; i++){
+            for (int i=0; i<id.length(); i++){
                 char testedChar = id.charAt(i);
                 if (!ADMValidator.containsOnlyValidIdChars(("" + testedChar))) {
                     badCharsSet.add(testedChar);
@@ -88,7 +88,6 @@ public abstract class IdValidator implements Validator {
             StringBuilder badCharsString = new StringBuilder();
             Iterator<Character> it = badCharsSet.iterator();
             while(it.hasNext()){
-                badCharsString.append(" ");
                 badCharsString.append(it.next());
             }
             Object[] args = new Object[] { badCharsString };
