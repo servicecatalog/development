@@ -66,12 +66,12 @@ public class PropertyHandler {
     public static final String MAIL_FOR_COMPLETION = "MAIL_FOR_COMPLETION";
 
     // new
-    public static String SUBNET = "subnet";
-    public static String PUBLIC_IP = "publicIp";
-    public static String DISK_SIZE = "diskSize";
-    public static String INSTANCE_PLATFORM = "instancePlatform";
-    public static String EAI_INSTANCE_PUBLIC_DNS = "instancePublicDns";
-    public static String SNAPSHOT_ID = "snapshotId";
+    public static final String SUBNET = "SUBNET";
+    public static final String PUBLIC_IP = "PUBLIC_IP";
+    public static final String DISK_SIZE = "DISK_SIZE";
+    public static final String INSTANCE_PLATFORM = "INSTANCE_PLATFORM";
+    public static final String EAI_INSTANCE_PUBLIC_DNS = "EAI_INSTANCE_PUBLIC_DNS";
+    public static final String SNAPSHOT_ID = "SNAPSHOT_ID";
 
     /**
      * Default factory method.
@@ -108,8 +108,8 @@ public class PropertyHandler {
      */
     public FlowState getState() {
         Setting status = settings.getParameters().get(FLOW_STATE);
-        return (status != null && status.getValue() != null) ? FlowState
-                .valueOf(status.getValue()) : FlowState.FAILED;
+        return (status != null && status.getValue() != null)
+                ? FlowState.valueOf(status.getValue()) : FlowState.FAILED;
     }
 
     /**
@@ -237,8 +237,8 @@ public class PropertyHandler {
      */
     public Operation getOperation() {
         Setting operation = settings.getParameters().get(OPERATION);
-        return (operation != null && operation.getValue() != null) ? Operation
-                .valueOf(operation.getValue()) : Operation.UNKNOWN;
+        return (operation != null && operation.getValue() != null)
+                ? Operation.valueOf(operation.getValue()) : Operation.UNKNOWN;
     }
 
     /**
@@ -362,7 +362,7 @@ public class PropertyHandler {
     }
 
     public void setInstancePlatform(String instancePlatform) {
-        INSTANCE_PLATFORM = instancePlatform;
+        setValue(INSTANCE_PLATFORM, instancePlatform, settings.getParameters());
     }
 
     public void setInstancePublicDNS(String publicDNS) {
@@ -378,7 +378,8 @@ public class PropertyHandler {
         return setting != null ? setting.getValue() : null;
     }
 
-    private void setValue(String key, String value, Map<String, Setting> target) {
+    private void setValue(String key, String value,
+            Map<String, Setting> target) {
         target.put(key, new Setting(key, value));
     }
 
