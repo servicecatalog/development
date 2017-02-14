@@ -11,13 +11,13 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import javax.interceptor.InvocationContext;
+import javax.persistence.TypedQuery;
 
 import org.junit.Test;
-
-import org.oscm.configurationservice.local.ConfigurationServiceLocal;
+import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.ConfigurationSetting;
-import org.oscm.types.constants.Configuration;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
+import org.oscm.types.constants.Configuration;
 
 public class AuditLoggingEnabledTest {
     private AuditLoggingEnabled auditLoggingEnabled;
@@ -25,7 +25,8 @@ public class AuditLoggingEnabledTest {
     @Test
     public void isLoggingEnabled_true() throws Exception {
         // given
-        AuditLoggingEnabled auditLoggingEnabled = mockAuditLoggingIsEnabled(true);
+        AuditLoggingEnabled auditLoggingEnabled = mockAuditLoggingIsEnabled(
+                true);
         InvocationContext context = mock(InvocationContext.class);
 
         // when
@@ -37,12 +38,18 @@ public class AuditLoggingEnabledTest {
 
     private AuditLoggingEnabled mockAuditLoggingIsEnabled(boolean isEnabled) {
         auditLoggingEnabled = spy(new AuditLoggingEnabled());
-        //auditLoggingEnabled.configurationService = mock(ConfigurationServiceLocal.class);
-        /*doReturn(auditLogIsEnabled(isEnabled)).when(
-                auditLoggingEnabled.configurationService)
-                .getConfigurationSetting(
-                        ConfigurationKey.AUDIT_LOG_ENABLED,
-                        Configuration.GLOBAL_CONTEXT);*/
+        auditLoggingEnabled.dm = mock(DataService.class);
+
+        @SuppressWarnings("unchecked")
+        TypedQuery<ConfigurationSetting> typedQuery = mock(TypedQuery.class);
+
+        doReturn(typedQuery).when(auditLoggingEnabled.dm).createNamedQuery(
+                "ConfigurationSetting.findByInfoAndContext",
+                ConfigurationSetting.class);
+
+        doReturn(auditLogIsEnabled(isEnabled)).when(typedQuery)
+                .getSingleResult();
+
         return auditLoggingEnabled;
     }
 
@@ -54,7 +61,8 @@ public class AuditLoggingEnabledTest {
     @Test
     public void isLoggingEnabled_false() throws Exception {
         // given
-        AuditLoggingEnabled auditLoggingEnabled = mockAuditLoggingIsEnabled(false);
+        AuditLoggingEnabled auditLoggingEnabled = mockAuditLoggingIsEnabled(
+                false);
         InvocationContext context = mock(InvocationContext.class);
 
         // when

@@ -22,7 +22,12 @@ public class AuditLoggingEnabled {
     @AroundInvoke
     public Object isLoggingEnabled(InvocationContext context) throws Exception {
         Object result = null;
-
+        
+        /**
+         * Using DataService bean instead of ConfigurationServiceLocal bean due
+         * to the problem with executing this with singleton
+         * (ConfigurationServiceBean) on Jenkins for GF4
+         */
         TypedQuery<ConfigurationSetting> query = dm.createNamedQuery(
                 "ConfigurationSetting.findByInfoAndContext",
                 ConfigurationSetting.class);
