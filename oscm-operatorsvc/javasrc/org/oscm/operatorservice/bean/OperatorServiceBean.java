@@ -210,7 +210,7 @@ public class OperatorServiceBean implements OperatorService {
                 rolesToGrant = new OrganizationRoleType[0];
             }
 
-            checkMarketplaceIDForCreateOrganization(marketplaceID,
+            final Marketplace marketplace = checkMarketplaceIDForCreateOrganization(marketplaceID,
                     rolesToGrant);
 
             if (rolesAreInvalid(rolesToGrant)) {
@@ -265,6 +265,12 @@ public class OperatorServiceBean implements OperatorService {
                 imageResource.setImageType(voImageResource.getImageType());
             }
 
+            if (marketplace != null && marketplace.getTenant() != null) {
+                Tenant orgTenant = new Tenant();
+                orgTenant.setKey(marketplace.getTenant().getKey());
+                organizationToCreate.setTenant(orgTenant);
+            }
+
             Organization createdOrganization = accMgmt.registerOrganization(
                     organizationToCreate, imageResource, orgInitialUser,
                     organizationProperties != null
@@ -309,8 +315,8 @@ public class OperatorServiceBean implements OperatorService {
      * @throws ValidationException
      * @throws ObjectNotFoundException
      */
-    private void checkMarketplaceIDForCreateOrganization(String marketplaceID,
-            OrganizationRoleType... roles)
+    private Marketplace checkMarketplaceIDForCreateOrganization(String marketplaceID,
+                                                                OrganizationRoleType... roles)
             throws ValidationException, ObjectNotFoundException {
         if (roles.length == 0) {
             if (marketplaceID == null || marketplaceID.trim().length() == 0) {
@@ -318,9 +324,12 @@ public class OperatorServiceBean implements OperatorService {
                         "Creation of customer failed, the marketplaceID must not be null");
                 throw validationException;
             } else {
-                validateMarketplaceID(marketplaceID);
+                final Marketplace marketplace = validateMarketplaceID(marketplaceID);
+                return marketplace;
+
             }
         }
+        return null;
     }
 
     /**
@@ -329,13 +338,14 @@ public class OperatorServiceBean implements OperatorService {
      * @param marketplaceId
      * @throws ObjectNotFoundException
      */
-    private void validateMarketplaceID(String marketplaceId)
+    private Marketplace validateMarketplaceID(String marketplaceId)
             throws ObjectNotFoundException {
         Marketplace marketplace = new Marketplace();
         marketplace.setMarketplaceId(marketplaceId);
         try {
             marketplace = (Marketplace) dm
                     .getReferenceByBusinessKey(marketplace);
+            return marketplace;
         } catch (ObjectNotFoundException e) {
             logger.logDebug("Marketplace not found: " + e.getMessage());
             throw e;
