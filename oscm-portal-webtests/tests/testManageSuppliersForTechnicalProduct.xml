@@ -91,8 +91,9 @@
       <!--check invalid org id -->
       <dataDriven tableContainer="data/pageFields/accountManageSuppliers.xls">
         <dataDriven tableContainer="data/invalidInput/${fieldType}.xls">
-          <common.initializeDataDrivenErrorMessage errormsg="${errormsg}" att0="${att0}" />
-          <common.testFieldValidation fieldId="${fieldId}" fieldValue="${value}" error="${expectedMessage}" buttonLinkId="addSupplierForm:addSupplierButtonLink" />
+          <setInputField htmlId="${fieldId}" value="${value}" />
+          <clickButton label="${button.save}" />
+          <verifyXPath xpath="//*[@id='${fieldId}ErrorMsg:${fieldId}']//*[contains(text(),'Invalid character(s)')]" />
         </dataDriven>
       </dataDriven>
 
