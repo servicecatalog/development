@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2017-->
+
+<dataset>
+
+    <Parameterdefinition tkey="1001" configurable="false" mandatory="false" minimumvalue="0" modificationtype="STANDARD"
+    parameterid="subnet" parametertype="SERVICE_PARAMETER" valuetype="STRING" version="0" />
+    
+    <Parameterdefinition tkey="1002" configurable="false" mandatory="false" minimumvalue="0" modificationtype="STANDARD"
+    parameterid="diskSize" parametertype="SERVICE_PARAMETER" valuetype="INTEGER" version="0" />
+    
+    <Parameterdefinition tkey="1003" configurable="false" mandatory="false" minimumvalue="0" modificationtype="STANDARD"
+    parameterid="publicIp" parametertype="SERVICE_PARAMETER" valuetype="BOOLEAN" version="0" />
+    
+    <Parameterdefinition tkey="1004" configurable="false" mandatory="false" minimumvalue="0" modificationtype="STANDARD"
+    parameterid="instancePlatform" parametertype="SERVICE_PARAMETER" valuetype="STRING" version="0" />
+    
+    <Parameterdefinition tkey="1005" configurable="false" mandatory="false" minimumvalue="0" modificationtype="STANDARD"
+    parameterid="instancePublicDns" parametertype="SERVICE_PARAMETER" valuetype="STRING" version="0" />
+    
+    <Parameterdefinition tkey="1006" configurable="false" mandatory="false" minimumvalue="0" modificationtype="STANDARD"
+    parameterid="snapshotId" parametertype="SERVICE_PARAMETER" valuetype="STRING" version="0" />
+    
+    <Parameterdefinitionhistory tkey="1001" configurable="false" mandatory="false" modificationtype="STANDARD"
+    minimumvalue="0" parameterid="subnet" parametertype="SERVICE_PARAMETER" valuetype="STRING" modType="ADD" 
+    moduser="ANONYMOUS" objkey="1001" objversion="0" technicalproductobjkey="123" modDate="2011-01-01 01:02:34" 
+    invocationDate="2011-01-01 01:02:34" />
+    
+    <Parameterdefinitionhistory tkey="1002" configurable="false" mandatory="false" modificationtype="STANDARD"
+    minimumvalue="0" parameterid="diskSize" parametertype="SERVICE_PARAMETER" valuetype="INTEGER" modType="ADD" 
+    moduser="ANONYMOUS" objkey="1001" objversion="0" technicalproductobjkey="123" modDate="2011-01-01 01:02:34" 
+    invocationDate="2011-01-01 01:02:34" />
+    
+    <Parameterdefinitionhistory tkey="1003" configurable="false" mandatory="false" modificationtype="STANDARD"
+    minimumvalue="0" parameterid="publicIp" parametertype="SERVICE_PARAMETER" valuetype="BOOLEAN" modType="ADD" 
+    moduser="ANONYMOUS" objkey="1001" objversion="0" technicalproductobjkey="123" modDate="2011-01-01 01:02:34" 
+    invocationDate="2011-01-01 01:02:34" />
+    
+    <Parameterdefinitionhistory tkey="1004" configurable="false" mandatory="false" modificationtype="STANDARD"
+    minimumvalue="0" parameterid="instancePlatform" parametertype="SERVICE_PARAMETER" valuetype="STRING" modType="ADD" 
+    moduser="ANONYMOUS" objkey="1001" objversion="0" technicalproductobjkey="123" modDate="2011-01-01 01:02:34" 
+    invocationDate="2011-01-01 01:02:34" />
+    
+    <Parameterdefinitionhistory tkey="1005" configurable="false" mandatory="false" modificationtype="STANDARD"
+    minimumvalue="0" parameterid="instancePublicDns" parametertype="SERVICE_PARAMETER" valuetype="STRING" modType="ADD" 
+    moduser="ANONYMOUS" objkey="1001" objversion="0" technicalproductobjkey="123" modDate="2011-01-01 01:02:34" 
+    invocationDate="2011-01-01 01:02:34" />
+    
+    <Parameterdefinitionhistory tkey="1006" configurable="false" mandatory="false" modificationtype="STANDARD"
+    minimumvalue="0" parameterid="snapshotId" parametertype="SERVICE_PARAMETER" valuetype="STRING" modType="ADD" 
+    moduser="ANONYMOUS" objkey="1001" objversion="0" technicalproductobjkey="123" modDate="2011-01-01 01:02:34" 
+    invocationDate="2011-01-01 01:02:34" />
+    
+    <Organization tkey="1" version="0" organizationid="TP1" name="TP1" registrationdate="1234" cutoffday="1" locale="EN" />
+    
+    <UdaDefinition tkey="1001" version="0" defaultValue="0" targetType="CUSTOMER" udaId="subnet" 
+    organizationKey="1" configurationType="USER_OPTION_MANDATORY" />
+    
+    <UdaDefinition tkey="1002" version="0" defaultValue="0" targetType="CUSTOMER" udaId="diskSize" 
+    organizationKey="1" configurationType="USER_OPTION_MANDATORY" />
+    
+    <UdaDefinition tkey="1003" version="0" defaultValue="0" targetType="CUSTOMER" udaId="publicIp" 
+    organizationKey="1" configurationType="USER_OPTION_MANDATORY" />
+    
+    <UdaDefinition tkey="1004" version="0" defaultValue="0" targetType="CUSTOMER" udaId="instancePlatform" 
+    organizationKey="1" configurationType="USER_OPTION_MANDATORY" />
+    
+    <UdaDefinition tkey="1005" version="0" defaultValue="0" targetType="CUSTOMER" udaId="instancePublicDns" 
+    organizationKey="1" configurationType="USER_OPTION_MANDATORY" />
+    
+    <UdaDefinition tkey="1006" version="0" defaultValue="0" targetType="CUSTOMER" udaId="snapshotId" 
+    organizationKey="1" configurationType="USER_OPTION_MANDATORY" />
+    
+    <udadefinitionhistory tkey="1001" objkey="1001" objversion="0" modType="ADD" modUser="user" configurationType="USER_OPTION_MANDATORY"
+    modDate="2011-01-01 01:02:34" targettype="0" udaid="subnet" organizationobjkey="0" invocationDate="2011-01-01 01:02:34" />
+    
+    <udadefinitionhistory tkey="1002" objkey="1001" objversion="0" modType="ADD" modUser="user" configurationType="USER_OPTION_MANDATORY"
+    modDate="2011-01-01 01:02:34" targettype="0" udaid="diskSize" organizationobjkey="0" invocationDate="2011-01-01 01:02:34" />
+    
+    <udadefinitionhistory tkey="1003" objkey="1001" objversion="0" modType="ADD" modUser="user" configurationType="USER_OPTION_MANDATORY"
+    modDate="2011-01-01 01:02:34" targettype="0" udaid="publicIp" organizationobjkey="0" invocationDate="2011-01-01 01:02:34" />
+    
+    <udadefinitionhistory tkey="1004" objkey="1001" objversion="0" modType="ADD" modUser="user" configurationType="USER_OPTION_MANDATORY"
+    modDate="2011-01-01 01:02:34" targettype="0" udaid="instancePlatform" organizationobjkey="0" invocationDate="2011-01-01 01:02:34" />
+    
+    <udadefinitionhistory tkey="1005" objkey="1001" objversion="0" modType="ADD" modUser="user" configurationType="USER_OPTION_MANDATORY"
+    modDate="2011-01-01 01:02:34" targettype="0" udaid="instancePublicDns" organizationobjkey="0" invocationDate="2011-01-01 01:02:34" />
+    
+    <udadefinitionhistory tkey="1006" objkey="1001" objversion="0" modType="ADD" modUser="user" configurationType="USER_OPTION_MANDATORY"
+    modDate="2011-01-01 01:02:34" targettype="0" udaid="snapshotId" organizationobjkey="0" invocationDate="2011-01-01 01:02:34" />
+
+</dataset>
