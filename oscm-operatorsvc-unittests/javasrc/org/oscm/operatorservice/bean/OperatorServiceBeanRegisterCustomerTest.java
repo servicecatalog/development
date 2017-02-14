@@ -9,6 +9,7 @@
 package org.oscm.operatorservice.bean;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -35,6 +36,7 @@ import org.oscm.domobjects.ImageResource;
 import org.oscm.domobjects.Marketplace;
 import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.PlatformUser;
+import org.oscm.domobjects.Tenant;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.Salutation;
@@ -105,6 +107,39 @@ public class OperatorServiceBeanRegisterCustomerTest {
         } finally {
             verify(sessionCtxMock, times(1)).setRollbackOnly();
         }
+    }
+
+    @Test
+    public void registerOrganizationWithTenant() throws Exception {
+
+        //given
+        final long tenantKey = 1234L;
+
+        prepareForRegisterOrganization();
+        Marketplace marketplace = createMarketplace(marketplaceId);
+        Tenant tenant = new Tenant();
+        tenant.setTenantId("12345678");
+        tenant.setKey(tenantKey);
+        marketplace.setTenant(tenant);
+        doReturn(marketplace).when(marketplaceService).getMarketplaceForId(anyString());
+        doReturn(marketplace).when(dm).getReferenceByBusinessKey(any(Marketplace.class));
+        Organization mockedOrg = new Organization();
+        mockedOrg.setTenant(tenant);
+        doReturn(mockedOrg).when(accountServiceMock).registerOrganization(any(Organization.class), any(ImageResource.class),
+                any(VOUserDetails.class), any(Properties.class),
+                anyString(), (String) eq(marketplaceId), anyString());
+
+        //when
+        VOOrganization org = operatorServiceBean.registerOrganization(organization,
+                null, userDetails, null, marketplaceId);
+
+        //then
+        verify(accountServiceMock, times(1)).registerOrganization(
+                any(Organization.class), any(ImageResource.class),
+                any(VOUserDetails.class), any(Properties.class),
+                anyString(), (String) eq(marketplaceId), anyString());
+        assertTrue(mockedOrg.getTenant().getKey() == tenantKey);
+
     }
 
     /**
