@@ -124,6 +124,9 @@ public class AuthenticationSettings {
     }
 
     private void validateTenant(VOTenant tenant) throws WrongTenantConfigurationException {
+        if (getConfigurationSetting(cfgService, ConfigurationKey.AUTH_MODE).equals("INTERNAL")) {
+            return;
+        }
         for (IdpSettingType idpSettingType : getMandatorySSOSettingKeys()) {
             String value = tenant.getTenantSettings().get(idpSettingType);
             if(StringUtils.isBlank(value)) {
