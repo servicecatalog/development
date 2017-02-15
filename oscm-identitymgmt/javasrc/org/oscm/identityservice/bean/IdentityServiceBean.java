@@ -327,6 +327,9 @@ public class IdentityServiceBean implements IdentityService,
             Organization organization = getOrganization(user
                     .getOrganizationId());
             String password = new PasswordGenerator().generatePassword();
+            if (organization != null && organization.getTenant() != null) {
+                user.setTenantId(organization.getTenant().getTenantId());
+            }
             addPlatformUser(user, organization, password,
                     UserAccountStatus.PASSWORD_MUST_BE_CHANGED, true, true,
                     marketplace, true);
@@ -1846,6 +1849,9 @@ public class IdentityServiceBean implements IdentityService,
             pu.setStatus(UserAccountStatus.ACTIVE);
         } else {
             pu.setStatus(lockLevel);
+        }
+        if (organization.getTenant() != null) {
+            pu.setTenantId(organization.getTenant().getTenantId());
         }
         dm.persist(pu);
 
