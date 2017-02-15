@@ -455,7 +455,7 @@
       <mpl_user.display userId="${usernameA}" />
       <verifyCheckbox htmlId="editUserForm:subscriptionTable:subscribeUserService1:assignCheckbox" checked="true" />
       <verifyCheckbox htmlId="editUserForm:subscriptionTable:subscribeUserService2:assignCheckbox" checked="true" />
-      <setInputField htmlId="editUserForm:lastName" value="a" />
+      <setInputField htmlId="editUserForm:lastName" value="c" />
       <clickLink htmlId="editUserForm:cancelButton" />
       <verifyText description="${marketplace.account.leavePage.title}" text="${marketplace.account.leavePage.title}" />
       <clickLink label="${button.yes}" />
@@ -470,6 +470,7 @@
       <common.handleMessageParameters property="errorMsg" value="${ex.ServiceParameterException.PLATFORM_PARAMETER.NAMED_USER}" att0="#{namedUser}" att1="subscribeUserService1" />
       <common.verifyError label="#{errorMsg}" />
 
+      <setInputField htmlId="editUserForm:lastName" value="c" />
       <clickLink htmlId="editUserForm:cancelButton" />
       <verifyText description="${marketplace.account.leavePage.title}" text="${marketplace.account.leavePage.title}" />
       <clickLink label="${button.yes}" />
