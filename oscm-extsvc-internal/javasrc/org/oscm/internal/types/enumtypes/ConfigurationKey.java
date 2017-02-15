@@ -70,7 +70,8 @@ public enum ConfigurationKey {
     @Doc({ "The path to the log4j configuration file." })
     LOG_CONFIG_FILE(false, "./log4j.properties", "string"),
 
-    @Doc({ "Path to file which contains key to en/de-crypting values of service/instance parameters." })
+    @Doc({ "The path to the file containing the key required for encrypting and",
+           "decrypting service parameters and custom attributes." })
     @Example("<path>/key")
     KEY_FILE_PATH(false, "./key", "string", false),
 
@@ -325,7 +326,7 @@ public enum ConfigurationKey {
     @Example("https://<host>:<port>/<LogoutServiceEndpoint>")
     SSO_LOGOUT_URL(false, null, "url", false),
 
-    @Doc({ "the max number of users that can be registered on the platform" })
+    @Doc({ "The maximum number of users that can be registered on the platform" })
     @Example("10")
     MAX_NUMBER_ALLOWED_USERS(true, "10", "long", Long.valueOf(1L), Long.valueOf(9223372036854775807L), false),
 
@@ -339,23 +340,26 @@ public enum ConfigurationKey {
     @Example("false")
     HIDE_PAYMENT_INFORMATION(false, null, "boolean", true),
 
-    @Doc({ "Name of the keypair stored in the keystore used for signing SAML and Customtab messages" })
+    @Doc({ "The alias of the private key to be used for signing SAML and custom tab requests" })
     @Example("s1as")
-    SSO_SIGNING_KEY_ALIAS(true, "s1as", "string"),
+    SSO_SIGNING_KEY_ALIAS(false, "s1as", "string"),
 
-    @Doc({ "Password to the keystore containing the private key used for signing SAML and Customtab messages" })
+    @Doc({ "The password for the keystore containing the private key for signing SAML and custom tab requests" })
     @Example("changeit")
-    SSO_SIGNING_KEYSTORE_PASS(true, "changeit", "password"),
+    SSO_SIGNING_KEYSTORE_PASS(false, "changeit", "password"),
 
-    @Doc({ "Path to the truststore holding the private key used for signing SAML and Customtab messages." })
+    @Doc({ "The path of the keystore holding the private key for signing SAML and custom tab requests." })
     @Example("<path>/keystore.jks")
-    SSO_SIGNING_KEYSTORE(true, "./keystore.jks", "string"),
+    SSO_SIGNING_KEYSTORE(false, "./keystore.jks", "string"),
 
-    @Doc({ "Default tenant ID used for proper identification default tenant. String has to have length of 8 characters." })
+    @Doc({ "The ID of the default tenant for user authentication in SAML_SP mode. ",
+           "The value must consist of 8 alphanumeric characters." })
     @Example("8f96dede")
     SSO_DEFAULT_TENANT_ID(false, "8f96dede", "string", false, 8L),
 
-    @Doc({ "IDP issuer ID. Value used for validating if the response is being sent from proper IDP." })
+    @Doc({ "The unique entity ID of the IdP system used for authentication in SAML_SP mode. ", 
+           "The ID is used for verifying that the response to an authentication request ",
+           "is returned by the correct IdP." })
     @Example("IDP_ID")
     SSO_IDP_SAML_ASSERTION_ISSUER_ID(false, "default", "string", false);
 
