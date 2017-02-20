@@ -66,6 +66,7 @@
     <attribute name="att1Name" default="att1" />
     <attribute name="att2Name" default="att2" />
     <attribute name="topErrorMessage" default="true" />
+    <attribute name="idVerification" default="false" />
     <sequential>
       <!-- Check mandatory field values -->
       <ifStep description="Mandatory field?" test="@{required}">
@@ -83,11 +84,25 @@
           <mpl_verify.hintButton fieldId="@{fieldId}" msgKey="@{hintMsgKey}" />
         </then>
       </ifStep>
+
+      <ifStep description="Test if id field is processed" test="@{idVerification}">
+        <then>
+            	<!-- ID verification-->
+      	      	<dataDriven tableContainer="data/invalidInput/@{fieldType}.xls">
+      	      	  <setInputField htmlId="@{fieldId}" value="${value}" />
+                  <clickButton label="${button.save}" />
+      	      	  <verifyXPath
+                          xpath="//*[@id='@{fieldId}ErrorMsg:@{fieldId}']//*[contains(text(),'Invalid character(s)')]" />
+        	        </dataDriven>
+      	      </then>
+      	      <else>
       <!-- Check invalid field values -->
       <dataDriven tableContainer="data/invalidInput/@{fieldType}.xls">
         <common.initializeDataDrivenErrorMessage errormsg="${errormsg}" att0="${@{att0Name}}" att1="${@{att1Name}}" att2="${@{att2Name}}" />
         <common.testFieldValidation fieldId="@{fieldId}" fieldValue="${value}" buttonLinkId="@{buttonLinkId}" error="${expectedMessage}" topErrorMessage="@{topErrorMessage}" />
       </dataDriven>
+      </else>
+      </ifStep>
     </sequential>
   </macrodef>
 
@@ -101,8 +116,11 @@
     <attribute name="att0Name" default="att0" />
     <attribute name="att1Name" default="att1" />
     <attribute name="att2Name" default="att2" />
+    <attribute name="idVerification" default="false" />
     <sequential>
-      <mpl_verify.invalidFieldValue hintMsgKey="@{hintMsgKey}" fieldId="@{fieldId}" fieldType="@{fieldType}" required="@{required}" buttonLinkId="@{buttonLinkId}" att0Name="@{att0Name}" att1Name="@{att1Name}" att2Name="@{att2Name}" />
+      <mpl_verify.invalidFieldValue hintMsgKey="@{hintMsgKey}" fieldId="@{fieldId}" fieldType="@{fieldType}"
+                                    required="@{required}" buttonLinkId="@{buttonLinkId}" att0Name="@{att0Name}"
+                                    att1Name="@{att1Name}" att2Name="@{att2Name}" idVerification="@{idVerification}" />
     </sequential>
   </macrodef>
 

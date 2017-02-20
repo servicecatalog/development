@@ -28,7 +28,7 @@
             <verifyProperty name="required" value="true" />
           </condition>
           <then>
-            <mpl_verify.checkHintAndFieldValues hintMsgKey="${hintMsgKey}" fieldId="${fieldId}" fieldType="${fieldType}" buttonLinkId="registrationForm:registerButton" required="${required}" />
+            <mpl_verify.checkHintAndFieldValues hintMsgKey="${hintMsgKey}" fieldId="${fieldId}" fieldType="${fieldType}" buttonLinkId="registrationForm:registerButton" required="${required}" idVerification="${idVerification}"/>
           </then>
         </ifStep>
       </dataDriven>

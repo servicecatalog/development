@@ -139,7 +139,7 @@
         <mpl_goto.account.users />
         <mpl_user.create userId="oper3" submit="false" createUniqueUserId="false" />
         <!-- Validate all registered fields -->
-        <mpl_verify.checkHintAndFieldValues hintMsgKey="${hintMsgKey}" fieldId="${fieldId}" fieldType="${fieldType}" required="${required}" />
+        <mpl_verify.checkHintAndFieldValues hintMsgKey="${hintMsgKey}" fieldId="${fieldId}" fieldType="${fieldType}" required="${required}" idVerification="${idVerification}"/>
       </dataDriven>
 
       <!-- And logoff -->
@@ -190,7 +190,7 @@
         <mpl_goto.account.users />
         <mpl_user.display userId="${userIdOperFL}" />
         <!-- Validate all registered fields -->
-        <mpl_verify.invalidFieldValue fieldId="${fieldId}" fieldType="${fieldType}" required="${required}" topErrorMessage="false" />
+        <mpl_verify.invalidFieldValue fieldId="${fieldId}" fieldType="${fieldType}" required="${required}" topErrorMessage="false" idVerification="${idVerification}"/>
       </dataDriven>
 
       <!-- And logoff -->
