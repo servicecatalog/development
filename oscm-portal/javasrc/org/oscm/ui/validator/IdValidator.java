@@ -78,17 +78,17 @@ public abstract class IdValidator implements Validator {
         }
         if (!ADMValidator.containsOnlyValidIdChars(id)) {
             String label = JSFUtils.getLabel(component);
-            Set<Character> badCharsSet = new HashSet<>();
+            Set<String> badCharsSet = new HashSet<>();
             for (int i=0; i<id.length(); i++){
-                char testedChar = id.charAt(i);
-                if (!ADMValidator.containsOnlyValidIdChars(("" + testedChar))) {
+                String testedChar = String.valueOf(id.charAt(i));
+                if (!ADMValidator.containsOnlyValidIdChars(testedChar)) {
                     badCharsSet.add(testedChar);
                 }
             }
-            StringBuilder badCharsString = new StringBuilder();
-            Iterator<Character> it = badCharsSet.iterator();
+            String badCharsString = "";
+            Iterator<String> it = badCharsSet.iterator();
             while(it.hasNext()){
-                badCharsString.append(it.next());
+                badCharsString = badCharsString + it.next();
             }
             Object[] args = new Object[] { badCharsString };
             ValidationException e = new ValidationException(ReasonEnum.ID_CHAR,

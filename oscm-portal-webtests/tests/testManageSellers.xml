@@ -40,7 +40,8 @@
 	  <common.verifyFieldError fieldId="addSupplierForm:supplierId" label="${javax.faces.component.UIInput.REQUIRED}" />
 	  <setInputField htmlId="addSupplierForm:supplierId" value="*****" />
 	  <clickButton htmlId="addSupplierForm:confirmedAddButton" />
-	  <common.verifyFieldError fieldId="addSupplierForm:supplierId" label="${ex.ValidationException.ID_CHAR}" />
+		<verifyXPath
+						xpath="//*[@id='addSupplierForm:supplierIdErrorMsg:addSupplierForm:supplierId']//*[contains(text(),'Invalid character(s) not permitted')]" />
 	  <setInputField htmlId="addSupplierForm:supplierId" value="${resellerId}" />
 	  <clickButton htmlId="addSupplierForm:confirmedAddButton" />
 	  <common.verifySuccess label="." />

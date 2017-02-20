@@ -92,7 +92,7 @@
       <dataDriven tableContainer="data/pageFields/accountManageSuppliers.xls">
         <dataDriven tableContainer="data/invalidInput/${fieldType}.xls">
           <setInputField htmlId="${fieldId}" value="${value}" />
-          <clickButton label="${button.save}" />
+          <clickLink htmlId="addSupplierForm:addSupplierButtonLink" />
           <verifyXPath xpath="//*[@id='${fieldId}ErrorMsg:${fieldId}']//*[contains(text(),'Invalid character(s)')]" />
         </dataDriven>
       </dataDriven>
