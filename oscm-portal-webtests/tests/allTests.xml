@@ -8,7 +8,7 @@
   <!-- target for developers -->
   <target name="partCustom">
     <!-- put your own test files e.g. "playground.xml" --> 
-    <ant antfile="./marketplace/testUserCustomer.xml" />
+    <ant antfile="playground.xml" />
   </target>
 
   <target name="part1">
