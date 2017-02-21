@@ -518,17 +518,17 @@
     <dependency org="org.glassfish.main.jms" name="jms-admin" rev="4.1.1" transitive="false">
       <artifact name="jms-admin" ext="jar"/>
     </dependency>
-    <dependency org="org.eclipse.persistence" name="org.eclipse.persistence.antlr" rev="2.6.4" transitive="false"/>
-    <dependency org="org.eclipse.persistence" name="org.eclipse.persistence.asm" rev="2.6.4" transitive="false"/>
-    <dependency org="org.eclipse.persistence" name="org.eclipse.persistence.core" rev="2.6.4" transitive="false"/>
-    <dependency org="org.eclipse.persistence" name="org.eclipse.persistence.dbws" rev="2.6.4" transitive="false"/>
-    <dependency org="org.eclipse.persistence" name="org.eclipse.persistence.jpa" rev="2.6.4" transitive="false"/>
-    <dependency org="org.eclipse.persistence" name="org.eclipse.persistence.jpa.jpql" rev="2.6.4"
+    <dependency org="org.eclipse.persistence" name="org.eclipse.persistence.antlr" rev="2.6.3" transitive="false"/>
+    <dependency org="org.eclipse.persistence" name="org.eclipse.persistence.asm" rev="2.6.3" transitive="false"/>
+    <dependency org="org.eclipse.persistence" name="org.eclipse.persistence.core" rev="2.6.3" transitive="false"/>
+    <dependency org="org.eclipse.persistence" name="org.eclipse.persistence.dbws" rev="2.6.3" transitive="false"/>
+    <dependency org="org.eclipse.persistence" name="org.eclipse.persistence.jpa" rev="2.6.3" transitive="false"/>
+    <dependency org="org.eclipse.persistence" name="org.eclipse.persistence.jpa.jpql" rev="2.6.3"
                 transitive="false"/>
-    <dependency org="org.eclipse.persistence" name="org.eclipse.persistence.jpa.modelgen.processor" rev="2.6.4"
+    <dependency org="org.eclipse.persistence" name="org.eclipse.persistence.jpa.modelgen.processor" rev="2.6.3"
                 transitive="false"/>
-    <dependency org="org.eclipse.persistence" name="org.eclipse.persistence.moxy" rev="2.6.4" transitive="false"/>
-    <dependency org="org.eclipse.persistence" name="org.eclipse.persistence.oracle" rev="2.6.4" transitive="false"/>
+    <dependency org="org.eclipse.persistence" name="org.eclipse.persistence.moxy" rev="2.6.3" transitive="false"/>
+    <dependency org="org.eclipse.persistence" name="org.eclipse.persistence.oracle" rev="2.6.3" transitive="false"/>
 
     <dependency org="org.codehaus.woodstox" name="stax2-api" rev="3.1.1" transitive="false"/>
 

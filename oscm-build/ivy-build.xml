@@ -266,15 +266,15 @@
   	<copy file="${ivy.lib.dir}/glassfish-naming-4.1.1.jar" tofile="${root.dir}/libraries/glassfish4/modules/glassfish-naming.jar" overwrite="true"/>
   	<copy file="${ivy.lib.dir}/webservices-api-osgi-2.0.1.jar" tofile="${root.dir}/libraries/glassfish4/modules/endorsed/webservices-api-osgi.jar" overwrite="true"/>
 
-    <copy file="${ivy.lib.dir}/org.eclipse.persistence.antlr-2.6.4.jar" tofile="${root.dir}/libraries/glassfish4/modules/org.eclipse.persistence.antlr.jar" overwrite="true"/>
-    <copy file="${ivy.lib.dir}/org.eclipse.persistence.asm-2.6.4.jar" tofile="${root.dir}/libraries/glassfish4/modules/org.eclipse.persistence.asm.jar" overwrite="true"/>
-    <copy file="${ivy.lib.dir}/org.eclipse.persistence.core-2.6.4.jar" tofile="${root.dir}/libraries/glassfish4/modules/org.eclipse.persistence.core.jar" overwrite="true"/>
-    <copy file="${ivy.lib.dir}/org.eclipse.persistence.dbws-2.6.4.jar" tofile="${root.dir}/libraries/glassfish4/modules/org.eclipse.persistence.dbws.jar" overwrite="true"/>
-    <copy file="${ivy.lib.dir}/org.eclipse.persistence.jpa-2.6.4.jar" tofile="${root.dir}/libraries/glassfish4/modules/org.eclipse.persistence.jpa.jar" overwrite="true"/>
-    <copy file="${ivy.lib.dir}/org.eclipse.persistence.jpa.jpql-2.6.4.jar" tofile="${root.dir}/libraries/glassfish4/modules/org.eclipse.persistence.jpa.jpql.jar" overwrite="true"/>
-    <copy file="${ivy.lib.dir}/org.eclipse.persistence.jpa.modelgen.processor-2.6.4.jar" tofile="${root.dir}/libraries/glassfish4/modules/org.eclipse.persistence.jpa.modelgen.processor.jar" overwrite="true"/>
-    <copy file="${ivy.lib.dir}/org.eclipse.persistence.moxy-2.6.4.jar" tofile="${root.dir}/libraries/glassfish4/modules/org.eclipse.persistence.moxy.jar" overwrite="true"/>
-    <copy file="${ivy.lib.dir}/org.eclipse.persistence.oracle-2.6.4.jar" tofile="${root.dir}/libraries/glassfish4/modules/org.eclipse.persistence.oracle.jar" overwrite="true"/>
+    <copy file="${ivy.lib.dir}/org.eclipse.persistence.antlr-2.6.3.jar" tofile="${root.dir}/libraries/glassfish4/modules/org.eclipse.persistence.antlr.jar" overwrite="true"/>
+    <copy file="${ivy.lib.dir}/org.eclipse.persistence.asm-2.6.3.jar" tofile="${root.dir}/libraries/glassfish4/modules/org.eclipse.persistence.asm.jar" overwrite="true"/>
+    <copy file="${ivy.lib.dir}/org.eclipse.persistence.core-2.6.3.jar" tofile="${root.dir}/libraries/glassfish4/modules/org.eclipse.persistence.core.jar" overwrite="true"/>
+    <copy file="${ivy.lib.dir}/org.eclipse.persistence.dbws-2.6.3.jar" tofile="${root.dir}/libraries/glassfish4/modules/org.eclipse.persistence.dbws.jar" overwrite="true"/>
+    <copy file="${ivy.lib.dir}/org.eclipse.persistence.jpa-2.6.3.jar" tofile="${root.dir}/libraries/glassfish4/modules/org.eclipse.persistence.jpa.jar" overwrite="true"/>
+    <copy file="${ivy.lib.dir}/org.eclipse.persistence.jpa.jpql-2.6.3.jar" tofile="${root.dir}/libraries/glassfish4/modules/org.eclipse.persistence.jpa.jpql.jar" overwrite="true"/>
+    <copy file="${ivy.lib.dir}/org.eclipse.persistence.jpa.modelgen.processor-2.6.3.jar" tofile="${root.dir}/libraries/glassfish4/modules/org.eclipse.persistence.jpa.modelgen.processor.jar" overwrite="true"/>
+    <copy file="${ivy.lib.dir}/org.eclipse.persistence.moxy-2.6.3.jar" tofile="${root.dir}/libraries/glassfish4/modules/org.eclipse.persistence.moxy.jar" overwrite="true"/>
+    <copy file="${ivy.lib.dir}/org.eclipse.persistence.oracle-2.6.3.jar" tofile="${root.dir}/libraries/glassfish4/modules/org.eclipse.persistence.oracle.jar" overwrite="true"/>
 
   </target>
 </project>
