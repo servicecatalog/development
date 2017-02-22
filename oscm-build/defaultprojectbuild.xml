@@ -107,6 +107,7 @@
       <classpath refid="dependencies.compile.path" />
       <bootclasspath refid="path_bootclasspath" />
       <compilerarg value="-enableJavadoc" />
+      <compilerarg value="-proc:none" />
       <compilerarg value="-warn:+uselessTypeCheck,+unusedArgument,+hashCode,+null,+boxing" />
     </javac>
   </target>
