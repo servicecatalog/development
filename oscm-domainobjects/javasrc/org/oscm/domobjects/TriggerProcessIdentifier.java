@@ -59,10 +59,10 @@ import org.oscm.types.enumtypes.TriggerProcessIdentifierName;
         @NamedQuery(name = "TriggerProcessIdentifier.isSavePaymentConfigurationPending", query = "SELECT count(tp)"
                 + " FROM TriggerProcess tp, TriggerDefinition td, TriggerProcessIdentifier tppi"
                 + " WHERE tp.dataContainer.status IN (:pendingStates)"
-                + " AND tp.triggerDefinition.key = td.key"
+                + " AND tp.triggerDefinition = td"
                 + " AND td.dataContainer.type = :triggerType"
                 + " AND td.dataContainer.suspendProcess = true"
-                + " AND tppi.triggerProcess.key = tp.key"
+                + " AND tppi.triggerProcess = tp"
                 + " AND tppi.dataContainer.name = :orgKeyName"
                 + " AND tppi.dataContainer.value = :orgKey"),
         @NamedQuery(name = "TriggerProcessIdentifier.isModifyOrUpgradeSubscriptionPending", query = "SELECT count(tp)"
