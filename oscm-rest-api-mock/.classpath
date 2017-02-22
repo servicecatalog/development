@@ -6,5 +6,8 @@
 	<classpathentry kind="lib" path="/libraries/gson/javalib/gson-2.6.2.jar"/>
 	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/javaee.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="/libraries/jersey/javalib/jersey-common.jar"/>
+	<classpathentry kind="lib" path="/libraries/jersey/javalib/javax.ws.rs-api-2.0.1.jar"/>
+	<classpathentry kind="lib" path="/libraries/jersey/javalib/jersey-server.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>
