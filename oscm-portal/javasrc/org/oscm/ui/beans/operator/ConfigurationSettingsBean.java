@@ -53,6 +53,14 @@ public class ConfigurationSettingsBean extends BaseOperatorBean implements
     // The SOP starting prefix to check if a configuration setting is an SOP
     // setting
     private static final String SOP_STARTING_PREFIX = "SOP_";
+    // The SSO starting prefix to check if a configuration setting is an SSO
+    // setting
+    private static final String SSO_STARTING_PREFIX = "SSO_";
+
+    // String value of the authentication mode key
+    private static final String AUTH_MODE = "AUTH_MODE";
+    // Auth mode key value when running in SSO mode
+    private static final String AUTH_MODE_SAML_SP = "SAML_SP";
 
     // The id of the SOP_ORGANIZATION_IDENTIFIER SOP configuration setting.
     private static final String SOP_ORGANIZATION_IDENTIFIER = "SOP_ORGANIZATION_IDENTIFIER";
@@ -88,6 +96,7 @@ public class ConfigurationSettingsBean extends BaseOperatorBean implements
                 fillAllConfigurationKeys();
                 // Filter the SOP configuration settings, if necessary.
                 filterSOPConfigurationSettings();
+                filterSSOConfigurationSettings();
                 Collections.sort(configurationSettings,
                         new DefaultSortingOfConfigurationSettings());
             } catch (OrganizationAuthoritiesException e) {
@@ -140,6 +149,23 @@ public class ConfigurationSettingsBean extends BaseOperatorBean implements
     }
 
     /**
+     * Filters the SSO configuration settings, only in the case when
+     * the application is not running in SSO mode.
+     */
+    private void filterSSOConfigurationSettings() {
+        if (isSamlMode()) {
+            return; // do not filter
+        }
+        for (Iterator<VOConfigurationSetting> i = configurationSettings
+                .iterator(); i.hasNext();) {
+            VOConfigurationSetting setting = i.next();
+            if (isSsoSetting(setting)) {
+                i.remove();
+            }
+        }
+    }
+
+    /**
      * returns true if a VOConfigurationSetting is an SOP configuration setting
      * and false otherwise.
      * 
@@ -157,12 +183,27 @@ public class ConfigurationSettingsBean extends BaseOperatorBean implements
     }
 
     /**
+     * returns true if a VOConfigurationSetting is an SSO configuration setting
+     * and false otherwise.
+     *
+     * @param setting
+     *            the VOConfigurationSetting to check.
+     * @return a boolean indicating if a configuration setting is an SSO
+     *         setting.
+     */
+    private boolean isSsoSetting(VOConfigurationSetting setting) {
+        if (setting.getInformationId().getKeyName()
+                .startsWith(SSO_STARTING_PREFIX)) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Returns true if there exists a configuration setting with key:
      * SOP_ORGANIZATION_IDENTIFIER and has a set value and false if this setting
      * is absent.
      * 
-     * @param setting
-     *            the VOConfigurationSetting to check.
      * @return a boolean indicating if the SOP_ORGANIZATION_IDENTIFIER is
      *         present and set.
      */
@@ -171,6 +212,17 @@ public class ConfigurationSettingsBean extends BaseOperatorBean implements
             if (setting.getInformationId().getKeyName()
                     .equals(SOP_ORGANIZATION_IDENTIFIER)
                     && setting.getValue().trim().length() > 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isSamlMode() {
+        for (VOConfigurationSetting setting : configurationSettings) {
+            if (setting.getInformationId().getKeyName()
+                    .equals(AUTH_MODE)
+                    && setting.getValue().equals(AUTH_MODE_SAML_SP)) {
                 return true;
             }
         }
