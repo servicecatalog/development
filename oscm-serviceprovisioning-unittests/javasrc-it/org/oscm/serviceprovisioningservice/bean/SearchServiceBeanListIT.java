@@ -1346,9 +1346,8 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
             throws Exception {
         // search without being logged in
         VOServiceListResult hits = search.searchServices(FUJITSU, "de",
-                TAG4.substring(0, 3) + "*");
-        // will be escaped, thus no exception (but no hits either of coz)
-        Assert.assertEquals(0, hits.getResultSize());
+                TAG4.substring(0, 3));
+        Assert.assertEquals(3, hits.getResultSize());
     }
 
     //glassfish upgrade
