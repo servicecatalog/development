@@ -21,7 +21,7 @@ public enum SupportedOperationVersions {
     /**
      * Current Version
      */
-    VERSION_1_0(OperationService.class, "http://oscm.org/xsd", "v1.5",
+    VERSION_1_5(OperationService.class, "http://oscm.org/xsd", "v1.5",
             "/wsdl/operation/OperationService.wsdl");
 
     private Class<?> versionClass;
