@@ -54,14 +54,6 @@ public class ProvisioningServiceAdapterFactory {
                     .getForVersionString(targetVersionFromWsdl);
             if (supportedVersion == null) {
                 supportedVersion = SupportedProvisioningVersions.VERSION_1_8;
-//                String targetNamespaceFromWsdl = portDescription
-//                        .getTargetNamespace();
-//                supportedVersion = SupportedProvisioningVersions
-//                        .getForNamespaceString(targetNamespaceFromWsdl);
-//                if (supportedVersion == null) {
-//                    throw new TechnicalServiceNotAliveException(
-//                            TechnicalServiceNotAliveException.Reason.TARGET_NAMESPACE);
-//                }
             }
             Class<?> serviceClass = supportedVersion.getServiceClass();
             adapter = getAdapterForVersion(supportedVersion);

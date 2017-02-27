@@ -65,15 +65,6 @@ public class OperationServiceAdapterFactory {
                 .getForVersionString(targetVersionFromWsdl);
         if (supportedVersion == null) {
             supportedVersion = SupportedOperationVersions.VERSION_1_5;
-//            String targetNamespaceFromWsdl = portDescription
-//                    .getTargetNamespace();
-//            supportedVersion = SupportedOperationVersions
-//                    .getForNamespaceString(targetNamespaceFromWsdl);
-//            if (supportedVersion == null) {
-//                String message = "Unsupported namespace for OperationService: %s";
-//                throw new SaaSSystemException(String.format(message,
-//                        targetNamespaceFromWsdl));
-//            }
         }
         return supportedVersion;
     }
