@@ -22,7 +22,7 @@ public enum SupportedProvisioningVersions {
     /**
      * Current Version
      */
-    VERSION_1_0(ProvisioningService.class, "http://oscm.org/xsd", "v1.7"), //
+    VERSION_1_7(ProvisioningService.class, "http://oscm.org/xsd", "v1.7"), //
     VERSION_1_8(ProvisioningService.class, "http://oscm.org/xsd", "v1.8");
 
     private Class<?> versionClass;
