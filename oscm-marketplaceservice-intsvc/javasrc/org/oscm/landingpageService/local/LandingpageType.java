@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright FUJITSU LIMITED 2016 
+ *  Copyright FUJITSU LIMITED 2017
  *******************************************************************************/
 
 package org.oscm.landingpageService.local;

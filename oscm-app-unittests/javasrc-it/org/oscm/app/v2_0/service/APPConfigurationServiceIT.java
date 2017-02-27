@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                             
+ *  Copyright FUJITSU LIMITED 2017
  *                                                                              
  *  Creation Date: 17.08.2010                                                      
  *                                                                              
@@ -384,6 +384,14 @@ public class APPConfigurationServiceIT extends EJBTestBase {
         createConfigSetting(
                 PlatformConfigurationKey.APP_ADMIN_MAIL_ADDRESS.name(),
                 "admin@null.de");
+        createConfigSetting(PlatformConfigurationKey.APP_TRUSTSTORE.name(),
+                "./cacert.jsk");
+        createConfigSetting(
+                PlatformConfigurationKey.APP_TRUSTSTORE_PASSWORD.name(),
+                "changeit");
+        createConfigSetting(
+                PlatformConfigurationKey.APP_TRUSTSTORE_BSS_ALIAS.name(),
+                "bes-s1as");
 
         createContorllerConfigSetting("controller1", "instanceValue", "valueS");
         createContorllerConfigSetting("controller1",

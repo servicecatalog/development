@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                           
+ *  Copyright FUJITSU LIMITED 2017
  *                                                                                                                                 
  *  Creation Date: 2016/11/11                                                      
  *                                                                              
@@ -66,7 +66,7 @@ public class OpenStackInstanceAccess implements InstanceAccess {
                 .getServiceInstanceDetails(OpenStackController.ID, instanceId,
                         subscriptionId, organizationId);
         PropertyHandler ph = new PropertyHandler(settings);
-        List<Server> servers = new ArrayList<Server>();
+        List<Server> servers = new ArrayList<>();
         try {
             servers = new NovaProcessor().getServersDetails(ph, true);
         } catch (InstanceNotAliveException ex) {

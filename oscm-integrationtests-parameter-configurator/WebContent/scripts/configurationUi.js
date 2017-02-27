@@ -1,5 +1,5 @@
 /* 
- *  Copyright FUJITSU LIMITED 2016 
+ *  Copyright FUJITSU LIMITED 2017
  */ 
 function BssParameterConfigurator(tDiv) {
     this._targetDiv = tDiv;

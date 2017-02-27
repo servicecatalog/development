@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                        
+ *  Copyright FUJITSU LIMITED 2017
  *       
  *  AWS controller implementation for the 
  *  Asynchronous Provisioning Platform (APP)
@@ -11,32 +11,30 @@
 package org.oscm.app.common.instanceDetail;
 
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import javax.faces.context.FacesContext;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ViewScoped;
 import javax.inject.Inject;
-import javax.inject.Named;
 
+import org.apache.commons.codec.binary.Base64;
 import org.oscm.app.common.intf.InstanceAccess;
 import org.oscm.app.common.intf.ServerInformation;
 import org.oscm.app.v2_0.data.ControllerConfigurationKey;
+import org.oscm.app.v2_0.exceptions.APPlatformException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Bean for showing server information.
  */
-@Named
+@ManagedBean(name = "extensionInterfaceBean")
+@ViewScoped
 public class ExtensionInterfaceBean implements Serializable {
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = -2153894219559699861L;
+
     private static final Logger LOGGER = LoggerFactory
             .getLogger(ExtensionInterfaceBean.class);
 
@@ -46,105 +44,64 @@ public class ExtensionInterfaceBean implements Serializable {
             ControllerConfigurationKey.BSS_USER_KEY.name(),
             ControllerConfigurationKey.BSS_USER_PWD.name() };
 
-    private List<? extends ServerInformation> servers;
     private String subscriptionId;
     private String organizationId;
-    private String accessInfo;
     private String instanceId;
-    private String locale;
+
+    public String getSubscriptionId() {
+        return subscriptionId;
+    }
+
+    public void setSubscriptionId(String subscriptionId) {
+        this.subscriptionId = new String(Base64.decodeBase64(subscriptionId));
+    }
+
+    public String getOrganizationId() {
+        return organizationId;
+    }
+
+    public void setOrganizationId(String organizationId) {
+        this.organizationId = new String(Base64.decodeBase64(organizationId));
+    }
+
+    public String getInstanceId() {
+        return instanceId;
+    }
+
+    public void setInstanceId(String instanceId) {
+        this.instanceId = new String(Base64.decodeBase64(instanceId));
+    }
 
     @Inject
     private InstanceAccess instanceAccess;
-
-    /**
-     * Constructor.
-     */
-    public ExtensionInterfaceBean() throws UnsupportedEncodingException {
-        FacesContext facesContext = getContext();
-        Map<String, String> parameters = getParameterWithUTF8(
-                facesContext.getExternalContext().getRequestParameterMap());
-        this.locale = facesContext.getViewRoot().getLocale().getLanguage();
-
-        this.subscriptionId = parameters.get("subId") != null
-                ? parameters.get("subId") : "";
-        this.instanceId = parameters.get("instId") != null
-                ? parameters.get("instId") : "";
-        this.organizationId = parameters.get("orgId") != null
-                ? parameters.get("orgId") : "";
-    }
-
-    /**
-     * @param parameters
-     * @throws UnsupportedEncodingException
-     */
-    private Map<String, String> getParameterWithUTF8(
-            Map<String, String> parameters)
-            throws UnsupportedEncodingException {
-        Map<String, String> result = new HashMap<String, String>();
-        for (Map.Entry<String, String> entry : parameters.entrySet()) {
-            String value = null;
-            if (entry.getValue() != null) {
-                value = new String(entry.getValue().getBytes("ISO_8859_1"),
-                        "UTF-8");
-            }
-            result.put(entry.getKey(), value);
-        }
-        return result;
-    }
 
     public void setInstanceAccess(InstanceAccess instanceAccess) {
         this.instanceAccess = instanceAccess;
     }
 
     public List<? extends ServerInformation> getInstanceDetails() {
-        readServerInfo();
-        return servers;
-    }
-
-    /**
-     * 
-     */
-    private void readServerInfo() {
-        List<? extends ServerInformation> serverInfos = new ArrayList<ServerInformation>();
         try {
-            serverInfos = instanceAccess.getServerDetails(instanceId,
-                    subscriptionId, organizationId);
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage());
+            List<? extends ServerInformation> servers = instanceAccess
+                    .getServerDetails(instanceId, subscriptionId,
+                            organizationId);
+            return servers != null ? servers
+                    : new ArrayList<ServerInformation>();
+        } catch (APPlatformException e) {
+            LOGGER.error(e.getMessage(), e);
+            return new ArrayList<>();
         }
-        setServerInfo(serverInfos);
-    }
-
-    public void setServerInfo(List<? extends ServerInformation> serverInfos) {
-        this.servers = serverInfos;
-    }
-
-    public String getSubscriptionName() {
-        return subscriptionId;
     }
 
     public String getAccessInfo() {
-        setAccessInfo();
-        return accessInfo;
-    }
-
-    /**
-     *
-     */
-    private void setAccessInfo() {
-        String accessInfo = "";
         try {
-            accessInfo = instanceAccess.getAccessInfo(instanceId,
+            String accessInfo = instanceAccess.getAccessInfo(instanceId,
                     subscriptionId, organizationId);
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage());
+
+            return accessInfo != null ? accessInfo : "";
+
+        } catch (APPlatformException e) {
+            LOGGER.error(e.getMessage(), e);
+            return "";
         }
-        this.accessInfo = accessInfo;
     }
-
-    // allow stubbing in unit tests
-    protected FacesContext getContext() {
-        return FacesContext.getCurrentInstance();
-    }
-
 }

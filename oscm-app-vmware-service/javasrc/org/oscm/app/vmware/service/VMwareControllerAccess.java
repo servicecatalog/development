@@ -1,6 +1,6 @@
 /*******************************************************************************
  *
- *  Copyright FUJITSU LIMITED 2016
+ *  Copyright FUJITSU LIMITED 2017
  *
  *  Creation Date: 2016-05-24
  *
@@ -43,7 +43,7 @@ public class VMwareControllerAccess implements ControllerAccess {
     @Override
     public List<String> getControllerParameterKeys() {
         // not needed here because common configuration UI is not used
-        return new ArrayList<String>();
+        return new ArrayList<>();
     }
 
     public ControllerSettings getSettings() {

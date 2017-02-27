@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Copyright FUJITSU LIMITED 2016-->
+<!-- Copyright FUJITSU LIMITED 2017-->
  
 <application xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:application="http://java.sun.com/xml/ns/javaee/application_5.xsd" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/application_5.xsd" id="Application_ID" version="5">
   <display-name>Catalog Manager APP Controller Sample</display-name>
@@ -10,6 +10,12 @@
     <web>
       <web-uri>oscm-app-sample.war</web-uri>
       <context-root>oscm-app-sample</context-root>
+    </web>
+  </module>
+  <module>
+    <web>
+      <web-uri>oscm-app-common.war</web-uri>
+      <context-root>oscm-app-sample-common</context-root>
     </web>
   </module>
 </application>

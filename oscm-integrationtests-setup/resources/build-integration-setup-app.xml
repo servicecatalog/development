@@ -1,4 +1,4 @@
-<!-- Copyright FUJITSU LIMITED 2016-->
+<!-- Copyright FUJITSU LIMITED 2017-->
 <project name="Setup Integration Test Environment" default="appSetupAndDeploy">
 
   <!-- Find hostname on Linux and Windows -->

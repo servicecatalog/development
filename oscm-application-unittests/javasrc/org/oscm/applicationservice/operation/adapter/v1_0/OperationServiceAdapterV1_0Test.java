@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                             
+ *  Copyright FUJITSU LIMITED 2017
  *                                                                                                                                 
  *  Creation Date: 19.09.2014                                                      
  *                                                                              

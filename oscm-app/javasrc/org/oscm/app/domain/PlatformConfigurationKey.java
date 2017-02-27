@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                             
+ *  Copyright FUJITSU LIMITED 2017
  *                                                                              
  *  Creation Date: 13.09.2012                                                      
  *                                                                              
@@ -83,9 +83,19 @@ public enum PlatformConfigurationKey {
     APP_KEYSTORE_PASSWORD(false, "string"),
 
     /**
+     * The location of the app truststore
+     */
+    APP_TRUSTSTORE("string"),
+
+    /**
+     * The alias of the public bss certificate
+     */
+    APP_TRUSTSTORE_BSS_ALIAS("string"),
+
+    /**
      * The truststore password.
      */
-    APP_TRUSTSTORE_PASSWORD(false, "string"),
+    APP_TRUSTSTORE_PASSWORD("string"),
 
     /**
      * The suspend flag of APP.

@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright FUJITSU LIMITED 2016 
+ *  Copyright FUJITSU LIMITED 2017 
  *******************************************************************************/
 
 package org.oscm.app.common.ui.filter;
@@ -12,13 +12,10 @@ package org.oscm.app.common.ui.filter;
  *                                                                              
  *******************************************************************************/
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.doReturn;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.security.MessageDigest;
 import java.util.Locale;
 
 import javax.naming.InitialContext;
@@ -82,6 +79,13 @@ public class AuthorizationFilterTest extends EJBTestBase {
                 return user;
 
             }
+
+            @Override
+            public boolean checkToken(String token, String signature) {
+
+                return true;
+            }
+
         };
         enableJndiMock();
 
@@ -289,19 +293,30 @@ public class AuthorizationFilterTest extends EJBTestBase {
     public void testCustomTabAuth() throws Exception {
         exception = false;
         Mockito.when(req.getServletPath()).thenReturn("/serverInformation.jsf");
-        byte[] cipher_byte;
+
         final String instId = "stack-ad8c51f1-d44b-489c-a2f6-40e8e68e0d86";
         String encodedInstId = new String(
                 Base64.encodeBase64(instId.getBytes()), "UTF-8");
-        final String token = encodedInstId + "_test_9142fd59";
-        MessageDigest md = MessageDigest.getInstance("SHA-256");
-        md.update(token.getBytes("UTF-8"));
-        cipher_byte = md.digest();
-        String encodedCipher = new String(Base64.encodeBase64(cipher_byte),
+        doReturn(encodedInstId).when(req).getParameter(Matchers.eq("instId"));
+
+        final String orgId = "org1";
+        String encodedOrgId = new String(Base64.encodeBase64(orgId.getBytes()),
                 "UTF-8");
-        doReturn(token + "_" + encodedCipher).when(req)
-                .getParameter(Matchers.eq("token"));
-        doReturn(instId).when(req).getParameter(Matchers.eq("instId"));
+        doReturn(encodedOrgId).when(req).getParameter(Matchers.eq("orgId"));
+
+        final String subId = "sub1";
+        String encodedSubId = new String(Base64.encodeBase64(subId.getBytes()),
+                "UTF-8");
+        doReturn(encodedSubId).when(req).getParameter(Matchers.eq("subId"));
+
+        final String timestamp = Long.toString(System.currentTimeMillis());
+        doReturn(timestamp).when(req).getParameter(Matchers.eq("timestamp"));
+
+        final String signature = "123eadfgh2awdsf234asdfgs";
+        String encodedSignature = new String(
+                Base64.encodeBase64(signature.getBytes()), "UTF-8");
+        doReturn(encodedSignature).when(req)
+                .getParameter(Matchers.eq("signature"));
 
         // And go!
         filter.doFilter(req, resp, chain);
@@ -311,44 +326,40 @@ public class AuthorizationFilterTest extends EJBTestBase {
         Mockito.verify(resp, Mockito.never()).setStatus(Matchers.eq(401));
         Mockito.verify(resp, Mockito.never()).setHeader(
                 Matchers.eq("WWW-Authenticate"), Matchers.startsWith("Basic "));
-        Mockito.verify(session).setAttribute("serverInfoLoggedIn", instId);
 
         // And destroy
         filter.destroy();
     }
 
     @Test
-    public void testCustomTabAuthPathOther() throws Exception {
-        exception = false;
-        Mockito.when(req.getServletPath()).thenReturn("/test/path.jsf");
-
-        // And go!
-        filter.doFilter(req, resp, chain);
-
-        // Check whether request has been forwarded
-        Mockito.verify(resp).setStatus(Matchers.eq(401));
-        Mockito.verify(resp).setHeader(Matchers.eq("WWW-Authenticate"),
-                Matchers.startsWith("Basic "));
-    }
-
-    @Test
-    public void testCustomTabAuthTokenNotCorrect() throws Exception {
+    public void testCustomTabAuth_expired() throws Exception {
         exception = false;
         Mockito.when(req.getServletPath()).thenReturn("/serverInformation.jsf");
-        byte[] cipher_byte;
+
         final String instId = "stack-ad8c51f1-d44b-489c-a2f6-40e8e68e0d86";
         String encodedInstId = new String(
                 Base64.encodeBase64(instId.getBytes()), "UTF-8");
-        final String token = encodedInstId + "_test_9142fd59";
-        final String wrongInstId = "wrong-instId";
-        MessageDigest md = MessageDigest.getInstance("SHA-256");
-        md.update(token.getBytes("UTF-8"));
-        cipher_byte = md.digest();
-        String encodedCipher = new String(Base64.encodeBase64(cipher_byte),
+        doReturn(encodedInstId).when(req).getParameter(Matchers.eq("instId"));
+
+        final String orgId = "org1";
+        String encodedOrgId = new String(Base64.encodeBase64(orgId.getBytes()),
                 "UTF-8");
-        doReturn(token + "_" + encodedCipher).when(req)
-                .getParameter(Matchers.eq("token"));
-        doReturn(wrongInstId).when(req).getParameter(Matchers.eq("instId"));
+        doReturn(encodedOrgId).when(req).getParameter(Matchers.eq("orgId"));
+
+        final String subId = "sub1";
+        String encodedSubId = new String(Base64.encodeBase64(subId.getBytes()),
+                "UTF-8");
+        doReturn(encodedSubId).when(req).getParameter(Matchers.eq("subId"));
+
+        final String timestamp = Long
+                .toString(System.currentTimeMillis() - 1000000);
+        doReturn(timestamp).when(req).getParameter(Matchers.eq("timestamp"));
+
+        final String signature = "123eadfgh2awdsf234asdfgs";
+        String encodedSignature = new String(
+                Base64.encodeBase64(signature.getBytes()), "UTF-8");
+        doReturn(encodedSignature).when(req)
+                .getParameter(Matchers.eq("signature"));
 
         // And go!
         filter.doFilter(req, resp, chain);
@@ -357,168 +368,8 @@ public class AuthorizationFilterTest extends EJBTestBase {
         Mockito.verify(chain, Mockito.never()).doFilter(Matchers.eq(req),
                 Matchers.eq(resp));
         Mockito.verify(resp).setStatus(Matchers.eq(401));
-        Mockito.verify(resp, Mockito.never()).setHeader(
-                Matchers.eq("WWW-Authenticate"), Matchers.startsWith("Basic "));
 
         // And destroy
         filter.destroy();
-    }
-
-    @Test
-    public void testCustomTabAuthPathOtherAndSessionCorrect() throws Exception {
-        exception = false;
-        final String instId = "stack-ad8c51f1-d44b-489c-a2f6-40e8e68e0d86";
-        Mockito.when(req.getServletPath()).thenReturn("/test/path.jsf");
-        Mockito.when(session.getAttribute("serverInfoLoggedIn"))
-                .thenReturn(instId);
-
-        // And go!
-        filter.doFilter(req, resp, chain);
-
-        // Check whether request has been forwarded
-        Mockito.verify(chain).doFilter(Matchers.eq(req), Matchers.eq(resp));
-        Mockito.verify(resp, Mockito.never()).setStatus(Matchers.eq(401));
-        Mockito.verify(resp, Mockito.never()).setHeader(
-                Matchers.eq("WWW-Authenticate"), Matchers.startsWith("Basic "));
-    }
-
-    @Test
-    public void testCheckToken() throws Exception {
-        // given
-        byte[] cipher_byte;
-        final String instId = "stack-ad8c51f1-d44b-489c-a2f6-40e8e68e0d86";
-        String encodedInstId = new String(
-                Base64.encodeBase64(instId.getBytes()), "UTF-8");
-        final String token = encodedInstId + "_test_9142fd59";
-        MessageDigest md = MessageDigest.getInstance("SHA-256");
-        md.update(token.getBytes("UTF-8"));
-        cipher_byte = md.digest();
-        String encodedCipher = new String(Base64.encodeBase64(cipher_byte),
-                "UTF-8");
-        doReturn(token + "_" + encodedCipher).when(req)
-                .getParameter(Matchers.eq("token"));
-        doReturn(instId).when(req).getParameter(Matchers.eq("instId"));
-
-        // when
-        boolean actual = filter.checkToken(req);
-
-        // then
-        assertTrue(actual);
-
-    }
-
-    @Test
-    public void testCheckToken_include_underscore_in_instId() throws Exception {
-        // given
-        byte[] cipher_byte;
-        final String instId = "stack-ad8c51f1-d44b_489c-a2f6-40e8e68e0d86";
-        String encodedInstId = new String(
-                Base64.encodeBase64(instId.getBytes()), "UTF-8");
-        final String token = encodedInstId + "_test_9142fd59";
-        MessageDigest md = MessageDigest.getInstance("SHA-256");
-        md.update(token.getBytes("UTF-8"));
-        cipher_byte = md.digest();
-        String encodedCipher = new String(Base64.encodeBase64(cipher_byte),
-                "UTF-8");
-        doReturn(token + "_" + encodedCipher).when(req)
-                .getParameter(Matchers.eq("token"));
-        doReturn(instId).when(req).getParameter(Matchers.eq("instId"));
-
-        // when
-        boolean actual = filter.checkToken(req);
-
-        // then
-        assertTrue(actual);
-
-    }
-
-    @Test
-    public void testCheckTokenWithWrongInstId() throws Exception {
-        // given
-        byte[] cipher_byte;
-        final String instId = "stack-ad8c51f1-d44b-489c-a2f6-40e8e68e0d86";
-        String encodedInstId = new String(
-                Base64.encodeBase64(instId.getBytes()), "UTF-8");
-        final String token = encodedInstId + "_test_9142fd59";
-        final String wrongInstId = "wrong-id";
-        MessageDigest md = MessageDigest.getInstance("SHA-256");
-        md.update(token.getBytes("UTF-8"));
-        cipher_byte = md.digest();
-        String encodedCipher = new String(Base64.encodeBase64(cipher_byte),
-                "UTF-8");
-        doReturn(token + "_" + encodedCipher).when(req)
-                .getParameter(Matchers.eq("token"));
-        doReturn(wrongInstId).when(req).getParameter(Matchers.eq("instId"));
-
-        // when
-        boolean actual = filter.checkToken(req);
-
-        // then
-        assertFalse(actual);
-    }
-
-    @Test
-    public void testCheckTokenWithWrongToken() throws Exception {
-        // given
-        byte[] cipher_byte;
-        final String instId = "stack-ad8c51f1-d44b-489c-a2f6-40e8e68e0d86";
-        String encodedInstId = new String(
-                Base64.encodeBase64(instId.getBytes()), "UTF-8");
-        final String token = encodedInstId + "_test_9142fd59";
-        final String wrongToken = "stack-ad8c51f1-d44b-489c-a2f6-40e8e68e0d86_wrong_token123";
-        MessageDigest md = MessageDigest.getInstance("SHA-256");
-        md.update(token.getBytes("UTF-8"));
-        cipher_byte = md.digest();
-        String encodedCipher = new String(Base64.encodeBase64(cipher_byte),
-                "UTF-8");
-        doReturn(wrongToken + "_" + encodedCipher).when(req)
-                .getParameter(Matchers.eq("token"));
-        doReturn(instId).when(req).getParameter(Matchers.eq("instId"));
-
-        // when
-        boolean actual = filter.checkToken(req);
-
-        // then
-        assertFalse(actual);
-    }
-
-    @Test
-    public void testCheckTokenInatIdNull() throws Exception {
-        // given
-        byte[] cipher_byte;
-        final String instId = "stack-ad8c51f1-d44b-489c-a2f6-40e8e68e0d86";
-        String encodedInstId = new String(
-                Base64.encodeBase64(instId.getBytes()), "UTF-8");
-        final String token = encodedInstId + "_test_9142fd59";
-        MessageDigest md = MessageDigest.getInstance("SHA-256");
-        md.update(token.getBytes("UTF-8"));
-        cipher_byte = md.digest();
-        String encodedCipher = new String(Base64.encodeBase64(cipher_byte),
-                "UTF-8");
-        doReturn(token + "_" + encodedCipher).when(req)
-                .getParameter(Matchers.eq("token"));
-        doReturn(null).when(req).getParameter(Matchers.eq("instId"));
-
-        // when
-        boolean actual = filter.checkToken(req);
-
-        // then
-        assertFalse(actual);
-
-    }
-
-    @Test
-    public void testCheckTokenTokenNull() throws Exception {
-        // given
-        final String instId = "stack-ad8c51f1-d44b-489c-a2f6-40e8e68e0d86";
-        doReturn(null).when(req).getParameter(Matchers.eq("token"));
-        doReturn(instId).when(req).getParameter(Matchers.eq("instId"));
-
-        // when
-        boolean actual = filter.checkToken(req);
-
-        // then
-        assertFalse(actual);
-
     }
 }

@@ -1,4 +1,4 @@
-<!-- Copyright FUJITSU LIMITED 2016-->
+<!-- Copyright FUJITSU LIMITED 2017-->
 <project>
   <!-- verify success message -->
   <macrodef name="mpl_verify.success">

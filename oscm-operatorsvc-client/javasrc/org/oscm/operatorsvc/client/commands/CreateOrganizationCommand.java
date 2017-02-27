@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright FUJITSU LIMITED 2016 
+ *  Copyright FUJITSU LIMITED 2017
  *******************************************************************************/
 
 package org.oscm.operatorsvc.client.commands;
@@ -117,9 +117,8 @@ public class CreateOrganizationCommand implements IOperatorCommand {
                 ARG_ORGANIZATION_ROLES, all).toArray(
                 new OrganizationRoleType[0]);
 
-        String marketplaceID = null;
+        String marketplaceID = ctx.getStringOptional(MARKETPLACEID);
         if (roles.length == 0) {
-            marketplaceID = ctx.getString(MARKETPLACEID);
             if (marketplaceID == null || marketplaceID.trim().equals("")) {
                 final String msg = "No organization was created, as no role or marketplace id has been specified";
                 ctx.err().println(msg);

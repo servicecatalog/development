@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                             
+ *  Copyright FUJITSU LIMITED 2017
  *                                                                              
  *  Creation Date: Sep 13, 2012                                                      
  *                                                                              
@@ -476,6 +476,11 @@ public class PropertyImportTest {
         p.put(PlatformConfigurationKey.BSS_STS_WEBSERVICE_WSDL_URL.name(),
                 "http://www.fujitsu.com/{service}/oscm/STS?wsdl");
         p.put(PlatformConfigurationKey.APP_KEY_PATH.name(), "./key");
+        p.put(PlatformConfigurationKey.APP_TRUSTSTORE.name(), "./cacert.jsk");
+        p.put(PlatformConfigurationKey.APP_TRUSTSTORE_PASSWORD.name(),
+                "changeit");
+        p.put(PlatformConfigurationKey.APP_TRUSTSTORE_BSS_ALIAS.name(),
+                "bes-s1as");
         return p;
     }
 }

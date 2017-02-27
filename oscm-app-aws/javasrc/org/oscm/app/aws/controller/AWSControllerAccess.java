@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                        
+ *  Copyright FUJITSU LIMITED 2017
  *                                                                              
  *  Creation Date: 30.05.2014                                                      
  *                                                                              
@@ -30,7 +30,7 @@ public class AWSControllerAccess implements ControllerAccess {
 
     @Override
     public List<String> getControllerParameterKeys() {
-        LinkedList<String> result = new LinkedList<String>();
+        LinkedList<String> result = new LinkedList<>();
         result.add(PropertyHandler.ACCESS_KEY_ID_PWD);
         result.add(PropertyHandler.SECRET_KEY_PWD);
         return result;

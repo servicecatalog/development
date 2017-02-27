@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                           
+ *  Copyright FUJITSU LIMITED 2017
  *                                                                                                                                 
  *  Creation Date: 2016/11/11                                                      
  *                                                                              
@@ -62,7 +62,8 @@ public class AWSInstanceAccess implements InstanceAccess {
                         subscriptionId, organizationId);
         PropertyHandler ph = new PropertyHandler(settings);
         List<Server> servers;
-        servers = new EC2Processor(ph, getAwsInstanceId(settings)).getServerDetails();
+        servers = new EC2Processor(ph, getAwsInstanceId(settings))
+                .getServerDetails();
         return servers;
     }
 

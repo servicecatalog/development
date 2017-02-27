@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                        
+ *  Copyright FUJITSU LIMITED 2017                                        
  *                                                                              
  *  Creation Date: 26.05.2014                                                      
  *                                                                              
@@ -138,18 +138,15 @@ public class APPlatformServiceMockup implements APPlatformService {
         // store service settings not supported by mock
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.oscm.app.v2_0.intf.APPlatformService#getServiceInstanceDetails(java.
-     * lang.String, java.lang.String, java.lang.String, java.lang.String)
-     */
     @Override
     public ProvisioningSettings getServiceInstanceDetails(String controllerId,
             String instanceId, String subscriptionId, String organizationId)
             throws APPlatformException {
-        // TODO Auto-generated method stub
         return null;
+    }
+
+    @Override
+    public boolean checkToken(String token, String signature) {
+        return false;
     }
 }

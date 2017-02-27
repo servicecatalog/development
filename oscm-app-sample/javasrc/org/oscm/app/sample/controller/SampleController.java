@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                        
+ *  Copyright FUJITSU LIMITED 2017
  *       
  *  Sample controller implementation for the 
  *  Asynchronous Provisioning Platform (APP)
@@ -59,6 +59,8 @@ public class SampleController implements APPlatformController {
 
     private static final Logger LOGGER = LoggerFactory
             .getLogger(SampleController.class);
+
+    public static final String ID = "ess.sample";
 
     private APPlatformService platformService;
 
@@ -390,7 +392,8 @@ public class SampleController implements APPlatformController {
                     Messages.getAll("error_missing_message"));
 
         if (newParams.getUser() == null || newParams.getUser().length() < 5)
-            throw new APPlatformException(Messages.getAll("error_missing_user"));
+            throw new APPlatformException(
+                    Messages.getAll("error_missing_user"));
 
         if (newParams.getPassword() == null
                 || newParams.getPassword().length() < 5)
@@ -408,8 +411,8 @@ public class SampleController implements APPlatformController {
 
     @Override
     public List<OperationParameter> getOperationParameters(String userId,
-            String instanceId, String operationId, ProvisioningSettings settings)
-            throws APPlatformException {
+            String instanceId, String operationId,
+            ProvisioningSettings settings) throws APPlatformException {
         // TODO Auto-generated method stub
         return null;
     }

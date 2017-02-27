@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                             
+ *  Copyright FUJITSU LIMITED 2017
  *                                                                              
  *  Creation Date: 27.09.2012                                                      
  *                                                                              
@@ -9,9 +9,6 @@
 package org.oscm.app.common.ui.filter;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.StringTokenizer;
 
 import javax.inject.Inject;
@@ -47,7 +44,10 @@ public class AuthorizationFilter implements Filter {
     public static final String LOCALE_DEFAULT = "en";
     public static final String LOCALE_JA = "ja";
 
+    private static final long TOKEN_EXPIRE = 600000; // ms
+
     private String controllerId;
+    @Inject
     private ControllerAccess controllerAccess;
     private String excludeUrlPattern;
 
@@ -56,7 +56,6 @@ public class AuthorizationFilter implements Filter {
     final int ORG_ID = 2;
     final int HASH = 3;
 
-    @Inject
     public void setControllerAccess(final ControllerAccess controllerAccess) {
         this.controllerAccess = controllerAccess;
     }
@@ -89,12 +88,8 @@ public class AuthorizationFilter implements Filter {
 
         HttpServletResponse httpResponse = (HttpServletResponse) response;
         HttpSession session = httpRequest.getSession();
-        Object serverInfoLoggedIn = session.getAttribute("serverInfoLoggedIn");
-        if ((path != null && path.matches("/serverInformation.jsf"))
-                || serverInfoLoggedIn != null) {
-            if (checkToken(httpRequest) || serverInfoLoggedIn != null) {
-                session.setAttribute("serverInfoLoggedIn",
-                        httpRequest.getParameter("instId"));
+        if ((path != null && path.matches("/serverInformation.jsf"))) {
+            if (checkToken(httpRequest)) {
                 chain.doFilter(httpRequest, response);
                 return;
             } else {
@@ -175,50 +170,47 @@ public class AuthorizationFilter implements Filter {
     }
 
     /**
+     * Checks the request for all required parameters and builds a token. The
+     * token is compared with the signature of the request.
+     * 
      * @param httpRequest
+     *            the request
      */
     protected boolean checkToken(HttpServletRequest httpRequest) {
+
+        // retrieve all request parameters
+        String signature = httpRequest.getParameter("signature");
+        String instId = httpRequest.getParameter("instId");
+        String orgId = httpRequest.getParameter("orgId");
+        String subId = httpRequest.getParameter("subId");
+        String timestampStr = httpRequest.getParameter("timestamp");
+
+        if (signature == null || instId == null || orgId == null
+                || subId == null || timestampStr == null) {
+            return false;
+        }
+
+        long timestamp = 0;
         try {
-            String token = getParameterWithUTF8(
-                    httpRequest.getParameter("token"));
-            String instId = getParameterWithUTF8(
-                    httpRequest.getParameter("instId"));
-            if (token != null && instId != null) {
-                String hashParams[] = token.split("_");
-                String tokenHash = new String(
-                        Base64.decodeBase64(hashParams[HASH].getBytes("UTF-8")),
-                        "UTF-8");
-                String tokenInstId = new String(
-                        Base64.decodeBase64(
-                                hashParams[INSTANCE_ID].getBytes("UTF-8")),
-                        "UTF-8");
-
-                if (tokenInstId.equals(instId)) {
-                    byte[] cipher_byte;
-                    String checkStr = hashParams[INSTANCE_ID] + "_"
-                            + hashParams[USER_ID] + "_" + hashParams[ORG_ID];
-
-                    MessageDigest md = MessageDigest.getInstance("SHA-256");
-                    md.update(checkStr.getBytes("UTF-8"));
-                    cipher_byte = md.digest();
-                    if (new String(cipher_byte, "UTF-8").equals(tokenHash)) {
-                        return true;
-                    }
-
-                }
-            }
-        } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
-            LOGGER.error(e.getMessage());
+            timestamp = Long.parseLong(timestampStr);
+        } catch (NumberFormatException e) {
+            return false;
         }
-        return false;
-    }
 
-    private String getParameterWithUTF8(String param)
-            throws UnsupportedEncodingException {
-        if (param != null) {
-            return new String(param.getBytes("ISO_8859_1"), "UTF-8");
+        // build token string
+        String token = instId + subId + orgId + timestamp;
+
+        // check token validity
+        APPlatformService service = APPlatformServiceFactory.getInstance();
+
+        boolean check = service.checkToken(token, signature);
+
+        // check if token is expired
+        if (check && timestamp + TOKEN_EXPIRE > System.currentTimeMillis()) {
+            return true;
+        } else {
+            return false;
         }
-        return null;
     }
 
     @Override

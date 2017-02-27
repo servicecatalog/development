@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                             
+ *  Copyright FUJITSU LIMITED 2017
  *                                                                                                                                 
  *  Creation Date: 2013-8-14                                                      
  *                                                                              
@@ -227,7 +227,8 @@ public class PropertyImportTest {
         } catch (RuntimeException e) {
             assertEquals(
                     "Mandatory attribute " + ConfigurationKey.AUTH_MODE.name()
-                            + " can not be set a null value", e.getMessage());
+                            + " can not be set a null value",
+                    e.getMessage());
             throw e;
         }
 
@@ -253,9 +254,9 @@ public class PropertyImportTest {
             importer.execute();
         } catch (RuntimeException e) {
             assertEquals(
-                    "Mandatory attribute "
-                            + ConfigurationKey.SSO_IDP_URL.name()
-                            + " can not be set a null value", e.getMessage());
+                    "Mandatory attribute " + ConfigurationKey.SSO_IDP_URL.name()
+                            + " can not be set a null value",
+                    e.getMessage());
             throw e;
         }
 
@@ -341,8 +342,8 @@ public class PropertyImportTest {
 
     @Test(expected = RuntimeException.class)
     public void execute_prepareException() throws Exception {
-        Mockito.when(sqlConn.prepareStatement(Matchers.anyString())).thenThrow(
-                new SQLException());
+        Mockito.when(sqlConn.prepareStatement(Matchers.anyString()))
+                .thenThrow(new SQLException());
         Properties p = getProperties();
         FileOutputStream fos = null;
         try {
@@ -410,6 +411,9 @@ public class PropertyImportTest {
                 "default");
         p.put(ConfigurationKey.HIDDEN_UI_ELEMENTS.name(),
                 "operator.manageBillingAdapters,techService.viewBillingAdapters");
+        p.put(ConfigurationKey.SSO_SIGNING_KEYSTORE.name(), "./cacerts.jks");
+        p.put(ConfigurationKey.SSO_SIGNING_KEYSTORE_PASS.name(), "changeit");
+        p.put(ConfigurationKey.SSO_SIGNING_KEY_ALIAS.name(), "s1as");
         return p;
     }
 }

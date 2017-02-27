@@ -1,5 +1,5 @@
 /* 
- *  Copyright FUJITSU LIMITED 2016
+ *  Copyright FUJITSU LIMITED 2017
  */
 /**
  * Specifies the public provisioning service API of Catalog

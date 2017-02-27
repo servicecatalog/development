@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                           
+ *  Copyright FUJITSU LIMITED 2017
  *                                                                                                                                 
  *  Creation Date: 2016/11/11                                                      
  *                                                                              
@@ -16,11 +16,10 @@ import org.oscm.app.v2_0.exceptions.AuthenticationException;
 import org.oscm.app.v2_0.exceptions.ConfigurationException;
 
 /**
- * @author tateiwamext
+ * Interface of instance to the specific controller implementation used by
+ * common controller code (to avoid dependencies on specific implementations).
  * 
- *         Interface of instance to the specific controller implementation used
- *         by common controller code (to avoid dependencies on specific
- *         implementations).
+ * @author tateiwamext
  */
 public interface InstanceAccess extends Serializable {
 
