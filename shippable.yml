@@ -19,5 +19,4 @@ build:
     image_tag: latest
     pull: true
   ci:
-    - pwd
-    - mvn -f development/oscm-portal-integrationtests/pom.xml clean package test
+    - mvn -f oscm-portal-integrationtests/pom.xml clean package test
