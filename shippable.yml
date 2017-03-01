@@ -1,3 +1,7 @@
+branches:
+  only:
+    - fb_web_integration_tests
+
 language: java
 
 jdk:
