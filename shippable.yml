@@ -26,4 +26,4 @@ build:
     pull: true
   ci:
     - cd ./oscm-portal-integrationtests
-	- mvn clean package test
+    - mvn clean package test
