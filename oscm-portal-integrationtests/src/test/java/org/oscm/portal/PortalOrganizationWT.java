@@ -70,10 +70,10 @@ public class PortalOrganizationWT {
 
         tester.clickElement("editForm:saveButtonLink");
 
-        PlaygroundSuiteIT.supplierOrgId = tester.readInfoMessage()
+        PlaygroundSuiteTest.supplierOrgId = tester.readInfoMessage()
                 .split(" ")[2];
 
-        System.out.println(PlaygroundSuiteIT.supplierOrgId);
+        System.out.println(PlaygroundSuiteTest.supplierOrgId);
     }
 
     @Test
