@@ -6,12 +6,6 @@ language: java
 
 jdk:
   - oraclejdk8
-  
-addons:
-  firefox: "23.0" 
-
-services:                                       
-  - selenium
 
 env:
   global:
