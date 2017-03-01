@@ -50,7 +50,7 @@ public class PortalMarketplaceWT {
 
         tester.writeValue("createMarketplaceForm:marketplaceName", MARKETPLACE);
         tester.writeValue("createMarketplaceForm:organizationIdInput",
-                PlaygroundSuiteIT.supplierOrgId);
+                PlaygroundSuiteTest.supplierOrgId);
 
         tester.clickElement("createMarketplaceForm:saveButtonLink");
 

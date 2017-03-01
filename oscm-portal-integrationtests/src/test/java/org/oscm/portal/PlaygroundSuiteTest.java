@@ -2,26 +2,27 @@
  *                                                                              
  *  Copyright FUJITSU LIMITED 2017                                           
  *                                                                                                                                 
- *  Creation Date: Feb 8, 2017                                                      
+ *  Creation Date: Feb 7, 2017                                                      
  *                                                                              
  *******************************************************************************/
 
 package org.oscm.portal;
 
-import org.junit.FixMethodOrder;
-import org.junit.Test;
-import org.junit.runners.MethodSorters;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
+import org.junit.runners.Suite.SuiteClasses;
 
 /**
- * Integration web test to create a new user.
+ * Test suite for integration web tests for the OSCM portal
  * 
  * @author miethaner
  */
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class PortalUserWT {
+@RunWith(Suite.class)
 
-    @Test
-    public void test01Create() {
+@SuiteClasses({ PortalOrganizationWT.class, PortalMarketplaceWT.class,
+        PortalTechServiceWT.class, PortalMarketServiceWT.class })
+public class PlaygroundSuiteTest {
 
-    }
+    public static String supplierOrgId;
+    public static String customerOrgId;
 }
