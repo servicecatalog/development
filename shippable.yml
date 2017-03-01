@@ -15,7 +15,7 @@ env:
 
 build:
   pre_ci_boot:                          
-    image_name: servicecatalog/oscm
+    image_name: servicecatalog/oscmglassfish4
     image_tag: latest
     pull: true
   ci:
