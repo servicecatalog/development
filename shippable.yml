@@ -19,8 +19,7 @@ env:
     - COMUPTERNAME=G02PLXNNOW29168
     - HOSTNAME=G02PLXNNOW29168
 
-build:                                                                                
-
+build:
   pre_ci_boot:                          
     image_name: servicecatalog/oscm
     image_tag: latest
