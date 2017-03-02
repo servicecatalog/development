@@ -22,6 +22,7 @@
   <!-- Print needed and current Java version -->
   <target name="PrintJavaVersion">
     <echo message="Make sure that the JAVA_HOME environment variable points to a 1.8, 64 bit JDK." />
+
     <echo message="Current JAVA version is  ${java.version}." />
   </target>
 
