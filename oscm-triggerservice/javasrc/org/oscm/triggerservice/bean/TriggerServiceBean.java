@@ -10,6 +10,9 @@
 
 package org.oscm.triggerservice.bean;
 
+import java.io.IOException;
+import java.io.StringReader;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -30,6 +33,10 @@ import javax.ejb.TransactionAttributeType;
 import javax.interceptor.Interceptors;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.*;
 
 import org.oscm.accountservice.local.AccountServiceLocal;
 import org.oscm.dataservice.local.DataService;
@@ -41,6 +48,7 @@ import org.oscm.domobjects.TriggerDefinition;
 import org.oscm.domobjects.TriggerProcess;
 import org.oscm.domobjects.TriggerProcessParameter;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
+import org.oscm.encrypter.AESEncrypter;
 import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.identityservice.local.IdentityServiceLocal;
@@ -58,14 +66,7 @@ import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.internal.types.exception.SaaSSystemException;
 import org.oscm.internal.types.exception.TriggerProcessStatusException;
 import org.oscm.internal.types.exception.ValidationException;
-import org.oscm.internal.vo.VOLocalizedText;
-import org.oscm.internal.vo.VOParameter;
-import org.oscm.internal.vo.VOParameterDefinition;
-import org.oscm.internal.vo.VOService;
-import org.oscm.internal.vo.VOSubscription;
-import org.oscm.internal.vo.VOTriggerDefinition;
-import org.oscm.internal.vo.VOTriggerProcess;
-import org.oscm.internal.vo.VOTriggerProcessParameter;
+import org.oscm.internal.vo.*;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.serviceprovisioningservice.local.ServiceProvisioningServiceLocal;
@@ -78,6 +79,11 @@ import org.oscm.triggerservice.local.TriggerServiceLocal;
 import org.oscm.triggerservice.validator.ValidationPerformer;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
 import org.oscm.types.enumtypes.TriggerProcessParameterName;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 /**
  * Session Bean implementation class of TriggerProcessService
@@ -446,8 +452,104 @@ public class TriggerServiceBean implements TriggerService, TriggerServiceLocal {
 
     @Override
     public List<VOTriggerProcess> getAllActionsForOrganizationRelatedSubscription() {
-        String namedQuery = "TriggerProcess.getAllForOrganizationRelatedSubscription";
-        return getActionsForQuery(namedQuery);
+        List<VOTriggerProcess> triggerProcessesResult = new ArrayList<>();
+        Query query = dm.createNamedQuery(
+                "TriggerProcess.getAllForOrganizationRelatedSubscription");
+        query.setParameter("organizationKey",
+                Long.valueOf(dm.getCurrentUser().getOrganization().getKey()));
+        List<TriggerProcess> triggerProcesses = query.getResultList();
+        DocumentBuilder builder = null;
+        XPathExpression serviceIdXpath = null;
+        XPathExpression subscriptionXpath = null;
+        try {
+            DocumentBuilderFactory factory = DocumentBuilderFactory
+                    .newInstance();
+            builder = factory.newDocumentBuilder();
+            serviceIdXpath = getCompiledXPathExpression(
+                    "//void[@property='serviceId']/string");
+            subscriptionXpath = getCompiledXPathExpression(
+                    "//void[@property='subscriptionId']/string");
+        } catch (XPathExpressionException | ParserConfigurationException e) {
+            e.printStackTrace();
+            return null;
+        }
+        for (TriggerProcess triggerProcess : triggerProcesses) {
+            VOTriggerProcess voTriggerProcess = new VOTriggerProcess();
+            voTriggerProcess.setSubscription(getVOSubscriptionFromTrigger(
+                    triggerProcess, builder, subscriptionXpath));
+            voTriggerProcess.setService(getVOServiceFromTrigger(triggerProcess,
+                    builder, serviceIdXpath));
+            triggerProcessesResult.add(voTriggerProcess);
+        }
+        return triggerProcessesResult;
+    }
+
+    private VOService getVOServiceFromTrigger(TriggerProcess triggerProcess,
+            DocumentBuilder builder, XPathExpression serviceIdXpath) {
+        TriggerProcessParameter triggerProcessParameter = triggerProcess
+                .getParamValueForName(TriggerProcessParameterName.PRODUCT);
+        String product;
+        try {
+            product = AESEncrypter
+                    .decrypt(triggerProcessParameter.getSerializedValue());
+        } catch (GeneralSecurityException e) {
+            product = triggerProcessParameter.getSerializedValue();
+        }
+        String serviceId = retrieveValueByXpath(product, builder,
+                serviceIdXpath);
+        if (serviceId == null) {
+            return null;
+        }
+        VOService voService = new VOService();
+        voService.setServiceId(serviceId);
+        return voService;
+    }
+
+    private VOSubscription getVOSubscriptionFromTrigger(
+            TriggerProcess triggerProcess, DocumentBuilder builder,
+            XPathExpression subscriptionXpath) {
+        TriggerProcessParameter triggerProcessParameter = triggerProcess
+                .getParamValueForName(
+                        org.oscm.types.enumtypes.TriggerProcessParameterName.SUBSCRIPTION);
+        String subscription;
+        try {
+            subscription = AESEncrypter
+                    .decrypt(triggerProcessParameter.getSerializedValue());
+        } catch (GeneralSecurityException e) {
+            subscription = triggerProcessParameter.getSerializedValue();
+        }
+        String subsId = retrieveValueByXpath(subscription, builder,
+                subscriptionXpath);
+        if (subsId == null) {
+            return null;
+        }
+        VOSubscription voSubscription = new VOSubscription();
+        voSubscription.setSubscriptionId(subsId);
+        return voSubscription;
+    }
+
+    private XPathExpression getCompiledXPathExpression(String xpathExpression) throws XPathExpressionException {
+        XPathFactory xPathfactory = XPathFactory.newInstance();
+        XPath xpath = xPathfactory.newXPath();
+        return xpath.compile(xpathExpression);
+    }
+
+    private String retrieveValueByXpath(String xml, DocumentBuilder builder,
+            XPathExpression expr) {
+        try {
+            Document document = builder
+                    .parse(new InputSource(new StringReader(xml)));
+            NodeList nodes = (NodeList) expr.evaluate(document,
+                    XPathConstants.NODESET);
+            if (nodes == null || nodes.item(0) == null
+                    || nodes.item(0).getFirstChild() == null) {
+                return null;
+            }
+            return nodes.item(0).getFirstChild().getNodeValue();
+        } catch (SAXException | XPathExpressionException | IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     private boolean checkTriggerProcessBySubscriptionId(
