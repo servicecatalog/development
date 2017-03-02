@@ -13,6 +13,7 @@ package org.oscm.ui.beans.operator;
 
 import java.io.Serializable;
 import java.text.Collator;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -184,16 +185,21 @@ public class ConfigurationSettingsBean extends BaseOperatorBean implements
 
     /**
      * returns true if a VOConfigurationSetting is an SSO configuration setting
-     * and false otherwise.
+     * and false otherwise. Settings required in both INTERNAL and SAML_SP modes
+     * are NOT treated as SSO settings.
      *
-     * @param setting
-     *            the VOConfigurationSetting to check.
+     * @param setting the VOConfigurationSetting to check.
      * @return a boolean indicating if a configuration setting is an SSO
-     *         setting.
+     * setting.
      */
     private boolean isSsoSetting(VOConfigurationSetting setting) {
-        if (setting.getInformationId().getKeyName()
-                .startsWith(SSO_STARTING_PREFIX)) {
+        final List<String> excludedSettings = Arrays.asList("SSO_SIGNING_KEY_ALIAS", "SSO_SIGNING_KEYSTORE_PASS", "SSO_SIGNING_KEYSTORE");
+        final String settingName = setting.getInformationId().getKeyName();
+
+        if (excludedSettings.contains(settingName)) {
+            return false;
+        }
+        if (settingName.startsWith(SSO_STARTING_PREFIX)) {
             return true;
         }
         return false;
