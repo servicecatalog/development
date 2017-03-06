@@ -16,18 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
-import javax.ejb.ConcurrencyManagement;
-import javax.ejb.ConcurrencyManagementType;
-import javax.ejb.EJB;
-import javax.ejb.Local;
-import javax.ejb.Lock;
-import javax.ejb.LockType;
-import javax.ejb.Remote;
-import javax.ejb.Schedule;
-import javax.ejb.Singleton;
-import javax.ejb.Startup;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
+import javax.ejb.*;
 import javax.interceptor.Interceptors;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
@@ -54,7 +43,7 @@ import org.oscm.types.enumtypes.LogMessageIdentifier;
 /**
  * Session Bean implementation class ConfigurationServiceBean
  */
-@Singleton
+@Stateless
 @Startup
 @Local(ConfigurationServiceLocal.class)
 @Remote(ConfigurationService.class)
