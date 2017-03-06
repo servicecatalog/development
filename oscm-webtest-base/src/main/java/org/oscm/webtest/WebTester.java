@@ -10,6 +10,7 @@ package org.oscm.webtest;
 
 import java.io.FileInputStream;
 import java.net.InetAddress;
+import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
@@ -83,10 +84,11 @@ public class WebTester {
 
     private String address;
     private Session mailSession;
+    private Map<String, String> env = System.getenv();
 
     public WebTester() throws Exception {
         // load properties from personal devruntime folder
-        String localhost = InetAddress.getLocalHost().getHostName();
+        String localhost = env.get("HOSTNAME");
         String filePath = String.format(PROPERTY_PATH, localhost);
 
         Properties prop = new Properties();
