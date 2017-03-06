@@ -84,9 +84,9 @@ public class WebTester {
 
     private String address;
     private Session mailSession;
-    private Map<String, String> env = System.getenv();
 
     public WebTester() throws Exception {
+        Map<String, String> env = System.getenv();
         // load properties from personal devruntime folder
         String localhost = env.get("HOSTNAME");
         String filePath = String.format(PROPERTY_PATH, localhost);

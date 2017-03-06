@@ -10,8 +10,7 @@ jdk:
 env:
   global:
     - ANT_OPTS=-Xmx4g
-    - COMUPTERNAME=G02PLXNNOW29168
-    - HOSTNAME=G02PLXNNOW29168
+    - HOSTNAME=shippable
 
 build:
   pre_ci_boot:                          
