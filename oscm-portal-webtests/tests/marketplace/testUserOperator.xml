@@ -222,6 +222,7 @@
 
         <!-- Check validation of popup dialog -->
         <mpl_user.display userId="${userIdOperL}" />
+        <setInputField htmlId="editUserForm:lastName" value="a" />
         <clickLink label="${button.cancel}" />
         <verifyXPath xpath="//*[@id='editUserForm:leaveConfirmPl_content']//*[normalize-space()='${marketplace.account.leavePage.title}']" />
         <clickLink label="${button.yes}" />
