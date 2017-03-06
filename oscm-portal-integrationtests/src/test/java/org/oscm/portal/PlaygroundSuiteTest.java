@@ -19,8 +19,7 @@ import org.junit.runners.Suite.SuiteClasses;
  */
 @RunWith(Suite.class)
 
-@SuiteClasses({ PortalOrganizationWT.class, PortalMarketplaceWT.class,
-        PortalTechServiceWT.class, PortalMarketServiceWT.class })
+@SuiteClasses({ PortalOrganizationWT.class, PortalMarketplaceWT.class})
 public class PlaygroundSuiteTest {
 
     public static String supplierOrgId;
