@@ -18,8 +18,6 @@ build:
     image_tag: latest
     pull: true
   ci:
-    - wget http://ftp.ps.pl/pub/apache/maven/maven-3/3.3.9/binaries/apache-maven-3.3.9-bin.tar.gz
-    - ls -al
-    - tar xzf apache-maven-3.3.9-bin.tar.gz
-    - apache-maven-3.3.9/bin/mvn -f oscm-webtest-base/pom.xml install
-    - apache-maven-3.3.9/bin/mvn -f oscm-portal-integrationtests/pom.xml package test
+    - apt get install maven
+    - mvn -f oscm-webtest-base/pom.xml install
+    - mvn -f oscm-portal-integrationtests/pom.xml package test
