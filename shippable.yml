@@ -18,6 +18,7 @@ build:
     image_tag: latest
     pull: true
   ci:
+    - apt-get update
     - apt-get -y install maven
     - mvn -f oscm-webtest-base/pom.xml install
     - mvn -f oscm-portal-integrationtests/pom.xml package test
