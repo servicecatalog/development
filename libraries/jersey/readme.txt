@@ -1,1 +1,0 @@
-Libraries for JAX-RS
