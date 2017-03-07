@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry exported="true" kind="lib" path="javalib/lucene-analyzers-3.6.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="javalib/lucene-core-3.6.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="javalib/solr-core-3.6.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="javalib/solr-solrj-3.6.2.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
