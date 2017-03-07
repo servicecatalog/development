@@ -21,7 +21,7 @@ build:
     - /opt/glassfish4/bin/asadmin start-domain master-indexer-domain &
       /opt/glassfish4/bin/asadmin start-domain bes-domain &
       /opt/james-2.3.2.1/bin/run.sh &
-    - sleep 20000
+    - sleep 20
     - /opt/glassfish4/bin/asadmin list-domains
     - apt-get update
     - apt-get -y install maven
