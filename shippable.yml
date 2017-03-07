@@ -25,7 +25,7 @@ build:
     - /opt/glassfish4/bin/asadmin list-domains
     - apt-get update
     - apt-get -y install maven
-    - mvn -f oscm-webtest-base/pom.xml install
-    - mvn -f oscm-portal-integrationtests/pom.xml package test
     - wget http://localhost:8080/oscm-portal -o oscm.log
     - cat oscm.log
+    - mvn -f oscm-webtest-base/pom.xml install
+    - mvn -f oscm-portal-integrationtests/pom.xml package test
