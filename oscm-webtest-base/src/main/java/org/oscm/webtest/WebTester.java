@@ -22,6 +22,7 @@ import javax.mail.Session;
 import javax.mail.Store;
 import javax.mail.search.SubjectTerm;
 
+import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.TimeoutException;
@@ -88,7 +89,10 @@ public class WebTester {
     public WebTester() throws Exception {
         Map<String, String> env = System.getenv();
         // load properties from personal devruntime folder
-        String localhost = "G02PLXNNOW29168";
+        String localhost = env.get("HOSTNAME");
+        if (StringUtils.isEmpty(localhost)) {
+            localhost = InetAddress.getLocalHost().getHostName();
+        }
         String filePath = String.format(PROPERTY_PATH, localhost);
 
         Properties prop = new Properties();
@@ -109,7 +113,8 @@ public class WebTester {
         driver.manage().timeouts().implicitlyWait(IMPLICIT_WAIT,
                 TimeUnit.SECONDS);
 
-        /* initialize java mail session*/ address = prop.getProperty(EMAIL_ADDRESS);
+        // initialize java mail session
+        address = prop.getProperty(EMAIL_ADDRESS);
         String host = prop.getProperty(EMAIL_HOST);
         final String user = prop.getProperty(EMAIL_USER);
         final String password = prop.getProperty(EMAIL_PASSWORD);
