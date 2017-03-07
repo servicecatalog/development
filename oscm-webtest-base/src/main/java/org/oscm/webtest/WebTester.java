@@ -88,7 +88,7 @@ public class WebTester {
     public WebTester() throws Exception {
         Map<String, String> env = System.getenv();
         // load properties from personal devruntime folder
-        String localhost = env.get("HOSTNAME");
+        String localhost = "G02PLXNNOW29168";
         String filePath = String.format(PROPERTY_PATH, localhost);
 
         Properties prop = new Properties();
@@ -109,8 +109,7 @@ public class WebTester {
         driver.manage().timeouts().implicitlyWait(IMPLICIT_WAIT,
                 TimeUnit.SECONDS);
 
-        // initialize java mail session
-        address = prop.getProperty(EMAIL_ADDRESS);
+        /* initialize java mail session*/ address = prop.getProperty(EMAIL_ADDRESS);
         String host = prop.getProperty(EMAIL_HOST);
         final String user = prop.getProperty(EMAIL_USER);
         final String password = prop.getProperty(EMAIL_PASSWORD);

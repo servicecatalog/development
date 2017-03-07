@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<classpath>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry exported="true" kind="lib" path="javalib/ant.jar"/>
-	<classpathentry kind="lib" path="javalib/ant-junit.jar"/>
-	<classpathentry kind="lib" path="javalib/ant-launcher.jar"/>
-	<classpathentry kind="lib" path="javalib/wsit-ant-tasks.jar"/>
-	<classpathentry kind="output" path="bin"/>
-</classpath>

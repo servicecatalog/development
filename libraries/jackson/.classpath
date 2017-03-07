@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<classpath>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="javalib/jackson-annotations-2.2.3.jar"/>
-	<classpathentry kind="lib" path="javalib/jackson-core-2.2.3.jar"/>
-	<classpathentry kind="lib" path="javalib/jackson-databind-2.2.3.jar"/>
-	<classpathentry kind="output" path="bin"/>
-</classpath>

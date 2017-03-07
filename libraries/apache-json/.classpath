@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<classpath>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry exported="true" kind="lib" path="javalib/org.apache.sling.commons.json-2.0.6.jar" sourcepath="resources/org.apache.sling.commons.json-2.0.6-source-release.zip"/>
-	<classpathentry kind="output" path="bin"/>
-</classpath>

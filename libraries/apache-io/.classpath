@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<classpath>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry exported="true" kind="lib" path="javalib/commons-io-1.4.jar" sourcepath="resources/commons-io-1.4-src.zip"/>
-	<classpathentry kind="output" path="bin"/>
-</classpath>

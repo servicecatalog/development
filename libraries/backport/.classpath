@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<classpath>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry exported="true" kind="lib" path="javalib/backport-util-concurrent-3.1.jar" sourcepath="resources/backport-util-concurrent-3.1-sources.jar"/>
-	<classpathentry kind="output" path="bin"/>
-</classpath>

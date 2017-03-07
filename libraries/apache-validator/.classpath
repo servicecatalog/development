@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<classpath>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry exported="true" kind="lib" path="javalib/commons-validator-1.4.0.jar" sourcepath="resources/commons-validator-1.4.0-sources.jar"/>
-	<classpathentry kind="output" path="bin"/>
-</classpath>
