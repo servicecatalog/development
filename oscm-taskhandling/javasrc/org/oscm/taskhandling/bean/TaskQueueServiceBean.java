@@ -21,13 +21,10 @@ import javax.ejb.Local;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
-import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
-import javax.jms.JMSException;
-import javax.jms.MessageProducer;
-import javax.jms.ObjectMessage;
-import javax.jms.Queue;
-import javax.jms.Session;
+import javax.jms.*;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.PlatformUser;
@@ -50,12 +47,6 @@ public class TaskQueueServiceBean implements TaskQueueServiceLocal {
 
     protected static Log4jLogger logger = LoggerFactory
             .getLogger(TaskQueueServiceBean.class);
-
-    @Resource(name = "connFactory", mappedName = "jms/bss/taskQueueFactory")
-    protected ConnectionFactory qFactory;
-
-    @Resource(name = "jmsQueue", mappedName = "jms/bss/taskQueue")
-    protected Queue queue;
 
     @EJB(beanInterface = DataService.class)
     DataService dm;
@@ -81,14 +72,14 @@ public class TaskQueueServiceBean implements TaskQueueServiceLocal {
      * are, a system exception will be thrown.
      */
     private void validateJMSResources() {
-        if (queue == null || qFactory == null) {
-            SaaSSystemException sse = new SaaSSystemException(
-                    "JMS resources are not initialized!");
-            logger.logError(Log4jLogger.SYSTEM_LOG, sse,
-                    LogMessageIdentifier.ERROR_JMS_RESOURCE_NOT_INITIALIZED);
-
-            throw sse;
-        }
+//        if (queue == null || qFactory == null) {
+//            SaaSSystemException sse = new SaaSSystemException(
+//                    "JMS resources are not initialized!");
+//            logger.logError(Log4jLogger.SYSTEM_LOG, sse,
+//                    LogMessageIdentifier.ERROR_JMS_RESOURCE_NOT_INITIALIZED);
+//
+//            throw sse;
+//        }
     }
 
     /**
@@ -137,10 +128,16 @@ public class TaskQueueServiceBean implements TaskQueueServiceLocal {
     private void sendObjectMessage(List<TaskMessage> messages) {
         Session session = null;
         Connection conn = null;
+        Queue queue;
+        Context jndiContext = null;
         int sentMsgCount = 0;
         try {
             if (messages.size() > 0) {
-                conn = qFactory.createConnection();
+                jndiContext = new InitialContext();
+                ConnectionFactory connectionFactory = (ConnectionFactory) jndiContext.lookup("jms/bss/taskQueueFactory");
+                queue = (Queue) jndiContext.lookup("jms/bss/taskQueue");
+                conn = connectionFactory.createConnection();
+
                 session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
                 MessageProducer producer = session.createProducer(queue);
                 for (TaskMessage objectToSend : messages) {
@@ -155,7 +152,7 @@ public class TaskQueueServiceBean implements TaskQueueServiceLocal {
                 }
 
             }
-        } catch (JMSException e) {
+        } catch (JMSException | NamingException e) {
             SaaSSystemException sse = new SaaSSystemException(e);
             logger.logError(
                     Log4jLogger.SYSTEM_LOG,
@@ -171,6 +168,7 @@ public class TaskQueueServiceBean implements TaskQueueServiceLocal {
         } finally {
             closeSession(session);
             closeConnection(conn);
+            closeJNDI(jndiContext);
         }
     }
 
@@ -189,6 +187,17 @@ public class TaskQueueServiceBean implements TaskQueueServiceLocal {
         if (conn != null) {
             try {
                 conn.close();
+            } catch (Exception e) {
+                logger.logError(Log4jLogger.SYSTEM_LOG, e,
+                        LogMessageIdentifier.ERROR_CLOSE_RESOURCE_FAILED);
+            }
+        }
+    }
+
+    void closeJNDI(Context context) {
+        if (context != null) {
+            try {
+                context.close();
             } catch (Exception e) {
                 logger.logError(Log4jLogger.SYSTEM_LOG, e,
                         LogMessageIdentifier.ERROR_CLOSE_RESOURCE_FAILED);
