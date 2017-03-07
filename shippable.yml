@@ -18,7 +18,11 @@ build:
     image_tag: latest
     pull: true
   ci:
-    - /opt/glassfish4/glassfish/bin/asadmin list-domains
+    - /etc/init.d/postgresql start &
+      /opt/glassfish4/bin/asadmin start-domain master-indexer-domain &
+      /opt/glassfish4/bin/asadmin start-domain bes-domain &
+      /opt/james-2.3.2.1/bin/run.sh &
+      read -p "Press [Enter] key to stop container. Press <ctrl><p> <ctrl><q> to switch back to docker"
     - apt-get update
     - apt-get -y install maven
     - mvn -f oscm-webtest-base/pom.xml install
