@@ -11,10 +11,10 @@ package org.oscm.app.vmware.service;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.oscm.app.common.intf.ControllerAccess;
 import org.oscm.app.v2_0.APPlatformServiceFactory;
 import org.oscm.app.v2_0.data.ControllerSettings;
 import org.oscm.app.v2_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.intf.ControllerAccess;
 import org.oscm.app.vmware.business.Controller;
 import org.oscm.app.vmware.i18n.Messages;
 import org.slf4j.Logger;
