@@ -20,7 +20,6 @@ import javax.inject.Inject;
 
 import org.oscm.app.common.controller.LogAndExceptionConverter;
 import org.oscm.app.common.data.Context;
-import org.oscm.app.common.intf.ControllerAccess;
 import org.oscm.app.v2_0.APPlatformServiceFactory;
 import org.oscm.app.v2_0.data.ControllerSettings;
 import org.oscm.app.v2_0.data.InstanceDescription;
@@ -34,6 +33,7 @@ import org.oscm.app.v2_0.exceptions.APPlatformException;
 import org.oscm.app.v2_0.exceptions.SuspendException;
 import org.oscm.app.v2_0.intf.APPlatformController;
 import org.oscm.app.v2_0.intf.APPlatformService;
+import org.oscm.app.v2_0.intf.ControllerAccess;
 import org.oscm.app.vmware.business.Controller;
 import org.oscm.app.vmware.business.VMPropertyHandler;
 import org.oscm.app.vmware.business.statemachine.CreateActions;

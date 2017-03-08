@@ -18,9 +18,9 @@ import java.util.List;
 import org.apache.commons.codec.binary.Base64;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.oscm.app.common.intf.InstanceAccess;
-import org.oscm.app.common.intf.ServerInformation;
 import org.oscm.app.v2_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.intf.InstanceAccess;
+import org.oscm.app.v2_0.intf.ServerInformation;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.ejb.TestContainer;
 
