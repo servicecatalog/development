@@ -1629,100 +1629,136 @@ public class SubscriptionServiceBean
             SubscriptionStateException, TechnicalServiceNotAliveException,
             TechnicalServiceOperationException, OperationNotPermittedException,
             ConcurrentModificationException, OperationPendingException {
-
+        LOG.logDebug("1");
         ArgumentValidator.notNull("subscriptionId", subscriptionId);
 
         Subscription sub = manageBean.checkSubscriptionOwner(subscriptionId, 0);
+        LOG.logDebug("2");
 
         stateValidator.checkAddRevokeUserAllowed(sub);
-
+        LOG.logDebug("3");
         // validation
         if (usersToBeAdded != null) {
+            LOG.logDebug("4");
             for (VOUsageLicense lic : usersToBeAdded) {
+                LOG.logDebug("5");
                 try {
                     PlatformUser user = dataManager.getReference(
                             PlatformUser.class, lic.getUser().getKey());
+                    LOG.logDebug("6");
                     getAndCheckServiceRole(lic, sub.getProduct());
+                    LOG.logDebug("7");
                     // fill user ID for trigger process
                     lic.getUser().setUserId(user.getUserId());
+                    LOG.logDebug("8");
                 } catch (ObjectNotFoundException e) {
+                    LOG.logDebug("9");
                     throw new ObjectNotFoundException(
                             DomainObjectException.ClassEnum.USER,
                             String.valueOf(lic.getUser().getUserId()));
                 }
             }
         }
+        LOG.logDebug("10");
         if (usersToBeRevoked != null) {
+            LOG.logDebug("11");
             for (VOUser entry : usersToBeRevoked) {
+                LOG.logDebug("12");
                 try {
                     PlatformUser user = dataManager
                             .getReference(PlatformUser.class, entry.getKey());
+                    LOG.logDebug("13");
                     // fill user ID for trigger process
                     entry.setUserId(user.getUserId());
+                    LOG.logDebug("14");
                 } catch (ObjectNotFoundException e) {
+                    LOG.logDebug("15");
                     throw new ObjectNotFoundException(
                             DomainObjectException.ClassEnum.USER,
                             String.valueOf(entry.getUserId()));
                 }
             }
         }
-
+        LOG.logDebug("16");
         TriggerProcessValidator validator = new TriggerProcessValidator(
                 dataManager);
+        LOG.logDebug("17");
         List<TriggerProcessIdentifier> pendingAddRevokeUsers = validator
                 .getPendingAddRevokeUsers(subscriptionId, usersToBeAdded,
                         usersToBeRevoked);
+        LOG.logDebug("18");
         if (!pendingAddRevokeUsers.isEmpty()) {
+            LOG.logDebug("19");
             String userIds = determineUserIds(pendingAddRevokeUsers);
+            LOG.logDebug("20");
+            LOG.logDebug("20");
             OperationPendingException ope = new OperationPendingException(
                     String.format(
                             "Operation cannot be performed. There is already another pending request for subscription '%s' to add or revoke the users: %s",
                             subscriptionId, userIds),
                     ReasonEnum.ADD_REVOKE_USER,
                     new Object[] { subscriptionId, userIds });
+            LOG.logDebug("21");
             LOG.logWarn(Log4jLogger.SYSTEM_LOG, ope,
                     LogMessageIdentifier.WARN_ADD_REVOKE_USER_FAILED_DUE_TO_TRIGGER_CONFLICT,
                     subscriptionId);
+            LOG.logDebug("22");
             throw ope;
         }
-
+        LOG.logDebug("23");
         validateTriggerProcessForSubscription(sub);
+        LOG.logDebug("24");
 
         // now send a suspending message for the processing
         TriggerMessage message = new TriggerMessage(
                 TriggerType.ADD_REVOKE_USER);
+        LOG.logDebug("25");
         List<TriggerProcessMessageData> list = triggerQS
                 .sendSuspendingMessages(Collections.singletonList(message));
+        LOG.logDebug("26");
         TriggerProcess proc = list.get(0).getTrigger();
+        LOG.logDebug("27");
         proc.addTriggerProcessParameter(TriggerProcessParameterName.OBJECT_ID,
                 subscriptionId);
+        LOG.logDebug("28");
         proc.addTriggerProcessParameter(
                 TriggerProcessParameterName.SUBSCRIPTION, subscriptionId);
+        LOG.logDebug("29");
         proc.addTriggerProcessParameter(
                 TriggerProcessParameterName.USERS_TO_ADD, usersToBeAdded);
+        LOG.logDebug("30");
         proc.addTriggerProcessParameter(
                 TriggerProcessParameterName.USERS_TO_REVOKE, usersToBeRevoked);
+        LOG.logDebug("30");
 
         try {
             // if processing is not suspended, call finishing method
             TriggerDefinition triggerDefinition = proc.getTriggerDefinition();
+            LOG.logDebug("31");
             if (triggerDefinition == null) {
+                LOG.logDebug("32");
                 addRevokeUserInt(proc);
+                LOG.logDebug("33");
                 return true;
             } else if (triggerDefinition.isSuspendProcess()) {
+                LOG.logDebug("34");
                 proc.setTriggerProcessIdentifiers(TriggerProcessIdentifiers
                         .createAddRevokeUser(dataManager,
                                 TriggerType.ADD_REVOKE_USER, subscriptionId,
                                 usersToBeAdded, usersToBeRevoked));
+                LOG.logDebug("35");
                 dataManager.merge(proc);
+                LOG.logDebug("36");
             }
         } catch (ObjectNotFoundException | SubscriptionStateException
                 | TechnicalServiceNotAliveException
                 | TechnicalServiceOperationException e) {
+            LOG.logDebug("37");
             sessionCtx.setRollbackOnly();
+            LOG.logDebug("38");
             throw e;
         }
-
+        LOG.logDebug("39");
         return false;
     }
 
