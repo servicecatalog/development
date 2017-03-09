@@ -43,6 +43,6 @@ public class PortalTestWT {
 
     @Test
     public void test01Create() {
-        System.out.println(tester.getCurrentUrl());
+        assertTrue(tester.getCurrentUrl() == "about:blank");
     }
 }
