@@ -118,8 +118,9 @@
     <attribute name="att1Name" default="att1" />
     <attribute name="att2Name" default="att2" />
     <attribute name="idVerification" default="false" />
+    <attribute name="regex" default="true" />
     <sequential>
-      <mpl_verify.invalidFieldValue hintMsgKey="@{hintMsgKey}" fieldId="@{fieldId}" fieldType="@{fieldType}"
+      <mpl_verify.invalidFieldValue regex="@{regex}" hintMsgKey="@{hintMsgKey}" fieldId="@{fieldId}" fieldType="@{fieldType}"
                                     required="@{required}" buttonLinkId="@{buttonLinkId}" att0Name="@{att0Name}"
                                     att1Name="@{att1Name}" att2Name="@{att2Name}" idVerification="@{idVerification}" />
     </sequential>
