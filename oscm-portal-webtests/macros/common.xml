@@ -607,6 +607,7 @@
     <attribute name="att1Name" default="att1" />
     <attribute name="att2Name" default="att2" />
     <attribute name="topErrorMessage" default="true" />
+    <attribute name="regex" default="true" />
     <sequential>
       <!-- Check mandatory field values -->
       <ifStep description="Mandatory field?" test="@{required}">
@@ -616,7 +617,7 @@
       <!-- Check invalid field values -->
       <dataDriven tableContainer="data/invalidInput/@{fieldType}.xls">
         <common.initializeDataDrivenErrorMessage errormsg="${errormsg}" att0="${@{att0Name}}" att1="${@{att1Name}}" att2="${@{att2Name}}" />
-        <common.testFieldValidation fieldId="@{fieldId}" fieldValue="${value}" buttonLinkId="@{buttonLinkId}" error="${expectedMessage}" topErrorMessage="@{topErrorMessage}" />
+        <common.testFieldValidation regex="@{regex}" fieldId="@{fieldId}" fieldValue="${value}" buttonLinkId="@{buttonLinkId}" error="${expectedMessage}" topErrorMessage="@{topErrorMessage}" />
       </dataDriven>
     </sequential>
   </macrodef>
