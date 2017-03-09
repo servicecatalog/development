@@ -53,7 +53,7 @@ public class TaskQueueServiceBean implements TaskQueueServiceLocal {
 
     @Override
     @Asynchronous
-    @TransactionAttribute(TransactionAttributeType.REQUIRED)
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void sendAllMessages(List<TaskMessage> messages) {
         validateJMSResources();
         validateMessages(messages);
