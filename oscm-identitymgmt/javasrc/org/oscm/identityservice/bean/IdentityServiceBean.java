@@ -162,8 +162,8 @@ import org.oscm.vo.BaseAssembler;
 @Remote(IdentityService.class)
 @Local(IdentityServiceLocal.class)
 @Interceptors({ InvocationDateContainer.class, ExceptionMapper.class })
-public class IdentityServiceBean implements IdentityService,
-        IdentityServiceLocal {
+public class IdentityServiceBean
+        implements IdentityService, IdentityServiceLocal {
 
     private static final Log4jLogger logger = LoggerFactory
             .getLogger(IdentityServiceBean.class);
@@ -270,8 +270,8 @@ public class IdentityServiceBean implements IdentityService,
      * @throws ObjectNotFoundException
      */
     protected void importUsers(byte[] csvData, Organization organization,
-            String marketplaceId) throws BulkUserImportException,
-            ObjectNotFoundException {
+            String marketplaceId)
+            throws BulkUserImportException, ObjectNotFoundException {
         // preconditions
         BulkUserImportReader.validate(csvData);
         ensureNoRemoteLdapUsed(organization,
@@ -324,8 +324,8 @@ public class IdentityServiceBean implements IdentityService,
             ObjectNotFoundException {
         try {
             Marketplace marketplace = getMarketplace(marketplaceId);
-            Organization organization = getOrganization(user
-                    .getOrganizationId());
+            Organization organization = getOrganization(
+                    user.getOrganizationId());
             String password = new PasswordGenerator().generatePassword();
             if (organization != null && organization.getTenant() != null) {
                 user.setTenantId(organization.getTenant().getTenantId());
@@ -383,28 +383,29 @@ public class IdentityServiceBean implements IdentityService,
             throws NonUniqueBusinessKeyException, MailOperationException,
             ValidationException, UserRoleAssignmentException {
 
-        VOUserDetails user = tp.getParamValueForName(
-                TriggerProcessParameterName.USER).getValue(VOUserDetails.class);
-        List<UserRoleType> roles = ParameterizedTypes.list(
-                tp.getParamValueForName(
-                        TriggerProcessParameterName.USER_ROLE_TYPE).getValue(
-                        List.class), UserRoleType.class);
-        String marketplaceId = tp.getParamValueForName(
-                TriggerProcessParameterName.MARKETPLACE_ID).getValue(
-                String.class);
+        VOUserDetails user = tp
+                .getParamValueForName(TriggerProcessParameterName.USER)
+                .getValue(VOUserDetails.class);
+        List<UserRoleType> roles = ParameterizedTypes.list(tp
+                .getParamValueForName(
+                        TriggerProcessParameterName.USER_ROLE_TYPE)
+                .getValue(List.class), UserRoleType.class);
+        String marketplaceId = tp
+                .getParamValueForName(
+                        TriggerProcessParameterName.MARKETPLACE_ID)
+                .getValue(String.class);
         Map<Long, UnitUserRole> userGroupKeyToRole = ParameterizedTypes
                 .hashmap(
                         tp.getParamValueForName(
                                 TriggerProcessParameterName.USER_GROUPS_WITH_ROLES)
-                                .getValue(Map.class), Long.class,
-                        UnitUserRole.class);
+                                .getValue(Map.class),
+                        Long.class, UnitUserRole.class);
 
         // generate a one-time password for the user
         VOUserDetails result;
         Organization organization = dm.getCurrentUser().getOrganization();
         try {
-            ensureNoRemoteLdapUsed(
-                    organization,
+            ensureNoRemoteLdapUsed(organization,
                     LogMessageIdentifier.ERROR_ADDING_USER_FORBIDDEN_REMOTE_LDAP);
             Marketplace marketplace = getMarketplace(marketplaceId);
             PasswordGenerator gen = new PasswordGenerator();
@@ -417,17 +418,19 @@ public class IdentityServiceBean implements IdentityService,
                     password, UserAccountStatus.PASSWORD_MUST_BE_CHANGED, true,
                     true, marketplace, true);
             if (userGroupKeyToRole != null && !userGroupKeyToRole.isEmpty()) {
-                Map<UserGroup, UnitUserRole> userToGroup = getUserGroupToRoleMap(userGroupKeyToRole);
+                Map<UserGroup, UnitUserRole> userToGroup = getUserGroupToRoleMap(
+                        userGroupKeyToRole);
                 userGroupService.assignUserToGroups(addedUser, userToGroup);
-                List<UnitRoleType> unitRoleTypes = new ArrayList<UnitRoleType>();
+                List<UnitRoleType> unitRoleTypes = new ArrayList<>();
                 for (Entry<Long, UnitUserRole> groupWithRole : userGroupKeyToRole
                         .entrySet()) {
                     unitRoleTypes.add(groupWithRole.getValue().getRoleName());
                 }
                 for (Entry<UserGroup, UnitUserRole> groupWithRole : userToGroup
                         .entrySet()) {
-                    userGroupService.grantUserRoles(addedUser, Arrays
-                            .asList(groupWithRole.getValue().getRoleName()),
+                    userGroupService.grantUserRoles(addedUser,
+                            Arrays.asList(
+                                    groupWithRole.getValue().getRoleName()),
                             groupWithRole.getKey());
                 }
                 if (unitRoleTypes.contains(UnitRoleType.ADMINISTRATOR)) {
@@ -446,9 +449,8 @@ public class IdentityServiceBean implements IdentityService,
         }
 
         triggerQS.sendAllNonSuspendingMessages(TriggerMessage.create(
-                TriggerType.REGISTER_OWN_USER,
-                tp.getTriggerProcessParameters(), dm.getCurrentUser()
-                        .getOrganization()));
+                TriggerType.REGISTER_OWN_USER, tp.getTriggerProcessParameters(),
+                dm.getCurrentUser().getOrganization()));
 
         return result;
     }
@@ -460,8 +462,8 @@ public class IdentityServiceBean implements IdentityService,
             for (Map.Entry<Long, UnitUserRole> e : userGroupKeyToRole
                     .entrySet()) {
                 try {
-                    userGroupToRole.put(dm.getReference(UserGroup.class, e
-                            .getKey().longValue()), e.getValue());
+                    userGroupToRole.put(dm.getReference(UserGroup.class,
+                            e.getKey().longValue()), e.getValue());
                 } catch (ObjectNotFoundException ignored) {
                 }
             }
@@ -478,8 +480,7 @@ public class IdentityServiceBean implements IdentityService,
         ArgumentValidator.notNull("newPassword", newPassword);
         BLValidator.isPassword("newPassword", newPassword);
         PlatformUser pUser = dm.getCurrentUser();
-        ensureNoRemoteLdapUsed(
-                pUser.getOrganization(),
+        ensureNoRemoteLdapUsed(pUser.getOrganization(),
                 LogMessageIdentifier.ERROR_PASSWORD_OPERATION_FORBIDDEN_REMOTE_LDAP);
 
         // two steps have to be performed:
@@ -538,9 +539,7 @@ public class IdentityServiceBean implements IdentityService,
                                     String.valueOf(pUser.getKey()) },
                             getMarketplace(marketplaceId));
                 } else {
-                    cm.sendMail(
-                            pUser,
-                            EmailType.USER_CONFIRM_ACKNOWLEDGE,
+                    cm.sendMail(pUser, EmailType.USER_CONFIRM_ACKNOWLEDGE,
                             new Object[] { cm.getMarketplaceUrl(marketplaceId),
                                     pUser.getUserId(),
                                     String.valueOf(pUser.getKey()) },
@@ -573,8 +572,8 @@ public class IdentityServiceBean implements IdentityService,
 
         ArgumentValidator.notNull("user", user);
         ArgumentValidator.notNull("roles", roles);
-        PlatformUser pUser = getPlatformUser(user.getUserId(), dm
-                .getCurrentUser().getTenantId(), true);
+        PlatformUser pUser = getPlatformUser(user.getUserId(),
+                dm.getCurrentUser().getTenantId(), true);
         grantUserRoles(pUser, roles);
 
     }
@@ -586,8 +585,8 @@ public class IdentityServiceBean implements IdentityService,
 
         ArgumentValidator.notNull("user", user);
         ArgumentValidator.notNull("role", role);
-        PlatformUser pUser = getPlatformUser(user.getUserId(), dm
-                .getCurrentUser().getTenantId(), true);
+        PlatformUser pUser = getPlatformUser(user.getUserId(),
+                dm.getCurrentUser().getTenantId(), true);
         grantUnitRole(pUser, role);
     }
 
@@ -598,8 +597,8 @@ public class IdentityServiceBean implements IdentityService,
 
         ArgumentValidator.notNull("user", user);
         ArgumentValidator.notNull("role", role);
-        PlatformUser pUser = getPlatformUser(user.getUserId(), dm
-                .getCurrentUser().getTenantId(), true);
+        PlatformUser pUser = getPlatformUser(user.getUserId(),
+                dm.getCurrentUser().getTenantId(), true);
         revokeUnitRole(pUser, role);
     }
 
@@ -618,8 +617,7 @@ public class IdentityServiceBean implements IdentityService,
     public void resetPasswordForUser(PlatformUser user, Marketplace marketplace)
             throws MailOperationException {
 
-        ensureNoRemoteLdapUsed(
-                user.getOrganization(),
+        ensureNoRemoteLdapUsed(user.getOrganization(),
                 LogMessageIdentifier.ERROR_PASSWORD_OPERATION_FORBIDDEN_REMOTE_LDAP);
 
         final String newPwd = new PasswordGenerator().generatePassword();
@@ -671,8 +669,8 @@ public class IdentityServiceBean implements IdentityService,
     @Override
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     public void resetUserPassword(PlatformUser platformUser,
-            String marketplaceId) throws UserActiveException,
-            MailOperationException {
+            String marketplaceId)
+            throws UserActiveException, MailOperationException {
         // determine if the user has an active session, if so, throw an
         // exception
         List<Session> sessionsForUserKey = prodSessionMgmt
@@ -721,9 +719,9 @@ public class IdentityServiceBean implements IdentityService,
     @Override
     @RolesAllowed("ORGANIZATION_ADMIN")
     public void revokeUserRoles(VOUser user, List<UserRoleType> roles)
-            throws ObjectNotFoundException,
-            UserModificationConstraintException, UserActiveException,
-            OperationNotPermittedException, UserRoleAssignmentException {
+            throws ObjectNotFoundException, UserModificationConstraintException,
+            UserActiveException, OperationNotPermittedException,
+            UserRoleAssignmentException {
 
         ArgumentValidator.notNull("user", user);
         ArgumentValidator.notNull("roles", roles);
@@ -775,8 +773,8 @@ public class IdentityServiceBean implements IdentityService,
             throws ObjectNotFoundException, OperationNotPermittedException {
 
         ArgumentValidator.notNull("user", user);
-        PlatformUser pUser = getPlatformUser(user.getUserId(), dm
-                .getCurrentUser().getTenantId(), true);
+        PlatformUser pUser = getPlatformUser(user.getUserId(),
+                dm.getCurrentUser().getTenantId(), true);
 
         return UserDataAssembler.toVOUserDetails(pUser);
     }
@@ -838,8 +836,8 @@ public class IdentityServiceBean implements IdentityService,
             OperationNotPermittedException onp = new OperationNotPermittedException(
                     "To lock an account a locking state must be set!");
             logger.logWarn(Log4jLogger.SYSTEM_LOG | Log4jLogger.AUDIT_LOG, onp,
-                    LogMessageIdentifier.WARN_OPERATOR_LOCK_FAILED, dm
-                            .getCurrentUser().getUserId(), userObj.getUserId());
+                    LogMessageIdentifier.WARN_OPERATOR_LOCK_FAILED,
+                    dm.getCurrentUser().getUserId(), userObj.getUserId());
             throw onp;
         }
         if (newStatus == UserAccountStatus.LOCKED_FAILED_LOGIN_ATTEMPTS
@@ -847,16 +845,16 @@ public class IdentityServiceBean implements IdentityService,
             OperationNotPermittedException onp = new OperationNotPermittedException(
                     "A user must not set those locking states!");
             logger.logWarn(Log4jLogger.SYSTEM_LOG | Log4jLogger.AUDIT_LOG, onp,
-                    LogMessageIdentifier.WARN_OPERATOR_LOCK_FAILED, dm
-                            .getCurrentUser().getUserId(), userObj.getUserId());
+                    LogMessageIdentifier.WARN_OPERATOR_LOCK_FAILED,
+                    dm.getCurrentUser().getUserId(), userObj.getUserId());
             throw onp;
         }
         if (user.getStatus().getLockLevel() > newStatus.getLockLevel()) {
             OperationNotPermittedException onp = new OperationNotPermittedException(
                     "The lock level must not be reduced, current lock level is higher than the one specified!");
             logger.logWarn(Log4jLogger.SYSTEM_LOG | Log4jLogger.AUDIT_LOG, onp,
-                    LogMessageIdentifier.WARN_OPERATOR_LOCK_FAILED, dm
-                            .getCurrentUser().getUserId(), userObj.getUserId());
+                    LogMessageIdentifier.WARN_OPERATOR_LOCK_FAILED,
+                    dm.getCurrentUser().getUserId(), userObj.getUserId());
             throw onp;
         }
         setUserAccountStatusInternal(userObj, newStatus,
@@ -869,7 +867,8 @@ public class IdentityServiceBean implements IdentityService,
             throws OperationNotPermittedException, ObjectNotFoundException,
             ValidationException, NonUniqueBusinessKeyException,
             TechnicalServiceNotAliveException,
-            TechnicalServiceOperationException, ConcurrentModificationException {
+            TechnicalServiceOperationException,
+            ConcurrentModificationException {
 
         ArgumentValidator.notNull("user", user);
 
@@ -904,18 +903,17 @@ public class IdentityServiceBean implements IdentityService,
         // check whether user belongs to same organization than the caller
         PermissionCheck.sameOrg(dm.getCurrentUser(), existingUser, logger);
 
-        PlatformUser oldUser = existingUser.getEmail() != null ? UserDataAssembler
-                .copyPlatformUser(existingUser) : null;
+        PlatformUser oldUser = existingUser.getEmail() != null
+                ? UserDataAssembler.copyPlatformUser(existingUser) : null;
 
         // validate permissions for the call, administrator may change any user,
         // a non administrator may only change his own account
         if (!dm.getCurrentUser().isOrganizationAdmin() || modifyOwnUser) {
-            if (!String.valueOf(updatedUser.getKey()).equals(
-                    sessionCtx.getCallerPrincipal().getName())) {
+            if (!String.valueOf(updatedUser.getKey())
+                    .equals(sessionCtx.getCallerPrincipal().getName())) {
                 OperationNotPermittedException onp = new OperationNotPermittedException(
                         "User is not permitted to modify the specified user account.");
-                logger.logWarn(
-                        Log4jLogger.SYSTEM_LOG | Log4jLogger.AUDIT_LOG,
+                logger.logWarn(Log4jLogger.SYSTEM_LOG | Log4jLogger.AUDIT_LOG,
                         onp,
                         LogMessageIdentifier.WARN_USER_ACCOUNT_MODIFICATION_FAILED,
                         Long.toString(dm.getCurrentUser().getKey()),
@@ -999,9 +997,8 @@ public class IdentityServiceBean implements IdentityService,
         List<PlatformUser> platformUsers = new LinkedList<>();
         platformUsers.add(existingUser);
 
-        if (oldUser != null
-                && !oldUser.getEmail().trim()
-                        .equals(existingUser.getEmail().trim())) {
+        if (oldUser != null && !oldUser.getEmail().trim()
+                .equals(existingUser.getEmail().trim())) {
             platformUsers.add(oldUser);
         }
 
@@ -1050,7 +1047,8 @@ public class IdentityServiceBean implements IdentityService,
 
         PlatformUser pUser = dm.getReference(PlatformUser.class, user.getKey());
         if (attemptSuccessful) {
-            if (pUser.getStatus().getLockLevel() >= UserAccountStatus.LOCK_LEVEL_LOCKED) {
+            if (pUser.getStatus()
+                    .getLockLevel() >= UserAccountStatus.LOCK_LEVEL_LOCKED) {
                 SecurityCheckException scf = new SecurityCheckException(
                         "User must not login, as he failed to do so before too many times. Account locked!");
                 logger.logWarn(Log4jLogger.SYSTEM_LOG | Log4jLogger.AUDIT_LOG,
@@ -1066,9 +1064,11 @@ public class IdentityServiceBean implements IdentityService,
             int failedAttempts = pUser.getFailedLoginCounter() + 1;
             pUser.setFailedLoginCounter(failedAttempts);
             if (failedAttempts >= getMaxRetryAttempts()) {
-                if (pUser.getStatus().getLockLevel() <= UserAccountStatus.LOCKED_FAILED_LOGIN_ATTEMPTS
-                        .getLockLevel()) {
-                    pUser.setStatus(UserAccountStatus.LOCKED_FAILED_LOGIN_ATTEMPTS);
+                if (pUser.getStatus()
+                        .getLockLevel() <= UserAccountStatus.LOCKED_FAILED_LOGIN_ATTEMPTS
+                                .getLockLevel()) {
+                    pUser.setStatus(
+                            UserAccountStatus.LOCKED_FAILED_LOGIN_ATTEMPTS);
                 }
             }
         }
@@ -1110,8 +1110,8 @@ public class IdentityServiceBean implements IdentityService,
     @Override
     @RolesAllowed("PLATFORM_OPERATOR")
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
-    public void setUserAccountStatus(PlatformUser user, UserAccountStatus status)
-            throws OrganizationAuthoritiesException {
+    public void setUserAccountStatus(PlatformUser user,
+            UserAccountStatus status) throws OrganizationAuthoritiesException {
 
         // no marketplace passed as this method is only called by the operator
         setUserAccountStatusInternal(user, status, null);
@@ -1153,13 +1153,13 @@ public class IdentityServiceBean implements IdentityService,
             String userId = user.getUserId();
             String orgId = user.getOrganizationId();
             String tenantId = user.getTenantId();
-            
-            if(StringUtils.isNotBlank(orgId)){
+
+            if (StringUtils.isNotBlank(orgId)) {
                 pUser = getPlatformUserByOrganization(userId, orgId);
             } else {
                 pUser = getPlatformUser(userId, tenantId, false);
             }
-           
+
             if (pUser.getOrganization().getDeregistrationDate() != null) {
                 OperationNotPermittedException onp = new OperationNotPermittedException(
                         "The user doesn't belong to a active organization.");
@@ -1174,8 +1174,8 @@ public class IdentityServiceBean implements IdentityService,
             // confirmed.
             // If this holds, throw a OrganizationRemovedException, otherwise
             // pass the ObjectNotFound
-            Query query = dm
-                    .createNamedQuery("PlatformUserHistory.findUnconfirmedUserForRemovedOrganization");
+            Query query = dm.createNamedQuery(
+                    "PlatformUserHistory.findUnconfirmedUserForRemovedOrganization");
             query.setParameter("userStatus",
                     UserAccountStatus.LOCKED_NOT_CONFIRMED);
             query.setParameter("modType", ModificationType.DELETE);
@@ -1190,9 +1190,7 @@ public class IdentityServiceBean implements IdentityService,
             } catch (NonUniqueResultException nue) {
                 // should never be caught, indicates inconsistency of data.
                 // Throw the object not found exception, but log the problem
-                logger.logError(
-                        Log4jLogger.SYSTEM_LOG,
-                        nue,
+                logger.logError(Log4jLogger.SYSTEM_LOG, nue,
                         LogMessageIdentifier.ERROR_NONUNIQUE_ENTRY_FOR_REMOVED_ORGANIZATION);
             }
 
@@ -1201,9 +1199,7 @@ public class IdentityServiceBean implements IdentityService,
                 OrganizationRemovedException cre = new OrganizationRemovedException(
                         "Trying to get a user for a organization that was removed by the system",
                         new Object[] {}, e);
-                logger.logWarn(
-                        Log4jLogger.SYSTEM_LOG,
-                        cre,
+                logger.logWarn(Log4jLogger.SYSTEM_LOG, cre,
                         LogMessageIdentifier.WARN_USER_REMOVED_ORGANIZATION_FAILED);
                 throw cre;
             }
@@ -1282,7 +1278,8 @@ public class IdentityServiceBean implements IdentityService,
 
         Organization organization = dm.getCurrentUser().getOrganization();
 
-        LdapConnector connector = getLdapConnectionForOrganization(organization);
+        LdapConnector connector = getLdapConnectionForOrganization(
+                organization);
         Properties dirProperties = connector.getDirProperties();
         Map<SettingType, String> attrMap = connector.getAttrMap();
         String baseDN = connector.getBaseDN();
@@ -1293,8 +1290,8 @@ public class IdentityServiceBean implements IdentityService,
         try {
             // read user from LDAP
             List<VOUserDetails> voUserList = ldapAccess.search(dirProperties,
-                    baseDN, getLdapSearchFilter(attrMap, userIdPattern),
-                    mapper, false);
+                    baseDN, getLdapSearchFilter(attrMap, userIdPattern), mapper,
+                    false);
 
             int size = voUserList.size();
             for (int i = 0; i < size; i++) {
@@ -1304,8 +1301,8 @@ public class IdentityServiceBean implements IdentityService,
                 if (null != user) {
                     // update the domain object with possibly changed LDAP
                     // attributes and return a complete value object
-                    UserDataAssembler
-                            .updatePlatformUser(voUser, attrList, user);
+                    UserDataAssembler.updatePlatformUser(voUser, attrList,
+                            user);
                     voUserList.set(i, UserDataAssembler.toVOUserDetails(user));
                 } else {
                     // set some mandatory attributes
@@ -1336,7 +1333,8 @@ public class IdentityServiceBean implements IdentityService,
 
         Organization organization = dm.getCurrentUser().getOrganization();
 
-        LdapConnector connector = getLdapConnectionForOrganization(organization);
+        LdapConnector connector = getLdapConnectionForOrganization(
+                organization);
         Properties dirProperties = connector.getDirProperties();
         Map<SettingType, String> attrMap = connector.getAttrMap();
         String baseDN = connector.getBaseDN();
@@ -1379,7 +1377,8 @@ public class IdentityServiceBean implements IdentityService,
 
         Organization organization = dm.getCurrentUser().getOrganization();
 
-        LdapConnector connector = getLdapConnectionForOrganization(organization);
+        LdapConnector connector = getLdapConnectionForOrganization(
+                organization);
         Properties dirProperties = connector.getDirProperties();
         Map<SettingType, String> attrMap = connector.getAttrMap();
         String baseDN = connector.getBaseDN();
@@ -1407,9 +1406,7 @@ public class IdentityServiceBean implements IdentityService,
                         sessionCtx.setRollbackOnly();
                         ValidationException vf = new ValidationException(
                                 e.getMessage());
-                        logger.logError(
-                                Log4jLogger.SYSTEM_LOG,
-                                vf,
+                        logger.logError(Log4jLogger.SYSTEM_LOG, vf,
                                 LogMessageIdentifier.ERROR_VALIDATION_PARAMETER_LDAP_FOUND_ERROR,
                                 "User");
                         throw vf;
@@ -1420,9 +1417,7 @@ public class IdentityServiceBean implements IdentityService,
                     ValidationException vf = new ValidationException(
                             ReasonEnum.LDAP_USER_NOT_FOUND, null,
                             new Object[] { user.getRealmUserId() });
-                    logger.logError(
-                            Log4jLogger.SYSTEM_LOG,
-                            vf,
+                    logger.logError(Log4jLogger.SYSTEM_LOG, vf,
                             LogMessageIdentifier.ERROR_VALIDATION_PARAMETER_LDAP_FOUND_ERROR,
                             "User");
                     throw vf;
@@ -1431,21 +1426,18 @@ public class IdentityServiceBean implements IdentityService,
                     ValidationException vf = new ValidationException(
                             ReasonEnum.LDAP_USER_NOT_UNIQUE, null,
                             new Object[] { user.getRealmUserId() });
-                    logger.logError(
-                            Log4jLogger.SYSTEM_LOG,
-                            vf,
+                    logger.logError(Log4jLogger.SYSTEM_LOG, vf,
                             LogMessageIdentifier.ERROR_VALIDATION_PARAMETER_LDAP_FOUND_ERROR,
                             "User");
                     throw vf;
                 }
             } catch (NamingException e) {
                 Object[] params = new Object[] {
-                        dirProperties.get(Context.PROVIDER_URL), e.getMessage() };
+                        dirProperties.get(Context.PROVIDER_URL),
+                        e.getMessage() };
                 ValidationException vf = new ValidationException(
                         ReasonEnum.LDAP_CONNECTION_REFUSED, null, params);
-                logger.logError(
-                        Log4jLogger.SYSTEM_LOG,
-                        vf,
+                logger.logError(Log4jLogger.SYSTEM_LOG, vf,
                         LogMessageIdentifier.ERROR_LDAP_SYSTEM_CONNECTION_REFUSED);
                 throw vf;
             }
@@ -1482,12 +1474,12 @@ public class IdentityServiceBean implements IdentityService,
      */
     private void grantMaxUserRoles(PlatformUser customerUser) {
         grantRole(customerUser, UserRoleType.ORGANIZATION_ADMIN);
-        if (customerUser.getOrganization().hasRole(
-                OrganizationRoleType.TECHNOLOGY_PROVIDER)) {
+        if (customerUser.getOrganization()
+                .hasRole(OrganizationRoleType.TECHNOLOGY_PROVIDER)) {
             grantRole(customerUser, UserRoleType.TECHNOLOGY_MANAGER);
         }
-        if (customerUser.getOrganization().hasRole(
-                OrganizationRoleType.SUPPLIER)) {
+        if (customerUser.getOrganization()
+                .hasRole(OrganizationRoleType.SUPPLIER)) {
             grantRole(customerUser, UserRoleType.SERVICE_MANAGER);
         }
     }
@@ -1506,9 +1498,9 @@ public class IdentityServiceBean implements IdentityService,
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     public void createOrganizationAdmin(VOUserDetails userDetails,
             Organization organization, String password, Long serviceKey,
-            Marketplace marketplace) throws NonUniqueBusinessKeyException,
-            ObjectNotFoundException, ValidationException,
-            MailOperationException {
+            Marketplace marketplace)
+            throws NonUniqueBusinessKeyException, ObjectNotFoundException,
+            ValidationException, MailOperationException {
         ArgumentValidator.notNull("organization", organization);
         ArgumentValidator.notNull("userDetails", userDetails);
 
@@ -1527,8 +1519,8 @@ public class IdentityServiceBean implements IdentityService,
         try {
             if (organization.isRemoteLdapActive()) {
                 organizationAdmin = addPlatformUser(userDetails, organization,
-                        pwd, UserAccountStatus.ACTIVE, true, false,
-                        marketplace, false, true);
+                        pwd, UserAccountStatus.ACTIVE, true, false, marketplace,
+                        false, true);
 
             } else {
                 if (isAutoGeneratedPassword) {
@@ -1539,8 +1531,8 @@ public class IdentityServiceBean implements IdentityService,
                 } else {
                     organizationAdmin = addPlatformUser(userDetails,
                             organization, pwd,
-                            UserAccountStatus.LOCKED_NOT_CONFIRMED, false,
-                            true, marketplace, false, true);
+                            UserAccountStatus.LOCKED_NOT_CONFIRMED, false, true,
+                            marketplace, false, true);
                 }
             }
         } catch (UserRoleAssignmentException e) {
@@ -1570,17 +1562,19 @@ public class IdentityServiceBean implements IdentityService,
                     .getOrganizationId();
             urlParam[1] = organizationAdmin.getUserId();
             urlParam[2] = marketplaceId;
-            urlParam[3] = serviceKey == null ? null : String.valueOf(serviceKey
-                    .longValue());
+            urlParam[3] = serviceKey == null ? null
+                    : String.valueOf(serviceKey.longValue());
 
             if (!organizationAdmin.hasManagerRole()) {
                 url.append("/marketplace/confirm.jsf?")
-                        .append((marketplaceId != null) ? "mId="
-                                + marketplaceId + "&" : "").append("enc=");
+                        .append((marketplaceId != null)
+                                ? "mId=" + marketplaceId + "&" : "")
+                        .append("enc=");
             } else {
                 url.append("/public/confirm.jsf?")
-                        .append((marketplaceId != null) ? "mId="
-                                + marketplaceId + "&" : "").append("enc=");
+                        .append((marketplaceId != null)
+                                ? "mId=" + marketplaceId + "&" : "")
+                        .append("enc=");
             }
 
             try {
@@ -1617,8 +1611,7 @@ public class IdentityServiceBean implements IdentityService,
     }
 
     /**
-     * Method has been deprecated. Use #{@getPlatformUser}
-     * with tenant parmeter.
+     * Method has been deprecated. Use #{@getPlatformUser} with tenant parmeter.
      * 
      * @param userId
      *            The user identifying attributes' representation.
@@ -1633,8 +1626,8 @@ public class IdentityServiceBean implements IdentityService,
     @Override
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     public PlatformUser getPlatformUser(String userId,
-            boolean validateOrganization) throws ObjectNotFoundException,
-            OperationNotPermittedException {
+            boolean validateOrganization)
+            throws ObjectNotFoundException, OperationNotPermittedException {
 
         return getPlatformUser(userId, null, validateOrganization);
     }
@@ -1642,14 +1635,14 @@ public class IdentityServiceBean implements IdentityService,
     @Override
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     public PlatformUser getPlatformUser(String userId, String tenantId,
-            boolean validateOrganization) throws ObjectNotFoundException,
-            OperationNotPermittedException {
+            boolean validateOrganization)
+            throws ObjectNotFoundException, OperationNotPermittedException {
 
         PlatformUser platformUser = new PlatformUser();
         platformUser.setUserId(userId);
         platformUser.setTenantId(tenantId);
         platformUser = dm.find(platformUser);
-        
+
         if (platformUser == null) {
             ObjectNotFoundException onf = new ObjectNotFoundException(
                     ObjectNotFoundException.ClassEnum.USER, userId);
@@ -1701,8 +1694,7 @@ public class IdentityServiceBean implements IdentityService,
         boolean ifAllExpired = isAllSubscriptionExpired(subscriptions);
         if (subscriptions.size() > 0 && !ifAllExpired) {
             UserDeletionConstraintException udcv = new UserDeletionConstraintException(
-                    "User '"
-                            + userToBeDeleted.getUserId()
+                    "User '" + userToBeDeleted.getUserId()
                             + "' is registered for a subscription and cannot be deleted!",
                     Reason.HAS_ACTIVE_SUBSCRIPTIONS);
             logger.logWarn(Log4jLogger.SYSTEM_LOG, udcv,
@@ -1733,8 +1725,7 @@ public class IdentityServiceBean implements IdentityService,
         if (!deleteLastAdmin) {
             if (isUserLastAdminForOrganization(userToBeDeleted)) {
                 UserDeletionConstraintException udcv = new UserDeletionConstraintException(
-                        "User '"
-                                + userToBeDeleted.getUserId()
+                        "User '" + userToBeDeleted.getUserId()
                                 + "' cannot be deleted as he is the last admin for the organization.",
                         Reason.LAST_ADMIN);
                 logger.logWarn(Log4jLogger.SYSTEM_LOG, udcv,
@@ -1756,9 +1747,7 @@ public class IdentityServiceBean implements IdentityService,
             // permission check of delete review is off, so this exception must
             // not happen
             SaaSSystemException sse = new SaaSSystemException(e);
-            logger.logError(
-                    Log4jLogger.SYSTEM_LOG,
-                    sse,
+            logger.logError(Log4jLogger.SYSTEM_LOG, sse,
                     LogMessageIdentifier.ERROR_DELETE_USER_FAILED_BY_DELETION_REVIEW_PERMISSION_ERROR);
             throw sse;
         }
@@ -1771,8 +1760,9 @@ public class IdentityServiceBean implements IdentityService,
             String organizationName = userToBeDeleted.getOrganization()
                     .getName();
             cm.sendMail(userToBeDeleted, EmailType.USER_DELETED,
-                    new Object[] { organizationName == null ? ""
-                            : organizationName }, marketplace);
+                    new Object[] {
+                            organizationName == null ? "" : organizationName },
+                    marketplace);
         } catch (MailOperationException e) {
             logger.logWarn(Log4jLogger.SYSTEM_LOG,
                     LogMessageIdentifier.WARN_SEND_USER_DELETED_MAIL_FAILED);
@@ -1784,9 +1774,9 @@ public class IdentityServiceBean implements IdentityService,
             Organization organization, String password,
             UserAccountStatus lockLevel, boolean sendMail,
             boolean userLocalLdap, Marketplace marketplace,
-            boolean performRoleCheck) throws NonUniqueBusinessKeyException,
-            MailOperationException, ValidationException,
-            UserRoleAssignmentException {
+            boolean performRoleCheck)
+            throws NonUniqueBusinessKeyException, MailOperationException,
+            ValidationException, UserRoleAssignmentException {
         return addPlatformUser(userDetails, organization, password, lockLevel,
                 sendMail, userLocalLdap, marketplace, performRoleCheck, false);
     }
@@ -1813,9 +1803,7 @@ public class IdentityServiceBean implements IdentityService,
                     ValidationException vf = new ValidationException(
                             ReasonEnum.LDAP_CREATED_ID_INVALID, null,
                             new Object[] { uniqueId });
-                    logger.logError(
-                            Log4jLogger.SYSTEM_LOG,
-                            vf,
+                    logger.logError(Log4jLogger.SYSTEM_LOG, vf,
                             LogMessageIdentifier.ERROR_VALIDATION_PARAMETER_LDAP_FOUND_ERROR,
                             "User ID");
                     throw vf;
@@ -1844,8 +1832,8 @@ public class IdentityServiceBean implements IdentityService,
         }
 
         // Set the user account status to active if CT-MG is a SAML SP
-        if (cs.isServiceProvider()
-                && UserAccountStatus.PASSWORD_MUST_BE_CHANGED.equals(lockLevel)) {
+        if (cs.isServiceProvider() && UserAccountStatus.PASSWORD_MUST_BE_CHANGED
+                .equals(lockLevel)) {
             pu.setStatus(UserAccountStatus.ACTIVE);
         } else {
             pu.setStatus(lockLevel);
@@ -1917,8 +1905,7 @@ public class IdentityServiceBean implements IdentityService,
             if (pu.hasManagerRole()) {
                 if (marketplaceId != null) {
                     if (cs.isServiceProvider()) {
-                        cm.sendMail(
-                                pu,
+                        cm.sendMail(pu,
                                 EmailType.USER_CREATED_WITH_MARKETPLACE_SAML_SP,
                                 new Object[] { pu.getUserId(),
                                         cm.getBaseUrlWithTenant(tenantId),
@@ -1926,9 +1913,7 @@ public class IdentityServiceBean implements IdentityService,
                                 marketplace);
 
                     } else {
-                        cm.sendMail(
-                                pu,
-                                EmailType.USER_CREATED_WITH_MARKETPLACE,
+                        cm.sendMail(pu, EmailType.USER_CREATED_WITH_MARKETPLACE,
                                 new Object[] { pu.getUserId(), password,
                                         cm.getBaseUrl(),
                                         cm.getMarketplaceUrl(marketplaceId),
@@ -1938,61 +1923,57 @@ public class IdentityServiceBean implements IdentityService,
                     }
                 } else {
                     if (cs.isServiceProvider()) {
-                        cm.sendMail(
-                                pu,
-                                EmailType.USER_CREATED_SAML_SP,
+                        cm.sendMail(pu, EmailType.USER_CREATED_SAML_SP,
                                 new Object[] { pu.getUserId(),
                                         cm.getBaseUrlWithTenant(tenantId) },
                                 marketplace);
                     } else {
-                        cm.sendMail(pu, EmailType.USER_CREATED, new Object[] {
-                                pu.getUserId(), password, cm.getBaseUrl(),
-                                String.valueOf(pu.getKey()) }, marketplace);
+                        cm.sendMail(pu, EmailType.USER_CREATED,
+                                new Object[] { pu.getUserId(), password,
+                                        cm.getBaseUrl(),
+                                        String.valueOf(pu.getKey()) },
+                                marketplace);
 
                     }
                 }
 
             } else {
                 if (cs.isServiceProvider()) {
-                    cm.sendMail(
-                            pu,
-                            EmailType.USER_CREATED_SAML_SP,
+                    cm.sendMail(pu, EmailType.USER_CREATED_SAML_SP,
                             new Object[] { pu.getUserId(),
                                     cm.getMarketplaceUrl(marketplaceId) },
                             marketplace);
                 } else {
-                    cm.sendMail(
-                            pu,
-                            EmailType.USER_CREATED,
+                    cm.sendMail(pu, EmailType.USER_CREATED,
                             new Object[] { pu.getUserId(), password,
                                     cm.getMarketplaceUrl(marketplaceId),
-                                    String.valueOf(pu.getKey()) }, marketplace);
+                                    String.valueOf(pu.getKey()) },
+                            marketplace);
                 }
 
             }
         } else {
             if (pu.hasManagerRole()) {
                 if (marketplaceId != null) {
-                    cm.sendMail(
-                            pu,
-                            EmailType.USER_IMPORTED_WITH_MARKETPLACE,
+                    cm.sendMail(pu, EmailType.USER_IMPORTED_WITH_MARKETPLACE,
                             new Object[] { pu.getUserId(), "", cm.getBaseUrl(),
                                     cm.getMarketplaceUrl(marketplaceId),
-                                    String.valueOf(pu.getKey()) }, marketplace);
+                                    String.valueOf(pu.getKey()) },
+                            marketplace);
 
                 } else {
                     cm.sendMail(pu, EmailType.USER_IMPORTED,
                             new Object[] { pu.getUserId(), "", cm.getBaseUrl(),
-                                    String.valueOf(pu.getKey()) }, marketplace);
+                                    String.valueOf(pu.getKey()) },
+                            marketplace);
 
                 }
             } else {
-                cm.sendMail(
-                        pu,
-                        EmailType.USER_IMPORTED,
+                cm.sendMail(pu, EmailType.USER_IMPORTED,
                         new Object[] { pu.getUserId(), "",
                                 cm.getMarketplaceUrl(marketplaceId),
-                                String.valueOf(pu.getKey()) }, marketplace);
+                                String.valueOf(pu.getKey()) },
+                        marketplace);
             }
         }
     }
@@ -2063,20 +2044,16 @@ public class IdentityServiceBean implements IdentityService,
             final ValidationException ve = new ValidationException(
                     "Organization must have at least one role, before creating a user. OrgId: "
                             + user.getOrganization().getOrganizationId());
-            logger.logWarn(
-                    Log4jLogger.SYSTEM_LOG | Log4jLogger.AUDIT_LOG,
-                    ve,
+            logger.logWarn(Log4jLogger.SYSTEM_LOG | Log4jLogger.AUDIT_LOG, ve,
                     LogMessageIdentifier.ERROR_USER_CREATION_FAILED_WITH_VALIDATION_ERROR);
             throw ve;
         }
-        if (orgRoles.size() == 1
-                && orgRoles.iterator().next() == OrganizationRoleType.CUSTOMER) {
+        if (orgRoles.size() == 1 && orgRoles.iterator()
+                .next() == OrganizationRoleType.CUSTOMER) {
             ValidationException ve = new ValidationException(
                     ReasonEnum.CUSTOMER_CREATION_ONLY_ON_MARKETPLACE, null,
                     null);
-            logger.logWarn(
-                    Log4jLogger.SYSTEM_LOG | Log4jLogger.AUDIT_LOG,
-                    ve,
+            logger.logWarn(Log4jLogger.SYSTEM_LOG | Log4jLogger.AUDIT_LOG, ve,
                     LogMessageIdentifier.ERROR_USER_CREATION_FAILED_WITH_VALIDATION_ERROR);
             throw ve;
         }
@@ -2119,12 +2096,12 @@ public class IdentityServiceBean implements IdentityService,
 
     void checkRoleConstrains(PlatformUser user, UserRoleType role)
             throws UserRoleAssignmentException {
-        if (!dm.getCurrentUser().hasRole(UserRoleType.ORGANIZATION_ADMIN)
-                && !dm.getCurrentUser().hasRole(UserRoleType.PLATFORM_OPERATOR)) {
-            String msg = String
-                    .format("Role assign/revoke violation. Only %s and %s can assign/revoke roles.",
-                            UserRoleType.ORGANIZATION_ADMIN,
-                            UserRoleType.PLATFORM_OPERATOR);
+        if (!dm.getCurrentUser().hasRole(UserRoleType.ORGANIZATION_ADMIN) && !dm
+                .getCurrentUser().hasRole(UserRoleType.PLATFORM_OPERATOR)) {
+            String msg = String.format(
+                    "Role assign/revoke violation. Only %s and %s can assign/revoke roles.",
+                    UserRoleType.ORGANIZATION_ADMIN,
+                    UserRoleType.PLATFORM_OPERATOR);
             UserRoleAssignmentException ure = new UserRoleAssignmentException(
                     msg);
             logger.logWarn(Log4jLogger.SYSTEM_LOG | Log4jLogger.AUDIT_LOG, ure,
@@ -2136,9 +2113,9 @@ public class IdentityServiceBean implements IdentityService,
                 && !role.isUnitRole()) {
             OrganizationRoleType orgRole = OrganizationRoleType
                     .correspondingOrgRoleForUserRole(role);
-            String msg = String
-                    .format("Role constraint violation. User role '%s' can only be assigned/revoked to %s.",
-                            role.name(), orgRole.name());
+            String msg = String.format(
+                    "Role constraint violation. User role '%s' can only be assigned/revoked to %s.",
+                    role.name(), orgRole.name());
             UserRoleAssignmentException ure = new UserRoleAssignmentException(
                     msg, new Object[] { orgRole.name(), role.name() });
             logger.logWarn(Log4jLogger.SYSTEM_LOG | Log4jLogger.AUDIT_LOG, ure,
@@ -2154,10 +2131,8 @@ public class IdentityServiceBean implements IdentityService,
         }
         UserRole uRole = (UserRole) dm.find(new UserRole(userRole));
         if (uRole == null) {
-            throw new SaaSSystemException(
-                    "UserRole "
-                            + userRole
-                            + " not found. This object is created by the SQL setup scripts.");
+            throw new SaaSSystemException("UserRole " + userRole
+                    + " not found. This object is created by the SQL setup scripts.");
         }
         RoleAssignment assignment = new RoleAssignment();
         assignment.setRole(uRole);
@@ -2198,7 +2173,8 @@ public class IdentityServiceBean implements IdentityService,
      * @return <code>true</code>in case the user is the last administrative user
      *         for the organization, <code>false</code> otherwise.
      */
-    private boolean isUserLastAdminForOrganization(PlatformUser userToBeDeleted) {
+    private boolean isUserLastAdminForOrganization(
+            PlatformUser userToBeDeleted) {
         if (userToBeDeleted.isOrganizationAdmin()) {
             List<VOUserDetails> usersForOrganization = getUsersForOrganization();
             int count = 0;
@@ -2233,9 +2209,8 @@ public class IdentityServiceBean implements IdentityService,
             Organization organization) throws ValidationException {
         Properties resolvedProps = null;
         try {
-            resolvedProps = ldapSettingsMS
-                    .getOrganizationSettingsResolved(organization
-                            .getOrganizationId());
+            resolvedProps = ldapSettingsMS.getOrganizationSettingsResolved(
+                    organization.getOrganizationId());
         } catch (ObjectNotFoundException e) {
             // must not happen cause method can only be invoked by platform
             // operator
@@ -2309,8 +2284,8 @@ public class IdentityServiceBean implements IdentityService,
                 if (isSAML) {
                     voUserDetails.setUserId(password);
                 } else {
-                    voUserDetails.setUserId(IdGenerator
-                            .generateArtificialIdentifier());
+                    voUserDetails.setUserId(
+                            IdGenerator.generateArtificialIdentifier());
                 }
                 customerUser = addPlatformUser(voUserDetails, customer,
                         password, UserAccountStatus.ACTIVE, false, true, null,
@@ -2346,7 +2321,8 @@ public class IdentityServiceBean implements IdentityService,
             } catch (MailOperationException e) {
                 SaaSSystemException se = new SaaSSystemException(
                         "A mail operation failed although we didn't try to send a mail '"
-                                + currentUser.getOrganization() + "'.", e);
+                                + currentUser.getOrganization() + "'.",
+                        e);
                 logger.logError(Log4jLogger.SYSTEM_LOG, se,
                         LogMessageIdentifier.ERROR_MAIL_OPERATION_FAILED);
                 throw se;
@@ -2355,9 +2331,7 @@ public class IdentityServiceBean implements IdentityService,
                 SaaSSystemException se = new SaaSSystemException(
                         "The user creation failed with a validation exception.",
                         e);
-                logger.logError(
-                        Log4jLogger.SYSTEM_LOG,
-                        se,
+                logger.logError(Log4jLogger.SYSTEM_LOG, se,
                         LogMessageIdentifier.ERROR_USER_CREATION_FAILED_WITH_VALIDATION_ERROR);
                 throw se;
             } catch (UserRoleAssignmentException e) {
@@ -2365,9 +2339,7 @@ public class IdentityServiceBean implements IdentityService,
                 SaaSSystemException se = new SaaSSystemException(
                         "The user creation failed with a user role assignment exception.",
                         e);
-                logger.logError(
-                        Log4jLogger.SYSTEM_LOG,
-                        se,
+                logger.logError(Log4jLogger.SYSTEM_LOG, se,
                         LogMessageIdentifier.ERROR_USER_CREATION_FAILED_WITH_VALIDATION_ERROR);
                 throw se;
             }
@@ -2404,8 +2376,9 @@ public class IdentityServiceBean implements IdentityService,
             OperationNotPermittedException onpe = new OperationNotPermittedException();
             logger.logWarn(Log4jLogger.SYSTEM_LOG, onpe,
                     LogMessageIdentifier.WARN_USER_CREATE_CUSTOMER_FAILED,
-                    currentUser.getUserId(), currentUser.getOrganization()
-                            .getOrganizationId(), customer.getOrganizationId());
+                    currentUser.getUserId(),
+                    currentUser.getOrganization().getOrganizationId(),
+                    customer.getOrganizationId());
             throw onpe;
         }
         return customer;
@@ -2422,8 +2395,8 @@ public class IdentityServiceBean implements IdentityService,
      *             underlying LDAP managed organization of the given user
      */
     void syncUserWithLdap(PlatformUser pUser) throws ValidationException {
-        LdapConnector connector = getLdapConnectionForOrganization(pUser
-                .getOrganization());
+        LdapConnector connector = getLdapConnectionForOrganization(
+                pUser.getOrganization());
         Properties dirProperties = connector.getDirProperties();
         Map<SettingType, String> attrMap = connector.getAttrMap();
         String baseDN = connector.getBaseDN();
@@ -2443,7 +2416,8 @@ public class IdentityServiceBean implements IdentityService,
         } catch (NamingException e) {
             SaaSSystemException se = new SaaSSystemException(
                     "The LDAP search for the user '" + pUser.getKey()
-                            + "' failed although the login succeeded.", e);
+                            + "' failed although the login succeeded.",
+                    e);
             logger.logError(Log4jLogger.SYSTEM_LOG, se,
                     LogMessageIdentifier.ERROR_LDAP_SEARCH_OF_USER_FAILED,
                     Long.toString(pUser.getKey()));
@@ -2467,8 +2441,8 @@ public class IdentityServiceBean implements IdentityService,
      * @return The UsageLicense or <code>null</code> in case no matching license
      *         was found
      */
-    private UsageLicense getUsgeLicenseForUserAndSubscription(
-            PlatformUser user, Subscription subscription) {
+    private UsageLicense getUsgeLicenseForUserAndSubscription(PlatformUser user,
+            Subscription subscription) {
         List<UsageLicense> licenses = subscription.getUsageLicenses();
         for (UsageLicense license : licenses) {
             if (license.getUser().getKey() == user.getKey()) {
@@ -2547,8 +2521,7 @@ public class IdentityServiceBean implements IdentityService,
     @Override
     @RolesAllowed("ORGANIZATION_ADMIN")
     public void setUserRoles(VOUser user, List<UserRoleType> roles)
-            throws ObjectNotFoundException,
-            UserModificationConstraintException,
+            throws ObjectNotFoundException, UserModificationConstraintException,
             OperationNotPermittedException, UserRoleAssignmentException,
             UserActiveException {
 
@@ -2604,8 +2577,8 @@ public class IdentityServiceBean implements IdentityService,
     public Set<UserRoleType> getAvailableUserRolesForUser(PlatformUser pu) {
 
         Query query = dm.createNamedQuery("UserRole.getAllUserRoles");
-        List<UserRole> userRoleList = ParameterizedTypes.list(
-                query.getResultList(), UserRole.class);
+        List<UserRole> userRoleList = ParameterizedTypes
+                .list(query.getResultList(), UserRole.class);
         Organization org = pu.getOrganization();
         Set<UserRoleType> roleList = new HashSet<>();
         for (UserRole userRole : userRoleList) {
@@ -2640,8 +2613,8 @@ public class IdentityServiceBean implements IdentityService,
      * on Windows. The method cannot be found at runtime.
      */
     boolean isOrganizationSpecificRole(UserRoleType roleType) {
-        return !(UserRoleType.ORGANIZATION_ADMIN.equals(roleType) || UserRoleType.SUBSCRIPTION_MANAGER
-                .equals(roleType));
+        return !(UserRoleType.ORGANIZATION_ADMIN.equals(roleType)
+                || UserRoleType.SUBSCRIPTION_MANAGER.equals(roleType));
     }
 
     @Override
@@ -2662,9 +2635,10 @@ public class IdentityServiceBean implements IdentityService,
                 ConfigurationKey.PERMITTED_PERIOD_INACTIVE_ON_BEHALF_USERS,
                 Configuration.GLOBAL_CONTEXT);
         long period = setting.getLongValue();
-        Long lowerPeriodBound = Long.valueOf(System.currentTimeMillis()
-                - period);
-        List<OnBehalfUserReference> inactiveUsers = findInactiveOnBehalfUsers(lowerPeriodBound);
+        Long lowerPeriodBound = Long
+                .valueOf(System.currentTimeMillis() - period);
+        List<OnBehalfUserReference> inactiveUsers = findInactiveOnBehalfUsers(
+                lowerPeriodBound);
         for (OnBehalfUserReference toBeRemoved : inactiveUsers) {
             dm.remove(toBeRemoved);
         }
@@ -2674,8 +2648,8 @@ public class IdentityServiceBean implements IdentityService,
     @SuppressWarnings("unchecked")
     private List<OnBehalfUserReference> findInactiveOnBehalfUsers(
             Long lowerPeriodBound) {
-        Query query = dm
-                .createNamedQuery("OnBehalfUserReference.findInactiveBeforePeriod");
+        Query query = dm.createNamedQuery(
+                "OnBehalfUserReference.findInactiveBeforePeriod");
         query.setParameter("leastPermittedTime", lowerPeriodBound);
         return query.getResultList();
     }
@@ -2747,20 +2721,13 @@ public class IdentityServiceBean implements IdentityService,
         // TODO DEL
         Tenant tenant = null;
         try {
-            if (user.getTenantId() == null || user.getTenantId().equals("")) {
-                Marketplace m = new Marketplace();
-                m.setMarketplaceId(marketplaceId);
-                Marketplace mp = (Marketplace) dm.getReferenceByBusinessKey(m);
-                if (mp != null) {
-                    tenant = mp.getTenant();
-                }
-            } else {
+            if (StringUtils.isNotBlank(user.getTenantId())) {
                 Tenant t = new Tenant();
                 t.setTenantId(user.getTenantId());
                 tenant = (Tenant) dm.getReferenceByBusinessKey(t);
             }
         } catch (ObjectNotFoundException e) {
-            e.printStackTrace();
+            // ignore
         }
 
         checkIfUserExists(user.getUserId(), tenant);
@@ -2774,9 +2741,7 @@ public class IdentityServiceBean implements IdentityService,
                             user.getUserId()),
                     OperationPendingException.ReasonEnum.REGISTER_USER_IN_OWN_ORGANIZATION,
                     new Object[] { user.getUserId() });
-            logger.logWarn(
-                    Log4jLogger.SYSTEM_LOG,
-                    ope,
+            logger.logWarn(Log4jLogger.SYSTEM_LOG, ope,
                     LogMessageIdentifier.WARN_CREATE_USER_FAILED_DUE_TO_TRIGGER_CONFLICT,
                     user.getUserId());
             throw ope;
@@ -2809,10 +2774,9 @@ public class IdentityServiceBean implements IdentityService,
                 throw e;
             }
         } else if (triggerDefinition.isSuspendProcess()) {
-            triggerProcess
-                    .setTriggerProcessIdentifiers(TriggerProcessIdentifiers
-                            .createRegisterOwnUser(dm,
-                                    triggerDefinition.getType(), user));
+            triggerProcess.setTriggerProcessIdentifiers(
+                    TriggerProcessIdentifiers.createRegisterOwnUser(dm,
+                            triggerDefinition.getType(), user));
             dm.merge(triggerProcess);
         }
 
@@ -2834,20 +2798,20 @@ public class IdentityServiceBean implements IdentityService,
         List<PlatformUser> revoked = new ArrayList<>();
         Set<Long> onBehalfUserKeys = new HashSet<>();
 
-        List<PlatformUser> platformUsers = dm.getCurrentUser()
-                .getOrganization().getPlatformUsers();
+        List<PlatformUser> platformUsers = dm.getCurrentUser().getOrganization()
+                .getPlatformUsers();
         UserGroup group = userGroupService.getUserGroupByName(unitName);
         for (PlatformUser user : platformUsers) {
             if (user.isOnBehalfUser()) {
                 onBehalfUserKeys.add(Long.valueOf(user.getKey()));
             }
         }
-        
+
         String currentUserTenant = dm.getCurrentUser().getTenantId();
-        
+
         for (VOUser user : usersToBeAdded) {
             validateForOnBehalfUserGroupAssignment(user, onBehalfUserKeys);
-            if(StringUtils.isBlank(user.getTenantId())){
+            if (StringUtils.isBlank(user.getTenantId())) {
                 user.setTenantId(currentUserTenant);
             }
             PlatformUser platformUser = new PlatformUser();
@@ -2856,8 +2820,8 @@ public class IdentityServiceBean implements IdentityService,
             added.add(platformUser);
         }
         for (VOUser user : usersToBeRevoked) {
-            validateForOnBehalfUserGroupAssignment(user, onBehalfUserKeys);  
-            if(StringUtils.isBlank(user.getTenantId())){
+            validateForOnBehalfUserGroupAssignment(user, onBehalfUserKeys);
+            if (StringUtils.isBlank(user.getTenantId())) {
                 user.setTenantId(currentUserTenant);
             }
             PlatformUser platformUser = new PlatformUser();
@@ -2868,9 +2832,7 @@ public class IdentityServiceBean implements IdentityService,
 
         if (!added.isEmpty() && group.isDefault()) {
             OperationNotPermittedException onpe = new OperationNotPermittedException();
-            logger.logWarn(
-                    Log4jLogger.SYSTEM_LOG,
-                    onpe,
+            logger.logWarn(Log4jLogger.SYSTEM_LOG, onpe,
                     LogMessageIdentifier.WARN_DEFAULT_USERGROUP_OPERATION_NOT_PERMITTED);
             throw onpe;
         }
@@ -2890,9 +2852,7 @@ public class IdentityServiceBean implements IdentityService,
             Set<Long> onBehalfUserKeys) throws OperationNotPermittedException {
         if (onBehalfUserKeys.contains(Long.valueOf(user.getKey()))) {
             OperationNotPermittedException onpe = new OperationNotPermittedException();
-            logger.logWarn(
-                    Log4jLogger.SYSTEM_LOG,
-                    onpe,
+            logger.logWarn(Log4jLogger.SYSTEM_LOG, onpe,
                     LogMessageIdentifier.WARN_ADDREVOKE_USERGROUP_ASSIGNMENT_FOR_ONBEHALFUSER_NOT_PERMITTED,
                     user.getUserId());
             throw onpe;
@@ -2942,7 +2902,7 @@ public class IdentityServiceBean implements IdentityService,
     }
 
     private void throwONFExcp(String userId) throws ObjectNotFoundException {
-        
+
         ObjectNotFoundException onf = new ObjectNotFoundException(
                 ObjectNotFoundException.ClassEnum.USER, userId);
         logger.logWarn(Log4jLogger.SYSTEM_LOG, onf,
