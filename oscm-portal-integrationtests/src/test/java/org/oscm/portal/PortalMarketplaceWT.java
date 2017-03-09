@@ -35,13 +35,13 @@ public class PortalMarketplaceWT {
         tester = new WebTester();
         tester.visitPortal("");
         tester.wait(10000);
-        tester.getCurrentUrl();
+        System.out.println(tester.getCurrentUrl());
         tester.loginPortal(USER, PASSWORD);
     }
 
     @AfterClass
     public static void cleanUp() {
-        tester.getCurrentUrl();
+        System.out.println(tester.getCurrentUrl());
         tester.logoutPortal();
         tester.close();
     }
