@@ -34,7 +34,6 @@ public class PortalMarketplaceWT {
     public static void setup() throws Exception {
         tester = new WebTester();
         tester.visitPortal("");
-        tester.wait(10000);
         System.out.println(tester.getCurrentUrl());
         tester.loginPortal(USER, PASSWORD);
     }
