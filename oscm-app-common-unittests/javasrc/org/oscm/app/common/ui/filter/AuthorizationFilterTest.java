@@ -32,13 +32,13 @@ import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.oscm.app.common.APPlatformServiceMockup;
-import org.oscm.app.common.intf.ControllerAccess;
 import org.oscm.app.v2_0.data.PasswordAuthentication;
 import org.oscm.app.v2_0.data.User;
 import org.oscm.app.v2_0.exceptions.APPlatformException;
 import org.oscm.app.v2_0.exceptions.AuthenticationException;
 import org.oscm.app.v2_0.exceptions.ConfigurationException;
 import org.oscm.app.v2_0.intf.APPlatformService;
+import org.oscm.app.v2_0.intf.ControllerAccess;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.ejb.TestContainer;
 

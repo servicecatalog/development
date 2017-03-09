@@ -3,6 +3,7 @@
 	<name>oscm-app-openstack</name>
 	<comment></comment>
 	<projects>
+		<project>oscm-app-common</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

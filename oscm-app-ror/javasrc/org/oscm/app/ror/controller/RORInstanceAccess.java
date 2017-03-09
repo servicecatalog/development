@@ -10,9 +10,9 @@ package org.oscm.app.ror.controller;
 
 import java.util.List;
 
-import org.oscm.app.common.intf.InstanceAccess;
-import org.oscm.app.common.intf.ServerInformation;
 import org.oscm.app.v2_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.intf.InstanceAccess;
+import org.oscm.app.v2_0.intf.ServerInformation;
 
 /**
  * @author tateiwamext

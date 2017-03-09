@@ -6,7 +6,7 @@
  *                                                                              
  *******************************************************************************/
 
-package org.oscm.app.common.data;
+package org.oscm.app.v2_0.data;
 
 /**
  * Enumeration of possible actions a controller is currently executing.

@@ -6,7 +6,7 @@
  *                                                                              
  *******************************************************************************/
 
-package org.oscm.app.common.intf;
+package org.oscm.app.v2_0.intf;
 
 import java.io.Serializable;
 import java.util.List;
