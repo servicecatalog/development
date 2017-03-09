@@ -16,11 +16,11 @@ import static org.junit.Assert.assertTrue;
 import javax.ejb.EJBException;
 
 import org.junit.Test;
-
-import org.oscm.app.common.data.Context;
+import org.oscm.app.v2_0.data.Context;
 import org.oscm.app.v2_0.data.ProvisioningSettings;
 import org.oscm.app.v2_0.data.ServiceUser;
 import org.oscm.app.v2_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.exceptions.LogAndExceptionConverter;
 
 /**
  * Unit test of configuration bean

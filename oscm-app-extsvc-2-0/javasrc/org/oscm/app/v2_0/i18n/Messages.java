@@ -2,7 +2,7 @@
  *  Copyright FUJITSU LIMITED 2017
  *******************************************************************************/
 
-package org.oscm.app.common.i18n;
+package org.oscm.app.v2_0.i18n;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
