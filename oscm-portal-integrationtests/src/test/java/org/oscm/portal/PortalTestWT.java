@@ -45,6 +45,6 @@ public class PortalTestWT {
     @Test
     public void test01Create() {
         System.out.println(tester.getCurrentUrl());
-        assertEquals(tester.getCurrentUrl(), "about:blank");
+        assertEquals(tester.getCurrentUrl(), "http://10.140.18.76:8080/oscm-portal/");
     }
 }
