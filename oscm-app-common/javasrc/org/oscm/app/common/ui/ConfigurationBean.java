@@ -25,11 +25,11 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.servlet.http.HttpSession;
 
-import org.oscm.app.common.i18n.Messages;
 import org.oscm.app.v2_0.APPlatformServiceFactory;
 import org.oscm.app.v2_0.data.ControllerConfigurationKey;
 import org.oscm.app.v2_0.data.PasswordAuthentication;
 import org.oscm.app.v2_0.data.Setting;
+import org.oscm.app.v2_0.i18n.Messages;
 import org.oscm.app.v2_0.intf.APPlatformService;
 import org.oscm.app.v2_0.intf.ControllerAccess;
 import org.slf4j.Logger;

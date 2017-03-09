@@ -16,9 +16,8 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-
-import org.oscm.app.common.i18n.Messages;
 import org.oscm.app.v2_0.data.LocalizedText;
+import org.oscm.app.v2_0.i18n.Messages;
 
 /**
  * Unit test of property handler
