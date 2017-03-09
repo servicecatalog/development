@@ -30,3 +30,5 @@ build:
     - cat oscm.log
     - mvn -f oscm-webtest-base/pom.xml install
     - mvn -f oscm-portal-integrationtests/pom.xml package test
+
+
