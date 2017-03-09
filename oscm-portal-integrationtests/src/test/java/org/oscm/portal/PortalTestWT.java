@@ -1,5 +1,6 @@
 package org.oscm.portal;
 
+        import static org.junit.Assert.assertEquals;
         import static org.junit.Assert.assertNotNull;
         import static org.junit.Assert.assertTrue;
 
@@ -43,6 +44,7 @@ public class PortalTestWT {
 
     @Test
     public void test01Create() {
-        assertTrue(tester.getCurrentUrl() == "about:blank");
+        System.out.println(tester.getCurrentUrl());
+        assertEquals(tester.getCurrentUrl(), "about:blank");
     }
 }
