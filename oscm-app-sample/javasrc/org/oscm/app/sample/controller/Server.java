@@ -10,7 +10,7 @@ package org.oscm.app.sample.controller;
 
 import java.util.List;
 
-import org.oscm.app.common.intf.ServerInformation;
+import org.oscm.app.v2_0.intf.ServerInformation;
 
 /**
  * Data class for custom tab.

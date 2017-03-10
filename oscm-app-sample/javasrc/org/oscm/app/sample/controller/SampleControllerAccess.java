@@ -11,8 +11,8 @@ package org.oscm.app.sample.controller;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.oscm.app.common.i18n.Messages;
-import org.oscm.app.common.intf.ControllerAccess;
+import org.oscm.app.v2_0.i18n.Messages;
+import org.oscm.app.v2_0.intf.ControllerAccess;
 
 public class SampleControllerAccess implements ControllerAccess {
 

@@ -17,6 +17,7 @@ import java.util.HashSet;
 import org.junit.Ignore;
 
 import org.oscm.app.common.ui.ConfigurationBean;
+import org.oscm.app.v2_0.intf.ControllerAccess;
 
 /**
  * Abstract base class for testing common functionality within each controller.
