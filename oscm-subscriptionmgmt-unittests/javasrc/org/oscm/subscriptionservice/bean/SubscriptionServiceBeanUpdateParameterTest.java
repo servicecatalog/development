@@ -22,12 +22,7 @@ import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,6 +53,7 @@ import org.oscm.domobjects.TriggerProcessParameter;
 import org.oscm.encrypter.AESEncrypter;
 import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
+import org.oscm.internal.intf.TriggerService;
 import org.oscm.internal.types.enumtypes.ParameterModificationType;
 import org.oscm.internal.types.enumtypes.ServiceStatus;
 import org.oscm.internal.types.enumtypes.ServiceType;
@@ -66,12 +62,7 @@ import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.OperationNotPermittedException;
 import org.oscm.internal.types.exception.SubscriptionMigrationException;
 import org.oscm.internal.types.exception.ValidationException;
-import org.oscm.internal.vo.VOBillingContact;
-import org.oscm.internal.vo.VOParameter;
-import org.oscm.internal.vo.VOPaymentInfo;
-import org.oscm.internal.vo.VOService;
-import org.oscm.internal.vo.VOSubscription;
-import org.oscm.internal.vo.VOUda;
+import org.oscm.internal.vo.*;
 import org.oscm.serviceprovisioningservice.assembler.ParameterAssembler;
 import org.oscm.subscriptionservice.auditlog.SubscriptionAuditLogCollector;
 import org.oscm.subscriptionservice.dao.ModifiedEntityDao;
@@ -266,6 +257,11 @@ public class SubscriptionServiceBeanUpdateParameterTest {
 
         doReturn(mock(ModifiedEntityDao.class)).when(bean)
                 .getModifiedEntityDao();
+
+        TriggerService ts = mock(TriggerService.class);
+        List<VOTriggerProcess> triggerProcesses = new ArrayList<>();
+        bean.triggerService = ts;
+        when(ts.getAllActionsForOrganizationRelatedSubscription()).thenReturn(triggerProcesses);
 
         // when
         bean.modifySubscriptionInt(trigger);

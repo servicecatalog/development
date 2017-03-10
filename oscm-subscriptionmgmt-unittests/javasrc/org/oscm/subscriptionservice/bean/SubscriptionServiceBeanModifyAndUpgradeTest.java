@@ -52,6 +52,7 @@ import org.oscm.domobjects.UdaDefinition;
 import org.oscm.domobjects.enums.ModifiedEntityType;
 import org.oscm.encrypter.AESEncrypter;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
+import org.oscm.internal.intf.TriggerService;
 import org.oscm.internal.types.enumtypes.PriceModelType;
 import org.oscm.internal.types.enumtypes.ServiceType;
 import org.oscm.internal.types.enumtypes.SubscriptionStatus;
@@ -59,15 +60,7 @@ import org.oscm.internal.types.exception.IllegalArgumentException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.OperationNotPermittedException;
 import org.oscm.internal.types.exception.ValidationException;
-import org.oscm.internal.vo.VOBillingContact;
-import org.oscm.internal.vo.VOInstanceInfo;
-import org.oscm.internal.vo.VOParameter;
-import org.oscm.internal.vo.VOParameterDefinition;
-import org.oscm.internal.vo.VOPaymentInfo;
-import org.oscm.internal.vo.VOService;
-import org.oscm.internal.vo.VOSubscription;
-import org.oscm.internal.vo.VOUda;
-import org.oscm.internal.vo.VOUdaDefinition;
+import org.oscm.internal.vo.*;
 import org.oscm.subscriptionservice.auditlog.SubscriptionAuditLogCollector;
 import org.oscm.subscriptionservice.dao.ModifiedEntityDao;
 import org.oscm.subscriptionservice.dao.OrganizationDao;
@@ -253,6 +246,10 @@ public class SubscriptionServiceBeanModifyAndUpgradeTest {
         doReturn(Long.valueOf(0)).when(modifiedEntityDao)
                 .countSubscriptionOfOrganizationAndSubscription(
                         any(Subscription.class), anyString());
+        TriggerService ts = mock(TriggerService.class);
+        List<VOTriggerProcess> triggerProcesses = new ArrayList<>();
+        bean.triggerService = ts;
+        when(ts.getAllActionsForOrganizationRelatedSubscription()).thenReturn(triggerProcesses);
         // when
         bean.modifySubscriptionInt(triggerProcessModify);
 
