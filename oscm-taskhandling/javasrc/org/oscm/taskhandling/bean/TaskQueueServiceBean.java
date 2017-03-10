@@ -130,6 +130,7 @@ public class TaskQueueServiceBean implements TaskQueueServiceLocal {
         Connection conn = null;
         Queue queue;
         Context jndiContext = null;
+        MessageProducer producer = null;
         int sentMsgCount = 0;
         try {
             if (messages.size() > 0) {
@@ -139,7 +140,7 @@ public class TaskQueueServiceBean implements TaskQueueServiceLocal {
                 conn = connectionFactory.createConnection();
 
                 session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-                MessageProducer producer = session.createProducer(queue);
+                producer = session.createProducer(queue);
                 for (TaskMessage objectToSend : messages) {
                     PlatformUser user = dm.getCurrentUserIfPresent();
                     if (user != null) {
@@ -166,6 +167,7 @@ public class TaskQueueServiceBean implements TaskQueueServiceLocal {
                     Integer.toString(messages.size()), status);
             throw sse;
         } finally {
+            closeProducer(producer);
             closeSession(session);
             closeConnection(conn);
             closeJNDI(jndiContext);
@@ -176,6 +178,17 @@ public class TaskQueueServiceBean implements TaskQueueServiceLocal {
         if (session != null) {
             try {
                 session.close();
+            } catch (Exception e) {
+                logger.logError(Log4jLogger.SYSTEM_LOG, e,
+                        LogMessageIdentifier.ERROR_CLOSE_RESOURCE_FAILED);
+            }
+        }
+    }
+
+    void closeProducer(MessageProducer producer) {
+        if (producer != null) {
+            try {
+                producer.close();
             } catch (Exception e) {
                 logger.logError(Log4jLogger.SYSTEM_LOG, e,
                         LogMessageIdentifier.ERROR_CLOSE_RESOURCE_FAILED);
