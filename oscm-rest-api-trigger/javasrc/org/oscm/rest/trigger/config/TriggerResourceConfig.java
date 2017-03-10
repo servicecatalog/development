@@ -10,8 +10,6 @@ package org.oscm.rest.trigger.config;
 
 import java.util.Map;
 
-import javax.ws.rs.ApplicationPath;
-
 
 /**
  * Registers resources and providers of the trigger component to the
@@ -19,7 +17,7 @@ import javax.ws.rs.ApplicationPath;
  * 
  * @author miethaner
  */
-@ApplicationPath(TriggerCommonParams.PATH_TRIGGER)
+//@ApplicationPath(TriggerCommonParams.PATH_TRIGGER)
 public class TriggerResourceConfig {// extends ResourceConfig {
 
     private Map<String, Object> properties;

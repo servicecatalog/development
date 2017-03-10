@@ -8,37 +8,28 @@
 
 package org.oscm.rest.trigger;
 
-import javax.ejb.EJB;
-import javax.ejb.Stateless;
-import javax.ws.rs.Path;
-
-import org.oscm.rest.common.CommonParams;
-import org.oscm.rest.common.RestResource;
-import org.oscm.rest.trigger.config.TriggerCommonParams;
-
-
 /**
  * Rest root resource for trigger component
  * 
  * @author miethaner
  */
-@Path(CommonParams.PATH_VERSION)
-@Stateless
-public class RestTriggerResource extends RestResource {
-
-    @EJB
-    private DefinitionBackend triggerBackend;
-
-    public void setDefinitionBackend(DefinitionBackend triggerBackend) {
-        this.triggerBackend = triggerBackend;
-    }
-
-    @EJB
-    private ProcessBackend processBackend;
-
-    public void setProcessBackend(ProcessBackend processBackend) {
-        this.processBackend = processBackend;
-    }
+//@Path(CommonParams.PATH_VERSION)
+//@Stateless
+public class RestTriggerResource { //extends RestResource {
+//
+//    @EJB
+//    private DefinitionBackend triggerBackend;
+//
+//    public void setDefinitionBackend(DefinitionBackend triggerBackend) {
+//        this.triggerBackend = triggerBackend;
+//    }
+//
+//    @EJB
+//    private ProcessBackend processBackend;
+//
+//    public void setProcessBackend(ProcessBackend processBackend) {
+//        this.processBackend = processBackend;
+//    }
 
     /**
      * Endpoint class for trigger definition

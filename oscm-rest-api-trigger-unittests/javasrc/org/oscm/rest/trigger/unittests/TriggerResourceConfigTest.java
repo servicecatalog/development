@@ -8,14 +8,7 @@
 
 package org.oscm.rest.trigger.unittests;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import org.junit.Test;
-import org.oscm.rest.common.GsonMessageProvider;
-import org.oscm.rest.trigger.RestTriggerResource;
-import org.oscm.rest.trigger.config.TriggerResourceConfig;
 
 /**
  * @author miethaner
