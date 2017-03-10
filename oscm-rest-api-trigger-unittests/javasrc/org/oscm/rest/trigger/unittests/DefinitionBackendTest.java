@@ -40,6 +40,11 @@ import org.oscm.rest.trigger.data.DefinitionRepresentation;
  * @author miethaner
  */
 public class DefinitionBackendTest {
+  
+  @Test
+  public void dummyTest() {
+  }
+  
 //
 //    @Test
 //    public void testGetItem() throws Exception {
