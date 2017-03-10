@@ -60,6 +60,11 @@ import org.oscm.types.enumtypes.LogMessageIdentifier;
 
 @SuppressWarnings("rawtypes")
 public class TaskQueueServiceBeanTest {
+
+    @Test
+    public void dummy() {
+
+    }
 //
 //    private TaskQueueServiceBean tqs;
 //    private List<Object> storedObjects;
