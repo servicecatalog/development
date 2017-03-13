@@ -120,7 +120,7 @@
     <patchForRedeployableWebContent file="${build.result.package.dir}/oscm-portal/oscm-portal.war" />
   </target>
 
-  <target name="InstalPack.BUILD"
+  <target name="InstallPack.BUILD"
           description="Builds the BES UI portal war file, the result can be found in oscm-build/result/package/oscm-portal">
     <ant dir="${adm.ue.buildscript.dir}" antfile="${adm.ue.buildscript.file}" target="package">
       <property name="projects" value="oscm-install-pack" />
