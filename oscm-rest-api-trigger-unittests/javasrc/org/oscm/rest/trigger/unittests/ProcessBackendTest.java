@@ -33,235 +33,235 @@ public class ProcessBackendTest {
   @Test
   public void dummyTest() {
 }
-//
-//    @Test
-//    public void testPutApprove() throws Exception {
-//
-//        TriggerParameters params = new TriggerParameters();
-//        ProcessRepresentation process = new ProcessRepresentation();
-//        params.setId(new Long(1L));
-//
-//        TriggerService service = Mockito.mock(TriggerService.class);
-//
-//        ProcessBackend backend = new ProcessBackend();
-//        backend.setService(service);
-//        backend.putApprove().put(process, params);
-//
-//        Mockito.verify(service).approveAction(params.getId().longValue());
-//
-//        Mockito.reset(service);
-//
-//        Mockito.doThrow(new ObjectNotFoundException()).when(service)
-//                .approveAction(params.getId().longValue());
-//
-//        try {
-//            backend.putApprove().put(process, params);
-//            fail();
-//        } catch (WebApplicationException e) {
-//            assertEquals(Status.NOT_FOUND.getStatusCode(), e.getResponse()
-//                    .getStatus());
-//        }
-//
-//        Mockito.reset(service);
-//
-//        Mockito.doThrow(new OperationNotPermittedException()).when(service)
-//                .approveAction(params.getId().longValue());
-//
-//        try {
-//            backend.putApprove().put(process, params);
-//            fail();
-//        } catch (WebApplicationException e) {
-//            assertEquals(Status.FORBIDDEN.getStatusCode(), e.getResponse()
-//                    .getStatus());
-//        }
-//
-//        Mockito.reset(service);
-//
-//        Mockito.doThrow(new TriggerProcessStatusException()).when(service)
-//                .approveAction(params.getId().longValue());
-//
-//        try {
-//            backend.putApprove().put(process, params);
-//            fail();
-//        } catch (WebApplicationException e) {
-//            assertEquals(Status.CONFLICT.getStatusCode(), e.getResponse()
-//                    .getStatus());
-//        }
-//
-//        Mockito.reset(service);
-//
-//        Mockito.doThrow(new ExecutionTargetException()).when(service)
-//                .approveAction(params.getId().longValue());
-//
-//        try {
-//            backend.putApprove().put(process, params);
-//            fail();
-//        } catch (WebApplicationException e) {
-//            assertEquals(Status.CONFLICT.getStatusCode(), e.getResponse()
-//                    .getStatus());
-//        }
-//
-//        Mockito.reset(service);
-//
-//        Mockito.doThrow(new javax.ejb.EJBAccessException()).when(service)
-//                .approveAction(params.getId().longValue());
-//
-//        try {
-//            backend.putApprove().put(process, params);
-//            fail();
-//        } catch (WebApplicationException e) {
-//            assertEquals(Status.FORBIDDEN.getStatusCode(), e.getResponse()
-//                    .getStatus());
-//        }
-//    }
-//
-//    @SuppressWarnings("unchecked")
-//    @Test
-//    public void testPutReject() throws Exception {
-//
-//        TriggerParameters params = new TriggerParameters();
-//        ProcessRepresentation process = new ProcessRepresentation();
-//        process.setComment("comment");
-//        params.setId(new Long(1L));
-//
-//        TriggerService service = Mockito.mock(TriggerService.class);
-//
-//        ProcessBackend backend = new ProcessBackend();
-//        backend.setService(service);
-//        backend.putReject().put(process, params);
-//
-//        Mockito.verify(service).rejectAction(
-//                Mockito.eq(params.getId().longValue()), Mockito.anyList());
-//
-//        Mockito.reset(service);
-//
-//        Mockito.doThrow(new ObjectNotFoundException())
-//                .when(service)
-//                .rejectAction(Mockito.eq(params.getId().longValue()),
-//                        Mockito.anyList());
-//
-//        try {
-//            backend.putReject().put(process, params);
-//            fail();
-//        } catch (WebApplicationException e) {
-//            assertEquals(Status.NOT_FOUND.getStatusCode(), e.getResponse()
-//                    .getStatus());
-//        }
-//
-//        Mockito.reset(service);
-//
-//        Mockito.doThrow(new OperationNotPermittedException())
-//                .when(service)
-//                .rejectAction(Mockito.eq(params.getId().longValue()),
-//                        Mockito.anyList());
-//
-//        try {
-//            backend.putReject().put(process, params);
-//            fail();
-//        } catch (WebApplicationException e) {
-//            assertEquals(Status.FORBIDDEN.getStatusCode(), e.getResponse()
-//                    .getStatus());
-//        }
-//
-//        Mockito.reset(service);
-//
-//        Mockito.doThrow(new TriggerProcessStatusException())
-//                .when(service)
-//                .rejectAction(Mockito.eq(params.getId().longValue()),
-//                        Mockito.anyList());
-//
-//        try {
-//            backend.putReject().put(process, params);
-//            fail();
-//        } catch (WebApplicationException e) {
-//            assertEquals(Status.CONFLICT.getStatusCode(), e.getResponse()
-//                    .getStatus());
-//        }
-//
-//        Mockito.reset(service);
-//
-//        Mockito.doThrow(new javax.ejb.EJBAccessException())
-//                .when(service)
-//                .rejectAction(Mockito.eq(params.getId().longValue()),
-//                        Mockito.anyList());
-//
-//        try {
-//            backend.putReject().put(process, params);
-//            fail();
-//        } catch (WebApplicationException e) {
-//            assertEquals(Status.FORBIDDEN.getStatusCode(), e.getResponse()
-//                    .getStatus());
-//        }
-//    }
-//
-//    @SuppressWarnings("unchecked")
-//    @Test
-//    public void testPutCancel() throws Exception {
-//
-//        TriggerParameters params = new TriggerParameters();
-//        ProcessRepresentation process = new ProcessRepresentation();
-//        process.setComment("comment");
-//        params.setId(new Long(1L));
-//
-//        TriggerService service = Mockito.mock(TriggerService.class);
-//
-//        ProcessBackend backend = new ProcessBackend();
-//        backend.setService(service);
-//        backend.putCancel().put(process, params);
-//
-//        Mockito.verify(service).cancelActions(Mockito.anyList(),
-//                Mockito.anyList());
-//
-//        Mockito.reset(service);
-//
-//        Mockito.doThrow(new ObjectNotFoundException()).when(service)
-//                .cancelActions(Mockito.anyList(), Mockito.anyList());
-//
-//        try {
-//            backend.putCancel().put(process, params);
-//            fail();
-//        } catch (WebApplicationException e) {
-//            assertEquals(Status.NOT_FOUND.getStatusCode(), e.getResponse()
-//                    .getStatus());
-//        }
-//
-//        Mockito.reset(service);
-//
-//        Mockito.doThrow(new OperationNotPermittedException()).when(service)
-//                .cancelActions(Mockito.anyList(), Mockito.anyList());
-//
-//        try {
-//            backend.putCancel().put(process, params);
-//            fail();
-//        } catch (WebApplicationException e) {
-//            assertEquals(Status.FORBIDDEN.getStatusCode(), e.getResponse()
-//                    .getStatus());
-//        }
-//
-//        Mockito.reset(service);
-//
-//        Mockito.doThrow(new TriggerProcessStatusException()).when(service)
-//                .cancelActions(Mockito.anyList(), Mockito.anyList());
-//
-//        try {
-//            backend.putCancel().put(process, params);
-//            fail();
-//        } catch (WebApplicationException e) {
-//            assertEquals(Status.CONFLICT.getStatusCode(), e.getResponse()
-//                    .getStatus());
-//        }
-//
-//        Mockito.reset(service);
-//
-//        Mockito.doThrow(new javax.ejb.EJBAccessException()).when(service)
-//                .cancelActions(Mockito.anyList(), Mockito.anyList());
-//
-//        try {
-//            backend.putCancel().put(process, params);
-//            fail();
-//        } catch (WebApplicationException e) {
-//            assertEquals(Status.FORBIDDEN.getStatusCode(), e.getResponse()
-//                    .getStatus());
-//        }
-//    }
+
+    @Test
+    public void testPutApprove() throws Exception {
+
+        TriggerParameters params = new TriggerParameters();
+        ProcessRepresentation process = new ProcessRepresentation();
+        params.setId(new Long(1L));
+
+        TriggerService service = Mockito.mock(TriggerService.class);
+
+        ProcessBackend backend = new ProcessBackend();
+        backend.setService(service);
+        backend.putApprove().put(process, params);
+
+        Mockito.verify(service).approveAction(params.getId().longValue());
+
+        Mockito.reset(service);
+
+        Mockito.doThrow(new ObjectNotFoundException()).when(service)
+                .approveAction(params.getId().longValue());
+
+        try {
+            backend.putApprove().put(process, params);
+            fail();
+        } catch (WebApplicationException e) {
+            assertEquals(Status.NOT_FOUND.getStatusCode(), e.getResponse()
+                    .getStatus());
+        }
+
+        Mockito.reset(service);
+
+        Mockito.doThrow(new OperationNotPermittedException()).when(service)
+                .approveAction(params.getId().longValue());
+
+        try {
+            backend.putApprove().put(process, params);
+            fail();
+        } catch (WebApplicationException e) {
+            assertEquals(Status.FORBIDDEN.getStatusCode(), e.getResponse()
+                    .getStatus());
+        }
+
+        Mockito.reset(service);
+
+        Mockito.doThrow(new TriggerProcessStatusException()).when(service)
+                .approveAction(params.getId().longValue());
+
+        try {
+            backend.putApprove().put(process, params);
+            fail();
+        } catch (WebApplicationException e) {
+            assertEquals(Status.CONFLICT.getStatusCode(), e.getResponse()
+                    .getStatus());
+        }
+
+        Mockito.reset(service);
+
+        Mockito.doThrow(new ExecutionTargetException()).when(service)
+                .approveAction(params.getId().longValue());
+
+        try {
+            backend.putApprove().put(process, params);
+            fail();
+        } catch (WebApplicationException e) {
+            assertEquals(Status.CONFLICT.getStatusCode(), e.getResponse()
+                    .getStatus());
+        }
+
+        Mockito.reset(service);
+
+        Mockito.doThrow(new javax.ejb.EJBAccessException()).when(service)
+                .approveAction(params.getId().longValue());
+
+        try {
+            backend.putApprove().put(process, params);
+            fail();
+        } catch (WebApplicationException e) {
+            assertEquals(Status.FORBIDDEN.getStatusCode(), e.getResponse()
+                    .getStatus());
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testPutReject() throws Exception {
+
+        TriggerParameters params = new TriggerParameters();
+        ProcessRepresentation process = new ProcessRepresentation();
+        process.setComment("comment");
+        params.setId(new Long(1L));
+
+        TriggerService service = Mockito.mock(TriggerService.class);
+
+        ProcessBackend backend = new ProcessBackend();
+        backend.setService(service);
+        backend.putReject().put(process, params);
+
+        Mockito.verify(service).rejectAction(
+                Mockito.eq(params.getId().longValue()), Mockito.anyList());
+
+        Mockito.reset(service);
+
+        Mockito.doThrow(new ObjectNotFoundException())
+                .when(service)
+                .rejectAction(Mockito.eq(params.getId().longValue()),
+                        Mockito.anyList());
+
+        try {
+            backend.putReject().put(process, params);
+            fail();
+        } catch (WebApplicationException e) {
+            assertEquals(Status.NOT_FOUND.getStatusCode(), e.getResponse()
+                    .getStatus());
+        }
+
+        Mockito.reset(service);
+
+        Mockito.doThrow(new OperationNotPermittedException())
+                .when(service)
+                .rejectAction(Mockito.eq(params.getId().longValue()),
+                        Mockito.anyList());
+
+        try {
+            backend.putReject().put(process, params);
+            fail();
+        } catch (WebApplicationException e) {
+            assertEquals(Status.FORBIDDEN.getStatusCode(), e.getResponse()
+                    .getStatus());
+        }
+
+        Mockito.reset(service);
+
+        Mockito.doThrow(new TriggerProcessStatusException())
+                .when(service)
+                .rejectAction(Mockito.eq(params.getId().longValue()),
+                        Mockito.anyList());
+
+        try {
+            backend.putReject().put(process, params);
+            fail();
+        } catch (WebApplicationException e) {
+            assertEquals(Status.CONFLICT.getStatusCode(), e.getResponse()
+                    .getStatus());
+        }
+
+        Mockito.reset(service);
+
+        Mockito.doThrow(new javax.ejb.EJBAccessException())
+                .when(service)
+                .rejectAction(Mockito.eq(params.getId().longValue()),
+                        Mockito.anyList());
+
+        try {
+            backend.putReject().put(process, params);
+            fail();
+        } catch (WebApplicationException e) {
+            assertEquals(Status.FORBIDDEN.getStatusCode(), e.getResponse()
+                    .getStatus());
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testPutCancel() throws Exception {
+
+        TriggerParameters params = new TriggerParameters();
+        ProcessRepresentation process = new ProcessRepresentation();
+        process.setComment("comment");
+        params.setId(new Long(1L));
+
+        TriggerService service = Mockito.mock(TriggerService.class);
+
+        ProcessBackend backend = new ProcessBackend();
+        backend.setService(service);
+        backend.putCancel().put(process, params);
+
+        Mockito.verify(service).cancelActions(Mockito.anyList(),
+                Mockito.anyList());
+
+        Mockito.reset(service);
+
+        Mockito.doThrow(new ObjectNotFoundException()).when(service)
+                .cancelActions(Mockito.anyList(), Mockito.anyList());
+
+        try {
+            backend.putCancel().put(process, params);
+            fail();
+        } catch (WebApplicationException e) {
+            assertEquals(Status.NOT_FOUND.getStatusCode(), e.getResponse()
+                    .getStatus());
+        }
+
+        Mockito.reset(service);
+
+        Mockito.doThrow(new OperationNotPermittedException()).when(service)
+                .cancelActions(Mockito.anyList(), Mockito.anyList());
+
+        try {
+            backend.putCancel().put(process, params);
+            fail();
+        } catch (WebApplicationException e) {
+            assertEquals(Status.FORBIDDEN.getStatusCode(), e.getResponse()
+                    .getStatus());
+        }
+
+        Mockito.reset(service);
+
+        Mockito.doThrow(new TriggerProcessStatusException()).when(service)
+                .cancelActions(Mockito.anyList(), Mockito.anyList());
+
+        try {
+            backend.putCancel().put(process, params);
+            fail();
+        } catch (WebApplicationException e) {
+            assertEquals(Status.CONFLICT.getStatusCode(), e.getResponse()
+                    .getStatus());
+        }
+
+        Mockito.reset(service);
+
+        Mockito.doThrow(new javax.ejb.EJBAccessException()).when(service)
+                .cancelActions(Mockito.anyList(), Mockito.anyList());
+
+        try {
+            backend.putCancel().put(process, params);
+            fail();
+        } catch (WebApplicationException e) {
+            assertEquals(Status.FORBIDDEN.getStatusCode(), e.getResponse()
+                    .getStatus());
+        }
+    }
 }

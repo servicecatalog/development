@@ -38,6 +38,15 @@ import org.oscm.rest.trigger.data.ActionRepresentation;
 import org.oscm.rest.trigger.data.DefinitionRepresentation;
 import org.oscm.rest.trigger.data.ProcessRepresentation;
 
+import javax.ejb.EJB;
+import javax.ejb.Stateless;
+import javax.ws.rs.Path;
+
+import org.oscm.rest.common.CommonParams;
+import org.oscm.rest.common.RestResource;
+import org.oscm.rest.trigger.config.TriggerCommonParams;
+
+
 /**
  * Rest root resource for trigger component
  *
