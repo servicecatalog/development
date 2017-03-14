@@ -14,7 +14,6 @@ import static org.junit.Assert.fail;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response.Status;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.oscm.rest.common.RequestParameters;
 
@@ -23,7 +22,6 @@ import org.oscm.rest.common.RequestParameters;
  * 
  * @author miethaner
  */
-@Ignore
 public class RequestParametersTest {
 
     private class TestParameters extends RequestParameters {
@@ -56,8 +54,8 @@ public class RequestParametersTest {
             params.validateId();
             fail();
         } catch (WebApplicationException e) {
-            assertEquals(Status.NOT_FOUND.getStatusCode(), e.getResponse()
-                    .getStatus());
+            assertEquals(Status.NOT_FOUND.getStatusCode(),
+                    e.getResponse().getStatus());
         }
 
     }
@@ -104,8 +102,8 @@ public class RequestParametersTest {
             params.validateETag();
             fail();
         } catch (WebApplicationException e) {
-            assertEquals(Status.BAD_REQUEST.getStatusCode(), e.getResponse()
-                    .getStatus());
+            assertEquals(Status.BAD_REQUEST.getStatusCode(),
+                    e.getResponse().getStatus());
         }
 
         params = new TestParameters();
@@ -115,8 +113,8 @@ public class RequestParametersTest {
             params.validateETag();
             fail();
         } catch (WebApplicationException e) {
-            assertEquals(Status.BAD_REQUEST.getStatusCode(), e.getResponse()
-                    .getStatus());
+            assertEquals(Status.BAD_REQUEST.getStatusCode(),
+                    e.getResponse().getStatus());
         }
     }
 

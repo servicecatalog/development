@@ -8,7 +8,28 @@
 
 package org.oscm.rest.trigger.unittests;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
+
+import org.glassfish.jersey.server.ContainerRequest;
+import org.glassfish.jersey.server.ExtendedUriInfo;
+import org.hamcrest.core.IsInstanceOf;
 import org.junit.Test;
+import org.mockito.Mockito;
+import org.oscm.internal.intf.TriggerDefinitionService;
+import org.oscm.internal.intf.TriggerService;
+import org.oscm.rest.common.CommonParams;
+import org.oscm.rest.common.RepresentationCollection;
+import org.oscm.rest.trigger.DefinitionBackend;
+import org.oscm.rest.trigger.ProcessBackend;
+import org.oscm.rest.trigger.RestTriggerResource;
+import org.oscm.rest.trigger.TriggerParameters;
+import org.oscm.rest.trigger.data.DefinitionRepresentation;
+import org.oscm.rest.trigger.data.ProcessRepresentation;
 
 /**
  * Unit test for RestTriggerResource
@@ -18,32 +39,28 @@ import org.junit.Test;
 public class RestTriggerResourceTest {
 
     @Test
-    public void testAction() {
-        //TODO glassfish upgrade
-        /*RestTriggerResource.Action action = new RestTriggerResource()
+    public void testAction() throws Exception {
+        RestTriggerResource.Action action = new RestTriggerResource()
                 .redirectToAction();
 
         TriggerParameters params = new TriggerParameters();
         params.setId(new Long(1L));
 
-        Map<String, Object> map = new HashMap<String, Object>();
-        map.put(CommonParams.PARAM_VERSION, new Integer(CommonParams.VERSION_1));
-
         ContainerRequest request = Mockito.mock(ContainerRequest.class);
-        Mockito.when(request.getProperties()).thenReturn(map);
+        Mockito.when(request.getProperty(Mockito.anyString()))
+                .thenReturn(new Integer(CommonParams.VERSION_1));
 
         Response response = action.getCollection(request, params);
         assertThat(response.getEntity(),
-                instanceOf(RepresentationCollection.class));
-                
-        assertNull(action.getItem(request, params));        
-        */   
+                IsInstanceOf.instanceOf(RepresentationCollection.class));
+
+        assertNull(action.getItem(request, params));
     }
 
     @Test
-    public void testDefinition() {
+    public void testDefinition() throws Exception {
 
-        /*RestTriggerResource resource = new RestTriggerResource();
+        RestTriggerResource resource = new RestTriggerResource();
 
         RestTriggerResource.Definition definition = resource
                 .redirectToTrigger();
@@ -58,21 +75,21 @@ public class RestTriggerResourceTest {
         params.setId(new Long(1L));
         params.setMatch("1");
 
-        Map<String, Object> map = new HashMap<String, Object>();
-        map.put(CommonParams.PARAM_VERSION, new Integer(CommonParams.VERSION_1));
-
         ContainerRequest request = Mockito.mock(ContainerRequest.class);
-        Mockito.when(request.getProperties()).thenReturn(map);
-        Mockito.when(request.getAbsolutePathBuilder()).thenReturn(
-                new UriBuilderImpl());
+        Mockito.when(request.getProperty(Mockito.anyString()))
+                .thenReturn(new Integer(CommonParams.VERSION_1));
+        ExtendedUriInfo uri = Mockito.mock(ExtendedUriInfo.class);
+        Mockito.when(request.getUriInfo()).thenReturn(uri);
+        Mockito.when(uri.getAbsolutePathBuilder())
+                .thenReturn(UriBuilder.fromPath(""));
 
         Response response = definition.getCollection(request, params);
         assertThat(response.getEntity(),
-                instanceOf(RepresentationCollection.class));
+                IsInstanceOf.instanceOf(RepresentationCollection.class));
 
         response = definition.getItem(request, params);
         assertThat(response.getEntity(),
-                instanceOf(DefinitionRepresentation.class));
+                IsInstanceOf.instanceOf(DefinitionRepresentation.class));
 
         DefinitionRepresentation content = new DefinitionRepresentation();
         content.setId(new Long(1L));
@@ -89,12 +106,12 @@ public class RestTriggerResourceTest {
 
         response = definition.putItem(request, content, params);
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(),
-                response.getStatus());*/
+                response.getStatus());
     }
 
     @Test
-    public void testProcess() {
-        /*RestTriggerResource resource = new RestTriggerResource();
+    public void testProcess() throws Exception {
+        RestTriggerResource resource = new RestTriggerResource();
         RestTriggerResource.Process process = resource.redirectToProcess();
 
         ProcessBackend backend = new ProcessBackend();
@@ -105,11 +122,9 @@ public class RestTriggerResourceTest {
         TriggerParameters params = new TriggerParameters();
         params.setId(new Long(1L));
 
-        Map<String, Object> map = new HashMap<String, Object>();
-        map.put(CommonParams.PARAM_VERSION, new Integer(CommonParams.VERSION_1));
-
         ContainerRequest request = Mockito.mock(ContainerRequest.class);
-        Mockito.when(request.getProperties()).thenReturn(map);
+        Mockito.when(request.getProperty(Mockito.anyString()))
+                .thenReturn(new Integer(CommonParams.VERSION_1));
 
         ProcessRepresentation content = new ProcessRepresentation();
         content.setComment("abc");
@@ -120,7 +135,7 @@ public class RestTriggerResourceTest {
 
         response = process.putReject(request, content, params);
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(),
-                response.getStatus());*/
+                response.getStatus());
     }
 
 }

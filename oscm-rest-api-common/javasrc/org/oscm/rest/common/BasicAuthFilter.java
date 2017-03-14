@@ -17,11 +17,11 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.Response.Status;
 
+import org.apache.commons.codec.binary.Base64;
 import org.oscm.internal.intf.ConfigurationService;
 import org.oscm.internal.intf.IdentityService;
 import org.oscm.internal.types.enumtypes.AuthenticationMode;
@@ -32,6 +32,7 @@ import org.oscm.internal.types.exception.OrganizationRemovedException;
 import org.oscm.internal.vo.VOUser;
 import org.oscm.types.constants.Configuration;
 
+import com.sun.enterprise.security.auth.login.common.LoginException;
 import com.sun.web.security.WebProgrammaticLoginImpl;
 
 /**
@@ -43,7 +44,8 @@ public class BasicAuthFilter implements Filter {
 
     private WebProgrammaticLoginImpl programmaticLogin;
 
-    public void setProgrammaticLogin(WebProgrammaticLoginImpl programmaticLogin) {
+    public void setProgrammaticLogin(
+            WebProgrammaticLoginImpl programmaticLogin) {
         this.programmaticLogin = programmaticLogin;
     }
 
@@ -69,24 +71,24 @@ public class BasicAuthFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response,
             FilterChain chain) throws IOException, ServletException {
-        //TODO glassfish upgrade
-        /*HttpServletRequest rq = (HttpServletRequest) request;
+        HttpServletRequest rq = (HttpServletRequest) request;
         HttpServletResponse rs = (HttpServletResponse) response;
 
         String header = rq.getHeader(CommonParams.HEADER_AUTH);
         if (header != null && !header.isEmpty()
                 && header.startsWith(CommonParams.BASIC_AUTH_PREFIX)) {
 
-            String encodedUsrPwd = header.replace(
-                    CommonParams.BASIC_AUTH_PREFIX, "");
-            String userPwd = Base64.base64Decode(encodedUsrPwd);
-            String[] split = userPwd
-                    .split(CommonParams.BASIC_AUTH_SEPARATOR, 2);
+            String encodedUsrPwd = header
+                    .replace(CommonParams.BASIC_AUTH_PREFIX, "");
+            String userPwd = new String(Base64.decodeBase64(encodedUsrPwd));
+            String[] split = userPwd.split(CommonParams.BASIC_AUTH_SEPARATOR,
+                    2);
 
             String pwd = split[1];
 
-            String authMode = configService.getVOConfigurationSetting(
-                    ConfigurationKey.AUTH_MODE, Configuration.GLOBAL_CONTEXT)
+            String authMode = configService
+                    .getVOConfigurationSetting(ConfigurationKey.AUTH_MODE,
+                            Configuration.GLOBAL_CONTEXT)
                     .getValue();
 
             if (!AuthenticationMode.INTERNAL.name().equals(authMode)) {
@@ -112,7 +114,7 @@ public class BasicAuthFilter implements Filter {
                         CommonParams.ERROR_LOGIN_FAILED);
             }
         }
-*/
+
         chain.doFilter(request, response);
     }
 

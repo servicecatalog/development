@@ -104,7 +104,7 @@
     <copy file="${ivy.lib.dir}/backport-util-concurrent-3.1.jar" todir="${root.dir}/libraries/backport/javalib" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/bcprov-jdk15-1.45.jar" tofile="${root.dir}/libraries/bouncycastle/javalib/bcprov-jdk15-145.jar" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/dbunit-2.4.7.jar" todir="${root.dir}/libraries/dbunit/javalib" overwrite="true"></copy>
-    <copy file="${ivy.lib.dir}/ecj-4.5.1.jar" todir="${root.dir}/libraries/eclipse-ecj/javalib" overwrite="true"></copy>
+    <copy file="${ivy.lib.dir}/ecj-4.6.1.jar" todir="${root.dir}/libraries/eclipse-ecj/javalib" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/junit-4.5.jar" todir="${root.dir}/oscm-integrationtests-apiversioning-test-client/javalib" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/log4j-1.2.16.jar" todir="${root.dir}/j2ep/WebContent/WEB-INF/lib" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/org.jacoco.agent-0.7.8.jar" todir="${root.dir}/libraries/jacoco/javalib/" overwrite="true"></copy>
@@ -130,6 +130,7 @@
     <copy file="${ivy.lib.dir}/jersey-guava-2.21.jar" tofile="${root.dir}/libraries/jersey/javalib/jersey-guava.jar" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/jersey-client-2.21.jar" tofile="${root.dir}/libraries/jersey/javalib/jersey-client.jar" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/jersey-common-2.21.jar" tofile="${root.dir}/libraries/jersey/javalib/jersey-common.jar" overwrite="true"></copy>
+    <copy file="${ivy.lib.dir}/jersey-server-2.21.jar" tofile="${root.dir}/libraries/jersey/javalib/jersey-server.jar" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/jolokia-core-1.1.1.jar" todir="${root.dir}/libraries/jolokia/WebContent/WEB-INF/lib/" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/jolokia-jsr160-1.1.1.jar" todir="${root.dir}/libraries/jolokia/WebContent/WEB-INF/lib/" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/json-simple-1.1.jar" todir="${root.dir}/libraries/jolokia/WebContent/WEB-INF/lib/" overwrite="true"></copy>

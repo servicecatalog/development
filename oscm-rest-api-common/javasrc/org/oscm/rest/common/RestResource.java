@@ -11,6 +11,7 @@ package org.oscm.rest.common;
 import java.net.URI;
 
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
@@ -36,10 +37,9 @@ public abstract class RestResource {
      *            true if id needs to be validated
      * @return the response with representation or -collection
      */
-    //TODO glazssfish upgrade
-    /*
     protected <R extends Representation, P extends RequestParameters> Response get(
-            Request request, RestBackend.Get<R, P> backend, P params, boolean id) {
+            Request request, RestBackend.Get<R, P> backend, P params,
+            boolean id) throws Exception {
 
         int version = getVersion(request);
 
@@ -55,7 +55,40 @@ public abstract class RestResource {
         }
 
         return Response.ok(item).tag(tag).build();
-    }*/
+    }
+
+    /**
+     * Wrapper for backend GET commands for getting collections. Prepares,
+     * validates and revises data for commands and assembles responses.
+     * 
+     * @param request
+     *            the request context
+     * @param backend
+     *            the backend command
+     * @param params
+     *            the request parameters
+     * @return the response with representation collection
+     * @throws Exception
+     */
+    protected <R extends Representation, P extends RequestParameters> Response getCollection(
+            Request request, RestBackend.GetCollection<R, P> backend, P params)
+            throws Exception {
+
+        int version = getVersion(request);
+
+        prepareData(version, params, false, null, false);
+
+        Representation item = backend.getCollection(params);
+
+        reviseData(version, item);
+
+        String tag = "";
+        if (item.getETag() != null) {
+            tag = item.getETag().toString();
+        }
+
+        return Response.ok(item).tag(tag).build();
+    }
 
     /**
      * Wrapper for backend POST commands. Prepares, validates and revises data
@@ -71,10 +104,9 @@ public abstract class RestResource {
      *            the request parameters
      * @return the response with the new location
      */
-    //TODO glazssfish upgrade
-    /*
     protected <R extends Representation, P extends RequestParameters> Response post(
-            Request request, RestBackend.Post<R, P> backend, R content, P params) {
+            Request request, RestBackend.Post<R, P> backend, R content,
+            P params) throws Exception {
 
         int version = getVersion(request);
 
@@ -82,12 +114,12 @@ public abstract class RestResource {
 
         Object newId = backend.post(content, params);
 
-        ContainerRequest cr = (ContainerRequest) request;
-        UriBuilder builder = cr.getAbsolutePathBuilder();
+        ContainerRequestContext cr = (ContainerRequestContext) request;
+        UriBuilder builder = cr.getUriInfo().getAbsolutePathBuilder();
         URI uri = builder.path(newId.toString()).build();
 
         return Response.created(uri).build();
-    }*/
+    }
 
     /**
      * Wrapper for backend PUT commands. Prepares, validates and revises data
@@ -104,10 +136,9 @@ public abstract class RestResource {
      *            the request parameters
      * @return the response without content
      */
-    //TODO glazssfish upgrade
-    /*
     protected <R extends Representation, P extends RequestParameters> Response put(
-            Request request, RestBackend.Put<R, P> backend, R content, P params) {
+            Request request, RestBackend.Put<R, P> backend, R content, P params)
+            throws Exception {
 
         int version = getVersion(request);
 
@@ -122,7 +153,7 @@ public abstract class RestResource {
 
         return Response.noContent().build();
     }
-*/
+
     /**
      * Wrapper for backend DELETE commands. Prepares, validates and revises data
      * for commands and assembles responses.
@@ -135,10 +166,8 @@ public abstract class RestResource {
      *            the request parameters
      * @return the response without content
      */
-    //TODO glazssfish upgrade
-    /*
     protected <P extends RequestParameters> Response delete(Request request,
-            RestBackend.Delete<P> backend, P params) {
+            RestBackend.Delete<P> backend, P params) throws Exception {
 
         int version = getVersion(request);
 
@@ -147,7 +176,7 @@ public abstract class RestResource {
         backend.delete(params);
 
         return Response.noContent().build();
-    }*/
+    }
 
     /**
      * Extracts the version number from the container request properties. Throws
@@ -158,12 +187,10 @@ public abstract class RestResource {
      * @return the version number
      * @throws WebApplicationException
      */
-    //TODO glazssfish upgrade
-    /*
     protected int getVersion(Request request) throws WebApplicationException {
 
-        ContainerRequest cr = (ContainerRequest) request;
-        Object property = cr.getProperties().get(CommonParams.PARAM_VERSION);
+        ContainerRequestContext cr = (ContainerRequestContext) request;
+        Object property = cr.getProperty(CommonParams.PARAM_VERSION);
 
         if (property == null) {
             throw WebException.notFound()
@@ -171,7 +198,7 @@ public abstract class RestResource {
         }
 
         return ((Integer) property).intValue();
-    }*/
+    }
 
     /**
      * Prepares the data for the backend call

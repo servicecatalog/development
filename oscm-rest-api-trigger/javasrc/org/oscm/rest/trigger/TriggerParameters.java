@@ -9,7 +9,7 @@
 package org.oscm.rest.trigger;
 
 /**
- * InjectParam class for trigger endpoints
+ * BeanParam class for trigger endpoints
  * 
  * @author miethaner
  */
