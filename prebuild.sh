@@ -20,10 +20,3 @@ mv enterprise/Development/ess-oscm-webservices-v1_6-samlsp-tests Development/
 mv enterprise/Development/ess-oscm-webservices-v1_7-tests Development/
 mv enterprise/Development/ess-oscm-webservices-v1_8-tests Development/
 mv enterprise/Development/tps5 Development/
-
-# Replace build ID with the Jenkins variable + Ant
-set ANT_OPTS=Xms4000m
-/opt/apache-ant-1.9.2/bin/ant -file Development/oscm-build/cruisecontrol.xml -Dbuildid.prefix=GL4_with_docker_pull_ESS -lib /opt/jdk1.7.0_45/lib/tools.jar -Dhttps.proxyHost=proxy.intern.est.fujitsu.com -Dhttps.proxyPort=8180 -Dhttp.proxyHost=proxy.intern.est.fujitsu.com -Dhttp.proxyPort=8180 prepareForDocker
-
-cp Development/oscm-build/result/package/oscm-install-pack/oscm-install-pack.zip docker/
-cp Development/oscm-build/result/package/oscm-integrationtests-mockproduct/oscm-integrationtests-mockproduct.war docker/
