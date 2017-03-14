@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                        
+ *  Copyright FUJITSU LIMITED 2017
  *                                                                              
  *  Creation Date: 30.05.2014                                                      
  *                                                                              
@@ -12,7 +12,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.oscm.app.aws.i18n.Messages;
-import org.oscm.app.common.intf.ControllerAccess;
+import org.oscm.app.v2_0.intf.ControllerAccess;
 
 public class AWSControllerAccess implements ControllerAccess {
 

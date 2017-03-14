@@ -1,12 +1,12 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                           
+ *  Copyright FUJITSU LIMITED 2017
  *                                                                                                                                 
  *  Creation Date: 2016/11/11                                                      
  *                                                                              
  *******************************************************************************/
 
-package org.oscm.app.common.intf;
+package org.oscm.app.v2_0.intf;
 
 import java.io.Serializable;
 import java.util.List;

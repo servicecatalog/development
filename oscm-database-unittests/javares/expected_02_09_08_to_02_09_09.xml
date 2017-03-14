@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2017-->
+
+<dataset>
+    <Parameterdefinition tkey="1001" configurable="false" mandatory="false" minimumvalue="0" modificationtype="STANDARD"
+    parameterid="SUBNET" parametertype="SERVICE_PARAMETER" valuetype="STRING" version="0" />
+    
+    <Parameterdefinition tkey="1002" configurable="false" mandatory="false" minimumvalue="0" modificationtype="STANDARD"
+    parameterid="DISK_SIZE" parametertype="SERVICE_PARAMETER" valuetype="INTEGER" version="0" />
+    
+    <Parameterdefinition tkey="1003" configurable="false" mandatory="false" minimumvalue="0" modificationtype="STANDARD"
+    parameterid="PUBLIC_IP" parametertype="SERVICE_PARAMETER" valuetype="BOOLEAN" version="0" />
+    
+    <Parameterdefinition tkey="1004" configurable="false" mandatory="false" minimumvalue="0" modificationtype="STANDARD"
+    parameterid="INSTANCE_PLATFORM" parametertype="SERVICE_PARAMETER" valuetype="STRING" version="0" />
+    
+    <Parameterdefinition tkey="1005" configurable="false" mandatory="false" minimumvalue="0" modificationtype="STANDARD"
+    parameterid="EAI_INSTANCE_PUBLIC_DNS" parametertype="SERVICE_PARAMETER" valuetype="STRING" version="0" />
+    
+    <Parameterdefinition tkey="1006" configurable="false" mandatory="false" minimumvalue="0" modificationtype="STANDARD"
+    parameterid="SNAPSHOT_ID" parametertype="SERVICE_PARAMETER" valuetype="STRING" version="0" />
+    
+    <Parameterdefinitionhistory tkey="1001" configurable="false" mandatory="false" modificationtype="STANDARD"
+    minimumvalue="0" parameterid="SUBNET" parametertype="SERVICE_PARAMETER" valuetype="STRING" modtype="ADD"
+    moduser="ANONYMOUS" objkey="1001" objversion="0" technicalproductobjkey="123" />
+    
+    <Parameterdefinitionhistory tkey="1002" configurable="false" mandatory="false" modificationtype="STANDARD"
+    minimumvalue="0" parameterid="DISK_SIZE" parametertype="SERVICE_PARAMETER" valuetype="INTEGER" modtype="ADD"
+    moduser="ANONYMOUS" objkey="1001" objversion="0" technicalproductobjkey="123" />
+    
+    <Parameterdefinitionhistory tkey="1003" configurable="false" mandatory="false" modificationtype="STANDARD"
+    minimumvalue="0" parameterid="PUBLIC_IP" parametertype="SERVICE_PARAMETER" valuetype="BOOLEAN" modtype="ADD"
+    moduser="ANONYMOUS" objkey="1001" objversion="0" technicalproductobjkey="123" />
+    
+    <Parameterdefinitionhistory tkey="1004" configurable="false" mandatory="false" modificationtype="STANDARD"
+    minimumvalue="0" parameterid="INSTANCE_PLATFORM" parametertype="SERVICE_PARAMETER" valuetype="STRING" modtype="ADD"
+    moduser="ANONYMOUS" objkey="1001" objversion="0" technicalproductobjkey="123" />
+    
+    <Parameterdefinitionhistory tkey="1005" configurable="false" mandatory="false" modificationtype="STANDARD"
+    minimumvalue="0" parameterid="EAI_INSTANCE_PUBLIC_DNS" parametertype="SERVICE_PARAMETER" valuetype="STRING" modtype="ADD"
+    moduser="ANONYMOUS" objkey="1001" objversion="0" technicalproductobjkey="123" />
+    
+    <Parameterdefinitionhistory tkey="1006" configurable="false" mandatory="false" modificationtype="STANDARD"
+    minimumvalue="0" parameterid="SNAPSHOT_ID" parametertype="SERVICE_PARAMETER" valuetype="STRING" modtype="ADD"
+    moduser="ANONYMOUS" objkey="1001" objversion="0" technicalproductobjkey="123" />
+    
+    <UdaDefinition tkey="1001" version="0" defaultValue="0" targetType="CUSTOMER" udaId="SUBNET" 
+    organizationKey="1" configurationType="USER_OPTION_MANDATORY" />
+    
+    <UdaDefinition tkey="1002" version="0" defaultValue="0" targetType="CUSTOMER" udaId="DISK_SIZE" 
+    organizationKey="1" configurationType="USER_OPTION_MANDATORY" />
+    
+    <UdaDefinition tkey="1003" version="0" defaultValue="0" targetType="CUSTOMER" udaId="PUBLIC_IP" 
+    organizationKey="1" configurationType="USER_OPTION_MANDATORY" />
+    
+    <UdaDefinition tkey="1004" version="0" defaultValue="0" targetType="CUSTOMER" udaId="INSTANCE_PLATFORM" 
+    organizationKey="1" configurationType="USER_OPTION_MANDATORY" />
+    
+    <UdaDefinition tkey="1005" version="0" defaultValue="0" targetType="CUSTOMER" udaId="EAI_INSTANCE_PUBLIC_DNS" 
+    organizationKey="1" configurationType="USER_OPTION_MANDATORY" />
+    
+    <UdaDefinition tkey="1006" version="0" defaultValue="0" targetType="CUSTOMER" udaId="SNAPSHOT_ID" 
+    organizationKey="1" configurationType="USER_OPTION_MANDATORY" />
+    
+    <udadefinitionhistory tkey="1001" objkey="1001" objversion="0" modType="ADD" modUser="user"
+    modDate="2011-01-01 01:02:34" targettype="0" udaid="SUBNET" organizationobjkey="0" invocationDate="2011-01-01 01:02:34" />
+    
+    <udadefinitionhistory tkey="1002" objkey="1001" objversion="0" modType="ADD" modUser="user"
+    modDate="2011-01-01 01:02:34" targettype="0" udaid="DISK_SIZE" organizationobjkey="0" invocationDate="2011-01-01 01:02:34" />
+    
+    <udadefinitionhistory tkey="1003" objkey="1001" objversion="0" modType="ADD" modUser="user"
+    modDate="2011-01-01 01:02:34" targettype="0" udaid="PUBLIC_IP" organizationobjkey="0" invocationDate="2011-01-01 01:02:34" />
+    
+    <udadefinitionhistory tkey="1004" objkey="1001" objversion="0" modType="ADD" modUser="user"
+    modDate="2011-01-01 01:02:34" targettype="0" udaid="INSTANCE_PLATFORM" organizationobjkey="0" invocationDate="2011-01-01 01:02:34" />
+    
+    <udadefinitionhistory tkey="1005" objkey="1001" objversion="0" modType="ADD" modUser="user"
+    modDate="2011-01-01 01:02:34" targettype="0" udaid="EAI_INSTANCE_PUBLIC_DNS" organizationobjkey="0" invocationDate="2011-01-01 01:02:34" />
+    
+    <udadefinitionhistory tkey="1006" objkey="1001" objversion="0" modType="ADD" modUser="user"
+    modDate="2011-01-01 01:02:34" targettype="0" udaid="SNAPSHOT_ID" organizationobjkey="0" invocationDate="2011-01-01 01:02:34" />
+
+</dataset>

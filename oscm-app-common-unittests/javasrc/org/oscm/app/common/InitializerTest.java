@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                        
+ *  Copyright FUJITSU LIMITED 2017                                        
  *                                                                              
  *  Creation Date: 14.05.2014                                                      
  *                                                                              
@@ -28,10 +28,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
+import org.oscm.app.v2_0.intf.ControllerAccess;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.oscm.app.common.intf.ControllerAccess;
 
 /**
  * Unit test of initializer

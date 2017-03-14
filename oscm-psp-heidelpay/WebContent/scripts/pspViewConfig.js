@@ -1,5 +1,5 @@
 /* 
- *  Copyright FUJITSU LIMITED 2016 
+ *  Copyright FUJITSU LIMITED 2017
  */ 
 function init() {
 	getElem('id', 'userInfoBlock', 0).style.display="none";

@@ -1,22 +1,20 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                        
+ *  Copyright FUJITSU LIMITED 2017
  *                                                                              
  *  Creation Date: 04.06.2014                                                      
  *                                                                              
  *******************************************************************************/
 
-package org.oscm.app.common.controller;
+package org.oscm.app.v2_0.exceptions;
 
 import javax.ejb.EJBException;
 
+import org.oscm.app.v2_0.data.Context;
+import org.oscm.app.v2_0.data.ProvisioningSettings;
+import org.oscm.app.v2_0.i18n.Messages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.oscm.app.common.data.Context;
-import org.oscm.app.common.i18n.Messages;
-import org.oscm.app.v2_0.data.ProvisioningSettings;
-import org.oscm.app.v2_0.exceptions.APPlatformException;
 
 public class LogAndExceptionConverter {
 
@@ -29,8 +27,8 @@ public class LogAndExceptionConverter {
      *            an optional action context
      * @return the newly generated platform exception
      */
-    public static APPlatformException createAndLogPlatformException(
-            Throwable t, Context context) {
+    public static APPlatformException createAndLogPlatformException(Throwable t,
+            Context context) {
 
         // Get real error cause
         if (t instanceof EJBException) {
@@ -57,14 +55,14 @@ public class LogAndExceptionConverter {
             }
 
             // Map to platform exception
-            String causeMessage = (t.getMessage() != null) ? t.getMessage() : t
-                    .getClass().getName();
+            String causeMessage = (t.getMessage() != null) ? t.getMessage()
+                    : t.getClass().getName();
             String id = context != null ? context.name() : "undefined";
-            result = new APPlatformException(Messages.getAll("error_overall_"
-                    + id, causeMessage));
+            result = new APPlatformException(
+                    Messages.getAll("error_overall_" + id, causeMessage));
         }
-        logger.error(method
-                + result.getLocalizedMessage(Messages.DEFAULT_LOCALE));
+        logger.error(
+                method + result.getLocalizedMessage(Messages.DEFAULT_LOCALE));
         return result;
     }
 

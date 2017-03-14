@@ -1,4 +1,4 @@
-<!-- Copyright FUJITSU LIMITED 2016-->
+<!-- Copyright FUJITSU LIMITED 2017-->
 <project name="ADM APP ROR" default="build_app_ror">
   <!-- Creates a app_ror.ear file which can be deployed within a JEE application server. -->
 

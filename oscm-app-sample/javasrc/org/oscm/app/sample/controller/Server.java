@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                           
+ *  Copyright FUJITSU LIMITED 2017
  *                                                                                                                                 
  *  Creation Date: Jan 25, 2017                                                      
  *                                                                              
@@ -10,7 +10,7 @@ package org.oscm.app.sample.controller;
 
 import java.util.List;
 
-import org.oscm.app.common.intf.ServerInformation;
+import org.oscm.app.v2_0.intf.ServerInformation;
 
 /**
  * Data class for custom tab.

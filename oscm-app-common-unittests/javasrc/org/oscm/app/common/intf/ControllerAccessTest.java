@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                        
+ *  Copyright FUJITSU LIMITED 2017                                        
  *                                                                              
  *  Creation Date: 23.06.2014                                                      
  *                                                                              
@@ -17,6 +17,7 @@ import java.util.HashSet;
 import org.junit.Ignore;
 
 import org.oscm.app.common.ui.ConfigurationBean;
+import org.oscm.app.v2_0.intf.ControllerAccess;
 
 /**
  * Abstract base class for testing common functionality within each controller.
