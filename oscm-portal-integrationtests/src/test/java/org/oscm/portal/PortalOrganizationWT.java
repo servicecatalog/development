@@ -1,3 +1,11 @@
+/*******************************************************************************
+ *                                                                              
+ *  Copyright FUJITSU LIMITED 2017                                           
+ *                                                                                                                                 
+ *  Creation Date: Feb 8, 2017                                                      
+ *                                                                              
+ *******************************************************************************/
+
 package org.oscm.portal;
 
 import static org.junit.Assert.assertNotNull;
