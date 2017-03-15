@@ -12,7 +12,7 @@
       <supported-locale>ja</supported-locale>
     </locale-config>
     <resource-bundle>
-      <base-name>org.oscm.app.common.i18n.messages</base-name>
+      <base-name>org.oscm.app.v2_0.i18n.messages</base-name>
       <var>msg</var>
     </resource-bundle>
   </application>
