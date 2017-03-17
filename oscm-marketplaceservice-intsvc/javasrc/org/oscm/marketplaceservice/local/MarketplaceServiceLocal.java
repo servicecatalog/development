@@ -70,9 +70,6 @@ public interface MarketplaceServiceLocal {
      */
     List<Marketplace> getMarketplacesForSupplier();
 
-    @TransactionAttribute(TransactionAttributeType.MANDATORY)
-    List<Marketplace> getMarketplacesForSupplierWithTenant();
-
     /**
      * Creates the broker, reseller and marketplace price models with the
      * specified revenue shares and sets them into the specified marketplace.
@@ -90,8 +87,8 @@ public interface MarketplaceServiceLocal {
      * @param marketplaceRevenueShare
      *            the revenue share value for the marketplace
      */
-    void createRevenueModels(Marketplace mp,
-            BigDecimal brokerRevenueShare, BigDecimal resellerRevenueShare,
+    void createRevenueModels(Marketplace mp, BigDecimal brokerRevenueShare,
+            BigDecimal resellerRevenueShare,
             BigDecimal marketplaceRevenueShare);
 
     /**
@@ -143,8 +140,7 @@ public interface MarketplaceServiceLocal {
      *            the identifier of the organization to remove the user role for
      * @throws ObjectNotFoundException
      */
-    void removeUserRoles(String organizationId)
-            throws ObjectNotFoundException;
+    void removeUserRoles(String organizationId) throws ObjectNotFoundException;
 
     /**
      * @param marketplaceId
@@ -169,8 +165,8 @@ public interface MarketplaceServiceLocal {
      *             if the new marketplace name needs to be saved and the current
      *             user is no marketplace owner.
      */
-    void updateMarketplaceName(Marketplace marketplace,
-            String marketplaceName) throws OperationNotPermittedException;
+    void updateMarketplaceName(Marketplace marketplace, String marketplaceName)
+            throws OperationNotPermittedException;
 
     /**
      * Sends an email regarding changes on a marketplace to all administrators
@@ -217,9 +213,8 @@ public interface MarketplaceServiceLocal {
      * @throws ConcurrentModificationException
      *             thrown if the revenue share model was updated in the meantime
      */
-    RevenueShareModel updateRevenueShare(
-            RevenueShareModel revenueShareModel, int version)
-            throws ObjectNotFoundException, ValidationException,
+    RevenueShareModel updateRevenueShare(RevenueShareModel revenueShareModel,
+            int version) throws ObjectNotFoundException, ValidationException,
             ConcurrentModificationException;
 
     /**
@@ -249,8 +244,8 @@ public interface MarketplaceServiceLocal {
      * @throws UserRoleAssignmentException
      *             if a problem occurs in the user role assignment
      */
-    boolean updateMarketplace(Marketplace marketplace,
-            String marketplaceName, String owningOrganizationId)
+    boolean updateMarketplace(Marketplace marketplace, String marketplaceName,
+            String owningOrganizationId)
             throws ObjectNotFoundException, OperationNotPermittedException,
             ValidationException, UserRoleAssignmentException;
 
@@ -403,9 +398,9 @@ public interface MarketplaceServiceLocal {
      *             the service nor an authorized broker or reseller
      */
     Product publishService(long serviceKey, CatalogEntry catalogEntry,
-            List<VOCategory> categories) throws ObjectNotFoundException,
-            ValidationException, NonUniqueBusinessKeyException,
-            OperationNotPermittedException;
+            List<VOCategory> categories)
+            throws ObjectNotFoundException, ValidationException,
+            NonUniqueBusinessKeyException, OperationNotPermittedException;
 
     /**
      * Method does the same as method
@@ -477,8 +472,8 @@ public interface MarketplaceServiceLocal {
      */
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     Marketplace updateMarketplaceAccessType(String marketplaceId,
-            boolean isRestricted) throws ObjectNotFoundException,
-            NonUniqueBusinessKeyException;
+            boolean isRestricted)
+            throws ObjectNotFoundException, NonUniqueBusinessKeyException;
 
     /**
      * This method is used to grant access to given marketplace to given
@@ -537,8 +532,8 @@ public interface MarketplaceServiceLocal {
      *         owned subscriptions on given marketplace
      * @throws ObjectNotFoundException
      */
-    List<Object[]> getOrganizationsWithMarketplaceAccess(
-            String marketplaceId) throws ObjectNotFoundException;
+    List<Object[]> getOrganizationsWithMarketplaceAccess(String marketplaceId)
+            throws ObjectNotFoundException;
 
     /**
      * Retrieves all organizations with access to the marketplace with the given
@@ -550,7 +545,7 @@ public interface MarketplaceServiceLocal {
      */
     List<Organization> getAllOrganizationsWithAccessToMarketplace(
             long marketplaceKey) throws ObjectNotFoundException;
-    
+
     /**
      * Updates the tenant for marketplace.
      * 
@@ -566,11 +561,13 @@ public interface MarketplaceServiceLocal {
     /**
      * Retrives all marketplaces assigned to the given tenant
      *
-     * @param tenantKey - tenant technical key
-     * @return the list of marketplaces or empty list if no marketplace can be found
+     * @param tenantKey
+     *            - tenant technical key
+     * @return the list of marketplaces or empty list if no marketplace can be
+     *         found
      * @throws ObjectNotFoundException
      */
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
-    List<Marketplace> getAllMarketplacesForTenant(
-            Long tenantKey) throws ObjectNotFoundException;
+    List<Marketplace> getAllMarketplacesForTenant(Long tenantKey)
+            throws ObjectNotFoundException;
 }
