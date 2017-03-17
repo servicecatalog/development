@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                             
+ *  Copyright FUJITSU LIMITED 2017
  *                                                                                                                                 
  *  Creation Date: 2012-6-13                                                      
  *                                                                              
@@ -220,7 +220,7 @@ public class ManageUdaDefinitionBean extends BaseBean implements Serializable {
         return OUTCOME_SUCCESS;
     }
 
-    public void changeLanguage(final ValueChangeEvent event) {
+    public void processValueChange(ValueChangeEvent event) {
         String attrName = controller.getLocalizedAttributeName(
                 controller.getModel().getCurrentUdaDefinition().getKey(),
                 event.getNewValue().toString());

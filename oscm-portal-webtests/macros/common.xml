@@ -1,4 +1,4 @@
-<!-- Copyright FUJITSU LIMITED 2016-->
+<!-- Copyright FUJITSU LIMITED 2017-->
 <project>
   <macrodef name="common.ignorePageScriptError">
     <sequential>
@@ -555,10 +555,12 @@
     <attribute name="modalPanelId" />
     <attribute name="fieldId" />
     <attribute name="label" />
+    <attribute name="regex" default="true" />
     <attribute name="errorFieldId" default="@{modalPanelId}Form:@{fieldId}ErrorMsg" />
     <sequential>
       <storeXPath description="Check error message" xpath="//*[@id='@{errorFieldId}:@{fieldId}']//*[contains(@class, 'rf-msg-det')]/text()" property="errorMsg" />
-      <verifyProperty name="errorMsg" value="@{label}" regex="true" />
+      <echo message="Cyc: @{label} #{errorMsg}" />
+      <verifyProperty name="errorMsg" value="@{label}" regex="@{regex}" />
     </sequential>
   </macrodef>
 
@@ -605,6 +607,7 @@
     <attribute name="att1Name" default="att1" />
     <attribute name="att2Name" default="att2" />
     <attribute name="topErrorMessage" default="true" />
+    <attribute name="regex" default="true" />
     <sequential>
       <!-- Check mandatory field values -->
       <ifStep description="Mandatory field?" test="@{required}">
@@ -614,7 +617,7 @@
       <!-- Check invalid field values -->
       <dataDriven tableContainer="data/invalidInput/@{fieldType}.xls">
         <common.initializeDataDrivenErrorMessage errormsg="${errormsg}" att0="${@{att0Name}}" att1="${@{att1Name}}" att2="${@{att2Name}}" />
-        <common.testFieldValidation fieldId="@{fieldId}" fieldValue="${value}" buttonLinkId="@{buttonLinkId}" error="${expectedMessage}" topErrorMessage="@{topErrorMessage}" />
+        <common.testFieldValidation regex="@{regex}" fieldId="@{fieldId}" fieldValue="${value}" buttonLinkId="@{buttonLinkId}" error="${expectedMessage}" topErrorMessage="@{topErrorMessage}" />
       </dataDriven>
     </sequential>
   </macrodef>

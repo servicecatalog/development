@@ -1,7 +1,7 @@
 /*******************************************************************************
- *
- *  Copyright FUJITSU LIMITED 2016                                             
- *
+ *                                                                              
+ *  Copyright FUJITSU LIMITED 2017
+ *                                                                              
  *  Author: groch                                                      
  *
  *  Creation Date: 18.07.2011                                                      

@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                             
+ *  Copyright FUJITSU LIMITED 2017
  *                                                                              
  *  Creation Date: 05.07.2010                                                      
  *                                                                              
@@ -22,7 +22,7 @@ public enum SupportedProvisioningVersions {
     /**
      * Current Version
      */
-    VERSION_1_0(ProvisioningService.class, "http://oscm.org/xsd", "v1.7"), //
+    VERSION_1_7(ProvisioningService.class, "http://oscm.org/xsd", "v1.7"), //
     VERSION_1_8(ProvisioningService.class, "http://oscm.org/xsd", "v1.8");
 
     private Class<?> versionClass;

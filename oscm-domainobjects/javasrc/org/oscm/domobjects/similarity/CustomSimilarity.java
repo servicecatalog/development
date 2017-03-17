@@ -1,13 +1,13 @@
 /*******************************************************************************
- *
- *  Copyright FUJITSU LIMITED 2016
- *
- *  Author: groch
- *
- *  Creation Date: Aug 24, 2011
- *
- *  Completion Time: Aug 25, 2011
- *
+ *                                                                              
+ *  Copyright FUJITSU LIMITED 2017
+ *                                                                              
+ *  Author: groch                                                     
+ *                                                                              
+ *  Creation Date: Aug 24, 2011                                                      
+ *                                                                              
+ *  Completion Time: Aug 25, 2011                                           
+ *                                                                              
  *******************************************************************************/
 
 package org.oscm.domobjects.similarity;

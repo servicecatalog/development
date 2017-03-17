@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                        
+ *  Copyright FUJITSU LIMITED 2017                                        
  *                                                                              
  *  Creation Date: 26.05.2014                                                      
  *                                                                              
@@ -16,11 +16,11 @@ import static org.junit.Assert.assertTrue;
 import javax.ejb.EJBException;
 
 import org.junit.Test;
-
-import org.oscm.app.common.data.Context;
+import org.oscm.app.v2_0.data.Context;
 import org.oscm.app.v2_0.data.ProvisioningSettings;
 import org.oscm.app.v2_0.data.ServiceUser;
 import org.oscm.app.v2_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.exceptions.LogAndExceptionConverter;
 
 /**
  * Unit test of configuration bean

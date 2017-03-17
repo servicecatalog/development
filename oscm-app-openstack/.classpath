@@ -2,7 +2,6 @@
 <classpath>
 	<classpathentry kind="src" path="javasrc"/>
 	<classpathentry kind="src" path="javares"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/oscm-app-common"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-app-extsvc-2-0"/>
 	<classpathentry kind="lib" path="/libraries/apache-json/javalib/org.apache.sling.commons.json-2.0.6.jar"/>
 	<classpathentry kind="lib" path="/libraries/slf4j/javalib/slf4j-api-1.7.7.jar"/>

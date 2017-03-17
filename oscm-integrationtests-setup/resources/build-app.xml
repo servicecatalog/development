@@ -1,4 +1,4 @@
-<!-- Copyright FUJITSU LIMITED 2016-->
+<!-- Copyright FUJITSU LIMITED 2017-->
 <project name="Setup Integration Test Environment - APP" basedir="." default="APP.setup">
 
   <description>Builds the asynchonous provisioning proxy project. This build file should be used by developers

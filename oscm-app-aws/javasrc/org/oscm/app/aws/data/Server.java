@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                           
+ *  Copyright FUJITSU LIMITED 2017
  *                                                                                                                                 
  *  Creation Date: 29.09.2016                                                      
  *                                                                              
@@ -11,7 +11,7 @@ package org.oscm.app.aws.data;
 import java.util.Iterator;
 import java.util.List;
 
-import org.oscm.app.common.intf.ServerInformation;
+import org.oscm.app.v2_0.intf.ServerInformation;
 
 /**
  * @author tateiwamext

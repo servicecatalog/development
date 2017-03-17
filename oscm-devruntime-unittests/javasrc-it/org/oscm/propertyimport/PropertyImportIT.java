@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                           
+ *  Copyright FUJITSU LIMITED 2017
  *                                                                                                                                 
  *  Creation Date: Dec 23, 2016                                                      
  *                                                                              
@@ -131,6 +131,9 @@ public class PropertyImportIT {
                 "default");
         p.put(ConfigurationKey.HIDDEN_UI_ELEMENTS.name(),
                 "operator.manageBillingAdapters,techService.viewBillingAdapters");
+        p.put(ConfigurationKey.SSO_SIGNING_KEYSTORE.name(), "./cacerts.jks");
+        p.put(ConfigurationKey.SSO_SIGNING_KEYSTORE_PASS.name(), "changeit");
+        p.put(ConfigurationKey.SSO_SIGNING_KEY_ALIAS.name(), "s1as");
         return p;
     }
 }

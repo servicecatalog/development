@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                             
+ *  Copyright FUJITSU LIMITED 2017
  *                                                                                                                                 
  *  Creation Date: 07.06.2013                                                      
  *                                                                              
@@ -124,6 +124,9 @@ public class AuthenticationSettings {
     }
 
     private void validateTenant(VOTenant tenant) throws WrongTenantConfigurationException {
+        if (isInternal()) {
+            return;
+        }
         for (IdpSettingType idpSettingType : getMandatorySSOSettingKeys()) {
             String value = tenant.getTenantSettings().get(idpSettingType);
             if(StringUtils.isBlank(value)) {

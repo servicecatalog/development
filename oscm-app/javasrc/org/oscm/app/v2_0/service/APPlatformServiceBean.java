@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                             
+ *  Copyright FUJITSU LIMITED 2017
  *                                                                              
  *  Creation Date: 16.08.2012                                                      
  *                                                                              
@@ -8,15 +8,32 @@
 
 package org.oscm.app.v2_0.service;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.Key;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import javax.ejb.EJB;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 
+import org.apache.commons.codec.binary.Base64;
 import org.oscm.app.business.APPlatformControllerFactory;
 import org.oscm.app.business.exceptions.BadResultException;
 import org.oscm.app.business.exceptions.ServiceInstanceNotFoundException;
@@ -250,5 +267,78 @@ public class APPlatformServiceBean implements APPlatformService {
         } catch (BadResultException e) {
             throw new APPlatformException(e.getMessage());
         }
+    }
+
+    @Override
+    public boolean checkToken(String token, String signature) {
+
+        InputStream is = null;
+        try {
+
+            // load configuration settings for truststore
+            String loc = configService.getProxyConfigurationSetting(
+                    PlatformConfigurationKey.APP_TRUSTSTORE);
+            String pwd = configService.getProxyConfigurationSetting(
+                    PlatformConfigurationKey.APP_TRUSTSTORE_PASSWORD);
+            String alias = configService.getProxyConfigurationSetting(
+                    PlatformConfigurationKey.APP_TRUSTSTORE_BSS_ALIAS);
+
+            if (loc == null || pwd == null || alias == null) {
+                logger.error("Missing configuration settings for token check");
+                return false;
+            }
+
+            // create hash from given token
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            md.update(token.getBytes(StandardCharsets.UTF_8));
+            String tokenHash = new String(md.digest());
+
+            // load truststore
+            is = new FileInputStream(loc);
+            KeyStore keystore = KeyStore.getInstance(KeyStore.getDefaultType());
+            keystore.load(is, pwd.toCharArray());
+
+            // get certificate for alias
+            Certificate cert = keystore.getCertificate(alias);
+
+            if (cert == null) {
+                logger.error("Unable to find certificate with alias " + alias);
+                return false;
+            }
+
+            // get public key and decrypt signature
+            Key key = cert.getPublicKey();
+
+            if (key == null) {
+                logger.error("Certificate returned null key");
+                return false;
+            }
+
+            Cipher c = Cipher.getInstance(key.getAlgorithm());
+            c.init(Cipher.DECRYPT_MODE, key);
+
+            byte[] decodedSignature = Base64.decodeBase64(signature);
+            String decryptedHash = new String(c.doFinal(decodedSignature));
+
+            // compare token hash with decrypted hash
+            if (tokenHash.equals(decryptedHash)) {
+                return true;
+            }
+        } catch (NoSuchAlgorithmException | KeyStoreException
+                | CertificateException | IOException | NoSuchPaddingException
+                | InvalidKeyException | IllegalBlockSizeException
+                | BadPaddingException | ConfigurationException e) {
+            logger.error(e.getMessage());
+        } finally {
+            try {
+                if (is != null) {
+                    is.close();
+                }
+            } catch (IOException e) {
+                // ignore
+            }
+        }
+
+        return false;
     }
 }

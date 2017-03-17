@@ -1,6 +1,6 @@
 /*******************************************************************************
  *
- *  Copyright FUJITSU LIMITED 2016
+ *  Copyright FUJITSU LIMITED 2017
  *
  *  Creation Date: 2016-05-24
  *
@@ -11,10 +11,10 @@ package org.oscm.app.vmware.service;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.oscm.app.common.intf.ControllerAccess;
 import org.oscm.app.v2_0.APPlatformServiceFactory;
 import org.oscm.app.v2_0.data.ControllerSettings;
 import org.oscm.app.v2_0.exceptions.APPlatformException;
+import org.oscm.app.v2_0.intf.ControllerAccess;
 import org.oscm.app.vmware.business.Controller;
 import org.oscm.app.vmware.i18n.Messages;
 import org.slf4j.Logger;
@@ -43,7 +43,7 @@ public class VMwareControllerAccess implements ControllerAccess {
     @Override
     public List<String> getControllerParameterKeys() {
         // not needed here because common configuration UI is not used
-        return new ArrayList<String>();
+        return new ArrayList<>();
     }
 
     public ControllerSettings getSettings() {

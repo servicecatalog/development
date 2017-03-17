@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright FUJITSU LIMITED 2016 
+ *  Copyright FUJITSU LIMITED 2017
  *******************************************************************************/
 
 package org.oscm.app.ror.controller;
@@ -7,9 +7,9 @@ package org.oscm.app.ror.controller;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.oscm.app.common.intf.ControllerAccess;
 import org.oscm.app.iaas.PropertyHandler;
 import org.oscm.app.ror.i18n.Messages;
+import org.oscm.app.v2_0.intf.ControllerAccess;
 
 public class RORControllerAccess implements ControllerAccess {
 

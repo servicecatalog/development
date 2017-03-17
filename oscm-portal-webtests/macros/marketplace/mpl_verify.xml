@@ -1,4 +1,4 @@
-<!-- Copyright FUJITSU LIMITED 2016-->
+<!-- Copyright FUJITSU LIMITED 2017-->
 <project>
   <!-- verify success message -->
   <macrodef name="mpl_verify.success">
@@ -67,10 +67,11 @@
     <attribute name="att2Name" default="att2" />
     <attribute name="topErrorMessage" default="true" />
     <attribute name="idVerification" default="false" />
+    <attribute name="regex" default="true" />
     <sequential>
       <!-- Check mandatory field values -->
       <ifStep description="Mandatory field?" test="@{required}">
-        <common.testFieldValidation fieldId="@{fieldId}" fieldValue="" error="${javax.faces.component.UIInput.REQUIRED}" buttonLinkId="@{buttonLinkId}" topErrorMessage="@{topErrorMessage}" />
+        <common.testFieldValidation regex="@{regex}" fieldId="@{fieldId}" fieldValue="" error="${javax.faces.component.UIInput.REQUIRED}" buttonLinkId="@{buttonLinkId}" topErrorMessage="@{topErrorMessage}" />
       </ifStep>
       <storeProperty name="hintKey" value="@{hintMsgKey}" propertyType="dynamic" />
       <!-- Check hint message and button -->
@@ -99,7 +100,7 @@
       <!-- Check invalid field values -->
       <dataDriven tableContainer="data/invalidInput/@{fieldType}.xls">
         <common.initializeDataDrivenErrorMessage errormsg="${errormsg}" att0="${@{att0Name}}" att1="${@{att1Name}}" att2="${@{att2Name}}" />
-        <common.testFieldValidation fieldId="@{fieldId}" fieldValue="${value}" buttonLinkId="@{buttonLinkId}" error="${expectedMessage}" topErrorMessage="@{topErrorMessage}" />
+        <common.testFieldValidation regex="@{regex}" fieldId="@{fieldId}" fieldValue="${value}" buttonLinkId="@{buttonLinkId}" error="${expectedMessage}" topErrorMessage="@{topErrorMessage}" />
       </dataDriven>
       </else>
       </ifStep>
@@ -117,8 +118,9 @@
     <attribute name="att1Name" default="att1" />
     <attribute name="att2Name" default="att2" />
     <attribute name="idVerification" default="false" />
+    <attribute name="regex" default="true" />
     <sequential>
-      <mpl_verify.invalidFieldValue hintMsgKey="@{hintMsgKey}" fieldId="@{fieldId}" fieldType="@{fieldType}"
+      <mpl_verify.invalidFieldValue regex="@{regex}" hintMsgKey="@{hintMsgKey}" fieldId="@{fieldId}" fieldType="@{fieldType}"
                                     required="@{required}" buttonLinkId="@{buttonLinkId}" att0Name="@{att0Name}"
                                     att1Name="@{att1Name}" att2Name="@{att2Name}" idVerification="@{idVerification}" />
     </sequential>

@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                           
+ *  Copyright FUJITSU LIMITED 2017
  *                                                                                                                                 
  *  Creation Date: 2016/11/11                                                      
  *                                                                              
@@ -13,12 +13,12 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 
 import org.oscm.app.aws.data.Server;
-import org.oscm.app.common.intf.InstanceAccess;
-import org.oscm.app.common.intf.ServerInformation;
 import org.oscm.app.v2_0.APPlatformServiceFactory;
 import org.oscm.app.v2_0.data.ProvisioningSettings;
 import org.oscm.app.v2_0.exceptions.APPlatformException;
 import org.oscm.app.v2_0.intf.APPlatformService;
+import org.oscm.app.v2_0.intf.InstanceAccess;
+import org.oscm.app.v2_0.intf.ServerInformation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,7 +62,8 @@ public class AWSInstanceAccess implements InstanceAccess {
                         subscriptionId, organizationId);
         PropertyHandler ph = new PropertyHandler(settings);
         List<Server> servers;
-        servers = new EC2Processor(ph, getAwsInstanceId(settings)).getServerDetails();
+        servers = new EC2Processor(ph, getAwsInstanceId(settings))
+                .getServerDetails();
         return servers;
     }
 

@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                           
+ *  Copyright FUJITSU LIMITED 2017
  *                                                                                                                                 
  *  Creation Date: 2016/11/11                                                      
  *                                                                              
@@ -13,8 +13,6 @@ import java.util.List;
 
 import javax.annotation.PostConstruct;
 
-import org.oscm.app.common.intf.InstanceAccess;
-import org.oscm.app.common.intf.ServerInformation;
 import org.oscm.app.openstack.NovaProcessor;
 import org.oscm.app.openstack.data.Server;
 import org.oscm.app.v2_0.APPlatformServiceFactory;
@@ -24,6 +22,8 @@ import org.oscm.app.v2_0.exceptions.AuthenticationException;
 import org.oscm.app.v2_0.exceptions.ConfigurationException;
 import org.oscm.app.v2_0.exceptions.InstanceNotAliveException;
 import org.oscm.app.v2_0.intf.APPlatformService;
+import org.oscm.app.v2_0.intf.InstanceAccess;
+import org.oscm.app.v2_0.intf.ServerInformation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,7 +66,7 @@ public class OpenStackInstanceAccess implements InstanceAccess {
                 .getServiceInstanceDetails(OpenStackController.ID, instanceId,
                         subscriptionId, organizationId);
         PropertyHandler ph = new PropertyHandler(settings);
-        List<Server> servers = new ArrayList<Server>();
+        List<Server> servers = new ArrayList<>();
         try {
             servers = new NovaProcessor().getServersDetails(ph, true);
         } catch (InstanceNotAliveException ex) {

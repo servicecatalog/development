@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                           
+ *  Copyright FUJITSU LIMITED 2017
  *                                                                                                                                 
  *  Creation Date: May 24, 2016                                                      
  *                                                                              
@@ -13,7 +13,7 @@ import javax.ws.rs.WebApplicationException;
 import org.oscm.rest.common.RequestParameters;
 
 /**
- * InjectParam class for trigger endpoints
+ * BeanParam class for trigger endpoints
  * 
  * @author miethaner
  */

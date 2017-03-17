@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                           
+ *  Copyright FUJITSU LIMITED 2017
  *                                                                                                                                 
  *  Creation Date: Jun 10, 2016                                                      
  *                                                                              
@@ -40,6 +40,11 @@ import org.oscm.rest.trigger.data.DefinitionRepresentation;
  * @author miethaner
  */
 public class DefinitionBackendTest {
+  
+  @Test
+  public void dummyTest() {
+  }
+  
 
     @Test
     public void testGetItem() throws Exception {

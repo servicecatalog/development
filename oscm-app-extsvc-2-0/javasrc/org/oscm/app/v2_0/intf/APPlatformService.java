@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                        
+ *  Copyright FUJITSU LIMITED 2017
  *                                                                              
  *  Creation Date: 2012-08-16                                                      
  *                                                                              
@@ -326,7 +326,7 @@ public interface APPlatformService {
             throws APPlatformException;
 
     /**
-     * /** Stores the service instance settings for the given instance.
+     * Stores the service instance settings for the given instance.
      * <p>
      * In order to execute this method, you must specify the credentials of a
      * technology manager registered in the organization which is responsible
@@ -355,4 +355,16 @@ public interface APPlatformService {
             PasswordAuthentication authentication)
             throws AuthenticationException, ConfigurationException,
             APPlatformException;
+
+    /**
+     * Checks the the hash from the given token against the decrypted hash from
+     * the signature using the BSS public key.
+     * 
+     * @param token
+     *            the token to hash
+     * @param signature
+     *            the encrypted token hash
+     * @return true if token and signature match
+     */
+    public boolean checkToken(String token, String signature);
 }

@@ -1,4 +1,4 @@
-<!-- Copyright FUJITSU LIMITED 2016-->
+<!-- Copyright FUJITSU LIMITED 2017-->
 <!DOCTYPE project SYSTEM "../../dtd/Project.dtd">
 <project default="testUserOperator">
   <import file="../../macros/marketplace/all.xml" />
@@ -224,6 +224,7 @@
 
         <!-- Check validation of popup dialog -->
         <mpl_user.display userId="${userIdOperL}" />
+        <setInputField htmlId="editUserForm:lastName" value="a" />
         <clickLink label="${button.cancel}" />
         <verifyXPath xpath="//*[@id='editUserForm:leaveConfirmPl_content']//*[normalize-space()='${marketplace.account.leavePage.title}']" />
         <clickLink label="${button.yes}" />

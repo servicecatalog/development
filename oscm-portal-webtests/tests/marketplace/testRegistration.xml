@@ -1,4 +1,4 @@
-<!-- Copyright FUJITSU LIMITED 2016-->
+<!-- Copyright FUJITSU LIMITED 2017-->
 <!DOCTYPE project SYSTEM "../../dtd/Project.dtd">
 <project default="testMPL_registration">
   <import file="../../macros/marketplace/all.xml" />
@@ -28,7 +28,7 @@
             <verifyProperty name="required" value="true" />
           </condition>
           <then>
-            <mpl_verify.checkHintAndFieldValues hintMsgKey="${hintMsgKey}" fieldId="${fieldId}" fieldType="${fieldType}" buttonLinkId="registrationForm:registerButton" required="${required}" idVerification="${idVerification}"/>
+            <mpl_verify.checkHintAndFieldValues regex="false" hintMsgKey="${hintMsgKey}" fieldId="${fieldId}" fieldType="${fieldType}" buttonLinkId="registrationForm:registerButton" required="${required}" idVerification="${idVerification}"/>
           </then>
         </ifStep>
       </dataDriven>

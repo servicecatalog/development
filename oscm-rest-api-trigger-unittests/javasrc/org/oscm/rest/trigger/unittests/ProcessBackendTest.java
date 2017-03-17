@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                           
+ *  Copyright FUJITSU LIMITED 2017
  *                                                                                                                                 
  *  Creation Date: Jun 10, 2016                                                      
  *                                                                              
@@ -30,6 +30,9 @@ import org.oscm.rest.trigger.data.ProcessRepresentation;
  *
  */
 public class ProcessBackendTest {
+  @Test
+  public void dummyTest() {
+}
 
     @Test
     public void testPutApprove() throws Exception {

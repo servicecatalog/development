@@ -39,5 +39,8 @@
 	<classpathentry kind="lib" path="/libraries/glassfish4/modules/web-core.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-tenantmgmt"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="/libraries/apache-codec/javalib/commons-codec-1.7.jar"/>
+	<classpathentry kind="lib" path="/libraries/jersey/javalib/jersey-common.jar"/>
+	<classpathentry kind="lib" path="/libraries/jersey/javalib/jersey-guava.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

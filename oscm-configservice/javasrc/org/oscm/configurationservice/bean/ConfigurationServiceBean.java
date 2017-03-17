@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright FUJITSU LIMITED 2016 
+ *  Copyright FUJITSU LIMITED 2017
  *******************************************************************************/
 
 package org.oscm.configurationservice.bean;
@@ -372,4 +372,11 @@ public class ConfigurationServiceBean
         return !Boolean.parseBoolean(setting);
     }
 
+    public DataService getDm() {
+        return dm;
+    }
+
+    public void setDm(DataService dm) {
+        this.dm = dm;
+    }
 }

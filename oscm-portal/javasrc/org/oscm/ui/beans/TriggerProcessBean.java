@@ -1,7 +1,7 @@
 /**
  * ****************************************************************************
  * <p/>
- *  Copyright FUJITSU LIMITED 2016                             * <p/>
+ *  Copyright FUJITSU LIMITED 2017                             * <p/>
  * Author: pock
  * <p/>
  * Creation Date: 22.06.2010

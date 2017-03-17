@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                        
+ *  Copyright FUJITSU LIMITED 2017
  *                                                                              
  *  Creation Date: 03.07.2014                                                      
  *                                                                              
@@ -11,8 +11,8 @@ package org.oscm.app.openstack.controller;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.oscm.app.common.intf.ControllerAccess;
 import org.oscm.app.openstack.i18n.Messages;
+import org.oscm.app.v2_0.intf.ControllerAccess;
 
 public class OpenStackControllerAccess implements ControllerAccess {
 
@@ -30,7 +30,7 @@ public class OpenStackControllerAccess implements ControllerAccess {
 
     @Override
     public List<String> getControllerParameterKeys() {
-        LinkedList<String> result = new LinkedList<String>();
+        LinkedList<String> result = new LinkedList<>();
         result.add(PropertyHandler.API_USER_NAME);
         result.add(PropertyHandler.API_USER_PWD);
         result.add(PropertyHandler.KEYSTONE_API_URL);

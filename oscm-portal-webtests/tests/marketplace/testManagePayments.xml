@@ -1,4 +1,4 @@
-<!-- Copyright FUJITSU LIMITED 2016-->
+<!-- Copyright FUJITSU LIMITED 2017-->
 <project default="mpl_managePaymentTests">
   <import file="../../macros/marketplace/all.xml" />
 
@@ -89,7 +89,7 @@
       <clickLink htmlId="paymentOptionListForm:addPaymentOption" />
       <setInputField htmlId="paymentOptionPanelForm:displayName" value="" />
       <common.clickAjaxLink htmlId="paymentOptionPanelForm:switchToDetailsAjax" />
-      <common.verifyModalFieldError errorFieldId="paymentOptionPanelForm:displayNameErrorMsg" modalPanelId="paymentOptionPanel" fieldId="paymentOptionPanelForm:displayName" label="${javax.faces.component.UIInput.REQUIRED}" />
+      <common.verifyModalFieldError regex="false" errorFieldId="paymentOptionPanelForm:displayNameErrorMsg" modalPanelId="paymentOptionPanel" fieldId="paymentOptionPanelForm:displayName" label="${javax.faces.component.UIInput.REQUIRED}" />
 
       <dataDriven tableContainer="data/invalidInput/ID.xls">
         <mpl_goto.account.payments />
@@ -97,7 +97,7 @@
         <setInputField htmlId="paymentOptionPanelForm:displayName" value="${value}" />
         <common.clickAjaxLink htmlId="paymentOptionPanelForm:switchToDetailsAjax" />
         <common.initializeDataDrivenErrorMessage errormsg="${errormsg}" att0="${att0}" />
-        <common.verifyModalFieldError errorFieldId="paymentOptionPanelForm:displayNameErrorMsg" modalPanelId="paymentOptionPanel" fieldId="paymentOptionPanelForm:displayName" label="${expectedMessage}" />
+        <common.verifyModalFieldError regex="false" errorFieldId="paymentOptionPanelForm:displayNameErrorMsg" modalPanelId="paymentOptionPanel" fieldId="paymentOptionPanelForm:displayName" label="${expectedMessage}" />
       </dataDriven>
       <common.reSetPageScriptError/>
     </webtest>
@@ -238,7 +238,7 @@
         <!-- mandatory field   -->
         <setInputField htmlId="${fieldId}" value="" />
         <clickElement htmlId="billingContactPanelForm:saveBillingContactButton" />
-        <common.verifyModalFieldError errorFieldId="${fieldId}ErrorMsg" modalPanelId="billingContactPanel" fieldId="${fieldId}" label="${javax.faces.component.UIInput.REQUIRED}" />
+        <common.verifyModalFieldError regex="false" errorFieldId="${fieldId}ErrorMsg" modalPanelId="billingContactPanel" fieldId="${fieldId}" label="${javax.faces.component.UIInput.REQUIRED}" />
 
         <dataDriven tableContainer="data/invalidInput/${fieldType}.xls">
           <clickElement htmlId="billingContactListForm:addBillingContact" />
@@ -249,7 +249,7 @@
           <clickElement htmlId="billingContactPanelForm:saveBillingContactButton" />
 
           <common.initializeDataDrivenErrorMessage errormsg="${errormsg}" att0="${att0}" />
-          <common.verifyModalFieldError errorFieldId="${fieldId}ErrorMsg" modalPanelId="billingContactPanel" fieldId="${fieldId}" label="${expectedMessage}" />
+          <common.verifyModalFieldError regex="false" errorFieldId="${fieldId}ErrorMsg" modalPanelId="billingContactPanel" fieldId="${fieldId}" label="${expectedMessage}" />
 
           <!--      
             LG: For unknown reasons the cancel button is not accessible at this point, though afterwards it is present in the result. This occurs since addBillingContact button has 

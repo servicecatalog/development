@@ -1,5 +1,5 @@
 /* 
- *  Copyright FUJITSU LIMITED 2016 
+ *  Copyright FUJITSU LIMITED 2017
  *
     json2.js
     2013-05-26

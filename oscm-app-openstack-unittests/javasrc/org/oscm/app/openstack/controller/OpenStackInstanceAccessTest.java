@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                           
+ *  Copyright FUJITSU LIMITED 2017                                           
  *                                                                                                                                 
  *  Creation Date: 2016/11/14                                                      
  *                                                                              
@@ -22,8 +22,6 @@ import java.util.List;
 import javax.naming.InitialContext;
 
 import org.junit.Test;
-import org.oscm.app.common.intf.InstanceAccess;
-import org.oscm.app.common.intf.ServerInformation;
 import org.oscm.app.openstack.MockHttpURLConnection;
 import org.oscm.app.openstack.MockURLStreamHandler;
 import org.oscm.app.openstack.OpenStackConnection;
@@ -32,6 +30,8 @@ import org.oscm.app.v2_0.data.Setting;
 import org.oscm.app.v2_0.exceptions.APPlatformException;
 import org.oscm.app.v2_0.exceptions.ObjectNotFoundException;
 import org.oscm.app.v2_0.intf.APPlatformService;
+import org.oscm.app.v2_0.intf.InstanceAccess;
+import org.oscm.app.v2_0.intf.ServerInformation;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.ejb.TestContainer;
 

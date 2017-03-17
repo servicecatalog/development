@@ -1,4 +1,4 @@
-<!-- Copyright FUJITSU LIMITED 2016-->
+<!-- Copyright FUJITSU LIMITED 2017-->
 <!DOCTYPE project SYSTEM "../../dtd/Project.dtd">
 <project default="run_tests" xmlns:setup="antlib:org.oscm.webtest.setup">
 
@@ -410,7 +410,7 @@
         <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
 
         <mpl_goto.tab label="${subscription.configuration}" />
-        <mpl_verify.checkHintAndFieldValues hintMsgKey="${hintMsgKey}" fieldId="${fieldId}" fieldType="${fieldType}" required="${required}" buttonLinkId="configurationForm:saveConfigurationButtonLink" idVerification="${idVerification}"/>
+        <mpl_verify.checkHintAndFieldValues regex="false" hintMsgKey="${hintMsgKey}" fieldId="${fieldId}" fieldType="${fieldType}" required="${required}" buttonLinkId="configurationForm:saveConfigurationButtonLink" idVerification="${idVerification}"/>
       </dataDriven>
       <login.logout />
     </webtest>
