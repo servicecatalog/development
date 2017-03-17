@@ -137,15 +137,8 @@ public class MarketplaceServiceBean implements MarketplaceService {
     @RolesAllowed({ "SERVICE_MANAGER", "RESELLER_MANAGER", "BROKER_MANAGER" })
     public List<VOMarketplace> getMarketplacesForOrganization() {
 
-        PlatformUser currentUser = dm.getCurrentUser();
-        List<Marketplace> marketplacesList;
-        if (currentUser.getOrganization().getTenant() != null) {
-            marketplacesList = marketplaceServiceLocal
-                    .getMarketplacesForSupplierWithTenant();
-        } else {
-            marketplacesList = marketplaceServiceLocal
-                    .getMarketplacesForSupplier();
-        }
+        List<Marketplace> marketplacesList = marketplaceServiceLocal
+                .getMarketplacesForSupplier();
 
         // finally convert all domain objects to VO representation and return
         List<VOMarketplace> result = new ArrayList<>();

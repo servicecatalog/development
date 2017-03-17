@@ -146,8 +146,8 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
     public List<Marketplace> getAllMarketplaces() {
 
         Query query = ds.createNamedQuery("Marketplace.getAll");
-        List<Marketplace> marketplaceList = ParameterizedTypes.list(
-                query.getResultList(), Marketplace.class);
+        List<Marketplace> marketplaceList = ParameterizedTypes
+                .list(query.getResultList(), Marketplace.class);
 
         return marketplaceList;
     }
@@ -159,8 +159,8 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
 
         Query query = ds.createNamedQuery("Marketplace.getAllAccessible");
         query.setParameter("organization_tkey", organizationKey);
-        List<Marketplace> marketplaceList = ParameterizedTypes.list(
-                query.getResultList(), Marketplace.class);
+        List<Marketplace> marketplaceList = ParameterizedTypes
+                .list(query.getResultList(), Marketplace.class);
 
         return marketplaceList;
     }
@@ -171,37 +171,17 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
 
         Organization supplier = ds.getCurrentUser().getOrganization();
 
-        Query query = ds
-                .createNamedQuery("Marketplace.findMarketplacesForPublishingForOrg");
-        query.setParameter("organization_tkey", Long.valueOf(supplier.getKey()));
+        Query query = ds.createNamedQuery(
+                "Marketplace.findMarketplacesForPublishingForOrg");
+        query.setParameter("organization_tkey",
+                Long.valueOf(supplier.getKey()));
         query.setParameter("publishingAccessGranted",
                 PublishingAccess.PUBLISHING_ACCESS_GRANTED);
         query.setParameter("publishingAccessDenied",
                 PublishingAccess.PUBLISHING_ACCESS_DENIED);
 
-        List<Marketplace> marketplaceList = ParameterizedTypes.list(
-                query.getResultList(), Marketplace.class);
-
-        return marketplaceList;
-    }
-
-    @Override
-    @TransactionAttribute(TransactionAttributeType.MANDATORY)
-    public List<Marketplace> getMarketplacesForSupplierWithTenant() {
-
-        Organization supplier = ds.getCurrentUser().getOrganization();
-
-        Query query = ds
-            .createNamedQuery("Marketplace.findMarketplacesForPublishingForOrgAndTenant");
-        query.setParameter("organization_tkey", Long.valueOf(supplier.getKey()));
-        query.setParameter("publishingAccessGranted",
-            PublishingAccess.PUBLISHING_ACCESS_GRANTED);
-        query.setParameter("publishingAccessDenied",
-            PublishingAccess.PUBLISHING_ACCESS_DENIED);
-        query.setParameter("tenant", supplier.getTenant());
-
-        List<Marketplace> marketplaceList = ParameterizedTypes.list(
-            query.getResultList(), Marketplace.class);
+        List<Marketplace> marketplaceList = ParameterizedTypes
+                .list(query.getResultList(), Marketplace.class);
 
         return marketplaceList;
     }
@@ -257,11 +237,13 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
         }
 
         // Check current organization, if already set.
-        String currentOwningOrganizationId = (marketplace.getOrganization() != null) ? marketplace
-                .getOrganization().getOrganizationId() : null;
+        String currentOwningOrganizationId = (marketplace
+                .getOrganization() != null)
+                        ? marketplace.getOrganization().getOrganizationId()
+                        : null;
 
-        if (currentOwningOrganizationId == null
-                || !currentOwningOrganizationId.equals(newOwningOrganizationId)) {
+        if (currentOwningOrganizationId == null || !currentOwningOrganizationId
+                .equals(newOwningOrganizationId)) {
             // Organization assignment must only be changed by platform
             // operator!
             if (!ds.getCurrentUser().hasRole(UserRoleType.PLATFORM_OPERATOR)) {
@@ -280,15 +262,15 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
                     if (isCurrentOrgMPOwner) {
                         // Find if current organization has other marketplaces
                         // than chosen one if not remove the owner role!
-                        List<Marketplace> orgMPs = marketplace
-                                .getOrganization().getMarketplaces();
+                        List<Marketplace> orgMPs = marketplace.getOrganization()
+                                .getMarketplaces();
                         boolean found = false;
                         for (Marketplace orgMp : orgMPs) {
                             Organization anOrg = orgMp.getOrganization();
                             if (anOrg == null)
                                 continue;
-                            if (currentOwningOrganizationId.equals(anOrg
-                                    .getOrganizationId())
+                            if (currentOwningOrganizationId
+                                    .equals(anOrg.getOrganizationId())
                                     && !orgMp.getMarketplaceId().equals(
                                             marketplace.getMarketplaceId())) {
                                 found = true;
@@ -314,17 +296,13 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
                             OrganizationRoleType.MARKETPLACE_OWNER);
                 } catch (IncompatibleRolesException e) {
                     SaaSSystemException sse = new SaaSSystemException(e);
-                    logger.logError(
-                            Log4jLogger.SYSTEM_LOG,
-                            sse,
+                    logger.logError(Log4jLogger.SYSTEM_LOG, sse,
                             LogMessageIdentifier.ERROR_UNEXPECTED_INCOMPATIBLE_ROLES_EXCEPTION);
                     throw sse;
                 } catch (AddMarketingPermissionException e) {
                     // should not happen here
                     SaaSSystemException sse = new SaaSSystemException(e);
-                    logger.logWarn(
-                            Log4jLogger.SYSTEM_LOG,
-                            sse,
+                    logger.logWarn(Log4jLogger.SYSTEM_LOG, sse,
                             LogMessageIdentifier.WARN_MARKETING_PERMISSION_NOT_ADDED,
                             org.getOrganizationId());
                     throw sse;
@@ -351,12 +329,12 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
             return;
         }
         // second retrieve relevant marketplaces by query
-        Query query = ds
-                .createNamedQuery("OrganizationToRole.getByOrganizationAndRole");
+        Query query = ds.createNamedQuery(
+                "OrganizationToRole.getByOrganizationAndRole");
         query.setParameter("orgTKey", new Long(org.getKey()));
         query.setParameter("orgRoleTKey", new Long(orgRole.getKey()));
-        List<OrganizationToRole> tempList = ParameterizedTypes.list(
-                query.getResultList(), OrganizationToRole.class);
+        List<OrganizationToRole> tempList = ParameterizedTypes
+                .list(query.getResultList(), OrganizationToRole.class);
 
         if (tempList.isEmpty()) {
             return;
@@ -419,15 +397,14 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
                 revenueShareModelNew.getRevenueShare());
         String fieldName = FIELD_REVENUE_SHARE + " for "
                 + revenueShareModel.getRevenueShareModelType();
-        BLValidator.isInRange(fieldName,
-                revenueShareModelNew.getRevenueShare(),
+        BLValidator.isInRange(fieldName, revenueShareModelNew.getRevenueShare(),
                 RevenueShareModel.MIN_REVENUE_SHARE,
                 RevenueShareModel.MAX_REVENUE_SHARE);
         VersionAndKeyValidator.verify(revenueShareModel, revenueShareModelNew,
                 version);
 
-        revenueShareModel.setRevenueShare(revenueShareModelNew
-                .getRevenueShare());
+        revenueShareModel
+                .setRevenueShare(revenueShareModelNew.getRevenueShare());
         ds.flush();
         return revenueShareModel;
     }
@@ -436,8 +413,8 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     public void updateMarketplaceName(Marketplace marketplace,
             String newMarketplaceName) throws OperationNotPermittedException {
-        LocalizerFacade facade = new LocalizerFacade(localizer, ds
-                .getCurrentUser().getLocale());
+        LocalizerFacade facade = new LocalizerFacade(localizer,
+                ds.getCurrentUser().getLocale());
         String persistedMarketplaceName = facade.getText(marketplace.getKey(),
                 LocalizedObjectTypes.MARKETPLACE_NAME);
         if (!persistedMarketplaceName.equals(newMarketplaceName)) {
@@ -446,8 +423,8 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
             }
             checkMarketplaceOwner(marketplace.getMarketplaceId());
             localizer.storeLocalizedResource(ds.getCurrentUser().getLocale(),
-                    marketplace.getKey(),
-                    LocalizedObjectTypes.MARKETPLACE_NAME, newMarketplaceName);
+                    marketplace.getKey(), LocalizedObjectTypes.MARKETPLACE_NAME,
+                    newMarketplaceName);
         }
     }
 
@@ -476,8 +453,8 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     public void sendNotification(EmailType type, Marketplace domMp,
             List<PlatformUser> admins) {
-        LocalizerFacade facade = new LocalizerFacade(localizer, ds
-                .getCurrentUser().getLocale());
+        LocalizerFacade facade = new LocalizerFacade(localizer,
+                ds.getCurrentUser().getLocale());
         String marketplaceName = facade.getText(domMp.getKey(),
                 LocalizedObjectTypes.MARKETPLACE_NAME);
 
@@ -487,8 +464,8 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
         try {
             adminUrl = commService.getBaseUrl();
             adminUrl = addMarketplaceAdminPath(adminUrl);
-            publicAccessUrl = commService.getMarketplaceUrl(domMp
-                    .getMarketplaceId());
+            publicAccessUrl = commService
+                    .getMarketplaceUrl(domMp.getMarketplaceId());
         } catch (MailOperationException e) {
             logger.logWarn(Log4jLogger.SYSTEM_LOG, e,
                     LogMessageIdentifier.WARN_RETRIEVE_MARKETPLACE_URL_FAILED,
@@ -502,17 +479,14 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
                     sendMailToSupplierAssigned(type, domMp, marketplaceName,
                             adminUrl, publicAccessUrl, admin);
                 } else {
-                    commService
-                            .sendMail(admin, type,
-                                    new Object[] { marketplaceName,
-                                            publicAccessUrl, adminUrl }, domMp);
+                    commService.sendMail(admin, type, new Object[] {
+                            marketplaceName, publicAccessUrl, adminUrl },
+                            domMp);
                 }
 
             } catch (MailOperationException e) {
                 // mail delivery is not critical, log and proceed
-                logger.logWarn(
-                        Log4jLogger.SYSTEM_LOG,
-                        e,
+                logger.logWarn(Log4jLogger.SYSTEM_LOG, e,
                         LogMessageIdentifier.WARN_NOTIFY_ASSIGNMENT_TO_MARKETPLACE_FAILED,
                         admin.getEmail());
             }
@@ -528,25 +502,25 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
         // then send an e-mail containing the admin url of the
         // marketplace.
         if (userIsMarketplaceOwner) {
-            commService
-                    .sendMail(admin,
-                            EmailType.MARKETPLACE_SUPPLIER_ASSIGNED_OWNED,
-                            new Object[] { marketplaceName, publicAccessUrl,
-                                    adminUrl }, domMp);
+            commService.sendMail(admin,
+                    EmailType.MARKETPLACE_SUPPLIER_ASSIGNED_OWNED,
+                    new Object[] { marketplaceName, publicAccessUrl, adminUrl },
+                    domMp);
         }
 
         // Otherwise do not include the admin url in the e-mail.
         else {
-            commService.sendMail(admin, type, new Object[] { marketplaceName,
-                    publicAccessUrl }, domMp);
+            commService.sendMail(admin, type,
+                    new Object[] { marketplaceName, publicAccessUrl }, domMp);
         }
     }
 
-    private boolean isMarketplaceOwner(PlatformUser user, String marketplaceId) {
+    private boolean isMarketplaceOwner(PlatformUser user,
+            String marketplaceId) {
         boolean isMPOwner = false;
 
-        boolean hasMPOwnerRole = user.getOrganization().hasRole(
-                OrganizationRoleType.MARKETPLACE_OWNER);
+        boolean hasMPOwnerRole = user.getOrganization()
+                .hasRole(OrganizationRoleType.MARKETPLACE_OWNER);
 
         if (hasMPOwnerRole) {
             List<Marketplace> marketplacesOwned = user.getOrganization()
@@ -571,8 +545,8 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
         if (marketplaceAdminUrl.contains("?")) {
             prefix = marketplaceAdminUrl.substring(0,
                     marketplaceAdminUrl.lastIndexOf('?'));
-            suffix = marketplaceAdminUrl.substring(marketplaceAdminUrl
-                    .lastIndexOf('?'));
+            suffix = marketplaceAdminUrl
+                    .substring(marketplaceAdminUrl.lastIndexOf('?'));
         }
         if (!prefix.endsWith("/")) {
             prefix = prefix + "/";
@@ -583,9 +557,9 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
     @Override
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     public boolean updateMarketplace(Marketplace mp, String newMarketplaceName,
-            String newOwningOrganizationId) throws ObjectNotFoundException,
-            OperationNotPermittedException, ValidationException,
-            UserRoleAssignmentException {
+            String newOwningOrganizationId)
+            throws ObjectNotFoundException, OperationNotPermittedException,
+            ValidationException, UserRoleAssignmentException {
         BLValidator.isNotBlank("marketplace.id", mp.getMarketplaceId());
         BLValidator.isNotBlank("marketplace.name", newMarketplaceName);
 
@@ -606,8 +580,8 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
         }
         ds.flush();
         if (ownerAssignmentUpdated) {
-            List<PlatformUser> admins = accountService.getOrganizationAdmins(mp
-                    .getOrganization().getKey());
+            List<PlatformUser> admins = accountService
+                    .getOrganizationAdmins(mp.getOrganization().getKey());
             // Add MARKETPLACE_OWNER role to all administrators
             for (PlatformUser admin : admins) {
                 identityService.grantUserRoles(admin, Collections
@@ -626,7 +600,8 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
      */
     protected boolean isPublicLandingpage(Marketplace mp)
             throws ObjectNotFoundException {
-        return landingpageService.loadLandingpageType(mp.getMarketplaceId()) == LandingpageType.PUBLIC;
+        return landingpageService.loadLandingpageType(
+                mp.getMarketplaceId()) == LandingpageType.PUBLIC;
     }
 
     /**
@@ -640,9 +615,10 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
     private void setLandingpageDefaultFillinCriterion(Marketplace marketplace) {
         if (!marketplace.isReviewEnabled()) {
             PublicLandingpage landingpage = marketplace.getPublicLandingpage();
-            if (landingpage.getFillinCriterion() == FillinCriterion.RATING_DESCENDING) {
-                landingpage
-                        .setFillinCriterion(PublicLandingpage.DEFAULT_FILLINCRITERION);
+            if (landingpage
+                    .getFillinCriterion() == FillinCriterion.RATING_DESCENDING) {
+                landingpage.setFillinCriterion(
+                        PublicLandingpage.DEFAULT_FILLINCRITERION);
             }
         }
     }
@@ -651,10 +627,9 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     public void grantPublishingRights(Marketplace mp) {
         Organization org = mp.getOrganization();
-        if (org != null
-                && (org.hasRole(OrganizationRoleType.SUPPLIER)
-                        || org.hasRole(OrganizationRoleType.RESELLER) || org
-                            .hasRole(OrganizationRoleType.BROKER))) {
+        if (org != null && (org.hasRole(OrganizationRoleType.SUPPLIER)
+                || org.hasRole(OrganizationRoleType.RESELLER)
+                || org.hasRole(OrganizationRoleType.BROKER))) {
             MarketplaceToOrganization rel = new MarketplaceToOrganization(mp,
                     org);
             try {
@@ -828,9 +803,9 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
     @Override
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     public Product publishService(long serviceKey, CatalogEntry ceNew,
-            List<VOCategory> categories) throws ObjectNotFoundException,
-            ValidationException, NonUniqueBusinessKeyException,
-            OperationNotPermittedException {
+            List<VOCategory> categories)
+            throws ObjectNotFoundException, ValidationException,
+            NonUniqueBusinessKeyException, OperationNotPermittedException {
         Marketplace ceNewMarketplace = ceNew.getMarketplace();
         if (ceNewMarketplace != null) {
             BLValidator.isNotNull("voCatalogEntry.marketplaceId",
@@ -880,8 +855,8 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
             marketPlaceUpdated = true;
         }
 
-        logActivities(categories, product, isServicePublicChanged,
-                catalogEntry, marketPlaceUpdated);
+        logActivities(categories, product, isServicePublicChanged, catalogEntry,
+                marketPlaceUpdated);
 
         return product;
     }
@@ -890,7 +865,8 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
             Marketplace productMarketplace) {
         return isNewMkpNullAndOldNotNull(ceNewMarketplace, productMarketplace)
                 || isOldNullAndNewNotNull(ceNewMarketplace, productMarketplace)
-                || bothNotNullAndDifferent(ceNewMarketplace, productMarketplace);
+                || bothNotNullAndDifferent(ceNewMarketplace,
+                        productMarketplace);
     }
 
     private Marketplace retrieveMarketplaceForGivenId(
@@ -965,8 +941,8 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
             Marketplace productMarketplace) {
         boolean retVal = false;
         if (ceNewMarketplace != null && productMarketplace != null) {
-            retVal = !ceNewMarketplace.getMarketplaceId().equals(
-                    productMarketplace.getMarketplaceId());
+            retVal = !ceNewMarketplace.getMarketplaceId()
+                    .equals(productMarketplace.getMarketplaceId());
         }
         return retVal;
     }
@@ -990,12 +966,12 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
             }
 
             if (marketPlaceUpdated) {
-                LocalizerFacade facade = new LocalizerFacade(localizer, ds
-                        .getCurrentUser().getLocale());
-                audit.assignToMarketPlace(ds, product, marketplace
-                        .getMarketplaceId(), facade.getText(
-                        marketplace.getKey(),
-                        LocalizedObjectTypes.MARKETPLACE_NAME));
+                LocalizerFacade facade = new LocalizerFacade(localizer,
+                        ds.getCurrentUser().getLocale());
+                audit.assignToMarketPlace(ds, product,
+                        marketplace.getMarketplaceId(),
+                        facade.getText(marketplace.getKey(),
+                                LocalizedObjectTypes.MARKETPLACE_NAME));
             }
             if (isCatagoriesChanged) {
                 audit.assignCategories(ds, product, categories);
@@ -1049,7 +1025,7 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
                 ds.remove(pr);
             }
             product.getAllCompatibleProducts().clear();
-            ArrayList<ProductReference> references = new ArrayList<ProductReference>(
+            ArrayList<ProductReference> references = new ArrayList<>(
                     product.getCompatibleProductsTarget());
             for (ProductReference pr : references) {
                 pr.getSourceProduct().getAllCompatibleProducts().remove(pr);
@@ -1072,8 +1048,8 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     public Marketplace getMarketplaceForId(String marketplaceId)
             throws ObjectNotFoundException {
-        return (Marketplace) ds.getReferenceByBusinessKey(new Marketplace(
-                marketplaceId));
+        return (Marketplace) ds
+                .getReferenceByBusinessKey(new Marketplace(marketplaceId));
     }
 
     @Override
@@ -1087,8 +1063,8 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
     @Override
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     public Marketplace updateMarketplaceAccessType(String marketplaceId,
-            boolean isRestricted) throws ObjectNotFoundException,
-            NonUniqueBusinessKeyException {
+            boolean isRestricted)
+            throws ObjectNotFoundException, NonUniqueBusinessKeyException {
         Marketplace marketplace = (Marketplace) ds
                 .getReferenceByBusinessKey(new Marketplace(marketplaceId));
         if (marketplace.isRestricted() == isRestricted) {
@@ -1161,8 +1137,8 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
         Query query = ds.createNativeQuery(selectQuery, Marketplace.class);
         query.setParameter("orgKey", orgKey);
 
-        List<Marketplace> marketplaces = ParameterizedTypes.list(
-                query.getResultList(), Marketplace.class);
+        List<Marketplace> marketplaces = ParameterizedTypes
+                .list(query.getResultList(), Marketplace.class);
 
         return marketplaces;
     }
@@ -1194,34 +1170,35 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
             tenantKey = marketplace.getTenant().getKey();
         }
 
-        return marketplaceAccessDao
-                .getOrganizationsWithMplAndSubscriptions(marketplace.getKey(), tenantKey);
+        return marketplaceAccessDao.getOrganizationsWithMplAndSubscriptions(
+                marketplace.getKey(), tenantKey);
     }
 
     @Override
     public List<Organization> getAllOrganizationsWithAccessToMarketplace(
             long marketplaceKey) throws ObjectNotFoundException {
 
-        Marketplace marketplace = ds.getReference(Marketplace.class, marketplaceKey);
+        Marketplace marketplace = ds.getReference(Marketplace.class,
+                marketplaceKey);
 
         long tenantKey = 0;
         if (marketplace.getTenant() != null) {
             tenantKey = marketplace.getTenant().getKey();
         }
 
-        return marketplaceAccessDao
-                .getAllOrganizationsWithAccessToMarketplace(marketplaceKey, tenantKey);
+        return marketplaceAccessDao.getAllOrganizationsWithAccessToMarketplace(
+                marketplaceKey, tenantKey);
     }
 
     @Override
     public void updateTenant(Marketplace marketplace, String tenantId)
             throws ObjectNotFoundException {
-        
-        if(StringUtils.isBlank(tenantId)){
+
+        if (StringUtils.isBlank(tenantId)) {
             marketplace.setTenant(null);
             return;
         }
-        
+
         String currentTenantId = (marketplace.getTenant() != null)
                 ? marketplace.getTenant().getTenantId() : null;
 
@@ -1236,8 +1213,8 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
 
     @Override
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
-    public List<Marketplace> getAllMarketplacesForTenant(
-            Long tenantKey) throws ObjectNotFoundException {
+    public List<Marketplace> getAllMarketplacesForTenant(Long tenantKey)
+            throws ObjectNotFoundException {
 
         Query query;
         if (tenantKey != null && tenantKey.intValue() != 0) {
@@ -1247,8 +1224,8 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
         } else {
             query = ds.createNamedQuery("Marketplace.getAllForDefaultTenant");
         }
-        List<Marketplace> marketplaceList = ParameterizedTypes.list(
-            query.getResultList(), Marketplace.class);
+        List<Marketplace> marketplaceList = ParameterizedTypes
+                .list(query.getResultList(), Marketplace.class);
 
         return marketplaceList;
     }

@@ -15,7 +15,17 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 import org.oscm.domobjects.annotations.BusinessKey;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
@@ -30,8 +40,8 @@ import org.oscm.domobjects.enums.LocalizedObjectTypes;
         @NamedQuery(name = "Marketplace.findByBusinessKey", query = "SELECT mp FROM Marketplace mp WHERE mp.dataContainer.marketplaceId = :marketplaceId"),
         @NamedQuery(name = "Marketplace.getAll", query = "SELECT mp FROM Marketplace mp"),
         @NamedQuery(name = "Marketplace.getAllAccessible", query = "SELECT mp FROM Marketplace mp WHERE mp"
-            + ".dataContainer.restricted = FALSE OR EXISTS (SELECT ma FROM MarketplaceAccess ma WHERE ma"
-            + ".marketplace_tkey = mp.key AND ma.organization_tkey = :organization_tkey)"),
+                + ".dataContainer.restricted = FALSE OR EXISTS (SELECT ma FROM MarketplaceAccess ma WHERE ma"
+                + ".marketplace_tkey = mp.key AND ma.organization_tkey = :organization_tkey)"),
         @NamedQuery(name = "Marketplace.getByOwner", query = "SELECT mp FROM Marketplace mp, Organization o WHERE mp.organization = o AND o.dataContainer.organizationId=:organizationId"),
         @NamedQuery(name = "Marketplace.findByService", query = "SELECT mp FROM Marketplace mp, CatalogEntry ce WHERE ce.marketplace = mp AND ce.product=:service"),
         @NamedQuery(name = "Marketplace.findMarketplacesForPublishingForOrg", query = "SELECT mp FROM Marketplace mp "
@@ -41,16 +51,7 @@ import org.oscm.domobjects.enums.LocalizedObjectTypes;
                 + "AND mto.organization_tkey=:organization_tkey AND mto.dataContainer.publishingAccess=:publishingAccessGranted)) "
                 + "OR (mp.dataContainer.open = TRUE AND NOT EXISTS (SELECT mto FROM MarketplaceToOrganization mto "
                 + "WHERE mp.key = mto.marketplace_tkey AND mto.organization_tkey=:organization_tkey "
-                + "AND mto.dataContainer.publishingAccess=:publishingAccessDenied))) AND mp.tenant IS NULL"),
-    @NamedQuery(name = "Marketplace.findMarketplacesForPublishingForOrgAndTenant", query = "SELECT mp FROM "
-        + "Marketplace mp "
-        + "WHERE (mp.dataContainer.restricted = FALSE OR EXISTS (SELECT ma FROM MarketplaceAccess ma WHERE ma"
-        + ".marketplace_tkey = mp.key AND ma.organization_tkey = :organization_tkey)) AND ( (mp.dataContainer"
-        + ".open = FALSE AND EXISTS (SELECT mto FROM MarketplaceToOrganization mto WHERE mp.key = mto.marketplace_tkey "
-        + "AND mto.organization_tkey=:organization_tkey AND mto.dataContainer.publishingAccess=:publishingAccessGranted)) "
-        + "OR (mp.dataContainer.open = TRUE AND NOT EXISTS (SELECT mto FROM MarketplaceToOrganization mto "
-        + "WHERE mp.key = mto.marketplace_tkey AND mto.organization_tkey=:organization_tkey "
-        + "AND mto.dataContainer.publishingAccess=:publishingAccessDenied))) AND mp.tenant = :tenant"),
+                + "AND mto.dataContainer.publishingAccess=:publishingAccessDenied)))"),
         @NamedQuery(name = "Marketplace.getAllForTenant", query = "SELECT mp FROM Marketplace mp WHERE mp"
                 + ".tenant = :tenant"),
         @NamedQuery(name = "Marketplace.getAllForDefaultTenant", query = "SELECT mp FROM Marketplace mp WHERE mp"
@@ -61,10 +62,10 @@ public class Marketplace extends DomainObjectWithHistory<MarketplaceData> {
     private static final long serialVersionUID = -3734874169454511010L;
 
     private static final List<LocalizedObjectTypes> LOCALIZATION_TYPES = Collections
-            .unmodifiableList(Arrays.asList(
-                    LocalizedObjectTypes.MARKETPLACE_NAME,
-                    LocalizedObjectTypes.MARKETPLACE_STAGE,
-                    LocalizedObjectTypes.SHOP_MESSAGE_PROPERTIES));
+            .unmodifiableList(
+                    Arrays.asList(LocalizedObjectTypes.MARKETPLACE_NAME,
+                            LocalizedObjectTypes.MARKETPLACE_STAGE,
+                            LocalizedObjectTypes.SHOP_MESSAGE_PROPERTIES));
 
     public Marketplace() {
         super();
@@ -84,7 +85,7 @@ public class Marketplace extends DomainObjectWithHistory<MarketplaceData> {
 
     /**
      * n:1 relation to owning Organization
-     * */
+     */
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private Organization organization;
 
@@ -92,15 +93,17 @@ public class Marketplace extends DomainObjectWithHistory<MarketplaceData> {
     private List<CatalogEntry> catalogEntries;
 
     @OneToMany(mappedBy = "marketplace", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
-    private List<MarketplaceToOrganization> marketplaceToOrganizations = new ArrayList<MarketplaceToOrganization>();
+    private List<MarketplaceToOrganization> marketplaceToOrganizations = new ArrayList<>();
 
     @OneToMany(mappedBy = "marketplace", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
-    private List<MarketplaceAccess> marketplaceAccesses = new ArrayList<MarketplaceAccess>();
+    private List<MarketplaceAccess> marketplaceAccesses = new ArrayList<>();
 
-    @OneToOne(cascade = { CascadeType.PERSIST, CascadeType.REMOVE }, fetch = FetchType.LAZY, optional = true)
+    @OneToOne(cascade = { CascadeType.PERSIST,
+            CascadeType.REMOVE }, fetch = FetchType.LAZY, optional = true)
     private PublicLandingpage publicLandingpage;
 
-    @OneToOne(cascade = { CascadeType.PERSIST, CascadeType.REMOVE }, fetch = FetchType.LAZY, optional = true)
+    @OneToOne(cascade = { CascadeType.PERSIST,
+            CascadeType.REMOVE }, fetch = FetchType.LAZY, optional = true)
     private EnterpriseLandingpage enterpriseLandingpage;
 
     @OneToOne(optional = false, cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
@@ -263,7 +266,7 @@ public class Marketplace extends DomainObjectWithHistory<MarketplaceData> {
     public String getTrackingCode() {
         return dataContainer.getTrackingCode();
     }
-    
+
     public void setRestricted(boolean restricted) {
         dataContainer.setRestricted(restricted);
     }
@@ -276,7 +279,8 @@ public class Marketplace extends DomainObjectWithHistory<MarketplaceData> {
         return marketplaceAccesses;
     }
 
-    public void setMarketplaceAccesses(List<MarketplaceAccess> marketplaceAccesses) {
+    public void setMarketplaceAccesses(
+            List<MarketplaceAccess> marketplaceAccesses) {
         this.marketplaceAccesses = marketplaceAccesses;
     }
 
