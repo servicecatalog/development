@@ -66,7 +66,7 @@
       <property name="dom4j.jar.name" value="dom4j-1.6.1.jar" />
       <property name="dom4j.jar" value="${jdbc.driver.jar.path}/${dom4j.jar.name}" />
       <!-- app hibernate-commons jar -->
-      <property name="hibernate.commons.jar.name" value="hibernate-commons-annotations-5.0.1.Final.jar" />
+      <property name="hibernate.commons.jar.name" value="hibernate-commons-annotations-4.0.4.Final.jar" />
       <property name="hibernate.commons.jar" value="${jdbc.driver.jar.path}/${hibernate.commons.jar.name}" />
       <!-- app hibernate-core jar -->
       <property name="hibernate.core.jar.name" value="hibernate-core-5.0.9.Final.jar" />
@@ -452,6 +452,16 @@
         <arg value="--target" />
         <arg value="@{targetname}" />
         <arg value="@{warfile}" />
+      </asadmin.domain>
+    </sequential>
+  </macrodef>
+
+
+  <macrodef name="setLoggingLevel">
+    <attribute name="loggername" />
+    <sequential>
+      <asadmin.domain command="set-log-levels">
+        <arg value="@{loggername}" />
       </asadmin.domain>
     </sequential>
   </macrodef>

@@ -320,6 +320,7 @@
   <target name="deployAllApplications">
     <antcall target="deployAllEars" />
     <antcall target="deployAllWars" />
+    <antcall target="setLoggingLevel" />
   </target>
 
   <target name="deployAllEars">
@@ -492,4 +493,7 @@
     <ant antfile="${patch.script}" target="patchApplication" inheritall="true" />
   </target>
 
+  <target name="setLoggingLevel">
+    <setLoggingLevel loggername="javax.enterprise.system.util=SEVERE"/>
+  </target>
 </project>
