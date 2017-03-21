@@ -93,6 +93,8 @@ public class JsonConverter {
                     setValueType().
                     setModificationType().
                     setOptions().
+                    setPricePerUser().
+                    setPricePerSubscription().
                     build();
 
             jsonParamList.add(jsonParam);

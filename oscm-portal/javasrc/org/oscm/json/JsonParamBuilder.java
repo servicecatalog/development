@@ -17,6 +17,8 @@ import org.oscm.internal.types.enumtypes.ParameterValueType;
 import org.oscm.internal.vo.VOParameter;
 import org.oscm.internal.vo.VOParameterDefinition;
 import org.oscm.internal.vo.VOParameterOption;
+import org.oscm.internal.vo.VOPricedOption;
+import org.oscm.internal.vo.VOPricedParameter;
 
 /**
  * Created by FlorekS on 2015-05-12.
@@ -25,6 +27,7 @@ public class JsonParamBuilder {
 
     private final PricedParameterRow pricedParam;
     private VOParameter parameter;
+    private VOPricedParameter pricedParameter;
     private VOParameterDefinition parameterDef;
     private JsonParameter jsonParam = new JsonParameter();
 
@@ -34,6 +37,7 @@ public class JsonParamBuilder {
         if(pricedParam != null) {
             this.parameter = pricedParam.getParameter();
             this.parameterDef = pricedParam.getParameterDefinition();
+            this.pricedParameter = pricedParam.getPricedParameter();
         }
 
     }
@@ -147,8 +151,32 @@ public class JsonParamBuilder {
                 JsonParameterOption jsonOpt = new JsonParameterOption();
                 jsonOpt.setId(Strings.nullToEmpty(voOpt.getOptionId()));
                 jsonOpt.setDescription(Strings.nullToEmpty(EscapeUtils.escapeJSON(voOpt.getOptionDescription())));
-                jsonParam.getOptions().add(jsonOpt);
+                if(pricedParameter != null){
+	                for (VOPricedOption voPricedOpt : pricedParameter.getPricedOptions()) {
+	                    if(voPricedOpt.getParameterOptionKey() == voOpt.getKey()){
+	                        jsonOpt.setPricePerUser(voPricedOpt.getPricePerUser().doubleValue());
+	                        jsonOpt.setPricePerSubscription(voPricedOpt.getPricePerSubscription().doubleValue());
+	                    }
+	                }
+	                jsonParam.getOptions().add(jsonOpt);
+                }
             }
+        }
+
+        return this;
+    }
+
+    public JsonParamBuilder setPricePerUser() {
+        if (pricedParameter != null) {
+            jsonParam.setPricePerUser(pricedParameter.getPricePerUser().doubleValue());
+        }
+
+        return this;
+    }
+
+    public JsonParamBuilder setPricePerSubscription() {
+        if (pricedParameter != null) {
+            jsonParam.setPricePerSubscription(pricedParameter.getPricePerSubscription().doubleValue());
         }
 
         return this;
