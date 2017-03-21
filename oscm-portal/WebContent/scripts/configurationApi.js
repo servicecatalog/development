@@ -35,7 +35,7 @@ Enum.prototype = {
 //*** OSCM Service Parameter definitions ***
 //*******************************************
 
-function Parameter(id, valueType, modificationType, value, valueError, mandatory, readonly, description) {
+function Parameter(id, valueType, modificationType, value, valueError, mandatory, readonly, description, pricePerUser, pricePerSubscription) {
     this._id = null;
     this._valueType = null;
     this._modificationType = null;
@@ -44,6 +44,8 @@ function Parameter(id, valueType, modificationType, value, valueError, mandatory
     this._mandatory = null;
     this._readonly = null;
     this._description = null;
+    this._pricePerUser = null;
+    this._pricePerSubscription = null;
 
     this.setId(id);
     this.setValueType(valueType);
@@ -53,6 +55,8 @@ function Parameter(id, valueType, modificationType, value, valueError, mandatory
     this.setMandatory(mandatory);
     this.setReadonly(readonly);
     this.setDescription(description);
+    this.setPricePerUser(pricePerUser);
+    this.setPricePerSubscription(pricePerSubscription);
 }
 
 Parameter.Type = {
@@ -188,6 +192,22 @@ Parameter.prototype = {
             this._description = description;
         }
     },
+
+    getPricePerUser : function() {
+        return this._pricePerUser;
+    },
+
+    setPricePerUser : function(pricePerUser) {
+        this._pricePerUser = pricePerUser;
+    },
+
+    getPricePerSubscription : function() {
+        return this._pricePerSubscription;
+    },
+
+    setPricePerSubscription : function(pricePerSubscription) {
+        this._pricePerSubscription = pricePerSubscription;
+    },
     
     toJsonObject : function() {
         var jsonObject = new Object();
@@ -200,6 +220,8 @@ Parameter.prototype = {
         jsonObject.mandatory = this.isMandatory();
         jsonObject.readonly = this.isReadonly();
         jsonObject.description = this.getDescription();
+        jsonObject.pricePerUser = this.getPricePerUser();
+        jsonObject.pricePerSubscription = this.getPricePerSubscription();
         
         if (typeof this._toJsonObject == 'function') {
             this._toJsonObject(jsonObject);
@@ -211,9 +233,9 @@ Parameter.prototype = {
 
 
 function NumericParameter(id, valueType, modificationType, value, valueError, mandatory, 
-        readonly, description, minValue, maxValue) {
+        readonly, description, minValue, maxValue, pricePerUser, pricePerSubscription) {
     Parameter.call(this, id, valueType, modificationType, value, valueError, mandatory, 
-        readonly, description);
+        readonly, description, pricePerUser, pricePerSubscription);
 
     this._minValue = "";
     this._maxValue = "";
@@ -251,17 +273,23 @@ NumericParameter.prototype._toJsonObject = function(jsonObject) {
 
 
 function OptionParameter(id, valueType, modificationType, value, valueError, mandatory, 
-        readonly, description, optionIds, optionDescriptions) {
+        readonly, description, options, optionIds, optionDescriptions, pricePerUser,
+                     pricePerSubscription) {
     Parameter.call(this, id, valueType, modificationType, value, valueError, mandatory, 
-        readonly, description);
+        readonly, description, pricePerUser, pricePerSubscription);
 
+    this._options = null;
     this._optionIds = null;
     this._optionDescriptions = null;
 
-    this.setOptions(optionIds, optionDescriptions);
+    this.setOptions(options, optionIds, optionDescriptions);
 }
 
 extend(Parameter, OptionParameter);
+
+OptionParameter.prototype.getOptions = function() {
+    return this._options;
+}
 
 OptionParameter.prototype.getOptionIds = function() {
     return this._optionIds;
@@ -271,7 +299,7 @@ OptionParameter.prototype.getOptionDescriptions = function() {
     return this._optionDescriptions;
 }
 
-OptionParameter.prototype.setOptions = function(optionIds, optionDescriptions) {
+OptionParameter.prototype.setOptions = function(options, optionIds, optionDescriptions) {
     if (typeof optionIds == "object" && optionIds instanceof Array
             && typeof optionDescriptions == "object"
             && optionDescriptions instanceof Array
@@ -289,6 +317,7 @@ OptionParameter.prototype.setOptions = function(optionIds, optionDescriptions) {
             }
         }
         
+        this._options = options;
         this._optionIds = optionIds;
         this._optionDescriptions = optionDescriptions;
     }
@@ -321,7 +350,8 @@ Parameter.parse = function(parsedPar) {
                      Parameter.ModificationType.valueOf(parsedPar.modificationType), 
                      parsedPar.value, parsedPar.valueError, parsedPar.mandatory, 
                      parsedPar.readonly, parsedPar.description, 
-                     parsedPar.minValue, parsedPar.maxValue);
+                     parsedPar.minValue, parsedPar.maxValue, parsedPar.pricePerUser,
+                     parsedPar.pricePerSubscription);
         break;
     case "ENUMERATION":
         var parsedOptions = parsedPar.options;
@@ -337,13 +367,15 @@ Parameter.parse = function(parsedPar) {
                      Parameter.ModificationType.valueOf(parsedPar.modificationType), 
                      parsedPar.value, parsedPar.valueError, parsedPar.mandatory, 
                      parsedPar.readonly, parsedPar.description, 
-                     optionIds, optionDescriptions);
+                     parsedOptions, optionIds, optionDescriptions, parsedPar.pricePerUser,
+                     parsedPar.pricePerSubscription);
         break;
     default:
         return new Parameter(parsedPar.id, Parameter.Type.valueOf(parType), 
                      Parameter.ModificationType.valueOf(parsedPar.modificationType),
                      parsedPar.value, parsedPar.valueError, parsedPar.mandatory, 
-                     parsedPar.readonly, parsedPar.description);
+                     parsedPar.readonly, parsedPar.description, parsedPar.pricePerUser,
+                     parsedPar.pricePerSubscription);
     }
 }
 
