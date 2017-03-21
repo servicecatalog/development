@@ -1443,6 +1443,14 @@ public class AccountServiceBean implements AccountService, AccountServiceLocal {
         ArgumentValidator.notNull("marketplaceId", marketplaceId);
 
         VOOrganization result = null;
+        Marketplace mp = new Marketplace(marketplaceId);
+        mp = (Marketplace) dm.getReferenceByBusinessKey(mp);
+        if (mp.getTenant() != null) {
+            organization.setTenantKey(mp.getTenant().getKey());
+        } else {
+            organization.setTenantKey(0L);
+        }
+
         validateOrganizationDataForRegistration(organization, user);
         OrganizationAssembler.toCustomer(organization);
 
