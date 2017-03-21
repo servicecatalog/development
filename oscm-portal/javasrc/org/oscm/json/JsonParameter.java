@@ -29,6 +29,9 @@ public class JsonParameter {
     private boolean readonly;
     private String modificationType;
     private boolean valueError;
+    private double pricePerUser;
+    private double pricePerSubscription;
+
 
     public boolean isValueError() {
         return valueError;
@@ -155,4 +158,20 @@ public class JsonParameter {
                 .append(minValue).append(maxValue).append(readonly)
                 .append(options).toHashCode();
     }
+
+	public double getPricePerUser() {
+		return pricePerUser;
+	}
+
+	public void setPricePerUser(double pricePerUser) {
+		this.pricePerUser = pricePerUser;
+	}
+
+	public double getPricePerSubscription() {
+		return pricePerSubscription;
+	}
+
+	public void setPricePerSubscription(double pricePerSubscription) {
+		this.pricePerSubscription = pricePerSubscription;
+	}
 }

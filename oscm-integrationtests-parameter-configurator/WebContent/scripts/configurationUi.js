@@ -66,6 +66,7 @@ BssParameterConfigurator.prototype = {
 	            valueInputField.disabled=this._parameters[i].isReadonly();
 	            valueCell.appendChild(valueInputField);
 	            this.generateRangeText(this._parameters[i], valueCell);
+	            this.generatePriceDiv(this._parameters[i], valueCell);
 	        }
 
 	        this.generateErrorDiv(this._parameters[i], valueCell);
@@ -73,11 +74,48 @@ BssParameterConfigurator.prototype = {
 	        row.appendChild(valueCell);
 	        tableBody.appendChild(row);
         }
+
+            var row=document.createElement("tr");
+
+            var idCell = document.createElement("td");
+	    var idTextNode=document.createTextNode("Total price:");
+	    idCell.appendChild(idTextNode);
+	    row.appendChild(idCell);
+
+
+	    var valueCell = document.createElement("td");
+            valueCell.id = ":totalPrice";
+	    var valueTextNode=document.createTextNode("1");
+	    valueCell.appendChild(valueTextNode);
+	    row.appendChild(valueCell);
+
+	    tableBody.appendChild(row);
 	
 	    this._table.appendChild(tableBody);
-	    this._targetDiv.appendChild(this._table);	
+        this._targetDiv.appendChild(this._table);
+
+        this.updateTotalPrice();
     },
 
+    updateTotalPrice : function() {
+        var price = document.getElementById(":totalPrice");
+        var totalPrice = 0;
+
+	for (var i=0; i < this._parameters.length; i++) {
+	    if (this._parameters[i].getValueType() === Parameter.Type.ENUMERATION) {
+                var optionIds = this._parameters[i].getOptionIds();
+	        for (var op=0; op < optionIds.length; op++) {
+                    var currentOption = document.getElementById(this._parameters[i].getId() + ":option:" + optionIds[op]);
+                    if(currentOption.checked){
+                        totalPrice += this._parameters[i].getOptions()[op].pricePerSubscription;
+                    }
+                }
+	    } else {
+                totalPrice += this._parameters[i].getPricePerSubscription();
+	    }
+        }
+        price.innerHTML = totalPrice;
+    },
 
     generateButtons : function() {
         var parConfigurator = this;
@@ -103,6 +141,7 @@ BssParameterConfigurator.prototype = {
 
     generateOptions : function(parameter, valueCell) {
         if (parameter.getOptionIds && parameter.getOptionDescriptions) {
+            var options = parameter.getOptions();
             var optionIds = parameter.getOptionIds();
             var optionDescriptions = parameter.getOptionDescriptions();
             
@@ -122,6 +161,10 @@ BssParameterConfigurator.prototype = {
                 optionRadio.onclick = function() {
                     hiddenOptionValue.value = this.value;
                 };
+                var self = this;
+                optionRadio.onchange = function() {
+                    self.updateTotalPrice();
+                };
             
                 <!-- Set initially selected value -->        
                 if (parameter.getValue() == optionRadio.value) {
@@ -135,6 +178,7 @@ BssParameterConfigurator.prototype = {
                 var localizedOptionTextNode=document.createTextNode(optionDescriptions[op]);
                 optionSpan.appendChild(localizedOptionTextNode);            
                 valueCell.appendChild(optionSpan);
+	        this.generateOptionPriceDiv(options[op], valueCell);
             }
             valueCell.appendChild(hiddenOptionValue);
         }    
@@ -168,6 +212,34 @@ BssParameterConfigurator.prototype = {
         var errorText ="";
         errorDiv.innerHTML = errorText;
         valueCell.appendChild(errorDiv); 
+    },
+
+    generateOptionPriceDiv : function(parameter, valueCell) {
+        var priceDiv = document.createElement("div");
+        priceDiv.id = parameter.id + ":price";
+
+        priceDiv.innerHTML = "Price: ";
+        var price = parameter.pricePerSubscription;
+        if(price === 0.0){
+             priceDiv.innerHTML += "free";
+        }else{
+             priceDiv.innerHTML += price;
+        }
+        valueCell.appendChild(priceDiv);
+    },
+
+    generatePriceDiv : function(parameter, valueCell) {
+        var priceDiv = document.createElement("div");
+        priceDiv.id = parameter.getId() + ":price";
+
+        priceDiv.innerHTML = "Price: ";
+        var price = parameter.getPricePerSubscription();
+        if(price === 0.0){
+             priceDiv.innerHTML += "free";
+        }else{
+             priceDiv.innerHTML += price;
+        }
+        valueCell.appendChild(priceDiv);
     },
 
     isInvalidNumeric : function(fieldValue, parameter) {    
