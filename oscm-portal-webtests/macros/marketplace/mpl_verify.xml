@@ -68,6 +68,7 @@
     <attribute name="topErrorMessage" default="true" />
     <attribute name="idVerification" default="false" />
     <attribute name="regex" default="true" />
+    <attribute name="saveButtonXpath" default="" />
     <sequential>
       <!-- Check mandatory field values -->
       <ifStep description="Mandatory field?" test="@{required}">
@@ -91,7 +92,15 @@
             	<!-- ID verification-->
       	      	<dataDriven tableContainer="data/invalidInput/@{fieldType}.xls">
                   <setInputField htmlId="@{fieldId}" value="${value}" />
-                  <clickElement xpath="//*[@id='configurationForm:saveConfigurationButtonLink']" />
+                  <ifStep description="Test if id field is processed" test="">
+                  <then>
+                  <clickButton label="${button.save}" />
+                  </then>
+                    <else>
+                      <clickElement xpath="@{saveButtonXpath}" />
+                    </else>
+                  </ifStep>
+
       	      	  <verifyXPath
                           xpath="//*[@id='@{fieldId}ErrorMsg:@{fieldId}']//*[contains(text(),'Invalid character(s)')]" />
         	        </dataDriven>
@@ -119,10 +128,12 @@
     <attribute name="att2Name" default="att2" />
     <attribute name="idVerification" default="false" />
     <attribute name="regex" default="true" />
+    <attribute name="saveButtonXpath" default="" />
     <sequential>
       <mpl_verify.invalidFieldValue regex="@{regex}" hintMsgKey="@{hintMsgKey}" fieldId="@{fieldId}" fieldType="@{fieldType}"
                                     required="@{required}" buttonLinkId="@{buttonLinkId}" att0Name="@{att0Name}"
-                                    att1Name="@{att1Name}" att2Name="@{att2Name}" idVerification="@{idVerification}" />
+                                    att1Name="@{att1Name}" att2Name="@{att2Name}" idVerification="@{idVerification}"
+                                    saveButtonXpath="@{saveButtonXpath}"/>
     </sequential>
   </macrodef>
 
