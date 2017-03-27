@@ -68,7 +68,7 @@
     <attribute name="topErrorMessage" default="true" />
     <attribute name="idVerification" default="false" />
     <attribute name="regex" default="true" />
-    <attribute name="saveButtonXpath" default="" />
+    <attribute name="saveButtonXpath" default="true" />
     <sequential>
       <!-- Check mandatory field values -->
       <ifStep description="Mandatory field?" test="@{required}">
@@ -92,7 +92,7 @@
             	<!-- ID verification-->
       	      	<dataDriven tableContainer="data/invalidInput/@{fieldType}.xls">
                   <setInputField htmlId="@{fieldId}" value="${value}" />
-                  <ifStep description="Test if id field is processed" test="">
+                  <ifStep description="Test if id field is processed" test="@{saveButtonXpath}">
                   <then>
                   <clickButton label="${button.save}" />
                   </then>
@@ -128,7 +128,7 @@
     <attribute name="att2Name" default="att2" />
     <attribute name="idVerification" default="false" />
     <attribute name="regex" default="true" />
-    <attribute name="saveButtonXpath" default="" />
+    <attribute name="saveButtonXpath" default="true" />
     <sequential>
       <mpl_verify.invalidFieldValue regex="@{regex}" hintMsgKey="@{hintMsgKey}" fieldId="@{fieldId}" fieldType="@{fieldType}"
                                     required="@{required}" buttonLinkId="@{buttonLinkId}" att0Name="@{att0Name}"
