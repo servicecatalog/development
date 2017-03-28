@@ -13,7 +13,7 @@
 	<target name="runAllWebtestsBuild" depends="_libraries, _clean, _package, _setupGlassfishWithoutCoverage, _webTests, _copyResultArtifacts" />
 
     <!-- Called by cruise control. All targets for cc start with runXYZ, all internal targets start with underscore -->
-    <target name="runAllWebtestsNoClean" depends="_setupGlassfishWithoutCoverage, _webTests, _copyResultArtifacts" />
+    <target name="runAllWebtestsNoClean" depends="_webTests, _copyResultArtifacts" />
 
 	<!-- Called by cruise control. All targets for cc start with runXYZ, all internal targets start with underscore -->
 	<target name="runPart1WebtestsBuild" depends="_libraries, _clean, _package, _setupGlassfishWithoutCoverage, _webTestPart1, _copyWebtestResults, _copyResultArtifacts" />
@@ -40,6 +40,9 @@
 
 	<!-- Called by cruise control. All targets for cc start with runXYZ, all internal targets start with underscore -->
 	<target name="runWebserviceTestsBuild" depends="_libraries, _clean, _package, _setupGlassfishWithoutCoverage, _webserviceTests, _copyGlassfishLogsAfterWebserviceTests, _copyResultArtifacts" />
+
+	<!-- Called by cruise control. All targets for cc start with runXYZ, all internal targets start with underscore -->
+	<target name="runWebserviceTestsNoClean" depends="_webserviceTests, _copyResultArtifacts" />
 
 	<!-- Called by cruise control. All targets for cc start with runXYZ, all internal targets start with underscore -->
 	<target name="runJUnitTestsBuild" depends="_libraries, _clean, _package, _unittests, _copyResultArtifacts" />

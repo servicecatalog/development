@@ -5,8 +5,8 @@
     protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
     <md:NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient</md:NameIDFormat>
     <md:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
-      Location="https://estessbesci2.intern.est.fujitsu.com:8181/oscm-portal/" index="0" isDefault="true" />
+      Location="https://estessbesci2.intern.est.fujitsu.com:8081/oscm-portal/" index="0" isDefault="true" />
     <md:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
-      Location="http://estessbesci2:8180/oscm-portal/" index="1" />
+      Location="http://estessbesci2:8080/oscm-portal/" index="1" />
   </md:SPSSODescriptor>
 </md:EntityDescriptor>
