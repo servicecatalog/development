@@ -41,6 +41,9 @@
 	<!-- Called by cruise control. All targets for cc start with runXYZ, all internal targets start with underscore -->
 	<target name="runJUnitTestsBuild" depends="_libraries, _clean, _package, _unittests, _copyResultArtifacts" />
 
+	<!-- Called by cruise control. All targets for cc start with runXYZ, all internal targets start with underscore -->
+	<target name="runJUnitTestsNoClean" depends="_unittests" />
+
 	<target name="runTravisUT"  depends="_libraries">
 		<ant antfile="build.xml" target="unittests" />
 	</target>
@@ -53,6 +56,9 @@
 
 	<!-- Called by cruise control. All targets for cc start with runXYZ, all internal targets start with underscore -->
 	<target name="runIntegrationTests" depends="_libraries, _clean, _package, _integrationtests, _copyResultArtifacts" />
+
+	<!-- Called by cruise control. All targets for cc start with runXYZ, all internal targets start with underscore -->
+	<target name="runIntegrationTestsNoClean" depends="_integrationtests, _copyResultArtifacts" />
 
 	<!-- Called by cruise control. All targets for cc start with runXYZ, all internal targets start with underscore -->
 	<!--<target name="runDocBuild" depends="_clean, _docBuild"/>-->
