@@ -19,8 +19,6 @@ install:
   - unzip master.zip
   - mv documentation-master/* .
   - cd ../development
-  - git clone git@github.com:LMAX-Exchange/parallel-junit.git
-  - ./parallel-junit/gradlew
 env:
   global:
     - ANT_OPTS=-Xmx4g
