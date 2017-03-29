@@ -593,21 +593,6 @@ public class AccountServiceBeanIT extends EJBTestBase {
         });
         supplierIds.add(organization.getOrganizationId());
 
-        runTX(new Callable<VOMarketplace>() {
-            @Override
-            public VOMarketplace call() throws Exception {
-                Organization supplier = Organizations.createOrganization(mgr);
-                Marketplace mp = new Marketplace();
-                mp.setMarketplaceId(marketplaceId);
-                if (mgr.find(mp) == null) {
-                    Marketplaces.createMarketplace(supplier, marketplaceId,
-                            false, mgr);
-                }
-                return MarketplaceAssembler.toVOMarketplace(mp,
-                        new LocalizerFacade(localizer, "en"));
-            }
-        });
-
     }
 
     @Test
@@ -2208,8 +2193,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
                 userDetails.setPhone("(089) 123 456 78");
                 userDetails.setLocale("de");
                 l_organization = accountMgmtLocal.registerOrganization(
-                        l_organization, null, userDetails, null, "DE",
-                        marketplaceId, null, OrganizationRoleType.SUPPLIER);
+                        l_organization, null, userDetails, null, "DE", null,
+                        null, OrganizationRoleType.SUPPLIER);
                 Assert.assertEquals(0,
                         l_organization.getMarketplaceToOrganizations().size());
                 load(l_organization);
@@ -2282,7 +2267,7 @@ public class AccountServiceBeanIT extends EJBTestBase {
             @Override
             public Void call() throws Exception {
                 accountMgmtLocal.registerOrganization(organization, null,
-                        userDetails, null, "DE", marketplaceId, null,
+                        userDetails, null, "DE", null, null,
                         OrganizationRoleType.SUPPLIER);
                 return null;
             }
@@ -2329,9 +2314,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
                 userDetails.setPhone("(089) 123 456 78");
                 userDetails.setLocale("de");
                 Organization org = accountMgmtLocal.registerOrganization(
-                        l_organization, null, userDetails, null, "DE",
-                        marketplaceId, null,
-                        OrganizationRoleType.TECHNOLOGY_PROVIDER);
+                        l_organization, null, userDetails, null, "DE", null,
+                        null, OrganizationRoleType.TECHNOLOGY_PROVIDER);
                 Assert.assertTrue(
                         org.getMarketplaceToOrganizations().isEmpty());
                 load(org);
@@ -2370,7 +2354,7 @@ public class AccountServiceBeanIT extends EJBTestBase {
             @Override
             public Void call() throws Exception {
                 accountMgmtLocal.registerOrganization(organization, null,
-                        userDetails, null, "DE", marketplaceId, null,
+                        userDetails, null, "DE", null, null,
                         OrganizationRoleType.SUPPLIER);
                 return null;
             }
@@ -2399,7 +2383,7 @@ public class AccountServiceBeanIT extends EJBTestBase {
                 @Override
                 public Void call() throws Exception {
                     accountMgmtLocal.registerOrganization(organization, null,
-                            userDetails, null, "DE", marketplaceId, null,
+                            userDetails, null, "DE", null, null,
                             OrganizationRoleType.SUPPLIER);
                     return null;
                 }
@@ -2429,8 +2413,7 @@ public class AccountServiceBeanIT extends EJBTestBase {
             @Override
             public Organization call() throws Exception {
                 Organization org = accountMgmtLocal.registerOrganization(
-                        organization, null, userDetails, null, "DE",
-                        marketplaceId, null,
+                        organization, null, userDetails, null, "DE", null, null,
                         new OrganizationRoleType[] {
                                 OrganizationRoleType.SUPPLIER,
                                 OrganizationRoleType.TECHNOLOGY_PROVIDER });
@@ -2468,8 +2451,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
                 userDetails.setPhone("(089) 123 456 78");
                 userDetails.setLocale("de");
                 l_organization = accountMgmtLocal.registerOrganization(
-                        l_organization, null, userDetails, null, "DE",
-                        marketplaceId, null, OrganizationRoleType.BROKER);
+                        l_organization, null, userDetails, null, "DE", null,
+                        null, OrganizationRoleType.BROKER);
                 Assert.assertEquals(0,
                         l_organization.getMarketplaceToOrganizations().size());
                 load(l_organization);
@@ -2537,8 +2520,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
                 userDetails.setPhone("(089) 123 456 78");
                 userDetails.setLocale("de");
                 l_organization = accountMgmtLocal.registerOrganization(
-                        l_organization, null, userDetails, null, "DE",
-                        marketplaceId, null, OrganizationRoleType.RESELLER);
+                        l_organization, null, userDetails, null, "DE", null,
+                        null, OrganizationRoleType.RESELLER);
                 Assert.assertEquals(0,
                         l_organization.getMarketplaceToOrganizations().size());
                 load(l_organization);
@@ -2606,8 +2589,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
                 userDetails.setPhone("(089) 123 456 78");
                 userDetails.setLocale("de");
                 l_organization = accountMgmtLocal.registerOrganization(
-                        l_organization, null, userDetails, null, "DE",
-                        marketplaceId, null, OrganizationRoleType.BROKER,
+                        l_organization, null, userDetails, null, "DE", null,
+                        null, OrganizationRoleType.BROKER,
                         OrganizationRoleType.RESELLER);
                 Assert.assertEquals(0,
                         l_organization.getMarketplaceToOrganizations().size());
@@ -2633,8 +2616,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
                 userDetails.setPhone("(089) 123 456 78");
                 userDetails.setLocale("de");
                 l_organization = accountMgmtLocal.registerOrganization(
-                        l_organization, null, userDetails, null, "DE",
-                        marketplaceId, null, OrganizationRoleType.RESELLER,
+                        l_organization, null, userDetails, null, "DE", null,
+                        null, OrganizationRoleType.RESELLER,
                         OrganizationRoleType.TECHNOLOGY_PROVIDER);
                 Assert.assertEquals(0,
                         l_organization.getMarketplaceToOrganizations().size());
@@ -2660,8 +2643,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
                 userDetails.setPhone("(089) 123 456 78");
                 userDetails.setLocale("de");
                 l_organization = accountMgmtLocal.registerOrganization(
-                        l_organization, null, userDetails, null, "DE",
-                        marketplaceId, null, OrganizationRoleType.BROKER,
+                        l_organization, null, userDetails, null, "DE", null,
+                        null, OrganizationRoleType.BROKER,
                         OrganizationRoleType.SUPPLIER);
                 Assert.assertEquals(0,
                         l_organization.getMarketplaceToOrganizations().size());
@@ -2685,8 +2668,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
                 userDetails.setUserId("admin");
                 userDetails.setLocale("de");
                 l_organization = accountMgmtLocal.registerOrganization(
-                        l_organization, null, userDetails, null, "DE",
-                        marketplaceId, null, OrganizationRoleType.SUPPLIER);
+                        l_organization, null, userDetails, null, "DE", null,
+                        null, OrganizationRoleType.SUPPLIER);
                 Assert.assertEquals(0,
                         l_organization.getMarketplaceToOrganizations().size());
                 load(l_organization);
@@ -5390,7 +5373,7 @@ public class AccountServiceBeanIT extends EJBTestBase {
             @Override
             public Organization call() throws Exception {
                 return accountMgmtLocal.registerOrganization(organization, null,
-                        userDetails, null, "DE", marketplaceId, null,
+                        userDetails, null, "DE", null, null,
                         OrganizationRoleType.SUPPLIER);
             }
         });
@@ -5423,8 +5406,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
             @Override
             public Organization call() throws Exception {
                 return accountMgmtLocal.registerOrganization(organization, null,
-                        userDetails, null, "DE", marketplaceId,
-                        "The description", OrganizationRoleType.SUPPLIER);
+                        userDetails, null, "DE", null, "The description",
+                        OrganizationRoleType.SUPPLIER);
             }
         });
         validateCreatedPaymentInfo(persistedOrg);
@@ -5464,8 +5447,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
                 @Override
                 public Void call() throws Exception {
                     accountMgmtLocal.registerOrganization(organization, null,
-                            userDetails, null, "non-existing", marketplaceId,
-                            null, OrganizationRoleType.SUPPLIER);
+                            userDetails, null, "non-existing", null, null,
+                            OrganizationRoleType.SUPPLIER);
                     return null;
                 }
             });

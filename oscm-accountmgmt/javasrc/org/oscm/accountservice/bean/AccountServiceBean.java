@@ -1295,7 +1295,9 @@ public class AccountServiceBean implements AccountService, AccountServiceLocal {
             MailOperationException, NonUniqueBusinessKeyException {
 
         // create the organization admin
-        referenceOrganization.setTenant(marketplace.getTenant());
+        if (marketplace != null) {
+            referenceOrganization.setTenant(marketplace.getTenant());
+        }
         userToCreate
                 .setOrganizationId(referenceOrganization.getOrganizationId());
         try {
