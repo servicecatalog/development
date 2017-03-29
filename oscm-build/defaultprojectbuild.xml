@@ -16,7 +16,7 @@
     classpath="${workspace.dir}/libraries/apache-ant-contrib/ant-contrib-1.0b3.jar" />
 
   <taskdef resource="com/lmax/ant/paralleljunit/antlib.xml"
-           uri="antlib:com.lmax.ant.paralleljunit" classpath="${workspace.dir}/parallel/parallel-junit-0.1.jar"/>
+           uri="antlib:com.lmax.ant.paralleljunit" classpath="${workspace.dir}/parallel/build/libs/parallel-junit-0.1.jar"/>
 
   <target name="_init">
 
