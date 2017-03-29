@@ -246,7 +246,7 @@
         <classpath refid="dependencies.runtime.path" />
         <formatter type="xml" />
         <formatter type="plain" usefile="false"/>
-        <batchtest todir="${result.work.testreport.dir}">
+        <batchtest todir="${result.work.testreport.dir}" fork="yes">
           <fileset dir="${javasrc.dir}">
             <include name="**/*Test.java" />
             <include name="**/*Test?.java" />
