@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.oscm.test.ClassFilter;
 import org.oscm.test.PackageClassReader;
 
+@Ignore
 public class TransactionMandatoryTest {
 
     private List<Method> methods;
