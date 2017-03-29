@@ -12,27 +12,21 @@
 - name: 'gc-ant'
   args: ['-f', 'build-oscmaas.xml', 'BUILD.LIB']
   dir:  'oscm-devruntime/javares'
-  id:   'lib'
   
 # start compile BES components
 - name: 'gc-ant'
   args: ['-f', 'build-oscmaas.xml', 'BUILD.BES']
   dir:  'oscm-devruntime/javares'
-  id:   'bes-build'
-  waitFor: ['lib']
   
 # start compile APP components
 - name: 'gc-ant'
   args: ['-f', 'build-oscmaas.xml', 'BUILD.APP']
   dir:  'oscm-devruntime/javares'
-  id:   'app-build'
-  waitFor: ['lib']
 
 # copy necessary files to docker folders
 - name: 'ubuntu'
   args: ['bash', './prepare.sh', '..']
   dir:  'oscm-dockerbuild'
-  waitFor: ['bes-build', 'app-build']
 
 # build images
 - name: 'gcr.io/cloud-builders/docker'
@@ -41,14 +35,14 @@
   id:   'gf-image'
 
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', 'oscm-bes', '.']
+  args: ['build', '-t', 'eu.gcr.io/$PROJECT_ID/oscm/oscm-bes:$TAG_NAME', '.']
   dir:  'oscm-dockerbuild/oscm-bes'
   waitFor: ['gf-image']
 
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', 'oscm-app', '.']
+  args: ['build', '-t', 'eu.gcr.io/$PROJECT_ID/oscm/oscm-app:$TAG_NAME', '.']
   dir:  'oscm-dockerbuild/oscm-app'
   waitFor: ['gf-image']
  
-timeout: '1200s'
-images: ['oscm-bes', 'oscm-app']
+timeout: '3600s'
+images: ['eu.gcr.io/$PROJECT_ID/oscm/oscm-bes:$TAG_NAME', 'eu.gcr.io/$PROJECT_ID/oscm/oscm-app:$TAG_NAME']
