@@ -25,6 +25,7 @@ import javax.ejb.Remote;
 import javax.interceptor.Interceptors;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import org.oscm.interceptor.InvocationDateContainer;
@@ -37,6 +38,7 @@ import org.oscm.test.PackageClassReader;
  * 
  * @author barzu
  */
+@Ignore
 public class InvocationDateContainerTest {
 
     private Map<Class<?>, List<Class<?>>> mapping;
