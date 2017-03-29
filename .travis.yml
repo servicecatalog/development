@@ -10,11 +10,6 @@ cache:
 before_install:
   - sudo pip install codecov
 install:
-  - git clone git://github.com/LMAX-Exchange/parallel-junit.git
-  - cd parallel-junit/
-  - ./gradlew
-  - cd ..
-  - mv parallel-junit parallel
   - wget -P libraries/apache-ant-contrib/javalib/ http://central.maven.org/maven2/org/apache/ivy/ivy/2.4.0/ivy-2.4.0.jar
   - wget -P libraries/apache-ant/ https://www.apache.org/dist/ant/binaries/apache-ant-1.10.1-bin.zip
   - unzip -o -d libraries/apache-ant/ libraries/apache-ant/apache-ant-1.10.1-bin.zip

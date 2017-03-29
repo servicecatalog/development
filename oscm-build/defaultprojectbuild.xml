@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Copyright FUJITSU LIMITED 2017-->
 
-<project name="Default Project Build" default="illegalusage" basedir="." xmlns:jacoco="antlib:org.jacoco.ant" xmlns:pju="antlib:com.lmax.ant.paralleljunit">
+<project name="Default Project Build" default="illegalusage" basedir="." xmlns:jacoco="antlib:org.jacoco.ant">
 
   <description>
 		Default build script for all projects. Projects that define their own
@@ -14,10 +14,6 @@
 
   <taskdef name="propertyregex" classname="net.sf.antcontrib.property.RegexTask"
     classpath="${workspace.dir}/libraries/apache-ant-contrib/ant-contrib-1.0b3.jar" />
-
-  <taskdef resource="com/lmax/ant/paralleljunit/antlib.xml"
-           uri="antlib:com.lmax.ant.paralleljunit" classpath="${workspace.dir}/parallel/build/libs/parallel-junit-0.1.jar"/>
-
   <target name="_init">
 
     <property environment="env" />
@@ -115,7 +111,7 @@
       <compilerarg value="-warn:+uselessTypeCheck,+unusedArgument,+hashCode,+null,+boxing" />
     </javac>
   </target>
-  
+
   <target name="_checkjre" unless="bss.java.home.dir">
     <echo level="warn">===========================================================================</echo>
     <echo level="warn">Either the JRE location is not set or missing /lib/rt.jar file!</echo>
@@ -206,7 +202,7 @@
         <property name="wsdl.files.sts" refid="wsdl.fileset.sts" />
         <foreach tokens="${wsdl.files.sts}">
           <!--<echo message="package dir name is ${result.package.dir}, wsdl file name is ${item}"/>-->
-          <wsdlhandle dirname="${result.package.dir}/STS" filename="${item}" version="${wsdlversion}" /> 
+          <wsdlhandle dirname="${result.package.dir}/STS" filename="${item}" version="${wsdlversion}" />
         </foreach>
       </then>
     </if>
@@ -239,23 +235,25 @@
 
   <target name="unittests" if="rununittests" depends="_init, package">
     <mkdir dir="${result.work.testreport.dir}" />
-    <pju:parallel-junit printsummary="on" threads="4">
-      <jvmarg value="-Dfile.encoding=UTF8" />
-      <!-- Run unit tests without Hibernate Search indexing -->
-      <jvmarg value="-Dhibernate.search.autoregister_listeners=false" />
-      <!-- Uncomment these two lines to be able to debug the tests -->
-      <!--jvmarg value="-Xdebug" />
-      <jvmarg value="-agentlib:jdwp=transport=dt_socket,server=y,address=8038,suspend=y" /-->
-      <classpath refid="dependencies.runtime.path" />
-      <formatter type="xml" />
-      <formatter type="plain" usefile="false"/>
-      <batchtest todir="${result.work.testreport.dir}">
-        <fileset dir="${javasrc.dir}">
-          <include name="**/*Test.java" />
-          <include name="**/*Test?.java" />
-        </fileset>
-      </batchtest>
-    </pju:parallel-junit>
+    <jacoco:coverage destfile="${result.work.testreport.dir}/jacoco.exec" includes="org.oscm.*" sessionid="${project.name}">
+      <junit fork="yes" forkmode="once" dir="${project.dir}" failureproperty="unittests.failure" maxmemory="1024m">
+        <jvmarg value="-Dfile.encoding=UTF8" />
+        <!-- Run unit tests without Hibernate Search indexing -->
+        <jvmarg value="-Dhibernate.search.autoregister_listeners=false" />
+        <!-- Uncomment these two lines to be able to debug the tests -->
+        <!--jvmarg value="-Xdebug" />
+        <jvmarg value="-agentlib:jdwp=transport=dt_socket,server=y,address=8038,suspend=y" /-->
+        <classpath refid="dependencies.runtime.path" />
+        <formatter type="xml" />
+        <formatter type="plain" usefile="false"/>
+        <batchtest todir="${result.work.testreport.dir}">
+          <fileset dir="${javasrc.dir}">
+            <include name="**/*Test.java" />
+            <include name="**/*Test?.java" />
+          </fileset>
+        </batchtest>
+      </junit>
+    </jacoco:coverage>
   </target>
 
   <target name="unittestsWithoutCoverage" if="rununittests" depends="_init, package">
