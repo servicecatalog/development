@@ -248,8 +248,8 @@
         <formatter type="plain" usefile="false"/>
         <batchtest todir="${result.work.testreport.dir}">
           <fileset dir="${javasrc.dir}">
-            <include name="**/*Test.java" />
-            <include name="**/*Test?.java" />
+            <include name="**/OrganizationalUnitServiceWSTest.java" />
+            <!--<include name="**/*Test?.java" />-->
           </fileset>
         </batchtest>
       </junit>
