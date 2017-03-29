@@ -21,6 +21,8 @@ install:
   - cd ../development
   - git clone git://github.com/LMAX-Exchange/parallel-junit.git
   - ./parallel-junit/gradlew
+  - ls -al
+  - ls-al paraller-junit/*
 env:
   global:
     - ANT_OPTS=-Xmx4g
