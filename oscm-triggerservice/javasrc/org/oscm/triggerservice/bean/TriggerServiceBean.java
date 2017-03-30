@@ -1,15 +1,18 @@
 /*******************************************************************************
- *                                                                              
+ *
  *  Copyright FUJITSU LIMITED 2017
- *                                                                              
+ *
  *  Author: pock
- *                                                                              
+ *
  *  Creation Date: 18.06.2010                                                      
- *                                                                              
+ *
  *******************************************************************************/
 
 package org.oscm.triggerservice.bean;
 
+import java.io.IOException;
+import java.io.StringReader;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -30,6 +33,10 @@ import javax.ejb.TransactionAttributeType;
 import javax.interceptor.Interceptors;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.*;
 
 import org.oscm.accountservice.local.AccountServiceLocal;
 import org.oscm.dataservice.local.DataService;
@@ -41,6 +48,7 @@ import org.oscm.domobjects.TriggerDefinition;
 import org.oscm.domobjects.TriggerProcess;
 import org.oscm.domobjects.TriggerProcessParameter;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
+import org.oscm.encrypter.AESEncrypter;
 import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.identityservice.local.IdentityServiceLocal;
@@ -78,12 +86,16 @@ import org.oscm.triggerservice.local.TriggerServiceLocal;
 import org.oscm.triggerservice.validator.ValidationPerformer;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
 import org.oscm.types.enumtypes.TriggerProcessParameterName;
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 /**
  * Session Bean implementation class of TriggerProcessService
- * 
+ *
  * @author pock
- * 
+ *
  */
 @Stateless
 @Remote(TriggerService.class)
@@ -92,7 +104,7 @@ import org.oscm.types.enumtypes.TriggerProcessParameterName;
 public class TriggerServiceBean implements TriggerService, TriggerServiceLocal {
 
     private final static Log4jLogger logger = LoggerFactory
-            .getLogger(TriggerServiceBean.class);
+        .getLogger(TriggerServiceBean.class);
 
     @Resource
     private SessionContext sessionCtx;
@@ -120,7 +132,7 @@ public class TriggerServiceBean implements TriggerService, TriggerServiceLocal {
 
     /**
      * Executes the business logic for the given trigger process.
-     * 
+     *
      * @param triggerProcess
      *            the trigger process for which the business logic has to be
      *            executed.
@@ -128,7 +140,7 @@ public class TriggerServiceBean implements TriggerService, TriggerServiceLocal {
      *             Thrown if the business logic execution fails.
      */
     private void execute(TriggerProcess triggerProcess)
-            throws SaaSApplicationException {
+        throws SaaSApplicationException {
         SaaSSystemException se;
 
         switch (triggerProcess.getTriggerDefinition().getType()) {
@@ -143,12 +155,12 @@ public class TriggerServiceBean implements TriggerService, TriggerServiceLocal {
 
         case START_BILLING_RUN:
             se = new SaaSSystemException("Nothing to execute for TriggerType '"
-                    + TriggerType.START_BILLING_RUN + "'");
+                + TriggerType.START_BILLING_RUN + "'");
             logger.logError(
-                    Log4jLogger.SYSTEM_LOG,
-                    se,
-                    LogMessageIdentifier.ERROR_NO_EXECUTION_FOR_THE_TRIGGER_TYPE,
-                    String.valueOf(TriggerType.START_BILLING_RUN));
+                Log4jLogger.SYSTEM_LOG,
+                se,
+                LogMessageIdentifier.ERROR_NO_EXECUTION_FOR_THE_TRIGGER_TYPE,
+                String.valueOf(TriggerType.START_BILLING_RUN));
             throw se;
 
         case ACTIVATE_SERVICE:
@@ -185,18 +197,18 @@ public class TriggerServiceBean implements TriggerService, TriggerServiceLocal {
 
         default:
             se = new SaaSSystemException("Unhandled TriggerType '"
-                    + triggerProcess.getTriggerDefinition().getType() + "'");
+                + triggerProcess.getTriggerDefinition().getType() + "'");
             logger.logError(Log4jLogger.SYSTEM_LOG, se,
-                    LogMessageIdentifier.ERROR_UNHANDLED_TRIGGER_TYPE, String
-                            .valueOf(triggerProcess.getTriggerDefinition()
-                                    .getType()));
+                LogMessageIdentifier.ERROR_UNHANDLED_TRIGGER_TYPE, String
+                    .valueOf(triggerProcess.getTriggerDefinition()
+                        .getType()));
             throw se;
         }
     }
 
     /**
      * Verifies the trigger process status.
-     * 
+     *
      * @param triggerProcess
      *            the trigger process form which the status is verified.
      * @param statusArray
@@ -205,8 +217,8 @@ public class TriggerServiceBean implements TriggerService, TriggerServiceLocal {
      *             Thrown if the verification fails.
      */
     private void verifyTriggerProcessStatus(TriggerProcess triggerProcess,
-            TriggerProcessStatus... statusArray)
-            throws TriggerProcessStatusException {
+        TriggerProcessStatus... statusArray)
+        throws TriggerProcessStatusException {
 
         if (statusArray != null) {
             for (int i = 0; i < statusArray.length; i++) {
@@ -215,12 +227,12 @@ public class TriggerServiceBean implements TriggerService, TriggerServiceLocal {
                 }
             }
             TriggerProcessStatusException e = new TriggerProcessStatusException(
-                    "Invalid trigger process status '"
-                            + triggerProcess.getStatus() + "'.",
-                    triggerProcess.getStatus());
+                "Invalid trigger process status '"
+                    + triggerProcess.getStatus() + "'.",
+                triggerProcess.getStatus());
             logger.logError(Log4jLogger.SYSTEM_LOG | Log4jLogger.AUDIT_LOG, e,
-                    LogMessageIdentifier.ERROR_INVALID_STATUS_TRIGGER_PROCESS,
-                    String.valueOf(triggerProcess.getStatus()));
+                LogMessageIdentifier.ERROR_INVALID_STATUS_TRIGGER_PROCESS,
+                String.valueOf(triggerProcess.getStatus()));
             sessionCtx.setRollbackOnly();
             throw e;
         }
@@ -230,7 +242,7 @@ public class TriggerServiceBean implements TriggerService, TriggerServiceLocal {
     /**
      * Reads the trigger process for the given key, verifies that it belongs to
      * the current organization and has the status WAITING_FOR_APPROVAL.
-     * 
+     *
      * @param triggerProcessKey
      *            the key of the trigger process to read
      * @return the read trigger process key.
@@ -242,15 +254,15 @@ public class TriggerServiceBean implements TriggerService, TriggerServiceLocal {
      *             to the current organization.
      */
     private TriggerProcess getTriggerProcess(long triggerProcessKey)
-            throws ObjectNotFoundException, OperationNotPermittedException {
+        throws ObjectNotFoundException, OperationNotPermittedException {
         TriggerProcess triggerProcess = dm.getReference(TriggerProcess.class,
-                triggerProcessKey);
+            triggerProcessKey);
         if (triggerProcess.getTriggerDefinition().getOrganization().getKey() != dm
-                .getCurrentUser().getOrganization().getKey()) {
+            .getCurrentUser().getOrganization().getKey()) {
             OperationNotPermittedException e = new OperationNotPermittedException(
-                    "The client has no authority for the operation.");
+                "The client has no authority for the operation.");
             logger.logError(Log4jLogger.SYSTEM_LOG | Log4jLogger.AUDIT_LOG, e,
-                    LogMessageIdentifier.ERROR_NO_AUTHORITY_TO_APPROVE);
+                LogMessageIdentifier.ERROR_NO_AUTHORITY_TO_APPROVE);
             sessionCtx.setRollbackOnly();
             throw e;
         }
@@ -260,28 +272,28 @@ public class TriggerServiceBean implements TriggerService, TriggerServiceLocal {
     @Override
     @RolesAllowed("ORGANIZATION_ADMIN")
     public void approveAction(long actionKey)
-            throws OperationNotPermittedException, ObjectNotFoundException,
-            TriggerProcessStatusException, ExecutionTargetException {
+        throws OperationNotPermittedException, ObjectNotFoundException,
+        TriggerProcessStatusException, ExecutionTargetException {
 
         TriggerProcess triggerProcess = getTriggerProcess(actionKey);
         verifyTriggerProcessStatus(triggerProcess,
-                TriggerProcessStatus.WAITING_FOR_APPROVAL);
+            TriggerProcessStatus.WAITING_FOR_APPROVAL);
         try {
             execute(triggerProcess);
             triggerProcess.setState(TriggerProcessStatus.APPROVED);
         } catch (SaaSApplicationException e) {
             sessionCtx.getBusinessObject(TriggerServiceLocal.class).setStatus(
-                    actionKey, TriggerProcessStatus.FAILED);
+                actionKey, TriggerProcessStatus.FAILED);
             sessionCtx.getBusinessObject(TriggerServiceLocal.class).saveReason(
-                    actionKey, e.getMessage(), retrieveLocale(triggerProcess));
+                actionKey, e.getMessage(), retrieveLocale(triggerProcess));
             sessionCtx.setRollbackOnly();
             throw new ExecutionTargetException(e);
         } catch (RuntimeException e) {
             sessionCtx.getBusinessObject(TriggerServiceLocal.class).setStatus(
-                    actionKey, TriggerProcessStatus.FAILED);
+                actionKey, TriggerProcessStatus.FAILED);
             sessionCtx.getBusinessObject(TriggerServiceLocal.class).saveReason(
-                    actionKey, internalErrorMsg(),
-                    retrieveLocale(triggerProcess));
+                actionKey, internalErrorMsg(),
+                retrieveLocale(triggerProcess));
             throw e;
         }
 
@@ -289,10 +301,10 @@ public class TriggerServiceBean implements TriggerService, TriggerServiceLocal {
 
     private String retrieveLocale(TriggerProcess triggerProcess) {
         Organization org = triggerProcess.getTriggerDefinition()
-                .getOrganization();
+            .getOrganization();
         String userLocale = "en";
         if (org != null && org.getLocale() != null
-                && org.getLocale().length() > 0) {
+            && org.getLocale().length() > 0) {
             userLocale = org.getLocale();
         }
         return userLocale;
@@ -310,8 +322,8 @@ public class TriggerServiceBean implements TriggerService, TriggerServiceLocal {
 
     @Override
     public void cancelActions(List<Long> actionKeys,
-            List<VOLocalizedText> reason) throws ObjectNotFoundException,
-            OperationNotPermittedException, TriggerProcessStatusException {
+        List<VOLocalizedText> reason) throws ObjectNotFoundException,
+        OperationNotPermittedException, TriggerProcessStatusException {
 
         if (actionKeys != null) {
             List<TriggerMessage> messages = new ArrayList<TriggerMessage>();
@@ -319,16 +331,16 @@ public class TriggerServiceBean implements TriggerService, TriggerServiceLocal {
                 TriggerProcess triggerProcess = getTriggerProcess(key);
 
                 verifyTriggerProcessStatus(triggerProcess,
-                        TriggerProcessStatus.INITIAL,
-                        TriggerProcessStatus.WAITING_FOR_APPROVAL);
+                    TriggerProcessStatus.INITIAL,
+                    TriggerProcessStatus.WAITING_FOR_APPROVAL);
                 triggerProcess.setState(TriggerProcessStatus.CANCELLED);
                 dm.flush();
                 localizer.storeLocalizedResources(key,
-                        LocalizedObjectTypes.TRIGGER_PROCESS_REASON, reason);
+                    LocalizedObjectTypes.TRIGGER_PROCESS_REASON, reason);
 
                 messages.add(new TriggerMessage(null, triggerProcess
-                        .getTriggerProcessParameters(), Collections
-                        .singletonList(dm.getCurrentUser().getOrganization())));
+                    .getTriggerProcessParameters(), Collections
+                    .singletonList(dm.getCurrentUser().getOrganization())));
             }
             triggerQS.sendAllNonSuspendingMessages(messages);
         }
@@ -337,20 +349,20 @@ public class TriggerServiceBean implements TriggerService, TriggerServiceLocal {
 
     @Override
     public void deleteActions(List<Long> actionKeys)
-            throws ObjectNotFoundException, OperationNotPermittedException,
-            TriggerProcessStatusException {
+        throws ObjectNotFoundException, OperationNotPermittedException,
+        TriggerProcessStatusException {
 
         if (actionKeys != null) {
             for (long key : actionKeys) {
                 TriggerProcess triggerProcess = getTriggerProcess(key);
 
                 verifyTriggerProcessStatus(triggerProcess,
-                        TriggerProcessStatus.APPROVED,
-                        TriggerProcessStatus.CANCELLED,
-                        TriggerProcessStatus.ERROR,
-                        TriggerProcessStatus.FAILED,
-                        TriggerProcessStatus.REJECTED,
-                        TriggerProcessStatus.NOTIFIED);
+                    TriggerProcessStatus.APPROVED,
+                    TriggerProcessStatus.CANCELLED,
+                    TriggerProcessStatus.ERROR,
+                    TriggerProcessStatus.FAILED,
+                    TriggerProcessStatus.REJECTED,
+                    TriggerProcessStatus.NOTIFIED);
                 dm.remove(triggerProcess);
             }
         }
@@ -360,16 +372,16 @@ public class TriggerServiceBean implements TriggerService, TriggerServiceLocal {
     @Override
     @RolesAllowed("ORGANIZATION_ADMIN")
     public void rejectAction(long actionKey, List<VOLocalizedText> reason)
-            throws ObjectNotFoundException, OperationNotPermittedException,
-            TriggerProcessStatusException {
+        throws ObjectNotFoundException, OperationNotPermittedException,
+        TriggerProcessStatusException {
 
         TriggerProcess triggerProcess = getTriggerProcess(actionKey);
         verifyTriggerProcessStatus(triggerProcess,
-                TriggerProcessStatus.WAITING_FOR_APPROVAL);
+            TriggerProcessStatus.WAITING_FOR_APPROVAL);
 
         triggerProcess.setState(TriggerProcessStatus.REJECTED);
         localizer.storeLocalizedResources(actionKey,
-                LocalizedObjectTypes.TRIGGER_PROCESS_REASON, reason);
+            LocalizedObjectTypes.TRIGGER_PROCESS_REASON, reason);
 
     }
 
@@ -378,9 +390,9 @@ public class TriggerServiceBean implements TriggerService, TriggerServiceLocal {
         List<VOTriggerDefinition> list = new ArrayList<>();
         Organization organization = dm.getCurrentUser().getOrganization();
         for (TriggerDefinition triggerDefinition : organization
-                .getTriggerDefinitions()) {
+            .getTriggerDefinitions()) {
             list.add(TriggerDefinitionAssembler
-                    .toVOTriggerDefinition(triggerDefinition));
+                .toVOTriggerDefinition(triggerDefinition));
         }
         return list;
     }
@@ -402,13 +414,13 @@ public class TriggerServiceBean implements TriggerService, TriggerServiceLocal {
             logger.logDebug("Parameter is not needed");
         }
         query.setParameter("organizationKey",
-                Long.valueOf(currentUser.getOrganization().getKey()));
+            Long.valueOf(currentUser.getOrganization().getKey()));
         LocalizerFacade localizerFacade = new LocalizerFacade(localizer,
-                currentUser.getLocale());
+            currentUser.getLocale());
         for (TriggerProcess triggerProcess : ((Collection<TriggerProcess>) query
-                .getResultList())) {
+            .getResultList())) {
             list.add(TriggerProcessAssembler.toVOTriggerProcess(triggerProcess,
-                    localizerFacade));
+                localizerFacade));
         }
 
         return list;
@@ -421,37 +433,133 @@ public class TriggerServiceBean implements TriggerService, TriggerServiceLocal {
     }
 
     @Override
+    public List<VOTriggerProcess> getAllActionsForOrganizationRelatedSubscription() {
+        List<VOTriggerProcess> triggerProcessesResult = new ArrayList<>();
+        Query query = dm.createNamedQuery(
+            "TriggerProcess.getAllForOrganizationRelatedSubscription");
+        query.setParameter("organizationKey",
+            Long.valueOf(dm.getCurrentUser().getOrganization().getKey()));
+        List<TriggerProcess> triggerProcesses = query.getResultList();
+        DocumentBuilder builder = null;
+        XPathExpression serviceIdXpath = null;
+        XPathExpression subscriptionXpath = null;
+        try {
+            DocumentBuilderFactory factory = DocumentBuilderFactory
+                .newInstance();
+            builder = factory.newDocumentBuilder();
+            serviceIdXpath = getCompiledXPathExpression(
+                "//void[@property='serviceId']/string");
+            subscriptionXpath = getCompiledXPathExpression(
+                "//void[@property='subscriptionId']/string");
+        } catch (XPathExpressionException | ParserConfigurationException e) {
+            e.printStackTrace();
+            return null;
+        }
+        for (TriggerProcess triggerProcess : triggerProcesses) {
+            VOTriggerProcess voTriggerProcess = new VOTriggerProcess();
+            voTriggerProcess.setSubscription(getVOSubscriptionFromTrigger(
+                triggerProcess, builder, subscriptionXpath));
+            voTriggerProcess.setService(getVOServiceFromTrigger(triggerProcess,
+                builder, serviceIdXpath));
+            triggerProcessesResult.add(voTriggerProcess);
+        }
+        return triggerProcessesResult;
+    }
+
+    private VOService getVOServiceFromTrigger(TriggerProcess triggerProcess,
+        DocumentBuilder builder, XPathExpression serviceIdXpath) {
+        TriggerProcessParameter triggerProcessParameter = triggerProcess
+            .getParamValueForName(TriggerProcessParameterName.PRODUCT);
+        String product;
+        try {
+            product = AESEncrypter
+                .decrypt(triggerProcessParameter.getSerializedValue());
+        } catch (GeneralSecurityException e) {
+            product = triggerProcessParameter.getSerializedValue();
+        }
+        String serviceId = retrieveValueByXpath(product, builder,
+            serviceIdXpath);
+        if (serviceId == null) {
+            return null;
+        }
+        VOService voService = new VOService();
+        voService.setServiceId(serviceId);
+        return voService;
+    }
+
+    private VOSubscription getVOSubscriptionFromTrigger(
+        TriggerProcess triggerProcess, DocumentBuilder builder,
+        XPathExpression subscriptionXpath) {
+        TriggerProcessParameter triggerProcessParameter = triggerProcess
+            .getParamValueForName(
+                org.oscm.types.enumtypes.TriggerProcessParameterName.SUBSCRIPTION);
+        String subscription;
+        try {
+            subscription = AESEncrypter
+                .decrypt(triggerProcessParameter.getSerializedValue());
+        } catch (GeneralSecurityException e) {
+            subscription = triggerProcessParameter.getSerializedValue();
+        }
+        String subsId = retrieveValueByXpath(subscription, builder,
+            subscriptionXpath);
+        if (subsId == null) {
+            return null;
+        }
+        VOSubscription voSubscription = new VOSubscription();
+        voSubscription.setSubscriptionId(subsId);
+        return voSubscription;
+    }
+
+    private XPathExpression getCompiledXPathExpression(String xpathExpression) throws XPathExpressionException {
+        XPathFactory xPathfactory = XPathFactory.newInstance();
+        XPath xpath = xPathfactory.newXPath();
+        return xpath.compile(xpathExpression);
+    }
+
+    private String retrieveValueByXpath(String xml, DocumentBuilder builder,
+        XPathExpression expr) {
+        try {
+            Document document = builder
+                .parse(new InputSource(new StringReader(xml)));
+            NodeList nodes = (NodeList) expr.evaluate(document,
+                XPathConstants.NODESET);
+            if (nodes == null || nodes.item(0) == null
+                || nodes.item(0).getFirstChild() == null) {
+                return null;
+            }
+            return nodes.item(0).getFirstChild().getNodeValue();
+        } catch (SAXException | XPathExpressionException | IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
     @SuppressWarnings(value = "unchecked")
     public List<VOTriggerProcess> getAllActionsForSubscription(
-            String subscriptionId) {
+        String subscriptionId) {
         String namedQuery = "TriggerProcess.getAllForOrganization";
         PlatformUser currentUser = dm.getCurrentUser();
         Query query = dm.createNamedQuery(namedQuery);
         query.setParameter("organizationKey",
-                Long.valueOf(currentUser.getOrganization().getKey()));
+            Long.valueOf(currentUser.getOrganization().getKey()));
         Collection<TriggerProcess> resultList = query.getResultList();
         LocalizerFacade localizerFacade = new LocalizerFacade(localizer,
-                currentUser.getLocale());
+            currentUser.getLocale());
         List<VOTriggerProcess> list = new ArrayList<>();
         for (TriggerProcess triggerProcess : resultList) {
             if (checkTriggerProcessBySubscriptionId(triggerProcess,
-                    subscriptionId)) {
+                subscriptionId)) {
                 list.add(TriggerProcessAssembler.toVOTriggerProcess(
-                        triggerProcess, localizerFacade));
+                    triggerProcess, localizerFacade));
             }
         }
 
         return list;
     }
 
-    @Override
-    public List<VOTriggerProcess> getAllActionsForOrganizationRelatedSubscription() {
-        String namedQuery = "TriggerProcess.getAllForOrganizationRelatedSubscription";
-        return getActionsForQuery(namedQuery);
-    }
-
     private boolean checkTriggerProcessBySubscriptionId(
-            TriggerProcess triggerProcess, String targetSubscriptionId) {
+        TriggerProcess triggerProcess, String targetSubscriptionId) {
         if (triggerProcess == null) {
             return false;
         }
@@ -460,23 +568,23 @@ public class TriggerServiceBean implements TriggerService, TriggerServiceLocal {
         case ADD_REVOKE_USER:
         case UNSUBSCRIBE_FROM_SERVICE:
             subscriptionId = triggerProcess
-                    .getParamValueForName(
-                            org.oscm.types.enumtypes.TriggerProcessParameterName.SUBSCRIPTION)
-                    .getValue(String.class);
+                .getParamValueForName(
+                    org.oscm.types.enumtypes.TriggerProcessParameterName.SUBSCRIPTION)
+                .getValue(String.class);
             break;
         case UPGRADE_SUBSCRIPTION:
             subscriptionId = triggerProcess
-                    .getParamValueForName(
-                            org.oscm.types.enumtypes.TriggerProcessParameterName.SUBSCRIPTION)
-                    .getValue(VOSubscription.class).getSubscriptionId();
+                .getParamValueForName(
+                    org.oscm.types.enumtypes.TriggerProcessParameterName.SUBSCRIPTION)
+                .getValue(VOSubscription.class).getSubscriptionId();
             break;
         case MODIFY_SUBSCRIPTION:
             VOSubscription voSubscription = triggerProcess
-                    .getParamValueForName(
-                            org.oscm.types.enumtypes.TriggerProcessParameterName.SUBSCRIPTION)
-                    .getValue(VOSubscription.class);
+                .getParamValueForName(
+                    org.oscm.types.enumtypes.TriggerProcessParameterName.SUBSCRIPTION)
+                .getValue(VOSubscription.class);
             Subscription sub = dm.find(Subscription.class,
-                    voSubscription.getKey());
+                voSubscription.getKey());
             subscriptionId = sub.getSubscriptionId();
             break;
         default:
@@ -489,16 +597,16 @@ public class TriggerServiceBean implements TriggerService, TriggerServiceLocal {
     /**
      * Internal method to change the status even if the caller set the
      * transaction to rollback only.
-     * 
+     *
      * @see AccountServiceLocal#removeOverdueOrganization(Organization)
      */
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void setStatus(long triggerProcessKey, TriggerProcessStatus status)
-            throws ObjectNotFoundException {
+        throws ObjectNotFoundException {
 
         TriggerProcess proc = dm.getReference(TriggerProcess.class,
-                triggerProcessKey);
+            triggerProcessKey);
         proc.setState(status);
 
     }
@@ -506,30 +614,30 @@ public class TriggerServiceBean implements TriggerService, TriggerServiceLocal {
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void saveReason(long triggerProcessKey, String value,
-            String localeString) {
+        String localeString) {
 
         LocalizedResource template = new LocalizedResource(localeString,
-                triggerProcessKey, LocalizedObjectTypes.TRIGGER_PROCESS_REASON);
+            triggerProcessKey, LocalizedObjectTypes.TRIGGER_PROCESS_REASON);
         LocalizedResource storedResource = (LocalizedResource) dm
-                .find(template);
+            .find(template);
         if (storedResource == null) {
             LocalizedResource resourceToPersist = new LocalizedResource();
             resourceToPersist.setLocale(localeString);
             resourceToPersist.setObjectKey(triggerProcessKey);
             resourceToPersist
-                    .setObjectType(LocalizedObjectTypes.TRIGGER_PROCESS_REASON);
+                .setObjectType(LocalizedObjectTypes.TRIGGER_PROCESS_REASON);
             resourceToPersist.setValue(value);
             try {
                 dm.persist(resourceToPersist);
             } catch (NonUniqueBusinessKeyException e) {
                 SaaSSystemException sse = new SaaSSystemException(
-                        "Localized Resource could not be persisted although prior check was performed, "
-                                + resourceToPersist, e);
+                    "Localized Resource could not be persisted although prior check was performed, "
+                        + resourceToPersist, e);
                 logger.logError(
-                        Log4jLogger.SYSTEM_LOG,
-                        sse,
-                        LogMessageIdentifier.ERROR_PERSIST_LOCALIZED_RESOURCE_FAILED_PRIOR_CHECK_PERFORMED,
-                        String.valueOf(resourceToPersist));
+                    Log4jLogger.SYSTEM_LOG,
+                    sse,
+                    LogMessageIdentifier.ERROR_PERSIST_LOCALIZED_RESOURCE_FAILED_PRIOR_CHECK_PERFORMED,
+                    String.valueOf(resourceToPersist));
                 throw sse;
             }
         } else {
@@ -540,7 +648,7 @@ public class TriggerServiceBean implements TriggerService, TriggerServiceLocal {
 
     /**
      * Updates TriggerProcessParameters of given TriggerProcess object key.
-     * 
+     *
      * @param actionKey
      *            - key of TriggerProcess to update
      * @param parameters
@@ -554,21 +662,21 @@ public class TriggerServiceBean implements TriggerService, TriggerServiceLocal {
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     @RolesAllowed("ORGANIZATION_ADMIN")
     public void updateActionParameters(long actionKey,
-            List<VOTriggerProcessParameter> parameters)
-            throws ObjectNotFoundException, OperationNotPermittedException,
-            TriggerProcessStatusException, ValidationException {
+        List<VOTriggerProcessParameter> parameters)
+        throws ObjectNotFoundException, OperationNotPermittedException,
+        TriggerProcessStatusException, ValidationException {
 
         if (parameters == null) {
             throw new org.oscm.internal.types.exception.IllegalArgumentException(
-                    "Parameter parameters must not be null.");
+                "Parameter parameters must not be null.");
         }
 
         TriggerProcess triggerProcess = getTriggerProcess(actionKey);
 
         verifyTriggerProcessStatus(triggerProcess,
-                TriggerProcessStatus.WAITING_FOR_APPROVAL);
+            TriggerProcessStatus.WAITING_FOR_APPROVAL);
         verifyTriggerDefinitionType(triggerProcess.getTriggerDefinition(),
-                TriggerType.SUBSCRIBE_TO_SERVICE);
+            TriggerType.SUBSCRIBE_TO_SERVICE);
         removeAdditionalParameters(parameters);
         removeNonConfigurableParameters(parameters);
         validateConfiguredParameters(parameters, triggerProcess);
@@ -581,15 +689,15 @@ public class TriggerServiceBean implements TriggerService, TriggerServiceLocal {
      * Based on list of VOTriggerProcessParameters removes the one where
      * configurable attribute is set to false as those parameter values should
      * not be updated.
-     * 
+     *
      * @param triggerParameters
      *            - list of VOTriggerProcessParameter
      */
     private void removeNonConfigurableParameters(
-            List<VOTriggerProcessParameter> triggerParameters) {
+        List<VOTriggerProcessParameter> triggerParameters) {
         for (VOTriggerProcessParameter triggerParameter : triggerParameters) {
             List<VOParameter> parameters = ((VOService) triggerParameter
-                    .getValue()).getParameters();
+                .getValue()).getParameters();
             for (Iterator<VOParameter> it = parameters.iterator(); it.hasNext();) {
                 VOParameter parameter = it.next();
                 if (!parameter.isConfigurable()) {
@@ -603,21 +711,21 @@ public class TriggerServiceBean implements TriggerService, TriggerServiceLocal {
      * All parameters are checked by keys if they are existing in db. All
      * additional parameters that do not exist in db are deleted from the list.
      * Only existing parameters can be updated.
-     * 
+     *
      * @param parameters
      *            - list of parameters to update
      */
     private void removeAdditionalParameters(
-            List<VOTriggerProcessParameter> parameters) {
+        List<VOTriggerProcessParameter> parameters) {
 
         for (Iterator<VOTriggerProcessParameter> it = parameters.iterator(); it
-                .hasNext();) {
+            .hasNext();) {
             try {
                 VOTriggerProcessParameter parameter = it.next();
 
                 getActionParameter(
-                        parameter.getTriggerProcessKey().longValue(),
-                        parameter.getType());
+                    parameter.getTriggerProcessKey().longValue(),
+                    parameter.getType());
 
             } catch (ObjectNotFoundException | OperationNotPermittedException e) {
                 it.remove();
@@ -627,7 +735,7 @@ public class TriggerServiceBean implements TriggerService, TriggerServiceLocal {
 
     /**
      * Returns converted to VO object TriggerProcessParameter
-     * 
+     *
      * @param actionKey
      *            - key of TriggerProcess
      * @param paramType
@@ -639,20 +747,20 @@ public class TriggerServiceBean implements TriggerService, TriggerServiceLocal {
      */
     @Override
     public VOTriggerProcessParameter getActionParameter(long actionKey,
-            TriggerProcessParameterType paramType)
-            throws OperationNotPermittedException, ObjectNotFoundException {
+        TriggerProcessParameterType paramType)
+        throws OperationNotPermittedException, ObjectNotFoundException {
 
         if (paramType == null) {
             throw new org.oscm.internal.types.exception.IllegalArgumentException(
-                    "Parameter paramType must not be null.");
+                "Parameter paramType must not be null.");
         }
 
         TriggerProcessParameter parameter = getTriggerProcessParameter(
-                actionKey, paramType);
+            actionKey, paramType);
 
         if (parameter == null) {
             throw new ObjectNotFoundException("Parameter for action with key: "
-                    + actionKey + " not found.");
+                + actionKey + " not found.");
         }
 
         return TriggerProcessAssembler.toVOTriggerProcessParameter(parameter);
@@ -660,7 +768,7 @@ public class TriggerServiceBean implements TriggerService, TriggerServiceLocal {
 
     /**
      * Returns TriggerProcessParameter from DB
-     * 
+     *
      * @param actionKey
      *            - key of TriggerProcess that is bound to
      *            TriggerProcessParameter
@@ -671,14 +779,14 @@ public class TriggerServiceBean implements TriggerService, TriggerServiceLocal {
      *         otherwise
      */
     TriggerProcessParameter getTriggerProcessParameter(long actionKey,
-            TriggerProcessParameterType paramType) {
+        TriggerProcessParameterType paramType) {
         try {
             Query query = dm
-                    .createNamedQuery("TriggerProcessParameter.getParam");
+                .createNamedQuery("TriggerProcessParameter.getParam");
             query.setParameter("actionKey", Long.valueOf(actionKey));
             query.setParameter("paramName",
-                    org.oscm.types.enumtypes.TriggerProcessParameterName
-                            .valueOf(paramType.name()));
+                org.oscm.types.enumtypes.TriggerProcessParameterName
+                    .valueOf(paramType.name()));
             return (TriggerProcessParameter) query.getSingleResult();
         } catch (NoResultException e) {
             return null;
@@ -688,14 +796,14 @@ public class TriggerServiceBean implements TriggerService, TriggerServiceLocal {
     /**
      * Validated if TriggerProcessParameter PRODUCT configured parameters are
      * correct and can be updated.
-     * 
+     *
      * @param parameters
      *            - list of TriggerProcessParameter
      * @throws ValidationException
      */
     private void validateConfiguredParameters(
-            List<VOTriggerProcessParameter> parameters,
-            TriggerProcess triggerProcess) throws ValidationException {
+        List<VOTriggerProcessParameter> parameters,
+        TriggerProcess triggerProcess) throws ValidationException {
 
         VOService service = null;
         for (VOTriggerProcessParameter parameter : parameters) {
@@ -710,15 +818,15 @@ public class TriggerServiceBean implements TriggerService, TriggerServiceLocal {
             for (VOParameter serviceParameter : service.getParameters()) {
                 ValidationPerformer.validate(serviceParameter
                         .getParameterDefinition().getValueType(),
-                        serviceParameter);
+                    serviceParameter);
             }
         }
     }
 
     private void updateParameterDefinitions(TriggerProcess triggerProcess,
-            VOService service) {
+        VOService service) {
         TriggerProcessParameter triggerParameter = triggerProcess
-                .getParamValueForName(TriggerProcessParameterName.PRODUCT);
+            .getParamValueForName(TriggerProcessParameterName.PRODUCT);
 
         if (triggerParameter == null) {
             return;
@@ -734,7 +842,7 @@ public class TriggerServiceBean implements TriggerService, TriggerServiceLocal {
 
         for (VOParameter newParam : service.getParameters()) {
             VOParameterDefinition paramDef = keyToDefinition.get(Long
-                    .valueOf(newParam.getParameterDefinition().getKey()));
+                .valueOf(newParam.getParameterDefinition().getKey()));
             if (paramDef != null) {
                 newParam.setParameterDefinition(paramDef);
             }
@@ -744,7 +852,7 @@ public class TriggerServiceBean implements TriggerService, TriggerServiceLocal {
     /**
      * Updates trigger process params based on given TriggerProcessParamter
      * list.
-     * 
+     *
      * @param triggerProcess
      *            - trigger process which parameters should be updated
      * @param parameters
@@ -752,20 +860,20 @@ public class TriggerServiceBean implements TriggerService, TriggerServiceLocal {
      *            VOParameters
      */
     private void updateTriggerProcessParameters(TriggerProcess triggerProcess,
-            List<VOTriggerProcessParameter> parameters) {
+        List<VOTriggerProcessParameter> parameters) {
         for (VOTriggerProcessParameter parameter : parameters) {
             org.oscm.types.enumtypes.TriggerProcessParameterName paramName = org.oscm.types.enumtypes.TriggerProcessParameterName
-                    .valueOf(parameter.getType().name());
+                .valueOf(parameter.getType().name());
             TriggerProcessParameter param = triggerProcess
-                    .getParamValueForName(paramName);
+                .getParamValueForName(paramName);
 
             if (org.oscm.types.enumtypes.TriggerProcessParameterName.PRODUCT
-                    .equals(paramName) && param != null) {
+                .equals(paramName) && param != null) {
                 VOService originalService = param.getValue(VOService.class);
                 VOService updatedService = (VOService) parameter.getValue();
 
                 updateVOParameters(originalService.getParameters(),
-                        updatedService.getParameters());
+                    updatedService.getParameters());
 
                 param.setValue(originalService);
             } else if (param != null) {
@@ -777,14 +885,14 @@ public class TriggerServiceBean implements TriggerService, TriggerServiceLocal {
     /**
      * Updates only value of original parameter when keys of original and
      * updated parameters are equal.
-     * 
+     *
      * @param originalParameters
      *            - original VOParameter list
      * @param updatedParameters
      *            - updated VOParameter list
      */
     private void updateVOParameters(List<VOParameter> originalParameters,
-            List<VOParameter> updatedParameters) {
+        List<VOParameter> updatedParameters) {
         for (VOParameter originalParam : originalParameters) {
             for (VOParameter updatedParam : updatedParameters) {
                 if (originalParam.getKey() == updatedParam.getKey()) {
@@ -795,8 +903,8 @@ public class TriggerServiceBean implements TriggerService, TriggerServiceLocal {
     }
 
     private void verifyTriggerDefinitionType(
-            TriggerDefinition triggerDefinition, TriggerType... types)
-            throws OperationNotPermittedException {
+        TriggerDefinition triggerDefinition, TriggerType... types)
+        throws OperationNotPermittedException {
         if (types != null) {
             for (TriggerType type : types) {
                 if (triggerDefinition.getType() == type) {
@@ -804,13 +912,13 @@ public class TriggerServiceBean implements TriggerService, TriggerServiceLocal {
                 }
             }
             OperationNotPermittedException e = new OperationNotPermittedException(
-                    "Trigger Type is wrong. Expected value: "
-                            + TriggerType.SUBSCRIBE_TO_SERVICE.name()
-                            + " Got: " + triggerDefinition.getType().name());
+                "Trigger Type is wrong. Expected value: "
+                    + TriggerType.SUBSCRIBE_TO_SERVICE.name()
+                    + " Got: " + triggerDefinition.getType().name());
             logger.logError(Log4jLogger.SYSTEM_LOG, e,
-                    LogMessageIdentifier.ERROR_TRIGGER_TYPE_WRONG,
-                    TriggerType.SUBSCRIBE_TO_SERVICE.name(), triggerDefinition
-                            .getType().name());
+                LogMessageIdentifier.ERROR_TRIGGER_TYPE_WRONG,
+                TriggerType.SUBSCRIBE_TO_SERVICE.name(), triggerDefinition
+                    .getType().name());
             sessionCtx.setRollbackOnly();
             throw e;
         }

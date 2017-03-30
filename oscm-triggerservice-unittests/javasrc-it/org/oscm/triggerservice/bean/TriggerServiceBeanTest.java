@@ -476,4 +476,13 @@ public class TriggerServiceBeanTest {
         when(voService.getParameters()).thenReturn(parameterList);
         triggerService.updateActionParameters(VALID_KEY, parameters);
     }
+
+    @Test
+    public void test() {
+        //given
+
+        //when
+        triggerService.getAllActionsForOrganizationRelatedSubscription();
+        //then
+    }
 }

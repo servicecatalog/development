@@ -349,8 +349,7 @@ public class SubscriptionWizardConversation implements Serializable {
             if (voTriggerProcess.getService() == null) {
                 continue;
             }
-            if (voTriggerProcess.getService().getKey() == model.getService()
-                    .getKey()) {
+            if (voTriggerProcess.getService().getServiceId().equals(model.getService().getServiceId())) {
                 triggeredSubscriptions.add(voTriggerProcess.getSubscription());
             }
         }
