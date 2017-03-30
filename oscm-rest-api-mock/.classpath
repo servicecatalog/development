@@ -9,5 +9,5 @@
 	<classpathentry kind="lib" path="/libraries/jersey/javalib/jersey-common.jar"/>
 	<classpathentry kind="lib" path="/libraries/jersey/javalib/javax.ws.rs-api-2.0.1.jar"/>
 	<classpathentry kind="lib" path="/libraries/jersey/javalib/jersey-server.jar"/>
-	<classpathentry kind="output" path="build/classes"/>
+	<classpathentry kind="output" path="bin"/>
 </classpath>
