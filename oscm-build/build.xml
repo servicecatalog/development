@@ -204,8 +204,9 @@
 
   <macrodef name="buildproject">
     <attribute name="target" />
-    <sequential>
-      <subant target="@{target}" genericantfile="projectbuild.xml" buildpathref="resolved.projects.path">
+    <attribute name="skipPackage" default=""/>
+  <sequential>
+      <subant target="@{target}@{skipPackage}" genericantfile="projectbuild.xml" buildpathref="resolved.projects.path">
         <property name="defaultprojectbuild.file" value="${defaultprojectbuild.file}" />
         <property name="workspace.dir" value="${workspace.dir}" />
         <property name="result.dir" value="${result.dir}" />
@@ -417,7 +418,7 @@
   </target>
 
   <target name="webservicetests" depends="_log, _dependencies" description="Resolves dependencies, compiles and runs the web service tests without clean. Requires a running version of BES.">
-    <buildproject target="webservicetests" />
+    <buildproject target="webservicetests" skipPackage="${skipPackage}"/>
     <createwstestreport />
     <antcall target="checkUnitResult">
       <param name="unit.result.dir" location="${result.reports.test.ws.dir}" />

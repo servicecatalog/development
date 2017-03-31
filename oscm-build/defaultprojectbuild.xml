@@ -344,6 +344,28 @@
     </junit>
   </target>
 
+
+  <target name="webservicetestsNoPackage" if="webservicetests">
+    <mkdir dir="${result.work.testreport.ws.dir}" />
+    <junit fork="yes" forkmode="once" dir="${project.dir}" maxmemory="1024m">
+      <jvmarg value="-Dfile.encoding=UTF8" />
+      <jvmarg value="-Dbss.project.dir=${project.dir}" />
+      <classpath>
+        <pathelement location="${result.package.oscm-extsvc.dir}/oscm-extsvc-platform.jar" />
+        <pathelement location="${project.sun-glassfish.dir}/javalib/appserv-ext.jar" />
+        <path location="${result.package.oscm-extsvc.dir}" />
+        <path refid="dependencies.runtime.path" />
+      </classpath>
+      <formatter type="xml" />
+      <batchtest todir="${result.work.testreport.ws.dir}">
+        <fileset dir="${javasrc.dir}">
+          <include name="**/*Test.java" />
+          <include name="**/*Test?.java" />
+        </fileset>
+      </batchtest>
+    </junit>
+  </target>
+
   <target name="webservicesamlsptests" if="webservicesamlsptests" depends="package, prepareOperatorCLClient">
     <mkdir dir="${result.work.testreport.ws.saml.dir}" />
     <junit fork="yes" forkmode="once" dir="${project.dir}" maxmemory="256m">
