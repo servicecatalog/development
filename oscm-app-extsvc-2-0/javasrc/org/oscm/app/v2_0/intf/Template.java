@@ -8,6 +8,8 @@
 
 package org.oscm.app.v2_0.intf;
 
+import java.util.Date;
+
 /**
  * Interface for template files for controllers.
  * 
@@ -28,4 +30,11 @@ public interface Template {
      * @return the content
      */
     public String getContent();
+
+    /**
+     * The timestamp of the last change of the template.
+     * 
+     * @return the timestamp
+     */
+    public Date getLastChange();
 }

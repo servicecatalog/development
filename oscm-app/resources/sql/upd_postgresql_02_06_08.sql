@@ -1,10 +1,10 @@
 CREATE TABLE "templatefile"
 (
   "tkey" BIGINT NOT NULL, 
-  "attributevalue" text,
   "filename" character varying(255) NOT NULL,
   "content" TEXT NOT NULL,
+  "lastchange" timestamp with time zone NOT NULL,
   "controllerid" character varying(255),
-  CONSTRAINT "templatefile_pk" PRIMARY KEY ("tkey")
-  CONSTRAINT "instance_attr_uc" UNIQUE ("filename", "controllerid")
+  CONSTRAINT "templatefile_pk" PRIMARY KEY ("tkey"),
+  CONSTRAINT "templatefile_uc" UNIQUE ("filename", "controllerid")
 );

@@ -8,6 +8,8 @@
 
 package org.oscm.app.domain;
 
+import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -17,6 +19,8 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
 
 import org.oscm.app.v2_0.intf.Template;
@@ -56,6 +60,13 @@ public class TemplateFile implements Template {
     private String content;
 
     /**
+     * The timestamp of the last change on the template.
+     */
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(nullable = false)
+    private Date lastChange;
+
+    /**
      * The Controller ID of the owning controller.
      */
     @Column(nullable = false)
@@ -76,6 +87,7 @@ public class TemplateFile implements Template {
         this.tkey = tkey;
         this.fileName = fileName;
         this.content = content;
+        this.lastChange = new Date();
         this.controllerId = controllerId;
     }
 
@@ -124,6 +136,22 @@ public class TemplateFile implements Template {
      */
     public void setContent(String content) {
         this.content = content;
+    }
+
+    /**
+     * @return the lastChange
+     */
+    @Override
+    public Date getLastChange() {
+        return lastChange;
+    }
+
+    /**
+     * @param lastChange
+     *            the lastChange to set
+     */
+    public void setLastChange(Date lastChange) {
+        this.lastChange = lastChange;
     }
 
     /**

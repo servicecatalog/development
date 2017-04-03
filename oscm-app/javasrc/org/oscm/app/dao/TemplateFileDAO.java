@@ -9,6 +9,7 @@
 package org.oscm.app.dao;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import javax.ejb.LocalBean;
@@ -65,7 +66,10 @@ public class TemplateFileDAO {
 
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void saveTemplateFile(TemplateFile file) {
+
+        file.setLastChange(new Date());
         TemplateFile dbFile = find(file);
+
         if (dbFile == null) {
             em.persist(file);
         } else {

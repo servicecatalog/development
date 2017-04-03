@@ -63,7 +63,7 @@ public class APPTemplateServiceBean implements APPTemplateService {
 
         authService.authenticateTMForController(controllerId, authentication);
 
-        return new ArrayList<>(
+        return new ArrayList<Template>(
                 templateDAO.getTemplateFilesByControllerId(controllerId));
     }
 
