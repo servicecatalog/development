@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Copyright FUJITSU LIMITED 2017-->
- 
+
 <project name="Default Project Build" default="illegalusage" basedir="." xmlns:jacoco="antlib:org.jacoco.ant">
 
   <description>
@@ -11,7 +11,7 @@
 
   <taskdef name="if" classname="net.sf.antcontrib.logic.IfTask"
       classpath="${workspace.dir}/libraries/apache-ant-contrib/ant-contrib-1.0b3.jar" />
-  
+
   <taskdef name="propertyregex" classname="net.sf.antcontrib.property.RegexTask"
     classpath="${workspace.dir}/libraries/apache-ant-contrib/ant-contrib-1.0b3.jar" />
   <target name="_init">
@@ -29,7 +29,7 @@
     <condition property="bss.java.home.dir" value="${bss.java.home}/jre" else="${env.JAVA_HOME}/jre">
       <isset property="bss.java.home" />
     </condition>
-    
+
     <!-- Read properties from Eclipse project files -->
     <property name="dependency.resolver.dir" location="${workspace.dir}" />
     <dependencyproperties workspacedir="${dependency.resolver.dir}" resultdir="${result.dir}" projectdir="${project.dir}" />
@@ -111,7 +111,7 @@
       <compilerarg value="-warn:+uselessTypeCheck,+unusedArgument,+hashCode,+null,+boxing" />
     </javac>
   </target>
-  
+
   <target name="_checkjre" unless="bss.java.home.dir">
     <echo level="warn">===========================================================================</echo>
     <echo level="warn">Either the JRE location is not set or missing /lib/rt.jar file!</echo>
@@ -202,7 +202,7 @@
         <property name="wsdl.files.sts" refid="wsdl.fileset.sts" />
         <foreach tokens="${wsdl.files.sts}">
           <!--<echo message="package dir name is ${result.package.dir}, wsdl file name is ${item}"/>-->
-          <wsdlhandle dirname="${result.package.dir}/STS" filename="${item}" version="${wsdlversion}" /> 
+          <wsdlhandle dirname="${result.package.dir}/STS" filename="${item}" version="${wsdlversion}" />
         </foreach>
       </then>
     </if>
@@ -246,7 +246,7 @@
         <classpath refid="dependencies.runtime.path" />
         <formatter type="xml" />
         <formatter type="plain" usefile="false"/>
-        <batchtest todir="${result.work.testreport.dir}">
+        <batchtest todir="${result.work.testreport.dir}" fork="yes">
           <fileset dir="${javasrc.dir}">
             <include name="**/*Test.java" />
             <include name="**/*Test?.java" />
@@ -338,8 +338,8 @@
       <formatter type="xml" />
       <batchtest todir="${result.work.testreport.ws.dir}">
         <fileset dir="${javasrc.dir}">
-          <include name="**/*Test.java" />
-          <include name="**/*Test?.java" />
+          <include name="**/OrganizationalUnitServiceWSTest.java" />
+          <!--<include name="**/*Test?.java" />-->
         </fileset>
       </batchtest>
     </junit>
