@@ -28,7 +28,9 @@
             <verifyProperty name="required" value="true" />
           </condition>
           <then>
-            <mpl_verify.checkHintAndFieldValues regex="false" hintMsgKey="${hintMsgKey}" fieldId="${fieldId}" fieldType="${fieldType}" buttonLinkId="registrationForm:registerButton" required="${required}" idVerification="${idVerification}"/>
+            <mpl_verify.checkHintAndFieldValues regex="false" hintMsgKey="${hintMsgKey}" fieldId="${fieldId}" fieldType="${fieldType}" buttonLinkId="registrationForm:registerButton"
+                                                required="${required}" idVerification="${idVerification}"
+                                                saveButtonXpath="//*[@id='registrationForm:registerButtonLink']"/>
           </then>
         </ifStep>
       </dataDriven>
