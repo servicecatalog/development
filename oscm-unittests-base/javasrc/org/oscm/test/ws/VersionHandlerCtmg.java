@@ -69,6 +69,9 @@ public class VersionHandlerCtmg implements SOAPHandler<SOAPMessageContext> {
         if (request_p.booleanValue()) {
             try {
                 SOAPMessage msg = context.getMessage();
+                System.out.println("OUTBOUND msg START");
+                msg.writeTo(System.out);
+                System.out.println("OUTBOUND msg KONIEC");
                 SOAPEnvelope env = msg.getSOAPPart().getEnvelope();
                 SOAPHeader hdr = env.getHeader();
                 if (hdr == null) {
