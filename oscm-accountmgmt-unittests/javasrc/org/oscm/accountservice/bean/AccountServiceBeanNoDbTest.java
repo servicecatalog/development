@@ -97,14 +97,17 @@ public class AccountServiceBeanNoDbTest {
                     throws Throwable {
                 return (DomainObject<?>) invocation.getArguments()[0];
             }
-        }).when(dataServiceMock).getReferenceByBusinessKey(
-                Matchers.any(DomainObject.class));
+        }).when(dataServiceMock)
+                .getReferenceByBusinessKey(Matchers.any(DomainObject.class));
     }
 
     @Test
     public void registerCustomer_MailOperationException() throws Exception {
-        Mockito.doThrow(new MailOperationException("Test"))
-                .when(idMock)
+        Marketplace mp = new Marketplace();
+        mp.setTenant(null);
+        when(ab.getMarketplace(Mockito.anyString())).thenReturn(mp);
+
+        Mockito.doThrow(new MailOperationException("Test")).when(idMock)
                 .createOrganizationAdmin(Matchers.any(VOUserDetails.class),
                         Matchers.any(Organization.class), Matchers.anyString(),
                         Matchers.any(Long.class),
@@ -112,8 +115,8 @@ public class AccountServiceBeanNoDbTest {
         try {
             VOOrganization org = new VOOrganization();
             org.setLocale("en");
-            ab.registerCustomer(org, new VOUserDetails(), "secret", null, null,
-                    null);
+            ab.registerCustomer(org, new VOUserDetails(), "secret", null,
+                    "12345", null);
             fail("Mail processing must have failed");
         } catch (MailOperationException e) {
             verify(sessionMock, times(1)).setRollbackOnly();
@@ -145,6 +148,9 @@ public class AccountServiceBeanNoDbTest {
         // when
         VOOrganization org = new VOOrganization();
         org.setLocale("en");
+        Marketplace mp = new Marketplace();
+        mp.setTenant(null);
+        when(ab.getMarketplace(Mockito.anyString())).thenReturn(mp);
         // given
         VOOrganization result = ab.registerCustomer(org, new VOUserDetails(),
                 "123456", null, null, null);

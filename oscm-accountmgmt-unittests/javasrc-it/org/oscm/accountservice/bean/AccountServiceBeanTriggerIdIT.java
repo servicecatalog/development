@@ -44,6 +44,7 @@ import org.oscm.internal.vo.VOPaymentType;
 import org.oscm.internal.vo.VOServicePaymentConfiguration;
 import org.oscm.internal.vo.VOUserDetails;
 import org.oscm.test.EJBTestBase;
+import org.oscm.test.data.Marketplaces;
 import org.oscm.test.data.Organizations;
 import org.oscm.test.data.SupportedCountries;
 import org.oscm.test.data.TriggerDefinitions;
@@ -224,6 +225,8 @@ public class AccountServiceBeanTriggerIdIT extends EJBTestBase {
                         OrganizationRoleType.SUPPLIER);
                 supplier2User = Organizations.createUserForOrg(ds, supplier2,
                         true, "supplier2Admin");
+                Marketplaces.createMarketplace(supplier, marketplaceId, true,
+                        ds);
                 createTriggerData(createTriggerProcessIds,
                         assignTDToSecondSupplier, triggerType);
                 return null;

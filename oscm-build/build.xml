@@ -331,6 +331,10 @@
   <target name="package" depends="_log, _dependencies, _copyDocument" description="Resolves dependencies, compiles, creates javadoc and packages">
     <buildproject target="package" />
   </target>
+  
+  <target name="package_without_doc" depends="_log, _dependencies" description="Resolves dependencies, compiles, creates javadoc and packages">
+    <buildproject target="package" />
+  </target>
 
   <target name="clean">
     <delete dir="${result.dir}" />

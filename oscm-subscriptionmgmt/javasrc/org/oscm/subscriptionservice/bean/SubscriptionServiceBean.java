@@ -90,6 +90,7 @@ import org.oscm.interceptor.ExceptionMapper;
 import org.oscm.interceptor.InvocationDateContainer;
 import org.oscm.internal.intf.SubscriptionSearchService;
 import org.oscm.internal.intf.SubscriptionService;
+import org.oscm.internal.intf.TriggerService;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.types.enumtypes.OperationStatus;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
@@ -131,24 +132,7 @@ import org.oscm.internal.types.exception.SubscriptionStillActiveException;
 import org.oscm.internal.types.exception.TechnicalServiceNotAliveException;
 import org.oscm.internal.types.exception.TechnicalServiceOperationException;
 import org.oscm.internal.types.exception.ValidationException;
-import org.oscm.internal.vo.VOBillingContact;
-import org.oscm.internal.vo.VOInstanceInfo;
-import org.oscm.internal.vo.VOLocalizedText;
-import org.oscm.internal.vo.VOOrganization;
-import org.oscm.internal.vo.VOParameter;
-import org.oscm.internal.vo.VOPaymentInfo;
-import org.oscm.internal.vo.VORoleDefinition;
-import org.oscm.internal.vo.VOService;
-import org.oscm.internal.vo.VOServiceOperationParameter;
-import org.oscm.internal.vo.VOServiceOperationParameterValues;
-import org.oscm.internal.vo.VOSubscription;
-import org.oscm.internal.vo.VOSubscriptionDetails;
-import org.oscm.internal.vo.VOSubscriptionIdAndOrganizations;
-import org.oscm.internal.vo.VOTechnicalServiceOperation;
-import org.oscm.internal.vo.VOUda;
-import org.oscm.internal.vo.VOUsageLicense;
-import org.oscm.internal.vo.VOUser;
-import org.oscm.internal.vo.VOUserSubscription;
+import org.oscm.internal.vo.*;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.notification.vo.VONotification;
@@ -289,6 +273,9 @@ public class SubscriptionServiceBean
 
     @Inject
     UserGroupServiceLocalBean userGroupService;
+
+    @EJB
+    public TriggerService triggerService;
 
     private static final List<SubscriptionStatus> VISIBLE_SUBSCRIPTION_STATUS = Arrays
             .asList(SubscriptionStatus.ACTIVE, SubscriptionStatus.EXPIRED,
@@ -3746,6 +3733,15 @@ public class SubscriptionServiceBean
             sub.setSubscriptionId(subscriptionId);
             dataManager.validateBusinessKeyUniqueness(sub);
 
+            List<VOTriggerProcess> triggers = triggerService
+                .getAllActionsForOrganizationRelatedSubscription();
+            for (VOTriggerProcess voTriggerProcess : triggers) {
+                if (voTriggerProcess.getSubscription().getSubscriptionId().equals(subscriptionId)) {
+                    NonUniqueBusinessKeyException e = new NonUniqueBusinessKeyException(
+                        DomainObjectException.ClassEnum.SUBSCRIPTION, subscriptionId);
+                    throw e;
+                }
+            }
             // Validate unique subscirptionId and organization in temporary
             // table
             Long result = getModifiedEntityDao()

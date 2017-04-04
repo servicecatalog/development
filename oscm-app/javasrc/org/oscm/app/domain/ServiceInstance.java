@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Convert;
@@ -209,7 +210,7 @@ public class ServiceInstance implements Serializable {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "serviceInstance", fetch = FetchType.LAZY)
     private List<InstanceParameter> instanceParameters = new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "serviceInstance", fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "serviceInstance", fetch = FetchType.LAZY, orphanRemoval = true)
     private List<InstanceAttribute> instanceAttributes = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "serviceInstance", fetch = FetchType.LAZY)
@@ -317,7 +318,8 @@ public class ServiceInstance implements Serializable {
         return instanceAttributes;
     }
 
-    public void setInstanceParameters(List<InstanceParameter> instanceParameters) {
+    public void setInstanceParameters(
+            List<InstanceParameter> instanceParameters) {
         this.instanceParameters = instanceParameters;
     }
 
@@ -428,12 +430,13 @@ public class ServiceInstance implements Serializable {
      * @return map from parameter keys to their corresponding values.
      * @throws BadResultException
      */
-    public HashMap<String, Setting> getParameterMap() throws BadResultException {
+    public HashMap<String, Setting> getParameterMap()
+            throws BadResultException {
         final HashMap<String, Setting> map = new HashMap<>();
         for (InstanceParameter param : instanceParameters) {
             map.put(param.getParameterKey(),
-                    new Setting(param.getParameterKey(), param
-                            .getDecryptedValue(), param.isEncrypted()));
+                    new Setting(param.getParameterKey(),
+                            param.getDecryptedValue(), param.isEncrypted()));
         }
         return map;
     }
@@ -497,13 +500,14 @@ public class ServiceInstance implements Serializable {
      * @return map from attribute keys to their corresponding values.
      * @throws BadResultException
      */
-    public HashMap<String, Setting> getAttributeMap() throws BadResultException {
+    public HashMap<String, Setting> getAttributeMap()
+            throws BadResultException {
         final HashMap<String, Setting> map = new HashMap<>();
         for (InstanceAttribute attr : instanceAttributes) {
             map.put(attr.getAttributeKey(),
-                    new Setting(attr.getAttributeKey(), attr
-                            .getDecryptedValue(), attr.isEncrypted(), attr
-                            .getControllerId()));
+                    new Setting(attr.getAttributeKey(),
+                            attr.getDecryptedValue(), attr.isEncrypted(),
+                            attr.getControllerId()));
         }
         return map;
     }
@@ -519,32 +523,39 @@ public class ServiceInstance implements Serializable {
     public void setInstanceAttributes(HashMap<String, Setting> attributes)
             throws BadResultException {
         if (attributes != null) {
-            List<InstanceAttribute> instanceAttrList = new ArrayList<>();
+            List<InstanceAttribute> oldList = new ArrayList<>(
+                    instanceAttributes);
+
             for (String key : attributes.keySet()) {
                 if (key != null) {
                     InstanceAttribute ia = getAttributeForKey(key);
                     Setting attr = attributes.get(key);
-                    if (ia != null) { // Existing parameter
+                    if (ia != null) { // Existing attribute
                         if (!ia.getDecryptedValue().equals(attr.getValue())) {
                             // Changed => Update
                             ia.setEncrypted(attr.isEncrypted());
                             ia.setDecryptedValue(attr.getValue());
+                            oldList.remove(ia);
                         }
-                    } else { // Added parameter
+                    } else { // Added attribute
                         ia = new InstanceAttribute();
                         ia.setAttributeKey(key);
                         ia.setEncrypted(attr.isEncrypted());
                         ia.setDecryptedValue(attr.getValue());
                         ia.setServiceInstance(this);
                     }
-                    instanceAttrList.add(ia);
+                    instanceAttributes.add(ia);
                 }
             }
-            this.setInstanceAttributes(instanceAttrList);
+
+            for (InstanceAttribute ia : oldList) {
+                instanceAttributes.remove(ia);
+            }
         }
     }
 
-    public void setInstanceAttributes(List<InstanceAttribute> instanceAttributes) {
+    public void setInstanceAttributes(
+            List<InstanceAttribute> instanceAttributes) {
         this.instanceAttributes = instanceAttributes;
     }
 
@@ -568,7 +579,8 @@ public class ServiceInstance implements Serializable {
 
         List<InstanceAttribute> attrsToRemove = new ArrayList<>();
 
-        for (InstanceAttribute instanceAttribute : this.getInstanceAttributes()) {
+        for (InstanceAttribute instanceAttribute : this
+                .getInstanceAttributes()) {
             if (!attrs.containsKey(instanceAttribute.getAttributeKey())) {
                 attrsToRemove.add(instanceAttribute);
                 em.remove(instanceAttribute);
@@ -662,12 +674,12 @@ public class ServiceInstance implements Serializable {
             actualProperties.put(ROLLBACK_SUBSCRIPTIONREF, "");
         }
         actualProperties.putAll(this.getParameterMap());
-        this.setRollbackParameters(this
-                .convertPropertiesToXML(actualProperties));
+        this.setRollbackParameters(
+                this.convertPropertiesToXML(actualProperties));
         actualProperties.clear();
         actualProperties.putAll(getAttributeMap());
-        this.setRollbackInstanceAttributes(this
-                .convertPropertiesToXML(actualProperties));
+        this.setRollbackInstanceAttributes(
+                this.convertPropertiesToXML(actualProperties));
     }
 
     public void rollbackServiceInstance(EntityManager em)
@@ -771,7 +783,8 @@ public class ServiceInstance implements Serializable {
         return properties;
     }
 
-    public void setRollbackInstanceAttributes(String rollbackInstanceAttributes) {
+    public void setRollbackInstanceAttributes(
+            String rollbackInstanceAttributes) {
         this.rollbackInstanceAttributes = rollbackInstanceAttributes;
     }
 

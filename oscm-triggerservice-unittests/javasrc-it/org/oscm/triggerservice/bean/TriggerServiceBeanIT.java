@@ -22,10 +22,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
-import org.oscm.domobjects.Organization;
-import org.oscm.domobjects.PlatformUser;
-import org.oscm.domobjects.TriggerDefinition;
-import org.oscm.domobjects.TriggerProcess;
+import org.oscm.domobjects.*;
 import org.oscm.encrypter.AESEncrypter;
 import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
@@ -42,12 +39,7 @@ import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.internal.types.exception.SaaSSystemException;
 import org.oscm.internal.types.exception.TriggerProcessStatusException;
 import org.oscm.internal.types.exception.ValidationException;
-import org.oscm.internal.vo.VOLocalizedText;
-import org.oscm.internal.vo.VOParameter;
-import org.oscm.internal.vo.VOService;
-import org.oscm.internal.vo.VOSubscriptionDetails;
-import org.oscm.internal.vo.VOTriggerProcess;
-import org.oscm.internal.vo.VOTriggerProcessParameter;
+import org.oscm.internal.vo.*;
 import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
 import org.oscm.test.BaseAdmUmTest;
 import org.oscm.test.EJBTestBase;
@@ -63,6 +55,7 @@ import org.oscm.triggerservice.assembler.TriggerProcessAssembler;
 import org.oscm.triggerservice.local.TriggerServiceLocal;
 
 import com.google.common.collect.Lists;
+import org.oscm.types.enumtypes.TriggerProcessParameterName;
 
 public class TriggerServiceBeanIT extends EJBTestBase {
 
@@ -79,6 +72,7 @@ public class TriggerServiceBeanIT extends EJBTestBase {
     private long triggerProcessKeySubScribeToService;
     private long result = RESULT_OK;
     private String adminKey;
+    private String adminKey1;
     private String userKey;
     private String userKey2;
     private String userKey3;
@@ -178,6 +172,11 @@ public class TriggerServiceBeanIT extends EJBTestBase {
                 PlatformUser user3 = Organizations.createUserForOrg(mgr, org3,
                         false, "user3");
                 userKey3 = String.valueOf(user3.getKey());
+
+                Organization org1 = Organizations.createOrganization(mgr);
+                PlatformUser admin1 = Organizations.createUserForOrg(mgr, org1,
+                    true, "admin1");
+                adminKey1 = String.valueOf(admin1.getKey());
                 return null;
             }
         });
@@ -252,6 +251,7 @@ public class TriggerServiceBeanIT extends EJBTestBase {
                 mgr.flush();
 
                 triggerProcessKeySubScribeToService = triggerProcess.getKey();
+
                 return null;
             }
         });
@@ -699,11 +699,46 @@ public class TriggerServiceBeanIT extends EJBTestBase {
     @Test
     public void testGetAllActionsForOrganizationRelatedSubscription()
             throws Exception {
-        container.login(adminKey, ROLE_ORGANIZATION_ADMIN);
+        container.login(adminKey1, ROLE_ORGANIZATION_ADMIN);
+        // create a "add revoke user" trigger
+        runTX(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                TriggerDefinition def = new TriggerDefinition();
+                def.setOrganization(mgr.getCurrentUser().getOrganization());
+                def.setType(TriggerType.ADD_REVOKE_USER);
+                def.setTargetType(TriggerTargetType.WEB_SERVICE);
+                def.setTarget("http");
+                def.setSuspendProcess(true);
+                def.setName("TestAdd");
+                mgr.persist(def);
+
+                TriggerProcess prc = new TriggerProcess();
+                prc.setTriggerDefinition(def);
+                prc.setState(TriggerProcessStatus.WAITING_FOR_APPROVAL);
+                prc.setUser(mgr.getCurrentUser());
+                prc.setActivationDate(System.currentTimeMillis());
+
+                VOSubscription subscription = new VOSubscription();
+                subscription.setSubscriptionId("subscriptionId");
+                prc.addTriggerProcessParameter(
+                    TriggerProcessParameterName.SUBSCRIPTION, subscription);
+                VOService service = new VOService();
+                service.setServiceId("serviceId");
+                prc.addTriggerProcessParameter(
+                    TriggerProcessParameterName.PRODUCT, service);
+                mgr.persist(prc);
+                mgr.flush();
+
+                return null;
+            }
+        });
 
         List<VOTriggerProcess> list = triggerService
                 .getAllActionsForOrganizationRelatedSubscription();
-        Assert.assertEquals(3, list.size());
+        Assert.assertEquals(1, list.size());
+        Assert.assertEquals(list.get(0).getSubscription().getSubscriptionId(), "subscriptionId");
+        Assert.assertEquals(list.get(0).getService().getServiceId(), "serviceId");
     }
 
     @Test
