@@ -12,20 +12,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.ejb.EJB;
+import javax.ejb.Remote;
+import javax.ejb.Stateless;
 
 import org.oscm.app.dao.TemplateFileDAO;
 import org.oscm.app.domain.TemplateFile;
 import org.oscm.app.v2_0.data.PasswordAuthentication;
+import org.oscm.app.v2_0.data.Template;
 import org.oscm.app.v2_0.exceptions.APPlatformException;
 import org.oscm.app.v2_0.exceptions.AuthenticationException;
 import org.oscm.app.v2_0.intf.APPTemplateService;
-import org.oscm.app.v2_0.intf.Template;
 
 /**
  * Implementation of the template service.
  * 
  * @author miethaner
  */
+@Stateless
+@Remote(APPTemplateService.class)
 public class APPTemplateServiceBean implements APPTemplateService {
 
     @EJB
@@ -63,8 +67,14 @@ public class APPTemplateServiceBean implements APPTemplateService {
 
         authService.authenticateTMForController(controllerId, authentication);
 
-        return new ArrayList<Template>(
-                templateDAO.getTemplateFilesByControllerId(controllerId));
+        List<Template> list = new ArrayList<>();
+
+        for (TemplateFile tf : templateDAO
+                .getTemplateFilesByControllerId(controllerId)) {
+            list.add(toTemplate(tf));
+        }
+
+        return list;
     }
 
     @Override
@@ -74,7 +84,23 @@ public class APPTemplateServiceBean implements APPTemplateService {
 
         authService.authenticateTMForController(controllerId, authentication);
 
-        return templateDAO.getTemplateFileByUnique(fileName, controllerId);
+        TemplateFile tf = templateDAO.getTemplateFileByUnique(fileName,
+                controllerId);
+
+        if (tf != null) {
+            return toTemplate(tf);
+        } else {
+            throw new APPlatformException("Template not found");
+        }
+    }
+
+    private Template toTemplate(TemplateFile tf) {
+        Template t = new Template();
+        t.setFileName(tf.getFileName());
+        t.setContent(tf.getContent());
+        t.setLastChange(tf.getLastChange());
+
+        return t;
     }
 
 }

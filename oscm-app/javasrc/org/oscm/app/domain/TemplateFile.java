@@ -23,8 +23,6 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
 
-import org.oscm.app.v2_0.intf.Template;
-
 /**
  * Represents a template file that was uploaded by a controller.
  * 
@@ -36,7 +34,7 @@ import org.oscm.app.v2_0.intf.Template;
 @NamedQueries({
         @NamedQuery(name = "TemplateFile.getForControllerId", query = "SELECT tf FROM TemplateFile tf WHERE tf.controllerId = :controllerId"),
         @NamedQuery(name = "TemplateFile.getForFileAndControllerId", query = "SELECT tf FROM TemplateFile tf WHERE tf.fileName = :fileName AND tf.controllerId = :controllerId") })
-public class TemplateFile implements Template {
+public class TemplateFile {
 
     /**
      * The technical key of the entity.
@@ -71,6 +69,9 @@ public class TemplateFile implements Template {
      */
     @Column(nullable = false)
     private String controllerId;
+
+    public TemplateFile() {
+    }
 
     /**
      * @param tkey
@@ -109,7 +110,6 @@ public class TemplateFile implements Template {
     /**
      * @return the fileName
      */
-    @Override
     public String getFileName() {
         return fileName;
     }
@@ -125,7 +125,6 @@ public class TemplateFile implements Template {
     /**
      * @return the content
      */
-    @Override
     public String getContent() {
         return content;
     }
@@ -141,7 +140,6 @@ public class TemplateFile implements Template {
     /**
      * @return the lastChange
      */
-    @Override
     public Date getLastChange() {
         return lastChange;
     }

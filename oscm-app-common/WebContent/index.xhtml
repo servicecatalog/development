@@ -4,7 +4,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
   xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core"
   xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:rich="http://richfaces.org/rich"
-  xmlns:a4j="http://richfaces.org/a4j" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage">
+  xmlns:a4j="http://richfaces.org/a4j" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+  xmlns:t="http://myfaces.apache.org/tomahawk">
 <h:head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
   <meta content="Fujitsu Limited" name="description" />
@@ -37,6 +38,9 @@
 
   <h:outputText value="#{configurationBean.status}" styleClass="statusPanel #{configurationBean.statusClass}"
     rendered="#{configurationBean.status != null}" />
+
+  <h:outputText value="#{templateBean.status}" styleClass="statusPanel #{templateBean.statusClass}"
+    rendered="#{templateBean.status != null}" />
 
   <div class="box_area_class">
     <!--▼ Heading data 3 ▼-->
@@ -107,6 +111,63 @@
       <h:commandButton id="hiddenUndoButton" action="#{configurationBean.undo}" style="display: none;" />
     
     </h:form>
+    
+    <br />
+    <br />
+    
+    <h:form id="templateForm" enctype="multipart/form-data">
+      <div class="nested_heading_data_class">
+        <div class="heading_data_4_class">
+          <div class="heading_data_4_bg_class">
+            <h4 id="heading_data4_3" class="heading_data_4_open_mark_class" onclick="accordion(this, 'accordion_area3')">
+              <h:outputText value="#{msg['ui.config.templates.title']}" />
+            </h4>
+          </div>
+        </div>
+        <div id="accordion_area3">
+        
+          <rich:dataTable styleClass="table_row_linetitle_class" value="#{templateBean.model}" var="item" rowClasses="rowOdd,rowEven">
+            <rich:column headerClass="rf-dt-keyColumn table_header_title_class" > 
+              <f:facet name="header" >
+                <h:outputText value="#{msg['ui.config.templates.file']}"  />
+              </f:facet>
+              <h:outputText value="#{item.fileName}" />
+            </rich:column>
+          
+            <rich:column> 
+              <f:facet name="header" >
+                <h:outputText value="#{msg['ui.config.templates.lastchange']}"  />
+              </f:facet>
+              <h:outputText value="#{item.lastChange}" />
+            </rich:column>
+            
+            <rich:column> 
+              <h:commandLink action="#{templateBean.delete(item.fileName)}" value="#{msg['ui.config.templates.delete']}" />
+            </rich:column>
+            
+            <rich:column> 
+              <h:commandLink action="#{templateBean.export(item.fileName)}" value="#{msg['ui.config.templates.export']}" />
+            </rich:column>
+          </rich:dataTable>
+          
+          <br />
+          
+          <div>
+            <t:inputFileUpload id="file" value="#{templateBean.uploadedFile}" size="48" />
+            &nbsp;&nbsp;
+            <span class="button_right_part_class">
+              <span class="button_content_class">
+                <h:commandButton class="button_normal_class" value="#{msg['ui.config.action.upload']}" action="#{templateBean.save}"/>
+              </span>
+            </span>
+          </div>
+        </div>
+        <br />
+      </div>
+    </h:form>
   </div>
+  
+  <br />
+  <br />
 </h:body>
 </html>
