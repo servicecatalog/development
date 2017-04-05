@@ -236,6 +236,10 @@
     <antcall target="createWebServicePort">
       <param name="target.name" value="server" />
     </antcall>
+    <antcall target="createWebServicePortSecure">
+      <param name="target.name" value="server" />
+    </antcall>
+    <antcall target="createSSL" />
   </target>
 
   <target name="addResourcesExtension" if="resources-extension-template.xml.exists">
