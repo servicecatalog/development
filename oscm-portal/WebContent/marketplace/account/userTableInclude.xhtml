@@ -31,7 +31,7 @@
       width="100%" style="min-width:680px;position:relative;width:100%;" rows="10" render="pagerPanel" sortMode="single">
 
       <f:facet name="header">
-        <adm:pager pagerId="#{statePrefix}UserListPager" />
+        <adm:pager pagerId="#{statePrefix}UserListPager" render="userTable@body userTableScripts" pagerExecute="@form"/>
       </f:facet>
 
       <rich:column
@@ -42,7 +42,7 @@
         sortBy="#{user.selected}"
         sortOrder="#{tableState.sortOrders[colAssign]}">
         <h:selectBooleanCheckbox id="assignCheckbox" value="#{user.selected}" onclick="setDirty(true);">
-          <f:ajax event="change" />
+          <f:ajax event="change"/>
         </h:selectBooleanCheckbox>
       </rich:column>
 
@@ -137,7 +137,7 @@
         <h:selectOneMenu rendered="#{not empty serviceRoles}" id="role" value="#{user.roleKey}"
           style="width: 100%;white-space: nowrap;" valueChangeListener="#{user.roleKeyChanged}" immediate="true" >
           <t:selectItems value="#{serviceRoles}" var="role" itemLabel="#{role.name}" itemValue="#{role.key}" />
-          <f:ajax event="change" />
+          <f:ajax event="change"/>
         </h:selectOneMenu>
       </rich:column>
 
@@ -151,5 +151,6 @@
       </rich:column>
     </rich:dataTable>
   	<a4j:jsFunction name="saveSelectUser" render="userTablePanel"/>
+
   </a4j:outputPanel>
 </ui:composition>
