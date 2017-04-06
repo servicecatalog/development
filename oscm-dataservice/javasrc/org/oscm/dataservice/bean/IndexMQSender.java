@@ -84,15 +84,17 @@ public class IndexMQSender {
         if (requestMsg != null && checkJMSResources()) {
             javax.jms.Session jmsSession = null;
             Connection conn = null;
+            MessageProducer producer = null;
             try {
                 conn = qFactory.createConnection();
                 jmsSession = conn.createSession(false,
                         javax.jms.Session.AUTO_ACKNOWLEDGE);
-                MessageProducer producer = jmsSession.createProducer(queue);
+                producer = jmsSession.createProducer(queue);
                 ObjectMessage msg = jmsSession.createObjectMessage();
                 msg.setObject(requestMsg);
                 producer.send(msg);
             } finally {
+                closeProducer(producer);
                 closeSession(jmsSession);
                 closeConnection(conn);
             }
@@ -121,7 +123,19 @@ public class IndexMQSender {
         }
     }
 
+    void closeProducer(MessageProducer producer) {
+        if (producer != null) {
+            try {
+                producer.close();
+            } catch (Exception e) {
+                logger.logError(Log4jLogger.SYSTEM_LOG, e,
+                        LogMessageIdentifier.ERROR_CLOSE_RESOURCE_FAILED);
+            }
+        }
+    }
+
     public void notifyIndexer(Object entity, ModificationType type) {
+        System.out.println("IndexMQSender: " + this.toString());
         if (notifyIndexer && entity instanceof DomainObject<?>) {
             try {
                 sendMessage(IndexRequestMessage.get(entity, type));
