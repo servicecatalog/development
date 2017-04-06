@@ -14,7 +14,6 @@ package org.oscm.taskhandling.bean;
 
 import java.util.List;
 
-import javax.annotation.Resource;
 import javax.ejb.Asynchronous;
 import javax.ejb.EJB;
 import javax.ejb.Local;
@@ -55,7 +54,6 @@ public class TaskQueueServiceBean implements TaskQueueServiceLocal {
     @Asynchronous
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void sendAllMessages(List<TaskMessage> messages) {
-        validateJMSResources();
         validateMessages(messages);
         double msgSize = Math.ceil(messages.size()/1000.0);
         int counter = 0;
@@ -70,16 +68,18 @@ public class TaskQueueServiceBean implements TaskQueueServiceLocal {
     /**
      * Checks if the injected JMS resources are not <code>null</code>. If they
      * are, a system exception will be thrown.
+     * @param queue
+     * @param qFactory
      */
-    private void validateJMSResources() {
-//        if (queue == null || qFactory == null) {
-//            SaaSSystemException sse = new SaaSSystemException(
-//                    "JMS resources are not initialized!");
-//            logger.logError(Log4jLogger.SYSTEM_LOG, sse,
-//                    LogMessageIdentifier.ERROR_JMS_RESOURCE_NOT_INITIALIZED);
-//
-//            throw sse;
-//        }
+    private void validateJMSResources(Queue queue, ConnectionFactory qFactory) {
+        if (queue == null || qFactory == null) {
+            SaaSSystemException sse = new SaaSSystemException(
+                    "JMS resources are not initialized!");
+            logger.logError(Log4jLogger.SYSTEM_LOG, sse,
+                    LogMessageIdentifier.ERROR_JMS_RESOURCE_NOT_INITIALIZED);
+
+            throw sse;
+        }
     }
 
     /**
@@ -137,6 +137,9 @@ public class TaskQueueServiceBean implements TaskQueueServiceLocal {
                 jndiContext = new InitialContext();
                 ConnectionFactory connectionFactory = (ConnectionFactory) jndiContext.lookup("jms/bss/taskQueueFactory");
                 queue = (Queue) jndiContext.lookup("jms/bss/taskQueue");
+
+                validateJMSResources(queue, connectionFactory);
+
                 conn = connectionFactory.createConnection();
 
                 session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
