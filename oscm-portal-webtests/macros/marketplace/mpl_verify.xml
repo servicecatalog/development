@@ -396,7 +396,7 @@
               <verifyProperty name="checkSearch" text="true" />
             </condition>
             <then>
-              <verifyXPath xpath="//div[contains(@id, &quot;@{pos}:serviceTags&quot;)]//a[contains(text(),'${service.tags}')]" />
+              <verifyXPath xpath="//div[contains(@id, &quot;service@{pos}Tags&quot;)]//a[contains(text(),'${service.tags}')]" />
             </then>
             <else>
               <verifyElementText description="Verify note text of tags exist" text="${service.tags}:" htmlId="service@{pos}Tags" />
@@ -409,7 +409,7 @@
               <verifyProperty name="checkSearch" text="true" />
             </condition>
             <then>
-              <verifyXPath xpath="//div[contains(@id, &quot;@{pos}:serviceTags&quot;)]//a[contains(text(),'@{tag}')]" />
+              <verifyXPath xpath="//div[contains(@id, &quot;service@{pos}Tags&quot;)]//a[contains(text(),'@{tag}')]" />
             </then>
             <else>
               <verifyElementText description="Verify given tag exist" htmlId="service@{pos}Tags" text=".*@{tag}.*" regex="true" />

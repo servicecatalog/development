@@ -80,13 +80,14 @@
           <verifyProperty name="checkSearch" text="true" />          
         </condition>
         <then>
-          <clickLink xpath="//a[contains(@id,'@{pos}:serviceButton')]" />
+          <common.ignorePageScriptError />
+          <clickLink htmlId="showDetails@{pos}" />	
         </then>
         <else>
           <clickLink htmlId="serviceButton@{pos}" />
         </else>
       </ifStep>
-      <clickElement htmlId="showDetailsForm:showDetails" />
+
       <storeXPath xpath="//div[matches(@id, 'tabDescription:content')]/text()" property="desc_text" />
       <storeProperty property="result" value="0" eval="true" />
       <common.numberOfOccurences substring="@{phrase}" string="#{desc_text}" property="result" />
