@@ -14,8 +14,6 @@ import java.util.List;
 
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
@@ -64,7 +62,6 @@ public class TemplateFileDAO {
         }
     }
 
-    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void saveTemplateFile(TemplateFile file) {
 
         file.setLastChange(new Date());
@@ -79,7 +76,6 @@ public class TemplateFileDAO {
         em.flush();
     }
 
-    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void deleteTemplateFile(TemplateFile file) {
         TemplateFile dbFile = find(file);
         em.remove(dbFile);

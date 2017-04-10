@@ -127,10 +127,11 @@ public class TemplateBean {
         }
 
         try {
-            String content = new String(uploadedFile.getBytes(),
-                    StandardCharsets.UTF_8);
+            Template template = new Template();
+            template.setFileName(uploadedFile.getName());
+            template.setContent(uploadedFile.getBytes());
 
-            templateService.saveTemplate(uploadedFile.getName(), content,
+            templateService.saveTemplate(template,
                     controllerAccess.getControllerId(), getAuthentication());
 
             load();
@@ -178,7 +179,7 @@ public class TemplateBean {
             FacesContext fc = getContext();
             ExternalContext ec = fc.getExternalContext();
 
-            byte[] content = t.getContent().getBytes(StandardCharsets.UTF_8);
+            byte[] content = t.getContent();
 
             ec.responseReset();
             ec.setResponseContentType(ec.getMimeType(fileName));

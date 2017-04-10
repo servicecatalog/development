@@ -33,10 +33,8 @@ public interface APPTemplateService {
     /**
      * Saves the template with the given name and content for the controller.
      * 
-     * @param fileName
-     *            the template name
-     * @param content
-     *            the template content
+     * @param template
+     *            the template with name and content
      * @param controllerId
      *            the owning controller id
      * @param authentication
@@ -48,8 +46,8 @@ public interface APPTemplateService {
      * @throws APPlatformException
      *             if a general problem occurs in accessing APP
      */
-    public void saveTemplate(String fileName, String content,
-            String controllerId, PasswordAuthentication authentication)
+    public void saveTemplate(Template template, String controllerId,
+            PasswordAuthentication authentication)
             throws AuthenticationException, APPlatformException;
 
     /**

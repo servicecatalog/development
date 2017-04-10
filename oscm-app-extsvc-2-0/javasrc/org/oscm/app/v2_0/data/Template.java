@@ -19,7 +19,7 @@ public class Template implements Serializable {
     private static final long serialVersionUID = 5630487379829488409L;
 
     private String fileName;
-    private String content;
+    private byte[] content;
     private Date lastChange;
 
     /**
@@ -42,21 +42,21 @@ public class Template implements Serializable {
     }
 
     /**
-     * Gets the content of the template file in plain text.
+     * Gets the content of the template.
      * 
      * @return the content
      */
-    public String getContent() {
+    public byte[] getContent() {
         return content;
     }
 
     /**
-     * Sets the content of the template file in plain text.
+     * Sets the content of the template.
      * 
      * @param content
      *            the content to set
      */
-    public void setContent(String content) {
+    public void setContent(byte[] content) {
         this.content = content;
     }
 

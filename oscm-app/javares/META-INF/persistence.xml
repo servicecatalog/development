@@ -14,9 +14,11 @@
     <class>org.oscm.app.domain.CustomAttribute</class>
     <class>org.oscm.app.domain.InstanceParameter</class>
     <class>org.oscm.app.domain.InstanceAttribute</class>
+    <class>org.oscm.app.domain.TemplateFile</class>
     <properties>
       <property name="hibernate.hbm2ddl.auto" value="validate" />
       <property name="hibernate.jdbc.batch_size" value="0" />
+      <property name="hibernate.jdbc.use_streams_for_binary" value="false" />
     </properties>
   </persistence-unit>
 

@@ -39,14 +39,14 @@ public class APPTemplateServiceBean implements APPTemplateService {
     protected TemplateFileDAO templateDAO;
 
     @Override
-    public void saveTemplate(String fileName, String content,
-            String controllerId, PasswordAuthentication authentication)
+    public void saveTemplate(Template template, String controllerId,
+            PasswordAuthentication authentication)
             throws AuthenticationException, APPlatformException {
 
         authService.authenticateTMForController(controllerId, authentication);
 
-        templateDAO.saveTemplateFile(
-                new TemplateFile(0L, fileName, content, controllerId));
+        templateDAO.saveTemplateFile(new TemplateFile(0L,
+                template.getFileName(), template.getContent(), controllerId));
     }
 
     @Override
@@ -57,7 +57,7 @@ public class APPTemplateServiceBean implements APPTemplateService {
         authService.authenticateTMForController(controllerId, authentication);
 
         templateDAO.deleteTemplateFile(
-                new TemplateFile(0L, fileName, "", controllerId));
+                new TemplateFile(0L, fileName, null, controllerId));
     }
 
     @Override

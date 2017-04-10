@@ -15,6 +15,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.SequenceGenerator;
@@ -54,8 +55,9 @@ public class TemplateFile {
     /**
      * The plain text content of the template.
      */
+    @Lob
     @Column(nullable = false)
-    private String content;
+    private byte[] content;
 
     /**
      * The timestamp of the last change on the template.
@@ -83,7 +85,7 @@ public class TemplateFile {
      * @param controllerId
      *            the owning controller
      */
-    public TemplateFile(long tkey, String fileName, String content,
+    public TemplateFile(long tkey, String fileName, byte[] content,
             String controllerId) {
         this.tkey = tkey;
         this.fileName = fileName;
@@ -125,7 +127,7 @@ public class TemplateFile {
     /**
      * @return the content
      */
-    public String getContent() {
+    public byte[] getContent() {
         return content;
     }
 
@@ -133,7 +135,7 @@ public class TemplateFile {
      * @param content
      *            the content to set
      */
-    public void setContent(String content) {
+    public void setContent(byte[] content) {
         this.content = content;
     }
 

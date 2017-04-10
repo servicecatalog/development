@@ -2,7 +2,7 @@ CREATE TABLE "templatefile"
 (
   "tkey" BIGINT NOT NULL, 
   "filename" character varying(255) NOT NULL,
-  "content" TEXT NOT NULL,
+  "content" OID NOT NULL,
   "lastchange" timestamp with time zone NOT NULL,
   "controllerid" character varying(255),
   CONSTRAINT "templatefile_pk" PRIMARY KEY ("tkey"),
