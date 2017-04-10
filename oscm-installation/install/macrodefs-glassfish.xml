@@ -278,9 +278,47 @@
     </asadmin.domain>
   </target>
 
+  <target name="createWebServicePortSecure" depends="checkIfWSPortSecureSet" if="isPortSecureSet">
+    <asadmin.domain command="delete-http-listener" failonerror="false">
+      <arg value="ws-listener-secure" />
+    </asadmin.domain>
+    <asadmin.domain command="create-http-listener">
+      <arg value="--listeneraddress" />
+      <arg value="0.0.0.0" />
+      <arg value="--listenerport" />
+      <arg value="${glassfish.domain.WS_PORT_SECURE}" />
+      <arg value="--defaultvs" />
+      <arg value="server" />
+      <arg value="--target" />
+      <arg value="${target.name}" />
+      <arg value="ws-listener-secure" />
+    </asadmin.domain>
+  </target>
+
+  <target name="createSSL" depends="checkIfWSPortSecureSet" if="isPortSecureSet">
+     <asadmin.domain command="delete-ssl" failonerror="false">
+       <arg value="--type" />
+       <arg value="http-listener" />
+       <arg value="ws-listener-secure" />
+     </asadmin.domain>
+     <asadmin.domain command="create-ssl">
+       <arg value="--type" />
+       <arg value="http-listener" />
+       <arg value="--certname" />
+       <arg value="s1as" />
+       <arg value="ws-listener-secure" />
+     </asadmin.domain>
+   </target>
+
   <target name="checkIfWSPortSet">
     <condition property="isPortSet">
       <isset property="glassfish.domain.WS_PORT" />
+    </condition>
+  </target>
+
+  <target name="checkIfWSPortSecureSet">
+    <condition property="isPortSecureSet">
+      <isset property="glassfish.domain.WS_PORT_SECURE" />
     </condition>
   </target>
 

@@ -13,9 +13,6 @@
   <module>
     <ejb>oscm-app-vmware-service.jar</ejb>
   </module>
-  <module>
-    <ejb>oscm-app-common.jar</ejb>
-  </module>
 
   <library-directory>lib</library-directory>
 </application>
