@@ -208,7 +208,7 @@ public class TemplateBean {
         }
     }
 
-    public PasswordAuthentication getAuthentication() {
+    protected PasswordAuthentication getAuthentication() {
         FacesContext facesContext = getContext();
         HttpSession session = (HttpSession) facesContext.getExternalContext()
                 .getSession(false);

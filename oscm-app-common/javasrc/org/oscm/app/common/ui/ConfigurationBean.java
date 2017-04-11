@@ -19,13 +19,13 @@ import java.util.Locale;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
-import javax.ejb.EJB;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.servlet.http.HttpSession;
 
+import org.oscm.app.v2_0.APPlatformServiceFactory;
 import org.oscm.app.v2_0.data.ControllerConfigurationKey;
 import org.oscm.app.v2_0.data.PasswordAuthentication;
 import org.oscm.app.v2_0.data.Setting;
@@ -64,7 +64,6 @@ public class ConfigurationBean implements Serializable {
     public final static String MSG_TOOLTIP_PREFIX = "param_tooltip_";
 
     // Reference to an APPlatformService instance
-    @EJB(lookup = APPlatformService.JNDI_NAME)
     private APPlatformService platformService;
 
     @Inject
@@ -126,6 +125,7 @@ public class ConfigurationBean implements Serializable {
      */
     public ConfigurationBean() {
         try {
+            platformService = APPlatformServiceFactory.getInstance();
             resetToken();
 
         } catch (IllegalStateException e) {

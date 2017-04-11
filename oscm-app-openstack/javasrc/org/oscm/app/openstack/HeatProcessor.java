@@ -18,12 +18,16 @@ import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.URL;
 import java.net.URLStreamHandler;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 
+import org.oscm.app.openstack.controller.OpenStackController;
 import org.oscm.app.openstack.controller.PropertyHandler;
 import org.oscm.app.openstack.controller.StackStatus;
 import org.oscm.app.openstack.data.CreateStackRequest;
@@ -34,9 +38,11 @@ import org.oscm.app.openstack.exceptions.OpenStackConnectionException;
 import org.oscm.app.openstack.i18n.Messages;
 import org.oscm.app.openstack.proxy.ProxyAuthenticator;
 import org.oscm.app.openstack.proxy.ProxySettings;
+import org.oscm.app.v2_0.data.Template;
 import org.oscm.app.v2_0.exceptions.APPlatformException;
 import org.oscm.app.v2_0.exceptions.AbortException;
 import org.oscm.app.v2_0.exceptions.InstanceNotAliveException;
+import org.oscm.app.v2_0.intf.APPTemplateService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,22 +73,22 @@ public class HeatProcessor {
      *            stack
      * @throws HeatException
      */
-    public void createStack(PropertyHandler ph) throws HeatException,
-            APPlatformException {
-        logger.debug("HeatProcessor.createStack() stackname: "
-                + ph.getStackName());
+    public void createStack(PropertyHandler ph)
+            throws HeatException, APPlatformException {
+        logger.debug(
+                "HeatProcessor.createStack() stackname: " + ph.getStackName());
         HeatClient heatClient = createHeatClient(ph);
         String template = getTemplate(ph, "create");
 
-        String id = String.valueOf((ph.getSettings().getSubscriptionId() + ph
-                .getSettings().getOrganizationId()).hashCode());
+        String id = String.valueOf((ph.getSettings().getSubscriptionId()
+                + ph.getSettings().getOrganizationId()).hashCode());
         if (!ph.getStackName().endsWith(id)) {
             ph.setStackName(ph.getStackName() + id);
         }
 
         CreateStackRequest request = (CreateStackRequest) new CreateStackRequest(
-                ph.getStackName()).withTemplate(template).withParameters(
-                ph.getTemplateParameters());
+                ph.getStackName()).withTemplate(template)
+                        .withParameters(ph.getTemplateParameters());
         try {
             Stack created = heatClient.createStack(request);
             ph.setStackId(created.getId());
@@ -104,8 +110,9 @@ public class HeatProcessor {
             client.authenticate(ph.getUserName(), ph.getPassword(),
                     ph.getDomainName(), ph.getTenantId());
         } catch (OpenStackConnectionException ex) {
-            throw new HeatException("Failed to connect to Heat: "
-                    + ex.getMessage(), ex.getResponseCode());
+            throw new HeatException(
+                    "Failed to connect to Heat: " + ex.getMessage(),
+                    ex.getResponseCode());
         }
         return new HeatClient(connection);
     }
@@ -116,14 +123,14 @@ public class HeatProcessor {
      * @param ph
      * @throws HeatException
      */
-    public void updateStack(PropertyHandler ph) throws HeatException,
-            APPlatformException {
-        logger.debug("HeatProcessor.updateStack() stackname: "
-                + ph.getStackName());
+    public void updateStack(PropertyHandler ph)
+            throws HeatException, APPlatformException {
+        logger.debug(
+                "HeatProcessor.updateStack() stackname: " + ph.getStackName());
         String template = getTemplate(ph, "update");
         UpdateStackRequest request = (UpdateStackRequest) new UpdateStackRequest(
-                ph.getStackName()).withTemplate(template).withParameters(
-                ph.getTemplateParameters());
+                ph.getStackName()).withTemplate(template)
+                        .withParameters(ph.getTemplateParameters());
         createHeatClient(ph).updateStack(request);
     }
 
@@ -131,14 +138,29 @@ public class HeatProcessor {
             throws AbortException {
         String url = null;
         try {
+            String name = ph.getTemplateName();
+
+            try {
+                APPTemplateService templateService = InitialContext
+                        .doLookup(APPTemplateService.JNDI_NAME);
+
+                Template t = templateService.getTemplate(name,
+                        OpenStackController.ID, ph.getTPAuthentication());
+
+                return new String(t.getContent(), StandardCharsets.UTF_8);
+            } catch (NamingException | APPlatformException e) {
+                // service or template not found, continue with url
+            }
+
             url = ph.getTemplateUrl();
             return getText(url);
         } catch (Exception e) {
-            throw new AbortException(Messages.getAll("error_" + type
-                    + "_failed_customer"), Messages.getAll(
-                    "error_provider_template_read_exception", type,
-                    url == null ? "-" : url,
-                    e.getClass().getName() + " - " + e.getMessage(), "-"));
+            throw new AbortException(
+                    Messages.getAll("error_" + type + "_failed_customer"),
+                    Messages.getAll("error_provider_template_read_exception",
+                            type, url == null ? "-" : url,
+                            e.getClass().getName() + " - " + e.getMessage(),
+                            "-"));
         }
     }
 
@@ -148,8 +170,8 @@ public class HeatProcessor {
 
         StringBuilder response = new StringBuilder();
         String inputLine;
-        BufferedReader in = new BufferedReader(new InputStreamReader(
-                connection.getInputStream()));
+        BufferedReader in = new BufferedReader(
+                new InputStreamReader(connection.getInputStream()));
         try {
             while ((inputLine = in.readLine()) != null)
                 response.append(inputLine).append("\n");
@@ -238,45 +260,43 @@ public class HeatProcessor {
      * @param ph
      * @throws HeatException
      */
-    public void deleteStack(PropertyHandler ph) throws HeatException,
-            APPlatformException {
-        logger.debug("HeatProcessor.deleteStack() stackname: "
-                + ph.getStackName());
+    public void deleteStack(PropertyHandler ph)
+            throws HeatException, APPlatformException {
+        logger.debug(
+                "HeatProcessor.deleteStack() stackname: " + ph.getStackName());
         createHeatClient(ph).deleteStack(ph.getStackName());
     }
 
-    public Stack getStackDetails(PropertyHandler ph) throws HeatException,
-            APPlatformException {
+    public Stack getStackDetails(PropertyHandler ph)
+            throws HeatException, APPlatformException {
         return createHeatClient(ph).getStackDetails(ph.getStackName());
     }
 
-    public boolean resumeStack(PropertyHandler ph) throws HeatException,
-            APPlatformException {
+    public boolean resumeStack(PropertyHandler ph)
+            throws HeatException, APPlatformException {
         if (!createHeatClient(ph).checkServerExists(ph.getStackName())) {
-            throw new InstanceNotAliveException(
-                    Messages.getAll("error_activating_failed_instance_not_found"));
+            throw new InstanceNotAliveException(Messages
+                    .getAll("error_activating_failed_instance_not_found"));
         }
 
-        if (StackStatus.SUSPEND_COMPLETE.name().equals(
-                createHeatClient(ph).getStackDetails(ph.getStackName())
-                        .getStatus())) {
-            createHeatClient(ph)
-                    .resumeStack(ph.getStackName(), ph.getStackId());
+        if (StackStatus.SUSPEND_COMPLETE.name().equals(createHeatClient(ph)
+                .getStackDetails(ph.getStackName()).getStatus())) {
+            createHeatClient(ph).resumeStack(ph.getStackName(),
+                    ph.getStackId());
             return true;
         }
         return false;
     }
 
-    public boolean suspendStack(PropertyHandler ph) throws HeatException,
-            APPlatformException {
+    public boolean suspendStack(PropertyHandler ph)
+            throws HeatException, APPlatformException {
         if (!createHeatClient(ph).checkServerExists(ph.getStackName())) {
-            throw new InstanceNotAliveException(
-                    Messages.getAll("error_deactivating_failed_instance_not_found"));
+            throw new InstanceNotAliveException(Messages
+                    .getAll("error_deactivating_failed_instance_not_found"));
         }
 
-        if (!StackStatus.SUSPEND_COMPLETE.name().equals(
-                createHeatClient(ph).getStackDetails(ph.getStackName())
-                        .getStatus())) {
+        if (!StackStatus.SUSPEND_COMPLETE.name().equals(createHeatClient(ph)
+                .getStackDetails(ph.getStackName()).getStatus())) {
             createHeatClient(ph).suspendStack(ph.getStackName(),
                     ph.getStackId());
             return true;
