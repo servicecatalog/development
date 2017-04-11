@@ -141,8 +141,7 @@ public class HeatProcessor {
             String name = ph.getTemplateName();
 
             try {
-                APPTemplateService templateService = InitialContext
-                        .doLookup(APPTemplateService.JNDI_NAME);
+                APPTemplateService templateService = getTemplateService();
 
                 Template t = templateService.getTemplate(name,
                         OpenStackController.ID, ph.getTPAuthentication());
@@ -155,6 +154,7 @@ public class HeatProcessor {
             url = ph.getTemplateUrl();
             return getText(url);
         } catch (Exception e) {
+            logger.error(e.getMessage(), e);
             throw new AbortException(
                     Messages.getAll("error_" + type + "_failed_customer"),
                     Messages.getAll("error_provider_template_read_exception",
@@ -162,6 +162,13 @@ public class HeatProcessor {
                             e.getClass().getName() + " - " + e.getMessage(),
                             "-"));
         }
+    }
+
+    /**
+     * Protected method for unit test purposes.
+     */
+    protected APPTemplateService getTemplateService() throws NamingException {
+        return InitialContext.doLookup(APPTemplateService.JNDI_NAME);
     }
 
     private static String getText(String url) throws Exception {

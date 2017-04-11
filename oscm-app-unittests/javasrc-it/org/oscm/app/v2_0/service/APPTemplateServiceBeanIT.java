@@ -21,6 +21,7 @@ import org.oscm.app.dao.TemplateFileDAO;
 import org.oscm.app.domain.TemplateFile;
 import org.oscm.app.v2_0.data.PasswordAuthentication;
 import org.oscm.app.v2_0.data.Template;
+import org.oscm.app.v2_0.exceptions.APPlatformException;
 import org.oscm.app.v2_0.intf.APPTemplateService;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.ejb.TestContainer;
@@ -64,6 +65,25 @@ public class APPTemplateServiceBeanIT extends EJBTestBase {
 
         assertEquals("file", t.getFileName());
         assertEquals("test", new String(t.getContent()));
+    }
+
+    @Test(expected = APPlatformException.class)
+    public void testGetTemplate_nonexisting() throws Exception {
+        runTX(new Callable<Void>() {
+
+            @Override
+            public Void call() throws Exception {
+                TemplateFile tf = new TemplateFile();
+                tf.setFileName("file");
+                tf.setContent("test".getBytes());
+                tf.setControllerId("controller");
+
+                tfDAO.saveTemplateFile(tf);
+                return null;
+            }
+        });
+
+        templateSvc.getTemplate("file2", "controller", defaultAuth);
     }
 
     @Test
