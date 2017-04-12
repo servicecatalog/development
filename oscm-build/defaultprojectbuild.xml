@@ -256,6 +256,29 @@
     </jacoco:coverage>
   </target>
 
+  <target name="travistests" if="rununittests" depends="_init, package">
+    <mkdir dir="${result.work.testreport.dir}" />
+    <jacoco:coverage destfile="${result.work.testreport.dir}/jacoco.exec" excludes="**/oscm-build/result/package/oscm-intsvc-base-unittests/**/*" includes="org.oscm.*" sessionid="${project.name}">
+      <junit fork="yes" forkmode="once" dir="${project.dir}" failureproperty="unittests.failure" maxmemory="1024m">
+        <jvmarg value="-Dfile.encoding=UTF8" />
+        <!-- Run unit tests without Hibernate Search indexing -->
+        <jvmarg value="-Dhibernate.search.autoregister_listeners=false" />
+        <!-- Uncomment these two lines to be able to debug the tests -->
+        <!--jvmarg value="-Xdebug" />
+        <jvmarg value="-agentlib:jdwp=transport=dt_socket,server=y,address=8038,suspend=y" /-->
+        <classpath refid="dependencies.runtime.path" />
+        <formatter type="xml" />
+        <formatter type="plain" usefile="false"/>
+        <batchtest todir="${result.work.testreport.dir}" fork="yes">
+          <fileset dir="${javasrc.dir}">
+            <include name="**/*Test.java" />
+            <include name="**/*Test?.java" />
+          </fileset>
+        </batchtest>
+      </junit>
+    </jacoco:coverage>
+  </target>
+
   <target name="unittestsWithoutCoverage" if="rununittests" depends="_init, package">
     <mkdir dir="${result.work.testreport.dir}" />
     <junit fork="yes" forkmode="once" dir="${project.dir}" failureproperty="unittests.failure" maxmemory="1024m">
