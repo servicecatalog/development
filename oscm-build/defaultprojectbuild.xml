@@ -259,7 +259,7 @@
   <target name="travistests" if="rununittests" depends="_init, package">
     <mkdir dir="${result.work.testreport.dir}" />
     <jacoco:coverage destfile="${result.work.testreport.dir}/jacoco.exec"
-                     excludes="org.oscm.local.*:org.oscm.vo.BaseAssembler*"
+                     excludes="**/oscm-intsvc-base-unittests/**/*"
                      includes="org.oscm.*" sessionid="${project.name}">
       <junit fork="yes" forkmode="once" dir="${project.dir}" failureproperty="unittests.failure" maxmemory="1024m">
         <jvmarg value="-Dfile.encoding=UTF8" />
