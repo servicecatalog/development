@@ -275,6 +275,7 @@
           <fileset dir="${javasrc.dir}">
             <include name="**/*Test.java" />
             <include name="**/*Test?.java" />
+            <exclude name="**/oscm-intsvc-base-unittests/*"/>
           </fileset>
         </batchtest>
       </junit>
