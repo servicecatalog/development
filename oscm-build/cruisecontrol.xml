@@ -43,7 +43,7 @@
 	<target name="runJUnitTestsBuild" depends="_libraries, _clean, _package, _unittests, _copyResultArtifacts" />
 
 	<target name="runTravisUT"  depends="_libraries">
-		<ant antfile="build.xml" target="unittests" />
+		<ant antfile="build.xml" target="travisunittests" />
 	</target>
 	<target name="runTravisIT" depends="_libraries">
 		<ant antfile="build.xml" target="integrationtests" />

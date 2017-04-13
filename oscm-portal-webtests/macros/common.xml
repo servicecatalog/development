@@ -559,7 +559,6 @@
     <attribute name="errorFieldId" default="@{modalPanelId}Form:@{fieldId}ErrorMsg" />
     <sequential>
       <storeXPath description="Check error message" xpath="//*[@id='@{errorFieldId}:@{fieldId}']//*[contains(@class, 'rf-msg-det')]/text()" property="errorMsg" />
-      <echo message="Cyc: @{label} #{errorMsg}" />
       <verifyProperty name="errorMsg" value="@{label}" regex="@{regex}" />
     </sequential>
   </macrodef>

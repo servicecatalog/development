@@ -4,7 +4,7 @@
 
   <import file="../../macros/marketplace/all.xml" />
 
-  <target name="run_tests" depends="testMPL_ManageSubscription_ExtIntfBtn,testMPL_UpgradeSubscription_ExtIntfBtn,testManageSubscription" />
+  <target name="run_tests" depends="testMPL_manageSubscription_paging,testMPL_ManageSubscription_ExtIntfBtn,testMPL_UpgradeSubscription_ExtIntfBtn,testManageSubscription" />
 
   <target name="testMPL_ManageSubscription_ExtIntfBtn">
     <webtest name="testMPL_ManageSubscription_ExtIntfBtn">
@@ -65,6 +65,72 @@
       <common.ignorePageScriptError />
       <clickLink label="${button.select}" />
       <verifyXPath xpath="//a[@id='configurationForm:btnConfigure']" />
+      <mpl_login.logout />
+      <scenario.deleteServices />
+    </webtest>
+  </target>
+
+  <target name="testMPL_manageSubscription_paging">
+    <webtest name="testMPL_manageSubscription_paging">
+
+      <!-- Issue #645 User assignment to subscription fails with permission error -->
+
+      <operator.addCurrency />
+      <scenario.setupSupplier />
+      <operator.createMarketplace ownerId="${supplierId}" baseurl="#{baseUrl}" name="Local Marketplace" mIdProperty="marketplaceId" />
+      <landingpage.setSortOrderForLandingpageWithLogin mId="${marketplaceId}" userId="${supplierUserId}" password="secret" />
+      <login.login url="${supplierUrl}" userId="${supplierUserId}" />
+
+      <!-- Use service with defined roles -->
+
+      <techservice.import file="${techService.import.file}" />
+      <setup:service.define serviceId="With Roles0" svcKeyProperty="serviceKey" techServiceId="Example_with_roles 1.00" name="Mega Office X" description="Paging test" concurrentUser="20" namedUser="20" marketplaceId="${marketplaceId}" />
+      <setup:pricemodel.define serviceId="With Roles0" isFree="true" />
+      <setup:service.activate serviceIds="With Roles" start="0" count="1" />
+      <setup:subscription.create subId="pagingService1" marketplaceId="${marketplaceId}" serviceKey="${serviceKey}" />
+      <mpl_goto.marketplace mid="${marketplaceId}" />
+      <mpl_login.user mid="${marketplaceId}" userId="${supplierUserId}" />
+
+      <!-- Set up 10 additional users to enable paging -->
+
+      <mpl_goto.account.users />
+      <mpl_user.create userId="user1" firstname="first" lastname="last" />
+      <mpl_goto.account.users />
+      <mpl_user.create userId="user2" firstname="first" lastname="last" />
+      <mpl_goto.account.users />
+      <mpl_user.create userId="user3" firstname="first" lastname="last" />
+      <mpl_goto.account.users />
+      <mpl_user.create userId="user4" firstname="first" lastname="last" />
+      <mpl_goto.account.users />
+      <mpl_user.create userId="user5" firstname="first" lastname="last" />
+      <mpl_goto.account.users />
+      <mpl_user.create userId="user6" firstname="first" lastname="last" />
+      <mpl_goto.account.users />
+      <mpl_user.create userId="user7" firstname="first" lastname="last" />
+      <mpl_goto.account.users />
+      <mpl_user.create userId="user8" firstname="first" lastname="last" />
+      <mpl_goto.account.users />
+      <mpl_user.create userId="user9" firstname="first" lastname="last" />
+      <mpl_goto.account.users />
+      <mpl_user.create userId="user10" firstname="first" lastname="last" />
+
+      <!-- Open the assign users pop up. Assign one user from the first page, go to the second page, assign user from the second page -->
+      <!-- Leave the default roles -->
+
+      <mpl_goto.account.subscriptions />
+      <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
+      <common.clickAjaxLink htmlId="usersForm:assignUsers" />
+      <sequential>
+        <setCheckbox xpath="//td[contains(@class, 'tableColumnCheckBox')][1]/input[@type='checkbox']" checked="true" />
+        <clickElement htmlId="assignUsersPanelForm:userTable:assignUserListPager_ds_2" />
+        <setCheckbox xpath="//td[contains(@class, 'tableColumnCheckBox')][1]/input[@type='checkbox']" checked="true" />
+        <clickLink label="${button.assign}" />
+
+        <!-- Verify that no error is present -->
+
+        <mpl_verify.success label="The users have been successfully assigned." />
+      </sequential>
+      <common.ignorePageScriptError />
       <mpl_login.logout />
       <scenario.deleteServices />
     </webtest>
