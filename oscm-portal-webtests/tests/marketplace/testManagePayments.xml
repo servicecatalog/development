@@ -96,8 +96,8 @@
         <clickLink htmlId="paymentOptionListForm:addPaymentOption" />
         <setInputField htmlId="paymentOptionPanelForm:displayName" value="${value}" />
         <common.clickAjaxLink htmlId="paymentOptionPanelForm:switchToDetailsAjax" />
-        <common.initializeDataDrivenErrorMessage errormsg="${errormsg}" att0="${att0}" />
-        <common.verifyModalFieldError regex="false" errorFieldId="paymentOptionPanelForm:displayNameErrorMsg" modalPanelId="paymentOptionPanel" fieldId="paymentOptionPanelForm:displayName" label="${expectedMessage}" />
+        <verifyXPath
+                xpath="//*[@id='paymentOptionPanelForm:displayNameErrorMsg:paymentOptionPanelForm:displayName']//*[contains(text(),'Invalid character(s)')]" />
       </dataDriven>
       <common.reSetPageScriptError/>
     </webtest>
@@ -240,16 +240,33 @@
         <clickElement htmlId="billingContactPanelForm:saveBillingContactButton" />
         <common.verifyModalFieldError regex="false" errorFieldId="${fieldId}ErrorMsg" modalPanelId="billingContactPanel" fieldId="${fieldId}" label="${javax.faces.component.UIInput.REQUIRED}" />
 
-        <dataDriven tableContainer="data/invalidInput/${fieldType}.xls">
-          <clickElement htmlId="billingContactListForm:addBillingContact" />
+          <ifStep description="Test if id field is processed" test="${idVerification}">
+            <then>
+              <!-- ID verification-->
+              <dataDriven tableContainer="data/invalidInput/${fieldType}.xls">
+                <clickElement htmlId="billingContactListForm:addBillingContact" />
 
-          <this.fillBillingContactFields />
+                <this.fillBillingContactFields />
 
-          <setInputField htmlId="${fieldId}" value="${value}" />
-          <clickElement htmlId="billingContactPanelForm:saveBillingContactButton" />
+                <setInputField htmlId="${fieldId}" value="${value}" />
+                <clickElement htmlId="billingContactPanelForm:saveBillingContactButton" />
+                <verifyXPath
+                        xpath="//*[@id='${fieldId}ErrorMsg:${fieldId}']//*[contains(text(),'Invalid character(s)')]" />
+              </dataDriven>
+            </then>
+            <else>
+              <dataDriven tableContainer="data/invalidInput/${fieldType}.xls">
+                <clickElement htmlId="billingContactListForm:addBillingContact" />
 
-          <common.initializeDataDrivenErrorMessage errormsg="${errormsg}" att0="${att0}" />
-          <common.verifyModalFieldError regex="false" errorFieldId="${fieldId}ErrorMsg" modalPanelId="billingContactPanel" fieldId="${fieldId}" label="${expectedMessage}" />
+                <this.fillBillingContactFields />
+
+                <setInputField htmlId="${fieldId}" value="${value}" />
+                <clickElement htmlId="billingContactPanelForm:saveBillingContactButton" />
+                <common.initializeDataDrivenErrorMessage errormsg="${errormsg}" att0="${att0}" />
+                <common.verifyModalFieldError regex="false" errorFieldId="${fieldId}ErrorMsg" modalPanelId="billingContactPanel" fieldId="${fieldId}" label="${expectedMessage}" />
+              </dataDriven>
+            </else>
+          </ifStep>
 
           <!--      
             LG: For unknown reasons the cancel button is not accessible at this point, though afterwards it is present in the result. This occurs since addBillingContact button has 
@@ -259,7 +276,6 @@
           <!--
             <clickLink htmlId="billingContactPanelForm:cancelButton" /> 
           -->
-        </dataDriven>
       </dataDriven>
     </sequential>
   </macrodef>
