@@ -21,7 +21,7 @@ install:
   - cd ../development
 env:
   global:
-    - ANT_OPTS=-Xmx4g
+    - ANT_OPTS=-Xmx6g
     - COMUPTERNAME=travis
     - HOSTNAME=travis
 script:
