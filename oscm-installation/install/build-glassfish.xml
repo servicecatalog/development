@@ -75,6 +75,7 @@
     <!-- configure domain -->
     <antcall target="SETUP.configure" />
 
+    <antcall target="copyOldKeyFile" />
     <!--patch ear-->
     <antcall target="patchEar" />
 
@@ -425,6 +426,7 @@
     <available file="${domains.dir}/${domain.dir}/installer/jmsResources/updateProp.properties" property="updatePropForJms.exists" />
     <available file="${domains.dir}/${domain.dir}/installer/requiredGlassfishResources.properties" property="requiredGlassfishResources.exists" />
     <available file="${glassfish.domain.dir}/config/default-web.xml" property="defaultWeb.exists" />
+    <available file="${domains.dir}/${domain.dir}/installer/key" property="oldKeyFile.exists" type="file"/>
   </target>
 
   <target name="checkParam">
@@ -500,5 +502,10 @@
 
   <target name="setLoggingLevel">
     <setLoggingLevel loggername="javax.enterprise.system.util=SEVERE"/>
+  </target>
+
+  <target name="copyOldKeyFile" if="oldKeyFile.exists">
+    <copy file="${domains.dir}/${domain.dir}/installer/key" todir="${glassfish.domain.dir}/config"
+          preservelastmodified="true"/>
   </target>
 </project>
