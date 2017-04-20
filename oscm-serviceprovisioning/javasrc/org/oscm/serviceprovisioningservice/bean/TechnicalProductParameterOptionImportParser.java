@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.persistence.Query;
+
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.ParameterDefinition;
 import org.oscm.domobjects.ParameterOption;
@@ -39,12 +41,11 @@ class TechnicalProductParameterOptionImportParser extends ImportParserBase {
     private List<ParameterOption> existedOptions;
     private final Map<Long, List<VOLocalizedText>> obsoleteOptionDescriptions;
 
-    private final Set<String> processedOptionIds = new HashSet<String>();
-    private final Set<String> processedOptionLocales = new HashSet<String>();
+    private final Set<String> processedOptionIds = new HashSet<>();
+    private final Set<String> processedOptionLocales = new HashSet<>();
     private ParameterOption parameterOption = null;
 
-    public TechnicalProductParameterOptionImportParser(
-            ParameterDefinition parameterDefinition, String techProductId,
+    public TechnicalProductParameterOptionImportParser(ParameterDefinition parameterDefinition, String techProductId,
             DataService dm, LocalizerServiceLocal localizer) {
         this.dm = dm;
         this.localizer = localizer;
@@ -53,20 +54,18 @@ class TechnicalProductParameterOptionImportParser extends ImportParserBase {
 
         // Keep the options and localized option descriptions of the parameter,
         // that are currently stored in the database
-        obsoleteOptions = new ArrayList<ParameterOption>(
-                parameterDef.getOptionList());
-        obsoleteOptionDescriptions = new HashMap<Long, List<VOLocalizedText>>();
+        obsoleteOptions = new ArrayList<>(parameterDef.getOptionList());
+        obsoleteOptionDescriptions = new HashMap<>();
         for (ParameterOption option : obsoleteOptions) {
             long optionKey = option.getKey();
-            obsoleteOptionDescriptions.put(Long.valueOf(optionKey), localizer
-                    .getLocalizedValues(optionKey,
-                            LocalizedObjectTypes.OPTION_PARAMETER_DEF_DESC));
+            obsoleteOptionDescriptions.put(Long.valueOf(optionKey),
+                    localizer.getLocalizedValues(optionKey, LocalizedObjectTypes.OPTION_PARAMETER_DEF_DESC));
         }
 
         if (null != parameterDef.getOptionList()) {
             existedOptions = parameterDef.getOptionList();
         } else {
-            existedOptions = new ArrayList<ParameterOption>();
+            existedOptions = new ArrayList<>();
         }
     }
 
@@ -134,8 +133,7 @@ class TechnicalProductParameterOptionImportParser extends ImportParserBase {
                 .get(Long.valueOf(parameterOption.getKey()));
 
         // Check if the localized text is modified
-        VOLocalizedText obsoleteLocalizedText = getLocalizedText(locale,
-                obsoleteLocalizedTexts);
+        VOLocalizedText obsoleteLocalizedText = getLocalizedText(locale, obsoleteLocalizedTexts);
         if (obsoleteLocalizedText != null) {
             obsoleteLocalizedTexts.remove(obsoleteLocalizedText);
         }
@@ -147,8 +145,7 @@ class TechnicalProductParameterOptionImportParser extends ImportParserBase {
         processedOptionLocales.add(locale);
     }
 
-    private VOLocalizedText getLocalizedText(String locale,
-            List<VOLocalizedText> localizedTexts) {
+    private VOLocalizedText getLocalizedText(String locale, List<VOLocalizedText> localizedTexts) {
         if (localizedTexts != null) {
             for (VOLocalizedText lt : localizedTexts) {
                 if (lt.getLocale().equals(locale)) {
@@ -175,19 +172,17 @@ class TechnicalProductParameterOptionImportParser extends ImportParserBase {
 
         if (obsoleteLocalizedTexts != null && obsoleteLocalizedTexts.size() > 0) {
             if (parameterDef.definesParametersOfUndeletedProduct()) {
-                UpdateConstraintException e = new UpdateConstraintException(
-                        ClassEnum.TECHNICAL_SERVICE, technicalProductId);
+                UpdateConstraintException e = new UpdateConstraintException(ClassEnum.TECHNICAL_SERVICE,
+                        technicalProductId);
                 throw e;
             } else {
                 // Remove all obsolete localized resources from the database
                 for (VOLocalizedText lt : obsoleteLocalizedTexts) {
                     localizer.removeLocalizedValue(parameterOption.getKey(),
-                            LocalizedObjectTypes.OPTION_PARAMETER_DEF_DESC,
-                            lt.getLocale());
+                            LocalizedObjectTypes.OPTION_PARAMETER_DEF_DESC, lt.getLocale());
                 }
 
-                obsoleteOptionDescriptions.remove(Long.valueOf(parameterOption
-                        .getKey()));
+                obsoleteOptionDescriptions.remove(Long.valueOf(parameterOption.getKey()));
             }
         }
     }
@@ -217,12 +212,24 @@ class TechnicalProductParameterOptionImportParser extends ImportParserBase {
     public void finishOptions() throws UpdateConstraintException {
         if (obsoleteOptions.size() > 0) {
             if (parameterDef.definesParametersOfUndeletedProduct()) {
-                UpdateConstraintException e = new UpdateConstraintException(
-                        ClassEnum.TECHNICAL_SERVICE, technicalProductId);
+                UpdateConstraintException e = new UpdateConstraintException(ClassEnum.TECHNICAL_SERVICE,
+                        technicalProductId);
                 throw e;
             } else {
+
                 // Remove all obsolete options from the database
                 for (ParameterOption option : obsoleteOptions) {
+
+                    // Check for priced option
+                    Query q = dm.createNamedQuery("PricedOption.getForParameterOption");
+                    q.setParameter("parameterOptionKey", new Long(option.getKey()));
+
+                    if (q.getResultList().size() > 0) {
+                        UpdateConstraintException e = new UpdateConstraintException(ClassEnum.TECHNICAL_SERVICE,
+                                technicalProductId);
+                        throw e;
+                    }
+
                     parameterDef.getOptionList().remove(option);
                     dm.remove(option);
                 }
