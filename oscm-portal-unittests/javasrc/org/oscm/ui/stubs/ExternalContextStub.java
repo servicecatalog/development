@@ -58,7 +58,7 @@ public class ExternalContextStub extends ExternalContext {
 
     @Override
     public Map<String, Object> getApplicationMap() {
-        throw new UnsupportedOperationException();
+        return null;
     }
 
     @Override

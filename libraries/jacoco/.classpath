@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="javalib/org.jacoco.agent-0.6.1.201212231917.jar"/>
-	<classpathentry kind="lib" path="javalib/org.jacoco.ant-0.6.1.201212231917.jar"/>
-	<classpathentry kind="lib" path="javalib/org.jacoco.core-0.6.1.201212231917.jar"/>
-	<classpathentry kind="lib" path="javalib/org.jacoco.report-0.6.1.201212231917.jar"/>
+	<classpathentry kind="lib" path="javalib/org.jacoco.agent-0.7.8.jar"/>
+	<classpathentry kind="lib" path="javalib/org.jacoco.ant-0.7.8.jar"/>
+	<classpathentry kind="lib" path="javalib/org.jacoco.core-0.7.8.jar"/>
+	<classpathentry kind="lib" path="javalib/org.jacoco.report-0.7.8.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

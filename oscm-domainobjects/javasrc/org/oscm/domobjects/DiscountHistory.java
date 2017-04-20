@@ -25,7 +25,8 @@ import javax.persistence.NamedQuery;
         // existed in a different time than the discount
         @NamedQuery(name = "DiscountHistory.findForOrganizationAndPeriod", query = "SELECT c FROM DiscountHistory c, OrganizationReferenceHistory refH "
                 + "WHERE c.organizationReferenceObjKey = refH.objKey AND refH.targetObjKey =:orgKey AND refH.sourceObjKey =:supplierKey "
-                + "AND c.objVersion = (SELECT max(innerc.objVersion) FROM DiscountHistory innerc where c.objKey = innerC.objKey) "
+                + "AND c.objVersion = (SELECT max(innerC.objVersion) FROM DiscountHistory innerC where c.objKey = "
+            + "innerC.objKey) "
                 + "AND ((c.dataContainer.endTime >=:bS AND c.dataContainer.endTime <= :bE) OR (c.dataContainer.startTime >=:bS AND c.dataContainer.startTime <= :bE) "
                 + "OR (c.dataContainer.startTime <=:bS AND c.dataContainer.endTime >= :bE) OR (c.dataContainer.startTime <=:bE AND c.dataContainer.endTime IS NULL)) "
                 + "ORDER BY c.objVersion DESC, c.modDate DESC") })

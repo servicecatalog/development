@@ -3,7 +3,7 @@
 	<classpathentry kind="src" path="javasrc"/>
 	<classpathentry kind="lib" path="/libraries/junit/javalib/junit-4.5.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-unittests-base"/>
-	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/javalib/javaee.jar"/>
+	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/javaee.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-common"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc-notification"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-intsvc-base"/>
@@ -16,11 +16,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-dataservice-intsvc"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-i18n-intsvc"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-domainobjects"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER">
-		<attributes>
-			<attribute name="owner.project.facets" value="java"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc-internal"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-identitymgmt-intsvc"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-configservice-intsvc"/>
@@ -28,5 +23,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-subscriptionmgmt-intsvc"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-billing-external-interfaces"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-internal-interfaces"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

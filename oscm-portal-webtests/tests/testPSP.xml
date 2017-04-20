@@ -81,21 +81,39 @@
         <setInputField htmlId="${fieldId}" value="" />
         <clickLink htmlId="editForm:saveButtonLink" />
         <common.verifyFieldError fieldId="${fieldId}" label="${javax.faces.component.UIInput.REQUIRED}" />
+		
+      	
+      	<ifStep description="Test if id field is processed" test="${idVerification}">
+	      <then>
+	      	<!-- ID verification-->	
+	      	<dataDriven tableContainer="data/invalidInput/${fieldType}.xls">
+      		  <!-- fill all fields with vaild values -->
+	          <this.fillFields />
 
-        <!-- iterate over some input for the current field -->
-        <dataDriven tableContainer="data/invalidInput/${fieldType}.xls">
+	          <!-- set wrong input for current field -->
+	          <setInputField htmlId="${fieldId}" value="${value}" />
+	      		
+	      	  <!-- save and verify error message -->
+	      	  <clickLink htmlId="editForm:saveButtonLink" />
+	      	  <verifyXPath xpath="//*[@id='${fieldId}ErrorMsg:${fieldId}']//*[contains(text(),'Invalid character(s)')]" />
+  	        </dataDriven>
+	      </then>
+	      <else>
+	      	<dataDriven tableContainer="data/invalidInput/${fieldType}.xls">	
+	      		
+	      	  <!-- fill all fields with vaild values -->
+	          <this.fillFields />
 
-          <!-- fill all fields with vaild values -->
-          <this.fillFields />
+	          <!-- set wrong input for current field -->
+	          <setInputField htmlId="${fieldId}" value="${value}" />
 
-          <!-- set wrong input for current field -->
-          <setInputField htmlId="${fieldId}" value="${value}" />
-
-          <!-- save and verify error message -->
-          <clickLink htmlId="editForm:saveButtonLink" />
-          <common.initializeDataDrivenErrorMessage errormsg="${errormsg}" att0="${createPSP.att0}" />
-          <common.testFieldValidation fieldId="${fieldId}" fieldValue="${value}" error="${expectedMessage}" />
-        </dataDriven>
+	          <!-- save and verify error message -->
+	          <clickLink htmlId="editForm:saveButtonLink" />
+	          <common.initializeDataDrivenErrorMessage errormsg="${errormsg}" att0="${createPSP.att0}" />
+	          <common.testFieldValidation fieldId="${fieldId}" fieldValue="${value}" error="${expectedMessage}" />
+  	        </dataDriven>
+	      </else>	
+		</ifStep>
       </dataDriven>
 
       <login.logout />
@@ -282,9 +300,9 @@
         <setInputField htmlId="paymentTypePSPForm:paymentTypeId" value="${value}" />
         <clickLink htmlId="paymentTypePSPForm:paymentTypePSPConfirmButton" />
         <common.waitForJavaScript />
-        <common.initializeDataDrivenErrorMessage errormsg="${errormsg}" att0="${att0}" />
-        <common.verifyModalFieldError errorFieldId="paymentTypePSPForm:paymentTypeIdErrorMsg" modalPanelId="paymentTypePSP" fieldId="paymentTypePSPForm:paymentTypeId" label="${expectedMessage}" />
-      </dataDriven>
+      	
+      	<verifyXPath xpath="//*[@id='paymentTypePSPForm:paymentTypeIdErrorMsg:paymentTypePSPForm:paymentTypeId']//*[contains(text(),'Invalid character(s)')]" />      	
+	  </dataDriven>
       <login.logout />
     </webtest>
 

@@ -47,7 +47,7 @@
 
   <target name="testMPL_SearchServices" depends="testMPL_initSetup">
     <webtest name="testMPL_BasicSearch">
-
+      <sleep seconds="60" />
       <!-- Go to Home page, click on Browse All button => Goto All services page -->
       <mpl_goto.marketplace mid="${mId}" />
       <clickLink htmlId="categorySelectionForm:buttonBrowseAllLink" />
@@ -281,7 +281,7 @@
     </webtest>
   </target>
 
-  <target name="all" depends="testMPL_initSetup, testMPL_SearchServices, testMPL_SearchVerifyShortDescription, testMPL_CleanUp" />
+  <target name="all" depends="testMPL_initSetup, testMPL_SearchServices, testMPL_SearchServicesByCategory, testMPL_SearchVerifyLongDescription, testMPL_SearchVerifyTags, testMPL_SearchVerifyShortDescription, testMPL_CleanUp" />
 
   <target name="disabled_tests" depends="testMPL_SearchServicesByCategory, testMPL_SearchVerifyLongDescription, testMPL_SearchVerifyTags"></target>	
 </project>

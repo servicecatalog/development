@@ -8,8 +8,6 @@
 
 package org.oscm.ui.beans;
 
-import static org.oscm.ui.common.Constants.REQ_PARAM_TENANT_ID;
-
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
@@ -31,9 +29,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.servlet.http.Part;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.myfaces.custom.fileupload.UploadedFile;
 import org.oscm.internal.intf.*;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.types.enumtypes.UserAccountStatus;
@@ -52,7 +49,6 @@ import org.oscm.ui.common.*;
 import org.oscm.ui.dialog.common.saml2.AuthenticationHandler;
 import org.oscm.ui.dialog.state.TableState;
 import org.oscm.ui.filter.AuthenticationSettings;
-import org.oscm.ui.filter.AuthorizationRequestData;
 import org.oscm.ui.model.User;
 import org.oscm.ui.model.UserRole;
 
@@ -89,7 +85,6 @@ public class UserBean extends BaseBean implements Serializable {
     private List<User> users;
     private String requestedRedirect;
     private String confirmedRedirect;
-    private String tenantID;
     private String serviceLoginType = Constants.REQ_ATTR_LOGIN_TYPE_NO_MPL;
     private AuthenticationSettings authenticationSettings;
 
@@ -105,7 +100,7 @@ public class UserBean extends BaseBean implements Serializable {
     @EJB
     private TenantService tenantService;
 
-    private UploadedFile userImport;
+    private Part userImport;
     transient ApplicationBean appBean;
 
     public MenuBean getMenuBean() {
@@ -1099,11 +1094,11 @@ public class UserBean extends BaseBean implements Serializable {
                 authenticationSettings);
     }
 
-    public UploadedFile getUserImport() {
+    public Part getUserImport() {
         return userImport;
     }
 
-    public void setUserImport(UploadedFile userImport) {
+    public void setUserImport(Part userImport) {
         this.userImport = userImport;
     }
 
@@ -1122,10 +1117,12 @@ public class UserBean extends BaseBean implements Serializable {
             ui.handleException(ex);
             return;
         }
-        try {
-            getUserService().importUsersInOwnOrganization(
-                    userImport.getBytes(), marketplaceId);
-            ui.handle("info.user.importStarted", userImport.getName());
+        try {           
+            byte[] buffer = PartHandler.getBuffer(userImport);
+            getUserService().importUsersInOwnOrganization(buffer,
+                    marketplaceId);
+            ui.handle("info.user.importStarted",
+                    userImport.getSubmittedFileName());
         } catch (SaaSApplicationException ex) {
             ui.handleException(ex);
         } catch (IOException ex) {

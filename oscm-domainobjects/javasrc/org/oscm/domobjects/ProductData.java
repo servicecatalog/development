@@ -14,11 +14,10 @@ package org.oscm.domobjects;
 
 import java.io.Serializable;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
+import javax.persistence.*;
 
+import org.oscm.domobjects.converters.STConverter;
+import org.oscm.domobjects.converters.ServiceSConverter;
 import org.oscm.internal.types.enumtypes.ServiceStatus;
 import org.oscm.internal.types.enumtypes.ServiceType;
 
@@ -51,11 +50,11 @@ public class ProductData extends DomainDataContainer implements Serializable {
      */
     private Long deprovisioningDate;
 
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = ServiceSConverter.class)
     @Column(nullable = false)
     private ServiceStatus status;
 
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = STConverter.class)
     @Column(nullable = false)
     private ServiceType type;
 

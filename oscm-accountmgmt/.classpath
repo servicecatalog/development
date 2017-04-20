@@ -3,7 +3,7 @@
 	<classpathentry kind="src" path="javasrc"/>
 	<classpathentry kind="src" path="javares"/>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
-	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/javalib/javaee.jar"/>
+	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/javaee.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-domainobjects"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-common"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-intsvc-base"/>
@@ -21,13 +21,10 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-i18n-intsvc"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-serviceprovisioning-intsvc"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-triggerservice"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER">
-		<attributes>
-			<attribute name="owner.project.facets" value="java"/>
-		</attributes>
-	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-subscriptionmgmt"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-server-util"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-marketplaceservice-intsvc"/>
+	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/gf-client.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

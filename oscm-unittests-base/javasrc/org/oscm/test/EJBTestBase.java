@@ -16,17 +16,14 @@ import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.persistence.Query;
 
+import org.hibernate.Hibernate;
+import org.hibernate.proxy.HibernateProxy;
 import org.junit.After;
 import org.junit.Before;
-
 import org.oscm.converter.ParameterizedTypes;
 import org.oscm.converter.ResourceLoader;
 import org.oscm.dataservice.local.DataService;
-import org.oscm.domobjects.DomainObject;
-import org.oscm.domobjects.Organization;
-import org.oscm.domobjects.OrganizationToRole;
-import org.oscm.domobjects.PlatformUser;
-import org.oscm.domobjects.RoleAssignment;
+import org.oscm.domobjects.*;
 import org.oscm.interceptor.DateFactory;
 import org.oscm.test.ejb.TestContainer;
 
@@ -90,6 +87,16 @@ public abstract class EJBTestBase extends BaseAdmUmTest {
     protected <T> T runTX(Callable<T> callable) throws Exception {
         DateFactory.getInstance().takeCurrentTime();
         return caller.call(callable);
+    }
+
+    protected <T> T unproxyEntity(T template) {
+        if (template instanceof HibernateProxy) {
+            Hibernate.initialize(template);
+            template = (T) ((HibernateProxy) template)
+                    .getHibernateLazyInitializer()
+                    .getImplementation();
+        }
+        return template;
     }
 
     public static interface Caller {

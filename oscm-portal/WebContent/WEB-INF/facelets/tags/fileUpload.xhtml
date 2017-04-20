@@ -1,9 +1,9 @@
 <!-- Copyright FUJITSU LIMITED 2017-->
 <!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
                              "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
-  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
-  xmlns:rich="http://richfaces.org/rich" xmlns:c="http://java.sun.com/jsp/jstl/core"
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://xmlns.jcp.org/jsf/html"
+  xmlns:f="http://xmlns.jcp.org/jsf/core" xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+  xmlns:rich="http://richfaces.org/rich" xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
   xmlns:a4j="http://richfaces.org/a4j" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
   xmlns:t="http://myfaces.apache.org/tomahawk">
 
@@ -22,9 +22,9 @@
         <a4j:outputPanel styleClass="output" />
       </a4j:outputPanel>
     </a4j:outputPanel>
-    <t:inputFileUpload id="file" label="#{msg['common.filename']}" onchange="jQuery('.jqUpload .output').text(this.value);setDirty(true)" disabled="#{disabled}"
-      value="#{value}" size="48" styleClass="fileChooser" required="#{(empty required or required) and (empty rendered or rendered)}"
-      rendered="#{empty rendered or rendered}" requiredMessage="#{msg['error.upload.fileNotNullNorEmpty']}" />
+    <h:inputFile id="file" label="#{msg['common.filename']}" onchange="jQuery('.jqUpload .output').text(this.value);setDirty(true)" disabled="#{disabled}"
+                 value="#{value}" size="48" styleClass="fileChooser" required="#{(empty required or required) and (empty rendered or rendered)}"
+                 rendered="#{empty rendered or rendered}" requiredMessage="#{msg['error.upload.fileNotNullNorEmpty']}" />
   </t:div>
   <adm:message for="file" rendered="#{(empty rendered or rendered) and (empty labels)}" />
 

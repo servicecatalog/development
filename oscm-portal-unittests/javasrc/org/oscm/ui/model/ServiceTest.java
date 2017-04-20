@@ -15,6 +15,8 @@ package org.oscm.ui.model;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.util.Locale;
@@ -67,12 +69,9 @@ public class ServiceTest {
         voService.setTechnicalId("technicalId");
 
         FacesContextStub contextStub = new FacesContextStub(Locale.ENGLISH);
-        UIViewRootStub vrStub = new UIViewRootStub() {
-            @Override
-            public Locale getLocale() {
-                return Locale.ENGLISH;
-            };
-        };
+        UIViewRootStub vrStub = mock(UIViewRootStub.class);
+        when(vrStub.getLocale()).thenReturn(Locale.ENGLISH);
+
         contextStub.setViewRoot(vrStub);
 
         ResourceBundleStub resourceBundleStub = new ResourceBundleStub();

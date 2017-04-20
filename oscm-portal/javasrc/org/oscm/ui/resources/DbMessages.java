@@ -139,37 +139,39 @@ public class DbMessages extends DefaultMessages {
                 locale = Locale.ENGLISH;
             }
 
-            HttpSession session = request.getSession();
-            String marketplaceId = (String) session
-                    .getAttribute(Constants.REQ_PARAM_MARKETPLACE_ID);
+            if (request != null) {
+                HttpSession session = request.getSession();
+                String marketplaceId = (String) session
+                        .getAttribute(Constants.REQ_PARAM_MARKETPLACE_ID);
 
-            // check if the properties are cached for the marketplace id and if
-            // not read it by service
-            if (marketplaceId != null) {
-                properties = propertiesMap.get(marketplaceId);
+                // check if the properties are cached for the marketplace id and if
+                // not read it by service
+                if (marketplaceId != null) {
+                    properties = propertiesMap.get(marketplaceId);
+                    if (properties == null) {
+                        ServiceAccess serviceAccess = ServiceAccess
+                                .getServiceAcccessFor(request.getSession());
+                        properties = getBrandManagementService(serviceAccess)
+                                .loadMessagePropertiesFromDB(marketplaceId,
+                                        locale.toString());
+                        propertiesMap.put(marketplaceId, properties);
+                    }
+                    if (!properties.isEmpty()) {
+                        return properties;
+                    }
+                }
+
+                properties = localizedPropertiesMap.get(locale.getLanguage());
                 if (properties == null) {
                     ServiceAccess serviceAccess = ServiceAccess
                             .getServiceAcccessFor(request.getSession());
-                    properties = getBrandManagementService(serviceAccess)
-                            .loadMessagePropertiesFromDB(marketplaceId,
-                                    locale.toString());
-                    propertiesMap.put(marketplaceId, properties);
+                    properties = getLocalizedDataService(serviceAccess)
+                            .loadMessageProperties(locale.getLanguage());
+                    if (properties == null) {
+                        properties = new Properties();
+                    }
+                    localizedPropertiesMap.put(locale.getLanguage(), properties);
                 }
-                if (!properties.isEmpty()) {
-                    return properties;
-                }
-            }
-
-            properties = localizedPropertiesMap.get(locale.getLanguage());
-            if (properties == null) {
-                ServiceAccess serviceAccess = ServiceAccess
-                        .getServiceAcccessFor(request.getSession());
-                properties = getLocalizedDataService(serviceAccess)
-                        .loadMessageProperties(locale.getLanguage());
-                if (properties == null) {
-                    properties = new Properties();
-                }
-                localizedPropertiesMap.put(locale.getLanguage(), properties);
             }
         }
         return properties;

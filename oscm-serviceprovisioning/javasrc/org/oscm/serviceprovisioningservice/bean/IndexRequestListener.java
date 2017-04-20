@@ -44,8 +44,8 @@ import org.oscm.internal.types.exception.SaaSSystemException;
  * 
  */
 @MessageDriven(activationConfig = {
-        @ActivationConfigProperty(propertyName = "UserName", propertyValue = "jmsuser"),
-        @ActivationConfigProperty(propertyName = "Password", propertyValue = "jmsuser") }, name = "jmsQueue", mappedName = "jms/bss/indexerQueue")
+        @ActivationConfigProperty(propertyName = "UserName", propertyValue = "admin"),
+        @ActivationConfigProperty(propertyName = "Password", propertyValue = "admin") }, name = "jmsQueue", mappedName = "jms/bss/indexerQueue")
 public class IndexRequestListener {
 
     private final static Log4jLogger logger = LoggerFactory

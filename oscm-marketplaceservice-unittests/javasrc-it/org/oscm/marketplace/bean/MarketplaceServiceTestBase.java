@@ -12,6 +12,11 @@
 
 package org.oscm.marketplace.bean;
 
+import static org.junit.Assert.*;
+import static org.oscm.internal.types.enumtypes.OrganizationRoleType.SUPPLIER;
+
+import java.util.*;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -30,19 +35,7 @@ import java.util.concurrent.Callable;
 import org.oscm.accountservice.bean.AccountServiceBean;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
-import org.oscm.domobjects.CatalogEntry;
-import org.oscm.domobjects.EnterpriseLandingpage;
-import org.oscm.domobjects.Marketplace;
-import org.oscm.domobjects.MarketplaceToOrganization;
-import org.oscm.domobjects.Organization;
-import org.oscm.domobjects.PaymentType;
-import org.oscm.domobjects.PlatformUser;
-import org.oscm.domobjects.Product;
-import org.oscm.domobjects.ProductReference;
-import org.oscm.domobjects.PublicLandingpage;
-import org.oscm.domobjects.RevenueShareModel;
-import org.oscm.domobjects.RoleAssignment;
-import org.oscm.domobjects.TechnicalProduct;
+import org.oscm.domobjects.*;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.domobjects.enums.PublishingAccess;
 import org.oscm.i18nservice.bean.LocalizerFacade;
@@ -55,13 +48,7 @@ import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.ServiceAccessType;
 import org.oscm.internal.types.enumtypes.ServiceStatus;
 import org.oscm.internal.types.enumtypes.UserRoleType;
-import org.oscm.internal.types.exception.MailOperationException;
-import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.types.exception.OperationNotPermittedException;
-import org.oscm.internal.types.exception.UpdateConstraintException;
-import org.oscm.internal.types.exception.UserRoleAssignmentException;
-import org.oscm.internal.types.exception.ValidationException;
+import org.oscm.internal.types.exception.*;
 import org.oscm.internal.vo.VOCatalogEntry;
 import org.oscm.internal.vo.VOMarketplace;
 import org.oscm.internal.vo.VOService;
@@ -796,6 +783,7 @@ public class MarketplaceServiceTestBase extends EJBTestBase {
 
                 // create new landing page
                 EnterpriseLandingpage newLandingPage = new EnterpriseLandingpage();
+                newLandingPage.setMarketplace(marketplace);
                 mgr.persist(newLandingPage);
                 marketplace.setEnterpiseLandingpage(newLandingPage);
                 return null;

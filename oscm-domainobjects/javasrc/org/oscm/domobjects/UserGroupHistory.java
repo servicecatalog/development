@@ -19,7 +19,7 @@ import javax.persistence.NamedQuery;
  * @author stavreva
  */
 @Entity
-@NamedQueries({ @NamedQuery(name = "UserGroupHistory.findLastValidForEndPeriod", query = "SELECT obj FROM UserGroupHistory obj WHERE obj.objKey = :objKey AND obj.modDate < :endDate ORDER BY obj.objVersion DESC, obj.modDate DESC LIMIT 1"), })
+@NamedQueries({ @NamedQuery(name = "UserGroupHistory.findLastValidForEndPeriod", query = "SELECT obj FROM UserGroupHistory obj WHERE obj.objKey = :objKey AND obj.modDate < :endDate ORDER BY obj.objVersion DESC, obj.modDate DESC"), })
 public class UserGroupHistory extends DomainHistoryObject<UserGroupData> {
 
     private static final long serialVersionUID = -1916686962781487872L;

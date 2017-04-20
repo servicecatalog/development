@@ -21,7 +21,8 @@
 
   <!-- Print needed and current Java version -->
   <target name="PrintJavaVersion">
-    <echo message="Make sure that the JAVA_HOME environment variable points to a 1.7, 64 bit JDK." />
+    <echo message="Make sure that the JAVA_HOME environment variable points to a 1.8, 64 bit JDK." />
+
     <echo message="Current JAVA version is  ${java.version}." />
   </target>
 
@@ -74,6 +75,7 @@
     <!-- configure domain -->
     <antcall target="SETUP.configure" />
 
+    <antcall target="copyOldKeyFile" />
     <!--patch ear-->
     <antcall target="patchEar" />
 
@@ -159,12 +161,19 @@
   </target>
 
   <target name="copyLibraries" if="lib.exists">
+
     <antcall target="copyFiles" inheritall="true">
       <param name="src.file" value="${domains.dir}/${domain.dir}/installer/lib.properties" />
     </antcall>
+    <echo>
+      ${domains.dir}/${domain.dir}/installer/lib.properties
+    </echo>
   </target>
 
   <target name="copyFiles">
+    <echo>
+      ${src.file}
+    </echo>
     <loadfile property="infofile" srcfile="${src.file}">
       <filterchain>
         <striplinecomments>
@@ -181,6 +190,10 @@
     <propertyregex property="copytype" input="${copyinfo}" regexp="(.*):from:(.*)" select="\1" />
     <propertyregex property="from" input="${copyinfo}" regexp="(.*):from:(.*):to(.*)" select="\2" />
     <propertyregex property="to" input="${copyinfo}" regexp="(.*):to:(.*)" select="\2" />
+    <echo>
+      ${domains.dir}/${domain.dir}/${from}
+      ${to}
+    </echo>
     <if>
       <equals arg1="${copytype}" arg2="file" />
       <then>
@@ -313,6 +326,7 @@
   <target name="deployAllApplications">
     <antcall target="deployAllEars" />
     <antcall target="deployAllWars" />
+    <antcall target="setLoggingLevel" />
   </target>
 
   <target name="deployAllEars">
@@ -412,6 +426,7 @@
     <available file="${domains.dir}/${domain.dir}/installer/jmsResources/updateProp.properties" property="updatePropForJms.exists" />
     <available file="${domains.dir}/${domain.dir}/installer/requiredGlassfishResources.properties" property="requiredGlassfishResources.exists" />
     <available file="${glassfish.domain.dir}/config/default-web.xml" property="defaultWeb.exists" />
+    <available file="${domains.dir}/${domain.dir}/installer/key" property="oldKeyFile.exists" type="file"/>
   </target>
 
   <target name="checkParam">
@@ -485,4 +500,12 @@
     <ant antfile="${patch.script}" target="patchApplication" inheritall="true" />
   </target>
 
+  <target name="setLoggingLevel">
+    <setLoggingLevel loggername="javax.enterprise.system.util=SEVERE"/>
+  </target>
+
+  <target name="copyOldKeyFile" if="oldKeyFile.exists">
+    <copy file="${domains.dir}/${domain.dir}/installer/key" todir="${glassfish.domain.dir}/config"
+          preservelastmodified="true"/>
+  </target>
 </project>

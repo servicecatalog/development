@@ -15,14 +15,7 @@ package org.oscm.test.ejb;
 import java.util.HashMap;
 import java.util.Hashtable;
 
-import javax.naming.Binding;
-import javax.naming.CompoundName;
-import javax.naming.Context;
-import javax.naming.Name;
-import javax.naming.NameClassPair;
-import javax.naming.NameParser;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
+import javax.naming.*;
 
 import org.oscm.internal.types.exception.UnsupportedOperationException;
 
@@ -45,6 +38,7 @@ public class TestNamingContext implements Context {
                 .getDataSource());
         bind("BSSAppDS", TestDataSources.get("oscm-app")
                 .getDataSource());
+        bind("java:appserver/TransactionManager", env.get("java:appserver/TransactionManager"));
     }
 
     public Object addToEnvironment(String propName, Object propVal)

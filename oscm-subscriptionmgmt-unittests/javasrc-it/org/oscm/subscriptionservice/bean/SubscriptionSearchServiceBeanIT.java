@@ -4,9 +4,7 @@
 
 package org.oscm.subscriptionservice.bean;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -18,30 +16,13 @@ import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
-import org.oscm.domobjects.Marketplace;
-import org.oscm.domobjects.Organization;
-import org.oscm.domobjects.Parameter;
-import org.oscm.domobjects.ParameterDefinition;
-import org.oscm.domobjects.Product;
-import org.oscm.domobjects.Subscription;
-import org.oscm.domobjects.TechnicalProduct;
-import org.oscm.domobjects.Uda;
-import org.oscm.domobjects.UdaDefinition;
+import org.oscm.domobjects.*;
 import org.oscm.internal.intf.SubscriptionSearchService;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ParameterType;
-import org.oscm.internal.types.enumtypes.ParameterValueType;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
-import org.oscm.internal.types.enumtypes.UdaConfigurationType;
+import org.oscm.internal.types.enumtypes.*;
 import org.oscm.internal.types.exception.InvalidPhraseException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.test.EJBTestBase;
-import org.oscm.test.data.Marketplaces;
-import org.oscm.test.data.Organizations;
-import org.oscm.test.data.Products;
-import org.oscm.test.data.Subscriptions;
-import org.oscm.test.data.TechnicalProducts;
-import org.oscm.test.data.Udas;
+import org.oscm.test.data.*;
 import org.oscm.test.ejb.FifoJMSQueue;
 import org.oscm.test.ejb.TestContainer;
 import org.oscm.test.stubs.ConfigurationServiceStub;
@@ -202,7 +183,7 @@ public class SubscriptionSearchServiceBeanIT extends EJBTestBase {
             public Void call() {
                 try {
                     Collection<Long> col = sssb.searchSubscriptions(
-                            "search+-&&||!(){}[]^\"~*?:\\");
+                            "search+-&&||!(){}[]^\"~\\*\\?:\\\\");
                     assertEquals(1, col.size());
                     assertEquals(new Long(SUB3KEY), col.iterator().next());
                 } catch (InvalidPhraseException | ObjectNotFoundException e) {

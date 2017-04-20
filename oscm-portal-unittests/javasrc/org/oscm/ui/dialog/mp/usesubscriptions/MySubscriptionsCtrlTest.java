@@ -64,7 +64,7 @@ import org.oscm.types.constants.Configuration;
 import org.oscm.ui.beans.ApplicationBean;
 import org.oscm.ui.common.UiDelegate;
 
-import sun.security.x509.CertAndKeyGen;
+import sun.security.tools.keytool.CertAndKeyGen;
 import sun.security.x509.X500Name;
 
 public class MySubscriptionsCtrlTest {

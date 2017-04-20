@@ -16,6 +16,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.sql.SQLException;
 import java.util.Map;
@@ -207,6 +208,11 @@ public class ExceptionMapperTest {
          */
         @Override
         public Object getTimer() {
+            return null;
+        }
+
+        @Override
+        public Constructor<?> getConstructor() {
             return null;
         }
 

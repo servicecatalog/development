@@ -73,14 +73,11 @@ public class IdGenerator {
     public IdGenerator(String prefix, Service service,
             List<VOSubscription> excluded) {
         this.prefix = getNonNullValue(prefix);
-        String dirtyId;
         if (service == null) {
-            dirtyId = "";
+            this.baseId = "";
         } else {
-            dirtyId = getNonNullValue(service.getName());
+            this.baseId = getNonNullValue(service.getName());
         }
-        this.baseId = ADMValidator.INVALID_ID_CHARS.matcher(dirtyId)
-                .replaceAll("");
         Set<String> subIds = new HashSet<String>();
         for (VOSubscription sub : excluded) {
             subIds.add(sub.getSubscriptionId());

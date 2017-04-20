@@ -7,17 +7,18 @@
  *******************************************************************************/
 package org.oscm.ui.dialog.classic.manageTenants;
 
-import org.apache.myfaces.custom.fileupload.UploadedFile;
-import org.oscm.internal.tenant.POTenant;
-import org.oscm.ui.beans.BaseModel;
-import org.oscm.ui.profile.FieldData;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ViewScoped;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ViewScoped;
+import javax.servlet.http.Part;
+
+import org.oscm.internal.tenant.POTenant;
+import org.oscm.ui.beans.BaseModel;
+import org.oscm.ui.profile.FieldData;
 
 @ViewScoped
 @ManagedBean
@@ -33,7 +34,8 @@ public class ManageTenantsModel extends BaseModel implements Serializable {
     private boolean importDisabled;
     private boolean deleteDisabled;
     private POTenant selectedTenant;
-    private UploadedFile file;
+    private Part file;
+
     private boolean clearExportAvailable;
     private Properties idpProperties;
     private boolean dirty;
@@ -112,11 +114,11 @@ public class ManageTenantsModel extends BaseModel implements Serializable {
         this.selectedTenant = selectedTenant;
     }
 
-    public UploadedFile getFile() {
+    public Part getFile() {
         return file;
     }
 
-    public void setFile(UploadedFile file) {
+    public void setFile(Part file) {
         this.file = file;
     }
 

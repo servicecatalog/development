@@ -263,6 +263,7 @@ public class ProductReviewIT extends DomainObjectTestBase {
         mgr.remove(savedReview);
         mgr.flush();
         review = savedReview;
+        review.setPlatformUser(unproxyEntity(review.getPlatformUser()));
     }
 
     private void doTestDeleteCheck() throws Exception {

@@ -16,16 +16,8 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 
-import javax.persistence.Column;
-import javax.persistence.Embedded;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.MappedSuperclass;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Transient;
+import javax.persistence.*;
 
-import org.hibernate.annotations.AccessType;
 import org.hibernate.proxy.HibernateProxyHelper;
 import org.hibernate.search.annotations.IndexedEmbedded;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
@@ -68,9 +60,8 @@ public abstract class DomainObject<D extends DomainDataContainer> implements
      */
     @Id
     @GeneratedValue(strategy = GenerationType.TABLE, generator = "do_seq")
-    @SequenceGenerator(name = "do_seq", allocationSize = 1000)
+    @TableGenerator(table = "hibernate_sequences", name = "do_seq", allocationSize = 1000, valueColumnName = "sequence_next_hi_value")
     @Column(name = "TKEY")
-    @AccessType("property")
     // Required to access key without resolving proxy
     private long key;
 

@@ -37,8 +37,8 @@ import javax.faces.application.FacesMessage;
 import javax.faces.application.FacesMessage.Severity;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
+import javax.servlet.http.Part;
 
-import org.apache.myfaces.custom.fileupload.UploadedFile;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -64,7 +64,7 @@ public class LdapConfigurationCtrlTest {
     ArgumentCaptor<Properties> propertiesToStore;
     private LdapConfigurationModel model;
     private byte[] fileContent;
-    private UploadedFile uploadedFile;
+    private Part uploadedFile;
     @Captor
     ArgumentCaptor<byte[]> outputFileContent;
     private String newOrgId;
@@ -86,7 +86,7 @@ public class LdapConfigurationCtrlTest {
         doReturn(returnSettings).when(ums).getOrganizationSettingsResolved(
                 anyString());
         doReturn(returnSettings).when(ums).getPlatformSettings();
-        uploadedFile = mock(UploadedFile.class);
+        uploadedFile = mock(Part.class);
         model.setFile(uploadedFile);
         doAnswer(new Answer<InputStream>() {
             public InputStream answer(InvocationOnMock invocation)

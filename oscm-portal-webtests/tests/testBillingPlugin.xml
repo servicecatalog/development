@@ -55,8 +55,9 @@
 					<common.testFieldValidation fieldId="#{fieldId}" fieldValue="" error="${javax.faces.component.UIInput.REQUIRED}" buttonLinkId="panels:1:panelAdapterItemForm:saveButton" />
 				</ifStep>
 				<dataDriven tableContainer="data/invalidInput/#{fieldType}.xls">
-					<common.initializeDataDrivenErrorMessage errormsg="${errormsg}" att0="${att0}" />
-					<common.testFieldValidation fieldId="#{fieldId}" fieldValue="${value}" error="${expectedMessage}" buttonLinkId="panels:1:panelAdapterItemForm:saveButton" />
+						<setInputField htmlId="#{fieldId}" value="${value}" />
+						<clickLink htmlId="panels:1:panelAdapterItemForm:saveButton" />
+						<verifyXPath xpath="//*[@id='#{fieldId}ErrorMsg:#{fieldId}']//*[contains(text(),'Invalid character(s)')]" />
 				</dataDriven>
 			</dataDriven>
 			<login.logout />

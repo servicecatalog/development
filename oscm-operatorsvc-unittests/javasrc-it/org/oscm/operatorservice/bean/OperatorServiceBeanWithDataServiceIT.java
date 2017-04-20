@@ -29,42 +29,30 @@ import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-
 import org.oscm.accountservice.assembler.OrganizationAssembler;
 import org.oscm.accountservice.local.AccountServiceLocal;
 import org.oscm.auditlog.bean.AuditLogServiceBean;
 import org.oscm.converter.ParameterizedTypes;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
-import org.oscm.domobjects.Organization;
-import org.oscm.domobjects.OrganizationRefToPaymentType;
-import org.oscm.domobjects.OrganizationReference;
-import org.oscm.domobjects.PSP;
-import org.oscm.domobjects.PSPAccount;
-import org.oscm.domobjects.PlatformUser;
+import org.oscm.domobjects.*;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.domobjects.enums.OrganizationReferenceType;
 import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
-import org.oscm.test.EJBTestBase;
-import org.oscm.test.data.Organizations;
-import org.oscm.test.data.Scenario;
-import org.oscm.test.ejb.TestContainer;
-import org.oscm.test.stubs.BillingServiceStub;
-import org.oscm.test.stubs.ConfigurationServiceStub;
-import org.oscm.test.stubs.IdentityServiceStub;
-import org.oscm.test.stubs.ImageResourceServiceStub;
-import org.oscm.test.stubs.LocalizerServiceStub;
-import org.oscm.test.stubs.PaymentServiceStub;
-import org.oscm.test.stubs.SearchServiceStub;
-import org.oscm.timerservice.bean.TimerServiceBean;
-import org.oscm.triggerservice.local.TriggerServiceLocal;
 import org.oscm.internal.intf.OperatorService;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.internal.vo.VOOrganization;
 import org.oscm.internal.vo.VOPSP;
 import org.oscm.internal.vo.VOPSPAccount;
+import org.oscm.test.EJBTestBase;
+import org.oscm.test.data.Organizations;
+import org.oscm.test.data.Scenario;
+import org.oscm.test.ejb.TestContainer;
+import org.oscm.test.stubs.*;
+import org.oscm.timerservice.bean.TimerServiceBean;
+import org.oscm.triggerservice.local.TriggerServiceLocal;
 
 /**
  * Tests for the operator service bean that use database access.
@@ -320,6 +308,13 @@ public class OperatorServiceBeanWithDataServiceIT extends EJBTestBase {
                     load(ref.getAffectedOrganization());
                     load(ref.getDefiningOrganization());
                     load(ref.getOrganizationReference());
+                } else if (!result.isEmpty()
+                        && result.get(0) instanceof OrganizationReference) {
+                    for (T t : result) {
+                        OrganizationReference orgRef = (OrganizationReference) t;
+                        load(orgRef.getSource());
+                        load(orgRef.getTarget());
+                    }
                 }
                 return result;
             }

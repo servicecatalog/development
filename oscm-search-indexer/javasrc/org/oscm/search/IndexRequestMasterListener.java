@@ -18,50 +18,25 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 
-import javax.ejb.ActivationConfigProperty;
-import javax.ejb.EJB;
-import javax.ejb.MessageDriven;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
+import javax.ejb.*;
 import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.jms.ObjectMessage;
 import javax.persistence.Query;
 
 import org.apache.lucene.index.IndexReader;
-import org.hibernate.CacheMode;
-import org.hibernate.FlushMode;
-import org.hibernate.ScrollMode;
-import org.hibernate.ScrollableResults;
+import org.hibernate.*;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.Search;
 import org.hibernate.search.SearchFactory;
-import org.hibernate.search.backend.impl.jms.AbstractJMSHibernateSearchController;
 import org.oscm.converter.ParameterizedTypes;
 import org.oscm.dataservice.local.DataService;
-import org.oscm.domobjects.CatalogEntry;
-import org.oscm.domobjects.Category;
-import org.oscm.domobjects.DomainObject;
-import org.oscm.domobjects.Marketplace;
-import org.oscm.domobjects.Parameter;
-import org.oscm.domobjects.PlatformUser;
-import org.oscm.domobjects.PriceModel;
-import org.oscm.domobjects.Product;
-import org.oscm.domobjects.Subscription;
-import org.oscm.domobjects.TechnicalProduct;
-import org.oscm.domobjects.TechnicalProductTag;
-import org.oscm.domobjects.Uda;
-import org.oscm.domobjects.UdaDefinition;
+import org.oscm.domobjects.*;
 import org.oscm.domobjects.enums.ModificationType;
 import org.oscm.domobjects.index.IndexReinitRequestMessage;
 import org.oscm.domobjects.index.IndexRequestMessage;
-import org.oscm.internal.types.enumtypes.ParameterValueType;
-import org.oscm.internal.types.enumtypes.ServiceStatus;
-import org.oscm.internal.types.enumtypes.ServiceType;
-import org.oscm.internal.types.enumtypes.SubscriptionStatus;
-import org.oscm.internal.types.enumtypes.UdaConfigurationType;
+import org.oscm.internal.types.enumtypes.*;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
@@ -73,10 +48,9 @@ import org.oscm.types.enumtypes.UdaTargetType;
  * logic.
  */
 @MessageDriven(activationConfig = {
-        @ActivationConfigProperty(propertyName = "UserName", propertyValue = "jmsuser"),
-        @ActivationConfigProperty(propertyName = "Password", propertyValue = "jmsuser") }, name = "jmsQueue", mappedName = "jms/bss/masterIndexerQueue")
-public class IndexRequestMasterListener extends
-        AbstractJMSHibernateSearchController implements MessageListener {
+        @ActivationConfigProperty(propertyName = "UserName", propertyValue = "admin"),
+        @ActivationConfigProperty(propertyName = "Password", propertyValue = "admin") }, name = "jmsQueue", mappedName = "jms/bss/masterIndexerQueue")
+public class IndexRequestMasterListener implements MessageListener {
 
     private final static Log4jLogger logger = LoggerFactory
             .getLogger(IndexRequestMasterListener.class);
@@ -118,8 +92,6 @@ public class IndexRequestMasterListener extends
             } else if (messageObject instanceof IndexReinitRequestMessage) {
                 IndexReinitRequestMessage msg = (IndexReinitRequestMessage) messageObject;
                 initIndexForFulltextSearch(msg.isForceIndexCreation());
-            } else {
-                super.onMessage(message);
             }
         } catch (Throwable e) {
             // we cannot abort here, no exception can be thrown either. So just
@@ -295,12 +267,10 @@ public class IndexRequestMasterListener extends
         tx.commit();
     }
 
-    @Override
     protected Session getSession() {
         return dm.getSession();
     }
 
-    @Override
     protected void cleanSessionIfNeeded(Session session) {
         // nothing to do as we use container management
     }
@@ -356,12 +326,11 @@ public class IndexRequestMasterListener extends
             nativeQueryString
                     .append("SELECT p FROM Product p WHERE EXISTS (SELECT c FROM CatalogEntry c WHERE c.marketplace.key = ")
                     .append(mp.getKey())
-                    .append(" AND c.dataContainer.visibleInCatalog=TRUE AND c.product.key = p.key AND p.dataContainer.status = '")
-                    .append(ServiceStatus.ACTIVE.name()).append("')");
+                    .append(" AND c.dataContainer.visibleInCatalog=TRUE AND c.product.key = p.key AND p.dataContainer.status = :status)");
 
             org.hibernate.Query productsOnMpQuery = fullTextSession
                     .createQuery(nativeQueryString.toString());
-
+            productsOnMpQuery.setParameter("status", ServiceStatus.ACTIVE);
             ScrollableResults results = productsOnMpQuery
                     .scroll(ScrollMode.FORWARD_ONLY);
 
@@ -379,10 +348,9 @@ public class IndexRequestMasterListener extends
         }
 
         // index all active subscriptions
-        org.hibernate.Query objectQuery = fullTextSession.createQuery(
-                "SELECT s FROM Subscription s WHERE s.dataContainer.status NOT IN ('"
-                        + SubscriptionStatus.DEACTIVATED.name() + "','"
-                        + SubscriptionStatus.INVALID.name() + "')");
+        org.hibernate.Query objectQuery = fullTextSession
+                .createQuery("SELECT s FROM Subscription s WHERE s.dataContainer.status NOT IN (:statuses)");
+        objectQuery.setParameterList("statuses", new Object[] {SubscriptionStatus.DEACTIVATED, SubscriptionStatus.INVALID});
         ScrollableResults results = objectQuery.scroll(ScrollMode.FORWARD_ONLY);
 
         int index = 0;

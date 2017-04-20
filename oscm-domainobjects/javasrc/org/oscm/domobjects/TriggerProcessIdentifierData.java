@@ -9,9 +9,9 @@
 package org.oscm.domobjects;
 
 import javax.persistence.Column;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
+import javax.persistence.Convert;
 
+import org.oscm.domobjects.converters.TPINConverter;
 import org.oscm.types.enumtypes.TriggerProcessIdentifierName;
 
 /**
@@ -27,7 +27,7 @@ public class TriggerProcessIdentifierData extends DomainDataContainer {
     /**
      * The name of the parameter identifier.
      */
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = TPINConverter.class)
     @Column(nullable = false)
     private TriggerProcessIdentifierName name;
 

@@ -12,17 +12,11 @@
 
 package org.oscm.domobjects;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
+import javax.persistence.*;
 
 import org.oscm.domobjects.annotations.BusinessKey;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
+import org.oscm.domobjects.converters.LOTConverter;
 
 /**
  * Represents one concrete localized string within the product.
@@ -50,7 +44,7 @@ public class LocalizedResource extends
 
     private String locale;
     private long objectKey;
-    @Enumerated(EnumType.STRING)
+    @Convert( converter=LOTConverter.class )
     private LocalizedObjectTypes objectType;
 
     @Column(nullable = false)

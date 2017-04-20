@@ -46,7 +46,7 @@ import org.oscm.domobjects.enums.LocalizedObjectTypes;
         @NamedQuery(name = "Category.findByMarketplaceId", query = "SELECT c FROM Category c, Marketplace mp WHERE mp.dataContainer.marketplaceId = :marketplaceId AND c.marketplace = mp ORDER BY c.key"),
         @NamedQuery(name = "Category.findByLocalizedName", query = "SELECT c FROM LocalizedResource l, Category c WHERE l.objectKey = c.key AND l.locale = :locale AND l.objectType = :objectType AND l.value = :value AND c.marketplaceKey = :marketplaceKey AND c.key <> :key"),
         @NamedQuery(name = "Category.findServices", query = "SELECT p FROM Product p, CategoryToCatalogEntry cc, CatalogEntry ce WHERE cc.category.key = :categoryKey and cc.catalogEntry = ce and ce.product = p"),
-        @NamedQuery(name = "Category.findAdminsOfServices", query = "SELECT pu FROM PlatformUser pu, RoleAssignment ra, CategoryToCatalogEntry assignedCat WHERE pu.organization=assignedCat.catalogEntry.product.vendor AND assignedCat.category.key=:categoryKey AND ra.user=pu AND ra.userRole.dataContainer.roleName='ORGANIZATION_ADMIN'") })
+        @NamedQuery(name = "Category.findAdminsOfServices", query = "SELECT pu FROM PlatformUser pu, RoleAssignment ra, CategoryToCatalogEntry assignedCat WHERE pu.organization=assignedCat.catalogEntry.product.vendor AND assignedCat.category.key=:categoryKey AND ra.user=pu AND ra.userRole.dataContainer.roleName=org.oscm.internal.types.enumtypes.UserRoleType.ORGANIZATION_ADMIN") })
 @BusinessKey(attributes = { "marketplaceKey", "categoryId" })
 public class Category extends DomainObjectWithVersioning<CategoryData> {
 

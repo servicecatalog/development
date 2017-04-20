@@ -8,6 +8,7 @@
 
 package org.oscm.triggerservice.stubs;
 
+import javax.jms.CompletionListener;
 import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -85,6 +86,46 @@ public class MessageProducerStub implements MessageProducer {
 
     public boolean isMessageSent() {
         return isMessageSent;
+    }
+
+    @Override
+    public long getDeliveryDelay() throws JMSException {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public void send(Message arg0, CompletionListener arg1)
+            throws JMSException {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void send(Destination arg0, Message arg1, CompletionListener arg2)
+            throws JMSException {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void send(Message arg0, int arg1, int arg2, long arg3,
+            CompletionListener arg4) throws JMSException {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void send(Destination arg0, Message arg1, int arg2, int arg3,
+            long arg4, CompletionListener arg5) throws JMSException {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void setDeliveryDelay(long arg0) throws JMSException {
+        // TODO Auto-generated method stub
+        
     }
 
 }

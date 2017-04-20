@@ -23,6 +23,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.servlet.ServletOutputStream;
+import javax.servlet.WriteListener;
 
 import net.sf.j2ep.model.Server;
 
@@ -209,4 +210,11 @@ public final class UrlRewritingOutputStream extends ServletOutputStream {
         stream.close();
     }
 
+    public boolean isReady() {
+        return false;
+    }
+
+    public void setWriteListener(WriteListener writeListener) {
+
+    }
 }

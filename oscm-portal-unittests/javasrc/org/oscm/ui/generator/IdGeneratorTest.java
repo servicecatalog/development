@@ -217,7 +217,7 @@ public class IdGeneratorTest {
 
         gen = new IdGenerator("", s, new ArrayList<VOSubscription>());
 
-        assertEquals("hello World", gen.generateNewId());
+        assertEquals("hello" + String.valueOf(invalidChars) + " World" + "\uFFFF", gen.generateNewId());
     }
 
     @Test
@@ -226,7 +226,7 @@ public class IdGeneratorTest {
 
         gen = new IdGenerator("", s, new ArrayList<VOSubscription>());
 
-        assertEquals("id1 (2.5)", gen.generateNewId());
+        assertEquals("id\n1 (2.5)", gen.generateNewId());
     }
 
     private static final List<VOService> excludeService(final String id,
