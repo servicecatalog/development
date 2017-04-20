@@ -14,24 +14,20 @@ package org.oscm.ui.beans;
 import java.io.IOException;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.event.ValueChangeEvent;
-
-import org.apache.myfaces.custom.fileupload.UploadedFile;
+import javax.servlet.http.Part;
 
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
 import org.oscm.ui.common.ExceptionHandler;
+import org.oscm.ui.common.PartHandler;
 import org.oscm.ui.model.OperationParameterRow;
 import org.oscm.ui.model.OperationRow;
 import org.oscm.ui.model.ParameterRow;
@@ -75,7 +71,7 @@ public class TechServiceBean extends BaseBean implements Serializable {
 
     private boolean selectedTechnicalServiceActive;
 
-    private UploadedFile uploadedFile;
+    private Part uploadedFile;
 
     List<TechnicalService> selectableTechnicalServices;
 
@@ -124,7 +120,7 @@ public class TechServiceBean extends BaseBean implements Serializable {
     }
 
     public void setSelectedTechnicalServiceKeyReadonly(
-            @SuppressWarnings("unused") long selectedTechnicalServiceKey) {
+            long selectedTechnicalServiceKey) {
         // will do nothing to avoid the reload of the whole service list on
         // submit like with the not readonly method
     }
@@ -240,11 +236,11 @@ public class TechServiceBean extends BaseBean implements Serializable {
         return newTechnicalService;
     }
 
-    public UploadedFile getUploadedFile() {
+    public Part getUploadedFile() {
         return uploadedFile;
     }
 
-    public void setUploadedFile(UploadedFile uploadedFile) {
+    public void setUploadedFile(Part uploadedFile) {
         this.uploadedFile = uploadedFile;
     }
 
@@ -304,10 +300,15 @@ public class TechServiceBean extends BaseBean implements Serializable {
      *             Thrown from the business logic.
      */
     public String xmlImport() throws SaaSApplicationException {
-
-        try {
-            getProvisioningService().importTechnicalServices(
-                    uploadedFile.getBytes());
+        
+        if (PartHandler.isEmpty(uploadedFile)) {
+            addMessage(null, FacesMessage.SEVERITY_ERROR, ERROR_EMPTY_FILE);
+            return OUTCOME_ERROR;
+        }
+        
+        try {          
+            byte[] buffer = PartHandler.getBuffer(uploadedFile);
+            getProvisioningService().importTechnicalServices(buffer);
 
             selectedTechnicalService = null;
             technicalServices = null;

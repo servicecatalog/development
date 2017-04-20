@@ -14,13 +14,13 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 
 import org.oscm.billing.external.context.ContextKey;
 import org.oscm.billing.external.context.ContextValue;
 import org.oscm.billing.external.context.ContextValueParameterMap;
 import org.oscm.billing.external.context.ContextValueString;
-import com.sun.jersey.core.util.MultivaluedMapImpl;
 
 /**
  * A multi-valued map used for queries to the file billing application
@@ -35,7 +35,7 @@ public class QueryParamMultiValuedMap {
     MultivaluedMap<String, String> map;
 
     public QueryParamMultiValuedMap() {
-        map = new MultivaluedMapImpl();
+        map = new MultivaluedHashMap();
     }
 
     /**

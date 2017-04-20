@@ -15,18 +15,7 @@ package org.oscm.i18nservice.bean;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.AbstractList;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.MissingResourceException;
-import java.util.Properties;
-import java.util.PropertyResourceBundle;
-import java.util.ResourceBundle;
-import java.util.UUID;
+import java.util.*;
 
 import javax.ejb.EJB;
 import javax.ejb.Local;
@@ -876,6 +865,11 @@ public class LocalizerServiceBean implements LocalizerServiceLocal {
                         return primaryObjKey;
                     }
                     return fallBackObjKeys.get(index - 1);
+                }
+
+                @Override
+                public Spliterator<Long> spliterator() {
+                    return super.spliterator();
                 }
 
                 @Override

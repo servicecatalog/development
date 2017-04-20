@@ -10,50 +10,9 @@
 
 package org.oscm.ui.dialog.mp.wizards;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyCollectionOf;
-import static org.mockito.Matchers.anyList;
-import static org.mockito.Matchers.anyListOf;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import static org.oscm.ui.dialog.mp.subscriptionDetails.SubscriptionDetailsCtrlConstants.ERROR_TO_PROCEED_SELECT_UNIT;
-import static org.oscm.ui.dialog.mp.subscriptionDetails.SubscriptionDetailsCtrlConstants.SUBSCRIPTION_NAME_ALREADY_EXISTS;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
-
-import javax.enterprise.context.Conversation;
-import javax.faces.application.FacesMessage;
-import javax.faces.application.FacesMessage.Severity;
-import javax.faces.component.UIComponent;
-import javax.faces.component.UIInput;
-import javax.faces.component.UIViewRoot;
-import javax.faces.context.FacesContext;
-
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.google.common.collect.Sets;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.oscm.internal.intf.AccountService;
@@ -62,38 +21,11 @@ import org.oscm.internal.intf.SubscriptionServiceInternal;
 import org.oscm.internal.types.enumtypes.ParameterValueType;
 import org.oscm.internal.types.enumtypes.SubscriptionStatus;
 import org.oscm.internal.types.enumtypes.UserRoleType;
-import org.oscm.internal.types.exception.DomainObjectException;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.types.exception.OperationNotPermittedException;
-import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
-import org.oscm.internal.types.exception.ServiceStateException;
-import org.oscm.internal.types.exception.ValidationException;
+import org.oscm.internal.types.exception.*;
 import org.oscm.internal.usergroupmgmt.UserGroupService;
-import org.oscm.internal.vo.VOBillingContact;
-import org.oscm.internal.vo.VOParameter;
-import org.oscm.internal.vo.VOParameterDefinition;
-import org.oscm.internal.vo.VOParameterOption;
-import org.oscm.internal.vo.VOPaymentInfo;
-import org.oscm.internal.vo.VOPaymentType;
-import org.oscm.internal.vo.VOPriceModel;
-import org.oscm.internal.vo.VOService;
-import org.oscm.internal.vo.VOSubscription;
-import org.oscm.internal.vo.VOSubscriptionDetails;
-import org.oscm.internal.vo.VOUda;
-import org.oscm.internal.vo.VOUsageLicense;
-import org.oscm.internal.vo.VOUserDetails;
-import org.oscm.json.JsonConverter;
-import org.oscm.json.JsonObject;
-import org.oscm.json.JsonParameter;
-import org.oscm.json.JsonParameterValidator;
-import org.oscm.json.JsonUtils;
-import org.oscm.json.MessageType;
-import org.oscm.json.ResponseCode;
-import org.oscm.ui.beans.BaseBean;
-import org.oscm.ui.beans.MenuBean;
-import org.oscm.ui.beans.PaymentAndBillingVisibleBean;
-import org.oscm.ui.beans.SessionBean;
-import org.oscm.ui.beans.UserBean;
+import org.oscm.internal.vo.*;
+import org.oscm.json.*;
+import org.oscm.ui.beans.*;
 import org.oscm.ui.common.DurationValidation;
 import org.oscm.ui.common.JSFUtils;
 import org.oscm.ui.common.UiDelegate;
@@ -110,8 +42,27 @@ import org.oscm.ui.model.UdaRow;
 import org.oscm.ui.stubs.FacesContextStub;
 import org.oscm.ui.stubs.HttpServletRequestStub;
 
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.google.common.collect.Sets;
+import javax.enterprise.context.Conversation;
+import javax.faces.application.FacesMessage;
+import javax.faces.application.FacesMessage.Severity;
+import javax.faces.component.UIComponent;
+import javax.faces.component.UIInput;
+import javax.faces.component.UIViewRoot;
+import javax.faces.context.FacesContext;
+import java.io.IOException;
+import java.util.*;
+
+import static org.junit.Assert.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.anyList;
+import static org.mockito.Matchers.anyListOf;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.*;
+import static org.oscm.ui.dialog.mp.subscriptionDetails.SubscriptionDetailsCtrlConstants.ERROR_TO_PROCEED_SELECT_UNIT;
+import static org.oscm.ui.dialog.mp.subscriptionDetails.SubscriptionDetailsCtrlConstants.SUBSCRIPTION_NAME_ALREADY_EXISTS;
 
 public class SubscriptionWizardConversationTest {
 
@@ -195,29 +146,6 @@ public class SubscriptionWizardConversationTest {
     public void testStartSubscriptionExceptions() throws Exception {
         // given
         bean = new SubscriptionWizardConversation() {
-            private static final long serialVersionUID = -911378764000745064L;
-
-            @Override
-            protected String initializeService(Service selectedService)
-                    throws ServiceStateException, ObjectNotFoundException,
-                    OrganizationAuthoritiesException,
-                    OperationNotPermittedException, ValidationException {
-                throw new ObjectNotFoundException();
-            }
-        };
-        bean = spy(bean);
-        doReturn(BaseBean.OUTCOME_SHOW_SERVICE_LIST).when(bean)
-                .redirectToServiceList();
-        decorateBean();
-
-        // when
-        bean.startSubscription();
-
-        // then
-        verify(bean, times(1)).redirectToServiceList();
-
-        // given
-        bean = new SubscriptionWizardConversation() {
             private static final long serialVersionUID = 5838904781636078095L;
 
             @Override
@@ -240,7 +168,6 @@ public class SubscriptionWizardConversationTest {
     }
 
     @Test
-    @Ignore
     public void testIsPaymentVisible() throws Exception {
         //given
 
@@ -249,7 +176,7 @@ public class SubscriptionWizardConversationTest {
         bean.isBillingContactVisible();
 
         //then
-        verify(pabv, atLeastOnce()).isPaymentVisible(anyCollectionOf(VOPaymentType.class), anyCollectionOf(VOPaymentInfo.class));
+        verify(model, atLeastOnce()).isAnyPaymentAvailable();
         verify(pabv, atLeastOnce()).isBillingContactVisible();
     }
 
@@ -263,7 +190,6 @@ public class SubscriptionWizardConversationTest {
     }
 
     @Test
-    @Ignore
     public void testStartSubscription() {
         // given
         bean = new SubscriptionWizardConversation() {
@@ -274,19 +200,17 @@ public class SubscriptionWizardConversationTest {
                     throws ServiceStateException, ObjectNotFoundException,
                     OrganizationAuthoritiesException,
                     OperationNotPermittedException, ValidationException {
+                setPaymentAndBillingVisibleBean(pabv);
                 return SubscriptionDetailsCtrlConstants.OUTCOME_SHOW_DETAILS_4_CREATION;
             }
         };
         bean = spy(bean);
         decorateBean();
+        doReturn(Collections.emptyList()).when(bean).getEnabledPaymentTypes();
+        doReturn(Collections.emptyList()).when(bean).getPaymentInfosForSubscription();
 
         // when
-        String result = bean.startSubscription();
-
-        // then
-        assertEquals(
-                SubscriptionDetailsCtrlConstants.OUTCOME_SHOW_DETAILS_4_CREATION,
-                result);
+        bean.startSubscription();
     }
 
     @Test
@@ -433,14 +357,12 @@ public class SubscriptionWizardConversationTest {
 
         model.setShowExternalConfigurator(true);
 
-        UIViewRoot viewRoot = new UIViewRoot();
-        viewRoot.setViewId(SUBSCRIPTIONADD_VIEWID);
-
-        FacesContextStub context = new FacesContextStub(Locale.ENGLISH);
-        context.setViewRoot(viewRoot);
+        FacesContext context = mock(FacesContext.class);
 
         // when
-        bean.validateSubscriptionId(context, mock(UIComponent.class),
+        UIComponent toValidate = mock(UIComponent.class);
+        doReturn("").when(toValidate).getClientId();
+        bean.validateSubscriptionId(context, toValidate,
                 new String());
 
         // then
@@ -455,14 +377,16 @@ public class SubscriptionWizardConversationTest {
 
         model.setShowExternalConfigurator(false);
 
-        UIViewRoot viewRoot = new UIViewRoot();
+        UIViewRoot viewRoot = mock(UIViewRoot.class);
         viewRoot.setViewId(SUBSCRIPTIONADD_VIEWID);
 
-        FacesContextStub context = new FacesContextStub(Locale.ENGLISH);
+        FacesContext context = mock(FacesContext.class);
         context.setViewRoot(viewRoot);
 
         // when
-        bean.validateSubscriptionId(context, mock(UIComponent.class),
+        UIComponent toValidate = mock(UIComponent.class);
+        doReturn("").when(toValidate).getClientId();
+        bean.validateSubscriptionId(context, toValidate,
                 new String());
 
         // then
@@ -474,11 +398,8 @@ public class SubscriptionWizardConversationTest {
     public void validateSubscriptionId_noneSubIdExist() throws Exception {
         // given
 
-        UIViewRoot viewRoot = new UIViewRoot();
-        viewRoot.setViewId("");
-        FacesContextStub context = new FacesContextStub(Locale.ENGLISH);
-        context.setViewRoot(viewRoot);
         UIComponent toValidate = mock(UIComponent.class);
+        doReturn("").when(toValidate).getClientId();
 
         when(
                 Boolean.valueOf(subscriptionServiceInternal
@@ -486,7 +407,7 @@ public class SubscriptionWizardConversationTest {
                 .thenReturn(Boolean.FALSE);
 
         // when
-        bean.validateSubscriptionId(context, toValidate, new String());
+        bean.validateSubscriptionId(mock(FacesContext.class), toValidate, new String());
 
         // then
         verify(subscriptionServiceInternal, times(1))

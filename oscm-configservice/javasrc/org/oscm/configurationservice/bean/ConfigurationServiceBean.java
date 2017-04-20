@@ -372,4 +372,11 @@ public class ConfigurationServiceBean
         return !Boolean.parseBoolean(setting);
     }
 
+    public DataService getDm() {
+        return dm;
+    }
+
+    public void setDm(DataService dm) {
+        this.dm = dm;
+    }
 }

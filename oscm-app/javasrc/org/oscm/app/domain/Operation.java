@@ -8,27 +8,15 @@
 
 package org.oscm.app.domain;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.Properties;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.SequenceGenerator;
+import javax.persistence.*;
 
+import org.oscm.app.v2_0.intf.APPlatformController;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.string.Strings;
-import org.oscm.app.v2_0.intf.APPlatformController;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
 
 /**
@@ -53,7 +41,7 @@ public class Operation {
     @Column(nullable = false)
     @Id
     @GeneratedValue(strategy = GenerationType.TABLE, generator = "do_seq")
-    @SequenceGenerator(name = "do_seq", allocationSize = 1000)
+    @TableGenerator(table = "hibernate_sequences", name = "do_seq", allocationSize = 1000, valueColumnName = "sequence_next_hi_value")
     private long tkey;
 
     /**

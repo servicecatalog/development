@@ -350,6 +350,7 @@ public class SubscriptionServiceBeanTriggerIdTest
         initMessageData(TriggerType.SUBSCRIBE_TO_SERVICE, callingOrg);
         doReturn(sub).when(subscriptionServiceBean)
                 .subscribeToServiceInt(any(TriggerProcess.class));
+
         prod.setAutoAssignUserEnabled(Boolean.TRUE);
 
         // when

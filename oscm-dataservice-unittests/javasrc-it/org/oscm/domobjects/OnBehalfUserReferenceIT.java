@@ -217,6 +217,7 @@ public class OnBehalfUserReferenceIT extends DomainObjectTestBase {
             @Override
             public Void call() throws Exception {
                 onBehalfUserReference = loadOnBehalfUserReference();
+                unproxyEntity(unproxyEntity(onBehalfUserReference).getMasterUser());
                 mgr.remove(onBehalfUserReference);
                 return null;
             }

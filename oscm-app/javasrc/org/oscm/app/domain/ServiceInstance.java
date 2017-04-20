@@ -22,10 +22,9 @@ import java.util.UUID;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.EntityManager;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -33,10 +32,11 @@ import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
-import javax.persistence.SequenceGenerator;
+import javax.persistence.TableGenerator;
 import javax.persistence.Version;
 
 import org.oscm.app.business.exceptions.BadResultException;
+import org.oscm.app.converters.PSConverter;
 import org.oscm.app.i18n.Messages;
 import org.oscm.app.v2_0.data.InstanceStatus;
 import org.oscm.app.v2_0.data.Setting;
@@ -67,7 +67,7 @@ public class ServiceInstance implements Serializable {
     @Column(nullable = false)
     @Id
     @GeneratedValue(strategy = GenerationType.TABLE, generator = "do_seq")
-    @SequenceGenerator(name = "do_seq", allocationSize = 1000)
+    @TableGenerator(table = "hibernate_sequences", name = "do_seq", allocationSize = 1000, valueColumnName = "sequence_next_hi_value")
     private long tkey;
 
     /**
@@ -110,7 +110,7 @@ public class ServiceInstance implements Serializable {
      * instance.
      */
     @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = PSConverter.class)
     private ProvisioningStatus provisioningStatus;
 
     /**

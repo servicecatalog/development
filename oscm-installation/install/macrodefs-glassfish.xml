@@ -40,6 +40,8 @@
         </else>
       </if>
       <!-- jms user for bssjms-->
+      <property name="glassfish.bes.domain.portbase" value="${glassfish.bes.domain.portbase}" />
+      <property name="glassfish.master.domain.portbase" value="${glassfish.master.domain.portbase}" />
       <property name="jms.user.name" value="jmsuser" />
       <property name="jms.user.pwd" value="jmsuser" />
     </sequential>
@@ -64,25 +66,25 @@
       <property name="dom4j.jar.name" value="dom4j-1.6.1.jar" />
       <property name="dom4j.jar" value="${jdbc.driver.jar.path}/${dom4j.jar.name}" />
       <!-- app hibernate-commons jar -->
-      <property name="hibernate.commons.jar.name" value="hibernate-commons-annotations-4.0.1.Final.jar" />
+      <property name="hibernate.commons.jar.name" value="hibernate-commons-annotations-4.0.4.Final.jar" />
       <property name="hibernate.commons.jar" value="${jdbc.driver.jar.path}/${hibernate.commons.jar.name}" />
       <!-- app hibernate-core jar -->
-      <property name="hibernate.core.jar.name" value="hibernate-core-4.1.8.Final.jar" />
+      <property name="hibernate.core.jar.name" value="hibernate-core-5.0.9.Final.jar" />
       <property name="hibernate.core.jar" value="${jdbc.driver.jar.path}/${hibernate.core.jar.name}" />
       <!-- app hibernate-entitymanager jar -->
-      <property name="hibernate.entitymanager.jar.name" value="hibernate-entitymanager-4.1.8.Final.jar" />
+      <property name="hibernate.entitymanager.jar.name" value="hibernate-entitymanager-5.0.9.Final.jar" />
       <property name="hibernate.entitymanager.jar" value="${jdbc.driver.jar.path}/${hibernate.entitymanager.jar.name}" />
       <!-- app hibernate-jpa jar -->
-      <property name="hibernate.jpa.jar.name" value="hibernate-jpa-2.0-api-1.0.1.Final.jar" />
+      <property name="hibernate.jpa.jar.name" value="hibernate-jpa-2.1-api-1.0.0.Final.jar" />
       <property name="hibernate.jpa.jar" value="${jdbc.driver.jar.path}/${hibernate.jpa.jar.name}" />
       <!-- app javassist jar -->
-      <property name="javassist.jar.name" value="javassist-3.15.0-GA.jar" />
+      <property name="javassist.jar.name" value="javassist-3.20.0-GA.jar" />
       <property name="javassist.jar" value="${jdbc.driver.jar.path}/${javassist.jar.name}" />
       <!-- app jboss-logging jar -->
-      <property name="jboss.logging.jar.name" value="jboss-logging-3.1.0.GA.jar" />
+      <property name="jboss.logging.jar.name" value="jboss-logging.jar" />
       <property name="jboss.logging.jar" value="${jdbc.driver.jar.path}/${jboss.logging.jar.name}" />
       <!-- app jboss-transaction jar -->
-      <property name="jboss.transaction.jar.name" value="jboss-transaction-api_1.1_spec-1.0.0.Final.jar" />
+      <property name="jboss.transaction.jar.name" value="jboss-transaction-api_1.1_spec-1.0.1.Final.jar" />
       <property name="jboss.transaction.jar" value="${jdbc.driver.jar.path}/${jboss.transaction.jar.name}" />
       <!-- app log4j jar -->
       <property name="log4j.jar.name" value="log4j-1.2.16.jar" />
@@ -93,9 +95,6 @@
       <!-- app slf4j-log4j jar -->
       <property name="slf4j.log4j.jar.name" value="slf4j-log4j12-1.7.7.jar" />
       <property name="slf4j.log4j.jar" value="${jdbc.driver.jar.path}/${slf4j.log4j.jar.name}" />
-      <!-- app slf4j-log4j jar -->
-      <property name="javax.faces.jar.name" value="javax.faces.jar" />
-      <property name="javax.faces.jar" value="../../install/${jdbc.driver.jar.path}/${javax.faces.jar.name}" />
     </sequential>
   </macrodef>
 
@@ -491,6 +490,16 @@
         <arg value="--target" />
         <arg value="@{targetname}" />
         <arg value="@{warfile}" />
+      </asadmin.domain>
+    </sequential>
+  </macrodef>
+
+
+  <macrodef name="setLoggingLevel">
+    <attribute name="loggername" />
+    <sequential>
+      <asadmin.domain command="set-log-levels">
+        <arg value="@{loggername}" />
       </asadmin.domain>
     </sequential>
   </macrodef>
@@ -902,6 +911,7 @@ AS_ADMIN_MASTERPASSWORD=@{masterpwd}
     <sequential>
       <echo message="Wait for @{waitSeconds} seconds to stop the domain." />
       <asadmin_noauth command="stop-domain" failonerror="@{failonerror}">
+        <arg value="--kill=true" />
         <arg value="@{domain}" />
       </asadmin_noauth>
       <!-- short sleep for sureness -->

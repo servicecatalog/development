@@ -6,11 +6,6 @@
 			<attribute name="ignore_optional_problems" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER">
-		<attributes>
-			<attribute name="owner.project.facets" value="java"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="lib" path="/oscm-build/result/package/oscm-extsvc/oscm-extsvc-platform.jar"/>
 	<classpathentry kind="lib" path="javares/WSDL"/>
 	<classpathentry kind="lib" path="/oscm-build/result/package/oscm-apiversioning-client-handler/oscm-api-client-handler.jar" sourcepath="/oscm-apiversioning-client-handler/"/>
@@ -19,5 +14,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-devruntime"/>
 	<classpathentry kind="lib" path="/libraries/junit/javalib/junit-4.5.jar"/>
 	<classpathentry kind="lib" path="/libraries/mockito/javalib/mockito-all-1.8.5.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

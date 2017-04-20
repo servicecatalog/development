@@ -165,4 +165,46 @@ public class SessionStub implements Session {
         return messageProducerStub;
     }
 
+    @Override
+    public MessageConsumer createDurableConsumer(Topic arg0, String arg1)
+            throws JMSException {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public MessageConsumer createDurableConsumer(Topic arg0, String arg1,
+            String arg2, boolean arg3) throws JMSException {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public MessageConsumer createSharedConsumer(Topic arg0, String arg1)
+            throws JMSException {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public MessageConsumer createSharedConsumer(Topic arg0, String arg1,
+            String arg2) throws JMSException {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public MessageConsumer createSharedDurableConsumer(Topic arg0, String arg1)
+            throws JMSException {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public MessageConsumer createSharedDurableConsumer(Topic arg0, String arg1,
+            String arg2) throws JMSException {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }

@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="javasrc"/>
-	<classpathentry kind="src" path="javares"/>
 	<classpathentry kind="src" path="javasrc-it"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk1.7.0_79"/>
+	<classpathentry kind="lib" path="/libraries/redhat-hibernate/javalib/jboss-logging.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-app"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-app-extsvc-2-0"/>
 	<classpathentry kind="lib" path="/libraries/junit/javalib/junit-4.5.jar"/>
@@ -11,7 +10,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc-operation"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc-provisioning"/>
-	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/javalib/javaee.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-common"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-subscriptionmgmt-intsvc"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-domainobjects"/>
@@ -24,6 +22,8 @@
 	<classpathentry kind="lib" path="/libraries/slf4j-log4j/javalib/slf4j-log4j12-1.7.7.jar"/>
 	<classpathentry kind="lib" path="/libraries/apache-log4j/javalib/log4j-1.2.16.jar"/>
 	<classpathentry kind="lib" path="/libraries/apache-codec/javalib/commons-codec-1.7.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/javaee.jar"/>
 	<classpathentry kind="lib" path="/libraries/dbunit/javalib/dbunit-2.4.7.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

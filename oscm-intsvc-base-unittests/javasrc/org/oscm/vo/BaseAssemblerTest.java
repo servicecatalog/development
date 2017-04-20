@@ -13,6 +13,7 @@ import static org.junit.Assert.assertNull;
 
 import java.lang.reflect.Field;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import org.oscm.domobjects.DomainDataContainer;
@@ -21,7 +22,7 @@ import org.oscm.domobjects.DomainObjectWithVersioning;
 import org.oscm.internal.types.exception.ConcurrentModificationException;
 import org.oscm.internal.types.exception.SaaSSystemException;
 import org.oscm.internal.vo.BaseVO;
-
+@Ignore
 public class BaseAssemblerTest {
 
     @Test

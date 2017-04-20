@@ -37,6 +37,7 @@ import org.oscm.ui.beans.BaseBean;
 import org.oscm.ui.beans.operator.BaseOperatorBean;
 import org.oscm.ui.beans.operator.OperatorSelectOrgBean;
 import org.oscm.ui.common.ExceptionHandler;
+import org.oscm.ui.common.PartHandler;
 import org.oscm.ui.model.Marketplace;
 import org.oscm.validation.ArgumentValidator;
 
@@ -256,12 +257,12 @@ public class OperatorManageUsersCtrl extends BaseOperatorBean implements
 
         ArgumentValidator.notNull("userImport", model.getUserImport());
         try {
-            getUserService().importUsers(
-                    model.getUserImport().getBytes(),
-                    getSelectedOrganization(), getSelectedMarketplace());
+            byte[] buffer = PartHandler.getBuffer(model.getUserImport());
+            getUserService().importUsers(buffer, getSelectedOrganization(),
+                    getSelectedMarketplace());
             model.resetToken();
             ui.handle("info.user.importStarted.updateHint", model.getUserImport()
-                    .getName());
+                    .getSubmittedFileName());
         } catch (SaaSApplicationException ex) {
             ui.handleException(ex);
         } catch (IOException ex) {

@@ -15,8 +15,7 @@ import java.util.List;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
-
-import org.apache.myfaces.custom.fileupload.UploadedFile;
+import javax.servlet.http.Part;
 
 import org.oscm.internal.vo.VOUser;
 import org.oscm.ui.beans.BaseModel;
@@ -38,18 +37,18 @@ public class OperatorManageUsersModel extends BaseModel implements Serializable 
     private String userId;
     private boolean userIdChanged;
     private VOUser user;
-    private UploadedFile userImport;
+    private Part userImport;
     private List<Marketplace> marketplaces;
     private String marketplace;
     private boolean initialized = false;
     private long maxNumberOfRegisteredUsers;
     private long numberOfRegisteredUsers;
 
-    public UploadedFile getUserImport() {
+    public Part getUserImport() {
         return userImport;
     }
 
-    public void setUserImport(UploadedFile userImport) {
+    public void setUserImport(Part userImport) {
         this.userImport = userImport;
     }
 

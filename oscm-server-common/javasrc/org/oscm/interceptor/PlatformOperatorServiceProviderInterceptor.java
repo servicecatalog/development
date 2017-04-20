@@ -9,6 +9,7 @@
 package org.oscm.interceptor;
 
 import javax.ejb.EJB;
+import javax.inject.Inject;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.InvocationContext;
 
@@ -28,7 +29,7 @@ import org.oscm.internal.types.exception.UnsupportedOperationException;
  */
 public class PlatformOperatorServiceProviderInterceptor {
 
-    @EJB
+    @Inject
     ConfigurationServiceLocal configService;
 
     @EJB
@@ -56,4 +57,5 @@ public class PlatformOperatorServiceProviderInterceptor {
 
         return context.proceed();
     }
+
 }

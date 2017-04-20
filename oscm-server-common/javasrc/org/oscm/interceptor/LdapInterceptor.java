@@ -10,7 +10,7 @@ package org.oscm.interceptor;
 
 import java.util.Properties;
 
-import javax.ejb.EJB;
+import javax.inject.Inject;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.InvocationContext;
 
@@ -27,7 +27,7 @@ import org.oscm.internal.vo.LdapProperties;
  */
 public class LdapInterceptor {
 
-    @EJB
+    @Inject
     ConfigurationServiceLocal configService;
 
     /**

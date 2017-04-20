@@ -8,7 +8,7 @@
 
 package org.oscm.ct.login;
 
-import com.sun.appserv.security.ProgrammaticLogin;
+import com.sun.enterprise.security.ee.auth.login.ProgrammaticLogin;
 
 /**
  * Provides the login handling for the glassfish application server.

@@ -21,15 +21,7 @@ import javax.persistence.Query;
 import org.junit.Test;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
-import org.oscm.domobjects.Organization;
-import org.oscm.domobjects.PlatformUser;
-import org.oscm.domobjects.Product;
-import org.oscm.domobjects.Subscription;
-import org.oscm.domobjects.UnitRoleAssignment;
-import org.oscm.domobjects.UnitUserRole;
-import org.oscm.domobjects.UserGroup;
-import org.oscm.domobjects.UserGroupToInvisibleProduct;
-import org.oscm.domobjects.UserGroupToUser;
+import org.oscm.domobjects.*;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.UnitRoleType;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
@@ -170,7 +162,10 @@ public class UserGroupDaoIT extends EJBTestBase {
         List<UserGroup> result = runTX(new Callable<List<UserGroup>>() {
             @Override
             public List<UserGroup> call() throws Exception {
-                return dao.getUserGroupsForUserWithoutDefault(user.getKey());
+                List<UserGroup> userGroupsForUserWithoutDefault = dao.getUserGroupsForUserWithoutDefault(user.getKey());
+                assertEquals(admin, userGroupsForUserWithoutDefault.get(0).getOrganization());
+                return userGroupsForUserWithoutDefault;
+
             }
         });
 
@@ -179,7 +174,6 @@ public class UserGroupDaoIT extends EJBTestBase {
         assertEquals(groupDescription2, result.get(0).getDescription());
         assertEquals(groupReferenceId2, result.get(0).getReferenceId());
         assertEquals(groupName2, result.get(0).getName());
-        assertEquals(admin, result.get(0).getOrganization());
 
     }
 

@@ -114,8 +114,8 @@ public class GsonMessageProviderTest {
                     MediaType.APPLICATION_JSON_TYPE, null, stream);
             fail();
         } catch (WebApplicationException e) {
-            assertEquals(Status.BAD_REQUEST.getStatusCode(), e.getResponse()
-                    .getStatus());
+            assertEquals(Status.BAD_REQUEST.getStatusCode(),
+                    e.getResponse().getStatus());
         } catch (IOException e) {
             fail();
         }
@@ -133,8 +133,8 @@ public class GsonMessageProviderTest {
         OutputStream stream = new ByteArrayOutputStream();
 
         try {
-            provider.writeTo(rep, Representation.class, rep.getClass(), rep
-                    .getClass().getAnnotations(),
+            provider.writeTo(rep, Representation.class, rep.getClass(),
+                    rep.getClass().getAnnotations(),
                     MediaType.APPLICATION_JSON_TYPE, null, stream);
         } catch (WebApplicationException | IOException e) {
             fail();
@@ -150,8 +150,8 @@ public class GsonMessageProviderTest {
         stream = new ByteArrayOutputStream();
 
         try {
-            provider.writeTo(rep, Representation.class, rep.getClass(), rep
-                    .getClass().getAnnotations(),
+            provider.writeTo(rep, Representation.class, rep.getClass(),
+                    rep.getClass().getAnnotations(),
                     MediaType.APPLICATION_JSON_TYPE, null, stream);
         } catch (WebApplicationException | IOException e) {
             fail();

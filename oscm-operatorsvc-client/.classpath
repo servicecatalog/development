@@ -2,12 +2,15 @@
 <classpath>
 	<classpathentry kind="src" path="javasrc"/>
 	<classpathentry kind="src" path="javares"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-common"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-devruntime"/>
-	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/javalib/javaee.jar"/>
-	<classpathentry kind="lib" path="/libraries/apache-ant/javalib/ant.jar"/><classpathentry kind="lib" path="/libraries/apache-ant/javalib/ant-junit.jar"/><classpathentry kind="lib" path="/libraries/apache-ant/javalib/ant-launcher.jar"/><classpathentry kind="lib" path="/libraries/apache-ant/javalib/wsit-ant-tasks.jar"/>
+	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/javaee.jar"/>
+	<classpathentry kind="lib" path="/libraries/apache-ant/javalib/ant.jar"/>
+	<classpathentry kind="lib" path="/libraries/apache-ant/javalib/ant-junit.jar"/>
+	<classpathentry kind="lib" path="/libraries/apache-ant/javalib/ant-launcher.jar"/>
+	<classpathentry kind="lib" path="/libraries/apache-ant/javalib/wsit-ant-tasks.jar"/>
 	<classpathentry kind="lib" path="/libraries/apache-log4j/javalib/log4j-1.2.16.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc-internal"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

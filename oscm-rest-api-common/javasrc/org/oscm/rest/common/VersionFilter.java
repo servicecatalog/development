@@ -9,14 +9,15 @@
 package org.oscm.rest.common;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.container.ContainerRequestContext;
+import javax.ws.rs.container.ContainerRequestFilter;
+import javax.ws.rs.container.ResourceInfo;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.UriInfo;
-
-import com.sun.jersey.api.model.AbstractMethod;
-import com.sun.jersey.spi.container.ContainerRequest;
-import com.sun.jersey.spi.container.ContainerRequestFilter;
+import javax.ws.rs.ext.Provider;
 
 /**
  * Request filter for validating the requested version and comparing with
@@ -24,27 +25,25 @@ import com.sun.jersey.spi.container.ContainerRequestFilter;
  * 
  * @author miethaner
  */
+@Provider
 public class VersionFilter implements ContainerRequestFilter {
 
-    private AbstractMethod method;
-    private UriInfo uriInfo;
+    public static final String PATTERN_VERSION = "v[0-9]+";
+    public static final int OFFSET_VERSION = 1;
 
-    /**
-     * Creates a new version filter
-     * 
-     * @param method
-     *            the called method
-     */
-    public VersionFilter(AbstractMethod method, UriInfo uriInfo) {
-        this.method = method;
-        this.uriInfo = uriInfo;
+    @Context
+    private ResourceInfo resourceInfo;
+
+    public void setResourceInfo(ResourceInfo resourceInfo) {
+        this.resourceInfo = resourceInfo;
     }
 
     @Override
-    public ContainerRequest filter(ContainerRequest request)
+    public void filter(ContainerRequestContext request)
             throws WebApplicationException {
 
-        MultivaluedMap<String, String> params = uriInfo.getPathParameters();
+        MultivaluedMap<String, String> params = request.getUriInfo()
+                .getPathParameters();
 
         if (params.containsKey(CommonParams.PARAM_VERSION)
                 && !params.get(CommonParams.PARAM_VERSION).isEmpty()) {
@@ -52,6 +51,8 @@ public class VersionFilter implements ContainerRequestFilter {
             String version = params.get(CommonParams.PARAM_VERSION).get(0);
 
             int vnr = validateVersion(version);
+
+            Method method = resourceInfo.getResourceMethod();
 
             if (method.isAnnotationPresent(Since.class)) {
 
@@ -74,15 +75,12 @@ public class VersionFilter implements ContainerRequestFilter {
                 }
             }
 
-            request.getProperties().put(CommonParams.PARAM_VERSION,
-                    new Integer(vnr));
+            request.setProperty(CommonParams.PARAM_VERSION, new Integer(vnr));
 
         } else {
             throw WebException.notFound()
                     .message(CommonParams.ERROR_INVALID_VERSION).build();
         }
-
-        return request;
     }
 
     /**
@@ -106,8 +104,8 @@ public class VersionFilter implements ContainerRequestFilter {
                     .message(CommonParams.ERROR_INVALID_VERSION).build();
         }
 
-        int vnr = Integer.parseInt(version
-                .substring(CommonParams.PATTERN_VERSION_OFFSET));
+        int vnr = Integer.parseInt(
+                version.substring(CommonParams.PATTERN_VERSION_OFFSET));
 
         boolean exists = false;
         for (int i : CommonParams.VERSIONS) {
@@ -124,5 +122,4 @@ public class VersionFilter implements ContainerRequestFilter {
 
         return vnr;
     }
-
 }

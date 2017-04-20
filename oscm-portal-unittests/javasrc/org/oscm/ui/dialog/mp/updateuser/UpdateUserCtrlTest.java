@@ -862,7 +862,7 @@ public class UpdateUserCtrlTest {
 
         List<POSubscription> subs = user.getSubscriptions();
         assertEquals(3, subs.size());
-        POSubscription sub = subs.get(1);
+        POSubscription sub = subs.get(0);
         assertEquals("sub2", sub.getId());
         POServiceRole role = sub.getUsageLicense().getPoServieRole();
         assertNotNull(role);

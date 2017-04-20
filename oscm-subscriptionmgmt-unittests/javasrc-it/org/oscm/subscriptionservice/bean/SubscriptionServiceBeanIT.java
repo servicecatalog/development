@@ -4,34 +4,13 @@
 
 package org.oscm.subscriptionservice.bean;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Currency;
-import java.util.EnumSet;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.Callable;
 
 import javax.ejb.EJBException;
@@ -46,46 +25,7 @@ import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.converter.ParameterizedTypes;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
-import org.oscm.domobjects.BillingContact;
-import org.oscm.domobjects.CatalogEntry;
-import org.oscm.domobjects.ConfigurationSetting;
-import org.oscm.domobjects.DomainHistoryObject;
-import org.oscm.domobjects.DomainObject;
-import org.oscm.domobjects.Event;
-import org.oscm.domobjects.ImageResource;
-import org.oscm.domobjects.MarketingPermission;
-import org.oscm.domobjects.Organization;
-import org.oscm.domobjects.OrganizationRefToPaymentType;
-import org.oscm.domobjects.OrganizationReference;
-import org.oscm.domobjects.OrganizationRole;
-import org.oscm.domobjects.PSP;
-import org.oscm.domobjects.Parameter;
-import org.oscm.domobjects.ParameterDefinition;
-import org.oscm.domobjects.ParameterOption;
-import org.oscm.domobjects.ParameterSet;
-import org.oscm.domobjects.PaymentInfo;
-import org.oscm.domobjects.PaymentType;
-import org.oscm.domobjects.PlatformUser;
-import org.oscm.domobjects.PriceModel;
-import org.oscm.domobjects.PricedEvent;
-import org.oscm.domobjects.PricedOption;
-import org.oscm.domobjects.PricedParameter;
-import org.oscm.domobjects.PricedProductRole;
-import org.oscm.domobjects.Product;
-import org.oscm.domobjects.ProductReference;
-import org.oscm.domobjects.ProductToPaymentType;
-import org.oscm.domobjects.RoleDefinition;
-import org.oscm.domobjects.Session;
-import org.oscm.domobjects.Subscription;
-import org.oscm.domobjects.SubscriptionData;
-import org.oscm.domobjects.SubscriptionHistory;
-import org.oscm.domobjects.SupportedCurrency;
-import org.oscm.domobjects.TechnicalProduct;
-import org.oscm.domobjects.TriggerDefinition;
-import org.oscm.domobjects.TriggerProcess;
-import org.oscm.domobjects.UsageLicense;
-import org.oscm.domobjects.UsageLicenseHistory;
-import org.oscm.domobjects.UserGroup;
+import org.oscm.domobjects.*;
 import org.oscm.domobjects.enums.BillingAdapterIdentifier;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.domobjects.enums.ModificationType;
@@ -101,60 +41,10 @@ import org.oscm.internal.intf.IdentityService;
 import org.oscm.internal.intf.MarketplaceService;
 import org.oscm.internal.intf.ServiceProvisioningService;
 import org.oscm.internal.intf.SubscriptionService;
-import org.oscm.internal.types.enumtypes.ConfigurationKey;
-import org.oscm.internal.types.enumtypes.EventType;
-import org.oscm.internal.types.enumtypes.ImageType;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ParameterType;
-import org.oscm.internal.types.enumtypes.ParameterValueType;
-import org.oscm.internal.types.enumtypes.PaymentCollectionType;
-import org.oscm.internal.types.enumtypes.PriceModelType;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
-import org.oscm.internal.types.enumtypes.ServiceStatus;
-import org.oscm.internal.types.enumtypes.SessionType;
-import org.oscm.internal.types.enumtypes.SubscriptionStatus;
-import org.oscm.internal.types.enumtypes.TriggerTargetType;
-import org.oscm.internal.types.enumtypes.TriggerType;
-import org.oscm.internal.types.enumtypes.UserRoleType;
+import org.oscm.internal.types.enumtypes.*;
+import org.oscm.internal.types.exception.*;
 import org.oscm.internal.types.exception.ConcurrentModificationException;
-import org.oscm.internal.types.exception.MandatoryUdaMissingException;
-import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.types.exception.OperationNotPermittedException;
-import org.oscm.internal.types.exception.OperationPendingException;
-import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
-import org.oscm.internal.types.exception.PaymentInformationException;
-import org.oscm.internal.types.exception.PriceModelException;
-import org.oscm.internal.types.exception.ServiceChangedException;
-import org.oscm.internal.types.exception.ServiceOperationException;
-import org.oscm.internal.types.exception.ServiceParameterException;
-import org.oscm.internal.types.exception.SubscriptionAlreadyExistsException;
-import org.oscm.internal.types.exception.SubscriptionMigrationException;
-import org.oscm.internal.types.exception.SubscriptionStateException;
-import org.oscm.internal.types.exception.TechnicalServiceNotAliveException;
-import org.oscm.internal.types.exception.TechnicalServiceOperationException;
-import org.oscm.internal.types.exception.ValidationException;
-import org.oscm.internal.vo.VOBillingContact;
-import org.oscm.internal.vo.VOCatalogEntry;
-import org.oscm.internal.vo.VOCategory;
-import org.oscm.internal.vo.VOInstanceInfo;
-import org.oscm.internal.vo.VOLocalizedText;
-import org.oscm.internal.vo.VOMarketplace;
-import org.oscm.internal.vo.VOParameter;
-import org.oscm.internal.vo.VOParameterDefinition;
-import org.oscm.internal.vo.VOParameterOption;
-import org.oscm.internal.vo.VOPaymentInfo;
-import org.oscm.internal.vo.VOPriceModel;
-import org.oscm.internal.vo.VORoleDefinition;
-import org.oscm.internal.vo.VOService;
-import org.oscm.internal.vo.VOServiceDetails;
-import org.oscm.internal.vo.VOSubscription;
-import org.oscm.internal.vo.VOSubscriptionDetails;
-import org.oscm.internal.vo.VOTechnicalService;
-import org.oscm.internal.vo.VOUda;
-import org.oscm.internal.vo.VOUsageLicense;
-import org.oscm.internal.vo.VOUser;
-import org.oscm.internal.vo.VOUserSubscription;
+import org.oscm.internal.vo.*;
 import org.oscm.marketplace.bean.LandingpageServiceBean;
 import org.oscm.marketplace.bean.MarketplaceServiceBean;
 import org.oscm.marketplace.bean.MarketplaceServiceLocalBean;
@@ -178,26 +68,9 @@ import org.oscm.tenantprovisioningservice.bean.TenantProvisioningServiceBean;
 import org.oscm.test.BaseAdmUmTest;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.ReflectiveClone;
-import org.oscm.test.data.BillingAdapters;
-import org.oscm.test.data.Marketplaces;
-import org.oscm.test.data.Organizations;
-import org.oscm.test.data.PaymentInfos;
-import org.oscm.test.data.PaymentTypes;
-import org.oscm.test.data.PlatformUsers;
-import org.oscm.test.data.Products;
-import org.oscm.test.data.Scenario;
-import org.oscm.test.data.Subscriptions;
-import org.oscm.test.data.SupportedCountries;
-import org.oscm.test.data.TechnicalProducts;
+import org.oscm.test.data.*;
 import org.oscm.test.ejb.TestContainer;
-import org.oscm.test.stubs.AccountServiceStub;
-import org.oscm.test.stubs.CategorizationServiceStub;
-import org.oscm.test.stubs.CommunicationServiceStub;
-import org.oscm.test.stubs.ConfigurationServiceStub;
-import org.oscm.test.stubs.ImageResourceServiceStub;
-import org.oscm.test.stubs.MarketplaceServiceStub;
-import org.oscm.test.stubs.TaskQueueServiceStub;
-import org.oscm.test.stubs.TriggerQueueServiceStub;
+import org.oscm.test.stubs.*;
 import org.oscm.triggerservice.local.TriggerMessage;
 import org.oscm.triggerservice.local.TriggerProcessMessageData;
 import org.oscm.types.constants.Configuration;
@@ -5707,7 +5580,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
             public PlatformUser call()
                     throws ObjectNotFoundException, NumberFormatException {
                 Subscription sub = mgr.getReference(Subscription.class, subKey);
-                return sub.getOwner();
+                return unproxyEntity(sub.getOwner());
             }
         });
 
@@ -5736,7 +5609,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
             public PlatformUser call()
                     throws ObjectNotFoundException, NumberFormatException {
                 Subscription sub = mgr.getReference(Subscription.class, subKey);
-                return sub.getOwner();
+                return unproxyEntity(sub.getOwner());
             }
         });
 
@@ -5780,7 +5653,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
             public PlatformUser call()
                     throws ObjectNotFoundException, NumberFormatException {
                 Subscription sub = mgr.getReference(Subscription.class, subKey);
-                return sub.getOwner();
+                return unproxyEntity(sub.getOwner());
             }
         });
 
@@ -5841,7 +5714,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
             @Override
             public UserGroup call() throws ObjectNotFoundException {
                 Subscription sub = mgr.getReference(Subscription.class, subKey);
-                return sub.getUserGroup();
+                return unproxyEntity(sub.getUserGroup());
             }
         });
 
@@ -5854,7 +5727,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
             @Override
             public UserGroup call() throws ObjectNotFoundException {
                 Subscription sub = mgr.getReference(Subscription.class, subKey);
-                return sub.getUserGroup();
+                return unproxyEntity(sub.getUserGroup());
             }
         });
 
@@ -5909,7 +5782,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
             @Override
             public UserGroup call() throws ObjectNotFoundException {
                 Subscription sub = mgr.getReference(Subscription.class, subKey);
-                return sub.getUserGroup();
+                return unproxyEntity(sub.getUserGroup());
             }
         });
 
@@ -6137,7 +6010,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
             @Override
             public UserGroup call() throws ObjectNotFoundException {
                 Subscription sub = mgr.getReference(Subscription.class, subKey);
-                return sub.getUserGroup();
+                return unproxyEntity(sub.getUserGroup());
             }
         });
 
@@ -6243,7 +6116,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
             @Override
             public UserGroup call() throws ObjectNotFoundException {
                 Subscription sub = mgr.getReference(Subscription.class, subKey);
-                return sub.getUserGroup();
+                return unproxyEntity(sub.getUserGroup());
             }
         });
         assertEquals(unitAfter.getKey(), subscriptionUnit.getKey());
@@ -6334,7 +6207,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
             @Override
             public UserGroup call() throws ObjectNotFoundException {
                 Subscription sub = mgr.getReference(Subscription.class, subKey);
-                return sub.getUserGroup();
+                return unproxyEntity(sub.getUserGroup());
             }
         });
 
