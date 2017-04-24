@@ -1,3 +1,8 @@
+/*******************************************************************************
+ *
+ *  Copyright FUJITSU LIMITED 2017
+ *
+ *******************************************************************************/
 package org.oscm.app.ui.platformconfiguration;
 
 import java.util.HashMap;
