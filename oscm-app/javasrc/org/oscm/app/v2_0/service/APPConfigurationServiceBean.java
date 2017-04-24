@@ -223,6 +223,37 @@ public class APPConfigurationServiceBean {
         return result;
     }
 
+    @TransactionAttribute(TransactionAttributeType.REQUIRED)
+    public HashMap<String, Setting> getProxyConfigurationSettings()
+            throws ConfigurationException {
+        LOGGER.debug("Retrieving all configuration settings for proxy");
+        HashMap<String, Setting> result = new HashMap<>();
+        Query query = em.createNamedQuery("ConfigurationSetting.getAllProxy");
+        List<?> resultList = query.getResultList();
+        for (Object entry : resultList) {
+            ConfigurationSetting currentCs = (ConfigurationSetting) entry;
+            result.put(currentCs.getSettingKey(), new Setting(
+                    currentCs.getSettingKey(), currentCs.getDecryptedValue()));
+        }
+        PlatformConfigurationKey[] keys = PlatformConfigurationKey.values();
+        StringBuffer missing = new StringBuffer();
+        for (int i = 0; i < keys.length; i++) {
+            if (keys[i].isMandatory() && !result.containsKey(keys[i].name())) {
+                if (missing.length() > 0) {
+                    missing.append(", ");
+                }
+                missing.append(keys[i].name());
+            }
+        }
+        if (missing.length() > 0) {
+            throw new ConfigurationException(
+                    "The configuration is missing the following parameter(s): "
+                            + missing.toString(),
+                    missing.toString());
+        }
+        return result;
+    }
+
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     public VOUserDetails getAPPAdministrator() throws ConfigurationException {
         VOUserDetails adminuser = new VOUserDetails();
