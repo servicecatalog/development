@@ -1,3 +1,8 @@
+/*******************************************************************************
+ *
+ *  Copyright FUJITSU LIMITED 2017
+ *
+ *******************************************************************************/
 package org.oscm.app.ui.platformconfiguration;
 
 import java.util.ArrayList;
@@ -10,6 +15,7 @@ import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.inject.Inject;
 
+import org.oscm.app.domain.PlatformConfigurationKey;
 import org.oscm.app.ui.BaseCtrl;
 import org.oscm.app.v2_0.data.Setting;
 import org.oscm.app.v2_0.exceptions.ConfigurationException;
@@ -61,9 +67,25 @@ public class PlatformConfigurationCtrl extends BaseCtrl {
         for (Map.Entry<String, Setting> entry : map.entrySet()) {
             final String key = entry.getKey();
             final String value = entry.getValue().getValue();
-            result.put(key, value);
+            if (isSettingIncluded(key)) {
+                result.put(key, value);
+            }
         }
         return result;
+    }
+
+    private boolean isSettingIncluded(String key) {
+        List<String> visibleSettingsList = new ArrayList<>();
+        visibleSettingsList.add(PlatformConfigurationKey.APP_ADMIN_MAIL_ADDRESS.toString());
+        visibleSettingsList.add(PlatformConfigurationKey.APP_BASE_URL.toString());
+        visibleSettingsList.add(PlatformConfigurationKey.BSS_USER_KEY.toString());
+        visibleSettingsList.add(PlatformConfigurationKey.BSS_USER_ID.toString());
+        visibleSettingsList.add(PlatformConfigurationKey.BSS_USER_PWD.toString());
+        if (visibleSettingsList.contains(key)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     private List<String> initItemKeys() {
