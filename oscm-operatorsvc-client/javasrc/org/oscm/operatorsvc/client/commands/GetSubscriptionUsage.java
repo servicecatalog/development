@@ -51,19 +51,6 @@ public class GetSubscriptionUsage extends GetUserOperationLogCommand {
     public boolean run(CommandContext ctx) throws Exception {
         // read parameters
         String outputFileName = ctx.getString(ARG_FILE_NAME);
-
-
-
-
-
-        outputFileName = "c:/cyce.txt";
-
-
-
-
-
-
-
         String validateError = validateFileName(outputFileName);
         if (validateError != null) {
             ctx.err().print(validateError);
