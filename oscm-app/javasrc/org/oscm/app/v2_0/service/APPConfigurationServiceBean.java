@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
+import java.security.GeneralSecurityException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -396,6 +397,33 @@ public class APPConfigurationServiceBean {
             em.persist(newSetting);
         }
     }
+
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    public void storeAppConfigurationSettings(HashMap<String, String> settings) throws ConfigurationException, GeneralSecurityException {
+
+        LOGGER.debug("Storing configuration settings for APP platform");
+        if (settings == null) {
+            throw new IllegalArgumentException("All parameters must be set");
+        }
+        Query query = em
+                .createNamedQuery("ConfigurationSetting.getForController");
+        query.setParameter("controllerId", PROXY_ID);
+        List<?> resultList = query.getResultList();
+        for (Object entry : resultList) {
+            ConfigurationSetting setting = (ConfigurationSetting) entry;
+            String key = setting.getSettingKey();
+            if (settings.containsKey(key)) {
+                if (settings.get(key) == null) {
+                    em.remove(setting);
+                } else {
+                    setting.setDecryptedValue(settings.get(key));
+                    em.persist(setting);
+                }
+            }
+            settings.remove(key);
+        }
+    }
+
 
     /**
      * Creates settings instance from given service instance.

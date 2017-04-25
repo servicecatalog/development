@@ -16,9 +16,6 @@
     </div>
     <span class="description"><h:outputText value="#{msg['ui.config.platform.description']}" /> </span>
 
-    <a4j:outputPanel layout="block" styleClass="statusPanel">
-        <h:messages styleClass="statusMessages" errorClass="statusRed" infoClass="statusGreen" />
-    </a4j:outputPanel>
     <h:form id="appSettings" styleClass="configurationSettings_area">
         <rich:dataTable styleClass="table_row_linetitle_class" value="#{platformConfigurationCtrl.model.keys}" var="key" rowClasses="rowOdd,rowEven" >
             <rich:column headerClass="rf-dt-keyColumn table_header_title_class" >

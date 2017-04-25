@@ -45,12 +45,11 @@ public class PlatformConfigurationCtrl extends BaseCtrl {
         }
     }
 
-    //// TODO: 2017-04-24
     public String save() {
         try {
             HashMap<String, String> store = new HashMap<>(
                     model.getItems());
-//            getAppConfigService().storeControllerOrganizations(store);
+            appConfigService.storeAppConfigurationSettings(store);
             addMessage(SUCCESS_SAVED);
         } catch (Exception e) {
             addError(e);
