@@ -8,10 +8,12 @@
 
 package org.oscm.internal.vo;
 
+import java.io.Serializable;
+
 /**
  * Authored by dawidch
  */
-public class VOSubscriptionUsageEntry {
+public class VOSubscriptionUsageEntry implements Serializable {
 
     private String customerOrgId;
     private String customerOrgName;
