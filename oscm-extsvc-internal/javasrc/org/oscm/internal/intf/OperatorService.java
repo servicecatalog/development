@@ -8,6 +8,7 @@
 
 package org.oscm.internal.intf;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,17 +33,7 @@ import org.oscm.internal.types.exception.OrganizationAuthorityException;
 import org.oscm.internal.types.exception.PSPIdentifierForSellerException;
 import org.oscm.internal.types.exception.PaymentDataException;
 import org.oscm.internal.types.exception.ValidationException;
-import org.oscm.internal.vo.LdapProperties;
-import org.oscm.internal.vo.VOConfigurationSetting;
-import org.oscm.internal.vo.VOImageResource;
-import org.oscm.internal.vo.VOOperatorOrganization;
-import org.oscm.internal.vo.VOOrganization;
-import org.oscm.internal.vo.VOPSP;
-import org.oscm.internal.vo.VOPSPAccount;
-import org.oscm.internal.vo.VOPaymentType;
-import org.oscm.internal.vo.VOTimerInfo;
-import org.oscm.internal.vo.VOUser;
-import org.oscm.internal.vo.VOUserDetails;
+import org.oscm.internal.vo.*;
 
 /**
  * Service providing the functionality required by an operator of the
@@ -706,4 +697,9 @@ public interface OperatorService {
     VOConfigurationSetting getConfigurationSetting(Long key)
             throws ObjectNotFoundException;
 
+    /**
+     * Returns collection of subscriptions with usage data.
+     * @return
+     */
+    Collection<VOSubscriptionUsageEntry> getSubscriptionUsageReport();
 }

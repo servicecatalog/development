@@ -32,7 +32,7 @@ import org.oscm.operatorsvc.client.IOperatorCommand;
  */
 public class GetUserOperationLogCommand implements IOperatorCommand {
 
-    private static final String ARG_FILE_NAME = "filename";
+    protected static final String ARG_FILE_NAME = "filename";
     private static final String ARG_ENTITY_TYPE = "entitytype";
     private static final String ARG_FROM_DATE = "from";
     private static final String ARG_TO_DATE = "to";
@@ -109,7 +109,7 @@ public class GetUserOperationLogCommand implements IOperatorCommand {
         return true;
     }
 
-    private String validateFileName(String fileName) {
+    protected String validateFileName(String fileName) {
         if (fileName == null || fileName.trim().length() == 0) {
             return "File name can not be empty.\n";
         }
