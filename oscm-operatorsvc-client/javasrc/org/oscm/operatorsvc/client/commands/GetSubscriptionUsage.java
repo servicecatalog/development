@@ -8,9 +8,6 @@
 
 package org.oscm.operatorsvc.client.commands;
 
-import java.io.File;
-import java.io.PrintWriter;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -64,28 +61,9 @@ public class GetSubscriptionUsage extends GetUserOperationLogCommand {
         for (VOSubscriptionUsageEntry entry : entries) {
             csv += toCSV(entry);
         }
+        return writeResults(ctx, outputFileName, csv);
 
-        // write result
-        File outputFile = new File(outputFileName);
-        PrintWriter pw = null;
-        try {
-            pw = createPrintWriter(outputFile);
-            pw.print(csv);
-            pw.flush();
-        } catch (Exception e) {
-            ctx.err().print("The file can not be created.\n");
-            ctx.err().flush();
-            return false;
-        } finally {
-            if (pw != null) {
-                pw.close();
-            }
-        }
 
-        ctx.out().print(String.format("Successfully created the file: %s%n",
-                outputFile.getCanonicalPath()));
-        ctx.out().flush();
-        return true;
     }
 
     private String toCSV(VOSubscriptionUsageEntry entry) {
