@@ -12,11 +12,9 @@
 
 package org.oscm.domobjects;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
+import javax.persistence.*;
 
+import org.oscm.domobjects.converters.CKConverter;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 
 /**
@@ -29,7 +27,7 @@ public class ConfigurationSettingData extends DomainDataContainer {
 
     private static final long serialVersionUID = 4236417344577567732L;
 
-    @Enumerated(EnumType.STRING)
+    @Convert( converter=CKConverter.class )
     @Column(name = "INFORMATION_ID", nullable = false)
     private ConfigurationKey informationId;
 

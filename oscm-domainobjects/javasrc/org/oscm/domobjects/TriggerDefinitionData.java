@@ -12,11 +12,11 @@
 
 package org.oscm.domobjects;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
+import javax.persistence.*;
 
+import org.oscm.domobjects.converters.TPINConverter;
+import org.oscm.domobjects.converters.TTConverter;
+import org.oscm.domobjects.converters.TTTConverter;
 import org.oscm.internal.types.enumtypes.TriggerTargetType;
 import org.oscm.internal.types.enumtypes.TriggerType;
 
@@ -35,7 +35,7 @@ public class TriggerDefinitionData extends DomainDataContainer {
      * The name of the action (e.g. SUBSCRIBE_TO_SERVICE) for which the trigger
      * is defined.
      */
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = TTConverter.class)
     @Column(nullable = false)
     private TriggerType type;
 
@@ -47,7 +47,7 @@ public class TriggerDefinitionData extends DomainDataContainer {
     /**
      * The type of the trigger (e.g. WEB_SERVICE or MAIL).
      */
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = TTTConverter.class)
     @Column(nullable = false)
     private TriggerTargetType targetType;
 

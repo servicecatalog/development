@@ -10,9 +10,7 @@ package org.oscm.test;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.*;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -23,13 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import javax.jms.JMSException;
-import javax.jms.MessageProducer;
-import javax.jms.ObjectMessage;
-import javax.jms.Queue;
-import javax.jms.QueueConnection;
-import javax.jms.QueueConnectionFactory;
-import javax.jms.QueueSession;
+import javax.jms.*;
 import javax.jms.Session;
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -39,18 +31,22 @@ import javax.naming.spi.NamingManager;
 import org.junit.Ignore;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-
-import org.oscm.logging.LoggerFactory;
-import org.oscm.setup.DefaultConfigFileCreator;
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.converter.PropertiesLoader;
 import org.oscm.dataservice.local.DataService;
-import org.oscm.domobjects.ConfigurationSetting;
-import org.oscm.domobjects.OrganizationRole;
-import org.oscm.domobjects.PSP;
-import org.oscm.domobjects.PaymentType;
-import org.oscm.domobjects.SupportedCurrency;
+import org.oscm.domobjects.*;
 import org.oscm.domobjects.enums.BillingAdapterIdentifier;
+import org.oscm.internal.types.enumtypes.ConfigurationKey;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.PaymentCollectionType;
+import org.oscm.internal.types.enumtypes.UserRoleType;
+import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.internal.vo.VOPaymentType;
+import org.oscm.internal.vo.VOUsageLicense;
+import org.oscm.internal.vo.VOUser;
+import org.oscm.logging.LoggerFactory;
+import org.oscm.setup.DefaultConfigFileCreator;
 import org.oscm.test.data.BillingAdapters;
 import org.oscm.test.data.SupportedCurrencies;
 import org.oscm.test.data.UserRoles;
@@ -61,15 +57,6 @@ import org.oscm.test.ejb.TestPersistence;
 import org.oscm.test.stubs.ObjectMessageStub;
 import org.oscm.types.constants.Configuration;
 import org.oscm.types.enumtypes.PlatformEventIdentifier;
-import org.oscm.internal.types.enumtypes.ConfigurationKey;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.PaymentCollectionType;
-import org.oscm.internal.types.enumtypes.UserRoleType;
-import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.vo.VOPaymentType;
-import org.oscm.internal.vo.VOUsageLicense;
-import org.oscm.internal.vo.VOUser;
 
 /**
  * Base class for all Container Tests
@@ -957,7 +944,7 @@ public class BaseAdmUmTest {
     protected static void enableJndiMock() throws NamingException {
         if (!NamingManager.hasInitialContextFactoryBuilder()) {
             NamingManager
-                    .setInitialContextFactoryBuilder(new TestNamingContextFactoryBuilder());
+                    .setInitialContextFactoryBuilder(new TestNamingContextFactoryBuilder(PERSISTENCE));
         }
     }
 

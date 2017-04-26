@@ -33,14 +33,36 @@ public class TestJMSConnection implements Connection {
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public ConnectionConsumer createSharedConnectionConsumer(Topic topic, String s, String s1,
+        ServerSessionPool serverSessionPool, int i) throws JMSException {
+        return null;
+    }
+
     public ConnectionConsumer createDurableConnectionConsumer(Topic arg0,
             String arg1, String arg2, ServerSessionPool arg3, int arg4)
             throws JMSException {
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public ConnectionConsumer createSharedDurableConnectionConsumer(Topic topic, String s, String s1,
+        ServerSessionPool serverSessionPool, int i) throws JMSException {
+        return null;
+    }
+
     public Session createSession(boolean arg0, int arg1) throws JMSException {
         return new TestJMSSession();
+    }
+
+    @Override
+    public Session createSession(int i) throws JMSException {
+        return null;
+    }
+
+    @Override
+    public Session createSession() throws JMSException {
+        return null;
     }
 
     public String getClientID() throws JMSException {

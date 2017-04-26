@@ -4,11 +4,7 @@
 
 package org.oscm.test.ejb;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
+import java.lang.reflect.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -111,6 +107,11 @@ class DeployedSessionBean {
             @Override
             public Method getMethod() {
                 return method;
+            }
+
+            @Override
+            public Constructor<?> getConstructor() {
+                return null;
             }
 
             @Override

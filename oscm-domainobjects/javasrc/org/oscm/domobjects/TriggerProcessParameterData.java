@@ -12,12 +12,10 @@
 
 package org.oscm.domobjects;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
+import javax.persistence.*;
 
 import org.oscm.converter.XMLSerializer;
+import org.oscm.domobjects.converters.TPPNConverter;
 import org.oscm.internal.types.enumtypes.EventType;
 import org.oscm.internal.types.enumtypes.OfferingType;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
@@ -127,7 +125,7 @@ public class TriggerProcessParameterData extends DomainDataContainer {
     /**
      * The name of the parameter.
      */
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = TPPNConverter.class)
     @Column(nullable = false)
     private TriggerProcessParameterName name;
 

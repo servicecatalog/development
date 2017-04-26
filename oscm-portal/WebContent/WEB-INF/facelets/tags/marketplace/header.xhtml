@@ -1,8 +1,8 @@
 <!-- Copyright FUJITSU LIMITED 2017-->
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
                       "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
-  xmlns:h="http://java.sun.com/jsf/html" xmlns:a4j="http://richfaces.org/a4j" xmlns:c="http://java.sun.com/jsp/jstl/core">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+  xmlns:h="http://xmlns.jcp.org/jsf/html" xmlns:a4j="http://richfaces.org/a4j" xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
   <c:if test="#{empty loginHandler}">
 
   </c:if>
@@ -17,7 +17,7 @@
       <a4j:outputPanel layout="block" id="headerrightarea" styleClass="headerrightarea">
         <a4j:outputPanel layout="block" id="headsearch">
           <!-- search  -->
-          <h:form id="searchForm" onsubmit="return false;">
+          <h:form id="searchForm">
             <a4j:outputPanel layout="block">
               <a4j:outputPanel layout="block" style="float: left;">
                 <h:inputHidden value="all_www" name="restrict" />
@@ -42,7 +42,8 @@
 
                 <c:if test="#{servicePagingBean.searchAvailable}">
                   <h:commandButton name="btnG" id="submit"
-                    onclick="AdmUtils.IE9OnClick('Search');AdmUtils.showProgress(true);AdmUtils.executeOnClick('searchForm:hiddenLink');"
+                                   action="#{serviceListingBean.showServiceListSearch}"
+                    onclick="AdmUtils.IE9OnClick('Search');AdmUtils.showProgress(true);AdmUtils.copyElementValues('Search','searchForm:searchPhrase');AdmUtils.IE9AfterClick('Search');return true;"
                     styleClass="searchButton" />
                 </c:if>
 

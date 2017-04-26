@@ -7,12 +7,11 @@ package org.oscm.test.ejb;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 import javax.sql.DataSource;
-import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 import javax.transaction.xa.XAException;
 
@@ -23,11 +22,9 @@ import org.apache.commons.dbcp.managed.ManagedDataSource;
 import org.apache.commons.dbcp.managed.XAConnectionFactory;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
-import org.hibernate.HibernateException;
+import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Environment;
-import org.hibernate.ejb.Ejb3Configuration;
-import org.hibernate.transaction.TransactionManagerLookup;
-
+import org.hibernate.jpa.internal.EntityManagerFactoryImpl;
 import org.oscm.test.db.ITestDB;
 
 /**
@@ -41,6 +38,7 @@ import org.oscm.test.db.ITestDB;
  * @author hoffmann
  */
 @SuppressWarnings("deprecation")
+
 public class TestPersistence {
 
     private final TransactionManager transactionManager;
@@ -50,6 +48,7 @@ public class TestPersistence {
     private Set<ITestDB> initializedDBs = new HashSet<ITestDB>();
 
     private boolean runOnProductiveDB = false;
+    private SessionFactory sf;
 
     public TestPersistence() {
         try {
@@ -73,6 +72,7 @@ public class TestPersistence {
         this.runOnProductiveDB = true;
     }
 
+
     public EntityManagerFactory getEntityManagerFactory(String unitName)
             throws Exception {
         final ITestDB testDb = TestDataSources.get(unitName, runOnProductiveDB);
@@ -80,6 +80,7 @@ public class TestPersistence {
             testDb.initialize();
             initializedDBs.add(testDb);
         }
+
         EntityManagerFactory f = factoryCache.get(unitName);
         if (f == null) {
             f = buildEntityManagerFactory(testDb, unitName);
@@ -90,31 +91,21 @@ public class TestPersistence {
 
     private EntityManagerFactory buildEntityManagerFactory(ITestDB testDb,
             String unitName) throws Exception {
-        Ejb3Configuration configuration = new Ejb3Configuration();
         Map<Object, Object> properties = new HashMap<Object, Object>();
-        properties.put(Environment.TRANSACTION_MANAGER_STRATEGY,
-                TMLookup.class.getName());
         properties.put(Environment.HBM2DDL_AUTO, "");
         properties.put(Environment.DATASOURCE, createManagedDataSource(testDb
                 .getDataSource()));
-        Ejb3Configuration configured = configuration.configure(unitName,
-                properties);
-        try {
-            TMLookup.TM.set(transactionManager);
-            if (configured == null) {
-                throw new RuntimeException(
-                        String.format(
-                                "No bean in the setup uses persistence unit '%s', but it is refered to nevertheless! Correct the setup!",
-                                unitName));
-            }
-            configured
-                    .setProperty(
-                            "hibernate.search.autoregister_listeners",
-                            System.getProperty("hibernate.search.autoregister_listeners"));
-            return configured.buildEntityManagerFactory();
-        } finally {
-            TMLookup.TM.remove();
-        }
+        properties.put("hibernate.search.autoregister_listeners", System.getProperty("hibernate.search.autoregister_listeners"));
+        properties.put("hibernate.transaction.jta.platform", "org.hibernate.service.jta.platform.internal.SunOneJtaPlatform");
+        properties.put("hibernate.id.new_generator_mappings", "false");
+        properties.put("org.hibernate.SQL", "false");
+        EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory(unitName, properties);
+        sf = ((EntityManagerFactoryImpl) entityManagerFactory).getSessionFactory();
+        return entityManagerFactory;
+    }
+
+    public SessionFactory getSf() {
+        return sf;
     }
 
     private DataSource createManagedDataSource(DataSource ds) {
@@ -143,25 +134,6 @@ public class TestPersistence {
             return testDb.getDataSource();
         }
         return null;
-    }
-
-    public static class TMLookup implements TransactionManagerLookup {
-
-        static final ThreadLocal<TransactionManager> TM = new ThreadLocal<TransactionManager>();
-
-        public TransactionManager getTransactionManager(Properties props)
-                throws HibernateException {
-            return TM.get();
-        }
-
-        public String getUserTransactionName() {
-            throw new UnsupportedOperationException();
-        }
-
-        public Object getTransactionIdentifier(Transaction transaction) {
-            return transaction;
-        }
-
     }
 
     /**

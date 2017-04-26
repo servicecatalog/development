@@ -14,8 +14,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import org.oscm.test.setup.PropertiesReader;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.WebResource;
 
 /**
  * @author kulle
@@ -31,12 +29,12 @@ public class RorStubClientTest extends RorClientManualTest {
         IAAS_API_URI = properties.getProperty("iaas.api.uri");
     }
 
-    @Test
-    public void testRsCall() {
-        Client client = Client.create();
-        WebResource webResource = client.resource(IAAS_API_URI);
-        String result = webResource.get(String.class);
-        System.out.println(result);
-    }
+//    @Test
+//    public void testRsCall() {
+//        Client client = Client.create();
+//        WebResource webResource = client.resource(IAAS_API_URI);
+//        String result = webResource.get(String.class);
+//        System.out.println(result);
+//    }
 
 }

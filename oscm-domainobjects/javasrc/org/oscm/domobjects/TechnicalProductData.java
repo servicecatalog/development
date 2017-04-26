@@ -14,11 +14,11 @@ package org.oscm.domobjects;
 
 import java.io.Serializable;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
+import javax.persistence.*;
 
+import org.oscm.domobjects.converters.ProvTConverter;
+import org.oscm.domobjects.converters.ServiceAccessTypeConverter;
+import org.oscm.domobjects.converters.TimerTConverter;
 import org.oscm.types.enumtypes.ProvisioningType;
 import org.oscm.internal.types.enumtypes.ServiceAccessType;
 
@@ -51,7 +51,7 @@ public class TechnicalProductData extends DomainDataContainer implements
      * 
      * @see ProvisioningType
      */
-    @Enumerated(EnumType.STRING)
+    @Convert(converter =ProvTConverter.class)
     private ProvisioningType provisioningType = ProvisioningType.SYNCHRONOUS;
 
     /**
@@ -96,7 +96,7 @@ public class TechnicalProductData extends DomainDataContainer implements
      * The access integration type (direct access or access via platform with
      * reverse proxy)
      */
-    @Enumerated(EnumType.STRING)
+    @Convert(converter =ServiceAccessTypeConverter.class)
     private ServiceAccessType accessType = ServiceAccessType.LOGIN;
 
     /**

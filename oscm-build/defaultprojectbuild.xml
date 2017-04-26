@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Copyright FUJITSU LIMITED 2017-->
- 
+
 <project name="Default Project Build" default="illegalusage" basedir="." xmlns:jacoco="antlib:org.jacoco.ant">
 
   <description>
@@ -11,7 +11,7 @@
 
   <taskdef name="if" classname="net.sf.antcontrib.logic.IfTask"
       classpath="${workspace.dir}/libraries/apache-ant-contrib/ant-contrib-1.0b3.jar" />
-  
+
   <taskdef name="propertyregex" classname="net.sf.antcontrib.property.RegexTask"
     classpath="${workspace.dir}/libraries/apache-ant-contrib/ant-contrib-1.0b3.jar" />
   <target name="_init">
@@ -29,7 +29,7 @@
     <condition property="bss.java.home.dir" value="${bss.java.home}/jre" else="${env.JAVA_HOME}/jre">
       <isset property="bss.java.home" />
     </condition>
-    
+
     <!-- Read properties from Eclipse project files -->
     <property name="dependency.resolver.dir" location="${workspace.dir}" />
     <dependencyproperties workspacedir="${dependency.resolver.dir}" resultdir="${result.dir}" projectdir="${project.dir}" />
@@ -61,8 +61,8 @@
 
     <!-- Project specific settings -->
     <property file="${project.dir}/build.properties" />
-    <property name="javasource" value="1.7" />
-    <property name="javatarget" value="1.7" />
+    <property name="javasource" value="1.8" />
+    <property name="javatarget" value="1.8" />
     <property name="licensefiles" value="*license.*,javalib/*.txt" />
     <property name="javadocpackagenames" value="*" />
     <property name="ear-content.dir" value="EarContent" />
@@ -102,18 +102,19 @@
     </condition>
     <javac srcdir="${src.path}" includeantruntime="false" destdir="${result.work.classes.dir}" debug="true" source="${javasource}" target="${javatarget}" encoding="utf-8" compiler="org.eclipse.jdt.core.JDTCompilerAdapter">
       <compilerclasspath>
-        <fileset dir="${workspace.dir}/libraries/eclipse-ecj/javalib" includes="ecj-4.2.1.jar"/>
+        <fileset dir="${workspace.dir}/libraries/eclipse-ecj/javalib" includes="ecj-4.5.1.jar"/>
       </compilerclasspath>
       <classpath refid="dependencies.compile.path" />
       <bootclasspath refid="path_bootclasspath" />
       <compilerarg value="-enableJavadoc" />
+      <compilerarg value="-proc:none" />
       <compilerarg value="-warn:+uselessTypeCheck,+unusedArgument,+hashCode,+null,+boxing" />
     </javac>
   </target>
-  
+
   <target name="_checkjre" unless="bss.java.home.dir">
     <echo level="warn">===========================================================================</echo>
-    <echo level="warn">Either the JRE7 location is not set or missing /lib/rt.jar file!</echo>
+    <echo level="warn">Either the JRE location is not set or missing /lib/rt.jar file!</echo>
     <echo level="warn">Set the bss.java.home property in your integration.properties file!</echo>
     <echo level="warn">===========================================================================</echo>
     <fail message="JRE location not set" />
@@ -201,7 +202,7 @@
         <property name="wsdl.files.sts" refid="wsdl.fileset.sts" />
         <foreach tokens="${wsdl.files.sts}">
           <!--<echo message="package dir name is ${result.package.dir}, wsdl file name is ${item}"/>-->
-          <wsdlhandle dirname="${result.package.dir}/STS" filename="${item}" version="${wsdlversion}" /> 
+          <wsdlhandle dirname="${result.package.dir}/STS" filename="${item}" version="${wsdlversion}" />
         </foreach>
       </then>
     </if>
@@ -245,10 +246,36 @@
         <classpath refid="dependencies.runtime.path" />
         <formatter type="xml" />
         <formatter type="plain" usefile="false"/>
-        <batchtest todir="${result.work.testreport.dir}">
+        <batchtest todir="${result.work.testreport.dir}" fork="yes">
           <fileset dir="${javasrc.dir}">
             <include name="**/*Test.java" />
             <include name="**/*Test?.java" />
+          </fileset>
+        </batchtest>
+      </junit>
+    </jacoco:coverage>
+  </target>
+
+  <target name="travistests" if="rununittests" depends="_init, package">
+    <mkdir dir="${result.work.testreport.dir}" />
+    <jacoco:coverage destfile="${result.work.testreport.dir}/jacoco.exec"
+                     excludes="*TransactionMandatoryTest*:*BaseAssemblerTest*"
+                     includes="org.oscm.*" sessionid="${project.name}">
+      <junit fork="yes" forkmode="once" dir="${project.dir}" failureproperty="unittests.failure" maxmemory="1024m">
+        <jvmarg value="-Dfile.encoding=UTF8" />
+        <!-- Run unit tests without Hibernate Search indexing -->
+        <jvmarg value="-Dhibernate.search.autoregister_listeners=false" />
+        <!-- Uncomment these two lines to be able to debug the tests -->
+        <!--jvmarg value="-Xdebug" />
+        <jvmarg value="-agentlib:jdwp=transport=dt_socket,server=y,address=8038,suspend=y" /-->
+        <classpath refid="dependencies.runtime.path" />
+        <formatter type="xml" />
+        <formatter type="plain" usefile="false"/>
+        <batchtest todir="${result.work.testreport.dir}" fork="yes">
+          <fileset dir="${javasrc.dir}">
+            <include name="**/*Test.java" />
+            <include name="**/*Test?.java" />
+            <exclude name="**/oscm-intsvc-base-unittests/*"/>
           </fileset>
         </batchtest>
       </junit>

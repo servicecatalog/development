@@ -30,20 +30,20 @@ public class WebExceptionTest {
     @Test
     public void testStatus() {
 
-        assertEquals(Status.BAD_REQUEST.getStatusCode(), WebException
-                .badRequest().build().getResponse().getStatus());
-        assertEquals(Status.CONFLICT.getStatusCode(), WebException.conflict()
-                .build().getResponse().getStatus());
-        assertEquals(Status.FORBIDDEN.getStatusCode(), WebException.forbidden()
-                .build().getResponse().getStatus());
+        assertEquals(Status.BAD_REQUEST.getStatusCode(),
+                WebException.badRequest().build().getResponse().getStatus());
+        assertEquals(Status.CONFLICT.getStatusCode(),
+                WebException.conflict().build().getResponse().getStatus());
+        assertEquals(Status.FORBIDDEN.getStatusCode(),
+                WebException.forbidden().build().getResponse().getStatus());
         assertEquals(Status.INTERNAL_SERVER_ERROR.getStatusCode(), WebException
                 .internalServerError().build().getResponse().getStatus());
-        assertEquals(Status.NOT_FOUND.getStatusCode(), WebException.notFound()
-                .build().getResponse().getStatus());
-        assertEquals(Status.UNAUTHORIZED.getStatusCode(), WebException
-                .unauthorized().build().getResponse().getStatus());
-        assertEquals(Status.SERVICE_UNAVAILABLE.getStatusCode(), WebException
-                .unavailable().build().getResponse().getStatus());
+        assertEquals(Status.NOT_FOUND.getStatusCode(),
+                WebException.notFound().build().getResponse().getStatus());
+        assertEquals(Status.UNAUTHORIZED.getStatusCode(),
+                WebException.unauthorized().build().getResponse().getStatus());
+        assertEquals(Status.SERVICE_UNAVAILABLE.getStatusCode(),
+                WebException.unavailable().build().getResponse().getStatus());
     }
 
     @Test

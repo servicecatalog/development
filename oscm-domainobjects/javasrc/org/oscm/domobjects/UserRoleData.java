@@ -12,11 +12,10 @@
 
 package org.oscm.domobjects;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
+import javax.persistence.*;
 
+import org.oscm.domobjects.converters.PVTConverter;
+import org.oscm.domobjects.converters.URTConverter;
 import org.oscm.internal.types.enumtypes.UserRoleType;
 
 /**
@@ -33,7 +32,7 @@ public class UserRoleData extends DomainDataContainer {
     /**
      * Stores the string representation of the current role.
      */
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = URTConverter.class)
     @Column(nullable = false, unique = true)
     private UserRoleType roleName;
 

@@ -8,9 +8,7 @@
 
 package org.oscm.serviceprovisioningservice.bean;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -22,14 +20,7 @@ import javax.ejb.EJBTransactionRequiredException;
 import org.junit.Test;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
-import org.oscm.domobjects.CatalogEntry;
-import org.oscm.domobjects.DomainHistoryObject;
-import org.oscm.domobjects.Marketplace;
-import org.oscm.domobjects.Organization;
-import org.oscm.domobjects.PlatformUser;
-import org.oscm.domobjects.Product;
-import org.oscm.domobjects.RevenueShareModel;
-import org.oscm.domobjects.TechnicalProduct;
+import org.oscm.domobjects.*;
 import org.oscm.domobjects.enums.ModificationType;
 import org.oscm.domobjects.enums.RevenueShareModelType;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
@@ -39,12 +30,7 @@ import org.oscm.internal.types.enumtypes.UserRoleType;
 import org.oscm.internal.types.exception.ConcurrentModificationException;
 import org.oscm.serviceprovisioningservice.local.ServiceProvisioningPartnerServiceLocal;
 import org.oscm.test.EJBTestBase;
-import org.oscm.test.data.Marketplaces;
-import org.oscm.test.data.Organizations;
-import org.oscm.test.data.PlatformUsers;
-import org.oscm.test.data.Products;
-import org.oscm.test.data.Subscriptions;
-import org.oscm.test.data.TechnicalProducts;
+import org.oscm.test.data.*;
 import org.oscm.test.ejb.TestContainer;
 import org.oscm.test.stubs.ConfigurationServiceStub;
 
@@ -618,7 +604,10 @@ public class ServiceProvisioningPartnerServiceLocalBeanContainerIT
             @Override
             public CatalogEntry call() throws Exception {
                 Product product = ds.getReference(Product.class, productKey);
-                return product.getCatalogEntries().get(0);
+                CatalogEntry catalogEntry = product.getCatalogEntries().get(0);
+                catalogEntry.setBrokerPriceModel(unproxyEntity(catalogEntry.getBrokerPriceModel()));
+                catalogEntry.setResellerPriceModel(unproxyEntity(catalogEntry.getResellerPriceModel()));
+                return catalogEntry;
             }
         });
     }

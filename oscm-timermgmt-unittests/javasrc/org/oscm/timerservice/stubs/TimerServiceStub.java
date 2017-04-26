@@ -179,4 +179,11 @@ public class TimerServiceStub implements TimerService {
         return null;
     }
 
+    @Override
+    public Collection<Timer> getAllTimers()
+            throws IllegalStateException, EJBException {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }

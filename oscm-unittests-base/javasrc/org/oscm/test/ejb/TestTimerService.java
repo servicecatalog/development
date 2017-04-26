@@ -93,4 +93,9 @@ public class TestTimerService implements TimerService {
         return Collections.emptyList();
     }
 
+    @Override
+    public Collection<Timer> getAllTimers() throws IllegalStateException, EJBException {
+        return null;
+    }
+
 }

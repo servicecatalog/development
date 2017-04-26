@@ -60,8 +60,9 @@ public class CreateKPITask extends Task {
     }
 
     private void validateFile(String file) throws FileNotFoundException {
-        if (!new File(file).exists()) {
-            throw new FileNotFoundException("File " + file + " not found");
+        File fileToValidation = new File(file);
+        if (!fileToValidation.exists()) {
+            throw new FileNotFoundException("File " + fileToValidation.getAbsolutePath() + " not found");
         }
     }
 

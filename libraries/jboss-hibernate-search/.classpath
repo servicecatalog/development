@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry exported="true" kind="lib" path="javalib/hibernate-search-engine-4.3.0.Final.jar"/>
-	<classpathentry exported="true" kind="lib" path="javalib/hibernate-search-orm-4.3.0.Final.jar"/>
+	<classpathentry exported="true" kind="lib" path="javalib/hibernate-search-engine-5.5.4.Final.jar"/>
+	<classpathentry exported="true" kind="lib" path="javalib/hibernate-search-orm-5.5.4.Final.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

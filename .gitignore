@@ -15,3 +15,4 @@ debug/
 release/
 temp/
 logs/
+.settings/

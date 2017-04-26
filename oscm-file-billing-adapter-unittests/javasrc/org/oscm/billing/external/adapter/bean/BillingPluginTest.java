@@ -18,7 +18,8 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import org.oscm.billing.external.exception.BillingException;
-import com.sun.jersey.api.client.WebResource;
+
+import javax.ws.rs.client.WebTarget;
 
 public class BillingPluginTest {
 
@@ -50,7 +51,7 @@ public class BillingPluginTest {
         // then
         verify(properties, times(1)).getConfigProperty(anyString());
         verify(restDao, times(1)).createWebResource(testConnectionUrl);
-        verify(restDao, times(1)).getTextResponse(any(WebResource.class));
+        verify(restDao, times(1)).getTextResponse(any(WebTarget.class));
     }
 
     @Test
@@ -63,7 +64,7 @@ public class BillingPluginTest {
                 .when(properties)
                 .getConfigProperty(BillingPlugin.TEST_CONNECTION_URL);
         Mockito.doThrow(connectionException).when(restDao)
-                .getTextResponse(any(WebResource.class));
+                .getTextResponse(any(WebTarget.class));
 
         // when
         try {

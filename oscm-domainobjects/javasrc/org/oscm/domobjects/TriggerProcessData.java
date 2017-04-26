@@ -12,11 +12,10 @@
 
 package org.oscm.domobjects;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
+import javax.persistence.*;
 
+import org.oscm.domobjects.converters.TPPNConverter;
+import org.oscm.domobjects.converters.TPSConverter;
 import org.oscm.internal.types.enumtypes.TriggerProcessStatus;
 
 /**
@@ -34,7 +33,7 @@ public class TriggerProcessData extends DomainDataContainer {
      * The state of the process (ACTIVE, CANCELLED, FAILED, APPROVED, ERROR,
      * REJECTED).
      */
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = TPSConverter.class)
     @Column(nullable = false)
     private TriggerProcessStatus status;
 

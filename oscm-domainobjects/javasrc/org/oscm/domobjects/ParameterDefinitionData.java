@@ -13,10 +13,12 @@
 package org.oscm.domobjects;
 
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Embeddable;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 
+import org.oscm.domobjects.converters.PMTConverter;
+import org.oscm.domobjects.converters.PTConverter;
+import org.oscm.domobjects.converters.PVTConverter;
 import org.oscm.internal.types.enumtypes.ParameterModificationType;
 import org.oscm.internal.types.enumtypes.ParameterType;
 import org.oscm.internal.types.enumtypes.ParameterValueType;
@@ -36,7 +38,7 @@ public class ParameterDefinitionData extends DomainDataContainer {
      * The type of the parameter.
      */
     @Column(nullable = false, updatable = false)
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = PTConverter.class)
     private ParameterType parameterType;
 
     /**
@@ -49,14 +51,14 @@ public class ParameterDefinitionData extends DomainDataContainer {
      * The type of the parameter value.
      */
     @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = PVTConverter.class)
     private ParameterValueType valueType;
 
     /**
      * The type of the parameter modification type.
      */
     @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = PMTConverter.class)
     private ParameterModificationType modificationType = ParameterModificationType.STANDARD;
 
     private String defaultValue;
@@ -93,12 +95,13 @@ public class ParameterDefinitionData extends DomainDataContainer {
         this.valueType = valueType;
     }
 
-    public void setModificationType(ParameterModificationType modificationType) {
-        this.modificationType = modificationType;
-    }
-
     public ParameterModificationType getModificationType() {
         return modificationType;
+    }
+
+    public void setModificationType(
+            ParameterModificationType modificationType) {
+        this.modificationType = modificationType;
     }
 
     /**

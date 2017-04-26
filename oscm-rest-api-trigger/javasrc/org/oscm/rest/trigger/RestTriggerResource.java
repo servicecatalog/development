@@ -1,9 +1,9 @@
 /*******************************************************************************
- *                                                                              
+ *
  *  Copyright FUJITSU LIMITED 2017
- *                                                                                                                                 
- *  Creation Date: May 12, 2016                                                      
- *                                                                              
+ *
+ *  Creation Date: May 12, 2016
+ *
  *******************************************************************************/
 
 package org.oscm.rest.trigger;
@@ -13,6 +13,7 @@ import java.util.Collection;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -37,11 +38,18 @@ import org.oscm.rest.trigger.data.ActionRepresentation;
 import org.oscm.rest.trigger.data.DefinitionRepresentation;
 import org.oscm.rest.trigger.data.ProcessRepresentation;
 
-import com.sun.jersey.api.core.InjectParam;
+import javax.ejb.EJB;
+import javax.ejb.Stateless;
+import javax.ws.rs.Path;
+
+import org.oscm.rest.common.CommonParams;
+import org.oscm.rest.common.RestResource;
+import org.oscm.rest.trigger.config.TriggerCommonParams;
+
 
 /**
  * Rest root resource for trigger component
- * 
+ *
  * @author miethaner
  */
 @Path(CommonParams.PATH_VERSION)
@@ -64,7 +72,7 @@ public class RestTriggerResource extends RestResource {
 
     /**
      * Endpoint class for trigger definition
-     * 
+     *
      * @author miethaner
      */
     public class Definition implements
@@ -79,7 +87,7 @@ public class RestTriggerResource extends RestResource {
         @Produces(MediaType.APPLICATION_JSON)
         @Override
         public Response getItem(@Context Request request,
-                @InjectParam TriggerParameters params) throws Exception {
+                                @BeanParam TriggerParameters params) throws Exception {
             return get(request, triggerBackend.getItem(), params, true);
         }
 
@@ -91,7 +99,7 @@ public class RestTriggerResource extends RestResource {
         @Produces(MediaType.APPLICATION_JSON)
         @Override
         public Response getCollection(@Context Request request,
-                @InjectParam TriggerParameters params) throws Exception {
+                                      @BeanParam TriggerParameters params) throws Exception {
             return get(request, triggerBackend.getCollection(), params, false);
         }
 
@@ -104,8 +112,8 @@ public class RestTriggerResource extends RestResource {
         @Consumes(MediaType.APPLICATION_JSON)
         @Override
         public Response postCollection(@Context Request request,
-                DefinitionRepresentation content,
-                @InjectParam TriggerParameters params) throws Exception {
+                                       DefinitionRepresentation content,
+                                       @BeanParam TriggerParameters params) throws Exception {
             return post(request, triggerBackend.postCollection(), content,
                     params);
         }
@@ -119,8 +127,8 @@ public class RestTriggerResource extends RestResource {
         @Consumes(MediaType.APPLICATION_JSON)
         @Override
         public Response putItem(@Context Request request,
-                DefinitionRepresentation content,
-                @InjectParam TriggerParameters params) throws Exception {
+                                DefinitionRepresentation content,
+                                @BeanParam TriggerParameters params) throws Exception {
             return put(request, triggerBackend.putItem(), content, params);
         }
 
@@ -132,7 +140,7 @@ public class RestTriggerResource extends RestResource {
         @Path(CommonParams.PATH_ID)
         @Override
         public Response deleteItem(@Context Request request,
-                @InjectParam TriggerParameters params) throws Exception {
+                                   @BeanParam TriggerParameters params) throws Exception {
             return delete(request, triggerBackend.deleteItem(), params);
         }
 
@@ -140,7 +148,7 @@ public class RestTriggerResource extends RestResource {
 
     /**
      * Redirects to trigger definition endpoints
-     * 
+     *
      * @return the trigger definition endpoints
      */
     @Path(TriggerCommonParams.PATH_DEFINITIONS)
@@ -150,14 +158,14 @@ public class RestTriggerResource extends RestResource {
 
     /**
      * Endpoint class for trigger action
-     * 
+     *
      * @author miethaner
      */
     public class Action implements RestFrontend.Get<TriggerParameters> {
 
         @Override
         public Response getItem(@Context Request request,
-                @InjectParam TriggerParameters params)
+                                @BeanParam TriggerParameters params)
                 throws WebApplicationException {
             return null;
         }
@@ -170,26 +178,25 @@ public class RestTriggerResource extends RestResource {
         @Produces(MediaType.APPLICATION_JSON)
         @Override
         public Response getCollection(@Context Request request,
-                @InjectParam TriggerParameters params) throws Exception {
+                                      @BeanParam TriggerParameters params) throws Exception {
 
             RestBackend.Get<RepresentationCollection<ActionRepresentation>, TriggerParameters> backend;
             backend = new RestBackend.Get<RepresentationCollection<ActionRepresentation>, TriggerParameters>() {
 
                 @Override
                 public RepresentationCollection<ActionRepresentation> get(
-                        TriggerParameters params) throws Exception {
+                        TriggerParameters params)
+                        throws WebApplicationException {
 
-                    Collection<ActionRepresentation> col = new ArrayList<ActionRepresentation>();
+                    Collection<ActionRepresentation> col = new ArrayList<>();
                     col.add(new ActionRepresentation(null,
                             ActionRepresentation.Action.SUBSCRIBE_TO_SERVICE));
-                    col.add(new ActionRepresentation(
-                            null,
+                    col.add(new ActionRepresentation(null,
                             ActionRepresentation.Action.UNSUBSCRIBE_FROM_SERVICE));
                     col.add(new ActionRepresentation(null,
                             ActionRepresentation.Action.MODIFY_SUBSCRIPTION));
 
-                    return new RepresentationCollection<ActionRepresentation>(
-                            col);
+                    return new RepresentationCollection<>(col);
                 }
             };
 
@@ -199,7 +206,7 @@ public class RestTriggerResource extends RestResource {
 
     /**
      * Redirects to trigger action endpoints
-     * 
+     *
      * @return the trigger action endpoints
      */
     @Path(TriggerCommonParams.PATH_ACTIONS)
@@ -209,7 +216,7 @@ public class RestTriggerResource extends RestResource {
 
     /**
      * Endpoint class for trigger process
-     * 
+     *
      * @author miethaner
      */
     public class Process {
@@ -217,7 +224,7 @@ public class RestTriggerResource extends RestResource {
         /**
          * Approves the process with the given id and forwards the given
          * comment.
-         * 
+         *
          * @param request
          *            the request context
          * @param params
@@ -229,7 +236,7 @@ public class RestTriggerResource extends RestResource {
         @PUT
         @Path(CommonParams.PATH_ID + TriggerCommonParams.PATH_TRIGGER_APPROVE)
         public Response putApprove(@Context Request request,
-                @InjectParam TriggerParameters params) throws Exception {
+                                   @BeanParam TriggerParameters params) throws Exception {
             ProcessRepresentation process = new ProcessRepresentation();
             process.setComment("");
             return put(request, processBackend.putApprove(), process, params);
@@ -237,7 +244,7 @@ public class RestTriggerResource extends RestResource {
 
         /**
          * Rejects the process with the given id and forwards the given comment.
-         * 
+         *
          * @param request
          *            the request context
          * @param content
@@ -252,8 +259,8 @@ public class RestTriggerResource extends RestResource {
         @Path(CommonParams.PATH_ID + TriggerCommonParams.PATH_TRIGGER_REJECT)
         @Consumes(MediaType.APPLICATION_JSON)
         public Response putReject(@Context Request request,
-                ProcessRepresentation content,
-                @InjectParam TriggerParameters params) throws Exception {
+                                  ProcessRepresentation content,
+                                  @BeanParam TriggerParameters params) throws Exception {
             return put(request, processBackend.putReject(), content, params);
         }
 
@@ -261,7 +268,7 @@ public class RestTriggerResource extends RestResource {
 
     /**
      * Redirects to trigger process endpoints
-     * 
+     *
      * @return the trigger process endpoints
      */
     @Path(TriggerCommonParams.PATH_PROCESSES)

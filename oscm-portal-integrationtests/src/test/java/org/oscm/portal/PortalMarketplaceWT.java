@@ -34,13 +34,11 @@ public class PortalMarketplaceWT {
     public static void setup() throws Exception {
         tester = new WebTester();
         tester.visitPortal("");
-        System.out.println(tester.getCurrentUrl());
         tester.loginPortal(USER, PASSWORD);
     }
 
     @AfterClass
     public static void cleanUp() {
-        System.out.println(tester.getCurrentUrl());
         tester.logoutPortal();
         tester.close();
     }

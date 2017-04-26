@@ -40,6 +40,16 @@ public class ObjectMessageStub implements ObjectMessage {
     }
 
     @Override
+    public <T> T getBody(Class<T> aClass) throws JMSException {
+        return null;
+    }
+
+    @Override
+    public boolean isBodyAssignableTo(Class aClass) throws JMSException {
+        return false;
+    }
+
+    @Override
     public void clearProperties() throws JMSException {
         throw new UnsupportedOperationException();
     }
@@ -204,6 +214,16 @@ public class ObjectMessageStub implements ObjectMessage {
     @Override
     public void setJMSExpiration(long arg0) throws JMSException {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public long getJMSDeliveryTime() throws JMSException {
+        return 0;
+    }
+
+    @Override
+    public void setJMSDeliveryTime(long l) throws JMSException {
+
     }
 
     @Override

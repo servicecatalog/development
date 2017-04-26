@@ -20,9 +20,8 @@ import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
-import javax.faces.view.facelets.FaceletContext;
+import javax.servlet.http.Part;
 
-import org.apache.myfaces.custom.fileupload.UploadedFile;
 import org.oscm.converter.PropertiesLoader;
 import org.oscm.internal.components.response.Response;
 import org.oscm.internal.tenant.ManageTenantService;
@@ -201,7 +200,8 @@ public class ManageTenantsCtrl extends BaseBean implements Serializable {
 
     public String importSettings() throws SaaSApplicationException {
 
-        UploadedFile file = model.getFile();
+        Part file = model.getFile();
+
         if (file == null) {
             ui.handleError(null, ERROR_NO_FILE_WITH_IDP_SETTINGS);
             return OUTCOME_ERROR;

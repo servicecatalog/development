@@ -10,18 +10,13 @@ package org.oscm.domobjects;
 
 import java.util.UUID;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
+import javax.persistence.*;
 
 import org.hibernate.annotations.Type;
 
 import org.oscm.domobjects.annotations.BusinessKey;
+import org.oscm.domobjects.converters.ETConverter;
+import org.oscm.domobjects.converters.LBRTConverter;
 import org.oscm.domobjects.enums.LocalizedBillingResourceType;
 
 /**
@@ -31,7 +26,7 @@ import org.oscm.domobjects.enums.LocalizedBillingResourceType;
 @Entity
 @NamedQueries({
         @NamedQuery(name = "LocalizedBillingResource.findByBusinessKey", query = "SELECT lbr FROM LocalizedBillingResource lbr WHERE lbr.objectId = :objectId AND lbr.locale = :locale AND lbr.resourceType = :resourceType"),
-        @NamedQuery(name = "LocalizedBillingResource.findPriceModelByBusinessKey", query = "SELECT lbr FROM LocalizedBillingResource lbr WHERE lbr.objectId = :objectId AND lbr.locale = :locale AND lbr.resourceType IN ('PRICEMODEL_SERVICE', 'PRICEMODEL_CUSTOMER', 'PRICEMODEL_SUBSCRIPTION')") })
+        @NamedQuery(name = "LocalizedBillingResource.findPriceModelByBusinessKey", query = "SELECT lbr FROM LocalizedBillingResource lbr WHERE lbr.objectId = :objectId AND lbr.locale = :locale AND lbr.resourceType IN (org.oscm.domobjects.enums.LocalizedBillingResourceType.PRICEMODEL_SERVICE, org.oscm.domobjects.enums.LocalizedBillingResourceType.PRICEMODEL_CUSTOMER, org.oscm.domobjects.enums.LocalizedBillingResourceType.PRICEMODEL_SUBSCRIPTION)") })
 @BusinessKey(attributes = { "objectId", "locale", "resourceType" })
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "objectId",
         "locale", "resourceType" }))
@@ -45,7 +40,7 @@ public class LocalizedBillingResource extends
 
     private String locale;
 
-    @Enumerated(EnumType.STRING)
+    @Convert( converter=LBRTConverter.class )
     private LocalizedBillingResourceType resourceType;
 
     @Column(nullable = false)

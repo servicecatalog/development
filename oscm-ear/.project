@@ -3,7 +3,6 @@
 	<name>oscm-ear</name>
 	<comment></comment>
 	<projects>
-		<project>apache-csv</project>
 		<project>oscm-accountmgmt</project>
 		<project>oscm-accountmgmt-intsvc</project>
 		<project>oscm-apiversioning-soapmgmt</project>
@@ -72,6 +71,8 @@
 		<project>oscm-webservices</project>
 		<project>oscm-webservices-client</project>
 		<project>oscm-wsdldeliver</project>
+		<project>oscm-tenantmgmt</project>
+		<project>oscm-tenantmgmt-intsvc</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

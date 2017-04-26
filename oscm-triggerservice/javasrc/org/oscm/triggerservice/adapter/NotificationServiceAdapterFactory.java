@@ -14,6 +14,8 @@ package org.oscm.triggerservice.adapter;
 
 import java.io.IOException;
 
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.WebTarget;
 import javax.wsdl.WSDLException;
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -25,8 +27,7 @@ import org.oscm.triggerservice.data.SupportedVersions;
 import org.oscm.ws.WSPortConnector;
 import org.oscm.ws.WSPortDescription;
 
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.WebResource;
+import javax.ws.rs.client.Client;
 
 /**
  * Retrieves the notification service adapter according to the concrete WSDL.
@@ -66,9 +67,8 @@ public class NotificationServiceAdapterFactory {
             break;
         case REST_SERVICE:
 
-            Client c = Client.create();
-
-            WebResource r = c.resource(td.getTarget());
+            Client c = ClientBuilder.newClient();
+            WebTarget r = c.target(td.getTarget());
 
             adapter = new RestNotificationServiceAdapter();
             initAdapter(cs, ds, adapter, r);
