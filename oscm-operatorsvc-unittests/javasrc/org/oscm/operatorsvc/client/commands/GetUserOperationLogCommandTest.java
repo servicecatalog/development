@@ -83,7 +83,7 @@ public class GetUserOperationLogCommandTest extends CommandTestBase {
 
         File file = new File(CORRECT_FILE_NAME);
         String cannonicalPath = file.getCanonicalPath();
-        assertOut("Successfully created the log file: " + cannonicalPath
+        assertOut("Successfully created the file: " + cannonicalPath
                 + System.getProperty("line.separator"));
         assertErr("");
         assertTrue(file.exists());
@@ -111,7 +111,7 @@ public class GetUserOperationLogCommandTest extends CommandTestBase {
 
         File file = new File(CORRECT_FILE_NAME);
         String cannonicalPath = file.getCanonicalPath();
-        assertOut("Successfully created the log file: " + cannonicalPath
+        assertOut("Successfully created the file: " + cannonicalPath
                 + System.getProperty("line.separator"));
         assertErr("");
         assertTrue(file.exists());
