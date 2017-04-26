@@ -12,11 +12,7 @@
 
 package org.oscm.operatorsvc.client.commands;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -77,28 +73,7 @@ public class GetUserOperationLogCommand implements IOperatorCommand {
             csv = new String(result, "UTF-8");
         }
 
-        // write result
-        File outputFile = new File(outputFileName);
-        PrintWriter pw = null;
-        try {
-            pw = createPrintWriter(outputFile);
-            pw.print(csv);
-            pw.flush();
-        } catch (Exception e) {
-            ctx.err().print("The file can not be created.\n");
-            ctx.err().flush();
-            return false;
-        } finally {
-            if (pw != null) {
-                pw.close();
-            }
-        }
-
-        ctx.out().print(
-                String.format("Successfully created the log file: %s%n",
-                        outputFile.getCanonicalPath()));
-        ctx.out().flush();
-        return true;
+        return writeResults(ctx, outputFileName, csv);
     }
 
     PrintWriter createPrintWriter(File outputFile) throws IOException {
@@ -120,4 +95,27 @@ public class GetUserOperationLogCommand implements IOperatorCommand {
         return null;
     }
 
+    protected boolean writeResults(CommandContext ctx, String outputFileName, String content) throws IOException {
+        // write result
+        File outputFile = new File(outputFileName);
+        PrintWriter pw = null;
+        try {
+            pw = createPrintWriter(outputFile);
+            pw.print(content);
+            pw.flush();
+        } catch (Exception e) {
+            ctx.err().print("The file can not be created.\n");
+            ctx.err().flush();
+            return false;
+        } finally {
+            if (pw != null) {
+                pw.close();
+            }
+        }
+
+        ctx.out().print(String.format("Successfully created the file: %s%n",
+                outputFile.getCanonicalPath()));
+        ctx.out().flush();
+        return true;
+    }
 }
