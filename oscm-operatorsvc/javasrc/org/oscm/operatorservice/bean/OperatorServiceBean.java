@@ -104,6 +104,7 @@ import org.oscm.internal.vo.*;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.marketplaceservice.local.MarketplaceServiceLocal;
+import org.oscm.operatorservice.queries.SubscriptionUsageQuery;
 import org.oscm.paymentservice.assembler.PSPAccountAssembler;
 import org.oscm.paymentservice.assembler.PSPAssembler;
 import org.oscm.paymentservice.assembler.PSPSettingAssembler;
@@ -1570,12 +1571,10 @@ public class OperatorServiceBean implements OperatorService {
     @Override
     @RolesAllowed("PLATFORM_OPERATOR")
     public Collection<VOSubscriptionUsageEntry> getSubscriptionUsageReport() {
-        Collection<VOSubscriptionUsageEntry> result = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
-            result.add(new VOSubscriptionUsageEntry("customerId", "customerOrgName", "subName", "marketableServiceName",
-                    "techServiceName", "supplierOrgId", "suppOrgName", "numOfUsers", "numOfVM"));
-        }
-        return result;
+        return SubscriptionUsageQuery.execute(dm);
     }
 
+    public void setDm(DataService dm) {
+        this.dm = dm;
+    }
 }

@@ -19,6 +19,8 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.oscm.auditlog.bean.AuditLogServiceBean;
+import org.oscm.dataservice.bean.DataServiceBean;
+import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.*;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.domobjects.enums.OrganizationReferenceType;
@@ -31,6 +33,7 @@ import org.oscm.internal.types.exception.PaymentDataException.Reason;
 import org.oscm.internal.vo.*;
 import org.oscm.test.BaseAdmUmTest;
 import org.oscm.test.EJBTestBase;
+import org.oscm.test.data.Subscriptions;
 import org.oscm.test.ejb.TestContainer;
 import org.oscm.test.stubs.*;
 import org.oscm.timerservice.bean.TimerServiceBean;
@@ -1546,6 +1549,33 @@ public class OperatorServiceBeanIT extends EJBTestBase {
         final String expected = String.format("%s%n%s%n%s%n", header, line1,
                 line2);
         Assert.assertEquals(expected, new String(result, "UTF-8"));
+    }
+
+    @Test
+    public void testExportSubscriptionUsage() throws Exception {
+        DataServiceBean moczek = mock(DataServiceBean.class);
+        Query query = mock(Query.class);
+        List<Object[]> list = new ArrayList<>();
+        list.add(new Object[]{"a", "b", "b", "b", "b", "b", "b", "b", "b"});
+
+        doReturn(query).when(moczek).createNativeQuery(anyString());
+        doReturn(list).when(query).getResultList();
+
+        OperatorServiceBean operatorServiceBean = container.get(OperatorServiceBean.class);
+        operatorServiceBean.setDm(moczek);
+        container.login("1", ROLE_PLATFORM_OPERATOR);
+
+
+        Collection<VOSubscriptionUsageEntry> subscriptionUsageReport = new ArrayList<>();
+        try {
+            subscriptionUsageReport = operatorService.getSubscriptionUsageReport();
+        } catch (Exception exc) {
+            exc.printStackTrace();
+            Assert.fail();
+        }
+        verify(moczek).createNativeQuery(anyString());
+        verify(query, times(1)).getResultList();
+        assertNotSame(0, subscriptionUsageReport.size());
     }
 
     // -------------------------------------------------------------
