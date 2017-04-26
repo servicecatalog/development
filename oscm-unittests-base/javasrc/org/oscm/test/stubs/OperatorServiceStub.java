@@ -4,12 +4,8 @@
 
 package org.oscm.test.stubs;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-import edu.emory.mathcs.backport.java.util.Collections;
 import org.oscm.internal.intf.OperatorService;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.UserAccountStatus;
