@@ -77,7 +77,6 @@ public class TemplateBeanTest extends EJBTestBase {
 
         // Init testing bean
         TemplateBean bean = new TemplateBean() {
-            private static final long serialVersionUID = -1300403486736808608L;
 
             @Override
             protected FacesContext getContext() {
@@ -103,6 +102,7 @@ public class TemplateBeanTest extends EJBTestBase {
         TemplateBean bean = getTestBean();
 
         UploadedFile uf = Mockito.mock(UploadedFile.class);
+        Mockito.when(uf.getName()).thenReturn("test.txt");
 
         bean.setUploadedFile(uf);
 
