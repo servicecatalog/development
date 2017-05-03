@@ -8,6 +8,7 @@
 
 package org.oscm.app.common.ui;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
@@ -44,6 +45,8 @@ public class TemplateBean {
 
     private static final Logger LOGGER = LoggerFactory
             .getLogger(TemplateBean.class);
+
+    private static final String[] allowedControllers = { "ess.openstack" };
 
     private static final String STATUS_CLASS_INFO = "statusInfo";
     private static final String STATUS_CLASS_ERROR = "statusError";
@@ -108,6 +111,7 @@ public class TemplateBean {
      * Loads the templates from the service into the model.
      */
     public void load() {
+
         try {
             model = templateService.getTemplateList(
                     controllerAccess.getControllerId(), getAuthentication());
@@ -122,13 +126,14 @@ public class TemplateBean {
      * Saves the uploaded template into the service.
      */
     public void save() {
+
         if (uploadedFile == null) {
             return;
         }
 
         try {
             Template template = new Template();
-            template.setFileName(uploadedFile.getName());
+            template.setFileName(new File(uploadedFile.getName()).getName());
             template.setContent(uploadedFile.getBytes());
 
             templateService.saveTemplate(template,
@@ -150,6 +155,7 @@ public class TemplateBean {
      *            the file name
      */
     public void delete(String fileName) {
+
         try {
             templateService.deleteTemplate(fileName,
                     controllerAccess.getControllerId(), getAuthentication());
@@ -222,6 +228,22 @@ public class TemplateBean {
     // allow stubbing in unit tests
     protected FacesContext getContext() {
         return FacesContext.getCurrentInstance();
+    }
+
+    /**
+     * Checks if the controller is allowed to use local templates.
+     * 
+     * @return true if controller is allowed to use local templates
+     */
+    public boolean isAllowedController() {
+
+        for (String id : allowedControllers) {
+            if (id.equals(controllerAccess.getControllerId())) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

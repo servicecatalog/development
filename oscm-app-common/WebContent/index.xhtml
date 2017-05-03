@@ -113,6 +113,8 @@
     
     </h:form>
     
+    <c:if test="#{templateBean.allowedController}">
+    
     <br />
     <br />
     
@@ -159,7 +161,7 @@
               <h:outputText value="#{msg['ui.config.templates.file']}: " />
             </div>
             <div class="file_selection_input">
-              <adm:fileUpload value="#{templateBean.uploadedFile}" />
+              <adm:fileUpload value="#{templateBean.uploadedFile}" required="false" />
             </div>
           </div>
         </div>
@@ -174,6 +176,7 @@
         </div>
 
     </h:form>
+    </c:if>
   </div>
   
   <br />

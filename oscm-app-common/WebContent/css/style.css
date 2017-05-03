@@ -36,15 +36,6 @@ td:first-child {
 border-left: 0px solid #D2DBDC;
 }
 
-input,
-select,
-textarea{
-	position:relative;
-	vertical-align: middle;
-	font-size:10pt;
-	margin: 0 !important;
-}
-
 .rich-table.table_row_linetitle_class {
 width: 95%!important;
 }
