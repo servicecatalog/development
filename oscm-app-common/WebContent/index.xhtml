@@ -10,7 +10,7 @@
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
   <meta content="Fujitsu Limited" name="description" />
   <meta content="Fujitsu Limited" name="author" />
-  <meta content="IE=8" http-equiv="X-UA-Compatible" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <link rel="shortcut icon" href="favicon.ico" />
   <link rel="stylesheet" type="text/css" href="css/style.css" />
 
@@ -19,6 +19,7 @@
   <script type="text/javascript" src="js/layout.js"></script>
   <link rel="stylesheet" type="text/css" href="css/import_en.css" />
   <script type="text/javascript" src="js/heading_data_4.js"></script>
+  <script type="text/javascript" src="js/admUtils.js"></script>
 </h:head>
 
 <h:body class="middle_product_class">
@@ -149,21 +150,29 @@
               <h:commandLink action="#{templateBean.export(item.fileName)}" value="#{msg['ui.config.templates.export']}" />
             </rich:column>
           </rich:dataTable>
+          </div>
           
           <br />
-          
-          <div>
-            <t:inputFileUpload id="file" value="#{templateBean.uploadedFile}" size="48" />
-            &nbsp;&nbsp;
-            <span class="button_right_part_class">
-              <span class="button_content_class">
-                <h:commandButton class="button_normal_class" value="#{msg['ui.config.action.upload']}" action="#{templateBean.save}"/>
-              </span>
-            </span>
+          <br />
+          <div class="file_selection">
+            <div class="file_selection_label">
+              <h:outputText value="#{msg['ui.config.templates.file']}: " />
+            </div>
+            <div class="file_selection_input">
+              <adm:fileUpload value="#{templateBean.uploadedFile}" />
+            </div>
           </div>
         </div>
-        <br />
-      </div>
+        <div>
+          <a4j:outputPanel layout="block" styleClass="description buttonPanel" ajaxRendered="true">
+            <div class="button_main_area_class">
+              <span class="button_right_part_class"><span class="button_content_class">
+                <h:commandButton class="button_normal_class" value="#{msg['ui.config.action.import']}" action="#{templateBean.save}"/>
+              </span></span>
+            </div>
+          </a4j:outputPanel>
+        </div>
+
     </h:form>
   </div>
   

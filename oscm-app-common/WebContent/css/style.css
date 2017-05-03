@@ -36,6 +36,15 @@ td:first-child {
 border-left: 0px solid #D2DBDC;
 }
 
+input,
+select,
+textarea{
+	position:relative;
+	vertical-align: middle;
+	font-size:10pt;
+	margin: 0 !important;
+}
+
 .rich-table.table_row_linetitle_class {
 width: 95%!important;
 }
@@ -325,3 +334,82 @@ background-color: #DCDCDC;
 	background: #717980 !important;
 }
 
+span.upload, span.upload .option{
+	background:url(../img/uploadButton.png) no-repeat;
+	height:24px;
+	line-height:24px;
+	position:absolute;
+	cursor:default;
+	z-index:0;
+	color:#000;
+	font-weight:normal;
+	width:100%;
+}
+
+input[type="file"]{
+	max-width:320px;
+	width:320px;
+}
+
+span.upload{
+	background-position:left top;
+}
+
+span.upload.disabled{
+	background-position:left -60px;
+}
+
+span.upload .option{
+	background-position:right top;
+	margin-left:4px;
+}
+
+span.upload .option.disabled{
+	background-position:right -60px;
+	color:#999;
+}
+
+.jqUpload{
+	position:relative;
+	height:24px;
+	display:inline-block;
+	zoom:1;
+	white-space: nowrap;
+}
+
+.jqUpload .fileChooser {
+	z-index:10;
+	opacity:0;
+}
+
+.jqUpload .output{
+	display:block;
+	padding:0 4px;
+	overflow:hidden;
+	text-overflow:ellipsis;
+	line-height:24px;
+}
+
+.jqUpload .button span,
+.jqUpload .buttonDisabled span{
+	line-height:16px !important;
+}
+
+.jqUpload .disabled .button {
+	background-position: right -120px !important;
+}
+
+.jqUpload .disabled .button span{
+	background-position: left -120px;
+	color:#999;
+}
+
+.file_selection{
+	padding: 4px 0 4px 8px;
+}
+
+.file_selection .file_selection_label{
+	width: 125px;
+	float: left;
+	padding: 5px;
+}

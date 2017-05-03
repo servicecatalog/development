@@ -136,7 +136,7 @@ public class TemplateBean {
 
             load();
 
-            setInfoStatus(Messages.get(locale, "ui.config.status.uploaded"));
+            setInfoStatus(Messages.get(locale, "ui.config.status.imported"));
         } catch (IOException | APPlatformException e) {
             LOGGER.error(e.getMessage());
             setErrorStatus(e);
