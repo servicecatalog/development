@@ -46,7 +46,7 @@
 
 - name: 'gcr.io/cloud-builders/docker'
   args: ['build', '-t', 'eu.gcr.io/$PROJECT_ID/oscm/oscm-initdb:$TAG_NAME', '.']
-  dir:  'oscm-initdb'
+  dir:  'oscm-dockerbuild/oscm-initdb'
   waitFor: ['gf-image']
 
 timeout: '3600s'
