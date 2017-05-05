@@ -1711,7 +1711,8 @@ POSSIBILITY OF SUCH DAMAGE.
 This software includes the following software subject to ECLIPSE PUBLIC LICENSE (EPL) Version 1.0 
 
    - BIRT Runtime 4.3.1 (source code available at  http://download.eclipse.org/birt/downloads/build.php?build=R-R1-4_3_1-201309181142).
-
+   - Javax Persistence 2.1 (source code available at http://repo1.maven.org/maven2/org/eclipse/persistence/javax.persistence/2.1.0/javax.persistence-2.1.0-sources.jar)
+   
 In case the source code and license text are not available on those locations anymore, you can request them by adding an issue to the Open Service Catalog Manager GitHub repository, currently available at: https://github.com/servicecatalog/development
 
  License text:
