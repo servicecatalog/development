@@ -1,4 +1,3 @@
-alter table "hibernate_sequences" alter column "sequence_next_hi_value" type BIGINT;
 UPDATE "parameterdefinition" SET "parameterid" = 'SUBNET' WHERE "parameterid" = 'subnet';
 UPDATE "parameterdefinition" SET "parameterid" = 'PUBLIC_IP' WHERE "parameterid" = 'publicIp';
 UPDATE "parameterdefinition" SET "parameterid" = 'DISK_SIZE' WHERE "parameterid" = 'diskSize';

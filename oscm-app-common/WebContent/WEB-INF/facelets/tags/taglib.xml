@@ -26,4 +26,8 @@
     <tag-name>customizedButtonPanel</tag-name>
     <source>customizedButtonPanel.xhtml</source>
   </tag>
+    <tag>
+    <tag-name>fileUpload</tag-name>
+    <source>fileUpload.xhtml</source>
+  </tag>
  </facelet-taglib>

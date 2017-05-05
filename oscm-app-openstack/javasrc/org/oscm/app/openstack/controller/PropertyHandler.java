@@ -184,6 +184,15 @@ public class PropertyHandler {
     }
 
     /**
+     * Returns the name of the template to be used for provisioning.
+     * 
+     * @return the template name
+     */
+    public String getTemplateName() {
+        return getValidatedProperty(settings.getParameters(), TEMPLATE_NAME);
+    }
+
+    /**
      * Returns the URL of the template to be used for provisioning.
      * 
      * @return the template URL
