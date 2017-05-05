@@ -9,8 +9,7 @@
 package org.oscm.ui.common;
 
 import java.io.IOException;
-
-import org.apache.myfaces.custom.fileupload.UploadedFile;
+import javax.servlet.http.Part;
 
 import org.oscm.internal.profile.POImageResource;
 import org.oscm.internal.types.enumtypes.ImageType;
@@ -26,7 +25,7 @@ public class ImageUploader {
 
     private ImageType imageType;
     private boolean deleteImage;
-    private UploadedFile image;
+    private Part image;
 
     public ImageUploader(ImageType imageType) {
         this.imageType = imageType;
@@ -41,19 +40,21 @@ public class ImageUploader {
                 voImageResource.setBuffer(null);
                 deleteImage = false;
             } else if (image != null) {
+                byte[] buffer = PartHandler.getBuffer(image);
                 voImageResource = new VOImageResource();
                 voImageResource.setImageType(imageType);
                 voImageResource.setContentType(image.getContentType());
-                voImageResource.setBuffer(image.getBytes());
+                voImageResource.setBuffer(buffer);
             }
             return voImageResource;
         } catch (IOException e) {
             String fileName = image != null ? "'" + image.getName() + "'" : "";
-            throw new ImageException("The upload of the image file " + fileName
-                    + " failed.", ImageException.Reason.UPLOAD, e);
+            throw new ImageException(
+                    "The upload of the image file " + fileName + " failed.",
+                    ImageException.Reason.UPLOAD, e);
         }
     }
-
+    
     public POImageResource getPOImageResource() throws ImageException {
         POImageResource result = null;
         VOImageResource voImageResource = getVOImageResource();
@@ -71,11 +72,11 @@ public class ImageUploader {
         this.deleteImage = deleteImage;
     }
 
-    public UploadedFile getImage() {
+    public Part getImage() {
         return image;
     }
 
-    public void setImage(UploadedFile image) {
+    public void setImage(Part image) {
         this.image = image;
     }
 

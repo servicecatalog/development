@@ -14,20 +14,16 @@ package org.oscm.taskhandling.bean;
 
 import java.util.List;
 
-import javax.annotation.Resource;
 import javax.ejb.Asynchronous;
 import javax.ejb.EJB;
 import javax.ejb.Local;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
-import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
-import javax.jms.JMSException;
-import javax.jms.MessageProducer;
-import javax.jms.ObjectMessage;
-import javax.jms.Queue;
-import javax.jms.Session;
+import javax.jms.*;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.PlatformUser;
@@ -51,20 +47,13 @@ public class TaskQueueServiceBean implements TaskQueueServiceLocal {
     protected static Log4jLogger logger = LoggerFactory
             .getLogger(TaskQueueServiceBean.class);
 
-    @Resource(name = "connFactory", mappedName = "jms/bss/taskQueueFactory")
-    protected ConnectionFactory qFactory;
-
-    @Resource(name = "jmsQueue", mappedName = "jms/bss/taskQueue")
-    protected Queue queue;
-
     @EJB(beanInterface = DataService.class)
     DataService dm;
 
     @Override
     @Asynchronous
-    @TransactionAttribute(TransactionAttributeType.REQUIRED)
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void sendAllMessages(List<TaskMessage> messages) {
-        validateJMSResources();
         validateMessages(messages);
         double msgSize = Math.ceil(messages.size()/1000.0);
         int counter = 0;
@@ -79,8 +68,10 @@ public class TaskQueueServiceBean implements TaskQueueServiceLocal {
     /**
      * Checks if the injected JMS resources are not <code>null</code>. If they
      * are, a system exception will be thrown.
+     * @param queue
+     * @param qFactory
      */
-    private void validateJMSResources() {
+    private void validateJMSResources(Queue queue, ConnectionFactory qFactory) {
         if (queue == null || qFactory == null) {
             SaaSSystemException sse = new SaaSSystemException(
                     "JMS resources are not initialized!");
@@ -137,12 +128,22 @@ public class TaskQueueServiceBean implements TaskQueueServiceLocal {
     private void sendObjectMessage(List<TaskMessage> messages) {
         Session session = null;
         Connection conn = null;
+        Queue queue;
+        Context jndiContext = null;
+        MessageProducer producer = null;
         int sentMsgCount = 0;
         try {
             if (messages.size() > 0) {
-                conn = qFactory.createConnection();
+                jndiContext = new InitialContext();
+                ConnectionFactory connectionFactory = (ConnectionFactory) jndiContext.lookup("jms/bss/taskQueueFactory");
+                queue = (Queue) jndiContext.lookup("jms/bss/taskQueue");
+
+                validateJMSResources(queue, connectionFactory);
+
+                conn = connectionFactory.createConnection();
+
                 session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-                MessageProducer producer = session.createProducer(queue);
+                producer = session.createProducer(queue);
                 for (TaskMessage objectToSend : messages) {
                     PlatformUser user = dm.getCurrentUserIfPresent();
                     if (user != null) {
@@ -155,7 +156,7 @@ public class TaskQueueServiceBean implements TaskQueueServiceLocal {
                 }
 
             }
-        } catch (JMSException e) {
+        } catch (JMSException | NamingException e) {
             SaaSSystemException sse = new SaaSSystemException(e);
             logger.logError(
                     Log4jLogger.SYSTEM_LOG,
@@ -169,8 +170,10 @@ public class TaskQueueServiceBean implements TaskQueueServiceLocal {
                     Integer.toString(messages.size()), status);
             throw sse;
         } finally {
+            closeProducer(producer);
             closeSession(session);
             closeConnection(conn);
+            closeJNDI(jndiContext);
         }
     }
 
@@ -185,10 +188,32 @@ public class TaskQueueServiceBean implements TaskQueueServiceLocal {
         }
     }
 
+    void closeProducer(MessageProducer producer) {
+        if (producer != null) {
+            try {
+                producer.close();
+            } catch (Exception e) {
+                logger.logError(Log4jLogger.SYSTEM_LOG, e,
+                        LogMessageIdentifier.ERROR_CLOSE_RESOURCE_FAILED);
+            }
+        }
+    }
+
     void closeConnection(Connection conn) {
         if (conn != null) {
             try {
                 conn.close();
+            } catch (Exception e) {
+                logger.logError(Log4jLogger.SYSTEM_LOG, e,
+                        LogMessageIdentifier.ERROR_CLOSE_RESOURCE_FAILED);
+            }
+        }
+    }
+
+    void closeJNDI(Context context) {
+        if (context != null) {
+            try {
+                context.close();
             } catch (Exception e) {
                 logger.logError(Log4jLogger.SYSTEM_LOG, e,
                         LogMessageIdentifier.ERROR_CLOSE_RESOURCE_FAILED);

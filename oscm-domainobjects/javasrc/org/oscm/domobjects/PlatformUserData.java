@@ -15,11 +15,11 @@ package org.oscm.domobjects;
 import java.io.Serializable;
 import java.util.Date;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
+import javax.persistence.*;
 
+import org.oscm.domobjects.converters.PricingPeriodConverter;
+import org.oscm.domobjects.converters.SalutaionConverter;
+import org.oscm.domobjects.converters.UserAccountStatusConverter;
 import org.oscm.internal.types.enumtypes.Salutation;
 import org.oscm.internal.types.enumtypes.UserAccountStatus;
 
@@ -81,7 +81,7 @@ public class PlatformUserData extends DomainDataContainer implements
     /**
      * Current status of the user's account
      */
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = UserAccountStatusConverter.class)
     @Column(nullable = false)
     private UserAccountStatus status;
 
@@ -100,7 +100,7 @@ public class PlatformUserData extends DomainDataContainer implements
     /**
      * User's salutation.
      */
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = SalutaionConverter.class)
     private Salutation salutation;
 
     /**

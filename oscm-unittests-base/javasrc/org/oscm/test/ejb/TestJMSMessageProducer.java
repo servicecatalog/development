@@ -8,10 +8,7 @@
 
 package org.oscm.test.ejb;
 
-import javax.jms.Destination;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageProducer;
+import javax.jms.*;
 
 /**
  * JMS message producer stub for test environment.
@@ -51,6 +48,16 @@ public class TestJMSMessageProducer implements MessageProducer {
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public void setDeliveryDelay(long l) throws JMSException {
+
+    }
+
+    @Override
+    public long getDeliveryDelay() throws JMSException {
+        return 0;
+    }
+
     public void send(Message arg0) throws JMSException {
         isMessageSent = true;
         if (queue != null) {
@@ -70,6 +77,29 @@ public class TestJMSMessageProducer implements MessageProducer {
     public void send(Destination arg0, Message arg1, int arg2, int arg3,
             long arg4) throws JMSException {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void send(Message message, CompletionListener completionListener) throws JMSException {
+
+    }
+
+    @Override
+    public void send(Message message, int i, int i1, long l, CompletionListener completionListener)
+        throws JMSException {
+
+    }
+
+    @Override
+    public void send(Destination destination, Message message, CompletionListener completionListener)
+        throws JMSException {
+
+    }
+
+    @Override
+    public void send(Destination destination, Message message, int i, int i1, long l,
+        CompletionListener completionListener) throws JMSException {
+
     }
 
     public void setDeliveryMode(int arg0) throws JMSException {

@@ -3,20 +3,16 @@
  *  Copyright FUJITSU LIMITED 2017
  *                                                                              
  *  Author: groch                                                      
- *                                                                              
+ *
  *  Creation Date: 18.07.2011                                                      
- *                                                                              
+ *
  *  Completion Time: 20.07.2011                                              
- *                                                                              
+ *
  *******************************************************************************/
 
 package org.oscm.search;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.Serializable;
@@ -31,31 +27,16 @@ import javax.jms.ObjectMessage;
 
 import org.apache.lucene.index.FieldInfos;
 import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.util.ReaderUtil;
+import org.apache.lucene.index.MultiFields;
 import org.hibernate.Session;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.Search;
 import org.hibernate.search.SearchFactory;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.*;
 import org.oscm.accountservice.bean.AccountServiceBean;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
-import org.oscm.domobjects.CatalogEntry;
-import org.oscm.domobjects.Category;
-import org.oscm.domobjects.CategoryToCatalogEntry;
-import org.oscm.domobjects.Marketplace;
-import org.oscm.domobjects.Organization;
-import org.oscm.domobjects.PlatformUser;
-import org.oscm.domobjects.PriceModel;
-import org.oscm.domobjects.Product;
-import org.oscm.domobjects.Subscription;
-import org.oscm.domobjects.Tag;
-import org.oscm.domobjects.TechnicalProduct;
-import org.oscm.domobjects.TechnicalProductTag;
+import org.oscm.domobjects.*;
 import org.oscm.domobjects.bridge.ProductClassBridge;
 import org.oscm.domobjects.bridge.SubscriptionClassBridge;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
@@ -76,11 +57,7 @@ import org.oscm.serviceprovisioningservice.bean.ServiceProvisioningServiceBean;
 import org.oscm.serviceprovisioningservice.bean.TagServiceBean;
 import org.oscm.serviceprovisioningservice.local.TagServiceLocal;
 import org.oscm.test.EJBTestBase;
-import org.oscm.test.data.Marketplaces;
-import org.oscm.test.data.Organizations;
-import org.oscm.test.data.Products;
-import org.oscm.test.data.Scenario;
-import org.oscm.test.data.Subscriptions;
+import org.oscm.test.data.*;
 import org.oscm.test.ejb.FifoJMSQueue;
 import org.oscm.test.ejb.TestContainer;
 import org.oscm.test.stubs.ConfigurationServiceStub;
@@ -91,20 +68,7 @@ import org.oscm.types.exceptions.InvalidUserSession;
 public class IndexRequestMasterListenerIT extends EJBTestBase {
 
     private static final String TEMP_INDEX_BASE_DIR = "tempIndexDir";
-    private DataService dm;
-    private static FifoJMSQueue indexerQueue;
-    private PlatformUser user;
-    private LocalizerServiceLocal locSvc;
-    private TagServiceLocal tagSvc;
-    private Marketplace mpGlobal;
-    private TechnicalProduct techProd;
-    private int svcCounter;
-    private long categoryKey;
-    private static String sysPropertyBaseDir = null;
-    private IndexRequestMasterListener irl;
-
     private static final String locale = "en";
-
     private static final List<LocalizedObjectTypes> localizedAttributes = Arrays
             .asList(LocalizedObjectTypes.PRODUCT_MARKETING_NAME,
                     LocalizedObjectTypes.PRODUCT_MARKETING_DESC,
@@ -130,12 +94,22 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
                     ProductClassBridge.CATEGORY_NAME
                             + ProductClassBridge.DEFINED_LOCALES_SUFFIX,
                     ProductClassBridge.MP_ID);
-
     private static final List<String> expectedIndexedAttributesSubscription = Arrays
             .asList(SubscriptionClassBridge.NAME_SUBSCRIPTION_ID,
                     SubscriptionClassBridge.NAME_REFERENCE,
                     SubscriptionClassBridge.NAME_PARAMETER_VALUE,
                     SubscriptionClassBridge.NAME_UDA_VALUE);
+    private static FifoJMSQueue indexerQueue;
+    private static String sysPropertyBaseDir = null;
+    private DataService dm;
+    private PlatformUser user;
+    private LocalizerServiceLocal locSvc;
+    private TagServiceLocal tagSvc;
+    private Marketplace mpGlobal;
+    private TechnicalProduct techProd;
+    private int svcCounter;
+    private long categoryKey;
+    private IndexRequestMasterListener irl;
 
     @BeforeClass
     public static void setupOnce() throws Exception {
@@ -498,7 +472,7 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
     /**
      * When deleting a catalog entry we expect that the system requests the
      * respective product to be indexed again.
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -776,7 +750,7 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
      * When deleting a technical product tag we expect that the system requests
      * the respective technical product (resulting in this marketable products)
      * to be indexed again.
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -861,7 +835,7 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
                         assertEquals(comment, expectedNumDocs,
                                 reader.numDocs());
                         if (expectedNumDocs > 0) {
-                            final FieldInfos indexedFieldNames = ReaderUtil
+                            final FieldInfos indexedFieldNames = MultiFields
                                     .getMergedFieldInfos(reader);
                             for (String expectedAttr : expectedAttributes) {
                                 assertNotNull(

@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.Response.Status;
 
+import org.apache.commons.codec.binary.Base64;
 import org.oscm.internal.intf.ConfigurationService;
 import org.oscm.internal.intf.IdentityService;
 import org.oscm.internal.types.enumtypes.AuthenticationMode;
@@ -32,7 +33,6 @@ import org.oscm.internal.vo.VOUser;
 import org.oscm.types.constants.Configuration;
 
 import com.sun.enterprise.security.auth.login.common.LoginException;
-import com.sun.jersey.core.util.Base64;
 import com.sun.web.security.WebProgrammaticLoginImpl;
 
 /**
@@ -44,7 +44,8 @@ public class BasicAuthFilter implements Filter {
 
     private WebProgrammaticLoginImpl programmaticLogin;
 
-    public void setProgrammaticLogin(WebProgrammaticLoginImpl programmaticLogin) {
+    public void setProgrammaticLogin(
+            WebProgrammaticLoginImpl programmaticLogin) {
         this.programmaticLogin = programmaticLogin;
     }
 
@@ -70,7 +71,6 @@ public class BasicAuthFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response,
             FilterChain chain) throws IOException, ServletException {
-
         HttpServletRequest rq = (HttpServletRequest) request;
         HttpServletResponse rs = (HttpServletResponse) response;
 
@@ -78,16 +78,17 @@ public class BasicAuthFilter implements Filter {
         if (header != null && !header.isEmpty()
                 && header.startsWith(CommonParams.BASIC_AUTH_PREFIX)) {
 
-            String encodedUsrPwd = header.replace(
-                    CommonParams.BASIC_AUTH_PREFIX, "");
-            String userPwd = Base64.base64Decode(encodedUsrPwd);
-            String[] split = userPwd
-                    .split(CommonParams.BASIC_AUTH_SEPARATOR, 2);
+            String encodedUsrPwd = header
+                    .replace(CommonParams.BASIC_AUTH_PREFIX, "");
+            String userPwd = new String(Base64.decodeBase64(encodedUsrPwd));
+            String[] split = userPwd.split(CommonParams.BASIC_AUTH_SEPARATOR,
+                    2);
 
             String pwd = split[1];
 
-            String authMode = configService.getVOConfigurationSetting(
-                    ConfigurationKey.AUTH_MODE, Configuration.GLOBAL_CONTEXT)
+            String authMode = configService
+                    .getVOConfigurationSetting(ConfigurationKey.AUTH_MODE,
+                            Configuration.GLOBAL_CONTEXT)
                     .getValue();
 
             if (!AuthenticationMode.INTERNAL.name().equals(authMode)) {
@@ -99,10 +100,12 @@ public class BasicAuthFilter implements Filter {
                 VOUser user = new VOUser();
                 user.setUserId(split[0]);
 
+
                 user = identityService.getUser(user);
 
                 programmaticLogin.login(Long.toString(user.getKey()),
                         pwd.toCharArray(), CommonParams.REALM, rq, rs);
+
 
             } catch (ObjectNotFoundException | LoginException
                     | OperationNotPermittedException

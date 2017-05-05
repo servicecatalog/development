@@ -87,6 +87,6 @@ public class LoggerMocking {
         };
         Mockito.doAnswer(answer).when(mogger).debug(Matchers.anyString());
         Mockito.doAnswer(answer).when(mogger).debug(Matchers.anyString(),
-                Matchers.any());
+                Matchers.any(Throwable.class));
     }
 }

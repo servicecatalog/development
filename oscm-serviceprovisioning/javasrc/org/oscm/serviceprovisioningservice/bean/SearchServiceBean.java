@@ -27,8 +27,9 @@ import javax.interceptor.Interceptors;
 import javax.jms.JMSException;
 
 import org.apache.lucene.index.Term;
-import org.apache.lucene.queryParser.ParseException;
-import org.apache.lucene.queryParser.QueryParser;
+import org.apache.lucene.queryparser.flexible.core.QueryNodeException;
+import org.apache.solr.parser.QueryParser;
+import org.apache.solr.search.SyntaxError;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.TermQuery;
@@ -171,7 +172,7 @@ public class SearchServiceBean implements SearchService, SearchServiceLocal {
                     }
                 }
             }
-        } catch (ParseException e) {
+        } catch (SyntaxError | QueryNodeException e) {
             InvalidPhraseException ipe = new InvalidPhraseException(e,
                     searchPhrase);
             logger.logDebug(ipe.getMessage());
@@ -210,7 +211,7 @@ public class SearchServiceBean implements SearchService, SearchServiceLocal {
      */
     private org.apache.lucene.search.Query getLuceneQuery(String searchString,
             String mId, String locale,
-            boolean isDefaultLocaleHandling) throws ParseException {
+            boolean isDefaultLocaleHandling) throws SyntaxError, QueryNodeException {
 
         // construct wildcard query for the actual search part
         org.apache.lucene.search.Query textQuery = LuceneQueryBuilder

@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.oscm.test.ClassFilter;
 import org.oscm.test.PackageClassReader;
 
+@Ignore
 public class TransactionMandatoryTest {
 
     private List<Method> methods;
@@ -100,7 +101,6 @@ public class TransactionMandatoryTest {
         methods = getLocalInterfaceMethods();
     }
 
-    @Ignore
     @Test
     public void testBeanMethods1() {
         String currentClass = null;
@@ -144,7 +144,6 @@ public class TransactionMandatoryTest {
                 + sb.toString(), sb.length() == 0);
     }
 
-    @Ignore
     @Test
     public void testBeanMethods() {
         StringBuffer sb = new StringBuffer();

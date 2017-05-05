@@ -12,11 +12,10 @@
 
 package org.oscm.domobjects;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
+import javax.persistence.*;
 
+import org.oscm.domobjects.converters.TTTConverter;
+import org.oscm.domobjects.converters.TimerTConverter;
 import org.oscm.types.enumtypes.TimerType;
 
 /**
@@ -39,8 +38,8 @@ public class TimerProcessingData extends DomainDataContainer {
     /**
      * The timer type.
      */
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, columnDefinition = "varchar")
+    @Convert(converter = TimerTConverter.class)
     private TimerType timerType;
 
     /**

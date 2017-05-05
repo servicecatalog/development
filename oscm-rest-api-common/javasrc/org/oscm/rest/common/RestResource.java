@@ -11,12 +11,10 @@ package org.oscm.rest.common;
 import java.net.URI;
 
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
-
-import com.sun.jersey.spi.container.ContainerRequest;
 
 /**
  * Super class for REST resources and their endpoints.
@@ -38,11 +36,10 @@ public abstract class RestResource {
      * @param id
      *            true if id needs to be validated
      * @return the response with representation or -collection
-     * @throws Exception
      */
     protected <R extends Representation, P extends RequestParameters> Response get(
-            Request request, RestBackend.Get<R, P> backend, P params, boolean id)
-            throws Exception {
+            Request request, RestBackend.Get<R, P> backend, P params,
+            boolean id) throws Exception {
 
         int version = getVersion(request);
 
@@ -106,37 +103,10 @@ public abstract class RestResource {
      * @param params
      *            the request parameters
      * @return the response with the new location
-     * @throws Exception
-     */
-    protected <R extends Representation, P extends RequestParameters> Response post(
-            Request request, RestBackend.Post<R, P> backend, R content, P params)
-            throws Exception {
-        return post(request, backend, content, params, null, null);
-    }
-
-    /**
-     * Wrapper for backend POST commands. Prepares, validates and revises data
-     * for commands and assembles responses.
-     * 
-     * @param request
-     *            the request context
-     * @param backend
-     *            the backend command
-     * @param content
-     *            the representation to create
-     * @param params
-     *            the request parameters
-     * @param resource
-     *            the resource to build the result URI for
-     * @param method
-     *            the method to create the result URI for (GET on single
-     *            resource)
-     * @return the response with the new location
-     * @throws Exception
      */
     protected <R extends Representation, P extends RequestParameters> Response post(
             Request request, RestBackend.Post<R, P> backend, R content,
-            P params, Class<?> resource, String method) throws Exception {
+            P params) throws Exception {
 
         int version = getVersion(request);
 
@@ -144,20 +114,10 @@ public abstract class RestResource {
 
         Object newId = backend.post(content, params);
 
-        if (newId == null) {
-            // post is delayed by an asynchronous operation or suspending
-            // trigger, no id available yet
-            return Response.status(Status.ACCEPTED).build();
-        }
+        ContainerRequestContext cr = (ContainerRequestContext) request;
+        UriBuilder builder = cr.getUriInfo().getAbsolutePathBuilder();
+        URI uri = builder.path(newId.toString()).build();
 
-        ContainerRequest cr = (ContainerRequest) request;
-        UriBuilder builder = cr.getAbsolutePathBuilder();
-        URI uri;
-        if (resource != null) {
-            uri = builder.path(resource, method).build(newId.toString());
-        } else {
-            uri = builder.path(newId.toString()).build();
-        }
         return Response.created(uri).build();
     }
 
@@ -175,7 +135,6 @@ public abstract class RestResource {
      * @param params
      *            the request parameters
      * @return the response without content
-     * @throws Exception
      */
     protected <R extends Representation, P extends RequestParameters> Response put(
             Request request, RestBackend.Put<R, P> backend, R content, P params)
@@ -190,16 +149,9 @@ public abstract class RestResource {
             content.setETag(params.getETag());
         }
 
-        boolean result = backend.put(content, params);
-        if (result) {
-            // put was immediately performed
-            return Response.noContent().build();
-        } else {
-            // put is delayed by an asynchronous operation or suspending
-            // trigger
-            return Response.status(Status.ACCEPTED).build();
+        backend.put(content, params);
 
-        }
+        return Response.noContent().build();
     }
 
     /**
@@ -213,7 +165,6 @@ public abstract class RestResource {
      * @param params
      *            the request parameters
      * @return the response without content
-     * @throws Exception
      */
     protected <P extends RequestParameters> Response delete(Request request,
             RestBackend.Delete<P> backend, P params) throws Exception {
@@ -222,15 +173,9 @@ public abstract class RestResource {
 
         prepareData(version, params, true, null, false);
 
-        boolean result = backend.delete(params);
-        if (result) {
-            // delete was immediately performed
-            return Response.noContent().build();
-        } else {
-            // delete is delayed by an asynchronous operation or suspending
-            // trigger
-            return Response.status(Status.ACCEPTED).build();
-        }
+        backend.delete(params);
+
+        return Response.noContent().build();
     }
 
     /**
@@ -244,8 +189,8 @@ public abstract class RestResource {
      */
     protected int getVersion(Request request) throws WebApplicationException {
 
-        ContainerRequest cr = (ContainerRequest) request;
-        Object property = cr.getProperties().get(CommonParams.PARAM_VERSION);
+        ContainerRequestContext cr = (ContainerRequestContext) request;
+        Object property = cr.getProperty(CommonParams.PARAM_VERSION);
 
         if (property == null) {
             throw WebException.notFound()

@@ -1,9 +1,0 @@
-#Wed Feb 04 17:13:47 CET 2009
-DELEGATES_PREFERENCE=delegateValidatorList
-USER_BUILD_PREFERENCE=enabledBuildValidatorListorg.eclipse.jst.j2ee.internal.classpathdep.ClasspathDependencyValidator;org.eclipse.wst.common.componentcore.internal.ModuleCoreValidator;org.eclipse.wst.wsi.ui.internal.WSIMessageValidator;org.eclipse.jpt.core.internal.validation.JpaValidator;
-USER_MANUAL_PREFERENCE=enabledManualValidatorListorg.eclipse.jst.j2ee.internal.classpathdep.ClasspathDependencyValidator;org.eclipse.wst.common.componentcore.internal.ModuleCoreValidator;org.eclipse.wst.wsi.ui.internal.WSIMessageValidator;org.eclipse.jpt.core.internal.validation.JpaValidator;
-USER_PREFERENCE=overrideGlobalPreferencesfalse
-eclipse.preferences.version=1
-override=false
-suspend=false
-vf.version=3

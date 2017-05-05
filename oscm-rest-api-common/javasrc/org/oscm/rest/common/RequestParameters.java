@@ -13,7 +13,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.WebApplicationException;
 
 /**
- * Base class for InjectParams
+ * Base class for BeanParams
  * 
  * @author miethaner
  */
@@ -88,8 +88,8 @@ public abstract class RequestParameters {
     public void validateId() throws WebApplicationException {
 
         if (id == null) {
-            throw WebException.notFound()
-                    .message(CommonParams.ERROR_INVALID_ID).build();
+            throw WebException.notFound().message(CommonParams.ERROR_INVALID_ID)
+                    .build();
         }
     }
 
@@ -103,7 +103,8 @@ public abstract class RequestParameters {
 
         etag = null;
 
-        if (noneMatch != null && !CommonParams.ETAG_WILDCARD.equals(noneMatch)) {
+        if (noneMatch != null
+                && !CommonParams.ETAG_WILDCARD.equals(noneMatch)) {
             try {
                 etag = new Long(Long.parseLong(noneMatch));
             } catch (NumberFormatException e) {

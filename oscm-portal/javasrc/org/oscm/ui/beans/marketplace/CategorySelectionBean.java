@@ -5,10 +5,7 @@
 package org.oscm.ui.beans.marketplace;
 
 import java.io.Serializable;
-import java.util.AbstractList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
@@ -22,7 +19,7 @@ import org.oscm.ui.model.Category;
 import org.oscm.internal.intf.CategorizationService;
 import org.oscm.internal.vo.VOCategory;
 
-@SessionScoped
+@SessionScoped      
 @ManagedBean(name="categorySelectionBean")
 public class CategorySelectionBean extends BaseBean implements Serializable {
 
@@ -33,7 +30,7 @@ public class CategorySelectionBean extends BaseBean implements Serializable {
     String lastUsedLanguage;
     String lastUsedMarketplaceId;
     String selectedCategoryId;
-
+    
     List<VOCategory> categoriesForMarketplace = null;
 
     public String getSelectedCategoryId() {
@@ -55,6 +52,11 @@ public class CategorySelectionBean extends BaseBean implements Serializable {
             @Override
             public Category get(int index) {
                 return new Category(categoriesForMarketplace.get(index));
+            }
+
+            @Override
+            public Spliterator<Category> spliterator() {
+                return super.spliterator();
             }
 
             @Override

@@ -25,7 +25,7 @@ import javax.persistence.NamedQuery;
         @NamedQuery(name = "VatRateHistory.findByObject", query = "SELECT h FROM VatRateHistory h WHERE h.objKey=:objKey ORDER BY objversion"),
         @NamedQuery(name = "VatRateHistory.findForCustomerAndSupplier", query = "SELECT vat FROM VatRateHistory vat, OrganizationHistory cust, OrganizationReferenceHistory ref "
                 + "WHERE vat.owningOrganizationObjKey = :supplierKey AND cust.objKey = :customerKey AND ref.sourceObjKey = vat.owningOrganizationObjKey "
-                + "AND ref.dataContainer.referenceType = 'SUPPLIER_TO_CUSTOMER' AND ref.targetObjKey = cust.objKey "
+                + "AND ref.dataContainer.referenceType = org.oscm.domobjects.enums.OrganizationReferenceType.SUPPLIER_TO_CUSTOMER AND ref.targetObjKey = cust.objKey "
                 + "AND vat.objVersion = (SELECT max(innerVat.objVersion) FROM VatRateHistory innerVat WHERE innerVat.objKey = vat.objKey AND innerVat.modDate < :endDate ) "
                 + "AND cust.objVersion = (SELECT max(innerCust.objVersion) FROM OrganizationHistory innerCust WHERE innerCust.objKey = cust.objKey) "
                 + "AND (vat.targetCountryObjKey IS NULL OR vat.targetCountryObjKey = cust.domicileCountryObjKey) "

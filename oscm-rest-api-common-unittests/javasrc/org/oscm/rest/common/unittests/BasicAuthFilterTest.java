@@ -53,8 +53,8 @@ public class BasicAuthFilterTest {
 
     @Test
     public void testFilterNegativeHeader() throws Exception {
-        testFilter(null, AuthenticationMode.INTERNAL.name(), USER_KEY, false,
-                0, 1);
+        testFilter(null, AuthenticationMode.INTERNAL.name(), USER_KEY, false, 0,
+                1);
     }
 
     @Test
@@ -87,9 +87,9 @@ public class BasicAuthFilterTest {
         ConfigurationService config = Mockito.mock(ConfigurationService.class);
         VOConfigurationSetting setting = new VOConfigurationSetting();
         setting.setValue(authMode);
-        Mockito.when(
-                config.getVOConfigurationSetting(ConfigurationKey.AUTH_MODE,
-                        Configuration.GLOBAL_CONTEXT)).thenReturn(setting);
+        Mockito.when(config.getVOConfigurationSetting(
+                ConfigurationKey.AUTH_MODE, Configuration.GLOBAL_CONTEXT))
+                .thenReturn(setting);
 
         IdentityService identityService = Mockito.mock(IdentityService.class);
         VOUser user = new VOUser();
@@ -99,18 +99,17 @@ public class BasicAuthFilterTest {
             Mockito.doReturn(user).when(identityService)
                     .getUser(Mockito.any(VOUser.class));
         } else {
-            Mockito.doThrow(new ObjectNotFoundException())
-                    .when(identityService).getUser(Mockito.any(VOUser.class));
+            Mockito.doThrow(new ObjectNotFoundException()).when(identityService)
+                    .getUser(Mockito.any(VOUser.class));
         }
 
         WebProgrammaticLoginImpl login = Mockito
                 .mock(WebProgrammaticLoginImpl.class);
 
         if (!success) {
-            Mockito.doThrow(new LoginException(true))
-                    .when(login)
-                    .login(USER_KEY.toString(), PASSWORD.toCharArray(),
-                            CommonParams.REALM, rq, rs);
+            Mockito.doThrow(new LoginException(true)).when(login).login(
+                    USER_KEY.toString(), PASSWORD.toCharArray(),
+                    CommonParams.REALM, rq, rs);
         }
 
         Mockito.when(rq.getHeader(CommonParams.HEADER_AUTH)).thenReturn(header);
@@ -128,8 +127,8 @@ public class BasicAuthFilterTest {
         }
 
         Mockito.verify(login, Mockito.times(loginTimes)).login(
-                USER_KEY.toString(), PASSWORD.toCharArray(),
-                CommonParams.REALM, rq, rs);
+                USER_KEY.toString(), PASSWORD.toCharArray(), CommonParams.REALM,
+                rq, rs);
         Mockito.verify(chain, Mockito.times(chainTimes)).doFilter(rq, rs);
     }
 

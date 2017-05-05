@@ -32,46 +32,50 @@
     <property name="mail-user" value="@MAIL.USER@"></property>
   </mail-resource>
   <connector-connection-pool max-pool-size="250" steady-pool-size="1"
-    name="jms/bss/triggerQueueFactory" resource-adapter-name="jmsra" is-connection-validation-required="true"
+    name="jms/bss/triggerQueueFactoryConPool" resource-adapter-name="jmsra" is-connection-validation-required="true"
     connection-definition-name="javax.jms.QueueConnectionFactory" idle-timeout-in-seconds="600" transaction-support="XATransaction"
     fail-all-connections="true">
     <property name="Password" value="@JMS.USER.NAME@"></property>
     <property name="UserName" value="@JMS.USER.PWD@"></property>
   </connector-connection-pool>
-  <connector-resource pool-name="jms/bss/triggerQueueFactory" jndi-name="jms/bss/triggerQueueFactory"></connector-resource>
+  <connector-resource pool-name="jms/bss/triggerQueueFactoryConPool" object-type="system-all"
+                      jndi-name="jms/bss/triggerQueueFactory"></connector-resource>
   <admin-object-resource res-adapter="jmsra" res-type="javax.jms.Queue" jndi-name="jms/bss/triggerQueue">
     <property name="Name" value="jms_bss_triggerQueue"></property>
   </admin-object-resource>
   <connector-connection-pool max-pool-size="250" steady-pool-size="1"
-    name="jms/bss/indexerQueueFactory" resource-adapter-name="jmsra" is-connection-validation-required="true"
+    name="jms/bss/indexerQueueFactoryConPool" resource-adapter-name="jmsra" is-connection-validation-required="true"
     connection-definition-name="javax.jms.QueueConnectionFactory" idle-timeout-in-seconds="600" transaction-support="XATransaction"
     fail-all-connections="true">
     <property name="Password" value="@JMS.USER.NAME@"></property>
     <property name="UserName" value="@JMS.USER.PWD@"></property>
   </connector-connection-pool>
-  <connector-resource pool-name="jms/bss/indexerQueueFactory" jndi-name="jms/bss/indexerQueueFactory"></connector-resource>
+  <connector-resource pool-name="jms/bss/indexerQueueFactoryConPool" object-type="system-all"
+                      jndi-name="jms/bss/indexerQueueFactory"></connector-resource>
   <admin-object-resource res-adapter="jmsra" res-type="javax.jms.Queue" jndi-name="jms/bss/indexerQueue">
     <property name="Name" value="jms_bss_indexerQueue"></property>
   </admin-object-resource>
   <connector-connection-pool max-pool-size="250" steady-pool-size="1"
-    name="jms/bss/masterIndexerQueueFactory" resource-adapter-name="jmsra" is-connection-validation-required="true"
+    name="jms/bss/masterIndexerQueueFactoryConPool" resource-adapter-name="jmsra" is-connection-validation-required="true"
     connection-definition-name="javax.jms.QueueConnectionFactory" idle-timeout-in-seconds="600" transaction-support="XATransaction"
     fail-all-connections="true">
     <property name="Password" value="@JMS.USER.NAME@"></property>
     <property name="UserName" value="@JMS.USER.PWD@"></property>
     <property name="AddressList" value="mq://@REMOTE.JMS.HOST@:@REMOTE.JMS.PORT@"></property>
   </connector-connection-pool>
-  <connector-resource pool-name="jms/bss/masterIndexerQueueFactory" jndi-name="jms/bss/masterIndexerQueueFactory"></connector-resource>
+  <connector-resource pool-name="jms/bss/masterIndexerQueueFactoryConPool" object-type="system-all"
+                      jndi-name="jms/bss/masterIndexerQueueFactory"></connector-resource>
   <admin-object-resource res-adapter="jmsra" res-type="javax.jms.Queue" jndi-name="jms/bss/masterIndexerQueue">
     <property name="Name" value="jms_bss_masterIndexerQueue"></property>
   </admin-object-resource>
-  <connector-connection-pool max-pool-size="250" steady-pool-size="1" name="jms/bss/taskQueueFactory"
+  <connector-connection-pool max-pool-size="250" steady-pool-size="1" name="jms/bss/taskQueueFactoryConPool"
     resource-adapter-name="jmsra" is-connection-validation-required="true" connection-definition-name="javax.jms.QueueConnectionFactory"
     idle-timeout-in-seconds="600" transaction-support="XATransaction" fail-all-connections="true">
     <property name="Password" value="@JMS.USER.NAME@"></property>
     <property name="UserName" value="@JMS.USER.PWD@"></property>
   </connector-connection-pool>
-  <connector-resource pool-name="jms/bss/taskQueueFactory" jndi-name="jms/bss/taskQueueFactory"></connector-resource>
+  <connector-resource pool-name="jms/bss/taskQueueFactoryConPool" object-type="system-all"
+                      jndi-name="jms/bss/taskQueueFactory"></connector-resource>
   <admin-object-resource res-adapter="jmsra" res-type="javax.jms.Queue" jndi-name="jms/bss/taskQueue">
     <property name="Name" value="jms_bss_taskQueue"></property>
   </admin-object-resource>

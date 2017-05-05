@@ -7,22 +7,17 @@ package org.oscm.dataservice.bean;
 import java.util.List;
 
 import org.hibernate.StatelessSession;
-import org.hibernate.event.spi.PostDeleteEvent;
-import org.hibernate.event.spi.PostDeleteEventListener;
-import org.hibernate.event.spi.PostInsertEvent;
-import org.hibernate.event.spi.PostInsertEventListener;
-import org.hibernate.event.spi.PostUpdateEvent;
-import org.hibernate.event.spi.PostUpdateEventListener;
+import org.hibernate.Transaction;
+import org.hibernate.event.spi.*;
 import org.hibernate.persister.entity.EntityPersister;
-
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
 import org.oscm.domobjects.DomainHistoryObject;
 import org.oscm.domobjects.DomainObject;
 import org.oscm.domobjects.DomainObjectWithVersioning;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.domobjects.enums.ModificationType;
 import org.oscm.internal.types.exception.SaaSSystemException;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
 
 /**
  * Hibernate specific listener implementation to catch insert, modification and
@@ -31,7 +26,7 @@ import org.oscm.internal.types.exception.SaaSSystemException;
  * @author hoffmann
  */
 public class HibernateEventListener implements PostUpdateEventListener,
-        PostInsertEventListener, PostDeleteEventListener {
+    PostInsertEventListener, PostDeleteEventListener {
 
     private static final long serialVersionUID = -843967013822084583L;
 
@@ -61,6 +56,11 @@ public class HibernateEventListener implements PostUpdateEventListener,
                         ModificationType.MODIFY);
             }
         }
+    }
+
+    @Override
+    public boolean requiresPostCommitHanding(EntityPersister entityPersister) {
+        return false;
     }
 
     private int getVersionColumn(PostUpdateEvent event) {
@@ -94,16 +94,19 @@ public class HibernateEventListener implements PostUpdateEventListener,
                 long key = obj.getKey();
                 final StatelessSession session = persister.getFactory()
                         .openStatelessSession();
+                Transaction tx = session.beginTransaction();
                 org.hibernate.Query query = session
                         .createQuery("DELETE FROM LocalizedResource WHERE objectKey = :objectKey AND objectType IN (:objectType)");
                 query.setParameter("objectKey", Long.valueOf(key));
                 query.setParameterList("objectType", objType);
                 query.executeUpdate();
+                tx.commit();
                 session.close();
             }
         }
     }
 
+    //Glassfish4 upgarde, added transaction to session
     private void createHistory(EntityPersister persister, Object entity,
             ModificationType type) {
         if (entity instanceof DomainObject<?>) {
@@ -115,7 +118,9 @@ public class HibernateEventListener implements PostUpdateEventListener,
 
                 final StatelessSession session = persister.getFactory()
                         .openStatelessSession();
+                Transaction tx = session.beginTransaction();
                 session.insert(hist);
+                tx.commit();
                 session.close();
 
                 if (logger.isDebugLoggingEnabled()) {

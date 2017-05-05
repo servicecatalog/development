@@ -74,6 +74,16 @@ public class TestJMSSession implements Session {
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public MessageConsumer createSharedConsumer(Topic topic, String s) throws JMSException {
+        return null;
+    }
+
+    @Override
+    public MessageConsumer createSharedConsumer(Topic topic, String s, String s1) throws JMSException {
+        return null;
+    }
+
     public TopicSubscriber createDurableSubscriber(Topic arg0, String arg1)
             throws JMSException {
         throw new UnsupportedOperationException();
@@ -82,6 +92,26 @@ public class TestJMSSession implements Session {
     public TopicSubscriber createDurableSubscriber(Topic arg0, String arg1,
             String arg2, boolean arg3) throws JMSException {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public MessageConsumer createDurableConsumer(Topic topic, String s) throws JMSException {
+        return null;
+    }
+
+    @Override
+    public MessageConsumer createDurableConsumer(Topic topic, String s, String s1, boolean b) throws JMSException {
+        return null;
+    }
+
+    @Override
+    public MessageConsumer createSharedDurableConsumer(Topic topic, String s) throws JMSException {
+        return null;
+    }
+
+    @Override
+    public MessageConsumer createSharedDurableConsumer(Topic topic, String s, String s1) throws JMSException {
+        return null;
     }
 
     public MapMessage createMapMessage() throws JMSException {

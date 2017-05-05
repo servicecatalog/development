@@ -11,7 +11,6 @@
  *******************************************************************************/
 
 package org.oscm.serviceprovisioningservice.bean;
-
 import java.util.Arrays;
 import java.util.List;
 

@@ -15,18 +15,9 @@ package org.oscm.domobjects;
 import java.io.Serializable;
 import java.util.Date;
 
-import javax.persistence.Column;
-import javax.persistence.Embedded;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.MappedSuperclass;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import javax.persistence.*;
 
+import org.oscm.domobjects.converters.DHOConverter;
 import org.oscm.domobjects.enums.ModificationType;
 
 /**
@@ -96,7 +87,7 @@ public abstract class DomainHistoryObject<D extends DomainDataContainer>
      */
     @Id
     @GeneratedValue(strategy = GenerationType.TABLE, generator = "doh_seq")
-    @SequenceGenerator(name = "doh_seq", allocationSize = 1000)
+    @TableGenerator(table = "hibernate_sequences", name = "doh_seq", allocationSize = 1000, valueColumnName = "sequence_next_hi_value")
     @Column(name = "TKEY")
     private long key;
 
@@ -109,7 +100,7 @@ public abstract class DomainHistoryObject<D extends DomainDataContainer>
     /**
      * Reason for change (ADD, MODIFY or DELETE of domain object)
      */
-    @Enumerated(EnumType.STRING)
+    @Convert( converter=DHOConverter.class )
     @Column(nullable = false)
     private ModificationType modType;
 

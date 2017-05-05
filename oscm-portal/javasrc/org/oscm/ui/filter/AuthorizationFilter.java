@@ -981,6 +981,16 @@ public class AuthorizationFilter extends BaseBesFilter {
                 public ServletOutputStream getOutputStream() throws IOException {
                     return new ServletOutputStream() {
                         @Override
+                        public boolean isReady() {
+                            return false;
+                        }
+
+                        @Override
+                        public void setWriteListener(WriteListener writeListener) {
+
+                        }
+
+                        @Override
                         public void write(int b) throws IOException {
 
                         }

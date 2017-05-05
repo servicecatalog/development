@@ -12,9 +12,7 @@
 
 package org.oscm.domobjects;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -26,17 +24,16 @@ import javax.persistence.Query;
 
 import org.junit.Assert;
 import org.junit.Test;
-
 import org.oscm.converter.ParameterizedTypes;
 import org.oscm.domobjects.enums.ModificationType;
 import org.oscm.domobjects.enums.RevenueShareModelType;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.test.ReflectiveClone;
 import org.oscm.test.ReflectiveCompare;
 import org.oscm.test.data.Marketplaces;
 import org.oscm.test.data.Organizations;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
 
 /**
  * Tests of the marketplace-related domain objects.
@@ -45,7 +42,7 @@ import org.oscm.internal.types.exception.ObjectNotFoundException;
  */
 public class MarketplaceIT extends DomainObjectTestBase {
 
-    private List<DomainObjectWithHistory<?>> domObjects = new ArrayList<DomainObjectWithHistory<?>>();
+    private List<DomainObjectWithHistory<?>> domObjects = new ArrayList<>();
     private static final String ID_MP1 = "test_MP1_global";
     private static final String BRANDING_URL1 = "http://www.fujitsu.com";
     private static final String BRANDING_URL2 = "http://en.wikipedia.org";
@@ -327,6 +324,9 @@ public class MarketplaceIT extends DomainObjectTestBase {
 
         Marketplace mp = Marketplaces.ensureMarketplace(supplier,
                 supplier.getOrganizationId(), mgr);
+        mp.setPriceModel(unproxyEntity(mp.getPriceModel()));
+        mp.setBrokerPriceModel(unproxyEntity(mp.getBrokerPriceModel()));
+        mp.setResellerPriceModel(unproxyEntity(mp.getResellerPriceModel()));
         domObjects.add((Marketplace) ReflectiveClone.clone(mp));
 
         CatalogEntry entry = new CatalogEntry();

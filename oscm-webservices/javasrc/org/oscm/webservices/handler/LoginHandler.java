@@ -38,7 +38,7 @@ import org.oscm.types.enumtypes.LogMessageIdentifier;
 import org.oscm.types.exceptions.SecurityCheckException;
 import org.w3c.dom.Element;
 
-import com.sun.appserv.security.ProgrammaticLogin;
+import com.sun.enterprise.security.ee.auth.login.ProgrammaticLogin;
 import com.sun.xml.ws.security.opt.impl.incoming.SAMLAssertion;
 import com.sun.xml.wss.XWSSecurityException;
 import com.sun.xml.wss.impl.MessageConstants;
