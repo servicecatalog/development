@@ -20,6 +20,7 @@ import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 
+import org.oscm.app.openstack.NovaProcessor;
 import org.oscm.app.openstack.data.FlowState;
 import org.oscm.app.openstack.i18n.Messages;
 import org.oscm.app.v2_0.APPlatformServiceFactory;
@@ -32,8 +33,7 @@ import org.oscm.app.v2_0.data.LocalizedText;
 import org.oscm.app.v2_0.data.OperationParameter;
 import org.oscm.app.v2_0.data.ProvisioningSettings;
 import org.oscm.app.v2_0.data.ServiceUser;
-import org.oscm.app.v2_0.exceptions.APPlatformException;
-import org.oscm.app.v2_0.exceptions.LogAndExceptionConverter;
+import org.oscm.app.v2_0.exceptions.*;
 import org.oscm.app.v2_0.intf.APPlatformController;
 import org.oscm.app.v2_0.intf.APPlatformService;
 import org.slf4j.Logger;
@@ -327,7 +327,6 @@ public class OpenStackController extends ProvisioningValidator
                     Context.ACTIVATION);
         }
     }
-
     /**
      * Starts the deactivation of an application instance.
      * <p>
@@ -536,5 +535,25 @@ public class OpenStackController extends ProvisioningValidator
             }
         }
         return messages;
+    }
+
+    @Override
+    public Integer getServersNumber(String instanceId,
+        String subscriptionId, String organizationId)
+        throws APPlatformException {
+
+        ProvisioningSettings settings = platformService
+            .getServiceInstanceDetails(OpenStackController.ID, instanceId,
+                subscriptionId, organizationId);
+        PropertyHandler ph = new PropertyHandler(settings);
+
+        try {
+            return new NovaProcessor().getServersNumber(ph);
+        } catch (InstanceNotAliveException ex) {
+            LOGGER.warn(ex.getMessage());
+        } catch (Exception e) {
+            throw new APPlatformException(e.getMessage());
+        }
+        return 0;
     }
 }

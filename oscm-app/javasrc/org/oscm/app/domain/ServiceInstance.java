@@ -56,7 +56,9 @@ import org.oscm.string.Strings;
         @NamedQuery(name = "ServiceInstance.getForKey", query = "SELECT si FROM ServiceInstance si WHERE si.instanceId = :key"),
         @NamedQuery(name = "ServiceInstance.getForSubscriptionAndOrg", query = "SELECT si FROM ServiceInstance si WHERE si.subscriptionId = :subscriptionId AND si.organizationId = :organizationId"),
         @NamedQuery(name = "ServiceInstance.getForCtrlKey", query = "SELECT si FROM ServiceInstance si WHERE si.instanceId = :key AND si.controllerId = :cid"),
-        @NamedQuery(name = "ServiceInstance.getAllForCtrl", query = "SELECT si FROM ServiceInstance si WHERE si.controllerId = :cid") })
+        @NamedQuery(name = "ServiceInstance.getAllForCtrl", query = "SELECT si FROM ServiceInstance si WHERE si"
+            + ".controllerId = :cid"),
+        @NamedQuery(name = "ServiceInstance.getAll", query = "SELECT si FROM ServiceInstance si") })
 public class ServiceInstance implements Serializable {
 
     private static final long serialVersionUID = 4298435124486600408L;

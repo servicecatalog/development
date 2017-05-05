@@ -255,10 +255,17 @@ public class ServiceInstanceDAO {
 
     public List<ServiceInstance> getInstancesSuspendedbyApp() {
         Query query = em
-                .createNamedQuery("ServiceInstance.getForSuspendedByApp");
+            .createNamedQuery("ServiceInstance.getForSuspendedByApp");
         @SuppressWarnings("unchecked")
         List<ServiceInstance> result = query.getResultList();
         return result;
     }
 
+    public List<ServiceInstance> getInstances() {
+        Query query = em
+            .createNamedQuery("ServiceInstance.getAll");
+        @SuppressWarnings("unchecked")
+        List<ServiceInstance> result = query.getResultList();
+        return result;
+    }
 }

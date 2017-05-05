@@ -254,4 +254,19 @@ public class NovaProcessor {
         }
         return servers;
     }
+
+    /**
+     * Returns number of servers for given tenant id
+     * @param ph
+     * @return
+     * @throws HeatException
+     * @throws APPlatformException
+     * @throws NovaException
+     */
+    public Integer getServersNumber(PropertyHandler ph)
+        throws HeatException, APPlatformException, NovaException {
+        OpenStackConnection connection = getConnection(ph);
+        List<String> serverIds = new NovaClient(connection).getServerIds(ph.getTenantId());
+        return serverIds.size();
+    }
 }

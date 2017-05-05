@@ -100,6 +100,10 @@ public class ServiceInstanceServiceBean {
         }
     }
 
+    public List<ServiceInstance> getInstances() {
+        return dao.getInstances();
+    }
+
     public ServiceInstance find(ServiceInstance instance, String locale)
             throws ServiceInstanceException {
         try {
