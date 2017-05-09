@@ -360,6 +360,7 @@ public class MySubscriptionsCtrl implements Serializable {
             // build URI
             UriBuilder builder = UriBuilder.fromPath(
                     model.getSelectedSubscription().getCustomTabUrl());
+            builder.queryParam("lang", ui.getViewLocale().toLanguageTag());
             builder.queryParam("instId", instId);
             builder.queryParam("orgId", orgId);
             builder.queryParam("subId", subId);
