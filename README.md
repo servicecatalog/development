@@ -1,5 +1,7 @@
-<p align="center"><h1><img height="52" src="https://avatars0.githubusercontent.com/u/14330878" alt="Open Service Catalog Manager"/>&nbsp;Open Service Catalog Manager</h1></p> 
 [![Build Status](https://travis-ci.org/servicecatalog/development.svg?branch=master)](https://travis-ci.org/servicecatalog/development)
+
+<p align="center"><h1><img height="52" src="https://avatars0.githubusercontent.com/u/14330878" alt="Open Service Catalog Manager"/>&nbsp;Open Service Catalog Manager</h1></p> 
+
 Open Service Catalog Manager (OSCM) is an open source application with enterprise quality level. It supports bright spectrum of use cases, from SaaS Marketplace to Enterprise IaaS Store. It offers ready-to-use service provisioning adapters for IaaS providers like Amazon AWS and OpenStack, but is open for integrating other platforms.
 
 The Service Providers can define their services with flexible price plans and publish them to the OSCM Marketplaces. The Service Provider can decide on using the OSCM Billing Engine for the service usage cost calculation or integrate external one. The End-Users can subscribe and use the services.
