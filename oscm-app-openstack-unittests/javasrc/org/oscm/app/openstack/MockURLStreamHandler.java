@@ -38,7 +38,7 @@ public class MockURLStreamHandler extends URLStreamHandler {
     public MockURLStreamHandler() {
         List<String> serverNames = new ArrayList<>();
         serverNames.add("server1");
-        connection = new HashMap<String, MockHttpURLConnection>();
+        connection = new HashMap<>();
         put("/v3/auth/tokens",
                 new MockHttpURLConnection(201, respTokens(true, true, false)));
         put("/stacks/instanceName", new MockHttpURLConnection(200,
@@ -71,7 +71,7 @@ public class MockURLStreamHandler extends URLStreamHandler {
                                 ServerStatus.ACTIVE, "testTenantID")));
         put("/flavors/1", new MockHttpURLConnection(200, respFlavor(1, "S-1")));
 
-        connectionHttps = new HashMap<String, MockHttpsURLConnection>();
+        connectionHttps = new HashMap<>();
         put("/v3/auth/tokens",
                 new MockHttpsURLConnection(201, respTokens(true, true, true)));
         put("/v1/templates/fosi_v2.json",
@@ -87,7 +87,7 @@ public class MockURLStreamHandler extends URLStreamHandler {
         put("/stacks/Instance4/sID/actions", new MockHttpsURLConnection(200,
                 respStacksInstance4sIdActions()));
         put("/stacks", new MockHttpsURLConnection(200, respStacks()));
-        this.count = new HashMap<String, Integer>();
+        this.count = new HashMap<>();
     }
 
     /**
@@ -434,7 +434,7 @@ public class MockURLStreamHandler extends URLStreamHandler {
         return response.toString();
     }
 
-    private static String respTemplatesFosi_v2() {
+    public static String respTemplatesFosi_v2() {
         return "{\"AWSTemplateFormatVersion\": \"2010-09-09\","
                 + "\"Parameters\": {\"InstanceType\" : {"
                 + "\"Description\" : \"Server instance type\","
