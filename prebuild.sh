@@ -1,6 +1,5 @@
 #!/bin/sh
 mv enterprise/Development/branding Development/
-mv enterprise/Development/birt Development/
 mv enterprise/Development/escm-oscm-devruntime Development/
 mv enterprise/Development/ess-oscm-app Development/
 mv enterprise/Development/ess-oscm-app-converter Development/
