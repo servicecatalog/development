@@ -241,6 +241,9 @@ public class Subscription extends DomainObjectWithHistory<SubscriptionData> {
     @OrderBy
     private List<OperationRecord> operationRecord = new ArrayList<OperationRecord>();
 
+    @Column
+    private int vmsNumber;
+
     /**
      * Adds a user to the subscription assigning the provided role or standard
      * authorities if no role is provided.
@@ -669,5 +672,13 @@ public class Subscription extends DomainObjectWithHistory<SubscriptionData> {
 
     public boolean isExternal() {
         return dataContainer.isExternal();
+    }
+
+    public int getVmsNumber() {
+        return vmsNumber;
+    }
+
+    public void setVmsNumber(int vmsNumber) {
+        this.vmsNumber = vmsNumber;
     }
 }

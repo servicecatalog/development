@@ -10,9 +10,7 @@ package org.oscm.app.openstack;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 import org.apache.sling.commons.json.JSONArray;
 import org.apache.sling.commons.json.JSONException;
@@ -229,4 +227,35 @@ public class NovaClient {
         }
         return "-";
     }
+
+    /**
+     * Writes back the ids of servers for given tenant
+     * @param projectId - tenant id
+     * @return list of ids
+     */
+    public List<String> getServerIds(String projectId) {
+        List<String> serverIds = new LinkedList<String>();
+        try {
+            String uri = connection.getNovaEndpoint() + "/servers/detail?project_id=" + URLEncoder.encode(projectId,
+                "UTF-8");
+
+            RESTResponse response = connection.processRequest(uri, "GET");
+            String body = response.getResponseBody();
+            JSONObject responseJson = new JSONObject(body);
+            JSONArray servers = responseJson.getJSONArray("servers");
+
+            for (int i = 0; i < servers.length(); i++) {
+                JSONObject server = servers.getJSONObject(i);
+                serverIds.add(server.optString("id"));
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        } catch (OpenStackConnectionException e) {
+            e.printStackTrace();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return serverIds;
+    }
+
 }

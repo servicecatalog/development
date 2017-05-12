@@ -1272,4 +1272,23 @@ public interface SubscriptionService {
             @WebParam(name = "instanceInfo") VOInstanceInfo instanceInfo)
             throws ObjectNotFoundException;
 
+    /**
+     * Update number of provisioned VMs for given subscription
+     *
+     * @param subscriptionId
+     *            the identifier of the subscription for which details are to be
+     *            retrieved
+     * @param organizationId
+     *            the ID of the customer organization
+     * @param instanceInfo
+     *            the value object containing instance information
+     * @throws ObjectNotFoundException
+     *             if the organization or subscription is not found
+     */
+    @WebMethod
+    void notifySubscriptionAboutVmsNumber(
+        @WebParam(name = "subscriptionId") String subscriptionId,
+        @WebParam(name = "organizationId") String organizationId,
+        @WebParam(name = "instanceInfo") VOInstanceInfo instanceInfo)
+        throws ObjectNotFoundException;
 }

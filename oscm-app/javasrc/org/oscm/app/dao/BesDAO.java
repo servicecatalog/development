@@ -370,6 +370,23 @@ public class BesDAO {
         }
     }
 
+
+    public void notifySubscriptionAboutVmsNumber(ServiceInstance currentSI) throws BESNotificationException {
+        if (currentSI.isDeleted()) {
+            return;
+        }
+        VOInstanceInfo voInstanceInfo = new VOInstanceInfo();
+        voInstanceInfo.setVmsNumber(currentSI.getVmsNumber());
+        try {
+            SubscriptionService subServ = getBESWebService(
+                SubscriptionService.class, currentSI);
+            subServ.notifySubscriptionAboutVmsNumber(currentSI.getSubscriptionId(), currentSI.getOrganizationId(),
+                voInstanceInfo);
+        } catch (Exception e) {
+            handleException(currentSI, e);
+        }
+    }
+
     public void notifyAsyncOperationStatus(ServiceInstance currentSI,
             String transactionId, OperationStatus status,
             List<LocalizedText> list) throws BESNotificationException {
@@ -513,6 +530,7 @@ public class BesDAO {
         voInstanceInfo.setAccessInfo(instanceInfo.getAccessInfo());
         voInstanceInfo.setBaseUrl(instanceInfo.getBaseUrl());
         voInstanceInfo.setLoginPath(instanceInfo.getLoginPath());
+        voInstanceInfo.setVmsNumber(currentSI.getVmsNumber());
         return voInstanceInfo;
     }
 

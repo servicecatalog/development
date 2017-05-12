@@ -14,6 +14,7 @@ package internal;
 import java.util.List;
 import java.util.Set;
 
+import javax.jws.WebParam;
 import javax.jws.WebService;
 
 import org.oscm.intf.SubscriptionService;
@@ -263,6 +264,12 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     public void updateAsyncSubscriptionStatus(String subscriptionId,
             String organizationId, VOInstanceInfo instanceInfo)
             throws ObjectNotFoundException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void notifySubscriptionAboutVmsNumber(String subscriptionId,
+        String organizationId, VOInstanceInfo instanceInfo) throws ObjectNotFoundException {
         throw new UnsupportedOperationException();
     }
 
