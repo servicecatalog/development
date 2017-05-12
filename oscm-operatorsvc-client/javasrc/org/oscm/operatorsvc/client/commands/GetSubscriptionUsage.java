@@ -8,10 +8,14 @@
 
 package org.oscm.operatorsvc.client.commands;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 import org.oscm.internal.vo.VOSubscriptionUsageEntry;
 import org.oscm.operatorsvc.client.CommandContext;
 
@@ -57,23 +61,34 @@ public class GetSubscriptionUsage extends GetUserOperationLogCommand {
         Collection<VOSubscriptionUsageEntry> entries = ctx.getService()
                 .getSubscriptionUsageReport();
 
-        String csv = "";
+        StringBuilder csv = new StringBuilder();
         for (VOSubscriptionUsageEntry entry : entries) {
-            csv += toCSV(entry);
+            csv.append(toCSV(entry));
         }
-        return writeResults(ctx, outputFileName, csv);
-
-
+        return writeResults(ctx, outputFileName, csv.toString());
     }
 
-    private String toCSV(VOSubscriptionUsageEntry entry) {
-        return entry.getCustomerOrgId() + "," + entry.getCustomerOrgName() + ","
-                + entry.getSubscriptionName() + ","
-                + entry.getMarketableServiceName() + ","
-                + entry.getTechnicalServiceName() + ","
-                + entry.getSupplierOrganizationId() + ","
-                + entry.getSupplierOrganizationName() + ","
-                + entry.getNumberOfusers() + "," + entry.getNumberOfVMs() + "\n";
+    private StringBuffer toCSV(VOSubscriptionUsageEntry entry) throws IOException {
+        CSVFormat csvFileFormat = CSVFormat.DEFAULT.withRecordSeparator(System.lineSeparator());
+        StringBuffer appendable = new StringBuffer();
+        CSVPrinter csvFilePrinter = new CSVPrinter(appendable, csvFileFormat);
+        List<String> columns = toList(entry);
+        csvFilePrinter.printRecord(columns);
+        return appendable;
+    }
+
+    private List<String> toList(VOSubscriptionUsageEntry entry) {
+        List<String> columns = new ArrayList<>();
+        columns.add(entry.getCustomerOrgId());
+        columns.add(entry.getCustomerOrgName());
+        columns.add(entry.getSubscriptionName());
+        columns.add(entry.getMarketableServiceName());
+        columns.add(entry.getTechnicalServiceName());
+        columns.add(entry.getSupplierOrganizationId());
+        columns.add(entry.getSupplierOrganizationName());
+        columns.add(entry.getNumberOfusers());
+        columns.add(entry.getNumberOfVMs());
+        return columns;
     }
 
 }
