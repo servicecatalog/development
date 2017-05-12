@@ -29,7 +29,7 @@ public class SubscriptionUsageQuery {
                 "  supplier.name AS \"supplierOrgName\", \n" +
                 "  supplier.organizationid AS \"supplierOrgId\", \n" +
                 "  subscription.subscriptionid, " +
-                "  (select count(*) from bssuser.usagelicense where subscription_tkey=subscription.tkey) as numberOfUsers, 2 as b\n" +
+                "  (select count(*) from bssuser.usagelicense where subscription_tkey=subscription.tkey) as numberOfUsers, subscription.vmsNumber as vmsNumber\n" +
                 "FROM \n" +
                 "  bssuser.subscription, \n" +
                 "  bssuser.product, \n" +
