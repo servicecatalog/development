@@ -196,6 +196,9 @@ public class ServiceInstance implements Serializable {
      */
     private String serviceLoginPath;
 
+    @Column
+    private int vmsNumber;
+
     /**
      * SubscriptionID key for rollbackParameters
      */
@@ -793,4 +796,13 @@ public class ServiceInstance implements Serializable {
     public String getRollbackInstanceAttributes() {
         return rollbackInstanceAttributes;
     }
+
+    public int getVmsNumber() {
+        return vmsNumber;
+    }
+
+    public void setVmsNumber(int vmsNumber) {
+        this.vmsNumber = vmsNumber;
+    }
+
 }

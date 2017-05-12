@@ -62,6 +62,7 @@ public class OpenStackController extends ProvisioningValidator
         implements APPlatformController {
 
     public static final String ID = "ess.openstack";
+    private static final int SERVERS_NUMBER_CANNOT_BE_CHECKED = -1;
 
     private static final Logger LOGGER = LoggerFactory
             .getLogger(OpenStackController.class);
@@ -552,8 +553,8 @@ public class OpenStackController extends ProvisioningValidator
         } catch (InstanceNotAliveException ex) {
             LOGGER.warn(ex.getMessage());
         } catch (Exception e) {
-            throw new APPlatformException(e.getMessage());
+            LOGGER.warn(e.getMessage());
         }
-        return 0;
+        return SERVERS_NUMBER_CANNOT_BE_CHECKED;
     }
 }

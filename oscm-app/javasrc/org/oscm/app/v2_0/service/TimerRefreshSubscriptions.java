@@ -69,9 +69,12 @@ public class TimerRefreshSubscriptions {
                 final APPlatformController controller = APPlatformControllerFactory
                         .getInstance(serviceInstance.getControllerId());
 
-                controller.getServersNumber(serviceInstance.getInstanceId(),
+                Integer vmsNumber = controller.getServersNumber(serviceInstance.getInstanceId(),
                         serviceInstance.getSubscriptionId(),
                         serviceInstance.getOrganizationId());
+                ServiceInstance updatedServiceInstance = serviceInstanceService.updateVmsNumber(serviceInstance,
+                    vmsNumber);
+                serviceInstanceService.notifySubscriptionAboutVmsNumber(updatedServiceInstance);
             }
         } catch (APPlatformException e) {
             e.printStackTrace();
