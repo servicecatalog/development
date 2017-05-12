@@ -142,9 +142,6 @@ public class SubscriptionHistory extends DomainHistoryObject<SubscriptionData> {
     @Column(nullable = true)
     private Long billingContactObjKey;
 
-    @Column
-    private int vmsNumber;
-
     public void setOrganizationObjKey(long organization_objid) {
         this.organizationObjKey = organization_objid;
     }
@@ -219,13 +216,5 @@ public class SubscriptionHistory extends DomainHistoryObject<SubscriptionData> {
 
     public Long getUserGroupObjKey() {
         return userGroupObjKey;
-    }
-
-    public int getVmsNumber() {
-        return vmsNumber;
-    }
-
-    public void setVmsNumber(int vmsNumber) {
-        this.vmsNumber = vmsNumber;
     }
 }

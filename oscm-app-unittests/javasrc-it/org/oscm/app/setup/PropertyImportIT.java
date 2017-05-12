@@ -162,6 +162,7 @@ public class PropertyImportIT {
         p.put(PlatformConfigurationKey.APP_ADMIN_MAIL_ADDRESS.name(),
                 "here@there.com");
         p.put(PlatformConfigurationKey.APP_TIMER_INTERVAL.name(), "15000");
+        p.put(PlatformConfigurationKey.APP_TIMER_REFRESH_SUBSCRIPTIONS.name(), "86400000");
         p.put(PlatformConfigurationKey.BSS_WEBSERVICE_URL.name(),
                 "http://www.fujitsu.com/{service}/BASIC?wsdl");
         p.put(PlatformConfigurationKey.BSS_USER_KEY.name(), "1000");
