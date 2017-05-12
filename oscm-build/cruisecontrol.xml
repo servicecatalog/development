@@ -59,8 +59,7 @@
 	</target>
 
 	<!-- Called by cruise control. All targets for cc start with runXYZ, all internal targets start with underscore -->
-	<target name="prepareForDocker" depends="_libraries, _clean, _package" />
-	<target name="prepareForDocker2">
+	<target name="prepareForDocker" depends="_libraries, _clean, _package">
 		<ant antfile="build.xml" target="package">
 			<property name="projects" value="oscm-install-pack" />
 		</ant>
