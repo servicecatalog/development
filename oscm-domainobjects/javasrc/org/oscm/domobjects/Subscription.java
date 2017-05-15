@@ -672,4 +672,8 @@ public class Subscription extends DomainObjectWithHistory<SubscriptionData> {
         return dataContainer.isExternal();
     }
 
+    public int getVmsNumber() {
+        return dataContainer.getVmsNumber();
+    }
+
 }
