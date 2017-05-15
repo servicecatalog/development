@@ -7,6 +7,7 @@ package org.oscm.app.ui.platformconfiguration;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.TreeMap;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 
@@ -20,14 +21,14 @@ import org.oscm.app.ui.BaseModel;
 public class PlatformConfigurationModel extends BaseModel {
 
     private List<String> keys;
-    private HashMap<String, String> items;
+    private TreeMap<String, String> items;
 
 
-    public HashMap<String, String> getItems() {
+    public TreeMap<String, String> getItems() {
         return items;
     }
 
-    public void setItems(HashMap<String, String> items) {
+    public void setItems(TreeMap<String, String> items) {
         this.items = items;
     }
 
