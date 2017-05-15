@@ -41,6 +41,7 @@ public class SubscriptionServiceBeanNullArgumentTest extends
         addNullAllowed("upgradeSubscription", "udas");
         addNullAllowed("updateAsyncOperationProgress", "progress");
         addNullAllowed("updateAsyncSubscriptionStatus","instanceInfo");
+        addNullAllowed("notifySubscriptionAboutVmsNumber","instanceInfo");
     }
 
     @Override
