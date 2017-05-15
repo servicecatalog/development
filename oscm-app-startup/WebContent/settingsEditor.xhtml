@@ -31,7 +31,8 @@
                 <f:facet name="header">
                     <h:outputText value="#{msg['ui.config.platform.column.value']}" />
                 </f:facet>
-                <h:inputText id="configurationValue" value="#{platformConfigurationCtrl.model.items[key]}" onchange="setDirty(true)" />
+                <h:inputSecret rendered="#{platformConfigurationCtrl.encrypted(key)}" value="#{platformConfigurationCtrl.model.items[key]}" onchange="setDirty(true)" redisplay="true"/>
+                <h:inputText rendered="#{not platformConfigurationCtrl.encrypted(key)}" value="#{platformConfigurationCtrl.model.items[key]}" onchange="setDirty(true)" />
             </rich:column>
         </rich:dataTable>
 
