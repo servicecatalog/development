@@ -5575,7 +5575,7 @@ public class SubscriptionServiceBean
 
         Subscription subscription = manageBean.findSubscription(subscriptionId,
             organizationId);
-        subscription.setVmsNumber(instanceInfo.getVmsNumber());
+        subscription.getDataContainer().setVmsNumber(instanceInfo.getVmsNumber());
         dataManager.merge(subscription);
     }
 }
