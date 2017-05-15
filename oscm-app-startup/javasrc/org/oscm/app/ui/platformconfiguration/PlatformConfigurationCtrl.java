@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
@@ -57,11 +58,11 @@ public class PlatformConfigurationCtrl extends BaseCtrl {
         return OUTCOME_SUCCESS;
     }
 
-    private HashMap<String, String> initPlatformSettings() throws ConfigurationException {
+    private TreeMap<String, String> initPlatformSettings() throws ConfigurationException {
         HashMap<String, Setting> map = appConfigService
                 .getProxyConfigurationSettings();
 
-        HashMap<String, String> result = new HashMap<>();
+        TreeMap<String, String> result = new TreeMap<>();
 
         for (Map.Entry<String, Setting> entry : map.entrySet()) {
             final String key = entry.getKey();
@@ -89,7 +90,7 @@ public class PlatformConfigurationCtrl extends BaseCtrl {
 
     private List<String> initItemKeys() {
         List<String> keys = new ArrayList<>();
-        HashMap<String, String> items = model.getItems();
+        TreeMap<String, String> items = model.getItems();
         if (items != null) {
             keys.addAll(items.keySet());
         }
