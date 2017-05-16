@@ -58,10 +58,7 @@ public interface InstanceAccess extends Serializable {
      * @param key
      *            the message key
      * @param arguments
-     *            optional arguments
      * @return the localized message
      */
-    default String getMessage(String locale, String key, Object... arguments){
-        return null;
-    }
+    public String getMessage(String locale, String key, Object... arguments);
 }
