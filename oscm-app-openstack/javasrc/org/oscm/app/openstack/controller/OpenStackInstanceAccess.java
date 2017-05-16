@@ -78,12 +78,6 @@ public class OpenStackInstanceAccess implements InstanceAccess {
     }
 
     @Override
-    public String getMessage(String locale, String key, Object... arguments) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
     public String getAccessInfo(String instanceId, String subscriptionId,
             String organizationId) throws AuthenticationException,
             ConfigurationException, APPlatformException {

@@ -549,9 +549,7 @@ public class OpenStackController extends ProvisioningValidator
         PropertyHandler ph = new PropertyHandler(settings);
 
         try {
-            return new NovaProcessor().getServersNumber(ph);
-        } catch (InstanceNotAliveException ex) {
-            LOGGER.warn(ex.getMessage());
+            return new NovaProcessor().getServersDetails(ph, false).size();
         } catch (Exception e) {
             LOGGER.warn(e.getMessage());
         }
