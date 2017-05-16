@@ -29,6 +29,8 @@ import org.oscm.app.v2_0.service.APPConfigurationServiceBean;
 @ManagedBean
 public class PlatformConfigurationCtrl extends BaseCtrl {
 
+    private static final String PWD_SUFFIX = "_PWD";
+
     @ManagedProperty(value = "#{platformConfigurationModel}")
     private PlatformConfigurationModel model;
 
@@ -56,6 +58,13 @@ public class PlatformConfigurationCtrl extends BaseCtrl {
             addError(e);
         }
         return OUTCOME_SUCCESS;
+    }
+
+    public boolean encrypted(String key) {
+        if (key.endsWith(PWD_SUFFIX)) {
+            return true;
+        }
+        return false;
     }
 
     private TreeMap<String, String> initPlatformSettings() throws ConfigurationException {
