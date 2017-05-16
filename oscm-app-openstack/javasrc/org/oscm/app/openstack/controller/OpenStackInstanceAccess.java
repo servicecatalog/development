@@ -89,4 +89,10 @@ public class OpenStackInstanceAccess implements InstanceAccess {
         return settings.getServiceAccessInfo();
     }
 
+    @Override
+    public String getMessage(String locale, String key, Object... arguments) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }
