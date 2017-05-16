@@ -72,6 +72,9 @@ public class TimerRefreshSubscriptions {
                 Integer vmsNumber = controller.getServersNumber(serviceInstance.getInstanceId(),
                         serviceInstance.getSubscriptionId(),
                         serviceInstance.getOrganizationId());
+                if (vmsNumber == null) {
+                    continue;
+                }
                 ServiceInstance updatedServiceInstance = serviceInstanceService.updateVmsNumber(serviceInstance,
                     vmsNumber);
                 serviceInstanceService.notifySubscriptionAboutVmsNumber(updatedServiceInstance);
