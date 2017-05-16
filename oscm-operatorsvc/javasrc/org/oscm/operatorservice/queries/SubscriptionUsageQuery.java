@@ -48,7 +48,7 @@ public class SubscriptionUsageQuery {
         for (Object o : resultList) {
             Object[] columns = (Object[]) o;
             result.add(new VOSubscriptionUsageEntry((String) columns[1], (String) columns[0], (String) columns[6],
-                    (String) columns[2],(String) columns[3], (String) columns[4],
+                    ((String) columns[2]).split("#")[0],(String) columns[3], (String) columns[4],
                     (String) columns[5], columns[7].toString(), columns[8].toString()));
         }
         return result;
