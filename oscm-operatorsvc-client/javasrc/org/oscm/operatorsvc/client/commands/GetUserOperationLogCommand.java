@@ -90,7 +90,7 @@ public class GetUserOperationLogCommand implements IOperatorCommand {
         }
         File file = new File(fileName);
         if (file.exists()) {
-            return "Specified file is already existing.\n";
+            return "Specified file already exists.\n";
         }
         return null;
     }

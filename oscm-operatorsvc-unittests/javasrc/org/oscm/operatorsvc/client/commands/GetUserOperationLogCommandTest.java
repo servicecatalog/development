@@ -179,7 +179,7 @@ public class GetUserOperationLogCommandTest extends CommandTestBase {
         stubCallReturn = STUB_RETURN.getBytes();
         assertFalse(command.run(ctx));
         assertOut("");
-        assertErr("Specified file is already existing.\n");
+        assertErr("Specified file already exists.\n");
     }
 
     @Test(expected = java.text.ParseException.class)
