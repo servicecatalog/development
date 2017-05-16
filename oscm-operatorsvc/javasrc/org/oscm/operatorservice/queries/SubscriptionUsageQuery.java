@@ -40,7 +40,8 @@ public class SubscriptionUsageQuery {
                 "  subscription.product_tkey = product.tkey AND\n" +
                 "  subscription.organizationkey = organization.tkey AND\n" +
                 "  product.technicalproduct_tkey = technicalproduct.tkey AND\n" +
-                "  technicalproduct.organizationkey = supplier.tkey;\n";
+                "  technicalproduct.organizationkey = supplier.tkey" +
+                " ORDER BY organization.organizationid;";
 
 
         List resultList = dm.createNativeQuery(query).getResultList();
