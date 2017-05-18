@@ -38,7 +38,6 @@
     <pathelement location="lib/oscm-extsvc-platform.jar" />
     <pathelement location="lib/oscm-extsvc-internal.jar" />
     <pathelement location="lib/oscm-devruntime.jar" />
-    <pathelement location="lib/oscm-app.jar" />
     <pathelement location="lib/oscm-common.jar" />
     <pathelement location="lib/oscm-server-common.jar" />
     <pathelement location="lib/log4j-1.2.16.jar" />
