@@ -37,6 +37,8 @@ public class SubscriptionUsageQuery {
                 "  bssuser.technicalproduct, \n" +
                 "  bssuser.organization supplier\n" +
                 "WHERE \n" +
+                "  subscription.vmsNumber > 0 AND \n" +
+                "  (subscription.status = 'ACTIVE' OR subscription.status = 'PENDING_UPD') AND \n" +
                 "  subscription.product_tkey = product.tkey AND\n" +
                 "  subscription.organizationkey = organization.tkey AND\n" +
                 "  product.technicalproduct_tkey = technicalproduct.tkey AND\n" +

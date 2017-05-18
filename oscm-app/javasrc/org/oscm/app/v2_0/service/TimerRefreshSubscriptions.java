@@ -19,9 +19,10 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.ejb.*;
 import javax.inject.Inject;
+
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-
 
 /**
  * Created by BadziakP on 2017-05-04.
@@ -36,52 +37,66 @@ import java.util.List;
 @Startup
 public class TimerRefreshSubscriptions {
 
-    @Inject
-    protected ServiceInstanceServiceBean serviceInstanceService;
+	private static final String VM_TIMER_INFO = "abc2dac0-5f81-11e4-9803-0800200c9a66";
+	private static final long DEFAULT_TIMER_INTERVAL = 86400000;
 
-    @Resource
-    protected TimerService timerService;
+	@Inject
+	protected ServiceInstanceServiceBean serviceInstanceService;
 
-    @EJB
-    protected APPConfigurationServiceBean configService;
+	@Resource
+	protected TimerService timerService;
 
-    @Inject
-    protected transient Logger logger;
+	@EJB
+	protected APPConfigurationServiceBean configService;
 
-    @PostConstruct
-    public void setTimer() {
-        try {
-            String timerIntervalSetting = configService.getProxyConfigurationSetting(
-                    PlatformConfigurationKey.APP_TIMER_REFRESH_SUBSCRIPTIONS);
-            long interval = Long.parseLong(timerIntervalSetting);
-            timerService.createIntervalTimer(new Date(), interval,
-                    new TimerConfig());
-        } catch (ConfigurationException e) {
-            logger.info("Timer for refreshing subscriptions not set");
-        }
-    }
+	@Inject
+	protected transient Logger logger;
 
-    @Timeout
-    public void execute() {
-        List<ServiceInstance> instances = serviceInstanceService.getInstances();
-        try {
-            for (ServiceInstance serviceInstance : instances) {
-                final APPlatformController controller = APPlatformControllerFactory
-                        .getInstance(serviceInstance.getControllerId());
+	@PostConstruct
+	public void setTimer() {
+		Collection<Timer> timers = timerService.getTimers();
+		for (Timer timerVM : timers) {
+			if (VM_TIMER_INFO.equals(timerVM.getInfo())) {
+				timerVM.cancel();
+			}
+		}
+		logger.info("Timer for subscription VMs will be created.");
+		try {
+			String timerIntervalSetting = configService
+					.getProxyConfigurationSetting(PlatformConfigurationKey.APP_TIMER_REFRESH_SUBSCRIPTIONS);
+			long interval = Long.parseLong(timerIntervalSetting);
+			timerService.createTimer(0, interval, VM_TIMER_INFO);
+			// timerService.createIntervalTimer(new Date(), interval,
+			// new TimerConfig());
+		} catch (ConfigurationException e) {
+			timerService.createTimer(0, DEFAULT_TIMER_INTERVAL, VM_TIMER_INFO);
+			logger.info("Timer interval for refreshing subcription VMs not set, switch to default 10 min.");
+		}
+	}
 
-                Integer vmsNumber = controller.getServersNumber(serviceInstance.getInstanceId(),
-                        serviceInstance.getSubscriptionId(),
-                        serviceInstance.getOrganizationId());
-                if (vmsNumber == null) {
-                    continue;
-                }
-                ServiceInstance updatedServiceInstance = serviceInstanceService.updateVmsNumber(serviceInstance,
-                    vmsNumber);
-                serviceInstanceService.notifySubscriptionAboutVmsNumber(updatedServiceInstance);
-            }
-        } catch (APPlatformException e) {
-            e.printStackTrace();
-        }
-    }
+	@Timeout
+	public void execute(Timer timer) {
+		if (!VM_TIMER_INFO.equals(timer.getInfo())) {
+			return;
+		}
+		List<ServiceInstance> instances = serviceInstanceService.getInstances();
+		for (ServiceInstance serviceInstance : instances) {
+			try {
+				final APPlatformController controller = APPlatformControllerFactory
+						.getInstance(serviceInstance.getControllerId());
+
+				Integer vmsNumber = controller.getServersNumber(serviceInstance.getInstanceId(),
+						serviceInstance.getSubscriptionId(), serviceInstance.getOrganizationId());
+				if (vmsNumber == null) {
+					continue;
+				}
+				ServiceInstance updatedServiceInstance = serviceInstanceService.updateVmsNumber(serviceInstance,
+						vmsNumber);
+				serviceInstanceService.notifySubscriptionAboutVmsNumber(updatedServiceInstance);
+			} catch (APPlatformException e) {
+				e.printStackTrace();
+			}
+		}
+	}
 
 }
