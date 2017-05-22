@@ -74,6 +74,7 @@ public class GetSubscriptionUsage extends GetUserOperationLogCommand {
         CSVPrinter csvFilePrinter = new CSVPrinter(appendable, csvFileFormat);
         List<String> columns = toList(entry);
         csvFilePrinter.printRecord(columns);
+        csvFilePrinter.close();
         return appendable;
     }
 
