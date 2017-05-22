@@ -84,8 +84,8 @@ public class GetSubscriptionUsage extends GetUserOperationLogCommand {
         columns.add(entry.getSubscriptionName());
         columns.add(entry.getMarketableServiceName());
         columns.add(entry.getTechnicalServiceName());
-        columns.add(entry.getSupplierOrganizationId());
         columns.add(entry.getSupplierOrganizationName());
+        columns.add(entry.getSupplierOrganizationId());
         columns.add(entry.getNumberOfusers());
         columns.add(entry.getNumberOfVMs());
         return columns;
