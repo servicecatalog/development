@@ -25,7 +25,9 @@ public class VOSubscriptionUsageEntry implements Serializable {
     private String numberOfusers;
     private String numberOfVMs;
 
-    public VOSubscriptionUsageEntry(String customerOrgId, String customerOrgName, String subscriptionName, String marketableServiceName, String technicalServiceName, String supplierOrganizationId, String supplierOrganizationName, String numberOfusers, String numberOfVMs) {
+    public VOSubscriptionUsageEntry(String customerOrgId, String customerOrgName, String subscriptionName, String marketableServiceName,
+                                    String supplierOrganizationId, String technicalServiceName, String supplierOrganizationName,
+                                    String numberOfusers, String numberOfVMs) {
         this.customerOrgId = customerOrgId;
         this.customerOrgName = customerOrgName;
         this.subscriptionName = subscriptionName;
