@@ -450,6 +450,6 @@ public interface APPlatformController {
     default Integer getServersNumber(String instanceId,
         String subscriptionId, String organizationId)
         throws APPlatformException {
-        return null;
+        return 1;
     }
 }
