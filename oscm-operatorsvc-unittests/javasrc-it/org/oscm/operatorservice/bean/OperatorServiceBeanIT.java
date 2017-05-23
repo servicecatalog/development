@@ -7,12 +7,16 @@ package org.oscm.operatorservice.bean;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
+import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
 
 import javax.ejb.EJBException;
 import javax.persistence.Query;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -1556,7 +1560,7 @@ public class OperatorServiceBeanIT extends EJBTestBase {
         DataServiceBean moczek = mock(DataServiceBean.class);
         Query query = mock(Query.class);
         List<Object[]> list = new ArrayList<>();
-        list.add(new Object[]{"a", "b", "b", "b", "b", "b", "b", "b", "b"});
+        list.add(new Object[]{"a", "b", "c", "d", "e", "f", "g", "h", "i"});
 
         doReturn(query).when(moczek).createNativeQuery(anyString());
         doReturn(list).when(query).getResultList();
@@ -1575,11 +1579,36 @@ public class OperatorServiceBeanIT extends EJBTestBase {
         }
         verify(moczek).createNativeQuery(anyString());
         verify(query, times(1)).getResultList();
+        assertTrue(("b,a,g,c,d,f,e,h,i" + System.lineSeparator()).equals(toCSV(subscriptionUsageReport.iterator().next()).toString()));
         assertNotSame(0, subscriptionUsageReport.size());
     }
 
     // -------------------------------------------------------------
     // internal methods
+
+    private StringBuffer toCSV(VOSubscriptionUsageEntry entry) throws IOException {
+        CSVFormat csvFileFormat = CSVFormat.DEFAULT.withRecordSeparator(System.lineSeparator());
+        StringBuffer appendable = new StringBuffer();
+        CSVPrinter csvFilePrinter = new CSVPrinter(appendable, csvFileFormat);
+        List<String> columns = toList(entry);
+        csvFilePrinter.printRecord(columns);
+        csvFilePrinter.close();
+        return appendable;
+    }
+
+    private List<String> toList(VOSubscriptionUsageEntry entry) {
+        List<String> columns = new ArrayList<>();
+        columns.add(entry.getCustomerOrgId());
+        columns.add(entry.getCustomerOrgName());
+        columns.add(entry.getSubscriptionName());
+        columns.add(entry.getMarketableServiceName());
+        columns.add(entry.getTechnicalServiceName());
+        columns.add(entry.getSupplierOrganizationName());
+        columns.add(entry.getSupplierOrganizationId());
+        columns.add(entry.getNumberOfusers());
+        columns.add(entry.getNumberOfVMs());
+        return columns;
+    }
 
     private VOUserDetails newVOUser() {
         return new VOUserDetails();
