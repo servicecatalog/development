@@ -85,8 +85,8 @@ public class TimerRefreshSubscriptions {
 				final APPlatformController controller = APPlatformControllerFactory
 						.getInstance(serviceInstance.getControllerId());
 
-				Integer vmsNumber = controller.getServersNumber(serviceInstance.getInstanceId(),
-						serviceInstance.getSubscriptionId(), serviceInstance.getOrganizationId());
+				Integer vmsNumber = 3; //controller.getServersNumber(serviceInstance.getInstanceId(),
+						//serviceInstance.getSubscriptionId(), serviceInstance.getOrganizationId());
 				if (vmsNumber == null) {
 					continue;
 				}
@@ -94,7 +94,7 @@ public class TimerRefreshSubscriptions {
 						vmsNumber);
 				serviceInstanceService.notifySubscriptionAboutVmsNumber(updatedServiceInstance);
 			} catch (APPlatformException e) {
-				e.printStackTrace();
+				logger.error("Subscription cannot be notified about VMs number: ", e);
 			}
 		}
 	}

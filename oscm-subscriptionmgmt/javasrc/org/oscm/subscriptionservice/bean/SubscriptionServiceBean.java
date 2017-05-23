@@ -207,6 +207,7 @@ public class SubscriptionServiceBean
     public static final String KEY_PAIR_NAME = "Key pair name";
     public static final String AMAZONAWS_COM = "amazonaws.com";
     private static final int PAYMENTTYPE_INVOICE = 3;
+    private static final String VMS_NUMBER_PARAM = "VMS_NUMBER";
 
     private static final Log4jLogger LOG = LoggerFactory
             .getLogger(SubscriptionServiceBean.class);
@@ -5575,7 +5576,23 @@ public class SubscriptionServiceBean
 
         Subscription subscription = manageBean.findSubscription(subscriptionId,
             organizationId);
-        subscription.getDataContainer().setVmsNumber(instanceInfo.getVmsNumber());
-        dataManager.merge(subscription);
+        List<ParameterDefinition> parameterDefinitions = subscription.getProduct().getTechnicalProduct()
+            .getParameterDefinitions();
+
+        for (ParameterDefinition parameterDefinition : parameterDefinitions) {
+            if (!parameterDefinition.getParameterId().equals(VMS_NUMBER_PARAM)) {
+                continue;
+            }
+            Parameter parameter = getSubscriptionDao().getParameterForSubscription(parameterDefinition, subscription
+                    .getParameterSet());
+            if (parameter == null) {
+                parameter = new Parameter();
+                parameter.setParameterDefinition(parameterDefinition);
+                parameter.setParameterSet(subscription.getParameterSet());
+            }
+            parameter.setValue(Integer.toString(instanceInfo.getVmsNumber()));
+            dataManager.merge(parameter);
+            return;
+        }
     }
 }
