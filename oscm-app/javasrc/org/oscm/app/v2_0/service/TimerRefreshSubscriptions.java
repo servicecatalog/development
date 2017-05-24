@@ -94,7 +94,7 @@ public class TimerRefreshSubscriptions {
 						vmsNumber);
 				serviceInstanceService.notifySubscriptionAboutVmsNumber(updatedServiceInstance);
 			} catch (APPlatformException e) {
-				e.printStackTrace();
+				logger.error("Subscription cannot be notified about VMs number: ", e);
 			}
 		}
 	}
