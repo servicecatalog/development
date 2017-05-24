@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import org.junit.Test;
-
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Marketplace;
@@ -64,8 +63,10 @@ public class MarketplaceAccessDaoIT extends EJBTestBase {
         final Tenant tenant1 = createTenant(TENANT_1_ID);
         final Tenant tenant2 = createTenant(TENANT_2_ID);
 
-        orgDefaultTenant1_1 = createOrganization(createOrganizationObject("orgDefaultTenant1_1"));
-        orgDefaultTenant1_2 = createOrganization(createOrganizationObject("orgDefaultTenant1_2"));
+        orgDefaultTenant1_1 = createOrganization(
+                createOrganizationObject("orgDefaultTenant1_1"));
+        orgDefaultTenant1_2 = createOrganization(
+                createOrganizationObject("orgDefaultTenant1_2"));
 
         orgWithTenant1_1 = createOrganization(
                 createOrganizationObjectWithTenant("orgTenant1_1", tenant1),
@@ -109,22 +110,22 @@ public class MarketplaceAccessDaoIT extends EJBTestBase {
 
         // US#8470
         //
-        // Test if the results returned by the query are limited to the organizations with
+        // Test if the results returned by the query are limited to the
+        // organizations with
         // the same tenant as selected marketplace
         //
         // In this case we created 6 organizations with no tenant
 
         final long marketplaceKey = marketplaceDefaultTenant.getKey();
-        final long tenantKey = 0L;
 
         final List<Object[]> objects = runTX(new Callable<List<Object[]>>() {
             @Override
             public List<Object[]> call() throws Exception {
                 return dao.getOrganizationsWithMplAndSubscriptions(
-                        marketplaceKey, tenantKey);
+                        marketplaceKey);
             }
         });
-        assertTrue(objects.size() == 2);
+        assertTrue(objects.size() == 9);
     }
 
     @Test
@@ -133,22 +134,22 @@ public class MarketplaceAccessDaoIT extends EJBTestBase {
 
         // US#8470
         //
-        // Test if the results returned by the query are limited to the organizations with
+        // Test if the results returned by the query are limited to the
+        // organizations with
         // the same tenant as selected marketplace
         //
         // In this case we created 6 organizations with tenant1
 
         final long marketplaceKey = marketplaceTenant1.getKey();
-        final long tenantKey = orgWithTenant1_1.getTenant().getKey();
 
         final List<Object[]> objects = runTX(new Callable<List<Object[]>>() {
             @Override
             public List<Object[]> call() throws Exception {
                 return dao.getOrganizationsWithMplAndSubscriptions(
-                        marketplaceKey, tenantKey);
+                        marketplaceKey);
             }
         });
-        assertTrue(objects.size() == 6);
+        assertTrue(objects.size() == 9);
     }
 
     private Organization createOrg(final String organizationId,
@@ -217,7 +218,8 @@ public class MarketplaceAccessDaoIT extends EJBTestBase {
         return org;
     }
 
-    private Organization createOrganizationObjectWithTenant(String orgId, Tenant tenant) throws Exception {
+    private Organization createOrganizationObjectWithTenant(String orgId,
+            Tenant tenant) throws Exception {
         final Organization organizationObject = createOrganizationObject(orgId);
         organizationObject.setTenant(tenant);
         return organizationObject;
