@@ -257,9 +257,28 @@
 		</sequential>
 	</macrodef>
 
+<<<<<<< Upstream, based on branch 'hotfix/issue-682' of https://github.com/servicecatalog/development.git
 	<target name="deleteJmsRes">
 		<deleteJmsRes jmsname="${jms_name}" />
 	</target>
+=======
+  <target name="createWebServicePort" depends="checkIfWSPortSet" if="isPortSet">
+    <asadmin.domain command="delete-http-listener" failonerror="false">
+      <arg value="ws-listener" />
+    </asadmin.domain>
+    <asadmin.domain command="create-http-listener">
+      <arg value="--listeneraddress" />
+      <arg value="0.0.0.0" />
+      <arg value="--listenerport" />
+      <arg value="${glassfish.domain.WS_PORT}" />
+      <arg value="--defaultvs" />
+      <arg value="server" />
+      <arg value="--target" />
+      <arg value="${target.name}" />
+      <arg value="ws-listener-secure" />
+    </asadmin.domain>
+  </target>
+>>>>>>> 7b090f7 Make ws listener secure
 
 	<target name="createWebServicePortSecure" depends="checkIfWSPortSecureSet" if="isPortSecureSet">
 		<asadmin.domain command="delete-http-listener" failonerror="false">
