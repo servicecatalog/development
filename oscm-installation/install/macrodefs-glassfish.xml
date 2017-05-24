@@ -274,7 +274,7 @@
       <arg value="server" />
       <arg value="--target" />
       <arg value="${target.name}" />
-      <arg value="ws-listener" />
+      <arg value="ws-listener-secure" />
     </asadmin.domain>
   </target>
 
