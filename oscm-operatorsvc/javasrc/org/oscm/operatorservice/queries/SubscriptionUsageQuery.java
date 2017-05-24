@@ -20,32 +20,40 @@ import java.util.List;
  * Authored by dawidch
  */
 public class SubscriptionUsageQuery {
+
+        private static final String query = "SELECT \n" +
+                "                organization.name AS customerOrgName, \n" +
+                "                organization.organizationid AS customerOrgId, \n" +
+                "                product.productid AS productId, \n" +
+                "                technicalproduct.technicalproductid AS technicalProductId, \n" +
+                "                supplier.name AS supplierOrgName, \n" +
+                "                supplier.organizationid AS supplierOrgId, \n" +
+                "                subscription.subscriptionid,\n" +
+                "                (select count(*) from bssuser.usagelicense where subscription_tkey = subscription.tkey) as numberOfUsers, parameter.value as numberOfVms\n" +
+                "                FROM \n" +
+                "                bssuser.subscription, \n" +
+                "                bssuser.product, \n" +
+                "                bssuser.organization, \n" +
+                "                bssuser.technicalproduct,\n" +
+                "                bssuser.parameterdefinition,\n" +
+                "                bssuser.parameter,\n" +
+                "                bssuser.parameterset,\n" +
+                "                bssuser.organization supplier\n" +
+                "                WHERE\n" +
+                "                (subscription.status = 'ACTIVE' OR subscription.status = 'PENDING_UPD') AND \n" +
+                "                subscription.product_tkey = product.tkey AND\n" +
+                "                parameterdefinition.parameterid='VMS_NUMBER' AND\n" +
+                "                parameter.parameterdefinitionkey=parameterdefinition.tkey AND\n" +
+                "                parameter.parametersetkey=parameterset.tkey AND\n" +
+                "                parameterset.tkey=product.parameterset_tkey AND\n" +
+                "                parameterdefinition.technicalproduct_tkey=product.technicalproduct_tkey AND\n" +
+                "                subscription.organizationkey = organization.tkey AND\n" +
+                "                product.technicalproduct_tkey = technicalproduct.tkey AND\n" +
+                "                technicalproduct.organizationkey = supplier.tkey\n" +
+                "                ORDER BY organization.organizationid;\n";
+
+
     public static Collection<VOSubscriptionUsageEntry> execute(DataService dm) {
-        String query = "SELECT \n" +
-                "  organization.name AS \"customerOrgName\", \n" +
-                "  organization.organizationid AS \"customerOrgId\", \n" +
-                "  product.productid AS \"productId\", \n" +
-                "  technicalproduct.technicalproductid AS \"technicalProductId\", \n" +
-                "  supplier.name AS \"supplierOrgName\", \n" +
-                "  supplier.organizationid AS \"supplierOrgId\", \n" +
-                "  subscription.subscriptionid, " +
-                "  (select count(*) from bssuser.usagelicense where subscription_tkey=subscription.tkey) as numberOfUsers, subscription.vmsNumber as vmsNumber\n" +
-                "FROM \n" +
-                "  bssuser.subscription, \n" +
-                "  bssuser.product, \n" +
-                "  bssuser.organization, \n" +
-                "  bssuser.technicalproduct, \n" +
-                "  bssuser.organization supplier\n" +
-                "WHERE \n" +
-                "  subscription.vmsNumber > 0 AND \n" +
-                "  (subscription.status = 'ACTIVE' OR subscription.status = 'PENDING_UPD') AND \n" +
-                "  subscription.product_tkey = product.tkey AND\n" +
-                "  subscription.organizationkey = organization.tkey AND\n" +
-                "  product.technicalproduct_tkey = technicalproduct.tkey AND\n" +
-                "  technicalproduct.organizationkey = supplier.tkey" +
-                " ORDER BY organization.organizationid;";
-
-
         List resultList = dm.createNativeQuery(query).getResultList();
         Collection<VOSubscriptionUsageEntry> result = new ArrayList<>();
         for (Object o : resultList) {
