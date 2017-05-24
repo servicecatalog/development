@@ -45,24 +45,16 @@ public class MarketplaceAccessDao {
     }
 
     public List<Object[]> getOrganizationsWithMplAndSubscriptions(
-            long marketplaceKey, long tenantKey) {
+            long marketplaceKey) {
 
         String querySelect;
-        
-        String tenantPartForQuery;
 
-        if (tenantKey == 0) {
-            tenantPartForQuery = "FROM organization o, marketplace mkp WHERE o.tenant_tkey is null";
-        } else {
-            tenantPartForQuery = "FROM organization o, marketplace mkp WHERE o.tenant_tkey=" + String.valueOf(tenantKey) +" and mkp.tkey=:marketplaceKey";
-        }
-            
         querySelect = "SELECT DISTINCT (o.tkey) as orgKey, "
                 + "o.organizationid as orgId, " + "o.name as name, "
                 + "(SELECT true FROM marketplaceaccess ma where ma.organization_tkey=o.tkey and ma.marketplace_tkey=:marketplaceKey) as hasAccess, "
                 + "(SELECT count(s.tkey) FROM subscription s WHERE s.organizationkey=o.tkey AND s.marketplace_tkey=:marketplaceKey AND s.status<>'DEACTIVATED') as subscriptions, "
                 + "(SELECT count(p.tkey) FROM product p INNER JOIN catalogentry c ON c.product_tkey=p.tkey WHERE c.marketplace_tkey=:marketplaceKey AND p.vendorkey=o.tkey AND p.status='ACTIVE') as publishedServices "
-                + tenantPartForQuery;
+                + "FROM organization o";
 
         Query query = dataService.createNativeQuery(querySelect);
 
@@ -72,22 +64,12 @@ public class MarketplaceAccessDao {
     }
 
     public List<Organization> getAllOrganizationsWithAccessToMarketplace(
-            long marketplaceKey, long tenantKey) {
-
-        String tenantPartForQuery;
-
-        if (tenantKey == 0) {
-            tenantPartForQuery = "AND o.tenant_tkey IS NULL ";
-        } else {
-            tenantPartForQuery = "AND mp.tenant_tkey = o.tenant_tkey ";
-        }
+            long marketplaceKey) {
 
         String queryString = "SELECT DISTINCT (o.*) "
-        + "FROM organization o, marketplaceaccess ma, marketplace mp "
-        + "WHERE ma.marketplace_tkey=:marketplaceKey "
-        + "AND o.tkey = ma.organization_tkey "
-        + tenantPartForQuery
-        + "ORDER BY o.tkey";
+                + "FROM organization o, marketplaceaccess ma "
+                + "WHERE ma.marketplace_tkey=:marketplaceKey "
+                + "AND o.tkey = ma.organization_tkey " + "ORDER BY o.tkey";
 
         Query query = dataService.createNativeQuery(queryString,
                 Organization.class);
