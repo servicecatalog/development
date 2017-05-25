@@ -324,6 +324,7 @@
     <antcall target="deployAllEars" />
     <antcall target="deployAllWars" />
     <antcall target="setLoggingLevel" />
+    <antcall target="setFileRotationHistory" />
   </target>
 
   <target name="deployAllEars">
@@ -499,6 +500,10 @@
 
   <target name="setLoggingLevel">
     <setLoggingLevel loggername="javax.enterprise.system.util=SEVERE"/>
+  </target>
+
+  <target name="setFileRotationHistory">
+    <setFileRotationHistory rotationEntry="com.sun.enterprise.server.logging.GFFileHandler.maxHistoryFiles=10"/>
   </target>
 
   <target name="copyOldKeyFile" if="oldKeyFile.exists">

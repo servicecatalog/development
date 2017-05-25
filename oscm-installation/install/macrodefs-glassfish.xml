@@ -487,6 +487,7 @@
 		</sequential>
 	</macrodef>
 
+<<<<<<< Upstream, based on branch 'hotfix/issue-682' of https://github.com/servicecatalog/development.git
 	<macrodef name="asadmin.domain">
 		<attribute name="command" />
 		<attribute name="failonerror" default="true" />
@@ -501,6 +502,31 @@
 			</asadmin>
 		</sequential>
 	</macrodef>
+=======
+  <macrodef name="setFileRotationHistory">
+    <attribute name="rotationEntry" />
+    <sequential>
+      <asadmin.domain command="set-log-attributes">
+        <arg value="@{rotationEntry}" />
+      </asadmin.domain>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="asadmin.domain">
+    <attribute name="command" />
+    <attribute name="failonerror" default="true" />
+    <attribute name="port" default="${glassfish.domain.portadmin}" />
+    <attribute name="user" default="${glassfish.domain.admin.user}" />
+    <attribute name="pwd" default="${glassfish.domain.admin.pwd}" />
+    <attribute name="masterpwd" default="${glassfish.domain.master.pwd}" />
+    <element name="args" implicit="yes" optional="yes" />
+    <sequential>
+      <asadmin failonerror="@{failonerror}" command="@{command}" port="@{port}" user="@{user}" pwd="@{pwd}" masterpwd="@{masterpwd}">
+        <args />
+      </asadmin>
+    </sequential>
+  </macrodef>
+>>>>>>> f6b5723 Hotfix/issue679 (#732)
 
 	<macrodef name="echoGlassfishProperties">
 		<sequential>
