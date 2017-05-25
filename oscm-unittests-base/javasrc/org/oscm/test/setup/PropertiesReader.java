@@ -54,8 +54,18 @@ public class PropertiesReader {
         if (fileExists(fileTestProperties)) {
             load(fileTestProperties, testProperties);
         } else {
-            System.out
-                    .println(" ***** WARNING: File oscm-devruntime/javares/local/<hostname>/test.properties not found!");
+            fileTestProperties = System.getProperty("user.dir")
+                    + "/../oscm-devruntime/javares/local/default/test.properties";
+
+            fileAppDbProperties = System.getProperty("user.dir")
+                    + "/../oscm-devruntime/javares/local/default/db-app.properties";
+            if (fileExists(fileTestProperties)) {
+                load(fileTestProperties, testProperties);
+            }
+            else{
+                    System.out
+                            .println(" ***** WARNING: File oscm-devruntime/javares/local/<hostname>/test.properties not found!");
+                }
         }
         replacePlaceholders();
         return testProperties;
