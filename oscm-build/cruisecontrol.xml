@@ -109,6 +109,16 @@
 		<ant antfile="build-integration-setup.xml" dir="../oscm-integrationtests-setup/resources" target="STANDALONE.setupWithoutCoverage" />
 	</target>
 
+	<target name="_setupGlassfishWithoutCoverageDefaultHost">
+		<echo message="***** Setup glassfish withOUT coverage *****" />
+		<ant antfile="../oscm-integrationtests-setup/resources/build.xml" target="STANDALONE.prepareSetup">
+			<property name="work.dir" value="../oscm-integrationtests-setup/resources/work" />
+			<property name="root.dir" value="${basedir}/.." />
+			<property name="env.HOSTNAME" value="default" />
+		</ant>
+		<ant antfile="build-integration-setup.xml" dir="../oscm-integrationtests-setup/resources" target="STANDALONE.setupWithoutCoverage" />
+	</target>
+
 	<target name="_setupGlassfishWithoutCoverageSAML">
 		<echo message="***** Setup glassfish withOUT coverage in SAML_SP mode *****" />
 		<ant antfile="../oscm-integrationtests-setup/resources/build.xml" target="STANDALONE.prepareSetup">
