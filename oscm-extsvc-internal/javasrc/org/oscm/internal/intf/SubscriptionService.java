@@ -1313,7 +1313,8 @@ public interface SubscriptionService {
             OperationNotPermittedException;
 
     /**
-     * Update number of provisioned VMs for given subscription
+     * Update number of provisioned VMs for given subscription. This operation can be performed only by the Technical
+     * Manager who belongs to the technology provider organization which is the owner of the subscribed service.
      *
      * @param subscriptionId
      *            the identifier of the subscription for which details are to be
