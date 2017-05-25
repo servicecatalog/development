@@ -51,13 +51,13 @@ public enum ConfigurationKey {
     @Doc({ "URL to specify a Web page that is to be displayed in case the HTTP",
             "protocol is used and a customer tries to access a marketplace",
             "without a valid marketplace ID." })
-    @Example("http://<your server>:<your port>/oscm-portal/marketplace?mid=8f78f156")
+    @Example("http://<your server>:<your port>/oscm-portal/marketplace/index.jsf?mId=8f78f156")
     MP_ERROR_REDIRECT_HTTP(false, null, "url"),
 
     @Doc({ "URL to specify a Web page that is to be displayed in case the HTTPS",
             "protocol is used and a customer tries to access a marketplace",
             "without a valid marketplace ID." })
-    @Example("https://<your server>:<your port>/oscm-portal/marketplace?mid=8f78f156")
+    @Example("https://<your server>:<your port>/oscm-portal/marketplace/index.jsf?mId=8f78f156")
     MP_ERROR_REDIRECT_HTTPS(false, null, "url"),
 
     @Doc({ "The log level valid for the entire application." })
