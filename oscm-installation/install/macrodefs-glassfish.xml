@@ -504,6 +504,15 @@
     </sequential>
   </macrodef>
 
+  <macrodef name="setFileRotationHistory">
+    <attribute name="rotationEntry" />
+    <sequential>
+      <asadmin.domain command="set-log-attributes">
+        <arg value="@{rotationEntry}" />
+      </asadmin.domain>
+    </sequential>
+  </macrodef>
+
   <macrodef name="asadmin.domain">
     <attribute name="command" />
     <attribute name="failonerror" default="true" />

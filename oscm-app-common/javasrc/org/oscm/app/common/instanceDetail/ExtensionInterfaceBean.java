@@ -13,9 +13,12 @@ package org.oscm.app.common.instanceDetail;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
+import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
+import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 
 import org.apache.commons.codec.binary.Base64;
@@ -47,6 +50,16 @@ public class ExtensionInterfaceBean implements Serializable {
     private String subscriptionId;
     private String organizationId;
     private String instanceId;
+
+    @PostConstruct
+    public void init() {
+        String lang = FacesContext.getCurrentInstance().getExternalContext()
+                .getRequestParameterMap().get("lang");
+        if (lang != null) {
+            FacesContext.getCurrentInstance().getViewRoot()
+                    .setLocale(Locale.forLanguageTag(lang));
+        }
+    }
 
     public String getSubscriptionId() {
         return subscriptionId;
@@ -84,8 +97,7 @@ public class ExtensionInterfaceBean implements Serializable {
             List<? extends ServerInformation> servers = instanceAccess
                     .getServerDetails(instanceId, subscriptionId,
                             organizationId);
-            return servers != null ? servers
-                    : new ArrayList<ServerInformation>();
+            return servers != null ? servers : new ArrayList<>();
         } catch (APPlatformException e) {
             LOGGER.error(e.getMessage(), e);
             return new ArrayList<>();

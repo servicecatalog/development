@@ -1,4 +1,6 @@
-<p align="center"><h1><img height="52" src="https://avatars0.githubusercontent.com/u/14330878" alt="Open Service Catalog Manager"/>&nbsp;Open Service Catalog Manager</h1></p> [![Build Status](https://travis-ci.org/servicecatalog/development.svg?branch=master)](https://travis-ci.org/servicecatalog/development)
+[![Build Status](https://travis-ci.org/servicecatalog/development.svg?branch=master)](https://travis-ci.org/servicecatalog/development)
+
+<p align="center"><h1><img height="52" src="https://avatars0.githubusercontent.com/u/14330878" alt="Open Service Catalog Manager"/>&nbsp;Open Service Catalog Manager</h1></p> 
 
 Open Service Catalog Manager (OSCM) is an open source application with enterprise quality level. It supports bright spectrum of use cases, from SaaS Marketplace to Enterprise IaaS Store. It offers ready-to-use service provisioning adapters for IaaS providers like Amazon AWS and OpenStack, but is open for integrating other platforms.
 
@@ -21,9 +23,11 @@ Newest releases can be found [here](https://github.com/servicecatalog/developmen
 Please follow the guide from top to bottom, this is the easiest way to avoid errors later on.
 
 #### Prerequisites
-* Installed [JDK 7u45](http://www.oracle.com/technetwork/java/javase/downloads/java-archive-downloads-javase7-521261.html#jdk-7u45-oth-JPR) or higher.
+* Installed [JDK 8u121](http://www.oracle.com/technetwork/java/javase/downloads/java-archive-javase8-2177648.html#jdk-8u121-oth-JPR)
+or higher.
+
 * [PostgreSQL 9.3](http://www.enterprisedb.com/products-services-training/pgdownload) database installer.
-* [GlassFish 3.1.2.2](http://glassfish.java.net/downloads/3.1.2.2-final.html) server installer.
+* [GlassFish 4.1.2](http://download.oracle.com/glassfish/4.1.2/release/index.html) server installer.
 * [Eclipse ECJ 4.2.1](http://mvnrepository.com/artifact/org.eclipse.jdt.core.compiler/ecj/4.2.1) library.
 * [Apache Ivy 2.4.0](http://www.apache.org/dist/ant/ivy/2.4.0/) library.
 
@@ -102,5 +106,5 @@ After the environment is set, developers can use the Ant targets to build/redepl
 
 #### Deploying eclipse-birt-runtime
 
-OSCM uses [eclipse-birt-runtime](http://www.eclipse.org/birt/) to generate reports. After OSCM is deployed, it is time for you to download and deploy eclipse-birt-runtime. You can find it under the [link](http://www.eclipse.org/downloads/download.php?file=/birt/downloads/drops/R-R1-4_5_0-201506092134/birt-runtime-4.5.0-20150609.zip). Birt.war is the application you should be interested in. We advise you to get the latest version. When you have deployed the application, you may upload all the reports that we have designed for you. The reports are delivered with every [release](https://github.com/servicecatalog/development/releases) in oscm-reports.zip. Just unpack the content to a folder on glassfish where the application has been deployed (usually: ${glassfishHome}\glassfish\domains\\{domain}\applications\\{ecilpse_runtime_folder}).
+OSCM uses [eclipse-birt-runtime](http://www.eclipse.org/birt/) to generate reports. After OSCM is deployed, it is time for you to download and deploy eclipse-birt-runtime. You can find it under the [link](http://download.eclipse.org/birt/downloads/). Birt.war is the application you should be interested in. We advise you to get the latest version. When you have deployed the application, you may upload all the reports that we have designed for you. The reports are delivered with every [release](https://github.com/servicecatalog/development/releases) in oscm-reports.zip. Just unpack the content to a folder on glassfish where the application has been deployed (usually: ${glassfishHome}\glassfish\domains\\{domain}\applications\\{ecilpse_runtime_folder}).
 

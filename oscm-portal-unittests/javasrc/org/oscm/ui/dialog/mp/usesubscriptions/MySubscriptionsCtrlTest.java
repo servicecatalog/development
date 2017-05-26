@@ -37,6 +37,7 @@ import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import javax.faces.context.ExternalContext;
 import javax.faces.model.SelectItem;
@@ -92,6 +93,7 @@ public class MySubscriptionsCtrlTest {
 
         ui = mock(UiDelegate.class);
         when(ui.getExternalContext()).thenReturn(extContext);
+        when(ui.getViewLocale()).thenReturn(Locale.ENGLISH);
 
         ctrl.ui = ui;
         ctrl.selectId = "componentid";
@@ -303,6 +305,7 @@ public class MySubscriptionsCtrlTest {
         String urlStr = ctrl.getCustomTabUrlWithParameters();
 
         assertTrue(urlStr.length() > 0);
+        assertTrue(urlStr.contains(Locale.ENGLISH.toLanguageTag()));
         assertTrue(urlStr
                 .contains(Base64.encodeBase64URLSafeString(instId.getBytes())));
         assertTrue(urlStr

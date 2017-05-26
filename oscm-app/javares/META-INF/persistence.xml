@@ -14,11 +14,13 @@
     <class>org.oscm.app.domain.CustomAttribute</class>
     <class>org.oscm.app.domain.InstanceParameter</class>
     <class>org.oscm.app.domain.InstanceAttribute</class>
+    <class>org.oscm.app.domain.TemplateFile</class>
     <properties>
       <property name="hibernate.hbm2ddl.auto" value="validate" />
       <property name="hibernate.jdbc.batch_size" value="0" />
       <property name="hibernate.transaction.jta.platform" value="org.hibernate.service.jta.platform.internal.SunOneJtaPlatform"/>
       <property name="hibernate.classloading.use_current_tccl_as_parent" value="false"/>
+      <property name="hibernate.id.new_generator_mappings" value="false"/>
     </properties>
   </persistence-unit>
 
