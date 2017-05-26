@@ -116,7 +116,9 @@
 			<property name="root.dir" value="${basedir}/.." />
 			<property name="env.HOSTNAME" value="default" />
 		</ant>
-		<ant antfile="build-integration-setup.xml" dir="../oscm-integrationtests-setup/resources" target="STANDALONE.setupWithoutCoverage" />
+		<ant antfile="build-integration-setup.xml" dir="../oscm-integrationtests-setup/resources" target="STANDALONE.setupWithoutCoverage">
+            <property name="env.HOSTNAME" value="default" />
+        </ant>
 	</target>
 
 	<target name="_setupGlassfishWithoutCoverageSAML">
