@@ -113,12 +113,12 @@
       <h:commandButton id="hiddenUndoButton" action="#{configurationBean.undo}" style="display: none;" />
     
     </h:form>
-    
+
     <c:if test="#{templateBean.allowedController}">
-    
+
     <br />
     <br />
-    
+
     <h:form id="templateForm" enctype="multipart/form-data">
       <div class="nested_heading_data_class">
         <div class="heading_data_4_class">
@@ -129,32 +129,32 @@
           </div>
         </div>
         <div id="accordion_area3">
-        
+
           <rich:dataTable styleClass="table_row_linetitle_class" value="#{templateBean.model}" var="item" rowClasses="rowOdd,rowEven">
-            <rich:column headerClass="rf-dt-keyColumn table_header_title_class" > 
+            <rich:column headerClass="rf-dt-keyColumn table_header_title_class" >
               <f:facet name="header" >
                 <h:outputText value="#{msg['ui.config.templates.file']}"  />
               </f:facet>
               <h:outputText value="#{item.fileName}" />
             </rich:column>
-          
-            <rich:column> 
+
+            <rich:column>
               <f:facet name="header" >
                 <h:outputText value="#{msg['ui.config.templates.lastchange']}"  />
               </f:facet>
               <h:outputText value="#{item.lastChange}" />
             </rich:column>
-            
-            <rich:column> 
+
+            <rich:column>
               <h:commandLink action="#{templateBean.delete(item.fileName)}" value="#{msg['ui.config.templates.delete']}" />
             </rich:column>
-            
-            <rich:column> 
+
+            <rich:column>
               <h:commandLink action="#{templateBean.export(item.fileName)}" value="#{msg['ui.config.templates.export']}" />
             </rich:column>
           </rich:dataTable>
           </div>
-          
+
           <br />
           <br />
           <div class="file_selection">
@@ -179,7 +179,7 @@
     </h:form>
     </c:if>
   </div>
-  
+
   <br />
   <br />
 </h:body>

@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
+import java.security.GeneralSecurityException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -223,6 +224,37 @@ public class APPConfigurationServiceBean {
         return result;
     }
 
+    @TransactionAttribute(TransactionAttributeType.REQUIRED)
+    public HashMap<String, Setting> getProxyConfigurationSettings()
+            throws ConfigurationException {
+        LOGGER.debug("Retrieving all configuration settings for proxy");
+        HashMap<String, Setting> result = new HashMap<>();
+        Query query = em.createNamedQuery("ConfigurationSetting.getAllProxy");
+        List<?> resultList = query.getResultList();
+        for (Object entry : resultList) {
+            ConfigurationSetting currentCs = (ConfigurationSetting) entry;
+            result.put(currentCs.getSettingKey(), new Setting(
+                    currentCs.getSettingKey(), currentCs.getDecryptedValue()));
+        }
+        PlatformConfigurationKey[] keys = PlatformConfigurationKey.values();
+        StringBuffer missing = new StringBuffer();
+        for (int i = 0; i < keys.length; i++) {
+            if (keys[i].isMandatory() && !result.containsKey(keys[i].name())) {
+                if (missing.length() > 0) {
+                    missing.append(", ");
+                }
+                missing.append(keys[i].name());
+            }
+        }
+        if (missing.length() > 0) {
+            throw new ConfigurationException(
+                    "The configuration is missing the following parameter(s): "
+                            + missing.toString(),
+                    missing.toString());
+        }
+        return result;
+    }
+
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     public VOUserDetails getAPPAdministrator() throws ConfigurationException {
         VOUserDetails adminuser = new VOUserDetails();
@@ -365,6 +397,33 @@ public class APPConfigurationServiceBean {
             em.persist(newSetting);
         }
     }
+
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    public void storeAppConfigurationSettings(HashMap<String, String> settings) throws ConfigurationException, GeneralSecurityException {
+
+        LOGGER.debug("Storing configuration settings for APP platform");
+        if (settings == null) {
+            throw new IllegalArgumentException("All parameters must be set");
+        }
+        Query query = em
+                .createNamedQuery("ConfigurationSetting.getForController");
+        query.setParameter("controllerId", PROXY_ID);
+        List<?> resultList = query.getResultList();
+        for (Object entry : resultList) {
+            ConfigurationSetting setting = (ConfigurationSetting) entry;
+            String key = setting.getSettingKey();
+            if (settings.containsKey(key)) {
+                if (settings.get(key) == null) {
+                    em.remove(setting);
+                } else {
+                    setting.setDecryptedValue(settings.get(key));
+                    em.persist(setting);
+                }
+            }
+            settings.remove(key);
+        }
+    }
+
 
     /**
      * Creates settings instance from given service instance.
