@@ -246,9 +246,6 @@
     <fail unless="settings.complete" message="database settings not complete." />
     <processResourcesXml />
     <addRes />
-    <antcall target="createWebServicePort">
-      <param name="target.name" value="server" />
-    </antcall>
     <antcall target="createWebServicePortSecure">
       <param name="target.name" value="server" />
     </antcall>
