@@ -257,29 +257,9 @@
 		</sequential>
 	</macrodef>
 
-<<<<<<< Upstream, based on branch 'hotfix/issue-682' of https://github.com/servicecatalog/development.git
-<<<<<<< Upstream, based on branch 'hotfix/issue-682' of https://github.com/servicecatalog/development.git
 	<target name="deleteJmsRes">
 		<deleteJmsRes jmsname="${jms_name}" />
 	</target>
-=======
-  <target name="createWebServicePort" depends="checkIfWSPortSet" if="isPortSet">
-    <asadmin.domain command="delete-http-listener" failonerror="false">
-      <arg value="ws-listener" />
-    </asadmin.domain>
-    <asadmin.domain command="create-http-listener">
-      <arg value="--listeneraddress" />
-      <arg value="0.0.0.0" />
-      <arg value="--listenerport" />
-      <arg value="${glassfish.domain.WS_PORT}" />
-      <arg value="--defaultvs" />
-      <arg value="server" />
-      <arg value="--target" />
-      <arg value="${target.name}" />
-      <arg value="ws-listener-secure" />
-    </asadmin.domain>
-  </target>
->>>>>>> 7b090f7 Make ws listener secure
 
 	<target name="createWebServicePortSecure" depends="checkIfWSPortSecureSet" if="isPortSecureSet">
 		<asadmin.domain command="delete-http-listener" failonerror="false">
@@ -297,24 +277,6 @@
 			<arg value="ws-listener-secure" />
 		</asadmin.domain>
 	</target>
-=======
-  <target name="createWebServicePortSecure" depends="checkIfWSPortSecureSet" if="isPortSecureSet">
-    <asadmin.domain command="delete-http-listener" failonerror="false">
-      <arg value="ws-listener-secure" />
-    </asadmin.domain>
-    <asadmin.domain command="create-http-listener">
-      <arg value="--listeneraddress" />
-      <arg value="0.0.0.0" />
-      <arg value="--listenerport" />
-      <arg value="${glassfish.domain.WS_PORT_SECURE}" />
-      <arg value="--defaultvs" />
-      <arg value="server" />
-      <arg value="--target" />
-      <arg value="${target.name}" />
-      <arg value="ws-listener-secure" />
-    </asadmin.domain>
-  </target>
->>>>>>> 607238f Add secure http listener for bes domain
 
 	<target name="createSSL" depends="checkIfWSPortSecureSet" if="isPortSecureSet">
 		<asadmin.domain command="delete-ssl" failonerror="false">
@@ -525,7 +487,15 @@
 		</sequential>
 	</macrodef>
 
-<<<<<<< Upstream, based on branch 'hotfix/issue-682' of https://github.com/servicecatalog/development.git
+	<macrodef name="setFileRotationHistory">
+		<attribute name="rotationEntry" />
+		<sequential>
+			<asadmin.domain command="set-log-attributes">
+				<arg value="@{rotationEntry}" />
+			</asadmin.domain>
+		</sequential>
+	</macrodef>
+
 	<macrodef name="asadmin.domain">
 		<attribute name="command" />
 		<attribute name="failonerror" default="true" />
@@ -540,40 +510,6 @@
 			</asadmin>
 		</sequential>
 	</macrodef>
-=======
-  <macrodef name="setFileRotationHistory">
-    <attribute name="rotationEntry" />
-    <sequential>
-      <asadmin.domain command="set-log-attributes">
-        <arg value="@{rotationEntry}" />
-      </asadmin.domain>
-    </sequential>
-  </macrodef>
-
-  <macrodef name="setFileRotationHistory">
-    <attribute name="rotationEntry" />
-    <sequential>
-      <asadmin.domain command="set-log-attributes">
-        <arg value="@{rotationEntry}" />
-      </asadmin.domain>
-    </sequential>
-  </macrodef>
-
-  <macrodef name="asadmin.domain">
-    <attribute name="command" />
-    <attribute name="failonerror" default="true" />
-    <attribute name="port" default="${glassfish.domain.portadmin}" />
-    <attribute name="user" default="${glassfish.domain.admin.user}" />
-    <attribute name="pwd" default="${glassfish.domain.admin.pwd}" />
-    <attribute name="masterpwd" default="${glassfish.domain.master.pwd}" />
-    <element name="args" implicit="yes" optional="yes" />
-    <sequential>
-      <asadmin failonerror="@{failonerror}" command="@{command}" port="@{port}" user="@{user}" pwd="@{pwd}" masterpwd="@{masterpwd}">
-        <args />
-      </asadmin>
-    </sequential>
-  </macrodef>
->>>>>>> f6b5723 Hotfix/issue679 (#732)
 
 	<macrodef name="echoGlassfishProperties">
 		<sequential>
