@@ -117,6 +117,10 @@ public class SubscriptionData extends DomainDataContainer implements
     @Column(nullable = false)
     private boolean external;
 
+
+    @Column
+    private int vmsNumber;
+
     public String getSubscriptionId() {
         return subscriptionId;
     }
@@ -227,5 +231,13 @@ public class SubscriptionData extends DomainDataContainer implements
 
     public boolean isExternal() {
         return external;
+    }
+
+    public int getVmsNumber() {
+        return vmsNumber;
+    }
+
+    public void setVmsNumber(int vmsNumber) {
+        this.vmsNumber = vmsNumber;
     }
 }

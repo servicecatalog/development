@@ -10,9 +10,7 @@ package org.oscm.app.openstack;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 import org.apache.sling.commons.json.JSONArray;
 import org.apache.sling.commons.json.JSONException;
@@ -229,4 +227,5 @@ public class NovaClient {
         }
         return "-";
     }
+
 }

@@ -47,6 +47,11 @@ public class VOInstanceInfo {
     private String loginPath;
 
     /**
+     * Number of provisioned VMs
+     */
+    private int vmsNumber;
+
+    /**
      * Retrieves the ID of the application instance as defined when the instance
      * is created.
      * 
@@ -146,4 +151,11 @@ public class VOInstanceInfo {
         this.loginPath = loginPath;
     }
 
+    public int getVmsNumber() {
+        return vmsNumber;
+    }
+
+    public void setVmsNumber(int vmsNumber) {
+        this.vmsNumber = vmsNumber;
+    }
 }

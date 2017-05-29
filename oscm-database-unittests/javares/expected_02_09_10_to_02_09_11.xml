@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2017-->
+
+<dataset>
+
+  <Subscription tkey="1001" version="0" subscriptionid="sid_1" product_tkey="1" creationdate="30" status="status"
+                timeoutmailsent="1" organizationkey="111" cutoffday="1" vmsnumber="0"/>
+
+</dataset>

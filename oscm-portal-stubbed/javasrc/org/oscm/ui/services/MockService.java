@@ -2818,6 +2818,12 @@ public class MockService implements IdentityService, SubscriptionService,
     }
 
     @Override
+    public void notifySubscriptionAboutVmsNumber(String subscriptionId, String organizationId,
+        VOInstanceInfo instanceInfo) throws ObjectNotFoundException {
+
+    }
+
+    @Override
     public String getMarketplaceIdForKey(Long key)
             throws ObjectNotFoundException {
         return null;

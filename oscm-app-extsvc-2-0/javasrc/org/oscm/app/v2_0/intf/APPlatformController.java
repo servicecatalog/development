@@ -435,4 +435,21 @@ public interface APPlatformController {
      *            configuration settings
      */
     public void setControllerSettings(ControllerSettings settings);
+
+    /**
+     * Writes back the number of VMs for the tenant of given instance
+     * @param instanceId
+     *            the ID of the application instance
+     * @param subscriptionId
+     *            the ID of the subscription
+     * @param organizationId
+     *            the ID of the organization
+     * @return the number of VMs
+     * @throws APPlatformException
+     */
+    default Integer getServersNumber(String instanceId,
+        String subscriptionId, String organizationId)
+        throws APPlatformException {
+        return null;
+    }
 }

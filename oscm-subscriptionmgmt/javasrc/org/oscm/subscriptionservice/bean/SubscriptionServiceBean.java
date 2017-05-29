@@ -5564,4 +5564,18 @@ public class SubscriptionServiceBean
                 .longValue());
         return unsubscribeFromService(mySubscriptionDetails.getSubscriptionId());
     }
+
+    @Override
+    public void notifySubscriptionAboutVmsNumber(String subscriptionId,
+        String organizationId, VOInstanceInfo instanceInfo)
+        throws ObjectNotFoundException {
+        ArgumentValidator.notNull("subscriptionId", subscriptionId);
+        ArgumentValidator.notNull("organizationId", organizationId);
+        ArgumentValidator.notNull("instance", instanceInfo);
+
+        Subscription subscription = manageBean.findSubscription(subscriptionId,
+            organizationId);
+        subscription.getDataContainer().setVmsNumber(instanceInfo.getVmsNumber());
+        dataManager.merge(subscription);
+    }
 }
