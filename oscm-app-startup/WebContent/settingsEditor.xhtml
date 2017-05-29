@@ -23,9 +23,6 @@
                     <h:outputText value="#{msg['ui.config.platform.column.key']}" />
                 </f:facet>
                 <h:outputText value="#{key}" />
-                <f:facet name="footer">
-                    <h:outputText id="newControllerId" value="#{platformConfigurationCtrl.model.items[key]}" onchange="setDirty(true)" />
-                </f:facet>
             </rich:column>
             <rich:column>
                 <f:facet name="header">
