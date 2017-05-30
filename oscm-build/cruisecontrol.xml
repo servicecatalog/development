@@ -201,7 +201,9 @@
 
 	<target name="_webTests">
 		<echo message="***** Wait for BES *****" />
-		<ant antfile="build-integration-setup.xml" dir="../oscm-integrationtests-setup/resources" target="waitForBES" />
+		<ant antfile="build-integration-setup.xml" dir="../oscm-integrationtests-setup/resources" target="waitForBES">
+			<property name="env.HOSTNAME" value="default" />
+		</ant>
 		<echo message="***** Run webtests *****" />
 		<ant dir="../oscm-portal-webtests" antfile="run_alltests.xml" target="run">
 			<property name="env.HOSTNAME" value="default" />
