@@ -15,7 +15,7 @@
     <!-- Called by cruise control. All targets for cc start with runXYZ, all internal targets start with underscore -->
     <target name="runAllWebtestsNoClean">
 		<antcall target="_webTests">
-			<param name="env.HOSTNAME" value="default"/>
+			<param name="hostname" value="default"/>
 		</antcall>
 		<antcall target="_copyResultArtifacts"/>
 	</target>
