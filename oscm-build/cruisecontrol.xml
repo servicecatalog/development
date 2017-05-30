@@ -105,7 +105,7 @@
 	</target>
 
 	<target name="_setupGlassfishWithoutCoverage">
-		<condition property="env.HOSTNAME" value="${hostname}" else="">
+		<condition property="env.HOSTNAME" value="${hostname}">
 			<isset property="hostname" />
 		</condition>
 		<echo message="***** Setup glassfish withOUT coverage *****" />
