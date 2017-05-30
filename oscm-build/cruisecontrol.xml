@@ -196,7 +196,7 @@
 	</target>
 
 	<target name="_webTests">
-		<condition property="env.HOSTNAME" value="${hostname}" else="">
+		<condition property="env.HOSTNAME" value="${hostname}">
 			<isset property="hostname" />
 		</condition>
 		<echo message="***** Wait for BES *****" />
