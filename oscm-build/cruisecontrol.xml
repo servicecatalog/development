@@ -105,16 +105,7 @@
 	</target>
 
 	<target name="_setupGlassfishWithoutCoverage">
-		<echo message="***** Setup glassfish withOUT coverage *****" />
-		<ant antfile="../oscm-integrationtests-setup/resources/build.xml" target="STANDALONE.prepareSetup">
-			<property name="work.dir" value="../oscm-integrationtests-setup/resources/work" />
-			<property name="root.dir" value="${basedir}/.." />
-		</ant>
-		<ant antfile="build-integration-setup.xml" dir="../oscm-integrationtests-setup/resources" target="STANDALONE.setupWithoutCoverage" />
-	</target>
-
-	<target name="_setupGlassfishWithoutCoverageDefaultHost">
-		<condition property="env.HOSTNAME" value="default" else="">
+		<condition property="env.HOSTNAME" value="${hostname}" else="">
 			<isset property="hostname" />
 		</condition>
 		<echo message="***** Setup glassfish withOUT coverage *****" />
