@@ -11,10 +11,14 @@
 
 	<!-- Called by cruise control. All targets for cc start with runXYZ, all internal targets start with underscore -->
 	<target name="runAllWebtestsBuild" depends="_libraries, _clean, _package, _setupGlassfishWithoutCoverage, _webTests, _copyResultArtifacts" />
-	<target name="runAllWebtestsOnBuildCodeAndPreparedGlassfish" depends="_webTests, _copyResultArtifacts" />
 
     <!-- Called by cruise control. All targets for cc start with runXYZ, all internal targets start with underscore -->
-    <target name="runAllWebtestsNoClean" depends="_webTests, _copyResultArtifacts" />
+    <target name="runAllWebtestsNoClean">
+		<antcall target="_webTests">
+			<param name="env.HOSTNAME" value="default"/>
+		</antcall>
+		<antcall target="_copyResultArtifacts"/>
+	</target>
 
 	<!-- Called by cruise control. All targets for cc start with runXYZ, all internal targets start with underscore -->
 	<target name="runPart1WebtestsBuild" depends="_libraries, _clean, _package, _setupGlassfishWithoutCoverage, _webTestPart1, _copyWebtestResults, _copyResultArtifacts" />
@@ -110,14 +114,15 @@
 	</target>
 
 	<target name="_setupGlassfishWithoutCoverageDefaultHost">
+		<condition property="env.HOSTNAME" value="default" else="">
+			<isset property="hostname" />
+		</condition>
 		<echo message="***** Setup glassfish withOUT coverage *****" />
 		<ant antfile="../oscm-integrationtests-setup/resources/build.xml" target="STANDALONE.prepareSetup">
 			<property name="work.dir" value="../oscm-integrationtests-setup/resources/work" />
 			<property name="root.dir" value="${basedir}/.." />
-			<property name="env.HOSTNAME" value="default" />
 		</ant>
 		<ant antfile="build-integration-setup.xml" dir="../oscm-integrationtests-setup/resources" target="STANDALONE.setupWithoutCoverage">
-            <property name="env.HOSTNAME" value="default" />
         </ant>
 	</target>
 
@@ -200,13 +205,14 @@
 	</target>
 
 	<target name="_webTests">
+		<condition property="env.HOSTNAME" value="default" else="">
+			<isset property="hostname" />
+		</condition>
 		<echo message="***** Wait for BES *****" />
 		<ant antfile="build-integration-setup.xml" dir="../oscm-integrationtests-setup/resources" target="waitForBES">
-			<property name="env.HOSTNAME" value="default" />
 		</ant>
 		<echo message="***** Run webtests *****" />
 		<ant dir="../oscm-portal-webtests" antfile="run_alltests.xml" target="run">
-			<property name="env.HOSTNAME" value="default" />
 		</ant>
 	</target>
 
