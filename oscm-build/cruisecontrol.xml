@@ -142,7 +142,6 @@
 	</target>
 
 	<target name="_webserviceTests">
-	<target name="_webserviceTests">
 		<condition property="env.HOSTNAME" value="${hostname}">
 			<isset property="hostname" />
 		</condition>
