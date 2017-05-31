@@ -51,7 +51,7 @@ public class SubscriptionUsageQuery {
                 "                product.technicalproduct_tkey = technicalproduct.tkey AND\n" +
                 "                technicalproduct.organizationkey = supplier.tkey AND\n" +
                 "                parameter.value ~ '^\\d{1,}$'\n" +
-                "                parameter.value::int > 0\n" +
+                "                CAST(parameter.value AS INTEGER) > 0\n" +
                 "                ORDER BY organization.organizationid;\n";
 
 
