@@ -2001,6 +2001,7 @@ public class VOConverter {
         newVO.setAccessInfo(oldVO.getAccessInfo());
         newVO.setBaseUrl(oldVO.getBaseUrl());
         newVO.setLoginPath(oldVO.getLoginPath());
+        newVO.setVmsNumber(oldVO.getVmsNumber());
         return newVO;
     }
 
@@ -2021,6 +2022,7 @@ public class VOConverter {
         newVO.setAccessInfo(oldVO.getAccessInfo());
         newVO.setBaseUrl(oldVO.getBaseUrl());
         newVO.setLoginPath(oldVO.getLoginPath());
+        newVO.setVmsNumber(oldVO.getVmsNumber());
         return newVO;
     }
 

@@ -12,6 +12,7 @@ import java.math.BigInteger;
 import java.util.*;
 
 import javax.interceptor.Interceptors;
+import javax.persistence.NoResultException;
 import javax.persistence.Query;
 
 import org.oscm.converter.ParameterizedTypes;
@@ -1207,5 +1208,19 @@ public class SubscriptionDao {
                 getSubscriptionStatesAsString(new HashSet<>(
                         Subscription.VISIBLE_SUBSCRIPTION_STATUS)));
         return (Subscription) query.getSingleResult();
+    }
+
+    public Parameter getParameterForSubscription(ParameterDefinition parameterDefinition, ParameterSet parameterSet) {
+
+        Query query = dataManager
+            .createNamedQuery("Parameter.getParamByName");
+
+        query.setParameter("parameterSet", parameterSet);
+        query.setParameter("parameterDefinition", parameterDefinition);
+        try {
+            return (Parameter) query.getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
     }
 }

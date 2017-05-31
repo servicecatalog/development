@@ -241,6 +241,7 @@ public class Subscription extends DomainObjectWithHistory<SubscriptionData> {
     @OrderBy
     private List<OperationRecord> operationRecord = new ArrayList<OperationRecord>();
 
+
     /**
      * Adds a user to the subscription assigning the provided role or standard
      * authorities if no role is provided.
@@ -670,4 +671,5 @@ public class Subscription extends DomainObjectWithHistory<SubscriptionData> {
     public boolean isExternal() {
         return dataContainer.isExternal();
     }
+
 }

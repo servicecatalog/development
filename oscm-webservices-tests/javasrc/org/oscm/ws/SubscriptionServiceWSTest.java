@@ -422,6 +422,7 @@ public class SubscriptionServiceWSTest {
         assertEquals(voSubscription.getUnitName(), unitBug12379.getName());
         service4UnitAdminOnly.unsubscribeFromService(voSubscription.getSubscriptionId());
     }
+
     @Test(expected = OperationNotPermittedException.class)
     public void bug12379_subscriptionToServiceWithoutUnitAssignedByApi_unitAdminOnly() throws Exception {
         //given

@@ -12,11 +12,7 @@
 
 package org.oscm.operatorsvc.client.commands;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,7 +28,7 @@ import org.oscm.operatorsvc.client.IOperatorCommand;
  */
 public class GetUserOperationLogCommand implements IOperatorCommand {
 
-    private static final String ARG_FILE_NAME = "filename";
+    protected static final String ARG_FILE_NAME = "filename";
     private static final String ARG_ENTITY_TYPE = "entitytype";
     private static final String ARG_FROM_DATE = "from";
     private static final String ARG_TO_DATE = "to";
@@ -77,12 +73,35 @@ public class GetUserOperationLogCommand implements IOperatorCommand {
             csv = new String(result, "UTF-8");
         }
 
+        return writeResults(ctx, outputFileName, csv);
+    }
+
+    PrintWriter createPrintWriter(File outputFile) throws IOException {
+        return new PrintWriter(new BufferedWriter(new FileWriter(outputFile)));
+    }
+
+    public boolean replaceGreateAndLessThan() {
+        return true;
+    }
+
+    protected String validateFileName(String fileName) {
+        if (fileName == null || fileName.trim().length() == 0) {
+            return "File name can not be empty.\n";
+        }
+        File file = new File(fileName);
+        if (file.exists()) {
+            return "Specified file already exists.\n";
+        }
+        return null;
+    }
+
+    protected boolean writeResults(CommandContext ctx, String outputFileName, String content) throws IOException {
         // write result
         File outputFile = new File(outputFileName);
         PrintWriter pw = null;
         try {
             pw = createPrintWriter(outputFile);
-            pw.print(csv);
+            pw.print(content);
             pw.flush();
         } catch (Exception e) {
             ctx.err().print("The file can not be created.\n");
@@ -94,30 +113,9 @@ public class GetUserOperationLogCommand implements IOperatorCommand {
             }
         }
 
-        ctx.out().print(
-                String.format("Successfully created the log file: %s%n",
-                        outputFile.getCanonicalPath()));
+        ctx.out().print(String.format("Successfully created the file: %s%n",
+                outputFile.getCanonicalPath()));
         ctx.out().flush();
         return true;
     }
-
-    PrintWriter createPrintWriter(File outputFile) throws IOException {
-        return new PrintWriter(new BufferedWriter(new FileWriter(outputFile)));
-    }
-
-    public boolean replaceGreateAndLessThan() {
-        return true;
-    }
-
-    private String validateFileName(String fileName) {
-        if (fileName == null || fileName.trim().length() == 0) {
-            return "File name can not be empty.\n";
-        }
-        File file = new File(fileName);
-        if (file.exists()) {
-            return "Specified file is already existing.\n";
-        }
-        return null;
-    }
-
 }

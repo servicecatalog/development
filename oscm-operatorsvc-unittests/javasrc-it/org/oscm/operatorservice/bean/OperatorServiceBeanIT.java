@@ -7,18 +7,24 @@ package org.oscm.operatorservice.bean;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
+import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
 
 import javax.ejb.EJBException;
 import javax.persistence.Query;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.oscm.auditlog.bean.AuditLogServiceBean;
+import org.oscm.dataservice.bean.DataServiceBean;
+import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.*;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.domobjects.enums.OrganizationReferenceType;
@@ -31,6 +37,7 @@ import org.oscm.internal.types.exception.PaymentDataException.Reason;
 import org.oscm.internal.vo.*;
 import org.oscm.test.BaseAdmUmTest;
 import org.oscm.test.EJBTestBase;
+import org.oscm.test.data.Subscriptions;
 import org.oscm.test.ejb.TestContainer;
 import org.oscm.test.stubs.*;
 import org.oscm.timerservice.bean.TimerServiceBean;
@@ -1548,8 +1555,60 @@ public class OperatorServiceBeanIT extends EJBTestBase {
         Assert.assertEquals(expected, new String(result, "UTF-8"));
     }
 
+    @Test
+    public void testExportSubscriptionUsage() throws Exception {
+        DataServiceBean moczek = mock(DataServiceBean.class);
+        Query query = mock(Query.class);
+        List<Object[]> list = new ArrayList<>();
+        list.add(new Object[]{"a", "b", "c", "d", "e", "f", "g", "h", "i"});
+
+        doReturn(query).when(moczek).createNativeQuery(anyString());
+        doReturn(list).when(query).getResultList();
+
+        OperatorServiceBean operatorServiceBean = container.get(OperatorServiceBean.class);
+        operatorServiceBean.setDm(moczek);
+        container.login("1", ROLE_PLATFORM_OPERATOR);
+
+
+        Collection<VOSubscriptionUsageEntry> subscriptionUsageReport = new ArrayList<>();
+        try {
+            subscriptionUsageReport = operatorService.getSubscriptionUsageReport();
+        } catch (Exception exc) {
+            exc.printStackTrace();
+            Assert.fail();
+        }
+        verify(moczek).createNativeQuery(anyString());
+        verify(query, times(1)).getResultList();
+        assertTrue(("b,a,g,c,d,f,e,h,i" + System.lineSeparator()).equals(toCSV(subscriptionUsageReport.iterator().next()).toString()));
+        assertNotSame(0, subscriptionUsageReport.size());
+    }
+
     // -------------------------------------------------------------
     // internal methods
+
+    private StringBuffer toCSV(VOSubscriptionUsageEntry entry) throws IOException {
+        CSVFormat csvFileFormat = CSVFormat.DEFAULT.withRecordSeparator(System.lineSeparator());
+        StringBuffer appendable = new StringBuffer();
+        CSVPrinter csvFilePrinter = new CSVPrinter(appendable, csvFileFormat);
+        List<String> columns = toList(entry);
+        csvFilePrinter.printRecord(columns);
+        csvFilePrinter.close();
+        return appendable;
+    }
+
+    private List<String> toList(VOSubscriptionUsageEntry entry) {
+        List<String> columns = new ArrayList<>();
+        columns.add(entry.getCustomerOrgId());
+        columns.add(entry.getCustomerOrgName());
+        columns.add(entry.getSubscriptionName());
+        columns.add(entry.getMarketableServiceName());
+        columns.add(entry.getTechnicalServiceName());
+        columns.add(entry.getSupplierOrganizationName());
+        columns.add(entry.getSupplierOrganizationId());
+        columns.add(entry.getNumberOfusers());
+        columns.add(entry.getNumberOfVMs());
+        return columns;
+    }
 
     private VOUserDetails newVOUser() {
         return new VOUserDetails();

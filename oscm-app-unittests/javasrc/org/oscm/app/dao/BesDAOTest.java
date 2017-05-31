@@ -1735,6 +1735,21 @@ public class BesDAOTest {
 
     }
 
+    @Test
+    public void testNotifySubscriptionAboutVmsNumber()
+        throws BESNotificationException, APPlatformException, ObjectNotFoundException {
+        //given
+        ServiceInstance si = givenServiceInstance(false);
+        doReturn(subServ).when(besDAO).getBESWebService(
+            eq(SubscriptionService.class), any(ServiceInstance.class));
+        doNothing().when(subServ).notifySubscriptionAboutVmsNumber(anyString(), anyString(), any(VOInstanceInfo.class));
+        //when
+        besDAO.notifySubscriptionAboutVmsNumber(si);
+
+        //then
+        verify(subServ, times(1)).notifySubscriptionAboutVmsNumber(anyString(), anyString(), any(VOInstanceInfo.class));
+    }
+
     private LocalizedText givenText(String locale, String text) {
         LocalizedText voText = new LocalizedText();
         voText.setLocale(locale);

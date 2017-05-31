@@ -75,6 +75,8 @@
   <message name="updateAsyncOperationProgressResponse" />
   <message name="updateAsyncSubscriptionStatus" />
   <message name="updateAsyncSubscriptionStatusResponse" />
+  <message name="notifySubscriptionAboutVmsNumber" />
+  <message name="notifySubscriptionAboutVmsNumberResponse" />
   <portType name="SubscriptionService">
     <operation name="abortAsyncSubscription">
       <input message="tns:abortAsyncSubscription" />
@@ -208,6 +210,10 @@
     <operation name="updateAsyncSubscriptionStatus">
       <input message="tns:updateAsyncSubscriptionStatus" />
       <output message="tns:updateAsyncSubscriptionStatusResponse" />
+    </operation>
+    <operation name="notifySubscriptionAboutVmsNumber">
+      <input message="tns:notifySubscriptionAboutVmsNumber" />
+      <output message="tns:notifySubscriptionAboutVmsNumberResponse" />
     </operation>
   </portType>
   <binding name="SubscriptionServicePortSTSBinding" type="tns:SubscriptionService">
@@ -469,6 +475,14 @@
       </output>
     </operation>
     <operation name="updateAsyncSubscriptionStatus">
+      <input>
+        <wsp:PolicyReference URI="#SubscriptionServicePortSTSBinding_Input_Policy" />
+      </input>
+      <output>
+        <wsp:PolicyReference URI="#SubscriptionServicePortSTSBinding_Output_Policy" />
+      </output>
+    </operation>
+    <operation name="notifySubscriptionAboutVmsNumber">
       <input>
         <wsp:PolicyReference URI="#SubscriptionServicePortSTSBinding_Input_Policy" />
       </input>
