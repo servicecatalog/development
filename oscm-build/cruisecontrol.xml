@@ -12,14 +12,6 @@
 	<!-- Called by cruise control. All targets for cc start with runXYZ, all internal targets start with underscore -->
 	<target name="runAllWebtestsBuild" depends="_libraries, _clean, _package, _setupGlassfishWithoutCoverage, _webTests, _copyResultArtifacts" />
 
-    <!-- Called by cruise control. All targets for cc start with runXYZ, all internal targets start with underscore -->
-    <target name="runAllWebtestsNoClean">
-		<antcall target="_webTests">
-			<param name="hostname" value="default"/>
-		</antcall>
-		<antcall target="_copyResultArtifacts"/>
-	</target>
-
 	<!-- Called by cruise control. All targets for cc start with runXYZ, all internal targets start with underscore -->
 	<target name="runPart1WebtestsBuild" depends="_libraries, _clean, _package, _setupGlassfishWithoutCoverage, _webTestPart1, _copyWebtestResults, _copyResultArtifacts" />
 
@@ -47,15 +39,10 @@
 	<target name="runWebserviceTestsBuild" depends="_libraries, _clean, _package, _setupGlassfishWithoutCoverage, _webserviceTests, _copyGlassfishLogsAfterWebserviceTests, _copyResultArtifacts" />
 
 	<!-- Called by cruise control. All targets for cc start with runXYZ, all internal targets start with underscore -->
-	<target name="runWebserviceTestsBuildDefault" depends="_libraries, _clean, _package">
+	<target name="setupGlassfishForDefaultHost" depends="_libraries, _clean, _package">
 		<antcall target="_setupGlassfishWithoutCoverage">
 			<param name="hostname" value="default"/>
 		</antcall>
-		<antcall target="_webserviceTests">
-			<param name="hostname" value="default"/>
-		</antcall>
-		<antcall target="_copyGlassfishLogsAfterWebserviceTests"/>
-		<antcall target="_copyResultArtifacts"/>
 	</target>
 
 	<!-- Called by cruise control. All targets for cc start with runXYZ, all internal targets start with underscore -->
@@ -154,6 +141,7 @@
 		<ant antfile="build-integration-setup.xml" dir="../oscm-integrationtests-setup/resources" target="STANDALONE.setup" />
 	</target>
 
+	<target name="_webserviceTests">
 	<target name="_webserviceTests">
 		<condition property="env.HOSTNAME" value="${hostname}">
 			<isset property="hostname" />
