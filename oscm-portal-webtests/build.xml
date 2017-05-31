@@ -23,6 +23,9 @@
   <property name="testAccountPart" value="false" />
   <property name="testMarketplace" value="false" />
   <property name="artifacts" value="artifacts" />
+  <condition property="webtest.home" value="${env.WEBTEST_HOME}">
+    <isset property="env.WEBTEST_HOME" />
+  </condition>
   <import file="${webtest.home}/webtest.xml" />
 
   <!-- property name="wt.parallel.nbWorkers" value="12" / -->
