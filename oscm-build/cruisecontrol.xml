@@ -47,6 +47,18 @@
 	<target name="runWebserviceTestsBuild" depends="_libraries, _clean, _package, _setupGlassfishWithoutCoverage, _webserviceTests, _copyGlassfishLogsAfterWebserviceTests, _copyResultArtifacts" />
 
 	<!-- Called by cruise control. All targets for cc start with runXYZ, all internal targets start with underscore -->
+	<target name="runWebserviceTestsBuildDefault" depends="_libraries, _clean, _package">
+		<antcall target="_setupGlassfishWithoutCoverage">
+			<param name="hostname" value="default"/>
+		</antcall>
+		<antcall target="_webserviceTests">
+			<param name="hostname" value="default"/>
+		</antcall>
+		<antcall target="_copyGlassfishLogsAfterWebserviceTests"/>
+		<antcall target="_copyResultArtifacts"/>
+	</target>
+
+	<!-- Called by cruise control. All targets for cc start with runXYZ, all internal targets start with underscore -->
 	<target name="runWebserviceTestsNoClean" depends="_webserviceTestsNoPackage, _copyResultArtifacts" />
 
 	<!-- Called by cruise control. All targets for cc start with runXYZ, all internal targets start with underscore -->
@@ -143,6 +155,9 @@
 	</target>
 
 	<target name="_webserviceTests">
+		<condition property="env.HOSTNAME" value="${hostname}">
+			<isset property="hostname" />
+		</condition>
 		<echo message="***** Run webservice tests without cleaning former results *****" />
 		<ant antfile="build.xml" target="webservicetests" />
 	</target>
