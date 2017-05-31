@@ -159,7 +159,9 @@
 			<isset property="hostname" />
 		</condition>
 		<echo message="***** Run webservice tests without cleaning former results *****" />
-		<ant antfile="build.xml" target="webservicetests" />
+		<ant antfile="build.xml" target="webservicetests">
+			<property name="skipPackage" value=""/>
+		</ant>
 	</target>
 
 	<target name="_webserviceTestsNoPackage">
