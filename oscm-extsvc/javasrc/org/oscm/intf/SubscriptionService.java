@@ -1222,7 +1222,7 @@ public interface SubscriptionService {
             OperationNotPermittedException, ValidationException;
 
     /**
-     * Updates the progress information for asynchronous operation record.
+     * Updates the progress information for an asynchronous operation record.
      * <p>
      * Required role: technology manager of the technology provider organization
      * that provides the application and technical service
@@ -1249,8 +1249,8 @@ public interface SubscriptionService {
             throws OperationNotPermittedException, OperationStateException;
 
     /**
-     * Update subscription status and notify users execution result for
-     * asynchronous operation.
+     * Updates the subscription status and notifies about the execution result
+     * of the asynchronous operation.
      * <p>
      * Required role: technology manager of the technology provider organization
      * that provides the application and technical service
@@ -1273,7 +1273,7 @@ public interface SubscriptionService {
             throws ObjectNotFoundException;
 
     /**
-     * Update number of provisioned VMs for given subscription
+     * Updates the number of provisioned VMs for the given subscription
      *
      * @param subscriptionId
      *            the identifier of the subscription for which details are to be
@@ -1281,7 +1281,7 @@ public interface SubscriptionService {
      * @param organizationId
      *            the ID of the customer organization
      * @param instanceInfo
-     *            the value object containing instance information
+     *            the value object containing the instance information
      * @throws ObjectNotFoundException
      *             if the organization or subscription is not found
      */

@@ -437,7 +437,7 @@ public interface APPlatformController {
     public void setControllerSettings(ControllerSettings settings);
 
     /**
-     * Writes back the number of VMs for the tenant of given instance
+     * Writes back the number of VMs for the tenant of the given instance
      * @param instanceId
      *            the ID of the application instance
      * @param subscriptionId

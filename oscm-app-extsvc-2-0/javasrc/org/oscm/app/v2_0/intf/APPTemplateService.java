@@ -19,7 +19,7 @@ import org.oscm.app.v2_0.exceptions.AuthenticationException;
 
 /**
  * Interface providing methods by which service controllers implemented in APP
- * can access APPs template service.
+ * can access the template service of APP.
  */
 @Remote
 public interface APPTemplateService {
@@ -51,7 +51,7 @@ public interface APPTemplateService {
             throws AuthenticationException, APPlatformException;
 
     /**
-     * Delete the template with the given name for the controller.
+     * Deletes the template with the given name for the controller.
      * 
      * @param fileName
      *            the template name
@@ -89,7 +89,7 @@ public interface APPTemplateService {
             throws AuthenticationException, APPlatformException;
 
     /**
-     * Gets the template for the given file name and the controller id.
+     * Gets the template with the given file name and the controller id.
      * 
      * @param fileName
      *            the template name
