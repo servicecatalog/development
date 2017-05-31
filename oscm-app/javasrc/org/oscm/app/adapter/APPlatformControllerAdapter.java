@@ -134,4 +134,10 @@ public class APPlatformControllerAdapter implements APPlatformController {
     public void setControllerSettings(ControllerSettings settings) {
         delegate.setControllerSettings(settings);
     }
+
+    @Override
+    public Integer getServersNumber(String instanceId, String subscriptionId, String organizationId)
+        throws APPlatformException {
+        return delegate.getServersNumber(instanceId,subscriptionId, organizationId);
+    }
 }

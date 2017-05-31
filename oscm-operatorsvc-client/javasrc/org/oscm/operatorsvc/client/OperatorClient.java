@@ -32,26 +32,7 @@ import javax.naming.InitialContext;
 
 import org.oscm.converter.PropertiesLoader;
 import org.oscm.ct.login.LoginHandlerFactory;
-import org.oscm.operatorsvc.client.commands.AddAvailablePaymentTypesCommand;
-import org.oscm.operatorsvc.client.commands.AddCurrencyCommand;
-import org.oscm.operatorsvc.client.commands.AddOrganizationToRoleCommand;
-import org.oscm.operatorsvc.client.commands.CreateOrganizationCommand;
-import org.oscm.operatorsvc.client.commands.GetConfigurationSettingsCommand;
-import org.oscm.operatorsvc.client.commands.GetOrganizationBillingDataCommand;
-import org.oscm.operatorsvc.client.commands.GetRevenueListCommand;
-import org.oscm.operatorsvc.client.commands.GetUserOperationLogCommand;
-import org.oscm.operatorsvc.client.commands.LockUserCommand;
-import org.oscm.operatorsvc.client.commands.ReinitTimersCommand;
-import org.oscm.operatorsvc.client.commands.ResetPasswordForUserCommand;
-import org.oscm.operatorsvc.client.commands.RetrieveTimerExpirationsCommand;
-import org.oscm.operatorsvc.client.commands.RetryFailedPaymentProcessesCommand;
-import org.oscm.operatorsvc.client.commands.SaveConfigurationSettingCommand;
-import org.oscm.operatorsvc.client.commands.SetDistinguishedNameCommand;
-import org.oscm.operatorsvc.client.commands.SetPSPAccountForOrganizationCommand;
-import org.oscm.operatorsvc.client.commands.StartBillingRunCommand;
-import org.oscm.operatorsvc.client.commands.StartPaymentProcessingCommand;
-import org.oscm.operatorsvc.client.commands.UnlockUserCommand;
-import org.oscm.operatorsvc.client.commands.UpdateOrganizationCommand;
+import org.oscm.operatorsvc.client.commands.*;
 import org.oscm.internal.intf.OperatorService;
 import org.oscm.internal.types.exception.MailOperationException;
 
@@ -90,6 +71,7 @@ public class OperatorClient {
         registerCommand(new SaveConfigurationSettingCommand());
         registerCommand(new StartPaymentProcessingCommand());
         registerCommand(new GetUserOperationLogCommand());
+        registerCommand(new GetSubscriptionUsage());
     }
 
     /**

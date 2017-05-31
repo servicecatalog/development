@@ -83,7 +83,7 @@ public class GetUserOperationLogCommandTest extends CommandTestBase {
 
         File file = new File(CORRECT_FILE_NAME);
         String cannonicalPath = file.getCanonicalPath();
-        assertOut("Successfully created the log file: " + cannonicalPath
+        assertOut("Successfully created the file: " + cannonicalPath
                 + System.getProperty("line.separator"));
         assertErr("");
         assertTrue(file.exists());
@@ -111,7 +111,7 @@ public class GetUserOperationLogCommandTest extends CommandTestBase {
 
         File file = new File(CORRECT_FILE_NAME);
         String cannonicalPath = file.getCanonicalPath();
-        assertOut("Successfully created the log file: " + cannonicalPath
+        assertOut("Successfully created the file: " + cannonicalPath
                 + System.getProperty("line.separator"));
         assertErr("");
         assertTrue(file.exists());
@@ -179,7 +179,7 @@ public class GetUserOperationLogCommandTest extends CommandTestBase {
         stubCallReturn = STUB_RETURN.getBytes();
         assertFalse(command.run(ctx));
         assertOut("");
-        assertErr("Specified file is already existing.\n");
+        assertErr("Specified file already exists.\n");
     }
 
     @Test(expected = java.text.ParseException.class)

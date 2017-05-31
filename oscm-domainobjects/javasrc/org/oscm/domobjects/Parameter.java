@@ -15,16 +15,14 @@ package org.oscm.domobjects;
 import java.security.GeneralSecurityException;
 import java.util.List;
 
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 
 import org.oscm.encrypter.AESEncrypter;
 import org.oscm.internal.types.enumtypes.ParameterValueType;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
+
 
 /**
  * A parameter stores information to configure a product. The product has a
@@ -36,6 +34,9 @@ import org.oscm.types.enumtypes.LogMessageIdentifier;
  * 
  */
 @Entity
+@NamedQueries({
+    @NamedQuery(name = "Parameter.getParamByName", query = "SELECT p FROM Parameter p WHERE"
+        + " p.parameterSet = :parameterSet AND p.parameterDefinition = :parameterDefinition")})
 public class Parameter extends DomainObjectWithHistory<ParameterData> {
 
     private static final long serialVersionUID = 5611780484859016088L;

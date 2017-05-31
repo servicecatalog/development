@@ -1311,4 +1311,22 @@ public interface SubscriptionService {
             TechnicalServiceNotAliveException,
             TechnicalServiceOperationException, OperationPendingException,
             OperationNotPermittedException;
+
+    /**
+     * Update number of provisioned VMs for given subscription. This operation can be performed only by the Technical
+     * Manager who belongs to the technology provider organization which is the owner of the subscribed service.
+     *
+     * @param subscriptionId
+     *            the identifier of the subscription for which details are to be
+     *            retrieved
+     * @param organizationId
+     *            the ID of the customer organization
+     * @param instanceInfo
+     *            the value object containing instance information
+     * @throws ObjectNotFoundException
+     *             if the organization or subscription is not found
+     */
+    void notifySubscriptionAboutVmsNumber(String subscriptionId,
+        String organizationId, VOInstanceInfo instanceInfo)
+        throws ObjectNotFoundException;
 }
