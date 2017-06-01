@@ -482,6 +482,9 @@
         <and>
           <available file="${unit.result.dir}/TESTS-TestSuites.xml" />
           <xpath file="${unit.result.dir}/TESTS-TestSuites.xml" path="/testsuites/testsuite[@errors>0 or @failures>0]" />
+          <not>
+            <isset property="skipTestFailures" />
+          </not>
         </and>
       </condition>
     </fail>

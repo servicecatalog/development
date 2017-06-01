@@ -83,6 +83,9 @@
 	<!--</target>-->
 
 	<target name="_copyGlassfishLogsAfterWebserviceTests">
+		<condition property="env.HOSTNAME" value="${hostname}">
+			<isset property="hostname" />
+		</condition>
 		<echo message="***** Copy glassfish logs after webservice test run *****" />
 		<ant antfile="build.xml" target="copyGlassfishLogs">
 			<property name="glassfish.log.subdirectory" value="test-ws" />
@@ -254,6 +257,9 @@
 	</target>
 
 	<target name="_copyResultArtifacts">
+		<condition property="env.HOSTNAME" value="${hostname}">
+			<isset property="hostname" />
+		</condition>
 		<echo message="***** Copies the result artifacts to build module *****" />
 		<ant antfile="build.xml" target="copyResultArtifacts" />
 	</target>
