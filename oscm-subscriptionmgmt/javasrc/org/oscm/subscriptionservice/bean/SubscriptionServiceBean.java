@@ -5580,7 +5580,7 @@ public class SubscriptionServiceBean
         Subscription subscription = manageBean.findSubscription(subscriptionId,
             organizationId);
 
-        if (user != null && subscription.getOwner().getOrganization() != user.getOrganization()) {
+        if (user != null && subscription.getOwner().getOrganization().getKey() != user.getOrganization().getKey()) {
             SaaSSystemException sse = new SaaSSystemException("You are not allowed to perform this opperation!");
             LOG.logError(Log4jLogger.SYSTEM_LOG, sse,
                 LogMessageIdentifier.ERROR_USER_OPERATE_NOT_PERMITTED);
