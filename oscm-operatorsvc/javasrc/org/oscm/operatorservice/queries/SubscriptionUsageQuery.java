@@ -49,9 +49,9 @@ public class SubscriptionUsageQuery {
                 "                parameterdefinition.technicalproduct_tkey=product.technicalproduct_tkey AND\n" +
                 "                subscription.organizationkey = organization.tkey AND\n" +
                 "                product.technicalproduct_tkey = technicalproduct.tkey AND\n" +
-                "                technicalproduct.organizationkey = supplier.tkey\n" +
-//                "                parameter.value ~ '^\\d{1,}$'\n" +
-//                "                CAST(parameter.value AS INTEGER) > 0\n" +
+                "                technicalproduct.organizationkey = supplier.tkey AND\n" +
+                "                parameter.value ~ '^\\d{1,}$' AND \n" +
+                "                CAST(parameter.value AS INTEGER) > 0\n" +
                 "                ORDER BY organization.organizationid;\n";
 
 
