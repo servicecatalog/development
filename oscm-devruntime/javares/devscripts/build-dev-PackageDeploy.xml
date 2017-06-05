@@ -237,4 +237,11 @@
     </ant>
   </target>
 
+  <target name="InstallPacks.BUILD"
+    description="">
+    <ant dir="${adm.ue.buildscript.dir}" antfile="${adm.ue.buildscript.file}" target="package">
+      <property name="projects" value="oscm-install-pack, oscm-app-install-pack, oscm-aws-install-pack, oscm-openstack-install-pack, oscm-vmware-install-pack" />
+    </ant>
+  </target>
+
 </project>
