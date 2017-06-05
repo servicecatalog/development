@@ -244,10 +244,4 @@
     </ant>
   </target>
 
-  <target name="_libraries">
-    <ant antfile="ivy-build.xml">
-      <property name="root.dir" value="${basedir}/.." />
-    </ant>
-  </target>
-
 </project>
