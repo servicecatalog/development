@@ -1165,29 +1165,16 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
         Marketplace marketplace = (Marketplace) ds
                 .getReferenceByBusinessKey(new Marketplace(marketplaceId));
 
-        long tenantKey = 0;
-        if (marketplace.getTenant() != null) {
-            tenantKey = marketplace.getTenant().getKey();
-        }
-
-        return marketplaceAccessDao.getOrganizationsWithMplAndSubscriptions(
-                marketplace.getKey(), tenantKey);
+        return marketplaceAccessDao
+                .getOrganizationsWithMplAndSubscriptions(marketplace.getKey());
     }
 
     @Override
     public List<Organization> getAllOrganizationsWithAccessToMarketplace(
             long marketplaceKey) throws ObjectNotFoundException {
 
-        Marketplace marketplace = ds.getReference(Marketplace.class,
-                marketplaceKey);
-
-        long tenantKey = 0;
-        if (marketplace.getTenant() != null) {
-            tenantKey = marketplace.getTenant().getKey();
-        }
-
-        return marketplaceAccessDao.getAllOrganizationsWithAccessToMarketplace(
-                marketplaceKey, tenantKey);
+        return marketplaceAccessDao
+                .getAllOrganizationsWithAccessToMarketplace(marketplaceKey);
     }
 
     @Override
