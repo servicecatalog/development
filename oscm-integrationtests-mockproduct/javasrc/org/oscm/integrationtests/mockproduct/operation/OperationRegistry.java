@@ -43,7 +43,7 @@ public class OperationRegistry {
         register(new SubscriptionService_completeAsyncModifySubscription());
         register(new SubscriptionService_abortAsyncUpgradeSubscription());
         register(new SubscriptionService_completeAsyncUpgradeSubscription());
-        register(new SubscriptionService_notifySubscriptionVmsNumber());
+        // register(new SubscriptionService_notifySubscriptionVmsNumber());
         register(new TriggerService_approveAction());
         register(new TriggerService_rejectAction());
         register(new TriggerService_getActionParameter());
