@@ -35,11 +35,6 @@ steps:
   id:   'gf-image'
 
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', 'eu.gcr.io/$PROJECT_ID/oscm/oscm-mi:$TAG_NAME', '.']
-  dir:  'oscm-dockerbuild/oscm-mi'
-  waitFor: ['gf-image']
-
-- name: 'gcr.io/cloud-builders/docker'
   args: ['build', '-t', 'eu.gcr.io/$PROJECT_ID/oscm/oscm-bes:$TAG_NAME', '.']
   dir:  'oscm-dockerbuild/oscm-bes'
   waitFor: ['gf-image']
@@ -55,5 +50,5 @@ steps:
   waitFor: ['gf-image']
 
 timeout: '3600s'
-images: ['eu.gcr.io/$PROJECT_ID/oscm/oscm-mi:$TAG_NAME', 'eu.gcr.io/$PROJECT_ID/oscm/oscm-bes:$TAG_NAME', 'eu.gcr.io/$PROJECT_ID/oscm/oscm-app:$TAG_NAME', 'eu.gcr.io/$PROJECT_ID/oscm/oscm-initdb:$TAG_NAME']
+images: ['eu.gcr.io/$PROJECT_ID/oscm/oscm-bes:$TAG_NAME', 'eu.gcr.io/$PROJECT_ID/oscm/oscm-app:$TAG_NAME', 'eu.gcr.io/$PROJECT_ID/oscm/oscm-initdb:$TAG_NAME']
 
