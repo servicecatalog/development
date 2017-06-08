@@ -12,7 +12,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * Representation of a template for a controller.
+ * Representation of a template for a service controller.
  */
 public class Template implements Serializable {
 
@@ -61,7 +61,7 @@ public class Template implements Serializable {
     }
 
     /**
-     * Gets the timestamp of the last change of the template.
+     * Gets the timestamp of the last change to the template.
      * 
      * @return the timestamp
      */
@@ -70,7 +70,7 @@ public class Template implements Serializable {
     }
 
     /**
-     * Sets the timestamp of the last change of the template.
+     * Sets the timestamp of the last change to the template.
      * 
      * @param lastChange
      *            the timestamp to set

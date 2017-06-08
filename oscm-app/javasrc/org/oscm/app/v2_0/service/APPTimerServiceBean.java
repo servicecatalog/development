@@ -152,8 +152,14 @@ public class APPTimerServiceBean implements Cloneable {
      */
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void initTimers_internal() {
-        Collection<?> timers = timerService.getTimers();
-        if (timers.isEmpty()) {
+        Collection<Timer> timers = timerService.getTimers();
+        boolean appTimerExist = false;
+        for (Timer timerAPP : timers) {
+        	if (APP_TIMER_INFO.equals(timerAPP.getInfo())) {
+        		appTimerExist = true;
+        	}
+        }
+        if (!appTimerExist) {
             logger.info("Timer create.");
             try {
                 String timerIntervalSetting = configService

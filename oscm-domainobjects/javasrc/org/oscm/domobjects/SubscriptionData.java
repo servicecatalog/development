@@ -228,4 +228,5 @@ public class SubscriptionData extends DomainDataContainer implements
     public boolean isExternal() {
         return external;
     }
+
 }

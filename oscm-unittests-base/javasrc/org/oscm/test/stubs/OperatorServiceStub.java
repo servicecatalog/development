@@ -4,9 +4,7 @@
 
 package org.oscm.test.stubs;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.oscm.internal.intf.OperatorService;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
@@ -21,17 +19,7 @@ import org.oscm.internal.types.exception.OrganizationAuthorityException;
 import org.oscm.internal.types.exception.PSPIdentifierForSellerException;
 import org.oscm.internal.types.exception.PaymentDataException;
 import org.oscm.internal.types.exception.ValidationException;
-import org.oscm.internal.vo.LdapProperties;
-import org.oscm.internal.vo.VOConfigurationSetting;
-import org.oscm.internal.vo.VOImageResource;
-import org.oscm.internal.vo.VOOperatorOrganization;
-import org.oscm.internal.vo.VOOrganization;
-import org.oscm.internal.vo.VOPSP;
-import org.oscm.internal.vo.VOPSPAccount;
-import org.oscm.internal.vo.VOPaymentType;
-import org.oscm.internal.vo.VOTimerInfo;
-import org.oscm.internal.vo.VOUser;
-import org.oscm.internal.vo.VOUserDetails;
+import org.oscm.internal.vo.*;
 
 public class OperatorServiceStub implements OperatorService {
 
@@ -244,6 +232,11 @@ public class OperatorServiceStub implements OperatorService {
             throws ObjectNotFoundException {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    @Override
+    public Collection<VOSubscriptionUsageEntry> getSubscriptionUsageReport() {
+        return Collections.emptyList();
     }
 
 }

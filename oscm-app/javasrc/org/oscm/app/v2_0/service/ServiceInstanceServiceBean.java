@@ -100,6 +100,10 @@ public class ServiceInstanceServiceBean {
         }
     }
 
+    public List<ServiceInstance> getInstances() {
+        return dao.getInstances();
+    }
+
     public ServiceInstance find(ServiceInstance instance, String locale)
             throws ServiceInstanceException {
         try {
@@ -455,4 +459,15 @@ public class ServiceInstanceServiceBean {
         return EnumSet.allOf(InstanceOperation.class);
     }
 
+    public ServiceInstance updateVmsNumber(ServiceInstance serviceInstance, Integer vmsNumber) {
+        return dao.updateVmsNumber(serviceInstance, vmsNumber);
+    }
+
+    public void notifySubscriptionAboutVmsNumber(ServiceInstance serviceInstance) {
+        try {
+            besDao.notifySubscriptionAboutVmsNumber(serviceInstance);
+        } catch (BESNotificationException e) {
+            logger.error(e.getMessage());
+        }
+    }
 }

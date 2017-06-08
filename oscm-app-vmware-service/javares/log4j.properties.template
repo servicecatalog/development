@@ -1,6 +1,7 @@
 # TEMPLATE FILE for the log4j configuration of the VMware controller.
 
-<DOMAIN_ROOT>\applications\oscm-app-vmware\oscm-app-vmware_jar\log4j.properties.template
+#Source path:
+#<DOMAIN_ROOT>\applications\oscm-app-vmware\oscm-app-vmware-service_jar\log4j.properties.template
 
 # This file will be copied once to the glassfish configuration folder "<DOMAIN_ROOT>\config" 
 # and checked every 60 seconds for modifications.

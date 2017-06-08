@@ -2,30 +2,30 @@
 <!-- Copyright FUJITSU LIMITED 2017-->
 
 <tns:TechnicalServices xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="oscm.serviceprovisioning/1.9/TechnicalService.xsd ../../oscm-serviceprovisioning/javares/TechnicalServices.xsd"
-  xmlns:tns="oscm.serviceprovisioning/1.9/TechnicalService.xsd">
+                       xsi:schemaLocation="oscm.serviceprovisioning/1.9/TechnicalService.xsd ../../oscm-serviceprovisioning/javares/TechnicalServices.xsd"
+                       xmlns:tns="oscm.serviceprovisioning/1.9/TechnicalService.xsd">
   <tns:TechnicalService accessType="DIRECT" allowingOnBehalfActing="false" baseUrl=""
-    build="20140708" id="OPENSTACK_V4" loginPath=""
-    onlyOneSubscriptionPerUser="false" provisioningType="ASYNCHRONOUS"
-    provisioningUrl="https://<host>:<port>/ProvisioningService/AsynchronousProvisioningProxy?wsdl"
-    provisioningVersion="1.0">
+                        build="20140708" id="OPENSTACK_V4" loginPath=""
+                        onlyOneSubscriptionPerUser="false" provisioningType="ASYNCHRONOUS"
+                        provisioningUrl="https://<host>:<port>/ProvisioningService/AsynchronousProvisioningProxy?wsdl"
+                        provisioningVersion="1.0">
     <AccessInfo locale="en" >OpenStack Access Info</AccessInfo>
     <LocalizedDescription locale="en">OpenStack IaaS implementation</LocalizedDescription>
     <LocalizedLicense locale="en" />
     <LocalizedTag locale="en">OpenStack</LocalizedTag>
     <ParameterDefinition configurable="false" default="ess.openstack" id="APP_CONTROLLER_ID" mandatory="true"
-      valueType="STRING">
+                         valueType="STRING">
       <LocalizedDescription locale="en">ID of the controller implementation</LocalizedDescription>
     </ParameterDefinition>
     <ParameterDefinition configurable="true" id="STACK_NAME" default="" mandatory="true" valueType="STRING" modificationType="ONE_TIME">
       <LocalizedDescription locale="en">OpenStack instance name</LocalizedDescription>
     </ParameterDefinition>
     <ParameterDefinition configurable="true" default="([A-Za-z][A-Za-z0-9_-]*){1,30}" id="STACK_NAME_PATTERN"
-      modificationType="ONE_TIME" mandatory="true" valueType="STRING">
+                         modificationType="ONE_TIME" mandatory="true" valueType="STRING">
       <LocalizedDescription locale="en">Validation pattern for the stack name (regex)</LocalizedDescription>
     </ParameterDefinition>
     <ParameterDefinition configurable="true" id="TEMPLATE_NAME" default="template.json" mandatory="true"
-      valueType="ENUMERATION" modificationType="ONE_TIME">
+                         valueType="ENUMERATION" modificationType="ONE_TIME">
       <Options>
         <Option id="template.json">
           <LocalizedOption locale="en">template.json</LocalizedOption>
@@ -46,27 +46,27 @@
       <LocalizedDescription locale="en">Image ID</LocalizedDescription>
     </ParameterDefinition>
     <ParameterDefinition configurable="true" id="TP_flavor" default="m1.small" mandatory="true"
-      valueType="STRING" modificationType="ONE_TIME">
+                         valueType="STRING" modificationType="ONE_TIME">
       <LocalizedDescription locale="en">Instance type (flavor)</LocalizedDescription>
     </ParameterDefinition>
     <ParameterDefinition configurable="true" id="TP_KeyName" default="openstackkeypair" mandatory="true" valueType="STRING" modificationType="ONE_TIME">
       <LocalizedDescription locale="en">Key name</LocalizedDescription>
     </ParameterDefinition>
     <ParameterDefinition configurable="true" id="TP_az" default="nova" mandatory="true"
-      valueType="STRING" modificationType="ONE_TIME">
+                         valueType="STRING" modificationType="ONE_TIME">
       <LocalizedDescription locale="en">Availability zone</LocalizedDescription>
     </ParameterDefinition>
-	<ParameterDefinition configurable="true" id="TP_VmName" mandatory="true" modificationType="ONE_TIME" valueType="STRING">
+    <ParameterDefinition configurable="true" id="TP_VmName" mandatory="true" modificationType="ONE_TIME" valueType="STRING">
       <LocalizedDescription locale="en">VmName</LocalizedDescription>
       <LocalizedDescription locale="de"/>
       <LocalizedDescription locale="ja"/>
     </ParameterDefinition>
-	<ParameterDefinition configurable="true" id="TP_AdminPassword" mandatory="true" modificationType="ONE_TIME" valueType="STRING">
+    <ParameterDefinition configurable="true" id="TP_AdminPassword" mandatory="true" modificationType="ONE_TIME" valueType="STRING">
       <LocalizedDescription locale="en">AdminPassword</LocalizedDescription>
       <LocalizedDescription locale="de"/>
       <LocalizedDescription locale="ja"/>
     </ParameterDefinition>
-	 <ParameterDefinition configurable="true" id="TP_PrivateNetworkId" mandatory="true" modificationType="ONE_TIME" valueType="STRING">
+    <ParameterDefinition configurable="true" id="TP_PrivateNetworkId" mandatory="true" modificationType="ONE_TIME" valueType="STRING">
       <LocalizedDescription locale="en">PrivateNetworkId</LocalizedDescription>
       <LocalizedDescription locale="de"/>
       <LocalizedDescription locale="ja"/>
@@ -87,9 +87,13 @@
       <LocalizedDescription locale="ja"/>
     </ParameterDefinition>
     <ParameterDefinition configurable="true" id="MAIL_FOR_COMPLETION" default=""
-      mandatory="false" valueType="STRING" modificationType="ONE_TIME">
+                         mandatory="false" valueType="STRING" modificationType="ONE_TIME">
       <LocalizedDescription locale="en">The address to which emails are to be sent that describe manual steps required to complete an operation. If you specify this parameter, the service controller interrupts the processing of each operation before its completion and waits for a notification about the execution of a manual action. Omit this parameter if you do not want to interrupt the processing.</LocalizedDescription>
       <LocalizedDescription locale="ja">操作を完了するために手動の手順が必要であることを知らせるemailの送信先メールアドレス。このパラメーターを指定すると、サービスコントロールは各操作の完了前に処理を中断して、手動の操作が終わったことを知らせる通知が届くまで待ちます。処理を中断したくない場合は、このパラメーターを省略してください。</LocalizedDescription>
+    </ParameterDefinition>
+    <ParameterDefinition configurable="false" default="0" id="VMS_NUMBER"
+                         mandatory="true" valueType="LONG">
+      <LocalizedDescription locale="en">The number of VMs of IaaS subscriptions</LocalizedDescription>
     </ParameterDefinition>
     <Operation actionURL="https://<host>:<port>/OperationService/AsynchronousOperationProxy?wsdl" id="START_VIRTUAL_SYSTEM">
       <LocalizedName locale="de">Start</LocalizedName>

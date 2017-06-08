@@ -1,0 +1,1 @@
+ALTER TABLE "serviceinstance" ADD COLUMN "vmsnumber" INTEGER NOT NULL DEFAULT 0;

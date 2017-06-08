@@ -100,21 +100,11 @@ import org.oscm.internal.types.exception.PaymentDataException.Reason;
 import org.oscm.internal.types.exception.SaaSSystemException;
 import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.internal.types.exception.ValidationException.ReasonEnum;
-import org.oscm.internal.vo.LdapProperties;
-import org.oscm.internal.vo.VOConfigurationSetting;
-import org.oscm.internal.vo.VOImageResource;
-import org.oscm.internal.vo.VOOperatorOrganization;
-import org.oscm.internal.vo.VOOrganization;
-import org.oscm.internal.vo.VOPSP;
-import org.oscm.internal.vo.VOPSPAccount;
-import org.oscm.internal.vo.VOPSPSetting;
-import org.oscm.internal.vo.VOPaymentType;
-import org.oscm.internal.vo.VOTimerInfo;
-import org.oscm.internal.vo.VOUser;
-import org.oscm.internal.vo.VOUserDetails;
+import org.oscm.internal.vo.*;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.marketplaceservice.local.MarketplaceServiceLocal;
+import org.oscm.operatorservice.queries.SubscriptionUsageQuery;
 import org.oscm.paymentservice.assembler.PSPAccountAssembler;
 import org.oscm.paymentservice.assembler.PSPAssembler;
 import org.oscm.paymentservice.assembler.PSPSettingAssembler;
@@ -1578,4 +1568,13 @@ public class OperatorServiceBean implements OperatorService {
         return ConfigurationSettingAssembler.toValueObject(cs);
     }
 
+    @Override
+    @RolesAllowed("PLATFORM_OPERATOR")
+    public Collection<VOSubscriptionUsageEntry> getSubscriptionUsageReport() {
+        return SubscriptionUsageQuery.execute(dm);
+    }
+
+    public void setDm(DataService dm) {
+        this.dm = dm;
+    }
 }
