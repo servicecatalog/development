@@ -178,6 +178,10 @@
     <sleep seconds="90" />
   </target>
 
+  <target name="SetupExampleDomainOnly">
+    <antcall target="exampleSetupAndDeploy" />
+  </target>
+
   <target name="deleteDomains">
     <glassfishProperties filepath="${bes.domain.path}" />
     <stopDomain domain="${glassfish.bes.domain.name}" failonerror="false" />

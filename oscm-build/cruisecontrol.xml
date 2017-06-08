@@ -45,6 +45,12 @@
 		</antcall>
 	</target>
 
+	<target name="setupExampleDomain" depends="_libraries, _clean, _package">
+		<antcall target="_setupExampleDomainOnly">
+			<param name="hostname" value="default"/>
+		</antcall>
+	</target>
+
 	<!-- Called by cruise control. All targets for cc start with runXYZ, all internal targets start with underscore -->
 	<target name="runWebserviceTestsNoClean" depends="_webserviceTestsNoPackage, _copyResultArtifacts" />
 
@@ -116,6 +122,19 @@
 			<property name="root.dir" value="${basedir}/.." />
 		</ant>
 		<ant antfile="build-integration-setup.xml" dir="../oscm-integrationtests-setup/resources" target="STANDALONE.setupWithoutCoverage">
+        </ant>
+	</target>
+
+	<target name="_setupExampleDomainOnly">
+		<condition property="env.HOSTNAME" value="${hostname}">
+			<isset property="hostname" />
+		</condition>
+		<echo message="***** Setup glassfish withOUT coverage *****" />
+		<ant antfile="../oscm-integrationtests-setup/resources/build.xml" target="STANDALONE.prepareSetup">
+			<property name="work.dir" value="../oscm-integrationtests-setup/resources/work" />
+			<property name="root.dir" value="${basedir}/.." />
+		</ant>
+		<ant antfile="build-integration-setup.xml" dir="../oscm-integrationtests-setup/resources" target="SetupExampleDomainOnly">
         </ant>
 	</target>
 
