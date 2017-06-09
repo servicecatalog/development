@@ -5,15 +5,15 @@
   xmlns:h="http://xmlns.jcp.org/jsf/html" xmlns:f="http://xmlns.jcp.org/jsf/core" xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
   xmlns:rich="http://richfaces.org/rich" xmlns:a4j="http://richfaces.org/a4j"
   xmlns:adm="http://www.fujitsu.com/global/services/software/interstage">
-<h:head>
-<ui:insert name="pageId" />
-<ui:include src="head.xhtml">
-  <ui:param name="dirty" value="#{dirty}" />
-</ui:include>
-<link rel="stylesheet" type="text/css" href="#{facesContext.externalContext.requestContextPath}/css/portal.css" />
-<link rel="stylesheet" type="text/css" href="#{appBean.brandingURL}/css/main.css" />
-</h:head>
 
+<h:head>
+  <ui:insert name="pageId" />
+  <ui:include src="head.xhtml">
+    <ui:param name="dirty" value="#{dirty}" />
+  </ui:include>
+  <link rel="stylesheet" type="text/css" href="#{facesContext.externalContext.requestContextPath}/css/portal.css" />
+  <link rel="stylesheet" type="text/css" href="#{appBean.brandingURL}/css/main.css" />
+</h:head>
 
 <h:body class="mainBg">
   <c:if test="#{not empty firstErrorElement or not empty focusElement}">

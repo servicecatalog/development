@@ -2189,17 +2189,8 @@ form .formHighlight div.div-for-input {
 
 #w_004_h_e_g_header #w_004_h_e_logo {
     background-color: #CFD4D9;
-    background-image: url(../img/oscm.png);
 }
 
-
-#w_004_h_e_logo_r {
-    float: right;
-    width: 20px;
-    height: 34px;
-    padding-left: 0px;
-    background: none!important;
-}
 .rf-p-hdr table tr:first-child td, #menu_header {
     padding: 6px !important;
     background: #8B949C repeat scroll 0 0!important;
