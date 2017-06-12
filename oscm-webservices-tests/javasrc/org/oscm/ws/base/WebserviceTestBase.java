@@ -252,7 +252,13 @@ public class WebserviceTestBase {
 
         IdentityService id = ServiceFactory.getDefault().getIdentityService(
                 userKey, userPwd);
-        id.changePassword(userPwd, DEFAULT_PASSWORD);
+        try {
+            id.changePassword(userPwd, DEFAULT_PASSWORD);
+        } catch (Exception exc) {
+            System.err.println("Exception during changing password for user " + userKey + " and pwd "
+                    + userPwd + " with exception: " + exc.getMessage());
+            throw exc;
+        }
         return userKey;
     }
 
