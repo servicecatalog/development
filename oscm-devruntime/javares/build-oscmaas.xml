@@ -32,6 +32,12 @@
     </ant>
   </target>
   
+  <target name="BUILD.EXAMPLE" description="Builds the EXAMPLE domain files">
+    <ant dir="${adm.ue.buildscript.dir}" antfile="${adm.ue.buildscript.file}" target="package_without_doc">
+      <property name="projects" value="example-service,oscm-integrationtests-mockproduct,mock-psp-service,oscm-integrationtests-saml2-sts,oscm-integrationtests-parameter-configurator,oscm-file-billing-adapter,oscm-file-billing-application" />
+    </ant>
+  </target>
+  
   <target name="backupEar">
     <delete dir="${build.result.package.dir}/oscm-ear/tmp" failonerror="false" />
     <mkdir dir="${build.result.package.dir}/oscm-ear/tmp" />
