@@ -16,6 +16,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -38,6 +39,9 @@ import org.oscm.internal.types.enumtypes.ParameterValueType;
 import org.oscm.internal.vo.VOParameter;
 import org.oscm.internal.vo.VOParameterDefinition;
 import org.oscm.internal.vo.VOParameterOption;
+import org.oscm.internal.vo.VOPriceModel;
+import org.oscm.internal.vo.VOPricedOption;
+import org.oscm.internal.vo.VOPricedParameter;
 import org.oscm.internal.vo.VOService;
 
 /**
@@ -60,9 +64,12 @@ public class JsonConverterTest {
     private static final Long PARAM_DURATION_VALUE = new Long(
             DurationValidation.MILLISECONDS_PER_DAY * 2L);
     private static final Long PARAM_DURATION_EXPECTED_VALUE = new Long(2L);
-    private static final String PARAM_VALUE_ESC = "paramValue\\\\f";;
+    private static final String PARAM_VALUE_ESC = "paramValue\\\\f";
     private static final Long PARAM_MIN = Long.valueOf(100L);
     private static final Long PARAM_MAX = Long.valueOf(200L);
+    private static final Double PARAM_NO_PRICE = Double.valueOf(0.0);
+    private static final Double PARAM_PRICE_ONE = Double.valueOf(1.0);
+    private static final Double PARAM_PRICE_TEN = Double.valueOf(10.0);
     private static final ParameterModificationType PARAM_MODTYPE = ParameterModificationType.STANDARD;
     private static final ParameterModificationType PARAM_MODTYPE_ONE_TIME = ParameterModificationType.ONE_TIME;
     private static final boolean PARAM_MANDATORY = true;
@@ -77,7 +84,9 @@ public class JsonConverterTest {
     private static final ResponseCode RESPONSE_CODE = ResponseCode.CONFIGURATION_CANCELLED;
 
     private static final String PARAM_OPT_OBJ = "{\"id\":\"" + PARAM_OPT_ID
-            + "\",\"description\":\"" + PARAM_OPT_DESC_ESC + "\"}";
+            + "\",\"description\":\"" + PARAM_OPT_DESC_ESC + "\""
+            + ",\"pricePerUser\":" + PARAM_NO_PRICE +",\"pricePerSubscription\":"
+            + PARAM_NO_PRICE + "}";
 
     private static final String PARAM_OBJ_NO_OPT = "{\"id\":\"" + PARAM_ID
             + "\",\"valueType\":\"" + PARAM_VALUETYPE + "\",\"minValue\":\""
@@ -85,7 +94,9 @@ public class JsonConverterTest {
             + "\",\"mandatory\":" + PARAM_MANDATORY + ",\"description\":\""
             + PARAM_DESC_ESC + "\",\"value\":\"" + PARAM_VALUE_ESC
             + "\",\"readonly\":" + PARAM_READONLY + ",\"modificationType\":\""
-            + PARAM_MODTYPE + "\",\"valueError\":" + PARAM_VAL_ERROR + "}";
+            + PARAM_MODTYPE + "\",\"valueError\":" + PARAM_VAL_ERROR
+            + ",\"pricePerUser\":" + PARAM_NO_PRICE +",\"pricePerSubscription\":"
+            + PARAM_NO_PRICE + "}";
 
     private static final String PARAM_OBJ_NO_OPT_ONETIME = PARAM_OBJ_NO_OPT
             .replace("\"readonly\":false", "\"readonly\":true").replace(
@@ -99,6 +110,8 @@ public class JsonConverterTest {
             + PARAM_DESC_ESC + "\",\"value\":\"" + PARAM_VALUE_ESC
             + "\",\"readonly\":" + PARAM_READONLY + ",\"modificationType\":\""
             + PARAM_MODTYPE + "\",\"valueError\":" + PARAM_VAL_ERROR
+            + ",\"pricePerUser\":" + PARAM_NO_PRICE +",\"pricePerSubscription\":"
+            + PARAM_NO_PRICE
             + ",\"options\":[" + PARAM_OPT_OBJ + "," + PARAM_OPT_OBJ + "]}";
 
     private static final String PARAM_DURATION = "{\"id\":\"" + PARAM_ID
@@ -108,7 +121,9 @@ public class JsonConverterTest {
             + PARAM_MANDATORY + ",\"description\":\"" + PARAM_DESC_ESC
             + "\",\"value\":\"" + PARAM_DURATION_EXPECTED_VALUE
             + "\",\"readonly\":" + PARAM_READONLY + ",\"modificationType\":\""
-            + PARAM_MODTYPE + "\",\"valueError\":" + PARAM_VAL_ERROR + "}";
+            + PARAM_MODTYPE + "\",\"valueError\":" + PARAM_VAL_ERROR
+            + ",\"pricePerUser\":" + PARAM_NO_PRICE +",\"pricePerSubscription\":"
+            + PARAM_NO_PRICE + "}";
 
     private static final String PARAM_OBJ_WITH_OPT_ONETIME = PARAM_OBJ_WITH_OPT
             .replace("\"readonly\":false", "\"readonly\":true").replace(
@@ -167,6 +182,44 @@ public class JsonConverterTest {
             + RESPONSE_CODE
             + "\",\"parameters\":[" + PARAM_OBJ_ID + "," + PARAM_OBJ_ID + "]}";
 
+    private static final String PARAM_OPT_OBJ_PRICES = "{\"id\":\"" + PARAM_OPT_ID
+            + "\",\"description\":\"" + PARAM_OPT_DESC_ESC + "\""
+            + ",\"pricePerUser\":" + PARAM_PRICE_ONE +",\"pricePerSubscription\":"
+            + PARAM_PRICE_TEN + "}";
+
+    private static final String PARAM_OBJ_WITH_OPT_PRICES = "{\"id\":\"" + PARAM_ID
+            + "\",\"valueType\":\"" + PARAM_VALUETYPE + "\",\"minValue\":\""
+            + PARAM_MIN + "\",\"maxValue\":\"" + PARAM_MAX
+            + "\",\"mandatory\":" + PARAM_MANDATORY + ",\"description\":\""
+            + PARAM_DESC_ESC + "\",\"value\":\"" + PARAM_VALUE_ESC
+            + "\",\"readonly\":" + PARAM_READONLY + ",\"modificationType\":\""
+            + PARAM_MODTYPE + "\",\"valueError\":" + PARAM_VAL_ERROR
+            + ",\"pricePerUser\":" + PARAM_PRICE_TEN +",\"pricePerSubscription\":"
+            + PARAM_PRICE_ONE
+            + ",\"options\":[" + PARAM_OPT_OBJ_PRICES + "," + PARAM_OPT_OBJ_PRICES + "]}";
+
+    private static final String PARAM_DURATION_PRICES = "{\"id\":\"" + PARAM_ID
+            + "\",\"valueType\":\"" + PARAM_DURATION_VALUETYPE
+            + "\",\"minValue\":\"" + PARAM_MIN + "\",\"maxValue\":\""
+            + DurationValidation.DURATION_MAX_DAYS_VALUE + "\",\"mandatory\":"
+            + PARAM_MANDATORY + ",\"description\":\"" + PARAM_DESC_ESC
+            + "\",\"value\":\"" + PARAM_DURATION_EXPECTED_VALUE
+            + "\",\"readonly\":" + PARAM_READONLY + ",\"modificationType\":\""
+            + PARAM_MODTYPE + "\",\"valueError\":" + PARAM_VAL_ERROR
+            + ",\"pricePerUser\":" + PARAM_PRICE_TEN +",\"pricePerSubscription\":"
+            + PARAM_PRICE_ONE + "}";
+
+    private static final String PARAM_OBJ_WITH_OPT_ONETIME_PRICES = PARAM_OBJ_WITH_OPT_PRICES
+            .replace("\"readonly\":false", "\"readonly\":true").replace(
+                    "\"modificationType\":\"" + PARAM_MODTYPE + "\"",
+                    "\"modificationType\":\"" + PARAM_MODTYPE_ONE_TIME + "\"");
+
+    private static final String JSON_STRING_PRICES = "{\"messageType\":\""
+            + MESSAGE_TYPE + "\",\"responseCode\":\"" + RESPONSE_CODE
+            + "\",\"locale\":\"" + LOCALE + "\",\"parameters\":["
+            + PARAM_OBJ_WITH_OPT_PRICES + "," + PARAM_OBJ_WITH_OPT_ONETIME_PRICES + ","
+            + PARAM_DURATION_PRICES + "]}";
+
     @Before
     public void setUp() throws Exception {
         jsonConverter = new JsonConverter(){
@@ -208,7 +261,7 @@ public class JsonConverterTest {
     public void createJsonFromPricedParameterRows_ParamWithOptions()
             throws JsonProcessingException {
         // given
-        List<PricedParameterRow> list = givenPricedParameterRowList(true);
+        List<PricedParameterRow> list = givenPricedParameterRowList(true, false);
 
         // when
         String json = jsonConverter.createJsonFromPricedParameterRows(
@@ -219,10 +272,24 @@ public class JsonConverterTest {
     }
 
     @Test
+    public void createJsonFromPricedParameterRows_ParamWithOptionsAndPrices()
+            throws JsonProcessingException {
+        // given
+        List<PricedParameterRow> list = givenPricedParameterRowList(true, true);
+
+        // when
+        String json = jsonConverter.createJsonFromPricedParameterRows(
+                MESSAGE_TYPE, RESPONSE_CODE, list, LOCALE, false, false);
+
+        // then
+        assertEquals(JSON_STRING_PRICES, json);
+    }
+
+    @Test
     public void createJsonFromPricedParameterRows_ParamNoOptions()
             throws JsonProcessingException {
         // given
-        List<PricedParameterRow> list = givenPricedParameterRowList(false);
+        List<PricedParameterRow> list = givenPricedParameterRowList(false, false);
 
         // when
         String json = jsonConverter.createJsonFromPricedParameterRows(
@@ -303,7 +370,7 @@ public class JsonConverterTest {
     @Test
     public void convertToJsonObject_Readonly_OneTimeEditable() {
         // given
-        List<PricedParameterRow> list = givenPricedParameterRowList(true);
+        List<PricedParameterRow> list = givenPricedParameterRowList(true, false);
 
         // when
         JsonObject jsonObj = jsonConverter.convertToJsonObject(MESSAGE_TYPE,
@@ -319,7 +386,7 @@ public class JsonConverterTest {
     @Test
     public void convertToJsonObject_NotReadonly_OneTimeEditable() {
         // given
-        List<PricedParameterRow> list = givenPricedParameterRowList(true);
+        List<PricedParameterRow> list = givenPricedParameterRowList(true, false);
 
         // when
         JsonObject jsonObj = jsonConverter.convertToJsonObject(MESSAGE_TYPE,
@@ -335,7 +402,7 @@ public class JsonConverterTest {
     @Test
     public void convertToJsonObject_Readonly_OneTimeNotEditable() {
         // given
-        List<PricedParameterRow> list = givenPricedParameterRowList(true);
+        List<PricedParameterRow> list = givenPricedParameterRowList(true, false);
 
         // when
         JsonObject jsonObj = jsonConverter.convertToJsonObject(MESSAGE_TYPE,
@@ -351,7 +418,7 @@ public class JsonConverterTest {
     @Test
     public void convertToJsonObject_NotReadonly_OneTimeNotEditable() {
         // given
-        List<PricedParameterRow> list = givenPricedParameterRowList(true);
+        List<PricedParameterRow> list = givenPricedParameterRowList(true, false);
 
         // when
         JsonObject jsonObj = jsonConverter.convertToJsonObject(MESSAGE_TYPE,
@@ -429,7 +496,7 @@ public class JsonConverterTest {
     }
 
     private List<PricedParameterRow> givenPricedParameterRowList(
-            boolean withOptions) {
+            boolean withOptions, boolean withPrices) {
         VOService service = new VOService();
         VOParameter voParam = new VOParameter();
         voParam.setValue(PARAM_VALUE);
@@ -490,6 +557,35 @@ public class JsonConverterTest {
 
         service.setParameters(Arrays.asList(voParam, voParamOneTime,
                 voParamDuration));
+
+        if(withPrices){
+	        VOPriceModel priceModel = new VOPriceModel();
+
+	        List<VOPricedParameter> selectedParameters = new ArrayList<VOPricedParameter>();
+
+	        VOPricedParameter pricedParameter = new VOPricedParameter();
+
+	        pricedParameter.setParameterKey(voParam.getKey());
+	        pricedParameter.setPricePerUser(BigDecimal.TEN);
+	        pricedParameter.setPricePerSubscription(BigDecimal.ONE);
+
+	        VOPricedOption pricedOption = new VOPricedOption();
+	        pricedOption.setPricePerUser(BigDecimal.ONE);
+	        pricedOption.setPricePerSubscription(BigDecimal.TEN);
+	        pricedOption.setParameterOptionKey(voParam.getParameterDefinition().getParameterOptions().get(0).getKey());
+
+	        List<VOPricedOption> pricedOptions = new ArrayList<VOPricedOption>();
+
+	        pricedOptions.add(pricedOption);
+
+			pricedParameter.setPricedOptions(pricedOptions);
+
+	        selectedParameters.add(pricedParameter);
+
+			priceModel.setSelectedParameters(selectedParameters);
+
+			service.setPriceModel(priceModel);
+        }
 
         List<PricedParameterRow> listPPRow = PricedParameterRow
                 .createPricedParameterRowList(service, true, false, true, true,

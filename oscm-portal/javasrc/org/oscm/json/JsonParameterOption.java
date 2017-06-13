@@ -13,6 +13,8 @@ public class JsonParameterOption {
 
     private String id;
     private String description;
+    private double pricePerUser;
+    private double pricePerSubscription;
 
     public String getId() {
         return id;
@@ -51,4 +53,20 @@ public class JsonParameterOption {
         return new HashCodeBuilder(17, 31). // two randomly chosen prime numbers
                 append(id).append(description).toHashCode();
     }
+
+	public double getPricePerUser() {
+		return pricePerUser;
+	}
+
+	public void setPricePerUser(double pricePerUser) {
+		this.pricePerUser = pricePerUser;
+	}
+
+	public double getPricePerSubscription() {
+		return pricePerSubscription;
+	}
+
+	public void setPricePerSubscription(double pricePerSubscription) {
+		this.pricePerSubscription = pricePerSubscription;
+	}
 }

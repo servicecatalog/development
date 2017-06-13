@@ -1,4 +1,5 @@
 The sample implementation of the external subscription parameter configurator tool. 
+It shows also the service parameter prices per subscription.
 
 To use the external configurator tool in OSCM, perform the following:
 
