@@ -431,7 +431,7 @@
   </target>
 
   <target name="webservicetests" depends="_log, _dependencies" description="Resolves dependencies, compiles and runs the web service tests without clean. Requires a running version of BES.">
-    <buildproject target="webservicetests" skipPackage="${skipPackage}"/>
+    <buildproject target="webservicetests${skipPackage}"/>
     <createwstestreport />
     <antcall target="checkUnitResult">
       <param name="unit.result.dir" location="${result.reports.test.ws.dir}" />

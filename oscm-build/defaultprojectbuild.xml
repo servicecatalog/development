@@ -372,7 +372,7 @@
   </target>
 
 
-  <target name="webservicetestsNoPackage" if="webservicetests">
+  <target name="webservicetestsNoPackage" if="webservicetests" depends="wsdl">
     <mkdir dir="${result.work.testreport.ws.dir}" />
     <junit fork="yes" forkmode="once" dir="${project.dir}" maxmemory="1024m">
       <jvmarg value="-Dfile.encoding=UTF8" />
@@ -386,8 +386,8 @@
       <formatter type="xml" />
       <batchtest todir="${result.work.testreport.ws.dir}">
         <fileset dir="${javasrc.dir}">
-          <include name="**/*Test.java" />
-          <include name="**/*Test?.java" />
+          <include name="**/*WSTest.java" />
+          <include name="**/*WSTest?.java" />
         </fileset>
       </batchtest>
     </junit>
