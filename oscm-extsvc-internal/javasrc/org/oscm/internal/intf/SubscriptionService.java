@@ -1328,5 +1328,5 @@ public interface SubscriptionService {
      */
     void notifySubscriptionAboutVmsNumber(String subscriptionId,
         String organizationId, VOInstanceInfo instanceInfo)
-        throws ObjectNotFoundException;
+        throws ObjectNotFoundException, OperationNotPermittedException;
 }
