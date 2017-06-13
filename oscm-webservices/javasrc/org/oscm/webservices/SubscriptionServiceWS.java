@@ -827,12 +827,14 @@ public class SubscriptionServiceWS implements SubscriptionService {
     @Override
     public void notifySubscriptionAboutVmsNumber(String subscriptionId,
         String organizationId, VOInstanceInfo instance)
-        throws ObjectNotFoundException {
+        throws ObjectNotFoundException, OperationNotPermittedException {
         WS_LOGGER.logAccess(wsContext, ds);
         try {
             delegate.notifySubscriptionAboutVmsNumber(subscriptionId,
                 organizationId, VOConverter.convertToUp(instance));
         } catch (org.oscm.internal.types.exception.ObjectNotFoundException e) {
+            throw ExceptionConverter.convertToApi(e);
+        } catch (org.oscm.internal.types.exception.OperationNotPermittedException e) {
             throw ExceptionConverter.convertToApi(e);
         }
 
