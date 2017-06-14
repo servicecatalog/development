@@ -1737,7 +1737,7 @@ public class BesDAOTest {
 
     @Test
     public void testNotifySubscriptionAboutVmsNumber()
-        throws BESNotificationException, APPlatformException, ObjectNotFoundException {
+        throws BESNotificationException, APPlatformException, ObjectNotFoundException, OperationNotPermittedException {
         //given
         ServiceInstance si = givenServiceInstance(false);
         doReturn(subServ).when(besDAO).getBESWebService(

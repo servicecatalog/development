@@ -5570,7 +5570,7 @@ public class SubscriptionServiceBean
     @RolesAllowed({ "TECHNOLOGY_MANAGER" })
     public void notifySubscriptionAboutVmsNumber(String subscriptionId,
         String organizationId, VOInstanceInfo instanceInfo)
-        throws ObjectNotFoundException {
+        throws ObjectNotFoundException, OperationNotPermittedException {
         ArgumentValidator.notNull("subscriptionId", subscriptionId);
         ArgumentValidator.notNull("organizationId", organizationId);
         ArgumentValidator.notNull("instance", instanceInfo);
@@ -5579,13 +5579,8 @@ public class SubscriptionServiceBean
 
         Subscription subscription = manageBean.findSubscription(subscriptionId,
             organizationId);
+        PermissionCheck.owns(subscription.getProduct().getTechnicalProduct(), user.getOrganization(), LOG, null);
 
-        if (user != null && subscription.getOwner().getOrganization().getKey() != user.getOrganization().getKey()) {
-            SaaSSystemException sse = new SaaSSystemException("You are not allowed to perform this opperation!");
-            LOG.logError(Log4jLogger.SYSTEM_LOG, sse,
-                LogMessageIdentifier.ERROR_USER_OPERATE_NOT_PERMITTED);
-            throw  sse;
-        }
         List<ParameterDefinition> parameterDefinitions = subscription.getProduct().getTechnicalProduct()
             .getParameterDefinitions();
 

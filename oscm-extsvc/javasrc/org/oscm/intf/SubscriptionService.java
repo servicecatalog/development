@@ -1290,5 +1290,5 @@ public interface SubscriptionService {
         @WebParam(name = "subscriptionId") String subscriptionId,
         @WebParam(name = "organizationId") String organizationId,
         @WebParam(name = "instanceInfo") VOInstanceInfo instanceInfo)
-        throws ObjectNotFoundException;
+        throws ObjectNotFoundException, OperationNotPermittedException;
 }
