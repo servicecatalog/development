@@ -255,7 +255,7 @@ public class WebserviceTestBase {
         try {
             id.changePassword(userPwd, DEFAULT_PASSWORD);
         } catch (Exception exc) {
-            System.err.println("Exception during changing password for user " + userKey + " and pwd "
+            System.err.println("Exception during changing password for user " + userName + " with userkey " + userKey + " and pwd "
                     + userPwd + " with exception: " + exc.getMessage());
             throw exc;
         }
