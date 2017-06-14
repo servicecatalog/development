@@ -209,7 +209,7 @@ public class MailReader {
             folder.fetch(messages, profile);
 
             for (Message message : messages) {
-                if (message.getSubject().equals(MAIL_SUBJECT_USER_ACCOUNT_CREATED_EN)) {
+                if (MAIL_SUBJECT_USER_ACCOUNT_CREATED_EN.equals(message.getSubject())) {
                     String content = getMessageContent(message);
                     String userNameFromEmail = readInformationFromGivenMail(MAIL_BODY_USERNAME_PATTERN_EN, content);
                     if (userName.equals(userNameFromEmail)) {
