@@ -26,6 +26,7 @@ import javax.mail.Part;
 import javax.mail.Session;
 import javax.mail.Store;
 
+import org.apache.commons.lang3.StringUtils;
 import org.oscm.test.setup.PropertiesReader;
 
 /**
@@ -232,6 +233,10 @@ public class MailReader {
             retries++;
         }
 
+        if (StringUtils.isBlank(userPass) || StringUtils.isBlank(userKey)) {
+            System.err.println("User password or its key is empty: " + userPass + " " + userKey + " for user " + userName);
+        }
+
         return new String[] {userKey, userPass};
     }
 
@@ -264,7 +269,7 @@ public class MailReader {
 
     /**
      * Read the password from the last "Account created" mail from the server.
-     * @deprecated Use {@link #readPassAndKeyFromEmail} instead
+     * @deprecated Use {@link #readPassAndKeyFromEmail(String)} instead
      */
     @Deprecated
     public String readPasswordFromMail() throws MessagingException {
@@ -274,7 +279,7 @@ public class MailReader {
 
     /**
      * Read the user key from the last "Account created" mail from the server.
-     * @deprecated Use {@link #readPassAndKeyFromEmail} instead
+     * @deprecated Use {@link #readPassAndKeyFromEmail(String)} instead
      */
     @Deprecated
     public String readUserKeyFromMail() throws MessagingException {
