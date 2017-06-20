@@ -198,7 +198,13 @@ public class MailReader {
         while (retries < 40 && userPass == null) {
 
             // Open main "INBOX" folder.
-            Folder folder = getStore().getFolder(MAIL_INBOX);
+            Folder folder;
+            try {
+                folder = getStore().getFolder(MAIL_INBOX);
+            } catch (Exception exc) {
+                System.err.println("Mailbox password is invalid: " + mailUser + " " + mailPassword);
+                throw exc;
+            }
             folder.open(Folder.READ_WRITE);
 
             // Get folder's list of messages.
