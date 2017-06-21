@@ -2,7 +2,7 @@
 <project name="Run BES UI Test" default="run">
 
   <target name="clean">
-    <delete dir="results" quiet="false" failonerror="true" />
+    <delete dir="results" quiet="false" failonerror="false" />
     <echo message="Webtest results cleaned." />
   </target>
 
