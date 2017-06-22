@@ -554,7 +554,7 @@ public class SubscriptionWizardConversation implements Serializable {
     public String validateConfiguredParameters() {
         String validationResult = jsonValidator
                 .validateConfiguredParameters(model);
-        switch (validationResult) {
+        switch (validationResult == null ? "" : validationResult) {
         case OUTCOME_ERROR:
             addMessage(FacesMessage.SEVERITY_ERROR,
                     ERROR_EXTERNAL_TOOL_COMMUNICATION);
@@ -563,7 +563,7 @@ public class SubscriptionWizardConversation implements Serializable {
             addMessage(FacesMessage.SEVERITY_ERROR,
                     ERROR_INVALID_CONFIGURED_PARAMETERS);
         default:
-            return "";
+            return null;
         }
     }
 
