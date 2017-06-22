@@ -563,7 +563,7 @@ public class SubscriptionWizardConversation implements Serializable {
             addMessage(FacesMessage.SEVERITY_ERROR,
                     ERROR_INVALID_CONFIGURED_PARAMETERS);
         default:
-            return null;
+            return "";
         }
     }
 
