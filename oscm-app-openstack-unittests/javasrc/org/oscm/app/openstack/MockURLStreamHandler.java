@@ -257,6 +257,7 @@ public class MockURLStreamHandler extends URLStreamHandler {
                 JSONObject publicUrl = new JSONObject();
                 publicUrl.put("name", KeystoneClient.TYPE_HEAT);
                 publicUrl.put("url", httpMethod + "heatendpoint/");
+                publicUrl.put("interface", "public");
                 endpointsListHeat.put(publicUrl);
             }
 
