@@ -1,7 +1,12 @@
 <!-- Copyright FUJITSU LIMITED 2017-->
 <states class="org.oscm.app.vmware.business.statemachine.CreateActions">
 
-  <state id="BEGIN" action="createInstanceName">
+  <state id="BEGIN" action="reserveIPAddress">
+    <event id="success" state="CREATE_INSTANCENAME" />
+    <event id="failed" state="ERROR" />
+  </state>
+
+  <state id="CREATE_INSTANCENAME" action="createInstanceName">
     <event id="success" state="CREATE_VM" />
     <event id="failed" state="ERROR" />
   </state>

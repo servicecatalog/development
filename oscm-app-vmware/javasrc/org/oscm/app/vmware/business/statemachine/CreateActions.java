@@ -62,6 +62,23 @@ public class CreateActions extends Actions {
         return EVENT_SUCCESS;
     }
 
+    @StateMachineAction
+    public String reserveIPAddress(String instanceId,
+            ProvisioningSettings settings, @SuppressWarnings("unused") InstanceStatus result)
+            throws Exception {
+        VMPropertyHandler ph = new VMPropertyHandler(settings);
+
+        String eventId = EVENT_FAILED;
+        try {
+            ph.getNetworkSettingsFromDatabase();
+            eventId = EVENT_SUCCESS;
+        } catch (Exception e) {
+            ph.setSetting(VMPropertyHandler.SM_ERROR_MESSAGE, e.getMessage());
+        }
+
+        return eventId;
+    }
+
     @SuppressWarnings("resource")
     @StateMachineAction
     public String createVM(String instanceId, ProvisioningSettings settings,
