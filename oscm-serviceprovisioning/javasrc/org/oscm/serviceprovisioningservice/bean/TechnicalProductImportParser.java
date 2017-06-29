@@ -525,7 +525,7 @@ public class TechnicalProductImportParser extends ImportParserBase {
         }
     }
 
-    void checkMandatoryAsync() {
+    private void checkMandatoryAsync() {
         if (techProduct.getAccessType() == ServiceAccessType.DIRECT
                 && techProduct.getProvisioningURL().isEmpty() && techProduct
                         .getProvisioningType() == ProvisioningType.SYNCHRONOUS) {
