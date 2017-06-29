@@ -73,6 +73,27 @@ public class DeleteActions extends Actions {
     }
 
     @StateMachineAction
+    public String releaseIPaddress(String instanceId,
+            ProvisioningSettings settings, InstanceStatus result) {
+        String eventId = EVENT_FAILED;
+        VMPropertyHandler ph = new VMPropertyHandler(settings);
+
+        try {
+            ph.releaseManuallyDefinedIPAddresses();
+            eventId = EVENT_SUCCESS;
+        } catch (Exception e) {
+            logger.error(
+                    "Failed to release IP address for instance " + instanceId,
+                    e);
+            String message = Messages.get(ph.getLocale(), "error_release_ip",
+                    new Object[] { instanceId });
+            ph.setSetting(VMPropertyHandler.SM_ERROR_MESSAGE, message);
+        }
+
+        return eventId;
+    }
+
+    @StateMachineAction
     public String deleteVM(String instanceId, ProvisioningSettings settings,
             @SuppressWarnings("unused") InstanceStatus result) {
 
