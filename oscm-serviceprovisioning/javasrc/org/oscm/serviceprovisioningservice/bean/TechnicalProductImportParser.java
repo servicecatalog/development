@@ -525,16 +525,16 @@ public class TechnicalProductImportParser extends ImportParserBase {
         }
     }
 
-    void checkMandatoryAsync() {
+    private void checkMandatoryAsync() {
         if (techProduct.getAccessType() == ServiceAccessType.DIRECT
                 && techProduct.getProvisioningURL().isEmpty() && techProduct
                         .getProvisioningType() == ProvisioningType.SYNCHRONOUS) {
             addError(ATTRIBUTE_PROVISIONING_TYPE,
                     "Attribute " + ATTRIBUTE_PROVISIONING_TYPE + " must be "
                             + ProvisioningType.ASYNCHRONOUS.name()
-                            + "in case of " + ATTRIBUTE_ACCESS_TYPE + "is "
-                            + ServiceAccessType.DIRECT + "and "
-                            + ATTRIBUTE_PROVISIONING_URL + "is empty.");
+                            + " in case attribute " + ATTRIBUTE_ACCESS_TYPE
+                            + " is " + ServiceAccessType.DIRECT + " and "
+                            + ATTRIBUTE_PROVISIONING_URL + " is empty");
         }
     }
 
