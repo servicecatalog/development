@@ -97,8 +97,7 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
             TechnicalServiceOperationException {
 
         try {
-            BaseResult result = getPort(subscription).asyncCreateInstance(
-                    toInstanceRequest(subscription), getCurrentUser());
+            BaseResult result = sendAsyncCreateInstance(subscription);
             verifyResult(subscription, result);
             return result;
         } catch (TechnicalServiceOperationException e) {
@@ -344,6 +343,12 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
         if (techProduct.getAccessType() == ServiceAccessType.EXTERNAL) {
             return;
         }
+
+        if (isEventProvisioning(techProduct)) {
+            // TODO validate kafka communication???
+            return;
+        }
+
         try {
             getPort(techProduct).sendPing("ping");
         } catch (TechnicalServiceNotAliveException e) {
@@ -429,14 +434,14 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
         TechnicalServiceOperationException e = null;
         String msg = "";
         if (result == null) {
-            msg = "The webservice call returned null";
+            msg = "The provisioning call returned null";
             e = new TechnicalServiceOperationException(msg,
                     new Object[] { subscription.getSubscriptionId(), "null" });
             logger.logWarn(Log4jLogger.SYSTEM_LOG, e,
                     LogMessageIdentifier.WARN_TECH_SERVICE_WS_NULL,
                     subscription.getSubscriptionId());
         } else if (result.getRc() != RETURN_CODE_OK) {
-            msg = "The webservice call returned the error code: "
+            msg = "The provisioning call returned the error code: "
                     + result.getRc();
             e = new TechnicalServiceOperationException(msg, new Object[] {
                     subscription.getSubscriptionId(), result.getDesc() });
@@ -827,11 +832,8 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
                 .getSubscriptionAttributeList(subscription,
                         getModifiedUdas(subscription));
         try {
-            BaseResult result = getPort(subscription).asyncModifySubscription(
-                    subscription.getProductInstanceId(),
-                    subscription.getSubscriptionId(),
-                    subscription.getPurchaseOrderNumber(), serviceParameterList,
-                    serviceAttributeList, getCurrentUser());
+            BaseResult result = sendAsyncModifyInstance(subscription,
+                    serviceParameterList, serviceAttributeList);
             verifyResult(subscription, result);
         } catch (TechnicalServiceOperationException
                 | TechnicalServiceNotAliveException e) {
@@ -856,11 +858,8 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
                 .getSubscriptionAttributeList(subscription,
                         getModifiedUdas(subscription));
         try {
-            BaseResult result = getPort(subscription).asyncUpgradeSubscription(
-                    subscription.getProductInstanceId(),
-                    subscription.getSubscriptionId(),
-                    subscription.getPurchaseOrderNumber(), serviceParameterList,
-                    serviceAttributeList, getCurrentUser());
+            BaseResult result = sendAsyncUpgradeInstance(subscription,
+                    serviceParameterList, serviceAttributeList);
             verifyResult(subscription, result);
         } catch (TechnicalServiceOperationException
                 | TechnicalServiceNotAliveException e) {
@@ -973,15 +972,10 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
             throws TechnicalServiceNotAliveException,
             TechnicalServiceOperationException {
 
-        String organizationId = subscription.getOrganization()
-                .getOrganizationId();
-
         try {
-            getPort(subscription).saveAttributes(organizationId,
-                    AttributeFilter.getCustomAttributeList(subscription),
-                    getCurrentUser());
-
-        } catch (TechnicalServiceNotAliveException e) {
+            sendSaveAttributes(subscription);
+        } catch (TechnicalServiceNotAliveException
+                | TechnicalServiceOperationException e) {
             throw e;
         } catch (WebServiceException e) {
             if (isTimeoutOccured(e)) {
@@ -992,4 +986,78 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
             throw convertThrowable(e);
         }
     }
+
+    boolean isEventProvisioning(TechnicalProduct techProduct) {
+        return (techProduct.getAccessType() == ServiceAccessType.DIRECT
+                && techProduct.getProvisioningURL().isEmpty());
+    }
+
+    BaseResult sendAsyncCreateInstance(Subscription subscription)
+            throws TechnicalServiceNotAliveException {
+        if (isEventProvisioning(
+                subscription.getProduct().getTechnicalProduct())) {
+            // TODO send to kafka
+            return getNotYetSupportedResult();
+        } else {
+            return getPort(subscription).asyncCreateInstance(
+                    toInstanceRequest(subscription), getCurrentUser());
+        }
+    }
+
+    BaseResult sendAsyncModifyInstance(Subscription subscription,
+            List<ServiceParameter> serviceParameterList,
+            List<ServiceAttribute> serviceAttributeList)
+            throws TechnicalServiceNotAliveException {
+        if (isEventProvisioning(
+                subscription.getProduct().getTechnicalProduct())) {
+            // TODO send to kafka
+            return getNotYetSupportedResult();
+        } else {
+            return getPort(subscription).asyncModifySubscription(
+                    subscription.getProductInstanceId(),
+                    subscription.getSubscriptionId(),
+                    subscription.getPurchaseOrderNumber(), serviceParameterList,
+                    serviceAttributeList, getCurrentUser());
+        }
+    }
+
+    BaseResult sendAsyncUpgradeInstance(Subscription subscription,
+            List<ServiceParameter> serviceParameterList,
+            List<ServiceAttribute> serviceAttributeList)
+            throws TechnicalServiceNotAliveException {
+        if (isEventProvisioning(
+                subscription.getProduct().getTechnicalProduct())) {
+            // TODO send to kafka
+            return getNotYetSupportedResult();
+        } else {
+            return getPort(subscription).asyncUpgradeSubscription(
+                    subscription.getProductInstanceId(),
+                    subscription.getSubscriptionId(),
+                    subscription.getPurchaseOrderNumber(), serviceParameterList,
+                    serviceAttributeList, getCurrentUser());
+        }
+    }
+
+    void sendSaveAttributes(Subscription subscription)
+            throws TechnicalServiceOperationException,
+            TechnicalServiceNotAliveException {
+        if (isEventProvisioning(
+                subscription.getProduct().getTechnicalProduct())) {
+            // TODO send to kafka, probably not??
+        } else {
+            String organizationId = subscription.getOrganization()
+                    .getOrganizationId();
+            getPort(subscription).saveAttributes(organizationId,
+                    AttributeFilter.getCustomAttributeList(subscription),
+                    getCurrentUser());
+        }
+    }
+
+    private BaseResult getNotYetSupportedResult() {
+        BaseResult result = new BaseResult();
+        result.setDesc("Event-based provisioning is not yet supported!");
+        result.setRc(1);
+        return result;
+    }
+
 }

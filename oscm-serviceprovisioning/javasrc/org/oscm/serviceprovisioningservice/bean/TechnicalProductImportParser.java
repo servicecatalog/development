@@ -428,18 +428,15 @@ public class TechnicalProductImportParser extends ImportParserBase {
         } catch (Exception e) {
             if (appException instanceof OperationNotPermittedException) {
                 throw (OperationNotPermittedException) appException;
-            } else
-                if (appException instanceof TechnicalServiceActiveException) {
+            } else if (appException instanceof TechnicalServiceActiveException) {
                 throw (TechnicalServiceActiveException) appException;
             } else if (appException instanceof UpdateConstraintException) {
                 throw (UpdateConstraintException) appException;
-            } else
-                if (appException instanceof TechnicalServiceMultiSubscriptions) {
+            } else if (appException instanceof TechnicalServiceMultiSubscriptions) {
                 throw (TechnicalServiceMultiSubscriptions) appException;
             } else if (appException instanceof UnchangeableAllowingOnBehalfActingException) {
                 throw (UnchangeableAllowingOnBehalfActingException) appException;
-            } else
-                if (appException instanceof BillingAdapterNotFoundException) {
+            } else if (appException instanceof BillingAdapterNotFoundException) {
                 throw (BillingAdapterNotFoundException) appException;
             }
             rc = RC_FATAL;
@@ -525,6 +522,19 @@ public class TechnicalProductImportParser extends ImportParserBase {
                         LogMessageIdentifier.WARN_IMPORT_PARSER_ERROR_ACCESSINFO_NEEDED,
                         techProduct.getAccessType().name());
             }
+        }
+    }
+
+    private void checkMandatoryAsync() {
+        if (techProduct.getAccessType() == ServiceAccessType.DIRECT
+                && techProduct.getProvisioningURL().isEmpty() && techProduct
+                        .getProvisioningType() == ProvisioningType.SYNCHRONOUS) {
+            addError(ATTRIBUTE_PROVISIONING_TYPE,
+                    "Attribute " + ATTRIBUTE_PROVISIONING_TYPE + " must be "
+                            + ProvisioningType.ASYNCHRONOUS.name()
+                            + "in case of " + ATTRIBUTE_ACCESS_TYPE + "is "
+                            + ServiceAccessType.DIRECT + "and "
+                            + ATTRIBUTE_PROVISIONING_URL + "is empty.");
         }
     }
 
@@ -763,7 +773,8 @@ public class TechnicalProductImportParser extends ImportParserBase {
             String provisioningVersion = atts
                     .getValue(ATTRIBUTE_PROVISIONING_VERSION);
 
-            if (accessType != ServiceAccessType.EXTERNAL) {
+            if (accessType != ServiceAccessType.EXTERNAL
+                    && accessType != ServiceAccessType.DIRECT) {
                 // if the provisioning URL is relative and the base URL is set
                 // create an absolute URL with the help of the base URL
                 if (provisioningUrl != null) {
@@ -1261,6 +1272,7 @@ public class TechnicalProductImportParser extends ImportParserBase {
                 throw new SAXException(e);
             }
             checkMandatoryAccessInfo();
+            checkMandatoryAsync();
             persist(techProduct);
 
             // if the organization is supplier and technology provider, it
