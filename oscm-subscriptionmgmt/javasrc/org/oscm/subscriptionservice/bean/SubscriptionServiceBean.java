@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.annotation.Resource;
 import javax.annotation.security.RolesAllowed;
@@ -668,6 +669,8 @@ public class SubscriptionServiceBean
 
         // Create a new subscription object
         Subscription newSub = new Subscription();
+        newSub.setUuid(UUID.randomUUID());
+        newSub.setEventPublished(false);
 
         Long creationTime = Long
                 .valueOf(DateFactory.getInstance().getTransactionTime());
@@ -2355,6 +2358,7 @@ public class SubscriptionServiceBean
         final String oldSubscriptionId = subscription.getSubscriptionId();
         subscription
                 .setSubscriptionId(String.valueOf(System.currentTimeMillis()));
+        subscription.setEventPublished(false);
 
         boolean removed = removeOnBehalfActingReference(subscription);
 
@@ -2858,6 +2862,7 @@ public class SubscriptionServiceBean
         PlatformUser currentUser = dataManager.getCurrentUser();
         Subscription subscription = manageBean
                 .loadSubscription(current.getSubscriptionId(), 0);
+        subscription.setEventPublished(false);
         BaseAssembler.verifyVersionAndKey(subscription, current);
         Product initialProduct = subscription.getProduct();
         PaymentInfo initialPaymentInfo = subscription.getPaymentInfo();
@@ -3719,6 +3724,7 @@ public class SubscriptionServiceBean
                 subscription.getPurchaseOrderNumber(), false);
         Subscription subscriptionToModify = dataManager
                 .getReference(Subscription.class, subscription.getKey());
+        subscriptionToModify.setEventPublished(false);
         PermissionCheck.owns(subscriptionToModify,
                 dataManager.getCurrentUser().getOrganization(), LOG);
         BaseAssembler.verifyVersionAndKey(subscriptionToModify, subscription);
@@ -4801,6 +4807,7 @@ public class SubscriptionServiceBean
 
         ArgumentValidator.notNull("subscription", subscrVO);
         Subscription subscription = loadSubscription(subscrVO.getKey());
+        subscription.setEventPublished(false);
         BaseAssembler.verifyVersionAndKey(subscription, subscrVO);
 
         // Remove corresponding operation record of the subscription

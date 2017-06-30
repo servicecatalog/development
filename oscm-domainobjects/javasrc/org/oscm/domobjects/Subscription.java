@@ -19,6 +19,7 @@ import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -37,6 +38,7 @@ import javax.persistence.UniqueConstraint;
 import org.apache.lucene.analysis.core.LowerCaseFilterFactory;
 import org.apache.lucene.analysis.core.WhitespaceTokenizerFactory;
 import org.apache.lucene.analysis.miscellaneous.WordDelimiterFilterFactory;
+import org.hibernate.annotations.Type;
 import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.AnalyzerDef;
 import org.hibernate.search.annotations.ClassBridge;
@@ -67,7 +69,7 @@ import org.oscm.types.exceptions.UserNotAssignedException;
         @TokenFilterDef(factory = WordDelimiterFilterFactory.class, params = {
                 @org.hibernate.search.annotations.Parameter(name = "preserveOriginal", value = "1"),
                 @org.hibernate.search.annotations.Parameter(name = "catenateAll", value = "1") }),
-        @TokenFilterDef(factory = LowerCaseFilterFactory.class)})
+        @TokenFilterDef(factory = LowerCaseFilterFactory.class) })
 @Analyzer(definition = "customanalyzer")
 @Indexed
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "subscriptionId",
@@ -89,8 +91,7 @@ import org.oscm.types.exceptions.UserNotAssignedException;
         @NamedQuery(name = "Subscription.getCurrentUserSubscriptions", query = "SELECT sub FROM Subscription sub WHERE sub.dataContainer.status IN (:status) AND EXISTS (SELECT lic FROM UsageLicense lic WHERE lic.user.key = :userKey AND lic.subscription = sub)"),
         @NamedQuery(name = "Subscription.getCurrentUserSubscriptionsByKeys", query = ""
                 + "SELECT sub FROM Subscription sub "
-                + "WHERE sub.dataContainer.status IN (:status) "
-                + "AND EXISTS "
+                + "WHERE sub.dataContainer.status IN (:status) " + "AND EXISTS "
                 + "(SELECT lic FROM UsageLicense lic WHERE lic.user.key = :userKey AND lic.subscription = sub) "
                 + "AND sub.key in :keys"),
         @NamedQuery(name = "Subscription.numberOfVisibleSubscriptions", query = "SELECT count(sub) FROM Subscription sub WHERE sub.product.technicalProduct.key=:productKey AND sub.organizationKey=:orgKey AND sub.dataContainer.status<>org.oscm.internal.types.enumtypes.SubscriptionStatus.INVALID AND sub.dataContainer.status<>org.oscm.internal.types.enumtypes.SubscriptionStatus.DEACTIVATED"),
@@ -134,13 +135,20 @@ public class Subscription extends DomainObjectWithHistory<SubscriptionData> {
                     SubscriptionStatus.PENDING, SubscriptionStatus.SUSPENDED));
 
     private static final List<LocalizedObjectTypes> LOCALIZATION_TYPES = Collections
-            .unmodifiableList(Arrays
-                    .asList(LocalizedObjectTypes.SUBSCRIPTION_PROVISIONING_PROGRESS));
+            .unmodifiableList(Arrays.asList(
+                    LocalizedObjectTypes.SUBSCRIPTION_PROVISIONING_PROGRESS));
 
     public Subscription() {
         super();
         dataContainer = new SubscriptionData();
     }
+
+    @Column(name = "uuid", unique = true, nullable = false)
+    @Type(type = "pg-uuid")
+    private UUID uuid;
+
+    @Column(name = "eventPublished", nullable = false)
+    private boolean eventPublished;
 
     /**
      * In order to form a complete business key the Organization key is needed
@@ -241,7 +249,6 @@ public class Subscription extends DomainObjectWithHistory<SubscriptionData> {
     @OrderBy
     private List<OperationRecord> operationRecord = new ArrayList<OperationRecord>();
 
-
     /**
      * Adds a user to the subscription assigning the provided role or standard
      * authorities if no role is provided.
@@ -264,14 +271,14 @@ public class Subscription extends DomainObjectWithHistory<SubscriptionData> {
         // check if already active or assigned license exists
         for (UsageLicense u : getUsageLicenses()) {
             if (user.equals(u.getUser())) {
-                throw new UserAlreadyAssignedException(
-                        this.getSubscriptionId(), user.getUserId());
+                throw new UserAlreadyAssignedException(this.getSubscriptionId(),
+                        user.getUserId());
             }
         }
         UsageLicense license = new UsageLicense();
         license.setRoleDefinition(role);
-        license.setAssignmentDate(DateFactory.getInstance()
-                .getTransactionTime());
+        license.setAssignmentDate(
+                DateFactory.getInstance().getTransactionTime());
         license.setSubscription(this);
         license.setUser(user);
         usageLicenses.add(license);
@@ -670,6 +677,22 @@ public class Subscription extends DomainObjectWithHistory<SubscriptionData> {
 
     public boolean isExternal() {
         return dataContainer.isExternal();
+    }
+
+    public UUID getUuid() {
+        return this.uuid;
+    }
+
+    public void setUuid(UUID uuid) {
+        this.uuid = uuid;
+    }
+
+    public boolean getEventPublished() {
+        return this.eventPublished;
+    }
+
+    public void setEventPublished(boolean eventPublished) {
+        this.eventPublished = eventPublished;
     }
 
 }

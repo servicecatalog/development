@@ -158,13 +158,8 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
     public void deleteInstance(Subscription subscription)
             throws TechnicalServiceNotAliveException,
             TechnicalServiceOperationException {
-        String instanceId = subscription.getProductInstanceId();
-        String organizationId = subscription.getOrganization()
-                .getOrganizationId();
-        String subscriptionId = subscription.getSubscriptionId();
         try {
-            BaseResult result = getPort(subscription).deleteInstance(instanceId,
-                    organizationId, subscriptionId, getCurrentUser());
+            BaseResult result = sendDeleteInstance(subscription);
             verifyResult(subscription, result);
         } catch (TechnicalServiceOperationException e) {
             throw e;
@@ -178,7 +173,6 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
         } catch (Throwable e) {
             throw convertThrowable(e);
         }
-
     }
 
     @Override
@@ -680,8 +674,7 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
             TechnicalServiceOperationException {
 
         try {
-            BaseResult result = getPort(subscription).activateInstance(
-                    subscription.getProductInstanceId(), getCurrentUser());
+            BaseResult result = sendActivateInstance(subscription);
             verifyResult(subscription, result);
         } catch (TechnicalServiceOperationException e) {
             throw e;
@@ -705,8 +698,7 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
             TechnicalServiceOperationException {
 
         try {
-            BaseResult result = getPort(subscription).deactivateInstance(
-                    subscription.getProductInstanceId(), getCurrentUser());
+            BaseResult result = sendDeactivateInstance(subscription);
             verifyResult(subscription, result);
         } catch (TechnicalServiceOperationException e) {
             throw e;
@@ -1050,6 +1042,45 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
             getPort(subscription).saveAttributes(organizationId,
                     AttributeFilter.getCustomAttributeList(subscription),
                     getCurrentUser());
+        }
+    }
+
+    BaseResult sendActivateInstance(Subscription subscription) throws TechnicalServiceNotAliveException {
+        if (isEventProvisioning(
+                subscription.getProduct().getTechnicalProduct())) {
+            // TODO send to kafka??
+            return getNotYetSupportedResult();
+        } else {
+            return getPort(subscription).activateInstance(
+                    subscription.getProductInstanceId(), getCurrentUser());
+        }
+    }
+    
+    BaseResult sendDeactivateInstance(Subscription subscription) throws TechnicalServiceNotAliveException {
+        if (isEventProvisioning(
+                subscription.getProduct().getTechnicalProduct())) {
+            // TODO send to kafka??
+            return getNotYetSupportedResult();
+        } else {
+            return getPort(subscription).deactivateInstance(
+                    subscription.getProductInstanceId(), getCurrentUser());
+        }
+    }
+
+
+    BaseResult sendDeleteInstance(Subscription subscription) throws TechnicalServiceNotAliveException {
+        String instanceId = subscription.getProductInstanceId();
+        String organizationId = subscription.getOrganization()
+                .getOrganizationId();
+        String subscriptionId = subscription.getSubscriptionId();
+
+        if (isEventProvisioning(
+                subscription.getProduct().getTechnicalProduct())) {
+            // TODO send to kafka??
+            return getNotYetSupportedResult();
+        } else {
+            return getPort(subscription).deleteInstance(instanceId,
+                    organizationId, subscriptionId, getCurrentUser());
         }
     }
 
