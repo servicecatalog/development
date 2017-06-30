@@ -988,7 +988,7 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
             throws TechnicalServiceNotAliveException {
         if (isEventProvisioning(
                 subscription.getProduct().getTechnicalProduct())) {
-            // TODO send to kafka            
+            // TODO send to kafka      
             //System.out.println(getSubscriptionMessage().getJson(subscription));
             return getNotYetSupportedResult();
         } else {
