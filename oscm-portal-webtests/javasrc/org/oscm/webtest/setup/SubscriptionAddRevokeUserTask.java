@@ -43,8 +43,25 @@ public class SubscriptionAddRevokeUserTask extends WebtestTask {
             }
         }
 
-        ss.addRevokeUser(subscriptionId, getUsersToBeAdded(role),
-                getUsersToBeRevoked());
+        List<VOUsageLicense> toAdd = getUsersToBeAdded(role);
+        List<VOUser> toRevoke = getUsersToBeRevoked();
+
+        addRevokeWithRetry(ss, toAdd, toRevoke, 3);
+    }
+
+    protected void addRevokeWithRetry(SubscriptionService ss,
+            List<VOUsageLicense> toAdd, List<VOUser> toRevoke, int MAX_TRY) {
+
+        boolean success = false;
+
+        int cnt = 0;
+        while ((MAX_TRY > cnt++) && !success) {
+            try {
+                success = ss.addRevokeUser(subscriptionId, toAdd, toRevoke);
+            } catch (Throwable th) {
+                th.printStackTrace();
+            }
+        }
     }
 
     protected List<VOUsageLicense> getUsersToBeAdded(VORoleDefinition role) {
