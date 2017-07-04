@@ -27,6 +27,7 @@ import javax.xml.ws.WebServiceException;
 import org.oscm.applicationservice.adapter.OperationServiceAdapterFactory;
 import org.oscm.applicationservice.adapter.ProvisioningServiceAdapter;
 import org.oscm.applicationservice.adapter.ProvisioningServiceAdapterFactory;
+import org.oscm.applicationservice.data.SubscriptionMessage;
 import org.oscm.applicationservice.filter.AttributeFilter;
 import org.oscm.applicationservice.filter.ParameterFilter;
 import org.oscm.applicationservice.local.ApplicationServiceLocal;
@@ -672,7 +673,6 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
     public void activateInstance(Subscription subscription)
             throws TechnicalServiceNotAliveException,
             TechnicalServiceOperationException {
-
         try {
             BaseResult result = sendActivateInstance(subscription);
             verifyResult(subscription, result);
@@ -988,7 +988,8 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
             throws TechnicalServiceNotAliveException {
         if (isEventProvisioning(
                 subscription.getProduct().getTechnicalProduct())) {
-            // TODO send to kafka
+            // TODO send to kafka            
+            //System.out.println(getSubscriptionMessage().getJson(subscription));
             return getNotYetSupportedResult();
         } else {
             return getPort(subscription).asyncCreateInstance(
@@ -1003,6 +1004,7 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
         if (isEventProvisioning(
                 subscription.getProduct().getTechnicalProduct())) {
             // TODO send to kafka
+            //System.out.println(getSubscriptionMessage().getJson(subscription));            
             return getNotYetSupportedResult();
         } else {
             return getPort(subscription).asyncModifySubscription(
@@ -1020,6 +1022,7 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
         if (isEventProvisioning(
                 subscription.getProduct().getTechnicalProduct())) {
             // TODO send to kafka
+            //System.out.println(getSubscriptionMessage().getJson(subscription));            
             return getNotYetSupportedResult();
         } else {
             return getPort(subscription).asyncUpgradeSubscription(
@@ -1049,6 +1052,7 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
         if (isEventProvisioning(
                 subscription.getProduct().getTechnicalProduct())) {
             // TODO send to kafka??
+            //System.out.println(getSubscriptionMessage().getJson(subscription));             
             return getNotYetSupportedResult();
         } else {
             return getPort(subscription).activateInstance(
@@ -1060,6 +1064,7 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
         if (isEventProvisioning(
                 subscription.getProduct().getTechnicalProduct())) {
             // TODO send to kafka??
+            System.out.println(getSubscriptionMessage().getJson(subscription));            
             return getNotYetSupportedResult();
         } else {
             return getPort(subscription).deactivateInstance(
@@ -1077,6 +1082,7 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
         if (isEventProvisioning(
                 subscription.getProduct().getTechnicalProduct())) {
             // TODO send to kafka??
+            System.out.println(getSubscriptionMessage().getJson(subscription));            
             return getNotYetSupportedResult();
         } else {
             return getPort(subscription).deleteInstance(instanceId,
@@ -1089,6 +1095,10 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
         result.setDesc("Event-based provisioning is not yet supported!");
         result.setRc(1);
         return result;
+    }
+    
+    private SubscriptionMessage getSubscriptionMessage() {
+        return new SubscriptionMessage();
     }
 
 }
