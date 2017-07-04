@@ -989,7 +989,7 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
         if (isEventProvisioning(
                 subscription.getProduct().getTechnicalProduct())) {
             // TODO send to kafka
-            //System.out.println(getSubscriptionMessage().getJson(subscription));
+            System.out.println(getSubscriptionMessage().getJson(subscription));
             return getNotYetSupportedResult();
         } else {
             return getPort(subscription).asyncCreateInstance(
