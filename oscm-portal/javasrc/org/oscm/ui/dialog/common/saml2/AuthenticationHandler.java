@@ -9,12 +9,14 @@
 package org.oscm.ui.dialog.common.saml2;
 
 import java.net.URL;
-
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.xml.bind.JAXBElement;
 
+import org.oscm.internal.intf.TenantConfigurationService;
 import org.oscm.internal.types.exception.SAML2AuthnRequestException;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
@@ -38,6 +40,7 @@ public class AuthenticationHandler {
     private HttpServletRequest request;
     private HttpServletResponse response;
     AuthenticationSettings authSettings;
+    TenantConfigurationService tenantConfigurationService;
 
     private static final Log4jLogger LOGGER = LoggerFactory
             .getLogger(RedirectSamlURLBuilder.class);
@@ -50,8 +53,27 @@ public class AuthenticationHandler {
     }
 
     private boolean isGetMethod() {
-        String method = authSettings.getIdentityProviderHttpMethod();
+        String method = null;
+
+        if (request != null && request.getParameter(Constants.REQ_PARAM_TENANT_ID) != null) {
+            try {
+                TenantConfigurationService tcb = getTenantConfigService();
+                method = tcb.getHttpMethodForTenant(request.getParameter(Constants.REQ_PARAM_TENANT_ID));
+            } catch (NamingException e) {
+                e.printStackTrace();
+            }
+        } else {
+            method = authSettings.getIdentityProviderHttpMethod();
+        }
+
         return method != null && method.equals("GET");
+    }
+
+    private TenantConfigurationService getTenantConfigService() throws NamingException {
+        if (tenantConfigurationService == null) {
+            tenantConfigurationService = (TenantConfigurationService) new InitialContext().lookup("java:global/oscm/oscm-tenantmgmt/TenantConfigurationBean!org.oscm.internal.intf.TenantConfigurationService");
+        }
+        return tenantConfigurationService;
     }
 
     private String handleAuthentication(boolean isFromBean)
@@ -82,18 +104,28 @@ public class AuthenticationHandler {
 
     private String handleRedirect() throws Exception {
         Boolean isHttps = Boolean.valueOf(request.isSecure());
-        AuthnRequestGenerator gen = new AuthnRequestGenerator(
-                authSettings.getIssuer(), isHttps);
+        String tenantID = request.getParameter(Constants.REQ_PARAM_TENANT_ID);
+        String issuer;
+        String url;
+        if (tenantID != null) {
+            issuer = getTenantConfigService().getIssuerForTenant(tenantID);
+            url = getTenantConfigService().getIdpUrlForTenant(tenantID);
+        } else {
+            tenantID = authSettings.getTenantID();
+            issuer = authSettings.getIssuer();
+            url = authSettings.getIdentityProviderURL();
+        }
+        AuthnRequestGenerator gen = new AuthnRequestGenerator(issuer, isHttps);
         JAXBElement<AuthnRequestType> authRequest = gen.generateAuthnRequest();
         storeAttributeInSession(Constants.SESS_ATTR_IDP_REQUEST_ID, gen.getRequestId());
-        storeAttributeInSession(Constants.REQ_PARAM_TENANT_ID, authSettings.getTenantID());
-        String redirectUrl = generateRedirectURL(authRequest);
+        storeAttributeInSession(Constants.REQ_PARAM_TENANT_ID, tenantID);
+        String redirectUrl = generateRedirectURL(authRequest, url);
         JSFUtils.sendRedirect(response, redirectUrl);
         return null;
     }
 
-    void storeAttributeInSession(String attirubte, String parameterName) {
-        request.getSession().setAttribute(attirubte,
+    void storeAttributeInSession(String attribute, String parameterName) {
+        request.getSession().setAttribute(attribute,
                 parameterName);
     }
 
@@ -115,7 +147,7 @@ public class AuthenticationHandler {
         return OUTCOME_SAMLSP_REDIRECT;
     }
 
-    private String generateRedirectURL(JAXBElement<AuthnRequestType> authRequest){
+    private String generateRedirectURL(JAXBElement<AuthnRequestType> authRequest, String url){
 
         if (authSettings.getIssuer() == null) {
             return null;
@@ -129,7 +161,7 @@ public class AuthenticationHandler {
                     .addRelayState(getRelayState())
                     .addSamlRequest(authRequest)
                     .addRedirectEndpoint(
-                            new URL(authSettings.getIdentityProviderURL()))
+                            new URL(url))
                     .getURL();
         } catch (Exception e) {
             getLogger().logError(Log4jLogger.SYSTEM_LOG, e,
