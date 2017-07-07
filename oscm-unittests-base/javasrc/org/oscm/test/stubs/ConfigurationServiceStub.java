@@ -160,7 +160,7 @@ public class ConfigurationServiceStub implements ConfigurationService,
     }
 
     @Override
-    public String getBaseURLHttps() {
+    public String getBaseUrlHttps() {
         return getConfigurationSetting(ConfigurationKey.BASE_URL_HTTPS,
                 Configuration.GLOBAL_CONTEXT).getValue();
     }
