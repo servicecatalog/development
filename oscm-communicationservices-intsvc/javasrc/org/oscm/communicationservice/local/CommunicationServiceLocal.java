@@ -146,6 +146,11 @@ public interface CommunicationServiceLocal {
      */
     public String getBaseUrl();
 
+    /**
+     * Gets the secure administration URL (https) of the blue portal
+     *
+     * @return the secure administration URL (https) of the blue portal
+     */
     public String getBaseUrlHttps();
 
     /**
