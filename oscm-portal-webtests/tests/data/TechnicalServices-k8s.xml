@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2017-->
+
+<tns:TechnicalServices xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                       xsi:schemaLocation="oscm.serviceprovisioning/1.9/TechnicalService.xsd ../../oscm-serviceprovisioning/javares/TechnicalServices.xsd"
+                       xmlns:tns="oscm.serviceprovisioning/1.9/TechnicalService.xsd">
+  <tns:TechnicalService accessType="DIRECT" allowingOnBehalfActing="false" baseUrl=""
+                        build="20140708" id="K8S" loginPath=""
+                        onlyOneSubscriptionPerUser="false" provisioningType="ASYNCHRONOUS"
+                        provisioningUrl=""
+                        provisioningVersion="1.0">
+    <AccessInfo locale="en" >K8s</AccessInfo>
+    <LocalizedDescription locale="en">K8s IaaS implementation</LocalizedDescription>
+    <LocalizedLicense locale="en" />
+    <LocalizedTag locale="en">K8s</LocalizedTag>
+    <ParameterDefinition configurable="true" default="	stable/" id="CHART_ID" mandatory="true"
+                         valueType="STRING">
+      <LocalizedDescription locale="en">ID of the chart to install</LocalizedDescription>
+    </ParameterDefinition>
+    <ParameterDefinition configurable="true" id="CHART_VERSION" default="" mandatory="true" valueType="STRING">
+      <LocalizedDescription locale="en">Chart version</LocalizedDescription>
+    </ParameterDefinition>
+  </tns:TechnicalService>
+</tns:TechnicalServices>

@@ -555,7 +555,7 @@
     
     <!-- JDBC Driver-->
     <dependency org="org.postgresql" name="postgresql" rev="9.4-1206-jdbc42" transitive="false"/>
-    
+    <dependency org="org.apache.kafka" name="kafka-clients" rev="0.10.2.1" transitive="false"/>
     <exclude org="org.netbeans.api"/>
     <exclude org="*" ext="*" type="source"/>
     <exclude org="*" ext="*" type="javadoc"/>

@@ -33,14 +33,7 @@ import org.oscm.applicationservice.filter.ParameterFilter;
 import org.oscm.applicationservice.local.ApplicationServiceLocal;
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.dataservice.local.DataService;
-import org.oscm.domobjects.ModifiedUda;
-import org.oscm.domobjects.PlatformUser;
-import org.oscm.domobjects.Product;
-import org.oscm.domobjects.RoleDefinition;
-import org.oscm.domobjects.Subscription;
-import org.oscm.domobjects.TechnicalProduct;
-import org.oscm.domobjects.TechnicalProductOperation;
-import org.oscm.domobjects.UsageLicense;
+import org.oscm.domobjects.*;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
@@ -49,6 +42,8 @@ import org.oscm.internal.types.exception.TechnicalServiceNotAliveException;
 import org.oscm.internal.types.exception.TechnicalServiceOperationException;
 import org.oscm.internal.types.exception.UnsupportedOperationException;
 import org.oscm.internal.types.exception.ValidationException;
+import org.oscm.kafka.common.PublishingResult;
+import org.oscm.kafka.service.KafkaProducerServiceBean;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.operation.data.OperationParameter;
@@ -90,6 +85,9 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
 
     @EJB(beanInterface = DataService.class)
     DataService ds;
+
+    @EJB
+    private KafkaProducerServiceBean kafkaProducer;
 
     @Override
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
@@ -988,9 +986,10 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
             throws TechnicalServiceNotAliveException {
         if (isEventProvisioning(
                 subscription.getProduct().getTechnicalProduct())) {
-            // TODO send to kafka
-            System.out.println(getSubscriptionMessage().getJson(subscription));
-            return getNotYetSupportedResult();
+            PublishingResult publishingResult = kafkaProducer.publishSubscription(getSubscriptionMessage().getJson(subscription));
+            BaseResult baseResult = new BaseResult();
+            baseResult.setRc(publishingResult.isSuccess() ? RETURN_CODE_OK : 200);
+            return baseResult;
         } else {
             return getPort(subscription).asyncCreateInstance(
                     toInstanceRequest(subscription), getCurrentUser());
@@ -1004,7 +1003,7 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
         if (isEventProvisioning(
                 subscription.getProduct().getTechnicalProduct())) {
             // TODO send to kafka
-            //System.out.println(getSubscriptionMessage().getJson(subscription));            
+            //System.out.println(getSubscriptionMessage().getJson(subscription));
             return getNotYetSupportedResult();
         } else {
             return getPort(subscription).asyncModifySubscription(
@@ -1022,7 +1021,7 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
         if (isEventProvisioning(
                 subscription.getProduct().getTechnicalProduct())) {
             // TODO send to kafka
-            //System.out.println(getSubscriptionMessage().getJson(subscription));            
+            //System.out.println(getSubscriptionMessage().getJson(subscription));
             return getNotYetSupportedResult();
         } else {
             return getPort(subscription).asyncUpgradeSubscription(
@@ -1052,7 +1051,7 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
         if (isEventProvisioning(
                 subscription.getProduct().getTechnicalProduct())) {
             // TODO send to kafka??
-            //System.out.println(getSubscriptionMessage().getJson(subscription));             
+            //System.out.println(getSubscriptionMessage().getJson(subscription));
             return getNotYetSupportedResult();
         } else {
             return getPort(subscription).activateInstance(
@@ -1064,7 +1063,7 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
         if (isEventProvisioning(
                 subscription.getProduct().getTechnicalProduct())) {
             // TODO send to kafka??
-            System.out.println(getSubscriptionMessage().getJson(subscription));            
+            System.out.println(getSubscriptionMessage().getJson(subscription));
             return getNotYetSupportedResult();
         } else {
             return getPort(subscription).deactivateInstance(
@@ -1082,7 +1081,7 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
         if (isEventProvisioning(
                 subscription.getProduct().getTechnicalProduct())) {
             // TODO send to kafka??
-            System.out.println(getSubscriptionMessage().getJson(subscription));            
+            System.out.println(getSubscriptionMessage().getJson(subscription));
             return getNotYetSupportedResult();
         } else {
             return getPort(subscription).deleteInstance(instanceId,
@@ -1096,7 +1095,7 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
         result.setRc(1);
         return result;
     }
-    
+
     private SubscriptionMessage getSubscriptionMessage() {
         return new SubscriptionMessage();
     }

@@ -73,6 +73,8 @@
 		<project>oscm-wsdldeliver</project>
 		<project>oscm-tenantmgmt</project>
 		<project>oscm-tenantmgmt-intsvc</project>
+		<project>oscm-kafka</project>
+		<project>oscm-kafka-common</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
