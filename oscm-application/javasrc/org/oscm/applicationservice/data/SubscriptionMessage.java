@@ -28,68 +28,86 @@ import com.google.gson.annotations.SerializedName;
  */
 public class SubscriptionMessage {
 
-    private static final String TEMPLATE = "template";
+    private static final String TEMPLATE_PREFIX = "template.";
+    private static final String TARGET = "target";
+    private static final String NAMESPACE = "namespace";
     private static final String LABELS_PREFIX = "labels.";
-    private static final String VALUES_PREFIX = "values.";
-    private static final String SUBCRIPTION_STATUS_EXISTS = "SUBSCRIBED";
-    private static final String SUBCRIPTION_STATUS_DELETED = "DELETED";
+    private static final String PARAMETERS_PREFIX = "parameters.";
 
-    public String getJson(Subscription subscription) {
-        String jsonString = null;
-        Gson gson = new Gson();
-        jsonString = gson.toJson(new SubscriptionObject(subscription));
-        return jsonString;
-    }
+    @SerializedName("id")
+    UUID id;
+    @SerializedName("etag")
+    UUID etag;
+    @SerializedName("operation")
+    String operation;
+    @SerializedName("namespace")
+    String namespace;
+    @SerializedName("template")
+    Map<String, String> template = new HashMap<>();
+    @SerializedName("target")
+    String target;
+    @SerializedName("labels")
+    Map<String, String> labels = new HashMap<>();
+    @SerializedName("parameters")
+    Map<String, String> parameters = new HashMap<>();
 
-    public String getJsonForDelete(Subscription subscription) {
-        String jsonString = null;
-        Gson gson = new Gson();
-        jsonString = gson.toJson(new SubscriptionObject(subscription));
-        return jsonString;
-    }
+    public SubscriptionMessage(Subscription subscription) {
+        this.id = subscription.getUuid();
+        this.etag = UUID.randomUUID();
+        ParameterSet paramSet = subscription.getParameterSet();
+        List<Parameter> params = paramSet.getParameters();
 
-    class SubscriptionObject {
-
-        @SerializedName("uuid")
-        UUID uuid;
-        @SerializedName("status")
-        String status;
-        @SerializedName("template")
-        String template;
-        @SerializedName("labels")
-        Map<String, String> labels = new HashMap<>();
-        @SerializedName("parameters")
-        Map<String, String> parameters = new HashMap<>();
-
-        SubscriptionObject(Subscription subscription) {
-            this.uuid = subscription.getUuid();
-            ParameterSet paramSet = subscription.getParameterSet();
-            List<Parameter> params = paramSet.getParameters();
-
-            if (SubscriptionStatus.DEACTIVATED
-                    .equals(subscription.getStatus())) {
-                this.status = SUBCRIPTION_STATUS_DELETED;
-            } else {
-                this.status = SUBCRIPTION_STATUS_EXISTS;
-                for (Parameter param : params) {
-                    ParameterDefinition paramDef = param
-                            .getParameterDefinition();
-                    String paramId = paramDef.getParameterId();
-                    if (paramId != null) {
-                        if (TEMPLATE.equals(paramId)) {
-                            this.template = param.getValue();
-                        } else if (paramId.contains(LABELS_PREFIX)) {
-                            paramId = paramId.substring(LABELS_PREFIX.length());
-                            labels.put(paramId, param.getValue());
-                        } else if (paramId.contains(VALUES_PREFIX)) {
-                            paramId = paramId.substring(VALUES_PREFIX.length());
-                            parameters.put(paramId, param.getValue());
-                        }
-                    }
+        this.operation = getOperation(subscription).name();
+        
+        if (Operation.DEL.name().equals(this.operation)) {
+            return;
+        }
+        
+        for (Parameter param : params) {
+            ParameterDefinition paramDef = param.getParameterDefinition();
+            String paramId = paramDef.getParameterId();
+            if (paramId != null) {
+                if (TARGET.equals(paramId)) {
+                    this.target = param.getValue();
+                } else if (NAMESPACE.equals(paramId)) {
+                    this.namespace = param.getValue();
+                } else if (paramId.contains(TEMPLATE_PREFIX)) {
+                    paramId = paramId.substring(TEMPLATE_PREFIX.length());
+                    template.put(paramId, param.getValue());
+                } else if (paramId.contains(LABELS_PREFIX)) {
+                    paramId = paramId.substring(LABELS_PREFIX.length());
+                    labels.put(paramId, param.getValue());
+                } else if (paramId.contains(PARAMETERS_PREFIX)) {
+                    paramId = paramId.substring(PARAMETERS_PREFIX.length());
+                    parameters.put(paramId, param.getValue());
                 }
             }
-
         }
+    }
+
+    Operation getOperation(Subscription subscription) {
+        if (SubscriptionStatus.DEACTIVATED.equals(subscription.getStatus())) {
+            return Operation.DEL;
+        }
+        if (SubscriptionStatus.PENDING.equals(subscription.getStatus())) {
+            return Operation.NEW;
+        }         
+        if (SubscriptionStatus.PENDING_UPD
+                .equals(subscription.getStatus())) {
+            return Operation.UPD;
+        }
+        return null;
+    }
+
+    public enum Operation {
+        NEW, UPD, DEL
+    }
+
+    public String toJson() {
+        String jsonString = null;
+        Gson gson = new Gson();
+        jsonString = gson.toJson(this);
+        return jsonString;
     }
 
 }

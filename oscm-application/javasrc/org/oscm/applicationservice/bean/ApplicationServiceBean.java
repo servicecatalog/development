@@ -989,7 +989,7 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
         if (isEventProvisioning(
                 subscription.getProduct().getTechnicalProduct())) {
             // TODO send to kafka
-            System.out.println(getSubscriptionMessage().getJson(subscription));
+            System.out.println(getSubscriptionMessage(subscription).toJson());
             return getNotYetSupportedResult();
         } else {
             return getPort(subscription).asyncCreateInstance(
@@ -1064,7 +1064,7 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
         if (isEventProvisioning(
                 subscription.getProduct().getTechnicalProduct())) {
             // TODO send to kafka??
-            System.out.println(getSubscriptionMessage().getJson(subscription));            
+            System.out.println(getSubscriptionMessage(subscription).toJson());            
             return getNotYetSupportedResult();
         } else {
             return getPort(subscription).deactivateInstance(
@@ -1082,7 +1082,7 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
         if (isEventProvisioning(
                 subscription.getProduct().getTechnicalProduct())) {
             // TODO send to kafka??
-            System.out.println(getSubscriptionMessage().getJson(subscription));            
+            System.out.println(getSubscriptionMessage(subscription).toJson());            
             return getNotYetSupportedResult();
         } else {
             return getPort(subscription).deleteInstance(instanceId,
@@ -1097,8 +1097,8 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
         return result;
     }
     
-    private SubscriptionMessage getSubscriptionMessage() {
-        return new SubscriptionMessage();
+    private SubscriptionMessage getSubscriptionMessage(Subscription subscription) {
+        return new SubscriptionMessage(subscription);
     }
 
 }
