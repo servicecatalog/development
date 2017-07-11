@@ -93,7 +93,6 @@ public class DispatcherTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        HeatProcessor hp = mock(HeatProcessor.class);
 
         parameters = new HashMap<>();
         configSettings = new HashMap<>();
