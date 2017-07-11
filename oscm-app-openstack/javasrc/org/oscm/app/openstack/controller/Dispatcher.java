@@ -29,6 +29,7 @@ import org.oscm.app.v2_0.data.LocalizedText;
 import org.oscm.app.v2_0.data.User;
 import org.oscm.app.v2_0.exceptions.APPlatformException;
 import org.oscm.app.v2_0.exceptions.AbortException;
+import org.oscm.app.v2_0.exceptions.AuthenticationException;
 import org.oscm.app.v2_0.exceptions.InstanceNotAliveException;
 import org.oscm.app.v2_0.exceptions.SuspendException;
 import org.oscm.app.v2_0.intf.APPlatformService;
@@ -120,17 +121,17 @@ public class Dispatcher {
             // Dispatch next step depending on current internal status
             switch (currentState) {
             case CREATION_REQUESTED:
-                new HeatProcessor().createStack(properties);
+                getHeatProcessor().createStack(properties);
                 newState = FlowState.CREATING_STACK;
                 break;
 
             case MODIFICATION_REQUESTED:
-                new HeatProcessor().updateStack(properties);
+                getHeatProcessor().updateStack(properties);
                 newState = FlowState.UPDATING;
                 break;
 
             case DELETION_REQUESTED:
-                new HeatProcessor().deleteStack(properties);
+                getHeatProcessor().deleteStack(properties);
                 newState = FlowState.DELETING_STACK;
                 break;
 
@@ -142,7 +143,7 @@ public class Dispatcher {
                     messages = Messages.getAll("status_" + currentState);
                 } else {
                     properties.setStartTime("Timeout");
-                    stack = new HeatProcessor().getStackDetails(properties);
+                    stack = getHeatProcessor().getStackDetails(properties);
                     result.setAccessInfo(getAccessInfo(stack));
                     throw new APPlatformException(
                             Messages.getAll("error_starting_failed"));
@@ -158,9 +159,10 @@ public class Dispatcher {
                             ServerStatus.ACTIVE.toString())) {
                         successServers.add(server);
                     }
-                    if (server.getStatus().equals(ServerStatus.ERROR.toString())
-                            || server.getStatus()
-                                    .equals(ServerStatus.UNKNOWN.toString())) {
+                    if (server.getStatus()
+                            .equals(ServerStatus.ERROR.toString())
+                            || server.getStatus().equals(
+                                    ServerStatus.UNKNOWN.toString())) {
                         errorServers.add(server);
                     }
                 }
@@ -171,7 +173,7 @@ public class Dispatcher {
                         + " VMs are ERROR or UNKNOWN status");
                 if (errorServers.size() == 0) {
                     if (successServers.size() == servers.size()) {
-                        stack = new HeatProcessor().getStackDetails(properties);
+                        stack = getHeatProcessor().getStackDetails(properties);
                         result.setAccessInfo(getAccessInfo(stack));
                         newState = FlowState.FINISHED;
                     } else {
@@ -200,7 +202,7 @@ public class Dispatcher {
                     newState = FlowState.STOPPING;
                     messages = Messages.getAll("status_" + currentState);
                 } else {
-                    stack = new HeatProcessor().getStackDetails(properties);
+                    stack = getHeatProcessor().getStackDetails(properties);
                     result.setAccessInfo(getAccessInfo(stack));
                     throw new APPlatformException(
                             Messages.getAll("error_stopping_failed"));
@@ -216,9 +218,10 @@ public class Dispatcher {
                             ServerStatus.SHUTOFF.toString())) {
                         successServers.add(server);
                     }
-                    if (server.getStatus().equals(ServerStatus.ERROR.toString())
-                            || server.getStatus()
-                                    .equals(ServerStatus.UNKNOWN.toString())) {
+                    if (server.getStatus()
+                            .equals(ServerStatus.ERROR.toString())
+                            || server.getStatus().equals(
+                                    ServerStatus.UNKNOWN.toString())) {
                         errorServers.add(server);
                     }
                 }
@@ -228,7 +231,7 @@ public class Dispatcher {
                 logger.debug(Integer.toString(errorServers.size())
                         + " VMs are ERROR or UNKNOWN status");
                 if (successServers.size() == servers.size()) {
-                    stack = new HeatProcessor().getStackDetails(properties);
+                    stack = getHeatProcessor().getStackDetails(properties);
                     result.setAccessInfo(getAccessInfo(stack));
                     newState = FlowState.FINISHED;
                 } else {
@@ -246,20 +249,20 @@ public class Dispatcher {
                 break;
 
             case ACTIVATION_REQUESTED:
-                boolean resuming = new HeatProcessor().resumeStack(properties);
+                boolean resuming = getHeatProcessor().resumeStack(properties);
                 newState = resuming ? FlowState.ACTIVATING : FlowState.FINISHED;
                 if (resuming) {
                     result.setAccessInfo(Messages.get(
                             properties.getCustomerLocale(),
                             "accessInfo_NOT_AVAILABLE"));
                 } else {
-                    stack = new HeatProcessor().getStackDetails(properties);
+                    stack = getHeatProcessor().getStackDetails(properties);
                     result.setAccessInfo(getAccessInfo(stack));
                 }
                 break;
 
             case ACTIVATING:
-                stack = new HeatProcessor().getStackDetails(properties);
+                stack = getHeatProcessor().getStackDetails(properties);
                 status = stack.getStatus();
                 statusReason = stack.getStatusReason();
                 logger.debug("Status of stack is: " + status);
@@ -281,7 +284,7 @@ public class Dispatcher {
                 break;
 
             case DEACTIVATION_REQUESTED:
-                boolean suspending = new HeatProcessor()
+                boolean suspending = getHeatProcessor()
                         .suspendStack(properties);
                 newState = suspending ? FlowState.DEACTIVATING
                         : FlowState.FINISHED;
@@ -291,7 +294,7 @@ public class Dispatcher {
                 break;
 
             case DEACTIVATING:
-                stack = new HeatProcessor().getStackDetails(properties);
+                stack = getHeatProcessor().getStackDetails(properties);
                 status = stack.getStatus();
                 statusReason = stack.getStatusReason();
                 logger.debug("Status of stack is: " + status);
@@ -316,7 +319,7 @@ public class Dispatcher {
                 break;
 
             case CREATING_STACK:
-                stack = new HeatProcessor().getStackDetails(properties);
+                stack = getHeatProcessor().getStackDetails(properties);
                 status = stack.getStatus();
                 if (StackStatus.CREATE_COMPLETE.name().equals(status)) {
                     result.setAccessInfo(getAccessInfo(stack));
@@ -339,7 +342,7 @@ public class Dispatcher {
                 break;
 
             case UPDATING:
-                stack = new HeatProcessor().getStackDetails(properties);
+                stack = getHeatProcessor().getStackDetails(properties);
                 status = stack.getStatus();
                 if (StackStatus.UPDATE_COMPLETE.name().equals(status)) {
                     result.setAccessInfo(getAccessInfo(stack));
@@ -363,7 +366,7 @@ public class Dispatcher {
 
             case DELETING_STACK:
                 try {
-                    stack = new HeatProcessor().getStackDetails(properties);
+                    stack = getHeatProcessor().getStackDetails(properties);
                     status = stack.getStatus();
                     statusReason = stack.getStatusReason();
                     if (StackStatus.DELETE_COMPLETE.name().equals(status)
@@ -404,7 +407,7 @@ public class Dispatcher {
 
                 break;
             case FINISHED:
-                stack = new HeatProcessor().getStackDetails(properties);
+                stack = getHeatProcessor().getStackDetails(properties);
                 status = stack.getStatus();
                 if (StackStatus.CREATE_COMPLETE.name().equals(status)) {
                     result.setAccessInfo(getAccessInfo(stack));
@@ -471,6 +474,11 @@ public class Dispatcher {
         result.setChangedParameters(properties.getSettings().getParameters());
 
         return result;
+    }
+
+    protected HeatProcessor getHeatProcessor() throws AuthenticationException,
+            APPlatformException {
+        return new HeatProcessor();
     }
 
     private String getAccessInfo(Stack stack) {

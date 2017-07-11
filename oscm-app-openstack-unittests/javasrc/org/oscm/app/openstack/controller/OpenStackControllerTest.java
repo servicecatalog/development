@@ -247,7 +247,7 @@ public class OpenStackControllerTest extends EJBTestBase {
                 PropertyHandler.START_TIME,
                 new Setting(PropertyHandler.START_TIME, String.valueOf(System
                         .currentTimeMillis())));
-        Thread.sleep(200);
+        Thread.sleep(20);
         getInstanceStatus("123");
     }
 
@@ -272,7 +272,7 @@ public class OpenStackControllerTest extends EJBTestBase {
                                 ServerStatus.SHUTOFF, "testTenantID")));
 
         // when
-        Thread.sleep(200);
+        Thread.sleep(20);
         InstanceStatus status = getInstanceStatus("123");
 
         // then
@@ -301,7 +301,7 @@ public class OpenStackControllerTest extends EJBTestBase {
                                 ServerStatus.SHUTOFF, "testTenantID")));
 
         // when
-        Thread.sleep(200);
+        Thread.sleep(20);
         InstanceStatus status = getInstanceStatus("123");
 
         // then
@@ -345,7 +345,7 @@ public class OpenStackControllerTest extends EJBTestBase {
                 PropertyHandler.START_TIME,
                 new Setting(PropertyHandler.START_TIME, String.valueOf(System
                         .currentTimeMillis())));
-        Thread.sleep(200);
+        Thread.sleep(20);
         getInstanceStatus("123");
     }
 
@@ -370,7 +370,7 @@ public class OpenStackControllerTest extends EJBTestBase {
                                 ServerStatus.ACTIVE, "testTenantID")));
 
         // when
-        Thread.sleep(200);
+        Thread.sleep(20);
         InstanceStatus status = getInstanceStatus("123");
 
         // then
@@ -399,7 +399,7 @@ public class OpenStackControllerTest extends EJBTestBase {
                                 ServerStatus.ACTIVE, "testTenantID")));
 
         // when
-        Thread.sleep(200);
+        Thread.sleep(20);
         InstanceStatus status = getInstanceStatus("123");
 
         // then
@@ -447,7 +447,7 @@ public class OpenStackControllerTest extends EJBTestBase {
                         .currentTimeMillis())));
 
         // when
-        Thread.sleep(200);
+        Thread.sleep(20);
         InstanceStatus status = getInstanceStatus("123");
 
         // then
@@ -468,7 +468,7 @@ public class OpenStackControllerTest extends EJBTestBase {
                 PropertyHandler.READY_TIMEOUT, "1000000"));
 
         // when
-        Thread.sleep(200);
+        Thread.sleep(20);
         InstanceStatus status = getInstanceStatus("123");
 
         // then

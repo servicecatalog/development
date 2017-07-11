@@ -17,18 +17,23 @@ import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.naming.NamingException;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.oscm.app.openstack.HeatProcessor;
 import org.oscm.app.openstack.MockHttpURLConnection;
@@ -40,11 +45,14 @@ import org.oscm.app.v2_0.data.InstanceStatus;
 import org.oscm.app.v2_0.data.PasswordAuthentication;
 import org.oscm.app.v2_0.data.ProvisioningSettings;
 import org.oscm.app.v2_0.data.Setting;
+import org.oscm.app.v2_0.data.Template;
 import org.oscm.app.v2_0.data.User;
 import org.oscm.app.v2_0.exceptions.APPlatformException;
 import org.oscm.app.v2_0.exceptions.AbortException;
+import org.oscm.app.v2_0.exceptions.AuthenticationException;
 import org.oscm.app.v2_0.exceptions.InstanceNotAliveException;
 import org.oscm.app.v2_0.exceptions.SuspendException;
+import org.oscm.app.v2_0.intf.APPTemplateService;
 import org.oscm.app.v2_0.intf.APPlatformService;
 
 /**
@@ -85,6 +93,8 @@ public class DispatcherTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
+        HeatProcessor hp = mock(HeatProcessor.class);
+
         parameters = new HashMap<>();
         configSettings = new HashMap<>();
         configSettings.put(PropertyHandler.KEYSTONE_API_URL, new Setting(
@@ -118,7 +128,13 @@ public class DispatcherTest {
         user.setLocale("de");
         doReturn(user).when(platformService).authenticate(anyString(),
                 any(PasswordAuthentication.class));
-        dispatcher = new Dispatcher(platformService, "123", paramHandler);
+        dispatcher = new Dispatcher(platformService, "123", paramHandler) {
+            @Override
+            protected HeatProcessor getHeatProcessor()
+                    throws AuthenticationException, APPlatformException {
+                return givenHeatProcessor();
+            }
+        };
         paramHandler.setStackName("Instance4");
         OpenStackConnection.setURLStreamHandler(streamHandler);
         HeatProcessor.setURLStreamHandler(streamHandler);
@@ -162,6 +178,14 @@ public class DispatcherTest {
                 new Setting(PropertyHandler.TEMPLATE_NAME, url));
 
         try {
+
+            dispatcher = new Dispatcher(platformService, "123", paramHandler) {
+                @Override
+                protected HeatProcessor getHeatProcessor()
+                        throws AuthenticationException, APPlatformException {
+                    return givenHeatProcessor_Error();
+                }
+            };
             // when
             dispatcher.dispatch();
             assertTrue("Test must fail at this point!", false);
@@ -823,4 +847,42 @@ public class DispatcherTest {
 
     }
 
+    private HeatProcessor givenHeatProcessor() throws AuthenticationException,
+            APPlatformException {
+        Template t = new Template();
+        t.setContent(MockURLStreamHandler.respTemplatesFosi_v2().getBytes());
+
+        final APPTemplateService service = mock(APPTemplateService.class);
+        when(
+                service.getTemplate(anyString(), anyString(),
+                        any(PasswordAuthentication.class))).thenReturn(t);
+
+        return new HeatProcessor() {
+            @Override
+            protected APPTemplateService getTemplateService()
+                    throws NamingException {
+                return service;
+            }
+        };
+    }
+
+    private HeatProcessor givenHeatProcessor_Error()
+            throws AuthenticationException, APPlatformException {
+        Template t = new Template();
+        t.setContent(MockURLStreamHandler.respTemplatesFosi_v2().getBytes());
+
+        final APPTemplateService service = Mockito
+                .mock(APPTemplateService.class);
+
+        doThrow(new APPlatformException("")).when(service).getTemplate(
+                anyString(), anyString(), any(PasswordAuthentication.class));
+
+        return new HeatProcessor() {
+            @Override
+            protected APPTemplateService getTemplateService()
+                    throws NamingException {
+                return service;
+            }
+        };
+    }
 }

@@ -182,15 +182,14 @@ public class OpenStackConnection {
             case 400:
                 throw new OpenStackConnectionException(
                         "either input parameter format error or security key is not correct"
-                                + code,
-                        responseCode);
+                                + code, responseCode);
             case 401:
                 throw new OpenStackConnectionException("unauthorized" + code,
                         responseCode);
 
             case 404:
-                throw new OpenStackConnectionException(
-                        "resource not found" + code, responseCode);
+                throw new OpenStackConnectionException("resource not found"
+                        + code, responseCode);
 
             case 504:
                 throw new OpenStackConnectionException(
@@ -248,9 +247,7 @@ public class OpenStackConnection {
                     // ignore
                 }
                 if (proxyHost != null && proxyPortInt > 0) {
-                    // TODO check proxy type for HTTPS protocol
-                    Proxy proxy = new Proxy(Proxy.Type.HTTP,
-                            new InetSocketAddress(proxyHost, proxyPortInt));
+                    Proxy proxy = resolveProxy(proxyHost, proxyPortInt);
 
                     if (proxyUser != null && proxyUser.length() > 0
                             && proxyPassword != null
@@ -261,12 +258,11 @@ public class OpenStackConnection {
 
                     }
 
-                    connection = (HttpURLConnection) url.openConnection(proxy);
+                    connection = openConnection(url, proxy);
                 }
 
                 else {
-                    connection = (HttpURLConnection) url
-                            .openConnection(Proxy.NO_PROXY);
+                    connection = openConnection(url, Proxy.NO_PROXY);
                 }
 
             }
@@ -292,6 +288,17 @@ public class OpenStackConnection {
                     "KeyManagementException occurred in SSLContext");
         }
         return connection;
+    }
+
+    protected Proxy resolveProxy(String proxyHost, int proxyPortInt) {
+        Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(
+                proxyHost, proxyPortInt));
+        return proxy;
+    }
+
+    protected HttpURLConnection openConnection(URL url, Proxy proxy)
+            throws IOException {
+        return (HttpURLConnection) url.openConnection(proxy);
     }
 
     /**
