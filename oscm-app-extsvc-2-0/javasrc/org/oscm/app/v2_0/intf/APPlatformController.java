@@ -447,7 +447,7 @@ public interface APPlatformController {
      * @return the number of VMs
      * @throws APPlatformException
      */
-    default Integer getServersNumber(String instanceId,
+    default int getServersNumber(String instanceId,
         String subscriptionId, String organizationId)
         throws APPlatformException {
         return 1;
