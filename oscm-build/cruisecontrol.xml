@@ -193,7 +193,10 @@
 	<target name="bootstrap" description="Used to install the ivy task jar">
 		<mkdir dir="${user.home}/.ant/lib"/>
 		<get dest="${user.home}/.ant/lib/ivy.jar" src="http://search.maven.org/remotecontent?filepath=org/apache/ivy/ivy/2.4.0/ivy-2.4.0.jar"/>
-		<get dest="/opt/webtest.zip" src="http://webtest.canoo.com/webtest/build.zip"/>
+		<get dest="/tmp/webtest.zip" src="http://webtest.canoo.com/webtest/build.zip"/>
+		<get dest="/tmp/james.zip" src="http://www.apache.org/dist/james/server/james-server-app-3.0.0-RC1-app.zip"/>
+		<get dest="/tmp/glassfish-4.1.1.zip" src="http://download.java.net/glassfish/4.1.1/release/glassfish-4.1.1.zip"/>
+		<get dest="/usr/local/bin/gosu" src="https://github.com/tianon/gosu/releases/download/1.2/gosu-amd64"/>
 	</target>
 
     <target name="_libraries">
