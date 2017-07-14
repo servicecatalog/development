@@ -10,7 +10,7 @@
 	<classpathentry kind="src" path="/oscm-subscriptionmgmt-intsvc"/>
 	<classpathentry kind="src" path="/oscm-extsvc-internal"/>
 	<classpathentry kind="src" path="/oscm-domainobjects"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="src" path="/oscm-kafka"/>
+	<classpathentry kind="lib" path="/libraries/junit/javalib/junit-4.5.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
