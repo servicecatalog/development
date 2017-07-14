@@ -11,17 +11,14 @@ package org.oscm.kafka.service;
 import java.util.Arrays;
 import java.util.Properties;
 
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.log4j.Logger;
+import org.oscm.internal.intf.ConfigurationService;
 import org.oscm.internal.intf.SubscriptionService;
-import org.oscm.internal.types.exception.SaaSSystemException;
+import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.vo.VOInstanceInfo;
 import org.oscm.kafka.records.ReleaseRecord;
 
@@ -36,19 +33,26 @@ public class Consumer implements Runnable {
     private static final Logger LOGGER = Logger.getLogger(Consumer.class);
 
     private final static String STRING_DESERIALIZER_CLASS = "org.apache.kafka.common.serialization.StringDeserializer";
+    private final static String TOPIC = "releases";
+    private final static String CONSUMER_GROUP = "oscm-group";
     private KafkaConsumer<String, String> consumer;
     private SubscriptionService subscriptionService;
 
     public Consumer() {
+        ConfigurationService configService = ServiceLocator
+                .findService(ConfigurationService.class);
         Properties props = new Properties();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
+                configService.getVOConfigurationSetting(
+                        ConfigurationKey.KAFKA_BOOTSTRAP_SERVERS, "global")
+                        .getValue());
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
                 STRING_DESERIALIZER_CLASS);
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, "oscm-group");
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, CONSUMER_GROUP);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
                 STRING_DESERIALIZER_CLASS);
         consumer = new KafkaConsumer<String, String>(props);
-        consumer.subscribe(Arrays.asList("releases"));
+        consumer.subscribe(Arrays.asList(TOPIC));
         LOGGER.debug("Kafka consumer subscribed to topic.");
     }
 
@@ -56,7 +60,8 @@ public class Consumer implements Runnable {
     public void run() {
         LOGGER.debug("Kafka consumer started.");
         try {
-            subscriptionService = findService(SubscriptionService.class);
+            subscriptionService = ServiceLocator
+                    .findService(SubscriptionService.class);
         } catch (Exception e) {
             e.printStackTrace();
             return;
@@ -86,7 +91,7 @@ public class Consumer implements Runnable {
         ReleaseRecord release = ReleaseRecord
                 .fromJson(record.value().toString());
         if (release == null) {
-            LOGGER.warn("Malformed JSON: "+ record.value());
+            LOGGER.warn("Malformed JSON: " + record.value());
             return;
         }
 
@@ -168,16 +173,4 @@ public class Consumer implements Runnable {
             LOGGER.info("Consumer cannot login.");
         }
     }
-
-    <T> T findService(final Class<T> clazz) {
-
-        try {
-            Context context = new InitialContext();
-            T service = clazz.cast(context.lookup(clazz.getName()));
-            return service;
-        } catch (NamingException e) {
-            throw new SaaSSystemException("Service lookup failed!", e);
-        }
-    }
-
 }

@@ -361,7 +361,11 @@ public enum ConfigurationKey {
            "The ID is used for verifying that the response to an authentication request ",
            "is returned by the correct IdP." })
     @Example("IDP_ID")
-    SSO_IDP_SAML_ASSERTION_ISSUER_ID(false, "default", "string", false);
+    SSO_IDP_SAML_ASSERTION_ISSUER_ID(false, "default", "string", false),
+
+    @Doc({ "The Kafka configuration property bootstrap.servers." })
+    @Example("localhost:9092")
+    KAFKA_BOOTSTRAP_SERVERS(false, "localhost:9092", "string");
 
     // ///////////////////////////////////////////////////////////////////////////////////
 
