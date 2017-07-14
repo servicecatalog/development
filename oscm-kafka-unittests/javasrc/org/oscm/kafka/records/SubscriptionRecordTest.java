@@ -6,7 +6,7 @@
  *                                                                              
  *******************************************************************************/
 
-package org.oscm.applicationservice.data;
+package org.oscm.kafka.records;
 
 import static org.junit.Assert.*;
 
@@ -29,7 +29,7 @@ import com.google.gson.JsonObject;
  * @author stavreva
  *
  */
-public class SubscriptionMessageTest {
+public class SubscriptionRecordTest {
 
     private final UUID ID = UUID.randomUUID();
     private final String TEMPLATE = "template";
@@ -59,7 +59,7 @@ public class SubscriptionMessageTest {
         Subscription sub = getSubscriptionMessage();
 
         // when
-        SubscriptionMessage subscription = new SubscriptionMessage(sub);
+        SubscriptionRecord subscription = new SubscriptionRecord(sub);
         String json = subscription.toJson();
         System.out.println(json);
 

@@ -19,6 +19,7 @@ import javax.ejb.Local;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
+import javax.inject.Inject;
 import javax.persistence.TypedQuery;
 import javax.wsdl.WSDLException;
 import javax.xml.parsers.ParserConfigurationException;
@@ -27,7 +28,6 @@ import javax.xml.ws.WebServiceException;
 import org.oscm.applicationservice.adapter.OperationServiceAdapterFactory;
 import org.oscm.applicationservice.adapter.ProvisioningServiceAdapter;
 import org.oscm.applicationservice.adapter.ProvisioningServiceAdapterFactory;
-import org.oscm.applicationservice.data.SubscriptionMessage;
 import org.oscm.applicationservice.filter.AttributeFilter;
 import org.oscm.applicationservice.filter.ParameterFilter;
 import org.oscm.applicationservice.local.ApplicationServiceLocal;
@@ -49,6 +49,10 @@ import org.oscm.internal.types.exception.TechnicalServiceNotAliveException;
 import org.oscm.internal.types.exception.TechnicalServiceOperationException;
 import org.oscm.internal.types.exception.UnsupportedOperationException;
 import org.oscm.internal.types.exception.ValidationException;
+import org.oscm.kafka.records.Operation;
+import org.oscm.kafka.records.SubscriptionRecord;
+import org.oscm.kafka.result.PublishingResult;
+import org.oscm.kafka.service.Producer;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.operation.data.OperationParameter;
@@ -77,6 +81,7 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
             .getLogger(ApplicationServiceBean.class);
 
     private static final int RETURN_CODE_OK = 0;
+    private static final int RETURN_CODE_FAILURE = 1;
 
     private static final String ERROR_WS_CALL = "Failure while calling webservice.";
 
@@ -90,6 +95,9 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
 
     @EJB(beanInterface = DataService.class)
     DataService ds;
+
+    @Inject
+    Producer kafkaProducer;
 
     @Override
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
@@ -988,9 +996,11 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
             throws TechnicalServiceNotAliveException {
         if (isEventProvisioning(
                 subscription.getProduct().getTechnicalProduct())) {
-            // TODO send to kafka
-            System.out.println(getSubscriptionMessage(subscription).toJson());
-            return getNotYetSupportedResult();
+            PublishingResult publishingResult = kafkaProducer.publish(subscription, Operation.UPDATE);
+            BaseResult baseResult = new BaseResult();
+            baseResult.setRc(publishingResult.isSuccess() ? RETURN_CODE_OK : RETURN_CODE_FAILURE);
+            //TODO baseResult.setDesc("");
+            return baseResult;
         } else {
             return getPort(subscription).asyncCreateInstance(
                     toInstanceRequest(subscription), getCurrentUser());
@@ -1081,9 +1091,11 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
 
         if (isEventProvisioning(
                 subscription.getProduct().getTechnicalProduct())) {
-            // TODO send to kafka??
-            System.out.println(getSubscriptionMessage(subscription).toJson());            
-            return getNotYetSupportedResult();
+            PublishingResult publishingResult = kafkaProducer.publish(subscription, Operation.DELETE);
+            BaseResult baseResult = new BaseResult();
+            baseResult.setRc(publishingResult.isSuccess() ? RETURN_CODE_OK : RETURN_CODE_FAILURE);
+            //TODO baseResult.setDesc("");
+            return baseResult;
         } else {
             return getPort(subscription).deleteInstance(instanceId,
                     organizationId, subscriptionId, getCurrentUser());
@@ -1097,8 +1109,9 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
         return result;
     }
     
-    private SubscriptionMessage getSubscriptionMessage(Subscription subscription) {
-        return new SubscriptionMessage(subscription);
+    private SubscriptionRecord getSubscriptionMessage(Subscription subscription) {
+        //TODO this method should be deleted after everything implemented
+        return new SubscriptionRecord(subscription, Operation.UPDATE);
     }
 
 }

@@ -6,7 +6,7 @@
  *                                                                              
  *******************************************************************************/
 
-package org.oscm.applicationservice.data;
+package org.oscm.kafka.records;
 
 import java.util.HashMap;
 import java.util.List;
@@ -26,7 +26,7 @@ import com.google.gson.annotations.SerializedName;
  * @author stavreva
  *
  */
-public class SubscriptionMessage {
+public class SubscriptionRecord {
 
     private static final String TEMPLATE_PREFIX = "template.";
     private static final String TARGET = "target";
@@ -34,12 +34,14 @@ public class SubscriptionMessage {
     private static final String LABELS_PREFIX = "labels.";
     private static final String PARAMETERS_PREFIX = "parameters.";
 
+    @SerializedName("version")
+    int version;
     @SerializedName("id")
     UUID id;
     @SerializedName("etag")
     UUID etag;
     @SerializedName("operation")
-    String operation;
+    Operation operation;
     @SerializedName("namespace")
     String namespace;
     @SerializedName("template")
@@ -51,18 +53,20 @@ public class SubscriptionMessage {
     @SerializedName("parameters")
     Map<String, String> parameters = new HashMap<>();
 
-    public SubscriptionMessage(Subscription subscription) {
+    public SubscriptionRecord(Subscription subscription, Operation operation) {
+        this.version = 0;
         this.id = subscription.getUuid();
         this.etag = UUID.randomUUID();
+        this.operation = operation;
         ParameterSet paramSet = subscription.getParameterSet();
         List<Parameter> params = paramSet.getParameters();
 
-        this.operation = getOperation(subscription).name();
-        
-        if (Operation.DEL.name().equals(this.operation)) {
+//        this.operation = getOperation(subscription);
+//
+        if (Operation.DELETE.equals(this.operation)) {
             return;
         }
-        
+
         for (Parameter param : params) {
             ParameterDefinition paramDef = param.getParameterDefinition();
             String paramId = paramDef.getParameterId();
@@ -86,21 +90,27 @@ public class SubscriptionMessage {
     }
 
     Operation getOperation(Subscription subscription) {
-        if (SubscriptionStatus.DEACTIVATED.equals(subscription.getStatus())) {
-            return Operation.DEL;
-        }
-        if (SubscriptionStatus.PENDING.equals(subscription.getStatus())) {
-            return Operation.NEW;
-        }         
-        if (SubscriptionStatus.PENDING_UPD
-                .equals(subscription.getStatus())) {
-            return Operation.UPD;
-        }
-        return null;
-    }
 
-    public enum Operation {
-        NEW, UPD, DEL
+        SubscriptionStatus status = subscription.getStatus();
+        Operation operation = null;
+        switch (status) {
+        case DEACTIVATED:
+        case EXPIRED:
+        case SUSPENDED:
+        case SUSPENDED_UPD:
+            operation = Operation.DELETE;
+            break;
+        case PENDING:
+        case PENDING_UPD:
+            operation = Operation.UPDATE;
+            break;
+        //TODO
+        case ACTIVE:
+        case INVALID:
+        default:
+            break;
+        }
+        return operation;
     }
 
     public String toJson() {

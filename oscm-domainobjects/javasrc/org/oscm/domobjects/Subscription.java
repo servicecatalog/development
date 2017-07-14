@@ -78,6 +78,7 @@ import org.oscm.types.exceptions.UserNotAssignedException;
         @NamedQuery(name = "Subscription.hasSubscriptionsBasedOnOnBehalfServicesForTp", query = "SELECT COUNT(su) FROM Subscription su, TechnicalProduct tp, Product p WHERE tp.organizationKey=:tpOrgKey and tp.dataContainer.allowingOnBehalfActing=true and su.dataContainer.status=org.oscm.internal.types.enumtypes.SubscriptionStatus.ACTIVE and su.product.key=p.key and p.technicalProduct.key=tp.key)"),
         @NamedQuery(name = "Subscription.findByBusinessKey", query = "select obj from Subscription obj where obj.dataContainer.subscriptionId=:subscriptionId and obj.organizationKey=:organizationKey"),
         @NamedQuery(name = "Subscription.getByStatus", query = "select obj from Subscription obj where obj.dataContainer.status = :status"),
+        @NamedQuery(name = "Subscription.getByUUID", query = "select obj from Subscription obj where obj.uuid = :uuid"),
         @NamedQuery(name = "Subscription.getForProduct", query = "SELECT s FROM Subscription s WHERE s.dataContainer.status IN (:status)"
                 + " AND (s.product.template = :product OR s.product.template.template = :product)"),
         @NamedQuery(name = "Subscription.getByInstanceIdOfTechProd", query = "select s from Subscription s, Product p, TechnicalProduct tp"

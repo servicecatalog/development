@@ -6,20 +6,24 @@
  *                                                                              
  *******************************************************************************/
 
-package org.oscm.applicationservice.data;
+package org.oscm.kafka.records;
 
 import java.util.Map;
 import java.util.UUID;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.annotations.SerializedName;
 
 /**
  * @author stavreva
  *
  */
-public class ReleaseMessage {
+public class ReleaseRecord {
+    
 
+    @SerializedName("version")
+    private int version;
     @SerializedName("id")
     private UUID id;
     @SerializedName("etag")
@@ -31,7 +35,7 @@ public class ReleaseMessage {
     @SerializedName("instance")
     private UUID instance;
     @SerializedName("services")
-    private Map<String, String> services;   
+    private Map<String, String> services;
 
     public UUID getId() {
         return id;
@@ -84,18 +88,51 @@ public class ReleaseMessage {
     public void putService(String key, String value) {
         this.services.put(key, value);
     }
-    
-    public static ReleaseMessage fromJson(String json) {
+
+    public static ReleaseRecord fromJson(String json) {
         Gson gson = new Gson();
-        return gson.fromJson(json, ReleaseMessage.class);
+        try {
+            return gson.fromJson(json, ReleaseRecord.class);
+        } catch (JsonSyntaxException e) {
+            //log error
+            return null;
+        }
+
     }
+    
+   
 
     public enum Status {
-        PENDING, DEPLOYED, DELETED, FAILED
+        @SerializedName(SerializedValues.OPTION_CREATNG)
+        CREATING, //
+
+        @SerializedName(SerializedValues.OPTION_UPDATING)
+        UPDATING, //
+
+        @SerializedName(SerializedValues.OPTION_DELETING)
+        DELETING, //
+
+        @SerializedName(SerializedValues.OPTION_PENDING)
+        PENDING, //
+
+        @SerializedName(SerializedValues.OPTION_DEPLOYED)
+        DEPLOYED, //
+
+        @SerializedName(SerializedValues.OPTION_DELETED)
+        DELETED, //
+
+        @SerializedName(SerializedValues.OPTION_FAILED)
+        FAILED; //
+        
+        public static class SerializedValues {
+            public static final String OPTION_CREATNG = "creating";
+            public static final String OPTION_UPDATING = "updating";
+            public static final String OPTION_DELETING = "deleting";
+            public static final String OPTION_PENDING = "pending";
+            public static final String OPTION_DEPLOYED = "deployed";
+            public static final String OPTION_DELETED = "deleted";            
+            public static final String OPTION_FAILED = "failed";
+        }
     }
 
-    public enum Operation {
-        NEW, UPD, DEL
-    }
-    
 }
