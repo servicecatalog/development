@@ -15,6 +15,5 @@
 	<classpathentry kind="src" path="/oscm-extsvc-internal"/>
 	<classpathentry kind="src" path="/oscm-domainobjects"/>
 	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/gf-client.jar"/>
-	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/javax.enterprise.concurrent-api.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
