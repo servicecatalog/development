@@ -26,6 +26,7 @@ import org.oscm.saml2.api.model.protocol.AuthnRequestType;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
 import org.oscm.ui.common.Constants;
 import org.oscm.ui.common.JSFUtils;
+import org.oscm.ui.delegates.ServiceLocator;
 import org.oscm.ui.filter.AuthenticationSettings;
 
 /**
@@ -71,7 +72,7 @@ public class AuthenticationHandler {
 
     private TenantConfigurationService getTenantConfigService() throws NamingException {
         if (tenantConfigurationService == null) {
-            tenantConfigurationService = (TenantConfigurationService) new InitialContext().lookup("java:global/oscm/oscm-tenantmgmt/TenantConfigurationBean!org.oscm.internal.intf.TenantConfigurationService");
+            tenantConfigurationService = new ServiceLocator().findService(TenantConfigurationService.class);
         }
         return tenantConfigurationService;
     }
