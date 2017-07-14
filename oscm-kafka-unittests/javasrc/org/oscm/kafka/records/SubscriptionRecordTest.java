@@ -59,7 +59,7 @@ public class SubscriptionRecordTest {
         Subscription sub = getSubscriptionMessage();
 
         // when
-        SubscriptionRecord subscription = new SubscriptionRecord(sub);
+        SubscriptionRecord subscription = new SubscriptionRecord(sub, Operation.UPDATE);
         String json = subscription.toJson();
         System.out.println(json);
 
