@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.oscm.tenant.assembler;
 
+import java.util.Collection;
+
 import org.oscm.domobjects.Tenant;
 import org.oscm.domobjects.TenantSetting;
 import org.oscm.internal.types.exception.ConcurrentModificationException;
@@ -26,8 +28,11 @@ public class TenantAssembler extends BaseAssembler {
         voTenant.setTenantId(tenant.getDataContainer().getTenantId());
         voTenant.setDescription(tenant.getDataContainer().getDescription());
         voTenant.setName(tenant.getDataContainer().getName());
-        for(TenantSetting tenantSetting : tenant.getTenantSettings()) {
-            voTenant.getTenantSettings().put(tenantSetting.getName(), tenantSetting.getValue());
+        Collection<TenantSetting> tenantSettings = tenant.getTenantSettings();
+        if (tenantSettings != null) {
+            for(TenantSetting tenantSetting : tenantSettings) {
+                voTenant.getTenantSettings().put(tenantSetting.getName(), tenantSetting.getValue());
+            }
         }
         return voTenant;
     }
