@@ -539,7 +539,7 @@ public class OpenStackController extends ProvisioningValidator
     }
 
     @Override
-    public Integer getServersNumber(String instanceId,
+    public int getServersNumber(String instanceId,
         String subscriptionId, String organizationId)
         throws APPlatformException {
 
