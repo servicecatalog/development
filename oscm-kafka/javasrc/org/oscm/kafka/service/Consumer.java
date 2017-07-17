@@ -16,11 +16,15 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.log4j.Logger;
+import org.oscm.domobjects.Subscription;
 import org.oscm.internal.intf.ConfigurationService;
 import org.oscm.internal.intf.SubscriptionService;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
+import org.oscm.internal.types.enumtypes.SubscriptionStatus;
 import org.oscm.internal.vo.VOInstanceInfo;
+import org.oscm.internal.vo.VOSubscription;
 import org.oscm.kafka.records.ReleaseRecord;
+import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
 
 import com.sun.enterprise.security.ee.auth.login.ProgrammaticLogin;
 
@@ -123,10 +127,20 @@ public class Consumer implements Runnable {
         instanceInfo.setInstanceId(release.getInstance().toString());
         instanceInfo.setAccessInfo(release.getServices().get("endpoint"));
 
+        VOSubscription subscription = subscriptionService
+                .getSubscription(release.getId());
         try {
             login();
-            subscriptionService.completeAsyncSubscription(release.getId(),
-                    instanceInfo);
+            if (SubscriptionStatus.PENDING.equals(subscription.getStatus()))
+                subscriptionService.completeAsyncSubscription(release.getId(),
+                        instanceInfo);
+            else if (SubscriptionStatus.PENDING_UPD
+                    .equals(subscription.getStatus())) {
+                subscriptionService.completeAsyncModifySubscription(
+                        release.getId(), instanceInfo);
+            } else {
+                // TODO error
+            }
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -139,7 +153,18 @@ public class Consumer implements Runnable {
     void abortSubscription(ReleaseRecord release) {
         try {
             login();
-            subscriptionService.abortAsyncSubscription(release.getId());
+            VOSubscription subscription = subscriptionService
+                    .getSubscription(release.getId());
+
+            if (SubscriptionStatus.PENDING.equals(subscription.getStatus())) {
+                subscriptionService.abortAsyncSubscription(release.getId());
+            }  else if (SubscriptionStatus.PENDING_UPD
+                    .equals(subscription.getStatus())) {
+                //TODO get reason
+                subscriptionService.abortAsyncModifySubscription(release.getId(), "some reason");
+            } else {
+                //TODO error
+            }
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

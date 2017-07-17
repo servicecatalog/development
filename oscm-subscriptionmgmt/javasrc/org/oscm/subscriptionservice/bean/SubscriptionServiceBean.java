@@ -4308,14 +4308,14 @@ public class SubscriptionServiceBean
 
         ArgumentValidator.notNull("subscriptionUUID", subscriptionUUID);
 
-        Subscription subscription = getSubscriptionByUUID(subscriptionUUID);
+        VOSubscription subscription = getSubscription(subscriptionUUID);
         if (subscription == null) {
             throw new ObjectNotFoundException("Subscription with UUID "
                     + subscriptionUUID + " not found!");
         }
 
         completeAsyncSubscription(subscription.getSubscriptionId(),
-                subscription.getOrganization().getOrganizationId(), null,
+                subscription.getOrganizationId(), null,
                 false);
 
     }
@@ -4443,10 +4443,7 @@ public class SubscriptionServiceBean
         ArgumentValidator.notNull("subscriptionUUID", subscriptionUUID);
         ArgumentValidator.notNull("instance", instanceInfo);
 
-        // get subscription
-        Subscription subscription = getSubscriptionByUUID(subscriptionUUID);
-        // subscription = (Subscription) dataManager
-        // .getReference(Subscription.class, subscription.getKey());
+        VOSubscription subscription = getSubscription(subscriptionUUID);
 
         if (subscription == null) {
             throw new ObjectNotFoundException("Subscription with UUID "
@@ -4454,18 +4451,14 @@ public class SubscriptionServiceBean
         }
 
         completeAsynProvisioning(instanceInfo, subscription.getSubscriptionId(),
-                subscription.getOrganization().getOrganizationId(), false);
+                subscription.getOrganizationId(), false);
     }
 
-    Subscription getSubscriptionByUUID(UUID uuid) {
-        Query query = dataManager.createNamedQuery("Subscription.getByUUID");
-        query.setParameter("uuid", uuid);
-        List<Subscription> subscriptions = ParameterizedTypes
-                .list(query.getResultList(), Subscription.class);
-        if (subscriptions == null || subscriptions.isEmpty()) {
-            return null;
-        }
-        return subscriptions.get(0);
+    public VOSubscription getSubscription(UUID uuid) {
+        Subscription subscription = getSubscriptionDao().getSubscription(uuid);
+        VOSubscription voSubscription = SubscriptionAssembler.toVOSubscription(
+                subscription, null, PerformanceHint.ONLY_FIELDS_FOR_LISTINGS);
+        return voSubscription;
     }
 
     /**
@@ -4556,21 +4549,21 @@ public class SubscriptionServiceBean
 
         ArgumentValidator.notNull("subscriptionUUID", subscriptionUUID);
 
-        Subscription subscription = getSubscriptionByUUID(subscriptionUUID);
+        VOSubscription subscription = getSubscription(subscriptionUUID);
         if (subscription == null) {
             throw new ObjectNotFoundException("Subscription with UUID "
                     + subscriptionUUID + " not found!");
         }
 
-        List <VOLocalizedText> progressList = new ArrayList<>();
+        List<VOLocalizedText> progressList = new ArrayList<>();
         VOLocalizedText text = new VOLocalizedText();
         text.setLocale(Locale.ENGLISH.toString());
         text.setText(progress);
         progressList.add(text);
-        
+
         updateAsyncProgress(subscription.getSubscriptionId(),
-                subscription.getOrganization().getOrganizationId(), progressList,
-                false);
+                subscription.getOrganizationId(),
+                progressList, false);
 
     }
 
@@ -5159,6 +5152,35 @@ public class SubscriptionServiceBean
         ArgumentValidator.notNull("organizationId", organizationId);
         ArgumentValidator.notNull("instance", instance);
 
+        completeAsyncModification(subscriptionId, organizationId, instance,
+                true);
+    }
+
+    @Override
+    public void completeAsyncModifySubscription(UUID subscriptionUUID,
+            VOInstanceInfo instance) throws ObjectNotFoundException,
+            SubscriptionStateException, TechnicalServiceNotAliveException,
+            TechnicalServiceOperationException,
+            OrganizationAuthoritiesException, OperationNotPermittedException {
+        ArgumentValidator.notNull("subscriptionUUID", subscriptionUUID);
+        ArgumentValidator.notNull("instance", instance);
+
+        VOSubscription subscription = getSubscription(subscriptionUUID);
+
+        if (subscription == null) {
+            throw new ObjectNotFoundException("Subscription with UUID "
+                    + subscriptionUUID + " not found!");
+        }
+
+        completeAsyncModification(subscription.getSubscriptionId(),
+                subscription.getOrganizationId(), instance,
+                false);
+    }
+
+    void completeAsyncModification(String subscriptionId, String organizationId,
+            VOInstanceInfo instance, boolean validateOrganization)
+            throws ObjectNotFoundException, SubscriptionStateException,
+            TechnicalServiceOperationException, OperationNotPermittedException {
         Subscription subscription = modUpgBean.findSubscriptionForAsyncCallBack(
                 subscriptionId, organizationId);
 
@@ -5166,7 +5188,9 @@ public class SubscriptionServiceBean
 
         updateInstanceInfoForCompletion(subscription, instance);
 
-        manageBean.validateTechnoloyProvider(subscription);
+        if (validateOrganization) {
+            manageBean.validateTechnoloyProvider(subscription);
+        }
 
         modUpgBean.setStatusForModifyComplete(subscription);
 
@@ -5229,7 +5253,39 @@ public class SubscriptionServiceBean
         stateValidator.checkAbortAllowedForModifying(subscription);
 
         abortAsyncUpgradeOrModifySubscription(subscription, organizationId,
-                reason);
+                reason, true);
+    }
+
+    @Override
+    public void abortAsyncModifySubscription(UUID subscriptionUUID,
+            String reason)
+            throws ObjectNotFoundException, SubscriptionStateException,
+            OrganizationAuthoritiesException, OperationNotPermittedException {
+        ArgumentValidator.notNull("subscriptionUUID", subscriptionUUID);
+
+        VOSubscription subscription = getSubscription(subscriptionUUID);
+
+        if (subscription == null) {
+            throw new ObjectNotFoundException("Subscription with UUID "
+                    + subscriptionUUID + " not found!");
+        }
+
+        Subscription subscriptionModified = modUpgBean
+                .findSubscriptionForAsyncCallBack(
+                        subscription.getSubscriptionId(),
+                        subscription.getOrganizationId());
+
+        stateValidator.checkAbortAllowedForModifying(subscriptionModified);
+
+        List<VOLocalizedText> localizedText = new ArrayList<>();
+        VOLocalizedText text = new VOLocalizedText();
+        text.setLocale(Locale.ENGLISH.getLanguage());
+        text.setText(reason);
+        localizedText.add(text);
+
+        abortAsyncUpgradeOrModifySubscription(subscriptionModified,
+                subscription.getOrganizationId(),
+                localizedText, false);
     }
 
     @Override
@@ -5292,13 +5348,17 @@ public class SubscriptionServiceBean
         stateValidator.checkAbortAllowedForUpgrading(subscription);
 
         abortAsyncUpgradeOrModifySubscription(subscription, organizationId,
-                reason);
+                reason, true);
     }
 
     void abortAsyncUpgradeOrModifySubscription(Subscription subscription,
-            String organizationId, List<VOLocalizedText> reason)
+            String organizationId, List<VOLocalizedText> reason,
+            boolean validateOrganization)
             throws OperationNotPermittedException {
-        manageBean.validateTechnoloyProvider(subscription);
+
+        if (validateOrganization) {
+            manageBean.validateTechnoloyProvider(subscription);
+        }
 
         final SubscriptionStatus currentState = subscription.getStatus();
 

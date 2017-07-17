@@ -34,6 +34,9 @@ import org.oscm.applicationservice.local.ApplicationServiceLocal;
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.ModifiedUda;
+import org.oscm.domobjects.Parameter;
+import org.oscm.domobjects.ParameterDefinition;
+import org.oscm.domobjects.ParameterSet;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.Product;
 import org.oscm.domobjects.RoleDefinition;
@@ -996,10 +999,12 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
             throws TechnicalServiceNotAliveException {
         if (isEventProvisioning(
                 subscription.getProduct().getTechnicalProduct())) {
-            PublishingResult publishingResult = kafkaProducer.publish(subscription, Operation.UPDATE);
+            PublishingResult publishingResult = kafkaProducer
+                    .publish(subscription, Operation.UPDATE);
             BaseResult baseResult = new BaseResult();
-            baseResult.setRc(publishingResult.isSuccess() ? RETURN_CODE_OK : RETURN_CODE_FAILURE);
-            //TODO baseResult.setDesc("");
+            baseResult.setRc(publishingResult.isSuccess() ? RETURN_CODE_OK
+                    : RETURN_CODE_FAILURE);
+            // TODO baseResult.setDesc("");
             return baseResult;
         } else {
             return getPort(subscription).asyncCreateInstance(
@@ -1013,9 +1018,17 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
             throws TechnicalServiceNotAliveException {
         if (isEventProvisioning(
                 subscription.getProduct().getTechnicalProduct())) {
-            // TODO send to kafka
-            //System.out.println(getSubscriptionMessage().getJson(subscription));            
-            return getNotYetSupportedResult();
+
+            Subscription subscriptionModified = getModifiedSubscription(
+                    subscription, serviceParameterList);
+            
+            PublishingResult publishingResult = kafkaProducer
+                    .publish(subscriptionModified, Operation.UPDATE);
+            BaseResult baseResult = new BaseResult();
+            baseResult.setRc(publishingResult.isSuccess() ? RETURN_CODE_OK
+                    : RETURN_CODE_FAILURE);
+            // TODO baseResult.setDesc("");
+            return baseResult;
         } else {
             return getPort(subscription).asyncModifySubscription(
                     subscription.getProductInstanceId(),
@@ -1025,6 +1038,40 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
         }
     }
 
+    /**
+     * @param subscription
+     * @param serviceParameterList
+     * @return
+     */
+    Subscription getModifiedSubscription(Subscription subscription,
+            List<ServiceParameter> serviceParameterList) {
+        List<Parameter> modifiedParameters = new ArrayList<>();            
+        ParameterSet paramSet = subscription.getParameterSet();
+        paramSet.getParameters().forEach(parameter -> {
+            serviceParameterList.forEach(serviceParameter -> {
+                if (parameter.getParameterDefinition().getParameterId()
+                        .equals(serviceParameter.getParameterId())) {
+                    Parameter modifiedParameter = new Parameter();
+                    ParameterDefinition paramDef = new ParameterDefinition();
+                    paramDef.setParameterId(serviceParameter.getParameterId());
+                    modifiedParameter.setParameterDefinition(paramDef);
+                    modifiedParameter.setValue(serviceParameter.getValue());
+                    modifiedParameters.add(modifiedParameter);
+                }
+            });
+        });
+        
+        //put everything for the json: UUID and parameters (id and value)
+        Subscription subscriptionModified = new Subscription();
+        Product productModified = new Product();
+        ParameterSet parameterSetModified = new ParameterSet();
+        subscriptionModified.setUuid(subscription.getUuid());
+        parameterSetModified.setParameters(modifiedParameters);
+        productModified.setParameterSet(parameterSetModified);
+        subscriptionModified.setProduct(productModified);
+        return subscriptionModified;
+    }
+
     BaseResult sendAsyncUpgradeInstance(Subscription subscription,
             List<ServiceParameter> serviceParameterList,
             List<ServiceAttribute> serviceAttributeList)
@@ -1032,7 +1079,7 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
         if (isEventProvisioning(
                 subscription.getProduct().getTechnicalProduct())) {
             // TODO send to kafka
-            //System.out.println(getSubscriptionMessage().getJson(subscription));            
+            // System.out.println(getSubscriptionMessage().getJson(subscription));
             return getNotYetSupportedResult();
         } else {
             return getPort(subscription).asyncUpgradeSubscription(
@@ -1058,23 +1105,25 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
         }
     }
 
-    BaseResult sendActivateInstance(Subscription subscription) throws TechnicalServiceNotAliveException {
+    BaseResult sendActivateInstance(Subscription subscription)
+            throws TechnicalServiceNotAliveException {
         if (isEventProvisioning(
                 subscription.getProduct().getTechnicalProduct())) {
             // TODO send to kafka??
-            //System.out.println(getSubscriptionMessage().getJson(subscription));             
+            // System.out.println(getSubscriptionMessage().getJson(subscription));
             return getNotYetSupportedResult();
         } else {
             return getPort(subscription).activateInstance(
                     subscription.getProductInstanceId(), getCurrentUser());
         }
     }
-    
-    BaseResult sendDeactivateInstance(Subscription subscription) throws TechnicalServiceNotAliveException {
+
+    BaseResult sendDeactivateInstance(Subscription subscription)
+            throws TechnicalServiceNotAliveException {
         if (isEventProvisioning(
                 subscription.getProduct().getTechnicalProduct())) {
             // TODO send to kafka??
-            System.out.println(getSubscriptionMessage(subscription).toJson());            
+            System.out.println(getSubscriptionMessage(subscription).toJson());
             return getNotYetSupportedResult();
         } else {
             return getPort(subscription).deactivateInstance(
@@ -1082,8 +1131,8 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
         }
     }
 
-
-    BaseResult sendDeleteInstance(Subscription subscription) throws TechnicalServiceNotAliveException {
+    BaseResult sendDeleteInstance(Subscription subscription)
+            throws TechnicalServiceNotAliveException {
         String instanceId = subscription.getProductInstanceId();
         String organizationId = subscription.getOrganization()
                 .getOrganizationId();
@@ -1091,10 +1140,12 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
 
         if (isEventProvisioning(
                 subscription.getProduct().getTechnicalProduct())) {
-            PublishingResult publishingResult = kafkaProducer.publish(subscription, Operation.DELETE);
+            PublishingResult publishingResult = kafkaProducer
+                    .publish(subscription, Operation.DELETE);
             BaseResult baseResult = new BaseResult();
-            baseResult.setRc(publishingResult.isSuccess() ? RETURN_CODE_OK : RETURN_CODE_FAILURE);
-            //TODO baseResult.setDesc("");
+            baseResult.setRc(publishingResult.isSuccess() ? RETURN_CODE_OK
+                    : RETURN_CODE_FAILURE);
+            // TODO baseResult.setDesc("");
             return baseResult;
         } else {
             return getPort(subscription).deleteInstance(instanceId,
@@ -1108,9 +1159,10 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
         result.setRc(1);
         return result;
     }
-    
-    private SubscriptionRecord getSubscriptionMessage(Subscription subscription) {
-        //TODO this method should be deleted after everything implemented
+
+    private SubscriptionRecord getSubscriptionMessage(
+            Subscription subscription) {
+        // TODO this method should be deleted after everything implemented
         return new SubscriptionRecord(subscription, Operation.UPDATE);
     }
 

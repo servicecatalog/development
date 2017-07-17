@@ -2852,4 +2852,24 @@ public class MockService implements IdentityService, SubscriptionService,
             ValidationException {
     }
 
+    @Override
+    public void completeAsyncModifySubscription(UUID subscriptionUUID,
+            VOInstanceInfo instance) throws ObjectNotFoundException,
+            SubscriptionStateException, TechnicalServiceNotAliveException,
+            TechnicalServiceOperationException,
+            OrganizationAuthoritiesException, OperationNotPermittedException {
+    }
+
+    @Override
+    public void abortAsyncModifySubscription(UUID subscriptionUUID,
+            String reason)
+            throws ObjectNotFoundException, SubscriptionStateException,
+            OrganizationAuthoritiesException, OperationNotPermittedException {
+    }
+
+    @Override
+    public VOSubscription getSubscription(UUID uuid) {
+        return null;
+    }
+
 }
