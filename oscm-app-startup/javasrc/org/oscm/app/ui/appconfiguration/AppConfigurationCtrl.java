@@ -15,6 +15,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
@@ -40,7 +41,8 @@ public class AppConfigurationCtrl extends BaseCtrl {
     
     @ManagedProperty(value="#{appConfigurationModel}")
     private AppConfigurationModel model;
-    
+
+    @PostConstruct
     public String getInitialize() {
 
         AppConfigurationModel model = getModel();
