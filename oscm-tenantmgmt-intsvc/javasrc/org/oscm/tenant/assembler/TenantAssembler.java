@@ -67,6 +67,7 @@ public class TenantAssembler extends BaseAssembler {
         voTenantSetting.setVersion(tenantSetting.getVersion());
         voTenantSetting.setName(tenantSetting.getDataContainer().getName());
         voTenantSetting.setValue(tenantSetting.getDataContainer().getValue());
+        voTenantSetting.setVoTenant(toVOTenant(tenantSetting.getTenant()));
         return voTenantSetting;
     }
 }

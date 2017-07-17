@@ -5,9 +5,8 @@
  *******************************************************************************/
 package org.oscm.marketplace.cache;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.ejb.ConcurrencyManagement;
 import javax.ejb.ConcurrencyManagementType;
@@ -27,6 +26,8 @@ import org.oscm.domobjects.TenantSetting;
 import org.oscm.interceptor.ExceptionMapper;
 import org.oscm.internal.intf.TenantConfigurationService;
 import org.oscm.internal.types.enumtypes.IdpSettingType;
+import org.oscm.internal.vo.VOTenantSetting;
+import org.oscm.tenant.assembler.TenantAssembler;
 
 /**
  * Created by PLGrubskiM on 2017-06-30.
@@ -42,9 +43,7 @@ public class TenantConfigurationBean implements TenantConfigurationService {
     @EJB(beanInterface = DataService.class)
     DataService dm;
 
-    Map<String, String> tenantIdToHttpMethod;
-    Map<String, String> tenantIdToIssuer;
-    Map<String, String> tenantIdToIdpUrl;
+    List<VOTenantSetting> tenantSettings;
 
     @PostConstruct
     public void init() {
@@ -54,48 +53,47 @@ public class TenantConfigurationBean implements TenantConfigurationService {
     @Schedule(minute = "*/10")
     @Lock(LockType.WRITE)
     public void refreshCache() {
-        tenantIdToHttpMethod = getHttpMethodForAllTenants();
-        tenantIdToIssuer = getIssuerForAllTenants();
-        tenantIdToIdpUrl = getIdpUrlForAllTenants();
+        tenantSettings = getAllSettings();
     }
 
     @Override
     public String getHttpMethodForTenant(String tenantId) {
-        return tenantIdToHttpMethod.get(tenantId).toString();
+        return getSettingValue(IdpSettingType.SSO_IDP_AUTHENTICATION_REQUEST_HTTP_METHOD, tenantId);
     }
 
     @Override
     public String getIssuerForTenant(String tenantId) {
-        return tenantIdToIssuer.get(tenantId).toString();
+        return getSettingValue(IdpSettingType.SSO_ISSUER_ID, tenantId);
     }
 
     @Override
     public String getIdpUrlForTenant(String tenantId) {
-        return tenantIdToIdpUrl.get(tenantId.toString());
+        return getSettingValue(IdpSettingType.SSO_IDP_URL, tenantId);
     }
 
-    private Map<String, String> getHttpMethodForAllTenants() {
-        return getSettingForEachTenant(IdpSettingType.SSO_IDP_AUTHENTICATION_REQUEST_HTTP_METHOD);
-    }
-
-    private Map<String, String> getIssuerForAllTenants() {
-        return getSettingForEachTenant(IdpSettingType.SSO_ISSUER_ID);
-    }
-
-    private Map<String, String> getIdpUrlForAllTenants() {
-        return getSettingForEachTenant(IdpSettingType.SSO_IDP_URL);
-    }
-
-    private Map<String, String> getSettingForEachTenant(IdpSettingType type) {
-        Query query = dm.createNamedQuery("TenantSetting.getSettingByNameForAllTenants",
+    private List<VOTenantSetting> getAllSettings() {
+        Query query = dm.createNamedQuery("TenantSetting.getAll",
                 TenantSetting.class);
-        query.setParameter("name", type);
         final List<TenantSetting> resultList = ParameterizedTypes.list(query.getResultList(), TenantSetting.class);
 
-        Map map = new HashMap();
-        for (TenantSetting setting : resultList) {
-            map.put(setting.getTenant().getTenantId(), setting.getValue());
+        List<VOTenantSetting> voTenantSettings = new ArrayList<>();
+
+        for (TenantSetting tenantSetting : resultList) {
+            voTenantSettings.add(TenantAssembler.toVOTenantSetting(tenantSetting));
         }
-        return map;
+
+        return voTenantSettings;
+    }
+
+    private String getSettingValue(IdpSettingType type, String tenantId) {
+        String result = null;
+
+        for (VOTenantSetting setting : tenantSettings) {
+            if (setting.getVoTenant().getTenantId().equals(tenantId)
+                    && setting.getName().equals(type)) {
+                return setting.getValue();
+            }
+        }
+        return result;
     }
 }
