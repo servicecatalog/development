@@ -3,7 +3,7 @@
  *  Copyright FUJITSU LIMITED 2017
  *
  *******************************************************************************/
-package org.oscm.tenant.bean;
+package org.oscm.marketplace.cache;
 
 import java.util.HashMap;
 import java.util.List;
@@ -12,7 +12,6 @@ import javax.annotation.PostConstruct;
 import javax.ejb.ConcurrencyManagement;
 import javax.ejb.ConcurrencyManagementType;
 import javax.ejb.EJB;
-import javax.ejb.Local;
 import javax.ejb.Lock;
 import javax.ejb.LockType;
 import javax.ejb.Remote;
@@ -28,19 +27,17 @@ import org.oscm.domobjects.TenantSetting;
 import org.oscm.interceptor.ExceptionMapper;
 import org.oscm.internal.intf.TenantConfigurationService;
 import org.oscm.internal.types.enumtypes.IdpSettingType;
-import org.oscm.tenant.local.TenantConfigurationServiceLocal;
 
 /**
  * Created by PLGrubskiM on 2017-06-30.
  */
 @Singleton
 @Startup
-@Local(TenantConfigurationServiceLocal.class)
 @Remote(TenantConfigurationService.class)
 @Interceptors({ExceptionMapper.class})
 @ConcurrencyManagement(ConcurrencyManagementType.CONTAINER)
 @Lock(LockType.READ)
-public class TenantConfigurationBean implements TenantConfigurationServiceLocal, TenantConfigurationService {
+public class TenantConfigurationBean implements TenantConfigurationService {
 
     @EJB(beanInterface = DataService.class)
     DataService dm;

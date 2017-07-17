@@ -9,7 +9,6 @@
 package org.oscm.ui.dialog.common.saml2;
 
 import java.net.URL;
-import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
