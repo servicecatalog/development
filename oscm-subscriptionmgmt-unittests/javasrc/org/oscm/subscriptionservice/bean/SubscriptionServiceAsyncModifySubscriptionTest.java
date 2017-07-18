@@ -219,7 +219,7 @@ public class SubscriptionServiceAsyncModifySubscriptionTest extends
         verify(bean.modUpgBean, times(1)).findSubscriptionForAsyncCallBack(
                 eq(SUBSCRIPTION_ID), eq(ORGANIZATION_ID));
         verify(bean, times(1)).abortAsyncUpgradeOrModifySubscription(
-                eq(subscription), eq(ORGANIZATION_ID), eq(reason));
+                eq(subscription), eq(ORGANIZATION_ID), eq(reason), eq(true));
     }
 
     @Test
@@ -231,7 +231,7 @@ public class SubscriptionServiceAsyncModifySubscriptionTest extends
                 reason);
         // then
         verify(bean, times(1)).abortAsyncUpgradeOrModifySubscription(
-                eq(subscription), eq(ORGANIZATION_ID), eq(reason));
+                eq(subscription), eq(ORGANIZATION_ID), eq(reason), eq(true));
         assertEquals(SubscriptionStatus.ACTIVE, subscription.getStatus());
     }
 
@@ -262,7 +262,7 @@ public class SubscriptionServiceAsyncModifySubscriptionTest extends
                 reason);
         // then
         verify(bean, times(1)).abortAsyncUpgradeOrModifySubscription(
-                eq(subscription), eq(ORGANIZATION_ID), eq(reason));
+                eq(subscription), eq(ORGANIZATION_ID), eq(reason), eq(true));
 
         assertEquals(SubscriptionStatus.SUSPENDED, subscription.getStatus());
     }
