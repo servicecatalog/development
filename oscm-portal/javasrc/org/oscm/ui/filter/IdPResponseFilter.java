@@ -8,21 +8,27 @@
 
 package org.oscm.ui.filter;
 
-import static org.oscm.internal.types.enumtypes.ConfigurationKey.SSO_DEFAULT_TENANT_ID;
-import static org.oscm.types.constants.Configuration.GLOBAL_CONTEXT;
-import static org.oscm.ui.common.Constants.REQ_PARAM_TENANT_ID;
-import static org.oscm.ui.common.Constants.SESSION_PARAM_SAML_LOGOUT_REQUEST;
-
 import java.io.IOException;
-
-import javax.servlet.*;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
+
 import org.oscm.internal.intf.ConfigurationService;
 import org.oscm.internal.intf.TenantService;
-import org.oscm.internal.types.exception.*;
+import org.oscm.internal.types.enumtypes.SigningAlgorithmType;
+import org.oscm.internal.types.exception.InvalidSigningAlgorithmException;
+import org.oscm.internal.types.exception.IssuerNotMatchException;
+import org.oscm.internal.types.exception.MarketplaceRemovedException;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.internal.types.exception.SaaSApplicationException;
+import org.oscm.internal.types.exception.SessionIndexNotFoundException;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.saml2.api.LogoutRequestGenerator;
@@ -35,6 +41,11 @@ import org.oscm.ui.common.Constants;
 import org.oscm.ui.common.JSFUtils;
 import org.oscm.ui.common.UiDelegate;
 import org.oscm.ui.delegates.ServiceLocator;
+
+import static org.oscm.internal.types.enumtypes.ConfigurationKey.SSO_DEFAULT_TENANT_ID;
+import static org.oscm.types.constants.Configuration.GLOBAL_CONTEXT;
+import static org.oscm.ui.common.Constants.REQ_PARAM_TENANT_ID;
+import static org.oscm.ui.common.Constants.SESSION_PARAM_SAML_LOGOUT_REQUEST;
 
 /**
  * @author farmaki
@@ -161,10 +172,11 @@ public class IdPResponseFilter extends BaseBesFilter implements Filter {
             //TODO: move issuer verification to AssertionContentVerifier if possible.
             throw new IssuerNotMatchException();
         }
+        final SigningAlgorithmType signingAlgorithm = getSigningAlgorithmType();
         String logoutRequest = logoutRequestGenerator.generateLogoutRequest(
                     samlSessionId, nameID, getLogoutURL(),
                     getKeystorePath(), getIssuer(),
-                    getKeyAlias(), getKeystorePass());
+                    getKeyAlias(), getKeystorePass(), signingAlgorithm);
         request.getSession().setAttribute(SESSION_PARAM_SAML_LOGOUT_REQUEST, logoutRequest);
     }
 
@@ -325,5 +337,16 @@ public class IdPResponseFilter extends BaseBesFilter implements Filter {
 
     public String getLogoutURL() {
         return authSettings.getLogoutURL();
+    }
+
+    public SigningAlgorithmType getSigningAlgorithmType() throws InvalidSigningAlgorithmException {
+        final String alg = authSettings.getSigningAlgorithm();
+        if (alg.equals(SigningAlgorithmType.SHA1.name())) {
+            return SigningAlgorithmType.SHA1;
+        } else if (alg.equals(SigningAlgorithmType.SHA256.name())) {
+            return SigningAlgorithmType.SHA256;
+        } else {
+            throw new InvalidSigningAlgorithmException("Invalid signature hash algorithm: " + alg);
+        } 
     }
 }
