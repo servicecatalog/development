@@ -228,7 +228,8 @@ public class APPlatformServiceBean implements APPlatformService {
             if (instance.getControllerId().equals(controllerId)
                     && instance.getSubscriptionId().equals(subscriptionId)
                     && instance.getOrganizationId().equals(organizationId)) {
-                return configService.getProvisioningSettings(instance, null);
+                return configService.getProvisioningSettings(instance, null,
+                        true);
             } else {
                 throw new ServiceInstanceNotFoundException(
                         "Service instance with ID '%s' not found.", instanceId);
