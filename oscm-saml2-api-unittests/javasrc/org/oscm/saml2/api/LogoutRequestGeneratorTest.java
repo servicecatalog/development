@@ -12,6 +12,8 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import org.oscm.internal.types.enumtypes.SigningAlgorithmType;
 import org.oscm.internal.types.exception.SaaSApplicationException;
 
 /**
@@ -30,13 +32,13 @@ public class LogoutRequestGeneratorTest {
     public void generateLogoutRequestTest() throws SaaSApplicationException {
 
 
-        String result = classUnderStress.generateLogoutRequest("", "", "", "", "", "", "");
+        String result = classUnderStress.generateLogoutRequest("", "", "", "", "", "", "", SigningAlgorithmType.SHA1);
 
         assertTrue(result.length() != 0);
     }
 
     @Test(expected = SaaSApplicationException.class)
     public void generateLogoutRequestWithoutKeystoreTest() throws SaaSApplicationException {
-        classUnderStress.generateLogoutRequest("", "", "", "aaa", "", "", "");
+        classUnderStress.generateLogoutRequest("", "", "", "aaa", "", "", "", SigningAlgorithmType.SHA1);
     }
 }
