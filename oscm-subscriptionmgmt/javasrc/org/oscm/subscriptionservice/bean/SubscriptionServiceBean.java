@@ -34,7 +34,6 @@ import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 import javax.interceptor.Interceptors;
-import javax.persistence.Query;
 
 import org.apache.commons.lang3.StringUtils;
 import org.oscm.accountservice.assembler.BillingContactAssembler;
