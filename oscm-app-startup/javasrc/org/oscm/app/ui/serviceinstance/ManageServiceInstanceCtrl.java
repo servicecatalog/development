@@ -53,7 +53,7 @@ public class ManageServiceInstanceCtrl extends BaseCtrl {
     protected ManageServiceInstanceModel model;
 
     @PostConstruct
-    public String getInitialize() {
+    public void getInitialize() {
         ManageServiceInstanceModel model = getModel();
         try {
             if (model == null) {
@@ -69,7 +69,6 @@ public class ManageServiceInstanceCtrl extends BaseCtrl {
         } catch (ServiceInstanceException | IllegalArgumentException e) {
             addError(e);
         }
-        return "";
     }
 
     public String executeService() {

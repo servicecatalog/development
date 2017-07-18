@@ -43,7 +43,7 @@ public class AppConfigurationCtrl extends BaseCtrl {
     private AppConfigurationModel model;
 
     @PostConstruct
-    public String getInitialize() {
+    public void getInitialize() {
 
         AppConfigurationModel model = getModel();
         try {
@@ -63,7 +63,6 @@ public class AppConfigurationCtrl extends BaseCtrl {
         } catch (Exception e) {
             addError(e);
         }
-        return "";
     }
 
     public String getLoggedInUserId() {
