@@ -46,7 +46,7 @@ import org.oscm.internal.types.exception.SaaSSystemException;
  */
 @MessageDriven(activationConfig = {
         @ActivationConfigProperty(propertyName = "UserName", propertyValue = "admin"),
-        @ActivationConfigProperty(propertyName = "Password", propertyValue = "admin") }, name="jms/bss/indexerQueue")
+        @ActivationConfigProperty(propertyName = "Password", propertyValue = "admin") }, name="OSCMIndexerQueue")
 public class IndexRequestListener implements MessageListener {
 
     private final static Log4jLogger logger = LoggerFactory
@@ -112,7 +112,7 @@ public class IndexRequestListener implements MessageListener {
             ConnectionFactory qFactory = (ConnectionFactory) ctx
                     .lookup("java:openejb/Resource/JmsConnectionFactory");
             Queue targetQueue = (Queue) ctx
-                    .lookup("jms/bss/masterIndexerQueue");
+                    .lookup("java:openejb/Resource/OSCMMasterIndexerQueue");
             conn = qFactory.createConnection();
             session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
             MessageProducer producer = session.createProducer(targetQueue);
@@ -144,7 +144,7 @@ public class IndexRequestListener implements MessageListener {
                         .lookup("java:openejb/Resource/JmsConnectionFactory");
                 conn = qFactory.createConnection();
                 Queue queue = (Queue) jndiContext
-                        .lookup("jms/bss/indexerQueue");
+                        .lookup("java:openejb/Resource/OSCMIndexerQueue");
                 session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
                 MessageProducer producer = session.createProducer(queue);
                 ObjectMessage msg = session.createObjectMessage();

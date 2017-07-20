@@ -136,7 +136,7 @@ public class TaskQueueServiceBean implements TaskQueueServiceLocal {
             if (messages.size() > 0) {
                 jndiContext = new InitialContext();
                 ConnectionFactory connectionFactory = (ConnectionFactory) jndiContext.lookup("java:openejb/Resource/JmsConnectionFactory");
-                queue = (Queue) jndiContext.lookup("jms/bss/taskQueue");
+                queue = (Queue) jndiContext.lookup("java:openejb/Resource/OSCMTaskQueue");
 
                 validateJMSResources(queue, connectionFactory);
 

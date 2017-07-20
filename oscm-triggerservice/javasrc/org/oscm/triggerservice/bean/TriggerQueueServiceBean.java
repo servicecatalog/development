@@ -65,7 +65,7 @@ public class TriggerQueueServiceBean implements TriggerQueueServiceLocal {
     @Resource(name = "JmsConnectionFactory")
     protected ConnectionFactory qFactory;
 
-    @Resource(name = "jms/bss/triggerQueue")
+    @Resource(name = "OSCMTriggerQueue")
     protected Queue queue;
 
     @EJB(beanInterface = DataService.class)

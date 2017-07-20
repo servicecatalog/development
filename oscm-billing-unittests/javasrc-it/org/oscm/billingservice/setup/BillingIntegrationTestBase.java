@@ -82,7 +82,7 @@ import org.oscm.internal.vo.VOCategory;
 import org.oscm.internal.vo.VOOrganization;
 import org.oscm.internal.vo.VOSubscriptionDetails;
 import org.oscm.marketplace.auditlog.MarketplaceAuditLogCollector;
-import org.oscm.marketplace.bean.LandingpageServiceBean;
+import org.oscm.marketplace.bean.LandingpageServiceBeanLocal;
 import org.oscm.marketplace.bean.MarketplaceServiceBean;
 import org.oscm.marketplace.bean.MarketplaceServiceLocalBean;
 import org.oscm.marketplace.dao.MarketplaceAccessDao;
@@ -288,7 +288,7 @@ public class BillingIntegrationTestBase extends StaticEJBTestBase {
         container.addBean(new UserGroupUsersDao());
         container.addBean(new UserGroupAuditLogCollector());
         container.addBean(new UserGroupServiceLocalBean());
-        container.addBean(new LandingpageServiceBean());
+        container.addBean(new LandingpageServiceBeanLocal());
         container.addBean(new ServiceProvisioningServiceLocalizationBean());
         container.addBean(new BillingAdapterLocalBean());
         container.addBean(new AccountServiceStub());
@@ -335,7 +335,7 @@ public class BillingIntegrationTestBase extends StaticEJBTestBase {
         container.addBean(mock(TriggerServiceLocal.class));
         container.addBean(mock(TimerServiceBean.class));
         container.addBean(new OperatorServiceBean());
-        container.addBean(new LandingpageServiceBean());
+        container.addBean(new LandingpageServiceBeanLocal());
         container.addBean(new MarketplaceServiceLocalBean());
         container.addBean(new MarketplaceServiceBean());
         container.addBean(new ApplicationServiceBean());

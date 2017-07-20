@@ -157,6 +157,7 @@ public class AuthorizationFilter extends BaseBesFilter {
                         .loadLandingpageType(rdo.getMarketplaceId());
                 return type.isDefault();
             } catch (Exception e) {
+                e.printStackTrace();
                 return false;
             }
         }

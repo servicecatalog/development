@@ -54,7 +54,7 @@ import org.oscm.internal.types.exception.TaskErrorHandlingException;
  */
 @MessageDriven(activationConfig = {
         @ActivationConfigProperty(propertyName = "UserName", propertyValue = "admin"),
-        @ActivationConfigProperty(propertyName = "Password", propertyValue = "admin") }, name = "jms/bss/taskQueue")
+        @ActivationConfigProperty(propertyName = "Password", propertyValue = "admin") }, name = "OSCMTaskQueue")
 @Interceptors({ InvocationDateContainer.class })
 public class TaskListener implements MessageListener {
 

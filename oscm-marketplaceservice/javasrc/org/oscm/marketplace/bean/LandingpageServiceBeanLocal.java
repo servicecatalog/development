@@ -53,7 +53,7 @@ import org.oscm.validation.ArgumentValidator;
 
 @Stateless
 @Interceptors({ InvocationDateContainer.class, ExceptionMapper.class })
-public class LandingpageServiceBean implements LandingpageServiceLocal {
+public class LandingpageServiceBeanLocal implements LandingpageServiceLocal {
 
     private static final String IS_PRODUCT_ON_MPL = "SELECT ce FROM CatalogEntry ce WHERE ce.product=:service AND ce.marketplace=:marketplace";
 
@@ -124,7 +124,7 @@ public class LandingpageServiceBean implements LandingpageServiceLocal {
             ServiceStatus.DELETED, ServiceStatus.SUSPENDED);
 
     private static final Log4jLogger logger = LoggerFactory
-            .getLogger(LandingpageServiceBean.class);
+            .getLogger(LandingpageServiceBeanLocal.class);
 
     @Override
     public LandingpageType loadLandingpageType(String marketplaceId)

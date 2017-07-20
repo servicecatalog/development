@@ -81,7 +81,7 @@ import org.oscm.notification.vo.VOProperty;
 @Interceptors({ InvocationDateContainer.class })
 @MessageDriven(activationConfig = {
         @ActivationConfigProperty(propertyName = "UserName", propertyValue = "admin"),
-        @ActivationConfigProperty(propertyName = "Password", propertyValue = "admin") }, name = "jms/bss/triggerQueue")
+        @ActivationConfigProperty(propertyName = "Password", propertyValue = "admin") }, name = "OSCMTriggerQueue")
 public class TriggerProcessListener implements MessageListener {
 
     private final static Log4jLogger logger = LoggerFactory

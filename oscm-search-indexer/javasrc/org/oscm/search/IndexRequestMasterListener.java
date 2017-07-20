@@ -50,7 +50,7 @@ import org.oscm.types.enumtypes.UdaTargetType;
  */
 //@MessageDriven(activationConfig = {
 //        @ActivationConfigProperty(propertyName = "UserName", propertyValue = "admin"),
-//        @ActivationConfigProperty(propertyName = "Password", propertyValue = "admin") }, name = "jms/bss/masterIndexerQueue")
+//        @ActivationConfigProperty(propertyName = "Password", propertyValue = "admin") }, name = "OSCMMasterIndexerQueue")
 @Singleton
 @Startup
 public class IndexRequestMasterListener {
