@@ -18,6 +18,7 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
 import javax.ejb.*;
 import javax.jms.Message;
 import javax.jms.MessageListener;
@@ -47,10 +48,14 @@ import org.oscm.types.enumtypes.UdaTargetType;
  * Message driven bean to handle the index request objects sent by the business
  * logic.
  */
-@MessageDriven(activationConfig = {
-        @ActivationConfigProperty(propertyName = "UserName", propertyValue = "admin"),
-        @ActivationConfigProperty(propertyName = "Password", propertyValue = "admin") }, name = "jmsQueue", mappedName = "jms/bss/masterIndexerQueue")
-public class IndexRequestMasterListener implements MessageListener {
+//@MessageDriven(activationConfig = {
+//        @ActivationConfigProperty(propertyName = "UserName", propertyValue = "admin"),
+//        @ActivationConfigProperty(propertyName = "Password", propertyValue = "admin") }, name = "jms/bss/masterIndexerQueue")
+@Singleton
+@Startup
+public class IndexRequestMasterListener {
+
+    //public class IndexRequestMasterListener implements MessageListener {
 
     private final static Log4jLogger logger = LoggerFactory
             .getLogger(IndexRequestMasterListener.class);
@@ -61,8 +66,13 @@ public class IndexRequestMasterListener implements MessageListener {
 
     @EJB(beanInterface = DataService.class)
     public DataService dm;
-
-    @Override
+    
+    @Schedule(minute = "*/1", hour = "*", persistent = false)
+    public void initIndex() {
+        initIndexForFulltextSearch(false);
+    }
+    
+    //@Override
     @TransactionAttribute(TransactionAttributeType.REQUIRED)
     public void onMessage(Message message) {
         if (!(message instanceof ObjectMessage)) {

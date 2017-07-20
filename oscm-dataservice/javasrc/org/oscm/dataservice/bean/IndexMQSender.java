@@ -60,7 +60,7 @@ public class IndexMQSender {
             jndiContext = getContext();
             try {
                 qFactory = (ConnectionFactory) jndiContext
-                        .lookup("jms/bss/indexerQueueFactory");
+                        .lookup("java:openejb/Resource/JmsConnectionFactory");
                 queue = (Queue) jndiContext.lookup("jms/bss/indexerQueue");
                 return true;
             } catch (NamingException e) {

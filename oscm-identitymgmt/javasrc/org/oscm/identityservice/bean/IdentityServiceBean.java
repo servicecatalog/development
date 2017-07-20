@@ -89,7 +89,6 @@ import org.oscm.identityservice.pwdgen.PasswordGenerator;
 import org.oscm.interceptor.DateFactory;
 import org.oscm.interceptor.ExceptionMapper;
 import org.oscm.interceptor.InvocationDateContainer;
-import org.oscm.interceptor.PlatformOperatorServiceProviderInterceptor;
 import org.oscm.interceptor.ServiceProviderInterceptor;
 import org.oscm.internal.intf.IdentityService;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
@@ -472,7 +471,7 @@ public class IdentityServiceBean
     }
 
     @Override
-    @Interceptors({ PlatformOperatorServiceProviderInterceptor.class })
+    /*@Interceptors({ PlatformOperatorServiceProviderInterceptor.class })*/
     public void changePassword(String oldPassword, String newPassword)
             throws SecurityCheckException, ValidationException {
 

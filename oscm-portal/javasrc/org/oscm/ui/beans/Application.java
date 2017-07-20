@@ -20,8 +20,9 @@ import org.jboss.weld.context.http.HttpConversationContext;
 @ApplicationScoped
 public class Application {
 
-    @Inject
-    private HttpConversationContext conversationContext;
+//    @Inject
+//    private HttpConversationContext conversationContext;
+
 
     @PostConstruct
     public void init() {
@@ -33,7 +34,7 @@ public class Application {
      * by something unpredictable.
      */
     private void hideConversationScope() {
-        conversationContext.setParameterName("conversationID");
+       // conversationContext.setParameterName("conversationID");
     }
 
 }

@@ -39,15 +39,16 @@ public class InvocationDateContainer {
     }
 
     boolean isRemoteOrMessageDrivenInvokation(InvocationContext context) {
-        if (!(context instanceof EjbInvocation)) {
-            SaaSSystemException saasEx = new SaaSSystemException(
-                    "Unexcepcted invocation context: "
-                            + context.getClass().getName());
-            // TODO LOG
-            throw saasEx;
-        }
-        EjbInvocation ec = (EjbInvocation) context;
-        return (ec.isMessageDriven || ec.isRemote || ec.isWebService);
+//        if (!(context instanceof EjbInvocation)) {
+//            SaaSSystemException saasEx = new SaaSSystemException(
+//                    "Unexcepcted invocation context: "
+//                            + context.getClass().getName());
+//            // TODO LOG
+//            throw saasEx;
+//        }
+//        EjbInvocation ec = (EjbInvocation) context;
+//        return (ec.isMessageDriven || ec.isRemote || ec.isWebService);
+        return true;
     }
 
     boolean isNoInterfaceView(InvocationContext context) {

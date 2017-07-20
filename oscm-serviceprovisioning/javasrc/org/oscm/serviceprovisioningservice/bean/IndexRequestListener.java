@@ -19,6 +19,7 @@ import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
 import javax.jms.Message;
+import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
 import javax.jms.ObjectMessage;
 import javax.jms.Queue;
@@ -45,8 +46,8 @@ import org.oscm.internal.types.exception.SaaSSystemException;
  */
 @MessageDriven(activationConfig = {
         @ActivationConfigProperty(propertyName = "UserName", propertyValue = "admin"),
-        @ActivationConfigProperty(propertyName = "Password", propertyValue = "admin") }, name = "jmsQueue", mappedName = "jms/bss/indexerQueue")
-public class IndexRequestListener {
+        @ActivationConfigProperty(propertyName = "Password", propertyValue = "admin") }, name="jms/bss/indexerQueue")
+public class IndexRequestListener implements MessageListener {
 
     private final static Log4jLogger logger = LoggerFactory
             .getLogger(IndexRequestListener.class);
@@ -109,7 +110,7 @@ public class IndexRequestListener {
         try {
             Context ctx = getContext();
             ConnectionFactory qFactory = (ConnectionFactory) ctx
-                    .lookup("jms/bss/masterIndexerQueueFactory");
+                    .lookup("java:openejb/Resource/JmsConnectionFactory");
             Queue targetQueue = (Queue) ctx
                     .lookup("jms/bss/masterIndexerQueue");
             conn = qFactory.createConnection();
@@ -140,7 +141,7 @@ public class IndexRequestListener {
             try {
                 Context jndiContext = getContext();
                 ConnectionFactory qFactory = (ConnectionFactory) jndiContext
-                        .lookup("jms/bss/indexerQueueFactory");
+                        .lookup("java:openejb/Resource/JmsConnectionFactory");
                 conn = qFactory.createConnection();
                 Queue queue = (Queue) jndiContext
                         .lookup("jms/bss/indexerQueue");

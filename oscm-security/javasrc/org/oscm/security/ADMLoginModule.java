@@ -9,15 +9,48 @@
  *******************************************************************************/
 package org.oscm.security;
 
-import javax.security.auth.login.LoginException;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
-import com.sun.appserv.security.AppservPasswordLoginModule;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.security.auth.Subject;
+import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.callback.NameCallback;
+import javax.security.auth.callback.PasswordCallback;
+import javax.security.auth.callback.UnsupportedCallbackException;
+import javax.security.auth.login.LoginException;
+import javax.security.auth.spi.LoginModule;
+
+import java.util.logging.Logger;
 
 /**
  * Glassfish JAAS LoginModule for the ADM Realm.
  * 
  */
-public class ADMLoginModule extends AppservPasswordLoginModule {
+public class ADMLoginModule implements LoginModule {
+
+    private static final Logger logger = Logger.getLogger(ADMLoginModule.class.getName());
+
+    private CallbackHandler handler;
+    private Subject subject;
+    private UserPrincipal userPrincipal;
+    private RolePrincipal rolePrincipal;
+    private String login;
+    private List<String> userGroups;
+
+    @Override
+    public void initialize(Subject subject, CallbackHandler callbackHandler,
+            Map<String, ?> sharedState, Map<String, ?> options) {
+
+        handler = callbackHandler;
+        this.subject = subject;
+    }
 
     /**
      * Performs authentication for the current user.
@@ -25,23 +58,64 @@ public class ADMLoginModule extends AppservPasswordLoginModule {
      * @throws LoginException
      *             if the login failed.
      */
+     @Override
+    public boolean login() throws LoginException {
+        Callback[] callbacks = new Callback[2];
+        callbacks[0] = new NameCallback("login");
+        callbacks[1] = new PasswordCallback("password", true);
+
+        try {
+            handler.handle(callbacks);
+            String name = ((NameCallback) callbacks[0]).getName();
+            String password = String
+                    .valueOf(((PasswordCallback) callbacks[1]).getPassword());
+            
+             try {
+                ADMRealmImpl realmImpl = new ADMRealmImpl(logger);
+                userGroups = realmImpl.authenticateUser(name, password);
+                return true;
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            
+
+            // If credentials are NOT OK we throw a LoginException
+            throw new LoginException("Authentication failed");
+
+        } catch (IOException e) {
+            throw new LoginException(e.getMessage());
+        } catch (UnsupportedCallbackException e) {
+            throw new LoginException(e.getMessage());
+        }
+
+    }
+
+    public boolean commit() throws LoginException {
+
+        userPrincipal = new UserPrincipal(login);
+        subject.getPrincipals().add(userPrincipal);
+
+        if (userGroups != null && userGroups.size() > 0) {
+            for (String groupName : userGroups) {
+                rolePrincipal = new RolePrincipal(groupName);
+                subject.getPrincipals().add(rolePrincipal);
+            }
+        }
+
+        return true;
+    }
+
     @Override
-    protected void authenticateUser() throws LoginException {
-        if (!(_currentRealm instanceof ADMRealm)) {
-            throw new LoginException("Bad realm.");
-        }
-        ADMRealm realm = (ADMRealm) _currentRealm;
-        if (_password == null || _password.length() == 0) {
-            throw new LoginException("Empty password.");
-        }
+    public boolean abort() throws LoginException {
+        return false;
+    }
 
-        String grpList[] = realm.authenticateUser(_username, _password);
-        String groupListToForward[] = new String[grpList.length];
-        for (int i = 0; i < grpList.length; i++) {
-            groupListToForward[i] = grpList[i];
-        }
-
-        commitUserAuthentication(groupListToForward);
+    @Override
+    public boolean logout() throws LoginException {
+        subject.getPrincipals().remove(userPrincipal);
+        subject.getPrincipals().remove(rolePrincipal);
+        return true;
     }
 
 }

@@ -89,23 +89,23 @@ public abstract class BaseBesFilter implements Filter {
             throw new ServletException("The filter init-param "
                     + PARAM_LOGIN_CLASS + " is missing!");
         }
-        ClassLoader classLoader = Thread.currentThread()
-                .getContextClassLoader();
-        if (classLoader == null) {
-            classLoader = getClass().getClassLoader();
-        }
-        try {
-            Class<?> c = classLoader.loadClass(loginClassName);
-            loginMethod = c.getMethod("login", new Class[] { String.class,
-                    char[].class, String.class, HttpServletRequest.class,
-                    HttpServletResponse.class });
-            filterConfig.getServletContext().setAttribute(
-                    Constants.CTX_ATTR_LOGIN_METHOD, loginMethod);
-            logger.logDebug("loginClassName=" + loginClassName);
-        } catch (Exception e) {
-            logger.logError(Log4jLogger.SYSTEM_LOG, e,
-                    LogMessageIdentifier.ERROR_INITIALIZE_LOGIN_METHOD_FAILED);
-        }
+//        ClassLoader classLoader = Thread.currentThread()
+//                .getContextClassLoader();
+//        if (classLoader == null) {
+//            classLoader = getClass().getClassLoader();
+//        }
+//        try {
+//            Class<?> c = classLoader.loadClass(loginClassName);
+//            loginMethod = c.getMethod("login", new Class[] { String.class,
+//                    char[].class, String.class, HttpServletRequest.class,
+//                    HttpServletResponse.class });
+//            filterConfig.getServletContext().setAttribute(
+//                    Constants.CTX_ATTR_LOGIN_METHOD, loginMethod);
+//            logger.logDebug("loginClassName=" + loginClassName);
+//        } catch (Exception e) {
+//            logger.logError(Log4jLogger.SYSTEM_LOG, e,
+//                    LogMessageIdentifier.ERROR_INITIALIZE_LOGIN_METHOD_FAILED);
+//        }
 
         value = filterConfig.getInitParameter(PARAM_LOGIN_PAGE);
         loginPage = checkPage(value, loginPage);

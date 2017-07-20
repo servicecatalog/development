@@ -21,6 +21,7 @@ import java.util.logging.Logger;
 
 import javax.naming.CompositeName;
 import javax.naming.Context;
+import javax.naming.InitialContext;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
@@ -52,7 +53,7 @@ public class ADMRealmImpl {
     private static final String LOCK_USER_ACCOUNT = "UPDATE platformuser SET status = ? WHERE failedlogincounter >= COALESCE(CAST((SELECT env_value FROM configurationsetting WHERE information_id = 'MAX_NUMBER_LOGIN_ATTEMPTS' AND context_id = 'global') AS int), 3) AND tkey = ?";
     private static final String INCREASE_LOGIN_COUNTER = "UPDATE platformuser SET failedlogincounter = failedlogincounter + 1 WHERE tkey = ?";
     private static final String LOCKED_STATUS = "LOCKED_FAILED_LOGIN_ATTEMPTS";
-    private static final String DB_DATASOURCE_NAME = "BSSDS";
+    private static final String DB_DATASOURCE_NAME = "java:openejb/Resource/BSSDS";
 
     private static final String ERR_DB_LOOKUP = "Database lookup error occured: ";
     private static final String ERR_DB_ACCESS = "Database access error occured: ";
@@ -75,11 +76,9 @@ public class ADMRealmImpl {
     private static final int WS_PASSWORD_AGE_MILLIS = 300000;
 
     private final Logger logger;
-    private final Context context;
-
-    ADMRealmImpl(Logger logger, Context context) {
+   
+    ADMRealmImpl(Logger logger) {
         this.logger = logger;
-        this.context = context;
     }
 
     /**
@@ -108,9 +107,8 @@ public class ADMRealmImpl {
      * @throws LoginException
      *             if the login failed.
      */
-    String[] authenticateUser(final String userKey, String password)
+    List<String> authenticateUser(final String userKey, String password)
             throws LoginException {
-        String[] groups = null;
 
         try {
             UserQuery userQuery = getUserQuery(userKey);
@@ -148,12 +146,12 @@ public class ADMRealmImpl {
                 handleInternalLogin(userKey, password, userQuery);
             }
             List<String> roles = loadRoleNames(userKey);
-            groups = roles.toArray(new String[] {});
 
-            return groups;
+            return roles;
         } catch (SQLException e) {
             throw new LoginException(ERR_DB_ACCESS + e.toString());
         } catch (NamingException e) {
+            e.printStackTrace();
             throw new LoginException(ERR_DB_LOOKUP);
         }
     }
@@ -370,7 +368,18 @@ public class ADMRealmImpl {
      *             if the database data source lookup failed.
      */
     DataSource getDataSource() throws NamingException {
+//        Properties p = new Properties();
+//        p.put(Context.INITIAL_CONTEXT_FACTORY,"org.apache.openejb.core.LocalInitialContextFactory");
+        Context context = new InitialContext();
         return (DataSource) context.lookup(DB_DATASOURCE_NAME);
+        
+//        Context context = new InitialContext();
+//        Context envCtx = (Context) context.lookup("java:comp/env");
+//
+//        // Look up our data source
+//       return (DataSource)
+//          envCtx.lookup("BSSDS");
+        
     }
 
     /**
