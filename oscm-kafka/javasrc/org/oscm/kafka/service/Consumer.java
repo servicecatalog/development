@@ -160,7 +160,7 @@ public class Consumer implements Runnable {
                 subscriptionService.abortAsyncSubscription(release.getId());
             }  else if (SubscriptionStatus.PENDING_UPD
                     .equals(subscription.getStatus())) {
-                //TODO get reason
+                //TODO get reason, failure...
                 subscriptionService.abortAsyncModifySubscription(release.getId(), "some reason");
             } else {
                 //TODO error

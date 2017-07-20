@@ -67,7 +67,7 @@ public class SubscriptionRecordTest {
         Gson gson = new Gson();
         JsonObject jsonObj = gson.fromJson(json, JsonObject.class);
         assertEquals(ID.toString(), jsonObj.get("id").getAsString());
-        assertNotNull(jsonObj.get("etag").getAsString());
+        assertNotNull(jsonObj.get("timestamp").getAsString());
         assertEquals(PARAM_TARGET_VAL,
                 jsonObj.get(PARAM_TARGET_ID).getAsString());
         assertEquals(PARAM_NAMESPACE_VAL,

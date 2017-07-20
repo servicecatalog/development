@@ -8,6 +8,7 @@
 
 package org.oscm.kafka.records;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,8 +39,8 @@ public class SubscriptionRecord {
     int version;
     @SerializedName("id")
     UUID id;
-    @SerializedName("etag")
-    UUID etag;
+    @SerializedName("timestamp")
+    Date timestamp;
     @SerializedName("operation")
     Operation operation;
     @SerializedName("namespace")
@@ -56,7 +57,7 @@ public class SubscriptionRecord {
     public SubscriptionRecord(Subscription subscription, Operation operation) {
         this.version = 0;
         this.id = subscription.getUuid();
-        this.etag = UUID.randomUUID();
+        this.timestamp = new Date();
         this.operation = operation;
         ParameterSet paramSet = subscription.getParameterSet();
         List<Parameter> params = paramSet.getParameters();
