@@ -40,5 +40,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-tenantmgmt"/>
 	<classpathentry kind="lib" path="/libraries/apache-commons-lang/javalib/commons-lang3-3.3.2.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-marketplaceservice-intsvc"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

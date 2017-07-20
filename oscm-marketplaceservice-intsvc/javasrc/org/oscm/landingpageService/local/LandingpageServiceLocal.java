@@ -7,6 +7,7 @@ package org.oscm.landingpageService.local;
 import java.util.List;
 
 import javax.ejb.Local;
+import javax.ejb.Remote;
 
 import org.oscm.domobjects.Marketplace;
 import org.oscm.domobjects.Product;
