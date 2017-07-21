@@ -28,6 +28,7 @@ import org.oscm.types.exceptions.MandatoryUdaMissingException;
 import org.oscm.types.exceptions.MarketingPermissionNotFoundException;
 import org.oscm.types.exceptions.MarketplaceAccessTypeUneligibleForOperationException;
 import org.oscm.types.exceptions.MarketplaceRemovedException;
+import org.oscm.types.exceptions.MarketplaceValidationException;
 import org.oscm.types.exceptions.NonUniqueBusinessKeyException;
 import org.oscm.types.exceptions.ObjectNotFoundException;
 import org.oscm.types.exceptions.OperationNotPermittedException;
@@ -856,6 +857,18 @@ public class ExceptionConverter {
     public static UserRoleAssignmentException convertToApi(
             org.oscm.internal.types.exception.UserRoleAssignmentException oldEx) {
         return convertExceptionToApi(oldEx, UserRoleAssignmentException.class);
+    }
+
+    /**
+     * Convert source version Exception to target version MarketplaceValidationException
+     *
+     * @param oldEx
+     *            Exception to convert.
+     * @return MarketplaceValidationException of target version.
+     */
+    public static MarketplaceValidationException convertToApi(
+            org.oscm.internal.types.exception.MarketplaceValidationException oldEx) {
+        return convertExceptionToApi(oldEx, MarketplaceValidationException.class);
     }
 
     /**

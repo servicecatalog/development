@@ -77,6 +77,7 @@ import org.oscm.internal.types.exception.MailOperationException;
 import org.oscm.internal.types.exception.MandatoryUdaMissingException;
 import org.oscm.internal.types.exception.MarketingPermissionNotFoundException;
 import org.oscm.internal.types.exception.MarketplaceAccessTypeUneligibleForOperationException;
+import org.oscm.internal.types.exception.MarketplaceValidationException;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.OperationNotPermittedException;
@@ -2318,8 +2319,7 @@ public class MockService implements IdentityService, SubscriptionService,
 
     @Override
     public VOMarketplace createMarketplace(VOMarketplace marketplace)
-            throws OperationNotPermittedException, ObjectNotFoundException,
-            ValidationException, UserRoleAssignmentException {
+            throws OperationNotPermittedException, ObjectNotFoundException, ValidationException, UserRoleAssignmentException, MarketplaceValidationException {
         return null;
     }
 

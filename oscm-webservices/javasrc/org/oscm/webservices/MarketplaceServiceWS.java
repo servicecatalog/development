@@ -20,6 +20,7 @@ import org.oscm.converter.api.ExceptionConverter;
 import org.oscm.converter.api.VOCollectionConverter;
 import org.oscm.converter.api.VOConverter;
 import org.oscm.dataservice.local.DataService;
+import org.oscm.internal.types.exception.MarketplaceValidationException;
 import org.oscm.intf.MarketplaceService;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.types.exceptions.ConcurrentModificationException;
@@ -165,7 +166,7 @@ public class MarketplaceServiceWS implements MarketplaceService {
     @Override
     public VOMarketplace createMarketplace(VOMarketplace marketplace)
             throws OperationNotPermittedException, ObjectNotFoundException,
-            ValidationException, UserRoleAssignmentException {
+            ValidationException, UserRoleAssignmentException, org.oscm.types.exceptions.MarketplaceValidationException {
         WS_LOGGER.logAccess(wsContext, ds);
         try {
             return VOConverter.convertToApi(delegate
@@ -177,6 +178,8 @@ public class MarketplaceServiceWS implements MarketplaceService {
         } catch (org.oscm.internal.types.exception.ValidationException e) {
             throw ExceptionConverter.convertToApi(e);
         } catch (org.oscm.internal.types.exception.UserRoleAssignmentException e) {
+            throw ExceptionConverter.convertToApi(e);
+        } catch (MarketplaceValidationException e) {
             throw ExceptionConverter.convertToApi(e);
         }
     }

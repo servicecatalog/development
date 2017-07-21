@@ -63,6 +63,7 @@ import org.oscm.internal.types.enumtypes.ServiceStatus;
 import org.oscm.internal.types.enumtypes.UserRoleType;
 import org.oscm.internal.types.exception.ConcurrentModificationException;
 import org.oscm.internal.types.exception.MarketplaceAccessTypeUneligibleForOperationException;
+import org.oscm.internal.types.exception.MarketplaceValidationException;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.OperationNotPermittedException;
@@ -265,8 +266,13 @@ public class MarketplaceServiceBean implements MarketplaceService {
 
     private Marketplace createMarketplaceIntern(VOMarketplace marketplace)
             throws ValidationException, ObjectNotFoundException,
-            OperationNotPermittedException {
-        marketplace.setMarketplaceId("1"); // dummy Id - will be changed.
+            OperationNotPermittedException, MarketplaceValidationException {
+        boolean isMpIdProvided = false;
+        if (marketplace.getMarketplaceId() == null) {
+            marketplace.setMarketplaceId("1"); // dummy Id - will be changed.
+        } else {
+            isMpIdProvided = true;
+        }
         Marketplace mpNew = MarketplaceAssembler.toMarketplace(marketplace);
 
         mpNew.setCreationDate(DateFactory.getInstance().getTransactionTime());
@@ -284,9 +290,19 @@ public class MarketplaceServiceBean implements MarketplaceService {
 
         marketplaceServiceLocal.createRevenueModels(mpNew, BigDecimal.ZERO,
                 BigDecimal.ZERO, BigDecimal.ZERO);
-        Marketplace mp = persistMarketplace(mpNew,
-                marketplace.getOwningOrganizationId());
+        Marketplace mp = persistMarketplace(isMpIdProvided, mpNew, marketplace);
         marketplaceServiceLocal.grantPublishingRights(mp);
+        return mp;
+    }
+
+    private Marketplace persistMarketplace(boolean isMpIdProvided, Marketplace mpNew, VOMarketplace marketplace) throws MarketplaceValidationException {
+        Marketplace mp;
+        if (isMpIdProvided) {
+            mp = persistMarketplaceWithSpecifiedId(mpNew, marketplace.getMarketplaceId());
+        } else {
+            mp = persistMarketplace(mpNew,
+                    marketplace.getOwningOrganizationId());
+        }
         return mp;
     }
 
@@ -333,11 +349,49 @@ public class MarketplaceServiceBean implements MarketplaceService {
         return mpNew;
     }
 
+    private Marketplace persistMarketplaceWithSpecifiedId(Marketplace marketplace, String suggestedId) throws MarketplaceValidationException {
+        try {
+        validateProvidedMpId(suggestedId);
+        marketplace.setMarketplaceId(suggestedId);
+            dm.persist(marketplace);
+        } catch (NonUniqueBusinessKeyException | MarketplaceValidationException e) {
+            throw new MarketplaceValidationException(e.getMessage());
+        }
+        dm.flush();
+
+        return marketplace;
+    }
+
+    private void validateProvidedMpId(String id) throws MarketplaceValidationException {
+        if (id == null || id.equals("") || "PLATFORM_OPERATOR".equals(id)) {
+            throwExceptionInvalidMarketplaceId();
+        }
+        if (findMarketplaceKeyByMarketplaceId(id)) {
+            throwExceptionNotUniqueMarketplaceId();
+        }
+    }
+
     private void throwExceptionNoFreeMarketplace() {
         SaaSSystemException se = new SaaSSystemException(
                 "No free marketplaceId found!");
         logger.logError(Log4jLogger.SYSTEM_LOG, se,
                 LogMessageIdentifier.ERROR_MARKETPLACE_CREATION_FAILED);
+        throw se;
+    }
+
+    private void throwExceptionInvalidMarketplaceId() throws MarketplaceValidationException {
+        MarketplaceValidationException se = new MarketplaceValidationException(
+                "Provided Marketplace ID does not meet the requirements.");
+        logger.logError(Log4jLogger.SYSTEM_LOG, se,
+                LogMessageIdentifier.ERROR_MARKETPLACE_ID_INVALID);
+        throw se;
+    }
+
+    private void throwExceptionNotUniqueMarketplaceId() throws MarketplaceValidationException {
+        MarketplaceValidationException se = new MarketplaceValidationException(
+                "Provided Marketplace ID is already in use.");
+        logger.logError(Log4jLogger.SYSTEM_LOG, se,
+                LogMessageIdentifier.ERROR_MARKETPLACE_ID_NOT_UNIQUE);
         throw se;
     }
 
@@ -425,8 +479,7 @@ public class MarketplaceServiceBean implements MarketplaceService {
     @Override
     @RolesAllowed("PLATFORM_OPERATOR")
     public VOMarketplace createMarketplace(VOMarketplace marketplace)
-            throws OperationNotPermittedException, ObjectNotFoundException,
-            ValidationException, UserRoleAssignmentException {
+            throws OperationNotPermittedException, ObjectNotFoundException, ValidationException, UserRoleAssignmentException, MarketplaceValidationException {
 
         // check if mandatory fields are given
         ArgumentValidator.notNull("marketplace", marketplace);
