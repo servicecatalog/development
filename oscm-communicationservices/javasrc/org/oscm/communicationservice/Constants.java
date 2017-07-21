@@ -26,7 +26,7 @@ public class Constants {
     public static final String RESOURCE_SUBJECT = ".subject";
     public static final String RESOURCE_TEXT = ".text";
 
-    public static final String MAIL_RESOURCE = "java:openejb/Resource/BSSMail";
+    public static final String MAIL_RESOURCE = "java:openejb/Resource/OSCMMail";
 
 
     private Constants() {

@@ -362,7 +362,7 @@ public class CommunicationServiceBean implements CommunicationServiceLocal {
         }
 
         try {
-            Address from = new InternetAddress(session.getProperty("mail.from"));
+            Address from = new InternetAddress(session.getProperty("mail.smtp.from"));
             msg.setFrom(from);
             msg.setReplyTo(new Address[] { from });
             msg.setSubject(subject, encoding);
