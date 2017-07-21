@@ -136,7 +136,7 @@ public class APPlatformControllerAdapter implements APPlatformController {
     }
 
     @Override
-    public Integer getServersNumber(String instanceId, String subscriptionId, String organizationId)
+    public int getServersNumber(String instanceId, String subscriptionId, String organizationId)
         throws APPlatformException {
         return delegate.getServersNumber(instanceId,subscriptionId, organizationId);
     }

@@ -43,6 +43,7 @@ public class AuthenticationSettings {
     private String logoutURL;
     private String tenantID;
     private String idpIssuer;
+    private String signingAlgorithm;
 
     public AuthenticationSettings(TenantService tenantService, ConfigurationService cfgService) {
         this.tenantService = tenantService;
@@ -103,6 +104,7 @@ public class AuthenticationSettings {
         signingKeystore = getConfigurationSetting(cfgService, ConfigurationKey.SSO_SIGNING_KEYSTORE);
         logoutURL = tenant.getLogoutURL();
         idpIssuer = tenant.getIDPIssuer();
+        signingAlgorithm = getConfigurationSetting(cfgService, ConfigurationKey.SSO_SIGNING_ALGORITHM);
     }
 
     private VOTenant getTenantWithSettings(String tenantID) throws NotExistentTenantException, WrongTenantConfigurationException {
@@ -192,5 +194,13 @@ public class AuthenticationSettings {
 
     public String getIdpIssuer() {
         return idpIssuer;
+    }
+
+    public String getSigningAlgorithm() {
+        return signingAlgorithm;
+    }
+
+    public void setSigningAlgorithm(String signingAlgorithm) {
+        this.signingAlgorithm = signingAlgorithm;
     }
 }

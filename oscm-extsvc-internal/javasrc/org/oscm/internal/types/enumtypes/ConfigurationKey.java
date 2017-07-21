@@ -361,7 +361,11 @@ public enum ConfigurationKey {
            "The ID is used for verifying that the response to an authentication request ",
            "is returned by the correct IdP." })
     @Example("IDP_ID")
-    SSO_IDP_SAML_ASSERTION_ISSUER_ID(false, "default", "string", false);
+    SSO_IDP_SAML_ASSERTION_ISSUER_ID(false, "default", "string", false),
+
+    @Doc({ "Hashing algorithm used in signing SAML communication" })
+    @Example("SHA1")
+    SSO_SIGNING_ALGORITHM(false, SigningAlgorithmType.SHA1.name(), "string", false);
 
     // ///////////////////////////////////////////////////////////////////////////////////
 
