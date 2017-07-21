@@ -16,7 +16,6 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.log4j.Logger;
-import org.oscm.domobjects.Subscription;
 import org.oscm.internal.intf.ConfigurationService;
 import org.oscm.internal.intf.SubscriptionService;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
@@ -24,7 +23,6 @@ import org.oscm.internal.types.enumtypes.SubscriptionStatus;
 import org.oscm.internal.vo.VOInstanceInfo;
 import org.oscm.internal.vo.VOSubscription;
 import org.oscm.kafka.records.ReleaseRecord;
-import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
 
 import com.sun.enterprise.security.ee.auth.login.ProgrammaticLogin;
 
@@ -37,7 +35,7 @@ public class Consumer implements Runnable {
     private static final Logger LOGGER = Logger.getLogger(Consumer.class);
 
     private final static String STRING_DESERIALIZER_CLASS = "org.apache.kafka.common.serialization.StringDeserializer";
-    private final static String TOPIC = "releases";
+    private final static String TOPIC = "provisioning-release";
     private final static String CONSUMER_GROUP = "oscm-group";
     private KafkaConsumer<String, String> consumer;
     private SubscriptionService subscriptionService;
@@ -55,7 +53,7 @@ public class Consumer implements Runnable {
         props.put(ConsumerConfig.GROUP_ID_CONFIG, CONSUMER_GROUP);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
                 STRING_DESERIALIZER_CLASS);
-        consumer = new KafkaConsumer<String, String>(props);
+        consumer = new KafkaConsumer<>(props);
         consumer.subscribe(Arrays.asList(TOPIC));
         LOGGER.debug("Kafka consumer subscribed to topic.");
     }
@@ -158,12 +156,13 @@ public class Consumer implements Runnable {
 
             if (SubscriptionStatus.PENDING.equals(subscription.getStatus())) {
                 subscriptionService.abortAsyncSubscription(release.getId());
-            }  else if (SubscriptionStatus.PENDING_UPD
+            } else if (SubscriptionStatus.PENDING_UPD
                     .equals(subscription.getStatus())) {
-                //TODO get reason, failure...
-                subscriptionService.abortAsyncModifySubscription(release.getId(), "some reason");
+                // TODO get reason, failure...
+                subscriptionService.abortAsyncModifySubscription(
+                        release.getId(), "some reason");
             } else {
-                //TODO error
+                // TODO error
             }
         } catch (Exception e) {
             // TODO Auto-generated catch block

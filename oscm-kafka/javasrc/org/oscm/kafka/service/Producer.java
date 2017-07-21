@@ -30,7 +30,7 @@ import com.google.gson.JsonObject;
 public class Producer {
     private static final Logger LOGGER = Logger.getLogger(Producer.class);
     private final static String STRING_SERIALIZER_CLASS = "org.apache.kafka.common.serialization.StringSerializer";
-    private final static String TOPIC = "subscriptions";
+    private final static String TOPIC = "core-subscription";
 
     private KafkaProducer<String, String> producer;
 
