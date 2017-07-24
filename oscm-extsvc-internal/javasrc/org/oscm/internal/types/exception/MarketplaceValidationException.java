@@ -11,7 +11,7 @@ package org.oscm.internal.types.exception;
 public class MarketplaceValidationException extends SaaSApplicationException{
 
     public MarketplaceValidationException() {
-        super();
+
     }
 
     public MarketplaceValidationException(String message) {

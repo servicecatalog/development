@@ -296,14 +296,11 @@ public class MarketplaceServiceBean implements MarketplaceService {
     }
 
     private Marketplace persistMarketplace(boolean isMpIdProvided, Marketplace mpNew, VOMarketplace marketplace) throws MarketplaceValidationException {
-        Marketplace mp;
         if (isMpIdProvided) {
-            mp = persistMarketplaceWithSpecifiedId(mpNew, marketplace.getMarketplaceId());
-        } else {
-            mp = persistMarketplace(mpNew,
-                    marketplace.getOwningOrganizationId());
+            return persistMarketplaceWithSpecifiedId(mpNew, marketplace.getMarketplaceId());
         }
-        return mp;
+        return persistMarketplace(mpNew,
+                marketplace.getOwningOrganizationId());
     }
 
     boolean findMarketplaceKeyByMarketplaceId(String marketplaceId) {
