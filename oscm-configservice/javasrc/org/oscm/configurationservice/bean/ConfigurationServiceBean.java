@@ -363,6 +363,13 @@ public class ConfigurationServiceBean
     }
 
     @Override
+    public String getBaseUrlHttps() {
+        String baseUrlHttps = getConfigurationSetting(ConfigurationKey.BASE_URL_HTTPS,
+                Configuration.GLOBAL_CONTEXT).getValue();
+        return baseUrlHttps;
+    }
+
+    @Override
     public boolean isPaymentInfoAvailable() {
 
         String setting = getConfigurationSetting(

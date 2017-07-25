@@ -147,6 +147,13 @@ public interface CommunicationServiceLocal {
     public String getBaseUrl();
 
     /**
+     * Gets the secure administration URL (https) of the blue portal
+     *
+     * @return the secure administration URL (https) of the blue portal
+     */
+    public String getBaseUrlHttps();
+
+    /**
      * Gets the administration URL of the blue portal with ID of the tenant
      *
      * @param tenantId
@@ -154,4 +161,13 @@ public interface CommunicationServiceLocal {
      * @return
      */
     public String getBaseUrlWithTenant(String tenantId) throws MailOperationException;
+
+    /**
+     * Gets the administration secure URL of the blue portal with ID of the tenant
+     *
+     * @param tenantId
+     *            the tenant ID
+     * @return
+     */
+    public String getBaseUrlHttpsWithTenant(String tenantId) throws MailOperationException;
 }

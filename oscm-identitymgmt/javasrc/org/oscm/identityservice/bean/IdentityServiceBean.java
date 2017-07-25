@@ -1909,7 +1909,8 @@ public class IdentityServiceBean
                                 EmailType.USER_CREATED_WITH_MARKETPLACE_SAML_SP,
                                 new Object[] { pu.getUserId(),
                                         cm.getBaseUrlWithTenant(tenantId),
-                                        cm.getMarketplaceUrl(marketplaceId) },
+                                        cm.getMarketplaceUrl(marketplaceId),
+                                        cm.getBaseUrlHttpsWithTenant(tenantId)},
                                 marketplace);
 
                     } else {
@@ -1917,7 +1918,8 @@ public class IdentityServiceBean
                                 new Object[] { pu.getUserId(), password,
                                         cm.getBaseUrl(),
                                         cm.getMarketplaceUrl(marketplaceId),
-                                        String.valueOf(pu.getKey()) },
+                                        String.valueOf(pu.getKey()),
+                                        cm.getBaseUrlHttps()},
                                 marketplace);
 
                     }
