@@ -9,6 +9,7 @@
 package org.oscm.kafka.service;
 
 import java.util.Properties;
+import java.util.UUID;
 
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -20,29 +21,27 @@ import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.kafka.records.Operation;
 import org.oscm.kafka.records.SubscriptionRecord;
 import org.oscm.kafka.result.PublishingResult;
-
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
+import org.oscm.kafka.serializer.DataSerializer;
+import org.oscm.kafka.serializer.UUIDSerializer;
 
 /**
  * Authored by dawidch
  */
 public class Producer {
     private static final Logger LOGGER = Logger.getLogger(Producer.class);
-    private final static String STRING_SERIALIZER_CLASS = "org.apache.kafka.common.serialization.StringSerializer";
     private final static String TOPIC = "core-subscription";
 
-    private KafkaProducer<String, String> producer;
+    private KafkaProducer<UUID, Object> producer;
 
     public PublishingResult publish(Subscription subscription,
             Operation operation) {
-        String subscriptionJson = new SubscriptionRecord(subscription,
-                operation).toJson();
-        produce(subscriptionJson);
+        SubscriptionRecord record = new SubscriptionRecord(subscription,
+                operation);
+        produce(subscription.getUuid(), record);
         return PublishingResult.SUCCESS;
     }
 
-    public void produce(String subscriptionJSON) {
+    public void produce(UUID key, Object value) {
         ConfigurationService configService = ServiceLocator
                 .findService(ConfigurationService.class);
         Properties kafkaProps = new Properties();
@@ -50,14 +49,11 @@ public class Producer {
                 configService.getVOConfigurationSetting(
                         ConfigurationKey.KAFKA_BOOTSTRAP_SERVERS, "global")
                         .getValue());
-        kafkaProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
-                STRING_SERIALIZER_CLASS);
-        kafkaProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
-                STRING_SERIALIZER_CLASS);
 
-        this.producer = new KafkaProducer<>(kafkaProps);
+        this.producer = new KafkaProducer<>(kafkaProps, new UUIDSerializer(),
+                new DataSerializer(value.getClass()));
         try {
-            producer.send(record(TOPIC, subscriptionJSON));
+            producer.send(new ProducerRecord<>(TOPIC, key, value));
         } catch (Exception e) {
             LOGGER.error("Producer closed");
             e.printStackTrace();
@@ -65,16 +61,5 @@ public class Producer {
             producer.close();
             LOGGER.debug("Producer closed");
         }
-    }
-
-    private ProducerRecord<String, String> record(String topic, String json) {
-
-        Gson gson = new Gson();
-        JsonObject jsonObj = gson.fromJson(json, JsonObject.class);
-        String key = jsonObj.get("id").getAsString();
-        String value = json;
-        ProducerRecord<String, String> record = new ProducerRecord<>(topic, key,
-                value);
-        return record;
     }
 }

@@ -20,7 +20,6 @@ import org.oscm.domobjects.ParameterSet;
 import org.oscm.domobjects.Subscription;
 import org.oscm.internal.types.enumtypes.SubscriptionStatus;
 
-import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 
 /**
@@ -62,8 +61,8 @@ public class SubscriptionRecord {
         ParameterSet paramSet = subscription.getParameterSet();
         List<Parameter> params = paramSet.getParameters();
 
-//        this.operation = getOperation(subscription);
-//
+        // this.operation = getOperation(subscription);
+        //
         if (Operation.DELETE.equals(this.operation)) {
             return;
         }
@@ -105,7 +104,7 @@ public class SubscriptionRecord {
         case PENDING_UPD:
             operation = Operation.UPDATE;
             break;
-        //TODO
+        // TODO
         case ACTIVE:
         case INVALID:
         default:
@@ -113,12 +112,4 @@ public class SubscriptionRecord {
         }
         return operation;
     }
-
-    public String toJson() {
-        String jsonString = null;
-        Gson gson = new Gson();
-        jsonString = gson.toJson(this);
-        return jsonString;
-    }
-
 }

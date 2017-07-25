@@ -12,8 +12,6 @@ import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
 import com.google.gson.annotations.SerializedName;
 
 /**
@@ -21,7 +19,6 @@ import com.google.gson.annotations.SerializedName;
  *
  */
 public class ReleaseRecord {
-    
 
     @SerializedName("version")
     private int version;
@@ -85,7 +82,7 @@ public class ReleaseRecord {
     public void setInstance(UUID instance) {
         this.instance = instance;
     }
-    
+
     public String getTarget() {
         return target;
     }
@@ -93,7 +90,7 @@ public class ReleaseRecord {
     public void setTarget(String target) {
         this.target = target;
     }
-    
+
     public String getNamespace() {
         return namespace;
     }
@@ -101,7 +98,7 @@ public class ReleaseRecord {
     public void setNamespace(String namespace) {
         this.namespace = namespace;
     }
-    
+
     public Map<String, String> getServices() {
         return services;
     }
@@ -138,19 +135,6 @@ public class ReleaseRecord {
         this.failure.put(key, value);
     }
 
-    public static ReleaseRecord fromJson(String json) {
-        Gson gson = new Gson();
-        try {
-            return gson.fromJson(json, ReleaseRecord.class);
-        } catch (JsonSyntaxException e) {
-            //log error
-            return null;
-        }
-
-    }
-    
-   
-
     public enum Status {
         @SerializedName(SerializedValues.OPTION_CREATNG)
         CREATING, //
@@ -172,14 +156,14 @@ public class ReleaseRecord {
 
         @SerializedName(SerializedValues.OPTION_FAILED)
         FAILED; //
-        
+
         public static class SerializedValues {
             public static final String OPTION_CREATNG = "creating";
             public static final String OPTION_UPDATING = "updating";
             public static final String OPTION_DELETING = "deleting";
             public static final String OPTION_PENDING = "pending";
             public static final String OPTION_DEPLOYED = "deployed";
-            public static final String OPTION_DELETED = "deleted";            
+            public static final String OPTION_DELETED = "deleted";
             public static final String OPTION_FAILED = "failed";
         }
     }

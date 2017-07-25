@@ -8,8 +8,10 @@
 
 package org.oscm.kafka.records;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -21,6 +23,7 @@ import org.oscm.domobjects.ParameterSet;
 import org.oscm.domobjects.Product;
 import org.oscm.domobjects.Subscription;
 import org.oscm.internal.types.enumtypes.SubscriptionStatus;
+import org.oscm.kafka.serializer.DataSerializer;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -59,8 +62,11 @@ public class SubscriptionRecordTest {
         Subscription sub = getSubscriptionMessage();
 
         // when
-        SubscriptionRecord subscription = new SubscriptionRecord(sub, Operation.UPDATE);
-        String json = subscription.toJson();
+        SubscriptionRecord subscription = new SubscriptionRecord(sub,
+                Operation.UPDATE);
+        DataSerializer serde = new DataSerializer(SubscriptionRecord.class);
+        String json = new String(serde.serialize("", subscription),
+                StandardCharsets.UTF_8);
         System.out.println(json);
 
         // then
@@ -72,18 +78,18 @@ public class SubscriptionRecordTest {
                 jsonObj.get(PARAM_TARGET_ID).getAsString());
         assertEquals(PARAM_NAMESPACE_VAL,
                 jsonObj.get(PARAM_NAMESPACE_ID).getAsString());
-        assertEquals(PARAM_REPO_VAL,
-                jsonObj.get(TEMPLATE).getAsJsonObject().get(PARAM_REPO_ID).getAsString());
-        assertEquals(PARAM_CHART_VAL,
-                jsonObj.get(TEMPLATE).getAsJsonObject().get(PARAM_CHART_ID).getAsString());
-        assertEquals(PARAM_VERSION_VAL,
-                jsonObj.get(TEMPLATE).getAsJsonObject().get(PARAM_VERSION_ID).getAsString());
-        assertEquals(PARAM_RELEASE_VAL,
-                jsonObj.get(LABELS).getAsJsonObject().get(PARAM_RELEASE_ID).getAsString());
-        assertEquals(PARAM_VALUE_CPU_VAL,
-                jsonObj.get(PARAMETERS).getAsJsonObject().get(PARAM_VALUE_CPU_ID).getAsString());
-        assertEquals(PARAM_VALUE_MEM_VAL,
-                jsonObj.get(PARAMETERS).getAsJsonObject().get(PARAM_VALUE_MEM_ID).getAsString());
+        assertEquals(PARAM_REPO_VAL, jsonObj.get(TEMPLATE).getAsJsonObject()
+                .get(PARAM_REPO_ID).getAsString());
+        assertEquals(PARAM_CHART_VAL, jsonObj.get(TEMPLATE).getAsJsonObject()
+                .get(PARAM_CHART_ID).getAsString());
+        assertEquals(PARAM_VERSION_VAL, jsonObj.get(TEMPLATE).getAsJsonObject()
+                .get(PARAM_VERSION_ID).getAsString());
+        assertEquals(PARAM_RELEASE_VAL, jsonObj.get(LABELS).getAsJsonObject()
+                .get(PARAM_RELEASE_ID).getAsString());
+        assertEquals(PARAM_VALUE_CPU_VAL, jsonObj.get(PARAMETERS)
+                .getAsJsonObject().get(PARAM_VALUE_CPU_ID).getAsString());
+        assertEquals(PARAM_VALUE_MEM_VAL, jsonObj.get(PARAMETERS)
+                .getAsJsonObject().get(PARAM_VALUE_MEM_ID).getAsString());
     }
 
     private Subscription getSubscriptionMessage() {

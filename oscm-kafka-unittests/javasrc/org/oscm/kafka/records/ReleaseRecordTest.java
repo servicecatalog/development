@@ -8,10 +8,12 @@
 
 package org.oscm.kafka.records;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+
+import java.nio.charset.StandardCharsets;
 
 import org.junit.Test;
-import org.oscm.kafka.records.ReleaseRecord;
+import org.oscm.kafka.serializer.DataSerializer;
 
 /**
  * @author stavreva
@@ -48,10 +50,12 @@ public class ReleaseRecordTest {
                 + PARAM_VALUE + "\"}, \"failure\": {\"" + FAILURE_KEY + "\": \""
                 + FAILURE_VALUE + "\"} }";
 
-
         System.out.println(json);
+
+        DataSerializer serde = new DataSerializer(ReleaseRecord.class);
         // when
-        ReleaseRecord release = ReleaseRecord.fromJson(json);
+        ReleaseRecord release = (ReleaseRecord) serde.deserialize("",
+                json.getBytes(StandardCharsets.UTF_8));
 
         // then
         assertEquals(ID, release.getId().toString());

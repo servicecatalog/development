@@ -10,6 +10,7 @@ package org.oscm.kafka.service;
 
 import java.util.Arrays;
 import java.util.Properties;
+import java.util.UUID;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -23,6 +24,8 @@ import org.oscm.internal.types.enumtypes.SubscriptionStatus;
 import org.oscm.internal.vo.VOInstanceInfo;
 import org.oscm.internal.vo.VOSubscription;
 import org.oscm.kafka.records.ReleaseRecord;
+import org.oscm.kafka.serializer.DataSerializer;
+import org.oscm.kafka.serializer.UUIDSerializer;
 
 import com.sun.enterprise.security.ee.auth.login.ProgrammaticLogin;
 
@@ -34,10 +37,9 @@ public class Consumer implements Runnable {
 
     private static final Logger LOGGER = Logger.getLogger(Consumer.class);
 
-    private final static String STRING_DESERIALIZER_CLASS = "org.apache.kafka.common.serialization.StringDeserializer";
     private final static String TOPIC = "provisioning-release";
     private final static String CONSUMER_GROUP = "oscm-group";
-    private KafkaConsumer<String, String> consumer;
+    private KafkaConsumer<UUID, Object> consumer;
     private SubscriptionService subscriptionService;
 
     public Consumer() {
@@ -48,12 +50,9 @@ public class Consumer implements Runnable {
                 configService.getVOConfigurationSetting(
                         ConfigurationKey.KAFKA_BOOTSTRAP_SERVERS, "global")
                         .getValue());
-        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
-                STRING_DESERIALIZER_CLASS);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, CONSUMER_GROUP);
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
-                STRING_DESERIALIZER_CLASS);
-        consumer = new KafkaConsumer<>(props);
+        consumer = new KafkaConsumer<>(props, new UUIDSerializer(),
+                new DataSerializer(ReleaseRecord.class));
         consumer.subscribe(Arrays.asList(TOPIC));
         LOGGER.debug("Kafka consumer subscribed to topic.");
     }
@@ -70,7 +69,7 @@ public class Consumer implements Runnable {
         }
         while (true) {
             try {
-                final ConsumerRecords<String, String> consumerRecords = consumer
+                final ConsumerRecords<UUID, Object> consumerRecords = consumer
                         .poll(1000);
 
                 consumerRecords.forEach(record -> {
@@ -88,14 +87,9 @@ public class Consumer implements Runnable {
         }
     }
 
-    public void processRecord(ConsumerRecord<String, String> record) {
+    public void processRecord(ConsumerRecord<UUID, Object> record) {
 
-        ReleaseRecord release = ReleaseRecord
-                .fromJson(record.value().toString());
-        if (release == null) {
-            LOGGER.warn("Malformed JSON: " + record.value());
-            return;
-        }
+        ReleaseRecord release = ReleaseRecord.class.cast(record.value());
 
         ReleaseRecord.Status status = release.getStatus();
         switch (status) {

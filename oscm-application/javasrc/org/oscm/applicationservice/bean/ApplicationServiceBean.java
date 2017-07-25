@@ -1021,7 +1021,7 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
 
             Subscription subscriptionModified = getModifiedSubscription(
                     subscription, serviceParameterList);
-            
+
             PublishingResult publishingResult = kafkaProducer
                     .publish(subscriptionModified, Operation.UPDATE);
             BaseResult baseResult = new BaseResult();
@@ -1045,7 +1045,7 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
      */
     Subscription getModifiedSubscription(Subscription subscription,
             List<ServiceParameter> serviceParameterList) {
-        List<Parameter> modifiedParameters = new ArrayList<>();            
+        List<Parameter> modifiedParameters = new ArrayList<>();
         ParameterSet paramSet = subscription.getParameterSet();
         paramSet.getParameters().forEach(parameter -> {
             serviceParameterList.forEach(serviceParameter -> {
@@ -1060,8 +1060,8 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
                 }
             });
         });
-        
-        //put everything for the json: UUID and parameters (id and value)
+
+        // put everything for the json: UUID and parameters (id and value)
         Subscription subscriptionModified = new Subscription();
         Product productModified = new Product();
         ParameterSet parameterSetModified = new ParameterSet();
@@ -1123,7 +1123,6 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
         if (isEventProvisioning(
                 subscription.getProduct().getTechnicalProduct())) {
             // TODO send to kafka??
-            System.out.println(getSubscriptionMessage(subscription).toJson());
             return getNotYetSupportedResult();
         } else {
             return getPort(subscription).deactivateInstance(
