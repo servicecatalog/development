@@ -78,6 +78,7 @@ public class Saml2Ctrl extends BaseBean {
             ui.handleError(null, ERROR_INVALID_IDP_URL);
             return getErrorOutcome();
         } catch (NotExistentTenantException | MarketplaceRemovedException | WrongTenantConfigurationException e) {
+            sessionBean.setTenantID(null);
             getLogger().logError(Log4jLogger.SYSTEM_LOG, e,
                     LogMessageIdentifier.ERROR_TENANT_NOT_FOUND);
             ui.handleError(null, ERROR_MISSING_TENANTID);
