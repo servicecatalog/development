@@ -53,7 +53,6 @@ import org.oscm.internal.types.exception.TechnicalServiceOperationException;
 import org.oscm.internal.types.exception.UnsupportedOperationException;
 import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.kafka.records.Operation;
-import org.oscm.kafka.records.SubscriptionRecord;
 import org.oscm.kafka.result.PublishingResult;
 import org.oscm.kafka.service.Producer;
 import org.oscm.logging.Log4jLogger;
@@ -1158,11 +1157,4 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
         result.setRc(1);
         return result;
     }
-
-    private SubscriptionRecord getSubscriptionMessage(
-            Subscription subscription) {
-        // TODO this method should be deleted after everything implemented
-        return new SubscriptionRecord(subscription, Operation.UPDATE);
-    }
-
 }

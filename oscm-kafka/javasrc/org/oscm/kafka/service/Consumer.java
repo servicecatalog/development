@@ -116,7 +116,7 @@ public class Consumer implements Runnable {
      */
     void completeSubscription(ReleaseRecord release) {
         VOInstanceInfo instanceInfo = new VOInstanceInfo();
-        instanceInfo.setInstanceId(release.getInstance().toString());
+        instanceInfo.setInstanceId(release.getInstance());
         instanceInfo.setAccessInfo(release.getServices().get("endpoint"));
 
         VOSubscription subscription = subscriptionService

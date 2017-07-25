@@ -31,7 +31,7 @@ public class ReleaseRecord {
     @SerializedName("operation")
     private Operation operation;
     @SerializedName("instance")
-    private UUID instance;
+    private String instance;
     @SerializedName("namespace")
     private String namespace;
     @SerializedName("target")
@@ -75,11 +75,11 @@ public class ReleaseRecord {
         this.operation = operation;
     }
 
-    public UUID getInstance() {
+    public String getInstance() {
         return instance;
     }
 
-    public void setInstance(UUID instance) {
+    public void setInstance(String instance) {
         this.instance = instance;
     }
 
