@@ -588,7 +588,7 @@ AS_ADMIN_MASTERPASSWORD=@{masterpwd}
   <macrodef name="besDomainProperties">
     <sequential>
       <property name="glassfish.domain.dir" value="${glassfish.home}/glassfish/domains/${glassfish.bes.domain.name}" />
-      <property name="glassfish.domain.lib.dir" value="${com.sun.aas.instanceRoot}/lib/applibs" />
+      <property name="glassfish.domain.lib.dir" value="${com.sun.aas.instanceRoot}/lib" />
 
       <!-- MQ broker properties for domain -->
       <property name="glassfish.broker.base.dir" value="${glassfish.domain.dir}/imq" />
@@ -651,7 +651,7 @@ AS_ADMIN_MASTERPASSWORD=@{masterpwd}
       <property name="glassfish.domain.master.broker.dir" value="${glassfish.domain.master.broker.base.dir}/instances/imqbroker" />
 
       <property name="glassfish.domain.master.dir" value="${glassfish.home}/glassfish/domains/${glassfish.bes.domain.name}" />
-      <property name="glassfish.domain.master.lib.dir" value="${com.sun.aas.instanceRoot}/lib/applibs" />
+      <property name="glassfish.domain.master.lib.dir" value="${com.sun.aas.instanceRoot}/lib" />
 
       <!-- classpath suffix for master index domain -->
       <property name="glassfish.domain.master.classpath" value="${glassfish.domain.master.lib.dir}/${jdbc.driver.jar.name}" />
