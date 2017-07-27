@@ -20,7 +20,7 @@
             <div id="global_label_area_id">
               <h:form id="formLogout">
                   <p><h:outputText value="#{msg['user.userId']} : " />
-                    <span class="global_username_class"><h:outputText value="#{configurationBean.loggedInUserId}" /></span>
+                    <span class="global_username_class"><h:outputText value="#{appConfigurationCtrl.model.loggedInUserId}" /></span>
                   </p>
               </h:form>
             </div>
