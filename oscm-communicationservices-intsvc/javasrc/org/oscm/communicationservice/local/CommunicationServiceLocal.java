@@ -140,6 +140,19 @@ public interface CommunicationServiceLocal {
             throws MailOperationException;
 
     /**
+     * Get the marketplace URL for the given platform user.
+     *
+     * @param marketplaceId
+     *            the marketplace id
+     * @return The secure marketplace URL (https) for the given platform user.
+     * @throws MailOperationException
+     *             Thrown if an UnsupportedEncodingException occurs during the
+     *             URL construction.
+     */
+    public String getMarketplaceUrlHttps(String marketplaceId)
+            throws MailOperationException;
+
+    /**
      * Gets the administration URL of the blue portal
      * 
      * @return the administration URL of the blue portal
