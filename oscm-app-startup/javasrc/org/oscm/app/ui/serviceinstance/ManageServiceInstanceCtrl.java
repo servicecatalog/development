@@ -14,6 +14,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
@@ -51,7 +52,8 @@ public class ManageServiceInstanceCtrl extends BaseCtrl {
     @ManagedProperty(value = "#{manageServiceInstanceModel}")
     protected ManageServiceInstanceModel model;
 
-    public String getInitialize() {
+    @PostConstruct
+    public void getInitialize() {
         ManageServiceInstanceModel model = getModel();
         try {
             if (model == null) {
@@ -67,7 +69,6 @@ public class ManageServiceInstanceCtrl extends BaseCtrl {
         } catch (ServiceInstanceException | IllegalArgumentException e) {
             addError(e);
         }
-        return "";
     }
 
     public String executeService() {

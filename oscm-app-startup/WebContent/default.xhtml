@@ -18,8 +18,7 @@
 
 <h:body class="middle_product_class">
   <h:outputStylesheet name="override_richfaces.css" />
-  <adm:header userId="#{appConfigurationModel.loggedInUserId}"/>
-  <adm:initialize initializingMethod="#{appConfigurationCtrl.initialize}" />
+  <adm:header userId="#{appConfigurationCtrl.model.loggedInUserId}"/>
   <ui:include src="keyValueEditor.xhtml" />
   <ui:include src="settingsEditor.xhtml" />
 </h:body>
