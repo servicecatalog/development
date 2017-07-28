@@ -8,8 +8,10 @@
 
 package org.oscm.kafka.records;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -51,7 +53,7 @@ public class SubscriptionRecord {
     @SerializedName("labels")
     Map<String, String> labels = new HashMap<>();
     @SerializedName("parameters")
-    Map<String, String> parameters = new HashMap<>();
+    Map<String, Object> parameters = new HashMap<>();
 
     public SubscriptionRecord(Subscription subscription, Operation operation) {
         this.version = 0;
@@ -83,7 +85,7 @@ public class SubscriptionRecord {
                     labels.put(paramId, param.getValue());
                 } else if (paramId.contains(PARAMETERS_PREFIX)) {
                     paramId = paramId.substring(PARAMETERS_PREFIX.length());
-                    parameters.put(paramId, param.getValue());
+                    addParameter(paramId, param.getValue());
                 }
             }
         }
@@ -111,5 +113,30 @@ public class SubscriptionRecord {
             break;
         }
         return operation;
+    }
+
+    @SuppressWarnings("unchecked")
+    private void addParameter(String key, String value) {
+
+        List<String> hierarchy = Arrays.asList(key.split("\\."));
+
+        Map<String, Object> map = parameters;
+
+        Iterator<String> it = hierarchy.iterator();
+
+        while (it.hasNext()) {
+            String level = it.next();
+
+            if (it.hasNext()) {
+                if (map.get(level) == null
+                        || !(map.get(level) instanceof Map)) {
+                    map.put(level, new HashMap<String, Object>());
+                }
+
+                map = (Map<String, Object>) map.get(level);
+            } else {
+                map.put(level, value);
+            }
+        }
     }
 }

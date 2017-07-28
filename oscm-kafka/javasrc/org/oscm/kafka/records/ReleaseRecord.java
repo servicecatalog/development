@@ -37,7 +37,7 @@ public class ReleaseRecord {
     @SerializedName("target")
     private String target;
     @SerializedName("parameters")
-    private Map<String, String> parameters;
+    private Map<String, Object> parameters;
     @SerializedName("services")
     private Map<String, String> services;
     @SerializedName("failure")
@@ -111,11 +111,11 @@ public class ReleaseRecord {
         this.services.put(key, value);
     }
 
-    public Map<String, String> getParameters() {
+    public Map<String, Object> getParameters() {
         return parameters;
     }
 
-    public void setParameters(Map<String, String> parameters) {
+    public void setParameters(Map<String, Object> parameters) {
         this.parameters = parameters;
     }
 
