@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -72,9 +73,8 @@ public class ADMRealmImpl {
     protected static final String GROUP_USER = "PlatformUsers";
     protected static final String GROUP_ADMIN = UserRoleType.ORGANIZATION_ADMIN
             .name();
-    protected static final String[] GROUPLIST_USER = { GROUP_USER };
-    protected static final String[] GROUPLIST_ADMIN = { GROUP_USER,
-            GROUP_ADMIN };
+    protected static final List<String> GROUPLIST_USER = new ArrayList<String>(Arrays.asList(GROUP_USER));
+    protected static final List<String> GROUPLIST_ADMIN = new ArrayList<String>(Arrays.asList(GROUP_USER, GROUP_ADMIN));
 
     private static final int SAML_REQUEST_ID_LEN = 43;
     private static final int SAML_TENANT_ID_LEN = 8;
