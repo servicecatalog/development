@@ -20,7 +20,7 @@
 
 	<macrodef name="domainProperties">
 		<sequential>
-			<property name="glassfish.domain.lib.dir" value="${com.sun.aas.instanceRoot}/lib/applibs" />
+			<property name="glassfish.domain.lib.dir" value="${com.sun.aas.instanceRoot}/lib" />
 			<property name="glassfish.domain.dir" value="${glassfish.home}/glassfish/domains/${glassfish.domain.name}" />
 			<property name="glassfish.dtd.repository" value="${glassfish.home}/glassfish/lib/dtds" />
 			<!-- MQ broker properties for domain -->
