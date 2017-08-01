@@ -17,6 +17,8 @@ import javax.xml.crypto.dsig.SignatureMethod;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import org.oscm.internal.types.enumtypes.SigningAlgorithmType;
+
 /**
  * @author kulle
  * 
@@ -60,6 +62,20 @@ public class SamlKeySelectorTest {
         // when
         boolean result = keySelector.algorithmCompatibleWithMethod(
                 SignatureMethod.RSA_SHA1, keySelector.ALGORITHM_RSA);
+
+        // then
+        assertTrue(result);
+    }
+
+    @Test
+    public void algorithmCompatibleWithMethod_rsa256() {
+        // given
+        SamlKeySelector keySelector = mock(SamlKeySelector.class,
+                Mockito.CALLS_REAL_METHODS);
+
+        // when
+        boolean result = keySelector.algorithmCompatibleWithMethod(
+                SigningAlgorithmType.SHA256.getUri(), keySelector.ALGORITHM_RSA);
 
         // then
         assertTrue(result);
