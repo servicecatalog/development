@@ -10,14 +10,10 @@
 package org.oscm.security;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
+import java.util.logging.Logger;
 
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
@@ -27,10 +23,8 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
-import java.util.logging.Logger;
-
 /**
- * Glassfish JAAS LoginModule for the ADM Realm.
+ * JAAS LoginModule for the ADM Realm.
  * 
  */
 public class ADMLoginModule implements LoginModule {
@@ -79,7 +73,6 @@ public class ADMLoginModule implements LoginModule {
                 e.printStackTrace();
             }
             
-
             // If credentials are NOT OK we throw a LoginException
             throw new LoginException("Authentication failed");
 
