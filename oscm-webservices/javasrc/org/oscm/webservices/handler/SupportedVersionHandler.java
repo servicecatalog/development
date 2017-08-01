@@ -6,6 +6,7 @@ package org.oscm.webservices.handler;
 
 import java.util.Set;
 
+import javax.security.auth.Subject;
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPFault;
@@ -21,6 +22,12 @@ import org.oscm.logging.LoggerFactory;
 import org.oscm.string.Strings;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
 
+import com.sun.xml.wss.impl.MessageConstants;
+
+import org.apache.cxf.message.Message;
+import org.apache.cxf.phase.PhaseInterceptorChain;
+import org.apache.cxf.security.SecurityContext;
+
 /**
  * SOAP handler to check if the version value in the incoming SOAP message is
  * supported by the server.
@@ -28,7 +35,8 @@ import org.oscm.types.enumtypes.LogMessageIdentifier;
  * @author stavreva
  * 
  */
-public class SupportedVersionHandler implements SOAPHandler<SOAPMessageContext> {
+public class SupportedVersionHandler
+        implements SOAPHandler<SOAPMessageContext> {
 
     private static final Log4jLogger logger = LoggerFactory
             .getLogger(SupportedVersionHandler.class);
@@ -43,6 +51,11 @@ public class SupportedVersionHandler implements SOAPHandler<SOAPMessageContext> 
             String version = null;
             try {
                 version = SoapRequestParser.parseApiVersion(context);
+                // TODO Just for check if the security context set, should be removed                
+                Message message = PhaseInterceptorChain.getCurrentMessage();
+                SecurityContext msgContext = message.get(SecurityContext.class);
+                String userName = msgContext.getUserPrincipal().getName();
+                System.out.println(userName);
             } catch (SOAPException e) {
                 logger.logError(Log4jLogger.SYSTEM_LOG, e,
                         LogMessageIdentifier.ERROR_SOAP_GET_VERSION_FROM_HEADER);
@@ -56,12 +69,9 @@ public class SupportedVersionHandler implements SOAPHandler<SOAPMessageContext> 
                 try {
                     SOAPMessage message = context.getMessage();
                     versionFault = message.getSOAPBody().addFault();
-                    versionFault
-                            .setFaultString("The API version "
-                                    + version
-                                    + " specified in the header of the SOAP message in not supported by the server. Supported versions: "
-                                    + SupportedVersions
-                                            .getSupportedVersionsAsString());
+                    versionFault.setFaultString("The API version " + version
+                            + " specified in the header of the SOAP message in not supported by the server. Supported versions: "
+                            + SupportedVersions.getSupportedVersionsAsString());
                     throw new SOAPFaultException(versionFault);
                 } catch (SOAPException e) {
                     logger.logError(Log4jLogger.SYSTEM_LOG, e,
