@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Copyright FUJITSU LIMITED 2017-->
- 
+<!-- Copyright FUJITSU LIMITED 2017 -->
+
 <webservices xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  version="1.2" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://www.ibm.com/webservices/xsd/javaee_web_services_1_2.xsd">
+  version="1.2" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://www.ibm.com/webservices/xsd/javaee_web_services_1_2.xsd"> 
   <webservice-description>
     <display-name>AccountService</display-name>
     <webservice-description-name>AccountService</webservice-description-name>
@@ -20,9 +20,9 @@
           <handler>
             <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
             <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
-          </handler>                
+          </handler>
         </handler-chain>
-      </handler-chains>      
+      </handler-chains>
     </port-component>
 
     <port-component>
@@ -38,9 +38,9 @@
           <handler>
             <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
             <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
-          </handler>                    
+          </handler>
         </handler-chain>
-      </handler-chains>            
+      </handler-chains>
     </port-component>
   </webservice-description>
 
@@ -60,9 +60,9 @@
           <handler>
             <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
             <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
-          </handler>                    
+          </handler>
         </handler-chain>
-      </handler-chains>            
+      </handler-chains>
     </port-component>
     <port-component>
       <port-component-name>BillingServicePortCLIENTCERT</port-component-name>
@@ -77,9 +77,9 @@
           <handler>
             <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
             <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
-          </handler>                    
+          </handler>
         </handler-chain>
-      </handler-chains>            
+      </handler-chains>
     </port-component>
   </webservice-description>
 
@@ -99,9 +99,9 @@
           <handler>
             <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
             <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
-          </handler>                    
+          </handler>
         </handler-chain>
-      </handler-chains>            
+      </handler-chains>
     </port-component>
     <port-component>
       <port-component-name>EventServicePortCLIENTCERT</port-component-name>
@@ -116,9 +116,9 @@
           <handler>
             <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
             <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
-          </handler>                    
+          </handler>
         </handler-chain>
-      </handler-chains>            
+      </handler-chains>
     </port-component>
   </webservice-description>
 
@@ -138,9 +138,9 @@
           <handler>
             <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
             <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
-          </handler>                    
+          </handler>
         </handler-chain>
-      </handler-chains>            
+      </handler-chains>
     </port-component>
     <port-component>
       <port-component-name>IdentityServicePortCLIENTCERT</port-component-name>
@@ -155,10 +155,10 @@
           <handler>
             <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
             <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
-          </handler>                    
+          </handler>
         </handler-chain>
-      </handler-chains>            
-    </port-component>    
+      </handler-chains>
+    </port-component>
   </webservice-description>
 
   <webservice-description>
@@ -177,9 +177,9 @@
           <handler>
             <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
             <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
-          </handler>                    
+          </handler>
         </handler-chain>
-      </handler-chains>            
+      </handler-chains>
     </port-component>
 
     <port-component>
@@ -195,9 +195,9 @@
           <handler>
             <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
             <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
-          </handler>                    
+          </handler>
         </handler-chain>
-      </handler-chains>            
+      </handler-chains>
     </port-component>
 
   </webservice-description>
@@ -219,9 +219,9 @@
           <handler>
             <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
             <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
-          </handler>                    
+          </handler>
         </handler-chain>
-      </handler-chains>            
+      </handler-chains>
     </port-component>
     <port-component>
       <port-component-name>ReportingServicePortCLIENTCERT</port-component-name>
@@ -236,9 +236,9 @@
           <handler>
             <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
             <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
-          </handler>                    
+          </handler>
         </handler-chain>
-      </handler-chains>            
+      </handler-chains>
     </port-component>
   </webservice-description>
 
@@ -258,9 +258,9 @@
           <handler>
             <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
             <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
-          </handler>                    
+          </handler>
         </handler-chain>
-      </handler-chains>            
+      </handler-chains>
     </port-component>
     <port-component>
       <port-component-name>TagServicePortCLIENTCERT</port-component-name>
@@ -275,9 +275,9 @@
           <handler>
             <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
             <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
-          </handler>                    
+          </handler>
         </handler-chain>
-      </handler-chains>            
+      </handler-chains>
     </port-component>
   </webservice-description>
 
@@ -297,9 +297,9 @@
           <handler>
             <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
             <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
-          </handler>                    
+          </handler>
         </handler-chain>
-      </handler-chains>            
+      </handler-chains>
     </port-component>
     <port-component>
       <port-component-name>ServiceProvisioningServicePortCLIENTCERT</port-component-name>
@@ -314,9 +314,9 @@
           <handler>
             <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
             <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
-          </handler>                    
+          </handler>
         </handler-chain>
-      </handler-chains>            
+      </handler-chains>
     </port-component>
   </webservice-description>
 
@@ -336,15 +336,14 @@
           <handler>
             <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
             <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
-          </handler>                    
+          </handler>
         </handler-chain>
-      </handler-chains>            
+      </handler-chains>
     </port-component>
     <port-component>
       <port-component-name>SearchServicePortCLIENTCERT</port-component-name>
       <wsdl-service xmlns:ns1="http://oscm.org/xsd">ns1:SearchService</wsdl-service>
       <wsdl-port xmlns:ns1="http://oscm.org/xsd">ns1:SearchServicePortCLIENTCERT</wsdl-port>
-      <service-endpoint-interface>org.oscm.intf.SearchService</service-endpoint-interface>
       <service-impl-bean>
         <ejb-link>SearchServiceWS2</ejb-link>
       </service-impl-bean>
@@ -353,9 +352,9 @@
           <handler>
             <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
             <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
-          </handler>                    
+          </handler>
         </handler-chain>
-      </handler-chains>            
+      </handler-chains>
     </port-component>
   </webservice-description>
 
@@ -375,9 +374,9 @@
           <handler>
             <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
             <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
-          </handler>                    
+          </handler>
         </handler-chain>
-      </handler-chains>            
+      </handler-chains>
     </port-component>
     <port-component>
       <port-component-name>SubscriptionServicePortCLIENTCERT</port-component-name>
@@ -392,9 +391,9 @@
           <handler>
             <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
             <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
-          </handler>                    
+          </handler>
         </handler-chain>
-      </handler-chains>            
+      </handler-chains>
     </port-component>
   </webservice-description>
 
@@ -414,9 +413,9 @@
           <handler>
             <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
             <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
-          </handler>                    
+          </handler>
         </handler-chain>
-      </handler-chains>            
+      </handler-chains>
     </port-component>
 
     <port-component>
@@ -432,9 +431,9 @@
           <handler>
             <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
             <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
-          </handler>                    
+          </handler>
         </handler-chain>
-      </handler-chains>            
+      </handler-chains>
     </port-component>
   </webservice-description>
 
@@ -454,9 +453,9 @@
           <handler>
             <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
             <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
-          </handler>                    
+          </handler>
         </handler-chain>
-      </handler-chains>            
+      </handler-chains>
     </port-component>
 
     <port-component>
@@ -472,9 +471,9 @@
           <handler>
             <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
             <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
-          </handler>                    
+          </handler>
         </handler-chain>
-      </handler-chains>            
+      </handler-chains>
     </port-component>
   </webservice-description>
 
@@ -494,9 +493,9 @@
           <handler>
             <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
             <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
-          </handler>                    
+          </handler>
         </handler-chain>
-      </handler-chains>            
+      </handler-chains>
     </port-component>
     <port-component>
       <port-component-name>VatServicePortCLIENTCERT</port-component-name>
@@ -511,9 +510,9 @@
           <handler>
             <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
             <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
-          </handler>                    
+          </handler>
         </handler-chain>
-      </handler-chains>            
+      </handler-chains>
     </port-component>
   </webservice-description>
 
@@ -534,9 +533,9 @@
           <handler>
             <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
             <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
-          </handler>                    
+          </handler>
         </handler-chain>
-      </handler-chains>            
+      </handler-chains>
     </port-component>
 
     <port-component>
@@ -552,9 +551,9 @@
           <handler>
             <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
             <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
-          </handler>                    
+          </handler>
         </handler-chain>
-      </handler-chains>            
+      </handler-chains>
     </port-component>
   </webservice-description>
 
@@ -576,9 +575,9 @@
           <handler>
             <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
             <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
-          </handler>                    
+          </handler>
         </handler-chain>
-      </handler-chains>            
+      </handler-chains>
     </port-component>
     <port-component>
       <port-component-name>ReviewServicePortCLIENTCERT</port-component-name>
@@ -593,9 +592,9 @@
           <handler>
             <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
             <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
-          </handler>                    
+          </handler>
         </handler-chain>
-      </handler-chains>            
+      </handler-chains>
     </port-component>
   </webservice-description>
 
@@ -617,9 +616,9 @@
           <handler>
             <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
             <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
-          </handler>                    
+          </handler>
         </handler-chain>
-      </handler-chains>            
+      </handler-chains>
     </port-component>
   </webservice-description>
 
@@ -640,9 +639,9 @@
           <handler>
             <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
             <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
-          </handler>                    
+          </handler>
         </handler-chain>
-      </handler-chains>      
+      </handler-chains>
     </port-component>
     <port-component>
       <port-component-name>DiscountServicePortCLIENTCERT</port-component-name>
@@ -657,9 +656,9 @@
           <handler>
             <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
             <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
-          </handler>                    
+          </handler>
         </handler-chain>
-      </handler-chains>            
+      </handler-chains>
     </port-component>
   </webservice-description>
 
@@ -680,9 +679,9 @@
           <handler>
             <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
             <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
-          </handler>                    
+          </handler>
         </handler-chain>
-      </handler-chains>            
+      </handler-chains>
     </port-component>
     <port-component>
       <port-component-name>CategorizationServicePortCLIENTCERT</port-component-name>
@@ -697,13 +696,13 @@
           <handler>
             <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
             <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
-          </handler>                    
+          </handler>
         </handler-chain>
-      </handler-chains>            
+      </handler-chains>
     </port-component>
   </webservice-description>
 
-  <!-- === OrganizationalUnitService ==================================================== -->  
+  <!-- === OrganizationalUnitService ==================================================== -->
   <webservice-description>
     <display-name>OrganizationalUnitService</display-name>
     <webservice-description-name>OrganizationalUnitService</webservice-description-name>
@@ -720,9 +719,9 @@
           <handler>
             <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
             <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
-          </handler>                    
+          </handler>
         </handler-chain>
-      </handler-chains>            
+      </handler-chains>
     </port-component>
     <port-component>
       <port-component-name>OrganizationalUnitServicePortCLIENTCERT</port-component-name>
@@ -737,9 +736,9 @@
           <handler>
             <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
             <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
-          </handler>                    
+          </handler>
         </handler-chain>
-      </handler-chains>      
+      </handler-chains>
     </port-component>
   </webservice-description>
 </webservices>
