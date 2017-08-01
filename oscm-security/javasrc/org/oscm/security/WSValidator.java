@@ -14,7 +14,6 @@ import java.util.List;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 
-import org.apache.cxf.message.Message;
 import org.apache.wss4j.dom.handler.RequestData;
 import org.apache.wss4j.dom.validate.Credential;
 
@@ -53,7 +52,6 @@ public class WSValidator
             loginContext.login();
             
             credential.setSubject(loginContext.getSubject());
-           // Message context = (Message) requestData.getMsgContext();
          
         } catch (Exception e) {
             e.printStackTrace();

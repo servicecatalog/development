@@ -44,8 +44,6 @@ import org.oscm.internal.types.exception.DigitalSignatureValidationException;
 import org.oscm.saml2.api.AssertionConsumerService;
 import org.xml.sax.SAXException;
 
-import com.sun.enterprise.security.auth.realm.NoSuchUserException;
-
 /**
  * Login implementation for supporting authentication on the base of the local
  * LDAP or an organization specific remote LDAP.
@@ -91,8 +89,6 @@ public class ADMRealmImpl {
      * Returns enumeration of groups that a particular user belongs to.
      * 
      * @return enumeration of groups that a particular user belongs to.
-     * @throws NoSuchUserException
-     *             if the userKey doesn't exist in the database
      */
     Enumeration<String> getGroupNames(String userKey)
             throws SQLException, NamingException {
