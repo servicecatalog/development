@@ -8,46 +8,21 @@
 
 package org.oscm.ws;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import java.io.IOException;
-import java.lang.reflect.Field;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import javax.security.auth.callback.Callback;
-import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Binding;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Service;
 import javax.xml.ws.handler.Handler;
-import javax.xml.ws.soap.SOAPFaultException;
-import javax.xml.ws.spi.Provider;
-import javax.xml.ws.spi.ServiceDelegate;
 
-import org.apache.cxf.binding.soap.saaj.SAAJOutInterceptor;
-import org.apache.cxf.endpoint.Client;
-import org.apache.cxf.endpoint.Endpoint;
-import org.apache.cxf.frontend.ClientProxy;
-import org.apache.cxf.jaxws.JaxWsClientProxy;
-import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
-import org.apache.cxf.ws.security.SecurityConstants;
-import org.apache.cxf.ws.security.wss4j.WSS4JOutInterceptor;
-import org.apache.wss4j.common.ext.WSPasswordCallback;
-import org.apache.wss4j.dom.WSConstants;
-import org.apache.wss4j.dom.handler.WSHandlerConstants;
 import org.junit.Assert;
 import org.junit.Test;
-import org.oscm.intf.TagService;
 import org.oscm.intf.VatService;
-import org.oscm.vo.VOTag;
 import org.oscm.ws.base.SecurityHandler;
 
 /**

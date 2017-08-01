@@ -23,35 +23,12 @@
 	<classpathentry kind="src" path="/oscm-psp-extsvc"/>
 	<classpathentry kind="lib" path="/libraries/jboss-richfaces/javalib/guava-18.0.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="/libraries/apache-tomee/javalib/cxf-rt-bindings-soap-3.1.10.jar"/>
 	<classpathentry kind="lib" path="/libraries/apache-tomee/javalib/wss4j-ws-security-common-2.1.7.jar"/>
 	<classpathentry kind="lib" path="/libraries/apache-tomee/javalib/wss4j-ws-security-dom-2.1.7.jar"/>
-	<classpathentry kind="lib" path="/libraries/apache-tomee/javalib/cxf-rt-ws-security-3.1.10.jar"/>
-	<classpathentry kind="lib" path="/libraries/apache-tomee/javalib/cxf-core-3.1.10.jar"/>
-	<classpathentry kind="lib" path="/libraries/apache-tomee/javalib/cxf-rt-frontend-jaxws-3.1.10.jar"/>
-	<classpathentry kind="lib" path="/libraries/apache-tomee/javalib/cxf-rt-frontend-simple-3.1.10.jar"/>
-	<classpathentry kind="lib" path="/libraries/apache-tomee/javalib/cxf-rt-bindings-xml-3.1.10.jar"/>
-	<classpathentry kind="lib" path="/libraries/apache-tomee/javalib/cxf-rt-databinding-jaxb-3.1.10.jar"/>
-	<classpathentry kind="lib" path="/libraries/apache-tomee/javalib/cxf-rt-frontend-jaxrs-3.1.10.jar"/>
-	<classpathentry kind="lib" path="/libraries/apache-tomee/javalib/cxf-rt-management-3.1.10.jar"/>
-	<classpathentry kind="lib" path="/libraries/apache-tomee/javalib/cxf-rt-rs-client-3.1.10.jar"/>
-	<classpathentry kind="lib" path="/libraries/apache-tomee/javalib/cxf-rt-rs-extension-providers-3.1.10.jar"/>
-	<classpathentry kind="lib" path="/libraries/apache-tomee/javalib/cxf-rt-rs-extension-search-3.1.10.jar"/>
-	<classpathentry kind="lib" path="/libraries/apache-tomee/javalib/cxf-rt-rs-json-basic-3.1.10.jar"/>
-	<classpathentry kind="lib" path="/libraries/apache-tomee/javalib/cxf-rt-rs-security-cors-3.1.10.jar"/>
-	<classpathentry kind="lib" path="/libraries/apache-tomee/javalib/cxf-rt-rs-security-jose-3.1.10.jar"/>
-	<classpathentry kind="lib" path="/libraries/apache-tomee/javalib/cxf-rt-rs-security-jose-jaxrs-3.1.10.jar"/>
-	<classpathentry kind="lib" path="/libraries/apache-tomee/javalib/cxf-rt-rs-security-oauth2-3.1.10.jar"/>
-	<classpathentry kind="lib" path="/libraries/apache-tomee/javalib/cxf-rt-rs-service-description-3.1.10.jar"/>
-	<classpathentry kind="lib" path="/libraries/apache-tomee/javalib/cxf-rt-security-3.1.10.jar"/>
-	<classpathentry kind="lib" path="/libraries/apache-tomee/javalib/cxf-rt-security-saml-3.1.10.jar"/>
-	<classpathentry kind="lib" path="/libraries/apache-tomee/javalib/cxf-rt-transports-http-3.1.10.jar"/>
-	<classpathentry kind="lib" path="/libraries/apache-tomee/javalib/cxf-rt-ws-addr-3.1.10.jar"/>
 	<classpathentry kind="lib" path="/libraries/apache-tomee/javalib/wss4j-bindings-2.1.7.jar"/>
 	<classpathentry kind="lib" path="/libraries/apache-tomee/javalib/wss4j-policy-2.1.7.jar"/>
 	<classpathentry kind="lib" path="/libraries/apache-tomee/javalib/wss4j-ws-security-policy-stax-2.1.7.jar"/>
 	<classpathentry kind="lib" path="/libraries/apache-tomee/javalib/wss4j-ws-security-stax-2.1.7.jar"/>
-	<classpathentry kind="lib" path="/libraries/apache-tomee/javalib/cxf-rt-wsdl-3.1.10.jar"/>
 	<classpathentry kind="lib" path="/libraries/apache-tomee/javalib/geronimo-javamail_1.4_mail-1.9.0-alpha-2.jar"/>
 	<classpathentry kind="lib" path="/libraries/bouncycastle/javalib/bcprov-jdk15-145.jar"/>
 	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/javaee.jar"/>
