@@ -338,11 +338,6 @@
         <transport-guarantee>NONE</transport-guarantee>
         <auth-method>WS-SECURITY</auth-method>
         <realm-name>bss-realm</realm-name>
-        wss4j.in.validator = {org.oscm.security.WSValidator}
-        
-                ws-security.validate.token = false        
-        wss4j.ws-security.ut.validator = org.oscm.security.WSValidator        
-        
       </web-service-security> -->
       <properties>
         webservice.security.authMethod = WS-SECURITY
