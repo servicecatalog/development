@@ -10,7 +10,9 @@ package org.oscm.ws.base;
 
 import java.util.Properties;
 
+import javax.naming.Context;
 import javax.naming.InitialContext;
+import javax.security.auth.login.LoginContext;
 
 import org.oscm.ct.login.LoginHandlerFactory;
 import org.oscm.internal.intf.ConfigurationService;
@@ -34,14 +36,15 @@ import org.oscm.intf.TagService;
 import org.oscm.intf.TriggerDefinitionService;
 import org.oscm.intf.TriggerService;
 import org.oscm.intf.VatService;
+import org.oscm.operatorservice.bean.OperatorServiceBean;
 import org.oscm.test.setup.PropertiesReader;
 import org.oscm.test.ws.WebServiceProxy;
 
 /**
  * Factory class to retrieve service references in the web service tests.
- * 
+ *
  * @author Mike J&auml;ger
- * 
+ *
  */
 public class ServiceFactory {
 
@@ -336,13 +339,11 @@ public class ServiceFactory {
 
     private <T> T connectToEJB(Class<T> remoteInterface, String userName,
             String password) throws Exception {
+        props.put(Context.SECURITY_PRINCIPAL, userName);
+        props.put(Context.SECURITY_CREDENTIALS, password);
         InitialContext initialContext = new InitialContext(props);
-        String configurl = ServiceFactory.class.getResource(
-                "/glassfish-login.conf").toString();
-        System.setProperty("java.security.auth.login.config", configurl);
-        LoginHandlerFactory.getInstance().login(userName, password);
         @SuppressWarnings("unchecked")
-        T service = (T) initialContext.lookup(remoteInterface.getName());
+        T service = (T) initialContext.lookup("java:"+remoteInterface.getSimpleName()+"BeanRemote");
         return service;
     }
 
