@@ -555,7 +555,19 @@
     
     <!-- JDBC Driver-->
     <dependency org="org.postgresql" name="postgresql" rev="9.4-1206-jdbc42" transitive="false"/>
-    
+
+    <!-- Tomee libs -->
+    <!-- https://mvnrepository.com/artifact/org.apache.tomee/openejb-core -->
+    <dependency org="org.apache.tomee" name="openejb-core" rev="7.0.3"/>
+    <dependency org="org.apache.tomee" name="openejb-cxf" rev="7.0.3"/>
+    <dependency org="org.apache.geronimo.javamail" name="geronimo-javamail_1.4_mail" rev="1.9.0-alpha-2"/>
+    <dependency org="org.apache.wss4j" name="wss4j-bindings" rev="2.1.7"/>
+    <dependency org="org.apache.wss4j" name="wss4j-policy" rev="2.1.7"/>
+    <dependency org="org.apache.wss4j" name="wss4j-ws-security-common" rev="2.1.7"/>
+    <dependency org="org.apache.wss4j" name="wss4j-ws-security-dom" rev="2.1.7"/>
+    <dependency org="org.apache.wss4j" name="wss4j-ws-security-policy-stax" rev="2.1.7"/>
+    <dependency org="org.apache.wss4j" name="wss4j-ws-security-policy-stax" rev="2.1.7"/>
+
     <exclude org="org.netbeans.api"/>
     <exclude org="*" ext="*" type="source"/>
     <exclude org="*" ext="*" type="javadoc"/>

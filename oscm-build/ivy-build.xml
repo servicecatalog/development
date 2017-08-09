@@ -277,5 +277,17 @@
     <copy file="${ivy.lib.dir}/org.eclipse.persistence.moxy-2.6.3.jar" tofile="${root.dir}/libraries/glassfish4/modules/org.eclipse.persistence.moxy.jar" overwrite="true"/>
     <copy file="${ivy.lib.dir}/org.eclipse.persistence.oracle-2.6.3.jar" tofile="${root.dir}/libraries/glassfish4/modules/org.eclipse.persistence.oracle.jar" overwrite="true"/>
 
+    <!-- Tomee libraries-->
+    <copy file="${ivy.lib.dir}/geronimo-javamail_1.4_mail-1.9.0-alpha-2.jar" tofile="${root.dir}/libraries/apache-tomee/javalib/geronimo-javamail_1.4_mail-1.9.0-alpha-2.jar" overwrite="true"/>
+    <copy file="${ivy.lib.dir}/openejb-core-7.0.3.jar" tofile="${root.dir}/libraries/apache-tomee/javalib/openejb-core-7.0.3.jar" overwrite="true"/>
+    <copy file="${ivy.lib.dir}/openejb-cxf-7.0.3.jar" tofile="${root.dir}/libraries/apache-tomee/javalib/openejb-cxf-7.0.3.jar" overwrite="true"/>
+    <copy file="${ivy.lib.dir}/wss4j-bindings-2.1.7.jar" tofile="${root.dir}/libraries/apache-tomee/javalib/wss4j-bindings-2.1.7.jar" overwrite="true"/>
+    <copy file="${ivy.lib.dir}/wss4j-policy-2.1.7.jar" tofile="${root.dir}/libraries/apache-tomee/javalib/wss4j-policy-2.1.7.jar" overwrite="true"/>
+    <copy file="${ivy.lib.dir}/wss4j-ws-security-common-2.1.7.jar" tofile="${root.dir}/libraries/apache-tomee/javalib/wss4j-ws-security-common-2.1.7.jar" overwrite="true"/>
+    <copy file="${ivy.lib.dir}/wss4j-ws-security-dom-2.1.7.jar" tofile="${root.dir}/libraries/apache-tomee/javalib/wss4j-ws-security-dom-2.1.7.jar" overwrite="true"/>
+    <copy file="${ivy.lib.dir}/wss4j-ws-security-policy-stax-2.1.7.jar" tofile="${root.dir}/libraries/apache-tomee/javalib/wss4j-ws-security-policy-stax-2.1.7.jar" overwrite="true"/>
+    <copy file="${ivy.lib.dir}/wss4j-ws-security-stax-2.1.7.jar" tofile="${root.dir}/libraries/apache-tomee/javalib/wss4j-ws-security-stax-2.1.7.jar" overwrite="true"/>
+
+
   </target>
 </project>
