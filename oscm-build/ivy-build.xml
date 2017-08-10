@@ -78,7 +78,6 @@
     <copy file="${ivy.lib.dir}/commons-lang-2.6.jar" todir="${root.dir}/libraries/apache-lang/javalib" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/log4j-1.2.16.jar" todir="${root.dir}/libraries/apache-log4j/javalib/" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/commons-logging-1.1.3.jar" todir="${root.dir}/libraries/apache-logging/javalib" overwrite="true"></copy>
-    <copy file="${ivy.lib.dir}/commons-logging-1.2.jar" todir="${root.dir}/libraries/apache-logging/javalib" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/lucene-analyzers-common-5.3.1.jar" todir="${root.dir}/libraries/apache-lucene/javalib" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/lucene-core-5.3.1.jar" todir="${root.dir}/libraries/apache-lucene/javalib" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/lucene-backward-codecs-5.3.1.jar" todir="${root.dir}/libraries/apache-lucene/javalib" overwrite="true"></copy>
