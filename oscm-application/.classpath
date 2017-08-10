@@ -9,7 +9,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-configservice-intsvc"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc-provisioning"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc-operation"/>
-	<classpathentry kind="lib" path="/libraries/apache-httpclient/javalib/commons-httpclient-3.1.jar"/>
 	<classpathentry kind="lib" path="/libraries/wsdl4j/javalib/wsdl4j.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-webservices-client"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc-internal"/>
