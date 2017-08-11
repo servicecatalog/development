@@ -2,7 +2,9 @@ package org.oscm.mockpsp.servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.ServletException;
@@ -10,9 +12,15 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.methods.PostMethod;
-
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
 import org.oscm.mockpsp.data.ParameterStorage;
 
 /**
@@ -162,44 +170,47 @@ public class PSPMockService extends HttpServlet {
                 "FRONTEND.RESPONSE_URL");
         String choice = getParameterValue(sessionParams, "result");
 
-        HttpClient httpClient = new HttpClient();
-        PostMethod postMethod = new PostMethod(redirectURL);
+        HttpClient httpClient = HttpClients.createDefault();
+        HttpPost httpPost = new HttpPost(redirectURL);
 
         Iterator<String> it = sessionParams.keySet().iterator();
         String key;
+        List<NameValuePair> params = new ArrayList<NameValuePair>();
+        
         while (it.hasNext()) {
             key = it.next();
-            postMethod.addParameter(key, getParameterValue(sessionParams, key));
+            params.add(new BasicNameValuePair(key, getParameterValue(sessionParams, key)));
         }
 
         // set params
         boolean wasCancelled = "Cancel".equals(choice);
         if (wasCancelled) {
-            postMethod.addParameter("FRONTEND.REQUEST.CANCELLED", "true");
+            params.add(new BasicNameValuePair("FRONTEND.REQUEST.CANCELLED", "true"));
         }
 
-        postMethod.addParameter("PROCESSING.RESULT", "ACK");
-        postMethod.addParameter("PROCESSING.CODE", "000.000.000");
-        postMethod.addParameter("PROCESSING.RETURN", "000.000.000");
-        postMethod.addParameter("PROCESSING.RETURN.CODE", "000.000.000");
-        postMethod.addParameter("PROCESSING.REASON", "90.00");
-        postMethod.addParameter("PROCESSING.TIMESTAMP",
-                String.valueOf(System.currentTimeMillis()));
-        postMethod.addParameter("IDENTIFICATION.UNIQUEID", "12345");
+        params.add(new BasicNameValuePair("PROCESSING.RESULT", "ACK"));
+        params.add(new BasicNameValuePair("PROCESSING.CODE", "000.000.000"));
+        params.add(new BasicNameValuePair("PROCESSING.RETURN", "000.000.000"));
+        params.add(new BasicNameValuePair("PROCESSING.RETURN.CODE", "000.000.000"));
+        params.add(new BasicNameValuePair("PROCESSING.REASON", "90.00"));
+        params.add(new BasicNameValuePair("PROCESSING.TIMESTAMP",String.valueOf(System.currentTimeMillis())));
+        params.add(new BasicNameValuePair("IDENTIFICATION.UNIQUEID", "12345"));
 
         // some fake account data
-        postMethod.addParameter("ACCOUNT.NUMBER", "1100101");
-        postMethod.addParameter("ACCOUNT.BRAND", "Mock Platin Card");
-        postMethod.addParameter("ACCOUNT.EXPIRY_MONTH", "09");
-        postMethod.addParameter("ACCOUNT.EXPIRY_YEAR", "19");
-        postMethod.addParameter("ACCOUNT.BANK", "Mock Bank");
-        postMethod.addParameter("ACCOUNT.BANKNAME", "08154711");
-
+        params.add(new BasicNameValuePair("ACCOUNT.NUMBER", "1100101"));
+        params.add(new BasicNameValuePair("ACCOUNT.BRAND", "Mock Platin Card"));
+        params.add(new BasicNameValuePair("ACCOUNT.EXPIRY_MONTH", "09"));
+        params.add(new BasicNameValuePair("ACCOUNT.EXPIRY_YEAR", "19"));
+        params.add(new BasicNameValuePair("ACCOUNT.BANK", "Mock Bank"));
+        params.add(new BasicNameValuePair("ACCOUNT.BANKNAME", "08154711"));
+        
+        httpPost.setEntity(new UrlEncodedFormEntity(params));
+        
         // send the request
-        httpClient.executeMethod(postMethod);
-
-        String responseURL = postMethod.getResponseBodyAsString();
-        return responseURL;
+        HttpResponse response = httpClient.execute(httpPost);
+        HttpEntity entity = response.getEntity();
+        
+        return EntityUtils.toString(entity);
     }
 
     @Override
