@@ -11,12 +11,22 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
 
-import org.apache.commons.httpclient.Credentials;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpStatus;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.AuthCache;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.impl.auth.BasicScheme;
+import org.apache.http.impl.client.BasicAuthCache;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 
 /**
  * Helper class to create an URL object that retrieves the content specified by
@@ -82,25 +92,40 @@ public class BasicAuthLoader {
      */
     private static byte[] getUrlContent(URL url, String username,
             String password) throws IOException {
-        final HttpClient client = new HttpClient();
+
+        HttpHost targetHost = new HttpHost(url.getHost(), url.getPort(),
+                url.getProtocol());
+        CloseableHttpClient httpclient = HttpClients.createDefault();
 
         // Set credentials:
-        client.getParams().setAuthenticationPreemptive(true);
-        final Credentials credentials = new UsernamePasswordCredentials(
+        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(
                 username, password);
-        client.getState()
-                .setCredentials(
-                        new AuthScope(url.getHost(), url.getPort(),
-                                AuthScope.ANY_REALM), credentials);
+
+        CredentialsProvider provider = new BasicCredentialsProvider();
+        provider.setCredentials(new AuthScope(url.getHost(), url.getPort(),
+                AuthScope.ANY_REALM), credentials);
+
+        AuthCache authCache = new BasicAuthCache();
+        BasicScheme basicAuth = new BasicScheme();
+        authCache.put(targetHost, basicAuth);
+
+        HttpClientContext context = HttpClientContext.create();
+        context.setCredentialsProvider(provider);
+        context.setAuthCache(authCache);
 
         // Retrieve content:
-        final GetMethod method = new GetMethod(url.toString());
-        final int status = client.executeMethod(method);
+        HttpGet httpGet = new HttpGet(url.toString());
+
+        CloseableHttpResponse response = httpclient.execute(httpGet, context);
+        int status = response.getStatusLine().getStatusCode();
+
         if (status != HttpStatus.SC_OK) {
-            throw new IOException("Error " + status + " while retrieving "
-                    + url);
+            throw new IOException(
+                    "Error " + status + " while retrieving " + url);
         }
-        return method.getResponseBody();
+
+        HttpEntity entity = response.getEntity();
+        return EntityUtils.toByteArray(entity);
     }
 
 }

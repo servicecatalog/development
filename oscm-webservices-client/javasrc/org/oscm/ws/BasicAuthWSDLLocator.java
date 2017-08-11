@@ -14,17 +14,26 @@ import java.net.URL;
 
 import javax.wsdl.xml.WSDLLocator;
 
-import org.apache.commons.httpclient.Credentials;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpStatus;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.AuthCache;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.impl.auth.BasicScheme;
+import org.apache.http.impl.client.BasicAuthCache;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
 import org.xml.sax.InputSource;
 
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
-import org.oscm.types.enumtypes.LogMessageIdentifier;
 
 /**
  * WSDL locator implementation to load a WSDL and all related imports using the
@@ -52,28 +61,43 @@ public class BasicAuthWSDLLocator implements WSDLLocator {
     }
 
     private InputSource createInputSource(String url) throws IOException {
-        final HttpClient client = new HttpClient();
+
+        URL targetURL = new URL(url);
+        HttpHost targetHost = new HttpHost(targetURL.getHost(),
+                targetURL.getPort(), targetURL.getProtocol());
+
+        CloseableHttpClient httpclient = HttpClients.createDefault();
+
         final String proxyHost = System.getProperty("http.proxyHost");
         final String proxyPort = System.getProperty("http.proxyPort", "80");
+        HttpHost proxy = new HttpHost(proxyHost, Integer.parseInt(proxyPort));
+
         if (proxyHost != null && proxyHost.trim().length() > 0) {
-            try {
-                client.getHostConfiguration().setProxy(proxyHost.trim(),
-                        Integer.parseInt(proxyPort));
-            } catch (NumberFormatException e) {
-                logger.logError(Log4jLogger.SYSTEM_LOG, e,
-                        LogMessageIdentifier.ERROR_USE_PROXY_DEFINITION_FAILED);
-            }
+
+            DefaultProxyRoutePlanner routePlanner = new DefaultProxyRoutePlanner(
+                    proxy);
+            httpclient = HttpClients.custom().setRoutePlanner(routePlanner)
+                    .build();
         }
 
         // Set credentials if specified:
-        URL targetURL = new URL(url);
+        HttpClientContext context = HttpClientContext.create();
+
         if (userName != null && userName.length() > 0) {
-            client.getParams().setAuthenticationPreemptive(true);
-            final Credentials credentials = new UsernamePasswordCredentials(
+
+            final UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(
                     userName, password);
-            client.getState().setCredentials(
-                    new AuthScope(targetURL.getHost(), targetURL.getPort(),
-                            AuthScope.ANY_REALM), credentials);
+
+            CredentialsProvider provider = new BasicCredentialsProvider();
+            provider.setCredentials(new AuthScope(targetURL.getHost(),
+                    targetURL.getPort(), AuthScope.ANY_REALM), credentials);
+
+            AuthCache authCache = new BasicAuthCache();
+            BasicScheme basicAuth = new BasicScheme();
+            authCache.put(targetHost, basicAuth);
+
+            context.setCredentialsProvider(provider);
+            context.setAuthCache(authCache);
         }
 
         // Retrieve content:
@@ -83,14 +107,19 @@ public class BasicAuthWSDLLocator implements WSDLLocator {
             in = targetURL.openStream();
             return new InputSource(in);
         }
-        final GetMethod method = new GetMethod(url);
-        final int status = client.executeMethod(method);
+
+        HttpGet httpGet = new HttpGet(targetURL.toString());
+
+        CloseableHttpResponse response = httpclient.execute(httpGet, context);
+        int status = response.getStatusLine().getStatusCode();
+
         if (status != HttpStatus.SC_OK) {
-            throw new IOException("Error " + status + " while retrieving "
-                    + url);
+            throw new IOException(
+                    "Error " + status + " while retrieving " + url);
         }
-        in = method.getResponseBodyAsStream();
-        return new InputSource(in);
+
+        HttpEntity entity = response.getEntity();
+        return new InputSource(entity.getContent());
     }
 
     @Override
