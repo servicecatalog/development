@@ -19,7 +19,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.http.client.methods.HttpPost;
+
 
 /**
  * Servlet implementation class SendPreapprovalServlet. Makes a Preapproval call
@@ -42,7 +43,7 @@ public class PayServlet extends BaseServlet {
         try {
             final PaypalRequest paypalRequest = new PaypalRequest(
                     request.getRemoteAddr());
-            final PostMethod post = paypalRequest.buildPayRequest(
+            final HttpPost post = paypalRequest.buildPayRequest(
                     request.getParameter("preapprovalKey"),
                     request.getParameter("email"),
                     request.getParameter("amount"));

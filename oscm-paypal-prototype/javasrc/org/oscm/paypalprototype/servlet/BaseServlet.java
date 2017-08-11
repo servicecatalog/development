@@ -20,9 +20,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.xml.sax.SAXException;
 
 /**
@@ -34,7 +36,8 @@ import org.xml.sax.SAXException;
  */
 abstract class BaseServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
-    private HttpClient client = new HttpClient();
+    
+    private HttpClient client = HttpClients.createDefault();
 
     /**
      * Do get is not supported, will raise an runtime exception.
@@ -77,19 +80,16 @@ abstract class BaseServlet extends HttpServlet {
      * @return the Paypal response
      * @throws IOException
      *             thrown by PaypalResponse
-     * @throws HttpException
-     *             thrown by HttpClient
      * @throws SAXException
      *             thrown by PaypalResponse
      * @throws ParserConfigurationException
      *             thrown by PaypalResponse
      */
-    protected PaypalResponse sendPaypalRequest(PostMethod paypalRequest)
-            throws HttpException, IOException, ParserConfigurationException,
+    protected PaypalResponse sendPaypalRequest(HttpPost paypalRequest) throws IOException, ParserConfigurationException,
             SAXException {
         // client.getHostConfiguration().setProxy("192.168.210.82", 8080);
-        client.executeMethod(paypalRequest);
-        return new PaypalResponse(paypalRequest.getResponseBodyAsString());
+        HttpResponse response = client.execute(paypalRequest);
+        return new PaypalResponse(EntityUtils.toString(response.getEntity()));
     }
 
     /**

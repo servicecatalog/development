@@ -13,7 +13,6 @@
 package org.oscm.paypalprototype.servlet;
 
 import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -27,8 +26,8 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -70,7 +69,7 @@ public class PaypalRequest {
      * @return
      * @throws Exception
      */
-    public PostMethod buildPayRequest(String preapprovalKey, String receiver,
+    public HttpPost buildPayRequest(String preapprovalKey, String receiver,
             String amount) throws Exception {
         final Document doc = createBody("PayRequest");
         final Element payReq = doc.getDocumentElement();
@@ -122,7 +121,7 @@ public class PaypalRequest {
      * @throws TransformerException
      *             thrown by createPostMethod
      */
-    public PostMethod buildPreapprovalRequest() throws DOMException,
+    public HttpPost buildPreapprovalRequest() throws DOMException,
             ParserConfigurationException, TransformerException {
         final Document doc = createBody("PreapprovalRequest");
         final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'Z'");
@@ -145,7 +144,7 @@ public class PaypalRequest {
      * @throws TransformerException
      *             thrown by createPostMethod
      */
-    public PostMethod buildCancelPreapprovalRequest(String preapprovalKey)
+    public HttpPost buildCancelPreapprovalRequest(String preapprovalKey)
             throws DOMException, ParserConfigurationException,
             TransformerException {
         final Document doc = createBody("CancelPreapprovalRequest");
@@ -163,32 +162,27 @@ public class PaypalRequest {
      * @throws TransformerException
      *             on bad xml input or transformer exceptions
      */
-    private PostMethod createPostMethod(Document doc, String route)
+    private HttpPost createPostMethod(Document doc, String route)
             throws TransformerException {
-        final PostMethod postMethod = new PostMethod(PAYPAL_URL + '/' + route);
+
+        HttpPost httpPost = new HttpPost(PAYPAL_URL + '/' + route);
 
         // communication format
-        postMethod.addRequestHeader("X-PAYPAL-REQUEST-DATA-FORMAT", "XML");
-        postMethod.addRequestHeader("X-PAYPAL-RESPONSE-DATA-FORMAT", "XML");
+        httpPost.setHeader("X-PAYPAL-REQUEST-DATA-FORMAT", "XML");
+        httpPost.setHeader("X-PAYPAL-RESPONSE-DATA-FORMAT", "XML");
 
         // authentication info
-        postMethod.addRequestHeader("X-PAYPAL-SECURITY-USERID",
+        httpPost.setHeader("X-PAYPAL-SECURITY-USERID",
                 "mercha_1310720134_biz_api1.est.fujitsu.com");
-        postMethod.addRequestHeader("X-PAYPAL-SECURITY-PASSWORD", "1310720175");
-        postMethod.addRequestHeader("X-PAYPAL-SECURITY-SIGNATURE",
+        httpPost.setHeader("X-PAYPAL-SECURITY-PASSWORD", "1310720175");
+        httpPost.setHeader("X-PAYPAL-SECURITY-SIGNATURE",
                 "AlTG0c2puvFWih-1mR5Tn9-Pbx6MAyndXBaCr0Cmgec8UBYC7Kty76vJ");
-        postMethod.addRequestHeader("X-PAYPAL-APPLICATION-ID",
-                "APP-80W284485P519543T");
-        postMethod.addRequestHeader("X-PAYPAL-DEVICE-IPADDRESS", remoteIpAddr);
-        try {
-            postMethod.setRequestEntity(new StringRequestEntity(
-                    getDocAsString(doc), "text/xml", "UTF-8"));
-        } catch (UnsupportedEncodingException ex) {
-            // UTF-8 is always supported, so this exception should never been
-            // thrown
-            throw new RuntimeException(ex);
-        }
-        return postMethod;
+        httpPost.setHeader("X-PAYPAL-APPLICATION-ID", "APP-80W284485P519543T");
+        httpPost.setHeader("X-PAYPAL-DEVICE-IPADDRESS", remoteIpAddr);
+
+        httpPost.setEntity(new StringEntity(getDocAsString(doc), "text/xml"));
+
+        return httpPost;
     }
 
     /**
