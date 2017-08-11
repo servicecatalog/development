@@ -7,7 +7,6 @@
 	<classpathentry kind="lib" path="/libraries/apache-ant/javalib/ant-junit.jar"/>
 	<classpathentry kind="lib" path="/libraries/apache-ant/javalib/ant-launcher.jar"/>
 	<classpathentry kind="lib" path="/libraries/apache-ant/javalib/wsit-ant-tasks.jar"/>
-	<classpathentry kind="lib" path="/libraries/apache-httpclient/javalib/commons-httpclient-3.1.jar"/>
 	<classpathentry kind="lib" path="/libraries/redhat-hibernate/javalib/antlr-2.7.7.jar"/>
 	<classpathentry kind="lib" path="/libraries/redhat-hibernate/javalib/dom4j-1.6.1.jar"/>
 	<classpathentry kind="lib" path="/libraries/redhat-hibernate/javalib/jandex-2.0.0.Final.jar"/>
@@ -31,5 +30,7 @@
 	<classpathentry kind="lib" path="/libraries/postgresql-jdbc/javalib/postgresql-9.4-1206-jdbc42.jar"/>
 	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/gf-client.jar"/>
 	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/javaee.jar"/>
+	<classpathentry kind="lib" path="/libraries/apache-httpcomponents/javalib/httpclient-4.5.3.jar"/>
+	<classpathentry kind="lib" path="/libraries/apache-httpcomponents/javalib/httpcore-4.4.6.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -15,12 +15,14 @@ package org.oscm.setup;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.params.HttpMethodParams;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.StatusLine;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
+import org.apache.http.impl.client.HttpClients;
 
 /**
  * Provides some basic functionality required to reset the example service
@@ -52,26 +54,34 @@ public class HttpUtils {
             return;
         }
 
+        // Provide custom retry handler is necessary
+        DefaultHttpRequestRetryHandler retryHandler = new DefaultHttpRequestRetryHandler(
+                3, false);
+
         // Create an instance of HttpClient.
-        HttpClient client = new HttpClient();
+        HttpClient client = HttpClients.custom().setRetryHandler(retryHandler)
+                .build();
 
         // Create a method instance.
-        GetMethod method = new GetMethod(url);
-
-        // Provide custom retry handler is necessary
-        method.getParams().setParameter(HttpMethodParams.RETRY_HANDLER,
-                new DefaultHttpMethodRetryHandler(3, false));
+        HttpGet httpGet = new HttpGet(url);
 
         try {
             // Execute the method.
-            int statusCode = client.executeMethod(method);
+            HttpResponse httpResponse = client.execute(httpGet);
+            StatusLine statusLine = httpResponse.getStatusLine();
+            int statusCode = statusLine.getStatusCode();
 
             if (statusCode != HttpStatus.SC_OK) {
-                System.err.println("Method failed: " + method.getStatusLine());
+                System.err.println("Method failed: " + statusLine);
+
+                throw new IOException("Error " + statusLine.getStatusCode()
+                        + " while retrieving " + url);
             }
 
+            HttpEntity entity = httpResponse.getEntity();
+
             // Read the response body.
-            InputStream response = method.getResponseBodyAsStream();
+            InputStream response = entity.getContent();
             try {
                 byte[] buf = new byte[1024];
                 int i = 0;
@@ -85,15 +95,8 @@ public class HttpUtils {
                     response.close();
                 }
             }
-
-        } catch (HttpException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            // Release the connection.
-            method.releaseConnection();
         }
     }
-
 }
