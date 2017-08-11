@@ -70,10 +70,10 @@ public class BasicAuthWSDLLocator implements WSDLLocator {
 
         final String proxyHost = System.getProperty("http.proxyHost");
         final String proxyPort = System.getProperty("http.proxyPort", "80");
-        HttpHost proxy = new HttpHost(proxyHost, Integer.parseInt(proxyPort));
-
+        
         if (proxyHost != null && proxyHost.trim().length() > 0) {
-
+            
+            HttpHost proxy = new HttpHost(proxyHost, Integer.parseInt(proxyPort));
             DefaultProxyRoutePlanner routePlanner = new DefaultProxyRoutePlanner(
                     proxy);
             httpclient = HttpClients.custom().setRoutePlanner(routePlanner)
