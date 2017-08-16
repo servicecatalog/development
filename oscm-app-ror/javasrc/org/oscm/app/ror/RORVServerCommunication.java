@@ -130,7 +130,7 @@ public class RORVServerCommunication extends RORCommonInfo implements
             }
             logger.debug(
                     "Updating VServer {}: CPU_COUNT => {}, STATUS = {}",
-                    new String[] { paramHandler.getVserverId(),
+                    new Object[] { paramHandler.getVserverId(),
                             paramHandler.getCountCPU(), status });
             vserverClient.updateConfiguration(paramHandler.getCountCPU(), null);
             paramHandler.getIaasContext().clear();
@@ -423,7 +423,7 @@ public class RORVServerCommunication extends RORCommonInfo implements
      * Retrieves the current VServer status and throws a SuspendException if the
      * VServer is in an error state.
      * 
-     * @param ph
+     * @param paramHandler
      *            The parameter handler
      * @return the string representation of the current status
      * @throws Exception
