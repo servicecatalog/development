@@ -8,7 +8,7 @@
 
 package org.oscm.paymentservice.transport;
 
-import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.http.client.methods.HttpPost;
 
 /**
  * Auxiliary factory to retrieve either HTTP method objects for productive
@@ -35,17 +35,17 @@ public class HttpMethodFactory {
         HttpMethodFactory.inTestMode = inTestMode;
     }
 
-    public static PostMethod getPostMethod(String url) {
+    public static HttpPost getPostMethod(String url) {
         if (inTestMode) {
             try {
                 Class<?> testStubClass = Class
                         .forName("org.oscm.payproc.stubs.PostMethodStub");
-                return (PostMethod) testStubClass.newInstance();
+                return (HttpPost) testStubClass.newInstance();
             } catch (Exception e) {
                 throw new RuntimeException("Cannot instantiate test stub");
             }
         }
-        return new PostMethod(url);
+        return new HttpPost(url);
     }
 
 }

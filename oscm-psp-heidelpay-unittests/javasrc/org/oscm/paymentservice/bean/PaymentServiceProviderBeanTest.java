@@ -32,11 +32,10 @@ import java.util.TimeZone;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.commons.httpclient.HostConfiguration;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.NameValuePair;
+import org.apache.http.HttpException;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -116,9 +115,9 @@ public class PaymentServiceProviderBeanTest {
         PostMethodStub.reset();
 
         httpClientMock = mock(HttpClient.class);
-        HostConfiguration hostConfigurationMock = mock(HostConfiguration.class);
+        /*HostConfiguration hostConfigurationMock = mock(HostConfiguration.class);
         when(httpClientMock.getHostConfiguration()).thenReturn(
-                hostConfigurationMock);
+                hostConfigurationMock);*/
 
         psp.client = httpClientMock;
 
@@ -632,6 +631,8 @@ public class PaymentServiceProviderBeanTest {
         ChargingResult chargingResult = psp.charge(requestData, chargingData);
 
         // assert request xml
+        
+        
         NameValuePair[] requestBodyDetails = PostMethodStub
                 .getRequestBodyDetails();
         validateRequestDetails(requestBodyDetails, "CC",
@@ -721,10 +722,8 @@ public class PaymentServiceProviderBeanTest {
         ChargingData chargingData = createChargingData();
         RequestData requestData = createRequestData(DIRECT_DEBIT);
         PostMethodStub.setStubReturnValue(sampleResponse);
-        when(
-                Integer.valueOf(httpClientMock
-                        .executeMethod(any(HttpMethod.class)))).thenThrow(
-                new IOException());
+        when(httpClientMock.execute(any(HttpUriRequest.class)))
+                .thenThrow(new IOException());
         // Check error message provides details in case of communication failure
         try {
             psp.charge(requestData, chargingData);
@@ -853,10 +852,7 @@ public class PaymentServiceProviderBeanTest {
     @Test(expected = PSPCommunicationException.class)
     public void charge_HttpException() throws Exception {
         // setup
-        when(
-                Integer.valueOf(httpClientMock
-                        .executeMethod(any(HttpMethod.class)))).thenThrow(
-                new HttpException());
+        when(httpClientMock.execute(any(HttpUriRequest.class))).thenThrow(new HttpException());
         ChargingData chargingData = createChargingData();
         RequestData requestData = createRequestData(CREDIT_CARD);
         PostMethodStub.setStubReturnValue(sampleResponse);
@@ -868,10 +864,8 @@ public class PaymentServiceProviderBeanTest {
     @Test(expected = PSPCommunicationException.class)
     public void charge_IOException() throws Exception {
         // setup
-        when(
-                Integer.valueOf(httpClientMock
-                        .executeMethod(any(HttpMethod.class)))).thenThrow(
-                new IOException());
+        when(httpClientMock.execute(any(HttpUriRequest.class)))
+                .thenThrow(new IOException());
         ChargingData chargingData = createChargingData();
         RequestData requestData = createRequestData(CREDIT_CARD);
         PostMethodStub.setStubReturnValue(sampleResponse);
@@ -883,10 +877,8 @@ public class PaymentServiceProviderBeanTest {
     @Test(expected = PSPProcessingException.class)
     public void charge_Exception() throws Exception {
         // setup
-        when(
-                Integer.valueOf(httpClientMock
-                        .executeMethod(any(HttpMethod.class)))).thenThrow(
-                new RuntimeException());
+        when(httpClientMock.execute(any(HttpUriRequest.class)))
+                .thenThrow(new RuntimeException());
         ChargingData chargingData = createChargingData();
         RequestData requestData = createRequestData(CREDIT_CARD);
         PostMethodStub.setStubReturnValue(sampleResponse);
@@ -1002,10 +994,8 @@ public class PaymentServiceProviderBeanTest {
     @Test(expected = PSPCommunicationException.class)
     public void determineRegistrationLink_IOException() throws Exception {
         // SETUP
-        when(
-                Integer.valueOf(httpClientMock
-                        .executeMethod(any(HttpMethod.class)))).thenThrow(
-                new IOException());
+        when(httpClientMock.execute(any(HttpUriRequest.class)))
+                .thenThrow(new IOException());
         RequestData requestData = createRequestData(DIRECT_DEBIT);
 
         // EXECUTE
@@ -1015,10 +1005,8 @@ public class PaymentServiceProviderBeanTest {
     @Test(expected = PSPCommunicationException.class)
     public void determineRegistrationLink_HttpException() throws Exception {
         // SETUP
-        when(
-                Integer.valueOf(httpClientMock
-                        .executeMethod(any(HttpMethod.class)))).thenThrow(
-                new HttpException());
+        when(httpClientMock.execute(any(HttpUriRequest.class)))
+                .thenThrow(new HttpException());
         RequestData requestData = createRequestData(DIRECT_DEBIT);
 
         // EXECUTE
@@ -1028,10 +1016,8 @@ public class PaymentServiceProviderBeanTest {
     @Test(expected = PSPCommunicationException.class)
     public void determineRegistrationLink_Exception() throws Exception {
         // SETUP
-        when(
-                Integer.valueOf(httpClientMock
-                        .executeMethod(any(HttpMethod.class)))).thenThrow(
-                new RuntimeException());
+        when(httpClientMock.execute(any(HttpUriRequest.class)))
+                .thenThrow(new RuntimeException());
         RequestData requestData = createRequestData(DIRECT_DEBIT);
 
         // EXECUTE

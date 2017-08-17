@@ -10,21 +10,19 @@ package org.oscm.payproc.stubs;
 
 import java.io.IOException;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.HttpMethod;
+import org.apache.http.HttpException;
+import org.apache.http.client.methods.HttpUriRequest;
 
 /**
  * @author Mike J&auml;ger
  * 
  */
-public class HttpClientStub extends HttpClient {
+public class HttpClientStub{
 
     public static boolean throwIOException = false;
     public static boolean throwHTTPException = false;
 
-    @Override
-    public int executeMethod(HttpMethod method) throws IOException,
+    public int executeMethod(HttpUriRequest request) throws IOException,
             HttpException {
         if (throwHTTPException) {
             throw new HttpException("exception caused by test");

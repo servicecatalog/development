@@ -8,7 +8,8 @@
 
 package org.oscm.paymentservice.transport;
 
-import org.apache.commons.httpclient.HttpClient;
+import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.HttpClients;
 
 /**
  * Auxiliary factory to retrieve either HTTP client objects for productive
@@ -45,7 +46,7 @@ public class HttpClientFactory {
                 throw new RuntimeException("Cannot instantiate test stub");
             }
         }
-        return new HttpClient();
+        return HttpClients.createDefault();
     }
 
 }

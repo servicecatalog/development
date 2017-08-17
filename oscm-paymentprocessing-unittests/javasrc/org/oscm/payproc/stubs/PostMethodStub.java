@@ -12,8 +12,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.commons.httpclient.NameValuePair;
-import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.http.NameValuePair;
 
 /**
  * Test stub for apache http client post method.
@@ -21,7 +20,7 @@ import org.apache.commons.httpclient.methods.PostMethod;
  * @author Mike J&auml;ger
  * 
  */
-public class PostMethodStub extends PostMethod {
+public class PostMethodStub {
 
     /**
      * The content to be returned by the string.
@@ -48,7 +47,6 @@ public class PostMethodStub extends PostMethod {
         stubReturnValue = null;
     }
 
-    @Override
     public InputStream getResponseBodyAsStream() throws IOException {
         return new ByteArrayInputStream(stubReturnValue.getBytes("utf-8"));
     }
@@ -62,13 +60,12 @@ public class PostMethodStub extends PostMethod {
         stubReturnValue = value;
     }
 
-    @Override
     public void setRequestBody(NameValuePair[] parametersBody)
             throws IllegalArgumentException {
         requestBody = parametersBody;
     }
 
-    @Override
+
     public String getResponseBodyAsString() throws IOException {
         return stubReturnValue;
     }

@@ -28,11 +28,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.NameValuePair;
-import org.apache.commons.httpclient.methods.PostMethod;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -40,6 +35,19 @@ import org.xml.sax.SAXException;
 
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
+import org.apache.http.Header;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
+import org.apache.http.message.BasicHeader;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
 import org.oscm.converter.PriceConverter;
 import org.oscm.converter.XMLConverter;
 import org.oscm.paymentservice.constants.HeidelpayConfigurationKey;
@@ -89,18 +97,24 @@ public class PaymentServiceProviderBean implements PaymentServiceProvider {
             client = HttpClientFactory.getHttpClient();
         }
 
-        String currentProxy = client.getHostConfiguration().getProxyHost();
+        //String currentProxy = client.getHostConfiguration().getProxyHost();
         String proxyName = data
                 .getProperty(HeidelpayConfigurationKey.HTTP_PROXY.name());
+        
         if (proxyName != null && proxyName.length() > 0) {
             int proxyPort = Integer.parseInt(data
                     .getProperty(HeidelpayConfigurationKey.HTTP_PROXY_PORT
                             .name()));
-            client.getHostConfiguration().setProxy(proxyName, proxyPort);
-        } else if (currentProxy != null && currentProxy.length() > 0) {
+            
+            HttpHost proxy = new HttpHost(proxyName, proxyPort);
+            DefaultProxyRoutePlanner routePlanner = new DefaultProxyRoutePlanner(
+                    proxy);
+            client = HttpClients.custom().setRoutePlanner(routePlanner)
+                    .build();
+        } /*else if (currentProxy != null && currentProxy.length() > 0) {
             // remove old proxy settings
             client.getHostConfiguration().setProxyHost(null);
-        }
+        }*/
 
     }
 
@@ -140,7 +154,7 @@ public class PaymentServiceProviderBean implements PaymentServiceProvider {
                     throw sse;
                 }
             }
-            result.add(new NameValuePair(keyString, valueString));
+            result.add(new BasicNameValuePair(keyString, valueString));
         }
 
         for (NameValuePair nvp : result) {
@@ -215,23 +229,32 @@ public class PaymentServiceProviderBean implements PaymentServiceProvider {
 
         String pspPostInterfaceURL = data2
                 .getProperty(HeidelpayConfigurationKey.PSP_POST_URL.name());
-        PostMethod postMethod = HttpMethodFactory
+        HttpPost postMethod = HttpMethodFactory
                 .getPostMethod(pspPostInterfaceURL);
+
         List<NameValuePair> parameters = new ArrayList<NameValuePair>();
         parameters.addAll(registrationParameters);
 
-        NameValuePair[] data = parameters.toArray(new NameValuePair[parameters
-                .size()]);
-        postMethod.setRequestBody(data);
+        try {
+            UrlEncodedFormEntity entity = new UrlEncodedFormEntity(parameters);
+            postMethod.setEntity(entity);
+        } catch (UnsupportedEncodingException e) {
+            PSPCommunicationException pce = new PSPCommunicationException(
+                    e.getMessage());
+            e.printStackTrace();
+            throw pce;
+        }
 
-        Header rqHeader = new Header("Content-Type",
+        Header rqHeader = new BasicHeader("Content-Type",
                 "application/x-www-form-urlencoded;charset=UTF-8");
-        postMethod.setRequestHeader(rqHeader);
+        postMethod.setHeader(rqHeader);
+        
         BufferedReader br = null;
         InputStream in = null;
         try {
-            client.executeMethod(postMethod);
-            in = postMethod.getResponseBodyAsStream();
+            HttpResponse httpResponse = client.execute(postMethod);
+            httpResponse.getEntity().getContent();
+            in = httpResponse.getEntity().getContent();
             br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
 
             String line = br.readLine();
@@ -284,7 +307,7 @@ public class PaymentServiceProviderBean implements PaymentServiceProvider {
         setBasicPostParameters(regParams, data);
 
         // operation code for registration, we use credit card as default.
-        regParams.add(new NameValuePair(HeidelpayPostParameter.PAYMENT_CODE,
+        regParams.add(new BasicNameValuePair(HeidelpayPostParameter.PAYMENT_CODE,
                 getHeidelPayPaymentType(data.getPaymentTypeId()) + ".RG"));
         initGeneralRegistrationPostData(regParams, data);
 
@@ -311,11 +334,11 @@ public class PaymentServiceProviderBean implements PaymentServiceProvider {
         setBasicPostParameters(regParams, data);
 
         // operation code for re-registration, we use credit card as default.
-        regParams.add(new NameValuePair(HeidelpayPostParameter.PAYMENT_CODE,
+        regParams.add(new BasicNameValuePair(HeidelpayPostParameter.PAYMENT_CODE,
                 getHeidelPayPaymentType(data.getPaymentTypeId()) + ".RR"));
 
         // also set the already stored reference id
-        regParams.add(new NameValuePair(
+        regParams.add(new BasicNameValuePair(
                 HeidelpayPostParameter.IDENTIFICATION_REFERENCEID, data
                         .getExternalIdentifier()));
 
@@ -351,39 +374,39 @@ public class PaymentServiceProviderBean implements PaymentServiceProvider {
 
         // transaction id is the customer's key value and the keyword
         // 'registration'
-        regParams.add(new NameValuePair(
+        regParams.add(new BasicNameValuePair(
                 HeidelpayPostParameter.IDENTIFICATION_TRANSACTIONID, data
                         .getOrganizationKey() + " registration"));
-        regParams.add(new NameValuePair(
+        regParams.add(new BasicNameValuePair(
                 HeidelpayPostParameter.PAYMENT_INFO_KEY, String.valueOf(data
                         .getPaymentInfoKey())));
-        regParams.add(new NameValuePair(HeidelpayPostParameter.PAYMENT_INFO_ID,
+        regParams.add(new BasicNameValuePair(HeidelpayPostParameter.PAYMENT_INFO_ID,
                 data.getPaymentInfoId()));
-        regParams.add(new NameValuePair(
+        regParams.add(new BasicNameValuePair(
                 HeidelpayPostParameter.PAYMENT_TYPE_KEY, String.valueOf(data
                         .getPaymentTypeKey())));
-        regParams.add(new NameValuePair(
+        regParams.add(new BasicNameValuePair(
                 HeidelpayPostParameter.ORGANIZATION_KEY, String.valueOf(data
                         .getOrganizationKey())));
-        regParams.add(new NameValuePair(HeidelpayPostParameter.USER_LOCALE,
+        regParams.add(new BasicNameValuePair(HeidelpayPostParameter.USER_LOCALE,
                 data.getCurrentUserLocale()));
         String baseUrl = data.getProperty(HeidelpayConfigurationKey.BASE_URL
                 .name());
-        regParams.add(new NameValuePair(HeidelpayPostParameter.BASE_URL,
+        regParams.add(new BasicNameValuePair(HeidelpayPostParameter.BASE_URL,
                 baseUrl));
 
         String jsPath = data
                 .getProperty(HeidelpayConfigurationKey.PSP_FRONTEND_JS_PATH
                         .name());
-        regParams.add(new NameValuePair(
+        regParams.add(new BasicNameValuePair(
                 HeidelpayPostParameter.FRONTEND_JS_SCRIPT, jsPath));
         regParams
-                .add(new NameValuePair(
+                .add(new BasicNameValuePair(
                         HeidelpayPostParameter.BES_PAYMENT_REGISTRATION_WSDL,
                         data.getProperty(HeidelpayConfigurationKey.PSP_PAYMENT_REGISTRATION_WSDL
                                 .name())));
         regParams
-                .add(new NameValuePair(
+                .add(new BasicNameValuePair(
                         HeidelpayPostParameter.BES_PAYMENT_REGISTRATION_ENDPOINT,
                         data.getProperty(HeidelpayConfigurationKey.PSP_PAYMENT_REGISTRATION_ENDPOINT
                                 .name())));
@@ -399,14 +422,14 @@ public class PaymentServiceProviderBean implements PaymentServiceProvider {
     private void setCallbackPostParameters(List<NameValuePair> regParams,
             RequestData data) {
 
-        regParams.add(new NameValuePair(
+        regParams.add(new BasicNameValuePair(
                 HeidelpayPostParameter.FRONTEND_REDIRECT_TIME, "0"));
 
         // use the base-url to determine the response address
         String servletBaseURL = data
                 .getProperty(HeidelpayConfigurationKey.PSP_RESPONSE_SERVLET_URL
                         .name());
-        regParams.add(new NameValuePair(
+        regParams.add(new BasicNameValuePair(
                 HeidelpayPostParameter.FRONTEND_RESPONSE_URL, servletBaseURL));
 
     }
@@ -426,7 +449,7 @@ public class PaymentServiceProviderBean implements PaymentServiceProvider {
             List<NameValuePair> regParams, RequestData data) {
 
         regParams
-                .add(new NameValuePair(
+                .add(new BasicNameValuePair(
                         HeidelpayPostParameter.FRONTEND_PM_DEFAULT_DISABLE_ALL,
                         "true"));
 
@@ -467,9 +490,9 @@ public class PaymentServiceProviderBean implements PaymentServiceProvider {
         String enablementKey = HeidelpayPostParameter.FRONTEND_PM_1_ENABLED;
         String subtypesKey = HeidelpayPostParameter.FRONTEND_PM_1_SUBTYPES;
 
-        params.add(new NameValuePair(methodKey, method));
-        params.add(new NameValuePair(enablementKey, "true"));
-        params.add(new NameValuePair(subtypesKey, subtypes));
+        params.add(new BasicNameValuePair(methodKey, method));
+        params.add(new BasicNameValuePair(enablementKey, "true"));
+        params.add(new BasicNameValuePair(subtypesKey, subtypes));
     }
 
     /**
@@ -482,18 +505,18 @@ public class PaymentServiceProviderBean implements PaymentServiceProvider {
     private void setWPFControlParameters(RequestData data,
             List<NameValuePair> regParams) {
 
-        regParams.add(new NameValuePair(
+        regParams.add(new BasicNameValuePair(
                 HeidelpayPostParameter.FRONTEND_ENABLED, "true"));
-        regParams.add(new NameValuePair(HeidelpayPostParameter.FRONTEND_POPUP,
+        regParams.add(new BasicNameValuePair(HeidelpayPostParameter.FRONTEND_POPUP,
                 "false"));
-        regParams.add(new NameValuePair(HeidelpayPostParameter.FRONTEND_MODE,
+        regParams.add(new BasicNameValuePair(HeidelpayPostParameter.FRONTEND_MODE,
                 "DEFAULT"));
-        regParams.add(new NameValuePair(
+        regParams.add(new BasicNameValuePair(
                 HeidelpayPostParameter.FRONTEND_LANGUAGE, data
                         .getCurrentUserLocale()));
-        regParams.add(new NameValuePair(
+        regParams.add(new BasicNameValuePair(
                 HeidelpayPostParameter.FRONTEND_ONEPAGE, "true"));
-        regParams.add(new NameValuePair(
+        regParams.add(new BasicNameValuePair(
                 HeidelpayPostParameter.FRONTEND_NEXT_TARGET,
                 "self.location.href"));
 
@@ -510,17 +533,17 @@ public class PaymentServiceProviderBean implements PaymentServiceProvider {
     private void setAuthenticationPostParameters(List<NameValuePair> regParams,
             RequestData data) {
 
-        regParams.add(new NameValuePair(HeidelpayPostParameter.SECURITY_SENDER,
+        regParams.add(new BasicNameValuePair(HeidelpayPostParameter.SECURITY_SENDER,
                 data.getProperty(HeidelpayConfigurationKey.PSP_SECURITY_SENDER
                         .name())));
         regParams
-                .add(new NameValuePair(
+                .add(new BasicNameValuePair(
                         HeidelpayPostParameter.TRANSACTION_CHANNEL,
                         data.getProperty(HeidelpayConfigurationKey.PSP_TRANSACTION_CHANNEL
                                 .name())));
-        regParams.add(new NameValuePair(HeidelpayPostParameter.USER_LOGIN, data
+        regParams.add(new BasicNameValuePair(HeidelpayPostParameter.USER_LOGIN, data
                 .getProperty(HeidelpayConfigurationKey.PSP_USER_LOGIN.name())));
-        regParams.add(new NameValuePair(HeidelpayPostParameter.USER_PWD, data
+        regParams.add(new BasicNameValuePair(HeidelpayPostParameter.USER_PWD, data
                 .getProperty(HeidelpayConfigurationKey.PSP_USER_PWD.name())));
 
     }
@@ -537,9 +560,9 @@ public class PaymentServiceProviderBean implements PaymentServiceProvider {
 
         String txnMode = data
                 .getProperty(HeidelpayConfigurationKey.PSP_TXN_MODE.name());
-        regParams.add(new NameValuePair(HeidelpayPostParameter.REQUEST_VERSION,
+        regParams.add(new BasicNameValuePair(HeidelpayPostParameter.REQUEST_VERSION,
                 HeidelpayXMLTags.REQUEST_COMPLIANCE_LEVEL));
-        regParams.add(new NameValuePair(
+        regParams.add(new BasicNameValuePair(
                 HeidelpayPostParameter.TRANSACTION_MODE, txnMode));
 
     }
@@ -555,28 +578,28 @@ public class PaymentServiceProviderBean implements PaymentServiceProvider {
             List<NameValuePair> regParams) {
 
         if (data.getOrganizationName() != null) {
-            regParams.add(new NameValuePair(
+            regParams.add(new BasicNameValuePair(
                     HeidelpayPostParameter.NAME_COMPANY, data
                             .getOrganizationName()));
         }
         if (data.getOrganizationEmail() != null) {
-            regParams.add(new NameValuePair(
+            regParams.add(new BasicNameValuePair(
                     HeidelpayPostParameter.CONTACT_EMAIL, data
                             .getOrganizationEmail()));
         }
 
         // send dummy address data, empty strings
-        regParams.add(new NameValuePair(HeidelpayPostParameter.USER_LAST_NAME,
+        regParams.add(new BasicNameValuePair(HeidelpayPostParameter.USER_LAST_NAME,
                 "  "));
-        regParams.add(new NameValuePair(HeidelpayPostParameter.USER_FIRST_NAME,
+        regParams.add(new BasicNameValuePair(HeidelpayPostParameter.USER_FIRST_NAME,
                 "  "));
-        regParams.add(new NameValuePair(HeidelpayPostParameter.ADDRESS_STREET,
+        regParams.add(new BasicNameValuePair(HeidelpayPostParameter.ADDRESS_STREET,
                 "-"));
         regParams
-                .add(new NameValuePair(HeidelpayPostParameter.ADDRESS_ZIP, "-"));
-        regParams.add(new NameValuePair(HeidelpayPostParameter.ADDRESS_CITY,
+                .add(new BasicNameValuePair(HeidelpayPostParameter.ADDRESS_ZIP, "-"));
+        regParams.add(new BasicNameValuePair(HeidelpayPostParameter.ADDRESS_CITY,
                 "-"));
-        regParams.add(new NameValuePair(HeidelpayPostParameter.ADDRESS_COUNTRY,
+        regParams.add(new BasicNameValuePair(HeidelpayPostParameter.ADDRESS_COUNTRY,
                 "DE"));
 
         // account holder information cannot be sent, as we are not providing
@@ -1083,18 +1106,23 @@ public class PaymentServiceProviderBean implements PaymentServiceProvider {
 
         setProxyForHTTPClient(data);
 
-        PostMethod postMethod = HttpMethodFactory.getPostMethod(data
+        HttpPost postMethod = HttpMethodFactory.getPostMethod(data
                 .getProperty(HeidelpayConfigurationKey.PSP_XML_URL.name()));
         try {
             Document doc = createDeregistrationRequestDocument(data);
 
             String result = XMLConverter.convertToString(doc, true);
-            NameValuePair nvp = new NameValuePair(LOAD_PARAMETER_NAME, result);
-            postMethod.setRequestBody(new NameValuePair[] { nvp });
+            NameValuePair nvp = new BasicNameValuePair(LOAD_PARAMETER_NAME, result);
+            
+            List<NameValuePair> parameters = new ArrayList<NameValuePair>();
+            parameters.add(nvp);
 
-            client.executeMethod(postMethod);
+            UrlEncodedFormEntity entity = new UrlEncodedFormEntity(parameters);
+            postMethod.setEntity(entity);
 
-            String response = postMethod.getResponseBodyAsString();
+            client.execute(postMethod);
+            HttpEntity responseEntity = postMethod.getEntity();
+            String response = EntityUtils.toString(responseEntity);
             HeidelpayResponse heidelPayResponse = new HeidelpayResponse(
                     response);
             processingResult = heidelPayResponse.getProcessingResult();
@@ -1182,26 +1210,30 @@ public class PaymentServiceProviderBean implements PaymentServiceProvider {
                     .name());
 
             // create post method and execute request
-            PostMethod postMethod = HttpMethodFactory.getPostMethod(url);
+            HttpPost postMethod = HttpMethodFactory.getPostMethod(url);
 
             doc = XMLConverter.convertToString(chargingDocument, true);
             logger.logDebug("charge(RequestData, ChargingData) sending to '"
                     + url + "':\n" + doc);
 
-            NameValuePair nvp = new NameValuePair(LOAD_PARAMETER_NAME, doc);
+            NameValuePair nvp = new BasicNameValuePair(LOAD_PARAMETER_NAME, doc);
+            
+            List<NameValuePair> parameters = new ArrayList<NameValuePair>();
+            parameters.add(nvp);
 
-            postMethod.setRequestBody(new NameValuePair[] { nvp });
-            client.executeMethod(postMethod);
+            UrlEncodedFormEntity entity = new UrlEncodedFormEntity(parameters);
+            postMethod.setEntity(entity);
 
+            HttpResponse httpResponse = client.execute(postMethod);
+            
             // store the processing result XML
-            response = postMethod.getResponseBodyAsString();
+            response = EntityUtils.toString(httpResponse.getEntity());
             logger.logDebug("charge(RequestData, ChargingData) received:\n"
                     + response);
             HeidelpayResponse heidelpayResponse = getHeidelPayResponse(response);
             resultMessage = heidelpayResponse.getProcessingResult();
             result.setProcessingResult(response);
-        } catch (HttpException e) {
-            wrapIoException(e, getErrorDetails(url, doc, response));
+            
         } catch (IOException e) {
             wrapIoException(e, getErrorDetails(url, doc, response));
         } catch (Exception e) {
