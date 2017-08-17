@@ -287,7 +287,8 @@
     <copy file="${ivy.lib.dir}/wss4j-ws-security-dom-2.1.7.jar" tofile="${root.dir}/libraries/apache-tomee/javalib/wss4j-ws-security-dom-2.1.7.jar" overwrite="true"/>
     <copy file="${ivy.lib.dir}/wss4j-ws-security-policy-stax-2.1.7.jar" tofile="${root.dir}/libraries/apache-tomee/javalib/wss4j-ws-security-policy-stax-2.1.7.jar" overwrite="true"/>
     <copy file="${ivy.lib.dir}/wss4j-ws-security-stax-2.1.7.jar" tofile="${root.dir}/libraries/apache-tomee/javalib/wss4j-ws-security-stax-2.1.7.jar" overwrite="true"/>
-
+    <copy file="${ivy.lib.dir}/openejb-loader-7.0.3.jar"
+          tofile="${root.dir}/libraries/apache-tomee/javalib/openejb-loader-7.0.3.jar" overwrite="true"/>
 
   </target>
 </project>

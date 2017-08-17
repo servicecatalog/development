@@ -14,5 +14,6 @@
 	<classpathentry kind="lib" path="/libraries/apache-tomee/javalib/openejb-cxf-7.0.3.jar"/>
 	<classpathentry kind="lib" path="/libraries/apache-tomee/javalib/wss4j-ws-security-common-2.1.7.jar"/>
 	<classpathentry kind="lib" path="/libraries/apache-tomee/javalib/wss4j-ws-security-dom-2.1.7.jar"/>
+	<classpathentry kind="lib" path="/libraries/apache-tomee/javalib/openejb-loader-7.0.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
