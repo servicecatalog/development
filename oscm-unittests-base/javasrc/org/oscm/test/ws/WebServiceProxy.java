@@ -8,16 +8,19 @@
 
 package org.oscm.test.ws;
 
+import java.io.ByteArrayOutputStream;
 import java.net.URL;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.xml.namespace.QName;
+import javax.xml.soap.SOAPMessage;
+import javax.xml.ws.Binding;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Service;
+import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.MessageContext;
+import javax.xml.ws.handler.soap.SOAPHandler;
+import javax.xml.ws.handler.soap.SOAPMessageContext;
 
 import com.sun.xml.wss.XWSSConstants;
 
@@ -82,15 +85,10 @@ public class WebServiceProxy {
         if ("STS".equals(auth)) {
             clientRequestContext.put(XWSSConstants.USERNAME_PROPERTY, userName);
             clientRequestContext.put(XWSSConstants.PASSWORD_PROPERTY, password);
-
-//            clientRequestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
-//                    baseUrl + "/" + remoteInterface.getSimpleName() + "/"
-//                            + auth);
             
             clientRequestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
                     baseUrl + "/oscm-webservices/" + remoteInterface.getSimpleName() + "/"
                             + auth);
-
 
             Map<String, List<String>> headers = new HashMap<String, List<String>>();
 
@@ -106,16 +104,65 @@ public class WebServiceProxy {
                     headers);
 
         } else {
-            clientRequestContext.put(BindingProvider.USERNAME_PROPERTY,
-                    userName);
-            clientRequestContext.put(BindingProvider.PASSWORD_PROPERTY,
-                    password);
-//            clientRequestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
-//                    baseUrl + "/" + remoteInterface.getSimpleName() + "/"
-//                            + auth);
-            clientRequestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
-                    baseUrl + "/oscm-webservices/" + remoteInterface.getSimpleName() + "/"
-                            + auth);
+            Binding binding = bindingProvider.getBinding();
+            List<Handler> handlerChain = binding.getHandlerChain();
+            if (handlerChain == null) {
+                handlerChain = new ArrayList<>();
+            }
+
+            handlerChain.add(new SecurityHandler(userName, password));
+            handlerChain.add(new SOAPHandler<SOAPMessageContext>() {
+
+                @Override
+                public Set<QName> getHeaders() {
+                    return null;
+                }
+
+                @Override
+                public boolean handleMessage(SOAPMessageContext smc) {
+                    StringBuffer sbuf = new StringBuffer();
+                    sbuf.append("\n------------------------------------\n");
+                    sbuf.append("In SOAPHandler :handleMessage()\n");
+
+                    Boolean outboundProperty = (Boolean) smc.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
+
+                    if (outboundProperty.booleanValue()) {
+                        sbuf.append("\ndirection = outbound ");
+                    }
+                    else {
+                        sbuf.append("\ndirection = inbound ");
+                    }
+
+                    SOAPMessage message = smc.getMessage();
+                    try {
+                        sbuf.append("\n");
+                        sbuf.append(message.toString());
+                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                        message.writeTo(baos);
+                        sbuf.append("\nMessage Desc:"+baos.toString());
+                        sbuf.append("\n");
+                    }
+                    catch (Exception e) {
+                        sbuf.append("Exception in SOAP Handler: " + e);
+                    }
+
+                    sbuf.append("Exiting SOAPHandler :handleMessage()\n");
+                    sbuf.append("------------------------------------\n");
+                    System.out.println(sbuf.toString());
+                    return true;
+                }
+
+                @Override
+                public boolean handleFault(SOAPMessageContext soapMessageContext) {
+                    return false;
+                }
+
+                @Override
+                public void close(MessageContext messageContext) {
+
+                }
+            });
+            binding.setHandlerChain(handlerChain);
         }
         return port;
     }

@@ -15,11 +15,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.security.auth.Subject;
-import javax.security.auth.callback.Callback;
-import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.callback.NameCallback;
-import javax.security.auth.callback.PasswordCallback;
-import javax.security.auth.callback.UnsupportedCallbackException;
+import javax.security.auth.callback.*;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
@@ -48,7 +44,7 @@ public class ADMLoginModule implements LoginModule {
 
     /**
      * Performs authentication for the current user.
-     * 
+     *
      * @throws LoginException
      *             if the login failed.
      */
@@ -60,13 +56,13 @@ public class ADMLoginModule implements LoginModule {
 
         try {
             handler.handle(callbacks);
-            String name = ((NameCallback) callbacks[0]).getName();
+            login = ((NameCallback) callbacks[0]).getName();
             String password = String
                     .valueOf(((PasswordCallback) callbacks[1]).getPassword());
             
              try {
                 ADMRealmImpl realmImpl = new ADMRealmImpl(logger);
-                userGroups = realmImpl.authenticateUser(name, password);
+                userGroups = realmImpl.authenticateUser(login, password);
                 return true;
             } catch (Exception e) {
                 // TODO Auto-generated catch block

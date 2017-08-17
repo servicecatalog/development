@@ -8,12 +8,11 @@
 
 package org.oscm.security;
 
-import java.util.ArrayList;
-import java.util.List;
+import javax.security.auth.login.LoginException;
 
-import javax.security.auth.Subject;
-import javax.security.auth.login.LoginContext;
-
+import org.apache.openejb.core.security.AbstractSecurityService;
+import org.apache.openejb.loader.SystemInstance;
+import org.apache.openejb.spi.SecurityService;
 import org.apache.wss4j.dom.handler.RequestData;
 import org.apache.wss4j.dom.validate.Credential;
 
@@ -28,34 +27,28 @@ public class WSValidator
     public Credential validate(Credential credential, RequestData requestData) {
 
         try {
-            credential.getUsernametoken().getName();
-            credential.getUsernametoken().getPassword();
 
-            UserPrincipal userPrincipal = new UserPrincipal(
-                    credential.getUsernametoken().getName());
+            final SecurityService securityService = SystemInstance.get()
+                    .getComponent(SecurityService.class);
+            final Object token;
+            try {
+                securityService.disassociate();
 
-            Subject subject = new Subject();
-            subject.getPrincipals().add(userPrincipal);
-
-            List<String> userGroups = new ArrayList<String>();
-            if (userGroups != null && userGroups.size() > 0) {
-                for (String groupName : userGroups) {
-                    RolePrincipal rolePrincipal = new RolePrincipal(groupName);
-                    subject.getPrincipals().add(rolePrincipal);
+                token = securityService.login(
+                        credential.getUsernametoken().getName(),
+                        credential.getUsernametoken().getPassword());
+                if (AbstractSecurityService.class.isInstance(securityService)
+                        && AbstractSecurityService.class.cast(securityService)
+                                .currentState() == null) {
+                    securityService.associate(token);
                 }
+            } catch (final LoginException e) {
+                throw new SecurityException("cannot log user "
+                        + credential.getUsernametoken().getName(), e);
             }
 
-            LoginContext loginContext = new LoginContext("bss-realm",
-                    new WSCallbackHandler(
-                            credential.getUsernametoken().getName(),
-                            credential.getUsernametoken().getPassword()));
-            loginContext.login();
-            
-            credential.setSubject(loginContext.getSubject());
-         
         } catch (Exception e) {
             e.printStackTrace();
-            System.out.println(e.getMessage());
         }
         return credential;
     }
