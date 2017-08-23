@@ -42,9 +42,11 @@ public class PropertiesReader {
         testProperties = new Properties();
         appDbProperties = new Properties();
 
-        fileTestProperties = "c:/src/oscm/development/oscm-devruntime/javares/local/"
+        fileTestProperties = System.getProperty("user.dir")
+                + "/../oscm-devruntime/javares/local/"
                 + retrieveComputerName() + "/test.properties";
-        fileAppDbProperties = "c:/src/oscm/development/oscm-devruntime/javares/local/"
+        fileAppDbProperties = System.getProperty("user.dir")
+                + "/../oscm-devruntime/javares/local/"
                 + retrieveComputerName() + "/db-app.properties";
     }
 
