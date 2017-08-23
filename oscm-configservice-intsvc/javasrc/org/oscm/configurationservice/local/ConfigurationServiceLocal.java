@@ -126,6 +126,8 @@ public interface ConfigurationServiceLocal {
      * @return base url
      */
     public String getBaseURL();
+
+    public String getBaseUrlHttps();
     
     /**
      * checks if payment information is available

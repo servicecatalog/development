@@ -111,6 +111,10 @@
     <source>selectItemPleaseSelect.xhtml</source>
   </tag>
   <tag>
+    <tag-name>selectItemTenant</tag-name>
+    <source>selectItemTenant.xhtml</source>
+  </tag>
+  <tag>
     <tag-name>selectOrganization</tag-name>
     <source>selectOrganization.xhtml</source>
   </tag>

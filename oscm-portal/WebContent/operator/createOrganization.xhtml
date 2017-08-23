@@ -152,7 +152,7 @@
                               rendered="#{operatorOrgBean.tenantSelectionAvailable}"
                               listenerBean="#{operatorOrgBean}" render="marketplace"
                               oncomplete="AdmUtils.setUIElements();">
-            <adm:selectItemPleaseSelect itemValue="0" />
+            <adm:selectItemTenant itemValue="0" />
             <f:selectItems value="#{operatorOrgBean.selectableTenants}" />
             <f:validator validatorId="TenantValidator" />
           </adm:labelAndSelect>

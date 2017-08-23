@@ -72,7 +72,7 @@ public enum ConfigurationKey {
 
     @Doc({ "The path to the file containing the key required for encrypting and",
            "decrypting service parameters and custom attributes." })
-    @Example("<path>/key")
+    @Example("./key")
     KEY_FILE_PATH(false, "./key", "string", false),
 
     @Doc({ "The number of decimal places for prices. Values between 2 and 6 are supported." })
@@ -183,6 +183,7 @@ public enum ConfigurationKey {
             HiddenUIConstants.MENU_ITEM_OPERATOR_MANAGE_CURRENCIES,
             HiddenUIConstants.MENU_ITEM_OPERATOR_MANAGE_CONFIGURATION,
             HiddenUIConstants.MENU_ITEM_OPERATOR_MANAGE_INDEXES,
+            HiddenUIConstants.MENU_ITEM_OPERATOR_MANAGE_TENANTS,
             HiddenUIConstants.MENU_GROUP_NAVIGATION_MYACCOUNT,
             HiddenUIConstants.MENU_ITEM_ORGANIZATION_EDIT,
             HiddenUIConstants.MENU_ITEM_USER_PWD,
@@ -362,6 +363,10 @@ public enum ConfigurationKey {
            "is returned by the correct IdP." })
     @Example("IDP_ID")
     SSO_IDP_SAML_ASSERTION_ISSUER_ID(false, "default", "string", false),
+
+    @Doc({ "Hashing algorithm used in signing SAML communication" })
+    @Example("SHA1")
+    SSO_SIGNING_ALGORITHM(false, SigningAlgorithmType.SHA1.name(), "string", false);
 
     @Doc({ "The Kafka configuration property bootstrap.servers." })
     @Example("localhost:9092")

@@ -27,6 +27,7 @@ import javax.xml.stream.XMLStreamWriter;
 
 import org.apache.commons.codec.binary.Base64;
 
+import org.oscm.internal.types.enumtypes.SigningAlgorithmType;
 import org.oscm.internal.types.exception.SaaSApplicationException;
 
 /**
@@ -47,10 +48,17 @@ public class LogoutRequestGenerator {
      * @return
      * @throws SaaSApplicationException
      */
-    public String generateLogoutRequest(String idpSessionIndex, String nameID, String logoutURL, String keystorePath, String issuer, String keyAlias, String keystorePass) throws SaaSApplicationException {
+    public String generateLogoutRequest(String idpSessionIndex,
+                                        String nameID,
+                                        String logoutURL,
+                                        String keystorePath,
+                                        String issuer,
+                                        String keyAlias,
+                                        String keystorePass,
+                                        SigningAlgorithmType signingAlgorithm) throws SaaSApplicationException {
         try {
             return getRequest(logoutURL, nameID, FORMAT, idpSessionIndex,
-                    keystorePath, issuer, keyAlias, keystorePass);
+                    keystorePath, issuer, keyAlias, keystorePass, signingAlgorithm);
         } catch (XMLStreamException | IOException | GeneralSecurityException e) {
             throw new SaaSApplicationException("Exception during SAML logout URL generation.", e);
         }
@@ -60,7 +68,11 @@ public class LogoutRequestGenerator {
                               String nameID,
                               String format,
                               String sessionIndex,
-                              String keyPath, String issuer, String keyAlias, String keystorePass) throws XMLStreamException, IOException, GeneralSecurityException, SaaSApplicationException {
+                              String keyPath,
+                              String issuer,
+                              String keyAlias,
+                              String keystorePass,
+                              SigningAlgorithmType algorithmType) throws XMLStreamException, IOException, GeneralSecurityException, SaaSApplicationException {
 
         String issueInstant = getIssueDate();
 
@@ -70,7 +82,7 @@ public class LogoutRequestGenerator {
         String finalSignatureValue = "";
 
         //If a keyPath was provided, sign it!
-        finalSignatureValue = signRequestIfNeeded(keyPath, keyAlias, keystorePass, base64AndURLEncoded, finalSignatureValue);
+        finalSignatureValue = signRequestIfNeeded(keyPath, keyAlias, keystorePass, base64AndURLEncoded, finalSignatureValue, algorithmType);
 
         String appender = getAppender(logoutUrl);
 
@@ -92,11 +104,17 @@ public class LogoutRequestGenerator {
         return appender;
     }
 
-    private String signRequestIfNeeded(String keyPath, String keyAlias, String keystorePass, String base64AndURLEncoded, String finalSignatureValue) throws NoSuchAlgorithmException, InvalidKeyException, SaaSApplicationException, IOException, KeyStoreException, CertificateException, UnrecoverableKeyException, SignatureException {
+    private String signRequestIfNeeded(String keyPath,
+                                       String keyAlias,
+                                       String keystorePass,
+                                       String base64AndURLEncoded,
+                                       String finalSignatureValue,
+                                       SigningAlgorithmType type) throws NoSuchAlgorithmException, InvalidKeyException, SaaSApplicationException, IOException, KeyStoreException, CertificateException, UnrecoverableKeyException, SignatureException {
         if (keyPath != null && !"".equals(keyPath)) {
-            String encodedSigAlg = URLEncoder.encode("http://www.w3.org/2000/09/xmldsig#rsa-sha1", UTF_8);
 
-            Signature signature = Signature.getInstance("SHA1withRSA");
+            String encodedSigAlg = URLEncoder.encode(type.getUri(), UTF_8);
+
+            Signature signature = Signature.getInstance(type.getAlgorithm());
 
 
             String strSignature = "SAMLRequest=" + getRidOfCRLF(base64AndURLEncoded) + "&SigAlg=" + encodedSigAlg;
