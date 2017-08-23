@@ -306,7 +306,7 @@
   <target name="integrationtests" if="integrationtests" depends="_init, package">
     <mkdir dir="${result.work.testreport.it.dir}" />
     <jacoco:coverage destfile="${result.work.testreport.it.dir}/jacoco.exec" includes="org.oscm.*" sessionid="${project.name}">
-      <junit fork="yes" forkmode="once" dir="${project.dir}" failureproperty="unittests.failure" maxmemory="1024m" haltonerror="yes">
+      <junit fork="yes" forkmode="once" dir="${project.dir}" failureproperty="unittests.failure" maxmemory="1024m">
         <jvmarg value="-Dfile.encoding=UTF8" />
         <!-- Run unit tests without Hibernate Search indexing -->
         <jvmarg value="-Dhibernate.search.autoregister_listeners=false" />
@@ -315,7 +315,7 @@
         <jvmarg value="-agentlib:jdwp=transport=dt_socket,server=y,address=8038,suspend=y" /-->
         <classpath refid="dependencies.runtime.path" />
         <formatter type="xml" />
-        <batchtest todir="${result.work.testreport.it.dir}" haltonerror="yes">
+        <batchtest todir="${result.work.testreport.it.dir}">
           <fileset dir="${javasrc.it.dir}" erroronmissingdir="no">
             <include name="**/*IT.java" />
             <include name="**/*IT?.java" />
@@ -327,7 +327,7 @@
 
   <target name="integrationtestsWithoutCoverage" if="integrationtests" depends="_init, package">
     <mkdir dir="${result.work.testreport.it.dir}" />
-    <junit fork="yes" forkmode="once" dir="${project.dir}" failureproperty="unittests.failure" maxmemory="1024m" haltonerror="yes">
+    <junit fork="yes" forkmode="once" dir="${project.dir}" failureproperty="unittests.failure" maxmemory="1024m">
       <jvmarg value="-Dfile.encoding=UTF8" />
       <!-- Run unit tests without Hibernate Search indexing -->
       <jvmarg value="-Dhibernate.search.autoregister_listeners=false" />
@@ -336,7 +336,7 @@
       <jvmarg value="-agentlib:jdwp=transport=dt_socket,server=y,address=8038,suspend=y" /-->
       <classpath refid="dependencies.runtime.path" />
       <formatter type="xml" />
-      <batchtest todir="${result.work.testreport.it.dir}" haltonerror="yes">
+      <batchtest todir="${result.work.testreport.it.dir}">
         <fileset dir="${javasrc.it.dir}" erroronmissingdir="no">
           <include name="**/*IT.java" />
           <include name="**/*IT?.java" />
