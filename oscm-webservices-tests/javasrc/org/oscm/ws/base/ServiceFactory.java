@@ -12,9 +12,6 @@ import java.util.Properties;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
-import javax.security.auth.login.LoginContext;
-
-import org.oscm.ct.login.LoginHandlerFactory;
 import org.oscm.internal.intf.ConfigurationService;
 import org.oscm.internal.intf.OperatorService;
 import org.oscm.internal.intf.TenantService;
@@ -36,7 +33,6 @@ import org.oscm.intf.TagService;
 import org.oscm.intf.TriggerDefinitionService;
 import org.oscm.intf.TriggerService;
 import org.oscm.intf.VatService;
-import org.oscm.operatorservice.bean.OperatorServiceBean;
 import org.oscm.test.setup.PropertiesReader;
 import org.oscm.test.ws.WebServiceProxy;
 
