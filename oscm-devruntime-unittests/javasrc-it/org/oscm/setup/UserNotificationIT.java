@@ -105,8 +105,9 @@ public class UserNotificationIT {
 	
 	public String getProperiesForComputerName(String propertyPath) {
 		String path = propertyPath;
-		if (retrieveComputerName().equals("ctmg2")) {
-			path = "ctmg2/" + propertyPath;
+		String computerName = retrieveComputerName();
+		if (computerName.equals("ctmg2") || computerName.equals("default")) {
+			path = computerName+ File.separator + propertyPath;
 		}	
 		return path;
 	}
