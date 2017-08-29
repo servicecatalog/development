@@ -30,12 +30,12 @@ import javax.ejb.Timer;
 import javax.ejb.TimerService;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
+import javax.inject.Inject;
 import javax.naming.NamingException;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.oscm.app.business.APPlatformControllerFactory;
 import org.oscm.app.business.InstanceFilter;
@@ -100,7 +100,8 @@ public class APPTimerServiceBean implements Cloneable {
      */
     private static final String APP_TIMER_INFO = "d432dac0-5f81-11e4-9803-0800200c9a66";
 
-    private static final Logger logger = LoggerFactory.getLogger(APPTimerServiceBean.class);
+    @Inject
+    protected transient Logger logger;
 
     @PersistenceContext(name = "persistence/em", unitName = "oscm-app")
     protected EntityManager em;

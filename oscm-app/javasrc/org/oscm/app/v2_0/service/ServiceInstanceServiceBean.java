@@ -19,7 +19,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.oscm.app.business.AsynchronousProvisioningProxyImpl;
 import org.oscm.app.business.UserMapper;
@@ -58,7 +57,8 @@ public class ServiceInstanceServiceBean {
             + ", "
             + ProvisioningStatus.WAITING_FOR_SYSTEM_UPGRADE.name();
 
-    private static final Logger logger = LoggerFactory.getLogger(ServiceInstanceServiceBean.class);
+    @Inject
+    protected transient Logger logger;
 
     @EJB
     private AsynchronousProvisioningProxyImpl appImpl;

@@ -17,7 +17,6 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.oscm.app.business.APPlatformControllerFactory;
 import org.oscm.app.business.AsynchronousProvisioningProxyImpl;
@@ -69,7 +68,8 @@ import org.oscm.string.Strings;
 @WebService(serviceName = "ProvisioningService", targetNamespace = "http://oscm.org/xsd", portName = "ProvisioningServicePort", endpointInterface = "org.oscm.provisioning.intf.ProvisioningService")
 public class AsynchronousProvisioningProxy implements ProvisioningService {
 
-    private static final Logger logger = LoggerFactory.getLogger(AsynchronousProvisioningProxy.class);
+    @Inject
+    protected transient Logger logger;
 
     @Inject
     protected ProvisioningResults provResult;

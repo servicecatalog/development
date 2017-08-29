@@ -7,23 +7,29 @@
  *******************************************************************************/
 package org.oscm.app.v2_0.service;
 
+import java.util.Collection;
+import java.util.List;
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+import javax.ejb.ConcurrencyManagement;
+import javax.ejb.ConcurrencyManagementType;
+import javax.ejb.EJB;
+import javax.ejb.LocalBean;
+import javax.ejb.Singleton;
+import javax.ejb.Startup;
+import javax.ejb.Timeout;
+import javax.ejb.Timer;
+import javax.ejb.TimerService;
+import javax.inject.Inject;
+
+import org.slf4j.Logger;
+
 import org.oscm.app.business.APPlatformControllerFactory;
 import org.oscm.app.domain.PlatformConfigurationKey;
 import org.oscm.app.domain.ServiceInstance;
 import org.oscm.app.v2_0.exceptions.APPlatformException;
 import org.oscm.app.v2_0.exceptions.ConfigurationException;
 import org.oscm.app.v2_0.intf.APPlatformController;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
-import javax.ejb.*;
-import javax.inject.Inject;
-
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
 
 /**
  * Created by BadziakP on 2017-05-04.
@@ -50,7 +56,8 @@ public class TimerRefreshSubscriptions {
 	@EJB
 	protected APPConfigurationServiceBean configService;
 
-	private static final Logger logger = LoggerFactory.getLogger(TimerRefreshSubscriptions.class);
+	@Inject
+	protected transient Logger logger;
 
 	@PostConstruct
 	public void setTimer() {
