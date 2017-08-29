@@ -13,6 +13,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.oscm.app.business.exceptions.BadResultException;
 import org.oscm.app.business.exceptions.ServiceInstanceNotFoundException;
 import org.oscm.app.dao.ServiceInstanceDAO;
@@ -34,8 +36,7 @@ import org.oscm.provisioning.intf.ProvisioningService;
  */
 public class AsynchronousProvisioningProxyImpl {
 
-    @Inject
-    protected transient Logger logger;
+    private static final Logger logger = LoggerFactory.getLogger(AsynchronousProvisioningProxyImpl.class);
 
     @Inject
     protected ProvisioningResults provResultHelper;

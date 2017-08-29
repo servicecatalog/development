@@ -18,8 +18,7 @@
 	<classpathentry kind="lib" path="/libraries/apache-io/javalib/commons-io-1.4.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-common"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc-internal"/>
-	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/javaee.jar"/>
-	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/gf-client.jar"/>
+	<classpathentry kind="lib" path="/libraries/apache-tomee/javalib/javaee-api-7.0-1.jar"/>
 	<classpathentry kind="lib" path="/libraries/opensaml/javalib/joda-time-2.2.jar"/>
 	<classpathentry kind="lib" path="/libraries/aws/javalib/aws-java-sdk-core-1.11.37.jar"/>
 	<classpathentry kind="lib" path="/libraries/aws/javalib/aws-java-sdk-ec2-1.11.37.jar"/>

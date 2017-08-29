@@ -26,7 +26,6 @@ import org.oscm.app.v1_0.exceptions.ObjectNotFoundException;
  * Interface providing methods by which service controllers implemented in APP
  * can access common APP utilities.
  */
-@Remote
 public interface APPlatformService {
 
     /**

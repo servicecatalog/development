@@ -18,8 +18,9 @@
 	<classpathentry kind="lib" path="/libraries/apache-log4j/javalib/log4j-1.2.16.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-app-extsvc-2-0"/>
-	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/gf-client.jar"/>
-	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/javaee.jar"/>
+	<classpathentry kind="lib" path="/libraries/apache-tomee/javalib/javaee-api-7.0-1.jar"/>
+    <classpathentry kind="lib" path="/libraries/glassfish4/modules/javax.faces.jar"/>
+	<classpathentry kind="lib" path="/libraries/glassfish4/modules/weld-osgi-bundle.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-app-common"/>
 	<classpathentry kind="output" path="bin"/>

@@ -9,7 +9,6 @@ package org.oscm.app.v2_0.service;
 
 import java.util.EnumSet;
 import java.util.List;
-
 import javax.ejb.EJB;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
@@ -20,6 +19,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.oscm.app.business.AsynchronousProvisioningProxyImpl;
 import org.oscm.app.business.UserMapper;
@@ -58,10 +58,9 @@ public class ServiceInstanceServiceBean {
             + ", "
             + ProvisioningStatus.WAITING_FOR_SYSTEM_UPGRADE.name();
 
-    @Inject
-    private transient Logger logger;
+    private static final Logger logger = LoggerFactory.getLogger(ServiceInstanceServiceBean.class);
 
-    @Inject
+    @EJB
     private AsynchronousProvisioningProxyImpl appImpl;
 
     @EJB

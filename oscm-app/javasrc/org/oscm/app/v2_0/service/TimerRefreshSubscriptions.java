@@ -14,6 +14,7 @@ import org.oscm.app.v2_0.exceptions.APPlatformException;
 import org.oscm.app.v2_0.exceptions.ConfigurationException;
 import org.oscm.app.v2_0.intf.APPlatformController;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -49,8 +50,7 @@ public class TimerRefreshSubscriptions {
 	@EJB
 	protected APPConfigurationServiceBean configService;
 
-	@Inject
-	protected transient Logger logger;
+	private static final Logger logger = LoggerFactory.getLogger(TimerRefreshSubscriptions.class);
 
 	@PostConstruct
 	public void setTimer() {

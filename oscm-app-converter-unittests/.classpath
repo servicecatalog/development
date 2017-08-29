@@ -17,7 +17,7 @@
 	<classpathentry kind="src" path="/oscm-app-extsvc-2-0"/>
 	<classpathentry kind="lib" path="/libraries/junit/javalib/junit-4.5.jar"/>
 	<classpathentry kind="src" path="/oscm-app"/>
-	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/javaee.jar"/>
+	<classpathentry kind="lib" path="/libraries/apache-tomee/javalib/javaee-api-7.0-1.jar"/>
 	<classpathentry kind="lib" path="/libraries/redhat-hibernate/javalib/hibernate-commons-annotations-5.0.1.Final.jar"/>
 	<classpathentry kind="lib" path="/libraries/redhat-hibernate/javalib/hibernate-core-5.0.9.Final.jar"/>
 	<classpathentry kind="lib" path="/libraries/redhat-hibernate/javalib/hibernate-entitymanager-5.0.9.Final.jar"/>

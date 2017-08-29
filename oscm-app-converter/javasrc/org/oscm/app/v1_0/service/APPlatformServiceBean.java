@@ -26,7 +26,7 @@ import org.oscm.app.v1_0.exceptions.AuthenticationException;
 import org.oscm.app.v1_0.exceptions.ConfigurationException;
 import org.oscm.app.v1_0.intf.APPlatformService;
 
-@Stateless(mappedName = "java:global/oscm-app/oscm-app/APPlatformServiceBean!org.oscm.app.v1_0.intf.APPlatformService")
+@Stateless(name = "org.oscm.app.v1_0.intf.APPlatformService")
 @Remote(org.oscm.app.v1_0.intf.APPlatformService.class)
 public class APPlatformServiceBean implements APPlatformService {
 

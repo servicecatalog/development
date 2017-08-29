@@ -43,7 +43,7 @@
 	<classpathentry kind="lib" path="/libraries/apache-axis2-lib/javalib/wsdl4j-1.6.2.jar"/>
 	<classpathentry kind="lib" path="/libraries/apache-axis2-lib/javalib/wstx-asl-3.2.4.jar"/>
 	<classpathentry kind="lib" path="/libraries/apache-axis2-lib/javalib/XmlSchema-1.4.3.jar"/>
-	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/javaee.jar"/>
+	<classpathentry kind="lib" path="/libraries/apache-tomee/javalib/javaee-api-7.0-1.jar"/>
 	<classpathentry kind="lib" path="/libraries/glassfish4/modules/javax.servlet.jsp.jstl.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>

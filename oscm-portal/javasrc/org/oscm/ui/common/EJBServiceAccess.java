@@ -8,7 +8,6 @@
 package org.oscm.ui.common;
 
 import java.util.Properties;
-
 import javax.naming.CommunicationException;
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -18,13 +17,12 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.oscm.internal.types.exception.SaaSSystemException;
+import org.oscm.internal.vo.VOUser;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.resolver.IPResolver;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
-import org.oscm.internal.types.exception.SaaSSystemException;
-import org.oscm.internal.vo.VOUser;
-import com.sun.web.security.WebProgrammaticLoginImpl;
 
 /**
  * Implementation to access the services with EJB (IIOP)

@@ -61,7 +61,7 @@ import org.slf4j.LoggerFactory;
  * @author Dirk Bernsau
  * 
  */
-@Stateless
+@Stateless(name = "org.oscm.app.v2_0.intf.APPlatformService")
 @Remote(APPlatformService.class)
 public class APPlatformServiceBean implements APPlatformService {
 

@@ -15,7 +15,7 @@
 	<classpathentry kind="lib" path="/libraries/bouncycastle/javalib/bcprov-jdk15-145.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-accountmgmt-unittests"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-unittests-base"/>
-	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/javaee.jar"/>
+	<classpathentry kind="lib" path="/libraries/apache-tomee/javalib/javaee-api-7.0-1.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-converter"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-webservices-tests"/>
 	<classpathentry kind="lib" path="/oscm-build/result/package/oscm-extsvc-internal/oscm-extsvc-internal.jar"/>

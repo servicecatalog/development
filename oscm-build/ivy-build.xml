@@ -190,9 +190,6 @@
   	<copy file="${ivy.lib.dir}/javaee-4.1.1.jar" tofile="${root.dir}/libraries/glassfish4/javalib/javaee.jar" overwrite="true"/>
   	<copy file="${ivy.lib.dir}/gf-client-4.1.1.jar" tofile="${root.dir}/libraries/glassfish4/javalib/gf-client.jar" overwrite="true"/>
     
-    <copy file="${ivy.lib.dir}/javax.inject-1.jar" todir="${root.dir}/libraries/glassfish4/javalib" overwrite="true"></copy>
-    
-
   	<!-- from Class-Path of javaee.jar -->
   	<copy file="${ivy.lib.dir}/javax.annotation-api-1.2.jar" tofile="${root.dir}/libraries/glassfish4/modules/endorsed/javax.annotation-api.jar" overwrite="true"/>
   	<copy file="${ivy.lib.dir}/javax.faces-2.2.12.jar" tofile="${root.dir}/libraries/glassfish4/modules/javax.faces.jar" overwrite="true"/>
@@ -201,7 +198,6 @@
   	<copy file="${ivy.lib.dir}/javax.servlet-api-3.1.0.jar" tofile="${root.dir}/libraries/glassfish4/modules/javax.servlet-api.jar" overwrite="true"/>
   	<copy file="${ivy.lib.dir}/javax.servlet.jsp-api-2.3.2-b01.jar" tofile="${root.dir}/libraries/glassfish4/modules/javax.servlet.jsp-api.jar" overwrite="true"/>
   	<copy file="${ivy.lib.dir}/javax.servlet.jsp.jstl-api-1.2.1.jar" tofile="${root.dir}/libraries/glassfish4/modules/javax.servlet.jsp.jstl-api.jar" overwrite="true"/>
-  	<copy file="${ivy.lib.dir}/cdi-api-1.2.jar" tofile="${root.dir}/libraries/glassfish4/modules/cdi-api.jar" overwrite="true"/>
   	<copy file="${ivy.lib.dir}/webservices-osgi-2.3.1.jar" tofile="${root.dir}/libraries/glassfish4/modules/webservices-osgi.jar" overwrite="true"/>
   	<copy file="${ivy.lib.dir}/javax.mail-1.5.4.jar" tofile="${root.dir}/libraries/glassfish4/modules/javax.mail.jar" overwrite="true"/>
   	<copy file="${ivy.lib.dir}/javax.jms-api-2.0.1.jar" tofile="${root.dir}/libraries/glassfish4/modules/javax.jms-api.jar" overwrite="true"/>  	      	
@@ -211,7 +207,6 @@
   	<copy file="${ivy.lib.dir}/jaxb-osgi-2.2.11.jar" tofile="${root.dir}/libraries/glassfish4/modules/jaxb-osgi.jar" overwrite="true"/>
   	
   	<!-- from Class-Path of gf-client.jar -->
-  	<copy file="${ivy.lib.dir}/javax.inject-2.4.0-b31.jar" tofile="${root.dir}/libraries/glassfish4/modules/javax.inject.jar" overwrite="true"/>
   	<copy file="${ivy.lib.dir}/javax.interceptor-api-1.2.jar" tofile="${root.dir}/libraries/glassfish4/modules/javax.interceptor-api.jar" overwrite="true"/>
   	<copy file="${ivy.lib.dir}/weld-osgi-bundle-2.2.13.Final.jar" tofile="${root.dir}/libraries/glassfish4/modules/weld-osgi-bundle.jar" overwrite="true"/>
   	<copy file="${ivy.lib.dir}/web-core-4.1.1.jar" tofile="${root.dir}/libraries/glassfish4/modules/web-core.jar" overwrite="true"/>
@@ -287,8 +282,21 @@
     <copy file="${ivy.lib.dir}/wss4j-ws-security-dom-2.1.7.jar" tofile="${root.dir}/libraries/apache-tomee/javalib/wss4j-ws-security-dom-2.1.7.jar" overwrite="true"/>
     <copy file="${ivy.lib.dir}/wss4j-ws-security-policy-stax-2.1.7.jar" tofile="${root.dir}/libraries/apache-tomee/javalib/wss4j-ws-security-policy-stax-2.1.7.jar" overwrite="true"/>
     <copy file="${ivy.lib.dir}/wss4j-ws-security-stax-2.1.7.jar" tofile="${root.dir}/libraries/apache-tomee/javalib/wss4j-ws-security-stax-2.1.7.jar" overwrite="true"/>
-    <copy file="${ivy.lib.dir}/openejb-loader-7.0.3.jar"
-          tofile="${root.dir}/libraries/apache-tomee/javalib/openejb-loader-7.0.3.jar" overwrite="true"/>
+    <copy file="${ivy.lib.dir}/openejb-loader-7.0.3.jar" tofile="${root.dir}/libraries/apache-tomee/javalib/openejb-loader-7.0.3.jar" overwrite="true"/>
+    <copy file="${ivy.lib.dir}/javaee-api-7.0-1.jar" tofile="${root.dir}/libraries/apache-tomee/javalib/javaee-api-7.0-1.jar" overwrite="true"/>
+
+    <!-- Tomee libraries for APP -->
+    <copy file="${ivy.lib.dir}/jaxws-api-2.2.1.jar" tofile="${root.dir}/libraries/apache-tomee-app/javalib/jaxws-api.jar" overwrite="true"/>
+    <copy file="${ivy.lib.dir}/jsr173_api-1.0.jar" tofile="${root.dir}/libraries/apache-tomee-app/javalib/jsr173_api.jar" overwrite="true"/>
+    <copy file="${ivy.lib.dir}/jsr181-api-1.0-MR1.jar" tofile="${root.dir}/libraries/apache-tomee-app/javalib/jsr181-api.jar" overwrite="true"/>
+    <copy file="${ivy.lib.dir}/jsr250-api-1.0.jar" tofile="${root.dir}/libraries/apache-tomee-app/javalib/jsr250-api.jar" overwrite="true"/>
+    <copy file="${ivy.lib.dir}/xml-resolver-1.2.jar" tofile="${root.dir}/libraries/apache-tomee-app/javalib/resolver.jar" overwrite="true"/>
+    <copy file="${ivy.lib.dir}/sjsxp-1.0.2.jar" tofile="${root.dir}/libraries/apache-tomee-app/javalib/sjsxp.jar" overwrite="true"/>
+    <copy file="${ivy.lib.dir}/stax-ex-1.7.8.jar" tofile="${root.dir}/libraries/apache-tomee-app/javalib/stax-ex.jar" overwrite="true"/>
+    <copy file="${ivy.lib.dir}/stax-utils-20070216.jar" tofile="${root.dir}/libraries/apache-tomee-app/javalib/stax-utils.jar" overwrite="true"/>
+    <copy file="${ivy.lib.dir}/streambuffer-1.5.4.jar" tofile="${root.dir}/libraries/apache-tomee-app/javalib/streambuffer.jar" overwrite="true"/>
+    <copy file="${ivy.lib.dir}/woodstox-core-asl-4.2.0.jar" tofile="${root.dir}/libraries/apache-tomee-app/javalib/woodstox.jar" overwrite="true"/>
+
 
   </target>
 </project>

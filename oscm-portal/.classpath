@@ -25,7 +25,7 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc-internal"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-internal-interfaces"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-serviceprovisioning-intsvc"/>
-	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/javaee.jar"/>
+	<classpathentry kind="lib" path="/libraries/apache-tomee/javalib/javaee-api-7.0-1.jar"/>
 	<classpathentry kind="lib" path="/libraries/apache-log4j/javalib/log4j-1.2.16.jar"/>
 	<classpathentry kind="lib" path="/libraries/apache-httpclient/javalib/commons-httpclient-3.1.jar"/>
 	<classpathentry kind="lib" path="/libraries/omnifaces/javalib/omnifaces-1.10.jar"/>
@@ -35,10 +35,15 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-i18n"/>
 	<classpathentry kind="src" path="/oscm-app-aws"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-billing-external-interfaces"/>
-	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/gf-client.jar"/>
+    <classpathentry kind="lib" path="/libraries/glassfish4/modules/jackson-annotations.jar"/>
+    <classpathentry kind="lib" path="/libraries/glassfish4/modules/jackson-core.jar"/>
+    <classpathentry kind="lib" path="/libraries/glassfish4/modules/jackson-databind.jar"/>
+    <classpathentry kind="lib" path="/libraries/glassfish4/modules/weld-osgi-bundle.jar"/>
+    <classpathentry kind="lib" path="/libraries/glassfish4/modules/security-ee.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-tenantmgmt-intsvc"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-tenantmgmt"/>
 	<classpathentry kind="lib" path="/libraries/apache-commons-lang/javalib/commons-lang3-3.3.2.jar"/>
+    <classpathentry kind="lib" path="/libraries/glassfish4/modules/javax.faces.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-marketplaceservice-intsvc"/>
 	<classpathentry kind="output" path="bin"/>
