@@ -1,20 +1,3 @@
-<<<<<<< Upstream, based on branch 'fb_tomee_migration' of https://github.com/servicecatalog/development.git
-<?xml version="1.0" encoding="UTF-8"?>
-<classpath>
-	<classpathentry kind="src" path="javasrc"/>
-	<classpathentry kind="src" path="javares"/>
-	<classpathentry kind="lib" path="/libraries/gson/javalib/gson-2.6.2.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc-internal"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/oscm-common"/>
-	<classpathentry kind="lib" path="/libraries/apache-tomee/javalib/javaee-api-7.0-1.jar"/>
-	<classpathentry kind="lib" path="/libraries/glassfish4/modules/websecurity.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="/libraries/apache-codec/javalib/commons-codec-1.7.jar"/>
-	<classpathentry kind="lib" path="/libraries/jersey/javalib/jersey-server.jar"/>
-	<classpathentry kind="lib" path="/libraries/jersey/javalib/jersey-common.jar"/>
-	<classpathentry kind="output" path="bin"/>
-</classpath>
-=======
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="javasrc"/>
@@ -31,4 +14,3 @@
 	<classpathentry kind="src" path="/oscm-security"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
->>>>>>> ddb7351 Fix classpaths for tomee

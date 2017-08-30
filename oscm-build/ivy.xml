@@ -392,7 +392,6 @@
     <dependency org="org.apache.wss4j" name="wss4j-ws-security-policy-stax" rev="2.1.7" transitive="false"/>
     <dependency org="org.apache.wss4j" name="wss4j-ws-security-stax" rev="2.1.7" transitive="false"/>
     <dependency org="org.apache.tomee" name="openejb-loader" rev="7.0.3" transitive="false"/>
-    <dependency org="org.apache.tomee" name="javaee-api" rev="7.0-1"/>
 
     <!-- Tomee libs for APP -->
     <dependency org="javax.xml.ws" name="jaxws-api" rev="2.2.1" transitive="false"/>
