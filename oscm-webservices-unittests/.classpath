@@ -36,5 +36,6 @@
 	<classpathentry kind="src" path="/oscm-saml2-api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-dataservice"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="/libraries/javax/javalib/servlet-api-3.1.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

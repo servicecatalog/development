@@ -6,7 +6,6 @@
 	<classpathentry kind="lib" path="/libraries/junit/javalib/junit-4.5.jar"/>
 	<classpathentry kind="lib" path="/libraries/mockito/javalib/mockito-all-1.8.5.jar"/>
 	<classpathentry kind="lib" path="/libraries/apache-tomee/javalib/javaee-api-7.0-1.jar"/>
-	<classpathentry kind="lib" path="/libraries/glassfish4/modules/websecurity.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc-internal"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-common"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-dataservice-intsvc"/>
@@ -14,6 +13,6 @@
 	<classpathentry kind="lib" path="/libraries/jersey/javalib/jersey-server.jar"/>
 	<classpathentry kind="lib" path="/libraries/jersey/javalib/jersey-common.jar"/>
 	<classpathentry kind="lib" path="/libraries/jersey/javalib/jersey-guava.jar"/>
-	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/javax.inject-1.jar"/>
+	<classpathentry kind="lib" path="/libraries/javax/javalib/servlet-api-3.1.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -202,7 +202,7 @@ public class OnBehalfActingServiceWSTest {
             sessionSV.createServiceSession(subscription.getKey(), sessionId,
                     "token2");
             fail();
-        } catch (com.sun.xml.ws.client.ClientTransportException e) {
+        } catch (Exception e) {
             // expected
             assertNotNull(e);
         }

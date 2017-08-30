@@ -31,8 +31,6 @@ public class EJBServiceAccess extends ServiceAccess {
 
     private static String REALM = "bss-realm";
 
-//    private static WebProgrammaticLoginImpl webProgrammaticLoginImpl = new WebProgrammaticLoginImpl();
-
     private static final Log4jLogger logger = LoggerFactory
             .getLogger(EJBServiceAccess.class);
 

@@ -38,10 +38,11 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-converter"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-saml2-api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-apiversioning-soapmgmt"/>
-    <classpathentry kind="lib" path="/libraries/glassfish4/modules/security-ee.jar"/>
-    <classpathentry kind="lib" path="/libraries/glassfish4/modules/webservices-osgi.jar"/>
-	<classpathentry kind="lib" path="/libraries/apache-commons-lang/javalib/commons-lang3-3.3.2.jar"/>
+	<classpathentry kind="lib" path="/libraries/apache-commons-lang/javalib/commons-lang3-3.5.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="src" path="/oscm-i18n-intsvc"/>
+	<classpathentry kind="lib" path="/libraries/glassfish-metro/javalib/webservices-osgi.jar"/>
+	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/common-util.jar"/>
+	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/security-ee.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

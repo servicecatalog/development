@@ -5,7 +5,6 @@
 	<classpathentry kind="lib" path="/libraries/apache-ant/javalib/ant.jar"/>
 	<classpathentry kind="lib" path="/libraries/apache-ant/javalib/ant-junit.jar"/>
 	<classpathentry kind="lib" path="/libraries/apache-ant/javalib/ant-launcher.jar"/>
-	<classpathentry kind="lib" path="/libraries/apache-ant/javalib/wsit-ant-tasks.jar"/>
 	<classpathentry kind="lib" path="/libraries/asm/javalib/asm-all-3.3.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
 	<classpathentry kind="lib" path="/libraries/bouncycastle/javalib/bcprov-jdk15-145.jar"/>

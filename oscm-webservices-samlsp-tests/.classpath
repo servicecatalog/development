@@ -21,5 +21,7 @@
 	<classpathentry kind="lib" path="/oscm-build/result/package/oscm-extsvc-internal/oscm-extsvc-internal.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-identitymgmt-intsvc"/>
+	<classpathentry kind="lib" path="/libraries/apache-tomee/javalib/geronimo-javamail_1.4_mail-1.9.0-alpha-2.jar"/>
+	<classpathentry kind="lib" path="/libraries/glassfish-metro/javalib/webservices-osgi.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

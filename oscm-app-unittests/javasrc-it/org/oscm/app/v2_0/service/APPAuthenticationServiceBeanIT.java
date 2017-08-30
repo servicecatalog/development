@@ -61,7 +61,6 @@ import org.oscm.vo.VOLocalizedText;
 import org.oscm.vo.VOUser;
 import org.oscm.vo.VOUserDetails;
 
-import com.sun.xml.ws.client.ClientTransportException;
 import com.sun.xml.wss.XWSSConstants;
 
 public class APPAuthenticationServiceBeanIT extends EJBTestBase {
@@ -1071,7 +1070,7 @@ public class APPAuthenticationServiceBeanIT extends EJBTestBase {
         final Map<String, Object> stackRequestContext = new HashMap<>();
         final Map<String, Object> requestContext = new HashMap<>();
 
-        public VOUserDetails authenticate(Map<String, Object> requestContext) {
+        public VOUserDetails authenticate(Map<String, Object> requestContext) throws Exception {
             Object user = requestContext
                     .get(useSSO ? XWSSConstants.USERNAME_PROPERTY
                             : BindingProvider.USERNAME_PROPERTY);
@@ -1085,7 +1084,7 @@ public class APPAuthenticationServiceBeanIT extends EJBTestBase {
                     if (userDetails != null) {
                         userKey = Long.valueOf(userDetails.getKey());
                     } else {
-                        throw new ClientTransportException(
+                        throw new Exception(
                                 new RuntimeException());
                     }
                 } else {
@@ -1096,7 +1095,7 @@ public class APPAuthenticationServiceBeanIT extends EJBTestBase {
                     return byKey.get(userKey);
                 }
             }
-            throw new ClientTransportException(new RuntimeException());
+            throw new Exception(new RuntimeException());
         }
 
         private void addUser(VOUserDetails user, String password) {

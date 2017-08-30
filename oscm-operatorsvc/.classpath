@@ -21,7 +21,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-billing"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-timermgmt"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-marketplaceservice-intsvc"/>
-
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

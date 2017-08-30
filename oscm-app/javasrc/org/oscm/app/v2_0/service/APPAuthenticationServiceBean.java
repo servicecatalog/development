@@ -32,8 +32,6 @@ import org.oscm.vo.VOUserDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.xml.ws.client.ClientTransportException;
-
 @Stateless
 @LocalBean
 public class APPAuthenticationServiceBean {
@@ -182,7 +180,7 @@ public class APPAuthenticationServiceBean {
                 user = userDetails = besDAO.getUserDetails(serviceInstance,
                         user, password);
             }
-        } catch (ClientTransportException e) {
+        } catch (Exception e) {
             AuthenticationException ae = new AuthenticationException(
                     e.getMessage(), e);
             LOGGER.debug(

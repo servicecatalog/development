@@ -103,8 +103,7 @@
 
   <taskdef name="wsgen" classname="com.sun.tools.ws.ant.WsGen">
     <classpath>
-      <fileset dir="${workspace.dir}/libraries/glassfish4/javalib/" includes="javaee.jar" />
-      <fileset dir="${workspace.dir}/libraries/glassfish4/modules/" includes="webservices-osgi.jar" />
+      <fileset dir="${workspace.dir}/libraries/glassfish-metro/javalib/" includes="webservices-osgi.jar" />
       <fileset dir="${workspace.dir}/libraries/sun-metro/javalib" includes="*.jar" />
     </classpath>
   </taskdef>
