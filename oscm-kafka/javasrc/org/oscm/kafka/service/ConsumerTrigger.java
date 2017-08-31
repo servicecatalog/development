@@ -14,6 +14,8 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.ejb.Singleton;
+import javax.ejb.Startup;
 
 import org.apache.log4j.Logger;
 import org.oscm.internal.intf.ConfigurationService;
