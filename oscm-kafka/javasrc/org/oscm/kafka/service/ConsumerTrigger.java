@@ -18,8 +18,7 @@ import javax.ejb.Singleton;
 import javax.ejb.Startup;
 
 import org.apache.log4j.Logger;
-import org.oscm.internal.intf.ConfigurationService;
-import org.oscm.internal.types.enumtypes.ConfigurationKey;
+import org.oscm.kafka.service.KafkaServer;
 
 @Singleton
 @Startup
