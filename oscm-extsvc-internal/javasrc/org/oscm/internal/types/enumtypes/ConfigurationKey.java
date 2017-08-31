@@ -370,7 +370,7 @@ public enum ConfigurationKey {
 
     @Doc({ "The Kafka configuration property bootstrap.servers." })
     @Example("localhost:9092")
-    KAFKA_BOOTSTRAP_SERVERS(false, "localhost:9092", "string");
+    KAFKA_BOOTSTRAP_SERVERS(false, "", "string");
 
     // ///////////////////////////////////////////////////////////////////////////////////
 
