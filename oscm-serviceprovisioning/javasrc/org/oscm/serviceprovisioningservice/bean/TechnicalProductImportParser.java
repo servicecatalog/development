@@ -81,6 +81,7 @@ import org.oscm.internal.types.exception.UnchangeableAllowingOnBehalfActingExcep
 import org.oscm.internal.types.exception.UpdateConstraintException;
 import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.internal.vo.VOLocalizedText;
+import org.oscm.kafka.service.KafkaServer;
 import com.sun.org.apache.xerces.internal.impl.Constants;
 
 public class TechnicalProductImportParser extends ImportParserBase {
@@ -525,7 +526,7 @@ public class TechnicalProductImportParser extends ImportParserBase {
         }
     }
 
-    private void checkMandatoryAsync() {
+    private void checkEventBasedProvisioning() {
         if (techProduct.getAccessType() == ServiceAccessType.DIRECT
                 && techProduct.getProvisioningURL().isEmpty() && techProduct
                         .getProvisioningType() == ProvisioningType.SYNCHRONOUS) {
@@ -535,6 +536,13 @@ public class TechnicalProductImportParser extends ImportParserBase {
                             + " in case attribute " + ATTRIBUTE_ACCESS_TYPE
                             + " is " + ServiceAccessType.DIRECT + " and "
                             + ATTRIBUTE_PROVISIONING_URL + " is empty");
+            return;
+        }
+        
+        if (techProduct.getAccessType() == ServiceAccessType.DIRECT
+                && techProduct.getProvisioningURL().isEmpty() && techProduct
+                        .getProvisioningType() == ProvisioningType.ASYNCHRONOUS && !KafkaServer.isEnabled()) {
+            addError(null, "Kafka server should be configured in order to import service with event-based provisioning");
         }
     }
 
@@ -1272,7 +1280,7 @@ public class TechnicalProductImportParser extends ImportParserBase {
                 throw new SAXException(e);
             }
             checkMandatoryAccessInfo();
-            checkMandatoryAsync();
+            checkEventBasedProvisioning();
             persist(techProduct);
 
             // if the organization is supplier and technology provider, it

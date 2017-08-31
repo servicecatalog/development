@@ -54,6 +54,7 @@ import org.oscm.internal.types.exception.UnsupportedOperationException;
 import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.kafka.records.Operation;
 import org.oscm.kafka.result.PublishingResult;
+import org.oscm.kafka.service.KafkaServer;
 import org.oscm.kafka.service.Producer;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
@@ -990,7 +991,7 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
     }
 
     boolean isEventProvisioning(TechnicalProduct techProduct) {
-        return (techProduct.getAccessType() == ServiceAccessType.DIRECT
+        return (KafkaServer.isEnabled() && techProduct.getAccessType() == ServiceAccessType.DIRECT
                 && techProduct.getProvisioningURL().isEmpty());
     }
 
@@ -1157,4 +1158,5 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
         result.setRc(1);
         return result;
     }
+    
 }

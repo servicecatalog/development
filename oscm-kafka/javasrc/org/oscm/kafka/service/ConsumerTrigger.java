@@ -32,7 +32,7 @@ public class ConsumerTrigger {
 
     @PostConstruct
     public void regular() {
-        if (isKafkaEnabled()) {
+        if (KafkaServer.isEnabled()) {
             executor = Executors.newSingleThreadExecutor();
             executor.execute(new Consumer());
             LOGGER.info("Kafka consumer job started");
@@ -58,17 +58,4 @@ public class ConsumerTrigger {
         }
     }
 
-    private boolean isKafkaEnabled() {
-        ConfigurationService configService = ServiceLocator
-                .findService(ConfigurationService.class);
-        String kafkaServer = configService
-                .getVOConfigurationSetting(
-                        ConfigurationKey.KAFKA_BOOTSTRAP_SERVERS, "global")
-                .getValue();
-        if (kafkaServer == null || kafkaServer.trim().isEmpty()) {
-            return false;
-        }
-
-        return true;
-    }
 }
