@@ -357,7 +357,6 @@
     <dependency org="com.sun.xml.bind" name="jaxb-core" rev="2.2.10" transitive="false"/>
     <dependency org="com.sun.xml.bind" name="jaxb-xjc" rev="2.2.10" transitive="false"/>
     <dependency org="com.sun.xml.bind" name="jaxb-jxc" rev="2.2.10" transitive="false"/>
-    <dependency org="org.jvnet.staxex" name="stax-ex" rev="1.7.7" transitive="false"/>
     
     
     <dependency org="com.sun.xml.ws" name="jaxws-rt" rev="2.2.10" transitive="false"/>
