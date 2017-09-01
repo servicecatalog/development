@@ -19,7 +19,6 @@ import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.internal.types.exceptions.FillinOptionNotSupportedException;
 import org.oscm.internal.vo.VOService;
 
-@Local
 public interface LandingpageServiceLocal {
 
     /**

@@ -24,7 +24,6 @@ import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.interceptor.Interceptors;
-import javax.jms.JMSException;
 
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.flexible.core.QueryNodeException;
@@ -39,13 +38,11 @@ import org.hibernate.search.FullTextQuery;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.Search;
 
-import org.oscm.dataservice.bean.IndexMQSender;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Marketplace;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.Product;
 import org.oscm.domobjects.bridge.ProductClassBridge;
-import org.oscm.domobjects.index.IndexReinitRequestMessage;
 import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.interceptor.ExceptionMapper;
@@ -63,7 +60,6 @@ import org.oscm.logging.LoggerFactory;
 import org.oscm.serviceprovisioningservice.assembler.ProductAssembler;
 import org.oscm.serviceprovisioningservice.local.ProductSearchResult;
 import org.oscm.serviceprovisioningservice.local.SearchServiceLocal;
-import org.oscm.types.enumtypes.LogMessageIdentifier;
 import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
 import org.oscm.validation.ArgumentValidator;
 
@@ -89,6 +85,9 @@ public class SearchServiceBean implements SearchService, SearchServiceLocal {
     @EJB(beanInterface = LocalizerServiceLocal.class)
     private LocalizerServiceLocal localizer;
 
+    @EJB
+    private org.oscm.search.Indexer indexer;
+
     @Inject
     UserGroupServiceLocalBean userGroupService;
 
@@ -96,18 +95,7 @@ public class SearchServiceBean implements SearchService, SearchServiceLocal {
 
     @Override
     public void initIndexForFulltextSearch(final boolean force) {
-        IndexReinitRequestMessage msg = new IndexReinitRequestMessage(force);
-        IndexMQSender messageSender = getMQSender();
-        try {
-            messageSender.sendMessage(msg);
-        } catch (JMSException e) {
-            logger.logError(Log4jLogger.SYSTEM_LOG, e,
-                    LogMessageIdentifier.ERROR_SEARCH_INDEX_CREATION_FAILED);
-        }
-    }
-
-    protected IndexMQSender getMQSender() {
-        return new IndexMQSender();
+        indexer.initIndexForFulltextSearch(force);
     }
 
     @Override

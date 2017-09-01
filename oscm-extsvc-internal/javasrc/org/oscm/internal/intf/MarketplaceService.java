@@ -11,8 +11,6 @@ package org.oscm.internal.intf;
 import java.util.List;
 import java.util.Set;
 
-import javax.annotation.security.RolesAllowed;
-import javax.ejb.Remote;
 import javax.security.auth.login.LoginException;
 
 import org.oscm.internal.cache.MarketplaceConfiguration;
@@ -120,8 +118,7 @@ public interface MarketplaceService {
     VOServiceDetails publishService(VOService service,
             List<VOCatalogEntry> entries)
             throws ObjectNotFoundException, ValidationException,
-            NonUniqueBusinessKeyException, OperationNotPermittedException,
-            PublishingToMarketplaceNotPermittedException;
+            NonUniqueBusinessKeyException, OperationNotPermittedException;
 
     /**
      * Retrieves the marketplace for the specified subscription. If no
@@ -528,7 +525,6 @@ public interface MarketplaceService {
      * @return collection of all organizations.
      * @throws ObjectNotFoundException
      */
-    @RolesAllowed("MARKETPLACE_OWNER")
     List<VOOrganization> getAllOrganizations(String marketplaceId)
             throws ObjectNotFoundException;
 
@@ -548,7 +544,6 @@ public interface MarketplaceService {
      * @throws TechnicalServiceOperationException
      * @throws TechnicalServiceNotAliveException
      */
-    @RolesAllowed("MARKETPLACE_OWNER")
     void closeMarketplace(String marketplaceId,
             Set<Long> authorizedOrganizations,
             Set<Long> unauthorizedOrganizations)
@@ -565,7 +560,6 @@ public interface MarketplaceService {
      * @throws ValidationException
      * @throws NonUniqueBusinessKeyException
      */
-    @RolesAllowed("MARKETPLACE_OWNER")
     void grantAccessToMarketPlaceToOrganization(VOMarketplace voMarketplace,
             VOOrganization voOrganization)
             throws ValidationException, NonUniqueBusinessKeyException;
@@ -578,7 +572,6 @@ public interface MarketplaceService {
      * @throws ObjectNotFoundException
      * @throws NonUniqueBusinessKeyException
      */
-    @RolesAllowed("MARKETPLACE_OWNER")
     void openMarketplace(String marketplaceId)
             throws OperationNotPermittedException, ObjectNotFoundException,
             NonUniqueBusinessKeyException;
@@ -641,7 +634,6 @@ public interface MarketplaceService {
      * @return list of marketplaces assigned to the given tenant
      * @throws ObjectNotFoundException
      */
-    @RolesAllowed("PLATFORM_OPERATOR")
     List<VOMarketplace> getAllMarketplacesForTenant(Long tenantKey)
             throws ObjectNotFoundException;
 

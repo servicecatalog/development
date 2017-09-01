@@ -33,16 +33,15 @@ public class HibernateEventListener implements PostUpdateEventListener,
     private static final Log4jLogger logger = LoggerFactory
             .getLogger(HibernateEventListener.class);
 
-    private IndexMQSender messageSender;
+    private Indexer indexer = new Indexer();
 
     public HibernateEventListener() {
-        this.messageSender = new IndexMQSender();
     }
 
     public void onPostInsert(PostInsertEvent event) {
         createHistory(event.getPersister(), event.getEntity(),
                 ModificationType.ADD);
-        messageSender.notifyIndexer(event.getEntity(), ModificationType.ADD);
+        indexer.handleIndexing((DomainObject<?>) event.getEntity(), ModificationType.ADD, event.getPersister());
     }
 
     public void onPostUpdate(PostUpdateEvent event) {
@@ -52,8 +51,8 @@ public class HibernateEventListener implements PostUpdateEventListener,
                     .getState()[i]).intValue()) {
                 createHistory(event.getPersister(), event.getEntity(),
                         ModificationType.MODIFY);
-                messageSender.notifyIndexer(event.getEntity(),
-                        ModificationType.MODIFY);
+                indexer.handleIndexing((DomainObject<?>) event.getEntity(),
+                        ModificationType.MODIFY, event.getPersister());
             }
         }
     }
@@ -83,7 +82,7 @@ public class HibernateEventListener implements PostUpdateEventListener,
         removeLocalization(event.getPersister(), event.getEntity());
         createHistory(event.getPersister(), event.getEntity(),
                 ModificationType.DELETE);
-        messageSender.notifyIndexer(event.getEntity(), ModificationType.DELETE);
+        indexer.handleIndexing((DomainObject<?>) event.getEntity(), ModificationType.DELETE, event.getPersister());
     }
 
     private void removeLocalization(EntityPersister persister, Object entity) {
@@ -106,7 +105,6 @@ public class HibernateEventListener implements PostUpdateEventListener,
         }
     }
 
-    //Glassfish4 upgarde, added transaction to session
     private void createHistory(EntityPersister persister, Object entity,
             ModificationType type) {
         if (entity instanceof DomainObject<?>) {

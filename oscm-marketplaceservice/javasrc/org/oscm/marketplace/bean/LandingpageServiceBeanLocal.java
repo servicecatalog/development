@@ -16,6 +16,7 @@ import java.util.*;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.EJB;
+import javax.ejb.Local;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.interceptor.Interceptors;
@@ -52,6 +53,7 @@ import org.oscm.validation.ArgumentValidator;
 
 
 @Stateless
+@Local(LandingpageServiceLocal.class)
 @Interceptors({ InvocationDateContainer.class, ExceptionMapper.class })
 public class LandingpageServiceBeanLocal implements LandingpageServiceLocal {
 

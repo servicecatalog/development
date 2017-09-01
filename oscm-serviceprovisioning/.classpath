@@ -34,6 +34,7 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-subscriptionmgmt"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-auditlog"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-tenantprovisioning"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-search-indexer"/>
 	<classpathentry kind="lib" path="/libraries/redhat-hibernate/javalib/antlr-2.7.7.jar"/>
 	<classpathentry kind="lib" path="/libraries/redhat-hibernate/javalib/dom4j-1.6.1.jar"/>
 	<classpathentry kind="lib" path="/libraries/redhat-hibernate/javalib/jandex-2.0.0.Final.jar"/>

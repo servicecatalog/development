@@ -54,8 +54,8 @@ public interface MarketplaceServiceInternal {
      *             if the calling user's organization is not the owner of the
      *             service
      */
-    public List<VOCatalogEntry> getMarketplacesForService(VOService service,
-            PerformanceHint performanceHint) throws ObjectNotFoundException,
+    List<VOCatalogEntry> getMarketplacesForService(VOService service,
+                                                   PerformanceHint performanceHint) throws ObjectNotFoundException,
             OperationNotPermittedException;
 
 }
