@@ -22,7 +22,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.jboss.weld.context.NonexistentConversationException;
+//import org.jboss.weld.context.NonexistentConversationException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -50,7 +50,8 @@ public class NonexistentConversationFilterTest {
                 "/marketplace/subscriptions/upgrade/confirmUpgrade.jsf");
 
         ServletException exc = new ServletException("msg",
-                mock(NonexistentConversationException.class));
+                mock(RuntimeException.class));
+//        mock(NonexistentConversationException.class));
         doThrow(exc).when(chain).doFilter(req, res);
         // when
         try {

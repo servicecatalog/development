@@ -10,7 +10,7 @@ package org.oscm.rest.mock;
 
 import javax.ws.rs.ApplicationPath;
 
-import org.glassfish.jersey.server.ResourceConfig;
+//import org.glassfish.jersey.server.ResourceConfig;
 
 /**
  * Rest Resource Config for Mock endpoints
@@ -18,9 +18,9 @@ import org.glassfish.jersey.server.ResourceConfig;
  * @author miethaner
  */
 @ApplicationPath("/mock")
-public class MockResourceConfig extends ResourceConfig {
+public class MockResourceConfig  { //extends ResourceConfig {
 
     public MockResourceConfig() {
-        register(RestMockResource.class);
+//        register(RestMockResource.class);
     }
 }

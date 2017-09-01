@@ -17,6 +17,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.openejb.core.security.AbstractSecurityService;
+import org.apache.openejb.loader.SystemInstance;
+import org.apache.openejb.spi.SecurityService;
 import org.oscm.internal.types.exception.SaaSSystemException;
 import org.oscm.internal.vo.VOUser;
 import org.oscm.logging.Log4jLogger;
@@ -41,7 +44,7 @@ public class EJBServiceAccess extends ServiceAccess {
     public <T> T getService(Class<T> clazz) {
         try {
             Properties p = new Properties();
-            p.put(Context.INITIAL_CONTEXT_FACTORY,"org.apache.openejb.core.LocalInitialContextFactory");
+            p.put(Context.INITIAL_CONTEXT_FACTORY,"org.apache.openejb.client.LocalInitialContextFactory");
             Context context = new InitialContext(p);
             T service = clazz.cast(context.lookup(clazz.getSimpleName()+"BeanRemote"));
 //            Context context = new InitialContext();
@@ -71,21 +74,7 @@ public class EJBServiceAccess extends ServiceAccess {
         try {
             request.getSession();
             request.login(String.valueOf(userObject.getKey()), password);
-//            Boolean rc = webProgrammaticLoginImpl.login(
-//                    String.valueOf(userObject.getKey()), password.toCharArray(),
-//                    REALM, request, response);
-
-            // if (rc == null || !rc.booleanValue()) {
-            // String ipAddress = IPResolver.resolveIpAddress(request);
-            // String msg = String.format(
-            // "Login failed! User='%s' (access from %s)",
-            // userObject.getUserId(), ipAddress);
-            // LoginException le = new LoginException(msg);
-            // logger.logWarn(Log4jLogger.SYSTEM_LOG | Log4jLogger.AUDIT_LOG,
-            // le, LogMessageIdentifier.WARN_USER_LOGIN_FAILED,
-            // userObject.getUserId(), ipAddress);
-            // throw le;
-            // }
+            ejbLogin(userObject.getKey(), password);
 
         } catch (Exception e) {
             String ipAddress = IPResolver.resolveIpAddress(request);
@@ -116,6 +105,22 @@ public class EJBServiceAccess extends ServiceAccess {
                                 + "' caused by " + e.getMessage());
             }
         }
+    }
+
+    private void ejbLogin(long key, String password) throws LoginException {
+        final SecurityService securityService = SystemInstance.get()
+                .getComponent(SecurityService.class);
+        final Object token;
+            securityService.disassociate();
+
+            token = securityService.login(
+                    Long.valueOf(key).toString(),
+                    password);
+            if (AbstractSecurityService.class.isInstance(securityService)
+                    && AbstractSecurityService.class.cast(securityService)
+                    .currentState() == null) {
+                securityService.associate(token);
+            }
     }
 
     @Override

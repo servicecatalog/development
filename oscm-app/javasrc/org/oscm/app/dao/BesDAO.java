@@ -62,7 +62,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 
-import com.sun.xml.wss.XWSSConstants;
 
 @Stateless
 public class BesDAO {
@@ -174,7 +173,7 @@ public class BesDAO {
 
     String getUsernameConstant(Map<String, Setting> settings) {
         if (isSsoMode(settings)) {
-            return XWSSConstants.USERNAME_PROPERTY;
+            return "username";
         } else {
             return BindingProvider.USERNAME_PROPERTY;
         }
@@ -182,7 +181,7 @@ public class BesDAO {
 
     String getPasswordConstant(Map<String, Setting> settings) {
         if (isSsoMode(settings)) {
-            return XWSSConstants.PASSWORD_PROPERTY;
+            return "password";
         } else {
             return BindingProvider.PASSWORD_PROPERTY;
         }

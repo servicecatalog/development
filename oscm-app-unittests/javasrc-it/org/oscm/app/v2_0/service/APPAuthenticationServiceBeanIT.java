@@ -61,7 +61,7 @@ import org.oscm.vo.VOLocalizedText;
 import org.oscm.vo.VOUser;
 import org.oscm.vo.VOUserDetails;
 
-import com.sun.xml.wss.XWSSConstants;
+
 
 public class APPAuthenticationServiceBeanIT extends EJBTestBase {
     private static final String CTRL_ID = "ess.vmware";
@@ -1072,10 +1072,10 @@ public class APPAuthenticationServiceBeanIT extends EJBTestBase {
 
         public VOUserDetails authenticate(Map<String, Object> requestContext) throws Exception {
             Object user = requestContext
-                    .get(useSSO ? XWSSConstants.USERNAME_PROPERTY
+                    .get(useSSO ? "username"
                             : BindingProvider.USERNAME_PROPERTY);
             Object pwd = requestContext
-                    .get(useSSO ? XWSSConstants.PASSWORD_PROPERTY
+                    .get(useSSO ? "password"
                             : BindingProvider.PASSWORD_PROPERTY);
             if (user != null) {
                 Long userKey = null;

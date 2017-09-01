@@ -14,7 +14,7 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ApplicationScoped;
 import javax.inject.Inject;
 
-import org.jboss.weld.context.http.HttpConversationContext;
+//import org.jboss.weld.context.http.HttpConversationContext;
 
 @ManagedBean(eager=true)
 @ApplicationScoped

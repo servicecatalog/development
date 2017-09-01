@@ -78,8 +78,6 @@ import org.oscm.vo.VOSubscription;
 import org.oscm.vo.VOUser;
 import org.oscm.vo.VOUserDetails;
 
-import com.sun.xml.wss.XWSSConstants;
-
 public class BesDAOTest {
 
     private final static String USER = "user";
@@ -218,7 +216,7 @@ public class BesDAOTest {
         String actual = besDAO.getPasswordConstant(settings);
 
         // then
-        assertEquals(XWSSConstants.PASSWORD_PROPERTY, actual);
+        assertEquals("password", actual);
     }
 
     @Test
@@ -242,7 +240,7 @@ public class BesDAOTest {
         String actual = besDAO.getUsernameConstant(settings);
 
         // then
-        assertEquals(XWSSConstants.USERNAME_PROPERTY, actual);
+        assertEquals("username", actual);
     }
 
     @Test
@@ -258,9 +256,9 @@ public class BesDAOTest {
 
         // then
         assertNull(client.getRequestContext().get(
-                XWSSConstants.USERNAME_PROPERTY));
+                "username"));
         assertNull(client.getRequestContext().get(
-                XWSSConstants.PASSWORD_PROPERTY));
+                "password"));
         assertEquals(
                 USER,
                 client.getRequestContext().get(
@@ -288,9 +286,9 @@ public class BesDAOTest {
         assertNull(client.getRequestContext().get(
                 BindingProvider.PASSWORD_PROPERTY));
         assertEquals(USER,
-                client.getRequestContext().get(XWSSConstants.USERNAME_PROPERTY));
+                client.getRequestContext().get("username"));
         assertEquals(PASSWORD,
-                client.getRequestContext().get(XWSSConstants.PASSWORD_PROPERTY));
+                client.getRequestContext().get("password"));
     }
 
     @Test

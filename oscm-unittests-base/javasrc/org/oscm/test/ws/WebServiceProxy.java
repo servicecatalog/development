@@ -22,7 +22,6 @@ import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 
-import com.sun.xml.wss.XWSSConstants;
 
 /**
  * @author stavreva
@@ -83,8 +82,8 @@ public class WebServiceProxy {
       
         
         if ("STS".equals(auth)) {
-            clientRequestContext.put(XWSSConstants.USERNAME_PROPERTY, userName);
-            clientRequestContext.put(XWSSConstants.PASSWORD_PROPERTY, password);
+            clientRequestContext.put("username", userName);
+            clientRequestContext.put("password", password);
             
             clientRequestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
                     baseUrl + "/oscm-webservices/" + remoteInterface.getSimpleName() + "/"

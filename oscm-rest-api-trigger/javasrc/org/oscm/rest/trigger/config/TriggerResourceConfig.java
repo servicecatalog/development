@@ -10,8 +10,8 @@ package org.oscm.rest.trigger.config;
 
 import javax.ws.rs.ApplicationPath;
 
-import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
+//import org.glassfish.jersey.server.ResourceConfig;
+//import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
 import org.oscm.rest.common.GsonMessageProvider;
 import org.oscm.rest.common.SecurityFilter;
 import org.oscm.rest.common.VersionFilter;
@@ -24,14 +24,14 @@ import org.oscm.rest.trigger.RestTriggerResource;
  * @author miethaner
  */
 @ApplicationPath(TriggerCommonParams.PATH_TRIGGER)
-public class TriggerResourceConfig extends ResourceConfig {
+public class TriggerResourceConfig {//extends ResourceConfig {
 
-    public TriggerResourceConfig() {
-
-        register(RestTriggerResource.class);
-        register(GsonMessageProvider.class);
-        register(VersionFilter.class);
-        register(SecurityFilter.class);
-        register(RolesAllowedDynamicFeature.class);
-    }
+//    public TriggerResourceConfig() {
+//
+//        register(RestTriggerResource.class);
+//        register(GsonMessageProvider.class);
+//        register(VersionFilter.class);
+//        register(SecurityFilter.class);
+//        register(RolesAllowedDynamicFeature.class);
+//    }
 }

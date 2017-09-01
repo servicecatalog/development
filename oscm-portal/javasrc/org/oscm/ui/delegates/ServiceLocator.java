@@ -22,7 +22,7 @@ public class ServiceLocator {
 
         try {
             Properties p = new Properties();
-            p.put(Context.INITIAL_CONTEXT_FACTORY,"org.apache.openejb.core.LocalInitialContextFactory");
+            p.put(Context.INITIAL_CONTEXT_FACTORY,"org.apache.openejb.client.LocalInitialContextFactory");
             Context context = new InitialContext(p);
             T service = clazz.cast(context.lookup(clazz.getSimpleName()+"BeanRemote"));
             return service;

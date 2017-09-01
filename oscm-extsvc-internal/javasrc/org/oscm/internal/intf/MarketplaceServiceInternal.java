@@ -30,7 +30,7 @@ import org.oscm.internal.vo.VOService;
  * 
  * @author tokoda
  */
-@Remote
+
 public interface MarketplaceServiceInternal {
 
     /**

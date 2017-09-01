@@ -39,7 +39,6 @@ import org.oscm.internal.vo.VOServiceDetails;
  * Remote interface of the marketplace management service.
  * 
  */
-@Remote
 public interface MarketplaceService {
 
     /**
