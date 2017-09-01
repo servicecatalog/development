@@ -6,7 +6,7 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-app-vmware"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-app-extsvc-2-0"/>
 	<classpathentry kind="lib" path="/libraries/apache-configuration/javalib/commons-configuration-1.8.jar"/>
-	<classpathentry kind="lib" path="/libraries/apache-lang/javalib/commons-lang-2.6.jar"/>
+	<classpathentry kind="lib" path="/libraries/apache-commons-lang/javalib/commons-lang3-3.5.jar"/>
 	<classpathentry kind="lib" path="/libraries/apache-codec/javalib/commons-codec-1.10.jar"/>
 	<classpathentry kind="src" path="/oscm-extsvc"/>
 	<classpathentry kind="lib" path="/libraries/apache-tomee/javalib/javaee-api-7.0-1.jar"/>

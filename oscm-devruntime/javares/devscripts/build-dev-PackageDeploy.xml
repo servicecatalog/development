@@ -170,6 +170,13 @@
     <ant dir="${adm.ue.buildscript.dir}" antfile="${adm.ue.buildscript.file}" target="package" />
   </target>
 
+  <target name="AA.BUILD"
+          description="Builds the BES UI portal war file, the result can be found in oscm-build/result/package/oscm-portal">
+    <ant dir="${adm.ue.buildscript.dir}" antfile="${adm.ue.buildscript.file}" target="package">
+      <property name="projects" value="oscm-build-antextensions" />
+    </ant>
+  </target>
+
   <target name="checkIfProxyHostSet">
     <condition property="proxyHost.set">
       <isset property="http.proxyHost" />

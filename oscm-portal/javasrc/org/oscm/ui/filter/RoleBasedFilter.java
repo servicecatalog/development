@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.security.Principal;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.security.auth.Subject;
 import javax.servlet.FilterChain;
@@ -23,6 +24,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.stream.StreamSource;
 
+import com.sun.enterprise.security.SecurityContext;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.types.constants.marketplace.Marketplace;
@@ -30,7 +32,6 @@ import org.oscm.types.enumtypes.LogMessageIdentifier;
 import org.oscm.ui.common.Constants;
 import org.oscm.ui.common.JSFUtils;
 import com.google.common.collect.Sets;
-import com.sun.enterprise.security.web.integration.WebPrincipal;
 
 /**
  * Created by Marcin Maciaszczyk on 2015-09-11.
@@ -92,14 +93,12 @@ public class RoleBasedFilter extends BaseBesFilter {
     }
 
     private Set<String> getPrincipalRoles(HttpServletRequest httpRequest) {
-        WebPrincipal webPrincipal = (WebPrincipal) httpRequest
-                .getUserPrincipal();
         Set<String> principalRoles = new HashSet<>();
-        if (webPrincipal != null) {
-            Subject subject = webPrincipal.getSecurityContext().getSubject();
-            for (Principal principal : subject.getPrincipals()) {
-                principalRoles.add(principal.getName());
-            }
+
+        Subject subject = SecurityContext.getCurrent().getSubject();
+        if (subject != null) {
+            principalRoles
+                .addAll(subject.getPrincipals().stream().map(Principal::getName).collect(Collectors.toList()));
         }
         return principalRoles;
     }

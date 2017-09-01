@@ -6,6 +6,5 @@
 	<classpathentry kind="lib" path="/libraries/apache-tomee/javalib/javaee-api-7.0-1.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-apiversioning-client-handler"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="/libraries/glassfish-metro/javalib/webservices-osgi.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

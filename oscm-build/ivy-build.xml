@@ -159,6 +159,25 @@
     <copy file="${ivy.lib.dir}/jaxb-jxc-2.2.10.jar" tofile="${root.dir}/libraries/sun-metro/javalib/jaxb-jxc.jar" overwrite="true" />
     <copy file="${ivy.lib.dir}/jaxws-rt-2.2.10.jar" tofile="${root.dir}/libraries/sun-metro/javalib/jaxws-rt.jar" overwrite="true" />
     <copy file="${ivy.lib.dir}/jaxws-tools-2.2.10.jar" tofile="${root.dir}/libraries/sun-metro/javalib/jaxws-tools.jar" overwrite="true" />
+    <copy file="${ivy.lib.dir}/policy-2.4.jar"
+          tofile="${root.dir}/libraries/sun-metro/javalib/policy-2.4.jar" overwrite="true" />
+
+    <copy file="${ivy.lib.dir}/resolver-20050927.jar"
+          tofile="${root.dir}/libraries/sun-metro/javalib/resolver-20050927.jar" overwrite="true" />
+
+    <copy file="${ivy.lib.dir}/stax-ex-1.7.7.jar"
+          tofile="${root.dir}/libraries/sun-metro/javalib/stax-ex-1.7.7.jar" overwrite="true" />
+
+    <copy file="${ivy.lib.dir}/stax-api-1.0-2.jar"
+          tofile="${root.dir}/libraries/sun-metro/javalib/stax-api-1.0-2.jar" overwrite="true" />
+
+    <copy file="${ivy.lib.dir}/activation-1.1.jar"
+          tofile="${root.dir}/libraries/sun-metro/javalib/activation-1.1.jar" overwrite="true" />
+
+    <copy file="${ivy.lib.dir}/streambuffer-1.5.4.jar"
+          tofile="${root.dir}/libraries/sun-metro/javalib/streambuffer-1.5.4.jar" overwrite="true" />
+
+
     <copy file="${ivy.lib.dir}/saaj-impl-1.3.25.jar" tofile="${root.dir}/libraries/sun-metro/javalib/saaj-impl.jar" overwrite="true" />
     <copy file="${ivy.lib.dir}/woodstox-core-asl-4.2.0.jar" tofile="${root.dir}/libraries/sun-metro/javalib/woodstox-core-asl.jar" overwrite="true" />
     <copy file="${ivy.lib.dir}/stax2-api-3.1.1.jar" tofile="${root.dir}/libraries/sun-metro/javalib/stax2-api.jar" overwrite="true" />
@@ -167,9 +186,6 @@
           overwrite="true" />
     <copy file="${ivy.lib.dir}/gson-2.6.2.jar" tofile="${root.dir}/libraries/gson/javalib/gson-2.6.2.jar" overwrite="true" />
 
-
-    <copy file="${ivy.lib.dir}/webservices-osgi-2.3.1.jar" tofile="${root.dir}/libraries/glassfish-metro/javalib/webservices-osgi.jar" overwrite="true" />
-
     <copy file="${ivy.lib.dir}/weld-osgi-bundle-2.2.13.Final.jar" tofile="${root.dir}/libraries/jboss-weld/javalib/weld-osgi-bundle.jar" overwrite="true" />
     <copy file="${ivy.lib.dir}/jackson-core-2.5.1.jar" tofile="${root.dir}/libraries/jackson/javalib/jackson-core.jar" overwrite="true" />
     <copy file="${ivy.lib.dir}/jackson-databind-2.5.1.jar" tofile="${root.dir}/libraries/jackson/javalib/jackson-databind.jar" overwrite="true" />
@@ -177,7 +193,6 @@
     <copy file="${ivy.lib.dir}/security-4.1.1.jar" tofile="${root.dir}/libraries/glassfish4/javalib/security.jar" overwrite="true" />
     <copy file="${ivy.lib.dir}/security-ee-4.1.1.jar" tofile="${root.dir}/libraries/glassfish4/javalib/security-ee.jar" overwrite="true" />
     <copy file="${ivy.lib.dir}/websecurity-4.1.1.jar" tofile="${root.dir}/libraries/glassfish4/javalib/websecurity.jar" overwrite="true" />
-    <copy file="${ivy.lib.dir}/common-util-4.1.1.jar" tofile="${root.dir}/libraries/glassfish4/javalib/common-util.jar" overwrite="true" />
 
     <copy file="${ivy.lib.dir}/webservices-api-osgi-2.0.1.jar" tofile="${root.dir}/libraries/glassfish4/javalib/webservices-api-osgi.jar" overwrite="true" />
     
@@ -186,8 +201,6 @@
     <copy file="${ivy.lib.dir}/javax.servlet-api-3.1.0.jar" tofile="${root.dir}/libraries/javax/javalib/servlet-api-3.1.0.jar" overwrite="true" />
 
     <!-- Tomee libraries-->
-    <copy file="${ivy.lib.dir}/stax-ex-1.7.8.jar"
-          tofile="${root.dir}/libraries/apache-tomee/javalib/stax-ex-1.7.8.jar" overwrite="true" />
     <copy file="${ivy.lib.dir}/javaee-api-7.0-1.jar" tofile="${root.dir}/libraries/apache-tomee/javalib/javaee-api-7.0-1.jar" overwrite="true" />
     <copy file="${ivy.lib.dir}/geronimo-javamail_1.4_mail-1.9.0-alpha-2.jar" tofile="${root.dir}/libraries/apache-tomee/javalib/geronimo-javamail_1.4_mail-1.9.0-alpha-2.jar" overwrite="true" />
     <copy file="${ivy.lib.dir}/openejb-core-7.0.3.jar" tofile="${root.dir}/libraries/apache-tomee/javalib/openejb-core-7.0.3.jar" overwrite="true" />
@@ -198,7 +211,12 @@
     <copy file="${ivy.lib.dir}/wss4j-ws-security-common-2.1.7.jar" tofile="${root.dir}/libraries/apache-tomee/javalib/wss4j-ws-security-common-2.1.7.jar" overwrite="true" />
     <copy file="${ivy.lib.dir}/wss4j-ws-security-dom-2.1.7.jar" tofile="${root.dir}/libraries/apache-tomee/javalib/wss4j-ws-security-dom-2.1.7.jar" overwrite="true" />
     <copy file="${ivy.lib.dir}/wss4j-ws-security-policy-stax-2.1.7.jar" tofile="${root.dir}/libraries/apache-tomee/javalib/wss4j-ws-security-policy-stax-2.1.7.jar" overwrite="true" />
+    <copy file="${ivy.lib.dir}/javax.faces-2.2.12.jar"
+          tofile="${root.dir}/libraries/apache-tomee/javalib/javax.faces-2.2.12.jar" overwrite="true" />
 
     <copy file="${ivy.lib.dir}/wss4j-ws-security-stax-2.1.7.jar" tofile="${root.dir}/libraries/apache-tomee/javalib/wss4j-ws-security-stax-2.1.7.jar" overwrite="true" />
+
+    <copy file="${ivy.lib.dir}/policy-2.4.jar"
+          tofile="${root.dir}/libraries/apache-tomee/javalib/policy-2.4.jar" overwrite="true" />
   </target>
 </project>

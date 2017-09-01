@@ -96,14 +96,13 @@
     <classpath>
       <fileset dir="${workspace.dir}/oscm-build/javalib" includes="*.jar" />
       <fileset dir="${workspace.dir}/libraries/bouncycastle/javalib" includes="*.jar" />
-      <fileset dir="${workspace.dir}/libraries/apache-lang/javalib" includes="*.jar" />
+      <fileset dir="${workspace.dir}/libraries/apache-commons-lang/javalib" includes="*.jar" />
       <fileset dir="${workspace.dir}/libraries/sun-metro/javalib" includes="*.jar" />
     </classpath>
   </taskdef>
 
   <taskdef name="wsgen" classname="com.sun.tools.ws.ant.WsGen">
     <classpath>
-      <fileset dir="${workspace.dir}/libraries/glassfish-metro/javalib/" includes="webservices-osgi.jar" />
       <fileset dir="${workspace.dir}/libraries/sun-metro/javalib" includes="*.jar" />
     </classpath>
   </taskdef>
@@ -117,7 +116,6 @@
   <taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml">
     <classpath>
       <fileset dir="${workspace.dir}/libraries/jacoco/javalib" includes="*.jar" />
-      <fileset dir="${workspace.dir}/libraries/asm/javalib" includes="*.jar" />
     </classpath>
   </taskdef>
 

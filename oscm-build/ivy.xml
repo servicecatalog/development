@@ -311,7 +311,6 @@
     <dependency org="org.codehaus.sonar" name="sonar-plugin-api" rev="3.3" transitive="false"/>
 
     <dependency org="javax.servlet" name="javax.servlet-api" rev="3.1.0" transitive="false"/>
-    <dependency org="org.glassfish.metro" name="webservices-osgi" rev="2.3.1" transitive="false"/>
     <dependency org="javax.jms" name="javax.jms-api" rev="2.0.1" transitive="false"/>
     <dependency org="javax.transaction" name="javax.transaction-api" rev="1.2" transitive="false"/>
     <dependency org="javax.ws.rs" name="javax.ws.rs-api" rev="2.0.1" transitive="false"/>
@@ -337,9 +336,6 @@
     <dependency org="org.glassfish.main.security" name="websecurity" rev="4.1.1" transitive="false">
       <artifact name="websecurity" ext="jar"/>
     </dependency>
-    <dependency org="org.glassfish.main.common" name="common-util" rev="4.1.1" transitive="false">
-      <artifact name="common-util" ext="jar"/>
-    </dependency>
     <dependency org="javax.xml" name="webservices-api-osgi" rev="2.0.1"/>
     
     <dependency org="org.javassist" name="javassist" rev="3.20.0-GA" transitive="false"/>
@@ -361,6 +357,18 @@
     
     <dependency org="com.sun.xml.ws" name="jaxws-rt" rev="2.2.10" transitive="false"/>
     <dependency org="com.sun.xml.ws" name="jaxws-tools" rev="2.2.10" transitive="false"/>
+    <dependency org="com.sun.xml.ws" name="policy" rev="2.4"/>
+    <dependency org="com.sun.org.apache.xml.internal" name="resolver" rev="20050927"/>
+    <dependency org="org.jvnet.staxex" name="stax-ex" rev="1.7.7"/>
+    <dependency org="javax.xml.stream" name="stax-api" rev="1.0-2"/>
+    <dependency org="javax.activation" name="activation" rev="1.1"/>
+    <dependency org="com.sun.xml.bind" name="jaxb-core" rev="2.2.10-b140802.1033"/>
+    <!-- https://mvnrepository.com/artifact/com.sun.xml.stream.buffer/streambuffer -->
+    <dependency org="com.sun.xml.stream.buffer" name="streambuffer" rev="1.5.4"/>
+
+
+
+
     <dependency org="com.sun.xml.messaging.saaj" name="saaj-impl" rev="1.3.25" transitive="false"/>
     <dependency org="wsdl4j" name="wsdl4j" rev="1.6.3" transitive="false"/>
     <dependency org="com.google.code.gson" name="gson" rev="2.6.2" transitive="false"/>
@@ -398,10 +406,10 @@
     <dependency org="javax.jws" name="jsr181-api" rev="1.0-MR1" transitive="false"/>
     <dependency org="javax.annotation" name="jsr250-api" rev="1.0" transitive="false"/>
     <dependency org="com.sun.xml.stream" name="sjsxp" rev="1.0.2" transitive="false"/>
-    <dependency org="org.jvnet.staxex" name="stax-ex" rev="1.7.8" transitive="false"/>
     <dependency org="net.java.dev.stax-utils" name="stax-utils" rev="20070216" transitive="false"/>
     <dependency org="com.sun.xml.stream.buffer" name="streambuffer" rev="1.5.4" transitive="false"/>
     <dependency org="org.codehaus.woodstox" name="woodstox-core-asl" rev="4.2.0" transitive="false"/>
+    <dependency org="org.glassfish" name="javax.faces" rev="2.2.12" transitive="false"/>
 
     <exclude org="org.netbeans.api"/>
     <exclude org="*" ext="*" type="source"/>

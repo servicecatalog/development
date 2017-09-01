@@ -33,6 +33,5 @@
 	<classpathentry kind="lib" path="/libraries/apache-io/javalib/commons-io-1.4.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="/libraries/apache-tomee/javalib/geronimo-javamail_1.4_mail-1.9.0-alpha-2.jar"/>
-	<classpathentry kind="lib" path="/libraries/glassfish-metro/javalib/webservices-osgi.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

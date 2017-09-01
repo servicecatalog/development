@@ -4,6 +4,7 @@
 
 package org.oscm.webservices.handler;
 
+import java.security.Principal;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
@@ -16,31 +17,24 @@ import javax.security.auth.Subject;
 import javax.security.auth.login.LoginException;
 import javax.sql.DataSource;
 import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.transform.TransformerException;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.auth.BasicUserPrincipal;
 import org.apache.openejb.core.security.AbstractSecurityService;
 import org.apache.openejb.loader.SystemInstance;
 import org.apache.openejb.spi.SecurityService;
-import org.glassfish.security.common.PrincipalImpl;
-import org.oscm.converter.XMLConverter;
 import org.oscm.internal.intf.ConfigurationService;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.types.exception.NotExistentTenantException;
-import org.oscm.internal.types.exception.NotExistentTenantException.Reason;
 import org.oscm.internal.types.exception.UserIdNotFoundException;
 import org.oscm.internal.vo.VOConfigurationSetting;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
-import org.oscm.saml2.api.SAMLResponseExtractor;
 import org.oscm.types.constants.Configuration;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
-import org.oscm.types.exceptions.SecurityCheckException;
-import org.w3c.dom.Element;
 
 //import com.sun.enterprise.security.ee.auth.login.ProgrammaticLogin;
 //import com.sun.xml.ws.security.opt.impl.incoming.SAMLAssertion;
@@ -104,7 +98,7 @@ public class LoginHandler implements SOAPHandler<SOAPMessageContext> {
 
     protected void addPrincipal(SOAPMessageContext context, String userKey) {
         Subject sub = (Subject) context.get("javax.security.auth.Subject");
-        sub.getPrincipals().add(new PrincipalImpl(userKey));
+        sub.getPrincipals().add(new BasicUserPrincipal(userKey));
     }
 
     protected void login(String userKey) throws Exception {
