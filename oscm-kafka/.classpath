@@ -14,7 +14,6 @@
 	<classpathentry kind="src" path="/oscm-subscriptionmgmt-intsvc"/>
 	<classpathentry kind="src" path="/oscm-domainobjects"/>
 	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/gf-client.jar"/>
-	<classpathentry kind="lib" path="/oscm-build/result/package/oscm-extsvc-internal/oscm-extsvc-internal.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc-internal"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
