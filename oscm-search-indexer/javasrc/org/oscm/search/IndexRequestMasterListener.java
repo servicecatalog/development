@@ -48,14 +48,10 @@ import org.oscm.types.enumtypes.UdaTargetType;
  * Message driven bean to handle the index request objects sent by the business
  * logic.
  */
-//@MessageDriven(activationConfig = {
-//        @ActivationConfigProperty(propertyName = "UserName", propertyValue = "admin"),
-//        @ActivationConfigProperty(propertyName = "Password", propertyValue = "admin") }, name = "OSCMMasterIndexerQueue")
-@Singleton
-@Startup
-public class IndexRequestMasterListener {
-
-    //public class IndexRequestMasterListener implements MessageListener {
+@MessageDriven(activationConfig = {
+        @ActivationConfigProperty(propertyName = "UserName", propertyValue = "admin"),
+        @ActivationConfigProperty(propertyName = "Password", propertyValue = "admin") }, name = "OSCMMasterIndexerQueue")
+public class IndexRequestMasterListener implements MessageListener {
 
     private final static Log4jLogger logger = LoggerFactory
             .getLogger(IndexRequestMasterListener.class);
@@ -66,13 +62,8 @@ public class IndexRequestMasterListener {
 
     @EJB(beanInterface = DataService.class)
     public DataService dm;
-    
-    @Schedule(minute = "*/1", hour = "*", persistent = false)
-    public void initIndex() {
-        initIndexForFulltextSearch(false);
-    }
-    
-    //@Override
+
+    @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRED)
     public void onMessage(Message message) {
         if (!(message instanceof ObjectMessage)) {

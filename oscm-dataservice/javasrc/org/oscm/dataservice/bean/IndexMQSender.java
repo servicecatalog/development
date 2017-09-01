@@ -61,7 +61,7 @@ public class IndexMQSender {
             try {
                 qFactory = (ConnectionFactory) jndiContext
                         .lookup("java:openejb/Resource/JmsConnectionFactory");
-                queue = (Queue) jndiContext.lookup("java:openejb/Resource/OSCMIndexerQueue");
+                queue = (Queue) jndiContext.lookup("java:openejb/Resource/OSCMMasterIndexerQueue");
                 return true;
             } catch (NamingException e) {
                 logger.logError(Log4jLogger.SYSTEM_LOG, e,

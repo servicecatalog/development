@@ -73,6 +73,7 @@
 		<project>oscm-wsdldeliver</project>
 		<project>oscm-tenantmgmt</project>
 		<project>oscm-tenantmgmt-intsvc</project>
+		<project>oscm-search-indexer</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
