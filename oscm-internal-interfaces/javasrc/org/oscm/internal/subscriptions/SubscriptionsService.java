@@ -10,9 +10,6 @@ package org.oscm.internal.subscriptions;
 
 import java.util.Set;
 
-import javax.annotation.security.RolesAllowed;
-import javax.ejb.Remote;
-
 import org.oscm.internal.components.response.Response;
 import org.oscm.internal.types.enumtypes.SubscriptionStatus;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
@@ -25,7 +22,6 @@ import org.oscm.paginator.PaginationFullTextFilter;
  * @author tokoda
  * 
  */
-@Remote
 public interface SubscriptionsService {
 
     /**
@@ -71,8 +67,6 @@ public interface SubscriptionsService {
     Response getSubscriptionsForOrg(Set<SubscriptionStatus> states, Pagination pagination)
             throws OrganizationAuthoritiesException;
 
-    @RolesAllowed({ "ORGANIZATION_ADMIN", "SUBSCRIPTION_MANAGER",
-            "UNIT_ADMINISTRATOR" })
     Integer getSubscriptionsForOrgSizeWithFiltering(Set<SubscriptionStatus> states,
                                                     PaginationFullTextFilter pagination) throws OrganizationAuthoritiesException;
 

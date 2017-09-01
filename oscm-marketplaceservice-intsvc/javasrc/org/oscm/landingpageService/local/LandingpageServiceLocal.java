@@ -6,8 +6,6 @@ package org.oscm.landingpageService.local;
 
 import java.util.List;
 
-import javax.ejb.Local;
-
 import org.oscm.domobjects.Marketplace;
 import org.oscm.domobjects.Product;
 import org.oscm.domobjects.PublicLandingpage;
@@ -24,15 +22,15 @@ public interface LandingpageServiceLocal {
     /**
      * Returns the type of the landing page for the given marketplace. To
      * landing pages can be used: "public" for large marketplaces which is
-     * indented for public offerings and "enterprise" which is intended for
+     * indented for offerings and "enterprise" which is intended for
      * small private marketplaces.
      * 
      * @param marketplaceId
      *            identifier of the marketplace
-     * @return type of landing page (public or enterprise)
+     * @return type of landing page (or enterprise)
      * @throws ObjectNotFoundException
      */
-    public LandingpageType loadLandingpageType(String marketplaceId)
+    LandingpageType loadLandingpageType(String marketplaceId)
             throws ObjectNotFoundException;
 
     /**
@@ -49,11 +47,11 @@ public interface LandingpageServiceLocal {
      *             if the calling user's organization is not the owner of the
      *             marketplace
      */
-    public VOPublicLandingpage loadPublicLandingpageConfig(String marketplaceId)
+    VOPublicLandingpage loadPublicLandingpageConfig(String marketplaceId)
             throws ObjectNotFoundException, OperationNotPermittedException;
 
     /**
-     * Saves the public landing page configuration for a given marketplace.
+     * Saves the landing page configuration for a given marketplace.
      * 
      * Required role: marketplace manager
      * 
@@ -65,7 +63,7 @@ public interface LandingpageServiceLocal {
      *             if the calling user's organization is not the owner of the
      *             marketplace
      */
-    public void savePublicLandingpageConfig(VOPublicLandingpage voLandingpage)
+    void savePublicLandingpageConfig(VOPublicLandingpage voLandingpage)
             throws ObjectNotFoundException, ValidationException,
             ConcurrentModificationException, NonUniqueBusinessKeyException,
             OperationNotPermittedException, FillinOptionNotSupportedException;
@@ -81,7 +79,7 @@ public interface LandingpageServiceLocal {
      *             if the calling user's organization is not the owner of the
      *             marketplace
      */
-    public void saveEnterpriseLandingpageConfig(String marketplaceId)
+    void saveEnterpriseLandingpageConfig(String marketplaceId)
             throws ObjectNotFoundException, OperationNotPermittedException,
             NonUniqueBusinessKeyException;
 
@@ -99,7 +97,7 @@ public interface LandingpageServiceLocal {
      *             if the calling user's organization is not the owner of the
      *             marketplace
      */
-    public void resetLandingpage(String marketplaceId)
+    void resetLandingpage(String marketplaceId)
             throws ObjectNotFoundException, NonUniqueBusinessKeyException,
             OperationNotPermittedException;
 
@@ -118,7 +116,7 @@ public interface LandingpageServiceLocal {
      *             if the calling user's organization is not the owner of the
      *             marketplace
      */
-    public List<VOService> availableServices(String marketplaceId)
+    List<VOService> availableServices(String marketplaceId)
             throws ObjectNotFoundException, OperationNotPermittedException;
 
     /**
@@ -132,7 +130,7 @@ public interface LandingpageServiceLocal {
      *            which was deleted, unpublished or re-published
      * 
      */
-    public void removeProductFromLandingpage(Marketplace marketplace,
+    void removeProductFromLandingpage(Marketplace marketplace,
             Product product);
 
     /**
@@ -140,7 +138,7 @@ public interface LandingpageServiceLocal {
      * 
      * @return landingpage with default values
      */
-    public PublicLandingpage createDefaultLandingpage();
+    PublicLandingpage createDefaultLandingpage();
 
     /**
      * get services to be displayed on landingpage
@@ -150,7 +148,7 @@ public interface LandingpageServiceLocal {
      * @return
      * @throws ObjectNotFoundException
      */
-    public List<VOService> servicesForPublicLandingpage(String marketplaceId,
+    List<VOService> servicesForPublicLandingpage(String marketplaceId,
             String locale) throws ObjectNotFoundException;
 
 }
