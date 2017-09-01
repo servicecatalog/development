@@ -16,7 +16,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.StringReader;
 
-import org.apache.commons.configuration.XMLConfiguration;
+import org.apache.commons.configuration2.XMLConfiguration;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -72,8 +72,8 @@ public class SequentialHostBalancerTest {
         SequentialHostBalancer balancer = new SequentialHostBalancer();
 
         String balancerConfig = "<essvcenter><balancer hosts=\"elm1\" /></essvcenter>";
-        XMLConfiguration xmlConfiguration = new XMLHostConfiguration();
-        xmlConfiguration.load(new StringReader(balancerConfig));
+        XMLConfiguration xmlConfiguration = new XMLConfiguration();
+        xmlConfiguration.read(new StringReader(balancerConfig));
         balancer.setConfiguration(xmlConfiguration.configurationAt("balancer"));
 
         VMwareDatacenterInventory inventory = new VMwareDatacenterInventory();
@@ -99,8 +99,8 @@ public class SequentialHostBalancerTest {
         SequentialHostBalancer balancer = new SequentialHostBalancer();
 
         String balancerConfig = "<essvcenter><balancer hosts=\"elm3,elm2,elm1,elm4\" /></essvcenter>";
-        XMLConfiguration xmlConfiguration = new XMLHostConfiguration();
-        xmlConfiguration.load(new StringReader(balancerConfig));
+        XMLConfiguration xmlConfiguration = new XMLConfiguration();
+        xmlConfiguration.read(new StringReader(balancerConfig));
         balancer.setConfiguration(xmlConfiguration.configurationAt("balancer"));
 
         VMwareDatacenterInventory inventory = new VMwareDatacenterInventory();

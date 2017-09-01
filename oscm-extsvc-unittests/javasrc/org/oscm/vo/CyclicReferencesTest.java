@@ -20,11 +20,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.junit.Test;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.FieldVisitor;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
-import org.objectweb.asm.commons.EmptyVisitor;
+import org.objectweb.asm.*;
 import org.objectweb.asm.signature.SignatureReader;
 import org.objectweb.asm.signature.SignatureVisitor;
 
@@ -111,7 +107,7 @@ public class CyclicReferencesTest {
     /**
      * Finds all types directly referenced by the given type and its super
      * classes and adds them to the result set.
-     * 
+     *
      * @param type
      * @param result
      */
@@ -123,26 +119,12 @@ public class CyclicReferencesTest {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        reader.accept(new EmptyVisitor() {
 
+        reader.accept(new ClassVisitor(0) {
             @Override
-            public void visit(int version, int access, String name,
-                    String signature, String superName, String[] interfaces) {
-                if (superName != null) {
-                    getReferencedTypes(superName, result);
-                }
-            }
-
-            @Override
-            public FieldVisitor visitField(int access, String name,
-                    String desc, String signature, Object value) {
-                if ((access & (Opcodes.ACC_SYNTHETIC | Opcodes.ACC_STATIC)) == 0) {
-                    if (signature == null) {
-                        signature = desc;
-                    }
-                    getTypesFromSignature(signature, result);
-                }
-                return null;
+            public void visit(int version, int access, String name, String signature, String superName,
+                String[] interfaces) {
+                super.visit(version, access, name, signature, superName, interfaces);
             }
         }, 0);
     }
@@ -151,12 +133,12 @@ public class CyclicReferencesTest {
      * Finds all type references in the given signature and adds them to the
      * result set.
      * 
-     * @param desc
+     * @param signature
      * @param result
      */
     protected void getTypesFromSignature(final String signature,
             final Set<String> result) {
-        new SignatureReader(signature).acceptType(new SignatureVisitor() {
+        new SignatureReader(signature).acceptType(new SignatureVisitor(0) {
             @Override
             public void visitClassType(String vmname) {
                 final Type type = Type.getObjectType(vmname);

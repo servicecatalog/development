@@ -8,7 +8,7 @@
 
 package org.oscm.app.ror.data;
 
-import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.configuration2.HierarchicalConfiguration;
 
 import org.oscm.app.iaas.data.VSystemTemplate;
 

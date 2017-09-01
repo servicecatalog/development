@@ -13,12 +13,13 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
 import java.io.StringReader;
 import java.util.HashMap;
 
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.commons.configuration.XMLConfiguration;
+import org.apache.commons.configuration2.HierarchicalConfiguration;
+import org.apache.commons.configuration2.XMLConfiguration;
+import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
@@ -405,8 +406,8 @@ public class EquipartitionHostBalancerTest {
         EquipartitionHostBalancer balancer = new EquipartitionHostBalancer();
         String balancerConfig = "<essvcenter><balancer hosts=\"host1,host2,host3,host4,host5\" "
                 + "memoryWeight=\"wrong\" cpuWeight=\"wrong\" vmWeight=\"\" /></essvcenter>";
-        XMLConfiguration xmlConfiguration = new XMLHostConfiguration();
-        xmlConfiguration.load(new StringReader(balancerConfig));
+        XMLConfiguration xmlConfiguration = new XMLConfiguration();
+        xmlConfiguration.read(new StringReader(balancerConfig));
         balancer.setConfiguration(xmlConfiguration.configurationAt("balancer"));
     }
 
@@ -429,7 +430,7 @@ public class EquipartitionHostBalancerTest {
     }
 
     private EquipartitionHostBalancer getBalancer(double memWeight,
-            double cpuWeight, double vmWeight) throws ConfigurationException {
+            double cpuWeight, double vmWeight) throws IOException, ConfigurationException {
         EquipartitionHostBalancer balancer = new EquipartitionHostBalancer();
         String balancerConfig = "<essvcenter><balancer hosts=\"host1,host2,host3,host4,host5\" "
                 + "memoryWeight=\""
@@ -437,8 +438,8 @@ public class EquipartitionHostBalancerTest {
                 + "\" cpuWeight=\""
                 + cpuWeight
                 + "\" vmWeight=\"" + vmWeight + "\" /></essvcenter>";
-        XMLConfiguration xmlConfiguration = new XMLHostConfiguration();
-        xmlConfiguration.load(new StringReader(balancerConfig));
+        XMLConfiguration xmlConfiguration = new XMLConfiguration();
+        xmlConfiguration.read(new StringReader(balancerConfig));
         balancer.setConfiguration(xmlConfiguration.configurationAt("balancer"));
         return balancer;
     }

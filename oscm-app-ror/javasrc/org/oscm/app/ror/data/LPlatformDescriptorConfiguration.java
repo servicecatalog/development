@@ -8,8 +8,9 @@
 
 package org.oscm.app.ror.data;
 
-import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.configuration2.HierarchicalConfiguration;
 
+import org.apache.commons.configuration2.tree.ImmutableNode;
 import org.oscm.app.iaas.data.VSystemTemplateConfiguration;
 
 /**
@@ -21,7 +22,7 @@ public class LPlatformDescriptorConfiguration extends LPlatformBase implements
     private HierarchicalConfiguration configuration;
 
     public LPlatformDescriptorConfiguration(
-            HierarchicalConfiguration configuration) {
+            org.apache.commons.configuration2.HierarchicalConfiguration<ImmutableNode> configuration) {
         super(configuration);
         this.configuration = configuration;
     }

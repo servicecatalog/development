@@ -32,7 +32,8 @@ import java.util.concurrent.Callable;
 
 import javax.naming.InitialContext;
 
-import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.configuration2.BaseHierarchicalConfiguration;
+import org.apache.commons.configuration2.HierarchicalConfiguration;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
@@ -220,7 +221,7 @@ public class RORControllerIT extends EJBTestBase {
         vsysConfig = Mockito.mock(VSystemConfiguration.class);
         when(vsysConfig.getNetworks()).thenReturn(
                 Arrays.asList(new Network("kcuf", "123", "456", 6)));
-        final HierarchicalConfiguration hc = new HierarchicalConfiguration();
+        final HierarchicalConfiguration hc = new BaseHierarchicalConfiguration();
         hc.addProperty("nics.nic.networkId", "456");
         when(vsysConfig.getVServers()).thenAnswer(
                 new Answer<List<? extends VServerConfiguration>>() {
@@ -435,7 +436,7 @@ public class RORControllerIT extends EJBTestBase {
                     PropertyHandler properties) throws Exception {
                 LPlatformDescriptorConfiguration conf = mock(LPlatformDescriptorConfiguration.class);
 
-                final HierarchicalConfiguration hc = new HierarchicalConfiguration();
+                final HierarchicalConfiguration hc = new BaseHierarchicalConfiguration();
                 hc.addProperty("nics.nic.networkId", "456");
                 when(conf.getNetworks()).thenReturn(
                         Arrays.asList(new Network("kcuf", "123", "456", 6)));

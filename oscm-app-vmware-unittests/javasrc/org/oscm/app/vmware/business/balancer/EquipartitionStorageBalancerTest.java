@@ -12,12 +12,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
 import java.io.StringReader;
 import java.text.DecimalFormat;
 
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.commons.configuration.XMLConfiguration;
+import org.apache.commons.configuration2.HierarchicalConfiguration;
+import org.apache.commons.configuration2.XMLConfiguration;
+import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
@@ -159,12 +160,12 @@ public class EquipartitionStorageBalancerTest {
     }
 
     private EquipartitionStorageBalancer getBalancer(String storages)
-            throws ConfigurationException {
+        throws ConfigurationException, IOException {
         EquipartitionStorageBalancer balancer = new EquipartitionStorageBalancer();
         String balancerConfig = "<host><balancer storage=\"" + storages
                 + "\" /></host>";
-        XMLConfiguration xmlConfiguration = new XMLHostConfiguration();
-        xmlConfiguration.load(new StringReader(balancerConfig));
+        XMLConfiguration xmlConfiguration = new XMLConfiguration();
+        xmlConfiguration.read(new StringReader(balancerConfig));
         balancer.setConfiguration(xmlConfiguration.configurationAt("balancer"));
         return balancer;
     }

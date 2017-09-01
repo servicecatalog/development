@@ -16,9 +16,10 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.commons.configuration.XMLConfiguration;
+import org.apache.commons.configuration2.HierarchicalConfiguration;
+import org.apache.commons.configuration2.XMLConfiguration;
+import org.apache.commons.configuration2.ex.ConfigurationException;
+import org.apache.commons.configuration2.tree.ImmutableNode;
 import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpState;
@@ -186,7 +187,7 @@ public class RORClient {
 		InputStream in = null;
 		try {
 			in = get.getResponseBodyAsStream();
-			result.load(in);
+			result.read(in);
 		} finally {
 			if (in != null) {
 				in.close();
@@ -201,7 +202,7 @@ public class RORClient {
 		XMLConfiguration response = execute(request);
 		List<String> result = new LinkedList<String>();
 		if (response != null) {
-			List<HierarchicalConfiguration> types = response
+			List<HierarchicalConfiguration<ImmutableNode>> types = response
 					.configurationsAt("servertypes.servertype");
 			for (HierarchicalConfiguration type : types) {
 				String name = type.getString("name");
@@ -247,7 +248,7 @@ public class RORClient {
 
 		List<LPlatformConfiguration> resultList = new LinkedList<LPlatformConfiguration>();
 		if (result != null) {
-			List<HierarchicalConfiguration> platforms = result
+			List<HierarchicalConfiguration<ImmutableNode>> platforms = result
 					.configurationsAt("lplatforms.lplatform");
 			for (HierarchicalConfiguration platform : platforms) {
 				resultList.add(new LPlatformConfiguration(platform));
@@ -270,7 +271,7 @@ public class RORClient {
 
 		List<LPlatformDescriptor> resultList = new LinkedList<LPlatformDescriptor>();
 		if (result != null) {
-			List<HierarchicalConfiguration> descriptors = result
+			List<HierarchicalConfiguration<ImmutableNode>> descriptors = result
 					.configurationsAt("lplatformdescriptors.lplatformdescriptor");
 			for (HierarchicalConfiguration descriptor : descriptors) {
 				resultList.add(new LPlatformDescriptor(descriptor));
@@ -292,7 +293,7 @@ public class RORClient {
 
 		List<DiskImage> resultList = new LinkedList<DiskImage>();
 		if (result != null) {
-			List<HierarchicalConfiguration> images = result
+			List<HierarchicalConfiguration<ImmutableNode>> images = result
 					.configurationsAt("diskimages.diskimage");
 			for (HierarchicalConfiguration image : images) {
 				resultList.add(new RORDiskImage(image));

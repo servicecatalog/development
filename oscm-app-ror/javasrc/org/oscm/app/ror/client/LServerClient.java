@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.apache.commons.configuration.XMLConfiguration;
+import org.apache.commons.configuration2.XMLConfiguration;
 
 import org.oscm.app.iaas.exceptions.IaasException;
 import org.oscm.app.iaas.exceptions.MissingParameterException;
