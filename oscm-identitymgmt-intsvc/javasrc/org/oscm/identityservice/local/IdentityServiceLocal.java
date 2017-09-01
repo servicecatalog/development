@@ -15,7 +15,7 @@ import org.oscm.internal.types.enumtypes.UserRoleType;
 import org.oscm.internal.types.exception.*;
 import org.oscm.internal.vo.VOUserDetails;
 
-interface IdentityServiceLocal {
+public interface IdentityServiceLocal {
 
     /**
      * Import user for the given user details. Import is executed in a separate
