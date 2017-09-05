@@ -51,5 +51,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-billing-adapter-service"/>
 	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/gf-client.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-kafka"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

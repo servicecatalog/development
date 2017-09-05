@@ -10,6 +10,7 @@ package org.oscm.internal.intf;
 
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.ejb.Remote;
 
@@ -622,6 +623,36 @@ public interface SubscriptionService {
             OrganizationAuthoritiesException, OperationNotPermittedException;
 
     /**
+     * Aborts the subscription process for a subscription to a service with
+     * asynchronous tenant provisioning, if the application instance cannot be
+     * provided. The subscription status is set to
+     * {@link SubscriptionStatus#INVALID}. The administrators of the technology
+     * provider organization are notified by email.
+     * <p>
+     * Required role: technology manager of the technology provider organization
+     * that provides the application and technical service
+     * 
+     * @param subscriptionUUID
+     *            the subscription identifier as specified when the creation of
+     *            the application instance was triggered
+     * @throws ObjectNotFoundException
+     *             if the organization or subscription is not found
+     * @throws SubscriptionStateException
+     *             if the subscription status is not
+     *             {@link SubscriptionStatus#PENDING}
+     * @throws OrganizationAuthoritiesException
+     *             if the calling user's organization does not have the
+     *             technology provider role
+     * @throws OperationNotPermittedException
+     *             if the calling user's organization is not the provider of the
+     *             application and technical service
+     */
+
+    void abortAsyncSubscription(UUID subscriptionUUID)
+            throws ObjectNotFoundException, SubscriptionStateException,
+            OrganizationAuthoritiesException, OperationNotPermittedException;
+
+    /**
      * Updates the progress information for a subscription to a service with
      * asynchronous tenant provisioning.
      * <p>
@@ -652,6 +683,35 @@ public interface SubscriptionService {
 
     void updateAsyncSubscriptionProgress(String subscriptionId,
             String organizationId, List<VOLocalizedText> progress)
+            throws ObjectNotFoundException, SubscriptionStateException,
+            OrganizationAuthoritiesException, OperationNotPermittedException;
+
+    /**
+     * Updates the progress information for a subscription to a service with
+     * asynchronous tenant provisioning.
+     * <p>
+     * Required role: technology manager of the technology provider organization
+     * that provides the application and technical service
+     * 
+     * @param subscriptionUUID
+     *            the subscription identifier as specified when the creation of
+     *            the application instance was triggered
+     * @param progress
+     *            the progress information.
+     * @throws ObjectNotFoundException
+     *             if the organization or subscription is not found
+     * @throws SubscriptionStateException
+     *             if the subscription status is not
+     *             {@link SubscriptionStatus#PENDING}
+     * @throws OrganizationAuthoritiesException
+     *             if the calling user's organization does not have the
+     *             technology provider role
+     * @throws OperationNotPermittedException
+     *             if the calling user's organization is not the provider of the
+     *             application and technical service
+     */
+
+    void updateAsyncSubscriptionProgress(UUID subscriptionUUID, String progress)
             throws ObjectNotFoundException, SubscriptionStateException,
             OrganizationAuthoritiesException, OperationNotPermittedException;
 
@@ -697,6 +757,47 @@ public interface SubscriptionService {
             String organizationId, VOInstanceInfo instance)
             throws ObjectNotFoundException, SubscriptionStateException,
             TechnicalServiceNotAliveException,
+            TechnicalServiceOperationException,
+            OrganizationAuthoritiesException, OperationNotPermittedException;
+
+    /**
+     * Completes the subscription modification process with asynchronous tenant
+     * provisioning. Calling this method the subscription is set in state
+     * SubscriptionStatus.ACTIVE, and the new parameters will be from now used.
+     * All customer administrators are informed about the successful update by
+     * mail.
+     * <p>
+     * Required role: technology manager of the technology provider organization
+     * that provides the application and technical service
+     * 
+     * @param subscriptionUUID
+     *            the subscription identifier as specified when the creation of
+     *            the application instance was triggered
+     * @param instance
+     *            the value object containing the information needed to access
+     *            the application instance
+     * @throws ObjectNotFoundException
+     *             if the organization or subscription is not found
+     * @throws SubscriptionStateException
+     *             if the subscription status is not
+     *             {@link SubscriptionStatus#PENDING_UPD} or
+     *             {@link SubscriptionStatus#SUSPENDED_UPD}
+     * @throws TechnicalServiceNotAliveException
+     *             if the underlying technical service cannot be reached
+     * @throws TechnicalServiceOperationException
+     *             if a technical operation related to the subscription process
+     *             fails
+     * @throws OrganizationAuthoritiesException
+     *             if the calling user's organization does not have the
+     *             technology provider role
+     * @throws OperationNotPermittedException
+     *             if the calling user's organization is not the provider of the
+     *             application and technical service
+     */
+
+    void completeAsyncModifySubscription(UUID subscriptionUUID,
+            VOInstanceInfo instance) throws ObjectNotFoundException,
+            SubscriptionStateException, TechnicalServiceNotAliveException,
             TechnicalServiceOperationException,
             OrganizationAuthoritiesException, OperationNotPermittedException;
 
@@ -783,6 +884,43 @@ public interface SubscriptionService {
 
     void abortAsyncModifySubscription(String subscriptionId,
             String organizationId, List<VOLocalizedText> reason)
+            throws ObjectNotFoundException, SubscriptionStateException,
+            OrganizationAuthoritiesException, OperationNotPermittedException;
+
+    /**
+     * Aborts the subscription modification process with asynchronous tenant
+     * provisioning. Calling this method the subscription is set in state
+     * SubscriptionStatus.ACTIVE but the old parameters are used. All
+     * administrators of the customer organization as well as the ones of the
+     * technology provider organization get notified about the fail by mail.
+     * <p>
+     * Required role: technology manager of the technology provider organization
+     * that provides the application and technical service
+     * 
+     * @param subscriptionUUID
+     *            the subscription identifier as specified when the creation of
+     *            the application instance was triggered
+     * @param reason
+     *            information on why the instance creation was aborted.
+     * @throws ObjectNotFoundException
+     *             if the organization or subscription is not found
+     * @throws SubscriptionStateException
+     *             if the subscription status is not
+     *             {@link SubscriptionStatus#PENDING_UPD} or
+     *             {@link SubscriptionStatus#SUSPENDED_UPD}
+     * @throws OperationNotPermittedException
+     *             if the calling user's organization is not the provider of the
+     *             application and technical service
+     * @throws OrganizationAuthoritiesException
+     *             if the calling user's organization does not have the
+     *             technology provider role
+     * @throws OrganizationAuthoritiesException
+     *             if the calling user's organization does not have the
+     *             technology provider role
+     */
+
+    void abortAsyncModifySubscription(UUID subscriptionUUID,
+            String reason)
             throws ObjectNotFoundException, SubscriptionStateException,
             OrganizationAuthoritiesException, OperationNotPermittedException;
 
@@ -1306,15 +1444,17 @@ public interface SubscriptionService {
      * @throws OperationPendingException
      * @throws OperationNotPermittedException
      */
-    boolean unsubscribeFromService(Long key) throws ObjectNotFoundException,
-            SubscriptionStillActiveException, SubscriptionStateException,
-            TechnicalServiceNotAliveException,
+    boolean unsubscribeFromService(Long key)
+            throws ObjectNotFoundException, SubscriptionStillActiveException,
+            SubscriptionStateException, TechnicalServiceNotAliveException,
             TechnicalServiceOperationException, OperationPendingException,
             OperationNotPermittedException;
 
     /**
-     * Update number of provisioned VMs for given subscription. This operation can be performed only by the Technical
-     * Manager who belongs to the technology provider organization which is the owner of the subscribed service.
+     * Update number of provisioned VMs for given subscription. This operation
+     * can be performed only by the Technical Manager who belongs to the
+     * technology provider organization which is the owner of the subscribed
+     * service.
      *
      * @param subscriptionId
      *            the identifier of the subscription for which details are to be
@@ -1327,6 +1467,38 @@ public interface SubscriptionService {
      *             if the organization or subscription is not found
      */
     void notifySubscriptionAboutVmsNumber(String subscriptionId,
-        String organizationId, VOInstanceInfo instanceInfo)
-        throws ObjectNotFoundException, OperationNotPermittedException;
+            String organizationId, VOInstanceInfo instanceInfo)
+            throws ObjectNotFoundException, OperationNotPermittedException;
+
+    /**
+     * Method which completes the asynchronous provisioning for subscription
+     * with given UUID.
+     * 
+     * @param subscriptionUUID
+     *            Subscription UUID
+     * @param instanceInfo
+     *            VOInstanceInfo instanceInfo
+     * @throws ValidationException
+     * @throws OperationNotPermittedException
+     * @throws OrganizationAuthoritiesException
+     * @throws TechnicalServiceOperationException
+     * @throws TechnicalServiceNotAliveException
+     * @throws SubscriptionStateException
+     * @throws ObjectNotFoundException
+     */
+    void completeAsyncSubscription(UUID subscriptionUUID,
+            VOInstanceInfo instanceInfo) throws ObjectNotFoundException,
+            SubscriptionStateException, TechnicalServiceNotAliveException,
+            TechnicalServiceOperationException,
+            OrganizationAuthoritiesException, OperationNotPermittedException,
+            ValidationException;
+    
+    /**
+     * Method which returns subscription with details.
+     * 
+     * @param uuid
+     *            Subscription UUID
+     * @return subscription with details.
+     */
+    public VOSubscription getSubscription(UUID uuid);
 }

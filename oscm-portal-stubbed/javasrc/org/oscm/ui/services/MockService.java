@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.faces.context.FacesContext;
 import javax.security.auth.login.LoginException;
@@ -2826,6 +2827,48 @@ public class MockService implements IdentityService, SubscriptionService,
     @Override
     public String getMarketplaceIdForKey(Long key)
             throws ObjectNotFoundException {
+        return null;
+    }
+
+    @Override
+    public void abortAsyncSubscription(UUID subscriptionUUID)
+            throws ObjectNotFoundException, SubscriptionStateException,
+            OrganizationAuthoritiesException, OperationNotPermittedException {
+    }
+
+    @Override
+    public void updateAsyncSubscriptionProgress(UUID subscriptionUUID,
+            String progress)
+            throws ObjectNotFoundException, SubscriptionStateException,
+            OrganizationAuthoritiesException, OperationNotPermittedException {
+    }
+
+    @Override
+    public void completeAsyncSubscription(UUID subscriptionUUID,
+            VOInstanceInfo instanceInfo) throws ObjectNotFoundException,
+            SubscriptionStateException, TechnicalServiceNotAliveException,
+            TechnicalServiceOperationException,
+            OrganizationAuthoritiesException, OperationNotPermittedException,
+            ValidationException {
+    }
+
+    @Override
+    public void completeAsyncModifySubscription(UUID subscriptionUUID,
+            VOInstanceInfo instance) throws ObjectNotFoundException,
+            SubscriptionStateException, TechnicalServiceNotAliveException,
+            TechnicalServiceOperationException,
+            OrganizationAuthoritiesException, OperationNotPermittedException {
+    }
+
+    @Override
+    public void abortAsyncModifySubscription(UUID subscriptionUUID,
+            String reason)
+            throws ObjectNotFoundException, SubscriptionStateException,
+            OrganizationAuthoritiesException, OperationNotPermittedException {
+    }
+
+    @Override
+    public VOSubscription getSubscription(UUID uuid) {
         return null;
     }
 

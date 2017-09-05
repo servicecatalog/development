@@ -126,6 +126,7 @@ public class ApplicationServiceBeanTest {
         doReturn(operationPort).when(am)
                 .getServiceClient(any(TechnicalProductOperation.class));
         doReturn(servicePort).when(am).getPort(any(TechnicalProduct.class));
+        doReturn(false).when(am).isEventProvisioning(any(TechnicalProduct.class));
 
         am.cs = new ConfigurationServiceStub() {
             @Override

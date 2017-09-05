@@ -419,7 +419,7 @@ public class SubscriptionServiceBeanEmailTest {
 
         // when
         bean.abortAsyncUpgradeOrModifySubscription(subscription,
-                ORGANIZATION_ID, reason);
+                ORGANIZATION_ID, reason, true);
 
         // then
         verify(bean.commService).sendMail(eq(user),
