@@ -100,6 +100,31 @@
     </sequential>
   </macrodef>
   
+  <macrodef name="create.user">
+    <attribute name="failonerror" default="false" />
+    <attribute name="dbuser" />
+    <attribute name="dbuserpwd" />
+      <sequential>
+        <echo message="Creating user @{dbuser} " />
+        <runDbScript failonerror="@{failonerror}">
+          \set ON_ERROR_STOP
+          CREATE ROLE @{dbuser} LOGIN PASSWORD '@{dbuserpwd}';
+        </runDbScript>
+      </sequential>
+  </macrodef>
+	
+  <macrodef name="delete.user">
+    <attribute name="failonerror" default="false" />
+    <attribute name="dbuser" />
+      <sequential>
+        <echo message="Removing user @{dbuser} " />
+        <runDbScript failonerror="false">
+          \set ON_ERROR_STOP
+          DROP ROLE @{dbuser};
+        </runDbScript>
+      </sequential>
+  </macrodef>
+
   <path id="postgresql-jdbc.path">
     <fileset dir="${dev.dir}/libraries/postgresql-jdbc/javalib/" includes="*.jar" />
   </path>
