@@ -81,6 +81,7 @@ import org.oscm.internal.types.exception.OperationNotPermittedException;
 import org.oscm.internal.vo.VOCategory;
 import org.oscm.internal.vo.VOOrganization;
 import org.oscm.internal.vo.VOSubscriptionDetails;
+import org.oscm.kafka.service.Producer;
 import org.oscm.marketplace.auditlog.MarketplaceAuditLogCollector;
 import org.oscm.marketplace.bean.LandingpageServiceBean;
 import org.oscm.marketplace.bean.MarketplaceServiceBean;
@@ -240,6 +241,7 @@ public class BillingIntegrationTestBase extends StaticEJBTestBase {
         AESEncrypter.generateKey();
         container.addBean(mock(LocalizerServiceLocal.class));
         addConfigurationServiceStub(container);
+        container.addBean(mock(Producer.class));
         container.addBean(mock(AuditLogDao.class));
         container.addBean(mock(AuditLogServiceBean.class));
         container.addBean(mock(SubscriptionAuditLogCollector.class));
