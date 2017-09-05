@@ -366,7 +366,11 @@ public enum ConfigurationKey {
 
     @Doc({ "Hashing algorithm used in signing SAML communication" })
     @Example("SHA1")
-    SSO_SIGNING_ALGORITHM(false, SigningAlgorithmType.SHA1.name(), "string", false);
+    SSO_SIGNING_ALGORITHM(false, SigningAlgorithmType.SHA1.name(), "string", false),
+
+    @Doc({ "The Kafka configuration property bootstrap.servers." })
+    @Example("localhost:9092")
+    KAFKA_BOOTSTRAP_SERVERS(false, "", "string");
 
     // ///////////////////////////////////////////////////////////////////////////////////
 

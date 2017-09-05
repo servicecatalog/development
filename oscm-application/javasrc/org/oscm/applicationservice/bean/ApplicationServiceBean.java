@@ -19,6 +19,7 @@ import javax.ejb.Local;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
+import javax.inject.Inject;
 import javax.persistence.TypedQuery;
 import javax.wsdl.WSDLException;
 import javax.xml.parsers.ParserConfigurationException;
@@ -33,6 +34,9 @@ import org.oscm.applicationservice.local.ApplicationServiceLocal;
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.ModifiedUda;
+import org.oscm.domobjects.Parameter;
+import org.oscm.domobjects.ParameterDefinition;
+import org.oscm.domobjects.ParameterSet;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.Product;
 import org.oscm.domobjects.RoleDefinition;
@@ -48,6 +52,10 @@ import org.oscm.internal.types.exception.TechnicalServiceNotAliveException;
 import org.oscm.internal.types.exception.TechnicalServiceOperationException;
 import org.oscm.internal.types.exception.UnsupportedOperationException;
 import org.oscm.internal.types.exception.ValidationException;
+import org.oscm.kafka.records.Operation;
+import org.oscm.kafka.result.PublishingResult;
+import org.oscm.kafka.service.KafkaServer;
+import org.oscm.kafka.service.Producer;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.operation.data.OperationParameter;
@@ -76,6 +84,7 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
             .getLogger(ApplicationServiceBean.class);
 
     private static final int RETURN_CODE_OK = 0;
+    private static final int RETURN_CODE_FAILURE = 1;
 
     private static final String ERROR_WS_CALL = "Failure while calling webservice.";
 
@@ -90,6 +99,9 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
     @EJB(beanInterface = DataService.class)
     DataService ds;
 
+    @Inject
+    Producer kafkaProducer;
+
     @Override
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     public BaseResult asyncCreateInstance(Subscription subscription)
@@ -97,8 +109,7 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
             TechnicalServiceOperationException {
 
         try {
-            BaseResult result = getPort(subscription).asyncCreateInstance(
-                    toInstanceRequest(subscription), getCurrentUser());
+            BaseResult result = sendAsyncCreateInstance(subscription);
             verifyResult(subscription, result);
             return result;
         } catch (TechnicalServiceOperationException e) {
@@ -159,13 +170,8 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
     public void deleteInstance(Subscription subscription)
             throws TechnicalServiceNotAliveException,
             TechnicalServiceOperationException {
-        String instanceId = subscription.getProductInstanceId();
-        String organizationId = subscription.getOrganization()
-                .getOrganizationId();
-        String subscriptionId = subscription.getSubscriptionId();
         try {
-            BaseResult result = getPort(subscription).deleteInstance(instanceId,
-                    organizationId, subscriptionId, getCurrentUser());
+            BaseResult result = sendDeleteInstance(subscription);
             verifyResult(subscription, result);
         } catch (TechnicalServiceOperationException e) {
             throw e;
@@ -179,7 +185,6 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
         } catch (Throwable e) {
             throw convertThrowable(e);
         }
-
     }
 
     @Override
@@ -344,6 +349,12 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
         if (techProduct.getAccessType() == ServiceAccessType.EXTERNAL) {
             return;
         }
+
+        if (isEventProvisioning(techProduct)) {
+            // TODO validate kafka communication???
+            return;
+        }
+
         try {
             getPort(techProduct).sendPing("ping");
         } catch (TechnicalServiceNotAliveException e) {
@@ -429,14 +440,14 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
         TechnicalServiceOperationException e = null;
         String msg = "";
         if (result == null) {
-            msg = "The webservice call returned null";
+            msg = "The provisioning call returned null";
             e = new TechnicalServiceOperationException(msg,
                     new Object[] { subscription.getSubscriptionId(), "null" });
             logger.logWarn(Log4jLogger.SYSTEM_LOG, e,
                     LogMessageIdentifier.WARN_TECH_SERVICE_WS_NULL,
                     subscription.getSubscriptionId());
         } else if (result.getRc() != RETURN_CODE_OK) {
-            msg = "The webservice call returned the error code: "
+            msg = "The provisioning call returned the error code: "
                     + result.getRc();
             e = new TechnicalServiceOperationException(msg, new Object[] {
                     subscription.getSubscriptionId(), result.getDesc() });
@@ -673,10 +684,8 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
     public void activateInstance(Subscription subscription)
             throws TechnicalServiceNotAliveException,
             TechnicalServiceOperationException {
-
         try {
-            BaseResult result = getPort(subscription).activateInstance(
-                    subscription.getProductInstanceId(), getCurrentUser());
+            BaseResult result = sendActivateInstance(subscription);
             verifyResult(subscription, result);
         } catch (TechnicalServiceOperationException e) {
             throw e;
@@ -700,8 +709,7 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
             TechnicalServiceOperationException {
 
         try {
-            BaseResult result = getPort(subscription).deactivateInstance(
-                    subscription.getProductInstanceId(), getCurrentUser());
+            BaseResult result = sendDeactivateInstance(subscription);
             verifyResult(subscription, result);
         } catch (TechnicalServiceOperationException e) {
             throw e;
@@ -827,11 +835,8 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
                 .getSubscriptionAttributeList(subscription,
                         getModifiedUdas(subscription));
         try {
-            BaseResult result = getPort(subscription).asyncModifySubscription(
-                    subscription.getProductInstanceId(),
-                    subscription.getSubscriptionId(),
-                    subscription.getPurchaseOrderNumber(), serviceParameterList,
-                    serviceAttributeList, getCurrentUser());
+            BaseResult result = sendAsyncModifyInstance(subscription,
+                    serviceParameterList, serviceAttributeList);
             verifyResult(subscription, result);
         } catch (TechnicalServiceOperationException
                 | TechnicalServiceNotAliveException e) {
@@ -856,11 +861,8 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
                 .getSubscriptionAttributeList(subscription,
                         getModifiedUdas(subscription));
         try {
-            BaseResult result = getPort(subscription).asyncUpgradeSubscription(
-                    subscription.getProductInstanceId(),
-                    subscription.getSubscriptionId(),
-                    subscription.getPurchaseOrderNumber(), serviceParameterList,
-                    serviceAttributeList, getCurrentUser());
+            BaseResult result = sendAsyncUpgradeInstance(subscription,
+                    serviceParameterList, serviceAttributeList);
             verifyResult(subscription, result);
         } catch (TechnicalServiceOperationException
                 | TechnicalServiceNotAliveException e) {
@@ -973,15 +975,10 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
             throws TechnicalServiceNotAliveException,
             TechnicalServiceOperationException {
 
-        String organizationId = subscription.getOrganization()
-                .getOrganizationId();
-
         try {
-            getPort(subscription).saveAttributes(organizationId,
-                    AttributeFilter.getCustomAttributeList(subscription),
-                    getCurrentUser());
-
-        } catch (TechnicalServiceNotAliveException e) {
+            sendSaveAttributes(subscription);
+        } catch (TechnicalServiceNotAliveException
+                | TechnicalServiceOperationException e) {
             throw e;
         } catch (WebServiceException e) {
             if (isTimeoutOccured(e)) {
@@ -992,4 +989,174 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
             throw convertThrowable(e);
         }
     }
+
+    boolean isEventProvisioning(TechnicalProduct techProduct) {
+        return (KafkaServer.isEnabled() && techProduct.getAccessType() == ServiceAccessType.DIRECT
+                && techProduct.getProvisioningURL().isEmpty());
+    }
+
+    BaseResult sendAsyncCreateInstance(Subscription subscription)
+            throws TechnicalServiceNotAliveException {
+        if (isEventProvisioning(
+                subscription.getProduct().getTechnicalProduct())) {
+            PublishingResult publishingResult = kafkaProducer
+                    .publish(subscription, Operation.UPDATE);
+            BaseResult baseResult = new BaseResult();
+            baseResult.setRc(publishingResult.isSuccess() ? RETURN_CODE_OK
+                    : RETURN_CODE_FAILURE);
+            // TODO baseResult.setDesc("");
+            return baseResult;
+        } else {
+            return getPort(subscription).asyncCreateInstance(
+                    toInstanceRequest(subscription), getCurrentUser());
+        }
+    }
+
+    BaseResult sendAsyncModifyInstance(Subscription subscription,
+            List<ServiceParameter> serviceParameterList,
+            List<ServiceAttribute> serviceAttributeList)
+            throws TechnicalServiceNotAliveException {
+        if (isEventProvisioning(
+                subscription.getProduct().getTechnicalProduct())) {
+
+            Subscription subscriptionModified = getModifiedSubscription(
+                    subscription, serviceParameterList);
+
+            PublishingResult publishingResult = kafkaProducer
+                    .publish(subscriptionModified, Operation.UPDATE);
+            BaseResult baseResult = new BaseResult();
+            baseResult.setRc(publishingResult.isSuccess() ? RETURN_CODE_OK
+                    : RETURN_CODE_FAILURE);
+            // TODO baseResult.setDesc("");
+            return baseResult;
+        } else {
+            return getPort(subscription).asyncModifySubscription(
+                    subscription.getProductInstanceId(),
+                    subscription.getSubscriptionId(),
+                    subscription.getPurchaseOrderNumber(), serviceParameterList,
+                    serviceAttributeList, getCurrentUser());
+        }
+    }
+
+    /**
+     * @param subscription
+     * @param serviceParameterList
+     * @return
+     */
+    Subscription getModifiedSubscription(Subscription subscription,
+            List<ServiceParameter> serviceParameterList) {
+        List<Parameter> modifiedParameters = new ArrayList<>();
+        ParameterSet paramSet = subscription.getParameterSet();
+        paramSet.getParameters().forEach(parameter -> {
+            serviceParameterList.forEach(serviceParameter -> {
+                if (parameter.getParameterDefinition().getParameterId()
+                        .equals(serviceParameter.getParameterId())) {
+                    Parameter modifiedParameter = new Parameter();
+                    ParameterDefinition paramDef = new ParameterDefinition();
+                    paramDef.setParameterId(serviceParameter.getParameterId());
+                    modifiedParameter.setParameterDefinition(paramDef);
+                    modifiedParameter.setValue(serviceParameter.getValue());
+                    modifiedParameters.add(modifiedParameter);
+                }
+            });
+        });
+
+        // put everything for the json: UUID and parameters (id and value)
+        Subscription subscriptionModified = new Subscription();
+        Product productModified = new Product();
+        ParameterSet parameterSetModified = new ParameterSet();
+        subscriptionModified.setUuid(subscription.getUuid());
+        parameterSetModified.setParameters(modifiedParameters);
+        productModified.setParameterSet(parameterSetModified);
+        subscriptionModified.setProduct(productModified);
+        return subscriptionModified;
+    }
+
+    BaseResult sendAsyncUpgradeInstance(Subscription subscription,
+            List<ServiceParameter> serviceParameterList,
+            List<ServiceAttribute> serviceAttributeList)
+            throws TechnicalServiceNotAliveException {
+        if (isEventProvisioning(
+                subscription.getProduct().getTechnicalProduct())) {
+            // TODO send to kafka
+            // System.out.println(getSubscriptionMessage().getJson(subscription));
+            return getNotYetSupportedResult();
+        } else {
+            return getPort(subscription).asyncUpgradeSubscription(
+                    subscription.getProductInstanceId(),
+                    subscription.getSubscriptionId(),
+                    subscription.getPurchaseOrderNumber(), serviceParameterList,
+                    serviceAttributeList, getCurrentUser());
+        }
+    }
+
+    void sendSaveAttributes(Subscription subscription)
+            throws TechnicalServiceOperationException,
+            TechnicalServiceNotAliveException {
+        if (isEventProvisioning(
+                subscription.getProduct().getTechnicalProduct())) {
+            // TODO send to kafka, probably not??
+        } else {
+            String organizationId = subscription.getOrganization()
+                    .getOrganizationId();
+            getPort(subscription).saveAttributes(organizationId,
+                    AttributeFilter.getCustomAttributeList(subscription),
+                    getCurrentUser());
+        }
+    }
+
+    BaseResult sendActivateInstance(Subscription subscription)
+            throws TechnicalServiceNotAliveException {
+        if (isEventProvisioning(
+                subscription.getProduct().getTechnicalProduct())) {
+            // TODO send to kafka??
+            // System.out.println(getSubscriptionMessage().getJson(subscription));
+            return getNotYetSupportedResult();
+        } else {
+            return getPort(subscription).activateInstance(
+                    subscription.getProductInstanceId(), getCurrentUser());
+        }
+    }
+
+    BaseResult sendDeactivateInstance(Subscription subscription)
+            throws TechnicalServiceNotAliveException {
+        if (isEventProvisioning(
+                subscription.getProduct().getTechnicalProduct())) {
+            // TODO send to kafka??
+            return getNotYetSupportedResult();
+        } else {
+            return getPort(subscription).deactivateInstance(
+                    subscription.getProductInstanceId(), getCurrentUser());
+        }
+    }
+
+    BaseResult sendDeleteInstance(Subscription subscription)
+            throws TechnicalServiceNotAliveException {
+        String instanceId = subscription.getProductInstanceId();
+        String organizationId = subscription.getOrganization()
+                .getOrganizationId();
+        String subscriptionId = subscription.getSubscriptionId();
+
+        if (isEventProvisioning(
+                subscription.getProduct().getTechnicalProduct())) {
+            PublishingResult publishingResult = kafkaProducer
+                    .publish(subscription, Operation.DELETE);
+            BaseResult baseResult = new BaseResult();
+            baseResult.setRc(publishingResult.isSuccess() ? RETURN_CODE_OK
+                    : RETURN_CODE_FAILURE);
+            // TODO baseResult.setDesc("");
+            return baseResult;
+        } else {
+            return getPort(subscription).deleteInstance(instanceId,
+                    organizationId, subscriptionId, getCurrentUser());
+        }
+    }
+
+    private BaseResult getNotYetSupportedResult() {
+        BaseResult result = new BaseResult();
+        result.setDesc("Event-based provisioning is not yet supported!");
+        result.setRc(1);
+        return result;
+    }
+    
 }

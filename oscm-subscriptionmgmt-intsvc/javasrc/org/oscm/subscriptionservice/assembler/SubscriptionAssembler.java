@@ -187,6 +187,7 @@ public class SubscriptionAssembler extends BaseAssembler {
         voSubscription.setDeactivationDate(subscription.getDeactivationDate());
         voSubscription.setTimeoutMailSent(subscription.isTimeoutMailSent());
         voSubscription.setStatus(subscription.getStatus());
+        voSubscription.setOrganizationId(subscription.getOrganization().getOrganizationId());
         if (subscription.getUserGroup() != null) {
             voSubscription.setUnitKey(subscription.getUserGroup().getKey());
             voSubscription.setUnitName(subscription.getUserGroup().getName());
