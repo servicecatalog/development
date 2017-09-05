@@ -13,7 +13,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import javax.ejb.EJB;
 import javax.ejb.EJBException;
 import javax.ejb.Stateless;
@@ -24,8 +23,14 @@ import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLLocator;
 import javax.wsdl.xml.WSDLReader;
 import javax.xml.namespace.QName;
+import javax.xml.ws.Binding;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Service;
+import javax.xml.ws.handler.Handler;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.w3c.dom.Element;
 
 import org.oscm.apiversioning.handler.ClientVersionHandler;
 import org.oscm.app.business.exceptions.BESNotificationException;
@@ -45,6 +50,7 @@ import org.oscm.intf.IdentityService;
 import org.oscm.intf.SubscriptionService;
 import org.oscm.provisioning.data.InstanceInfo;
 import org.oscm.provisioning.data.InstanceResult;
+import org.oscm.security.SOAPSecurityHandler;
 import org.oscm.string.Strings;
 import org.oscm.types.enumtypes.OperationStatus;
 import org.oscm.types.enumtypes.UserRoleType;
@@ -58,9 +64,6 @@ import org.oscm.vo.VOUser;
 import org.oscm.vo.VOUserDetails;
 import org.oscm.ws.BasicAuthWSDLLocator;
 import org.oscm.ws.WSVersionExtensionRegistry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.w3c.dom.Element;
 
 
 @Stateless
@@ -95,10 +98,15 @@ public class BesDAO {
 
             PasswordAuthentication pwAuth = configService
                     .getWebServiceAuthentication(serviceInstance, proxySettings);
+
+            final String userName = pwAuth.getUserName();
+            final String password = pwAuth.getPassword();
+
             setUserCredentialsInContext(((BindingProvider) client),
-                    pwAuth.getUserName(), pwAuth.getPassword(), proxySettings);
+                    userName, password, proxySettings);
             setEndpointInContext(((BindingProvider) client), proxySettings,
                     serviceClass);
+            setBinding((BindingProvider) client, userName, password);
             return client;
         } catch (MalformedURLException e) {
             ConfigurationException ce = new ConfigurationException(
@@ -112,6 +120,15 @@ public class BesDAO {
             LOGGER.warn("Retrieving the OSCM service client failed.", pe);
             throw pe;
         }
+    }
+
+    private void setBinding(BindingProvider client, String userName, String password) {
+        final Binding binding = client.getBinding();
+        List<Handler> handlerList = binding.getHandlerChain();
+        if (handlerList == null)
+            handlerList = new ArrayList<>();
+        handlerList.add(new SOAPSecurityHandler(userName, password));
+        binding.setHandlerChain(handlerList);
     }
 
     public void setUserCredentialsInContext(BindingProvider client,
@@ -231,7 +248,7 @@ public class BesDAO {
         }
 
         wsdlUrl = wsdlUrl.replace("{SERVICE}", serviceClass.getSimpleName());
-        validateVersion(wsdlUrl);
+//        validateVersion(wsdlUrl);
         return new URL(wsdlUrl);
 
     }

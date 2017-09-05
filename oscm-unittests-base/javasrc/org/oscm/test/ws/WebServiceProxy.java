@@ -22,6 +22,8 @@ import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 
+import org.oscm.security.SOAPSecurityHandler;
+
 
 /**
  * @author stavreva
@@ -109,7 +111,7 @@ public class WebServiceProxy {
                 handlerChain = new ArrayList<>();
             }
 
-            handlerChain.add(new SecurityHandler(userName, password));
+            handlerChain.add(new SOAPSecurityHandler(userName, password));
             handlerChain.add(new SOAPHandler<SOAPMessageContext>() {
 
                 @Override

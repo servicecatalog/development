@@ -6,7 +6,7 @@
  *
  ******************************************************************************/
 
-package org.oscm.test.ws;
+package org.oscm.security;
 
 import java.util.Set;
 
@@ -23,12 +23,12 @@ import javax.xml.ws.handler.soap.SOAPMessageContext;
  * @author stavreva
  *
  */
-public final class SecurityHandler implements SOAPHandler<SOAPMessageContext> {
+public final class SOAPSecurityHandler implements SOAPHandler<SOAPMessageContext> {
     
     private String userId;
     private String password;
 
-    public SecurityHandler(String userId, String password) {
+    public SOAPSecurityHandler(String userId, String password) {
         this.userId = userId;
         this.password = password;
     }
@@ -96,8 +96,7 @@ public final class SecurityHandler implements SOAPHandler<SOAPMessageContext> {
      */
     @Override
     public void close(MessageContext arg0) {
-        // TODO Auto-generated method stub
-        
+
     }
 
     /* (non-Javadoc)
@@ -105,7 +104,6 @@ public final class SecurityHandler implements SOAPHandler<SOAPMessageContext> {
      */
     @Override
     public boolean handleFault(SOAPMessageContext arg0) {
-        // TODO Auto-generated method stub
         return false;
     }
 
@@ -114,7 +112,6 @@ public final class SecurityHandler implements SOAPHandler<SOAPMessageContext> {
      */
     @Override
     public Set<QName> getHeaders() {
-        // TODO Auto-generated method stub
         return null;
     }
 

@@ -11,7 +11,6 @@ package org.oscm.ws;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.xml.namespace.QName;
 import javax.xml.ws.Binding;
 import javax.xml.ws.BindingProvider;
@@ -20,7 +19,7 @@ import javax.xml.ws.handler.Handler;
 
 import org.junit.Test;
 import org.oscm.intf.AccountService;
-import org.oscm.test.ws.SecurityHandler;
+import org.oscm.security.SOAPSecurityHandler;
 
 /**
  * @author stavreva
@@ -41,7 +40,7 @@ public class WSTest {
         if (handlerList == null)
             handlerList = new ArrayList<>();
 
-        handlerList.add(new SecurityHandler("23000", "secret"));
+        handlerList.add(new SOAPSecurityHandler("23000", "secret"));
         binding.setHandlerChain(handlerList); // <- important!
 
         // save default vat rate
