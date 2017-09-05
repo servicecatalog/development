@@ -148,10 +148,18 @@
     <create.db dbname="${db.unit.name}" dbuser="${db.unit.user}" dbschema="${db.unit.schema}" />
   </target>
 
+  <target name="unit.CreateUser" description="">
+    <create.user dbuser="${db.unit.user}" dbuserpwd="${db.unit.pwd}" />
+  </target>
+
   <target name="unit.DropForced" description="">
     <delete.forced.db dbname="${db.unit.name}" failonerror="false" />
   </target>
 
+  <target name="unit.DropUser" description="">
+    <delete.user dbuser="${db.unit.user}" />
+  </target>
+	
   <target name="unit.UpdateSchema" description="">
     <ant antfile="${work.dir}/../build-db.xml" target="updateSchema">
       <property name="work.dir" value="${work.dir}/.." />
@@ -176,10 +184,18 @@
     <create.db dbname="${db.appunit.name}" dbuser="${db.appunit.user}" dbschema="${db.appunit.schema}" />
   </target>
 
+  <target name="appunit.CreateUser" description="Creates the user of the asynchronous provisioning proxy test database, database properties are configured via the db-appunit.properties file">
+    <create.user dbuser="${db.appunit.user}" dbuserpwd="${db.appunit.pwd}" />
+  </target>
+	
   <target name="appunit.DropForced" description="Forced drop of the asynchronous provisioning proxy test database">
     <delete.forced.db dbname="${db.appunit.name}" failonerror="false" />
   </target>
 
+  <target name="appunit.DropUser" description="">
+    <delete.user dbuser="${db.appunit.user}" />
+  </target>
+	
   <target name="appunit.UpdateSchema" description="">
     <ant antfile="${work.dir}/../build-db-app.xml" target="updateSchema" inheritAll="false">
       <property name="work.dir" value="${work.dir}/../.." />
