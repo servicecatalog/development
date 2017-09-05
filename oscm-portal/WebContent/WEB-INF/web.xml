@@ -141,14 +141,14 @@
     <display-name>Marketplace Context Filter</display-name>
     <filter-name>mpCtx</filter-name>
     <filter-class>org.oscm.ui.filter.MarketplaceContextFilter</filter-class>
-    <init-param>
-      <param-name>login-class</param-name>
-      <param-value>com.sun.web.security.WebProgrammaticLoginImpl</param-value>
-    </init-param>
-    <init-param>
-      <param-name>realm</param-name>
-      <param-value>bss-realm</param-value>
-    </init-param>
+    <!--<init-param>-->
+      <!--<param-name>login-class</param-name>-->
+      <!--<param-value>com.sun.web.security.WebProgrammaticLoginImpl</param-value>-->
+    <!--</init-param>-->
+    <!--<init-param>-->
+      <!--<param-name>realm</param-name>-->
+      <!--<param-value>bss-realm</param-value>-->
+    <!--</init-param>-->
     <init-param>
       <param-name>public-url-pattern</param-name>
       <param-value>(^/a4j/.*|^/slogout.jsf|^/saml2/redirectToIdp.jsf*|^/saml2/saml2PostInclude.jsf*|^/public/.*|^/marketplace/terms/.*|^/marketplace/[^/\?#]*([\?#].*)?)</param-value>
@@ -177,14 +177,14 @@
     <display-name>Authorization Filter</display-name>
     <filter-name>auth</filter-name>
     <filter-class>org.oscm.ui.filter.AuthorizationFilter</filter-class>
-    <init-param>
-      <param-name>login-class</param-name>
-      <param-value>com.sun.web.security.WebProgrammaticLoginImpl</param-value>
-    </init-param>
-    <init-param>
-      <param-name>realm</param-name>
-      <param-value>bss-realm</param-value>
-    </init-param>
+    <!--<init-param>-->
+      <!--<param-name>login-class</param-name>-->
+      <!--<param-value>com.sun.web.security.WebProgrammaticLoginImpl</param-value>-->
+    <!--</init-param>-->
+    <!--<init-param>-->
+      <!--<param-name>realm</param-name>-->
+      <!--<param-value>bss-realm</param-value>-->
+    <!--</init-param>-->
     <init-param>
       <param-name>public-url-pattern</param-name>
       <param-value>(^/a4j/.*|^/slogout.jsf|^/saml2/redirectToIdp.jsf*|^/saml2/saml2PostInclude.jsf*|^/public/.*|^/marketplace/terms/.*|^/marketplace/[^/\?#]*([\?#].*)?)|^/javax.faces.resource/.*</param-value>
@@ -225,28 +225,28 @@
     <filter-name>RichFacesFirefox11Filter</filter-name>
     <filter-class>org.oscm.ui.filter.RichFacesFirefox11Filter</filter-class>
   </filter>
- <!--  <filter>
+  <filter>
     <filter-name>NonexistentConversationFilter</filter-name>
     <filter-class>org.oscm.ui.filter.NonexistentConversationFilter</filter-class>
-  </filter>  -->
-<!--    <filter>
+  </filter>
+    <filter>
     <display-name>Role-based filter</display-name>
     <filter-name>RoleBasedFilter</filter-name>
     <filter-class>org.oscm.ui.filter.RoleBasedFilter</filter-class>
-    <init-param>
-      <param-name>login-class</param-name>
-      <param-value>com.sun.web.security.WebProgrammaticLoginImpl</param-value>
-    </init-param>
-    <init-param>
-      <param-name>realm</param-name>
-      <param-value>bss-realm</param-value>
-    </init-param>
+    <!--<init-param>-->
+      <!--<param-name>login-class</param-name>-->
+      <!--<param-value>com.sun.web.security.WebProgrammaticLoginImpl</param-value>-->
+    <!--</init-param>-->
+    <!--<init-param>-->
+      <!--<param-name>realm</param-name>-->
+      <!--<param-value>bss-realm</param-value>-->
+    <!--</init-param>-->
     <init-param>
       <param-name>public-url-pattern</param-name>
       <param-value>(^/a4j/.*|^/slogout.jsf|^/saml2/redirectToIdp.jsp*|^/saml2/saml2PostInclude.jsf*|^/public/.*|^/marketplace/terms/.*|^/marketplace/[^/\?#]*([\?#].*)?)|^/javax.faces.resource/.*
       </param-value>
     </init-param>
-  </filter>-->
+  </filter>
   <filter>  
     <filter-name>DisableUrlFilter</filter-name>  
     <filter-class>org.oscm.ui.filter.DisableUrlFilter</filter-class>  

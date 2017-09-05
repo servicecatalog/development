@@ -83,29 +83,29 @@ public abstract class BaseBesFilter implements Filter {
         this.filterConfig = filterConfig;
 
         String value;
-        String loginClassName = filterConfig
-                .getInitParameter(PARAM_LOGIN_CLASS);
-        if (ADMStringUtils.isBlank(loginClassName)) {
-            throw new ServletException("The filter init-param "
-                    + PARAM_LOGIN_CLASS + " is missing!");
-        }
-        ClassLoader classLoader = Thread.currentThread()
-                .getContextClassLoader();
-        if (classLoader == null) {
-            classLoader = getClass().getClassLoader();
-        }
-        try {
-            Class<?> c = classLoader.loadClass(loginClassName);
-            loginMethod = c.getMethod("login", new Class[] { String.class,
-                    char[].class, String.class, HttpServletRequest.class,
-                    HttpServletResponse.class });
-            filterConfig.getServletContext().setAttribute(
-                    Constants.CTX_ATTR_LOGIN_METHOD, loginMethod);
-            logger.logDebug("loginClassName=" + loginClassName);
-        } catch (Exception e) {
-            logger.logError(Log4jLogger.SYSTEM_LOG, e,
-                    LogMessageIdentifier.ERROR_INITIALIZE_LOGIN_METHOD_FAILED);
-        }
+//        String loginClassName = filterConfig
+//                .getInitParameter(PARAM_LOGIN_CLASS);
+//        if (ADMStringUtils.isBlank(loginClassName)) {
+//            throw new ServletException("The filter init-param "
+//                    + PARAM_LOGIN_CLASS + " is missing!");
+//        }
+//        ClassLoader classLoader = Thread.currentThread()
+//                .getContextClassLoader();
+//        if (classLoader == null) {
+//            classLoader = getClass().getClassLoader();
+//        }
+//        try {
+//            Class<?> c = classLoader.loadClass(loginClassName);
+//            loginMethod = c.getMethod("login", new Class[] { String.class,
+//                    char[].class, String.class, HttpServletRequest.class,
+//                    HttpServletResponse.class });
+//            filterConfig.getServletContext().setAttribute(
+//                    Constants.CTX_ATTR_LOGIN_METHOD, loginMethod);
+//            logger.logDebug("loginClassName=" + loginClassName);
+//        } catch (Exception e) {
+//            logger.logError(Log4jLogger.SYSTEM_LOG, e,
+//                    LogMessageIdentifier.ERROR_INITIALIZE_LOGIN_METHOD_FAILED);
+//        }
 
         value = filterConfig.getInitParameter(PARAM_LOGIN_PAGE);
         loginPage = checkPage(value, loginPage);
@@ -114,13 +114,13 @@ public abstract class BaseBesFilter implements Filter {
         value = filterConfig.getInitParameter(PARAM_PWD_PAGE);
         pwdPage = checkPage(value, pwdPage);
         logger.logDebug("pwdPage=" + pwdPage);
-
-        realm = filterConfig.getInitParameter(PARAM_REALM);
-        if (ADMStringUtils.isBlank(realm)) {
-            throw new ServletException("The filter init-param " + PARAM_REALM
-                    + " is missing!");
-        }
-        logger.logDebug("realm=" + realm);
+//
+//        realm = filterConfig.getInitParameter(PARAM_REALM);
+//        if (ADMStringUtils.isBlank(realm)) {
+//            throw new ServletException("The filter init-param " + PARAM_REALM
+//                    + " is missing!");
+//        }
+//        logger.logDebug("realm=" + realm);
 
         value = filterConfig.getInitParameter(PARAM_ERROR_PAGE);
         errorPage = checkPage(value, errorPage);
