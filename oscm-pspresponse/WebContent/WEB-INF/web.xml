@@ -28,4 +28,8 @@
     </user-data-constraint>
   </security-constraint>
 
+  <security-role>
+    <role-name>OrganizationAdmin</role-name>
+  </security-role>
+
 </web-app>
