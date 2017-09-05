@@ -12,10 +12,7 @@
 
 package org.oscm.dataservice.bean;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.List;
+import java.util.*;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -49,22 +46,21 @@ public class Indexer {
      * these for broker, reseller and customer specific copies must be updated
      * as well.
      */
-    List<Product> getProductAndCopiesForIndexUpdate(Product product,
-            EntityPersister persister) {
+    private List<Product> getProductAndCopiesForIndexUpdate(Product product,
+                                                            Session session) {
         List<Product> productsToUpdate = new ArrayList<>();
         if (!product.isCopy()) {
-            Session session = getSession(persister);
+
             org.hibernate.Query query = session
                     .getNamedQuery("Product.getProductsForTemplateIndexUpdate");
             query.setParameter("template", product);
-            query.setParameter("state",
+            query.setParameterList("state",
                     EnumSet.of(ServiceStatus.ACTIVE, ServiceStatus.INACTIVE,
                             ServiceStatus.SUSPENDED, ServiceStatus.OBSOLETE));
-            query.setParameter("type", EnumSet.of(ServiceType.PARTNER_TEMPLATE,
+            query.setParameterList("type", EnumSet.of(ServiceType.PARTNER_TEMPLATE,
                     ServiceType.CUSTOMER_TEMPLATE));
             productsToUpdate.addAll(
                     ParameterizedTypes.list(query.list(), Product.class));
-            session.close();
         }
         productsToUpdate.add(product);
         return productsToUpdate;
@@ -72,58 +68,50 @@ public class Indexer {
 
     public void handleIndexing(DomainObject<?> object, ModificationType modType,
             EntityPersister persister) {
+        Session session = getSession(persister);
         if (object instanceof Product) {
             Product product = (Product) object;
             // Bug 9670: In case if a template of a partner or customer product
             // is modified we must also write the copies to the index
             if (modType == ModificationType.MODIFY) {
                 List<Product> productsToUpdate = getProductAndCopiesForIndexUpdate(
-                        product, persister);
+                        product, session);
                 handleListIndexing(ParameterizedTypes.list(productsToUpdate,
-                        Product.class), persister);
-                return;
+                        Product.class), session);
             }
-            handleObjectIndexing(object, persister);
-            return;
+            handleObjectIndexing(object, session);
         }
         if (object instanceof PriceModel) {
-            handleObjectIndexing(((PriceModel) object).getProduct(), persister);
-            return;
+            handleObjectIndexing(((PriceModel) object).getProduct(), session);
         }
         if (object instanceof CatalogEntry) {
             handleObjectIndexing(((CatalogEntry) object).getProduct(),
-                    persister);
-            return;
+                    session);
         }
         if (object instanceof TechnicalProductTag) {
             TechnicalProduct tp = ((TechnicalProductTag) object)
                     .getTechnicalProduct();
-            handleListIndexing(tp.getProducts(), persister);
+            handleListIndexing(tp.getProducts(), session);
             return;
         }
         if (object instanceof TechnicalProduct) {
             handleListIndexing(((TechnicalProduct) object).getProducts(),
-                    persister);
-            return;
+                    session);
         }
         if (object instanceof Category) {
             // This only happens when categories are "renamed". It will NOT be
             // invoked when categories are deleted.
-            Session tmpSession = getSession(persister);
-            final org.hibernate.Query servicesQuery = tmpSession
+            final org.hibernate.Query servicesQuery = session
                     .getNamedQuery("Category.findServices");
             servicesQuery.setParameter("categoryKey", object.getKey());
             handleListIndexing(ParameterizedTypes.list(servicesQuery.list(),
-                    Product.class), persister);
-            tmpSession.close();
-            return;
+                    Product.class), session);
         }
         if (object instanceof Subscription) {
             Subscription subscription = (Subscription) object;
             if (isSubscriptionNotDeactivatedOrInvalid(subscription)) {
-                handleObjectIndexing(object, persister);
+                handleObjectIndexing(object, session);
             }
-            return;
         }
         if (object instanceof Parameter) {
             Parameter parameter = (Parameter) object;
@@ -135,10 +123,9 @@ public class Indexer {
                     if (subscription != null
                             && isSubscriptionNotDeactivatedOrInvalid(
                                     subscription)) {
-                        handleObjectIndexing(subscription, persister);
+                        handleObjectIndexing(subscription, session);
                     }
                 }
-                return;
             }
         }
         if (object instanceof Uda) {
@@ -148,18 +135,15 @@ public class Indexer {
             if (udaDef.getTargetType() == UdaTargetType.CUSTOMER_SUBSCRIPTION
                     && udaDef
                             .getConfigurationType() != UdaConfigurationType.SUPPLIER) {
-                Session session = getSession(persister);
                 Subscription sub = session.get(Subscription.class,
                         uda.getTargetObjectKey());
                 if (sub == null) {
                     logger.logDebug("uda target didn't match any subscription",
                             Log4jLogger.SYSTEM_LOG);
                 } else {
-                    handleObjectIndexing(sub, persister);
+                    handleObjectIndexing(sub, session);
                 }
-                session.close();
             }
-            return;
         }
         if (object instanceof UdaDefinition) {
             UdaDefinition udaDef = (UdaDefinition) object;
@@ -169,9 +153,9 @@ public class Indexer {
             for (Product prod : prodList) {
                 subList.add(prod.getOwningSubscription());
             }
-            handleListIndexing(subList, persister);
-            return;
+            handleListIndexing(subList, session);
         }
+        session.close();
     }
 
     private boolean isSubscriptionNotDeactivatedOrInvalid(
@@ -181,8 +165,7 @@ public class Indexer {
     }
 
     private void handleListIndexing(Collection<? extends DomainObject<?>> list,
-            EntityPersister persister) {
-        Session session = getSession(persister);
+            Session session) {
         if (list == null || session == null) {
             return;
         }
@@ -197,13 +180,11 @@ public class Indexer {
         }
 
         tx.commit();
-        session.close();
     }
 
     private void handleObjectIndexing(Object parameter,
-            EntityPersister persister) {
+            Session session) {
 
-        Session session = getSession(persister);
         if (parameter == null || session == null) {
             return;
         }
@@ -214,7 +195,6 @@ public class Indexer {
         fts.index(parameter);
 
         tx.commit();
-        session.close();
     }
 
     private Session getSession(EntityPersister persister) {

@@ -96,7 +96,7 @@ public class HibernateEventListener implements PostUpdateEventListener,
                 Transaction tx = session.beginTransaction();
                 org.hibernate.Query query = session
                         .createQuery("DELETE FROM LocalizedResource WHERE objectKey = :objectKey AND objectType IN (:objectType)");
-                query.setParameter("objectKey", Long.valueOf(key));
+                query.setParameter("objectKey", key);
                 query.setParameterList("objectType", objType);
                 query.executeUpdate();
                 tx.commit();
@@ -123,8 +123,8 @@ public class HibernateEventListener implements PostUpdateEventListener,
 
                 if (logger.isDebugLoggingEnabled()) {
                     logger.logDebug(String.format("%s %s[%s, v=%s]", type, obj
-                            .getClass().getSimpleName(), Long.valueOf(obj
-                            .getKey()), Long.valueOf(hist.getObjVersion())));
+                            .getClass().getSimpleName(), obj
+                            .getKey(), hist.getObjVersion()));
                 }
             }
         }
