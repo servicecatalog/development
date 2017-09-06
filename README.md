@@ -28,13 +28,13 @@ or higher.
 
 * [PostgreSQL 9.3](http://www.enterprisedb.com/products-services-training/pgdownload) database installer.
 * [GlassFish 4.1.2](http://download.oracle.com/glassfish/4.1.2/release/index.html) server installer.
-* [Eclipse ECJ 4.2.1](http://mvnrepository.com/artifact/org.eclipse.jdt.core.compiler/ecj/4.2.1) library.
+* [Eclipse ECJ 4.5.1](http://mvnrepository.com/artifact/org.eclipse.jdt.core.compiler/ecj/4.5.1) library.
 * [Apache Ivy 2.4.0](http://www.apache.org/dist/ant/ivy/2.4.0/) library.
 
 #### Setting up a workspace
 1. Download the latest sources for [this](https://github.com/servicecatalog/development) and [documentation](https://github.com/servicecatalog/documentation) repositories. Set the directory name of documentation as "document".
 2. Import the project into your IDE. You should adjust some of the preferences:
-  * Set the compiler level to the installed version of Java 1.7.
+  * Set the compiler level to the installed version of Java 1.8.
   * Set UTF-8 file encoding and Unix line endings.
 3. Import and configure the code formatting rules and code templates.
   * Download the files from the [codestyle folder](https://github.com/servicecatalog/development/tree/master/oscm-devruntime/javares/codestyle).
