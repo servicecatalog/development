@@ -28,7 +28,7 @@ or higher.
 
 * [PostgreSQL 9.3](http://www.enterprisedb.com/products-services-training/pgdownload) database installer.
 * [GlassFish 4.1.2](http://download.oracle.com/glassfish/4.1.2/release/index.html) server installer.
-* [Eclipse ECJ 4.2.1](http://mvnrepository.com/artifact/org.eclipse.jdt.core.compiler/ecj/4.2.1) library.
+* [Eclipse ECJ 4.5.1](http://mvnrepository.com/artifact/org.eclipse.jdt.core.compiler/ecj/4.5.1) library.
 * [Apache Ivy 2.4.0](http://www.apache.org/dist/ant/ivy/2.4.0/) library.
 
 #### Setting up a workspace
