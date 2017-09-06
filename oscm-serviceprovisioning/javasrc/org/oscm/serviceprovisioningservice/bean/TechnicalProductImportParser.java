@@ -527,22 +527,19 @@ public class TechnicalProductImportParser extends ImportParserBase {
     }
 
     private void checkEventBasedProvisioning() {
-        if (techProduct.getAccessType() == ServiceAccessType.DIRECT
-                && techProduct.getProvisioningURL().isEmpty() && techProduct
-                        .getProvisioningType() == ProvisioningType.SYNCHRONOUS) {
-            addError(ATTRIBUTE_PROVISIONING_TYPE,
-                    "Attribute " + ATTRIBUTE_PROVISIONING_TYPE + " must be "
-                            + ProvisioningType.ASYNCHRONOUS.name()
-                            + " in case attribute " + ATTRIBUTE_ACCESS_TYPE
-                            + " is " + ServiceAccessType.DIRECT + " and "
-                            + ATTRIBUTE_PROVISIONING_URL + " is empty");
-            return;
-        }
-        
-        if (techProduct.getAccessType() == ServiceAccessType.DIRECT
-                && techProduct.getProvisioningURL().isEmpty() && techProduct
-                        .getProvisioningType() == ProvisioningType.ASYNCHRONOUS && !KafkaServer.isEnabled()) {
-            addError(null, "Kafka server should be configured in order to import service with event-based provisioning");
+
+        if (KafkaServer.isEnabled()) {
+            if (techProduct.getAccessType() == ServiceAccessType.DIRECT
+                    && techProduct.getProvisioningURL().isEmpty() && techProduct
+                            .getProvisioningType() == ProvisioningType.SYNCHRONOUS) {
+                addError(ATTRIBUTE_PROVISIONING_TYPE,
+                        "Attribute " + ATTRIBUTE_PROVISIONING_TYPE + " must be "
+                                + ProvisioningType.ASYNCHRONOUS.name()
+                                + " in case attribute " + ATTRIBUTE_ACCESS_TYPE
+                                + " is " + ServiceAccessType.DIRECT + " and "
+                                + ATTRIBUTE_PROVISIONING_URL + " is empty");
+                return;
+            }
         }
     }
 

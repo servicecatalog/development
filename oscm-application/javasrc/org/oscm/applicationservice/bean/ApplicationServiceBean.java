@@ -71,6 +71,7 @@ import org.oscm.provisioning.data.User;
 import org.oscm.provisioning.data.UserResult;
 import org.oscm.types.constants.Configuration;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
+import org.oscm.types.enumtypes.ProvisioningType;
 import org.oscm.validator.BLValidator;
 
 /**
@@ -991,8 +992,10 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
     }
 
     boolean isEventProvisioning(TechnicalProduct techProduct) {
-        return (KafkaServer.isEnabled() && techProduct.getAccessType() == ServiceAccessType.DIRECT
-                && techProduct.getProvisioningURL().isEmpty());
+        return (KafkaServer.isEnabled()
+                && techProduct.getAccessType() == ServiceAccessType.DIRECT
+                && techProduct.getProvisioningURL().isEmpty() && techProduct
+                        .getProvisioningType() == ProvisioningType.ASYNCHRONOUS);
     }
 
     BaseResult sendAsyncCreateInstance(Subscription subscription)
@@ -1158,5 +1161,5 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
         result.setRc(1);
         return result;
     }
-    
+
 }
