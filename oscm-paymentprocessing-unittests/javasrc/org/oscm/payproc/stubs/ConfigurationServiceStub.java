@@ -111,4 +111,9 @@ public class ConfigurationServiceStub implements ConfigurationServiceLocal {
     public boolean isPaymentInfoAvailable() {
         throw new UnsupportedOperationException();
     }
+
+    @Override
+    public boolean isKafkaEnabled() {
+        return false;
+    }
 }

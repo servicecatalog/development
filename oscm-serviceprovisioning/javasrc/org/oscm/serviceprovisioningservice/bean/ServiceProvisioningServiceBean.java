@@ -775,7 +775,8 @@ public class ServiceProvisioningServiceBean
 
         TechnicalProductImportParser parser = new TechnicalProductImportParser(
                 dm, localizer, dm.getCurrentUser().getOrganization(), pm,
-                tenantProvisioning, tagService, ms, configurationService);
+                tenantProvisioning, tagService, ms, configurationService,
+                configurationService.isKafkaEnabled());
         try {
             parser.parse(xml);
         } catch (TechnicalServiceActiveException | UpdateConstraintException
@@ -2263,8 +2264,8 @@ public class ServiceProvisioningServiceBean
 
         Product product = dm.getReference(Product.class,
                 voProductDetails.getKey());
-        validateExternalServiceMustBeFree(voPriceModel, product
-                .getTechnicalProduct().getAccessType());
+        validateExternalServiceMustBeFree(voPriceModel,
+                product.getTechnicalProduct().getAccessType());
 
         boolean isCreatePriceModel = product.getPriceModel() == null;
         boolean priceModelCreatedInTransaction = false;
@@ -2349,9 +2350,8 @@ public class ServiceProvisioningServiceBean
         boolean licenseChanged = false;
         if (!ServiceType.isSubscription(productType)) {
             licenseChanged = saveLicenseInformationForPriceModel(
-                    product.getTechnicalProduct().getKey(),
-                    priceModel.getKey(), voPriceModel, currentUser,
-                    newPriceModelCreated);
+                    product.getTechnicalProduct().getKey(), priceModel.getKey(),
+                    voPriceModel, currentUser, newPriceModelCreated);
         }
         if (licenseChanged || descriptionChanged) {
             if (ServiceType.isTemplate(productType)) {
@@ -3396,8 +3396,8 @@ public class ServiceProvisioningServiceBean
         PlatformUser currentUser = dm.getCurrentUser();
 
         Product product = dm.getReference(Product.class, service.getKey());
-        validateExternalServiceMustBeFree(priceModel, product
-                .getTechnicalProduct().getAccessType());
+        validateExternalServiceMustBeFree(priceModel,
+                product.getTechnicalProduct().getAccessType());
 
         // ensure the subscription belongs to the given product
         Subscription sub = validateSubscription(service, currentUser, product);
@@ -6015,10 +6015,10 @@ public class ServiceProvisioningServiceBean
 
     @Override
     @RolesAllowed("SERVICE_MANAGER")
-    public void deleteService(Long key) throws ObjectNotFoundException,
-            OrganizationAuthoritiesException, OperationNotPermittedException,
-            ServiceOperationException, ServiceStateException,
-            ConcurrentModificationException {
+    public void deleteService(Long key)
+            throws ObjectNotFoundException, OrganizationAuthoritiesException,
+            OperationNotPermittedException, ServiceOperationException,
+            ServiceStateException, ConcurrentModificationException {
         VOService vo = new VOService();
         vo.setKey(key.longValue());
         vo = getServiceDetails(vo);
@@ -6027,17 +6027,18 @@ public class ServiceProvisioningServiceBean
 
     @Override
     @RolesAllowed("TECHNOLOGY_MANAGER")
-    public void deleteTechnicalService(Long key)
-            throws ObjectNotFoundException, OperationNotPermittedException,
-            DeletionConstraintException, OrganizationAuthoritiesException,
-            ConcurrentModificationException {
+    public void deleteTechnicalService(Long key) throws ObjectNotFoundException,
+            OperationNotPermittedException, DeletionConstraintException,
+            OrganizationAuthoritiesException, ConcurrentModificationException {
         Organization provider = dm.getCurrentUser().getOrganization();
         VOTechnicalService vo = new VOTechnicalService();
         vo.setKey(key.longValue());
-        TechnicalProduct tProd = findTechnicalProductAndCheckOwner(provider, vo);
-        LocalizerFacade facade = new LocalizerFacade(localizer, dm
-                .getCurrentUser().getLocale());
-        List<ParameterDefinition> paramDefs = getPlatformParameterDefinitions(tProd);
+        TechnicalProduct tProd = findTechnicalProductAndCheckOwner(provider,
+                vo);
+        LocalizerFacade facade = new LocalizerFacade(localizer,
+                dm.getCurrentUser().getLocale());
+        List<ParameterDefinition> paramDefs = getPlatformParameterDefinitions(
+                tProd);
         List<Event> platformEvents = getPlatformEvents(tProd);
         vo = TechnicalProductAssembler.toVOTechnicalProduct(tProd, paramDefs,
                 platformEvents, facade, false);

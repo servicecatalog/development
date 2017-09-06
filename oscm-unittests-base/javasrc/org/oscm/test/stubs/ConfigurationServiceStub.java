@@ -170,4 +170,9 @@ public class ConfigurationServiceStub implements ConfigurationService,
         return true;
     }
 
+    @Override
+    public boolean isKafkaEnabled() {
+        return false;
+    }
+
 }

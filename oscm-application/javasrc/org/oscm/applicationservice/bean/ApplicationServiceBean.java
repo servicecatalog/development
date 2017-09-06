@@ -992,7 +992,7 @@ public class ApplicationServiceBean implements ApplicationServiceLocal {
     }
 
     boolean isEventProvisioning(TechnicalProduct techProduct) {
-        return (KafkaServer.isEnabled()
+        return (cs.isKafkaEnabled()
                 && techProduct.getAccessType() == ServiceAccessType.DIRECT
                 && techProduct.getProvisioningURL().isEmpty() && techProduct
                         .getProvisioningType() == ProvisioningType.ASYNCHRONOUS);
