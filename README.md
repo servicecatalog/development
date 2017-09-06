@@ -34,7 +34,7 @@ or higher.
 #### Setting up a workspace
 1. Download the latest sources for [this](https://github.com/servicecatalog/development) and [documentation](https://github.com/servicecatalog/documentation) repositories. Set the directory name of documentation as "document".
 2. Import the project into your IDE. You should adjust some of the preferences:
-  * Set the compiler level to the installed version of Java 1.7.
+  * Set the compiler level to the installed version of Java 1.8.
   * Set UTF-8 file encoding and Unix line endings.
 3. Import and configure the code formatting rules and code templates.
   * Download the files from the [codestyle folder](https://github.com/servicecatalog/development/tree/master/oscm-devruntime/javares/codestyle).
