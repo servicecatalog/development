@@ -10,7 +10,7 @@ import javax.xml.ws.WebFault;
 import org.oscm.types.exceptions.beans.ApplicationExceptionBean;
 
 /**
- * Exception thrown when validation fails.
+ * Created by PLGrubskiM on 2017-07-21.
  */
 @WebFault(name = "MarketplaceValidationException", targetNamespace = "http://oscm.org/xsd")
 public class MarketplaceValidationException extends SaaSApplicationException{
