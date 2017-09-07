@@ -143,13 +143,12 @@ public class MarketplaceServiceWSTest {
         fail();
     }
 
-    @Test(expected = MarketplaceValidationException.class)
+    @Test
     public void testCreateGlobalMarketplaceMarketplaceIdInUse() throws Exception {
         VOMarketplace marketplace = factory.createMarketplaceVO(
                 PLATFORM_OPERATOR, false, "localMp");
         marketplace.setMarketplaceId(null);
         mpService_Supplier.createMarketplace(marketplace);
-        fail();
     }
 
     @Test(expected = ObjectNotFoundException.class)
