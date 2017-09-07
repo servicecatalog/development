@@ -31,6 +31,7 @@ import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.security.auth.login.LoginException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.oscm.accountservice.assembler.OrganizationAssembler;
 import org.oscm.accountservice.local.AccountServiceLocal;
 import org.oscm.applicationservice.local.ApplicationServiceLocal;
@@ -268,7 +269,7 @@ public class MarketplaceServiceBean implements MarketplaceService {
             throws ValidationException, ObjectNotFoundException,
             OperationNotPermittedException, MarketplaceValidationException {
         boolean isMpIdProvided = false;
-        if (marketplace.getMarketplaceId() == null) {
+        if (StringUtils.isNotBlank(marketplace.getMarketplaceId())) {
             marketplace.setMarketplaceId("1"); // dummy Id - will be changed.
         } else {
             isMpIdProvided = true;
@@ -360,7 +361,7 @@ public class MarketplaceServiceBean implements MarketplaceService {
     }
 
     private void validateProvidedMpId(String id) throws MarketplaceValidationException {
-        if (id == null || id.equals("") || "PLATFORM_OPERATOR".equals(id)) {
+        if (StringUtils.isBlank(id) || "PLATFORM_OPERATOR".equals(id)) {
             throwExceptionInvalidMarketplaceId();
         }
         if (findMarketplaceKeyByMarketplaceId(id)) {
