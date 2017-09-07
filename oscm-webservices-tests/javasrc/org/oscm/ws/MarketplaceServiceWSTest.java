@@ -33,6 +33,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import org.oscm.types.exceptions.*;
 import org.oscm.ws.base.ServiceFactory;
 import org.oscm.ws.base.VOFactory;
 import org.oscm.ws.base.WebserviceTestBase;
@@ -42,14 +43,6 @@ import org.oscm.intf.MarketplaceService;
 import org.oscm.intf.SubscriptionService;
 import org.oscm.types.enumtypes.PriceModelType;
 import org.oscm.types.enumtypes.UserRoleType;
-import org.oscm.types.exceptions.ConcurrentModificationException;
-import org.oscm.types.exceptions.MarketplaceAccessTypeUneligibleForOperationException;
-import org.oscm.types.exceptions.ObjectNotFoundException;
-import org.oscm.types.exceptions.OperationNotPermittedException;
-import org.oscm.types.exceptions.OrganizationAlreadyBannedException;
-import org.oscm.types.exceptions.OrganizationAlreadyExistsException;
-import org.oscm.types.exceptions.PublishingToMarketplaceNotPermittedException;
-import org.oscm.types.exceptions.ValidationException;
 import org.oscm.vo.VOCatalogEntry;
 import org.oscm.vo.VOMarketplace;
 import org.oscm.vo.VOOrganization;
@@ -136,6 +129,27 @@ public class MarketplaceServiceWSTest {
         } catch (SOAPFaultException e) {
             checkAccessException(e);
         }
+    }
+
+    @Test(expected = MarketplaceValidationException.class)
+    public void testCreateGlobalMarketplaceWrongMarketplaceId() throws Exception {
+        VOMarketplace marketplace = factory.createMarketplaceVO(null, false, "localMp");
+        marketplace = mpService_Supplier.createMarketplace(marketplace);
+
+        String marketplaceId = marketplace.getMarketplaceId();
+        marketplace = factory.createMarketplaceVO(null, false, "localMp");
+        marketplace.setMarketplaceId(marketplaceId);
+        mpService_Supplier.createMarketplace(marketplace);
+        fail();
+    }
+
+    @Test(expected = MarketplaceValidationException.class)
+    public void testCreateGlobalMarketplaceMarketplaceIdInUse() throws Exception {
+        VOMarketplace marketplace = factory.createMarketplaceVO(
+                PLATFORM_OPERATOR, false, "localMp");
+        marketplace.setMarketplaceId(null);
+        mpService_Supplier.createMarketplace(marketplace);
+        fail();
     }
 
     @Test(expected = ObjectNotFoundException.class)

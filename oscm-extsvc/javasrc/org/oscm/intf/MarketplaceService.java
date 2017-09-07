@@ -17,6 +17,7 @@ import javax.jws.WebService;
 
 import org.oscm.types.exceptions.ConcurrentModificationException;
 import org.oscm.types.exceptions.MarketplaceAccessTypeUneligibleForOperationException;
+import org.oscm.types.exceptions.MarketplaceValidationException;
 import org.oscm.types.exceptions.NonUniqueBusinessKeyException;
 import org.oscm.types.exceptions.ObjectNotFoundException;
 import org.oscm.types.exceptions.OperationNotPermittedException;
@@ -253,12 +254,14 @@ public interface MarketplaceService {
      *             if no name is specified for the marketplace
      * @throws UserRoleAssignmentException
      *             if a problem occurs in the user role assignment
+     * @throws MarketplaceValidationException
+     *             if marketplace ID is invalid or already exists
      */
     @WebMethod
     public VOMarketplace createMarketplace(
             @WebParam(name = "marketplace") VOMarketplace marketplace)
             throws OperationNotPermittedException, ObjectNotFoundException,
-            ValidationException, UserRoleAssignmentException;
+            ValidationException, UserRoleAssignmentException, MarketplaceValidationException;
 
     /**
      * Deletes a marketplace.

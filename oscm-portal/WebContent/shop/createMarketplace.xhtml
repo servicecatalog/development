@@ -18,7 +18,9 @@
         <adm:labelAndInputText id="marketplaceName" label="#{msg['marketplace.name']}" required="true"
           value="#{newMarketplaceBean.model.name}" maxlength="#{appBean.idLen}" validatorId="idChar"
           converterId="trimConverter" />
-
+        <adm:labelAndInputText id="marketplaceId" label="#{msg['marketplace.id']}" required="false"
+                               value="#{newMarketplaceBean.model.id}" maxlength="#{appBean.idLen}" validatorId="idChar"
+                               converterId="trimConverter" />
         <adm:outputLabel value="#{msg['marketplace.create.settings']}" />
         <h:panelGroup>
           <h:selectBooleanCheckbox id="taggingEnabled" value="#{newMarketplaceBean.model.taggingEnabled}"

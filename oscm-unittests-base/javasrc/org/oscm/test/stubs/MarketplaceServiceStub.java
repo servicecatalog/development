@@ -13,6 +13,7 @@ import org.oscm.internal.cache.MarketplaceConfiguration;
 import org.oscm.internal.intf.MarketplaceService;
 import org.oscm.internal.types.exception.ConcurrentModificationException;
 import org.oscm.internal.types.exception.MarketplaceAccessTypeUneligibleForOperationException;
+import org.oscm.internal.types.exception.MarketplaceValidationException;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.OperationNotPermittedException;
@@ -21,6 +22,7 @@ import org.oscm.internal.types.exception.OrganizationAlreadyExistsException;
 import org.oscm.internal.types.exception.OrganizationAuthorityException;
 import org.oscm.internal.types.exception.TechnicalServiceNotAliveException;
 import org.oscm.internal.types.exception.TechnicalServiceOperationException;
+import org.oscm.internal.types.exception.UserRoleAssignmentException;
 import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.internal.vo.VOCatalogEntry;
 import org.oscm.internal.vo.VOMarketplace;
@@ -81,7 +83,7 @@ public class MarketplaceServiceStub implements MarketplaceService {
 
     @Override
     public VOMarketplace createMarketplace(VOMarketplace marketplace)
-            throws OperationNotPermittedException {
+            throws OperationNotPermittedException, ObjectNotFoundException, ValidationException, UserRoleAssignmentException, MarketplaceValidationException {
         throw new UnsupportedOperationException();
     }
 

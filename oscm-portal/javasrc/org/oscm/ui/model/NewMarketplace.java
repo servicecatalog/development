@@ -18,6 +18,7 @@ package org.oscm.ui.model;
 public class NewMarketplace {
 
     private String name;
+    private String id;
     private String owningOrganizationId;
     private String tenantId;
     private boolean closed = false;
@@ -141,4 +142,11 @@ public class NewMarketplace {
         this.tenantId = tenantId;
     }
 
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 }
