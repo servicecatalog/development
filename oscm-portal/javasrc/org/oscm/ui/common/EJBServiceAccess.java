@@ -46,9 +46,7 @@ public class EJBServiceAccess extends ServiceAccess {
             Properties p = new Properties();
             p.put(Context.INITIAL_CONTEXT_FACTORY,"org.apache.openejb.client.LocalInitialContextFactory");
             Context context = new InitialContext(p);
-            T service = clazz.cast(context.lookup(clazz.getSimpleName()+"BeanRemote"));
-//            Context context = new InitialContext();
-//            T service = clazz.cast(context.lookup(clazz.getName()));
+            T service = clazz.cast(context.lookup(clazz.getName()));
             return service;
         } catch (NamingException e) {
             throw new SaaSSystemException("Service lookup failed!", e);
