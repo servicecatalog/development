@@ -85,8 +85,8 @@ public class MarketplaceServiceWSTest {
 
     @Test
     public void testCreateGlobalMarketplaceForOperator() throws Exception {
-        VOMarketplace marketplace = factory.createMarketplaceVO(
-                PLATFORM_OPERATOR, false, "globalMp");
+        VOMarketplace marketplace = factory
+                .createMarketplaceVO(PLATFORM_OPERATOR, false, "globalMp");
         createAndValidateMarketplace(marketplace);
     }
 
@@ -106,8 +106,8 @@ public class MarketplaceServiceWSTest {
 
     @Test
     public void testCreateLocalMarketplaceForOperator() throws Exception {
-        VOMarketplace marketplace = factory.createMarketplaceVO(
-                PLATFORM_OPERATOR, false, "localMp");
+        VOMarketplace marketplace = factory
+                .createMarketplaceVO(PLATFORM_OPERATOR, false, "localMp");
         createAndValidateMarketplace(marketplace);
     }
 
@@ -120,8 +120,8 @@ public class MarketplaceServiceWSTest {
 
     @Test
     public void testCreateGlobalMarketplaceWithWrongRole() throws Exception {
-        VOMarketplace marketplace = factory.createMarketplaceVO(
-                PLATFORM_OPERATOR, false, "localMp");
+        VOMarketplace marketplace = factory
+                .createMarketplaceVO(PLATFORM_OPERATOR, false, "localMp");
 
         try {
             mpService_Supplier.createMarketplace(marketplace);
@@ -132,23 +132,32 @@ public class MarketplaceServiceWSTest {
     }
 
     @Test(expected = MarketplaceValidationException.class)
-    public void testCreateGlobalMarketplaceWrongMarketplaceId() throws Exception {
-        VOMarketplace marketplace = factory.createMarketplaceVO(null, false, "localMp");
-        marketplace = mpService_Supplier.createMarketplace(marketplace);
+    public void testCreateGlobalMarketplaceWrongMarketplaceId()
+            throws Exception {
+        VOMarketplace marketplace = factory.createMarketplaceVO(null, false,
+                "localMp");
+        marketplace = mpService_Operator.createMarketplace(marketplace);
 
         String marketplaceId = marketplace.getMarketplaceId();
         marketplace = factory.createMarketplaceVO(null, false, "localMp");
         marketplace.setMarketplaceId(marketplaceId);
-        mpService_Supplier.createMarketplace(marketplace);
+        mpService_Operator.createMarketplace(marketplace);
         fail();
     }
 
     @Test(expected = MarketplaceValidationException.class)
-    public void testCreateGlobalMarketplaceMarketplaceIdInUse() throws Exception {
-        VOMarketplace marketplace = factory.createMarketplaceVO(
-                PLATFORM_OPERATOR, false, "localMp");
-        marketplace.setMarketplaceId(null);
-        mpService_Supplier.createMarketplace(marketplace);
+    public void testCreateGlobalMarketplaceMarketplaceIdInUse()
+            throws Exception {
+        final String MP_ID = "mpId";
+        VOMarketplace marketplace = factory
+                .createMarketplaceVO(PLATFORM_OPERATOR, false, "Mp1", MP_ID);
+        mpService_Operator.createMarketplace(marketplace);
+        VOMarketplace marketplaceGet = mpService_Operator
+                .getMarketplaceById(MP_ID);
+        assertEquals(MP_ID, marketplaceGet.getMarketplaceId());
+        VOMarketplace marketplace2 = factory
+                .createMarketplaceVO(PLATFORM_OPERATOR, false, "Mp2", MP_ID);
+        mpService_Operator.createMarketplace(marketplace2);
         fail();
     }
 
@@ -163,8 +172,8 @@ public class MarketplaceServiceWSTest {
     @Test
     public void testCreateMarketplaceWithMarketplaceConfiguration()
             throws Exception {
-        VOMarketplace marketplace = factory.createMarketplaceVO(
-                PLATFORM_OPERATOR, false, "localMp");
+        VOMarketplace marketplace = factory
+                .createMarketplaceVO(PLATFORM_OPERATOR, false, "localMp");
         marketplace.setTaggingEnabled(false);
         marketplace.setReviewEnabled(false);
         marketplace.setSocialBookmarkEnabled(false);
@@ -184,8 +193,8 @@ public class MarketplaceServiceWSTest {
         marketplace.setReviewEnabled(true);
         marketplace.setSocialBookmarkEnabled(true);
         mpService_Operator.updateMarketplace(marketplace);
-        marketplace2 = mpService_Operator.getMarketplaceById(marketplace
-                .getMarketplaceId());
+        marketplace2 = mpService_Operator
+                .getMarketplaceById(marketplace.getMarketplaceId());
         assertEquals(marketplace.isReviewEnabled(),
                 marketplace2.isReviewEnabled());
         assertEquals(marketplace.isSocialBookmarkEnabled(),
@@ -197,9 +206,10 @@ public class MarketplaceServiceWSTest {
     @Test(expected = ValidationException.class)
     public void testCreateMarketplaceWithMissingMarketplaceName()
             throws Exception {
-        VOMarketplace marketplace = factory.createMarketplaceVO(
-                supplier.getOrganizationId(), false, null); // name not
-                                                            // set
+        VOMarketplace marketplace = factory
+                .createMarketplaceVO(supplier.getOrganizationId(), false, null); // name
+                                                                                 // not
+                                                                                 // set
         createAndValidateMarketplace(marketplace);
     }
 
@@ -218,15 +228,14 @@ public class MarketplaceServiceWSTest {
     @Test
     public void testChangeMarketplaceNameAndMarketplaceOwnerIsAvailable()
             throws Exception {
-        VOMarketplace marketplace = factory.createMarketplaceVO(
-                PLATFORM_OPERATOR, false, "localMp");
+        VOMarketplace marketplace = factory
+                .createMarketplaceVO(PLATFORM_OPERATOR, false, "localMp");
 
         marketplace = createAndValidateMarketplace(marketplace);
 
-        is.grantUserRoles(
-                is.getCurrentUserDetails(),
-                new ArrayList<UserRoleType>(EnumSet
-                        .of(UserRoleType.MARKETPLACE_OWNER)));
+        is.grantUserRoles(is.getCurrentUserDetails(),
+                new ArrayList<UserRoleType>(
+                        EnumSet.of(UserRoleType.MARKETPLACE_OWNER)));
 
         marketplace.setName("newName");
 
@@ -240,16 +249,16 @@ public class MarketplaceServiceWSTest {
 
     @Test
     public void testUpdateMarketplaceConcurrentlyChanged() throws Exception {
-        VOMarketplace marketplace = factory.createMarketplaceVO(
-                PLATFORM_OPERATOR, false, "localMp");
+        VOMarketplace marketplace = factory
+                .createMarketplaceVO(PLATFORM_OPERATOR, false, "localMp");
 
         marketplace = createAndValidateMarketplace(marketplace);
         assertNotNull(marketplace);
         assertTrue(marketplace.getKey() > 0);
         assertEquals(0, marketplace.getVersion());
 
-        marketplace = mpService_Operator.getMarketplaceById(marketplace
-                .getMarketplaceId());
+        marketplace = mpService_Operator
+                .getMarketplaceById(marketplace.getMarketplaceId());
         assertNotNull(marketplace);
         assertTrue(marketplace.getKey() > 0);
         assertEquals(0, marketplace.getVersion());
@@ -267,29 +276,28 @@ public class MarketplaceServiceWSTest {
         } catch (ConcurrentModificationException e) {
         }
 
-        marketplaceAfterUpdate.setOwningOrganizationId(supplier
-                .getOrganizationId());
+        marketplaceAfterUpdate
+                .setOwningOrganizationId(supplier.getOrganizationId());
         mpService_Operator.updateMarketplace(marketplaceAfterUpdate);
     }
 
     @Test
     public void testUpdateMarketplaceName_ConcurrentlyChanged()
             throws Exception {
-        VOMarketplace marketplace = factory.createMarketplaceVO(
-                PLATFORM_OPERATOR, false, "localMp");
+        VOMarketplace marketplace = factory
+                .createMarketplaceVO(PLATFORM_OPERATOR, false, "localMp");
 
         marketplace = createAndValidateMarketplace(marketplace);
         assertNotNull(marketplace);
         assertTrue(marketplace.getKey() > 0);
         assertEquals(0, marketplace.getVersion());
 
-        is.grantUserRoles(
-                is.getCurrentUserDetails(),
-                new ArrayList<UserRoleType>(EnumSet
-                        .of(UserRoleType.MARKETPLACE_OWNER)));
+        is.grantUserRoles(is.getCurrentUserDetails(),
+                new ArrayList<UserRoleType>(
+                        EnumSet.of(UserRoleType.MARKETPLACE_OWNER)));
 
-        marketplace = mpService_Operator.getMarketplaceById(marketplace
-                .getMarketplaceId());
+        marketplace = mpService_Operator
+                .getMarketplaceById(marketplace.getMarketplaceId());
         assertNotNull(marketplace);
         assertTrue(marketplace.getKey() > 0);
         assertEquals(0, marketplace.getVersion());
@@ -315,8 +323,8 @@ public class MarketplaceServiceWSTest {
 
     @Test
     public void testChangeMarketplaceBranding() throws Exception {
-        VOMarketplace marketplace = factory.createMarketplaceVO(
-                PLATFORM_OPERATOR, false, "localMp");
+        VOMarketplace marketplace = factory
+                .createMarketplaceVO(PLATFORM_OPERATOR, false, "localMp");
 
         marketplace = createAndValidateMarketplace(marketplace);
 
@@ -334,8 +342,8 @@ public class MarketplaceServiceWSTest {
 
         marketplace = createAndValidateMarketplace(marketplace);
 
-        marketplace = mpService_Operator.getMarketplaceById(marketplace
-                .getMarketplaceId());
+        marketplace = mpService_Operator
+                .getMarketplaceById(marketplace.getMarketplaceId());
         assertNotNull(marketplace);
         assertTrue(marketplace.getKey() > 0);
 
@@ -365,8 +373,8 @@ public class MarketplaceServiceWSTest {
                 supplier.getOrganizationId(), false, "abc");
         marketplace = createAndValidateMarketplace(marketplace);
 
-        marketplace = mpService_Operator.getMarketplaceById(marketplace
-                .getMarketplaceId());
+        marketplace = mpService_Operator
+                .getMarketplaceById(marketplace.getMarketplaceId());
         assertNotNull(marketplace);
 
         // create a new service
@@ -390,9 +398,10 @@ public class MarketplaceServiceWSTest {
     }
 
     @Test(expected = MarketplaceAccessTypeUneligibleForOperationException.class)
-    public void testAddSupplierToMarketplace_OpenMarketplace() throws Exception {
-        VOMarketplace marketplace = factory.createMarketplaceVO(
-                PLATFORM_OPERATOR, true, "globalOpenMp");
+    public void testAddSupplierToMarketplace_OpenMarketplace()
+            throws Exception {
+        VOMarketplace marketplace = factory
+                .createMarketplaceVO(PLATFORM_OPERATOR, true, "globalOpenMp");
         marketplace = createAndValidateMarketplace(marketplace);
 
         addSupplierToMarketplace(marketplace, mpService_Operator,
@@ -401,8 +410,8 @@ public class MarketplaceServiceWSTest {
 
     @Test
     public void testAddSupplierToMarketplace() throws Exception {
-        VOMarketplace marketplace = factory.createMarketplaceVO(
-                PLATFORM_OPERATOR, false, "globalMp");
+        VOMarketplace marketplace = factory
+                .createMarketplaceVO(PLATFORM_OPERATOR, false, "globalMp");
         marketplace = createAndValidateMarketplace(marketplace);
 
         addSupplierToMarketplace(marketplace, mpService_Operator,
@@ -422,8 +431,8 @@ public class MarketplaceServiceWSTest {
     @Test(expected = ObjectNotFoundException.class)
     public void testAddSupplierToMarketplaceWithNotExistingSupplier()
             throws Exception {
-        VOMarketplace marketplace = factory.createMarketplaceVO(
-                PLATFORM_OPERATOR, false, "globalMp");
+        VOMarketplace marketplace = factory
+                .createMarketplaceVO(PLATFORM_OPERATOR, false, "globalMp");
         marketplace = createAndValidateMarketplace(marketplace);
 
         addSupplierToMarketplace(marketplace, mpService_Operator, "fhdsjkh", 0);
@@ -432,8 +441,8 @@ public class MarketplaceServiceWSTest {
     @Test(expected = OrganizationAlreadyExistsException.class)
     public void testAddSupplierToMarketplace_DuplicateSupplier()
             throws Exception {
-        VOMarketplace marketplace = factory.createMarketplaceVO(
-                PLATFORM_OPERATOR, false, "globalMp");
+        VOMarketplace marketplace = factory
+                .createMarketplaceVO(PLATFORM_OPERATOR, false, "globalMp");
         marketplace = createAndValidateMarketplace(marketplace);
 
         addSupplierToMarketplace(marketplace, mpService_Operator,
@@ -446,8 +455,8 @@ public class MarketplaceServiceWSTest {
     @Test(expected = MarketplaceAccessTypeUneligibleForOperationException.class)
     public void removeSuppliersFromMarketplace_OpenMarketplace()
             throws Exception {
-        VOMarketplace marketplace = factory.createMarketplaceVO(
-                PLATFORM_OPERATOR, true, "globalOpenMp");
+        VOMarketplace marketplace = factory
+                .createMarketplaceVO(PLATFORM_OPERATOR, true, "globalOpenMp");
         marketplace = createAndValidateMarketplace(marketplace);
 
         List<String> organizationIds = new LinkedList<String>();
@@ -458,8 +467,8 @@ public class MarketplaceServiceWSTest {
 
     @Test
     public void removeSuppliersFromMarketplace() throws Exception {
-        VOMarketplace marketplace = factory.createMarketplaceVO(
-                PLATFORM_OPERATOR, false, "globalMp");
+        VOMarketplace marketplace = factory
+                .createMarketplaceVO(PLATFORM_OPERATOR, false, "globalMp");
         marketplace = createAndValidateMarketplace(marketplace);
 
         addSupplierToMarketplace(marketplace, mpService_Operator,
@@ -478,8 +487,8 @@ public class MarketplaceServiceWSTest {
 
     @Test(expected = ObjectNotFoundException.class)
     public void removeSupplierFromNonExistingMarketplace() throws Exception {
-        VOMarketplace marketplace = factory.createMarketplaceVO(
-                PLATFORM_OPERATOR, false, "globalMp");
+        VOMarketplace marketplace = factory
+                .createMarketplaceVO(PLATFORM_OPERATOR, false, "globalMp");
         marketplace.setMarketplaceId("5434354");
 
         List<String> organizationIds = new LinkedList<String>();
@@ -506,8 +515,8 @@ public class MarketplaceServiceWSTest {
     @Test(expected = MarketplaceAccessTypeUneligibleForOperationException.class)
     public void testBanSupplierFromMarketplace_ClosedMarketplace()
             throws Exception {
-        VOMarketplace marketplace = factory.createMarketplaceVO(
-                PLATFORM_OPERATOR, false, "globalMp");
+        VOMarketplace marketplace = factory
+                .createMarketplaceVO(PLATFORM_OPERATOR, false, "globalMp");
         marketplace = createAndValidateMarketplace(marketplace);
 
         banSupplierFromMarketplace(marketplace, mpService_Operator,
@@ -516,8 +525,8 @@ public class MarketplaceServiceWSTest {
 
     @Test
     public void testBanSupplierFromMarketplace() throws Exception {
-        VOMarketplace marketplace = factory.createMarketplaceVO(
-                PLATFORM_OPERATOR, true, "globalOpenMp");
+        VOMarketplace marketplace = factory
+                .createMarketplaceVO(PLATFORM_OPERATOR, true, "globalOpenMp");
         marketplace = createAndValidateMarketplace(marketplace);
 
         banSupplierFromMarketplace(marketplace, mpService_Operator,
@@ -537,8 +546,8 @@ public class MarketplaceServiceWSTest {
     @Test(expected = ObjectNotFoundException.class)
     public void testBanSupplierFromMarketplaceWithNotExistingSupplier()
             throws Exception {
-        VOMarketplace marketplace = factory.createMarketplaceVO(
-                PLATFORM_OPERATOR, true, "globalOpenMp");
+        VOMarketplace marketplace = factory
+                .createMarketplaceVO(PLATFORM_OPERATOR, true, "globalOpenMp");
         marketplace = createAndValidateMarketplace(marketplace);
 
         banSupplierFromMarketplace(marketplace, mpService_Operator, "fhdsjkh",
@@ -548,8 +557,8 @@ public class MarketplaceServiceWSTest {
     @Test(expected = OrganizationAlreadyBannedException.class)
     public void testBanSupplierFromMarketplace_DuplicateSupplier()
             throws Exception {
-        VOMarketplace marketplace = factory.createMarketplaceVO(
-                PLATFORM_OPERATOR, true, "globalOpenMp");
+        VOMarketplace marketplace = factory
+                .createMarketplaceVO(PLATFORM_OPERATOR, true, "globalOpenMp");
         marketplace = createAndValidateMarketplace(marketplace);
 
         banSupplierFromMarketplace(marketplace, mpService_Operator,
@@ -562,8 +571,8 @@ public class MarketplaceServiceWSTest {
     @Test(expected = MarketplaceAccessTypeUneligibleForOperationException.class)
     public void liftBannedSuppliersFromMarketplace_ClosedMarketplace()
             throws Exception {
-        VOMarketplace marketplace = factory.createMarketplaceVO(
-                PLATFORM_OPERATOR, false, "globalMp");
+        VOMarketplace marketplace = factory
+                .createMarketplaceVO(PLATFORM_OPERATOR, false, "globalMp");
         marketplace = createAndValidateMarketplace(marketplace);
 
         List<String> organizationIds = new LinkedList<String>();
@@ -574,16 +583,16 @@ public class MarketplaceServiceWSTest {
 
     @Test
     public void liftBannedSuppliersFromMarketplace() throws Exception {
-        VOMarketplace marketplace = factory.createMarketplaceVO(
-                PLATFORM_OPERATOR, true, "globalOpenMp");
+        VOMarketplace marketplace = factory
+                .createMarketplaceVO(PLATFORM_OPERATOR, true, "globalOpenMp");
         marketplace = createAndValidateMarketplace(marketplace);
 
         banSupplierFromMarketplace(marketplace, mpService_Operator,
                 supplier.getOrganizationId(), 0);
 
         List<VOOrganization> mpSuppliers = mpService_Operator
-                .getBannedOrganizationsForMarketplace(marketplace
-                        .getMarketplaceId());
+                .getBannedOrganizationsForMarketplace(
+                        marketplace.getMarketplaceId());
         assertNotNull(mpSuppliers);
         assertEquals(1, mpSuppliers.size());
 
@@ -592,9 +601,8 @@ public class MarketplaceServiceWSTest {
         mpService_Operator.liftBanOrganizationsFromMarketplace(organizationIds,
                 marketplace.getMarketplaceId());
 
-        mpSuppliers = mpService_Operator
-                .getBannedOrganizationsForMarketplace(marketplace
-                        .getMarketplaceId());
+        mpSuppliers = mpService_Operator.getBannedOrganizationsForMarketplace(
+                marketplace.getMarketplaceId());
         assertNotNull(mpSuppliers);
         assertEquals(0, mpSuppliers.size());
     }
@@ -602,8 +610,8 @@ public class MarketplaceServiceWSTest {
     @Test(expected = ObjectNotFoundException.class)
     public void liftBannedSuppliersFromNonExistingMarketplace()
             throws Exception {
-        VOMarketplace marketplace = factory.createMarketplaceVO(
-                PLATFORM_OPERATOR, true, "globalOpenMp");
+        VOMarketplace marketplace = factory
+                .createMarketplaceVO(PLATFORM_OPERATOR, true, "globalOpenMp");
         marketplace.setMarketplaceId("5434354");
 
         List<String> organizationIds = new LinkedList<String>();
@@ -636,17 +644,17 @@ public class MarketplaceServiceWSTest {
     @Test(expected = MarketplaceAccessTypeUneligibleForOperationException.class)
     public void testGetSuppliersForMarketplace_OpenMarketplace()
             throws Exception {
-        VOMarketplace marketplace = factory.createMarketplaceVO(
-                PLATFORM_OPERATOR, true, "globalOpenMp");
+        VOMarketplace marketplace = factory
+                .createMarketplaceVO(PLATFORM_OPERATOR, true, "globalOpenMp");
         marketplace = createAndValidateMarketplace(marketplace);
-        mpService_Operator.getOrganizationsForMarketplace(marketplace
-                .getMarketplaceId());
+        mpService_Operator
+                .getOrganizationsForMarketplace(marketplace.getMarketplaceId());
     }
 
     @Test
     public void testGetSuppliersForMarketplace() throws Exception {
-        VOMarketplace marketplace = factory.createMarketplaceVO(
-                PLATFORM_OPERATOR, false, "globalMp");
+        VOMarketplace marketplace = factory
+                .createMarketplaceVO(PLATFORM_OPERATOR, false, "globalMp");
         marketplace = createAndValidateMarketplace(marketplace);
 
         addSupplierToMarketplace(marketplace, mpService_Operator,
@@ -658,18 +666,18 @@ public class MarketplaceServiceWSTest {
         VOMarketplace marketplace = factory.createMarketplaceVO(
                 supplier.getOrganizationId(), false, "globalMp");
         marketplace = createAndValidateMarketplace(marketplace);
-        mpService_Operator.getOrganizationsForMarketplace(marketplace
-                .getMarketplaceId());
+        mpService_Operator
+                .getOrganizationsForMarketplace(marketplace.getMarketplaceId());
     }
 
     @Test(expected = MarketplaceAccessTypeUneligibleForOperationException.class)
     public void testGetBannedSuppliersFromMarketplace_ClosedMarketplace()
             throws Exception {
-        VOMarketplace marketplace = factory.createMarketplaceVO(
-                PLATFORM_OPERATOR, false, "globalMp");
+        VOMarketplace marketplace = factory
+                .createMarketplaceVO(PLATFORM_OPERATOR, false, "globalMp");
         marketplace = createAndValidateMarketplace(marketplace);
-        mpService_Operator.getBannedOrganizationsForMarketplace(marketplace
-                .getMarketplaceId());
+        mpService_Operator.getBannedOrganizationsForMarketplace(
+                marketplace.getMarketplaceId());
     }
 
     @Test(expected = ObjectNotFoundException.class)
@@ -684,8 +692,8 @@ public class MarketplaceServiceWSTest {
         VOMarketplace marketplace = factory.createMarketplaceVO(
                 supplier.getOrganizationId(), false, "globalMp");
         marketplace = createAndValidateMarketplace(marketplace);
-        mpService_Operator.getBannedOrganizationsForMarketplace(marketplace
-                .getMarketplaceId());
+        mpService_Operator.getBannedOrganizationsForMarketplace(
+                marketplace.getMarketplaceId());
     }
 
     @Test
@@ -709,11 +717,13 @@ public class MarketplaceServiceWSTest {
     public void testGetMarketplacesForOperator() throws Exception {
         VOMarketplace marketplaceForSupplier = factory.createMarketplaceVO(
                 supplier.getOrganizationId(), false, "globalMp");
-        marketplaceForSupplier = createAndValidateMarketplace(marketplaceForSupplier);
+        marketplaceForSupplier = createAndValidateMarketplace(
+                marketplaceForSupplier);
 
-        VOMarketplace marketplaceForOperator = factory.createMarketplaceVO(
-                PLATFORM_OPERATOR, false, "globalMp");
-        marketplaceForOperator = createAndValidateMarketplace(marketplaceForOperator);
+        VOMarketplace marketplaceForOperator = factory
+                .createMarketplaceVO(PLATFORM_OPERATOR, false, "globalMp");
+        marketplaceForOperator = createAndValidateMarketplace(
+                marketplaceForOperator);
 
         List<VOMarketplace> marketplaces = mpService_Operator
                 .getMarketplacesForOperator();
@@ -726,11 +736,13 @@ public class MarketplaceServiceWSTest {
             throws Exception {
         VOMarketplace marketplaceForSupplier = factory.createMarketplaceVO(
                 supplier.getOrganizationId(), false, "globalMp");
-        marketplaceForSupplier = createAndValidateMarketplace(marketplaceForSupplier);
+        marketplaceForSupplier = createAndValidateMarketplace(
+                marketplaceForSupplier);
 
-        VOMarketplace marketplaceForOperator = factory.createMarketplaceVO(
-                PLATFORM_OPERATOR, false, "globalMp");
-        marketplaceForOperator = createAndValidateMarketplace(marketplaceForOperator);
+        VOMarketplace marketplaceForOperator = factory
+                .createMarketplaceVO(PLATFORM_OPERATOR, false, "globalMp");
+        marketplaceForOperator = createAndValidateMarketplace(
+                marketplaceForOperator);
 
         List<VOMarketplace> marketplaces = mpService_Supplier
                 .getMarketplacesForOrganization();
@@ -750,11 +762,13 @@ public class MarketplaceServiceWSTest {
 
         VOMarketplace marketplaceForSupplier = factory.createMarketplaceVO(
                 supplier.getOrganizationId(), false, "globalMp");
-        marketplaceForSupplier = createAndValidateMarketplace(marketplaceForSupplier);
+        marketplaceForSupplier = createAndValidateMarketplace(
+                marketplaceForSupplier);
 
-        VOMarketplace marketplaceForOperator = factory.createMarketplaceVO(
-                PLATFORM_OPERATOR, true, "globalOpenMp");
-        marketplaceForOperator = createAndValidateMarketplace(marketplaceForOperator);
+        VOMarketplace marketplaceForOperator = factory
+                .createMarketplaceVO(PLATFORM_OPERATOR, true, "globalOpenMp");
+        marketplaceForOperator = createAndValidateMarketplace(
+                marketplaceForOperator);
 
         marketplaces = mpService_Supplier.getMarketplacesForOrganization();
         assertNotNull(marketplaces);
@@ -770,8 +784,8 @@ public class MarketplaceServiceWSTest {
 
     @Test(expected = PublishingToMarketplaceNotPermittedException.class)
     public void testPublishService_NotAcceptedSupplier() throws Exception {
-        VOMarketplace marketplace = factory.createMarketplaceVO(
-                PLATFORM_OPERATOR, false, "globalMp");
+        VOMarketplace marketplace = factory
+                .createMarketplaceVO(PLATFORM_OPERATOR, false, "globalMp");
         marketplace = createAndValidateMarketplace(marketplace);
 
         createMarketplaceAndPublishService(marketplace);
@@ -784,8 +798,8 @@ public class MarketplaceServiceWSTest {
 
     @Test(expected = PublishingToMarketplaceNotPermittedException.class)
     public void testPublishService_BannedSupplier() throws Exception {
-        VOMarketplace marketplace = factory.createMarketplaceVO(
-                PLATFORM_OPERATOR, true, "globalOpenMp");
+        VOMarketplace marketplace = factory
+                .createMarketplaceVO(PLATFORM_OPERATOR, true, "globalOpenMp");
         marketplace = createAndValidateMarketplace(marketplace);
 
         banSupplierFromMarketplace(marketplace, mpService_Operator,
@@ -837,8 +851,8 @@ public class MarketplaceServiceWSTest {
         assertNotNull(marketplaces);
         assertEquals(1, marketplaces.size()); // FUJITSU marketplace
 
-        VOMarketplace marketplaceForOperator = factory.createMarketplaceVO(
-                PLATFORM_OPERATOR, false, "globalMp");
+        VOMarketplace marketplaceForOperator = factory
+                .createMarketplaceVO(PLATFORM_OPERATOR, false, "globalMp");
         createAndValidateMarketplace(marketplaceForOperator);
 
         marketplaces = mpService_Operator.getMarketplacesOwned();
@@ -859,8 +873,8 @@ public class MarketplaceServiceWSTest {
         SubscriptionService subSvc = ServiceFactory.getDefault()
                 .getSubscriptionService();
         VOSubscription subscription = new VOSubscription();
-        subscription.setSubscriptionId(Long.toHexString(System
-                .currentTimeMillis()));
+        subscription.setSubscriptionId(
+                Long.toHexString(System.currentTimeMillis()));
         subscription = subSvc.subscribeToService(subscription, freeService,
                 null, null, null, new ArrayList<VOUda>());
 
@@ -882,29 +896,29 @@ public class MarketplaceServiceWSTest {
         int initialMpCount = mpService_Operator.getMarketplacesOwned().size();
 
         // create a marketplace for platform operator
-        VOMarketplace marketplace = factory.createMarketplaceVO(
-                PLATFORM_OPERATOR, false, "Mp");
+        VOMarketplace marketplace = factory
+                .createMarketplaceVO(PLATFORM_OPERATOR, false, "Mp");
         marketplace = createAndValidateMarketplace(marketplace);
         assertNotNull(marketplace);
         assertTrue(marketplace.getKey() > 0);
         assertEquals(0, marketplace.getVersion());
-        marketplace = mpService_Operator.getMarketplaceById(marketplace
-                .getMarketplaceId());
+        marketplace = mpService_Operator
+                .getMarketplaceById(marketplace.getMarketplaceId());
         assertNotNull(marketplace);
         assertTrue(marketplace.getKey() > 0);
-        assertEquals(initialMpCount + 1, mpService_Operator
-                .getMarketplacesOwned().size());
+        assertEquals(initialMpCount + 1,
+                mpService_Operator.getMarketplacesOwned().size());
 
         // set supplier as owner for the previously created marketplace
         marketplace.setOwningOrganizationId(supplier.getOrganizationId());
         mpService_Operator.updateMarketplace(marketplace);
-        marketplace = mpService_Operator.getMarketplaceById(marketplace
-                .getMarketplaceId());
+        marketplace = mpService_Operator
+                .getMarketplaceById(marketplace.getMarketplaceId());
         assertEquals(supplier.getOrganizationId(),
                 marketplace.getOwningOrganizationId());
 
-        assertEquals(initialMpCount, mpService_Operator.getMarketplacesOwned()
-                .size());
+        assertEquals(initialMpCount,
+                mpService_Operator.getMarketplacesOwned().size());
     }
 
     @Test
@@ -915,16 +929,16 @@ public class MarketplaceServiceWSTest {
 
         // set a valid branding URL
         mpService_Supplier.saveBrandingUrl(marketplace, brandingUrl);
-        assertEquals(brandingUrl, mpService_Supplier.getBrandingUrl(marketplace
-                .getMarketplaceId()));
+        assertEquals(brandingUrl, mpService_Supplier
+                .getBrandingUrl(marketplace.getMarketplaceId()));
 
-        marketplace = mpService_Supplier.getMarketplaceById(marketplace
-                .getMarketplaceId());
+        marketplace = mpService_Supplier
+                .getMarketplaceById(marketplace.getMarketplaceId());
 
         // delete the branding URL
         mpService_Supplier.saveBrandingUrl(marketplace, null);
-        assertNull(mpService_Supplier.getBrandingUrl(marketplace
-                .getMarketplaceId()));
+        assertNull(mpService_Supplier
+                .getBrandingUrl(marketplace.getMarketplaceId()));
     }
 
     @Test
@@ -988,10 +1002,10 @@ public class MarketplaceServiceWSTest {
                 .getMarketplacesForOperator();
         assertNotNull(marketplaces);
         for (VOMarketplace voMarketplace : marketplaces) {
-            if (!voMarketplace.getMarketplaceId().equals(
-                    setup.getGlobalMarketplaceId())) {
-                mpService_Operator.deleteMarketplace(voMarketplace
-                        .getMarketplaceId());
+            if (!voMarketplace.getMarketplaceId()
+                    .equals(setup.getGlobalMarketplaceId())) {
+                mpService_Operator
+                        .deleteMarketplace(voMarketplace.getMarketplaceId());
             }
         }
     }
@@ -1010,8 +1024,8 @@ public class MarketplaceServiceWSTest {
         mpService.addOrganizationsToMarketplace(organizationIds,
                 marketplace.getMarketplaceId());
 
-        mpSuppliers = mpService.getOrganizationsForMarketplace(marketplace
-                .getMarketplaceId());
+        mpSuppliers = mpService
+                .getOrganizationsForMarketplace(marketplace.getMarketplaceId());
         assertNotNull(mpSuppliers);
         assertEquals(actualNumberOfSuppliers + 1, mpSuppliers.size());
     }
@@ -1021,8 +1035,8 @@ public class MarketplaceServiceWSTest {
             int actualNumberOfSuppliers) throws Exception {
 
         List<VOOrganization> mpSuppliers = mpService
-                .getBannedOrganizationsForMarketplace(marketplace
-                        .getMarketplaceId());
+                .getBannedOrganizationsForMarketplace(
+                        marketplace.getMarketplaceId());
         assertNotNull(mpSuppliers);
         assertEquals(actualNumberOfSuppliers, mpSuppliers.size());
 
@@ -1031,9 +1045,8 @@ public class MarketplaceServiceWSTest {
         mpService.banOrganizationsFromMarketplace(organizationIds,
                 marketplace.getMarketplaceId());
 
-        mpSuppliers = mpService
-                .getBannedOrganizationsForMarketplace(marketplace
-                        .getMarketplaceId());
+        mpSuppliers = mpService.getBannedOrganizationsForMarketplace(
+                marketplace.getMarketplaceId());
         assertNotNull(mpSuppliers);
         assertEquals(actualNumberOfSuppliers + 1, mpSuppliers.size());
     }
@@ -1052,9 +1065,9 @@ public class MarketplaceServiceWSTest {
                 WebserviceTestBase.getPlatformOperatorPassword());
 
         // use the marketplace service as supplier
-        mpService_Supplier = ServiceFactory.getDefault()
-                .getMarketPlaceService(setup.getSupplierUserKey(),
-                        WebserviceTestBase.DEFAULT_PASSWORD);
+        mpService_Supplier = ServiceFactory.getDefault().getMarketPlaceService(
+                setup.getSupplierUserKey(),
+                WebserviceTestBase.DEFAULT_PASSWORD);
 
         setup.createTechnicalService();
 
@@ -1091,8 +1104,8 @@ public class MarketplaceServiceWSTest {
             assertEquals(transientMarketplace.getOwningOrganizationId(),
                     persistedMarketplace.getOwningOrganizationId());
 
-            if (transientMarketplace.getOwningOrganizationId().equals(
-                    supplier.getOrganizationId())) {
+            if (transientMarketplace.getOwningOrganizationId()
+                    .equals(supplier.getOrganizationId())) {
                 assertEquals(supplier.getName(),
                         persistedMarketplace.getOwningOrganizationName());
             }
@@ -1123,8 +1136,8 @@ public class MarketplaceServiceWSTest {
         // create a new service without setting the marketplace
         VOService freeService = setup.createFreeService("Service");
 
-        List<VOCatalogEntry> entries = factory.createCatalogEntryVO(
-                marketplace, freeService);
+        List<VOCatalogEntry> entries = factory.createCatalogEntryVO(marketplace,
+                freeService);
 
         List<VOCatalogEntry> catalogEntries = mpService_Supplier
                 .getMarketplacesForService(freeService);
@@ -1149,8 +1162,8 @@ public class MarketplaceServiceWSTest {
         mpService_Operator.deleteMarketplace(marketplace.getMarketplaceId());
 
         try {
-            mpService_Operator.getMarketplaceById(marketplace
-                    .getMarketplaceId());
+            mpService_Operator
+                    .getMarketplaceById(marketplace.getMarketplaceId());
             fail();
         } catch (ObjectNotFoundException e) {
         }

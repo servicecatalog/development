@@ -83,8 +83,8 @@ public class VOFactory {
         voBillingContact.setCompanyName("companyName");
         voBillingContact.setEmail("test@mail.de");
         voBillingContact.setOrgAddressUsed(true);
-        voBillingContact.setId("billingContactId"
-                + WebserviceTestBase.createUniqueKey());
+        voBillingContact.setId(
+                "billingContactId" + WebserviceTestBase.createUniqueKey());
         return voBillingContact;
     }
 
@@ -104,10 +104,16 @@ public class VOFactory {
 
     public VOMarketplace createMarketplaceVO(String ownerId, boolean isOpen,
             String name) {
+        return createMarketplaceVO(ownerId, isOpen, name, null);
+    }
+
+    public VOMarketplace createMarketplaceVO(String ownerId, boolean isOpen,
+            String name, String id) {
         VOMarketplace marketPlace = new VOMarketplace();
         marketPlace.setName(name);
         marketPlace.setOwningOrganizationId(ownerId);
         marketPlace.setOpen(isOpen);
+        marketPlace.setMarketplaceId(id);
         return marketPlace;
     }
 
@@ -131,8 +137,8 @@ public class VOFactory {
     }
 
     public VOUserDetails createUserVO(String userId) throws Exception {
-        return createUserVO(userId, WebserviceTestBase.getMailReader()
-                .getMailAddress());
+        return createUserVO(userId,
+                WebserviceTestBase.getMailReader().getMailAddress());
     }
 
     public VOUserDetails createUserVO(String userId, String email) {
@@ -142,13 +148,13 @@ public class VOFactory {
         user.setLocale("en");
         return user;
     }
-    
-    public VOTenant createTenantVo(String tenantId){
-        
+
+    public VOTenant createTenantVo(String tenantId) {
+
         VOTenant tenant = new VOTenant();
         tenant.setTenantId(tenantId);
         tenant.setName("customName");
-        
+
         return tenant;
     }
 }
