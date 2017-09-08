@@ -5,6 +5,11 @@
 package org.oscm.dataservice.bean;
 
 import java.util.List;
+import java.util.Properties;
+
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 
 import org.hibernate.StatelessSession;
 import org.hibernate.Transaction;
@@ -26,14 +31,13 @@ import org.oscm.logging.LoggerFactory;
  * @author hoffmann
  */
 public class HibernateEventListener implements PostUpdateEventListener,
-    PostInsertEventListener, PostDeleteEventListener {
+        PostInsertEventListener, PostDeleteEventListener {
 
     private static final long serialVersionUID = -843967013822084583L;
 
     private static final Log4jLogger logger = LoggerFactory
             .getLogger(HibernateEventListener.class);
 
-    private Indexer indexer = new Indexer();
 
     public HibernateEventListener() {
     }
@@ -41,7 +45,8 @@ public class HibernateEventListener implements PostUpdateEventListener,
     public void onPostInsert(PostInsertEvent event) {
         createHistory(event.getPersister(), event.getEntity(),
                 ModificationType.ADD);
-        indexer.handleIndexing((DomainObject<?>) event.getEntity(), ModificationType.ADD, event.getPersister());
+//        indexer.handleIndexing((DomainObject<?>) event.getEntity(),
+//                ModificationType.ADD, event);
     }
 
     public void onPostUpdate(PostUpdateEvent event) {
@@ -49,10 +54,18 @@ public class HibernateEventListener implements PostUpdateEventListener,
             final int i = getVersionColumn(event);
             if (((Integer) event.getOldState()[i]).intValue() < ((Number) event
                     .getState()[i]).intValue()) {
-                createHistory(event.getPersister(), event.getEntity(),
-                        ModificationType.MODIFY);
-                indexer.handleIndexing((DomainObject<?>) event.getEntity(),
-                        ModificationType.MODIFY, event.getPersister());
+                //needs to be refactored to @EJB injection or if not possible to method and propagated to postinsert and postdelete
+                Properties p = new Properties();
+                p.put(Context.INITIAL_CONTEXT_FACTORY,
+                        "org.apache.openejb.client.LocalInitialContextFactory");
+                Context context;
+                try {
+                    context = new InitialContext(p);
+                    HibernateIndexer service = (HibernateIndexer) context.lookup("java:global/Application_ID/oscm-dataservice/HibernateIndexer");
+                    service.handleIndexing((DomainObject<?>) event.getEntity(), ModificationType.MODIFY, null);
+                } catch (NamingException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
@@ -66,8 +79,9 @@ public class HibernateEventListener implements PostUpdateEventListener,
         int i = 0;
         for (; i < event.getState().length; i++) {
             if (event.getState()[i] instanceof Integer
-                    && ((Integer) event.getState()[i]).intValue() == ((DomainObject<?>) event
-                            .getEntity()).getVersion())
+                    && ((Integer) event.getState()[i])
+                            .intValue() == ((DomainObject<?>) event.getEntity())
+                                    .getVersion())
                 return i;
         }
         throw new SaaSSystemException(
@@ -82,7 +96,8 @@ public class HibernateEventListener implements PostUpdateEventListener,
         removeLocalization(event.getPersister(), event.getEntity());
         createHistory(event.getPersister(), event.getEntity(),
                 ModificationType.DELETE);
-        indexer.handleIndexing((DomainObject<?>) event.getEntity(), ModificationType.DELETE, event.getPersister());
+//        indexer.handleIndexing((DomainObject<?>) event.getEntity(),
+//                ModificationType.DELETE, event);
     }
 
     private void removeLocalization(EntityPersister persister, Object entity) {
@@ -94,8 +109,8 @@ public class HibernateEventListener implements PostUpdateEventListener,
                 final StatelessSession session = persister.getFactory()
                         .openStatelessSession();
                 Transaction tx = session.beginTransaction();
-                org.hibernate.Query query = session
-                        .createQuery("DELETE FROM LocalizedResource WHERE objectKey = :objectKey AND objectType IN (:objectType)");
+                org.hibernate.Query query = session.createQuery(
+                        "DELETE FROM LocalizedResource WHERE objectKey = :objectKey AND objectType IN (:objectType)");
                 query.setParameter("objectKey", key);
                 query.setParameterList("objectType", objType);
                 query.executeUpdate();
@@ -110,9 +125,8 @@ public class HibernateEventListener implements PostUpdateEventListener,
         if (entity instanceof DomainObject<?>) {
             DomainObject<?> obj = (DomainObject<?>) entity;
             if (obj.hasHistory()) {
-                final DomainHistoryObject<?> hist = HistoryObjectFactory
-                        .create(obj, type,
-                                DataServiceBean.getCurrentHistoryUser());
+                final DomainHistoryObject<?> hist = HistoryObjectFactory.create(
+                        obj, type, DataServiceBean.getCurrentHistoryUser());
 
                 final StatelessSession session = persister.getFactory()
                         .openStatelessSession();
@@ -122,9 +136,9 @@ public class HibernateEventListener implements PostUpdateEventListener,
                 session.close();
 
                 if (logger.isDebugLoggingEnabled()) {
-                    logger.logDebug(String.format("%s %s[%s, v=%s]", type, obj
-                            .getClass().getSimpleName(), obj
-                            .getKey(), hist.getObjVersion()));
+                    logger.logDebug(String.format("%s %s[%s, v=%s]", type,
+                            obj.getClass().getSimpleName(), obj.getKey(),
+                            hist.getObjVersion()));
                 }
             }
         }
