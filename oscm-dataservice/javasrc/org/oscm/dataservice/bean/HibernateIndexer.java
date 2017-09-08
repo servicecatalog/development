@@ -12,17 +12,27 @@
 
 package org.oscm.dataservice.bean;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.EnumSet;
+import java.util.List;
+
+import javax.ejb.Asynchronous;
+import javax.ejb.EJB;
+import javax.ejb.Stateless;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.hibernate.event.spi.AbstractEvent;
 import org.hibernate.persister.entity.EntityPersister;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.Search;
 import org.oscm.converter.ParameterizedTypes;
+import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.*;
 import org.oscm.domobjects.enums.ModificationType;
 import org.oscm.internal.types.enumtypes.*;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.types.enumtypes.UdaTargetType;
@@ -31,15 +41,17 @@ import org.oscm.types.enumtypes.UdaTargetType;
  * Message driven bean to handle the index request objects sent by the business
  * logic.
  */
-public class Indexer {
+@Stateless
+public class HibernateIndexer {
 
     private final static Log4jLogger logger = LoggerFactory
-            .getLogger(Indexer.class);
+            .getLogger(HibernateIndexer.class);
+    @EJB(beanInterface = DataService.class)
+    DataService dm;
 
     /**
-     * It must be stupid simply
-     * indexing the passed domain objects without additional BL and additional
-     * queries.<br>
+     * It must be stupid simply indexing the passed domain objects without
+     * additional BL and additional queries.<br>
      *
      * Returns the list of products to be indexed. In case if the template
      * product is updated, beside of the index fields for the this product also
@@ -47,7 +59,7 @@ public class Indexer {
      * as well.
      */
     private List<Product> getProductAndCopiesForIndexUpdate(Product product,
-                                                            Session session) {
+            Session session) {
         List<Product> productsToUpdate = new ArrayList<>();
         if (!product.isCopy()) {
 
@@ -57,18 +69,25 @@ public class Indexer {
             query.setParameterList("state",
                     EnumSet.of(ServiceStatus.ACTIVE, ServiceStatus.INACTIVE,
                             ServiceStatus.SUSPENDED, ServiceStatus.OBSOLETE));
-            query.setParameterList("type", EnumSet.of(ServiceType.PARTNER_TEMPLATE,
-                    ServiceType.CUSTOMER_TEMPLATE));
+            query.setParameterList("type",
+                    EnumSet.of(ServiceType.PARTNER_TEMPLATE,
+                            ServiceType.CUSTOMER_TEMPLATE));
             productsToUpdate.addAll(
                     ParameterizedTypes.list(query.list(), Product.class));
         }
-        productsToUpdate.add(product);
         return productsToUpdate;
     }
 
+    @Asynchronous
     public void handleIndexing(DomainObject<?> object, ModificationType modType,
-            EntityPersister persister) {
-        Session session = getSession(persister);
+            AbstractEvent persister) {
+        //refactor it
+        try {
+            object = dm.getReference(object.getClass(), object.getKey());
+        } catch (ObjectNotFoundException e) {
+            e.printStackTrace();
+        }
+        Session session = dm.getSession();
         if (object instanceof Product) {
             Product product = (Product) object;
             // Bug 9670: In case if a template of a partner or customer product
@@ -85,8 +104,7 @@ public class Indexer {
             handleObjectIndexing(((PriceModel) object).getProduct(), session);
         }
         if (object instanceof CatalogEntry) {
-            handleObjectIndexing(((CatalogEntry) object).getProduct(),
-                    session);
+            handleObjectIndexing(((CatalogEntry) object).getProduct(), session);
         }
         if (object instanceof TechnicalProductTag) {
             TechnicalProduct tp = ((TechnicalProductTag) object)
@@ -155,7 +173,6 @@ public class Indexer {
             }
             handleListIndexing(subList, session);
         }
-        session.close();
     }
 
     private boolean isSubscriptionNotDeactivatedOrInvalid(
@@ -171,33 +188,37 @@ public class Indexer {
         }
 
         FullTextSession fts = Search.getFullTextSession(session);
-        Transaction tx = fts.beginTransaction();
+//        Transaction tx = fts.beginTransaction();
 
         for (DomainObject<?> obj : list) {
             if (obj != null) {
+                // fts.merge(obj);
                 fts.index(obj);
             }
         }
 
-        tx.commit();
+//        tx.commit();
+        // fts.close();
     }
 
-    private void handleObjectIndexing(Object parameter,
-            Session session) {
+    private void handleObjectIndexing(Object parameter, Session session) {
 
         if (parameter == null || session == null) {
             return;
         }
 
         FullTextSession fts = Search.getFullTextSession(session);
-        Transaction tx = fts.beginTransaction();
+//        Transaction tx = fts.beginTransaction();
 
+        // fts.merge(parameter);
         fts.index(parameter);
 
-        tx.commit();
+//        tx.commit();
+        // fts.close();
     }
 
     private Session getSession(EntityPersister persister) {
-        return persister.getFactory().openTemporarySession();
+        return Search.getFullTextSession(
+                persister.getFactory().openTemporarySession());
     }
 }
