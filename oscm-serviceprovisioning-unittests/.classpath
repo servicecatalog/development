@@ -54,7 +54,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-communicationservices-intsvc"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-communicationservices"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-taskhandling-intsvc"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/oscm-search-indexer"/>
 	<classpathentry kind="lib" path="/libraries/apache-tomee/javalib/javaee-api-7.0-1.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-triggerservice-unittests"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-auditlog"/>

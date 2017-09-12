@@ -216,19 +216,7 @@
   </target>
 
   <target name="configureBesStandalone">
-    <antcall target="_configureMasterIndexer" />
     <antcall target="_configureBesStandalone" />
-  </target>
-
-  <target name="_configureMasterIndexer">
-    <antcall target="copyCertToMasterDomain" />
-  </target>
-
-  <target name="copyCertToMasterDomain">
-    <signcertificate keystore="${glassfish.master.domain.dir}/config/keystore.jks" />
-    <importrootca keystore="${glassfish.master.domain.dir}/config/cacerts.jks" />
-    <!-- <copy file="${build.src.dir}/oscm-integrationtests-setup/resources/cert/cakey.der" todir="${glassfish.master.domain.dir}/config" />
-    <copy file="${build.src.dir}/oscm-integrationtests-setup/resources/cert/cacert.der" todir="${glassfish.master.domain.dir}/config" /> -->
   </target>
 
   <target name="_configureBesStandalone">
@@ -365,7 +353,6 @@
     <exec executable="hostname" outputproperty="beshostname">
       <arg line="-f" />
     </exec>
-    <antcall target="modifyMasterConfig" />
     <antcall target="modifyBesConfig" />
     <antcall target="modifyExampleConfig" />
     <antcall target="replaceCert" />
@@ -383,15 +370,6 @@
     <importrootca keystore="${glassfish.example.domain.dir}/config/cacerts.jks" />
     <deletealias keystore="${glassfish.example.domain.dir}/config/cacerts.jks" alias="integration-bes-s1as" />
     <importcertificate srckeystore="${glassfish.bes.domain.dir}/config/keystore.jks" srcalias="s1as" destkeystore="${glassfish.example.domain.dir}/config/cacerts.jks" destalias="integration-bes-s1as" />
-  </target>
-
-  <target name="modifyMasterConfig">
-    <modifyGFConfig path="${glassfish.master.domain.dir}/config" />
-    <modifyJDBCConfig file="${glassfish.master.domain.dir}/config/domain.xml" />
-    <modifyIMQBrokerConfig configfile="${glassfish.master.domain.dir}/imq/instances/imqbroker/props/config.properties" lockfile="${glassfish.master.domain.dir}/imq/instances/imqbroker/lock" />
-    <propertyfile file="${glassfish.master.domain.dir}/imq/instances/imqbroker/props/config.properties" comment="broker id">
-      <entry key="imq.brokerid" value="brokerid_masterindexer" />
-    </propertyfile>
   </target>
 
   <target name="modifyBesConfig">
@@ -480,7 +458,6 @@
 
 
   <target name="besSetupAndDeploy_StandaloneWithPreparedGlassfish">
-    <antcall target="setupMasterIndexerWithPreparedGlassfish" />
     <antcall target="setupBesWithPreparedGlassfish" />
   </target>
 
@@ -503,13 +480,6 @@
     <deployOnBesDomain target="server" appl="${work.setup.dir}/oscm-portal-help.war" />
     <stopDomain domain="${glassfish.bes.domain.name}" />
     <startDomain domain="${glassfish.bes.domain.name}" port="${glassfish.bes.domain.admin.port}" />
-  </target>
-
-  <target name="setupMasterIndexerWithPreparedGlassfish">
-    <startDomain domain="${glassfish.master.domain.name}" port="${glassfish.master.domain.admin.port}" />
-    <deployOnIndexerDomain appl="${work.setup.dir}/oscm-search.ear" />
-    <stopDomain domain="${glassfish.master.domain.name}" />
-    <startDomain domain="${glassfish.master.domain.name}" port="${glassfish.master.domain.admin.port}" />
   </target>
 
   <target name="exampleSetupAndDeployWithPreparedGlassfish">

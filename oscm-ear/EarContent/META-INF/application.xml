@@ -122,7 +122,4 @@
   <module>
     <ejb>oscm-tenantmgmt.jar</ejb>
   </module>
-  <module>
-    <ejb>oscm-search-indexer.jar</ejb>
-  </module>
 </application>

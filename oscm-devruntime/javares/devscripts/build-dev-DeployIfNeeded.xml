@@ -19,16 +19,7 @@
 
 	<available file="${glassfish.home}/glassfish/domains/integration-bes/applications/oscm" type="dir" property="ear.deployed" />
 	<available file="${glassfish.home}/glassfish/domains/integration-bes/applications/oscm-portal" type="dir" property="portal.deployed" />
-	<available file="${glassfish.home}/glassfish/domains/integration-master-index/applications/oscm-search" type="dir" property="master-indexer.deployed" />
 	<available file="${glassfish.home}/glassfish/domains/integration-example/applications/oscm-integrationtests-mockproduct" type="dir" property="examples.deployed" />
-
-	<target name="DEPLOY.MasterIndexer" unless="${master-indexer.deployed}">
-		<ant dir="${devscript.dir}" antfile="${devscript.dir}/build-dev-PackageDeploy.xml" target="MasterIndexer.DEPLOY" />
-	</target>
-
-	<target name="UNDEPLOY.MasterIndexer" if="${master-indexer.deployed}">
-		<ant dir="${devscript.dir}" antfile="${devscript.dir}/build-dev-PackageDeploy.xml" target="MasterIndexer.UNDEPLOY" />
-	</target>
 
 	<target name="DEPLOY.Ear" unless="${ear.deployed}">
 		<ant dir="${devscript.dir}" antfile="${devscript.dir}/build-dev-PackageDeploy.xml" target="BesEar.DEPLOY" />

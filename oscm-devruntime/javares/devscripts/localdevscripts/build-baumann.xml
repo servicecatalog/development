@@ -39,10 +39,6 @@
 		<ant dir="${devscript.dir}" antfile="${devscript.dir}/build-dev-DeployIfNeeded.xml"
 			target="DEPLOY.Birt" />
 		<ant dir="${devscript.dir}" antfile="${devscript.dir}/build-dev-DeployIfNeeded.xml"
-			target="UNDEPLOY.MasterIndexer" />
-		<ant dir="${devscript.dir}" antfile="${devscript.dir}/build-dev-DeployIfNeeded.xml"
-			target="DEPLOY.MasterIndexer" />
-		<ant dir="${devscript.dir}" antfile="${devscript.dir}/build-dev-DeployIfNeeded.xml"
 			target="UNDEPLOY.ExamplesAndMocks" />
 		<ant dir="${devscript.dir}" antfile="${devscript.dir}/build-dev-DeployIfNeeded.xml"
 			target="DEPLOY.ExamplesAndMocks" />

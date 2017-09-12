@@ -39,13 +39,6 @@
     </ant>
   </target>
 
-  <target name="MasterIndexer.BUILD"
-    description="Builds the master indexer application, the build result can be found in oscm-build/result/package/oscm-search">
-    <ant dir="${adm.ue.buildscript.dir}" antfile="${adm.ue.buildscript.file}" target="package">
-      <property name="projects" value="oscm-install-pack" />
-    </ant>
-  </target>
-
   <target name="SecurityJar.BUILD"
     description="Builds oscm-security.jar">
     <ant dir="${adm.ue.buildscript.dir}" antfile="${adm.ue.buildscript.file}" target="package">
@@ -53,7 +46,7 @@
     </ant>
   </target>
   <target name="EclipseBirt.BUILD"
-    description="Builds the master indexer application, the build result can be found in oscm-build/result/package/oscm-search">
+    description="Builds the master indexer application, the build result can be found in oscm-build/result/package/oscm-reports">
     <ant dir="${adm.ue.buildscript.dir}" antfile="${adm.ue.buildscript.file}" target="package">
       <property name="projects" value="oscm-reports" />
     </ant>
@@ -64,15 +57,6 @@
     <ant dir="${adm.ue.buildscript.dir}" antfile="${adm.ue.buildscript.file}" target="package">
       <property name="projects" value="oscm-integrationhelper,oscm-webservices-proxy" />
     </ant>
-  </target>
-
-  <target name="MasterIndexer.DEPLOY" description="Deploys the master indexer application into the indexer domain">
-    <delete file="${master.domain.apps}/oscm-search/.glassfishStaleFiles" failonerror="false" />
-    <deployOnIndexerDomain appl="${build.result.package.dir}/oscm-search/oscm-search.ear" />
-  </target>
-
-  <target name="MasterIndexer.UNDEPLOY" description="Undeploys the master indexer application from the indexer domain">
-    <undeployFromIndexerDomain appl="oscm-search" failonerror="false" />
   </target>
 
   <target name="BesEar.BUILD" description="Builds the BES server ear file, the result can be found in oscm-build/result/package/oscm-ear">
@@ -192,21 +176,19 @@
     <ant antfile="ivy-build.xml" />
     <ant dir="${adm.ue.buildscript.dir}" antfile="${adm.ue.buildscript.file}" target="package">
       <property name="projects"
-        value="oscm-ear,oscm-security,oscm-portal,oscm-search,oscm-reports,example-service,oscm-integrationtests-mockproduct,mock-psp-service,oscm-portal,oscm-psp-heidelpay,oscm-devruntime,oscm-portal-webtests,oscm-extsvc,oscm-extsvc-internal,oscm-common,oscm-devruntime,oscm-psp-extsvc,oscm-operatorsvc-client,oscm-jmx-internal" />
+        value="oscm-ear,oscm-security,oscm-portal,oscm-reports,example-service,oscm-integrationtests-mockproduct,mock-psp-service,oscm-portal,oscm-psp-heidelpay,oscm-devruntime,oscm-portal-webtests,oscm-extsvc,oscm-extsvc-internal,oscm-common,oscm-devruntime,oscm-psp-extsvc,oscm-operatorsvc-client,oscm-jmx-internal" />
     </ant>
   </target>
 
   <target name="All.DEPLOY" description="Deploys all components">
     <antcall target="BesEar.DEPLOY" />
     <antcall target="Portal.DEPLOY" />
-    <antcall target="MasterIndexer.DEPLOY" />
     <antcall target="Birt.DEPLOY" />
   </target>
 
   <target name="All.UNDEPLOY" description="Undeploys the various components">
     <antcall target="Portal.UNDEPLOY" />
     <antcall target="BesEar.UNDEPLOY" />
-    <antcall target="MasterIndexer.UNDEPLOY" />
     <antcall target="Birt.UNDEPLOY" />
   </target>
 
