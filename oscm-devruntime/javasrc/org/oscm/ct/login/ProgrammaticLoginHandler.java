@@ -8,8 +8,6 @@
 
 package org.oscm.ct.login;
 
-//import com.sun.enterprise.security.ee.auth.login.ProgrammaticLogin;
-
 import org.apache.openejb.core.security.AbstractSecurityService;
 import org.apache.openejb.loader.SystemInstance;
 import org.apache.openejb.spi.SecurityService;
@@ -48,8 +46,9 @@ public class ProgrammaticLoginHandler implements LoginHandler {
 
     @Override
     public void logout() throws Exception {
-//        ProgrammaticLogin pl = new ProgrammaticLogin();
-//        pl.logout(false);
+        final SecurityService securityService = SystemInstance.get()
+                .getComponent(SecurityService.class);
+        securityService.logout(securityService.disassociate());
     }
 
 }
