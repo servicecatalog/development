@@ -68,8 +68,11 @@
 
   <login-config>
     <auth-method>BASIC</auth-method>
-    <realm-name>admin-realm</realm-name>
-  </login-config>  
+  </login-config>
+
+  <security-role>
+    <role-name>BES</role-name>
+  </security-role>
   
 </web-app>
 
