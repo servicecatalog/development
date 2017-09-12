@@ -207,7 +207,7 @@ public class HibernateIndexer {
     @PostConstruct
     @TransactionAttribute(value = TransactionAttributeType.REQUIRES_NEW)
     public void init() {
-        this.initIndexForFulltextSearch(false);
+        this.initIndexForFulltextSearch(true);
     }
 
     @TransactionAttribute(value = TransactionAttributeType.REQUIRES_NEW)
