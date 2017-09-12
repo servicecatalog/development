@@ -5,13 +5,8 @@
 package org.oscm.dataservice.bean;
 
 import java.util.List;
-import java.util.Properties;
 
 import javax.ejb.EJB;
-import javax.inject.Inject;
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 
 import org.hibernate.StatelessSession;
 import org.hibernate.Transaction;
