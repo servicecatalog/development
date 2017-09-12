@@ -7,6 +7,8 @@ package org.oscm.dataservice.bean;
 import java.util.List;
 import java.util.Properties;
 
+import javax.ejb.EJB;
+import javax.inject.Inject;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -37,7 +39,8 @@ public class HibernateEventListener implements PostUpdateEventListener,
 
     private static final Log4jLogger logger = LoggerFactory
             .getLogger(HibernateEventListener.class);
-
+    @EJB
+    private HibernateIndexer hibernateIndexer;
 
     public HibernateEventListener() {
     }
@@ -45,28 +48,23 @@ public class HibernateEventListener implements PostUpdateEventListener,
     public void onPostInsert(PostInsertEvent event) {
         createHistory(event.getPersister(), event.getEntity(),
                 ModificationType.ADD);
-//        indexer.handleIndexing((DomainObject<?>) event.getEntity(),
-//                ModificationType.ADD, event);
+        handleIndexing(event.getEntity(),
+                ModificationType.ADD);
     }
 
     public void onPostUpdate(PostUpdateEvent event) {
         if (event.getEntity() instanceof DomainObjectWithVersioning<?>) {
             final int i = getVersionColumn(event);
-            if (((Integer) event.getOldState()[i]).intValue() < ((Number) event
-                    .getState()[i]).intValue()) {
-                //needs to be refactored to @EJB injection or if not possible to method and propagated to postinsert and postdelete
-                Properties p = new Properties();
-                p.put(Context.INITIAL_CONTEXT_FACTORY,
-                        "org.apache.openejb.client.LocalInitialContextFactory");
-                Context context;
-                try {
-                    context = new InitialContext(p);
-                    HibernateIndexer service = (HibernateIndexer) context.lookup("java:global/Application_ID/oscm-dataservice/HibernateIndexer");
-                    service.handleIndexing((DomainObject<?>) event.getEntity(), ModificationType.MODIFY, null);
-                } catch (NamingException e) {
-                    e.printStackTrace();
-                }
+            if ((Integer) event.getOldState()[i] < ((Number) event.getState()[i]).intValue()) {
+                handleIndexing(event.getEntity(), ModificationType.MODIFY);
             }
+        }
+    }
+
+    private void handleIndexing(Object entity,
+            ModificationType modType) {
+        if (entity instanceof DomainObject<?>) {
+            hibernateIndexer.handleIndexing((DomainObject<?>) entity, modType);
         }
     }
 
@@ -79,8 +77,7 @@ public class HibernateEventListener implements PostUpdateEventListener,
         int i = 0;
         for (; i < event.getState().length; i++) {
             if (event.getState()[i] instanceof Integer
-                    && ((Integer) event.getState()[i])
-                            .intValue() == ((DomainObject<?>) event.getEntity())
+                    && (Integer) event.getState()[i] == ((DomainObject<?>) event.getEntity())
                                     .getVersion())
                 return i;
         }
@@ -96,8 +93,8 @@ public class HibernateEventListener implements PostUpdateEventListener,
         removeLocalization(event.getPersister(), event.getEntity());
         createHistory(event.getPersister(), event.getEntity(),
                 ModificationType.DELETE);
-//        indexer.handleIndexing((DomainObject<?>) event.getEntity(),
-//                ModificationType.DELETE, event);
+        handleIndexing(event.getEntity(),
+                ModificationType.DELETE);
     }
 
     private void removeLocalization(EntityPersister persister, Object entity) {

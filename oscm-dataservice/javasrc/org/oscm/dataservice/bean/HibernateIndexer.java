@@ -17,14 +17,9 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 
-import javax.ejb.Asynchronous;
-import javax.ejb.EJB;
-import javax.ejb.Stateless;
+import javax.ejb.*;
 
 import org.hibernate.Session;
-import org.hibernate.Transaction;
-import org.hibernate.event.spi.AbstractEvent;
-import org.hibernate.persister.entity.EntityPersister;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.Search;
 import org.oscm.converter.ParameterizedTypes;
@@ -79,15 +74,12 @@ public class HibernateIndexer {
     }
 
     @Asynchronous
-    public void handleIndexing(DomainObject<?> object, ModificationType modType,
-            AbstractEvent persister) {
-        //refactor it
-        try {
-            object = dm.getReference(object.getClass(), object.getKey());
-        } catch (ObjectNotFoundException e) {
-            e.printStackTrace();
-        }
+    @TransactionAttribute(value = TransactionAttributeType.REQUIRES_NEW)
+    public void handleIndexing(DomainObject<?> object,
+            ModificationType modType) {
         Session session = dm.getSession();
+        object = session.get(object.getClass(), object.getKey());
+
         if (object instanceof Product) {
             Product product = (Product) object;
             // Bug 9670: In case if a template of a partner or customer product
@@ -188,17 +180,12 @@ public class HibernateIndexer {
         }
 
         FullTextSession fts = Search.getFullTextSession(session);
-//        Transaction tx = fts.beginTransaction();
 
         for (DomainObject<?> obj : list) {
             if (obj != null) {
-                // fts.merge(obj);
                 fts.index(obj);
             }
         }
-
-//        tx.commit();
-        // fts.close();
     }
 
     private void handleObjectIndexing(Object parameter, Session session) {
@@ -208,17 +195,6 @@ public class HibernateIndexer {
         }
 
         FullTextSession fts = Search.getFullTextSession(session);
-//        Transaction tx = fts.beginTransaction();
-
-        // fts.merge(parameter);
         fts.index(parameter);
-
-//        tx.commit();
-        // fts.close();
-    }
-
-    private Session getSession(EntityPersister persister) {
-        return Search.getFullTextSession(
-                persister.getFactory().openTemporarySession());
     }
 }
