@@ -17,17 +17,21 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
 import javax.ejb.*;
+import javax.persistence.Query;
 
+import org.apache.lucene.index.IndexReader;
+import org.hibernate.*;
 import org.hibernate.Session;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.Search;
+import org.hibernate.search.SearchFactory;
 import org.oscm.converter.ParameterizedTypes;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.*;
 import org.oscm.domobjects.enums.ModificationType;
 import org.oscm.internal.types.enumtypes.*;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.types.enumtypes.UdaTargetType;
@@ -38,6 +42,8 @@ import org.oscm.types.enumtypes.UdaTargetType;
  */
 @Stateless
 public class HibernateIndexer {
+
+    private static final int BATCH_SIZE = 1000;
 
     private final static Log4jLogger logger = LoggerFactory
             .getLogger(HibernateIndexer.class);
@@ -77,7 +83,7 @@ public class HibernateIndexer {
     @TransactionAttribute(value = TransactionAttributeType.REQUIRES_NEW)
     public void handleIndexing(DomainObject<?> object,
             ModificationType modType) {
-        Session session = dm.getSession();
+        Session session = getSession();
         object = session.get(object.getClass(), object.getKey());
 
         if (object instanceof Product) {
@@ -196,5 +202,100 @@ public class HibernateIndexer {
 
         FullTextSession fts = Search.getFullTextSession(session);
         fts.index(parameter);
+    }
+
+    @PostConstruct
+    @TransactionAttribute(value = TransactionAttributeType.REQUIRES_NEW)
+    public void initIndexForFulltextSearch(final boolean force) {
+        FullTextSession fullTextSession = Search
+                .getFullTextSession(getSession());
+
+        // check if index is already present (via query)
+        boolean isIndexEmpty;
+        SearchFactory searchFactory = fullTextSession.getSearchFactory();
+        IndexReader reader = searchFactory.getIndexReaderAccessor()
+                .open(Product.class, Subscription.class);
+
+        try {
+            isIndexEmpty = reader.numDocs() == 0;
+        } finally {
+            searchFactory.getIndexReaderAccessor().close(reader);
+        }
+
+        if (!isIndexEmpty) {
+            if (!force) {
+                // if so and force is NOT set, return without
+                // indexing
+                return;
+            } else {
+                // otherwise delete previous index
+                fullTextSession.purgeAll(Product.class);
+                fullTextSession.purgeAll(Subscription.class);
+            }
+        }
+
+        // index all entities relevant for full text search
+        // for it: get all products from all global marketplaces
+        // (full text search only available for global marketplaces
+        // by definition)
+
+        Query query = dm.createNamedQuery("Marketplace.getAll");
+        List<Marketplace> globalMps = ParameterizedTypes
+                .list(query.getResultList(), Marketplace.class);
+
+        fullTextSession.setFlushMode(FlushMode.MANUAL);
+        fullTextSession.setCacheMode(CacheMode.IGNORE);
+
+        for (Marketplace mp : globalMps) {
+            // call find to ensure entity manager is registered
+            dm.find(mp);
+
+            StringBuffer nativeQueryString = new StringBuffer();
+            nativeQueryString.append(
+                    "SELECT p FROM Product p WHERE EXISTS (SELECT c FROM CatalogEntry c WHERE c.marketplace.key = ")
+                    .append(mp.getKey())
+                    .append(" AND c.dataContainer.visibleInCatalog=TRUE AND c.product.key = p.key AND p.dataContainer.status = :status)");
+
+            org.hibernate.Query productsOnMpQuery = fullTextSession
+                    .createQuery(nativeQueryString.toString());
+            productsOnMpQuery.setParameter("status", ServiceStatus.ACTIVE);
+            ScrollableResults results = productsOnMpQuery
+                    .scroll(ScrollMode.FORWARD_ONLY);
+
+            int index = 0;
+            while (results.next()) {
+                index++;
+                fullTextSession.index(results.get(0));
+                if (index % BATCH_SIZE == 0) {
+                    fullTextSession.flushToIndexes();
+                    fullTextSession.clear();
+                }
+            }
+            results.close();
+
+        }
+
+        // index all active subscriptions
+        org.hibernate.Query objectQuery = fullTextSession.createQuery(
+                "SELECT s FROM Subscription s WHERE s.dataContainer.status NOT IN (:statuses)");
+        objectQuery.setParameterList("statuses", new Object[] {
+                SubscriptionStatus.DEACTIVATED, SubscriptionStatus.INVALID });
+        ScrollableResults results = objectQuery.scroll(ScrollMode.FORWARD_ONLY);
+
+        int index = 0;
+        while (results.next()) {
+            index++;
+            fullTextSession.index(results.get(0));
+            if (index % BATCH_SIZE == 0) {
+                fullTextSession.flushToIndexes();
+                fullTextSession.clear();
+            }
+        }
+
+        results.close();
+    }
+
+    private Session getSession() {
+        return dm.getSession();
     }
 }
