@@ -17,24 +17,16 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.rmi.AccessException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Properties;
+import java.util.*;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
 
 import org.oscm.converter.PropertiesLoader;
 import org.oscm.ct.login.LoginHandlerFactory;
-import org.oscm.operatorsvc.client.commands.*;
 import org.oscm.internal.intf.OperatorService;
 import org.oscm.internal.types.exception.MailOperationException;
+import org.oscm.operatorsvc.client.commands.*;
 
 /**
  * Client to invoke the operator related services.
@@ -209,7 +201,8 @@ public class OperatorClient {
         }
 
         final InitialContext initialContext = new InitialContext(ctxProperties);
-        login(username, password);
+        ctxProperties.put(Context.SECURITY_PRINCIPAL, username);
+        ctxProperties.put(Context.SECURITY_CREDENTIALS, password);
 
         final OperatorClient client = new OperatorClient(initialContext, out,
                 err);
