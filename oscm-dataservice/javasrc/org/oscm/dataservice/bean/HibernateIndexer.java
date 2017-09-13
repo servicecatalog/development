@@ -17,7 +17,6 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 
-import javax.annotation.PostConstruct;
 import javax.ejb.*;
 import javax.persistence.Query;
 
@@ -204,13 +203,8 @@ public class HibernateIndexer {
         fts.index(parameter);
     }
 
-    @PostConstruct
-    @TransactionAttribute(value = TransactionAttributeType.REQUIRES_NEW)
-    public void init() {
-        this.initIndexForFulltextSearch(true);
-    }
-
-    @TransactionAttribute(value = TransactionAttributeType.REQUIRES_NEW)
+    @Asynchronous
+    @TransactionAttribute(value = TransactionAttributeType.REQUIRED)
     public void initIndexForFulltextSearch(final boolean force) {
         FullTextSession fullTextSession = Search
                 .getFullTextSession(getSession());

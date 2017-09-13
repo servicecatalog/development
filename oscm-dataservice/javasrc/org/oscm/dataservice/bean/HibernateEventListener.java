@@ -5,8 +5,12 @@
 package org.oscm.dataservice.bean;
 
 import java.util.List;
+import java.util.Properties;
 
 import javax.ejb.EJB;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 
 import org.hibernate.StatelessSession;
 import org.hibernate.Transaction;
@@ -59,6 +63,18 @@ public class HibernateEventListener implements PostUpdateEventListener,
     private void handleIndexing(Object entity,
             ModificationType modType) {
         if (entity instanceof DomainObject<?>) {
+            if (hibernateIndexer == null) {
+                try {
+                    Properties p = new Properties();
+                    p.put(Context.INITIAL_CONTEXT_FACTORY,
+                            "org.apache.openejb.client.LocalInitialContextFactory");
+                    Context context = new InitialContext(p);
+                    hibernateIndexer = (HibernateIndexer) context
+                            .lookup(HibernateIndexer.class.getName());
+                } catch (NamingException e) {
+                    throw new SaaSSystemException("Service lookup failed!", e);
+                }
+            }
             hibernateIndexer.handleIndexing((DomainObject<?>) entity, modType);
         }
     }
