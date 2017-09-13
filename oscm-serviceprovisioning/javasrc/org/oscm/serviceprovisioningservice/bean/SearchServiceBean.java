@@ -259,31 +259,6 @@ public class SearchServiceBean implements SearchService, SearchServiceLocal {
                 performanceHint);
     }
 
-    public VOServiceListResult getAccesibleServices(String marketplaceId,
-            String locale, ListCriteria listCriteria,
-            PerformanceHint performanceHint) throws ObjectNotFoundException {
-        ArgumentValidator.notEmptyString("marketplaceId", marketplaceId);
-        ArgumentValidator.notEmptyString("locale", locale);
-        ArgumentValidator.notNull("listCriteria", listCriteria);
-
-        PlatformUser user = getDm().getCurrentUserIfPresent();
-        // temporary solution to get all services for initializing the accesible
-        // service list for unit admin
-        Set<Long> invisibleKeys = null;
-        if ((user != null) && !user.isOrganizationAdmin()
-                && !user.isUnitAdmin()) {
-            List<Long> invisibleKeyList = userGroupService
-                    .getInvisibleProductKeysForUser(user.getKey());
-            invisibleKeys = new HashSet<Long>(invisibleKeyList);
-        }
-
-        ProductSearch search = new ProductSearch(getDm(), marketplaceId,
-                listCriteria, DEFAULT_LOCALE, locale, invisibleKeys);
-
-        return convertToVoServiceList(search.execute(), locale,
-                performanceHint);
-    }
-
     VOServiceListResult convertToVoServiceList(ProductSearchResult services,
             String locale, PerformanceHint performanceHint) {
         VOServiceListResult result = new VOServiceListResult();
@@ -296,7 +271,7 @@ public class SearchServiceBean implements SearchService, SearchServiceLocal {
 
     /**
      * Converts the product list to transfer objects.
-     * 
+     *
      * @param productList
      *            List of domain products
      * @return found VO services
