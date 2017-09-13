@@ -72,6 +72,7 @@ public class ADMUMStartup extends HttpServlet {
         checkResourceBundleExistence();
         cleanUpProductSessions();
         initTimers();
+        initIndexing();
     }
 
     /**
