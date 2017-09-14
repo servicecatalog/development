@@ -25,31 +25,41 @@ public class WSValidator
 
     @Override
     public Credential validate(Credential credential, RequestData requestData) {
+        System.out.println("1");
 
         try {
 
             final SecurityService securityService = SystemInstance.get()
                     .getComponent(SecurityService.class);
             final Object token;
+            System.out.println("2");
             try {
                 securityService.disassociate();
 
+                System.out.println("3");
                 token = securityService.login(
                         credential.getUsernametoken().getName(),
                         credential.getUsernametoken().getPassword());
+                System.out.println("4");
+                System.out.println("login = " + credential.getUsernametoken().getName());
+                System.out.println("pwd = " + credential.getUsernametoken().getPassword());
                 if (AbstractSecurityService.class.isInstance(securityService)
                         && AbstractSecurityService.class.cast(securityService)
                                 .currentState() == null) {
+                    System.out.println("5");
                     securityService.associate(token);
                 }
             } catch (final LoginException e) {
+                System.out.println("6");
                 throw new SecurityException("cannot log user "
                         + credential.getUsernametoken().getName(), e);
             }
 
         } catch (Exception e) {
+            System.out.println("7");
             e.printStackTrace();
         }
+        System.out.println("8");
         return credential;
     }
 
