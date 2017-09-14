@@ -13,7 +13,6 @@
 		<project>oscm-operatorsvc-client</project>
 		<project>oscm-portal</project>
 		<project>oscm-portal-help</project>
-		<project>oscm-search</project>
 		<project>oscm-security</project>
 		<project>oscm-server-common</project>
 	</projects>
