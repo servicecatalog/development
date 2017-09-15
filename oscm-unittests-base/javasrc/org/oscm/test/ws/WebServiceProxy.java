@@ -10,7 +10,12 @@ package org.oscm.test.ws;
 
 import java.io.ByteArrayOutputStream;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPMessage;
@@ -47,7 +52,7 @@ public class WebServiceProxy {
         // String wsdlUrl = baseUrl + "/oscm/" + versionWSDL + "/"
         // + remoteInterface.getSimpleName() + "/" + auth + "?wsdl";
 
-        String wsdlUrl = baseUrl + "/oscm-webservices/" + remoteInterface.getSimpleName() + "/"
+        String wsdlUrl = baseUrl + remoteInterface.getSimpleName() + "/"
                 + auth + "?wsdl";
 
         if (tenantId != null) {

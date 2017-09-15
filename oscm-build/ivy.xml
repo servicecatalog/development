@@ -391,6 +391,7 @@
     <dependency org="org.apache.tomee" name="javaee-api" rev="7.0-1" transitive="false"/>
     <dependency org="org.apache.tomee" name="openejb-core" rev="7.0.3" transitive="false"/>
     <dependency org="org.apache.tomee" name="openejb-cxf" rev="7.0.3" transitive="false"/>
+    <dependency org="org.apache.tomee" name="openejb-client" rev="7.0.3" transitive="false"/>
     <dependency org="org.apache.geronimo.javamail" name="geronimo-javamail_1.4_mail" rev="1.9.0-alpha-2" transitive="false"/>
     <dependency org="org.apache.wss4j" name="wss4j-bindings" rev="2.1.7" transitive="false"/>
     <dependency org="org.apache.wss4j" name="wss4j-policy" rev="2.1.7" transitive="false"/>
