@@ -484,7 +484,7 @@ public class SubscriptionServiceWSTest {
 //            fail();
 //        } catch (ServerSOAPFaultException e) {
 //            //then
-//            assertTrue(e.getMessage().contains("javax.ejb.EJBAccessException"));
+//            assertTrue(e.getMessage().contains("Unauthorized"));
 //        }
     }
     @Test
@@ -503,7 +503,7 @@ public class SubscriptionServiceWSTest {
 //            service4notUnitAdminNotSubManager.subscribeToService(subscription, freeService, usageLicences, null, null, udasToSave);
 //        } catch (ServerSOAPFaultException e) {
 //            //then
-//            assertTrue(e.getMessage().contains("javax.ejb.EJBAccessException"));
+//            assertTrue(e.getMessage().contains("Unauthorized"));
 //        }
     }
 

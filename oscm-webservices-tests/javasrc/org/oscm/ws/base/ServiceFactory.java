@@ -111,7 +111,7 @@ public class ServiceFactory {
     }
 
     private String getWebServiceBaseUrl() {
-        return props.getProperty("bes.https.url")+"/oscm-webservices/";
+        return props.getProperty("bes.https.url");
     }
 
     private String getDefaultUserName() {
