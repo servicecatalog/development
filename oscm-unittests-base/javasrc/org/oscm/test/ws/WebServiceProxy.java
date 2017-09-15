@@ -37,6 +37,7 @@ import org.oscm.security.SOAPSecurityHandler;
 public class WebServiceProxy {
 
     private static final String TENANT_ID = "tenantID";
+    private static final String CONTEXT_ROOT = "/oscm-webservices/"; 
 
     public static <T> T get(String baseUrl, String version, String auth,
             String namespace, Class<T> remoteInterface, String userName,
@@ -52,7 +53,7 @@ public class WebServiceProxy {
         // String wsdlUrl = baseUrl + "/oscm/" + versionWSDL + "/"
         // + remoteInterface.getSimpleName() + "/" + auth + "?wsdl";
 
-        String wsdlUrl = baseUrl + remoteInterface.getSimpleName() + "/"
+        String wsdlUrl = baseUrl + CONTEXT_ROOT + remoteInterface.getSimpleName() + "/"
                 + auth + "?wsdl";
 
         if (tenantId != null) {
@@ -93,7 +94,7 @@ public class WebServiceProxy {
             clientRequestContext.put("password", password);
             
             clientRequestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
-                    baseUrl + "/oscm-webservices/" + remoteInterface.getSimpleName() + "/"
+                    baseUrl + CONTEXT_ROOT + remoteInterface.getSimpleName() + "/"
                             + auth);
 
             Map<String, List<String>> headers = new HashMap<String, List<String>>();
