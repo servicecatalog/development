@@ -15,6 +15,8 @@ import org.apache.openejb.loader.SystemInstance;
 import org.apache.openejb.spi.SecurityService;
 import org.apache.wss4j.dom.handler.RequestData;
 import org.apache.wss4j.dom.validate.Credential;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
 
 /**
  * @author stavreva
@@ -22,44 +24,47 @@ import org.apache.wss4j.dom.validate.Credential;
  */
 public class WSValidator
         extends org.apache.openejb.server.cxf.OpenEJBLoginValidator {
-
+        
+private static final Log4jLogger logger = LoggerFactory
+.getLogger(WSValidator.class);
+        
     @Override
     public Credential validate(Credential credential, RequestData requestData) {
-        System.out.println("1");
+        logger.logDebug("DD1");
 
         try {
 
             final SecurityService securityService = SystemInstance.get()
                     .getComponent(SecurityService.class);
             final Object token;
-            System.out.println("2");
+            logger.logDebug("DD2");
             try {
                 securityService.disassociate();
 
-                System.out.println("3");
+                logger.logDebug("DD3");
                 token = securityService.login(
                         credential.getUsernametoken().getName(),
                         credential.getUsernametoken().getPassword());
-                System.out.println("4");
-                System.out.println("login = " + credential.getUsernametoken().getName());
-                System.out.println("pwd = " + credential.getUsernametoken().getPassword());
+                logger.logDebug("DD4");
+                logger.logDebug("DDlogin = " + credential.getUsernametoken().getName());
+                logger.logDebug("DDpwd = " + credential.getUsernametoken().getPassword());
                 if (AbstractSecurityService.class.isInstance(securityService)
                         && AbstractSecurityService.class.cast(securityService)
                                 .currentState() == null) {
-                    System.out.println("5");
+                    logger.logDebug("DD5");
                     securityService.associate(token);
                 }
             } catch (final LoginException e) {
-                System.out.println("6");
+                logger.logDebug("DD6");
                 throw new SecurityException("cannot log user "
                         + credential.getUsernametoken().getName(), e);
             }
 
         } catch (Exception e) {
-            System.out.println("7");
+            logger.logDebug("DD7");
             e.printStackTrace();
         }
-        System.out.println("8");
+        logger.logDebug("DD8");
         return credential;
     }
 
