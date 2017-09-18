@@ -5,18 +5,14 @@
 package org.oscm.ui.filter;
 
 import java.io.IOException;
+import java.security.AccessController;
 import java.security.Principal;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.security.auth.Subject;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.JAXBContext;
@@ -24,13 +20,13 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.stream.StreamSource;
 
-import com.sun.enterprise.security.SecurityContext;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.types.constants.marketplace.Marketplace;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
 import org.oscm.ui.common.Constants;
 import org.oscm.ui.common.JSFUtils;
+
 import com.google.common.collect.Sets;
 
 /**
@@ -66,9 +62,9 @@ public class RoleBasedFilter extends BaseBesFilter {
     @Override
     public void doFilter(ServletRequest servletRequest,
             ServletResponse servletResponse, FilterChain filterChain)
-                    throws IOException, ServletException {
+            throws IOException, ServletException {
         HttpServletRequest httpRequest = (HttpServletRequest) servletRequest;
-        Set<String> principalRoles = getPrincipalRoles(httpRequest);
+        Set<String> principalRoles = getPrincipalRoles();
         for (RoleBasedFilterConfigEntry entry : config.getEntries()) {
             if (httpRequest.getRequestURI().endsWith(entry.getPage())
                     && !isPrincipalRoleAllowed(principalRoles,
@@ -92,13 +88,13 @@ public class RoleBasedFilter extends BaseBesFilter {
         return !Sets.intersection(principalRoles, rolesAllowed).isEmpty();
     }
 
-    private Set<String> getPrincipalRoles(HttpServletRequest httpRequest) {
+    private Set<String> getPrincipalRoles() {
         Set<String> principalRoles = new HashSet<>();
 
-        Subject subject = SecurityContext.getCurrent().getSubject();
+        Subject subject = Subject.getSubject(AccessController.getContext());
         if (subject != null) {
-            principalRoles
-                .addAll(subject.getPrincipals().stream().map(Principal::getName).collect(Collectors.toList()));
+            principalRoles.addAll(subject.getPrincipals().stream()
+                    .map(Principal::getName).collect(Collectors.toList()));
         }
         return principalRoles;
     }

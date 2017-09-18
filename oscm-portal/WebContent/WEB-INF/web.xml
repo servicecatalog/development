@@ -2,8 +2,8 @@
 <!-- Copyright FUJITSU LIMITED 2017-->
 
 <web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee"
-         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
-         id="WebApp_ID" version="2.5">
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+         id="WebApp_ID" version="3.0">
 
   <display-name>Business Enablement Services</display-name>
 
@@ -209,10 +209,6 @@
     <filter-name>RichFacesFirefox11Filter</filter-name>
     <filter-class>org.oscm.ui.filter.RichFacesFirefox11Filter</filter-class>
   </filter>
-  <filter>
-    <filter-name>NonexistentConversationFilter</filter-name>
-    <filter-class>org.oscm.ui.filter.NonexistentConversationFilter</filter-class>
-  </filter>
     <filter>
     <display-name>Role-based filter</display-name>
     <filter-name>RoleBasedFilter</filter-name>
@@ -266,14 +262,6 @@
     <dispatcher>REQUEST</dispatcher>
     <dispatcher>FORWARD</dispatcher>
     <dispatcher>INCLUDE</dispatcher>
-  </filter-mapping>
- <filter-mapping>
-    <filter-name>NonexistentConversationFilter</filter-name>
-    <url-pattern>/marketplace/subscriptions/creation/*</url-pattern>
-  </filter-mapping>
-  <filter-mapping>
-    <filter-name>NonexistentConversationFilter</filter-name>
-    <url-pattern>/marketplace/subscriptions/upgrade/*</url-pattern>
   </filter-mapping>
   <filter-mapping>
     <filter-name>NonexistentConversationFilter</filter-name>
