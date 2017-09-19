@@ -20,7 +20,7 @@ import org.oscm.types.enumtypes.ParameterValueType;
  * models.
  * 
  */
-public class VOPricedParameter extends BaseVO implements Serializable {
+public class VOPricedParameter extends BaseVO  {
 
     private static final long serialVersionUID = 7663675959767010704L;
 

@@ -22,7 +22,7 @@ import org.oscm.internal.vo.VOSteppedPrice;
  * Represents the information on events that is relevant for price models.
  * 
  */
-public class VOPricedEvent extends BaseVO implements Serializable {
+public class VOPricedEvent extends BaseVO  {
 
     private static final long serialVersionUID = -8260878341502255890L;
 

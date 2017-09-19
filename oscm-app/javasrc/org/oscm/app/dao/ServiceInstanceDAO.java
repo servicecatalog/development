@@ -183,7 +183,7 @@ public class ServiceInstanceDAO {
     public ServiceInstance find(ServiceInstance instance)
             throws ServiceInstanceNotFoundException {
         ServiceInstance dbInstance = em.find(ServiceInstance.class,
-                Long.valueOf(instance.getTkey()));
+            instance.getTkey());
         if (dbInstance == null) {
             dbInstance = getInstanceById(instance.getInstanceId());
         }

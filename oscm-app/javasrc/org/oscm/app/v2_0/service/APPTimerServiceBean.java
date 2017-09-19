@@ -1261,7 +1261,7 @@ public class APPTimerServiceBean implements Cloneable {
         eventLink
                 .append(configService.getProxyConfigurationSetting(
                         PlatformConfigurationKey.APP_BASE_URL))
-                .append("/controller?cid=")
+                .append("/controller?controllerid=")
                 .append(URLEncoder.encode(si.getControllerId(), "UTF-8"));
         return eventLink;
     }

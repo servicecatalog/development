@@ -32,7 +32,8 @@ public interface APPlatformService {
     /**
      * The JNDI name with which the APP service is registered in the container.
      */
-    public static final String JNDI_NAME = "java:global/oscm-app/oscm-app/APPlatformServiceBean!org.oscm.app.v2_0.intf.APPlatformService";
+    //TODO: change Application_ID
+    public static final String JNDI_NAME = "java:global/Application_ID/oscm-app/org.oscm.app.v2_0.intf.APPlatformService";
 
     /**
      * Sends a mail with the specified subject and body to the given recipients.

@@ -8,10 +8,13 @@
 
 package org.oscm.app.v2_0;
 
+import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
 import org.oscm.app.v2_0.intf.APPlatformService;
+
+import java.util.Properties;
 
 /**
  * Factory for creating <code>APPlatformService</code> instances.
@@ -25,7 +28,11 @@ public class APPlatformServiceFactory {
      */
     public static APPlatformService getInstance() {
         try {
-            InitialContext context = new InitialContext();
+
+            Properties p = new Properties();
+            p.setProperty (Context.INITIAL_CONTEXT_FACTORY,"org.apache.openejb.client.LocalInitialContextFactory");
+
+            InitialContext context = new InitialContext(p);
             Object lookup = context.lookup(APPlatformService.JNDI_NAME);
             if (!APPlatformService.class.isAssignableFrom(lookup.getClass())) {
                 throw new IllegalStateException(

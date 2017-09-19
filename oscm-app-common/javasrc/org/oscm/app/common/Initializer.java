@@ -66,7 +66,7 @@ public class Initializer {
         try {
             // Get default config folder of GF instance
             String instanceRoot = System
-                    .getProperty("com.sun.aas.instanceRoot");
+                    .getProperty("catalina.home");
             String controllerId = controllerAccess.getControllerId();
             if (instanceRoot != null) {
                 File root = new File(instanceRoot);

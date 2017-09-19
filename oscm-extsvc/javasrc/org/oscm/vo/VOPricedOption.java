@@ -18,7 +18,7 @@ import java.util.List;
  * models.
  * 
  */
-public class VOPricedOption extends BaseVO implements Serializable {
+public class VOPricedOption extends BaseVO  {
 
     private static final long serialVersionUID = -3492198807771584164L;
 

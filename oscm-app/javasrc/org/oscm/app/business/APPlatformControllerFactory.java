@@ -4,6 +4,7 @@
 
 package org.oscm.app.business;
 
+import javax.naming.Context;
 import javax.naming.InitialContext;
 
 import org.oscm.app.adapter.APPlatformControllerAdapter;
@@ -13,6 +14,8 @@ import org.oscm.app.v2_0.intf.APPlatformController;
 import org.oscm.app.adapter.APPlatformControllerLegacyAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Properties;
 
 public class APPlatformControllerFactory {
 
@@ -24,7 +27,10 @@ public class APPlatformControllerFactory {
         String controllerFullId = APPlatformController.JNDI_PREFIX
                 + controllerId;
         try {
-            InitialContext context = new InitialContext();
+            Properties p = new Properties();
+            p.setProperty (Context.INITIAL_CONTEXT_FACTORY,"org.apache.openejb.client.LocalInitialContextFactory");
+
+            InitialContext context = new InitialContext(p);
             Object lookup = context.lookup(controllerFullId);
             APPlatformController adapter;
 

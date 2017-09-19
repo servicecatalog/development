@@ -21,7 +21,7 @@ import org.oscm.internal.types.enumtypes.ServiceType;
 /**
  * Represents a marketable service based on a technical service.
  */
-public class VOService extends BaseVO implements Serializable {
+public class VOService extends BaseVO {
 
     private static final long serialVersionUID = 2585748034132679028L;
 

@@ -16,7 +16,7 @@ import org.oscm.internal.vo.BaseVO;
  * Represents a category for one or more services.
  * 
  */
-public class VOCategory extends BaseVO implements Serializable {
+public class VOCategory extends BaseVO  {
 
     private static final long serialVersionUID = 8409610805879957673L;
 

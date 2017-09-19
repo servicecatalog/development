@@ -19,7 +19,7 @@ import org.oscm.internal.types.enumtypes.SubscriptionStatus;
  * Represents a subscription to a service.
  * 
  */
-public class VOSubscription extends BaseVO implements Serializable {
+public class VOSubscription extends BaseVO  {
 
     private static final long serialVersionUID = 8010904760458989105L;
 
