@@ -68,7 +68,7 @@ public class TriggerDefinitonServiceWSTest {
 
     private void validateExceptionContent(SOAPFaultException ex)
             throws Exception {
-        assertTrue(ex.getMessage().contains("javax.ejb.EJBAccessException"));
+        assertTrue(ex.getMessage().contains("Unauthorized"));
     }
 
     @BeforeClass

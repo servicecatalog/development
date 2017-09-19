@@ -57,25 +57,25 @@ public class ServiceProvisioningServiceInternalBean
     private ServiceProvisioningService serviceProvisioningServiceBean;
 
     @EJB(beanInterface = DataService.class)
-    DataService dm;
+    private DataService dm;
 
     @EJB(beanInterface = LocalizerServiceLocal.class)
-    LocalizerServiceLocal localizer;
+    private LocalizerServiceLocal localizer;
 //TODO: fix performance hits.
     public List<VOService> getServicesForMarketplace(String marketplaceId,
             PerformanceHint performanceHint) {
-        return serviceProvisioningServiceBean.getServicesForMarketplace(marketplaceId);
+        return getServiceProvisioningServiceBean().getServicesForMarketplace(marketplaceId);
     }
 
     @RolesAllowed({ "SERVICE_MANAGER", "RESELLER_MANAGER", "BROKER_MANAGER" })
     public List<VOService> getSuppliedServices(PerformanceHint performanceHint) {
-        return serviceProvisioningServiceBean.getSuppliedServices();
+        return getServiceProvisioningServiceBean().getSuppliedServices();
     }
 
     @RolesAllowed({ "SERVICE_MANAGER", "TECHNOLOGY_MANAGER" })
     public List<VOTechnicalService> getTechnicalServices(
             OrganizationRoleType role, PerformanceHint performanceHint) throws OrganizationAuthoritiesException {
-        return serviceProvisioningServiceBean.getTechnicalServices(role);
+        return getServiceProvisioningServiceBean().getTechnicalServices(role);
     }
 
     @Override
@@ -88,4 +88,7 @@ public class ServiceProvisioningServiceInternalBean
                 false, new LocalizerFacade(localizer, locale));
     }
 
+    public ServiceProvisioningService getServiceProvisioningServiceBean() {
+        return serviceProvisioningServiceBean;
+    }
 }

@@ -373,7 +373,8 @@
     <dependency org="wsdl4j" name="wsdl4j" rev="1.6.3" transitive="false"/>
     <dependency org="com.google.code.gson" name="gson" rev="2.6.2" transitive="false"/>
     <dependency org="org.ow2.asm" name="asm-debug-all" rev="5.1" transitive="false"/>
-    
+    <dependency org="asm" name="asm-all" rev="3.3.1"/>
+
     <!-- AWS SDK 1.11.37-->
     <dependency org="com.amazonaws" name="aws-java-sdk-ec2" rev="1.11.37" transitive="false"/>
     <dependency org="com.amazonaws" name="aws-java-sdk-core" rev="1.11.37" transitive="false"/>
@@ -391,6 +392,7 @@
     <dependency org="org.apache.tomee" name="javaee-api" rev="7.0-1" transitive="false"/>
     <dependency org="org.apache.tomee" name="openejb-core" rev="7.0.3" transitive="false"/>
     <dependency org="org.apache.tomee" name="openejb-cxf" rev="7.0.3" transitive="false"/>
+    <dependency org="org.apache.tomee" name="openejb-client" rev="7.0.3" transitive="false"/>
     <dependency org="org.apache.geronimo.javamail" name="geronimo-javamail_1.4_mail" rev="1.9.0-alpha-2" transitive="false"/>
     <dependency org="org.apache.wss4j" name="wss4j-bindings" rev="2.1.7" transitive="false"/>
     <dependency org="org.apache.wss4j" name="wss4j-policy" rev="2.1.7" transitive="false"/>

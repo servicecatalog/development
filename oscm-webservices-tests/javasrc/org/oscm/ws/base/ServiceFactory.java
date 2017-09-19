@@ -12,9 +12,12 @@ import java.util.Properties;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
+import javax.naming.NamingException;
+
 import org.oscm.internal.intf.ConfigurationService;
 import org.oscm.internal.intf.OperatorService;
 import org.oscm.internal.intf.TenantService;
+import org.oscm.internal.types.exception.SaaSSystemException;
 import org.oscm.intf.AccountService;
 import org.oscm.intf.BillingService;
 import org.oscm.intf.CategorizationService;
@@ -255,6 +258,7 @@ public class ServiceFactory {
 
     private <T> T connectToWebService(Class<T> remoteInterface,
             String userName, String password) throws Exception {
+        //version not really used for now
         return WebServiceProxy.get(getWebServiceBaseUrl(), "v1.9", getAuth(),
                 "http://oscm.org/xsd", remoteInterface, userName, password,
                 getTenantId(), getOrgId());
@@ -333,14 +337,22 @@ public class ServiceFactory {
         return connectToEJB(ConfigurationService.class, userName, password);
     }
 
+    @SuppressWarnings("unchecked")
     private <T> T connectToEJB(Class<T> remoteInterface, String userName,
             String password) throws Exception {
-        props.put(Context.SECURITY_PRINCIPAL, userName);
-        props.put(Context.SECURITY_CREDENTIALS, password);
-        InitialContext initialContext = new InitialContext(props);
-        @SuppressWarnings("unchecked")
-        T service = (T) initialContext.lookup("java:"+remoteInterface.getSimpleName()+"BeanRemote");
-        return service;
+        try {
+            props.put(Context.SECURITY_PRINCIPAL, userName);
+            props.put(Context.SECURITY_CREDENTIALS, password);
+            props.put(Context.INITIAL_CONTEXT_FACTORY,"org.apache.openejb.client.RemoteInitialContextFactory");
+            props.put("java.naming.provider.url", "http://127.0.0.1:8080/tomee/ejb");
+            props.put("openejb.authentication.realmName", "bss-realm");
+
+            Context context = new InitialContext(props);
+            T service = (T) context.lookup(remoteInterface.getName());
+            return service;
+        } catch (NamingException e) {
+            throw new SaaSSystemException("Service lookup failed!", e);
+        }
     }
 
     private String getAuth() {

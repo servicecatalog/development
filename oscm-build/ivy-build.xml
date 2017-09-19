@@ -55,16 +55,14 @@
     <copy file="${ivy.lib.dir}/neethi-2.0.4.jar" todir="${root.dir}/libraries/apache-axis2-lib/javalib/" overwrite="true" />
     <copy file="${ivy.lib.dir}/woden-api-1.0M8.jar" todir="${root.dir}/libraries/apache-axis2-lib/javalib/" overwrite="true" />
     <copy file="${ivy.lib.dir}/woden-impl-dom-1.0M8.jar" todir="${root.dir}/libraries/apache-axis2-lib/javalib/" overwrite="true" />
-    <copy file="${ivy.lib.dir}/wsdl4j-1.6.3.jar" todir="${root.dir}/libraries/apache-axis2-lib/javalib/"
-          overwrite="true" />
+    <copy file="${ivy.lib.dir}/wsdl4j-1.6.3.jar" todir="${root.dir}/libraries/apache-axis2-lib/javalib/" overwrite="true" />
     <copy file="${ivy.lib.dir}/wstx-asl-3.2.4.jar" todir="${root.dir}/libraries/apache-axis2-lib/javalib/" overwrite="true" />
     <copy file="${ivy.lib.dir}/XmlSchema-1.4.3.jar" todir="${root.dir}/libraries/apache-axis2-lib/javalib/" overwrite="true" />
     <copy file="${ivy.lib.dir}/commons-beanutils-1.8.3.jar" todir="${root.dir}/libraries/apache-beanutils/javalib" overwrite="true" />
     <copy file="${ivy.lib.dir}/commons-codec-1.10.jar" todir="${root.dir}/libraries/apache-codec/javalib" overwrite="true" />
     <copy file="${ivy.lib.dir}/commons-collections-3.2.2.jar" todir="${root.dir}/libraries/apache-collections/javalib" overwrite="true" />
     <copy file="${ivy.lib.dir}/commons-lang3-3.5.jar" todir="${root.dir}/libraries/apache-commons-lang/javalib" overwrite="true" />
-    <copy file="${ivy.lib.dir}/commons-configuration2-2.1.1.jar"
-          todir="${root.dir}/libraries/apache-configuration/javalib" overwrite="true" />
+    <copy file="${ivy.lib.dir}/commons-configuration2-2.1.1.jar" todir="${root.dir}/libraries/apache-configuration/javalib" overwrite="true" />
     <copy file="${ivy.lib.dir}/commons-dbcp-1.3.jar" todir="${root.dir}/libraries/apache-dbcp/javalib" overwrite="true" />
     <copy file="${ivy.lib.dir}/commons-pool-1.5.4.jar" todir="${root.dir}/libraries/apache-dbcp/javalib" overwrite="true" />
     <copy file="${ivy.lib.dir}/commons-digester-1.8.1.jar" todir="${root.dir}/libraries/apache-digester/javalib" overwrite="true" />
@@ -115,6 +113,7 @@
     </unjar>
     <copy file="${ivy.lib.dir}/org.jacoco.ant-0.7.8.jar" tofile="${root.dir}/libraries/jacoco/javalib/org.jacoco.ant-0.7.8.jar" overwrite="true" />
     <copy file="${ivy.lib.dir}/org.jacoco.core-0.7.8.jar" todir="${root.dir}/libraries/jacoco/javalib/" overwrite="true" />
+    <copy file="${ivy.lib.dir}/asm-all-3.3.1.jar" todir="${root.dir}/libraries/asm/javalib/" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/asm-debug-all-5.1.jar" todir="${root.dir}/libraries/jacoco/javalib/" overwrite="true" />
     <copy file="${ivy.lib.dir}/org.jacoco.report-0.7.8.jar" todir="${root.dir}/libraries/jacoco/javalib/" overwrite="true" />
     <copy file="${ivy.lib.dir}/oro-2.0.8.jar" tofile="${root.dir}/libraries/jakarta-oro/javalib/jakarta-oro-2.0.8.jar" overwrite="true" />
@@ -207,6 +206,7 @@
     <copy file="${ivy.lib.dir}/openejb-core-7.0.3.jar" tofile="${root.dir}/libraries/apache-tomee/javalib/openejb-core-7.0.3.jar" overwrite="true" />
     <copy file="${ivy.lib.dir}/openejb-cxf-7.0.3.jar" tofile="${root.dir}/libraries/apache-tomee/javalib/openejb-cxf-7.0.3.jar" overwrite="true" />
     <copy file="${ivy.lib.dir}/openejb-loader-7.0.3.jar" tofile="${root.dir}/libraries/apache-tomee/javalib/openejb-loader-7.0.3.jar" overwrite="true" />
+    <copy file="${ivy.lib.dir}/openejb-client-7.0.3.jar" tofile="${root.dir}/libraries/apache-tomee/javalib/openejb-client-7.0.3.jar" overwrite="true" />
     <copy file="${ivy.lib.dir}/wss4j-bindings-2.1.7.jar" tofile="${root.dir}/libraries/apache-tomee/javalib/wss4j-bindings-2.1.7.jar" overwrite="true" />
     <copy file="${ivy.lib.dir}/wss4j-policy-2.1.7.jar" tofile="${root.dir}/libraries/apache-tomee/javalib/wss4j-policy-2.1.7.jar" overwrite="true" />
     <copy file="${ivy.lib.dir}/wss4j-ws-security-common-2.1.7.jar" tofile="${root.dir}/libraries/apache-tomee/javalib/wss4j-ws-security-common-2.1.7.jar" overwrite="true" />

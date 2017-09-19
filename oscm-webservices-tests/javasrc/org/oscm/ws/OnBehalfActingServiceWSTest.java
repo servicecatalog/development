@@ -381,7 +381,7 @@ public class OnBehalfActingServiceWSTest {
             fail();
         } catch (Exception e) {
             if (e instanceof SOAPFaultException) {
-                assertTrue(e.getMessage().contains("AccessException"));
+                assertTrue(e.getMessage().contains("Unauthorized"));
             }
         }
 
