@@ -42,6 +42,5 @@
 	<classpathentry kind="lib" path="/libraries/jackson/javalib/jackson-annotations.jar"/>
 	<classpathentry kind="lib" path="/libraries/jackson/javalib/jackson-core.jar"/>
 	<classpathentry kind="lib" path="/libraries/jackson/javalib/jackson-databind.jar"/>
-	<classpathentry kind="lib" path="/libraries/jboss-weld/javalib/weld-osgi-bundle.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

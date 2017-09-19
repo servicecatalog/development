@@ -186,7 +186,6 @@
           overwrite="true" />
     <copy file="${ivy.lib.dir}/gson-2.6.2.jar" tofile="${root.dir}/libraries/gson/javalib/gson-2.6.2.jar" overwrite="true" />
 
-    <copy file="${ivy.lib.dir}/weld-osgi-bundle-2.2.13.Final.jar" tofile="${root.dir}/libraries/jboss-weld/javalib/weld-osgi-bundle.jar" overwrite="true" />
     <copy file="${ivy.lib.dir}/jackson-core-2.5.1.jar" tofile="${root.dir}/libraries/jackson/javalib/jackson-core.jar" overwrite="true" />
     <copy file="${ivy.lib.dir}/jackson-databind-2.5.1.jar" tofile="${root.dir}/libraries/jackson/javalib/jackson-databind.jar" overwrite="true" />
     <copy file="${ivy.lib.dir}/jackson-annotations-2.5.1.jar" tofile="${root.dir}/libraries/jackson/javalib/jackson-annotations.jar" overwrite="true" />

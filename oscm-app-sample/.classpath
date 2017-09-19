@@ -19,6 +19,5 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-app-common"/>
 	<classpathentry kind="lib" path="/libraries/apache-tomee/javalib/javax.faces-2.2.12.jar"/>
-	<classpathentry kind="lib" path="/libraries/jboss-weld/javalib/weld-osgi-bundle.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

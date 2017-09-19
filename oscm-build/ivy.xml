@@ -315,9 +315,7 @@
     <dependency org="javax.transaction" name="javax.transaction-api" rev="1.2" transitive="false"/>
     <dependency org="javax.ws.rs" name="javax.ws.rs-api" rev="2.0.1" transitive="false"/>
     <dependency org="org.apache.geronimo.specs" name="geronimo-jta_1.1_spec" rev="1.1.1"/>
-    
-    
-    <dependency org="org.jboss.weld" name="weld-osgi-bundle" rev="2.2.13.Final" transitive="false"/>
+
     <dependency org="com.fasterxml.jackson.core" name="jackson-annotations" rev="2.5.1" transitive="false">
       <artifact name="jackson-annotations" ext="jar"/>
     </dependency>

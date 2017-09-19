@@ -43,7 +43,6 @@
 	<classpathentry kind="lib" path="/libraries/jackson/javalib/jackson-annotations.jar"/>
 	<classpathentry kind="lib" path="/libraries/jackson/javalib/jackson-core.jar"/>
 	<classpathentry kind="lib" path="/libraries/jackson/javalib/jackson-databind.jar"/>
-	<classpathentry kind="lib" path="/libraries/jboss-weld/javalib/weld-osgi-bundle.jar"/>
 	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/websecurity.jar"/>
 	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/security.jar"/>
 	<classpathentry kind="lib" path="/libraries/apache-tomee/javalib/openejb-core-7.0.3.jar"/>
