@@ -22,10 +22,9 @@ import org.apache.wss4j.dom.validate.Credential;
  */
 public class WSValidator
         extends org.apache.openejb.server.cxf.OpenEJBLoginValidator {
-
+        
     @Override
     public Credential validate(Credential credential, RequestData requestData) {
-
         try {
 
             final SecurityService securityService = SystemInstance.get()
