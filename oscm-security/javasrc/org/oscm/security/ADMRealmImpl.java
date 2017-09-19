@@ -371,27 +371,11 @@ public class ADMRealmImpl {
      *             if the database data source lookup failed.
      */
     DataSource getDataSource() throws NamingException {
-//        org.apache.openejb.core.OpenEJBInitialContextFactory
-         Properties p = new Properties();
-         p.put(Context.INITIAL_CONTEXT_FACTORY,"org.apache.openejb.core.OpenEJBInitialContextFactory");
+        Properties p = new Properties();
+        p.put(Context.INITIAL_CONTEXT_FACTORY,"org.apache.openejb.core.OpenEJBInitialContextFactory");
         Context context = new InitialContext(p);
-        try {
-            return (DataSource) context.lookup(DB_DATASOURCE_NAME);
-        } catch (Exception e) {
-            try {
-                return (DataSource) context.lookup(DB_DATASOURCE_NAME_WS);
-            } catch (Exception e1) {
-                return (DataSource) context.lookup(DB_DATASOURCE_NAME_WS1);
-            }
-        }
+        return (DataSource) context.lookup("BSSDS");
     }
-
-    // Context context = new InitialContext();
-    // Context envCtx = (Context) context.lookup("java:comp/env");
-    //
-    // // Look up our data source
-    // return (DataSource)
-    // envCtx.lookup("BSSDS");
 
     /**
      * Attempt to bind as a specific DN.
