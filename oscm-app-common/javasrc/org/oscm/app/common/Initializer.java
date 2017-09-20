@@ -101,7 +101,7 @@ public class Initializer {
                 }
             } else {
                 LOGGER.error(
-                        "Failed to initialize log file: missing system property 'com.sun.aas.instanceRoot'");
+                        "Failed to initialize log file: missing system property 'catalina.home'");
             }
         } catch (Exception e) {
             LOGGER.error("Failed to initialize log file", e);

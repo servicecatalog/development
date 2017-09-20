@@ -64,7 +64,7 @@ public class Initializer {
 	private void postConstruct() {
 		try {
 			// Get default config folder of GF instance
-			String instanceRoot = System.getProperty("com.sun.aas.instanceRoot");
+			String instanceRoot = System.getProperty("catalina.home");
 			String controllerId = controllerAccess.getControllerId();
 			if (instanceRoot != null) {
 				File root = new File(instanceRoot);
@@ -93,7 +93,7 @@ public class Initializer {
 					logFile = null;
 				}
 			} else {
-				LOGGER.error("Failed to initialize log file: missing system property 'com.sun.aas.instanceRoot'");
+				LOGGER.error("Failed to initialize log file: missing system property 'catalina.home'");
 			}
 		} catch (Exception e) {
 			LOGGER.error("Failed to initialize log file", e);

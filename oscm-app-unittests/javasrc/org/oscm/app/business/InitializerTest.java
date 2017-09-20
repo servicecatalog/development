@@ -123,19 +123,19 @@ public class InitializerTest {
     }
 
     private void setSysSetting(String value) {
-        oldSysSetting = System.getProperty("com.sun.aas.instanceRoot");
+        oldSysSetting = System.getProperty("catalina.home");
         if (value != null) {
-            System.setProperty("com.sun.aas.instanceRoot", value);
+            System.setProperty("catalina.home", value);
         } else {
-            System.clearProperty("com.sun.aas.instanceRoot");
+            System.clearProperty("catalina.home");
         }
     }
 
     private void resetSysSetting() {
         if (oldSysSetting != null) {
-            System.setProperty("com.sun.aas.instanceRoot", oldSysSetting);
+            System.setProperty("catalina.home", oldSysSetting);
         } else {
-            System.clearProperty("com.sun.aas.instanceRoot");
+            System.clearProperty("catalina.home");
         }
     }
 
