@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.objectweb.asm.*;
 import org.objectweb.asm.signature.SignatureReader;
 import org.objectweb.asm.signature.SignatureVisitor;
+import org.objectweb.asm.util.CheckClassAdapter;
 
 /**
  * Verifies that VOs do not have cyclic references.
@@ -41,12 +42,7 @@ public class CyclicReferencesTest {
     protected List<String> getVOClassNames() throws IOException {
         final URL voUrl = BaseVO.class.getResource("BaseVO.class");
         final File folder = new File(voUrl.getFile()).getParentFile();
-        final File[] voClassFiles = folder.listFiles(new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                return name.startsWith("VO") && name.endsWith(".class");
-            }
-        });
+        final File[] voClassFiles = folder.listFiles((dir, name) -> name.startsWith("VO") && name.endsWith(".class"));
         final List<String> result = new ArrayList<String>();
         for (final File classfile : voClassFiles) {
             FileInputStream in = null;
@@ -122,9 +118,23 @@ public class CyclicReferencesTest {
 
         reader.accept(new ClassVisitor(Opcodes.ASM5) {
             @Override
-            public void visit(int version, int access, String name, String signature, String superName,
-                String[] interfaces) {
-                super.visit(version, access, name, signature, superName, interfaces);
+            public void visit(int version, int access, String name,
+                    String signature, String superName, String[] interfaces) {
+                if (superName != null) {
+                    getReferencedTypes(superName, result);
+                }
+            }
+
+            @Override
+            public FieldVisitor visitField(int access, String name,
+                    String desc, String signature, Object value) {
+                if ((access & (Opcodes.ACC_SYNTHETIC | Opcodes.ACC_STATIC)) == 0) {
+                    if (signature == null) {
+                        signature = desc;
+                    }
+                    getTypesFromSignature(signature, result);
+                }
+                return null;
             }
         }, 0);
     }
@@ -138,7 +148,7 @@ public class CyclicReferencesTest {
      */
     protected void getTypesFromSignature(final String signature,
             final Set<String> result) {
-        new SignatureReader(signature).acceptType(new SignatureVisitor(0) {
+        new SignatureReader(signature).acceptType(new SignatureVisitor(Opcodes.ASM5) {
             @Override
             public void visitClassType(String vmname) {
                 final Type type = Type.getObjectType(vmname);

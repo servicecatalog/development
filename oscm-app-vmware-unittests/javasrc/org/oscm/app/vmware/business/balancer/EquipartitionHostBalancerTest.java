@@ -404,11 +404,12 @@ public class EquipartitionHostBalancerTest {
     public void testBalancer_wrongConfig() throws Exception {
         // wrong configuration values should simply be ignored
         EquipartitionHostBalancer balancer = new EquipartitionHostBalancer();
-        String balancerConfig = "<essvcenter><balancer hosts=\"host1,host2,host3,host4,host5\" "
-                + "memoryWeight=\"wrong\" cpuWeight=\"wrong\" vmWeight=\"\" /></essvcenter>";
         XMLConfiguration xmlConfiguration = new XMLConfiguration();
-        xmlConfiguration.read(new StringReader(balancerConfig));
-        balancer.setConfiguration(xmlConfiguration.configurationAt("balancer"));
+        xmlConfiguration.addProperty("[@hosts]", "host1,host2,host3,host4,host5");
+        xmlConfiguration.addProperty("[@memoryWeight]", "wrong");
+        xmlConfiguration.addProperty("[@cpuWeight]", "wrong");
+        xmlConfiguration.addProperty("[@vmWeight]", "");
+        balancer.setConfiguration(xmlConfiguration);
     }
 
     @Test
@@ -432,15 +433,12 @@ public class EquipartitionHostBalancerTest {
     private EquipartitionHostBalancer getBalancer(double memWeight,
             double cpuWeight, double vmWeight) throws IOException, ConfigurationException {
         EquipartitionHostBalancer balancer = new EquipartitionHostBalancer();
-        String balancerConfig = "<essvcenter><balancer hosts=\"host1,host2,host3,host4,host5\" "
-                + "memoryWeight=\""
-                + memWeight
-                + "\" cpuWeight=\""
-                + cpuWeight
-                + "\" vmWeight=\"" + vmWeight + "\" /></essvcenter>";
         XMLConfiguration xmlConfiguration = new XMLConfiguration();
-        xmlConfiguration.read(new StringReader(balancerConfig));
-        balancer.setConfiguration(xmlConfiguration.configurationAt("balancer"));
+        xmlConfiguration.addProperty("[@hosts]", "host1,host2,host3,host4,host5");
+        xmlConfiguration.addProperty("[@memoryWeight]", memWeight);
+        xmlConfiguration.addProperty("[@cpuWeight]", cpuWeight);
+        xmlConfiguration.addProperty("[@vmWeight]", vmWeight);
+        balancer.setConfiguration(xmlConfiguration);
         return balancer;
     }
 
