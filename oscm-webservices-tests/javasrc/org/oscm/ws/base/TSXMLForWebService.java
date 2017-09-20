@@ -23,7 +23,7 @@ public class TSXMLForWebService {
             + "TechnicalService></" + TNS + "TechnicalServices>";
     private static final String XML_FIRST_PART = "<" + TNS
             + "TechnicalServices " + TARGET_NAMESPACE + ">";
-    private static final String MOCK = "oscm-integrationtests-mockproduct";
+    private static final String MOCK = "oscm-soap-mock";
     private static final String USER = "tomee";
     private static final String PWD = "tomee";
 
