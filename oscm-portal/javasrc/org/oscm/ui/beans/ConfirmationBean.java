@@ -267,7 +267,7 @@ public class ConfirmationBean extends BaseBean implements Serializable {
         } catch (ServletException e) {
             throw new LoginException(e.getMessage());
         }
-//        serviceAccess.login(voUser, password, httpRequest, getResponse());
+        serviceAccess.login(voUser, password, httpRequest, getResponse());
 
         // log info on the successful login
         logger.logInfo(Log4jLogger.ACCESS_LOG,
