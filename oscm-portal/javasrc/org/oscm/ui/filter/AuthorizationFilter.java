@@ -207,9 +207,10 @@ public class AuthorizationFilter extends BaseBesFilter {
                 rdo.setPassword(httpRequest.getParameter(PARAM_LOGIN_PASSWORD));
                 VOUser voUser = readTechnicalUserFromDb(identityService, rdo);
                 httpRequest.getSession();
-                httpRequest.login(String.valueOf(voUser.getKey()), rdo.getPassword());
-//                serviceAccess.login(voUser, rdo.getPassword(), httpRequest,
-//                        httpResponse);
+                httpRequest.login(String.valueOf(voUser.getKey()),
+                        rdo.getPassword());
+                // serviceAccess.login(voUser, rdo.getPassword(), httpRequest,
+                // httpResponse);
                 httpRequest.getSession().setAttribute(Constants.SESS_ATTR_USER,
                         identityService.getCurrentUserDetails());
             } catch (Exception e2) {
@@ -829,21 +830,19 @@ public class AuthorizationFilter extends BaseBesFilter {
             httpRequest.getSession();
             httpRequest.login(String.valueOf(voUser.getKey()),
                     rdo.getPassword());
-            // serviceAccess.login(voUser, rdo.getPassword(), httpRequest,
-            // httpResponse);
-            // } catch (CommunicationException e) {
-            // handleCommunicationException(chain, httpRequest, httpResponse,
-            // rdo);
-            // return false;
-            // } catch (LoginException e) {
-        } catch (Exception e) {
-            e.printStackTrace();
+            serviceAccess.login(voUser, rdo.getPassword(), httpRequest,
+                    httpResponse);
+        } catch (CommunicationException e) {
+            handleCommunicationException(chain, httpRequest, httpResponse, rdo);
+            return false;
+        } catch (LoginException e) {
             logger.logInfo(Log4jLogger.ACCESS_LOG,
                     LogMessageIdentifier.INFO_USER_LOGIN_INVALID,
                     httpRequest.getRemoteHost(),
                     Integer.toString(httpRequest.getRemotePort()),
                     StringUtils.isNotBlank(voUser.getUserId())
-                            ? voUser.getUserId() : "",
+                            ? voUser.getUserId()
+                            : "",
                     IPResolver.resolveIpAddress(httpRequest),
                     voUser.getTenantId());
             try {
