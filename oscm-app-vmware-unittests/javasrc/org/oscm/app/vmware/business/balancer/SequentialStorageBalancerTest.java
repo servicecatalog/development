@@ -73,10 +73,9 @@ public class SequentialStorageBalancerTest {
 
         SequentialStorageBalancer balancer = new SequentialStorageBalancer();
 
-        String balancerConfig = "<host><balancer storage=\"elm1\" /></host>";
         XMLConfiguration xmlConfiguration = new XMLConfiguration();
-        xmlConfiguration.read(new StringReader(balancerConfig));
-        balancer.setConfiguration(xmlConfiguration.configurationAt("balancer"));
+        xmlConfiguration.addProperty("[@storage]", "elm1");
+        balancer.setConfiguration(xmlConfiguration);
 
         VMwareDatacenterInventory inventory = new VMwareDatacenterInventory();
 
@@ -102,10 +101,9 @@ public class SequentialStorageBalancerTest {
 
         SequentialStorageBalancer balancer = new SequentialStorageBalancer();
 
-        String balancerConfig = "<host><balancer storage=\"elm1,elm2,elm3,elm4\" /></host>";
         XMLConfiguration xmlConfiguration = new XMLConfiguration();
-        xmlConfiguration.read(new StringReader(balancerConfig));
-        balancer.setConfiguration(xmlConfiguration.configurationAt("balancer"));
+        xmlConfiguration.addProperty("[@storage]", "elm1,elm2,elm3,elm4");
+        balancer.setConfiguration(xmlConfiguration);
 
         VMwareDatacenterInventory inventory = new VMwareDatacenterInventory();
 
@@ -156,8 +154,8 @@ public class SequentialStorageBalancerTest {
 
         String balancerConfig = "<host><balancer storage=\"elm1,elm2,elm3\" /></host>";
         XMLConfiguration xmlConfiguration = new XMLConfiguration();
-        xmlConfiguration.read(new StringReader(balancerConfig));
-        balancer.setConfiguration(xmlConfiguration.configurationAt("balancer"));
+        xmlConfiguration.addProperty("[@storage]", "elm1,elm2,elm3");
+        balancer.setConfiguration(xmlConfiguration);
 
         VMwareDatacenterInventory inventory = new VMwareDatacenterInventory();
 
