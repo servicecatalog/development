@@ -19,6 +19,7 @@ import java.util.List;
 
 import javax.ejb.*;
 import javax.persistence.Query;
+import javax.xml.crypto.Data;
 
 import org.apache.lucene.index.IndexReader;
 import org.hibernate.*;
@@ -296,5 +297,9 @@ public class HibernateIndexer {
 
     private Session getSession() {
         return dm.getSession();
+    }
+
+    public void setDataService(DataService dm) {
+        this.dm = dm;
     }
 }
