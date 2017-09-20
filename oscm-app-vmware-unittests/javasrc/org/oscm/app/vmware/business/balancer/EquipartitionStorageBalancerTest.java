@@ -8,12 +8,9 @@
 
 package org.oscm.app.vmware.business.balancer;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
-import java.io.StringReader;
 import java.text.DecimalFormat;
 
 import org.apache.commons.configuration2.HierarchicalConfiguration;
@@ -152,7 +149,7 @@ public class EquipartitionStorageBalancerTest {
         EquipartitionStorageBalancer balancer = getBalancer("store1");
         balancer.setInventory(inventory);
 
-        Mockito.when(new Double(properties.getTemplateDiskSpaceMB()))
+        Mockito.when(properties.getTemplateDiskSpaceMB())
                 .thenReturn(new Double(-1));
         VMwareStorage storage = balancer.next(properties);
         assertNotNull(storage);
@@ -162,11 +159,9 @@ public class EquipartitionStorageBalancerTest {
     private EquipartitionStorageBalancer getBalancer(String storages)
         throws ConfigurationException, IOException {
         EquipartitionStorageBalancer balancer = new EquipartitionStorageBalancer();
-        String balancerConfig = "<host><balancer storage=\"" + storages
-                + "\" /></host>";
         XMLConfiguration xmlConfiguration = new XMLConfiguration();
-        xmlConfiguration.read(new StringReader(balancerConfig));
-        balancer.setConfiguration(xmlConfiguration.configurationAt("balancer"));
+        xmlConfiguration.addProperty("[@storage]", storages);
+        balancer.setConfiguration(xmlConfiguration);
         return balancer;
     }
 
