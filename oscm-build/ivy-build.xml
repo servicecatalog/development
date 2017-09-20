@@ -186,9 +186,12 @@
           overwrite="true" />
     <copy file="${ivy.lib.dir}/gson-2.6.2.jar" tofile="${root.dir}/libraries/gson/javalib/gson-2.6.2.jar" overwrite="true" />
 
-    <copy file="${ivy.lib.dir}/jackson-core-2.5.1.jar" tofile="${root.dir}/libraries/jackson/javalib/jackson-core.jar" overwrite="true" />
-    <copy file="${ivy.lib.dir}/jackson-databind-2.5.1.jar" tofile="${root.dir}/libraries/jackson/javalib/jackson-databind.jar" overwrite="true" />
-    <copy file="${ivy.lib.dir}/jackson-annotations-2.5.1.jar" tofile="${root.dir}/libraries/jackson/javalib/jackson-annotations.jar" overwrite="true" />
+    <copy file="${ivy.lib.dir}/jackson-core-2.6.6.jar"
+          tofile="${root.dir}/libraries/jackson/javalib/jackson-core.jar" overwrite="true" />
+    <copy file="${ivy.lib.dir}/jackson-databind-2.6.6.jar"
+          tofile="${root.dir}/libraries/jackson/javalib/jackson-databind.jar" overwrite="true" />
+    <copy file="${ivy.lib.dir}/jackson-annotations-2.6.6.jar"
+          tofile="${root.dir}/libraries/jackson/javalib/jackson-annotations.jar" overwrite="true" />
     <copy file="${ivy.lib.dir}/security-4.1.1.jar" tofile="${root.dir}/libraries/glassfish4/javalib/security.jar" overwrite="true" />
     <copy file="${ivy.lib.dir}/security-ee-4.1.1.jar" tofile="${root.dir}/libraries/glassfish4/javalib/security-ee.jar" overwrite="true" />
     <copy file="${ivy.lib.dir}/websecurity-4.1.1.jar" tofile="${root.dir}/libraries/glassfish4/javalib/websecurity.jar" overwrite="true" />
