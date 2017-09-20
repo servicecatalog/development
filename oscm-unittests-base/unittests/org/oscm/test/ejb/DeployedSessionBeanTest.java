@@ -71,12 +71,12 @@ public class DeployedSessionBeanTest {
 
     };
 
-    private final SessionContext sessionContext = new TestSessionContext(null, null,
+    private final SessionContext sessionContext = new TestSessionContext(null,
             null);
 
     @Test(expected = IllegalArgumentException.class)
     public void testGetInterfaceNegative() {
-        DeployedSessionBean bean = new DeployedSessionBean(tmStub, null,
+        DeployedSessionBean bean = new DeployedSessionBean(tmStub,
                 sessionContext, new Object());
         bean.getInterfaceOrClass(Runnable.class);
     }
@@ -90,7 +90,7 @@ public class DeployedSessionBeanTest {
                 return value;
             }
         }
-        DeployedSessionBean bean = new DeployedSessionBean(tmStub, null,
+        DeployedSessionBean bean = new DeployedSessionBean(tmStub,
                 sessionContext, new Bean());
         assertSame(value, bean.getInterfaceOrClass(Callable.class).call());
     }
@@ -103,7 +103,7 @@ public class DeployedSessionBeanTest {
                 throw new RuntimeException();
             }
         }
-        DeployedSessionBean bean = new DeployedSessionBean(tmStub, null,
+        DeployedSessionBean bean = new DeployedSessionBean(tmStub,
                 sessionContext, new Bean());
         bean.getInterfaceOrClass(Runnable.class).run();
     }
@@ -123,7 +123,7 @@ public class DeployedSessionBeanTest {
                 throw new AppException();
             }
         }
-        DeployedSessionBean bean = new DeployedSessionBean(tmStub, null,
+        DeployedSessionBean bean = new DeployedSessionBean(tmStub,
                 sessionContext, new Bean());
         bean.getInterfaceOrClass(Runnable.class).run();
     }
@@ -136,7 +136,7 @@ public class DeployedSessionBeanTest {
                 throw new IOException();
             }
         }
-        DeployedSessionBean bean = new DeployedSessionBean(tmStub, null,
+        DeployedSessionBean bean = new DeployedSessionBean(tmStub,
                 sessionContext, new Bean());
         bean.getInterfaceOrClass(Callable.class).call();
     }

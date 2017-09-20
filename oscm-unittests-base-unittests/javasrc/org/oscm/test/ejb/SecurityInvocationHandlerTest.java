@@ -31,7 +31,7 @@ public class SecurityInvocationHandlerTest {
 
     @Before
     public void setup() {
-        sessionContext = new TestSessionContext(null, null, null);
+        sessionContext = new TestSessionContext(null, null);
         callable = new Callable<Object>() {
             @Override
             public Void call() {
