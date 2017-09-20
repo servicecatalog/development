@@ -4,6 +4,8 @@
 
 package org.oscm.test.ejb;
 
+import org.oscm.dataservice.bean.HibernateIndexer;
+
 import java.security.Principal;
 import java.util.Arrays;
 import java.util.Collections;
@@ -33,9 +35,12 @@ class TestSessionContext implements SessionContext {
 
     private Set<String> roles = Collections.emptySet();
 
-    TestSessionContext(TransactionManager tm,
+    private final HibernateIndexer hibernateIndexer;
+
+    TestSessionContext(TransactionManager tm, HibernateIndexer hi,
             InterfaceMap<DeployedSessionBean> sessionBeans) {
         this.tm = tm;
+        this.hibernateIndexer = hi;
         this.sessionBeans = sessionBeans;
     }
 

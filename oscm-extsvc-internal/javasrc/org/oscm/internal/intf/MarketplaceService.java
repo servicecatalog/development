@@ -11,6 +11,7 @@ package org.oscm.internal.intf;
 import java.util.List;
 import java.util.Set;
 
+import javax.ejb.Local;
 import javax.security.auth.login.LoginException;
 
 import org.oscm.internal.cache.MarketplaceConfiguration;
@@ -37,6 +38,7 @@ import org.oscm.internal.vo.VOServiceDetails;
  * Remote interface of the marketplace management service.
  * 
  */
+@Local
 public interface MarketplaceService {
 
     /**

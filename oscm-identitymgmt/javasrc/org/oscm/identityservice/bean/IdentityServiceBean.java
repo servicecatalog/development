@@ -156,7 +156,6 @@ import org.oscm.vo.BaseAssembler;
  * Session Bean implementation class IdentityServiceBean
  */
 @DeclareRoles("ORGANIZATION_ADMIN")
-@EJB(name = "ConfigurationService", beanInterface = ConfigurationServiceLocal.class)
 @Stateless
 @Remote(IdentityService.class)
 @Local(IdentityServiceLocal.class)

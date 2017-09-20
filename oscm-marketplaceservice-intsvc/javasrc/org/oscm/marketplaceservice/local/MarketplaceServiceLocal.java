@@ -32,12 +32,15 @@ import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.internal.vo.VOCategory;
 import org.oscm.types.enumtypes.EmailType;
 
+import javax.ejb.Local;
+
 /**
  * Contains business logic performed with and on Marketplaces, that is not
  * accessible to the public API.
  * 
  * @author barzu
  */
+@Local
 public interface MarketplaceServiceLocal {
 
     /**

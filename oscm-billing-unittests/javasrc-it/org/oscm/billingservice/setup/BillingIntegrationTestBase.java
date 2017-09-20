@@ -47,6 +47,7 @@ import org.oscm.communicationservice.local.CommunicationServiceLocal;
 import org.oscm.converter.DateConverter;
 import org.oscm.converter.XMLConverter;
 import org.oscm.dataservice.bean.DataServiceBean;
+import org.oscm.dataservice.bean.HibernateIndexer;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.BillingResult;
 import org.oscm.domobjects.BillingSharesResult;
@@ -299,7 +300,7 @@ public class BillingIntegrationTestBase extends StaticEJBTestBase {
                 return true;
             }
         });
-
+        container.addBean(mock(HibernateIndexer.class));
         container.addBean(new SubscriptionListServiceBean());
         container.addBean(new SubscriptionUtilBean());
         container.addBean(new ModifyAndUpgradeSubscriptionBean());
@@ -346,6 +347,7 @@ public class BillingIntegrationTestBase extends StaticEJBTestBase {
         container.addBean(new PricingServiceBean());
         container.addBean(new MarketplaceServiceManagePartnerBean());
         container.addBean(new PublishServiceBean());
+
 
         dataService = container.get(DataService.class);
         billingService = container.get(BillingServiceLocal.class);

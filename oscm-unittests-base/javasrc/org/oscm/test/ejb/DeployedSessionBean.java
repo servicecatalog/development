@@ -21,6 +21,7 @@ import javax.transaction.TransactionManager;
 
 import org.mockito.Mockito;
 
+import org.oscm.dataservice.bean.HibernateIndexer;
 import org.oscm.interceptor.DateFactory;
 import org.oscm.interceptor.InvocationDateContainer;
 import org.oscm.test.ejb.IInvocationHandler.IInvocationCtx;
@@ -33,6 +34,8 @@ import org.oscm.test.ejb.IInvocationHandler.IInvocationCtx;
 class DeployedSessionBean {
 
     private final TransactionManager tm;
+
+    private final HibernateIndexer hibernateIndexer;
 
     private final Object bean;
 
@@ -174,9 +177,10 @@ class DeployedSessionBean {
 
     private final SessionContext sessionContext;
 
-    public DeployedSessionBean(TransactionManager tm,
+    public DeployedSessionBean(TransactionManager tm, HibernateIndexer hi,
             SessionContext sessionContext, Object bean) {
         this.tm = tm;
+        this.hibernateIndexer = hi;
         this.sessionContext = sessionContext;
         this.bean = bean;
     }

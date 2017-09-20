@@ -55,7 +55,7 @@ public class TestContainer {
     public TestContainer(TestPersistence persistence) throws Exception {
         this.persistence = persistence;
         this.sessionContext = new TestSessionContext(
-                persistence.getTransactionManager(), sessionBeans);
+                persistence.getTransactionManager(), persistence.getHibernateIndexer(), sessionBeans);
         this.timerService = new TestTimerService();
 
         resources.put(SessionContext.class, sessionContext);
@@ -87,7 +87,7 @@ public class TestContainer {
             injectDependencies(bean);
         }
         sessionBeans.put(bean,
-                new DeployedSessionBean(persistence.getTransactionManager(),
+                new DeployedSessionBean(persistence.getTransactionManager(), persistence.getHibernateIndexer(),
                         sessionContext, bean));
         contextManager.scanMethods(bean);
     }

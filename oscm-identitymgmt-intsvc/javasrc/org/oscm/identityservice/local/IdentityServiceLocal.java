@@ -15,6 +15,9 @@ import org.oscm.internal.types.enumtypes.UserRoleType;
 import org.oscm.internal.types.exception.*;
 import org.oscm.internal.vo.VOUserDetails;
 
+import javax.ejb.Local;
+
+@Local
 public interface IdentityServiceLocal {
 
     /**
