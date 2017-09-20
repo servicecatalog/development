@@ -1,3 +1,11 @@
+/*******************************************************************************
+ *
+ *  Copyright FUJITSU LIMITED 2017
+ *
+ *  Creation Date: 20.09.17 07:03
+ *
+ ******************************************************************************/
+
 package org.oscm.app.v2_0;
 
 import org.oscm.app.v2_0.intf.APPTemplateService;
@@ -11,6 +19,8 @@ import java.util.Properties;
  * Created by BadziakP on 2017-09-19.
  */
 public class APPTemplateServiceFactory {
+
+    private APPTemplateServiceFactory() {}
 
     public static APPTemplateService getInstance() {
         try {
