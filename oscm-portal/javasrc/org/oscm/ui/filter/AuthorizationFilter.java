@@ -827,9 +827,6 @@ public class AuthorizationFilter extends BaseBesFilter {
         // IMPORTANT: Changes to this method must also be applied to
         // UserBean.login()
         try {
-            httpRequest.getSession();
-            httpRequest.login(String.valueOf(voUser.getKey()),
-                    rdo.getPassword());
             serviceAccess.login(voUser, rdo.getPassword(), httpRequest,
                     httpResponse);
         } catch (CommunicationException e) {
